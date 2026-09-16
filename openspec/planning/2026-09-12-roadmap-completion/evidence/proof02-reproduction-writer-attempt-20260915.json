@@ -1,0 +1,105 @@
+{
+  "schema": "proof02-reproduction-writer-attempt/v1",
+  "node": "R2.triage",
+  "artefact": "proof02-reproduction-writer-attempt-20260915",
+  "generatedAtUtc": "2026-09-15T13:15:00Z",
+  "generatedBy": "agent (GP-JUSTIFIED single receipt-writer invocation; read-only on product/spec/contract/roadmap files)",
+  "purpose": "Determine what the frozen proof-02-reproduction row requires from scripts/qc/camp01-authority-receipt.contract.mjs + camp01-authority-receipt.mjs, then run the writer/controller ONCE exactly as the contract defines for exact-main, and capture the outcome.",
+
+  "inputs": {
+    "triggeringFinding": "evidence/proof02-final-rerun-main-e048a43-20260915.json -> proof02TriageRowVerdict.whatRemainsBeforeTheRowItselfCanBeWritten[1]: 'No writer-produced durable proof-02-reproduction receipt exists for this run.'",
+    "contractRow": "scripts/qc/camp01-authority-receipt.contract.mjs line 25 (WAVE_CONTRACTS['proof-02-reproduction'])",
+    "writerEntry": "package.json 'qc:camp01-authority-receipt:write' -> node scripts/qc/camp01-authority-receipt.mjs write (LOW-LEVEL; only accepts CAMP01_CONTROLLER_CONTEXT env var, no CLI flags -- the task's suggested `--command-id=proof-02-reproduction` form does not exist anywhere in the argument parser)",
+    "controllerEntry": "package.json 'qc:camp01-authority-receipt:controller' -> node scripts/qc/run-camp01-production.mjs (the REAL orchestrating entry point; wires production dependencies via createProductionDependencies() in scripts/qc/camp01-durable-facts.mjs and calls runController() in scripts/qc/run-camp01-authority-receipt.mjs)",
+    "registry": "docs/qc/mekstation-qc-registry.json (not consulted further once the contract file + controller were found to fully define the row and its CLI surface)"
+  },
+
+  "rowRequirements": {
+    "wave": "proof-02-reproduction",
+    "commandId": "proof-02-reproduction",
+    "childChange": "add-camp01-authority-receipts",
+    "runRootTemplate": ".sisyphus/evidence/playtest/proof02-reproduction-<sha>",
+    "commandSequence": [["@npm", "run", "qc:command:browser:quick"]],
+    "canonicalArgvDigest": "5326e9ef772870a3691dcfd6168851b3def278db08dd7e2d4d64d989f04aaba7",
+    "artifacts": ["command-result.json", "receipt-manifest.json", "proof02-reproduction.json"],
+    "assertions": ["completeObservationSet===true", "anchorStatesPublished===true", "unexpectedFailuresPublished===true"],
+    "predecessors": ["camp-proof"],
+    "capSubject": "none",
+    "maxFiles": null,
+    "maxChangedLines": null,
+    "cliSurface": "node scripts/qc/run-camp01-production.mjs proof --mode=<reviewed-head|exact-main> --wave=proof-02-reproduction --sha=<40-hex> --run-root=<runRootTemplate resolved> --spec=<childChange>|<prNumber>|<mergeSha>|<approvalId>|<reviewer> (capSubject='none' means --product/--audit must be omitted)",
+    "predecessorGate": "runController's proof() calls verifyPreflight before doing any git-worktree/npm-ci work; verifyPreflight requires an already-registered, on-disk, exact-main 'camp-proof' receipt directory under .sisyphus/evidence/playtest/camp-proof-<sha>/, which does not exist anywhere in this repo (root or any worktree checked)."
+  },
+
+  "envDetermination": {
+    "hermeticEnvIssueChecked": true,
+    "ownerDecisionReferenced": "roadmap.json ownerDecisions OD-camp00-controller-env (CAMP01_NEXT_DIST_DIR omission)",
+    "verdict": "NOT the same issue. CAMP01_NEXT_DIST_DIR is injected only for wave==='camp-00' (scripts/qc/camp01-proof-environment.mjs commandEnvironment() and environmentRecord() both gate that env var behind row.wave==='camp-00'). The proof-02-reproduction row never reaches env preparation in this attempt -- it fails earlier, at repository-identity verification, before prepareEnvironment/executeReceipt are ever invoked.",
+    "actualBlockingGate": "createProductionDependencies() -> createDurableFacts() -> inspectInitiating(root, git, targetDependencies) [scripts/qc/camp01-durable-facts.mjs:361] runs on EVERY controller invocation (register-pr-target AND proof), regardless of wave or capSubject. It calls inspectOwnedTarget({wave:'camp-proof', subject:'product', worktree:<initiatingRoot=process.cwd()>, spec:{mergeSha:<initiatingRoot HEAD>}, headSha:<initiatingRoot HEAD>}, ...). scripts/qc/camp01-target-authority.mjs:36 then requires identity.branchRef to be non-null ('owned worktree must have a branch') -- i.e. the CWD the controller is launched from must be on a real git branch, not a detached HEAD."
+  },
+
+  "exactCommandRun": {
+    "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/proof02-rerun",
+    "nodeVersion": "v22.22.0 (via PATH override to nvm v22.22.0, confirmed by `node --version` before the run)",
+    "command": "node scripts/qc/run-camp01-production.mjs proof --mode=exact-main --wave=proof-02-reproduction --sha=e048a43cd251b7515af7ff23371148b904817ad2 --run-root=.sisyphus/evidence/playtest/proof02-reproduction-e048a43cd251b7515af7ff23371148b904817ad2 --spec=add-camp01-authority-receipts|1245|2a8a461834c8cb02613c5240d889579284c85f97|n-a|n-a",
+    "specTupleFieldsUsed": {
+      "childChange": "add-camp01-authority-receipts (matches row.childChange, required by buildProvenanceRecord)",
+      "prNumber": "1245 (real: the merged CAMP-01H PR recorded in openspec/active-change-ledger.json entry for add-camp01-authority-receipts, 'CAMP-01H / PR 1245 landed on main at 2a8a46183')",
+      "mergeSha": "2a8a461834c8cb02613c5240d889579284c85f97 (real, resolved via `git rev-parse 2a8a46183` in the worktree)",
+      "approvalId": "n-a (placeholder -- the run never reached the point where this value is semantically checked)",
+      "reviewer": "n-a (placeholder -- same reason)"
+    },
+    "mode": "exact-main (per the frozen row's requirement for main; capSubject='none' so no --product/--audit was passed)",
+    "runsAttempted": 1,
+    "reRun": false,
+    "startedAtUtc": "2026-09-15T13:05:12Z",
+    "exit": 1,
+    "wallDurationSeconds": 1,
+    "stdout": "",
+    "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr": "CAMP01_TARGET_INVALID: owned worktree must have a branch",
+    "stderrSha256": "b45039905bacc09cd617c29dea161a15c700ffb720f090c7a3db62bb36845d3c",
+    "artifactsWritten": [],
+    "artifactsWrittenNote": "The refusal fires inside createProductionDependencies() setup (inspectInitiating), which runs before store.load, before verifyPreflight, before any git worktree creation, before npm ci, before the HTTP/build server. No files were written by the writer. This directory holds only the two captured log files below."
+  },
+
+  "sideEffectVerification": {
+    "worktreeGitStatusBefore": "empty (clean)",
+    "worktreeGitStatusAfter": "empty (clean) -- re-checked via `git status --porcelain` in the worktree post-run",
+    "worktreeSisyphusEvidencePlaytestDirAfter": "unchanged -- contains only the pre-existing tracked '2026-07-07-live-playtest/' directory; no 'proof02-reproduction-<sha>' directory was created",
+    "strayProofWorktreeCheck": "git worktree list (root repo) shows no new worktree under a 'mekstation-camp01-proof-*' or 'proof02-reproduction' path -- confirmed createProofTarget (which would `git worktree add --detach`) was never reached",
+    "port3639Before": "free (netstat -ano | grep :3639 returned nothing)",
+    "port3639After": "free (unchanged) -- confirmed no server/build was started",
+    "otherLanesCheckedBeforeRun": "PowerShell Win32_Process enumeration for node.exe found MCP servers, LSP daemons, and editor tooling only; zero processes matching next build / playwright / jest / run-next -- safe to proceed, and none were displaced",
+    "prodEvidenceFlag": "never used"
+  },
+
+  "artifacts": {
+    "directory": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/proof02-repro-writer-20260915/",
+    "files": [
+      { "path": "writer-attempt.stdout.log", "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "sizeBytes": 0 },
+      { "path": "writer-attempt.stderr.log", "sha256": "b45039905bacc09cd617c29dea161a15c700ffb720f090c7a3db62bb36845d3c", "sizeBytes": 57 }
+    ],
+    "note": "This directory is under the roadmap worktree tree per the task's own instructions, not under the root checkout's .sisyphus/evidence/playtest -- nothing was written to the root checkout."
+  },
+
+  "verdict": "REFUSED-NOT-BRANCH-CHECKOUT",
+  "verdictDetail": {
+    "summary": "No durable proof-02-reproduction receipt was written. The real controller entry point (node scripts/qc/run-camp01-production.mjs proof ...) refused before doing any work, with CAMP01_TARGET_INVALID: owned worktree must have a branch.",
+    "rootCause": "The controller's identity-anchoring step (inspectInitiating) always re-verifies the CWD it is launched from as if it were the camp-proof 'product' owned target, and camp-proof's owned-target contract (scripts/qc/camp01-target-authority.mjs inspectOwnedTarget/assertTarget) requires a non-null branchRef. The task's own pinned execution environment is a worktree checked out DETACHED at exact main (`git status` confirms 'HEAD detached at e048a43c...'), which by definition has branchRef===null. This is architecturally incompatible with the controller, independent of wave, mode, or capSubject -- it would refuse identically for every row (camp-proof, proof-02-reproduction, proof-02-triage, camp-01h, ...), not just this one.",
+    "secondaryBlockerStillPresent": "Even if the branch-checkout gate were satisfied (e.g. by running from a real branch checkout), the row's own predecessor gate would still fail: no 'camp-proof' exact-main receipt exists anywhere in this repository (verified: `.sisyphus/evidence/playtest/camp-proof-*` does not exist in the root checkout or in the proof02-rerun worktree). The camp-proof row itself is capSubject='product-pr' with maxFiles=15/maxChangedLines=500 and its own PR-registration lifecycle (register-pr-target -> proof), none of which has ever been run to completion for this exact-main SHA. This was not exercised because the run refused earlier on the branch-checkout gate.",
+    "notTheHermeticEnvIssue": "Confirmed by code inspection (see envDetermination above): CAMP01_NEXT_DIST_DIR only applies to wave='camp-00', not proof-02-reproduction, and the run never reached environment preparation at all."
+  },
+
+  "recommendationNotTaken": "Repairing this gap (e.g. teaching inspectInitiating to accept a detached exact-main initiating root, or running the controller from a branch checkout instead) was out of scope for this task ('no repair'). It is reported as a finding for the owner: the camp01-authority-receipt production controller cannot currently be invoked from any of the detached exact-main proof worktrees this roadmap's own proof-0X lanes are built around, and separately, the camp-proof predecessor receipt this row depends on has never been produced.",
+
+  "nonClaims": [
+    "No product, spec, test, contract, roadmap, or documentation file was edited. No commit, push, PR, or merge.",
+    "Only this evidence JSON and the two log files under proof02-repro-writer-20260915/ were written.",
+    "--prod-evidence was never used.",
+    "Port 3639 and 3600 were never touched; nothing was waited on or killed.",
+    "No repair of the branch-checkout gate or the missing camp-proof predecessor was attempted.",
+    "This file does not write, and is not, the proof-02-reproduction receipt itself -- the writer never produced one.",
+    "Single invocation. Per the task's own contract ('run it ONCE'), no second attempt was made after the deterministic, code-confirmed refusal."
+  ]
+}

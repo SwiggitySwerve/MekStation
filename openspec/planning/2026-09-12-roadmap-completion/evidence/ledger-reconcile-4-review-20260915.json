@@ -1,0 +1,148 @@
+{
+  "artefact": "ledger-reconcile-4-review-20260915",
+  "reviewer": "independent-review-agent (fresh context, GP-JUSTIFIED read-mostly review)",
+  "date": "2026-09-15",
+  "worktreeReviewed": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/camp-receipt-verification",
+  "branchReviewed": "codex/roadmap-ledger-reconcile-4-20260915",
+  "commitReviewed": "e1d9b3c25",
+  "commitBase": "91b66b04c",
+  "originMainAtFetch": "9624b38f9ac7dfcc946e5eea4a68d7189691e48b",
+  "precedent": "openspec/planning/2026-09-12-roadmap-completion/evidence/ledger-reconcile-3-review-20260915.json",
+  "verdict": "APPROVE, zero required edits",
+
+  "prAncestryTable": [
+    { "pr": 1733, "title": "feat(campaign): fold live authoritative updates on the host through the shared mirror fold", "state": "MERGED", "mergedAt": "2026-09-15T16:43:15Z", "mergeCommit": "be71efec018481b08e44281cca0c2e21f07456f3", "ancestorOfOriginMain": true, "verifiedVia": "gh pr view 1733 --json state,mergedAt,mergeCommit; git merge-base --is-ancestor <sha> origin/main" },
+    { "pr": 1734, "title": "fix(campaign): derive the roster damage bar from construction maxima", "state": "MERGED", "mergedAt": "2026-09-15T16:51:15Z", "mergeCommit": "efd8a136d523adfa81fda303adb608e3563575ee", "ancestorOfOriginMain": true, "verifiedVia": "gh pr view 1734 --json state,mergedAt,mergeCommit; git merge-base --is-ancestor <sha> origin/main" },
+    { "pr": 1735, "title": "feat(campaign): populate roster construction maxima through the canonical/custom source authority", "state": "MERGED", "mergedAt": "2026-09-15T17:00:32Z", "mergeCommit": "17525370e00bfd8f022783f2bf1f6b9250422ca6", "ancestorOfOriginMain": true, "verifiedVia": "gh pr view 1735 --json state,mergedAt,mergeCommit; git merge-base --is-ancestor <sha> origin/main" },
+    { "pr": 1737, "title": "fix(journal): mirror a match event in the form the store persists", "state": "MERGED", "mergedAt": "2026-09-15T17:35:24Z", "mergeCommit": "bb672249c36200987f13dcde2cf7dd2a410ef677", "ancestorOfOriginMain": true, "verifiedVia": "gh pr view 1737 --json state,mergedAt,mergeCommit; git merge-base --is-ancestor <sha> origin/main" },
+    { "pr": 1738, "title": "feat(journal): seed a match's journal stream on the create path", "state": "MERGED", "mergedAt": "2026-09-15T17:42:57Z", "mergeCommit": "a8ec5105d6411163311c44fc711332266972e1a7", "ancestorOfOriginMain": true, "verifiedVia": "gh pr view 1738 --json state,mergedAt,mergeCommit; git merge-base --is-ancestor <sha> origin/main" },
+    { "pr": 1739, "title": "fix(campaign): a committed command tells the cutover marker it happened", "state": "MERGED", "mergedAt": "2026-09-15T17:51:01Z", "mergeCommit": "3d9ade77dcad0ede42777f33a88d4fe96ac19e06", "ancestorOfOriginMain": true, "verifiedVia": "gh pr view 1739 --json state,mergedAt,mergeCommit; git merge-base --is-ancestor <sha> origin/main" },
+    { "pr": 1740, "title": "feat(campaign): give the cutover gate and the rollback law an operator surface", "state": "MERGED", "mergedAt": "2026-09-15T17:59:14Z", "mergeCommit": "566b60d02ee1a7aaf430d48b2c1b374b37e6029a", "ancestorOfOriginMain": true, "verifiedVia": "gh pr view 1740 --json state,mergedAt,mergeCommit; git merge-base --is-ancestor <sha> origin/main" }
+  ],
+
+  "ancestryNotes": {
+    "originMainHead": "9624b38f9 (main has advanced past 91b66b04c via #1742, a scripts-only change; this does not affect the reviewed openspec-only diff)",
+    "91b66b04cIsDescendantOfAll7Prs": true,
+    "verifiedVia": "for each of the 7 merge-commit SHAs: git merge-base --is-ancestor <sha> 91b66b04c -> all YES",
+    "e1d9b3c25NotYetPushed": "confirmed via git branch -r --contains e1d9b3c25 (empty result) - expected, this is an unpushed reconciliation commit under review"
+  },
+
+  "editTable": [
+    {
+      "file": "openspec/active-change-ledger.json",
+      "type": "prose-only (JSON string field)",
+      "hunk": "adopt-combat-journal-cutover-and-gm-rewind[].reason",
+      "change": "Appended a 'Corrected 2026-09-15 (ledger reconcile batch 4)' clause: closes task 1.6/S6 narrative (already [x] on main since batch 3, citing PRs #1728/#1729/#1730 which were pre-existing context, unchanged by this diff) and updates the 'Still open' list to reflect 1.3's sub-prefix-3 IN REVIEW status and 1.7's S7-a1/S7-a2 landed-via-#1737/#1738 status.",
+      "checkboxTouched": false,
+      "verifiedAgainstMain": "git show origin/main:openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/tasks.md confirms task 1.6 is [x] and its S6 Receipt (#1728/#1729/#1730) text is already present on main unmodified by this diff -- the ledger correction accurately restates what is already true on main.",
+      "verdict": "ACCURATE, NOTE/prose-only"
+    },
+    {
+      "file": "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/tasks.md",
+      "type": "prose-only (two Note additions)",
+      "hunk1": "task 1.3 (S3 marker retirement) - added Note: 'sub-prefix 3 (marker retirement, S7-b) is IN REVIEW, NOT MERGED ... unpushed, no PR opened yet'. Box stays [ ].",
+      "hunk1Verdict": "ACCURATE. Verified: local branch codex/roadmap-r4-s7b-marker-retirement-20260915 exists with exactly 6 commits on top of the state equivalent to PR #1738 (dd6c5e7bf, e4a66c5ec, fd76b3dc1, 89ae25352, fb8648125, adf4af47b); git ls-remote origin has no matching ref (unpushed, confirmed); evidence/r4-s7b-local-20260915.json line 277 states verbatim 'NOT PUSHED, NO PR. The parent publishes.'",
+      "hunk2": "task 1.7 (S6 cutover flag) - added Note: S7-a1 (#1737) and S7-a2 (#1738) main-verified and closing S6-R1 for new matches; explicitly states S7-b is under review not merged, S7-c owed untouched, S7-d owner-ruled untouched; box stays [ ] ('None of this discharges this box's own clauses ... box stays OPEN').",
+      "hunk2Verdict": "ACCURATE, does not overclaim S7-b/S7-c/S7-d as done.",
+      "checkboxTouched": false,
+      "verdict": "ACCURATE, NOTE-only, no flips"
+    },
+    {
+      "file": "openspec/changes/design-campaign-authority-and-sync/tasks.md",
+      "type": "prose-only (two Note additions)",
+      "hunk1": "Progress note block for task 3.x (R2.authority-host) - added Note re: PR #1733 (host mirror fold) main-verified at jsdom level only; explicitly states the live-browser proof remains owed to R2.authority-live and this PR does NOT by itself close the host-view-staleness residual.",
+      "hunk1Verdict": "ACCURATE, does not overclaim.",
+      "hunk2": "task 5.7 (per-campaign cutover, pre-existing [x]) - added Note re: CO0 (#1739) and CO1/CO2 (#1740) main-verified; explicitly states the flag flip itself stays owner-gated ('CAMPAIGN_JOURNAL_AUTHORITY_ENABLED is still hardcoded false and task 1.2's client is not yet rewired'); explicitly states CO3 'is IN PROGRESS, not done ... a read-only discovery brief only - no spec written, no proof run'.",
+      "hunk2Verdict": "ACCURATE per verified source and evidence file content (see verificationChecks below). Pre-existing [x] on task 5.7 is untouched by this diff (context line only).",
+      "checkboxTouched": false,
+      "verdict": "ACCURATE, NOTE-only, no flips; correctly avoids claiming S7-b/CO3/flag-flip as done"
+    },
+    {
+      "file": "openspec/specs/campaign-unit-combat-state/spec.md",
+      "type": "prose-only (migration item 3, checklist-style but not a task checkbox - a numbered migration item, expanded closure text)",
+      "hunk": "Item 3 ('Migrate RosterStateCards.tsx damage bar...') already marked closed by PR #1734 in the prior commit; this diff extends the closure sentence to state that PR #1735 (population of campaign.unitMaxStates through the canonical/custom source authority) has now landed on main, replacing the prior 'still-queued, OPEN, not merged' language.",
+      "verifiedAgainstMain": "git show origin/main:src/lib/campaign/maxState/unitMaxStateResolver.ts confirms resolveMissingUnitMaxStates (line 99) imports and calls adaptUnit (line 25 import, line 76 call site) which per its own header routes custom-* refs to the custom-unit source and canonical refs to the compendium. git show origin/main:src/stores/campaign/campaignUnitMaxStates.ts confirms ensureCampaignUnitMaxStates (line 33). Confirmed call sites: src/components/gameplay/pages/campaigns/create/CreateCampaignPage.submit.ts:286 and src/stores/campaign/useCampaignPersistenceStore.ts:948.",
+      "verdict": "ACCURATE, matches main exactly; not a task-checkbox row (this file has no [ ]/[x] syntax at this location), so the checkbox-flip rule does not apply here, and none was flipped."
+    }
+  ],
+
+  "diffScopeCheck": {
+    "filesChanged": 4,
+    "insertions": 6,
+    "deletions": 3,
+    "withinLimits": "YES (<=15 files, <=500 lines)",
+    "allPathsUnderOpenspec": true,
+    "verifiedVia": "git diff --stat 91b66b04c..HEAD; git diff --name-only 91b66b04c..HEAD | grep -v '^openspec/' -> empty"
+  },
+
+  "checkboxFlipCheck": {
+    "command": "git diff 91b66b04c..HEAD | grep -E '^[+-]- \\['",
+    "result": "EMPTY",
+    "verdict": "PASS - no task checkbox was flipped by this commit"
+  },
+
+  "deferralReopenCheck": {
+    "method": "grep for reopen/re-open/revert-closed/unclose language across the full diff; separately grepped for any '- [x]' line added or removed",
+    "result": "NONE FOUND - no deferral reopened, no [x]<->[ ] transitions of any kind",
+    "verdict": "PASS"
+  },
+
+  "aiAttributionCheck": {
+    "commitMessageChecked": true,
+    "fullDiffChecked": true,
+    "result": "NONE FOUND",
+    "verdict": "PASS"
+  },
+
+  "verificationChecks": [
+    {
+      "claim": "CAMPAIGN_JOURNAL_AUTHORITY_ENABLED is still hardcoded false on main",
+      "command": "git grep -n \"CAMPAIGN_JOURNAL_AUTHORITY_ENABLED\" origin/main -- 'src/*'",
+      "result": "src/lib/campaign/sync/JournalCampaignEventStore.ts:84: export const CAMPAIGN_JOURNAL_AUTHORITY_ENABLED = false;",
+      "verdict": "CONFIRMED"
+    },
+    {
+      "claim": "CO3 admission brief is read-only discovery only, no spec written, no proof run",
+      "command": "cat openspec/planning/2026-09-12-roadmap-completion/evidence/r2-authority-cutover-co3-admission-brief-20260915.json",
+      "result": "role field: 'read-only discovery producing one evidence JSON; no edits, no commits, no builds, no jest/Playwright runs, no sub-agents'. newFilesNeeded lists a not-yet-created e2e spec as a proposal only.",
+      "verdict": "CONFIRMED"
+    },
+    {
+      "claim": "S7-b marker-retirement branch is unpushed with 6 commits, no PR",
+      "command": "git branch -a | grep s7b; git ls-remote origin | grep s7b; cat evidence/r4-s7b-local-20260915.json",
+      "result": "local branch codex/roadmap-r4-s7b-marker-retirement-20260915 exists (6 marker-retirement commits atop the #1738-equivalent head); no matching remote ref; evidence file states 'NOT PUSHED, NO PR' verbatim (line 277) and 'Six commits' in capsComplianceSummary (line 94)",
+      "verdict": "CONFIRMED"
+    },
+    {
+      "claim": "scripts/campaign-authority-cutover.ts is lint/typecheck-uncovered because .oxlintrc.json ignores scripts/**",
+      "command": "git show origin/main:.oxlintrc.json (MSYS_NO_PATHCONV=1 required to avoid git-bash path mangling of the colon syntax)",
+      "result": "ignorePatterns includes \"**/scripts/**\"",
+      "verdict": "CONFIRMED"
+    },
+    {
+      "claim": "task 1.6 (S6) is [x] on origin/main with the #1728/#1729/#1730 receipt text already present, unmodified by this diff",
+      "command": "git show origin/main:openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/tasks.md | grep -n '\\[x\\] 1.6'; git diff origin/main..HEAD -- openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/tasks.md",
+      "result": "line 25: '- [x] 1.6 S5-b: ...' with Receipt text citing #1728/#1729/#1730 already present as unchanged context in the diff",
+      "verdict": "CONFIRMED"
+    },
+    {
+      "claim": "migration item 3 prose (unitMaxStateResolver routes through adaptUnit; ensureCampaignUnitMaxStates called in CreateCampaignPage.submit.ts and useCampaignPersistenceStore.ts)",
+      "command": "git show origin/main:<path> | grep -n adaptUnit / ensureCampaignUnitMaxStates",
+      "result": "all four call/definition sites confirmed present at the cited files",
+      "verdict": "CONFIRMED"
+    }
+  ],
+
+  "validatorResults": [
+    { "validator": "openspec validate --all --strict", "exitCode": 0, "summary": "Totals: 232 passed, 0 failed (232 items)" },
+    { "validator": "spec:purpose:validate:strict (npx tsx openspec/scripts/spec-purpose-lint.ts)", "exitCode": 0, "summary": "Files scanned: 220, Errors: 0, Tracked source-of-truth debt: 0" },
+    { "validator": "terminology:validate:strict (npx ts-node openspec/scripts/terminology-tool.ts validate --strict)", "exitCode": 0, "summary": "All 315 file(s) compliant with TERMINOLOGY_GLOSSARY.md" },
+    { "validator": "qc:openspec-ci:validate (node scripts/qc/validate-openspec-ci-quality.mjs)", "exitCode": 0, "summary": "workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=12 accountedActiveOpenSpecChanges=12 errors=0" }
+  ],
+
+  "jsonValidity": "openspec/active-change-ledger.json parses cleanly (node -e \"JSON.parse(...)\")",
+
+  "requiredEdits": [],
+
+  "notes": "Batch 4 follows the same shape as batches 1-3: pure prose/NOTE annotations reconciling the ledger and two changes' tasks.md against exact-main state, with zero checkbox flips and zero deferral reopenings. All 7 cited PRs are merged and are ancestors of a freshly fetched origin/main (9624b38f9, which has advanced one commit past this reconciliation's base 91b66b04c via an unrelated scripts-only PR #1742). Every prose claim checked against either live source on origin/main or the cited evidence JSON traces back cleanly with no overclaiming -- notably the S7-b/CO3/flag-flip language is conservative and matches the underlying unfinished state exactly."
+}

@@ -1,0 +1,53 @@
+{
+  "pr": 1712,
+  "branch": "codex/roadmap-r2-combat-s5-coop-custom-authority-20260915",
+  "reviewedCommit": "33d1975fd3d69bd5edc5cc0d7c8da7e81dba9386",
+  "finalHead": "e01a52033d7eebed202afd296182b626b1482162",
+  "autoMergeArmed": false,
+  "contentGuard": {
+    "method": "file set from `git diff --name-only origin/main...<head>` compared to the reviewed file set, plus per-file blob equality against the reviewed commit; re-run after update-branch",
+    "fileCountAtMerge": 2,
+    "blobEquality": "all files blob-identical to the reviewed commit at the gated head (exceptions, if any, are described in notes)",
+    "result": "PASS"
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "expectedHeadShaGuardUsed": true,
+    "newHead": "e01a52033d7eebed202afd296182b626b1482162"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "otherChecksCount": 27,
+    "otherChecksBuckets": {
+      "pass": 27
+    },
+    "totalChecks": 31,
+    "totalChecksNote": "31 because #1678 added the standing \"Customizer Regressions\" check to main"
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-combat-s5-1712-final-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "3323b6995051fe660794f854dd1174ac55805321",
+  "mergeCommitParents": [
+    "293d21bb0e3874768f3b0269115d465313230f4d"
+  ],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1712 --squash --match-head-commit e01a52033d7eebed202afd296182b626b1482162",
+  "mergedAt": "2026-09-15T13:52:07Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "The merge commit changes exactly 2 file(s), all blob-identical to the gated head e01a52033d7eebed202afd296182b626b1482162.",
+  "mainAfter": "3323b6995051fe660794f854dd1174ac55805321",
+  "worktree": {
+    "fastForward": "NOT PERFORMED unless the coordinator designated the worktree as free; several owned worktrees were explicitly off-limits (parent in use / other branch).",
+    "result": "SKIPPED or SUCCESS per coordinator instruction for this PR"
+  },
+  "notes": "Build Test / mac sat IN_PROGRESS for ~13 minutes (checked: genuinely running, not stuck) before the run went 31/31.",
+  "timestamps": {
+    "receiptWrittenAt": "2026-09-15T15:00:00Z"
+  }
+}

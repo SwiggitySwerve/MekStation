@@ -1,0 +1,74 @@
+{
+  "slice": "R9.roster-damage S2: unitMaxStates population through the canonical/custom source authority",
+  "pr": 1735,
+  "prHead": "979f73581741a31c95c75f0d3d298df9a02215c0",
+  "mergeCommit": "17525370e00bfd8f022783f2bf1f6b9250422ca6",
+  "verifiedAtUtc": "2026-09-15T17:06:04.221Z",
+  "worktree": "archive-original-main-proof (detached at merge commit, Node v22.22.0)",
+  "blobEquality": {
+    "files": [
+      "src/components/gameplay/pages/campaigns/create/CreateCampaignPage.submit.ts",
+      "src/lib/campaign/maxState/unitMaxStateResolver.ts",
+      "src/stores/campaign/__tests__/campaignUnitMaxStates.test.tsx",
+      "src/stores/campaign/campaignUnitMaxStates.ts",
+      "src/stores/campaign/useCampaignPersistenceStore.ts"
+    ],
+    "command": "git diff --stat <prHead> <merge> -- <files>",
+    "result": "empty (0 bytes)"
+  },
+  "gates": {
+    "jest": {
+      "scope": "src/components/campaign src/stores/campaign src/lib/campaign src/components/gameplay/pages/campaigns",
+      "exit": 0,
+      "suites": 273,
+      "tests": 3606
+    },
+    "tsc": {
+      "exit": 0,
+      "outputBytes": 0
+    },
+    "openspecStrict": {
+      "exit": 0
+    },
+    "specPurposeStrict": {
+      "exit": 0
+    },
+    "terminologyStrict": {
+      "exit": 0
+    },
+    "qcOpenspecCi": {
+      "exit": 0
+    }
+  },
+  "logs": {
+    "jest": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1735-20260915/jest.log",
+      "sha256": "4b299d4435a2b979be8eadc7c8a34b87bc123457a006362ac7a62ec43a01c6b5"
+    },
+    "openspec": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1735-20260915/openspec.log",
+      "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3"
+    },
+    "purpose": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1735-20260915/purpose.log",
+      "sha256": "629026f25215446af06f7491ea5757f56e6f66d00cb70d6d432438cb6cb9adf7"
+    },
+    "qcOpenspecCi": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1735-20260915/qc-openspec-ci.log",
+      "sha256": "8c41df6c33246420ed1806218780c2df69b5ad4e7c594b993b07594ee959ccb2"
+    },
+    "terminology": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1735-20260915/terminology.log",
+      "sha256": "fb16ef9011a334dc88b611a1da8c41e2034fb1a38dd60c8ba88e6b4a8cc6481c"
+    },
+    "tsc": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1735-20260915/tsc.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "limits": [
+    "scoped jest only; no browser proof of the populated card",
+    "load-path backfill runs only on the deserialize branch",
+    "IUnitMaxState doc-comment key examples left stale (recorded)"
+  ]
+}

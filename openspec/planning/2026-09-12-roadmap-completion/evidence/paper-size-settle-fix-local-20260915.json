@@ -1,0 +1,142 @@
+{
+  "artefact": "paper-size-settle-fix-local",
+  "date": "2026-09-15",
+  "task": "Apply the test-side settle fix prescribed by paper-size-flake-diagnosis-20260915.json and verify it statistically.",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/browser",
+  "base": {
+    "preExistingDetachedHead": "b39b8291706c36b9ad0c876a5e1b11e5b3612b7d",
+    "workingTreeCleanAtStart": true,
+    "originMainAtFetchTime": "2d410f3ca4d7153497c94ee2944618ee735e99af",
+    "originMainAdvancedDuringSession": "bcc34f7cdbd144eafb9709fff5c9bb8936fcb3b7 (fix(history): preserve integrity refusals through campaign launch #1674; other agents share this repo) - confirmed 2d410f3ca remains an ancestor and git diff --stat 2d410f3ca..origin/main -- e2e src/components/customizer is empty, so this advance does not affect the branch base",
+    "customizerAndE2eUnchangedSinceBaseline": {
+      "check": "git diff --stat b39b8291 origin/main -- e2e src/components/customizer",
+      "result": "empty (no changes)"
+    },
+    "branchCreated": "codex/roadmap-paper-size-settle-20260915",
+    "branchBase": "origin/main @ 2d410f3ca4d7153497c94ee2944618ee735e99af"
+  },
+  "diagnosisSource": "E:/Projects/MekStation/openspec/planning/2026-09-12-roadmap-completion/evidence/paper-size-flake-diagnosis-20260915.json",
+  "fixApplied": {
+    "file": "e2e/customizer-record-sheet-rendering.spec.ts",
+    "linesAdded": 8,
+    "filesChanged": 1,
+    "diffSummary": [
+      "After the Atlas tab click (originally line 368) and before selectOption('a4') (originally line 370): added `await expectSheetType(page, 'Atlas AS7-D');` plus a regression guard `await expect(page.getByRole('combobox', { name: 'Paper Size' })).toHaveValue('letter');` — settles on the remounted PreviewTab instance before touching the control, matching the sibling test's existing pattern at line 316.",
+      "After the Locust tab click (originally lines 383-385, the latent secondary race) and before `waitForBacking(page, LETTER)`: added the same pair — `await expectSheetType(page, 'Locust LCT-1V');` and the Paper Size toHaveValue('letter') guard."
+    ],
+    "productCodeTouched": false,
+    "otherFilesTouched": false
+  },
+  "verification": {
+    "node": "v22.22.0",
+    "oxfmtCheck": {
+      "command": "npx oxfmt --check e2e/customizer-record-sheet-rendering.spec.ts",
+      "result": "pass - All matched files use the correct format."
+    },
+    "typecheck": {
+      "command": "npx tsc --noEmit -p tsconfig.json",
+      "e2eInScope": "yes - tsconfig.json include is [\"next-env.d.ts\", \"**/*.ts\", \"**/*.tsx\", \".next/types/**/*.ts\"]",
+      "result": "pass - no errors emitted"
+    },
+    "targetSpecRepeat10_run1": {
+      "command": "node scripts/playwright/run-playwright.mjs test e2e/customizer-record-sheet-rendering.spec.ts --project=chromium --retries=0 --workers=1 --repeat-each=10",
+      "env": {
+        "MEKSTATION_E2E_SERVER_COMMAND": "node .next/standalone/server.js",
+        "HOSTNAME": "127.0.0.1",
+        "MEKSTATION_E2E_PORT": "3639",
+        "MEKSTATION_E2E_REUSE_EXISTING_SERVER": "false",
+        "NEXT_PUBLIC_E2E_MODE": "true",
+        "NEXT_PUBLIC_E2E_TEST": "true"
+      },
+      "overall": "59 passed / 1 failed (60 executions = 10 reps x 6 tests)",
+      "targetTestPerRepetition": [
+        { "repetition": 0, "result": "PASS" },
+        { "repetition": 1, "result": "PASS" },
+        { "repetition": 2, "result": "PASS" },
+        { "repetition": 3, "result": "FAIL", "note": "UNRELATED failure - see targetTestFailureAnalysis below" },
+        { "repetition": 4, "result": "PASS" },
+        { "repetition": 5, "result": "PASS" },
+        { "repetition": 6, "result": "PASS" },
+        { "repetition": 7, "result": "PASS" },
+        { "repetition": 8, "result": "PASS" },
+        { "repetition": 9, "result": "PASS" }
+      ],
+      "targetTestFailureAnalysis": {
+        "failingAssertion": "e2e/customizer-record-sheet-rendering.spec.ts:358 `await expect.poll(() => printCount(page)).toBe(1)` timed out (received 0)",
+        "diagnosedRaceReproduced": false,
+        "note": "This is a DIFFERENT, pre-existing race in the print-popup harness (the sawPips/heldPips/releasePips gate around loadLocustBesideAtlas), unrelated to the diagnosed unit-tab paper-size remount race this task fixes. It occurs BEFORE any of the lines this fix touches (line 358 vs the fix's insertions at ~369-372 and ~387-390). The diagnosed A4-backing race (originally failing at line 371, now downstream of the added settle) did not reproduce in this or any other run. Out of scope for a test-side settle fix targeting a different assertion per the task's bounded charter; not investigated further or fixed here.",
+        "logPath": ".sisyphus/roadmap-completion-20260912/paper-size-fix-20260915/repeat10.log"
+      }
+    },
+    "targetSpecRepeat10_run2": {
+      "command": "same as run1 (second pass for statistical confidence after the unrelated run1 failure)",
+      "overall": "60 passed / 0 failed (60 executions)",
+      "targetTestPerRepetition": "10/10 PASS",
+      "logPath": ".sisyphus/roadmap-completion-20260912/paper-size-fix-20260915/repeat10-run2.log"
+    },
+    "targetSpecCombined": {
+      "totalExecutions": 120,
+      "totalPassed": 119,
+      "totalFailed": 1,
+      "diagnosedRaceReproductions": 0,
+      "unrelatedPrintPopupRaceReproductions": 1,
+      "conclusion": "The diagnosed paper-size remount race did not reproduce in 120/120 executions after the fix (0%), down from the pre-fix baseline of 33% (batch1) / 90% (tightened probe). One unrelated pre-existing flake (print-popup timing) surfaced once in 120 runs; not the subject of this fix."
+    },
+    "twoFileSanityRun": {
+      "command": "node scripts/playwright/run-playwright.mjs test e2e/customizer-edit-recovery.spec.ts e2e/customizer-record-sheet-rendering.spec.ts --project=chromium --retries=0 --workers=1",
+      "result": "9 passed / 0 failed",
+      "logPath": ".sisyphus/roadmap-completion-20260912/paper-size-fix-20260915/twofile-pack.log"
+    },
+    "threeFile12CasePack": {
+      "filesUsed": [
+        "e2e/customizer-equipment-catalog.spec.ts",
+        "e2e/customizer-edit-recovery.spec.ts",
+        "e2e/customizer-record-sheet-rendering.spec.ts"
+      ],
+      "note": "The 'three customizer specs' are the ones identified as byte-identical across the build merge commit (b39b8291) and the reviewed commit in evidence/browser-1667-main-proof-20260915.json's specBlobEquality block.",
+      "command": "node scripts/playwright/run-playwright.mjs test e2e/customizer-equipment-catalog.spec.ts e2e/customizer-edit-recovery.spec.ts e2e/customizer-record-sheet-rendering.spec.ts --project=chromium --retries=0 --workers=1",
+      "result": "12 passed / 0 failed",
+      "logPath": ".sisyphus/roadmap-completion-20260912/paper-size-fix-20260915/threefile-12case.log"
+    }
+  },
+  "serverAndPorts": {
+    "port": 3639,
+    "serverCommand": "node .next/standalone/server.js",
+    "serverLifecycle": "spawned and torn down by the Playwright webServer plugin (run-playwright.mjs) for each invocation; no PID captured manually since lifecycle is managed by the plugin",
+    "portVerifiedFreeBeforeEachRun": true,
+    "portVerifiedNoListenerAfterAllRuns": true,
+    "port3600Touched": false
+  },
+  "buildIdentityNote": "The .next/standalone build used for all four verification runs was the pre-existing production build (BUILD_ID 1789455586707) inherited from the worktree's b39b8291 checkout; no rebuild was performed for verification. The repo's pre-commit hook (husky) DOES run a full `next build` + standalone-hydration step as part of committing (observed ~2 minutes, unrelated to and after all verification runs above) - this is pre-existing project behavior (see hook output), not something this task triggered intentionally, and it postdates all recorded verification results.",
+  "commit": {
+    "sha": "9b59a19f8ada676e8cb504905751ac91a9a9905c",
+    "branch": "codex/roadmap-paper-size-settle-20260915",
+    "message": "test(customizer): settle the remounted preview before selecting paper size",
+    "author": "Wes Rollings <wrollings@gmail.com>",
+    "aiAttribution": false,
+    "filesChanged": 1,
+    "insertions": 8,
+    "deletions": 0,
+    "pushed": false,
+    "hooksRun": "pre-commit (pretty-quick --staged + full next build) - passed"
+  },
+  "guardrailsObserved": {
+    "productSourceEdits": "none",
+    "rootCheckoutTouched": false,
+    "stashResetCleanForce": "none used",
+    "port3600Touched": false,
+    "rebuildBeforeVerification": "none - existing standalone build reused for all 4 verification runs",
+    "pushOrMerge": "none",
+    "subAgentsSpawned": "none"
+  },
+  "logFiles": {
+    "root": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/paper-size-fix-20260915/",
+    "files": {
+      "repeat10.log": "5096148ccac8ac0eb233dcf35d6879cc36a576386d79eff1171572aa26b08d4d",
+      "repeat10-run2.log": "e690fc8235f4ed1117aff0f944f419a5c1b32aba55da59220165e80655e76065",
+      "twofile-pack.log": "03b77a1d98d2b7aafffb2999f190e25641e1785ed57c05f3df33e470410a24ee",
+      "threefile-12case.log": "a7708fba4ed2e626525cc049a5366bd57971b37c476c6173984e93186bb0f24a"
+    },
+    "checksumNote": "sha256sum computed via Git Bash; each hash is a standard 64-character hex digest, verified by recomputation."
+  }
+}

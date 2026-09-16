@@ -1,0 +1,259 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "vault-contracts-final-review-20260912",
+  "capturedAt": "2026-09-12T21:10:00Z",
+  "status": "accepted-with-limits",
+  "review": "Superseding independent final review of the retained vault wording lane",
+  "supersedes": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/vault-contracts-independent-review-20260912.json"
+  ],
+  "candidate": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/vault-contracts",
+    "head": "ca0687d25264033376862347e494ddf15cd92bec",
+    "change": "design-vault-campaign-separation-and-maps",
+    "finalDocumentHashes": [
+      {
+        "path": "openspec/changes/design-vault-campaign-separation-and-maps/proposal.md",
+        "rootOriginalSha256": "141b816e98644ed12f706c54ea896acd6484a72277a972d2c0a6bc55e93c2099",
+        "finalCandidateSha256": "1f8b29b27cf318a4d30003c213e3660bd373748bb79dba5da3c7fdbcb57bd027",
+        "rootToFinal": { "additions": 8, "deletions": 8, "changedLines": 16 }
+      },
+      {
+        "path": "openspec/changes/design-vault-campaign-separation-and-maps/design.md",
+        "rootOriginalSha256": "9921309636df9bf8a1bbf67cfc3011d70176170fc202d15a94a33ce4f48ac0fa",
+        "finalCandidateSha256": "7cd71e0f655043d14138df4f73bd68aad30506fdf0cb8e399f0ffe6ece632834",
+        "rootToFinal": { "additions": 6, "deletions": 6, "changedLines": 12 }
+      },
+      {
+        "path": "openspec/changes/design-vault-campaign-separation-and-maps/tasks.md",
+        "rootOriginalSha256": "6d2e4ec703b9abf22521d85c5dd4ad2dea070bba94790b2d7d1b5c3396541531",
+        "finalCandidateSha256": "5c6a3f12ee756be208c7371654f0504ccbfab1fd0202663801b8620c8931c562",
+        "rootToFinal": { "additions": 2, "deletions": 2, "changedLines": 4 }
+      }
+    ],
+    "rootToFinalTotals": {
+      "additions": 16,
+      "deletions": 16,
+      "changedLines": 32,
+      "logicalReplacements": 16,
+      "basis": "ca0687d25264033376862347e494ddf15cd92bec root originals to final candidate"
+    }
+  },
+  "countCorrection": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/vault-contracts-review-count-correction-20260912.json",
+    "sha256": "830dbe25f333d71c8d2fe4fb8cc5465258dd80d24111c7dfb8f6dd303e4804c9",
+    "rootOriginalToPreWordingCandidate": { "additions": 14, "deletions": 14, "changedLines": 28 },
+    "candidateHeadToRetainedDelivery": {
+      "additions": 26,
+      "deletions": 26,
+      "changedLines": 52,
+      "numstat": "12\\t12\\tdesign.md\\n9\\t9\\tproposal.md\\n5\\t5\\ttasks.md"
+    },
+    "interpretation": "The 52-line delivery base and the root-original base are different. Final fresh measurement is root-original to final candidate at 32 changed lines."
+  },
+  "worker": {
+    "path": ".sisyphus/roadmap-completion-20260912/grok-vault-wording-2",
+    "model": "grok-4.6",
+    "effort": "high",
+    "startedAt": "2026-09-12T20:44:40.992Z",
+    "finishedAt": "2026-09-12T20:47:02.588Z",
+    "running": false,
+    "driverPid": 54248,
+    "pid": 24400,
+    "exitCode": 1,
+    "code": 1,
+    "stopReason": "max turns reached",
+    "successClaimPresent": false,
+    "statusSha256": "790f2edbc539b4de60265385f73b39e420b1f61e6271d0c0b3f43761b510aab8",
+    "reportSha256": "a68752aea89daa32248232edbe1712b2aafdd13bfdfff5e22480e2f255b8417e",
+    "eventsSha256": "1dd3abefca2e306f178230851c900d97468aac0134ab2bb9a4dba7a9215fd622",
+    "stderrSha256": "b3e62995cdc9d267dd575413b26c5eb3c56eb3f54d816fc4ace8f7b91c7d1b1f",
+    "stderrSummary": "Error: max turns reached",
+    "pidObservation": "ps -p 54248,24400 returned no process rows; raw stdout/stderr/exit are captured in wording2-pids.*"
+  },
+  "exactReplacements": [
+    {
+      "file": "openspec/changes/design-vault-campaign-separation-and-maps/proposal.md",
+      "line": 29,
+      "before": "Existing custom-unit current_version/unit_versions is the version producer; pilot version authority remains an unresolved admission decision.",
+      "after": "Existing custom-unit UnitRepository create/update path produces the SQLite current_version/unit_versions rows, while VersionRepository provides history/revert operations; pilot version authority remains an unresolved admission decision.",
+      "verified": true
+    },
+    {
+      "file": "openspec/changes/design-vault-campaign-separation-and-maps/design.md",
+      "line": 25,
+      "before": "Custom-unit sourceVersion must resolve through the existing SQLite current_version/unit_versions history and VersionRepository, without a second counter.",
+      "after": "Custom-unit sourceVersion must resolve through the existing UnitRepository producer and VersionRepository history/revert seam over SQLite current_version/unit_versions, without a second counter.",
+      "verified": true
+    },
+    {
+      "file": "openspec/changes/design-vault-campaign-separation-and-maps/tasks.md",
+      "line": 5,
+      "before": "(Resolved prerequisite verified 2026-09-12; this does not close the remaining vault/campaign implementation tasks.)",
+      "after": "(Bounded identity prerequisite only; parent evidence and live source 2026-09-12. It does not satisfy the exact-main receipt, approval, or three-witness gates and does not close remaining vault/campaign implementation tasks or prove runtime/production authority.)",
+      "verified": true
+    }
+  ],
+  "preservation": {
+    "checkedTaskIds": ["1.3"],
+    "campGate": true,
+    "d1ThinReferences": true,
+    "pilotVersionAuthorityUnresolved": true,
+    "schemaV2OccupiedFutureRung": true,
+    "travelChargeContinuity": true,
+    "progressionDeferred": true,
+    "sourcePresenceNotRuntimeAuthority": true,
+    "travelAuthoritativeEventsOpen": true,
+    "noCircularPredecessorGate": true
+  },
+  "sourceAuthority": [
+    {
+      "path": "src/services/units/UnitRepository.ts",
+      "sha256": "d9a7f0439b2ebe8b23154dbdfae7716faef4b6b8f32c7b51bea37d50c93d9dae",
+      "lines": "102-106,157-217",
+      "finding": "Creates/increments SQLite current_version and unit_versions."
+    },
+    {
+      "path": "src/services/units/VersionRepository.ts",
+      "sha256": "21aab0e1bcf18079f213b1aa82617e741c5fc026f76815bbea13b8ab1c62226d",
+      "lines": "60-70,83-113,145-193",
+      "finding": "Reads history and performs version/revert operations."
+    },
+    {
+      "path": "src/lib/campaign/persistence/campaignMigration.ts",
+      "sha256": "598a26d8780d1607d53944ed537d284e341ce008eedc6b6c2d7c93b1496416dc",
+      "lines": "25,54-65,77-89,93-127",
+      "finding": "Schema v2 owns campaign authority metadata."
+    },
+    {
+      "path": "src/components/gameplay/pages/campaigns/create/CreateCampaignPage.submit.ts",
+      "sha256": "8e0a25b5a5d8feef6f1fb9e84dbf743aa7d4e555dd29e77301097adc852b0956",
+      "lines": "152-183",
+      "finding": "No UNIT_TEMPLATES name/tonnage OR-match; minted id and explicit provenance fields are used."
+    },
+    {
+      "path": "src/lib/starmap/starmapTravelPreview.ts",
+      "sha256": "377cf569ab4bd7739c5f16e5c3e207338f100e3af772e60f8515f1fc6709a2b1",
+      "lines": "61-199",
+      "finding": "Existing preview and commit calculations cover days, fees, daily processing, funds, arrival, and activity."
+    },
+    {
+      "path": "src/stores/campaign/useCampaignStore.dayActions.ts",
+      "sha256": "87474d70c47a8c52c05912b4f68508bafbb1d8defecc164f91ea0a29311683b6",
+      "lines": "365-480",
+      "finding": "Existing travel action commits the preview result and emits activity entries."
+    },
+    {
+      "path": "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts",
+      "sha256": "392fd63f42a7d3bc13f29d74557264674483dcdb6dedc1046161130e6588940e",
+      "lines": "4-8,23-27,36-37",
+      "finding": "Production journal authority boundary remains disabled pending opt-in."
+    },
+    {
+      "path": "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+      "sha256": "0b352cd89fe64ee7d8c817fdae5855cce5e1198d097eb3bea772d71f0686ebf0",
+      "lines": "83,454-469",
+      "finding": "Factory returns the in-memory store while the authority flag is false."
+    },
+    {
+      "path": "e2e/campaign-two-device-drive.spec.ts",
+      "sha256": "e3301cf540668c6fa5225c8f90ca5ec146d448f45a21acd4f74d7e32716de449",
+      "lines": "443-456",
+      "finding": "The e2e source documents live convergence unavailable while production writer is in-memory."
+    }
+  ],
+  "liveGates": {
+    "ledger": "openspec/active-change-ledger.json",
+    "activeRows": [
+      "add-saved-custom-unit-campaign-roster: in-progress; later parent 9.1 exact-main receipt; not archived",
+      "add-camp01-authority-receipts: in-progress; later parent 9.1 exact-main receipt; not archived",
+      "prove-saved-custom-unit-campaign-journey: in-progress; later parent 9.1 exact-main receipt; not archived",
+      "design-vault-campaign-separation-and-maps: proposed; P1 1.1-1.5 not started",
+      "design-campaign-authority-and-sync: proposed current successor and sole reconciled journal home"
+    ],
+    "council": "openspec/council-decisions/2026-08-20-campaign-journal-reconciliation-and-next-work.md:62-70",
+    "finding": "F/G archived, H active and unarchived, H receipt-sealed only under reduced claims, and safe default remains blocked."
+  },
+  "checks": [
+    {
+      "id": "strict-openspec",
+      "exitCode": 0,
+      "result": "Change valid",
+      "stdout": ".sisyphus/roadmap-completion-20260912/vault-contracts-final-review-20260912/checks/strict-openspec.stdout.log",
+      "stderr": ".sisyphus/roadmap-completion-20260912/vault-contracts-final-review-20260912/checks/strict-openspec.stderr.log",
+      "exit": ".sisyphus/roadmap-completion-20260912/vault-contracts-final-review-20260912/checks/strict-openspec.exit"
+    },
+    {
+      "id": "spec-purpose",
+      "exitCode": 0,
+      "result": "217 files scanned; errors and tracked debt empty",
+      "stdout": ".sisyphus/roadmap-completion-20260912/vault-contracts-final-review-20260912/checks/spec-purpose.stdout.log",
+      "stderr": ".sisyphus/roadmap-completion-20260912/vault-contracts-final-review-20260912/checks/spec-purpose.stderr.log",
+      "exit": ".sisyphus/roadmap-completion-20260912/vault-contracts-final-review-20260912/checks/spec-purpose.exit"
+    },
+    {
+      "id": "terminology",
+      "exitCode": 0,
+      "result": "8 files scanned; no violations",
+      "stdout": ".sisyphus/roadmap-completion-20260912/vault-contracts-final-review-20260912/checks/terminology.stdout.log",
+      "stderr": ".sisyphus/roadmap-completion-20260912/vault-contracts-final-review-20260912/checks/terminology.stderr.log",
+      "exit": ".sisyphus/roadmap-completion-20260912/vault-contracts-final-review-20260912/checks/terminology.exit"
+    },
+    {
+      "id": "candidate-qc",
+      "exitCode": 0,
+      "result": "pass",
+      "stdout": ".sisyphus/roadmap-completion-20260912/vault-contracts-final-review-20260912/checks/candidate-qc.stdout.log",
+      "stderr": ".sisyphus/roadmap-completion-20260912/vault-contracts-final-review-20260912/checks/candidate-qc.stderr.log",
+      "exit": ".sisyphus/roadmap-completion-20260912/vault-contracts-final-review-20260912/checks/candidate-qc.exit"
+    },
+    {
+      "id": "scoped-markdown-format",
+      "exitCode": 0,
+      "result": "All three retained files use Prettier style",
+      "stdout": ".sisyphus/roadmap-completion-20260912/vault-contracts-final-review-20260912/checks/scoped-markdown-format.stdout.log",
+      "stderr": ".sisyphus/roadmap-completion-20260912/vault-contracts-final-review-20260912/checks/scoped-markdown-format.stderr.log",
+      "exit": ".sisyphus/roadmap-completion-20260912/vault-contracts-final-review-20260912/checks/scoped-markdown-format.exit"
+    },
+    {
+      "id": "exact-contract",
+      "exitCode": 0,
+      "result": "All exact clauses, preservation guards, source-authority markers, root-to-final diff counts, and checked-task state verified",
+      "stdout": ".sisyphus/roadmap-completion-20260912/vault-contracts-final-review-20260912/checks/exact-contract.stdout.log",
+      "stderr": ".sisyphus/roadmap-completion-20260912/vault-contracts-final-review-20260912/checks/exact-contract.stderr.log",
+      "exit": ".sisyphus/roadmap-completion-20260912/vault-contracts-final-review-20260912/checks/exact-contract.exit"
+    },
+    {
+      "id": "source-authority",
+      "exitCode": 0,
+      "result": "All source authority boundary probes passed with hashes",
+      "stdout": ".sisyphus/roadmap-completion-20260912/vault-contracts-final-review-20260912/checks/source-authority.stdout.log",
+      "stderr": ".sisyphus/roadmap-completion-20260912/vault-contracts-final-review-20260912/checks/source-authority.stderr.log",
+      "exit": ".sisyphus/roadmap-completion-20260912/vault-contracts-final-review-20260912/checks/source-authority.exit"
+    },
+    {
+      "id": "retained-whitespace",
+      "exitCode": 0,
+      "result": "No trailing whitespace",
+      "stdout": ".sisyphus/roadmap-completion-20260912/vault-contracts-final-review-20260912/checks/retained-whitespace.stdout.log",
+      "stderr": ".sisyphus/roadmap-completion-20260912/vault-contracts-final-review-20260912/checks/retained-whitespace.stderr.log",
+      "exit": ".sisyphus/roadmap-completion-20260912/vault-contracts-final-review-20260912/checks/retained-whitespace.exit"
+    },
+    {
+      "id": "wording2-pids",
+      "exitCode": 1,
+      "expected": true,
+      "result": "No process rows for recorded PIDs",
+      "stdout": ".sisyphus/roadmap-completion-20260912/vault-contracts-final-review-20260912/checks/wording2-pids.stdout.log",
+      "stderr": ".sisyphus/roadmap-completion-20260912/vault-contracts-final-review-20260912/checks/wording2-pids.stderr.log",
+      "exit": ".sisyphus/roadmap-completion-20260912/vault-contracts-final-review-20260912/checks/wording2-pids.exit"
+    }
+  ],
+  "rawEvidenceDirectory": ".sisyphus/roadmap-completion-20260912/vault-contracts-final-review-20260912",
+  "publishedEvidencePath": "openspec/planning/2026-09-12-roadmap-completion/evidence/vault-contracts-final-review-20260912.json",
+  "limits": [
+    "No tests, build, install, server, browser, external message, or Git mutation was performed.",
+    "CI owns the production-build slot; this receipt is document/source admission evidence only.",
+    "No task completion, archive, exact-main receipt, approval, three-witness authority, or production cutover is claimed."
+  ]
+}

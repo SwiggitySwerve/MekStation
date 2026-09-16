@@ -1,0 +1,55 @@
+{
+  "pr": 1739,
+  "branch": "codex/roadmap-r2-authority-cutover-co0-20260915",
+  "reviewedCommit": "186049b89946f021d98487b85fcc2fb56f36be59",
+  "finalHead": "980a45f14ffc37cc815bb7e206476a0dc37c3807",
+  "autoMergeArmed": false,
+  "contentGuard": {
+    "method": "file set from `git diff --name-only origin/main...<head>` vs the reviewed file set, plus per-file blob equality against the reviewed commit; re-run after update-branch",
+    "fileCountAtMerge": 3,
+    "diffstat": "311 insertions(+)",
+    "blobEquality": "all files blob-identical to the reviewed commit at the gated head",
+    "result": "PASS"
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "expectedHeadShaGuardUsed": true,
+    "oldHead": "186049b89946f021d98487b85fcc2fb56f36be59",
+    "newHead": "980a45f14ffc37cc815bb7e206476a0dc37c3807",
+    "reason": "branch was BEHIND"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "Customizer Regressions": "pass",
+    "otherChecksCount": 27,
+    "otherChecksBuckets": {
+      "pass": 27
+    },
+    "totalChecks": 31
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-cutover-co0-1739-final-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "3d9ade77dcad0ede42777f33a88d4fe96ac19e06",
+  "mergeCommitParents": [
+    "a8ec5105d6411163311c44fc711332266972e1a7"
+  ],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1739 --squash --match-head-commit 980a45f14ffc37cc815bb7e206476a0dc37c3807",
+  "mergedAt": "2026-09-15T17:51:01Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "The merge commit changes exactly 3 file(s), all blob-identical to the gated head 980a45f14ffc37cc815bb7e206476a0dc37c3807.",
+  "mainAfter": "3d9ade77dcad0ede42777f33a88d4fe96ac19e06",
+  "worktree": {
+    "fastForward": "NOT PERFORMED - no owned worktree designated for this PR",
+    "result": "N/A"
+  },
+  "timestamps": {
+    "receiptWrittenAt": "2026-09-15T18:10:00Z"
+  }
+}

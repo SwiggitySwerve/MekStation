@@ -1,0 +1,41 @@
+{
+  "at": "2026-09-13T00:36:20.522Z",
+  "mainSha": "873edbf2f7c1b906cd9fb71123e19584f06c5082",
+  "parentAcceptance": "evidence/combat-reference-main-parent-acceptance-20260913.json",
+  "indexUnchanged": true,
+  "indexSha256": "a65b683940b6449651a074132f39d8b8da156ef5620af6aa1b62eb7c8698b953",
+  "otherDirtyFilesVerified": 117,
+  "files": [
+    {
+      "path": "openspec/specs/c3-network-targeting/spec.md",
+      "beforeSha256": "c34fe3348ee43cf57474204d423b23dbd44d32fbca1245fe2e7202de12ed14c9",
+      "afterSha256": "c34fe3348ee43cf57474204d423b23dbd44d32fbca1245fe2e7202de12ed14c9",
+      "backup": ".sisyphus/roadmap-completion-20260912/combat-reference-root-reconciliation-20260913/before/openspec/specs/c3-network-targeting/spec.md"
+    },
+    {
+      "path": "openspec/specs/firing-arc-calculation/spec.md",
+      "beforeSha256": "c91bfbc8a745aa68891ebfbd53815a228bafa1b429816c617b02a26bb712ec8a",
+      "afterSha256": "cdab5e4be32d7566b417f5daba87d05bdff4a45eebdc174a486ad53cbec65edf",
+      "backup": ".sisyphus/roadmap-completion-20260912/combat-reference-root-reconciliation-20260913/before/openspec/specs/firing-arc-calculation/spec.md"
+    },
+    {
+      "path": "openspec/specs/hull-down-position/spec.md",
+      "beforeSha256": "2d1a1356028efc404f95bcdcc1a51d847ce1541b30dd1f8537e06e2f561987ae",
+      "afterSha256": "2d1a1356028efc404f95bcdcc1a51d847ce1541b30dd1f8537e06e2f561987ae",
+      "backup": ".sisyphus/roadmap-completion-20260912/combat-reference-root-reconciliation-20260913/before/openspec/specs/hull-down-position/spec.md"
+    },
+    {
+      "path": "openspec/specs/piloting-skill-rolls/spec.md",
+      "beforeSha256": "788df39be79bc2833681927a844b77860b2acef9e2f666f60cd92694e543a8c6",
+      "afterSha256": "a09c37e40cbb626ae7716f0d1d8c9f77902c8056e8969a4209f17c6d45059c5d",
+      "backup": ".sisyphus/roadmap-completion-20260912/combat-reference-root-reconciliation-20260913/before/openspec/specs/piloting-skill-rolls/spec.md"
+    },
+    {
+      "path": "openspec/specs/combat-analytics/spec.md",
+      "beforeSha256": "a6b36a2d1599acad7539d434ca8963a09437307b08eb4221dfd4d099e0bca43d",
+      "afterSha256": "71d8676759ab0ab3fee34ac2e6fe0cbc99a02b4e63d190b8e0f92eec80c77a01",
+      "backup": ".sisyphus/roadmap-completion-20260912/combat-reference-root-reconciliation-20260913/before/openspec/specs/combat-analytics/spec.md"
+    }
+  ],
+  "qualification": "Five exact root proposals reconciled to accepted Git blobs; CRLF normalization is separate from semantic wording changes."
+}

@@ -1,0 +1,231 @@
+{
+  "capturedAt": "2026-09-13T00:27:26.311Z",
+  "status": "accepted-exact-main-documentation",
+  "mainSha": "e29d71677ea3f090d2ea0c3e1ee7cadd5db030c0",
+  "priorReceipt": "evidence/battlearmor-autosave-main-verification-20260912.json",
+  "priorReceiptSha256": "2fec6554fd7b6a5dbea819994f42b48edccb3121dc749cf94ad9788ab651c812",
+  "priorArtifactsReopened": [
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-main-verification/01-identity.txt",
+      "sha256": "eaa93d8445496a964aebec056f2000652140700fe01ee4e66b8a93d4e143f72f"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-main-verification/02-scope-diff-clean.txt",
+      "sha256": "0f603e798a4abfdbcd7413d66d30ed554b5681d3b410f069166f83206937f456"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-main-verification/03-strict-all-openspec.raw.log",
+      "sha256": "cfb3676781456501cee5f4be1a8866bf574237f7e7b4dddfd25601ac657aa9be"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-main-verification/04-purpose-strict.raw.log",
+      "sha256": "0a07b130cc0b93c2ecf9b9b74ee7edd62b014da22229cd8d05ec0fe452ffd35a"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-main-verification/05-terminology-strict.raw.log",
+      "sha256": "dedacb064914d4bd0530ddebc18a3ea4f397c7ca363e0c8e750a4712ea491876"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-main-verification/06-candidate-qc.raw.log",
+      "sha256": "f01feb11318234aab4764fe76151b78c06905527212a8f8723626fcf616b71d6"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-main-verification/source-hash-manifest.json",
+      "sha256": "46ab44ae90fbc573011a057e2f057f3684ace7c47dea5987b2c409594c65d523"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-main-verification/command-results.json",
+      "sha256": "3bcc5746922fe5fab2baab0a5adfb768287b68ebfc8b8f469cca3e5edcec20cf"
+    }
+  ],
+  "commands": [
+    {
+      "id": "head",
+      "bin": "git",
+      "args": [
+        "rev-parse",
+        "HEAD"
+      ],
+      "startedAt": "2026-09-13T00:27:08.152Z",
+      "endedAt": "2026-09-13T00:27:08.195Z",
+      "exitCode": 0,
+      "stdout": {
+        "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-parent-main-recheck-20260913/head.stdout.log",
+        "sha256": "31717f3b1e5d01014dd3a8113326a375ab8c67080c40dc220ebfddc0a9ffe4d8"
+      },
+      "stderr": {
+        "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-parent-main-recheck-20260913/head.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "status",
+      "bin": "git",
+      "args": [
+        "status",
+        "--porcelain"
+      ],
+      "startedAt": "2026-09-13T00:27:08.209Z",
+      "endedAt": "2026-09-13T00:27:08.367Z",
+      "exitCode": 0,
+      "stdout": {
+        "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-parent-main-recheck-20260913/status.stdout.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-parent-main-recheck-20260913/status.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "strict-all",
+      "bin": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "C:/Users/wroll/AppData/Roaming/npm/node_modules/@fission-ai/openspec/bin/openspec.js",
+        "validate",
+        "--all",
+        "--strict",
+        "--no-interactive"
+      ],
+      "startedAt": "2026-09-13T00:27:08.368Z",
+      "endedAt": "2026-09-13T00:27:09.977Z",
+      "exitCode": 0,
+      "stdout": {
+        "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-parent-main-recheck-20260913/strict-all.stdout.log",
+        "sha256": "16c5c323579e9f348bc2adb0830ebd7bb199a73726ab1098c72331305dcca967"
+      },
+      "stderr": {
+        "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-parent-main-recheck-20260913/strict-all.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "purpose",
+      "bin": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "spec:purpose:validate:strict"
+      ],
+      "startedAt": "2026-09-13T00:27:09.992Z",
+      "endedAt": "2026-09-13T00:27:12.236Z",
+      "exitCode": 0,
+      "stdout": {
+        "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-parent-main-recheck-20260913/purpose.stdout.log",
+        "sha256": "0a07b130cc0b93c2ecf9b9b74ee7edd62b014da22229cd8d05ec0fe452ffd35a"
+      },
+      "stderr": {
+        "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-parent-main-recheck-20260913/purpose.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "term",
+      "bin": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "terminology:validate:strict"
+      ],
+      "startedAt": "2026-09-13T00:27:12.241Z",
+      "endedAt": "2026-09-13T00:27:25.495Z",
+      "exitCode": 0,
+      "stdout": {
+        "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-parent-main-recheck-20260913/term.stdout.log",
+        "sha256": "f900b2f139d48a4fce3da66f12105cdd633a1cfe6dc8102211bcf03cc6a1cce7"
+      },
+      "stderr": {
+        "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-parent-main-recheck-20260913/term.stderr.log",
+        "sha256": "262c9b5b1fbe828d90657b759640642f0dce38f1942a22ac26fc995ca4dcc17c"
+      }
+    },
+    {
+      "id": "qc",
+      "bin": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "qc:openspec-ci:validate"
+      ],
+      "startedAt": "2026-09-13T00:27:25.511Z",
+      "endedAt": "2026-09-13T00:27:26.197Z",
+      "exitCode": 0,
+      "stdout": {
+        "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-parent-main-recheck-20260913/qc.stdout.log",
+        "sha256": "f01feb11318234aab4764fe76151b78c06905527212a8f8723626fcf616b71d6"
+      },
+      "stderr": {
+        "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-parent-main-recheck-20260913/qc.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "sourceHashes": [
+    {
+      "path": "openspec/specs/battle-armor-unit-system/spec.md",
+      "sha256": "63bac7a76e828d74076926155533537a422e6a25f4ae9ee135c8c85b183a7f19"
+    },
+    {
+      "path": "openspec/specs/auto-save-persistence/spec.md",
+      "sha256": "60fc6006476c650e7620273c0232393bc2d70279b0dead61195452bcf95cd4bb"
+    },
+    {
+      "path": "src/components/customizer/shared/tabRegistry.tsx",
+      "sha256": "8fc21041a01af69629cfc368c28ff6056dfb763f5db94178d03ad30d91e86969"
+    },
+    {
+      "path": "src/components/customizer/shared/customizerTypeRegistry.tsx",
+      "sha256": "3dee33c775272ae6a881ce8f41717d7fb03cff7957d1b73a7fbc6e497c871528"
+    },
+    {
+      "path": "src/components/customizer/tabs/NonMechOverviewTabs.tsx",
+      "sha256": "03d867c046b1d1148cbef5fb93d641f4504d773a89cffd069173fabc959c4e74"
+    },
+    {
+      "path": "src/components/customizer/tabs/FluffTab.tsx",
+      "sha256": "fee8149766b35066a4217ddb312a959c13080567e879ca6c46cd5dc03de09d59"
+    },
+    {
+      "path": "src/components/customizer/battlearmor/BattleArmorChassisTab.tsx",
+      "sha256": "7dad4940b2108434f865d2272495b6823c7e194b7459547d47a7e6a8558f8d9e"
+    },
+    {
+      "path": "src/components/customizer/battlearmor/BattleArmorStructureTab.tsx",
+      "sha256": "9316c46923b36a4f61e6b563e43aec9638ff0ee04ab7e154c7540956ad482d0e"
+    },
+    {
+      "path": "src/components/customizer/battlearmor/BattleArmorSquadTab.tsx",
+      "sha256": "3267919d82e7cde40def13cfe89bcc61bab07638fdba10734114039c82f8bf4e"
+    },
+    {
+      "path": "src/components/customizer/battlearmor/BattleArmorManipulatorsTab.tsx",
+      "sha256": "bbf1ad3cad529a449fcdd00c1395515d68790db38ed7d21d5b798df38036961a"
+    },
+    {
+      "path": "src/components/customizer/battlearmor/BattleArmorModularWeaponsTab.tsx",
+      "sha256": "55839dd7a9b81a5c9aeaf5b33b7c739f9ea2a58f23dc76c14e97748a66f9b6e0"
+    },
+    {
+      "path": "src/components/customizer/battlearmor/BattleArmorAPWeaponsTab.tsx",
+      "sha256": "e8f7c0afbcefcff321ef434dff6c4cd045bfb1a566a02cc11161bb19777a21c2"
+    },
+    {
+      "path": "src/components/customizer/battlearmor/BattleArmorJumpUMUTab.tsx",
+      "sha256": "34593d0b6213b479686b62cb22375eb2b8d3e5c8050db41ae3703516025348a7"
+    },
+    {
+      "path": "src/components/customizer/battlearmor/BattleArmorPreviewTab.tsx",
+      "sha256": "bf759b4c8879b31ec3c7791f5a31cc9ad4786fd83394c022688859f4b8e8e87d"
+    },
+    {
+      "path": "src/types/unit/PersonnelInterfaces.ts",
+      "sha256": "023335d20fdbf82706be71f87e2c0ac99a088e05172ff87cef80d8955818681d"
+    },
+    {
+      "path": "src/types/construction/UnitLocation.ts",
+      "sha256": "815c241cb559714d3e8b1e18727be472d61a928b4ba1153d49287200f308924b"
+    }
+  ],
+  "qualification": "Prior receipt hardcoded capture time predates merge. Preserved without relying on chronology; fresh parent gates above establish exact-main proof. OpenSpec format excluded, four placeholders deferred; no runtime closure.",
+  "cleanup": "pending"
+}

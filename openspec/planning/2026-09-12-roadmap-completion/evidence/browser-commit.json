@@ -1,0 +1,28 @@
+{
+  "at": "2026-09-12T13:43:24.070Z",
+  "node": "R1.browser",
+  "commit": "77d9a9480a3a47b1849f166db01278f93f3d8094",
+  "branch": "codex/roadmap-customizer-browser-20260912",
+  "worktree": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\browser",
+  "status": "",
+  "remoteBranch": null,
+  "ownedFiles": [
+    {
+      "path": "e2e/helpers/recordSheetPrintHarness.ts",
+      "sha256": "1cd6bfbc47854db09f1b00f84085189eca768a2b70da510e78fa8928f645a2c6"
+    },
+    {
+      "path": "e2e/customizer-record-sheet-rendering.spec.ts",
+      "sha256": "c582b223f11d0e672d3ce609db030b5ffc6613b821a5ca6c146386feb4fd08fd"
+    },
+    {
+      "path": "e2e/customizer-edit-recovery.spec.ts",
+      "sha256": "6a52c53e932a97e5b17ddda42bf306bf0cf99522016ed8711b1152dd2ec2a81a"
+    }
+  ],
+  "normalHooks": "passed; final content unchanged",
+  "publication": "awaiting explicit user approval after automatic review rejected the push twice, including after verified repository owner/account/payload",
+  "approvedScopeRequested": "Publish exactly commit77d9a9480a3a47b1849f166db01278f93f3d8094 to SwiggitySwerve/MekStation and open PR",
+  "listenerRows": [],
+  "cleanup": "Retain clean unmerged branch/worktree and all evidence; no owned listener remains on3639"
+}

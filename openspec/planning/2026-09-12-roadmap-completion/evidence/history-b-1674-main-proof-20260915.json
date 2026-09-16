@@ -1,0 +1,98 @@
+{
+  "evidenceKind": "history-b-1674-main-proof",
+  "timestampUtc": "2026-09-15T07:49:24Z",
+  "prReference": "PR #1674 \"fix(history): preserve integrity refusals through campaign launch\", squash-merged as bcc34f7cdbd144eafb9709fff5c9bb8936fcb3b7",
+  "commitTested": "bcc34f7cdbd144eafb9709fff5c9bb8936fcb3b7",
+  "reviewedRepairCommit": "87313aeff",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/history-sql-integrity",
+  "preconditionCheck": {
+    "startingBranch": "codex/roadmap-r4-s1-journal-batches-20260915",
+    "startingHead": "a1fd1aaa183e453cbb44b09877c99be44038f1cf",
+    "gitStatusPorcelainEmptyBeforeCheckout": true,
+    "nodeVersion": "v22.22.0",
+    "nodePathUsed": "/c/Users/wroll/AppData/Local/nvm/v22.22.0",
+    "fetchedOriginMain": true,
+    "detachedCheckoutHeadMatchedExpected": true
+  },
+  "blobEquality": {
+    "description": "Compared bcc34f7c (main) blob OIDs against 87313aeff (the reviewed repair commit) for the 8 files touched by PR #1674.",
+    "result": "ALL_EQUAL",
+    "files": [
+      {
+        "path": "src/lib/events/journal/EventHistoryBranchContract.ts",
+        "mainOid": "5f6bbef36f6ebb3693f0f5d9e4c22d65a9fc6d0a",
+        "repairOid": "5f6bbef36f6ebb3693f0f5d9e4c22d65a9fc6d0a",
+        "identical": true
+      },
+      {
+        "path": "src/lib/events/journal/SQLiteEventHistoryBranchStore.ts",
+        "mainOid": "ce2b4b3e8125f532969818b8e04b1fe4f84389f2",
+        "repairOid": "ce2b4b3e8125f532969818b8e04b1fe4f84389f2",
+        "identical": true
+      },
+      {
+        "path": "src/lib/events/journal/__tests__/SQLiteEventHistoryBranchStore.test.ts",
+        "mainOid": "37f81c4ec84c4f5aca72077e91a90a2eb39d8eef",
+        "repairOid": "37f81c4ec84c4f5aca72077e91a90a2eb39d8eef",
+        "identical": true
+      },
+      {
+        "path": "src/lib/multiplayer/server/campaignProgressionReaders.durable.ts",
+        "mainOid": "edb843a8115b1efa33e5e5d494a5def86229efaa",
+        "repairOid": "edb843a8115b1efa33e5e5d494a5def86229efaa",
+        "identical": true
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/campaignProgressionReaders.durable.integrity.test.ts",
+        "mainOid": "71b1d6526fd3fe6eb796a90c88579119ea848f8a",
+        "repairOid": "71b1d6526fd3fe6eb796a90c88579119ea848f8a",
+        "identical": true
+      },
+      {
+        "path": "src/lib/multiplayer/server/ServerMatchHostBranchAdmission.ts",
+        "mainOid": "6bce8795b120455f5dc5388cb74213aca84bb609",
+        "repairOid": "6bce8795b120455f5dc5388cb74213aca84bb609",
+        "identical": true
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/ServerMatchHostBranchAdmission.test.ts",
+        "mainOid": "4291287fb24c4a5c175bbbc069d7bb7e19da15de",
+        "repairOid": "4291287fb24c4a5c175bbbc069d7bb7e19da15de",
+        "identical": true
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/matchStoreBatchContract.test.ts",
+        "mainOid": "c35fe0dcae052ba414cba36f72787c4d6ef3cbac",
+        "repairOid": "c35fe0dcae052ba414cba36f72787c4d6ef3cbac",
+        "identical": true
+      }
+    ]
+  },
+  "commands": [
+    {
+      "argv": ["node", "node_modules/jest/bin/jest.js", "--maxWorkers=2", "--coverage=false", "src/lib/multiplayer/server", "src/lib/events/journal", "src/services/persistence", "src/lib/campaign/authority"],
+      "exitCode": 0,
+      "testSuitesSummary": "206 passed, 206 total",
+      "testsSummary": "1588 passed, 1588 total",
+      "expectedMatch": "206 suites / 1588 tests -- CONFIRMED",
+      "logPath": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/main-proof-history-b-20260915/jest.log",
+      "logSha256": "7f8e6b002d667f49b38c12857fa4596cf0bb9af834de2c38b87c11b8143290b5"
+    },
+    {
+      "argv": ["npm", "run", "typecheck"],
+      "exitCode": 0,
+      "logPath": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/main-proof-history-b-20260915/typecheck.log",
+      "logSha256": "d140a6ce62dda0946fe30dd882dbb8209f05be72c8fa8850e5634755a399e50f"
+    }
+  ],
+  "blobEqualityLog": {
+    "logPath": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/main-proof-history-b-20260915/blob_equality.txt",
+    "logSha256": "edcbf8116287cdcab9f5dd88b80e05a5dcb0793e9d9121dd71eb00cea6fbbf29"
+  },
+  "worktreeRestored": {
+    "targetBranch": "codex/roadmap-r4-s1-journal-batches-20260915",
+    "expectedHead": "a1fd1aaa183e453cbb44b09877c99be44038f1cf",
+    "confirmedClean": true
+  },
+  "fullResultAndLogs": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/main-proof-history-b-20260915/result.json"
+}

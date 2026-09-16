@@ -1,0 +1,32 @@
+{
+  "at": "2026-09-13T03:50:35.707Z",
+  "status": "reconciled",
+  "main": "d02341852fb594599af6bcd882c3da1fdb8b069f",
+  "files": [
+    {
+      "path": "openspec/specs/force-management/spec.md",
+      "before": "1e119db35f60fb9e9418176862afe3d23b59130dee7b050914842b990944c757",
+      "after": "1e119db35f60fb9e9418176862afe3d23b59130dee7b050914842b990944c757"
+    },
+    {
+      "path": "openspec/specs/personnel-management/spec.md",
+      "before": "631325c73e3332b68cfb59410c80e649187e060e3340b8eebc9fcb39972dea21",
+      "after": "b96598f03ed270bb480aefbcc318c86d89e46ab50fbbc4313727242c6b0a1f1d"
+    },
+    {
+      "path": "openspec/specs/repair/spec.md",
+      "before": "4f51961216066a37180bd05d3cdebbcfa510f60e5fea9459a7c51f443ac8cce7",
+      "after": "b70ef517832ead297f48cffa0e14dba46d2d5baf68b275026e9a3829ed5f9e1a"
+    },
+    {
+      "path": "openspec/specs/game-session-management/spec.md",
+      "before": "52843d4febc0354f597c6f0f6685b23145168a44c008cf253e02e2f3c4d802d6",
+      "after": "ab3a07fb600f93733ded36e32decb1ad954a2c0332ef057859c0d274d4e90bb2"
+    }
+  ],
+  "indexBefore": "a65b683940b6449651a074132f39d8b8da156ef5620af6aa1b62eb7c8698b953",
+  "indexAfter": "a65b683940b6449651a074132f39d8b8da156ef5620af6aa1b62eb7c8698b953",
+  "otherDirtyFilesVerified": 525,
+  "preflight": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/campaign-store-root-reconciliation-20260913/preflight.json",
+  "limit": "Only four accepted proposals replaced; root remains dirty on original main checkout"
+}

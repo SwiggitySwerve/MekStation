@@ -1,0 +1,58 @@
+{
+  "recordedAt": "2026-09-12T16:49:08.832Z",
+  "reviewer": "/root/manifest_trace",
+  "model": "gpt-5.6-luna",
+  "effort": "high",
+  "scope": "Parent recorded read-only worker finding and freshly hashed source; no build/request runtime proof claimed",
+  "files": [
+    {
+      "path": "config/mm-data-assets.json",
+      "sha256": "6746a36beab5ce9a9beff240afe0f7609caace9010509ecf7d8c58c6dd8af8e6"
+    },
+    {
+      "path": "scripts/mm-data/fetch-assets.ts",
+      "sha256": "f973579e5a69b1b37750d990c1a09e6f9ea784e4021f97868092a5b1a78fa153"
+    },
+    {
+      "path": "src/services/assets/MmDataAssetService.ts",
+      "sha256": "35ed4cf6b2c410e7f41b4eb4c16a06066551c890cfe41f9d64e95f9cbd835e6e"
+    },
+    {
+      "path": "scripts/hydrate-next-standalone-multiplayer-server.mjs",
+      "sha256": "1b02ad84794697ba2b47f4c51042ad0dc24392a8e9c0dbebcebff581646403b9"
+    },
+    {
+      "path": "public/config/mm-data-assets.json",
+      "sha256": "5131739497b797db0fd4fc7b66eec8738269ac37545163b4440aa0a4fdbae3c8"
+    }
+  ],
+  "findings": [
+    "Tracked config contains non-mech entries; fetch-assets reads root config but writes assets/version only",
+    "MmDataAssetService requests /config/mm-data-assets.json then /mm-data-assets.json and otherwise uses default empty patterns",
+    "Hydration copies public verbatim; no root config synchronization found",
+    "Root ignored public config is stale; clean owned browser public/standalone config is absent"
+  ],
+  "browserAbsent": [
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/worktrees/browser/public/config/mm-data-assets.json",
+      "exists": false
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/worktrees/browser/.next/standalone/public/config/mm-data-assets.json",
+      "exists": false
+    }
+  ],
+  "reportedAssetComparison": {
+    "svgFiles": 554,
+    "inventorySha256": "90ce9ddf66ab954c26e73126ca6d26c73242bfc688a672f84c6273ccd48144c6",
+    "versionSha256": "f4088bd172f487faf0a67712ad62caddfce010558389c7ae22c92de7597ccb5a",
+    "source": "read-only worker report; no new asset acquisition"
+  },
+  "disposition": "in-scope-repair",
+  "nextAction": "Admit bounded deterministic source-to-public sync repair with build artifact equality and real request proof",
+  "limits": [
+    "Root and browser retained SVG asset bytes match per worker report; not renderer proof",
+    "No live HTTP/browser request ran in this trace",
+    "Worker declined receipt writes, source transcript preserved in thread"
+  ]
+}

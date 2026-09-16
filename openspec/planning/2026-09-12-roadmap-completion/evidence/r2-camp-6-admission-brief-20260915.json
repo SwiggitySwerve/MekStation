@@ -1,0 +1,299 @@
+{
+ "schema": "r2-camp-6-admission-brief/v1",
+ "at": "2026-09-15T16:30:00.000Z",
+ "role": "read-only discovery; no product/spec/tasks/contract edits made; single evidence artifact only; no builds/tests/sub-agents executed this session",
+ "sourceSnapshot": {
+  "originMainAtFetch": "1e43090c505f0b3d97fb71f099a9060e1936438c",
+  "worktreeUsedForSourceReading": ".sisyphus/roadmap-completion-20260912/worktrees/archive-original-main-proof",
+  "worktreeHeadSha": "1e43090c505f0b3d97fb71f099a9060e1936438c",
+  "worktreeMatchesOriginMainAtFetch": true,
+  "note": "One `git fetch origin` this session landed on 1e43090c505f, identical to the pinned archive-original-main-proof worktree HEAD and identical to the ending pin the R2.camp-5 brief recorded -- no drift since that sibling brief. All source/test/tasks.md reads below are via `git show origin/main:<path>` at this SHA, not the local working tree.",
+  "workingTreeDivergesFromOriginMain": "Local working tree has uncommitted cosmetic wording edits to tasks.md (`git diff origin/main -- openspec/changes/add-saved-custom-unit-campaign-roster/tasks.md` shows only sections 1 (CAMP-01A task 1.4), 4 (CAMP-01D task 4.2), 7-9 (CAMP-01G/H/completion) touched -- 'custom' -> 'unsupported custom'/'supported-custom' terminology alignment, the same pattern every prior camp-N brief in this chain has noted). Section 6 (CAMP-01F, this node's own task 6.1, lines 40-42) has ZERO diff -- byte-identical between the local working tree and origin/main. Per the task charter this brief reads origin/main via `git show`, not the local working tree.",
+  "roadmapJsonLocation": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json is UNTRACKED locally (`git status --porcelain` shows '?? openspec/planning/2026-09-12-roadmap-completion/') and does not exist on origin/main (`git cat-file -e origin/main:openspec/planning/2026-09-12-roadmap-completion/roadmap.json` -> fatal, path does not exist). The roadmapNode below was read from the local working copy, the only copy that exists, consistent with every predecessor brief's finding."
+ },
+ "roadmapNode": {
+  "id": "R2.camp-6",
+  "title": "Wizard persistence and reload",
+  "wave": 2,
+  "kind": "verification",
+  "state": "planned",
+  "dependsOn": ["R2.camp-5"],
+  "ownershipPaths": [
+   "openspec/changes/add-saved-custom-unit-campaign-roster",
+   "scripts/qc",
+   "src",
+   "e2e"
+  ],
+  "acceptance": [
+   "Use immutable camp-01f contract row; preserve its strict PR cap, reporters, authority facts and real approval requirements",
+   "Audit shipped code before any repair; exact-main receipt required"
+  ],
+  "owner": "parent; assign bounded Luna high worker on admission",
+  "maxFiles": 15,
+  "maxNonGeneratedLines": 500,
+  "taskKeys": ["add-saved-custom-unit-campaign-roster#6.1@42"],
+  "receipt": null,
+  "decomposition": "Navigation paths only. Before assignment, select one behavior, exact files and original task IDs; split until original/default caps fit. Each child PR needs its own reviewed-head and exact-main receipt.",
+  "githubReviewGate": {
+   "authority": "add-saved-custom-unit-campaign-roster P.2 and scripts/qc/camp01-github-provenance.mjs",
+   "state": "APPROVED",
+   "nonDismissed": true,
+   "exactHead": true,
+   "nonAuthor": true,
+   "permissions": ["WRITE", "MAINTAIN", "ADMIN"],
+   "soloException": false
+  },
+  "noteOnNodeTitleVsScope": "The node title 'Wizard persistence and reload' is broader than the tasks.md section-6 heading ('CAMP-01F -- durable creation commit'), but the node's own taskKeys array pins exactly ONE key, 6.1. The 'reload' half of the title is NOT this node's scope: cold-reload identity through Mech Bay is CAMP-01G / R2.camp-7 (task 7.1, frozen predecessor of camp-01f), a separate roadmap node with its own taskKeys. This brief assesses only 6.1's literal text."
+ },
+ "predecessorClosures": {
+  "r2camp5": {
+   "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-camp-5-admission-brief-20260915.json",
+   "verdict": "All three taskKeys of CAMP-01E (saved-design index validation, picker rendering, stable-source/fresh-instance propagation) already implemented and covered, gap NONE FOUND except an optional non-blocking keyboard-citation gap.",
+   "closedOnlyAt": "command-level receipt tier (SLICE-1, recommended, not confirmed executed by that brief); controller-registered and PR-provenanced tiers remain owner-blocked."
+  },
+  "r2camp4": {
+   "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-camp-4-admission-brief-20260915.json",
+   "verdict": "All three taskKeys of CAMP-01D already implemented and covered, gap NONE FOUND.",
+   "closedOnlyAt": "command-level receipt tier only (not confirmed executed)."
+  },
+  "r2camp3": {
+   "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-camp-3-admission-brief-20260915.json",
+   "verdict": "Tasks 3.1-3.2 (CAMP-01C) fully implemented and covered, gap NONE FOUND.",
+   "closedOnlyAt": "command-level receipt tier only."
+  },
+  "r2camp2": {
+   "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-camp-2-admission-brief-20260915.json",
+   "verdict": "Task 2.1 real and shipped via PR #1231/#1233 (self-authored, self-merged, zero reviews). One gap: buildCampaignAuthoritativeState's guard-throw branches untested.",
+   "closedOnlyAt": "command-level receipt tier only."
+  },
+  "r2camp1": {
+   "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-camp-1-admission-brief-20260915.json",
+   "verdict": "Tasks 1.1-1.4 (CAMP-01A) fully shipped and tested, gap NONE FOUND. Task 1.5 receipt run NOT done.",
+   "closedOnlyAt": "command-level receipt tier (recommended, not confirmed executed)."
+  },
+  "r2camp0": {
+   "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/camp00-receipt-run-main-819ff6f-20260915.json",
+   "verdict": "Command-level exact-main receipt produced (17/17 frozen assertions true at 819ff6fd8); PR-provenanced camp01-authority-receipt directory explicitly NOT produced.",
+   "closedOnlyAt": "command-level receipt tier only."
+  },
+  "whatThisMeansForCampSix": "R2.camp-6 (camp-01f) inherits the identical six-tier ceiling every predecessor in this chain has hit inside THIS repository: (1) a command-level exact-main receipt is achievable today, (2) a controller-registered receipt is NOT achievable from this checkout because camp-01f's own frozen predecessors list is ['camp-01e'] and no camp-01a/b/c/d/e controller-registered receipt exists in THIS repo's durable evidence tree (re-verified this session: `find .sisyphus/evidence/playtest -iname '*camp01*'` and `git ls-files | grep -i camp01` both return zero matches beyond the unrelated 2026-07-07-live-playtest/ directory), and (3) a PR-provenanced closure of roadmap task 6.1 is blocked on the same structurally unsatisfiable single-collaborator githubReviewGate every predecessor hit. UNLIKE every predecessor brief, this session found REAL durable camp01-authority-receipt artifacts for camp-01f itself, but they live outside this repo in a separate on-disk operator clone (E:/Projects/MekStation-proof), not in this checkout -- see durableReceiptFoundInOperatorClone below. That clone's receipts are historical evidence of a real 2026-08-13 pass, not a substitute for a fresh in-repo run."
+ },
+ "durableReceiptFoundInOperatorClone": {
+  "title": "Real camp-01f durable receipts exist on disk, but in a separate operator clone outside this repository -- confirming, not contradicting, the r2-receipts-closure-20260915.json finding",
+  "trigger": "The task prompt for this brief cited evidence/r2-receipts-closure-20260915.json's note that 'real camp-01f/camp-01g durable receipts exist' but are 'not repo-resident (lives in the operator clone E:/Projects/MekStation-proof)'. This session located and inspected that clone directly.",
+  "verification": [
+   "`ls E:/Projects/MekStation-proof/.sisyphus/evidence/playtest/` shows two camp01f run roots: `camp01f-persistence-db00c138289c8809577bb6c33dfb9582affb580a/camp01-66c36547e25fafa9dc0bef80616a8c6f/` and `camp01f-persistence-f8668762af8d8147a0a01351f96774410f6abe41/camp01-dbadf266f6b39f8b7b7c2a0b10802cfb/`, each containing command-result.json, receipt-manifest.json, reports/campaign-persistence-authority.json, and wave-result.json.",
+   "Both wave-result.json files read `{\"schema\":\"camp01-wave-result/v1\",\"wave\":\"camp-01f\",\"status\":\"passed\", ...}` with all 12 frozen assertions (campaignIdMatched, conflictOverwritePrevented, conflictSameIdRetried, constructionPayloadAbsent, requestMethodPut, responseAccepted, rootForceContainsInstance, rosterInstanceIdPresent, sameIdRetried, successSuppressedOnFailure, unitRefMatched, unitSourceCustom) true -- an exact match to WAVE_CONTRACTS['camp-01f'].assertions in this repo's own scripts/qc/camp01-authority-receipt.contract.mjs.",
+   "The two run-root SHA suffixes (db00c138289c8809577bb6c33dfb9582affb580a, f8668762af8d8147a0a01351f96774410f6abe41) are real Git commit ids: `git cat-file -t <sha>` returns `commit` for both, and `git merge-base --is-ancestor <sha> origin/main` exits 0 for both against THIS repo's current origin/main (1e43090c505f) -- both are genuine ancestors of the live tip, not fabricated identifiers. `git log --oneline -1` resolves db00c1382 to 'Merge pull request #1239 from SwiggitySwerve/codex/camp-01f' and f8668762a to 'fix(campaign): scope persistence conflict assertion to the toast', the fourth of five commits on the codex/camp-01f branch that PR #1239 merged.",
+   "The `.camp01-controller/camp-01f/` directory in that clone exists but contains zero files (confirmed with `find ... -type f`) -- and the SAME is true for every other wave's `.camp01-controller/<wave>/` directory in that clone (camp-00, camp-01a..h, camp-proof, proof-02-*), so this is a consistent empty-scaffold pattern across the whole controller tree in that clone, not a camp-01f-specific gap. `scripts/qc/camp01-durable-facts.mjs`'s `readIndex()`/`candidates()` discovery walks the `runRootTemplate`-shaped directories (e.g. `camp01f-persistence-<sha>/`) directly, not this scaffold path, so the empty `.camp01-controller/<wave>/` dirs do not by themselves indicate the receipts are undiscoverable by the controller -- they were simply never exercised as candidates in a `readIndex()` run scoped to that clone.",
+   "A cleanup receipt also exists in that clone: `.camp01-cleanups/camp-01f-camp01-66c36547e25fafa9dc0bef80616a8c6f-wave-cleanup.json` records `{\"productWorktreeRemoved\":true,\"proofWorktreeRemoved\":true,\"localWaveBranchRemoved\":true,\"initiatingTrackedTreeClean\":true,\"durableReceiptRevalidated\":true}`.",
+   "That clone's own git HEAD is c26020065 (PR #1249, 2026-08-2x era) -- roughly 380+ commits behind this repo's current origin/main tip (1e43090c505f, PR #1636-era). It is a stale, disconnected checkout from an earlier working session, not a live mirror. `.sisyphus/` there is mostly gitignored except a `!.sisyphus/evidence/playtest/*/` carve-out in `.gitignore:187`, and `git status --porcelain` in that clone shows only the untracked `.camp01-cleanups/` directory -- none of these receipt directories were ever committed anywhere, in that clone or this one."
+  ],
+  "conclusion": "The r2-receipts-closure-20260915.json's claim is CONFIRMED, not merely repeated: real, internally-consistent, cryptographically-plausible (commit-anchored) camp-01f receipts exist and independently corroborate that the frozen jest suite passed against a genuine ancestor commit on 2026-08-13. This is materially different evidence-wise from a bare 'trust the archived tasks.md' claim. However, these receipts (a) are not present anywhere in THIS repository or its git history, (b) were produced against an old SHA far behind current origin/main, and (c) were never registered through a `readIndex()` pass that this repo's controller would recognize. A worker admitted onto R2.camp-6 MAY cite this operator-clone evidence as strong historical corroboration that camp-01f's code and tests are real and were once green, but MUST NOT treat it as satisfying task 6.1's own receipt clause, which requires a fresh in-repo controller-registered run at the current exact-main SHA plus the githubReviewGate this brief shows is still structurally unsatisfiable."
+ },
+ "criticalContextFinding": {
+  "title": "The archived child change's tasks.md again claims a receipt and a council-review document that cannot be verified on origin/main; the underlying product PR is real, merged, self-approved, and untouched by any second reviewer -- the sixth consecutive occurrence of this exact pattern in the CAMP-01 chain",
+  "archivedChild": "openspec/changes/archive/2026-08-20-persist-saved-custom-unit-campaign-creation/ (proposal.md + tasks.md + specs/campaign-persistence/spec.md)",
+  "claimText": "openspec/changes/archive/2026-08-20-persist-saved-custom-unit-campaign-creation/tasks.md line 1: 'Completed 2026-08-20 (reconciliation): implemented and delivered by the CAMP-01F wave (product PR #1239); attested by the durable reviewed-head + exact-main + cleanup receipts (full durable index readmitted 23/23 through validator plus all four anchors after CAMP-R1, 2026-08-12) and the council review at `openspec/council-decisions/2026-08-12-camp01-wave-execution-review.md`.' All of tasks 1.1, 1.2, 2.1, 2.2, 2.3, 2.4, 3.1, 3.2 in that file are marked [x].",
+  "verification": [
+   "`git cat-file -e origin/main:openspec/council-decisions/2026-08-12-camp01-wave-execution-review.md` -> fatal: path does not exist in origin/main. Identical finding to every predecessor archived child's citation of the same nonexistent document.",
+   "`gh pr view 1239 --repo SwiggitySwerve/MekStation --json number,title,state,mergedAt,mergeCommit,author,mergedBy,reviews,files` -> MERGED, mergedAt 2026-08-13T22:59:30Z, mergeCommit db00c138289c8809577bb6c33dfb9582affb580a, title 'feat(campaign): persist saved custom unit campaign creation', author=SwiggitySwerve, mergedBy=SwiggitySwerve, reviews=[] (empty). The PR is REAL and MERGED (6 files: e2e/campaign-customizer-handoff.spec.ts +120/-0, CreateCampaignPage.submit.ts +76/-36, CreateCampaignPage.forceReconciliation.test.ts +18/-1, CreateCampaignPage.rosterPersistence.test.ts +12/-1, CreateCampaignPage.submitPersistence.test.tsx +128/-0 new, useCampaignPersistenceStore.ts +5/-3 -- summing to exactly 400 changed lines, precisely at the frozen row's 400-line cap and well within its 8-file cap), but self-authored, self-merged, with zero recorded GitHub reviews -- same shape as every predecessor PR in this chain (#1231/#1233, #1235, #1236, #1237).",
+   "`git merge-base --is-ancestor db00c138289c8809577bb6c33dfb9582affb580a origin/main` -> exit 0 (IS an ancestor). The product code genuinely shipped to main.",
+   "`find .sisyphus/evidence/playtest -iname '*camp01f*'` and `git ls-files | grep -i camp01f` in THIS repo both return zero matches -- no camp01-authority-receipt controller-registered directory exists for camp-01f anywhere in this repository or its durable evidence tree, despite the archived tasks.md's claim of 'durable reviewed-head + exact-main + cleanup receipts'. (Real receipts DO exist, but only in the separate operator clone -- see durableReceiptFoundInOperatorClone above.)",
+   "`gh api repos/SwiggitySwerve/MekStation/collaborators` this session -> exactly one collaborator, SwiggitySwerve, permission admin. No second collaborator exists to have produced the non-author APPROVED review the claim implies."
+  ],
+  "conclusion": "This is the SIXTH consecutive CAMP-01 sub-wave (after camp-00, camp-01a, camp-01b, camp-01c, camp-01d, camp-01e) whose archived child tasks.md asserts a governed receipt and cites the same nonexistent 2026-08-12 council-review document. The product code for camp-01f genuinely shipped (PR #1239, real ancestor of origin/main, independently re-verified below by direct source/test reads AND corroborated by real -- if non-repo-resident and stale-SHA -- operator-clone receipts) but the RECEIPT and REVIEW-GATE claims are false in the same narrow way every predecessor's were: self-authored, self-merged, zero reviews, no controller-registered receipt directory anywhere inside this repository. A worker admitted onto R2.camp-6 MUST NOT cite PR #1239, the '23/23 readmitted' figure, or the 2026-08-12 council review as satisfying task 6.1's receipt clause; the operator-clone receipts may be cited as corroborating historical evidence only, not as the required fresh exact-main run."
+ },
+ "frozenContractRow": {
+  "source": "scripts/qc/camp01-authority-receipt.contract.mjs -> WAVE_CONTRACTS['camp-01f']",
+  "sourceFileVerifiedOnOriginMain": "1e43090c505f",
+  "wave": "camp-01f",
+  "commandId": "camp-01f",
+  "childChange": "persist-saved-custom-unit-campaign-creation",
+  "runRootTemplate": ".sisyphus/evidence/playtest/camp01f-persistence-<sha>",
+  "commandSequence": [
+   [
+    "@npm", "test", "--", "--watchAll=false", "--runTestsByPath",
+    "src/components/gameplay/pages/campaigns/create/__tests__/CreateCampaignPage.submitPersistence.test.tsx",
+    "src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts",
+    "--runInBand"
+   ],
+   [
+    "@node", "scripts/playwright/run-playwright.mjs", "test",
+    "--project=chromium", "e2e/campaign-customizer-handoff.spec.ts", "--workers=1"
+   ]
+  ],
+  "canonicalArgvDigest": "b0708546b48ed3c1355f813c2d3e9d0ac6dbdadb7734dd60ae26a600899c30ef",
+  "artifacts": [
+   "command-result.json",
+   "receipt-manifest.json",
+   "wave-result.json",
+   "reports/campaign-persistence-authority.json"
+  ],
+  "assertions": [
+   "requestMethodPut===true",
+   "responseAccepted===true",
+   "campaignIdMatched===true",
+   "rosterInstanceIdPresent===true",
+   "unitRefMatched===true",
+   "unitSourceCustom===true",
+   "rootForceContainsInstance===true",
+   "constructionPayloadAbsent===true",
+   "successSuppressedOnFailure===true",
+   "sameIdRetried===true",
+   "conflictSameIdRetried===true",
+   "conflictOverwritePrevented===true"
+  ],
+  "predecessors": ["camp-01e"],
+  "capSubject": "product-pr",
+  "maxFiles": 8,
+  "maxChangedLines": 400,
+  "reporterContracts": [
+   {
+    "invocationId": "camp-01f-persistence-browser",
+    "producerId": "scripts/playwright/run-playwright.mjs",
+    "reporterId": "camp01-campaign-persistence-reporter/v1",
+    "reportSchema": "camp01-campaign-persistence-authority/v1",
+    "normalizedPath": "reports/campaign-persistence-authority.json",
+    "sourceIds": ["e2e/campaign-customizer-handoff.spec.ts"],
+    "requiredTestIds": [
+     "e2e/campaign-customizer-handoff.spec.ts::campaign customizer handoff @campaign @customizer::creates a saved custom unit campaign through accepted server persistence"
+    ],
+    "allowedStatuses": ["passed"],
+    "minimumObservedTests": 1,
+    "completeObservationSet": true
+   }
+  ],
+  "criticalDifferenceFromOtherRows": "camp-01f's second commandSequence entry is a DIRECT single-spec `node scripts/playwright/run-playwright.mjs` invocation (like camp-01e's), not a chained package script (unlike camp-01b/c/d's `verify:qc:coop-campaign-journey`/`qc:command:readiness-stable:quick`). It also carries a strict reporter contract (camp01-campaign-persistence-reporter/v1) gated in the e2e spec itself by `process.env.CAMP01_INVOCATION_ID === 'camp-01f-persistence-browser'`, requiring the report to be a passed-only, complete observation of exactly the one named test id."
+ },
+ "taskKeys": [
+  {
+   "key": "add-saved-custom-unit-campaign-roster#6.1@42",
+   "sourceId": "6.1",
+   "literalText": "6.1 Require accepted production wizard persistence with honest error/conflict and same-id retry and extend `e2e/campaign-customizer-handoff.spec.ts` through real production submit. The immutable `camp-01f` row SHALL pin separate ordered command arrays for `npm.cmd test -- --watchAll=false --runTestsByPath src/components/gameplay/pages/campaigns/create/__tests__/CreateCampaignPage.submitPersistence.test.tsx src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts --runInBand` and `node scripts/playwright/run-playwright.mjs test --project=chromium e2e/campaign-customizer-handoff.spec.ts --workers=1`. Run the authority writer with `--wave=camp-01f`, its run root/SHA/command id, and exact spec/product tuples but no caller command text, then matching reviewed-head validation; after merge rerun both under a new exact-main run root with the exact product merge tuple and exact-main SHA/mode; review, publish within 8 files/400 lines, merge, audit, and prune before CAMP-01G.",
+   "checkboxStateOnOriginMain": "[ ] unchecked (roster umbrella tasks.md line 42); the underlying archived child's own tasks.md (archive/2026-08-20-persist-saved-custom-unit-campaign-creation, tasks 1.1/1.2/2.1-2.4/3.1/3.2) shows [x]",
+   "verifiedAgainstOriginMain": "tasks.md line 42 re-read via `git show origin/main:openspec/changes/add-saved-custom-unit-campaign-roster/tasks.md` at 1e43090c505f this session; local working-tree diff confirmed to leave section 6 untouched",
+   "whatSourceAlreadyDoes": [
+    "src/components/gameplay/pages/campaigns/create/CreateCampaignPage.submit.ts:288-292 -- `submitCampaignCreation` calls `await store.getState().saveCampaign()` (local) then `await useCampaignPersistenceStore.getState().saveCampaign()` (server) and only proceeds to the success toast + `router.push` when `persistResult.status === 'saved'`; module-level `pendingCreatedCampaignId` (set at line 260, cleared only at line 311 on success) makes a re-invoked `submitCampaignCreation` skip local campaign/roster/pilot re-creation (`reusePending` at line 242-244) and go straight to the SAME campaign id's persistence retry -- this is the 'same-id retry' half of task 6.1.",
+    "src/components/gameplay/pages/campaigns/create/CreateCampaignPage.submit.ts:298-309 -- on any `persistResult.status !== 'saved'` (error or conflict), `setLocalError`/`showToast` fire with a status-specific message ('Campaign save conflict. Retry keeps the same campaign.' for conflict, the raw `errorMessage` for error) and the function returns WITHOUT calling `router.push` or clearing `pendingCreatedCampaignId` -- honest failure surfacing with no navigation, exactly what the frozen `successSuppressedOnFailure` assertion checks.",
+    "src/stores/campaign/useCampaignPersistenceStore.ts:588-601 `putLiveCampaign` -- issues the real `PUT /api/campaigns/:id` with `{envelope, baseVersion}`; on HTTP 409 returns `{status:'conflict', conflictServerRecord, conflict}` via `readConflictBody`, never retrying the request itself.",
+    "src/stores/campaign/useCampaignPersistenceStore.ts:960-991 `performSave` (the body of `saveCampaignAction`) -- on `attempt.status==='conflict'` sets `saveState:'conflict'` and returns `{status:'conflict', ...}` with an explicit code comment ('ONE ATTEMPT ... there is no second attempt ... the only safe move is to take its record') documenting that the store deliberately does NOT auto-resubmit a stale envelope at the server's reported version -- this is the exact mechanism behind the frozen `conflictOverwritePrevented` assertion; the retry the task text and the e2e/jest tests exercise is the WIZARD-LEVEL same-campaign-id resubmission via `pendingCreatedCampaignId`, not an automatic PUT retry inside the store.",
+    "src/stores/campaign/useCampaignPersistenceStore.ts:925-932 `saveCampaignAction` -- thin wrapper (`clearAutoSaveTimer(); return performSave(set, get);`) that CreateCampaignPage.submit.ts's `useCampaignPersistenceStore.getState().saveCampaign()` call invokes directly, so the wizard's production submit path and the store's own manual-save path are the same code, not a parallel test-only helper.",
+    "openspec/specs/campaign-persistence/spec.md:202-224 (the LIVE, already-merged source-of-truth spec, not just the archived child's own delta copy) already carries the identical 'Campaign Creation Server Commit' requirement and its four scenarios (wizard-submission-awaits-accepted-server-state, failed-commit-remains-recoverable, creation-conflict-never-auto-overwrites) verbatim -- confirming the delta genuinely landed in the canonical spec tree, not merely in the archived change's own copy."
+   ],
+   "deltaShallsMapped": [
+    "persist-saved-custom-unit-campaign-creation specs/campaign-persistence/spec.md 'Requirement: Campaign Creation Server Commit' -- 'The production campaign-creation submit path SHALL report success only after the assembled campaign, roster projection, and root force receive an accepted saved result...'; 'Failed server commit remains recoverable' scenario ('retry SHALL persist the same campaign id without duplicate campaign, roster, or root-force entries'); 'Creation conflict never auto-overwrites server state' scenario ('SHALL NOT adopt the server version and automatically re-submit the full local snapshot ... a player-initiated retry SHALL retain the same pending campaign id'). Same text (near-verbatim) is live today at openspec/specs/campaign-persistence/spec.md:202-224."
+   ],
+   "existingTests": [
+    "src/components/gameplay/pages/campaigns/create/__tests__/CreateCampaignPage.submitPersistence.test.tsx:41-128 'PUTs once, retries the same id, and keeps 409 from overwriting' -- a single end-to-end test that drives `submitCampaignCreation` through a scripted fetch mock across three phases (500 fail -> 409 conflict -> 200 accept), asserts all 12 frozen camp-01f assertion predicates true (campaignIdMatched, conflictOverwritePrevented, conflictSameIdRetried, constructionPayloadAbsent, requestMethodPut, responseAccepted, rootForceContainsInstance, rosterInstanceIdPresent, sameIdRetried, successSuppressedOnFailure, unitRefMatched, unitSourceCustom), and self-writes wave-result.json in the exact camp01-wave-result/v1 shape when CAMP01_ARTIFACT_DIR/CAMP01_RUN_ID are set -- the same self-writing pattern every predecessor wave's frozen test uses.",
+    "src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts:346-446 -- five focused store-level tests directly on the conflict/retry mechanism this task names: 'a 409 sets saveState to conflict and exposes the server record' (346), 'resolveConflictTakeServer adopts the server record' (361), 'offers no overwrite path back to the server after a 409' (376), 'exposes the typed conflict the server returned, with its recovery action' (399), 'never resubmits the stale envelope at the server version' (415) -- this last one is the direct unit-level proof of the `performSave` code comment's 'ONE ATTEMPT' claim.",
+    "e2e/campaign-customizer-handoff.spec.ts:409-521 'creates a saved custom unit campaign through accepted server persistence' -- the frozen browser journey: routes `**/api/campaigns/**` PUT through a scripted three-phase responder (500 -> 409 -> pass), drives the real wizard UI through name/roster/saved-design-add/submit, asserts the 500 toast, retries (asserts the conflict toast, `puts[1].baseVersion===0` proving the retry did not advance past a rejected write), retries again to acceptance, asserts navigation to `/gameplay/campaigns/:id`, asserts every `puts[n].campaignId` is identical across all three attempts, and asserts the accepted record's unitRef/unitSource/constructionAbsent/rootContainsInstance/unitId(≠savedId) -- when `CAMP01_INVOCATION_ID==='camp-01f-persistence-browser'` it also attaches the exact `camp01-campaign-persistence-authority/v1` report shape the frozen reporter contract requires, with digested campaign/roster/unitRef ids."
+   ],
+   "exactGap": "NONE FOUND for the literal text of task 6.1. Every clause -- 'accepted production wizard persistence' (real server PUT via useCampaignPersistenceStore, not a local-only or test-only path), 'honest error/conflict' (500 and 409 both suppress success/navigation and surface an actionable message), 'same-id retry' (pendingCreatedCampaignId reuse at the wizard layer, verified in both the jest test and the e2e journey), and the exact e2e extension through real production submit (lines 409-521) -- is implemented and covered by the exact two jest files plus the one e2e spec the frozen camp-01f contract row names. The PR that delivered it (#1239) also lands exactly at the row's 400-changed-line cap (six files, additions+deletions summing to precisely 400) and 6 of 8 allowed files, both independently re-summed this session from `gh pr view 1239 --json files`."
+  }
+ ],
+ "sourceFilesInventory": {
+  "method": "Read of the archive-original-main-proof worktree (1e43090c505f, == origin/main at fetch) plus direct `git show origin/main:<path>` for tasks.md/spec/contract text",
+  "files": [
+   { "path": "src/components/gameplay/pages/campaigns/create/CreateCampaignPage.submit.ts", "lines": 322, "note": "full file read" },
+   { "path": "src/stores/campaign/useCampaignPersistenceStore.ts", "lines": 1266, "note": "grepped for saveCampaign/conflict/PUT/409, then full sections read: lines 570-650 (putLiveCampaign, applySavedRecord), 700-780 (performSave/runSave), 925-1010 (saveCampaignAction, flush helpers)" },
+   { "path": "src/components/gameplay/pages/campaigns/create/__tests__/CreateCampaignPage.submitPersistence.test.tsx", "lines": 128, "note": "full file read" },
+   { "path": "src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts", "note": "test-name listing read (grep); five conflict/retry-relevant test bodies located by line number, not all re-read verbatim" },
+   { "path": "e2e/campaign-customizer-handoff.spec.ts", "lines": 630, "note": "lines 380-540 read in full (the camp-01e picker test tail plus the complete camp-01f frozen test and the start of the camp-01g cold-reload test)" },
+   { "path": "openspec/changes/add-saved-custom-unit-campaign-roster/tasks.md", "note": "full file read via `git show origin/main`; local working-tree diff checked, section 6 confirmed byte-identical" },
+   { "path": "openspec/changes/add-saved-custom-unit-campaign-roster/design.md", "note": "grepped for CAMP-01F; line 105 read (the design's own camp-01f row summary, matching the contract file)" },
+   { "path": "openspec/changes/add-saved-custom-unit-campaign-roster/specs/mission-contracts/spec.md", "note": "grepped for camp-01f/persist/wizard-submit terms; no camp-01f-specific scenarios found there (mission-contracts is CAMP-01A/D's territory, not 01F's)" },
+   { "path": "openspec/changes/add-saved-custom-unit-campaign-roster/specs/campaign-persistence/spec.md", "note": "full file read -- the roster umbrella's own (not-yet-merged) delta copy of the camp-01f requirement" },
+   { "path": "openspec/specs/campaign-persistence/spec.md", "note": "lines around 202-224 read -- the LIVE merged spec, confirmed to already carry camp-01f's requirement verbatim" },
+   { "path": "openspec/changes/archive/2026-08-20-persist-saved-custom-unit-campaign-creation/tasks.md", "note": "full file read via git show origin/main" },
+   { "path": "openspec/changes/archive/2026-08-20-persist-saved-custom-unit-campaign-creation/proposal.md", "note": "full file read via git show origin/main" },
+   { "path": "openspec/changes/archive/2026-08-20-persist-saved-custom-unit-campaign-creation/specs/campaign-persistence/spec.md", "note": "full file read via git show origin/main" },
+   { "path": "scripts/qc/camp01-authority-receipt.contract.mjs", "note": "camp-01f WAVE_CONTRACTS row (line 33) plus its fReporters block (line 11) and the DATA.waves['camp-01f'].reporterContracts wiring (line 40) read" },
+   { "path": "scripts/qc/camp01-authority-receipt.schemas.mjs", "note": "line 137 read -- validatePersistence(), the schema-level enforcement of camp-01f's persistence-identity and authority-drift assertions" },
+   { "path": "scripts/qc/camp01-durable-facts.mjs", "note": "readIndex/resolvePreflightFacts read (lines 81-90) to confirm the controller's candidate-discovery mechanism and predecessor-receipt/cleanup requirement" },
+   { "path": "src/lib/campaign/authority/campaignLegacyAdoption.ts", "note": "grepped for adoptLegacyCampaign definition (line 118) and its two call sites (useCampaignPersistenceStore.ts, pages/gameplay/campaigns/index.tsx) -- confirmed NOT part of camp-01f's own scope (it gates loadCampaign's legacyUnadopted branch, a separate campaign-authority concern)" },
+   { "path": "src/services/units/listCampaignSavedDesigns.ts", "note": "grepped for definition (line 19) and call sites (CreateCampaignPage.RosterStep.tsx, pages/gameplay/campaigns/[id]/mech-bay.tsx) -- confirmed this is camp-01e's (picker) and camp-01g's (Mech Bay reload) data source, not camp-01f's; camp-01f's own frozen files never import it" },
+   { "path": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json", "note": "R2.camp-6 node located and read in full (untracked local file)" },
+   { "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-camp-1-admission-brief-20260915.json", "note": "full read -- house style + pattern" },
+   { "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-camp-2-admission-brief-20260915.json", "note": "full read -- house style + pattern" },
+   { "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-camp-3-admission-brief-20260915.json", "note": "full read -- house style + pattern" },
+   { "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-camp-4-admission-brief-20260915.json", "note": "full read -- house style + pattern + schema keys" },
+   { "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-camp-5-admission-brief-20260915.json", "note": "full read -- immediate predecessor; confirmed origin/main pin continuity (1e43090c505f)" },
+   { "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-receipts-closure-20260915.json", "note": "grepped for camp-01f mentions; located the operator-clone receipt claim that triggered the durableReceiptFoundInOperatorClone investigation" },
+   { "path": "E:/Projects/MekStation-proof/.sisyphus/evidence/playtest/camp01f-persistence-db00c138289c8809577bb6c33dfb9582affb580a/**", "note": "full directory listing plus wave-result.json content read (external operator clone, not part of this repo)" },
+   { "path": "E:/Projects/MekStation-proof/.sisyphus/evidence/playtest/camp01f-persistence-f8668762af8d8147a0a01351f96774410f6abe41/**", "note": "full directory listing plus wave-result.json content read (external operator clone, not part of this repo)" },
+   { "path": "E:/Projects/MekStation-proof/.sisyphus/evidence/playtest/.camp01-cleanups/camp-01f-camp01-66c36547e25fafa9dc0bef80616a8c6f-wave-cleanup.json", "note": "full content read (external operator clone)" }
+  ]
+ },
+ "controllerPredecessorGate": {
+  "source": "scripts/qc/camp01-durable-facts.mjs resolvePreflightFacts() (mechanism documented in the R2.camp-1 brief; not re-read line-by-line beyond the readIndex/resolvePreflightFacts excerpt this session)",
+  "verifiedThisSession": "`find .sisyphus/evidence/playtest -iname '*camp01a*' -o -iname '*camp01b*' -o -iname '*camp01c*' -o -iname '*camp01d*' -o -iname '*camp01e*' -o -iname '*camp01f*'` in THIS repo returns zero matches. `ls .sisyphus/evidence/playtest/` shows exactly one directory, 2026-07-07-live-playtest/, unrelated to any camp-0x wave. `git ls-files | grep -i camp01` also returns zero matches.",
+  "consequence": "camp-01f's own controller run (qc:camp01-authority-receipt:write --wave=camp-01f ...) would fail camp-01e's predecessor check in THIS repo today -- an exact continuation of the chain the R2.camp-1/2/3/4/5 briefs documented. The operator-clone receipts (durableReceiptFoundInOperatorClone above) do not change this: readIndex() scans a repo-relative --run-root under this checkout's own .sisyphus/evidence/playtest, not a different clone's filesystem."
+ },
+ "githubReviewGateG1": {
+  "name": "Eligible non-author GitHub APPROVED review on the exact head",
+  "citedFrom": "roadmap.json R2.camp-6.githubReviewGate; scripts/qc/camp01-github-provenance.mjs (same module cited by every camp-1..5 G1)",
+  "liveFactsAsOf20260915": "Re-verified this session: `gh api repos/SwiggitySwerve/MekStation/collaborators` returns exactly one entry (SwiggitySwerve, admin/maintain/push/pull/triage all true). camp-01f's real merged PR #1239 was authored AND merged by that same single collaborator with reviews=[] -- confirmed via `gh pr view 1239 --json author,mergedBy,reviews` this session.",
+  "soloException": false,
+  "satisfiability": "STRUCTURALLY UNSATISFIABLE today, identically to R2.camp-0/1/2/3/4/5: soloException is explicitly false. Any future product PR touching camp-01f's scope needs a real second-collaborator APPROVED review that cannot be produced by an agent session and does not exist today.",
+  "impactOnThisNode": "Even a perfect audit-only PR that touches zero camp-01f-owned behavior would still be unable to close task 6.1's receipt clause, because the controller's exact-main mode requires a merged, approved PR, and merging requires this gate. This also retroactively confirms PR #1239 never satisfied the gate the archived child's tasks.md implies it did."
+ },
+ "crossNodeCoordinationRisk": [
+  {
+   "sharedFile": "src/stores/campaign/useCampaignPersistenceStore.ts",
+   "finding": "This is the load-bearing file for BOTH camp-01f's conflict/retry logic (this node's own scope: saveCampaignAction/performSave/putLiveCampaign, lines ~570-1010) AND a separate, unmerged local branch's crash-window/discard-flush work: `git diff origin/main..codex/roadmap-r2-client-crash-window-20260915 -- src/stores/campaign/useCampaignPersistenceStore.ts` shows a 181-line diff (7 insertions, 174 deletions) touching `reconcileAfterDiscardFlush`, `flushPendingMutationsAction`, `adoptFlushedRevision`/`issuedFlush`, and `runLoad`'s guest-cache-stands guard -- a DIFFERENT region of the same file than camp-01f's conflict/retry code. The branch's diff direction (removing the more sophisticated `issuedFlush`/`adoptFlushedRevision` reconciliation logic present in current origin/main) suggests it is a stale/earlier snapshot rather than new work, not confirmed further this session.",
+   "implication": "No functional overlap with task 6.1's own literal scope (conflict/retry inside `performSave`/`putLiveCampaign` is untouched by that branch's diff), but any future repair PR touching this file for EITHER purpose should re-read the current full file before editing to avoid a merge conflict with whichever branch lands first. Flagged for awareness only; not a gap in this node's own assessment."
+  },
+  {
+   "sharedFunction": "listCampaignSavedDesigns / adoptLegacyCampaign",
+   "finding": "Per the task prompt's own framing (camp-6's title says 'Wizard persistence AND RELOAD'), this session checked whether these two functions -- named in the prompt as candidate wizard/reload-path code -- actually belong to camp-01f's scope. They do not: `listCampaignSavedDesigns` is imported only by CreateCampaignPage.RosterStep.tsx (camp-01e's picker) and pages/gameplay/campaigns/[id]/mech-bay.tsx (camp-01g's cold-reload target); `adoptLegacyCampaign` is imported only by useCampaignPersistenceStore.ts's `loadCampaign`/`legacyUnadopted` branch and pages/gameplay/campaigns/index.tsx (the campaign list page) -- a design-campaign-authority-and-sync concern, not camp-01f's creation-commit concern. Neither function appears in camp-01f's own frozen files (CreateCampaignPage.submitPersistence.test.tsx, useCampaignPersistenceStore.test.ts) or in CreateCampaignPage.submit.ts's imports.",
+   "implication": "No gap or risk for task 6.1 itself. The 'reload' half of the roadmap node's title belongs to R2.camp-7 (CAMP-01G), not this node -- see roadmapNode.noteOnNodeTitleVsScope above."
+  }
+ ],
+ "productionBrowserRunRequiredSummary": {
+  "answer": true,
+  "reasoning": "camp-01f's WAVE_CONTRACTS commandSequence has two entries: the frozen 2-file jest run, and a DIRECT single-spec `node scripts/playwright/run-playwright.mjs test --project=chromium e2e/campaign-customizer-handoff.spec.ts --workers=1` invocation (lighter than camp-01b/c/d's chained package scripts, same shape as camp-01e's browser leg). A full command-level camp-01f receipt reproduction (SLICE-1 below) therefore requires one real Playwright chromium run of the whole e2e/campaign-customizer-handoff.spec.ts file (which also contains the camp-01e and camp-01g tests, run in the same file even though only the camp-01f test's report is required by the reporter contract)."
+ },
+ "orderedSlicePlan": [
+  {
+   "id": "SLICE-1",
+   "priority": 1,
+   "title": "Command-level camp-01f receipt run at exact-main (audit evidence, zero product files, includes the Playwright leg)",
+   "behaviour": "Reproduce the established camp-00..camp-01e command-level pattern for camp-01f: on a freshly fetched, detached-HEAD worktree at verified origin/main, export CAMP01_ARTIFACT_DIR (a fresh evidence directory) and CAMP01_RUN_ID (a crypto-random `camp01-<32hex>` id), then run both frozen commands in order -- the 2-file jest suite (CreateCampaignPage.submitPersistence.test.tsx, useCampaignPersistenceStore.test.ts, --runInBand), then the single-spec Playwright chromium run of e2e/campaign-customizer-handoff.spec.ts. Record exit codes, the produced wave-result.json (schema camp01-wave-result/v1), the reports/campaign-persistence-authority.json reporter output, and all 12 frozen assertion values verbatim.",
+   "filesChanged": 0,
+   "filesTouchedList": [],
+   "redFirstTestNames": "NONE -- pure reproduction run of already-passing, already-shipped code. Per source verification above, task 6.1's core behavior is fully implemented and covered, and is independently corroborated by a real (if non-repo-resident, stale-SHA) 2026-08-13 receipt pair in the operator clone. No repair is needed. The only new artifact is the evidence this slice writes.",
+   "linesEstimate": "0 product/spec lines; 1 new evidence JSON file (unbounded, evidence-only, same category as every predecessor camp-0x receipt-run artifact)",
+   "gates": {
+    "frozenCommands": [
+     "npm test -- --watchAll=false --runTestsByPath src/components/gameplay/pages/campaigns/create/__tests__/CreateCampaignPage.submitPersistence.test.tsx src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts --runInBand",
+     "node scripts/playwright/run-playwright.mjs test --project=chromium e2e/campaign-customizer-handoff.spec.ts --workers=1"
+    ],
+    "canonicalArgvDigestMustMatch": "b0708546b48ed3c1355f813c2d3e9d0ac6dbdadb7734dd60ae26a600899c30ef",
+    "envRequired": [
+     "CAMP01_ARTIFACT_DIR=<fresh dir>",
+     "CAMP01_RUN_ID=camp01-<32 lowercase hex chars>",
+     "CAMP01_INVOCATION_ID=camp-01f-persistence-browser (required for the e2e test to attach the camp01-campaign-persistence-authority/v1 reporter payload)"
+    ],
+    "expectedExit": 0,
+    "expectedAssertions": "all 12 camp-01f assertions true (see frozenContractRow.assertions)",
+    "browserLegNote": "Lighter than camp-01b/c/d's chained package-script legs (single spec file, no additional jest suites chained in), but the e2e file itself also contains the camp-01e picker test and the camp-01g Mech Bay cold-reload test in the same run -- all three must pass for the file to exit 0, even though only the camp-01f test's reporter output is contractually required."
+   },
+   "nonClaims": [
+    "Does NOT close roadmap task 6.1's receipt clause -- the controller write/validate invocations the task text names are not run.",
+    "Does NOT produce a controller-recognized durable receipt directory under THIS repo's .sisyphus/evidence/playtest/camp01f-persistence-<sha>/.",
+    "Does NOT satisfy or attempt to satisfy githubReviewGateG1.",
+    "Does NOT modify CreateCampaignPage.submit.ts, useCampaignPersistenceStore.ts, or any other product file.",
+    "Does NOT claim the operator-clone receipts (durableReceiptFoundInOperatorClone) as this node's own closure -- they are cited as corroborating historical evidence only."
+   ]
+  }
+ ],
+ "dependencySummary": {
+  "onR2camp5": "R2.camp-6 depends on R2.camp-5 twice over: (a) the roadmap edge dependsOn:[R2.camp-5], and (b) the frozen camp-01f WAVE_CONTRACTS row's own predecessors:[camp-01e], enforced by the controller's durable-index predecessor check. R2.camp-5's own brief recommends but does not confirm execution of its SLICE-1; no camp-01e durable receipt exists in this repo yet. R2.camp-6 inherits the same state: it can reach the same command-level evidence tier (SLICE-1) but cannot reach the controller-registered tier until camp-01a through camp-01e all reach it first inside this repo, and cannot reach exact-main PR closure until camp-00's through camp-01f's own githubReviewGate are ALL satisfied.",
+  "whatCampSixCanDeliverUnderTheOwnerGate": "A command-level, evidence-only receipt (SLICE-1) proving the already-shipped camp-01f code (real, merged, on origin/main via PR #1239, and independently corroborated by real 2026-08-13 operator-clone receipts) still passes its frozen 2-file jest suite AND its single-spec Playwright browser leg at current exact-main, with the same 12/12 assertion tally the wave contract requires. This mirrors what camp00-receipt-run-main and the recommended R2.camp-1..5 SLICE-1s already established as the pattern for this entire chain.",
+  "whatStaysBlocked": "Everything past command-level evidence: the controller-registered receipt (needs camp-01a's through camp-01e's own controller receipts first inside this repo, transitively needing camp-00's), and any real PR closure of roadmap task 6.1 (needs a second GitHub collaborator's non-author APPROVED review, soloException=false, structurally absent today -- now demonstrated unsatisfied for the sixth consecutive sub-wave by PR #1239's own zero-review history)."
+ },
+ "productionBrowserRunRequired": true,
+ "recommendedFirstSlice": "SLICE-1",
+ "summary": "The single taskKey of R2.camp-6 (CAMP-01F task 6.1: requiring accepted production wizard persistence with honest error/conflict handling and same-campaign-id retry, plus the e2e extension through real production submit) is ALREADY IMPLEMENTED and already covered by the exact two jest files plus the one e2e spec the frozen camp-01f contract row names, verified by direct source and test-file reads against origin/main at 1e43090c505f. No red-first work, no repair PR, and no code changes are needed for task 6.1's literal text -- gap NONE FOUND. This is the sixth consecutive CAMP-01 sub-wave (after camp-00, camp-01a, camp-01b, camp-01c, camp-01d, camp-01e) whose archived child change (2026-08-20-persist-saved-custom-unit-campaign-creation) makes an affirmative but unverifiable completion claim citing a council-review document (2026-08-12) that does not exist on origin/main; camp-01f's product PR #1239 is real and merged (mergeCommit db00c1382, confirmed an ancestor of origin/main, landing exactly at the frozen row's 400-changed-line cap), but -- like every predecessor PR in this chain -- it was self-authored, self-merged, with zero recorded GitHub reviews, so the claimed 'durable reviewed-head + exact-main + cleanup receipts' were never produced inside THIS repository (independently confirmed: zero camp01a-through-f directories exist anywhere in this repo's durable evidence tree). UNIQUE to this node: this session located and verified REAL camp-01f durable receipts (two run roots, both status 'passed', all 12 frozen assertions true, both anchored to genuine ancestor commits of origin/main) in a separate on-disk operator clone at E:/Projects/MekStation-proof, confirming the r2-receipts-closure-20260915.json evidence's claim rather than merely repeating it -- but that clone is git-history-stale (~380 commits behind current main), never committed anywhere, and not discoverable by this repo's own controller, so it corroborates but does not substitute for a fresh in-repo run. The 'reload' half of this node's title belongs to the separate downstream R2.camp-7/CAMP-01G node, not this one; `listCampaignSavedDesigns`/`adoptLegacyCampaign` (named in the task prompt) belong to camp-01e/camp-01g/campaign-authority scope respectively and are not part of camp-01f's own frozen files. A cross-node file-sharing note (not a gap): an unmerged local branch (codex/roadmap-r2-client-crash-window-20260915) touches a different region of the same useCampaignPersistenceStore.ts file (discard-flush reconciliation, not conflict/retry) -- worth a pre-edit re-read but not a behavioral conflict with task 6.1's scope. The achievable next step is SLICE-1: a command-level exact-main receipt run reproducing both frozen commandSequence entries (the 2-file jest suite and the single-spec Playwright chromium run), mirroring the pattern already established for camp-00 through camp-01e. Task 6.1's controller-registered and PR-provenanced receipt tiers remain blocked on the identical two structural gates every predecessor in this chain hits: the predecessor chain (camp-01e, and transitively camp-01a through camp-01d) has no controller-recognized receipt inside this repo yet, and the single-collaborator githubReviewGate (soloException=false, re-verified live this session via `gh api .../collaborators`) is structurally unsatisfiable in an agent session."
+}

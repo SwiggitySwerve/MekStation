@@ -1,0 +1,115 @@
+{
+  "at": "2026-09-15T08:00:00.000Z",
+  "state": "local-verified-committed",
+  "base": "bcc34f7cdbd144eafb9709fff5c9bb8936fcb3b7",
+  "commit": "1b90c67d11cae8daa10f6b5273675016ea8b4e72",
+  "branch": "codex/roadmap-archive-edit-recovery-20260915",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/archive-edit-recovery-20260915",
+  "publication": "not-attempted",
+  "preflightCoverageCheck": {
+    "changeFolder": "openspec/changes/add-customizer-edit-recovery",
+    "tasksAllChecked": true,
+    "evidenceFilesConfirmedOnMain": [
+      "docs/audits/2026-09-10-customizer-edit-recovery.md",
+      "e2e/customizer-edit-recovery.spec.ts"
+    ],
+    "canonicalSpec": "openspec/specs/customizer-edit-recovery/spec.md",
+    "deltaSpec": "openspec/changes/add-customizer-edit-recovery/specs/customizer-edit-recovery/spec.md",
+    "requirementHeadingsCompared": [
+      "Observable draft and library state",
+      "Restore saved history into the selected draft",
+      "Independent bounded undo and redo"
+    ],
+    "scenarioHeadingsCompared": 10,
+    "missingFromCanonical": [],
+    "result": "canonical spec already carries all 3 ADDED requirements and all 10 scenarios from the delta spec, verbatim (byte-for-byte identical text) - no requirement would be lost by archiving"
+  },
+  "move": {
+    "command": "git mv openspec/changes/add-customizer-edit-recovery openspec/changes/archive/2026-09-15-add-customizer-edit-recovery",
+    "byteIdentical": true,
+    "fileOids": [
+      {
+        "file": "proposal.md",
+        "before": "openspec/changes/add-customizer-edit-recovery/proposal.md",
+        "after": "openspec/changes/archive/2026-09-15-add-customizer-edit-recovery/proposal.md",
+        "oid": "5595077714da1c8bf9a2f1a362d7bc4810bee5ee"
+      },
+      {
+        "file": "design.md",
+        "before": "openspec/changes/add-customizer-edit-recovery/design.md",
+        "after": "openspec/changes/archive/2026-09-15-add-customizer-edit-recovery/design.md",
+        "oid": "590ef574a653c44443afb73fbe9736c85f3e6106"
+      },
+      {
+        "file": "specs/customizer-edit-recovery/spec.md",
+        "before": "openspec/changes/add-customizer-edit-recovery/specs/customizer-edit-recovery/spec.md",
+        "after": "openspec/changes/archive/2026-09-15-add-customizer-edit-recovery/specs/customizer-edit-recovery/spec.md",
+        "oid": "5acd1297a9308119a45af976488f189aaa4f5958"
+      },
+      {
+        "file": "tasks.md",
+        "before": "openspec/changes/add-customizer-edit-recovery/tasks.md",
+        "after": "openspec/changes/archive/2026-09-15-add-customizer-edit-recovery/tasks.md",
+        "oid": "dfbd36de98afb4b9d65479b22b216f80515fdb89"
+      },
+      {
+        "file": ".openspec.yaml",
+        "before": "openspec/changes/add-customizer-edit-recovery/.openspec.yaml",
+        "after": "openspec/changes/archive/2026-09-15-add-customizer-edit-recovery/.openspec.yaml",
+        "oid": "e8cda9e50ea0cab62490e3e8f3e824b831aca6f0"
+      }
+    ]
+  },
+  "ledgerDiff": {
+    "file": "openspec/active-change-ledger.json",
+    "pattern": "mirrors #1669 (commit c3b4cc1e3) exactly: single entry block removed, no other lines touched",
+    "diff": "--- a/openspec/active-change-ledger.json\n+++ b/openspec/active-change-ledger.json\n@@ -60,12 +60,6 @@\n       \"reason\": \"User-requested recovery of deferred non-3D saved-custom-unit combat work: exact authoritative admission, immutable construction snapshots, replay/recovery and fog proof, and campaign picker/readiness integration. Excludes model and tactical presentation work.\",\n       \"lastReviewed\": \"2026-09-09\"\n     },\n-    {\n-      \"name\": \"add-customizer-edit-recovery\",\n-      \"status\": \"in-progress\",\n-      \"reason\": \"User-requested next customizer improvements: visible draft/library state, saved history and per-unit editing recovery. Excludes model and combat work.\",\n-      \"lastReviewed\": \"2026-09-10\"\n-    },\n     {\n       \"name\": \"repair-record-sheet-rendering\",\n       \"status\": \"in-progress\","
+  },
+  "validators": {
+    "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/archive-original-main-proof",
+    "originalHead": "5b229be21e87815f10ce6521dda77b52eef75e3c",
+    "checkedOutForRun": "1b90c67d11cae8daa10f6b5273675016ea8b4e72",
+    "restoredToAfterRun": "5b229be21e87815f10ce6521dda77b52eef75e3c",
+    "restoredCleanConfirmed": true,
+    "logDir": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/archive-edit-recovery-20260915",
+    "runs": [
+      {
+        "argv": "npx openspec validate --all --strict",
+        "exit": 0,
+        "logFile": "validate-openspec.log",
+        "logSha256": "61e6ff32d597d9c390aed5bdb49bd97a2600c60f8224195d204b4adb0d9081c9",
+        "summary": "Totals: 231 passed, 0 failed (231 items)"
+      },
+      {
+        "argv": "npm run spec:purpose:validate:strict",
+        "exit": 0,
+        "logFile": "spec-purpose.log",
+        "logSha256": "629026f25215446af06f7491ea5757f56e6f66d00cb70d6d432438cb6cb9adf7",
+        "summary": "Files scanned: 220, Errors: 0, Tracked source-of-truth debt: 0"
+      },
+      {
+        "argv": "npm run terminology:validate:strict",
+        "exit": 0,
+        "logFile": "terminology.log",
+        "logSha256": "b3c81f343928de5ecbed04029a56c1173f6f539ec69aabbb2a0b1680d57c85d3",
+        "summary": "Found 311 file(s) to scan; No terminology violations found; all 311 files compliant"
+      },
+      {
+        "argv": "npm run qc:openspec-ci:validate",
+        "exit": 0,
+        "logFile": "qc-openspec-ci.log",
+        "logSha256": "a0fccc9f0f3bee61ecb62b17dfa2ebf8a18bf496511b6557d95ee4fef0eaaecc",
+        "summary": "workflowContracts=8/8 aggregatorNeeds=18/18 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=11 accountedActiveOpenSpecChanges=11 errors=0"
+      }
+    ],
+    "allExitZero": true
+  },
+  "commitMeta": {
+    "message": "docs(openspec): archive verified customizer edit recovery package",
+    "author": "Wes Rollings <wrollings@gmail.com>",
+    "hooksRun": true,
+    "aiAttributionInMessage": false
+  },
+  "pushed": false,
+  "limits": "Local commit and full validator gate pass only; PR/push/merge/remote CI/main-proof are out of scope for this worker (parent session publishes)."
+}

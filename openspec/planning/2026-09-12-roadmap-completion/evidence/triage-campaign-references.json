@@ -1,0 +1,528 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "triage-campaign-references",
+  "capturedAt": "2026-09-12",
+  "worktree": "E:/Projects/MekStation",
+  "scope": "Bounded source/spec reference inventory for the five assigned campaign-related concerns. No source, canonical spec, roadmap, task, or Git files were changed; no tests, builds, servers, or runtime commands were run.",
+  "inputInventory": {
+    "path": "docs/audits/2026-09-12-customizer-spec-reconciliation/inventory.json",
+    "sha256": "FE9D25951EE79C34C74F0B8F64AEE51DBD94265B30A057AE735CA83301376822",
+    "concerns": {
+      "combat-analytics": "Pointer review found documentation/source references requiring current-file verification; no recent customizer runtime contradiction was established.",
+      "force-management": "Custom-unit display and placeholder semantics match current behavior, but useForceStore line ranges are stale after store logic split.",
+      "game-session-management": "Cited ranges exceed current useQuickGameStore.ts and GameEngine.ts lengths; refresh source anchors before using requirements as implementation evidence.",
+      "personnel-management": "Pilot-store implementation references use ranges beyond current file length; refresh anchors without changing planned personnel behavior.",
+      "repair": "Repair references point to split/short facade files with invalid ranges; locate current implementation modules and refresh anchors."
+    }
+  },
+  "rows": [
+    {
+      "id": "combat-analytics",
+      "originalConcern": "The baseline spec used stale navigation and page-component ranges (navigation.ts:47-162, CampaignDashboard.tsx:175-569, AnalysisBugs.tsx:255-642) and required current-file verification of analytics references.",
+      "currentStatus": "resolved_reference",
+      "spec": {
+        "path": "openspec/specs/combat-analytics/spec.md",
+        "sha256": "a6b36a2d1599acad7539d434ca8963a09437307b08eb4221dfd4d099e0bca43d",
+        "correctedLines": [
+          287,
+          365,
+          411
+        ]
+      },
+      "resolvedReferenceMap": [
+        {
+          "specLines": "175,209",
+          "path": "src/utils/simulation-viewer/calculations.ts",
+          "symbols": "calculateBVAdvantage,calculateComparisonDelta",
+          "sourceLines": "10,28",
+          "sha256": "6e440c5960dc4c435544d1fd5bfb3eb0e0d1e359c59dee76a0c918c99d4eced5",
+          "mapping": "Both numeric calculation anchors contain the named exported functions."
+        },
+        {
+          "specLines": "235,260",
+          "path": "src/utils/simulation-viewer/formatting.ts",
+          "symbols": "formatCurrency,formatDuration",
+          "sourceLines": "8,23",
+          "sha256": "877ea6e5b553aac63e8cdef0919bb6c2d628c12f2a0002691e75e56cf87fd5fa",
+          "mapping": "Both formatting anchors remain within the current 48-line module."
+        },
+        {
+          "specLines": "287,858,872,894",
+          "path": "src/utils/simulation-viewer/navigation.ts",
+          "symbols": "navigationManager,createDrillDownHandler,TabType,IDrillDownContext,IBreadcrumb",
+          "sourceLines": "8,17,29,121,139",
+          "sha256": "411d7d851467b5fa0ce2dad60a866a206c24d08cc39bd9774adb052f209e60fb",
+          "mapping": "The former broad range was replaced with the live manager/handler symbols; the three type ranges also remain valid."
+        },
+        {
+          "specLines": "329,365,411",
+          "path": "src/components/simulation-viewer/pages/EncounterHistory.tsx",
+          "symbols": "EncounterHistory,CampaignDashboard,AnalysisBugs",
+          "sourceLines": "EncounterHistory.tsx:28-146; CampaignDashboard.tsx:38; AnalysisBugs.tsx:38",
+          "sha256": "05ea767077c9fb0d862fadeb818ea070149c7c92b5705961b12e0d9f6c31975c",
+          "mapping": "EncounterHistory is exactly 146 lines; CampaignDashboard and AnalysisBugs now use symbol anchors, with dashboard sections in the two existing split modules."
+        },
+        {
+          "specLines": "329,365,411",
+          "path": "src/components/simulation-viewer/pages/CampaignDashboard.tsx",
+          "symbols": "EncounterHistory,CampaignDashboard,AnalysisBugs",
+          "sourceLines": "EncounterHistory.tsx:28-146; CampaignDashboard.tsx:38; AnalysisBugs.tsx:38",
+          "sha256": "fe95cdd06af9f75777b9e223e4cbee6283ca48eda5f8d86fa215e045352aaaf2",
+          "mapping": "EncounterHistory is exactly 146 lines; CampaignDashboard and AnalysisBugs now use symbol anchors, with dashboard sections in the two existing split modules."
+        },
+        {
+          "specLines": "329,365,411",
+          "path": "src/components/simulation-viewer/pages/CampaignDashboard.overviewSections.tsx",
+          "symbols": "EncounterHistory,CampaignDashboard,AnalysisBugs",
+          "sourceLines": "EncounterHistory.tsx:28-146; CampaignDashboard.tsx:38; AnalysisBugs.tsx:38",
+          "sha256": "8272b9bde8fca2b232bf437f588f2d27a528e0a8a6ad40a5ce27769631cbef51",
+          "mapping": "EncounterHistory is exactly 146 lines; CampaignDashboard and AnalysisBugs now use symbol anchors, with dashboard sections in the two existing split modules."
+        },
+        {
+          "specLines": "329,365,411",
+          "path": "src/components/simulation-viewer/pages/CampaignDashboard.alertSections.tsx",
+          "symbols": "EncounterHistory,CampaignDashboard,AnalysisBugs",
+          "sourceLines": "EncounterHistory.tsx:28-146; CampaignDashboard.tsx:38; AnalysisBugs.tsx:38",
+          "sha256": "3cb519914ce5012e41f5ab49d0edf9611087e6cee0b563ff3ca1e3fe1f007736",
+          "mapping": "EncounterHistory is exactly 146 lines; CampaignDashboard and AnalysisBugs now use symbol anchors, with dashboard sections in the two existing split modules."
+        },
+        {
+          "specLines": "329,365,411",
+          "path": "src/components/simulation-viewer/pages/AnalysisBugs.tsx",
+          "symbols": "EncounterHistory,CampaignDashboard,AnalysisBugs",
+          "sourceLines": "EncounterHistory.tsx:28-146; CampaignDashboard.tsx:38; AnalysisBugs.tsx:38",
+          "sha256": "34abb5b14d5de444f0aaff29995b27cd0276a55cd011858d6ab249dedc26136c",
+          "mapping": "EncounterHistory is exactly 146 lines; CampaignDashboard and AnalysisBugs now use symbol anchors, with dashboard sections in the two existing split modules."
+        },
+        {
+          "specLines": "650,668,696",
+          "path": "src/simulation/metrics/MetricsCollector.ts",
+          "symbols": "MetricsCollector.recordGame,aggregateSwarmBatch,EventLogQuery",
+          "sourceLines": "MetricsCollector.ts:210; swarmAggregation.ts:74; EventLogQuery.ts:31",
+          "sha256": "8e810a372cae462c008c5d390790919d2a942c240c4137557f5f4c5b39a2929a",
+          "mapping": "The referenced metric, aggregation, and immutable query modules exist and expose the named implementation seams."
+        },
+        {
+          "specLines": "650,668,696",
+          "path": "src/simulation/metrics/swarmAggregation.ts",
+          "symbols": "MetricsCollector.recordGame,aggregateSwarmBatch,EventLogQuery",
+          "sourceLines": "MetricsCollector.ts:210; swarmAggregation.ts:74; EventLogQuery.ts:31",
+          "sha256": "f2cb769eb402fb1795eba6780f5f4e138605790108facce428a9505fc1fa3aac",
+          "mapping": "The referenced metric, aggregation, and immutable query modules exist and expose the named implementation seams."
+        },
+        {
+          "specLines": "650,668,696",
+          "path": "src/simulation/core/EventLogQuery.ts",
+          "symbols": "MetricsCollector.recordGame,aggregateSwarmBatch,EventLogQuery",
+          "sourceLines": "MetricsCollector.ts:210; swarmAggregation.ts:74; EventLogQuery.ts:31",
+          "sha256": "e6fb545af1f729180c442aaff07dc72b28a3eabe27d6c67a00fa870746f50252",
+          "mapping": "The referenced metric, aggregation, and immutable query modules exist and expose the named implementation seams."
+        }
+      ],
+      "remainingDefects": [],
+      "focusedTests": [
+        "src/utils/simulation-viewer/__tests__/calculations.test.ts",
+        "src/utils/simulation-viewer/__tests__/formatting.test.ts",
+        "src/utils/simulation-viewer/__tests__/navigation.test.ts",
+        "src/simulation/metrics/__tests__/MetricsCollector.combatFidelity.test.ts",
+        "src/simulation/__tests__/swarmAggregation.schemaVersion.test.ts",
+        "src/simulation/core/__tests__/EventLogQuery.test.ts",
+        "src/__tests__/pages/simulation-viewer/EncounterHistory.test.tsx",
+        "src/__tests__/pages/simulation-viewer/AnalysisBugs.chunk01.test.tsx"
+      ],
+      "proposedDisposition": {
+        "state": "dispositioned",
+        "disposition": "existing",
+        "text": "Close the finite pointer concern. Current source paths and symbols resolve; no reference repair is indicated. This is static source evidence and does not claim complete analytics runtime or UI coverage.",
+        "nextMinimalAction": "Record the row as existing; run the listed focused tests only if runtime proof is later required."
+      }
+    },
+    {
+      "id": "force-management",
+      "originalConcern": "The baseline spec cited many useForceStore.ts ranges after the store had split its API actions, helpers, and types into sibling modules.",
+      "currentStatus": "resolved_reference",
+      "spec": {
+        "path": "openspec/specs/force-management/spec.md",
+        "sha256": "1e119db35f60fb9e9418176862afe3d23b59130dee7b050914842b990944c757",
+        "correctedLines": "150-368,410-528,559"
+      },
+      "resolvedReferenceMap": [
+        {
+          "specLines": "150-202",
+          "path": "src/stores/useForceStore.ts",
+          "symbols": "useForceStore,getForce,selectForce,getFilteredForces",
+          "sourceLines": "22,31,36,53",
+          "sha256": "dfbd19d0ace6cb499728187bf5956c6a27c0c08f0e3133bb4e62c5068363f1b4",
+          "mapping": "The facade owns initialization and selector-like state methods at these live lines."
+        },
+        {
+          "specLines": "173,219-368,559",
+          "path": "src/stores/useForceStore.apiActions.ts",
+          "symbols": "loadForcesAction,createForceApiActions,createForceAction,updateForceAction,deleteForceAction,cloneForceAction,validateForceAction,assignPilotAction,assignUnitAction,assignPilotAndUnitAction,clearAssignmentAction,swapAssignmentsAction,setAssignmentPositionAction,promoteToLeadAction",
+          "sourceLines": "34,326,51,79,107,298,277,155,173,191,209,225,243,261",
+          "sha256": "4cd8ec2a39be6ddb7dba40264c789a0c2f473cc9a9a17190504057603832a79c",
+          "mapping": "Every corrected API-action symbol is present in the split action module."
+        },
+        {
+          "specLines": "213,291,410-528",
+          "path": "src/stores/useForceStore.helpers.ts",
+          "symbols": "getForceSummariesLogic,ForceStoreState,ListForcesResponse,CreateForceResponse,ForcePosition,IForce,IForceSummary,IForceValidation,ICreateForceRequest,IUpdateForceRequest",
+          "sourceLines": "helpers:3; types:10,15,42; ForceInterfaces.ts:41,138,166,177,201,219",
+          "sha256": "6db95ec6028a48d422a3c29e18285319015e5548d79cb450f28f5985fdc78a62",
+          "mapping": "The corrected helper/store-type/domain-type symbols all resolve in their current split modules."
+        },
+        {
+          "specLines": "213,291,410-528",
+          "path": "src/stores/useForceStore.types.ts",
+          "symbols": "getForceSummariesLogic,ForceStoreState,ListForcesResponse,CreateForceResponse,ForcePosition,IForce,IForceSummary,IForceValidation,ICreateForceRequest,IUpdateForceRequest",
+          "sourceLines": "helpers:3; types:10,15,42; ForceInterfaces.ts:41,138,166,177,201,219",
+          "sha256": "c04f3f90f6f1a8193014ed1cb883d947bbf6b53cc59c2dc4f46d2bc2ccae9ccd",
+          "mapping": "The corrected helper/store-type/domain-type symbols all resolve in their current split modules."
+        },
+        {
+          "specLines": "213,291,410-528",
+          "path": "src/types/force/ForceInterfaces.ts",
+          "symbols": "getForceSummariesLogic,ForceStoreState,ListForcesResponse,CreateForceResponse,ForcePosition,IForce,IForceSummary,IForceValidation,ICreateForceRequest,IUpdateForceRequest",
+          "sourceLines": "helpers:3; types:10,15,42; ForceInterfaces.ts:41,138,166,177,201,219",
+          "sha256": "ca89e471c82360f5ab1af75c08c991662c865f30c590d4012bbc86606a7cb81e",
+          "mapping": "The corrected helper/store-type/domain-type symbols all resolve in their current split modules."
+        }
+      ],
+      "remainingDefects": [],
+      "focusedTests": [
+        "src/types/force/__tests__/ForceInterfaces.test.ts",
+        "src/services/forces/__tests__/ForceService.test.ts",
+        "src/__tests__/api/forces/forces.test.ts",
+        "src/__tests__/api/forces/forceMultiAssignment.real.test.ts",
+        "src/stores/campaign/__tests__/useForcesStore.test.ts"
+      ],
+      "limits": [
+        "No direct useForceStore test file was found; the listed API, service, domain-type, and campaign-store tests are related entrypoints.",
+        "No tests were run, so this row proves reference resolution only."
+      ],
+      "proposedDisposition": {
+        "state": "dispositioned",
+        "disposition": "existing",
+        "text": "Close the stale-range concern. The current spec names the existing facade, split API actions, helper, store-type, and domain-type seams. This does not claim complete force CRUD, persistence, or UI behavior.",
+        "nextMinimalAction": "Record the row as existing; preserve the split-module symbol references."
+      }
+    },
+    {
+      "id": "game-session-management",
+      "originalConcern": "The baseline spec cited useQuickGameStore.ts and GameEngine.ts ranges that exceeded current file lengths after their logic split.",
+      "currentStatus": "resolved_reference",
+      "spec": {
+        "path": "openspec/specs/game-session-management/spec.md",
+        "sha256": "52843d4febc0354f597c6f0f6685b23145168a44c008cf253e02e2f3c4d802d6",
+        "correctedLines": "2380-2545,2700-2708"
+      },
+      "resolvedReferenceMap": [
+        {
+          "specLines": "2380-2392,2422-2454",
+          "path": "src/stores/useQuickGameStore.ts",
+          "symbols": "useQuickGameStore,addUnit,updateUnitSkills,restoreFromSession,persist/partialize",
+          "sourceLines": "37,70,119,317; current file has 343 lines",
+          "sha256": "1175b1585c8105d12b5e8686231fefee1419483d757fd362f425b5a49a08e864",
+          "mapping": "State, unit mutation, restore, and persistence seams now use live symbol anchors."
+        },
+        {
+          "specLines": "2407,2479,2495,2507,2535,2545,2708",
+          "path": "src/stores/useQuickGameStore.actions.ts",
+          "symbols": "startBattle,startSpectatorMode,startInteractiveSkirmish,generateScenario",
+          "sourceLines": "98,191,250,314",
+          "sha256": "efa64dde87d83cd39ac2c7322641a41c42492ecaaf05a359170edf42f8a1b6a8",
+          "mapping": "The corrected action-module anchors contain the scenario and tactical launch functions."
+        },
+        {
+          "specLines": "2479,2495,2700,2708",
+          "path": "src/engine/GameEngine.ts",
+          "symbols": "GameEngine,runToCompletion,createInteractiveSession",
+          "sourceLines": "84,107,259; current file has 325 lines",
+          "sha256": "26981b686805bd4f30e347bb5ee984dd040459afdcb120296ffce8092a4cf5ee",
+          "mapping": "The old out-of-range engine spans were replaced with live class/method symbols."
+        },
+        {
+          "specLines": "2380,2930,2956,3009",
+          "path": "src/types/quickgame/QuickGameInterfaces.ts",
+          "symbols": "createQuickGameUnit,IQuickGameUnitRequest,IQuickGameUnit,IQuickGameState,QUICK_GAME_STORAGE_KEY",
+          "sourceLines": "createQuickGameUnit:318; IQuickGameUnitRequest:86-109; IQuickGameUnit:46-81; IQuickGameState:200; QUICK_GAME_STORAGE_KEY:373",
+          "sha256": "099631b65399f87e575ff8c9f8eaa15b7b326b4e890ae68ffa8b1a3188414726",
+          "mapping": "The two lower type ranges and the storage-key pointer were checked against the live 373-line module."
+        }
+      ],
+      "remainingDefects": [],
+      "focusedTests": [
+        "src/stores/__tests__/useQuickGameStore.test.ts",
+        "src/engine/__tests__/GameEngine.test.ts",
+        "src/engine/__tests__/InteractiveSession.recovery.test.ts",
+        "src/simulation/__tests__/QuickResolveService.test.ts",
+        "src/components/quickgame/__tests__/QuickGameReview.playOptions.test.tsx"
+      ],
+      "proposedDisposition": {
+        "state": "dispositioned",
+        "disposition": "existing",
+        "text": "The finite stale-reference concern is corrected with symbol-based anchors to the current owning modules. This is reference evidence only and does not claim complete runtime behavior.",
+        "nextMinimalAction": "Record the row as existing; preserve the verified symbol references."
+      }
+    },
+    {
+      "id": "personnel-management",
+      "originalConcern": "The baseline spec pointed pilot-store behavior at pre-split ranges 118-484 and 493-524, then retained several type references whose ranges drifted after the current type layout changed.",
+      "currentStatus": "resolved_reference",
+      "spec": {
+        "path": "openspec/specs/personnel-management/spec.md",
+        "sha256": "631325c73e3332b68cfb59410c80e649187e060e3340b8eebc9fcb39972dea21",
+        "correctedLines": "544-864,1249"
+      },
+      "resolvedReferenceMap": [
+        {
+          "specLines": "544,664",
+          "path": "src/stores/usePilotStore.ts",
+          "symbols": "usePilotStore",
+          "sourceLines": "59; current facade has 167 lines",
+          "sha256": "66843c96ea9aab7fa12114af8dc9e6af30e9f33b7949eacfc659e72fbfe20925",
+          "mapping": "The former out-of-range store spans now identify the live facade; its API and skill logic are delegated to sibling modules."
+        },
+        {
+          "specLines": "707-864,1249",
+          "path": "src/constants/PilotConstants.ts",
+          "symbols": "DEFAULT_PILOT_SKILLS,MAX_WOUNDS,WOUND_SKILL_PENALTY,GUNNERY_IMPROVEMENT_COSTS,PILOTING_IMPROVEMENT_COSTS,PILOT_TEMPLATES,getPilotTemplate,getSkillLabel,getPilotRating,getEffectiveSkill",
+          "sourceLines": "31,41,44,70,85,123,157,168,182,189",
+          "sha256": "9d97c0ef9eefa31e4771cab2e4b6e5a65b45913aca3bfb60dccfa232f72ad272",
+          "mapping": "Constant and helper references were converted to live symbol anchors."
+        },
+        {
+          "specLines": "1009-1030",
+          "path": "src/stores/usePilotStore.types.ts",
+          "symbols": "PilotStoreState,PilotStoreActions,ListPilotsResponse",
+          "sourceLines": "PilotStoreState:55-68; PilotStoreActions:70; ListPilotsResponse:22-25",
+          "sha256": "36d0245275fbe61bcb8f2b45c242a678d0efa912cf8a9c85b486f80011928c4c",
+          "mapping": "The live type module is the precise home for these contracts, even though the spec still points two of them at facade runtime lines."
+        }
+      ],
+      "remainingDefects": [],
+      "focusedTests": [
+        "src/stores/__tests__/usePilotStore.test.ts",
+        "src/types/pilot/__tests__/PilotInterfaces.test.ts",
+        "src/__tests__/api/pilots/pilots.test.ts",
+        "src/services/pilots/__tests__/PilotService.test.ts",
+        "src/lib/campaign/utils/__tests__/pilotLookup.test.ts"
+      ],
+      "proposedDisposition": {
+        "state": "dispositioned",
+        "disposition": "existing",
+        "text": "The finite stale-reference concern is corrected with symbol-based anchors to the current owning modules. This is reference evidence only and does not claim complete runtime behavior.",
+        "nextMinimalAction": "Record the row as existing; preserve the verified symbol references."
+      }
+    },
+    {
+      "id": "repair",
+      "originalConcern": "The baseline spec pointed repair behavior and types at split/short useRepairStore.ts and RepairInterfaces.ts ranges that no longer contained the implementation.",
+      "currentStatus": "resolved_reference",
+      "spec": {
+        "path": "openspec/specs/repair/spec.md",
+        "sha256": "4f51961216066a37180bd05d3cdebbcfa510f60e5fea9459a7c51f443ac8cce7",
+        "correctedLines": "193-742"
+      },
+      "resolvedReferenceMap": [
+        {
+          "specLines": "193-412",
+          "path": "src/stores/useRepairStore.ts",
+          "symbols": "useRepairStore,createRepairJobAction,startJobAction,completeJobAction,cancelJobAction,advanceRepairsAction,updateRepairItems,addSalvageAction,createSalvageForRepairAction,validateJob,applyFieldRepair",
+          "sourceLines": "useRepairStore.ts:17; storeActions.ts:54,142,160,177,210,131,227,247,375,364",
+          "sha256": "a81a02f3befaf72019faea0261efdc6550ec584e9608e94d68c67519a65bb732",
+          "mapping": "The corrected store facade and action-module symbols all exist at current lines."
+        },
+        {
+          "specLines": "193-412",
+          "path": "src/stores/useRepairStore.storeActions.ts",
+          "symbols": "useRepairStore,createRepairJobAction,startJobAction,completeJobAction,cancelJobAction,advanceRepairsAction,updateRepairItems,addSalvageAction,createSalvageForRepairAction,validateJob,applyFieldRepair",
+          "sourceLines": "useRepairStore.ts:17; storeActions.ts:54,142,160,177,210,131,227,247,375,364",
+          "sha256": "f7a47db833a381a7880e27383682db5cb7c976e1e9fdfbafe971ebe3cd96177c",
+          "mapping": "The corrected store facade and action-module symbols all exist at current lines."
+        },
+        {
+          "specLines": "438-522",
+          "path": "src/types/repair/repairCalculations.ts",
+          "symbols": "calculateArmorRepairCost,calculateStructureRepairCost,calculateArmorRepairTime,calculateStructureRepairTime,calculateTotalRepairCost,calculateTotalRepairTime,calculateFieldRepair",
+          "sourceLines": "21,29,46,50,54,62,70",
+          "sha256": "a9c416dc1c61a2b8fdb416fbd88943b5b7e89ab62f85b2633ebe912e02279659",
+          "mapping": "Calculation references moved from the obsolete type barrel to the live calculation module."
+        },
+        {
+          "specLines": "556-578",
+          "path": "src/types/repair/repairAssessment.ts",
+          "symbols": "sortJobsByPriority,findMatchingSalvage",
+          "sourceLines": "239,254",
+          "sha256": "161bbec1d0bf2a56d292d45a0c8743d552836cf8da31f1a2d7ac63cc2f04133e",
+          "mapping": "Assessment and ordering references resolve in the current assessment module."
+        },
+        {
+          "specLines": "630-742",
+          "path": "src/types/repair/repairTypes.ts",
+          "symbols": "IRepairJob,IRepairItem,IRepairBay,DEFAULT_REPAIR_BAY,IDamageAssessment,ISalvageInventory,ISalvagedPart,IFieldRepairResult,IRepairJobValidationResult",
+          "sourceLines": "71,85,96,114,121,128,136,146,151",
+          "sha256": "3d6b3ceef55d428166b65dc3878c804d1527dbe2a2bdd6403ec5d9f1804a4235",
+          "mapping": "All type and default-value anchors now name the live type module; RepairInterfaces.ts is only a three-line compatibility barrel."
+        }
+      ],
+      "remainingDefects": [],
+      "focusedTests": [
+        "src/stores/__tests__/useRepairStore.test.ts",
+        "src/types/repair/__tests__/repairTypes.test.ts",
+        "src/types/repair/__tests__/repairCalculations.test.ts",
+        "src/types/repair/__tests__/repairAssessment.test.ts",
+        "src/types/repair/__tests__/repairJobValidation.test.ts",
+        "src/lib/campaign/processors/__tests__/repairProgressProcessor.test.ts"
+      ],
+      "proposedDisposition": {
+        "state": "dispositioned",
+        "disposition": "existing",
+        "text": "Close the stale split-file reference concern. Current repair facade, action, calculation, assessment, and type symbols resolve; no further pointer repair is indicated. This does not claim complete repair runtime, persistence, or campaign integration.",
+        "nextMinimalAction": "Record the row as existing and preserve the current split-module references."
+      }
+    }
+  ],
+  "globalLimits": [
+    "This inventory is static and hash-anchored; no focused test command was run.",
+    "The proposed repair-needed dispositions are reference-only and must not be expanded into product behavior work without a reproduced failure.",
+    "Line mappings can move after later edits; the recorded SHA-256 values identify the inspected file contents."
+  ],
+  "amendment": {
+    "amendedAt": "2026-09-12",
+    "preAmendmentReceiptSha256": "fb6806158c4ff414359c780e0c5f40d92bd94b30aeb871cf7d5e1959ca0536a4",
+    "preAmendmentBackupPath": "C:/Users/wroll/AppData/Local/Temp/triage-campaign-references.before.json",
+    "preAmendmentBackupSha256": "fb6806158c4ff414359c780e0c5f40d92bd94b30aeb871cf7d5e1959ca0536a4",
+    "referenceRepairs": [
+      {
+        "specPath": "openspec/specs/game-session-management/spec.md",
+        "specLine": 2930,
+        "oldString": "src/types/quickgame/QuickGameInterfaces.ts:79-102",
+        "newString": "src/types/quickgame/QuickGameInterfaces.ts:IQuickGameUnitRequest",
+        "oldOccurrenceCount": 1,
+        "newOccurrenceCount": 1,
+        "reason": "Use the live IQuickGameUnitRequest symbol; the former range started inside the preceding interface."
+      },
+      {
+        "specPath": "openspec/specs/game-session-management/spec.md",
+        "specLine": 2956,
+        "oldString": "src/types/quickgame/QuickGameInterfaces.ts:39-74",
+        "newString": "src/types/quickgame/QuickGameInterfaces.ts:IQuickGameUnit",
+        "oldOccurrenceCount": 1,
+        "newOccurrenceCount": 1,
+        "reason": "Use the live IQuickGameUnit symbol; the former range omitted the interface start and trailing fields."
+      },
+      {
+        "specPath": "openspec/specs/game-session-management/spec.md",
+        "specLine": 3009,
+        "oldString": "src/types/quickgame/QuickGameInterfaces.ts:IQuickGameState",
+        "newString": "src/types/quickgame/QuickGameInterfaces.ts:QUICK_GAME_STORAGE_KEY",
+        "oldOccurrenceCount": 2,
+        "newOccurrenceCount": 1,
+        "reason": "The documented constant is QUICK_GAME_STORAGE_KEY, not IQuickGameState; the other IQuickGameState persistence reference remains unchanged.",
+        "replacedOccurrenceIndex": 2,
+        "replacedOccurrenceCount": 1,
+        "occurrenceSelector": "Second matching occurrence at spec line 3009; the first occurrence at line 2422 remains the valid persistence-state reference."
+      },
+      {
+        "specPath": "openspec/specs/personnel-management/spec.md",
+        "specLine": 1080,
+        "oldString": "src/stores/usePilotStore.ts:26-29",
+        "newString": "src/stores/usePilotStore.types.ts:ListPilotsResponse",
+        "oldOccurrenceCount": 1,
+        "newOccurrenceCount": 1,
+        "reason": "ListPilotsResponse is defined in the split store types module; facade lines 26-29 import creation logic."
+      },
+      {
+        "specPath": "openspec/specs/personnel-management/spec.md",
+        "specLine": 1091,
+        "oldString": "src/types/pilot/PilotInterfaces.ts:337-358",
+        "newString": "src/types/pilot/PilotInterfaces.ts:IPilot",
+        "oldOccurrenceCount": 1,
+        "newOccurrenceCount": 1,
+        "reason": "Use the live IPilot symbol; the former range began in IPilotIdentity and captured only the interface start."
+      },
+      {
+        "specPath": "openspec/specs/personnel-management/spec.md",
+        "specLine": 1120,
+        "oldString": "src/types/pilot/PilotInterfaces.ts:406-416",
+        "newString": "src/types/pilot/PilotInterfaces.ts:IPilotStatblock",
+        "oldOccurrenceCount": 1,
+        "newOccurrenceCount": 1,
+        "reason": "Use the live IPilotStatblock symbol at lines 431-440."
+      },
+      {
+        "specPath": "openspec/specs/personnel-management/spec.md",
+        "specLine": 1164,
+        "oldString": "src/types/pilot/PilotInterfaces.ts:321-332",
+        "newString": "src/types/pilot/PilotInterfaces.ts:IPilotIdentity",
+        "oldOccurrenceCount": 1,
+        "newOccurrenceCount": 1,
+        "reason": "The former range is IPilotAbilityRef; IPilotIdentity starts at line 339."
+      },
+      {
+        "specPath": "openspec/specs/personnel-management/spec.md",
+        "specLine": 1183,
+        "oldString": "src/types/pilot/PilotInterfaces.ts:367-381",
+        "newString": "src/types/pilot/PilotInterfaces.ts:ICreatePilotOptions",
+        "oldOccurrenceCount": 1,
+        "newOccurrenceCount": 1,
+        "reason": "Use the live ICreatePilotOptions symbol at lines 392-405."
+      },
+      {
+        "specPath": "openspec/specs/personnel-management/spec.md",
+        "specLine": 1230,
+        "oldString": "src/types/pilot/PilotInterfaces.ts:385-396",
+        "newString": "src/types/pilot/PilotInterfaces.ts:IPilotTemplate",
+        "oldOccurrenceCount": 1,
+        "newOccurrenceCount": 1,
+        "reason": "Use the live IPilotTemplate symbol at lines 410-421."
+      }
+    ],
+    "specHashesBefore": {
+      "openspec/specs/game-session-management/spec.md": "9fe96ee67f02791d8b312558b2e9a7a64eb6753e2e36911c4429f4d0d00611f4",
+      "openspec/specs/personnel-management/spec.md": "05197ae318cc42f048b76f176f9259711a0414d64f939e7d8e910531747d2ebe"
+    },
+    "specHashesAfter": {
+      "openspec/specs/game-session-management/spec.md": "52843d4febc0354f597c6f0f6685b23145168a44c008cf253e02e2f3c4d802d6",
+      "openspec/specs/personnel-management/spec.md": "631325c73e3332b68cfb59410c80e649187e060e3340b8eebc9fcb39972dea21"
+    },
+    "hashCorrection": {
+      "correctedAt": "2026-09-12",
+      "preCorrectionReceiptSha256": "13630c34dbcdc5ed257efcdb2a8581eb455b07a23969b7ffc297d2fdd5811c6b",
+      "preCorrectionBackupPath": "C:/Users/wroll/AppData/Local/Temp/triage-campaign-references.before-hash-correction-v2.json",
+      "preCorrectionBackupSha256": "13630c34dbcdc5ed257efcdb2a8581eb455b07a23969b7ffc297d2fdd5811c6b",
+      "correctedFields": "Every resolvedReferenceMap sha256 now has one real regular-file path. Current canonical spec hashes are recorded on every row. All five rows retain resolved_reference with empty remainingDefects.",
+      "invalidAggregateHashFields": [
+        {
+          "rowId": "combat-analytics",
+          "oldPath": "src/components/simulation-viewer/pages",
+          "oldSha256": "05ea767077c9fb0d862fadeb818ea070149c7c92b5705961b12e0d9f6c31975c",
+          "represented": "EncounterHistory.tsx file digest",
+          "interpretation": "The hash matched the first listed regular file, but the stored path named a directory or multiple files; related hashes carried the other files. It was not a directory or multi-file digest."
+        },
+        {
+          "rowId": "combat-analytics",
+          "oldPath": "src/simulation",
+          "oldSha256": "8e810a372cae462c008c5d390790919d2a942c240c4137557f5f4c5b39a2929a",
+          "represented": "MetricsCollector.ts file digest",
+          "interpretation": "The hash matched the first listed regular file, but the stored path named a directory or multiple files; related hashes carried the other files. It was not a directory or multi-file digest."
+        },
+        {
+          "rowId": "force-management",
+          "oldPath": "src/stores/useForceStore.helpers.ts; src/stores/useForceStore.types.ts; src/types/force/ForceInterfaces.ts",
+          "oldSha256": "6db95ec6028a48d422a3c29e18285319015e5548d79cb450f28f5985fdc78a62",
+          "represented": "useForceStore.helpers.ts file digest",
+          "interpretation": "The hash matched the first listed regular file, but the stored path named a directory or multiple files; related hashes carried the other files. It was not a directory or multi-file digest."
+        },
+        {
+          "rowId": "repair",
+          "oldPath": "src/stores/useRepairStore.ts; src/stores/useRepairStore.storeActions.ts",
+          "oldSha256": "a81a02f3befaf72019faea0261efdc6550ec584e9608e94d68c67519a65bb732",
+          "represented": "useRepairStore.ts file digest",
+          "interpretation": "The hash matched the first listed regular file, but the stored path named a directory or multiple files; related hashes carried the other files. It was not a directory or multi-file digest."
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "slice": "R2.authority-cutover CO3 part 4: two-process scoped convergence and durable restart proof under journal authority",
+  "pr": 1750,
+  "prHead": "3232cc8fa6e9c197628d463194a0d34f96f60b49",
+  "mergeCommit": "1fcd9b6485421d64d4303693a368676fc4df4d51",
+  "verifiedAtUtc": "2026-09-15T20:28:28.436Z",
+  "worktree": "archive-original-main-proof (detached at merge commit, Node v22.22.0)",
+  "blobEquality": {
+    "files": [
+      "e2e/campaign-journal-two-process-convergence.spec.ts"
+    ],
+    "command": "git diff --stat <prHead> <merge> -- <files>",
+    "result": "empty (0 bytes)"
+  },
+  "runtime": {
+    "build": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build at the merge commit, exit 0",
+    "buildId": "1789503656060",
+    "e2eBundleCheck": "window.__E2E_MODE__=!0 in _app-b4f3e371ee8b87c1.js",
+    "playwright": "MEKSTATION_E2E_SERVER_COMMAND=node .next/standalone/server.js HOSTNAME=127.0.0.1 MEKSTATION_E2E_PORT=3639 run-playwright test e2e/campaign-journal-two-process-convergence.spec.ts --project=chromium --retries=0 --workers=1: exit 0, 1 passed (1.2m)",
+    "portsListenAfter": 0
+  },
+  "gates": {
+    "tsc": {
+      "exit": 0,
+      "outputBytes": 0
+    },
+    "openspecStrict": {
+      "exit": 0
+    }
+  },
+  "logs": {
+    "build": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1750-20260915/build.log",
+      "sha256": "8ffc651712f13fa14329762be7255f34aa90c345e395e1ace21a548c652840e0"
+    },
+    "playwright": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1750-20260915/playwright.log",
+      "sha256": "dd40b5ffbaf85c90551722074a5843125dc9f59af3055d1934e71ce121f6c7b2"
+    },
+    "openspec": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1750-20260915/openspec.log",
+      "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3"
+    },
+    "tsc": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1750-20260915/tsc.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "limits": [
+    "flag-free test-process proof of the production code path with a directly constructed marker; no shipped path puts a campaign into the marker state (owner-gated flag flip)",
+    "second process is a same-file server, not the design grant/socket replica (review F2); scoped proven for one seat (F3); launch-head gate owner decision OD-launch-head-gate (F1)",
+    "CI wiring for the two-process spec is a separate item"
+  ]
+}

@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "capturedAt": "2026-09-12T22:35:31.565Z",
+  "status": "complete",
+  "node": "R0.contracts",
+  "scope": "Nine admitted dependency, campaign authority and vault current-state documentation repairs",
+  "prefixes": [
+    {
+      "id": "vault-current-state",
+      "pr": {
+        "number": 1651,
+        "url": "https://github.com/SwiggitySwerve/MekStation/pull/1651",
+        "head": "198c30b1da7377c8be8b86d1a2fb3db3c4175baa",
+        "merge": "92d04fc6bcc2e49fd40d63d6f0cfd2a9c72eb14c"
+      },
+      "receipt": {
+        "mainSha": "92d04fc6bcc2e49fd40d63d6f0cfd2a9c72eb14c",
+        "evidence": "evidence/vault-contracts-main-verification-20260912.json",
+        "parentAcceptance": "evidence/vault-contracts-main-parent-acceptance-20260912.json",
+        "cleanupReceipt": "evidence/vault-contracts-cleanup-20260912.json",
+        "cleanupParentAcceptance": "evidence/vault-contracts-cleanup-parent-acceptance-20260912.json"
+      }
+    },
+    {
+      "id": "predecessor-receipt-wording",
+      "pr": {
+        "number": 1648,
+        "url": "https://github.com/SwiggitySwerve/MekStation/pull/1648",
+        "head": "fb8343f072bc54ac91620bf7e7f73d254e1aece5",
+        "merge": "b39c04304e9e46ebbb5056fa947a145a7bf194d4"
+      },
+      "receipt": {
+        "mainSha": "b39c04304e9e46ebbb5056fa947a145a7bf194d4",
+        "evidence": "evidence/prerequisite-contracts-main-verification-20260912.json",
+        "parentAcceptance": "evidence/prerequisite-contracts-main-parent-acceptance-20260912.json",
+        "cleanupReceipt": "evidence/prerequisite-contracts-cleanup-20260912.json"
+      }
+    },
+    {
+      "id": "campaign-current-state",
+      "pr": {
+        "number": 1650,
+        "url": "https://github.com/SwiggitySwerve/MekStation/pull/1650",
+        "head": "8a1310d5bde7d9e32cf6755f0ad3128ccf9ee9da",
+        "merge": "2e07bc9b508f41cc3c90ea706b3c82f9df4d71ac"
+      },
+      "receipt": {
+        "mainSha": "2e07bc9b508f41cc3c90ea706b3c82f9df4d71ac",
+        "evidence": "evidence/campaign-contracts-main-verification-20260912.json",
+        "parentAcceptance": "evidence/campaign-contracts-main-parent-acceptance-20260912.json",
+        "cleanupReceipt": "evidence/campaign-contracts-cleanup-20260912.json"
+      }
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/prerequisite-contracts-main-parent-acceptance-20260912.json",
+      "sha256": "3ce5fc80273a07774c88afb17d2fa32c89a590c8c336248068497fecc83c304e"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/prerequisite-contracts-cleanup-parent-acceptance-20260912.json",
+      "sha256": "530b760c1ac8c9feda40ba0a212274f4506828f4c29ac530461da2cf24daf5a6"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-contracts-main-parent-acceptance-20260912.json",
+      "sha256": "79d5bbc37f53b7853486084a8026327078455c842f442572628a8d57c96636ac"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-contracts-cleanup-parent-acceptance-20260912.json",
+      "sha256": "55275d09764fa0fa5711cd1d7772b1d8b3664eb427c279fbebb95489b7a8a7e7"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/vault-contracts-main-parent-acceptance-20260912.json",
+      "sha256": "a44d5525dc121b7be7ce3f666fb170e0772e868633f8238d1c84f1abe93723e9"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/vault-contracts-cleanup-parent-acceptance-20260912.json",
+      "sha256": "0cf7772a64bd54c1ad41e6b6bb6efe22e2cb12ba2a9669d0825c854747895748"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/contracts-root-reconciliation-20260912.json",
+      "sha256": "4ac5c52e31522b28114044e43fecb56d37fccadaf363777539735183da292a16"
+    }
+  ],
+  "rootReconciliation": "evidence/contracts-root-reconciliation-20260912.json",
+  "limits": [
+    "Documentation prerequisite is complete; real CAMP exact-head review and three-witness gates remain open.",
+    "Production campaign journal authority remains disabled.",
+    "Canonical specification delivery and later authority, journal, history and vault work retain their own nodes and gates."
+  ]
+}

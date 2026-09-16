@@ -1,0 +1,52 @@
+{
+  "pr": 1727,
+  "branch": "codex/roadmap-ledger-reconcile-2-20260915",
+  "reviewedCommit": "d17c1ae8f2ee6caba7e205671566176e58d5f4b4",
+  "finalHead": "539dac996e556c9f4ac14df8e36925e23c4fffb7",
+  "autoMergeArmed": false,
+  "contentGuard": {
+    "method": "file set from `git diff --name-only origin/main...<head>` vs the reviewed file set, plus per-file blob equality against the reviewed commit; re-run after update-branch",
+    "fileCountAtMerge": 5,
+    "blobEquality": "all files blob-identical to the reviewed commit at the gated head",
+    "result": "PASS"
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "expectedHeadShaGuardUsed": true,
+    "newHead": "539dac996e556c9f4ac14df8e36925e23c4fffb7"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "otherChecksCount": 27,
+    "otherChecksBuckets": {
+      "pass": 27
+    },
+    "totalChecks": 31
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ledger-reconcile-2-1727-final-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "bb7be345fedd2fe9444517b6e07f7f393b81b533",
+  "mergeCommitParents": [
+    "dc8b8f65d2d8b8562ce721ee4f3a9ca81a7a6a11"
+  ],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1727 --squash --match-head-commit 539dac996e556c9f4ac14df8e36925e23c4fffb7",
+  "mergedAt": "2026-09-15T15:50:50Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "The merge commit changes exactly 5 file(s), all blob-identical to the gated head 539dac996e556c9f4ac14df8e36925e23c4fffb7.",
+  "mainAfter": "bb7be345fedd2fe9444517b6e07f7f393b81b533",
+  "worktree": {
+    "fastForward": "NOT PERFORMED - coordinator designated the owned worktrees as off-limits for these PRs",
+    "result": "SKIPPED (intentional)"
+  },
+  "notes": "openspec-only. No conflicts: after update-branch all five files were still byte-identical to the reviewed head.",
+  "timestamps": {
+    "receiptWrittenAt": "2026-09-15T17:02:00Z"
+  }
+}

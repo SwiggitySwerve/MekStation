@@ -1,0 +1,610 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "triage-preserved-campaign",
+  "capturedAt": "2026-09-12",
+  "worktree": "E:/Projects/MekStation",
+  "scope": {
+    "rows": [
+      "campaign-bay-ui",
+      "campaign-hud",
+      "campaign-persistence",
+      "campaign-unit-combat-state",
+      "event-store"
+    ],
+    "boundary": "Finite evidence receipt for the five preserve-planned campaign rows. This receipt maps current requirements to live seams and records bounded existing/deferred dispositions; it does not claim whole-capability or roadmap completion.",
+    "execution": "Read-only inventory plus one bounded canonical-spec wording correction and evidence amendment. No runtime tests, builds, servers, product behavior edits, task/roadmap edits, or Git actions were performed."
+  },
+  "originalInventory": {
+    "path": "docs/audits/2026-09-12-customizer-spec-reconciliation/inventory.json",
+    "sha256": "FE9D25951EE79C34C74F0B8F64AEE51DBD94265B30A057AE735CA83301376822",
+    "rowState": "All five rows were preserve-planned, with roadmap state unreconciled and no prior disposition."
+  },
+  "roadmapOwnership": {
+    "finiteReceiptOwner": {
+      "node": "R9.triage",
+      "owner": "parent; assign bounded Luna high worker on admission",
+      "status": "This receipt supplies the bounded evidence and disposition input."
+    },
+    "futureOwnersRemainOpen": {
+      "nodes": [
+        "R2",
+        "R4",
+        "R5",
+        "R8"
+      ],
+      "owner": "parent; assign a bounded worker on admission",
+      "status": "Open future obligations remain open; this inventory does not close or waive them.",
+      "admittedOwnership": {
+        "R2.camp-6": "campaign bay/customizer handoff proof",
+        "R2.camp-7": "campaign persistence proof",
+        "R2.camp-8/R2.journey": "campaign journey and browser receipt proof",
+        "R2.authority-cutover/live": "production campaign journal authority cutover",
+        "R4/R5": "match/effect and gameplay integration work",
+        "R8": "broader journey/map obligations remain open"
+      }
+    },
+    "nonWaiver": "A preserve-planned disposition here is not a waiver of R8, R2, R4, R5, or any other roadmap goal. Runtime journey, authority cutover, and broader gameplay proof remain owned by their admitted roadmap work."
+  },
+  "rows": [
+    {
+      "id": "campaign-bay-ui",
+      "originalConcern": "Preserve the saved custom-unit campaign bay seam: custom identity, campaign return context, roster identity, and stock-substitution boundary were recorded as aligned, but the reconciliation needed current source and test proof.",
+      "currentStatus": "Evidence-backed existing seam with an honest unresolved boundary.",
+      "finiteDisposition": {
+        "state": "existing",
+        "disposition": "existing_with_honest_custom_identity_boundary",
+        "rationale": "The live resolver carries unresolved custom-unit ids and custom BV availability separately; a missing custom record remains unresolved. MechBay renders the cached identity and only displays custom BV when available. The focused test proves a saved custom design resolves without stock substitution and that a missing row remains visible with cached name/tonnage and unavailable BV.",
+        "remainingAdmittedObligation": {
+          "owner": "R9.triage for this finite receipt; R2.camp-6 owns customizer handoff proof and R2.camp-8/R2.journey owns campaign journey proof.",
+          "nextProof": "Use R2.camp-6 and R2.camp-8/R2.journey focused route/browser seams to prove the full campaign return/action path and cold reload.",
+          "status": "open_future_proof"
+        }
+      },
+      "specEvidence": [
+        {
+          "path": "openspec/specs/campaign-bay-ui/spec.md",
+          "sha256": "447F144C18892FB33CCAD9178908FB85FC72C2B2CB0DA6FB5724A76A418A4A2C",
+          "lines": "147-193",
+          "claims": [
+            "Route actions retain campaign and mission return context.",
+            "Custom identity is required across cold reload, including unitRef, roster instance, and custom source.",
+            "Cached unresolved identity remains visible and blocks readiness/launch until the same reference resolves."
+          ]
+        }
+      ],
+      "sourceEvidence": [
+        {
+          "path": "src/lib/campaign/bays/resolveMechBayUnit.ts",
+          "sha256": "C2AF2ACCE5A91FBBF45A85429A27C882B4F335C45F48CF7DE5266D00EE06BAE9",
+          "lines": "3-13, 23-72",
+          "symbols": [
+            "IMechBayUnitResolution",
+            "resolveMechBayLoadout"
+          ],
+          "proof": "Unresolved ids and custom-BV-available ids are tracked independently; missing custom rows are not rewritten to stock."
+        },
+        {
+          "path": "src/components/campaign/bays/MechBay.tsx",
+          "sha256": "EBF7FC723FE31CEAB1273262A73B651D11DB5EB9491EC442263DD051FD1E4EDE",
+          "lines": "82-146, 238-313",
+          "symbols": [
+            "MechBay"
+          ],
+          "proof": "The row exposes custom source/identity and honest BV/unresolved display, and the grid passes unresolved/custom-BV state through to the UI."
+        },
+        {
+          "path": "src/lib/campaign/customizer/campaignCustomizerRoute.ts",
+          "sha256": "98A9DF3E41D9E3A69BCAFC54F156ABA209E23C63136FD95EBBEE029435B13B75",
+          "lines": "11-20, 66-85, 100-142",
+          "symbols": [
+            "campaignCustomizerRoute state and href helpers"
+          ],
+          "proof": "Campaign and mission return context is encoded and parsed at the customizer route boundary."
+        }
+      ],
+      "focusedTests": [
+        {
+          "path": "src/components/campaign/bays/__tests__/MechBay.test.tsx",
+          "sha256": "DE082561A2177F5FB1FB1E2E3EBD155BE841436BCF1CB20BEDB0F3C0FBE72C6A",
+          "lines": "315-336",
+          "proof": "Custom saved design resolves with its custom BV and an unresolved missing row remains visible without substitution."
+        }
+      ],
+      "smallestRelevantExactTestCommand": "npm.cmd test -- --watchAll=false --runTestsByPath src/components/campaign/bays/__tests__/MechBay.test.tsx --runInBand",
+      "remainingMissingProof": [
+        "No browser or full action-return execution was run in this inventory.",
+        "The receipt does not establish all campaign navigation, readiness, or server persistence journeys."
+      ],
+      "explicitNonClaims": [
+        "Does not claim all campaign bay UX requirements are complete.",
+        "Does not claim missing custom records can be recovered or that any stock substitution is safe."
+      ]
+    },
+    {
+      "id": "campaign-hud",
+      "originalConcern": "Preserve the campaign HUD row; the inventory had no direct PR coupling and required a current distinction between planned layout and shipped summary behavior.",
+      "currentStatus": "Shipped canonical dashboard summary selector exists; the top-level HUD layout specification remains Draft.",
+      "finiteDisposition": {
+        "state": "existing_with_deferred_layout",
+        "disposition": "existing_summary_selector_draft_layout_deferred",
+        "rationale": "The hook subscribes to campaign state with useStore and derives active contract through the shared selectActiveContract selector, while the focused test checks parity with the Missions-tab selector and terminal-contract empty state. The canonical spec still labels the full HUD layout Draft, so the finite disposition covers the summary seam only.",
+        "remainingAdmittedObligation": {
+          "owner": "R9.triage for this receipt; future R2/R4/R5/R8 owners remain open",
+          "nextProof": "Admit bounded HUD layout work for the draft shell, responsive/accessibility behavior, and live browser proof.",
+          "status": "open_future_proof"
+        }
+      },
+      "specEvidence": [
+        {
+          "path": "openspec/specs/campaign-hud/spec.md",
+          "sha256": "8277259287815D1AE910146EE54579A525EC67B521A95F4ECE00C36DF32DE05F",
+          "lines": "3, 15-36, 389-431, 768-802",
+          "claims": [
+            "The full HUD document is Draft and describes a planned multi-panel layout.",
+            "The shipped canonical summary requirement derives active contract through the shared selector and force counts from campaign state.",
+            "The draft layout still has explicit implementation and edge-case follow-up."
+          ]
+        }
+      ],
+      "sourceEvidence": [
+        {
+          "path": "src/lib/campaign/hooks/useCampaignDashboardSummary.ts",
+          "sha256": "F07CBFF05CE9E732C659E51F8E5A7EF696B6554388AAC5291F51FA20E10D191B",
+          "lines": "18-30, 124-149, 430-478",
+          "symbols": [
+            "useCampaignDashboardSummary",
+            "extractActiveContractSummary"
+          ],
+          "proof": "The hook uses Zustand useStore subscriptions and shared selectActiveContract to build the dashboard summary."
+        },
+        {
+          "path": "src/stores/campaign/campaignCommandSelectors.ts",
+          "sha256": "E3C9124136A83021C6C1C4A47095F122F676D0B85E7309FE78E8414AAAC02212",
+          "lines": "266-281",
+          "symbols": [
+            "selectActiveContracts",
+            "selectActiveContract"
+          ],
+          "proof": "The shared selector returns the first eligible active contract or null."
+        }
+      ],
+      "focusedTests": [
+        {
+          "path": "src/lib/campaign/hooks/__tests__/useCampaignDashboardSummary.test.ts",
+          "sha256": "CFD96017A798328EAC9B8274C20F27B49856FB1E916C2EB6697EA328F98DEEA0",
+          "lines": "108-171",
+          "proof": "Dashboard summary matches the shared Missions-tab selector and excludes terminal contracts."
+        }
+      ],
+      "smallestRelevantExactTestCommand": "npm.cmd test -- --watchAll=false --runTestsByPath src/lib/campaign/hooks/__tests__/useCampaignDashboardSummary.test.ts --runInBand",
+      "remainingMissingProof": [
+        "No runtime test was run for this receipt.",
+        "The full Draft HUD shell, responsive layout, accessibility, and browser persistence remain unproved here."
+      ],
+      "explicitNonClaims": [
+        "Does not claim the Draft multi-panel HUD is implemented or release-ready.",
+        "Does not claim complete campaign dashboard visual parity from the summary hook alone."
+      ]
+    },
+    {
+      "id": "campaign-persistence",
+      "originalConcern": "Preserve saved custom-unit campaign persistence: accepted identity must retain campaign id, roster instance, unitRef, custom source, and avoid stock substitution.",
+      "currentStatus": "Serializer, roster projection persistence, combat-state persistence, and custom adoption round-trip/refusal seams exist.",
+      "finiteDisposition": {
+        "state": "existing_with_deferred_production_proof",
+        "disposition": "existing_round_trip_with_custom_identity_evidence",
+        "rationale": "buildSerializedCampaign accepts a roster projection and places it into the envelope body; serializeCampaign carries unitCombatStates separately from construction/configuration fields. The real SQLite/custom repository authority test saves a custom record, serializes and reads the campaign, re-adopts the surviving projection, and proves missing/unreadable custom records are refused rather than substituted.",
+        "remainingAdmittedObligation": {
+          "owner": "R9.triage for this finite receipt; R2.camp-7 owns persistence proof, R2.camp-8/R2.journey owns campaign journey proof, and R2.authority-cutover/live owns production authority cutover.",
+          "nextProof": "Admit R2.camp-7 and R2.camp-8/R2.journey proof for production campaign creation/save/adopt and browser receipts; keep production authority cutover with R2.authority-cutover/live.",
+          "status": "open_future_proof"
+        }
+      },
+      "specEvidence": [
+        {
+          "path": "openspec/specs/campaign-persistence/spec.md",
+          "sha256": "D9C29273AD0EE1F7641B914BBD6E6F9F5EA95A932D04DE376EAF9946B5CA351A",
+          "lines": "1-7, 9-66, 79-101, 204-238",
+          "claims": [
+            "Envelope serialization and round-trip fields are canonical.",
+            "Server persistence and conflict boundaries are explicit.",
+            "Saved custom identity must retain the custom reference and refuse unsafe fallback."
+          ]
+        }
+      ],
+      "sourceEvidence": [
+        {
+          "path": "src/lib/campaign/persistence/campaignEnvelope.ts",
+          "sha256": "7333DB41E836AE5FA0BCE8CF4E7F5C9811BBB74089DD95896C4B9D69D6C369E2",
+          "lines": "32-53",
+          "symbols": [
+            "buildSerializedCampaign"
+          ],
+          "proof": "The rosterProjection argument is retained in the serialized envelope body."
+        },
+        {
+          "path": "src/lib/campaign/persistence/serializeCampaign.ts",
+          "sha256": "64211D91B6DFEDDCDBE82FD634A4DB4F6B2C8D03FA51C7FBD6F27447AAC2D424",
+          "lines": "120-195, 203-255",
+          "symbols": [
+            "serializeCampaign",
+            "deserializeCampaignBody"
+          ],
+          "proof": "unitCombatStates are serialized as their own campaign field and restored independently of unitConfigurations."
+        },
+        {
+          "path": "src/types/campaign/SerializedCampaign.ts",
+          "sha256": "EC7A1D39D7F2372582ED29D4539E36FB4BA560FC79A3917AA3AFE1852835EC05",
+          "lines": "44-50, 113-152, 168-191",
+          "symbols": [
+            "SerializedCampaignRosterState",
+            "SerializedCampaignBody"
+          ],
+          "proof": "The persisted shape defines roster projections and unitCombatStates as distinct fields."
+        },
+        {
+          "path": "src/lib/campaign/authority/campaignAdoptedUnitReference.ts",
+          "sha256": "6C25F2D5A51661AB031937C418CB0CC9169E68FA28FB636FFEE8637391213021",
+          "lines": "242-325",
+          "symbols": [
+            "adoptRosterUnitReference"
+          ],
+          "proof": "Custom adoption resolves the durable custom record and returns unresolved for missing, malformed, or incomplete records; no stock fallback is taken."
+        },
+        {
+          "path": "src/stores/campaign/useCampaignPersistenceStore.ts",
+          "sha256": "2DFC3710956DB8F4E11E2FB8FAE58372611DCF104074B4DB6A6827626A87A51A",
+          "lines": "456-488, 758-779, 831-848",
+          "symbols": [
+            "putLiveCampaign",
+            "adoptLegacyCampaign",
+            "resolveConflictTakeServerAction"
+          ],
+          "proof": "Live save/adopt requests include the serialized roster projection and restore it after server reads or conflict recovery."
+        }
+      ],
+      "focusedTests": [
+        {
+          "path": "src/lib/campaign/authority/__tests__/campaignAdoptedUnitReference.test.ts",
+          "sha256": "39472A6137C18D6CAC31BF0CFF3F33C2ED7BBA419CB62A18C7F5934457B0673A",
+          "lines": "129-140, 281-350",
+          "proof": "A temporary SQLite-backed custom repository is used; the custom projection survives campaign serialization round-trip and missing/unreadable records are refused."
+        },
+        {
+          "path": "src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts",
+          "sha256": "C653BFD4AC424F85A16EB18ED19ECEB886DEE3F56C32135349B0B95DA57115DC",
+          "lines": "223-330, 346-445",
+          "proof": "The store tests cover load/re-hydrate roster projections, conflict recovery, and save retry boundaries."
+        },
+        {
+          "path": "src/stores/campaign/__tests__/campaignPersistenceRoundTrip.test.ts",
+          "sha256": "962CCF75D48E78382DE53F1A82A121422D5915B58D59E0ACD5CFEF41559B7360",
+          "lines": "215-317, 335-549",
+          "proof": "Campaign battle damage and the broader persisted shape survive save/load and page-reload seams."
+        }
+      ],
+      "smallestRelevantExactTestCommand": "npm.cmd test -- --watchAll=false --runTestsByPath src/lib/campaign/authority/__tests__/campaignAdoptedUnitReference.test.ts src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts --runInBand",
+      "remainingMissingProof": [
+        "No runtime test was run for this receipt.",
+        "The receipt does not establish live server/browser campaign creation, durable production authority, or release artifact evidence."
+      ],
+      "explicitNonClaims": [
+        "Does not claim all campaign persistence migrations and production routes are complete.",
+        "Does not claim a custom design is recoverable when its durable record is absent or unreadable."
+      ]
+    },
+    {
+      "id": "campaign-unit-combat-state",
+      "originalConcern": "Preserve the combat-state seam; the canonical spec separates construction state, current combat damage, roster display projection, and persistence mechanism.",
+      "currentStatus": "Existing type/store cleavage; four named migrations are complete, while the RosterStateCards max-state comparison remains explicitly partial.",
+      "finiteDisposition": {
+        "state": "existing_with_deferred_execution",
+        "disposition": "existing_type_cleavage_with_deferred_execution",
+        "rationale": "ICampaign owns unitCombatStates; useCampaignRosterStore owns IRosterUnitProjection[]; the legacy ICampaignUnitState and local ICampaignInput seams are absent; and post-battle/repair processors consume ICampaign-based shapes. RosterStateCards selects canonical combat state but still documents a destroyed-component/location heuristic because it does not receive IUnitMaxState, so only the max-state damage-bar comparison remains.",
+        "remainingAdmittedObligation": {
+          "owner": "R9.triage for this finite receipt; R4/R5 retain match/effect wiring, while R2 campaign owners retain campaign journey and persistence proof.",
+          "nextProof": "Admit the RosterStateCards max-state comparison at the UI seam, then prove post-battle/repair ordering and match/effect behavior under the R4/R5 owners.",
+          "status": "open_future_proof"
+        }
+      },
+      "specEvidence": [
+        {
+          "path": "openspec/specs/campaign-unit-combat-state/spec.md",
+          "sha256": "1F1A01EDD4AB3297C1FA2DB096B21EA0F5EDF6EB9C3E0F39967D2480A960E860",
+          "lines": "1-43, 53-108, 151-205, 205-248",
+          "claims": [
+            "ICampaign.unitCombatStates is the canonical combat map.",
+            "Construction maxima and current combat damage are separate concerns.",
+            "The migration-status block records four completed type/store/interface migrations and the remaining RosterStateCards max-state comparison.",
+            "Per-part hit-count escalation and pilot consciousness remain explicit future requirements."
+          ]
+        }
+      ],
+      "sourceEvidence": [
+        {
+          "path": "src/types/campaign/UnitCombatState.ts",
+          "sha256": "D347985CEAF08E0E3908DC42FC48BB63ED714EADCF52D598C5EB584852CBCE8F",
+          "lines": "1-17, 27-63, 74-117, 125-135",
+          "symbols": [
+            "IUnitCombatState",
+            "IUnitMaxState",
+            "createInitialCombatState",
+            "isUnitCombatReady"
+          ],
+          "proof": "Current post-battle values and construction-derived maximum values are distinct, with explicit source-of-truth comments."
+        },
+        {
+          "path": "src/types/campaign/RosterUnitProjection.ts",
+          "sha256": "8B74BEC0D864DE9D171C76D0831ED77FF3471BC5D225A7C3BF40BB9E8AF6A904",
+          "lines": "4-32, 68-112, 127-133",
+          "symbols": [
+            "IRosterUnitProjection"
+          ],
+          "proof": "Roster projections carry identity and derived readiness; consumers needing damage read campaign.unitCombatStates instead."
+        },
+        {
+          "path": "src/types/campaign/Campaign.ts",
+          "sha256": "B9B457EC6318B55270E2DB8DC405BD3110313767136F7C92CE054A29FF8135C8",
+          "lines": "85-87, 151-153, 205-207, 640-643",
+          "symbols": [
+            "ICampaign"
+          ],
+          "proof": "ICampaign owns the canonical unitCombatStates map independently of optional unitConfigurations."
+        },
+        {
+          "path": "src/stores/campaign/campaignRosterStore.types.ts",
+          "sha256": "84CD8B0416CD4B6F5F63E9D473053AD327D3D57032E9703DD90F08436E02B825",
+          "lines": "14-17, 68-71, 121-130",
+          "symbols": [
+            "ICampaignRosterStoreState",
+            "ICampaignRosterStore"
+          ],
+          "proof": "The roster store units field and accessors are IRosterUnitProjection[]."
+        },
+        {
+          "path": "src/stores/campaign/useCampaignRosterStore.ts",
+          "sha256": "69489682176FE8D697393EE38CB73587BDD8A6337D580BF46D8034255874C833",
+          "lines": "3-7, 81-107, 159-163, 271-274",
+          "symbols": [
+            "useCampaignRosterStore"
+          ],
+          "proof": "The store holds only the thin projection and refreshes readiness separately from canonical combat state."
+        },
+        {
+          "path": "src/components/campaign/RosterStateCards.tsx",
+          "sha256": "0C5FC8E61D2D2A4708A7701696B346C85C86472C2B524C355F924A3CF5C1C6AD",
+          "lines": "4-18, 85-136, 151-179",
+          "symbols": [
+            "RosterUnitCard",
+            "computeDamageBarData",
+            "useDamageBarData"
+          ],
+          "proof": "The card reads canonical unitCombatStates, but the damage-bar calculation explicitly remains a heuristic without an IUnitMaxState companion."
+        },
+        {
+          "path": "src/types/campaign/CampaignInterfaces.types.ts",
+          "sha256": "157F25B611B7DDA9F083C45408EC6302CABF627ED2E77666B24C6D0AD250FCD3",
+          "lines": "83-88, 279-283",
+          "symbols": [
+            "campaign interface validators"
+          ],
+          "proof": "The deleted legacy roster-unit array is documented as replaced by IRosterUnitProjection[] and ICampaign.unitCombatStates."
+        },
+        {
+          "path": "src/types/campaign/CampaignInterfaces.runtime.ts",
+          "sha256": "7DF5E26777BFFB744B8D1CECBB770ADAF0A8B22FB9A3D366E2BFDF42BE114C5E",
+          "lines": "53-57",
+          "symbols": [
+            "campaign runtime validation"
+          ],
+          "proof": "Runtime validation keeps roster projection validation independent and campaign validation pilot-only."
+        },
+        {
+          "path": "src/lib/campaign/processors/postBattleProcessor.ts",
+          "sha256": "0E1E9BDB85B7763246AAB223FB2A51286BBDC3D827AFD697570663E04DA586F8",
+          "lines": "25-32, 42-48, 152-156, 217-220, 294-309",
+          "symbols": [
+            "IPostBattleCampaignExtensions",
+            "applyPostBattle",
+            "postBattleProcessor"
+          ],
+          "proof": "Post-battle processing uses ICampaign-based input and writes the canonical unitCombatStates map."
+        },
+        {
+          "path": "src/lib/campaign/processors/repairQueueBuilderProcessor.ts",
+          "sha256": "46D93CDD0CF5C1EE0A673BCFFFB00A4709824B43CACB766DEACAA5ED068B0B29",
+          "lines": "47-67, 89-107, 121-135",
+          "symbols": [
+            "ICampaignWithBattleState",
+            "repairQueueBuilderProcessor"
+          ],
+          "proof": "Repair processing reads campaign.unitCombatStates and unitMaxStates through an ICampaign extension; no local ICampaignInput remains."
+        }
+      ],
+      "focusedTests": [
+        {
+          "path": "src/stores/campaign/__tests__/campaignPersistenceRoundTrip.test.ts",
+          "sha256": "962CCF75D48E78382DE53F1A82A121422D5915B58D59E0ACD5CFEF41559B7360",
+          "lines": "215-317",
+          "proof": "The persisted combat map carries current damaged values through save/load and page-reload seams."
+        },
+        {
+          "path": "src/lib/campaign/processors/__tests__/repairQueueBuilderProcessor.test.ts",
+          "sha256": "7DC3601800462B4E6FE726DDA654A4DFF51B62E9B1135D6E4ABAED4970172EBC",
+          "lines": "1-20, 41-67, 76-151",
+          "proof": "Processor tests construct ICampaign with canonical unitCombatStates plus IUnitMaxState and verify repair tickets."
+        },
+        {
+          "path": "src/types/campaign/__tests__/CampaignInterfaces.test.ts",
+          "sha256": "38841100ABD40839055808874D5ED6BABB3E8FBF4DA12306B688DA23B6BC0EF3",
+          "lines": "33-35, 281-284",
+          "proof": "Type tests document that the legacy roster-unit state was deleted and roster units now use IRosterUnitProjection[]."
+        }
+      ],
+      "smallestRelevantExactTestCommand": "npm.cmd test -- --watchAll=false --runTestsByPath src/stores/campaign/__tests__/campaignPersistenceRoundTrip.test.ts --runInBand",
+      "remainingMissingProof": [
+        "No runtime test was run for this receipt.",
+        "The receipt does not prove every post-battle, repair, salvage, or component consumer is fully wired."
+      ],
+      "explicitNonClaims": [
+        "Does not claim complete combat lifecycle implementation from type cleavage and persistence evidence.",
+        "Does not claim roster readiness is a substitute for current damage state."
+      ]
+    },
+    {
+      "id": "event-store",
+      "originalConcern": "Preserve the event-store contract and customized-unit history seam; SQLite adapter requirements and authoritative journal behavior needed current status.",
+      "currentStatus": "Journal contract and SQLite conformance exist; production campaign journal authority remains disabled and fixture opt-in is separate.",
+      "finiteDisposition": {
+        "state": "existing_with_disabled_production_cutover",
+        "disposition": "existing_contract_sqlite_conformance_deferred_production_cutover",
+        "rationale": "The event journal contract defines append, replay, entity/history queries, high-water reads, receipts, and conflict types. SQLite conformance uses a temporary file-backed harness with restart, rollback, and storage-consistency checks. JournalCampaignEventStore explicitly keeps CAMPAIGN_JOURNAL_AUTHORITY_ENABLED=false and its default factory returns the in-memory store while disabled. The only extra authority path requires both E2E mode and MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY=1.",
+        "remainingAdmittedObligation": {
+          "owner": "R9.triage for this finite receipt; R2.authority-cutover/live owns production campaign journal cutover; R4/R5 retain match/effect work.",
+          "nextProof": "Admit R2.authority-cutover/live migration-state and production journal cutover proof, with R4/R5 proving match/effect integration separately.",
+          "status": "open_future_proof"
+        }
+      },
+      "specEvidence": [
+        {
+          "path": "openspec/specs/event-store/spec.md",
+          "sha256": "CA296AC79227E87184A5F24157E96C70C622793F3F7DABE100A1687D9AB886BF",
+          "lines": "5-15, 64-90, 322-350, 411-439",
+          "claims": [
+            "The journal envelope is authoritative for customized-unit history across domains.",
+            "SQLite adapter conformance and restart/corruption boundaries are required.",
+            "Integrated match/campaign authority remains a separate obligation."
+          ]
+        }
+      ],
+      "sourceEvidence": [
+        {
+          "path": "src/lib/events/journal/EventJournalContract.ts",
+          "sha256": "6E3D6E5F55094BB228CE3495B58E524B08F3EEDC94A809FB331BE858351DC63C",
+          "lines": "1-4, 20-104, 105-158",
+          "symbols": [
+            "IEventJournal",
+            "IStoredEvent",
+            "ICommandReceipt",
+            "EventJournalAppendResult"
+          ],
+          "proof": "The shared journal interface and typed append/replay/conflict contract are present."
+        },
+        {
+          "path": "src/lib/events/journal/SQLiteEventJournal.ts",
+          "sha256": "9E580666D821F107DE9BF8604D91CA65EABE9C609A80E430E27FC7503274927F",
+          "lines": "10-14, 15-117",
+          "symbols": [
+            "SQLiteEventJournal"
+          ],
+          "proof": "The SQLite adapter implements the journal interface and read/history/high-water seams; its own comment records that production authority wiring is still absent."
+        },
+        {
+          "path": "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+          "sha256": "0B352CD89FE64EE7D8C817FDAE5855CCE5E1198D097EB3BEA772D71F0686EBF0",
+          "lines": "75-96, 449-469",
+          "symbols": [
+            "CAMPAIGN_JOURNAL_AUTHORITY_ENABLED",
+            "JournalCampaignEventStore",
+            "createDefaultCampaignEventStore"
+          ],
+          "proof": "The production flag is hardcoded false and the default factory selects the in-memory store unless enabled with a journal factory."
+        },
+        {
+          "path": "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts",
+          "sha256": "392FD63F42A7D3BC13F29D74557264674483DCDB6DEDC1046161130E6588940E",
+          "lines": "1-8, 13-37",
+          "symbols": [
+            "e2eJournalAuthorityArmed",
+            "isCampaignJournalAuthorityEnabled"
+          ],
+          "proof": "The separate fixture path requires E2E mode plus the explicit opt-in environment key."
+        }
+      ],
+      "focusedTests": [
+        {
+          "path": "src/lib/events/journal/__tests__/EventJournalConformance.ts",
+          "sha256": "7D7B6481AD04BE45B60E6EAE169997CB3CCE0C6BF87B63E5538668F9CEE70D2A",
+          "lines": "7-15, 25-39, 114-204, 206-315",
+          "proof": "The shared conformance suite checks ordered chains, indexes, receipts, restart, retries/conflicts, rollback, and bounded reads."
+        },
+        {
+          "path": "src/lib/events/journal/__tests__/SQLiteEventJournalTestHarness.ts",
+          "sha256": "CB8028AF7414A0BA1587B5CBF32808A4A7F38AB4C9E24DEE8E000005FEE71EA2",
+          "lines": "14-41, 58-77, 79-117",
+          "proof": "The SQLite harness uses a temporary database, restarts the adapter, injects a failed commit, and checks storage consistency."
+        },
+        {
+          "path": "src/lib/events/journal/__tests__/SQLiteEventJournalConformance.test.ts",
+          "sha256": "335DDE4CA2840B6FBF9F51A6CD8C77F20A6E27090B918599E6B5E23A6178D93A",
+          "lines": "1-7",
+          "proof": "The SQLite adapter is bound to the shared conformance suite."
+        },
+        {
+          "path": "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts",
+          "sha256": "12FD1048573B198D3A40AC83DDB57D59702D1D2FE74A20242E64CA8B0D77404C",
+          "lines": "74-269, 271-282, 336-400",
+          "proof": "Campaign journal behavior, disabled production factory, command receipts, and real SQLite restart are covered."
+        },
+        {
+          "path": "src/lib/campaign/sync/__tests__/campaignJournalAuthorityEnabled.test.ts",
+          "sha256": "5F08162220427274307214517AC4DE3897C2877276E4CE651DE98FC6759B88C7",
+          "lines": "14-37",
+          "proof": "The fixture authority path is true only when both required keys are present."
+        }
+      ],
+      "smallestRelevantExactTestCommand": "npm.cmd test -- --watchAll=false --runTestsByPath src/lib/events/journal/__tests__/SQLiteEventJournalConformance.test.ts src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts src/lib/campaign/sync/__tests__/campaignJournalAuthorityEnabled.test.ts --runInBand",
+      "remainingMissingProof": [
+        "No runtime test was run for this receipt.",
+        "Production CAMPAIGN_JOURNAL_AUTHORITY_ENABLED remains false; the E2E fixture opt-in does not prove production cutover.",
+        "No integrated campaign creation/recovery or live authority migration proof is claimed."
+      ],
+      "explicitNonClaims": [
+        "Does not claim the SQLite adapter is the production campaign authority.",
+        "Does not treat fixture opt-in as a production default or as completion of the event-store roadmap work."
+      ]
+    }
+  ],
+  "evidenceHistory": {
+    "preSpecAmendmentReceipt": {
+      "label": "Preserved campaign receipt before canonical-spec amendment",
+      "sha256": "76DE89F47F6165BFE1051F95FC6F992A173F94B68FA0DDC70D1BD33B8971A18D",
+      "capturedAt": "2026-09-12",
+      "status": "preserved and superseded only by the amendment metadata below"
+    }
+  },
+  "specAmendment": {
+    "path": "openspec/specs/campaign-unit-combat-state/spec.md",
+    "capturedBeforeEdit": {
+      "sha256": "D5C1A3FC09AEB76DE796CC5FC1280304A72CE3528115DAC643246164E46B372E",
+      "lineCount": 248,
+      "lineRange": "238-248",
+      "blockContentLineCount": 11,
+      "blockSha256": "793676338A0F6826688C2D1DB747D246239B6D3D44F9007ABDA2B540E413C718",
+      "oldText": "## Migration notes\n\nThis spec replaces the implicit conventions previously held by `useCampaignRosterStore` and the cast-through hacks in integration tests. Execution PRs (deferred from this session) SHALL:\n\n1. Promote `unitCombatStates` to `ICampaign` (1 type file + 3 test cast-removals).\n2. Replace `useCampaignRosterStore`'s `units: ICampaignUnitState[]` with the projection type (rename to avoid `IUnitDamageState` collision).\n3. Migrate `RosterStateCards.tsx` damage bar to read `currentArmorPerLocation` against `IUnitMaxState`.\n4. Delete `ICampaignUnitState` from `CampaignInterfaces.types.ts` and `CampaignInterfaces.runtime.ts`.\n5. Remove local `ICampaignInput` interfaces in `postBattleProcessor` and `repairQueueBuilderProcessor` — accept `ICampaign` directly.\n\nPre-release context (zero released users, hard-cutover policy): no Zustand `persist` migration callback required. First load post-deletion rebuilds localStorage from defaults."
+    },
+    "afterEdit": {
+      "sha256": "1F1A01EDD4AB3297C1FA2DB096B21EA0F5EDF6EB9C3E0F39967D2480A960E860",
+      "lineCount": 248,
+      "lineRange": "238-248",
+      "blockContentLineCount": 11,
+      "blockSha256": "D6F09BEC83CE0EED872A115641D84B95F0760E025D26A50D18C8E1ABC62A88CD",
+      "newText": "## Migration status\n\nThis spec replaces the implicit conventions previously held by `useCampaignRosterStore` and the cast-through hacks in integration tests. The five migration items below were previously deferred from the session; current source now records which boundaries are complete and which still require work.\n\n1. **Promote `unitCombatStates` to `ICampaign` (1 type file + 3 test cast-removals). — Completed.** `ICampaign.unitCombatStates` is the canonical post-deploy map, initialized by campaign construction and consumed by post-battle and persistence code. The remaining work is behavioral proof at the owning roadmap seams, not a missing type migration.\n2. **Replace `useCampaignRosterStore`'s `units: ICampaignUnitState[]` with the projection type (rename to avoid `IUnitDamageState` collision). — Completed.** The roster store owns `IRosterUnitProjection[]`; current damage remains on `ICampaign.unitCombatStates[unitId]`. No live `ICampaignUnitState` declaration or reference remains.\n3. **Migrate `RosterStateCards.tsx` damage bar to read `currentArmorPerLocation` against `IUnitMaxState`. — Partially completed; max-state comparison remains.** `RosterStateCards.tsx` now selects canonical `IUnitCombatState` damage from `campaign.unitCombatStates[unitId]`, but its display bar still uses the documented destroyed-component/location heuristic because the card has no `IUnitMaxState` companion. The remaining migration is to pass the relevant max state and calculate the bar from current armor/structure against construction maxima without changing the separate readiness projection.\n4. **Delete `ICampaignUnitState` from `CampaignInterfaces.types.ts` and `CampaignInterfaces.runtime.ts`. — Completed.** The legacy roster-unit state is deleted; the type and runtime modules document the independent `IRosterUnitProjection[]` store and campaign-level `unitCombatStates` map.\n5. **Remove local `ICampaignInput` interfaces in `postBattleProcessor` and `repairQueueBuilderProcessor` — accept `ICampaign` directly. — Completed for the named legacy interfaces.** Neither processor has a local `ICampaignInput`; both use `ICampaign` with intentional typed extensions for optional pipeline fields (`ICampaignWithBattleState`, `IPostBattleCampaignExtensions`, and the minimal pending-outcome shape). The future obligation is integration/order proof for those processors, not reconstruction of the deleted input interfaces.\n\nPre-release context (zero released users, hard-cutover policy): no Zustand `persist` migration callback required. First load post-deletion rebuilds localStorage from defaults."
+    },
+    "replacementCount": 1,
+    "exactEdits": [
+      "Renamed Migration notes to Migration status and removed blanket deferred wording.",
+      "Marked unitCombatStates promotion to ICampaign completed.",
+      "Marked the roster-store projection replacement completed.",
+      "Marked the RosterStateCards max-state comparison partially completed and retained the heuristic gap.",
+      "Marked legacy ICampaignUnitState deletion completed.",
+      "Marked named local ICampaignInput removal completed while retaining intentional ICampaign extension types."
+    ],
+    "reverseReconstruction": {
+      "operation": "Replace the exact newText block at lines 238-248 with the preserved oldText block.",
+      "expectedSpecSha256": "D5C1A3FC09AEB76DE796CC5FC1280304A72CE3528115DAC643246164E46B372E",
+      "expectedBlockSha256": "793676338A0F6826688C2D1DB747D246239B6D3D44F9007ABDA2B540E413C718",
+      "preAmendmentReceiptSha256": "76DE89F47F6165BFE1051F95FC6F992A173F94B68FA0DDC70D1BD33B8971A18D"
+    }
+  }
+}

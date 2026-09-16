@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "validation-extension-anchor-xhigh-20260912",
+  "capturedAt": "2026-09-12",
+  "worker": {
+    "model": "gpt-5.6-luna",
+    "effort": "xhigh",
+    "route": "native bounded validation correction",
+    "node": "C:/nvm4w/nodejs/node.exe",
+    "nestedAgents": false,
+    "gitMutations": false
+  },
+  "scope": {
+    "ownedPaths": [
+      "src/services/validation/UnitValidationRegistry.ts",
+      "src/__tests__/service/validation/UnitValidationHierarchyOrder.test.ts",
+      "src/services/validation/__tests__/initializeUnitValidation.test.ts",
+      "openspec/specs/unit-validation-framework/spec.md"
+    ],
+    "parentDecision": "Extension composites retain the extended parent's level, priority, and registration order; they execute parent then child atomically.",
+    "noChanges": ["unrelated validation requirements", "build", "typecheck", "server", "install", "Git state"]
+  },
+  "beforeHashes": {
+    "src/services/validation/UnitValidationRegistry.ts": "34E9E0C29C18C0A1F2F2FF0FBE134105D28CAAD5563D3AE6AB27C3CDBC7D88B0",
+    "src/__tests__/service/validation/UnitValidationHierarchyOrder.test.ts": "A300659A8717F4389D8C63233F03889020C22784C1097F5FCDEA36F0EDB971B4",
+    "src/services/validation/__tests__/initializeUnitValidation.test.ts": "7737565B431F2B9248B0D2C43862614A11A2A7789F08B886F18C494F8898138A",
+    "openspec/specs/unit-validation-framework/spec.md": "048A4988168AF495B4698F73D63F2E345A5A18D1AA7C57AA412F14EEA204BD6D"
+  },
+  "changes": [
+    "Chained RuleEntry metadata now uses parentRule.level, parentRule.priority, and parentRule.registrationOrder.",
+    "Added a boundary regression with category sibling priority 50, parent priority 100, child priority 1, and unit sibling priority 0; it asserts sibling, parent, child, unit and exposed wrapper id/priority.",
+    "Clarified live validation spec execution order for resolved entries and added the extension anchor scenario."
+  ],
+  "priorCharacterization": {
+    "observedExecutionOrder": ["U", "P", "C"],
+    "log": ".sisyphus/roadmap-completion-20260912/validation-order-xhigh/extension-characterization.log",
+    "logSha256": "D5B75E762053AD192518B39AD4E5031B2C5A8773A30A876B4B99A6F08514F30D"
+  },
+  "redProof": {
+    "command": "& 'C:/nvm4w/nodejs/node.exe' 'node_modules/jest/bin/jest.js' 'src/__tests__/service/validation/UnitValidationHierarchyOrder.test.ts' --runInBand --no-cache --testNamePattern='anchors an extension composite at the extended parent level and priority'",
+    "exit": 1,
+    "elapsedSeconds": 3.887214,
+    "observed": "Current implementation executed sibling, unit, parent, child; expected sibling, parent, child, unit.",
+    "rawLog": ".sisyphus/roadmap-completion-20260912/validation-extension-anchor-xhigh/extension-anchor-red.log",
+    "rawLogSha256": "BCB877460E14914B2F6E8C705159D8E2B6A7D9382446443A807D066AFDD2259C"
+  },
+  "greenProof": {
+    "command": "& 'C:/nvm4w/nodejs/node.exe' 'node_modules/jest/bin/jest.js' 'src/services/validation/__tests__/UnitValidationRegistry.test.ts' 'src/services/validation/__tests__/UnitValidationOrchestrator.test.ts' 'src/services/validation/__tests__/initializeUnitValidation.test.ts' 'src/__tests__/service/validation/UnitValidationRegistry.test.ts' 'src/__tests__/service/validation/UnitValidationOrchestrator.test.ts' 'src/__tests__/service/validation/UnitValidationHierarchyOrder.test.ts' --runInBand --no-cache",
+    "exit": 0,
+    "elapsedSeconds": 3.4322805,
+    "suites": 6,
+    "tests": 125,
+    "rawLog": ".sisyphus/roadmap-completion-20260912/validation-extension-anchor-xhigh/extension-anchor-green.log",
+    "rawLogSha256": "A514E2734C8C85709D09D8F9D10C109EDCED7BC3A8ED577767E709C5FA3D39F1"
+  },
+  "formatProof": {
+    "command": "& 'node_modules/.bin/oxfmt.cmd' --write 'src/services/validation/UnitValidationRegistry.ts' 'src/__tests__/service/validation/UnitValidationHierarchyOrder.test.ts' 'src/services/validation/__tests__/initializeUnitValidation.test.ts' 'openspec/specs/unit-validation-framework/spec.md'",
+    "exit": 0,
+    "elapsedSeconds": 0.2903545,
+    "rawLog": ".sisyphus/roadmap-completion-20260912/validation-extension-anchor-xhigh/extension-anchor-oxfmt.log",
+    "rawLogSha256": "FA071ADAFEBDC3AB072B204FD2F64E1DE9BCDB95024C886A554C622DF749E0EB"
+  },
+  "afterHashes": {
+    "src/services/validation/UnitValidationRegistry.ts": "3939111303DEBBCEE9CC5152D0DF5C8F2B800A6CB83F652AAAE0129253025246",
+    "src/__tests__/service/validation/UnitValidationHierarchyOrder.test.ts": "1E7A2F12DE7AC4392D4B9FCBF9E2C9BDB684FE39ECB9C8D6C11134B9B7135E4D",
+    "src/services/validation/__tests__/initializeUnitValidation.test.ts": "7737565B431F2B9248B0D2C43862614A11A2A7789F08B886F18C494F8898138A",
+    "openspec/specs/unit-validation-framework/spec.md": "7BFC2F9D64234B09661C682FB19A6F0918B5414FABD77483F44CB049663ACF2D"
+  },
+  "limits": [
+    "Focused Jest and scoped formatting only; no build, typecheck, server, install, or broad OpenSpec gate.",
+    "Independent review and parent integration remain required."
+  ]
+}

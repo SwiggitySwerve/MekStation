@@ -1,0 +1,54 @@
+{
+  "pr": 1679,
+  "branch": "codex/roadmap-camp-live-probe-fix-20260915",
+  "reviewedCommit": "f7a94d769ccb0da8546f3953c0489c6c7b4b60aa",
+  "resolvedHeadFromParent": "71a22399f21158ec3fc4d5b402c0d1946b1f4527",
+  "finalHead": "2247494e8cfdafdbd1e88ae21ad73584d1847eb1",
+  "autoMergeArmed": false,
+  "contentGuard": {
+    "method": "file set from `git diff --name-only origin/main...<head>` compared to the reviewed file set, plus per-file blob equality against the reviewed commit; re-run after update-branch",
+    "fileCountAtMerge": 4,
+    "blobEquality": "all files blob-identical to the reviewed commit at the gated head (exceptions, if any, are described in notes)",
+    "result": "PASS"
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "expectedHeadShaGuardUsed": true,
+    "newHead": "2247494e8cfdafdbd1e88ae21ad73584d1847eb1"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "otherChecksCount": 27,
+    "otherChecksBuckets": {
+      "pass": 27
+    },
+    "totalChecks": 31,
+    "totalChecksNote": "31 because #1678 added the standing \"Customizer Regressions\" check to main"
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/camp-live-probe-fix-1679-final2-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "fec1359bfcb93889d1ad7237725d4be44e7cfbaf",
+  "mergeCommitParents": [
+    "69ae5374455eb3b4cb0d1cb3d918477c9fba9e68"
+  ],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1679 --squash --match-head-commit 2247494e8cfdafdbd1e88ae21ad73584d1847eb1",
+  "mergedAt": "2026-09-15T10:17:31Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "The merge commit changes exactly 4 file(s), all blob-identical to the gated head 2247494e8cfdafdbd1e88ae21ad73584d1847eb1.",
+  "mainAfter": "fec1359bfcb93889d1ad7237725d4be44e7cfbaf",
+  "worktree": {
+    "fastForward": "NOT PERFORMED unless the coordinator designated the worktree as free; several owned worktrees were explicitly off-limits (parent in use / other branch).",
+    "result": "SKIPPED or SUCCESS per coordinator instruction for this PR"
+  },
+  "notes": "Attempt 2 after the BLOCKED attempt 1 (see camp-live-probe-fix-1679-final-20260915-merge-20260915.json). Parent fixed exactly the remediation this session diagnosed: added camp01-live-browser-adversarial.test.ts to the viewport-sweep umbrella pin list in package.json (plus a run-viewport-sweep.test.ts adjustment). The two originally reviewed files are blob-identical to f7a94d769.",
+  "timestamps": {
+    "receiptWrittenAt": "2026-09-15T15:00:00Z"
+  }
+}

@@ -1,0 +1,179 @@
+{
+  "evidenceKind": "r2-combat-browser-launch-proof-review",
+  "date": "2026-09-15",
+  "roadmapNode": "R2.combat-browser",
+  "reviewedArtifact": {
+    "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/proof02-rerun",
+    "branch": "codex/roadmap-r2-combat-browser-launch-proof-20260915",
+    "base": "4e5a74b9fddda382945277b15d76e2e09397d56c",
+    "commit": "2d333ee6056e98d5bd9eb0c09d3b793cc2db01d9",
+    "gitLogConfirmed": "git log --oneline -2 -> 2d333ee60 test(e2e): prove a server-saved custom unit through production combat launch... / 4e5a74b9f feat(combat): refuse to mirror a rewound match stream (#1717)",
+    "gitStatusConfirmed": "git status --short -> empty (clean)",
+    "gitDiffStatConfirmed": "git diff --stat HEAD~1..HEAD -> e2e/saved-custom-combat-launch.spec.ts | 500 +++++++++++++++++++++++++++++++++ ; 1 file changed, 500 insertions(+)",
+    "preparerEvidence": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-combat-browser-launch-proof-local-20260915.json (read in full)",
+    "admissionBrief": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-combat-browser-admission-brief-20260915.json (read in full)",
+    "roadmapNodeRead": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json:5688-5749 (id R2.combat-browser, state local-reviewing, taskKeys [], receipt null)",
+    "tasksLine8Read": "openspec/changes/enable-saved-custom-unit-combat/tasks.md:1-9 -- confirmed this node's acceptance text is NOT sourced from this file (no mention of terminal/post-battle/production-launch anywhere in its 6 checkboxes); acceptance instead lives in roadmap.json's R2.combat-browser.acceptance[] array, consistent with the admission brief's own originalAdmissionSource finding"
+  },
+  "verdict": "APPROVE-WITH-REQUIRED-EDITS",
+  "verdictSummary": "The spec itself (e2e/saved-custom-combat-launch.spec.ts, the only change in commit 2d333ee60) is well-constructed, drives the real production route end to end, and its no-substitution proof is sound at 3 of the 4 named points plus a valid identity check at the 4th. Typecheck and oxfmt gates are clean. However my own required live run (axis 5) of the EXACT specified invocation FAILED against the current state of the shared worktree, with a root cause traced to source: the standalone build currently on disk was not built with NEXT_PUBLIC_E2E_MODE=true, so src/lib/e2e/storeExposure.ts:31 short-circuits and window.__ZUSTAND_STORES__ is never populated, exactly matching the observed 'Campaign E2E stores are not exposed' failure. This is worktree/build contamination (see gate5 finding below for full chain of evidence), not a defect in the reviewed spec or product code. Per my charter I did not rebuild (the build was present, not missing). The required action before this proof can be certified as verified-live is: rebuild the standalone bundle in an uncontaminated environment with NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true (matching the preparer's original build command), then re-run the exact invocation below and confirm green. No text edit to the spec file is required.",
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "info",
+      "axis": 1,
+      "title": "Spec drives the real production route end to end",
+      "detail": "Confirmed by direct read of e2e/saved-custom-combat-launch.spec.ts: custom unit POST /api/units/custom (lines 234-242), combat-catalog admission check (244-246), real create-wizard roster assignment (248-263), server campaign PUT + readback (264-281), Mech Bay resolution (283-285), mission seeded onto the server campaign (287-288), navigation to missions/:id/launch and click of launch-mission-direct (289-301, the exact step every prior spec in this codebase stops short of per the admission brief's existingE2ECoverage survey), navigation to /gameplay/encounters/:id and click of launch-encounter-btn (302-337), pre-battle mode-selection + auto-resolve-btn click (338-364), terminal /gameplay/games/:id game-completed (365-373), post-battle /review + apply-outcome-cta (443-458), and a cold-reloaded /mech-bay + GET /api/campaigns/:id + GET /api/units/custom/:id roster readback (460-476)."
+    },
+    {
+      "id": "F2",
+      "severity": "info",
+      "axis": 2,
+      "title": "No-substitution proof: 3 of 4 named points are true armor-VALUE assertions; the 4th ('force record') is an identity-only assertion",
+      "detail": "Verified against spec lines: (a) in-session GameCreated seed, lines 385-395, asserts seededCustom[0].leftArmArmor === CUSTOM_LEFT_ARM_ARMOR (30), a literal-constant comparison, not against whatever the server returned -- PASS. (b) archived GameCreated snapshot (POST /api/replay-library/encounter body), lines 405-420, asserts archivedCustom[0].armorByLocation.left_arm === CUSTOM_LEFT_ARM_ARMOR (30) -- PASS. (c) terminal combat state, lines 427-436, asserts terminalCustom.leftArmArmor <= CUSTOM_LEFT_ARM_ARMOR (30) (bounded, not strict equality, because damage may have reduced it -- correctly commented as such) -- this is a consistency check tied to the same session-unit id already proven correct at (a), not an independent substitution witness on its own, but it is not falsifiable by a canonical (34) unit either since 34 could also decay below 30. (d) the 'force record' point named in the review charter (GET /api/forces/:forceId, lines 322-329) asserts assignedUnitIds.toContain(customId) -- this is an IDENTITY check (unitRef), not an armor-VALUE check against 30; it does not appear anywhere in the preparer's own perStepAssertions as an armor assertion either (the preparer's own evidence correctly labels it a ref-identity check at 'step 8'). The roadmap.json launchProof.noSubstitution field's phrasing ('asserted at force record, in-session GameCreated seed, archived GameCreated snapshot..., terminal combat state') is imprecise: it implies 4 armor-value assertions where there are 3 value assertions plus 1 identity assertion. This does not weaken the overall no-substitution proof (the identity check at the force layer plus the roster-layer identity check at lines 276-281 close the identity-substitution gap that the armor checks alone would not), but the four-point description as literally written overstates what happens at the force-record hop.",
+      "recommendation": "Not a required edit to the spec (the spec's own comments and assertions are accurate); flagging only because the review charter's four-point framing, inherited from roadmap.json, should be corrected there if it is cited again."
+    },
+    {
+      "id": "F3",
+      "severity": "info",
+      "axis": 2,
+      "title": "Canonical OpFor comparison confirmed",
+      "detail": "Lines 397-403: canonical (non-custom-*) units are filtered from the same GameCreated payload, asserted present (length > 0) and each has a non-null leftArmArmor -- the canonical and custom seeds are witnessed side by side in the same battle at zero extra runtime, as claimed."
+    },
+    {
+      "id": "F4",
+      "severity": "info",
+      "axis": 3,
+      "title": "Test hygiene clean",
+      "detail": "grep for test.skip/test.fixme/.only across the spec file: zero matches. grep for '--prod-evidence': zero matches (build/run commands in the receipt do not use it). withBrowserDiagnostics is used (line 226), the same shared gate used by 8 spec files in e2e/. Port is fully parametrized: playwright.config.ts:3 reads process.env.MEKSTATION_E2E_PORT with a '3600' fallback, line 288 reads MEKSTATION_E2E_SERVER_COMMAND with an 'npm run dev' fallback, and line 299 forwards e2ePort into webServer.env.PORT. This confirms the admission brief's own buildRunInvocationCorrection (which said port 3639 'does not match anything in this repository') drew the wrong conclusion from a correct grep, and the preparer's and roadmap's rebuttal is correct: 3639 is a valid parametrized value, not a literal that needs to pre-exist in the repo."
+    },
+    {
+      "id": "F5",
+      "severity": "medium",
+      "axis": 4,
+      "title": "Product observation is accurate for persistMatchLog but imprecise for persistEncounterReplay",
+      "detail": "Read src/components/gameplay/pages/gameSession/GameSessionPage.lifecycle.ts in full. The receipt's claim ('Both effects fire on the completed-session transition and are not awaited; their cancelled flags suppress the callback but not the in-flight fetch. The guard that prevents re-fire is set in the resolve callback, so a re-render between fire and resolve issues a second identical POST') is precisely correct for persistMatchLog / POST /api/matches: the guard is React state `hasPersisted`, set via setHasPersisted(true) inside persistMatchLog's .then() callback (lines 130-149, consumed by the effect at lines 263-275 whose dependency array includes `session` and `hasPersisted`) -- i.e. genuinely set in the async resolve path, so a `session` reference change before that promise settles can re-run the effect and re-fire. It is NOT precisely correct for persistEncounterReplay / POST /api/replay-library/encounter: that effect's guard is a ref, `encounterPersistFiredRef.current`, set SYNCHRONOUSLY at line 288 -- inside the effect body, BEFORE the async call at line 289 -- not inside persistEncounterReplay's own .then() callback (lines 167-186 only guard the result-handling logic with a local `cancelled` flag, never touch the ref). Because the ref is a synchronous, same-tick latch, a plain 'session changed, effect re-ran' story does not by itself explain a second /api/replay-library/encounter POST the way it does for the state-gated /api/matches POST. The empirical duplicate observed in the preparer's own run-05.log is real (both endpoints double-fired in that run), but the receipt's single unified mechanism explanation only demonstrably holds for one of the two endpoints from the source as written; the replay-library duplicate's exact trigger (e.g. a remount reallocating a fresh ref, or some other path) is not fully explained by the cited lines.",
+      "recommendation": "Not required for this PR (task explicitly says do not fix); worth noting if the recommended follow-up PR is filed, so the follow-up's root-cause section does not inherit an unverified blanket explanation for both endpoints."
+    },
+    {
+      "id": "F6",
+      "severity": "high",
+      "axis": 5,
+      "title": "Live run of the exact specified invocation FAILED due to shared-worktree build contamination, not a spec defect",
+      "detail": "Executed exactly: `MEKSTATION_E2E_SERVER_COMMAND='node .next/standalone/server.js' HOSTNAME=127.0.0.1 MEKSTATION_E2E_PORT=3639 node scripts/playwright/run-playwright.mjs test e2e/saved-custom-combat-launch.spec.ts --project=chromium --retries=0 --workers=1` from the worktree root. Result: 1 failed, exit code 1. Failure: `Error: page.evaluate: Error: Campaign E2E stores are not exposed`, thrown from seedMissionOnCampaign (e2e/saved-custom-combat-launch.spec.ts:143-150) at test line 288. Root cause traced to source: src/lib/e2e/storeExposure.ts:31 `if (process.env.NEXT_PUBLIC_E2E_MODE !== 'true') return;` short-circuits exposeStoresForE2E() before window.__ZUSTAND_STORES__ is ever assigned (line 34) whenever the client bundle was built without that flag set to the literal string 'true'. Corroborating evidence of build contamination: `.next/BUILD_ID` currently reads `1789484830850`, not the `1789483405493` the preparer's own evidence and the review charter both name; `.next/standalone/.next/BUILD_ID` matches the same newer `1789484830850`, mtime 2026-09-15 09:08:59 (this session), while `.next/standalone/server.js` itself carries an older mtime of 2026-09-15 05:06:27 -- internally inconsistent build state consistent with a second, later `npm run build` invocation (plausibly a vanilla/no-E2E-flags build, as another lane in this same session is documented doing at roadmap.json:2017-2027 in a sibling worktree) having overwritten this shared worktree's .next output after the preparer's original E2E-flagged build. The preparer's own build.log at `.sisyphus/roadmap-completion-20260912/r2-combat-browser-20260915/build.log` (cited in their evidence with a sha256) no longer exists on disk to cross-check. Per my charter I did not rebuild (the build was present, not missing) and did not modify any repo file. Nothing was left listening on port 3639 after the run (netstat showed only TIME_WAIT entries post-run); tsc and oxfmt were both run clean (see gates below).",
+      "recommendation": "REQUIRED ACTION (not a text edit): rebuild the standalone bundle for this worktree with `NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build` (matching the preparer's original command) in a moment when no other lane is writing to this shared worktree's .next output, then re-run the exact invocation above and confirm a green result before this proof is certified as verified-live. The spec file itself requires no changes."
+    }
+  ],
+  "noSubstitutionFourPointTable": [
+    {
+      "point": "1. force record (GET /api/forces/:forceId)",
+      "specLines": "322-329",
+      "assertionType": "identity (unitRef), NOT an armor-value comparison",
+      "comparesAgainstLiteral30": false,
+      "wouldFailOnCanonicalSubstitution": "yes, if the force materialized a canonical unit id instead of the custom-* ref; no, if a canonical unit's armor were secretly attached under the same custom-* id (this point cannot detect that case on its own)",
+      "verdict": "exists; valid identity witness; NOT an armor-value witness as the four-point description implies"
+    },
+    {
+      "point": "2. in-session GameCreated seed",
+      "specLines": "391-395",
+      "assertionType": "strict equality against the literal constant CUSTOM_LEFT_ARM_ARMOR (30)",
+      "comparesAgainstLiteral30": true,
+      "wouldFailOnCanonicalSubstitution": "yes -- a canonical Atlas would seed 34, failing the ===30 assertion",
+      "verdict": "confirmed, exact"
+    },
+    {
+      "point": "3. archived GameCreated snapshot (POST /api/replay-library/encounter body)",
+      "specLines": "405-420",
+      "assertionType": "strict equality against the literal constant CUSTOM_LEFT_ARM_ARMOR (30), read from the request's own postDataJSON()",
+      "comparesAgainstLiteral30": true,
+      "wouldFailOnCanonicalSubstitution": "yes",
+      "verdict": "confirmed, exact"
+    },
+    {
+      "point": "4. terminal combat state",
+      "specLines": "427-436",
+      "assertionType": "bounded inequality (<= 30), same session-unit id as point 2",
+      "comparesAgainstLiteral30": "partially (upper bound only, not strict equality, correctly commented as intentional since damage may reduce armor)",
+      "wouldFailOnCanonicalSubstitution": "not reliably on its own (a canonical 34 could also decay to <=30 through battle damage); its substitution-detection power is inherited from point 2's strict check on the same unit id, not independently proven here",
+      "verdict": "confirmed as written; weaker in isolation than points 2-3, but adequate given point 2 already pins the seed"
+    },
+    {
+      "point": "canonical OpFor present in the same battle",
+      "specLines": "397-403",
+      "assertionType": "presence + non-null armor for every non-custom-* unit",
+      "comparesAgainstLiteral30": "n/a (this is the canonical-comparison clause, not a substitution check)",
+      "wouldFailOnCanonicalSubstitution": "n/a",
+      "verdict": "confirmed"
+    }
+  ],
+  "testHygiene": {
+    "testSkipOrFixmeOrOnly": "none found (grep exit 1, zero matches)",
+    "swallowedErrors": "none found; every await/expect surfaces failures normally, cleanup block (lines 493-499) re-asserts .ok() on both DELETE calls rather than swallowing them",
+    "widenedTimeouts": "test.setTimeout(240_000) at line 37, justified by an inline comment enumerating the 6 real phases (wizard + persistence + materialization + battle + review + cold reload); per-step waits use 30-60s bounded timeouts consistent with sibling specs, not blanket-widened",
+    "sharedBrowserDiagnosticsGate": "used via withBrowserDiagnostics (line 226, import line 29), consistent with 8 other e2e spec files",
+    "portUsage": "MEKSTATION_E2E_PORT only, confirmed parametrized in playwright.config.ts:3,288,299; never a literal 3600 in the spec or its invocation",
+    "prodEvidenceFlag": "not used, confirmed by grep (zero matches) and by the run command actually executed"
+  },
+  "playwrightConfigCheck": {
+    "file": "playwright.config.ts",
+    "portPlumbing": "line 3: `const e2ePort = Number.parseInt(process.env.MEKSTATION_E2E_PORT ?? '3600', 10)`; line 299: `PORT: String(e2ePort)` inside webServer.env",
+    "serverCommandPlumbing": "line 288: `command: process.env.MEKSTATION_E2E_SERVER_COMMAND ?? 'npm run dev'`",
+    "briefCorrectionAssessment": "CORRECT. The admission brief's buildRunInvocationCorrection concluded 3639 'does not match anything in this repository' from a literal grep for '3639', which is true but irrelevant: the port is env-parametrized, not hardcoded, so no literal '3639' needs to exist in source for MEKSTATION_E2E_PORT=3639 to be valid. The preparer's and roadmap's rebuttal, and the launchProof.briefCorrection field, are correct as written."
+  },
+  "productObservationAssessment": {
+    "accurateFor": "persistMatchLog / POST /api/matches (GameSessionPage.lifecycle.ts:130-149, 263-275) -- guard (hasPersisted) is set inside the async resolve path, so the described re-fire mechanism is real",
+    "imprecideFor": "persistEncounterReplay / POST /api/replay-library/encounter (GameSessionPage.lifecycle.ts:167-186, 277-290) -- guard (encounterPersistFiredRef.current) is set synchronously at line 288, before the async call at line 289, not in a resolve callback; the receipt's single unified explanation does not demonstrably cover this endpoint's observed duplicate from the cited source alone",
+    "notFixed": "confirmed -- no product file in the diff; git diff --stat HEAD~1..HEAD shows only the one new e2e spec file",
+    "disposition": "recorded as a residual candidate, not filed as a pending task by the preparer's lane, consistent with their own nonClaims section; this review does not file it either per its own no-sub-agents/read-only-first-run-last charter"
+  },
+  "runResult": {
+    "commandExecuted": "MEKSTATION_E2E_SERVER_COMMAND='node .next/standalone/server.js' HOSTNAME=127.0.0.1 MEKSTATION_E2E_PORT=3639 node scripts/playwright/run-playwright.mjs test e2e/saved-custom-combat-launch.spec.ts --project=chromium --retries=0 --workers=1",
+    "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/proof02-rerun",
+    "exitCode": 1,
+    "outcome": "1 failed",
+    "failure": "Error: page.evaluate: Error: Campaign E2E stores are not exposed (thrown at e2e/saved-custom-combat-launch.spec.ts:148-150, inside seedMissionOnCampaign, called from test body line 288)",
+    "logPath": ".sisyphus/roadmap-completion-20260912/r2-combat-browser-review-20260915/run.log",
+    "logSha256": "12dcd10c4030d36f259e7c7909727f3b135cf7d91fb794588f1a5df697aff660",
+    "portFreeBeforeRun": true,
+    "portListeningAfterRun": false,
+    "portStateAfterRun": "netstat -ano | grep 3639 showed only TIME_WAIT rows post-run, i.e. the server process exited and released the port cleanly",
+    "buildArtifactCheck": {
+      "standaloneServerExists": true,
+      "buildIdOnDisk": "1789484830850",
+      "buildIdExpectedPerReceipt": "1789483405493",
+      "buildIdMatches": false,
+      "e2eModeCodePathsPresentInBundle": true,
+      "e2eModeFlagActuallySetAtBuildTime": "NOT CONFIRMED -- and the live run's failure mode (client-side stores never exposed) is the direct, source-cited symptom of it having been unset at build time (src/lib/e2e/storeExposure.ts:31)",
+      "rebuildPerformedByThisReview": false,
+      "rebuildJustification": "charter instructs not to rebuild unless the existing build is missing; the build was present, so none was performed"
+    }
+  },
+  "gateExitCodes": {
+    "typecheck": {
+      "command": "npx tsc --noEmit -p tsconfig.json",
+      "exitCode": 0,
+      "output": "clean, no diagnostics"
+    },
+    "oxfmt": {
+      "command": "npx oxfmt --check e2e/saved-custom-combat-launch.spec.ts",
+      "exitCode": 0,
+      "output": "All matched files use the correct format."
+    },
+    "commitMessageAttribution": {
+      "checked": "git log -1 --format=%B on 2d333ee60",
+      "aiAttributionFound": false
+    }
+  },
+  "requiredEdits": [],
+  "requiredActions": [
+    "Rebuild the standalone bundle for this worktree (or a fresh, non-contended worktree at the same commit/base) with `NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build`, ensuring no other lane writes to the same .next output concurrently.",
+    "Re-run exactly `MEKSTATION_E2E_SERVER_COMMAND='node .next/standalone/server.js' HOSTNAME=127.0.0.1 MEKSTATION_E2E_PORT=3639 node scripts/playwright/run-playwright.mjs test e2e/saved-custom-combat-launch.spec.ts --project=chromium --retries=0 --workers=1` and confirm a green result before citing this proof as independently verified-live.",
+    "If re-verification passes, no spec text changes are needed; this review's remaining findings (F2, F5) are documentation-precision notes for the roadmap/receipt narrative, not code defects."
+  ],
+  "nonClaims": [
+    "Did not modify any repository file (worktree git status remained clean of tracked changes for the duration of this review; only the .sisyphus review log directory and this evidence file were written).",
+    "Did not rebuild, push, commit, or open a PR.",
+    "Did not spawn sub-agents.",
+    "Did not attempt to fix GameSessionPage.lifecycle.ts or the build contamination -- diagnosed only, per charter."
+  ]
+}

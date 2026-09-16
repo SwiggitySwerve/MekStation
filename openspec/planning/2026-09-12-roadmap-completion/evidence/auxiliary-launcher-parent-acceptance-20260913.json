@@ -1,0 +1,57 @@
+{
+  "createdAt": "2026-09-13T07:50:11.360Z",
+  "status": "parent-accepted-local-launcher-repair",
+  "reviewer": "Astra parent",
+  "implementationRoute": "Terra/high after approved Cursor hook failure",
+  "claim": "Incomplete runs remain eligible for owned-handle cleanup; timeout and stream failure cannot become successful after a later zero exit.",
+  "verification": {
+    "independentParentExit": 0,
+    "originalFailureReproduced": true,
+    "normalExit": 0,
+    "timeout": 1,
+    "incompleteStream": 1,
+    "repeatedCleanupKillCalls": 1,
+    "forcedZeroExit": 1,
+    "naturalZeroAfterTimeout": 1,
+    "noServer": true,
+    "noBrowser": true
+  },
+  "limits": [
+    "Lifecycle proof uses fake process and stream handles. Actual browser execution remains pending.",
+    "No global hook or provider configuration was changed."
+  ],
+  "files": [
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/archive-customizer-auxiliary-proof-20260913/invoke-auxiliary-selector-proof.ps1",
+      "sha256": "d63a700eda6ef2e76c47fdffe69fb000f0a5697b771d78afe73721719a305f07"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/auxiliary-timeout-repair-terra-20260913/invoke-auxiliary-selector-proof.original.ps1",
+      "sha256": "2656b86f5d8bcf9cff800536caa10aafbbc263660c011aef5bf4f49722bfe838"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/auxiliary-timeout-repair-terra-20260913/lifecycle-proof.ps1",
+      "sha256": "2cb0aec74f027ac9ebc3a78386e07ec2165646a2803a8d84131e72b4e3b17542"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/auxiliary-timeout-repair-terra-20260913/report.json",
+      "sha256": "eb194fc1d98fd89db9eb7c28e33f7df1a4944f30c26bcd571449e0b40852d6bf"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/auxiliary-timeout-repair-terra-20260913/parent-proof/lifecycle-proof.json",
+      "sha256": "63e251d298539cb104aea534be230662a2bd7d1e3ce15be9d785f1bdfb3a6174"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/auxiliary-timeout-repair-terra-20260913/parent-proof-command.json",
+      "sha256": "56b2184a34e87ad7a93904ff19a444443abbe8cd67e981c393d8dcee8d2425f6"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/auxiliary-timeout-repair-terra-20260913/parent-proof.stdout.log",
+      "sha256": "63e251d298539cb104aea534be230662a2bd7d1e3ce15be9d785f1bdfb3a6174"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/auxiliary-timeout-repair-terra-20260913/parent-proof.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

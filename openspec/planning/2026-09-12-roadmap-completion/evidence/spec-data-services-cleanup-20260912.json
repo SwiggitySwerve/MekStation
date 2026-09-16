@@ -1,0 +1,293 @@
+{
+  "schemaVersion": 1,
+  "at": "2026-09-12T20:47:03.4619039Z",
+  "scope": "R1.specs/data-services",
+  "main": "e58642acede495c45b3b4d4e606dffaa52ccab18",
+  "acceptedSourceHashes": {
+    "openspec/specs/equipment-services/spec.md": "32d8197b35e45c65842701076d7a5cfd9043838dc6486a0605237caaf4da77f8",
+    "openspec/specs/data-loading-architecture/spec.md": "cfa90d423f395ae2dddc0aa28697929c451ff9788cb58466ef838b2b97b2a66f",
+    "openspec/specs/construction-rules-core/spec.md": "85fefb6f310e6132e4bd99ec4f5f92cb2612731c1505d1e0637cf4c9db6e9aa1"
+  },
+  "worktree": {
+    "canonical": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\spec-data-services",
+    "targetExists": false,
+    "main": "e58642acede495c45b3b4d4e606dffaa52ccab18",
+    "detached": true,
+    "branch": "codex/roadmap-spec-data-services-20260912",
+    "localBranchShaBefore": "a7ae4fa3432770fa74cec126d15c6126b0661c35",
+    "trackingRef": "refs/remotes/origin/codex/roadmap-spec-data-services-20260912",
+    "trackingShaBefore": "e46be07fd837ee3637d893b8df04ba951f5fc447"
+  },
+  "proof": {
+    "mainVerification": "E:\\Projects\\MekStation\\openspec\\planning\\2026-09-12-roadmap-completion\\evidence\\spec-data-services-main-verification-20260912.json",
+    "mainVerificationSha256": "7dc487626ba0d43594efce0c356da7265e882b514623d47e82a433b0bde67b00",
+    "rootReconciliation": "E:\\Projects\\MekStation\\openspec\\planning\\2026-09-12-roadmap-completion\\evidence\\spec-data-services-root-reconciliation-20260912.json",
+    "rootReconciliationSha256": "6c0e9c8e6fb703e55fd478e3e6fa0041f12d2259cf5fadc84c2384a5a0c32c0b"
+  },
+  "cleanup": {
+    "driver": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\cleanup-spec-data-services.cjs",
+    "driverSha256": "c91939b594c13c79ebb49aecf9fc8b784246feb7445b5b67d3db3d9054f57db7",
+    "plan": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\spec-data-services-cleanup\\plan.json",
+    "planSha256": "c518526117c749aa537077154d99fa321653828afa86778425cb09aee82eee40",
+    "status": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\spec-data-services-cleanup\\status.json",
+    "statusSha256": "3024779e78d8b8126b88ac2a8900182d48d80140b9b0283b71c9c1cc26130c7a",
+    "removeLog": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\spec-data-services-cleanup\\remove.log",
+    "removeLogSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "state": {
+      "schemaVersion": 1,
+      "startedAt": "2026-09-12T20:45:50.394Z",
+      "driverPid": 50812,
+      "running": false,
+      "planHash": "c518526117c749aa537077154d99fa321653828afa86778425cb09aee82eee40",
+      "target": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\spec-data-services",
+      "main": "e58642acede495c45b3b4d4e606dffaa52ccab18",
+      "branch": "codex/roadmap-spec-data-services-20260912",
+      "branchSha": "a7ae4fa3432770fa74cec126d15c6126b0661c35",
+      "trackingRef": "refs/remotes/origin/codex/roadmap-spec-data-services-20260912",
+      "trackingSha": "e46be07fd837ee3637d893b8df04ba951f5fc447",
+      "ignored": "!! .husky/_/\n",
+      "detached": true,
+      "beforeProcessProbe": {
+        "status": 0,
+        "matches": []
+      },
+      "remoteBefore": {
+        "status": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "args": [
+        "worktree",
+        "remove",
+        "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\spec-data-services"
+      ],
+      "exportsVerifiedBeforeRemoval": true,
+      "diagnosticsVerifiedBeforeRemoval": true,
+      "childPid": 71300,
+      "worktreeRemovalExit": 0,
+      "finishedAt": "2026-09-12T20:45:57.794Z",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "afterProcessProbe": {
+        "status": 0,
+        "matches": []
+      },
+      "remoteAfterRemoval": {
+        "status": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "targetRemoved": true,
+      "localBranchDeleted": true,
+      "trackingRefDeleted": true,
+      "exportsReopenedAfterRemoval": true,
+      "diagnosticsPreservedAfterRemoval": true,
+      "remainingWorktrees": "worktree E:/Projects/MekStation\nHEAD be7f85b867aa3e8576e5e3d27e309276203bc24b\nbranch refs/heads/main\n\nworktree C:/tmp/MekStation-gameplay-audit-a72208b0-2\nHEAD a72208b08de5f8a1bef49f61db3ddc46a54012e8\ndetached\n\nworktree C:/tmp/MekStation-gm2p-spec-886508048\nHEAD 5b546a39ec29dd2e79c845946dc84b3619ee25ee\nbranch refs/heads/codex/continue-gm-two-player-campaign\n\nworktree C:/Users/wroll/.codex/worktrees/af7e/MekStation\nHEAD 327f10787d529a95328bef05e3732ebb02efbee7\ndetached\n\nworktree C:/Users/wroll/.codex/worktrees/combat-event-durability/MekStation\nHEAD 85e7138feaea0333c2dafbd2f974ef5977450af1\ndetached\n\nworktree C:/Users/wroll/.codex/worktrees/combat-turn-rail/MekStation\nHEAD 67805c8302f78c5205921cafbee9d4544783fb96\ndetached\n\nworktree E:/CodexWorktrees/MekStation-maintain\nHEAD 2c775907ae285e27dd7103c8c29e061fcc6d91e4\nbranch refs/heads/maintain/modularity-hard-guardrail-wave1\n\nworktree E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/browser\nHEAD 77d9a9480a3a47b1849f166db01278f93f3d8094\nbranch refs/heads/codex/roadmap-customizer-browser-20260912\n\nworktree E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/ci-contract-modules\nHEAD 6573e98e65a631963c5b0a980f3a724ba7d37989\nbranch refs/heads/codex/roadmap-ci-contract-modules-20260912\n\nworktree E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/hydration-safety\nHEAD 7a537a1c4ea621b397f4b5216859f0548773fd61\ndetached\n\nworktree E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/inventory-publication\nHEAD e58642acede495c45b3b4d4e606dffaa52ccab18\nbranch refs/heads/codex/roadmap-inventory-publication-20260912\n\nworktree E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/prerequisite-contracts\nHEAD e58642acede495c45b3b4d4e606dffaa52ccab18\nbranch refs/heads/codex/roadmap-prerequisite-contracts-20260912\n\nworktree E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/spec-source-anchors\nHEAD ca0687d25264033376862347e494ddf15cd92bec\nbranch refs/heads/codex/roadmap-spec-source-anchors-20260912\n\nworktree E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/vault-contracts\nHEAD ca0687d25264033376862347e494ddf15cd92bec\nbranch refs/heads/codex/roadmap-vault-contracts-20260912\n\nworktree E:/Projects/mekstation-l66\nHEAD 74bd093a65c483ed8d25e4d91adddf3677368090\ndetached\n\nworktree E:/Projects/mekstation-l83\nHEAD 7f821e7795db67ba60010b44c15aeb5f86d2838e\ndetached\n\nworktree E:/Projects/mekstation-l89\nHEAD 439af6bca6c54cf60472e8d7e9c191a962ee93ab\ndetached\n\n",
+      "success": true
+    }
+  },
+  "preconditions": {
+    "head": "e58642acede495c45b3b4d4e606dffaa52ccab18",
+    "status": "",
+    "ignored": "!! .husky/_/\n",
+    "processProbe": {
+      "status": 0,
+      "matches": []
+    },
+    "remoteBefore": {
+      "status": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "localBranchSha": "a7ae4fa3432770fa74cec126d15c6126b0661c35",
+    "trackingSha": "e46be07fd837ee3637d893b8df04ba951f5fc447"
+  },
+  "exports": {
+    "acceptedMarkdownFiles": [
+      {
+        "path": "openspec/specs/equipment-services/spec.md",
+        "acceptedSha256": "32d8197b35e45c65842701076d7a5cfd9043838dc6486a0605237caaf4da77f8",
+        "exportPath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\spec-data-services-cleanup\\exports\\accepted\\openspec\\specs\\equipment-services\\spec.md",
+        "exportSha256": "32d8197b35e45c65842701076d7a5cfd9043838dc6486a0605237caaf4da77f8",
+        "sourceVerifiedBeforeRemoval": true,
+        "sourceExistsAfterRemoval": false
+      },
+      {
+        "path": "openspec/specs/data-loading-architecture/spec.md",
+        "acceptedSha256": "cfa90d423f395ae2dddc0aa28697929c451ff9788cb58466ef838b2b97b2a66f",
+        "exportPath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\spec-data-services-cleanup\\exports\\accepted\\openspec\\specs\\data-loading-architecture\\spec.md",
+        "exportSha256": "cfa90d423f395ae2dddc0aa28697929c451ff9788cb58466ef838b2b97b2a66f",
+        "sourceVerifiedBeforeRemoval": true,
+        "sourceExistsAfterRemoval": false
+      },
+      {
+        "path": "openspec/specs/construction-rules-core/spec.md",
+        "acceptedSha256": "85fefb6f310e6132e4bd99ec4f5f92cb2612731c1505d1e0637cf4c9db6e9aa1",
+        "exportPath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\spec-data-services-cleanup\\exports\\accepted\\openspec\\specs\\construction-rules-core\\spec.md",
+        "exportSha256": "85fefb6f310e6132e4bd99ec4f5f92cb2612731c1505d1e0637cf4c9db6e9aa1",
+        "sourceVerifiedBeforeRemoval": true,
+        "sourceExistsAfterRemoval": false
+      }
+    ],
+    "mainLogs": [
+      {
+        "command": "strict-openspec",
+        "kind": "stdout",
+        "sourcePath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\spec-data-services-main-1\\strict-openspec.stdout.log",
+        "sourceSha256": "16c5c323579e9f348bc2adb0830ebd7bb199a73726ab1098c72331305dcca967",
+        "sourceExistsAfterRemoval": true,
+        "exportPath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\spec-data-services-cleanup\\exports\\main-logs\\strict-openspec.stdout.log",
+        "exportSha256": "16c5c323579e9f348bc2adb0830ebd7bb199a73726ab1098c72331305dcca967"
+      },
+      {
+        "command": "strict-openspec",
+        "kind": "stderr",
+        "sourcePath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\spec-data-services-main-1\\strict-openspec.stderr.log",
+        "sourceSha256": "5bc31df123a2e521acdd2c0d9477b367feec506471a91065d0a6b32c09089ed5",
+        "sourceExistsAfterRemoval": true,
+        "exportPath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\spec-data-services-cleanup\\exports\\main-logs\\strict-openspec.stderr.log",
+        "exportSha256": "5bc31df123a2e521acdd2c0d9477b367feec506471a91065d0a6b32c09089ed5"
+      },
+      {
+        "command": "purpose",
+        "kind": "stdout",
+        "sourcePath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\spec-data-services-main-1\\purpose.stdout.log",
+        "sourceSha256": "e8abef5ade2cfe4f7229aedcbbf7d555a0de9db9f6146cb5b221934e5057b3a7",
+        "sourceExistsAfterRemoval": true,
+        "exportPath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\spec-data-services-cleanup\\exports\\main-logs\\purpose.stdout.log",
+        "exportSha256": "e8abef5ade2cfe4f7229aedcbbf7d555a0de9db9f6146cb5b221934e5057b3a7"
+      },
+      {
+        "command": "purpose",
+        "kind": "stderr",
+        "sourcePath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\spec-data-services-main-1\\purpose.stderr.log",
+        "sourceSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sourceExistsAfterRemoval": true,
+        "exportPath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\spec-data-services-cleanup\\exports\\main-logs\\purpose.stderr.log",
+        "exportSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "command": "terminology",
+        "kind": "stdout",
+        "sourcePath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\spec-data-services-main-1\\terminology.stdout.log",
+        "sourceSha256": "f900b2f139d48a4fce3da66f12105cdd633a1cfe6dc8102211bcf03cc6a1cce7",
+        "sourceExistsAfterRemoval": true,
+        "exportPath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\spec-data-services-cleanup\\exports\\main-logs\\terminology.stdout.log",
+        "exportSha256": "f900b2f139d48a4fce3da66f12105cdd633a1cfe6dc8102211bcf03cc6a1cce7"
+      },
+      {
+        "command": "terminology",
+        "kind": "stderr",
+        "sourcePath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\spec-data-services-main-1\\terminology.stderr.log",
+        "sourceSha256": "1fb0fe2db397921d614cda553df34623603dfb23309b1d2635dda6042d6546a3",
+        "sourceExistsAfterRemoval": true,
+        "exportPath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\spec-data-services-cleanup\\exports\\main-logs\\terminology.stderr.log",
+        "exportSha256": "1fb0fe2db397921d614cda553df34623603dfb23309b1d2635dda6042d6546a3"
+      },
+      {
+        "command": "ci-qc",
+        "kind": "stdout",
+        "sourcePath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\spec-data-services-main-1\\ci-qc.stdout.log",
+        "sourceSha256": "f01feb11318234aab4764fe76151b78c06905527212a8f8723626fcf616b71d6",
+        "sourceExistsAfterRemoval": true,
+        "exportPath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\spec-data-services-cleanup\\exports\\main-logs\\ci-qc.stdout.log",
+        "exportSha256": "f01feb11318234aab4764fe76151b78c06905527212a8f8723626fcf616b71d6"
+      },
+      {
+        "command": "ci-qc",
+        "kind": "stderr",
+        "sourcePath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\spec-data-services-main-1\\ci-qc.stderr.log",
+        "sourceSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sourceExistsAfterRemoval": true,
+        "exportPath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\spec-data-services-cleanup\\exports\\main-logs\\ci-qc.stderr.log",
+        "exportSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "command": "markdown",
+        "kind": "stdout",
+        "sourcePath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\spec-data-services-main-1\\markdown.stdout.log",
+        "sourceSha256": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+        "sourceExistsAfterRemoval": true,
+        "exportPath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\spec-data-services-cleanup\\exports\\main-logs\\markdown.stdout.log",
+        "exportSha256": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20"
+      },
+      {
+        "command": "markdown",
+        "kind": "stderr",
+        "sourcePath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\spec-data-services-main-1\\markdown.stderr.log",
+        "sourceSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sourceExistsAfterRemoval": true,
+        "exportPath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\spec-data-services-cleanup\\exports\\main-logs\\markdown.stderr.log",
+        "exportSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "command": "diff-check",
+        "kind": "stdout",
+        "sourcePath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\spec-data-services-main-1\\diff-check.stdout.log",
+        "sourceSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sourceExistsAfterRemoval": true,
+        "exportPath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\spec-data-services-cleanup\\exports\\main-logs\\diff-check.stdout.log",
+        "exportSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "command": "diff-check",
+        "kind": "stderr",
+        "sourcePath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\spec-data-services-main-1\\diff-check.stderr.log",
+        "sourceSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sourceExistsAfterRemoval": true,
+        "exportPath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\spec-data-services-cleanup\\exports\\main-logs\\diff-check.stderr.log",
+        "exportSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ]
+  },
+  "postconditions": {
+    "targetExists": false,
+    "worktreeRegistered": false,
+    "localBranch": {
+      "present": false,
+      "revParseExit": 128
+    },
+    "trackingRef": {
+      "present": false,
+      "revParseExit": 128
+    },
+    "remote": {
+      "stdout": "",
+      "exitCode": 0
+    },
+    "processProbe": {
+      "status": 0,
+      "matches": []
+    },
+    "localBranchDeleted": true,
+    "trackingRefDeleted": true,
+    "exportsReopened": true
+  },
+  "preservedDiagnostics": [
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\spec-data-services-delivery",
+      "exists": true
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\spec-data-services-main-1",
+      "exists": true
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\spec-data-services-review",
+      "exists": true
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\grok-spec-data-services-1",
+      "exists": true
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\spec-data-services-root-reconciliation",
+      "exists": true
+    }
+  ],
+  "limits": [
+    "Cleanup only; no build, install, server, fetch, source edit, ledger edit, or commit was executed.",
+    "The accepted markdown bytes and main proof logs were hashed before removal and the exports were reopened and rehashed after removal.",
+    "Prior diagnostic directories remain outside the removed worktree.",
+    "The exact-main proof remains documentation-only and claims no new runtime or production-build proof."
+  ]
+}

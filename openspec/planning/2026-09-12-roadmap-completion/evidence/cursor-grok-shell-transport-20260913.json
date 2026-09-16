@@ -1,0 +1,25 @@
+{
+  "capturedAt": "2026-09-13T01:53:27.270Z",
+  "status": "per-process-shell-corrected-tools-running",
+  "firstAttempt": {
+    "path": ".sisyphus/roadmap-completion-20260912/cursor-catalog-specs-20260913/start.json",
+    "sha256": "f715a244a46914722cb2d6ea908c44091f6506a1aec7610665da3903a501d77e",
+    "failure": "Inherited Git Bash interpreted Windows PowerShell hook payloads; repeated syntax errors.",
+    "stopReceipt": ".sisyphus/roadmap-completion-20260912/cursor-catalog-specs-20260913/stop-shell-failure.json",
+    "exitReceipt": ".sisyphus/roadmap-completion-20260912/cursor-catalog-specs-20260913/exit.json"
+  },
+  "secondAttempt": {
+    "start": ".sisyphus/roadmap-completion-20260912/cursor-catalog-specs-20260913/attempt-2/start.json",
+    "driver": ".sisyphus/roadmap-completion-20260912/cursor-catalog-specs-20260913/attempt-2/run.cjs",
+    "environment": {
+      "SHELL": "C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe",
+      "removedInheritedKeys": [
+        "MSYSTEM",
+        "EXEPATH"
+      ]
+    },
+    "effectiveModel": "Cursor Grok 4.6 High",
+    "successfulToolCallsObserved": true
+  },
+  "limits": "All existing hooks preserved; no global configuration change. Running implementation is not accepted final work."
+}

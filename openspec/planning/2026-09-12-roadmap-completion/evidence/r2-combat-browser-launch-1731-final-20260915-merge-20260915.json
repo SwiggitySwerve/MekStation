@@ -1,0 +1,52 @@
+{
+  "pr": 1731,
+  "branch": "codex/roadmap-r2-combat-browser-launch-proof-20260915",
+  "reviewedCommit": "2d333ee6056e98d5bd9eb0c09d3b793cc2db01d9",
+  "finalHead": "d5054fcb4d8e973f91dbc8ac91e51f24dcad569c",
+  "autoMergeArmed": false,
+  "contentGuard": {
+    "method": "file set from `git diff --name-only origin/main...<head>` vs the reviewed file set, plus per-file blob equality against the reviewed commit; re-run after update-branch",
+    "fileCountAtMerge": 1,
+    "blobEquality": "all files blob-identical to the reviewed commit at the gated head",
+    "result": "PASS"
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "expectedHeadShaGuardUsed": true,
+    "newHead": "d5054fcb4d8e973f91dbc8ac91e51f24dcad569c"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "otherChecksCount": 27,
+    "otherChecksBuckets": {
+      "pass": 27
+    },
+    "totalChecks": 31
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-combat-browser-launch-1731-final-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "392c207de703049565b70ca6fe17005aca8f0641",
+  "mergeCommitParents": [
+    "bb7be345fedd2fe9444517b6e07f7f393b81b533"
+  ],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1731 --squash --match-head-commit d5054fcb4d8e973f91dbc8ac91e51f24dcad569c",
+  "mergedAt": "2026-09-15T15:59:33Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "The merge commit changes exactly 1 file(s), all blob-identical to the gated head d5054fcb4d8e973f91dbc8ac91e51f24dcad569c.",
+  "mainAfter": "392c207de703049565b70ca6fe17005aca8f0641",
+  "worktree": {
+    "fastForward": "NOT PERFORMED - coordinator designated the owned worktrees as off-limits for these PRs",
+    "result": "SKIPPED (intentional)"
+  },
+  "notes": "Adds e2e/saved-custom-combat-launch.spec.ts (+500). The e2e job ran the new spec and PASSED, so the stop-and-report instruction for a failure on this spec was never triggered.",
+  "timestamps": {
+    "receiptWrittenAt": "2026-09-15T17:02:00Z"
+  }
+}

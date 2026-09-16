@@ -1,0 +1,40 @@
+{
+  "at": "2026-09-12T21:49:07.139Z",
+  "main": "583b3e9bf954506a3b5fbac0359165e9407cf264",
+  "parentAcceptance": "evidence/source-anchors-main-parent-acceptance-20260912.json",
+  "rootHead": "be7f85b867aa3e8576e5e3d27e309276203bc24b",
+  "indexUnchanged": true,
+  "files": [
+    {
+      "path": "openspec/specs/auto-save-persistence/spec.md",
+      "beforeSha256": "c20a361aaffd95dca647a0cc5bdf767bec5b9c3ab4a835ddc2333a35923e5c5e",
+      "afterSha256": "a2688cf3b5f710d2ecf6e21780e80e33728dcc46817df121cd661b626519da69",
+      "backup": ".sisyphus/roadmap-completion-20260912/source-anchors-root-reconciliation/before/openspec/specs/auto-save-persistence/spec.md"
+    },
+    {
+      "path": "openspec/specs/battle-armor-unit-system/spec.md",
+      "beforeSha256": "3223fcc7ca638ba7b832bf94154a423a13ca7269b05653a846b8f7982b0cdd14",
+      "afterSha256": "3223fcc7ca638ba7b832bf94154a423a13ca7269b05653a846b8f7982b0cdd14",
+      "backup": ".sisyphus/roadmap-completion-20260912/source-anchors-root-reconciliation/before/openspec/specs/battle-armor-unit-system/spec.md"
+    },
+    {
+      "path": "openspec/specs/toast-notifications/spec.md",
+      "beforeSha256": "66384b927915371d4e616bbad30c2a384c76730f7fefc68938c449adf526830d",
+      "afterSha256": "5cd76fa006d8f107cc0fafcffe102168b66843785e02ca30bfd365ba09437d21",
+      "backup": ".sisyphus/roadmap-completion-20260912/source-anchors-root-reconciliation/before/openspec/specs/toast-notifications/spec.md"
+    },
+    {
+      "path": "openspec/specs/utility-patterns/spec.md",
+      "beforeSha256": "e76d729a60a426b218a29fb5b9bcd4ac4f933b8028ccf453446922982f51b985",
+      "afterSha256": "e76d729a60a426b218a29fb5b9bcd4ac4f933b8028ccf453446922982f51b985",
+      "backup": ".sisyphus/roadmap-completion-20260912/source-anchors-root-reconciliation/before/openspec/specs/utility-patterns/spec.md"
+    },
+    {
+      "path": "openspec/specs/vehicle-unit-system/spec.md",
+      "beforeSha256": "aa39890beaccd57bfdee25d93a5c58c88421ff8205c8609ec539cff6fe4e6246",
+      "afterSha256": "213363c794edaa1ffa9eb00df8c759cfd5e8c06bf78f7e61a48b8617bbc32b8d",
+      "backup": ".sisyphus/roadmap-completion-20260912/source-anchors-root-reconciliation/before/openspec/specs/vehicle-unit-system/spec.md"
+    }
+  ],
+  "scope": "Only the five exact admitted root proposals reconciled to accepted merged blobs; no staging or unrelated edits."
+}

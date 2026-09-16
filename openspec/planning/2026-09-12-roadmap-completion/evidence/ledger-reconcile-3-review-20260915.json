@@ -1,0 +1,194 @@
+{
+  "evidenceKind": "independent-review",
+  "subject": {
+    "branch": "codex/roadmap-ledger-reconcile-3-20260915",
+    "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/camp-receipt-verification",
+    "commits": [
+      "c6e694ea95792e4b040aaa5f7102b683b878b6cc (batch 3 core)",
+      "2265e755d6bc95da9fe6f18d8913e7df4593b5b9 (item 4: task 1.6 flip)",
+      "82ce7c59f4e16d38257141afc6f987004efdc778 (item 5: spec migration item 3)"
+    ],
+    "originMainAtReviewTime": "efd8a136d523adfa81fda303adb608e3563575ee",
+    "verifiedVia": "git fetch origin (executed fresh this review); git rev-parse origin/main returned efd8a136d..., byte-identical to this branch's stated post-rebase base and to PR #1734's own merge commit"
+  },
+  "verdict": "APPROVE",
+  "requiredEdits": [],
+  "ancestryTable": {
+    "method": "git fetch origin (fresh), then `gh pr view <n> --json state,mergeCommit,mergedAt` per cited PR, cross-checked with `git merge-base --is-ancestor <mergeCommit> origin/main`",
+    "results": [
+      { "pr": 1721, "ghState": "MERGED", "mergeCommit": "15ca7b25b61473901909ac9954feb7677f1985f4", "mergedAt": "2026-09-15T14:55:54Z", "matchesArtefact": true, "ancestorOfOriginMain": true },
+      { "pr": 1722, "ghState": "MERGED", "mergeCommit": "fbb3f2c81f6d7f2b2a9f80e3d9f94c332d2dbfae", "mergedAt": "2026-09-15T15:15:45Z", "matchesArtefact": true, "ancestorOfOriginMain": true },
+      { "pr": 1724, "ghState": "MERGED", "mergeCommit": "231c7848aa0850b616a84581ff3c54e1d5ddb6bf", "mergedAt": "2026-09-15T15:24:01Z", "matchesArtefact": true, "ancestorOfOriginMain": true },
+      { "pr": 1725, "ghState": "MERGED", "mergeCommit": "dc8b8f65d2d8b8562ce721ee4f3a9ca81a7a6a11", "mergedAt": "2026-09-15T15:44:30Z", "matchesArtefact": true, "ancestorOfOriginMain": true },
+      { "pr": 1726, "ghState": "MERGED", "mergeCommit": "8c8f8221c4c1882f671d8fad7c2386ef9d10ca44", "mergedAt": "2026-09-15T15:33:54Z", "matchesArtefact": true, "ancestorOfOriginMain": true },
+      { "pr": 1728, "ghState": "MERGED", "mergeCommit": "16e7346f20303acd518df8c21c7b2ff04a22fe0a", "mergedAt": "2026-09-15T16:07:24Z", "matchesArtefact": true, "ancestorOfOriginMain": true },
+      { "pr": 1729, "ghState": "MERGED", "mergeCommit": "423381ff0eb026bb4f3834949aae555cd70d0ca9", "mergedAt": "2026-09-15T16:15:38Z", "matchesArtefact": true, "ancestorOfOriginMain": true },
+      { "pr": 1730, "ghState": "MERGED", "mergeCommit": "00901f4e097d9973ba4d48369d343f93d52092c8", "mergedAt": "2026-09-15T16:34:35Z", "matchesArtefact": true, "ancestorOfOriginMain": true },
+      { "pr": 1731, "ghState": "MERGED", "mergeCommit": "392c207de703049565b70ca6fe17005aca8f0641", "mergedAt": "2026-09-15T15:59:33Z", "matchesArtefact": true, "ancestorOfOriginMain": true },
+      { "pr": 1734, "ghState": "MERGED", "mergeCommit": "efd8a136d523adfa81fda303adb608e3563575ee", "mergedAt": "2026-09-15T16:51:15Z", "matchesArtefact": true, "ancestorOfOriginMain": true, "note": "this IS origin/main's tip at both the artefact's and this review's verification time" },
+      { "pr": 1735, "ghState": "OPEN", "mergeCommit": null, "note": "confirmed OPEN, correctly NOT claimed merged or cited as closing anything in item5's edit" },
+      { "pr": 1720, "ghState": "MERGED", "mergeCommit": "f685a5391f6e69b73932cdef5323dd2d247e55a6", "mergedAt": "2026-09-15T14:47:55Z", "note": "cited in carried context (camp-01bcd re-run gate); confirmed ancestor", "ancestorOfOriginMain": true },
+      { "pr": 1718, "ghState": "MERGED", "mergeCommit": "e07ce0ef9672c3e8e578d7773c979e03f5e92c27", "mergedAt": "2026-09-15T13:57:52Z", "note": "batch 1 precedent, not directly cited by name in batch 3 text; confirmed ancestor for completeness" },
+      { "pr": 1727, "ghState": "MERGED", "mergeCommit": "bb7be345fedd2fe9444517b6e07f7f393b81b533", "mergedAt": "2026-09-15T15:50:50Z", "note": "not directly cited in batch 3's own edits; confirmed ancestor for completeness" }
+    ],
+    "allCitedShasAncestorsOfOriginMain": true
+  },
+  "perEditTable": [
+    {
+      "id": "E1",
+      "file": "openspec/changes/design-campaign-authority-and-sync/tasks.md",
+      "row": "6.1 (P0b journal-private source envelope / borrowed-handle CAS / durable sourceReplayFence / P0a baseline capture)",
+      "artefactVerdict": "FLIP",
+      "reviewVerdict": "PASS",
+      "diffCheck": "git show c6e694ea9 confirms the checkbox line changes from `- [ ] 6.1 ...` to `- [x] 6.1 ...`; the sub-bullet is fully rewritten to a Receipt naming PR #1721/#1722.",
+      "literalTextVerification": [
+        "Clause 1 (borrowed-handle CAS write): live-verified `materializeCampaignSourceRow` in src/services/campaignPersistence/campaignSourceMaterialization.ts:60-113 takes a borrowed `db: Database.Database` handle and writes `UPDATE campaigns SET payload = ?, version = ? WHERE id = ? AND version = ?` (grep-confirmed, line 106).",
+        "Clause 2 (durable sourceReplayFence rejecting a later whole-envelope overwrite): live-verified in src/services/campaignPersistence/CampaignPersistenceService.ts:131-156 -- `saveCampaign`'s prepared transaction checks `storedFence !== null && envelope.sourceReplayFence?.rootPublicRevision !== storedFence.rootPublicRevision` and returns `conflictFromStoredRow(...)` (the existing 409 path) BEFORE the `baseVersion` CAS check, exactly matching the claimed ordering.",
+        "Clause 3 (P0a baseline capture under prepared transaction): the literal test row `(e) captured the P0a baseline under the prepared transaction, before the row moved` exists verbatim in src/lib/campaign/authority/__tests__/campaignSourceReplayFence.test.ts:396 alongside sibling rows (d):364 and (f):432, matching the receipt's row lettering exactly."
+      ],
+      "liveTestRun": "npx jest --runTestsByPath src/lib/campaign/authority/__tests__/campaignSourceReplayFence.test.ts --runInBand -> PASS, 7/7 tests including (d), (e), (f) all green (17.2s). Re-run by this review, not merely cited.",
+      "reviewFileCheck": "evidence/r2-61-source-replay-fence-review-20260915.json read directly: stack verdict APPROVE-WITH-REQUIRED-EDITS, one required edit RE-1 (falsify fence-before-CAS ordering with a stale expectedRowVersion). Confirmed applied: test row (b2) 'is a no-op at the fence even when the replay version is stale' exists at line 301 and passes.",
+      "conclusion": "All three clauses of 6.1's literal text are satisfied by code present on exact main and by a test suite this review independently re-ran and confirmed green. FLIP is correctly justified."
+    },
+    {
+      "id": "E2",
+      "file": "openspec/changes/design-campaign-authority-and-sync/tasks.md",
+      "row": "6.4 (bridge the two compare-and-swap counters)",
+      "artefactVerdict": "PARTIAL",
+      "reviewVerdict": "PASS",
+      "diffCheck": "git show c6e694ea9 confirms the 6.4 checkbox line is untouched (`- [ ] 6.4 ...` unchanged); only a new Progress sub-bullet is appended.",
+      "verification": "PR #1724's own body (`gh pr view 1724 --json body`) states verbatim: 'Non-claims: no 6.2b caller is wired (it lands with 6.2b)'. Task 6.2's own Progress note in the same file (unedited by this batch) independently confirms 6.2b acceptance routing is owner-blocked. The row correctly stays PARTIAL because its own directed 'no flip' framing tracks a real, PR-body-confirmed non-claim, not an inferred one.",
+      "requiredEditsAppliedCheck": "evidence/r2-64-cas-bridge-review-20260915.json required RE-A1 (refreshAfterCommittedCommandAction never re-arms the auto-save timer on non-adopting refetch paths, stranding a dirty client) and RE-A2 (doc-block accuracy). RE-A1's fix is present verbatim in src/stores/campaign/useCampaignPersistenceStore.ts:1345-1348 (`if (!adopted && get().dirty) { armAutoSaveTimer(set, get); }`).",
+      "liveTestRun": "npx jest --runTestsByPath src/stores/campaign/__tests__/campaignCommandAckRefresh.test.ts --runInBand -> PASS, 9/9 tests, including 'leaves a dirty client with a pending write when the refetch does not answer' (the RE-A1 regression test).",
+      "conclusion": "PARTIAL verdict (no flip) is correct and the underlying mechanics claim is independently verified live."
+    },
+    {
+      "id": "E3",
+      "file": "openspec/changes/enable-saved-custom-unit-combat/tasks.md",
+      "row": "line 6/9 - extend replay gating and verify private construction redaction for owners, opponents, spectators, and recovery streams",
+      "artefactVerdict": "FLIP",
+      "reviewVerdict": "PASS",
+      "diffCheck": "git show c6e694ea9 confirms `- [ ] Extend replay gating...` -> `- [x] Extend replay gating...`.",
+      "literalTextVerification": "The row names four things: (a) replay gating, (b) redaction for owners, (c) opponents, (d) spectators, and (e) recovery streams. (a)-(d) were already asserted BEFORE this batch (at PR #1713's exact-main state, per the row's own pre-batch text, which this edit leaves unchanged: CustomConstructionReplay.test.ts for replay gating; customConstructionVisibility.test.ts + customConstructionTransport.test.ts for owners/opponents/spectators). This batch's only new contribution is closing (e) recovery streams via PR #1726. Full-text satisfaction is therefore cumulative across pre-existing + this-batch coverage, which is legitimate: the row's literal text does not require all four streams to be proven in the SAME PR.",
+      "liveTestRun": "npx jest --runTestsByPath src/lib/multiplayer/server/__tests__/customCombatRecovery.recoveryDelivery.test.ts src/lib/multiplayer/server/__tests__/customConstructionTransport.test.ts src/lib/multiplayer/server/__tests__/customConstructionVisibility.test.ts src/lib/events/replay/__tests__/CustomConstructionReplay.test.ts --runInBand -> PASS, 4 suites / 18 tests, all green. Re-run by this review, not merely cited.",
+      "mutationClaimSpotCheck": "The receipt claims removing the owner check in fogOfWar.ts:131 fails the recovered-delivery literal and replacing snapshotOnlyReader(snapshot) with readCustom in InteractiveSession.recovery.ts leaves recovered.failed non-empty; not independently re-mutated by this review (time-bounded), but the underlying green test run plus the independent reviewer's own APPROVE-with-zero-required-edits verdict (evidence/r2-combat-residual-rows-review-20260915.json, read directly) corroborate it.",
+      "conclusion": "FLIP is correctly justified; the row's full literal text (all four streams) is satisfied by the union of pre-existing and newly-merged coverage."
+    },
+    {
+      "id": "E4-ITEM4",
+      "file": "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/tasks.md",
+      "row": "1.6 S5-b: the expected revision for a commit comes from the journal head; sequence-conflict and duplicate-command refusals proven against races.",
+      "artefactVerdict": "FLIP",
+      "reviewVerdict": "PASS",
+      "diffCheck": "git show 2265e755d confirms exactly one hunk: `- [ ] 1.6 ...` -> `+ [x] 1.6 ...` plus one new Receipt sub-bullet. No other line in the file touched by this commit.",
+      "scrutinyRequested": "The dispatch asked whether S6-R1 (seeding is a non-claim; the consult is not live under enabled mode until S7-a lands) and S6-R2 (mutant M4 killed by exactly one row) force this row to PARTIAL because the row's text might implicitly require a 'live under enabled mode' clause.",
+      "analysis": "The row's literal text is: 'the expected revision for a commit comes from the journal head; sequence-conflict and duplicate-command refusals proven against races.' It says nothing about production reachability or the mode flag being enabled in live traffic. This is consistent with the established convention used throughout THIS SAME FILE for sibling boxes: task 1.4 and 1.5 (both already `[x]`, unedited by this batch) close their checkboxes while their own Progress/Receipt notes explicitly state 'Mode stays off, so neither the guard nor the refusal is reachable in production' as a residual OUTSIDE the box's text, not a blocking condition on the checkbox. Task 1.6's own row is function-mechanism-shaped, not deployment-shaped; task 1.7 (still `[ ]`, untouched) is the box that explicitly owns 'reviewed cutover flag ... new matches admit through the journal' -- i.e., production-cutover reachability is a DIFFERENT box's text, not 1.6's. S6-R1 is explicitly an ordering constraint on task 1.7/S7 ('create-path seeding must land before any cutover flip'), not a defect in what 1.6's own two clauses claim. S6-R2 notes fragile-but-currently-passing mutant coverage (M4 IS killed, just by only one row), which is a maintenance note for future changes, not evidence the row's current claim is false today.",
+      "liveTestRun": "npx jest --runTestsByPath src/lib/multiplayer/server/__tests__/matchCommitJournalHead.sqlite.test.ts --runInBand -> PASS, 7/7 tests, covering both clauses: 'the expected revision for a commit comes from the journal head' (3 rows, including the mode-enabled path) and 'the expected-head race' + 'duplicate-command refusal on the journal-head path' (4 rows). Source read directly: src/lib/multiplayer/server/matchCommitJournalHead.ts:78-98 confirms `resolveMatchCommitExpectedRevision` returns the store-derived answer unless `getCombatJournalAuthorityMode() === 'enabled'`, in which case it reads `readEffectiveStreamHead` and returns the head's own revision -- exactly the claimed mechanism, gated by the mode flag as designed, not silently always-on.",
+      "conclusion": "DISAGREE WITH THE DISPATCH'S IMPLIED CONCERN: the FLIP is correctly justified as-is. The row's literal text does not carry a 'live under enabled mode' clause, and requiring one here would be inconsistent with how the identical convention is applied to sibling rows 1.4/1.5 in the same file (which this batch did not touch and which are not in dispute). No required edit."
+    },
+    {
+      "id": "E5-ITEM5",
+      "file": "openspec/specs/campaign-unit-combat-state/spec.md",
+      "row": "Migration status item 3 (RosterStateCards.tsx damage bar)",
+      "artefactVerdict": "CLOSED",
+      "reviewVerdict": "PASS",
+      "diffCheck": "git show 82ce7c59f confirms a single-line replacement of item 3's prose; item 3 is the ONLY line touched (items 1, 2, 4, 5 in the Migration status list are untouched context).",
+      "prIdentityCheck": "PR #1734 correctly named with its exact merge commit efd8a136d523adfa81fda303adb608e3563575ee, which IS origin/main's tip. PR #1735 correctly named as OPEN (verified via `gh pr view 1735 --json state` = OPEN) and explicitly NOT claimed merged or closing anything.",
+      "literalTextVerification": [
+        "'computeDamageBarData now diffs current armor and structure per location against campaign.unitMaxStates[unitId], skipping locations the max-state does not name' -- verified live in src/components/campaign/RosterStateCards.tsx:130-152 (`computeDamagePercent`): iterates `maxState.maxArmorPerLocation` and `maxState.maxStructurePerLocation`, `if (max <= 0) continue` skips unnamed/zero locations.",
+        "'the destroyed-component/location heuristic ... is deleted' -- grep for `destroyedCount \\* 2` and `destroyedLocationCount \\* 4` in RosterStateCards.tsx returns zero matches; confirmed absent.",
+        "'the card renders an explicit maxima unavailable affordance' -- verified live: `maximaUnavailable: damagePercent === null` (line 182) drives a rendered block at line 296-303 with `data-testid=\"roster-unit-damage-unavailable\"` and text 'Maxima unavailable'.",
+        "'this item's closure covers the read-side rendering rule only, not the data-population boundary' -- accurate; PR #1735 (which would populate campaign.unitMaxStates) is confirmed still OPEN."
+      ],
+      "liveTestRun": "npx jest --runTestsByPath src/components/campaign/__tests__/RosterStateCards.test.tsx --runInBand -> PASS, 5/5 tests, including 'does not let destroyed component/location counts drive the damage figure' (directly falsifies the deleted heuristic) and 'renders an explicit maxima-unavailable state instead of a percentage when the unit has no construction max-state'.",
+      "conclusion": "CLOSED verdict is accurate on every clause and independently verified against live source, not merely cited."
+    },
+    {
+      "id": "E6",
+      "file": "openspec/changes/add-saved-custom-unit-campaign-roster/tasks.md + openspec/active-change-ledger.json",
+      "rows": "2.2 (camp-01b), 3.2 (camp-01c), 4.3 (camp-01d), ledger entry",
+      "artefactVerdict": "NOTE (no flips)",
+      "reviewVerdict": "PASS",
+      "diffCheck": "git show c6e694ea9 confirms only the Receipt-tier sub-bullet text changes on rows 2.2/3.2/4.3 (checkbox lines `- [ ] 2.2 ...` / `- [ ] 3.2 ...` / `- [ ] 4.3 ...` unchanged as context) plus the ledger's add-saved-custom-unit-campaign-roster reason field.",
+      "verification": "camp01bcd-receipt-run-main-231c784-20260915.json read directly: verdict fields for camp-01b/01c/01d all say 'COMMAND-LEVEL RECEIPT PRODUCED, FULL GREEN' with the same suite/test counts (9/9 suites, 142/142 tests, zero 403 occurrences) quoted in the tasks.md edit. The edit correctly and explicitly states this is COMMAND-LEVEL ONLY and does not itself constitute a CAMP witness or close 2.2/3.2/4.3 -- matches the receipt file's own tierStatement. Not independently re-run by this review (the coop-campaign-journey e2e leg is long-running and this row makes no checkbox claim), but the artefact's non-claim framing is the correct, conservative one and matches the cited evidence file verbatim.",
+      "conclusion": "NOTE-only edit is accurate and appropriately non-claiming."
+    },
+    {
+      "id": "E7",
+      "file": "openspec/changes/enable-saved-custom-unit-combat/tasks.md",
+      "row": "line 8 - verification row build-env wording correction",
+      "artefactVerdict": "NOTE (row already [x], wording corrected)",
+      "reviewVerdict": "PASS",
+      "verification": "PR #1731's own body (`gh pr view 1731 --json body`) confirms it is an independent browser-launch proof (e2e/saved-custom-combat-launch.spec.ts, 500 new lines) distinct from the row's own build artefact -- consistent with the artefact's claim that only the 'shared build' half of the caveat is corrected, and the 'no vanilla build ever run' half is explicitly preserved as still-open. No checkbox changed."
+    }
+  ],
+  "diffScopeCheck": {
+    "command": "git diff --stat efd8a136d..HEAD -- openspec (and re-run without the path filter for comparison)",
+    "result": "6 files changed, 17 insertions(+), 15 deletions(-) = 32 total lines, identical with and without the openspec path filter (i.e., the diff touches ONLY openspec/ files)",
+    "filesChanged": [
+      "openspec/active-change-ledger.json",
+      "openspec/changes/add-saved-custom-unit-campaign-roster/tasks.md",
+      "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/tasks.md",
+      "openspec/changes/design-campaign-authority-and-sync/tasks.md",
+      "openspec/changes/enable-saved-custom-unit-combat/tasks.md",
+      "openspec/specs/campaign-unit-combat-state/spec.md"
+    ],
+    "matchesArtefactCaps": "exact match: caps.filesTouched=6, caps.linesChanged=32",
+    "perCommitShortstatVerified": [
+      { "sha": "c6e694ea9", "claimed": "4 files changed, 14 insertions(+), 13 deletions(-)", "verified": "matches exactly via git show --stat" },
+      { "sha": "2265e755d", "claimed": "1 file changed, 2 insertions(+), 1 deletion(-)", "verified": "matches exactly via git show --stat" },
+      { "sha": "82ce7c59f", "claimed": "1 file changed, 1 insertion(+), 1 deletion(-)", "verified": "matches exactly via git show --stat" }
+    ],
+    "underCaps": true
+  },
+  "aiAttributionCheck": {
+    "command": "git log --format=\"%H%n%B%n===\" efd8a136d..HEAD",
+    "result": "All three commit messages are single-line subjects with no body and no trailers. No AI attribution (no Co-Authored-By, no Generated-with, no Claude/Codex/Anthropic/OpenAI mention) in any of the three commits.",
+    "aiAttributionFound": false
+  },
+  "authorIdentityCheck": {
+    "command": "git log --format=\"%an <%ae>\" efd8a136d..HEAD",
+    "result": "Wes Rollings <wrollings@gmail.com> on all three commits, matching the session's configured commit identity."
+  },
+  "directedListCompliance": {
+    "directedList": [
+      "design-campaign-authority-and-sync tasks.md 6.1/6.4 (+ ledger 1.6 note)",
+      "enable-saved-custom-unit-combat tasks.md lines 5/6/8 (redaction row, rewind residual wording, build-env note) + trailing tally",
+      "add-saved-custom-unit-campaign-roster tasks.md 2.2/3.2/4.3 + ledger entry",
+      "adopt-combat-journal-cutover-and-gm-rewind tasks.md 1.6",
+      "campaign-unit-combat-state spec.md migration status item 3"
+    ],
+    "verification": "Per-commit `git show` diffs (read in full for c6e694ea9, 2265e755d, 82ce7c59f) confirm every changed hunk falls inside this directed list. No checkbox outside the six named rows/entries changed. No file outside the six-file diff scope was touched.",
+    "deferralIntegrityCheck": {
+      "modeFlips": "grep and direct reading confirm every mode-flip reference (CAMPAIGN_JOURNAL_AUTHORITY_ENABLED, combat journal authority mode) stays described as OFF/unchanged; no receipt in this batch claims a flip.",
+      "githubReviewGate": "preserved verbatim on every roster note (2.2/3.2/4.3); still described as owner-blocked on a single-collaborator repository.",
+      "OD-flush-mechanism": "untouched by this batch's diff (task 1.6 P-A of design-campaign, a different task number in a different file, was not edited).",
+      "OD-rewind-branch-reader": "newly recorded (not reopened) on the enable-saved-custom-unit-combat rewind residual; box stays unchecked; correctly framed as a NEW owner-decision label replacing a prior 'ordinary coverage gap' framing, not a walk-back of any prior deferral."
+    },
+    "compliant": true
+  },
+  "validatorResults": {
+    "runContext": "re-run fresh by this review in the same worktree, HEAD = 82ce7c59f, working tree clean before and after",
+    "results": [
+      { "command": "npx openspec validate --all --strict", "exit": 0, "result": "Totals: 232 passed, 0 failed (232 items)", "matchesArtefact": true },
+      { "command": "npm run spec:purpose:validate:strict", "exit": 0, "result": "Files scanned: 220; Errors: 0; Tracked source-of-truth debt: 0", "matchesArtefact": true },
+      { "command": "npm run terminology:validate:strict", "exit": 0, "result": "All 315 file(s) are compliant with TERMINOLOGY_GLOSSARY.md", "matchesArtefact": true },
+      { "command": "npm run qc:openspec-ci:validate", "exit": 0, "result": "workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=12 accountedActiveOpenSpecChanges=12 errors=0", "matchesArtefact": true }
+    ],
+    "allExitZero": true
+  },
+  "additionalLiveTestRunsThisReview": [
+    { "suite": "src/lib/campaign/authority/__tests__/campaignSourceReplayFence.test.ts", "result": "PASS 7/7", "purpose": "E1 (6.1 FLIP) clause verification" },
+    { "suite": "src/lib/multiplayer/server/__tests__/customCombatRecovery.recoveryDelivery.test.ts + customConstructionTransport.test.ts + customConstructionVisibility.test.ts + src/lib/events/replay/__tests__/CustomConstructionReplay.test.ts", "result": "PASS 4 suites / 18 tests", "purpose": "E3 (redaction row FLIP) full four-stream verification" },
+    { "suite": "src/lib/multiplayer/server/__tests__/matchCommitJournalHead.sqlite.test.ts", "result": "PASS 7/7", "purpose": "item4 (task 1.6 FLIP) both-clause verification" },
+    { "suite": "src/components/campaign/__tests__/RosterStateCards.test.tsx", "result": "PASS 5/5", "purpose": "item5 (spec migration item 3 CLOSED) verification against live source" },
+    { "suite": "src/stores/campaign/__tests__/campaignCommandAckRefresh.test.ts", "result": "PASS 9/9", "purpose": "E2 (6.4 PARTIAL) RE-A1 fix regression-test verification" }
+  ],
+  "hygiene": {
+    "workingTreeClean": true,
+    "notPushed": true,
+    "noSubAgentsSpawned": true,
+    "noFilesModifiedExceptThisEvidenceFile": true
+  },
+  "summary": "APPROVE, zero required edits. All ten directly-cited PR merge commits (#1721/#1722/#1724/#1725/#1726/#1728/#1729/#1730/#1731/#1734) are confirmed MERGED with the exact SHAs claimed and confirmed ancestors of a freshly fetched origin/main; PR #1735 is confirmed still OPEN and is correctly never claimed merged. Design-campaign 6.1's three clauses (borrowed-handle CAS write, durable sourceReplayFence, P0a baseline capture under the prepared transaction) are all independently verified live in source and in a freshly re-run, fully green test suite. The enable-saved-custom-unit-combat redaction row's FLIP correctly closes the fourth (recovery-streams) stream while the other three (replay gating, owners/opponents/spectators) were already covered pre-batch; all four are independently re-run and green. On the flagged adopt-combat-journal-cutover task 1.6: after reading the row's literal text and comparing it against the identical mechanism-proven-vs-production-reachability convention already used for sibling rows 1.4/1.5 in the same file, this review disagrees with the dispatch's implied concern -- the row's text does not carry a 'live under enabled mode' clause, S6-R1 is correctly scoped as an ordering constraint on the separate, still-open task 1.7/S7 rather than a defect in 1.6's own claim, and both of 1.6's literal clauses are independently verified live and green. The spec migration item 3 closure accurately describes the current RosterStateCards.tsx/computeDamageBarData behavior (old heuristic deleted, per-location max-state diffing added, 'maxima unavailable' affordance present) and correctly leaves PR #1735 as still-open/not-claimed. Rules 3 and 4 (no unintended rows changed, no deferral reopened, openspec-only diff at 6 files/32 lines, no AI attribution) all check out via full per-commit diffs. All four required validators re-run fresh in the worktree and exit 0, matching the artefact's own recorded results exactly."
+}

@@ -1,0 +1,213 @@
+{
+  "node": "R2.authority-client",
+  "artefact": "task 1.6 (P-A) -- cold-reload BROWSER proof of the discard-time flush shipped in #1694",
+  "capturedAtUtc": "2026-09-15T10:20:00Z",
+  "status": "authored, run green locally, committed, NOT pushed",
+  "scope": "One new Playwright spec plus one production build and four measured runs. No product code touched, no spec edits, no task checkbox flip, no push, no PR.",
+  "premiseCorrection": {
+    "claim": "The prefix brief states this is 'the cold-reload browser proof the task text names as the next prefix'.",
+    "measured": "FALSE as written. Task 1.6's row on this branch (openspec/changes/design-campaign-authority-and-sync/tasks.md line 30) contains ZERO occurrences of 'next prefix', 'prefix', 'browser proof', 'cold reload', 'playwright' or 'e2e' (grep -oiE over that single line returned nothing). Its only ACCEPTANCE block is typecheck + lint + four jsdom jest suites + openspec validate.",
+    "whatTheTaskDoesSay": "The NON-CLAIMS sentence -- 'a keepalive request whose response is never read is not evidence it committed' -- names exactly the gap this spec closes. That is the honest justification for this prefix; the 'task text names it as the next prefix' framing is not.",
+    "taskRowState": "still `- [ ] 1.6` (unchecked) at c40a394f6; this prefix does not flip it"
+  },
+  "branch": "codex/roadmap-r2-client-crash-window-browser-20260915",
+  "baseSha": "c40a394f6030cc18157384518a4e62550d6b3727",
+  "baseSubject": "feat(campaign): flush pending client mutations before the document is discarded (#1694)",
+  "commitSha": "9869841bebf6a31f5a29303b65a41e5a032c4f25",
+  "commitSubject": "test(campaign): prove the discard-time flush reaches the server and survives a cold reload",
+  "commitAuthor": "Wes Rollings <wrollings@gmail.com>",
+  "aiAttribution": "none, per project rule",
+  "pushed": false,
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/browser",
+  "worktreeClean": true,
+  "files": [
+    {
+      "path": "e2e/campaign-crash-window-flush.spec.ts",
+      "change": "added",
+      "lines": 349,
+      "sha256": "980ab408ebed1363fe8f7fe9dd5720a69a4c41e1022908aa5b35b839a67951dc",
+      "what": "4 Chromium tests: discard flush + cold reload, debounced-save control, hidden/visible transition, and a RED ARM that removes the two listeners the fix installs."
+    }
+  ],
+  "lineBudget": {
+    "requested": 200,
+    "actual": 349,
+    "verdict": "OVER by 149, reported not hidden. Drivers: (1) four tests, not three -- the red arm is kept in-file as a permanent discrimination test rather than a throwaway run; (2) a local diagnostics gate wrapper (34 lines) needed because the sibling `withBrowserDiagnostics` has no allowance hook and this spec has two events it must be able to expect; (3) per-function comments the repo style requires. No assertion or case was dropped to chase the number."
+  },
+  "build": {
+    "command": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build",
+    "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/browser",
+    "node": "v22.22.0",
+    "npm": "11.6.2",
+    "exit": 0,
+    "durationSeconds": 199,
+    "buildId": "1789466505942",
+    "standaloneHydrated": true,
+    "buildSlotCheck": "Get-CimInstance Win32_Process node.exe filtered on 'build' before starting -- no `next build` was running (only outline-mcp stdio servers and unrelated jest workers). No wait needed."
+  },
+  "run": {
+    "command": "MEKSTATION_E2E_SERVER_COMMAND='node .next/standalone/server.js' HOSTNAME=127.0.0.1 MEKSTATION_E2E_PORT=3639 node scripts/playwright/run-playwright.mjs test e2e/campaign-crash-window-flush.spec.ts --project=chromium --retries=0 --workers=1 --trace=retain-on-failure",
+    "portPreCheck": "3639 free before the first run (no listener)",
+    "serverPid": "21180 (run 1), 21592 (run 2); Playwright owns the webServer lifecycle and reaped it -- LISTEN on 3639 == 0 after the final run",
+    "portNote": "PORT is NOT passed on the command line: playwright.config.ts's webServer.env already sets PORT=String(MEKSTATION_E2E_PORT), plus the per-run DATABASE_PATH under .sisyphus/e2e-runtime/<runId>.",
+    "prodEvidenceFlag": "not used, per instruction",
+    "iterations": [
+      {
+        "log": "run1.log",
+        "exit": 1,
+        "durationSeconds": 167,
+        "result": "0/4 -- all four failed in the seed helper at waitForCampaignPut",
+        "rootCause": "A campaign created through the exposed campaign store is a copy the server has never held. The dashboard route loader GETs 404, evaluates an adoption offer and sets legacyUnadopted=true; runSave then returns {status:'skipped'} (useCampaignPersistenceStore.ts:635) so the dashboard's Save-now button issues NO PUT. Save state stayed 'Idle' / 'Last saved: Never saved' in the failure snapshot.",
+        "alsoFound": "Every test burned exactly the 30 s default timeout: a file-scope `test.setTimeout(150_000)` is a no-op (the Playwright type doc says it changes 'the currently running test', and at import time there is none)."
+      },
+      {
+        "log": "run2.log",
+        "exit": 1,
+        "durationSeconds": 27,
+        "result": "0/4 failed -- but every FUNCTIONAL assertion in all four tests passed; the sole failure in each was the diagnostics gate",
+        "fixesApplied": [
+          "seed adopts via the exposed campaignPersistence store's adoptLegacyCampaign, polled until GET /api/campaigns/<id> answers 200",
+          "test.describe.configure({ timeout: 150_000 }) replaces the no-op file-scope setTimeout"
+        ],
+        "gateEvents": [
+          "console error `[EquipmentOfficialLoader] Failed to load weapons from ...json (missing, unreadable, or malformed)` + net::ERR_ABORTED on the matching /data/equipment/ GET -- the loader reports an ABORTED static read as malformed",
+          "console error `404 (Not Found)` for /api/campaigns/<id> and /api/campaigns/<id>/head -- the pre-adoption dashboard load, an artefact of the seeding method",
+          "requestfailed net::ERR_ABORTED on PUT /api/campaigns/<id> -- the flush's OWN request, which the gate classes fatal ('an aborted API write is silent data loss')"
+        ]
+      },
+      {
+        "log": "run3.log",
+        "exit": 1,
+        "durationSeconds": 21,
+        "result": "3/4 passed; RED ARM failed on the equipment-loader console error only",
+        "fixesApplied": [
+          "seeding moved OUTSIDE the diagnostics window, which removed the 404 class entirely",
+          "the discard navigation target became about:blank instead of /gameplay/campaigns, so no further app code loads during the measured window",
+          "local withGate wrapper allows the flush's own aborted PUT in the discard test only"
+        ]
+      },
+      {
+        "log": "run4.log",
+        "exit": 0,
+        "durationSeconds": 21,
+        "playwrightSummary": "4 passed (20.1s)",
+        "result": "4/4 green",
+        "fixApplied": "narrow, documented allowance for the aborted equipment-catalogue read (console text prefix `[EquipmentOfficialLoader]`, or a requestfailed whose url contains /data/equipment/)"
+      }
+    ]
+  },
+  "cases": [
+    {
+      "id": "a",
+      "test": "a discarded document flushes its pending mutation and the cold reload reads it back",
+      "result": "PASS (1.8s)",
+      "drives": "adopted campaign -> Advance Day on the dashboard (header date change polled) -> assert ZERO campaign PUTs so far (still inside the 2 s debounce) -> page.goto('about:blank') discards the document",
+      "asserts": [
+        "server record version == baseline + 1 (polled, 20 s budget)",
+        "server record body.currentDate != baseline currentDate",
+        "exactly ONE campaign PUT observed via page.on('request')",
+        "after page.addInitScript(() => localStorage.clear()) and a reload of the dashboard, the rendered header date equals the date captured before the discard"
+      ],
+      "coldReloadStrength": "localStorage is cleared at DOCUMENT START, so the rehydrated client cache cannot supply the value; the rendered date can only come from the server record the flush wrote."
+    },
+    {
+      "id": "b",
+      "test": "a surviving document takes the ordinary debounced save, exactly once",
+      "result": "PASS (3.5s)",
+      "asserts": [
+        "the PUT response status is 200",
+        "it arrived more than 1000 ms after the mutation (the debounce, not a discard)",
+        "exactly one PUT",
+        "server version == baseline + 1 and currentDate changed",
+        "the 'Unsaved changes' badge is hidden -- the ordinary save IS an acknowledgement, which the flush deliberately is not"
+      ]
+    },
+    {
+      "id": "c",
+      "test": "a hidden transition flushes without acknowledging, and returning re-arms a save",
+      "result": "PASS (3.5s)",
+      "drives": "Advance Day, then page.evaluate redefines document.visibilityState/hidden and dispatches visibilitychange; later the same for 'visible'",
+      "asserts": [
+        "exactly one PUT fires on the hidden transition",
+        "server version == baseline + 1",
+        "the 'Unsaved changes' badge is STILL visible -- the flush never read its response and so never cleared the pending mutations",
+        "on the visible transition a further PUT is issued (>= 2 total)",
+        "that reconciliation PUT's status is 409"
+      ]
+    },
+    {
+      "id": "red-arm",
+      "test": "RED ARM: without the discard listeners the same mutation never reaches the server",
+      "result": "PASS (5.9s) -- i.e. the mutation was correctly LOST",
+      "method": "page.addInitScript replaces window.addEventListener and document.addEventListener with wrappers that silently drop registrations for 'pagehide' and 'visibilitychange' respectively -- exactly the two registrations campaignPersistenceWiring makes for the fix, and nothing else. Same Advance Day, same about:blank discard, then a 4 s wait past the debounce.",
+      "asserts": [
+        "server record version UNCHANGED from baseline",
+        "server record body.currentDate UNCHANGED from baseline",
+        "zero campaign PUTs observed"
+      ],
+      "verdict": "Discrimination proven: with the listeners the mutation reaches the server, without them it does not. This is the red arm the brief asked for; it is kept as a permanent in-file test rather than a one-off run."
+    }
+  ],
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "moderate",
+      "title": "A flush the document SURVIVES leaves the client unable to acknowledge: the reconciled save is refused 409",
+      "measured": "Case (c) asserts and observes HTTP 409 on the reconciliation PUT (pinned as RECONCILE_PUT_STATUS in the spec, and also recorded as a testInfo annotation `reconcile-put-status`).",
+      "mechanism": "flushPendingMutations deliberately does not advance baseVersion (task 1.6: 'do NOT clear dirty, do NOT advance baseVersion'). When the flush LANDS, the server row goes N -> N+1 while the client's compare-and-swap token stays N. reconcileAfterDiscardFlush then arms the ordinary save, which PUTs baseVersion N against a row at N+1, and the strict CAS in CampaignPersistenceService.ts:126-131 refuses it.",
+      "specTension": "The scenario added by #1694 -- 'A hidden transition the document survives still reaches an acknowledged save' -- says the client SHALL schedule an ordinary ACKNOWLEDGED save. In a real browser only the scheduling half holds; the save is refused, and the dashboard surfaces 'Save refused ... take the server version'. Not data loss (the flush already wrote the state), but a user-visible conflict banner produced by the fix's own successful write.",
+      "reachability": "Every ordinary tab switch / minimise / app switch on a dirty single-player campaign.",
+      "notFixedHere": "This prefix is a proof, not a change. No product code was touched. Filing or owning the remedy is a decision for the parent."
+    },
+    {
+      "id": "F2",
+      "severity": "low",
+      "title": "The keepalive flush's own request is reported net::ERR_ABORTED and is FATAL to the shared e2e diagnostics gate",
+      "measured": "run2.log event 5: `requestfailed ... PUT http://localhost:3639/api/campaigns/<id> ... net::ERR_ABORTED`, on a run whose functional assertions proved the same write LANDED (version + 1, cold reload rendered the mutated date).",
+      "mechanism": "e2e/helpers/browserDiagnosticsModel.ts:59-62 classes an ERR_ABORTED on a non-GET /api/ request as fatal, on the (correct, pre-existing) rule that a save cancelled by navigation is silent data loss. A discard-time keepalive write is exactly that shape but is not that bug.",
+      "handledHere": "The spec's local `withGate` allows this ONE event class in the discard test only, and compensates with the server-side record read plus the cold reload. Any future spec that navigates away with a dirty campaign will hit the same classification."
+    },
+    {
+      "id": "F3",
+      "severity": "low",
+      "title": "The equipment catalogue loader logs an aborted static read as 'missing, unreadable, or malformed'",
+      "measured": "run2.log / run3.log: `[EquipmentOfficialLoader] Failed to load weapons from weapons/ballistic-gauss.json (missing, unreadable, or malformed)` paired one-for-one with a net::ERR_ABORTED GET of that /data/equipment/ file, each time a navigation happened within about a second of a page load.",
+      "impact": "A console error, therefore fatal to every diagnostics-gated spec that navigates quickly. Unrelated to campaign persistence; pre-existing at c40a394f6 (the catalogue shipped in #1636, the commit two before this branch's base).",
+      "handledHere": "Narrow allowance in this spec's gate, by console-text prefix or /data/equipment/ url -- never by widening the gate.",
+      "notFixedHere": "out of scope for this prefix"
+    },
+    {
+      "id": "F4",
+      "severity": "informational",
+      "title": "File-scope `test.setTimeout(...)` is a no-op in this Playwright version",
+      "measured": "run1.log -- every test in a file whose module scope called test.setTimeout(150_000) still died at the 30 s default. The types doc for setTimeout says it 'changes the timeout for the currently running test'.",
+      "note": "e2e/campaign-subroute-recovery.spec.ts:37 uses the same file-scope form (`test.setTimeout(120_000)`). NOT verified in this session whether that spec relies on the extra budget; flagged as a lead, not a claim."
+    }
+  ],
+  "gates": [
+    { "command": "npx tsc --noEmit -p tsconfig.json", "exit": 0, "note": "e2e/ is in scope for this tsconfig" },
+    { "command": "npx oxfmt --check e2e/campaign-crash-window-flush.spec.ts", "exit": 0, "stdout": "All matched files use the correct format." }
+  ],
+  "logs": {
+    "dir": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/crash-window-browser-20260915/",
+    "files": [
+      { "name": "build.log", "bytes": 179563, "sha256": "5e82eb036e4f2a64cbdff99582d2690eea6935e075b40189273bed6fd26cf5c6" },
+      { "name": "run1.log", "bytes": 16578, "sha256": "565c1cb7671c3ad0ee1c2afbb740ac8cdaefdfffac7ce76f49e1388cc74ccb80" },
+      { "name": "run2.log", "bytes": 32027, "sha256": "a57e08e2884b231e3bbe617551a15ebd08e7bd786d16c3a29a98e1a0c961dc8d" },
+      { "name": "run3.log", "bytes": 5924, "sha256": "0e7c27d2d2d6a4052662383da22717d998cadb4aaed648bcf29195791d6eb0b3" },
+      { "name": "run4.log", "bytes": 1278, "sha256": "c759b3eae5b52cfdd5f0f022dca0fd8092eb379ad9c0d12fca308ec1432fffdf" }
+    ]
+  },
+  "nonClaims": [
+    "`keepalive` is NOT directly observable from Playwright. The flag lives on the RequestInit, never on the wire, and request.headers() does not carry it. This spec proves the WRITE LANDED across a document discard and proves the listeners are load-bearing (red arm); it does not read the flag.",
+    "Single-player only. Every case runs a non-co-op campaign; isCoopCampaign is the flush's own skip condition and is untested here. Residual (2), the co-op dual-writer PUT 409 storm, is untouched.",
+    "No co-op, no journal authority, no flag flip, no command pipeline. CAMPAIGN_JOURNAL_AUTHORITY_ENABLED was not set for these runs.",
+    "The 64 KiB over-cap skip (`envelope-over-keepalive-cap`) is NOT exercised in the browser: the seeded campaigns are far under the cap. That row remains jsdom-only.",
+    "`beforeunload` is not covered, by design -- the fix deliberately does not register it.",
+    "A real browser crash / kill is not simulated. `page.goto('about:blank')` is a document discard that fires pagehide; a process kill that fires neither event still loses the window, exactly as the task's own NON-CLAIMS say.",
+    "Chromium only. No Firefox or WebKit run; keepalive behaviour on discard is engine-specific.",
+    "The seeding path uses adoptLegacyCampaign through the E2E-exposed store, not the campaign wizard. It produces a server-held, adopted campaign, which is the precondition under test; it is not a claim about how a user's first campaign reaches the server.",
+    "No push, no PR, no merge. Task 1.6's checkbox is NOT flipped and no openspec file was edited.",
+    "F1's 409 is reported, not fixed: no product code was changed in this prefix."
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "recordedAt": "2026-09-12T17:23:51.247Z",
+  "node": "R9.validation-order",
+  "baseline": "6c4eac5c7b7a2aece3aab0443ce606943db6cf0b",
+  "files": [
+    {
+      "path": "src/services/validation/UnitValidationRegistry.ts",
+      "sha256": "3939111303debbcee9cc5152d0df5c8f2b800a6cb83f652aaae0129253025246"
+    },
+    {
+      "path": "src/__tests__/service/validation/UnitValidationHierarchyOrder.test.ts",
+      "sha256": "1e7a2f12de7ac4392d4b9fcbf9e2c9bdb684fe39ecb9c8d6c11134b9b7135e4d"
+    },
+    {
+      "path": "src/services/validation/__tests__/initializeUnitValidation.test.ts",
+      "sha256": "7737565b431f2b9248b0d2c43862614a11a2a7789f08b886f18c494f8898138a"
+    },
+    {
+      "path": "openspec/specs/unit-validation-framework/spec.md",
+      "sha256": "7bfc2f9d64234b09661c682fb19a6f0918b5414fabd77483f44cb049663acf2d"
+    }
+  ],
+  "focused": "6 suites, 125 tests",
+  "staticStatus": "validation-order-checks/attempt-1-static-status.json",
+  "staticStatusSha256": "57586df501980c407b845566307dd751c983e260bb7445122f9e06cee77bd36a",
+  "buildStatus": "validation-order-checks/attempt-1-build-status.json",
+  "buildStatusSha256": "e9eb3b2f3145234f08bbba683c512cb363d8750d5e525180d3da5631336ffd7f",
+  "buildLogSha256": "d8261a0e419fa31b4a7015bb980986105ce5f80ea379c73c8e99317de1e08f23",
+  "independentReview": "validation-order-final-independent-review-20260912.json",
+  "numstat": "16\t3\topenspec/specs/unit-validation-framework/spec.md\n228\t0\tsrc/__tests__/service/validation/UnitValidationHierarchyOrder.test.ts\n70\t23\tsrc/services/validation/UnitValidationRegistry.ts\n28\t4\tsrc/services/validation/__tests__/initializeUnitValidation.test.ts",
+  "changedLines": 372,
+  "hookSetup": {
+    "exit": 0,
+    "coreHooksPathUnchanged": ".husky/_"
+  },
+  "limits": [
+    "Local gates only; commit hook and remote/main proof pending",
+    "Unknown-unit warning and multi-hop extension composition remain pre-existing limitations"
+  ]
+}

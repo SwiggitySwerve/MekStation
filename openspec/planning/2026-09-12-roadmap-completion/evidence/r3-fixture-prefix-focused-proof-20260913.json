@@ -1,0 +1,75 @@
+{
+  "at": "2026-09-13T08:49:01.242Z",
+  "status": "focused-local-proof-passed-delivery-gates-pending",
+  "prefix": "R3.storage.A",
+  "baseline": "44b94adbbb333a9d4965e057b34290e19fc0e781",
+  "source": [
+    {
+      "path": "src/services/persistence/__tests__/SQLiteService.correctionLeases.migration.test.ts",
+      "sha256": "f483865857c75d45b7c969224e131e7f9076f9f7cac38c5fd770e3d05bbf539e"
+    },
+    {
+      "path": "src/services/persistence/__tests__/SQLiteService.artifactManifest.migration.test.ts",
+      "sha256": "2eb75e49ddb99af1b556727f597b49568cbf36a97a5956950b8113299bc23f2f"
+    },
+    {
+      "path": "src/lib/events/journal/__tests__/EventHistoryArtifactManifest.test.ts",
+      "sha256": "ff828cf4ff8f3357abe0f1cf3c3366c5364b84022ac21ec5612978c3bf77bc08"
+    }
+  ],
+  "tests": {
+    "passed": 27,
+    "suites": 3,
+    "exit": 0
+  },
+  "formatExit": 0,
+  "lintExit": 0,
+  "review": "scoped APPROVE /root/r3_storage_security_review",
+  "limits": [
+    "No production change",
+    "Full type/build/normal commit hook gates not yet executed",
+    "No commit, publication, main proof or storage completion"
+  ],
+  "artifacts": [
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-fixture-parent-proof-20260913/report.json",
+      "sha256": "1265f2ad75f61a7bbd63162767e1596d25626bcba359706201e2935d7f4b0f0d"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-fixture-parent-proof-20260913/driver-status.json",
+      "sha256": "78971e165e822a0e700002d0de55c69de2ecdf1a7dc540f0c233b482395847bc"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-fixture-parent-proof-20260913/affinity.json",
+      "sha256": "8f372d8ede38f94f7da8e81edd52af0d21b64004d1868a065fda058c26844081"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-fixture-parent-proof-20260913/fixtures.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-fixture-parent-proof-20260913/fixtures.stderr.log",
+      "sha256": "a8f46535b9ffe123147f5d2f20a34fb8abaa3eafbb6b767a0633c99d6e46be3c"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-fixture-parent-proof-20260913/format.stdout.log",
+      "sha256": "775dde4f82183512d595280cded645b11dcfbc01b8f192f95ecb382e183b2955"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-fixture-parent-proof-20260913/lint.stdout.log",
+      "sha256": "4d1be9feb598fa104356c5e359597be4a7433113c71c3522e54fede58044003a"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-fixture-parent-proof-20260913/transfer.json",
+      "sha256": "925cdbab60d18e6a24065c0e3996ca1a25ef065e05621f376284f031dc93aad1"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-fixture-prefix-review-terra-20260913/report.json",
+      "sha256": "6d40e98e9c0556b1c59ea9e53e8d613bf87dbc1ba037c444c8d174074d1076d8"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-fixture-prefix-review-terra-20260913/review.md",
+      "sha256": "c25842fefa833a775d501d1c68719d7ee4296d712b72031960dd755167cebe4a"
+    }
+  ]
+}

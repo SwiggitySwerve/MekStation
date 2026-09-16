@@ -1,0 +1,148 @@
+{
+  "kind": "final-independent-review",
+  "reviewDate": "2026-09-12",
+  "reviewer": "codex:/root/data_spec_review",
+  "decision": "accepted_as_independent_final_review",
+  "candidateWorktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/spec-data-services",
+  "candidateHead": "a538a2d3b2b05252e1c80cc60395c72953f4c979",
+  "workerStatus": {
+    "path": ".sisyphus/roadmap-completion-20260912/grok-spec-data-services-1/correction-1-status.json",
+    "model": "grok-4.6",
+    "effort": "high",
+    "running": false,
+    "code": 1,
+    "finishedAt": "2026-09-12T19:59:14.485Z",
+    "interpretation": "The correction worker terminated unsuccessfully; this receipt makes no claim of Grok success."
+  },
+  "finalDiff": {
+    "base": "a538a2d3b2b05252e1c80cc60395c72953f4c979",
+    "files": {
+      "openspec/specs/equipment-services/spec.md": {
+        "additions": 105,
+        "deletions": 25,
+        "beforeSha256": "ad85d890cd10b88ce3e287a3d1e9675b2fa706c7f9753e346b44ffaabcae4509",
+        "afterSha256": "32d8197b35e45c65842701076d7a5cfd9043838dc6486a0605237caaf4da77f8"
+      },
+      "openspec/specs/data-loading-architecture/spec.md": {
+        "additions": 60,
+        "deletions": 24,
+        "beforeSha256": "6eb85220c352f8a96047eac02228b2b8c2798a9d7da6bf943d3cbe7cd2c4e242",
+        "afterSha256": "cfa90d423f395ae2dddc0aa28697929c451ff9788cb58466ef838b2b97b2a66f"
+      },
+      "openspec/specs/construction-rules-core/spec.md": {
+        "additions": 7,
+        "deletions": 5,
+        "beforeSha256": "85fefb6f310e6132e4bd99ec4f5f92cb2612731c1505d1e0637cf4c9db6e9aa1",
+        "afterSha256": "85fefb6f310e6132e4bd99ec4f5f92cb2612731c1505d1e0637cf4c9db6e9aa1"
+      }
+    },
+    "scope": "Only the three assigned specs are modified in the candidate worktree."
+  },
+  "findingResolution": {
+    "strictSchemaContinuation": {
+      "status": "resolved",
+      "specEvidence": "openspec/specs/equipment-services/spec.md:679-712",
+      "sourceEvidence": [
+        "src/services/equipment/EquipmentShapeValidation.ts:131-154",
+        "src/services/equipment/EquipmentOfficialLoader.ts:64-217",
+        "src/services/equipment/EquipmentLoaderService.ts:74-83"
+      ],
+      "finding": "The prior wording incorrectly implied malformed/schema-invalid files always continue.",
+      "resolution": "The final spec separates read, missing, unreadable, and JSON-parse continuation from strict schema-bridge throws. In strict non-production mode validateShape throws before conversion, the outer catch stops traversal, returns success false, preserves pre-throw itemsLoaded, and does not continue remaining files."
+    },
+    "indexMapFallback": {
+      "status": "resolved",
+      "specEvidence": [
+        "openspec/specs/data-loading-architecture/spec.md:85-100",
+        "openspec/specs/equipment-services/spec.md:645-650"
+      ],
+      "sourceEvidence": [
+        "src/services/equipment/EquipmentOfficialLoader.ts:72-74",
+        "src/services/equipment/EquipmentOfficialLoader.ts:117-118",
+        "src/services/equipment/EquipmentOfficialLoader.ts:146-147",
+        "src/services/equipment/EquipmentOfficialLoader.ts:175-176",
+        "src/services/equipment/EquipmentLoaderConfig.ts:1-54"
+      ],
+      "finding": "The prior wording omitted missing index/category recovery and the distinction between topology and defaults.",
+      "resolution": "The final spec states that present category maps control topology, missing index/category maps use configured defaults, and missing metadata alone does not append a result error."
+    },
+    "remainingFindings": []
+  },
+  "finalCandidateGates": {
+    "rawArtifact": {
+      "path": ".sisyphus/roadmap-completion-20260912/spec-data-services-review/final-correction-review/raw-final-gates-20260912.json",
+      "sha256": "588dd62a9bfde504afdc4fba3021e803c54044e0561a13c61027c54c31a54a7a"
+    },
+    "commands": [
+      {
+        "name": "openspec_validate_all_strict_final",
+        "exitCode": 0,
+        "timedOut": false,
+        "result": "Totals: 231 passed, 0 failed (231 items)"
+      },
+      {
+        "name": "purpose_validate_candidate_final",
+        "exitCode": 0,
+        "timedOut": false,
+        "result": "Spec root: candidate openspec/specs; Files scanned: 217; Errors: 0; Tracked source-of-truth debt: 0"
+      },
+      {
+        "name": "terminology_validate_candidate_final",
+        "exitCode": 0,
+        "timedOut": false,
+        "result": "Found 319 file(s) to scan; no terminology violations",
+        "stderrQualification": "Node MODULE_TYPELESS_PACKAGE_JSON warning only"
+      },
+      {
+        "name": "openspec_ci_quality_candidate_final",
+        "exitCode": 0,
+        "timedOut": false,
+        "result": "workflowContracts=8/8 aggregatorNeeds=18/18 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=14 accountedActiveOpenSpecChanges=14 errors=0"
+      },
+      {
+        "name": "format_check_candidate_final",
+        "exitCode": 0,
+        "timedOut": false,
+        "result": "All matched files use the correct format; 3 files"
+      },
+      {
+        "name": "diff_check_candidate_final",
+        "exitCode": 0,
+        "timedOut": false,
+        "result": "No whitespace errors"
+      }
+    ]
+  },
+  "carriedForwardTests": {
+    "source": ".sisyphus/roadmap-completion-20260912/spec-data-services-review/raw-gates-20260912.json",
+    "basis": "No source or test files changed after the earlier candidate-worktree capture; these tests were not rerun.",
+    "results": [
+      {
+        "name": "focused-loader-failure-test",
+        "exitCode": 0,
+        "result": "1 suite passed; 1 test passed"
+      },
+      {
+        "name": "focused-schema-bridge-test",
+        "exitCode": 0,
+        "result": "1 suite passed; 5 tests passed"
+      },
+      {
+        "name": "strict-schema-bridge-diagnostic",
+        "exitCode": 1,
+        "result": "1 test failed and 4 tests passed; retained as diagnostic evidence, not an acceptance gate"
+      }
+    ]
+  },
+  "artifacts": {
+    "reviewMarkdown": {
+      "path": ".sisyphus/roadmap-completion-20260912/spec-data-services-review/final-correction-review/final-review-20260912.md",
+      "sha256": "77b9965348115567899db3f1f0d80302dfb25ee5c6af9c120438bb7970a283f9"
+    }
+  },
+  "limitations": [
+    "The worker correction lane ended with code 1; acceptance here is independent of worker completion.",
+    "No source, test, Git, ledger, install, build, or server mutation was performed by this review.",
+    "The candidate remains an uncommitted worktree state; parent owns final integration and publication decisions."
+  ]
+}

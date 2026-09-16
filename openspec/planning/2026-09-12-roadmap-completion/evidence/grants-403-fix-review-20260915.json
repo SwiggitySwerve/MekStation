@@ -1,0 +1,343 @@
+{
+  "schema": "grants-403-fix-review/v1",
+  "runAt": "2026-09-15",
+  "lane": "grants-403-fix-review (GP-JUSTIFIED: read-only independent review of a 3-file product fix with a jsdom re-run. No edits, no commits, no pushes, no sub-agents, no builds, no Playwright runs. The only file written is this artefact.)",
+  "target": {
+    "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/proof02-rerun",
+    "branch": "codex/roadmap-guest-share-panel-grants-20260915",
+    "head": "164d18a5ca97b4b2d3719acfe35d35f9de22fcbe",
+    "base": "293d21bb0",
+    "pr": "#1720",
+    "headVerifiedBy": "`git rev-parse HEAD` at start AND at end of this review - identical both times.",
+    "workingTreeClean": true,
+    "workingTreeCleanVerifiedBy": "`git status --porcelain` empty at start and again after the final gate run. This review changed nothing in the worktree."
+  },
+
+  "verdict": "APPROVE-WITH-REQUIRED-EDITS",
+  "verdictSummary": "The product fix is correct, minimal, spec-aligned and independently re-verified: the fact it narrows on (`campaign.coopSession?.mode`) is the right one, is the repo-wide idiom for exactly this host/guest distinction, is durable on the guest side through an explicitly engineered preservation guard, and fails OPEN toward fetching so it cannot silence a host or a single-player owner. The server gate is untouched and the client error is not swallowed. Every measurable claim in the two evidence files reproduced exactly, including all seven log sha256 values. ONE required edit: the fourth unit row, which the evidence cites as the mitigation for the unexercised two-device topology, does not actually pin what it claims to pin.",
+
+  "requiredEdits": [
+    {
+      "id": "RE1",
+      "severity": "required",
+      "file": "src/components/campaign/share/__tests__/CampaignSharePanelConnected.test.tsx",
+      "at": "the fourth row, 'a replica panel still issues no grants request' (renders with role 'replica' AND coopMode=\"guest\")",
+      "finding": "The row is not load-bearing. The precondition is `mayListGrants = isSource && coopMode !== 'guest'` (CampaignSharePanelConnected.tsx:121). This row sets BOTH conjuncts false - authority.role is 'replica' (so isSource is false) and coopMode is 'guest' (so the second conjunct is false). It therefore passes under EITHER half of the conjunction alone, and is behaviourally a duplicate of row 1. Delete `isSource &&` from the precondition and no row in the suite fails.",
+      "whyItMatters": "This is not a cosmetic test nit, because the evidence leans on this exact row as a risk mitigation. grants-403-fix-local-20260915.json nonClaims states the two-device topology was NOT run and that 'the replica row in the new test pins that path at the unit level'. As written it does not: the replica/isSource guard - the sole thing standing between a genuine two-device replica and this same 403 - has no independent coverage anywhere in the suite (this is the first connected-component test for the panel, so there is no pre-existing pin either).",
+      "fix": "Change that row's `coopMode` to \"host\" (or omit the prop entirely). Either makes the second conjunct TRUE, so the row then passes only because `isSource` is false - which is the behaviour the row claims to pin. One-word change; no product change.",
+      "notARegression": "EXPLICIT: this commit does not REMOVE coverage. No connected-panel test existed at the base commit. The defect is that the new pin is weaker than the evidence asserts, not that the change made anything worse."
+    }
+  ],
+
+  "optionalEdits": [
+    {
+      "id": "OE1",
+      "severity": "optional",
+      "file": "src/components/campaign/share/__tests__/CampaignSharePanelConnected.test.tsx",
+      "at": "the guest row's comment above `waitFor`: 'Let every queued effect and microtask settle before concluding \"nothing was sent\" - an assertion made too early proves nothing.'",
+      "finding": "The comment misdescribes the mechanism. `waitFor` with a NEGATIVE assertion resolves on its first synchronous poll, so it settles nothing - it is the testing-library anti-pattern the comment believes it is avoiding. The row nevertheless genuinely detects the defect, and this is MEASURED, not assumed: red-unit.log records this row failing with 'Received number of calls: 1', which proves the mount effect's fetch is already registered before waitFor's first poll (React Testing Library flushes the mount effect inside act during `render`).",
+      "whyItMatters": "Low: the test works. Flagged only because comment accuracy is this commit's own stated secondary purpose (it corrects two stale comments) and because a future reader could copy the pattern into a case where the call is NOT synchronous, where it would silently prove nothing.",
+      "fix": "Either drop the waitFor and assert directly after render (the honest shape, since the effect has already flushed), or state the real reason: 'the mount effect flushes inside render, so a call would already be registered here.'"
+    },
+    {
+      "id": "OE2",
+      "severity": "optional",
+      "file": "src/components/campaign/share/CampaignSharePanelConnected.tsx",
+      "at": "the two consecutive docblocks at ~:59-70",
+      "finding": "The docblock whose text this commit corrected ('Reads the campaign's grants. A refusal yields an empty set...') sits immediately above `shareAuthHeaders`, not above `fetchGrants` - the function it describes, which is eight lines further down. The misplacement is PRE-EXISTING (introduced when #1521 inserted shareAuthHeaders between the comment and its function); this commit edited the block's text in place without relocating it.",
+      "whyItMatters": "Low. The prose is now accurate; only its attachment point is wrong. Noted because the commit touched this exact block, so moving it would have been in-scope and free - though surgical-diff discipline also argues for leaving pre-existing placement alone.",
+      "fix": "Move the block to sit directly above `async function fetchGrants(`."
+    },
+    {
+      "id": "OE3",
+      "severity": "optional",
+      "file": "src/components/campaign/share/__tests__/CampaignSharePanelConnected.test.tsx",
+      "at": "afterEach - `useCampaignPersistenceStore.getState().reset()`",
+      "finding": "MEASURED IN THIS SESSION: the suite passes but emits a React warning - 'An update to CampaignSharePanelConnected inside a test was not wrapped in act(...)', traced to useCampaignPersistenceStore.ts:1256 (`reset`) called from the test file's afterEach at :59. Console noise in a green suite.",
+      "fix": "Wrap the reset in `act(() => { ... })`, or unmount before resetting.",
+      "note": "This warning is visible in the committed green-unit.log and green-suites.log too; it is not something this review's re-run introduced."
+    }
+  ],
+
+  "reviewQuestions": [
+    {
+      "id": "1",
+      "question": "Is `campaign.coopSession?.mode` the right fact, available at mount for both host and guest, and can a HOST ever have mode undefined such that the panel wrongly stops fetching? Any other mount site needing the prop?",
+      "verdict": "PASS",
+      "rightFact": {
+        "verdict": "YES",
+        "evidence": [
+          "src/types/campaign/CoopSession.ts:39 - `export type CoopSessionMode = 'host' | 'guest'`, documented at :28-38 as 'The local user's role in a co-op campaign session', which is precisely the per-browser fact the stored authority cannot supply.",
+          "It is the established repo-wide idiom for this exact discrimination, not an invention of this fix: src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx:55 `const coopMode = campaign?.coopSession?.mode;`, src/components/campaign/coop/CampaignCoopRouteSurface.tsx:300-302 and :370/:397, src/lib/campaign/campaignAuthority.ts:31, src/lib/campaign/coop/coopHostRegistry.ts:71, src/components/campaign/CampaignNavigation.tsx:292.",
+          "It is the same object the mount site already destructures one line away - CampaignDashboardPage.tsx:372 `matchId={getCoopMatchId(campaign.coopSession)}` - so the prop costs no new round-trip, no new state and no inference."
+        ]
+      },
+      "availableAtMount": {
+        "verdict": "YES for both, and durably so",
+        "guestChain": [
+          "Stamped at join: useCampaignStore.actions.ts:136 `createGuestCoopSession(hostMatchId, snapshot.roomCode)` -> CoopSession.ts:113 `{ mode: 'guest', roomCode, hostMatchId }`, set into the store at :142-150.",
+          "SURVIVES the host's authoritative-state merge: campaignMirrorProjection.ts:8-24 rewrites only currentDate / finances.balance / factionStandings / updatedAt over `...campaign`, so coopSession is carried through untouched.",
+          "SURVIVES hydration of the HOST's server record - the one path that could plausibly clobber it, since the guest's campaign id equals the host's and serializeCampaign.ts:192/262 does round-trip coopSession through the server body. useCampaignPersistenceStore.ts:367-381 `preserveGuestCoopSession` exists for exactly this, and is applied on the load path at :843: when the live campaign's mode is 'guest', the loaded record's coopSession is replaced by the local one. There is even a sibling guard at :836-840 refusing to let a guest's cached copy stand.",
+          "Reviewer's note: that a dedicated preservation guard was already written for this invariant is the strongest available evidence that `coopSession.mode` is the intended per-browser truth, and that this fix is reading the fact the codebase already maintains rather than a coincidence."
+        ],
+        "hostChain": "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx:258 `coopSession: createHostCoopSession(roomCode, data.matchId)`.",
+        "orderingIsSafe": "No race at mount. `authority` is null until the persistence metadata has been read (CampaignSharePanelConnected.tsx:106-108), and `isSource` is false while it is null, so the panel issues nothing before both facts are present. The mode arrives from the campaign store, which is populated at join/create - strictly earlier than the server metadata."
+      },
+      "hostWithUndefinedMode": {
+        "verdict": "CANNOT wrongly stop fetching - the guard is fail-open in the safe direction",
+        "reasoning": "The precondition is `isSource && coopMode !== 'guest'` (CampaignSharePanelConnected.tsx:121), and the prop defaults to null at :104. `undefined !== 'guest'` and `null !== 'guest'` are both TRUE, so an absent mode PRESERVES fetching. The only way the new conjunct suppresses a fetch is an explicit literal 'guest'. A host whose coopSession were somehow absent therefore keeps its previous behaviour exactly; single-player (no coopSession at all) likewise.",
+        "pinned": "Test rows 2 and 3 - 'a host-mode source panel still fetches its grants' (asserts the exact URL /api/campaigns/campaign-1/grants) and 'a single-player source panel still fetches its grants' (renders with no coopMode prop at all). Both PASSED at the base commit per red-unit.log, so they pin pre-existing behaviour rather than describing the fix.",
+        "residualRiskIsTheOtherDirection": "The failure direction this shape leaves open is a GUEST whose mode is absent or wrong, which would resume fetching. See finding F1 for the one path where that can happen."
+      },
+      "otherMountSites": {
+        "verdict": "NONE - no other call site needs the prop",
+        "method": "`grep -rn 'CampaignSharePanelConnected' src/ e2e/` over .ts/.tsx.",
+        "result": "Exactly one JSX mount exists repo-wide: src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.tsx:369-373, which this commit updates. The only other references are the component's own definition/export (CampaignSharePanelConnected.tsx:39/101/102/167), the barrel re-export src/components/campaign/share/index.ts:3 (which no other module consumes for this symbol), and the dashboard's import at CampaignDashboardPage.tsx:12. No e2e file mounts it directly.",
+        "propIsOptional": "`readonly coopMode?: CoopSessionMode | null` - optional, so even a future mount site that omits it compiles and keeps the pre-fix behaviour. That is the correct default for this guard's polarity (see above)."
+      }
+    },
+    {
+      "id": "2",
+      "question": "Is the server gate untouched, and is the client error swallowed?",
+      "verdict": "PASS",
+      "serverGateUntouched": {
+        "verdict": "CONFIRMED",
+        "evidence": "`git diff --name-only 293d21bb0 164d18a5c` returns exactly three paths, all under src/components/: CampaignSharePanelConnected.tsx, its new __tests__ sibling, and CampaignDashboardPage.tsx. Neither src/pages/api/campaigns/[id]/grants.ts nor src/lib/campaign/grants/campaignShareService.ts appears. `git show 164d18a5c --stat` agrees (3 files, +171/-10).",
+        "soTheExposureStaysClosed": "The #1521 caller gate is intact. The route header at grants.ts:8-19 still documents both gates, and its :14-19 statement that the caller gate exists because 'the roster names every grantee principal and the DELETE withdraws another participant's access' is exactly the exposure that must not be reopened. This fix does not weaken it by one line - it stops a client asking a question it has no business asking."
+      },
+      "clientErrorNotSwallowed": {
+        "verdict": "CONFIRMED - nothing was absorbed, hidden, caught or filtered",
+        "evidence": [
+          "No try/catch, no console suppression, no error filter and no `.catch()` was added anywhere in the diff.",
+          "The pre-existing tolerance `if (!response.ok) return [];` at CampaignSharePanelConnected.tsx:86 is UNCHANGED by this diff (it is not in the hunk set) - it predates the fix and is a response-shape guard, not an error mask.",
+          "The audit spec's critical() filter at e2e/coop-campaign-ui-audit.spec.ts:207-213 was NOT widened. The diagnosis explicitly rejected that shape, and the frozen grep confirms no e2e file is in the diff.",
+          "Mechanically the console line could not have been swallowed even if someone tried: it is emitted by CHROMIUM for the failed resource, not by application code, so no client-side catch can suppress it. The count going 4 -> 0 is therefore positive proof the request is no longer issued, not proof it was hidden."
+        ]
+      }
+    },
+    {
+      "id": "3",
+      "question": "Red-first: was the guest row red at base with one grants call, did the three pins pass before and after, and do the gates hold at HEAD?",
+      "verdict": "PASS",
+      "redFirstFromLog": {
+        "log": ".sisyphus/roadmap-completion-20260912/grants-403-fix-20260915/red-unit.log",
+        "sha256Claimed": "e76415ac4e9a8d6f8eeb2fe22ce9573e0a5aa09a07f3e57cabffea5836d64594",
+        "sha256Measured": "e76415ac4e9a8d6f8eeb2fe22ce9573e0a5aa09a07f3e57cabffea5836d64594",
+        "match": true,
+        "linesRead": "red-unit.log:345 '* CampaignSharePanelConnected grants request > a guest-mode panel issues no grants request'; :349-350 'Expected number of calls: 0' / 'Received number of calls: 1'; :393-394 'Test Suites: 1 failed, 1 passed, 2 total' / 'Tests: 1 failed, 9 passed, 10 total'.",
+        "exactlyOneCall": "CONFIRMED - 'Received number of calls: 1', i.e. one grants call from the guest-mode render, matching the diagnosis's per-mount attribution.",
+        "threePinsGreenAtBase": "CONFIRMED by arithmetic on the same totals: the two-suite run is 10 tests, the new file contributes 4 rows and the pre-existing CampaignSharePanel.test.tsx contributes 6. With 1 failed / 9 passed and the single failure named as the guest row, the host-mode, single-player and replica rows all passed at the base commit. They therefore pin pre-existing behaviour rather than describing the fix - subject to RE1, which is about what the replica row pins, not about whether it was green."
+      },
+      "measuredRunsAtHead": [
+        {
+          "gate": "new suite + its sibling (the red/green pair)",
+          "command": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false --runTestsByPath src/components/campaign/share/__tests__/CampaignSharePanelConnected.test.tsx src/components/campaign/share/__tests__/CampaignSharePanel.test.tsx",
+          "exit": 0,
+          "result": "Test Suites: 2 passed, 2 total. Tests: 10 passed, 10 total. Time 1.092 s.",
+          "matchesEvidenceClaim": true,
+          "note": "Emits the act() warning recorded as OE3; warning only, no failure."
+        },
+        {
+          "gate": "panel + dashboard suites (the 6 the evidence names, covering src/components/campaign/share entirely - that directory has exactly two test files, both included)",
+          "command": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false --runTestsByPath <the 6 suites>",
+          "exit": 0,
+          "result": "Test Suites: 6 passed, 6 total. Tests: 27 passed, 27 total. Time 3.444 s.",
+          "matchesEvidenceClaim": true
+        },
+        {
+          "gate": "tsc",
+          "command": "npx tsc --noEmit",
+          "exit": 0,
+          "result": "clean - empty output",
+          "matchesEvidenceClaim": true
+        },
+        {
+          "gate": "oxfmt --check on the three changed files",
+          "command": "npx oxfmt --check <3 changed files>",
+          "exit": 0,
+          "result": "'All matched files use the correct format.' (3 files, 3407ms)",
+          "matchesEvidenceClaim": true,
+          "note": "The evidence recorded a plain `npx oxfmt` (write mode); this review ran --check, which is the stronger read-only assertion and passed."
+        }
+      ],
+      "notRerunByThisReview": "The red itself was NOT reproduced by checkout - doing so would have required mutating the worktree, which this review's charter forbids. The red is verified from the hash-matched log instead, which records the failure verbatim."
+    },
+    {
+      "id": "4",
+      "question": "The frozen journey run: exit 0, 9 suites / 138 tests, both specs green, zero 403s, BUILD_ID 1789480896885 - and do the log hashes match?",
+      "verdict": "PASS (one claim corroborated rather than directly recorded - stated below)",
+      "logHashes": {
+        "verdict": "ALL SEVEN MATCH, byte-for-byte",
+        "method": "`sha256sum *` over .sisyphus/roadmap-completion-20260912/grants-403-fix-20260915/, compared against every hash asserted in grants-403-fix-local-20260915.json.",
+        "table": [
+          { "file": "red-unit.log", "claimed": "e76415ac4e9a8d6f8eeb2fe22ce9573e0a5aa09a07f3e57cabffea5836d64594", "measured": "e76415ac4e9a8d6f8eeb2fe22ce9573e0a5aa09a07f3e57cabffea5836d64594", "match": true, "bytes": 26068 },
+          { "file": "green-unit.log", "claimed": "71dff7a26515267e9e1f331ec98f87a78c858fa129dd24f076c8597403de87eb", "measured": "71dff7a26515267e9e1f331ec98f87a78c858fa129dd24f076c8597403de87eb", "match": true, "bytes": 20178 },
+          { "file": "green-suites.log", "claimed": "3d67462d3d85ce1c32b63928988dab696843045707ea836e883e049e8c1f47aa", "measured": "3d67462d3d85ce1c32b63928988dab696843045707ea836e883e049e8c1f47aa", "match": true, "bytes": 30161 },
+          { "file": "tsc.log", "claimed": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "measured": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "match": true, "bytes": 0, "note": "the sha256 of the empty string - consistent with the claimed clean tsc" },
+          { "file": "openspec.log", "claimed": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3", "measured": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3", "match": true, "bytes": 6954 },
+          { "file": "e2e-build.log", "claimed": "f184fa2851314effdb9bc0cc08514977512011c74b71a06da0185751b372e2e5", "measured": "f184fa2851314effdb9bc0cc08514977512011c74b71a06da0185751b372e2e5", "match": true, "bytes": 3549463 },
+          { "file": "journey-run.log", "claimed": "2f82c8935ae080a8c9204614735303f5de366adbddaf8a42db15c0fd27128d8d", "measured": "2f82c8935ae080a8c9204614735303f5de366adbddaf8a42db15c0fd27128d8d", "match": true, "bytes": 19075 }
+        ]
+      },
+      "journeyClaims": [
+        { "claim": "9 Jest suites / 138 tests", "verdict": "CONFIRMED", "measuredAt": "journey-run.log:91-92 - 'Test Suites: 9 passed, 9 total' / 'Tests: 138 passed, 138 total'" },
+        { "claim": "both Playwright specs green", "verdict": "CONFIRMED", "measuredAt": "journey-run.log:135 'ok 1 [chromium] e2e\\coop-campaign-two-browser-journey.spec.ts:260:7 ... (5.7s)'; :196 'ok 2 [chromium] e2e\\coop-campaign-ui-audit.spec.ts:312:7 ... (6.8s)'; :198 '2 passed (34.6s)'" },
+        { "claim": "zero 403s", "verdict": "CONFIRMED by my own greps, not by reading the evidence's count", "measured": "`grep -c '403' journey-run.log` = 0 AND `grep -c 'Forbidden' journey-run.log` = 0. The prior four receipt executions failed the terminal assertion with exactly 4x 'Failed to load resource: the server responded with a status of 403 (Forbidden)'; neither token appears anywhere in this log." },
+        { "claim": "BUILD_ID 1789480896885", "verdict": "CONFIRMED from disk", "measured": "`cat .next/BUILD_ID` in the worktree = 1789480896885, unchanged at review time and matching the evidence exactly.", "caveat": "The BUILD_ID string does NOT appear inside journey-run.log or e2e-build.log (grepped both; no hits). It is verified from the on-disk .next/BUILD_ID, which is what the evidence itself says it read ('buildIdReadFrom: .next/BUILD_ID after the build exited'). No rebuild has occurred since, so the on-disk value still corresponds to the tree the journey ran against." },
+        { "claim": "exit 0", "verdict": "CORROBORATED, NOT DIRECTLY RECORDED", "detail": "journey-run.log contains no exit-code line; its tail ends with the WebServer socket-close lines followed by 'ok 2 ...' and '2 passed (34.6s)'. Exit 0 is therefore inferred from both legs reporting all-pass with zero failures and zero errors. This is the one journey claim this review could not verify directly, and it is recorded as corroboration rather than measurement.", "materiality": "Low - a non-zero exit with 9/9 jest suites green, 2/2 playwright specs 'ok' and no failure line would be anomalous. Future runs should `tee` the exit code into the log." }
+      ]
+    },
+    {
+      "id": "5",
+      "question": "Are the corrected comments now accurate about BOTH gates?",
+      "verdict": "PASS on accuracy; one pre-existing placement defect (OE2)",
+      "assessment": [
+        "Module header, CampaignSharePanelConnected.tsx:16-23: names both questions explicitly ('is this campaign a source, and is this caller the GM'), states that the stored authority answers only the first, states WHY the guest satisfies it ('both browsers read the SAME record'), and preserves the still-true replica claim ('A replica is excluded by the authority alone, as before'). Accurate on both gates.",
+        "Prop doc, :47-55: draws the campaign-property vs local-player distinction that is the whole point of the fix, and documents the absent case correctly ('Absent means single-player, where the local player is the owner') - which matches the fail-open polarity of the guard.",
+        "Inline decision comment, :118-121: 'passes the source gate on a fact about the CAMPAIGN while failing the server's caller gate on a fact about ITSELF. Only the local role separates the two.' This is the decision point and it is annotated with the reasoning, per the repo's inline-comment rule.",
+        "fetchGrants doc, :59-64: the old text claimed a refusal is absorbed here because the panel 'already explains the replica case'; the new text adds 'and a caller-gate refusal is now prevented upstream rather than absorbed here', which is the honest description post-fix.",
+        "Mount-site comment, CampaignDashboardPage.tsx:360-368: explains why the mode travels with the matchId. Accurate.",
+        "CROSS-CHECKED against the authority, not just read for plausibility: the route header at grants.ts:8-19 describes the same two gates in the same terms - 'not-source' as 'A property of the campaign. Every browser this server serves reads the same answer, co-op guests included, so it authorizes nobody on its own', and 'not-campaign-gm' as 'is the VERIFIED CALLER the campaign's active GM'. The client comments now mirror the server's own documented contract rather than half of it. That mirroring failure is precisely what the commit message identifies as the #1521 regression, and the comments are the durable fix for it."
+      ],
+      "placementDefect": "See OE2 - the corrected fetchGrants docblock is physically attached to `shareAuthHeaders` rather than to `fetchGrants`. Pre-existing from #1521; text corrected in place, position not moved."
+    },
+    {
+      "id": "6",
+      "question": "D1 - the guest is left with an empty share box on a shared server. Is that acceptable under the spec, or does it warrant the owner question as recorded? (judge honesty of the statement, do not decide it)",
+      "verdict": "HONESTLY STATED - the question is real, correctly scoped, and correctly routed. One under-specification worth tightening. NOT DECIDED HERE.",
+      "isTheStatementHonest": {
+        "verdict": "YES",
+        "why": [
+          "It does not claim the fix solved more than it did. The record explicitly separates what changed from what did not: 'The fix stops the guest ASKING... It does NOT change what the guest is TOLD'.",
+          "It names the concrete residual (the guest still renders the source variant because its stored authority still reads 'source') and states the reason that cannot be fixed here (deciding what a shared-server guest's authority SHOULD read is a campaign-replication design question).",
+          "It is carried identically in BOTH evidence files - the diagnosis raised it before any code was written and the fix lane re-stated it after, rather than the question appearing only once the work was done.",
+          "It correctly reports the collateral improvement without overclaiming it: the Revoke buttons are gone. VERIFIED: CampaignSharePanel.tsx:79-86 renders the Revoke button only inside `grantRow`, which is only reached via `grants.map(...)` at :156, so an empty list renders no revoke affordance. Also verified there is NO grant-ISSUING control in the panel at all (the only interactive element in the file is that one Revoke button), so the fix does not leave behind a different always-failing control that would 403 on click - a failure mode the record would otherwise have had to disclose."
+        ]
+      },
+      "underSpecification": {
+        "finding": "The record describes the residual as 'an empty share box'. MEASURED, the guest actually sees a heading 'Shared access' above the copy 'This campaign has not been shared.' (CampaignSharePanel.tsx:141-152, data-testid campaign-share-empty). For a guest that sentence is not merely uninformative, it is false - the campaign HAS been shared, with them, which is why they are looking at it.",
+          "whyThisMatters": "It sharpens rather than changes the owner's question, and it is the same class of concern the panel's own header already articulates at CampaignSharePanel.tsx:12-16 ('showing a control that always fails is its own kind of lie'). An owner reading only 'empty share box' might rate the residual cosmetic; reading the literal string, they may not.",
+        "recommendation": "Quote the literal copy in D1 when the owner picks it up. This is a documentation sharpening of an OPEN question, not a required edit to this PR."
+      },
+      "specReading": {
+        "verdict": "The fix violates no SHALL; the residual sits in genuinely undecided territory - which is why deferring it is the correct call, not an evasion.",
+        "citations": [
+          "campaign-replication/spec.md:5-10 - 'the source SHALL list all three active grants'. Listing is assigned to the SOURCE. No SHALL anywhere in campaign-replication grants a guest, grantee or replica the capability to LIST a campaign's grants, so removing the guest's request removes a capability the spec never conferred. The fix moves the client TOWARD the spec.",
+          "campaign-replication/spec.md:5-10 - 'A replica SHALL present itself as a replica in every surface that shows campaign identity.' This is the SHALL nearest the residual, and it does not bind here: a shared-server guest is not a replica by stored authority (it reads the host's record, role 'source'). Whether it OUGHT to be is exactly D1's question - i.e. the residual is a gap in what the spec covers, not a breach of what it says.",
+          "The route's own header, grants.ts:11-14, states the source gate 'authorizes nobody on its own' for co-op guests. The client now agrees with that sentence for the first time."
+        ],
+        "ownerRouting": "design-campaign-authority-and-sync, as recorded. Correct: the surviving question is about what a shared-server guest's stored authority should read, which that change owns.",
+        "notDecidedByThisReview": "EXPLICIT - this review judges only that the question is honestly stated, correctly scoped and correctly routed. It takes no position on whether a co-op guest's dashboard should render the share panel."
+      }
+    },
+    {
+      "id": "7",
+      "question": "Hygiene - conventional subject, author, no AI attribution, within caps, no frozen file touched.",
+      "verdict": "PASS on every item",
+      "checks": [
+        { "item": "conventional subject", "verdict": "PASS", "measured": "'fix(campaign): stop a co-op guest asking for the GM share grants it cannot list' - conventional type(scope) prefix, imperative mood, describes the behaviour change rather than the mechanism." },
+        { "item": "subject length", "verdict": "PASS", "measured": "79 characters. No commitlint / header-max-length config exists in the repo (checked package.json and .husky/), and the six longest of the last 15 subjects on the base run 93-116 characters, so 79 is comfortably inside local norm." },
+        { "item": "author and committer", "verdict": "PASS", "measured": "`git log -1 --format='A:%an <%ae> | C:%cn <%ce>'` = 'A:Wes Rollings <wrollings@gmail.com> | C:Wes Rollings <wrollings@gmail.com>' - matches the machine-local identity block on both trailers." },
+        { "item": "no AI attribution", "verdict": "PASS", "measured": "`git log -1 --format=%B | grep -iE 'co-authored-by|generated with|claude|anthropic|ai-assisted'` returns no match (exit 1). The body is three prose paragraphs plus the regression citation; no trailer of any kind." },
+        { "item": "within caps", "verdict": "PASS", "measured": "`git diff --shortstat 293d21bb0 164d18a5c` = '3 files changed, 171 insertions(+), 10 deletions(-)' - 3 files / 181 changed lines against the 15-file / 500-line caps. The product surface is smaller still: 136 of the 171 insertions are the new test file, leaving +35/-10 across the two product files." },
+        { "item": "no frozen file touched", "verdict": "PASS", "measured": "`git diff --name-only 293d21bb0 164d18a5c | grep -E '^e2e/|^scripts/qc/|package.json'` returns nothing (exit 1). The three changed paths are all under src/. e2e/coop-campaign-ui-audit.spec.ts (the rejected alternative fix at :207-213), e2e/coop-campaign-two-browser-journey.spec.ts, package.json:199 and scripts/qc/camp01-authority-receipt.contract.mjs are all absent from the diff." },
+        { "item": "commit message quality", "verdict": "PASS (noted as a strength)", "measured": "The body states the two-gate mechanism, why the old precondition read identically in both browsers, what the narrowing keys on, that the server gate is untouched and that the error is not swallowed, and cites the regression point 'a2ceb8840 (#1521)'. A reader who never sees the evidence files can still reconstruct the defect." }
+      ]
+    }
+  ],
+
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "observation",
+      "type": "pre-existing gap the fix now leans on",
+      "file": "src/stores/campaign/useCampaignPersistenceStore.ts",
+      "at": "resolveConflictTakeServerAction, ~:1199-1215",
+      "finding": "The load path at :843 wraps its hydration in `preserveGuestCoopSession(...)` so a guest keeps `mode: 'guest'` when the host's server record is read. `resolveConflictTakeServer` does NOT: it calls `writeLiveCampaign(deserializeCampaignRecord(migrated))` directly at ~:1201-1203. Since serializeCampaign.ts:192/262 round-trips coopSession through the server body, and the guest's campaign id equals the host's, a guest that resolves a save conflict by taking the server record would inherit the HOST's coopSession (mode 'host') - after which `coopMode !== 'guest'` is true again and the panel resumes issuing the 403 request.",
+      "isItIntroducedHere": "NO. This asymmetry exists at the base commit and is untouched by the diff. It is recorded because the new precondition's correctness now DEPENDS on coopSession fidelity, so this is the one known path on which the fix can silently degrade back to the old behaviour.",
+      "reachability": "UNVERIFIED by this review - I did not establish whether a co-op guest can reach take-server conflict resolution in practice, nor whether the frozen journey exercises it (it did not fail, so either the path was not taken or it is unreachable there).",
+      "recommendation": "Not an edit to this PR. Worth a follow-up to either apply preserveGuestCoopSession at the take-server site too, or to document why a guest cannot reach it. Ideal home is design-campaign-authority-and-sync alongside D1, since both concern what a shared-server guest's stored identity should be."
+    },
+    {
+      "id": "F2",
+      "severity": "observation",
+      "type": "design quality - positive",
+      "finding": "The chosen shape is the minimum that can work, and it is the minimum for a principled reason rather than by luck. The three candidate fixes the diagnosis enumerated were: weaken the server gate (would reopen the #1521 exposure), swallow the client error (mechanically impossible - Chromium emits the line for the failed resource, so no client catch can reach it), and widen the audit sweep's critical() filter (would edit a file inside three waves' frozen commandSequence, making it a contract-affecting change). The implemented fix touches none of those surfaces and instead restores an invariant the component already CLAIMED in its own header comment. The comment correction is therefore load-bearing, not decoration: the stale comment describing only the replica case is, by the diagnosis's own chain, why the second gate was never mirrored when #1521 added it."
+    },
+    {
+      "id": "F3",
+      "severity": "observation",
+      "type": "coverage blind spot, correctly disclosed",
+      "finding": "`verify:qc:coop-campaign-journey` is in no workflow, so the client/server contract mismatch #1521 introduced on 2026-09-02 shipped with no CI signal and the last recorded green is 2026-07-06 (docs/qc/mekstation-qc-registry.json:1380 per the diagnosis). Both evidence files disclose this as D2 and both explicitly decline to close it. This review notes only that the disclosure is honest and that D2 is the reason this class of defect can recur silently; wiring it is out of scope for this PR and correctly left to the roadmap.",
+      "notVerifiedByThisReview": "I did not re-grep .github/workflows/ - this restates the diagnosis's measurement rather than adding one."
+    },
+    {
+      "id": "F4",
+      "severity": "observation",
+      "type": "evidence quality - positive",
+      "finding": "Both evidence files survived adversarial checking. Every hash matched, every reproducible total matched, and the self-reported blemishes were real and correctly characterised - the first tsc pass failing TS7053 on the lane's OWN new helper, the oxlint CampaignAuthority warning verified pre-existing by checking out the base version of the file in place and linting it alone rather than assuming, and the explicit refusal to reuse the diagnosis lane's BUILD_ID because it belonged to a different tree. The base-divergence note (origin/main 293d21bb0 not being an ancestor of the prior detached HEAD 83887b746) was closed by a targeted three-path `git diff --stat` showing the cited files byte-identical at both commits, which is the correct way to establish the defect was present at the chosen base. I found no overstated claim in either file other than the replica-pin assertion at RE1 and the 'empty share box' under-specification at question 6."
+    },
+    {
+      "id": "F5",
+      "severity": "observation",
+      "type": "scope discipline - positive",
+      "finding": "The diff does exactly what the diagnosis specified and nothing else. The known pre-existing unused `CampaignAuthority` import was deliberately left in place with the reasoning recorded ('deleting an unrelated dead import is not justifiable by this task'), which is the correct call under surgical-change discipline even though removing it would have silenced a lint warning in a file the author was already editing."
+    }
+  ],
+
+  "measuredRuns": [
+    { "id": "M1", "what": "worktree identity and cleanliness, at review start", "command": "git rev-parse HEAD; git status --porcelain; git rev-parse --abbrev-ref HEAD", "result": "164d18a5ca97b4b2d3719acfe35d35f9de22fcbe / empty / codex/roadmap-guest-share-panel-grants-20260915" },
+    { "id": "M2", "what": "commit shape and diff surface", "command": "git show 164d18a5c --stat; git diff --name-only 293d21bb0 164d18a5c", "result": "3 files changed, 171 insertions(+), 10 deletions(-); the three paths all under src/components/. No route, no service, no e2e, no scripts/qc, no package.json." },
+    { "id": "M3", "what": "all mount sites of the component", "command": "grep -rn 'CampaignSharePanelConnected' src/ e2e/ (.ts/.tsx)", "result": "One JSX mount repo-wide (CampaignDashboardPage.tsx:369), plus the definition, the default export and the barrel re-export. No other call site needs the new prop." },
+    { "id": "M4", "what": "share suites at HEAD", "command": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false --runTestsByPath <2 share suites>", "exit": 0, "result": "2 suites / 10 tests passed (1.092 s). act() warning present, no failure." },
+    { "id": "M5", "what": "panel + dashboard suites at HEAD", "command": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false --runTestsByPath <6 suites>", "exit": 0, "result": "6 suites / 27 tests passed (3.444 s) - reproduces the evidence's claim exactly." },
+    { "id": "M6", "what": "typecheck", "command": "npx tsc --noEmit", "exit": 0, "result": "clean, empty output" },
+    { "id": "M7", "what": "format check (read-only form)", "command": "npx oxfmt --check <3 changed files>", "exit": 0, "result": "'All matched files use the correct format.'" },
+    { "id": "M8", "what": "evidence log integrity", "command": "sha256sum * in .sisyphus/roadmap-completion-20260912/grants-403-fix-20260915/", "result": "all 7 logs match the hashes asserted in grants-403-fix-local-20260915.json" },
+    { "id": "M9", "what": "journey log - 403 sweep, independently grepped", "command": "grep -c '403' journey-run.log; grep -c 'Forbidden' journey-run.log", "result": "0 and 0" },
+    { "id": "M10", "what": "journey log - totals", "command": "grep -nE 'Test Suites:|Tests:|passed \\(|ok 1|ok 2' journey-run.log", "result": ":91 9 suites, :92 138 tests, :135 ok 1, :196 ok 2, :198 '2 passed (34.6s)'" },
+    { "id": "M11", "what": "red-first log", "command": "grep -nE 'Expected number of calls|Received number of calls|Test Suites:|Tests:' red-unit.log", "result": ":349-350 Expected 0 / Received 1; :393-394 '1 failed, 1 passed' / '1 failed, 9 passed, 10 total'" },
+    { "id": "M12", "what": "BUILD_ID", "command": "cat .next/BUILD_ID", "result": "1789480896885 - matches the evidence" },
+    { "id": "M13", "what": "hygiene", "command": "git log -1 --format=%s|%B|%an/%ae/%cn/%ce; git diff --shortstat; frozen-path grep", "result": "conventional 79-char subject; Wes Rollings <wrollings@gmail.com> as author and committer; no AI attribution trailer; 3 files/181 lines; frozen grep empty" },
+    { "id": "M14", "what": "guest coopSession durability chain", "command": "reads of useCampaignStore.actions.ts:119-152, CoopSession.ts:37-113, campaignMirrorProjection.ts:1-50, useCampaignPersistenceStore.ts:367-381 and :830-860 and :1190-1215, serializeCampaign.ts:126-270", "result": "guest mode is stamped at join, survives the authoritative merge (field-scoped) and survives server-record hydration via preserveGuestCoopSession at :843; the one uncovered hydration site is recorded as F1" },
+    { "id": "M15", "what": "worktree identity and cleanliness, at review end", "command": "git status --porcelain; git rev-parse HEAD", "result": "empty / 164d18a5ca97b4b2d3719acfe35d35f9de22fcbe - unchanged. This review mutated nothing in the worktree." }
+  ],
+
+  "nonClaims": [
+    "NOT RUN: the frozen journey command. This review re-verified it from the hash-matched log and its own greps; it did not execute Playwright, did not build, and did not start a server - all forbidden by its charter.",
+    "NOT REPRODUCED BY CHECKOUT: the red at the base commit. Verifying it directly would have required mutating the worktree. It is verified from red-unit.log, whose sha256 matches the evidence.",
+    "NOT VERIFIED: 'exit 0' for the journey run. journey-run.log records no exit-code line; the claim is corroborated by both legs reporting all-pass, not measured. See question 4.",
+    "NOT VERIFIED: the two-device co-op topology. Neither the fix lane nor this review exercised it. Note that RE1, if left unfixed, means the unit-level mitigation the evidence cites for this gap does not actually hold.",
+    "NOT VERIFIED: whether a co-op guest can reach take-server conflict resolution in practice (finding F1).",
+    "NOT RE-MEASURED: the diagnosis lane's server-side probe tally (4x not-campaign-gm, token attribution). This review read it and found it internally consistent and consistent with the post-fix zero, but did not re-run the instrumented probe.",
+    "NOT RUN: the full repository test suite, the full lint sweep, openspec validate, or any e2e spec. Gates were limited to the 6 named jest suites, tsc, and oxfmt --check on the 3 changed files.",
+    "NOT DECIDED: D1 (should a co-op guest's dashboard render the share panel at all). This review judged only that the question is honestly stated and correctly routed to design-campaign-authority-and-sync.",
+    "NO WRITE to any checkout: the only file this review created is this artefact. No product, spec, contract, test or frozen file was touched, and no commit, push or PR was made."
+  ],
+
+  "postReviewWorktreeChange": {
+    "what": "At 08:18:23 -0600, while this review was being written, the reviewed worktree went from clean to modified. This review did NOT make the change and does not endorse having made it - its charter is read-only and it wrote nothing outside this artefact.",
+    "theChange": "src/components/campaign/share/__tests__/CampaignSharePanelConnected.test.tsx - the fourth row's `coopMode=\"guest\"` becomes `coopMode=\"host\"`. One line. `git diff` shows no other hunk.",
+    "relationToThisReview": "It is EXACTLY the edit RE1 specifies, applied independently by another lane in the same session and arrived at without coordination. Convergence, not causation - RE1 was written before the file changed.",
+    "state": "Staged but NOT committed as of the final check (`git status --porcelain` shows 'M ' with the change in the index). It is therefore NOT part of commit 164d18a5c, which is what PR #1720 carries.",
+    "measuredAfterTheChange": {
+      "command": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false --runTestsByPath src/components/campaign/share/__tests__/CampaignSharePanelConnected.test.tsx",
+      "exit": 0,
+      "result": "Test Suites: 1 passed, 1 total. Tests: 4 passed, 4 total.",
+      "meaning": "The corrected replica row passes on its own merits - it now passes ONLY because `isSource` is false, which is the behaviour it claims to pin. RE1 is satisfied by this edit."
+    },
+    "consequenceForTheVerdict": "The verdict below is rendered against COMMIT 164d18a5c as reviewed, and stands: as committed, the PR still carries the weaker pin. If the staged edit is committed to this branch, RE1 is closed and the verdict becomes a plain APPROVE with only the three optional edits outstanding. Whoever lands it should re-run the share suites and confirm the commit contains exactly this one-line change and nothing else.",
+    "reviewerNote": "Recorded rather than reverted. Reverting would itself be a mutation of a checkout this review was told not to change, and the edit is correct."
+  },
+
+  "inputs": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/grants-403-fix-local-20260915.json (read in full)",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/grants-403-journey-diagnosis-20260915.json (read in full)",
+    "openspec/changes/design-campaign-authority-and-sync/specs/campaign-replication/spec.md",
+    "src/pages/api/campaigns/[id]/grants.ts:1-30 (the two-gate route header)",
+    "src/components/campaign/share/CampaignSharePanelConnected.tsx, CampaignSharePanel.tsx, __tests__/CampaignSharePanelConnected.test.tsx (all at HEAD)",
+    "src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.tsx",
+    "src/types/campaign/CoopSession.ts, src/stores/campaign/useCampaignStore.actions.ts, src/stores/campaign/useCampaignStore.persistence.ts, src/stores/campaign/useCampaignPersistenceStore.ts, src/lib/campaign/coop/campaignMirrorProjection.ts, src/lib/campaign/persistence/serializeCampaign.ts",
+    ".sisyphus/roadmap-completion-20260912/grants-403-fix-20260915/ (all 7 logs)"
+  ]
+}

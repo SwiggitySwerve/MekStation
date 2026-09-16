@@ -1,0 +1,17 @@
+{
+  "at": "2026-09-12T19:59:14.022Z",
+  "node": "R9.validation-order",
+  "mainSha": "ca0687d25264033376862347e494ddf15cd92bec",
+  "proof": "openspec/planning/2026-09-12-roadmap-completion/evidence/validation-order-main-verification-20260912.json",
+  "proofSha256": "ec40f7a5a34d1c6e1758bb07e91e59a335ed7e250a9431ca262f64dcfe7602cb",
+  "cleanupPlan": ".sisyphus\\roadmap-completion-20260912\\validation-order-cleanup\\plan.json",
+  "cleanupPlanSha256": "e914f638e9cced036f4b5d00d4b626526075d335898ec5e3ce94a31152e77ec1",
+  "cleanupStatus": ".sisyphus\\roadmap-completion-20260912\\validation-order-cleanup\\status.json",
+  "cleanupStatusSha256": "90300ee707b6108aa37f89cb1972902f87c3a3ebecab83409df4f3cf147e14cb",
+  "targetRemoved": true,
+  "ownedBranchRemoved": true,
+  "remoteBranchAbsent": true,
+  "trackingRefRemoved": true,
+  "rawLogsReopened": 22,
+  "limits": "Only program-owned checkout and refs removed; root edits and external audit/research worktrees preserved."
+}

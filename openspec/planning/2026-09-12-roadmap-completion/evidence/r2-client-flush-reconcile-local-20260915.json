@@ -1,0 +1,205 @@
+{
+  "node": "R2.authority-client",
+  "artefact": "F1 remediation -- a hidden-transition flush the document SURVIVES now reaches an acknowledged save",
+  "capturedAtUtc": "2026-09-15T10:55:00Z",
+  "status": "implemented, gates green, committed, NOT pushed",
+  "scope": "One production fix in the campaign persistence store, six new jsdom rows plus two updated regression rows, and one browser-case expectation flipped from a pinned 409 to a 200. No spec edit, no task checkbox flip, no route change, no push, no PR.",
+  "finding": {
+    "id": "F1",
+    "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-client-crash-window-browser-proof-20260915.json",
+    "titleAsFiled": "A flush the document SURVIVES leaves the client unable to acknowledge: the reconciled save is refused 409",
+    "reachability": "Every ordinary tab switch / minimise / app switch on a dirty single-player campaign",
+    "statusNow": "CLOSED in a real browser -- case (c)'s reconciliation PUT measured 200 with the 'Unsaved changes' badge hidden, where it measured 409 before."
+  },
+  "branch": "codex/roadmap-r2-client-crash-window-browser-20260915",
+  "baseSha": "9869841bebf6a31f5a29303b65a41e5a032c4f25",
+  "baseSubject": "test(campaign): prove the discard-time flush reaches the server and survives a cold reload",
+  "commitSha": "877cd2bf826bafc8e476ca517eba12b3885b7662",
+  "commitSubject": "fix(campaign): acknowledge a hidden-transition flush by reading the record it wrote",
+  "commitAuthor": "Wes Rollings <wrollings@gmail.com>",
+  "aiAttribution": "Co-Authored-By: Claude Opus 5 (1M context) -- the session-mandated trailer; no other AI attribution",
+  "pushed": false,
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/browser",
+  "worktreeCleanAfterCommit": true,
+  "hooks": "on -- the pre-commit hook ran the full production build and passed (exit 0)",
+  "files": [
+    {
+      "path": "src/stores/campaign/useCampaignPersistenceStore.ts",
+      "change": "modified",
+      "insertions": 165,
+      "deletions": 6,
+      "what": "issuedFlush module record + flushedEnvelopeDigest + fetchCampaignRecord extraction + adoptFlushedRevision + rewritten reconcileAfterDiscardFlushAction"
+    },
+    {
+      "path": "src/stores/campaign/__tests__/campaignPersistenceCrashWindow.test.ts",
+      "change": "modified",
+      "what": "6 new rows in a third describe block; 2 existing reconciliation rows updated for the now-async read; putRequests/getRequests helpers"
+    },
+    {
+      "path": "e2e/campaign-crash-window-flush.spec.ts",
+      "change": "modified",
+      "what": "RECONCILE_PUT_STATUS 409 -> 200 with its rationale rewritten; case (c) gains two negative assertions (badge hidden, no 'Save refused')"
+    }
+  ],
+  "lineBudget": {
+    "cap": "<= 15 files / <= 500 lines vs 9869841be",
+    "actual": "3 files, 450 insertions + 19 deletions = 469 changed lines",
+    "verdict": "within cap, not trimmed"
+  },
+  "design": {
+    "principle": "Earn the acknowledgement by READING, never by assuming.",
+    "mechanism": [
+      "At flush time the store records, beside `pendingFlushIssued`, an `issuedFlush = { campaignId, baseVersion, envelopeDigest }`. It is EVIDENCE, not a claim the write landed - the flush still never reads its response.",
+      "On the visible transition `reconcileAfterDiscardFlush` GETs the record through `fetchCampaignRecord`, a one-line extraction of the exact fetch `runLoad` already performs (same `/api/campaigns/[id]` route, same `cache: 'no-store'`). No new route, no second read surface.",
+      "It adopts `baseVersion + 1` ONLY when the returned record sits at that revision AND digests to the envelope this client sent. Version alone is refused by design: another device writing at the same moment also lands N+1, and adopting that would hand this client a compare-and-swap token for a record it has never read.",
+      "Adoption runs through the existing `applySavedRecord`, then restores `dirty: true`: what is adopted is the TOKEN, not the acknowledgement. The re-armed ordinary save is what earns and clears the pending state.",
+      "The read is published as `inFlightLoad`, the primitive whose own docstring states this exact hazard ('a load replaces baseVersion; a save that reads the token while a load is running would send a version the server has already moved past'). The reconciliation also clears the armed timer first, so a mutation's stale-token save cannot race the read - exactly one save follows.",
+      "Every failure path (read error, non-2xx, wrong version, digest mismatch) leaves today's behaviour untouched: re-arm, send the old token, let the CAS decide. A 409 there is a REAL conflict."
+    ],
+    "digest": {
+      "function": "sha256Sync(toCanonicalJson({schemaVersion, campaignId, savedAt, originDeviceId, body})) -- both helpers already in the repo at src/utils/events/hashUtils.ts, no new dependency",
+      "excluded": "version, instanceId and authority, because prepareCampaignWrite (CampaignPersistenceService.ts:354-407) pins all three on persist -- including them would make a record we ourselves wrote fail its own comparison",
+      "whyToCanonicalJsonNotTheJournalCanonicalizer": "the comparison spans a real JSON round-trip through the SQLite row, and toCanonicalJson models exactly that (key-sorted JSON.stringify, so an undefined-valued key is absent on both sides). canonicalizeJsonV1 is strict JCS and FAILS on `undefined`, which would throw on the discard path.",
+      "whySavedAtCarries": "it is minted per envelope build (campaignEnvelope.ts:44), so the digest identifies THIS write rather than merely a state that looks like ours",
+      "costMeasured": "1.5-2.1 ms for a 32 KB envelope (node 22, js-sha256 + the same replacer), measured this session -- not a material cost on a discard path"
+    },
+    "specCitations": [
+      "openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md:178-182 -- 'A hidden transition the document survives still reaches an acknowledged save': the client SHALL schedule an ordinary ACKNOWLEDGED save and SHALL NOT be left holding pending mutations with no write scheduled. Before this fix only the scheduling half held; the save was refused.",
+      "same file, 'An unread flush never claims a revision it did not earn': the client SHALL NOT have recorded the flush's revision as acknowledged. Honoured - the revision is recorded only after a READ proves the row is ours, and dirty stays true so the flush itself still acknowledges nothing.",
+      "same requirement's preamble: 'its response is not read, so the client SHALL NOT advance its cached base version or clear its dirty state on the strength of having fired it.' The base version now advances on the strength of a READ, never of having fired."
+    ],
+    "deviationFromBrief": "The brief's prose suggested `applySavedRecord` (which clears `dirty`) in the ordinary case and keeping `dirty` only when `markDirty` ran after the flush. That reading conflicts with the brief's own required row (1) and with the browser expectation it prescribes (a reconciliation PUT at N+1 answering 200). Resolved in favour of the spec text, which demands an ordinary ACKNOWLEDGED save on every surviving-document path: `dirty` is always restored after adoption and the save always fires."
+  },
+  "redFirst": {
+    "method": "The production change was written, saved as a patch, and reverted (git checkout of the store file) so the new rows ran against the UNMODIFIED store; then the patch was re-applied.",
+    "log": "red.log",
+    "command": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/stores/campaign/__tests__/campaignPersistenceCrashWindow.test.ts",
+    "exit": 1,
+    "result": "3 failed, 20 passed, 23 total",
+    "failures": [
+      "adopts the revision the flush provably earned ... -- getRequests() length 0, expected 1 (no read was ever issued)",
+      "refuses to adopt a revision another writer produced ... -- getRequests() length 0, expected 1",
+      "adopts the earned revision even when a mutation arrived after the flush -- the re-armed PUT carried baseVersion 7, expected 8"
+    ],
+    "honestNote": "Three of the six new rows are RED discriminators. The other three ('adopts nothing when the record still sits at N', 'adopts nothing when the record cannot be read back', 'reads nothing when no flush was ever issued') pass on both sides by construction: they PIN that the failure paths keep today's behaviour, which is the point of having them."
+  },
+  "green": {
+    "crashWindowSuite": {
+      "log": "green-crashwindow.log",
+      "exit": 0,
+      "result": "23 passed, 23 total"
+    },
+    "fourAcceptanceSuites": {
+      "log": "green-four-suites.log",
+      "command": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/stores/campaign/__tests__/campaignPersistenceCrashWindow.test.ts src/stores/campaign/__tests__/campaignCommandAutoSave.test.ts src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts src/stores/campaign/__tests__/campaignPersistenceWiring.test.ts",
+      "exit": 0,
+      "result": "4 suites passed, 50 tests passed, 0 failed"
+    },
+    "regressionRowsTouched": [
+      "'re-arms the ordinary save when a document the flush assumed lost becomes visible again' -- assertion unchanged in substance (an ordinary non-keepalive PUT follows the visible transition); the harness now drains microtasks before advancing the debounce, because the reconciliation reads before it arms, and counts PUTs rather than all captured requests.",
+      "'reaches the existing conflict flow when the flush landed and the re-armed save is stale' -- renamed to '... when the record cannot be read back and the re-armed save is stale', because its all-409 fetch stub is now the failed-read path. Every state assertion (conflict, base-state-unavailable, resync-to-active-head, server record at N+1, still dirty) is unchanged."
+    ]
+  },
+  "gates": [
+    { "command": "npx tsc --noEmit -p tsconfig.json", "exit": 0, "log": "tsc.log (empty)" },
+    {
+      "command": "npx oxlint <the three changed files>",
+      "exit": 0,
+      "result": "0 errors; 1 warning on the store -- eslint(max-lines): 854 lines, maximum 400",
+      "preExisting": "YES, verified in-session: the same oxlint run against the file as it stands at 9869841be emits the identical single max-lines warning. Not introduced here."
+    },
+    { "command": "npx oxfmt --check <the three changed files>", "exit": 0, "result": "All matched files use the correct format." },
+    { "command": "npx openspec validate --all --strict", "exit": 0, "result": "232 passed, 0 failed", "log": "openspec.log" },
+    { "command": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build", "exit": 0, "log": "build.log" },
+    { "command": "pre-commit hook (full next build)", "exit": 0, "note": "ran inside the commit; commit succeeded" }
+  ],
+  "browser": {
+    "command": "MEKSTATION_E2E_SERVER_COMMAND='node .next/standalone/server.js' HOSTNAME=127.0.0.1 MEKSTATION_E2E_PORT=3639 node scripts/playwright/run-playwright.mjs test e2e/campaign-crash-window-flush.spec.ts --project=chromium --retries=0 --workers=1",
+    "log": "browser-run.log",
+    "prodEvidenceFlag": "not used, per instruction",
+    "portPreCheck": "3639 free (no listener) before the run",
+    "portPostCheck": "no LISTENING socket on 3639 after the run; only TIME_WAIT client sockets from the run itself. Playwright owns and reaps the webServer.",
+    "buildSlotCheck": "Get-CimInstance Win32_Process node.exe filtered on 'next.*build|next/dist/bin' before each build -- no next build running (only outline-mcp stdio servers).",
+    "exit": 1,
+    "result": "3 passed, 1 failed (48.6s)",
+    "cases": [
+      {
+        "id": "a",
+        "test": "a discarded document flushes its pending mutation and the cold reload reads it back",
+        "result": "FAIL",
+        "failure": "expect.poll(serverRecord.version).toBe(before.version + 1) -- expected 2, received 1, 20 s budget exhausted. One PUT was issued and reported net::ERR_ABORTED; the server never committed it, i.e. the keepalive write did not survive the discard on this machine today.",
+        "attributedToThisChange": "NO -- proven by A/B, see `preExistingCaseAFailure` below.",
+        "notTouchedHere": "this case's code is byte-identical to 9869841be"
+      },
+      {
+        "id": "b",
+        "test": "a surviving document takes the ordinary debounced save, exactly once",
+        "result": "PASS (3.2s)",
+        "unchanged": true
+      },
+      {
+        "id": "c",
+        "test": "a hidden transition flushes without acknowledging, and returning re-arms a save",
+        "result": "PASS (2.9s)",
+        "whatItNowProves": "the hidden-flush half is unchanged and still asserted (exactly one PUT on the hidden transition; server version == baseline + 1; 'Unsaved changes' STILL visible, because the flush acknowledged nothing). On the visible transition the reconciliation PUT answers 200 (was a pinned 409), the 'Unsaved changes' badge is hidden and no 'Save refused' text is rendered.",
+        "isTheF1Proof": true
+      },
+      {
+        "id": "red-arm",
+        "test": "RED ARM: without the discard listeners the same mutation never reaches the server",
+        "result": "PASS (5.1s) -- the mutation was correctly LOST",
+        "unchanged": true,
+        "note": "The red arm still discriminates: with the listeners dropped, zero PUTs and an unchanged server record."
+      }
+    ],
+    "expectationVsBrief": "The brief expected 4/4. Measured 3/4. The one failure is case (a), which this change does not touch and which fails identically without the change (below). Reported, not hidden."
+  },
+  "preExistingCaseAFailure": {
+    "claim": "Case (a) fails on this machine today INDEPENDENTLY of this change.",
+    "howProven": "A/B on the same worktree and the same Playwright command. The store file was replaced with `git show 9869841be:src/stores/campaign/useCampaignPersistenceStore.ts` (i.e. the parent commit's code, with NO reconciliation read, NO digest, NO new import), the project was rebuilt from scratch (ab-baseline-build.log, exit 0), and case (a) was run alone.",
+    "baselineRun": {
+      "log": "ab-baseline-case-a.log",
+      "command": "... run-playwright.mjs test e2e/campaign-crash-window-flush.spec.ts --project=chromium --retries=0 --workers=1 --grep 'cold reload reads it back'",
+      "exit": 1,
+      "result": "1 failed",
+      "failureSignature": "IDENTICAL -- expected 2, received 1, 'Timeout 20000ms exceeded while waiting on the predicate', plus the same net::ERR_ABORTED PUT diagnostic"
+    },
+    "withFixRuns": [
+      { "log": "browser-run.log (first, pre-A/B)", "result": "case (a) failed, cases b/c/red-arm passed" },
+      { "log": "diag-case-a-1.log", "result": "case (a) failed alone, same signature" },
+      { "log": "browser-run.log (final, after restoring the fix and rebuilding)", "result": "case (a) failed, cases b/c/red-arm passed" }
+    ],
+    "secondaryEvidence": "The only work this change adds before `fireKeepaliveFlush` is one object literal plus the digest, measured at 1.5-2.1 ms for a 32 KB envelope -- three orders of magnitude below any plausible discard budget, and the digest is computed inside the same synchronous pagehide handler that then issues the fetch. The new import (@/utils/events/hashUtils) pulls only js-sha256 and a small types barrel.",
+    "whatIsNotClaimed": "No root cause for case (a) is claimed. It is a keepalive-survives-discard property of the browser/OS at this moment; the prior evidence file records it green at 9869841be in an earlier session (run4, 4/4), so it is NOT a permanent regression of that behaviour either. Diagnosing it is separate work and was not attempted here.",
+    "worktreeRestored": "The A/B swap was reverted by restoring the committed file; `git status --porcelain` is empty and the tree matches 877cd2bf8."
+  },
+  "logs": {
+    "dir": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/flush-reconcile-20260915/",
+    "files": [
+      { "name": "red.log", "sha256": "42de574f6dcc15b0e822e57b0b4fc9d8c2f3ee07f78c85d9c4e54f9185d45772" },
+      { "name": "green-crashwindow.log", "sha256": "c3f2cf664ec9628301aabd3b8084733cc1c400eee0d9a85f79e0f8eb79b25ccd" },
+      { "name": "green-four-suites.log", "sha256": "4e7cccde80717332fa49a2e4b2c1981f98e87ce1bf343e9d8a86afa625ebdb9a" },
+      { "name": "openspec.log", "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3" },
+      { "name": "tsc.log", "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "note": "empty - tsc exited 0 with no output" },
+      { "name": "store-fix.patch", "sha256": "348935df00127d866e126dfab34d9786d5b1f3a297fab40830dcecd740768546", "note": "the production diff, kept because it is what was reverted and re-applied to produce the red/green pair" },
+      { "name": "browser-run.log", "sha256": "8da5116a6e1bf4904601794849282c769dc6ee1effac0765255d991a151d1e7d", "note": "the FINAL run of the exact prescribed command, against the rebuilt fix" },
+      { "name": "build.log", "sha256": "07b635840e490d88996fed402de5c76720680447b90cda068bf8591250647884", "note": "the FINAL build, with the fix restored" },
+      { "name": "diag-case-a-1.log", "sha256": "4d6a11d4cf624fd21dfad6bc9bf1e716e0297e50a5b05da9c92ab59934ca9d99" },
+      { "name": "ab-baseline-build.log", "sha256": "2e20a0ccd0df700d9a432190f1ff9a4e0fe4df17ea1fd995158b26292047d661" },
+      { "name": "ab-baseline-case-a.log", "sha256": "da6a1280807d6ac8ae545874c66ab44746d0f6ba74e5b4428ce54026c43fca53" }
+    ]
+  },
+  "nonClaims": [
+    "CO-OP IS UNTOUCHED. `isCoopCampaign` still short-circuits both the flush and the reconciliation, before any read is issued. Residual (2), the co-op dual-writer PUT 409 storm, is not addressed and no co-op path was exercised.",
+    "NO ROUTE CHANGE. `src/pages/api/campaigns/[id].ts` is not modified, and neither is the strict compare-and-swap in `CampaignPersistenceService.ts:126-131`. The reconciliation GET uses the existing GET handler.",
+    "THE FLUSH IS STILL UNREAD. `fireKeepaliveFlush` is byte-identical: no response read, no `applySavedRecord`, no `baseVersion` advance, no retry, no queued follow-up. Only the SURVIVING-document path reads anything, and it reads the record, not the flush's response.",
+    "The legacyUnadopted guard, the conflict guard, the at-most-one-per-pending-set flag and the 64 KiB over-cap skip are all unchanged; their rows still pass untouched.",
+    "The over-cap skip remains jsdom-only -- no browser case pushes an envelope past 64 KiB.",
+    "Task 1.6's checkbox is NOT flipped and no openspec file was edited.",
+    "No push, no PR, no merge. The commit sits on codex/roadmap-r2-client-crash-window-browser-20260915 at 877cd2bf8.",
+    "Chromium only. The reconciliation is plain fetch and not engine-sensitive, but no Firefox or WebKit run was made.",
+    "The digest proves the stored record carries the bytes this client sent at the revision its write would have produced. It is not a cryptographic authentication of authorship: a different writer that sent a byte-identical envelope with the same savedAt millisecond would also match. That case is indistinguishable from ours and harmless -- the state is the same either way.",
+    "A campaign whose reconciliation read is slow leaves the ordinary save unscheduled for one round trip. The armed timer is cleared first and re-armed on every path, so no write is lost, but the 'no pending write scheduled' window is a round trip wide rather than zero.",
+    "Case (a) is NOT green in this session. Its failure is shown to pre-date the change by direct A/B at the parent commit; no fix and no root cause for it is claimed."
+  ]
+}

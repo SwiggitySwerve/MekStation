@@ -1,0 +1,359 @@
+{
+  "evidenceKind": "ledger-reconcile-local",
+  "batch": 1,
+  "title": "Ledger and task-row reconciliation against merged exact-main receipts -- batch 1",
+  "generatedAtUtc": "2026-09-15T00:00:00Z",
+  "scope": "openspec task rows and openspec/active-change-ledger.json only. No product source, no spec.md, no push, no PR. Local commit on a fresh worktree branch.",
+  "base": {
+    "originMainSha": "2b98ce5b049e7b63a38161057961d0185bb42a31",
+    "originMainSubject": "test(campaign): pin the malformed-shape refusals and the same-actor re-submit after an accepted contract (#1708)",
+    "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/reconcile-1",
+    "branch": "codex/roadmap-ledger-reconcile-1-20260915",
+    "node": "v22.22.0",
+    "npm": "11.6.2",
+    "npmCi": "exit 0 in the new worktree (log npm-ci.log)"
+  },
+  "commits": [
+    {
+      "sha": "17b9e83c381d0f1a202c9489a7dd698ae754c086",
+      "subject": "spec(openspec): reconcile ledger and task rows with merged exact-main receipts (batch 1)",
+      "author": "Wes Rollings <wrollings@gmail.com>",
+      "committer": "Wes Rollings <wrollings@gmail.com>",
+      "aiAttribution": "none (grep for co-authored-by / generated with / claude over the commit body: no match)",
+      "filesChanged": 4,
+      "hooks": "pre-commit ran with hooks ON: lint-staged applied oxfmt --write to the 4 staged json/md files and reformatted nothing (diffstat identical before and after, 22 insertions / 13 deletions); the full next build was skipped because no TypeScript file is staged",
+      "treeCleanAfter": true,
+      "pushed": false
+    },
+    {
+      "sha": "7d723d7cd015f9c290a615dfccc5c7871b2bf9f2",
+      "subject": "spec(openspec): refresh the journal-cutover ledger entry after the S1-S4 merges",
+      "author": "Wes Rollings <wrollings@gmail.com>",
+      "committer": "Wes Rollings <wrollings@gmail.com>",
+      "aiAttribution": "none",
+      "filesChanged": 1,
+      "diffstat": "1 file changed, 3 insertions(+), 3 deletions(-)",
+      "hooks": "pre-commit ran with hooks ON: oxfmt --write over the 1 staged json file, reformatted nothing; next build skipped (no TypeScript staged)",
+      "treeCleanAfter": true,
+      "pushed": false,
+      "origin": "parent-approved scope widening of the item this agent flagged in commit 1's notEdited list; kept as a separate commit so it is separable from the assigned batch",
+      "edit": "E16"
+    },
+    {
+      "sha": "98cac987d663bb5c294dc97f3cae942d213cdf02",
+      "subject": "spec(openspec): correct the task 1.6 merge-state note",
+      "author": "Wes Rollings <wrollings@gmail.com>",
+      "committer": "Wes Rollings <wrollings@gmail.com>",
+      "aiAttribution": "none",
+      "filesChanged": 1,
+      "diffstat": "1 file changed, 1 insertion(+), 1 deletion(-)",
+      "hooks": "pre-commit ran with hooks ON: oxfmt --write over the 1 staged md file, reformatted nothing; next build skipped (no TypeScript staged)",
+      "treeCleanAfter": true,
+      "pushed": false,
+      "origin": "closes RE-1 of evidence/ledger-reconcile-1-review-20260915.json",
+      "edit": "E17"
+    }
+  ],
+  "acceptanceRule": "Only a MERGED, exact-main-verified receipt (an evidence file whose name contains \"main-proof\") justifies a checkbox flip or a ledger status change. A row whose task text is only partly discharged gets the residual appended as a dated sub-bullet and keeps its open checkbox. Owner-gated items stay open with a one-line note. Explicit deferrals are left verbatim. No mode flips, no flag flips.",
+  "edits": [
+    {
+      "id": "E1",
+      "file": "openspec/changes/add-authoritative-history-branches/tasks.md",
+      "taskIds": ["1.1", "1.2", "1.3", "1.4"],
+      "verdict": "NOTE (no edit)",
+      "before": "- [x] 1.1 / - [x] 1.2 / - [x] 1.3 / - [x] 1.4",
+      "after": "unchanged -- all four boxes were already checked on origin/main",
+      "boundReceipts": [
+        "evidence/history-fixtures-1671-main-proof-20260915.json (commit 4cf52fe73)",
+        "evidence/history-b-1674-main-proof-20260915.json (commit bcc34f7cd)",
+        "evidence/history-c-1681-main-proof-20260915.json (commit 1f84beef2)"
+      ],
+      "reasoning": "The brief's proposedEdits[0] said the flip was a no-op if already checked at edit time; verified on the worktree at origin/main that it is. 1.5 and 1.6 stay open for their own stated residuals (independent lineage/security review on merged main; exact-main resolver rerun plus branch/worktree prune) and were not touched."
+    },
+    {
+      "id": "E2",
+      "file": "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/tasks.md",
+      "line": 10,
+      "taskIds": ["0.2"],
+      "verdict": "FLIP",
+      "before": "- [ ] 0.2 Verify on fetched exact main that `add-authoritative-history-branches` exposes the branch port ...",
+      "after": "- [x] 0.2 ... plus one dated Receipt sub-bullet at line 11",
+      "boundReceipts": ["evidence/r4-s1-journal-batches-1684-main-proof-20260915.json (PR #1684, merge 95042d9196795afe33662954686c57cd4b1749a2, jest exit 0 / 207 suites / 1596 tests, typecheck 0, 4/4 blobs identical to reviewed head e1ccf668c)"],
+      "reasoning": "Task text asks for a verification plus a recorded SHA and port shape. R4.S1's receipt states 'task 0.2 verified' and its localDelivery.task02 field records both: branch port surfaces present on main b7d65099, and the supersession WRITE located at EventHistoryActivation.ts:204 rather than on the branch store. Verification-only box, fully discharged."
+    },
+    {
+      "id": "E3",
+      "file": "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/tasks.md",
+      "line": 15,
+      "taskIds": ["1.1"],
+      "verdict": "PARTIAL",
+      "before": "- [ ] 1.1 S1: append every committed combat batch ... Both rewind routes answer a real preview on a live match. ...",
+      "after": "unchanged checkbox; dated Progress sub-bullet appended at line 16",
+      "boundReceipts": ["evidence/r4-s1-journal-batches-1684-main-proof-20260915.json (PR #1684, merge 95042d919)"],
+      "reasoning": "NOT flipped despite a merged exact-main receipt. The journal-writing clause and the 'no SHALL discharged by this seam alone' clause are both discharged, but the receipt's own nonClaims say verbatim 'no rewind-route acceptance; task 1.1 rewind preview not claimed', so the 'Both rewind routes answer a real preview on a live match' clause is undischarged. Residual also records the busy_timeout gap, the absent mirror catch-up, and create-path seeding routed to 1.4/1.7."
+    },
+    {
+      "id": "E4",
+      "file": "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/tasks.md",
+      "line": 17,
+      "taskIds": ["1.2"],
+      "verdict": "FLIP",
+      "before": "- [ ] 1.2 S2: with S1's mirror admitting matches at mode `shadow` / `enabled` ...",
+      "after": "- [x] 1.2 ... plus one dated Receipt sub-bullet at line 18",
+      "boundReceipts": ["evidence/r4-s2-live-head-1691-main-proof-20260915.json (PR #1691, merge 823bdf3acbaaa8a5d7ddccfff0f0f1a30e2688ee, jest exit 0 / 168 suites / 1314 tests, openspec strict 0, purpose 0, terminology 0, 3/3 blobs identical to reviewed head c315b9f99)"],
+      "reasoning": "Every clause of the box text is discharged by the merged prefix: readEffectiveHead and the live branch admission consulted against a REAL journal-backed head installed by S1's mirror (not a fixture head), the single reachable STALE_BRANCH arm and the MATCH_QUARANTINED shape distinguished, and all four illegal command shapes proven end to end. The box text itself was amended to the shipped behaviour in the same merged PR, so the text the checkbox now closes is the text on main."
+    },
+    {
+      "id": "E5",
+      "file": "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/tasks.md",
+      "line": 19,
+      "taskIds": ["1.3"],
+      "verdict": "PARTIAL",
+      "before": "- [ ] 1.3 S3: retire the `mp_journal_authority_started` marker write; one source of \"started\".",
+      "after": "unchanged checkbox; dated Progress sub-bullet appended at line 20",
+      "boundReceipts": [
+        "evidence/r4-s3a-derived-started-1693-main-proof-20260915.json (PR #1693, merge f8abc1844760137dcc9d4e4c6eaff17157052bee)",
+        "evidence/r4-s3b-a-1702-main-proof-20260915.json (PR #1702, merge 28e114300a8d3c4f980a4d43270636c52b352d76)",
+        "evidence/r4-s3b-b-1703-main-proof-20260915.json (PR #1703, merge f6c5bd15a0e32bf404bd0662431f968cc27fd834)"
+      ],
+      "reasoning": "All three sub-prefixes are merged and main-verified, but the parent ruling recorded on roadmap node R4.S3 subPrefix2.parentRulings says the marker RETIREMENT is not this slice -- S3 semantics are 'derived head wins when present, marker honored when no head exists', the write-once marker guard is kept, and the retirement lands with the cutover (1.7). The same ruling says the box's literal wording is to be amended at S7 admission. Flipping here would claim a retirement that has not happened."
+    },
+    {
+      "id": "E6",
+      "file": "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/tasks.md",
+      "line": 21,
+      "taskIds": ["1.4"],
+      "verdict": "PARTIAL",
+      "before": "- [ ] 1.4 S4: restart recovery rebuilds the live host from the journal head and the effective branch; prove with the umbrella's restart pack against a rewound match.",
+      "after": "unchanged checkbox; dated Progress sub-bullet appended at line 22",
+      "boundReceipts": ["evidence/r4-s4-a-1704-main-proof-20260915.json (PR #1704, merge 8cacf20a65880e42304c4e885b395525c820f775)"],
+      "reasoning": "Only split A is merged. PR #1705 (split B) has no main-proof file in the evidence set and roadmap node R4.S4.published records its status as 'B (#1705) DIRTY resolution in progress'. Separately, R4.S4.review.owed states the box's SECOND clause -- the umbrella restart pack E2E-05/06/15 against a rewound match -- is explicitly not claimed. Two independent reasons not to flip. Reviewer residuals S4-R1/R2/R4 recorded in the sub-bullet."
+    },
+    {
+      "id": "E7",
+      "file": "openspec/changes/design-campaign-authority-and-sync/tasks.md",
+      "line": 30,
+      "taskIds": ["1.6"],
+      "verdict": "PARTIAL + NON-CLAIMS widening",
+      "before": "NON-CLAIMS sentence read: 'The flush is best-effort -- a browser that discards the document without firing either event still loses the window, and a keepalive request whose response is never read is not evidence it committed.'",
+      "after": "That sentence widened in place to also cover the MEASURED failure mode (a browser that fires the event, accepts the keepalive request, then declines to dispatch it because the document is leaving via a NAVIGATION rather than a close: Chromium 143.0.7499.4, about:blank navigation 0/15, same-origin navigation 1/2, tab close 11/11, product-independent 17-byte probe 0/3 navigation and 3/3 close), with the residual and the issue-not-land reading stated; plus a dated Progress sub-bullet at line 31. Checkbox NOT flipped.",
+      "boundReceipts": [
+        "evidence/r2-client-crash-window-1694-main-proof-20260915.json (PR #1694, merge c40a394f6030cc18157384518a4e62550d6b3727, jest exit 0 / 220 suites / 3223 tests, typecheck 0, openspec 0, 5/5 blobs identical to reviewed head 7515e88f5) -- jsdom half",
+        "evidence/r2-client-crash-window-proof-1709-main-proof-20260915.json (PR #1709, merge a11ef14fdf586b96eb30d49329b1a99b63281725) -- main-verified as a FILE only; functional green owed to C2/C3",
+        "evidence/r2-client-discard-flush-diagnosis-20260915.json -- measured Chromium 143 diagnosis, source of the widened wording (its proposedBoundedSlice step 2)"
+      ],
+      "reasoning": "PRs #1710 (F1 reconciliation fix) and #1711 (case (a) close-discard repair) are not merged and have no main-proof, so the browser half of 1.6 is not closed. Owner decision OD-flush-mechanism is open on top: closing the navigation-discard window needs a new POST surface for sendBeacon or fetchLater(), both of which change the admitted task text -- recorded, not implemented. The widening is the diagnosis's own recommended action and makes the non-claim match the measured behaviour instead of being narrower than reality."
+    },
+    {
+      "id": "E8",
+      "file": "openspec/changes/design-campaign-authority-and-sync/tasks.md",
+      "line": 101,
+      "taskIds": ["6.1"],
+      "verdict": "PARTIAL",
+      "before": "- [ ] 6.1 P0b -- journal-private source envelope, full source baseline, contract-only replay. ...",
+      "after": "unchanged checkbox; dated Progress sub-bullet appended at line 102",
+      "boundReceipts": [
+        "evidence/r2-p0b-s1-1686-main-proof-20260915.json (PR #1686, merge 69ae5374455eb3b4cb0d1cb3d918477c9fba9e68)",
+        "evidence/r2-p0b-s2-1687-main-proof-20260915.json (PR #1687, merge 6a658c4ac3c4947d3e8dcd33e312e0655f0deda1)",
+        "evidence/r2-p0b-s3-1688-main-proof-20260915.json (PR #1688, merge e7cbe9e00de224715dc7233b6028b66312ab5877)"
+      ],
+      "reasoning": "All three prefixes merged and main-verified, and the box's load-bearing narrowing-collapse sub-step landed (projectCampaignStreamForGrant.ts routed through envelopeOf, falsification F1 six rows red at S3). But roadmap node R2.authority.p0b.nonClaims says verbatim 'task 6.1 partial: borrowed-handle CAS + durable sourceReplayFence in CampaignPersistenceService not implemented; baseline capture under P0a belongs with the producer' -- two named clauses of the box text undelivered. Independently confirmed by the parent's mid-batch correction citing evidence/r2-authority-residual-brief-20260915.json."
+    },
+    {
+      "id": "E9",
+      "file": "openspec/changes/design-campaign-authority-and-sync/tasks.md",
+      "line": 103,
+      "taskIds": ["6.2 (6.2a half)"],
+      "verdict": "PARTIAL",
+      "before": "- [ ] 6.2 P1 -- source `acceptContractOffer` producer, after 6.1 only. ...",
+      "after": "unchanged checkbox; dated Progress sub-bullet appended at line 104",
+      "boundReceipts": [
+        "evidence/r2-p1-62a1i-1698-main-proof-20260915.json (PR #1698, merge 818e654e0ac7c98b8a4b53c2f35be9e4b7643152)",
+        "evidence/r2-p1-62a1ii-1699-main-proof-20260915.json (PR #1699, merge 484708a9e4dc30cf4beffef2c1d6ea0e1829a04e)",
+        "evidence/r2-p1-62a2-1700-main-proof-20260915.json (PR #1700, merge 21b98e64b05e7a3bfac3f622a0200857f8bf3418)",
+        "evidence/r2-p1-62a3-a1-1706-main-proof-20260915.json (PR #1706, merge aa26a94f11c0d497df7f62b685de8ab6f9fafaae)",
+        "evidence/r2-p1-62a3-a2-1707-main-proof-20260915.json (PR #1707, merge 53d4356a849b3c4d5a27288acc332e3cbb46b6c0)",
+        "evidence/r2-p1-62a3-b-1708-main-proof-20260915.json (PR #1708, merge 2b98ce5b049e7b63a38161057961d0185bb42a31)",
+        "evidence/r2-authority-residual-brief-20260915.json (parent correction received mid-batch: 6.2a's client half is unimplemented)"
+      ],
+      "reasoning": "The box text itself says 6.2a and 6.2b 'share this checkbox and 6.2 is not done until both hold'. 6.2a's SERVER half is merged and main-verified across six prefixes, but its CLIENT half is not: the box requires handleAccept in src/pages/gameplay/campaigns/[id]/contract-market.tsx to obtain an acknowledged save before submitting, and on the worktree at origin/main that handler calls acceptContractOffer(offerId) synchronously at :68-77 with no saveCampaign / performSave / acknowledgement reference anywhere in the file (grep, this session). 6.2b is separately state 'blocked-owner-decision' on roadmap node R2.authority.p1.p62b (no single-player identity or seat for /commands; no typed surface for offer-not-durable; the campaigns-row follow-up must precede removing the client apply). Two independent reasons the box stays open."
+    },
+    {
+      "id": "E10",
+      "file": "openspec/changes/add-camp01-authority-receipts/tasks.md",
+      "line": 44,
+      "taskIds": ["4.1 (F/G reporter obligation binding)"],
+      "verdict": "NOTE (evidence-only annotation)",
+      "before": "line 44 binds: \"task 4.1's F/G reporter obligations close only against the 4C2/4C3 receipts\"",
+      "after": "line 44 unchanged; a dated 'Binding correction' sub-bullet inserted at line 45 rebinding the obligation to the artefacts that actually discharged it",
+      "boundReceipts": [
+        "evidence/r2-receipts-closure-20260915.json bindingClosureNote (recommendedAction: 'Evidence-only tasks.md annotation at line 44'); verified at exact main 6a658c4ac3c4947d3e8dcd33e312e0655f0deda1 with qc:camp01-authority-receipt:test exit 0 / 29 suites / 757 passed / 10 skipped, and qc:validate exit 0 / 27 surfaces / 0 errors",
+        "e2e/campaign-customizer-handoff.spec.ts:409 and :528 -- both frozen test ids confirmed present at those exact lines on the worktree at origin/main this session"
+      ],
+      "reasoning": "PROOF-4C2 and PROOF-4C3 were never written; the obligation was discharged by the product wave instead. This is a bookkeeping mismatch, not a missing capability, so the correction is an annotation. No checkbox changed (all 19 boxes in this change are already [x] on main)."
+    },
+    {
+      "id": "E11",
+      "file": "openspec/active-change-ledger.json",
+      "taskIds": ["add-authoritative-history-branches entry"],
+      "verdict": "NOTE (ledger refresh)",
+      "before": "status \"proposed\", lastReviewed \"2026-07-30\"",
+      "after": "status \"in-progress\", lastReviewed \"2026-09-15\", reason extended with what merged and what stays open",
+      "boundReceipts": [
+        "evidence/history-fixtures-1671-main-proof-20260915.json",
+        "evidence/history-b-1674-main-proof-20260915.json",
+        "evidence/history-c-1681-main-proof-20260915.json"
+      ],
+      "reasoning": "lastReviewed predated the entire roadmap-completion program. PR 1 storage/resolver work (tasks 1.1-1.4) is merged and main-verified, so 'proposed' is false. Kept the 8.1-8.3 deferrals and the section-2 block explicit in the reason so the entry does not read as more advanced than it is."
+    },
+    {
+      "id": "E12",
+      "file": "openspec/active-change-ledger.json",
+      "taskIds": ["design-campaign-authority-and-sync entry"],
+      "verdict": "NOTE (ledger refresh)",
+      "before": "status \"proposed\", lastReviewed \"2026-08-20\"",
+      "after": "status \"in-progress\", lastReviewed \"2026-09-15\", reason extended with the one-line summary of what merged and what is still open",
+      "boundReceipts": [
+        "origin/main tasks.md: 26 of 30 boxes checked (verified on the worktree this session)",
+        "the E7/E8/E9 main-proof sets above (PRs #1694, #1686-#1688, #1698-#1700, #1706-#1708)"
+      ],
+      "reasoning": "The 2026-08-20 reconciliation note is retained verbatim and the new sentence follows it, so the history is preserved and no longer reads as the freshest state. Matches the brief's proposedEdits[3]."
+    },
+    {
+      "id": "E13",
+      "file": "openspec/active-change-ledger.json",
+      "taskIds": ["add-customizer-pr-regression-gate entry"],
+      "verdict": "NOTE (ledger refresh)",
+      "before": "status \"in-progress\", lastReviewed \"2026-09-12\"",
+      "after": "status unchanged (\"in-progress\"), lastReviewed \"2026-09-15\", reason extended with the closure state",
+      "boundReceipts": ["evidence/r1-remote-closure-20260915.json (20/20 tasks proven at origin/main e7cbe9e00; customizer-regressions present on main and the 17th of 19 Lint and Test aggregator members; SUCCESS on live PRs #1690 and #1692; closureVerdict CLOSABLE-NOW; owed[1] names this ledger entry as stale)"],
+      "reasoning": "Status left at in-progress deliberately: the ledger has only ever used 'proposed' and 'in-progress' (checked across the file's git history), the change directory is not archived, and the closure evidence itself puts the archive decision outside its scope. Introducing a third status value would be a schema change, not a reconciliation."
+    },
+    {
+      "id": "E14",
+      "file": "openspec/active-change-ledger.json",
+      "taskIds": ["design-vault-campaign-separation-and-maps entry"],
+      "verdict": "NOTE (ledger correction)",
+      "before": "reason ended '... P1 1.1-1.5 not started.', lastReviewed \"2026-08-14\"",
+      "after": "that clause replaced with the accurate split (1.3 landed 2026-09-12 as a bounded identity prerequisite only; 1.1/1.2/1.4/1.5 not started; 1.3 satisfies no receipt/approval/three-witness gate), plus the verified note that task 1.4 already reads v2->v3; lastReviewed \"2026-09-15\"; status unchanged (\"proposed\")",
+      "boundReceipts": ["origin/main openspec/changes/design-vault-campaign-separation-and-maps/tasks.md (1.3 checked, 1.1/1.2/1.4/1.5 unchecked -- verified on the worktree this session)"],
+      "reasoning": "Matches the brief's proposedEdits[4]. Status stays 'proposed' because 1.3 is explicitly a prerequisite that closes no vault/campaign implementation task."
+    },
+    {
+      "id": "E16",
+      "commit": 2,
+      "file": "openspec/active-change-ledger.json",
+      "taskIds": ["adopt-combat-journal-cutover-and-gm-rewind entry"],
+      "verdict": "NOTE (ledger refresh)",
+      "before": "status \"proposed\", lastReviewed \"2026-09-04\", reason ending 'Unfunded until scheduled; its box 0.1 is the first deliverable when it opens.'",
+      "after": "status \"in-progress\", lastReviewed \"2026-09-15\"; the stale trailing clause replaced by a reviewed sentence naming the six merged main-verified prefixes, the two boxes they closed (0.2 and 1.2), and what is still open (0.1 undelivered; 1.1/1.3/1.4 residuals)",
+      "boundReceipts": [
+        "evidence/r4-s1-journal-batches-1684-main-proof-20260915.json (S1 PR #1684, merge 95042d9196795afe33662954686c57cd4b1749a2)",
+        "evidence/r4-s2-live-head-1691-main-proof-20260915.json (S2 PR #1691, merge 823bdf3acbaaa8a5d7ddccfff0f0f1a30e2688ee)",
+        "evidence/r4-s3a-derived-started-1693-main-proof-20260915.json (S3a PR #1693, merge f8abc1844760137dcc9d4e4c6eaff17157052bee)",
+        "evidence/r4-s3b-a-1702-main-proof-20260915.json (S3b-A PR #1702, merge 28e114300a8d3c4f980a4d43270636c52b352d76)",
+        "evidence/r4-s3b-b-1703-main-proof-20260915.json (S3b-B PR #1703, merge f6c5bd15a0e32bf404bd0662431f968cc27fd834)",
+        "evidence/r4-s4-a-1704-main-proof-20260915.json (S4-A PR #1704, merge 8cacf20a65880e42304c4e885b395525c820f775)"
+      ],
+      "reasoning": "Scope widening approved by the parent after this agent flagged the entry in commit 1's notEdited list. Landed as a SECOND commit on the same branch so the widening is separable from the assigned batch. Two facts in the entry were false: 'proposed' (six prefixes merged and main-verified) and 'Unfunded until scheduled' (the change has opened). The replacement sentence deliberately names the undelivered 0.1 and the 1.1/1.3/1.4 residuals so the refreshed entry cannot be read as more progress than exists."
+    },
+    {
+      "id": "E17",
+      "commit": 3,
+      "supersedes": "the merge-state clause of E7",
+      "file": "openspec/changes/design-campaign-authority-and-sync/tasks.md",
+      "line": 31,
+      "taskIds": ["1.6"],
+      "verdict": "CORRECTION (checkbox unchanged, still open)",
+      "before": "'... its functional green is owed to the F1 reconciliation fix (PR #1710) and the case (a) close-discard repair (PR #1711), neither of which is merged.' -- plus a trailing 'Also carried' sentence asserting a landed keepalive still routes the next save into the take-server-only 409 flow.",
+      "after": "The browser half is stated as ON MAIN across all three stack commits (#1709 a11ef14fd, #1710 83887b746 with its exact-main proof, #1711 1e43090c5 merged with acceptance recorded separately in the roadmap); the box stays open on the residual those three do not remove -- the flush is honoured only for CLOSE-shaped discards, leaving the 'hard reload' half of this box's own 'hard reload or close' window uncovered, which is what OD-flush-mechanism must settle. The now-false 409 sentence was dropped; the still-true part (no cache-head re-validation, no baseVersion resync) and the R-1/R-2 stack-review notes are retained.",
+      "boundReceipts": [
+        "evidence/ledger-reconcile-1-review-20260915.json RE-1 (APPROVE-WITH-REQUIRED-EDITS)",
+        "evidence/r2-client-flush-reconcile-1710-main-proof-20260915.json (PR #1710, merge 83887b7467deba22c1b0b6aa6fb1be8ba6bc4600; blob-identical, four task-1.6 acceptance suites 4 suites / 50 tests, tsc 0, openspec strict 0, qc:openspec-ci 0)",
+        "PR #1711 merge 1e43090c505f0b3d97fb71f099a9060e1936438c -- merged; exact-main acceptance recorded separately in the roadmap",
+        "live verification this session: git fetch origin, then git merge-base --is-ancestor <sha> origin/main returned true for a11ef14fd, 83887b746 and 1e43090c5"
+      ],
+      "reasoning": "RE-1 is correct and the defect is mine. The claim about #1710 was false AT AUTHORSHIP TIME, not merely stale: #1710 merged 2026-09-15T13:05:30Z and commits 17b9e83c / 7d723d7cd were authored after it. Root cause: I read merge state from the published block of the untracked roadmap.json rather than querying the live remote -- the stale-cache failure mode this repo's guidance names. Corrected by fetching and testing ancestry against origin/main for every SHA before writing. The reviewer's snapshot had #1711 still OPEN; the parent's later message plus my own live ancestry check both show it merged, so the note records it as merged with acceptance pending separately. The checkbox does NOT move: the substantive conclusion is unchanged, only its stated reason."
+    },
+    {
+      "id": "E15",
+      "file": "openspec/changes/design-vault-campaign-separation-and-maps/tasks.md",
+      "taskIds": ["1.4"],
+      "verdict": "NOTE (no edit)",
+      "before": "- [ ] 1.4 Admit and implement the next `SerializedCampaign` provenance rung (v2->v3 unless a separately reviewed compatible alternative is chosen), preserving the existing v2 authority metadata ...",
+      "after": "unchanged",
+      "boundReceipts": ["src/lib/campaign/persistence/campaignMigration.ts:25 on the worktree at origin/main: `export const CURRENT_CAMPAIGN_SCHEMA_VERSION = 2;`"],
+      "reasoning": "The brief's proposedEdits[6] asked to amend 1.4 from 'v1->v2' to 'v2->v3'. The citation verifies (CURRENT_CAMPAIGN_SCHEMA_VERSION = 2), but the task text on origin/main ALREADY reads v2->v3 -- the brief's 'before' state is stale. No edit made; the verification is recorded in the ledger entry instead."
+    }
+  ],
+  "verdictTally": {
+    "FLIP": 2,
+    "PARTIAL": 5,
+    "NOTE": 9
+  },
+  "notEdited": [
+    {
+      "item": "enable-saved-custom-unit-combat",
+      "reason": "Explicitly out of scope for this batch: the S5 PRs are not merged, so no flip is justified."
+    },
+    {
+      "item": "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind ledger entry -- RESOLVED, no longer outstanding",
+      "reason": "Originally left untouched because the batch scope named tasks.md only for this change. Flagged to the parent, widening approved, and landed as commit 2 (edit E16 above). This row is retained so the sequence is legible."
+    },
+    {
+      "item": "add-authoritative-history-branches tasks 1.5 / 1.6 and 0.2",
+      "reason": "1.5 and 1.6 have live residuals recorded in the brief (reconciliation-against-source step not performed; merged branches/worktrees awaiting identity-verified removal). 0.2 depends on the pre-2026-09-13 '-completion-'/'-main-verification-' naming question, which the brief routes to the roadmap owner."
+    },
+    {
+      "item": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json (the brief's proposedEdits[5])",
+      "reason": "Roadmap node taskKeys/state amendment is a roadmap-owner action, not a ledger/tasks reconciliation; untracked planning file, left to the parent."
+    },
+    {
+      "item": "all 8.x deferral rows and every mode/flag default",
+      "reason": "Preserved verbatim per the batch rule. No mode flips, no flag flips, nothing un-gated."
+    }
+  ],
+  "validators": {
+    "runFrom": ".sisyphus/roadmap-completion-20260912/worktrees/reconcile-1 (own npm ci, Node v22.22.0)",
+    "logDir": ".sisyphus/roadmap-completion-20260912/reconcile-1-20260915/",
+    "results": [
+      { "command": "npx openspec validate --all --strict", "exit": 0, "summary": "Totals: 232 passed, 0 failed (232 items)", "log": "openspec.log", "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3" },
+      { "command": "npm run spec:purpose:validate:strict", "exit": 0, "summary": "Files scanned: 220; Errors: 0; Tracked source-of-truth debt: 0", "log": "purpose.log", "sha256": "cd0183b62b4aa2a169bb2f59e9cdbe18c24f76c900714a61e55937c333bf2cf1" },
+      { "command": "npm run terminology:validate:strict", "exit": 0, "summary": "clean", "log": "terminology.log", "sha256": "d2536dfc20f83a5cb8550e8d73637ad463ef4b62bf17e044665a6743fe702cf0" },
+      { "command": "npm run qc:openspec-ci:validate", "exit": 0, "summary": "workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=12 accountedActiveOpenSpecChanges=12 errors=0", "log": "openspec-ci.log", "sha256": "8c41df6c33246420ed1806218780c2df69b5ad4e7c594b993b07594ee959ccb2" }
+    ],
+    "runCount": "all four ran four times, exit 0 on every pass: after the first edit pass, after the parent's mid-batch 6.1/6.2a correction (the *.log files below), after the commit-2 ledger refresh (*-c2.log), and after the commit-3 task-1.6 correction (*-c3.log). exits.log carries all four passes separated by '--- post-correction rerun ---', '--- commit 2: journal-cutover ledger refresh ---' and '--- commit 3: task 1.6 merge-state correction ---' markers.",
+    "exitsLog": { "name": "exits.log", "sha256": "1c6435119e139c5759c21764c41a876cbf51f46ab2916b759961fd0c2be559e9" },
+    "commit3Results": [
+      { "command": "npx openspec validate --all --strict", "exit": 0, "summary": "Totals: 232 passed, 0 failed (232 items)", "log": "openspec-c3.log", "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3" },
+      { "command": "npm run spec:purpose:validate:strict", "exit": 0, "summary": "Files scanned: 220; Errors: 0", "log": "purpose-c3.log", "sha256": "cd0183b62b4aa2a169bb2f59e9cdbe18c24f76c900714a61e55937c333bf2cf1" },
+      { "command": "npm run terminology:validate:strict", "exit": 0, "summary": "clean", "log": "terminology-c3.log", "sha256": "5dd61c14efaf54f9485ced6d1d90600b9b0610b771433b2e78151c55aee6a2f6" },
+      { "command": "npm run qc:openspec-ci:validate", "exit": 0, "summary": "workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=12 accountedActiveOpenSpecChanges=12 errors=0", "log": "openspec-ci-c3.log", "sha256": "8c41df6c33246420ed1806218780c2df69b5ad4e7c594b993b07594ee959ccb2" }
+    ],
+    "commit2Results": [
+      { "command": "npx openspec validate --all --strict", "exit": 0, "summary": "Totals: 232 passed, 0 failed (232 items)", "log": "openspec-c2.log", "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3" },
+      { "command": "npm run spec:purpose:validate:strict", "exit": 0, "summary": "Files scanned: 220; Errors: 0", "log": "purpose-c2.log", "sha256": "cd0183b62b4aa2a169bb2f59e9cdbe18c24f76c900714a61e55937c333bf2cf1" },
+      { "command": "npm run terminology:validate:strict", "exit": 0, "summary": "clean", "log": "terminology-c2.log", "sha256": "41953a3765153a2ea32d13e443c11f471839774d2338374b1594c01b8c37809a" },
+      { "command": "npm run qc:openspec-ci:validate", "exit": 0, "summary": "workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=12 accountedActiveOpenSpecChanges=12 errors=0", "log": "openspec-ci-c2.log", "sha256": "8c41df6c33246420ed1806218780c2df69b5ad4e7c594b993b07594ee959ccb2" }
+    ],
+    "shaManifest": { "name": "log-sha256.txt", "note": "sha256sum over every log in the directory, regenerated after the commit-2 pass" },
+    "npmCiLog": { "name": "npm-ci.log", "sha256": "bdb8b16c980cb24bb1b3e3a17cace37114ab7165779383f557f7933aea512eec" }
+  },
+  "caps": {
+    "filesChangedTotal": 4,
+    "limit": "<= 15 files / <= 500 lines",
+    "diffstatCommit1": "4 files changed, 22 insertions(+), 13 deletions(-)",
+    "diffstatCommit2": "1 file changed, 3 insertions(+), 3 deletions(-)",
+    "diffstatCommit3": "1 file changed, 1 insertion(+), 1 deletion(-)",
+    "splitRequired": false,
+    "splitReason": "Three commits by design, not by cap: commit 2 is the parent-approved scope widening, commit 3 closes review RE-1. Each is kept separable from the assigned batch."
+  },
+  "nonClaims": [
+    "No push, no PR, no branch published.",
+    "No product source, no spec.md, no delta spec touched.",
+    "No roadmap.json edit.",
+    "No checkbox was flipped on the strength of a local, premerge, review, parent-acceptance or '-completion-'/'-main-verification-' named receipt; only '-main-proof-' files were accepted.",
+    "The two flips (0.2, 1.2) are bookkeeping against already-merged work; they change no behaviour and un-gate nothing.",
+    "Running the four strict validators green proves the edited documents are well-formed; it is not evidence that any described capability works."
+  ]
+}

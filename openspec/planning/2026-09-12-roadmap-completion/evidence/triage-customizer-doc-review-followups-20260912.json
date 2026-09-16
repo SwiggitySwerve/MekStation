@@ -1,0 +1,195 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "triage-customizer-doc-review-followups-20260912",
+  "capturedAt": "2026-09-12",
+  "worktree": "E:/Projects/MekStation",
+  "baseline": "be7f85b867aa3e8576e5e3d27e309276203bc24b",
+  "fetchedOriginMain": "6c4eac5c7b7a2aece3aab0443ce606943db6cf0b",
+  "predecessorReceipts": [
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-customizer-doc-repair-20260912-continuation.json",
+      "sha256": "e41ce114f2aad188244f2f5822329dac03f91875a559441c1469c891d06dff59"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-customizer-doc-independent-xhigh-review-20260912.json",
+      "sha256": "6333d2dcdfe8b813502be5e33c2938fc60b4f487931b2baa3bec95d8d99029a6"
+    }
+  ],
+  "scope": "Superseding follow-up to the independent Luna/xhigh review. Three stale-documentation findings were repaired inside the same four canonical specs. No product code, tests, generated data, roadmap, task, checkbox, ledger, or other specification files were changed.",
+  "ownedPaths": [
+    "openspec/specs/aerospace-unit-system/spec.md",
+    "openspec/specs/app-settings/spec.md",
+    "openspec/specs/equipment-tray/spec.md",
+    "openspec/specs/protomech-unit-system/spec.md",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-customizer-doc-review-followups-20260912.json"
+  ],
+  "preexistingWorktreeNote": "The checkout remains dirty with unrelated reconciliation and audit work. Existing four-spec repairs and all unrelated edits were preserved. No Git state mutation was performed.",
+  "specHashes": [
+    {
+      "path": "openspec/specs/aerospace-unit-system/spec.md",
+      "beforeSha256": "cf4458cc59f358faee783038b3b9100ce33046ac23d23cec1368e3c2df17f329",
+      "afterSha256": "c664246362054e9bc183381d99c60f106eb349e0d186cdc467534170fbaad0b3"
+    },
+    {
+      "path": "openspec/specs/app-settings/spec.md",
+      "beforeSha256": "c9f4050741ff601ae429b51417ab74b0cf8020c019fc05418e7d47ee731514cc",
+      "afterSha256": "65dc02ac16a000a0322c71b173f88a59ca8e9f56f37ee40a74bf6d18f290d5a6"
+    },
+    {
+      "path": "openspec/specs/equipment-tray/spec.md",
+      "beforeSha256": "7f8a1b314cc583c355ff51e7eb7640724ee8a40abe2af9bc5900a63487304e4b",
+      "afterSha256": "7f8a1b314cc583c355ff51e7eb7640724ee8a40abe2af9bc5900a63487304e4b"
+    },
+    {
+      "path": "openspec/specs/protomech-unit-system/spec.md",
+      "beforeSha256": "455a4a0b5415d965364095d7a49f6f3d9d15211cdea69774dc101321a264eb77",
+      "afterSha256": "191c5b3536c66d26dadac03da3f6de172574171ce1359ee3441120d308e1d8e8"
+    }
+  ],
+  "followUps": [
+    {
+      "id": "settings-contract-and-schema-drift",
+      "path": "openspec/specs/app-settings/spec.md",
+      "specLines": "132-135,206-235",
+      "change": "Replaced the example persistence key with an exact-key contract and added the four current persisted Zustand scopes: useAppearanceStore/mekstation-appearance, useAccessibilityStore/mekstation-accessibility, useCustomizerSettingsStore/mekstation-customizer-settings, and useUIBehaviorStore/mekstation-ui-behavior. Corrected uiTheme and armorDiagramVariant descriptions to state independence.",
+      "sourceAnchors": [
+        {
+          "path": "src/stores/useAppearanceStore.ts",
+          "lines": "47-76,130-133,302-327",
+          "sha256": "ee9fbec4cc113a42dbd3d702e43b1b7693116541110dcf653ca281b1347de86d",
+          "evidence": "Appearance scope owns accentColor, fontSize, animationLevel, compactMode, and uiTheme and persists under `mekstation-appearance`."
+        },
+        {
+          "path": "src/stores/useAccessibilityStore.ts",
+          "lines": "16-24,38-60",
+          "sha256": "3c5504344588a32fea36eb7b3ca20151f004047b51418f8a7a17e0930cde7219",
+          "evidence": "Accessibility scope owns highContrast/reduceMotion and persists under `mekstation-accessibility`."
+        },
+        {
+          "path": "src/stores/useCustomizerSettingsStore.ts",
+          "lines": "43-75,103-118,195-217",
+          "sha256": "4a8d1c8b61d974fef6ab493d3bd852c1222bf6a0dfbe495fa19f7e9154c43f29",
+          "evidence": "Customizer scope owns armor diagram settings and showArmorDiagramSelector and persists under `mekstation-customizer-settings`."
+        },
+        {
+          "path": "src/stores/useUIBehaviorStore.ts",
+          "lines": "16-25,44-69",
+          "sha256": "328a66a44b81a7ee9f9d7d6c78926072ead84fdcb20db679f52a6bb039d74ea8",
+          "evidence": "UI behavior scope owns sidebarDefaultCollapsed, confirmOnClose, showTooltips and persists under `mekstation-ui-behavior`."
+        },
+        {
+          "path": "src/__tests__/stores/settingsStores.test-helpers.ts",
+          "lines": "561-607",
+          "sha256": "4bf5a9a1868317dd8c892bd4fc49859c3278b58b9ab6c331e14a51069ff137d9",
+          "evidence": "Cross-slice tests explicitly assert UI theme changes do not mutate armorDiagramVariant and vice versa; this resolves the sync wording without relying on absent code."
+        },
+        {
+          "path": "src/components/customizer/armor/ArmorDiagramPreview.tsx",
+          "lines": "43-47",
+          "sha256": "b7626e8078de3d0dd42877cc401ef43971ea1776b9889c74300ce5c51e3031ef",
+          "evidence": "The component documents diagram variants as independent of the global UI Theme setting."
+        }
+      ],
+      "ambiguity": "None after source review: both live component documentation and cross-slice tests establish independence. No new runtime test was run in this documentation-only follow-up.",
+      "retainedDeferral": "No persistence, route-transition, or accessibility completion claim was added."
+    },
+    {
+      "id": "aerospace-file-count-map-stale",
+      "path": "openspec/specs/aerospace-unit-system/spec.md",
+      "specLines": "1344",
+      "change": "Removed the brittle '(6 files)' count from the related-documentation map while retaining the live directory reference and aerospace customizer UI description.",
+      "sourceAnchors": [
+        {
+          "path": "src/components/customizer/aerospace/",
+          "evidence": "The maintained module directory is the authority; the canonical map no longer embeds a stale file count."
+        },
+        {
+          "path": "src/components/customizer/aerospace/AerospaceCustomizer.tsx",
+          "lines": "31-40,65-148",
+          "sha256": "a86ad73036c168001d1c4830848a040fc9958e14d428316467ddf7f44944a4f8",
+          "evidence": "Live aerospace customizer UI seam remains mapped by the directory entry."
+        }
+      ],
+      "retainedDeferral": "No aerospace implementation or deserialization scope changed."
+    },
+    {
+      "id": "protomech-implementation-table-stale",
+      "path": "openspec/specs/protomech-unit-system/spec.md",
+      "specLines": "819-833",
+      "change": "Removed approximate line-count column and added ProtoMechEquipmentTab and ProtoMechPreviewTab entries with purposes matching the repaired hierarchy.",
+      "sourceAnchors": [
+        {
+          "path": "src/components/customizer/shared/tabRegistry.tsx",
+          "lines": "443-497",
+          "sha256": "064386c991c71ed9e5188eb15630f12fe380d1035ec02178630a28fa9b1ab07d",
+          "evidence": "PROTOMECH_TABS registers equipment and preview tabs."
+        },
+        {
+          "path": "src/components/customizer/protomech/ProtoMechEquipmentTab.tsx",
+          "lines": "1-35",
+          "sha256": "c45a0da9ccf8a9f025948fb6a8c8919c20bc09a47f25e70ce4b1042b630aab07d",
+          "evidence": "Equipment tab is registered but remains an explicit construction placeholder."
+        },
+        {
+          "path": "src/components/customizer/protomech/ProtoMechPreviewTab.tsx",
+          "lines": "29-103",
+          "sha256": "c8069af09f2ebcca02cd910db67e461fb522beb1d8b12dede16651277d37e14b",
+          "evidence": "Preview tab is store-backed and wires record-sheet preview/print actions."
+        },
+        {
+          "path": "src/components/customizer/protomech/ProtoMechCustomizer.tsx",
+          "lines": "32-41,71-97,112-125",
+          "sha256": "9e56f548cdf05d3da116a50608ce54547ef4b17ee187b015b75a985c5189d10e",
+          "evidence": "Customizer renders the active registry-selected tab with structure as the default."
+        }
+      ],
+      "retainedDeferral": "Equipment construction remains planned; removing brittle counts makes the table resilient without claiming runtime completion."
+    }
+  ],
+  "unchangedWithinScope": [
+    "openspec/specs/equipment-tray/spec.md remained byte-identical during this follow-up.",
+    "All prior four-spec repairs and explicit aerospace/ProtoMech deferrals remain in force."
+  ],
+  "validation": [
+    {
+      "command": "npx.cmd openspec validate aerospace-unit-system --strict",
+      "exitCode": 0,
+      "rawOutput": "Specification 'aerospace-unit-system' is valid"
+    },
+    {
+      "command": "npx.cmd openspec validate app-settings --strict",
+      "exitCode": 0,
+      "rawOutput": "Specification 'app-settings' is valid"
+    },
+    {
+      "command": "npx.cmd openspec validate equipment-tray --strict",
+      "exitCode": 0,
+      "rawOutput": "Specification 'equipment-tray' is valid"
+    },
+    {
+      "command": "npx.cmd openspec validate protomech-unit-system --strict",
+      "exitCode": 0,
+      "rawOutput": "Specification 'protomech-unit-system' is valid"
+    },
+    {
+      "command": "npx.cmd oxfmt --check src/stores/useAppearanceStore.ts src/stores/useAccessibilityStore.ts src/stores/useCustomizerSettingsStore.ts src/stores/useUIBehaviorStore.ts src/__tests__/stores/settingsStores.test-helpers.ts src/components/customizer/armor/ArmorDiagramPreview.tsx src/components/customizer/shared/tabRegistry.tsx src/components/customizer/protomech/ProtoMechEquipmentTab.tsx src/components/customizer/protomech/ProtoMechPreviewTab.tsx src/components/customizer/protomech/ProtoMechCustomizer.tsx src/components/customizer/aerospace/AerospaceCustomizer.tsx src/services/units/handlers/AerospaceUnitHandler.ts src/services/printing/svgRecordSheetRenderer/aerospaceRenderer.ts",
+      "exitCode": 0,
+      "rawOutput": "Checking formatting...\n\nAll matched files use the correct format.\nFinished in 355ms on 13 files using 16 threads."
+    },
+    {
+      "command": "npm.cmd exec -- prettier --check openspec/specs/aerospace-unit-system/spec.md openspec/specs/app-settings/spec.md openspec/specs/equipment-tray/spec.md openspec/specs/protomech-unit-system/spec.md",
+      "exitCode": 0,
+      "rawOutput": "Checking formatting...\nAll matched files use Prettier code style!"
+    },
+    {
+      "command": "git diff --check -- openspec/specs/aerospace-unit-system/spec.md openspec/specs/app-settings/spec.md openspec/specs/equipment-tray/spec.md openspec/specs/protomech-unit-system/spec.md",
+      "exitCode": 0,
+      "rawOutput": ""
+    }
+  ],
+  "limits": [
+    "No tests, builds, servers, browsers, generated data, or runtime changes were performed.",
+    "The sync correction is source-grounded by explicit cross-slice tests and component documentation; no fresh runtime execution was claimed.",
+    "Parent acceptance and final independent delta review remain required."
+  ]
+}

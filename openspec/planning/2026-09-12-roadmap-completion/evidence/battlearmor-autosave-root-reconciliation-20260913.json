@@ -1,0 +1,24 @@
+{
+  "capturedAt": "2026-09-13T00:28:03.987Z",
+  "mainSha": "e29d71677ea3f090d2ea0c3e1ee7cadd5db030c0",
+  "parentAcceptance": "evidence/battlearmor-autosave-main-parent-acceptance-20260913.json",
+  "rootHead": "be7f85b867aa3e8576e5e3d27e309276203bc24b",
+  "indexSha256": "a65b683940b6449651a074132f39d8b8da156ef5620af6aa1b62eb7c8698b953",
+  "indexUnchanged": true,
+  "unrelatedDirtyFilesVerified": 120,
+  "files": [
+    {
+      "path": "openspec/specs/auto-save-persistence/spec.md",
+      "beforeSha256": "a2688cf3b5f710d2ecf6e21780e80e33728dcc46817df121cd661b626519da69",
+      "afterSha256": "60fc6006476c650e7620273c0232393bc2d70279b0dead61195452bcf95cd4bb",
+      "backup": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-root-reconciliation-20260913/before/openspec/specs/auto-save-persistence/spec.md"
+    },
+    {
+      "path": "openspec/specs/battle-armor-unit-system/spec.md",
+      "beforeSha256": "3223fcc7ca638ba7b832bf94154a423a13ca7269b05653a846b8f7982b0cdd14",
+      "afterSha256": "63bac7a76e828d74076926155533537a422e6a25f4ae9ee135c8c85b183a7f19",
+      "backup": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-root-reconciliation-20260913/before/openspec/specs/battle-armor-unit-system/spec.md"
+    }
+  ],
+  "scope": "Only2 already-admitted root proposals reconciled; no staging or other source edits."
+}

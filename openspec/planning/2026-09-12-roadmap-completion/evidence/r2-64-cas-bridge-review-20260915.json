@@ -1,0 +1,322 @@
+{
+  "artefact": "r2-64-cas-bridge-review-20260915",
+  "role": "INDEPENDENT REVIEWER (not the author). GP-JUSTIFIED: read-only code review with jsdom re-runs.",
+  "date": "2026-09-15",
+  "reviewOf": "evidence/r2-64-cas-bridge-local-20260915.json",
+  "task": "design-campaign-authority-and-sync task 6.4 -- bridge the two compare-and-swap counters after a committed acceptance (admission brief P-C)",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/archive-edit-recovery-20260915",
+  "branch": "codex/roadmap-r2-64-cas-bridge-20260915",
+  "checkoutIntegrity": {
+    "headAtStart": "d236e99806838fa16536e70b1a81e30595e16297",
+    "headAtEnd": "d236e99806838fa16536e70b1a81e30595e16297",
+    "porcelainAtStart": "(empty)",
+    "porcelainAtEnd": "(empty)",
+    "mutations": "none -- no edits, no commits, no pushes, no builds, no sub-agents; the 6.1 worktree was read only (its porcelain was empty and untouched)"
+  },
+  "verdict": {
+    "commitA": {
+      "sha": "d036f3611",
+      "subject": "feat(campaign): refresh the client record after a committed acceptance is acknowledged",
+      "verdict": "APPROVE-WITH-REQUIRED-EDITS",
+      "rationale": "The mapping statement is correct and pinned by value, the refetch bridge is the right (and smaller) answer, the fence echo is complete on both client write paths and survives a 200 and a 409, and the falsification is genuinely 1:1. Two required edits, both narrow and both on the FAILURE side of the new action: it clears the armed auto-save and never re-arms it (regressing the invariant the crash-window F1 fix in the same file exists to protect), and it is the first refetch-replace call site in the codebase without task 1.3's dirty-state exemption -- which the receipt records as a non-claim but the code does not state at all."
+    },
+    "commitB": {
+      "sha": "d236e99806838fa16536e70b1a81e30595e16297",
+      "subject": "test(campaign): pin the acknowledgement refresh failure paths and the cache key",
+      "verdict": "APPROVE",
+      "rationale": "Test-only, 57 insertions, no product file touched. Row 6's by-value assertion against both journal numbers is the strongest row in the file and is the one that actually pins the mapping statement. Row 4 correctly proves the refresh never writes and never adopts a version it did not read."
+    }
+  },
+  "requiredEdits": [
+    {
+      "id": "RE-A1",
+      "severity": "required",
+      "commit": "A",
+      "file": "src/stores/campaign/useCampaignPersistenceStore.ts:1310-1326",
+      "finding": "`refreshAfterCommittedCommandAction` calls `clearAutoSaveTimer()` and NEVER re-arms. On every non-adopting path of `runLoad` -- the network/500 throw (`:953-956`), the 404 adoptable branch (`:894-901`), and the 404 not-found branch (`:902-904`) -- `dirty` is left exactly as it was while the armed save has been cancelled, so a dirty client is left with NO pending write until the player's next mutation, which may never come. This is verbatim the failure mode the crash-window F1 fix names in its own doc block a few lines above (`:1204-1210`: 'nothing else would re-arm the debounce until the next mutation - which may never come, leaving the campaign dirty with no pending write'), and `reconcileAfterDiscardFlushAction` closes it by arming on EVERY path (`:1253-1257`, `.then((adopted) => { armAutoSaveTimer(set, get); return adopted; })`). The new action's own inline comment at `:1309` -- 'This refresh owns the next write' -- is true on the adopting path and false on all three others. Test row 4 does not catch it because it calls `markDirty()` after the failed refresh, which re-arms the timer itself (`:1341-1345`).",
+      "minimalFix": "Mirror the sibling: `const refresh = runLoad(set, campaignId).then((adopted) => { if (!adopted && get().dirty) { armAutoSaveTimer(set, get); } return adopted; });` (or arm unconditionally as `reconcileAfterDiscardFlushAction` does -- `armAutoSaveTimer` already clears before re-arming and the timer body returns early on `saveState === 'conflict'`, `:1070-1072`).",
+      "testObligation": "One row: a DIRTY client whose acknowledgement refetch does not answer still has a pending write -- advance `AUTO_SAVE_DEBOUNCE_MS` with NO intervening `markDirty()` and assert a PUT was issued at the pre-command token. That row is red against the committed code."
+    },
+    {
+      "id": "RE-A2",
+      "severity": "required (documentation)",
+      "commit": "A",
+      "file": "src/stores/campaign/useCampaignPersistenceStore.ts:1271-1297 (the `refreshAfterCommittedCommandAction` doc block)",
+      "finding": "The dirty-client case is described in the receipt as 'inherited from 1.3', but that is only half true and the code says nothing at all. Task 1.3's replace-not-merge law is safe BECAUSE unsaved work is exempted at the CALL SITE -- 1.3's own receipt says so ('Unsaved work is protected by the dirty-state exemption at the call site, which is a fact about the SESSION, not a claim about the cache') and the only existing refetch-replace call site implements it (`src/pages-modules/gameplay/campaigns/campaignPageShell.tsx:151-156`, `cacheNeedsValidation = routeMatches && !dirty && ...`, with the comment 'Dirty local state is exempt (the save path's conflict handling reconciles it)'). `refreshAfterCommittedCommand` is a NEW `runLoad` call site with no `!dirty` exemption AND it cancels the armed save, i.e. it removes the very conflict handling that comment defers to. A reader of this function cannot learn from it that an acknowledgement arriving while the client is dirty silently discards the unsaved mutations (`runLoad` replaces the campaign whole on a diverged key `:930-941` and sets `dirty: false` `:944`). The doc block's affirmative list of what it does not do ('never writes, never adopts a version it did not read, never treats either journal number as a row version') reads as exhaustive and is not.",
+      "minimalFix": "Add one paragraph to the doc block stating that this is the one refetch-replace call site without task 1.3's dirty-state exemption, that an acknowledgement arriving while the client is dirty discards the unsaved local mutations whole, and that closing it is 6.2b's (its client half is required to obtain an acknowledged save before submitting the command).",
+      "explicitNonDemand": "Do NOT add the `!dirty` guard as part of this edit. Skipping the refresh while dirty would trade the lost edit for an unexplained 409 on the next save; that is a design decision belonging to 6.2b, not to this review."
+    }
+  ],
+  "axisFindings": {
+    "1_mappingStatement": {
+      "verdict": "PASS",
+      "counterA": "VERIFIED. `campaignCacheKeyOf` (src/lib/campaign/persistence/campaignCacheKey.ts:88-96) builds the key as `{ instanceId: record.instanceId ?? null, revision: record.version }` -- `revision` is read straight off the `SerializedCampaign` row `version`, which is also what `putLiveCampaign` sends as the PUT CAS token (useCampaignPersistenceStore.ts:654-690) and what `applySavedRecord` / `runLoad` store as `baseVersion` (`:727`, `:947`). So counter A = the row version = the revision half of task 1.3's key, exactly as the commit message and the two doc blocks state.",
+      "counterB": "VERIFIED as command-route-only. `ICampaignCommittedCommandAck` (useCampaignPersistenceStore.ts:116-140) declares `receiptRevision` / `publicHead` OPTIONAL with an explicit prohibition in the doc block ('nothing in this store may assign one to `baseVersion` or to a cache key').",
+      "consistencyWithTask13": "PASS. tasks.md:21 says only `(instanceId, revision)`; the 1.3 receipt calls the pair 'the hosting instance that wrote it and the revision it was taken from' and never claims a stream revision. The 6.4 STOP condition (tasks.md:103, 'if the code cannot state that without contradicting task 1.3's text, STOP') correctly did not fire.",
+      "conflationSearch": "NO CONFLATION FOUND. Checked every write of `baseVersion` and every cache-key stamp in the store: `:727` (applySavedRecord, from `record.version`), `:754` (rollbackCoopCampaign, from `migrated.version`), `:947` (runLoad, from `migrated.version`), `:1371` (resolveConflictTakeServer, from `migrated.version`). `ack.receiptRevision` and `ack.publicHead` are never read anywhere in the file -- the action reads only `ack.kind` and `ack.state.campaignId` (`:1303-1307`). Row 6 pins this by VALUE (RECEIPT_REVISION=4, PUBLIC_HEAD=9, seeded to values no row version in the file takes).",
+      "specConsistency": "PASS. The refresh is an instance of the existing SHALL at specs/campaign-authority/spec.md ('Client storage is a cache, never a source' -- 'a stale or divergent cache SHALL be replaced by replay/refetch, never merged by field'), and tasks.md:101 RE-4 names exactly this gap and assigns it to 6.4. No spec edit was needed and none was made."
+    },
+    "2_refreshAfterCommittedCommand": {
+      "verdict": "PASS with RE-A1 and RE-A2",
+      "otherCampaignIdsIgnored": "PASS -- useCampaignPersistenceStore.ts:1303-1309 guards `ack.kind !== 'committed'`, `campaignId === null`, and `ack.state.campaignId !== campaignId`, returning `Promise.resolve(false)` with no fetch. Pinned by row 5 (`expect(captured).toHaveLength(0)`).",
+      "clearsTheArmedStaleSave": "PASS on the fact (`:1310`), FAIL on the consequence -- see RE-A1.",
+      "readsThroughTheExistingLoadPath": "PASS -- `:1312` calls `runLoad(set, campaignId)`, the same function `loadCampaignAction` (`:866-878`) uses, and `runLoad` reads through `fetchCampaignRecord` (`:700-705`), the file's single client read. No second read surface was opened.",
+      "publishedAsInFlightLoad": "PASS -- `:1321-1326`, same publish/finally shape as `loadCampaignAction` (`:869-877`) and `reconcileAfterDiscardFlushAction` (`:1262-1267`). `runSave` awaits it at `:789-791`, so a write STARTING during the refresh waits for the refreshed token.",
+      "nextPutCarriesTheRefetchedRowVersion": "PASS -- `runLoad` sets `baseVersion: migrated.version` (`:947`); `putLiveCampaign` sends `baseVersion` and mints the envelope at `baseVersion + 1` (`:654-670`). Pinned by row 1 (`putBaseVersion(puts[0]) === BASE_VERSION + 1`, save acknowledged 200).",
+      "acceptedMissionRenders": "PASS -- on a diverged cache key `runLoad` calls `writeLiveCampaign(deserializeCampaignRecord(migrated))` and `restoreRosterProjection` (`:930-941`). Pinned by row 3.",
+      "failurePathsLeaveTodaysBehaviour": "PASS on the server-facing half -- a failed read adopts nothing, issues no PUT, leaves `baseVersion` at N, and the next save lands in `conflict` (row 4, re-run green). NEVER a silent overwrite of the server: `runSave` is ONE ATTEMPT with no re-PUT at the server-reported version (`:822-838`). FAIL on the client-facing half -- the cancelled, never-re-armed timer (RE-A1).",
+      "interleaving_ackDuringInFlightSave": {
+        "verdict": "SAFE FOR THE SERVER, LOSSY FOR THE CLIENT -- non-blocking, recorded",
+        "analysis": "`refreshAfterCommittedCommand` does not await an in-flight SAVE (the store has no `inFlightSave`; `runSave`'s only wait is on `inFlightLoad`, `:789-791`). So a PUT already past that guard races the refresh. If the source moved the row, that PUT is refused -- by the CAS, or ahead of it by 6.1's fence guard (CampaignPersistenceService.ts:145-153 on the 6.1 branch) -- and `runSave` sets `saveState: 'conflict'` (`:834-838`). The refresh then resolves and `runLoad` overwrites that with `saveState: 'saved'` and `conflictServerRecord: null` (`:942-951`). Net: the client ends holding the SERVER's record at the server's version, so nothing incorrect is ever written to the server; but a conflict the player was shown is cleared without explanation and any local edit is replaced whole. Acceptable for an action with no production caller, but it is the second face of RE-A2 and 6.2b's caller must not assume the two paths are ordered."
+      },
+      "interleaving_ackWhileDirty": {
+        "verdict": "NOT STATED IN CODE -- RE-A2",
+        "isItSafe": "Safe in the sense the brief asks: it is never a silent overwrite of the server. The refresh only READS; the only write that follows is an ordinary PUT at a token the client actually read. It is NOT safe for local work: `runLoad` replaces the campaign whole (`:930-941`) and clears `dirty` (`:944`), so unsaved mutations are discarded with no toast, no `flushSkip`, and no other surfaced signal.",
+        "inheritedOrNew": "The REPLACEMENT is inherited from 1.3. The EXPOSURE is new: 1.3's protection for unsaved work is the call-site `!dirty` exemption (campaignPageShell.tsx:151-156), and this is the first `runLoad` call site that omits it while also cancelling the save path that exemption defers to."
+      }
+    },
+    "3_fenceEcho": {
+      "verdict": "PASS",
+      "heldFromEveryReadRecord": "PASS -- `sourceReplayFence: fenceOf(record)` is set at all four record-adopting sites: `applySavedRecord` (:727), `rollbackCoopCampaign` (:751), `runLoad` (:949), `resolveConflictTakeServer` (:1377). `fenceOf` (:553-557) normalizes `undefined` to `null`.",
+      "echoedOnBothClientWritePaths": "PASS -- the ordinary save (`putLiveCampaign` :663-670, fed `get().sourceReplayFence` from `runSave` :809-813) and the discard-time keepalive flush (`flushPendingMutationsAction` :1108-1119, fed `state.sourceReplayFence`). Every non-test `buildSerializedCampaign` call site and every non-test `method: 'PUT'` in the client was enumerated: the only two that hit `/api/campaigns/[id]` are these two and both are wrapped. `runAdoptLegacyCampaign` (:990) builds an unfenced envelope, which is correct -- it POSTs `/adopt`, which reaches `saveCampaign(envelope, 0)` for a row that does not exist, so `storedFence` is `null` and the guard does not fire (CampaignPersistenceService.ts:144-153 on the 6.1 branch).",
+      "neverMintsOrAdvances": "PASS -- `withSourceReplayFence` (:566-571) returns the envelope unchanged when the held fence is `null` (conditional spread, never an enumerable `undefined`), so an unfenced campaign sends byte-identically to pre-field behaviour. No arithmetic on `rootPublicRevision` exists anywhere in the client.",
+      "doesTheEchoSurviveApplySavedRecordAfterA200": "PASS, AND VERIFIED CROSS-BRANCH. This was the one place the echo could have died silently. On the 6.1 branch the 200 body is `stored`, built as `{ ...withoutClientFence(prepared.record), version: nextVersion, ...(storedFence === null ? {} : { sourceReplayFence: storedFence }) }` (CampaignPersistenceService.ts:160-166) -- the server strips the CLIENT's fence and re-stamps the STORED one, so the acknowledged record carries it and `applySavedRecord` -> `fenceOf(record)` retains it. The client-side migration is transparent to the field: `migrateClientRecord` -> `migrateSerializedCampaign` returns the snapshot unchanged once it is at the current schema version (campaignMigration.ts:105-128), so nothing field-picks the fence away.",
+      "behaviourOnThe409": "PASS -- never an overwrite. The 6.1 guard answers a missing/altered fence with `conflictFromStoredRow` (CampaignPersistenceService.ts:150-153), i.e. the SAME typed 409 carrying the current record (`:446-465`, which spreads through `hydrateCampaignRecord` -> `{ ...migrated, ... }` so the stored fence reaches the body). Client-side that lands in `readConflictBody` -> `status: 'conflict'` -> `saveState: 'conflict'` with ONE attempt and no re-PUT (`:678-682`, `:822-838`); `resolveConflictTakeServer` then adopts the server record INCLUDING its fence (`:1377`), and for co-op `rollbackCoopCampaign` does the same (`:751`). So a fence refusal is recoverable through the existing conflict path and can never become a blind overwrite.",
+      "flushDigestUnaffected": "PASS, verified independently of the receipt: `flushedEnvelopeDigest` (:366-376) hashes schemaVersion / campaignId / savedAt / originDeviceId / body only. The fence is outside the digest, so the post-flush `adoptFlushedRevision` comparison (:1183-1189) is unaffected by the server stripping and re-stamping it. Crash-window suite re-run green (see measuredRuns).",
+      "residualNote": "`adoptFlushedRevision` reaches `applySavedRecord(set, record)` (:1190) with the READ-BACK record, so it adopts the fence too. Correct, and it is the only other path that could have gone stale."
+    },
+    "4_tests": {
+      "verdict": "PASS -- the red log is weak as the author says, the falsification is not",
+      "redLogHonestButWeak": "AGREED. 'all 6 red with `refreshAfterCommittedCommand is not a function`' is a compile-shape failure, not discrimination: any stub would produce it. The author says so and supplies the falsification instead, which is the right move.",
+      "falsification_1to1_verifiedByReading": {
+        "killRefetch_expected_4red_2green": "CONFIRMED by reading. Row 1: `baseVersion` stays 11, first assertion fails. Row 2: no fence is held, so the stub's fence guard (test:188-194) answers 409 and both the echoed-fence and the `saveState === 'saved'` assertions fail. Row 3: the mission map never gains ACCEPTED_CONTRACT_ID. Row 6: `cachedCampaignKey` stays at the `beforeEach` seed `{ HOST_INSTANCE_ID, 11 }` (test:84) against an expected 12. Rows 4 and 5 never reach an adopting path and stay green. => 4 red / 2 green, as recorded.",
+        "killEcho_expected_2red_4green": "CONFIRMED by reading. Row 2 fails on `putEnvelope(puts[0]).sourceReplayFence` being `undefined`. Row 1 fails because the stub judges the fence AHEAD of the CAS exactly as 6.1's server does (test:185-194), so the PUT is refused and `saveState` is `'conflict'`, not `'saved'`. Rows 3, 4 and 6 do not depend on a PUT succeeding; row 5 issues no request. => 2 red / 4 green, as recorded.",
+        "killIdGuard_expected_1red_5green": "CONFIRMED by reading. Only row 5 asserts `captured.length === 0`; removing the guard makes the refresh fetch for 'some-other-campaign'. Every other row passes `campaign.id` and is unaffected. => 1 red / 5 green, as recorded.",
+        "conclusion": "The recorded 1:1 falsification is sound. Rows 1 and 2 are NOT fully independent (row 1's green depends on the fence echo, because the stub models 6.1's fence-ahead-of-CAS ordering) -- the author's own numbers disclose this, and it is the correct modelling rather than a defect."
+      },
+      "discriminationGaps": [
+        "No row covers an acknowledgement arriving while the client is DIRTY (RE-A2) or while a save is IN FLIGHT.",
+        "No row covers the cancelled-and-never-re-armed timer (RE-A1). Row 4 calls `markDirty()` after the failed refresh, which re-arms the timer itself (:1341-1345), so the hole is masked.",
+        "Non-blocking: the stub's `recordAfterAcceptance` always carries a fence, so the unfenced-campaign path (`fenceOf` -> null, envelope byte-identical to pre-field) is asserted nowhere in this file. It is exercised indirectly by the 26-suite battery staying green on a base where no server fence exists."
+      ]
+    },
+    "5_coordination": {
+      "verdict": "PASS",
+      "byteIdentity": "VERIFIED, and stronger than claimed: the WHOLE FILE is identical, not just the hunk. `git show d036f3611:src/types/campaign/SerializedCampaign.ts` and `git show cff0fbaaa:src/types/campaign/SerializedCampaign.ts` (the 6.1 branch tip in worktree r2-prepared-journal-api) both sha256 to 784627f4b142edcec65f85ecd6b9930b5ad9e7a6ce24dc4019f7423a078a8578, and a plain `diff` against the 6.1 worktree's working copy is empty (that worktree's porcelain is empty).",
+      "whatTheMergeMustDo": "6.1 lands first and owns the server half. When 6.4 is rebased onto a main that already carries 6.1, the `src/types/campaign/SerializedCampaign.ts` hunk in commit A is ALREADY APPLIED and must be DROPPED -- `git rebase` will either drop it automatically as an identical patch or raise an already-applied / empty-commit prompt; resolve by taking main's file verbatim (the bytes are equal, so there is nothing to choose). Commit A then reduces to 2 files / 536 insertions / 11 deletions and commit B is unaffected.",
+      "otherConflicts": "NONE. `git diff --name-only 1e43090c5 cff0fbaaa` does not list `src/stores/campaign/useCampaignPersistenceStore.ts` (match count 0), so 6.1 does not touch the only other production file this stack changes -- CONFIRMED, as the brief asked. 6.1's remaining files (campaignAcceptContractCommand.ts, CampaignPersistenceService.ts, campaignSourceMaterialization.ts, campaignSourceReplayFence.test.ts, campaignAuthoritativeState.test.ts, e2e/campaign-crash-window-flush.spec.ts) are disjoint from this stack's three.",
+      "orderingHazard": "If 6.4 were ever to land BEFORE 6.1 the client half is inert rather than wrong: no row carries a fence, `fenceOf` yields `null`, `withSourceReplayFence` returns the envelope unchanged, and every PUT is byte-identical to today's. Confirmed by reading, and by the 26-suite battery passing on this base where no server fence exists."
+    },
+    "6_hygiene": {
+      "verdict": "PASS",
+      "sizes": "Commit A: 3 files, 561 insertions / 11 deletions. Commit B: 1 file, 57 insertions. Stack total 618/11 -- matches the receipt exactly.",
+      "recordedFloorArithmeticVerified": "PASS, re-measured this session: `git diff --shortstat 1e43090c5 d236e9980 -- src/stores/campaign/useCampaignPersistenceStore.ts src/types/campaign/SerializedCampaign.ts` = `2 files changed, 202 insertions(+), 11 deletions(-)`. So 202 product + 359 test = 561 for commit A, and the stated 508 floor (202 product + 306 zero-row harness) is arithmetically sound. The overage of 61 is declared in the commit message body itself, not only in the receipt.",
+      "receiptNit": "The receipt's `filesChanged` line says 'useCampaignPersistenceStore.ts (+188/-11)'. 188 is `--stat`'s CHANGED-LINE total (177 insertions + 11 deletions), not the insertion count. The capReport arithmetic elsewhere in the same file uses the correct 202/11. Cosmetic only.",
+      "subjects": "PASS -- A is `feat(campaign): ...` carrying the product change, B is `test(campaign): ...` carrying test-only work. Conventional, accurate, and the split is honest (B touches no product file).",
+      "aiAttribution": "PASS -- neither commit body nor trailer contains Co-Authored-By, 'Generated with', Claude, Anthropic, or a robot emoji. Author and committer are Wes Rollings <wrollings@gmail.com> on both.",
+      "openspecEdits": "PASS -- none. The stack touches exactly 3 files, all under src/.",
+      "checkboxFlips": "PASS -- none; tasks.md is not in the diff.",
+      "commandsRouteChange": "PASS -- `src/pages/api/campaigns/[id]/commands.ts` is not in the diff. `ICampaignCommittedCommandAck` is a structural READ of the existing wire shape with the two 6.2b revisions declared optional, so nothing forces a route change.",
+      "treeIdentityWithMonolith": "PASS -- `git diff 4377158bc d236e9980 --stat` is empty. The split re-parented the work without re-editing it.",
+      "backupBranch": "backup/r2-64-bridge-monolith -> 4377158bc retained, as recorded."
+    }
+  },
+  "measuredRuns": [
+    {
+      "gate": "jest new suite",
+      "command": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/stores/campaign/__tests__/campaignCommandAckRefresh.test.ts",
+      "result": "1 suite / 6 tests passed",
+      "exit": 0,
+      "matchesReceipt": true
+    },
+    {
+      "gate": "jest crash-window + four task-1.6 suites",
+      "command": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false campaignPersistenceCrashWindow campaignCommandAutoSave useCampaignPersistenceStore campaignPersistenceWiring campaignCommandAckRefresh",
+      "result": "5 suites / 56 tests passed",
+      "exit": 0,
+      "matchesReceipt": true
+    },
+    {
+      "gate": "jest src/stores/campaign",
+      "command": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/stores/campaign",
+      "result": "26 suites / 332 tests passed",
+      "exit": 0,
+      "matchesReceipt": true
+    },
+    {
+      "gate": "tsc",
+      "command": "npx tsc --noEmit",
+      "result": "clean",
+      "exit": 0,
+      "matchesReceipt": true
+    },
+    {
+      "gate": "oxfmt --check (3 changed files)",
+      "command": "npx oxfmt --check src/stores/campaign/useCampaignPersistenceStore.ts src/types/campaign/SerializedCampaign.ts src/stores/campaign/__tests__/campaignCommandAckRefresh.test.ts",
+      "result": "All matched files use the correct format",
+      "exit": 0,
+      "matchesReceipt": true
+    },
+    {
+      "gate": "oxlint (3 changed files)",
+      "command": "npx oxlint src/stores/campaign/useCampaignPersistenceStore.ts src/types/campaign/SerializedCampaign.ts src/stores/campaign/__tests__/campaignCommandAckRefresh.test.ts",
+      "result": "1 warning, 0 errors -- eslint(max-lines) on useCampaignPersistenceStore.ts (918 counted lines vs a 400 maximum)",
+      "preExisting": "CONFIRMED -- the base file at 1e43090c5 is 1266 raw lines, already far past the 400 maximum before this stack, which adds 177 insertions to it. No new lint finding is introduced.",
+      "matchesReceipt": true
+    },
+    {
+      "gate": "cross-branch fence-type identity",
+      "command": "sha256 of `git show d036f3611:src/types/campaign/SerializedCampaign.ts` vs `git show cff0fbaaa:src/types/campaign/SerializedCampaign.ts` in worktree r2-prepared-journal-api",
+      "result": "784627f4b142edcec65f85ecd6b9930b5ad9e7a6ce24dc4019f7423a078a8578 for both",
+      "exit": 0
+    },
+    {
+      "gate": "tree identity vs monolith",
+      "command": "git diff 4377158bc d236e9980 --stat",
+      "result": "(empty)",
+      "exit": 0
+    }
+  ],
+  "nonBlockingNotes": [
+    "`runLoad` clears `conflictServerRecord` but NOT `saveConflict` (useCampaignPersistenceStore.ts:942-951), so any load landing on a conflicted store leaves `saveState: 'saved'` beside a stale non-null `saveConflict`. Pre-existing on `loadCampaign` (:866-878); 6.4 adds a second call site that can reach it. Not this stack's to fix, but 6.2b's UI must not read `saveConflict` as a live signal without checking `saveState`.",
+    "Rows 1 and 2 are not independent -- row 1's acknowledged-200 assertion also depends on the fence echo because the test stub models 6.1's fence-ahead-of-CAS ordering (test:185-194). The author's own falsification numbers disclose this. Recorded so a future reader does not mistake row 1 for a pure CAS row.",
+    "No row asserts the UNFENCED campaign path (a record with no `sourceReplayFence` produces an envelope byte-identical to pre-field). That is the production shape on today's main until 6.1 lands. Covered indirectly by the 26-suite battery; a one-line row in 6.2b's suite would make it explicit.",
+    "`src/lib/scenarioPacks/mintFastForwardPack.ts:164` builds a `SerializedCampaign` envelope outside this store. If that pack ever PUTs to `/api/campaigns/[id]` for a row the source has materialized, it will meet 6.1's fence guard. Out of scope here and 6.1's to judge; flagged so it is not later discovered as a mystery 409.",
+    "OB-2 (unauthenticated `GET /api/campaigns/:id` returns the full `SerializedCampaign`) is untouched and will also return `sourceReplayFence` once 6.1 lands. The fence is a bare integer revision and leaks no contract detail, but the owner-gated OB-2 residual stands.",
+    "The mapping statement is restated in three places (receipt, `ICampaignCommittedCommandAck` doc block, `refreshAfterCommittedCommandAction` doc block). That is deliberate per task 6.4's 'SHALL say which revision that is' and reads as thorough rather than duplicated; no edit requested."
+  ],
+  "nonClaimsAudited": {
+    "verdict": "every recorded non-claim held under inspection",
+    "noProductionCaller": "CONFIRMED -- `refreshAfterCommittedCommand` appears only in the actions interface (:216-234), the action factory (:1298-1328), the store registration (:1393), and the test file.",
+    "noCommandsRouteWidening": "CONFIRMED -- commands.ts is not in the diff.",
+    "noFlagFlip": "CONFIRMED -- `CAMPAIGN_JOURNAL_AUTHORITY_ENABLED` does not appear in the diff.",
+    "dirtyClientNotSolved": "CONFIRMED as a fact, but the receipt's framing ('inherited') understates it -- see RE-A2."
+  },
+  "followUpReview": {
+    "date": "2026-09-15",
+    "scope": "Second read-only pass over the same stack after the author applied RE-A1 and RE-A2 and the coordinator rebalanced A/B. Same discipline: no edits, no commits, no pushes, no builds, no sub-agents.",
+    "checkoutIntegrity": {
+      "headAtStart": "8866e7e7343cc9ec1b40758295cfcdebc787b39d",
+      "headAtEnd": "8866e7e7343cc9ec1b40758295cfcdebc787b39d",
+      "porcelainAtStart": "(empty)",
+      "porcelainAtEnd": "(empty)"
+    },
+    "verdict": {
+      "commitA": {
+        "sha": "a5edc507f97d46ca3ee3ffebcbb4f42f1556815e",
+        "subject": "feat(campaign): refresh the client record after a committed acceptance is acknowledged",
+        "verdict": "APPROVE",
+        "rationale": "RE-A1 is fixed at the right seam with a genuinely red-first row (the red log shows exactly one failing row, failing on an EMPTY put list -- the missing write, not a shape error). RE-A2 is answered with an accurate, specific paragraph and the explicit non-demand was honoured. The guarded re-arm is the correct choice, not merely the smaller one. No new required edits."
+      },
+      "commitB": {
+        "sha": "8866e7e7343cc9ec1b40758295cfcdebc787b39d",
+        "subject": "test(campaign): pin the acknowledgement refresh failure paths and the cache key",
+        "verdict": "APPROVE",
+        "rationale": "Still test-only (verified: the commit touches exactly one file, the spec). The two moved fence-conflict pins are declared green-on-arrival rather than dressed as fixes, and their 1:1 falsification holds under reading. 114 insertions, well inside the cap."
+      }
+    },
+    "newRequiredEdits": [],
+    "verificationOfTheAppliedEdits": {
+      "RE_A1_code": {
+        "verdict": "PASS",
+        "where": "src/stores/campaign/useCampaignPersistenceStore.ts:1336-1350 -- `runLoad(set, campaignId).then((adopted) => { if (!adopted && get().dirty) { armAutoSaveTimer(set, get); } return adopted; })`, with an inline comment naming the failure it closes and the reason the guard is conditional.",
+        "placement": "Correct: the re-arm is composed into the SAME promise that is published as `inFlightLoad` (:1352-1358), so a `runSave` waiting on the load (:789-791) resolves after the timer decision rather than racing it."
+      },
+      "RE_A1_redProof": {
+        "verdict": "PASS -- red log read, and honest",
+        "log": ".sisyphus/roadmap-completion-20260912/r2-64-bridge-20260915/red-review-edits.log (sha256 338ed09c3b3b922a828fd71a2b04de082249deb25c4031db582010c0334c96c9 per the receipt)",
+        "content": "1 failed / 5 passed; the single failure is 'leaves a dirty client with a pending write when the refetch does not answer', failing at `expect(puts).toHaveLength(1)` with `Received length: 0` -- i.e. NO PUT was ever issued. That is the missing re-arm itself, not a compile-shape error, so unlike the original 'is not a function' log this one discriminates on its own. Every other row stayed green, so the row is 1:1 against the fix.",
+        "rerunAtHead": "Green at 8866e7e73: the new suite is inside the 5-suite battery at 59 tests (was 56 pre-review), and `src/stores/campaign` is 26 suites / 335 tests (was 332)."
+      },
+      "RE_A1_guardedVsUnconditional": {
+        "verdict": "SAFE -- the guard is the correct choice, not a shortcut",
+        "canTheGuardLeaveADirtyClientWithoutAWrite": "NO, on every path `runLoad` can take. `runLoad` sets `dirty: false` ONLY on the branch that returns true (the 200 adopt path); all three false-returning exits (the catch at :953-956, the 404-adoptable branch at :894-901, the 404-not-found branch at :902-904) leave `dirty` untouched, so `!adopted && get().dirty` is exactly the set of paths where a write is still owed. There is no path where `adopted === true` and a write is still owed for work the refresh did not replace or clear.",
+        "whyUnconditionalWouldBeWrongHere": "Confirmed by reading rather than taken on trust: `performSave` (:770-780) chains straight into `runSave`, and `runSave` does NOT consult `dirty` (:782-861) -- it saves whatever the live campaign holds. So arming on the ADOPTING path would fire a PUT of the record the client just read back, at `version + 1`, with nothing to say: pure version churn, which this same file names as the symptom of the silent-overwrite bug it removed (:822-833). The sibling `reconcileAfterDiscardFlushAction` arms unconditionally because ITS adopt path deliberately sets `dirty: true` (:1190-1194) -- the author's stated reason is accurate.",
+        "onlyNarrowedCorner": "One corner is narrowed rather than closed, and it is not new: when the refetched record has the SAME `(instanceId, revision)` as the cache, `runLoad` takes the `cacheStands` branch, leaves the live campaign object in place (:930-941) and still sets `dirty: false` (:944). A dirty client there ends with its local mutations intact in memory, `dirty` cleared and no pending write. An unconditional arm would have saved them. Not reachable for the acceptance this bridge exists for (a committed acceptance advances the row version, so the key diverges), and it is the same pre-existing `runLoad` property the page shell's `!dirty` gate exists for. Recorded as an input for 6.2b, which may acknowledge command kinds that do NOT move the row."
+      },
+      "RE_A2_wordingAccuracy": {
+        "verdict": "PASS -- every clause checked against code",
+        "claims": [
+          "'the page shell validates the cache only when the client is clean' -- TRUE: campaignPageShell.tsx:151-156, `cacheNeedsValidation = routeMatches && !dirty && baseVersion === 0 && ...`.",
+          "'this function has just cancelled the armed save' -- TRUE: `clearAutoSaveTimer()` at :1335, immediately above the read.",
+          "'`runLoad` replaces the campaign whole on a diverged cache key and clears `dirty`' -- TRUE: :930-941 and :944.",
+          "'a loss of local work, not a silent overwrite of the server' -- TRUE: the refresh only reads; the only write that can follow is an ordinary PUT at a token the client actually read, and `runSave` is one attempt with no re-PUT (:822-838).",
+          "'6.2a`s client half obtains an acknowledged save before submitting' -- TRUE as the DESIGN intent (tasks.md:101, 6.2a client half), and correctly phrased as what makes the window tolerable rather than as a claim that it is implemented. tasks.md`s own 6.2a progress note records that this client half is NOT on main, so the window is real today; the paragraph does not assert otherwise.",
+          "'adding a `!dirty` guard is deliberately NOT done ... 6.2b`s call' -- honours the review`s explicit non-demand verbatim."
+        ],
+        "onePhrasingNote": "The paragraph scopes the loss to 'a diverged cache key', which is accurate for the acceptance case and leaves the equal-key `cacheStands` corner above unstated. Non-blocking; that corner belongs to `runLoad`, not to this action."
+      },
+      "takeServerFenceClaim": {
+        "verdict": "PASS -- the reviewResponse resolves the 6.1/6.4 disagreement correctly",
+        "readInCode": "`resolveConflictTakeServerAction` (:1383-1413) sets `sourceReplayFence: fenceOf(migrated)` at :1409, alongside `metadata: metadataFrom(migrated)` at :1407. `metadataFrom` (:575-584) projects exactly six fields -- lastSavedAt, schemaVersion, originDeviceId, version, instanceId, authority -- and carries NO fence.",
+        "conclusion": "Both statements are true and not in conflict: `metadataFrom` does drop the fence (the 6.1 note), and the fence is not threaded through metadata in this slice (the 6.4 review) -- it is its own store field adopted in the same `set`. No threading fix was or is required. The test comment at the moved take-server row states this exactly."
+      },
+      "movedPinsStillDiscriminate": {
+        "verdict": "PASS -- 1:1 as claimed, verified by reading",
+        "takeServerRow": "'restores a saveable client when the server record is taken after a fence refusal': seeds `baseVersion = BASE_VERSION + 1` with `sourceReplayFence: null`, takes the fence 409, calls `resolveConflictTakeServer`, then asserts `putEnvelope(puts[1]).sourceReplayFence` equals STAMPED_FENCE at baseVersion 12 with `saveState === 'saved'`. Deleting `sourceReplayFence: fenceOf(migrated)` from :1409 leaves the held fence null, so the second PUT omits it, the stub's fence guard refuses it, and both the fence assertion and the `'saved'` assertion fail. No other row calls `resolveConflictTakeServer`, so exactly this row goes red. => 1 red / 8 green, as claimed.",
+        "noRetryRow": "'does not retry a fence refusal that names the very token the client sent': asserts exactly ONE PUT, an omitted fence on it, `saveState === 'conflict'`, and `saveConflict.currentVersion === BASE_VERSION + 1` EQUAL to the token sent. It is a genuine guard against a future 'the versions match, so retry' heuristic being added to `runSave`, which is the one shape the existing ONE-ATTEMPT comment (:822-833) does not visibly cover. Green on arrival and declared as such.",
+        "stubReorderNote": "The stub now evaluates the fence branch BEFORE the `putStatus === 409` branch (test:194-212), which is faithful to 6.1's server ordering (the guard sits ahead of the CAS, CampaignPersistenceService.ts:145-158). Side effect worth recording: the pre-existing row 'leaves the pre-command token and the conflict path intact when the refetch fails' now lands in the FENCE branch rather than the stale-CAS branch, because that client holds no fence. Both of its assertions still hold (one PUT at BASE_VERSION, `saveState === 'conflict'`) and the new path is the more production-faithful one, but no row in the file now exercises the pure stale-CAS 409 shape. Non-blocking.",
+        "conflictBodyShape": "The stub's `conflictResponse` now attaches `current` (test:149-176), which is what `readConflictBody` requires to return the stored record (:640-652). That matches the real route: `conflictFromStoredRow` returns `{ kind: 'conflict', current: stored.record }` (CampaignPersistenceService.ts:446-465 on the 6.1 branch), spread through `hydrateCampaignRecord`, so the fence reaches the body. The stub got MORE faithful, not more permissive."
+      }
+    },
+    "measuredRunsFollowUp": [
+      {
+        "gate": "jest crash-window + four task-1.6 suites at 8866e7e73",
+        "result": "5 suites / 59 tests passed (was 56 pre-review; +3 new rows)",
+        "exit": 0,
+        "matchesReceipt": true
+      },
+      {
+        "gate": "jest src/stores/campaign at 8866e7e73",
+        "result": "26 suites / 335 tests passed (was 332)",
+        "exit": 0,
+        "matchesReceipt": true
+      },
+      {
+        "gate": "tsc --noEmit",
+        "result": "clean",
+        "exit": 0,
+        "matchesReceipt": true
+      },
+      {
+        "gate": "oxfmt --check (3 changed files)",
+        "result": "All matched files use the correct format",
+        "exit": 0,
+        "matchesReceipt": true
+      },
+      {
+        "gate": "oxlint (3 changed files)",
+        "result": "1 warning, 0 errors -- eslint(max-lines), unchanged and still pre-existing on the base copy of the same file",
+        "exit": 0,
+        "matchesReceipt": true
+      },
+      {
+        "gate": "red log for the RE-A1 row",
+        "result": "red-review-edits.log: 1 failed / 5 passed, failing row = 'leaves a dirty client with a pending write when the refetch does not answer', Received length 0",
+        "matchesReceipt": true
+      }
+    ],
+    "treeIdentityChain": {
+      "verdict": "PASS -- all three links re-measured this session",
+      "monolithToPreReviewSplit": "git diff 4377158bc d236e9980 --stat -> (empty)",
+      "preReviewToPostReview": "git diff d236e9980 d16b5880a --stat -> 2 files, 136 insertions(+), 8 deletions(-) -- the review edits and nothing else (34 lines of store, 110 of spec)",
+      "postReviewToFinal": "git diff d16b5880a 8866e7e73 --stat -> (empty). The rebalance moved rows BETWEEN commits without changing the final tree or a line of content.",
+      "backupRefsPresent": "backup/r2-64-bridge-monolith -> 4377158bc, backup/r2-64-bridge-split-pre-review -> d236e9980, backup/r2-64-bridge-split-post-review -> d16b5880a. All three resolve."
+    },
+    "hygieneFollowUp": {
+      "sizes": "A: 3 files, 632 insertions / 11 deletions. B: 1 file, 114 insertions. Product-only delta re-measured: `git diff --shortstat 1e43090c5 8866e7e73 -- useCampaignPersistenceStore.ts SerializedCampaign.ts` = 234 insertions / 11 deletions, so the stated 540 floor (234 product + 306 zero-row harness) is arithmetically correct and A sits 92 above it, which is the harness plus the four discriminating rows.",
+      "bIsTestOnly": "VERIFIED -- `git show --name-only 8866e7e73` lists exactly one path, the spec file.",
+      "subjects": "Unchanged and still accurate for the redistributed contents.",
+      "aiAttribution": "PASS -- no Co-Authored-By, no \"Generated with\", no Claude/Anthropic/robot-emoji line on either commit; author and committer are Wes Rollings <wrollings@gmail.com>.",
+      "openspecEditsAndCheckboxFlips": "PASS -- still none; the stack touches 3 files, all under src/.",
+      "commandsRoute": "PASS -- untouched.",
+      "fenceTypeStillIdenticalTo61": "PASS -- `git show a5edc507f:src/types/campaign/SerializedCampaign.ts` still sha256s to 784627f4b142edcec65f85ecd6b9930b5ad9e7a6ce24dc4019f7423a078a8578, identical to the 6.1 branch tip cff0fbaaa. The merge instruction is unchanged: rebase 6.4 after 6.1 and DROP the duplicate hunk; A then becomes 2 files / 607 insertions / 11 deletions."
+    },
+    "nonBlockingNotesFollowUp": [
+      "The `cacheStands` equal-key corner: a dirty client whose refetch returns the SAME `(instanceId, revision)` ends with its mutations intact in memory, `dirty` cleared and no pending write (the guarded re-arm skips it because `adopted === true`). Pre-existing `runLoad` behaviour, not reachable for a committed acceptance (which advances the row version), and recorded as an input for 6.2b, which may acknowledge command kinds that do not move the row.",
+      "The stub's fence-before-CAS reorder means the refetch-failure pin now exercises the fence refusal rather than the stale-CAS refusal; both of its assertions still hold and the ordering is more production-faithful, but no row in the file now exercises the pure stale-CAS 409 shape.",
+      "The RE-A2 paragraph scopes the loss to 'a diverged cache key', leaving the equal-key corner above unstated. Accurate for the case this bridge serves; noted rather than requested.",
+      "Every non-blocking note from the first pass was acknowledged in the receipt and none was silently closed; `saveConflict` not being cleared by `runLoad` remains open and is correctly carried as a 6.2b input rather than patched here."
+    ]
+  }
+}

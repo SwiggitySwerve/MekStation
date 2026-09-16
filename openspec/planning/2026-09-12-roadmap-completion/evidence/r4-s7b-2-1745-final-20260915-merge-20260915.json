@@ -1,0 +1,56 @@
+{
+  "pr": 1745,
+  "branch": "codex/roadmap-r4-s7b-2-command-path-20260915",
+  "reviewedCommit": "5e37201b9969799ede068826cc2fa7c57c0051b5",
+  "finalHead": "52cd1739fb627dcca5ba06dbea5ead8d49ab6968",
+  "autoMergeArmed": false,
+  "contentGuard": {
+    "method": "file set from `git diff --name-only origin/main...<head>` vs the PR's own reviewed files, plus per-file blob equality against the reviewed commit; re-run after update-branch",
+    "fileCountAtMerge": 4,
+    "diffstat": "277 insertions(+), 57 deletions(-)",
+    "blobEquality": "all files blob-identical to the reviewed commit at the gated head unless noted",
+    "result": "PASS"
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "expectedHeadShaGuardUsed": true,
+    "newHead": "52cd1739fb627dcca5ba06dbea5ead8d49ab6968"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "Customizer Regressions": "pass",
+    "Unit Tests (6/6)": "pass",
+    "otherChecksCount": 27,
+    "otherChecksBuckets": {
+      "pass": 27
+    },
+    "totalChecks": 31,
+    "rerunsPerformed": 0
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r4-s7b-2-1745-final-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "f8de824471ecb974eb8717a00a6a463392235940",
+  "mergeCommitParents": [
+    "ca884fcc666cb7f3d7206f9cf8e5d2381d92133f"
+  ],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1745 --squash --match-head-commit 52cd1739fb627dcca5ba06dbea5ead8d49ab6968",
+  "mergedAt": "2026-09-15T19:33:55Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "The merge commit changes exactly 4 file(s), all blob-identical to the gated head 52cd1739fb627dcca5ba06dbea5ead8d49ab6968.",
+  "mainAfter": "f8de824471ecb974eb8717a00a6a463392235940",
+  "worktree": {
+    "fastForward": "NOT PERFORMED - no owned worktree designated for this PR",
+    "result": "N/A"
+  },
+  "notes": "Stayed MERGEABLE after 1744 squash; plain update-branch collapsed the cumulative diff from 9 files to its own 4.",
+  "timestamps": {
+    "receiptWrittenAt": "2026-09-15T20:35:00Z"
+  }
+}

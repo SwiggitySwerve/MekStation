@@ -1,0 +1,310 @@
+{
+  "schema": "proof02-final-rerun/v1",
+  "node": "R2.triage",
+  "artefact": "proof02-final-rerun-main-e048a43-20260915",
+  "generatedAtUtc": "2026-09-15T12:45:00Z",
+  "generatedBy": "agent:proof02-final-rerun (GP-JUSTIFIED serialized browser lane; read-only on product/spec/roadmap files)",
+  "purpose": "Final proof-02 rerun of the FROZEN qc:command:browser:quick invocation on an exact main containing #1695, #1696, #1697 and #1714, and the observation-set comparison the frozen proof-02-triage row requires.",
+  "inputs": {
+    "roadmapNode": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json -> nodes[10] (R2.triage)",
+    "frozenBaselineReproduction": "evidence/proof02-browser-quick-20260915.json (roadmap proof02Fresh)",
+    "diagnosis": "evidence/proof02-diagnosis-20260915.json (roadmap proof02Diagnosis)",
+    "priorRerun": "evidence/proof02-browser-rerun-main-1290676-20260915.json (roadmap proof02Rerun)",
+    "thirdCause": "evidence/proof02-starmap-third-cause-fix-20260915.json (roadmap proof02ThirdCause)",
+    "historicalAnchorDoc": "docs/audits/2026-08-12-proof-02-triage-starmap-mime.md"
+  },
+
+  "main": {
+    "commit": "e048a43cd251b7515af7ff23371148b904817ad2",
+    "subject": "test(e2e): settle the pending campaign save before the starmap spec navigates (#1714)",
+    "isOriginMainTip": true,
+    "originMainTipVerifiedBy": "git fetch origin; git rev-parse HEAD origin/main -> both e048a43cd251b7515af7ff23371148b904817ad2",
+    "originMainMovedFurther": false,
+    "containsPrs": {
+      "1695": "7f4ade5b6bf10c2b1898c7064ba5c9bba295f6f0 (git merge-base --is-ancestor: ANCESTOR of HEAD)",
+      "1696": "c0428a2c3d7f70a0182c80866ca0f2558529d943 (git merge-base --is-ancestor: ANCESTOR of HEAD)",
+      "1697": "1290676377e311aafac8966287b4967db16eed61 (git merge-base --is-ancestor: ANCESTOR of HEAD)",
+      "1714": "e048a43cd251b7515af7ff23371148b904817ad2 (HEAD itself; squash merge of reviewed head b0a190f2774455d5c4e16f7ce2039614b688eb11, which is therefore NOT an ancestor - blob equality was proved separately in evidence/proof02-starmap-settle-1714-main-proof-20260915.json, diffLines 0)"
+    },
+    "settlePresentInTree": "e2e/campaign-starmap-logistics.spec.ts:222 page.waitForResponse(PUT /api/campaigns/<id>, response.ok(), 30s) before the travel-approve click - the #1714 settle is in the tested tree"
+  },
+
+  "worktree": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/proof02-rerun",
+    "headDetachedAt": "e048a43cd251b7515af7ff23371148b904817ad2",
+    "ownNodeModules": true,
+    "npmCiRunThisSession": false,
+    "npmCiNote": "node_modules was already provisioned by the prior rerun lane (own tree, not a junction); no dependency bootstrap was needed or performed this session.",
+    "gitStatusPorcelainBefore": "empty (clean)",
+    "gitStatusPorcelainAfter": "empty (clean)"
+  },
+
+  "build": {
+    "reason": "The worktree's .next was a stale NON-E2E build left by the prior lane; the frozen invocation requires an E2E-mode standalone build.",
+    "command": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build",
+    "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/proof02-rerun",
+    "exit": 0,
+    "durationSeconds": 141,
+    "startedAtUtc": "2026-09-15T12:35:02Z",
+    "endedAtUtc": "2026-09-15T12:37:23Z",
+    "buildId": "1789475703580",
+    "buildIdUnchangedAcrossRun": true,
+    "buildIdAfterRun": "1789475703580",
+    "standaloneServer": "present (.next/standalone/server.js)",
+    "node": "v22.22.0",
+    "storeExposure": {
+      "requirement": "the standalone _app chunk exposes stores",
+      "chunk": ".next/standalone/.next/static/chunks/pages/_app-b1f0a984517e6f88.js",
+      "marker": "__ZUSTAND_STORES__",
+      "occurrences": 1,
+      "verdict": "CONFIRMED - the standalone _app chunk carries the store-exposure marker the e2e helpers (e2e/helpers/campaignSeeders.ts, src/lib/e2e/storeExposure.ts) drive the campaign seeders through",
+      "log": "app-chunk-store-exposure.txt"
+    },
+    "logs": ["build.stdout.log", "build.stderr.log", "build.meta.txt"]
+  },
+
+  "invocation": {
+    "frozenRow": "proof-02-reproduction (WAVE_CONTRACTS) pins one command array for `npm.cmd run qc:command:browser:quick`",
+    "frozenWrapperDefinition": "node scripts/playwright/run-playwright.mjs test --project=chromium e2e/campaign-starmap-logistics.spec.ts e2e/campaign-customizer-handoff.spec.ts e2e/gm-campaign-ledger-control-plane.spec.ts --workers=1",
+    "exactCommand": "MEKSTATION_E2E_SERVER_COMMAND='node .next/standalone/server.js' HOSTNAME=127.0.0.1 MEKSTATION_E2E_PORT=3639 npm run qc:command:browser:quick",
+    "identicalToPriorRerunReceipt": true,
+    "identicalToFrozenBaseline": "yes on the wrapper and the two MEKSTATION_* overrides; the baseline (proof02-browser-quick-20260915.json) did not set HOSTNAME because server.js self-forces 127.0.0.1 in standalone mode - HOSTNAME=127.0.0.1 is therefore a no-op restatement carried from the prior rerun's command, not a behavioural difference",
+    "retries": 0,
+    "retriesSource": "playwright.config.ts: retries = process.env.CI ? 2 : 0; CI unset locally",
+    "runsAttempted": 1,
+    "reRunsAfterFailure": 0,
+    "reRunsNote": "No spec failed, so the task's 'if any spec fails, capture the signature and run that spec once more' branch was never entered."
+  },
+
+  "run": {
+    "id": "run-quick",
+    "startedAtUtc": "2026-09-15T12:37:52Z",
+    "endedAtUtc": "2026-09-15T12:38:57Z",
+    "wallDurationSeconds": 65,
+    "exit": 0,
+    "playwrightSummaryLine": "13 passed (57.6s)",
+    "totalTests": 13,
+    "passed": 13,
+    "failed": 0,
+    "flaky": 0,
+    "expected": "13/13",
+    "met": true,
+    "serverLine": "MEKSTATION_LISTENER_READY {\"schema\":\"mekstation-packaged-listener-ready/v1\",\"configuredHostname\":\"127.0.0.1\",\"boundAddress\":\"127.0.0.1\",\"family\":\"IPv4\",\"port\":3639}",
+    "warmUp": ["/ answered 200 in 50 ms", "/gameplay/campaigns/e2e-warmup-nonexistent-campaign answered 200 in 26 ms"],
+    "logs": ["run-quick.stdout.log", "run-quick.stderr.log", "run-quick.meta.txt"],
+    "stderrContent": "single benign '[WebServer] Yjs was already imported' line (sha256 2dfb9a62... is byte-identical to the prior rerun's stderr log)",
+    "testResultsDirectory": "absent - Playwright retains nothing for an all-green run; no screenshots or error-context.md were produced"
+  },
+
+  "perSpec": [
+    {
+      "spec": "e2e/campaign-starmap-logistics.spec.ts",
+      "tests": 1,
+      "passed": 1,
+      "failed": 0,
+      "detail": "ok 6 [chromium] e2e\\campaign-starmap-logistics.spec.ts:155:7 > campaign starmap logistics > previews, approves, and reloads campaign travel consequences @campaign @starmap @logistics (4.4s)"
+    },
+    {
+      "spec": "e2e/campaign-customizer-handoff.spec.ts",
+      "tests": 5,
+      "passed": 5,
+      "failed": 0,
+      "detail": "ok 1 (:179 routes Mech Bay refit into campaign customizer and saves a refit order, 3.1s); ok 2 (:249 returns from campaign customizer into mission readiness with deployment validation refresh, 1.9s); ok 3 (:353 selects a saved custom unit at desktop and 390x844 without collapsing identities, 1.0s); ok 4 (:409 creates a saved custom unit campaign through accepted server persistence, 1.4s); ok 5 (:528 cold reloads a saved custom unit into Mech Bay without source substitution, 1.4s)"
+    },
+    {
+      "spec": "e2e/gm-campaign-ledger-control-plane.spec.ts",
+      "tests": 7,
+      "passed": 7,
+      "failed": 0,
+      "detail": "ok 7 (:515 previews, approves, and redacts a merchant reversal, 2.3s); ok 8 (:591 guest direct route shows only player-safe ledger projection, 7.5s); ok 9 (:702 saves and reloads a player-safe merchant reversal from the server campaign list, 2.4s); ok 10 (:792 blocks conflicted cascades until the GM takes manual control, 1.6s); ok 11 (:836 previews and applies repair, salvage, and unit reload corrections, 1.8s); ok 12 (:935 previews and approves an accumulated time cascade, 2.0s); ok 13 (:1026 blocks unprojected external time effects until manual takeover, 1.4s)"
+    }
+  ],
+
+  "observationSetComparison": {
+    "acceptanceBar": "exact observation equality (R2.triage acceptance; frozen proof-02-triage row: 'require set equality with the durable reproduction')",
+    "nonPassingObservationsOnThisMain": [],
+    "nonPassingObservationCountOnThisMain": 0,
+    "baselinesCompared": {
+      "historicalAnchor": "2026-08-12, commit d34a197198a3b19d10ec332aefe7d055a5df8ef2, run camp01-e8a70ce29fcf193ed1c709e5d8292f31, DEV server on port 3600, 1 non-pass of 10 results",
+      "proof02Fresh": "2026-09-15, commit bce2049d74ce6e48b5d0813fb506ada701257e47, STANDALONE build on port 3639, 2 non-pass of 13 tests",
+      "proof02Rerun": "2026-09-15, commit 1290676377e311aafac8966287b4967db16eed61, STANDALONE build on port 3639, 1 non-pass of 13 tests"
+    },
+    "table": [
+      {
+        "row": 1,
+        "observationLabel": "starmap-MIME (historical anchor)",
+        "observationId": "e2e/campaign-starmap-logistics.spec.ts::campaign starmap logistics::previews, approves, and reloads campaign travel consequences",
+        "baseline": "historicalAnchor",
+        "baselineStatus": "failed",
+        "baselineFailureFingerprint": "sha256:ce7ec763397b46091fb9e9a36c21ecda7ea255fc84b4433a8dd3601acb664144",
+        "baselineKnownFailureCode": "development-mime-diagnostic",
+        "baselineSeverity": "low",
+        "baselineOutcome": "lower-severity",
+        "thisMainStatus": "PASS",
+        "exactAssertion": "ok 6 [chromium] e2e\\campaign-starmap-logistics.spec.ts:155:7 > previews, approves, and reloads campaign travel consequences @campaign @starmap @logistics (4.4s) - the test id the anchor names now passes; withBrowserDiagnostics/assertNoErrors (e2e/helpers/browserDiagnostics.ts:140) raised no fatal event, which is the gate the anchor failed on",
+        "resolvedBy": "not-applicable-by-construction + green test id",
+        "caveat": "The anchor's CAUSE (Chromium refusing /_next/static/development/_clientMiddlewareManifest.js served as application/json) cannot recur in a standalone/production build - there is no dev manifest path. Its disappearance is expected and uninformative as a repair claim; what IS informative is that the observation id itself now passes."
+      },
+      {
+        "row": 2,
+        "observationLabel": "equipment-abort escalation (diagnosis A)",
+        "observationId": "e2e/campaign-starmap-logistics.spec.ts::campaign starmap logistics::previews, approves, and reloads campaign travel consequences @campaign @starmap @logistics",
+        "baseline": "proof02Fresh",
+        "baselineStatus": "failed",
+        "baselineFailureClass": "browser-diagnostic-gate (assertNoErrors)",
+        "baselineRootSignal": "GET /data/equipment/official/weapons/ballistic-machinegun.json and missile-other.json both net::ERR_ABORTED, EACH PAIRED WITH a console.error from [EquipmentOfficialLoader] 'Failed to load weapons from ... (missing, unreadable, or malformed)'; the harness forgives net::ERR_ABORTED but treats any console.error as fatal",
+        "thisMainStatus": "PASS",
+        "exactAssertion": "Same test id green (4.4s). The escalating signature is absent from the whole run log: grep for 'EquipmentOfficialLoader' / 'console.error' / 'requestfailed' / 'pageerror' / 'ERR_ABORTED' / 'Browser diagnostics' across run-quick.stdout.log returns 0 matches. A passing withBrowserDiagnostics test means assertNoErrors saw zero FATAL events by construction.",
+        "resolvedBy": "#1696 (c0428a2c3) + #1697 (1290676) - AbortSignal threaded registry -> loader -> source -> readJsonFile with a pagehide-armed abort sentinel, so an unload-cancelled equipment fetch no longer reaches recordFileLoadFailure and no longer emits a console.error",
+        "priorConfirmation": "already classified DIAGNOSIS-A CLASS GONE at main 1290676 in evidence/proof02-browser-rerun-main-1290676-20260915.json; this run re-confirms it with the spec now fully green"
+      },
+      {
+        "row": 3,
+        "observationLabel": "guest cache-stands (diagnosis B)",
+        "observationId": "e2e/gm-campaign-ledger-control-plane.spec.ts::GM campaign ledger control plane::guest direct route shows only player-safe ledger projection @gm-ledger",
+        "baseline": "proof02Fresh",
+        "baselineStatus": "failed",
+        "baselineFailureClass": "TimeoutError",
+        "baselineRootSignal": "page.waitForFunction() timed out after 10000ms waiting for the client campaign store to reflect the refreshed record (gm-campaign-ledger-control-plane.spec.ts:645); a content-diverged guest copy at equal revision stood because evaluateCampaignCache compared only (instanceId, revision)",
+        "thisMainStatus": "PASS",
+        "exactAssertion": "ok 8 [chromium] e2e\\gm-campaign-ledger-control-plane.spec.ts:591:7 > guest direct route shows only player-safe ledger projection (7.5s) - no timeout; the forced guest refresh is now honoured",
+        "resolvedBy": "#1695 (7f4ade5b6) - a cache may not stand for a guest replica (coopSession.mode !== guest) in useCampaignPersistenceStore.ts",
+        "priorConfirmation": "already GREEN 7/7 at main 1290676 in evidence/proof02-browser-rerun-main-1290676-20260915.json; this run re-confirms it"
+      },
+      {
+        "row": 4,
+        "observationLabel": "aborted campaign PUT (third cause)",
+        "observationId": "e2e/campaign-starmap-logistics.spec.ts::campaign starmap logistics::previews, approves, and reloads campaign travel consequences @campaign @starmap @logistics",
+        "baseline": "proof02Rerun",
+        "baselineStatus": "failed",
+        "baselineFailureClass": "browser-diagnostic-gate (assertNoErrors, e2e/helpers/browserDiagnostics.ts:140)",
+        "baselineRootSignal": "exactly 1 fatal event: requestfailed PUT http://localhost:3639/api/campaigns/<id> from /gameplay/campaigns/<id>/starmap, resourceType fetch, net::ERR_ABORTED - fatal by design per e2e/helpers/browserDiagnosticsModel.ts:43-63 (aborted API WRITES stay fatal); reproducible across two independent runs, not a flake",
+        "thisMainStatus": "PASS",
+        "exactAssertion": "Same test id green (4.4s); zero fatal events (a passing withBrowserDiagnostics test cannot carry one). The spec now awaits the acknowledged PUT before reloading - e2e/campaign-starmap-logistics.spec.ts:222 waitForResponse(method PUT, url includes /api/campaigns/<seeded.campaignId>, response.ok(), timeout 30000) armed BEFORE the starmap-travel-btn click.",
+        "resolvedBy": "#1714 (merged as e048a43cd) - test-side settle; the write is no longer in flight at the reload, so no keepalive PUT is aborted by navigation",
+        "classification": "TEST TIMING exposure (per evidence/proof02-starmap-third-cause-fix-20260915.json), not a product defect introduced by the repairs"
+      }
+    ],
+    "newObservations": [],
+    "newFatalEvents": 0,
+    "newFatalEventsEvidence": "All 13 tests passed. Every spec in the frozen wrapper runs under withBrowserDiagnostics, whose assertNoErrors fails the test on any fatal event; 13 passes therefore entail zero fatal events across the whole aggregate. Independently, the run log contains 0 occurrences of requestfailed / pageerror / console.error / EquipmentOfficialLoader / ERR_ABORTED / 'Browser diagnostics'.",
+    "nonFatalEventsCaveat": "A passing run does not PRINT the non-fatal events it forgave (e.g. benign aborted equipment READS). This file therefore claims zero FATAL events, which is what the gate and the acceptance bar are defined on; it does NOT claim the non-fatal event set is empty or identical to any baseline, and no evidence here would support that.",
+    "exactObservationEqualityHolds": true,
+    "equalityStatement": "Non-passing observation set on exact main e048a43cd = {} (empty). Every observation recorded across all three frozen baselines - starmap-MIME, equipment-abort escalation, guest cache-stands, aborted campaign PUT - is non-passing in NO baseline-successor state on this main: each maps to a green test id with the assertion quoted above. No observation was added. Set equality between the triage disposition set and the durable reproduction's non-pass set is therefore satisfied trivially, both being empty.",
+    "netChangeAcrossTheLane": "non-passing observations 2 (proof02Fresh, bce2049d) -> 1 (proof02Rerun, 1290676) -> 0 (this run, e048a43cd)",
+    "buildModeCaveat": "The 2026-08-12 historical anchor remains a DEV-server run; every 2026-09-15 run including this one is a STANDALONE/production run. The comparison is still not apples-to-apples on build mode. That asymmetry no longer affects the verdict in the risky direction: the anchor's single observation id PASSES here, so there is no disappeared-because-unreachable failure being counted as a repair. The anchor's dev-only MIME cause is recorded as not-applicable-by-construction rather than as fixed."
+  },
+
+  "proof02TriageRowVerdict": {
+    "verdict": "OBSERVATION-SET-EQUALITY-HOLDS",
+    "scope": "This verdict is about the OBSERVATION SETS, measured by the frozen invocation on exact main e048a43cd in standalone/E2E build mode. It is not a claim that the proof-02-triage receipt has been produced.",
+    "whatHolds": [
+      "The frozen qc:command:browser:quick invocation is 13/13, exit 0, on exact main e048a43cd (origin/main tip).",
+      "All four previously recorded non-passing observations are resolved, each with a quoted green assertion.",
+      "Zero fatal browser-diagnostic events across the complete observed aggregate.",
+      "No new non-passing observation was introduced by #1695 / #1696 / #1697 / #1714."
+    ],
+    "whatRemainsBeforeTheRowItselfCanBeWritten": [
+      "BLOCKING CONTRACT GAP (proved in this session, not inferred): an all-green reproduction makes the proof-02-triage artifact UNWRITABLE as the contract currently stands. validateTriageArtifact -> validateProof02Triage requires dispositions.length === nonPassing.length (0 === 0, satisfied), then unconditionally calls assertProofCauseGraph(dispositions), and assertCauseGraph (scripts/qc/camp01-authority-receipt.contract.mjs:161) rejects an empty array with 'empty cause graph'. Executed proof: validateProof02Triage([], [{id:'a',status:'passed'},{id:'b',status:'passed'}]) THREW 'CAMP01_CONTRACT_INVALID: empty cause graph'; the control validateProof02Triage([<one well-formed disposition>], [<one failed observation>]) RETURNED true. So the emptiness rejection is specific to the empty set, not to a malformed fixture.",
+      "No writer-produced durable proof-02-reproduction receipt exists for this run. This session ran the raw frozen wrapper, NOT `qc:camp01-authority-receipt:write --command-id=proof-02-reproduction`. The triage row consumes a durable reproduction receipt id and recomputes its digest; that artefact is still owed.",
+      "The frozen triage row also requires a merged audit-only PR plus an exact-head non-author approval (capSubject audit-pr, max 5 files / 300 lines). Neither exists for this outcome, and the repo is single-collaborator (the solo-maintainer sentinel question recorded in the R2.triage admissionBrief is unresolved here)."
+    ],
+    "recommendationNotTaken": "Repairing the empty-cause-graph gap was explicitly out of scope for this task ('do not repair'). It is reported as a finding for the owner: either the contract must admit an empty disposition set for an all-green reproduction, or the triage row needs an explicit all-green terminal form. No code, spec, contract or roadmap file was edited."
+  },
+
+  "proof02RequiredRepairsBinding": {
+    "written": false,
+    "note": "This section states what the proof-02-required-repairs receipt WOULD bind to. It is not that receipt and nothing here is a receipt claim.",
+    "contractShape": "Per scripts/qc/camp01-authority-receipt.contract.mjs assertRepairDeclaration, a proof-kind repair row is id `proof-02-repair-<causeFingerprint>` with predecessors ['proof-02-triage', ...explicitDependencies], capSubject 'product-pr', artifacts ['command-result.json','receipt-manifest.json','wave-result.json'], and a sourceDisposition whose causeFingerprint matches the triage disposition it descends from. 'proof-02-required-repairs' is the collective predecessor name carried by camp-00 and camp-01h for the set of those registered repair rows.",
+    "wouldBindTo": [
+      {
+        "cause": "guest cache stands for a content-diverged guest replica at equal revision (diagnosis B)",
+        "observationId": "e2e/gm-campaign-ledger-control-plane.spec.ts::GM campaign ledger control plane::guest direct route shows only player-safe ledger projection @gm-ledger",
+        "pr": 1695,
+        "url": "https://github.com/SwiggitySwerve/MekStation/pull/1695",
+        "mergeCommit": "7f4ade5b6bf10c2b1898c7064ba5c9bba295f6f0",
+        "mainProofReceipt": "evidence/guest-cache-stands-1695-main-proof-20260915.json",
+        "kind": "product repair",
+        "postRepairObservationStatus": "passed (ok 8, 7.5s, this run)"
+      },
+      {
+        "cause": "unload-cancelled equipment fetch escalated to a fatal console.error (diagnosis A, part 1 of a 2-PR stack)",
+        "observationId": "e2e/campaign-starmap-logistics.spec.ts::campaign starmap logistics::previews, approves, and reloads campaign travel consequences @campaign @starmap @logistics",
+        "pr": 1696,
+        "url": "https://github.com/SwiggitySwerve/MekStation/pull/1696",
+        "mergeCommit": "c0428a2c3d7f70a0182c80866ca0f2558529d943",
+        "mainProofReceipt": "evidence/equipment-abort-signal-p1-1696-main-proof-20260915.json",
+        "kind": "product repair",
+        "postRepairObservationStatus": "passed (ok 6, 4.4s, this run)"
+      },
+      {
+        "cause": "same cause as 1696 - stacked remainder (initialize() ready|interrupted, hook re-arm)",
+        "observationId": "e2e/campaign-starmap-logistics.spec.ts::campaign starmap logistics::previews, approves, and reloads campaign travel consequences @campaign @starmap @logistics",
+        "pr": 1697,
+        "url": "https://github.com/SwiggitySwerve/MekStation/pull/1697",
+        "mergeCommit": "1290676377e311aafac8966287b4967db16eed61",
+        "mainProofReceipt": "evidence/equipment-abort-signal-p2-1697-main-proof-20260915.json",
+        "kind": "product repair",
+        "postRepairObservationStatus": "passed (ok 6, 4.4s, this run)",
+        "note": "1696 and 1697 share one cause and one observation id; under the cause graph they are ONE repair row with a stacked two-PR publication, not two rows. The 500-line cap drove the stacking."
+      },
+      {
+        "cause": "aborted campaign PUT cancelled by an in-debounce reload (third cause)",
+        "observationId": "e2e/campaign-starmap-logistics.spec.ts::campaign starmap logistics::previews, approves, and reloads campaign travel consequences @campaign @starmap @logistics",
+        "pr": 1714,
+        "url": "https://github.com/SwiggitySwerve/MekStation/pull/1714",
+        "mergeCommit": "e048a43cd251b7515af7ff23371148b904817ad2",
+        "reviewedHead": "b0a190f2774455d5c4e16f7ce2039614b688eb11",
+        "mainProofReceipt": "evidence/proof02-starmap-settle-1714-main-proof-20260915.json",
+        "reviewArtefact": "evidence/proof02-starmap-settle-1714-review-20260915.json (verdict APPROVE)",
+        "kind": "TEST-side settle, NOT a product repair",
+        "postRepairObservationStatus": "passed (ok 6, 4.4s, this run)",
+        "note": "Classified in evidence/proof02-starmap-third-cause-fix-20260915.json as a TEST TIMING exposure of the #1694 flush. Whether a test-side settle may occupy a repair row at all, or whether the cause must instead take a lower-severity / not-distinct-cause disposition, is a triage decision this file does NOT make."
+      }
+    ],
+    "distinctCauses": 3,
+    "distinctCausesNote": "Three distinct causes across four PRs: guest-cache-stands (1695), equipment-abort-escalation (1696+1697 stacked), aborted-campaign-PUT (1714).",
+    "unclaimed": [
+      "No causeFingerprint is computed or claimed here - fingerprints are writer-derived and this session ran no writer.",
+      "No severity, outcome, backlogRank, repairRowId, resolutionRef or auditAnchor is assigned to any cause.",
+      "No claim that these four PRs satisfy the repair-row contract; in particular the 1714 kind question above is open."
+    ]
+  },
+
+  "portDiscipline": {
+    "portOwned": 3639,
+    "otherPortsTouched": "none (3600 never queried beyond nothing; no other port used)",
+    "listeningBeforeRun": false,
+    "listeningBeforeRunEvidence": "netstat -ano | grep :3639 returned no rows at all before the build and before the run",
+    "listeningAfterRun": false,
+    "listeningAfterRunEvidence": "netstat -ano | grep :3639 | grep -c LISTENING -> 0; only TIME_WAIT client-side residue remains (normal TCP teardown)",
+    "waitedNeverKilled": "No wait was needed this session - the port was free at both checks. Nothing was killed, signalled, or force-terminated; no taskkill was issued. Playwright's own webServer lifecycle tore the standalone server down.",
+    "twoCoreBudget": "Before the build and before the run, node.exe command lines were enumerated via powershell Win32_Process filtered for next/playwright/jest/run-next. Both checks returned zero matching processes, so no other lane's build or test run was displaced and no wait loop was entered.",
+    "prodEvidenceFlag": "never used"
+  },
+
+  "artifacts": {
+    "directory": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/proof02-final-rerun-20260915/",
+    "files": [
+      { "path": "app-chunk-store-exposure.txt", "sha256": "453632c1bc938472bcea89cd9e0e9b2c34db37fb6dd2c63b0f12c5b51b671b6f" },
+      { "path": "build.meta.txt", "sha256": "5b5b7c7e638aca256fa82b16c11844b8a2fb6bb850204094aeb64fc14dbc2cdc" },
+      { "path": "build.stderr.log", "sha256": "944ecf6f19b127c4fc006ff6883ab704f5e0b284ee27cc8745b0d51dd78d080a" },
+      { "path": "build.stdout.log", "sha256": "fdeb6e68dc134f61962c72041d6005e98486afb4ff779b32fa49472d422ee90c" },
+      { "path": "run-quick.meta.txt", "sha256": "b34c09f0c89bb4450708555458167c6da1ec0e7369bdaf5dc9198d66f9eaa2c2" },
+      { "path": "run-quick.stderr.log", "sha256": "2dfb9a6212c18baf950f9001378b6145cd0f9ce417c34046bed4325d584a4f18" },
+      { "path": "run-quick.stdout.log", "sha256": "88127f536ab27b61b28f49495e85d3dfb4ed7199c2490517be24c119d549c5a1" }
+    ],
+    "note": "No test-results/ or playwright-report/ artefacts exist for this run: all 13 tests passed, so Playwright retained no screenshots, traces, or error-context files. build.stderr.log is large (~3.5 MB) because Next/TypeScript write progress there; build exit was 0."
+  },
+
+  "nonClaims": [
+    "No product, spec, test, contract, roadmap or documentation file was edited. No commit, push, PR, or merge. Only this evidence JSON and the untracked .sisyphus log bundle were written.",
+    "--prod-evidence was never used.",
+    "This file does not write, and is not, the proof-02-reproduction or proof-02-triage receipt. No camp01-authority-receipt writer or validator was run against a run root; the only validator code executed was two in-process calls to validateProof02Triage used as a PROBE to prove the empty-cause-graph gap, which wrote nothing.",
+    "This file does not write the proof-02-required-repairs receipt and assigns no fingerprints, severities, outcomes or repair row ids.",
+    "This file does not rewrite docs/audits/2026-08-12-proof-02-triage-starmap-mime.md, does not close R2.triage, and does not update roadmap.json.",
+    "No claim is made that the non-FATAL browser event set matches any baseline - a passing run does not print forgiven events. Only the zero-FATAL-event claim is made.",
+    "The historical anchor comparison remains dev-server vs standalone; the build-mode caveat first recorded in proof02-browser-quick-20260915.json still applies and is restated in observationSetComparison.buildModeCaveat.",
+    "Single-run result. 13/13 was observed once on this build; no repetition was run because nothing failed, so no flake-rate claim is made about these specs."
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "capturedAt": "2026-09-12T14:02:23.007Z",
+  "scope": "Seven finite inventory dispositions and current browser acceptance size; no goal/task baseline changes.",
+  "rows": [
+    "firing-arc-calculation",
+    "hull-down-position",
+    "piloting-skill-rolls",
+    "unit-comparison",
+    "user-identity",
+    "vault-sync",
+    "overview-basic-info"
+  ],
+  "backup": {
+    "path": ".sisyphus/roadmap-completion-20260912/roadmap-before-seven-reference-dispositions.json",
+    "sha256": "9eb75946873d93d5cf79be0766663ed8e87acb85d4862ad0de39b695cb0bdea1"
+  },
+  "afterSha256": "b07792cf0816c054bda1a741fea8e6284e8f0edc05cbd9c9f4db8e29109bac39",
+  "totalDispositioned": 9
+}

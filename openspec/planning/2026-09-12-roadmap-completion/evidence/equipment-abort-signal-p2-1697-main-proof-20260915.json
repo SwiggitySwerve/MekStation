@@ -1,0 +1,47 @@
+{
+  "node": "R2.triage",
+  "artefact": "equipment-abort-signal-p2-1697-main-proof-20260915",
+  "capturedAtUtc": "2026-09-15T11:02:01.952Z",
+  "pr": 1697,
+  "slice": "proof-02 diagnosis A prefix 2: report an interrupted registry initialization to its callers (completes the abort-signal pair with #1696)",
+  "reviewedHead": "263c474a40f2eccdd4a4dc1cc5ff69f8db8751c6 (branch head after the parent DIRTY resolution 63713e5f8 + manager update; branch file contents verified equal to the PR delta)",
+  "mergeCommit": "1290676377e311aafac8966287b4967db16eed61",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/archive-original-main-proof (detached at the merge commit)",
+  "runtime": {
+    "node": "v22.22.0"
+  },
+  "files": [
+    "src/hooks/__tests__/useEquipmentRegistry.interrupted.test.tsx",
+    "src/hooks/useEquipmentRegistry.ts",
+    "src/services/equipment/EquipmentRegistry.ts"
+  ],
+  "blobEquality": {
+    "command": "git diff --stat 263c474a4 129067637 -- <3 files>",
+    "diffLines": 0,
+    "identical": true
+  },
+  "gates": {
+    "jest": {
+      "scope": "src/services/equipment + src/hooks/__tests__/useEquipmentRegistry*",
+      "result": "4 suites / 14 tests passed",
+      "exit": 0,
+      "sha256": "d1a54d048bdee56e0631531a4b9df9b957b2eee598b412b70453f834aeecf4ef"
+    },
+    "tsc": {
+      "exit": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "openspecStrict": {
+      "exit": 0,
+      "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3"
+    },
+    "qcOpenspecCi": {
+      "exit": 0,
+      "sha256": "1d2b3ffbba3922d328cc2b02fa1de7ccedad6b3382227fa903deccf9a0d5900c"
+    }
+  },
+  "acceptance": "exact-main accepted; abort-signal pair complete on main",
+  "owed": [
+    "proof-02 browser re-runs (starmap-logistics, gm-campaign-ledger-control-plane) on main 129067637: lane rerun-proof02-browser running"
+  ]
+}

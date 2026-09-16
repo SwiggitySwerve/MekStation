@@ -1,0 +1,56 @@
+{
+  "recordedAt": "2026-09-12T16:57:26.242Z",
+  "scope": "Parent acceptance of finite inventory disposition only; later journey/runtime/delivery requirements remain binding",
+  "acceptedRows": [
+    {
+      "id": "equipment-placement",
+      "disposition": "existing"
+    },
+    {
+      "id": "infantry-unit-system",
+      "disposition": "existing"
+    },
+    {
+      "id": "critical-slot-allocation",
+      "disposition": "existing"
+    },
+    {
+      "id": "tab-management",
+      "disposition": "existing"
+    }
+  ],
+  "fingerprintReview": {
+    "matchedReferences": 57,
+    "mismatches": [],
+    "method": "Recomputed source/test and parent receipt SHA256 from three scoped worker receipts"
+  },
+  "currentChecks": {
+    "path": ".sisyphus/roadmap-completion-20260912/inventory-four-row-parent-20260912.json",
+    "sha256": "3a603f52628aabf9fe9274ad7b742e28e68a4bccd123ed5ab8b0bde83a1a2220",
+    "result": "13 suites 207 tests passed, actual raw output retained",
+    "log": ".sisyphus/roadmap-completion-20260912/inventory-four-row-parent-20260912.log",
+    "logSha256": "9aa505a89265231b9ab174f6e161f4d3fd27bd0454bc742cbeb8f84933bb87ba"
+  },
+  "evidence": [
+    {
+      "path": "evidence/triage-allocation-tab-superseding-20260912-continuation.json",
+      "sha256": "073626db5a62ab5c52f02831bcf3d50c5281f1593c0d2f1264bff84a2aeeecce"
+    },
+    {
+      "path": "evidence/triage-allocation-tab-requirement-map-20260912.json",
+      "sha256": "25a15752449ff1dc13e14db140162cd36279e75e82b92ec4da3b4405d781087c"
+    },
+    {
+      "path": "evidence/triage-placement-infantry-20260912-continuation.json",
+      "sha256": "212d556828398807ddf903320ee13ead4e7da7b3f72fb1b220656e69ff2ef82a"
+    }
+  ],
+  "limits": [
+    "No whole-capability completion claim from finite existing dispositions",
+    "Infantry dedicated Primary Weapon/Secondary Weapons/Specialization tabs and deserialization remain explicitly planned; transport and whole-family runtime proof not supplied here",
+    "Customizer cold reload/invalid-link/browser-history and configuration-wide placement journey proof remain later gates",
+    "Legacy CriticalSlotsDisplay test appearance does not prove active route; that inventory row remains open for contract trace",
+    "No Git delivery, exact-main or cleanup acceptance from these local checks",
+    "Prior worker incorrectly claimed Infantry merge was ancestor of root HEAD; parent git check proves only origin/main ancestry"
+  ]
+}

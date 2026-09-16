@@ -1,0 +1,217 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "triage-preserved-customizer",
+  "capturedAt": "2026-09-12",
+  "scope": "Bounded read-only source/spec triage for seven preserve-planned customizer rows. This evidence file is the only owned change; no source, spec, roadmap task, generated asset, Git, test, build, or server changes were made.",
+  "checkout": {
+    "worktree": "E:/Projects/MekStation",
+    "branch": "main",
+    "head": "be7f85b867aa3e8576e5e3d27e309276203bc24b",
+    "originMain": "6c4eac5c7b7a2aece3aab0443ce606943db6cf0b",
+    "roadmapSha256": "9eb75946873d93d5cf79be0766663ed8e87acb85d4862ad0de39b695cb0bdea1",
+    "inventorySha256": "fe9d25951ee79c34c74f0b8f64aee51dbd94265b30a057ae735ca83301376822"
+  },
+  "dispositionMethod": "The named finite requirement is existing when a live source seam implements it. A stale current-state statement, explicit placeholder, served-manifest mismatch, or unrun runtime proof changes the bounded disposition and remains a planned/residual issue. No row is a whole-family or whole-renderer completion claim.",
+  "rows": [
+    {
+      "id": "aerospace-unit-system",
+      "initialStatus": "preserve-planned",
+      "priorNote": "Non-mech customizer and record-sheet requirements remain consistent with the shared renderer and current surfaces.",
+      "finiteRequirementStatus": "existing",
+      "proposedDisposition": "existing-with-documentation-repair",
+      "specEvidence": {
+        "path": "openspec/specs/aerospace-unit-system/spec.md",
+        "sha256": "1c4d2082e70a13d58d71855b74bce7f536987fc4c5a56f9a7fa47101347b3c0b",
+        "refs": [
+          "15-29: scope includes models, Zustand store, customizer structure/armor/equipment, validation, arcs, and mounting.",
+          "410-412: serialized aerospace deserialization is explicitly documented as not yet implemented.",
+          "414-517: tabbed customizer, structure/armor controls, equipment browser, arc selection, and removal/Clear All.",
+          "570-605: isolated persisted store and hydration boundary.",
+          "1338-1352: implementation mapping and stale fully-implemented statement."
+        ]
+      },
+      "implementationEvidence": [
+        { "path": "src/components/customizer/aerospace/AerospaceCustomizer.tsx", "sha256": "a86ad73036c168001d1c4830848a040fc9958e14d428316467ddf7f44944a4f8", "refs": "31-40,65-148: registry tabs, shell/status/sidebar, provider." },
+        { "path": "src/components/customizer/aerospace/AerospaceArmorTab.tsx", "sha256": "d1c8a058e90ab4a5ab8169b99135e2e8f2a52d0dcf93b9b403063d21d16d1a89", "refs": "75-138,144-340: live store actions, clamping, armor controls and arcs." },
+        { "path": "src/components/customizer/aerospace/AerospaceEquipmentTab.tsx", "sha256": "a83fc907af651f98cc170c94c3a926d1abc27362d4386931a70faf3a6f6eef55", "refs": "40-158,164-221: browser/list, mounted rows, arc selector and removal." },
+        { "path": "src/components/customizer/aerospace/AerospacePreviewTab.tsx", "sha256": "de14113c243c7d1782a04095ddeefa95837c68c639fea5cf1e5dc2b39727e783", "refs": "29-123: store-backed unit preview and print toolbar." },
+        { "path": "src/stores/useAerospaceStore.ts", "sha256": "a38c21039515f29202db3c3f6229c37e2a78b6e59bc1facb062fd9f27bef6a6a", "refs": "274-290,293-347,364-404: persistence, state/actions, provider and hook." },
+        { "path": "src/services/printing/svgRecordSheetRenderer/aerospaceRenderer.ts", "sha256": "a398eb8975b151263a0ff12d39277b18a4c52d8eddcaebada8316492173b8d37", "refs": "47-166: aerospace SVG fields and equipment/footer rendering." },
+        { "path": "src/services/printing/svgRecordSheetRenderer/aerospace/selectTemplate.ts", "sha256": "3e1fe698ff6f60fe614ad6d82c914de254334c7fe60675027deced295e55e9d3", "refs": "2-28: family template mapping." }
+      ],
+      "exactDiscrepancy": "The live customizer and renderer seams exist, but spec lines 410-412 retain a deserialization limitation while lines 1352 call the system fully implemented.",
+      "smallestRepair": "Documentation owner should qualify the fully-implemented sentence and keep deserialization as planned; no implementation expansion is justified by this inventory row.",
+      "retainedPlannedRequirements": ["Serialized aerospace deserialization.", "Fresh persistence and print/runtime proof."],
+      "residualIssues": ["No browser, persistence, or print run was performed.", "The finite customizer/renderer seam does not prove whole aerospace capability completion."],
+      "roadmapOwner": "aerospace-unit-system follow-up documentation/proof owner",
+      "proofLimits": ["source/spec review only", "no whole-capability completion claim"]
+    },
+    {
+      "id": "app-settings",
+      "initialStatus": "preserve-planned",
+      "priorNote": "Customizer armor-diagram settings and selector behavior match current settings components/store.",
+      "finiteRequirementStatus": "existing",
+      "proposedDisposition": "existing-with-documentation-repair",
+      "specEvidence": {
+        "path": "openspec/specs/app-settings/spec.md",
+        "sha256": "16517c1fdc440bb42c6927133e44500617a076c938c3a14a0296c2ce7aa7894a",
+        "refs": [
+          "75-90: four armor-diagram variants, live previews, immediate apply and selector behavior.",
+          "92-152: UI, accessibility, persistence/reset and store integration.",
+          "154-200: CSS variables/theme classes and GlobalStyleProvider.",
+          "221-225: stale mapping names useAppSettingsStore and ArmorDiagramPreview."
+        ]
+      },
+      "implementationEvidence": [
+        { "path": "src/components/settings/CustomizerSettings.tsx", "sha256": "e829b835b6fa956d198de7f0d27c52977a0064abb30c5b8160f425943f7c96bb", "refs": "13-71: live settings form, previews, diagram settings and UAT selector." },
+        { "path": "src/stores/useCustomizerSettingsStore.ts", "sha256": "4a8d1c8b61d974fef6ab493d3bd852c1222bf6a0dfbe495fa19f7e9154c43f29", "refs": "1-79,95-116,118-218: types, defaults, setters, draft/revert, reset and persisted key." },
+        { "path": "src/components/GlobalStyleProvider.tsx", "sha256": "9a55329a6f6265541b594d7869a308915b22873d1de75f9bfeddc3b46a06de71", "refs": "27-94: global style provider." },
+        { "path": "src/pages/_app.tsx", "sha256": "b69f2e527f7b97373cc39df8af6091db948b0c3e2cd1a00579af0bfb6be3f24c", "refs": "136-144: provider mounted by app shell." }
+      ],
+      "exactDiscrepancy": "Spec lines 221-225 name useAppSettingsStore and armor/ArmorDiagramPreview.tsx; those paths do not exist. Live code uses useCustomizerSettingsStore and ArmorDiagramModePreview through CustomizerSettings.",
+      "smallestRepair": "Documentation owner should update the implementation map to the live store/component paths and preserve the existing behavior requirements; no new settings feature is indicated.",
+      "retainedPlannedRequirements": ["Fresh browser persistence, route-transition and accessibility proof."],
+      "residualIssues": ["No browser persistence or route-transition run was performed.", "Path mapping drift is documentation debt, not evidence of absent settings behavior."],
+      "roadmapOwner": "app-settings documentation/proof owner",
+      "proofLimits": ["source/spec review only", "no whole settings-surface completion claim"]
+    },
+    {
+      "id": "equipment-placement",
+      "initialStatus": "preserve-planned",
+      "priorNote": "Pod/fixed labels, drag/remove restrictions, opacity, and chassis pod reset remain aligned with current customizer code.",
+      "finiteRequirementStatus": "existing",
+      "proposedDisposition": "existing",
+      "specEvidence": {
+        "path": "openspec/specs/equipment-placement/spec.md",
+        "sha256": "c977475fc8af05e88c60435e14cb8e3fda2ac48246e8a078f585e25561d99dae",
+        "refs": ["9-43: location restrictions, structure/armor split and contiguous multi-slot requirement.", "45-81: fixed/pod classification, labels, opacity, drag/remove and chassis reset."]
+      },
+      "implementationEvidence": [
+        { "path": "src/components/customizer/equipment/GlobalLoadoutTrayEquipmentItem.helpers.tsx", "sha256": "a3748ab7b681c68d1b18faeffbf6fcef36f0e226c9489187b31d8d111d979539", "refs": "34-194: pod/fixed labels, opacity, cursor, drag and remove behavior." },
+        { "path": "src/components/customizer/critical-slots/SlotRow.tsx", "sha256": "29416ac4595915cfb4af506fced9e518db320803b909d3360b55a5dd399d816a", "refs": "77-106,240-300: fixed detection, drag eligibility, opacity and draggable rendering." },
+        { "path": "src/stores/unit/catalogEquipmentPlacement.ts", "sha256": "eb9c54fb0fa46797a536a3cc412a35290014bb25003715a822dc301fa6d02eec", "refs": "22-95: read-only placement preview, split rules and options." },
+        { "path": "src/stores/unit/useUnitEquipmentStore.ts", "sha256": "4e1b6f98f67fd77714e7f270142b7fad3839aebda9c124a2f569f8085790fed1", "refs": "67-168,170-250: transactional fit, fixed guards, removal and pod-preserving clear-all." },
+        { "path": "src/utils/construction/equipmentMutationPolicy.ts", "sha256": "82c830c9208e69fc108f52abf2ccb01b54e9116c67acdaef9b54fee546c7cc7a", "refs": "1-33: shared mutation policy seam." }
+      ],
+      "exactDiscrepancy": "No source/spec contradiction was found in the finite labels and mutation guards; exact split/contiguous/location interactions are not runtime-proven.",
+      "smallestRepair": "Placement proof owner may add focused interaction coverage later; no normative rewrite or feature expansion is needed.",
+      "retainedPlannedRequirements": ["Exact multi-slot and location-interaction proof.", "Non-mech family-specific placement remains outside generic Unit store scope."],
+      "residualIssues": ["No browser drag/drop or persistence run was performed."],
+      "roadmapOwner": "equipment-placement proof owner",
+      "proofLimits": ["source/spec review only", "no end-to-end placement proof"]
+    },
+    {
+      "id": "equipment-tray",
+      "initialStatus": "preserve-planned",
+      "priorNote": "Equipment tray behavior remains consistent with current customizer tray and placement flows.",
+      "finiteRequirementStatus": "existing",
+      "proposedDisposition": "existing-with-documentation-repair",
+      "specEvidence": {
+        "path": "openspec/specs/equipment-tray/spec.md",
+        "sha256": "ba463cd83f2270393c3caf40ce4c40b7348b0c4bd3396a317d33be8c6fa0675c",
+        "refs": ["9-103: grouping, item display, remove confirmation, structural and fixed behavior.", "105-200: empty/capacity states, responsive tray, persistence, header/actions and collapsible categories.", "202-257: row/status and structural display clauses."]
+      },
+      "implementationEvidence": [
+        { "path": "src/components/customizer/equipment/GlobalLoadoutTray.tsx", "sha256": "73a38ffc7a33eaf42bddfebdddad8a9f9a0ba3736715e47392bde48f736aab92", "refs": "42-60,69-104,161-228,235-348: state, grouping, remove, collapse, empty and fixed/structural groups." },
+        { "path": "src/components/customizer/equipment/GlobalLoadoutTrayHeader.tsx", "sha256": "c79a3b39f256bf891cc3ef898cd203c35aa2fb5588fdad76e00f5b7256133901", "refs": "19-117: header/actions/grouping/remove-all." },
+        { "path": "src/components/customizer/equipment/GlobalLoadoutTrayCategoryGroup.tsx", "sha256": "5f07d46654f36b0ccfcd631402e6b6f4623de7267cabe6ecc44e3bfbf2457001", "refs": "21-99: category grouping and collapse." },
+        { "path": "src/components/customizer/equipment/GlobalLoadoutTrayEquipmentItem.helpers.tsx", "sha256": "a3748ab7b681c68d1b18faeffbf6fcef36f0e226c9489187b31d8d111d979539", "refs": "34-194: display, opacity, drag and confirmation removal." },
+        { "path": "src/components/customizer/equipment/ResponsiveLoadoutTray.tsx", "sha256": "4a0be6a8cacefa4864d2d466a718c560b88f4757f239a0f81521334eedb473a5", "refs": "8-12,85-196: mobile sheet/desktop sidebar and persisted expansion." },
+        { "path": "src/components/customizer/UnitEditorWithRouting.tsx", "sha256": "9445c9882b8110b2e1bdc0e25f7bab90fadd9e6ec7af2ca1e2e05dbef2ed0d83", "refs": "38-39,130,278: persisted tray read, toggle and composition." },
+        { "path": "src/hooks/usePersistedState.ts", "sha256": "450d673a03f927c2e59c7eab3eef5a8ff74553920e9eec402ea261baf50add23", "refs": "74-77: tray persistence keys." }
+      ],
+      "exactDiscrepancy": "Spec lines 213-225 describe structural equipment as excluded, while lines 257 onward require structural display. Live tray code renders structural/fixed groups, so the spec is internally contradictory.",
+      "smallestRepair": "Documentation owner should reconcile the two structural clauses to the live grouping behavior; do not expand the tray implementation in this inventory pass.",
+      "retainedPlannedRequirements": ["Responsive cross-tab and persistence proof.", "Structural-display wording repair."],
+      "residualIssues": ["No responsive, persistence or removal browser run was performed.", "The contradiction prevents an unqualified existing disposition."],
+      "roadmapOwner": "equipment-tray documentation/proof owner",
+      "proofLimits": ["source/spec review only", "no whole tray-family completion claim"]
+    },
+    {
+      "id": "infantry-unit-system",
+      "initialStatus": "preserve-planned",
+      "priorNote": "Infantry customizer and record-sheet requirements remain aligned with shared renderer.",
+      "finiteRequirementStatus": "existing",
+      "proposedDisposition": "existing-with-planned-tabs",
+      "specEvidence": {
+        "path": "openspec/specs/infantry-unit-system/spec.md",
+        "sha256": "d72c801906534e28d7620088843a82cd43d2a77a37533cef48913575a210f83b",
+        "refs": ["1-30: purpose/classification/non-goals.", "32-207: platoon, movement, weapon and damage requirements.", "637-730: customizer, handler, transport and BV.", "732-825: field-gun, anti-mech, validation/combat and map."]
+      },
+      "implementationEvidence": [
+        { "path": "src/components/customizer/infantry/InfantryCustomizer.tsx", "sha256": "22fc80694747724574dd7ce5bbe294aa1c0d29d9438b3d398b71ac0ba7dcc3b2", "refs": "30-115,128-146: registry tabs, visibility, panel and provider." },
+        { "path": "src/components/customizer/infantry/InfantryBuildTab.tsx", "sha256": "e10d7796fe14b1ffe04709e858ed1b7465208184d6a907e5dbf04835d011d306", "refs": "29-97: combined live build sections." },
+        { "path": "src/components/customizer/infantry/InfantryPrimaryWeaponTab.tsx", "sha256": "52752c352efa3b327654764ec3ccb2bf332876c018959ebb0dab86c4f96316a4", "refs": "1-36: explicit placeholder, planned add-infantry-construction seam." },
+        { "path": "src/components/customizer/infantry/InfantrySecondaryWeaponsTab.tsx", "sha256": "b06aac17c34b19baa12dc3a7178b6418847572bb491437ad8c63a1acdefc2f40", "refs": "1-36: explicit placeholder and planned seam." },
+        { "path": "src/components/customizer/infantry/InfantrySpecializationTab.tsx", "sha256": "824fdabb6b96c98679f8b85ea72bbe756e8baa83dba7619b0b05ccd392c7bf5e", "refs": "1-35: explicit placeholder and planned seam." },
+        { "path": "src/components/customizer/infantry/InfantryPreviewTab.tsx", "sha256": "4f36e0194dfe25bcd36bcc7dfdbd32a0b3e4d84df4e83c65a49564452297225c", "refs": "29-115: store-backed preview and toolbar." },
+        { "path": "src/stores/useInfantryStore.ts", "sha256": "921638f4663988e77d4dd06017a358233d08db5dbac559a1e7a7147896f41e64", "refs": "1-402: Infantry store seam used by the customizer." },
+        { "path": "src/services/printing/svgRecordSheetRenderer/infantryRenderer.ts", "sha256": "322ab8b63853eb97a9a3bbe03a8d5e7b3a0a7dba329ac2a741d7c4d0f9007ec3", "refs": "1-124: Infantry renderer binding." }
+      ],
+      "exactDiscrepancy": "The merged PR1638 slice is current proof for a bounded Infantry change. Primary/secondary/specialization tabs remain placeholders. Local commit 77d9a9480a3a47b1849f166db01278f93f3d8094 declares 12 browser cases but is not merged; it cannot prove full unit-family completion.",
+      "smallestRepair": "Infantry construction owner retains placeholder tab work and browser admission; documentation should describe the merged slice and preserve the planned boundary. Do not call full Infantry complete from preview.",
+      "retainedPlannedRequirements": ["Primary, secondary and specialization construction.", "Unmerged Chromium proof commit 77d9a948.", "Whole-family runtime proof."],
+      "residualIssues": ["PR1638 merge b2755ee72f64618fefd4d0a7c83297fef409193 is a bounded slice, not full-family completion.", "No browser run was performed here."],
+      "roadmapOwner": "infantry construction/browser-proof owner",
+      "proofLimits": ["source/spec review only", "local browser commit is not merged", "no whole-family completion claim"]
+    },
+    {
+      "id": "mm-data-asset-integration",
+      "initialStatus": "preserve-planned",
+      "priorNote": "Spec already documents current mech/non-mech template waves, templates_us/templates_iso, shared rendering, and fallback behavior.",
+      "finiteRequirementStatus": "existing",
+      "proposedDisposition": "existing-with-served-manifest-gap",
+      "specEvidence": {
+        "path": "openspec/specs/mm-data-asset-integration/spec.md",
+        "sha256": "285080c853c8522a892bd0e577a98b00adf91fd5390e82cd7df7b13a029c0f0f",
+        "refs": ["9-21: mech, Wave-1 non-mech, Wave-2 small-unit scope and fallback.", "48-64: template loading/shared renderer and local/CDN/raw fallback.", "79-108: asset sync source/version manifest.", "137-193: Wave-1 US/ISO registrations.", "232-329: Wave-2 templates/catalog/bindings."]
+      },
+      "implementationEvidence": [
+        { "path": "config/mm-data-assets.json", "sha256": "6746a36beab5ce9a9beff240afe0f7609caace9010509ecf7d8c58c6dd8af8e6", "refs": "1-78: root manifest contains Wave-1 and Wave-2 US/ISO entries." },
+        { "path": "public/config/mm-data-assets.json", "sha256": "5131739497b797db0fd4fc7b66eec8738269ac37545163b4440aa0a4fdbae3c", "refs": "served manifest is mech-only and lacks the root non-mech entries." },
+        { "path": "src/services/assets/MmDataAssetService.ts", "sha256": "35ed4cf6b2c410e7f41b4eb4c16a06066551c890cfe41f9d64e95f9cbd835e6", "refs": "154-207: loads /config/mm-data-assets.json; 209-300: local/CDN/raw fallback and template cache." },
+        { "path": "src/services/printing/svgRecordSheetRenderer/templateRecordSheetRenderer.ts", "sha256": "93b4d49a7c8e29614985b0108075ec1d4398179a22dcaa23bf2af1e998bb8046", "refs": "59-87: shared template renderer service." },
+        { "path": "src/services/printing/svgRecordSheetRenderer/templateElementIds.ts", "sha256": "990be697871c095682160f289d6c10466bb02522c55032627109ac0330bee06e", "refs": "1-29,157-280: typed Wave-1/non-mech element catalog." }
+      ],
+      "exactDiscrepancy": "The root generator/config source has non-mech US/ISO entries, but the served public/config/mm-data-assets.json hash 513173... is mech-only; MmDataAssetService lines 177-188 fetches the served /config path. This is a runtime manifest synchronization gap.",
+      "smallestRepair": "Asset integration owner should regenerate/sync the served manifest from its authoritative root source and re-run asset proof. Do not hand-edit the generated public manifest and do not add new templates in this triage.",
+      "retainedPlannedRequirements": ["Served manifest synchronization.", "Fresh non-mech asset fallback/render proof."],
+      "residualIssues": ["Root config presence does not prove the browser-served manifest is current.", "No generator, browser, or asset validation command was run."],
+      "roadmapOwner": "mm-data asset-sync/proof owner",
+      "proofLimits": ["source/config review only", "served-manifest gap unresolved", "no whole asset wave completion claim"]
+    },
+    {
+      "id": "protomech-unit-system",
+      "initialStatus": "preserve-planned",
+      "priorNote": "Protomech customizer and record-sheet requirements remain aligned with shared renderer.",
+      "finiteRequirementStatus": "existing",
+      "proposedDisposition": "existing-with-documentation-repair-and-planned-equipment",
+      "specEvidence": {
+        "path": "openspec/specs/protomech-unit-system/spec.md",
+        "sha256": "11a127cb4055fe36bc5b4a91d02284d26fcc73474faf8ebcfe6dbf41f25d3d56",
+        "refs": ["1-12: purpose/non-goals.", "14-251: Clan, tonnage, structure/armor, movement and main gun requirements.", "279-317: equipment mounting/location normalization.", "679-763: store and customizer architecture.", "830-836: stale one-tab limitation and simplified BV/cost/IS limitations."]
+      },
+      "implementationEvidence": [
+        { "path": "src/components/customizer/protomech/ProtoMechCustomizer.tsx", "sha256": "9e56f548cdf05d3da116a50608ce54547ef4b17ee187b015b75a985c5189d10e", "refs": "32-99,112-130: registry tabs, shell, status and provider." },
+        { "path": "src/components/customizer/protomech/ProtoMechStructureTab.tsx", "sha256": "60d06d231a36cc0f8a881adbd3aa3bf156c28e0ffb7e686037410085defb58e4", "refs": "31-71: live structure/armor controls and diagram." },
+        { "path": "src/components/customizer/protomech/ProtoMechEquipmentTab.tsx", "sha256": "c45a0da9ccf8a9f025948fb6a8c8919c20bc09a47f25e70ce4b1042b630aab07", "refs": "1-35: explicit placeholder wired by add-protomech-construction." },
+        { "path": "src/components/customizer/protomech/ProtoMechPreviewTab.tsx", "sha256": "c8069af09f2ebcca02cd910db67e461fb522beb1d8b12dede16651277d37e14b", "refs": "29-115: store-backed preview and toolbar." },
+        { "path": "src/stores/useProtoMechStore.ts", "sha256": "7c36896f086c0dc72ed0113e0cec0f0f562a1f9ec484c4d7dc1da7acd2f626e3", "refs": "110-200: tonnage clamp and construction state/actions." },
+        { "path": "src/stores/protoMechState.ts", "sha256": "6ac6b9049c340e34fd17b8fad6bc02ab389744565ecbd074c295e3b1cb9e632d", "refs": "92-159: equipment creation/state and tonnage comments." },
+        { "path": "src/services/printing/svgRecordSheetRenderer/protoMechRenderer.ts", "sha256": "410d8042b3bf63e9a3608446c87fdcf03ebfa45e61692888b78eeedd52b282e4", "refs": "1-176: ProtoMech renderer implementation." }
+      ],
+      "exactDiscrepancy": "Spec lines 830-836 say only Structure exists with no equipment/preview tabs, while the live registry exposes overview/structure/armor/mainGun/equipment/preview/fluff and the equipment body is still a placeholder. The spec also contains 2-9 ton limits while the state comment mentions up to 15 and the store clamps 2-9.",
+      "smallestRepair": "Documentation owner should update the tab/tonnage statements to match the live bounded surface and retain equipment construction as planned; construction owner handles the placeholder later. No feature expansion belongs in this inventory pass.",
+      "retainedPlannedRequirements": ["Equipment tab construction.", "BV/cost/IS simplifications and fresh runtime proof.", "Resolve spec/state tonnage wording."],
+      "residualIssues": ["Preview/registry presence does not mean full equipment capability.", "No browser or renderer proof was run."],
+      "roadmapOwner": "protomech construction/documentation/proof owner",
+      "proofLimits": ["source/spec review only", "equipment capability remains planned", "no whole ProtoMech completion claim"]
+    }
+  ],
+  "globalLimits": [
+    "No tests, builds, servers, or browser runs were executed.",
+    "The local browser proof commit 77d9a948 is not merged.",
+    "Static evidence cannot establish persistence, browser interaction, PDF fidelity, or whole unit-family completion.",
+    "Generated served asset manifests must be repaired through their generator/sync owner, never by hand in this receipt."
+  ]
+}

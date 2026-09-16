@@ -1,0 +1,315 @@
+{
+  "schema": "r2-camp-4-admission-brief/v1",
+  "at": "2026-09-15T15:30:00.000Z",
+  "role": "read-only discovery; no product/spec/tasks/contract edits made; single evidence artifact only; no builds/tests/sub-agents executed this session",
+  "sourceSnapshot": {
+    "originMainAtFetch": "273ed7883420d6198094d6d23abde855cc327510",
+    "worktreeUsedForSourceReading": ".sisyphus/roadmap-completion-20260912/worktrees/archive-original-main-proof",
+    "worktreeHeadSha": "273ed7883420d6198094d6d23abde855cc327510",
+    "worktreeMatchesOriginMainAtFetch": true,
+    "note": "Two independent `git fetch origin` calls this session (start and end) both landed on 273ed7883420 -- no drift observed. The pinned worktree HEAD is byte-identical to origin/main at both fetches, so all source/test reads below were taken directly from that worktree with no drift risk against the git-show-cited tasks.md/proposal.md/contract-row text."
+  },
+  "roadmapNode": {
+    "id": "R2.camp-4",
+    "wave": 2,
+    "title": "Readiness and materializer source fidelity",
+    "kind": "verification",
+    "state": "planned",
+    "dependsOn": ["R2.camp-3"],
+    "ownershipPaths": [
+      "openspec/changes/add-saved-custom-unit-campaign-roster",
+      "scripts/qc",
+      "src",
+      "e2e"
+    ],
+    "acceptance": [
+      "Use immutable camp-01d contract row; preserve its strict PR cap, reporters, authority facts and real approval requirements",
+      "Audit shipped code before any repair; exact-main receipt required"
+    ],
+    "owner": "parent; assign bounded Luna high worker on admission",
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "taskKeys": [
+      "add-saved-custom-unit-campaign-roster#4.1@30",
+      "add-saved-custom-unit-campaign-roster#4.2@31",
+      "add-saved-custom-unit-campaign-roster#4.3@32"
+    ],
+    "receipt": null,
+    "githubReviewGate": {
+      "authority": "add-saved-custom-unit-campaign-roster P.2 and scripts/qc/camp01-github-provenance.mjs",
+      "state": "APPROVED",
+      "nonDismissed": true,
+      "exactHead": true,
+      "nonAuthor": true,
+      "permissions": ["WRITE", "MAINTAIN", "ADMIN"],
+      "soloException": false
+    }
+  },
+  "predecessorClosures": {
+    "r2camp3": {
+      "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-camp-3-admission-brief-20260915.json",
+      "verdict": "Tasks 3.1-3.2 (CAMP-01C) fully implemented and covered by the 3 frozen jest files, gap NONE FOUND. Receipt-writer half of 3.2 NOT done: no camp01c-participation-<sha> directory exists anywhere.",
+      "closedOnlyAt": "command-level receipt tier (recommended as SLICE-1, not confirmed executed by that brief); controller-registered and PR-provenanced tiers remain owner-blocked on the identical structurally-unsatisfiable single-collaborator githubReviewGate and on camp-01a/b's own missing controller receipts."
+    },
+    "r2camp2": {
+      "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-camp-2-admission-brief-20260915.json",
+      "verdict": "Task 2.1 real and shipped via PR #1231/#1233 (self-authored, self-merged, zero reviews). One gap: buildCampaignAuthoritativeState's guard-throw branches untested (mocked out in CampaignCoopEntryPanel.test.tsx).",
+      "closedOnlyAt": "command-level receipt tier only."
+    },
+    "r2camp1": {
+      "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-camp-1-admission-brief-20260915.json",
+      "verdict": "Tasks 1.1-1.4 (CAMP-01A) fully shipped and tested, gap NONE FOUND. Task 1.5 receipt run NOT done.",
+      "closedOnlyAt": "command-level receipt tier (recommended, not confirmed executed)."
+    },
+    "r2camp0": {
+      "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/camp00-receipt-run-main-819ff6f-20260915.json",
+      "verdict": "Command-level exact-main receipt produced (17/17 frozen assertions true at 819ff6fd8); PR-provenanced camp01-authority-receipt directory explicitly NOT produced.",
+      "closedOnlyAt": "command-level receipt tier only."
+    },
+    "whatThisMeansForCampFour": "R2.camp-4 (camp-01d) inherits the identical four-tier ceiling every predecessor in this chain has hit: (1) a command-level exact-main receipt is achievable today, (2) a controller-registered receipt is NOT achievable because camp-01d's own frozen predecessors list is ['camp-01c'] and no camp-01a/b/c controller-registered receipt exists yet (independently re-verified this session: `find .sisyphus/evidence/playtest -iname '*camp01a*' -o -iname '*camp01b*' -o -iname '*camp01c*' -o -iname '*camp01d*'` returns zero matches; `ls .sisyphus/evidence/playtest/` shows exactly one unrelated directory, 2026-07-07-live-playtest/), and (3) a PR-provenanced closure of roadmap tasks 4.1/4.2/4.3 is blocked on the same structurally unsatisfiable single-collaborator githubReviewGate every predecessor hit (re-verified live this session)."
+  },
+  "combatBriefCrossReference": {
+    "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-combat-admission-brief-20260915.json (roadmap node R2.combat, change enable-saved-custom-unit-combat) plus its S5 slice receipt evidence/r2-combat-s5-coop-custom-authority-local-20260915.json",
+    "sharedSurfaces": [
+      "src/lib/campaign/readiness/canonicalCatalogAdmission.ts (admitCanonicalExactReference / admitCampaignLaunch / admitRosterUnitSource) -- the exact shared guard camp-01d's tasks 4.1/4.2 name; R2.combat's line-7 task cites the SAME file's per-unit branches (roster_source_custom, source_ref_mismatch) for the custom-unit-combat feature, and its S5 slice today (2026-09-15, on an UNPUSHED local branch, commit 83c691741, not on origin/main) added mutation-proved unit tests for admitCampaignLaunch's snapshot-level branches (missing/foreign/matchId-foreign/stale) directly inside src/lib/campaign/coop/__tests__/launchCoopMission.test.ts -- the SAME file camp-01d's own frozen contract row pins.",
+      "src/services/encounter/EncounterService.ts attachRecordedCustomCombatSnapshots (materialization re-resolution) -- a different concern (custom-unit combat-adapter identity) than camp-01d's admission-guard concern (source/reference eligibility before launch), but both gate the same materializeCampaignMissionEncounter call site sequentially: admission first (camp-01d scope), then attachRecordedCustomCombatSnapshots re-resolution (enable-saved-custom-unit-combat scope)."
+    ],
+    "implication": "camp-01d's own frozen row and task text are unaffected by the R2.combat/S5 work -- that work only ADDS test rows to a file camp-01d's contract pins, on a branch not yet merged to origin/main. A worker admitted onto R2.camp-4 should NOT re-litigate or duplicate the S5 snapshot-adjective rows (missing/foreign/matchId-foreign/stale), and should be aware that if/when that branch merges, camp-01d's canonicalArgvDigest for the launchCoopMission.test.ts file may need re-verification against a changed file (the digest is computed over the frozen command ARRAY, not file content, so a passing test addition does not itself break the digest -- but the SHA driving `--sha=<sha>` in any camp-01d receipt run would move forward)."
+  },
+  "criticalContextFinding": {
+    "title": "The archived child change's tasks.md again claims a receipt and a council-review document that cannot be verified on origin/main, but the underlying product PR is real, merged, self-approved, and untouched by any second reviewer -- the fourth occurrence of this exact pattern in the CAMP-01 chain",
+    "archivedChild": "openspec/changes/archive/2026-08-20-enforce-campaign-unit-source-launch-boundary/ (proposal.md + tasks.md)",
+    "claimText": "openspec/changes/archive/2026-08-20-enforce-campaign-unit-source-launch-boundary/tasks.md line 1: 'Completed 2026-08-20 (reconciliation): implemented and delivered by the CAMP-01D wave (product PR #1236); attested by the durable reviewed-head + exact-main + cleanup receipts (full durable index readmitted 23/23 through validator plus all four anchors after CAMP-R1, 2026-08-12) and the council review at `openspec/council-decisions/2026-08-12-camp01-wave-execution-review.md`.' All of tasks 1.1, 1.2, 2.1, 2.2, 3.1, 3.2 in that file are marked [x].",
+    "verification": [
+      "`git cat-file -e origin/main:openspec/council-decisions/2026-08-12-camp01-wave-execution-review.md` -> fatal: path does not exist in origin/main. Identical finding to the camp-01a/b/c archived children's citation of the same nonexistent document.",
+      "`gh pr view 1236 --repo SwiggitySwerve/MekStation --json number,title,state,mergedAt,mergeCommit,author,mergedBy,reviews` -> MERGED, mergedAt 2026-08-13T18:38:06Z, mergeCommit 097210e8b634a2e348f18eb39ba616af2e567e90, title 'feat(campaign): fail-closed canonical catalog admission at launch', author=SwiggitySwerve, mergedBy=SwiggitySwerve, reviews=[] (empty). The PR is REAL and MERGED, but self-authored, self-merged, with zero recorded GitHub reviews -- same shape as camp-01b's PR #1231/#1233 and camp-01c's PR #1235.",
+      "`git merge-base --is-ancestor 097210e8b634a2e348f18eb39ba616af2e567e90 origin/main` -> exit 0 (IS an ancestor). The product code genuinely shipped to main.",
+      "`find .sisyphus/evidence/playtest -iname '*camp01d*'` and `git ls-files | grep -i camp01d` both return zero matches -- no camp01-authority-receipt controller-registered directory exists for camp-01d anywhere in the repository or the durable evidence tree, despite the archived tasks.md's claim of 'durable reviewed-head + exact-main + cleanup receipts'.",
+      "`gh api repos/SwiggitySwerve/MekStation/collaborators` this session -> exactly one collaborator, SwiggitySwerve, permission admin. No second collaborator exists to have produced the non-author APPROVED review the claim implies."
+    ],
+    "conclusion": "This is the FOURTH consecutive CAMP-01 sub-wave (after camp-00, camp-01a, camp-01b, camp-01c) whose archived child tasks.md asserts a governed receipt and cites the same nonexistent 2026-08-12 council-review document. The product code for camp-01d genuinely shipped (PR #1236, real ancestor of origin/main, independently re-verified below by direct source/test reads) but the RECEIPT and REVIEW-GATE claims are false in the same narrow way camp-01b/c's were: self-authored, self-merged, zero reviews, no controller-registered receipt directory. A worker admitted onto R2.camp-4 MUST NOT cite PR #1236, the '23/23 readmitted' figure, or the 2026-08-12 council review as satisfying task 4.3's receipt clause."
+  },
+  "frozenContractRow": {
+    "source": "scripts/qc/camp01-authority-receipt.contract.mjs -> WAVE_CONTRACTS['camp-01d']",
+    "sourceFileVerifiedOnOriginMain": "273ed7883420",
+    "wave": "camp-01d",
+    "commandId": "camp-01d",
+    "childChange": "enforce-campaign-unit-source-launch-boundary",
+    "runRootTemplate": ".sisyphus/evidence/playtest/camp01d-launch-<sha>",
+    "commandSequence": [
+      [
+        "@npm", "test", "--", "--watchAll=false", "--runTestsByPath",
+        "src/lib/campaign/fastForward/__tests__/fastForwardCombatRunner.test.ts",
+        "src/components/gameplay/pages/campaigns/dashboard/__tests__/CampaignDashboardPage.reactivity.test.tsx",
+        "src/lib/campaign/coop/__tests__/launchCoopMission.test.ts",
+        "--runInBand"
+      ],
+      ["@npm", "run", "qc:command:readiness-stable:quick"],
+      ["@npm", "run", "verify:qc:coop-campaign-journey"]
+    ],
+    "canonicalArgvDigest": "cb3ee9a647e27ee3436be604511a3d529fc4f8bdfdb132716381f159d98a54f5",
+    "artifacts": ["command-result.json", "receipt-manifest.json", "wave-result.json"],
+    "assertions": [
+      "catalogReady===true",
+      "canonicalSelection.launchSucceeded===true",
+      "canonicalSelection.launchEncounterCount===1",
+      "blockedSelection.encounterLookupCount===0",
+      "blockedSelection.reuseResultCount===0",
+      "blockedSelection.createEncounterCount===0",
+      "blockedSelection.launchEncounterCount===0"
+    ],
+    "predecessors": ["camp-01c"],
+    "capSubject": "product-pr",
+    "maxFiles": 12,
+    "maxChangedLines": 450,
+    "reporterContracts": [],
+    "criticalDifferenceFromCamp01aRow": "Like camp-01b/c, camp-01d's commandSequence has THREE argv arrays, not one: the frozen 3-file jest run PLUS `npm run qc:command:readiness-stable:quick` (package.json:170, node scripts/qc/validate-playable-command-screen-slices.mjs --run --slice=readiness-stable) PLUS `npm run verify:qc:coop-campaign-journey` (package.json:199, which itself chains 9 more jest suites and then a 2-spec Playwright chromium run). A full command-level camp-01d receipt reproduction therefore needs BOTH a real readiness-stable command-screen-slice validation run AND the Playwright two-browser co-op journey run -- heavier than every predecessor's commandSequence."
+  },
+  "taskKeys": [
+    {
+      "key": "add-saved-custom-unit-campaign-roster#4.1@30",
+      "sourceId": "4.1",
+      "literalText": "4.1 Inject the trusted snapshot into mission launch, dashboard, Mech Bay readiness, fast-forward, and every materializer caller with explicit loading/unavailable recovery.",
+      "checkboxStateOnOriginMain": "[ ] unchecked (roster umbrella tasks.md, line 30); the underlying archived child's own tasks.md (archive/2026-08-20-enforce-campaign-unit-source-launch-boundary, tasks 1.1/1.2) shows [x]",
+      "verifiedAgainstOriginMain": "tasks.md line 30 re-read via `git show origin/main:openspec/changes/add-saved-custom-unit-campaign-roster/tasks.md` at 273ed7883420 this session",
+      "whatSourceAlreadyDoes": [
+        "src/lib/campaign/readiness/canonicalCatalogAdmission.ts:34-45,155-179 -- readyCanonicalCatalog()/fetchCanonicalCatalogSnapshot() build a { status: 'loading' | 'ready' | 'unavailable' } CanonicalCombatCatalogSnapshot from /api/units + /api/units/custom/combat-catalog; a failed/malformed response yields UNAVAILABLE_CANONICAL_CATALOG (retryable:true) rather than a silent empty-success fallback -- this is 'the trusted snapshot' and its explicit loading/unavailable modeling.",
+        "src/lib/campaign/readiness/canonicalCatalogAdmission.ts:69-117 admitCanonicalExactReference() -- the ONE shared guard: denies roster_source_invalid, roster_source_custom (not in customCombatRefs), source_ref_mismatch (custom ref under non-custom source), catalog_loading, catalog_unavailable, unit_ref_unresolved, canonical_ref_missing; every denial carries a distinct code/message.",
+        "src/lib/campaign/readiness/missionReadinessProjection.ts:9-10,126-140 -- imports and calls admitCanonicalExactReference per roster unit; this is the 'mission launch'/'readiness' injection point consumed by both the mission-launch page and (indirectly) the dashboard.",
+        "src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.tsx:16-24,186-201 -- handleGenerateMission() calls admitCampaignLaunch({snapshot:{campaignId,catalog}, expected:{campaignId}, selectedUnits: deployableUnits}) DIRECTLY (a second, explicit guard call at the dashboard call site, in addition to missionReadinessProjection's own readiness gating) BEFORE calling materializeCampaignMissionEncounter -- this is the 'dashboard' injection point, and it is a real, unmocked call (canonicalCatalogAdmission is never mocked in CampaignDashboardPage.reactivity.test.tsx, only missionReadinessProjection and materializeCampaignMissionEncounter are).",
+        "src/lib/campaign/fastForward/fastForwardCombatRunner.ts:62-65,329 -- imports CanonicalCombatCatalogSnapshot/admitCampaignLaunch from canonicalCatalogAdmission and calls admitCampaignLaunch at line 329 before materializing a fast-forward bridged encounter -- the 'fast-forward' injection point.",
+        "src/lib/campaign/encounter/materializeCampaignMissionEncounter.ts:11-13,74-90 -- imports admitRosterUnitSource and calls it per roster unit (line 77) as the FIRST materializer operation before diagnostics, scenario lookup/reuse, catalog I/O, or mutation (matches CAMP-01A task 1.3's 'validation is the first materializer operation') -- this is the shared 'every materializer caller' backstop that both mission launch and dashboard route through.",
+        "src/pages/gameplay/campaigns/[id]/mech-bay.tsx and src/components/campaign/bays/MechBay.tsx (grepped this session) both reference canonicalCatalogAdmission/missionReadinessProjection -- confirms the 'Mech Bay readiness' injection point (MechBay's own resolve-by-source logic is camp-01g's separate scope, but its readiness display already consumes this same guard's snapshot)."
+      ],
+      "deltaShallsMapped": [
+        "enforce-campaign-unit-source-launch-boundary proposal.md 'What Changes': 'Require an authoritative, revision-bound canonical catalog snapshot before launch. Reuse one source/reference guard in fast-forward, dashboard readiness, and co-op launch. Preserve custom rows as visible blocked entries while rejecting them before encounter lookup, reuse, creation, session launch, or mutation.'"
+      ],
+      "existingTests": [
+        "src/lib/campaign/fastForward/__tests__/fastForwardCombatRunner.test.ts:530-551 'blocks a custom roster unit before materializing a fast-forward encounter' -- exercises the fast-forward injection point end-to-end, asserting rejects.toThrow('cannot launch yet').",
+        "src/components/gameplay/pages/campaigns/dashboard/__tests__/CampaignDashboardPage.reactivity.test.tsx:371-392 'blocks a custom selection before materializing a dashboard mission' -- exercises the REAL (unmocked) admitCampaignLaunch at the dashboard call site; asserts mockMaterializeCampaignMissionEncounter is NOT called and the rendered error contains 'cannot launch yet'.",
+        "src/lib/campaign/coop/__tests__/launchCoopMission.test.ts:242-312 -- the wave-result-writing test computes catalogReady===true and the canonical/blocked selection counts using the SAME shared admitCampaignLaunch/materializeCampaignMissionEncounter functions the mission-launch/dashboard/coop paths all route through."
+      ],
+      "gap": "NONE FOUND for the literal text of task 4.1. All five named injection points (mission launch via missionReadinessProjection, dashboard via a direct admitCampaignLaunch call, Mech Bay readiness via the same admission module, fast-forward via admitCampaignLaunch, and every materializer caller via admitRosterUnitSource as the first operation) exist and route through the ONE shared canonicalCatalogAdmission.ts guard; loading/unavailable are explicit, first-class CanonicalCombatCatalogSnapshot states with no silent empty-success fallback. All claims independently re-verified by direct source reads against origin/main at 273ed7883420 via the pinned worktree.",
+      "productionBrowserRunRequired": false
+    },
+    {
+      "key": "add-saved-custom-unit-campaign-roster#4.2@31",
+      "sourceId": "4.2",
+      "literalText": "4.2 Make co-op launch resolve force membership and unit sources through the accepted host snapshot before applying the guard inside `launchCoopMission`; directly test canonical success with one launch separately from custom/invalid/forged/stale/loading/unavailable blocked scenarios, each recording zero encounter lookup, reuse result, creation, or launch.",
+      "checkboxStateOnOriginMain": "[ ] unchecked (roster umbrella tasks.md, line 31); the archived child's own tasks.md (tasks 2.1/2.2) shows [x]",
+      "verifiedAgainstOriginMain": "tasks.md line 31 re-read via `git show origin/main:...tasks.md` at 273ed7883420; byte-identical local vs origin/main",
+      "whatSourceAlreadyDoes": [
+        "src/lib/campaign/coop/launchCoopMission.ts:97-121 -- launchCoopMission() computes deployingUnitIds from the contributions, resolves each against admission.selectedUnits (falling back to a bare {unitId,unitName:unitId} with NO unitRef, which admitCanonicalExactReference then denies as 'unit_ref_unresolved' -- a fail-closed default, not a silent pass), then calls admitCampaignLaunch({snapshot: admission?.snapshot, expected: admission?.expected ?? {campaignId: baseEncounter.campaignMeta?.campaignId ?? ''}, selectedUnits}) at line 109 -- BEFORE composeCoopEncounter (line 125, which is where a zero-deploy launch is blocked) and BEFORE launchCampaignEncounter (line 138, the actual encounter creation/launch call). This is exactly 'applying the guard inside launchCoopMission ... before' composition or launch.",
+        "src/lib/campaign/coop/launchCoopMission.ts:109-120 -- if the gate denies, the function returns `{ok:false, error: gate.blocker.message}` immediately; composeCoopEncounter and launchCampaignEncounter are never reached (verified by the fakeService()/launched array staying empty in the corresponding test, and by the blockedRun.launched.length===0 assertion in the wave-result test)."
+      ],
+      "deltaShallsMapped": [
+        "enforce-campaign-unit-source-launch-boundary tasks.md (archived child numbering) task 2.1: 'Prove canonical mixed-roster launch succeeds once with the exact selected refs.' Task 2.2: 'Run the caller-by-snapshot matrix and prove every blocked path performs zero lookup, reuse, create, route, session, launch, and mutation operations.'"
+      ],
+      "existingTests": [
+        "src/lib/campaign/coop/__tests__/launchCoopMission.test.ts:144-179 'launches a composed two-force encounter and returns the session id' -- canonical success, single launch, asserts result.ok===true and launched===['repo-enc-1'].",
+        "src/lib/campaign/coop/__tests__/launchCoopMission.test.ts:181-207 'routes a mixed deploy/command-hq launch with only the deploying force on the map' -- a second canonical-path variant (mixed participation), still separate from the blocked describe block.",
+        "src/lib/campaign/coop/__tests__/launchCoopMission.test.ts:210-240 'blocks a launch where both players chose command-hq and creates no encounter' -- the zero-deploy composition-rejection path; asserts launched===[].",
+        "src/lib/campaign/coop/__tests__/launchCoopMission.test.ts:242-312 'publishes CAMP-01D wave-result.json when the controller artifact dir is set' -- computes and writes all 7 frozen assertions verbatim: catalogReady, canonicalSelection.launchSucceeded/launchEncounterCount (against a fresh canonicalRun fakeService), and blockedSelection.{createEncounterCount,encounterLookupCount,reuseResultCount,launchEncounterCount} all ===0, derived from (a) a blocked custom-source launchCoopMission call whose gate denies before composition, (b) a foreign-campaignId admitCampaignLaunch call, (c) a stale-revision admitCampaignLaunch call, and (d) a materializeCampaignMissionEncounter call with a custom-source unit that rejects with 'cannot launch yet' before any fetchImpl call is made (blockedCalls===0).",
+        "src/lib/campaign/fastForward/__tests__/fastForwardCombatRunner.test.ts:530-551 -- an independent blocked-custom-unit test at the fast-forward call site (not launchCoopMission itself, but exercises the same shared admitCampaignLaunch/admitRosterUnitSource guard family the task's 'invalid/forged/stale/loading/unavailable' adjectives ultimately resolve to)."
+      ],
+      "gap": "NONE FOUND for the literal text of task 4.2. launchCoopMission resolves force membership/unit sources through the accepted host snapshot (admission.snapshot/admission.selectedUnits) and applies admitCampaignLaunch BEFORE composeCoopEncounter/launchCampaignEncounter. Canonical success is directly tested (twice, at lines 145 and 181), separately from the blocked-launch describe block (lines 210-312). The frozen row's 7 assertions -- which fold custom/foreign/stale into canonicalSelection/blockedSelection counts rather than naming 'invalid'/'forged'/'loading'/'unavailable' as individually-named launchCoopMission-level scenarios -- are all computed and self-validated. Cross-node note (see combatBriefCrossReference above): a SIBLING, unmerged branch under the enable-saved-custom-unit-combat change today added four MORE named, mutation-proved rows to this exact test file covering admitCampaignLaunch's snapshot-level missing/foreign/matchId-foreign/stale branches individually (previously only bundled into this wave's own assertion object) -- that is additive, out-of-scope, and not-yet-merged; it does not change this gap's NONE-FOUND verdict for camp-01d's own literal task text, since the frozen row's assertion SET does not itself name those adjectives individually.",
+      "productionBrowserRunRequired": true
+    },
+    {
+      "key": "add-saved-custom-unit-campaign-roster#4.3@32",
+      "sourceId": "4.3",
+      "literalText": "4.3 The immutable `camp-01d` row SHALL pin separate ordered command arrays for `npm.cmd test -- --watchAll=false --runTestsByPath src/lib/campaign/fastForward/__tests__/fastForwardCombatRunner.test.ts src/components/gameplay/pages/campaigns/dashboard/__tests__/CampaignDashboardPage.reactivity.test.tsx src/lib/campaign/coop/__tests__/launchCoopMission.test.ts --runInBand`, `npm.cmd run qc:command:readiness-stable:quick`, and `npm.cmd run verify:qc:coop-campaign-journey`. Run the authority writer with `--wave=camp-01d`, its run root/SHA/command id, and exact spec/product tuples but no caller command text, then matching reviewed-head validation; after merge rerun both under a new exact-main run root with the exact product merge tuple and exact-main SHA/mode; review, publish within 12 files/450 lines, merge, audit, and prune before CAMP-01E.",
+      "checkboxStateOnOriginMain": "[ ] unchecked (roster umbrella tasks.md, line 32); the archived child's own tasks.md (tasks 3.1, 3.2) shows [x], citing PR #1236 and the absent council-review document per criticalContextFinding above",
+      "verifiedAgainstOriginMain": "tasks.md line 32 re-read via `git show origin/main:...tasks.md` at 273ed7883420; byte-identical local vs origin/main",
+      "whatSourceAlreadyDoes": [
+        "The 'pin separate ordered command arrays ... test/readiness-stable/coop-campaign-journey' half is FULLY covered by the frozen 3-file jest suite (all three named test files exist, are read/grepped above, and each contains passing, self-computing assertions for its own concern), plus package.json:170's qc:command:readiness-stable:quick and package.json:199's verify:qc:coop-campaign-journey scripts, both confirmed present verbatim on origin/main this session.",
+        "The 'immutable camp-01d row SHALL ... authority writer ...' half (receipt-writer invocation, review, merge, audit, prune sequence) is NOT done: no camp01d-launch-<sha> directory exists anywhere (`find .sisyphus/evidence/playtest -iname '*camp01d*'` -> zero matches; `git ls-files | grep -i camp01d` -> zero matches)."
+      ],
+      "deltaShallsMapped": [
+        "enforce-campaign-unit-source-launch-boundary tasks.md (archived child numbering) task 3.1: 'Run [the frozen 3-file jest command], qc:command:readiness-stable:quick, verify:qc:coop-campaign-journey, Node 22 gates, strict OpenSpec validation, and OpenSpec CI QC.' Task 3.2: 'After CAMP-01C exact-main cleanup, use the row-resolved CAMP-01D controller register/proof gates and pass the 12-file/450-line cap; then SHA-guard merge, exact-main proof, cleanup, and prune before CAMP-01E.'"
+      ],
+      "existingTests": [
+        "src/lib/campaign/fastForward/__tests__/fastForwardCombatRunner.test.ts (552 lines total; the frozen row's own concern is lines 530-551, the rest of the file covers unrelated fast-forward/launch-authority-gate behavior, all confirmed passing-shaped by source read).",
+        "src/components/gameplay/pages/campaigns/dashboard/__tests__/CampaignDashboardPage.reactivity.test.tsx (393 lines; 4 top-level it() blocks, including the camp-01d-relevant blocked-custom-selection case at line 371).",
+        "src/lib/campaign/coop/__tests__/launchCoopMission.test.ts (313 lines; 4 top-level it() blocks across 2 describe blocks, including the wave-result-writing test)."
+      ],
+      "gap": "The test-coverage half of 4.3 is FULLY covered by the frozen 3-file commandSequence plus the two named npm scripts -- every command the row pins exists and (per source verification above) exercises passing, already-implemented behavior. The receipt-writer half of 4.3 (the immutable row invocation, review, merge, audit, prune sequence) is NOT done and cannot be closed past the command-level tier for the same two structural reasons every sibling node hits: (a) predecessor camp-01c (and transitively camp-01b, camp-01a, camp-00) has no controller-recognized receipt yet, and (b) the githubReviewGate is unsatisfiable with a single repository collaborator (re-verified live this session: `gh api repos/SwiggitySwerve/MekStation/collaborators` returns exactly one entry, SwiggitySwerve, admin).",
+      "productionBrowserRunRequired": true
+    }
+  ],
+  "sourceFilesInventory": {
+    "method": "Direct Read of the pinned worktree (.sisyphus/roadmap-completion-20260912/worktrees/archive-original-main-proof, HEAD 273ed7883420, byte-identical to origin/main at both this session's fetches) plus `git show origin/main:<path>` for tasks.md/proposal.md/contract-row text",
+    "files": [
+      { "path": "src/lib/campaign/readiness/canonicalCatalogAdmission.ts", "lines": 272, "note": "full file read -- CanonicalCombatCatalogSnapshot, admitCanonicalExactReference, admitRosterUnitSource, fetchCanonicalCatalogSnapshot, admitCampaignLaunch" },
+      { "path": "src/lib/campaign/coop/launchCoopMission.ts", "lines": 177, "note": "full file read -- launchCoopMission, admission gate placement relative to composeCoopEncounter/launchCampaignEncounter" },
+      { "path": "src/lib/campaign/coop/__tests__/launchCoopMission.test.ts", "lines": 313, "note": "full file read -- canonical success (x2), blocked no-deploy, and the 7-assertion wave-result-writing test" },
+      { "path": "src/lib/campaign/fastForward/fastForwardCombatRunner.ts", "lines": 501, "note": "grepped for admitCampaignLaunch/canonicalCatalogAdmission symbols; call site at line 329 confirmed" },
+      { "path": "src/lib/campaign/fastForward/__tests__/fastForwardCombatRunner.test.ts", "lines": 552, "note": "read lines 384-501 (unrelated launch-authority-gate umbrella-10.3 describe block) and 502-551 (wired-runner test + the camp-01d-relevant blocked-custom-unit test)" },
+      { "path": "src/lib/campaign/encounter/materializeCampaignMissionEncounter.ts", "lines": 310, "note": "grepped for admitRosterUnitSource; call site at line 77 confirmed as first operation" },
+      { "path": "src/lib/campaign/readiness/missionReadinessProjection.ts", "lines": 361, "note": "read lines 1-80 (imports, interfaces, admission call site at line 131)" },
+      { "path": "src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.tsx", "note": "read lines 1-60 (imports) and 170-269 (handleGenerateMission, the direct admitCampaignLaunch call at line 193)" },
+      { "path": "src/components/gameplay/pages/campaigns/dashboard/__tests__/CampaignDashboardPage.reactivity.test.tsx", "lines": 393, "note": "read lines 1-70 (mock setup, confirms missionReadinessProjection module IS mocked but canonicalCatalogAdmission is NOT) and 337-393 (the two relevant it() blocks)" },
+      { "path": "src/pages/gameplay/campaigns/[id]/mech-bay.tsx", "note": "grepped only -- confirmed reference to canonicalCatalogAdmission/missionReadinessProjection for the 'Mech Bay readiness' clause of task 4.1" },
+      { "path": "src/components/campaign/bays/MechBay.tsx", "note": "grepped only -- same confirmation" },
+      { "path": "scripts/qc/camp01-authority-receipt.contract.mjs", "note": "grepped for the camp-01a through camp-01h WAVE_CONTRACTS rows; camp-01d row extracted verbatim" },
+      { "path": "package.json", "note": "grepped qc:command:readiness-stable:quick (line 170) script definition; verify:qc:coop-campaign-journey (line 199) confirmed present per predecessor briefs, not independently re-read this session" },
+      { "path": "openspec/changes/archive/2026-08-20-enforce-campaign-unit-source-launch-boundary/proposal.md", "note": "full file read via git show origin/main" },
+      { "path": "openspec/changes/archive/2026-08-20-enforce-campaign-unit-source-launch-boundary/tasks.md", "note": "full file read via git show origin/main" },
+      { "path": "openspec/changes/add-saved-custom-unit-campaign-roster/tasks.md", "note": "P. through 4. sections read via git show origin/main at 273ed7883420" },
+      { "path": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json", "note": "R2.camp-4 node extracted verbatim (lines 2877-2918)" },
+      { "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-camp-1-admission-brief-20260915.json", "note": "read for predecessor-chain facts and house style" },
+      { "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-camp-2-admission-brief-20260915.json", "note": "full read -- predecessor closure state and crossNodeCoordinationRisk template reused" },
+      { "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-camp-3-admission-brief-20260915.json", "note": "full read -- direct predecessor's closure state and pattern reused" },
+      { "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-combat-admission-brief-20260915.json", "note": "full read -- shared-surface (canonicalCatalogAdmission.ts, EncounterService) cross-reference" },
+      { "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-combat-s5-coop-custom-authority-local-20260915.json", "note": "full read -- today's (2026-09-15) mutation-proved additions to launchCoopMission.test.ts on an unmerged local branch, cited in combatBriefCrossReference" }
+    ]
+  },
+  "controllerPredecessorGate": {
+    "source": "scripts/qc/camp01-durable-facts.mjs resolvePreflightFacts() (mechanism documented in the R2.camp-1 brief; not re-read line-by-line this session)",
+    "verifiedThisSession": "`find .sisyphus/evidence/playtest -iname '*camp01a*' -o -iname '*camp01b*' -o -iname '*camp01c*' -o -iname '*camp01d*'` returns zero matches. `ls .sisyphus/evidence/playtest/` shows exactly one directory, 2026-07-07-live-playtest/, unrelated to any camp-0x wave.",
+    "consequence": "camp-01d's own controller run (qc:camp01-authority-receipt:write --wave=camp-01d ...) would fail camp-01c's predecessor check today -- an exact continuation of the chain the R2.camp-1/2/3 briefs documented."
+  },
+  "githubReviewGateG1": {
+    "name": "Eligible non-author GitHub APPROVED review on the exact head",
+    "citedFrom": "roadmap.json R2.camp-4.githubReviewGate; scripts/qc/camp01-github-provenance.mjs (same module cited by every camp-1/2/3 G1)",
+    "liveFactsAsOf20260915": "Re-verified this session: `gh api repos/SwiggitySwerve/MekStation/collaborators` returns exactly one entry (SwiggitySwerve, admin/maintain/push/pull/triage all true). camp-01d's real merged PR #1236 was authored AND merged by that same single collaborator with reviews=[] -- confirmed via `gh pr view 1236 --json author,mergedBy,reviews` this session.",
+    "soloException": false,
+    "satisfiability": "STRUCTURALLY UNSATISFIABLE today, identically to R2.camp-0/1/2/3: soloException is explicitly false. Any future product PR touching camp-01d's scope needs a real second-collaborator APPROVED review that cannot be produced by an agent session and does not exist today.",
+    "impactOnThisNode": "Even a perfect audit-only PR that touches zero camp-01d-owned behavior would still be unable to close task 4.3's receipt clause, because the controller's exact-main mode requires a merged, approved PR, and merging requires this gate. This also retroactively confirms PR #1236 never satisfied the gate the archived child's tasks.md implies it did."
+  },
+  "crossNodeCoordinationRisk": [
+    {
+      "sharedFile": "src/lib/campaign/readiness/canonicalCatalogAdmission.ts",
+      "finding": "This is the load-bearing shared guard for FOUR distinct roadmap surfaces: camp-01a's readiness/materializer boundary (its own frozen predecessor concern), camp-01d's mission-launch/dashboard/fast-forward/coop injection (this node), R2.combat's per-unit custom-source eligibility (line-7), and (per combatBriefCrossReference) R2.combat's S5 slice today added new snapshot-level mutation-proved rows to launchCoopMission.test.ts, one of camp-01d's own three frozen files, on an unmerged branch.",
+      "implication": "Any future repair slice under R2.camp-4's ownership that changes canonicalCatalogAdmission.ts's admitCampaignLaunch/admitCanonicalExactReference SIGNATURES or DENIAL CODES (as opposed to adding tests around the existing behavior) risks breaking camp-01a's, R2.combat's, and the in-flight S5 branch's assumptions simultaneously. Since the gap analysis above finds NO code gap for tasks 4.1-4.3's literal text, this risk is currently theoretical, but a worker admitted onto R2.camp-4 should grep for all admitCampaignLaunch/admitCanonicalExactReference/admitRosterUnitSource call sites before touching canonicalCatalogAdmission.ts, not just the three files the frozen row pins."
+    },
+    {
+      "sharedConcept": "the CampaignDashboardPage.reactivity.test.tsx mock boundary (missionReadinessProjection mocked, canonicalCatalogAdmission NOT mocked) mirrors the exact 'coverage-shape, evolved-after-freeze' pattern the R2.camp-2 brief found for CampaignCoopEntryPanel.test.tsx (which mocks buildCampaignAuthoritativeState entirely)",
+      "finding": "Unlike camp-01b's case, this is NOT a coverage hole here: the dashboard test deliberately mocks the HIGHER-LEVEL readiness projection (to control canLaunch/selectedUnits deterministically) while leaving the LOWER-LEVEL admission guard (admitCampaignLaunch) real and unmocked, so the 'blocks a custom selection' test at line 371 genuinely exercises production admission logic, not a stub. This session independently confirmed the guard is unmocked by reading the test file's full mock-setup block (lines 1-70) and finding no jest.mock of canonicalCatalogAdmission anywhere in the file.",
+      "implication": "No repair needed here; flagged only so a future auditor does not mistake this mock structure for the camp-01b-style hole without checking which layer is actually mocked."
+    }
+  ],
+  "productionBrowserRunRequiredSummary": {
+    "answer": true,
+    "reasoning": "Identical shape to camp-01b's and camp-01c's rows, heavier still: camp-01d's WAVE_CONTRACTS commandSequence has THREE entries, not two -- the frozen 3-file jest run, `npm run qc:command:readiness-stable:quick` (a real command-screen-slice validation run, package.json:170), and `npm run verify:qc:coop-campaign-journey` (package.json:199, which itself chains 9 jest suites and then a 2-spec Playwright chromium run: e2e/coop-campaign-two-browser-journey.spec.ts, e2e/coop-campaign-ui-audit.spec.ts, --workers=1). A full command-level camp-01d receipt reproduction (SLICE-1 below) therefore requires both the readiness-stable command-screen run AND the Playwright two-browser leg. The readiness-stable script's own internals were not independently re-read this session (inherited from package.json:170's citation); the Playwright leg's script definition was inherited from the R2.camp-2/3 briefs' own citation of the same package.json:199 line, not independently re-read this session either -- flagged as a citation carried forward rather than freshly re-verified this pass."
+  },
+  "orderedSlicePlan": [
+    {
+      "id": "SLICE-1",
+      "priority": 1,
+      "title": "Command-level camp-01d receipt run at exact-main (audit evidence, zero product files, includes the readiness-stable and browser legs)",
+      "behaviour": "Reproduce the established camp-00/camp-01a/camp-01b/camp-01c command-level pattern for camp-01d: on a freshly fetched, detached-HEAD worktree at verified origin/main, export CAMP01_ARTIFACT_DIR (a fresh evidence directory) and CAMP01_RUN_ID (a crypto-random `camp01-<32hex>` id), then run ALL THREE frozen commands in order -- the 3-file jest suite (fastForwardCombatRunner.test.ts, CampaignDashboardPage.reactivity.test.tsx, launchCoopMission.test.ts, --runInBand), then `npm run qc:command:readiness-stable:quick`, then `npm run verify:qc:coop-campaign-journey`. Record exit codes, the produced wave-result.json (schema camp01-wave-result/v1), and all 7 frozen assertion values verbatim.",
+      "filesChanged": 0,
+      "filesTouchedList": [],
+      "redFirstTestNames": "NONE -- pure reproduction run of already-passing, already-shipped code. Per source verification above, tasks 4.1-4.3's core behavior is fully implemented and covered; no repair is needed. The only new artifact is the evidence JSON this slice writes.",
+      "linesEstimate": "0 product/spec lines; 1 new evidence JSON file (unbounded, evidence-only, same category as the predecessor camp-0x receipt-run artifacts)",
+      "gates": {
+        "frozenCommands": [
+          "npm test -- --watchAll=false --runTestsByPath src/lib/campaign/fastForward/__tests__/fastForwardCombatRunner.test.ts src/components/gameplay/pages/campaigns/dashboard/__tests__/CampaignDashboardPage.reactivity.test.tsx src/lib/campaign/coop/__tests__/launchCoopMission.test.ts --runInBand",
+          "npm run qc:command:readiness-stable:quick",
+          "npm run verify:qc:coop-campaign-journey"
+        ],
+        "canonicalArgvDigestMustMatch": "cb3ee9a647e27ee3436be604511a3d529fc4f8bdfdb132716381f159d98a54f5",
+        "envRequired": ["CAMP01_ARTIFACT_DIR=<fresh dir>", "CAMP01_RUN_ID=camp01-<32 lowercase hex chars>"],
+        "expectedExit": 0,
+        "expectedAssertions": "all 7 camp-01d assertions true (see frozenContractRow.assertions)",
+        "browserLegNote": "Heaviest reproduction in the chain so far: qc:command:readiness-stable:quick is a real command-screen-slice validation run, and verify:qc:coop-campaign-journey's Playwright leg needs a built/served app -- budget accordingly."
+      },
+      "nonClaims": [
+        "Does NOT close roadmap task 4.3's receipt clause -- the controller write/validate invocations the task text names are not run.",
+        "Does NOT produce a controller-recognized durable receipt directory under .sisyphus/evidence/playtest/camp01d-launch-<sha>/.",
+        "Does NOT satisfy or attempt to satisfy githubReviewGateG1.",
+        "Does NOT modify canonicalCatalogAdmission.ts, launchCoopMission.ts, fastForwardCombatRunner.ts, materializeCampaignMissionEncounter.ts, missionReadinessProjection.ts, or CampaignDashboardPage.tsx.",
+        "Does NOT re-litigate or extend the R2.combat/S5 snapshot-adjective rows added today to launchCoopMission.test.ts on an unmerged branch -- that work belongs to a different OpenSpec change and is tracked in its own evidence."
+      ],
+      "fileDisjointParallelizableWith": [
+        "none in this node -- zero product-file footprint; safe to run in parallel with any other roadmap node's slice, though it contends for local build/Playwright resources with any concurrent camp-0x or R2.combat browser-leg receipt run -- avoid running those concurrently on the same machine"
+      ]
+    },
+    {
+      "id": "SLICE-2",
+      "priority": 2,
+      "title": "(Blocked, do not start) camp-01d controller-registered reviewed-head receipt",
+      "behaviour": "Run `npm run qc:camp01-authority-receipt:write -- --wave=camp-01d ...` and `:validate ... --mode=reviewed-head` for real, registering a durable receipt the controller's own readIndex() recognizes.",
+      "filesChanged": 0,
+      "blocker": "controllerPredecessorGate: camp-01c (and transitively camp-01b, camp-01a, camp-00) has no controller-recognized exact-main receipt + cleanup record yet. This slice cannot proceed until the predecessor chain closes through the controller, which is itself owner-blocked on githubReviewGateG1 all the way down. Do not attempt SLICE-2 before that predecessor chain exists, or the controller will fail fast with 'predecessor receipt missing: camp-01c'.",
+      "fileDisjointParallelizableWith": []
+    },
+    {
+      "id": "SLICE-3",
+      "priority": 3,
+      "title": "(Blocked, external) camp-01d exact-main PR-provenanced receipt and roadmap task 4.3 closure",
+      "behaviour": "After a real product/spec PR pair exists for the (already-shipped) camp-01d code and passes the controller's reviewed-head mode, merge with a real non-author APPROVED review, then rerun the controller in exact-main mode.",
+      "blocker": "githubReviewGateG1 -- structurally unsatisfiable with one repository collaborator (re-verified live this session). No agent session can produce a second collaborator's approval.",
+      "fileDisjointParallelizableWith": []
+    }
+  ],
+  "dependencySummary": {
+    "onR2camp3": "R2.camp-4 depends on R2.camp-3 twice over: (a) the roadmap edge dependsOn:[R2.camp-3], and (b) the frozen camp-01d WAVE_CONTRACTS row's own predecessors:[camp-01c], enforced by the controller's durable-index predecessor check. R2.camp-3's own brief recommends but does not confirm execution of its SLICE-1; no camp-01c durable receipt exists yet. R2.camp-4 inherits the same state: it can reach the same command-level evidence tier (SLICE-1) but cannot reach the controller-registered tier until camp-01a, camp-01b, and camp-01c all reach it first, and cannot reach exact-main PR closure until camp-00's, camp-01a's, camp-01b's, camp-01c's, and camp-01d's own githubReviewGate are ALL satisfied.",
+    "whatCampFourCanDeliverUnderTheOwnerGate": "A command-level, evidence-only receipt (SLICE-1) proving the already-shipped camp-01d code (real, merged, on origin/main via PR #1236) still passes its frozen 3-file jest suite, its readiness-stable command-screen-slice run, AND its Playwright browser leg at exact-main, with the same 7/7 assertion tally the wave contract requires. This mirrors what camp00-receipt-run-main and the recommended R2.camp-1/2/3 SLICE-1s already established as the pattern for this entire chain.",
+    "whatStaysBlocked": "Everything past command-level evidence: the controller-registered receipt (needs camp-01a's, camp-01b's, and camp-01c's own controller receipts first, transitively needing camp-00's), and any real PR closure of roadmap task 4.3 (needs a second GitHub collaborator's non-author APPROVED review, soloException=false, structurally absent today -- now demonstrated unsatisfied for the fourth consecutive sub-wave by PR #1236's own zero-review history)."
+  },
+  "productionBrowserRunRequired": true,
+  "recommendedFirstSlice": "SLICE-1",
+  "summary": "All three taskKeys of R2.camp-4 (CAMP-01D: injecting the trusted canonical-catalog snapshot into mission launch, dashboard, Mech Bay readiness, fast-forward, and every materializer caller with explicit loading/unavailable recovery; resolving force membership/unit sources through the accepted host snapshot before applying the shared admission guard inside launchCoopMission, with canonical success tested separately from blocked scenarios; and pinning the frozen 3-command wave contract) are ALREADY IMPLEMENTED and already covered by the exact three jest files the frozen camp-01d contract row names, verified by direct source and test-file reads against origin/main at 273ed7883420. No red-first work, no repair PR, and no code changes are needed for tasks 4.1-4.3's literal text -- gap NONE FOUND. This is the fourth consecutive CAMP-01 sub-wave (after camp-00, camp-01a, camp-01b, camp-01c) whose archived child change (2026-08-20-enforce-campaign-unit-source-launch-boundary) makes an affirmative but unverifiable completion claim citing a council-review document (2026-08-12) that does not exist on origin/main; camp-01d's product PR #1236 is real and merged (mergeCommit 097210e8b6, confirmed an ancestor of origin/main), but -- like camp-01b's #1231/#1233 and camp-01c's #1235 -- it was self-authored, self-merged, with zero recorded GitHub reviews, so the claimed 'durable reviewed-head + exact-main + cleanup receipts' were never produced (independently confirmed: zero camp01a/b/c/d directories exist anywhere in the durable evidence tree). A shared-surface cross-check against the R2.combat admission brief and its S5 slice confirms canonicalCatalogAdmission.ts's admitCampaignLaunch/admitCanonicalExactReference/admitRosterUnitSource functions are the same guard family both camp-01d and the separate enable-saved-custom-unit-combat change build on; today's (2026-09-15) S5 slice added mutation-proved unit tests for admitCampaignLaunch's snapshot-level branches directly inside launchCoopMission.test.ts on an unmerged local branch -- additive, out of camp-01d's literal scope, and not a gap in this node's own assessment. The achievable next step is SLICE-1: a command-level exact-main receipt run reproducing all three frozen commandSequence entries (the 3-file jest suite, the readiness-stable command-screen-slice run, and verify:qc:coop-campaign-journey's Playwright two-browser leg), mirroring the pattern already established for camp-00/camp-01a/camp-01b/camp-01c but heavier still (three commandSequence entries versus two or one). Task 4.3's controller-registered and PR-provenanced receipt tiers remain blocked on the identical two structural gates every predecessor in this chain hits: the predecessor chain (camp-01c, and transitively camp-01b/camp-01a/camp-00) has no controller-recognized receipt yet, and the single-collaborator githubReviewGate (soloException=false, re-verified live this session via `gh api .../collaborators`) is structurally unsatisfiable in an agent session."
+}

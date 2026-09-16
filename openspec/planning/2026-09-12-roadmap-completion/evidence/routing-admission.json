@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 1,
+  "at": "2026-09-12T11:11:37.269Z",
+  "node": "R1.route",
+  "state": "prepared",
+  "baseline": "be7f85b867aa3e8576e5e3d27e309276203bc24b",
+  "branch": "codex/roadmap-routing-precedence-20260912",
+  "canonicalWorktreePath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\routing",
+  "gitDirectory": "E:/Projects/MekStation/.git/worktrees/routing",
+  "gitCommonDirectory": "E:/Projects/MekStation/.git",
+  "owned": [
+    {
+      "path": "src/hooks/useCustomizerRouter.ts",
+      "sha256": "1a1cf81bb6570b7e73cae79f2c82a9172106c854991da7cd9199f4053491b77a"
+    },
+    {
+      "path": "src/hooks/__tests__/useCustomizerRouter.recovery.test.tsx",
+      "sha256": "48bbe23eea5dd26c366e310353889b2f6774b1f276609a541ef26556f0725ea9"
+    },
+    {
+      "path": "src/components/customizer/CustomizerWithRouter.tsx",
+      "sha256": "b8d35e3c956db68551c2d670e60b85ad748865269fe36c0dd7de12daabe9dd66"
+    },
+    {
+      "path": "src/components/customizer/__tests__/CustomizerWithRouter.routing.test.tsx",
+      "sha256": "9f378fdd754aaf881ff37d8699636f47bff823ffff58e2fc0a13395ed8ef0266"
+    },
+    {
+      "path": "openspec/specs/customizer-routing/spec.md",
+      "sha256": "0a73eaad02a565b1da64c7ed5277aedf84f367eba609d120c805acc43defb0c9"
+    },
+    {
+      "path": "openspec/changes/fix-customizer-explicit-tab-precedence/.openspec.yaml",
+      "sha256": "a4ed664eb8476e85e347872f52baefe664358318725d07ee4e28ea918d6fd9d4"
+    },
+    {
+      "path": "openspec/changes/fix-customizer-explicit-tab-precedence/design.md",
+      "sha256": "2328c2f8821202ef7aac04351767b9e57572d001be6a18fbfc408ecda4a326fe"
+    },
+    {
+      "path": "openspec/changes/fix-customizer-explicit-tab-precedence/proposal.md",
+      "sha256": "41762fe61062760b75aa0e799600e9f79ad982453400ea7913ec3d41cb9a7a46"
+    },
+    {
+      "path": "openspec/changes/fix-customizer-explicit-tab-precedence/specs/customizer-routing/spec.md",
+      "sha256": "6ddd0e574a13367a81224650aeda5fee91af142f8e98b82880d76d30fc2517cd"
+    },
+    {
+      "path": "openspec/changes/fix-customizer-explicit-tab-precedence/tasks.md",
+      "sha256": "e86f8bd194ff5fd88b421bd9172d39b8c0852dee9ba7872efefad7246f4234c1"
+    },
+    {
+      "path": "e2e/customizer-edit-recovery.spec.ts",
+      "sha256": "f04641daff42dea7ff459c56d7a3efbb87463ade8c62d11a0f931e37a364b4e0"
+    },
+    {
+      "path": "openspec/specs/customizer-tabs/spec.md",
+      "sha256": "23acfe7825ea5afc1a800b4ff8c11239a986a60a31fe2f023e25933cd8ad2d76"
+    },
+    {
+      "path": "openspec/active-change-ledger.json",
+      "sha256": "ef3fbc1bbc452a71c0605973cf7e5169f2b32127e91a6803f515538353a7cdf1"
+    }
+  ],
+  "sourceCheckout": "E:\\Projects\\MekStation",
+  "scope": "13 files; isolated routing only; no armor-style or selector hunk",
+  "cleanup": "Keep until merged-main proof and durable export; exact identity/HEAD/ref/clean manifest required before non-force removal"
+}

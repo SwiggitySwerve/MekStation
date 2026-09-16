@@ -1,0 +1,40 @@
+{
+  "evidenceKind": "exact-main-proof",
+  "prReference": 1693,
+  "commitTested": "f8abc1844760137dcc9d4e4c6eaff17157052bee",
+  "reviewedCommit": "bb346350e",
+  "blobEquality": [
+    "src/lib/multiplayer/server/__tests__/journalAuthorityStartedDerived.sqlite.test.ts 511c68842689a1c4753099f265bcdca2e8ed1592 511c68842689a1c4753099f265bcdca2e8ed1592 SAME",
+    "src/lib/multiplayer/server/matchJournalAuthorityStartedDerived.ts c9759b9c405980524780ef63dec3c2197222f5b1 c9759b9c405980524780ef63dec3c2197222f5b1 SAME"
+  ],
+  "commands": [
+    {
+      "argv": [
+        "node",
+        "node_modules/jest/bin/jest.js",
+        "--maxWorkers=2",
+        "--coverage=false",
+        "src/lib/multiplayer/server",
+        "src/lib/events/journal"
+      ],
+      "result": "jest exit 0\nTest Suites: 169 passed, 169 total\nTests:       1321 passed, 1321 total"
+    },
+    {
+      "argv": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "result": "typecheck exit 0"
+    }
+  ],
+  "logSha256": [
+    "ff7a2d0c970bc9161a6050646c2ed9d7322a6ac646f4cbaaf985f64e87bed113 */e/Projects/MekStation/.sisyphus/roadmap-completion-20260912/main-proof-1693-20260915/jest.stderr.log",
+    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 */e/Projects/MekStation/.sisyphus/roadmap-completion-20260912/main-proof-1693-20260915/jest.stdout.log",
+    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 */e/Projects/MekStation/.sisyphus/roadmap-completion-20260912/main-proof-1693-20260915/typecheck.stderr.log",
+    "d140a6ce62dda0946fe30dd882dbb8209f05be72c8fa8850e5634755a399e50f */e/Projects/MekStation/.sisyphus/roadmap-completion-20260912/main-proof-1693-20260915/typecheck.stdout.log"
+  ],
+  "nodeVersion": "v22.22.0",
+  "timestampUtc": "2026-09-15T09:34:36.798Z",
+  "parentAcceptance": "parent Astra ran and accepted"
+}

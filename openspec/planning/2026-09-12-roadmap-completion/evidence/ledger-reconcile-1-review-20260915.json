@@ -1,0 +1,129 @@
+{
+  "evidenceKind": "independent-review",
+  "subject": {
+    "pr": 1718,
+    "branch": "codex/roadmap-ledger-reconcile-1-20260915",
+    "base": "2b98ce5b0",
+    "commits": [
+      "17b9e83c381d0f1a202c9489a7dd698ae754c086",
+      "7d723d7cd015f9c290a615dfccc5c7871b2bf9f2"
+    ],
+    "diffStat": "4 files changed, 25 insertions(+), 16 deletions(-)",
+    "filesChanged": [
+      "openspec/active-change-ledger.json",
+      "openspec/changes/add-camp01-authority-receipts/tasks.md",
+      "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/tasks.md",
+      "openspec/changes/design-campaign-authority-and-sync/tasks.md"
+    ]
+  },
+  "verdict": "APPROVE-WITH-REQUIRED-EDITS",
+  "requiredEdits": [
+    {
+      "id": "RE-1",
+      "location": "openspec/changes/design-campaign-authority-and-sync/tasks.md, task 1.6 Progress note",
+      "issue": "The note states the cold-reload proof spec's functional green 'is owed to the F1 reconciliation fix (PR #1710) and the case (a) close-discard repair (PR #1711), neither of which is merged.' PR #1710 (commit 83887b7467deba22c1b0b6aa6fb1be8ba6bc4600, 'fix(campaign): acknowledge a hidden-transition flush by reading the record it wrote') merged into origin/main at 2026-09-15T13:05:30Z / 07:05:30-06:00 -- confirmed both via `git merge-base --is-ancestor 83887b746 origin/main` (true) and `gh pr view 1710 --json state,mergedAt` (state MERGED, mergedAt 2026-09-15T13:05:30Z). Both reconciliation commits (17b9e83c at 07:11:13, 7d723d7cd at 07:13:31) were authored AFTER that merge, so the claim was already false at authorship time, not just stale by the time of this review -- a stale-base/stale-fetch defect of the same shape as the OB-207 canonical incident this repo's own guidance warns against. PR #1711 ('test(campaign): discard through tab close so the keepalive flush proof matches Chromium semantics') is correctly reported unmerged (verified OPEN via gh).",
+      "impact": "Does not change the checkbox state (1.6 correctly stays unchecked/open) or the substantive conclusion (browser half not closed, since #1711 alone gates the case-(a) functional green) -- but the specific factual claim about PR #1710 is wrong and should be corrected before merge, since the entire purpose of this bookkeeping-only PR is exact factual accuracy about merge state.",
+      "recommendedFix": "Amend the sentence to reflect that PR #1710 is merged (main-verified) and that the case (a) close-discard repair (PR #1711) remains open/unmerged as the sole remaining blocker to the cold-reload proof's functional green; re-state which specific behavior (if any) newly lands on main now that #1710 is in, and whether that changes the OD-flush-mechanism framing."
+    }
+  ],
+  "perRowFindings": [
+    {
+      "row": "adopt-combat-journal-cutover-and-gm-rewind 0.2 (FLIP, [ ] -> [x])",
+      "result": "PASS",
+      "notes": "Receipt evidence/r4-s1-journal-batches-1684-main-proof-20260915.json exists, names commitTested 95042d9196795afe33662954686c57cd4b1749a2 (PR #1684); `git merge-base --is-ancestor` confirms it is an ancestor of origin/main. Task text (verify branch port shape + record SHA) is fully discharged: hasHistoryBranchStore and readEffectiveHead confirmed present on origin/main (src/lib/events/storeCapabilityPorts.ts:48,147,154); the supersession write is confirmed at src/lib/events/journal/EventHistoryActivation.ts:204 (the db.prepare(...) INSERT INTO event_history_supersessions call inside writeSupersession), not on the branch store. SHA b7d65099 exists and is an ancestor of origin/main."
+    },
+    {
+      "row": "adopt-combat-journal-cutover-and-gm-rewind 1.2 (FLIP, [ ] -> [x])",
+      "result": "PASS",
+      "notes": "Receipt evidence/r4-s2-live-head-1691-main-proof-20260915.json exists, names commitTested 823bdf3acbaaa8a5d7ddccfff0f0f1a30e2688ee (PR #1691), confirmed ancestor of origin/main. Task text (prove readEffectiveHead/admission against a REAL journal-backed head, four illegal command shapes) fully satisfied: src/lib/multiplayer/server/__tests__/ServerMatchHostBranchAdmission.journalHead.test.ts on origin/main contains exactly the four named shapes (shape 1 STALE_BRANCH, shape 2 MATCH_QUARANTINED, shape 3 GM_ONLY, shape 4 RewindRequest) plus a mirror-installed-head test and a cold-reopen test -- not a hand-constructed fixture head."
+    },
+    {
+      "row": "adopt-combat-journal-cutover-and-gm-rewind 1.1 (PARTIAL, checkbox unchanged)",
+      "result": "PASS",
+      "notes": "Checkbox confirmed still '- [ ]' (unchanged). Residual text 'no rewind-route acceptance; task 1.1 rewind preview not claimed' matches verbatim the reasoning recorded in evidence/ledger-reconcile-1-local-20260915.json line 79. busy_timeout absence confirmed against origin/main src/services/persistence/SQLiteService.ts (only journal_mode=WAL and foreign_keys=ON pragmas present, no busy_timeout)."
+    },
+    {
+      "row": "adopt-combat-journal-cutover-and-gm-rewind 1.3 (PARTIAL, checkbox unchanged)",
+      "result": "PASS",
+      "notes": "Checkbox confirmed still '- [ ]'. Marker mp_journal_authority_started confirmed still present in production files on origin/main (DurableMatchStore.ts, journalAuthorityBaseline.ts) -- retirement not delivered, consistent with the 'routed to 1.7' claim. isMatchJournalAuthorityStartedDerived confirmed to have zero production call sites on origin/main (only a test file calls it), matching the 'zero production consumers' claim. All three cited merge SHAs (f8abc1844..., 28e114300..., f6c5bd15a...) confirmed ancestors of origin/main."
+    },
+    {
+      "row": "adopt-combat-journal-cutover-and-gm-rewind 1.4 (PARTIAL, checkbox unchanged)",
+      "result": "PASS",
+      "notes": "Checkbox confirmed still '- [ ]'. PR #1704 (8cacf20a65880e42304c4e885b395525c820f775) confirmed merged/ancestor of origin/main. PR #1705 confirmed NOT present in origin/main history (no matching commit subject on origin/main; only unrelated commit 01705611a matches the numeral substring) -- 'unmerged' claim is correct here (unlike the 1.6 finding above)."
+    },
+    {
+      "row": "design-campaign-authority-and-sync 1.6 (PARTIAL, checkbox unchanged)",
+      "result": "REQUIRED EDIT (see RE-1)",
+      "notes": "Checkbox confirmed still '- [ ]'. PR #1694 (c40a394f6030cc18157384518a4e62550d6b3727) confirmed merged/ancestor of origin/main; contract-market.tsx / discard-flush claims otherwise check out. NON-CLAIMS widening numbers (0/15, 1/2, 11/11, 0/3 vs 3/3) confirmed to match evidence/r2-client-discard-flush-diagnosis-20260915.json exactly (navigationDiscard_aboutBlank '0 landed / 15', navigationDiscard_sameOriginBrowserInitiated '1 landed / 2', closeDiscard '11 landed / 11', bareKeepaliveControl 'navigation 0/3, close 3/3'). However the '#1710 ... neither of which is merged' clause is factually wrong -- see RE-1."
+    },
+    {
+      "row": "design-campaign-authority-and-sync 6.1 (PARTIAL, checkbox unchanged)",
+      "result": "PASS",
+      "notes": "Checkbox confirmed still '- [ ]'. All three P0b merge SHAs (69ae53744..., 6a658c4ac..., e7cbe9e00...) confirmed ancestors of origin/main. envelopeOf collapse confirmed live on origin/main (src/lib/campaign/delivery/projectCampaignStreamForGrant.ts imports envelopeOf at :64 and calls it at :259, replacing the old inline narrowing). sourceReplayFence confirmed ABSENT from src/services/campaignPersistence/CampaignPersistenceService.ts on origin/main, matching the 'NOT delivered' claim for the borrowed-handle CAS / fence."
+    },
+    {
+      "row": "design-campaign-authority-and-sync 6.2 (PARTIAL, checkbox unchanged)",
+      "result": "PASS",
+      "notes": "Checkbox confirmed still '- [ ]'. All six 6.2a merge SHAs (818e654e0..., 484708a9e..., 21b98e64b..., aa26a94f1..., 53d4356a8..., 2b98ce5b0...) confirmed ancestors of origin/main (2b98ce5b0 is also the PR's stated base, consistent). Client-half claim verified: src/pages/gameplay/campaigns/[id]/contract-market.tsx handleAccept on origin/main calls acceptContractOffer(offerId) synchronously with no saveCampaign/performSave/acknowledgement reference anywhere in the file -- matches 'verified absent on main.' 6.2b correctly reported not started."
+    },
+    {
+      "row": "add-camp01-authority-receipts 4.1 binding correction (NOTE, evidence-only annotation)",
+      "result": "PASS",
+      "notes": "No checkbox touched (annotation only). The frozen CAMP-01F and CAMP-01G journey names quoted are confirmed verbatim at e2e/campaign-customizer-handoff.spec.ts:409 ('creates a saved custom unit campaign through accepted server persistence') and :528 ('cold reloads a saved custom unit into Mech Bay without source substitution') on origin/main."
+    },
+    {
+      "row": "ledger: add-authoritative-history-branches proposed -> in-progress",
+      "result": "PASS",
+      "notes": "Cited PR SHAs 4cf52fe73, bcc34f7cd, 1f84beef2 all confirmed ancestors of origin/main."
+    },
+    {
+      "row": "ledger: design-campaign-authority-and-sync proposed -> in-progress",
+      "result": "PASS (consistent with tasks.md findings above)"
+    },
+    {
+      "row": "ledger: adopt-combat-journal-cutover-and-gm-rewind proposed -> in-progress",
+      "result": "PASS",
+      "notes": "All six cited PR SHAs confirmed ancestors of origin/main. '0.1 still undelivered' and residual summaries for 1.1/1.3/1.4 consistent with the tasks.md findings above."
+    },
+    {
+      "row": "ledger: design-vault-campaign-separation-and-maps reason refresh (status unchanged)",
+      "result": "PASS",
+      "notes": "CURRENT_CAMPAIGN_SCHEMA_VERSION = 2 confirmed at src/lib/campaign/persistence/campaignMigration.ts:25 on origin/main, matching the 'v2->v3 rung, no wording change needed' claim. CreateCampaignPage.submit.ts confirmed to exist and be under active development on origin/main, consistent with the 'D3 seam' claim (not exhaustively re-derived)."
+    },
+    {
+      "row": "ledger: add-customizer-pr-regression-gate reason refresh (status unchanged, in-progress)",
+      "result": "PASS",
+      "notes": "customizer-regressions job confirmed present in .github/workflows/pr-checks.yml and is exactly the 17th of the 19 'needs' entries in the lint-and-test aggregator. `gh pr checks 1690` and `gh pr checks 1692` both show 'Customizer Regressions ... pass', matching the 'ran SUCCESS on live PRs #1690 and #1692' claim."
+    }
+  ],
+  "hygiene": {
+    "openspecOnlyPaths": true,
+    "fileCount": 4,
+    "lineCount": "25 insertions + 16 deletions = 41 (limit 500 lines / 15 files)",
+    "conventionalSubjects": [
+      "spec(openspec): reconcile ledger and task rows with merged exact-main receipts (batch 1)",
+      "spec(openspec): refresh the journal-cutover ledger entry after the S1-S4 merges"
+    ],
+    "author": "Wes Rollings <wrollings@gmail.com>",
+    "aiAttribution": "none found (grepped both commit bodies for generated|claude|anthropic|co-authored|openai|gpt|codex, no matches)",
+    "deferralsUntouched": true,
+    "modeOrFlagFlipsTouched": false,
+    "roadmapJsonUntouched": true,
+    "notes": "grep of the full diff for 8.x rows and CAMPAIGN_JOURNAL_AUTHORITY_ENABLED found only unchanged context lines (the D12/D13 paragraph's mention of not flipping the flag, and the '8.1-8.3 deferrals stand verbatim' narrative sentence) -- no deferral row or flag state was actually edited."
+  },
+  "ledgerJsonValidity": {
+    "parsesOnBranch": true,
+    "topLevelKey": "allowedActiveChanges",
+    "entryCountBaseVsBranch": "12 vs 12",
+    "keyOrderStable": true
+  },
+  "validatorLogShaVerification": {
+    "directory": ".sisyphus/roadmap-completion-20260912/reconcile-1-20260915/",
+    "allSha256Match": true,
+    "allExitCodesZero": true,
+    "note": "Computed sha256sum over every .log file in the directory and compared byte-for-byte against both log-sha256.txt and the sha256 fields recorded in evidence/ledger-reconcile-1-local-20260915.json -- all match. exits.log shows openspec/purpose/terminology/qc:openspec-ci exit=0 across the pre-correction, post-correction, and commit-2 runs."
+  },
+  "reviewerNote": "GP-JUSTIFIED read-only review per dispatch instructions. No files edited, no commits, no pushes, no builds, no sub-agents spawned; verification performed via git, gh (read-only), node, and grep against the fetched origin/main.",
+  "timestampUtc": "2026-09-15T13:35:00Z"
+}

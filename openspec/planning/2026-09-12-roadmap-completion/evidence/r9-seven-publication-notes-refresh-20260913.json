@@ -1,0 +1,121 @@
+{
+  "at": "2026-09-13T09:16:50.983Z",
+  "status": "seven-publication-notes-reconciled",
+  "review": "Luna high bounded partial handback, independently re-read canonical receipts and verified merge ancestry by parent",
+  "changes": [
+    {
+      "id": "aerospace-unit-system",
+      "oldPublication": "Local documentation repair committed at 06d423d5a8139fa1532349e91a1ec209cca2a000; bounded PR and exact-main acceptance pending.",
+      "newPublication": "Five-spec documentation repair merged in PR1641 at 1ecc1c300df7e53ba5e8d434e4d033a01ed96f73; exact-main documentation verification and owned cleanup are recorded. Broader runtime limits and explicit feature deferrals remain as stated.",
+      "receipts": [
+        "evidence/customizer-specs-merge-20260912.json",
+        "evidence/customizer-specs-main-verification-20260912.json",
+        "evidence/customizer-specs-cleanup-20260912.json"
+      ]
+    },
+    {
+      "id": "app-settings",
+      "oldPublication": "Local documentation repair committed at 06d423d5a8139fa1532349e91a1ec209cca2a000; bounded PR and exact-main acceptance pending.",
+      "newPublication": "Five-spec documentation repair merged in PR1641 at 1ecc1c300df7e53ba5e8d434e4d033a01ed96f73; exact-main documentation verification and owned cleanup are recorded. Broader runtime limits and explicit feature deferrals remain as stated.",
+      "receipts": [
+        "evidence/customizer-specs-merge-20260912.json",
+        "evidence/customizer-specs-main-verification-20260912.json",
+        "evidence/customizer-specs-cleanup-20260912.json"
+      ]
+    },
+    {
+      "id": "critical-slots-display",
+      "oldPublication": "Local documentation repair committed at 06d423d5a8139fa1532349e91a1ec209cca2a000; bounded PR and exact-main acceptance pending.",
+      "newPublication": "Five-spec documentation repair merged in PR1641 at 1ecc1c300df7e53ba5e8d434e4d033a01ed96f73; exact-main documentation verification and owned cleanup are recorded. Broader runtime limits and explicit feature deferrals remain as stated.",
+      "receipts": [
+        "evidence/customizer-specs-merge-20260912.json",
+        "evidence/customizer-specs-main-verification-20260912.json",
+        "evidence/customizer-specs-cleanup-20260912.json"
+      ]
+    },
+    {
+      "id": "equipment-tray",
+      "oldPublication": "Local documentation repair committed at 06d423d5a8139fa1532349e91a1ec209cca2a000; bounded PR and exact-main acceptance pending.",
+      "newPublication": "Five-spec documentation repair merged in PR1641 at 1ecc1c300df7e53ba5e8d434e4d033a01ed96f73; exact-main documentation verification and owned cleanup are recorded. Broader runtime limits and explicit feature deferrals remain as stated.",
+      "receipts": [
+        "evidence/customizer-specs-merge-20260912.json",
+        "evidence/customizer-specs-main-verification-20260912.json",
+        "evidence/customizer-specs-cleanup-20260912.json"
+      ]
+    },
+    {
+      "id": "protomech-unit-system",
+      "oldPublication": "Local documentation repair committed at 06d423d5a8139fa1532349e91a1ec209cca2a000; bounded PR and exact-main acceptance pending.",
+      "newPublication": "Five-spec documentation repair merged in PR1641 at 1ecc1c300df7e53ba5e8d434e4d033a01ed96f73; exact-main documentation verification and owned cleanup are recorded. Broader runtime limits and explicit feature deferrals remain as stated.",
+      "receipts": [
+        "evidence/customizer-specs-merge-20260912.json",
+        "evidence/customizer-specs-main-verification-20260912.json",
+        "evidence/customizer-specs-cleanup-20260912.json"
+      ]
+    },
+    {
+      "id": "equipment-database",
+      "oldPublication": "Repair remains open until its node is independently reviewed, merged and verified on exact main.",
+      "newPublication": "Indexed-file error-reporting repair merged in PR1640 at a538a2d3b2b05252e1c80cc60395c72953f4c979; exact-main109tests/3suites and owned cleanup are recorded. This does not close broader equipment journeys.",
+      "receipts": [
+        "evidence/equipment-loader-merge-20260912.json",
+        "evidence/equipment-loader-main-verification-20260912.json",
+        "evidence/equipment-loader-cleanup-20260912.json"
+      ]
+    },
+    {
+      "id": "mm-data-asset-integration",
+      "oldPublication": "Local repair verified; bounded PR, exact-main and cleanup pending.",
+      "newPublication": "Manifest synchronization repair merged in PR1643 at c44bf05720591efc5e40186c1a9f49b4afebe44a; exact-main static/build/HTTP verification and owned cleanup are recorded. No asset acquisition or renderer-completion claim.",
+      "receipts": [
+        "evidence/manifest-sync-merge-20260912.json",
+        "evidence/manifest-sync-main-verification-20260912.json",
+        "evidence/manifest-sync-cleanup-20260912.json"
+      ]
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "evidence/customizer-specs-merge-20260912.json",
+      "sha256": "788b2033cb33b675a71c6c8ef7387bbbde8aad811243e0282a837ca3c5e895ac"
+    },
+    {
+      "path": "evidence/customizer-specs-main-verification-20260912.json",
+      "sha256": "6d9874393b3cdda5f9144c485bef376fbc0a761c91586c15009540bf7bfe4da5"
+    },
+    {
+      "path": "evidence/customizer-specs-cleanup-20260912.json",
+      "sha256": "a0ca268e0d27dc34ddc792a5832ce8796981a8a8d76eb0123b8fa5b584061ae8"
+    },
+    {
+      "path": "evidence/equipment-loader-merge-20260912.json",
+      "sha256": "f337e6ab9e76f84315f3854e710221eca1a9370fed4ef44b6c5a6db43633b036"
+    },
+    {
+      "path": "evidence/equipment-loader-main-verification-20260912.json",
+      "sha256": "87802c2b4b3f62eae7a0e8545bb47f422a3435cc671b1ce2c90dc4e24e3f9032"
+    },
+    {
+      "path": "evidence/equipment-loader-cleanup-20260912.json",
+      "sha256": "a7d2a1ff5bb0c545cf03df9f56a24653fcd8cb24acc4df4a89223d1b04ee0ba6"
+    },
+    {
+      "path": "evidence/manifest-sync-merge-20260912.json",
+      "sha256": "e35b1d6d18b988e8006bae0bbe65571062d09bf408c285389dbc305d39b7cb35"
+    },
+    {
+      "path": "evidence/manifest-sync-main-verification-20260912.json",
+      "sha256": "9d989bd1cb77dd27c67b8513630bf8e1fc04b3411cb43ebd2c46bff8f31ecae6"
+    },
+    {
+      "path": "evidence/manifest-sync-cleanup-20260912.json",
+      "sha256": "397f5a8743c1471b46fa451dadeb95b3dd39f366900d5bb297bd385fb6c576cd"
+    }
+  ],
+  "limits": [
+    "Only publication strings and additive receipt links changed",
+    "Original row disposition, note, repairNode and runtime limitations unchanged",
+    "Other publication notes were not accepted by this bounded audit and remain for later reconciliation",
+    "No new runtime tests or GitHub state queries; these are retained accepted historical deliveries"
+  ]
+}

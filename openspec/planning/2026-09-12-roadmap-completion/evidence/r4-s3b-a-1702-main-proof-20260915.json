@@ -1,0 +1,50 @@
+{
+  "node": "R4.S3",
+  "artefact": "r4-s3b-a-1702-main-proof-20260915",
+  "capturedAtUtc": "2026-09-15T11:32:33.694Z",
+  "pr": 1702,
+  "slice": "R4.S3 sub-prefix 2 commit A: select the recovery reader from the mirrored journal head (task 1.3 repoint)",
+  "reviewedHead": "bdddcf243150ecec489ddb8e68187d05b9979eb1 (branch head after the parent DIRTY resolution e7c9532ca and manager update; delta vs main verified = S3b A 495+/43-)",
+  "mergeCommit": "28e114300a8d3c4f980a4d43270636c52b352d76",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/archive-original-main-proof (detached at the merge commit)",
+  "runtime": {
+    "node": "v22.22.0"
+  },
+  "files": [
+    "src/lib/multiplayer/server/ServerMatchHost.ts",
+    "src/lib/multiplayer/server/ServerMatchHostJournalAuthority.ts",
+    "src/lib/multiplayer/server/__tests__/matchRecoveryStartedFromJournalHead.sqlite.test.ts",
+    "src/lib/multiplayer/server/matchJournalAuthorityStartedDerived.ts"
+  ],
+  "blobEquality": {
+    "command": "git diff --stat bdddcf243 28e114300 -- src/lib/multiplayer/server",
+    "diffLines": 0,
+    "identical": true
+  },
+  "gates": {
+    "jest": {
+      "scope": "src/lib/multiplayer/server src/lib/events/journal",
+      "result": "170 suites / 1324 tests passed",
+      "exit": 0,
+      "sha256": "c2409d0bc5b51ab63438852945fa3974ed838eb030ed458a2901d2c275b2a40f"
+    },
+    "tsc": {
+      "exit": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "openspecStrict": {
+      "exit": 0,
+      "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3"
+    },
+    "qcOpenspecCi": {
+      "exit": 0,
+      "sha256": "1d2b3ffbba3922d328cc2b02fa1de7ccedad6b3382227fa903deccf9a0d5900c"
+    }
+  },
+  "acceptance": "exact-main accepted",
+  "nonClaims": [
+    "COMBAT_JOURNAL_AUTHORITY_MODE off",
+    "#1703 (B, transition-arm pins) pending",
+    "task 1.3 stays open until sub-prefix 3"
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "task": "Independent review of flake fix commit bfce65b3f (branch codex/roadmap-selected-paper-settle-20260915, base cd416634a) against selected-paper-flake-diagnosis-20260915.json and selected-paper-settle-local-20260915.json.",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/browser",
+  "verdict": "APPROVE",
+  "preflight": {
+    "git_log_head_2": "bfce65b3f test(e2e): settle the Locust render before releasing the stalled print pips / cd416634a spec(openspec): ledger and tasks reconciliation batch 3 (#1736)",
+    "git_status_short": "(empty -- clean)",
+    "branch": "codex/roadmap-selected-paper-settle-20260915",
+    "verified_via": ["git log --oneline -2", "git status --short", "git branch --show-current", "git rev-parse HEAD"]
+  },
+  "findings": [
+    {
+      "id": "F1",
+      "check": "Diff scope",
+      "result": "PASS",
+      "detail": "git show --stat bfce65b3f reports exactly 1 file changed, 2 insertions(+), 0 deletions. git show bfce65b3f confirms the two inserted lines are `await waitForBacking(page, LETTER);` and `await expectSheetType(page, 'Locust LCT-1V');`, inserted immediately after `await loadLocustBesideAtlas(page);` (spec.ts:354) and immediately before `} finally {` / `releasePips();` (spec.ts:355-357). No timeout value changed, no existing assertion's expected value changed, no product code touched.",
+      "file_line": "e2e/customizer-record-sheet-rendering.spec.ts:354-356"
+    },
+    {
+      "id": "F2",
+      "check": "Sequencing correctness / no masked regression",
+      "result": "PASS",
+      "detail": "Read the full test body (spec.ts:322-395) and the four referenced helpers. `loadLocustBesideAtlas` (spec.ts:77-94) does not itself wait for the record-sheet render to complete -- it only waits for the load dialog to close and the Preview tab/zoom label to appear. The inserted `waitForBacking(page, LETTER)` (spec.ts:138-145, polls the canvas backing-store pixel size) and `expectSheetType(page, 'Locust LCT-1V')` (spec.ts:201-205, polls the latest captured SVG's embedded type text) together drain Locust's CPU-bound preview render to completion BEFORE `finally { releasePips(); }` unblocks Atlas's stalled print pipeline. This removes the window in which the two CPU-bound synchronous render pipelines (Atlas's print via RecordSheetService.printRecordSheet -> fillArmorPips -> Promise.all of ~8-10 pip fetches, and Locust's fresh preview via useRecordSheetCanvasRenderer) could run concurrently on Chromium's single JS thread. The assertions that follow the try/finally (printCount===1 at :358, letterPrint.typeName==='Atlas AS7-D' at :360, expectedPrintedPaper, expectSheetType('Locust LCT-1V') at :368, tab-click back to Atlas + expectSheetType('Atlas AS7-D') at :370-371, the a4/letter paper-size roundtrip) are all unchanged and still exercise the same invariants: that a print initiated while Atlas was active still prints Atlas's data even after the UI has moved on to Locust, and that the on-screen preview correctly reflects whichever unit is active. The fix only adds a settle point; it does not weaken, skip, or change the meaning of any downstream assertion.",
+      "file_line": "e2e/customizer-record-sheet-rendering.spec.ts:322-395, 77-94, 138-145, 201-205"
+    },
+    {
+      "id": "F3",
+      "check": "Predicate matches precedent commit 9b59a19f8",
+      "result": "PARTIAL / NIT (does not block approval)",
+      "detail": "git show 9b59a19f8 and git show 79de4f195 (identical diffs) show that commit added `expectSheetType(...)` + a `combobox 'Paper Size'` value assertion at two tab-CLICK points (switching between already-loaded units), NOT `waitForBacking`. It did not add a `waitForBacking` call in either hunk. So the commit message's claim that bfce65b3f follows 'the same-day precedent in 9b59a19f8/79de4f195 which added equivalent settle waits' is true only in the general sense (both are settle-before-proceeding fixes); it is not a literal predicate match, since 9b59a19f8 never paired waitForBacking with expectSheetType. The genuinely identical predicate pairing (`waitForBacking(page, LETTER); ... expectSheetType(page, 'Locust LCT-1V')` immediately after a `loadLocustBesideAtlas(page)` call) already exists verbatim at spec.ts:305-308, in the sibling test 'preview shows the last requested unit and downloads nonempty Letter and A4 PDFs' -- confirmed via `git blame -L 304,308`, which attributes those lines to the ORIGINAL baseline commit be7f85b86 (2026-09-11), predating both 9b59a19f8/79de4f195 and bfce65b3f. The settle-local receipt's own 'precedent_match' field correctly identifies this closer precedent (spec.ts:305-308); the commit message itself does not cite it, citing only the looser 9b59a19f8/79de4f195 precedent. This is a commit-message attribution imprecision, not a functional defect -- the fix is in fact BETTER supported by precedent than the commit message states.",
+      "file_line": "e2e/customizer-record-sheet-rendering.spec.ts:305-308 (git blame: be7f85b867, 2026-09-11 19:36:14 -0600)"
+    },
+    {
+      "id": "F4",
+      "check": "CI evidence supports this insertion point",
+      "result": "PASS",
+      "detail": "selected-paper-flake-diagnosis-20260915.json documents 3 CI failures: PR1722 and PR1730 are byte-identical failures at spec.ts:358 (printCount poll, expected 1 received 0, both confirmed non-deterministic via a same-commit attempt-2 success); PR1705 failed at an earlier revision's spec.ts:366 (expectSheetType poll, expected 'Locust LCT-1V' received 'Atlas AS7-D'). The diagnosis's own fix_candidates_ranked[0] explicitly names this exact insertion point ('immediately after `await loadLocustBesideAtlas(page);`, still inside the try block, before the finally... at line 355') as the fix, reasoning that sequencing Locust's settle before releasing the stall removes the CPU-contention window that produces BOTH observed failure shapes (print-side stall for 1722/1730, preview-side stall for 1705). The applied diff matches fix_candidates_ranked[0] exactly. The diagnosis's not_acceptable_fixes section explicitly rules out timeout-widening, and the applied diff does not widen any timeout.",
+      "file_line": "openspec/planning/2026-09-12-roadmap-completion/evidence/selected-paper-flake-diagnosis-20260915.json (ci_failures, fix_candidates_ranked[0])"
+    },
+    {
+      "id": "F5",
+      "check": "Format gate",
+      "result": "PASS",
+      "detail": "npx oxfmt --check e2e/customizer-record-sheet-rendering.spec.ts -> 'All matched files use the correct format.' exit 0.",
+      "command": "npx oxfmt --check e2e/customizer-record-sheet-rendering.spec.ts",
+      "exit_code": 0
+    },
+    {
+      "id": "F6",
+      "check": "Type-check gate",
+      "result": "PASS",
+      "detail": "npx tsc --noEmit -p tsconfig.json ran clean with no output, exit 0.",
+      "command": "npx tsc --noEmit -p tsconfig.json",
+      "exit_code": 0
+    },
+    {
+      "id": "F7",
+      "check": "No AI attribution in commit message",
+      "result": "PASS",
+      "detail": "git log -1 --format=%B bfce65b3f grepped case-insensitively for claude|anthropic|co-authored|generated with|gpt|openai|copilot -> no matches. Author is Wes Rollings <wrollings@gmail.com>.",
+      "command": "git log -1 --format='%B' bfce65b3f | grep -iE \"claude|anthropic|co-authored|generated with|gpt|openai|copilot\""
+    },
+    {
+      "id": "F8",
+      "check": "Non-claim about local reproduction is stated plainly",
+      "result": "PASS",
+      "detail": "Both evidence files state, without hedging into false confidence, that the race did not reproduce locally. The diagnosis's local_reproduction section states 'did_not_reproduce_the_target_race: true' and explains all 30/30 local runs failed for an unrelated, deterministic, local-environment-only cause (missing fetched record-sheet assets), explicitly marking this as 'INFERENCE/hypothesis... not as a directly observed race.' The settle-local receipt's per_run_table 'settle-removed' row and its non_claims list state plainly that 'Race did NOT reproduce even with the settle removed, on this local machine' and that 'a local pass in every configuration... does not by itself prove or disprove the fix.' Both documents correctly attribute this to the local machine's hardware (this reviewer's own session also confirmed via `node --version`/environment that this is a 16-logical-core machine per the diagnosis and receipt's own reporting) versus CI's 2-vCPU ubuntu-latest runner named in .github/workflows/pr-checks.yml's 'Customizer Regressions' job. Neither document overstates local pass/fail as proof of the fix; both correctly rest the fix's justification on the CI log evidence plus code-reading, not the local run.",
+      "file_line": "selected-paper-flake-diagnosis-20260915.json:local_reproduction, non_claims; selected-paper-settle-local-20260915.json:per_run_table[3], non_claims"
+    }
+  ],
+  "gate_results": {
+    "oxfmt_check": { "command": "npx oxfmt --check e2e/customizer-record-sheet-rendering.spec.ts", "exit_code": 0 },
+    "tsc_noEmit": { "command": "npx tsc --noEmit -p tsconfig.json", "exit_code": 0 }
+  },
+  "requiredEdits": [],
+  "notes": [
+    "F3 is a documentation-precision nit, not a code or logic defect: the commit message cites 9b59a19f8/79de4f195 as the precedent, but the exact waitForBacking+expectSheetType predicate pairing after loadLocustBesideAtlas already existed pre-flake-fix at spec.ts:305-308 (baseline commit be7f85b86, 2026-09-11). This does not affect correctness and is not required to be fixed given the commit is already merged/committed to this branch; flagged for awareness only.",
+    "This review did not execute a full Playwright run (CPU is shared per the task's explicit scope restriction); it relies on the settle-local receipt's own 4 recorded Playwright run configurations (all passed) plus independently-reproduced oxfmt/tsc gate results."
+  ]
+}

@@ -1,0 +1,232 @@
+{
+  "at": "2026-09-13T09:05:07.583Z",
+  "status": "local-verified-committed-not-published",
+  "prefix": "R3.storage.A",
+  "head": "870f93856d5b09eb1ed7191be94a5a3e9e52103c",
+  "branch": "codex/roadmap-history-fixtures-20260913",
+  "base": "44b94adbbb333a9d4965e057b34290e19fc0e781",
+  "files": [
+    {
+      "path": "src/services/persistence/__tests__/SQLiteService.correctionLeases.migration.test.ts",
+      "sha256": "f483865857c75d45b7c969224e131e7f9076f9f7cac38c5fd770e3d05bbf539e"
+    },
+    {
+      "path": "src/services/persistence/__tests__/SQLiteService.artifactManifest.migration.test.ts",
+      "sha256": "2eb75e49ddb99af1b556727f597b49568cbf36a97a5956950b8113299bc23f2f"
+    },
+    {
+      "path": "src/lib/events/journal/__tests__/EventHistoryArtifactManifest.test.ts",
+      "sha256": "ff828cf4ff8f3357abe0f1cf3c3366c5364b84022ac21ec5612978c3bf77bc08"
+    }
+  ],
+  "changedLines": 9,
+  "tests": {
+    "passed": 27,
+    "suites": 3,
+    "exit": 0
+  },
+  "fullGates": [
+    {
+      "name": "build",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "build"
+      ],
+      "startedAt": "2026-09-13T08:58:45.844Z",
+      "exitCode": 0,
+      "signal": null,
+      "finishedAt": "2026-09-13T09:02:03.065Z"
+    },
+    {
+      "name": "typecheck",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "typecheck"
+      ],
+      "startedAt": "2026-09-13T09:02:03.065Z",
+      "exitCode": 0,
+      "signal": null,
+      "finishedAt": "2026-09-13T09:03:01.820Z"
+    },
+    {
+      "name": "lint",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "lint"
+      ],
+      "startedAt": "2026-09-13T09:03:01.820Z",
+      "exitCode": 0,
+      "signal": null,
+      "finishedAt": "2026-09-13T09:03:03.513Z"
+    },
+    {
+      "name": "format",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "format:check"
+      ],
+      "startedAt": "2026-09-13T09:03:03.513Z",
+      "exitCode": 0,
+      "signal": null,
+      "finishedAt": "2026-09-13T09:03:20.436Z"
+    },
+    {
+      "name": "purpose",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "spec:purpose:validate:strict"
+      ],
+      "startedAt": "2026-09-13T09:03:20.436Z",
+      "exitCode": 0,
+      "signal": null,
+      "finishedAt": "2026-09-13T09:03:22.489Z"
+    },
+    {
+      "name": "terminology",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "terminology:validate:strict"
+      ],
+      "startedAt": "2026-09-13T09:03:22.489Z",
+      "exitCode": 0,
+      "signal": null,
+      "finishedAt": "2026-09-13T09:03:33.744Z"
+    },
+    {
+      "name": "quality",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "qc:openspec-ci:validate"
+      ],
+      "startedAt": "2026-09-13T09:03:33.745Z",
+      "exitCode": 0,
+      "signal": null,
+      "finishedAt": "2026-09-13T09:03:34.028Z"
+    },
+    {
+      "name": "openspec",
+      "args": [
+        "C:/Users/wroll/AppData/Roaming/npm/node_modules/@fission-ai/openspec/bin/openspec.js",
+        "validate",
+        "--all",
+        "--strict"
+      ],
+      "startedAt": "2026-09-13T09:03:34.028Z",
+      "exitCode": 0,
+      "signal": null,
+      "finishedAt": "2026-09-13T09:03:35.137Z"
+    }
+  ],
+  "review": "APPROVE_SCOPED /root/r3_storage_security_review",
+  "normalCommit": {
+    "exit": 0,
+    "hookExecuted": false,
+    "qualification": "Generated .husky/_ wrapper was absent; exact commit passed explicit fullbuild/type/lint/format/spec/QC gates afterwards. Wrapper copied identically from existing installed root for later commits; config unchanged."
+  },
+  "limits": [
+    "No publication or main proof",
+    "Only canonical genesis fixtures normalized; no production logic",
+    "Runtime and SQL integrity protections remain separate required delivery prefixes"
+  ],
+  "artifacts": [
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-fixture-commit-full-gates-20260913/report.json",
+      "sha256": "29937e37bbc713c9bf959a900eb1b2eb5cc2a1ca8834e079c8014cea641bf487"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-fixture-commit-full-gates-20260913/driver-status.json",
+      "sha256": "5764f63155ca51f59a56d39ab235b1bcd7ceb6e6860ec7d8601f509b5602f159"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-fixture-commit-full-gates-20260913/affinity.json",
+      "sha256": "9cb1df2fd500b316a54b669b12f3a2b83401b0c4d817a48a778a70ede2871e43"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-fixture-commit-full-gates-20260913/build.stdout.log",
+      "sha256": "03004479213d7fe48ce993dcc55235b1c2dc204a6c481644f60811113936be99"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-fixture-commit-full-gates-20260913/build.stderr.log",
+      "sha256": "7cbe00c7ebbd2dd8c7557542c9b6039310a4cf063f5b5d25ec77b402c0b4e015"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-fixture-commit-full-gates-20260913/typecheck.stdout.log",
+      "sha256": "d140a6ce62dda0946fe30dd882dbb8209f05be72c8fa8850e5634755a399e50f"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-fixture-commit-full-gates-20260913/typecheck.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-fixture-commit-full-gates-20260913/lint.stdout.log",
+      "sha256": "3328427889c38c9620ad1a1a9059ff23ed59352036c6dadfe4672d82770c3c35"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-fixture-commit-full-gates-20260913/lint.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-fixture-commit-full-gates-20260913/format.stdout.log",
+      "sha256": "6514b43c9889bcef145c7ee9dc4b6b81f07308a7b67daa85b8ec7ad7c5512c21"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-fixture-commit-full-gates-20260913/format.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-fixture-commit-full-gates-20260913/purpose.stdout.log",
+      "sha256": "dd9f4913f38dc19ac5c9edd18d6f542363f66faa0383958a888d371b3452b69a"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-fixture-commit-full-gates-20260913/purpose.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-fixture-commit-full-gates-20260913/terminology.stdout.log",
+      "sha256": "0aa5a9766e05dd5717dd0716600178778d9b12c1aae493920c77b9911ab367e0"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-fixture-commit-full-gates-20260913/terminology.stderr.log",
+      "sha256": "74bf2b455d69ab7db3bd8236877c3419b4e75693983cb59e9b4f335e78fd4d9c"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-fixture-commit-full-gates-20260913/quality.stdout.log",
+      "sha256": "f01feb11318234aab4764fe76151b78c06905527212a8f8723626fcf616b71d6"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-fixture-commit-full-gates-20260913/quality.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-fixture-commit-full-gates-20260913/openspec.stdout.log",
+      "sha256": "cc90ade73c964f27cfcde5ca721882bbaef3d4c6cab944254433acb7eafcd407"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-fixture-commit-full-gates-20260913/openspec.stderr.log",
+      "sha256": "5bc31df123a2e521acdd2c0d9477b367feec506471a91065d0a6b32c09089ed5"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-fixture-commit-20260913/commit.json",
+      "sha256": "9f8a2423936352eafde57733360a5ff3a7f208dd324f219e207c8afeda6910f1"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-fixture-commit-20260913/hook-qualification.json",
+      "sha256": "7d52bb988467de42aace68bd899b1398dfc734b6070fb706d9d498182a2f551b"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-fixture-parent-proof-20260913/report.json",
+      "sha256": "1265f2ad75f61a7bbd63162767e1596d25626bcba359706201e2935d7f4b0f0d"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-fixture-prefix-review-terra-20260913/report.json",
+      "sha256": "6d40e98e9c0556b1c59ea9e53e8d613bf87dbc1ba037c444c8d174074d1076d8"
+    }
+  ]
+}

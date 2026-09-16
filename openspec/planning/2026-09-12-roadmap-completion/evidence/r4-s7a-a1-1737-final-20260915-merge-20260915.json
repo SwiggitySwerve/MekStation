@@ -1,0 +1,55 @@
+{
+  "pr": 1737,
+  "branch": "codex/roadmap-r4-s7a-a1-mirror-form-20260915",
+  "reviewedCommit": "5f7b1079940fd346a1b41e76848d03f0acc8b4b4",
+  "finalHead": "04124852242a095e725d1dd17c4114360bcc6268",
+  "autoMergeArmed": false,
+  "contentGuard": {
+    "method": "file set from `git diff --name-only origin/main...<head>` vs the reviewed file set, plus per-file blob equality against the reviewed commit; re-run after update-branch",
+    "fileCountAtMerge": 2,
+    "diffstat": "360 insertions(+), 3 deletions(-)",
+    "blobEquality": "all files blob-identical to the reviewed commit at the gated head",
+    "result": "PASS"
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "expectedHeadShaGuardUsed": true,
+    "oldHead": "5f7b1079940fd346a1b41e76848d03f0acc8b4b4",
+    "newHead": "04124852242a095e725d1dd17c4114360bcc6268",
+    "reason": "branch was BEHIND"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "Customizer Regressions": "pass",
+    "otherChecksCount": 27,
+    "otherChecksBuckets": {
+      "pass": 27
+    },
+    "totalChecks": 31
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r4-s7a-a1-1737-final-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "bb672249c36200987f13dcde2cf7dd2a410ef677",
+  "mergeCommitParents": [
+    "cd416634a3d783131e4564050bd388a923f11cdb"
+  ],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1737 --squash --match-head-commit 04124852242a095e725d1dd17c4114360bcc6268",
+  "mergedAt": "2026-09-15T17:35:24Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "The merge commit changes exactly 2 file(s), all blob-identical to the gated head 04124852242a095e725d1dd17c4114360bcc6268.",
+  "mainAfter": "bb672249c36200987f13dcde2cf7dd2a410ef677",
+  "worktree": {
+    "fastForward": "NOT PERFORMED - no owned worktree designated for this PR",
+    "result": "N/A"
+  },
+  "timestamps": {
+    "receiptWrittenAt": "2026-09-15T18:10:00Z"
+  }
+}

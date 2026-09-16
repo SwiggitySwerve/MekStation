@@ -1,0 +1,53 @@
+{
+  "at": "2026-09-12T11:56:23.100Z",
+  "node": "R1.infantry",
+  "baseline": "be7f85b867aa3e8576e5e3d27e309276203bc24b",
+  "branch": "codex/roadmap-infantry-preview-20260912",
+  "worktree": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\infantry",
+  "gitDir": "E:/Projects/MekStation/.git/worktrees/infantry",
+  "sourceFiles": [
+    {
+      "path": "src/components/customizer/infantry/InfantryPreviewTab.tsx",
+      "sha256": "4f36e0194dfe25bcd36bcc7dfdbd32a0b3e4d84df4e83c65a49564452297225c"
+    },
+    {
+      "path": "src/components/customizer/infantry/InfantryRecordSheetPreview.tsx",
+      "sha256": "48c7d7b38bf3b05f9bdd8a901b3dd5ba4f463495480405d7efbf18b59663d555"
+    },
+    {
+      "path": "src/components/customizer/infantry/__tests__/InfantryPreviewTab.test.tsx",
+      "sha256": "806f08894e841ca9df0aba4057076b1c9a9f183f6ccf3c841e25036da47b903e"
+    },
+    {
+      "path": "openspec/changes/repair-record-sheet-rendering/specs/record-sheet-export/spec.md",
+      "sha256": "1bcd5a301b4ae7d9171df01c04a052ea788c1b3cd1d48f612c635d5648069ed3"
+    },
+    {
+      "path": "openspec/changes/repair-record-sheet-rendering/tasks.md",
+      "sha256": "87fbc9e49f9e1f2c6ae9f40999dde4d4ae484d5314546ededd7dbb34c6cb2604"
+    }
+  ],
+  "implementationBaseline": "47c4464840eaa7c62044533621eb265a4ab71215",
+  "red": {
+    "status": {
+      "name": "red-1",
+      "args": [
+        "node_modules/jest/bin/jest.js",
+        "--runInBand",
+        "--runTestsByPath",
+        "src/components/customizer/infantry/__tests__/InfantryPreviewTab.test.tsx"
+      ],
+      "cwd": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\infantry",
+      "startedAt": "2026-09-12T11:57:07.807Z",
+      "driverPid": 54368,
+      "running": false,
+      "pid": 35024,
+      "code": 1,
+      "finishedAt": "2026-09-12T11:58:10.331Z"
+    },
+    "log": ".sisyphus/roadmap-completion-20260912/infantry-checks/red-1.log",
+    "sha256": "68fcd4fabbd16dc47306853f50359ec0526e07ff3acc8d9b69fac49d448fb6d7",
+    "failedTests": 2,
+    "passedTests": 4
+  }
+}

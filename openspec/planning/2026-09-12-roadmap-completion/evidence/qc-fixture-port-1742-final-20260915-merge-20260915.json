@@ -1,0 +1,75 @@
+{
+  "pr": 1742,
+  "branch": "codex/roadmap-qc-fixture-port-range-20260915",
+  "reviewedCommit": "3bfc4387e9cf614478ee20329a9bfef48daa0eb8",
+  "finalHead": "3bfc4387e9cf614478ee20329a9bfef48daa0eb8",
+  "anomaly": null,
+  "autoMergeArmed": false,
+  "purpose": "Root-cause fix for the second flake escalated by this session: the QC fixture port-binding test.",
+  "contentGuard": {
+    "fileSetEqualToReviewed": true,
+    "fileCount": 2,
+    "files": [
+      "scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+      "scripts/qc/gm-two-player-campaign-core.cjs"
+    ],
+    "diffstat": "2 files changed, 22 insertions(+), 1 deletion(-)",
+    "blobEquality": "trivially satisfied - reviewed commit == PR head; no update-branch was performed",
+    "frozenCampContractUntouched": "confirmed - the diff touches only the two files above",
+    "result": "PASS"
+  },
+  "updateBranch": {
+    "performedByThisSession": false,
+    "reason": "NOT NEEDED - head 3bfc4387e was already UP-TO-DATE with origin/main (91b66b04c). The PR reported mergeStateStatus BLOCKED, which reflected checks still running, not an out-of-date branch."
+  },
+  "rootCauseFix": {
+    "change": "scripts/qc/gm-two-player-campaign-core.cjs: `return 37000 + (bytes.readUInt32BE(0) % 10000)` -> `return 20000 + (bytes.readUInt32BE(0) % 10000)`",
+    "oldRange": "37000-46999",
+    "newRange": "20000-29999",
+    "why": "The old fixture port range sits INSIDE the Linux default ephemeral/local port range (32768-60999), so a concurrently-running process could have the supposedly reserved fixture port auto-assigned out from under the fixture bind. The new range sits below the ephemeral range. This is a genuine root cause, consistent with the intermittent, diff-uncorrelated failures this session observed.",
+    "failuresThisFixExplains": [
+      "#1720 (2026-09-15, run 34982536757): Unit Tests (6/6) failed `GM and two-player campaign QC runner > refuses and preserves a ready foreign server on the fixture port` on a PR whose diff was three React share-panel files",
+      "#1741 (2026-09-15, run 35004702076): the identical test and assertion failed on a PR whose diff was two inserted awaits in a Playwright spec"
+    ],
+    "supersedesReruns": "Both earlier occurrences were cleared with a single targeted rerun after establishing diff non-causation. This PR removes the underlying cause rather than masking it."
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "Customizer Regressions": "pass",
+    "Unit Tests (6/6)": "pass",
+    "otherChecksCount": 27,
+    "otherChecksBuckets": { "pass": 27 },
+    "totalChecks": 31,
+    "pollLog": "18:36:38 25 pending -> 18:45:00 31 pass / 0 pending",
+    "stopConditionNote": "The coordinator instructed: if the port-binding test itself fails on this PR's own run, stop and report rather than rerun. It did NOT fail - Unit Tests (6/6) went green at 18:38:19 and stayed green - so the stop condition was never triggered and NO rerun was performed on this PR.",
+    "rerunsPerformed": 0
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/qc-fixture-port-1742-final-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "9624b38f9ac7dfcc946e5eea4a68d7189691e48b",
+  "mergeCommitParents": ["91b66b04c6f79a365e40b94e25c93e8c00ffa8a3"],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1742 --squash --match-head-commit 3bfc4387e9cf614478ee20329a9bfef48daa0eb8",
+  "mergedAt": "2026-09-15T18:45:24Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "The merge commit changes exactly the 2 guarded files, both blob-identical to the gated head.",
+  "mainAfter": "9624b38f9ac7dfcc946e5eea4a68d7189691e48b",
+  "flakeLedgerAfterThisMerge": {
+    "selectedPaperPrintFlake": "fixed by #1741 (settle awaits); its own run and #1742's run both had Customizer Regressions green",
+    "qcFixturePortFlake": "fixed by this PR (port range moved below the ephemeral range)",
+    "recommendation": "Watch the next several PRs to confirm both stay quiet; neither should now require a rerun."
+  },
+  "worktree": { "fastForward": "NOT PERFORMED - no owned worktree designated for this PR", "result": "N/A" },
+  "timestamps": {
+    "guardStartedAt": "2026-09-15T18:35:50Z",
+    "checksTerminalAt": "2026-09-15T18:45:00Z",
+    "mergedAt": "2026-09-15T18:45:24Z",
+    "receiptWrittenAt": "2026-09-15T18:46:00Z"
+  }
+}

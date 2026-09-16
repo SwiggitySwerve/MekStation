@@ -1,0 +1,73 @@
+{
+  "pr": 1684,
+  "branch": "codex/roadmap-r4-s1-journal-batches-20260915",
+  "reviewedCommit": "e1ccf668c954b9169385a496f80fe1348f19c60a",
+  "reviewedCommitNote": "rebased reviewed content (commits c2569fe50 + e1ccf668c rebased onto 1f84beef); the pre-rebase reviewed commit a1fd1aaa1 had identical file diffs",
+  "finalHead": "dea99bec8eba3d4e8a4d132ef4fbc9972939e221",
+  "anomaly": null,
+  "autoMergeArmed": false,
+  "stackRole": "S1 of the r4 journal stack",
+  "contentGuard": {
+    "preUpdate": {
+      "fileSetSize": 4,
+      "fileSetAsSpecified": true,
+      "files": [
+        "src/lib/multiplayer/server/DurableMatchStore.ts",
+        "src/lib/multiplayer/server/MatchStreamJournalMirror.ts",
+        "src/lib/multiplayer/server/__tests__/matchStreamJournalMirror.sqlite.test.ts",
+        "src/lib/multiplayer/server/durableCapabilityPorts.ts"
+      ],
+      "diffstat": "4 files changed, 499 insertions(+), 1 deletion(-)",
+      "blobEquality": "all 4 blobs equal to e1ccf668c",
+      "result": "PASS"
+    },
+    "postUpdate": {
+      "fileSet": "unchanged - same 4 files, no files added by the update merge",
+      "diffstat": "4 files changed, 499 insertions(+), 1 deletion(-)",
+      "blobEquality": "all 4 still equal to e1ccf668c",
+      "result": "PASS"
+    }
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "oldHead": "e1ccf668c954b9169385a496f80fe1348f19c60a",
+    "newHead": "dea99bec8eba3d4e8a4d132ef4fbc9972939e221",
+    "expectedHeadShaGuard": "e1ccf668c954b9169385a496f80fe1348f19c60a",
+    "reason": "branch was BEHIND after #1690 merged to main"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "otherChecksCount": 27,
+    "otherChecksBuckets": { "pass": 27 },
+    "totalChecks": 31,
+    "pollLog": "08:52:30 2 pending -> 09:02:11 31 pass / 0 pending"
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r4-s1-journal-batches-1684-final-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "95042d9196795afe33662954686c57cd4b1749a2",
+  "mergeCommitParents": ["3bf096346c1077a82b7d03d8a5ec70111c07c187"],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1684 --squash --match-head-commit dea99bec8eba3d4e8a4d132ef4fbc9972939e221",
+  "mergedAt": "2026-09-15T09:02:36Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "The merge commit changes exactly the 4 guarded files, all blob-identical to the gated head.",
+  "mainAfter": "95042d9196795afe33662954686c57cd4b1749a2",
+  "downstreamNote": "This squash did NOT make its stacked follower 1691 dirty, because 1691 edits a disjoint file set; 1691 updated cleanly and collapsed from 7 files to its own 3.",
+  "worktree": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/history-runtime-integrity",
+    "fastForward": "NOT PERFORMED - per coordinator instruction (parent uses this worktree)",
+    "result": "SKIPPED (intentional)"
+  },
+  "timestamps": {
+    "guardStartedAt": "2026-09-15T08:51:40Z",
+    "checksTerminalAt": "2026-09-15T09:02:11Z",
+    "mergedAt": "2026-09-15T09:02:36Z",
+    "receiptWrittenAt": "2026-09-15T09:22:00Z"
+  }
+}

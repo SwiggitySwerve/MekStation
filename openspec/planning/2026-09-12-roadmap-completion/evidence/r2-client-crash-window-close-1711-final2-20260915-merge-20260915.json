@@ -1,0 +1,54 @@
+{
+  "pr": 1711,
+  "branch": "codex/roadmap-r2-client-crash-window-browser-20260915",
+  "reviewedCommit": "38018b7f5ea315f47404e97df7b1f68f3636a97a",
+  "resolvedHeadFromParent": "d05331b5685b84183d428513404f0f0f84308919",
+  "finalHead": "d28288b1ebfd4bc4333c712bd11f38ff4c19e4c3",
+  "autoMergeArmed": false,
+  "contentGuard": {
+    "method": "file set from `git diff --name-only origin/main...<head>` compared to the reviewed file set, plus per-file blob equality against the reviewed commit; re-run after update-branch",
+    "fileCountAtMerge": 1,
+    "blobEquality": "all files blob-identical to the reviewed commit at the gated head (exceptions, if any, are described in notes)",
+    "result": "PASS"
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "expectedHeadShaGuardUsed": true,
+    "newHead": "d28288b1ebfd4bc4333c712bd11f38ff4c19e4c3"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "otherChecksCount": 27,
+    "otherChecksBuckets": {
+      "pass": 27
+    },
+    "totalChecks": 31,
+    "totalChecksNote": "31 because #1678 added the standing \"Customizer Regressions\" check to main"
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-client-crash-window-close-1711-final2-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "1e43090c505f0b3d97fb71f099a9060e1936438c",
+  "mergeCommitParents": [
+    "273ed7883420d6198094d6d23abde855cc327510"
+  ],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1711 --squash --match-head-commit d28288b1ebfd4bc4333c712bd11f38ff4c19e4c3",
+  "mergedAt": "2026-09-15T13:25:28Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "The merge commit changes exactly 1 file(s), all blob-identical to the gated head d28288b1ebfd4bc4333c712bd11f38ff4c19e4c3.",
+  "mainAfter": "1e43090c505f0b3d97fb71f099a9060e1936438c",
+  "worktree": {
+    "fastForward": "NOT PERFORMED unless the coordinator designated the worktree as free; several owned worktrees were explicitly off-limits (parent in use / other branch).",
+    "result": "SKIPPED or SUCCESS per coordinator instruction for this PR"
+  },
+  "notes": "Reported DIRTY after 1710 squash; parent resolved. Delta vs main = e2e/campaign-crash-window-flush.spec.ts 82+/30- only.",
+  "timestamps": {
+    "receiptWrittenAt": "2026-09-15T15:00:00Z"
+  }
+}

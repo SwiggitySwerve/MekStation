@@ -1,0 +1,31 @@
+{
+  "proof": "PROOF 3 - camp-proof receipt seed (roadmap R2.triage next action) -- predecessor-receipt seed, not proof-02 itself",
+  "date": "2026-09-15",
+  "pinnedSha": "bce2049d74ce6e48b5d0813fb506ada701257e47",
+  "shaDescription": "origin/main tip at time of check (re-pinned via git fetch origin main; git rev-parse origin/main)",
+  "pr1679Status": {
+    "title": "fix(qc): neutralize repo-relative config paths in the camp01 live probe",
+    "state": "OPEN",
+    "mergeCommit": null,
+    "checkedVia": "gh pr view 1679 --json state,mergeCommit,title"
+  },
+  "camp01LiveBrowserAdversarialTestFile": {
+    "path": "scripts/__tests__/camp01-live-browser-adversarial.test.ts",
+    "existsAtPinnedSha": false
+  },
+  "jestUmbrella": {
+    "command": "npm run qc:camp01-authority-receipt:test",
+    "exitCode": 0,
+    "testSuitesPassed": 28,
+    "testSuitesTotal": 28,
+    "testsPassed": 753,
+    "testsSkipped": 10,
+    "testsTotal": 763,
+    "durationSeconds": 293.169,
+    "expectedNote": "Task expected 29 suites since #1679 may or may not be merged; observed 28 suites -- consistent with #1679 remaining OPEN/unmerged and the camp01-live-browser-adversarial.test.ts file not existing at this SHA (that file is not part of the 28-file runTestsByPath list)."
+  },
+  "browserRunPerformed": false,
+  "logDirectory": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/main-proof-1678-1682-campproof-20260915/",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/archive-original-main-proof",
+  "nodeVersion": "v22.22.0"
+}

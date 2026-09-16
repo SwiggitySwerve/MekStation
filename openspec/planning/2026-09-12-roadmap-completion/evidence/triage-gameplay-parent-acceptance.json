@@ -1,0 +1,189 @@
+{
+  "capturedAt": "2026-09-12T13:55:23.158Z",
+  "scope": "Parent acceptance of the finite firing-arc, hull-down and PSR reference inventory; no whole-capability claim.",
+  "review": {
+    "citedFiles": 33,
+    "currentHashesMatch": true,
+    "psrEnumAndTableCount": 34,
+    "categoryMap": "All 34 table codes match the current enum; exhaustive category test passed."
+  },
+  "verification": {
+    "command": [
+      "C:\\nvm4w\\nodejs\\node.exe",
+      "node_modules/jest/bin/jest.js",
+      "--runInBand",
+      "--watchAll=false",
+      "--runTestsByPath",
+      "src/utils/gameplay/__tests__/firingArcs.test.ts",
+      "src/utils/gameplay/__tests__/firingArc.test.ts",
+      "src/simulation/runner/__tests__/weaponAttackEvents.test.ts",
+      "src/utils/gameplay/__tests__/toHit.16.calculatehulldownmodifier.test.ts",
+      "src/simulation/runner/phases/__tests__/weaponAttackPartialCover.test.ts",
+      "src/simulation/runner/__tests__/weaponAttackToHitModifiers.behavior.12.test.ts",
+      "src/utils/gameplay/gameState/__tests__/phaseManagement.test.ts",
+      "src/utils/gameplay/pilotingSkillRolls/__tests__/getPSRReasonCategory.test.ts",
+      "src/utils/gameplay/pilotingSkillRolls/__tests__/factoryReasonCode.test.ts"
+    ],
+    "exitCode": 0,
+    "suites": 9,
+    "tests": 227,
+    "snapshots": 0,
+    "startedAt": "2026-09-12T13:52:25.964Z",
+    "finishedAt": "2026-09-12T13:52:31.235Z",
+    "status": {
+      "path": ".sisyphus/roadmap-completion-20260912/triage-proof/gameplay-status.json",
+      "sha256": "60c88430fe9ef0ae07eeede9cfcefbb3b082fd6dcd5eea595ea5f39ac6df093d"
+    },
+    "log": {
+      "path": ".sisyphus/roadmap-completion-20260912/triage-proof/gameplay-focused.log",
+      "sha256": "7aec76c0a5ab16434e8e3941e96e9cf1c05058c58b0498f75884ac5d80cba4c5"
+    },
+    "sources": [
+      {
+        "path": "docs/audits/2026-09-12-customizer-spec-reconciliation/inventory.json",
+        "sha256": "fe9d25951ee79c34c74f0b8f64aee51dbd94265b30a057ae735ca83301376822"
+      },
+      {
+        "path": "openspec/specs/firing-arc-calculation/spec.md",
+        "sha256": "c91bfbc8a745aa68891ebfbd53815a228bafa1b429816c617b02a26bb712ec8a"
+      },
+      {
+        "path": "src/utils/gameplay/firingArcs.ts",
+        "sha256": "66d3e8c474693f3ef0a63f661ccdef3606f0080bb486d827945ad4186e324aa1"
+      },
+      {
+        "path": "src/utils/gameplay/firingArc.ts",
+        "sha256": "9658f2d79c8dddfdb932d4fb44e92cf6721423b42d1b91f6ef700eeb18fce4bc"
+      },
+      {
+        "path": "src/utils/gameplay/hitLocation.ts",
+        "sha256": "f9d4fc644ee2dfcaa8270d91fb6eff111dba1aa065c7b682deb7244462f2e51b"
+      },
+      {
+        "path": "src/simulation/runner/phases/weaponAttack.ts",
+        "sha256": "cd6f8d7fb40126e7d89f7618b0503c96966bcfbfd7e82a0e35467475ae2a919d"
+      },
+      {
+        "path": "src/simulation/runner/phases/weaponAttackShotContext.ts",
+        "sha256": "76f54c6846183a9b6bb0e60f9392866c77652e89b104e55410aceef415a76876"
+      },
+      {
+        "path": "src/simulation/runner/phases/weaponAttackShots.ts",
+        "sha256": "527461308d9875ba098ab2450142ddd32b59753420ae8c8aa046854a90616570"
+      },
+      {
+        "path": "src/simulation/runner/phases/weaponAttackHitResolution.ts",
+        "sha256": "bbfdb3b126b1ab00057699782ca05be032b2b388ade7c7ebf294ee4a6ee1fcaa"
+      },
+      {
+        "path": "src/utils/gameplay/__tests__/firingArcs.test.ts",
+        "sha256": "db90f9cd02d0cbf3a9273a271d1557aa5ae33ca6f6a15f46f64be0a2982e6330"
+      },
+      {
+        "path": "src/utils/gameplay/__tests__/firingArc.test.ts",
+        "sha256": "41ca05438e8920db24b93386aec1602b7e0f0473428f357fbdff7ad447369192"
+      },
+      {
+        "path": "src/simulation/runner/__tests__/weaponAttackEvents.test.ts",
+        "sha256": "1aa0fa9d4bea1b48e5ced86c8f56cf09079a5cbb5cc7305f849d60f3e7fc4949"
+      },
+      {
+        "path": "openspec/specs/hull-down-position/spec.md",
+        "sha256": "2d1a1356028efc404f95bcdcc1a51d847ce1541b30dd1f8537e06e2f561987ae"
+      },
+      {
+        "path": "src/utils/gameplay/toHit.ts",
+        "sha256": "89e7320cedfb049db93a57aa446494c6bbd63a45a0ca238a1d0a99a2ffde557c"
+      },
+      {
+        "path": "src/types/gameplay/CombatInterfaces.ts",
+        "sha256": "e56474f21fe827610a6bc32a386cdbe88107c0e2f595674dad334f67597571b2"
+      },
+      {
+        "path": "src/utils/gameplay/toHit/environmentModifiers.ts",
+        "sha256": "47ca090489bce10d3c98ee2e934876826469d087408ea361f4b830f3eb5862cd"
+      },
+      {
+        "path": "src/types/gameplay/CombatContextTypes.ts",
+        "sha256": "3b802834305b3905ac0ab973868fc4bd99915e3d6f07c1ab58a507afa342d977"
+      },
+      {
+        "path": "src/utils/gameplay/__tests__/toHit.16.calculatehulldownmodifier.test.ts",
+        "sha256": "160415389368fb9f640426d60b4fa4d07b7a5bdbb3e3f2c87ca4b85250eb864e"
+      },
+      {
+        "path": "src/simulation/runner/phases/__tests__/weaponAttackPartialCover.test.ts",
+        "sha256": "127a6836f7122e60b6eccb9804e9eab6ca4bae39adc569ad04a0dfa3dc509912"
+      },
+      {
+        "path": "src/simulation/runner/__tests__/weaponAttackToHitModifiers.behavior.12.test.ts",
+        "sha256": "4faf4aff13d1b4f42fade39835149fc751a10809706f1fa9267459a2b7a7b0b5"
+      },
+      {
+        "path": "openspec/specs/piloting-skill-rolls/spec.md",
+        "sha256": "788df39be79bc2833681927a844b77860b2acef9e2f666f60cd92694e543a8c6"
+      },
+      {
+        "path": "src/utils/gameplay/gameState/phaseManagement.ts",
+        "sha256": "595ed42be0857e2598c104f4b33bbf41045a85ab6b3a8d75adb0c44e244a5d18"
+      },
+      {
+        "path": "src/utils/gameplay/gameState/eventDispatch.ts",
+        "sha256": "0aa76b7924390e44be15933a615fc06800a321cdc705b3c874f4b0f82984ca46"
+      },
+      {
+        "path": "src/utils/gameplay/pilotingSkillRolls/types.ts",
+        "sha256": "01cb3533d1c9cb46e9fabe04852f9bfd95061489fa328b49359d6840c9088bc6"
+      },
+      {
+        "path": "src/types/gameplay/PSRTriggerCodes.ts",
+        "sha256": "f99493b4cab9020c38124801272b46bc39dc8aa0b7dba1b50a28f0a4be38bbbf"
+      },
+      {
+        "path": "src/utils/gameplay/pilotingSkillRolls/combatFactories.ts",
+        "sha256": "98dfc466c3cd72d64d5867cfab248477f7b572c08d824437e011da47776d6e6b"
+      },
+      {
+        "path": "src/utils/gameplay/pilotingSkillRolls/damageFactories.ts",
+        "sha256": "1467f888769d429655f8d794c38670b130cf2f05715a6e55990be21b9b6669d6"
+      },
+      {
+        "path": "src/utils/gameplay/pilotingSkillRolls/environmentFactories.ts",
+        "sha256": "338628bb70510b3f957dd2c8ef20eee45ee5201a6c000e4f3ac62f0f30af5060"
+      },
+      {
+        "path": "src/utils/gameplay/pilotingSkillRolls/systemFactories.ts",
+        "sha256": "1e2bb89f95a21acdc7defce5e9a7bd152c9ce694af1a2ea9eb22355e7dc3f02d"
+      },
+      {
+        "path": "src/utils/gameplay/pilotingSkillRolls/phaseChecks.ts",
+        "sha256": "2c4fcce497601bbe294d61df01f085b50590642eae1dcedc58d0d25cc34cd1fc"
+      },
+      {
+        "path": "src/utils/gameplay/gameState/__tests__/phaseManagement.test.ts",
+        "sha256": "00ef16010398d4d5f67433aefa175fc746bd00cffbce0493c8b2cc8018f5fb6c"
+      },
+      {
+        "path": "src/utils/gameplay/pilotingSkillRolls/__tests__/getPSRReasonCategory.test.ts",
+        "sha256": "fc0038f2dcc0787b1145af7035448712bf03567c35018e058221f944d67d21da"
+      },
+      {
+        "path": "src/utils/gameplay/pilotingSkillRolls/__tests__/factoryReasonCode.test.ts",
+        "sha256": "abfd336ed08018a64c946a2a5e35d40b342bcbe209a92d96470936b9d136769b"
+      }
+    ]
+  },
+  "inventory": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-gameplay-references.json",
+    "sha256": "0407d25d6da3103db74aba0987a3df9e8a94eb4daa0aa639509ece952cbf76ad"
+  },
+  "runnerAttempt": {
+    "initialDriver": "Syntax check exposed an escaped path separator; the first driver had exited before any status or tests. Original driver retained as run-gameplay-triage.syntax-failed.cjs. Corrected runner passed syntax check and recorded terminal test status."
+  },
+  "limits": [
+    "Only the finite reference and already-implemented reason-code count concerns are accepted.",
+    "No complete firing/PSR/hull-down feature or multiplayer/browser/replay closure is claimed.",
+    "A pre-existing source comment at pilotingSkillRolls/types.ts:66 still says 27; this does not change the runtime 34-code mapping and remains a bounded comment followup.",
+    "Publication and exact-main verification remain open."
+  ]
+}

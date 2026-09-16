@@ -1,0 +1,187 @@
+{
+  "at": "2026-09-13T05:25:39.608Z",
+  "status": "main-verified",
+  "pr": 1664,
+  "head": "4f4b3a2e1b01e4d87bbbc70d9d8466801d234f03",
+  "main": "5b229be21e87815f10ce6521dda77b52eef75e3c",
+  "files": [
+    {
+      "path": "openspec/specs/customizer-edit-recovery/spec.md",
+      "sha256": "4fae1069a8687858ecdcb48589e8b87c50a1ad9d23d87970cf3b6d29b7de8051",
+      "gitOid": "f3f0a354356cd3d9d73ab53a3d85baebdf6b8230"
+    },
+    {
+      "path": "openspec/specs/campaign-unit-combat-state/spec.md",
+      "sha256": "a75aeb0e4ebcb0c0f8a6fabaaf08256ffe55161d434b6ce5e37650f80577a87d",
+      "gitOid": "99ff5aeeadafcddb77c72dc41bf0787b8bf9abf7"
+    },
+    {
+      "path": "openspec/specs/e2e-testing/spec.md",
+      "sha256": "8b559b973c27fd45df8117018b1a19380d179f67cb87dc21001d7006726fa25b",
+      "gitOid": "5eab7985804a68b3f9fddce80790b21a7b46fcce"
+    },
+    {
+      "path": "openspec/specs/battlemech-chassis-index/spec.md",
+      "sha256": "37a63513bfa6124d062c51845ebb12d2853c7768cb2bd8f15c1d528ae8f108a3",
+      "gitOid": "b843f3f2e198a66c9cc7cbfc8e3e74fc203df151"
+    },
+    {
+      "path": "src/services/units/unitLoaderService/unitLoader.ts",
+      "sha256": "77335fe032756f89020301cdf89ce561ea77d21c234392a956cf85da3531e41d",
+      "gitOid": "e8bf27857c28326fe0a074bd0b539a3c71ee3ffc"
+    },
+    {
+      "path": "src/components/customizer/dialogs/SaveUnitDialog.tsx",
+      "sha256": "4fd65120188cda5650a54b4d4458c890f9a3c76b3abc5b9942149fa7306668e2",
+      "gitOid": "aa984caa5aa093d35a078260106d5892b2956d52"
+    },
+    {
+      "path": "src/services/units/UnitNameValidator.ts",
+      "sha256": "313d58e9025b5ea162ba598403a006977827b301420af155ff6c36014c4ebcd9",
+      "gitOid": "562619ef35cab49169cb8457a03276e54b28eef3"
+    },
+    {
+      "path": "src/components/customizer/tabs/useMultiUnitTabsController.dialogs.ts",
+      "sha256": "a80d18a6ab353d3942f3fd844fe707ff93d7d5f72ccdc9993b5b000a428a26e9",
+      "gitOid": "8d67764166c0da3a243150b72f19827f069ddcff"
+    },
+    {
+      "path": "src/types/campaign/Campaign.ts",
+      "sha256": "b9b457ec6318b55270e2db8dc405bd3110313767136f7c92ce054a29ff8135c8",
+      "gitOid": "644ef1e6720591cf5eff6025923f69945d7092f6"
+    },
+    {
+      "path": "src/components/campaign/RosterStateCards.tsx",
+      "sha256": "0c5fc8e61d2d2a4708a7701696b346c85c86472c2b524c355f924a3cf5c1c6ad",
+      "gitOid": "34c9f6a67f57b9d08fbbb53ebb6ef43069730207"
+    },
+    {
+      "path": "scripts/qc/openspec-ci-contracts.mjs",
+      "sha256": "ae81b758ae37fe0a796cd77c5e5a17a5fac0bd6d1a8b488b4d5955fca1234a99",
+      "gitOid": "025e510839ceeb1b67527f52171cf77019ac137e"
+    },
+    {
+      "path": ".github/workflows/pr-checks.yml",
+      "sha256": "79be09cf19f07e49e3b56364828dca0357b1e209bfdd16d8d68ccb26aad5c134",
+      "gitOid": "0bd9cac9aa22e53ce74d435967326cf4a81fe24d"
+    }
+  ],
+  "commands": [
+    {
+      "name": "openspec-all-strict",
+      "exe": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "C:/Users/wroll/AppData/Roaming/npm/node_modules/@fission-ai/openspec/bin/openspec.js",
+        "validate",
+        "--all",
+        "--strict",
+        "--no-interactive"
+      ],
+      "startedAt": "2026-09-13T05:24:45.437Z",
+      "endedAt": "2026-09-13T05:24:48.791Z",
+      "exit": 0,
+      "signal": null,
+      "stdout": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/final-canonical-main-gates-20260913/openspec-all-strict.stdout.log",
+        "sha256": "cc90ade73c964f27cfcde5ca721882bbaef3d4c6cab944254433acb7eafcd407"
+      },
+      "stderr": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/final-canonical-main-gates-20260913/openspec-all-strict.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "spec:purpose:validate:strict",
+      "exe": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "spec:purpose:validate:strict"
+      ],
+      "startedAt": "2026-09-13T05:24:48.798Z",
+      "endedAt": "2026-09-13T05:24:52.384Z",
+      "exit": 0,
+      "signal": null,
+      "stdout": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/final-canonical-main-gates-20260913/spec-purpose-validate-strict.stdout.log",
+        "sha256": "791c3eca16d517ffaa74195b2f13e7e81b95678a582e826557346da942b3aa4d"
+      },
+      "stderr": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/final-canonical-main-gates-20260913/spec-purpose-validate-strict.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "terminology:validate:strict",
+      "exe": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "terminology:validate:strict"
+      ],
+      "startedAt": "2026-09-13T05:24:52.390Z",
+      "endedAt": "2026-09-13T05:25:09.668Z",
+      "exit": 0,
+      "signal": null,
+      "stdout": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/final-canonical-main-gates-20260913/terminology-validate-strict.stdout.log",
+        "sha256": "0aa5a9766e05dd5717dd0716600178778d9b12c1aae493920c77b9911ab367e0"
+      },
+      "stderr": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/final-canonical-main-gates-20260913/terminology-validate-strict.stderr.log",
+        "sha256": "a22d643f860125ab38f7d4d1733c84432412358a34b1e7e4bdf806ec5730a689"
+      }
+    },
+    {
+      "name": "qc:openspec-ci:validate",
+      "exe": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "qc:openspec-ci:validate"
+      ],
+      "startedAt": "2026-09-13T05:25:09.676Z",
+      "endedAt": "2026-09-13T05:25:10.074Z",
+      "exit": 0,
+      "signal": null,
+      "stdout": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/final-canonical-main-gates-20260913/qc-openspec-ci-validate.stdout.log",
+        "sha256": "f01feb11318234aab4764fe76151b78c06905527212a8f8723626fcf616b71d6"
+      },
+      "stderr": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/final-canonical-main-gates-20260913/qc-openspec-ci-validate.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "diff-check",
+      "exe": "git",
+      "args": [
+        "diff",
+        "--check",
+        "--",
+        "openspec/specs/customizer-edit-recovery/spec.md",
+        "openspec/specs/campaign-unit-combat-state/spec.md",
+        "openspec/specs/e2e-testing/spec.md",
+        "openspec/specs/battlemech-chassis-index/spec.md"
+      ],
+      "startedAt": "2026-09-13T05:25:10.081Z",
+      "endedAt": "2026-09-13T05:25:10.134Z",
+      "exit": 0,
+      "signal": null,
+      "stdout": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/final-canonical-main-gates-20260913/diff-check.stdout.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/final-canonical-main-gates-20260913/diff-check.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "limits": [
+    "Five documentation gates on exact merged commit; no new product/browser/runtime proof",
+    "Raw ignored logs remain local evidence"
+  ],
+  "cleanup": "pending"
+}

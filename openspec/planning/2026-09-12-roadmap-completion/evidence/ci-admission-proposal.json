@@ -1,0 +1,66 @@
+{
+  "at": "2026-09-12T13:36:01.598Z",
+  "node": "R1.ci",
+  "baseline": "6c4eac5c7b7a2aece3aab0443ce606943db6cf0b",
+  "status": "proposal; browser predecessor is locally verified and not yet merged",
+  "reviewer": {
+    "agent": "/root/customizer_ci_admission",
+    "model": "gpt-5.6-luna",
+    "effort": "high"
+  },
+  "prefixes": [
+    {
+      "order": 1,
+      "title": "Shared contract modules",
+      "files": [
+        "scripts/qc/openspec-ci-contracts.mjs",
+        "scripts/qc/openspec-workflow-contracts.mjs"
+      ],
+      "changedLines": 378,
+      "scope": "Introduce parser and constants as unused exports; no live validator or CI behavior claim.",
+      "verification": "Focused syntax and formatting plus repository gates required for the exact staged prefix."
+    },
+    {
+      "order": 2,
+      "title": "Activate workflows, validator and OpenSpec package",
+      "fileCount": 10,
+      "changedLines": 496,
+      "breakdown": {
+        "prWorkflow": 76,
+        "nightlyWorkflow": 19,
+        "validator": 146,
+        "changePackage": 249,
+        "ledgerEntry": 6
+      },
+      "scope": "Use both prior modules; wire the 19-member aggregator and job contract with the six-file change package and only its ledger entry.",
+      "caution": "Fix final workflow comment from historical ten cases to current twelve; remeasure the near-cap patch. Preserve source task snapshot and distinguish local checked evidence from published prefix acceptance."
+    },
+    {
+      "order": 3,
+      "title": "Mutation coverage",
+      "files": [
+        "scripts/__tests__/openspec-ci-quality-qc.test.ts"
+      ],
+      "currentChangedLines": 414,
+      "scope": "Complete declared contract-field mutation coverage before acceptance, including the baseline workflowJobContracts=1/1 assertion."
+    }
+  ],
+  "mutationGaps": [
+    "NEXT_PUBLIC_E2E_TEST",
+    "20-minute timeout",
+    "job name",
+    "required needs",
+    "skip condition",
+    "upload condition",
+    "setup action identity",
+    "browser-cache conditions",
+    "in-job step order"
+  ],
+  "dependencyNote": "Current lockfile supplies yaml 2.9.0 transitively; no dependency upgrade performed. Confirm any direct declaration as a bounded explicit dependency ownership decision.",
+  "remoteProof": {
+    "healthy": "Actual PR head executes Customizer Regressions with all twelve cases and zero retries; capture check and Lint and Test conclusions.",
+    "blocking": "A separately owned unmerged PR can induce one real covered failure and record failing Customizer Regressions plus Lint and Test with log evidence; never fabricate status, bypass protection, or infer blocking from draft state. Close the probe unmerged and preserve evidence."
+  },
+  "parentProtectionVerification": "Current GitHub CLI confirmed strict/admin-enforced main protection: Lint and Test and win/mac/linux Build Test; general approving review count zero. CAMP stronger gates remain unchanged.",
+  "limits": "Read-only admission analysis; none of these CI prefixes is implemented or remotely verified by this receipt."
+}

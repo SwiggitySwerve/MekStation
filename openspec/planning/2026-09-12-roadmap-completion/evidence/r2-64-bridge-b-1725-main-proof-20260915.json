@@ -1,0 +1,70 @@
+{
+  "slice": "R2.authority task 6.4 CAS bridge commit B (five acknowledgement-refresh pins)",
+  "pr": 1725,
+  "prHead": "c956158185679ed51b2e277dd4af9eee1e768fca",
+  "mergeCommit": "dc8b8f65d2d8b8562ce721ee4f3a9ca81a7a6a11",
+  "verifiedAtUtc": "2026-09-15T15:45:38.809Z",
+  "worktree": "r2-prepared-journal-api (detached at merge commit, ambient Node v24.15.0)",
+  "blobEquality": {
+    "files": [
+      "src/stores/campaign/__tests__/campaignCommandAckRefresh.test.ts"
+    ],
+    "command": "git diff --stat <prHead> <merge> -- <file>",
+    "result": "empty (0 bytes)"
+  },
+  "dirtyResolution": "add/add after #1724 squash resolved by merging origin/main keeping the branch file (2a9152efb); merge manager then updated the branch to c956158 before merge",
+  "gates": {
+    "jest": {
+      "scope": "src/stores/campaign",
+      "exit": 0,
+      "suites": 26,
+      "tests": 335
+    },
+    "tsc": {
+      "exit": 0,
+      "outputBytes": 0
+    },
+    "openspecStrict": {
+      "exit": 0
+    },
+    "specPurposeStrict": {
+      "exit": 0
+    },
+    "terminologyStrict": {
+      "exit": 0
+    },
+    "qcOpenspecCi": {
+      "exit": 0
+    }
+  },
+  "logs": {
+    "jest": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1725-20260915/jest.log",
+      "sha256": "e4472a67ddb9835b472a3d6767b536bcf8f7a891dfd5171f4f4d0a592f208d50"
+    },
+    "openspec": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1725-20260915/openspec.log",
+      "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3"
+    },
+    "purpose": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1725-20260915/purpose.log",
+      "sha256": "e82ad908eb69a83cca63bc179565f926296f681ac3f9a7e33874be7b98a23143"
+    },
+    "qcOpenspecCi": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1725-20260915/qc-openspec-ci.log",
+      "sha256": "8c41df6c33246420ed1806218780c2df69b5ad4e7c594b993b07594ee959ccb2"
+    },
+    "terminology": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1725-20260915/terminology.log",
+      "sha256": "f27859720a22cd0480b20b4e5a33e600633b859fe94c690e16195c6f1ae000e1"
+    },
+    "tsc": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1725-20260915/tsc.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "limits": [
+    "scoped jest only",
+    "test-only PR; 6.2b caller still owner-blocked; no browser proof of the acknowledged refresh"
+  ]
+}

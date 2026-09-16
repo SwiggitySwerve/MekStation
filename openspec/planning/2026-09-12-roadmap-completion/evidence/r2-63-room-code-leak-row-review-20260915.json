@@ -1,0 +1,77 @@
+{
+  "node": "R2.authority review",
+  "artefact": "r2-63-room-code-leak-row-review-20260915",
+  "reviewOf": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-63-room-code-leak-row-local-20260915.json",
+  "commitReviewed": "751749480b5ed0a70f8f90be9ab4503a83081255",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/archive-edit-recovery-20260915",
+  "verdict": "APPROVE",
+  "requiredEdits": [],
+  "findings": [
+    {
+      "item": "1. Real path, not a re-implementation",
+      "result": "CONFIRMED",
+      "detail": "src/lib/multiplayer/server/handleRoomCodeGuestJoin.ts:hydrateFirstJoin (lines 294-343) calls buildScopedCampaignSnapshot(projectDeps, {principal, grantId, nowIso}) then buildRoomCodeGuestHydration(deps.entry.campaignId, hostEvents, built.page.items, built.page.deliveryEpochId, nowIso, deps.entry.hostPlayerId), and sendGuestSnapshot builds roomCodeGuestClientSnapshotEvent({campaignId, matchId, state, ts, authorPlayerId, revision: projectorHead}). The new test row (roomCodeGuestHydration.test.ts:293-311) calls buildScopedCampaignSnapshot with the same shape, then buildRoomCodeGuestHydration with the identical positional argument order, then roomCodeGuestClientSnapshotEvent with the identical field set -- same functions, same argument shapes, not a parallel re-implementation. built.page.items (the real projector output) is threaded straight into the hydration call, so the row exercises production data through production functions rather than a hand-built fixture standing in for buildScopedCampaignSnapshot's output."
+    },
+    {
+      "item": "2. Assertions are positive-shape pins, not absence-of-key checks",
+      "result": "CONFIRMED",
+      "detail": "roomCodeGuestHydration.test.ts:311-323: `expect(hydration.state.contracts).toEqual({ 'offer-taken': { ...COMPACT_CONTRACT } })` -- toEqual on the whole map, three-field object; any extra key fails. Lines 315-325: `expect(accepted[0]).toEqual({ deliverySequence: 2, event: { type, campaignId, ts, authorPlayerId, scope, payload: { contract: { ...COMPACT_CONTRACT } } } })` -- whole replica delivery item pinned exactly. A not-empty control follows (`expect(surfaces[1]).toContain('offer-taken')` / `'house-davion'`) so the row proves withholding, not an empty/degenerate hydration. Source-side binding is also asserted positively: `Object.hasOwn(rows[0].payload, 'sourcePrivate')` is `true`, the baseline digest is recomputed and compared, and replayCampaignSourceContracts recovers targetId/salvageRights/offer id -- matches the evidence's quoted lines exactly."
+    },
+    {
+      "item": "3. Mutation re-run at projectCampaignStreamForGrant.ts:259",
+      "result": "CONFIRMED",
+      "detail": "Line 259 in the file at HEAD is exactly `const event = envelopeOf(stored);`, matching the cited mutation site. Applied the exact one-line diff from the evidence (spread stored.payload into event.payload), ran `node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/campaign/coop/__tests__/roomCodeGuestHydration.test.ts`: RESULT MATCHED EVIDENCE EXACTLY -- 'Tests: 1 failed, 4 passed, 5 total', failure at line 315 (`expect(accepted[0]).toEqual(...)`), full private payload (employerId, targetId house-liao, basePayment 1250000, salvageRights Integrated, moraleLevel overwhelming, offer-remaining) visible in the jest diff. The 4 sibling rows in the same file (composeRoomCodeGuestState genesis funds, in-scope incremental fold, replica cursor mapping, replica-fold equivalence) stayed green, confirming the mutation is a targeted, non-collateral break. Cross-check suite src/lib/campaign/delivery/__tests__/projectCampaignStreamForGrant.test.ts under the same mutation: RESULT MATCHED EVIDENCE EXACTLY -- 'Tests: 3 failed, 5 passed, 8 total'. Restored with `git checkout -- src/lib/campaign/delivery/projectCampaignStreamForGrant.ts`; `git status --porcelain` confirmed clean immediately after, and the worktree is clean and at HEAD 751749480 at the end of this review."
+    },
+    {
+      "item": "4. D12 requirement coverage for room-code hydration specifically",
+      "result": "CONFIRMED, no gap",
+      "detail": "design.md 'The problem' paragraph (D12, line 111) names room-code hydration explicitly as one of the surfaces where any field added to a campaignEvent payload is 'by construction, a restricted-guest-visible fact': 'room-code guest hydration takes the genesis CampaignSnapshotPublished.payload.state wholesale ..., folds in-scope items onto it ..., and republishes the composed state as another campaign-scope snapshot'. The rejected-alternative paragraph (line 129) separately names three surfaces a redacting projector would have to stay correct at: 'grant projection ..., room-code hydration's recomposed snapshot ..., and the client snapshot schema'. The new row's byte scan covers all three of the surfaces D12 names for this task: hydration.replicaItems (the replica backfill page, i.e. the folded-item surface), hydration.state (the recomposed snapshot state), and clientSnapshot (the roomCodeGuestClientSnapshotEvent frame, i.e. the client snapshot schema). No D12-named surface for room-code hydration is left untouched by this row. The 'co-op mirror' phrase used elsewhere in design.md/tasks.md refers to a distinct sync-status-posture surface (task 3.2/3.4 area, D6 dialler-fed connection status), not the room-code hydration snapshot path, and task 6.3 does not name a separate co-op-mirror leak-row obligation, so its absence here is not a gap against 6.3's text."
+    },
+    {
+      "item": "5. Six-row inventory file:line verification",
+      "result": "CONFIRMED, all six citations exist and match; producer-row falsification gap is real and honestly disclosed",
+      "detail": "Row 1: JournalCampaignEventStore.test.ts:484 describe('source-only private envelope (real SQLite reopen)') and :507 it('recovers the full contract and market from the private field while envelopeOf stays compact') -- both present verbatim. Row 2: projectCampaignStreamForGrant.test.ts:348 describe('projectCampaignStreamForGrant source-only private envelope') and the it.each row at :441 'withholds the private contract and market from a %s' with cases ['restricted campaign-scope guest', ...] and ['GM all-scopes grant', ...] -- present verbatim. Row 3: roomCodeGuestHydration.test.ts:158/:270 -- present, this commit. Row 4: JournalCampaignEventStore.test.ts:603 it('leaves a legacy envelope byte-identical and its digests unchanged') -- present verbatim. Row 5: campaignCommandPipeline.test.ts and sibling files (campaignCommandPipelineOfferDurability.test.ts, campaignCommandPipelineArtifactUse.test.ts, campaignCommandPipelineRebuild.test.ts, campaignAcceptContractSourceRow.test.ts) all exist in src/lib/campaign/authority/__tests__/ -- confirmed via directory listing; grep for a PRIVATE_MARKERS-style byte-scan or toContain-based falsification pattern in campaignCommandPipeline.test.ts returned zero hits, corroborating the evidence's own non-claim that the producer-side 1:1 falsification was not run there. Row 6: projectCampaignStreamForGrant.test.ts:470 it('still commits the delivered identity to the whole stored payload') -- present verbatim (found at line 470 as cited)."
+    },
+    {
+      "item": "6. Hygiene: test-only, no product diff, subject, author, no AI attribution, caps",
+      "result": "CONFIRMED",
+      "detail": "git diff --stat HEAD~1 HEAD shows exactly one file, src/lib/campaign/coop/__tests__/roomCodeGuestHydration.test.ts, 244 insertions, 0 deletions -- no production file touched (the mutation to projectCampaignStreamForGrant.ts was a separate, already-restored, uncommitted probe, confirmed absent from the commit's diffstat). Subject line 'test(campaign): falsify a source-private leak through room-code hydration' is conventional-commit style, imperative, scoped, no trailing period issue. Author and committer are both 'Wes Rollings <wrollings@gmail.com>', matching the machine-local identity block in CLAUDE.md. No AI attribution trailer present in the commit body (body is empty). Caps: 1 file / 244 lines, well inside the stated filesLimit 15 / linesLimit 500."
+    }
+  ],
+  "measuredRuns": [
+    {
+      "command": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/campaign/coop/__tests__/roomCodeGuestHydration.test.ts",
+      "when": "unmutated, post-restore",
+      "result": "PASS -- Test Suites: 1 passed, 1 total; Tests: 5 passed, 5 total"
+    },
+    {
+      "command": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/campaign/coop/__tests__/roomCodeGuestHydration.test.ts",
+      "when": "with the one-line mutation at projectCampaignStreamForGrant.ts:259 applied",
+      "result": "RED -- Test Suites: 1 failed, 1 total; Tests: 1 failed, 4 passed, 5 total; failure at line 315 on the positive toEqual pin; matches evidence exactly"
+    },
+    {
+      "command": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/campaign/delivery/__tests__/projectCampaignStreamForGrant.test.ts",
+      "when": "with the same mutation applied (cross-check)",
+      "result": "RED -- Test Suites: 1 failed, 1 total; Tests: 3 failed, 5 passed, 8 total; matches evidence exactly"
+    },
+    {
+      "command": "git checkout -- src/lib/campaign/delivery/projectCampaignStreamForGrant.ts",
+      "when": "immediately after the mutation runs",
+      "result": "restored; git status --porcelain empty"
+    },
+    {
+      "command": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/campaign/coop src/lib/campaign/delivery src/lib/campaign/sync",
+      "when": "post-restore, corroborating the evidence's touched-suite gate",
+      "result": "PASS -- Test Suites: 32 passed, 32 total; Tests: 180 passed, 180 total; matches evidence exactly"
+    },
+    {
+      "command": "git status --porcelain / git rev-parse HEAD",
+      "when": "end of review",
+      "result": "clean; HEAD = 751749480b5ed0a70f8f90be9ab4503a83081255, unchanged from the assignment's pinned commit"
+    }
+  ],
+  "notes": [
+    "Task 6.3's own text says 'Falsify each boundary 1:1: deleting the envelopeOf narrowing must turn the leak rows red' -- read literally that would mean reverting projectCampaignStreamForGrant.ts:259 to the pre-6.1 inline form `stored.payload.campaignEvent`, which is NOT actually a leaking mutation (it returns the same narrow view envelopeOf does, just written inline) and would leave the row green -- a vacuous falsification. The evidence's chosen mutation instead widens envelopeOf's return to merge in the private sibling, which is the mutation that actually exercises whether this line is the thing standing between the private payload and the wire. This is judged a correct, stronger-than-literal reading of the task's falsification intent, not a deviation worth a required edit -- it is the same mutation shape used by the pre-existing, task-6.3-authored grant-projection leak row this session cross-checked, so it is consistent methodology across rows, not a one-off invention.",
+    "No production code changes ship in this commit. The review's own mutation to projectCampaignStreamForGrant.ts was restored via git checkout before any gate was re-run and the worktree was verified clean before writing this file."
+  ]
+}

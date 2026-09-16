@@ -1,0 +1,56 @@
+{
+  "pr": 1747,
+  "branch": "codex/roadmap-r2-authority-cutover-co3-1-cli-20260915",
+  "reviewedCommit": "478055906934b6d3108154491601036769998d2d",
+  "finalHead": "ef60e5cde7da6782145e32a69908ca0d84df6c7c",
+  "autoMergeArmed": false,
+  "contentGuard": {
+    "method": "file set from `git diff --name-only origin/main...<head>` vs the PR's own reviewed files, plus per-file blob equality against the reviewed commit; re-run after update-branch",
+    "fileCountAtMerge": 2,
+    "diffstat": "243 insertions(+)",
+    "blobEquality": "all files blob-identical to the reviewed commit at the gated head unless noted",
+    "result": "PASS"
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "expectedHeadShaGuardUsed": true,
+    "newHead": "ef60e5cde7da6782145e32a69908ca0d84df6c7c"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "Customizer Regressions": "pass",
+    "Unit Tests (6/6)": "pass",
+    "otherChecksCount": 27,
+    "otherChecksBuckets": {
+      "pass": 27
+    },
+    "totalChecks": 31,
+    "rerunsPerformed": 0
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-cutover-co3-1-1747-final-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "376f5aa923070613b16cb4cdb1091c6f6fb04b13",
+  "mergeCommitParents": [
+    "b81242d1b668bc5d1a6e067c463cc5b332652a09"
+  ],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1747 --squash --match-head-commit ef60e5cde7da6782145e32a69908ca0d84df6c7c",
+  "mergedAt": "2026-09-15T19:55:57Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "The merge commit changes exactly 2 file(s), all blob-identical to the gated head ef60e5cde7da6782145e32a69908ca0d84df6c7c.",
+  "mainAfter": "376f5aa923070613b16cb4cdb1091c6f6fb04b13",
+  "worktree": {
+    "fastForward": "NOT PERFORMED - no owned worktree designated for this PR",
+    "result": "N/A"
+  },
+  "notes": "Per-PR cap 243 confirmed. .gitignore was NOT blob-identical to the reviewed head after update-branch because #1740 had also edited .gitignore on main; VERIFIED NO DRIFT by comparing delta line sets - both sides are exactly the single line `+!scripts/e2e/campaign-journal-authority.ts`, i.e. a clean 3-way combination.",
+  "timestamps": {
+    "receiptWrittenAt": "2026-09-15T20:35:00Z"
+  }
+}

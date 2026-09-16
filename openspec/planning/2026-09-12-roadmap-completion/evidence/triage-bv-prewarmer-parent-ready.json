@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "triage-bv-prewarmer-parent-ready",
+  "capturedAt": "2026-09-12T14:29:55.8541201Z",
+  "scope": "Parent-ready formatting and focused runtime proof for the newly added BV prewarmer test. Only the specified test file was formatted; no product, spec, roadmap, or Git actions were performed.",
+  "priorReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-bv-prewarmer-proof.json",
+    "sourceHashVerified": true,
+    "testHashVerified": true,
+    "priorJestLogHashVerified": true,
+    "priorValidateBvLogHashVerified": true
+  },
+  "format": {
+    "command": "npx.cmd oxfmt --write src/services/encounter/__tests__/bvCatalogPrewarmer.test.ts",
+    "exitCode": 0,
+    "changed": true,
+    "scope": "Repository oxfmt applied to the target test path only"
+  },
+  "target": {
+    "testPath": "src/services/encounter/__tests__/bvCatalogPrewarmer.test.ts",
+    "sourcePath": "src/services/encounter/bvCatalogPrewarmer.ts",
+    "testBeforeSha256": "82f5b4797e1640401f50d663a4094afbbea1a48cb112e62404d44a4916a2017a",
+    "testAfterSha256": "89609dc4fe6fbd48e4d7b7924a5cb2e30ab549049bfed1da2a301bf46105638f",
+    "sourceBeforeSha256": "6ed37ea6aaa7954b2c603b1e3dd542dcd949668c7dff4ad2559cc9c45de3c589",
+    "sourceAfterSha256": "6ed37ea6aaa7954b2c603b1e3dd542dcd949668c7dff4ad2559cc9c45de3c589",
+    "originalBackupPath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\triage-proof\\bv-prewarmer-test-before-format-20260912T142913452Z.ts",
+    "originalBackupSha256": "82f5b4797e1640401f50d663a4094afbbea1a48cb112e62404d44a4916a2017a"
+  },
+  "testRun": {
+    "command": "NODE_OPTIONS=--max-old-space-size=4096 node node_modules/jest/bin/jest.js --runInBand --runTestsByPath src/services/encounter/__tests__/bvCatalogPrewarmer.test.ts",
+    "executable": "node",
+    "args": [
+      "node_modules/jest/bin/jest.js",
+      "--runInBand",
+      "--runTestsByPath",
+      "src/services/encounter/__tests__/bvCatalogPrewarmer.test.ts"
+    ],
+    "environment": {
+      "NODE_OPTIONS": "--max-old-space-size=4096"
+    },
+    "exitCode": 0,
+    "testSuites": "1/1 passed",
+    "tests": "1/1 passed",
+    "snapshots": "0",
+    "durationSeconds": 1.299,
+    "rawLogPath": ".sisyphus/roadmap-completion-20260912/triage-proof/bv-prewarmer-parent-ready-jest.raw.log",
+    "rawLogSha256": "06d92d63edf7504535787198f1ae8bbb843e972c529a463782c87cc750a49d30"
+  },
+  "rawCommandLog": {
+    "path": ".sisyphus/roadmap-completion-20260912/triage-proof/bv-prewarmer-parent-ready-jest.raw.log",
+    "sha256": "06d92d63edf7504535787198f1ae8bbb843e972c529a463782c87cc750a49d30"
+  },
+  "statusAndHashRecord": {
+    "path": ".sisyphus/roadmap-completion-20260912/triage-proof/bv-prewarmer-parent-ready-status.json",
+    "sha256": "44e22f308591185996930b417933f2d3558b3e2fab5798ef847c7251a77e2762"
+  },
+  "proofLimits": [
+    "The single test proves the injected report path and cache invalidation behavior at the public prewarmCatalogBV boundary. It does not prove the full BV catalog, all validation modes, browser/UI behavior, or production cache mutation.",
+    "The formatter change is layout/import ordering only, verified by the preserved original-byte backup and focused test rerun.",
+    "The source implementation file remained byte-identical across the proof."
+  ]
+}

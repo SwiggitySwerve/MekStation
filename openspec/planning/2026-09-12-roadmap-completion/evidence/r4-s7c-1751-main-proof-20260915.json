@@ -1,0 +1,72 @@
+{
+  "slice": "R4.S7-c: journal recovery arm routed through the checkpoint door (S4-R4 four properties)",
+  "pr": 1751,
+  "prHead": "b0d50cf53262e8b6d5f2d03b916e2bf893f1e6ac",
+  "mergeCommit": "a265a544a2256c7098afdc10a968492c2454cd77",
+  "verifiedAtUtc": "2026-09-15T20:31:28.863Z",
+  "worktree": "r2-prepared-journal-api (detached at merge commit, ambient Node v24.15.0)",
+  "blobEquality": {
+    "files": [
+      "src/lib/multiplayer/server/MatchRecovery.ts",
+      "src/lib/multiplayer/server/__tests__/matchRecoveryCheckpointDoor.test.ts",
+      "src/lib/multiplayer/server/__tests__/matchRecoveryJournalArmDoor.sqlite.test.ts"
+    ],
+    "command": "git diff --stat <prHead> <merge> -- <files>",
+    "result": "empty (0 bytes)"
+  },
+  "gates": {
+    "jest": {
+      "scope": "src/lib/events/journal src/lib/multiplayer/server",
+      "exit": 0,
+      "suites": 178,
+      "tests": 1375
+    },
+    "tsc": {
+      "exit": 0,
+      "outputBytes": 0
+    },
+    "openspecStrict": {
+      "exit": 0
+    },
+    "specPurposeStrict": {
+      "exit": 0
+    },
+    "terminologyStrict": {
+      "exit": 0
+    },
+    "qcOpenspecCi": {
+      "exit": 0
+    }
+  },
+  "logs": {
+    "jest": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1751-20260915/jest.log",
+      "sha256": "91863b6d3e8fa83fa7ba6662a7f6c6afdd5a924eab00594eefbf4f4ba1ce55cb"
+    },
+    "openspec": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1751-20260915/openspec.log",
+      "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3"
+    },
+    "purpose": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1751-20260915/purpose.log",
+      "sha256": "e82ad908eb69a83cca63bc179565f926296f681ac3f9a7e33874be7b98a23143"
+    },
+    "qcOpenspecCi": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1751-20260915/qc-openspec-ci.log",
+      "sha256": "8c41df6c33246420ed1806218780c2df69b5ad4e7c594b993b07594ee959ccb2"
+    },
+    "terminology": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1751-20260915/terminology.log",
+      "sha256": "21f6bfc6b13d5c8a56e0006cfea136622a5e7768d6ef65c0bc5ccc22b9597fcc"
+    },
+    "tsc": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1751-20260915/tsc.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "limits": [
+    "scoped jest only; mode off",
+    "diverged verdict left unquarantined (OQ-1, owner call); MatchRecoveryJournalConsult.events has no production consumer (OQ-2); S4-N1 consult DB-handle residual (OQ-4)",
+    "S7-d migration-state machine owner-ruled (OD-journal-writer-authority)"
+  ]
+}

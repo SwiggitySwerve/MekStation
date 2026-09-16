@@ -1,0 +1,59 @@
+{
+  "at": "2026-09-13T08:38:06.558Z",
+  "baseline": "44b94adbbb333a9d4965e057b34290e19fc0e781",
+  "status": "reviewed-prefix-plan-not-implementation-acceptance",
+  "reviewer": "/root/r3_storage_security_review",
+  "parent": "/root",
+  "reason": "Parent broad test failed four suites (26 failed,362 passed); review found durable reader swallowing branch-integrity and allowing converged campaign launch.",
+  "failure": {
+    "path": ".sisyphus/roadmap-completion-20260912/r3-branch-integrity-parent-gates-20260913/report.json",
+    "sha256": "cf07057cd41fa2ac48b6b22a8f6f0e3ec09a57556a9bdb784626eac11b1e4f3a"
+  },
+  "prefixes": [
+    {
+      "id": "A",
+      "purpose": "Normalize three existing parentless-root test fixtures to existing genesis digest.",
+      "files": 3,
+      "dependency": "baseline",
+      "productionChange": false
+    },
+    {
+      "id": "B",
+      "purpose": "Validate persisted roots and effective heads at runtime; durable campaign reader must preserve integrity refusal; actual fully-acknowledged launch regression.",
+      "filesExpected": 5,
+      "dependency": "A",
+      "scope": [
+        "EventHistoryBranchContract",
+        "SQLiteEventHistoryBranchStore",
+        "SQLiteEventHistoryBranchStore.test",
+        "campaignProgressionReaders.durable",
+        "durable campaign integration regression"
+      ]
+    },
+    {
+      "id": "C",
+      "purpose": "Forward SQLite migration31 prevents malformed new roots and ineffective head pointers; preserve migration23 and existing stored evidence; explicit migration head assertion31.",
+      "filesExpected": 11,
+      "dependency": "B"
+    }
+  ],
+  "caps": {
+    "filesPerPrefix": 15,
+    "changedNonGeneratedLinesPerPrefix": 500
+  },
+  "constraints": [
+    "No test trimming or assertion weakening",
+    "Each prefix buildable with no forward dependency",
+    "B and C together required for storage acceptance",
+    "Preserve original13-file frozen attempt and raw failed logs",
+    "Separate per-prefix proof and final combined proof",
+    "No publication retries without exact payload approval"
+  ],
+  "routing": {
+    "capabilitiesCheckExit": 0,
+    "routingAuditExit": 0,
+    "agentCount": 36,
+    "forbiddenEffortAgents": [],
+    "leaderPreserved": true
+  }
+}

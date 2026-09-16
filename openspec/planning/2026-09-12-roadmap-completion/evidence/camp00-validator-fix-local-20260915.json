@@ -1,0 +1,374 @@
+{
+  "schema": "camp00-validator-fix-local/v1",
+  "runAt": "2026-09-15",
+  "lane": "camp00-validator-fix (disposable worktree, GP-JUSTIFIED)",
+  "task": "fix the VALIDATOR-DEFECT diagnosed in camp00-diagnosis-20260915.json (credential carrier + unhandled rejection), red-first, then run the real packaged-socket validator once",
+  "inputArtefact": "openspec/planning/2026-09-12-roadmap-completion/evidence/camp00-diagnosis-20260915.json",
+  "outcome": "FIXED AND PROVEN LOCALLY — the full camp-00 journey now completes end to end, exit 0, with packagedSocketJourneyPassed=true and all 17 frozen camp-00 assertions converting to passed",
+
+  "base": {
+    "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/camp00-disposable-20260915",
+    "branch": "codex/roadmap-packaged-socket-credential-20260915",
+    "baseSha": "f8abc1844760137dcc9d4e4c6eaff17157052bee",
+    "baseShaSubject": "feat(combat): derive journal-authority started state from the mirrored stream (#1693)",
+    "baseShaWasOriginMainAtCheckout": true,
+    "priorWorktreeHead": "5fac5a58c95c351cbfe37a7ab16fbb371b8022df",
+    "npmCiRerun": false,
+    "npmCiRerunRationale": "git diff --stat 5fac5a58c f8abc1844 -- package.json package-lock.json returned EMPTY, so the installed node_modules is still correct for the new base. Only two commits separate the two SHAs (#1691, #1693), neither touching the manifest.",
+    "originMainDriftDuringLane": {
+      "originMainAtEnd": "7f4ade5b6bf10c2b1898c7064ba5c9bba295f6f0",
+      "commitsAhead": [
+        "7f4ade5b6 fix(campaign): never let a guest replica's equal-revision cache stand over a server refresh (#1695)",
+        "c40a394f6 feat(campaign): flush pending client mutations before the document is discarded (#1694)"
+      ],
+      "cause": "git worktrees share one .git, so a sibling lane's fetch advanced origin/main after this branch was cut. This branch is based on f8abc1844 and is now 2 commits behind; it was NOT rebased. Neither incoming commit touches scripts/ or server.js.",
+      "impactOnThisEvidence": "none — the validator run, the gates, and the commit were all executed against f8abc1844 + this commit"
+    },
+    "node": "v22.22.0",
+    "npm": "11.6.2"
+  },
+
+  "commit": {
+    "sha": "2d38ede7c005312272aed5e63c9b6b2c2ca96b57",
+    "short": "2d38ede7c",
+    "subject": "fix(qc): send the packaged-socket credential on the subprotocol like the client",
+    "author": "Wes Rollings <wrollings@gmail.com>",
+    "committer": "Wes Rollings <wrollings@gmail.com>",
+    "date": "2026-09-15T03:54:16-06:00",
+    "hooksEnabled": true,
+    "hooksRan": [
+      "lint-staged: oxlint --fix (staged *.{ts,tsx}, 1 file) — COMPLETED",
+      "lint-staged: oxfmt --write --no-error-on-unmatched-pattern — COMPLETED, no rewrite",
+      "lint-staged: npx tsc --noEmit --skipLibCheck — COMPLETED",
+      "pre-commit full `next build` (Next.js 16.2.11, webpack) + standalone hydrate — COMPLETED"
+    ],
+    "aiAttribution": "none — `git log -1 --format=%B | grep -iE 'co-authored-by|generated with|claude'` returned no match, per the repo's never-add-AI-attribution rule",
+    "pushed": false,
+    "prOpened": false,
+    "shortstat": "2 files changed, 150 insertions(+), 2 deletions(-)",
+    "workingTreeCleanAfterCommit": true
+  },
+
+  "files": [
+    {
+      "path": "scripts/validate-multiplayer-packaged-socket.mjs",
+      "change": "modified",
+      "insertions": 36,
+      "deletions": 2,
+      "sha256AtCommit": "bfb232970ec3813a42471742262fda8a55454c9d17b0cdd0914a0ed4a790620c",
+      "edits": [
+        {
+          "anchor": "after PLAYER_ID_BYTES (was :16)",
+          "what": "mirrored WS_PROTOCOL_VERSION = 'mekstation.v1', WS_CREDENTIAL_PREFIX = 'mekstation.token.', toBase64Url() and credentialProtocols() from src/lib/multiplayer/socketCredentialProtocol.ts",
+          "why": "bare-node ESM with no TypeScript loader cannot import the .ts module — the same constraint that forced the server.js mirror"
+        },
+        {
+          "anchor": "openAndJoin, was :257",
+          "what": "`const url = `${wsUrl}&token=${encodeURIComponent(wireToken)}`;` -> `const url = wsUrl;`",
+          "why": "server.js:855-863 refuses a URL-borne credential outright (reason=token-in-url) since #1357"
+        },
+        {
+          "anchor": "openAndJoin, was :260",
+          "what": "`new WebSocket(url, { perMessageDeflate: false })` -> `new WebSocket(url, credentialProtocols(wireToken), { perMessageDeflate: false })`",
+          "why": "supplies the credential through Sec-WebSocket-Protocol, matching src/lib/multiplayer/client.ts:690-693"
+        },
+        {
+          "anchor": "openAndJoin, after the replayPromise constructor (was :349)",
+          "what": "added `replayPromise.catch(() => {});`",
+          "why": "the independent robustness defect — replayPromise's error timer is armed first and fires first, so a handshake failure rejected it with no handler attached, killing the process and skipping both finally blocks"
+        }
+      ]
+    },
+    {
+      "path": "scripts/__tests__/packagedSocketValidatorCredentialMirror.test.ts",
+      "change": "added",
+      "insertions": 116,
+      "deletions": 0,
+      "sha256AtCommit": "f531c00497bb7ffbdc23c258ce8c9945d9c46bfaf5c23168a5b5ae2649cf6cf6",
+      "modelledOn": "src/lib/multiplayer/__tests__/serverCredentialMirror.test.ts",
+      "assertions": [
+        "declares the same subprotocol names as the module — constant parity against the imported WS_PROTOCOL_VERSION / WS_CREDENTIAL_PREFIX, not retyped literals",
+        "encodes the credential byte-identically to the module — lifts the validator's own toBase64Url body out of the source with a regex, makes it callable via new Function, and compares its OUTPUT to the module's across 7 fixtures exercising '+', '/', one and two trailing '=' pads, and a realistic base64-of-JSON wire token. Behavioural, not textual, because a transform drift presents as a 401 rather than the 400 this file was written for.",
+        "offers the credential on the subprotocol, not in the socket URL — `expect(source).not.toMatch(/[?&]token=/)` and `not.toMatch(/token=\\$\\{/)`, plus a positive check that `new WebSocket(url, credentialProtocols(wireToken)` is present. Deliberately does NOT trip on the SessionJoin payload's `token: wireToken` property, which is a different carrier and must keep working.",
+        "keeps a pre-await replay rejection observable — asserts `replayPromise.catch(() => {});` is present"
+      ]
+    }
+  ],
+
+  "serverJsUntouched": {
+    "claim": "server.js was NOT relaxed; the URL-credential refusal from #1357 stands",
+    "evidence": "`git show --name-only --format='' 2d38ede7c` lists exactly two paths, both under scripts/. Grepping that list for '^server\\.js|^src/' returns no match.",
+    "explicitNonFix": "Re-permitting the URL credential in server.js was rejected: a bearer token in a query string lands in access logs, proxy logs and crash reports, and serverCredentialMirror.test.ts + socketCredentialProtocol.test.ts pin the refusal."
+  },
+
+  "redGreen": {
+    "method": "red-first — the new mirror test was written and watched fail on the unmodified base before any production edit",
+    "red": {
+      "command": "npx jest --watchAll=false --runTestsByPath scripts/__tests__/packagedSocketValidatorCredentialMirror.test.ts src/lib/multiplayer/__tests__/serverCredentialMirror.test.ts --runInBand",
+      "sourceUnderTest": "scripts/validate-multiplayer-packaged-socket.mjs at f8abc1844, unmodified",
+      "exit": 1,
+      "result": "Test Suites: 1 failed, 1 passed, 2 total / Tests: 4 failed, 4 passed, 8 total",
+      "failingTests": [
+        "packaged-socket validator credential mirror > declares the same subprotocol names as the module",
+        "packaged-socket validator credential mirror > encodes the credential byte-identically to the module",
+        "packaged-socket validator credential mirror > offers the credential on the subprotocol, not in the socket URL",
+        "packaged-socket validator credential mirror > keeps a pre-await replay rejection observable"
+      ],
+      "passingSuite": "src/lib/multiplayer/__tests__/serverCredentialMirror.test.ts (4/4) — confirms the harness itself is sound and the server mirror was never the problem",
+      "log": ".sisyphus/roadmap-completion-20260912/camp00-validator-fix-20260915/red-mirror-test.log",
+      "logSha256": "d93655085180df64b80773b53c11c558a17cdbe3026c3c1456156824377a18df",
+      "logBytes": 85887
+    },
+    "green": {
+      "command": "same",
+      "exit": 0,
+      "result": "Test Suites: 2 passed, 2 total / Tests: 8 passed, 8 total (0.783 s)",
+      "log": ".sisyphus/roadmap-completion-20260912/camp00-validator-fix-20260915/green-mirror-test.log",
+      "logSha256": "b9d13e09faa2004ab7616f6922e98b428467d49d98e5341243bf966533e66079",
+      "logBytes": 433
+    },
+    "falseStartDisclosed": "The first red attempt was invoked as `npx jest --selectProjects unit <path>`, where the path was treated as a name pattern and the WHOLE unit project began running. It was killed, its orphaned jest workers (which kept appending to the same log fd and contaminated it) were enumerated and killed by PID, and the run was redone with --runTestsByPath. The red/green figures above are from the clean re-run only; the contaminated log was deleted before it."
+  },
+
+  "validatorRun": {
+    "purpose": "run the REAL validator once against a live packaged build, not a harness",
+    "argv": ["node", "scripts/validate-multiplayer-packaged-socket.mjs"],
+    "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/camp00-disposable-20260915",
+    "env": {
+      "CAMP01_ARTIFACT_DIR": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/camp00-receipt-20260915/artifacts-2",
+      "CAMP01_RUN_ID": "camp01-6a3a372bb3ffa8ff70c3089c98f12ac1",
+      "CAMP01_NEXT_DIST_DIR": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/camp00-disposable-20260915/.next",
+      "PATH": "/c/Users/wroll/AppData/Local/nvm/v22.22.0 prepended (node v22.22.0)"
+    },
+    "artifactDirWasFresh": true,
+    "exit": 0,
+    "startIso": "2026-09-15T03:45:10-06:00",
+    "endIso": "2026-09-15T03:48:15-06:00",
+    "durationSeconds": 185,
+    "stdout": "empty — runCamp00Authority() captures child output into a bounded tail inside runCommand() and emits nothing on success",
+    "stderr": "empty",
+    "log": ".sisyphus/roadmap-completion-20260912/camp00-validator-fix-20260915/validator-run.log",
+    "logSha256": "5bd531d462eb3ceb5bd1cc2f98c4d854a8bc1f28d79fa3d366a3cc09e9b6dd9a",
+    "stepsExercised": [
+      "next build --webpack into <worktree>/.next (via scripts/next/run-next.mjs)",
+      "scripts/hydrate-next-standalone-multiplayer-server.mjs",
+      "initial packaged server start on an ephemeral port, MEKSTATION_LISTENER_READY parsed",
+      "issueWireToken + POST /api/multiplayer/matches",
+      "openAndJoin #1 — the join that used to 400",
+      "stopChild + port rebind",
+      "restart with HOSTNAME=127.0.0.1 NODE_ENV=development, ready record parsed",
+      "openAndJoin #2 — the post-restart rejoin, same match",
+      "stopChild + port rebind",
+      "9-host REJECT_HOSTS matrix + 3 development-mode host rejections (12 rejections total)",
+      "finalizeObservation (exclusive-create + link, no-replace)",
+      "finally { fs.rmSync(nextDist) }"
+    ],
+    "downstreamFailure": "none — the run reached finalizeObservation and exited 0. The diagnosis's MEDIUM-LOW residual risk (restart rejoin / REJECT_HOSTS / finalizeObservation never having executed on current main) did not materialise.",
+    "ports": {
+      "ephemeralPortChosen": 57832,
+      "portSource": "bindPort(0) inside runCamp00Authority; recorded in the observation as initial.boundPort and restart.boundPort (both 57832, proving port reuse across the restart)",
+      "port3600Touched": false
+    },
+    "pids": "NOT CAPTURED — the validator spawns its server children internally and logs no PIDs, and this lane did not instrument it. Absence of a leftover listener was verified by process and socket enumeration instead (below).",
+    "listenerRemainingAfterRun": false,
+    "listenerCheckEvidence": "Get-NetTCPConnection -LocalPort 57832 -> two TimeWait rows, OwningProcess 0, NO Listen row. Get-CimInstance Win32_Process -Filter \"Name='node.exe'\" filtered on the worktree path -> no processes. The validator additionally proves release itself via bindPort(port) after each stopChild.",
+    "nextDirRemovedByFinally": true,
+    "nextDirSignificance": "This is the direct behavioural proof that the second defect is fixed. In the failed run the unhandled rejection killed the process and .next survived; here the finally block ran and removed it. (The worktree's .next was subsequently recreated by the pre-commit hook's own `next build`.)"
+  },
+
+  "artifact": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/camp00-receipt-20260915/artifacts-2/listener-observation.json",
+    "sha256": "82b6ffebae258cbc474b9c56320744c626d228ebfad91c56d8f44ee77f8814be",
+    "bytes": 821,
+    "schema": "camp01-listener-observation/v1",
+    "fieldCount": 17,
+    "parentRunId": "camp01-6a3a372bb3ffa8ff70c3089c98f12ac1",
+    "directoryContents": ["listener-observation.json"],
+    "keyValues": {
+      "packagedSocketJourneyPassed": true,
+      "initialHostnameInput": "omitted",
+      "restartHostnameInput": "127.0.0.1",
+      "packagedModeEnvironmentIndependent": true,
+      "initial": {
+        "configuredHostname": "127.0.0.1",
+        "boundAddress": "127.0.0.1",
+        "family": "IPv4",
+        "requestedPort": 57832,
+        "boundPort": 57832,
+        "readyRecordCount": 1
+      },
+      "restart": {
+        "configuredHostname": "127.0.0.1",
+        "boundAddress": "127.0.0.1",
+        "family": "IPv4",
+        "requestedPort": 57832,
+        "boundPort": 57832,
+        "readyRecordCount": 1
+      },
+      "ipv4UnspecifiedRejected": true,
+      "ipv6UnspecifiedRejected": true,
+      "ipv6LoopbackRejected": true,
+      "hostnameMatrixPassed": true,
+      "rejectedBeforeNextPrepare": true,
+      "standalonePreparedInArtifactDir": true,
+      "observationNoReplaceFinalized": true,
+      "portReusableAfterEachChild": true
+    }
+  },
+
+  "adapterValidation": {
+    "note": "scripts/qc/camp01-camp00-listener-adapter.mjs exposes no CLI and no validate-only mode — it is a library whose convertCamp00Observation() CONSUMES (unlinks) the observation and writes listener-result.json + wave-result.json. It was therefore run against a COPY so the real artefact stayed intact.",
+    "method": "copied listener-observation.json into .sisyphus/roadmap-completion-20260912/camp00-validator-fix-20260915/adapter-validate-copy/, imported the adapter by absolute file URL, called convertCamp00Observation({ directory: copy, runId })",
+    "exit": 0,
+    "waveStatus": "passed",
+    "assertionCount": 17,
+    "allAssertionsTrue": true,
+    "listenerBoundAddress": "127.0.0.1",
+    "assertionResults": {
+      "boundAddressIsLoopback===true": true,
+      "expectedAddressMatched===true": true,
+      "unspecifiedAddressRejected===true": true,
+      "initialHostnameOmitted===true": true,
+      "restartHostnameExplicitLoopback===true": true,
+      "packagedModeEnvironmentIndependent===true": true,
+      "ipv4UnspecifiedRejected===true": true,
+      "ipv6UnspecifiedRejected===true": true,
+      "ipv6LoopbackRejected===true": true,
+      "hostnameMatrixPassed===true": true,
+      "rejectedBeforeNextPrepare===true": true,
+      "standalonePreparedInArtifactDir===true": true,
+      "packagedSocketJourneyPassed===true": true,
+      "observationNoReplaceFinalized===true": true,
+      "observationStableAcrossReads===true": true,
+      "runtimeOutputRemoved===true": true,
+      "portReusableAfterEachChild===true": true
+    },
+    "originalArtefactIntact": "yes — sha256 of the real listener-observation.json re-read after the adapter run is unchanged at 82b6ffebae258cbc474b9c56320744c626d228ebfad91c56d8f44ee77f8814be",
+    "log": ".sisyphus/roadmap-completion-20260912/camp00-validator-fix-20260915/adapter-validate.log",
+    "logSha256": "14f140a9056e8fe4ea298c14fdea63d57922195d921accaa37a880c103db33fa"
+  },
+
+  "frozenContract": {
+    "row": "scripts/qc/camp01-authority-receipt.contract.mjs WAVE_CONTRACTS['camp-00']",
+    "argvChanged": false,
+    "argv": "[['@npm','run','validate:multiplayer:packaged-socket']] — unchanged; the fix edits the script BODY, not the argv",
+    "canonicalArgvDigestChanged": false,
+    "canonicalArgvDigest": "8e4005d9f13011f8229bbd457d23a9297a1fc17f0d843c70a1da4bb37c04a501 — a pinned constant copied verbatim into the receipt and checked only for equality against the row (camp01-authority-receipt.schemas.mjs:114); never recomputed from file contents",
+    "assertionNamesChanged": false,
+    "amendmentRequired": false,
+    "cap": {
+      "capSubject": "product-pr",
+      "maxFiles": 4,
+      "maxChangedLines": 180,
+      "actualFiles": 2,
+      "actualChangedLines": 152,
+      "withinCap": true,
+      "alsoWithinTaskBriefCap": "yes — task brief cap was <=15 files / <=500 lines"
+    }
+  },
+
+  "gates": [
+    {
+      "gate": "focused jest — mirror + camp-00 surface",
+      "command": "npx jest --watchAll=false --runTestsByPath scripts/__tests__/packagedSocketValidatorCredentialMirror.test.ts src/lib/multiplayer/__tests__/serverCredentialMirror.test.ts src/lib/multiplayer/__tests__/socketCredentialProtocol.test.ts scripts/__tests__/validate-multiplayer-packaged-socket.test.ts scripts/__tests__/camp01-camp00-listener-adapter.test.ts --runInBand",
+      "exit": 0,
+      "result": "Test Suites: 5 passed, 5 total / Tests: 20 passed, 20 total (2.297 s)",
+      "note": "scripts/__tests__/validate-multiplayer-packaged-socket.test.ts is the validator's pre-existing test (ready-record parsing, no-replace collision, unsafe-host rejection) and still passes — it never covered the credential carrier, which is why the drift survived.",
+      "log": ".sisyphus/roadmap-completion-20260912/camp00-validator-fix-20260915/focused-jest.log",
+      "logSha256": "829716cba7974c5bb4b0adc293b554a745cc9f25fca0a71f513d3db9d0bd5384"
+    },
+    {
+      "gate": "camp-01 authority receipt umbrella",
+      "command": "npm run qc:camp01-authority-receipt:test",
+      "exit": 0,
+      "result": "Test Suites: 28 passed, 28 total / Tests: 10 skipped, 753 passed, 763 total (265.346 s)",
+      "suiteCount": 28,
+      "suiteCountNote": "28, not 29 — #1679 is NOT merged on this base (f8abc1844). The task brief allowed for either.",
+      "log": ".sisyphus/roadmap-completion-20260912/camp00-validator-fix-20260915/camp01-umbrella.log",
+      "logSha256": "2ace0e0c4bd0b7fdea69d573c422172e22f150a63910f9b0868713657725ec78"
+    },
+    {
+      "gate": "typecheck",
+      "command": "npx tsc --noEmit --skipLibCheck",
+      "exit": 0,
+      "result": "clean — zero-byte output",
+      "log": ".sisyphus/roadmap-completion-20260912/camp00-validator-fix-20260915/tsc.log",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "alsoRanInHook": true
+    },
+    {
+      "gate": "format",
+      "command": "npx oxfmt --check <the two changed files>",
+      "exit": 0,
+      "result": "All matched files use the correct format (2 files)",
+      "log": ".sisyphus/roadmap-completion-20260912/camp00-validator-fix-20260915/oxfmt-check.log",
+      "logSha256": "382753dee21441edff79a8cc0a1e7d59a7dd7d77e786997e160bbf336f08c7e5"
+    },
+    {
+      "gate": "lint",
+      "command": "npx oxlint <the two changed files>",
+      "exit": 0,
+      "result": "Found 0 warnings and 0 errors — but on 0 FILES",
+      "honestCaveat": "This is NOT lint coverage. .oxlintrc.json ignorePatterns includes '**/scripts/**', so both changed files are outside oxlint's scope by project configuration. The gate is vacuous here and is recorded as such rather than as a pass.",
+      "log": ".sisyphus/roadmap-completion-20260912/camp00-validator-fix-20260915/oxlint.log",
+      "logSha256": "10e60e4816584240f2d3fbb71b0d23705d05fccb9c7ab23b8d9da178e29cb719"
+    },
+    {
+      "gate": "node syntax + validator self-test",
+      "command": "node --check scripts/validate-multiplayer-packaged-socket.mjs; node scripts/validate-multiplayer-packaged-socket.mjs --self-test",
+      "exit": 0,
+      "result": "both clean — the ready-record parser self-test (14 adversarial chunk shapes) still passes after the edit"
+    },
+    {
+      "gate": "pre-commit hooks (husky + lint-staged)",
+      "command": "git commit (hooks NOT bypassed)",
+      "exit": 0,
+      "result": "oxlint --fix, oxfmt --write (no rewrite), npx tsc --noEmit --skipLibCheck, and a full `next build` (Next.js 16.2.11, webpack) + standalone hydrate all completed; commit created"
+    }
+  ],
+
+  "logDirectory": {
+    "path": ".sisyphus/roadmap-completion-20260912/camp00-validator-fix-20260915/",
+    "gitIgnored": true,
+    "contents": [
+      "red-mirror-test.log",
+      "green-mirror-test.log",
+      "focused-jest.log",
+      "camp01-umbrella.log",
+      "tsc.log",
+      "oxfmt-check.log",
+      "oxlint.log",
+      "validator-run.log",
+      "adapter-validate.log",
+      "adapter-check.mjs (throwaway harness for the non-destructive adapter run)",
+      "adapter-validate-copy/ (the consumed COPY of the observation plus the listener-result/wave-result the adapter emitted)",
+      "commit.log",
+      "run-id.txt"
+    ]
+  },
+
+  "hygiene": {
+    "rootCheckoutTouched": "only additively — this evidence file was written into openspec/planning/2026-09-12-roadmap-completion/evidence/, the same untracked-but-not-ignored directory the sibling diagnosis lane wrote to. No tracked file, branch, index, or ref in the root checkout was modified.",
+    "otherWorktreesTouched": false,
+    "stashResetCleanForceUsed": "none on any existing checkout. lint-staged created and restored its OWN internal backup stash (1171669e4) as part of the normal commit flow.",
+    "port3600Touched": false,
+    "foreignProcessesTouched": "none — the only processes killed were jest workers this lane itself started (enumerated by worktree path in their command line) and, indirectly, the validator's own server children via its stopChild/taskkill",
+    "buildSlot": "checked free before the run (no `next build` / run-next process existed; only sibling-worktree jest workers and MCP servers) and re-checked immediately before launching. No waiting was required.",
+    "concurrencyNote": "The project typecheck was deliberately run DURING the validator's build phase (single-threaded, and the historical camp-00 build is ~252 s against an 8-minute internal timeout). The umbrella suite was held until after the validator finished so it could not contend for the build slot.",
+    "dependenciesAdded": "none",
+    "pushed": false,
+    "prOpened": false
+  },
+
+  "nonClaims": [
+    "CLOSURE IS EXTERNALLY GATED — this is a single-lane local proof. A second-collaborator review has NOT happened, and nothing here should be read as camp-00 sign-off.",
+    "The desktop packaged-Electron smoke (desktop/scripts/test-build.js) was NOT re-run. It invokes the same openAndJoin path and so was broken by the same defect and should be fixed by the same change, but that is an INFERENCE from shared code, not a measurement.",
+    "Nothing was pushed, no PR was opened, and the branch codex/roadmap-packaged-socket-credential-20260915 exists only locally in the disposable worktree.",
+    "No camp-00 RECEIPT was produced. This lane ran the validator directly and produced listener-observation.json; it did not run scripts/qc/run-camp01-production.mjs or the receipt writer, and roadmap task 0.4 is NOT closed.",
+    "The `npm run validate:multiplayer:packaged-socket` npm-run-start path (main() without CAMP01_* env, validate-multiplayer-packaged-socket.mjs:514/:527) shares openAndJoin and is expected to be fixed too, but was NOT exercised in this session — only the CAMP01_* camp-00 path was.",
+    "This branch was NOT rebased onto the origin/main that emerged mid-lane (7f4ade5b6, +2 commits). Whether the fix still applies cleanly on top of those two campaign-persistence commits is UNVERIFIED, though neither touches scripts/.",
+    "oxlint provides ZERO coverage of these two files (both under the ignored '**/scripts/**'); the recorded exit 0 is vacuous, not a quality signal.",
+    "Child-process PIDs for the validator's packaged servers were not captured; the no-leftover-listener claim rests on post-run socket and process enumeration, not on tracking specific PIDs through their lifetime.",
+    "The mirror test pins the validator against DRIFT; it does not and cannot prove the live journey. That proof is the validator run recorded above, and it must be re-run whenever the carrier changes."
+  ]
+}

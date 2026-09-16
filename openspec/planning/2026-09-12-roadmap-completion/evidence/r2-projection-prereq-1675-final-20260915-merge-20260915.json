@@ -1,0 +1,73 @@
+{
+  "pr": 1675,
+  "branch": "codex/roadmap-r2-projection-prereq-20260915",
+  "reviewedCommit": "6a277d376a5cb829066b4e08a309db3904af678d",
+  "finalHead": "831da8863a11e336cb93abf52c4157149c1c8953",
+  "anomaly": null,
+  "autoMergeArmed": false,
+  "contentGuard": {
+    "preUpdate": {
+      "fileSetEqualToReviewed": true,
+      "files": [
+        "openspec/changes/design-campaign-authority-and-sync/design.md",
+        "openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md",
+        "openspec/changes/design-campaign-authority-and-sync/tasks.md"
+      ],
+      "blobEquality": "trivially satisfied - reviewed commit == PR head (6a277d376)",
+      "result": "PASS"
+    },
+    "postUpdate": {
+      "fileSet": "unchanged - exactly the 3 expected files, no files added by the update merge",
+      "blobEquality": {
+        "openspec/changes/design-campaign-authority-and-sync/design.md": "equal",
+        "openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md": "equal",
+        "openspec/changes/design-campaign-authority-and-sync/tasks.md": "equal"
+      },
+      "result": "PASS"
+    }
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "oldHead": "6a277d376a5cb829066b4e08a309db3904af678d",
+    "newHead": "831da8863a11e336cb93abf52c4157149c1c8953",
+    "expectedHeadShaGuard": "6a277d376a5cb829066b4e08a309db3904af678d",
+    "reason": "branch was BEHIND (base was c3b4cc1e3; main had advanced to b39b82917)"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "otherChecksCount": 26,
+    "otherChecksBuckets": { "pass": 26 },
+    "totalChecks": 30,
+    "pollLog": "07:02:06 2 pending -> 07:06:56 30 pass/0 pending"
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-projection-prereq-1675-final-20260915-premerge.json",
+    "ready": true,
+    "failures": [],
+    "mergeStateStatusAtGate": "CLEAN"
+  },
+  "mergeCommit": "b7d650997a1f1e7ed90ed8f806daefd199637150",
+  "mergeCommitParents": ["b39b8291706c36b9ad0c876a5e1b11e5b3612b7d"],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1675 --squash --match-head-commit 831da8863a11e336cb93abf52c4157149c1c8953",
+  "mergedAt": "2026-09-15T07:07:15Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "All 3 files in the merge commit have blob SHAs identical to the gated final head 831da8863.",
+  "mainAfter": "b7d650997a1f1e7ed90ed8f806daefd199637150",
+  "worktree": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/r2-projection-prereq-20260915",
+    "cleanBeforeFF": true,
+    "branch": "codex/roadmap-r2-projection-prereq-20260915",
+    "fastForward": "ff-only 6a277d376 -> 831da8863",
+    "result": "SUCCESS"
+  },
+  "timestamps": {
+    "guardStartedAt": "2026-09-15T07:01:20Z",
+    "checksTerminalAt": "2026-09-15T07:06:56Z",
+    "mergedAt": "2026-09-15T07:07:15Z",
+    "receiptWrittenAt": "2026-09-15T07:23:30Z"
+  }
+}

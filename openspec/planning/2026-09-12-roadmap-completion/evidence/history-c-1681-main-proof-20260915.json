@@ -1,0 +1,52 @@
+{
+  "evidenceKind": "exact-main-proof",
+  "prReference": 1681,
+  "commitTested": "1f84beef2967ce071f25ffa1b6f94240d9507b58",
+  "reviewedCommit": "fd335ee371c522957544c96b1e7f62772075b504",
+  "rebasedHead": "79667696c",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/history-runtime-integrity (detached for the run, restored to codex/roadmap-r4-s1-journal-batches-20260915)",
+  "nodeVersion": "v22.22.0",
+  "blobEquality": [
+    "src/services/persistence/SQLiteService.historyBranchesIntegrity.migration.ts d780a5e45e19e26d89b93098a75abd2e72edacb5 d780a5e45e19e26d89b93098a75abd2e72edacb5 SAME",
+    "src/services/persistence/SQLiteService.migrations.ts 4812053b95a7fc00397f5e90b812c9d7f58565a8 4812053b95a7fc00397f5e90b812c9d7f58565a8 SAME",
+    "src/services/persistence/__tests__/SQLiteService.actionAudit.migration.test.ts 92415fcb315d10dbeb7dd042581f28265e16f077 92415fcb315d10dbeb7dd042581f28265e16f077 SAME",
+    "src/services/persistence/__tests__/SQLiteService.actionAuditSessionIdentity.migration.test.ts a2e8896148a0060d64a062504da956a36465ef08 a2e8896148a0060d64a062504da956a36465ef08 SAME",
+    "src/services/persistence/__tests__/SQLiteService.campaignGrants.migration.test.ts ef89090e5e4694a5e42664e95b49e2e801108ac7 ef89090e5e4694a5e42664e95b49e2e801108ac7 SAME",
+    "src/services/persistence/__tests__/SQLiteService.deliveryEpochs.migration.test.ts 9d5617784eba7bdd21a44055b3c09427771fe50c 9d5617784eba7bdd21a44055b3c09427771fe50c SAME",
+    "src/services/persistence/__tests__/SQLiteService.historyBranches.migration.test.ts 43d4cc08f2f7eddd2c3eca95e6bfe607b070c87e 43d4cc08f2f7eddd2c3eca95e6bfe607b070c87e SAME",
+    "src/services/persistence/__tests__/SQLiteService.privateRecordRejectionOnce.migration.test.ts 8f15447169854185c1a40385befe355c61ed3234 8f15447169854185c1a40385befe355c61ed3234 SAME",
+    "src/services/persistence/__tests__/SQLiteService.privateRecords.migration.test.ts 65c6828bcb7fc553b75bf2fabc042e430a17181c 65c6828bcb7fc553b75bf2fabc042e430a17181c SAME",
+    "src/services/persistence/__tests__/SQLiteService.replayCheckpoints.migration.test.ts c7eb8b73f9f171080acac5948067df46a8ae2adb c7eb8b73f9f171080acac5948067df46a8ae2adb SAME",
+    "src/services/persistence/__tests__/SQLiteService.replayCheckpointsBranch.migration.test.ts 8b19b60a43b6993f30cbe8c0fd9efb4217c5d6a3 8b19b60a43b6993f30cbe8c0fd9efb4217c5d6a3 SAME"
+  ],
+  "commands": [
+    {
+      "argv": [
+        "node",
+        "node_modules/jest/bin/jest.js",
+        "--maxWorkers=2",
+        "--coverage=false",
+        "src/lib/events/journal",
+        "src/services/persistence",
+        "src/lib/multiplayer/server"
+      ],
+      "result": "jest exit 0\nTest Suites: 189 passed, 189 total\nTests:       1463 passed, 1463 total"
+    },
+    {
+      "argv": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "result": "typecheck exit 0"
+    }
+  ],
+  "logSha256": [
+    "1e1b543eb98fa91c655b56a6683b299e238332cd1c0f63779f3d6fdfbb053680 */e/Projects/MekStation/.sisyphus/roadmap-completion-20260912/main-proof-history-c-20260915/jest.stderr.log",
+    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 */e/Projects/MekStation/.sisyphus/roadmap-completion-20260912/main-proof-history-c-20260915/jest.stdout.log",
+    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 */e/Projects/MekStation/.sisyphus/roadmap-completion-20260912/main-proof-history-c-20260915/typecheck.stderr.log",
+    "d140a6ce62dda0946fe30dd882dbb8209f05be72c8fa8850e5634755a399e50f */e/Projects/MekStation/.sisyphus/roadmap-completion-20260912/main-proof-history-c-20260915/typecheck.stdout.log"
+  ],
+  "timestampUtc": "2026-09-15T08:00:19.622Z",
+  "parentAcceptance": "parent Astra ran and accepted"
+}

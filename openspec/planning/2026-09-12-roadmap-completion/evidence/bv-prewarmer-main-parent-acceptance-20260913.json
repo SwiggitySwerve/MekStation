@@ -1,0 +1,225 @@
+{
+  "at": "2026-09-13T06:03:14.961Z",
+  "status": "parent-accepted-exact-main",
+  "pr": 1665,
+  "head": "05e6860c1665a035aa7d7f6d15c8771c3cb4672c",
+  "main": "9091428c0dc79a187ad5c56a2c0ac3acb72f2187",
+  "files": [
+    {
+      "path": "src/services/encounter/__tests__/bvCatalogPrewarmer.test.ts",
+      "gitBlobOid": "b605bcb070968aa18fa5c3249503dc514a3b0a34",
+      "sha256": "f95344692550def0ec705297a212bd9cb8cde2b737574d9aef15447f07171c13"
+    },
+    {
+      "path": "src/services/encounter/bvCatalogPrewarmer.ts",
+      "gitBlobOid": "37acb7787e4aca3f8313600b3c19ed4838815050",
+      "sha256": "6ed37ea6aaa7954b2c603b1e3dd542dcd949668c7dff4ad2559cc9c45de3c589"
+    }
+  ],
+  "commands": [
+    {
+      "name": "focused-jest",
+      "exe": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/bv-prewarmer-test/node_modules/jest/bin/jest.js",
+        "--runInBand",
+        "--runTestsByPath",
+        "src/services/encounter/__tests__/bvCatalogPrewarmer.test.ts"
+      ],
+      "processScopedNodeOptions": "--experimental-vm-modules",
+      "startedAt": "2026-09-13T05:55:31.259Z",
+      "endedAt": "2026-09-13T05:55:37.512Z",
+      "exit": 0,
+      "signal": null,
+      "stdout": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/bv-prewarmer-main-gates-20260913/focused-jest.stdout.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/bv-prewarmer-main-gates-20260913/focused-jest.stderr.log",
+        "sha256": "bc6eab1010cc221a06106a71e383e0c6364b998af4fc1887b322823ee69d8c3d"
+      }
+    },
+    {
+      "name": "typecheck",
+      "exe": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "typecheck"
+      ],
+      "startedAt": "2026-09-13T05:55:37.525Z",
+      "endedAt": "2026-09-13T05:55:57.457Z",
+      "exit": 0,
+      "signal": null,
+      "stdout": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/bv-prewarmer-main-gates-20260913/typecheck.stdout.log",
+        "sha256": "d140a6ce62dda0946fe30dd882dbb8209f05be72c8fa8850e5634755a399e50f"
+      },
+      "stderr": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/bv-prewarmer-main-gates-20260913/typecheck.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "lint",
+      "exe": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "lint"
+      ],
+      "startedAt": "2026-09-13T05:55:57.522Z",
+      "endedAt": "2026-09-13T05:55:59.461Z",
+      "exit": 0,
+      "signal": null,
+      "stdout": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/bv-prewarmer-main-gates-20260913/lint.stdout.log",
+        "sha256": "6bd54773d6730892e245b4ad5bb679f882acf6880e5e4a3c7b2eb834a0c791ed"
+      },
+      "stderr": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/bv-prewarmer-main-gates-20260913/lint.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "format:check",
+      "exe": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "format:check"
+      ],
+      "startedAt": "2026-09-13T05:55:59.562Z",
+      "endedAt": "2026-09-13T05:56:57.544Z",
+      "exit": 0,
+      "signal": null,
+      "stdout": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/bv-prewarmer-main-gates-20260913/format-check.stdout.log",
+        "sha256": "c53d1810864c003395ab35fecab3fac4d0b28f52a4c31a267c0b058b51a65e18"
+      },
+      "stderr": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/bv-prewarmer-main-gates-20260913/format-check.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "openspec-all-strict",
+      "exe": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "C:/Users/wroll/AppData/Roaming/npm/node_modules/@fission-ai/openspec/bin/openspec.js",
+        "validate",
+        "--all",
+        "--strict",
+        "--no-interactive"
+      ],
+      "startedAt": "2026-09-13T05:56:57.581Z",
+      "endedAt": "2026-09-13T05:57:00.343Z",
+      "exit": 0,
+      "signal": null,
+      "stdout": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/bv-prewarmer-main-gates-20260913/openspec-all-strict.stdout.log",
+        "sha256": "cc90ade73c964f27cfcde5ca721882bbaef3d4c6cab944254433acb7eafcd407"
+      },
+      "stderr": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/bv-prewarmer-main-gates-20260913/openspec-all-strict.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "spec:purpose:validate:strict",
+      "exe": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "spec:purpose:validate:strict"
+      ],
+      "startedAt": "2026-09-13T05:57:00.362Z",
+      "endedAt": "2026-09-13T05:57:04.393Z",
+      "exit": 0,
+      "signal": null,
+      "stdout": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/bv-prewarmer-main-gates-20260913/spec-purpose-validate-strict.stdout.log",
+        "sha256": "bad97830f579699cf19fe5e6acaf854151b321f4f1b2b8ef9ab89340d1fc6df8"
+      },
+      "stderr": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/bv-prewarmer-main-gates-20260913/spec-purpose-validate-strict.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "terminology:validate:strict",
+      "exe": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "terminology:validate:strict"
+      ],
+      "startedAt": "2026-09-13T05:57:04.425Z",
+      "endedAt": "2026-09-13T05:57:26.857Z",
+      "exit": 0,
+      "signal": null,
+      "stdout": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/bv-prewarmer-main-gates-20260913/terminology-validate-strict.stdout.log",
+        "sha256": "0aa5a9766e05dd5717dd0716600178778d9b12c1aae493920c77b9911ab367e0"
+      },
+      "stderr": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/bv-prewarmer-main-gates-20260913/terminology-validate-strict.stderr.log",
+        "sha256": "c2ce92e3e7471aa4abfc9b06fec0c09020a12696a4a051d4971f464c022844dc"
+      }
+    },
+    {
+      "name": "qc:openspec-ci:validate",
+      "exe": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "qc:openspec-ci:validate"
+      ],
+      "startedAt": "2026-09-13T05:57:26.878Z",
+      "endedAt": "2026-09-13T05:57:27.389Z",
+      "exit": 0,
+      "signal": null,
+      "stdout": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/bv-prewarmer-main-gates-20260913/qc-openspec-ci-validate.stdout.log",
+        "sha256": "f01feb11318234aab4764fe76151b78c06905527212a8f8723626fcf616b71d6"
+      },
+      "stderr": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/bv-prewarmer-main-gates-20260913/qc-openspec-ci-validate.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "build",
+      "exe": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "build"
+      ],
+      "startedAt": "2026-09-13T05:57:27.396Z",
+      "endedAt": "2026-09-13T06:01:41.983Z",
+      "exit": 0,
+      "signal": null,
+      "stdout": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/bv-prewarmer-main-gates-20260913/build.stdout.log",
+        "sha256": "c5be17203a697bb3e3cbeedd6ce096955f3161a566506891b9b794c373ea504c"
+      },
+      "stderr": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/bv-prewarmer-main-gates-20260913/build.stderr.log",
+        "sha256": "9aa8906c5832be7778330065f1db873c18cf63c7cc36b5893c15819f2fc625c4"
+      }
+    }
+  ],
+  "focused": {
+    "suites": 1,
+    "tests": 1,
+    "passed": 1
+  },
+  "review": "Independent Luna Max plus parent diff/evidence review",
+  "limits": [
+    "One BV public-boundary regression; no full-catalog accuracy or browser claim",
+    "Raw logs remain Git-ignored local evidence",
+    "Owned physical dependencies remain pending cleanup"
+  ]
+}

@@ -1,0 +1,477 @@
+{
+  "artefact": "r4-s6-journal-head-revision-local-20260915",
+  "date": "2026-09-15",
+  "roadmapNode": "R4.S6",
+  "task": "adopt-combat-journal-cutover-and-gm-rewind task 1.6 — \"S5-b: the expected revision for a commit comes from the journal head; sequence-conflict and duplicate-command refusals proven against races.\" (tasks.md line 19, checkbox left unchecked per the charter)",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/history-runtime-integrity",
+  "branch": "codex/roadmap-r4-s6-journal-head-revision-20260915",
+  "base": {
+    "sha": "d5beb85421c03ea768d1509c76066bf99ef2780c",
+    "subject": "feat(combat): refuse to mirror a rewound match stream",
+    "note": "STACKED ON S5, not on origin/main. d5beb854 is S5 commit B (PRs #1716/#1717 pending merge at slice start). Every diff and shortstat below is measured against that recorded base."
+  },
+  "commits": [
+    {
+      "sha": "b3dfa46b20bbac2d704c65c54810ad770f80afd8",
+      "short": "b3dfa46b2",
+      "subject": "feat(combat): source the expected revision from the journal head",
+      "shortstat": "4 files changed, 154 insertions(+), 28 deletions(-)",
+      "contents": "the consult module, the mirror's input change plus the guard lift, the DurableMatchStore call site, and the S5 mirror suite's mirrorDirect helper updated to the new input shape",
+      "amendedFor": "DOC-ONLY amend, authorised by the coordinator's split-never-trim policy: restored every production comment that had been compressed only to fit the 500-line cap (the module's S4-sibling framing and design.md pointer, the 'carrying a branch id out of here' sentence, the full MODE-GATED paragraph, the union doc, the mirror's WHERE-THE-EXPECTED-REVISION-COMES-FROM paragraph and its guard comment, the mirror input's field doc, and the DurableMatchStore consult comment) plus the one executable line the cap had touched, storeExpectedRevision's parameter name `next` -> `nextMatchSequence`. One accuracy correction while restoring: the pre-cap draft said this module shares S4's '`isLivePathBranchId` vocabulary', which was never true of the consult (only the mirror calls that predicate); the restored sentence says 'the same effective-head read, in the opposite direction' instead."
+    },
+    {
+      "sha": "4aa12c2a2219a8d36b2925107efe9b4e05671286",
+      "short": "4aa12c2a2",
+      "subject": "test(combat): prove the head-sourced revision against a race",
+      "shortstat": "1 file changed, 340 insertions(+)",
+      "contents": "the four-row proof suite, cherry-picked onto the amended A with its tree byte-identical to the pre-amend commit e4b15dba1"
+    },
+    {
+      "sha": "bb639a869bf52f842d14736e9183003b98efdec0",
+      "short": "bb639a869",
+      "subject": "test(combat): pin the live-path race control and the receipt replay on the journal-head path",
+      "shortstat": "1 file changed, 131 insertions(+), 32 deletions(-)",
+      "contents": "the THREE rows the cap had removed, plus the test-file prose that went with them and the restored describe split"
+    }
+  ],
+  "commitAuthor": "Wes Rollings <wrollings@gmail.com> (author and committer on both; no AI attribution)",
+  "shortstatVsBase": "5 files changed, 593 insertions(+), 28 deletions(-)",
+  "capsCompliance": {
+    "fileCap": "5 of 15",
+    "lineCap": "621 (593 insertions + 28 deletions), counted the way the S5 receipt counted. This EXCEEDS the 500-line seam cap by 121 lines, deliberately and on the coordinator's instruction.",
+    "costOfTheCap": "RESOLVED — the rows are shipped. The first pass held the cap at 498 by cutting three written, passing rows and compressing prose across four files. The coordinator's policy is split, never trim tests, so all three rows and the prose are restored: the never-rewound store-derived control and the live-path race control and the identical-retry replay row all ship in commit C, and the production comments the cap had compressed were restored by a doc-only amend of A. Nothing is now covered 'elsewhere' by argument rather than by a row.",
+    "howTheCapIsHonouredInstead": "By splitting into three PRs, which is what the reviewer recommended and what shipped: A 182, B 340, C 163 — each under the 500-line cap on its own. The 621-line figure is the seam's cumulative size across all three, not any single PR. Merge order is A -> B -> C; B depends on A and C depends on B.",
+    "split": "Three buildable prefixes. A is production-only and leaves every existing suite green; B adds the four-row proof suite; C adds the three restored rows and their prose. The mirror's plumbing change and its guard lift remain in A together because they occupy adjacent lines of one hunk and no non-interactive staging could separate them — so A still carries the behaviour change one commit ahead of its proof, and the RED evidence for it was captured before A existed."
+  },
+  "files": {
+    "production": [
+      "src/lib/multiplayer/server/matchCommitJournalHead.ts (NEW, 84 lines): MatchCommitExpectedRevision ('store' | 'journal'), storeExpectedRevision (the S5 translation, unchanged answer), resolveMatchCommitExpectedRevision(db, matchId, nextMatchSequence) — mode-gated; at 'enabled' it reads readEffectiveStreamHead over matchStreamRef(matchId) and returns the head's OWN revision",
+      "src/lib/multiplayer/server/MatchStreamJournalMirror.ts (+33/-13): IMirrorMatchBatchInput.nextMatchSequence replaced by the resolved `expected`; toMatchJournalBatch uses input.expected.expectedRevision; the S5 rewound-stream refusal is now conditioned on `expected.kind === 'store'`",
+      "src/lib/multiplayer/server/DurableMatchStore.ts (+31/-13 incl. import churn): mirrorCommittedBatch resolves the expectation through the consult BEFORE calling the mirror, on the same capability database handle"
+    ],
+    "tests": [
+      "src/lib/multiplayer/server/__tests__/matchCommitJournalHead.sqlite.test.ts (NEW, 340 lines): the four-row proof suite at mode 'enabled'",
+      "src/lib/multiplayer/server/__tests__/matchStreamJournalMirror.sqlite.test.ts (+10/-2): mirrorDirect now builds storeExpectedRevision(nextMatchSequence); all 10 S5 rows unchanged and green"
+    ]
+  },
+  "theDesign": {
+    "whyTheConsultIsOutsideTheAppendTransaction": "The append re-reads the effective head inside its own immediate transaction (SQLiteEventJournalWriter.appendInTransaction, verified read: `actualRevision = head?.streamRevision ?? 0`, conflict when it differs from input.expectedRevision). A consult that ran in that same transaction could never disagree with it — the optimistic check would compare a value against itself and NO commit could ever conflict, which would make clause two of the task text ('refusals proven against races') vacuous by construction. The consult is therefore a separate read, and the window between it and the append is the race.",
+    "whyTheBranchStillComesFromInsideTheTransaction": "The consult returns a revision and nothing else. The branch an append lands on is read inside the prepare arm, as S1 wrote it. An activation committing between the consult and the append therefore cannot be written past: the newly activated candidate's head sits at its base revision (EventHistoryCandidateBuild.seedCandidateJournalHead plants it there), the consulted number does not match, and the append refuses. Carrying a branch id out of the consult would have handed a writer a way onto a superseded branch.",
+    "whyTheGuardLiftIsConditionedOnTheArmAndNotOnTheMode": "The mirror does not read the mode. It reads which SOURCE the number came from, which is the property that actually matters: a store-derived number stops describing a journal revision once a tail is superseded (S5's finding), and a head-derived one describes the activated branch by construction. Keying the guard on the arm rather than re-reading the mode keeps one decision in one place and makes the mirror testable without a mode override.",
+    "identityOrderingPreserved": "The consult never refuses. Every refusal still comes from the append, so the journal writer's command-identity check keeps answering BEFORE the head check — a retry that arrives after the stream moved is still reported as a retry, matching DurableMatchStore's own stated ordering rule. Pinned by the surviving duplicate row, which passes a one-revision-stale expectation and gets duplicate-command rather than revision-conflict."
+  },
+  "redFirst": {
+    "method": "The full proof suite was written first and run against the tree BEFORE the guard lift existed (the consult and the mirror plumbing were present, so the failures are behavioural, not module-resolution or type errors).",
+    "log": ".sisyphus/roadmap-completion-20260912/r4-s6-20260915/red-journal-head-20260915.log",
+    "sha256": "bf55805c1ba4e725a6b382fa95a4d698018c22c5ff960b6336e360301214d34b",
+    "result": "4 failed, 2 passed, 6 total (the suite had six rows at RED time; two were later cut for the line cap and one was added, see mutantMatrix M4)",
+    "failuresMeasured": [
+      "'mirrors a rewound stream onto the activated branch at the head revision' — the mirror answered { kind: 'rewound-stream', branchId: '75e1d9ca…' } and no journal row landed on the activated branch",
+      "'rewound stream: exactly one writer commits and the loser is refused typed' — BOTH writers answered rewound-stream; zero commits, so 'exactly one' was false",
+      "'replays a retried command from its receipt without a second append' — rewound-stream (the identity path was unreachable)",
+      "'refuses the same command id carrying different work and appends nothing' — rewound-stream instead of duplicate-command"
+    ],
+    "passedAtRed": "The two never-rewound control rows passed at RED, as expected: the live path is byte-identical and was never the thing being changed. That is stated rather than dressed up as a new proof.",
+    "honestCaveat": "This is a two-stage RED by construction. The consult module had to exist for the suite to import it, so the RED tree is the slice's own first half rather than pristine d5beb854. What the RED measures is exactly the behaviour task 1.6 adds — the guard lift — and nothing else."
+  },
+  "green": {
+    "newSuite": "7 rows, all passing (4 from commit B, 3 restored in commit C)",
+    "rows": [
+      "the expected revision for a commit comes from the journal head > mirrors a rewound stream onto the activated branch at the head revision",
+      "the expected revision for a commit comes from the journal head > leaves a never-rewound stream on the store-derived revisions (C)",
+      "the expected revision for a commit comes from the journal head > appends at the head when the match log has run ahead of it",
+      "the expected-head race > exactly one writer commits and the loser is refused typed",
+      "the expected-head race > never-rewound stream: the loser is refused against the head it consulted (C)",
+      "duplicate-command refusal on the journal-head path > replays a retried command from its receipt without a second append (C)",
+      "duplicate-command refusal on the journal-head path > refuses the same command id carrying different work and appends nothing"
+    ],
+    "raceRealism": "Two writers, two SQLite connections to the same campaign file, both consulting the head before either appends. better-sqlite3 runs a transaction synchronously on the one Node thread, so the transactions cannot overlap in time; what IS raced is the consulted view, which is precisely the state a second process would hold. The suite's header says this in as many words and explicitly does not claim a multi-process concurrency harness. The brief recommended the owner accept this framing in the S6 receipt to pre-empt a later 'but is this a REAL race' — this receipt makes that request explicitly.",
+    "noPartialWriteNoDoubleHead": "The loser's event is absent from event_journal_events, the activated branch's head is at 2 (advanced exactly once), and the stream holds exactly two head rows — the live path's and the candidate's — so no second head was minted by the losing append.",
+    "identityBeforeRevision": "Proven by a row rather than argued: the replay row (C) passes an expectation already stale by one revision and still answers 'mirrored' from the stored receipt, with the journal rows byte-identical and the head unmoved."
+  },
+  "mutantMatrix": {
+    "method": "Each mutant applied to the committed tree, the full focused gate (src/lib/multiplayer/server + src/lib/events/journal, 172 suites / 1343 tests) run, the killing rows recorded, the file restored byte-for-byte from a pre-mutation snapshot. Tree verified clean against both commits afterwards.",
+    "log": ".sisyphus/roadmap-completion-20260912/r4-s6-20260915/mutants-20260915.log",
+    "sha256": "1d49942c84c190cac01c131ff90a2f2e566a0971f24861971f834ae2361d2aab",
+    "perMutantLogs": ".sisyphus/roadmap-completion-20260912/r4-s6-20260915/mutant-M1.log … mutant-M8.log",
+    "note": "This is the matrix design.md S5 calls for and the S5 receipt/review deferred here (RE-5): 'the S5 mutant matrix is NOT delivered in this slice … the matrix is therefore OWED AT TASK 1.6, where there is a real translation to mutate.' It covers all three layers the charter names — the S5 helpers, the 1.6 translation, and the guard.",
+    "rows": [
+      {
+        "id": "M1",
+        "layer": "helper",
+        "site": "matchStoreBranchSegmentReader.revisionForMatchSequence",
+        "mutation": "return sequence (drop the +1)",
+        "killed": true,
+        "result": "53 suites / 172 tests failed",
+        "namedKillingRow": "DurableMatchStore appendCommandBatch contract › refuses a batch whose expected revision is stale"
+      },
+      {
+        "id": "M2",
+        "layer": "helper",
+        "site": "matchStoreBranchSegmentReader.nextMatchSequenceAfter",
+        "mutation": "return lastLiveSequence on the non-null arm (stop delegating to revisionForMatchSequence)",
+        "killed": true,
+        "result": "51 suites / 160 tests failed",
+        "namedKillingRow": "DurableMatchStore supersedeFrom › appendCommandBatch at the cut commits after supersedeFrom"
+      },
+      {
+        "id": "M3",
+        "layer": "translation (S5)",
+        "site": "matchStoreBranchSegmentReader.journalHeadRevisionForNextMatchSequence",
+        "mutation": "return nextSequence + 1 (break the identity)",
+        "killed": true,
+        "result": "5 suites / 19 tests failed",
+        "namedKillingRow": "committed combat batches reach the journal › appends the batch at contiguous revisions and installs the heads"
+      },
+      {
+        "id": "M4",
+        "layer": "translation (1.6 — THE mutation this task is about)",
+        "site": "matchCommitJournalHead.resolveMatchCommitExpectedRevision, journal arm",
+        "mutation": "expectedRevision: journalHeadRevisionForNextMatchSequence(nextMatchSequence) instead of head.revision — i.e. keep the 'journal' label while sourcing the number from the store",
+        "killed": true,
+        "result": "1 suite / 1 test failed",
+        "namedKillingRow": "the expected revision for a commit comes from the journal head › appends at the head when the match log has run ahead of it",
+        "SURVIVED_ON_FIRST_RUN": "YES, and this is the most important finding of the slice. On the first matrix run M4 survived with 172 suites / 1343 tests ALL GREEN. The reason is a coincidence: on a correctly-rewound stream the candidate's base revision equals the cut, the store's next sequence after supersedeFrom also equals the cut, and journalHeadRevisionForNextMatchSequence is the identity — so head-derived and store-derived produce the SAME number and no rewind fixture can tell them apart. The suite as first written did not pin task 1.6's central claim at all. It was fixed by adding the 'match log has run ahead of it' row: an event appended through store.appendEvent (the shape ServerMatchHost.create leaves, which never crosses the mirror's batch boundary) puts the store's next sequence at 3 while the head is still at 2, and only then do the two sources disagree. M4 now dies on that row alone."
+      },
+      {
+        "id": "M5",
+        "layer": "mode gate",
+        "site": "matchCommitJournalHead.resolveMatchCommitExpectedRevision",
+        "mutation": "gate on === 'off' instead of !== 'enabled' (treat 'shadow' as authoritative)",
+        "killed": true,
+        "result": "1 suite / 2 tests failed",
+        "namedKillingRow": "the sequence-versus-revision offset is named, not implied › records the rewound refusal on the tripwire rather than skipping (S5's own row; the second is 'records a failed mirror on the tripwire admission consults')"
+      },
+      {
+        "id": "M6",
+        "layer": "arm labelling",
+        "site": "matchCommitJournalHead.storeExpectedRevision",
+        "mutation": "return kind: 'journal' for the store-derived answer",
+        "killed": true,
+        "result": "1 suite / 1 test failed",
+        "namedKillingRow": "the sequence-versus-revision offset is named, not implied › refuses to mirror a batch against a rewound stream"
+      },
+      {
+        "id": "M7",
+        "layer": "guard",
+        "site": "MatchStreamJournalMirror prepare arm",
+        "mutation": "drop the arm condition — restore S5's blanket rewound refusal",
+        "killed": true,
+        "result": "1 suite / 3 tests failed",
+        "namedKillingRow": "the expected revision for a commit comes from the journal head › mirrors a rewound stream onto the activated branch at the head revision"
+      },
+      {
+        "id": "M8",
+        "layer": "guard",
+        "site": "MatchStreamJournalMirror prepare arm",
+        "mutation": "invert the arm condition — refuse JOURNAL expectations off the live path and let STORE ones through",
+        "killed": true,
+        "result": "2 suites / 4 tests failed",
+        "namedKillingRow": "races and duplicate refusals on the journal-head path › exactly one writer commits and the loser is refused typed (plus S5's 'refuses to mirror a batch against a rewound stream', which catches the other half of the inversion)"
+      }
+    ],
+    "summary": "8 of 8 killed on the final tree. One (M4) required a new test row to kill and had survived a full green gate before it.",
+    "whichRunThisDescribes": "This section records the FIRST-PASS run, against commits A+B before the restored rows landed. The shipped tree's rerun is in commitC.mutantMatrixRerun: 8 of 8 still killed, with M7 and M8 dying on more rows now that C's controls exist. The M4 finding is unchanged — it is still killed by exactly one row."
+  },
+  "gates": {
+    "focusedJest": {
+      "command": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/multiplayer/server src/lib/events/journal",
+      "result": "172 suites passed / 1343 tests passed",
+      "s5Baseline": "171 suites / 1339 tests",
+      "delta": "+1 suite, +4 tests, accounted exactly: the four rows of the new suite. No existing row changed count or name.",
+      "log": ".sisyphus/roadmap-completion-20260912/r4-s6-20260915/green-focused-20260915.log",
+      "sha256": "57585a124035bab462974254d4d31ae3f97f9600986effdd7943ef7619c07a79",
+      "supersededBy": "commitC.gates.focusedJest (172 suites / 1346 tests on the shipped tree). The 172/1343 recorded here was the A+B tree."
+    },
+    "tsc": {
+      "command": "npx tsc --noEmit -p tsconfig.json",
+      "result": "exit 0, no diagnostics (empty log)",
+      "log": ".sisyphus/roadmap-completion-20260912/r4-s6-20260915/tsc-20260915.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "oxlint": {
+      "command": "npx oxlint <5 changed files>",
+      "result": "0 errors, 1 warning",
+      "warning": "eslint(max-lines) on DurableMatchStore.ts (1030 lines counted, max 400). PRE-EXISTING — the S5 receipt recorded 1026 at its own tip; this slice's net effect on that file is +4 lines. Not introduced here and not in scope to fix."
+    },
+    "oxfmt": {
+      "command": "npx oxfmt <5 changed files>",
+      "result": "no reformatting emitted on the committed tree"
+    },
+    "openspecValidate": {
+      "command": "npx openspec validate --all --strict",
+      "result": "Totals: 232 passed, 0 failed (232 items)",
+      "log": ".sisyphus/roadmap-completion-20260912/r4-s6-20260915/openspec-validate-20260915.log",
+      "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3"
+    },
+    "build": "Not run as a standalone gate, per the charter. The pre-commit hook's full `next build` ran and passed on BOTH commits (the standalone hydration JSON emitted \"ok\": true each time). No build was started while another next build was running — the concurrent build in worktrees/proof02-rerun was checked via the node.exe command lines and had exited before either commit."
+  },
+  "residualsDischarged": {
+    "citation": "r4-s5-s7-admission-brief-20260915.json → residualDischargeMatrix.rows",
+    "closed": [
+      {
+        "id": "RR-5 (mirror's own untested arms)",
+        "matrixRow": "rows[4] — closedBy 'R4.S6 (the race suite exercises the mirror's revision-conflict/duplicate-command arms under real contention, covering at least one of the two RR-5 names)'",
+        "status": "DISCHARGED for BOTH named arms, not just one. duplicate-command is reached by 'refuses the same command id carrying different work and appends nothing' through the journal writer's own command-identity check under a real second submission; revision-conflict is reached by 'exactly one writer commits and the loser is refused typed' under real contention on a second connection rather than a hand-constructed input. The third arm, integrity-conflict, remains untested and is NOT claimed."
+      },
+      {
+        "id": "S5-R1 (rewound-stream refusal is permanent until 1.6)",
+        "citation": "r4-s5-explicit-offsets-local-20260915.json → riskFlaggedForTheOwner.S5-R1, endorsed verbatim by the S5 review's axes.6_riskAndNonClaims.S5R1",
+        "status": "DISCHARGED IN THE JOURNAL-HEAD MODE ONLY. At mode 'enabled' a rewound stream mirrors onto its activated branch at the head's revision — 'mirrors a rewound stream onto the activated branch at the head revision' is the proof, and M7 is the mutant that dies without it. At 'off' and 'shadow' the refusal is UNCHANGED and permanent, which the S5 suite's untouched rows still pin. S5-R1's forward warning to S7 therefore still stands in full: if S7 seeds the mirror at creation while the process is at 'shadow', every rewound match still pins the mismatch counter above zero."
+      }
+    ],
+    "narrowed": [
+      {
+        "id": "RR-2 (synchronous-mirror-ordering invariant)",
+        "matrixRow": "rows[1] — closedBy 'R4.S6 (test added, not fully closed — an invariant COMMENT already exists; S6 gives it a test)'",
+        "status": "PARTIALLY DISCHARGED, and the receipt would rather understate it. RR-2 is about mirror ordering ACROSS concurrent commits if the writer ever becomes genuinely async. The race row proves the adjacent, weaker property: two writers holding the same consulted head produce exactly one commit and one typed refusal, with no interleaved partial write. It does NOT prove ordering survives a genuinely async writer, because better-sqlite3 cannot be made async here. Recommend the owner treat RR-2 as narrowed, not closed."
+      }
+    ],
+    "explicitlyNotClosedHere": [
+      "RR-1 (busy_timeout) → closedBy R4.S7-d, owner ruling required. This slice does not set, read, or worsen a busy_timeout. The brief asked that 1.6 'at minimum NOT worsen RR-1's exposure': it does not — no new transaction is opened, and the consult is a plain read outside any transaction.",
+      "RR-3 (backfillGenesisBranches is stream-agnostic) → closedBy NONE of S5-S7. The matrix asks every S5-S7 receipt to state this explicitly: NOT CLAIMED, NOT FIXED, still the deliberate accepted side effect the S1 author and reviewer disclosed.",
+      "RR-4 (single-transaction SHALL tension) → closedBy R4.S7-d, owner ruling required. Untouched: the journal mirror is still a post-transaction side effect of the match store's commit, and this slice does not merge the two writers.",
+      "RR-6 (isCapabilityDbAvailable outside try/catch) → closedBy NONE; this slice's diff touches mirrorCommittedBatch but not that line, so the 'available freebie' condition did not fire.",
+      "RR-7 (task 1.1's unclaimed preview clause) → out of scope.",
+      "create-path seeding gap → closedBy R4.S7-a. NOT fixed here. It is, however, now NAMED BY A PASSING TEST rather than only by prose: see riskFlaggedForTheOwner S6-R1.",
+      "S4-R2 / S4-R4 (checkpoint cache refresh, checkpointRecoveryPort properties) → closedBy R4.S7-c.",
+      "task 1.3 marker retirement + isMatchJournalAuthorityStartedDerived dangling export → closedBy R4.S7-b.",
+      "task 1.4 second clause (restart pack vs rewound match, live) → belongs to R4.S4's own checkbox."
+    ]
+  },
+  "s4R1Disposition": {
+    "residual": "S4-R1 — shadow-mode divergence refusal gating (whether the journal-versus-log divergence refusal should be gated on mode 'enabled', caught up, or left for operator repair)",
+    "decision": "NOTHING IMPLEMENTED. Recorded, not acted on.",
+    "why": "The charter's own condition fires: 'if it needs an owner ruling, implement nothing for it and record why.' The admission brief's residualDischargeMatrix rows[8] assigns S4-R1 to R4.S7-d with ownerRulingRequired: true and rulingNeeded 'confirm the reframing (per-match state, not process mode, governs the refusal) is acceptable', and openQuestionsForTheOwner[1] says the same in longer form: the reframing 'is this brief's recommendation, not a prior ruling'. The brief assigns S6 no S4-R1 work at all.",
+    "andWhyThatIsAlsoTheRightAnswerOnTheMerits": "The three candidate dispositions the charter names — gate-on-enabled, catch-up, operator repair — are all instances of ONE undecided question: what governs a per-match refusal when the journal and the log disagree. Implementing any of them here would pick a side of the S4 reviewer's own principle ('recovery reads persisted state, never the cutover flag') on the WRITE side, where the persisted state that would govern it — the migration-state machine — does not exist yet and is R4.S7-d's deliverable. A gate-on-enabled write-side refusal would be a process-mode gate, which is precisely the shape the reviewer's principle argues against; a catch-up would invent history; operator repair needs a surface nothing has built. The smallest correct move is to build neither and leave the machine to the slice that owns it.",
+    "whatThisSliceDidInstead": "It kept the write side honest about the one divergence it actually meets. Where the log has run ahead of the head, the consult answers the head's revision and the batch lands there — visibly, with a passing test that says in its own comment that the journal then holds no row for the log's un-mirrored sequence. That is a statement of the create-path gap, not a repair of it, and it is exactly the input S7-d needs to decide S4-R1 with evidence."
+  },
+  "specDelta": {
+    "result": "NONE. No SHALL is contradicted and no stop-and-report is owed.",
+    "reasoning": "Consistent with the brief's tasks['1.6'].deltaShallMapping ('NONE directly'). COMBAT_JOURNAL_AUTHORITY_MODE is the hard-coded const 'off' with no env read, and every behaviour this slice adds is behind getCombatJournalAuthorityMode() === 'enabled', reachable only through _setCombatJournalAuthorityModeForTests. No spec scenario's observable behaviour moves. `npx openspec validate --all --strict` is green at 232/232."
+  },
+  "riskFlaggedForTheOwner": [
+    {
+      "id": "S6-R1",
+      "severity": "medium, inert today, load-bearing for S7's ordering",
+      "text": "At mode 'enabled' the consult answers the head's revision UNCONDITIONALLY — including when the match log holds events the journal never received. The batch then lands at the head and the journal's history silently omits those events. This is the create-path gap (ServerMatchHost.create persists opening events through appendEvent, which is not the batch boundary the mirror hooks) seen from the write side, and 'appends at the head when the match log has run ahead of it' asserts it as current behaviour rather than hiding it. The consequence for S7 is an ORDERING constraint: the create-path seeding (R4.S7-a) must land BEFORE the cutover flip, or the first enabled process will build every match's journal history starting from wherever the mirror happened to be, with no record that a prefix is missing. matchAuthorityBaseline already has the vocabulary for the honest version of this ('never invent a prefix'; source 'legacy-baseline' with a firstRetainedRevision) and the write side does not use it. Whether the commit path should instead REFUSE that disagreement is S4-R1's question, which is R4.S7-d's to answer — see s4R1Disposition."
+    },
+    {
+      "id": "S6-R2",
+      "severity": "low, methodological",
+      "text": "M4 — the mutant that replaces the head's revision with the store's next sequence while keeping the 'journal' label — survived a FULL GREEN gate (172 suites / 1343 tests) on the first matrix run. On a correctly-rewound stream the two sources agree numerically by construction, so no rewind fixture can distinguish them; only a stream where the log has run ahead of the head can. Any later slice that changes the consult should re-run M4 specifically, and any reviewer reading 'the expected revision comes from the journal head' should check that the row proving it is the log-ahead one, not the rewind one."
+    }
+  ],
+  "nonClaims": [
+    "COMBAT_JOURNAL_AUTHORITY_MODE is NOT flipped. matchJournalAuthority.ts still reads `export const COMBAT_JOURNAL_AUTHORITY_MODE = 'off' as CombatJournalAuthorityMode` — a hard-coded const with no env read. Every path this slice adds is unreachable in production.",
+    "No cutover. The journal remains a mirror; mp_match_events remains the authoritative commit-time check in DurableMatchStore, which this slice does not touch.",
+    "Not S7: the mirror is still NOT seeded at match creation. The create-path gap is untouched, and is now asserted as current behaviour by a passing row rather than fixed.",
+    "No shadow-parity gate, no migration-state machine, no rollback law, no explicit busy_timeout.",
+    "The race proven is the consult-versus-append window under microtask interleaving with two real SQLite connections. It is NOT a multi-process or worker_thread concurrency harness and does not claim to be — better-sqlite3 runs a transaction synchronously on the one Node thread, so no other race exists in this engine to prove.",
+    "The mirror's integrity-conflict arm remains untested. RR-5 is claimed for revision-conflict and duplicate-command only.",
+    "RR-3 explicitly NOT claimed: backfillGenesisBranches remains stream-agnostic.",
+    "The task-1.6 checkbox in openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/tasks.md was NOT ticked, per the charter. No openspec/** path is touched by either commit.",
+    "No dependencies added. No standalone `npm run build` gate was run — the pre-commit hook's build on each commit is what is claimed.",
+    "This slice is STACKED on S5 (base d5beb854, PRs #1716/#1717 pending merge). It is not independently mergeable to main.",
+    "Nothing pushed, no PR, no merge. The root checkout was not touched; all three commits are on the worktree branch codex/roadmap-r4-s6-journal-head-revision-20260915, with the first pass preserved on backup/r4-s6-pre-prose-restore.",
+    "The seam as ONE PR exceeds the tasks.md 500-line cap (621 of 500). That is a deliberate, coordinator-instructed trade under the split-never-trim policy, not an oversight — see capsCompliance."
+  ],
+  "evidenceDir": ".sisyphus/roadmap-completion-20260912/r4-s6-20260915/",
+  "evidenceHashes": {
+    "red-journal-head-20260915.log": "bf55805c1ba4e725a6b382fa95a4d698018c22c5ff960b6336e360301214d34b",
+    "green-focused-20260915.log": "57585a124035bab462974254d4d31ae3f97f9600986effdd7943ef7619c07a79",
+    "tsc-20260915.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "openspec-validate-20260915.log": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3",
+    "mutants-20260915.log": "1d49942c84c190cac01c131ff90a2f2e566a0971f24861971f834ae2361d2aab",
+    "green-commitC-suites-20260915.log": "3f3919991909c1f324688f67055b235c154768b99bb24841a1912be9ceb70315",
+    "green-focused-commitC-20260915.log": "82f6cfe048b54c18b535f53615531cea84b11a0ac512c083a6c5438793168cc8",
+    "tsc-commitC-20260915.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "openspec-validate-commitC-20260915.log": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3",
+    "mutants-commitC-20260915.log": "1578d2c3f5d4b20a692e4c5ea1138e251b9c7a360015fab06e461d217949a719"
+  },
+  "documentationInconsistencyCarriedForward": "The brief's tasks['1.6'].theGap flags that design.md's prose calls this work 'S5-b' (the second half of the S5 seam) while the roadmap numbers it R4.S6 and design.md's own six-seam list puts 'S6 reviewed cutover' next with nothing in between. This receipt follows the roadmap's numbering, as the brief did, and repeats the flag: it is a documentation fix for the owner, not a blocking contradiction — both descriptions name the same work.",
+  "supersededCommits": {
+    "note": "The first pass of this slice was committed as d95a17c757a0f83acb005e79106fbd8958b336ad (A) and e4b15dba11fc32e4f83c2bee36a48cb028d6a03c (B), with three test rows and a body of prose cut to hold the 500-line cap. The coordinator's split-never-trim policy replaced that trade: A was amended doc-only, B was cherry-picked unchanged onto it, and the cut rows returned as C. Both original commits are preserved verbatim on branch backup/r4-s6-pre-prose-restore (tip e4b15dba1) and nothing was reset, stashed or force-anything'd — the pair was REBUILT by cherry-pick, the way S5's own receipt records for its post-review rebuild."
+  },
+  "commitC": {
+    "sha": "bb639a869bf52f842d14736e9183003b98efdec0",
+    "short": "bb639a869",
+    "subject": "test(combat): pin the live-path race control and the receipt replay on the journal-head path",
+    "shortstat": "1 file changed, 131 insertions(+), 32 deletions(-)",
+    "policy": "Coordinator override, received after the first pass: split, never trim tests.",
+    "rowsRestored": [
+      {
+        "row": "the expected revision for a commit comes from the journal head > leaves a never-rewound stream on the store-derived revisions",
+        "whyItHadBeenCut": "SWAPPED, not merely dropped: it was the row the M4-killing 'log has run ahead of it' row replaced when there was no line budget for both.",
+        "whatItPins": "An ordinary match at mode 'enabled' still lands at revisions 1, 2, 3 on the live branch, on one branch id, with the head at 3 and the shadow tripwire clean. Without it the head-sourced path was pinned only on the two streams where it changes something."
+      },
+      {
+        "row": "the expected-head race > never-rewound stream: the loser is refused against the head it consulted",
+        "whyItHadBeenCut": "the live-path race control, cut for the cap",
+        "whatItPins": "The same one-commit-one-typed-refusal shape as the rewound race, on the live path, with the loser's event absent and the live branch head advanced exactly once."
+      },
+      {
+        "row": "duplicate-command refusal on the journal-head path > replays a retried command from its receipt without a second append",
+        "whyItHadBeenCut": "the identical-retry replay row, cut for the cap",
+        "whatItPins": "Identity answers BEFORE the head does. The retry carries the same expectation the first attempt did, already stale by one revision, and still replays from its receipt: result 'mirrored', journal rows byte-identical to before, head unmoved. This is the ordering property the design section claims and the first pass could only argue for by inspection."
+      }
+    ],
+    "proseRestored": "The suite header's full race framing, the doc on primary / consult / mirrorOn / queryCampaign / streamHeads, the IJournalRow interface (the cap had flattened it to a one-line type alias), the seedThenRewind doc including the 'tripwire is reset last' sentence, the revision-versus-sequence comment above supersedeFrom, the explicit `held` object (the cap had destructured it), and the two row comments the cap had shortened. The race and duplicate-command groups are separate describes again rather than one merged group.",
+    "gates": {
+      "commitCRowsPlusTheS5MirrorSuite": {
+        "command": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/multiplayer/server/__tests__/matchCommitJournalHead.sqlite.test.ts src/lib/multiplayer/server/__tests__/matchStreamJournalMirror.sqlite.test.ts",
+        "result": "2 suites passed / 17 tests passed (7 in the new suite, 10 in the S5 mirror suite — every S5 row still green and unchanged)",
+        "log": ".sisyphus/roadmap-completion-20260912/r4-s6-20260915/green-commitC-suites-20260915.log",
+        "sha256": "3f3919991909c1f324688f67055b235c154768b99bb24841a1912be9ceb70315"
+      },
+      "focusedJest": {
+        "command": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/multiplayer/server src/lib/events/journal",
+        "result": "172 suites passed / 1346 tests passed",
+        "delta": "+3 tests over the first pass's 1343, +7 over the S5 baseline of 1339; accounted exactly by the seven rows of the new suite",
+        "log": ".sisyphus/roadmap-completion-20260912/r4-s6-20260915/green-focused-commitC-20260915.log",
+        "sha256": "82f6cfe048b54c18b535f53615531cea84b11a0ac512c083a6c5438793168cc8"
+      },
+      "tsc": {
+        "command": "npx tsc --noEmit -p tsconfig.json",
+        "result": "exit 0, no diagnostics (empty log)",
+        "log": ".sisyphus/roadmap-completion-20260912/r4-s6-20260915/tsc-commitC-20260915.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "oxfmt": {
+        "command": "npx oxfmt src/lib/multiplayer/server/__tests__/matchCommitJournalHead.sqlite.test.ts",
+        "result": "no reformatting emitted"
+      },
+      "oxlint": {
+        "command": "npx oxlint src/lib/multiplayer/server/__tests__/matchCommitJournalHead.sqlite.test.ts",
+        "result": "0 warnings, 0 errors"
+      },
+      "openspecValidate": {
+        "command": "npx openspec validate --all --strict",
+        "result": "Totals: 232 passed, 0 failed (232 items)",
+        "log": ".sisyphus/roadmap-completion-20260912/r4-s6-20260915/openspec-validate-commitC-20260915.log",
+        "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3"
+      },
+      "build": "The pre-commit hook's full `next build` ran and passed on the amend of A and on C (\"ok\": true each time). Cherry-picking B did not fire pre-commit; its tree is byte-identical to e4b15dba1, which built on its own commit in the first pass. No build was started while another next build was running."
+    },
+    "mutantMatrixRerun": {
+      "why": "The matrix is stated against the shipped tree, so it was re-run in full after C rather than carried over from the first pass.",
+      "result": "8 of 8 still killed. Three rows kill harder with C's rows present: M4 1 test (unchanged — still only the log-ahead row), M7 4 tests (was 3), M8 5 tests (was 4). M1 173 / M2 161 / M3 19 / M5 2 / M6 1.",
+      "log": ".sisyphus/roadmap-completion-20260912/r4-s6-20260915/mutants-commitC-20260915.log",
+      "sha256": "1578d2c3f5d4b20a692e4c5ea1138e251b9c7a360015fab06e461d217949a719",
+      "perMutantLogs": ".sisyphus/roadmap-completion-20260912/r4-s6-20260915/mutant-commitC-M1.log … mutant-commitC-M8.log",
+      "S6R2StillStands": "M4 is still killed by exactly one row, the log-ahead one. C's three rows do not help it — they cannot, for the reason S6-R2 records."
+    }
+  },
+  "reviewVerdict": {
+    "verdict": "APPROVE",
+    "requiredEdits": "none (requiredEdits: [])",
+    "artefact": "openspec/planning/2026-09-12-roadmap-completion/evidence/r4-s6-journal-head-revision-review-20260915.json",
+    "packagingRecommendation": "axis4_caps APPROVE-WITH-RECOMMENDATION: ship as three PRs (A 182, B 340, C 163), each under the 500-line cap, rather than one 621-line PR. The reviewer's measurements match this receipt's capsCompliance exactly."
+  },
+  "rebasedStack": {
+    "why": "The reviewer's packaging recommendation: three PRs, each under the cap. The stack was rebuilt on current origin/main by cherry-pick — never a merge, never a force — so each branch is a single commit on top of its predecessor.",
+    "newBase": {
+      "sha": "fbb3f2c81",
+      "subject": "test(campaign): pin the fence against a winning PUT and the P0a baseline capture (#1722)",
+      "note": "origin/main after `git fetch origin`. S5 is present as the two squashed merges 4e5a74b9f (#1717) and faf03445d (#1716), so the old local base d5beb854 is gone from the graph and the stack no longer depends on an unmerged branch."
+    },
+    "branches": [
+      {
+        "branch": "codex/roadmap-r4-s6-a-consult-20260915",
+        "from": "origin/main (fbb3f2c81)",
+        "newSha": "75adfbb3f",
+        "cherryPickedFrom": "b3dfa46b20bbac2d704c65c54810ad770f80afd8",
+        "shortstat": "4 files changed, 154 insertions(+), 28 deletions(-) = 182 lines",
+        "conflicts": "none — applied clean, exactly as the reviewer's axis6_mergeTree predicted (the merge-tree conflicts it saw were squash-SHA artifacts over byte-identical content)"
+      },
+      {
+        "branch": "codex/roadmap-r4-s6-b-suite-20260915",
+        "from": "codex/roadmap-r4-s6-a-consult-20260915",
+        "newSha": "5f370239e",
+        "cherryPickedFrom": "4aa12c2a2219a8d36b2925107efe9b4e05671286",
+        "shortstat": "1 file changed, 340 insertions(+) = 340 lines",
+        "conflicts": "none"
+      },
+      {
+        "branch": "codex/roadmap-r4-s6-c-rows-20260915",
+        "from": "codex/roadmap-r4-s6-b-suite-20260915",
+        "newSha": "0a08c6393",
+        "cherryPickedFrom": "bb639a869bf52f842d14736e9183003b98efdec0",
+        "shortstat": "1 file changed, 131 insertions(+), 32 deletions(-) = 163 lines",
+        "conflicts": "none"
+      }
+    ],
+    "treeEqualityCheck": {
+      "askedFor": "`git diff <orig> <new> -- .` empty for each pair.",
+      "measuredResult": "NOT empty — 4560 lines for each of the three pairs, identically.",
+      "whyAndWhatWasCheckedInstead": "That check assumes the two commits share a base. They do not: the originals sit on the old local base d5beb854 and the rebuilt commits sit on origin/main, which has advanced by 26 unrelated files (campaign authority work, e2e specs, the openspec ledger and several tasks.md rows). The 4560 lines are that advance, and the figure is identical for all three pairs precisely because it is the same base delta each time. The meaningful check is the slice's own five files, and it IS empty: `git diff <orig> <new> -- <the five files>` returns 0 lines for A, B and C. `git diff b3dfa46b2 75adfbb3f --name-only` intersected against the five files returns nothing. The cherry-picked content is therefore byte-identical, which is what the check was asking.",
+      "perPairSliceFileDiff": "A: 0 lines. B: 0 lines. C: 0 lines."
+    },
+    "originalBranchUntouched": "codex/roadmap-r4-s6-journal-head-revision-20260915 still points at bb639a869 and is the reference; backup/r4-s6-pre-prose-restore still holds the pre-policy pair (e4b15dba1).",
+    "gatesOnTheCBranch": {
+      "namedSuites": {
+        "command": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/multiplayer/server/__tests__/matchCommitJournalHead.sqlite.test.ts src/lib/multiplayer/server/__tests__/matchStreamJournalMirror.sqlite.test.ts",
+        "result": "2 suites passed / 17 tests passed (7 new + 10 S5 mirror rows, all unchanged)",
+        "log": ".sisyphus/roadmap-completion-20260912/r4-s6-20260915/green-rebased-suites-20260915.log",
+        "sha256": "fac24d56313edead3e5f83589ee6d66865d7ae5544c5dbeac6ee8bd982b9a45b"
+      },
+      "focusedScope": {
+        "command": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/multiplayer/server src/lib/events/journal",
+        "result": "172 suites passed / 1348 tests passed",
+        "delta": "1348 on the new base versus 1346 on the old one. The +2 is origin/main's own advance (it touched matchRecoveryJournalHead.sqlite.test.ts among the 26 files), NOT this slice: the slice's seven rows are unchanged and the suite count is identical at 172.",
+        "log": ".sisyphus/roadmap-completion-20260912/r4-s6-20260915/green-rebased-focused-20260915.log",
+        "sha256": "90bda0a78cd26a8c3833ad8472f42df831e6856177dc7ada8f4f9de8b4b2a6f2"
+      },
+      "tsc": {
+        "command": "npx tsc --noEmit -p tsconfig.json",
+        "result": "exit 0, no diagnostics",
+        "log": ".sisyphus/roadmap-completion-20260912/r4-s6-20260915/tsc-rebased-20260915.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "oxfmt": {
+        "command": "npx oxfmt <the five changed files>",
+        "result": "no reformatting emitted"
+      },
+      "buildNote": "No commit was created on the rebased branches — cherry-pick does not fire the pre-commit hook — so no `next build` ran here. The builds claimed in this receipt are the ones the hook ran when A was amended and C was committed, on byte-identical trees."
+    },
+    "checkboxRecheckedOnTheNewBase": "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/tasks.md line 24 on origin/main still reads `- [ ] 1.6 S5-b: ...`. The row moved line number (18 -> 24) because main edited that file, but it is still unticked and no commit of this slice touches it.",
+    "pullRequests": {
+      "base": "main",
+      "mergeOrder": "A (#1728) -> B (#1729) -> C (#1730); B depends on A, C depends on B",
+      "opened": [
+        {
+          "prefix": "A",
+          "number": 1728,
+          "url": "https://github.com/SwiggitySwerve/MekStation/pull/1728",
+          "branch": "codex/roadmap-r4-s6-a-consult-20260915",
+          "headSha": "75adfbb3f",
+          "title": "feat(journal): consult the journal head for the expected match revision under the cutover mode",
+          "size": "182 lines (154+28)",
+          "state": "OPEN"
+        },
+        {
+          "prefix": "B",
+          "number": 1729,
+          "url": "https://github.com/SwiggitySwerve/MekStation/pull/1729",
+          "branch": "codex/roadmap-r4-s6-b-suite-20260915",
+          "headSha": "5f370239e",
+          "title": "test(journal): journal-head consult suite (race, duplicate-command, store|journal expectation)",
+          "size": "340 lines",
+          "state": "OPEN"
+        },
+        {
+          "prefix": "C",
+          "number": 1730,
+          "url": "https://github.com/SwiggitySwerve/MekStation/pull/1730",
+          "branch": "codex/roadmap-r4-s6-c-rows-20260915",
+          "headSha": "0a08c6393",
+          "title": "test(journal): restore the replay-from-receipt, never-rewound and log-ahead rows",
+          "size": "163 lines (131+32)",
+          "state": "OPEN"
+        }
+      ],
+      "githubCumulativeDiffNote": "GitHub reports each PR's diff against main, so B shows +494/-28 and C +593/-28 — the cumulative stack, not the per-PR commit. The per-PR COMMIT sizes are the ones the cap is measured on: A 182, B 340, C 163, each under 500. Every PR body states its stack position and the merge order.",
+      "notMerged": "Opened only. No merge, no auto-merge, no admin merge, no push to a protected branch."
+    }
+  }
+}

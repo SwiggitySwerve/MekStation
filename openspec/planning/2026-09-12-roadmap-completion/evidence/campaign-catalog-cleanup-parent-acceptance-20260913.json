@@ -1,0 +1,90 @@
+{
+  "capturedAt": "2026-09-13T00:59:12.438Z",
+  "status": "accepted-owned-cleanup",
+  "receipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-catalog-cleanup-20260913.json",
+    "sha256": "12e7bac6b37f841574efe5d1d274250a3d6b79f9ef6aae3dfb3b57c01c4cf916"
+  },
+  "exportManifest": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/campaign-catalog-cleanup-20260913/export-manifest.json",
+    "sha256": "605efc80981ec3039174f9a2d0cf123ce7b26623e08546c59f1952244660246c"
+  },
+  "manifestArtifactsReopened": 406,
+  "metadataArtifactsReopened": [
+    {
+      "path": "export-manifest.json",
+      "sha256": "605efc80981ec3039174f9a2d0cf123ce7b26623e08546c59f1952244660246c",
+      "listedFileCount": 406,
+      "listedBytes": 4621850
+    },
+    {
+      "path": "export-manifest-sha256.txt",
+      "sha256": "f0c151fd6bad944ba54cbabeadbe48d604c3751e27b68e8033e2aff573cae2a6"
+    },
+    {
+      "path": "export-reopen-check.json",
+      "sha256": "da587b3df7b90e5fa3396b6ab3c4b2f5e2b971957b876df66f76f6e4bca0aceb",
+      "reopened": true,
+      "missing": 0,
+      "hashMismatches": 0,
+      "sourceBlobMismatches": 0,
+      "outputReparsePoints": 0
+    },
+    {
+      "path": "cleanup-preflight.json",
+      "sha256": "ea90e05ef72ce92c029537fa091856a8887db98f64dc3c9e962bb39d054128eb",
+      "proceedGuard": true
+    },
+    {
+      "path": "post-cleanup-check.json",
+      "sha256": "f7ff60c316904d035ae0aeb289eed8f83ce3dba90801350e51ff75e69c9ab3f1",
+      "verified": true
+    },
+    {
+      "path": "source-blob-recheck.json",
+      "sha256": "c4e1d44c4b50b768a496bf37063d64727f28cc84a2620bbb66a5a5f953aa5087"
+    },
+    {
+      "path": "export-file-index.txt",
+      "sha256": "6f8ff9bf4c0fe6e8255d96d0acce885a26ddbe7af5d488b3ded3debd8bd07b09",
+      "indexedFileCount": 423,
+      "indexedBytes": 4721130
+    }
+  ],
+  "sourceBlobsVerified": 3,
+  "mutationReceipts": {
+    "worktreeRemove": {
+      "artifact": "mutation-worktree-remove.json",
+      "sha256": "be9715eab14a7d8498319a7c10099873ac5ffb1ea6ddb8f682b08d137180001e",
+      "exitCode": 0,
+      "guard": "exact verified path; non-force"
+    },
+    "localRefDelete": {
+      "artifact": "mutation-local-ref-delete.json",
+      "sha256": "373a1bc5fe4d24fa6075e49843fd013bbd01f63a172cb9483a64440672ded476",
+      "exitCode": 0,
+      "guardOid": "7045b9b09ba179f5e3c56819c5b9499cd6480130"
+    },
+    "trackingRefDelete": {
+      "artifact": "mutation-tracking-ref-delete.json",
+      "sha256": "f08dd7e921115576ad042e4113dea013e82d2e9f8b379758414d4390c2861627",
+      "exitCode": 0,
+      "guardOid": "bad6aa22be1219fefe21f2743c57c74fe74bdce3"
+    }
+  },
+  "postRefChecks": [
+    {
+      "ref": "refs/heads/codex/roadmap-campaign-catalog-specs-20260912",
+      "exitCode": 1
+    },
+    {
+      "ref": "refs/remotes/origin/codex/roadmap-campaign-catalog-specs-20260912",
+      "exitCode": 1
+    }
+  ],
+  "targetAbsent": true,
+  "registryEntryAbsent": true,
+  "rootIndexUnchanged": true,
+  "rootThreeSpecsUnchanged": true,
+  "qualification": "All406pre-removal manifest entries and separatelycaptured mutation receipts rehashed.424finalfiles includes subsequent metadata; counts are not additiveproofs."
+}

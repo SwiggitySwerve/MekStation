@@ -1,0 +1,92 @@
+{
+  "at": "2026-09-13T00:15:19.824Z",
+  "status": "accepted-dirty-root-focused-integration",
+  "receipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ci-root-reconciliation-verification-20260912.json",
+    "sha256": "84ae73e1bc5805071b5f9154b9671bcece52cdafcc79f77d785d71e100f45fae"
+  },
+  "artifacts": [
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\ci-root-reconciliation-verification\\focused-jest-rerun.stderr.log",
+      "bytes": 3116,
+      "sha256": "dfb75b35e5d083e1eaf4f7d35dfd5b58290ef751fb7565f49cb163b695669ef1"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\ci-root-reconciliation-verification\\focused-jest-rerun.stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\ci-root-reconciliation-verification\\format.stdout.log",
+      "bytes": 112,
+      "sha256": "c93ed269a200b9a0ac6b8641c64008a593f4bee30aeff619afeab3959889827e"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\ci-root-reconciliation-verification\\format.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\ci-root-reconciliation-verification\\diff-check.stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\ci-root-reconciliation-verification\\diff-check.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "sourceHashes": [
+    {
+      "path": "scripts/qc/openspec-workflow-contracts.mjs",
+      "expectedSha256": "4ae969ae69ad71af0cfc761c0b133bbc0862202e71138d38198231062f92f696",
+      "actualSha256": "4ae969ae69ad71af0cfc761c0b133bbc0862202e71138d38198231062f92f696",
+      "bytes": 7882,
+      "acceptedBlobEqual": true
+    },
+    {
+      "path": "package.json",
+      "expectedSha256": "eeebcb46214017104ed9cad6feab8f4a7e941816552585fb8230731d6931ad17",
+      "actualSha256": "eeebcb46214017104ed9cad6feab8f4a7e941816552585fb8230731d6931ad17",
+      "bytes": 35014,
+      "acceptedBlobEqual": true
+    },
+    {
+      "path": "package-lock.json",
+      "expectedSha256": "f923ca53a2d9fc69d56cd59b9f86d26fd4b3756ac488c138b64163f787bd7d36",
+      "actualSha256": "f923ca53a2d9fc69d56cd59b9f86d26fd4b3756ac488c138b64163f787bd7d36",
+      "bytes": 649530,
+      "acceptedBlobEqual": true
+    }
+  ],
+  "recoveredTest": {
+    "path": "scripts/__tests__/openspec-ci-quality-qc.test.ts",
+    "sha256": "37cc951ad23379e647b2217750932f18c1843c247ee1f4a3e7e36da79b97b026",
+    "bytes": 22500,
+    "lfCount": 675,
+    "splitLineCount": 676,
+    "endsWithLf": true
+  },
+  "tests": 37,
+  "suites": 1,
+  "checks": [
+    {
+      "name": "focused Jest rerun",
+      "exit": 0
+    },
+    {
+      "name": "scoped format",
+      "exit": 0
+    },
+    {
+      "name": "scoped diff check",
+      "exit": 0
+    }
+  ],
+  "limits": [
+    "No merged-main proof was attempted.",
+    "The focused suite validates local fixtures and subprocess contracts; it does not execute remote CI or GitHub branch-protection APIs.",
+    "No typecheck, build, browser, workflow activation, install, or release proof is included."
+  ]
+}

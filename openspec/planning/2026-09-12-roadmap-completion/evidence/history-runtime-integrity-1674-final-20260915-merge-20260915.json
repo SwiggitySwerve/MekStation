@@ -1,0 +1,120 @@
+{
+  "pr": 1674,
+  "branch": "codex/roadmap-history-runtime-integrity-20260915",
+  "status": "HELD - NOT MERGED",
+  "heldReason": "Coordinator HOLD issued after CI on the updated head surfaced three genuinely failing tests. Parent is fixing the fixtures on the branch; a new head will be pushed and this PR resumed then. This is NOT a superseded run - the failures are on the current head.",
+  "reviewedCommit": "22cbe105fc9b050cc136f823d4bddc5f6fb6c8fc",
+  "reviewedCommitNote": "coordinator-supplied local commit; PR head b1fae82a7 is blob-identical to it",
+  "pushedHead": "b1fae82a76766e340cb81264146518cf9d9d4fbc",
+  "finalHead": "cdad71c7b029ea87dd0d76190c26f0cf66aed07b",
+  "autoMergeArmed": false,
+  "contentGuard": {
+    "preUpdate": {
+      "fileSetEqualToReviewed": true,
+      "files": [
+        "src/lib/events/journal/EventHistoryBranchContract.ts",
+        "src/lib/events/journal/SQLiteEventHistoryBranchStore.ts",
+        "src/lib/events/journal/__tests__/SQLiteEventHistoryBranchStore.test.ts",
+        "src/lib/multiplayer/server/__tests__/campaignProgressionReaders.durable.integrity.test.ts",
+        "src/lib/multiplayer/server/campaignProgressionReaders.durable.ts"
+      ],
+      "diffstat": "5 files changed, 320 insertions(+), 15 deletions(-)",
+      "blobEquality": "all 5 blobs identical to 22cbe105f",
+      "result": "PASS"
+    },
+    "postUpdate": {
+      "fileSet": "unchanged - same 5 files, no files added by the update merge",
+      "diffstat": "5 files changed, 320 insertions(+), 15 deletions(-)",
+      "blobEquality": "all 5 blobs still identical to 22cbe105f",
+      "result": "PASS"
+    }
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "oldHead": "b1fae82a76766e340cb81264146518cf9d9d4fbc",
+    "newHead": "cdad71c7b029ea87dd0d76190c26f0cf66aed07b",
+    "expectedHeadShaGuard": "b1fae82a76766e340cb81264146518cf9d9d4fbc",
+    "reason": "branch was BEHIND after #1667 merged to main",
+    "reRunAfterHold": "NO - coordinator instructed not to re-run update-branch while held"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "fail",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "otherChecksCount": 26,
+    "otherChecksBuckets": { "pass": 24, "fail": 2 },
+    "totalChecks": 30,
+    "terminalTally": { "pass": 27, "fail": 3 },
+    "pollLog": "06:54:37 2 pending -> 07:01:02 27 pass / 3 fail / 0 pending"
+  },
+  "failures": {
+    "runId": "34939048422",
+    "headAtRun": "cdad71c7b029ea87dd0d76190c26f0cf66aed07b",
+    "isSupersededRun": false,
+    "failingChecks": [
+      {
+        "name": "Lint and Test",
+        "role": "required aggregator - red because of the two Unit Tests shards below",
+        "jobId": "104284258757",
+        "link": "https://github.com/SwiggitySwerve/MekStation/actions/runs/34939048422/job/104284258757",
+        "decisiveLine": "Assert every fan-out check succeeded"
+      },
+      {
+        "name": "Unit Tests (3/6)",
+        "jobId": "104283449522",
+        "link": "https://github.com/SwiggitySwerve/MekStation/actions/runs/34939048422/job/104283449522",
+        "suite": "src/lib/multiplayer/server/__tests__/ServerMatchHostBranchAdmission.test.ts",
+        "tally": "Tests: 2 failed, 5971 passed, 5973 total",
+        "failedTests": [
+          {
+            "name": "ServerMatchHost live branch admission > intent on a superseded effective branch refused",
+            "error": "EventHistoryBranchError: Effective head 'root' for stream match/stale-superseded does not name an effective branch",
+            "throwSite": "EventHistoryBranchContract.ts:148"
+          },
+          {
+            "name": "ServerMatchHost live branch admission > with an in-memory store that lacks the branch port every refusal is inert (pin the no-op)",
+            "error": "EventHistoryBranchError: A root branch has no base event, is anchored at revision 0, and uses the defined genesis digest",
+            "throwSite": "EventHistoryBranchContract.ts:224 via :259 (fail('invalid-branch-record'))"
+          }
+        ]
+      },
+      {
+        "name": "Unit Tests (2/6)",
+        "jobId": "104283449545",
+        "link": "https://github.com/SwiggitySwerve/MekStation/actions/runs/34939048422/job/104283449545",
+        "suite": "src/lib/multiplayer/server/__tests__/matchStoreBatchContract.test.ts",
+        "tally": "Tests: 1 failed, 33 skipped, 5815 passed, 5849 total",
+        "failedTests": [
+          {
+            "name": "DurableMatchStore optional capability ports > the durable store keeps branch rows in the campaign database, never in the match file",
+            "error": "EventHistoryBranchError: A root branch has no base event, is anchored at revision 0, and uses the defined genesis digest",
+            "throwSite": "EventHistoryBranchContract.ts:224 via :259 (fail('invalid-branch-record'))"
+          }
+        ]
+      }
+    ],
+    "diagnosisPerCoordinator": "All three failures are EventHistoryBranchError raised by this PR's stricter root/effective-head contract against un-normalized test fixtures. Parent is fixing the fixtures on the branch.",
+    "retriedBlindly": false
+  },
+  "premergeReceipt": {
+    "path": null,
+    "ready": null,
+    "note": "NOT RUN - step 5 gate was never reached because required check 'Lint and Test' is red on the current head"
+  },
+  "mergeCommit": null,
+  "mergedAt": null,
+  "mainAtHoldTime": "b39b8291706c36b9ad0c876a5e1b11e5b3612b7d",
+  "worktree": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/history-runtime-integrity",
+    "fastForward": "NOT PERFORMED - PR not merged; also per instruction not to ff if checked out on a different branch",
+    "result": "SKIPPED"
+  },
+  "resumeInstructions": "Await coordinator notification of the new head, then restart at step 1 (state + content guard against the new reviewed blobs), update-branch, re-poll checks, gate, merge.",
+  "timestamps": {
+    "guardStartedAt": "2026-09-15T06:53:50Z",
+    "checksTerminalAt": "2026-09-15T07:01:02Z",
+    "holdReceivedAt": "2026-09-15T07:01:30Z",
+    "receiptWrittenAt": "2026-09-15T07:25:00Z"
+  }
+}

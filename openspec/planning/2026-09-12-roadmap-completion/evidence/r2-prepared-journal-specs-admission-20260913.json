@@ -1,0 +1,250 @@
+{
+  "at": "2026-09-13T03:32:03.396Z",
+  "status": "specification-preparation-admitted-product-unadmitted",
+  "worker": {
+    "startedAt": "2026-09-13T03:22:28.693Z",
+    "driverPid": 42416,
+    "pid": 13196,
+    "model": "cursor-grok-4.6-high",
+    "effort": "high",
+    "workspace": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/r2-prepared-journal-specs",
+    "verifiedModel": "Cursor Grok 4.6 High",
+    "sessionId": "4bd3c5d1-910f-4672-90c3-f80bc162ff8d"
+  },
+  "base": "4ee8989f4909505319c6c916d4fbcbadf86ec782",
+  "sourceChecks": [
+    {
+      "path": "src/stores/campaign/campaignCommandActions.ts",
+      "sha256": "e8d454d312299ea366e818699243c5eac37f2dbc962e5866cacb185c3c3641d3",
+      "bytes": 18833,
+      "identityRecord": "source-identity.json"
+    },
+    {
+      "path": "src/pages/gameplay/campaigns/[id]/contract-market.tsx",
+      "sha256": "e0df625f1063f017fd4d9c8b726751b813072153cbbc9928923a3d11f084d0c5",
+      "bytes": 3574,
+      "identityRecord": "source-identity.json"
+    },
+    {
+      "path": "src/pages/api/campaigns/[id]/commands.ts",
+      "sha256": "6e6dd0bf1f06e8e2fb165887e7d8e5e059b95cf85014ae748416f328b5d3e59a",
+      "bytes": 8430,
+      "identityRecord": "source-identity.json"
+    },
+    {
+      "path": "src/lib/campaign/authority/campaignCommandPipeline.ts",
+      "sha256": "309e129c8eea1bd8fdbab79242cbc6de07c2ed8565241021a3b391879e174ea7",
+      "bytes": 19803,
+      "identityRecord": "source-identity.json"
+    },
+    {
+      "path": "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+      "sha256": "0b352cd89fe64ee7d8c817fdae5855cce5e1198d097eb3bea772d71f0686ebf0",
+      "bytes": 18618,
+      "identityRecord": "source-identity.json"
+    },
+    {
+      "path": "src/lib/campaign/sync/campaignJournalReads.ts",
+      "sha256": "da1a58974d9aa5f99f73c0d2631e9ea7d96dd33170db99dff75c3e0b19d7d83f",
+      "bytes": 2237,
+      "identityRecord": "source-identity.json"
+    },
+    {
+      "path": "src/lib/campaign/sync/campaignEventScope.ts",
+      "sha256": "d7b122b0faf70e8867d800684c085dd600f1c6f91a167af785d332149855cd13",
+      "bytes": 3236,
+      "identityRecord": "source-identity.json"
+    },
+    {
+      "path": "src/lib/campaign/coop/roomCodeGuestHydration.ts",
+      "sha256": "fbabeb104bacc4f2428a71cfd3b7d1dd015eb09a3decdf1b97f27cb149e03a77",
+      "bytes": 6261,
+      "identityRecord": "source-identity.json"
+    },
+    {
+      "path": "src/lib/campaign/delivery/projectCampaignStreamForGrant.ts",
+      "sha256": "74f1bd9d726dbc4d5ee89892d499b96493d4f995ee5f0946d7de7845f51a6aac",
+      "bytes": 10144,
+      "identityRecord": "source-identity.json"
+    },
+    {
+      "path": "src/lib/events/journal/EventJournalCanonicalizer.ts",
+      "sha256": "a0159e724b31bd9274ec26f395b3b23cc11fd96d0ef81fe6ec4de363ab8e1fa0",
+      "bytes": 6953,
+      "identityRecord": "source-identity.json"
+    },
+    {
+      "path": "src/lib/events/journal/SQLiteEventJournalWriter.ts",
+      "sha256": "4ebf449448ef2ea7636d1a4dbfbfb5de2d868fa5591585f2dfe8f004bd0dece9",
+      "bytes": 17224,
+      "identityRecord": "source-identity.json"
+    },
+    {
+      "path": "src/lib/campaign/authority/campaignSourceGenesis.ts",
+      "sha256": "242d561f032206f6e2e9a390573decd903b2ce58b34d5d7dae2fc8172f7f86f8",
+      "bytes": 9408,
+      "identityRecord": "source-identity.json"
+    },
+    {
+      "path": "src/lib/campaign/authority/campaignAuthorityMigration.ts",
+      "sha256": "6f8548f8d51ea137359121e490c2b91217e1415ff7679b29ad206c587a049bf5",
+      "bytes": 12641,
+      "identityRecord": "source-identity.json"
+    },
+    {
+      "path": "src/services/campaignPersistence/CampaignPersistenceService.ts",
+      "sha256": "8af424a1bafbaca814e27bd9aeb8cd9e9c4511465b5d1522c023cbc7fb5a1f30",
+      "bytes": 13913,
+      "identityRecord": "source-identity.json"
+    },
+    {
+      "path": "src/types/campaign/CampaignSync.ts",
+      "sha256": "9cb0a6191c5812a7be3b3c2e36d70a5a5c8fbe2a5970b0fef87f5eb1ab193559",
+      "bytes": 23349,
+      "identityRecord": "source-identity.json"
+    },
+    {
+      "path": "src/types/campaign/SerializedCampaign.ts",
+      "sha256": "ec7a1d39d7f2372582ed29d4539e36fb4ba560fc79a3917aa3afe1852835ec05",
+      "bytes": 15596,
+      "identityRecord": "source-identity.json"
+    },
+    {
+      "path": "src/lib/campaign/contracts/contractMarketConstants.ts",
+      "sha256": "6ec0801e059390be8c477be2dc2ed47fd6486b723c9f336fb052c5051e69859c",
+      "bytes": 3403,
+      "identityRecord": "source-identity.json"
+    },
+    {
+      "path": "src/lib/campaign/contracts/contractPayment.ts",
+      "sha256": "9892748c692bd64dd8950a049cc5f5b5495c12fb40e223a2627831e3ca7bef98",
+      "bytes": 3313,
+      "identityRecord": "source-identity.json"
+    },
+    {
+      "path": "src/lib/campaign/contractMarket.ts",
+      "sha256": "cbd10abe80c3f65c49d52c68777f3d3414c3198ca79d1c0e9fb9ec02e3af53aa",
+      "bytes": 13360,
+      "identityRecord": "source-identity.json"
+    },
+    {
+      "path": "src/lib/campaign/authority/campaignSourceGenesis.ts",
+      "sha256": "242d561f032206f6e2e9a390573decd903b2ce58b34d5d7dae2fc8172f7f86f8",
+      "bytes": 9408,
+      "identityRecord": "appendix-source-identity.json"
+    },
+    {
+      "path": "src/services/campaignPersistence/CampaignPersistenceService.ts",
+      "sha256": "8af424a1bafbaca814e27bd9aeb8cd9e9c4511465b5d1522c023cbc7fb5a1f30",
+      "bytes": 13913,
+      "identityRecord": "appendix-source-identity.json"
+    },
+    {
+      "path": "src/services/persistence/SQLiteService.ts",
+      "sha256": "13b09094392ac13633812d0c542cd81f2bf377cb7bba99e944d98d6d35adca67",
+      "bytes": 6630,
+      "identityRecord": "appendix-source-identity.json"
+    },
+    {
+      "path": "src/pages/api/campaigns/[id]/commands.ts",
+      "sha256": "6e6dd0bf1f06e8e2fb165887e7d8e5e059b95cf85014ae748416f328b5d3e59a",
+      "bytes": 8430,
+      "identityRecord": "appendix-source-identity.json"
+    },
+    {
+      "path": "src/lib/events/journal/SQLiteEventJournal.ts",
+      "sha256": "9e580666d821f107de9bf8604d91ca65eabe9c609a80e430e27fc7503274927f",
+      "bytes": 4082,
+      "identityRecord": "appendix-source-identity.json"
+    },
+    {
+      "path": "src/lib/events/journal/SQLiteEventJournalWriter.ts",
+      "sha256": "4ebf449448ef2ea7636d1a4dbfbfb5de2d868fa5591585f2dfe8f004bd0dece9",
+      "bytes": 17224,
+      "identityRecord": "appendix-source-identity.json"
+    },
+    {
+      "path": "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+      "sha256": "0b352cd89fe64ee7d8c817fdae5855cce5e1198d097eb3bea772d71f0686ebf0",
+      "bytes": 18618,
+      "identityRecord": "appendix-source-identity.json"
+    },
+    {
+      "path": "src/lib/campaign/coop/roomCodeGuestHydration.ts",
+      "sha256": "fbabeb104bacc4f2428a71cfd3b7d1dd015eb09a3decdf1b97f27cb149e03a77",
+      "bytes": 6261,
+      "identityRecord": "appendix-source-identity.json"
+    },
+    {
+      "path": "src/lib/events/journal/SQLiteEventJournalWriter.ts",
+      "sha256": "4ebf449448ef2ea7636d1a4dbfbfb5de2d868fa5591585f2dfe8f004bd0dece9",
+      "bytes": 17224,
+      "identityRecord": "appendix-prepared-batch-source-identity.json"
+    },
+    {
+      "path": "src/lib/events/journal/SQLiteEventJournal.ts",
+      "sha256": "9e580666d821f107de9bf8604d91ca65eabe9c609a80e430e27fc7503274927f",
+      "bytes": 4082,
+      "identityRecord": "appendix-prepared-batch-source-identity.json"
+    },
+    {
+      "path": "src/lib/events/journal/EventJournalContract.ts",
+      "sha256": "6e3d6e5f55094bb228ce3495b58e524b08f3eedc94a809fb331be858351dc63c",
+      "bytes": 5520,
+      "identityRecord": "appendix-prepared-batch-source-identity.json"
+    },
+    {
+      "path": "src/pages/api/campaigns/[id]/commands.ts",
+      "sha256": "6e6dd0bf1f06e8e2fb165887e7d8e5e059b95cf85014ae748416f328b5d3e59a",
+      "bytes": 8430,
+      "identityRecord": "appendix-prepared-batch-source-identity.json"
+    },
+    {
+      "path": "src/services/campaignPersistence/CampaignPersistenceService.ts",
+      "sha256": "8af424a1bafbaca814e27bd9aeb8cd9e9c4511465b5d1522c023cbc7fb5a1f30",
+      "bytes": 13913,
+      "identityRecord": "appendix-prepared-batch-source-identity.json"
+    }
+  ],
+  "uniqueSourceFiles": 22,
+  "artifacts": [
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-source-contract-private-replay-20260913/proposal.md",
+      "sha256": "3e3bb7fa0a09552482b20b6aba824964ea2b93a820fe76a8fb01eddcc737adec"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-source-contract-private-replay-20260913/appendix-baseline-transaction-audience.md",
+      "sha256": "431be18a75624de1ce4bfa245b2ae66a4a97f26059c011d86d035f81e3bc8ac6"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-source-contract-private-replay-20260913/appendix-prepared-batch-ordering.md",
+      "sha256": "f0dcddd11d539c060879fd68167b742c848b7d7030933ddb15bd9ace56a5dcac"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-source-contract-private-replay-20260913/source-identity.json",
+      "sha256": "8a032cdfdd1544fe933ebb91bde91a55d16e2ba0f3f39e8dcabac5005ff9e462"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-source-contract-private-replay-20260913/appendix-source-identity.json",
+      "sha256": "af2a0061b176df8a59f87b55662eeced325aa9f5eb52da2af506568ee8a2ef75"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-source-contract-private-replay-20260913/appendix-prepared-batch-source-identity.json",
+      "sha256": "008a9719d7131d44e0c7edbe7c4cd55a03c9823b70c94a1c41806cea92955c7f"
+    }
+  ],
+  "parentFindings": [
+    "Compact genesis cannot rebuild full source; immutable private baseline required",
+    "Whole-envelope saves need a durable source fence after materialization",
+    "Source persistence and journal use same SQLite handle but current saveCampaign is not borrowed-transaction API",
+    "appendWithExtension canonicalizes raw before callback; new prepared-batch API must prepare under immediate transaction",
+    "Postappend source failure must throw before commit; typed refusal belongs outside transaction",
+    "Returned Promise or thenable from callbacks must be rejected before transaction commit",
+    "Current active-seat HTTP is not a private source-only response boundary"
+  ],
+  "limits": [
+    "Admits four-file <=300-line spec preparation only",
+    "P0a transaction API precedes P0b private contract replay/fence; P1 toolbar remains downstream",
+    "No flag flip, source HTTP disclosure, new original task occurrences, claimed runtime or CAMP gate waiver"
+  ]
+}

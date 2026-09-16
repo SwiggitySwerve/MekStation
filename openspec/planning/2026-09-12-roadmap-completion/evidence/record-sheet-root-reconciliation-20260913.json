@@ -1,0 +1,17 @@
+{
+  "at": "2026-09-13T04:50:32.629Z",
+  "status": "reconciled",
+  "main": "186ecf4063187eacf23bbc1a4ad8b0e75579b1f9",
+  "files": [
+    {
+      "path": "openspec/specs/record-sheet-export/spec.md",
+      "before": "bce78f3d4efe4e1d88fadd54e973b0c40ba57acfa8a47f69789a0c075f0d713c",
+      "after": "14f5688c087fd08f7bbda4f7f15b616f887554fe0d37adb100efcd5a0cf20456"
+    }
+  ],
+  "indexBefore": "a65b683940b6449651a074132f39d8b8da156ef5620af6aa1b62eb7c8698b953",
+  "indexAfter": "a65b683940b6449651a074132f39d8b8da156ef5620af6aa1b62eb7c8698b953",
+  "otherDirtyFilesVerified": 550,
+  "preflight": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/record-sheet-root-reconciliation-20260913/preflight.json",
+  "limit": "Only the accepted record-sheet proposal replaced; root remains dirty on original main checkout"
+}

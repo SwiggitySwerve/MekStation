@@ -1,0 +1,122 @@
+{
+  "at": "2026-09-13T03:51:14.354Z",
+  "status": "accepted-owned-cleanup",
+  "pr": 1659,
+  "main": "d02341852fb594599af6bcd882c3da1fdb8b069f",
+  "head": "f02a7258146f8142fed076eb957a70c261af9afc",
+  "wt": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/campaign-store-specs",
+  "ref": "refs/heads/codex/roadmap-campaign-store-specs-20260913",
+  "worktreeRemoved": true,
+  "localBranchCompareDeleted": true,
+  "sharedDependencyTargetPreserved": true,
+  "exportedFiles": 61,
+  "manifest": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/campaign-store-cleanup-20260913/manifest.json",
+    "sha256": "07202994dbcb8daef3969bd22468b7c3d3d7e8bae68b19ebaf2656fc61434a95"
+  },
+  "commands": [
+    {
+      "at": "2026-09-13T03:50:55.199Z",
+      "exe": "git",
+      "args": [
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/campaign-store-specs",
+      "exit": 0,
+      "stdout": "d02341852fb594599af6bcd882c3da1fdb8b069f\n",
+      "stderr": ""
+    },
+    {
+      "at": "2026-09-13T03:50:55.522Z",
+      "exe": "git",
+      "args": [
+        "status",
+        "--porcelain"
+      ],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/campaign-store-specs",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "at": "2026-09-13T03:50:55.683Z",
+      "exe": "git",
+      "args": [
+        "rev-parse",
+        "refs/heads/codex/roadmap-campaign-store-specs-20260913"
+      ],
+      "cwd": "E:/Projects/MekStation",
+      "exit": 0,
+      "stdout": "f02a7258146f8142fed076eb957a70c261af9afc\n",
+      "stderr": ""
+    },
+    {
+      "at": "2026-09-13T03:50:56.766Z",
+      "exe": "git",
+      "args": [
+        "status",
+        "--short",
+        "--ignored"
+      ],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/campaign-store-specs",
+      "exit": 0,
+      "stdout": "!! .husky/_/\n!! node_modules/\n",
+      "stderr": ""
+    },
+    {
+      "at": "2026-09-13T03:50:56.866Z",
+      "exe": "git",
+      "args": [
+        "worktree",
+        "list",
+        "--porcelain"
+      ],
+      "cwd": "E:/Projects/MekStation",
+      "exit": 0,
+      "stdout": "worktree E:/Projects/MekStation\nHEAD be7f85b867aa3e8576e5e3d27e309276203bc24b\nbranch refs/heads/main\n\nworktree C:/tmp/MekStation-gameplay-audit-a72208b0-2\nHEAD a72208b08de5f8a1bef49f61db3ddc46a54012e8\ndetached\n\nworktree C:/tmp/MekStation-gm2p-spec-886508048\nHEAD 5b546a39ec29dd2e79c845946dc84b3619ee25ee\nbranch refs/heads/codex/continue-gm-two-player-campaign\n\nworktree C:/Users/wroll/.codex/worktrees/af7e/MekStation\nHEAD 327f10787d529a95328bef05e3732ebb02efbee7\ndetached\n\nworktree C:/Users/wroll/.codex/worktrees/combat-event-durability/MekStation\nHEAD 85e7138feaea0333c2dafbd2f974ef5977450af1\ndetached\n\nworktree C:/Users/wroll/.codex/worktrees/combat-turn-rail/MekStation\nHEAD 67805c8302f78c5205921cafbee9d4544783fb96\ndetached\n\nworktree E:/CodexWorktrees/MekStation-maintain\nHEAD 2c775907ae285e27dd7103c8c29e061fcc6d91e4\nbranch refs/heads/maintain/modularity-hard-guardrail-wave1\n\nworktree E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/browser\nHEAD 77d9a9480a3a47b1849f166db01278f93f3d8094\nbranch refs/heads/codex/roadmap-customizer-browser-20260912\n\nworktree E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/camp-receipt-verification\nHEAD 92d04fc6bcc2e49fd40d63d6f0cfd2a9c72eb14c\nbranch refs/heads/codex/roadmap-camp-receipt-verification-20260912\n\nworktree E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/campaign-store-specs\nHEAD d02341852fb594599af6bcd882c3da1fdb8b069f\ndetached\n\nworktree E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/r2-prepared-journal-specs\nHEAD 4ee8989f4909505319c6c916d4fbcbadf86ec782\nbranch refs/heads/codex/roadmap-r2-prepared-journal-specs-20260913\n\nworktree E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/record-sheet-spec\nHEAD 106bfbc76886a6f19f1ac00143cfa1708f33f19f\nbranch refs/heads/codex/roadmap-record-sheet-spec-20260913\n\nworktree E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/remaining-reference-specs\nHEAD 57098180595b62d68cb57b4224b724cfb82a9244\nbranch refs/heads/codex/roadmap-remaining-reference-specs-20260913\n\nworktree E:/Projects/mekstation-l66\nHEAD 74bd093a65c483ed8d25e4d91adddf3677368090\ndetached\n\nworktree E:/Projects/mekstation-l83\nHEAD 7f821e7795db67ba60010b44c15aeb5f86d2838e\ndetached\n\nworktree E:/Projects/mekstation-l89\nHEAD 439af6bca6c54cf60472e8d7e9c191a962ee93ab\ndetached\n\n",
+      "stderr": ""
+    },
+    {
+      "at": "2026-09-13T03:51:14.205Z",
+      "exe": "git",
+      "args": [
+        "worktree",
+        "remove",
+        "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/campaign-store-specs"
+      ],
+      "cwd": "E:/Projects/MekStation",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "at": "2026-09-13T03:51:14.295Z",
+      "exe": "git",
+      "args": [
+        "update-ref",
+        "-d",
+        "refs/heads/codex/roadmap-campaign-store-specs-20260913",
+        "f02a7258146f8142fed076eb957a70c261af9afc"
+      ],
+      "cwd": "E:/Projects/MekStation",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "at": "2026-09-13T03:51:14.353Z",
+      "exe": "git",
+      "args": [
+        "worktree",
+        "list",
+        "--porcelain"
+      ],
+      "cwd": "E:/Projects/MekStation",
+      "exit": 0,
+      "stdout": "worktree E:/Projects/MekStation\nHEAD be7f85b867aa3e8576e5e3d27e309276203bc24b\nbranch refs/heads/main\n\nworktree C:/tmp/MekStation-gameplay-audit-a72208b0-2\nHEAD a72208b08de5f8a1bef49f61db3ddc46a54012e8\ndetached\n\nworktree C:/tmp/MekStation-gm2p-spec-886508048\nHEAD 5b546a39ec29dd2e79c845946dc84b3619ee25ee\nbranch refs/heads/codex/continue-gm-two-player-campaign\n\nworktree C:/Users/wroll/.codex/worktrees/af7e/MekStation\nHEAD 327f10787d529a95328bef05e3732ebb02efbee7\ndetached\n\nworktree C:/Users/wroll/.codex/worktrees/combat-event-durability/MekStation\nHEAD 85e7138feaea0333c2dafbd2f974ef5977450af1\ndetached\n\nworktree C:/Users/wroll/.codex/worktrees/combat-turn-rail/MekStation\nHEAD 67805c8302f78c5205921cafbee9d4544783fb96\ndetached\n\nworktree E:/CodexWorktrees/MekStation-maintain\nHEAD 2c775907ae285e27dd7103c8c29e061fcc6d91e4\nbranch refs/heads/maintain/modularity-hard-guardrail-wave1\n\nworktree E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/browser\nHEAD 77d9a9480a3a47b1849f166db01278f93f3d8094\nbranch refs/heads/codex/roadmap-customizer-browser-20260912\n\nworktree E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/camp-receipt-verification\nHEAD 92d04fc6bcc2e49fd40d63d6f0cfd2a9c72eb14c\nbranch refs/heads/codex/roadmap-camp-receipt-verification-20260912\n\nworktree E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/r2-prepared-journal-specs\nHEAD 4ee8989f4909505319c6c916d4fbcbadf86ec782\nbranch refs/heads/codex/roadmap-r2-prepared-journal-specs-20260913\n\nworktree E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/record-sheet-spec\nHEAD 106bfbc76886a6f19f1ac00143cfa1708f33f19f\nbranch refs/heads/codex/roadmap-record-sheet-spec-20260913\n\nworktree E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/remaining-reference-specs\nHEAD 57098180595b62d68cb57b4224b724cfb82a9244\nbranch refs/heads/codex/roadmap-remaining-reference-specs-20260913\n\nworktree E:/Projects/mekstation-l66\nHEAD 74bd093a65c483ed8d25e4d91adddf3677368090\ndetached\n\nworktree E:/Projects/mekstation-l83\nHEAD 7f821e7795db67ba60010b44c15aeb5f86d2838e\ndetached\n\nworktree E:/Projects/mekstation-l89\nHEAD 439af6bca6c54cf60472e8d7e9c191a962ee93ab\ndetached\n\n",
+      "stderr": ""
+    }
+  ],
+  "limit": "Only program-owned local worktree and compare-guarded local branch removed; remote branch status unchanged by this cleanup"
+}

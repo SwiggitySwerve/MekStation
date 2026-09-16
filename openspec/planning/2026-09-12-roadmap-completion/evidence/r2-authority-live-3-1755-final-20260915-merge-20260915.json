@@ -1,0 +1,63 @@
+{
+  "pr": 1755,
+  "branch": "codex/roadmap-r2-authority-live-rows-20260915",
+  "reviewedCommit": "aef5c30eb5b748c407876fc455617b1f641ffb42",
+  "finalHead": "4f72440f2c680017f001ff6eab49f4a176a663b0",
+  "autoMergeArmed": false,
+  "contentGuard": {
+    "method": "file set from `git diff --name-only origin/main...<head>` vs the PR's own reviewed files, plus per-file blob equality against the reviewed commit; re-run after update-branch",
+    "fileCountAtMerge": 1,
+    "files": [
+      "e2e/campaign-journal-two-process-privacy.spec.ts"
+    ],
+    "diffstat": "476 insertions(+)",
+    "blobEquality": "all files blob-identical to the reviewed commit at the gated head",
+    "srcTouched": false,
+    "result": "PASS"
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "expectedHeadShaGuardUsed": true,
+    "oldHead": "aef5c30eb5b748c407876fc455617b1f641ffb42",
+    "newHead": "4f72440f2c680017f001ff6eab49f4a176a663b0",
+    "reason": "branch was BEHIND"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "Customizer Regressions": "pass",
+    "Unit Tests (6/6)": "pass",
+    "otherChecksCount": 27,
+    "otherChecksBuckets": {
+      "pass": 27
+    },
+    "totalChecks": 31,
+    "rerunsPerformed": 0
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-authority-live-3-1755-final-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "2c1b4584de076ae497533d093618dac5bcc97f03",
+  "mergeCommitParents": [
+    "bb9b87447b9bde2e7909e452a0f86b6c91437499"
+  ],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1755 --squash --match-head-commit 4f72440f2c680017f001ff6eab49f4a176a663b0",
+  "mergedAt": "2026-09-15T21:00:41Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "The merge commit changes exactly 1 file(s), all blob-identical to the gated head 4f72440f2c680017f001ff6eab49f4a176a663b0.",
+  "mainAfter": "2c1b4584de076ae497533d093618dac5bcc97f03",
+  "dirtyEncountered": false,
+  "worktree": {
+    "fastForward": "NOT PERFORMED - no owned worktree designated for this PR",
+    "result": "N/A"
+  },
+  "notes": "The spec (revoked seat refused by the other process; GM rationale redacted). Stayed MERGEABLE after 1754 squash; update-branch collapsed the cumulative 4-file diff to its own spec file. e2e-only. NOTE: this spec is the red-side evidence for the revocation-detach product fix the coordinator has flagged as following, stacked on this PR.",
+  "timestamps": {
+    "receiptWrittenAt": "2026-09-15T21:02:00Z"
+  }
+}

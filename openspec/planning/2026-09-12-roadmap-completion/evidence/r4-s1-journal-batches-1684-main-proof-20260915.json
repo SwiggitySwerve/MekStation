@@ -1,0 +1,45 @@
+{
+  "evidenceKind": "exact-main-proof",
+  "prReference": 1684,
+  "commitTested": "95042d9196795afe33662954686c57cd4b1749a2",
+  "reviewedCommit": "e1ccf668c",
+  "blobEquality": [
+    "src/lib/multiplayer/server/DurableMatchStore.ts f89db892587c8d7ee6f9a90d3bab550a2ddee679 f89db892587c8d7ee6f9a90d3bab550a2ddee679 SAME",
+    "src/lib/multiplayer/server/MatchStreamJournalMirror.ts ab38be3618fd20f9f3e80dd9a965e96e160d22f2 ab38be3618fd20f9f3e80dd9a965e96e160d22f2 SAME",
+    "src/lib/multiplayer/server/__tests__/matchStreamJournalMirror.sqlite.test.ts fa7b444b23b8692422d2d8047f7f12a20b63957b fa7b444b23b8692422d2d8047f7f12a20b63957b SAME",
+    "src/lib/multiplayer/server/durableCapabilityPorts.ts 8f9c53c265d902a90aa2f07cce91e5f4d48aa024 8f9c53c265d902a90aa2f07cce91e5f4d48aa024 SAME"
+  ],
+  "commands": [
+    {
+      "argv": [
+        "node",
+        "node_modules/jest/bin/jest.js",
+        "--maxWorkers=2",
+        "--coverage=false",
+        "src/lib/multiplayer/server",
+        "src/lib/events/journal",
+        "src/lib/campaign/authority",
+        "src/services/persistence"
+      ],
+      "result": "jest exit 0\nTest Suites: 207 passed, 207 total\nTests:       1596 passed, 1596 total"
+    },
+    {
+      "argv": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "result": "typecheck exit 0"
+    }
+  ],
+  "logSha256": [
+    "7d7a0063d6e202ed98c5c98627e539385c068696d9d5d1aea66a5d271a1474ad */e/Projects/MekStation/.sisyphus/roadmap-completion-20260912/main-proof-1684-20260915/jest.stderr.log",
+    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 */e/Projects/MekStation/.sisyphus/roadmap-completion-20260912/main-proof-1684-20260915/jest.stdout.log",
+    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 */e/Projects/MekStation/.sisyphus/roadmap-completion-20260912/main-proof-1684-20260915/typecheck.stderr.log",
+    "d140a6ce62dda0946fe30dd882dbb8209f05be72c8fa8850e5634755a399e50f */e/Projects/MekStation/.sisyphus/roadmap-completion-20260912/main-proof-1684-20260915/typecheck.stdout.log"
+  ],
+  "nodeVersion": "v22.22.0",
+  "worktree": "camp-receipt-verification (detached for the run, restored)",
+  "timestampUtc": "2026-09-15T09:07:20.022Z",
+  "parentAcceptance": "parent Astra ran and accepted"
+}

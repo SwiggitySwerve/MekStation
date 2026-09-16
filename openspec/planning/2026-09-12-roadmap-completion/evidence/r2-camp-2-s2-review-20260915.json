@@ -1,0 +1,80 @@
+{
+  "schema": "r2-camp-2-s2-review/v1",
+  "at": "2026-09-15T00:00:00Z",
+  "reviewer": "review-r2-camp-2 (read-only independent review agent)",
+  "subject": {
+    "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/archive-edit-recovery-20260915",
+    "branch": "codex/roadmap-r2-camp-2-authoritative-state-guards-20260915",
+    "headVerified": "c674a5dfc76c868cd83c2ae6665d5157f2bfe989",
+    "baseVerified": "53d4356a849b3c4d5a27288acc332e3cbb46b6c0",
+    "evidenceReviewed": [
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-camp-2-s2-authoritative-state-guards-local-20260915.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-camp-2-admission-brief-20260915.json"
+    ]
+  },
+  "verdict": "APPROVE",
+  "requiredEdits": [],
+  "findings": [
+    {
+      "id": "F1",
+      "topic": "Rows pin what the frozen camp-01b assertions read",
+      "result": "CONFIRMED",
+      "detail": "scripts/qc/camp01-authority-receipt.contract.mjs WAVE_CONTRACTS['camp-01b'].assertions = campaignIdMatched, matchIdMatched, revisionMatched, forceMembershipMatched, sourceIdentityMatched, guestMirrorHydrated (verified verbatim by direct read, line 29 of the built DATA object). src/types/campaign/__tests__/CampaignSync.test.ts:415-426 computes: campaignIdMatched (entry.campaignId===CAMPAIGN_ID && guest?.campaignId===CAMPAIGN_ID), forceMembershipMatched (JSON.stringify(hostState.forceUnits)===JSON.stringify(guest?.forceUnits)), sourceIdentityMatched (hostState.rosterUnits['unit-1']?.unitSource==='canonical' && unit?.unitSource==='canonical' && unit?.unitRef==='atlas-as7-d'). The new happy-path row ('projects the roster source identity and force membership...', campaignAuthoritativeState.test.ts:186-224) directly asserts state.campaignId, state.rosterUnits[id].unitRef/.unitSource (both units, including the 'custom' branch CampaignSync's own fixture never exercises), state.forceUnits membership by value, AND Object.keys(state.forceUnits) key order -- a strictly stronger check than CampaignSync's JSON.stringify comparison, since it pins order independent of any host/guest symmetry. matchIdMatched/revisionMatched/guestMirrorHydrated are correctly out of this module's scope (match registration and mirror sync happen at CampaignHostRegistry/CampaignSync, not in the builder) and the new suite does not claim to cover them.",
+      "sourceVersionCaveat": "sourceVersion is asserted by the new happy-path row (unit-2 gets sourceVersion:4, unit-1 has none and correctly omits the key) but is NOT read by any of the 6 frozen camp-01b assertions -- sourceIdentityMatched checks only .unitSource and .unitRef. The new test file's own doc comment (lines 9-14) is precise about this: it lists only 'campaignId, rosterUnits[id].unitSource / .unitRef, and the exact forceUnits membership map' as what the frozen assertions read, and does not claim sourceVersion is frozen-pinned. This is accurate; sourceVersion coverage here is incidental extra rigor, not a claim that needed verifying against the contract."
+    },
+    {
+      "id": "F2",
+      "topic": "M3 and M5 kill-set re-run",
+      "result": "CONFIRMED",
+      "detail": "Independently reproduced both mutations in the worktree at HEAD c674a5dfc, one at a time, each followed by `git checkout -- src/lib/campaign/coop/campaignAuthoritativeState.ts` and a `git status --porcelain -uall` clean check. M3 (src/lib/campaign/coop/campaignAuthoritativeState.ts:87, `if (!rosterIds.has(unitId))` -> `if (false)`): re-run of the 5-row suite killed exactly 'rejects a force that references a unit absent from the roster projection' and left the other 4 green -- byte-identical to the evidence table's M3 row. M5 (line 64, `unitSource: parsed.source,` -> `unitSource: 'canonical',`): re-run killed exactly 'projects the roster source identity and force membership the co-op snapshot binds to' (diff showed unit-2's unitSource forced to 'canonical' instead of 'custom') and left the other 4 green -- byte-identical to the evidence table's M5 row. Both mutations were fully reverted; worktree ended clean at c674a5dfc as required."
+    },
+    {
+      "id": "F3",
+      "topic": "'Nothing projected' caveat honesty",
+      "result": "AGREE",
+      "detail": "buildCampaignAuthoritativeState returns a single object-literal expression that calls projectForceUnits(...) inline as one of the literal's properties; if projectRosterUnits or projectForceUnits throws, the throw propagates before the assignment `projected = buildCampaignAuthoritativeState(...)` in the test helper ever completes, so `projected` stays `undefined` in every guard-throw path by construction (no partial-return branch exists in the source). The evidence's assertionLevelCaveat and the test file's own expectNothingProjected doc comment (lines 91-98) both state this plainly and do not oversell the `toBeUndefined()` check as an independent discriminator -- it is honestly recorded as a restatement of the throw, with the message-matched `toThrow` as the actual killer. No overclaim found."
+    },
+    {
+      "id": "F4",
+      "topic": "Hygiene",
+      "result": "PASS",
+      "detail": "git diff --numstat 53d4356a8..HEAD shows exactly one file (src/lib/campaign/coop/__tests__/campaignAuthoritativeState.test.ts, +233/-0); campaignAuthoritativeState.ts is byte-identical to base (empty diff, independently re-verified). Commit subject 'test(campaign): pin the authoritative-state roster guards the co-op panel relies on' is conventional-commit-shaped (type(scope): description), no trailing period, imperative mood. `git log -1 --format=%B` shows no Co-Authored-By or Generated-With trailer -- no AI attribution. Author/committer is Wes Rollings <wrollings@gmail.com>, matching the session's configured identity. 1 file / 233 lines is well within both the roadmap node's 15-file/500-line cap and the frozen row's 14-file/480-line product-PR cap (the latter does not strictly apply since this file is not one of the 4 WAVE_CONTRACTS-pinned files, but it passes either way)."
+    },
+    {
+      "id": "F5",
+      "topic": "Future guard-regression gap that would escape all five rows",
+      "result": "GAP FOUND (non-blocking, informational)",
+      "detail": "Mutated line 56 from `if (!unit.unitRef) {` to `if (unit.unitRef === undefined) {` -- a narrowing from a falsy check to a strict-undefined check -- and re-ran the 5-row suite: all 5 passed (no kill). None of the 5 rows ever supplies a catalog reference that is falsy-but-not-undefined (e.g. an empty string ''), so a future regression that narrows this guard to reject only `undefined` (silently admitting `unitRef: ''` or other falsy non-undefined values) would ship undetected by this suite. Mutation was reverted; worktree re-verified clean at c674a5dfc.",
+      "severity": "LOW -- narrow edge case (empty-string catalog ref), not a shape or membership regression, and orthogonal to the 5 behaviors this slice was scoped to pin (the admission brief's gap was 'no coverage at all', which this slice fully closes for the 5 named behaviors). Does not invalidate any claim made in the reviewed evidence, since the evidence never claims exhaustive mutation-hardness against every possible guard-narrowing -- only that all 5 rows discriminate against the specific M1-M5 campaign, which is independently confirmed accurate.",
+      "recommendation": "Optional follow-up (not required for this commit): add an empty-string unitRef case to the missing-catalog-reference row, or a dedicated row, if a future slice revisits this file. Not filed as a pending task by this review since it is sub-carve-out (folds inline per the pending-task rubric) and this review has no product-edit mandate."
+    }
+  ],
+  "measuredRuns": [
+    {
+      "label": "baseline (unmodified HEAD)",
+      "command": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/campaign/coop/__tests__/campaignAuthoritativeState.test.ts",
+      "result": "5 passed, 5 total"
+    },
+    {
+      "label": "M3 re-run (projectForceUnits absent-roster-unit guard disabled)",
+      "mutationLine": "src/lib/campaign/coop/campaignAuthoritativeState.ts:87",
+      "result": "1 failed, 4 passed -- failed test: 'rejects a force that references a unit absent from the roster projection' (matches evidence exactly)"
+    },
+    {
+      "label": "M5 re-run (projectRosterUnits source-identity projection hardcoded to 'canonical')",
+      "mutationLine": "src/lib/campaign/coop/campaignAuthoritativeState.ts:64",
+      "result": "1 failed, 4 passed -- failed test: 'projects the roster source identity and force membership the co-op snapshot binds to' (matches evidence exactly)"
+    },
+    {
+      "label": "F5 probe (unitRef falsy-check narrowed to strict undefined-check, not part of the original M1-M5 campaign)",
+      "mutationLine": "src/lib/campaign/coop/campaignAuthoritativeState.ts:56",
+      "result": "5 passed, 0 failed -- confirms the informational gap in finding F5"
+    }
+  ],
+  "worktreeStateAfterReview": {
+    "gitStatusPorcelain": "clean",
+    "headSha": "c674a5dfc76c868cd83c2ae6665d5157f2bfe989",
+    "productFileDiffVsHead": "empty"
+  },
+  "summary": "All five rows independently verified to discriminate exactly as the evidence table claims (M3 and M5 re-run byte-for-byte match). The five rows correctly pin every field the frozen camp-01b assertions read (campaignId, rosterUnits[id].unitSource/.unitRef, forceUnits membership and key order) plus incidental extra rigor (sourceVersion) that the test's own doc comment correctly does not claim as frozen-pinned. The 'nothing projected' caveat is structurally accurate and honestly worded, not oversold. Hygiene is clean: test-only diff, conventional commit subject, no AI attribution, well within caps. One narrow, non-blocking mutation-coverage gap was found and independently confirmed (a falsy-vs-strict-undefined narrowing of the unitRef guard escapes all 5 rows) but does not contradict any claim in the reviewed evidence and does not require an edit to this commit."
+}

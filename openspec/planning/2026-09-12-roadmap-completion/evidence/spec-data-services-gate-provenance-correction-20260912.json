@@ -1,0 +1,93 @@
+{
+  "kind": "gate-provenance-correction",
+  "reviewDate": "2026-09-12",
+  "reviewer": "codex:/root/data_spec_review",
+  "supersedes": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/spec-data-services-independent-review-20260912.json",
+    "sha256AtCorrection": "461070ff16a0b57c1033153407f8891c7244ab42a977f60cb82e7adc4af455cc",
+    "scope": "Gate provenance only; source findings, candidate spec hashes, and prior focused-test evidence remain unchanged."
+  },
+  "candidateWorktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/spec-data-services",
+  "candidateHead": "a538a2d3b2b05252e1c80cc60395c72953f4c979",
+  "candidateSpecSha256": {
+    "openspec/specs/equipment-services/spec.md": "ad85d890cd10b88ce3e287a3d1e9675b2fa706c7f9753e346b44ffaabcae4509",
+    "openspec/specs/data-loading-architecture/spec.md": "6eb85220c352f8a96047eac02228b2b8c2798a9d7da6bf943d3cbe7cd2c4e242",
+    "openspec/specs/construction-rules-core/spec.md": "85fefb6f310e6132e4bd99ec4f5f92cb2612731c1505d1e0637cf4c9db6e9aa1"
+  },
+  "correctedCandidateLocalGates": [
+    {
+      "name": "purpose_validate_candidate",
+      "packageScript": "spec:purpose:validate:strict = npx tsx openspec/scripts/spec-purpose-lint.ts",
+      "command": "/c/nvm4w/nodejs/node.exe /e/Projects/MekStation/node_modules/tsx/dist/cli.mjs openspec/scripts/spec-purpose-lint.ts",
+      "workdir": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/spec-data-services",
+      "exitCode": 0,
+      "timedOut": false,
+      "result": "Spec root: candidate openspec/specs; Files scanned: 217; Errors: 0; Tracked source-of-truth debt: 0"
+    },
+    {
+      "name": "terminology_validate_candidate",
+      "packageScript": "terminology:validate:strict = npx ts-node openspec/scripts/terminology-tool.ts validate --strict",
+      "command": "/c/nvm4w/nodejs/node.exe /e/Projects/MekStation/node_modules/ts-node/dist/bin.js openspec/scripts/terminology-tool.ts validate --strict",
+      "workdir": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/spec-data-services",
+      "exitCode": 0,
+      "timedOut": false,
+      "result": "Found 319 file(s) to scan; no terminology violations"
+    },
+    {
+      "name": "openspec_ci_quality_candidate",
+      "packageScript": "qc:openspec-ci:validate = node scripts/qc/validate-openspec-ci-quality.mjs",
+      "command": "/c/nvm4w/nodejs/node.exe scripts/qc/validate-openspec-ci-quality.mjs",
+      "workdir": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/spec-data-services",
+      "exitCode": 0,
+      "timedOut": false,
+      "result": "workflowContracts=8/8 aggregatorNeeds=18/18 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=14 accountedActiveOpenSpecChanges=14 errors=0"
+    },
+    {
+      "name": "format_check_candidate",
+      "packageScript": "format:check = oxfmt --check .; scoped to the three owned specs for this review",
+      "command": "/c/nvm4w/nodejs/node.exe /e/Projects/MekStation/node_modules/oxfmt/bin/oxfmt --check --ignore-path=.gitignore openspec/specs/equipment-services/spec.md openspec/specs/data-loading-architecture/spec.md openspec/specs/construction-rules-core/spec.md",
+      "workdir": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/spec-data-services",
+      "exitCode": 0,
+      "timedOut": false,
+      "result": "All matched files use the correct format; 3 files"
+    }
+  ],
+  "carriedForwardCandidateGates": [
+    {
+      "name": "openspec_validate_all_strict",
+      "source": ".sisyphus/roadmap-completion-20260912/spec-data-services-review/raw-gates-20260912.json",
+      "workdir": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/spec-data-services",
+      "exitCode": 0,
+      "result": "231 passed, 0 failed; no rerun because correction scope was gate provenance"
+    },
+    {
+      "name": "focused-loader-failure-test",
+      "source": ".sisyphus/roadmap-completion-20260912/spec-data-services-review/raw-gates-20260912.json",
+      "workdir": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/spec-data-services",
+      "exitCode": 0,
+      "result": "1 suite passed; 1 test passed; no rerun because correction scope was gate provenance"
+    },
+    {
+      "name": "focused-schema-bridge-test",
+      "source": ".sisyphus/roadmap-completion-20260912/spec-data-services-review/raw-gates-20260912.json",
+      "workdir": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/spec-data-services",
+      "exitCode": 0,
+      "result": "1 suite passed; 5 tests passed; no rerun because correction scope was gate provenance"
+    },
+    {
+      "name": "strict-schema-bridge-diagnostic",
+      "source": ".sisyphus/roadmap-completion-20260912/spec-data-services-review/raw-gates-20260912.json",
+      "workdir": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/spec-data-services",
+      "exitCode": 1,
+      "result": "1 test failed and 4 tests passed; retained as diagnostic evidence"
+    }
+  ],
+  "rawArtifact": {
+    "path": ".sisyphus/roadmap-completion-20260912/spec-data-services-review/candidate-gates-2/raw-candidate-gates-2.json",
+    "sha256": "050838bc534db50909a34a6bcd715ee81ea526323d97ec260eb3cd526ee47ba9"
+  },
+  "limitations": [
+    "The purpose package script is named spec:purpose:validate:strict but its actual package command omits an explicit --strict flag; the recorded command executes that exact package-script expansion with the candidate script path and an absolute root tsx CLI.",
+    "No source, spec, test, Git, ledger, build, install, or server mutations were made."
+  ]
+}

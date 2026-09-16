@@ -1,0 +1,56 @@
+{
+  "node": "R2.camp-0",
+  "artefact": "camp-live-probe-fix-1679-main-proof-20260915",
+  "capturedAtUtc": "2026-09-15T10:19:15.836Z",
+  "pr": 1679,
+  "slice": "CAMP-01 live-probe fix: neutralize repo-relative config paths / globalSetup in scripts/qc/camp01-live-browser-adversarial.mjs (plus the umbrella-pin registration required by #1677)",
+  "reviewedHead": "2247494e8cfdafdbd1e88ae21ad73584d1847eb1",
+  "mergeCommit": "fec1359bfcb93889d1ad7237725d4be44e7cfbaf",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/archive-original-main-proof (detached at the merge commit)",
+  "runtime": {
+    "node": "v22.22.0"
+  },
+  "files": [
+    "package.json",
+    "scripts/__tests__/camp01-live-browser-adversarial.test.ts",
+    "scripts/__tests__/run-viewport-sweep.test.ts",
+    "scripts/qc/camp01-live-browser-adversarial.mjs"
+  ],
+  "blobEquality": {
+    "command": "git diff --stat 2247494e8 fec1359bf -- <4 files>",
+    "diffLines": 0,
+    "identical": true
+  },
+  "gates": {
+    "jest": {
+      "scope": "the two touched suites",
+      "result": "2 suites / 16 tests passed",
+      "exit": 0,
+      "sha256": "012b6dfb1b227e7b04ecd594052cb890bbcbe0cbc537a376f12ff0230d65fd5d"
+    },
+    "tsc": {
+      "exit": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "openspecStrict": {
+      "exit": 0,
+      "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3"
+    },
+    "qcOpenspecCi": {
+      "exit": 0,
+      "sha256": "1d2b3ffbba3922d328cc2b02fa1de7ccedad6b3382227fa903deccf9a0d5900c"
+    }
+  },
+  "remoteWorkflow": {
+    "name": "CAMP-01 Live Adversarial Evidence",
+    "id": 329205862,
+    "trigger": "push to main",
+    "firstRunOnThisMain": 34957164072,
+    "status": "in_progress at capture; terminal state recorded separately when it lands",
+    "priorRuns": "failures on 7f4ade5b6 and 69ae53744 (pre-fix mains)"
+  },
+  "acceptance": "exact-main accepted for the code slice; the remote CAMP-01 live run outcome is a separate obligation and is NOT claimed here",
+  "nonClaims": [
+    "CAMP eligible non-author APPROVED review and three-witness gates remain owner-blocked (single-collaborator repo)"
+  ]
+}

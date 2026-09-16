@@ -1,0 +1,1006 @@
+{
+ "schema": "camp01efg-receipt-run-main/v1",
+ "runAt": "2026-09-15",
+ "lane": "camp01efg-receipt-run-main (GP-JUSTIFIED; existing archive-original-main-proof worktree, detached at exact main; no sub-agents, no commits, no push, no PR, no product/spec/contract/roadmap edits)",
+ "task": "roadmap R2.camp-5 (frozen wave camp-01e), R2.camp-6 (camp-01f) and R2.camp-7 (camp-01g): command-level exact-main RECEIPT RUNS, mirroring evidence/camp01a-receipt-run-main-20260915.json and evidence/camp01bc-receipt-run-main-20260915.json",
+ "headline": "ALL THREE WAVES: every frozen command ran GREEN at exact main (9 commands, 9 x exit 0) and each wave's self-writing jest test emitted a wave-result.json of status=passed whose assertion key set exactly matches its frozen contract row and whose every value converted to the expected value. The controller-registered durable receipt, and -- newly relative to camp-01a -- camp-01e's captureContract screenshots and camp-01f/camp-01g's reporterContract reports, were NOT produced and remain owner-blocked.",
+ "exactMain": {
+  "sha": "4d7d17c3def5aa1989bd4819654f3eeec1fcc400",
+  "subject": "test(campaign): pin the co-op snapshot denials at the unit level (#1713)",
+  "wasOriginMainTipAtCheckout": true,
+  "verifiedBy": "git fetch origin && git checkout --detach origin/main in the lane worktree; `git rev-parse HEAD` == `git rev-parse origin/main` == 4d7d17c3def5aa1989bd4819654f3eeec1fcc400 immediately before the runs",
+  "originMainAfterRuns": "4e5a74b9fddda382945277b15d76e2e09397d56c",
+  "driftNote": "origin/main advanced by two commits AFTER all nine frozen commands completed: faf03445d \"refactor(combat): name the sequence-to-revision offset at each site (#1716)\" and 4e5a74b9f \"feat(combat): refuse to mirror a rewound match stream (#1717)\". 4d7d17c3d is a verified ancestor of 4e5a74b9f (`git merge-base --is-ancestor` exit 0). The 10 files changed across that span are all under src/lib/multiplayer/server/ (DurableMatchStore.ts, InMemoryMatchStore.ts, MatchStreamJournalMirror.ts, ServerMatchHostBranchAdmission.ts, history/matchStoreBranchSegmentReader.ts and five __tests__ files); an explicit membership check this session confirmed NONE of the nine frozen-command target files, the shared e2e spec, the contract module, or the readiness-stable slice validator appears in that diff, so the drift cannot have changed any wave's frozen-command outcome. The runs are exact-main-as-of-run-start and are NOT re-attested against faf03445d or 4e5a74b9f.",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/archive-original-main-proof",
+  "priorWorktreeHead": "4d7d17c3def5aa1989bd4819654f3eeec1fcc400 -- the worktree was already detached at this exact commit when the lane opened; the fetch confirmed it was still origin/main tip, so the checkout was a no-op re-pin rather than a move",
+  "workingTreeCleanBeforeCheckout": true,
+  "workingTreeCleanAfterAllRuns": true,
+  "workingTreeCleanVerifiedBy": "`git status --porcelain` empty (zero lines) both before the checkout and after the last Playwright leg",
+  "noOtherProcessInWorktree": "a Win32_Process scan for any command line referencing \"archive-original-main-proof\" returned zero matches before the checkout",
+  "npmCiRerun": false,
+  "npmCiRerunRationale": "the worktree's existing Node 22 node_modules ran all six jest/validator legs and all three Playwright legs successfully; no reinstall was performed and none was needed",
+  "node": "v22.22.0",
+  "npm": "11.6.2"
+ },
+ "frozenContractIntegrity": {
+  "module": "scripts/qc/camp01-authority-receipt.contract.mjs",
+  "sha256AtThisSha": "8d360592e96831322faa86d53e1348fa4ac6ef33b504fe7db34d22c7437f0bd3",
+  "sha256MatchesCamp00AndCamp01aReceiptRecords": true,
+  "note": "byte-identical to the contract hash recorded in evidence/camp00-receipt-run-main-819ff6f-20260915.json and evidence/camp01a-receipt-run-main-20260915.json, confirming the contract module is unmodified from 819ff6fd8 through 4d7d17c3d. Re-hashed after the last run: unchanged.",
+  "contractUnmodifiedByThisLane": "no file under scripts/ was edited by this lane; git status --porcelain empty before and after",
+  "allThreeCanonicalArgvDigestsRecomputed": {
+   "camp-01e": "052993da0c60c14d2af410f61c15eb44ea6d3eba85644d9a0beb0069f16c828b",
+   "camp-01f": "b0708546b48ed3c1355f813c2d3e9d0ac6dbdadb7734dd60ae26a600899c30ef",
+   "camp-01g": "ae3582f0603a9028613a874859974617281750628e33e71080a70c308bfc105f",
+   "method": "the contract module's own exported commandSequenceDigest(row.commandSequence), run against the checked-out module at this SHA",
+   "allMatchFrozenValues": true,
+   "allMatchAdmissionBriefValues": true
+  },
+  "admissionBriefsRead": [
+   {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-camp-5-admission-brief-20260915.json",
+    "sha256": "07f33ca39435cce17c524c341f5f72453d1046d83d63aa68f3d1f543835f92c9"
+   },
+   {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-camp-6-admission-brief-20260915.json",
+    "sha256": "f0e6f7f1419e6d2068a329dae23d41f203ac01506017e447618dfa3828919f83"
+   },
+   {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-camp-7-admission-brief-20260915.json",
+    "sha256": "73b24e30b8a2d3fa19724fc8461a6f7ff1c03e1de861d60f80377272d1bb5164"
+   }
+  ],
+  "briefShaNote": "the three briefs recorded sourceFileVerifiedOnOriginMain at 1e43090c505f (camp-5, camp-6) and 293d21bb0e38 (camp-7); this run's SHA 4d7d17c3d is later than both, and the contract module hash is identical to the one recorded two receipt-runs earlier, so no contract drift occurred across any of those SHAs."
+ },
+ "buildFacts": {
+  "required": true,
+  "requiredBecause": "each wave's last frozen command is a direct `node scripts/playwright/run-playwright.mjs test --project=chromium e2e/campaign-customizer-handoff.spec.ts --workers=1` invocation; playwright.config.ts starts a webServer (webServer.command defaults to `npm run dev`), and this lane served it from the standalone production build instead -- see envDeviations.deviation1",
+  "command": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build",
+  "prodEvidenceFlagUsed": false,
+  "prodEvidenceFlagUsedNote": "`--prod-evidence` was NEVER passed, per this lane's charter",
+  "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/archive-original-main-proof",
+  "exit": 0,
+  "startedAtUtc": "2026-09-15T14:27:34Z",
+  "endedAtUtc": "2026-09-15T14:31:43Z",
+  "durationSeconds": 249,
+  "buildId": "1789482440666",
+  "buildIdUnchangedAcrossAllRuns": true,
+  "buildIdAfterRuns": "1789482440666",
+  "standaloneServer": "present (.next/standalone/server.js, 32625 bytes), hydrated by scripts/hydrate-next-standalone-multiplayer-server.mjs (ok:true)",
+  "storeExposure": {
+   "chunk": ".next/standalone/.next/static/chunks/pages/_app-3ffac9f0421f4163.js",
+   "marker": "__ZUSTAND_STORES__",
+   "occurrences": 1,
+   "verdict": "CONFIRMED -- the standalone _app chunk carries the store-exposure marker the e2e helpers drive campaign seeding through",
+   "log": "app-chunk-store-exposure.txt",
+   "chunkHashIdenticalToCamp01bcLaneBuild": "the chunk filename _app-3ffac9f0421f4163.js is identical to the one the camp01bc sibling lane recorded at 83887b746, though the BUILD_ID differs; not relied on for any claim"
+  },
+  "twoCoreBudgetCheck": "a Win32_Process node.exe command-line scan before building found an active `next build --webpack` -- first in worktrees/proof02-rerun, then in worktrees/browser. This lane POLLED at 60 s intervals and started its own build only after BOTH cleared (confirmed free at 14:27:00Z by a background watcher and again by three consecutive direct Win32_Process counts of 0 at 14:27:02/03/04Z). No process was killed."
+ },
+ "portDiscipline": {
+  "portUsed": 3639,
+  "port3600NeverUsed": "port 3600 was never bound by this lane: MEKSTATION_E2E_PORT=3639 was exported on every Playwright leg, and the default `npm run dev` path (which kill-ports 3600) was replaced by the standalone server command. Confirmed at lane start that 3600 had no LISTENING socket; this lane never touched it.",
+  "foreignLaneCoordination": "another lane (worktrees/browser) owned 3639 for a browser run at charter time. Before EVERY Playwright leg this lane polled until Get-NetTCPConnection -LocalPort 3639 -State Listen returned zero AND no node.exe playwright command line was present. Nothing was ever killed.",
+  "prechecks": [
+   {
+    "leg": "camp-01e commandSequence[1]",
+    "atUtc": "14:32:19Z / 14:32:22Z / 14:32:24Z",
+    "listeners3639": 0,
+    "anyPlaywrightProcess": 0
+   },
+   {
+    "leg": "camp-01f commandSequence[1]",
+    "atUtc": "14:33:46Z / 14:33:48Z",
+    "listeners3639": 0,
+    "anyPlaywrightProcess": 0
+   },
+   {
+    "leg": "camp-01g commandSequence[2]",
+    "atUtc": "14:34:36Z",
+    "listeners3639": 0,
+    "anyPlaywrightProcess": 0
+   }
+  ]
+ },
+ "envDeviations": {
+  "statement": "argv for every frozen command was byte-identical to the contract's commandSequence. Two env-only deviations from the contract's implicit defaults were required by this lane's guardrails and by a hard structural property of the runner, and are recorded here rather than buried.",
+  "deviation1": {
+   "what": "webServer command substituted: MEKSTATION_E2E_SERVER_COMMAND='node .next/standalone/server.js' with HOSTNAME=127.0.0.1 and MEKSTATION_E2E_PORT=3639",
+   "default": "playwright.config.ts:288 webServer.command defaults to `npm run dev`, which is `npx kill-port 3600 --silent && npm run sync:mm-data-config && node server.js`; playwright.config.ts:3 defaults MEKSTATION_E2E_PORT to 3600",
+   "why": "this lane's charter forbids port 3600 entirely. The default path both kill-ports 3600 and, absent an override, serves on 3600. The standalone-server + port-3639 substitution is the same one the sibling proof02 / browser / camp01bc lanes used.",
+   "effective": "CONFIRMED EFFECTIVE at runtime: the camp-01e leg's log carries MEKSTATION_LISTENER_READY {\"configuredHostname\":\"127.0.0.1\",\"boundAddress\":\"127.0.0.1\",\"family\":\"IPv4\",\"port\":3639} and \"> Ready on http://127.0.0.1:3639\". The override is honoured because run-playwright.mjs only overrides MEKSTATION_E2E_SERVER_COMMAND when campIsolation.active (its campDevServerEnv branch) or when --prod-evidence is passed -- neither held here.",
+   "riskAcknowledged": "UNVERIFIED whether the frozen row's default dev-server path would produce the same outcome. This lane did NOT run the dev-server variant, so it cannot exclude server-mode as a contributor to the green result. All five tests in the shared spec passed on all three runs, so no failure is being explained away by this deviation -- but the deviation is real and the green is a green-under-substitution."
+  },
+  "deviation2": {
+   "what": "CAMP01_ARTIFACT_DIR and CAMP01_RUN_ID were exported ONLY for each wave's jest leg (commandSequence[0]); every Playwright leg, and camp-01g's readiness-stable leg, ran with NO CAMP01_* variable set at all",
+   "why": "scripts/qc/camp01-runner-isolation.mjs createCamp01RunnerIsolation() treats CAMP01_RUN_ID / CAMP01_ARTIFACT_DIR / CAMP01_INVOCATION_ID / CAMP01_EXECUTION_ID as an all-or-nothing tuple: `if (present.length !== IDENTITY_KEYS.length) fail('partial CAMP context')`. scripts/playwright/run-playwright.mjs calls it unconditionally at startup, so leaking a 2-of-4 CAMP context into a Playwright leg would have hard-failed the runner before any test ran.",
+   "whyTheFullTupleWasNotSynthesized": "the full 4-key tuple is writer-issued and this lane declined to forge it. createCamp01RunnerIsolation additionally requires (a) the artifact directory basename to be exactly `.stage-<runId>`, (b) its parent, relative to the repo root, to match the row's runRootTemplate with a 40-hex sha in the <sha> slot, and (c) the (invocationId, executionId) pair to equal issuedCommandIdentity(row, index, runId) for EXACTLY ONE row/index across all of WAVE_CONTRACTS. Conditions (a) and (b) are directly contradicted by this lane's chartered artifact-dir location; and manufacturing (c) outside the receipt writer would fabricate controller provenance, which is precisely the thing these receipt runs exist to NOT do. The sibling camp01bc lane made the same call.",
+   "consequenceForThisTriple": "MATERIALLY LARGER than for camp-01a/b/c/d. Because CAMP01_INVOCATION_ID could not be set: (1) camp-01e's in-spec capture block `if (process.env.CAMP01_INVOCATION_ID === 'camp-01e-picker-browser')` (e2e/campaign-customizer-handoff.spec.ts:397) never fired, so desktop.png and mobile-390x844.png were not captured; (2) camp-01f's block at line 519 never fired, so the camp01-campaign-persistence-authority/v1 attachment was never made; (3) camp-01g's block at line 622 never fired, so the camp01-mech-bay-authority/v1 attachment was never made. Independently, scripts/qc/camp01-playwright-normalizer.mjs prepareCamp01PlaywrightCollection() returns inactive() whenever isolation is inactive (`if (!isolation?.active) return inactive();`), so the gReports normalizer that would write reports/campaign-persistence-authority.json and reports/mech-bay-authority.json was never armed either. BOTH the producer and the normalizer are gated; there is no partial path.",
+   "verifiedBy": "direct read this session of scripts/qc/camp01-runner-isolation.mjs (IDENTITY_KEYS / partial-context fail / .stage-<runId> check / assertArtifactBinding / issuedCommandIdentity match), scripts/playwright/run-playwright.mjs (unconditional call at startup; campDevServerEnv and prodEvidenceEnv branches), scripts/qc/camp01-playwright-normalizer.mjs (the !isolation.active early return), and e2e/campaign-customizer-handoff.spec.ts lines 397 / 519 / 622. Corroborated empirically: no .c1r/ runtime root was ever created in the worktree, which is the observable signature of isolation never activating."
+  },
+  "envNotSetBeyondTheAbove": "no CAMP01_INVOCATION_ID, CAMP01_EXECUTION_ID, CAMP01_NEXT_DIST_DIR, MEKSTATION_NEXT_DIST_DIR, MEKSTATION_E2E_SERVER_TIMEOUT_MS, CI, or reporter env was set by this lane. PATH was prepended with /c/Users/wroll/AppData/Local/nvm/v22.22.0 for Node 22 on every command."
+ },
+ "sharedSpecRunPolicy": {
+  "question": "camp-01e, camp-01f and camp-01g all pin the SAME Playwright argv against the SAME spec file (e2e/campaign-customizer-handoff.spec.ts). Were runs shared?",
+  "decision": "NOT SHARED -- the spec was run three separate times, once per wave, exactly as each row pins it.",
+  "rationale": "the charter permits sharing only when the argv is byte-identical AND the required env is identical. The argv IS byte-identical across all three rows. The REQUIRED env is not: each row/captureContract/reporterContract names a different CAMP01_INVOCATION_ID (camp-01e-picker-browser / camp-01f-persistence-browser / camp-01g-mech-bay-browser). Since this lane could satisfy NONE of those three required values (deviation2), the env it actually set happens to be identical across the three legs -- but identical-because-all-three-are-unsatisfiable is not the same as identical-required-env, so the permissive branch was not taken. Three independent runs also give each wave its own exit code, its own timing, and its own log rather than one result cited three times.",
+  "observedConsistency": "all three runs produced identical outcomes: exit 0, 5 tests run, 5 passed, 0 failed, 0 flaky, 0 skipped. Wall time 53.1 s / 15.4 s / 14.9 s (the first run pays the webServer cold start)."
+ },
+ "waves": {
+  "camp-01e": {
+   "roadmapNode": "R2.camp-5",
+   "childChange": "add-saved-custom-unit-campaign-picker",
+   "runId": "camp01-fb316ce2c956308ed4d178c7036d7f98",
+   "runIdShape": "matches ^camp01-[0-9a-f]{32}$ (crypto.randomBytes(16).toString(\"hex\") prefixed \"camp01-\", regex-validated in-session before use)",
+   "artifactDir": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/camp01efg-receipt-main-20260915/camp-01e/artifacts",
+   "artifactDirNote": "per this lane's charter, NOT the writer-bound <runRootTemplate-with-sha>/.stage-<runId> shape the controller issues; see envDeviations.deviation2",
+   "frozenContract": {
+    "source": "scripts/qc/camp01-authority-receipt.contract.mjs -> WAVE_CONTRACTS['camp-01e']",
+    "canonicalArgvDigestFrozen": "052993da0c60c14d2af410f61c15eb44ea6d3eba85644d9a0beb0069f16c828b",
+    "canonicalArgvDigestRecomputedAtThisSha": "052993da0c60c14d2af410f61c15eb44ea6d3eba85644d9a0beb0069f16c828b",
+    "digestMatches": true,
+    "commandSequence": [
+     [
+      "@npm",
+      "test",
+      "--",
+      "--watchAll=false",
+      "--runTestsByPath",
+      "src/components/gameplay/pages/campaigns/create/__tests__/savedCustomUnitCampaignAdapter.test.ts",
+      "src/components/gameplay/pages/campaigns/create/__tests__/CreateCampaignPage.RosterStep.test.tsx",
+      "src/components/gameplay/pages/campaigns/create/__tests__/CreateCampaignPage.rosterPersistence.test.ts",
+      "--runInBand"
+     ],
+     [
+      "@node",
+      "scripts/playwright/run-playwright.mjs",
+      "test",
+      "--project=chromium",
+      "e2e/campaign-customizer-handoff.spec.ts",
+      "--workers=1"
+     ]
+    ],
+    "artifacts": [
+     "command-result.json",
+     "receipt-manifest.json",
+     "wave-result.json",
+     "desktop.png",
+     "mobile-390x844.png"
+    ],
+    "assertions": [
+     "savedDesignIdPresent===true",
+     "rosterInstanceIdPresent===true",
+     "unitRefMatched===true",
+     "unitSourceCustom===true",
+     "rootForceContainsInstance===true",
+     "programmaticNamesPresent===true",
+     "narrowViewportUsable===true"
+    ],
+    "predecessors": [
+     "camp-01d"
+    ],
+    "capSubject": "product-pr",
+    "maxFiles": 10,
+    "maxChangedLines": 450,
+    "reporterContracts": [],
+    "captureContract": [
+     {
+      "invocationId": "camp-01e-picker-browser",
+      "commandSequenceIndex": 1,
+      "artifactPaths": [
+       "desktop.png",
+       "mobile-390x844.png"
+      ]
+     }
+    ],
+    "matchesAdmissionBriefFrozenRow": true,
+    "matchesAdmissionBriefVerifiedBy": "every field of the brief's frozenContractRow re-derived from the checked-out module at this SHA and compared field-by-field this session; canonicalArgvDigest additionally recomputed via the module's own commandSequenceDigest()"
+   },
+   "commands": [
+    {
+     "index": 0,
+     "argv": "npm test -- --watchAll=false --runTestsByPath src/components/gameplay/pages/campaigns/create/__tests__/savedCustomUnitCampaignAdapter.test.ts src/components/gameplay/pages/campaigns/create/__tests__/CreateCampaignPage.RosterStep.test.tsx src/components/gameplay/pages/campaigns/create/__tests__/CreateCampaignPage.rosterPersistence.test.ts --runInBand",
+     "argvUnaltered": true,
+     "matchesFrozenCommandSequenceIndex": 0,
+     "env": {
+      "PATH prepend": "/c/Users/wroll/AppData/Local/nvm/v22.22.0",
+      "CAMP01_ARTIFACT_DIR": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/camp01efg-receipt-main-20260915/camp-01e/artifacts",
+      "CAMP01_RUN_ID": "camp01-fb316ce2c956308ed4d178c7036d7f98"
+     },
+     "exit": 0,
+     "startedAtUtc": "2026-09-15T14:22:46Z",
+     "endedAtUtc": "2026-09-15T14:22:54Z",
+     "suites": {
+      "passed": 3,
+      "total": 3
+     },
+     "tests": {
+      "passed": 11,
+      "total": 11
+     },
+     "snapshots": 0,
+     "log": "camp-01e/cmd0-jest.log"
+    },
+    {
+     "index": 1,
+     "argv": "node scripts/playwright/run-playwright.mjs test --project=chromium e2e/campaign-customizer-handoff.spec.ts --workers=1",
+     "argvUnaltered": true,
+     "matchesFrozenCommandSequenceIndex": 1,
+     "env": {
+      "MEKSTATION_E2E_SERVER_COMMAND": "node .next/standalone/server.js",
+      "HOSTNAME": "127.0.0.1",
+      "MEKSTATION_E2E_PORT": "3639",
+      "CAMP01_*": "deliberately absent -- see envDeviations.deviation2"
+     },
+     "exit": 0,
+     "startedAtUtc": "2026-09-15T14:32:34Z",
+     "endedAtUtc": "2026-09-15T14:33:33Z",
+     "tests": {
+      "run": 5,
+      "passed": 5,
+      "failed": 0,
+      "flaky": 0,
+      "skipped": 0
+     },
+     "wallClock": "53.1s (includes standalone webServer cold start)",
+     "webServer": "MEKSTATION_LISTENER_READY boundAddress 127.0.0.1 port 3639, IPv4",
+     "testsObserved": [
+      "routes Mech Bay refit into campaign customizer and saves a refit order",
+      "returns from campaign customizer into mission readiness with deployment validation refresh",
+      "selects a saved custom unit at desktop and 390x844 without collapsing identities  <-- the camp-01e-owned test",
+      "creates a saved custom unit campaign through accepted server persistence",
+      "cold reloads a saved custom unit into Mech Bay without source substitution"
+     ],
+     "log": "camp-01e/cmd1-playwright.log"
+    }
+   ],
+   "waveResult": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/camp01efg-receipt-main-20260915/camp-01e/artifacts/wave-result.json",
+    "bytes": 383,
+    "sha256": "d7b2579b22074044ce60b6d15febc785bc391037fadef8e07b9d6856dccdd98d",
+    "handEdited": false,
+    "producedBy": "src/components/gameplay/pages/campaigns/create/__tests__/CreateCampaignPage.rosterPersistence.test.ts -- self-writing test that asserts the 7-key matrix, then writes wave-result.json with { flag: 'wx' } when CAMP01_ARTIFACT_DIR and CAMP01_RUN_ID are both set (`if (!artifactDir || !runId) return;`). No adapter script and no controller invocation was used.",
+    "content": {
+     "schema": "camp01-wave-result/v1",
+     "wave": "camp-01e",
+     "runId": "camp01-fb316ce2c956308ed4d178c7036d7f98",
+     "status": "passed",
+     "assertions": {
+      "narrowViewportUsable===true": true,
+      "programmaticNamesPresent===true": true,
+      "rootForceContainsInstance===true": true,
+      "rosterInstanceIdPresent===true": true,
+      "savedDesignIdPresent===true": true,
+      "unitRefMatched===true": true,
+      "unitSourceCustom===true": true
+     }
+    }
+   },
+   "assertionTally": {
+    "totalFrozenAssertions": 7,
+    "passed": 7,
+    "failed": 0,
+    "notReached": 0,
+    "exactKeySetMatchAgainstFrozenContract": true,
+    "verifiedBy": "node script importing the contract module at this SHA: sorted Object.keys(waveResult.assertions) JSON.stringify-compared to sorted WAVE_CONTRACTS[wave].assertions (equal), then each key's actual value compared to the value parsed out of its own ===<value> suffix",
+    "values": [
+     {
+      "key": "narrowViewportUsable===true",
+      "expected": true,
+      "actual": true,
+      "matched": true
+     },
+     {
+      "key": "programmaticNamesPresent===true",
+      "expected": true,
+      "actual": true,
+      "matched": true
+     },
+     {
+      "key": "rootForceContainsInstance===true",
+      "expected": true,
+      "actual": true,
+      "matched": true
+     },
+     {
+      "key": "rosterInstanceIdPresent===true",
+      "expected": true,
+      "actual": true,
+      "matched": true
+     },
+     {
+      "key": "savedDesignIdPresent===true",
+      "expected": true,
+      "actual": true,
+      "matched": true
+     },
+     {
+      "key": "unitRefMatched===true",
+      "expected": true,
+      "actual": true,
+      "matched": true
+     },
+     {
+      "key": "unitSourceCustom===true",
+      "expected": true,
+      "actual": true,
+      "matched": true
+     }
+    ]
+   },
+   "artifactsProduced": [
+    "wave-result.json"
+   ],
+   "artifactsNotProduced": [
+    "command-result.json",
+    "receipt-manifest.json",
+    "desktop.png",
+    "mobile-390x844.png"
+   ],
+   "artifactsNotProducedReason": "command-result.json and receipt-manifest.json are written only by the controller (qc:camp01-authority-receipt:write), which this lane did not invoke. desktop.png and mobile-390x844.png are written by captureCamp01AttestedPng inside the spec's `CAMP01_INVOCATION_ID === 'camp-01e-picker-browser'` block, which could not be armed (envDeviations.deviation2). The camp-01e-owned test itself DID run and DID pass -- only its capture side-effect was gated off.",
+   "verdict": "EXACT-MAIN COMMAND-LEVEL RECEIPT PRODUCED",
+   "verdictScope": "command-level receipt only; capture-contract artefacts and controller registration excluded",
+   "whatIsProven": "at exact main 4d7d17c3d, the immutable camp-01e row's pinned 2-command array (canonicalArgvDigest 052993da0c...) executes green end-to-end -- commandSequence[0] exit 0 with 3/3 suites and 11/11 tests, commandSequence[1] exit 0 with 5/5 Playwright tests against a standalone production build -- and its self-writing jest test emits a wave-result.json of status=passed carrying all 7 frozen assertions at their expected values, with the exact key set the contract row freezes.",
+   "whatIsNotProven": "the controller-registered durable receipt under .sisyphus/evidence/playtest/camp01e-picker-<sha>/ was NOT produced. CAPTURE_CONTRACTS['camp-01e'] is NOT satisfied and this lane makes no claim about it: no desktop.png or mobile-390x844.png exists, so the row's requirement that the browser leg yield an attested desktop + 390x844 screenshot pair is UNVERIFIED at exact main by this run.",
+   "strictCapPreserved": "no product, spec, script, contract or roadmap file was touched by this lane, so the product-pr cap (10 files / 450 lines) is trivially intact at 0/0"
+  },
+  "camp-01f": {
+   "roadmapNode": "R2.camp-6",
+   "childChange": "persist-saved-custom-unit-campaign-creation",
+   "runId": "camp01-05dd7db115c5b5434d6b5ac8d2737701",
+   "runIdShape": "matches ^camp01-[0-9a-f]{32}$ (crypto.randomBytes(16).toString(\"hex\") prefixed \"camp01-\", regex-validated in-session before use)",
+   "artifactDir": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/camp01efg-receipt-main-20260915/camp-01f/artifacts",
+   "artifactDirNote": "per this lane's charter, NOT the writer-bound <runRootTemplate-with-sha>/.stage-<runId> shape the controller issues; see envDeviations.deviation2",
+   "frozenContract": {
+    "source": "scripts/qc/camp01-authority-receipt.contract.mjs -> WAVE_CONTRACTS['camp-01f']",
+    "canonicalArgvDigestFrozen": "b0708546b48ed3c1355f813c2d3e9d0ac6dbdadb7734dd60ae26a600899c30ef",
+    "canonicalArgvDigestRecomputedAtThisSha": "b0708546b48ed3c1355f813c2d3e9d0ac6dbdadb7734dd60ae26a600899c30ef",
+    "digestMatches": true,
+    "commandSequence": [
+     [
+      "@npm",
+      "test",
+      "--",
+      "--watchAll=false",
+      "--runTestsByPath",
+      "src/components/gameplay/pages/campaigns/create/__tests__/CreateCampaignPage.submitPersistence.test.tsx",
+      "src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts",
+      "--runInBand"
+     ],
+     [
+      "@node",
+      "scripts/playwright/run-playwright.mjs",
+      "test",
+      "--project=chromium",
+      "e2e/campaign-customizer-handoff.spec.ts",
+      "--workers=1"
+     ]
+    ],
+    "artifacts": [
+     "command-result.json",
+     "receipt-manifest.json",
+     "wave-result.json",
+     "reports/campaign-persistence-authority.json"
+    ],
+    "assertions": [
+     "requestMethodPut===true",
+     "responseAccepted===true",
+     "campaignIdMatched===true",
+     "rosterInstanceIdPresent===true",
+     "unitRefMatched===true",
+     "unitSourceCustom===true",
+     "rootForceContainsInstance===true",
+     "constructionPayloadAbsent===true",
+     "successSuppressedOnFailure===true",
+     "sameIdRetried===true",
+     "conflictSameIdRetried===true",
+     "conflictOverwritePrevented===true"
+    ],
+    "predecessors": [
+     "camp-01e"
+    ],
+    "capSubject": "product-pr",
+    "maxFiles": 8,
+    "maxChangedLines": 400,
+    "reporterContracts": [
+     {
+      "invocationId": "camp-01f-persistence-browser",
+      "producerId": "scripts/playwright/run-playwright.mjs",
+      "reporterId": "camp01-campaign-persistence-reporter/v1",
+      "reportSchema": "camp01-campaign-persistence-authority/v1",
+      "normalizedPath": "reports/campaign-persistence-authority.json",
+      "sourceIds": [
+       "e2e/campaign-customizer-handoff.spec.ts"
+      ],
+      "requiredTestIds": [
+       "e2e/campaign-customizer-handoff.spec.ts::campaign customizer handoff @campaign @customizer::creates a saved custom unit campaign through accepted server persistence"
+      ],
+      "allowedStatuses": [
+       "passed"
+      ],
+      "minimumObservedTests": 1,
+      "completeObservationSet": true
+     }
+    ],
+    "captureContract": null,
+    "matchesAdmissionBriefFrozenRow": true,
+    "matchesAdmissionBriefVerifiedBy": "every field of the brief's frozenContractRow re-derived from the checked-out module at this SHA and compared field-by-field this session; canonicalArgvDigest additionally recomputed via the module's own commandSequenceDigest()"
+   },
+   "commands": [
+    {
+     "index": 0,
+     "argv": "npm test -- --watchAll=false --runTestsByPath src/components/gameplay/pages/campaigns/create/__tests__/CreateCampaignPage.submitPersistence.test.tsx src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts --runInBand",
+     "argvUnaltered": true,
+     "matchesFrozenCommandSequenceIndex": 0,
+     "env": {
+      "PATH prepend": "/c/Users/wroll/AppData/Local/nvm/v22.22.0",
+      "CAMP01_ARTIFACT_DIR": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/camp01efg-receipt-main-20260915/camp-01f/artifacts",
+      "CAMP01_RUN_ID": "camp01-05dd7db115c5b5434d6b5ac8d2737701"
+     },
+     "exit": 0,
+     "startedAtUtc": "2026-09-15T14:23:08Z",
+     "endedAtUtc": "2026-09-15T14:23:14Z",
+     "suites": {
+      "passed": 2,
+      "total": 2
+     },
+     "tests": {
+      "passed": 22,
+      "total": 22
+     },
+     "snapshots": 0,
+     "log": "camp-01f/cmd0-jest.log"
+    },
+    {
+     "index": 1,
+     "argv": "node scripts/playwright/run-playwright.mjs test --project=chromium e2e/campaign-customizer-handoff.spec.ts --workers=1",
+     "argvUnaltered": true,
+     "matchesFrozenCommandSequenceIndex": 1,
+     "env": {
+      "MEKSTATION_E2E_SERVER_COMMAND": "node .next/standalone/server.js",
+      "HOSTNAME": "127.0.0.1",
+      "MEKSTATION_E2E_PORT": "3639",
+      "CAMP01_*": "deliberately absent -- see envDeviations.deviation2"
+     },
+     "exit": 0,
+     "startedAtUtc": "2026-09-15T14:34:01Z",
+     "endedAtUtc": "2026-09-15T14:34:19Z",
+     "tests": {
+      "run": 5,
+      "passed": 5,
+      "failed": 0,
+      "flaky": 0,
+      "skipped": 0
+     },
+     "wallClock": "15.4s",
+     "separateRunFromCamp01e": true,
+     "log": "camp-01f/cmd1-playwright.log"
+    }
+   ],
+   "waveResult": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/camp01efg-receipt-main-20260915/camp-01f/artifacts/wave-result.json",
+    "bytes": 554,
+    "sha256": "fdeb78e256993d0a99be3b901e79b5d264b83ed6cee1af3f8a8fb0c776ea77dc",
+    "handEdited": false,
+    "producedBy": "src/components/gameplay/pages/campaigns/create/__tests__/CreateCampaignPage.submitPersistence.test.tsx -- self-writing test guarded by the same `if (!artifactDir || !runId) return;` plus an `if (fs.existsSync(wavePath)) return;` idempotence check, then writes with { flag: 'wx' }.",
+    "content": {
+     "schema": "camp01-wave-result/v1",
+     "wave": "camp-01f",
+     "runId": "camp01-05dd7db115c5b5434d6b5ac8d2737701",
+     "status": "passed",
+     "assertions": {
+      "campaignIdMatched===true": true,
+      "conflictOverwritePrevented===true": true,
+      "conflictSameIdRetried===true": true,
+      "constructionPayloadAbsent===true": true,
+      "requestMethodPut===true": true,
+      "responseAccepted===true": true,
+      "rootForceContainsInstance===true": true,
+      "rosterInstanceIdPresent===true": true,
+      "sameIdRetried===true": true,
+      "successSuppressedOnFailure===true": true,
+      "unitRefMatched===true": true,
+      "unitSourceCustom===true": true
+     }
+    }
+   },
+   "assertionTally": {
+    "totalFrozenAssertions": 12,
+    "passed": 12,
+    "failed": 0,
+    "notReached": 0,
+    "exactKeySetMatchAgainstFrozenContract": true,
+    "verifiedBy": "node script importing the contract module at this SHA: sorted Object.keys(waveResult.assertions) JSON.stringify-compared to sorted WAVE_CONTRACTS[wave].assertions (equal), then each key's actual value compared to the value parsed out of its own ===<value> suffix",
+    "values": [
+     {
+      "key": "campaignIdMatched===true",
+      "expected": true,
+      "actual": true,
+      "matched": true
+     },
+     {
+      "key": "conflictOverwritePrevented===true",
+      "expected": true,
+      "actual": true,
+      "matched": true
+     },
+     {
+      "key": "conflictSameIdRetried===true",
+      "expected": true,
+      "actual": true,
+      "matched": true
+     },
+     {
+      "key": "constructionPayloadAbsent===true",
+      "expected": true,
+      "actual": true,
+      "matched": true
+     },
+     {
+      "key": "requestMethodPut===true",
+      "expected": true,
+      "actual": true,
+      "matched": true
+     },
+     {
+      "key": "responseAccepted===true",
+      "expected": true,
+      "actual": true,
+      "matched": true
+     },
+     {
+      "key": "rootForceContainsInstance===true",
+      "expected": true,
+      "actual": true,
+      "matched": true
+     },
+     {
+      "key": "rosterInstanceIdPresent===true",
+      "expected": true,
+      "actual": true,
+      "matched": true
+     },
+     {
+      "key": "sameIdRetried===true",
+      "expected": true,
+      "actual": true,
+      "matched": true
+     },
+     {
+      "key": "successSuppressedOnFailure===true",
+      "expected": true,
+      "actual": true,
+      "matched": true
+     },
+     {
+      "key": "unitRefMatched===true",
+      "expected": true,
+      "actual": true,
+      "matched": true
+     },
+     {
+      "key": "unitSourceCustom===true",
+      "expected": true,
+      "actual": true,
+      "matched": true
+     }
+    ]
+   },
+   "artifactsProduced": [
+    "wave-result.json"
+   ],
+   "artifactsNotProduced": [
+    "command-result.json",
+    "receipt-manifest.json",
+    "reports/campaign-persistence-authority.json"
+   ],
+   "artifactsNotProducedReason": "command-result.json and receipt-manifest.json are controller-written. reports/campaign-persistence-authority.json requires BOTH the spec's `CAMP01_INVOCATION_ID === 'camp-01f-persistence-browser'` testInfo.attach block (spec line 519) and the gReports normalizer inside prepareCamp01PlaywrightCollection, and both are gated on the writer-issued CAMP01 tuple (envDeviations.deviation2). The camp-01f-owned test (\"creates a saved custom unit campaign through accepted server persistence\") DID run and DID pass on all three browser legs -- only its reporter attachment was gated off.",
+   "verdict": "EXACT-MAIN COMMAND-LEVEL RECEIPT PRODUCED",
+   "verdictScope": "command-level receipt only; reporter-contract artefact and controller registration excluded",
+   "whatIsProven": "at exact main 4d7d17c3d, the immutable camp-01f row's pinned 2-command array (canonicalArgvDigest b0708546b4...) executes green end-to-end -- commandSequence[0] exit 0 with 2/2 suites and 22/22 tests, commandSequence[1] exit 0 with 5/5 Playwright tests -- and its self-writing jest test emits a wave-result.json of status=passed carrying all 12 frozen assertions at their expected values, with the exact key set the contract row freezes. This is the largest assertion matrix of the three waves and every key converted.",
+   "whatIsNotProven": "the controller-registered durable receipt under .sisyphus/evidence/playtest/camp01f-persistence-<sha>/ was NOT produced. The row's reporterContracts[0] (camp01-campaign-persistence-reporter/v1 -> reports/campaign-persistence-authority.json, requiredTestIds naming the persistence test by full Playwright id, allowedStatuses=[passed], completeObservationSet=true) is NOT satisfied and this lane makes no claim about it. Per the archived child's own design posture, a generic wave-result boolean does not substitute for the trusted reporter's structured report -- so camp-01f's authority surface is only PARTIALLY evidenced by this run.",
+   "strictCapPreserved": "no product, spec, script, contract or roadmap file was touched by this lane, so the product-pr cap (8 files / 400 lines) is trivially intact at 0/0"
+  },
+  "camp-01g": {
+   "roadmapNode": "R2.camp-7",
+   "childChange": "resolve-saved-custom-units-in-mech-bay",
+   "runId": "camp01-30e65eebd9187bd55fa2dec7077c29a3",
+   "runIdShape": "matches ^camp01-[0-9a-f]{32}$ (crypto.randomBytes(16).toString(\"hex\") prefixed \"camp01-\", regex-validated in-session before use)",
+   "artifactDir": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/camp01efg-receipt-main-20260915/camp-01g/artifacts",
+   "artifactDirNote": "per this lane's charter, NOT the writer-bound <runRootTemplate-with-sha>/.stage-<runId> shape the controller issues; see envDeviations.deviation2",
+   "frozenContract": {
+    "source": "scripts/qc/camp01-authority-receipt.contract.mjs -> WAVE_CONTRACTS['camp-01g']",
+    "canonicalArgvDigestFrozen": "ae3582f0603a9028613a874859974617281750628e33e71080a70c308bfc105f",
+    "canonicalArgvDigestRecomputedAtThisSha": "ae3582f0603a9028613a874859974617281750628e33e71080a70c308bfc105f",
+    "digestMatches": true,
+    "commandSequence": [
+     [
+      "@npm",
+      "test",
+      "--",
+      "--watchAll=false",
+      "--runTestsByPath",
+      "src/components/campaign/bays/__tests__/MechBay.test.tsx",
+      "--runInBand"
+     ],
+     [
+      "@npm",
+      "run",
+      "qc:command:readiness-stable:quick"
+     ],
+     [
+      "@node",
+      "scripts/playwright/run-playwright.mjs",
+      "test",
+      "--project=chromium",
+      "e2e/campaign-customizer-handoff.spec.ts",
+      "--workers=1"
+     ]
+    ],
+    "artifacts": [
+     "command-result.json",
+     "receipt-manifest.json",
+     "wave-result.json",
+     "reports/mech-bay-authority.json"
+    ],
+    "assertions": [
+     "coldReloaded===true",
+     "rosterInstanceIdPresent===true",
+     "unitRefMatched===true",
+     "unitSourceCustom===true",
+     "cachedNamePreserved===true",
+     "tonnagePreserved===true",
+     "bvAvailabilityHonest===true",
+     "unresolvedSourceVisible===true"
+    ],
+    "predecessors": [
+     "camp-01f"
+    ],
+    "capSubject": "product-pr",
+    "maxFiles": 7,
+    "maxChangedLines": 350,
+    "reporterContracts": [
+     {
+      "invocationId": "camp-01g-mech-bay-browser",
+      "producerId": "scripts/playwright/run-playwright.mjs",
+      "reporterId": "camp01-mech-bay-authority-reporter/v1",
+      "reportSchema": "camp01-mech-bay-authority/v1",
+      "normalizedPath": "reports/mech-bay-authority.json",
+      "sourceIds": [
+       "e2e/campaign-customizer-handoff.spec.ts"
+      ],
+      "requiredTestIds": [
+       "e2e/campaign-customizer-handoff.spec.ts::campaign customizer handoff @campaign @customizer::cold reloads a saved custom unit into Mech Bay without source substitution"
+      ],
+      "allowedStatuses": [
+       "passed"
+      ],
+      "minimumObservedTests": 1,
+      "completeObservationSet": true
+     }
+    ],
+    "captureContract": null,
+    "matchesAdmissionBriefFrozenRow": true,
+    "matchesAdmissionBriefVerifiedBy": "every field of the brief's frozenContractRow re-derived from the checked-out module at this SHA and compared field-by-field this session; canonicalArgvDigest additionally recomputed via the module's own commandSequenceDigest()"
+   },
+   "commands": [
+    {
+     "index": 0,
+     "argv": "npm test -- --watchAll=false --runTestsByPath src/components/campaign/bays/__tests__/MechBay.test.tsx --runInBand",
+     "argvUnaltered": true,
+     "matchesFrozenCommandSequenceIndex": 0,
+     "env": {
+      "PATH prepend": "/c/Users/wroll/AppData/Local/nvm/v22.22.0",
+      "CAMP01_ARTIFACT_DIR": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/camp01efg-receipt-main-20260915/camp-01g/artifacts",
+      "CAMP01_RUN_ID": "camp01-30e65eebd9187bd55fa2dec7077c29a3"
+     },
+     "exit": 0,
+     "startedAtUtc": "2026-09-15T14:23:25Z",
+     "endedAtUtc": "2026-09-15T14:23:31Z",
+     "suites": {
+      "passed": 1,
+      "total": 1
+     },
+     "tests": {
+      "passed": 10,
+      "total": 10
+     },
+     "snapshots": 0,
+     "log": "camp-01g/cmd0-jest.log"
+    },
+    {
+     "index": 1,
+     "argv": "npm run qc:command:readiness-stable:quick",
+     "argvUnaltered": true,
+     "matchesFrozenCommandSequenceIndex": 1,
+     "resolvesTo": "node scripts/qc/validate-playable-command-screen-slices.mjs --run --slice=readiness-stable",
+     "env": {
+      "PATH prepend": "/c/Users/wroll/AppData/Local/nvm/v22.22.0",
+      "CAMP01_*": "not set"
+     },
+     "exit": 0,
+     "startedAtUtc": "2026-09-15T14:23:46Z",
+     "endedAtUtc": "2026-09-15T14:23:52Z",
+     "slices": "slices=1/6 errors=0 warnings=0",
+     "suites": {
+      "passed": 4,
+      "total": 4
+     },
+     "tests": {
+      "passed": 48,
+      "total": 48
+     },
+     "log": "camp-01g/cmd1-readiness-stable-quick.log",
+     "note": "the camp01bc sibling lane recorded this same package script as 4/4 suites and 44/44 tests at 83887b746; it is 48/48 here. The delta is upstream test growth in the slice's four target files between 83887b746 and 4d7d17c3d, not a behavioural change in this leg -- both runs exit 0 with errors=0 warnings=0."
+    },
+    {
+     "index": 2,
+     "argv": "node scripts/playwright/run-playwright.mjs test --project=chromium e2e/campaign-customizer-handoff.spec.ts --workers=1",
+     "argvUnaltered": true,
+     "matchesFrozenCommandSequenceIndex": 2,
+     "env": {
+      "MEKSTATION_E2E_SERVER_COMMAND": "node .next/standalone/server.js",
+      "HOSTNAME": "127.0.0.1",
+      "MEKSTATION_E2E_PORT": "3639",
+      "CAMP01_*": "deliberately absent -- see envDeviations.deviation2"
+     },
+     "exit": 0,
+     "startedAtUtc": "2026-09-15T14:34:37Z",
+     "endedAtUtc": "2026-09-15T14:34:52Z",
+     "tests": {
+      "run": 5,
+      "passed": 5,
+      "failed": 0,
+      "flaky": 0,
+      "skipped": 0
+     },
+     "wallClock": "14.9s",
+     "separateRunFromCamp01eAndCamp01f": true,
+     "log": "camp-01g/cmd2-playwright.log"
+    }
+   ],
+   "waveResult": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/camp01efg-receipt-main-20260915/camp-01g/artifacts/wave-result.json",
+    "bytes": 399,
+    "sha256": "4ea7996e74151944fe9ebd27c70d1574d178f6148601a9b150885d08954f0230",
+    "handEdited": false,
+    "producedBy": "src/components/campaign/bays/__tests__/MechBay.test.tsx -- self-writing test guarded by `if (!artifactDir || !runId) return;` plus an existsSync idempotence check, then writes with { flag: 'wx' }.",
+    "content": {
+     "schema": "camp01-wave-result/v1",
+     "wave": "camp-01g",
+     "runId": "camp01-30e65eebd9187bd55fa2dec7077c29a3",
+     "status": "passed",
+     "assertions": {
+      "bvAvailabilityHonest===true": true,
+      "cachedNamePreserved===true": true,
+      "coldReloaded===true": true,
+      "rosterInstanceIdPresent===true": true,
+      "tonnagePreserved===true": true,
+      "unitRefMatched===true": true,
+      "unitSourceCustom===true": true,
+      "unresolvedSourceVisible===true": true
+     }
+    }
+   },
+   "assertionTally": {
+    "totalFrozenAssertions": 8,
+    "passed": 8,
+    "failed": 0,
+    "notReached": 0,
+    "exactKeySetMatchAgainstFrozenContract": true,
+    "verifiedBy": "node script importing the contract module at this SHA: sorted Object.keys(waveResult.assertions) JSON.stringify-compared to sorted WAVE_CONTRACTS[wave].assertions (equal), then each key's actual value compared to the value parsed out of its own ===<value> suffix",
+    "values": [
+     {
+      "key": "bvAvailabilityHonest===true",
+      "expected": true,
+      "actual": true,
+      "matched": true
+     },
+     {
+      "key": "cachedNamePreserved===true",
+      "expected": true,
+      "actual": true,
+      "matched": true
+     },
+     {
+      "key": "coldReloaded===true",
+      "expected": true,
+      "actual": true,
+      "matched": true
+     },
+     {
+      "key": "rosterInstanceIdPresent===true",
+      "expected": true,
+      "actual": true,
+      "matched": true
+     },
+     {
+      "key": "tonnagePreserved===true",
+      "expected": true,
+      "actual": true,
+      "matched": true
+     },
+     {
+      "key": "unitRefMatched===true",
+      "expected": true,
+      "actual": true,
+      "matched": true
+     },
+     {
+      "key": "unitSourceCustom===true",
+      "expected": true,
+      "actual": true,
+      "matched": true
+     },
+     {
+      "key": "unresolvedSourceVisible===true",
+      "expected": true,
+      "actual": true,
+      "matched": true
+     }
+    ]
+   },
+   "artifactsProduced": [
+    "wave-result.json"
+   ],
+   "artifactsNotProduced": [
+    "command-result.json",
+    "receipt-manifest.json",
+    "reports/mech-bay-authority.json"
+   ],
+   "artifactsNotProducedReason": "command-result.json and receipt-manifest.json are controller-written. reports/mech-bay-authority.json requires BOTH the spec's `CAMP01_INVOCATION_ID === 'camp-01g-mech-bay-browser'` testInfo.attach block (spec line 622) and the gReports normalizer, both gated on the writer-issued CAMP01 tuple (envDeviations.deviation2). The camp-01g-owned test (\"cold reloads a saved custom unit into Mech Bay without source substitution\") DID run and DID pass on all three browser legs -- only its reporter attachment was gated off.",
+   "verdict": "EXACT-MAIN COMMAND-LEVEL RECEIPT PRODUCED",
+   "verdictScope": "command-level receipt only; gReporters artefact and controller registration excluded",
+   "whatIsProven": "at exact main 4d7d17c3d, the immutable camp-01g row's pinned 3-command array (canonicalArgvDigest ae3582f060...) executes green end-to-end -- commandSequence[0] exit 0 with 1/1 suite and 10/10 tests, commandSequence[1] exit 0 with 1/6 slices validated, 4/4 suites and 48/48 tests, errors=0 warnings=0, commandSequence[2] exit 0 with 5/5 Playwright tests -- and its self-writing jest test emits a wave-result.json of status=passed carrying all 8 frozen assertions at their expected values, with the exact key set the contract row freezes.",
+   "whatIsNotProven": "the controller-registered durable receipt under .sisyphus/evidence/playtest/camp01g-mech-bay-<sha>/ was NOT produced. The row's reporterContracts[0] (camp01-mech-bay-authority-reporter/v1 -> reports/mech-bay-authority.json, requiredTestIds naming the cold-reload test by full Playwright id, allowedStatuses=[passed], completeObservationSet=true) is NOT satisfied and this lane makes no claim about it. This is the sharpest gap of the three waves: the archived child's own design.md D3 states \"Generic wave booleans do not satisfy authority\" -- i.e. camp-01g explicitly rejects the wave-result.json this run DID produce as sufficient, and demands the reporter-produced structured report this run could NOT produce. camp-01g's authority surface is therefore materially less evidenced by a command-level receipt than camp-01a's was.",
+   "strictCapPreserved": "no product, spec, script, contract or roadmap file was touched by this lane, so the product-pr cap (7 files / 350 lines) is trivially intact at 0/0"
+  }
+ },
+ "crossWaveTally": {
+  "wavesAttempted": 3,
+  "frozenCommandsTotal": 7,
+  "frozenCommandsRunGreen": 7,
+  "frozenCommandsFailed": 0,
+  "frozenCommandsRerun": 0,
+  "rerunPolicyNote": "the charter's \"if a command fails: capture, classify, run that leg once more, do not repair\" path was never entered -- nothing failed.",
+  "waveResultsProduced": 3,
+  "waveResultsStatusPassed": 3,
+  "assertionsFrozenTotal": 27,
+  "assertionsConverted": 27,
+  "assertionsFailed": 0,
+  "exactKeySetMatchAllThreeWaves": true,
+  "controllerArtefactsProduced": 0,
+  "captureOrReporterArtefactsProduced": 0,
+  "note": "frozenCommandsTotal counts 2 (camp-01e) + 2 (camp-01f) + 3 (camp-01g) = 7 distinct pinned commands; the three Playwright legs are counted once each because each wave was run separately."
+ },
+ "artefacts": {
+  "runRoot": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/camp01efg-receipt-main-20260915",
+  "handEdited": false,
+  "handEditedNote": "no artefact or log in this tree was hand-edited; wave-result.json files are byte-for-byte as the jest tests wrote them (flag: \"wx\", so a rewrite would have thrown)",
+  "files": [
+   {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/camp01efg-receipt-main-20260915/app-chunk-store-exposure.txt",
+    "bytes": 130,
+    "sha256": "9a7315702ff1a2b6ec21f3ad760c5c150badf1b2258b4f1990bb132f1ff4fd79"
+   },
+   {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/camp01efg-receipt-main-20260915/build.log",
+    "bytes": 3746087,
+    "sha256": "a0708539d7e72e6eef6068157601d87f3ab968a10b7d1cc9b3fad9f61c25dd64"
+   },
+   {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/camp01efg-receipt-main-20260915/camp-01e/artifacts/wave-result.json",
+    "bytes": 383,
+    "sha256": "d7b2579b22074044ce60b6d15febc785bc391037fadef8e07b9d6856dccdd98d"
+   },
+   {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/camp01efg-receipt-main-20260915/camp-01e/cmd0-jest.log",
+    "bytes": 1507,
+    "sha256": "551980e86728f6e88271ff7a324e4a9c441ffa0361d3559d334009e6449c91d2"
+   },
+   {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/camp01efg-receipt-main-20260915/camp-01e/cmd1-playwright.log",
+    "bytes": 2150,
+    "sha256": "2a25e594e5ba8acaaf1c8248bfb95d0d36fdcbe37664a7a4df2cc37660b85886"
+   },
+   {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/camp01efg-receipt-main-20260915/camp-01e/run-id.txt",
+    "bytes": 40,
+    "sha256": "73e9eb508d53b89d03de549ab87a68131151f25f00300dbed0d9e0e15500948e"
+   },
+   {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/camp01efg-receipt-main-20260915/camp-01f/artifacts/wave-result.json",
+    "bytes": 554,
+    "sha256": "fdeb78e256993d0a99be3b901e79b5d264b83ed6cee1af3f8a8fb0c776ea77dc"
+   },
+   {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/camp01efg-receipt-main-20260915/camp-01f/cmd0-jest.log",
+    "bytes": 1119,
+    "sha256": "0c29a90abd47905976152365b7cf2b835c88f4accda856614219df5b0242b6ce"
+   },
+   {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/camp01efg-receipt-main-20260915/camp-01f/cmd1-playwright.log",
+    "bytes": 2245,
+    "sha256": "b3fd00b64b1475fe356ae833e4feec5375055ff8d34c1508ad12d50c733cd8a9"
+   },
+   {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/camp01efg-receipt-main-20260915/camp-01f/run-id.txt",
+    "bytes": 40,
+    "sha256": "ec0a16d2bbf41b66749362eab24125855fdf5f5c7bb218d81254ac1ebe110c4f"
+   },
+   {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/camp01efg-receipt-main-20260915/camp-01g/artifacts/wave-result.json",
+    "bytes": 399,
+    "sha256": "4ea7996e74151944fe9ebd27c70d1574d178f6148601a9b150885d08954f0230"
+   },
+   {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/camp01efg-receipt-main-20260915/camp-01g/cmd0-jest.log",
+    "bytes": 1523,
+    "sha256": "d55ce0aeabd09d5a975fbc70e14f49b234fb8e42d71f986424ea5ed1e557dc3a"
+   },
+   {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/camp01efg-receipt-main-20260915/camp-01g/cmd1-readiness-stable-quick.log",
+    "bytes": 2302,
+    "sha256": "1a21b7115a5ade86b16cbd1cfb1b890eef197417abb4ee345339865174dc0777"
+   },
+   {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/camp01efg-receipt-main-20260915/camp-01g/cmd2-playwright.log",
+    "bytes": 2301,
+    "sha256": "efa579be16271ad7aad9dde5f6dc6c371289c9d93aaf716850fd0fe09e0932d0"
+   },
+   {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/camp01efg-receipt-main-20260915/camp-01g/run-id.txt",
+    "bytes": 40,
+    "sha256": "5f399d8934232ca6a415a619e552a6f7abc182690fcf61824777ef28e514527b"
+   }
+  ],
+  "durableTreeUntouched": ".sisyphus/evidence/playtest/ in the worktree still contains exactly one directory, 2026-07-07-live-playtest/, unrelated to any camp-0x wave -- this lane wrote nothing into the durable evidence tree",
+  "noIsolationRuntime": "no .c1r/ directory exists in the worktree, confirming createCamp01RunnerIsolation never activated on any leg"
+ },
+ "nonClaims": {
+  "statement": "Everything below is explicitly NOT claimed by this lane. Each is owner-blocked independently of anything this lane did.",
+  "controllerRegisteredReceipts": {
+   "claim": "NOT CLAIMED for any of camp-01e / camp-01f / camp-01g",
+   "authority": "scripts/qc/camp01-durable-facts.mjs resolvePreflightFacts(); WAVE_CONTRACTS[wave].predecessors",
+   "predecessorChain": "camp-01e requires camp-01d; camp-01f requires camp-01e; camp-01g requires camp-01f -- a strict chain rooted, via camp-01a..d, at camp-00",
+   "status": "UNMET at this SHA. Re-verified in the worktree this session: `ls .sisyphus/evidence/playtest/` returns exactly one entry, 2026-07-07-live-playtest/; a find for any *camp01* or *camp00* path under that tree returns zero matches; `git ls-files | grep -i camp01e|camp01f|camp01g` returns zero matches. No controller-recognized receipt exists for camp-00 or for ANY of camp-01a through camp-01d, so the chain is broken at its root.",
+   "consequence": "`qc:camp01-authority-receipt:write --wave=camp-01e` would fail fast today with a missing camp-01d predecessor receipt; camp-01f and camp-01g are blocked transitively behind it. This is unchanged by anything this lane ran."
+  },
+  "prProvenancedTier": {
+   "claim": "NOT CLAIMED for any of the three waves",
+   "authority": "roadmap.json R2.camp-5/6/7 githubReviewGate; scripts/qc/camp01-github-provenance.mjs",
+   "requirement": "a non-dismissed APPROVED review on the exact head by a NON-AUTHOR holding WRITE / MAINTAIN / ADMIN on repository id 1014984218 (SwiggitySwerve/MekStation, base main)",
+   "soloException": false,
+   "status": "OWNER-BLOCKED REGARDLESS of this run, and STRUCTURALLY UNSATISFIABLE today",
+   "evidenceFromBriefs": "per the three admission briefs (read this session), `gh api repos/SwiggitySwerve/MekStation/collaborators` returns exactly one entry (SwiggitySwerve). camp-01e's PR #1237, camp-01f's PR #1239 and camp-01g's PRs #1240/#1242 were each authored AND merged by that single collaborator with reviews=[]. The camp-7 brief additionally records required_approving_review_count=0 at the GitHub-enforced level, i.e. the gate is a package-level requirement rather than a relaxable repo setting.",
+   "thisLaneDidNotVerifyGithubLive": "this lane ran NO gh/GitHub API calls. The PR and collaborator facts above are carried forward from the three admission briefs, not independently re-observed here.",
+   "explicitNonClaim": "This lane does NOT claim the githubReviewGate is satisfied for any wave, and nothing in this file should be read as evidence toward it."
+  },
+  "archivedChildrenCiteNonexistentCouncilDoc": {
+   "claim": "RECORDED as a standing defect, NOT repaired by this lane",
+   "finding": "all three archived children -- openspec/changes/archive/2026-08-20-add-saved-custom-unit-campaign-picker/, .../2026-08-20-persist-saved-custom-unit-campaign-creation/, and .../2026-08-20-resolve-saved-custom-units-in-mech-bay/ -- open their tasks.md with a completion line attesting to 'the council review at `openspec/council-decisions/2026-08-12-camp01-wave-execution-review.md`', and mark every task [x].",
+   "verifiedThisSession": "`git cat-file -e HEAD:openspec/council-decisions/2026-08-12-camp01-wave-execution-review.md` at 4d7d17c3d returns \"fatal: path does not exist in HEAD\". The cited council document does not exist at this SHA. This is the same nonexistent document the camp-00, camp-01a, camp-01b, camp-01c and camp-01d archived children cite -- the seventh consecutive occurrence in the CAMP-01 chain.",
+   "consequence": "the [x] marks in those three tasks.md files rest partly on an attestation that cannot be resolved. This lane did not edit, repair, or re-mark any archived child."
+  },
+  "generalNonClaims": [
+   "No claim that the three waves are admissible, complete, or closable -- only that their frozen command arrays execute green at exact main and self-write matching wave results.",
+   "No claim about camp-01e's CAPTURE_CONTRACTS row, or camp-01f's / camp-01g's reporterContracts: all three are UNVERIFIED at exact main by this run because their producers could not be armed.",
+   "No claim that the frozen rows' DEFAULT dev-server execution path (npm run dev on port 3600) yields these same results -- every browser leg ran under the standalone-server substitution (envDeviations.deviation1).",
+   "No claim of re-attestation against origin/main tip 4e5a74b9f; the runs are pinned to 4d7d17c3d.",
+   "No commits, no pushes, no PRs, no branch changes, and no edits to any product, spec, contract, script, or roadmap file were made by this lane."
+  ]
+ },
+ "laneDiscipline": {
+  "subAgentsSpawned": 0,
+  "commits": 0,
+  "pushes": 0,
+  "pullRequests": 0,
+  "productSpecContractRoadmapEdits": 0,
+  "prodEvidenceFlagUsed": false,
+  "port3600Used": false,
+  "processesKilled": 0,
+  "filesWrittenOutsideRunRoot": [
+   "openspec/planning/2026-09-12-roadmap-completion/evidence/camp01efg-receipt-run-main-20260915.json (this file)"
+  ]
+ }
+}

@@ -1,0 +1,1012 @@
+{
+  "schemaVersion": "1.0",
+  "generatedAt": "2026-09-15",
+  "sourceSnapshot": "origin/main@79de4f19591f72c3d5295c2ac71118589027ed36 (git fetch 2026-09-15)",
+  "package": "openspec/changes/design-vault-campaign-separation-and-maps",
+  "note": "roadmap.json is a local untracked planning artifact (git status shows '?? openspec/planning/2026-09-12-roadmap-completion/'); it does not exist in origin/main history, so it was read from the local worktree. All SOURCE CODE claims below were verified via `git show origin/main:<path>` / `git grep origin/main`, never the local worktree (which carries unrelated dirty drafts of the same openspec change files per the task brief).",
+  "ledgerContext": {
+    "activeChangeLedgerEntry_design-vault-campaign-separation-and-maps": "status=proposed; reason quotes 'CAMP-01H / PR 1245 landed on main at 2a8a46183; implementation remains gated on the later parent 9.1 receipt. P1 1.1-1.5 not started.' -- CONTRADICTED by source: 1.2 and 1.3 are substantially implemented on main (see task 1.2/1.3 below); 1.3 is even checked [x] in the package's own tasks.md.",
+    "R0.contracts": "state=complete (receipt evidence/r0-contracts-completion-20260912.json, mainSha 92d04fc6b).",
+    "R2.journey": "state=planned (NOT complete). Depends on R2.camp-8, R2.combat, R2.authority-live. Its taskKeys point at add-saved-custom-unit-campaign-roster#P.0-P.4/#9.1 and prove-saved-custom-unit-campaign-journey tasks. Ledger: 'prove-saved-custom-unit-campaign-journey' status=in-progress, 'CAMP-01H / PR 1245 landed on main at 2a8a46183. Remains active until the later parent 9.1 exact-main receipt gate. Not archived.' The prove-saved-custom-unit-campaign-journey change folder still exists on origin/main (not archived).",
+    "R2.authority-live": "state=planned (NOT complete). Depends on R2.authority-cutover. Verifies real isolated source/replica processes, append/restart/catch-up/revocation/redaction, journal-authority migration states before enabling journal authority.",
+    "R0.contracts_relevance": "R0.contracts already fixed the 'obsolete dependency and vault current-state claims' issue in this same package per its own title -- i.e. R0 already corrected some of the stale 'not yet built' language pointed out here. The proposal.md / design.md text (see below) already carries the corrected, source-aware framing ('Source presence is not runtime or production authority...'), but the ACTIVE LEDGER reason string and ROADMAP task-key snapshot text were not updated to match, producing the contradiction documented above."
+  },
+  "schemaV2Occupant": {
+    "file": "src/lib/campaign/persistence/campaignMigration.ts",
+    "finding": "CURRENT_CAMPAIGN_SCHEMA_VERSION = 2. MIGRATION_LADDER has exactly two rungs: v0->v1 (stamps schemaVersion=1 defensively) and v1->v2 (applyAuthorityMetadata: stamps D2 `instanceId` + `authority` per design-campaign-authority-and-sync). Schema v2 is occupied by CAMPAIGN AUTHORITY METADATA (instanceId/authority), NOT by roster unitSource/sourceVersion provenance. No v2->v3 rung exists. This confirms design.md D4's premise verbatim: 'campaignMigration.ts occupies schema v2 for authority metadata, so provenance must be a future compatible rung, not a v2 overwrite.'"
+  },
+  "vaultVersionProducer": {
+    "unitSide": "EXISTS and is production code, not a stub. SQLite `custom_units.current_version` + `unit_versions` table (src/services/persistence/SQLiteService.migrations.ts:88-112). `UnitRepository.ts` (create/update path) writes current_version + inserts unit_versions rows. `VersionRepository.ts` provides history/revert (increments current_version, inserts unit_versions with revert_source). `src/pages/api/units/custom/[id]/versions/index.ts` exposes `currentVersion` over the index API (task 1.1's 'expose current version in the custom-unit index API' -- DONE).",
+    "pilotSide": "DOES NOT EXIST. `git grep -i version` over src/services/pilots/PilotRepository.ts (and sibling PilotRepository.*.ts files) returns zero hits. There is no pilot_versions table, no PilotVersionRepository, no version field on any pilot row. Task 1.1's 'explicitly admitting the pilot producer' is an open decision with zero source scaffolding -- this is the actual undone part of 1.1."
+  },
+  "isometricRenderer": {
+    "finding": "An existing SVG-based isometric/2.5D renderer is real, not aspirational. Files: HexMapDisplay.isometric.ts (buildIsometricSceneItems, ISOMETRIC_ELEVATION_UNIT, getCameraFacingExtrusionFaces), HexMapDisplay.isometricGeometry.ts, HexMapDisplay.isometricSceneLabels.ts, HexMapDisplay.isometricSceneLayer.tsx, HexCell.isometricStack.tsx, plus projection.ts occlusion helpers (deriveIsometricTerrainOcclusionInfo*). Tested in __tests__/HexMapDisplay.isometric.test.ts (elevation extrusion, facing occlusion). A view-mode toggle exists at the interaction layer: useMapLayerState.ts holds `projectionMode: MapProjectionMode` (plain React useState, values include 'isometric2d'); useMapInteraction.handlers.ts gates click/touch handling on `layers.projectionMode === 'isometric2d'`. Roadmap task 4.5's 'renderer substrate decision (canvas extension vs lightweight WebGL)' phrasing in roadmap.json is STALE relative to the package's own tasks.md on main, which already reframes 4.5 as 'evaluate the existing SVG 2.5D renderer against this floor before considering a separately proposed replacement' -- i.e. the design decision (extend existing SVG renderer, no new engine) is already made in design.md D7; roadmap.json task text lags the source-of-truth tasks.md.",
+    "notPersisted": "`projectionMode` is component-local `useState` with no localStorage/store read or write anywhere in useMapLayerState.ts -- confirmed by grep for localStorage/persist (zero hits). Task 4.4's 'persisted player preference' is not implemented; the toggle itself works, the persistence does not exist.",
+    "noPickingParityTest": "No test file or test case matches 'parity' under HexMapDisplay/__tests__ for isometric picking; no click-handler code path resolves isometric screen coordinates back to a hex/unit id inversion function distinct from the 2D picking math -- task 4.2 (picking inversion + parity tests) has no confirmed source.",
+    "noFpsTest": "grep for 30/fps/frameRate across src/components/gameplay/HexMapDisplay returns zero hits -- task 4.5's measured-30-FPS acceptance criterion has no existing test or instrumentation."
+  },
+  "travelPipeline": {
+    "previewExists": "src/lib/starmap/starmapTravelPreview.ts computes route legs, travel fees (calculateTravelFee), daily costs (dailyCostsProcessor via IDayProcessor), projectedFunds (balance - fees), arrivalDate, deadlineWarnings, progressSummary. Tested in src/lib/starmap/__tests__/starmapTravelPreview.test.ts.",
+    "commitExists": "src/stores/campaign/useCampaignStore.dayActions.ts `travelToSystemAction` calls previewTravelToSystem, applies preview.afterCampaign, calls emitTravelActivityEntries (ActivityLog only), saves. Tested in src/stores/campaign/__tests__/useCampaignStore.travelToSystem.test.ts: covers no-campaign, unknown-systemId, empty-systemId, same-system no-op, successful commit + activity log, legacy undefined currentSystemId, two-jump fromSystemId chaining.",
+    "insufficientFundsGapConfirmed": "grep for afford/balance/funds in starmapTravelPreview.ts shows `projectedFunds` is computed but NEVER compared against zero/negative to produce a blocked status or reason. grep for insufficient/afford across the travelToSystem test file and the preview test file returns zero hits. Design D2/task 2.2's 'typed rejections (same-system, unknown, insufficient funds)' has same-system and unknown implemented and tested; insufficient-funds is NOT implemented and NOT tested -- a real, confirmed gap, not just an untested-but-present branch.",
+    "reasonsAreUntyped": "IStarmapTravelPreview.reasons is `readonly string[]` (starmapTravelTypes.ts:30) -- free-text strings built with template literals in starmapTravelPreview.ts, not a discriminated/typed rejection-reason union. 'Typed rejections' per task 2.2 do not exist as a type; they exist as ad hoc strings.",
+    "noCampaignEventsForTravel": "`emitTravelActivityEntries` calls only `appendActivityLogEntry` (UI-facing ActivityLog, category 'travel'/'finances'). `CampaignEventType` (src/types/campaign/CampaignSync.ts:146-169) is a closed, completeness-pinned 8-member union: CampaignDayAdvanced, FundsChanged, PilotHired, ContractAccepted, RosterUnitChanged, SalvageAllocated, ParticipantRemoved, CampaignSnapshotPublished. No travel/arrival/opportunity member exists. Task 2.3 ('record travel commitment/arrival as campaign events sufficient for deterministic replay') is NOT implemented at all -- ActivityLog entries are cosmetic, not journal-authoritative, and cannot be replayed by the CampaignEventType-based journal machinery design-campaign-authority-and-sync is building."
+  },
+  "opportunities": {
+    "finding": "Zero source presence. `git grep -i opportunity` across src/lib/starmap and src/types/campaign returns no matches. No opportunity model, no GM authoring surface beyond the generic GM-authority/redaction primitives that already exist (campaignViewerProjection.ts, CoopCampaign.ts, campaignShareCallerAuthority.test.ts -- reusable but not opportunity-specific), and no acceptance-flow wiring into contractMarket.ts/contractNegotiation.ts. All four R8.opportunities tasks (2.4-2.7) are 100% net-new."
+  },
+  "starmapInterfaceUI": {
+    "routePreviewPanelExists": "src/pages/gameplay/campaigns/[id]/starmap.tsx already renders a full route preview panel: renderPreviewDetails() shows travelFees, dailyCosts, projectedFunds, routeLegs (first 4), deadlineWarnings, progressSummary -- data-testid='starmap-travel-preview', 'starmap-daily-costs' etc. Task 3.1 ('route preview panel wired to the preview API; side-effect-free') is SUBSTANTIALLY DONE already, contradicting its 'planned'/'unreconciled' roadmap state.",
+    "opportunityMarkersAbsent": "No opportunity/marker rendering code exists anywhere in starmap.tsx or the HexMapDisplay tree (see opportunities finding above) -- task 3.2 fully open, structurally blocked on R8.opportunities landing first (roadmap's own dependsOn is correct here).",
+    "travelInProgressAbsent": "grep for travelInProgress/isTraveling/inTransit/secondCommit/suppressCommit across starmap pages and campaign stores returns zero hits. Travel today is instantaneous-on-commit (preview.afterCampaign applied synchronously); there is no multi-tick 'in transit' campaign state to render progress against. Task 3.3 needs new state modeling, not just a rendering pass -- likely larger than a UI-only task.",
+    "task3_4TestUpdateTarget": "src/stores/campaign/__tests__/useCampaignStore.travelToSystem.test.ts and src/lib/starmap/__tests__/starmapTravelPreview.test.ts are 'the shipped travel-action tests' task 3.4 refers to; they will need new insufficient-funds and typed-rejection cases once 2.2 lands."
+  },
+  "verification": {
+    "acceptanceCommandsConfirmedReal": {
+      "npm.cmd run typecheck": "tsc --noEmit --skipLibCheck",
+      "npm.cmd run lint": "oxlint",
+      "npm.cmd run format:check": "oxfmt --check .",
+      "npm.cmd run build": "sync:mm-data-config && next build (webpack) && hydrate-next-standalone-multiplayer-server.mjs",
+      "npm.cmd run spec:purpose:validate:strict": "npx tsx openspec/scripts/spec-purpose-lint.ts",
+      "npm.cmd run terminology:validate:strict": "npx ts-node openspec/scripts/terminology-tool.ts validate --strict",
+      "npm.cmd run qc:openspec-ci:validate": "node scripts/qc/validate-openspec-ci-quality.mjs"
+    },
+    "existingRelatedE2E": "e2e/campaign-starmap-logistics.spec.ts exists (starmap/travel-adjacent) and e2e/multiplayer-live-vault-auth.spec.ts (vault/auth-adjacent) -- neither is tagged to the new capability names. Zero e2e or jest files reference 'vault-campaign-boundary', 'starmap-travel-economy', or 'isometric-battlefield-view' by name (grep across src and e2e returns nothing) -- expected, since the delta specs are not yet merged into openspec/specs/, but it means task 5.1/5.2's 'coverage per spec scenario' starts from zero tagged coverage even where the underlying behavior (route preview, same-system/unknown rejection) already has untagged tests."
+  },
+  "nodes": [
+    {
+      "id": "R7.versions",
+      "dependsOn": [
+        "R2.journey",
+        "R0.contracts"
+      ],
+      "dependencyTruth": {
+        "R0.contracts": "Structural and SATISFIED -- R0.contracts state=complete (receipt on file). No blocker.",
+        "R2.journey": "ORDERING, not structural, for the vault-side half of this task. The vault-version producer (UnitRepository/VersionRepository/SQLite current_version+unit_versions) is independent of the three-witness CAMP-01H journey proof; it does not read or write anything the journey verifies. The dependency exists because the roadmap sequences all vault/campaign-boundary implementation behind CAMP-01H's exact-main receipt gate as a program-management precondition (design.md D8: 'implementation waves start after CAMP-01F/G/H'), not because the code has a data/type dependency on R2.journey's outcome. Practical effect: the admission/PR gate blocks work from merging even though the code itself could be written and unit-tested today. The PILOT half of 1.1 (producer decision) has no dependency on R2.journey either way -- it is an open design decision, not blocked on anything."
+      },
+      "tasks": [
+        {
+          "taskKey": "design-vault-campaign-separation-and-maps#1.1@3",
+          "checkbox": "[ ]",
+          "roadmapText": "1.1 Add the vault-side version counter: monotonic published version on custom-unit (and pilot) saves, resolvable by `(vaultId, version)`; expose current version in the custom-unit index API.",
+          "mainTasksMdText": "1.1 Complete and verify the vault-side version contract, reusing existing custom-unit SQLite versions and explicitly admitting the pilot producer: monotonic published version on custom-unit (and pilot) saves, resolvable by `(vaultId, version)`; expose current version in the custom-unit index API.",
+          "textDrift": "roadmap.json's frozen quote says 'Add the vault-side version counter' (implies building from scratch); the live tasks.md on main already says 'Complete and verify ... reusing existing custom-unit SQLite versions' -- the roadmap snapshot is stale relative to the package's own tasks.md, which was already corrected (likely during R0.contracts work).",
+          "existsOnMain": "Unit half: fully implemented and tested (UnitRepository.ts, VersionRepository.ts, SQLiteService.migrations.ts:88-112, src/pages/api/units/custom/[id]/versions/index.ts exposing currentVersion). Pilot half: zero scaffolding (no version field/table/repository anywhere under src/services/pilots/).",
+          "missing": "Pilot version producer: decide and implement (schema, repository method, index-API exposure) mirroring the unit pattern, or explicitly defer pilots and narrow the spec's 'and pilot' parenthetical.",
+          "smallestBuildablePrefix": {
+            "description": "Pilot version producer only (unit side needs no new code -- it already exists). Add a `pilot_versions` table + `current_version` column on the pilot table (SQLite migration), a minimal `PilotVersionRepository` mirroring `VersionRepository.ts`'s history/revert shape, and expose `currentVersion` on the pilot read/index API.",
+            "files": [
+              "src/services/persistence/SQLiteService.migrations.ts (new migration step, +15-25 lines)",
+              "src/services/pilots/PilotVersionRepository.ts (new, ~150-200 lines, mirrors VersionRepository.ts)",
+              "src/services/pilots/PilotRepository.ts (wire current_version write on save, ~10-20 line diff)",
+              "src/pages/api/pilots/[id]/versions/index.ts (new, ~40-60 lines, mirrors units/[id]/versions/index.ts)"
+            ],
+            "estimatedLines": "~250-350 non-generated lines -- fits the node's maxNonGeneratedLines:500 cap comfortably as a single PR; could also be split into (a) schema+repository and (b) API surface if the reviewer wants two smaller PRs.",
+            "failingTestFirst": "src/services/pilots/__tests__/PilotVersionRepository.test.ts: write a pilot, assert current_version=1; save again, assert current_version=2 and a pilot_versions row exists for version 1 (mirrors VersionRepository.test.ts's existing assertions) -- this test fails today because the class/table do not exist.",
+            "acceptanceCommands": [
+              "npm.cmd run typecheck",
+              "npm.cmd run lint",
+              "npm.cmd run format:check",
+              "npm.cmd run build",
+              "npm test -- --runTestsByPath src/services/pilots/__tests__/PilotVersionRepository.test.ts"
+            ]
+          },
+          "deferralsInTaskText": "None explicit in the task text itself, but design.md D2 states: 'Pilot save/version authority is an unresolved admission decision; specify its producer before implementation.' -- this is a decision gate, not a deferral, but it functions as one: no PR should touch pilot versioning until that decision is made and recorded (e.g. as its own D-numbered decision or an amendment to D2).",
+          "contradictions": "roadmap.json's text implies net-new work ('Add the vault-side version counter') where the unit half already fully exists; only the parenthetical pilot half is real work. This is a scope-overstatement in the frozen snapshot, corrected in the live tasks.md."
+        }
+      ]
+    },
+    {
+      "id": "R7.provenance",
+      "dependsOn": [
+        "R7.versions"
+      ],
+      "dependencyTruth": {
+        "R7.versions": "Structural for the pilot-producer-dependent slice of 1.2 (pilot instances would need a pinned pilot sourceVersion), but ORDERING ONLY for the unit slice: unit-side unitSource/sourceVersion (1.2), the D3 identity seam (1.3, already done), and the v2->v3 migration rung (1.4) do not need the pilot version producer to exist -- they read/write the unit-side version data, which already exists independent of R7.versions' remaining pilot work."
+      },
+      "tasks": [
+        {
+          "taskKey": "design-vault-campaign-separation-and-maps#1.2@4",
+          "checkbox": "[ ]",
+          "roadmapText": "1.2 Add `unitSource: 'canonical' | 'custom'` and `sourceVersion` to `IRosterUnitProjection` and the campaign creation flow; mint instance ids unconditionally.",
+          "mainTasksMdText": "identical to roadmap text",
+          "existsOnMain": "ALREADY FULLY IMPLEMENTED. src/types/campaign/RosterUnitProjection.ts:80-110 defines `IRosterUnitProjection` with `unitSource?: RosterUnitSource` and `sourceVersion?: number` fields (with doc comments explaining pin semantics). src/types/campaign/RosterUnitSource.ts defines the type + parseRosterUnitSource fail-closed parser. The campaign creation flow (CreateCampaignPage.hooks.ts `handleAddTemplateUnit`, CreateCampaignPage.submit.ts `createRosterUnitProjection`) wires unitSource/sourceVersion through end to end, with `pinSourceVersion()` from src/lib/kernelPlugin/mekstation/mapRosterInstanceProvenance. Instance ids are minted unconditionally via `createEntityId('unit')` in handleAddTemplateUnit for every added unit regardless of source. Tests exist: CreateCampaignPage.RosterStep.test.tsx, CreateCampaignPage.rosterPersistence.test.ts, CreateCampaignPage.submitPersistence.test.tsx (asserts 'unitSourceCustom===true', 'rosterInstanceIdPresent===true', 'unitRefMatched===true').",
+          "missing": "Nothing found missing for the stated task text. The task should be checked off or the roadmap's 'unreconciled' state is simply stale/never re-verified against source.",
+          "smallestBuildablePrefix": {
+            "description": "No new implementation required. If anything remains, it is verification-only: confirm the CAMP contract wave rows referencing this shape (camp-01e/f/g in camp01-authority-receipt.contract.mjs) already assert unitSourceCustom, which they do (line-confirmed in contract.mjs waves camp-01e/camp-01f/camp-01g).",
+            "files": [],
+            "estimatedLines": 0,
+            "failingTestFirst": "None needed -- existing tests already pass this behavior on main (not independently re-run in this read-only session; inferred from test file content, not executed).",
+            "acceptanceCommands": [
+              "npm.cmd run typecheck",
+              "npm.cmd run lint",
+              "npm.cmd run format:check",
+              "npm.cmd run build"
+            ]
+          },
+          "deferralsInTaskText": "None.",
+          "contradictions": "MAJOR: roadmap.json state='unreconciled', ledger reason says 'P1 1.1-1.5 not started' -- both false for 1.2 specifically. This task is done in substance; the roadmap/ledger machinery has not re-verified source since this landed (likely as part of the camp-01e/f/g wave chain, which the CAMP contract shows already merged)."
+        },
+        {
+          "taskKey": "design-vault-campaign-separation-and-maps#1.3@5",
+          "checkbox": "[x] (checked in tasks.md on main)",
+          "roadmapText": "1.3 Preserve the resolved D3 identity seam in `CreateCampaignPage.submit.ts`: the former `UNIT_TEMPLATES` name/tonnage OR-match is absent, and root-force membership uses the minted instance id for every source. Add/retain a regression assertion before the vault boundary implementation wave so name/tonnage inference cannot return. (Resolved prerequisite verified 2026-09-12; this does not close the remaining vault/campaign implementation tasks.)",
+          "mainTasksMdText": "same content, task marked [x] with note: '(Bounded identity prerequisite only; parent evidence and live source 2026-09-12. It does not satisfy the exact-main receipt, approval, or three-witness gates and does not close remaining vault/campaign implementation tasks or prove runtime/production authority.)'",
+          "existsOnMain": "DONE and explicitly marked complete in the package's own tasks.md. Confirmed: CreateCampaignPage.submit.ts has no UNIT_TEMPLATES name/tonnage matching logic; addTemplateUnitToRootForce uses `unit.id` (the minted instance id) for root-force membership regardless of unitSource.",
+          "missing": "Nothing for the task's literal scope. Both roadmap.json and tasks.md agree this is resolved; both also carefully scope the resolution ('does not close remaining vault/campaign implementation tasks or prove runtime/production authority') so it is not being over-claimed.",
+          "smallestBuildablePrefix": {
+            "description": "N/A -- already complete.",
+            "files": [],
+            "estimatedLines": 0,
+            "failingTestFirst": "N/A",
+            "acceptanceCommands": []
+          },
+          "deferralsInTaskText": "Explicit non-claim in both roadmap and tasks.md: resolving 1.3 does NOT close 1.4-1.8, does not satisfy the exact-main receipt/approval/three-witness gates, and is not runtime/production-authority proof.",
+          "contradictions": "None -- this is the one task where roadmap state and source agree, and both are appropriately hedged."
+        },
+        {
+          "taskKey": "design-vault-campaign-separation-and-maps#1.4@6",
+          "checkbox": "[ ]",
+          "roadmapText": "1.4 Add the `SerializedCampaign` v1\u2192v2 migration rung: absent `unitSource` \u2192 legacy canonical; present-unrecognized \u2192 invalid/non-launchable (D4); migration tests both directions.",
+          "mainTasksMdText": "1.4 Admit and implement the next `SerializedCampaign` provenance rung (v2\u2192v3 unless a separately reviewed compatible alternative is chosen), preserving the existing v2 authority metadata: absent `unitSource` \u2192 legacy canonical; present-unrecognized \u2192 invalid/non-launchable (D4); migration tests both directions.",
+          "textDrift": "CRITICAL: roadmap.json literally says 'v1->v2' -- but v2 is ALREADY OCCUPIED (see schemaV2Occupant finding: v2 = authority metadata, landed via design-campaign-authority-and-sync D2). Writing a v1->v2 rung for unitSource as the roadmap text describes would COLLIDE with and overwrite the authority-metadata rung that already owns v2 on main. The live tasks.md on main has already corrected this to 'v2->v3' and explicitly says 'preserving the existing v2 authority metadata' and 'do not reuse or overwrite v2' (design.md D4). This is the single most consequential drift found in this audit: acting on the roadmap.json text verbatim would produce a schema-corrupting migration.",
+          "existsOnMain": "campaignMigration.ts has exactly MIGRATION_LADDER = [v0->v1, v1->v2(authority)]. No v2->v3 step. `parseRosterUnitSource` (RosterUnitSource.ts) already implements the 'absent -> legacy canonical' / 'present-unrecognized -> invalid' logic at the TYPE-PARSING layer, but this is not wired into `migrateSerializedCampaign` at all -- the migration ladder has no awareness of unitSource today.",
+          "missing": "The entire v2->v3 migration rung: a new MigrationStep with fromVersion:2 that walks the campaign's roster entries and applies parseRosterUnitSource-equivalent normalization, bumping schemaVersion to 3, while leaving the v2 authority fields (instanceId/authority) untouched. Bidirectional migration tests (v2 upgrade to v3 for both a snapshot missing unitSource and one with an unrecognized value) and an older-reader compatibility test (a v2-only reader encountering a v3 envelope, or vice versa) per D4's 'test older-reader behavior and explicit rollback compatibility.'",
+          "smallestBuildablePrefix": {
+            "description": "Add the v2->v3 MigrationStep to the existing ladder in campaignMigration.ts. This is a small, additive, low-risk change confined to one file plus its test file, since the ladder pattern (MigrationStep interface, MIGRATION_LADDER array, bounded-loop runner) already exists and only needs a new entry.",
+            "files": [
+              "src/lib/campaign/persistence/campaignMigration.ts (+30-50 lines: new MigrationStep, bump CURRENT_CAMPAIGN_SCHEMA_VERSION to 3, a small roster-normalization helper reusing parseRosterUnitSource)",
+              "src/lib/campaign/persistence/__tests__/campaignMigration.test.ts (+60-100 lines: v2->v3 forward tests for absent/present-valid/present-invalid unitSource, idempotent cold-reload-at-v3 test, v2-authority-fields-preserved assertion)"
+            ],
+            "estimatedLines": "~90-150 non-generated lines -- well under the 500-line/15-file cap; this is a single-behavior, single-file-pair change and one of the cleanest candidates in the whole package for an early, isolated PR.",
+            "failingTestFirst": "In campaignMigration.test.ts: `migrateSerializedCampaign` given a v2 snapshot whose roster entries have no `unitSource` field should return schemaVersion 3 with each entry's unitSource resolved to 'canonical' (legacy) -- fails today because MIGRATION_LADDER stops at v2 (CURRENT_CAMPAIGN_SCHEMA_VERSION=2, so the loop guard `current.schemaVersion < CURRENT_CAMPAIGN_SCHEMA_VERSION` is already false and no migration runs, so the field is simply never touched).",
+            "acceptanceCommands": [
+              "npm.cmd run typecheck",
+              "npm.cmd run lint",
+              "npm.cmd run format:check",
+              "npm.cmd run build",
+              "npm test -- --runTestsByPath src/lib/campaign/persistence/__tests__/campaignMigration.test.ts"
+            ]
+          },
+          "deferralsInTaskText": "D4 in design.md: 'This is a planned admission decision, not a claim that v3 is implemented' -- explicit non-claim that the rung exists yet.",
+          "contradictions": "roadmap.json's 'v1->v2' phrasing is factually wrong against current source (v2 is occupied) and against the package's own tasks.md (which says v2->v3). This must be corrected before anyone hands this task to an implementer verbatim from roadmap.json."
+        },
+        {
+          "taskKey": "design-vault-campaign-separation-and-maps#1.5@7",
+          "checkbox": "[ ]",
+          "roadmapText": "1.5 Re-digest the CAMP contract for the roster-shape change as its own declared, reviewed seam (`camp01-authority-receipt.contract.mjs` + affected wave rows).",
+          "mainTasksMdText": "identical",
+          "existsOnMain": "scripts/qc/camp01-authority-receipt.contract.mjs exists and already contains camp-01a..camp-01h wave rows with canonicalArgvDigest hashes and unitSourceCustom/rosterInstanceIdPresent/unitRefMatched assertions baked in for the CURRENT roster shape (the one 1.2 already implements). The contract's own `assertWaveRow`/digest-checking machinery (commandSequenceDigest, DIGEST regex, exactAllowedKeys) is functioning infrastructure, not a stub.",
+          "missing": "A NEW wave row (or amendment) covering the v2->v3 provenance-migration roster-shape change from task 1.4 -- once 1.4 adds/changes fields the CAMP-01 wave rows assert on, this contract's digests need re-computation and review as their own seam, per the task text. Nothing to build until 1.4 lands; this task is a re-digest/review action, not new production code.",
+          "smallestBuildablePrefix": {
+            "description": "Not a code-authoring task in the usual sense -- it is a controlled re-digest of an existing, working contract file gated on 1.4 landing first.",
+            "files": [
+              "scripts/qc/camp01-authority-receipt.contract.mjs (digest/assertion updates only, scoped to whichever wave rows reference the roster shape 1.4 changes)"
+            ],
+            "estimatedLines": "~10-40 line diff (digest string changes + possibly new assertion keys) -- inherently small once 1.4's shape change is known.",
+            "failingTestFirst": "scripts/__tests__/camp01-authority-receipt-validator.test.ts / camp01-authority-receipt-qc.test.ts should fail against the new roster shape until the contract is re-digested (the contract's own self-check machinery is designed to fail closed on unreviewed drift).",
+            "acceptanceCommands": [
+              "npm.cmd run typecheck",
+              "npm.cmd run lint",
+              "npm.cmd run format:check",
+              "npm.cmd run build",
+              "npm test -- --runTestsByPath scripts/__tests__/camp01-authority-receipt-validator.test.ts scripts/__tests__/camp01-authority-receipt-qc.test.ts"
+            ]
+          },
+          "deferralsInTaskText": "Implicitly gated on 1.4 (the roster-shape change) landing first; task text does not say this explicitly but the dependency is structural (there is nothing to re-digest until the shape changes).",
+          "contradictions": "None -- roadmap and source agree this hasn't happened yet."
+        },
+        {
+          "taskKey": "design-vault-campaign-separation-and-maps#1.6@8",
+          "checkbox": "[ ]",
+          "roadmapText": "1.6 Reconcile the living `openspec/specs/campaign-instances/spec.md` via this change's delta (archive flow) and cross-link `vault-campaign-boundary`.",
+          "mainTasksMdText": "identical",
+          "existsOnMain": "NOT done. openspec/specs/campaign-instances/spec.md on main still describes the OLD construction-snapshot model verbatim: 'CampaignUnitInstance' with 'vaultUnitVersion', 'the instance snapshots the current vault unit version' -- exactly the model proposal.md says is retired ('BREAKING (spec-level): CampaignUnitInstance/vaultUnitVersion as specified are retired; no code change is breaking (those types were never implemented)'). No cross-link to vault-campaign-boundary exists in the living spec.",
+          "missing": "The archive-flow merge that rewrites campaign-instances/spec.md to the reference+provenance model (pilot half onto ICampaignRosterEntry, unit half onto IRosterUnitProjection's unitRef/unitSource/sourceVersion) and removes the CampaignUnitInstance/vaultUnitVersion scenarios, plus a cross-link to vault-campaign-boundary.",
+          "smallestBuildablePrefix": {
+            "description": "This is a spec-only change (openspec archive-flow mechanic, not application code) -- it happens automatically when the parent change's `[<topic>X][Spec Delta]` children merge via the project's `workflow.js plan code-complete` / archive convention, so it has no independent 'files/lines/failing test' shape in the traditional sense; it is gated on the ADDED/MODIFIED requirements in the package's own vault-campaign-boundary delta spec being implemented and verified first (you don't archive a spec claiming a model that doesn't exist in code yet).",
+            "files": [
+              "openspec/specs/campaign-instances/spec.md (full rewrite of the Campaign Unit Instance / Campaign Pilot Instance requirements)"
+            ],
+            "estimatedLines": "~60-100 line rewrite of the existing 60-line-plus spec section.",
+            "failingTestFirst": "N/A -- this is a documentation/spec-of-truth reconciliation, verified by `npm run spec:purpose:validate:strict` / `openspec validate --all --strict` rather than a jest test.",
+            "acceptanceCommands": [
+              "npm.cmd run spec:purpose:validate:strict",
+              "npm.cmd run terminology:validate:strict",
+              "npx.cmd openspec validate --all --strict",
+              "npm.cmd run qc:openspec-ci:validate"
+            ]
+          },
+          "deferralsInTaskText": "None explicit, but by convention (per CLAUDE.md's 'Living Requirements Spec' section) this should only happen via the archive-flow merge mechanic once the underlying behavior tasks (1.1-1.4, 1.7-1.8) are code-complete -- doing it earlier would let the spec describe unimplemented behavior as current.",
+          "contradictions": "None -- roadmap correctly shows this as not started."
+        }
+      ]
+    },
+    {
+      "id": "R7.context",
+      "dependsOn": [
+        "R7.provenance"
+      ],
+      "dependencyTruth": {
+        "R7.provenance": "Structural for the drift/refit-prompt half of 1.7 (needs sourceVersion pin-vs-current comparison, which needs 1.1's exposed current-version API -- already available -- and the roster projection's sourceVersion field -- already available per 1.2). NOT structural for 1.8 (context-ownership pass is a navigation/IA audit of existing screens; it does not need any new provenance field to exist, since it is about which screens SHOULD show what, not about a new capability)."
+      },
+      "tasks": [
+        {
+          "taskKey": "design-vault-campaign-separation-and-maps#1.7@9",
+          "checkbox": "[ ]",
+          "roadmapText": "1.7 Campaigns index: add the create/draw-from-vault entry (fixes the dead-end index \u2014 no CTA exists today) and the drift/refit-prompt affordance in the campaign mech bay (version drift surfaced, never auto-applied).",
+          "mainTasksMdText": "identical",
+          "existsOnMain": "Partially contradicted claim: src/pages/gameplay/campaigns/index.tsx DOES have a 'Create Campaign' CTA (`handleCreateCampaign` wired to multiple Button elements, including an empty-state CTA) that leads into CreateCampaignPage, whose RosterStep ALREADY supports adding custom (vault) units via `onAddTemplateUnit(...,'custom',sourceVersion)`. So 'draw from vault' during creation-time roster building already exists in substance -- the 'no CTA exists today' framing may refer to something narrower (e.g., a dedicated 'draw from vault' entry point distinct from full campaign creation, or a mid-campaign add-to-roster flow) that this session could not confirm without the design author's clarification. Confirmed ABSENT: any refit/drift-prompt UI. grep for 'refit.*prompt|RefitPrompt|version.*drift|VersionDrift' across all of src returns no matches.",
+          "missing": "The drift/refit-prompt affordance in the campaign mech bay is fully unbuilt: no UI component, no comparison logic between an instance's pinned sourceVersion and the vault's current version, no 'apply update' action. Whether the 'campaigns index CTA' half of 1.7 is truly missing or just under-scoped needs a design-owner clarification before estimating it.",
+          "smallestBuildablePrefix": {
+            "description": "Scope to the confirmed-missing half only: a drift indicator + refit-prompt affordance in the Mech Bay, per vault-campaign-boundary spec's 'Version drift is surfaced, never auto-applied' requirement.",
+            "files": [
+              "src/components/campaign/bays/MechBay.tsx or sibling (exact path not enumerated in this read-only pass -- confirm via Glob 'src/components/campaign/bays/**' before starting) (+40-80 lines: drift badge + prompt)",
+              "a small pure helper e.g. src/lib/campaign/roster/detectVersionDrift.ts (new, ~20-30 lines: compares instance.sourceVersion to the vault's currentVersion, exposed via the existing versions/index.ts API)"
+            ],
+            "estimatedLines": "~100-150 non-generated lines for the refit-prompt half alone.",
+            "failingTestFirst": "A test asserting: given an instance pinned at sourceVersion=1 and a vault design now at currentVersion=3, the mech bay renders an update-available affordance naming both versions, and the instance's sourceVersion is unchanged until an explicit refit action fires -- fails today because no such component/helper exists.",
+            "acceptanceCommands": [
+              "npm.cmd run typecheck",
+              "npm.cmd run lint",
+              "npm.cmd run format:check",
+              "npm.cmd run build"
+            ]
+          },
+          "deferralsInTaskText": "vault-campaign-boundary spec explicitly: 'Nothing SHALL re-pin automatically' -- auto-apply is out of scope by design, not just deferred.",
+          "contradictions": "roadmap/tasks.md's 'no CTA exists today' claim about the campaigns index is OVERSTATED against source: a create-campaign CTA plus in-wizard custom-unit selection already exists. This should be re-scoped or clarified with the design owner rather than assumed to mean net-new draw-from-vault entry work; the refit-prompt claim of 'never built' is accurate."
+        },
+        {
+          "taskKey": "design-vault-campaign-separation-and-maps#1.8@10",
+          "checkbox": "[ ]",
+          "roadmapText": "1.8 Context-ownership pass over navigation/IA: personal surfaces (My Units, Pilots, Customizer, player cards) show no campaign divergence; campaign surfaces operate on instances only.",
+          "mainTasksMdText": "identical",
+          "existsOnMain": "Not verified either way in this read-only pass beyond confirming IRosterUnitProjection already separates roster-instance fields from vault fields (a structural precondition that makes an audit-and-fix pass tractable). This task is an audit ('pass over navigation/IA'), so 'existing' vs 'missing' depends on enumerating every personal-context screen and checking it renders no campaign-local divergence -- out of scope to fully verify without a targeted per-screen review, which this admission brief did not perform given its time budget.",
+          "missing": "A concrete audit artifact (which screens were checked, what was found) does not exist yet.",
+          "smallestBuildablePrefix": {
+            "description": "This is inherently an audit-then-fix task, not a single buildable prefix. Smallest first slice: audit only (no code change) producing a findings list, followed by however many small fixes the findings require.",
+            "files": [
+              "no files yet -- first deliverable is an audit note, e.g. under this same evidence/ directory or the package's design.md Risks section"
+            ],
+            "estimatedLines": "0 for the audit; fixes sized per finding (likely small, screen-by-screen).",
+            "failingTestFirst": "N/A until specific divergent-display bugs are found; each fix would then get its own regression test.",
+            "acceptanceCommands": [
+              "npm.cmd run typecheck",
+              "npm.cmd run lint",
+              "npm.cmd run format:check",
+              "npm.cmd run build"
+            ]
+          },
+          "deferralsInTaskText": "None explicit.",
+          "contradictions": "None found -- roadmap correctly shows unstarted; this task needs its own scoping pass before it can be estimated at file/line granularity."
+        }
+      ]
+    },
+    {
+      "id": "R8.travel",
+      "dependsOn": [
+        "R7.context",
+        "R2.authority-live"
+      ],
+      "dependencyTruth": {
+        "R7.context": "ORDERING per program sequencing (design.md D8 suggested order), not a code dependency -- travel calculations do not read IRosterUnitProjection provenance fields or the mech-bay refit UI.",
+        "R2.authority-live": "STRUCTURAL for task 2.3 specifically (recording travel as durable campaign events). R2.authority-live verifies 'real isolated source and replica processes... reviewed migration states/parity/rollback before enabling journal authority' -- i.e. it is the gate that proves the CampaignEventType/journal machinery is production-safe to write through. Writing travel events into a CampaignEventType-style journal before that gate passes would mean authoring against infrastructure not yet proven live, and per this session's own finding (schemaV2Occupant / travelPipeline.noCampaignEventsForTravel), CampaignEventType is a closed 8-member completeness-pinned union -- adding a 9th member is itself a cross-cutting change that the memory notes describe as a '14-surface QC pin ripple.' Tasks 2.1/2.2 (preview/commit math) have NO structural dependency on R2.authority-live -- they only touch ActivityLog and the day-progression/finance pipelines, which are independent of journal authority."
+      },
+      "tasks": [
+        {
+          "taskKey": "design-vault-campaign-separation-and-maps#2.1@14",
+          "checkbox": "[ ]",
+          "roadmapText": "2.1 Route computation: duration (jumps + transit days) and itemized costs (fees + per-day operating cost) from campaign state; side-effect-free preview API returning duration/costs/arrival/affordability.",
+          "mainTasksMdText": "identical",
+          "existsOnMain": "SUBSTANTIALLY DONE. src/lib/starmap/starmapTravelPreview.ts computes route legs, jump count, elapsedDays, travelFees (calculateTravelFee from starmapTravelRoute.ts), dailyCosts (via dailyCostsProcessor), projectedFunds, arrivalDate, deadlineWarnings, progressSummary -- all side-effect-free (pure function over campaign snapshot). Tested in starmapTravelPreview.test.ts.",
+          "missing": "'Affordability' as an explicit boolean/typed field: projectedFunds is computed but never compared against zero to produce an affordability flag or blocked-reason (see travelPipeline.insufficientFundsGapConfirmed finding). This is the one confirmed gap in an otherwise-complete task.",
+          "smallestBuildablePrefix": {
+            "description": "Add an `isAffordable` (or equivalent) field to IStarmapTravelPreview, computed as `projectedFunds >= Money.ZERO`, and surface it distinctly from the free-text `reasons` array.",
+            "files": [
+              "src/lib/starmap/starmapTravelTypes.ts (+3-5 lines: new field)",
+              "src/lib/starmap/starmapTravelPreview.ts (+10-15 lines: compute + set the field)",
+              "src/lib/starmap/__tests__/starmapTravelPreview.test.ts (+20-30 lines: negative-balance case)"
+            ],
+            "estimatedLines": "~35-50 lines -- trivial, isolated addition.",
+            "failingTestFirst": "starmapTravelPreview given a campaign with balance less than travelFees+dailyCosts should report isAffordable=false (and/or status='blocked') -- fails today because no such field/branch exists; the preview currently returns 'ready' regardless of resulting balance sign.",
+            "acceptanceCommands": [
+              "npm.cmd run typecheck",
+              "npm.cmd run lint",
+              "npm.cmd run format:check",
+              "npm.cmd run build",
+              "npm test -- --runTestsByPath src/lib/starmap/__tests__/starmapTravelPreview.test.ts"
+            ]
+          },
+          "deferralsInTaskText": "None.",
+          "contradictions": "roadmap/tasks.md describe this as an open task; source shows it ~90% done. The affordability gap is real but narrow -- treating this as a from-scratch task overstates remaining work."
+        },
+        {
+          "taskKey": "design-vault-campaign-separation-and-maps#2.2@15",
+          "checkbox": "[ ]",
+          "roadmapText": "2.2 Commit path: extend `travelToSystem` to the preview\u2192commit contract \u2014 advance campaign date through day-progression, post itemized finance transactions, arrival event updates `currentSystemId`, typed rejections (same-system, unknown, insufficient funds) with no state change.",
+          "mainTasksMdText": "identical",
+          "existsOnMain": "Mostly done. `travelToSystemAction` in useCampaignStore.dayActions.ts already: advances date via preview.afterCampaign (day-progression baked into the preview computation), posts finance transactions (via emitTravelActivityEntries's finance activity entry plus the balance already deducted in preview.afterCampaign), updates currentSystemId on arrival, and rejects same-system/unknown systemId with no state change (tested).",
+          "missing": "Insufficient-funds rejection: not implemented at all (confirmed by grep -- zero matches for insufficient/afford in the commit path or its tests). 'Typed rejections' as an actual type (not free-text strings) also does not exist (starmapTravelTypes.ts `reasons: readonly string[]`).",
+          "smallestBuildablePrefix": {
+            "description": "Once 2.1's isAffordable field exists, wire travelToSystemAction to check it and return false (no state mutation) when false, with a dedicated reason string/code.",
+            "files": [
+              "src/stores/campaign/useCampaignStore.dayActions.ts (+10-20 lines in travelToSystemAction: early-return on !preview.isAffordable)",
+              "src/stores/campaign/__tests__/useCampaignStore.travelToSystem.test.ts (+20-30 lines: insufficient-funds case mirroring the existing unknown-systemId/same-system tests)"
+            ],
+            "estimatedLines": "~40-50 lines, depends on 2.1 landing first (shares the isAffordable field).",
+            "failingTestFirst": "travelToSystem() called against a campaign whose balance cannot cover the route should return false and leave campaign.currentSystemId/finances/date unchanged -- fails today because the action applies preview.afterCampaign unconditionally whenever preview.status==='ready', and 'ready' never considers balance.",
+            "acceptanceCommands": [
+              "npm.cmd run typecheck",
+              "npm.cmd run lint",
+              "npm.cmd run format:check",
+              "npm.cmd run build",
+              "npm test -- --runTestsByPath src/stores/campaign/__tests__/useCampaignStore.travelToSystem.test.ts"
+            ]
+          },
+          "deferralsInTaskText": "None explicit; design.md D5 says 'do not introduce a second clock or charge historical travel again' -- a non-goal boundary, not a deferral.",
+          "contradictions": "Same pattern as 2.1: task looks like it needs a full commit-path build; in reality it needs one rejection branch added to an already-working action."
+        },
+        {
+          "taskKey": "design-vault-campaign-separation-and-maps#2.3@16",
+          "checkbox": "[ ]",
+          "roadmapText": "2.3 Record travel commitment/arrival as campaign events sufficient for deterministic replay.",
+          "mainTasksMdText": "identical",
+          "existsOnMain": "NOTHING at the journal-authority level. `emitTravelActivityEntries` writes to the UI-facing ActivityLog only (category 'travel'/'finances'), which is not part of `CampaignEventType`'s closed 8-member union and is not consumed by the journal/replay machinery (`JournalCampaignEventStore`, `appendCampaignCommandBatch`, per project memory on the design-campaign-authority-and-sync program).",
+          "missing": "A `CampaignEventType` member (e.g. `TravelCommitted` / `SystemArrived`) or equivalent event shape, wired through wherever `appendCampaignCommandBatch`-style writes happen, PLUS the completeness-pin updates (`CAMPAIGN_EVENT_TYPES` array, schema validators in campaignSyncSchemas.ts) that a new union member requires. This is the task with the largest true build size in R8.travel.",
+          "smallestBuildablePrefix": {
+            "description": "Cannot be meaningfully started until R2.authority-live's journal-authority gate passes (see dependencyTruth above) -- authoring a new event type against machinery still behind a disabled flag risks building against an interface that changes before the flag flips. Recommended smallest slice AFTER the gate: add exactly one new CampaignEventType member for travel commitment (defer arrival/opportunity variants to 2.4-2.7's own event work) and wire it through the existing completeness-pinned list + schema + one append call site.",
+            "files": [
+              "src/types/campaign/CampaignSync.ts (+3-5 lines: new union member + CAMPAIGN_EVENT_TYPES entry)",
+              "src/types/campaign/campaignSyncSchemas.ts (+10-20 lines: new zod/validator branch)",
+              "src/stores/campaign/useCampaignStore.dayActions.ts (wire the new event into travelToSystemAction's success path, +10-15 lines)",
+              "a new/updated test asserting replay of a travel event reproduces the same currentSystemId/date/finances (+40-60 lines)"
+            ],
+            "estimatedLines": "~70-100 lines for the single-event-type slice -- but this estimate assumes the journal-write call site (`appendCampaignCommandBatch` or equivalent) is stable and documented; if it is still evolving under R2.authority-live's own implementation, this task should be re-estimated after that lands.",
+            "failingTestFirst": "A replay test: given a serialized event log containing one travel-commitment event, replaying it from campaign day 0 should reproduce the exact post-travel campaign state (date, currentSystemId, balance) -- fails today because no such event type or replay path exists for travel.",
+            "acceptanceCommands": [
+              "npm.cmd run typecheck",
+              "npm.cmd run lint",
+              "npm.cmd run format:check",
+              "npm.cmd run build"
+            ]
+          },
+          "deferralsInTaskText": "None explicit in task text, but design.md D5's 'do not introduce a second clock' constrains the implementation shape once built.",
+          "contradictions": "None -- roadmap correctly shows this as fully unstarted and structurally significant."
+        }
+      ]
+    },
+    {
+      "id": "R8.opportunities",
+      "dependsOn": [
+        "R8.travel"
+      ],
+      "dependencyTruth": "ORDERING for 2.5/2.6 (GM authoring UI and acceptance-flow wiring can be built once the opportunity model exists, independent of whether 2.1-2.3's affordability/event work is finished) but STRUCTURAL for 2.4's 'seeded host-side generator recorded in events' and 2.7's coop-determinism requirement -- both need the SAME campaign-event journal machinery task 2.3 is blocked on via R2.authority-live. In other words, R8.opportunities inherits R8.travel's R2.authority-live blocker transitively for its event-recording obligations, even though the roadmap only lists R8.travel (not R2.authority-live) as its direct dependency.",
+      "tasks": [
+        {
+          "taskKey": "design-vault-campaign-separation-and-maps#2.4@17",
+          "checkbox": "[ ]",
+          "roadmapText": "2.4 Opportunity model: anchor system, availability window, payload, provenance (`gm` | `generated`); seeded host-side generator recorded in events; expiry sweep with activity-log entries.",
+          "mainTasksMdText": "identical",
+          "existsOnMain": "NOTHING. Confirmed via `git grep -i opportunity` across src/lib/starmap and src/types/campaign -- zero matches.",
+          "missing": "Everything: the `IOpportunity` type (anchor system id, window start/end campaign days, payload referencing a contract template, provenance discriminator), a seeded generator function, an expiry-sweep day-processor (likely plugging into the existing IDayProcessor pipeline alongside dailyCostsProcessor etc.), and event recording for generation/expiry.",
+          "smallestBuildablePrefix": {
+            "description": "Type + pure generator + expiry-sweep pure function first, with NO event-journal wiring yet (defer that sub-slice behind R2.authority-live per R8.travel's 2.3 finding) -- activity-log-only expiry entries can ship immediately since ActivityLog has no journal dependency.",
+            "files": [
+              "src/types/starmap/Opportunity.ts (new, ~40-60 lines: IOpportunity type + provenance union)",
+              "src/lib/starmap/generateOpportunities.ts (new, ~60-100 lines: seeded generator using the project's existing seeded-RNG utility -- locate via Glob 'src/**/seededRandom*' or 'src/**/*Rng*' before authoring to reuse rather than reinvent)",
+              "src/lib/campaign/processors/opportunityExpiryProcessor.ts (new, ~40-70 lines, mirrors existing processor shape in src/lib/campaign/processors/)",
+              "matching __tests__ files (+100-150 lines total)"
+            ],
+            "estimatedLines": "~250-380 non-generated lines for the type+generator+expiry-sweep slice, excluding the event-journal half which is gated separately -- fits the 500-line cap as one PR, or splits cleanly into (type+generator) and (expiry-sweep) as two.",
+            "failingTestFirst": "generateOpportunities(seed, campaignDay, systems) called twice with the same seed produces identical opportunity sets (host/guest determinism precondition for 2.7) -- fails today because the function does not exist.",
+            "acceptanceCommands": [
+              "npm.cmd run typecheck",
+              "npm.cmd run lint",
+              "npm.cmd run format:check",
+              "npm.cmd run build"
+            ]
+          },
+          "deferralsInTaskText": "None explicit, but 'recorded in events' half should be explicitly deferred behind R2.authority-live per the structural finding above -- this is this brief's recommendation, not stated in the task text itself.",
+          "contradictions": "None -- roadmap correctly shows fully unstarted."
+        },
+        {
+          "taskKey": "design-vault-campaign-separation-and-maps#2.5@18",
+          "checkbox": "[ ]",
+          "roadmapText": "2.5 GM authoring surface for opportunities riding the existing GM authority/redaction model.",
+          "mainTasksMdText": "identical",
+          "existsOnMain": "The 'existing GM authority/redaction model' this task rides on IS real and confirmed: src/lib/campaign/sync/campaignViewerProjection.ts, src/types/campaign/CoopCampaign.ts, and src/lib/campaign/grants/__tests__/campaignShareCallerAuthority.test.ts show a working GM-vs-player visibility/redaction seam. No opportunity-specific authoring UI exists (depends on 2.4's model existing first).",
+          "missing": "A GM-only authoring form/panel (create/edit an opportunity: anchor system, window, payload) gated by the existing GM-role check, plus wiring so player-side views redact provenance per the existing rules.",
+          "smallestBuildablePrefix": {
+            "description": "Deferred until 2.4's IOpportunity type lands; then a thin authoring panel reusing the existing GM-gating pattern from wherever GM-only controls currently render (e.g. the starmap page's existing GM/host branch, if any -- confirm exact location via Glob before estimating further).",
+            "files": [
+              "not enumerable without 2.4 landing first and a targeted look at the current GM-gated UI pattern"
+            ],
+            "estimatedLines": "~150-250 lines, rough order-of-magnitude given similar existing authoring forms in the codebase.",
+            "failingTestFirst": "N/A until 2.4 lands.",
+            "acceptanceCommands": [
+              "npm.cmd run typecheck",
+              "npm.cmd run lint",
+              "npm.cmd run format:check",
+              "npm.cmd run build"
+            ]
+          },
+          "deferralsInTaskText": "None explicit.",
+          "contradictions": "None."
+        },
+        {
+          "taskKey": "design-vault-campaign-separation-and-maps#2.6@19",
+          "checkbox": "[ ]",
+          "roadmapText": "2.6 Acceptance flow: opportunity at anchor system within window \u2192 contract offer through the existing mission-contracts flow; opportunity consumed.",
+          "mainTasksMdText": "identical",
+          "existsOnMain": "The 'existing mission-contracts flow' this reuses IS substantial and real: src/lib/campaign/contractMarket.ts, contractNegotiation.ts, contractSelection.ts, contractPayment.ts, contractFulfillmentBus.ts all exist. No opportunity-to-contract bridge exists (depends on 2.4).",
+          "missing": "A function converting an accepted IOpportunity's payload into a contract offer via the existing contractMarket/contractNegotiation entry points, plus marking the opportunity consumed (removed from the active set).",
+          "smallestBuildablePrefix": {
+            "description": "Deferred until 2.4 lands; then a single pure function `materializeOpportunityAsContract(opportunity, campaign)` calling into the existing contract-creation path.",
+            "files": [
+              "src/lib/starmap/materializeOpportunityAsContract.ts (new, ~50-80 lines) + test (~60-90 lines)"
+            ],
+            "estimatedLines": "~110-170 lines.",
+            "failingTestFirst": "N/A until 2.4 lands.",
+            "acceptanceCommands": [
+              "npm.cmd run typecheck",
+              "npm.cmd run lint",
+              "npm.cmd run format:check",
+              "npm.cmd run build"
+            ]
+          },
+          "deferralsInTaskText": "None explicit.",
+          "contradictions": "None."
+        },
+        {
+          "taskKey": "design-vault-campaign-separation-and-maps#2.7@20",
+          "checkbox": "[ ]",
+          "roadmapText": "2.7 Coop: host-side generation mirrored to guests via existing sync projections; determinism test across host/guest.",
+          "mainTasksMdText": "identical",
+          "existsOnMain": "The 'existing sync projections' this reuses are real (camp-01b/c wave rows in camp01-authority-receipt.contract.mjs reference CampaignSync.test.ts, CampaignCoopEntryPanel.test.tsx, CampaignHostRegistry.test.ts, sharedCampaignState.integration.test.ts -- a working coop-sync layer). No opportunity mirroring exists yet (depends on 2.4's generator + CampaignEventType wiring from 2.3/2.4's event half).",
+          "missing": "Wiring the seeded generator's output through the host->guest sync projection path, plus a determinism test spawning host and guest projections from the same seed/event and asserting identical opportunity sets.",
+          "smallestBuildablePrefix": {
+            "description": "Deferred until 2.4's generator exists and until the event-recording half (gated on R2.authority-live per the 2.3/2.4 chain) is available, since 'mirrored to guests via existing sync projections' implies the mirroring happens via the same event/command stream the sync layer already replicates.",
+            "files": [
+              "not enumerable without 2.4 and the R2.authority-live-gated event work landing first"
+            ],
+            "estimatedLines": "~80-150 lines, rough estimate by analogy to the existing sync test files' scope.",
+            "failingTestFirst": "N/A until dependencies land.",
+            "acceptanceCommands": [
+              "npm.cmd run typecheck",
+              "npm.cmd run lint",
+              "npm.cmd run format:check",
+              "npm.cmd run build"
+            ]
+          },
+          "deferralsInTaskText": "None explicit; design.md Risk 'Random opportunities breaking coop determinism' names the mitigation (seeded generator, seed recorded in campaign events, host-side-only generation) that this task must implement.",
+          "contradictions": "None."
+        }
+      ]
+    },
+    {
+      "id": "R8.starmap",
+      "dependsOn": [
+        "R8.opportunities"
+      ],
+      "dependencyTruth": "STRUCTURAL for 3.2 (opportunity markers cannot render a model that does not exist) and STRUCTURAL for 3.4 in the sense that 'update tests to the new commit contract' means the 2.1/2.2 contract changes (isAffordable, insufficient-funds rejection) from R8.travel, which is itself gated per above. NOT structural for 3.1 (route preview panel) -- that panel is already built and working today independent of opportunities; a roadmap dependency here mostly reflects program sequencing (P8.starmap comes after P8.opportunities in the suggested build order), not a code coupling. NOT structural for 3.3 either in a narrow sense (travel-in-progress rendering needs new campaign state for 'in transit', which is a R8.travel-adjacent concept, not an opportunities concept) -- the dependsOn edge to R8.opportunities specifically is looser than it looks for 3.1/3.3.",
+      "tasks": [
+        {
+          "taskKey": "design-vault-campaign-separation-and-maps#3.1@24",
+          "checkbox": "[ ]",
+          "roadmapText": "3.1 Route preview panel (duration, itemized costs, arrival date, affordability) wired to the preview API; side-effect-free.",
+          "mainTasksMdText": "identical",
+          "existsOnMain": "ALREADY SUBSTANTIALLY IMPLEMENTED. src/pages/gameplay/campaigns/[id]/starmap.tsx's `renderPreviewDetails()` renders travelFees, dailyCosts, projectedFunds, routeLegs, deadlineWarnings, progressSummary with stable data-testids ('starmap-travel-preview', 'starmap-daily-costs'). Only the 'affordability' sub-field is missing, tracking R8.travel#2.1's identical gap (isAffordable not yet computed).",
+          "missing": "An explicit affordability indicator in the rendered panel -- purely a UI consumer of R8.travel#2.1's isAffordable field once that lands; today the panel shows numbers a player must mentally compare, not a pass/fail indicator.",
+          "smallestBuildablePrefix": {
+            "description": "Once R8.travel#2.1 adds isAffordable to IStarmapTravelPreview, render it as a badge/indicator in renderPreviewDetails.",
+            "files": [
+              "src/pages/gameplay/campaigns/[id]/starmap.tsx (+10-20 lines)"
+            ],
+            "estimatedLines": "~10-20 lines -- trivial once the upstream field exists.",
+            "failingTestFirst": "An e2e or component test asserting the preview panel shows an 'insufficient funds' indicator when balance can't cover the route -- fails today because no such element renders.",
+            "acceptanceCommands": [
+              "npm.cmd run typecheck",
+              "npm.cmd run lint",
+              "npm.cmd run format:check",
+              "npm.cmd run build"
+            ]
+          },
+          "deferralsInTaskText": "None.",
+          "contradictions": "roadmap treats this as unstarted; source shows it ~90% done, same pattern as R8.travel#2.1/3.1's shared affordability gap."
+        },
+        {
+          "taskKey": "design-vault-campaign-separation-and-maps#3.2@25",
+          "checkbox": "[ ]",
+          "roadmapText": "3.2 Opportunity markers with window display on hover/selection; redaction-aware provenance.",
+          "mainTasksMdText": "identical",
+          "existsOnMain": "NOTHING (depends entirely on R8.opportunities#2.4 existing first).",
+          "missing": "Everything -- marker rendering component, hover/selection state, provenance redaction per the existing GM/player view-projection rules.",
+          "smallestBuildablePrefix": {
+            "description": "Deferred until R8.opportunities#2.4 lands.",
+            "files": [
+              "not enumerable yet"
+            ],
+            "estimatedLines": "~100-180 lines, rough estimate by analogy to existing marker-style components (e.g. ObjectiveMarkersLayer.tsx in HexMapDisplay, a structurally similar precedent worth reusing patterns from).",
+            "failingTestFirst": "N/A until dependency lands.",
+            "acceptanceCommands": [
+              "npm.cmd run typecheck",
+              "npm.cmd run lint",
+              "npm.cmd run format:check",
+              "npm.cmd run build"
+            ]
+          },
+          "deferralsInTaskText": "None.",
+          "contradictions": "None."
+        },
+        {
+          "taskKey": "design-vault-campaign-separation-and-maps#3.3@26",
+          "checkbox": "[ ]",
+          "roadmapText": "3.3 Travel-in-progress rendering with second-commit suppression until arrival.",
+          "mainTasksMdText": "identical",
+          "existsOnMain": "NOTHING. Confirmed by grep: travelInProgress/isTraveling/inTransit/secondCommit/suppressCommit all return zero matches. Travel today is synchronous/instantaneous-on-commit (preview.afterCampaign applied in one store update) -- there is no multi-day 'in transit' campaign state to render progress against at all.",
+          "missing": "This is larger than a rendering task: it needs a new campaign-state concept (an in-progress travel record persisting across day-ticks until arrival) before any UI can render progress against it. Likely requires a design amendment, not just implementation, since design.md's current D5 describes travel as computed-then-committed-atomically, not as a multi-tick process.",
+          "smallestBuildablePrefix": {
+            "description": "This task should be flagged back to the design owner before estimating file/line size -- it may require a design.md amendment (a new decision on how 'in progress' travel state is modeled) before implementation can be scoped. Recommend NOT treating this as a standard implementation task until that design gap is resolved.",
+            "files": [
+              "N/A pending design clarification"
+            ],
+            "estimatedLines": "Cannot be estimated responsibly without knowing whether travel becomes multi-tick or whether 'in progress' is redefined as a short-lived UI-only optimistic state around an already-atomic commit.",
+            "failingTestFirst": "N/A pending design clarification.",
+            "acceptanceCommands": []
+          },
+          "deferralsInTaskText": "None explicit in the task text, but this is the strongest candidate in the whole 28-task set for a genuine design gap masquerading as an implementation task.",
+          "contradictions": "roadmap/tasks.md present this as a normal implementation task; the current architecture (instantaneous commit) has no 'in progress' state to render, so the task's premise needs validation against design.md before scoping."
+        },
+        {
+          "taskKey": "design-vault-campaign-separation-and-maps#3.4@27",
+          "checkbox": "[ ]",
+          "roadmapText": "3.4 Update the shipped travel-action tests to the new commit contract (the modified requirement's scenarios).",
+          "mainTasksMdText": "3.4 Update the existing travel-action tests to the new commit contract (the modified requirement's scenarios). Preview/commit source is not acceptance closure.",
+          "textDrift": "roadmap says 'shipped'; main tasks.md says 'existing' plus an added non-claim sentence -- minor wording drift, same substance.",
+          "existsOnMain": "The target test files exist and are healthy today: src/stores/campaign/__tests__/useCampaignStore.travelToSystem.test.ts and src/lib/starmap/__tests__/starmapTravelPreview.test.ts.",
+          "missing": "New test cases for whatever R8.travel#2.1/2.2 add (isAffordable, insufficient-funds rejection) -- this task is purely the test-side follow-through of R8.travel#2.1/2.2's implementation and should land in the SAME PR as those, not as a separate task, to satisfy the project's 'write the failing test first' rule.",
+          "smallestBuildablePrefix": {
+            "description": "Fold into R8.travel#2.1/2.2's PR rather than treating as independent work.",
+            "files": [
+              "src/stores/campaign/__tests__/useCampaignStore.travelToSystem.test.ts",
+              "src/lib/starmap/__tests__/starmapTravelPreview.test.ts"
+            ],
+            "estimatedLines": "Already counted inside R8.travel#2.1/2.2's estimates above.",
+            "failingTestFirst": "Same as R8.travel#2.1/2.2.",
+            "acceptanceCommands": [
+              "npm.cmd run typecheck",
+              "npm.cmd run lint",
+              "npm.cmd run format:check",
+              "npm.cmd run build"
+            ]
+          },
+          "deferralsInTaskText": "Explicit non-claim in main tasks.md: 'Preview/commit source is not acceptance closure' -- passing these tests does not by itself close the starmap-travel-economy or starmap-interface capabilities.",
+          "contradictions": "None significant -- this task is correctly scoped, just redundant with R8.travel#2.1/2.2 if not merged into the same PR."
+        }
+      ]
+    },
+    {
+      "id": "R8.isometric",
+      "dependsOn": [
+        "R0.contracts",
+        "R2.journey"
+      ],
+      "dependencyTruth": {
+        "R0.contracts": "Satisfied (state=complete). No blocker.",
+        "R2.journey": "ORDERING only, same reasoning as R7.versions -- isometric rendering work touches HexMapDisplay/tactical-map code that has no data dependency on the CAMP-01H three-witness saved-unit journey proof. The roadmap gates ALL of this package's implementation waves behind R2.journey/CAMP-01H per design.md D8's program-management sequencing, not because of a code coupling."
+      },
+      "tasks": [
+        {
+          "taskKey": "design-vault-campaign-separation-and-maps#4.1@31",
+          "checkbox": "[ ]",
+          "roadmapText": "4.1 Projection layer: hex\u2192isometric transform with elevation extrusion; flat-shaded tiles + sprite/billboard tokens with facing (D7 \u2014 no per-unit 3D models).",
+          "mainTasksMdText": "identical",
+          "existsOnMain": "ALREADY IMPLEMENTED AND TESTED. HexMapDisplay.isometric.ts (buildIsometricSceneItems, ISOMETRIC_ELEVATION_UNIT, getCameraFacingExtrusionFaces), HexMapDisplay.isometricGeometry.ts, HexCell.isometricStack.tsx, projection.ts's deriveIsometricTerrainOcclusion* helpers. __tests__/HexMapDisplay.isometric.test.ts exercises elevation extrusion and facing-based occlusion with concrete terrain/token fixtures.",
+          "missing": "Nothing confirmed missing against the literal task text; this task appears effectively complete on main.",
+          "smallestBuildablePrefix": {
+            "description": "N/A -- verification-only: confirm no gaps via a targeted design/QA pass rather than new implementation.",
+            "files": [],
+            "estimatedLines": 0,
+            "failingTestFirst": "N/A",
+            "acceptanceCommands": [
+              "npm.cmd run typecheck",
+              "npm.cmd run lint",
+              "npm.cmd run format:check",
+              "npm.cmd run build",
+              "npm test -- --runTestsByPath src/components/gameplay/HexMapDisplay/__tests__/HexMapDisplay.isometric.test.ts"
+            ]
+          },
+          "deferralsInTaskText": "D7 explicit non-goal: 'no per-unit 3D models' -- confirmed honored (sprite/billboard token model, not 3D meshes).",
+          "contradictions": "roadmap/tasks.md show this as unstarted; source shows a working, tested implementation. Likely the largest single overstatement of remaining scope in the R8.isometric node."
+        },
+        {
+          "taskKey": "design-vault-campaign-separation-and-maps#4.2@32",
+          "checkbox": "[ ]",
+          "roadmapText": "4.2 Picking: isometric click \u2192 hex id inversion with shared parity tests against the 2D map (same click \u2192 same hex/unit identity).",
+          "mainTasksMdText": "identical",
+          "existsOnMain": "Partial. `projectionMode === 'isometric2d'` gates existing interaction-handler branches in useMapInteraction.handlers.ts (click/touch dispatch already distinguishes isometric mode), so SOME isometric-aware picking plumbing exists, but no dedicated 'isometric screen coordinate -> hex id' inversion function was found distinct from the 2D picking math, and no test with 'parity' in its name or assertions exists.",
+          "missing": "The actual coordinate-inversion function for isometric picking (reversing the hex->isometric transform from 4.1) and a parity test asserting identical results to the 2D map's existing picking function for the same logical click.",
+          "smallestBuildablePrefix": {
+            "description": "A pure inversion function mirroring the existing 2D `hexToPixel`/pixel-to-hex math but accounting for the isometric transform + elevation extrusion from HexMapDisplay.isometric.ts.",
+            "files": [
+              "src/components/gameplay/HexMapDisplay/HexMapDisplay.isometricPicking.ts (new, ~60-100 lines)",
+              "src/components/gameplay/HexMapDisplay/__tests__/HexMapDisplay.isometricPicking.test.ts (new, ~80-120 lines, parity assertions against the existing 2D picking function for a matrix of hex/elevation/rotation combinations)"
+            ],
+            "estimatedLines": "~150-220 lines.",
+            "failingTestFirst": "For a fixed hex H with elevation E, clicking H's isometric-projected screen position should invert to H via the new function, and this SHALL equal what clicking H's 2D screen position resolves to via the existing 2D picking path -- fails today because no isometric inversion function exists.",
+            "acceptanceCommands": [
+              "npm.cmd run typecheck",
+              "npm.cmd run lint",
+              "npm.cmd run format:check",
+              "npm.cmd run build"
+            ]
+          },
+          "deferralsInTaskText": "None.",
+          "contradictions": "None significant -- roadmap correctly shows this incomplete, though the existing projectionMode-gated handler plumbing is a head start not visible from the task text alone."
+        },
+        {
+          "taskKey": "design-vault-campaign-separation-and-maps#4.3@33",
+          "checkbox": "[ ]",
+          "roadmapText": "4.3 Overlay parity: movement range, firing arcs, targeting rendered from the same underlying data as the 2D map.",
+          "mainTasksMdText": "identical",
+          "existsOnMain": "Likely substantially reusable: HexCell.tsx and its badge/overlay siblings (HexCell.movementBadges.tsx, HexCell.combatBadges.tsx, HexCell.combatRangeSubBadges.tsx, HexCell.projectionBadges.tsx) already compose the same overlay data models the 2D map uses, and HexCell.isometricStack.tsx exists alongside them, suggesting the isometric cell rendering already threads through the shared badge/overlay derivation layer (HexCell.overlayModel.ts, HexCell.overlayAttributes.ts) rather than duplicating it. This session did not trace every overlay type (movement/firing-arc/targeting) end to end to isometricStack.tsx to confirm full parity -- flagged as UNVERIFIED rather than confirmed done or confirmed missing.",
+          "missing": "A targeted trace (not performed in this pass, given time budget) of whether HexCell.isometricStack.tsx actually consumes HexCell.overlayModel.ts's output for ALL THREE overlay types the task names, or only some.",
+          "smallestBuildablePrefix": {
+            "description": "First step should be verification (read HexCell.isometricStack.tsx against HexCell.overlayModel.ts/overlayAttributes.ts) before any new code -- this task may be much smaller than its siblings if parity already exists structurally.",
+            "files": [
+              "verification pass first; implementation files TBD based on findings"
+            ],
+            "estimatedLines": "Unknown pending verification -- could range from ~0 (already true) to ~150 (if one overlay type needs isometric-specific wiring).",
+            "failingTestFirst": "TBD pending verification.",
+            "acceptanceCommands": [
+              "npm.cmd run typecheck",
+              "npm.cmd run lint",
+              "npm.cmd run format:check",
+              "npm.cmd run build"
+            ]
+          },
+          "deferralsInTaskText": "None.",
+          "contradictions": "None confirmed either way -- this task is UNVERIFIED rather than confirmed done/missing; flagged explicitly rather than guessed."
+        },
+        {
+          "taskKey": "design-vault-campaign-separation-and-maps#4.4@34",
+          "checkbox": "[ ]",
+          "roadmapText": "4.4 View toggle with preserved selection/pending intents; persisted player preference; 2D remains default and fallback.",
+          "mainTasksMdText": "identical",
+          "existsOnMain": "PARTIAL. The toggle mechanism exists and works: `projectionMode` state in useMapLayerState.ts with an 'isometric2d' value, consumed by rendering (HexMapDisplay.state.tsx) and interaction handlers. Whether selection/pending intents are preserved across the toggle was not independently traced in this pass (UNVERIFIED). Persistence is CONFIRMED ABSENT: `projectionMode` is plain `useState`, no localStorage/store read-write found (grep for localStorage/persist in useMapLayerState.ts returns zero hits). 2D-as-default is plausible (need to confirm the initial useState value) but not independently confirmed in this pass.",
+          "missing": "Persisted preference: wire projectionMode to localStorage (or the project's existing preference-storage pattern, if one exists -- check for a `usePreferences`/settings store before adding a bespoke localStorage call) so the choice survives reload.",
+          "smallestBuildablePrefix": {
+            "description": "Persist projectionMode via whatever the project's established preference-storage convention is (search for an existing settings/preferences Zustand store before defaulting to raw localStorage, per the 'copy patterns that already exist' rule).",
+            "files": [
+              "src/components/gameplay/HexMapDisplay/useMapLayerState.ts (+10-20 lines: read initial value from storage, write on change)"
+            ],
+            "estimatedLines": "~20-40 lines, contingent on which storage pattern the codebase already uses.",
+            "failingTestFirst": "Setting projectionMode to 'isometric2d', then remounting the component (simulating reload), should restore 'isometric2d' -- fails today because the value resets to its hardcoded default every mount.",
+            "acceptanceCommands": [
+              "npm.cmd run typecheck",
+              "npm.cmd run lint",
+              "npm.cmd run format:check",
+              "npm.cmd run build"
+            ]
+          },
+          "deferralsInTaskText": "None.",
+          "contradictions": "roadmap treats this as fully unstarted; source shows the toggle mechanism itself already built, with only persistence (and possibly intent-preservation, unverified) missing."
+        },
+        {
+          "taskKey": "design-vault-campaign-separation-and-maps#4.5@35",
+          "checkbox": "[ ]",
+          "roadmapText": "4.5 Performance: 30 FPS floor on 4v4 standard boards with degradation-over-drop; renderer substrate decision (canvas extension vs lightweight WebGL) made against this floor \u2014 any new dependency gets its own justification.",
+          "mainTasksMdText": "4.5 Performance: 30 FPS floor on 4v4 standard boards with degradation-over-drop; evaluate the existing SVG 2.5D renderer against this floor before considering a separately proposed replacement \u2014 any new dependency gets its own justification.",
+          "textDrift": "SIGNIFICANT: roadmap.json frames this as an open 'renderer substrate decision (canvas extension vs lightweight WebGL)' as if no renderer exists; main tasks.md (and design.md D7) have already made the decision -- extend the existing SVG renderer, evaluate it against the floor first, and only consider replacement if it fails. The roadmap text should be corrected to match the package's own settled design decision (D7) rather than presenting the renderer choice as still open.",
+          "existsOnMain": "The renderer to be measured exists (see R8.isometric#4.1). No FPS measurement/instrumentation exists at all -- grep for 30/fps/frameRate across the HexMapDisplay tree returns zero hits.",
+          "missing": "An actual performance harness: render a 4v4 scenario in isometric mode and measure frame rate on a defined reference hardware/viewport, plus a degradation strategy (reduced decoration) if the floor isn't met. This is a measurement task, not a decision task, per the corrected tasks.md wording.",
+          "smallestBuildablePrefix": {
+            "description": "A performance test/script that renders a fixed 4v4 isometric scenario and reports frame timing, following whatever perf-test pattern the codebase already has (memory notes reference 'Perf test budget widening' as an existing practice -- reuse that harness convention rather than inventing a new one).",
+            "files": [
+              "a new perf test under the project's existing perf-test location (search for existing *.perf.test.* or similar pattern before authoring) + possibly a small degradation toggle in HexMapDisplay's isometric rendering path"
+            ],
+            "estimatedLines": "~100-200 lines for the harness; degradation logic sized separately once a real gap is measured (cannot size a fix for a problem not yet measured).",
+            "failingTestFirst": "A perf test asserting sustained >=30 FPS for a scripted 4v4 isometric render -- currently there is nothing to run, so this 'fails' in the sense of not existing yet; once it exists it may pass or fail depending on actual renderer performance, which is exactly what the task needs to discover.",
+            "acceptanceCommands": [
+              "npm.cmd run typecheck",
+              "npm.cmd run lint",
+              "npm.cmd run format:check",
+              "npm.cmd run build"
+            ]
+          },
+          "deferralsInTaskText": "design.md D7: 'replacement or a new dependency requires a separate justified proposal' -- explicit non-claim that this task includes adopting a new renderer; it only includes measuring the existing one and degrading gracefully if needed.",
+          "contradictions": "roadmap.json's framing of an open renderer-substrate decision CONTRADICTS the package's own design.md D7 and tasks.md, which already resolved that decision in favor of extending the existing SVG renderer. This is the second-most consequential drift found (after the v1->v2/v2->v3 migration numbering issue in R7.provenance#1.4)."
+        }
+      ]
+    },
+    {
+      "id": "R8.journey",
+      "kind": "verification",
+      "dependsOn": [
+        "R8.starmap",
+        "R8.isometric"
+      ],
+      "dependencyTruth": "STRUCTURAL and correctly modeled -- this is a verification node that proves the end-to-end journey (draw-from-vault -> travel with costs -> opportunity acceptance -> mission launch, isometric toggle exercised in combat) which by definition cannot be proven until the surfaces it exercises (R8.starmap, R8.isometric, and transitively R7.* and R8.travel/opportunities) exist. No drift found here.",
+      "tasks": [
+        {
+          "taskKey": "design-vault-campaign-separation-and-maps#5.1@39",
+          "checkbox": "[ ]",
+          "roadmapText": "5.1 Jest coverage per spec scenario across all five capabilities (boundary immutability/provenance, travel time/cost/rejection, opportunity determinism/expiry/acceptance, interface preview/markers/progress, isometric parity/toggle).",
+          "mainTasksMdText": "identical",
+          "existsOnMain": "PARTIAL, UNTAGGED. Real jest coverage already exists for pieces of two of the five capabilities: travel time/cost (starmapTravelPreview.test.ts) and travel rejection -- partial (same-system/unknown covered in useCampaignStore.travelToSystem.test.ts; insufficient-funds NOT covered, see R8.travel#2.2). Isometric projection/elevation is covered (HexMapDisplay.isometric.test.ts) but NOT toggle or picking-parity. Zero coverage found for: boundary immutability/provenance-as-a-capability-level scenario set (though the underlying unitSource/sourceVersion mechanics are tested via CreateCampaignPage.* tests, not framed as vault-campaign-boundary spec scenarios), opportunity determinism/expiry/acceptance (capability doesn't exist yet), interface markers/progress (features don't exist yet). None of the existing tests carry a `@requirement vault-campaign-boundary/...` style tag the project's `verify-coverage.js` convention (per CLAUDE.md's Living Requirements Spec section) would recognize -- `git grep` for the five capability names across src/e2e returns nothing.",
+          "missing": "New tests for: opportunity determinism/expiry/acceptance (blocked on R8.opportunities existing), interface markers/progress (blocked on R8.starmap#3.2/3.3), isometric toggle/picking-parity (blocked on R8.isometric#4.2/4.4), insufficient-funds rejection (blocked on R8.travel#2.2), and `@requirement` tagging retrofitted onto the existing travel/isometric tests once the delta specs are merged (R7.provenance#1.6-equivalent archive step for the other four capabilities).",
+          "smallestBuildablePrefix": {
+            "description": "Cannot be usefully built ahead of the capabilities it tests existing -- this is definitionally a trailing verification task. The one immediately actionable slice is retrofitting `@requirement` tags onto the ALREADY-PASSING travel/isometric tests once their delta specs archive, which costs near-zero new lines.",
+            "files": [
+              "file-level header additions to starmapTravelPreview.test.ts, useCampaignStore.travelToSystem.test.ts, HexMapDisplay.isometric.test.ts once specs archive"
+            ],
+            "estimatedLines": "~5-10 lines total for tagging; the bulk of 5.1's real work is downstream of every other R7/R8 task.",
+            "failingTestFirst": "N/A -- this task aggregates other tasks' failing-test-first cycles rather than having its own.",
+            "acceptanceCommands": [
+              "npm.cmd run typecheck",
+              "npm.cmd run lint",
+              "npm.cmd run format:check",
+              "npm.cmd run build"
+            ]
+          },
+          "deferralsInTaskText": "None explicit, but implicitly this whole task defers to all of 1.1-4.5 landing first.",
+          "contradictions": "None -- roadmap correctly shows unstarted at the capability-scenario level, though it undercounts the real (untagged) coverage that already exists for travel and isometric-projection basics."
+        },
+        {
+          "taskKey": "design-vault-campaign-separation-and-maps#5.2@40",
+          "checkbox": "[ ]",
+          "roadmapText": "5.2 E2E: campaign journey covering draw-from-vault \u2192 travel with costs \u2192 opportunity acceptance \u2192 mission launch; isometric toggle exercised in a combat journey.",
+          "mainTasksMdText": "identical",
+          "existsOnMain": "e2e/campaign-starmap-logistics.spec.ts exists and likely covers travel-with-costs already (not read in full during this pass given time budget -- flagged UNVERIFIED for exact scenario content). No e2e exists for opportunity acceptance (capability doesn't exist) or isometric-toggle-in-combat (toggle exists but no e2e exercises it in a combat journey per the grep findings above).",
+          "missing": "The full chained journey spec; realistically buildable only incrementally as each stage's capability lands (opportunity acceptance blocks the middle of the chain; isometric-in-combat needs 4.2/4.4 first).",
+          "smallestBuildablePrefix": {
+            "description": "Extend or read e2e/campaign-starmap-logistics.spec.ts to confirm what it already covers, then add the isometric-toggle-during-combat assertion once 4.2/4.4 land, before attempting the full opportunity-inclusive chain.",
+            "files": [
+              "e2e/campaign-starmap-logistics.spec.ts (extend) or a new e2e/vault-to-mission-journey.spec.ts once all stages exist"
+            ],
+            "estimatedLines": "Not sizeable until dependent capabilities land; likely 150-300 lines for the full chained spec by analogy to similarly-scoped existing e2e specs.",
+            "failingTestFirst": "N/A until dependencies land.",
+            "acceptanceCommands": [
+              "npm.cmd run typecheck",
+              "npm.cmd run lint",
+              "npm.cmd run format:check",
+              "npm.cmd run build"
+            ]
+          },
+          "deferralsInTaskText": "None explicit.",
+          "contradictions": "None."
+        },
+        {
+          "taskKey": "design-vault-campaign-separation-and-maps#5.3@41",
+          "checkbox": "[ ]",
+          "roadmapText": "5.3 Replay determinism test spanning travel + opportunity events; coop host/guest consistency test.",
+          "mainTasksMdText": "identical",
+          "existsOnMain": "Nothing -- structurally blocked on R8.travel#2.3's campaign-event recording (itself gated on R2.authority-live) and R8.opportunities#2.4/2.7's event recording + coop mirroring.",
+          "missing": "Everything; this task cannot be built before R2.authority-live's journal gate passes and R8.travel#2.3/R8.opportunities#2.4/2.7 land.",
+          "smallestBuildablePrefix": {
+            "description": "Not buildable yet.",
+            "files": [],
+            "estimatedLines": "N/A",
+            "failingTestFirst": "N/A",
+            "acceptanceCommands": []
+          },
+          "deferralsInTaskText": "None explicit but heavily implied by the dependency chain.",
+          "contradictions": "None -- roadmap correctly shows this as the most heavily gated task in the whole 28-task set."
+        },
+        {
+          "taskKey": "design-vault-campaign-separation-and-maps#5.4@42",
+          "checkbox": "[ ]",
+          "roadmapText": "5.4 Strict OpenSpec + QC validation; spec-purpose lint; archive flow merges deltas into living specs.",
+          "mainTasksMdText": "identical",
+          "existsOnMain": "The tooling this task runs is real and confirmed present: openspec/scripts/spec-purpose-lint.ts, openspec/scripts/terminology-tool.ts, scripts/qc/validate-openspec-ci-quality.mjs, and the `openspec` CLI (npx.cmd openspec validate --all --strict) all resolve to real npm scripts (verified in package.json). The archive-flow merge itself has not run for this package (its delta specs still live under openspec/changes/design-vault-campaign-separation-and-maps/specs/, not merged into openspec/specs/).",
+          "missing": "Running the archive flow, which by the project's own OpenSpec convention only happens after every task 1.1-5.3 is code-complete and passes verify-coverage.js -- this is the terminal task of the whole package, correctly sequenced last.",
+          "smallestBuildablePrefix": {
+            "description": "Not buildable ahead of the rest of the package; this is the archival capstone.",
+            "files": [],
+            "estimatedLines": "N/A",
+            "failingTestFirst": "N/A",
+            "acceptanceCommands": [
+              "npm.cmd run spec:purpose:validate:strict",
+              "npm.cmd run terminology:validate:strict",
+              "npx.cmd openspec validate --all --strict",
+              "npm.cmd run qc:openspec-ci:validate"
+            ]
+          },
+          "deferralsInTaskText": "None explicit; correctly the last task in the package by construction.",
+          "contradictions": "None."
+        }
+      ]
+    }
+  ],
+  "shallsWithNoTestOnMain": [
+    {
+      "capability": "vault-campaign-boundary",
+      "requirement": "Vault templates are immutable and versioned",
+      "shallSummary": "monotonic version counter per entity; N remains resolvable after N+1 publishes",
+      "testStatus": "UNIT-side mechanics are tested (VersionRepository.test.ts covers revert/history over unit_versions), but no test frames this as the vault-campaign-boundary spec scenario, and PILOT-side has zero test (no pilot version producer exists at all)."
+    },
+    {
+      "capability": "vault-campaign-boundary",
+      "requirement": "Campaigns draw instance copies from the vault",
+      "shallSummary": "draw mints unitRef/unitSource/sourceVersion without duplicating construction payload",
+      "testStatus": "TESTED under different framing (CreateCampaignPage.rosterPersistence.test.ts, submitPersistence.test.tsx assert unitSourceCustom/rosterInstanceIdPresent/constructionPayloadAbsent) -- untagged to this spec but behaviorally covered."
+    },
+    {
+      "capability": "vault-campaign-boundary",
+      "requirement": "Context ownership of screens",
+      "shallSummary": "personal surfaces show no campaign divergence; campaign surfaces show instances only",
+      "testStatus": "NO TEST FOUND -- this is R7.context#1.8, an unstarted audit."
+    },
+    {
+      "capability": "vault-campaign-boundary",
+      "requirement": "Version drift is surfaced, never auto-applied",
+      "shallSummary": "refit prompt on newer vault version; no auto re-pin",
+      "testStatus": "NO TEST FOUND -- R7.context#1.7's refit-prompt half, confirmed unbuilt."
+    },
+    {
+      "capability": "vault-campaign-boundary",
+      "requirement": "Cross-campaign progression is observational",
+      "shallSummary": "lifetime records accrue without altering new-campaign simulation inputs",
+      "testStatus": "NO TEST FOUND; also not mapped to any of the 28 R7/R8 task keys -- appears to be an ADDED requirement with no corresponding task, worth flagging separately (possibly covered implicitly by pilot-creation tests resetting stats, not independently confirmed)."
+    },
+    {
+      "capability": "starmap-travel-economy",
+      "requirement": "Travel consumes in-fiction time",
+      "shallSummary": "date advances by computed transit time; arrival is explicit",
+      "testStatus": "TESTED (untagged) via useCampaignStore.travelToSystem.test.ts."
+    },
+    {
+      "capability": "starmap-travel-economy",
+      "requirement": "Travel posts real costs to campaign finances",
+      "shallSummary": "itemized fee+daily-cost transactions; insufficient-funds blocks with no state change",
+      "testStatus": "PARTIALLY TESTED (untagged) -- fee/cost posting covered; insufficient-funds branch NOT tested (confirmed absent, see R8.travel#2.2)."
+    },
+    {
+      "capability": "starmap-travel-economy",
+      "requirement": "Preview before commit",
+      "shallSummary": "preview matches commit exactly; side-effect free",
+      "testStatus": "TESTED (untagged) via starmapTravelPreview.test.ts + travelToSystem.test.ts cross-checks."
+    },
+    {
+      "capability": "starmap-travel-economy",
+      "requirement": "Dynamic opportunities appear on the map",
+      "shallSummary": "GM/seeded opportunities with anchor/window/payload/provenance; expiry sweep logged",
+      "testStatus": "NO TEST FOUND -- capability does not exist (R8.opportunities#2.4)."
+    },
+    {
+      "capability": "starmap-travel-economy",
+      "requirement": "Travel and opportunity events are replay-faithful",
+      "shallSummary": "deterministic replay including generator seed",
+      "testStatus": "NO TEST FOUND -- structurally blocked on R2.authority-live (R8.travel#2.3, R8.journey#5.3)."
+    },
+    {
+      "capability": "starmap-interface",
+      "requirement": "Selected System Travel Action",
+      "shallSummary": "travelToSystem is the sole path from starmap UI to campaign state; typed no-op reasons",
+      "testStatus": "MOSTLY TESTED (untagged); insufficient-funds reason path untested."
+    },
+    {
+      "capability": "starmap-interface",
+      "requirement": "Route preview panel",
+      "shallSummary": "duration/costs/arrival/affordability preview, side-effect free",
+      "testStatus": "MOSTLY TESTED (untagged) via starmap.tsx's renderPreviewDetails + starmapTravelPreview.test.ts; affordability indicator untested (doesn't exist)."
+    },
+    {
+      "capability": "starmap-interface",
+      "requirement": "Opportunity markers",
+      "shallSummary": "markers at anchor systems, redaction-aware",
+      "testStatus": "NO TEST FOUND -- capability does not exist."
+    },
+    {
+      "capability": "starmap-interface",
+      "requirement": "Travel-in-progress rendering",
+      "shallSummary": "render active route/progress; suppress second commit until arrival",
+      "testStatus": "NO TEST FOUND -- no in-progress travel state exists at all (see R8.starmap#3.3's design-gap flag)."
+    },
+    {
+      "capability": "isometric-battlefield-view",
+      "requirement": "Isometric projection of the hex battlefield",
+      "shallSummary": "pure presentation layer; identical positions/facings/elevations to 2D; elevation as stacked height",
+      "testStatus": "TESTED (untagged) via HexMapDisplay.isometric.test.ts."
+    },
+    {
+      "capability": "isometric-battlefield-view",
+      "requirement": "Interaction parity with the 2D map",
+      "shallSummary": "picking resolves to same hex/unit identity; overlays same underlying data",
+      "testStatus": "NO TEST FOUND for picking parity (R8.isometric#4.2, confirmed absent); overlay parity (#4.3) UNVERIFIED, not confirmed either way."
+    },
+    {
+      "capability": "isometric-battlefield-view",
+      "requirement": "View toggle and preference",
+      "shallSummary": "toggle preserves selection/pending intents; choice persists",
+      "testStatus": "Toggle mechanism exists (untested for intent-preservation, UNVERIFIED); persistence confirmed absent and untested (R8.isometric#4.4)."
+    },
+    {
+      "capability": "isometric-battlefield-view",
+      "requirement": "Performance floor",
+      "shallSummary": "30 FPS floor on 4v4 boards with graceful degradation",
+      "testStatus": "NO TEST FOUND -- zero perf instrumentation exists (R8.isometric#4.5, confirmed absent)."
+    }
+  ],
+  "summary": {
+    "totalTaskOccurrences": 28,
+    "byNode": {
+      "R7.versions": {
+        "taskCount": 1,
+        "substantiallyDoneOnMain": 0,
+        "partialOnMain": 1,
+        "notStarted": 0,
+        "note": "unit-side version producer fully exists; only the pilot-producer decision/build remains."
+      },
+      "R7.provenance": {
+        "taskCount": 5,
+        "substantiallyDoneOnMain": 2,
+        "partialOnMain": 0,
+        "notStarted": 3,
+        "note": "1.2 and 1.3 already implemented (1.3 checked in tasks.md); 1.4/1.5/1.6 genuinely unstarted. 1.4's roadmap text ('v1->v2') is factually wrong -- must read 'v2->v3' per the package's own tasks.md and design.md D4."
+      },
+      "R7.context": {
+        "taskCount": 2,
+        "substantiallyDoneOnMain": 0,
+        "partialOnMain": 1,
+        "notStarted": 1,
+        "note": "1.7's campaign-creation draw-from-vault half likely already exists in substance (needs owner clarification on scope); its refit-prompt half is confirmed unbuilt. 1.8 is an unstarted audit."
+      },
+      "R8.travel": {
+        "taskCount": 3,
+        "substantiallyDoneOnMain": 2,
+        "partialOnMain": 0,
+        "notStarted": 1,
+        "note": "2.1/2.2 are ~90% done, missing only the insufficient-funds branch; 2.3 (campaign events for replay) is fully unstarted and structurally blocked on R2.authority-live."
+      },
+      "R8.opportunities": {
+        "taskCount": 4,
+        "substantiallyDoneOnMain": 0,
+        "partialOnMain": 0,
+        "notStarted": 4,
+        "note": "entire capability is net-new; 2.4's event-recording half and 2.7's coop-mirroring inherit R2.authority-live's block transitively."
+      },
+      "R8.starmap": {
+        "taskCount": 4,
+        "substantiallyDoneOnMain": 1,
+        "partialOnMain": 1,
+        "notStarted": 2,
+        "note": "3.1 ~90% done (shares the affordability gap with 2.1); 3.4 is test-follow-through, not independent work; 3.2 blocked on opportunities; 3.3 may be a design gap, not just an implementation gap -- flagged for owner review."
+      },
+      "R8.isometric": {
+        "taskCount": 5,
+        "substantiallyDoneOnMain": 1,
+        "partialOnMain": 2,
+        "notStarted": 1,
+        "unverified": 1,
+        "note": "4.1 essentially complete and tested; 4.4's toggle mechanism exists but persistence is missing; 4.2 (picking parity) genuinely unbuilt; 4.3 (overlay parity) UNVERIFIED -- needs a targeted trace, not assumed either way; 4.5's roadmap framing of an open renderer-substrate decision contradicts the package's own settled D7 decision."
+      },
+      "R8.journey": {
+        "taskCount": 4,
+        "substantiallyDoneOnMain": 0,
+        "partialOnMain": 1,
+        "notStarted": 3,
+        "note": "verification node, correctly sequenced last; 5.1 has real untagged partial coverage to build on; 5.2/5.3 need upstream capabilities; 5.4 is the archive capstone."
+      }
+    },
+    "implementableBeforeR2JourneyLands": {
+      "answer": "Several concrete, isolated PRs can be authored and even merged-ready TODAY without waiting on R2.journey, because their code dependency on R2.journey is ORDERING (program-sequencing gate) rather than STRUCTURAL (data/type coupling):",
+      "candidates": [
+        "R7.versions#1.1 pilot-version-producer slice (new table+repository+API, mirrors existing unit pattern; ~250-350 lines) -- no code dependency on CAMP-01H's journey proof.",
+        "R7.provenance#1.4 the v2->v3 migration rung (~90-150 lines, isolated to campaignMigration.ts + its test) -- purely additive to an existing, working migration ladder.",
+        "R8.travel#2.1/#2.2/#3.4-partner the isAffordable/insufficient-funds slice (~75-100 lines across starmapTravelPreview.ts, starmapTravelTypes.ts, dayActions.ts, and their tests) -- extends already-shipped, already-tested pure functions and store actions with zero journal/authority coupling.",
+        "R8.starmap#3.1 affordability-indicator UI consumer (~10-20 lines) once the above lands.",
+        "R8.isometric#4.4 persistence-only slice (~20-40 lines) -- wires an existing useState to storage; no new rendering logic.",
+        "R8.isometric#4.2 picking-inversion + parity test (~150-220 lines) -- pure geometry function, no runtime-authority dependency."
+      ],
+      "whyBlockedOnesAreDifferent": "R7.provenance#1.6 (spec archive-flow), R7.context#1.7/1.8 (UI/audit work explicitly listed as starting 'after CAMP-01F/G/H merge' per tasks.md section 1's header), R8.opportunities (all), R8.travel#2.3, R8.starmap#3.2/3.3, R8.isometric#4.3/4.5, and all of R8.journey are either (a) the package's own explicitly-stated program gate (tasks.md's own header: 'first implementation wave; starts only after CAMP-01F/G/H merge'), (b) structurally coupled to R2.authority-live's journal-authority proof, or (c) coupled to a sibling task in this same list that is itself gated. The 'implementable-before-gate' candidates above are the ones where source inspection shows the code path is genuinely independent, not merely convenient to build early.",
+      "caveat": "Even the 'implementable' candidates above are still subject to the package's own admission process (CAMP-01F/G/H gate per tasks.md section 1 header, and the 9.1 exact-main receipt the ledger names) before they can be MERGED -- 'implementable' here means the code can be correctly written, tested, and reviewed today without waiting on unresolved data/type dependencies, not that the repository's process gate is bypassed."
+    },
+    "topBlockers": [
+      "R2.journey (CAMP-01H three-witness proof + parent 9.1 exact-main receipt) has not been reconciled since work landed under it -- the active-change-ledger's own reason string ('P1 1.1-1.5 not started') is already stale/wrong for tasks 1.2 and 1.3, which is a process-hygiene risk: the gate that's supposed to prevent premature work is itself running on outdated state.",
+      "R2.authority-live (journal authority proof) structurally blocks R8.travel#2.3, all of R8.opportunities' event-recording/coop-mirroring halves, and R8.journey#5.3 -- this is the single largest true blocker by scope in the R7/R8 slice.",
+      "R8.starmap#3.3's premise (travel-in-progress state) may require a design.md amendment before it can be scoped as an implementation task at all -- flagged for owner review rather than estimated.",
+      "roadmap.json's frozen task-text snapshots have drifted from the package's own tasks.md on main in at least two consequential ways (1.4's v1->v2 vs v2->v3 numbering; 4.5's 'open renderer decision' vs the already-settled D7 decision) -- both should be corrected before any implementer is handed roadmap.json text verbatim."
+    ]
+  }
+}

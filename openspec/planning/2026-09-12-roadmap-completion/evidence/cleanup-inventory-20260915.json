@@ -1,0 +1,2207 @@
+{
+  "schema": "cleanup-inventory-20260915",
+  "snapshotAt": "2026-09-15T19:19:43Z",
+  "snapshotWarning": "This tree is LIVE: many named agents (see session agent roster) are actively committing to these worktrees/branches concurrently. Numbers were captured across several commands over roughly 19:00-19:20 UTC 2026-09-15. history-runtime-integrity HEAD alone advanced from c298713af670196db19dafc63ba149baab70fd9c to fe25f9220374fe80b4c847e2f6c228744bd49610 between two git worktree list --porcelain calls taken minutes apart, proving drift during this inventory run. Do not treat any row as authoritative beyond its own snapshotAt/command citation.",
+  "scopeNote": "Read-only inventory per GP-JUSTIFIED task instructions. No delete/prune/reset/stash/checkout/modify/push was performed. Root checkout (E:/Projects/MekStation, 162 dirty entries) was left untouched.",
+  "sourcesRead": [
+    "openspec/planning/2026-09-12-roadmap-completion/roadmap.json (worktreeNotes, infraNotes, concurrencyNotes)",
+    "openspec/planning/2026-09-12-roadmap-completion/HANDOFF.md (Cleanup not yet performed section, line 38)"
+  ],
+  "worktrees": [
+    {
+      "path": "E:/Projects/MekStation",
+      "head": "be7f85b867aa3e8576e5e3d27e309276203bc24b",
+      "branch": "main",
+      "detached": false,
+      "owned": false,
+      "classification": "NOT-OWNED",
+      "note": "do not touch"
+    },
+    {
+      "path": "C:/tmp/MekStation-gameplay-audit-a72208b0-2",
+      "head": "a72208b08de5f8a1bef49f61db3ddc46a54012e8",
+      "branch": null,
+      "detached": true,
+      "owned": false,
+      "classification": "NOT-OWNED",
+      "note": "do not touch"
+    },
+    {
+      "path": "C:/tmp/MekStation-gm2p-spec-886508048",
+      "head": "5b546a39ec29dd2e79c845946dc84b3619ee25ee",
+      "branch": "codex/continue-gm-two-player-campaign",
+      "detached": false,
+      "owned": false,
+      "classification": "NOT-OWNED",
+      "note": "do not touch"
+    },
+    {
+      "path": "C:/Users/wroll/.codex/worktrees/af7e/MekStation",
+      "head": "327f10787d529a95328bef05e3732ebb02efbee7",
+      "branch": null,
+      "detached": true,
+      "owned": false,
+      "classification": "NOT-OWNED",
+      "note": "do not touch"
+    },
+    {
+      "path": "C:/Users/wroll/.codex/worktrees/combat-event-durability/MekStation",
+      "head": "85e7138feaea0333c2dafbd2f974ef5977450af1",
+      "branch": null,
+      "detached": true,
+      "owned": false,
+      "classification": "NOT-OWNED",
+      "note": "do not touch"
+    },
+    {
+      "path": "C:/Users/wroll/.codex/worktrees/combat-turn-rail/MekStation",
+      "head": "67805c8302f78c5205921cafbee9d4544783fb96",
+      "branch": null,
+      "detached": true,
+      "owned": false,
+      "classification": "NOT-OWNED",
+      "note": "do not touch"
+    },
+    {
+      "path": "E:/CodexWorktrees/MekStation-maintain",
+      "head": "2c775907ae285e27dd7103c8c29e061fcc6d91e4",
+      "branch": "maintain/modularity-hard-guardrail-wave1",
+      "detached": false,
+      "owned": false,
+      "classification": "NOT-OWNED",
+      "note": "do not touch"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/archive-chassis",
+      "head": "358f1e31d4a22a9990129202d6d0af16b57d1feb",
+      "branch": "codex/roadmap-archive-chassis-20260913",
+      "detached": false,
+      "owned": true,
+      "classification": "OWNED-BY-ROADMAP",
+      "lane": "archive-chassis",
+      "statusPorcelainCommand": "git -C E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/archive-chassis status --porcelain",
+      "trackedModifiedCount": 0,
+      "untrackedCount": 0,
+      "nodeModules": "junction",
+      "nodeModulesCheckCommand": "PowerShell Get-Item -Force | .Attributes -band ReparsePoint / .LinkType",
+      "huskyUnderscoreExists": false,
+      "nextSize": null,
+      "nextSizeCheckCommand": "PowerShell Get-ChildItem -Recurse -File | Measure-Object -Property Length -Sum (on .next)",
+      "branchClassification": "MERGED-SAFE-TO-DELETE",
+      "branchMergedPRs": [
+        1669
+      ],
+      "lastRoadmapLane": "archive-chassis"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/archive-edit-recovery-20260915",
+      "head": "5973dc7fbe1250563f0b48801c7bd173ff165c1f",
+      "branch": "codex/roadmap-r2-authority-host-live-fold-20260915",
+      "detached": false,
+      "owned": true,
+      "classification": "OWNED-BY-ROADMAP",
+      "lane": "archive-edit-recovery-20260915",
+      "statusPorcelainCommand": "git -C E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/archive-edit-recovery-20260915 status --porcelain",
+      "trackedModifiedCount": 0,
+      "untrackedCount": 0,
+      "nodeModules": "real",
+      "nodeModulesCheckCommand": "PowerShell Get-Item -Force | .Attributes -band ReparsePoint / .LinkType",
+      "huskyUnderscoreExists": true,
+      "nextSize": "1.53GB",
+      "nextSizeCheckCommand": "PowerShell Get-ChildItem -Recurse -File | Measure-Object -Property Length -Sum (on .next)",
+      "branchClassification": "MERGED-SAFE-TO-DELETE",
+      "branchMergedPRs": [
+        1733
+      ],
+      "lastRoadmapLane": "archive-edit-recovery-20260915"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/archive-equipment",
+      "head": "b8d69e2e5ad83ecbce039e9ef5ed527f5fdb2c08",
+      "branch": "codex/roadmap-archive-equipment-20260913",
+      "detached": false,
+      "owned": true,
+      "classification": "OWNED-BY-ROADMAP",
+      "lane": "archive-equipment",
+      "statusPorcelainCommand": "git -C E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/archive-equipment status --porcelain",
+      "trackedModifiedCount": 0,
+      "untrackedCount": 0,
+      "nodeModules": "junction",
+      "nodeModulesCheckCommand": "PowerShell Get-Item -Force | .Attributes -band ReparsePoint / .LinkType",
+      "huskyUnderscoreExists": false,
+      "nextSize": null,
+      "nextSizeCheckCommand": "PowerShell Get-ChildItem -Recurse -File | Measure-Object -Property Length -Sum (on .next)",
+      "branchClassification": "MERGED-SAFE-TO-DELETE",
+      "branchMergedPRs": [
+        1670
+      ],
+      "lastRoadmapLane": "archive-equipment"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/archive-original-main-proof",
+      "head": "ca884fcc666cb7f3d7206f9cf8e5d2381d92133f",
+      "branch": null,
+      "detached": true,
+      "owned": true,
+      "classification": "OWNED-BY-ROADMAP",
+      "lane": "archive-original-main-proof",
+      "statusPorcelainCommand": "git -C E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/archive-original-main-proof status --porcelain",
+      "trackedModifiedCount": 0,
+      "untrackedCount": 0,
+      "nodeModules": "real",
+      "nodeModulesCheckCommand": "PowerShell Get-Item -Force | .Attributes -band ReparsePoint / .LinkType",
+      "huskyUnderscoreExists": true,
+      "nextSize": "2.12GB",
+      "nextSizeCheckCommand": "PowerShell Get-ChildItem -Recurse -File | Measure-Object -Property Length -Sum (on .next)",
+      "testResultsSize": "0.39MB",
+      "playwrightReportSize": "0.64MB",
+      "branchClassification": "DETACHED-HEAD-NO-BRANCH",
+      "lastRoadmapLane": "archive-original-main-proof"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/branch-integrity-repair",
+      "head": "44b94adbbb333a9d4965e057b34290e19fc0e781",
+      "branch": "codex/roadmap-branch-integrity-20260913",
+      "detached": false,
+      "owned": true,
+      "classification": "OWNED-BY-ROADMAP",
+      "lane": "branch-integrity-repair",
+      "statusPorcelainCommand": "git -C E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/branch-integrity-repair status --porcelain",
+      "trackedModifiedCount": 17,
+      "untrackedCount": 2,
+      "nodeModules": "real",
+      "nodeModulesCheckCommand": "PowerShell Get-Item -Force | .Attributes -band ReparsePoint / .LinkType",
+      "huskyUnderscoreExists": false,
+      "nextSize": "1.26GB",
+      "nextSizeCheckCommand": "PowerShell Get-ChildItem -Recurse -File | Measure-Object -Property Length -Sum (on .next)",
+      "branchClassification": "MERGED-SAFE-TO-DELETE",
+      "branchMergedPRs": [],
+      "lastRoadmapLane": "branch-integrity-repair"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/browser",
+      "head": "91b66b04c6f79a365e40b94e25c93e8c00ffa8a3",
+      "branch": null,
+      "detached": true,
+      "owned": true,
+      "classification": "OWNED-BY-ROADMAP",
+      "lane": "browser",
+      "statusPorcelainCommand": "git -C E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/browser status --porcelain",
+      "trackedModifiedCount": 0,
+      "untrackedCount": 0,
+      "nodeModules": "real",
+      "nodeModulesCheckCommand": "PowerShell Get-Item -Force | .Attributes -band ReparsePoint / .LinkType",
+      "huskyUnderscoreExists": true,
+      "nextSize": "3.2GB",
+      "nextSizeCheckCommand": "PowerShell Get-ChildItem -Recurse -File | Measure-Object -Property Length -Sum (on .next)",
+      "testResultsSize": "6.41MB",
+      "playwrightReportSize": "0.53MB",
+      "branchClassification": "DETACHED-HEAD-NO-BRANCH",
+      "lastRoadmapLane": "browser"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/camp-receipt-verification",
+      "head": "e1d9b3c25e5018c44c8276df8b8dc693e6e6478a",
+      "branch": "codex/roadmap-ledger-reconcile-4-20260915",
+      "detached": false,
+      "owned": true,
+      "classification": "OWNED-BY-ROADMAP",
+      "lane": "camp-receipt-verification",
+      "statusPorcelainCommand": "git -C E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/camp-receipt-verification status --porcelain",
+      "trackedModifiedCount": 0,
+      "untrackedCount": 0,
+      "nodeModules": "junction",
+      "nodeModulesCheckCommand": "PowerShell Get-Item -Force | .Attributes -band ReparsePoint / .LinkType",
+      "huskyUnderscoreExists": true,
+      "nextSize": "1.06GB",
+      "nextSizeCheckCommand": "PowerShell Get-ChildItem -Recurse -File | Measure-Object -Property Length -Sum (on .next)",
+      "testResultsSize": "~0MB(empty)",
+      "branchClassification": "MERGED-SAFE-TO-DELETE",
+      "branchMergedPRs": [
+        1743
+      ],
+      "lastRoadmapLane": "camp-receipt-verification"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/camp00-disposable-20260915",
+      "head": "2d38ede7c005312272aed5e63c9b6b2c2ca96b57",
+      "branch": "codex/roadmap-packaged-socket-credential-20260915",
+      "detached": false,
+      "owned": true,
+      "classification": "OWNED-BY-ROADMAP",
+      "lane": "camp00-disposable-20260915",
+      "statusPorcelainCommand": "git -C E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/camp00-disposable-20260915 status --porcelain",
+      "trackedModifiedCount": 0,
+      "untrackedCount": 0,
+      "nodeModules": "real",
+      "nodeModulesCheckCommand": "PowerShell Get-Item -Force | .Attributes -band ReparsePoint / .LinkType",
+      "huskyUnderscoreExists": true,
+      "nextSize": "1.27GB",
+      "nextSizeCheckCommand": "PowerShell Get-ChildItem -Recurse -File | Measure-Object -Property Length -Sum (on .next)",
+      "testResultsSize": "~0MB(empty)",
+      "branchClassification": "MERGED-SAFE-TO-DELETE",
+      "branchMergedPRs": [
+        1701
+      ],
+      "lastRoadmapLane": "camp00-disposable-20260915"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/ci-customizer-gate-20260915",
+      "head": "f01681cf768af0e741e62246132dd526ad337ca2",
+      "branch": "codex/roadmap-ci-quality-mutations-20260915",
+      "detached": false,
+      "owned": true,
+      "classification": "OWNED-BY-ROADMAP",
+      "lane": "ci-customizer-gate-20260915",
+      "statusPorcelainCommand": "git -C E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/ci-customizer-gate-20260915 status --porcelain",
+      "trackedModifiedCount": 0,
+      "untrackedCount": 0,
+      "nodeModules": "absent",
+      "nodeModulesCheckCommand": "PowerShell Get-Item -Force | .Attributes -band ReparsePoint / .LinkType",
+      "huskyUnderscoreExists": false,
+      "nextSize": null,
+      "nextSizeCheckCommand": "PowerShell Get-ChildItem -Recurse -File | Measure-Object -Property Length -Sum (on .next)",
+      "branchClassification": "MERGED-SAFE-TO-DELETE",
+      "branchMergedPRs": [
+        1690
+      ],
+      "lastRoadmapLane": "ci-customizer-gate-20260915"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/ci-package-reconcile-20260915",
+      "head": "11f2fa2f4f69e265d1a6d73266b6dd8a16f0965e",
+      "branch": "codex/roadmap-ci-package-reconcile-20260915",
+      "detached": false,
+      "owned": true,
+      "classification": "OWNED-BY-ROADMAP",
+      "lane": "ci-package-reconcile-20260915",
+      "statusPorcelainCommand": "git -C E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/ci-package-reconcile-20260915 status --porcelain",
+      "trackedModifiedCount": 0,
+      "untrackedCount": 0,
+      "nodeModules": "absent",
+      "nodeModulesCheckCommand": "PowerShell Get-Item -Force | .Attributes -band ReparsePoint / .LinkType",
+      "huskyUnderscoreExists": false,
+      "nextSize": null,
+      "nextSizeCheckCommand": "PowerShell Get-ChildItem -Recurse -File | Measure-Object -Property Length -Sum (on .next)",
+      "branchClassification": "MERGED-SAFE-TO-DELETE",
+      "branchMergedPRs": [
+        1692
+      ],
+      "lastRoadmapLane": "ci-package-reconcile-20260915"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/history-fixtures",
+      "head": "4228d6bb264a1bcdc7cec0ba9e35a68b05a018bb",
+      "branch": "codex/roadmap-history-fixtures-20260913",
+      "detached": false,
+      "owned": true,
+      "classification": "OWNED-BY-ROADMAP",
+      "lane": "history-fixtures",
+      "statusPorcelainCommand": "git -C E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/history-fixtures status --porcelain",
+      "trackedModifiedCount": 0,
+      "untrackedCount": 0,
+      "nodeModules": "real",
+      "nodeModulesCheckCommand": "PowerShell Get-Item -Force | .Attributes -band ReparsePoint / .LinkType",
+      "huskyUnderscoreExists": true,
+      "nextSize": "1.26GB",
+      "nextSizeCheckCommand": "PowerShell Get-ChildItem -Recurse -File | Measure-Object -Property Length -Sum (on .next)",
+      "branchClassification": "MERGED-SAFE-TO-DELETE",
+      "branchMergedPRs": [
+        1671
+      ],
+      "lastRoadmapLane": "history-fixtures"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/history-runtime-integrity",
+      "head": "fe25f9220374fe80b4c847e2f6c228744bd49610",
+      "branch": "codex/roadmap-r4-s7c-checkpoint-door-20260915",
+      "detached": false,
+      "owned": true,
+      "classification": "OWNED-BY-ROADMAP",
+      "lane": "history-runtime-integrity",
+      "statusPorcelainCommand": "git -C E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/history-runtime-integrity status --porcelain",
+      "trackedModifiedCount": 0,
+      "untrackedCount": 0,
+      "nodeModules": "real",
+      "nodeModulesCheckCommand": "PowerShell Get-Item -Force | .Attributes -band ReparsePoint / .LinkType",
+      "huskyUnderscoreExists": true,
+      "nextSize": "2.63GB",
+      "nextSizeCheckCommand": "PowerShell Get-ChildItem -Recurse -File | Measure-Object -Property Length -Sum (on .next)",
+      "testResultsSize": "~0MB(empty)",
+      "branchClassification": "UNMERGED-KEEP",
+      "branchMergedPRs": [],
+      "lastRoadmapLane": "history-runtime-integrity"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/history-sql-integrity",
+      "head": "7515e88f52d03e1ecb6b32e848941f09e4244fb8",
+      "branch": "codex/roadmap-r2-client-crash-window-20260915",
+      "detached": false,
+      "owned": true,
+      "classification": "OWNED-BY-ROADMAP",
+      "lane": "history-sql-integrity",
+      "statusPorcelainCommand": "git -C E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/history-sql-integrity status --porcelain",
+      "trackedModifiedCount": 0,
+      "untrackedCount": 0,
+      "nodeModules": "real",
+      "nodeModulesCheckCommand": "PowerShell Get-Item -Force | .Attributes -band ReparsePoint / .LinkType",
+      "huskyUnderscoreExists": true,
+      "nextSize": "2.13GB",
+      "nextSizeCheckCommand": "PowerShell Get-ChildItem -Recurse -File | Measure-Object -Property Length -Sum (on .next)",
+      "testResultsSize": "~0MB(empty)",
+      "branchClassification": "MERGED-SAFE-TO-DELETE",
+      "branchMergedPRs": [
+        1694
+      ],
+      "lastRoadmapLane": "history-sql-integrity"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/merge-resolve",
+      "head": "1a5ba24ce1cb483df37b551e417d155267ca12f1",
+      "branch": "codex/roadmap-r2-p0b-s2-source-replay-20260915",
+      "detached": false,
+      "owned": true,
+      "classification": "OWNED-BY-ROADMAP",
+      "lane": "merge-resolve",
+      "statusPorcelainCommand": "git -C E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/merge-resolve status --porcelain",
+      "trackedModifiedCount": 0,
+      "untrackedCount": 0,
+      "nodeModules": "absent",
+      "nodeModulesCheckCommand": "PowerShell Get-Item -Force | .Attributes -band ReparsePoint / .LinkType",
+      "huskyUnderscoreExists": false,
+      "nextSize": null,
+      "nextSizeCheckCommand": "PowerShell Get-ChildItem -Recurse -File | Measure-Object -Property Length -Sum (on .next)",
+      "branchClassification": "MERGED-SAFE-TO-DELETE",
+      "branchMergedPRs": [
+        1687
+      ],
+      "lastRoadmapLane": "merge-resolve"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/proof02-rerun",
+      "head": "c6be02fd6370576e3a1f5034c2395aaef19ba46f",
+      "branch": "codex/roadmap-r2-authority-cutover-co3-20260915",
+      "detached": false,
+      "owned": true,
+      "classification": "OWNED-BY-ROADMAP",
+      "lane": "proof02-rerun",
+      "statusPorcelainCommand": "git -C E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/proof02-rerun status --porcelain",
+      "trackedModifiedCount": 0,
+      "untrackedCount": 0,
+      "nodeModules": "real",
+      "nodeModulesCheckCommand": "PowerShell Get-Item -Force | .Attributes -band ReparsePoint / .LinkType",
+      "huskyUnderscoreExists": true,
+      "nextSize": "1.63GB",
+      "nextSizeCheckCommand": "PowerShell Get-ChildItem -Recurse -File | Measure-Object -Property Length -Sum (on .next)",
+      "testResultsSize": "~0MB(empty)",
+      "playwrightReportSize": "0.5MB",
+      "branchClassification": "UNMERGED-KEEP",
+      "branchMergedPRs": [],
+      "lastRoadmapLane": "proof02-rerun"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/r2-client-spec-delta-20260915",
+      "head": "55c8b9d8a156736c42a1a178564bd97cd27a394f",
+      "branch": "codex/roadmap-r2-client-spec-delta-20260915",
+      "detached": false,
+      "owned": true,
+      "classification": "OWNED-BY-ROADMAP",
+      "lane": "r2-client-spec-delta-20260915",
+      "statusPorcelainCommand": "git -C E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/r2-client-spec-delta-20260915 status --porcelain",
+      "trackedModifiedCount": 0,
+      "untrackedCount": 0,
+      "nodeModules": "absent",
+      "nodeModulesCheckCommand": "PowerShell Get-Item -Force | .Attributes -band ReparsePoint / .LinkType",
+      "huskyUnderscoreExists": false,
+      "nextSize": null,
+      "nextSizeCheckCommand": "PowerShell Get-ChildItem -Recurse -File | Measure-Object -Property Length -Sum (on .next)",
+      "branchClassification": "MERGED-SAFE-TO-DELETE",
+      "branchMergedPRs": [
+        1685
+      ],
+      "lastRoadmapLane": "r2-client-spec-delta-20260915"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/r2-prepared-journal-api",
+      "head": "bff63c183c39bd4b768b4d6be7a4bd087c5ecd76",
+      "branch": null,
+      "detached": true,
+      "owned": true,
+      "classification": "OWNED-BY-ROADMAP",
+      "lane": "r2-prepared-journal-api",
+      "statusPorcelainCommand": "git -C E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/r2-prepared-journal-api status --porcelain",
+      "trackedModifiedCount": 0,
+      "untrackedCount": 0,
+      "nodeModules": "real",
+      "nodeModulesCheckCommand": "PowerShell Get-Item -Force | .Attributes -band ReparsePoint / .LinkType",
+      "huskyUnderscoreExists": true,
+      "nextSize": "2.08GB",
+      "nextSizeCheckCommand": "PowerShell Get-ChildItem -Recurse -File | Measure-Object -Property Length -Sum (on .next)",
+      "testResultsSize": "~0MB(empty)",
+      "branchClassification": "DETACHED-HEAD-NO-BRANCH",
+      "lastRoadmapLane": "r2-prepared-journal-api"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/r2-projection-prereq-20260915",
+      "head": "831da8863a11e336cb93abf52c4157149c1c8953",
+      "branch": "codex/roadmap-r2-projection-prereq-20260915",
+      "detached": false,
+      "owned": true,
+      "classification": "OWNED-BY-ROADMAP",
+      "lane": "r2-projection-prereq-20260915",
+      "statusPorcelainCommand": "git -C E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/r2-projection-prereq-20260915 status --porcelain",
+      "trackedModifiedCount": 0,
+      "untrackedCount": 0,
+      "nodeModules": "absent",
+      "nodeModulesCheckCommand": "PowerShell Get-Item -Force | .Attributes -band ReparsePoint / .LinkType",
+      "huskyUnderscoreExists": false,
+      "nextSize": null,
+      "nextSizeCheckCommand": "PowerShell Get-ChildItem -Recurse -File | Measure-Object -Property Length -Sum (on .next)",
+      "branchClassification": "MERGED-SAFE-TO-DELETE",
+      "branchMergedPRs": [
+        1675
+      ],
+      "lastRoadmapLane": "r2-projection-prereq-20260915"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/r3-storage-review",
+      "head": "44b94adbbb333a9d4965e057b34290e19fc0e781",
+      "branch": null,
+      "detached": true,
+      "owned": true,
+      "classification": "OWNED-BY-ROADMAP",
+      "lane": "r3-storage-review",
+      "statusPorcelainCommand": "git -C E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/r3-storage-review status --porcelain",
+      "trackedModifiedCount": 0,
+      "untrackedCount": 0,
+      "nodeModules": "junction",
+      "nodeModulesCheckCommand": "PowerShell Get-Item -Force | .Attributes -band ReparsePoint / .LinkType",
+      "huskyUnderscoreExists": false,
+      "nextSize": "1.08GB",
+      "nextSizeCheckCommand": "PowerShell Get-ChildItem -Recurse -File | Measure-Object -Property Length -Sum (on .next)",
+      "branchClassification": "DETACHED-HEAD-NO-BRANCH",
+      "lastRoadmapLane": "r3-storage-review"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/r4-matrix",
+      "head": "5a55960c47b7541d2f0fd54b94c036d19847a844",
+      "branch": "codex/roadmap-r4-matrix-20260913",
+      "detached": false,
+      "owned": true,
+      "classification": "OWNED-BY-ROADMAP",
+      "lane": "r4-matrix",
+      "statusPorcelainCommand": "git -C E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/r4-matrix status --porcelain",
+      "trackedModifiedCount": 0,
+      "untrackedCount": 0,
+      "nodeModules": "real",
+      "nodeModulesCheckCommand": "PowerShell Get-Item -Force | .Attributes -band ReparsePoint / .LinkType",
+      "huskyUnderscoreExists": true,
+      "nextSize": null,
+      "nextSizeCheckCommand": "PowerShell Get-ChildItem -Recurse -File | Measure-Object -Property Length -Sum (on .next)",
+      "branchClassification": "MERGED-SAFE-TO-DELETE",
+      "branchMergedPRs": [
+        1672
+      ],
+      "lastRoadmapLane": "r4-matrix"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/r6-deferrals",
+      "head": "fe5df226bb5f4ec0a09946ff2de2824fa2dcfb93",
+      "branch": "codex/roadmap-r6-deferrals-20260913",
+      "detached": false,
+      "owned": true,
+      "classification": "OWNED-BY-ROADMAP",
+      "lane": "r6-deferrals",
+      "statusPorcelainCommand": "git -C E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/r6-deferrals status --porcelain",
+      "trackedModifiedCount": 0,
+      "untrackedCount": 0,
+      "nodeModules": "junction",
+      "nodeModulesCheckCommand": "PowerShell Get-Item -Force | .Attributes -band ReparsePoint / .LinkType",
+      "huskyUnderscoreExists": true,
+      "nextSize": null,
+      "nextSizeCheckCommand": "PowerShell Get-ChildItem -Recurse -File | Measure-Object -Property Length -Sum (on .next)",
+      "branchClassification": "MERGED-SAFE-TO-DELETE",
+      "branchMergedPRs": [
+        1673
+      ],
+      "lastRoadmapLane": "r6-deferrals"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/reconcile-1",
+      "head": "6131c359fdbeca520f795647ba29420036c34d7b",
+      "branch": "codex/roadmap-r4-s7b-3-derivation-20260915",
+      "detached": false,
+      "owned": true,
+      "classification": "OWNED-BY-ROADMAP",
+      "lane": "reconcile-1",
+      "statusPorcelainCommand": "git -C E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/reconcile-1 status --porcelain",
+      "trackedModifiedCount": 0,
+      "untrackedCount": 0,
+      "nodeModules": "real",
+      "nodeModulesCheckCommand": "PowerShell Get-Item -Force | .Attributes -band ReparsePoint / .LinkType",
+      "huskyUnderscoreExists": true,
+      "nextSize": "1.49GB",
+      "nextSizeCheckCommand": "PowerShell Get-ChildItem -Recurse -File | Measure-Object -Property Length -Sum (on .next)",
+      "testResultsSize": "~0MB(empty)",
+      "branchClassification": "UNMERGED-KEEP",
+      "branchMergedPRs": [],
+      "lastRoadmapLane": "reconcile-1"
+    },
+    {
+      "path": "E:/Projects/mekstation-l66",
+      "head": "74bd093a65c483ed8d25e4d91adddf3677368090",
+      "branch": null,
+      "detached": true,
+      "owned": false,
+      "classification": "NOT-OWNED",
+      "note": "do not touch"
+    },
+    {
+      "path": "E:/Projects/mekstation-l83",
+      "head": "7f821e7795db67ba60010b44c15aeb5f86d2838e",
+      "branch": null,
+      "detached": true,
+      "owned": false,
+      "classification": "NOT-OWNED",
+      "note": "do not touch"
+    },
+    {
+      "path": "E:/Projects/mekstation-l89",
+      "head": "439af6bca6c54cf60472e8d7e9c191a962ee93ab",
+      "branch": null,
+      "detached": true,
+      "owned": false,
+      "classification": "NOT-OWNED",
+      "note": "do not touch"
+    }
+  ],
+  "localBranches": [
+    {
+      "branch": "backup/r2-61-fence-monolith",
+      "tipSha": "ac2782f4eab8b4ddae3800ccdbdf570fe1e40f15",
+      "isAncestorOfMain": false,
+      "mergedPRs": [],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "REFERENCE-KEEP",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "backup/r2-61-fence-pair-pre-re1",
+      "tipSha": "cff0fbaaa6fb9332d857234f9c80dee9590e3a66",
+      "isAncestorOfMain": false,
+      "mergedPRs": [],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "REFERENCE-KEEP",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "backup/r2-64-bridge-monolith",
+      "tipSha": "4377158bc3750cb501c9f121eb090e3a4da9281b",
+      "isAncestorOfMain": false,
+      "mergedPRs": [],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "REFERENCE-KEEP",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "backup/r2-64-bridge-split-post-review",
+      "tipSha": "d16b5880a3cc24d7d04bf5309fa74dffa59bcaf2",
+      "isAncestorOfMain": false,
+      "mergedPRs": [],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "REFERENCE-KEEP",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "backup/r2-64-bridge-split-pre-review",
+      "tipSha": "d236e99806838fa16536e70b1a81e30595e16297",
+      "isAncestorOfMain": false,
+      "mergedPRs": [],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "REFERENCE-KEEP",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "backup/r2-p1-62a3-reviewed-pair",
+      "tipSha": "87ed9d2391f53fe90242c0c38aa7f314ac4455c0",
+      "isAncestorOfMain": false,
+      "mergedPRs": [],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "REFERENCE-KEEP",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "backup/r2-p1-62a3-split-pre-review",
+      "tipSha": "dcaa8fcc7322fc2934baa2aebb816f095fc4f8c0",
+      "isAncestorOfMain": false,
+      "mergedPRs": [],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "REFERENCE-KEEP",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "backup/r4-s5-pre-review",
+      "tipSha": "be5ad635d789f19efa7a76c808d0c1dccd440036",
+      "isAncestorOfMain": false,
+      "mergedPRs": [],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "REFERENCE-KEEP",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "backup/r4-s6-pre-prose-restore",
+      "tipSha": "e4b15dba11fc32e4f83c2bee36a48cb028d6a03c",
+      "isAncestorOfMain": false,
+      "mergedPRs": [],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "REFERENCE-KEEP",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-archive-chassis-20260913",
+      "tipSha": "358f1e31d4a22a9990129202d6d0af16b57d1feb",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1669
+      ],
+      "checkedOutInWorktree": true,
+      "worktreePath": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/archive-chassis",
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-archive-edit-recovery-20260915",
+      "tipSha": "a7429d3cc5c011cdb4d4385a3f394dc261be5d19",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1683
+      ],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-archive-equipment-20260913",
+      "tipSha": "b8d69e2e5ad83ecbce039e9ef5ed527f5fdb2c08",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1670
+      ],
+      "checkedOutInWorktree": true,
+      "worktreePath": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/archive-equipment",
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-branch-integrity-20260913",
+      "tipSha": "44b94adbbb333a9d4965e057b34290e19fc0e781",
+      "isAncestorOfMain": true,
+      "mergedPRs": [],
+      "checkedOutInWorktree": true,
+      "worktreePath": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/branch-integrity-repair",
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-camp-live-probe-fix-20260915",
+      "tipSha": "71a22399f21158ec3fc4d5b402c0d1946b1f4527",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1679
+      ],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-camp-proof-exact-main-a11ef14f-20260915",
+      "tipSha": "a11ef14fdf586b96eb30d49329b1a99b63281725",
+      "isAncestorOfMain": true,
+      "mergedPRs": [],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-camp-qc-registry-20260915",
+      "tipSha": "5c764fc8f15b8b48b9395ec2e5e8021262d00499",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1676
+      ],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-camp-receipt-verification-20260912",
+      "tipSha": "92d04fc6bcc2e49fd40d63d6f0cfd2a9c72eb14c",
+      "isAncestorOfMain": true,
+      "mergedPRs": [],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-camp-umbrella-pin-20260915",
+      "tipSha": "f81a154e5f4abead13a66e0e2ec218b793deaf61",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1677
+      ],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-campaign-route-auth-20260915",
+      "tipSha": "bce2049d74ce6e48b5d0813fb506ada701257e47",
+      "isAncestorOfMain": true,
+      "mergedPRs": [],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-ci-customizer-gate-20260915",
+      "tipSha": "c3f2fc80e271c940d9d14730ec1eda9ffe21ba8d",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1678
+      ],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-ci-package-reconcile-20260915",
+      "tipSha": "11f2fa2f4f69e265d1a6d73266b6dd8a16f0965e",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1692
+      ],
+      "checkedOutInWorktree": true,
+      "worktreePath": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/ci-package-reconcile-20260915",
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-ci-quality-mutations-20260915",
+      "tipSha": "f01681cf768af0e741e62246132dd526ad337ca2",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1690
+      ],
+      "checkedOutInWorktree": true,
+      "worktreePath": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/ci-customizer-gate-20260915",
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-ci-quality-test-20260915",
+      "tipSha": "fb1d643064e057625ef5d66e0ad137da47a1b399",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1689
+      ],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-customizer-browser-20260912",
+      "tipSha": "dc28fd4aa38b9b411954a52b6355aa8fbfff37c7",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1667
+      ],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-equipment-abort-signal-20260915",
+      "tipSha": "63713e5f85dd77c10655d8320c79d9711729e1d9",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1697
+      ],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-equipment-abort-signal-p1-20260915",
+      "tipSha": "4a27ac4ba8919553fad7c0ae02917ddb047f8007",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1696
+      ],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-guest-cache-stands-20260915",
+      "tipSha": "8a2975c81e7bb3604630b79d9272b728d2e189e3",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1695
+      ],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-guest-share-panel-grants-20260915",
+      "tipSha": "a3f7f4947297a8785713b416db7f87e97bed25c9",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1720
+      ],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-history-bc-prep-20260915",
+      "tipSha": "d2fd6da059ed1616182cfc11a4ae33d665f8c940",
+      "isAncestorOfMain": false,
+      "mergedPRs": [],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "UNMERGED-KEEP",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-history-fixtures-20260913",
+      "tipSha": "4228d6bb264a1bcdc7cec0ba9e35a68b05a018bb",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1671
+      ],
+      "checkedOutInWorktree": true,
+      "worktreePath": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/history-fixtures",
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-history-runtime-integrity-20260913",
+      "tipSha": "22cbe105fc9b050cc136f823d4bddc5f6fb6c8fc",
+      "isAncestorOfMain": false,
+      "mergedPRs": [],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "UNMERGED-KEEP",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-history-runtime-integrity-20260915",
+      "tipSha": "5bb7afca9e7c0b89cbb50ada1275094a21df4839",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1674
+      ],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-history-sql-integrity-20260913",
+      "tipSha": "fd335ee371c522957544c96b1e7f62772075b504",
+      "isAncestorOfMain": false,
+      "mergedPRs": [],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "UNMERGED-KEEP",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-history-sql-integrity-20260915",
+      "tipSha": "79667696c6900c9ba88141e3a0baf5681fbbd8b3",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1681
+      ],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-ledger-reconcile-1-20260915",
+      "tipSha": "98cac987d663bb5c294dc97f3cae942d213cdf02",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1718
+      ],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-ledger-reconcile-2-20260915",
+      "tipSha": "d17c1ae8f2ee6caba7e205671566176e58d5f4b4",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1727
+      ],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-ledger-reconcile-3-20260915",
+      "tipSha": "82ce7c59f4e16d38257141afc6f987004efdc778",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1736
+      ],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-ledger-reconcile-4-20260915",
+      "tipSha": "e1d9b3c25e5018c44c8276df8b8dc693e6e6478a",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1743
+      ],
+      "checkedOutInWorktree": true,
+      "worktreePath": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/camp-receipt-verification",
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-packaged-socket-credential-20260915",
+      "tipSha": "2d38ede7c005312272aed5e63c9b6b2c2ca96b57",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1701
+      ],
+      "checkedOutInWorktree": true,
+      "worktreePath": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/camp00-disposable-20260915",
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-paper-size-settle-20260915",
+      "tipSha": "9b59a19f8ada676e8cb504905751ac91a9a9905c",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1682
+      ],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-proof02-starmap-settle-20260915",
+      "tipSha": "b0a190f2774455d5c4e16f7ce2039614b688eb11",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1714
+      ],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-qc-fixture-port-range-20260915",
+      "tipSha": "3bfc4387e9cf614478ee20329a9bfef48daa0eb8",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1742
+      ],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-r2-61-source-replay-fence-20260915",
+      "tipSha": "9be00ebecdd2210634fade6976cff672f936b905",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1722
+      ],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-r2-63-room-code-leak-row-20260915",
+      "tipSha": "751749480b5ed0a70f8f90be9ab4503a83081255",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1719
+      ],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-r2-64-cas-bridge-20260915",
+      "tipSha": "2a9152efbcc61be5430d16c13ef54832f1c59e07",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1725
+      ],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-r2-authority-cutover-co0-2-20260915",
+      "tipSha": "b620467ccfc4dad81fec7bd54944330fba2d4287",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1740
+      ],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-r2-authority-cutover-co0-20260915",
+      "tipSha": "186049b89946f021d98487b85fcc2fb56f36be59",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1739
+      ],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-r2-authority-cutover-co3-20260915",
+      "tipSha": "c6be02fd6370576e3a1f5034c2395aaef19ba46f",
+      "isAncestorOfMain": false,
+      "mergedPRs": [],
+      "checkedOutInWorktree": true,
+      "worktreePath": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/proof02-rerun",
+      "classification": "UNMERGED-KEEP",
+      "openPR": 1750,
+      "openPRUrl": "https://github.com/SwiggitySwerve/MekStation/pull/1750"
+    },
+    {
+      "branch": "codex/roadmap-r2-authority-host-h0-20260915",
+      "tipSha": "467719ce0d1b7c8da37101a04ca06b646a00167f",
+      "isAncestorOfMain": false,
+      "mergedPRs": [],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "REFERENCE-KEEP",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-r2-authority-host-live-fold-20260915",
+      "tipSha": "5973dc7fbe1250563f0b48801c7bd173ff165c1f",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1733
+      ],
+      "checkedOutInWorktree": true,
+      "worktreePath": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/archive-edit-recovery-20260915",
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-r2-camp-2-authoritative-state-guards-20260915",
+      "tipSha": "c674a5dfc76c868cd83c2ae6665d5157f2bfe989",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1715
+      ],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-r2-client-crash-window-20260915",
+      "tipSha": "7515e88f52d03e1ecb6b32e848941f09e4244fb8",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1694
+      ],
+      "checkedOutInWorktree": true,
+      "worktreePath": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/history-sql-integrity",
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-r2-client-crash-window-20260915-reference",
+      "tipSha": "bad964e7257d330e5469064237748bff9543f24b",
+      "isAncestorOfMain": false,
+      "mergedPRs": [],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "UNMERGED-KEEP",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-r2-client-crash-window-browser-20260915",
+      "tipSha": "d05331b5685b84183d428513404f0f0f84308919",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1711
+      ],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-r2-client-flush-reconcile-20260915",
+      "tipSha": "9e63abab4b9acaf488b3ccfa7e44eae7c6e7e7b9",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1710
+      ],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-r2-client-spec-delta-20260915",
+      "tipSha": "55c8b9d8a156736c42a1a178564bd97cd27a394f",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1685
+      ],
+      "checkedOutInWorktree": true,
+      "worktreePath": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/r2-client-spec-delta-20260915",
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-r2-combat-browser-launch-proof-20260915",
+      "tipSha": "2d333ee6056e98d5bd9eb0c09d3b793cc2db01d9",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1731
+      ],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-r2-combat-residual-rows-20260915",
+      "tipSha": "8bc4d99e43d35fe2843ac2b8c8b860d92ba66ffb",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1726
+      ],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-r2-combat-s5-coop-custom-authority-20260915",
+      "tipSha": "83c691741b70572e27a6b743731f2f535924b9a5",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1712
+      ],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-r2-combat-s5-snapshot-rows-20260915",
+      "tipSha": "2e104972193ea722b1cba6624fe3654448bda2ab",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1713
+      ],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-r2-p0b-private-envelope-20260915",
+      "tipSha": "af7130e3cacac031e42c26d2a61776e873f21644",
+      "isAncestorOfMain": false,
+      "mergedPRs": [],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "UNMERGED-KEEP",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-r2-p0b-s1-private-field-20260915",
+      "tipSha": "b338320337dfcf6e22b3f80912541aa1785aa5cf",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1686
+      ],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-r2-p0b-s2-source-replay-20260915",
+      "tipSha": "1a5ba24ce1cb483df37b551e417d155267ca12f1",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1687
+      ],
+      "checkedOutInWorktree": true,
+      "worktreePath": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/merge-resolve",
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-r2-p1-62a-market-durability-20260915",
+      "tipSha": "b46433b1f52b5be58490e4f8f5c64f728a52d100",
+      "isAncestorOfMain": false,
+      "mergedPRs": [],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "UNMERGED-KEEP",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-r2-p1-62a-market-durability-20260915-reference",
+      "tipSha": "b09a0f89fd2e1a47c4b66368630f8b2de406a0b3",
+      "isAncestorOfMain": false,
+      "mergedPRs": [],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "UNMERGED-KEEP",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-r2-p1-62a1i-prepared-accept-20260915",
+      "tipSha": "3a90ed53053664d48b6d193b52a44006c2c2ca95",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1698
+      ],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-r2-p1-62a1ii-refusal-rows-20260915",
+      "tipSha": "49517c5c4bb77bf561f6abeffd08e58984191b3a",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1699
+      ],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-r2-p1-62a2-first-acceptance-20260915",
+      "tipSha": "ace1303a45416eaab1df33a1cee55fda8f281949",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1700
+      ],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-r2-p1-62a3-a1-source-row-20260915",
+      "tipSha": "897fcb15aa775f0d39e5d04a1986716573165283",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1706
+      ],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-r2-p1-62a3-a2-refusal-rows-20260915",
+      "tipSha": "16ade21b373c88b69b07d85a8002cfe756f28af9",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1707
+      ],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-r2-p1-62a3-b-shape-rows-20260915",
+      "tipSha": "a1fd9845bc22a6f4e6a68970c8ecf5f90324cdaf",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1708
+      ],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-r2-p1-62a3-source-row-20260915",
+      "tipSha": "1474efb7112f0b69452aba8d76929381eb31db9a",
+      "isAncestorOfMain": false,
+      "mergedPRs": [],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "UNMERGED-KEEP",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-r2-p1-62a3-source-row-split-20260915",
+      "tipSha": "d3309b178f1efef2ca2ea32bcd78c7993357c853",
+      "isAncestorOfMain": false,
+      "mergedPRs": [],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "UNMERGED-KEEP",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-r2-p1-62b-accept-routing-20260915",
+      "tipSha": "b46433b1f52b5be58490e4f8f5c64f728a52d100",
+      "isAncestorOfMain": false,
+      "mergedPRs": [],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "UNMERGED-KEEP",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-r2-prepared-journal-api-20260913",
+      "tipSha": "0d9d9ab88cad60767b8fce87a4c6ad4cc32e5dbd",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1668
+      ],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-r2-projection-prereq-20260915",
+      "tipSha": "831da8863a11e336cb93abf52c4157149c1c8953",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1675
+      ],
+      "checkedOutInWorktree": true,
+      "worktreePath": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/r2-projection-prereq-20260915",
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-r4-matrix-20260913",
+      "tipSha": "5a55960c47b7541d2f0fd54b94c036d19847a844",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1672
+      ],
+      "checkedOutInWorktree": true,
+      "worktreePath": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/r4-matrix",
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-r4-s1-journal-batches-20260915",
+      "tipSha": "e1ccf668c954b9169385a496f80fe1348f19c60a",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1684
+      ],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-r4-s2-live-head-admission-20260915",
+      "tipSha": "c315b9f99474d24ce01e2d09f2e02bde4f4d6bab",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1691
+      ],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-r4-s3a-derived-started-20260915",
+      "tipSha": "bb346350e5b40e29dff45998340fe24e2de52756",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1693
+      ],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-r4-s3b-a-repoint-started-20260915",
+      "tipSha": "e7c9532caabd0eaf3487dfbebcd1a8f77d82cd53",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1702
+      ],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-r4-s3b-repoint-started-20260915",
+      "tipSha": "e93e8de1d675a7545baa58f0f934f62ba223ceda",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1703
+      ],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-r4-s3b-repoint-started-20260915-reference",
+      "tipSha": "0890acadec21d7f1f12c1f8584460f8cc517f4cd",
+      "isAncestorOfMain": false,
+      "mergedPRs": [],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "UNMERGED-KEEP",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-r4-s4-a-restart-recovery-20260915",
+      "tipSha": "d950bb65ca5e2c6db98e2743b1d7bff4ab32e8aa",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1704
+      ],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-r4-s4-restart-recovery-20260915",
+      "tipSha": "5e783a97a18adf061ca9cd2a0fc550313c86b21c",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1705
+      ],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-r4-s5-explicit-offsets-20260915",
+      "tipSha": "d5beb85421c03ea768d1509c76066bf99ef2780c",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1717
+      ],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-r4-s6-a-consult-20260915",
+      "tipSha": "75adfbb3fc9305d0429d825d95e3f7cb760d621d",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1728
+      ],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-r4-s6-b-suite-20260915",
+      "tipSha": "5f370239ec6001c679d8a07e3ebc653b31b2bd14",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1729
+      ],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-r4-s6-c-rows-20260915",
+      "tipSha": "ee87fe5253b9061ce730f7b5786a4205b00711e0",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1730
+      ],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-r4-s6-journal-head-revision-20260915",
+      "tipSha": "bb639a869bf52f842d14736e9183003b98efdec0",
+      "isAncestorOfMain": false,
+      "mergedPRs": [],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "UNMERGED-KEEP",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-r4-s7a-seeding-jcs-20260915",
+      "tipSha": "b9ab4a668d34ae9d7d2e7c9710484d13c751ba0d",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1738
+      ],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-r4-s7b-1-recovery-source-20260915",
+      "tipSha": "02422b84c1b345f4158a38e69cff4b0437904228",
+      "isAncestorOfMain": false,
+      "mergedPRs": [],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "UNMERGED-KEEP",
+      "openPR": 1744,
+      "openPRUrl": "https://github.com/SwiggitySwerve/MekStation/pull/1744"
+    },
+    {
+      "branch": "codex/roadmap-r4-s7b-2-command-path-20260915",
+      "tipSha": "5e37201b9969799ede068826cc2fa7c57c0051b5",
+      "isAncestorOfMain": false,
+      "mergedPRs": [],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "UNMERGED-KEEP",
+      "openPR": 1745,
+      "openPRUrl": "https://github.com/SwiggitySwerve/MekStation/pull/1745"
+    },
+    {
+      "branch": "codex/roadmap-r4-s7b-3-derivation-20260915",
+      "tipSha": "6131c359fdbeca520f795647ba29420036c34d7b",
+      "isAncestorOfMain": false,
+      "mergedPRs": [],
+      "checkedOutInWorktree": true,
+      "worktreePath": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/reconcile-1",
+      "classification": "UNMERGED-KEEP",
+      "openPR": 1746,
+      "openPRUrl": "https://github.com/SwiggitySwerve/MekStation/pull/1746"
+    },
+    {
+      "branch": "codex/roadmap-r4-s7b-marker-retirement-20260915",
+      "tipSha": "72e385c2bbb26dedf3e42c90d5ca105766491590",
+      "isAncestorOfMain": false,
+      "mergedPRs": [],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "UNMERGED-KEEP",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-r4-s7c-checkpoint-door-20260915",
+      "tipSha": "c298713af670196db19dafc63ba149baab70fd9c",
+      "isAncestorOfMain": false,
+      "mergedPRs": [],
+      "checkedOutInWorktree": true,
+      "worktreePath": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/history-runtime-integrity",
+      "classification": "UNMERGED-KEEP",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-r6-deferrals-20260913",
+      "tipSha": "fe5df226bb5f4ec0a09946ff2de2824fa2dcfb93",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1673
+      ],
+      "checkedOutInWorktree": true,
+      "worktreePath": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/r6-deferrals",
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-r9-roster-damage-20260915",
+      "tipSha": "f5d3db42f232e3bd565823a9ec38c000f442e47d",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1735
+      ],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    },
+    {
+      "branch": "codex/roadmap-selected-paper-settle-20260915",
+      "tipSha": "bfce65b3f60b75b829ea8301b8c7407abfd07b3d",
+      "isAncestorOfMain": false,
+      "mergedPRs": [
+        1741
+      ],
+      "checkedOutInWorktree": false,
+      "worktreePath": null,
+      "classification": "MERGED-SAFE-TO-DELETE",
+      "openPR": null,
+      "openPRUrl": null
+    }
+  ],
+  "remoteBranches": [
+    {
+      "branch": "codex/roadmap-r2-authority-host-h0-20260915",
+      "remoteSha": "467719ce0d1b7c8da37101a04ca06b646a00167f",
+      "localClassification": "REFERENCE-KEEP",
+      "mergedPRs": [],
+      "command": "git ls-remote --heads origin codex/roadmap-*",
+      "note": "listed only; deletion requires parent confirmation per task instructions"
+    },
+    {
+      "branch": "codex/roadmap-r4-s7b-1-recovery-source-20260915",
+      "remoteSha": "33431838dabb7b28a83bdf53190f3c5aa70e96f7",
+      "localClassification": "UNMERGED-KEEP",
+      "mergedPRs": [],
+      "command": "git ls-remote --heads origin codex/roadmap-*",
+      "note": "listed only; deletion requires parent confirmation per task instructions"
+    },
+    {
+      "branch": "codex/roadmap-r4-s7b-2-command-path-20260915",
+      "remoteSha": "5e37201b9969799ede068826cc2fa7c57c0051b5",
+      "localClassification": "UNMERGED-KEEP",
+      "mergedPRs": [],
+      "command": "git ls-remote --heads origin codex/roadmap-*",
+      "note": "listed only; deletion requires parent confirmation per task instructions"
+    },
+    {
+      "branch": "codex/roadmap-r4-s7b-3-derivation-20260915",
+      "remoteSha": "6131c359fdbeca520f795647ba29420036c34d7b",
+      "localClassification": "UNMERGED-KEEP",
+      "mergedPRs": [],
+      "command": "git ls-remote --heads origin codex/roadmap-*",
+      "note": "listed only; deletion requires parent confirmation per task instructions"
+    }
+  ],
+  "stashes": [
+    {
+      "hash": "f82f869a1736a463678cf666bab54e845563f4c4",
+      "message": "On main: MekStation deferred work before clean main baseline 2026-09-09",
+      "ownedByRoadmap": false,
+      "command": "git stash list --format=%H|%gs"
+    },
+    {
+      "hash": "e884c411db2548baff40671f34d0ffc591bbb27b",
+      "message": "On codex/customizer-ui-baseline: MekStation post-merge browser follow-ups 2026-09-09",
+      "ownedByRoadmap": false,
+      "command": "git stash list --format=%H|%gs"
+    },
+    {
+      "hash": "e42dd5e7118fb65ccc3831cccd0c37f14b11d51b",
+      "message": "On wave-f1-long-run: f1-longrun-wip-for-prb-cut",
+      "ownedByRoadmap": false,
+      "command": "git stash list --format=%H|%gs"
+    },
+    {
+      "hash": "9733be4d3d1271458fadf8d1294ad0dfbdb0edb4",
+      "message": "On wave-f1-performance: f1-full-staged-backup",
+      "ownedByRoadmap": false,
+      "command": "git stash list --format=%H|%gs"
+    },
+    {
+      "hash": "856166b480a4139655dd7720cdf93625b370edd8",
+      "message": "On main: Cursor: moved local changes to cloud agent (source agent 951bbafa-7204-4ffa-b580-d78f74d7eb15)",
+      "ownedByRoadmap": false,
+      "command": "git stash list --format=%H|%gs"
+    },
+    {
+      "hash": "0efe3bec35aacff8e9e0b06283d0b826b85f1a9f",
+      "message": "On maintain/modularity-hard-guardrail-wave1: maintain/modularity-hard-guardrail-wave1 WIP (stashed 2026-08-08 to switch checkout to main)",
+      "ownedByRoadmap": false,
+      "command": "git stash list --format=%H|%gs"
+    }
+  ],
+  "artefacts": [
+    {
+      "worktree": "archive-edit-recovery-20260915",
+      "artefact": ".next",
+      "size": "1.53GB",
+      "command": "PowerShell Get-ChildItem -Recurse -File .next | Measure-Object -Property Length -Sum",
+      "classification": "deletable-with-worktree"
+    },
+    {
+      "worktree": "archive-original-main-proof",
+      "artefact": ".next",
+      "size": "2.12GB",
+      "command": "PowerShell Get-ChildItem -Recurse -File .next | Measure-Object -Property Length -Sum",
+      "classification": "deletable-with-worktree"
+    },
+    {
+      "worktree": "archive-original-main-proof",
+      "artefact": "test-results",
+      "size": "0.39MB",
+      "command": "PowerShell Get-ChildItem -Recurse test-results | Measure-Object -Property Length -Sum",
+      "classification": "deletable-with-worktree"
+    },
+    {
+      "worktree": "archive-original-main-proof",
+      "artefact": "playwright-report",
+      "size": "0.64MB",
+      "command": "PowerShell Get-ChildItem -Recurse playwright-report | Measure-Object -Property Length -Sum",
+      "classification": "deletable-with-worktree"
+    },
+    {
+      "worktree": "branch-integrity-repair",
+      "artefact": ".next",
+      "size": "1.26GB",
+      "command": "PowerShell Get-ChildItem -Recurse -File .next | Measure-Object -Property Length -Sum",
+      "classification": "deletable-with-worktree"
+    },
+    {
+      "worktree": "browser",
+      "artefact": ".next",
+      "size": "3.2GB",
+      "command": "PowerShell Get-ChildItem -Recurse -File .next | Measure-Object -Property Length -Sum",
+      "classification": "deletable-with-worktree"
+    },
+    {
+      "worktree": "browser",
+      "artefact": "test-results",
+      "size": "6.41MB",
+      "command": "PowerShell Get-ChildItem -Recurse test-results | Measure-Object -Property Length -Sum",
+      "classification": "deletable-with-worktree"
+    },
+    {
+      "worktree": "browser",
+      "artefact": "playwright-report",
+      "size": "0.53MB",
+      "command": "PowerShell Get-ChildItem -Recurse playwright-report | Measure-Object -Property Length -Sum",
+      "classification": "deletable-with-worktree"
+    },
+    {
+      "worktree": "camp-receipt-verification",
+      "artefact": ".next",
+      "size": "1.06GB",
+      "command": "PowerShell Get-ChildItem -Recurse -File .next | Measure-Object -Property Length -Sum",
+      "classification": "deletable-with-worktree"
+    },
+    {
+      "worktree": "camp-receipt-verification",
+      "artefact": "test-results",
+      "size": "~0MB(empty)",
+      "command": "PowerShell Get-ChildItem -Recurse test-results | Measure-Object -Property Length -Sum",
+      "classification": "deletable-with-worktree"
+    },
+    {
+      "worktree": "camp00-disposable-20260915",
+      "artefact": ".next",
+      "size": "1.27GB",
+      "command": "PowerShell Get-ChildItem -Recurse -File .next | Measure-Object -Property Length -Sum",
+      "classification": "deletable-with-worktree"
+    },
+    {
+      "worktree": "camp00-disposable-20260915",
+      "artefact": "test-results",
+      "size": "~0MB(empty)",
+      "command": "PowerShell Get-ChildItem -Recurse test-results | Measure-Object -Property Length -Sum",
+      "classification": "deletable-with-worktree"
+    },
+    {
+      "worktree": "history-fixtures",
+      "artefact": ".next",
+      "size": "1.26GB",
+      "command": "PowerShell Get-ChildItem -Recurse -File .next | Measure-Object -Property Length -Sum",
+      "classification": "deletable-with-worktree"
+    },
+    {
+      "worktree": "history-runtime-integrity",
+      "artefact": ".next",
+      "size": "2.63GB",
+      "command": "PowerShell Get-ChildItem -Recurse -File .next | Measure-Object -Property Length -Sum",
+      "classification": "deletable-with-worktree"
+    },
+    {
+      "worktree": "history-runtime-integrity",
+      "artefact": "test-results",
+      "size": "~0MB(empty)",
+      "command": "PowerShell Get-ChildItem -Recurse test-results | Measure-Object -Property Length -Sum",
+      "classification": "deletable-with-worktree"
+    },
+    {
+      "worktree": "history-sql-integrity",
+      "artefact": ".next",
+      "size": "2.13GB",
+      "command": "PowerShell Get-ChildItem -Recurse -File .next | Measure-Object -Property Length -Sum",
+      "classification": "deletable-with-worktree"
+    },
+    {
+      "worktree": "history-sql-integrity",
+      "artefact": "test-results",
+      "size": "~0MB(empty)",
+      "command": "PowerShell Get-ChildItem -Recurse test-results | Measure-Object -Property Length -Sum",
+      "classification": "deletable-with-worktree"
+    },
+    {
+      "worktree": "proof02-rerun",
+      "artefact": ".next",
+      "size": "1.63GB",
+      "command": "PowerShell Get-ChildItem -Recurse -File .next | Measure-Object -Property Length -Sum",
+      "classification": "deletable-with-worktree"
+    },
+    {
+      "worktree": "proof02-rerun",
+      "artefact": "test-results",
+      "size": "~0MB(empty)",
+      "command": "PowerShell Get-ChildItem -Recurse test-results | Measure-Object -Property Length -Sum",
+      "classification": "deletable-with-worktree"
+    },
+    {
+      "worktree": "proof02-rerun",
+      "artefact": "playwright-report",
+      "size": "0.5MB",
+      "command": "PowerShell Get-ChildItem -Recurse playwright-report | Measure-Object -Property Length -Sum",
+      "classification": "deletable-with-worktree"
+    },
+    {
+      "worktree": "r2-prepared-journal-api",
+      "artefact": ".next",
+      "size": "2.08GB",
+      "command": "PowerShell Get-ChildItem -Recurse -File .next | Measure-Object -Property Length -Sum",
+      "classification": "deletable-with-worktree"
+    },
+    {
+      "worktree": "r2-prepared-journal-api",
+      "artefact": "test-results",
+      "size": "~0MB(empty)",
+      "command": "PowerShell Get-ChildItem -Recurse test-results | Measure-Object -Property Length -Sum",
+      "classification": "deletable-with-worktree"
+    },
+    {
+      "worktree": "r3-storage-review",
+      "artefact": ".next",
+      "size": "1.08GB",
+      "command": "PowerShell Get-ChildItem -Recurse -File .next | Measure-Object -Property Length -Sum",
+      "classification": "deletable-with-worktree"
+    },
+    {
+      "worktree": "reconcile-1",
+      "artefact": ".next",
+      "size": "1.49GB",
+      "command": "PowerShell Get-ChildItem -Recurse -File .next | Measure-Object -Property Length -Sum",
+      "classification": "deletable-with-worktree"
+    },
+    {
+      "worktree": "reconcile-1",
+      "artefact": "test-results",
+      "size": "~0MB(empty)",
+      "command": "PowerShell Get-ChildItem -Recurse test-results | Measure-Object -Property Length -Sum",
+      "classification": "deletable-with-worktree"
+    }
+  ],
+  "evidenceDirs": [
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/evidence",
+      "sizeTotal": "84K",
+      "fileCount": 3,
+      "files": [
+        "combat-reference-specs-review-20260912.json (40K)",
+        "battlearmor-autosave-docs-review-20260912.json (20K)",
+        "battlearmor-autosave-docs-review-20260912-published.json (20K)"
+      ],
+      "command": "du -sh -- * (in .sisyphus/roadmap-completion-20260912/evidence)",
+      "classification": "KEEP"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912 (root, excluding worktrees/, node_modules/, evidence/)",
+      "sizeTotal": "~846M aggregate (measured for the whole dir excluding worktrees/; node_modules under this root is a separate 169K stub, evidence/ is the 84K above)",
+      "fileCount": "460 top-level entries (checkpoint-*, main-proof-*, *-review, *-delivery, *-cleanup, per-lane .cjs drivers, .log/.json artefacts)",
+      "command": "ls -d */ | wc -l ; du -sh . --exclude=worktrees (in .sisyphus/roadmap-completion-20260912); du -sh node_modules",
+      "classification": "KEEP",
+      "note": "NOT individually itemized per-directory in this pass -- 460 entries exceeded the inventory's time budget. Aggregate size measured; every one of these is worker checkpoint/log/proof output from this roadmap effort (main-proof-1675-20260915/ style dirs) and none showed any delete/mutate signal in roadmap.json notes, so all are listed as KEEP pending a dedicated pass if the parent wants per-directory sizes."
+    }
+  ],
+  "proposedActions": [
+    {
+      "order": 1,
+      "action": "Remove owned worktrees whose checked-out branch is MERGED-SAFE-TO-DELETE (git worktree remove, or delete the directory then git worktree prune)",
+      "targets": [
+        "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/archive-chassis",
+        "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/archive-equipment",
+        "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/branch-integrity-repair",
+        "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/ci-package-reconcile-20260915",
+        "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/ci-customizer-gate-20260915",
+        "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/history-fixtures",
+        "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/camp-receipt-verification",
+        "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/camp00-disposable-20260915",
+        "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/archive-edit-recovery-20260915",
+        "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/history-sql-integrity",
+        "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/r2-client-spec-delta-20260915",
+        "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/merge-resolve",
+        "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/r2-projection-prereq-20260915",
+        "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/r4-matrix",
+        "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/r6-deferrals"
+      ],
+      "requiresParentConfirmation": true,
+      "note": "Confirm each target's PR has actually merged to main at execution time (this snapshot is already stale -- see snapshotWarning) before removing."
+    },
+    {
+      "order": 2,
+      "action": "Remove owned worktrees at DETACHED HEAD pointing at a commit that is an ancestor of / equal to origin/main (archive-original-main-proof, browser, r2-prepared-journal-api both at 91b66b04c/bff63c183c which ARE origin/main-family commits per this snapshot; r3-storage-review detached at 44b94adbb which is the same commit as branch-integrity-repair's branch tip, MERGED-SAFE)",
+      "targets": [
+        "archive-original-main-proof",
+        "browser",
+        "r2-prepared-journal-api",
+        "r3-storage-review"
+      ],
+      "requiresParentConfirmation": true,
+      "note": "Verify HEAD sha is still an ancestor of the LATEST origin/main at execution time; these are proof/review worktrees the merge manager may still be reading."
+    },
+    {
+      "order": 3,
+      "action": "Delete MERGED-SAFE-TO-DELETE local branches (after their worktrees, if any, are removed in step 1)",
+      "targets": [
+        "codex/roadmap-archive-chassis-20260913",
+        "codex/roadmap-archive-edit-recovery-20260915",
+        "codex/roadmap-archive-equipment-20260913",
+        "codex/roadmap-branch-integrity-20260913",
+        "codex/roadmap-camp-live-probe-fix-20260915",
+        "codex/roadmap-camp-proof-exact-main-a11ef14f-20260915",
+        "codex/roadmap-camp-qc-registry-20260915",
+        "codex/roadmap-camp-receipt-verification-20260912",
+        "codex/roadmap-camp-umbrella-pin-20260915",
+        "codex/roadmap-campaign-route-auth-20260915",
+        "codex/roadmap-ci-customizer-gate-20260915",
+        "codex/roadmap-ci-package-reconcile-20260915",
+        "codex/roadmap-ci-quality-mutations-20260915",
+        "codex/roadmap-ci-quality-test-20260915",
+        "codex/roadmap-customizer-browser-20260912",
+        "codex/roadmap-equipment-abort-signal-20260915",
+        "codex/roadmap-equipment-abort-signal-p1-20260915",
+        "codex/roadmap-guest-cache-stands-20260915",
+        "codex/roadmap-guest-share-panel-grants-20260915",
+        "codex/roadmap-history-fixtures-20260913",
+        "codex/roadmap-history-runtime-integrity-20260915",
+        "codex/roadmap-history-sql-integrity-20260915",
+        "codex/roadmap-ledger-reconcile-1-20260915",
+        "codex/roadmap-ledger-reconcile-2-20260915",
+        "codex/roadmap-ledger-reconcile-3-20260915",
+        "codex/roadmap-ledger-reconcile-4-20260915",
+        "codex/roadmap-packaged-socket-credential-20260915",
+        "codex/roadmap-paper-size-settle-20260915",
+        "codex/roadmap-proof02-starmap-settle-20260915",
+        "codex/roadmap-qc-fixture-port-range-20260915",
+        "codex/roadmap-r2-61-source-replay-fence-20260915",
+        "codex/roadmap-r2-63-room-code-leak-row-20260915",
+        "codex/roadmap-r2-64-cas-bridge-20260915",
+        "codex/roadmap-r2-authority-cutover-co0-2-20260915",
+        "codex/roadmap-r2-authority-cutover-co0-20260915",
+        "codex/roadmap-r2-authority-host-live-fold-20260915",
+        "codex/roadmap-r2-camp-2-authoritative-state-guards-20260915",
+        "codex/roadmap-r2-client-crash-window-20260915",
+        "codex/roadmap-r2-client-crash-window-browser-20260915",
+        "codex/roadmap-r2-client-flush-reconcile-20260915",
+        "codex/roadmap-r2-client-spec-delta-20260915",
+        "codex/roadmap-r2-combat-browser-launch-proof-20260915",
+        "codex/roadmap-r2-combat-residual-rows-20260915",
+        "codex/roadmap-r2-combat-s5-coop-custom-authority-20260915",
+        "codex/roadmap-r2-combat-s5-snapshot-rows-20260915",
+        "codex/roadmap-r2-p0b-s1-private-field-20260915",
+        "codex/roadmap-r2-p0b-s2-source-replay-20260915",
+        "codex/roadmap-r2-p1-62a1i-prepared-accept-20260915",
+        "codex/roadmap-r2-p1-62a1ii-refusal-rows-20260915",
+        "codex/roadmap-r2-p1-62a2-first-acceptance-20260915",
+        "codex/roadmap-r2-p1-62a3-a1-source-row-20260915",
+        "codex/roadmap-r2-p1-62a3-a2-refusal-rows-20260915",
+        "codex/roadmap-r2-p1-62a3-b-shape-rows-20260915",
+        "codex/roadmap-r2-prepared-journal-api-20260913",
+        "codex/roadmap-r2-projection-prereq-20260915",
+        "codex/roadmap-r4-matrix-20260913",
+        "codex/roadmap-r4-s1-journal-batches-20260915",
+        "codex/roadmap-r4-s2-live-head-admission-20260915",
+        "codex/roadmap-r4-s3a-derived-started-20260915",
+        "codex/roadmap-r4-s3b-a-repoint-started-20260915",
+        "codex/roadmap-r4-s3b-repoint-started-20260915",
+        "codex/roadmap-r4-s4-a-restart-recovery-20260915",
+        "codex/roadmap-r4-s4-restart-recovery-20260915",
+        "codex/roadmap-r4-s5-explicit-offsets-20260915",
+        "codex/roadmap-r4-s6-a-consult-20260915",
+        "codex/roadmap-r4-s6-b-suite-20260915",
+        "codex/roadmap-r4-s6-c-rows-20260915",
+        "codex/roadmap-r4-s7a-seeding-jcs-20260915",
+        "codex/roadmap-r6-deferrals-20260913",
+        "codex/roadmap-r9-roster-damage-20260915",
+        "codex/roadmap-selected-paper-settle-20260915"
+      ],
+      "count": 71,
+      "requiresParentConfirmation": true,
+      "note": "git branch -D only after step 1/2 free up any worktree checkout; 8 of these are currently checked out in an owned worktree (see step 1 targets)."
+    },
+    {
+      "order": 4,
+      "action": "Delete MERGED-SAFE-TO-DELETE remote branches on origin (only the 4 codex/roadmap-* remote heads found)",
+      "targets": [],
+      "requiresParentConfirmation": true,
+      "note": "codex/roadmap-r2-authority-host-h0-20260915 is REFERENCE-KEEP (red-first evidence, per HANDOFF.md) and must NOT be deleted even though it is on this remote list."
+    },
+    {
+      "order": 5,
+      "action": "Keep everything else: UNMERGED-KEEP / REFERENCE-KEEP local branches, all NOT-OWNED worktrees, all stash entries, evidence/ and the 460 misc checkpoint dirs",
+      "targets": [
+        "see localBranches[classification=UNMERGED-KEEP|REFERENCE-KEEP], worktrees[owned=false], stashes[*], evidenceDirs[*]"
+      ],
+      "requiresParentConfirmation": false,
+      "note": "No action proposed; listed for completeness only."
+    }
+  ]
+}

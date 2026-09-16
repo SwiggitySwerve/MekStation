@@ -1,0 +1,54 @@
+{
+  "slice": "R2.combat-browser production combat launch proof (enable-saved-custom-unit-combat line 8)",
+  "pr": 1731,
+  "prHead": "d5054fcb4d8e973f91dbc8ac91e51f24dcad569c",
+  "mergeCommit": "392c207de703049565b70ca6fe17005aca8f0641",
+  "verifiedAtUtc": "2026-09-15T16:05:39.734Z",
+  "worktree": "archive-original-main-proof (detached at merge commit, own node_modules, Node v22.22.0)",
+  "blobEquality": {
+    "files": [
+      "e2e/saved-custom-combat-launch.spec.ts"
+    ],
+    "command": "git diff --stat <prHead> <merge> -- <file>",
+    "result": "empty (0 bytes)"
+  },
+  "runtime": {
+    "build": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build at the merge commit, exit 0",
+    "buildId": "1789488081479",
+    "e2eBundleCheck": "window.__E2E_MODE__=!0 present in .next/static/chunks/pages/_app-6057a14194795b3d.js",
+    "playwright": "MEKSTATION_E2E_SERVER_COMMAND=node .next/standalone/server.js HOSTNAME=127.0.0.1 MEKSTATION_E2E_PORT=3639 run-playwright test e2e/saved-custom-combat-launch.spec.ts --project=chromium --retries=0 --workers=1: exit 0, 1 passed (31.2s)",
+    "port3639ListenAfter": 0
+  },
+  "gates": {
+    "tsc": {
+      "exit": 0,
+      "outputBytes": 0
+    },
+    "openspecStrict": {
+      "exit": 0
+    }
+  },
+  "logs": {
+    "build": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1731-20260915/build.log",
+      "sha256": "d248c6c2f79b45454dab518edf49fa1ade4fc9ca3432e313b7ec90699f4e9afa"
+    },
+    "playwright": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1731-20260915/playwright.log",
+      "sha256": "0d448749a101a0558f6fd434511f24d9ff7d1ac54a06c49e7bb04014ed179a1c"
+    },
+    "openspec": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1731-20260915/openspec.log",
+      "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3"
+    },
+    "tsc": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1731-20260915/tsc.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "limits": [
+    "single run on main (three consecutive greens plus one post-review green were on the branch)",
+    "single-player, Chromium, auto-resolve path only; not a CAMP witness",
+    "fire-and-forget terminal archive double-fire observation remains a recorded residual candidate"
+  ]
+}

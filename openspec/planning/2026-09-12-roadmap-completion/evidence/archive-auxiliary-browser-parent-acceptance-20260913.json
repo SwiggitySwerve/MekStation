@@ -1,0 +1,73 @@
+{
+  "createdAt": "2026-09-13T07:53:33.932Z",
+  "status": "parent-accepted-auxiliary-diagnostic",
+  "base": "5b229be21e87815f10ce6521dda77b52eef75e3c",
+  "sourceWorktreeClean": true,
+  "scope": "One original customizer recovery case with exactly one raw named-selector change; existing flagged production build reused.",
+  "result": {
+    "passed": 1,
+    "failed": 0,
+    "skipped": 0,
+    "retries": 0,
+    "workers": 1,
+    "logicalProcessorLimit": 2,
+    "readyStatus": 204,
+    "port": 3641,
+    "ownedProcessesExited": true,
+    "portFree": true
+  },
+  "inference": "The named Armor tonnage selector passed; the original failure arose at the ambiguous generic selector. This single run does not establish absence of every possible timing failure.",
+  "limits": [
+    "Original committed browser run remains 3/4. No aggregation into a passed committed suite.",
+    "The named selector already exists in publication-blocked commit77d9. No alternate publication route or separate cherry-pick is authorized by this diagnostic.",
+    "Yjs duplicate-import warning remains in stderr; no clean-console claim.",
+    "No new build, asset acquisition, source-product change, graph success or campaign authority cutover.",
+    "Archives, publication and exact-main acceptance remain separate gates."
+  ],
+  "files": [
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/archive-customizer-auxiliary-proof-20260913/run-archive-auxiliary-5b229-selector-04298cd039fb4287aeac369735f8ec72/result.json",
+      "sha256": "49d692c3b82c2c08d6f30735570c381e07509e90b832b92a83be05f0f67f0206"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/archive-customizer-auxiliary-proof-20260913/run-archive-auxiliary-5b229-selector-04298cd039fb4287aeac369735f8ec72/playwright-result.json",
+      "sha256": "9d490013346745e806259fa892a2964230489a3a386faa0a06339522de24672a"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/archive-customizer-auxiliary-proof-20260913/run-archive-auxiliary-5b229-selector-04298cd039fb4287aeac369735f8ec72/playwright.stdout.log",
+      "sha256": "800c46bbd301ffeec9e96d5ec6cfc6afcb17c36f226e3e60568e2f24acac8964"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/archive-customizer-auxiliary-proof-20260913/run-archive-auxiliary-5b229-selector-04298cd039fb4287aeac369735f8ec72/playwright.stderr.log",
+      "sha256": "2dfb9a6212c18baf950f9001378b6145cd0f9ce417c34046bed4325d584a4f18"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/auxiliary-parent-execution-20260913/runtime-admission.json",
+      "sha256": "f2d323c33874f9ce46d4204abd21713925e2eb49e179d3abb670fc660a94b094"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/auxiliary-parent-execution-20260913/runtime-status.json",
+      "sha256": "c0dff1c63f405cf48e091f216d958981240123d51e7c9e226da1c9c264726379"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/auxiliary-parent-execution-20260913/affinity.json",
+      "sha256": "b09b803b3588afc200158c802fb97e1048a8bddc42bef316d74341b24e6799e5"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/auxiliary-parent-execution-20260913/terminal-verification.json",
+      "sha256": "4ea451b4dc1eb5d2451ba4858e35de6dc7884e61bacd226ec7394a9ffa5d1ad1"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/archive-customizer-auxiliary-proof-20260913/invoke-auxiliary-selector-proof.ps1",
+      "sha256": "887691904443fd40f42af863a8780ffeb3c84c1df7e1dbba21713f575fbfeec7"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/archive-customizer-auxiliary-proof-20260913/playwright.auxiliary.config.ts",
+      "sha256": "f7d7b4843423339e296f0d70a52b345c91e4fe0a776b6f6f91cd9d4cd13a4871"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/archive-customizer-auxiliary-proof-20260913/customizer-edit-recovery.auxiliary.spec.ts",
+      "sha256": "60bde2cf6f634fd7166f250df7ca3b304786b773626d409598e7fc3e36312ebf"
+    }
+  ]
+}

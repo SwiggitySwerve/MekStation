@@ -1,0 +1,125 @@
+{
+  "artefact": "r2-p1-62b-local-20260915",
+  "task": "6.2b — acceptance routing (exactly one acceptance writer), openspec/changes/design-campaign-authority-and-sync tasks.md:101",
+  "date": "2026-09-15",
+  "role": "implementer (general-purpose; GP-JUSTIFIED per charter)",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/r2-prepared-journal-api",
+  "branch": "codex/roadmap-r2-p1-62b-accept-routing-20260915",
+  "baseSha": "b46433b1f52b5be58490e4f8f5c64f728a52d100",
+  "baseDescription": "6.2a prefix-3 top (`feat(campaign): derive the accepted contract from the offer the source holds`), PRs #1698-#1700",
+
+  "decision": {
+    "verdict": "STOP — 6.2b acceptance routing NOT implemented",
+    "gateFromCharter": "\"if a single-player client cannot call /commands today, 6.2b's routing is blocked for single-player and you must STOP after writing a precise brief of what identity/seat prerequisite is missing (cite commands.ts and the seat check) — do not invent an auth bypass.\"",
+    "gateOutcome": "FIRES. A single-player campaign client cannot call POST /api/campaigns/[id]/commands today, and is refused at BOTH gates independently — it holds no bearer token to authenticate with, and even if it held one the campaign has zero seat rows so the seat gate 403s. Neither can be satisfied without a prerequisite that does not exist in the codebase.",
+    "codeCommitted": false,
+    "filesChanged": 0,
+    "worktreeState": "clean — `git status --porcelain` empty at b46433b1f after all analysis; branch created off b46433b1f as instructed, no commits on it",
+    "secondaryFinding": "Two further blockers, independent of auth, would have to be adjudicated before 6.2b is implementable as the charter scopes it: (B1) the charter's red-test 3 maps `offer-not-durable` through a function that structurally cannot carry it; (B2) the charter's implementation list omits the SERVER-side campaigns-row write that is the load-bearing half of the spec SHALL 6.2b owns. Both detailed below."
+  },
+
+  "blocker_A_identity_and_seat": {
+    "summary": "POST /api/campaigns/[id]/commands applies two sequential gates. A single-player campaign fails both. A co-op participant passes both.",
+    "gate1_authentication": {
+      "citation": "src/pages/api/campaigns/[id]/commands.ts:105-112 — `const auth = await authenticateRequest(req, undefined, expectedScopeForCampaign(id)); if (!auth.ok) { res.status(401).json({ error: `Unauthorized: ${auth.reason}` }); return; }`",
+      "whySinglePlayerFails": "There is no token for a single-player campaign to send. The ONLY campaign-surface token mint in the tree is `src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx:72` (`fetch('/api/multiplayer/auth/token', ...)`), and that route requires a vault-identity password: `src/pages/api/multiplayer/auth/token.ts:18` documents `Body: {password, displayName?, ttlMs?}` and its header (`:5-8`) states the server 'unlocks the identity (using the supplied password) and signs the token in-process'. Verified in-session by grep over src/ for `auth/token`: the only other call sites are the multiplayer lobby (`src/pages/multiplayer/index.tsx:66`, `src/pages-modules/multiplayer/multiplayerPage.helpers.ts:20`). Single-player campaign creation and play never reach any of them.",
+      "whereACoopTokenLives": "src/lib/campaign/coop/coopCampaignAuthTokenStore.ts:11 — `const STORAGE_PREFIX = 'mekstation.coopCampaign.token.'`, keyed by matchId (`storageKey(matchId)`, :13-15). `readCoopCampaignToken(matchId)` returns null for a null/absent matchId (:25-31). A single-player campaign has no matchId, so there is no key under which a token could even be stored.",
+      "whoWritesIt": "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx:249 (host, after `POST /api/multiplayer/matches` returns) and :322 (guest, after `resolveInviteCode`). Both are co-op-only entry points."
+    },
+    "gate2_activeSeat": {
+      "citation": "src/pages/api/campaigns/[id]/commands.ts:114-119 — `if (!isActiveCampaignSeat(id, auth.playerId)) { res.status(403).json({ error: 'cannot command this campaign', reason: 'not-campaign-participant' }); return; }`",
+      "seatQuery": "src/services/campaignPersistence/CampaignSessionParticipantStore.ts:255-269 — `SELECT 1 AS present FROM campaign_session_participant WHERE campaign_id = ? AND participant_id = ? AND revoked_at IS NULL LIMIT 1`. Returns false when the campaign has no participant row.",
+      "everyProductionSeatBinder": [
+        "src/lib/campaign/authority/campaignCreationCheckpoint.ts:369 — `await ports.bindParticipant({ campaignId, sessionId: input.sessionId, participantId: input.gmParticipantId, seat: 'gm', ... })`. Its only production caller is `src/pages/api/multiplayer/matches/index.ts:257` (`campaignCreationCheckpointPorts()`), reached from `commitCoopCampaignAuthority(campaignId, matchId, hostPlayerId)` (index.ts:253-274), i.e. CO-OP MATCH CREATION ONLY.",
+        "src/lib/multiplayer/server/campaignSessionMembershipPort.ts:43 — `bindCampaignSessionParticipant({ campaignId, sessionId: input.sessionId, ... })`, the port passed to `bindCampaignSyncConnection`, i.e. the CAMPAIGN SOCKET. A single-player campaign opens no campaign socket."
+      ],
+      "structuralReason": "Every binder requires a `sessionId`. `bindCampaignSessionParticipant` takes `{campaignId, sessionId, participantId, seat, boundAt}` (CampaignSessionParticipantStore.ts:83). The only sessionId in play is the co-op `matchId` (campaignCreationCheckpoint passes `input.sessionId`, supplied as `matchId` at matches/index.ts:260). A single-player campaign has no matchId and therefore can never acquire a seat row — this is not a wiring gap, it is that the seat table's key does not exist for that campaign shape.",
+      "routeAuthorDocumentedIt": "src/pages/api/campaigns/[id]/commands.ts:29-33 — 'A campaign with no co-op session has no seats, so this route refuses every caller on one - which is correct here and is the single-player boundary recorded as finding #29, not a gap to paper over with a weaker gate.'"
+    },
+    "whatWorksToday": {
+      "coopHostCanCallCommands": "VERIFIED by chain: (1) `POST /api/multiplayer/matches` authenticates and takes `hostPlayerId = auth.playerId` (matches/index.ts:277-281 authenticateRequest; :253-274 commitCoopCampaignAuthority); (2) that binds the GM seat with `participantId = hostPlayerId` (campaignCreationCheckpoint.ts:369); (3) the client stores `{matchId, playerId: auth.token.playerId, wireToken, displayName}` (CampaignCoopEntryPanel.tsx:249). So `Authorization: Bearer <wireToken>` on /commands yields `auth.playerId === hostPlayerId`, and `isActiveCampaignSeat` returns true.",
+      "scopeIsNotAnObstacle": "`expectedScopeForCampaign(id)` (src/lib/campaign/authority/campaignSessionScope.ts:23-31) returns `{kind:'campaign-session', id: matchId}` for a co-op campaign and `undefined` for a single-player one. Its own header (:10-13) records that an unscoped token still passes and must clear the route's seat gate instead — which for single-player it cannot.",
+      "conditionalOnDb": "`campaignCreationCheckpointPorts()` returns null when SQLite is not initialized (campaignCreationCheckpointPorts.ts:32), in which case `commitCoopCampaignAuthority` returns early (matches/index.ts:256) and NO seat is bound. So even the co-op host path is seat-bound only when the server has a database — true in production, not in tests that create a match without one."
+    },
+    "noClientTransportExists": {
+      "claim": "No production client code POSTs /api/campaigns/[id]/commands anywhere in the tree.",
+      "evidence": "grep over src/ for `campaigns/${...}/commands` / `/commands'` / `/commands\\`` returns 6 hits, ALL non-transport: 4 comment references (GmRebuildStaleGate.test.tsx:11, campaignLifecycleState.ts:34 and :418, rewind-preview.ts:18) and 2 test imports of the handler itself (campaignCommandsRoute.rebuild.test.ts:26, campaignCommandsRoute.test.ts:36). The charter's contingency ('if none exists, the slice must add a minimal typed client call') is therefore the live branch — and the auth story that call would need is exactly what is missing."
+    },
+    "prerequisitesMissing": [
+      "A single-player campaign identity. Today a campaign has no owner: it acquires a `participantId` only by becoming a co-op session. Either (a) single-player campaigns gain a device- or vault-scoped identity that `authenticateRequest` admits, or (b) the command route grows a single-player admission path that is NOT the co-op seat gate. Both are product/architecture decisions above this slice.",
+      "A seat (or seat-equivalent) row for a campaign with no sessionId. `campaign_session_participant` is keyed `(campaign_id, session_id, participant_id)`; a single-player campaign supplies none of the last two. Admitting it needs either a synthetic session identity or a second predicate alongside `isActiveCampaignSeat`.",
+      "A decision on what the client does when the route refuses for a reason that is NOT a command refusal. The spec's refusal scenario (spec.md:194-198) is written for a source that 'refuses to command'; a 401/403 is the route refusing to accept the command at all. Falling back to the local apply on 401/403 is behaviourally correct (nothing was committed, so exactly-one-write holds) but it is not the scenario the spec text describes, and it would make the client's single production accept path issue a doomed request on every acceptance for the dominant campaign shape."
+    ],
+    "explicitNonBypass": "No auth bypass, test-only header, flag, or weakened predicate was written or proposed. commands.ts:29-33 names this boundary as deliberate; routing around it is out of scope for 6.2b and is not something this slice should decide."
+  },
+
+  "blocker_B1_refusal_mapping": {
+    "summary": "The charter's red-test 3 ('offer-not-durable 409 surfaces through campaignRefusalFromCommandRefusal as a typed refusal in the store') cannot be satisfied without a category-widening that the target function's own doctrine forbids.",
+    "citation": "src/lib/campaign/lifecycle/campaignLifecycleState.ts:447-464 — `campaignRefusalFromCommandRefusal` returns a value only for `kind === 'conflict'` (→ STALE_BRANCH) and `kind === 'blocked'` with reason PROJECTION_REBUILDING or one of STALE_BRANCH / STALE_REVISION / STALE_GENERATION (`STALE_COMMAND_CODES`, :405-409). Every other body returns null.",
+    "whatTheRouteSends": "src/pages/api/campaigns/[id]/commands.ts:208-217 — `offer-not-durable` is answered 409 with `{kind:'offer-not-durable', contractId, reason}`. `kind` is neither 'conflict' nor 'blocked', so the parser returns null by construction.",
+    "whyWideningIsNotMechanical": "The function's header (:418-444) states the narrowing is deliberate: a `blocked` for any reason that is not a lifecycle posture 'is deliberately NOT a lifecycle posture: it is a configuration fact about the campaign, and dressing it up as a rebuild would send the actor to wait for something that is never going to finish.' `offer-not-durable` is likewise not a lifecycle posture — per campaignCommandPipeline.ts:155-167 it is a retryable durability fact whose whole point is being distinguishable from refusals the caller cannot retry past. Admitting it would require a new `ICampaignCommandRefusal` code alongside STALE_BRANCH / PROJECTION_REBUILDING, i.e. changing what that type means, plus its posture mapper (:470+) and the existing suite rows at campaignLifecycleState.test.ts:397-617.",
+    "confirmedDeadCodeClaim": "The admission brief's claim that `campaignRefusalFromCommandRefusal` has zero production callers is RE-VERIFIED in-session: grep over src/ returns only its own definition, its own test file, and one comment reference in journalCampaignBranchRule.test.ts:176. 6.2b would indeed be its first real call site — but for the CONFLICT and BLOCKED arms it already has, not for offer-not-durable.",
+    "recommendation": "Split the charter's red-test 3 into two: (i) a blocked/conflict refusal routed through `campaignRefusalFromCommandRefusal` unchanged (its genuine first call site, additive, in scope); (ii) `offer-not-durable` surfaced through a SEPARATE typed store refusal that preserves `contractId` and `reason` — which is what the caller actually needs, since the recovery is 'save, then retry this offer', not a lifecycle wait. Do not widen the lifecycle parser."
+  },
+
+  "blocker_B2_missing_server_half": {
+    "summary": "The charter's implementation list is client-only, but the spec SHALL that 6.2b owns is made true by a SERVER-side write that does not exist yet. Implementing the client half alone would be a net regression.",
+    "theSHALL": "openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md:184-185 — 'When the source commits an accept-contract command, the source's own campaign record -- its missions and its reduced remaining contract market -- and the compact accepted-contract ledger SHALL both follow from that single committed acceptance, and the client SHALL NOT additionally apply the acceptance to its local campaign.' Scenario at :187-192 repeats it: 'the compact accepted-contract ledger entry and the source record's mission and reduced remaining market SHALL both follow from that one commit'.",
+    "whatExistsAfter6.2a": "src/lib/campaign/authority/campaignAcceptContractCommand.ts:294-312 — the prepared transaction appends the journal batch with a `sourcePrivate` envelope carrying `{baseline: {sourceRecordBody, sourceRowVersion, rootPublicRevision}, acceptedContract: offer, remainingMarket: {...source.market, offers: source.market.offers.filter(one => one.id !== contractId)}}`. The reduced market is computed and written INTO THE JOURNAL's private envelope. There is no UPDATE of the `campaigns` row in this file — verified by reading it in full (341 lines) and by grep for `missions` / `contractMarket` / `sourceRecord`, whose only hits are the private-envelope construction and the baseline read.",
+    "corroboration": "The 6.2a review records exactly this: evidence/r2-p1-62a-review-20260915.json finding R5 — '6.2a deliberately does NOT reduce the persisted market on commit, so the offer remains in the campaigns row and passes the durability gate again... 6.2b owns it', and tasks.md:101 places 'the source record write' in the 6.2b paragraph.",
+    "consequenceOfShippingClientHalfAlone": "If `acceptContractOffer` stops applying locally on the committed path while the campaigns row is still untouched, a committed acceptance leaves the source record with NO mission and the offer STILL on the market, while the compact ledger records the acceptance — which is precisely the state spec.md:185 declares 'SHALL NOT be reachable' ('the compact ledger records an acceptance the source record does not'). That is strictly worse than today's single client-side write.",
+    "alsoClosesR5": "The carry-forward R5 (double acceptance of the same contract with different commandIds) is closed by this server-side market reduction, not by the command-identity scheme alone. Identity is `sha256(canonical({campaignId, authenticatedActorId, kind, contractId}))` — the SAME actor retrying yields the same id and is caught as a duplicate, but a DIFFERENT actor (a co-op guest vs the host) yields a different id, and `validateCampaignIntent`'s AcceptContract arm has no 'already accepted' rule. Once the reduced market is written back to the campaigns row, the second actor's command hits the 6.2a `offer-not-durable` gate. So B2 is the mechanism that closes R5, and deferring B2 leaves R5 open.",
+    "sizingNote": "UNVERIFIED (not attempted): the server half must write the campaigns row INSIDE the same prepared transaction as the append (campaignAcceptContractCommand.ts's prepare/append pair), advancing that row's `version` — which is exactly the counter task 6.4 owns the bridge for. This is why the charter's cap (≤15 files / ≤500 lines) and 6.4's ordering both deserve re-checking before 6.2b is reopened."
+  },
+
+  "coopHostSecondWriter": {
+    "status": "RECORDED, NOT CHANGED — per charter instruction 'do not change the co-op host in this slice, record it'.",
+    "finding": "The co-op host is a second ungated AcceptContract writer. `campaignCommandPipeline.ts:54` imports `validateCampaignIntent` from `src/lib/multiplayer/server/CampaignMatchHostIntent.ts` — the same validator the co-op socket host uses to fold a guest's AcceptContract proposal. That host path does not go through `/api/campaigns/[id]/commands`, does not read the source record's market, and is not subject to 6.2a's durability gate. 6.2b's exactly-once obligation is therefore satisfiable only for the /commands path until the host path is brought under it or explicitly excluded.",
+    "additionalObservation": "`src/pages/gameplay/campaigns/[id]/contract-market.tsx` carries `coopRouteId: 'contract-market'` (:66) and its `handleAccept` (:69-77) calls the same `acceptContractOffer` for host and single-player alike. So the one production caller 6.2b rewires serves both shapes, which is why an auth story that covers only co-op splits this call site's behaviour in two."
+  },
+
+  "gates": {
+    "run": "NONE. No source file was created or modified, so there is nothing to type-check, lint, format or test. Running the suites would produce a result attributable to b46433b1f, not to this task, and is not claimed as evidence of anything.",
+    "jest": "not run — no code change",
+    "tsc": "not run — no code change",
+    "oxlint_oxfmt": "not run — no changed files",
+    "openspecValidate": "not run — no spec change made",
+    "worktreeVerification": "`git status --porcelain` empty; `git rev-parse HEAD` = b46433b1f52b5be58490e4f8f5c64f728a52d100"
+  },
+
+  "filesReadInFull": [
+    "src/pages/api/campaigns/[id]/commands.ts (both halves: :1-200 and :200-234)",
+    "src/lib/campaign/authority/campaignSessionScope.ts",
+    "src/lib/campaign/coop/coopCampaignAuthTokenStore.ts",
+    "src/lib/campaign/authority/campaignCreationCheckpointPorts.ts",
+    "src/lib/multiplayer/server/campaignSessionMembershipPort.ts (:1-60)",
+    "src/lib/campaign/authority/campaignAcceptContractCommand.ts (:255-341 in full, plus targeted greps over the whole 341-line file)",
+    "src/pages/gameplay/campaigns/[id]/contract-market.tsx",
+    "src/stores/campaign/campaignCommandActions.ts (:430-495, acceptContractOffer)",
+    "src/lib/campaign/lifecycle/campaignLifecycleState.ts (:400-470)",
+    "src/services/campaignPersistence/CampaignSessionParticipantStore.ts (:1-80, :255-282)",
+    "openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md (:154-210)",
+    "openspec/changes/design-campaign-authority-and-sync/tasks.md (the 6.2 / 6.4 paragraphs at :101 and :103)",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-ob2-campaign-route-auth-20260915.json (in full)",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-p1-admission-brief-20260915.json (section 3 in full)",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-p1-62a-review-20260915.json (carryForward in full)"
+  ],
+
+  "recommendedNextStep": {
+    "primary": "Adjudicate the single-player identity/seat prerequisite before reopening 6.2b. It is the same decision OB-2 handed back on 2026-09-15 (evidence/r2-ob2-campaign-route-auth-20260915.json, 'BLOCKED-ON-CLIENT-CHANGE'), now reached from the opposite direction: OB-2 could not ADD a guard because production callers send no credential; 6.2b cannot ADD a caller because there is no credential to send. One decision unblocks both.",
+    "ifTheAnswerIsCoopOnly": "6.2b is implementable scoped to campaigns that hold a co-op token, with the single-player path continuing to apply locally. That satisfies spec.md:194-198 in substance (nothing is committed, one client write stands) but NOT in letter (the source never refuses; it is never asked). If that scoping is chosen, amend the spec's refusal scenario to name 'a campaign whose client cannot present a seat' alongside 'a campaign that is not on journal authority', so the shipped behaviour and the spec agree.",
+    "sequencingNote": "Whatever is decided, B2 (the server-side campaigns-row write) must land in the SAME slice as the client's removal of the local apply. Splitting them in either order leaves a window in which the spec's unreachable state is reachable.",
+    "runtimeImpactToday": "UNVERIFIED as a measurement, but structurally: `CAMPAIGN_JOURNAL_AUTHORITY_ENABLED` remains false, so every command today is refused `campaign-not-on-journal-authority` before it commits. A 6.2b that shipped would therefore change no user-visible acceptance behaviour until the 5.7 cutover — which is an argument that the identity prerequisite is a CUTOVER blocker rather than a routing blocker, and is the strongest available case for proceeding co-op-only. It is offered as input to the decision, not taken as a licence to proceed."
+  },
+
+  "nonClaims": [
+    "NOT CLAIMED: that the single-player campaign route boundary is a defect. commands.ts:29-33 records it as deliberate. What is claimed is only that it blocks 6.2b's routing for that campaign shape.",
+    "NOT CLAIMED: that a co-op-only 6.2b is unimplementable. It is implementable; it is not obviously correct, and the charter's own STOP clause fires before that judgement is mine to make.",
+    "NOT CLAIMED: any line or file count for a 6.2b implementation. Nothing was written, so the charter's ≤15 files / ≤500 lines cap was neither tested nor exceeded.",
+    "NOT CLAIMED: that `campaignCreationCheckpointPorts()` returns non-null in production. It was read (returns null when SQLite is uninitialized) but not exercised against a running server in this session.",
+    "NOT CLAIMED: that the co-op guest's seat binding was traced end to end. Only the GM/host chain was verified line by line; the socket binder was read but its admission path was not walked.",
+    "NOT CLAIMED: that the 6.2a `offer-not-durable` taxonomy is total. Carry-forward R2 (malformed body throws an untyped 500 rather than returning the typed `source-record-absent`) was NOT addressed — it was assigned to 6.2b and remains open, since no code was written.",
+    "NOT CLAIMED: that R5 (double acceptance) is closed. It is not; the mechanism that would close it is blocker B2, which was not implemented.",
+    "NOT CLAIMED: that the e2e or jest suites pass or fail at b46433b1f. No suite was run."
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "at": "2026-09-13T02:42:04.076Z",
+  "reason": "Independent review requires three unit-comparison corrections; preserve complete proposal and split417-line browser docs from83-line comparison draft to keep each delivery under500lines",
+  "original": {
+    "actualChangedLineTotal": 500,
+    "documents": [
+      "openspec/specs/compendium-browser/spec.md",
+      "openspec/specs/equipment-browser/spec.md",
+      "openspec/specs/unit-comparison/spec.md"
+    ],
+    "head": "8f72371064675740d2ea710b869f7c7673e4c11d",
+    "branch": "codex/roadmap-catalog-specs-20260913",
+    "numstat": "76\t38\topenspec/specs/compendium-browser/spec.md\r\n195\t108\topenspec/specs/equipment-browser/spec.md\r\n47\t36\topenspec/specs/unit-comparison/spec.md",
+    "observedStatus": [
+      " M openspec/specs/compendium-browser/spec.md",
+      " M openspec/specs/equipment-browser/spec.md",
+      " M openspec/specs/unit-comparison/spec.md"
+    ],
+    "candidate": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\catalog-specs",
+    "expectedBase": "8f72371064675740d2ea710b869f7c7673e4c11d"
+  },
+  "first": {
+    "wt": "E:\\Projects\\MekStation/.sisyphus/roadmap-completion-20260912/worktrees/catalog-specs",
+    "branch": "codex/roadmap-catalog-specs-20260913",
+    "head": "8f72371064675740d2ea710b869f7c7673e4c11d",
+    "files": [
+      {
+        "path": "openspec/specs/compendium-browser/spec.md",
+        "sha256": "ab2a14a28db8a0c50133698944706617d7d3aa43c78eda1945d65a55fd4936e6",
+        "bytes": 45306,
+        "gitOid": "429eb4525f75cc77ca65b7c374375bad21e6c25c"
+      },
+      {
+        "path": "openspec/specs/equipment-browser/spec.md",
+        "sha256": "4b068743a38023768ecd668519d519edba229d9db821ada744582807e1da2137",
+        "bytes": 35092,
+        "gitOid": "2cecec767aa63882f43ccc0070af949ee0b9068a"
+      }
+    ],
+    "numstat": "76\t38\topenspec/specs/compendium-browser/spec.md\n195\t108\topenspec/specs/equipment-browser/spec.md"
+  },
+  "second": {
+    "wt": "E:\\Projects\\MekStation/.sisyphus/roadmap-completion-20260912/worktrees/unit-comparison-spec",
+    "branch": "codex/roadmap-unit-comparison-spec-20260913",
+    "base": "106bfbc76886a6f19f1ac00143cfa1708f33f19f",
+    "file": "openspec/specs/unit-comparison/spec.md",
+    "initialSha256": "0825624ef8fa7dcb59ef59bc030dc4008c50017ff8e9f89389889d724ebe9129",
+    "numstat": "47\t36\topenspec/specs/unit-comparison/spec.md",
+    "maxChangedLines": 500
+  },
+  "preservation": [
+    {
+      "path": "E:\\Projects\\MekStation/.sisyphus/roadmap-completion-20260912/catalog-delivery-split-20260913/reviewed-three-file-proposal/openspec/specs/compendium-browser/spec.md",
+      "sha256": "ab2a14a28db8a0c50133698944706617d7d3aa43c78eda1945d65a55fd4936e6"
+    },
+    {
+      "path": "E:\\Projects\\MekStation/.sisyphus/roadmap-completion-20260912/catalog-delivery-split-20260913/reviewed-three-file-proposal/openspec/specs/equipment-browser/spec.md",
+      "sha256": "4b068743a38023768ecd668519d519edba229d9db821ada744582807e1da2137"
+    },
+    {
+      "path": "E:\\Projects\\MekStation/.sisyphus/roadmap-completion-20260912/catalog-delivery-split-20260913/reviewed-three-file-proposal/openspec/specs/unit-comparison/spec.md",
+      "sha256": "0825624ef8fa7dcb59ef59bc030dc4008c50017ff8e9f89389889d724ebe9129"
+    }
+  ],
+  "rootChanged": false,
+  "rawIgnored": true
+}

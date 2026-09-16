@@ -1,0 +1,144 @@
+{
+  "artefact": "r4-s3b-repoint-started-review",
+  "date": "2026-09-15",
+  "reviewer": "independent reviewer (journal/authority scope, not the author)",
+  "mode": "read-only - no edits, no commits, no pushes, no sub-agents, no builds; the worktree checkout was never changed (verified after every run: HEAD 7330ed0f8, `git status --porcelain` empty)",
+  "roadmapNode": "R4.S3",
+  "package": "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind",
+  "task": "1.3, sub-prefix (2) of 3 - repoint the marker READ sites at the derived head",
+  "subject": {
+    "base": "bb346350e (S3a, merged as #1693 f8abc184)",
+    "commitA": "a593490d82d20cc108d4dbf6ff547b331b680d86 - feat(combat): select the recovery reader from the mirrored journal head",
+    "commitB": "7330ed0f8fb487678e87346a31c3c6ca306f98f0 - test(combat): pin the recovery reader's pre-cutover transition arms",
+    "reference": "0890acadec21d7f1f12c1f8584460f8cc517f4cd",
+    "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/history-runtime-integrity",
+    "node": "v22.22.0 (measured in-session)"
+  },
+  "verdict": {
+    "commitA": "APPROVE",
+    "commitB": "APPROVE",
+    "overall": "APPROVE",
+    "requiredEdits": []
+  },
+
+  "axis1_decisionCorrectnessVsTheRulings": {
+    "status": "PASS",
+    "decisionSite": "src/lib/multiplayer/server/ServerMatchHost.ts:1420-1505 (selectRecoveredMatchRollbackReader)",
+    "mechanism": [
+      "ServerMatchHost.ts:1429 - `const derived = deriveMatchJournalAuthorityStartedHead(store, matchId);`",
+      "ServerMatchHost.ts:1458-1461 - `const marker = derived.kind === 'started' || store.getJournalAuthorityStarted == null ? null : await store.getJournalAuthorityStarted(matchId);` - the marker is not even READ when a head exists",
+      "ServerMatchHost.ts:1463-1464 - `const startedHead: IMatchJournalAuthorityStartedHead | null = derived.kind === 'started' ? derived.head : (marker?.head ?? null);`",
+      "matchJournalAuthorityStartedDerived.ts:104-123 - `if (!hasHistoryBranchStore(store)) return { kind: 'not-started' }; if (!isHistoryBranchStoreReady(store)) return { kind: 'unavailable' }; ... if (head == null) return { kind: 'not-started' };`"
+    ],
+    "fullCombinationTable": [
+      "port ABSENT (no branch methods) + marker present -> not-started -> marker.head -> journal-compatible. Matches ruling 'port absent -> not-started' composed with ruling 2 ('where no head exists the marker is honoured').",
+      "port ABSENT + no marker -> null -> legacy-compatible.",
+      "port present+ready, head PRESENT, marker ABSENT -> derived.head -> journal-compatible (proof row 3).",
+      "port present+ready, head PRESENT, marker PRESENT AND DISAGREEING -> derived.head wins, marker never read (proof row 4; asserts branchId 'main', not 'stale-marker-branch').",
+      "port present+ready, head NULL, marker PRESENT -> marker.head -> journal-compatible (proof row 6, the transition arm).",
+      "port present+ready, head NULL, no marker -> null -> legacy-compatible (proof row 5, unchanged behaviour).",
+      "port present+NOT ready (capability db closed) + marker PRESENT -> `unavailable` falls through to the marker -> journal-compatible (proof row 1, the task-1.7 tripwire). This is resolution choice (B) implemented as written.",
+      "port present+NOT ready + no marker -> legacy-compatible (proof row 2, the disclosed concession).",
+      "head row corrupt (branch forced 'superseded') -> `readEffectiveHead` throws EventHistoryBranchError('branch-integrity') out of the derive call at :1429, inside the try opened at :1425, caught at :1497-1503 -> blocked/'recovery-fact-read-failed' (proof row 7)."
+    ],
+    "silentLegacyForAReadableHead": "NONE. A readable head always yields `kind: 'started'`, and :1463-1464 takes `derived.head` unconditionally in that case. The `startedHead == null` legacy arm at :1466 is reachable only when no head was derived AND no marker exists.",
+    "branchIntegrityThrowSwallowedIntoLegacy": "NO, at both sites. Site A: the derive call sits INSIDE the pre-existing try (ServerMatchHost.ts:1425 opens it, :1497 catches) and the catch returns `{ kind: 'blocked', reason: 'recovery-fact-read-failed', preserved: MATCH_ROLLBACK_PRESERVED_FACTS }` - fail-closed, never legacy. Pinned by proof row 7, which asserts `expect(decision.kind).not.toBe('legacy-compatible')` before asserting the blocked shape. Site B: ServerMatchHostJournalAuthority.ts:200-210 wraps the derive AND the marker read in a try whose catch returns `persistenceFailure(ctx, journal, envelope, reason)`, which is a typed STORE_FAILURE broadcast plus `{ kind: 'persistence-failure', reason }` (ServerMatchHostJournalAuthority.ts:52-66) - the same fail-closed shape the store's own append failure takes at :245-248. Site B selects no reader at all, so no legacy choice is available to swallow into. NOTE this is a STRICT IMPROVEMENT over the base: pre-repoint the marker read at :186-188 sat between the two try blocks with no handler, so a throw escaped the command path uncaught (the S3a reviewer's asymmetry finding, now closed).",
+    "strongerThanClaimed": "The row-2 concession (`unavailable` + no marker -> legacy) is UNREACHABLE for a genuinely started match under today's writers, which the evidence does not claim. A match stream only gets a head from `mirrorMatchBatchToJournal`, called from `DurableMatchStore.mirrorCommittedBatch` (DurableMatchStore.ts:982-993), which is the batch path reached only via `commitJournalAuthorityCommand` (ServerMatchHostIntent.ts:324-327, gated `if (ctx.journalAuthority?.enabled)`). That function writes the marker on the FIRST batch of any stream, because the mirror runs AFTER the match-db transaction and genesis backfill runs AFTER the append (MatchStreamJournalMirror.ts:121-122: 'It runs AFTER the append (it reads event_journal_stream_heads, empty until then)'), so no head can exist at the first batch's derive call. Therefore head-present implies marker-present, and `unavailable`+no-marker implies no head. The concession is safe today for the same by-construction reason the tripwire comment gives, and it stops being safe at exactly the same moment (1.7)."
+  },
+
+  "axis2_semanticsOfTheDerivedRecord": {
+    "status": "PASS",
+    "fields": "matchJournalAuthorityStartedDerived.ts:60-65 - `IMatchJournalAuthorityStartedHead` carries streamType / streamId / branchId / effectiveGeneration only.",
+    "consumerGrep": "`grep -rn 'startedHead\\.' src/lib/multiplayer/server/ServerMatchHost.ts` returns ZERO hits - no consumer reads a named field off the record. Both seeds spread it and then overwrite the two fields it lacks: ServerMatchHost.ts:1529-1533 `return { ...startedHead, revision: receipt.lastRevision, digest: receipt.expectedPostStateDigest };` and :1550-1554 `return { ...startedHead, revision: last.sequence, digest: digestCommandPostState(session.getSession()) };`. These are the sites the brief cites at the pre-change line numbers (~:1489-1490 / :1508-1509).",
+    "thirdConsumer": "`started: startedHead` at ServerMatchHost.ts:1492 reaches `IMatchRollbackReaderFacts.started: object | null` (matchRollbackReaderSelection.ts:20) - null-ness only; `selectMatchRollbackReader` never dereferences it (verified across matchRollbackReaderSelection.ts:84-113).",
+    "markerHeadAssignedToTheNarrowerType": "Safe. When `startedHead` comes from `marker?.head` it is a 6-field `IMatchJournalAuthorityHead` structurally widened to the 4-field interface; the runtime spread still carries revision/digest, and both seeds overwrite exactly those two. No excess-property leak reaches the decision.",
+    "otherDerivedConsumers": "`deriveMatchJournalAuthorityStartedHead` has exactly two production callers (ServerMatchHost.ts:1429, ServerMatchHostJournalAuthority.ts:202). `isMatchJournalAuthorityStartedDerived` is now a thin `kind === 'started'` projection (matchJournalAuthorityStartedDerived.ts:135-141) whose behaviour is bit-identical to the pre-change boolean for all three outcomes (port absent -> false, unready -> false, head null -> false).",
+    "oneWayLaw": "NOT violated. matchRollbackReaderSelection.ts:82-84 ('A started fact is a one-way boundary: it can never choose legacy again') is a property of the PURE selector, enforced at :85 `if (facts.started == null)`. The slice passes `started: null` at :1474 only on the arm where no head and no marker exist, and `started: startedHead` at :1492 otherwise. Choice (B) weakens the CALLER's fidelity only in the single disclosed shape (`unavailable` + no marker), which axis 1 shows is unreachable for a genuinely started match today; the selector's own law is untouched.",
+    "typecheck": "`node node_modules/typescript/bin/tsc -p tsconfig.json --noEmit` -> exit 0, zero bytes of output (re-run by this review on the committed tree)."
+  },
+
+  "axis3_siteBWriteOnceGuard": {
+    "status": "PASS",
+    "site": "src/lib/multiplayer/server/ServerMatchHostJournalAuthority.ts:200-210",
+    "code": "`alreadyStarted = deriveMatchJournalAuthorityStartedHead(ctx.store, ctx.matchId).kind === 'started' || (ctx.store.getJournalAuthorityStarted ? await ctx.store.getJournalAuthorityStarted(ctx.matchId) : null) != null;` then :211-227 `const started: IMatchJournalAuthorityStarted | undefined = alreadyStarted ? undefined : { ... }`.",
+    "doubleInsertAtModeOff": "IMPOSSIBLE. At mode `off` the mirror never runs (DurableMatchStore.ts:986 `if (getCombatJournalAuthorityMode() === 'off') return;`), so the derived term is permanently `not-started`/`unavailable` and the marker term alone decides - the exact pre-repoint predicate. A present marker sets `alreadyStarted` true, so `started` is `undefined` and no second `journalAuthorityStarted` rides the batch. The OR can only ADD true-ness, never remove it, so it can never re-enable a suppressed insert.",
+    "skippedWriteOnTheFirstBatchWithTheMirrorON": "DOES NOT HAPPEN. The derive at :202 runs BEFORE `appendCommandBatch` at :232, and the mirror is invoked after the match-db transaction with genesis backfill after the append (DurableMatchStore.ts:974-993 'Deliberately AFTER tx()'; MatchStreamJournalMirror.ts:116-123 'It runs AFTER the append ... and is NOT EXISTS-guarded, so later batches no-op'). So at the first batch of any stream there is provably no head, the derived term is `not-started`, the marker is null, `alreadyStarted` is false and the marker IS written. From the second batch on, the derived term may be true - but by induction the marker is already present, so the pre-repoint predicate was already true there too.",
+    "measuredBehaviour": "The set of batches that write the marker is IDENTICAL to the pre-repoint set, not merely a subset. The evidence's claim ('strictly fewer marker writes than before, never more') is therefore a safe overstatement rather than an inaccuracy - the derived term is currently redundant at this site, and it is the marker term that is load-bearing, exactly as the block comment at :187-197 says.",
+    "residual": "`resumeCommittedCommand` (ServerMatchHostJournalAuthority.ts:68-90) also calls `appendCommandBatch` and passes no `journalAuthorityStarted`; it only replays a command whose receipt already exists, so its stream's first batch already wrote the marker. No gap."
+  },
+
+  "axis4_tests": {
+    "status": "PASS",
+    "redLog": {
+      "path": ".sisyphus/roadmap-completion-20260912/r4-s3b-20260915/red-repoint-20260915.log",
+      "measured": "Tests: 3 failed, 4 passed, 7 total (opened and read by this review)",
+      "perRow": [
+        "RED - 'selects the journal reader with the derived head identity once the mirror has started the stream' (commit A row): expected journal-compatible with branchId 'main', received legacy-compatible. Right reason: the base path reads only the marker, and no marker exists in this row.",
+        "RED - 'follows the head, not the marker, when a head exists and the marker disagrees' (commit A row): received `branchId: 'stale-marker-branch'`. THIS IS THE DISCRIMINATOR the S3a reviewer asked for - the base decision demonstrably came from the marker, so the row cannot pass by accident.",
+        "RED - 'refuses typed on a corrupt head instead of falling back to legacy' (commit A row): `Expected: not \"legacy-compatible\"`. Right reason: the base path never consults the head at all, so corruption is invisible to it.",
+        "GREEN at base - the four commit-B rows (1, 2, 5, 6). This is the point of the split: they pin arms the slice must NOT change, so they are green on BOTH sides by construction."
+      ],
+      "noTautology": "Each of the three A rows discriminates: row 3 by asserting `getJournalAuthorityStarted(MATCH_ID)` is null before asserting journal-compatible (suite:318-319), row 4 by asserting the marker still names 'stale-marker-branch' while the decision names MATCH_BASELINE_BRANCH_ID (suite:360-367), row 7 by the explicit `not.toBe('legacy-compatible')` (suite:410)."
+    },
+    "greenLog": {
+      "path": ".sisyphus/roadmap-completion-20260912/r4-s3b-20260915/green-repoint-20260915.log",
+      "measured": "Tests: 7 passed, 7 total"
+    },
+    "commitBGreenAtItsParentByConstruction": "CONFIRMED structurally, not taken on trust: `git show --name-only --format= 7330ed0f8` lists exactly ONE path (the proof suite), so commit B's production tree is byte-identical to commit A's, and commit A's tree is byte-identical to the final tree. The four B rows therefore run against A's production code, and they are green in this review's run of the final tree. Additionally the red log shows all four green against the BASE decision path, which is the stronger statement for a transition pin.",
+    "tripwireRow": {
+      "name": "'honours the marker over an unreadable head, which task 1.7 must flip to a refusal' (suite:250-278)",
+      "asserts": "`journal-compatible` carrying `branchId: 'stale-marker-branch'` after the store is reopened with no capability database (`expect(store.isCapabilityDbAvailable()).toBe(false)`), with the head actually INSTALLED at mode 'enabled' beforehand. So the assertion is specifically 'the marker won over a head that exists but cannot be read'.",
+      "willGoRedAt1_7": "YES, and only for the intended reason. When 1.7 turns `unavailable`+marker into blocked/'recovery-fact-read-failed', this row's `kind: 'journal-compatible'` expectation fails. It cannot be satisfied by any weaker change, because the row constructs the exact (head installed, capability db closed, marker present) state the refusal targets.",
+      "crossReference": "The decision-site block comment names this row verbatim (ServerMatchHost.ts:1451-1457: 'THIS STOPS BEING TRUE AT THE CUTOVER (task 1.7) ... The row named \"honours the marker over an unreadable head\" ... pins today's behaviour precisely so that 1.7 turns it red on purpose.'). Comment and row are mutually discoverable in both directions."
+    },
+    "reviewRuns": [
+      "S3b suite at HEAD: `node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/multiplayer/server/__tests__/matchRecoveryStartedFromJournalHead.sqlite.test.ts` -> Test Suites: 1 passed, 1 total; Tests: 7 passed, 7 total.",
+      "Focused `src/lib/multiplayer/server` only -> Test Suites: 148 passed, 148 total; Tests: 1095 passed, 1095 total.",
+      "Focused `src/lib/multiplayer/server src/lib/events/journal` (the author's gate scope) -> Test Suites: 170 passed, 170 total; Tests: 1328 passed, 1328 total. MATCHES the author's claim exactly; zero regressions.",
+      "typecheck -> exit 0, empty output.",
+      "oxfmt --check on the three production files + the suite -> 'All matched files use the correct format.'",
+      "oxlint on the three production files -> 'Found 1 warning and 0 errors' - `eslint(max-lines)` on ServerMatchHost.ts. VERIFIED PRE-EXISTING: `git show bb346350e:src/lib/multiplayer/server/ServerMatchHost.ts | wc -l` = 1513, already far over the 400 cap at the base (head is 1555)."
+    ]
+  },
+
+  "axis5_hygiene": {
+    "status": "PASS",
+    "caps": "commitA `git diff --shortstat bb346350e a593490d8 -- src/` -> 4 files changed, 495 insertions(+), 43 deletions(-) - PASS (<=15 files, <=500 insertions). commitB `git diff --shortstat a593490d8 7330ed0f8 -- src/` -> 1 file changed, 102 insertions(+), 6 deletions(-) - PASS.",
+    "conventionalCommits": "`feat(combat): select the recovery reader from the mirrored journal head` and `test(combat): pin the recovery reader's pre-cutover transition arms` - both conventional; the type/scope split matches the content split (A carries all production change, B is test-only).",
+    "author": "Both commits: `Wes Rollings <wrollings@gmail.com>`.",
+    "aiAttribution": "NONE. `git log --format=%B bb346350e..7330ed0f8 | grep -ci 'claude|co-authored|generated with'` -> 0.",
+    "openspecEdits": "NONE. `git diff --name-only bb346350e 7330ed0f8 | grep -v '^src/' | wc -l` -> 0. Every changed path is under src/lib/multiplayer/server/.",
+    "taskCheckbox": "UNCHECKED. openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/tasks.md:16 still reads `- [ ] 1.3 S3: retire the mp_journal_authority_started marker write; one source of \"started\".`",
+    "hooksHonoured": "Consistent with a hook-formatted tree: oxfmt --check and oxlint both re-run clean by this review on the committed tree.",
+    "byteIdentityWithTheReference": "CONFIRMED by two independent measures: `git diff --stat 0890acade 7330ed0f8` produces zero lines, and `git rev-parse 0890acade^{tree} 7330ed0f8^{tree}` yields the same tree object 882b518a9eeb5685494f5370311db798c98f344d twice.",
+    "modeStillOff": "matchJournalAuthority.ts:17-18 `export const COMBAT_JOURNAL_AUTHORITY_MODE = 'off' as CombatJournalAuthorityMode;` - untouched by both commits.",
+    "splitIntegrity": "commit A adds exactly the three new-behaviour rows ('selects the journal reader with the derived head identity', 'follows the head, not the marker', 'refuses typed on a corrupt head'); commit B adds exactly the four transition-pin rows ('honours the marker over an unreadable head', 'still selects the legacy reader when the head is unreadable and nothing claims the match started', 'still selects the legacy reader for a match the mirror never started', 'honours the marker while no head exists'). The allocation matches the commit messages with no leakage."
+  },
+
+  "observations": [
+    {
+      "severity": "note",
+      "text": "`isMatchJournalAuthorityStartedDerived` (matchJournalAuthorityStartedDerived.ts:135-141) now has ZERO production consumers - the only caller is the S3a suite (journalAuthorityStartedDerived.sqlite.test.ts:50,130). It is a correct thin projection and harmless, but it is a dangling export that sub-prefix (3) / task 1.7 should retire together with the marker path, or the two answers will be kept in sync for nobody."
+    },
+    {
+      "severity": "note",
+      "text": "Evidence nit, non-blocking: `split.commitA.gates.s3bSuite` reports '3 passed, 3 total' but names no log, and no gate-A-s3b-suite log exists on disk (the r4-s3b-20260915 directory has gate-B-s3b-suite-20260915.log only). The claim is nonetheless sound by construction - A's production tree equals the final tree, and all three A rows are green in this review's run of the final suite."
+    },
+    {
+      "severity": "note",
+      "text": "Evidence nit, non-blocking: the PRE-RULINGS gates block says the slice 'adds a net 12 lines' to ServerMatchHost.ts; measured on the shipped tree it is 1513 -> 1555 lines, +42. The final `correction.gatesAfterRulings.surface` / `split` numbers are accurate; only the superseded early block is stale."
+    },
+    {
+      "severity": "note",
+      "text": "Carried forward for 1.7, already recorded by the author and confirmed here: re-enabling `unavailable + marker -> blocked` is a one-line change at ServerMatchHost.ts:1463-1464 plus a rewrite of proof row 1, and the block comment at :1440-1457 is the only in-code record of why it is currently off. Nothing else in the slice depends on the concession."
+    }
+  ],
+
+  "nonClaims": [
+    "Commit A was NOT checked out and its gates were NOT re-run in isolation - the worktree checkout was left untouched per the brief. A's greenness is established structurally (B is test-only, so A's production tree is byte-identical to the final tree, and A's three rows are green in the final run) plus the author's gate-A logs on disk.",
+    "No `npm run build` / `next build` was run by this review; the pre-commit hook's build is taken from the author's evidence, not re-measured.",
+    "sha256 digests of the author's logs were not recomputed; the logs were opened and their contents read directly.",
+    "No claim is made about sub-prefix (3) or task 1.7 beyond what the tripwire row and the decision-site comment pin.",
+    "No opinion is offered on the merits of resolution choice (B) itself - it is a binding parent ruling; this review verified only that it is implemented as written, disclosed in code, and pinned by a row that 1.7 must deliberately flip."
+  ]
+}

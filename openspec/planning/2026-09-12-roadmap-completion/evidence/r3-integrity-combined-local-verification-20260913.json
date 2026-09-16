@@ -1,0 +1,344 @@
+{
+  "at": "2026-09-13T08:56:30.105Z",
+  "status": "combined-local-verified-individual-delivery-pending",
+  "baseline": "44b94adbbb333a9d4965e057b34290e19fc0e781",
+  "parent": "/root",
+  "independentReviewer": "/root/r3_storage_security_review",
+  "verdict": "APPROVE_SCOPED",
+  "groups": {
+    "A": {
+      "files": 3,
+      "changedLines": 9,
+      "inputs": [
+        {
+          "path": "src/services/persistence/__tests__/SQLiteService.correctionLeases.migration.test.ts",
+          "sha256": "f483865857c75d45b7c969224e131e7f9076f9f7cac38c5fd770e3d05bbf539e"
+        },
+        {
+          "path": "src/services/persistence/__tests__/SQLiteService.artifactManifest.migration.test.ts",
+          "sha256": "2eb75e49ddb99af1b556727f597b49568cbf36a97a5956950b8113299bc23f2f"
+        },
+        {
+          "path": "src/lib/events/journal/__tests__/EventHistoryArtifactManifest.test.ts",
+          "sha256": "ff828cf4ff8f3357abe0f1cf3c3366c5364b84022ac21ec5612978c3bf77bc08"
+        }
+      ]
+    },
+    "B": {
+      "files": 5,
+      "changedLines": 335,
+      "inputs": [
+        {
+          "path": "src/lib/events/journal/EventHistoryBranchContract.ts",
+          "sha256": "135d40b10db8db0a711d49bc8b18be47c891c334eec25b324e76807495ee2bc4"
+        },
+        {
+          "path": "src/lib/events/journal/SQLiteEventHistoryBranchStore.ts",
+          "sha256": "db44e69b9fcfd802397d284106e2eab2a79eaf328fd1425a101a7da804becc09"
+        },
+        {
+          "path": "src/lib/events/journal/__tests__/SQLiteEventHistoryBranchStore.test.ts",
+          "sha256": "44c7719acfb44f5c355d469269a49022b4ff88c35d7d724530004bde267bbfe3"
+        },
+        {
+          "path": "src/lib/multiplayer/server/campaignProgressionReaders.durable.ts",
+          "sha256": "e40aff11fd55537eb04de95a84501f3c23832d602e5c2e66aea36709697d6751"
+        },
+        {
+          "path": "src/lib/multiplayer/server/__tests__/campaignProgressionReaders.durable.integrity.test.ts",
+          "sha256": "4fe59aa61e37d981a7df71855a40c38fdcd951f95ae45ba3591f5a40f4662d5a"
+        }
+      ]
+    },
+    "C": {
+      "files": 11,
+      "changedLines": 167,
+      "inputs": [
+        {
+          "path": "src/services/persistence/SQLiteService.historyBranchesIntegrity.migration.ts",
+          "sha256": "10c49bb4ddd36c046a9ee2a5874273927b82c61d1cf77315ee9f7841ea4e263a"
+        },
+        {
+          "path": "src/services/persistence/SQLiteService.migrations.ts",
+          "sha256": "220fa101e4b7a043fa6c6b5a64f570f3b772cec74d0ad4810cf9f494eaa96bfe"
+        },
+        {
+          "path": "src/services/persistence/__tests__/SQLiteService.actionAudit.migration.test.ts",
+          "sha256": "dbdf74039ec73575d30d302ec585e96946545d3b91141525260edaf41e0c4ec6"
+        },
+        {
+          "path": "src/services/persistence/__tests__/SQLiteService.actionAuditSessionIdentity.migration.test.ts",
+          "sha256": "323f01aa73803a4d18b27a61b82970eb3922f88ba312b1e24bc06131945c1f62"
+        },
+        {
+          "path": "src/services/persistence/__tests__/SQLiteService.campaignGrants.migration.test.ts",
+          "sha256": "1ec523fa87879c92222f85dbb2084ce0854bd10dcc71ec847284e9549a550cb1"
+        },
+        {
+          "path": "src/services/persistence/__tests__/SQLiteService.deliveryEpochs.migration.test.ts",
+          "sha256": "8f7e00821d7c21516d8d06acc20c06fd90eb1dbeab696d6b1370e9a18b10b330"
+        },
+        {
+          "path": "src/services/persistence/__tests__/SQLiteService.historyBranches.migration.test.ts",
+          "sha256": "375e2d1adf796a0e00885c0e11a444f22b53549c001457b4d1ef5428f684c729"
+        },
+        {
+          "path": "src/services/persistence/__tests__/SQLiteService.privateRecordRejectionOnce.migration.test.ts",
+          "sha256": "9f2c83ef4d3268170e91acd49e1d882da93eafc5745778eb105d431e047ba399"
+        },
+        {
+          "path": "src/services/persistence/__tests__/SQLiteService.privateRecords.migration.test.ts",
+          "sha256": "043cf4f6d47374131b267ba1407c017a5d42cd85c3c2bc05bbf3773f81e8c74b"
+        },
+        {
+          "path": "src/services/persistence/__tests__/SQLiteService.replayCheckpoints.migration.test.ts",
+          "sha256": "578d805e2c98c1e1db2b6ff22934884bae55cdaae354f7d6b89977e9aff6962e"
+        },
+        {
+          "path": "src/services/persistence/__tests__/SQLiteService.replayCheckpointsBranch.migration.test.ts",
+          "sha256": "9b056349323d5532d3929c739e59757fea8c50c1f67cb6dcf029429ef1d8c951"
+        }
+      ]
+    }
+  },
+  "gates": [
+    {
+      "name": "journal-persistence",
+      "args": [
+        "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\branch-integrity-repair\\node_modules\\jest\\bin\\jest.js",
+        "--runInBand",
+        "--coverage=false",
+        "src/lib/events/journal",
+        "src/services/persistence",
+        "src/lib/multiplayer/server/__tests__/campaignProgressionReaders.durable.integrity.test.ts",
+        "src/lib/multiplayer/server/__tests__/CampaignSyncSession.test.ts"
+      ],
+      "startedAt": "2026-09-13T08:50:04.276Z",
+      "exitCode": 0,
+      "signal": null,
+      "finishedAt": "2026-09-13T08:50:27.339Z"
+    },
+    {
+      "name": "build",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "build"
+      ],
+      "startedAt": "2026-09-13T08:50:27.339Z",
+      "exitCode": 0,
+      "signal": null,
+      "finishedAt": "2026-09-13T08:53:37.804Z"
+    },
+    {
+      "name": "typecheck",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "typecheck"
+      ],
+      "startedAt": "2026-09-13T08:53:37.804Z",
+      "exitCode": 0,
+      "signal": null,
+      "finishedAt": "2026-09-13T08:54:27.029Z"
+    },
+    {
+      "name": "lint",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "lint"
+      ],
+      "startedAt": "2026-09-13T08:54:27.030Z",
+      "exitCode": 0,
+      "signal": null,
+      "finishedAt": "2026-09-13T08:54:28.747Z"
+    },
+    {
+      "name": "format",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "format:check"
+      ],
+      "startedAt": "2026-09-13T08:54:28.747Z",
+      "exitCode": 0,
+      "signal": null,
+      "finishedAt": "2026-09-13T08:54:46.028Z"
+    },
+    {
+      "name": "purpose",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "spec:purpose:validate:strict"
+      ],
+      "startedAt": "2026-09-13T08:54:46.028Z",
+      "exitCode": 0,
+      "signal": null,
+      "finishedAt": "2026-09-13T08:54:47.725Z"
+    },
+    {
+      "name": "terminology",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "terminology:validate:strict"
+      ],
+      "startedAt": "2026-09-13T08:54:47.725Z",
+      "exitCode": 0,
+      "signal": null,
+      "finishedAt": "2026-09-13T08:54:58.483Z"
+    },
+    {
+      "name": "quality",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "qc:openspec-ci:validate"
+      ],
+      "startedAt": "2026-09-13T08:54:58.483Z",
+      "exitCode": 0,
+      "signal": null,
+      "finishedAt": "2026-09-13T08:54:58.889Z"
+    },
+    {
+      "name": "openspec",
+      "args": [
+        "C:/Users/wroll/AppData/Roaming/npm/node_modules/@fission-ai/openspec/bin/openspec.js",
+        "validate",
+        "--all",
+        "--strict"
+      ],
+      "startedAt": "2026-09-13T08:54:58.890Z",
+      "exitCode": 0,
+      "signal": null,
+      "finishedAt": "2026-09-13T08:54:59.942Z"
+    }
+  ],
+  "tests": {
+    "suites": 47,
+    "passed": 423,
+    "failed": 0
+  },
+  "sourceStable": true,
+  "limits": [
+    "Three capped prefixes, not one19filePR",
+    "PrefixA baseline proof27tests separate; do not add overlapping totals",
+    "B runtime before C schema still requires independent prefix verification",
+    "No GitHub review, publication, exact-main acceptance or cleanup",
+    "Campaign corruption fixtures use isolatedSQLite and real durable readers with in-memory campaign event store; no WebSocket/browser/CAMP cutover proof",
+    "Unknown infrastructure errors retain prior null compatibility; typed branch-integrity propagates",
+    "Existing corrupt rows refused without rewriting; no normal production exploit claimed"
+  ],
+  "artifacts": [
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-branch-integrity-parent-gates-20260913-attempt2/report.json",
+      "sha256": "fce5841a29975911037209c61b66f6bb56144cfa8fce46469411cd1aba5e6248"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-branch-integrity-parent-gates-20260913-attempt2/source-freeze.json",
+      "sha256": "800011f67fb1278fe5d04a7c84138d363ef978283594d4f20c39c5390a5f0833"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-branch-integrity-parent-gates-20260913-attempt2/driver-status.json",
+      "sha256": "b6b6379172b512b8b65557a28fd1c231b5278a1f437698615499654a5b4b4918"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-branch-integrity-parent-gates-20260913-attempt2/affinity.json",
+      "sha256": "10615f7476b07003acd3d4c50e58b2a9b5ab2b61d1a6bad0d876c3b52a2e851d"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-branch-integrity-parent-gates-20260913-attempt2/journal-persistence.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-branch-integrity-parent-gates-20260913-attempt2/journal-persistence.stderr.log",
+      "sha256": "a7e3f9c0c3de594ff15a57a070ea2884b75e53f55860026e57125a5a4df11927"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-branch-integrity-parent-gates-20260913-attempt2/build.stdout.log",
+      "sha256": "8f6e37f679bd40dafc81a4c80b9ce26c77f3e27389a21315f89acbcb8a6911f6"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-branch-integrity-parent-gates-20260913-attempt2/build.stderr.log",
+      "sha256": "a581185070fa5e64e1bae7c1c54b4dfb0fcb089c20861ae00df3f78698807265"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-branch-integrity-parent-gates-20260913-attempt2/typecheck.stdout.log",
+      "sha256": "d140a6ce62dda0946fe30dd882dbb8209f05be72c8fa8850e5634755a399e50f"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-branch-integrity-parent-gates-20260913-attempt2/typecheck.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-branch-integrity-parent-gates-20260913-attempt2/lint.stdout.log",
+      "sha256": "a1e08723d0f3aab0718cfa866fdf49731f64bf661bd85b152005edb36cddf452"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-branch-integrity-parent-gates-20260913-attempt2/lint.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-branch-integrity-parent-gates-20260913-attempt2/format.stdout.log",
+      "sha256": "09fd0e49fc73a7f3c6b4f6ac12c5832276c2528ed90c7a74449352482b1fd160"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-branch-integrity-parent-gates-20260913-attempt2/format.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-branch-integrity-parent-gates-20260913-attempt2/purpose.stdout.log",
+      "sha256": "12a7e62003c210334064d021246c01a5bf502b725d067ac68d2bc9e7ef0d5ea4"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-branch-integrity-parent-gates-20260913-attempt2/purpose.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-branch-integrity-parent-gates-20260913-attempt2/terminology.stdout.log",
+      "sha256": "0aa5a9766e05dd5717dd0716600178778d9b12c1aae493920c77b9911ab367e0"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-branch-integrity-parent-gates-20260913-attempt2/terminology.stderr.log",
+      "sha256": "cca198080988abd4c35f88c8dee548cf81c5e416bb5c7c36f3bbb7d821eb9948"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-branch-integrity-parent-gates-20260913-attempt2/quality.stdout.log",
+      "sha256": "f01feb11318234aab4764fe76151b78c06905527212a8f8723626fcf616b71d6"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-branch-integrity-parent-gates-20260913-attempt2/quality.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-branch-integrity-parent-gates-20260913-attempt2/openspec.stdout.log",
+      "sha256": "cc90ade73c964f27cfcde5ca721882bbaef3d4c6cab944254433acb7eafcd407"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-branch-integrity-parent-gates-20260913-attempt2/openspec.stderr.log",
+      "sha256": "5bc31df123a2e521acdd2c0d9477b367feec506471a91065d0a6b32c09089ed5"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-integrity-corrected-final-review-terra-20260913/report.json",
+      "sha256": "a1239b046aa95d3be1ff6750f1e787d55b09d22fc6ee3dfb97306b04dea5677b"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-integrity-corrected-final-review-terra-20260913/review.md",
+      "sha256": "cc90d081f8cff20a1fbc9ccb5bcdc40373b5835e71ccc97218c5a1d84055cf71"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-runtime-integrity-correction-terra-20260913/report.json",
+      "sha256": "01b28aea38ff63d09c04764ac0124854d9af3d28a2ea47178920fda51d76e9de"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-runtime-integrity-correction-terra-20260913/red-launch.stderr.log",
+      "sha256": "deec0de80b7ff18bc3d32d563d796a967d100fa39f5275b1607c65dd0a5078ba"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-runtime-integrity-correction-terra-20260913/green.stderr.log",
+      "sha256": "ceba5c09e39d73c5c2977959f525bc697904e7459ca9b2ae47e2bfb9ccc43430"
+    }
+  ]
+}

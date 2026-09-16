@@ -1,0 +1,102 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "triage-equipment-loader-reproduction",
+  "capturedAt": "2026-09-12",
+  "worktree": "E:/Projects/MekStation",
+  "scope": "Admitted characterization only for equipment-load-result-error-semantics. The real EquipmentLoaderService.loadOfficialEquipment and EquipmentFileReader boundary was exercised with controlled missing and malformed indexed responses. No product/spec/task/roadmap/Git fix was implemented.",
+  "expectedContract": {
+    "source": "openspec/specs/equipment-services/spec.md",
+    "lines": "674-680",
+    "sha256": "a4a503b0a943b7053c6f0442233044a21098f5f3f27aae84e9ab089de2a02d15",
+    "text": "A malformed or missing JSON file is logged as an error, loading continues, and the failure is included in IEquipmentLoadResult.errors."
+  },
+  "reproduction": {
+    "testPath": "src/services/equipment/__tests__/EquipmentOfficialLoader.failure.test.ts",
+    "testSha256": "dbedfdd5b1465a84814ba82dc01e886f7886da230a8b102030f0a558aa2ee68b",
+    "testLines": "1-116",
+    "boundary": "EquipmentLoaderService.loadOfficialEquipment -> loadOfficialEquipmentSource -> readJsonFile",
+    "methodUnderTestMocked": false,
+    "ioControl": "The test controls global.fetch responses only, allowing the unmocked browser branch of readJsonFile to receive a 404 for weapons/missing.json and a JSON parse rejection for weapons/malformed.json. The retained indexed file is returned as valid JSON.",
+    "indexedFiles": [
+      "weapons/missing.json",
+      "weapons/malformed.json",
+      "weapons/retained.json"
+    ],
+    "successfulRowsRetained": {
+      "id": "retained-weapon",
+      "expectedItemsLoaded": 1,
+      "assertedByTest": true
+    }
+  },
+  "observed": {
+    "resultErrors": [],
+    "failureMessage": "Expected result.errors to contain weapons/missing.json and weapons/malformed.json; Received: []",
+    "itemsLoaded": 1,
+    "retainedWeaponPresent": true,
+    "sourceBehavior": "EquipmentFileReader returns null after logger.warn for both non-OK fetch and fetch JSON parse failure; EquipmentOfficialLoader appends those null results to warnings and returns success based only on errors.length, so this case evaluates as success=true with warnings for both files.",
+    "sourceRefs": [
+      {
+        "path": "src/services/equipment/EquipmentFileReader.ts",
+        "lines": "33-45",
+        "sha256": "2e19b8d2beadb9e66b4e82db7b8514889c4328875d74157a5c604328d2d40d1a",
+        "role": "Non-OK and parse/fetch failures become null after warnings"
+      },
+      {
+        "path": "src/services/equipment/EquipmentOfficialLoader.ts",
+        "lines": "64-101,188-201",
+        "sha256": "31ff5f6af073037e82677e9b3a3c148a846956b69e09206f08d26f65727a064c",
+        "role": "Missing weapon files become warnings; success is errors.length === 0"
+      }
+    ]
+  },
+  "rawLogs": [
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/triage-proof/equipment-official-loader-failure-20260912T0830Z-red.log",
+      "sha256": "65ce356f5468f8d173fc88ac007650d4ce25102e6ebe86c96ddb977e7a4c24e0",
+      "kind": "authoritative-red-reproduction",
+      "command": "./node_modules/.bin/jest --runInBand --forceExit --selectProjects unit --runTestsByPath src/services/equipment/__tests__/EquipmentOfficialLoader.failure.test.ts"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/triage-proof/equipment-official-loader-existing-20260912T0820Z.log",
+      "sha256": "8de6a942d71b359fa126d56d58bf8d52e76d5d65e9b220ab296ebf65e7b20e95",
+      "kind": "relevant-existing-green-tests",
+      "command": "./node_modules/.bin/jest --runInBand --forceExit --selectProjects unit --runTestsByPath src/__tests__/service/equipment/EquipmentLoaderService.test.ts src/services/equipment/__tests__/EquipmentLoaderService.schemaBridge.test.ts",
+      "result": "2 suites passed, 108 tests passed"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/triage-proof/equipment-official-loader-failure-20260912T-red.log",
+      "sha256": "7274cd26d2cbda7a32c28647611c0dca997034d71ac7c21fa64f06242a0dc3de",
+      "kind": "superseded-runner-timeout-red-log",
+      "note": "Initial combined command emitted the same red assertion before the shell timeout; retained as raw provenance, superseded by the complete 0830Z run."
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/triage-proof/equipment-official-loader-failure-20260912T0800Z-red.log",
+      "sha256": "7274cd26d2cbda7a32c28647611c0dca997034d71ac7c21fa64f06242a0dc3de",
+      "kind": "superseded-runner-timeout-red-log",
+      "note": "Forced-exit positional-path attempt emitted the same red assertion before the shell timeout; superseded by the complete 0830Z run."
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/triage-proof/equipment-official-loader-failure-20260912T0810Z-red.log",
+      "sha256": "7274cd26d2cbda7a32c28647611c0dca997034d71ac7c21fa64f06242a0dc3de",
+      "kind": "superseded-runner-timeout-red-log",
+      "note": "Direct local-Jest positional-path attempt emitted the same red assertion before the shell timeout; superseded by the complete 0830Z run."
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/triage-proof/equipment-official-loader-existing-20260912T0815Z.log",
+      "sha256": "3db0ccd300c4f42fffc1fb38ab1608c3e7f4d044f72ddc1a1855b5136ce3927f",
+      "kind": "superseded-path-probe-log",
+      "note": "An initial existing-test probe used one stale path and failed ENOENT for that path while the schema-bridge suite passed; the corrected 0820Z run is authoritative."
+    }
+  ],
+  "smallestFixProposal": "At the loader/readJsonFile seam, preserve successful rows but append a path-specific error for every indexed file whose read or parse returns null, and make success false when errors are present. Add or retain the focused characterization assertion before implementing that fix. Keep runtime utility fallback ownership separate; this followup does not change official-catalog no-fallback semantics.",
+  "limits": [
+    "The reproduction controls fetch responses rather than changing the checked-in equipment corpus; readJsonFile, loadOfficialEquipmentSource, and loadOfficialEquipment remain real.",
+    "The red test is intentionally left failing to preserve the current mismatch for parent review; no implementation or spec correction was made.",
+    "Only the new focused test and relevant existing loader tests were run; no full build, browser suite, server, or broad validation was run."
+  ],
+  "verification": [
+    "Requested test path was verified absent before creation.",
+    "New test hash, current source/spec hashes, and raw-log hashes are recorded.",
+    "Only the requested focused test, evidence JSON, and uniquely named triage-proof logs were added; shared unrelated edits were preserved."
+  ]
+}

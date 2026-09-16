@@ -1,0 +1,177 @@
+{
+  "artefact": "paper-size-flake-diagnosis",
+  "date": "2026-09-15",
+  "subject": {
+    "spec": "e2e/customizer-record-sheet-rendering.spec.ts",
+    "testLine": 322,
+    "testName": "Print writes one current sheet into the reserved window at the selected paper @customizer",
+    "failingAssertionLine": 371,
+    "failureSignature": "waitForBacking(A4) timed out: expected {width:2380,height:3368} received {width:2448,height:3168} (LETTER)"
+  },
+  "buildIdentity": {
+    "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/browser",
+    "head": "b39b8291706c36b9ad0c876a5e1b11e5b3612b7d",
+    "headDetached": true,
+    "workingTreeClean": true,
+    "nextBuildId": "1789455586707",
+    "standaloneServerSha256": "e4f973d2cfa7f4c25775e4ce9315b7398655a6a17cfc799793545de84a59ecf6",
+    "rebuilt": false,
+    "node": "v22.22.0"
+  },
+  "runs": [
+    {
+      "id": "batch1",
+      "command": "node scripts/playwright/run-playwright.mjs test e2e/customizer-record-sheet-rendering.spec.ts --project=chromium --retries=0 --workers=1 --trace=on --repeat-each=6",
+      "env": {
+        "MEKSTATION_E2E_SERVER_COMMAND": "node .next/standalone/server.js",
+        "HOSTNAME": "127.0.0.1",
+        "MEKSTATION_E2E_PORT": "3639",
+        "MEKSTATION_E2E_REUSE_EXISTING_SERVER": "false",
+        "NEXT_PUBLIC_E2E_MODE": "true",
+        "NEXT_PUBLIC_E2E_TEST": "true"
+      },
+      "serverPort": 3639,
+      "serverLifecycle": "spawned by the Playwright webServer plugin; verified no LISTENING socket on 3639 after the run (TIME_WAIT client sockets only)",
+      "wallClock": "3.8m",
+      "overall": "2 failed / 34 passed (6 repetitions x 6 tests in the file)",
+      "targetTestPerRepetition": [
+        { "repetition": 0, "result": "FAIL", "artifactDir": "customizer-record-sheet-re-29763-e-selected-paper-customizer-chromium" },
+        { "repetition": 1, "result": "PASS", "artifactDir": "customizer-record-sheet-re-29763-e-selected-paper-customizer-chromium-repeat1" },
+        { "repetition": 2, "result": "PASS", "artifactDir": "customizer-record-sheet-re-29763-e-selected-paper-customizer-chromium-repeat2" },
+        { "repetition": 3, "result": "FAIL", "artifactDir": "customizer-record-sheet-re-29763-e-selected-paper-customizer-chromium-repeat3" },
+        { "repetition": 4, "result": "PASS", "artifactDir": "customizer-record-sheet-re-29763-e-selected-paper-customizer-chromium-repeat4" },
+        { "repetition": 5, "result": "PASS", "artifactDir": "customizer-record-sheet-re-29763-e-selected-paper-customizer-chromium-repeat5" }
+      ],
+      "reproductionRate": "2/6 (33%)"
+    },
+    {
+      "id": "probe3-no-settle",
+      "kind": "standalone instrumented probe; no repo file created or modified",
+      "script": ".sisyphus/roadmap-completion-20260912/paper-size-flake-20260915/probes/probe3.mjs",
+      "invocation": "node probe3.mjs 10",
+      "serverPort": 3640,
+      "serverCommand": "PORT=3640 HOSTNAME=127.0.0.1 NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true node .next/standalone/server.js",
+      "serverPid": 40248,
+      "serverLifecycle": "started by this lane; terminated with taskkill /PID 40248 /F; port 3640 verified with no listener afterwards",
+      "result": "pass=1 fail=9",
+      "reproductionRate": "9/10 (90%)",
+      "note": "Drops the intervening page.evaluate round trip that exists in the real spec, tightening the race window and raising the hit rate."
+    },
+    {
+      "id": "probe3-with-settle",
+      "kind": "same probe with the proposed fix applied test-side",
+      "invocation": "node probe3.mjs 10 settle",
+      "settle": "poll the latest captured record-sheet SVG until id=\"type\" reads 'Atlas AS7-D' (identical semantics to the spec's own expectSheetType helper)",
+      "result": "pass=10 fail=0",
+      "settleWaitMsObserved": [239, 235, 224, 169, 271, 184, 216, 220, 210, 253]
+    }
+  ],
+  "evidencePaths": {
+    "root": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/paper-size-flake-20260915/",
+    "batch1Log": "paper-size-flake-20260915/batch1.log",
+    "batch1RunScript": "paper-size-flake-20260915/run-batch1.sh",
+    "batch1Artifacts": "paper-size-flake-20260915/batch1-test-results/ (traces, error-context.md and screenshots for all 36 executions)",
+    "extractedTraces": {
+      "failing_rep0": "paper-size-flake-20260915/traces/run/",
+      "passing_rep1": "paper-size-flake-20260915/traces/run-repeat1/",
+      "failing_rep3": "paper-size-flake-20260915/traces/run-repeat3/"
+    },
+    "priorAttempt1Trace": "paper-size-flake-20260915/attempt1-trace/ (extracted from browser-main-proof-20260915/attempt-1-retained-artifacts/)",
+    "probeScripts": "paper-size-flake-20260915/probes/"
+  },
+  "traceForensics": {
+    "method": "Decoded the Playwright frame-snapshot deltas and read __playwright_selected_ on the two OPTION nodes of #paper-size across every snapshot in the 1.5s after the Atlas tab click. Times are milliseconds relative to the start of the tab-click call.",
+    "failingRepetition0": [
+      { "t": 0.0, "event": "Click getByRole('tab', {name:'Atlas AS7-D'}) begins" },
+      { "t": 29.1, "event": "mouse click dispatched; frameUrl still the Locust unit" },
+      { "t": 35.1, "event": "click call returns; frameUrl already /customizer/<atlasId>/preview" },
+      { "t": 35.8, "event": "Select option 'a4' begins" },
+      { "t": 48.9, "event": "select committed: snapshot shows letter=false, a4=true" },
+      { "t": 84.1, "event": "50,100-byte FULL snapshot: workbench subtree replaced; select back to letter=true, a4=false" },
+      { "t": 9241.0, "event": "waitForBacking(A4) poll fails; canvas stayed 2448x3168" }
+    ],
+    "passingRepetition1": [
+      { "t": 0.0, "event": "Click begins" },
+      { "t": 34.3, "event": "mouse click dispatched" },
+      { "t": 40.7, "event": "click returns; frameUrl already the Atlas unit" },
+      { "t": 41.3, "event": "Select option 'a4' begins" },
+      { "t": 86.7, "event": "50,150-byte FULL snapshot MID-ACTION: workbench replaced, select letter=true a4=false" },
+      { "t": 96.8, "event": "select commits AFTER the replacement: letter=false, a4=true; test passes" }
+    ],
+    "conclusion": "The workbench replacement lands at t~82-87ms in BOTH outcomes. The only variable is whether the selectOption commits before it (selection lost) or after it (selection kept)."
+  },
+  "mountProbeForensics": {
+    "method": "page.addInitScript hooked history.pushState / history.replaceState and ran a MutationObserver over document.body recording add and remove of the element containing #paper-size.",
+    "observedPerRun": "exactly one history.pushState, then exactly one REMOVE+ADD of data-testid=customizer-workbench 15-25 ms later, with the freshly added select reading value=letter",
+    "sampleFailingIteration": [
+      { "t": 0.0, "event": "MARK pre-click url=/customizer/<locustId>/preview" },
+      { "t": 127.5, "event": "history.pushState -> /customizer/<atlasId>/preview" },
+      { "t": 146.9, "event": "REMOVE customizer-workbench" },
+      { "t": 146.9, "event": "ADD customizer-workbench, #paper-size value=letter" },
+      { "t": 1335.4, "event": "MARK settled select=letter; the a4 selection issued between 127.5 and 146.9 was discarded" }
+    ],
+    "keyFinding": "Playwright's click resolves at the history.pushState, but the React commit that swaps the workbench is 15-25 ms later. Any programmatic interaction issued in that gap targets the outgoing unit's PreviewTab instance."
+  },
+  "rootCause": {
+    "summary": "The unit-tab click is URL-first and the workbench remount is two React commit cycles downstream of it, so there is a 15-50 ms window after the click in which the PREVIOUS unit's Paper Size select is still the element in the DOM. The test selects 'a4' inside that window; the subsequent remount installs a fresh PreviewTab whose useState paperSize is LETTER, discarding the selection.",
+    "chain": [
+      "TabBar click -> useMultiUnitTabsController.selectTab (src/components/customizer/tabs/useMultiUnitTabsController.ts:144-156) calls router.push(buildCustomizerUrl(...), undefined, {shallow:true}). It does NOT write the tab-manager store; the navigation is the only immediate effect. This is the history.pushState that Playwright's click waits on.",
+      "Next router state propagates -> CustomizerWithRouter re-renders -> the URL->State effect (src/components/customizer/CustomizerWithRouter.tsx:346-375) runs syncUrlToState, which calls useTabManagerStore.selectTab(routerUnitId) at CustomizerWithRouter.tsx:149.",
+      "That store write triggers a further render in which useActiveTab (CustomizerWithRouter.tsx:198-203, used at :325) resolves activeTab to the Atlas TabInfo.",
+      "MechShell renders <UnitEditorWithRouting key={activeTab.id} ...> (src/components/customizer/shared/customizerTypeRegistry.tsx:240). The changed key unmounts the outgoing unit's entire editor subtree and mounts a fresh one.",
+      "PreviewTab is re-created (src/components/customizer/UnitEditorWithRoutingTabContent.tsx:70-74 mounts it whenever activeTabId === 'preview') and its paper size is local component state initialised to LETTER (src/components/customizer/tabs/PreviewTab.tsx:34)."
+    ],
+    "whyStateIsLost": "paperSize has exactly one writer in the entire codebase, the select's own onChange (src/components/customizer/preview/PreviewToolbar.tsx:138). A value of LETTER after 'a4' was visibly committed to the DOM can therefore only come from a fresh component instance, never from product code overwriting the selection. grep for setPaperSize / onPaperSizeChange across src/ returns only the six per-PreviewTab useState declarations and that single onChange writer.",
+    "hypothesisVerdict": "The offered hypothesis (a controlled paper-size state overwritten by an async re-render triggered by the preceding tab switch) is REFUTED as stated and REPLACED. Nothing overwrites the state. The selection is applied to the outgoing instance and is thrown away with it when the delayed remount lands."
+  },
+  "classification": {
+    "verdict": "TEST RACE",
+    "confidence": "high",
+    "rationale": [
+      "Resetting paperSize to LETTER on a unit-tab switch is the product's intended behaviour and is asserted by this very test at lines 360-361 after the Locust tab is created.",
+      "The end state after the transition is correct for the newly activated unit; no product state is corrupted, and no user-reachable defect exists because a human cannot act inside a 15-50 ms window.",
+      "The same spec's sibling test performs the identical tab switch at lines 312-316 and DOES settle (Preview tab click, zoom label visible, waitForBacking, expectSheetType) before continuing; it does not flake.",
+      "loadAtlas (lines 59-73) and loadLocustBesideAtlas (lines 77-91) both end with a settle for the same reason.",
+      "Line 368 is the only unit-tab switch in the file with no settle before the next interaction.",
+      "Adding the settle drove the failure rate from 9/10 to 0/10 on the same build and the same server."
+    ],
+    "secondaryProductObservation": "Not a bug, but a testability gap: #paper-size is a fixed DOM id with no per-unit identity (src/components/customizer/preview/PreviewToolbar.tsx:130-152), so a locator cannot distinguish the outgoing instance's select from the incoming one. A data-unit-id attribute on the preview toolbar would make this class of race fail loudly instead of silently."
+  },
+  "proposedFix": {
+    "implemented": false,
+    "size": "2 lines added, test-side only, no product change",
+    "primary": {
+      "file": "e2e/customizer-record-sheet-rendering.spec.ts",
+      "afterLine": 368,
+      "current": "await page.getByRole('tab', { name: 'Atlas AS7-D', exact: true }).click();\n\nawait page.getByRole('combobox', { name: 'Paper Size' }).selectOption('a4');",
+      "proposed": "await page.getByRole('tab', { name: 'Atlas AS7-D', exact: true }).click();\nawait expectSheetType(page, 'Atlas AS7-D');\n\nawait page.getByRole('combobox', { name: 'Paper Size' }).selectOption('a4');",
+      "why": "expectSheetType (lines 201-205) polls the latest captured record-sheet SVG for id=\"type\". It can only read 'Atlas AS7-D' once the remounted PreviewTab has rendered, so it is a true settle on the new instance, unlike toHaveValue('letter') which passes vacuously against the outgoing Locust select. This is exactly the settle the sibling test already uses at line 316.",
+      "measuredCost": "169-271 ms per occurrence"
+    },
+    "secondaryLatentRace": {
+      "file": "e2e/customizer-record-sheet-rendering.spec.ts",
+      "lines": "383-385",
+      "current": "await page.getByRole('tab', { name: 'Locust LCT-1V', exact: true }).click();\nawait waitForBacking(page, LETTER);\nconst locustPrint = await printOnce(page);",
+      "issue": "waitForBacking(LETTER) is vacuous here: LETTER is both the pre-switch and post-switch backing, so it does not wait for the remount. printOnce can fire against the outgoing Atlas instance and the following typeName assertion would then fail.",
+      "proposed": "insert await expectSheetType(page, 'Locust LCT-1V'); after the tab click",
+      "status": "not observed failing in 6 repetitions, but the same mechanism applies"
+    },
+    "regressionGuard": {
+      "what": "After the settle, assert the instance identity that the race destroys, before touching the control.",
+      "assertion": "await expect(page.getByRole('combobox', { name: 'Paper Size' })).toHaveValue('letter'); placed AFTER expectSheetType(page, 'Atlas AS7-D')",
+      "why": "Ordered after the settle it documents and pins the intended per-unit reset. Placed before the settle it is worthless, which is precisely the trap that produced this flake.",
+      "strongerOption": "Add data-unit-id={unitId} to the preview toolbar (PreviewToolbar.tsx) and scope the Paper Size locator to it, so acting on a stale instance throws instead of silently succeeding. Larger change; only worth it if this race class recurs elsewhere."
+    },
+    "rejectedAlternatives": [
+      "Lifting paperSize into a store keyed by unit id: changes intended product behaviour (the per-unit reset) that this same test asserts at lines 360-361.",
+      "Retries or a fixed page.waitForTimeout: hides the race rather than binding to the settle point, and would leave the line-383 instance unguarded."
+    ]
+  },
+  "guardrailsObserved": {
+    "sourceEdits": "none; no file under src/ or e2e/ was modified. Probes live in the session scratchpad and were copied to the evidence directory.",
+    "rootCheckout": "untouched; all work ran in the detached browser worktree, git status clean throughout",
+    "ports": "3639 (Playwright-managed) and 3640 (probe, PID 40248, terminated) only; port 3600 never touched",
+    "rebuild": "none; the pre-existing production build was used",
+    "pushOrPr": "none"
+  }
+}

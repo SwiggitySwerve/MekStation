@@ -1,0 +1,277 @@
+{
+  "artefact": "r4-s5-explicit-offsets-local-20260915",
+  "date": "2026-09-15",
+  "roadmapNode": "R4.S5",
+  "task": "adopt-combat-journal-cutover-and-gm-rewind task 1.5 (S5-a): make the sequence-versus-revision offset explicit at every derivation site; re-pin the four suites that encode it.",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/history-runtime-integrity",
+  "branch": "codex/roadmap-r4-s5-explicit-offsets-20260915",
+  "base": {
+    "sha": "8cacf20a65880e42304c4e885b395525c820f775",
+    "subject": "feat(combat): rebuild the live host from the journal head on restart (#1704)",
+    "note": "origin/main at branch time. origin/main advanced to aa26a94f1 DURING this slice (#1701, #1706 merged by other sessions through the shared .git); the merge-base with HEAD is still 8cacf20a6 and every diff/shortstat below is measured against that recorded base, not against the moved ref."
+  },
+  "commits": [
+    {
+      "sha": "6795b48e4d7fac7af257ab6e64decd86b06144a9",
+      "short": "6795b48e4",
+      "subject": "refactor(combat): name the sequence-to-revision offset at each site",
+      "subjectLength": 66,
+      "files": 8,
+      "shortstat": "8 files changed, 140 insertions(+), 13 deletions(-)",
+      "supersedes": "4424316b8 (pre-review; preserved on backup/r4-s5-pre-review)",
+      "carriesRequiredEdits": [
+        "RE-1",
+        "RE-2"
+      ]
+    },
+    {
+      "sha": "d5beb85421c03ea768d1509c76066bf99ef2780c",
+      "short": "d5beb8542",
+      "subject": "feat(combat): refuse to mirror a rewound match stream",
+      "files": 3,
+      "shortstat": "3 files changed, 265 insertions(+), 18 deletions(-)",
+      "supersedes": "be5ad635d789f19efa7a76c808d0c1dccd440036 (pre-review; preserved on backup/r4-s5-pre-review)",
+      "carriesRequiredEdits": [
+        "RE-3",
+        "RE-4"
+      ]
+    }
+  ],
+  "commitAuthor": "Wes Rollings <wrollings@gmail.com>; no AI attribution; hooks on (pre-commit full next build ran and passed on BOTH commits)",
+  "shortstatVsBase": "10 files changed, 405 insertions(+), 31 deletions(-)",
+  "capsCompliance": {
+    "fileCap": "10 of 15",
+    "lineCap": "436 of 500",
+    "split": "Two buildable prefixes. Commit 1 is a compiling, green state on its own (the mirror call site still passed `expectedRevision`); commit 2 renames the field and adds the guard. The split was needed because the pre-commit hook runs a full `next build` on the working tree. After review the pair was REBUILT rather than rewritten in place: a fresh branch off the base, git cherry-pick A, --amend with RE-1/RE-2, git cherry-pick B, --amend with RE-3/RE-4. No interactive rebase, no reset --soft, no reset --hard. The pre-review pair is preserved verbatim on backup/r4-s5-pre-review (be5ad635d)."
+  },
+  "files": {
+    "production": [
+      "src/lib/multiplayer/server/history/matchStoreBranchSegmentReader.ts (+38: MATCH_FIRST_SEQUENCE, nextMatchSequenceAfter, journalHeadRevisionForNextMatchSequence, colocated with revisionForMatchSequence)",
+      "src/lib/multiplayer/server/MatchStreamJournalMirror.ts (+65/-14: rewound-stream typed refusal on the result union, live-path guard inside the existing transaction, expectedRevision -> nextMatchSequence input field, translation via journalHeadRevisionForNextMatchSequence, REVISION OFFSET doc rewritten from warning to enforced invariant)",
+      "src/lib/multiplayer/server/DurableMatchStore.ts (+21/-7: commit-time check SQL now reads a raw MAX(sequence) and derives next via nextMatchSequenceAfter; mirror call site passes nextMatchSequence)",
+      "src/lib/multiplayer/server/InMemoryMatchStore.ts (+9/-3: liveHeadSequence routes through nextMatchSequenceAfter)",
+      "src/lib/multiplayer/server/ServerMatchHostBranchAdmission.ts (+7/-2: head revision routes through nextMatchSequenceAfter)"
+    ],
+    "tests": [
+      "src/lib/multiplayer/server/__tests__/matchStreamJournalMirror.sqlite.test.ts (+211/-4: rewound-stream fixture + 4 new cases)",
+      "src/lib/multiplayer/server/history/__tests__/matchStoreBranchSegmentReader.test.ts (+40/-1: 3 named-derivation rows + the reader's literal pin also asserted through revisionForMatchSequence)",
+      "src/lib/multiplayer/server/__tests__/matchCheckpointEquivalence.test.ts (+13: head-revision == named next sequence pin)",
+      "src/lib/multiplayer/server/__tests__/matchRecoveryCheckpointDoor.test.ts (+13: same pin)",
+      "src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindRebuild.test.ts (+7: same pin, inline in seedAuthoritativeHistory so it runs on every case in the suite)"
+    ]
+  },
+  "derivationSitesClosed": {
+    "alreadyExplicitBefore": "revisionForMatchSequence (matchStoreBranchSegmentReader.ts:49-51), consumed by MatchCheckpointHistory.ts, MatchRecovery.ts, MatchRecoveryJournalHead.ts. Left untouched - those three already call the named function.",
+    "implicitSiteA_closed": "MatchStreamJournalMirror.ts - the offset was a module comment plus an untranslated `expectedRevision` passthrough. Now a named input field (`nextMatchSequence`) and a named translation (`journalHeadRevisionForNextMatchSequence`).",
+    "implicitSiteB_closed": "DurableMatchStore.ts:791-806 - `SELECT COALESCE(MAX(sequence) + 1, 0)` with no comment tying it to the journal's numbering. The `+ 1` moved out of the SQL into `nextMatchSequenceAfter`; the revision-conflict branch is byte-for-byte the same answer (COALESCE(MAX+1,0) === lastLiveSequence === null ? 0 : lastLiveSequence + 1).",
+    "additionalImplicitSitesFoundAndClosed": "Grep for `sequence + 1` / `MAX(sequence)` across src/ found two further un-named next-sequence derivations the brief did not enumerate: InMemoryMatchStore.ts:520 (`liveHeadSequence`) and ServerMatchHostBranchAdmission.ts:160. Both routed through nextMatchSequenceAfter - the task text is 'every derivation site', and the in-memory store is the sibling of the very commit-time check being named.",
+    "deliberatelyNotTouched": "DurableMatchStore.supersede.ts:119, CoordinatedOutcomeCorrectionSaga.ts:173, ServerMatchHostRewindRebuild.ts:269, useGmRewindProducers.ts:35 - comment-only restatements at call sites that already pass a revision through; no arithmetic to name. MatchRecovery.ts:262 / MatchRecoveryJournalHead.ts:107 already call revisionForMatchSequence."
+  },
+  "theGuard": {
+    "shape": "Typed refusal `{ kind: 'rewound-stream', branchId }` added to MatchJournalMirrorResult, returned from appendPreparedWithExtension's existing `{ kind: 'refused', result }` prepare arm.",
+    "predicateReused": "isLivePathBranchId / LIVE_PATH_BRANCH_IDS from src/lib/multiplayer/server/matchAuthorityBaseline.ts (S4's predicate; NOT reinvented), over the effective-head read the mirror already performed inside the transaction.",
+    "notASilentSkip": "DurableMatchStore.mirrorCommittedBatch records every non-'mirrored' kind on recordProcessShadowComparison as `journal-mirror:<kind>`, so the refusal lands on the same shadow tripwire journalAuthorityAdmission consults. Pinned by 'records the rewound refusal on the tripwire rather than skipping'.",
+    "notAThrow": "The refusal is returned from the prepare arm before the append; the transaction commits nothing and no exception crosses it.",
+    "measuredPreGuardBehaviour": "Without the guard the rewound case did NOT mirror a wrong revision in this fixture - it degraded to `revision-conflict { expectedRevision: 1, actualRevision: 0 }` against the ACTIVATED branch (the candidate has no events, so its branch revision is 0). That is the wrong question asked quietly; a store next-sequence that happened to equal the candidate branch's revision would have appended live-path events onto the activated branch. Captured in red-mirror-20260915.log."
+  },
+  "redFirst": {
+    "log": ".sisyphus/roadmap-completion-20260912/r4-s5-20260915/red-mirror-20260915.log",
+    "sha256": "e4a4923282adf59a035a1e1dcff6f051f4de85cfdc7efd3392d0ac82db42c826",
+    "result": "Tests: 2 failed, 8 passed, 10 total",
+    "realSQLite": "Two temp-file SQLite databases opened the production way (match file + campaign/journal file), read back over a separate connection. Mirror enabled only via _setCombatJournalAuthorityModeForTests('shadow').",
+    "rewoundFixture": "Built with the real machinery, not by hand-editing rows: candidate branch anchored below the head, sealed artifact manifest, held correction lease bound to the live head, activateCandidateBranch, then store.supersedeFrom(matchId, cutRevision) moving the tail into mp_match_events_superseded exactly as supersedeActivatedTail does after a commit.",
+    "cases": [
+      {
+        "id": "a",
+        "name": "refuses to mirror a batch against a rewound stream",
+        "state": "RED then GREEN",
+        "redEvidence": "expected { kind: 'rewound-stream', branchId: 'candidate-rewind-1' }, received { kind: 'revision-conflict', expectedRevision: 1, actualRevision: 0 }"
+      },
+      {
+        "id": "b",
+        "name": "mirrors a never-rewound stream exactly as before",
+        "state": "PIN (green before and after, by design)",
+        "asserts": "revisions [1,2,3] across two batches, every row on MATCH_BASELINE_BRANCH_ID, stream head 3, effective head row exactly { branchId: 'main', generation: 1 }, zero tripwire mismatches"
+      },
+      {
+        "id": "c",
+        "name": "agrees with the store commit-time next sequence at 0, 1 and N",
+        "state": "RED then GREEN",
+        "redEvidence": "TypeError: nextMatchSequenceAfter is not a function",
+        "method": "Reads the store's OWN inline answer back through the only surface that reports it - a contiguous batch aimed at sequence 9999 is refused with actualRevision set to what the commit-time read computed - and compares it to nextMatchSequenceAfter at last-sequence null, 0 and 3."
+      },
+      {
+        "id": "d",
+        "name": "records the rewound refusal on the tripwire rather than skipping",
+        "state": "PIN (green before and after; the tripwire COUNTER is what is pinned)",
+        "asserts": "the match store still commits the batch, getProcessShadowMismatchCount() === 1, no journal rows land",
+        "precision": "This row pins the COUNTER, not the recorded kind. recordProcessShadowComparison discards reason, so no assertion can reach the \"journal-mirror:rewound-stream\" string. That the new kind arrives at the tripwire at all is a code-reading fact (DurableMatchStore.ts:1013 builds the reason from mirrored.kind; :1024 records it), correctly claimed above but NOT test-pinned."
+      }
+    ]
+  },
+  "gates": {
+    "focusedJest": {
+      "command": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/multiplayer/server src/lib/events/journal",
+      "result": "171 suites passed / 1339 tests passed",
+      "authorBaselineAt1704": "171 suites / 1330 tests",
+      "delta": "+9 tests, 0 new suites; accounted exactly: 4 new mirror cases + 3 named-derivation rows in the reader suite + 1 pin in matchCheckpointEquivalence + 1 pin in matchRecoveryCheckpointDoor. The rewindRebuild re-pin is an assertion inside an existing helper, so it adds no test count.",
+      "log": ".sisyphus/roadmap-completion-20260912/r4-s5-20260915/green-focused-final-20260915.log",
+      "sha256": "85b76d8c3fa2bb506db928f2df49f2b8ad1c92e0c47c9d24c9a46288344327a3"
+    },
+    "tsc": {
+      "command": "npx tsc --noEmit -p tsconfig.json",
+      "result": "exit 0, no diagnostics",
+      "log": ".sisyphus/roadmap-completion-20260912/r4-s5-20260915/tsc-20260915.log",
+      "sha256": "a6ce7f41eaf235b981cdbfe9a3d6a5d9a3502b6bd605ffc2acf78679a4ee9a2f"
+    },
+    "oxlint": {
+      "command": "npx oxlint <10 changed files>",
+      "result": "0 errors, 1 warning",
+      "warning": "eslint(max-lines) on DurableMatchStore.ts (1026 lines counted, max 400). PRE-EXISTING: the file was 1447 lines at the base and is 1456 now. Not introduced by this slice and not in scope to fix."
+    },
+    "oxfmt": {
+      "command": "npx oxfmt <10 changed files>",
+      "result": "no reformatting emitted"
+    },
+    "openspecValidate": {
+      "command": "npx openspec validate --all --strict",
+      "result": "Totals: 232 passed, 0 failed (232 items)",
+      "log": ".sisyphus/roadmap-completion-20260912/r4-s5-20260915/openspec-validate-20260915.log",
+      "sha256": "794029b7a2b50103c93fa9266f8e2ad101192659f3367d28f2d73ad44d60273e"
+    },
+    "build": "Not run as a standalone gate per the charter. The pre-commit hook's full `next build` ran and passed on both commits (standalone hydration JSON emitted `\"ok\": true` each time)."
+  },
+  "residualsDischarged": {
+    "count": 0,
+    "citation": "r4-s5-s7-admission-brief-20260915.json -> tasks['1.5'].residualsThisSliceDischarges: 'None of the six residuals above are named as this task's responsibility; this slice is a precondition-hardening step, not a residual-closing one.' The residualDischargeMatrix confirms it: every row's closedBy names R4.S6, R4.S7-a/-b/-c/-d, or NONE - no row is assigned to S5.",
+    "matrixRowsExplicitlyNotClosedHere": [
+      "RR-1 (busy_timeout) -> closedBy R4.S7-d, owner ruling required",
+      "RR-2 (synchronous-mirror-ordering invariant) -> closedBy R4.S6",
+      "RR-3 (backfillGenesisBranches is stream-agnostic) -> closedBy NONE of S5-S7; the matrix asks for an explicit non-claim in every S5-S7 receipt, and this receipt makes it: NOT CLAIMED, NOT FIXED, still a deliberate accepted side effect",
+      "RR-4 (single-transaction SHALL tension) -> closedBy R4.S7-d, owner ruling required",
+      "RR-5 (mirror's own untested arms) -> closedBy R4.S6. NOTE: this slice incidentally exercises the mirror's revision-conflict arm under a rewound stream during the RED run, but does NOT claim RR-5; S6's race suite is still owed.",
+      "RR-6 (isCapabilityDbAvailable outside try/catch) -> closedBy NONE; this slice's diff did not touch that line, so the 'available freebie' condition did not fire",
+      "RR-7 (task 1.1's unclaimed preview clause) -> out of scope",
+      "create-path seeding gap -> closedBy R4.S7-a",
+      "S4-R1 (shadow-mode divergence refusal gating) -> closedBy R4.S7-d",
+      "S4-R2 / S4-R4 (journal arm skips checkpointRecoveryPort properties) -> closedBy R4.S7-c",
+      "task 1.3 marker retirement + isMatchJournalAuthorityStartedDerived dangling export -> closedBy R4.S7-b",
+      "task 1.4 second clause (restart pack vs rewound match, live) -> belongs to R4.S4's own checkbox"
+    ],
+    "whatThisSliceDoesForThem": "It removes a latent precondition failure S7-a would otherwise create: once S7 seeds the mirror at match creation, EVERY match reaches the mirror, including rewound ones. Before this slice a rewound match's mirror derived its journal revision from a store sequence that no longer describes the same history, with nothing but a comment saying so."
+  },
+  "specDelta": {
+    "shallsDischarged": "NONE of the five gm-combat-interventions SHALLs.",
+    "specEditsMade": "NONE. No SHALL was contradicted, so no stop-and-report was triggered.",
+    "reasoning": "COMBAT_JOURNAL_AUTHORITY_MODE stays 'off', so no production behaviour visible to any spec scenario changes. Same category as S1-S4."
+  },
+  "nonClaims": [
+    "COMBAT_JOURNAL_AUTHORITY_MODE is NOT flipped. It stays 'off' in every production path; the new guard is reachable only through _setCombatJournalAuthorityModeForTests.",
+    "No cutover. The journal remains a mirror; mp_match_events remains authoritative.",
+    "Not S5-b / task 1.6: the expected revision is still derived from the match store's next sequence, NOT sourced from the journal head. That is precisely why a rewound stream must be refused rather than translated.",
+    "Not S6: no parity gate, no race suite, no explicit busy_timeout.",
+    "Not S7: the mirror is still NOT seeded at match creation (ServerMatchHost.create's opening events still go through appendEvent, not the appendCommandBatch boundary), so the create-path seeding gap is untouched and every match still diverges on its first post-create batch under shadow mode.",
+    "RR-3 explicitly NOT claimed (backfillGenesisBranches remains stream-agnostic).",
+    "The task-1.5 checkbox in openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/tasks.md was NOT ticked, per the charter.",
+    "Nothing pushed; no PR; no merge. The root checkout was not touched.",
+    "No dependencies added. No standalone `npm run build` gate was run (the pre-commit hook's build is what is claimed).",
+    "The S5 mutant matrix is NOT delivered in this slice. design.md S5 calls the seam \"Hardest seam; carries its own mutant matrix\", but neither task 1.5 text nor the admission brief bounded charter names one, and the mutation that matters - sourcing the expected revision from the journal head instead of the store next sequence - is exactly what task 1.6 implements. The matrix is therefore OWED AT TASK 1.6, where there is a real translation to mutate; S5 pins the guard and the named derivations by behaviour instead. (Review r4-s5-explicit-offsets-review-20260915.json RE-5; the reviewer checked coverage by inspection and recorded it as strong under axes.6_riskAndNonClaims.mutantReasoningByInspection.)"
+  ],
+  "fourSuitesConfirmation": {
+    "method": "grep -rn 'revisionForMatchSequence' src --include=*.ts at the base SHA: 7 production hits across 4 files + test hits in exactly 3 suites, plus the reader's own suite which encoded the offset by comment and literal without importing the function.",
+    "confirmedSet": [
+      "src/lib/multiplayer/server/history/__tests__/matchStoreBranchSegmentReader.test.ts",
+      "src/lib/multiplayer/server/__tests__/matchCheckpointEquivalence.test.ts",
+      "src/lib/multiplayer/server/__tests__/matchRecoveryCheckpointDoor.test.ts",
+      "src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindRebuild.test.ts"
+    ],
+    "missingSuiteAdded": "None beyond the four. The second sweep for raw \"sequence + 1\" / \"MAX(sequence)\" did surface one further TEST occurrence - src/lib/multiplayer/server/projection/__tests__/combatViewerProbe.test.ts:71, whose fixture helper builds streamRevision: event.sequence + 1 by hand. It is a fixture constructor, not an assertion about the offset, so it does not PIN the contract and the four-suite set stands; it is named here because the earlier phrasing (\"only production sites and unrelated campaign arithmetic\") was imprecise. matchStreamJournalMirror.sqlite.test.ts now encodes the offset too, as a consequence of this slice rather than a pre-existing gap."
+  },
+  "evidenceDir": ".sisyphus/roadmap-completion-20260912/r4-s5-20260915/",
+  "evidenceHashes": {
+    "red-mirror-20260915.log": "e4a4923282adf59a035a1e1dcff6f051f4de85cfdc7efd3392d0ac82db42c826",
+    "green-focused-20260915.log": "1e634546fe3e8eecba8ec27bbea08128fc91c2c9fb1ce15d09e0e55fd16fb8d0",
+    "green-focused-final-20260915.log": "85b76d8c3fa2bb506db928f2df49f2b8ad1c92e0c47c9d24c9a46288344327a3",
+    "tsc-20260915.log": "a6ce7f41eaf235b981cdbfe9a3d6a5d9a3502b6bd605ffc2acf78679a4ee9a2f",
+    "openspec-validate-20260915.log": "794029b7a2b50103c93fa9266f8e2ad101192659f3367d28f2d73ad44d60273e",
+    "shortstat-20260915.log": "7c3317a2fc06c0f7978e026c12b2949c6aba9b4a0871c3ecc0db9b2b72dafc10"
+  },
+  "riskFlaggedForTheOwner": {
+    "id": "S5-R1",
+    "severity": "low, inert today",
+    "text": "The guard keys on the EFFECTIVE HEAD's branch id, which is the same signal S4's restart recovery and the live branch admission use. It therefore refuses a rewound stream for as long as the activated branch is the effective head - which is permanent, since a rewind never returns the stream to 'main'/'root'. Task 1.6 is what makes such a stream mirrorable again by sourcing the expected revision from the journal head; until then a rewound match's mirror is permanently refused (and permanently VISIBLE on the shadow tripwire, which is the intended fail-closed shape at mode 'shadow'). If S7 seeds the mirror at creation before 1.6 lands, every rewound match will pin the mismatch counter above zero and block a shadow-parity claim - correctly, but the S7 receipt should say so rather than be surprised by it."
+  },
+  "reviewResponse": {
+    "review": "openspec/planning/2026-09-12-roadmap-completion/evidence/r4-s5-explicit-offsets-review-20260915.json",
+    "verdict": "A and B APPROVE-WITH-REQUIRED-EDITS; all five required edits were doc-only or receipt-only",
+    "appliedAt": "2026-09-15",
+    "method": "Fresh branch from base 8cacf20a6; cherry-pick A -> amend (RE-1, RE-2, shortened subject); cherry-pick B -> amend (RE-3, RE-4). Pre-review pair preserved on backup/r4-s5-pre-review. Hooks on for both amends (full next build passed each time). No push.",
+    "newShas": {
+      "A": "6795b48e4d7fac7af257ab6e64decd86b06144a9",
+      "B": "d5beb85421c03ea768d1509c76066bf99ef2780c",
+      "backupBranchHead": "be5ad635d789f19efa7a76c808d0c1dccd440036"
+    },
+    "edits": [
+      {
+        "id": "RE-1",
+        "commit": "A",
+        "site": "src/lib/multiplayer/server/history/matchStoreBranchSegmentReader.ts:17-19",
+        "applied": true,
+        "what": "The revision-contract header cited SELECT COALESCE(MAX(sequence) + 1, 0), a literal commit A deletes. It now cites DurableMatchStore reading SELECT MAX(sequence) over the LIVE rows and deriving the next sequence through nextMatchSequenceAfter, defined below in the same file."
+      },
+      {
+        "id": "RE-2",
+        "commit": "A",
+        "site": "src/lib/multiplayer/server/history/__tests__/matchStoreBranchSegmentReader.test.ts:14-16",
+        "applied": true,
+        "what": "Same stale literal in the suite header; re-pointed the same way."
+      },
+      {
+        "id": "RE-3",
+        "commit": "B",
+        "site": "src/lib/multiplayer/server/MatchStreamJournalMirror.ts:21-25",
+        "applied": true,
+        "what": "The REVISION OFFSET block said the store reads MAX(sequence) + 1; it now says the store reads MAX(sequence) over LIVE rows and derives the next sequence via nextMatchSequenceAfter. The surrounding paragraph was reflowed so no line is left ragged."
+      },
+      {
+        "id": "RE-4",
+        "commit": "B",
+        "site": "src/lib/multiplayer/server/__tests__/matchStreamJournalMirror.sqlite.test.ts:247-252",
+        "applied": true,
+        "what": "storeNextSequence doc said actualRevision is \"what the inline MAX(sequence) + 1 read computed\"; it now says what the probe actually reads back - nextMatchSequenceAfter over the store own MAX(sequence) read."
+      },
+      {
+        "id": "RE-5",
+        "commit": "receipt",
+        "site": "this file, nonClaims",
+        "applied": true,
+        "what": "Added the explicit non-claim that the S5 mutant matrix is not delivered here and is owed at task 1.6."
+      }
+    ],
+    "nonBlockingNotesAddressed": [
+      "Receipt precision (fifth suite): fourSuitesConfirmation.missingSuiteAdded now names combatViewerProbe.test.ts:71 as a fixture-helper occurrence rather than claiming the sweep found only production sites.",
+      "Receipt precision (case d): redFirst.cases[d] now states the tripwire COUNTER is pinned and that the recorded kind is a code-reading fact, since recordProcessShadowComparison discards reason.",
+      "Commit A subject shortened from 79 to 66 characters."
+    ],
+    "nonBlockingNotesCarriedForwardNotActioned": [
+      "The rewindRebuild re-pin is helper-vs-helper and can only fail if nextMatchSequenceAfter stops delegating to revisionForMatchSequence. The reviewer suggests pinning it against the store own answer the way case (c) does - deliberately NOT done here (it would be new test design outside a doc-only edit pass); carried to task 1.6.",
+      "The journal writer opens an IMMEDIATE write transaction for a refusal that writes nothing. Pre-existing at S1, not worsened here; carried to the S7 receipt as a contention question if refusals become common on rewound matches."
+    ],
+    "regateAfterEdits": {
+      "focusedJest": "171 suites passed / 1339 tests passed - IDENTICAL to the pre-review run, as required for a doc-only change",
+      "focusedJestLog": ".sisyphus/roadmap-completion-20260912/r4-s5-20260915/green-focused-postreview-20260915.log",
+      "focusedJestSha256": "3d363b210db3a25a671b50c3fa6d369df5b01509b56631a2bd4d78a33653dc23",
+      "tsc": "exit 0, no diagnostics",
+      "tscLog": ".sisyphus/roadmap-completion-20260912/r4-s5-20260915/tsc-postreview-20260915.log",
+      "tscSha256": "a6ce7f41eaf235b981cdbfe9a3d6a5d9a3502b6bd605ffc2acf78679a4ee9a2f",
+      "oxfmt": "no reformatting emitted on any of the 10 changed files",
+      "shortstatLog": ".sisyphus/roadmap-completion-20260912/r4-s5-20260915/shortstat-postreview-20260915.log",
+      "shortstatSha256": "ffccf094b393e64a6b69e19d1cd29dff2bf199bfc5e35e979a679f0ffa3f31ef",
+      "build": "pre-commit full next build passed on both amends",
+      "deltaVsReviewedPair": "git diff backup/r4-s5-pre-review..HEAD = 4 files, 12 insertions / 8 deletions, EVERY changed line inside a comment block. No production statement, no test assertion, and no import changed."
+    },
+    "notReRun": [
+      "npx openspec validate --all --strict - no openspec/changes or specs file was touched by the edit pass; the pre-review run (232 passed / 0 failed) stands."
+    ]
+  }
+}

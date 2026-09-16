@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-09-12T14:35:45.475Z",
+  "supersedes": "evidence/ci-admission-proposal.json",
+  "reason": "Nine required negative mutations add 95 lines to the original 414-line test diff; deliver as a fourth capped prefix instead of trimming any test.",
+  "prefixes": [
+    {
+      "id": 1,
+      "scope": "Two shared CI contract modules",
+      "files": 2,
+      "changedLines": 378,
+      "dependency": "main browser acceptance before overall R1.ci closure"
+    },
+    {
+      "id": 2,
+      "scope": "Workflow wiring, imported validator, six OpenSpec package files and exact clean ledger addition",
+      "files": 10,
+      "changedLines": "496 originally measured; remeasure after correcting ten-case comment to twelve.",
+      "dependency": "prefix 1 plus merged/main-verified R1.browser",
+      "requiredBoundary": "Wire all 19 aggregator members and the job-scoped validator together; do not copy unrelated dirty active-ledger changes."
+    },
+    {
+      "id": 3,
+      "scope": "Original 580-line CI quality test file",
+      "files": 1,
+      "changedLines": 414,
+      "source": ".sisyphus/roadmap-completion-20260912/ci-recovery/27-cached.ts",
+      "sha256": "ed52fabd4c9eb830c5137c965d8249b563e2c929b8cc3893fd9a5829f2aa7646",
+      "dependency": "prefix 2"
+    },
+    {
+      "id": 4,
+      "scope": "Nine additional individual contract mutations",
+      "files": 1,
+      "changedLines": 95,
+      "resultLines": 675,
+      "resultSha256": "37cc951ad23379e647b2217750932f18c1843c247ee1f4a3e7e36da79b97b026",
+      "dependency": "prefix 3"
+    }
+  ],
+  "proof": {
+    "receipt": "evidence/ci-test-recovery-verification.json",
+    "result": "37 tests, 1 suite, scoped format/diff passed; source unchanged after exact recovery."
+  },
+  "closure": [
+    "All four prefixes require independently reviewable exact manifests and the applicable gates.",
+    "Task 3.3 cannot close from an earlier incomplete prefix.",
+    "Task 5.4 requires actual remote passing customizer job and aggregator plus a failing owned negative probe closed unmerged.",
+    "Remote browser push is awaiting exact-payload user approval after automatic review rejection.",
+    "No source trimming, compressed test formatting, or weakened assertions to satisfy the cap."
+  ]
+}

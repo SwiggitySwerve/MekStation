@@ -1,0 +1,295 @@
+{
+  "evidenceKind": "r2-combat-browser-launch-proof-local",
+  "date": "2026-09-15",
+  "roadmapNode": "R2.combat-browser",
+  "charter": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-combat-browser-admission-brief-20260915.json (boundedSliceCharter)",
+  "role": "local browser proof; one new e2e spec; zero product/spec/contract edits; no push, no PR, no sub-agents",
+  "worktree": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/proof02-rerun",
+    "branch": "codex/roadmap-r2-combat-browser-launch-proof-20260915",
+    "baseSha": "4e5a74b9fddda382945277b15d76e2e09397d56c",
+    "baseRef": "origin/main as fetched 2026-09-15T14:4xZ at branch creation",
+    "baseNote": "origin/main advanced to f685a5391f6e69b73932cdef5323dd2d247e55a6 while this lane ran (other lanes merging); this proof is pinned to 4e5a74b9f and was NOT rebased.",
+    "commit": "2d333ee6056e98d5bd9eb0c09d3b793cc2db01d9",
+    "workingTreeAtStart": "clean (git status --porcelain empty)",
+    "workingTreeAtEnd": "one new untracked file only: e2e/saved-custom-combat-launch.spec.ts"
+  },
+  "commitSha": "2d333ee6056e98d5bd9eb0c09d3b793cc2db01d9",
+  "build": {
+    "command": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build",
+    "exitCode": 0,
+    "buildId": "1789483405493",
+    "standaloneServer": ".next/standalone/server.js present",
+    "log": ".sisyphus/roadmap-completion-20260912/r2-combat-browser-20260915/build.log",
+    "logSha256": "4ee254f797acf56022ab68c6fd012fe69df1b7388cfc5752703c21e284bf9649",
+    "coreBudget": "checked node.exe command lines via powershell before starting; waited until no `next build` / jest process was running in any sibling lane"
+  },
+  "invocation": {
+    "command": "MEKSTATION_E2E_SERVER_COMMAND='node .next/standalone/server.js' HOSTNAME=127.0.0.1 MEKSTATION_E2E_PORT=3639 node scripts/playwright/run-playwright.mjs test e2e/saved-custom-combat-launch.spec.ts --project=chromium --retries=0 --workers=1",
+    "prodEvidenceFlagUsed": false,
+    "portConfirmedFreeBefore": true,
+    "portConfirmedFreeAfter": true,
+    "admissionBriefCorrectionRebutted": {
+      "briefClaim": "r2-combat-browser-admission-brief-20260915.json buildRunInvocationCorrection: 'grep -rn 3639 across the entire repository returned ZERO matches -- no file, script, or config in this repo references port 3639' and therefore the standalone-on-3639 convention 'does not match anything in this repository'.",
+      "verdict": "The literal-grep observation is true but the CONCLUSION drawn from it is wrong, and this proof ran on the convention successfully.",
+      "sourceRead": "playwright.config.ts lines 3-7 read `const e2ePort = Number.parseInt(process.env.MEKSTATION_E2E_PORT ?? '3600', 10)` and webServer.env sets `PORT: String(e2ePort)`; webServer.command is `process.env.MEKSTATION_E2E_SERVER_COMMAND ?? 'npm run dev'`. The port is PARAMETRIZED by env var, so no literal 3639 needs to exist in the repo for 3639 to be a valid port. `--prod-evidence` is a separate convenience flag in scripts/playwright/run-playwright.mjs that hardcodes 3600 and kill-ports it; it was deliberately NOT used here because it would kill the operator's port-3600 server.",
+      "observedProof": "Every run below logged `MEKSTATION_LISTENER_READY {...\"port\":3639}` and `Ready on http://127.0.0.1:3639` from the standalone server."
+    }
+  },
+  "deliverable": {
+    "file": "e2e/saved-custom-combat-launch.spec.ts",
+    "status": "new",
+    "lines": 500,
+    "filesChanged": 1,
+    "caps": "<=15 files / <=500 non-generated lines -- 1 file, 500 lines, at the cap",
+    "testName": "server-saved custom unit launches through production combat to a durable post-battle roster @customizer @campaign @encounter @combat",
+    "specSha256": "867ad22d260f8921730e2efc733a859617c8a091b80d291c34ebd41b388272b9",
+    "specCopy": ".sisyphus/roadmap-completion-20260912/r2-combat-browser-20260915/spec-final.ts",
+    "sharedGate": "wrapped in withBrowserDiagnostics(page, testInfo, ...) exactly as the sibling campaign browser specs do; NO allowance, suppression, or filter added beyond what e2e/helpers/browserDiagnosticsModel.ts already implements"
+  },
+  "noSubstitutionProbe": {
+    "design": "The saved custom Atlas AS7-D is off-canonical by exactly one value: LEFT_ARM armor 30 instead of the canonical 34 (read at runtime from public/data/units/battlemechs/2-star-league/standard/Atlas AS7-D.json). Every identity readback in the chain would look identical for a canonical Atlas EXCEPT that armor number, so a silent canonical substitution at any hop turns the spec red.",
+    "canonicalLeftArmArmor": 34,
+    "customLeftArmArmor": 30,
+    "combatSideKeyName": "left_arm (lower_snake_case) -- the catalog adapter maps the construction's LEFT_ARM through LOCATION_KEY_MAP in src/engine/adapters/CompendiumAdapter.armor.ts before it reaches armorByLocation"
+  },
+  "perStepAssertions": [
+    {
+      "step": "1. server-saved custom construction",
+      "readBack": "POST /api/units/custom -> 201, response.data.id",
+      "asserts": "status 201, success true, id matches /^custom-/"
+    },
+    {
+      "step": "2. combat-catalog admission",
+      "readBack": "GET /api/units/custom/combat-catalog -> customCombatRefs[]",
+      "asserts": "the array contains the new customId (the custom unit is combat-eligible server-side)"
+    },
+    {
+      "step": "3. real create wizard roster assignment",
+      "readBack": "DOM: [data-unit-source=\"custom\"] in the wizard roster step",
+      "asserts": "data-unit-ref === customId; roster instance id (from data-testid roster-unit-<id>) is non-empty and DISTINCT from customId (instance vs design identity)"
+    },
+    {
+      "step": "4. server campaign persistence",
+      "readBack": "wizard PUT /api/campaigns/:id (awaited via waitForResponse), then GET /api/campaigns/:id -> body.rosterProjection.units",
+      "asserts": "the roster row matches { unitId: rosterId, unitRef: customId, unitSource: 'custom' }"
+    },
+    {
+      "step": "5. Mech Bay resolution pre-combat",
+      "readBack": "DOM: mech-bay-grid + the design name",
+      "asserts": "grid visible and the saved design name is rendered"
+    },
+    {
+      "step": "6. mission readiness surface",
+      "readBack": "DOM on /gameplay/campaigns/:id/missions/:missionId/launch",
+      "asserts": "mission-readiness-panel visible; mission-readiness-unit-<rosterId> visible (the CUSTOM roster instance is the row on the launch surface); launch-mission-direct is ENABLED"
+    },
+    {
+      "step": "7. launch-mission-direct CLICK (the step every existing spec stops short of)",
+      "readBack": "URL after click",
+      "asserts": "navigates to /gameplay/encounters/:encounterId with campaignId and missionId query params matching the campaign and the seeded mission"
+    },
+    {
+      "step": "8. server readback of the materialized encounter force",
+      "readBack": "GET /api/encounters/:encounterId -> encounter.playerForce.forceId, then GET /api/forces/:forceId -> force.assignments[].unitId",
+      "asserts": "the player force's assigned unitIds CONTAIN customId -- the custom ref, not a canonical stand-in, is what the server-side force record carries into the encounter"
+    },
+    {
+      "step": "9. pre-battle and terminal outcome",
+      "readBack": "DOM + URL",
+      "asserts": "encounter-detail-page visible, launch-encounter-btn enabled and clicked, pre-battle route reached with both query params, mode-selection visible, auto-resolve-btn enabled and clicked, /gameplay/games/:sessionId reached, game-completed visible (that testid renders only when status === GameStatus.Completed AND currentState.result is non-null -- see src/pages-modules/gameplay/games/gameSessionPage.helpers.tsx:238-241)"
+    },
+    {
+      "step": "10. GameCreated seed carries the CUSTOM construction",
+      "readBack": "in-page read of the production gameplay store: session.events.find(type === 'game_created').payload.units",
+      "asserts": "exactly ONE GameCreated unit has unitRef === customId; its side is 'player'; its armorByLocation.left_arm === 30 (the CUSTOM value, not the canonical 34). This is the direct no-substitution proof at the combat seam."
+    },
+    {
+      "step": "10b. canonical comparison in the SAME battle",
+      "readBack": "the same GameCreated payload",
+      "asserts": "at least one non-custom (canonical OpFor) unit is present and is itself armor-seeded (left_arm non-null) -- custom and canonical seeds witnessed side by side on one payload, satisfying the roadmap's 'alongside canonical comparison' clause at zero extra runtime"
+    },
+    {
+      "step": "11. server-bound readback of the ARCHIVED GameCreated snapshot",
+      "readBack": "the POST /api/replay-library/encounter request body (postDataJSON) that the terminal-state effect sends to the server, awaited via waitForResponse",
+      "asserts": "response.ok(); archived.gameId === the session id; the archived event log's game_created payload contains exactly one unit with unitRef === customId and armorByLocation.left_arm === 30. This is the server-bound form of the GameCreated-snapshot claim: the construction that fought is what gets archived."
+    },
+    {
+      "step": "12. match-log archive",
+      "readBack": "POST /api/matches response",
+      "asserts": "response.ok()"
+    },
+    {
+      "step": "13. terminal combat state of the custom unit",
+      "readBack": "session.currentState.units[<custom session unit id>]",
+      "asserts": "present; side 'player'; left_arm armor non-null and <= 30 -- seeded from the CUSTOM allocation and only ever decremented by damage. A canonical substitution would have started at 34."
+    },
+    {
+      "step": "14. post-battle review and campaign application",
+      "readBack": "campaign store pendingBattleOutcomes / processedBattleIds, plus DOM and URL",
+      "asserts": "pendingBattleOutcomes contains { matchId: sessionId, contractId: missionId, scenarioId: encounterId } at terminal; post-battle-review-screen visible; apply-outcome-cta clicked; redirect to /gameplay/campaigns/:id?pendingBattle=:sessionId; afterwards processedBattleIds CONTAINS the session id and pendingBattleOutcomes no longer contains it"
+    },
+    {
+      "step": "15. cold reload reconciliation",
+      "readBack": "page.reload() on /gameplay/campaigns/:id/mech-bay, then GET /api/campaigns/:id and GET /api/units/custom/:customId",
+      "asserts": "mech-bay-grid and the design name render after a cold reload; the roster row still matches { unitId: rosterId, unitRef: customId, unitSource: 'custom' } (identity pinned, readiness/damage deliberately NOT pinned since post-battle consequences may legitimately move it); the saved custom row itself is still readable (200)"
+    }
+  ],
+  "runs": [
+    {
+      "run": "run-01",
+      "result": "FAILED",
+      "cause": "TEST",
+      "failure": "page.evaluate: TypeError: Cannot read properties of null (reading 'getState') in seedMissionOnCampaign",
+      "diagnosis": "My helper wrote `campaignState.getMissionsStore?.().getState()`. The product contract is `getMissionsStore: () => StoreApi<MissionsStore> | null` (src/stores/campaign/useCampaignStore.types.ts:115) and it returns NULL for a wizard-created campaign, so the optional chain on the METHOD did not guard the null RETURN.",
+      "fix": "`getMissionsStore?.()?.getState()` plus the nullable return type in the local cast. Test-side only.",
+      "log": "run-01.log",
+      "sha256": "bb3c68828e06b1e35d236ad9a011a5df15453dd56644d2b5b7d9ce6e39f846bb"
+    },
+    {
+      "run": "run-02",
+      "result": "FAILED",
+      "cause": "TEST",
+      "failure": "expected 30, received null for the GameCreated unit's left-arm armor",
+      "diagnosis": "I read `armorByLocation.LEFT_ARM`. Combat-side location keys are lower_snake_case -- src/engine/adapters/CompendiumAdapter.armor.ts LOCATION_KEY_MAP maps LEFT_ARM -> 'left_arm' in extractArmor before the value reaches armorByLocation. Note the assertion immediately BEFORE this one passed, i.e. the custom unitRef had already been proven to reach GameCreated; only my key name was wrong.",
+      "fix": "read `armorByLocation.left_arm`. Test-side only.",
+      "log": "run-02.log",
+      "sha256": "211f9d4ded0da22a55007b95b0a43bed8d9563c9dbb78dd4cbdf4db69ecff627"
+    },
+    {
+      "run": "run-03",
+      "result": "PASSED",
+      "note": "1 passed (7.0s). Later shown to be a lucky pass -- see run-04/run-05.",
+      "log": "run-03.log",
+      "sha256": "1321f25656a9d243e27a9d9381a258b22d704c6a58f6733090b848b94fb3341e"
+    },
+    {
+      "run": "run-04",
+      "result": "FAILED",
+      "cause": "TEST (pacing) exposing a PRODUCT observation -- see productObservation below",
+      "failure": "withBrowserDiagnostics assertNoErrors: aborted POST /api/matches and POST /api/replay-library/encounter (net::ERR_ABORTED)",
+      "diagnosis": "All of the test's own assertions passed; the shared gate failed the run at the end. isFatalBrowserDiagnosticEvent treats ERR_ABORTED on GET as benign but on an API WRITE as fatal ('a save cancelled by navigation is silent data loss'). The two terminal-state archive writes are fire-and-forget effects in src/components/gameplay/pages/gameSession/GameSessionPage.lifecycle.ts (persistMatchLog line ~128, persistEncounterReplay line ~167); their cancel flags suppress only the CALLBACK, not the in-flight request. Navigating to the review screen immediately cancelled them.",
+      "fix": "Await both archive POSTs (waitForResponse registered before the auto-resolve click) before navigating off the completed screen, and assert both .ok(). This removed the abort AND upgraded the proof: the replay POST body is the archived event log, which is now asserted to carry the custom GameCreated snapshot (step 11 above).",
+      "log": "run-04.log",
+      "sha256": "e71ee674324888e130aeb06bf722bc2232fc324bff015abdad9d228509044788",
+      "jsonReport": "run-04.json",
+      "jsonSha256": "0dfed1929efdcf35a40d459679ba82aa751287c26c80e52cbed8aa2e6eb02f05"
+    },
+    {
+      "run": "run-05",
+      "result": "FAILED",
+      "cause": "TEST (pacing) exposing the second half of the same PRODUCT observation",
+      "failure": "same two aborted POSTs, still fired from the /gameplay/games/:id page",
+      "diagnosis": "This time the awaited FIRST pair of POSTs responded OK (both .ok() assertions passed). A SECOND, duplicate pair of the same two POSTs then fired and was cancelled by my navigation. The terminal persist effects re-fire before their own guards latch, because the guard (`hasPersisted` / `alreadyFired`) is set in the resolve callback, leaving a re-render window between fire and latch.",
+      "fix": "After awaiting both archive responses, `await page.waitForLoadState('networkidle')` so any duplicate archive write also settles before navigation. No gate weakening, no suppression, no product edit.",
+      "log": "run-05.log",
+      "sha256": "675beccadb470e0f1c8c30de20e27240399830304508eb511120b1e406d33c6e"
+    },
+    {
+      "run": "run-06",
+      "result": "PASSED",
+      "note": "1 passed (8.4s), --retries=0",
+      "log": "run-06.log",
+      "sha256": "88287c7f431746e090c02c77cea03406f6e953ed9a031a9fc45607fe1195c502"
+    },
+    {
+      "run": "run-07",
+      "result": "PASSED",
+      "note": "1 passed (8.8s), --retries=0, stability confirmation",
+      "log": "run-07.log",
+      "sha256": "ad2ab78dbb82cbb7f12bbeb3ec8f7a7507e06f03deab21e01ac33d3eeff2c46d"
+    },
+    {
+      "run": "run-08",
+      "result": "PASSED",
+      "note": "1 passed (8.7s), --retries=0, stability confirmation. Three consecutive greens after the run-05 fix; the pre-fix failure mode reproduced in 2 of 3 runs, so the three-green streak is the stability evidence, not a single lucky pass.",
+      "log": "run-08.log",
+      "sha256": "b6f9279e4d21d6162dc9bf823d8a248c7f8db8c90a19f04ae019857562a79173"
+    }
+  ],
+  "finalGreenRun": "run-08 (and run-06, run-07), --retries=0 --workers=1 --project=chromium, standalone production server on port 3639",
+  "gates": {
+    "typecheck": "npx tsc --noEmit -p tsconfig.json -> clean (no output), run after the final spec edit",
+    "oxfmt": "npx oxfmt --check e2e/saved-custom-combat-launch.spec.ts -> 'All matched files use the correct format'",
+    "build": "npm run build exit 0 (its own TypeScript phase also passed)",
+    "commitHooks": "enabled (not bypassed); pre-commit runs pretty-quick + full next build"
+  },
+  "productDefectFound": null,
+  "productObservation": {
+    "severity": "non-blocking; pre-existing; NOT specific to custom units and NOT introduced by this node",
+    "title": "Terminal-state archive writes are fire-and-forget and can double-fire before their own guard latches",
+    "where": "src/components/gameplay/pages/gameSession/GameSessionPage.lifecycle.ts -- persistMatchLog (POST /api/matches via combatResolution.finalize) and persistEncounterReplay (POST /api/replay-library/encounter)",
+    "verbatimEvidence": "run-05.log events 7 and 8: '[requestfailed] page: http://localhost:3639/gameplay/games/e8a61574-99ca-42ba-8077-9d584ed63847?campaignId=campaign-1789484407211-wdsqnd7&missionId=mission-launch-1789484405867-0 / request: POST http://localhost:3639/api/matches / resource: fetch / failure: net::ERR_ABORTED' and the identical entry for 'POST http://localhost:3639/api/replay-library/encounter'. In that same run the FIRST pair of those POSTs had already responded 2xx (both .ok() assertions passed), so these are DUPLICATE writes, not the primary ones.",
+    "analysis": "Both effects fire on the completed-session transition and are not awaited; their `cancelled` flags suppress the callback but not the in-flight fetch. The guard that prevents re-fire is set in the resolve callback, so a re-render between fire and resolve issues a second identical POST. A user who navigates off the completed screen quickly can have an archive write cancelled. The replay route documents server-side dedup for the duplicate case (src/pages/api/replay-library/encounter.ts header: it short-circuits on an already-present gameId), which is why the duplicate is benign today.",
+    "whyNotStopped": "The instruction to STOP applies if the route cannot complete with a real server-saved custom unit. The route completes: the custom identity, the custom construction seed, the terminal outcome, the post-battle campaign application, and the cold-reloaded roster all verified green. This observation concerns auxiliary replay/match ARCHIVE writes on a path shared identically by canonical units (encounter-combat-continuity.spec.ts drives the same chain but does not use withBrowserDiagnostics, which is why it never surfaced there). No product code was touched.",
+    "recommendation": "Worth its own capped follow-up per roadmap acceptance line 2 ('assign any revealed product repair its own spec and capped PR') -- latch the guard synchronously at fire time rather than in the resolve callback, and/or await the archive writes before allowing navigation. NOT filed as a pending task by this lane; surfaced here for the parent to route."
+  },
+  "acceptanceMapping": {
+    "line1": {
+      "text": "Reproduce current browser acceptance gap; prove actual server-saved biped custom launch, commands, terminal flow and durable post-battle state alongside canonical comparison",
+      "status": "SATISFIED for the single-player auto-resolve route",
+      "detail": "Gap reproduced by construction (no pre-existing spec combined a custom-* roster unit with launch-mission-direct). Launch, terminal flow, durable post-battle state and a same-battle canonical comparison are all asserted -- see perStepAssertions. 'Commands' is satisfied in the auto-resolve sense (the engine resolves the battle from the launched roster) rather than by an individual interactive player command; see nonClaims."
+    },
+    "line2": {
+      "text": "Preserve local-only/unsupported fail-closed and canonical-only fast-forward boundaries; assign any revealed product repair its own spec and capped PR",
+      "status": "PRESERVED (nothing weakened)",
+      "detail": "No product code, spec, contract, or frozen file was edited; no diagnostics allowance was added. The fail-closed and fast-forward boundaries are untouched by this lane. The one repair candidate revealed is recorded in productObservation above for the parent to assign its own capped PR."
+    }
+  },
+  "nonClaims": [
+    "SINGLE-PLAYER ONLY. The route completed without needing co-op, so no co-op/two-browser path was exercised. Live co-op custom authority remains R2.authority-live territory.",
+    "CHROMIUM ONLY. --project=chromium; no mobile-touch, no other browser project.",
+    "NOT a CAMP witness. This spec is independent evidence and must NOT be cited as satisfying CAMP-01H / prove-saved-custom-unit-campaign-journey's REDUCED canonical-checkpoint assertion list, nor as satisfying the unreduced journey-qc claim.",
+    "AUTO-RESOLVE terminal path only. The interactive per-command path (individual accepted player commands, mid-battle navigation/cold-reload survival) is NOT exercised here; encounter-combat-continuity.spec.ts covers that shape for canonical units only.",
+    "The mission is store-seeded (the create wizard authors no missions), using the same mechanism e2e/campaign-customizer-handoff.spec.ts already uses to reach missions/:id/launch. Everything downstream of the launch page -- launch, encounter materialization, forces, combat, archive, post-battle application -- is real production code with real server records.",
+    "No tasks.md boxes were checked for enable-saved-custom-unit-combat; the owner decision named in the admission brief (hold the change open for R2.combat-browser or archive it) is untouched and still open.",
+    "Not pushed, no PR opened. Commit is local to the worktree branch codex/roadmap-r2-combat-browser-launch-proof-20260915.",
+    "Pinned to base 4e5a74b9f; origin/main advanced during the run and this lane was not rebased onto it."
+  ],
+  "artifactDirectory": ".sisyphus/roadmap-completion-20260912/r2-combat-browser-20260915/",
+  "artifacts": [
+    "build.log",
+    "run-01.log",
+    "run-02.log",
+    "run-03.log",
+    "run-04.log",
+    "run-04.json",
+    "run-05.log",
+    "run-06.log",
+    "run-07.log",
+    "run-08.log",
+    "spec-final.ts",
+    "build-postreview.log",
+    "run-postreview.log"
+  ],
+  "postReviewRerun": {
+    "reviewVerdict": "APPROVE-WITH-REQUIRED-EDITS (evidence/r2-combat-browser-launch-proof-review-20260915.json)",
+    "specTextEdited": false,
+    "committed": false,
+    "pushed": false,
+    "whyRerunWasNeeded": "The reviewer's mandated live run failed with 'Campaign E2E stores are not exposed'. Root cause (infra, not spec): the pre-commit hook runs a BARE `npm run build`, which rebuilt the worktree WITHOUT NEXT_PUBLIC_E2E_MODE=true and replaced the E2E standalone bundle produced for the original runs. BUILD_ID on disk at review time was 1789484830850 (non-E2E), not the 1789483405493 this evidence file originally cited. Known infra note: preCommitBuildNotE2E.",
+    "mechanismVerifiedInSession": "NEXT_PUBLIC_* values are INLINED at build time, so the runtime webServer.env cannot re-enable them. Confirmed by reading the built bundle: in the non-E2E build, .next/static/chunks/pages/_app-6ac683586aa1c45c.js contained `\"true\"===X.env.NEXT_PUBLIC_E2E_MODE&&(window.__E2E_MODE__=!0,window.__ZUSTAND_STORES__=...)` with NO NEXT_PUBLIC_E2E_MODE assignment anywhere in the bundle (property undefined at runtime, gate permanently closed). After the E2E rebuild, _app-3ffac9f0421f4163.js contains `window.__E2E_MODE__=!0,window.__ZUSTAND_STORES__={...}` with the conditional dead-code-eliminated entirely -- positive proof the new bundle is a genuine E2E build.",
+    "rebuild": {
+      "cpuWait": "Checked node.exe command lines before rebuilding; another lane's `next build` plus a 17-process jest storm were running. Waited until zero build/jest processes remained, then rebuilt.",
+      "command": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build",
+      "exitCode": 0,
+      "buildId": "1789485724905",
+      "supersedesBuildId": "1789483405493 (original E2E build) and 1789484830850 (the non-E2E build the pre-commit hook left on disk)",
+      "log": ".sisyphus/roadmap-completion-20260912/r2-combat-browser-20260915/build-postreview.log",
+      "logSha256": "16d7beaaa141c534de6a3f025a702d0cc4e54ff67fbdb39b18668127d45337aa"
+    },
+    "run": {
+      "command": "MEKSTATION_E2E_SERVER_COMMAND='node .next/standalone/server.js' HOSTNAME=127.0.0.1 MEKSTATION_E2E_PORT=3639 node scripts/playwright/run-playwright.mjs test e2e/saved-custom-combat-launch.spec.ts --project=chromium --retries=0 --workers=1",
+      "exitCode": 0,
+      "result": "1 passed (21.5s); test body 5.0s",
+      "log": ".sisyphus/roadmap-completion-20260912/r2-combat-browser-20260915/run-postreview.log",
+      "logSha256": "767a85482034821984120d245cf0e9ca88b264c0f80b67689921c7f2bfc932e0",
+      "portConfirmedFreeBefore": true,
+      "portConfirmedFreeAfter": true,
+      "serverReadyLine": "run-postreview.log contains the standalone listener line with \"port\":3639"
+    },
+    "reviewerNitCorrection": "CORRECTION to perStepAssertions step 8 ('server readback of the materialized encounter force'): that readback is an IDENTITY check, not an armor-value check. It asserts that the server-side player-force record's assignment unitIds CONTAIN the `custom-...` id -- it does NOT read any armor value from the force record. The armor-value (30 vs canonical 34) no-substitution evidence lives only in steps 10, 11 and 13 (the in-session GameCreated seed, the archived GameCreated snapshot POSTed to /api/replay-library/encounter, and the terminal combat state). Steps 8 and 10/11/13 are therefore complementary: identity at the force/persistence layer, construction VALUE at the combat layer.",
+    "unchangedConclusions": "The spec file and commit 2d333ee6056e98d5bd9eb0c09d3b793cc2db01d9 are byte-unchanged by this rerun (spec sha256 867ad22d260f8921730e2efc733a859617c8a091b80d291c34ebd41b388272b9). The rerun re-establishes the green result on a correctly-flagged E2E build; it does not alter any per-step assertion, non-claim, or the productObservation.",
+    "infraNoteForFutureLanes": "Any lane that commits a .ts file in this repo will have its E2E standalone build overwritten by the pre-commit hook's bare `next build`. Re-run the E2E build AFTER committing if a post-commit live run is required, or the run will fail with 'Campaign E2E stores are not exposed'."
+  }
+}

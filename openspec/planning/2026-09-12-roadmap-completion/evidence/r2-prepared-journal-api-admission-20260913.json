@@ -1,0 +1,38 @@
+{
+  "at": "2026-09-13T05:14:23.036Z",
+  "status": "local-implementation-admitted",
+  "scope": "P0a concrete prepared-append API and real SQLite characterizations only; no campaign producers/private replay/cutover",
+  "base": "f16e758b09f776ef5abd51b87ea8472f4f3c0efe",
+  "paths": [
+    "src/lib/events/journal/SQLiteEventJournalWriter.ts",
+    "src/lib/events/journal/__tests__/SQLiteEventJournalWriter.test.ts"
+  ],
+  "maxFiles": 2,
+  "maxChangedLines": 500,
+  "predecessor": "evidence/r2-prepared-journal-main-parent-acceptance-20260913.json",
+  "before": [
+    {
+      "path": "src/lib/events/journal/SQLiteEventJournalWriter.ts",
+      "sha256": "4ebf449448ef2ea7636d1a4dbfbfb5de2d868fa5591585f2dfe8f004bd0dece9"
+    },
+    {
+      "path": "src/lib/events/journal/__tests__/SQLiteEventJournalWriter.test.ts",
+      "sha256": "f52f03e5ffbdc5500034b4e1e835fbf8f170bde284db4d6d957201d968238926"
+    }
+  ],
+  "worker": {
+    "startedAt": "2026-09-13T05:12:22.373Z",
+    "driverPid": 51812,
+    "pid": 78124,
+    "model": "cursor-grok-4.6-high",
+    "effort": "high",
+    "workspace": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/r2-prepared-journal-api",
+    "verifiedModel": "Cursor Grok 4.6 High",
+    "sessionId": "dc108820-58bd-41cc-b590-ddab0d1c25ea"
+  },
+  "limits": [
+    "No P0b/private envelope, source producer, flag flip, migration or cutover admitted.",
+    "Two-file implementation and realSQLite characterization must receive independent Terra and parent review, full applicable gates and exact-main verification. Existing CAMP review/witness requirements and original PR1–PR3 exemption remain.",
+    "Shared dependency junction is for focused tests only; fullbuild requires separately verified physical dependency setup if Next replicates junction. No bypass of safety or commit hooks."
+  ]
+}

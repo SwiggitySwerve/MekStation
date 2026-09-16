@@ -1,0 +1,206 @@
+{
+  "at": "2026-09-12T21:45:19.549Z",
+  "status": "accepted",
+  "parent": "root",
+  "receipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/source-anchors-main-verification-20260912.json",
+    "sha256": "60d154e045abdb9534f71fe562d642a60278c6c629294d2ac9719e17d6e8eca8"
+  },
+  "main": "583b3e9bf954506a3b5fbac0359165e9407cf264",
+  "reviewedHead": "54b45026ec5d2922062479e8d02919e5d0b32fc8",
+  "tree": "04b73b4ea53d73ad0f62514718555c761de6597b",
+  "sourceFiles": 5,
+  "sourceHashesValidated": true,
+  "artifacts": [
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/source-anchors-delivery/updated-head-1.json",
+      "sha256": "8a207c018d6a3b3ed0b68d8336bad38142f0a5ee072c6430d60780dd5cbdd57f",
+      "bytes": 1369
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/source-anchors-main-verification/source-hash-manifest.json",
+      "sha256": "56bec8c238f1e74002ecbb5f9b47a3c6d1a359381384cda451e6c6066511d0d8",
+      "bytes": 8868
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/source-anchors-main-verification/command-results.json",
+      "sha256": "d3675688d3ae567250bb8ac5d556a17b139439749c30bb82b7493d37befad1ea",
+      "bytes": 7802
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\source-anchors-main-verification\\strict-auto-save-persistence.stdout.log",
+      "sha256": "fc632f645577e2a4007d5efd99d17e9dcc1c29d5c0161c37448a77522dc84762",
+      "bytes": 47
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\source-anchors-main-verification\\strict-auto-save-persistence.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\source-anchors-main-verification\\strict-battle-armor-unit-system.stdout.log",
+      "sha256": "a1dc5c197406b364c97c0694296edc8b7f3186800ddbf6eabc921711201714be",
+      "bytes": 50
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\source-anchors-main-verification\\strict-battle-armor-unit-system.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\source-anchors-main-verification\\strict-toast-notifications.stdout.log",
+      "sha256": "00729ed42a00252b15c773ef75dd7d7ed6429ea0757d857982295fd4e5be0e1e",
+      "bytes": 45
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\source-anchors-main-verification\\strict-toast-notifications.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\source-anchors-main-verification\\strict-utility-patterns.stdout.log",
+      "sha256": "6eba667a61fdaebf85903b9a6e84d3182707f87519ba28e903c34c0825975613",
+      "bytes": 42
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\source-anchors-main-verification\\strict-utility-patterns.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\source-anchors-main-verification\\strict-vehicle-unit-system.stdout.log",
+      "sha256": "bb924aa49f5ed03e150731086ee5d250225f743f5b0cad00275a3ee1c55eb636",
+      "bytes": 45
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\source-anchors-main-verification\\strict-vehicle-unit-system.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\source-anchors-main-verification\\strict-all-openspec.stdout.log",
+      "sha256": "16c5c323579e9f348bc2adb0830ebd7bb199a73726ab1098c72331305dcca967",
+      "bytes": 6919
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\source-anchors-main-verification\\strict-all-openspec.stderr.log",
+      "sha256": "30d6dbfd7d779f2b8af85b2ec2465cae58b9cdd0b36663100c21d457de3362e2",
+      "bytes": 17
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\source-anchors-main-verification\\purpose-strict.stdout.log",
+      "sha256": "767b5ef37930162c3af6132d2fb8fd65cbb5d19ce36de26e4d269e396b33c1a6",
+      "bytes": 307
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\source-anchors-main-verification\\purpose-strict.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\source-anchors-main-verification\\terminology-strict.stdout.log",
+      "sha256": "f900b2f139d48a4fce3da66f12105cdd633a1cfe6dc8102211bcf03cc6a1cce7",
+      "bytes": 311
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\source-anchors-main-verification\\terminology-strict.stderr.log",
+      "sha256": "ced97c4d6c6ece102a36a3de4820b23ed46de32b96380acd7f071616b12078da",
+      "bytes": 582
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\source-anchors-main-verification\\candidate-ci-qc.stdout.log",
+      "sha256": "f01feb11318234aab4764fe76151b78c06905527212a8f8723626fcf616b71d6",
+      "bytes": 268
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\source-anchors-main-verification\\candidate-ci-qc.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/source-anchors-main-verification/scoped-results.json",
+      "sha256": "564edd3254d19c051cfb040ee13c9a09cbc039ed7c03dacdc1ab09e9116baedf",
+      "bytes": 6634
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\source-anchors-main-verification\\scoped-stat.stdout.log",
+      "sha256": "70561304755c4bb08a3ac9adb1e506e3d92274912884da8d8493e1978acc8f4d",
+      "bytes": 389
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\source-anchors-main-verification\\scoped-stat.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\source-anchors-main-verification\\scoped-numstat.stdout.log",
+      "sha256": "b14bb3992875f06f1bd24607e696c9401c63706c5b0e012055ecb84b1947dd8a",
+      "bytes": 247
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\source-anchors-main-verification\\scoped-numstat.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\source-anchors-main-verification\\scoped-shortstat.stdout.log",
+      "sha256": "58721e10578277eff6c676cd3d337524ac0af831278c578330f8858080ad3b6e",
+      "bytes": 54
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\source-anchors-main-verification\\scoped-shortstat.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\source-anchors-main-verification\\scoped-diff-check.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\source-anchors-main-verification\\scoped-diff-check.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\source-anchors-main-verification\\clean-status.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\source-anchors-main-verification\\clean-status.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\source-anchors-main-verification\\clean-worktree-diff.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\source-anchors-main-verification\\clean-worktree-diff.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\source-anchors-main-verification\\clean-index-diff.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\source-anchors-main-verification\\clean-index-diff.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  ],
+  "individualCommandExits": 16,
+  "formatting": "OpenSpec excluded by repository policy",
+  "qualification": "treeVerification.candidateTree refers to pre-detach local commit 92c9625; current candidate tree equals reviewed and merged tree 04b73b4ea53d73ad0f62514718555c761de6597b.",
+  "cleanup": "Authorized after exact owned source and raw exports are reopened",
+  "limits": "Documentation proof only. Battle Armor placeholders and autosave cleanup wording follow-up remain separate.",
+  "commandCounts": {
+    "strictVerification": 9,
+    "scopedDiff": 7
+  },
+  "countCorrection": "Count derived directly from successful command records; initial manual count 13 omitted three clean-state checks."
+}

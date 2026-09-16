@@ -1,0 +1,53 @@
+{
+  "pr": 1688,
+  "branch": "codex/roadmap-r2-p0b-s3-envelopeof-routing-20260915",
+  "reviewedCommit": "ac3481b3fde3f065f0a4c4300234fcec591de1b7",
+  "finalHead": "3d8373d23006f59efa2da1beb56a2596e8045c0c",
+  "autoMergeArmed": false,
+  "contentGuard": {
+    "method": "file set from `git diff --name-only origin/main...<head>` compared to the reviewed file set, plus per-file blob equality against the reviewed commit; re-run after update-branch",
+    "fileCountAtMerge": 3,
+    "blobEquality": "all files blob-identical to the reviewed commit at the gated head (exceptions, if any, are described in notes)",
+    "result": "PASS"
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "expectedHeadShaGuardUsed": true,
+    "newHead": "3d8373d23006f59efa2da1beb56a2596e8045c0c"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "otherChecksCount": 27,
+    "otherChecksBuckets": {
+      "pass": 27
+    },
+    "totalChecks": 31,
+    "totalChecksNote": "31 because #1678 added the standing \"Customizer Regressions\" check to main"
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-p0b-s3-1688-final-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "e7cbe9e00de224715dc7233b6028b66312ab5877",
+  "mergeCommitParents": [
+    "6a658c4ac3c4947d3e8dcd33e312e0655f0deda1"
+  ],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1688 --squash --match-head-commit 3d8373d23006f59efa2da1beb56a2596e8045c0c",
+  "mergedAt": "2026-09-15T10:52:41Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "The merge commit changes exactly 3 file(s), all blob-identical to the gated head 3d8373d23006f59efa2da1beb56a2596e8045c0c.",
+  "mainAfter": "e7cbe9e00de224715dc7233b6028b66312ab5877",
+  "worktree": {
+    "fastForward": "NOT PERFORMED unless the coordinator designated the worktree as free; several owned worktrees were explicitly off-limits (parent in use / other branch).",
+    "result": "SKIPPED or SUCCESS per coordinator instruction for this PR"
+  },
+  "notes": "Was DIRTY while 1687 was unmerged, but flipped to MERGEABLE/BEHIND once 1687 landed - NO parent resolution was needed. This session updated it directly; the diff collapsed from 6 files to its own 3.",
+  "timestamps": {
+    "receiptWrittenAt": "2026-09-15T15:00:00Z"
+  }
+}

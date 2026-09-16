@@ -1,0 +1,32 @@
+{
+  "proof": "PROOF 2 -- PR #1676 (QC registry repoint)",
+  "commitTested": {
+    "merge": "0df5ed2bfb53e7bf8e42f601179f50c367f65725",
+    "mergeSubject": "fix(qc): repoint multiplayer-coop-sync registry references to archived change (#1676)",
+    "reviewedHead": "5c764fc8f15b8b48b9395ec2e5e8021262d00499",
+    "reviewedHeadSubject": "fix(qc): repoint multiplayer-coop-sync registry references to archived change"
+  },
+  "blobEquality": [
+    {
+      "path": "docs/qc/mekstation-qc-registry.json",
+      "mergeOid": "c0d170e927c61d00da4bc4f855213e0da641e18a",
+      "reviewedHeadOid": "c0d170e927c61d00da4bc4f855213e0da641e18a",
+      "match": true
+    }
+  ],
+  "commands": [
+    {
+      "cmd": "npm run qc:validate",
+      "exitCode": 0,
+      "counts": "QC registry: 27 surfaces, 0 errors, 0 warnings.",
+      "logPath": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/main-proof-1675-1677-20260915/proof2-qc-validate.log",
+      "sha256": "5bb6c15b317579c4c209acfdd856c6a7184b0ad5e97241672e33dea2b87144b9"
+    }
+  ],
+  "environment": {
+    "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/history-sql-integrity",
+    "node": "v22.22.0",
+    "checkoutMode": "git checkout --detach 0df5ed2bfb53e7bf8e42f601179f50c367f65725"
+  },
+  "result": "PASS -- registry blob identical between merge commit and reviewed head; qc:validate exited 0 with 27 surfaces / 0 errors as expected."
+}

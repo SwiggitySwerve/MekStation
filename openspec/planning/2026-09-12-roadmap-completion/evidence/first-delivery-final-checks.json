@@ -1,0 +1,47 @@
+{
+  "at": "2026-09-12T12:58:16.358Z",
+  "results": [
+    {
+      "name": "roadmap",
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "exitCode": 0,
+      "log": ".sisyphus/roadmap-completion-20260912/final-first-delivery-checks/roadmap.log",
+      "sha256": "cf257c2d3f8fa0c0bb77a5e780b6a0be9df7b74ab5fda59d34ab0829ef475af9",
+      "tail": "ROADMAP VALIDATION PASSED: 68 nodes, 13 packages, 376 tasks, 40 triage rows\n"
+    },
+    {
+      "name": "spec",
+      "command": "npx --no-install openspec validate --all --strict",
+      "exitCode": 0,
+      "log": ".sisyphus/roadmap-completion-20260912/final-first-delivery-checks/spec.log",
+      "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3",
+      "tail": "✓ spec/utility-patterns\n✓ spec/validation-patterns\n✓ spec/validation-rules-master\n✓ spec/vault-sync\n✓ spec/vehicle-unit-system\n✓ spec/weapon-resolution-system\n✓ spec/weapon-system\n✓ spec/weight-class-system\nTotals: 232 passed, 0 failed (232 items)\n"
+    },
+    {
+      "name": "purpose",
+      "command": "npm run spec:purpose:validate:strict",
+      "exitCode": 0,
+      "log": ".sisyphus/roadmap-completion-20260912/final-first-delivery-checks/purpose.log",
+      "sha256": "7c0ef64ff56416c105f73466d23eccbde4a97e9f1b2062a2a740d39278d03317",
+      "tail": "\n> mekstation-app@0.1.1 spec:purpose:validate:strict\n> npx tsx openspec/scripts/spec-purpose-lint.ts\n\nOpenSpec spec-purpose lint\nSpec root: E:/Projects/MekStation/openspec/specs\nFiles scanned: 220\nErrors: 0\nTracked source-of-truth debt: 0\n"
+    },
+    {
+      "name": "terminology",
+      "command": "npm run terminology:validate:strict",
+      "exitCode": 0,
+      "log": ".sisyphus/roadmap-completion-20260912/final-first-delivery-checks/terminology.log",
+      "sha256": "cc0da2d161ead34313e6a3d968cb4735cc62782b9eab7fb8b7dc9dab8288809d",
+      "tail": "\u001b[1mNext Steps:\u001b[0m\n  1. Review violations above\n  2. Run with --fix to automatically fix violations\n  3. Or update specs to use canonical terminology from TERMINOLOGY_GLOSSARY.md\n\n(node:18784) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///E:/Projects/MekStation/openspec/scripts/terminology-tool.ts is not specified and it doesn't parse as CommonJS.\nReparsing as ES module because module syntax was detected. This incurs a performance overhead.\nTo eliminate this warning, add \"type\": \"module\" to E:\\Projects\\MekStation\\package.json.\n(Use `node --trace-warnings ...` to show where the warning was created)\n",
+      "qualification": "Global scan exited0:631files,0errors,1warning in preserved .sisyphus/postmerge-1635-20260910/backup/openspec/changes/establish-battlemech-chassis-index/specs/battlemech-chassis-index/spec.md. Keep that historical backup unchanged. Node also reported a nonfatal module-type warning."
+    },
+    {
+      "name": "terminology-live",
+      "command": "npm run terminology:validate:strict -- E:/Projects/MekStation/openspec --json",
+      "exitCode": 0,
+      "log": ".sisyphus/roadmap-completion-20260912/final-first-delivery-checks/terminology-live.log",
+      "sha256": "d7115c74f795cfc772b61267689776e1f874b71e14201e5c2662710e03ce438c",
+      "tail": "Station\\\\openspec\\\\specs\\\\validation-patterns\\\\spec.md\",\n      \"violations\": [],\n      \"fixed\": 0,\n      \"wasModified\": false\n    },\n    {\n      \"file\": \"E:\\\\Projects\\\\MekStation\\\\openspec\\\\specs\\\\validation-rules-master\\\\spec.md\",\n      \"violations\": [],\n      \"fixed\": 0,\n      \"wasModified\": false\n    },\n    {\n      \"file\": \"E:\\\\Projects\\\\MekStation\\\\openspec\\\\specs\\\\vault-sync\\\\spec.md\",\n      \"violations\": [],\n      \"fixed\": 0,\n      \"wasModified\": false\n    },\n    {\n      \"file\": \"E:\\\\Projects\\\\MekStation\\\\openspec\\\\specs\\\\vehicle-unit-system\\\\spec.md\",\n      \"violations\": [],\n      \"fixed\": 0,\n      \"wasModified\": false\n    },\n    {\n      \"file\": \"E:\\\\Projects\\\\MekStation\\\\openspec\\\\specs\\\\weapon-resolution-system\\\\spec.md\",\n      \"violations\": [],\n      \"fixed\": 0,\n      \"wasModified\": false\n    },\n    {\n      \"file\": \"E:\\\\Projects\\\\MekStation\\\\openspec\\\\specs\\\\weapon-system\\\\spec.md\",\n      \"violations\": [],\n      \"fixed\": 0,\n      \"wasModified\": false\n    },\n    {\n      \"file\": \"E:\\\\Projects\\\\MekStation\\\\openspec\\\\specs\\\\weight-class-system\\\\spec.md\",\n      \"violations\": [],\n      \"fixed\": 0,\n      \"wasModified\": false\n    }\n  ]\n}\n(node:32256) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///E:/Projects/MekStation/openspec/scripts/terminology-tool.ts is not specified and it doesn't parse as CommonJS.\nReparsing as ES module because module syntax was detected. This incurs a performance overhead.\nTo eliminate this warning, add \"type\": \"module\" to E:\\Projects\\MekStation\\package.json.\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+    }
+  ],
+  "scope": "Current initiating OpenSpec/roadmap state after owned cleanup. This is not a blanket product-test or root research-format pass."
+}

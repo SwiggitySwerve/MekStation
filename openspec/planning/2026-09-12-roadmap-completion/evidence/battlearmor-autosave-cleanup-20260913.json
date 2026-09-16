@@ -1,0 +1,29 @@
+{
+  "capturedAt": "2026-09-13T00:31:54.786Z",
+  "status": "owned-cleanup-verified",
+  "at": "2026-09-13T00:31:47.926Z",
+  "cwd": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\battlearmor-autosave-docs",
+  "main": "e29d71677ea3f090d2ea0c3e1ee7cadd5db030c0",
+  "head": "da1cbc448f11443c1e5aa6b40d9ee5984729b28b",
+  "branch": "codex/roadmap-battlearmor-autosave-docs-20260912",
+  "ignored": "!! .husky/_/\n!! .sisyphus/roadmap-completion-20260912/\n",
+  "indexHash": "a65b683940b6449651a074132f39d8b8da156ef5620af6aa1b62eb7c8698b953",
+  "exportedFiles": 372,
+  "manifestSha256": "1697be351d56e8172b0b6a53baeab94ffab9232353ba16237f9d6b6519404e08",
+  "nonReparse": true,
+  "rootHead": "be7f85b867aa3e8576e5e3d27e309276203bc24b",
+  "removed": true,
+  "localBranchDeleted": true,
+  "trackingRefDeleted": true,
+  "rootIndexUnchanged": true,
+  "sourceBytesExportedBeforeRemoval": true,
+  "exportManifest": {
+    "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-cleanup-20260913/export-manifest.json",
+    "sha256": "1697be351d56e8172b0b6a53baeab94ffab9232353ba16237f9d6b6519404e08"
+  },
+  "commands": {
+    "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-cleanup-20260913/commands.json",
+    "sha256": "35d116505928e66e343c048ca3847f8888e909408ec52fc828d2450fc605f235"
+  },
+  "limits": "Only recorded clean BA checkout and exact local/tracking refs removed non-force; raw proof and exportedFiles remain ignored outside checkout."
+}

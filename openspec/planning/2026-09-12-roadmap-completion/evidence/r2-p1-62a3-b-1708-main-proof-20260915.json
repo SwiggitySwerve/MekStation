@@ -1,0 +1,54 @@
+{
+  "node": "R2.authority",
+  "artefact": "r2-p1-62a3-b-1708-main-proof-20260915",
+  "capturedAtUtc": "2026-09-15T12:56:35.077Z",
+  "pr": 1708,
+  "slice": "6.2a-3 commit B: rows c2, c3, e (test-only) — completes the 6.2a-3 source-row stack on main",
+  "reviewedHead": "branch head at merge after the parent DIRTY resolution a1fd9845b (test blob identical to the reviewed B d3309b178; zero-line diff vs the merge commit)",
+  "mergeCommit": "2b98ce5b049e7b63a38161057961d0185bb42a31",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/archive-original-main-proof (detached at the merge commit)",
+  "runtime": {
+    "node": "v22.22.0"
+  },
+  "files": [
+    "src/lib/campaign/authority/__tests__/campaignAcceptContractSourceRow.test.ts"
+  ],
+  "blobEquality": {
+    "diffLines": 0,
+    "identical": true
+  },
+  "gates": {
+    "jest": {
+      "scope": "src/lib/campaign/authority src/lib/campaign/sync src/lib/events/journal",
+      "result": "54 suites / 463 tests passed",
+      "exit": 0,
+      "sha256": "e5181b3744a1c24f23621f682c027cda8480d494ed841bad99fd0579b8e5e52e"
+    },
+    "tsc": {
+      "exit": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "openspecStrict": {
+      "exit": 0,
+      "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3"
+    },
+    "purposeStrict": {
+      "exit": 0,
+      "sha256": "a9d942aa830647b4ac15e7c4046225c706300a676efce33a928a592d9951e847"
+    },
+    "terminologyStrict": {
+      "exit": 0,
+      "sha256": "506cacb6ba6f1f4daff53039a7362f27e848c84ea9ce4effe009bc4aa5543dac"
+    },
+    "qcOpenspecCi": {
+      "exit": 0,
+      "sha256": "1d2b3ffbba3922d328cc2b02fa1de7ccedad6b3382227fa903deccf9a0d5900c"
+    }
+  },
+  "acceptance": "exact-main accepted; 6.2a (prefixes 1-2) and 6.2a-3 (A1/A2/B) fully on main and main-verified; task 6.2a checkbox flip belongs to the ledger reconciliation PR bound to these receipts",
+  "nonClaims": [
+    "6.2b blocked on the owner identity/seat decision (inputs recorded)",
+    "6.4 unsized",
+    "CampaignGmArbiter second writer non-claimed"
+  ]
+}

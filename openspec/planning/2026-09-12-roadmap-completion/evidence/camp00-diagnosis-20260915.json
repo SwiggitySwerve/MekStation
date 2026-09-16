@@ -1,0 +1,315 @@
+{
+  "schema": "camp00-diagnosis/v1",
+  "runAt": "2026-09-15",
+  "lane": "camp-live-probe-diag (disposable checkout, GP-JUSTIFIED)",
+  "task": "root-cause the WS-400 that aborted the camp-00 receipt run recorded in camp00-receipt-run-20260915.json",
+  "inputArtefact": "openspec/planning/2026-09-12-roadmap-completion/evidence/camp00-receipt-run-20260915.json",
+  "classification": "VALIDATOR-DEFECT",
+  "classificationConfidence": "verified in this session by direct reproduction (two-arm A/B against the same live packaged server); not inferred",
+
+  "verdict": {
+    "headline": "scripts/validate-multiplayer-packaged-socket.mjs still puts the socket credential in the query string. server.js has REFUSED a URL-borne credential since PR #1357 (2026-08-25). The server is behaving exactly as designed; the validator is the stale caller.",
+    "rejectingCondition": "server.js:855-863 -- `if (firstQueryValue(parsedUrl.query.token)) { console.warn(... reason=token-in-url); rejectUpgrade(socket, '400 Bad Request'); return; }`",
+    "validatorFault": "scripts/validate-multiplayer-packaged-socket.mjs:257 appends `&token=<wireToken>` to the wsUrl, and :260 constructs `new WebSocket(url, { perMessageDeflate: false })` with NO subprotocol list -- so the credential arrives only in the URL, which is the one place the server now rejects outright.",
+    "serverRegressed": false,
+    "environmentFactor": false,
+    "loopbackHostnameRuledOut": "The listener bound 127.0.0.1/IPv4 and emitted a valid MEKSTATION_LISTENER_READY record; the POST /api/multiplayer/matches on the same origin returned 201. Host-header / loopback-bind is NOT implicated -- an identical WS handshake to the same host:port succeeded in arm B of the reproduction."
+  },
+
+  "upgradeRejectionEnumeration": {
+    "note": "Every condition on the packaged server's upgrade path that terminates a handshake, with the status it emits. Only one of them emits 400 for a well-formed multiplayer request.",
+    "conditions": [
+      {
+        "id": "U1",
+        "cite": "server.js:841-844",
+        "condition": "parsedUrl.pathname !== '/api/multiplayer/socket'",
+        "response": "delegateOrDestroyNonMpUpgrade -> Next.js HMR passthrough only when `dev` and pathname === '/_next/webpack-hmr' (server.js:726, 732-758); otherwise raw socket.destroy() at server.js:758",
+        "emits": "no HTTP status -- connection reset, surfaces client-side as ECONNRESET, NOT 400",
+        "firedInThisFailure": false
+      },
+      {
+        "id": "U2",
+        "cite": "server.js:855-863",
+        "condition": "a `token` query parameter is present on the upgrade URL (credential-in-URL refusal added by PR #1357)",
+        "response": "rejectUpgrade(socket, '400 Bad Request') -- raw `HTTP/1.1 400 Bad Request\\r\\nContent-Length: 0\\r\\n\\r\\n` written at server.js:774 then socket.destroy()",
+        "emits": "400, empty body, only header content-length: 0",
+        "serverLogLine": "[mp-socket] upgrade rejected matchId=<id> reason=token-in-url",
+        "firedInThisFailure": true,
+        "evidence": "reproduction arm A, below"
+      },
+      {
+        "id": "U3",
+        "cite": "server.js:789-793",
+        "condition": "matchId missing from the query OR no credential subprotocol offered (readCredentialProtocol returned null at server.js:847-849 / 296-305)",
+        "response": "rejectUpgrade(socket, '400 Bad Request')",
+        "emits": "400, empty body",
+        "serverLogLine": "none -- this branch logs nothing",
+        "firedInThisFailure": false,
+        "whyNot": "The observed run DID log `reason=token-in-url`-shaped rejection semantics (U2 returns before U3 is reachable). U2 is evaluated first at :855 and returns at :863, so U3 is unreachable whenever a URL token is present. Confirmed by the reproduction's server log delta, which shows the U2 line and no other."
+      },
+      {
+        "id": "U4",
+        "cite": "server.js:805-818",
+        "condition": "verifyWireToken() fails -- reason one of malformed / expired / clock-drift / pid-mismatch / bad-signature / scope-unchecked / scope-mismatch (server.js:310-378)",
+        "response": "rejectUpgrade(socket, '401 Unauthorized')",
+        "emits": "401, NOT 400",
+        "firedInThisFailure": false,
+        "note": "The validator issues a SCOPELESS token (validate-multiplayer-packaged-socket.mjs:79-81, 105-111). server.js:366-377 still accepts a scopeless token ('transition residual'), so the scope work in #1420/#1550 is NOT a second break -- reproduction arm B proved a scopeless token verifies ok=true."
+      },
+      {
+        "id": "U5",
+        "cite": "server.js:873-878",
+        "condition": "any synchronous throw inside the upgrade listener",
+        "response": "console.error('Upgrade error') + socket.destroy()",
+        "emits": "no HTTP status",
+        "firedInThisFailure": false
+      },
+      {
+        "id": "U6",
+        "cite": "server.js:72-78 (resolveListenerHostname), 883-888",
+        "condition": "HOSTNAME set to anything other than 127.0.0.1 under the standalone runtime, or the bound address/port not matching",
+        "response": "process.exit(1) BEFORE listening",
+        "emits": "no listener at all -- would have failed at waitReady, not at upgrade",
+        "firedInThisFailure": false
+      }
+    ],
+    "conclusion": "Exactly one condition (U2) produces a 400 for an otherwise well-formed, correctly-signed multiplayer upgrade. The reproduction confirms U2 by its distinctive server log line."
+  },
+
+  "reproduction": {
+    "approach": "No rebuild. The disposable worktree's .next/standalone tree from the failed run was intact and fully hydrated (server.js, server.next-config.json, node_modules/ws, node_modules/tsx, src/, public/), so the packaged server was started directly -- exactly as runCamp00Authority() does at validate-multiplayer-packaged-socket.mjs:500: ephemeral port via bindPort(0), cwd = standalone dir, env via withoutHostMode(serverEnv, {}) (HOSTNAME and NODE_ENV both deleted), MULTIPLAYER_STORE=durable.",
+    "rebuildPerformed": false,
+    "rebuildDurationSeconds": null,
+    "harness": "a throwaway ESM script placed in the disposable worktree (for `ws` module resolution), REMOVED afterwards; `git status --porcelain` in the worktree is empty",
+    "commands": [
+      "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH  (node v22.22.0)",
+      "cd <disposableWorktree> && node camp00-repro.mjs <disposableWorktree>/.next/standalone",
+      "rm -f <disposableWorktree>/camp00-repro.mjs"
+    ],
+    "serverReadyRecord": {
+      "schema": "mekstation-packaged-listener-ready/v1",
+      "configuredHostname": "127.0.0.1",
+      "boundAddress": "127.0.0.1",
+      "family": "IPv4",
+      "port": 53484
+    },
+    "createMatch": {
+      "status": 201,
+      "matchId": "784bfb8d-8ff4-4978-9db2-9bba7505d9e3",
+      "wsUrl": "ws://127.0.0.1:53484/api/multiplayer/socket?matchId=784bfb8d-8ff4-4978-9db2-9bba7505d9e3",
+      "note": "buildWsUrl (src/pages/api/multiplayer/matches/index.ts:68-75) emits NO token -- the only URL token is the one the validator appends at :257"
+    },
+    "armA_currentValidatorBehaviour": {
+      "request": "ws://127.0.0.1:53484/api/multiplayer/socket?matchId=784bfb8d-...&token=<redacted>  (no Sec-WebSocket-Protocol)",
+      "outcome": "http-rejection",
+      "statusCode": 400,
+      "statusMessage": "Bad Request",
+      "responseHeaders": { "content-length": "0" },
+      "responseBody": "",
+      "serverLogDelta": [
+        "[mp-socket] upgrade rejected matchId=784bfb8d-8ff4-4978-9db2-9bba7505d9e3 reason=token-in-url"
+      ],
+      "matchesOriginalFailure": "yes -- byte-identical symptom to the receipt run's 'Unexpected server response: 400'"
+    },
+    "armB_referenceClientBehaviour": {
+      "request": "ws://127.0.0.1:53484/api/multiplayer/socket?matchId=784bfb8d-...  with Sec-WebSocket-Protocol: mekstation.v1, mekstation.token.<base64url(wireToken)>",
+      "outcome": "replay-end",
+      "handshakeAccepted": true,
+      "negotiatedProtocol": "mekstation.v1",
+      "frames": ["ReplayStart", "ReplayChunk", "ReplayEnd", "LobbyUpdated"],
+      "serverLogDelta": [
+        "[mp-socket] upgrade requested matchId=784bfb8d-... hasToken=true",
+        "[mp-socket] upgrade verification result matchId=784bfb8d-... ok=true",
+        "[mp-socket] upgrade verified matchId=784bfb8d-... playerId=pid_3g5oMTBcBAU8PYmbsJ3c7mkewj7N",
+        "[mp-socket] connection accepted matchId=784bfb8d-... channel=combat playerId=pid_3g5oMTBcBAU8PYmbsJ3c7mkewj7N",
+        "[mp-socket] inbound SessionJoin matchId=784bfb8d-...",
+        "[mp-socket] bound matchId=784bfb8d-... channel=combat connection=784bfb8d-...:pid_3g5oMTBcBAU8PYmbsJ3c7mkewj7N:1"
+      ],
+      "significance": "The SAME scopeless token, the SAME server process, the SAME host:port -- moving the credential from the URL into the subprotocol header takes the journey from 400 to a complete ReplayStart/ReplayEnd. This isolates the defect to the credential carrier and rules out token scope, loopback binding, Host header, match state, and protocol version."
+    }
+  },
+
+  "provenance": {
+    "breakingCommit": "7118a7227",
+    "breakingCommitSubject": "fix(multiplayer): take the socket credential out of the URL (#1357)",
+    "breakingCommitDate": "2026-08-25T21:30:59-06:00",
+    "whatItChanged": "server.js (+64/-…), src/lib/multiplayer/client.ts, src/lib/campaign/coop/campaignSyncTransport.ts, and the new src/lib/multiplayer/socketCredentialProtocol.ts + its mirror test. It migrated every FIRST-PARTY caller to the Sec-WebSocket-Protocol carrier and made the URL carrier a hard 400.",
+    "whatItMissed": "scripts/validate-multiplayer-packaged-socket.mjs -- not in the commit's file list.",
+    "validatorLastTouched": "0e946a97d (2026-08-12) 'fix(qc): keep CAMP-00 Next output inside the proof worktree'",
+    "ancestryCheck": "git merge-base --is-ancestor 0e946a97d 7118a7227 -> TRUE. The validator has not been touched since before the breaking change, so it has carried the stale carrier for 21 days.",
+    "gitCommands": [
+      "git log -S\"token-in-url\" --oneline -- server.js  -> single hit: 7118a7227",
+      "git log --oneline -15 -- scripts/validate-multiplayer-packaged-socket.mjs",
+      "git show --stat --format='' 7118a7227"
+    ]
+  },
+
+  "whyCiNeverCaughtIt": {
+    "claimInTaskBrief": "'The CAMP-01 Live Adversarial Evidence workflow and the historical camp-00 receipts (2026-08) passed this path'",
+    "finding": "FALSE for the workflow. Workflow 329205862 (CAMP-01 Live Adversarial Evidence, .github/workflows/camp01-live-adversarial.yml) runs `npm run qc:camp01-live-adversarial` only. It never invokes validate-multiplayer-packaged-socket.mjs and has no camp-00 leg.",
+    "workflowGrep": "grep -rn 'packaged-socket|camp00|camp-00' .github/workflows/*.yml -> zero matches across all five workflows (auto-version, camp01-live-adversarial, nightly-validation, pr-checks, release)",
+    "lastSuccessfulRunsOf329205862": [
+      { "createdAt": "2026-09-02T14:49:45Z", "headSha": "33fd57c3b448931415a32718a1009b581439ca3e" },
+      { "createdAt": "2026-09-02T14:30:31Z", "headSha": "8f6a4d00b550c8114de60e33d265d8d4d5a229ef" },
+      { "createdAt": "2026-09-02T14:21:48Z", "headSha": "f2012f31b13e15a62583757c8cbb70c70905dc40" }
+    ],
+    "lastSuccessfulRunRelevance": "None. Those runs are green on a workflow that does not exercise the packaged socket at all, so they are not evidence about this path in either direction.",
+    "testCoverage": "ZERO. `grep -rn validate-multiplayer-packaged-socket scripts/` returns no matches -- no test in the repo reads or exercises the validator. PR #1357 added src/lib/multiplayer/__tests__/serverCredentialMirror.test.ts, which pins server.js against socketCredentialProtocol.ts, but the validator is a THIRD, unpinned copy of the same wiring.",
+    "realCallers": [
+      "package.json:68 -> npm run validate:multiplayer:packaged-socket (manual / controller-driven)",
+      "desktop/scripts/test-build.js:50 -> packaged Electron build smoke"
+    ]
+  },
+
+  "blastRadius": {
+    "note": "openAndJoin() is shared by BOTH code paths, so the defect is not camp-00-specific.",
+    "broken": [
+      "runCamp00Authority() (validate-multiplayer-packaged-socket.mjs:500) -- both the initial join and the post-restart rejoin; fails on the first one",
+      "main()'s npm-run-start path (validate-multiplayer-packaged-socket.mjs:514 and :527) -- `npm run validate:multiplayer:packaged-socket` with no CAMP01_* env is broken identically",
+      "desktop/scripts/test-build.js -- the packaged Electron runtime socket smoke invokes the same script, so the Electron packaged-build validation has been failing (or would fail) since 2026-08-25"
+    ],
+    "notBroken": [
+      "the real application client (src/lib/multiplayer/client.ts:690-693) -- migrated by #1357",
+      "the campaign sync transport (src/lib/campaign/coop/campaignSyncTransport.ts) -- migrated by #1357",
+      "e2e specs driving the browser client -- they go through client.ts"
+    ]
+  },
+
+  "secondDefect_uncaughtRejection": {
+    "classification": "VALIDATOR-DEFECT (robustness), independent of the 400",
+    "summary": "openAndJoin() registers TWO ws.once('error') handlers against the same socket, each of which schedules a 500 ms setTimeout that rejects a DIFFERENT promise. Only one of those promises has a consumer at the moment the error fires, so the other rejects with no handler attached and Node's default unhandled-rejections=throw mode kills the process.",
+    "mechanism": [
+      "validate-multiplayer-packaged-socket.mjs:278 -- `replayPromise` is CONSTRUCTED but not awaited yet (the await is at :396).",
+      "validate-multiplayer-packaged-socket.mjs:333-348 -- inside replayPromise, `ws.once('error', ...)` schedules setTimeout(..., 500) whose callback builds the 'Socket errored before ReplayEnd' Error at :337-:344 and rejects replayPromise.",
+      "validate-multiplayer-packaged-socket.mjs:351-375 -- the open-promise is constructed SECOND and IS awaited immediately; its own ws.once('error') at :361 schedules a second setTimeout(..., 500).",
+      "The 400 makes `ws` emit a single 'error'. Both once-handlers fire. Both timers are armed in the same tick with the same 500 ms delay, and the replayPromise timer was armed FIRST, so it fires FIRST.",
+      "replayPromise therefore rejects while nothing is attached to it -> unhandledRejection -> Node throws it as a top-level uncaught exception.",
+      "The recorded stack `at Timeout._onTimeout (validate-multiplayer-packaged-socket.mjs:337:13)` points at exactly that Error construction site, confirming the unhandled one is the replayPromise rejection, not the awaited open-promise rejection."
+    ],
+    "consequences": [
+      "The process dies on the uncaught exception instead of unwinding, so `openAndJoin`'s `finally { ws.close() }` (:397-399) and `runCamp00Authority`'s `finally { fs.rmSync(nextDist, ...) }` (:500) never run.",
+      "This is why the receipt run observed .next surviving the failure -- the nextDirCleanupAnomaly in camp00-receipt-run-20260915.json is a SYMPTOM of this defect, and its 'UNVERIFIED / INFERENCE' explanation is now confirmed correct.",
+      "It also destroys the diagnostic: the useful, context-rich message (which promise, which frames, which server output) is replaced by a bare uncaught throw, and main()'s catch at :579-582 never prints."
+    ],
+    "smallestCorrectFix": "Attach an inert catch to replayPromise the moment it is created, so a rejection that arrives before :396 is never unhandled: `replayPromise.catch(() => {})` immediately after :349. The awaited rejection at :396 still surfaces normally (a promise may carry any number of handlers). Optionally also hoist a single shared `ws.once('error')` instead of two, but the one-line guard is sufficient and minimal."
+  },
+
+  "proposedFix": {
+    "classification": "VALIDATOR-DEFECT -- the fix is entirely inside the validator; server.js is correct and MUST NOT be relaxed",
+    "explicitNonFix": "Do NOT re-permit the URL credential in server.js. #1357 removed it deliberately (a bearer token in a query string lands in access logs, proxy logs and crash reports), the refusal is what keeps the header carrier a guarantee rather than an option, and serverCredentialMirror.test.ts + socketCredentialProtocol.test.ts + client.test.ts pin that behaviour.",
+    "files": [
+      {
+        "file": "scripts/validate-multiplayer-packaged-socket.mjs",
+        "changes": [
+          {
+            "anchor": ":13-16 (constant block) or a new import",
+            "change": "Add the subprotocol constants and the base64url transform, mirroring src/lib/multiplayer/socketCredentialProtocol.ts: WS_PROTOCOL_VERSION = 'mekstation.v1', WS_CREDENTIAL_PREFIX = 'mekstation.token.', toBase64Url(b64) = b64.replace(/\\+/g,'-').replace(/\\//g,'_').replace(/=+$/,''), credentialProtocols(wire) = [WS_PROTOCOL_VERSION, WS_CREDENTIAL_PREFIX + toBase64Url(wire)].",
+            "why": "The script is ESM .mjs run by bare node with no TS loader, so it cannot import the .ts module. This is the same constraint that forced the server.js mirror, and it gets the same treatment: a mirror plus a test that refuses to let the copies drift.",
+            "approxLines": 6
+          },
+          {
+            "anchor": ":257",
+            "change": "`const url = `${wsUrl}&token=${encodeURIComponent(wireToken)}`;`  ->  `const url = wsUrl;`",
+            "why": "removes the URL credential that trips server.js:855",
+            "approxLines": 1
+          },
+          {
+            "anchor": ":260",
+            "change": "`const ws = new WebSocket(url, { perMessageDeflate: false });`  ->  `const ws = new WebSocket(url, credentialProtocols(wireToken), { perMessageDeflate: false });`",
+            "why": "supplies the credential through Sec-WebSocket-Protocol, matching client.ts:690-693",
+            "approxLines": 1
+          },
+          {
+            "anchor": ":349 (immediately after the replayPromise constructor closes)",
+            "change": "add `replayPromise.catch(() => {});`",
+            "why": "the independent robustness defect above -- keeps a pre-await rejection from becoming an unhandled rejection that kills the process and skips both finally blocks",
+            "approxLines": 1
+          }
+        ],
+        "totalApproxLines": 9
+      }
+    ],
+    "regressionTest": {
+      "file": "scripts/__tests__/packagedSocketValidatorCredentialMirror.test.ts (new)",
+      "shape": "Exactly the shape of the existing src/lib/multiplayer/__tests__/serverCredentialMirror.test.ts, pointed at the validator instead of server.js.",
+      "assertions": [
+        "the validator source declares the same WS_PROTOCOL_VERSION and WS_CREDENTIAL_PREFIX literals as socketCredentialProtocol.ts (imported, not retyped)",
+        "the validator source contains NO `&token=` / `token=${` construction against the socket URL -- a regex assertion that fails the moment the credential goes back into the query string",
+        "the validator's toBase64Url mirror produces byte-identical output to the module's toBase64Url across a fixture set that exercises +, / and trailing = (this is what catches a silent transform drift, which would present as a 401, not a 400)",
+        "the `ws.once('error')`-adjacent guard exists: the source contains `replayPromise.catch(`"
+      ],
+      "whyAMirrorTestAndNotAnIntegrationTest": "An integration test would need a full `next build` + standalone hydrate (the failed run spent 252 s and most of it was the build), so it cannot live in the unit tier. The mirror test is O(ms), runs in the existing jest project, and catches the exact drift class that produced this outage -- a first-party carrier migration that missed a third copy. This defect existed for 21 days precisely because nothing read this file.",
+      "tierNote": "The live proof that the whole journey works remains the camp-00 receipt run itself; the mirror test exists so the next carrier change cannot silently break it again.",
+      "provenFixture": "Arm B of the reproduction in this document is the passing fixture: credentialProtocols(scopelessWireToken) against the packaged standalone server yields ReplayStart/ReplayChunk/ReplayEnd."
+    },
+    "cap": {
+      "capSubject": "product-pr",
+      "maxFiles": 4,
+      "maxChangedLines": 180,
+      "source": "scripts/qc/camp01-authority-receipt.contract.mjs:27 -- WAVE_CONTRACTS['camp-00'].capSubject / maxFiles / maxChangedLines",
+      "fitsInCap": true,
+      "estimate": "2 files (validator + new mirror test), roughly 9 changed lines in the validator plus a ~60-line test -- comfortably inside 4 files / 180 lines"
+    },
+    "frozenContractImpact": {
+      "touchesAFrozenRow": false,
+      "stopAtProposal": false,
+      "analysis": [
+        "WAVE_CONTRACTS['camp-00'].commandSequence is [['@npm','run','validate:multiplayer:packaged-socket']] -- an ARGV, not a file digest. Editing the script body does not change the argv.",
+        "canonicalArgvDigest '8e4005d9f13011f8229bbd457d23a9297a1fc17f0d843c70a1da4bb37c04a501' is a pinned constant. scripts/qc/camp01-authority-receipt.mjs copies it verbatim from the row into the command-result (`canonicalArgvDigest: row.canonicalArgvDigest`), and camp01-authority-receipt.schemas.mjs:114 validates only that the receipt's value EQUALS the row's. It is never recomputed from file contents, so a validator edit cannot move it.",
+        "None of the 17 frozen camp-00 assertion names change. The fix makes `packagedSocketJourneyPassed===true` reachable for the first time since 2026-08-25; it does not add, remove, or rename an assertion.",
+        "The `artifacts` list, `runRootTemplate`, `predecessors`, and `reporterContracts` are untouched.",
+        "CONCLUSION: the proposal does not require a frozen-contract amendment, so the STOP-at-proposal condition in the task brief does NOT fire. The fix is safe to implement under the normal cap."
+      ]
+    },
+    "successCriterion": "`node scripts/validate-multiplayer-packaged-socket.mjs` with CAMP01_ARTIFACT_DIR / CAMP01_RUN_ID=camp01-<32hex> / CAMP01_NEXT_DIST_DIR reaches finalizeObservation and writes listener-observation.json, with all 17 camp-00 assertions computed rather than notReached.",
+    "residualRisk": "MEDIUM-LOW. The two joins are the first two of many steps in runCamp00Authority; everything downstream of them (stopChild, restart + rejoin, the 9-entry REJECT_HOSTS matrix, finalizeObservation) has never executed on current main. Arm B proves the join itself now completes, and the restart rejoin uses the identical code path, but the hostname-rejection matrix and the observation writer remain UNVERIFIED in this session. Expect the fixed run to get further; do not assume it gets all the way on the first try."
+  },
+
+  "environmentAndHygiene": {
+    "nodeVersion": "v22.22.0 (PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0)",
+    "rebuildCheck": "Get-CimInstance Win32_Process -Filter \"Name='node.exe'\" inspected before starting anything -- all node processes were MCP servers and editor tooling; no `next build` was in flight. No build was started by this lane anyway.",
+    "serversStarted": [
+      { "pid": 16416, "port": 53484, "boundAddress": "127.0.0.1", "stoppedVia": "taskkill /pid 16416 /t /f" }
+    ],
+    "port3600Touched": false,
+    "foreignProcessesTouched": "none",
+    "listenerRemaining": false,
+    "portStateAfterStop": "Get-NetTCPConnection -LocalPort 53484 -> single TimeWait entry, no Listen; the harness additionally re-bound 53484 successfully after the kill (portReboundAfterStop: 53484), proving the port was released",
+    "instrumentationReverted": true,
+    "instrumentationDetail": "one throwaway file (camp00-repro.mjs) was placed in the disposable worktree root for `ws` module resolution and deleted; `git status --porcelain` in the worktree is now empty. No source file in the worktree or in E:/Projects/MekStation was modified.",
+    "nextDirLeftInPlace": "yes -- the .next/standalone tree from the failed run was reused as the reproduction fixture and left as the parent lane found it; the parent lane removes the worktree wholesale at cleanup"
+  },
+
+  "citations": [
+    "scripts/validate-multiplayer-packaged-socket.mjs:257 -- URL credential append (the defect)",
+    "scripts/validate-multiplayer-packaged-socket.mjs:260 -- WebSocket constructed with no subprotocol list",
+    "scripts/validate-multiplayer-packaged-socket.mjs:278-349 -- replayPromise, constructed before it is awaited",
+    "scripts/validate-multiplayer-packaged-socket.mjs:333-348 -- the ws.once('error') whose 500 ms timer rejects the unconsumed replayPromise (stack site :337)",
+    "scripts/validate-multiplayer-packaged-socket.mjs:351-375 -- the awaited open-promise with its own ws.once('error')",
+    "scripts/validate-multiplayer-packaged-socket.mjs:396-399 -- `await replayPromise` and the finally that never ran",
+    "scripts/validate-multiplayer-packaged-socket.mjs:500 -- runCamp00Authority, incl. the finally { fs.rmSync(nextDist) } that never ran",
+    "server.js:296-305 -- readCredentialProtocol (the header carrier the server now requires)",
+    "server.js:773-776 -- rejectUpgrade raw HTTP writer",
+    "server.js:789-793 -- 400 for missing matchId or missing credential",
+    "server.js:805-818 -- 401 for a failed token verification",
+    "server.js:847-849 -- credential read from sec-websocket-protocol",
+    "server.js:855-863 -- THE 400 THAT FIRED: token-in-url refusal",
+    "server.js:841-844 + 726 + 732-758 -- non-multiplayer upgrade paths (destroy, never 400)",
+    "server.js:72-78 -- resolveListenerHostname, the loopback gate that did NOT fire",
+    "src/lib/multiplayer/socketCredentialProtocol.ts:25-58 -- the canonical carrier the validator must mirror",
+    "src/lib/multiplayer/client.ts:677-693 -- the reference client: no token in the URL, credential in the subprotocol",
+    "src/pages/api/multiplayer/matches/index.ts:68-75 -- buildWsUrl emits no token",
+    "src/lib/multiplayer/__tests__/serverCredentialMirror.test.ts -- the existing mirror test the new one should be modelled on",
+    "scripts/qc/camp01-authority-receipt.contract.mjs:27 -- the frozen camp-00 row (17 assertions, cap 4 files / 180 lines)",
+    "scripts/qc/camp01-authority-receipt.schemas.mjs:114 -- canonicalArgvDigest equality check against the frozen row"
+  ],
+
+  "nonClaims": [
+    "No fix was implemented -- this lane diagnosed only. No source file was modified in the repo or the worktree.",
+    "No camp-00 receipt was produced and roadmap task 0.4 is NOT closed.",
+    "The 15 camp-00 steps downstream of the two socket joins (restart rejoin, the 9-host rejection matrix, finalizeObservation, port reuse) remain UNVERIFIED on current main -- they have never executed since the breaking commit.",
+    "The proposed regression test has not been written or run; its assertions are a specification, not a measurement.",
+    "No claim is made about whether the desktop packaged-Electron smoke (desktop/scripts/test-build.js) has actually been run and failed since 2026-08-25 -- only that it invokes the same broken code path.",
+    "No PR, push, or merge was performed."
+  ]
+}

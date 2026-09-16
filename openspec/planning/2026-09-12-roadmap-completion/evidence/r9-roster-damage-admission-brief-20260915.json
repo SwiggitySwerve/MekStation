@@ -1,0 +1,139 @@
+{
+  "evidenceKind": "r9-roster-damage-admission-brief",
+  "date": "2026-09-15",
+  "role": "read-only discovery; no product/spec/tasks edits made; no builds/tests/jest/sub-agents executed this session; grep/read + git log/blame only",
+  "node": {
+    "id": "R9.roster-damage",
+    "wave": 9,
+    "title": "Replace roster damage heuristic with construction maxima",
+    "kind": "repair",
+    "state": "planned",
+    "dependsOn": ["R2.camp-7"],
+    "ownershipPaths": [
+      "src/components/campaign/RosterStateCards.tsx",
+      "src/types/campaign/UnitCombatState.ts",
+      "openspec/specs/campaign-unit-combat-state/spec.md"
+    ],
+    "acceptance": [
+      "First characterize a unit with armor damage but no destroyed component/location at the real roster-card boundary.",
+      "Resolve matching construction maxima through the established canonical/custom source authority; missing maxima remain explicitly unavailable without stock substitution or fabricated percentages.",
+      "Calculate the displayed damage from current armor/structure against matching maxima; preserve readiness as a separate projection and prove reactive updates.",
+      "Admit exact bounded files and regression before implementation; independent review, focused/static/build/browser gates, incremental PR, guarded merge, exact-main verification and owned cleanup."
+    ],
+    "owner": "parent; bounded Luna/high worker on admission",
+    "maxFiles": 5,
+    "maxNonGeneratedLines": 500,
+    "evidencePointer": "evidence/triage-preserved-campaign-parent-acceptance.json (verifiedFiles list includes RosterStateCards.tsx, UnitCombatState.ts, RosterUnitProjection.ts; limits[1]: 'max-state damage-bar calculation remains unfinished and must retain an explicit roadmap owner')",
+    "inventoryRow": {
+      "id": "campaign-unit-combat-state",
+      "path": "openspec/specs/campaign-unit-combat-state/spec.md",
+      "disposition": "in-scope-repair",
+      "repairNode": "R9.roster-damage",
+      "note": "roadmap.json line ~12253: 'Four migration boundaries are already implemented; canonical notes corrected. RosterStateCards still computes a destroyed-component/location heuristic without construction maxima. R9.roster-damage owns this finite confirmed gap; R4/R5 and R2 retain lifecycle proof.'"
+    },
+    "decomposition": "One existing canonical migration gap discovered by finite inventory. No new HUD shell, combat rules, or persistence/authority redesign."
+  },
+  "currentHeuristic": {
+    "file": "src/components/campaign/RosterStateCards.tsx",
+    "function": "computeDamageBarData, lines 116-136 (called by useDamageBarData, lines 151-179, called by RosterUnitCard, line 196)",
+    "arithmetic": "totalDamage = destroyedCount * 2 + destroyedLocationCount * 4 (line 126), where destroyedCount = combatState.destroyedComponents.length (line 121) and destroyedLocationCount = combatState.destroyedLocations.length (line 122). Displayed bar width = `Math.min(100, damageBar.totalDamage * 5)%` (line 230).",
+    "inputsRead": "Only IUnitCombatState.destroyedComponents.length and IUnitCombatState.destroyedLocations.length. Never reads currentArmorPerLocation or currentStructurePerLocation values, and never reads any construction-maxima reference (no IUnitMaxState companion is consulted anywhere in this file today).",
+    "displayGate": "The entire damage-bar block (lines 223-235) is gated on `damageBar.totalDamage > 0`. Because totalDamage is derived only from destroyed-item counts, a unit with real armor/structure point loss but zero destroyed components/locations yields totalDamage=0, so the whole block is omitted from the DOM — the card renders visually identical to a fully healthy unit.",
+    "explicitCodeComment": "RosterStateCards.tsx:92-99 (IDamageBarData.totalDamage doc): 'Crude total-damage proxy used by the legacy display-bar width calculation. Without an `IUnitMaxState` companion we approximate \"how damaged\" with destroyed component + location counts. Repair tickets diff against the max-state for accurate values; this is a display heuristic only.'",
+    "corroboratingSourceOfTruth": "openspec/specs/campaign-unit-combat-state/spec.md line 244 (Migration status item 3, marked 'Not closed'): '`RosterStateCards.tsx` selects canonical `IUnitCombatState` from `campaign.unitCombatStates[unitId]`, but `computeDamageBarData` still uses the destroyed-component/location heuristic (`destroyedCount * 2 + destroyedLocationCount * 4`) because the card has no `IUnitMaxState` companion. ... This remaining heuristic is `R9.roster-damage` after `R2.camp-7`.'",
+    "sameRootCauseElsewhere_notInScope": "The identical root cause (readiness/damage can't be told apart from armor numbers without a max-state companion) was independently hit and hand-patched for the READINESS badge (a different, out-of-scope code path) in src/stores/campaign/campaignRosterStore.helpers.ts, function `deriveReadinessFromCarryForward` (lines 152-198): comment at lines 140-144 states 'the helper can't see armor deltas without a max-state companion, so this bridges that gap' — it bumps a computed 'Ready' to 'Damaged' when a battle's raw armor/structure damage totals are nonzero. This bridge is NOT applied to the live roster-card selector's own totalDamage computation (RosterStateCards.tsx has no equivalent), and it is NOT in this node's ownershipPaths — cited only as independent proof the exact same defect class has already surfaced once before in this codebase."
+  },
+  "maximaSource": {
+    "typeAlreadyExists": "IUnitMaxState (src/types/campaign/UnitCombatState.ts:109-118): `maxArmorPerLocation`, `maxStructurePerLocation`, `maxAmmoPerBin`, all `Readonly<Record<string, number>>`. Doc comment (lines 101-108) states it is 'the \"full health\" reference state for a unit, used by the repair queue builder to diff against current `IUnitCombatState`' and 'Source of truth: the unit's construction state at deploy time.'",
+    "alreadyWiredIntoCampaign": "`ICampaign.unitMaxStates?: Readonly<Record<string, IUnitMaxState>>` (src/types/campaign/Campaign.ts:162) is already optional on the campaign shape, already round-trips through persistence (src/lib/campaign/persistence/serializeCampaign.ts:166,236; src/stores/campaign/useCampaignStore.persistence.ts:127,288,381; src/types/campaign/SerializedCampaign.ts:194), and is already read (never written) by src/lib/campaign/repair/repairQueueBuilder.ts:140-195, src/lib/campaign/processors/repairQueueBuilderProcessor.ts:97, src/lib/campaign/processors/repairProgressProcessor.ts:100/149/201/226, and src/lib/campaign/fastForward/invariants/maintenance.ts:81-90. No schema or type change is needed to add a reader in RosterStateCards.tsx.",
+    "criticalGap_neverPopulatedInProduction": "grep across src/ (excluding __tests__) for every reference to `unitMaxStates` and to the only production constructor of combat state, `createInitialCombatState` (UnitCombatState.ts:79-96, called only from src/lib/campaign/processors/postBattleProcessor.helpers.ts:184), found ZERO production call sites that ever WRITE `campaign.unitMaxStates[unitId]`. Every non-test reference is either the type declaration, a pass-through in serialize/deserialize, or a read with its own 'absent → skip' branch (e.g. repairQueueBuilder.ts:158-160's 'Absent max-state entry' scenario, or maintenance.ts:81 'A unit with no `unitMaxStates` entry is skipped'). In today's production code, `campaign.unitMaxStates` is always undefined/empty for every real roster unit — the repair-ticket diff and maintenance-cap consumers of this field are exercising their own no-op/skip branches against live data, not the diff branch.",
+    "establishedCanonicalCustomAuthority_asyncOnly": "The actual construction-maxima VALUES are resolved elsewhere, but only on the async combat-LAUNCH path, never at roster-card render time: `adaptUnitFromData` (src/engine/adapters/CompendiumAdapter.ts:84-104) derives per-location max armor via `extractArmor(unitData.armor.allocation)` (line 97-98) and max structure via `getStructureForTonnage(tonnage)` (line 103). The dispatcher `adaptUnit` (CompendiumAdapter.ts:167-190) routes `custom-*` refs through a `CustomUnitDefinitionReader` (browser default `customUnitApiService.getById`, CompendiumAdapter.ts:190-192; server-side `readServerCustomCombatDefinition`, src/services/units/serverCustomCombatDefinition.ts:22-42, backed by the SQLite `UnitRepository`) and canonical refs through `getCanonicalUnitService().getById` (src/services/units/CanonicalUnitService.ts:215, itself an async `fetch()`-backed lookup, CanonicalUnitService.ts:157-166). Both paths throw or return null on a missing/invalid definition rather than substituting a stock unit (CompendiumAdapter.ts:170-176; EncounterService.ts comment at line 419+ 'custom units never [skip] — missing or invalid construction fails the launch'). This whole resolution chain runs only from `deriveCombatSeededGameUnits` (src/engine/combatSeedDerivation.ts:48-72), called from `EncounterService.launchEncounter` — i.e. at combat launch, not at roster display or roster-add time.",
+    "missingDesignPrecedentElsewhereInRosterDomain": "src/lib/campaign/bays/resolveMechBayUnit.ts, `resolveMechBayLoadout` (lines 44-49): when a roster unit's `unitSource` is 'custom' and its saved design id is not found in the caller-supplied `savedDesigns` map, the resolver adds the unit to `unresolvedUnitIds` and falls back only to a previously-cached scalar (tonnage) — it does not fabricate a value or silently substitute canonical data. This is the exact 'missing maxima remain explicitly unavailable' shape the roadmap acceptance line 2 asks for, already established as a convention in a sibling roster file (not in this node's ownershipPaths, cited as the pattern to mirror).",
+    "resolutionForThisBoundedSlice": "Given (a) the type and the ICampaign field already exist with zero schema changes needed, and (b) no production writer for `unitMaxStates` exists and building one is out of this node's 3-file ownershipPaths / 5-file cap (it would touch the roster-add flow and/or combat-launch wiring across several additional files, which is exactly the 'persistence/authority redesign' the decomposition note rules out), the bounded fix in this slice can only be a READER change: compute the damage percentage from `campaign.unitCombatStates[unitId]` against `campaign.unitMaxStates?.[unitId]` when present, and render an explicit 'unavailable' state when absent (mirroring resolveMechBayLoadout's unresolved-fallback shape and repairQueueBuilder.ts's per-location 'absent → skip' loop, CompendiumAdapter- and repairQueueBuilder-style, lines 150-153: `current = state.currentArmorPerLocation[location] ?? maxArmor`). This is an honest, non-fabricating fix that removes the wrong 0%-looks-healthy heuristic. It does NOT, by itself, make the card show a real percentage for any unit in production today, because nothing populates `unitMaxStates` yet — see dependencyNote and openQuestions below; this is flagged for the parent rather than silently assumed."
+  },
+  "failingCase": {
+    "reproduction": "Given `combatState = { currentArmorPerLocation: { CT: 5, LT: 8 }, currentStructurePerLocation: {}, destroyedComponents: [], destroyedLocations: [], combatReady: true, ... }` (e.g. CT armor reduced from a true max of 30 to 5, LT from 20 to 8, with no critical/component destruction), `computeDamageBarData` (RosterStateCards.tsx:116-136) returns `{ totalDamage: 0, hasDestroyedComponents: false, destroyedCount: 0, destroyedNames: [] }`. The gate at line 223 (`damageBar.totalDamage > 0`) is false, so the entire damage-bar block is omitted — the card is visually indistinguishable from a unit at full armor/structure.",
+    "noExistingTestCoverage": "Confirmed via `find src -iname '*RosterStateCards*'` (only the component file itself exists) and repo-wide grep for `RosterStateCards`/`RosterUnitCard`/`RosterPilotCard` across every `*.test.*`, `*.spec.*`, and `e2e/*` file: zero matches. No unit test, no Storybook story, no e2e spec exercises this component today.",
+    "redFirstTestFile": "src/components/campaign/__tests__/RosterStateCards.test.tsx (new)",
+    "redFirstTestNames": [
+      "RosterUnitCard damage bar > shows a nonzero damage indicator when armor is damaged but nothing is destroyed, given a construction max-state — seeds `campaign.unitCombatStates[unitId]` with armor below a seeded `campaign.unitMaxStates[unitId].maxArmorPerLocation`, zero destroyed components/locations; asserts a damage indicator renders with a nonzero value. FAILS TODAY: totalDamage stays 0, block does not render (would need `screen.queryByText(/Damage/)` to be null pre-fix).",
+      "RosterUnitCard damage bar > reacts to a live post-battle combat-state update without remounting — mirrors the mock/act pattern in src/components/gameplay/pages/campaigns/dashboard/__tests__/CampaignDashboardPage.reactivity.test.tsx (jest.mock('@/stores/campaign/useCampaignStore', () => ({ ...jest.requireActual(...), useCampaignStore: () => mockCampaignStore })), mockCampaignStore = createCampaignStore() in beforeEach, act(() => mockCampaignStore.setState(...)) to apply an armor-loss delta), asserts the rendered percentage changes after the act() without a re-render of the parent.",
+      "RosterUnitCard damage bar > shows an explicit 'maxima unavailable' affordance rather than 0% when the unit has no construction max-state entry — seeds real armor damage (`currentArmorPerLocation` below what a real max would be) with NO `unitMaxStates[unitId]` entry at all (today's actual production default for every unit). Asserts an explicit unavailable/unknown label, distinct from both 'no damage bar rendered' (today's behavior) and a fabricated '0%'.",
+      "RosterUnitCard damage bar > leaves unit.readiness and the 'Needs Repair' block unaffected by max-state presence or absence — regression guard asserting `getReadinessStyles`/the readiness badge and the `unit.readiness === 'Damaged'` block (lines 248-268) render identically whether or not `unitMaxStates` is populated, proving the two code paths stay decoupled."
+    ],
+    "whatTurnsRed": "All four are new coverage against a component with zero existing tests, so 'red-first' means: author against current origin/main before any product change, run once, and confirm each assertion fails for the reason named (block absent / percentage frozen / no unavailable affordance) rather than for an unrelated setup error."
+  },
+  "readiness": {
+    "separateProjectionConfirmed": "`getReadinessStyles` (RosterStateCards.tsx:36-50) and the 'Needs Repair' block (lines 248-268) both key exclusively off `unit.readiness`, a field on `IRosterUnitProjection` (src/types/campaign/RosterUnitProjection.ts:112) computed by `deriveRosterReadiness` (RosterUnitProjection.ts:142-158) and, at roster-add/carry-forward time, by the store-side bridge `deriveReadinessFromCarryForward` (src/stores/campaign/campaignRosterStore.helpers.ts:152-198, sole production caller confirmed by grep). Neither function is in this node's ownershipPaths, and the damage-bar fix touches a structurally separate function/hook (`computeDamageBarData`/`useDamageBarData`) with no shared state — confirmed by reading the full 398-line component file: `unit.readiness` and `damageBar` are two independent props/hooks consumed by `RosterUnitCard` with no data dependency between them.",
+    "reactivityMechanism": "`useDamageBarData` (RosterStateCards.tsx:151-179) already subscribes to the live campaign store via `useStore(storeApi, selector)` with a hand-rolled shallow-equality memo (lines 163-171) so the card only re-renders when the four selected fields actually change. The bounded fix extends the SAME selector to also read `state.campaign?.unitMaxStates?.[unitId]` inside the existing subscription — no new store, no new subscription, no new re-render source. Reactivity is proven by test 2 above (mutate the mock store via `act(() => store.setState(...))`, assert the rendered value changes) rather than by inspection alone."
+  },
+  "boundedFiles": [
+    {
+      "file": "src/components/campaign/RosterStateCards.tsx",
+      "purpose": "Replace `computeDamageBarData`'s destroyed-count arithmetic with a real percentage computed from `IUnitCombatState.currentArmorPerLocation`/`currentStructurePerLocation` against `IUnitMaxState.maxArmorPerLocation`/`maxStructurePerLocation` when present (per-location diff loop mirroring repairQueueBuilder.ts:150-153's `current ?? max` pattern, summed across locations named in the max-state — locations absent from the max-state are skipped, matching the existing 'Absent max-state entry' convention). Add an explicit 'unavailable' branch when no max-state entry exists for the unit. Extend `useDamageBarData`'s selector (lines 159-174) to also read `state.campaign?.unitMaxStates?.[unitId]`. Do not touch `getReadinessStyles`, `getPilotStatusStyles`, or `RosterPilotCard`.",
+      "estimatedNonGeneratedLines": "~50-80 (function body rewrite + one new conditional render branch; file is 398 lines today)"
+    },
+    {
+      "file": "src/types/campaign/UnitCombatState.ts",
+      "purpose": "No interface shape change required — `IUnitMaxState` (lines 109-118) already carries both fields needed. Included in ownershipPaths for a doc-comment correction only if the roster-card change makes the existing 'Repair tickets diff against the max-state for accurate values' comment (referenced from RosterStateCards.tsx:96) stale; may end up a zero-line no-op file.",
+      "estimatedNonGeneratedLines": "0-10"
+    },
+    {
+      "file": "openspec/specs/campaign-unit-combat-state/spec.md",
+      "purpose": "Flip Migration status item 3 (line 244, currently 'Not closed') to reflect the landed fix. Extend the existing 'Damage bar rendering' scenario (lines 193-197, which today names only `IUnitMaxState.maxArmorPerLocation`) to also cover `currentStructurePerLocation`/`maxStructurePerLocation` (the roadmap acceptance text says 'current armor/structure', broader than the current single-field scenario) and add a sibling scenario for the 'absent max-state → explicit unavailable' branch, mirroring the existing 'Absent max-state entry' scenario (lines 158-160) already written for the repair ticket generator.",
+      "estimatedNonGeneratedLines": "~15-25"
+    },
+    {
+      "file": "src/components/campaign/__tests__/RosterStateCards.test.tsx (new)",
+      "purpose": "The four red-first tests in failingCase above, following the `createCampaignStore()` + `jest.mock('@/stores/campaign/useCampaignStore', ...)` pattern from src/components/gameplay/pages/campaigns/dashboard/__tests__/CampaignDashboardPage.reactivity.test.tsx:191-198,201,238-239 (real Zustand store instance, no full store mock).",
+      "estimatedNonGeneratedLines": "~150-220"
+    }
+  ],
+  "totalEstimate": {
+    "files": 4,
+    "nonGeneratedLines": "~215-335",
+    "withinCaps": "Yes — 4 of 5 maxFiles used (1 file of headroom), well under 500 maxNonGeneratedLines"
+  },
+  "tests": {
+    "redFirstRows": [
+      "shows a nonzero damage indicator when armor is damaged but nothing is destroyed, given a construction max-state — proves acceptance line 1 (characterize the failing case) and line 3 (calculate from current vs maxima)",
+      "reacts to a live post-battle combat-state update without remounting — proves acceptance line 3's 'prove reactive updates' clause",
+      "shows an explicit 'maxima unavailable' affordance rather than 0% when no max-state entry exists — proves acceptance line 2's 'missing maxima remain explicitly unavailable without stock substitution or fabricated percentages'",
+      "leaves unit.readiness and the 'Needs Repair' block unaffected by max-state presence or absence — proves acceptance line 3's 'preserve readiness as a separate projection'"
+    ],
+    "mutationRows": [
+      "Mutant: change the per-location diff from `maxArmor - currentArmor` to `currentArmor - maxArmor` (sign flip) — caught by test 1 (percentage would go negative/zero instead of reflecting real damage).",
+      "Mutant: drop the 'unavailable when max-state absent' branch and fall through to the old totalDamage=0 hidden-block behavior — caught by test 3 (no unavailable affordance would render; assertion for an explicit label would fail).",
+      "Mutant: make the extended selector also read/return `unit.readiness` or otherwise couple the two computations — caught by test 4 (readiness assertions would diverge once max-state fields change independently of readiness state)."
+    ]
+  },
+  "gates": {
+    "focusedJest": "npx jest src/components/campaign/__tests__/RosterStateCards.test.tsx",
+    "typecheck": "npm.cmd run typecheck (tsc --noEmit --skipLibCheck — confirmed exact script in package.json:21)",
+    "oxfmtOxlintChangedFiles": "npx oxlint src/components/campaign/RosterStateCards.tsx src/components/campaign/__tests__/RosterStateCards.test.tsx (package.json:17 `lint` script is a blanket `oxlint` with no changed-files variant; scope the invocation to the touched files manually)",
+    "openspecStrict": [
+      "npm.cmd run spec:purpose:validate:strict (package.json:86)",
+      "npm.cmd run terminology:validate:strict (package.json:81)",
+      "npx.cmd openspec validate --all --strict",
+      "npm.cmd run qc:openspec-ci:validate (package.json:148)"
+    ],
+    "build": "Not required by this node's acceptance text beyond the standard focused/static gates; no new route, page, or bundle entry is added.",
+    "browserProof": "Not required for this bounded slice — no new production boundary, route, or cross-service surface is introduced; `RosterStateCards` is already exercised indirectly by existing dashboard/mech-bay pages under jest/RTL, which is sufficient to prove the component-level behavior change. If the parent later wants a live-browser witness, the existing campaign dashboard journey e2e specs (e.g. e2e/campaign-customizer-handoff.spec.ts) already render this component and would be the ones to extend — not a new spec, since no new user-facing flow is being added, only a display-accuracy fix inside an existing card."
+  },
+  "nonClaims": [
+    "Does NOT add a production population pipeline for `campaign.unitMaxStates` — confirmed no such writer exists today (see maximaSource.criticalGap_neverPopulatedInProduction). Building one would touch the roster-add flow and/or combat-launch wiring across additional files beyond this node's 3-file ownershipPaths and is exactly the 'persistence/authority redesign' the decomposition note excludes. Until a companion population task lands, the fixed card will show the new explicit 'maxima unavailable' state for real production units rather than a real percentage — an honest regression-free improvement over today's silently-wrong-or-hidden heuristic, not a full visual fix.",
+    "Does NOT change `unit.readiness`, `deriveRosterReadiness`, or `deriveReadinessFromCarryForward` — readiness stays exactly as computed today, including its own pre-existing, separately-owned heuristic gap (readiness also can't distinguish 'damaged by armor loss alone' from 'ready' without a max-state companion, per RosterUnitProjection.ts:130-135's own comment) which this node does not touch or claim to fix.",
+    "Does NOT substitute a stock/canonical unit's maxima for a missing custom design, and does NOT fabricate a percentage when maxima are unknown — the absent-maxima branch renders an explicit unavailable affordance, mirroring resolveMechBayLoadout's unresolved-fallback pattern.",
+    "Does NOT touch `RosterPilotCard`, pilot wounds/recovery display, or any other card in this file beyond the unit damage bar.",
+    "Does NOT weaken or extend the existing `IUnitMaxState`/`ICampaign.unitMaxStates` schema — both already exist with the exact fields needed; only a new reader is added.",
+    "Does NOT claim the underlying data-population gap is this node's to close — flagged explicitly to the parent as an open dependency (see openQuestions)."
+  ],
+  "dependencyNote": {
+    "r2Camp7Status": "R2.camp-7 ('Mech Bay source resolution and editing') is recorded in roadmap.json at state 'main-verified-except-owner-gate' with `receipt: 'evidence/camp01efg-receipt-run-main-20260915.json'` and a `githubReviewGate` block already showing `state: 'APPROVED', nonDismissed: true, exactHead: true, nonAuthor: true` (roadmap.json lines 3243-3281, read directly this session).",
+    "satisfiedAtAgentReachableTier": "The dependency is satisfied at the tier reachable by agents: R2.camp-7's underlying product code (Mech Bay custom/canonical source resolution, `resolveMechBayUnit.ts`, which this brief also read and cites in maximaSource.missingDesignPrecedentElsewhereInRosterDomain) is main-verified. Per the sibling r2-combat-browser-admission-brief-20260915.json's own note on this exact node (`R2.camp7Dependency`), the underlying resolution code being correct is the real dependency; the controller-registered receipt/githubReviewGate apparatus around it is a separate, owner-scoped concern this brief does not attempt to close or bypass — it is preserved as-is, not treated as blocking R9.roster-damage's admission."
+  },
+  "openQuestions": [
+    "Does the parent want this bounded slice to also add a minimal, narrowly-scoped `unitMaxStates` population step (e.g. compute-and-cache the max-state once at roster-add time using the same `adaptUnit`/`getCanonicalUnitService` resolution already used at combat launch), even though no such writer exists today and adding one would likely require touching at least one file outside the current 3-file ownershipPaths (e.g. the roster-add action in `useCampaignRosterStore` or `campaignRosterStore.helpers.ts`)? Without it, the fix is real and honest but will display 'maxima unavailable' for every unit in production until a follow-up populates the field — this brief recommends treating population as a separate successor node rather than folding it into this 5-file/500-line cap, but the parent has not stated that split explicitly anywhere read this session.",
+    "The roadmap acceptance text says 'current armor/structure' (both) but the existing canonical spec scenario (campaign-unit-combat-state/spec.md:193-197) currently names only `maxArmorPerLocation`. This brief recommends extending the scenario text to also cover structure in the same PR (bounded, in-scope since spec.md is one of the 3 ownership files) rather than treating armor-only as the frozen contract — flagged so the assigned worker doesn't silently narrow scope back to armor-only without a decision."
+  ]
+}

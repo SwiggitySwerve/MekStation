@@ -1,0 +1,1938 @@
+{
+  "schemaVersion": 1,
+  "capturedAt": "2026-09-12T22:34:20.173Z",
+  "status": "accepted",
+  "receipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/vault-contracts-cleanup-20260912.json",
+    "sha256": "335ea7fa3ecf2cf7da93c6e0ffe79378a599a95bad29b9c54a7a5bc9c703117c"
+  },
+  "artifacts": [
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/candidate-ignored-inventory.raw",
+      "sha256": "0f4cf889aeae94ff2f35f47c29187afa558fe2c449f75c97d3a6c12915252cce"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/candidate-proof-inventory.txt",
+      "sha256": "4b1e5bafef2d246bdf70d456f3b433df447f5e5333c5c867f362deb465db2ffa"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/01-root-index-path.exit.json",
+      "sha256": "55c9e767c056a3a6aca249af66acf80e52cd51a20f0285b216c2183118245a42"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/01-root-index-path.metadata.json",
+      "sha256": "741a1bc507ebce8f8682a55cf32861bd3614badd7f29ec11c849ac6d92f751c5"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/01-root-index-path.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/01-root-index-path.stdout.log",
+      "sha256": "742e1586a644af64934a892663d03c75415bfb01edafdfdd924a8627573bfb9c"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/02-worktree-list-before.exit.json",
+      "sha256": "bbbacbfee68b619a0d560d047c4057200a34eb7dbe783929648fc338b4888b44"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/02-worktree-list-before.metadata.json",
+      "sha256": "effeb53dbfcfc0dd16405971b2d1ed48ad8670e6f565e13573858e6730b9e307"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/02-worktree-list-before.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/02-worktree-list-before.stdout.log",
+      "sha256": "8e2524e60b38de6de58e0ad14dc30ab98dd2e781c167e6070806fbab8ab0e8d0"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/03-candidate-head.exit.json",
+      "sha256": "303d57a7a539445551dc35a01fff7663ccd9441d5b41dab871c588ae021b2054"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/03-candidate-head.metadata.json",
+      "sha256": "143ce1bf13838675463e66290bad99c2cdfca74552080f3401935a9843ced5c0"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/03-candidate-head.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/03-candidate-head.stdout.log",
+      "sha256": "f9fc2c08e3da8a2e2ccb789d16a3649db3d98b77558e56f70454576cd6c8dabb"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/04-candidate-top-level.exit.json",
+      "sha256": "640066acace9837c6589e7284c8c51b37cbcf4c9bcda54f0e3e1980eb531f16a"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/04-candidate-top-level.metadata.json",
+      "sha256": "64f2efc6193c8976efb5a57c1a27c81b7aa7ae505cd03e3acb9f0d4b7c0d9d7d"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/04-candidate-top-level.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/04-candidate-top-level.stdout.log",
+      "sha256": "4897b4ce9716c4cd72b9c93d0bac5fd0409e4c23703e41715493d7a08f33a1e5"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/05-candidate-status.exit.json",
+      "sha256": "604851137e722e3aa6f6b625e2ec874138be88f8237994fb43efe7974c0a58d4"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/05-candidate-status.metadata.json",
+      "sha256": "915750c75a8655033af3bc5284abd0f6941078564a66365154f470105c56986e"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/05-candidate-status.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/05-candidate-status.stdout.log",
+      "sha256": "ba051334ebc33f3162a4fd5be48615e03c8dac8ec7977e7c2752dbc1cf981841"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/06-ignored-inventory.exit.json",
+      "sha256": "1ddb083b559bda6a9d0a8d28161f4ab58be525feeaa0259f884fb5778965f709"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/06-ignored-inventory.metadata.json",
+      "sha256": "b745565ed24cb0a0d4067b86c7c7a27d7aaf9ff4bce8f227fefef9febb2cc385"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/06-ignored-inventory.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/06-ignored-inventory.stdout.log",
+      "sha256": "0f4cf889aeae94ff2f35f47c29187afa558fe2c449f75c97d3a6c12915252cce"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/07-tracked-proof-inventory.exit.json",
+      "sha256": "5aca687be96507fd66b4b4cb9533d50bf0b8241fc1fff38c3de7972f009f5a49"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/07-tracked-proof-inventory.metadata.json",
+      "sha256": "5252f380647d1c87ccaafc224c067017065612db344715e5be3a5821f8f9370d"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/07-tracked-proof-inventory.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/07-tracked-proof-inventory.stdout.log",
+      "sha256": "f5f9d236c65ad9400fdf4de02e3525383d0cd2dd6a6805e01921c137eaa7e5c2"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/08-remote-branch-absence.exit.json",
+      "sha256": "698f7613be01aefca3f1efaea7d8a1441089bbefc6b02eb824b41b9c830f1ce5"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/08-remote-branch-absence.metadata.json",
+      "sha256": "c4200c91ea7cfac6c2db180a1081d01c83558a99e69b97c0b9282c0b51feeba3"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/08-remote-branch-absence.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/08-remote-branch-absence.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/09-owned-refs-before.exit.json",
+      "sha256": "dc9ba2875c504af1d9a64fe611e67b6844152596256d2fe065f0a8bed75152c4"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/09-owned-refs-before.metadata.json",
+      "sha256": "2317ef72815c48645ada0ad90368baf27faa3c35a755db1f0fdcd5d81ca3c950"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/09-owned-refs-before.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/09-owned-refs-before.stdout.log",
+      "sha256": "a25c47571e751cc2d856dda1efd073d9dab559f7061b8816c2e41db2c6c32d30"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/10-root-scope-status.exit.json",
+      "sha256": "2d7ed9eaca8239c697695297dfd120c758966e6aed14ddb243e4a3680beb0e12"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/10-root-scope-status.metadata.json",
+      "sha256": "841d24cf67d61d36308d5ca80100d269f7ce68156cc63f060cd329ce29aec989"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/10-root-scope-status.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/10-root-scope-status.stdout.log",
+      "sha256": "5ad7766d4c7f8510a8266b2913f867e1be96eca348d9694b3f0e0c6933f7d93f"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/11-reopen-manifest-structure.exit.json",
+      "sha256": "0cd13e42ccd4494daf8a8120efb6783c6f67f411a229aa22b93eed15ab6bc0a7"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/11-reopen-manifest-structure.metadata.json",
+      "sha256": "d06a4cadf0ee330524ebc54b126f5bbd3b2336c7767ac05c2b52820099fbb158"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/11-reopen-manifest-structure.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/11-reopen-manifest-structure.stdout.log",
+      "sha256": "c07911393c56fa7b4b5ab61263c64afaab4fc3ab47d3a67b4222f422983e26a8"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/12-reopen-all-source-and-export-bytes.exit.json",
+      "sha256": "ac712ed54dcfe556e04acf324fdbf3eee742ab336c9570f0cb7cde24e0a04c75"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/12-reopen-all-source-and-export-bytes.metadata.json",
+      "sha256": "49261dcb4fcb894b0711867a41b276a1f9cff80ad4bebce327fbc61483c171f3"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/12-reopen-all-source-and-export-bytes.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/12-reopen-all-source-and-export-bytes.stdout.log",
+      "sha256": "68fbc4ed41ca1cd96b6b05b42ecee4d0579bf7071b2178681e358c2f0dd4b4f0"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/13-reopen-preserved-failure-artifacts.exit.json",
+      "sha256": "874c52944d6efc6429063036a47828121cfbf4be9bc10b83586288c0d6ec90d6"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/13-reopen-preserved-failure-artifacts.metadata.json",
+      "sha256": "74431137faf1c6657a6e3f9e150e904c05201c011a7817b8745e542f30dd96b6"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/13-reopen-preserved-failure-artifacts.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/13-reopen-preserved-failure-artifacts.stdout.log",
+      "sha256": "89d94029b9e452dd2dd54a737ffe209ac428134a898c75fa5fcdd6bcbca7c379"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/14-reopen-identity-and-before-removal-guards.exit.json",
+      "sha256": "a62bf610e057f8a50674b6f94f404f4361357d5be1e173a776720dfb9f74fc4c"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/14-reopen-identity-and-before-removal-guards.metadata.json",
+      "sha256": "641c7b2366c94b74d62caab1c98d509e50ce5d02c57d130e1250b4a2e221ba75"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/14-reopen-identity-and-before-removal-guards.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/14-reopen-identity-and-before-removal-guards.stdout.log",
+      "sha256": "ad731e3051f1fee9126d35f0a8f7e7c46f044bcf069e2fccfa35eb3e3faadf35"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/20-pre-removal-candidate-head.exit.json",
+      "sha256": "ee8cd1dd3cfd8b4d0148fbdd1b0c3c41387fd69253bfc1a4b163507ec9c74a89"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/20-pre-removal-candidate-head.metadata.json",
+      "sha256": "6dc0fa631353af8c30ca5916f50b0716dc02d42dc345782fbbfcfa5f5d6da5aa"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/20-pre-removal-candidate-head.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/20-pre-removal-candidate-head.stdout.log",
+      "sha256": "f9fc2c08e3da8a2e2ccb789d16a3649db3d98b77558e56f70454576cd6c8dabb"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/21-pre-removal-candidate-status.exit.json",
+      "sha256": "088222828d0144ea5f796afb0993019c75904a83d56bedff306c8cbb4093d50f"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/21-pre-removal-candidate-status.metadata.json",
+      "sha256": "de16371db101dad23cc09adb8374521a98774b0675fa86d04ca21b63c4ff397d"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/21-pre-removal-candidate-status.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/21-pre-removal-candidate-status.stdout.log",
+      "sha256": "ba051334ebc33f3162a4fd5be48615e03c8dac8ec7977e7c2752dbc1cf981841"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/22-pre-removal-worktree-registry.exit.json",
+      "sha256": "3556c2ec5ed9fc7c8ecab8878f94d844ba7a9b696e035d1472bc802b898f4001"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/22-pre-removal-worktree-registry.metadata.json",
+      "sha256": "b42ef56e16d9ae58c755deb69670fe720296a9b1870ab323df3223502e843e3d"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/22-pre-removal-worktree-registry.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/22-pre-removal-worktree-registry.stdout.log",
+      "sha256": "8fdc04e665bb0ec847774d2e438a6ad7652bfc3336f44ffe2debbab7715564b9"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/23-pre-removal-owned-refs.exit.json",
+      "sha256": "dd20a9f40a4bf85012761ecdcd0a3932c7f223766367696e5c40b486d0c9e527"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/23-pre-removal-owned-refs.metadata.json",
+      "sha256": "2776469952ab94b786505a94300c1332fe2a6da3a88c0216eb45dbcac427de91"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/23-pre-removal-owned-refs.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/23-pre-removal-owned-refs.stdout.log",
+      "sha256": "a25c47571e751cc2d856dda1efd073d9dab559f7061b8816c2e41db2c6c32d30"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/24-pre-removal-remote-absence.exit.json",
+      "sha256": "cbf9f2be933b1be464e371037f28b3482f227db2e68950830ed5d5857b18d9b2"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/24-pre-removal-remote-absence.metadata.json",
+      "sha256": "a35b9812d2ba2251b03dc922a2e4fcaf54e984a3b76c91716146b0e84bb7af15"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/24-pre-removal-remote-absence.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/24-pre-removal-remote-absence.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/25-worktree-remove-nonforce.exit.json",
+      "sha256": "07f8ec49e6cd7b2b03557e07ae7f6e2fa2d8d614634bc020af0dd8bda8d466f1"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/25-worktree-remove-nonforce.metadata.json",
+      "sha256": "f0e24b73684725adf7a727ed0943099d2d52b7f9bd4be51b6f44673a916191ef"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/25-worktree-remove-nonforce.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/25-worktree-remove-nonforce.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/26-post-removal-path-absence.exit.json",
+      "sha256": "fa49ef22530b43397741a1b798c9b12cbd9afdac1cc6bd29ebfd21481967e218"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/26-post-removal-path-absence.metadata.json",
+      "sha256": "ae637a9ffb14de5cd63163dd59b84ba5eac66cc448836666aec3e3c990007cd9"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/26-post-removal-path-absence.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/26-post-removal-path-absence.stdout.log",
+      "sha256": "2e55cd9c26c2b38dae5d0da7c824da3a3f200414c604cb6a1f562c732b07121b"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/27-post-removal-worktree-registry.exit.json",
+      "sha256": "b679c5e981f6c87e8e727d7de78289ee0b18fb2fb3b27193597fb12101c589fd"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/27-post-removal-worktree-registry.metadata.json",
+      "sha256": "e2765010126a164edf2cfb20f7cddd5c913f7c8b31c54f5ca882eae4b2d4f953"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/27-post-removal-worktree-registry.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/27-post-removal-worktree-registry.stdout.log",
+      "sha256": "ee1ff2460224575c1770e225ca38bfea9c7de7c31ce529ff1ad04acca6c70709"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/28-before-ref-delete-owned-refs.exit.json",
+      "sha256": "8801ef3f5bbd625ecbcb76edb5023f0d4bfd5d9f7cb0d5e38404b0284476f7d1"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/28-before-ref-delete-owned-refs.metadata.json",
+      "sha256": "5b160f18a59702099279381b1d3a12b2a829c98593638a369228f8f86730fabf"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/28-before-ref-delete-owned-refs.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/28-before-ref-delete-owned-refs.stdout.log",
+      "sha256": "a25c47571e751cc2d856dda1efd073d9dab559f7061b8816c2e41db2c6c32d30"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/29-before-ref-delete-remote-absence.exit.json",
+      "sha256": "15793129d5c9d6163d5eb2a470b02a0734405dd38b361e179320e361bb59577f"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/29-before-ref-delete-remote-absence.metadata.json",
+      "sha256": "dd9a32eb0348b5f19d928f151700f96ab249001ded6289a57ce82957701a8cf4"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/29-before-ref-delete-remote-absence.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/29-before-ref-delete-remote-absence.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/30-delete-local-ref-compare-guard.exit.json",
+      "sha256": "8edd537cad916889766189062395e041e37d66c98d757af9381266ee70ac5923"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/30-delete-local-ref-compare-guard.metadata.json",
+      "sha256": "b67fa5a66eaf821b82d80fc3903aaace8bbb610c4a1bbd3b7392d506b97986e2"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/30-delete-local-ref-compare-guard.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/30-delete-local-ref-compare-guard.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/31-delete-tracking-ref-compare-guard.exit.json",
+      "sha256": "b2e396735f9b4ae55912984e4cadeb33bb40b56b12de9e9431d72f4612b4903c"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/31-delete-tracking-ref-compare-guard.metadata.json",
+      "sha256": "d82a146ed0797c69ebcd046defc9ce87c5ec2fc604ffe75de295d133d770e608"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/31-delete-tracking-ref-compare-guard.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/31-delete-tracking-ref-compare-guard.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/32-post-removal-owned-refs-absent.exit.json",
+      "sha256": "27ef420ed4a2982574b005d4c17526e3ea92227ab322c7d0494661b0e6bda531"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/32-post-removal-owned-refs-absent.metadata.json",
+      "sha256": "13a500877839fd60bc21cfbee608d808ee7195aec5bdd5cb43d8348fe20851e6"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/32-post-removal-owned-refs-absent.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/32-post-removal-owned-refs-absent.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/33-final-worktree-registry-absence.exit.json",
+      "sha256": "218b115e635b63325fdf1b156ce67f3b81417dd540c5052dcb8a1a9dc64fc5b1"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/33-final-worktree-registry-absence.metadata.json",
+      "sha256": "ee9ea8cc33baf8607da12044bcce73f82fb36878e0592e9f93e835b8b9c2d641"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/33-final-worktree-registry-absence.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/33-final-worktree-registry-absence.stdout.log",
+      "sha256": "ee1ff2460224575c1770e225ca38bfea9c7de7c31ce529ff1ad04acca6c70709"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/34-post-removal-root-index-path.exit.json",
+      "sha256": "e45baff08b2194e90ac7c3f28dad43dec8da9bd72da7345759ff49c0a68f508d"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/34-post-removal-root-index-path.metadata.json",
+      "sha256": "d68270ba1b85ff646149ec2f0fd364170270a6cd9b8a796bdddd7c75f30bd390"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/34-post-removal-root-index-path.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/34-post-removal-root-index-path.stdout.log",
+      "sha256": "742e1586a644af64934a892663d03c75415bfb01edafdfdd924a8627573bfb9c"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/35-root-index-preserved.exit.json",
+      "sha256": "1d628c25a4933a10ac05fbd3c87c29d8c2757140abace820b0f041e0263bbf2d"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/35-root-index-preserved.metadata.json",
+      "sha256": "16b9007c077adc3cf5e7072366cbfd6e35c56d59a45b29c2c5f8f394410963c5"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/35-root-index-preserved.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/35-root-index-preserved.stdout.log",
+      "sha256": "797ea57bd1bc34fc50ed9c1eb7ba684a8abfdacba1984afe7ef6c096af2c7156"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/36-post-removal-root-scope-status.exit.json",
+      "sha256": "cad4d614154c005db1d60111ad3623f5520a57a5c2351ba30dadec5a10a09f5a"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/36-post-removal-root-scope-status.metadata.json",
+      "sha256": "ae9cf3bf39edcd2283fa79ef2fc570272eed830132fe36bce09388b67fb132a9"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/36-post-removal-root-scope-status.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/36-post-removal-root-scope-status.stdout.log",
+      "sha256": "5ad7766d4c7f8510a8266b2913f867e1be96eca348d9694b3f0e0c6933f7d93f"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/37-root-scope-status-preserved.exit.json",
+      "sha256": "281b916407da1886ebc716f1d3002b85b66ff77973a0ca097040073829499ffc"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/37-root-scope-status-preserved.metadata.json",
+      "sha256": "7b390f660770800a7f6850c1283335430b121f434823d4c4e1223e94b8a41c16"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/37-root-scope-status-preserved.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/37-root-scope-status-preserved.stdout.log",
+      "sha256": "61a57d8d09a65b748dac67f8a1e1c29bda935d7fa5b132ecc53a694688cb08e6"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/cleanup-index.ndjson",
+      "sha256": "b2f21ec136c64faf588f1b5282721d7615ffde83b68f28b1687c67ce0e933ac7"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/export-before-removal.cjs",
+      "sha256": "7c14167ff2a54fcc2aa87c6eaf1bedd429a14f58cf1df79b487465522c3dea03"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/index.ndjson",
+      "sha256": "c7c719d77183b10683c595f989ee2dc5e2c1951d2f88b38a7e19e9dd971a748e"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/remove-and-refs.cjs",
+      "sha256": "dff7a91f24e4691e83fb515a3a3520549016ff2cbdc5b015919c5a6e3a7eff7f"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/reopen-exports.cjs",
+      "sha256": "802356474e10a636842edb44a1e619ea5614fd27220937840072b6f81058f76d"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/reopen-index.ndjson",
+      "sha256": "818a760da730ce9620dbcc9bb1a02ab801cb79680f3a7b392c68009af1644cb1"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/checks/write-final-receipt.cjs",
+      "sha256": "a41f356af7408745376d6bf826ffde7c98674f8974f06608fa88d88a2db6f844"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/export-complete.json",
+      "sha256": "ff3707695492688eb5eeede8794fc4b50fc32d728acd825fd04b4fe9b1b2af30"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/accepted-docs/openspec/changes/design-vault-campaign-separation-and-maps/design.md",
+      "sha256": "7cd71e0f655043d14138df4f73bd68aad30506fdf0cb8e399f0ffe6ece632834"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/accepted-docs/openspec/changes/design-vault-campaign-separation-and-maps/proposal.md",
+      "sha256": "1f8b29b27cf318a4d30003c213e3660bd373748bb79dba5da3c7fdbcb57bd027"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/accepted-docs/openspec/changes/design-vault-campaign-separation-and-maps/tasks.md",
+      "sha256": "5c6a3f12ee756be208c7371654f0504ccbfab1fd0202663801b8620c8931c562"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/drafts/campaign-phase2-planning.md",
+      "sha256": "28769e1fe1e70471661ce30d5ed27ac9f722a3f163fb2f7cbf44dddf59790085"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/drafts/cross-plan-gap-review.md",
+      "sha256": "29bcc1d01fbe78f84cabe3d4faf03141ba0b4c4a1b02e704bf203420fbe864b4"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/drafts/mekhq-modifier-systems.md",
+      "sha256": "e600361384e5f282674df096b4b222bb85e492ee80e71020220298365ccd0ef3"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/drafts/mekhq-vs-mekstation-analysis.md",
+      "sha256": "d43fb6b504b16b965bbc2836e40f9e98a34201ce8c49925e01eff8d35df39219"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/playtest/2026-07-07-live-playtest/REVIEW.md",
+      "sha256": "f436c855d4725ba69a992ec5dabe8a131afdd4813ba9caa72e245cc32debe69b"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-04T11-50-04/journeys/01-first-visit-navigation.json",
+      "sha256": "8c1e13bae488f6c117448e033526f88e462b1f9bc7ea805247602f3b2639be26"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-04T11-50-04/journeys/02-compendium-browse.json",
+      "sha256": "95b5b9b4baa6244d27b0f0b7c901bce4ed26298d355bdfe3f1d05bc22a6b2d50"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-04T11-50-04/journeys/03-fresh-profile-empty-states.json",
+      "sha256": "8a232e032ea1645f936a22c0fd42c00aa60583eef4d3f2856406c05cc0d1f4a7"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-04T11-50-04/journeys/04-quick-game-auto-resolve.json",
+      "sha256": "82044d1f6ab2e9fdc59c90ce591ac88d683cb5128d6047e1f3048ec1ba52dbed"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-04T11-50-04/journeys/05-customizer-new-unit.json",
+      "sha256": "5005297b3a4950288d677d38131d451b3697f48fcfea67304a468c42d267fa6f"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-04T11-50-04/journeys/06-campaign-create-to-launch.json",
+      "sha256": "3b77660be62e3de0f7b3b14613051d04924f2c2d8bab939297e5bbe93ef4bd86"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-04T11-50-04/journeys/07-mobile-navigation.json",
+      "sha256": "3c1d4c46a6987fc5da259248b60c1245c6105e4b8e0d3bdac6e4012cb05a5205"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-04T11-50-04/manifest.json",
+      "sha256": "f9766d4f8a13a578ec7f4d6c5ce46de3af642a967832153e8bd6265a52c6befd"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-04T11-54-23/REVIEW.md",
+      "sha256": "5eda658b5a233b8a6960ce2689ddabc1d3250a16217e789db2c65a2d10ad60e6"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-04T11-54-23/journeys/01-first-visit-navigation.json",
+      "sha256": "94f654436fab860efa3225d9855997bb4ca54ff6f7c00defe94f02bfc076c9ef"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-04T11-54-23/journeys/02-compendium-browse.json",
+      "sha256": "2b5b82e9bd8f12059065bc4d1ae93190d26e42fb861f485725fd302fd1acd6bf"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-04T11-54-23/journeys/03-fresh-profile-empty-states.json",
+      "sha256": "b3e85afb379358ff22b5b7efa8eb688a79c20374599e69983469e323b8af7a50"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-04T11-54-23/journeys/04-quick-game-auto-resolve.json",
+      "sha256": "ac75a11ff9ce9cf3e199b10e37e0af30453dd64b1fb4de9671af71dd688777b2"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-04T11-54-23/journeys/05-customizer-new-unit.json",
+      "sha256": "df0eb69ef83de0be0a8701f9fdb4e43f34772ba266663651df5838aa1a77652c"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-04T11-54-23/journeys/06-campaign-create-to-launch.json",
+      "sha256": "341f856662ed3dddd96c5f9302372bf17b35159f1540a86bb1baa517d0ba4586"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-04T11-54-23/journeys/07-mobile-navigation.json",
+      "sha256": "adf1fa9cbba47afe865b0f9bf329e0b29fd35b9e7842f7be042a05bc799adf4d"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-04T11-54-23/manifest.json",
+      "sha256": "e4980e6fd9b0851948a320b4d9d2a154e131b17f86836847c5b30c8585a981b2"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-04T15-43-57/journeys/01-first-visit-navigation.json",
+      "sha256": "f2759e0f070d7f0ac4c74d97b31bd1730f7b160c1f6e10d0b06709bfe433b3b2"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-04T15-43-57/journeys/02-compendium-browse.json",
+      "sha256": "306d6d84beff851d579d08389fc483a98a23d739d0572f54fe38eb6800f1e56c"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-04T15-43-57/journeys/03-fresh-profile-empty-states.json",
+      "sha256": "9d66e307987fe8d7698d88763f3fa32df8d7ea682def9e343cf7148146177add"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-04T15-43-57/journeys/04-quick-game-auto-resolve.json",
+      "sha256": "70a931e4dbcb73b498fa48ba8ed79054958a216569c726b4a91776ed15df05be"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-04T15-43-57/journeys/05-customizer-new-unit.json",
+      "sha256": "ff570fb84cb26204f34475dd29f6272d18e31f31cb1e51ece92a0abdae2cda24"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-04T15-43-57/journeys/06-campaign-create-to-launch.json",
+      "sha256": "ede0bd6732472cfe90ed39989a1a6ad9851ef12e5d001720890b8ad302574dc2"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-04T15-43-57/journeys/07-mobile-navigation.json",
+      "sha256": "1a354ed82e85d52127bb073eb93659d8c28de0f84ad94f51c99fd3378c9ad99c"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-04T15-43-57/manifest.json",
+      "sha256": "aeee41f8d85f8f4b1ae63fc2301a4c1dc8c75297dcfe45e3355f2f5ed712fad8"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-05T03-33-23/journeys/01-first-visit-navigation.json",
+      "sha256": "89746b1fbc58ca146028370b9e7b06a51c531e694ac81b102eb88738f5d7a2e9"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-05T03-33-23/journeys/02-compendium-browse.json",
+      "sha256": "644bba2de8fd8c4d46ea663f7dc86ae179e3f4440a453681fe04293de3b1df55"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-05T03-33-23/journeys/03-fresh-profile-empty-states.json",
+      "sha256": "5b6fa1c5444f68666274b9f404e400e3303126018b0c1a37dcd59595f8c2703e"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-05T03-33-23/journeys/04-quick-game-auto-resolve.json",
+      "sha256": "28a9245e819108ab51ba8a6a91a8957157321aed3b2b43050ad84ac8081a766f"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-05T03-33-23/journeys/05-customizer-new-unit.json",
+      "sha256": "a36dc31b92b550dae63f96995ed032037fd21a2d4781b675fae5fd157998fe0a"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-05T03-33-23/journeys/06-campaign-create-to-launch.json",
+      "sha256": "4194fcbabdc40b4cf6de7ab550aa6f4c82bc05a0dec553a1832bfceeab3bec5f"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-05T03-33-23/journeys/07-mobile-navigation.json",
+      "sha256": "ed3796a8b1e00e9cafbd8deb7c3f4691b074889d3dc8a816de1bf91ad8e5dcc3"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-05T03-33-23/manifest.json",
+      "sha256": "8b6461bd65bd7290592898c46d9e5fc7a42303c414eb484d506d9a5f53d3f621"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-05T03-40-34/journeys/01-first-visit-navigation.json",
+      "sha256": "3ddaeac43dc6e7457a49694d0c2d89d6bb3f5fadf62e31d4851e35dcfd306be4"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-05T03-40-34/journeys/02-compendium-browse.json",
+      "sha256": "cd26a885b1bfb77d2f8f65ea6786f85686e2d241cddc35c70805126769eab1a8"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-05T03-40-34/journeys/03-fresh-profile-empty-states.json",
+      "sha256": "a5e2c6b7adbb02669abaf5cfba7bd044e60367db5c0c056f0379572e11044acb"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-05T03-40-34/journeys/04-quick-game-auto-resolve.json",
+      "sha256": "d2ef8a721527a6197191a78801aba47d3e8917f9380eda1de3eaf955235e0e67"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-05T03-40-34/journeys/05-customizer-new-unit.json",
+      "sha256": "3fb8ab2adf42e7d0881ff8789d32bdaff4c104a69f3c90b97a068b240e65c178"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-05T03-40-34/journeys/06-campaign-create-to-launch.json",
+      "sha256": "80ad033cd0e48fd97221fc4bf2f092df9717b192a94e19ca0ced306cdad91c68"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-05T03-40-34/journeys/07-mobile-navigation.json",
+      "sha256": "7ce21e43e19504ed12379ffec81aa779140814f26eb6f9f7e81dd8eeeb013847"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-05T03-40-34/manifest.json",
+      "sha256": "390d59c5095831078797c6d6343349baa16b39353a6be5d40e0b8c3f21cb07f7"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-05T13-34-53/journeys/01-first-visit-navigation.json",
+      "sha256": "efefe4093e902d90537bea1337365963b91a3d180d5f395684464d80a74599ca"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-05T13-34-53/journeys/02-compendium-browse.json",
+      "sha256": "f5b54941b0816fe63f6b98b971635b4dd176308dbe6b5d02e36c8b3b7871544a"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-05T13-34-53/journeys/03-fresh-profile-empty-states.json",
+      "sha256": "abcddbfbe1d836169ed8c960dbef8cb9cb28c6572da2d6754a6ae1d4187060ce"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-05T13-34-53/journeys/04-quick-game-auto-resolve.json",
+      "sha256": "3740cffedb9f126f13aa1006c7899fc71dfe3d1e3ac62b5f907314f83285826a"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-05T13-34-53/journeys/05-customizer-new-unit.json",
+      "sha256": "bd16c3dc59f726ddc00e14c4efced9eb1ecaff03863e34dfe295f58077c0fb7f"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-05T13-34-53/journeys/06-campaign-create-to-launch.json",
+      "sha256": "255e609e0d0c29fb515f7bc82a4cbada08deada75c3e310d80b2f7cdac18936f"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-05T13-34-53/journeys/07-mobile-navigation.json",
+      "sha256": "55e1a526130667db56d8759c0bebdc82027dfee9fc5411a2c1e7291ec5f9ec5d"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-05T13-34-53/manifest.json",
+      "sha256": "0f0c9efe7565b39c9a97f13345d03724ef423687b840abc396c1b4d9e00ee64a"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-05T13-48-34/journeys/01-first-visit-navigation.json",
+      "sha256": "9aed4018ccde9b860bd8c2aea94932cc149b4c28915fddf58066cc589202127b"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-05T13-48-34/journeys/02-compendium-browse.json",
+      "sha256": "7d6c276fe599731abdbbbb8bc918d18a78cc206e53f932962585015ac98ca85d"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-05T13-48-34/journeys/03-fresh-profile-empty-states.json",
+      "sha256": "05accaabfdb86c25884a37ce3a28259529ed9282ccd2e303138133087cf8ab93"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-05T13-48-34/journeys/04-quick-game-auto-resolve.json",
+      "sha256": "2c22a4a66f42a04fbee89b9229610d75ef88d4a53fb3d9c559d7671d324884cf"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-05T13-48-34/journeys/05-customizer-new-unit.json",
+      "sha256": "a5c71ae29089eabcd92326abad9d55e63b114e6c067ee8594bc591ee26ba4d54"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-05T13-48-34/journeys/06-campaign-create-to-launch.json",
+      "sha256": "2293b4de7ed002bbe0c21f9f244e05ae42dc8b7c948b26cbf853610434ae0173"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-05T13-48-34/journeys/07-mobile-navigation.json",
+      "sha256": "1e09da4fb992d37cbecc8c5eabd39501cff7f50ed5d66a1bb8fc46a001e38690"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-05T13-48-34/manifest.json",
+      "sha256": "8f75b17e633471d224b36dde1b6ab80d52c5de59a6d6306059940f34d41cf26b"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-05T19-38-57/journeys/02-compendium-browse.json",
+      "sha256": "3d441ab7d81af525e1491099f596dd970f52dfaf872a76752d9f080b8e0a02ff"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-05T19-42-08/journeys/02-compendium-browse.json",
+      "sha256": "648557da585e66f84934fbb43366fd79b22fc44c4a1eb71e4682829d57defe85"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-05T19-42-36/journeys/06-campaign-create-to-launch.json",
+      "sha256": "2d0a7e5062e60ff3f389308979639efee46f5e238cb8651c8cb8e6a4f46d8153"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-05T19-47-49/journeys/02-compendium-browse.json",
+      "sha256": "e368530ccb63781256605ad6dd01252d497ce3bf37e395aab78db00dedd8cc23"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-05T19-48-03/journeys/06-campaign-create-to-launch.json",
+      "sha256": "df4a9618dfabe6a009e9b0e40985c4d698dcaf86667465421bc4bafc77b586b6"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T03-15-29/REVIEW.md",
+      "sha256": "09d4a48937c65eda6cad50bbafd5b2e94386e3e0efd1f862fc080f6dd41c6953"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T03-15-29/journeys/08-sp-campaign-deep-loop.json",
+      "sha256": "f412ab39251c4d9850a59c0ab4038c9822553c6ab367fd8d02bc043a25a27710"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T03-15-29/manifest.json",
+      "sha256": "46ab603e6523aa968d01364ed5e65968dfaa6c6643e8896bf19967a0cf5862c0"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T03-17-27/REVIEW.md",
+      "sha256": "5514c34585a100c8a432d9eddd9116b6eccf6ed29c0e3acf1d44957b8ad26527"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T03-17-27/journeys/08-sp-campaign-deep-loop.json",
+      "sha256": "94500b827c207f7c7d003c861508c9107f937ea425a4ffef349457ab6f8cae88"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T03-17-27/manifest.json",
+      "sha256": "49d57e8eedf6fb3693931492f3866b0a1a7355c5b58037a4df43510b0c4addc2"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T03-19-04/REVIEW.md",
+      "sha256": "3873655d0f4657c4d920c19fb2c7ff0446c495c6baf7e799fc179c0d76e8a9a4"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T03-19-04/journeys/08-sp-campaign-deep-loop.json",
+      "sha256": "bf910a5694d20d6835947294800697e6d007169fa6c8eef7a49d955a5f71c318"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T03-19-04/manifest.json",
+      "sha256": "dce9689a24793bc87e68ae90c6cc39c71696d1f9f1d943f3903b129112359af0"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T03-20-00/REVIEW.md",
+      "sha256": "0c17c9a8713b3920057dd9443ddf4f91f2a775ace5914047592e954b8c8883f9"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T03-20-00/journeys/09-coop-multiplayer-two-client.json",
+      "sha256": "6f96fdc1faaf4622d078454219735bfcbc7d5e8c6f8595b18cfbe1dea4148925"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T03-20-00/manifest.json",
+      "sha256": "7c55539b892a73aeb8457331d67edd7cec01b93344c9e11bd652519a72bd5ae9"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T03-24-06/REVIEW.md",
+      "sha256": "65eaadc4ad2a74910f44dc88f68ae9750ce6500a0b4458ff18b666df0f010a44"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T03-24-06/journeys/09-coop-multiplayer-two-client.json",
+      "sha256": "4b95fa69b7f6f937daa1528ba003afe278555469f8d2c0f1d0ac53df65e77dbf"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T03-24-06/manifest.json",
+      "sha256": "b3683bd026d40379a0b8795206df02e5610e18622149fe62faeeeae081ef4faf"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T03-25-29/REVIEW.md",
+      "sha256": "802ddaef389e1d803f2d434b45212a7052de6d5ed2e8153ea9035272428d10e8"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T03-25-29/journeys/09-coop-multiplayer-two-client.json",
+      "sha256": "ec88463dec114ff870e3d4abfe6f09ec56811f9ceecfc8ea730eb1ac3498e0c9"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T03-25-29/manifest.json",
+      "sha256": "0b3fd13754d225f7dc4970cc7f4f7c1285776fb83fa04e9cfd16cef5eb6c4617"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T03-25-59/REVIEW.md",
+      "sha256": "918f3d032eb655cc06b2b46ffb3368d25a20307b0abbcc85aa83b4e55ffe7552"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T03-25-59/journeys/10-gm-surfaces.json",
+      "sha256": "80b489694cd980369283e533b12557d6c2454efd53c03fc7d1cdc23155f32467"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T03-25-59/manifest.json",
+      "sha256": "c3cfcc889a4248574c6ac962e5624ae42e6426e19f0acfae63ac81daadcaa428"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T03-27-10/REVIEW.md",
+      "sha256": "7cf352c50bf862f295e8368108a8db37ebd354c45cab83212855ef6917e25f40"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T03-27-10/journeys/10-gm-surfaces.json",
+      "sha256": "ff47afef28c5f42f0b4945da71124214e24be1c6716596df7d3f43c74eba6a25"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T03-27-10/manifest.json",
+      "sha256": "b64b762dc8a593ef7ef7e6a6f25f6f54078cbd8b36c9fd0265d1d66ac5c0e69f"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T04-24-19/REVIEW.md",
+      "sha256": "b93a263d91056ed5b1a94582ce628ae45738165d812b53e2e6484c105e41cc3b"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T04-24-19/journeys/08-sp-campaign-deep-loop.json",
+      "sha256": "58c3ab5aff9e105cfb9bfaa307ad094d21b2dedb3cb71d57c2c6bc44d0e86cb5"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T04-24-19/journeys/09-coop-multiplayer-two-client.json",
+      "sha256": "e787cbfca0f67839f16981e01289003944835d2c0c58358c528e64c802b23ebf"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T04-24-19/journeys/10-gm-surfaces.json",
+      "sha256": "40cc52af44aa297c2db78e50d9a811501da57e4b76fb99600760ffb8456ca0b4"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T04-24-19/manifest.json",
+      "sha256": "e72b2c6e665e6e10269c1bf2470954798214a1a294fa8e5fdb004ee5c6800ed9"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T04-26-43/REVIEW.md",
+      "sha256": "0def35d99af4f3aa22fe79f25c7fd7e9b21aaa603a13c73b6290186a6c19ba07"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T04-26-43/journeys/01-first-visit-navigation.json",
+      "sha256": "7a2a125ead44f4a4320272a8cbd337a1647faa14f64cd83418d4847075f36bf7"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T04-26-43/journeys/02-compendium-browse.json",
+      "sha256": "49416f0fe7078b42073019e6afd95060d1f78238a29243d48c51092ad6dcaac2"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T04-26-43/journeys/03-fresh-profile-empty-states.json",
+      "sha256": "1a32639b086ff45575fb6d36f014d47554aa97a82b576505b9c00ba2fc9b17d3"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T04-26-43/journeys/04-quick-game-auto-resolve.json",
+      "sha256": "89fb0695d1f9066137225e76735cb8ce36279ec2bc13801a5ec82330eb699628"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T04-26-43/journeys/05-customizer-new-unit.json",
+      "sha256": "36c0817e59ad7b8332217a1da215d4502edab404c50860a27ff4adfb15b94d4f"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T04-26-43/journeys/06-campaign-create-to-launch.json",
+      "sha256": "cd816eb9b5a6a7f7acdbae377bea1a6b755bb9690e4a4527b7af78181782f021"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T04-26-43/journeys/07-mobile-navigation.json",
+      "sha256": "baec0f0523a2d2762e12ca2920c70102a73830c0ccd2a52b7f5e31e595a04445"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T04-26-43/journeys/08-sp-campaign-deep-loop.json",
+      "sha256": "17231f8d5947b920b38d0358ecaccf77baf892fe27cba92f9e7ad9509d854083"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T04-26-43/journeys/09-coop-multiplayer-two-client.json",
+      "sha256": "de985c0b995630787d69d1faa7a933a5b2ea5769e00ad3fddf5b85aa2d20c943"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T04-26-43/journeys/10-gm-surfaces.json",
+      "sha256": "f7313c95e371927334c6c1555ce9f5b312358f0c64d8d10b79d6edbdc6413b87"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T04-26-43/manifest.json",
+      "sha256": "3d6d50ad67a862a32ae82546b1c4e468a23be0efa12b554303da4a21281adf75"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T13-55-53/REVIEW.md",
+      "sha256": "be03438f6e31838173decc0b137b18fdf4c2a531a3f3773d777b12edd33a4e92"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T13-55-53/manifest.json",
+      "sha256": "f6beda902e2c49e6cb130a0d143fc5caae1ba21ecb4ceea89d608436b22e2cbd"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T13-56-20/REVIEW.md",
+      "sha256": "6f6be9b4dbcad2069889acf0da94d54841197eca8f2f93bc78540a9e962746f8"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T13-56-20/journeys/08-sp-campaign-deep-loop.json",
+      "sha256": "6bd37e9d09d5b5cb35658bde7d011cf93411dd483f45078f0a4d1137d08e68ae"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T13-56-20/journeys/09-coop-multiplayer-two-client.json",
+      "sha256": "4ff43770d314c9b6fff14d86d6bd35f66d3e29654d59bbc6f7923d1aecb70284"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T13-56-20/journeys/10-gm-surfaces.json",
+      "sha256": "325d75a396f3b598e0c25a7ccfafd1e53b8d9c4455e6b020ceeff9fd14dfae8b"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T13-56-20/manifest.json",
+      "sha256": "e5705112ed220fcfd3fb7e4c883f4689a16b076f334a629a4d40708c5d510c47"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T14-03-04/REVIEW.md",
+      "sha256": "0ff24879a6e978d4317467bacb2451f0f85b6c88f938e9050ebd5e499fec1146"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T14-03-04/journeys/08-sp-campaign-deep-loop.json",
+      "sha256": "e26acc0687131cf3dad81efc3c228033509032bd9be33a883c48a14dccce01d3"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T14-03-04/journeys/10-gm-surfaces.json",
+      "sha256": "81d532e0ac8ab3ac7fcf4dc9f2853f97e1a1d2e96cee5c67c74fc36967101178"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T14-03-04/manifest.json",
+      "sha256": "99092610b1cb93721cb3a794f684b70ca80ab46f366b57f22aa3e59b783f6511"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T14-06-03/REVIEW.md",
+      "sha256": "1cb72e8a1ca149cb8bc46ef220069bb254a148885875f3e0520b1d566364089b"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T14-06-03/journeys/10-gm-surfaces.json",
+      "sha256": "484d4dcac5aa630e7a3439c065bb37524b734a8d5ea3c0e2f9839de66c81c93e"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T14-06-03/manifest.json",
+      "sha256": "16911441bc9319d73ddb8d7158e5a21298c4ca424e71a67b52a67a2bf4c03942"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T14-07-31/REVIEW.md",
+      "sha256": "77c11aa53d3f9c205f8e0868649ee636b73b1a05b98dc4e83954490004a150e0"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T14-07-31/journeys/10-gm-surfaces.json",
+      "sha256": "4f871986c599dc1f2dbbddb477c74b6759d818427695e65d345255a402772559"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T14-07-31/manifest.json",
+      "sha256": "d5a58d8228e130787b6852c94ee3ce90e2ce82c8b889958eb6e45d3f8d34fde8"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T14-08-51/REVIEW.md",
+      "sha256": "f20fba48e44994372f0ba45c0eda712cbc2e32746fffeb0db3392bf7a767eeab"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T14-08-51/journeys/08-sp-campaign-deep-loop.json",
+      "sha256": "946205fab953c5a768dd3d848e0521d6d5c7a9f07c82f98ba5ce93ff59fbba67"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T14-08-51/journeys/10-gm-surfaces.json",
+      "sha256": "d98b0403ee1384f83f1b9d065416fdac9b4364510c23662a2c80464af1ba7615"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T14-08-51/manifest.json",
+      "sha256": "f0d7239c9edfd1bc68c7337165d5dd90cdd9365f99553ee211dd1203800730c1"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T14-10-17/REVIEW.md",
+      "sha256": "eaec04cb6ac092af8ac823c37304c8b4c6f3337115252c31355adc1ecf2e1b89"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T14-10-17/journeys/08-sp-campaign-deep-loop.json",
+      "sha256": "3c186d2ee60f4a876f05d97bcd5c61dcaefdda4443e4c360710a25146bf2ef81"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T14-10-17/journeys/09-coop-multiplayer-two-client.json",
+      "sha256": "d970890e5c295d592d6d323acb0b2a9e00a6cc2e351fc5f700b93314a34af8ab"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T14-10-17/journeys/10-gm-surfaces.json",
+      "sha256": "1a6534f239b54d92824da1fe43a6cf7ea30e01e85fa23f6c8dff84ff745d6710"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T14-10-17/manifest.json",
+      "sha256": "c8ac6c21573eeba2a5fe95596a5c6e42f04b8a2175954bb16d73a3fdf865f31d"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T19-06-42/REVIEW.md",
+      "sha256": "6cd0147882a4d800f5eda64d40f2838478a892293cd08ee79d6fc35dfa11017b"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T19-06-42/journeys/01-first-visit-navigation.json",
+      "sha256": "9246dcc6e0020a9ded5c4954f75b82fbdef0e9109450031558bcbbd8d34ce3ef"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T19-06-42/journeys/02-compendium-browse.json",
+      "sha256": "e1d95e68ecc6e64241a690e41008d8c350c6c3cd465b9f54ceeea544765d7108"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T19-06-42/journeys/03-fresh-profile-empty-states.json",
+      "sha256": "9f4b29db999bb407624ce9c07ee9f9272bfd1c9f7cbfd9945824c7caa8c0f9e5"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T19-06-42/journeys/04-quick-game-auto-resolve.json",
+      "sha256": "1c14683c72cb416f138eb75f02d71b49315ddc5ca08ec04674666147dad8a2b0"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T19-06-42/journeys/05-customizer-new-unit.json",
+      "sha256": "8421bedd7c06dd9ef92e97d0250b80701cf76661177df29d86e6da3f16359cff"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T19-06-42/journeys/06-campaign-create-to-launch.json",
+      "sha256": "a389f6883bac086cd35d441a5e974ff775e81516c67a19ec48a056bf6a605d2d"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T19-06-42/journeys/07-mobile-navigation.json",
+      "sha256": "4a856fea6938858783b7d716ff4a2cc5c096f4a4594afbf57422bff815552efe"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T19-06-42/journeys/08-sp-campaign-deep-loop.json",
+      "sha256": "e6d3bb3a59ac5ef63c28ad0a36247033c49c7b585bfcfd664c67b92848d29c3f"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T19-06-42/journeys/09-coop-multiplayer-two-client.json",
+      "sha256": "fb5d898a9fe561d5508bbfcca7fa715f298aa4ddec115b33ab47c0db76b7e938"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T19-06-42/journeys/10-gm-surfaces.json",
+      "sha256": "e2363498cb0d3d066b801238e63feb495e6701f5b009d0b1076cc2d3d0a4a51f"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-08T19-06-42/manifest.json",
+      "sha256": "f47dcd03b805e307bd0fd8316f76155f3ec6f94d98dcc27063205a06ea0a68e9"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-09T10-44-22/REVIEW.md",
+      "sha256": "2bc00e68051d60693113ff16f1ac9bcda75bb825b1bbd280b33bab3c223c61ae"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-09T10-44-22/journeys/08-sp-campaign-deep-loop.json",
+      "sha256": "c7695bbadf7aa274dc68afa151585f93252a22d603892ae533343bde8ee24846"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-09T10-44-22/journeys/09-coop-multiplayer-two-client.json",
+      "sha256": "a75e72c06dd5650c48271573575af796be4772506c1746ae7adee9fb9b41eff8"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-09T10-44-22/journeys/10-gm-surfaces.json",
+      "sha256": "79999a269acac93166d0d4fc3b6e24dc781a727b17209ad71a3c5a1673ecad33"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-09T10-44-22/manifest.json",
+      "sha256": "bc80166af23d402e60b9a875661f9d58dc125d35d9b845b901401bdb218eb3d1"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-09T18-44-16/REVIEW.md",
+      "sha256": "d2a7b5ffa148c7de56949d7287f4f6861da1f6d09ab8bce35d6b031496d75da6"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-09T18-44-16/journeys/01-first-visit-navigation.json",
+      "sha256": "957f0de757b786e34269e9f33fbba52a1edb4043a85955ecb61b5e27f299bba3"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-09T18-44-16/journeys/02-compendium-browse.json",
+      "sha256": "75e74b7ece87ecf9da13a65df725bb0b6e54bdbbea29377be45b4c3f9cf1e65c"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-09T18-44-16/journeys/03-fresh-profile-empty-states.json",
+      "sha256": "ce1893759a7d79d3e7c88552ff2340ae18d9feda0ba91f873877dbbf8cb894f0"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-09T18-44-16/journeys/04-quick-game-auto-resolve.json",
+      "sha256": "5246295fdb68ef621756eee9daa1d2065e1ac335490b4a559dd3265b14d153b6"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-09T18-44-16/journeys/05-customizer-new-unit.json",
+      "sha256": "65c7d03d1596ca6faf97515fd372ddd20808a6eedc6306df8254a48e9d847abd"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-09T18-44-16/journeys/06-campaign-create-to-launch.json",
+      "sha256": "6a173a600acb146130404a89a932ec1011f058b36d605bf967c43c846545fe0a"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-09T18-44-16/journeys/07-mobile-navigation.json",
+      "sha256": "a4e68dcce4339be6fa8bf6646a9d05ef804024c5119d4833cc62d7d569754a43"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-09T18-44-16/journeys/08-sp-campaign-deep-loop.json",
+      "sha256": "3ff55de44d70379492f1eb6a6ef97af2541be5952d4d71ecaf16de07d189f4fa"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-09T18-44-16/journeys/09-coop-multiplayer-two-client.json",
+      "sha256": "95c82ab768f3d7450123023e6b416f87c88d45a70f709457da45092329142496"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-09T18-44-16/journeys/10-gm-surfaces.json",
+      "sha256": "f57ff06a9e8d73f0ae3d9bf2bfe04f17bd93cbdc26bc643e6dba7780871f9333"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-09T18-44-16/manifest.json",
+      "sha256": "3bfcb1c2ccd210b9068e98e6e5d6ef5c03f4ac47ee324a5806cff30482567cf4"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-10T04-15-01/REVIEW.md",
+      "sha256": "76ff408b36ee4f23eb7dd951f2a755812c0de97846bb5bdeaf3e89cfb4d4ee84"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-10T04-15-01/journeys/08-sp-campaign-deep-loop.json",
+      "sha256": "e747962b0ae65b64d94751791344a167b51776558ea506efe7025894afee4ead"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-10T04-15-01/journeys/09-coop-multiplayer-two-client.json",
+      "sha256": "ac96068c5e2b45b9766f0484db458dc84492d7d3057c0eb32634dc77fcf43fcb"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-10T04-15-01/journeys/10-gm-surfaces.json",
+      "sha256": "f32f977ea951602a38d309d420c64e9db9109f4d7b17853a89a9398881e747ca"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-10T04-15-01/manifest.json",
+      "sha256": "b597f61df5281ff6e8ffcbfa5f4c12284cba4ae80eecb61083a7039aa8cdf0e3"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-10T04-17-51/REVIEW.md",
+      "sha256": "4ad6fa1ca867480cbf557247850a6fcbb1b4136737d7b519b5d61e8aa5e74d4f"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-10T04-17-51/journeys/01-first-visit-navigation.json",
+      "sha256": "75d5821d02119308a5fb29704e3bfc2bf15720d848ab85d8c26ba433b4f9f3a4"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-10T04-17-51/journeys/02-compendium-browse.json",
+      "sha256": "aff44bb9f28f62c73901e2296eafb698e6caaeea192ff1363975ff467e9dd9d5"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-10T04-17-51/journeys/03-fresh-profile-empty-states.json",
+      "sha256": "2f4cb8a6614e959331b0b456635228c1d2102a16a1fa056ad050c1442de38f2d"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-10T04-17-51/journeys/04-quick-game-auto-resolve.json",
+      "sha256": "573ee1065a8438185a83c20c00f96fde2a9b441a36bbf344b99c206ca97ce376"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-10T04-17-51/journeys/05-customizer-new-unit.json",
+      "sha256": "b1a50a39da7d051eb0828dfb7476e36b6538a2bcdea5d15bc429327cd19f692c"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-10T04-17-51/journeys/06-campaign-create-to-launch.json",
+      "sha256": "86e3bc1716948b7eb1146da465f2a539bc22e01710644cbf44f72fa28008c0ba"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-10T04-17-51/journeys/07-mobile-navigation.json",
+      "sha256": "82b677134b27263068407b8695caf7ae6990c607e66795eec5b906e678c8f8d0"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-10T04-17-51/journeys/08-sp-campaign-deep-loop.json",
+      "sha256": "7bc23948205375eda60bcf335328bd33b29c748dbe09004fc5965d4e2ac35355"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-10T04-17-51/journeys/09-coop-multiplayer-two-client.json",
+      "sha256": "6be24d3a2634b90346db3577c1caf77dbcb925ef25a081ffb9f1477bad592e67"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-10T04-17-51/journeys/10-gm-surfaces.json",
+      "sha256": "55c0ac581dc403b2f5c1c9a3c9adb7b27ed4a73459056d28b5309ad852687faf"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-10T04-17-51/manifest.json",
+      "sha256": "9e73eaba5e6cbb2bbe3e609620803edd60b6de1589d420c3835f7f35d09df173"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-10T05-00-53/journeys/09-coop-multiplayer-two-client.json",
+      "sha256": "74768001253a4d5f5ebec92cf423e5ad62b85b646c5f6972e3bd979085efa12f"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-10T06-27-36/journeys/09-coop-multiplayer-two-client.json",
+      "sha256": "85e76725fa6b14c0ec1f5851439e9b9c147ad74c53da62ecec77c4ee9304e82e"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-07-10T06-28-30/journeys/09-coop-multiplayer-two-client.json",
+      "sha256": "6ca5b78b4ce2d936c196e01f01b8a49636ace01bcbe13c472cfcf3cf1f1d8732"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-08-20T08-20-49/REVIEW.md",
+      "sha256": "10de549a2660b7cba7f41c8169750c3e6fbd9cb77e4a3d8aef3b15abcf9bb828"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-08-20T08-20-49/journeys/journey-1d237c47f3a8f0c9.json",
+      "sha256": "8137dc57252b01c583cf6dad7d064cd338c610e5c80af2e704722306ae415b89"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-08-20T08-20-49/journeys/journey-b3613f6229744902.json",
+      "sha256": "3ba67f1f283a835b3005eb10b7dc4a2fbbaf569847b0d6c067c16d8f6bfe0fdf"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-08-20T08-20-49/journeys/journey-ee5ac0c2b24ec252.json",
+      "sha256": "d11ef0659f5e3d84d8ebb9b22ad205aecf47e4b186446028acec45049f5b2fe5"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-08-20T08-20-49/manifest.json",
+      "sha256": "bf1e186b072ce1162032c7b38076d1ae81ecedeb339e4f23d9e57cb4682a71a5"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-08-20T08-55-01/REVIEW.md",
+      "sha256": "5eb425ba7594bdf6a31e0f20588595c828ba65adadc8cfe2ee0b5d57eae97f1b"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-08-20T08-55-01/journeys/journey-1d237c47f3a8f0c9.json",
+      "sha256": "6d2f2f959f56da37b0d8357c2a915121113d6e4d1d7ddd63703d1c34da550f89"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-08-20T08-55-01/journeys/journey-b3613f6229744902.json",
+      "sha256": "a7c9da759a433cc7c5643ad0b81b453531e04d62f73841a107b1c9abb5446f14"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-08-20T08-55-01/journeys/journey-ee5ac0c2b24ec252.json",
+      "sha256": "6145780e1f39b9bdde6333f967d99bb427243d767d94ff67298fa1e79aaedd97"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/evidence/ux-walkthrough/2026-08-20T08-55-01/manifest.json",
+      "sha256": "498d9f9350666d7e83257de919b39780573bc65fd4ee99b2264e3dc4ccc2784d"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/notepads/acquisition-supply-chain/decisions.md",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/notepads/acquisition-supply-chain/issues.md",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/notepads/acquisition-supply-chain/learnings.md",
+      "sha256": "2bd8a59d5c603a2b9599562dadef917ef821ab9771e5417bb45079a50c0c9c21"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/notepads/campaign-meta-execution/BLOCKED-STATUS.md",
+      "sha256": "ed6dd76f7209633052ec9063f342cfcfff92da287527d5e7dc0da5c4a0b9cd08"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/notepads/campaign-meta-execution/BLOCKER.md",
+      "sha256": "4c0b0f52efec05eed679056566152872fa5f339e08d04251cbaf543a6bc1da05"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/notepads/campaign-meta-execution/FINAL-SESSION-STATUS.md",
+      "sha256": "ac4d32d80dd3ffa5193be0608032dbdf1b89ccf5e125f873759591fdac352e05"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/notepads/campaign-meta-execution/HANDOFF.md",
+      "sha256": "3d5ea381c23a898d340046dcacf63a9da493e6f033bfcc444cded80aae6972d0"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/notepads/campaign-meta-execution/READY_FOR_IMPLEMENTATION.md",
+      "sha256": "a0179737297fef10de61aa6ab48d37480ad665e3685b587330f93331a296a0dd"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/notepads/campaign-meta-execution/TIER1-COMPLETE.md",
+      "sha256": "002a1a06a1b499232fb28850a4c2556c97cb4d5dc7ea243097a277a9f0521ab7"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/notepads/campaign-meta-execution/blockers.md",
+      "sha256": "55b7acfd433d868e8a8b6966b4e98a8e92bd04147d8a3ac5dc9a248ca8001b33"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/notepads/campaign-meta-execution/final-notes.md",
+      "sha256": "8edf3ebbac4c371eae7cf148272d6e3d8b0781037507776da776251fd5b92372"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/notepads/campaign-meta-execution/issues.md",
+      "sha256": "5e8135ed30cd71b85a41999e1b2d64fb4b2671e8384da5bf400107eecea89f88"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/notepads/campaign-meta-execution/learnings.md",
+      "sha256": "d0e9725cfb5adeb696c472ae970bf5cfd1cea5202f57f3d1ac4febabab3b875d"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/notepads/campaign-meta-execution/plan-11-completion-checklist.md",
+      "sha256": "b901f8437d41b8a80be9a5384d77013b89a4b883558f78aad7c55be0afcb394f"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/notepads/campaign-meta-execution/plan-12-preparation.md",
+      "sha256": "23f616f7bc844883fcfa72afd903b045dc5c189181d39f65971137e83311aaee"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/notepads/campaign-meta-execution/progress.md",
+      "sha256": "a51f54036dbeba1d4394d45bd68b724c716567981f088013f19499368599d9d2"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/notepads/campaign-meta-execution/session-2026-01-26.md",
+      "sha256": "dd8043d1cc64903ffbb2a84389599ff1d6701603f47b51e87e1a535845990680"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/notepads/campaign-meta-execution/session-end.md",
+      "sha256": "467bf720d8ee980213e0122425d806bc53c2edda47ff281cdc49e9ee81d1d748"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/notepads/campaign-meta-execution/session-summaries.md",
+      "sha256": "99b38c9be0d2289d10110e8c7e1130bc5c12373cba5e9070b46368283d2b9ca8"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/notepads/campaign-meta-execution/session-summary.md",
+      "sha256": "8979fad78ff77a345916fce9b6e1873d9eaa7ea92366d34323af19bbeb61490c"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/notepads/campaign-meta-execution/tier-3-remaining-plans-overview.md",
+      "sha256": "74b47b1b0ecc36d402ecac89cca5b1d9c976b21a18e7765b4b94d299b8f9d950"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/notepads/mekhq-campaign-system/FINAL_ACHIEVEMENT.md",
+      "sha256": "a335d6efe03ee39460faadfe83d43a20cd8b881b1ef82b35c600d9bae33aa226"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/notepads/mekhq-campaign-system/FINAL_STATUS.md",
+      "sha256": "15ab74f328edd6524cf92b786428d66dfb4594abc386969089f8ff95eb39c287"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/notepads/mekhq-campaign-system/PROGRESS_CHECKPOINT.md",
+      "sha256": "9221cd30f42b865929e0b59e5f0b10f581d73487c5806ac317d29fa915bd4bd1"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/notepads/mekhq-campaign-system/SESSION_COMPLETE.md",
+      "sha256": "2fbcadb0978857fcce4720c3debbaff62db157c2c2fa2d80b70ca56fd35f6d19"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/notepads/mekhq-campaign-system/UI_MIGRATION_GUIDE.md",
+      "sha256": "016c4c923f82d1b4b46db89d1244ea93405cd7205c77b811e03865059d3619d5"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/notepads/mekhq-campaign-system/decisions.md",
+      "sha256": "d1134e2bcc8a9eb3b412c6d1916495bc11e46106be97744d7f9fee9a1dfd55e5"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/notepads/mekhq-campaign-system/issues.md",
+      "sha256": "639b7bdd0c9191ef57ff35627fd13ada80bf8a4ec12b81e61d1c1938c00a1f68"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/notepads/mekhq-campaign-system/learnings.md",
+      "sha256": "eae76021f9aaf5fa9612b69967513185f393f06218f6040c45f60d45f739c696"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/notepads/mekhq-campaign-system/problems.md",
+      "sha256": "b79b4ceab082edf30429dcd50ef8b008038c15333a3653fc215751dcfbaabd58"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/notepads/personnel-progression/learnings.md",
+      "sha256": "c402da99e1fb1637e584c65868b02613abb9ae0002e7c04a838050257e0c2ae8"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/candidate-raw-proof/.sisyphus/notepads/scenario-combat-expansion/learnings.md",
+      "sha256": "c675e10626b41ea00539e73a6f25d783a7d5fc1791cf79e41768d3ebaa013bd6"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/01-pre-head.exit.json",
+      "sha256": "b37e1f95ca3a0d1039cea0401905de46267f7e6032c21526395b7ec12e06653b"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/01-pre-head.metadata.json",
+      "sha256": "e911e80ce338c1cda4d03ff411f205c8516f869d608e473f4970a449d207bf4d"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/01-pre-head.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/01-pre-head.stdout.log",
+      "sha256": "8dfdfaf3eb1297a3d0abdc93eace231794ad37a51dcd4673e532752725b3f1fd"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/02-pre-status.exit.json",
+      "sha256": "0ee126f9f72d27926eaa76351b7709c73e9f0e1de10255bb209882be2f85cd1c"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/02-pre-status.metadata.json",
+      "sha256": "e978e7901cd757ebb56ecaa21ba66d33f349f0e50ef1800e1a1d3bade92907b6"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/02-pre-status.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/02-pre-status.stdout.log",
+      "sha256": "4794e9fd076e3e1afabfa1e01b81a43bdef21d6f120c58ff907e75f2b2a395cd"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/03-handoff-object-hashes.exit.json",
+      "sha256": "0118de2ed6c66b385a95a612ef32b93bf9b2dceb16e4ed40cdbcfd3e0d53326c"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/03-handoff-object-hashes.metadata.json",
+      "sha256": "c2dea88d576209feed70d89362669114f061472a3d8bee3df10c0e3a4d3c2622"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/03-handoff-object-hashes.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/03-handoff-object-hashes.stdout.log",
+      "sha256": "8e730995d80985e525a5b41bead7bee2d8e115fc3f73fd50f47ff58927b33bbc"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/04-detach-to-merged-main.exit.json",
+      "sha256": "c0d31371559bb7910353d01c4c55ddc9c677db79ad194e331289ce07215de412"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/04-detach-to-merged-main.metadata.json",
+      "sha256": "3a4a91ed1a5916484866226da488344dd4bc92a407cf73b05dfb194e05e97835"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/04-detach-to-merged-main.stderr.log",
+      "sha256": "aa255558df0373ddd7364f12f8cdd1908d973220354b6adc519a174364b4c88d"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/04-detach-to-merged-main.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/05-post-head.exit.json",
+      "sha256": "8832680ba999b930cfa9d7bb3c881a7e2841f8721c9bb8f847579dfd4db2f2c5"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/05-post-head.metadata.json",
+      "sha256": "91fc2e0ac36b1d5efc561d59f51b0cd6a1e7ba98b6400fdc5a982f5d2afa1cd1"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/05-post-head.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/05-post-head.stdout.log",
+      "sha256": "f9fc2c08e3da8a2e2ccb789d16a3649db3d98b77558e56f70454576cd6c8dabb"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/06-post-status.exit.json",
+      "sha256": "33ef58aaae76e20a662cc33c202cae855af23bd240e2bf2a57253697bd7a01a7"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/06-post-status.metadata.json",
+      "sha256": "a709b5e7189a1a0b3e7801d12c58cd8b9a7222b2b6f7aacd6246c4e557280082"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/06-post-status.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/06-post-status.stdout.log",
+      "sha256": "ba051334ebc33f3162a4fd5be48615e03c8dac8ec7977e7c2752dbc1cf981841"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/07-base-scope-name-only.exit.json",
+      "sha256": "5f8a3504768a55b0ced1287d8386714426248359c584a7e37e0d534c0d7b3356"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/07-base-scope-name-only.metadata.json",
+      "sha256": "80b698644e20f29efb33553c489c9368d1e2d572bbbe722622d969bce3a6e604"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/07-base-scope-name-only.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/07-base-scope-name-only.stdout.log",
+      "sha256": "5e06be4ff6fcdffae336d1c8b2e3b0735d2f7d437ce3dcf7f36364c6afa8eddf"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/08-base-scope-numstat.exit.json",
+      "sha256": "3493188828737ec7c59075660b756016f5f4d64d55da48341f6b25e08e33f97e"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/08-base-scope-numstat.metadata.json",
+      "sha256": "44101bb0169896fba41876db32e9f786cab007e53beb60cddb63b5bdaceaa1d0"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/08-base-scope-numstat.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/08-base-scope-numstat.stdout.log",
+      "sha256": "3152c480d18e824162c4f57c309ee0b5416231402824926dc4714caed74f7908"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/09-base-scope-shortstat.exit.json",
+      "sha256": "f246c425b90845223afe11285f7f3aa280fa0e2842ff971a7371b59975908d34"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/09-base-scope-shortstat.metadata.json",
+      "sha256": "223bd07cca17d276be5a15978840e9b1236aae49140a4b6e818da72aae743528"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/09-base-scope-shortstat.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/09-base-scope-shortstat.stdout.log",
+      "sha256": "9836a2885b898cdcbdc9f770a69454db3735cf6fb5bce782c158faf3c9366930"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/10-base-diff-check.exit.json",
+      "sha256": "621759fec65d2d098cf1d53bded89d05e58e5bcf9fe4e2c7b52c6476465532c2"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/10-base-diff-check.metadata.json",
+      "sha256": "104bfd96b46de3fa53381206bc3689787827f1262c5748f1cbfd7c464ad5c1f1"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/10-base-diff-check.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/10-base-diff-check.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/11-reviewed-merged-diff-quiet.exit.json",
+      "sha256": "cc8e2eff9787a2cd6b5d4f6c1edf0f19ec89b48501f52058e0b24de4ec77e106"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/11-reviewed-merged-diff-quiet.metadata.json",
+      "sha256": "a4c9a2e7ba5df259b3d35792ed20fb2f0691deeae0b299dd99250db81398b6b5"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/11-reviewed-merged-diff-quiet.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/11-reviewed-merged-diff-quiet.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/12-reviewed-merged-ancestor.exit.json",
+      "sha256": "1d5197ae452c4b4e74d8afa299dd839d090f65c65ed883cecc8c7bd1f9d0f435"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/12-reviewed-merged-ancestor.metadata.json",
+      "sha256": "9437fa402817e6b77c4888f032bfc5f1bd893e45b0ebbf590a4e7fb1473871e1"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/12-reviewed-merged-ancestor.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/12-reviewed-merged-ancestor.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/13-exact-tree-and-source-hashes.exit.json",
+      "sha256": "452da8df18f2d2edcb383c553c72e174776a17948c3fb939f52d0fbbc5e0662b"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/13-exact-tree-and-source-hashes.metadata.json",
+      "sha256": "4711fd202eea816500207b45f503a76d5bb7a876bf19eda9ce6f666a701271b1"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/13-exact-tree-and-source-hashes.stderr.log",
+      "sha256": "92877a078f46f830006a82a55cc0a1264ef465bd6996f2313a6980cb6e8868b3"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/13-exact-tree-and-source-hashes.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/14-targeted-openspec-strict.exit.json",
+      "sha256": "a8d7bf6266360b9fc06bb03c50b4c31cb8f1760c3f5f042ec21214bf7a5f7b54"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/14-targeted-openspec-strict.metadata.json",
+      "sha256": "145aff9ff32f5c8ab6f8b9f607b71089afca1ea7c3d41b9598968d0041305046"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/14-targeted-openspec-strict.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/14-targeted-openspec-strict.stdout.log",
+      "sha256": "e5f3ffd5b42ef56f9a800bda3b0bfd4134fb6a792c0627b1ba73229a7d675a0f"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/15-all-openspec-strict.exit.json",
+      "sha256": "c5ba5031ca36256cb0a46f96d441fd27b9505d127dd96e8053f53ba2b761ab09"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/15-all-openspec-strict.metadata.json",
+      "sha256": "82b9d2334c1474c87d47249a4653c0c270d1f6edaa558c10d1bee0458441f3a6"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/15-all-openspec-strict.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/15-all-openspec-strict.stdout.log",
+      "sha256": "16c5c323579e9f348bc2adb0830ebd7bb199a73726ab1098c72331305dcca967"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/16-spec-purpose.exit.json",
+      "sha256": "1b62085c01865db285c262421d6ca1bd4c3a3518b82e4b378d112734afd600e8"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/16-spec-purpose.metadata.json",
+      "sha256": "c13f1e150f16042df8a2ef8fe5b8bc130880d6676f2022b12a4056c7e886a34a"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/16-spec-purpose.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/16-spec-purpose.stdout.log",
+      "sha256": "3374a26262d00c93fded56ec4f2d25c866f4fa98769b6e8f1c9760db727b2b5b"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/17-terminology-strict.exit.json",
+      "sha256": "1489eedcd7c604df1d3cbebc9743bdf921a3e5e8be9f550d089088bc61f675de"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/17-terminology-strict.metadata.json",
+      "sha256": "06316b0b0eb3a6e6f743a87c2da0e979519e579dd93460f06291e93ac4dccacf"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/17-terminology-strict.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/17-terminology-strict.stdout.log",
+      "sha256": "71c19b106eac683c601862a99b579470c747f4f785f96da043b53c7cb0e2d2ef"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/18-candidate-qc.exit.json",
+      "sha256": "11afecc33f14aa5dbec4c6e9cc44c3a8ce90936bf20cc97efda97477ef5c17b9"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/18-candidate-qc.metadata.json",
+      "sha256": "2f2fc4cd9dc164ea9568d092fd50a48c1ce74e9b2f27f096ef318639980b182f"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/18-candidate-qc.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/18-candidate-qc.stdout.log",
+      "sha256": "e73d2bc631637ff8806d9adbf1a31052b575044d797a04f184aec21f5b8e6985"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/19-structural-docs.exit.json",
+      "sha256": "d0ef88d2bc0a5509423daf3644378983ff32a7bf26fea51e505f84c25a541ba2"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/19-structural-docs.metadata.json",
+      "sha256": "98dcde7ffd211a8f00a970f84bdf07b08c49afa3cb060df30f75fd138f92c1ac"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/19-structural-docs.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/19-structural-docs.stdout.log",
+      "sha256": "8ef16f774938a84dda7e856e2854ffb091fcea7831b27216b17cc8c8d238ae05"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/20-formatter-target-classification.exit.json",
+      "sha256": "a87021c7e1fc879f049f9341c4da54f35d1a10b38f248f3ea521bbb6403dc2aa"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/20-formatter-target-classification.metadata.json",
+      "sha256": "d4f927afa135783f8d8de9599aabf1faaf216eec7d0297b2a6b3884e99539df3"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/20-formatter-target-classification.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/20-formatter-target-classification.stdout.log",
+      "sha256": "7f55e02f7646b101c0f6cdb5bc496000e04bfa7b70854d3483644eeaa0269ae0"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/21-final-clean-status.exit.json",
+      "sha256": "1986360d24c159cd887b83063745055e5e62af52c07edd31c8e9e8bff0ab604e"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/21-final-clean-status.metadata.json",
+      "sha256": "66ca86817336f26dd2e7e90fff6ce2028b00af4e7a5a4ba3246c04cf6e2e0897"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/21-final-clean-status.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/21-final-clean-status.stdout.log",
+      "sha256": "ba051334ebc33f3162a4fd5be48615e03c8dac8ec7977e7c2752dbc1cf981841"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/22-exact-tree-and-source-hashes-corrected.exit.json",
+      "sha256": "978b69486dcceb553f4b5b442037415d78b5ec53b51bec54361bf0a0960a58c1"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/22-exact-tree-and-source-hashes-corrected.metadata.json",
+      "sha256": "20484262ae4a6d0c055c96eaaea160ee3e64d1ef22559e1064acb6e0ecd93ce6"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/22-exact-tree-and-source-hashes-corrected.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/22-exact-tree-and-source-hashes-corrected.stdout.log",
+      "sha256": "bde92f8acb64787c633cf00da4985dd99325fe2141c049fc8f736cde96dcfb84"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/22a-exact-tree-crlf-diagnosis.exit.json",
+      "sha256": "8f44fff3729a5cfae52ef38b8e14806c5aaabbccfa5b19df6df2425bfbdef3fb"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/22a-exact-tree-crlf-diagnosis.metadata.json",
+      "sha256": "1361de4c8d18fac8d83c376eb7860c1041bddf694ea6f5ea8c2dcd033e035c31"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/22a-exact-tree-crlf-diagnosis.stderr.log",
+      "sha256": "0d6afa229455b4b88f153f3b972ee8aa66dc9220fe6737b95ce1d1c81b3fa613"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/22a-exact-tree-crlf-diagnosis.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/23-root-scope-status.exit.json",
+      "sha256": "18b2e172530f713db9f612e30acf3a0bddc57233df888820b0211a82680080aa"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/23-root-scope-status.metadata.json",
+      "sha256": "62ca5498219cf991a596e88e88c1011700daad254a6a0712f22a79a0184b3a1a"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/23-root-scope-status.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/23-root-scope-status.stdout.log",
+      "sha256": "e9bd76b9b8bee20a6624b4c64717430d3acf79b9ebca2d7cb2420a838a4073ae"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/handoff-manifest.json",
+      "sha256": "c8f737c00179f7e0d1c9e2a173539654d33ce2f17fc3644167d040c27332934a"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/handoff-object-check.cjs",
+      "sha256": "3384a225670309f332f6b4abb68d9e1b5749f33fb4dbc6325cb9ead5ac45b582"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/index.ndjson",
+      "sha256": "93409050028f67ec61f33b17126b839185e8d82864e7c05bd87814795e562eef"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/run-correction.cjs",
+      "sha256": "ec3dc228eafa2b5b8b6803b8271765f077e7ceeeeafb651fffd4e632f2ddb424"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/run-proof.cjs",
+      "sha256": "b4ffbe5f93b31978ec129496b07e47bf7d4245a10e89531204abaf0ba8da1b76"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/run-root-scope.cjs",
+      "sha256": "7ecf243f28e784dc9be911095428f2bdfabc966d0d4bc87ae7dad23f3e6c94a0"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/runner-summary.json",
+      "sha256": "66ae39becd4627a00155108a98bbff7011f78dce5b6c301aeb4677f804089a5a"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/source-manifest.json",
+      "sha256": "bde92f8acb64787c633cf00da4985dd99325fe2141c049fc8f736cde96dcfb84"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/source-tree-check.cjs",
+      "sha256": "46654d82a7476cd6374996b2c872bd836fa2c0f78857f8f061d1b3a2d8e47742"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/prior-main-verification/checks/write-evidence.cjs",
+      "sha256": "2665e77838db0d168a00ec680e4c153fdd7270c4ac0d3fcac6bca1a17b7ab574"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/receipts/updated-head-1.json",
+      "sha256": "9eb65e4f45c79dc58930793046e9c5ef9c2166f2eb2cb02631b85f408a6c3de8"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/receipts/vault-contracts-main-parent-acceptance-20260912.json",
+      "sha256": "a44d5525dc121b7be7ce3f666fb170e0772e868633f8238d1c84f1abe93723e9"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/exports/receipts/vault-contracts-main-verification-20260912.json",
+      "sha256": "865e2107ed75dac63d68b4a5f2505eb266c44930ffcc67b7540696461b796544"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/identity-before-removal.json",
+      "sha256": "9b7df4ffbe88cee20cef66a8ef0c94bedb3bf53a52c80e9075109646f6f9cd58"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/ignored-inventory.json",
+      "sha256": "8a54f199e60f9d94ede259ddd1824b3b7eb12eeb17b3fedd8c569db8838198dc"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/removal-complete.json",
+      "sha256": "5c3265e4f12b71c4b6f5e5e8c205ff446ae2f18931e493fdd4dba0ad0f84af13"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/reopen-exports-complete.json",
+      "sha256": "9eac8e568f6be050534b56b87a608ff58a9dde162033a495b3c7d18a2a4aae22"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-cleanup/source-byte-export-manifest.json",
+      "sha256": "bcb339225d0df85bc2262656022d1eba772ef4c00ec0c4c92ced4c4dee5d814c"
+    }
+  ],
+  "retainedArtifactCount": 480,
+  "commandCount": 32,
+  "sourceByteExportsBeforeRemoval": true,
+  "sourceByteExportsReopenedBeforeRemoval": true,
+  "ownedPathAndRefsAbsent": true,
+  "rootIndexPreserved": true,
+  "limits": "Documentation cleanup proof only; campaign runtime and external review gates remain open."
+}

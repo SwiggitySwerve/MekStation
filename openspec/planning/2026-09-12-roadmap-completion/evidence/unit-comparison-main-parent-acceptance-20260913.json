@@ -1,0 +1,154 @@
+{
+  "at": "2026-09-13T03:34:11.949Z",
+  "status": "main-verified",
+  "pr": 1658,
+  "head": "98fad23e5b51dd57e0657e11c9f9273060705b93",
+  "main": "57098180595b62d68cb57b4224b724cfb82a9244",
+  "files": [
+    {
+      "path": "openspec/specs/unit-comparison/spec.md",
+      "sha256": "9d95014c819338fbd876b9d4688fedc9ee15dbacbfb8e2e36039df7f4e8971c1",
+      "gitOid": "9903944fb92c8aa3b87473da319b7d6b268fde38"
+    },
+    {
+      "path": "src/types/pages/UnitPageTypes.ts",
+      "sha256": "b6acd42ad9d521a69ef8c7045462f4397f9a9737acf3f243703e2837e35d5ce0",
+      "gitOid": "376aff45c00e48d90cb84cee183709241151d744"
+    },
+    {
+      "path": "src/components/pages/compare/ComparePage.components.tsx",
+      "sha256": "782ea7ced9069e121ad48ea8e31598e885dab06b0642e370de850f27e81f9787",
+      "gitOid": "52cd336d7578a80d07739f6603f7296d6a11401d"
+    },
+    {
+      "path": "src/pages/compare/index.tsx",
+      "sha256": "5ee6ec5234d41b88938ac4d802f01bacdf1b0707b6978feda368e54393620e20",
+      "gitOid": "c449486facdb2af0a123a3c2c11a6e85938c9135"
+    },
+    {
+      "path": "src/pages/api/catalog.ts",
+      "sha256": "db17fa2f7da1dc01f1469e1bf9205910d4d00abc91a815d53a833f7e8c95b62d",
+      "gitOid": "6e8822acee4751b9b1cf0fa7e2541047b078cd36"
+    },
+    {
+      "path": "src/pages/api/units.ts",
+      "sha256": "f60899ccdedaf727d1ac6b9cb97ba8d631a63db119ceb06ce0d98f5a4a0030fe",
+      "gitOid": "8728a267e1b0c224b97318b03d943568b8e514ab"
+    }
+  ],
+  "commands": [
+    {
+      "name": "openspec-all-strict",
+      "exe": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "C:/Users/wroll/AppData/Roaming/npm/node_modules/@fission-ai/openspec/bin/openspec.js",
+        "validate",
+        "--all",
+        "--strict",
+        "--no-interactive"
+      ],
+      "startedAt": "2026-09-13T03:30:22.314Z",
+      "endedAt": "2026-09-13T03:30:26.179Z",
+      "exit": 0,
+      "signal": null,
+      "stdout": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/unit-comparison-main-gates-20260913/openspec-all-strict.stdout.log",
+        "sha256": "2754dbee9c7f3c73dafb72bec4284c7de4a886d9f795955954f8d77c5768a12d"
+      },
+      "stderr": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/unit-comparison-main-gates-20260913/openspec-all-strict.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "spec:purpose:validate:strict",
+      "exe": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "spec:purpose:validate:strict"
+      ],
+      "startedAt": "2026-09-13T03:30:26.311Z",
+      "endedAt": "2026-09-13T03:30:34.063Z",
+      "exit": 0,
+      "signal": null,
+      "stdout": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/unit-comparison-main-gates-20260913/spec-purpose-validate-strict.stdout.log",
+        "sha256": "f9348db786204cb4839b42f17f348fdf25c1889c58fc9d154e17e9367b92fa7a"
+      },
+      "stderr": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/unit-comparison-main-gates-20260913/spec-purpose-validate-strict.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "terminology:validate:strict",
+      "exe": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "terminology:validate:strict"
+      ],
+      "startedAt": "2026-09-13T03:30:34.089Z",
+      "endedAt": "2026-09-13T03:31:08.799Z",
+      "exit": 0,
+      "signal": null,
+      "stdout": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/unit-comparison-main-gates-20260913/terminology-validate-strict.stdout.log",
+        "sha256": "d15011da7521e031b3bea845889b040bc9e0f3dee6f2e974e2fd7ba0697781a0"
+      },
+      "stderr": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/unit-comparison-main-gates-20260913/terminology-validate-strict.stderr.log",
+        "sha256": "4c2e49934d98527ed96d77488840d04b0d87d400767d164105461e5c2b2bfb76"
+      }
+    },
+    {
+      "name": "qc:openspec-ci:validate",
+      "exe": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "qc:openspec-ci:validate"
+      ],
+      "startedAt": "2026-09-13T03:31:08.899Z",
+      "endedAt": "2026-09-13T03:31:10.860Z",
+      "exit": 0,
+      "signal": null,
+      "stdout": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/unit-comparison-main-gates-20260913/qc-openspec-ci-validate.stdout.log",
+        "sha256": "f01feb11318234aab4764fe76151b78c06905527212a8f8723626fcf616b71d6"
+      },
+      "stderr": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/unit-comparison-main-gates-20260913/qc-openspec-ci-validate.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "diff-check",
+      "exe": "git",
+      "args": [
+        "diff",
+        "--check",
+        "--",
+        "openspec/specs/unit-comparison/spec.md"
+      ],
+      "startedAt": "2026-09-13T03:31:10.862Z",
+      "endedAt": "2026-09-13T03:31:11.354Z",
+      "exit": 0,
+      "signal": null,
+      "stdout": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/unit-comparison-main-gates-20260913/diff-check.stdout.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/unit-comparison-main-gates-20260913/diff-check.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "limits": [
+    "Five documentation gates on exact merged commit; no new product/browser/runtime proof",
+    "Raw ignored logs remain local evidence"
+  ],
+  "cleanup": "pending"
+}

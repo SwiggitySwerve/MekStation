@@ -1,0 +1,76 @@
+{
+  "capturedAt": "2026-09-13T00:37:44.985Z",
+  "status": "accepted-exact-main-documentation",
+  "mainSha": "f39c2b71c1788507733fa78571d85156951fb2a0",
+  "workerReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-catalog-main-verification-20260913.json",
+    "sha256": "6ce70ab78b2dd78167cd0ef840a71589f80209b657759bfd770ed89e40c231b5"
+  },
+  "artifactsReopened": [
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-main-verification/01-identity.txt",
+      "sha256": "6756957f16f4bac311ed496d70d4359f712fbdea279f8b6ae920d977c60cb618"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-main-verification/02-scope-diff-clean.log",
+      "sha256": "fde43bf0334066c7c93f82e35bd493cb6eca778f495b41a4e0ae78b7702beeb1"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-main-verification/03-strict-all-openspec.log",
+      "sha256": "5c631e08705cd48ea8028737e144044c971b3734684690e72064af585f791536"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-main-verification/04-purpose-strict.log",
+      "sha256": "c503069c98b8d1d538c5d9952cbeb96a28d8374c9df9f5df82abd23195cada0d"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-main-verification/05-terminology-strict.log",
+      "sha256": "cd11aca6e57fba065bbc20d574fc39253d400279b54a2dcd10bea4740369eb8e"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-main-verification/06-candidate-qc.log",
+      "sha256": "9ee731f3a02ff713bf7576069ed54c2f909c81681294be0c09aacdefa19913cd"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-main-verification/07-source-anchors.log",
+      "sha256": "3533dd38f3b995491b87220727d79c5f8ec9acc98395b3c6291c284e584e4671"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-main-verification/command-results.json",
+      "sha256": "3b7d0dd049dd52841912a0df0b7420e33efbf3af652afb93e1a0114b8b1a0f42"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-main-verification/source-hash-manifest.json",
+      "sha256": "1347e85bc9739453222fa534a7248f85e5cc98c48029f88ebac5024318e0df22"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-catalog-specs-delivery-20260912.json",
+      "sha256": "81ce903c8ba822a9f5c9d34d1b9862dfaa00f91a4e8bcd12d2f34de60be0bf48"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-catalog-specs-review-20260912.json",
+      "sha256": "4bc3e15b5538843bf41325109bcf873f54a6b117f85faa70ef938af47dacd1a2"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-catalog-specs-review-parent-acceptance-20260912.json",
+      "sha256": "b23127d96b64be1b0bc353e5aa9167c6a048959693850add8377b0b2577750d9"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-delivery/merged-pr.json",
+      "sha256": "42617482e52b0a8be708ac6f25cd60da9cd8063fc9b78e4ccdd2702e8add7ede"
+    }
+  ],
+  "sourceManifest": {
+    "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-main-verification/source-hash-manifest.json",
+    "sha256": "1347e85bc9739453222fa534a7248f85e5cc98c48029f88ebac5024318e0df22"
+  },
+  "sourceAndSpecFilesVerified": 13,
+  "commands": 19,
+  "allExitZero": true,
+  "limits": [
+    "Three specifications only; no runtime closure.",
+    "Identity command timestamps unknown where originally not captured; static command timestamps dynamically captured after merge.",
+    "OpenSpec formatter excluded."
+  ],
+  "cleanup": "pending"
+}

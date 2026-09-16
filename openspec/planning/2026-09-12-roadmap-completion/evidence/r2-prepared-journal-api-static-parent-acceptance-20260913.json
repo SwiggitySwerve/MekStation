@@ -1,0 +1,173 @@
+{
+  "at": "2026-09-13T06:32:01.118Z",
+  "state": "static-focused-accepted-build-pending",
+  "base": "9091428c0dc79a187ad5c56a2c0ac3acb72f2187",
+  "report": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-prepared-journal-api-full-gates-20260913/report.json",
+    "sha256": "f808d25bbb08518a895ad40086375a7381edd43410fe57e4b3d0e7a40f144a9d"
+  },
+  "verifiedArtifactReferences": [
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-prepared-journal-api-full-gates-20260913/run-static-gates.cjs",
+      "sha256": "1c4f054d40aa718be4323ef752e658630532efa6696fa5a2ecd260fcf5d93ed5"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-prepared-journal-api-full-gates-20260913/run-static-gates.exit.json",
+      "sha256": "dc38a1c43894f0efd3505f986374e9898e51bf550192934006d91876c01dc452"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-prepared-journal-api-full-gates-20260913/run-static-gates.stdout.log",
+      "sha256": "f1ee36b1e382fd5e5c148ab3ffe615bb7a4e552fd986a7c3f0ce395d83da1a3d"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-prepared-journal-api-full-gates-20260913/run-static-gates.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-prepared-journal-api-full-gates-20260913/source-before.json",
+      "sha256": "61be6f71f74301478115c3b4f77841267da824a3adbe7894175a9a54a59104c3"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-prepared-journal-api-full-gates-20260913/source-after.json",
+      "sha256": "61be6f71f74301478115c3b4f77841267da824a3adbe7894175a9a54a59104c3"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-prepared-journal-api-full-gates-20260913/gate-results.json",
+      "sha256": "bc3088ba0622d09633eec738d2f95ae34401449567273ba56ef52e9ddb778e50"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-prepared-journal-api-full-gates-20260913/normal-npm-build-driver.cjs",
+      "sha256": "9074e626912020a5ac40e006f7f17679639bc7f96815cc682b1df342eb7bac0b"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-prepared-journal-api-full-gates-20260913/01-writer15.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-prepared-journal-api-full-gates-20260913/01-writer15.stderr.log",
+      "sha256": "dd672f48df10e0b05f9b385c37f9bddb4ce9b61f79cd4b5a89bfbac78becaf74"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-prepared-journal-api-full-gates-20260913/02-journal-recovery21.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-prepared-journal-api-full-gates-20260913/02-journal-recovery21.stderr.log",
+      "sha256": "78954cb91eea5c1ed2f1e7875b3a8ddd6d4795f268407ebe55cb1b360c59d650"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-prepared-journal-api-full-gates-20260913/03-typecheck.stdout.log",
+      "sha256": "d140a6ce62dda0946fe30dd882dbb8209f05be72c8fa8850e5634755a399e50f"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-prepared-journal-api-full-gates-20260913/03-typecheck.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-prepared-journal-api-full-gates-20260913/04-lint.stdout.log",
+      "sha256": "a152f1470280ec81a106094ec279919f9c5baffd9aeebd5b12d01fe961b01808"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-prepared-journal-api-full-gates-20260913/04-lint.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-prepared-journal-api-full-gates-20260913/05-format-check.stdout.log",
+      "sha256": "fb77e11d9344036f6e2cd41d00ee4f94156c7b6ddf1ef995f08a6125250e2e70"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-prepared-journal-api-full-gates-20260913/05-format-check.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-prepared-journal-api-full-gates-20260913/06-openspec-strict-global-direct-node.stdout.log",
+      "sha256": "cc90ade73c964f27cfcde5ca721882bbaef3d4c6cab944254433acb7eafcd407"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-prepared-journal-api-full-gates-20260913/06-openspec-strict-global-direct-node.stderr.log",
+      "sha256": "5bc31df123a2e521acdd2c0d9477b367feec506471a91065d0a6b32c09089ed5"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-prepared-journal-api-full-gates-20260913/07-spec-purpose-strict.stdout.log",
+      "sha256": "e82ad908eb69a83cca63bc179565f926296f681ac3f9a7e33874be7b98a23143"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-prepared-journal-api-full-gates-20260913/07-spec-purpose-strict.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-prepared-journal-api-full-gates-20260913/08-terminology-strict.stdout.log",
+      "sha256": "0aa5a9766e05dd5717dd0716600178778d9b12c1aae493920c77b9911ab367e0"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-prepared-journal-api-full-gates-20260913/08-terminology-strict.stderr.log",
+      "sha256": "70d99b698a29fd09dcc5edebd263cfc18f2df16ed40bc4bb35fd3d873c188af5"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-prepared-journal-api-full-gates-20260913/09-qc-openspec-ci.stdout.log",
+      "sha256": "f01feb11318234aab4764fe76151b78c06905527212a8f8723626fcf616b71d6"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-prepared-journal-api-full-gates-20260913/09-qc-openspec-ci.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-prepared-journal-api-full-gates-20260913/10-git-diff-check.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-prepared-journal-api-full-gates-20260913/10-git-diff-check.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-prepared-journal-api-full-gates-20260913/11-git-diff-stat.stdout.log",
+      "sha256": "914c06a211b8f4b3f9e6cdcd0043c2ad481efc9ba5d5a081cfd41e65ec97fc70"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-prepared-journal-api-full-gates-20260913/11-git-diff-stat.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-prepared-journal-api-full-gates-20260913/12-git-diff-numstat.stdout.log",
+      "sha256": "30595b1b66c161933341a04ce1ec06a787c9360c132bc9d66e4b30f340070241"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-prepared-journal-api-full-gates-20260913/12-git-diff-numstat.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "source": [
+    {
+      "gitOid": "c8fe11dd94fc2fc12d5309fa5ff0d1c80fb644a7",
+      "rel": "src/lib/events/journal/SQLiteEventJournalWriter.ts",
+      "sha256": "82a319953c24d5f98a143d38f509c11d6ce3420ee55738a7444190fbfd180a4d",
+      "bytes": 19895,
+      "mtimeUtc": "2026-09-13T05:55:22.919Z"
+    },
+    {
+      "gitOid": "0048637278d7b4a9c96bd05bf1e4786efe8db1eb",
+      "rel": "src/lib/events/journal/__tests__/SQLiteEventJournalWriter.test.ts",
+      "sha256": "c3daafceb06743fca9452e3b559d43f3e621185bd97094a4177382bbbd6e3cdd",
+      "bytes": 26886,
+      "mtimeUtc": "2026-09-13T05:56:51.203Z"
+    }
+  ],
+  "focused": {
+    "writerTests": 15,
+    "relatedTests": 21,
+    "suites": 3
+  },
+  "results": {
+    "writer15": "PASS (1 suite, 15 tests)",
+    "journalRecovery21": "PASS (2 suites, 21 tests)",
+    "typecheck": "PASS",
+    "lint": "PASS: 0 errors, 84 warnings",
+    "format": "PASS",
+    "strictOpenSpec": "PASS: 234 items",
+    "purpose": "PASS: 220 scanned, 0 errors/debt",
+    "terminology": "PASS: 322 scanned, no violations; module-type warning only",
+    "openSpecCiQc": "PASS: errors=0",
+    "diff": "PASS: git diff --check clean"
+  },
+  "qualification": "Only bounded focused/static proof. Production build, commit, remote CI, main proof and production producer/cutover remain unproved by this receipt."
+}

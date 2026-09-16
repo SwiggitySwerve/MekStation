@@ -1,0 +1,53 @@
+{
+  "pr": 1722,
+  "branch": "codex/roadmap-r2-61-source-replay-fence-20260915",
+  "reviewedCommit": "3864fbeb54b9afbf5701bf4c37953f1d46334266",
+  "resolvedHeadFromParent": "9be00ebecdd2210634fade6976cff672f936b905",
+  "finalHead": "9be00ebecdd2210634fade6976cff672f936b905",
+  "autoMergeArmed": false,
+  "contentGuard": {
+    "method": "file set from `git diff --name-only origin/main...<head>` vs the reviewed file set, plus per-file blob equality against the reviewed commit; re-run after update-branch",
+    "fileCountAtMerge": 1,
+    "blobEquality": "all files blob-identical to the reviewed commit at the gated head",
+    "result": "PASS"
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "expectedHeadShaGuardUsed": true,
+    "newHead": "9be00ebecdd2210634fade6976cff672f936b905"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "otherChecksCount": 27,
+    "otherChecksBuckets": {
+      "pass": 27
+    },
+    "totalChecks": 31
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-61-fence-b-1722-final2-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "fbb3f2c81f6d7f2b2a9f80e3d9f94c332d2dbfae",
+  "mergeCommitParents": [
+    "15ca7b25b61473901909ac9954feb7677f1985f4"
+  ],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1722 --squash --match-head-commit 9be00ebecdd2210634fade6976cff672f936b905",
+  "mergedAt": "2026-09-15T15:15:45Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "The merge commit changes exactly 1 file(s), all blob-identical to the gated head 9be00ebecdd2210634fade6976cff672f936b905.",
+  "mainAfter": "fbb3f2c81f6d7f2b2a9f80e3d9f94c332d2dbfae",
+  "worktree": {
+    "fastForward": "NOT PERFORMED - coordinator designated the owned worktrees as off-limits for these PRs",
+    "result": "SKIPPED (intentional)"
+  },
+  "notes": "Parent-resolved DIRTY after 1721 squash; delta vs main = campaignSourceReplayFence.test.ts +118/-7 only. No update-branch was needed (resolved head already contained main). FLAKE THEN GREEN: first run 34985637301 failed Customizer Regressions on e2e/customizer-record-sheet-rendering.spec.ts selected-paper print test (Expected 1 / Received 0, 10s predicate timeout) - this PR changes one jest file and cannot affect a browser print spec; one targeted rerun returned 31/31.",
+  "timestamps": {
+    "receiptWrittenAt": "2026-09-15T17:02:00Z"
+  }
+}

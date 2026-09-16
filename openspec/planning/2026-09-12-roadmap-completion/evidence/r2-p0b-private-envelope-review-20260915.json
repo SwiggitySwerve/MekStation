@@ -1,0 +1,418 @@
+{
+  "node": "R2.authority",
+  "artefact": "r2-p0b-private-envelope-review-20260915",
+  "role": "independent review (not the author) -- privacy / journal / replay scope",
+  "capturedAtUtc": "2026-09-15T00:00:00.000Z",
+  "subject": {
+    "task": "openspec/changes/design-campaign-authority-and-sync/tasks.md 6.1 (P0b), partial 6.3 falsification",
+    "authorEvidence": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-p0b-private-envelope-local-20260915.json",
+    "base": "b7d650997a1f1e7ed90ed8f806daefd199637150",
+    "referenceCommit": "af7130e3cacac031e42c26d2a61776e873f21644",
+    "prefixes": [
+      {
+        "id": "S1",
+        "branch": "codex/roadmap-r2-p0b-s1-private-field-20260915",
+        "commit": "b338320337dfcf6e22b3f80912541aa1785aa5cf"
+      },
+      {
+        "id": "S2",
+        "branch": "codex/roadmap-r2-p0b-s2-source-replay-20260915",
+        "commit": "6dfddf79870465ae68545bc038b40626f22284fd"
+      },
+      {
+        "id": "S3",
+        "branch": "codex/roadmap-r2-p0b-s3-envelopeof-routing-20260915",
+        "commit": "10a60ae56094f72a2dbf447d0561cac3c910d5f8"
+      }
+    ]
+  },
+  "verdict": {
+    "S1": "APPROVE",
+    "S2": "APPROVE",
+    "S3": "APPROVE",
+    "overall": "APPROVE",
+    "blockingScope": "No required edits remain. RQ-1 was discharged by 8f7f79d8 and OB-1 by ac3481b3 -- see the recheck section. The original per-prefix verdicts (S2 APPROVE-WITH-REQUIRED-EDITS) are preserved verbatim in recheck.finalVerdict for the audit trail."
+  },
+  "requiredEdits": [
+    {
+      "id": "RQ-1",
+      "prefix": "S2",
+      "severity": "required",
+      "finding": "`CampaignSourcePrivateReplayError` and all three `CampaignSourcePrivateReplayReason` values have ZERO test coverage. Verified by grep at the S3 head: `CampaignSourcePrivateReplayError`, `unsupported-schema`, `source-identity-mismatch` and `no-private-payload` appear nowhere in src/ outside src/lib/campaign/authority/campaignSourcePrivateEnvelope.ts itself. The targeted test count is 19 at S1 and 19 at S2 -- S2 adds no test row at all, it only promotes an existing one.",
+      "whyItMatters": "The typed refusals ARE the spec SHALL that S2 exists to deliver: specs/campaign-authority/spec.md:106 -- 'Private/public identity mismatch or unsupported replay schema SHALL block or rebuild with no silent compact fallback.' An untested throw is an implemented-but-unproven SHALL. A refactor that turned any of these three into a `return null` / a compact fallback would pass every gate in the stack today.",
+      "exactEdit": "In src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts, inside the existing `describe('source-only private envelope (real SQLite reopen)')`, add three rows (no new file, no new fixture needed -- reuse `fullContract` and `buildCampaignSourcePrivateEnvelope`): (a) a row whose stored `sourcePrivate.schemaVersion` is 2 and that asserts `campaignSourcePrivateOf(stored)` throws a `CampaignSourcePrivateReplayError` with `reason === 'unsupported-schema'`; (b) a row whose captured `baseline.sourceBodyDigest` is overwritten with a wrong digest and that asserts reason `'source-identity-mismatch'`; (c) a row that calls `replayCampaignSourceContracts` over a stream of legacy (no-private-payload) rows and asserts reason `'no-private-payload'`. Each MUST assert the thrown value is `instanceof CampaignSourcePrivateReplayError` and pin `.reason`, not merely `.toThrow()` -- a bare toThrow would pass on a TypeError and would not prove 'no silent compact fallback'. S2 has 418 lines of cap headroom (82 of 500 used), so this lands inside S2 without a new prefix."
+    }
+  ],
+  "observations": [
+    {
+      "id": "OB-1",
+      "severity": "future-risk (not a defect of this stack)",
+      "finding": "`ViewerProjectionService.projectAllWithIdentitiesOrThrow` hands the WHOLE stored payload to the registered projector -- src/lib/multiplayer/server/projection/ViewerProjectionService.ts:265-266, `if (!isVisibleToViewer(viewer, decision, stored.payload)) continue; const payload = projectPayload(decision, stored.payload, viewer);`. That is a second, envelopeOf-bypassing narrowing surface over arbitrary journal streams.",
+      "whyItIsNotALeakToday": "The only production registry construction is src/pages-modules/api/matchHistoryViewerChain.ts:113-121, which registers exactly two stream types: `match-http` and `history-proof` (streamType 'history-proof' at matchHistoryViewerChain.ts:101). `CAMPAIGN_STREAM_TYPE` is 'campaign' (JournalCampaignEventStore.ts:77) and is NOT registered, so a campaign request throws `unknown-projector` at ViewerAudienceProjector.ts:208-216 BEFORE the journal is read. Verified by grep: no other non-test `new ViewerAudienceProjectorRegistry` / `new ViewerProjectionService` exists.",
+      "recommendation": "Worth a one-line comment at ViewerProjectionService.ts:265 or a pending task: registering a `campaign` projector here would route stored campaign envelopes -- sourcePrivate included -- past envelopeOf. D12's structural boundary does not cover this surface."
+    },
+    {
+      "id": "OB-2",
+      "severity": "scope note for the program owner (pre-existing, not introduced here)",
+      "finding": "`GET /api/campaigns/:id` returns the complete `SerializedCampaign` record with NO authentication -- src/pages/api/campaigns/[id].ts:126-155, `const result = readCampaign(id); ... res.status(200).json(result.record);`. That record is the very body the private envelope captures as its baseline (`baseline.sourceRecordBody`), and it carries `contractMarket` with every full `IContract`.",
+      "whyItIsNotAFindingAgainstThisStack": "D12 governs the JOURNAL wire and grant delivery, which this stack closes correctly. This route predates the stack (present at base b7d650997) and no commit in the stack touches it.",
+      "recommendation": "specs/campaign-authority/spec.md:122 says 'full private HTTP readback SHALL still require a separate verified source-only audience contract'. This route is arguably already that readback. Raise with the program owner before P1 lands; it is not this stack's obligation."
+    },
+    {
+      "id": "OB-3",
+      "severity": "minor / naming",
+      "finding": "The refusal reason `'source-identity-mismatch'` (campaignSourcePrivateEnvelope.ts:85-88, raised at :171-176) checks ONLY the captured baseline's own self-consistency -- `computeCampaignSourceBodyDigest(stamped.baseline.sourceRecordBody) !== stamped.baseline.sourceBodyDigest`. The spec phrase it echoes is 'Private/public identity mismatch' (spec.md:106), which reads as private-envelope-versus-public-journal. `baseline.rootPublicRevision` is captured (:65, :144) and never compared against anything anywhere in the stack.",
+      "assessment": "Correctly scoped -- the private/public comparison needs the producer and the prepared-transaction capture, both explicit non-claims. But the reason NAME overstates what is checked. Either rename to `baseline-digest-mismatch` or add a one-line comment saying the private-vs-public revision check is a producer obligation, so a later reader does not assume this branch already discharges that SHALL."
+    },
+    {
+      "id": "OB-4",
+      "severity": "minor / untested branch",
+      "finding": "`rehydrateCampaignMission` returns its input UNCHANGED when `isContract(mission)` is false -- src/lib/campaign/persistence/missionSerialization.ts:45-47. campaignSourcePrivateEnvelope.ts:179-181 casts that result `as IContract`, so a malformed stored contract silently yields Money-as-a-number instead of a Money instance, and a caller reading `.paymentTerms.basePayment.amount` gets `undefined` rather than a typed refusal. Same shape at :183-184 where `rehydrateContractMarket(...) ?? stamped.remainingMarket` returns the raw un-rehydrated market.",
+      "assessment": "Pre-existing helper behaviour, reachable only through a corrupt row, and adjacent to RQ-1's coverage gap. Not blocking. Worth folding a comment in next to RQ-1's rows."
+    },
+    {
+      "id": "OB-5",
+      "severity": "informational",
+      "finding": "The `computeCampaignStateDigest(LEGACY_STATE) === LEGACY_STATE_DIGEST` pin hashes campaign STATE (JournalCampaignEventStore.ts:138-142), which the private field never enters. It guards an unrelated canonicalization, not D12's conditional absence. Harmless, but the commit message's 'a campaign state digest pinned from before this change' reads as though it guards the private field -- it does not. The load-bearing pins are the canonical-payload byte string and the event digest."
+    }
+  ],
+  "findings": [
+    {
+      "item": 1,
+      "title": "Wire safety: every serialization/transmission path for a stored journal row or ICampaignJournalEnvelope",
+      "result": "PASS",
+      "singleNarrowingProof": "At the S3 head, `stored.payload.campaignEvent` appears in exactly ONE non-test location in src/: src/lib/campaign/sync/JournalCampaignEventStore.ts:195, the body of `envelopeOf`. Grep command: `grep -rn 'payload\\.campaignEvent|sourcePrivate' src/ --include=*.ts --include=*.tsx | grep -v __tests__`. Before S3 there were two (projectCampaignStreamForGrant.ts:252 was the second); S3 removes it.",
+      "structuralExclusion": "`export function envelopeOf(stored: IStoredEvent<ICampaignJournalEnvelope>): ICampaignEvent` -- JournalCampaignEventStore.ts:192-196. The declared return type is `ICampaignEvent`, a closed base (`ICampaignEventBase`, CampaignSync.ts:294-310) plus a per-type payload union (`ICampaignEventPayloadMap`, CampaignSync.ts:275-284) with NO index signature, so `sourcePrivate` is excluded at the TYPE level, not only by runtime omission. At runtime the returned object is `stored.payload.campaignEvent`, and `sourcePrivate` is a SIBLING key on `payload`, so it is physically absent from the returned object as well. Both levels hold.",
+      "enumeratedPaths": [
+        "GRANT DELIVERY (socket) -- src/lib/campaign/delivery/projectCampaignStreamForGrant.ts:252 `const event = envelopeOf(stored);` -> :308 `toProjectedCampaignEvent(entry.event)` -> `ICampaignGrantProjectedEvent = Omit<ICampaignEvent<T>, 'sequence'>` (campaignDeliveryTypes.ts:45-47), which structurally cannot name sourcePrivate. Wired from src/lib/multiplayer/server/campaignGrantChannelDeps.ts:32-58. SAFE.",
+        "HTTP ACTIVITY FEED -- src/pages-modules/api/campaignActivityRoute.ts:83-90 calls `readCampaignJournalEvents`, which narrows at src/lib/campaign/sync/campaignJournalReads.ts:41 `for (const stored of page) events.push(envelopeOf(stored));` and :63. Returns `readonly ICampaignEvent[]`. SAFE.",
+        "HTTP COMMANDS RESPONSE -- src/pages/api/campaigns/[id]/commands.ts:152-154 returns `result.events`, typed `readonly ICampaignEvent[]` (campaignCommandPipeline.ts:103) and produced at :479 from the pipeline's own `sequenced` array; the journal-sourced variant is `result.events.map(envelopeOf)` (JournalCampaignEventStore.ts:285) and `rows.map(envelopeOf)` (:412). SAFE.",
+        "GM IMPACT DERIVATION -- src/lib/interventions/GmCampaignImpactDerivation.ts:157 `const event = envelopeOf(stored);`. SAFE.",
+        "BRANCH SEGMENT READER -- src/lib/campaign/rebuild/campaignBranchSegmentReader.ts:40-58 returns raw `IStoredEvent<TPayload>[]`, but it is generic, server-internal, and feeds branch materialization / rebuild; it has no client-facing sink. SAFE (no wire).",
+        "CO-OP HOST LOG -- src/lib/campaign/sync/hostCampaignEventJournal.ts:147-155 CONSTRUCTS envelopes with the three legacy fields only and never reads a private field; it is an in-memory adapter, not a delivery surface. SAFE, and untouched by the stack.",
+        "REPLICA STORE -- src/lib/campaign/replica/SQLiteCampaignReplicaStore.ts:244,260 parse `campaign-replica` stream envelopes via `parseCampaignReplicaEnvelope`; a different payload type on a different stream, never an ICampaignJournalEnvelope. SAFE.",
+        "ROOM-CODE GUEST HYDRATION -- src/lib/campaign/coop/roomCodeGuestHydration.ts takes `readonly ICampaignEvent[]` (:47, :75) and `ICampaignGrantDeliveryItem[]`; both are post-narrowing wire types. SAFE.",
+        "REPLAY SURFACE GATE -- src/lib/events/replay/ReplaySurfaceGate.ts:242 does `JSON.parse(JSON.stringify(stored))` over stored records, but the gate rejects anything that is not an `IGameEvent` envelope at :259-266 and its accepted output is `IGameEvent[]`. It serves the combat replay stream, never the campaign journal. SAFE.",
+        "AUDIT TIMELINE DEBUG PAGE -- src/pages/audit/timeline.tsx:350 `{JSON.stringify(event.payload, null, 2)}` renders `IBaseEvent` rows from `getEventStore()` (src/hooks/audit/useEventTimeline.ts:10, `@/services/events`), a different event store entirely. Not the campaign journal. SAFE.",
+        "SOURCE RECORD ROUTES -- src/pages/api/campaigns/[id].ts and .../adopt.ts return `SerializedCampaign` records from CampaignPersistenceService, not journal rows. Out of D12's boundary; see OB-2."
+      ],
+      "negativeSweeps": [
+        "`grep -rn 'JSON.stringify(stored|json(stored|emit(.*stored|\\.\\.\\.stored' src/ --include=*.ts --include=*.tsx | grep -v __tests__` -> 5 hits, none a campaign journal row on a wire: SQLiteEventJournalWriter.ts:336-338 (internal row destructure that DROPS payloadJson), ReplaySurfaceGate.ts:242 (game-event gate, above), multiplayerAuthTokenStore.ts:48 (browser localStorage token), CampaignPersistenceService.ts:152,232 (the source's own record write).",
+        "`grep -rn 'readStream(|readCommitted(|readAll(' src/lib/campaign src/lib/multiplayer src/lib/interventions src/pages src/pages-modules src/services` -> 9 non-test call sites, every one enumerated above."
+      ]
+    },
+    {
+      "item": 2,
+      "title": "Digest / identity",
+      "result": "PASS",
+      "privateFieldInsideDigestMaterial": "CONFIRMED. `canonicalizeEventDigestV1` material includes `payload: event.payload` -- src/lib/events/journal/EventJournalCanonicalizer.ts:211 -- and `sourcePrivate` is a key ON that payload (JournalCampaignEventStore.ts:185 `payload: sourcePrivate === null ? base : { ...base, sourcePrivate }`). EventJournalCanonicalizer.ts is NOT in the stack diff (`git diff --name-only b7d650997 10a60ae5` lists 5 files, none of them the canonicalizer), so the digest contract is unchanged as the spec requires.",
+      "legacyByteIdentity": "CONFIRMED. src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts, row 'leaves a legacy envelope byte-identical and its digests unchanged', asserts three things on a real cold-reopened SQLite row: `expect(Object.hasOwn(stored.payload, 'sourcePrivate')).toBe(false)` (conditional absence -- not `{}`, not an enumerable `undefined`), `expect(canonicalizeJsonV1(stored.payload)).toBe(LEGACY_CANONICAL_PAYLOAD)` (byte pin), and `expect(stored.eventDigest).toBe(LEGACY_EVENT_DIGEST)`.",
+      "byteProvenance": "The LEGACY_CANONICAL_PAYLOAD literal is `{\"campaignEvent\":{...},\"expectedPostStateDigest\":null,\"intentFingerprint\":null}` -- exactly the three keys the BASE constructed, which I confirmed against the removed lines of the S1 diff (`- payload: { campaignEvent: event, expectedPostStateDigest, intentFingerprint }`). The pin is therefore verifiable by inspection against the base shape regardless of how it was captured; it does not rest on trusting the capture.",
+      "digestProvenanceIndependentCheck": "I independently recomputed LEGACY_STATE_DIGEST in this session with plain node (sorted-key canonical JSON + sha256 over UTF-8 bytes, replicating EventJournalCanonicalizer.ts:59-121 and JournalCampaignEventStore.ts:138-142): got `b05fc8809b072a0ce1c2a189ad2018be1ca566fa43fd1a77b54824bd135063bc`, identical to the pinned literal. So that value is a real digest, not a fabricated or self-recomputed placeholder.",
+      "unverified": "UNVERIFIED: I did not independently re-derive LEGACY_EVENT_DIGEST (`061d860f...`). Its canonical material has 22 fields including a derived eventId, commitPosition and recordedAt (EventJournalCanonicalizer.ts:187-212), and reconstructing it outside the test harness was not worth the cost -- because it is not the load-bearing pin. The canonical-payload byte string is, and that one IS independently inspectable. The event-digest pin is a corroborating whole-material pin; its base-capture provenance rests on the author's claim.",
+      "identityCommitmentRow": "CONFIRMED. src/lib/campaign/delivery/__tests__/projectCampaignStreamForGrant.test.ts, row 'still commits the delivered identity to the whole stored payload': asserts `Object.hasOwn(rows[0].payload, 'sourcePrivate') === true` and then reads the durable mapping directly -- `SELECT projected_event_identity AS identity FROM delivery_event_mapping WHERE delivery_epoch_id = ?` -- asserting `identities.map(r => r.identity)` equals `[rows[0].eventDigest]`. This is exactly the accepted RE-4 residual pinned as EXPECTED rather than hidden: only the one-way commitment crosses, never the values."
+    },
+    {
+      "item": 3,
+      "title": "Replay (S2)",
+      "result": "PASS on the fold and the cold reopen; GAP on the typed refusals (see RQ-1)",
+      "foldsFromSourceRecordBodyNotCompactGenesis": "CONFIRMED. `replayCampaignSourceContracts` (campaignSourcePrivateEnvelope.ts:214-243) collects private facts in row order, takes `facts[0]` as the baseline, then at :229-233 `JSON.parse(first.baseline.sourceRecordBody)` and reads `parsed.contractMarket` through `rehydrateContractMarket` as `baselineMarket`. It never reads a CampaignSnapshotPublished, and `campaignSourceGenesis` is not imported. Pinned behaviourally by the S2 row: `baselineMarket.offers` maps to `['offer-remaining','offer-taken']` -- BOTH offers, which exist only in the persisted body -- while `remainingMarket.offers` is `['offer-remaining']`, the post-acceptance fold. A compact-genesis baseline would have produced an empty market, so the assertion discriminates.",
+      "coldReopenAtRealSQLiteBoundary": "CONFIRMED and genuine. The suite mkdtempSync's a real temp directory, opens a file-backed `new Database(file)` with `journal_mode = WAL` and `foreign_keys = ON`, runs `EVENT_JOURNAL_MIGRATION.up`, appends, then `first.close()` -- and only then `openJournal(file)` constructs a brand-new `Database` handle and re-reads via `readStream`. Nothing in-process survives the boundary.",
+      "typedRefusalsImplemented": "campaignSourcePrivateEnvelope.ts:85-103 defines `CampaignSourcePrivateReplayReason` = 'unsupported-schema' | 'source-identity-mismatch' | 'no-private-payload' and the `CampaignSourcePrivateReplayError` class; raised at :160-165 (schema), :171-176 (baseline digest), :223-228 (empty stream). None of the three returns a compact fallback -- every one throws.",
+      "typedRefusalsProven": "NO -- zero coverage. See requiredEdits RQ-1. Also uncovered: the skip-rows-without-a-private-payload branch at :220 (`if (found !== null) facts.push(found)`; every row in the one replay fixture carries a payload), the `?? stamped.remainingMarket` fallback at :183-184, and the `EMPTY_MARKET` fallback at :233.",
+      "noSilentFallbackToCompact": "CONFIRMED BY READING, UNPROVEN BY TEST. There is no code path in the module that degrades to the compact projection -- grep shows no import of any wire projector and no `campaignEvent` read. The guarantee is structurally sound; it is the regression guard that is missing."
+    },
+    {
+      "item": 4,
+      "title": "Money / serialization round-trip fidelity",
+      "result": "PASS -- no lossy field found",
+      "money": "LOSSLESS, verified by reading both halves. `Money.toJSON(): number { return this.amount; }` (src/types/campaign/Money.ts:113-115) where `get amount() { return this.cents / 100; }` (:27-29); the inverse `constructor(amount) { this.cents = Math.round(amount * 100); }` (:19-22). round(x/100*100) === x for any integer cents, so the JSON number round-trips to the identical cents value. Rehydration accepts all three historical shapes -- Money instance, bare number, `{amount}`, `{centsValue}` -- at missionSerialization.ts:19-27. Pinned live by the S2 row: `expect(recovered.paymentTerms.basePayment).toBeInstanceOf(Money)` and `expect(recovered.paymentTerms.basePayment.amount).toBe(1_250_000)` after a real cold SQLite reopen.",
+      "dates": "NO DATE LOSS POSSIBLE. Every temporal field on IContract is an ISO-8601 STRING, not a Date instance -- `readonly createdAt: string` / `readonly updatedAt: string` / `readonly startDate?: string` / `readonly endDate?: string` (src/types/campaign/Mission.ts:102-111). JSON.stringify/parse is the identity on strings. There is no Date anywhere in IContract, IPaymentTerms or ICampaignContractMarket, so the classic Date->string asymmetry does not arise.",
+      "otherNonJsonSafeTypes": "NONE. A field-by-field read of IMission/IContract (Mission.ts:85-175) finds only strings, numbers, booleans, string enums, `readonly string[]`, and IPaymentTerms (the Money carrier). No Map, no Set, no class other than Money. `ICampaignContractMarket` is `{ offers: IContract[], declinedOfferIds: string[] }`.",
+      "documentedLoss": "`toJsonSafe` (campaignSourcePrivateEnvelope.ts:122-124) drops keys whose value is `undefined` -- stated in its own comment at :117-121 and REQUIRED, because canonicalizeJsonV1 rejects `undefined` outright (EventJournalCanonicalizer.ts:74-77, the `default: fail('unsupported-value')` arm). For `readonly foo?: T` optionals, absent and undefined are the same value, so this is not a fidelity loss.",
+      "caveat": "See OB-4: `rehydrateCampaignMission` silently returns its input un-rehydrated when `isContract()` fails, so a corrupt stored contract degrades quietly rather than refusing. Untested, low reachability."
+    },
+    {
+      "item": 5,
+      "title": "Optionality / no producer",
+      "result": "PASS -- both non-claims hold",
+      "hostCampaignEventJournalUnchanged": "CONFIRMED. `git diff --stat b7d650997 10a60ae5 -- src/lib/campaign/sync/hostCampaignEventJournal.ts` is EMPTY across the whole stack. The construction at :150-153 still reads `const payload: ICampaignJournalEnvelope = { campaignEvent: event, expectedPostStateDigest: null, intentFingerprint: null };` with no third field, and it compiles because `sourcePrivate?` is optional (JournalCampaignEventStore.ts:105). `npx tsc --noEmit` at S3 exits 0, which is the proof.",
+      "noProductionProducer": "CONFIRMED. `grep -rn 'buildCampaignSourcePrivateEnvelope|sourcePrivate:' src/ --include=*.ts` finds callers in exactly two files, both tests: src/lib/campaign/delivery/__tests__/projectCampaignStreamForGrant.test.ts:13,419 and src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts:39,535. No production path constructs a non-empty private field. `campaignCommandActions.ts`, `campaignCommandPipeline.ts` and `pages/api/campaigns/[id]/commands.ts` are untouched by the stack -- the 5-file diff does not include them. The carriage exists; no caller fills it, exactly as the author non-claims.",
+      "terminalEventPlacement": "`toJournalBatch` passes the private payload only for the LAST event of a batch -- JournalCampaignEventStore.ts:244-246, `index === input.events.length - 1 ? (input.sourcePrivate ?? null) : null` -- matching `expectedPostStateDigest`'s existing terminal-event convention (:241-243), so it commits atomically with the batch."
+    },
+    {
+      "item": 6,
+      "title": "Falsification -- is S3's routing load-bearing?",
+      "result": "PASS -- F1 red 1:1, F2 vacuously green; the routing is load-bearing",
+      "method": "I did NOT re-run the mutations myself: the review is read-only and the worktree had to be returned clean on the S3 branch. I opened and read both author logs in full and cross-checked their internal content against the code, which is self-corroborating (the F1 failure text contains the actual leaked bytes, which cannot be fabricated by a log that merely claims a failure).",
+      "F1": {
+        "log": ".sisyphus/roadmap-completion-20260912/r2-p0b-20260915/split/s3-falsify-1.log",
+        "label": "envelopeOf's narrowing deleted (siblings ride along) WITH the S3 routing in place",
+        "summaryLine": "Test Suites: 2 failed, 2 total / Tests: 6 failed, 16 passed, 22 total",
+        "bothLeakRowsRed": "YES. The failing-test list contains BOTH `projectCampaignStreamForGrant source-only private envelope > withholds the private contract and market from a restricted campaign-scope guest` AND `... from a GM all-scopes grant`, plus the compact-narrowing assertion in the cold-reopen row and 3 collateral contract rows.",
+        "quotedEvidence": "The restricted-guest failure prints the actual delivered page: `Expected substring: not \"house-liao\" / Received string: \"[{\\\"deliverySequence\\\":1,\\\"event\\\":{\\\"campaignEvent\\\":{...},\\\"expectedPostStateDigest\\\":null,\\\"intentFingerprint\\\":null,\\\"sourcePrivate\\\":{\\\"acceptedContract\\\":{...\\\"targetId\\\":\\\"house-liao\\\"...},\\\"baseline\\\":{...\\\"sourceRecordBody\\\":\\\"{\\\\\\\"id\\\\\\\":\\\\\\\"campaign-private-leak\\\\\\\"}\\\"...},\\\"remainingMarket\\\":{...\\\"offer-remaining\\\"...},\\\"schemaVersion\\\":1}...}}]\"` -- i.e. the entire private envelope reaches a campaign-scope guest's delivery page once the narrowing is gone. That is a true 1:1 falsification, not a proxy assertion.",
+        "mutationReverted": true
+      },
+      "F2": {
+        "log": ".sisyphus/roadmap-completion-20260912/r2-p0b-20260915/split/s3-falsify-2.log",
+        "label": "the SAME envelopeOf mutation, but projectCampaignStreamForGrant reverted to the PRE-S3 inline narrowing",
+        "summaryLine": "Test Suites: 1 passed, 1 total / Tests: 6 skipped, 2 passed, 8 total -- `withholds ... from a restricted campaign-scope guest` PASSED, `withholds ... from a GM all-scopes grant` PASSED",
+        "conclusion": "VACUOUS WITHOUT S3. With the old inline `stored.payload.campaignEvent` at :252, deleting envelopeOf's narrowing leaves both leak rows green -- the rows would have been proving nothing about the boundary they claim to guard. This is the measured confirmation that the prior review's RE-2 finding was correct and that S3 is load-bearing rather than cosmetic.",
+        "mutationReverted": true
+      },
+      "reviewerNote": "F2 was run narrowed (`-t \"withholds the private contract\"`, one suite, 6 skipped). That is sufficient for the vacuity claim -- the question F2 asks is only whether the two leak rows stay green -- but it is a narrower run than F1 and should be read as such."
+    },
+    {
+      "item": 7,
+      "title": "Buildability per prefix -- REPRODUCED IN THIS SESSION",
+      "result": "PASS -- every count matches the author's evidence exactly",
+      "runtime": "Node v24.15.0 (ambient), worktree E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/r2-prepared-journal-api, better-sqlite3 NOT rebuilt, `git status --porcelain` empty before and after every run.",
+      "runs": [
+        {
+          "prefix": "S1",
+          "at": "b338320337",
+          "targeted": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts src/lib/campaign/delivery/__tests__/projectCampaignStreamForGrant.test.ts -> Test Suites: 2 passed, 2 total / Tests: 19 passed, 19 total",
+          "focused": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/campaign src/lib/events/journal -> Test Suites: 217 passed, 217 total / Tests: 3139 passed, 3139 total (60.551 s)",
+          "matchesAuthor": true
+        },
+        {
+          "prefix": "S2",
+          "at": "6dfddf798",
+          "targeted": "Test Suites: 2 passed, 2 total / Tests: 19 passed, 19 total",
+          "focused": "Test Suites: 217 passed, 217 total / Tests: 3139 passed, 3139 total (45.502 s)",
+          "matchesAuthor": true
+        },
+        {
+          "prefix": "S3",
+          "at": "10a60ae56",
+          "targeted": "Test Suites: 2 passed, 2 total / Tests: 22 passed, 22 total",
+          "focused": "Test Suites: 217 passed, 217 total / Tests: 3142 passed, 3142 total (44.406 s)",
+          "typecheck": "npx tsc --noEmit -> exit 0, no output",
+          "matchesAuthor": true
+        }
+      ],
+      "s2NineDeletions": "VERIFIED AS A REWRITE, NOT DROPPED COVERAGE. `git show 6dfddf798 -- src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts` shows all 9 deleted lines inside ONE row: the title changes from 'reads the full contract and market off the private field...' to 'recovers ...'; `const facts = campaignSourcePrivateOf(stored); if (facts === null) throw ...; const recovered = facts.acceptedContract;` becomes `const replayed = replayCampaignSourceContracts(rows); expect(replayed.acceptedContracts).toHaveLength(1); const recovered = replayed.acceptedContracts[0];`; and the two baseline assertions are re-added against `replayed.baseline` PLUS a new `baselineMarket` assertion. Every deleted assertion reappears in equal or richer form, and the targeted count is 19 at both S1 and S2 -- no row was removed. The assertion count goes UP.",
+      "reviewerCaveat": "UNVERIFIED (same limitation the author records): no full-suite, e2e, or `npm run build` run was performed at any stack level. Non-regression evidence is bounded by the 217 suites under src/lib/campaign + src/lib/events/journal."
+    },
+    {
+      "item": 8,
+      "title": "Hygiene",
+      "result": "PASS on every checked axis",
+      "lineCaps": "S1 `3 files changed, 447 insertions(+), 6 deletions(-)` = 453; S2 `2 files changed, 73 insertions(+), 9 deletions(-)` = 82; S3 `2 files changed, 190 insertions(+), 2 deletions(-)` = 192. All three <= 500. Measured in this session with `git diff --shortstat <parent> <head>` against the recorded base b7d650997, matching the author's numbers exactly.",
+      "fileCaps": "3 / 2 / 2 files per prefix, all <= 15. Whole-stack union is 5 files.",
+      "conventionalCommits": "S1 `feat(campaign): add an optional journal-private source field to the campaign envelope`; S2 `feat(campaign): replay source-only contracts from the persisted source record`; S3 `refactor(campaign): route grant projection through envelopeOf so one narrowing guards the wire`. All conventional, all accurate to their content -- S3 is genuinely a refactor plus tests, with no behaviour change to envelopeOf's own body or return shape.",
+      "author": "All three: `Author: Wes Rollings <wrollings@gmail.com>` / `Committer: Wes Rollings <wrollings@gmail.com>`.",
+      "aiAttribution": "NONE. I read all three commit messages in full; no Co-Authored-By, no generated-with trailer, no model name.",
+      "openspecEdits": "NONE. `git diff --name-only b7d650997 10a60ae5` returns 5 paths, every one under src/. No spec, design, proposal, tasks.md or evidence file is touched by any commit in the stack.",
+      "checkboxes": "NONE checked. tasks.md is not in the diff, consistent with the author's non-claim that 6.1 is only PARTIALLY discharged (the borrowed-handle CAS + durable sourceReplayFence in CampaignPersistenceService.ts and the prepared-transaction capture both remain undone).",
+      "unrelatedChanges": "NONE. The 5 touched files are exactly the declared set; every hunk I read maps to a claim in the commit message.",
+      "treeIdentity": "CONFIRMED INDEPENDENTLY. `git diff af7130e3cacac031e42c26d2a61776e873f21644 10a60ae56094f72a2dbf447d0561cac3c910d5f8` produces NO output -- the S3 head tree is byte-identical to the retained reference commit, so the split introduced nothing and lost nothing.",
+      "notRePinned": "Not checked in this session: oxlint / oxfmt (the author records both green per prefix, with the honest caveat that oxlint reported 3 files for a 5-file argv because __tests__ appear to be ignore-configured). I did not re-run them; `npx tsc --noEmit` at S3 is the compile gate I did reproduce."
+    }
+  ],
+  "specConformance": {
+    "source": "openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md:106 and design.md:103 (P0b)",
+    "rows": [
+      {
+        "shall": "P0b SHALL require a journal-private envelope carrying the exact persisted source record, source row version, source body digest, and root public revision",
+        "status": "MET",
+        "evidence": "ICampaignSourceBaseline, campaignSourcePrivateEnvelope.ts:57-66 (all four fields); the digest is derived inside the builder at :141-143 so a caller cannot record a baseline whose digest disagrees with its own bytes."
+      },
+      {
+        "shall": "... captured under the prepared transaction",
+        "status": "NOT MET -- honestly non-claimed",
+        "evidence": "Nothing in the stack calls SQLiteEventJournalWriter.appendPreparedWithExtension. The author's nonClaims name this explicitly and leave tasks.md 6.1 unchecked. Belongs with the P1 producer."
+      },
+      {
+        "shall": "Full accepted contract and remaining market SHALL live only in that private envelope, not on public campaignEvent or ICampaignAuthoritativeState",
+        "status": "MET AND FALSIFIED",
+        "evidence": "sourcePrivate is a sibling of campaignEvent (JournalCampaignEventStore.ts:105); the two leak rows plus F1/F2 prove the boundary holds and that S3's routing is what makes it hold."
+      },
+      {
+        "shall": "Conditional absence SHALL preserve legacy canonical hashes",
+        "status": "MET AND PINNED",
+        "evidence": "JournalCampaignEventStore.ts:185; legacy row pins Object.hasOwn === false, the canonical byte string, and the event digest."
+      },
+      {
+        "shall": "Borrowed-handle campaign writes SHALL use CAS and a sourceReplayFence that rejects later generic whole-envelope overwrites",
+        "status": "NOT MET -- honestly non-claimed",
+        "evidence": "CampaignPersistenceService.ts is not in the diff. Named in the author's nonClaims as the reason 6.1 stays unchecked."
+      },
+      {
+        "shall": "Private/public identity mismatch or unsupported replay schema SHALL block or rebuild with no silent compact fallback",
+        "status": "PARTIALLY MET, AND UNPROVEN",
+        "evidence": "Unsupported schema and baseline self-consistency both throw typed (campaignSourcePrivateEnvelope.ts:160-176) with no fallback -- but with ZERO tests (RQ-1). The private-VS-public comparison is not implemented at all: baseline.rootPublicRevision is captured and never compared (OB-3). That half belongs to the producer."
+      },
+      {
+        "shall": "Existing active-seat /commands authorization SHALL remain; its response and guest/room-code data SHALL stay compact",
+        "status": "MET",
+        "evidence": "commands.ts untouched; its response is `result.events: readonly ICampaignEvent[]`; roomCodeGuestHydration.ts untouched and consumes only post-narrowing wire types."
+      }
+    ]
+  },
+  "reviewerNonClaims": [
+    "I did not re-run the F1/F2 mutations myself. The review was read-only and the worktree had to be handed back clean on codex/roadmap-r2-p0b-s3-envelopeof-routing-20260915; I read both author logs in full instead and cross-checked their content against the code.",
+    "UNVERIFIED: LEGACY_EVENT_DIGEST was not independently re-derived (see item 2). LEGACY_STATE_DIGEST was.",
+    "I did not run oxlint, oxfmt, `npm run lint`, `npm run build`, the full jest suite, or any e2e. My gates were the two targeted suites and the 217-suite focused run at each of the three prefixes, plus `npx tsc --noEmit` once at S3.",
+    "The wire-safety sweep covers src/. I did not audit e2e/, scripts/, or electron/ for campaign journal reads.",
+    "No file in the repository was modified by this review except this artefact. The root checkout stayed on main at be7f85b86 with its pre-existing working tree untouched (an early `git checkout` against the root was refused by git and changed nothing -- verified immediately afterwards)."
+  ],
+  "worktreeEndState": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/r2-prepared-journal-api",
+    "branch": "codex/roadmap-r2-p0b-s3-envelopeof-routing-20260915",
+    "head": "10a60ae56094f72a2dbf447d0561cac3c910d5f8",
+    "porcelain": "empty",
+    "betterSqlite3Rebuilt": false
+  },
+  "recheck": {
+    "capturedAtUtc": "2026-09-15T00:00:00.000Z",
+    "trigger": "Coordinator re-check request: author applied RQ-1 as a new commit on S2, rebased S3 onto it, and added the OB-1 comment as a further commit.",
+    "newCommits": [
+      {
+        "sha": "8f7f79d850cd526fa0eb6b52e389ecd59caa8a8b",
+        "parent": "6dfddf79870465ae68545bc038b40626f22284fd",
+        "branch": "codex/roadmap-r2-p0b-s2-source-replay-20260915 (new head)",
+        "subject": "test(campaign): prove the three typed source-replay refusals block instead of falling back",
+        "stat": "1 file changed, 146 insertions(+) -- src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts",
+        "addresses": "RQ-1"
+      },
+      {
+        "sha": "160276ef62238f426d5f221ee48adea6aeba06cd",
+        "parent": "8f7f79d850cd526fa0eb6b52e389ecd59caa8a8b",
+        "subject": "refactor(campaign): route grant projection through envelopeOf so one narrowing guards the wire",
+        "stat": "2 files changed, 190 insertions(+), 2 deletions(-)",
+        "note": "S3 rebased. Message and content identical to the pre-rebase 10a60ae5."
+      },
+      {
+        "sha": "ac3481b3fde3f065f0a4c4300234fcec591de1b7",
+        "parent": "160276ef62238f426d5f221ee48adea6aeba06cd",
+        "branch": "codex/roadmap-r2-p0b-s3-envelopeof-routing-20260915 (new head)",
+        "subject": "docs(projection): flag the viewer-projection surface that bypasses envelopeOf",
+        "stat": "1 file changed, 5 insertions(+) -- src/lib/multiplayer/server/projection/ViewerProjectionService.ts",
+        "addresses": "OB-1"
+      }
+    ],
+    "rq1Assessment": {
+      "result": "DISCHARGED -- the required edit is satisfied in full and the rows are NOT tautological",
+      "diffRead": "git diff 6dfddf79870465ae68545bc038b40626f22284fd 8f7f79d850cd526fa0eb6b52e389ecd59caa8a8b -- read in full in this session.",
+      "whyNonTautological": [
+        "STRICTNESS OF THE HELPER. `refusalReasonOf(read)` calls the read inside a try, RETURNS `error.reason` only when the caught value `instanceof CampaignSourcePrivateReplayError`, RETHROWS anything else (so a TypeError fails the row rather than passing it), and -- the load-bearing part -- `throw new Error('expected a typed replay refusal, but the read returned')` on the no-throw path. A silent compact fallback RETURNS, so it fails here. This is exactly the regression RQ-1 named.",
+        "BOTH FORMS ASSERTED. Each row does `expect(() => read()).toThrow(CampaignSourcePrivateReplayError)` AND `expect(refusalReasonOf(() => read())).toBe('<reason>')`. The class pin distinguishes a refusal from a crash; the reason pin distinguishes the three refusals from each other, so a row cannot pass on the wrong branch.",
+        "REAL PERSISTENCE BOUNDARY, NOT AN OBJECT LITERAL. The `storePrivate(name, sourcePrivate)` helper commits the corrupted payload through `appendCampaignCommandBatch` into a file-backed SQLite journal (`journal_mode = WAL`, `foreign_keys = ON`, `EVENT_JOURNAL_MIGRATION.up`), asserts `committed.kind === 'committed'`, CLOSES the handle, then re-opens a fresh `Database` and reads the row back via `readStream`. The corruption therefore survives canonicalization and persistence -- the reader is not handed a hand-built object.",
+        "ONE-FIELD ISOLATION. `wellFormedPrivate()` builds a valid payload and each row overrides exactly ONE field by spread: `schemaVersion: built.schemaVersion + 1` for row 1, `baseline: { ...built.baseline, sourceBodyDigest: 'f'.repeat(64) }` for row 2. Because `campaignSourcePrivateOf` checks schema first (campaignSourcePrivateEnvelope.ts:160-165) and the digest second (:171-176), row 2's correct schemaVersion is what makes the digest branch reachable at all. Each row proves its own branch, not merely 'something threw'.",
+        "ROW 3 USES A GENUINELY EMPTY-OF-PRIVATE STREAM. It commits `hireBatch(0)` (a real two-event batch) with NO `sourcePrivate`, asserts `rows` has length 2, then requires `replayCampaignSourceContracts(rows)` to refuse with `'no-private-payload'`. That also incidentally covers the previously-uncovered skip-rows-without-a-payload branch at campaignSourcePrivateEnvelope.ts:220, since both rows are skipped before `facts[0]` is found undefined."
+      ],
+      "authorFalsificationVerified": {
+        "log": ".sisyphus/roadmap-completion-20260912/r2-p0b-20260915/correction2/s2-falsify-refusals.log",
+        "mutation": "all three refusals replaced with silent fallbacks",
+        "summaryLine": "Test Suites: 1 failed, 1 total / Tests: 3 failed, 14 passed, 17 total",
+        "failingRows": "EXACTLY the three new rows and nothing else: 'refuses an unsupported private schema version rather than falling back', 'refuses a captured baseline whose digest does not match its own body', 'refuses to replay a stream that carries no private payload'.",
+        "quotedEvidence": "`expect(received).toThrow(expected) / Expected constructor: CampaignSourcePrivateReplayError / Received function did not throw` at JournalCampaignEventStore.test.ts:719. The fourteen pre-existing rows in the same suite stay green, so the falsification is 1:1 -- these three rows are the only thing in the repository that catches a silent-fallback regression.",
+        "reviewerNote": "Read, not re-run (read-only review). The failure text is self-corroborating: 'Received function did not throw' is the signature of a fallback that returns, which is the precise defect RQ-1 described."
+      },
+      "s3FalsificationSurvivesRebase": {
+        "log": ".sisyphus/roadmap-completion-20260912/r2-p0b-20260915/correction2/s3-falsify-1.log",
+        "summaryLine": "Test Suites: 2 failed, 2 total / Tests: 6 failed, 19 passed, 25 total",
+        "assessment": "Both leak rows still go red when envelopeOf's narrowing is deleted, now against the 25-test targeted set. The rebase did not weaken the S3 proof."
+      }
+    },
+    "ob1Assessment": {
+      "result": "ADDRESSED as asked -- comment only, no behavior change",
+      "placement": "src/lib/multiplayer/server/projection/ViewerProjectionService.ts, inserted immediately before `if (!isVisibleToViewer(viewer, decision, stored.payload)) continue;` in `projectAllWithIdentitiesOrThrow` -- i.e. at the exact line a future campaign registration would have to reckon with.",
+      "text": "'D12 boundary note: the WHOLE stored payload is handed to the registered projector. No `campaign` projector is registered today, but one added here would route stored campaign envelopes -- `sourcePrivate` included -- past `envelopeOf`. Register it only behind a decision that narrows through `envelopeOf` first.'",
+      "verification": "`git show ac3481b3 -- <file>` is a pure 5-line insertion; the surrounding statements are byte-identical. `npx tsc --noEmit` at the final head exits 0 and the 223-suite focused run (which now includes src/lib/multiplayer/server/projection) is fully green, so the comment is inert.",
+      "residualNote": "This is documentation, not enforcement. The bypass surface still exists; the comment makes it reviewable rather than invisible. That matches what OB-1 asked for and is proportionate -- OB-1 was never blocking."
+    },
+    "treeAndScope": {
+      "diffVsReference": "`git diff af7130e3cacac031e42c26d2a61776e873f21644 160276ef62238f426d5f221ee48adea6aeba06cd --stat` -> `1 file changed, 146 insertions(+)`, the S2 test file ONLY. Coordinator claim confirmed: the rebased S3 differs from the retained reference commit by exactly the refusal rows and nothing else, so no production behavior drifted during the rebase.",
+      "rebaseDrift": "`git diff 10a60ae5 160276ef6 --stat` -> the same single 146-line test-file delta. The pre- and post-rebase S3 trees are otherwise identical.",
+      "finalHeadDelta": "`git diff 160276ef6 ac3481b3 --shortstat` -> `1 file changed, 5 insertions(+)`, the OB-1 comment.",
+      "wholeStackFiles": [
+        "src/lib/campaign/authority/campaignSourcePrivateEnvelope.ts",
+        "src/lib/campaign/delivery/__tests__/projectCampaignStreamForGrant.test.ts",
+        "src/lib/campaign/delivery/projectCampaignStreamForGrant.ts",
+        "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+        "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts",
+        "src/lib/multiplayer/server/projection/ViewerProjectionService.ts"
+      ],
+      "openspecEdits": "STILL NONE -- the whole-stack file list is six paths, all under src/. No spec, design, proposal, tasks.md or checkbox touched by any of the three new commits.",
+      "aiAttribution": "NONE in any of the three new commit messages (read in full).",
+      "author": "Wes Rollings <wrollings@gmail.com> on all three.",
+      "conventionalCommits": "`test(campaign):`, `refactor(campaign):`, `docs(projection):` -- all conventional and all accurate to their content; the `docs(` type is right for a comment-only change."
+    },
+    "caps": {
+      "measuredThisSession": true,
+      "perCommit": [
+        "6dfddf798 -> 8f7f79d8 : 1 file changed, 146 insertions(+) = 146 changed lines",
+        "8f7f79d8 -> 160276ef6 : 2 files changed, 190 insertions(+), 2 deletions(-) = 192",
+        "160276ef6 -> ac3481b3 : 1 file changed, 5 insertions(+) = 5"
+      ],
+      "perBranchCumulative": [
+        "S1 vs base b7d650997 : 3 files, 447 insertions, 6 deletions = 453 changed lines",
+        "S2 vs S1 : 2 files, 219 insertions, 9 deletions = 228 changed lines",
+        "S3 vs S2 : 3 files, 195 insertions, 2 deletions = 197 changed lines"
+      ],
+      "verdict": "WITHIN CAPS on either reading. Largest single commit is 192; largest cumulative branch delta is S1 at 453. All <= 500 lines and all <= 15 files (3 / 2 / 3). S2 grew from 82 to 228 and still holds 272 lines of headroom.",
+      "note": "The RQ-1 edit landed as a SEPARATE commit on the S2 branch rather than being folded into 6dfddf798, so the S2 branch is now two commits. That keeps the fix independently reviewable and leaves 6dfddf798's own evidence intact; it does not breach any cap under either accounting."
+    },
+    "gatesReproducedThisSession": {
+      "runtime": "Node v24.15.0 ambient, worktree r2-prepared-journal-api, better-sqlite3 NOT rebuilt, `git status --porcelain` empty before and after every run.",
+      "runs": [
+        {
+          "at": "8f7f79d85 (S2 head)",
+          "gate": "jest targeted (both suites)",
+          "result": "Test Suites: 2 passed, 2 total / Tests: 22 passed, 22 total",
+          "expected": 22,
+          "matches": true
+        },
+        {
+          "at": "ac3481b3f (S3 head / final)",
+          "gate": "jest targeted (both suites)",
+          "result": "Test Suites: 2 passed, 2 total / Tests: 25 passed, 25 total",
+          "expected": 25,
+          "matches": true
+        },
+        {
+          "at": "ac3481b3f (S3 head / final)",
+          "gate": "jest focused -- src/lib/campaign src/lib/events/journal src/lib/multiplayer/server/projection",
+          "result": "Test Suites: 223 passed, 223 total / Tests: 3184 passed, 3184 total (45.89 s)",
+          "matches": true,
+          "note": "Reconciles with my first-pass 217 suites / 3142 tests: the author widened the focused path set to include src/lib/multiplayer/server/projection (the OB-1 file's own suites), which adds 6 suites and 39 tests; the 3 refusal rows account for the rest (3142 + 3 + 39 = 3184). No suite was lost."
+        },
+        {
+          "at": "ac3481b3f (S3 head / final)",
+          "gate": "npx tsc --noEmit",
+          "result": "exit 0, no output",
+          "matches": true
+        }
+      ],
+      "notReRun": "oxlint and oxfmt (author records both 0 per prefix in .sisyphus/.../correction2/; I did not re-run them). No full-suite, e2e or build run at any level -- same bound as the first pass."
+    },
+    "residualsUnchanged": [
+      "OB-2 stands: `GET /api/campaigns/:id` (src/pages/api/campaigns/[id].ts:126-155) still returns the full `SerializedCampaign` -- contractMarket included -- with no authentication. Pre-existing, outside D12's boundary, untouched by the correction, and still worth raising with the program owner before P1.",
+      "OB-3 stands: the reason name `source-identity-mismatch` still checks only baseline body-bytes-vs-digest self-consistency; `baseline.rootPublicRevision` is still captured and never compared. The new row 2 pins the behavior that EXISTS, which is the right thing to pin -- it does not silently widen the claim. The private-vs-public half remains a producer obligation.",
+      "OB-4 stands: `rehydrateCampaignMission` still returns its input un-rehydrated when `isContract()` fails (missionSerialization.ts:45-47); low reachability, untested, non-blocking.",
+      "OB-5 stands: the `computeCampaignStateDigest` pin still guards an unrelated canonicalization rather than D12's conditional absence.",
+      "Task 6.1 remains only PARTIALLY discharged and its checkbox correctly unchecked: the prepared-transaction capture and the borrowed-handle CAS + durable `sourceReplayFence` in CampaignPersistenceService.ts are still not implemented, and there is still no production producer."
+    ],
+    "specConformanceDelta": {
+      "row": "Private/public identity mismatch or unsupported replay schema SHALL block or rebuild with no silent compact fallback",
+      "wasStatus": "PARTIALLY MET, AND UNPROVEN",
+      "nowStatus": "PARTIALLY MET, AND NOW PROVEN for the half that is implemented",
+      "detail": "The unsupported-schema and baseline-self-consistency refusals are now covered by dedicated rows that pin the error class and the reason, and are falsified 1:1 against a silent-fallback mutation. The private-VS-public revision comparison is still not implemented (OB-3) and still belongs to the producer. No other spec row changed status."
+    },
+    "finalVerdict": {
+      "S1": "APPROVE -- unchanged at b338320337; not touched by the correction.",
+      "S2": "APPROVE -- RQ-1 fully discharged at 8f7f79d850cd526fa0eb6b52e389ecd59caa8a8b. The upgrade from APPROVE-WITH-REQUIRED-EDITS is unconditional: the rows are strict, isolated per branch, run at the real SQLite boundary, and are falsified 1:1.",
+      "S3": "APPROVE -- at ac3481b3fde3f065f0a4c4300234fcec591de1b7. The rebase introduced no production drift (diff vs the reference is the S2 test file alone) and the OB-1 comment is inert.",
+      "overall": "APPROVE. No required edits remain. The four standing observations (OB-2 through OB-5) are non-blocking and are carried forward for the program owner; OB-2 is the one worth a decision before P1."
+    },
+    "worktreeEndState": {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/r2-prepared-journal-api",
+      "branch": "codex/roadmap-r2-p0b-s3-envelopeof-routing-20260915",
+      "head": "ac3481b3fde3f065f0a4c4300234fcec591de1b7",
+      "porcelain": "empty",
+      "betterSqlite3Rebuilt": false
+    }
+  }
+}

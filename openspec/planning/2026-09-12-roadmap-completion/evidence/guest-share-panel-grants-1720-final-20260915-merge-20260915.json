@@ -1,0 +1,53 @@
+{
+  "pr": 1720,
+  "branch": "codex/roadmap-guest-share-panel-grants-20260915",
+  "reviewedCommit": "a3f7f4947297a8785713b416db7f87e97bed25c9",
+  "finalHead": "44ceed8cc80ed3a20d4098a233316870c1b5a99f",
+  "autoMergeArmed": false,
+  "contentGuard": {
+    "method": "file set from `git diff --name-only origin/main...<head>` compared to the reviewed file set, plus per-file blob equality against the reviewed commit; re-run after update-branch",
+    "fileCountAtMerge": 3,
+    "blobEquality": "all files blob-identical to the reviewed commit at the gated head (exceptions, if any, are described in notes)",
+    "result": "PASS"
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "expectedHeadShaGuardUsed": true,
+    "newHead": "44ceed8cc80ed3a20d4098a233316870c1b5a99f"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "otherChecksCount": 27,
+    "otherChecksBuckets": {
+      "pass": 27
+    },
+    "totalChecks": 31,
+    "totalChecksNote": "31 because #1678 added the standing \"Customizer Regressions\" check to main"
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/guest-share-panel-grants-1720-final-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "f685a5391f6e69b73932cdef5323dd2d247e55a6",
+  "mergeCommitParents": [
+    "4e5a74b9fddda382945277b15d76e2e09397d56c"
+  ],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1720 --squash --match-head-commit 44ceed8cc80ed3a20d4098a233316870c1b5a99f",
+  "mergedAt": "2026-09-15T14:47:55Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "The merge commit changes exactly 3 file(s), all blob-identical to the gated head 44ceed8cc80ed3a20d4098a233316870c1b5a99f.",
+  "mainAfter": "f685a5391f6e69b73932cdef5323dd2d247e55a6",
+  "worktree": {
+    "fastForward": "NOT PERFORMED unless the coordinator designated the worktree as free; several owned worktrees were explicitly off-limits (parent in use / other branch).",
+    "result": "SKIPPED or SUCCESS per coordinator instruction for this PR"
+  },
+  "notes": "FLAKE THEN GREEN. First run 34982536757 was 29 pass / 2 fail: required Lint and Test red via Unit Tests (6/6), failing scripts/__tests__/gm-two-player-campaign-qc.test.ts \"refuses and preserves a ready foreign server on the fixture port\" - a port-binding/contention test. This PR changes three React share-panel files, which cannot affect port contention, and the branch was already up to date so update-branch was unavailable. One targeted `gh run rerun --failed` returned 31/31.",
+  "timestamps": {
+    "receiptWrittenAt": "2026-09-15T15:00:00Z"
+  }
+}

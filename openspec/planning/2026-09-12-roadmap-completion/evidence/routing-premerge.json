@@ -1,0 +1,482 @@
+{
+  "at": "2026-09-12T11:59:32.513Z",
+  "pr": {
+    "baseRefName": "main",
+    "headRefName": "codex/roadmap-routing-precedence-20260912",
+    "headRefOid": "aff3a051a0f52e0b35005ea1b3b7406381f577dc",
+    "mergeStateStatus": "CLEAN",
+    "number": 1637,
+    "reviews": [],
+    "state": "OPEN",
+    "statusCheckRollup": [
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-12T11:44:00Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/SwiggitySwerve/MekStation/actions/runs/34691775931/job/103548178016",
+        "name": "Detect Changes",
+        "startedAt": "2026-09-12T11:43:51Z",
+        "status": "COMPLETED",
+        "workflowName": "PR Checks"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-12T11:43:49Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/SwiggitySwerve/MekStation/actions/runs/34691775931/job/103548177884",
+        "name": "Install Dependencies",
+        "startedAt": "2026-09-12T11:43:15Z",
+        "status": "COMPLETED",
+        "workflowName": "PR Checks"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-12T11:48:07Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/SwiggitySwerve/MekStation/actions/runs/34691775931/job/103548267297",
+        "name": "Prepare Build Artifacts",
+        "startedAt": "2026-09-12T11:44:20Z",
+        "status": "COMPLETED",
+        "workflowName": "PR Checks"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-12T11:44:12Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/SwiggitySwerve/MekStation/actions/runs/34691775931/job/103548246756",
+        "name": "Lint",
+        "startedAt": "2026-09-12T11:43:52Z",
+        "status": "COMPLETED",
+        "workflowName": "PR Checks"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-12T11:44:29Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/SwiggitySwerve/MekStation/actions/runs/34691775931/job/103548246772",
+        "name": "Format Check",
+        "startedAt": "2026-09-12T11:43:51Z",
+        "status": "COMPLETED",
+        "workflowName": "PR Checks"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-12T11:45:12Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/SwiggitySwerve/MekStation/actions/runs/34691775931/job/103548246757",
+        "name": "Type Check",
+        "startedAt": "2026-09-12T11:43:51Z",
+        "status": "COMPLETED",
+        "workflowName": "PR Checks"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-12T11:45:32Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/SwiggitySwerve/MekStation/actions/runs/34691775931/job/103548246768",
+        "name": "Unit Tests (1/6)",
+        "startedAt": "2026-09-12T11:43:51Z",
+        "status": "COMPLETED",
+        "workflowName": "PR Checks"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-12T11:46:01Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/SwiggitySwerve/MekStation/actions/runs/34691775931/job/103548246799",
+        "name": "Unit Tests (2/6)",
+        "startedAt": "2026-09-12T11:43:51Z",
+        "status": "COMPLETED",
+        "workflowName": "PR Checks"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-12T11:45:44Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/SwiggitySwerve/MekStation/actions/runs/34691775931/job/103548246866",
+        "name": "Unit Tests (3/6)",
+        "startedAt": "2026-09-12T11:43:52Z",
+        "status": "COMPLETED",
+        "workflowName": "PR Checks"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-12T11:46:26Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/SwiggitySwerve/MekStation/actions/runs/34691775931/job/103548246776",
+        "name": "Unit Tests (4/6)",
+        "startedAt": "2026-09-12T11:43:51Z",
+        "status": "COMPLETED",
+        "workflowName": "PR Checks"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-12T11:45:57Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/SwiggitySwerve/MekStation/actions/runs/34691775931/job/103548246828",
+        "name": "Unit Tests (5/6)",
+        "startedAt": "2026-09-12T11:43:52Z",
+        "status": "COMPLETED",
+        "workflowName": "PR Checks"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-12T11:45:09Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/SwiggitySwerve/MekStation/actions/runs/34691775931/job/103548246842",
+        "name": "Unit Tests (6/6)",
+        "startedAt": "2026-09-12T11:43:51Z",
+        "status": "COMPLETED",
+        "workflowName": "PR Checks"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-12T11:45:28Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/SwiggitySwerve/MekStation/actions/runs/34691775931/job/103548246786",
+        "name": "Perf Smoke Tests",
+        "startedAt": "2026-09-12T11:43:51Z",
+        "status": "COMPLETED",
+        "workflowName": "PR Checks"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-12T11:47:08Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/SwiggitySwerve/MekStation/actions/runs/34691775931/job/103548246783",
+        "name": "Statistical Proof PR",
+        "startedAt": "2026-09-12T11:43:53Z",
+        "status": "COMPLETED",
+        "workflowName": "PR Checks"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-12T11:44:33Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/SwiggitySwerve/MekStation/actions/runs/34691775931/job/103548246763",
+        "name": "Perf Budget PR",
+        "startedAt": "2026-09-12T11:43:51Z",
+        "status": "COMPLETED",
+        "workflowName": "PR Checks"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-12T11:45:03Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/SwiggitySwerve/MekStation/actions/runs/34691775931/job/103548246751",
+        "name": "Coverage Floor",
+        "startedAt": "2026-09-12T11:43:51Z",
+        "status": "COMPLETED",
+        "workflowName": "PR Checks"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-12T11:44:18Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/SwiggitySwerve/MekStation/actions/runs/34691775931/job/103548246790",
+        "name": "A11y Tests",
+        "startedAt": "2026-09-12T11:43:51Z",
+        "status": "COMPLETED",
+        "workflowName": "PR Checks"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-12T11:44:20Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/SwiggitySwerve/MekStation/actions/runs/34691775931/job/103548246766",
+        "name": "Validate BV Parity",
+        "startedAt": "2026-09-12T11:43:51Z",
+        "status": "COMPLETED",
+        "workflowName": "PR Checks"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-12T11:48:02Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/SwiggitySwerve/MekStation/actions/runs/34691775931/job/103548246798",
+        "name": "Validate Combat Suite",
+        "startedAt": "2026-09-12T11:43:52Z",
+        "status": "COMPLETED",
+        "workflowName": "PR Checks"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-12T11:45:04Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/SwiggitySwerve/MekStation/actions/runs/34691775931/job/103548246857",
+        "name": "Build Storybook",
+        "startedAt": "2026-09-12T11:44:01Z",
+        "status": "COMPLETED",
+        "workflowName": "PR Checks"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-12T11:45:13Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/SwiggitySwerve/MekStation/actions/runs/34691775931/job/103548246797",
+        "name": "Schema Bridge",
+        "startedAt": "2026-09-12T11:43:52Z",
+        "status": "COMPLETED",
+        "workflowName": "PR Checks"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-12T11:43:59Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/SwiggitySwerve/MekStation/actions/runs/34691775931/job/103548246780",
+        "name": "Determinism Audit",
+        "startedAt": "2026-09-12T11:43:51Z",
+        "status": "COMPLETED",
+        "workflowName": "PR Checks"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-12T11:47:18Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/SwiggitySwerve/MekStation/actions/runs/34691775931/job/103548267312",
+        "name": "E2E Smoke",
+        "startedAt": "2026-09-12T11:44:14Z",
+        "status": "COMPLETED",
+        "workflowName": "PR Checks"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-12T11:46:21Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/SwiggitySwerve/MekStation/actions/runs/34691775931/job/103548267313",
+        "name": "Seam Anchors",
+        "startedAt": "2026-09-12T11:44:14Z",
+        "status": "COMPLETED",
+        "workflowName": "PR Checks"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-12T11:44:12Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/SwiggitySwerve/MekStation/actions/runs/34691775931/job/103548246849",
+        "name": "Desktop Type Check",
+        "startedAt": "2026-09-12T11:43:52Z",
+        "status": "COMPLETED",
+        "workflowName": "PR Checks"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-12T11:44:42Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/SwiggitySwerve/MekStation/actions/runs/34691775931/job/103548246789",
+        "name": "Desktop Tests",
+        "startedAt": "2026-09-12T11:44:02Z",
+        "status": "COMPLETED",
+        "workflowName": "PR Checks"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-12T11:50:12Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/SwiggitySwerve/MekStation/actions/runs/34691775931/job/103548753212",
+        "name": "Build Test / linux",
+        "startedAt": "2026-09-12T11:48:09Z",
+        "status": "COMPLETED",
+        "workflowName": "PR Checks"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-12T11:51:01Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/SwiggitySwerve/MekStation/actions/runs/34691775931/job/103548753230",
+        "name": "Build Test / win",
+        "startedAt": "2026-09-12T11:48:09Z",
+        "status": "COMPLETED",
+        "workflowName": "PR Checks"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-12T11:50:54Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/SwiggitySwerve/MekStation/actions/runs/34691775931/job/103548753204",
+        "name": "Build Test / mac",
+        "startedAt": "2026-09-12T11:48:13Z",
+        "status": "COMPLETED",
+        "workflowName": "PR Checks"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-09-12T11:48:08Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/SwiggitySwerve/MekStation/actions/runs/34691775931/job/103548744581",
+        "name": "Lint and Test",
+        "startedAt": "2026-09-12T11:48:05Z",
+        "status": "COMPLETED",
+        "workflowName": "PR Checks"
+      }
+    ],
+    "url": "https://github.com/SwiggitySwerve/MekStation/pull/1637"
+  },
+  "protection": {
+    "url": "https://api.github.com/repos/SwiggitySwerve/MekStation/branches/main/protection",
+    "required_status_checks": {
+      "url": "https://api.github.com/repos/SwiggitySwerve/MekStation/branches/main/protection/required_status_checks",
+      "strict": true,
+      "contexts": [
+        "Lint and Test",
+        "Build Test / win",
+        "Build Test / mac",
+        "Build Test / linux"
+      ],
+      "contexts_url": "https://api.github.com/repos/SwiggitySwerve/MekStation/branches/main/protection/required_status_checks/contexts",
+      "checks": [
+        {
+          "context": "Lint and Test",
+          "app_id": 15368
+        },
+        {
+          "context": "Build Test / win",
+          "app_id": 15368
+        },
+        {
+          "context": "Build Test / mac",
+          "app_id": 15368
+        },
+        {
+          "context": "Build Test / linux",
+          "app_id": 15368
+        }
+      ]
+    },
+    "required_pull_request_reviews": {
+      "url": "https://api.github.com/repos/SwiggitySwerve/MekStation/branches/main/protection/required_pull_request_reviews",
+      "dismiss_stale_reviews": true,
+      "require_code_owner_reviews": false,
+      "require_last_push_approval": false,
+      "required_approving_review_count": 0
+    },
+    "required_signatures": {
+      "url": "https://api.github.com/repos/SwiggitySwerve/MekStation/branches/main/protection/required_signatures",
+      "enabled": false
+    },
+    "enforce_admins": {
+      "url": "https://api.github.com/repos/SwiggitySwerve/MekStation/branches/main/protection/enforce_admins",
+      "enabled": true
+    },
+    "required_linear_history": {
+      "enabled": false
+    },
+    "allow_force_pushes": {
+      "enabled": false
+    },
+    "allow_deletions": {
+      "enabled": false
+    },
+    "block_creations": {
+      "enabled": false
+    },
+    "required_conversation_resolution": {
+      "enabled": true
+    },
+    "lock_branch": {
+      "enabled": false
+    },
+    "allow_fork_syncing": {
+      "enabled": false
+    }
+  },
+  "threads": {
+    "data": {
+      "repository": {
+        "pullRequest": {
+          "reviewThreads": {
+            "pageInfo": {
+              "hasNextPage": false
+            },
+            "nodes": []
+          }
+        }
+      }
+    }
+  },
+  "combatJob": {
+    "id": 103548246798,
+    "run_id": 34691775931,
+    "workflow_name": "PR Checks",
+    "head_branch": "codex/roadmap-routing-precedence-20260912",
+    "run_url": "https://api.github.com/repos/SwiggitySwerve/MekStation/actions/runs/34691775931",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOPH9uGs8AAAAYG_TbDg",
+    "head_sha": "aff3a051a0f52e0b35005ea1b3b7406381f577dc",
+    "url": "https://api.github.com/repos/SwiggitySwerve/MekStation/actions/jobs/103548246798",
+    "html_url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/34691775931/job/103548246798",
+    "status": "completed",
+    "conclusion": "success",
+    "created_at": "2026-09-12T11:43:50Z",
+    "started_at": "2026-09-12T11:43:52Z",
+    "completed_at": "2026-09-12T11:48:02Z",
+    "name": "Validate Combat Suite",
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1,
+        "started_at": "2026-09-12T11:43:53Z",
+        "completed_at": "2026-09-12T11:43:53Z"
+      },
+      {
+        "name": "Checkout code",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2,
+        "started_at": "2026-09-12T11:43:53Z",
+        "completed_at": "2026-09-12T11:43:59Z"
+      },
+      {
+        "name": "Setup Node + caches + install deps",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 3,
+        "started_at": "2026-09-12T11:43:59Z",
+        "completed_at": "2026-09-12T11:44:15Z"
+      },
+      {
+        "name": "Validate combat catalog/test/spec consistency",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 4,
+        "started_at": "2026-09-12T11:44:15Z",
+        "completed_at": "2026-09-12T11:47:59Z"
+      },
+      {
+        "name": "Post Setup Node + caches + install deps",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 7,
+        "started_at": "2026-09-12T11:47:59Z",
+        "completed_at": "2026-09-12T11:48:00Z"
+      },
+      {
+        "name": "Post Checkout code",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 8,
+        "started_at": "2026-09-12T11:48:00Z",
+        "completed_at": "2026-09-12T11:48:00Z"
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 9,
+        "started_at": "2026-09-12T11:48:00Z",
+        "completed_at": "2026-09-12T11:48:00Z"
+      }
+    ],
+    "check_run_url": "https://api.github.com/repos/SwiggitySwerve/MekStation/check-runs/103548246798",
+    "labels": [
+      "ubuntu-latest"
+    ],
+    "runner_id": 1000059985,
+    "runner_name": "GitHub Actions 1000059985",
+    "runner_group_id": 0,
+    "runner_group_name": "GitHub Actions"
+  },
+  "note": "All protected checks succeeded. Combat job metadata remains in_progress although every step including Complete job succeeded at 11:48Z; retain raw state and do not claim final job completion."
+}

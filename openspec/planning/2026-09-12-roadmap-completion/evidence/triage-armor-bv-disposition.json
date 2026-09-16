@@ -1,0 +1,140 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "triage-armor-bv-disposition",
+  "capturedAt": "2026-09-12",
+  "worktree": "E:/Projects/MekStation",
+  "scope": "Only armor-diagram and bv-validation-tooling from the first-five review; static evidence plus one filtered BV harness test.",
+  "inputInventory": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-first-five-source-review.json",
+    "sha256": "30822ab1e36044126e4daf649b1449e44eef55e579a67eb37b2ab572a2671820",
+    "selectedRows": [
+      "armor-diagram",
+      "bv-validation-tooling"
+    ]
+  },
+  "rows": [
+    {
+      "id": "armor-diagram",
+      "primaryNode": "R9.triage",
+      "originalConcern": "Allocator and numeric references were current; renderer interaction, switching, and persistence were unproved.",
+      "canonicalSpec": {
+        "path": "openspec/specs/armor-diagram/spec.md",
+        "sha256": "9876b93a4e2a8b476d475888cd2238fee5d17f622c74387f8cddfcf6925ec5b9",
+        "anchors": "227-254: autoAllocateArmorLogic ratios and 100-point turreted/turretless/VTOL scenarios"
+      },
+      "sources": [
+        {
+          "path": "src/stores/useVehicleStore.actions.ts",
+          "sha256": "e1fcdae55c3e5457f6112a5cd64baa4b49eab10abc11cb0fc6b86719f7f0277b",
+          "lines": "251-297",
+          "symbols": "autoAllocateArmorLogic"
+        },
+        {
+          "path": "src/stores/useVehicleStore.ts",
+          "sha256": "a02b9b8e6b293af1c8e157df003d503f8b5fcafc0a846d6c301a05fb92f6c804",
+          "lines": "151",
+          "symbols": "autoAllocateArmor facade"
+        }
+      ],
+      "parentProof": {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-armor-personnel-verification.json",
+        "sha256": "8d010f4eb810e89d84ab9e10db13531b806990660a473a739eeae0cd7844938d",
+        "result": "10 suites and 254 tests passed; combined armor plus personnel run, not armor-only.",
+        "armorSuites": [
+          "src/stores/__tests__/useVehicleStore.autoAllocate.test.ts",
+          "src/__tests__/utils/construction/armorAutoAllocation.test.ts",
+          "src/__tests__/unit/utils/construction/armorCalculations.test.ts"
+        ],
+        "proof": "Numeric/store/construction allocation, symmetry, caps, totals, weight, cost, and helper behavior."
+      },
+      "remainingDefects": [
+        "Renderer/visual variants not exercised.",
+        "Switching interaction and browser persistence not exercised."
+      ],
+      "proposedDisposition": {
+        "state": "dispositioned",
+        "disposition": "existing",
+        "owner": "R9.triage",
+        "text": "Close the finite stale/reference concern; no armor formula repair is indicated. Retain UI and persistence limits as bounded scope.",
+        "nextMinimalAction": "Keep the three armor suite references with the combined-run scope note; seek UI proof only under a separate accepted item."
+      }
+    },
+    {
+      "id": "bv-validation-tooling",
+      "primaryNode": "R9.triage",
+      "originalConcern": "Command and report/cache/fallback resolver exist; hypothetical check-new-pattern is intentionally absent; report coverage, cache invalidation, and fixture behavior needed focused proof.",
+      "canonicalSpec": {
+        "path": "openspec/specs/bv-validation-tooling/spec.md",
+        "sha256": "07c82adf18d0f7082fbc2018cfe04f87e86708047efe229b588be473ac99d8ac",
+        "anchors": "248-256 hypothetical script; 269-317 report, cache, overrides and pending fixture; 319-335 committed dataset"
+      },
+      "sources": [
+        {
+          "path": "scripts/validate-bv.ts",
+          "sha256": "b04956555e9949e48f5c5faadcb1168ee9ff348aa81cd4d5761b05588e05cb99",
+          "lines": "32,117-129,231,426-436",
+          "symbols": "validation command/report/coverage gates"
+        },
+        {
+          "path": "src/services/encounter/bvCatalogPrewarmer.ts",
+          "sha256": "6ed37ea6aaa7954b2c603b1e3dd542dcd949668c7dff4ad2559cc9c45de3c589",
+          "lines": "145-214,226-389",
+          "symbols": "prewarmCatalogBV, report/cache readers, fallback"
+        },
+        {
+          "path": "scripts/data-migration/megamek-bv-cache.json",
+          "sha256": "f6bd7ae2c1cbdfe340f93cfbd1b44b6c19ecf3c04adf11776a3003f6d763c32b",
+          "fact": "4225 committed entries"
+        },
+        {
+          "path": "validation-output/bv-validation-report.json",
+          "sha256": "7b5fbdc4136014c9651d9dda9127c84aef6c900268a535c309ff2730d5430ae1",
+          "fact": "4196 allResults entries"
+        },
+        {
+          "path": ".cache/swarm-bv-cache.json",
+          "sha256": "5f30161380ba43b01a774b8ee3f6801ed10b2748aab309456c6fb8ec87504582",
+          "fact": "catalogTotalUnits 4225"
+        }
+      ],
+      "focusedProof": {
+        "command": "NODE_OPTIONS=--max-old-space-size=4096 node node_modules/jest/bin/jest.js --runInBand --runTestsByPath scripts/__tests__/validate-bv-fail-loud.test.ts",
+        "result": "1 suite, 5 tests passed, exit 0",
+        "proved": "Help, invalid floor, missing dataset, coverage floor, and accuracy gate fail-loud paths.",
+        "limits": "Does not prove prewarmer cache invalidation or bvReportPath fixture override."
+      },
+      "absence": [
+        {
+          "path": "scripts/check-new-pattern.ts",
+          "exists": false,
+          "meaning": "Canonical spec labels hypothetical and uncommitted."
+        },
+        {
+          "path": "scripts/check-new-pattern.js",
+          "exists": false
+        },
+        {
+          "pattern": "bv-report-fixture.json",
+          "matches": [],
+          "meaning": "No dedicated report fixture committed."
+        }
+      ],
+      "remainingDefects": [
+        "No focused test for prewarmer version/count cache invalidation.",
+        "No dedicated report-shaped fixture test for bvReportPath override."
+      ],
+      "proposedDisposition": {
+        "state": "deferred",
+        "disposition": "deferred",
+        "owner": "R9.triage",
+        "text": "Existing command, dataset, report, cache, and resolver are confirmed. Defer only focused prewarmer invalidation and fixture proof; hypothetical script is out of scope.",
+        "nextMinimalAction": "Add a small isolated fixture test for report override plus version/count cache misses; do not recalculate the full catalog or acquire assets."
+      }
+    }
+  ],
+  "globalLimits": [
+    "No product/spec/task/roadmap/Git edits.",
+    "No full BV catalog validation, unit recalculation, asset acquisition, build, or server run.",
+    "254 parent tests are combined armor/personnel evidence; only three listed suites are armor proof."
+  ]
+}

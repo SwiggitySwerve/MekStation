@@ -1,0 +1,512 @@
+{
+  "at": "2026-09-13T09:44:36.589Z",
+  "status": "parent-accepted-receipt-reconciliation",
+  "scope": "28 remaining publication notes;17refreshed11unchanged. Original40dispositionsunchanged.",
+  "artifacts": [
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r9-four-publication-map-luna-20260913/report.json",
+      "sha256": "1be792e8719ba3aa3cc0d6fb214d3b6de153df95a1e864c219f8ff8ce210aaef"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r9-four-publication-map-luna-20260913/correction.json",
+      "sha256": "6958a3dd2b116a767d5c65f4290fe22e13200204c5257c627a4220371a559df1"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r9-six-combat-publication-map-luna-20260913/report.json",
+      "sha256": "2c5c8c8f8e7d9b9bd73b01de8bccc34efb330b6fe09c25bb01e4b725e2f3523a"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r9-eighteen-publication-parent-20260913/report.json",
+      "sha256": "3a4c4acdcae566f31a269335f743d0a2a45fd3be30e8c3de4abae930ebd4dee3"
+    }
+  ],
+  "receiptHashesReopened": 48,
+  "changes": [
+    {
+      "id": "unit-validation-framework",
+      "before": "Repair remains open until its node is independently reviewed, merged and verified on exact main.",
+      "after": "PR #1642 merged at ca0687d25264033376862347e494ddf15cd92bec; exact-main validation-order proof passed against the reviewed tree, and cleanup removed the owned worktree, branch, remote branch and tracking ref. This is limited to validation-order behavior; full validation UI acceptance remains outside the receipt.",
+      "receipts": [
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/validation-order-merge-20260912.json",
+          "sha256": "9d7f76f248479b411d2465db2c8300bfaff9d8986611e8ead46e7a17cea8b19d",
+          "supportingFields": {
+            "pr": 1642,
+            "head": "5dfcf0182e88dfac97e613795fc4738471e5c91d",
+            "merge": "ca0687d25264033376862347e494ddf15cd92bec",
+            "status": "merged"
+          }
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/validation-order-main-verification-20260912.json",
+          "sha256": "ec40f7a5a34d1c6e1758bb07e91e59a335ed7e250a9431ca262f64dcfe7602cb",
+          "supportingFields": {
+            "testedHead": "ca0687d25264033376862347e494ddf15cd92bec",
+            "reviewedPrTreeMatchesTestedMainTree": true,
+            "status": "main verification"
+          }
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/validation-order-cleanup-20260912.json",
+          "sha256": "9c4b0cd88661995f047f78234808cae4cee34b816df437173200f673ad585e1b",
+          "supportingFields": {
+            "targetRemoved": true,
+            "ownedBranchRemoved": true,
+            "remoteBranchAbsent": true,
+            "trackingRefRemoved": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "unit-comparison",
+      "before": "Pending R0.publish/R1.specs/R1.references; local inventory disposition does not close delivery or exact-main gates.",
+      "after": "PR #1658 is main-verified at 57098180595b62d68cb57b4224b724cfb82a9244, with owned cleanup and root reconciliation accepted. This covers the shipped comparison contract and API envelope documentation; it does not claim a dedicated comparison API or full browser acceptance.",
+      "receipts": [
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/unit-comparison-main-parent-acceptance-20260913.json",
+          "sha256": "fa04a0cd61d0314c42496e1c8c866ac53f49dff8d464d3c059bb2114bdafb725",
+          "supportingFields": {
+            "pr": 1658,
+            "head": "98fad23e5b51dd57e0657e11c9f9273060705b93",
+            "main": "57098180595b62d68cb57b4224b724cfb82a9244",
+            "status": "main-verified"
+          }
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/unit-comparison-cleanup-parent-acceptance-20260913.json",
+          "sha256": "0aee812faf3a6c979b55d35e36c7bab700a52542f5f1911ea9cf0115bd5f601d",
+          "supportingFields": {
+            "pr": 1658,
+            "main": "57098180595b62d68cb57b4224b724cfb82a9244",
+            "status": "accepted-owned-cleanup"
+          }
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/unit-comparison-root-reconciliation-20260913.json",
+          "sha256": "a59906119f31143b8ced724d8e115d1f607cadb115db9f4c1cf9b33f552c792b",
+          "supportingFields": {
+            "main": "57098180595b62d68cb57b4224b724cfb82a9244",
+            "status": "reconciled"
+          }
+        }
+      ]
+    },
+    {
+      "id": "overview-basic-info",
+      "before": "Pending R0.publish/R1.specs/R1.references; local inventory disposition does not close delivery or exact-main gates.",
+      "after": "PR #1655 merged the overview-basic-info documentation at 8f72371064675740d2ea710b869f7c7673e4c11d; exact-main documentation checks, owned cleanup and root reconciliation are accepted. This does not establish runtime completion.",
+      "receipts": [
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/customizer-layout-main-parent-acceptance-20260913.json",
+          "sha256": "bcab59a71977b2b9d5f85186f48725b09f1a564fc304ec7d55cfab8d3405ee79",
+          "supportingFields": {
+            "pr": 1655,
+            "head": "8f72371064675740d2ea710b869f7c7673e4c11d",
+            "status": "accepted-exact-main-documentation-proof",
+            "exactPathIncluded": true
+          }
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/customizer-layout-cleanup-parent-acceptance-20260913.json",
+          "sha256": "ca42cc5bb545e82a1c1e28c0d8fbe6a0a1da2435c39ecd25b286d4ab07b48481",
+          "supportingFields": {
+            "pr": 1655,
+            "main": "8f72371064675740d2ea710b869f7c7673e4c11d",
+            "status": "accepted-owned-cleanup",
+            "worktreeRemoved": true
+          }
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/customizer-layout-root-reconciliation-20260913.json",
+          "sha256": "542c3345a8a90bc00b2f128561581117df259492c6c8e52adb9307795da37a91",
+          "supportingFields": {
+            "main": "8f72371064675740d2ea710b869f7c7673e4c11d",
+            "status": "owned-root-drafts-reconciled",
+            "exactPathAfterSha256": "4530c174c24f635bb7621f0b3a900f19fe3071482a68216e37c8f822dbca2bdf"
+          }
+        }
+      ]
+    },
+    {
+      "id": "c3-network-targeting",
+      "before": "Pending R0.publish/R1.specs; local disposition does not close publication or final main gates.",
+      "after": "PR #1654 merged at 873edbf2f7c1b906cd9fb71123e19584f06c5082; exact-main documentation proof covers the five named spec files and owned cleanup is accepted. This is documentation/reference delivery only and makes no runtime, browser, or full feature claim.",
+      "receipts": [
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/combat-reference-main-parent-acceptance-20260913.json",
+          "sha256": "d3fbb6c2637a384e248bcacde786d55e40c871b29de2acd22d68c77496132791",
+          "supportingFields": {
+            "pr": 1654,
+            "status": "accepted-exact-main-documentation",
+            "exactMatchedPaths": [
+              "openspec/specs/c3-network-targeting/spec.md",
+              "openspec/specs/combat-analytics/spec.md",
+              "openspec/specs/firing-arc-calculation/spec.md",
+              "openspec/specs/hull-down-position/spec.md",
+              "openspec/specs/piloting-skill-rolls/spec.md"
+            ],
+            "limits": [
+              "Five documentation files only; no fresh runtime proof."
+            ]
+          }
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/combat-reference-cleanup-parent-acceptance-20260913.json",
+          "sha256": "45afca6d467c18377fc352a1a28ec9545fc32f31a9857bcfa045431dc7ede844",
+          "supportingFields": {
+            "status": "accepted-owned-cleanup-postconditions"
+          }
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r1-specs-completion-20260913.json",
+          "sha256": "8cd1500cfcae3fbc9428f72e0ba8f2ca87d5a942fa1e9ad3e74b0728bc07b5a1",
+          "supportingFields": {
+            "prefix": "combat-reference-contracts",
+            "pr": 1654,
+            "merge": "873edbf2f7c1b906cd9fb71123e19584f06c5082",
+            "status": "complete-canonical-specification-delivery"
+          }
+        }
+      ]
+    },
+    {
+      "id": "firing-arc-calculation",
+      "before": "Pending R0.publish/R1.specs/R1.references; local inventory disposition does not close delivery or exact-main gates.",
+      "after": "PR #1654 merged at 873edbf2f7c1b906cd9fb71123e19584f06c5082; exact-main documentation proof covers the five named spec files and owned cleanup is accepted. This is documentation/reference delivery only and makes no runtime, browser, or full feature claim.",
+      "receipts": [
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/combat-reference-main-parent-acceptance-20260913.json",
+          "sha256": "d3fbb6c2637a384e248bcacde786d55e40c871b29de2acd22d68c77496132791",
+          "supportingFields": {
+            "pr": 1654,
+            "status": "accepted-exact-main-documentation",
+            "exactMatchedPaths": [
+              "openspec/specs/c3-network-targeting/spec.md",
+              "openspec/specs/combat-analytics/spec.md",
+              "openspec/specs/firing-arc-calculation/spec.md",
+              "openspec/specs/hull-down-position/spec.md",
+              "openspec/specs/piloting-skill-rolls/spec.md"
+            ],
+            "limits": [
+              "Five documentation files only; no fresh runtime proof."
+            ]
+          }
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/combat-reference-cleanup-parent-acceptance-20260913.json",
+          "sha256": "45afca6d467c18377fc352a1a28ec9545fc32f31a9857bcfa045431dc7ede844",
+          "supportingFields": {
+            "status": "accepted-owned-cleanup-postconditions"
+          }
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r1-specs-completion-20260913.json",
+          "sha256": "8cd1500cfcae3fbc9428f72e0ba8f2ca87d5a942fa1e9ad3e74b0728bc07b5a1",
+          "supportingFields": {
+            "prefix": "combat-reference-contracts",
+            "pr": 1654,
+            "merge": "873edbf2f7c1b906cd9fb71123e19584f06c5082",
+            "status": "complete-canonical-specification-delivery"
+          }
+        }
+      ]
+    },
+    {
+      "id": "hull-down-position",
+      "before": "Pending R0.publish/R1.specs/R1.references; local inventory disposition does not close delivery or exact-main gates.",
+      "after": "PR #1654 merged at 873edbf2f7c1b906cd9fb71123e19584f06c5082; exact-main documentation proof covers the five named spec files and owned cleanup is accepted. This is documentation/reference delivery only and makes no runtime, browser, or full feature claim.",
+      "receipts": [
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/combat-reference-main-parent-acceptance-20260913.json",
+          "sha256": "d3fbb6c2637a384e248bcacde786d55e40c871b29de2acd22d68c77496132791",
+          "supportingFields": {
+            "pr": 1654,
+            "status": "accepted-exact-main-documentation",
+            "exactMatchedPaths": [
+              "openspec/specs/c3-network-targeting/spec.md",
+              "openspec/specs/combat-analytics/spec.md",
+              "openspec/specs/firing-arc-calculation/spec.md",
+              "openspec/specs/hull-down-position/spec.md",
+              "openspec/specs/piloting-skill-rolls/spec.md"
+            ],
+            "limits": [
+              "Five documentation files only; no fresh runtime proof."
+            ]
+          }
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/combat-reference-cleanup-parent-acceptance-20260913.json",
+          "sha256": "45afca6d467c18377fc352a1a28ec9545fc32f31a9857bcfa045431dc7ede844",
+          "supportingFields": {
+            "status": "accepted-owned-cleanup-postconditions"
+          }
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r1-specs-completion-20260913.json",
+          "sha256": "8cd1500cfcae3fbc9428f72e0ba8f2ca87d5a942fa1e9ad3e74b0728bc07b5a1",
+          "supportingFields": {
+            "prefix": "combat-reference-contracts",
+            "pr": 1654,
+            "merge": "873edbf2f7c1b906cd9fb71123e19584f06c5082",
+            "status": "complete-canonical-specification-delivery"
+          }
+        }
+      ]
+    },
+    {
+      "id": "piloting-skill-rolls",
+      "before": "Pending R0.publish/R1.specs/R1.references; local inventory disposition does not close delivery or exact-main gates.",
+      "after": "PR #1654 merged at 873edbf2f7c1b906cd9fb71123e19584f06c5082; exact-main documentation proof covers the five named spec files and owned cleanup is accepted. This is documentation/reference delivery only and makes no runtime, browser, or full feature claim. R1.references and broader gameplay acceptance remain separate.",
+      "receipts": [
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/combat-reference-main-parent-acceptance-20260913.json",
+          "sha256": "d3fbb6c2637a384e248bcacde786d55e40c871b29de2acd22d68c77496132791",
+          "supportingFields": {
+            "pr": 1654,
+            "status": "accepted-exact-main-documentation",
+            "exactMatchedPaths": [
+              "openspec/specs/c3-network-targeting/spec.md",
+              "openspec/specs/combat-analytics/spec.md",
+              "openspec/specs/firing-arc-calculation/spec.md",
+              "openspec/specs/hull-down-position/spec.md",
+              "openspec/specs/piloting-skill-rolls/spec.md"
+            ],
+            "limits": [
+              "Five documentation files only; no fresh runtime proof."
+            ]
+          }
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/combat-reference-cleanup-parent-acceptance-20260913.json",
+          "sha256": "45afca6d467c18377fc352a1a28ec9545fc32f31a9857bcfa045431dc7ede844",
+          "supportingFields": {
+            "status": "accepted-owned-cleanup-postconditions"
+          }
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r1-specs-completion-20260913.json",
+          "sha256": "8cd1500cfcae3fbc9428f72e0ba8f2ca87d5a942fa1e9ad3e74b0728bc07b5a1",
+          "supportingFields": {
+            "prefix": "combat-reference-contracts",
+            "pr": 1654,
+            "merge": "873edbf2f7c1b906cd9fb71123e19584f06c5082",
+            "status": "complete-canonical-specification-delivery"
+          }
+        }
+      ]
+    },
+    {
+      "id": "combat-analytics",
+      "before": "Local inventory disposition only; implementation where assigned, publication and exact-main acceptance remain mandatory.",
+      "after": "PR #1654 merged at 873edbf2f7c1b906cd9fb71123e19584f06c5082; exact-main documentation proof covers the five named spec files and owned cleanup is accepted. This is documentation/reference delivery only and makes no runtime, browser, or full feature claim. The finite stale-reference repair does not claim analytics runtime completion.",
+      "receipts": [
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/combat-reference-main-parent-acceptance-20260913.json",
+          "sha256": "d3fbb6c2637a384e248bcacde786d55e40c871b29de2acd22d68c77496132791",
+          "supportingFields": {
+            "pr": 1654,
+            "status": "accepted-exact-main-documentation",
+            "exactMatchedPaths": [
+              "openspec/specs/c3-network-targeting/spec.md",
+              "openspec/specs/combat-analytics/spec.md",
+              "openspec/specs/firing-arc-calculation/spec.md",
+              "openspec/specs/hull-down-position/spec.md",
+              "openspec/specs/piloting-skill-rolls/spec.md"
+            ],
+            "limits": [
+              "Five documentation files only; no fresh runtime proof."
+            ]
+          }
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/combat-reference-cleanup-parent-acceptance-20260913.json",
+          "sha256": "45afca6d467c18377fc352a1a28ec9545fc32f31a9857bcfa045431dc7ede844",
+          "supportingFields": {
+            "status": "accepted-owned-cleanup-postconditions"
+          }
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r1-specs-completion-20260913.json",
+          "sha256": "8cd1500cfcae3fbc9428f72e0ba8f2ca87d5a942fa1e9ad3e74b0728bc07b5a1",
+          "supportingFields": {
+            "prefix": "combat-reference-contracts",
+            "pr": 1654,
+            "merge": "873edbf2f7c1b906cd9fb71123e19584f06c5082",
+            "status": "complete-canonical-specification-delivery"
+          }
+        }
+      ]
+    },
+    {
+      "id": "campaign-combat-loop",
+      "before": "Local inventory disposition only; implementation where assigned, publication and exact-main acceptance remain mandatory.",
+      "after": "Canonical specification delivery for this inventory row is main-verified in PR #1653 at f39c2b71c1788507733fa78571d85156951fb2a0, with accepted owned cleanup. This is documentation/reference acceptance only; finite audit publication and the separately assigned product, journey and exact-main gates remain.",
+      "receipts": [
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-catalog-main-parent-acceptance-20260913.json",
+          "sha256": "8122e56c772073532fcfa1f2ba1a924aeb28f265ce695eb9879336ad73981932"
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-catalog-cleanup-parent-acceptance-20260913.json",
+          "sha256": "645be3a8c07f8c442a505ed5ff5ffbb8b35e67b44eef59ba0d4db470434c7337"
+        },
+        {
+          "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-main-verification/source-hash-manifest.json",
+          "sha256": "1347e85bc9739453222fa534a7248f85e5cc98c48029f88ebac5024318e0df22"
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-catalog-cleanup-20260913.json",
+          "sha256": "12e7bac6b37f841574efe5d1d274250a3d6b79f9ef6aae3dfb3b57c01c4cf916"
+        }
+      ]
+    },
+    {
+      "id": "campaign-personnel-architecture",
+      "before": "Pending R0.publish/R1.specs; local disposition does not close publication or final main gates.",
+      "after": "Canonical specification delivery for this inventory row is main-verified in PR #1661 at f7e926057bf0981ed34eda843de74e35d0792aa3, with accepted owned cleanup. This is documentation/reference acceptance only; finite audit publication and the separately assigned product, journey and exact-main gates remain.",
+      "receipts": [
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/remaining-reference-main-parent-acceptance-20260913.json",
+          "sha256": "36302b7c3472a779187bb3623db4afa7eec3d1f84a71aa741e8c72fb4d91c9c1"
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/remaining-reference-cleanup-parent-acceptance-20260913.json",
+          "sha256": "5fa2029fb1d7de2ec473d1b9675f866b9f1857736df857b7f289b284c1a87664"
+        }
+      ]
+    },
+    {
+      "id": "campaign-unit-combat-state",
+      "before": "Local finite inventory only; existing roadmap delivery, repair and exact-main obligations remain open.",
+      "after": "Canonical specification delivery for this inventory row is main-verified in PR #1664 at 5b229be21e87815f10ce6521dda77b52eef75e3c, with accepted owned cleanup. This is documentation/reference acceptance only; finite audit publication and the separately assigned product, journey and exact-main gates remain.",
+      "receipts": [
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/final-canonical-main-parent-acceptance-20260913.json",
+          "sha256": "d418ae8780e208ec481072faa06a63a65adeb468dc2f267aa28fb15285fef7eb"
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/final-canonical-cleanup-parent-acceptance-20260913.json",
+          "sha256": "bba9aba3c13eae906b874d14a50630a5e7c284570b4e8dfd6c7f75a31e3d7707"
+        }
+      ]
+    },
+    {
+      "id": "force-management",
+      "before": "Local inventory disposition only; implementation where assigned, publication and exact-main acceptance remain mandatory.",
+      "after": "Canonical specification delivery for this inventory row is main-verified in PR #1659 at d02341852fb594599af6bcd882c3da1fdb8b069f, with accepted owned cleanup. This is documentation/reference acceptance only; finite audit publication and the separately assigned product, journey and exact-main gates remain.",
+      "receipts": [
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-store-main-parent-acceptance-20260913.json",
+          "sha256": "d4afa4ad9be78d6bc69f6d8dc3ffcb51e8f2227d4d5e6bdd3b70626da2638c57"
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-store-cleanup-parent-acceptance-20260913.json",
+          "sha256": "2ea9969fc074ced88540937a3e7c6c2076a2c0eaa842b574533c36b42900913b"
+        }
+      ]
+    },
+    {
+      "id": "game-session-management",
+      "before": "Local inventory disposition only; implementation where assigned, publication and exact-main acceptance remain mandatory.",
+      "after": "Canonical specification delivery for this inventory row is main-verified in PR #1659 at d02341852fb594599af6bcd882c3da1fdb8b069f, with accepted owned cleanup. This is documentation/reference acceptance only; finite audit publication and the separately assigned product, journey and exact-main gates remain.",
+      "receipts": [
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-store-main-parent-acceptance-20260913.json",
+          "sha256": "d4afa4ad9be78d6bc69f6d8dc3ffcb51e8f2227d4d5e6bdd3b70626da2638c57"
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-store-cleanup-parent-acceptance-20260913.json",
+          "sha256": "2ea9969fc074ced88540937a3e7c6c2076a2c0eaa842b574533c36b42900913b"
+        }
+      ]
+    },
+    {
+      "id": "personnel-management",
+      "before": "Local inventory disposition only; implementation where assigned, publication and exact-main acceptance remain mandatory.",
+      "after": "Canonical specification delivery for this inventory row is main-verified in PR #1659 at d02341852fb594599af6bcd882c3da1fdb8b069f, with accepted owned cleanup. This is documentation/reference acceptance only; finite audit publication and the separately assigned product, journey and exact-main gates remain.",
+      "receipts": [
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-store-main-parent-acceptance-20260913.json",
+          "sha256": "d4afa4ad9be78d6bc69f6d8dc3ffcb51e8f2227d4d5e6bdd3b70626da2638c57"
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-store-cleanup-parent-acceptance-20260913.json",
+          "sha256": "2ea9969fc074ced88540937a3e7c6c2076a2c0eaa842b574533c36b42900913b"
+        }
+      ]
+    },
+    {
+      "id": "repair",
+      "before": "Local inventory disposition only; implementation where assigned, publication and exact-main acceptance remain mandatory.",
+      "after": "Canonical specification delivery for this inventory row is main-verified in PR #1659 at d02341852fb594599af6bcd882c3da1fdb8b069f, with accepted owned cleanup. This is documentation/reference acceptance only; finite audit publication and the separately assigned product, journey and exact-main gates remain.",
+      "receipts": [
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-store-main-parent-acceptance-20260913.json",
+          "sha256": "d4afa4ad9be78d6bc69f6d8dc3ffcb51e8f2227d4d5e6bdd3b70626da2638c57"
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-store-cleanup-parent-acceptance-20260913.json",
+          "sha256": "2ea9969fc074ced88540937a3e7c6c2076a2c0eaa842b574533c36b42900913b"
+        }
+      ]
+    },
+    {
+      "id": "user-identity",
+      "before": "Pending R0.publish/R1.specs/R1.references; local inventory disposition does not close delivery or exact-main gates.",
+      "after": "Canonical specification delivery for this inventory row is main-verified in PR #1661 at f7e926057bf0981ed34eda843de74e35d0792aa3, with accepted owned cleanup. This is documentation/reference acceptance only; finite audit publication and the separately assigned product, journey and exact-main gates remain.",
+      "receipts": [
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/remaining-reference-main-parent-acceptance-20260913.json",
+          "sha256": "36302b7c3472a779187bb3623db4afa7eec3d1f84a71aa741e8c72fb4d91c9c1"
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/remaining-reference-cleanup-parent-acceptance-20260913.json",
+          "sha256": "5fa2029fb1d7de2ec473d1b9675f866b9f1857736df857b7f289b284c1a87664"
+        }
+      ]
+    },
+    {
+      "id": "vault-sync",
+      "before": "Pending R0.publish/R1.specs/R1.references; local inventory disposition does not close delivery or exact-main gates.",
+      "after": "Canonical specification delivery for this inventory row is main-verified in PR #1661 at f7e926057bf0981ed34eda843de74e35d0792aa3, with accepted owned cleanup. This is documentation/reference acceptance only; finite audit publication and the separately assigned product, journey and exact-main gates remain.",
+      "receipts": [
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/remaining-reference-main-parent-acceptance-20260913.json",
+          "sha256": "36302b7c3472a779187bb3623db4afa7eec3d1f84a71aa741e8c72fb4d91c9c1"
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/remaining-reference-cleanup-parent-acceptance-20260913.json",
+          "sha256": "5fa2029fb1d7de2ec473d1b9675f866b9f1857736df857b7f289b284c1a87664"
+        }
+      ]
+    }
+  ],
+  "unchanged": [
+    "armor-diagram",
+    "terrain-generation",
+    "campaign-bay-ui",
+    "campaign-hud",
+    "campaign-persistence",
+    "event-store",
+    "p2p-sync-system",
+    "superheavy-mech-system",
+    "tactical-map-interface",
+    "terrain-system",
+    "unit-sprite-system"
+  ],
+  "noteCorrection": {
+    "id": "unit-validation-framework",
+    "before": "Current numeric sorting can interleave the specified validation levels. R9.validation-order owns reproduction and the bounded contract repair; full validation UI acceptance is not implied.",
+    "after": "The admitted validation-order repair is merged and verified on exact main: validation levels run in their specified hierarchy. Full validation UI acceptance is outside this bounded repair."
+  },
+  "corrections": [
+    "Original overview worker attribution to PR1664 rejected; superseding correction identifies PR1655 exactpath.",
+    "CRLF checkout hashes distinguished from LF Gitblob hashes; recorded Git OIDs compared."
+  ],
+  "limits": [
+    "No fresh product/runtime/browser execution; accepted historical exact-main receipts retain their own scope.",
+    "Canonical docs delivery does not publish the evolving finite inventory or discharge product journeys.",
+    "No original task, disposition, repair ownership or completion state changed."
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "proof": "r4-matrix-1672-main-proof",
+  "date": "2026-09-15",
+  "headTested": "b39b8291706c36b9ad0c876a5e1b11e5b3612b7d",
+  "headSubject": "test(customizer): verify production print and export workflows (#1667)",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/r2-prepared-journal-api",
+  "commitTested": {
+    "commit": "6d493d508fe797e9a4342cbc0bd41b13ff376be4",
+    "subject": "docs: map all eighty campaign acceptance scenarios",
+    "note": "This is the reviewed PR #1672 commit within the ancestry of b39b8291."
+  },
+  "step1_filesChanged": {
+    "command": "git diff --name-only 6d493d508f~1 6d493d508f",
+    "logFile": "proofB-files-changed.txt",
+    "sha256": "823717e3af3f4a97ae5f550ea5f626e70f856c43cd46ace661470b83279ae80b",
+    "files": [
+      "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/notepad.md",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/r4-matrix-local-verification-20260913.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/r4-matrix-parent-acceptance-20260913.json"
+    ],
+    "count": 3
+  },
+  "step2_blobIdentity": {
+    "command": "git ls-tree 6d493d508f -- <3 files>  vs  git ls-tree b39b8291 -- <3 files>",
+    "logFile": "proofB-blobs.txt",
+    "sha256": "e87fbc6503bcc34251c38b0ff881f71636d0289e58d7b530b97ecab7d7751a5e",
+    "identical": true,
+    "blobs": [
+      {
+        "path": "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/notepad.md",
+        "oidAt6d493d508f": "9ecf8224c1911e78eebee00c5aae521d0fe8976a",
+        "oidAtB39b8291": "9ecf8224c1911e78eebee00c5aae521d0fe8976a"
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r4-matrix-local-verification-20260913.json",
+        "oidAt6d493d508f": "f3dbaa6117d92cfca00fb656d6f059755d186a49",
+        "oidAtB39b8291": "f3dbaa6117d92cfca00fb656d6f059755d186a49"
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r4-matrix-parent-acceptance-20260913.json",
+        "oidAt6d493d508f": "b75e68d4ebb50af9dc79fc3c65c6ed60d13cbe5d",
+        "oidAtB39b8291": "b75e68d4ebb50af9dc79fc3c65c6ed60d13cbe5d"
+      }
+    ]
+  },
+  "step3_task0_1Unchecked": {
+    "command": "grep -n \"0\\.1\" openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/tasks.md",
+    "logFile": "proofB-task-0.1-grep.txt",
+    "sha256": "010f51aa5ef0214682e1ac9373bce8d9750a350c30aa826c22eaae25984d9228",
+    "quotedLine": "9:- [ ] 0.1 Reconcile all 80 acceptance scenarios of the umbrella's `e2e-testing` delta to test identifiers and evidence paths (the umbrella's box 25.4 first half), recording which rows are real, which are strict expected failures, and which have no row. Deliverable: a table in this change's notepad and a receipt naming the reachable surface (34 of 80 at the split).",
+    "checkboxState": "UNCHECKED ([ ])",
+    "confirmed": true
+  },
+  "step4_validatorsReference": {
+    "note": "The four OpenSpec validators run for Proof A (npx openspec validate --all --strict; npm run spec:purpose:validate:strict; npm run terminology:validate:strict; npm run qc:openspec-ci:validate) also cover this commit's tree since both proofs were checked at the same HEAD (b39b8291). See archives-1669-1670-main-proof-20260915.json step4_validators for the full results (all exit 0).",
+    "sharedEvidenceFile": "archives-1669-1670-main-proof-20260915.json"
+  },
+  "discrepancies": "none",
+  "logDirectory": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/main-proof-docs-20260915",
+  "sha256Manifest": "sha256sums.txt in the same log directory"
+}

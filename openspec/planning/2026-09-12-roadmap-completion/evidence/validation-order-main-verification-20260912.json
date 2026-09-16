@@ -1,0 +1,142 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "validation-order-main-verification-20260912",
+  "recordedAt": "2026-09-12T19:48:22.152Z",
+  "node": "R9.validation-order",
+  "testedHead": "ca0687d25264033376862347e494ddf15cd92bec",
+  "reviewedPrHead": "5dfcf0182e88dfac97e613795fc4738471e5c91d",
+  "reviewedPrTreeMatchesTestedMainTree": true,
+  "worktree": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/validation-order",
+    "status": "clean; detached HEAD",
+    "nodeModules": "physical directory; LinkType empty; Target empty",
+    "dependenciesModified": false
+  },
+  "sourceHashes": [
+    {
+      "path": "src/services/validation/UnitValidationRegistry.ts",
+      "sha256": "3939111303debbcee9cc5152d0df5c8f2b800a6cb83f652aaae0129253025246"
+    },
+    {
+      "path": "src/__tests__/service/validation/UnitValidationHierarchyOrder.test.ts",
+      "sha256": "1e7a2f12de7ac4392d4b9fcbf9e2c9bdb684fe39ecb9c8d6c11134b9b7135e4d"
+    },
+    {
+      "path": "src/services/validation/__tests__/initializeUnitValidation.test.ts",
+      "sha256": "7737565b431f2b9248b0d2c43862614a11a2a7789f08b886f18c494f8898138a"
+    },
+    {
+      "path": "openspec/specs/unit-validation-framework/spec.md",
+      "sha256": "7bfc2f9d64234b09661c682fb19a6f0918b5414fabd77483f44cb049663acf2d"
+    }
+  ],
+  "static": {
+    "statusPath": ".sisyphus/roadmap-completion-20260912/validation-order-checks/main-1/static-status.json",
+    "statusSha256": "4fed4e4d80fe430e692e15157260257897349cfd9ef2fd76488c9b2a99ada4c8",
+    "driverPath": ".sisyphus/roadmap-completion-20260912/validation-order-checks/main-1/driver.cjs",
+    "driverSha256": "8783aff5603dcc24a7db52d4c6497aefb3142ff3485c196e723df8bf8b148d9f",
+    "exit": 0,
+    "steps": [
+      {
+        "name": "focused",
+        "executable": "C:/nvm4w/nodejs/node.exe",
+        "args": ["node_modules/jest/bin/jest.js", "--runInBand", "--selectProjects", "unit", "--runTestsByPath", "src/__tests__/service/validation/UnitValidationRegistry.test.ts", "src/__tests__/service/validation/UnitValidationOrchestrator.test.ts", "src/__tests__/service/validation/UnitValidationHierarchyOrder.test.ts", "src/services/validation/__tests__/UnitValidationRegistry.test.ts", "src/services/validation/__tests__/UnitValidationOrchestrator.test.ts", "src/services/validation/__tests__/initializeUnitValidation.test.ts"],
+        "exit": 0,
+        "assertions": {"suites": 6, "tests": 125},
+        "stdoutPath": ".sisyphus/roadmap-completion-20260912/validation-order-checks/main-1/static-focused.stdout.log",
+        "stdoutSha256": "ad5041414338223be9b2b2b5af0d92856a0f6b2740cbfcdf972e95777907fbc6",
+        "stderrPath": ".sisyphus/roadmap-completion-20260912/validation-order-checks/main-1/static-focused.stderr.log",
+        "stderrSha256": "65037738bedc5a8a61300add69ccd926338af567479a1e33b760f461ec2f2dce"
+      },
+      {
+        "name": "typecheck",
+        "executable": "C:/nvm4w/nodejs/node.exe",
+        "args": ["C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js", "run", "typecheck"],
+        "exit": 0,
+        "stdoutPath": ".sisyphus/roadmap-completion-20260912/validation-order-checks/main-1/static-typecheck.stdout.log",
+        "stdoutSha256": "d140a6ce62dda0946fe30dd882dbb8209f05be72c8fa8850e5634755a399e50f",
+        "stderrPath": ".sisyphus/roadmap-completion-20260912/validation-order-checks/main-1/static-typecheck.stderr.log",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "lint",
+        "executable": "C:/nvm4w/nodejs/node.exe",
+        "args": ["C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js", "run", "lint"],
+        "exit": 0,
+        "stdoutPath": ".sisyphus/roadmap-completion-20260912/validation-order-checks/main-1/static-lint.stdout.log",
+        "stdoutSha256": "fe72bdce06ce1d08fb7cd7e32021a99354ac37304274fa20e997046c89db9228",
+        "stderrPath": ".sisyphus/roadmap-completion-20260912/validation-order-checks/main-1/static-lint.stderr.log",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "format",
+        "executable": "C:/nvm4w/nodejs/node.exe",
+        "args": ["C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js", "run", "format:check"],
+        "exit": 0,
+        "stdoutPath": ".sisyphus/roadmap-completion-20260912/validation-order-checks/main-1/static-format.stdout.log",
+        "stdoutSha256": "32b40f8373976341e49ed6578aaab7a961ec878f6a0aac8953d9f8b1d51d54dd",
+        "stderrPath": ".sisyphus/roadmap-completion-20260912/validation-order-checks/main-1/static-format.stderr.log",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "specs",
+        "executable": "C:/nvm4w/nodejs/node.exe",
+        "args": ["C:/Users/wroll/AppData/Roaming/npm/node_modules/@fission-ai/openspec/bin/openspec.js", "validate", "--all", "--strict"],
+        "exit": 0,
+        "stdoutPath": ".sisyphus/roadmap-completion-20260912/validation-order-checks/main-1/static-specs.stdout.log",
+        "stdoutSha256": "16c5c323579e9f348bc2adb0830ebd7bb199a73726ab1098c72331305dcca967",
+        "stderrPath": ".sisyphus/roadmap-completion-20260912/validation-order-checks/main-1/static-specs.stderr.log",
+        "stderrSha256": "5bc31df123a2e521acdd2c0d9477b367feec506471a91065d0a6b32c09089ed5"
+      },
+      {
+        "name": "purpose",
+        "executable": "C:/nvm4w/nodejs/node.exe",
+        "args": ["C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js", "run", "spec:purpose:validate:strict"],
+        "exit": 0,
+        "stdoutPath": ".sisyphus/roadmap-completion-20260912/validation-order-checks/main-1/static-purpose.stdout.log",
+        "stdoutSha256": "f5a58a8673c05decf5e24b842645ba85e19b17fcd0b5eb2c269cd88878b08256",
+        "stderrPath": ".sisyphus/roadmap-completion-20260912/validation-order-checks/main-1/static-purpose.stderr.log",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "terminology",
+        "executable": "C:/nvm4w/nodejs/node.exe",
+        "args": ["C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js", "run", "terminology:validate:strict"],
+        "exit": 0,
+        "stdoutPath": ".sisyphus/roadmap-completion-20260912/validation-order-checks/main-1/static-terminology.stdout.log",
+        "stdoutSha256": "f900b2f139d48a4fce3da66f12105cdd633a1cfe6dc8102211bcf03cc6a1cce7",
+        "stderrPath": ".sisyphus/roadmap-completion-20260912/validation-order-checks/main-1/static-terminology.stderr.log",
+        "stderrSha256": "5e9422c49a8a1850adbe1faa7c775abb83f787023f3b5a07deafd5564542da53"
+      },
+      {
+        "name": "ci-qc",
+        "executable": "C:/nvm4w/nodejs/node.exe",
+        "args": ["C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js", "run", "qc:openspec-ci:validate"],
+        "exit": 0,
+        "stdoutPath": ".sisyphus/roadmap-completion-20260912/validation-order-checks/main-1/static-ci-qc.stdout.log",
+        "stdoutSha256": "f01feb11318234aab4764fe76151b78c06905527212a8f8723626fcf616b71d6",
+        "stderrPath": ".sisyphus/roadmap-completion-20260912/validation-order-checks/main-1/static-ci-qc.stderr.log",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ]
+  },
+  "build": {
+    "statusPath": ".sisyphus/roadmap-completion-20260912/validation-order-checks/main-1/build-status.json",
+    "statusSha256": "254303f5444432165867cb7730737b8b325a1a1b98804f93b70404a92f763ad3",
+    "driverPath": ".sisyphus/roadmap-completion-20260912/validation-order-checks/main-1/build-driver.cjs",
+    "driverSha256": "30496b601090bb94d8f45b2c744ff1c66713c499106bdc2b9c60b93a313864b0",
+    "executable": "C:/nvm4w/nodejs/node.exe",
+    "args": ["C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js", "run", "build"],
+    "exit": 0,
+    "stdoutPath": ".sisyphus/roadmap-completion-20260912/validation-order-checks/main-1/build.stdout.log",
+    "stdoutSha256": "d249873bb7ca742da255d9b454919b82025bf36d9f3522d3001c0eb3c3c9f444",
+    "stderrPath": ".sisyphus/roadmap-completion-20260912/validation-order-checks/main-1/build.stderr.log",
+    "stderrSha256": "6316ccd6c83a83050a655e69a94c90819a9c34b7ae5386c7ad77ad8b7e4b0aa5",
+    "typecheckWasSerializedBeforeBuild": true,
+    "hydrationMarker": "ok"
+  },
+  "limitations": [
+    "This is exact-main static and production-build proof for the validation-order slice; no server, browser, or runtime deployment claim is made.",
+    "Unknown-unit warning and multi-hop extension composition remain pre-existing limitations recorded by the local verification receipt."
+  ]
+}

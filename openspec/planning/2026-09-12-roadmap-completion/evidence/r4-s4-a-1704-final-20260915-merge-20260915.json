@@ -1,0 +1,53 @@
+{
+  "pr": 1704,
+  "branch": "codex/roadmap-r4-s4-a-restart-recovery-20260915",
+  "reviewedCommit": "5cd7df07bee1ddb655d78a648d90c3ab21e385f9",
+  "finalHead": "d950bb65ca5e2c6db98e2743b1d7bff4ab32e8aa",
+  "autoMergeArmed": false,
+  "contentGuard": {
+    "method": "file set from `git diff --name-only origin/main...<head>` compared to the reviewed file set, plus per-file blob equality against the reviewed commit; re-run after update-branch",
+    "fileCountAtMerge": 6,
+    "blobEquality": "all files blob-identical to the reviewed commit at the gated head (exceptions, if any, are described in notes)",
+    "result": "PASS"
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "expectedHeadShaGuardUsed": true,
+    "newHead": "d950bb65ca5e2c6db98e2743b1d7bff4ab32e8aa"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "otherChecksCount": 27,
+    "otherChecksBuckets": {
+      "pass": 27
+    },
+    "totalChecks": 31,
+    "totalChecksNote": "31 because #1678 added the standing \"Customizer Regressions\" check to main"
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r4-s4-a-1704-final-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "8cacf20a65880e42304c4e885b395525c820f775",
+  "mergeCommitParents": [
+    "f6c5bd15a0e32bf404bd0662431f968cc27fd834"
+  ],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1704 --squash --match-head-commit d950bb65ca5e2c6db98e2743b1d7bff4ab32e8aa",
+  "mergedAt": "2026-09-15T11:56:59Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "The merge commit changes exactly 6 file(s), all blob-identical to the gated head d950bb65ca5e2c6db98e2743b1d7bff4ab32e8aa.",
+  "mainAfter": "8cacf20a65880e42304c4e885b395525c820f775",
+  "worktree": {
+    "fastForward": "NOT PERFORMED unless the coordinator designated the worktree as free; several owned worktrees were explicitly off-limits (parent in use / other branch).",
+    "result": "SKIPPED or SUCCESS per coordinator instruction for this PR"
+  },
+  "notes": "BEHIND not DIRTY after 1703; update-branch collapsed the diff from 18 files to its own 6, 494+/31-.",
+  "timestamps": {
+    "receiptWrittenAt": "2026-09-15T15:00:00Z"
+  }
+}

@@ -1,0 +1,215 @@
+{
+  "artifact": "camp-live-probe-fix-local",
+  "date": "2026-09-15",
+  "scope": "Root-cause fix + red-first regression guard for the persistently red 'CAMP-01 Live Adversarial Evidence' workflow (id 329205862), acting on evidence/camp-live-probe-diagnosis-20260915.json. Local only: committed, NOT pushed.",
+  "repository": "SwiggitySwerve/MekStation",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/camp-receipt-verification",
+
+  "branch": {
+    "name": "codex/roadmap-camp-live-probe-fix-20260915",
+    "base": "b39b8291706c36b9ad0c876a5e1b11e5b3612b7d",
+    "baseNote": "origin/main as observed at `git fetch origin main && git checkout -b ... origin/main`. The shared ref store advanced to b7d650997a1f1e7ed90ed8f806daefd199637150 mid-session (a concurrent agent's merge touching openspec/changes/design-campaign-authority-and-sync/**), so `git diff --shortstat origin/main` no longer measures this change. All shortstat figures below are pinned to the base SHA.",
+    "commit": "f7a94d769",
+    "commitSubject": "fix(qc): neutralize repo-relative config paths in the camp01 live probe's synthetic config",
+    "author": "Wes Rollings <wrollings@gmail.com>",
+    "aiAttribution": "none (CLAUDE.md guardrail)",
+    "pushed": false
+  },
+
+  "files": [
+    {
+      "path": "E:/Projects/MekStation/scripts/qc/camp01-live-browser-adversarial.mjs",
+      "disposition": "modified",
+      "edits": [
+        "failingPlaywrightConfig: added `globalSetup: undefined,` and `globalTeardown: undefined,` to the generated config literal.",
+        "failingPlaywrightConfig: added the `export` keyword so the guard asserts against the real generator rather than a transcription.",
+        "Added a 9-line why-comment above the function stating the scratch-directory resolution rule, why the hooks are DROPPED rather than absolutized, and where the guard lives."
+      ]
+    },
+    {
+      "path": "E:/Projects/MekStation/scripts/__tests__/camp01-live-browser-adversarial.test.ts",
+      "disposition": "new",
+      "lines": 177,
+      "shape": "Declaration-held-against-reality guard, same pattern as src/__tests__/unit/e2eHarness/warmupDeclaration.test.ts (the guard #1544 itself added for warm-up routes).",
+      "mechanism": "Reads playwright.config.ts as TEXT (importing it pulls @playwright/test into Jest and crashes before a row runs), extracts every top-level key whose value is a relative path literal via /^ {2}([A-Za-z_$][\\w$]*): (['\"])(\\.\\.?\\/[^'\"]*)\\2\\s*,/gm, reaches failingPlaywrightConfig through a spawned ESM harness (the convention the rest of the camp01 script suite uses), and requires every declared key to be neutralized (undefined/null) or absolutized."
+    }
+  ],
+
+  "shortstat": {
+    "command": "git diff --shortstat b39b8291706c36b9ad0c876a5e1b11e5b3612b7d HEAD",
+    "value": "2 files changed, 191 insertions(+), 1 deletion(-)",
+    "filesChanged": 2,
+    "insertions": 191,
+    "deletions": 1,
+    "vsTarget": "Target was ~80-105 lines across 2 files. Files landed on target (2); line count overshot by ~1.9x. The overshoot is comment density, not extra behavior: the guard carries a 33-line header explaining the outage, a docblock on each of its 4 helper functions, and a why-comment on each of its 4 rows, matching the precedent file (warmupDeclaration.test.ts, 195 lines) and the CLAUDE.md 'every function needs a comment' rule. Executable surface is ~60 lines; the .mjs edit is 14 insertions / 1 deletion."
+  },
+
+  "redFirst": {
+    "order": "Guard authored and run BEFORE the neutralizer was added. The `export` keyword landed with the guard so the red would be about the unneutralized key, not a missing export.",
+    "log": ".sisyphus/roadmap-completion-20260912/camp-live-probe-fix-20260915/red-20260915.log",
+    "sha256": "262e54a1db35c20c9eda8c1a6e8ce75eb8eac840b9837c3ca77e6f161f875fce",
+    "argv": "node node_modules/jest/bin/jest.js --runInBand --runTestsByPath scripts/__tests__/camp01-live-browser-adversarial.test.ts",
+    "exitCode": 1,
+    "counts": { "suites": "1 failed, 1 total", "tests": "3 failed, 1 passed, 4 total" },
+    "failingRows": [
+      "neutralizes or absolutizes every relative-path key the config declares",
+      "drops the server-dependent lifecycle hooks rather than re-pointing them",
+      "goes red when the base config gains an unneutralized relative-path key"
+    ],
+    "decisiveAssertion": "unneutralizedRelativePathKeys(realConfig, generated) returned ['globalSetup'] -- the guard named the exact key the 13-day outage turned on, from the real config rather than a fixture.",
+    "passingRow": "finds relative-path keys to hold the override list against (the anti-vacuity row: the parser did match, so the other reds are real findings, not parse failure)."
+  },
+
+  "green": {
+    "log": ".sisyphus/roadmap-completion-20260912/camp-live-probe-fix-20260915/green-20260915.log",
+    "sha256": "e5c69818f9a09cf1f436c82dc45dc3a6e85842e4986e34595ae073b8d09eec11",
+    "argv": "node node_modules/jest/bin/jest.js --runInBand --runTestsByPath scripts/__tests__/camp01-live-browser-adversarial.test.ts",
+    "exitCode": 0,
+    "counts": { "suites": "1 passed, 1 total", "tests": "4 passed, 4 total" },
+    "postCommitRerun": "Re-run against the committed tree after the pre-commit hook's lint-staged pass: 4 passed, 4 total (guards against the known oxfmt quote-flip reformatting the committed content out from under the green)."
+  },
+
+  "gates": [
+    {
+      "gate": "camp01 authority-receipt umbrella",
+      "argv": "npm run qc:camp01-authority-receipt:test",
+      "exitCode": 0,
+      "counts": { "suites": "25 passed, 25 total", "tests": "10 skipped, 731 passed, 741 total" },
+      "durationSeconds": 247.9,
+      "log": ".sisyphus/roadmap-completion-20260912/camp-live-probe-fix-20260915/umbrella-20260915.log",
+      "sha256": "7dbe0a676ef166cee75a7b22b3a05efed90f2bac9be48ecd5cf62cb2b45910df",
+      "note": "The 10 skips are the suite's pre-existing skips, unchanged by this commit. The new guard is NOT a member of this umbrella's --runTestsByPath list and was not added to it; it runs in the broad `unit` Jest project, which pr-checks.yml shards at line 153 (`npx jest --selectProjects unit --ci --shard=N/6`)."
+    },
+    {
+      "gate": "oxfmt",
+      "argv": "npx oxfmt --check scripts/__tests__/camp01-live-browser-adversarial.test.ts scripts/qc/camp01-live-browser-adversarial.mjs",
+      "exitCode": 0,
+      "result": "All matched files use the correct format (2 files)."
+    },
+    {
+      "gate": "oxlint",
+      "argv": "npm run lint",
+      "exitCode": 0,
+      "result": "84 warnings, 0 errors across 3795 files -- all pre-existing; grep for 'camp01-live-browser-adversarial' in the lint output returns 0 hits, so neither changed file contributes a warning.",
+      "log": ".sisyphus/roadmap-completion-20260912/camp-live-probe-fix-20260915/lint-20260915.log",
+      "sha256": "7aa6426429a444f261bcee273af2bcf2b6290dbc2a3d708efa17e939701d5380"
+    },
+    {
+      "gate": "pre-commit hook",
+      "argv": "git commit -F <msg>",
+      "exitCode": 0,
+      "result": "lint-staged + full `npm run build` (the hook runs the Next build whenever .ts/.tsx is staged; not bypassed, no --no-verify).",
+      "log": ".sisyphus/roadmap-completion-20260912/camp-live-probe-fix-20260915/commit-20260915.log",
+      "sha256": "2efb48ffbfd47f04226e075e24a40fc956b1ae1a1c2aa1e146e52805b2ace56d"
+    }
+  ],
+
+  "browserFreeConfigLoadProof": {
+    "purpose": "Execute the probe's config-load step -- the step that has been dying since 2026-09-02 -- without launching a browser. `playwright test --list` performs config load plus test collection and starts nothing; webServer is undefined and globalSetup is now dropped, so no server and no warm-up run.",
+    "harness": "A scratchpad ESM script imported the SHIPPED failingPlaywrightConfig, wrote it plus the probe-shaped spec (absolute @playwright/test resolution, as deliberatelyFailingSpec does) into an mkdtemp root outside the repo, and ran `node node_modules/@playwright/test/cli.js test --config=<scratch>/playwright.config.ts --project=chromium --list` with cwd=repoRoot -- the probe's own cwd/config split.",
+    "log": ".sisyphus/roadmap-completion-20260912/camp-live-probe-fix-20260915/config-load-proof-20260915.log",
+    "sha256": "28de544dc45fb4e5655257e816fedebe4659242be7537f54c9436177041ce6ec",
+    "variantA": {
+      "label": "generated config as shipped (fix applied)",
+      "exitCode": 0,
+      "stdout": "Listing tests:\n  [chromium] > layout-sweep\\layout-helpers.selftest.spec.ts:4:3 > Layout sweep helpers self-test > fails a display:none target\nTotal: 1 test in 1 file",
+      "stderr": "",
+      "claim": "The config now loads from the out-of-repo scratch directory and collects the spec under the chromium project. The MODULE_NOT_FOUND that killed the CLI before any test ran is gone."
+    },
+    "variantB": {
+      "label": "neutralizer removed (pre-fix shape)",
+      "mutation": "s/  globalSetup: undefined,/  globalSetup: '.\\/e2e\\/globalSetup.ts',/ on the generated text",
+      "exitCode": 1,
+      "stderr": "Error: Cannot find module './e2e/globalSetup.ts'\nRequire stack:\n- node_modules/playwright/lib/common/config.js\n- node_modules/playwright/lib/program.js\n- node_modules/@playwright/test/cli.js",
+      "claim": "Reproduces the CI failure locally and matches the diagnosis's decisive log lines (same message, same require stack head at config.js). The A/B pins the fix to the cause: remove the two neutralizers and the outage returns; restore them and the config loads."
+    }
+  },
+
+  "contractImpactVerification": {
+    "reVerifiedIndependently": true,
+    "method": "Grepped the frozen contract directly rather than trusting the brief.",
+    "checks": [
+      { "query": "grep -n 'globalSetup\\|globalTeardown' scripts/qc/camp01-authority-receipt.contract.mjs", "result": "no matches" },
+      { "query": "grep -n -- '--config' scripts/qc/camp01-authority-receipt.contract.mjs", "result": "no matches" },
+      { "query": "camp-01h commandSequence row (contract line 35)", "result": "the layout-helpers invocation is frozen as ['@node','scripts/playwright/run-playwright.mjs','test','--project=chromium','e2e/layout-sweep/layout-helpers.selftest.spec.ts','--workers=1'] -- the REAL spec path, no --config override. The probe's ad hoc argv (test --config=<scratch> --project=chromium --workers=1, constructed at camp01-live-browser-adversarial.mjs:264) appears in no frozen row." },
+      { "query": "canonicalArgvDigest for camp-01h", "result": "d6855f61d03fc0c2bfc56c2f1dc38a227093e4fd3b01e3706749f2cf3c3d2d1a -- untouched; the commit changes no commandSequence entry, so commandSequenceDigest (contract line 101) cannot drift." },
+      { "query": "reporterContracts '05-layout-helpers' (contract line 18)", "result": "normalizedPath 'reports/05-layout-helpers.json' is READ by the probe's oracle, not written by this fix; the row's identity borrow is unchanged." }
+    ],
+    "verdict": "NOT contract-affecting. Confirms the diagnosis's claim. The change is confined to a test-fixture generator inside the live probe plus a new jest guard: no frozen argv, no canonicalArgvDigest, no contract row, no receipt schema is touched. The umbrella gate (25 suites incl. camp01-authority-receipt-validator/-writer/-qc and camp01-h-composition) passing at 731/741 is the corroborating evidence.",
+    "realCommandRunsUnaffected": "The real camp-01h Playwright invocations use the repo-root playwright.config.ts with no --config override, so globalSetup resolves normally for them. Only the probe's re-homed copy was broken."
+  },
+
+  "rejectedAlternativesHeld": [
+    "Did NOT re-home the synthetic config into the repo root (breaks the probe's out-of-repo isolation intent).",
+    "Did NOT absolutize globalSetup (it would then RUN, issuing HTTP warm-up against a server the synthetic config never starts -- webServer is undefined by design).",
+    "Did NOT revert #1544 (it is a real fix for finding #60; the defect is the probe's override list, not the config)."
+  ],
+
+  "pinCorrection": {
+    "trigger": "Coordinator report: PR 1679's updated head f01cdca72 (main merged in) failed Unit Tests (3/6).",
+    "cause": "PR #1677 (2d410f3ca, merged 07:22Z) added a completeness assertion to scripts/__tests__/run-viewport-sweep.test.ts requiring every tracked scripts/__tests__/camp01-*.test.ts to appear BOTH in the camp01TestFiles pin and in the package.json qc:camp01-authority-receipt:test --runTestsByPath string. The new camp01-live-browser-adversarial.test.ts arrived from the other side of that merge and was not pinned. This is exactly the drift class #1677 existed to close, caught one merge later -- the guard worked.",
+    "notAFixDefect": "The neutralizer fix and its guard are unaffected; this is umbrella bookkeeping the new suite owed on arrival.",
+    "integration": {
+      "method": "git fetch origin && git merge --no-edit origin/codex/roadmap-camp-live-probe-fix-20260915 -- took the remote update-branch merge commit as instructed. NOT rebased; the remote head already carried it.",
+      "result": "Fast-forward f7a94d769..f01cdca72 (6 files: docs/qc registry, 3 design-campaign-authority-and-sync docs, package.json, run-viewport-sweep.test.ts). No conflicts.",
+      "mergedHead": "f01cdca721ce79a356cfa625d5320fa8e4436e33"
+    },
+    "commit": "71a22399f",
+    "commitSubject": "test(qc): pin the live probe guard into the camp01 umbrella",
+    "author": "Wes Rollings <wrollings@gmail.com>",
+    "aiAttribution": "none",
+    "pushed": false,
+    "shortstat": "2 files changed, 2 insertions(+), 1 deletion(-)",
+    "files": [
+      "E:/Projects/MekStation/package.json (qc:camp01-authority-receipt:test --runTestsByPath string)",
+      "E:/Projects/MekStation/scripts/__tests__/run-viewport-sweep.test.ts (camp01TestFiles array)"
+    ],
+    "insertionPoint": "After camp01-h-report-normalizer.test.ts, before camp01-live-signal.test.ts, in BOTH lists. Array ORDER is load-bearing, not just membership: the literal-match assertion (run-viewport-sweep.test.ts:386-388) compares the pin against the package.json string verbatim as a sequence, while only the new completeness row (:399-411) is order-insensitive (it sorts both sides). Mirrors #1677's shape exactly -- verified via `git show 2d410f3ca`.",
+    "gates": [
+      {
+        "gate": "viewport-sweep pin guard",
+        "argv": "node node_modules/jest/bin/jest.js --runInBand --runTestsByPath scripts/__tests__/run-viewport-sweep.test.ts",
+        "exitCode": 0,
+        "counts": { "suites": "1 passed, 1 total", "tests": "12 passed, 12 total" },
+        "completenessRow": "PASS -- 'pins every tracked camp01-*.test.ts suite into the umbrella, not just the literal string'",
+        "log": ".sisyphus/roadmap-completion-20260912/camp-live-probe-fix-20260915/pin-guard-20260915.log",
+        "sha256": "1c01cf8e8855abcbb15fb67bc17cfc37158034350b7f48830026faae2c216156"
+      },
+      {
+        "gate": "camp01 authority-receipt umbrella (post-pin)",
+        "argv": "npm run qc:camp01-authority-receipt:test",
+        "exitCode": 0,
+        "counts": { "suites": "29 passed, 29 total", "tests": "10 skipped, 757 passed, 767 total" },
+        "durationSeconds": 252.5,
+        "arithmetic": "#1677 left the umbrella at 28 suites / 753 passed / 763 total; the guard adds 1 suite / 4 rows, giving 29 / 757 / 767 exactly. No suite gained or lost a test as a side effect.",
+        "log": ".sisyphus/roadmap-completion-20260912/camp-live-probe-fix-20260915/umbrella-pinned-20260915.log",
+        "sha256": "961013a235339dd7b8c4e12f4f5949996268ab6dfa8c277ccb6a5cd16e2a8b79",
+        "supersedes": "The pre-merge umbrella run recorded above (25 suites / 731 passed / 741 total) was taken before #1677 landed and is superseded by this one."
+      },
+      {
+        "gate": "oxfmt",
+        "argv": "npx oxfmt --check package.json scripts/__tests__/run-viewport-sweep.test.ts",
+        "exitCode": 0,
+        "result": "All matched files use the correct format (2 files)."
+      },
+      {
+        "gate": "pre-commit hook",
+        "exitCode": 0,
+        "result": "lint-staged + full `npm run build` (a .ts was staged); not bypassed, no --no-verify.",
+        "log": ".sisyphus/roadmap-completion-20260912/camp-live-probe-fix-20260915/commit-pin-20260915.log",
+        "sha256": "e95bc26a0ed2065090d79eed00f02e93b44b7ebfa25b528536a237ffaa4710bf"
+      }
+    ],
+    "branchHeadAfter": "71a22399f",
+    "branchLog": ["71a22399f test(qc): pin the live probe guard into the camp01 umbrella", "f01cdca72 Merge branch 'main' into codex/roadmap-camp-live-probe-fix-20260915", "2d410f3ca test(qc): pin the three drifted camp01 suites into the umbrella (#1677)"]
+  },
+
+  "nonClaims": [
+    "CI GREEN NOT OBSERVED. No run of workflow 329205862 has been triggered from this commit; the branch is not pushed. The first green run remains the proof.",
+    "Unit Tests (3/6) is NOT re-observed green in CI. The pin correction was verified locally (viewport-sweep guard 12/12 incl. the completeness row, umbrella 29/29); whether the PR 1679 check turns green is for the parent's push to establish.",
+    "The probe's PROOF-5D5 oracle (exitCode 1, report.complete===true, exactly one failed observation, no surviving .runtime-<executionId>, no partial publication) is NOT verified. The config-load proof stops at `--list`; it proves the CLI now survives config load and collects the spec, not that the post-config-load path is clean. The 13-day outage means nothing has exercised that path since run 33644594559, so a second, separately-introduced defect may be hiding behind this one -- the diagnosis flagged this and it stands.",
+    "The full probe (npm run qc:camp01-live-adversarial) was NOT run: it needs a Chromium binary and a browser run, both outside this charter.",
+    "`npm test` (the whole unit project) was NOT run; only the camp01 umbrella, the new guard, oxfmt, oxlint, and the pre-commit build.",
+    "No push, no PR, no merge -- the parent publishes."
+  ]
+}

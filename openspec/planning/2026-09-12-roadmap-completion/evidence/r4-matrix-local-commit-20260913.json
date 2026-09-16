@@ -1,0 +1,38 @@
+{
+  "at": "2026-09-13T10:04:23.451Z",
+  "node": "R4.matrix",
+  "status": "local-committed-and-verified",
+  "commit": "6d493d508fe797e9a4342cbc0bd41b13ff376be4",
+  "base": "44b94adbbb333a9d4965e057b34290e19fc0e781",
+  "worktree": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\r4-matrix",
+  "branch": "codex/roadmap-r4-matrix-20260913",
+  "files": [
+    {
+      "path": "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/notepad.md",
+      "sha256": "4ae60bcd1f7044b6cfe03d95255815f359e86b7f3ec470c24a6a2ed560785d30"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r4-matrix-local-verification-20260913.json",
+      "sha256": "d753668441b19d8016fba21a46acc33ae366740feb5d98dfcdbd077503d4d3c6"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r4-matrix-parent-acceptance-20260913.json",
+      "sha256": "54ae26e6ecdfcbb467aac5f5ba688b541ed804287241fccb564a66bb10cf2c14"
+    }
+  ],
+  "changedLines": 354,
+  "gateReport": {
+    "path": ".sisyphus/roadmap-completion-20260912/r4-matrix-delivery-20260913/attempt2/commit-gates.json",
+    "sha256": "89154f038009481b21ba56476e69e694c3e636678945edecb8ac374fd9d127a8"
+  },
+  "independentReview": {
+    "path": ".sisyphus/roadmap-completion-20260912/r4-matrix-delivery-20260913/independent-review.json",
+    "sha256": "e241c9319cf137e14f31602d549dd4944294cb3fa44f7b7240d23e39a8f97d60"
+  },
+  "normalHook": "lint-staged/oxfmt ran; normal documented docs-only hook skipped production build. No hook or check bypass.",
+  "limits": [
+    "Documentation inventory only; no product/browser/runtime pass.",
+    "Publication and exact-main documentation proof pending.",
+    "Original task checkbox and expected-failure tests unchanged."
+  ]
+}

@@ -1,0 +1,195 @@
+{
+  "schema": "grants-403-journey-diagnosis/v1",
+  "runAt": "2026-09-15",
+  "lane": "grants-403-diag (GP-JUSTIFIED: root-cause diagnosis of a deterministic e2e failure with runnable probes; no sub-agents, no commits, no push, no PR, no product/spec/contract edits, no --prod-evidence)",
+  "task": "Diagnose the deterministic 4x 403 console-error failure of `npm run verify:qc:coop-campaign-journey` (package.json:199) at e2e/coop-campaign-ui-audit.spec.ts:843, as filed in evidence/camp01bc-receipt-run-main-20260915.json (failureAnalysis).",
+
+  "environment": {
+    "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/proof02-rerun",
+    "headSha": "83887b7467deba22c1b0b6aa6fb1be8ba6bc4600",
+    "headShaVerifiedBy": "`git rev-parse HEAD` before and after every probe",
+    "detachedBranchLeftAlone": "codex/roadmap-camp-proof-exact-main-a11ef14f-20260915 (untouched; no checkout, no commit, no delete)",
+    "buildId": "1789477978135",
+    "buildIdVerifiedBy": "`cat .next/BUILD_ID` before and after the probe; unchanged. NO rebuild was performed by this lane.",
+    "node": "v22.22.0 (PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0)",
+    "port": "3639 only; confirmed 0 listeners before the run via Get-NetTCPConnection. Port 3600 never used, never kill-ported.",
+    "twoCoreBudget": "A Win32_Process node.exe scan found `next build --webpack` active in the sibling worktree r2-prepared-journal-api (pids 18380/19248). This lane WAITED and re-scanned; the probe started only after that build had cleared. No process was killed.",
+    "workingTreeCleanBefore": true,
+    "workingTreeCleanAfter": true,
+    "workingTreeCleanVerifiedBy": "`git status --porcelain` empty before and after all probes. No scratch spec was created inside the repo: the probe instrumented the SERVER via `node --require <hook>` with the hook file living outside the repo, under .sisyphus/ (gitignored). Run output landed only in gitignored test-results/ and .sisyphus/ trees."
+  },
+
+  "symptomAsFiled": {
+    "command": "npm run verify:qc:coop-campaign-journey (package.json:199) -- the LAST frozen command of waves camp-01b, camp-01c and camp-01d",
+    "failingLeg": "the Playwright tail: `node scripts/playwright/run-playwright.mjs test --project=chromium e2e/coop-campaign-two-browser-journey.spec.ts e2e/coop-campaign-ui-audit.spec.ts --workers=1`",
+    "failingAssertion": "e2e/coop-campaign-ui-audit.spec.ts:843 -- expect([...hostErrors.critical(), ...guestErrors.critical(), ...(mobileEntryErrors?.critical() ?? [])], 'unexpected critical console/page errors during co-op UI audit').toEqual([])",
+    "received": "4x 'Failed to load resource: the server responded with a status of 403 (Forbidden)'",
+    "determinismAsFiled": "4 of 4 identical executions (camp-01b, camp-01b re-run, camp-01c, camp-01d) on 2026-09-15",
+    "openQuestionThisLaneClosed": "The filing recorded `whichGateFired: NOT DETERMINED` -- the console message carries no body and the prior lane did not inspect response bodies."
+  },
+
+  "probes": [
+    {
+      "id": "P0",
+      "question": "Which client code path issues GET /grants, and under what precondition?",
+      "method": "Read-only. `grep -rn \"/grants\" src/ e2e/` for callers, then read of the caller and its mount site.",
+      "findings": [
+        "EXACTLY ONE browser-side caller exists: `fetchGrants` at src/components/campaign/share/CampaignSharePanelConnected.tsx:62-83, issuing `fetch('/api/campaigns/<id>/grants')` at :66-69. (e2e/campaign-two-device-drive.spec.ts:329 is a test-side APIRequestContext call, not a browser call.)",
+        "Its precondition is `isSource` -- src/components/campaign/share/CampaignSharePanelConnected.tsx:103 `const isSource = authority !== null && authority.role === 'source'`, enforced in `load` at :105-111 (`if (!isSource) { setGrants([]); return; }`). The fetch is therefore PROOF that the browser read authority.role === 'source'.",
+        "Mount site: src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.tsx:365-368 renders `<CampaignSharePanelConnected campaignId={campaign.id} matchId={getCoopMatchId(campaign.coopSession)} />` UNCONDITIONALLY on the campaign dashboard -- for the host AND for the guest.",
+        "The component's own header comment at :16-18 states the intended contract: 'Grants are fetched only for a source. A replica may not list them and the server would refuse, so asking would be a guaranteed-failed request whose answer the panel already knows.' It mirrors only the FIRST of the route's two gates."
+      ],
+      "verdict": "Caller identified. The client's precondition is a property of the CAMPAIGN (is it a source), not of the CALLER."
+    },
+    {
+      "id": "P1",
+      "question": "Which of the route's two 403 gates fires, and which browser context issues the refused call?",
+      "method": "Live server-side observation with NO product edit and NO scratch spec inside the repo. A strictly passive `--require` hook (.sisyphus/roadmap-completion-20260912/grants-403-diag-20260915/grants-probe-hook.cjs) wraps `http.createServer`'s handler and records, for /grants + /api/multiplayer/auth/token + /api/multiplayer/matches: method, url, status, the Authorization bearer, and the RESPONSE BODY. It never subscribes to the request stream (the failure mode the r2-client-discard-flush lane recorded: `req.on('data')` steals the body from Next's parser); only res.write/res.end are wrapped, plus res.on('finish').",
+      "command": "MEKSTATION_E2E_SERVER_COMMAND=\"node --require <diag>/grants-probe-hook.cjs .next/standalone/server.js\" HOSTNAME=127.0.0.1 MEKSTATION_E2E_PORT=3639 node scripts/playwright/run-playwright.mjs test --project=chromium e2e/coop-campaign-ui-audit.spec.ts --workers=1 --retries=0",
+      "note": "The probe output path is hardcoded in the hook because playwright.config.ts:298-325 documents and implements webServer.env as a WHITELIST -- a lane-set env var never reaches server.js.",
+      "exit": 1,
+      "reproduced": "YES -- identical signature to the frozen receipt run: 1 failed at e2e/coop-campaign-ui-audit.spec.ts:843 with exactly 4x 'Failed to load resource: the server responded with a status of 403 (Forbidden)'.",
+      "serverSideTally": {
+        "route": "GET /api/campaigns/campaign-1789479584409-4tqr54l/grants",
+        "status200": 2,
+        "status403": 4,
+        "status401": 0,
+        "reason_not_campaign_gm": 4,
+        "reason_not_source": 0
+      },
+      "responseBodyVerbatim": "{\"error\":\"cannot list grants\",\"reason\":\"not-campaign-gm\"}",
+      "roleAttribution": {
+        "method": "Every /grants call's Authorization bearer was joined by exact string match to the POST /api/multiplayer/auth/token response that minted it; the token payload carries playerId and displayName.",
+        "token1": "pid_44wnsmpvw7rbY238dJVQqCr9HhsN, displayName 'Co-op Host UI Audit desktop-1280' -- 2 calls, both 200",
+        "token2": "pid_45hfZH19hdLZi55vRik8P63Dq35G, displayName 'Co-op Guest UI Audit desktop-1280' -- 4 calls, ALL 403 not-campaign-gm",
+        "independentHostAnchor": "The spec's teardown `DELETE /api/multiplayer/matches/<id>` is sent with hostWireToken (e2e/coop-campaign-ui-audit.spec.ts:845-849); the server observed that DELETE carrying token1. Token1 is therefore the host, independent of the displayName.",
+        "independentGuestAnchor": "The host's own successful GET at 13:39:48.498Z returned a grant whose participantId is pid_45hfZH19hdLZi55vRik8P63Dq35G -- i.e. token2's principal is the GRANTEE of the campaign, not its GM."
+      },
+      "verdict": "GATE IDENTIFIED: `not-campaign-gm`, 4 of 4. NEVER `not-source`. The refused caller is the GUEST browser context, on the same campaign id the host reads successfully. The 4 server-side 403s match the 4 console errors 1:1.",
+      "logs": [
+        { "name": "grants-probe-hook.cjs", "sha256": "4492488be27419ad78687da546258cc7c6a63c8eb3b86788ceb80ca1a7de6708", "bytes": 3334 },
+        { "name": "p1-audit-run.log", "sha256": "4dade179f27968cc09535039b0a48a299ef4f9754b4d422b7e16e3fad1a3431e", "bytes": 11700 },
+        { "name": "p1-grants-probe.ndjson", "sha256": "0410c57ccaa1710f06c1bcfc30c7b6fa02bff712c055cae7f03e84944203ce1c", "bytes": 8554 }
+      ],
+      "logDir": ".sisyphus/roadmap-completion-20260912/grants-403-diag-20260915/"
+    },
+    {
+      "id": "P2",
+      "question": "Is the guest's call legitimate for its role? (spec question)",
+      "method": "Read of the route's cited spec and of the two gate implementations.",
+      "citations": [
+        "openspec/changes/design-campaign-authority-and-sync/specs/campaign-replication/spec.md:5-10 -- 'Requirement: Sharing issues grants; grants create replicas that know their provenance'. The SHALLs assign issuing and listing to the SOURCE: '...and the source SHALL list all three active grants'. No SHALL anywhere in campaign-replication grants a guest, grantee or replica the capability to LIST a campaign's grants.",
+        "src/pages/api/campaigns/[id]/grants.ts:8-19 (header) -- the two gates are documented as answering different questions: `not-source` is a property of the CAMPAIGN ('Every browser this server serves reads the same answer, co-op guests included, so it authorizes nobody on its own'); `not-campaign-gm` is a property of the CALLER ('Sharing is the GM's administration surface').",
+        "src/lib/campaign/grants/campaignShareService.ts:177-188 -- listShareGrants checks requireSourceCampaign FIRST, then requireCampaignGm, so a `not-campaign-gm` answer PROVES the campaign passed the source gate.",
+        "src/lib/campaign/grants/campaignShareService.ts:103-135 -- requireCampaignGm returns ok when the campaign has no active seat (the #33 / #29 boundary), refuses when the caller is empty or is not the active gm seat. A `not-campaign-gm` 403 therefore also proves the campaign HAS an active seat and the caller presented a VALID token (an invalid/absent token on a seated campaign is 401 at grants.ts:129-132, and zero 401s were observed)."
+      ],
+      "verdict": "The guest's call is NOT legitimate. The server gate is correct and spec-aligned; listing grants is the GM's administration surface. The defect is that the client asks."
+    },
+    {
+      "id": "P3",
+      "question": "When did this start?",
+      "method": "Read-only history (`git log` / `git show <sha>^:<path>`). No checkout of any other commit was performed in this worktree.",
+      "findings": [
+        "`git log --oneline -- src/pages/api/campaigns/[id]/grants.ts` -> e72fc09f0 (#1527), a2ceb8840 (#1521), 6c825df93 (#1328).",
+        "`git show a2ceb8840^:src/lib/campaign/grants/campaignShareService.ts` shows the PRE-#1521 signature `listShareGrants(db, campaignId)` with ONLY requireSourceCampaign -- no caller parameter, no GM gate.",
+        "`git show a2ceb8840^:src/pages/api/campaigns/[id]/grants.ts` matches none of authenticateRequest / callerId / 401 -- the route was fully unauthenticated before #1521. A guest GET therefore returned 200 and produced no console error.",
+        "a2ceb8840 = 'fix(campaign): sharing answers to the campaign's GM, not to whoever asks (#1521)', dated 2026-09-02, confirmed an ancestor of HEAD (`git merge-base --is-ancestor` -> yes).",
+        "#1521 DID update the client (src/components/campaign/share/CampaignSharePanelConnected.tsx gained readCoopCampaignToken + shareAuthHeaders so the GM's panel presents its token) but did NOT narrow the panel's FETCH PRECONDITION, which still mirrors only the source gate.",
+        "`git log --oneline -- e2e/coop-campaign-ui-audit.spec.ts` -> bb1d33fce (#1053) and 27e1ee448 only. The audit spec has NOT changed since ladder W5; the product changed under it.",
+        "Last recorded green: docs/qc/mekstation-qc-registry.json:1380 -- '2026-07-06 `npm.cmd run verify:qc:coop-campaign-journey` passed: 9 Jest suites / 70 tests, two-browser co-op journey passed, and co-op UI audit captured desktop/mobile evidence...'. Corroborated by the on-disk evidence run dirs .sisyphus/evidence/coop-campaign-ui-audit/mekstation-coop-campaign-ui-audit-20260706T*. That green predates #1521 by roughly two months.",
+        "No evidence file under openspec/planning/2026-09-12-roadmap-completion/evidence/ records this command passing at any point after 2026-09-02."
+      ],
+      "whyItWentUnnoticed": "`grep -rn 'coop-campaign-journey|coop-campaign-ui-audit' .github/workflows/` returns NOTHING -- neither the script nor the spec is wired into pr-checks or nightly-validation. #1521 could ship a client/server contract mismatch without any CI signal. (#1521's own message notes the sibling three-context privacy journey 'ran in none, which is why an unauthenticated admin API went unnoticed' -- the same gap, one spec over.)",
+      "verdict": "Regression window opens at a2ceb8840 (#1521), 2026-09-02. Bisect by reading only; no commits were checked out."
+    }
+  ],
+
+  "rootCause": {
+    "statement": "The co-op GUEST browser's campaign dashboard mounts the GM-only share panel, whose fetch precondition mirrors only the FIRST of the grants route's two authorization gates. On a shared-server co-op session both browsers read the SAME campaign record, whose stored D2 authority is `source`, so the guest's panel satisfies `isSource` and issues GET /api/campaigns/<id>/grants. The server passes the source gate and then refuses on the CALLER gate -- `not-campaign-gm` -- because the guest holds a grantee seat, not the campaign's active `gm` seat. Chromium surfaces each refusal as a console error, and the audit spec's blanket sweep at e2e/coop-campaign-ui-audit.spec.ts:843 has no allowance for it.",
+    "chain": [
+      "CampaignDashboardPage.tsx:365-368 mounts CampaignSharePanelConnected unconditionally, for host and guest alike.",
+      "CampaignSharePanelConnected.tsx:103 computes isSource from the STORED campaign authority -- a property of the campaign, identical for every browser this server serves (grants.ts:11-14 says so verbatim).",
+      "CampaignSharePanelConnected.tsx:105-111 gates the fetch on isSource alone, so the guest fetches.",
+      "campaignShareService.ts:182-185 passes the source gate, then refuses at requireCampaignGm -> reason 'not-campaign-gm'.",
+      "grants.ts:68 maps that refusal to 403; grants.ts:140-145 sends it.",
+      "attachErrorCapture (spec:195-215) records the browser's resource-error console line; its critical() filter (spec:207-213) excludes only Hydration/HMR/Fast Refresh/favicon/^net::/ResizeObserver/legacyBehavior/codemod, so a 403 survives.",
+      "The terminal assertion at spec:843 fails with exactly 4 entries -- one per guest dashboard mount."
+    ],
+    "measuredNotInferred": "Every link above is either a direct file read at 83887b746 or a server-observed record in p1-grants-probe.ndjson. The gate name, the caller's identity, the campaign id, and the 4:4 correspondence between server 403s and console errors were all measured in this session."
+  },
+
+  "classification": {
+    "verdict": "PRODUCT DEFECT -- the client calls an endpoint its role cannot access.",
+    "notTestExpectation": "The audit spec's sweep is doing its job. A 403 that a shipped client provokes on a normal, supported user path IS a defect signal, and the spec has not changed since #1053. Adding an allowance would hide a live client/server contract mismatch rather than fix it.",
+    "notEnvironment": "The refusal is produced by an application authorization branch (campaignShareService.ts:131-133) reached identically in either server mode; its inputs (the SQLite campaign row, the participant seat table, the caller's bearer) are supplied by playwright.config.ts webServer.env in both. No port, timeout, dependency or harness-contract fault is involved; zero 401s and zero not-source refusals were observed.",
+    "notTheGate": "The server gate is CORRECT and spec-aligned (P2). #1521 closed a real exposure -- before it, any client that knew a campaign id could read every grantee's principal id and revoke another player's access. The fix must not weaken it.",
+    "ownership": "NOT owned by camp-01b, camp-01c or camp-01d. No wave's frozen assertion set references grants, sharing or console hygiene, and all three waves' own assertions converted to their expected values. The grants route and the share panel belong to design-campaign-authority-and-sync (campaign-replication).",
+    "topologyScope": "Measured on the shared-server co-op topology the journey exercises (both browsers, one server, one campaign record). On a two-device topology the guest's device holds a REPLICA, authority.role is 'replica', and the existing isSource guard already suppresses the call. UNVERIFIED by this lane: the two-device path was not run."
+  },
+
+  "minimalCorrectFix": {
+    "principle": "Restore the invariant the component already claims (CampaignSharePanelConnected.tsx:16-18, 'asking would be a guaranteed-failed request whose answer the panel already knows') and that the presentational panel states as a rule (CampaignSharePanel.tsx:12-16, 'showing a control that always fails is its own kind of lie'). The client must not ask for the GM's administration surface unless it can be the GM.",
+    "theFactTheClientAlreadyHas": "`campaign.coopSession.mode` is exactly 'host' | 'guest' (src/types/campaign/CoopSession.ts:37 CoopSessionMode; :50-88 ICoopSession). The mount site already destructures the same object one line away -- CampaignDashboardPage.tsx:367 calls getCoopMatchId(campaign.coopSession). No new server round-trip, no new state, no inference.",
+    "change": [
+      {
+        "file": "src/components/campaign/share/CampaignSharePanelConnected.tsx",
+        "at": "103 (isSource) and 105-111 (load)",
+        "what": "Accept the local co-op role as a prop and narrow the fetch precondition from `isSource` to `isSource && coopMode !== 'guest'`. A guest mirror keeps rendering the panel from its stored authority; it simply stops issuing a request whose refusal is already known."
+      },
+      {
+        "file": "src/components/campaign/share/CampaignSharePanelConnected.tsx",
+        "at": "16-18 and 44-48",
+        "what": "Correct the two stale comments, which describe only the replica case and predate the caller gate #1521 added. This is documentation of the invariant, not decoration -- the stale comment is why the second gate was never mirrored."
+      },
+      {
+        "file": "src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.tsx",
+        "at": "365-368",
+        "what": "Pass `coopMode={campaign.coopSession?.mode}` alongside the matchId it already passes."
+      }
+    ],
+    "sizeEstimate": "3 files, well under 30 changed lines, plus the unit test that pins 'a guest-mode panel issues no grants request' (the behaviour that can actually break).",
+    "whyNotTheOtherShapes": {
+      "weakenTheServerGate": "REJECTED -- reopens the #1521 exposure and contradicts campaign-replication, which assigns listing to the source/GM.",
+      "swallowTheClientError": "REJECTED -- fetchGrants already tolerates the refusal (`if (!response.ok) return []`, :70). The console line is emitted by the BROWSER for the failed resource, not by the app, so no client-side catch can suppress it. Only not issuing the request removes it.",
+      "filterTheSweep": "REJECTED as the primary fix -- see frozenFileImpact."
+    }
+  },
+
+  "frozenFileImpact": {
+    "proposedFixTouchesNoFrozenFile": "EXPLICIT: the three files above are product source. None appears in any wave's frozen commandSequence. camp-01b/01c/01d each freeze a jest `--runTestsByPath` list plus `npm run verify:qc:coop-campaign-journey`; the fix changes neither the argv nor any file named in it, and the contract module scripts/qc/camp01-authority-receipt.contract.mjs is untouched (byte-hash 8d360592e96831322faa86d53e1348fa4ac6ef33b504fe7db34d22c7437f0bd3 stands).",
+    "theAlternativeDOESTouchAFrozenFile": "EXPLICIT: editing the critical() filter at e2e/coop-campaign-ui-audit.spec.ts:207-213 to allow the gate's 403 as an expected refusal WOULD be a change to a file INSIDE the frozen commandSequence of camp-01b, camp-01c AND camp-01d -- package.json:199's Playwright tail names e2e/coop-campaign-ui-audit.spec.ts literally. Any such edit changes what those three frozen receipt commands execute and must be treated as a contract-affecting change, not a test tweak.",
+    "recommendation": "Take the product fix. It restores the frozen command to green without touching anything the three waves' receipts are pinned to."
+  },
+
+  "ownerDecisions": [
+    {
+      "id": "D1",
+      "question": "Should a co-op GUEST's dashboard render the share panel at all?",
+      "context": "On a shared server the guest's stored authority is 'source' (it is literally the host's record), so CampaignSharePanel currently renders the GM's share surface to the guest -- today with a live Revoke button beside every grant row the fetch returns. The proposed fix empties the grant list, which removes the failing request and the Revoke buttons, but still shows the guest an empty share box rather than the 'you are a guest mirror' truth.",
+      "whyNotDecidedHere": "Answering it means deciding what a shared-server guest's authority SHOULD read, which is a campaign-replication design question owned by design-campaign-authority-and-sync -- beyond the 403 this lane was asked to diagnose.",
+      "owner": "design-campaign-authority-and-sync"
+    },
+    {
+      "id": "D2",
+      "question": "Should `verify:qc:coop-campaign-journey` be wired into CI?",
+      "context": "It is in no workflow (`grep -rn ... .github/workflows/` empty), which is why #1521 shipped this mismatch with no signal, and why the last recorded green is 2026-07-06. The same blind spot is the one #1521's message called out for the privacy journey.",
+      "owner": "roadmap / CI wiring"
+    }
+  ],
+
+  "nonClaims": [
+    "NOT APPLIED: no fix was made. No product file, no spec file, no contract file, no frozen file, and no e2e file was edited by this lane. `git status --porcelain` is empty at HEAD 83887b746.",
+    "NOT RUN: the frozen row's DEFAULT webServer path (`npm run dev`) was not exercised -- it kill-ports 3600, which this lane's charter forbids. The standalone-server + port-3639 substitution matches the sibling proof02 lanes. The cause is established at the API-authorization layer, but a dev-server confirmation run remains outstanding.",
+    "NOT RUN: the full frozen command `npm run verify:qc:coop-campaign-journey` was not executed. This lane ran ONLY the failing Playwright spec, as a diagnostic, and makes no receipt claim for any wave.",
+    "NOT MEASURED: the mobile-390 viewport arm. The probe ran the spec's desktop-1280 arm to its terminal assertion; the two identities minted both carry the desktop-1280 display names. The prior lane's 4-entry failure array is identical, so the desktop arm is where the failure lands.",
+    "NOT VERIFIED: the two-device co-op topology (each device its own server, guest holds a replica). The existing isSource guard is expected to suppress the call there, but that path was not run.",
+    "NOT CLAIMED: that the proposed fix makes the frozen command green. It removes the measured cause of all four console errors; whether any other critical console error hides behind them is unknown, because the sweep reports the whole set at once and this run's set was exactly these four.",
+    "NO REBUILD: BUILD_ID 1789477978135 is unchanged; the worktree stayed at 83887b746 throughout."
+  ],
+
+  "inputs": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/camp01bc-receipt-run-main-20260915.json (the filing, incl. failureAnalysis + trace diagnostic)",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-client-discard-flush-diagnosis-20260915.json (the --require server-hook probe pattern reused here, incl. its recorded req.on('data') failure mode)",
+    "docs/qc/mekstation-qc-registry.json (last recorded green)"
+  ]
+}

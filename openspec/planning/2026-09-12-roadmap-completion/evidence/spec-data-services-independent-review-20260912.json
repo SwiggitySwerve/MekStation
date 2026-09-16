@@ -1,0 +1,137 @@
+{
+  "kind": "independent-review",
+  "reviewDate": "2026-09-12",
+  "reviewer": "codex:/root/data_spec_review",
+  "scope": {
+    "candidateWorktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/spec-data-services",
+    "candidateHead": "a538a2d3b2b05252e1c80cc60395c72953f4c979",
+    "baselineCommit": "a538a2d3b2b05252e1c80cc60395c72953f4c979",
+    "changedFiles": [
+      "openspec/specs/equipment-services/spec.md",
+      "openspec/specs/data-loading-architecture/spec.md",
+      "openspec/specs/construction-rules-core/spec.md"
+    ],
+    "diffStat": "3 files changed, 132 insertions(+), 54 deletions(-)",
+    "gitStatus": "M openspec/specs/construction-rules-core/spec.md; M openspec/specs/data-loading-architecture/spec.md; M openspec/specs/equipment-services/spec.md"
+  },
+  "candidateSha256": {
+    "openspec/specs/equipment-services/spec.md": "ad85d890cd10b88ce3e287a3d1e9675b2fa706c7f9753e346b44ffaabcae4509",
+    "openspec/specs/data-loading-architecture/spec.md": "6eb85220c352f8a96047eac02228b2b8c2798a9d7da6bf943d3cbe7cd2c4e242",
+    "openspec/specs/construction-rules-core/spec.md": "85fefb6f310e6132e4bd99ec4f5f92cb2612731c1505d1e0637cf4c9db6e9aa1"
+  },
+  "baselineBlobIds": {
+    "openspec/specs/equipment-services/spec.md": "690d62dae151583aa20a580211f0d65ef81b413d",
+    "openspec/specs/data-loading-architecture/spec.md": "9cb78924ec339dd0b28b3df4d106ea6d20695143",
+    "openspec/specs/construction-rules-core/spec.md": "c85e2d9da6d212fcc6928cd41f9b28a9ff11ab67"
+  },
+  "findings": [
+    {
+      "id": "DATA-SERVICES-REVIEW-001",
+      "severity": "P1",
+      "status": "pre-existing blocker",
+      "file": "openspec/specs/equipment-services/spec.md",
+      "lines": "676-690",
+      "title": "Strict schema-invalid JSON can stop mapped-file traversal",
+      "evidence": [
+        "src/services/equipment/EquipmentShapeValidation.ts:131-132 throws when MEKSTATION_STRICT_SCHEMA_BRIDGE=1",
+        "src/services/equipment/EquipmentOfficialLoader.ts:64-217 places category loops under one outer try/catch; the catch at 209-216 returns immediately",
+        "MEKSTATION_STRICT_SCHEMA_BRIDGE=1 focused schema-bridge Jest probe exited 1; ordinary-mode focused suite exited 0"
+      ],
+      "requiredDisposition": "Narrow the SHALL to read/parse/unreadable failures and document strict schema-drift behavior, or repair the loader and tests in a separately owned implementation slice."
+    },
+    {
+      "id": "DATA-SERVICES-REVIEW-002",
+      "severity": "P2",
+      "status": "documentation limit",
+      "file": "openspec/specs/data-loading-architecture/spec.md",
+      "lines": "62-82",
+      "title": "Index-unavailable fallback is not specified",
+      "evidence": [
+        "src/services/equipment/EquipmentOfficialLoader.ts:72-74 uses DEFAULT_WEAPON_FILES when the index weapon map is unavailable",
+        "src/services/equipment/EquipmentOfficialLoader.ts:117-118, 146-147, and 175-176 use getIndexedFileList with category defaults",
+        "src/services/equipment/EquipmentLoaderConfig.ts:1-54 defines the fallback file lists"
+      ],
+      "requiredDisposition": "Document whether index/category fallback is intentional, whether it emits an index diagnostic, and how index authority applies when a category entry is absent."
+    }
+  ],
+  "gates": [
+    {
+      "name": "scoped-format",
+      "command": "/c/nvm4w/nodejs/node.exe /e/Projects/MekStation/node_modules/oxfmt/bin/oxfmt --check --ignore-path=.gitignore openspec/specs/equipment-services/spec.md openspec/specs/data-loading-architecture/spec.md openspec/specs/construction-rules-core/spec.md",
+      "exitCode": 0,
+      "timedOut": false,
+      "rawCapture": ".sisyphus/roadmap-completion-20260912/spec-data-services-review/raw-gates-20260912.json"
+    },
+    {
+      "name": "openspec-all-strict",
+      "command": "/c/nvm4w/nodejs/node.exe /c/Users/wroll/AppData/Roaming/npm/node_modules/@fission-ai/openspec/bin/openspec.js validate --all --strict",
+      "exitCode": 0,
+      "timedOut": false,
+      "result": "231 passed, 0 failed",
+      "rawCapture": ".sisyphus/roadmap-completion-20260912/spec-data-services-review/raw-gates-20260912.json"
+    },
+    {
+      "name": "spec-purpose-strict",
+      "command": "/c/nvm4w/nodejs/node.exe /e/Projects/MekStation/node_modules/tsx/dist/cli.mjs /e/Projects/MekStation/openspec/scripts/spec-purpose-lint.ts",
+      "exitCode": 0,
+      "timedOut": false,
+      "result": "217 files scanned; 0 errors; tracked source-of-truth debt 0",
+      "rawCapture": ".sisyphus/roadmap-completion-20260912/spec-data-services-review/raw-gates-20260912.json"
+    },
+    {
+      "name": "terminology-strict",
+      "command": "/c/nvm4w/nodejs/node.exe /e/Projects/MekStation/node_modules/tsx/dist/cli.mjs /e/Projects/MekStation/openspec/scripts/terminology-tool.ts validate --strict",
+      "exitCode": 0,
+      "timedOut": false,
+      "result": "319 files scanned; no terminology violations",
+      "rawCapture": ".sisyphus/roadmap-completion-20260912/spec-data-services-review/raw-gates-20260912.json"
+    },
+    {
+      "name": "openspec-ci-quality-qc",
+      "command": "/c/nvm4w/nodejs/node.exe /e/Projects/MekStation/scripts/qc/validate-openspec-ci-quality.mjs",
+      "exitCode": 0,
+      "timedOut": false,
+      "result": "workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=12 accountedActiveOpenSpecChanges=12 errors=0",
+      "rawCapture": ".sisyphus/roadmap-completion-20260912/spec-data-services-review/raw-gates-20260912.json"
+    },
+    {
+      "name": "focused-loader-failure-test",
+      "command": "/c/nvm4w/nodejs/node.exe /e/Projects/MekStation/node_modules/jest/bin/jest.js --runInBand --runTestsByPath src/services/equipment/__tests__/EquipmentOfficialLoader.failure.test.ts",
+      "exitCode": 0,
+      "timedOut": false,
+      "result": "1 suite passed; 1 test passed",
+      "rawCapture": ".sisyphus/roadmap-completion-20260912/spec-data-services-review/raw-gates-20260912.json"
+    },
+    {
+      "name": "focused-schema-bridge-test",
+      "command": "/c/nvm4w/nodejs/node.exe /e/Projects/MekStation/node_modules/jest/bin/jest.js --runInBand --runTestsByPath src/services/equipment/__tests__/EquipmentLoaderService.schemaBridge.test.ts",
+      "exitCode": 0,
+      "timedOut": false,
+      "result": "1 suite passed; 5 tests passed",
+      "rawCapture": ".sisyphus/roadmap-completion-20260912/spec-data-services-review/raw-gates-20260912.json"
+    },
+    {
+      "name": "strict-schema-bridge-diagnostic",
+      "command": "MEKSTATION_STRICT_SCHEMA_BRIDGE=1 /c/nvm4w/nodejs/node.exe /e/Projects/MekStation/node_modules/jest/bin/jest.js --runInBand --runTestsByPath src/services/equipment/__tests__/EquipmentLoaderService.schemaBridge.test.ts",
+      "exitCode": 1,
+      "timedOut": false,
+      "result": "1 test failed and 4 tests passed; retained as diagnostic evidence, not an acceptance gate",
+      "rawCapture": ".sisyphus/roadmap-completion-20260912/spec-data-services-review/raw-gates-20260912.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/spec-data-services-review/findings-20260912.md",
+      "sha256": "6289fca650ca01c83c3da5b32e511689675bca3a8249a06ee45047a2bcecce4b"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/spec-data-services-review/raw-gates-20260912.json",
+      "sha256": "48069bd0ffb386e95e28055f5eefcc4328a42c1da8b5518fd41cc30079a1852c"
+    }
+  ],
+  "limitations": [
+    "No install, build, or server was run.",
+    "The ordinary focused failure test covers malformed JSON/read failures; it does not cover continuation after strict schema drift.",
+    "Parent owns final review integration, publication handling, and any Git mutation."
+  ]
+}

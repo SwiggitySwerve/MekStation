@@ -1,0 +1,222 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "triage-validation-order-repair",
+  "capturedAt": "2026-09-12",
+  "scope": "Bounded repair and focused proof for unit-validation-framework ordering; core allocation/display/tab rows remain triage-only.",
+  "ownedPaths": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-validation-order-repair.json",
+    "src/services/validation/UnitValidationRegistry.ts",
+    "src/__tests__/service/validation/UnitValidationHierarchyOrder.test.ts",
+    "openspec/specs/unit-validation-framework/spec.md"
+  ],
+  "boundary": "No roadmap/task/Git files, unrelated source, assets, dependencies, builds, browsers, or servers changed.",
+  "archivedTrace": {
+    "change": "openspec/changes/archive/2026-01-16-add-comprehensive-unit-validation-framework",
+    "specSha256": "d313dd516dfd4da55fb841dec08450076607a38c4b2aff5a2feb17a3ea82995f",
+    "designSha256": "820160533c0098c9b954c1c03259a89a188b0bbf7c0281b61637ec1f5d6c61ff",
+    "finding": "Archived design labels four levels, but its diagram defines Level 0 universal, Level 1 category, Level 2 unit-type; archived/current scenarios likewise enumerate three levels. Current spec count corrected from four to three only."
+  },
+  "rows": [
+    {
+      "id": "critical-slot-allocation",
+      "status": "needs-proof",
+      "result": "Focused allocation/placement/displacement seams passed the final baseline suite; no repair made in this row.",
+      "sources": [
+        [
+          "src/utils/construction/slotOperations/topology.ts",
+          "3e9648bec3bcd62711915551396caa8e24b8e2ed9b83b27f2e988bee28fcb433"
+        ],
+        [
+          "src/utils/construction/slotOperations/placement.ts",
+          "509d903deb35e15503ed6e3a2a6cba764388d38a8bbcef056e40649bd351ce17"
+        ],
+        [
+          "src/stores/unit/catalogEquipmentPlacement.ts",
+          "eb9c54fb0fa46797a536a3cc412a35290014bb25003715a822dc301fa6d02eec"
+        ]
+      ],
+      "tests": [
+        [
+          "src/__tests__/unit/utils/construction/slotOperations.test.ts",
+          "ed666dc8cb8d64e81b4cad60b0daafbbf81c6c734385a3a08955bc1d3083fe23"
+        ],
+        [
+          "src/__tests__/unit/utils/construction/displacementUtils.test.ts",
+          "c0984bef1e106e5d8b39acd7c81c7dcfa4f35244b5a3c8a252c97bafed20ac35"
+        ],
+        [
+          "src/stores/unit/__tests__/catalogEquipmentPlacement.test.ts",
+          "38d8008338bc9033068ae696025eb860f38ca951dbb360ae7079fade96943657"
+        ]
+      ],
+      "limits": [
+        "Cross-configuration integration and duplicate allocation/topology authority remain parent-owned proof limits."
+      ]
+    },
+    {
+      "id": "critical-slots-display",
+      "status": "needs-proof",
+      "result": "No display/runtime proof or source repair in this pass; active-route versus legacy-display seam remains.",
+      "sources": [
+        [
+          "src/components/customizer/tabs/CriticalSlotsTab.tsx",
+          "28fd7f3a62ff56aa8800625a6eee9257da772e17cf05dc10677994ef3331465d"
+        ],
+        [
+          "src/components/customizer/critical-slots/CriticalSlotsDisplay.tsx",
+          "9b196201236b4f4554c2430d1ef1f75216da7d912ebd0878cd007eed2938e006"
+        ],
+        [
+          "src/components/customizer/critical-slots/SlotRow.tsx",
+          "29416ac4595915cfb4af506fced9e518db320803b909d3360b55a5dd399d816a"
+        ]
+      ],
+      "tests": [
+        [
+          "src/__tests__/components/customizer/critical-slots/CriticalSlotsDisplay.test.tsx",
+          "5aea9932c5e7e5eaced929a9f69e2ee1e3c69624b2384480c6280b61909a7e55"
+        ],
+        [
+          "src/__tests__/components/customizer/critical-slots/SlotRow.test.tsx",
+          "9fed877be698a9f9217d8df810d5da97e71541ea9ff824b143efc53ce1ea1780"
+        ]
+      ],
+      "limits": [
+        "Active-route responsive/configuration proof and canonical display decision remain parent-owned."
+      ]
+    },
+    {
+      "id": "tab-management",
+      "status": "needs-proof",
+      "result": "Reused parent-supplied PR1637 exact-main route and final local12-case browser receipts; explicit URL precedence was not re-demanded. No new runtime proof.",
+      "receipts": [
+        {
+          "label": "PR1637 exact-main route receipt",
+          "path": null,
+          "sha256": null,
+          "status": "Parent-supplied receipt; no standalone artifact path located in current tree."
+        },
+        {
+          "label": "final local12-case browser receipt",
+          "path": null,
+          "sha256": null,
+          "status": "Parent-supplied receipt; no standalone artifact path located in current tree."
+        }
+      ],
+      "sources": [
+        [
+          "src/stores/useTabManagerStore.ts",
+          "f159a03bffd54e8e746440769bd867957c11bda9b4719671402d763993136e9"
+        ],
+        [
+          "src/components/customizer/CustomizerWithRouter.tsx",
+          "b8d35e3c956db68551c2d670e60b85ad748865269fe36c0dd7de12daabe9dd66"
+        ],
+        [
+          "src/hooks/useCustomizerRouter.ts",
+          "1a1cf81bb6570b7e73cae79f2c82a9172106c854991da7cd9199f4053491b77a"
+        ]
+      ],
+      "limits": [
+        "Hydration/reload, omitted-tab restoration, invalid recovery, and simulation back-forward remain parent-owned limits."
+      ]
+    },
+    {
+      "id": "unit-validation-framework",
+      "status": "repair-proven-focused",
+      "change": "UnitValidationRegistry now decorates effective rules with levels 0 universal, 1 category, 2 unit-type, sorts level before within-level priority, and uses registration order for deterministic equal-priority ties. Override tombstones prevent overridden duplicate IDs from reappearing; extension chains retain parent-before-child execution while sorting by the effective child level/priority. Current spec prose corrected four-level to three-level based on archived diagram/scenarios.",
+      "sources": [
+        [
+          "openspec/specs/unit-validation-framework/spec.md",
+          "048a4988168af495b4698f73d63f2e345a5a18d1aa7c57aa412f14eea204bd6d"
+        ],
+        [
+          "src/services/validation/UnitValidationRegistry.ts",
+          "e59576e02d2234ad6cda283e910767979a0706a2aa86d4b7aa9e542aeedea57c"
+        ],
+        [
+          "src/services/validation/initializeUnitValidation.ts",
+          "222fcbf1868a59a47d355a54ca7a437d24541450ea64184e2bf8f725b4f64c42"
+        ],
+        [
+          "openspec/changes/archive/2026-01-16-add-comprehensive-unit-validation-framework/specs/unit-validation-framework/spec.md",
+          "d313dd516dfd4da55fb841dec08450076607a38c4b2aff5a2feb17a3ea82995f"
+        ],
+        [
+          "openspec/changes/archive/2026-01-16-add-comprehensive-unit-validation-framework/design.md",
+          "820160533c0098c9b954c1c03259a89a188b0bbf7c0281b61637ec1f5d6c61ff"
+        ]
+      ],
+      "tests": [
+        [
+          "src/__tests__/service/validation/UnitValidationHierarchyOrder.test.ts",
+          "fe6fb7b5ebc162deb87713e6c6fd3d12d3bba1dde7b7c55c1174c93b6b77ffbe"
+        ],
+        [
+          "src/__tests__/service/validation/UnitValidationRegistry.test.ts",
+          "673c478d5abbfb51f7b6a04a06b9886b9eff280bc94c364a508f32a63b632434"
+        ],
+        [
+          "src/__tests__/service/validation/UnitValidationOrchestrator.test.ts",
+          "801c1cffe62c6db7e5cf3ac00b9c299207d4edacb3c05c317d26c170a70e7bd9"
+        ]
+      ],
+      "proof": "The new regression runs initialized rules through UnitValidationOrchestrator and asserts named rules exist, universal\u00e2\u2020\u2019category\u00e2\u2020\u2019unit-type execution, effective override level with equal-priority order, and parent-before-child extension. Final focused suite: 8 suites passed, 115 tests passed.",
+      "limits": [
+        "No full build, browser, server, or broad gate. Parent owns independent review and final delivery."
+      ]
+    }
+  ],
+  "commands": [
+    {
+      "command": "rg -n -i \"four[- ]level|four levels|three[- ]level|three levels|universal.*category.*unit\" openspec docs src/services/validation",
+      "exitCode": 0,
+      "rawLog": "Current spec has four-level prose; registry and initializer say three levels; archived spec/design also contain four-level label with three scenarios/diagram."
+    },
+    {
+      "command": "sed -n '45,90p' openspec/changes/archive/2026-01-16-add-comprehensive-unit-validation-framework/design.md; sed -n '1,45p' openspec/changes/archive/2026-01-16-add-comprehensive-unit-validation-framework/specs/unit-validation-framework/spec.md",
+      "exitCode": 0,
+      "rawLog": "Archived diagram: Level 0 Universal, Level 1 Category, Level 2 Unit-Type-Specific. Archived scenarios: universal, category, unit-type; no fourth scenario."
+    },
+    {
+      "command": "npx oxfmt --write src/services/validation/UnitValidationRegistry.ts src/__tests__/service/validation/UnitValidationHierarchyOrder.test.ts openspec/specs/unit-validation-framework/spec.md",
+      "exitCode": 0,
+      "rawLog": ""
+    },
+    {
+      "command": "npm test -- --runInBand src/__tests__/unit/types/construction/CriticalSlotAllocation.test.ts src/__tests__/unit/utils/construction/displacementUtils.test.ts src/__tests__/unit/utils/construction/slotOperations.test.ts src/stores/unit/__tests__/catalogEquipmentPlacement.test.ts src/__tests__/components/customizer/tabs/CriticalSlotsPlacement.test.ts src/__tests__/service/validation/UnitValidationRegistry.test.ts src/__tests__/service/validation/UnitValidationOrchestrator.test.ts src/__tests__/service/validation/UnitValidationHierarchyOrder.test.ts",
+      "exitCode": 0,
+      "rawLog": "PASS: 8 suites, 115 tests, 0 snapshots, 1.942 s."
+    },
+    {
+      "command": "sha256sum openspec/specs/unit-validation-framework/spec.md src/services/validation/UnitValidationRegistry.ts src/services/validation/initializeUnitValidation.ts src/__tests__/service/validation/UnitValidationRegistry.test.ts src/__tests__/service/validation/UnitValidationOrchestrator.test.ts src/__tests__/service/validation/UnitValidationHierarchyOrder.test.ts openspec/changes/archive/2026-01-16-add-comprehensive-unit-validation-framework/specs/unit-validation-framework/spec.md openspec/changes/archive/2026-01-16-add-comprehensive-unit-validation-framework/design.md",
+      "exitCode": 0,
+      "rawLog": "048a4988168af495b4698f73d63f2e345a5a18d1aa7c57aa412f14eea204bd6d spec; e59576e02d2234ad6cda283e910767979a0706a2aa86d4b7aa9e542aeedea57c registry; 222fcbf1868a59a47d355a54ca7a437d24541450ea64184e2bf8f725b4f64c42 initializer; 673c478d5abbfb51f7b6a04a06b9886b9eff280bc94c364a508f32a63b632434 registry tests; 801c1cffe62c6db7e5cf3ac00b9c299207d4edacb3c05c317d26c170a70e7bd9 orchestrator tests; fe6fb7b5ebc162deb87713e6c6fd3d12d3bba1dde7b7c55c1174c93b6b77ffbe new regression; d313dd516dfd4da55fb841dec08450076607a38c4b2aff5a2feb17a3ea82995f archived spec; 820160533c0098c9b954c1c03259a89a188b0bbf7c0281b61637ec1f5d6c61ff archived design."
+    }
+  ],
+  "limits": [
+    "This repair proves focused registry/orchestrator behavior only; no full build, browser, server, or broad gate.",
+    "Allocation/display/tab rows remain needs-proof outside this repair.",
+    "Parent owns independent review and final delivery."
+  ],
+  "rawTerminalLogs": {
+    "format": {
+      "command": "npx oxfmt --write src/services/validation/UnitValidationRegistry.ts src/__tests__/service/validation/UnitValidationHierarchyOrder.test.ts openspec/specs/unit-validation-framework/spec.md",
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "focusedTests": {
+      "command": "npm test -- --runInBand src/__tests__/unit/types/construction/CriticalSlotAllocation.test.ts src/__tests__/unit/utils/construction/displacementUtils.test.ts src/__tests__/unit/utils/construction/slotOperations.test.ts src/stores/unit/__tests__/catalogEquipmentPlacement.test.ts src/__tests__/components/customizer/tabs/CriticalSlotsPlacement.test.ts src/__tests__/service/validation/UnitValidationRegistry.test.ts src/__tests__/service/validation/UnitValidationOrchestrator.test.ts src/__tests__/service/validation/UnitValidationHierarchyOrder.test.ts",
+      "exitCode": 0,
+      "stdout": "> mekstation-app@0.1.1 test\n> jest --runInBand [eight focused paths]\nPASS unit CriticalSlotsPlacement.test.ts\nPASS unit UnitValidationHierarchyOrder.test.ts\nPASS unit catalogEquipmentPlacement.test.ts\nPASS unit UnitValidationRegistry.test.ts\nPASS unit slotOperations.test.ts\nPASS unit UnitValidationOrchestrator.test.ts\nPASS unit CriticalSlotAllocation.test.ts\nPASS unit displacementUtils.test.ts\n\nTest Suites: 8 passed, 8 total\nTests: 115 passed, 115 total\nSnapshots: 0 total\nTime: 1.942 s, estimated 2 s",
+      "stderr": ""
+    },
+    "archiveTrace": {
+      "command": "sed -n '45,90p' openspec/changes/archive/2026-01-16-add-comprehensive-unit-validation-framework/design.md; sed -n '1,45p' openspec/changes/archive/2026-01-16-add-comprehensive-unit-validation-framework/specs/unit-validation-framework/spec.md",
+      "exitCode": 0,
+      "stdout": "Archived Decision 1 labels Four-Level Validation Hierarchy.\nDiagram defines Level 0 Universal, Level 1 Category, Level 2 Unit-Type-Specific.\nArchived scenarios define universal, category, unit-type, and ordering; no fourth scenario.",
+      "stderr": ""
+    }
+  }
+}

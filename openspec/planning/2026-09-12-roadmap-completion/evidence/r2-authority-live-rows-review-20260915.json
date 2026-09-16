@@ -1,0 +1,431 @@
+{
+  "node": "R2.authority-live",
+  "slice": "rows R (revocation) and D (redaction) across two OS processes",
+  "artefact": "r2-authority-live-rows-review-20260915",
+  "role": "independent review of the three-commit stack, with one live run and one mutation reproduction",
+  "reviewedAtUtc": "2026-09-15T22:40:00.000Z",
+  "reviewer": "independent reviewer session (read-only on the repo; wrote only this artefact and its log directory)",
+  "verdict": "APPROVE",
+  "verdictRationale": "Every load-bearing claim in the receipt was re-measured in THIS session and held. The green reproduced independently (exit 0), mutation (a) reproduced at the exact spec line with the exact expected/received pair, the pre-mutation spec sha256 matched the receipt's declared green-bytes hash byte-for-byte, and the openspec-strict log reproduced to an identical sha256. Every cited production file:line resolved to the claimed code. Hygiene is clean: four files, all under e2e/, no src/ touched, correct author, zero AI-attribution tokens, worktree clean before and after the mutation. Three non-blocking requiredEdits are listed, all receipt-accuracy or fix-proposal-precision items; none of them changes a row's verdict.",
+
+  "baseState": {
+    "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/proof02-rerun",
+    "branch": "codex/roadmap-r2-authority-live-rows-20260915",
+    "head": "1f1db65d3a440bba4fc49a6b835fa929811890f8",
+    "baseSha": "c6be02fd6370576e3a1f5034c2395aaef19ba46f",
+    "gitStatusShort": "clean (empty output) at review start, after the mutation restore, and at capture",
+    "verifiedBy": "git log --oneline -8; git status --short; git rev-parse --abbrev-ref HEAD",
+    "commitsConfirmed": [
+      "7b4e66b86 test(campaign): a Node-side campaign socket the two-process drive can hold open (2 files, +360/-22)",
+      "f2e8d9ad2 test(campaign): the world the privacy rows argue about, built once (1 file, +246)",
+      "1f1db65d3 test(campaign): a revoked seat is refused by the other process, and a GM rationale is not (1 file, +476)"
+    ],
+    "cumulativeDiffVsBase": "git diff --stat c6be02fd6..HEAD = 4 files changed, 1082 insertions(+), 22 deletions(-)",
+    "nonE2ePaths": "NONE. git diff --name-only c6be02fd6..HEAD | grep -v '^e2e/' returned nothing."
+  },
+
+  "axis1_rowR_revocation": {
+    "verdict": "CONFIRMED",
+    "productionPathOfTheRemoval": {
+      "claim": "the removal is sent over the campaign socket, not POST /commands, and the HTTP route is refused 422 host-only for every caller including the GM",
+      "status": "VERIFIED at source AND behaviourally",
+      "sourceProof": [
+        "src/lib/multiplayer/server/CampaignMatchHostIntent.ts:126-131 - validateCampaignIntent(intent, state, authorPlayerId, ts, hostPlayerId?) : the fifth parameter is OPTIONAL, so omitting it compiles silently.",
+        "src/lib/campaign/authority/campaignCommandPipeline.ts:503-508 - 'const validation = validateCampaignIntent(request.intent, priorState, request.authorPlayerId, request.ts);' : FOUR arguments, hostPlayerId left undefined. Confirmed by grep -n; the call opens at 503 and closes at 508 exactly as the receipt states.",
+        "src/lib/campaign/authority/campaignCommandPipeline.ts:276-281 - the OTHER pipeline call site (baseValidation, the revision-rebase arm) ALSO omits hostPlayerId, so the refusal is not branch-specific. This is a fact the receipt did not state and which strengthens its claim.",
+        "src/lib/multiplayer/server/CampaignMatchHostIntent.ts:222 - 'if (authorPlayerId !== hostPlayerId) return reject(\u0027host-only\u0027);' : exact line, exact text.",
+        "src/lib/multiplayer/server/CampaignMatchHost.doors.ts:151-167 - applyHostIntentLocked passes host.hostPlayerId as BOTH authorPlayerId (164) and hostPlayerId (166), which is why the socket path is the shipped route."
+      ],
+      "behaviouralProof": "The spec's own control row (spec:196-217) posts the RemoveParticipant intent through /commands with the GM's bearer token, asserts 422 {kind:'rejected', reason:'host-only'} and asserts the journal head is unchanged. That control passed in the review's live run."
+    },
+    "assertionTable": [
+      {
+        "id": "R-pre-1",
+        "what": "three seats read back through the REPLICA: gm / player / player",
+        "specLines": "166-178",
+        "reviewVerdict": "CONFIRMED - passed in the review's live run; the seat is read from the durable row via /activity, not declared by the drive"
+      },
+      {
+        "id": "R-pre-2",
+        "what": "stranger with a valid token and no seat is 403 with body exactly {error:'not a participant in this session'}",
+        "specLines": "184-194",
+        "reviewVerdict": "CONFIRMED - passed live. Source: campaignActivityRead.ts membership===null -> 'not-a-participant' (the readMembership null branch), which the route maps to 403. This is the second half of CO3 review F3."
+      },
+      {
+        "id": "R-pre-3",
+        "what": "CONTROL: RemoveParticipant through /commands is 422 host-only for every caller including the GM, and appends nothing",
+        "specLines": "196-217",
+        "reviewVerdict": "CONFIRMED - passed live; source claim independently verified at both pipeline call sites (see productionPathOfTheRemoval)"
+      },
+      {
+        "id": "R1",
+        "what": "the removed guest's next scoped read THROUGH THE OTHER PROCESS is 403",
+        "specLines": "243-253",
+        "reviewVerdict": "CONFIRMED - passed live, and is the assertion mutation (a) flipped to 200, so it is load-bearing rather than incidental"
+      },
+      {
+        "id": "R2",
+        "what": "the remaining guest is NOT refused (revocation is targeted, not a session-wide shutdown)",
+        "specLines": "257-264",
+        "reviewVerdict": "CONFIRMED - passed live"
+      },
+      {
+        "id": "R3",
+        "what": "an ALREADY-BOUND live socket keeps receiving committed facts after revocation; asserted in the direction production behaves",
+        "specLines": "266-313",
+        "reviewVerdict": "CONFIRMED AS A PIN, NOT AS CORRECT BEHAVIOUR. The row passed in the review's live run, which is itself the independent behavioural reproduction of F-LIVE-1: the revoked guest A received the post-revocation FundsChanged frame on the same span the still-seated guest B received it. The row is pinned in the production direction with guestB's delivery as a positive control (spec:308), so the span cannot be vacuously silent. It goes RED when the gap is closed - see F_LIVE_1.minimalFix.redFirstPin."
+      },
+      {
+        "id": "R4",
+        "what": "an OS-level restart of the source changes neither answer (403 on replica AND on the restarted source, different pid)",
+        "specLines": "315-345",
+        "reviewVerdict": "CONFIRMED - passed live"
+      },
+      {
+        "id": "R5",
+        "what": "a rejoin by the revoked member is refused BY NAME with reason 'membership-revoked'",
+        "specLines": "347-366",
+        "reviewVerdict": "CONFIRMED - passed live. Source: bindCampaignSyncConnection.ts:934-939 checks membership.isRevoked and sends errorFrame(matchId,'AUTH_REJECTED','membership-revoked') BEFORE the room code is consulted, exactly as claimed."
+      }
+    ],
+    "hidingCheck": "NOT HIDDEN. The gap is (a) asserted as a row rather than deleted, (b) explained in a 22-line in-spec comment at spec:266-287 carrying the file:line reasoning, (c) restated in the spec's own header at spec:44-52, (d) recorded in the receipt as findings.F-LIVE-1 with severity, blast radius and a suggested shape, and (e) restated in nonClaims ('Revocation is NOT proven total'). This is the correct handling for a test-only charter."
+  },
+
+  "F_LIVE_1": {
+    "title": "Seat revocation closes every durable door and does not detach an already-bound live socket",
+    "receiptSeverity": "medium",
+    "reviewSeverity": "medium-high",
+    "severityJudgement": "It IS a real privacy defect, not a cosmetic one: after the GM's removal commits and the durable seat is stamped revoked, the removed participant continues to receive campaign-scoped committed facts for as long as the socket stays open. The acceptance line names 'revocation' as one of its five cells, and the team's own comment at bindCampaignSyncConnection.ts:925-933 states the design intent that durable membership - not connection state - decides admission ('Before this, revocation lasted exactly as long as they stayed disconnected, because the code was the whole check'). The live-delivery half is the mirror residual of that intent. It is bounded, which is why it is medium-high and not high: exposure requires the removed party to hold the socket open, it ends at the next disconnect, and it cannot be re-established (R4 and R5 verified live that both the scoped read and the rejoin are refused across processes and across an OS restart). VERDICT: this slice is APPROVED as evidence with the gap honestly pinned, but R2.authority-live should NOT be marked accepted on its 'revocation' cell until the production fix lands - a privacy acceptance that says 'revocation' should mean the removed seat stops seeing campaign facts, not merely that it stops being able to ask for them.",
+    "verifiedAtSource": [
+      "src/lib/multiplayer/server/CampaignSyncSession.ts:641-645 - applyCommittedParticipantRemoval body is exactly 'this.retained.delete(event.payload.participantId);' and nothing else. VERIFIED verbatim.",
+      "src/lib/multiplayer/server/CampaignSyncSession.ts:362-376 - attachLiveParticipant returns this.host.subscribe(...)'s unsubscribe directly. The session stores NO participantId -> unsubscribe map (the only participant-keyed map is 'private readonly retained' at :185), so applyCommittedParticipantRemoval structurally CANNOT detach.",
+      "src/lib/multiplayer/server/CampaignSyncSession.ts:335-343 - admitToWire resolves the viewer ONCE at attach time ('const viewer = this.wireViewer(participantId)' outside the returned closure), so even the per-event scope check cannot re-consult membership on delivery.",
+      "src/lib/multiplayer/server/CampaignSyncSession.ts:494,544,562 - the three callers hand the unsubscribe out as 'disconnect'; bindCampaignSyncConnection stores it in that socket's own cleanupFns (:1011, :1016, :1033, :1120, :1174), which run on DISCONNECT only.",
+      "src/lib/multiplayer/server/bindCampaignSyncConnection.ts:881-896 - applyCommittedParticipantRemovals calls membership?.revoke(...) and entry.syncSession.applyCommittedParticipantRemoval(event), and nothing else. VERIFIED verbatim.",
+      "Corroborating in-code statement: CampaignSyncSession.ts:~652-656 says the launch gate is 'deliberately not consulted anywhere on the delivery path' - i.e. 'retained' is convergence bookkeeping and was never the delivery gate, which is exactly why deleting from it stops nothing."
+    ],
+    "behaviouralReproductionThisSession": "The review's own live run (review-green-1.log, exit 0) passed spec:310-313, whose assertion is expect(eventTypes(guestASocket)).toEqual(['FundsChanged']) - so the revoked guest demonstrably received the post-revocation fact in this session, on this machine, against this build.",
+    "minimalFix": {
+      "scope": "one production file, ~10-14 lines, no new dependency, no migration, no schema change",
+      "steps": [
+        "src/lib/multiplayer/server/CampaignSyncSession.ts:185 - add, alongside 'retained': 'private readonly liveByParticipant = new Map<string, Set<() => void>>();'",
+        "src/lib/multiplayer/server/CampaignSyncSession.ts:362-376 - in attachLiveParticipant, when participantId !== undefined, register the host.subscribe unsubscribe in liveByParticipant and RETURN A WRAPPER that both unsubscribes and deregisters itself. The wrapper matters: without it the existing disconnect path (bind cleanupFns) would leave dead entries and the map would leak across reconnects.",
+        "src/lib/multiplayer/server/CampaignSyncSession.ts:641-645 - in applyCommittedParticipantRemoval, drain liveByParticipant.get(event.payload.participantId) and invoke each unsubscribe before (or after) the existing 'this.retained.delete(...)'. Draining a missing key is a no-op, which preserves the method's documented idempotence contract at :636-639 ('Deleting a missing entry is intentionally idempotent so a recovery pass can heal a commit-before-revocation crash window')."
+      ],
+      "explicitlyOutOfTheMinimalFix": "Sending the revoked socket a typed close. CampaignSyncSession holds SINKS, not sockets, so it can stop delivering but cannot emit closeTyped(AUTH_REJECTED,'membership-revoked'). The close half needs a participant-keyed socket index in bindCampaignSyncConnection - 'socketsByMatch' (:261-263, :1411-1413) is keyed by matchId only - and is therefore a strictly larger change requiring an owner decision on whether a removed member should be disconnected or merely go quiet. The receipt's suggestedShape conflates these two; see requiredEdits RE-2.",
+      "redFirstPin": {
+        "mechanism": "THE RED-FIRST PIN ALREADY EXISTS IN THIS SLICE. No new failing test has to be authored: e2e/campaign-journal-two-process-privacy.spec.ts:310-313 asserts .toEqual(['FundsChanged']) on the revoked socket and goes RED the instant the detach lands. The fixer's first commit inverts that one assertion to .toEqual([]) (keeping guestB's positive control at :308 and the settle at :300 untouched) and watches it fail against unfixed production, then lands the CampaignSyncSession change and watches it pass. That is a textbook failing-test-first proof handed over for free.",
+        "unitLayer": "Add one row near src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts:2493 (the existing RemoveParticipant block) asserting the bound sink receives nothing after the committed removal. MEASURED THIS SESSION: no existing unit test asserts live delivery after removal - grep for applyCommittedParticipantRemoval / attachLiveParticipant across src/**/__tests__ returned zero files, and the two existing ParticipantRemoved rows (:2493-2507, :2648-2659) assert only isRevoked and evaluateScenarioLaunch. So the fix breaks NO existing test and needs its own new one."
+      },
+      "recommendedDisposition": "File as a blocking production follow-up against R2.authority-live's 'revocation' cell before the node is marked accepted. It is out of scope for this test-only slice and the slice is right not to have attempted it."
+    }
+  },
+
+  "F_LIVE_2": {
+    "title": "RemoveParticipant is unreachable through the HTTP command route for every caller including the GM",
+    "receiptSeverity": "low-medium",
+    "reviewSeverity": "low-medium, agreed",
+    "assessment": "VERIFIED, and the receipt's refusal to call it a bug is the right call. Both pipeline call sites omit hostPlayerId (:276-281 and :503-508), so the refusal is unconditional across the whole /commands surface, not specific to one arm - a fact the review adds. The receipt's 'UNDETERMINED' framing is correct: GM administration verbs living on the GM's own socket rather than on a bearer-token HTTP route is a defensible design, and nothing read this session states the intent either way.",
+    "reviewAddition": "The type-level shape is the part worth an owner sentence. 'hostPlayerId?: string' (CampaignMatchHostIntent.ts:130) is OPTIONAL, so the pipeline's omission compiles silently and turns a host-only AUTHORISATION check into an unconditional refusal with no diagnostic anywhere. Whatever the intent, that silence is the smell: either the parameter should be required (forcing every call site to say what it means), or the host-only intents should be split into their own validator arm that the HTTP pipeline cannot reach at all. Fail-closed is the safe direction, so this is a design-clarity item rather than a security one.",
+    "useInTheSpec": "Correct. Asserting the 422 as a CONTROL row (spec:196-217) rather than asserting it in a comment is what makes the drive's use of the socket a demonstrated necessity, and the head-unchanged assertion at spec:217 closes the obvious alternative reading that the control accidentally committed the removal the later rows read."
+  },
+
+  "axis2_rowD_redaction": {
+    "verdict": "CONFIRMED",
+    "assertionTable": [
+      {
+        "id": "D-pre",
+        "what": "both feeds read through the REPLICA (3639), which committed none of it; viewerSeat asserted gm / player",
+        "specLines": "376-391",
+        "reviewVerdict": "CONFIRMED - passed live. Reading both through the non-committing process is what makes the difference attributable to the durable seat plus the projection rather than to session state."
+      },
+      {
+        "id": "D1",
+        "what": "BYTE COMPARISON both directions against the literals the projection builds",
+        "specLines": "403-412",
+        "reviewVerdict": "CONFIRMED. Source verified: campaignActivityProjection.ts case 'ParticipantRemoved' builds 'Removed participant ${participantId}${rationale}' where rationale = seesGmPrivateDetail && reason !== undefined ? ' \u2014 ' + reason : '' (space + em dash + space). The spec's two literals at :409 and :410-412 match that construction character-for-character. The GM literal asserted is 'Removed participant <guestA.playerId> \u2014 Repeatedly stalled the turn timer'; the player literal is the same string without the suffix.",
+        "whyByteCompareMatters": "The spec's own comment states it and the review agrees: not.toContain(reason) also passes for a feed that DROPPED the row entirely, so a containment-only check could not distinguish redaction from disappearance. The whole-string equality plus the exactly-one-row guard at :393-399 closes that."
+      },
+      {
+        "id": "D2",
+        "what": "the two renderings differ, and the rationale is nowhere in the player's WHOLE feed while it IS in the GM's",
+        "specLines": "414-418",
+        "reviewVerdict": "CONFIRMED - passed live. The positive half (expect(JSON.stringify(gmFeed)).toContain(...) at :418) is what stops D2 from passing vacuously against a feed that lost the reason for both viewers."
+      },
+      {
+        "id": "D3",
+        "what": "redaction is not concealment of the FACT: ordinal, actorPlayerId, campaignDay, category, occurredAt are equal between viewers",
+        "specLines": "420-428",
+        "reviewVerdict": "CONFIRMED - passed live. This is the assertion that makes 'scope-driven redaction' distinguishable from 'a blanket omission', and it is the strongest row in the slice."
+      },
+      {
+        "id": "D4",
+        "what": "the stranger is still 403 after everything above",
+        "specLines": "430-443",
+        "reviewVerdict": "CONFIRMED - passed live. Establishes the refusal is a property of having no seat rather than of the moment first asked."
+      }
+    ],
+    "the403StrangerPathDriven": "YES, twice - once before the removal (spec:184-194, with an exact body equality) and once after everything (spec:430-443, status only). Both passed in the review's live run. This closes the second half of CO3 review F3.",
+    "noNewIntentKind": {
+      "status": "CONFIRMED, and the brief's L3 openQuestion is correctly resolved NO.",
+      "proof": [
+        "src/lib/campaign/sync/campaignEventScope.ts:38 - 'ParticipantRemoved: \u0027campaign\u0027,' EXACT line, so both viewers are admitted to the FACT and the difference is internal to the row.",
+        "src/lib/campaign/activity/campaignActivityRead.ts - 'const isGm = membership.seat === \u0027gm\u0027' then 'seesGmPrivateDetail: isGm' passed to projectCampaignActivityForViewer; the seat comes from ports.readMembership (the durable row), not from the caller.",
+        "No file under src/ was touched by this slice (git diff --name-only c6be02fd6..HEAD), so no intent vocabulary was added.",
+        "The only intent kinds sent anywhere in the spec + fixture are 'RemoveParticipant' and 'SpendFunds', both pre-existing."
+      ]
+    },
+    "deviationFromTheBriefsProposedShape": {
+      "briefProposed": "runtimeMatrix.proposedAdditions.redactionRow proposed a WITHHELD gm-scope event plus a deep-scan for 'no GM-scope material and no withheld-count marker'.",
+      "delivered": "the seesGmPrivateDetail branch: a GM-private rationale carried INSIDE a campaign-scope fact.",
+      "reviewJudgement": "ACCEPTED. The delivered shape is precisely what CO3 review F3 named as the open cell ('the seesGmPrivateDetail filtering branch'), it needed no new intent kind and no production change, and the receipt discloses the substitution in openQuestionsResolved[0] and the un-driven half in nonClaims ('Redaction of a WITHHELD event is not exercised ... stays with the in-process scope tests'). The 'admits' half of the same projection remains covered only in-process; that is a stated non-claim, not a silent gap."
+    }
+  },
+
+  "axis3_flagFree": {
+    "verdict": "CONFIRMED",
+    "e2eOnlyArmAbsentEverywhere": [
+      "In the RUNNER env: spec:449 asserts expect(process.env[E2E_ARM_KEY]).toBeUndefined() and the fixture asserts the same at campaignJournalPrivacyFixture.ts:96, both against the real constant name bound by the CLI read at fixture:93.",
+      "In the SPAWN env: fixture:129 asserts expect(env[E2E_ARM_KEY]).toBeUndefined() on the exact object handed to spawn, and e2e/helpers/campaignJournalTwoProcess.ts:241 'delete env[e2eArmKey];' is the line that makes it so. VERIFIED verbatim.",
+      "At the END of the drive: spec:450 re-asserts expect(env[E2E_ARM_KEY]).toBeUndefined() after the restart, so a respawn could not have reintroduced it.",
+      "Repo-wide grep for MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY: the only hits in this slice's files are the constant declaration (campaignJournalPrivacyFixture.ts:49) and the header comment (spec:20). Every use is an ASSERTION OF ABSENCE. No file in this slice ever sets it.",
+      "playwright.config.ts:318-321 forwards the arm into the webServer env only when it is already set in the runner env; the review's run command did not set it, so the replica webServer did not receive it either."
+    ],
+    "markerConstructedDirectly": "CONFIRMED. campaignJournalPrivacyFixture.ts:200-206 calls cutoverCampaignToJournalAuthority(databasePath, campaignId) and asserts cutover.path === 'marker' (i.e. the stream already existed, so nothing was appended), cutover.marker.state === 'journal', cutover.cutoverFlag === false, cutover.effective === false, cutover.e2eEnvValue === null, and readHighestSequence unchanged at seededSequence. The negative preconditions at fixture:115-116 (marker null, head -1 before the cutover) mean a marker that was already there could not be mistaken for one this drive wrote.",
+    "productionFlagUnchanged": "CONFIRMED. src/lib/campaign/sync/JournalCampaignEventStore.ts:84 is 'export const CAMPAIGN_JOURNAL_AUTHORITY_ENABLED = false;' and no src/ file is in the diff. The spec re-reads it out of a real Node process at the END of the drive (spec:446-448: flagsAfter.cutoverFlag false, flagsAfter.effective false), and the fixture reads it at the START (fixture:92-95), so the gate is proven shut on both sides of the drive rather than only before it."
+  },
+
+  "axis4_liveRun": {
+    "preconditions": {
+      "buildWaitGate": "powershell node-process poll for 'next.*build|playwright' returned 0 before the build and before each run.",
+      "portsFreeBefore": "netstat -ano | grep -E ':3639|:3617' -> no entries at all before the build; no LISTENING entries before the run.",
+      "prodEvidenceFlag": "never passed"
+    },
+    "build": {
+      "command": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build",
+      "exit": 0,
+      "log": "review-build-e2e.log",
+      "sha256": "a9abe129cde0c621e78934c61e45cb7b16b874e31eaf3b6bf2e584770dfe0f7c",
+      "hydratedStandaloneServer": ".next\\standalone\\server.js (confirmed in the build's own ok:true block, with runtimeLoaders including ws)"
+    },
+    "e2eMarker": {
+      "command": "grep -c 'window.__E2E_MODE__=!0' .next/static/chunks/pages/_app-*.js",
+      "result": "1 hit in _app-b4f3e371ee8b87c1.js",
+      "note": "This is the SAME chunk hash the receipt names for its own greens, so the review measured against an equivalent bundle."
+    },
+    "run": {
+      "command": "MEKSTATION_E2E_SERVER_COMMAND='node .next/standalone/server.js' HOSTNAME=127.0.0.1 MEKSTATION_E2E_PORT=3639 node scripts/playwright/run-playwright.mjs test e2e/campaign-journal-two-process-privacy.spec.ts --project=chromium --retries=0 --workers=1",
+      "exit": 0,
+      "result": "1 passed",
+      "testDuration": "13.2s",
+      "reporterTotal": "30.0s",
+      "wallClock": "31s",
+      "log": "review-green-1.log",
+      "sha256": "61e3942028e9da0353c040ef85cc0760f542b5baad054f49c245b00b53b9c5f0",
+      "comparisonToReceipt": "The receipt claims 13.0s test / 16.7s wall for its greens. The review measured 13.2s test, matching within noise; the larger wall is the webServer cold start on a bundle this session had just rebuilt, not a behavioural difference."
+    },
+    "portsAfter": "No LISTENING socket on 3639 or 3617 after the run, the mutation run, and at capture. A single transient client entry 'TCP 127.0.0.1:60219 -> 127.0.0.1:3639 TIME_WAIT' was present immediately after the green and holds no listener - the same characterisation the receipt gives.",
+    "logDirectory": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-authority-live-rows-review-20260915/"
+  },
+
+  "axis4_mutationReproduction": {
+    "mutation": "(a) remove the revocation",
+    "method": "Temporary in-place edit: spec lines 222-233 (the gmSocket.sendHostIntent('RemoveParticipant', ...) call, its awaited ParticipantRemoved frame and the expect(removalSequence).toBe(seededSequence + 1) head assertion) replaced with the single line 'void GM_PRIVATE_REASON;', exactly as the receipt describes. The two drains at 220-221 were left in place.",
+    "preMutationSha256": "e5e537dc44790ea16c8fcc9b360b8971b3790bb3f0fc99357007e77e3e347103",
+    "preMutationShaMatchesReceipt": "YES - byte-identical to the receipt's commitDiscipline.committedBytesMatchGreenBytes value. Independent confirmation that the reviewed bytes are the green bytes.",
+    "mutatedSha256": "92c1c95cf5c41fa4652906d759fb6668b26fbcdc070ccd0694eff269b1b1a370",
+    "result": {
+      "exit": 1,
+      "outcome": "1 failed",
+      "failedAt": "e2e/campaign-journal-two-process-privacy.spec.ts:239:32",
+      "assertion": "expect(revokedRead.status).toBe(403)",
+      "expected": 403,
+      "received": 200,
+      "duration": "6.7s",
+      "log": "review-mutation-a.log",
+      "sha256": "19f690990ed1fb7400b3d781bcb8c7df3d00c23a2ad2737a1fdd4350f4aa6f8d"
+    },
+    "matchesReceipt": "EXACTLY. The receipt claims 'FAILED at spec line 239: expect(revokedRead.status).toBe(403) received 200'. Same line, same assertion, same expected/received pair, reproduced independently on a fresh build.",
+    "restoration": {
+      "command": "git checkout -- e2e/campaign-journal-two-process-privacy.spec.ts",
+      "postRestoreSha256": "e5e537dc44790ea16c8fcc9b360b8971b3790bb3f0fc99357007e77e3e347103",
+      "equalsGreenSha": true,
+      "gitStatusShort": "clean (empty output)"
+    },
+    "whatThisProves": "R1 is load-bearing rather than incidental: with no removal committed, guest A is still seated and the scoped read on the OTHER process answers 200. The refusal the row reports is caused by the revocation and by nothing else in the topology."
+  },
+
+  "axis5_gates": [
+    {
+      "gate": "tsc",
+      "command": "npx tsc --noEmit --skipLibCheck",
+      "exit": 0,
+      "result": "PASS - zero output (review-tsc.log sha256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855, the sha256 of an empty file)",
+      "matchesReceipt": true
+    },
+    {
+      "gate": "oxfmt",
+      "command": "npx oxfmt --check <the 4 files>",
+      "exit": 0,
+      "result": "PASS - 'All matched files use the correct format. Finished in 15ms on 4 files' - all four files were actually analysed, unlike oxlint",
+      "matchesReceipt": true
+    },
+    {
+      "gate": "oxlint",
+      "command": "npx oxlint <the 4 files>",
+      "exit": 0,
+      "result": "VACUOUS BY CONFIGURATION - 'Found 0 warnings and 0 errors. Finished in 9ms on 0 files'. Independently confirmed the cause: .oxlintrc.json ignorePatterns contains BOTH 'e2e/**' and '**/*.spec.ts'. Zero files analysed. Stated, not claimed as a pass. Real lint coverage for this slice is tsc + oxfmt + the pre-commit lint-staged chain.",
+      "matchesReceipt": true,
+      "note": "The receipt states this honestly and attributes it to CO3 review F4. The review agrees and adds nothing adverse - correctly disclosing a vacuous gate is the right behaviour."
+    },
+    {
+      "gate": "openspec strict",
+      "command": "npx openspec validate --strict --all",
+      "exit": 0,
+      "result": "PASS - 232 passed, 0 failed (232 items)",
+      "matchesReceipt": true,
+      "note": "review-openspec.log sha256 a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3 is BYTE-IDENTICAL to the receipt's declared openspec-strict.log hash - the strongest possible reproduction of that gate."
+    },
+    {
+      "gate": "CO3 regression",
+      "command": "the receipt's own re-run of campaign-journal-two-process-convergence.spec.ts on this branch's refactored drive helper",
+      "exit": 0,
+      "result": "NOT RE-RUN BY THE REVIEW (the brief authorised one live run). The receipt records PASS with log co3-regression.log. The review inspected the refactor statically instead and found it delegation-preserving: hostIdentity -> campaignIdentity with the CO3 literals unchanged, readActivity -> requestActivity + the same 200 expectation, postCommand -> postIntentCommand with the same SpendFunds intent. No CO3 call site changed shape.",
+      "matchesReceipt": "accepted on the receipt's evidence plus static review"
+    }
+  ],
+
+  "axis5_caps": {
+    "perCommit": [
+      { "sha": "7b4e66b86", "files": 2, "nonGeneratedLines": 360, "withinCap": true },
+      { "sha": "f2e8d9ad2", "files": 1, "nonGeneratedLines": 246, "withinCap": true },
+      { "sha": "1f1db65d3", "files": 1, "nonGeneratedLines": 476, "withinCap": true }
+    ],
+    "capsSource": "roadmap.json R2.authority-live: maxFiles 15, maxNonGeneratedLines 500",
+    "verdict": "PASS per commit - every commit is at or under 500 non-generated lines and far under 15 files. Measured: wc -l gives 476 / 246 / 257 for the three new files and git diff --stat gives +103/-22 on the shared drive helper.",
+    "nodeBudgetAmbiguity": "Worth one owner sentence, NOT a blocker and NOT a requiredEdit: read as a NODE budget rather than a per-commit budget, 1082 insertions across this slice alone would exceed maxNonGeneratedLines 500, and CO3 already spent against the same node. The review evaluated per-commit because that is how the reviewing instruction framed it and how the receipt reads it. If the node budget is cumulative, the parent should say so before the next slice lands, because two more slices of this size would have nowhere to go."
+  },
+
+  "axis5_specSplit": {
+    "claim": "the deliverable spec was 592 lines as first written, over both the node's 500-line cap and the task's own instruction, and was SPLIT rather than trimmed",
+    "verdict": "SPLIT, NOT TRIMMED - CONFIRMED",
+    "evidence": [
+      "The extracted file campaignJournalPrivacyFixture.ts is 246 lines of PRECONDITION only: flag reads, campaign creation, database resolution, source spawn, four identities, co-op host match creation, the marker cutover, three socket opens. Every one of its assertions is a world-was-never-built guard (marker null before, head -1 before, match 201, roomCode truthy, seededSequence 0, cutover path 'marker', socket terminal 'snapshot').",
+      "NOT ONE product assertion moved out of the spec. Every row that can fail for a product reason - R-pre-1 through R5, D1 through D4, the flag re-reads - is still in campaign-journal-two-process-privacy.spec.ts. 476 + 246 = 722 > 592, i.e. the split ADDED explanatory prose rather than removing assertions, which is the opposite of a trim.",
+      "The fixture's own header (fixture:10-20) states the split rule explicitly and the reason for it, and the spec's afterAll (spec:117-127) still owns teardown of everything the fixture created, so the split did not leak lifecycle responsibility."
+    ],
+    "reviewJudgement": "This is the right split. The line the author drew - preconditions whose failure is a harness fault vs rows whose failure is a product verdict - is the correct one, and it is stated in the code rather than left implicit."
+  },
+
+  "axis6_hygiene": {
+    "srcFilesTouched": "NONE. git diff --name-only c6be02fd6..HEAD returns exactly four paths, all under e2e/: campaign-journal-two-process-privacy.spec.ts, helpers/campaignJournalDrive.ts, helpers/campaignJournalPrivacyFixture.ts, helpers/campaignJournalSocket.ts.",
+    "aiAttribution": "NONE. git log -3 --format='%B' | grep -ciE 'claude|co-authored|generated with|anthropic' returned 0.",
+    "commitAuthor": "Wes Rollings <wrollings@gmail.com> on all three commits (git log -3 --format='%h %an <%ae>').",
+    "dependenciesAdded": "NONE. The socket helper imports 'ws', already a production dependency (used server-side by the replica-sync dial). Verified the build's runtimeLoaders list includes ws.",
+    "migrationsAdded": "NONE.",
+    "specCheckboxesFlipped": "NONE (no openspec change file is in the diff).",
+    "pushed": false,
+    "prOpened": false,
+    "worktreeCleanAtCapture": true
+  },
+
+  "axis6_mergeTree": {
+    "fetched": "git fetch origin (ran this session)",
+    "originMainAtReview": "288fe678ae4d53ef46f6c5dbe82c8e2b34b1f077 - '288fe678a test(e2e): two-process campaign journal harness helpers (#1748)'",
+    "receiptWasStale": "YES, benignly. The receipt records origin/main as 376f5aa92 (#1747). main has since advanced: #1748 MERGED. See requiredEdits RE-1.",
+    "prStates": {
+      "1747": "MERGED (codex/roadmap-r2-authority-cutover-co3-1-cli-20260915)",
+      "1748": "MERGED (codex/roadmap-r2-authority-cutover-co3-2-two-process-20260915)",
+      "1749": "OPEN (codex/roadmap-r2-authority-cutover-co3-3-drive-20260915) - carries e2e/helpers/campaignJournalDrive.ts",
+      "1750": "OPEN (codex/roadmap-r2-authority-cutover-co3-20260915) - carries e2e/campaign-journal-two-process-convergence.spec.ts"
+    },
+    "result": {
+      "command": "git merge-tree --write-tree --name-only origin/main 1f1db65d3",
+      "exit": 0,
+      "tree": "bcca4776463dbc30ca4160760bd62e981d3db076",
+      "conflicts": "NONE"
+    },
+    "correctionToTheExpectedOutcome": "The reviewing instruction anticipated 'will conflict/depend until #1750 lands'. MEASURED: it DEPENDS but does NOT CONFLICT. The merge is textually clean because the two already-merged helpers are byte-identical on both sides (verified by blob hash: e2e/helpers/campaignJournalTwoProcess.ts = e046a16ce9603e4eb4e58c88adde00e9fcd158f2 and scripts/e2e/campaign-journal-authority.ts = 6f12ade8a3415cf6660ef730eb30d3260f5ea813 on BOTH origin/main and the branch), and everything else is a new-file add.",
+    "whatTheMergeWouldActuallyLand": "git diff --name-only origin/main <merge-tree> = 5 files: campaign-journal-two-process-convergence.spec.ts (#1750's deliverable), campaign-journal-two-process-privacy.spec.ts (this slice), helpers/campaignJournalDrive.ts (#1749's deliverable), helpers/campaignJournalPrivacyFixture.ts and helpers/campaignJournalSocket.ts (this slice). So merging this branch today would silently land #1749's and #1750's content and moot both open PRs - which is an ORDERING hazard, not a conflict hazard, and the more dangerous of the two because nothing would fail to warn you."
+  },
+
+  "axis6_packaging": {
+    "recommendation": "HOLD, then ONE PR of three commits.",
+    "sequence": [
+      "1. Wait for #1749 and #1750 to merge (both OPEN as of this review).",
+      "2. Rebase codex/roadmap-r2-authority-live-rows-20260915 onto the new origin/main. After that rebase the branch carries exactly the three commits under review - 7b4e66b86, f2e8d9ad2, 1f1db65d3 - because the four CO3 commits will be upstream.",
+      "3. Open ONE PR containing all three commits."
+    ],
+    "whyOnePRAndNotThree": "The three commits are one coherent slice and are not independently mergeable in any useful sense: the fixture imports campaignIdentity and openCampaignSyncSocket from commit 1, and the spec imports bootPrivacyTopology from commit 2, so commits 1 and 2 land dead code if merged alone and the spec cannot compile without both. The per-commit caps are satisfied inside a single PR (360 / 246 / 476 lines, 2 / 1 / 1 files), the commit boundaries stay reviewable, and the instruction's ceiling is 'three PRs or fewer' - one is fewer. Splitting would add two review cycles and two windows in which main carries an unreferenced helper.",
+    "doNotMergeBefore1750": "Explicit. Merging this branch ahead of #1749/#1750 would carry their deliverables in under this PR's title, leave those PRs to be closed as already-landed, and break the CO3 stack's own review trail."
+  },
+
+  "requiredEdits": [
+    {
+      "id": "RE-1",
+      "severity": "low",
+      "type": "receipt accuracy - staleness",
+      "target": "r2-authority-live-rows-local-20260915.json -> base.stackDependency.statusAtCapture and mergeOrder",
+      "current": "'origin/main is 376f5aa92, which is #1747 ... #1748-#1750 were still unmerged at capture'",
+      "correction": "Measured at review time by 'git fetch origin; git rev-parse origin/main; gh pr list': origin/main is 288fe678a (#1748, MERGED). #1747 and #1748 are both merged; #1749 and #1750 remain OPEN. The mergeOrder line should read '#1749 -> #1750 -> this branch'. Additionally, 'git merge-tree --write-tree origin/main 1f1db65d3' is CLEAN (exit 0, tree bcca4776) - the dependency is one of ordering, not of textual conflict, and the receipt should say so because 'cannot be rebased onto main' over-states it.",
+      "blocking": false
+    },
+    {
+      "id": "RE-2",
+      "severity": "low",
+      "type": "fix-proposal precision",
+      "target": "r2-authority-live-rows-local-20260915.json -> findings.F-LIVE-1.suggestedShape",
+      "current": "'... The existing closeTyped(code, reason) surface already has an AUTH_REJECTED/membership-revoked shape the rejoin path uses, so the close frame would be consistent with what a rejoin already receives.'",
+      "correction": "Split the two halves, because they are not the same size of change. CampaignSyncSession holds SINKS, not sockets: the participant->unsubscribe map lands entirely inside CampaignSyncSession.ts (:185, :362-376, :641-645) and STOPS DELIVERY, which is the privacy-relevant half and is ~10-14 lines in one file. Emitting closeTyped(AUTH_REJECTED,'membership-revoked') to that socket cannot be done from the session at all - it needs a participant-keyed socket index in bindCampaignSyncConnection, whose only socket registry ('socketsByMatch', :261-263 and :1411-1413) is keyed by matchId. Recommend stating the delivery-stop as the minimal fix and the typed close as a follow-on owner decision.",
+      "blocking": false
+    },
+    {
+      "id": "RE-3",
+      "severity": "informational",
+      "type": "helper robustness, introduced by commit 7b4e66b86",
+      "target": "e2e/helpers/campaignJournalDrive.ts requestActivity",
+      "detail": "requestActivity now calls 'await response.json()' unconditionally, whereas the pre-refactor readActivity called .json() only after asserting 200 and used 'await response.text()' in the failure message. Every status this slice drives (200, 403) returns JSON, so nothing is wrong today. But a non-JSON error body - a 500 HTML page from a half-started source process, which is exactly the failure a two-process drive can hit - would now surface as a JSON parse exception instead of the old readable 'activity read failed on <origin>: <body>' assertion. A try/catch falling back to the raw text would restore the diagnostic in one line. Not blocking and not worth a re-run.",
+      "blocking": false
+    }
+  ],
+
+  "observations": [
+    {
+      "id": "O-1",
+      "note": "Flake exposure on R3 is small but real and worth knowing about before CI wiring. The row asserts expect(eventTypes(guestASocket)).toEqual(['FundsChanged']) after a fixed 2s settle (campaignJournalSocket.ts:255-257) gated on guest B having already received the same frame. If guest A's frame ever landed outside that window the row would go red with [] - which reads identically to 'the gap was fixed'. Whoever closes F-LIVE-1 and inverts the row should keep that in mind; whoever wires CI should expect this specific row to be the timing-sensitive one. The positive control on guest B is the right mitigation and is already there."
+    },
+    {
+      "id": "O-2",
+      "note": "roadmap.json gives R2.authority-live ownershipPaths of src/lib/campaign, src/stores/campaign and src/lib/multiplayer/server, and this slice touches none of them. That is correct for a test-only evidence slice, but it means the node's acceptance will eventually need a production slice inside those paths - F-LIVE-1's fix lands squarely in src/lib/multiplayer/server, i.e. inside the node's own ownership."
+    },
+    {
+      "id": "O-3",
+      "note": "The acceptance line has five runtime cells and this slice closes two. Per the receipt's own nonClaims, 'catch-up' remains PARTIAL with no live two-process reconnect-after-gap backfill anywhere, and grant revocation across two live processes (the shape the admission brief's L2 originally proposed) is still undriven - the brief's proposed row targeted the GRANT subsystem via DELETE /api/campaigns/[id]/grants, which is a different gate from the campaign_session_participant SEAT this slice revokes. The substitution is disclosed and well argued (the seat is what /activity reads), but it means the brief's proposed 'no frame arrives on the revoked socket' assertion - which task 4.3 shows IS satisfiable on the grant path - remains unexercised at the live-process level. Worth one line in the node's acceptance note so a reader does not take row R as covering both revocation subsystems."
+    },
+    {
+      "id": "O-4",
+      "note": "Minor citation drift, no action needed: the receipt cites campaignActivityProjection.ts:186-193 for the redaction branch. The case 'ParticipantRemoved' opens at :184; :186-193 covers the payload destructure through the returned message, i.e. every substantive line. Every other file:line in the receipt (CampaignSyncSession 641-645 and 362-376, bindCampaignSyncConnection 881-896 and 934-938, campaignCommandPipeline 503-508, CampaignMatchHostIntent 222, CampaignMatchHost.doors 151-166, campaignEventScope 38) resolved EXACTLY, which is an unusually good citation record."
+    }
+  ],
+
+  "reviewLogs": {
+    "dir": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-authority-live-rows-review-20260915/",
+    "sha256File": "SHA256SUMS.txt",
+    "sha256": {
+      "review-build-e2e.log": "a9abe129cde0c621e78934c61e45cb7b16b874e31eaf3b6bf2e584770dfe0f7c",
+      "review-green-1.log": "61e3942028e9da0353c040ef85cc0760f542b5baad054f49c245b00b53b9c5f0",
+      "review-mutation-a.log": "19f690990ed1fb7400b3d781bcb8c7df3d00c23a2ad2737a1fdd4350f4aa6f8d",
+      "review-tsc.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "review-openspec.log": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3"
+    }
+  },
+
+  "nonClaims": [
+    "The review did NOT re-run mutation (b) (the GM-seat-for-guest swap on row D). Only mutation (a) was reproduced, per the reviewing instruction. Row D's discrimination is accepted on the receipt's evidence plus the review's independent source verification that the two projection literals differ only in the seesGmPrivateDetail suffix.",
+    "The review did NOT re-run the CO3 regression spec. The drive-helper refactor was reviewed statically and found delegation-preserving.",
+    "The review ran the spec ONCE, not twice. Consecutive-green stability is accepted on the receipt's two greens plus this session's third.",
+    "The review did not push, commit, open a PR, or modify any repo file. The only writes were this artefact and the five logs plus SHA256SUMS.txt under the review log directory. The one temporary spec edit for mutation (a) was restored via 'git checkout --' and verified back to the exact green sha256, with git status --short clean.",
+    "No production fix for F-LIVE-1 was implemented or attempted; the minimal-fix proposal is a recommendation, not a landed change.",
+    "The review did not evaluate whether R2.authority-live's OTHER acceptance cells (catch-up; the migration-states/parity/rollback review; the 1.2/1.3 and 4.3/4.5/5.7 nonclaim reconciliation) are satisfied - only rows R and D were in scope."
+  ]
+}

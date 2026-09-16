@@ -1,0 +1,217 @@
+{
+  "at": "2026-09-12T12:18:06.502Z",
+  "baseline": "47c4464840eaa7c62044533621eb265a4ab71215",
+  "branch": "codex/roadmap-routing-closure-20260912",
+  "preservation": [
+    {
+      "original": "openspec/changes/fix-customizer-explicit-tab-precedence/.openspec.yaml",
+      "archived": "openspec/changes/archive/2026-09-12-fix-customizer-explicit-tab-precedence/.openspec.yaml",
+      "originalSha256": "a4ed664eb8476e85e347872f52baefe664358318725d07ee4e28ea918d6fd9d4",
+      "sha256": "a4ed664eb8476e85e347872f52baefe664358318725d07ee4e28ea918d6fd9d4",
+      "originalPreserved": true
+    },
+    {
+      "original": "openspec/changes/fix-customizer-explicit-tab-precedence/design.md",
+      "archived": "openspec/changes/archive/2026-09-12-fix-customizer-explicit-tab-precedence/design.md",
+      "originalSha256": "2328c2f8821202ef7aac04351767b9e57572d001be6a18fbfc408ecda4a326fe",
+      "sha256": "2328c2f8821202ef7aac04351767b9e57572d001be6a18fbfc408ecda4a326fe",
+      "originalPreserved": true
+    },
+    {
+      "original": "openspec/changes/fix-customizer-explicit-tab-precedence/proposal.md",
+      "archived": "openspec/changes/archive/2026-09-12-fix-customizer-explicit-tab-precedence/proposal.md",
+      "originalSha256": "41762fe61062760b75aa0e799600e9f79ad982453400ea7913ec3d41cb9a7a46",
+      "sha256": "41762fe61062760b75aa0e799600e9f79ad982453400ea7913ec3d41cb9a7a46",
+      "originalPreserved": true
+    },
+    {
+      "original": "openspec/changes/fix-customizer-explicit-tab-precedence/specs/customizer-routing/spec.md",
+      "archived": "openspec/changes/archive/2026-09-12-fix-customizer-explicit-tab-precedence/specs/customizer-routing/spec.md",
+      "originalSha256": "6ddd0e574a13367a81224650aeda5fee91af142f8e98b82880d76d30fc2517cd",
+      "sha256": "6ddd0e574a13367a81224650aeda5fee91af142f8e98b82880d76d30fc2517cd",
+      "originalPreserved": true
+    },
+    {
+      "original": "openspec/changes/fix-customizer-explicit-tab-precedence/tasks.md",
+      "archived": "openspec/changes/archive/2026-09-12-fix-customizer-explicit-tab-precedence/tasks.md",
+      "originalSha256": "e86f8bd194ff5fd88b421bd9172d39b8c0852dee9ba7872efefad7246f4234c1",
+      "sha256": "8bcb7a155ad7a9364474729d541c894e8468e402a2c27aa46e87218eacbcea82",
+      "originalPreserved": true
+    }
+  ],
+  "owned": [
+    {
+      "path": "docs/audits/2026-09-12-customizer-routing-acceptance.md",
+      "sha256": "e7669b1378e415b13151483f24e570d389ca8704ba9f11a7c74a01505bc6a576"
+    },
+    {
+      "path": "openspec/active-change-ledger.json",
+      "sha256": "d9faceb665f174d9c5e4a3eae09d1f580f602e7591f70d4432fb327fdc452e5e"
+    },
+    {
+      "path": "openspec/changes/archive/2026-09-12-fix-customizer-explicit-tab-precedence/.openspec.yaml",
+      "sha256": "a4ed664eb8476e85e347872f52baefe664358318725d07ee4e28ea918d6fd9d4"
+    },
+    {
+      "path": "openspec/changes/archive/2026-09-12-fix-customizer-explicit-tab-precedence/design.md",
+      "sha256": "2328c2f8821202ef7aac04351767b9e57572d001be6a18fbfc408ecda4a326fe"
+    },
+    {
+      "path": "openspec/changes/archive/2026-09-12-fix-customizer-explicit-tab-precedence/proposal.md",
+      "sha256": "41762fe61062760b75aa0e799600e9f79ad982453400ea7913ec3d41cb9a7a46"
+    },
+    {
+      "path": "openspec/changes/archive/2026-09-12-fix-customizer-explicit-tab-precedence/specs/customizer-routing/spec.md",
+      "sha256": "6ddd0e574a13367a81224650aeda5fee91af142f8e98b82880d76d30fc2517cd"
+    },
+    {
+      "path": "openspec/changes/archive/2026-09-12-fix-customizer-explicit-tab-precedence/tasks.md",
+      "sha256": "8bcb7a155ad7a9364474729d541c894e8468e402a2c27aa46e87218eacbcea82"
+    },
+    {
+      "path": "openspec/changes/establish-battlemech-chassis-index/specs/battlemech-chassis-index/spec.md",
+      "sha256": "7d8f8d8e184156be1a3a7e8b8b679aa7d41f322ac76e82469896e68097abd8b4"
+    },
+    {
+      "path": "openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md",
+      "sha256": "ead0291dcb8d6cab72562d34ac7d3d4c93797d38e8bc2bd2561ce0b4f72f73af"
+    }
+  ],
+  "checks": [
+    {
+      "name": "closure-spec-1",
+      "status": {
+        "name": "closure-spec-1",
+        "args": [
+          "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+          "exec",
+          "--",
+          "openspec",
+          "validate",
+          "--all",
+          "--strict"
+        ],
+        "cwd": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\routing",
+        "startedAt": "2026-09-12T12:07:46.179Z",
+        "driverPid": 62376,
+        "running": false,
+        "pid": 45208,
+        "code": 0,
+        "finishedAt": "2026-09-12T12:07:48.139Z"
+      },
+      "log": ".sisyphus/roadmap-completion-20260912/routing-checks/closure-spec-1.log",
+      "sha256": "e21ee5a93b949a4d54b08178b22d10d3ab304c1b55e46a00f05c1cfc9b56c76e"
+    },
+    {
+      "name": "closure-ci-1",
+      "status": {
+        "name": "closure-ci-1",
+        "args": [
+          "scripts/qc/validate-openspec-ci-quality.mjs"
+        ],
+        "cwd": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\routing",
+        "startedAt": "2026-09-12T12:07:46.185Z",
+        "driverPid": 37636,
+        "running": false,
+        "pid": 13404,
+        "code": 0,
+        "finishedAt": "2026-09-12T12:07:46.287Z"
+      },
+      "log": ".sisyphus/roadmap-completion-20260912/routing-checks/closure-ci-1.log",
+      "sha256": "c0cb54085851dc9acb986613616f6992117a3fd0bd09d508938c634750b7cbb2"
+    },
+    {
+      "name": "closure-purpose-1",
+      "status": {
+        "name": "closure-purpose-1",
+        "args": [
+          "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+          "run",
+          "spec:purpose:validate:strict"
+        ],
+        "cwd": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\routing",
+        "startedAt": "2026-09-12T12:07:46.192Z",
+        "driverPid": 73560,
+        "running": false,
+        "pid": 52308,
+        "code": 0,
+        "finishedAt": "2026-09-12T12:07:48.420Z"
+      },
+      "log": ".sisyphus/roadmap-completion-20260912/routing-checks/closure-purpose-1.log",
+      "sha256": "4708af7f12b7d5cd9d30468cfca5c63fcea51e33147e3b0da6c0189219d09b04"
+    },
+    {
+      "name": "closure-format-1",
+      "status": {
+        "name": "closure-format-1",
+        "args": [
+          "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+          "run",
+          "format:check"
+        ],
+        "cwd": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\routing",
+        "startedAt": "2026-09-12T12:07:46.213Z",
+        "driverPid": 59032,
+        "running": false,
+        "pid": 10460,
+        "code": 0,
+        "finishedAt": "2026-09-12T12:07:57.710Z"
+      },
+      "log": ".sisyphus/roadmap-completion-20260912/routing-checks/closure-format-1.log",
+      "sha256": "5e4fa3b4af34326f4b0ff3e8f3b030bb127a66d4d0a1b41eb7b7205a1e0fc1f6"
+    },
+    {
+      "name": "closure-terminology-2",
+      "status": {
+        "name": "closure-terminology-2",
+        "args": [
+          "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+          "run",
+          "terminology:validate:strict"
+        ],
+        "cwd": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\routing",
+        "startedAt": "2026-09-12T12:09:59.948Z",
+        "driverPid": 84632,
+        "running": false,
+        "pid": 3816,
+        "code": 0,
+        "finishedAt": "2026-09-12T12:10:07.980Z"
+      },
+      "log": ".sisyphus/roadmap-completion-20260912/routing-checks/closure-terminology-2.log",
+      "sha256": "8b67510da3c8a668caddddfd00e4cdd7c27b8427674c8a2476a754a2628e766a"
+    }
+  ],
+  "review": {
+    "agent": "/root/roadmap_history",
+    "model": "gpt-5.6-luna",
+    "effort": "high",
+    "result": "No concrete blocker; archive bytes, main receipts, ledger and word-only repair scope verified"
+  },
+  "failedAttempts": [
+    {
+      "log": ".sisyphus/roadmap-completion-20260912/routing-checks/closure-terminology-1.log",
+      "reason": "Two baseline naming violations, subsequently repaired with exact word replacements"
+    }
+  ],
+  "candidateCommit": "cafd0bac3667a1e0f9123a609195c54ec8ceeade",
+  "commitHook": {
+    "status": {
+      "at": "2026-09-12T12:18:06.535Z",
+      "cwd": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\routing",
+      "driverPid": 53588,
+      "running": false,
+      "args": [
+        "commit",
+        "-m",
+        "docs(openspec): archive verified customizer routing fix"
+      ],
+      "pid": 81044,
+      "code": 0,
+      "finishedAt": "2026-09-12T12:18:09.270Z",
+      "commit": "cafd0bac3667a1e0f9123a609195c54ec8ceeade"
+    },
+    "log": ".sisyphus/roadmap-completion-20260912/routing-checks/closure-commit-1.log",
+    "sha256": "7121209511efb0a4cb6a38c0bfb8b741cbedc53d3598deb588020c52c12d320e",
+    "ownedHashesUnchanged": true
+  }
+}

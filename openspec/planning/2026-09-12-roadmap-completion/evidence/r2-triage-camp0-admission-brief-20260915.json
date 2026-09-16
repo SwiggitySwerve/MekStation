@@ -1,0 +1,303 @@
+{
+  "schema": "r2-triage-camp0-admission-brief/v1",
+  "at": "2026-09-15T08:30:00.000Z",
+  "role": "read-only discovery; no product/spec/tasks edits made; single evidence artifact only",
+  "sourceSnapshot": {
+    "originMainAtFetch": "79de4f19591f72c3d5295c2ac71118589027ed36",
+    "note": "origin/main advanced from 1f84beef2967ce071f25ffa1b6f94240d9507b58 to 79de4f19591f72c3d5295c2ac71118589027ed36 between the first and second `git fetch origin main` in this session (~08:00-08:05Z) because sibling lanes (camp-live-probe-fix PR #1679, ci-prefixes-2-4, paper-size-fix PR #1682, etc.) are merging concurrently in this same session. Any receipt run for R2.triage/R2.camp-0 MUST re-pin its own exact-main SHA at execution time; no SHA cited below should be treated as 'current main' beyond this brief's timestamp.",
+    "workingTreeDivergesFromOriginMain": "openspec/planning/2026-09-12-roadmap-completion/ (roadmap.json, evidence/, this brief's target path) is entirely untracked (git status: '?? openspec/planning/2026-09-12-roadmap-completion/') -- it is local planning scratch, not part of the origin/main tree, so it was read from disk rather than via `git show origin/main:`. openspec/changes/add-saved-custom-unit-campaign-roster/tasks.md has local uncommitted wording edits (unsupported-custom vs custom/invalid language in tasks 1.4/4.2/7.1/8.1/9.1) but section '0. CAMP-00' (tasks 0.1-0.4, the only section this brief depends on) is byte-identical between the local working tree and origin/main -- confirmed by `git diff origin/main -- <path>` showing no hunk touching lines 7-11."
+  },
+  "node_R2_triage": {
+    "roadmapDefinition": {
+      "file": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json (nodes[] where id==R2.triage)",
+      "title": "Run immutable reproduction, audit observations and repair only proved causes",
+      "kind": "verification",
+      "state": "planned",
+      "dependsOn": [
+        "R2.receipts"
+      ],
+      "ownershipPaths": [
+        "scripts/qc",
+        "openspec/changes/add-saved-custom-unit-campaign-roster"
+      ],
+      "acceptance": [
+        "Frozen proof-02-reproduction and proof-02-triage rows; exact observation equality; independently approved audit and required repair tuples"
+      ],
+      "maxFiles": 15,
+      "maxNonGeneratedLines": 500,
+      "taskKeys_asWritten": []
+    },
+    "taskKeysFinding": "R2.triage's own `taskKeys` array in roadmap.json is EMPTY, and no entry in the top-level `tasks` array (376 entries) carries `primaryNode: \"R2.triage\"` (grep confirmed zero matches). R2.triage is therefore a pure verification/execution node defined ONLY by its `acceptance` text and `decomposition` note, not by enumerated tasks.md line items -- unlike R2.camp-0, which does carry 4 explicit taskKeys. This is a real gap in the roadmap's own bookkeeping, not a reading error: the CONTEXT block's claim that R2.triage 'quote each task's literal text' presumes taskKeys that do not exist.",
+    "decomposition": "Navigation paths only. Before assignment, select one behavior, exact files and original task IDs; split until original/default caps fit. Each child PR needs its own reviewed-head and exact-main receipt.",
+    "whatImmutableReproductionMeansForThisPackage": {
+      "frozenContractFile": "scripts/qc/camp01-authority-receipt.contract.mjs (235 lines, exported as WAVE_CONTRACTS)",
+      "camp_proof_row": "line 24: commandId=camp-proof, childChange=add-camp01-authority-receipts, commandSequence=[[\"@npm\",\"test\",\"--\",\"--watchAll=false\",\"--runTestsByPath\",\"scripts/__tests__/camp01-authority-receipt-qc.test.ts\",\"--runInBand\"]], canonicalArgvDigest=68e44c6b37134fb790026e615b26ddda39fb68cbf49921be33e1d1a1bd4d48a0, predecessors=[], capSubject=product-pr, maxFiles=15, maxChangedLines=500. Jest-only; no browser.",
+      "proof_02_reproduction_row": "line 25: commandId=proof-02-reproduction, commandSequence=[[\"@npm\",\"run\",\"qc:command:browser:quick\"]], canonicalArgvDigest=5326e9ef772870a3691dcfd6168851b3def278db08dd7e2d4d64d989f04aaba7, predecessors=[camp-proof], capSubject=none (no file/line cap -- it is a pure evidence run, not a code PR). `qc:command:browser:quick` (package.json:175) = `node scripts/playwright/run-playwright.mjs test --project=chromium e2e/campaign-starmap-logistics.spec.ts e2e/campaign-customizer-handoff.spec.ts e2e/gm-campaign-ledger-control-plane.spec.ts --workers=1` -- a REAL Playwright/Chromium run against a built app.",
+      "proof_02_triage_row": "line 26: commandId=proof-02-triage, commandSequence=[] (zero-command; pure bookkeeping/disposition write), predecessors=[proof-02-reproduction], capSubject=audit-pr, maxFiles=5, maxChangedLines=300. Consumes only NON-passing observations from the reproduction run and requires one `--disposition=\"<observation-id>|<fingerprint>|<severity>|<repair-required|external-blocker|lower-severity|not-distinct-cause>|...|<audit-pr>|<audit-merge-sha>|<audit-approval-id>|<audit-reviewer>\"` tuple per non-pass observation, each citing a merged, independently-reviewed audit-only PR.",
+      "immutableReproductionDefinition": "'Immutable reproduction' = running proof-02-reproduction (the frozen browser command, byte-pinned by canonicalArgvDigest) through the controller (`scripts/qc/run-camp01-authority-receipt.mjs`, exposed as `npm run qc:camp01-authority-receipt:controller`) at a verified exact-SHA, which forbids caller-substituted argv/env and requires the camp-proof predecessor receipt to already exist for that SHA/mode."
+    },
+    "auditObservationsToTriage": {
+      "sourceOfTruthForBookkeeping": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-receipts-revalidation-20260915.json (the R2.receipts revalidation this node depends on)",
+      "items": [
+        {
+          "item": "Task 2.3 evidence line: 'Durable proof02-reproduction and two proof02-triage receipt directories exist in the operator durable root.'",
+          "disposition": "(a) already-answered-by-evidence-in-hand, BUT STALE -- these are historical receipts from a 2026-08-12 run (see next item), not repo-resident, and not re-verifiable from main alone (r2-receipts-revalidation-20260915.json bookkeepingFindings[1]: 'the entire durable evidence root is outside the repository, E:/Projects/MekStation-proof/.sisyphus/evidence/playtest ... git ls-files .sisyphus/evidence on main returns 189 files, none of them camp-proof or camp-01x receipts.')"
+        },
+        {
+          "item": "The one known historical PROOF-02 observation: docs/audits/2026-08-12-proof-02-triage-starmap-mime.md (74 lines, tracked on origin/main). Anchors the SOLE non-passing observation from a proof-02-reproduction run at exact-main d34a197198a3b19d10ec332aefe7d055a5df8ef2 (run camp01-e8a70ce29fcf193ed1c709e5d8292f31): observationId=`e2e/campaign-starmap-logistics.spec.ts::campaign starmap logistics::previews, approves, and reloads campaign travel consequences`, status=failed, failureFingerprint=sha256:ce7ec763397b46091fb9e9a36c21ecda7ea255fc84b4433a8dd3601acb664144, knownFailureCode=development-mime-diagnostic, severity=low, outcome=lower-severity, repairRowId=none, blocker=none. Root cause: Next dev-server MIME race on `_clientMiddlewareManifest.js` when `.next/dev/static/development/_clientMiddlewareManifest.js` is absent (server.js's `serveDevClientMiddlewareManifest` interceptor returns false on ENOENT); explicitly NOT a campaign/persistence/construction-rules defect. Doc states outright: 'The next WAVE_CONTRACTS row after triage cleanup is CAMP-00.'",
+          "disposition": "(a) already-answered-by-evidence-in-hand for THAT SHA -- the audit narrative, severity call, and non-repair rationale are already authored and merged to main. This audit-pr can likely be re-cited verbatim IF a fresh reproduction run reproduces the identical fingerprint."
+        },
+        {
+          "item": "Whether that same single observation (and no new one) still reproduces at CURRENT exact-main.",
+          "disposition": "(c) needs a production-context/browser run -- NOT answered by evidence in hand. The 2026-08-12 anchor SHA (d34a19719...) predates all eight archived CAMP-01A-G product waves (add-campaign-roster-source-readiness, add-authoritative-campaign-coop-snapshot, authorize-campaign-coop-participation, enforce-campaign-unit-source-launch-boundary, add-saved-custom-unit-campaign-picker, persist-saved-custom-unit-campaign-creation, resolve-saved-custom-units-in-mech-bay -- all archived 2026-08-20) plus roughly a month of further campaign/customizer/journal work. `e2e/campaign-customizer-handoff.spec.ts` and `e2e/gm-campaign-ledger-control-plane.spec.ts` (the other two files `qc:command:browser:quick` runs) have almost certainly changed meaningfully since then. Command: `npm run qc:command:browser:quick` (needs a production build + Chromium; this session has neither built nor launched a browser). Exact observation-set equality is the acceptance bar (R2.triage acceptance text), so a fresh run is mandatory before proof-02-triage can be (re)written -- the historical receipt cannot be reused as-is."
+        },
+        {
+          "item": "Whether a fresh camp-proof receipt (predecessor to proof-02-reproduction) already exists for the current exact-main SHA.",
+          "disposition": "(c)/(d) mixed -- camp-proof itself is (b) reproducible now without browser (`npm test -- --watchAll=false --runTestsByPath scripts/__tests__/camp01-authority-receipt-qc.test.ts --runInBand`, already proven green 731/741 in the qc:camp01-authority-receipt:test umbrella per r2-receipts-revalidation-20260915.json). But CLOSING it per PROOF-6 (tasks 6.1/6.2) needs a non-author APPROVED GitHub review, which is (d) externally gated -- see Gate G1 below. Running camp-proof again to seed proof-02-reproduction's predecessor check does NOT itself require G1; only the receipt's final acceptance under PROOF-6 does."
+        },
+        {
+          "item": "Bookkeeping drift noted in the revalidation: task 4.1's F/G reporter obligation binds to 'PROOF-4C2/4C3 receipts' that were never written (tasks.md:44); tupleId now wraps {wave,value} so historical receipt tuple ids won't re-derive under current code (harmless per the validator, but a fresh run mints different ids); PROOF-6A2 mutant M-B4 always injects a fake fetchCheckRuns (camp01-anchor-authority.test.ts:30-31, no hermetic REST composition row).",
+          "disposition": "(a) already-answered-by-evidence-in-hand -- these are recorded parent-bookkeeping gaps, not blockers to running proof-02-reproduction/triage; they affect PROOF-6 closure narrative quality, not R2.triage's own acceptance bar."
+        },
+        {
+          "item": "QC registry red on current main: `npm run qc:validate` exits 1, 'QC registry: 27 surfaces, 4 errors, 0 warnings', all 4 on surface `multiplayer-coop-sync` (docs/qc/mekstation-qc-registry.json:1334-1338) pointing at the archived change `prove-live-coop-campaign-journey` under its pre-archive name.",
+          "disposition": "(b) reproducible now without a browser -- a 4-line docs/qc/mekstation-qc-registry.json edit (repoint specRefs/activeChangeRefs to `2026-07-07-prove-live-coop-campaign-journey`) fixes it; root cause is outside this package per the revalidation's slice C2, already scoped and merged there (PR #1676, commit 0df5ed2, per roadmap.json node R2.receipts revalidation.slices.C2 'main-verified'). NOTE: as of this fetch that fix already landed on main -- re-verify qc:validate is green before assuming it's still an R2.triage blocker."
+        },
+        {
+          "item": "Live-tier CI regression `proof5d5-playwright-failure-traversal` red on both hosts since 2026-09-02 (workflow 'CAMP-01 Live Adversarial Evidence').",
+          "disposition": "(c)/(a) -- root cause was diagnosed and a fix built in this same session by the sibling lane camp-live-probe-fix (evidence/camp-live-probe-diagnosis-20260915.json, evidence/camp-live-probe-fix-local-20260915.json; PR #1679, then a pin-completeness follow-up commit 71a22399f after CI blocked on #1677's umbrella-pin guard). Per roadmap.json node R2.receipts.revalidation.slices.C1 this is 'pr-open-pin-corrected-merge-resumed' -- queued with the merge manager, not yet proven green on main (caveat explicitly recorded: 'post-config-load path unobserved for 13 days; first green run is the proof'; nonClaims include 'CI green not observed'). This is adjacent to, not literally part of, R2.triage's own PROOF-02 scope (it's item 5.1/5.3 of R2.receipts, the tooling's OWN adversarial live-tier check), but its outcome affects whether qc:camp01-authority-receipt tooling as a whole is trustworthy before R2.triage relies on it."
+        }
+      ]
+    },
+    "externalGates": {
+      "G1_nonAuthorApproval": {
+        "name": "Eligible non-author GitHub APPROVED review on the exact head",
+        "citedFrom": "evidence/r2-receipts-revalidation-20260915.json externalGates[0]",
+        "codeCitation": "scripts/qc/camp01-github-provenance.mjs:19 (ALLOWED_PERMISSIONS = WRITE|MAINTAIN|ADMIN), :147-149 (solo-maintainer sentinel arm), :148 (strict APPROVED/non-dismissed/exact-commit/non-self/permission check)",
+        "specCitation": "openspec/changes/add-camp01-authority-receipts/specs/journey-qc/spec.md:60,:67 (declares the solo-maintainer sentinel a REDUCTION, not satisfaction); openspec/changes/add-saved-custom-unit-campaign-roster/specs/journey-qc/spec.md:46 (roster's UNREDUCED non-author clause, NOT amended by the sentinel)",
+        "liveFactsAsOf20260915": "GitHub collaborators on SwiggitySwerve/MekStation = [\"SwiggitySwerve\"], permission=admin; PR #1215 and #1216 (the only camp-proof product/spec PRs cited so far) each have 0 reviews.",
+        "satisfiability": "STRUCTURALLY UNSATISFIABLE today for camp-proof under the roster's unreduced clause, and for ANY R2.camp-0 product PR (see below) which explicitly does NOT get the solo-maintainer reduction. Fixing requires adding a second collaborator with WRITE|MAINTAIN|ADMIN and re-running the full cycle on a fresh head -- outside this session's authority (no AWS/account/repo-settings changes, and the read-only role here forbids it regardless)."
+      },
+      "G2_threeWitnessSessions": {
+        "name": "Three authority-evidenced play sessions (camp-01h threeSessionWitnessCount===3)",
+        "relevanceToR2Triage": "Does NOT block R2.triage/PROOF-02 directly (tasks.md:74 explicitly decouples PROOF-6/5.x closure from the CAMP-01H three-witness acceptance). Included here only because it is the reason `prove-saved-custom-unit-campaign-journey` (one of the 10 PROGRAM_CHILD_CHANGES CAMP-PROOF's admission gate re-verifies before any camp-proof write) remains un-archived -- re-measured in this session's predecessor evidence at current main: unitSource 23 occurrences, RosterUnitSource 14, but rosterInstanceId/savedDesignId/serverSessionId/terminalResultId/postBattleConsequenceId/readinessBlockerId all still 0 in tracked src/.",
+        "satisfiability": "Not manufacturable in a read-only discovery session; requires the nine unstarted CAMP-01 product child changes noted in the R2.receipts revalidation."
+      }
+    },
+    "smallestPrefixesProposed": [
+      {
+        "id": "T-prefix-1",
+        "title": "Fresh camp-proof reviewed-head+exact-main receipt (tooling gate, jest-only)",
+        "files": [
+          "none (evidence-only writer output under .sisyphus/evidence/playtest/, gitignored)"
+        ],
+        "commands": [
+          "npm run qc:camp01-authority-receipt:controller ... (or) npm run qc:camp01-authority-receipt:write -- --wave=camp-proof --run-root=.sisyphus/evidence/playtest/camp-proof-<sha> --sha=<sha> --command-id=camp-proof --spec=... --product=...",
+          "npm.cmd run qc:camp01-authority-receipt:validate -- --wave=camp-proof ..."
+        ],
+        "caps": "capSubject=product-pr, maxFiles=15, maxChangedLines=500 (per contract row) -- but this run cites an EXISTING merged spec/product PR pair, so no new files are actually changed unless the PROGRAM_CHILD_CHANGES admission gate finds a member out of sync.",
+        "blocker": "None to RUN it (jest-only, tooling already green 731/741). PROOF-6 CLOSURE of the resulting receipt is blocked by G1.",
+        "prerequisiteCheck": "CAMP-PROOF's own admission gate (add-camp01-authority-receipts/design.md:106) requires re-verifying, on freshly fetched canonical main, that all 10 PROGRAM_CHILD_CHANGES existed at their approved merge SHA and remain merged -- 8/10 confirmed archived under `openspec/changes/archive/2026-08-20-*` this session; `add-camp01-authority-receipts` and `prove-saved-custom-unit-campaign-journey` remain active/un-archived (expected -- they are this package and its H-journey sibling, not blockers to camp-proof re-run)."
+      },
+      {
+        "id": "T-prefix-2",
+        "title": "Fresh proof-02-reproduction browser run at current exact-main",
+        "files": [
+          "none (pure evidence run)"
+        ],
+        "commands": [
+          "npm run qc:command:browser:quick",
+          "then npm run qc:camp01-authority-receipt:write -- --wave=proof-02-reproduction ...",
+          "npm run qc:camp01-authority-receipt:validate -- --wave=proof-02-reproduction ..."
+        ],
+        "caps": "capSubject=none, no file/line cap.",
+        "blocker": "(c) needs a production build + Chromium-provisioned host; not runnable in this read-only discovery session. This is the single highest-value next action for R2.triage -- it tells you whether the starmap MIME observation is still the ONLY non-pass, or whether new failures have appeared across a month of merged campaign work.",
+        "prerequisite": "T-prefix-1's camp-proof receipt must exist for the same SHA/mode first (contract predecessor)."
+      },
+      {
+        "id": "T-prefix-3",
+        "title": "proof-02-triage disposition write, conditional on T-prefix-2's outcome",
+        "files": [
+          "0 new files if the reproduction observation set exactly matches docs/audits/2026-08-12-proof-02-triage-starmap-mime.md (re-cite the existing merged audit-pr); 1 new docs/audits/<date>-*.md file per NEW distinct observation otherwise"
+        ],
+        "commands": [
+          "npm run qc:camp01-authority-receipt:write -- --wave=proof-02-triage --disposition=\"...\" (one per non-pass observation)",
+          "npm run qc:camp01-authority-receipt:validate -- --wave=proof-02-triage ..."
+        ],
+        "caps": "capSubject=audit-pr, maxFiles=5, maxChangedLines=300.",
+        "blocker": "Depends entirely on T-prefix-2. If new Critical/Major-severity distinct causes appear, each needs its own reviewed audit-pr AND a separate in-scope repair PR (per acceptance text 'independently approved audit and required repair tuples') -- those repair PRs would themselves need non-author review, hitting G1 again unless they qualify for the PROOF-6B0-style reduction (which the roster package's own clause does NOT extend to product repairs)."
+      }
+    ]
+  },
+  "node_R2_camp_0": {
+    "roadmapDefinition": {
+      "title": "Loopback production listener",
+      "kind": "verification",
+      "state": "planned",
+      "dependsOn": [
+        "R2.triage"
+      ],
+      "ownershipPaths": [
+        "openspec/changes/add-saved-custom-unit-campaign-roster",
+        "scripts/qc",
+        "src",
+        "e2e"
+      ],
+      "acceptance": [
+        "Use immutable camp-00 contract row; preserve its strict PR cap, reporters, authority facts and real approval requirements",
+        "Audit shipped code before any repair; exact-main receipt required"
+      ],
+      "maxFiles": 15,
+      "maxNonGeneratedLines": 500,
+      "githubReviewGate": {
+        "authority": "add-saved-custom-unit-campaign-roster P.2 and scripts/qc/camp01-github-provenance.mjs",
+        "state": "APPROVED",
+        "nonDismissed": true,
+        "exactHead": true,
+        "nonAuthor": true,
+        "permissions": [
+          "WRITE",
+          "MAINTAIN",
+          "ADMIN"
+        ],
+        "soloException": false
+      }
+    },
+    "taskKeysAndLiteralText": [
+      {
+        "key": "add-saved-custom-unit-campaign-roster#0.1@8",
+        "sourceId": "0.1",
+        "text": "0.1 Add a red process-level test or bounded injected listener seam proving `HOSTNAME=127.0.0.1` currently binds the unspecified address.",
+        "verifiedAgainstOriginMain": "tasks.md line 8, byte-identical local vs origin/main"
+      },
+      {
+        "key": "add-saved-custom-unit-campaign-roster#0.2@9",
+        "sourceId": "0.2",
+        "text": "0.2 Pass the configured hostname to the production HTTP listener and prove the actual bound address is `127.0.0.1`, not `0.0.0.0` or `::`.",
+        "verifiedAgainstOriginMain": "tasks.md line 9, byte-identical local vs origin/main"
+      },
+      {
+        "key": "add-saved-custom-unit-campaign-roster#0.3@10",
+        "sourceId": "0.3",
+        "text": "0.3 Replace or supplement the packaged-security static environment assertion with the live listener-address gate.",
+        "verifiedAgainstOriginMain": "tasks.md line 10, byte-identical local vs origin/main"
+      },
+      {
+        "key": "add-saved-custom-unit-campaign-roster#0.4@11",
+        "sourceId": "0.4",
+        "text": "0.4 The immutable `camp-00` row SHALL pin one command array for `npm.cmd run validate:multiplayer:packaged-socket`. Run `npm.cmd run qc:camp01-authority-receipt:write -- --wave=camp-00 --run-root=.sisyphus/evidence/playtest/camp00-loopback-<sha> --sha=<sha> --command-id=camp-00 \"--spec=bind-packaged-server-to-loopback|<spec-pr>|<spec-merge-sha>|<spec-approval-id>|<spec-reviewer>\" \"--product=<product-pr>|<sha>|<product-approval-id>|<product-reviewer>|pending\"` and `npm.cmd run qc:camp01-authority-receipt:validate -- --wave=camp-00 --run-root=.sisyphus/evidence/playtest/camp00-loopback-<sha> --expected-sha=<sha> --mode=reviewed-head`; after merge rerun both under a new exact-main run root with the exact product merge tuple and exact-main SHA/mode; review, publish within 4 files/180 lines, merge with SHA guard, audit, and prune before CAMP-01A.",
+        "verifiedAgainstOriginMain": "tasks.md line 11, byte-identical local vs origin/main"
+      }
+    ],
+    "currentSourceMapping": {
+      "grepMethod": "git grep -ni 'HOSTNAME' and 'loopback' over origin/main tracked files (excluding node_modules)",
+      "task0_1_redTestSeam": {
+        "status": "ALREADY SHIPPED",
+        "evidence": "openspec/changes/archive/2026-08-20-bind-packaged-server-to-loopback/tasks.md task 1.2 (checked [x]): 'Add the strict packaged-listener record parser and focused regression fixtures first, then retain a failing bounded run showing that the unmodified production server.js does not publish valid server.address() evidence even when HOSTNAME=127.0.0.1.' All 14/14 tasks in that archived change are checked [x] (grep -c '^\\- \\[x\\]' = 14, '^\\- \\[ \\]' = 0)."
+      },
+      "task0_2_listenerBindsConfiguredHostname": {
+        "status": "ALREADY SHIPPED",
+        "evidence": "server.js:72-77 `resolveListenerHostname()` reads process.env.HOSTNAME, exits 1 on any value other than '127.0.0.1' (standalone/packaged mode) or 'localhost'/'127.0.0.1' (non-standalone), defaulting to '127.0.0.1'/'localhost' when omitted; server.js:151 `const hostname = resolveListenerHostname();`; server.js:882 `server.listen({ port, host: hostname }, () => { ... })` -- the resolved hostname IS passed into the actual listen() call, not merely logged."
+      },
+      "task0_3_liveGateSupplementsStaticAssertion": {
+        "status": "PARTIALLY SHIPPED -- supplemented, not replaced (task text allows either)",
+        "evidence": "desktop/scripts/validate-packaged-security.js:210-215 STILL contains a purely static source-text assertion (`assertContains(..., mainWindow, \"HOSTNAME: '127.0.0.1'\", 'Packaged Next server binds to loopback.')` and a companion `packaged-server:loopback-url` check for `loadURL('http://127.0.0.1:3001')`) -- this checks that the ELECTRON MAIN source file literally contains that string, not that the listener actually bound there. A separate, genuinely LIVE gate exists as a sibling script: scripts/validate-multiplayer-packaged-socket.mjs:500 `runCamp00Authority()` builds the standalone server, spawns it twice (omitted-HOSTNAME and HOSTNAME=127.0.0.1 restart), calls `server.address()`-derived checks, and asserts a full hostname-rejection matrix (0.0.0.0, ::, ::1, 192.168.x.x) via scripts/qc/camp01-camp00-listener-adapter.mjs (proven by scripts/__tests__/camp01-camp00-listener-adapter.test.ts). The task's 'replace OR supplement' wording is technically satisfied by the supplement reading, but the static string-match in validate-packaged-security.js was never removed or hardened -- worth flagging to the parent as a literal-vs-spirit gap, not a blocker."
+      },
+      "task0_4_immutableReceiptRun": {
+        "status": "NOT DONE -- no camp-00 receipt of any kind exists on disk or in the repo",
+        "evidence": "`find . -iname '*camp00*'` and `find .sisyphus/evidence/playtest -iname 'camp00*'` return only the adapter script/test (scripts/qc/camp01-camp00-listener-adapter.mjs, scripts/__tests__/camp01-camp00-listener-adapter.test.ts) -- zero receipt directories. The frozen camp-00 WAVE_CONTRACTS row (contract.mjs:27) is fully specified (17 assertions, 4 artifacts, canonicalArgvDigest=8e4005d9f13011f8229bbd457d23a9297a1fc17f0d843c70a1da4bb37c04a501) and `validate:multiplayer:packaged-socket` (package.json:68 -> scripts/validate-multiplayer-packaged-socket.mjs) already emits every one of those assertions when CAMP01_ARTIFACT_DIR/CAMP01_RUN_ID/CAMP01_NEXT_DIST_DIR env vars are supplied by the controller (runCamp00Authority(), line ~500) -- so the CODE is receipt-ready; only the controller INVOCATION (write+validate at reviewed-head, then again at exact-main after merge) has never been executed."
+      }
+    },
+    "proposedPrefixes": [
+      {
+        "id": "C0-prefix-1",
+        "title": "Run the camp-00 receipt against already-shipped code (audit-only, no product diff expected)",
+        "files": [
+          "0 product files expected -- tasks 0.1-0.3 are already merged/archived"
+        ],
+        "failingTestFirst": "N/A in the traditional red-then-green sense: the 'red' proof already exists historically inside the archived change's own task 1.2 (retained failing bounded run pre-fix). This node's job is AUDIT of shipped code, not new red/green cycling, per its own acceptance text: 'Audit shipped code before any repair; exact-main receipt required.'",
+        "acceptanceCommands": [
+          "npm.cmd run validate:multiplayer:packaged-socket (frozen camp-00 command array, must exit 0 with the full 17-assertion matrix)",
+          "npm.cmd run qc:camp01-authority-receipt:write -- --wave=camp-00 --run-root=.sisyphus/evidence/playtest/camp00-loopback-<sha> --sha=<sha> --command-id=camp-00 --spec=bind-packaged-server-to-loopback|<spec-pr>|<spec-merge-sha>|<spec-approval-id>|<spec-reviewer> --product=<product-pr>|<sha>|<product-approval-id>|<product-reviewer>|pending",
+          "npm.cmd run qc:camp01-authority-receipt:validate -- --wave=camp-00 --run-root=... --expected-sha=<sha> --mode=reviewed-head",
+          "after merge: rerun both under a new exact-main run root"
+        ],
+        "caps": "review, publish within 4 files/180 lines (frozen row text); merge with SHA guard; audit; prune before CAMP-01A.",
+        "frozenContractTouchpoints": "MUST NOT change scripts/qc/camp01-authority-receipt.contract.mjs's camp-00 row (canonicalArgvDigest, assertions list, artifacts list, predecessors, caps are all byte-frozen per the contract's own PROOF-1 self-description). Any repair discovered in the audit step must land in `bind-packaged-server-to-loopback`-scoped files (server.js, scripts/validate-multiplayer-packaged-socket.mjs, scripts/qc/camp01-camp00-listener-adapter.mjs, desktop/scripts/validate-packaged-security.js) rather than the contract."
+      }
+    ],
+    "hardBlocker_independentOfR2Triage": {
+      "finding": "R2.camp-0's own `githubReviewGate.soloException` is explicitly `false` (unlike camp-proof's PROOF-6B0 sentinel, which R2.receipts already showed to be structurally reduced-not-satisfied). Since the live GitHub facts recorded in evidence/r2-receipts-revalidation-20260915.json show collaborators=[\"SwiggitySwerve\"] (solo, admin) with 0 reviews on the only camp-proof PRs to date, ANY product PR opened to close camp-00 task 0.4 faces the SAME structurally-unsatisfiable non-author-approval requirement (Gate G1), but WITHOUT even the sentinel reduction camp-proof gets. This means R2.camp-0 is (d) externally gated on real second-collaborator review REGARDLESS of whether R2.triage completes -- R2.triage removes the contractual PREDECESSOR block (proof-02-triage must exist), but does not touch G1 at all.",
+      "citation": "roadmap.json nodes[] R2.camp-0.githubReviewGate; evidence/r2-receipts-revalidation-20260915.json externalGates[0].satisfiabilityNow"
+    }
+  },
+  "dependencyAndContradictionAnalysis": {
+    "doesCamp0TrulyNeedAllOfR2Triage": "NO, not literally 'all of R2.triage' -- it needs exactly two specific artifacts the frozen contract names as camp-00's predecessors: the `proof-02-triage` row's disposition set (predecessors: ['proof-02-triage','proof-02-required-repairs'] per contract.mjs:27) at the SAME exact-main SHA camp-00 will be pinned to, PLUS any `proof-02-required-repairs` merged for that SHA. It does NOT need camp-proof's own PROOF-6 closure (G1) to be resolved, and does NOT need R2.receipts' remaining external-gate items (6.1/6.2) or the live-tier CI regression (5.1) to be green -- those are R2.receipts' own package-acceptance items, not camp-00's contract predecessors. The roadmap's blanket `dependsOn: [\"R2.triage\"]` is therefore coarser than the actual contract dependency, but not wrong -- R2.triage IS the node that produces proof-02-triage, so the coarse edge still points at the right prerequisite.",
+    "contradictionsFound": [
+      {
+        "contradiction": "R2.triage's roadmap node claims task-level specificity ('Frozen proof-02-reproduction and proof-02-triage rows') but carries an EMPTY taskKeys array and zero tasks.md line items anywhere in the 376-entry tasks list reference it as primaryNode. Every other wave-numbered node in this roadmap (including its sibling R2.camp-0) is backed by explicit taskKeys. This is an internal roadmap authoring gap, not a source-code contradiction.",
+        "impact": "Low -- the acceptance text and the frozen WAVE_CONTRACTS rows fully substitute for missing taskKeys; a worker admitted onto R2.triage has enough to act on. But the parent should either populate taskKeys (there is no add-camp01-authority-receipts tasks.md line item literally named 'run proof-02-reproduction now', since that obligation is spread across P.1's prose and the historical 2026-08-12 audit doc) or document explicitly that R2.triage is contract-driven rather than task-driven."
+      },
+      {
+        "contradiction": "R2.camp-0's acceptance text says 'Audit shipped code before any repair' -- correctly anticipating that 0.1-0.3 are already implemented -- but its 4 taskKeys (0.1-0.4) are quoted verbatim from tasks.md as if they were still open build-from-scratch tasks ('Add a red process-level test...', 'Pass the configured hostname...'). Tasks 0.1 and 0.2's imperative phrasing ('Add', 'Pass') reads as new-work, not audit, even though the underlying work shipped in the archived 2026-08-20-bind-packaged-server-to-loopback change.",
+        "impact": "Medium -- a worker admitted onto R2.camp-0 without reading the archived change first would likely attempt to re-implement 0.1-0.3 from scratch, duplicating ~14 already-merged tasks. The roadmap's own 'Audit shipped code before any repair' acceptance clause is the only signal steering away from that duplication, and it is easy to miss on a quick read."
+      },
+      {
+        "contradiction": "None found regarding the frozen contract itself -- the WAVE_CONTRACTS camp-00 row (contract.mjs:27) and the tasks.md 0.4 text describe the exact same command/assertions/caps; no drift detected between the two sources."
+      }
+    ]
+  },
+  "overallDispositionSummary": {
+    "R2.triage": {
+      "alreadyAnswered": [
+        "camp-proof tooling is green (731/741 jest)",
+        "historical 2026-08-12 single MIME observation is fully audited and merged",
+        "QC-registry red cause diagnosed with an already-merged 4-line fix (PR #1676)"
+      ],
+      "reproducibleNowWithoutBrowser": [
+        "fresh camp-proof reviewed-head/exact-main receipt run (jest-only)"
+      ],
+      "needsBrowserRun": [
+        "fresh proof-02-reproduction run (qc:command:browser:quick) at CURRENT exact-main -- mandatory, historical run is a month stale"
+      ],
+      "externallyGated": [
+        "PROOF-6 closure of any camp-proof receipt (G1, structurally unsatisfiable with 1 collaborator)",
+        "any NEW Critical/Major repair PR proof-02-triage might require, if the fresh reproduction surfaces new failures (also G1)"
+      ]
+    },
+    "R2.camp-0": {
+      "alreadyAnswered": [
+        "tasks 0.1-0.3 fully shipped and archived (2026-08-20-bind-packaged-server-to-loopback, 14/14 tasks checked)"
+      ],
+      "reproducibleNowWithoutBrowser": [
+        "N/A -- validate:multiplayer:packaged-socket builds a real standalone server and spawns child processes; not a browser but is a real process/network run, closer to category (c) than (b)"
+      ],
+      "needsBrowserOrProductionRun": [
+        "running validate:multiplayer:packaged-socket end-to-end to seed the reviewed-head camp-00 receipt (task 0.4)"
+      ],
+      "externallyGated": [
+        "task 0.4's product PR MUST get a real non-author APPROVED review (soloException=false) -- structurally unsatisfiable today regardless of R2.triage's state (Gate G1, no sentinel reduction available here)"
+      ]
+    },
+    "smallestActionableNextStep": "Run camp-proof (jest-only, no browser, ~1 command) to seed a current-SHA predecessor receipt, THEN run proof-02-reproduction (qc:command:browser:quick, needs a built app + Chromium) to learn whether the starmap-MIME observation is still the only non-pass at today's exact-main. Everything else in both nodes is either already done, a pure bookkeeping write conditioned on that reproduction's output, or blocked on the single-collaborator GitHub gate (G1) that this session cannot resolve."
+  },
+  "filesReadThisSession": [
+    "openspec/planning/2026-09-12-roadmap-completion/roadmap.json (nodes[], tasks[], packages[] -- local, untracked)",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-receipts-revalidation-20260915.json (full read)",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/r4-matrix-local-verification-20260913.json (summary fields only -- confirmed tangential, different node/package)",
+    "openspec/active-change-ledger.json (origin/main)",
+    "openspec/changes/add-saved-custom-unit-campaign-roster/tasks.md (origin/main + local diff)",
+    "openspec/changes/archive/2026-08-20-bind-packaged-server-to-loopback/tasks.md, design.md, proposal.md (origin/main)",
+    "docs/audits/2026-08-12-proof-02-triage-starmap-mime.md (full read, origin/main)",
+    "scripts/qc/camp01-authority-receipt.contract.mjs (origin/main, full read, 235 lines)",
+    "server.js lines 55-110, 882 (origin/main)",
+    "desktop/scripts/validate-packaged-security.js lines 195-230 (origin/main)",
+    "scripts/validate-multiplayer-packaged-socket.mjs (grep-level, lines 27-28, 446, 488, 500)",
+    "scripts/qc/camp01-camp00-listener-adapter.mjs and its test (existence + grep)",
+    "package.json lines 68, 149-152, 175 (origin/main)"
+  ],
+  "notCoveredInThisBrief": [
+    "evidence/camp-live-probe-diagnosis-20260915.json and evidence/camp-live-probe-fix-local-20260915.json were only read indirectly via the summary already embedded in roadmap.json nodes[R2.receipts].revalidation.slices.C1 -- not opened directly. Their content matched the embedded summary closely enough (cross-checked PR #1679 number, head f7a94d769, branch name) that a direct read was judged low-value against the token budget for this discovery pass.",
+    "No build, test, lint, or browser command was executed in this session (read-only per the task charter)."
+  ]
+}

@@ -1,0 +1,83 @@
+{
+  "pr": 1683,
+  "branch": "codex/roadmap-archive-edit-recovery-20260915",
+  "reviewedCommit": "1b90c67d11cae8daa10f6b5273675016ea8b4e72",
+  "finalHead": "a7429d3cc5c011cdb4d4385a3f394dc261be5d19",
+  "baseAtReview": "bcc34f7c",
+  "anomaly": null,
+  "autoMergeArmed": false,
+  "contentGuard": {
+    "shape": "archive move: five byte-identical renames plus one ledger entry removal",
+    "preUpdate": {
+      "renameDetection": "git diff --name-status -M reports R100 (100% similarity) for all five files; the --no-renames view confirms 5 D + 5 A with no content change",
+      "renamedFiles": [
+        "openspec/changes/add-customizer-edit-recovery/.openspec.yaml -> openspec/changes/archive/2026-09-15-add-customizer-edit-recovery/.openspec.yaml",
+        "openspec/changes/add-customizer-edit-recovery/design.md -> openspec/changes/archive/2026-09-15-add-customizer-edit-recovery/design.md",
+        "openspec/changes/add-customizer-edit-recovery/proposal.md -> openspec/changes/archive/2026-09-15-add-customizer-edit-recovery/proposal.md",
+        "openspec/changes/add-customizer-edit-recovery/specs/customizer-edit-recovery/spec.md -> openspec/changes/archive/2026-09-15-add-customizer-edit-recovery/specs/customizer-edit-recovery/spec.md",
+        "openspec/changes/add-customizer-edit-recovery/tasks.md -> openspec/changes/archive/2026-09-15-add-customizer-edit-recovery/tasks.md"
+      ],
+      "preMoveBlobEquality": {
+        ".openspec.yaml": "e8cda9e50ea0cab62490e3e8f3e824b831aca6f0",
+        "design.md": "590ef574a653c44443afb73fbe9736c85f3e6106",
+        "proposal.md": "5595077714da1c8bf9a2f1a362d7bc4810bee5ee",
+        "specs/customizer-edit-recovery/spec.md": "5acd1297a9308119a45af976488f189aaa4f5958",
+        "tasks.md": "dfbd36de98afb4b9d65479b22b216f80515fdb89"
+      },
+      "preMoveBlobEqualityNote": "each archived file's blob equals its pre-move blob at bcc34f7c:openspec/changes/add-customizer-edit-recovery/<file>",
+      "ledgerHunk": "removes ONLY the add-customizer-edit-recovery in-progress entry (6 deletions); nothing else touched",
+      "diffstat": "6 files changed, 6 deletions(-)",
+      "result": "PASS"
+    },
+    "postUpdate": {
+      "renameDetection": "still R100 for all five",
+      "preMoveBlobEquality": "all five still equal to the bcc34f7c pre-move blobs",
+      "ledgerHunk": "IDENTICAL hunk (same single entry removed at the same @@ -60,12 +60,6 @@ offset); only the ledger's own blob ids shifted (991d14f84->be88da3d6 pre-image) because #1678 had edited the ledger on main in between - the accepted 3-way-merge case",
+      "result": "PASS"
+    }
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "oldHead": "1b90c67d11cae8daa10f6b5273675016ea8b4e72",
+    "newHead": "a7429d3cc5c011cdb4d4385a3f394dc261be5d19",
+    "expectedHeadShaGuard": "1b90c67d11cae8daa10f6b5273675016ea8b4e72",
+    "reason": "branch was BEHIND after #1681, #1682 and #1678 merged to main"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "otherChecksCount": 27,
+    "otherChecksBuckets": { "pass": 27 },
+    "totalChecks": 31,
+    "totalChecksNote": "31 not 30 because #1678 put 'Customizer Regressions' on main",
+    "pollLog": "08:10:30 4 pending -> 08:16:08 31 pass / 0 pending"
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/archive-edit-recovery-1683-final-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "bce2049d74ce6e48b5d0813fb506ada701257e47",
+  "mergeCommitParents": ["0f86b4ee9e7b8fb7ffdad499bc60209e5358586b"],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1683 --squash --match-head-commit a7429d3cc5c011cdb4d4385a3f394dc261be5d19",
+  "mergedAt": "2026-09-15T08:16:33Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "The merge commit on main reproduces all five renames as R100 plus the single ledger-entry removal - the archive move landed without content drift.",
+  "mainAfter": "bce2049d74ce6e48b5d0813fb506ada701257e47",
+  "worktree": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/archive-edit-recovery-20260915",
+    "cleanBeforeFF": true,
+    "branch": "codex/roadmap-archive-edit-recovery-20260915",
+    "fastForward": "ff-only 1b90c67d1 -> a7429d3cc",
+    "result": "SUCCESS"
+  },
+  "timestamps": {
+    "guardStartedAt": "2026-09-15T08:09:30Z",
+    "checksTerminalAt": "2026-09-15T08:16:08Z",
+    "mergedAt": "2026-09-15T08:16:33Z",
+    "receiptWrittenAt": "2026-09-15T08:19:00Z"
+  }
+}

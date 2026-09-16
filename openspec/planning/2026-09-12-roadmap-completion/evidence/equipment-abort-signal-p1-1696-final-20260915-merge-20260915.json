@@ -1,0 +1,52 @@
+{
+  "pr": 1696,
+  "branch": "codex/roadmap-equipment-abort-signal-p1-20260915",
+  "reviewedCommit": "4a27ac4ba8919553fad7c0ae02917ddb047f8007",
+  "finalHead": "c3a237320689129c6ea1e96bade309f5121817fb",
+  "autoMergeArmed": false,
+  "contentGuard": {
+    "method": "file set from `git diff --name-only origin/main...<head>` compared to the reviewed file set, plus per-file blob equality against the reviewed commit; re-run after update-branch",
+    "fileCountAtMerge": 7,
+    "blobEquality": "all files blob-identical to the reviewed commit at the gated head (exceptions, if any, are described in notes)",
+    "result": "PASS"
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "expectedHeadShaGuardUsed": true,
+    "newHead": "c3a237320689129c6ea1e96bade309f5121817fb"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "otherChecksCount": 27,
+    "otherChecksBuckets": {
+      "pass": 27
+    },
+    "totalChecks": 31,
+    "totalChecksNote": "31 because #1678 added the standing \"Customizer Regressions\" check to main"
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/equipment-abort-signal-p1-1696-final-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "c0428a2c3d7f70a0182c80866ca0f2558529d943",
+  "mergeCommitParents": [
+    "fec1359bfcb93889d1ad7237725d4be44e7cfbaf"
+  ],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1696 --squash --match-head-commit c3a237320689129c6ea1e96bade309f5121817fb",
+  "mergedAt": "2026-09-15T10:26:43Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "The merge commit changes exactly 7 file(s), all blob-identical to the gated head c3a237320689129c6ea1e96bade309f5121817fb.",
+  "mainAfter": "c0428a2c3d7f70a0182c80866ca0f2558529d943",
+  "worktree": {
+    "fastForward": "NOT PERFORMED unless the coordinator designated the worktree as free; several owned worktrees were explicitly off-limits (parent in use / other branch).",
+    "result": "SKIPPED or SUCCESS per coordinator instruction for this PR"
+  },
+  "timestamps": {
+    "receiptWrittenAt": "2026-09-15T15:00:00Z"
+  }
+}

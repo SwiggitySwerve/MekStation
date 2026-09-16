@@ -1,0 +1,69 @@
+{
+  "slice": "R4.S6 commit B: journal-head consult suite (race, duplicate-command, store|journal expectation)",
+  "pr": 1729,
+  "prHead": "d5430e6aed7947f90a419cd4bcef2298df5d8f71",
+  "mergeCommit": "423381ff0eb026bb4f3834949aae555cd70d0ca9",
+  "verifiedAtUtc": "2026-09-15T16:22:01.055Z",
+  "worktree": "archive-original-main-proof (detached at merge commit, Node v22.22.0)",
+  "blobEquality": {
+    "files": [
+      "src/lib/multiplayer/server/__tests__/matchCommitJournalHead.sqlite.test.ts"
+    ],
+    "command": "git diff --stat <prHead> <merge> -- <file>",
+    "result": "empty (0 bytes)"
+  },
+  "gates": {
+    "jest": {
+      "scope": "src/lib/multiplayer/server",
+      "exit": 0,
+      "suites": 151,
+      "tests": 1113
+    },
+    "tsc": {
+      "exit": 0,
+      "outputBytes": 0
+    },
+    "openspecStrict": {
+      "exit": 0
+    },
+    "specPurposeStrict": {
+      "exit": 0
+    },
+    "terminologyStrict": {
+      "exit": 0
+    },
+    "qcOpenspecCi": {
+      "exit": 0
+    }
+  },
+  "logs": {
+    "jest": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1729-20260915/jest.log",
+      "sha256": "302303cfb7d511a26a20fa783866a8e648dffa5d972a66eb91f32fcb0bd1f1cc"
+    },
+    "openspec": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1729-20260915/openspec.log",
+      "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3"
+    },
+    "purpose": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1729-20260915/purpose.log",
+      "sha256": "629026f25215446af06f7491ea5757f56e6f66d00cb70d6d432438cb6cb9adf7"
+    },
+    "qcOpenspecCi": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1729-20260915/qc-openspec-ci.log",
+      "sha256": "8c41df6c33246420ed1806218780c2df69b5ad4e7c594b993b07594ee959ccb2"
+    },
+    "terminology": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1729-20260915/terminology.log",
+      "sha256": "2e4920d1caa0478f984b2fecd5d8dbc2f0dcac5bac6cf2e5c6907c25a842bc72"
+    },
+    "tsc": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1729-20260915/tsc.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "limits": [
+    "scoped jest only",
+    "commit C (#1730) restored rows not yet on main"
+  ]
+}

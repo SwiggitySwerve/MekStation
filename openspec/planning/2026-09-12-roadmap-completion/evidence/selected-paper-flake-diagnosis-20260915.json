@@ -1,0 +1,218 @@
+{
+  "task": "Diagnose (read-only) the intermittent 'Customizer Regressions' CI failure on e2e/customizer-record-sheet-rendering.spec.ts, test 'Print writes one current sheet into the reserved window at the selected paper @customizer' (test id suffix 'selected-paper-customizer-chromium'), which blocked PR #1705, #1722, #1730 on 2026-09-15.",
+  "scope": "Diagnosis only. No repo edits, commits, pushes, or PRs were made. All commands and file reads are cited below.",
+  "ci_failures": [
+    {
+      "pr": 1705,
+      "branch": "codex/roadmap-r4-s4-restart-recovery-20260915",
+      "workflow_run": {
+        "run_id": 34966987074,
+        "attempt": 1,
+        "job_id": 104373984052,
+        "job_name": "Customizer Regressions",
+        "head_sha": "3cf7fe943b8fe82fc7b39853b40e33282b43eefc",
+        "conclusion": "failure",
+        "verified_via": [
+          "gh pr view 1705 --json headRefOid,commits",
+          "gh run list --branch codex/roadmap-r4-s4-restart-recovery-20260915 --json databaseId,headSha,conclusion",
+          "gh api repos/SwiggitySwerve/MekStation/actions/runs/34966987074/jobs",
+          "gh api repos/SwiggitySwerve/MekStation/actions/jobs/104373984052/logs (saved: .sisyphus/roadmap-completion-20260912/selected-paper-flake-20260915/ci-1705-raw.log, sha256 636b2e9fcd866b1c1b996620a00044b041361ddd4ab729b5ab64294819607bff)"
+        ],
+        "note": "PR1705's PR Checks run failed outright at attempt 1 on commit 3cf7fe9; a later push (32c08e47) fixed the PR overall. No same-commit rerun exists for this one (unlike 1722/1730)."
+      },
+      "test_position": "9th of 12 tests in the combined run (equipment-catalog + record-sheet-rendering + edit-recovery specs), pattern '········F···'",
+      "duration_window": "Running 12 tests using 1 worker started 2026-09-15T12:11:31.9388942Z; failure reported 2026-09-15T12:13:12.8741876Z (~101s elapsed for 12 tests)",
+      "assertion": {
+        "expected": "Locust LCT-1V",
+        "received": "Atlas AS7-D",
+        "helper": "expectSheetType",
+        "call_site": "e2e/customizer-record-sheet-rendering.spec.ts:366:3 (at that commit's revision of the test body)",
+        "failure_point_in_helper": "e2e/customizer-record-sheet-rendering.spec.ts:202:3 (await expect.poll(async () => sheetTypeName(await latestSheetSvg(page))).toBe(name))",
+        "timeout_ms": 10000,
+        "meaning": "The on-screen preview canvas's captured SVG (via the test's URL.createObjectURL hook) still reported the OLD unit's type text ('Atlas AS7-D') for the full 10s poll window, after the test had already switched the active tab to the newly-loaded Locust unit. The new unit's preview render never committed a fresh SVG capture in time."
+      }
+    },
+    {
+      "pr": 1722,
+      "branch": "codex/roadmap-r2-61-source-replay-fence-20260915",
+      "workflow_run": {
+        "run_id": 34985637301,
+        "attempt": 1,
+        "job_id": 104437095627,
+        "job_name": "Customizer Regressions",
+        "head_sha": "9be00ebecdd2210634fade6976cff672f936b905",
+        "conclusion": "failure",
+        "attempt_2_conclusion": "success (same commit, re-run failed jobs)",
+        "verified_via": [
+          "gh api repos/SwiggitySwerve/MekStation/actions/runs/34985637301 (run_attempt:2, conclusion:success)",
+          "gh api repos/SwiggitySwerve/MekStation/actions/runs/34985637301/attempts/1/jobs (Customizer Regressions: failure)",
+          "gh api repos/SwiggitySwerve/MekStation/actions/jobs/104437095627/logs (saved: .sisyphus/roadmap-completion-20260912/selected-paper-flake-20260915/ci-1722-raw.log, sha256 7c9e4b7161ebd9c3add1956727a1f318c31e800a82409c1a9c5d66c640820046)"
+        ],
+        "note": "IMPORTANT: attempt 2 (the one gh pr view / gh run list show by default) succeeded on the IDENTICAL commit 9be00ebe. This is a true non-deterministic re-run-passes flake, not a code-vs-code difference between attempts."
+      },
+      "test_position": "9th of 12 tests, pattern '········F···'",
+      "duration_window": "Running 12 tests started 2026-09-15T15:06:40.3307068Z; failure reported 2026-09-15T15:08:20.8935186Z (~101s elapsed)",
+      "assertion": {
+        "expected": 1,
+        "received": 0,
+        "helper": "inline expect.poll",
+        "call_site": "e2e/customizer-record-sheet-rendering.spec.ts:358:3 (await expect.poll(() => printCount(page)).toBe(1))",
+        "timeout_ms": 10000,
+        "meaning": "The print pipeline for Atlas (deliberately stalled mid-flight by the test, see code_reading below) never incremented printCount within 10s, even after the test released the stall."
+      }
+    },
+    {
+      "pr": 1730,
+      "branch": "codex/roadmap-r4-s6-c-rows-20260915",
+      "workflow_run": {
+        "run_id": 34994385846,
+        "attempt": 1,
+        "job_id": 104467005567,
+        "job_name": "Customizer Regressions",
+        "head_sha": "ee87fe5253b9061ce730f7b5786a4205b00711e0",
+        "conclusion": "failure",
+        "attempt_2_conclusion": "success (same commit, re-run failed jobs)",
+        "verified_via": [
+          "gh api repos/SwiggitySwerve/MekStation/actions/runs/34994385846 (run_attempt:2, conclusion:success)",
+          "gh api repos/SwiggitySwerve/MekStation/actions/runs/34994385846/attempts/1/jobs (Customizer Regressions: failure)",
+          "gh api repos/SwiggitySwerve/MekStation/actions/jobs/104467005567/logs (saved: .sisyphus/roadmap-completion-20260912/selected-paper-flake-20260915/ci-1730-raw.log, sha256 65ebd06c1f6af1ca8e0dbdd186927d7cb4e4479f8411740d3bf07e99253a1534)"
+        ]
+      },
+      "test_position": "9th of 12 tests, pattern '········F···'",
+      "duration_window": "Running 12 tests started 2026-09-15T16:24:47.3336968Z; failure reported 2026-09-15T16:26:25.1504963Z (~98s elapsed)",
+      "assertion": {
+        "expected": 1,
+        "received": 0,
+        "helper": "inline expect.poll",
+        "call_site": "e2e/customizer-record-sheet-rendering.spec.ts:358:3 (await expect.poll(() => printCount(page)).toBe(1))",
+        "timeout_ms": 10000,
+        "meaning": "Byte-identical failure to PR1722: printCount stuck at 0 for the full 10s window."
+      }
+    }
+  ],
+  "cross_pr_comparison": {
+    "pr1722_and_pr1730": "Byte-identical assertion, locator, and line (358:3, printCount 1 vs 0). Both are reruns of the SAME failing commit succeeding on attempt 2 -- confirmed non-deterministic, not a code regression.",
+    "pr1705": "Same test, same 9th-of-12 position, same 10s-timeout signature, but a DIFFERENT (slightly earlier, since-superseded by commit history) revision of the test body -- the failure surfaced one assertion earlier/later in the same critical section (expectSheetType at spec.ts:366 vs the printCount poll at spec.ts:358). Confirmed via `git show <head_sha>:e2e/customizer-record-sheet-rendering.spec.ts` for each of the three head_shas: 1722 and 1730's committed spec content is BYTE IDENTICAL to each other and to the current worktree HEAD; 1705's committed spec content is an earlier revision of the same test with the same stall-then-load-second-unit structure, one 'settle' assertion short of what 1722/1730 run.",
+    "git_history_note": "Commit 9b59a19f8 / 79de4f195 ('test(customizer): settle the remounted preview before selecting paper size', authored 2026-09-15T01:48:23-06:00 by the same repo owner) is an ANCESTOR of the ee87fe5/9be00ebe commit and already added `expectSheetType`+paper-size settle assertions at TWO other tab-switch points in this exact test (after switching back to the Atlas tab, and after switching to the Locust tab later in the test -- spec.ts diff hunks at old lines 366-375 and 382-391). It did NOT add an equivalent settle wait for the THIRD tab-switch point -- the `loadLocustBesideAtlas(page)` call at spec.ts:354, which happens while Atlas's print is deliberately stalled. That is exactly the gap this flake lives in: the author already diagnosed and partially fixed 'a remounted preview needs to settle before the next assertion' as a real bug pattern in this file, earlier the same day, but the fix did not cover the specific concurrent-print-plus-unit-load window."
+  },
+  "code_reading": [
+    {
+      "file": "e2e/customizer-record-sheet-rendering.spec.ts",
+      "lines": "322-362",
+      "content_summary": "Test body. Loads Atlas, prints once ('letterPrint'). Registers `page.route('**/record-sheets/biped_pips/**', ..., { times: 1 })` (line 339-347) that intercepts ONLY the first matching network request, calls `sawPips()`, then `await heldPips` (holds the request open) before `route.continue()`. Clicks Print (line 349). Inside a try/finally (350-357): awaits the stalled route firing (`requestedPips`), asserts the popup isn't closed and printCount is still 0, then calls `await loadLocustBesideAtlas(page)` (line 354) WHILE the print's network request is still held open. The `finally` block (356) unconditionally calls `releasePips()`. Line 358 then polls `printCount(page)` to become 1 within the global 10s expect timeout."
+    },
+    {
+      "file": "e2e/helpers/recordSheetPrintHarness.ts",
+      "lines": "60-140, 183-196",
+      "content_summary": "`installPrintHarness` monkey-patches `window.open` so the popup's `.print()` synchronously snapshots `doc.querySelectorAll('body > svg')` -- i.e. whatever HTML the product already wrote into the popup by the time `.print()` is called. `printCount`/`printCaptures` just read `window.__printHarness.prints.length` / contents. `printOnce` (used by other tests, not this one) polls `printCount` the same way."
+    },
+    {
+      "file": "src/services/printing/RecordSheetService.ts",
+      "lines": "440-481",
+      "content_summary": "`printRecordSheet(data, paperSize)`: opens the popup SYNCHRONOUSLY before any await (comment explicitly calls this out, to survive popup blockers), then `await this.getSVGString(data, paperSize)` (the async, potentially slow step), then writes the built HTML into the ALREADY-CAPTURED `printWindow` reference and calls `printWindow.print()`. `data` was extracted as a plain, fully value-copied object by `extractData`/`extractArmor` BEFORE this call (see dataExtractors.armor.ts below) -- it is not a live reference into any store, so a concurrent unit switch cannot corrupt its *content*. This rules out a store-mutation/content-leak explanation for the printCount:0 case; the bug is about completion TIMING, not about which unit's data gets used."
+    },
+    {
+      "file": "src/services/printing/recordsheet/dataExtractors.armor.ts",
+      "lines": "14-155",
+      "content_summary": "`extractArmor` builds a brand-new plain object literal per call from primitive numbers on `unit.armor.allocation.*`. No shared/mutable references are carried into the extracted `IRecordSheetArmor`. Confirms print data is a true snapshot."
+    },
+    {
+      "file": "src/services/printing/svgRecordSheetRenderer/armor.ts",
+      "lines": "24-79, 89-114",
+      "content_summary": "`fillArmorPips` -> `loadAllArmorPips`: `armor.locations.map(async (loc) => { ... await loadAndInsertPips(...) ... })` then `await Promise.all(pipPromises)` (line ~106-108, `loadAllArmorPips`). This is PARALLEL, not sequential -- roughly 8-10 concurrent `fetch()` calls per unit (one per armor location, front + rear). The test's `page.route(..., { times: 1 })` intercepts only the FIRST of these, so `Promise.all` for the Atlas print is blocked on exactly one stalled promise while its siblings resolve normally; the whole `fillArmorPips`/`getSVGString`/`printRecordSheet` chain is gated on that one promise."
+    },
+    {
+      "file": "src/services/assets/MmDataAssetService.ts",
+      "lines": "281-313",
+      "content_summary": "`loadSVG` (used for the SVG *template*, not the per-location pip files, which fetch raw via armor.ts directly) has a string-content cache keyed by path and a single-flight `configLoadPromise` guard for config JSON only. No shared/cross-call locking that could serialize Locust's asset loads behind Atlas's stalled one -- ruled out as the mechanism."
+    },
+    {
+      "file": "src/services/printing/svgRecordSheetRenderer/templateRecordSheetRenderer.ts",
+      "lines": "76-90, 130-150",
+      "content_summary": "Each `RecordSheetService.getMechSVGString` call constructs a brand-new `SVGRecordSheetRenderer` -> new `TemplateRecordSheetRenderer` -> a fresh `DOMParser().parseFromString(...)` per call (verified in template.ts:35-38 `parseSVGTemplate`, no shared/cached DOM node keyed by template path). `mount()` appends an off-screen container directly to the real `document.body` (line ~134-141) -- a genuinely shared global DOM resource, but each call gets its OWN container, so two concurrent renders (Atlas's print + Locust's fresh preview) do not touch the same nodes. Ruled out as a direct data-race; the real cost is that BOTH renders are doing substantial SYNCHRONOUS main-thread work (DOMParser parse, per-location pip DOM construction/cloning, XMLSerializer.serializeToString) that cannot overlap on Chromium's single JS thread -- they compete for wall-clock time, not correctness."
+    },
+    {
+      "file": "src/components/customizer/preview/RecordSheetCanvasPreview.tsx",
+      "lines": "27-153",
+      "content_summary": "`onPrint` is a `React.useCallback` closed over `[unitObject, paperSize]` bound to the Print button's onClick; since it is invoked synchronously at click time (Atlas was active), the promise chain it kicks off is a plain, non-reactive async function -- switching tabs afterward does not cancel or redirect it (no AbortController anywhere in this path; grep confirmed none exist under src/components/customizer/ or src/services/printing/). The ON-SCREEN preview is a SEPARATE pipeline (`useRecordSheetCanvasRenderer`, lines 116-153) with its own `generationRef` staleness guard per mounted instance, keyed off `[unitObject, paperSize]` -- this explains PR1705's failure mode: Locust's own preview render is a fresh, independent async chain that has to run to completion and commit before `expectSheetType(page,'Locust LCT-1V')` can observe it; under load it simply had not finished within 10s, so the poll kept observing the last-committed ('Atlas AS7-D') capture."
+    },
+    {
+      "file": "playwright.config.ts",
+      "lines": "108, 111, 114-115",
+      "content_summary": "`workers: process.env.CI ? 1 : undefined` (single-worker on CI), `timeout: 30_000` (per-test), `expect: { timeout: 10_000 }` (the fixed poll timeout every one of the three failures hit)."
+    },
+    {
+      "file": ".github/workflows/pr-checks.yml",
+      "lines": "579-638",
+      "content_summary": "'Customizer Regressions' job: `runs-on: ubuntu-latest` (GitHub-hosted, 2 vCPU / 7GB standard runner), builds production app first (`npm run build` with `NEXT_PUBLIC_E2E_MODE=true`), then runs `node scripts/playwright/run-playwright.mjs test e2e/customizer-equipment-catalog.spec.ts e2e/customizer-record-sheet-rendering.spec.ts e2e/customizer-edit-recovery.spec.ts --project=chromium --retries=0 --trace=retain-on-failure`. No `--workers` override here (defers to playwright.config.ts's CI default of 1). `--retries=0` means any flake fails the job outright with no automatic retry -- matches the observed 'always fails outright, passes on manual rerun' pattern."
+    }
+  ],
+  "hypothesis": {
+    "summary": "Not a logic/correctness bug. The test deliberately creates two concurrent, CPU-bound record-sheet render pipelines -- (1) Atlas's print, held open mid-flight via a stalled network route, and (2) a fresh full preview render for a newly-loaded Locust unit, triggered while (1) is still stalled -- and then requires BOTH to finish and settle inside a single fixed 10-second `expect.poll` window once the stall is released. Both pipelines do substantial synchronous main-thread work per unit (DOMParser parse of a template SVG with hundreds of nodes, ~8-10 parallel armor/structure pip fetches each followed by synchronous DOM cloning, XMLSerializer serialization) that cannot overlap on Chromium's single JS thread. On GitHub's standard 2 vCPU 'ubuntu-latest' runner, with `workers: 1` (so this is the only thing running in that job, but Chromium itself, the Node test-runner process, and the Node app server all still contend for those 2 cores), the combined tail latency of finishing both pipelines occasionally exceeds the fixed 10s margin. Both observed failure shapes are consistent with this single mechanism: sometimes the PRINT side is what's still catching up when the poll gives up (printCount stuck at 0 -- PR1722, PR1730); sometimes the PREVIEW side is what's still catching up (stale 'Atlas AS7-D' capture instead of 'Locust LCT-1V' -- PR1705, an earlier revision of the same test before two (but not all three) settle-assertions were added in commit 9b59a19f8/79de4f195 earlier the same day). Everything eventually completes correctly given enough wall-clock time -- attempt 2 of the identical commit passed for both PR1722 and PR1730 with zero code changes.",
+    "why_not_alternatives": {
+      "shared_fixture_or_store_leak": "Ruled out: extractData/extractArmor produce fully value-copied plain objects per call (dataExtractors.armor.ts:14-155); the print's `data` argument cannot be mutated by a later unit load.",
+      "stale_zustand_store": "No direct evidence found of a shared mutable store field read by the print pipeline after the click; RecordSheetService.printRecordSheet operates only on the already-captured `data`/`printWindow` local variables, not on live component/store state.",
+      "shared_DOM_template_cache": "Ruled out: parseSVGTemplate does a fresh DOMParser().parseFromString() per call (template.ts:35-38); TemplateRecordSheetRenderer.mount() appends its own off-screen container per instance, not a shared one.",
+      "abort_controller_cancellation": "Ruled out: grep found no AbortController usage anywhere under src/components/customizer/ or src/services/printing/."
+    }
+  },
+  "local_reproduction": {
+    "environment": {
+      "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/archive-original-main-proof",
+      "worktree_head": "17525370e00bfd8f022783f2bf1f6b9250422ca6",
+      "spec_file_diff_vs_pr1730_head": "none (git diff ee87fe5253b9061ce730f7b5786a4205b00711e0 -- e2e/customizer-record-sheet-rendering.spec.ts e2e/helpers/recordSheetPrintHarness.ts src/services/printing/RecordSheetService.ts src/services/printing/svgRecordSheetRenderer/armor.ts returned empty -- byte-identical to the failing CI commit)",
+      "build": "Pre-existing E2E standalone build (.next/BUILD_ID present, _app-*.js chunk confirmed to contain `window.__E2E_MODE__=!0`); no rebuild was performed.",
+      "cpu_gate_honored": "Before starting, `powershell -NoProfile -c \"(Get-CimInstance Win32_Process -Filter \\\"name='node.exe'\\\" | ? { $_.CommandLine -match 'next.*build|jest|playwright' }).Count\"` returned 0, satisfying the required pre-run gate. Note: this machine reports 16 logical processors ([Environment]::ProcessorCount) with ~220-224 total node.exe processes present throughout (from the many other concurrently active agent sessions in this shared environment) -- heavy general contention was present despite the specific build/jest/playwright gate being clear.",
+      "command": "MEKSTATION_E2E_SERVER_COMMAND='node .next/standalone/server.js' HOSTNAME=127.0.0.1 MEKSTATION_E2E_PORT=3639 node scripts/playwright/run-playwright.mjs test e2e/customizer-record-sheet-rendering.spec.ts --project=chromium --retries=0 --workers=1 --repeat-each=5",
+      "log_file": ".sisyphus/roadmap-completion-20260912/selected-paper-flake-20260915/local-repro-run1.log",
+      "log_sha256": "62efc4c87fa215202c50d6ea826b7b3760f75637d7a31b08315dc7e1f6e3ef95",
+      "wall_clock": "~15 minutes total for 30 test-runs (6 tests x 5 repeats), each individual test taking ~10.6-12.4s"
+    },
+    "result_table": [
+      { "repeat": 0, "test": "Print writes one current sheet into the reserved window at the selected paper", "result": "FAIL", "failure_point": "waitForBacking / expectSheetType at line 328-329 (BEFORE the print/stall/loadLocustBesideAtlas section is ever reached)", "received": "canvas backing stayed 612x792 (unscaled Letter pt size) instead of 2448x3168 (high-DPI backing)" },
+      { "repeat": 1, "test": "same", "result": "FAIL", "failure_point": "same", "received": "identical (error-context.md byte-identical to repeat 0)" },
+      { "repeat": 2, "test": "same", "result": "FAIL", "failure_point": "same", "received": "identical" },
+      { "repeat": 3, "test": "same", "result": "FAIL", "failure_point": "same", "received": "identical" },
+      { "repeat": 4, "test": "same", "result": "FAIL", "failure_point": "same", "received": "identical" }
+    ],
+    "did_not_reproduce_the_target_race": true,
+    "why": "ALL 30 test-runs in the file failed (not just the target test), every one at the very first `waitForBacking`/`expectSheetType` assertion for Atlas -- before Locust is ever loaded, before the print button is ever clicked, before the deliberate network stall is ever installed. The failure screenshot (test-results/customizer-record-sheet-re-29763-e-selected-paper-customizer-chromium/test-failed-1.png) shows the on-screen preview canvas displaying the product's own caught-error placeholder text 'Error rendering record sheet' (src/components/customizer/preview/RecordSheetCanvasPreview.tsx:62-78 `drawRecordSheetRenderError`, which sets canvas.width/height to the plain PAPER_DIMENSIONS[paperSize] = 612x792 -- exactly the 'received' value in every failure). This is the catch-path in `renderUnitRecordSheetPreview` (RecordSheetCanvasPreview.tsx:53-59), meaning `RecordSheetService.getSVGString` threw for every single render attempt. Root cause of THIS local failure: `public/record-sheets/` in this worktree contains only `mm-data-version.json` -- the actual template/pip SVG assets were never fetched (`npm run fetch:assets` was not run for this worktree), so the local-path fetch source 404s; the fallback CDN sources (jsdelivr, raw.githubusercontent.com) were reachable with 200 OK from this orchestrator's own shell (verified via curl), but the record-sheet render clearly still failed inside the Playwright-launched Chromium instance for every run, consistent with that specific browser process lacking the same network path (a sandboxing/proxy difference between the host shell and the spawned browser, not investigated further as it is out of scope for a read-only diagnosis and does not bear on the CI race).",
+      "conclusion": "This local environment gap (missing fetched assets / browser-side asset fetch failure) is unrelated to, and fully explains away, the 5/5 local failures -- it is NOT evidence about the intermittent CI race, and must not be read as such. Per the task's own guidance, reasoning about the actual race falls back to the CI log evidence above (three independent CI failures, two of them byte-identical reruns-pass-clean on the same commit, all hitting a fixed 10s wall-clock predicate at the same test position, immediately after code that deliberately creates two concurrent CPU-bound render pipelines) rather than a guess."
+  },
+  "fix_candidates_ranked": [
+    {
+      "rank": 1,
+      "title": "Sequence the two concurrent render pipelines inside the test itself: wait for Locust's own preview to fully settle before releasing the held print request",
+      "file_line": "e2e/customizer-record-sheet-rendering.spec.ts:354 (immediately after `await loadLocustBesideAtlas(page);`, still inside the `try` block, before the `finally` at line 355 runs `releasePips()`)",
+      "change": "Insert `await waitForBacking(page, LETTER);` and `await expectSheetType(page, 'Locust LCT-1V');` right after line 354, before the try block ends. This drains Locust's CPU-bound preview render to completion BEFORE the stalled Atlas print is released, so the two heavy synchronous render pipelines no longer have to race each other inside the same 10s window -- the print's post-release completion then only has to compete with an already-idle main thread, matching the pattern the same author already applied at two other tab-switch points in this exact file earlier the same day (commit 9b59a19f8/79de4f195).",
+      "red_first_pin": "Before this fix, run the test in isolation with an artificial CPU throttle (e.g. Chromium CDP `Emulation.setCPUThrottlingRate` at 4-6x, settable via a temporary `page.context().newCDPSession(page)` call, or simply run with `--repeat-each=10` under a deliberately loaded machine) to show the printCount:0 / stale-type failure reproduces locally when the two pipelines are forced to overlap under load; after adding the settle-wait, the same throttled run should pass because the two heavy render passes no longer overlap.",
+      "why_not_a_timeout_widen": "Does not touch playwright.config.ts's `expect.timeout` or add any `test.slow()`/per-assertion timeout override. It removes the CPU contention between the two pipelines by sequencing them, which is what the fixed 10s margin was implicitly assuming in the first place."
+    },
+    {
+      "rank": 2,
+      "title": "Same fix, defense in depth: also settle Atlas's on-screen preview state before asserting `letterPrint.typeName` at line 360",
+      "file_line": "e2e/customizer-record-sheet-rendering.spec.ts:358-361",
+      "change": "No change needed if rank 1 is applied; listed only because if rank 1 is deferred, an equivalent settle could instead be inserted between line 358's poll and line 360's assertion. Lower-ranked because it treats a symptom (the print poll) rather than the actual concurrent-CPU-work cause identified above.",
+      "red_first_pin": "Same throttled-CPU repro as rank 1.",
+      "why_not_a_timeout_widen": "Still a sequencing fix, not a timeout change -- but ranked below #1 because it doesn't address the root two-pipelines-racing condition as directly."
+    },
+    {
+      "rank": 3,
+      "title": "(Longer-term, out of scope for a red-first test pin) Move the synchronous DOMParser/XMLSerializer/pip-cloning work in TemplateRecordSheetRenderer off the main thread",
+      "file_line": "src/services/printing/svgRecordSheetRenderer/templateRecordSheetRenderer.ts (loadTemplate/getSVGString), src/services/printing/svgRecordSheetRenderer/armor.ts (loadAndInsertPips)",
+      "change": "A Web Worker or chunked/yielding rewrite of the template-fill pipeline so two concurrent record-sheet renders no longer fully block Chromium's single JS thread against each other. Correct and generally valuable (also helps real users on slow hardware), but far larger in scope than this flake fix and not something a single red-first test pin can drive.",
+      "red_first_pin": "Not proposed as a red-first pin for this task; flagged only as a legitimate deeper root-cause fix.",
+      "why_not_a_timeout_widen": "N/A -- not proposed for immediate action."
+    }
+  ],
+  "not_acceptable_fixes": [
+    "Raising playwright.config.ts's global `expect.timeout` (currently 10_000ms) or adding a per-assertion `{ timeout: N }` override / `test.slow()` to this test. This masks the same race with a larger window; it does not remove the CPU contention between the two concurrent render pipelines, and would just move the flake threshold rather than eliminate it, per the task's explicit instruction that a timeout widen is not acceptable."
+  ],
+  "non_claims": [
+    "Did NOT reproduce the intermittent CI race locally. All 30/30 local test-runs failed for an unrelated, deterministic, 100%-reproducing local-environment cause (missing fetched record-sheet assets / a browser-side asset-fetch failure inside the Playwright-launched Chromium instance specifically), not the CPU-contention race described above. This is stated as INFERENCE/hypothesis, grounded in code reading and the three independent CI failure logs, not as a directly observed race.",
+    "Did NOT determine why the local Chromium instance failed to fetch record-sheet assets from the CDN fallback while the orchestrator's own shell (curl) succeeded against the same URLs -- out of scope for this read-only diagnosis and not investigated further (no browser console/network logs were captured for the local run).",
+    "Did NOT modify, run `npm run fetch:assets`, rebuild, commit, push, or open a PR/branch. No repo files were changed by this diagnosis.",
+    "Did NOT verify whether GitHub's ubuntu-latest runners were under measurably higher load than usual on 2026-09-15 (e.g., via GitHub status pages) -- the CPU-contention hypothesis rests on the runner's fixed 2 vCPU spec plus the code-verified fact that the test creates two concurrent CPU-bound render pipelines racing a fixed 10s predicate, not on any direct measurement of that day's runner load.",
+    "Did NOT test fix candidate #1 against the real race (only against the CI logs and code reading) because the local environment could not reach the point in the test where the race lives (asset-loading failed first every time). The red-first pin proposed for #1 (CDP CPU throttling) was not executed in this session."
+  ]
+}

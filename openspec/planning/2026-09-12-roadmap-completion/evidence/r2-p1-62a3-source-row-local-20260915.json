@@ -1,0 +1,349 @@
+{
+  "artefact": "r2-p1-62a3-source-row-local-20260915",
+  "task": "6.2a-3 — the source record follows the accepted contract in the same commit (blocker B2 from the 6.2b STOP brief)",
+  "date": "2026-09-15",
+  "role": "implementer (general-purpose; GP-JUSTIFIED per charter)",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/r2-prepared-journal-api",
+  "branch": "codex/roadmap-r2-p1-62a3-source-row-20260915",
+  "baseSha": "b46433b1f52b5be58490e4f8f5c64f728a52d100",
+  "baseDescription": "6.2a prefix-3 top (`feat(campaign): derive the accepted contract from the offer the source holds`), PRs #1698-#1700",
+  "commitSha": "1474efb7112f0b69452aba8d76929381eb31db9a",
+  "commitSubject": "feat(campaign): let the source record follow the accepted contract in the same commit",
+  "pushed": false,
+  "whatWasWrong": {
+    "spec": "openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md:184 (requirement heading) / :185 (the SHALL) / :187-192 (the scenario). Verbatim, :185 — \"When the source commits an accept-contract command, the source's own campaign record -- its missions and its reduced remaining contract market -- and the compact accepted-contract ledger SHALL both follow from that single committed acceptance, and the client SHALL NOT additionally apply the acceptance to its local campaign. ... A state in which both writes occur, or in which the compact ledger records an acceptance the source record does not, SHALL NOT be reachable.\"",
+    "stateAtBase": "src/lib/campaign/authority/campaignAcceptContractCommand.ts at b46433b1f computed the reduced market at :294-312 and wrote it ONLY into the journal's `sourcePrivate` envelope. No `UPDATE campaigns` existed anywhere in src/ outside test files (verified in-session by `grep -rn \"UPDATE campaigns\" src/` — 4 hits, all in `__tests__`). So a committed acceptance produced exactly the state :185 declares unreachable: the compact ledger held an acceptance the source record did not."
+  },
+  "transactionPlacement": {
+    "mechanism": "src/lib/events/journal/SQLiteEventJournalWriter.ts:98-137 `appendPreparedWithExtension`. Read in this session. `this.db.transaction(() => { ... }).immediate()` at :112-136 wraps BOTH hooks. `prepare(this.db)` runs at :114 and is contractually read-only (:84-97 header). `extend(this.db, prepared.context, () => this.appendInTransaction(...))` runs at :130-132 — it receives the SAME handle and an `append` THUNK, so the caller chooses when the append happens and what runs after it, still inside the one immediate transaction.",
+    "whereTheRowWriteLands": "src/lib/campaign/authority/campaignAcceptContractCommand.ts:457 `const appended = append();` then, after the three refusal arms, the `UPDATE campaigns SET payload = ?, version = ? WHERE id = ?` at :481 — inside `extend`, on the `db` handle the writer passed, after the append has reported `committed`. It is therefore part of the SAME command commit, not a second writer path: there is one `.immediate()` transaction and one caller.",
+    "prepareStaysReadOnly": "The next row payload is COMPUTED in `prepare` (`nextSourceRecordAfterAccept` at :252, called at :428 into the context) and APPLIED in `extend`. `prepare` performs no write, honoring the :84-97 contract; the `IPreparedAcceptContext` at :303 is what carries the computed payload across.",
+    "atomicityConsequence": "Every pre-append refusal (`source-record-absent`, `offer-absent`, a rules rejection) returns from `prepare` before `append` is ever called, so the row cannot move for a command that did not commit. A failed append (revision conflict / identity conflict / rejected batch) returns from `extend` BEFORE reaching :481. Pinned by red-first test (b)."
+  },
+  "whatChanged": {
+    "files": [
+      "src/lib/campaign/authority/campaignAcceptContractCommand.ts (modified, +175/-11)",
+      "src/lib/campaign/authority/__tests__/campaignAcceptContractSourceRow.test.ts (new, +434)"
+    ],
+    "shortstat": "2 files changed, 600 insertions(+), 11 deletions(-)  [`git diff --shortstat b46433b1f HEAD`]",
+    "capCompliance": {
+      "files": "2 of ≤15 — PASS",
+      "lines": "611 changed lines (600 insertions + 11 deletions) against a ≤500 cap — OVER BY 111 (22%). REPORTED, NOT SPLIT. The product half is 186 lines (175+11); the remaining 434 are the red-first test the charter specifies (four required scenarios plus two R2 shape variants and one pinned retry-semantics consequence, each on real SQLite with a cold reopen). Splitting would not reduce the total against the base and would separate the proof from the code it proves, so the overage is surfaced for the reviewer's judgement instead."
+    },
+    "productEdits": [
+      ":103-157 — `StoredMissionEntry` / `StoredOffer` types, `asRecord`, and `storedMissionsOf`: the shape guards the row write depends on.",
+      ":121-132 — `ICampaignSourceMarketRead` widened with the RAW stored envelope, body, market, offers and missions. `market` stays the rehydrated one because validation and the private envelope consume it; the raw fields are what the row write puts back, so untouched fields round-trip byte-identically.",
+      ":188-243 — `readCampaignSourceMarket` made TOTAL: `JSON.parse` in try/catch, non-object record/body/market refused, `offers` must be an array of objects, `missions` must be absent or an array of arrays. Every failure returns `null`, which the caller already maps to the typed `source-record-absent`.",
+      ":252-... — `nextSourceRecordAfterAccept`: builds the next body from the RAW stored offer with `status: MissionStatus.ACTIVE`, drops any prior entry under that id before appending (the serialized `missions` is a Map's entries; two entries under one key is a shape no reader expects), filters the offer out of `contractMarket.offers` while preserving `declinedOfferIds`, and sets BOTH the row column and the envelope's own `version` to `sourceRowVersion + 1`.",
+      ":303-311 — `IPreparedAcceptContext`, the typed carrier from `prepare` to `extend`.",
+      ":370 — the offer lookup now also resolves the RAW stored offer; either being absent is `offer-absent`.",
+      ":481 — the single `UPDATE campaigns SET payload = ?, version = ? WHERE id = ?`."
+    ],
+    "clientParity": "The mission the row gains is the stored offer with `status: 'Active'` and nothing else changed. That is what the client's `src/stores/campaign/campaignCommandActions.ts` `acceptContractOffer` produces: it routes through `src/lib/campaign/contractMarket.ts:282 acceptContract`, whose only mutation is `{...contract, status: MissionStatus.ACTIVE}` into the missions Map (read in-session at :296-308), then `src/lib/campaign/persistence/serializeCampaign.ts:148` serializes that Map as `Array.from(campaign.missions.entries())`. Money round-trips because `Money.toJSON()` returns `amount` (Money.ts:113) and `rehydrateMoney(number)` reconstructs from C-bills (missionSerialization.ts:21).",
+    "versionBump": "`saveCampaign` (src/services/campaignPersistence/CampaignPersistenceService.ts:102-155) compares the PUT's `baseVersion` against the row COLUMN `version` and writes `baseVersion + 1` into both the column and the envelope (`stored.version`, :131-134). GET hands the client the envelope's `version` (`parseStoredCampaignRow` :314-335 returns the hydrated record). Both are therefore advanced together. Denormalized columns (`name`, `faction_id`, `campaign_date`, `balance`, `saved_at`, `origin_device_id`) are untouched because no field an acceptance changes is denormalized."
+  },
+  "redFirst": {
+    "method": "Test authored and run BEFORE the product edit; the captured red log was regenerated after the commit by `git checkout b46433b1f -- src/lib/campaign/authority/campaignAcceptContractCommand.ts` (test file kept at HEAD), running the suite, then `git checkout HEAD -- <same file>`. The first capture used a broken `2>&1 > file` redirect and landed empty; it was regenerated rather than described. Working tree verified clean afterwards.",
+    "methodCorrection": "CORRECTED after review. The sentence above said the red log was regenerated with 'the test file kept at HEAD', which reads as though red.log covers the test file as it now stands. It does not, and did not even when written: red.log was captured against the test revision current at 1474efb71 — SEVEN rows (a, b, c, c2, c3, d, e). It does not cover rows (f), (g) or (h), which did not exist at that point; their red is a SEPARATE capture, red-review-edits.log, taken against the post-split product file. Each row's red is real and was watched; no single run covers all ten, and the earlier wording obscured that. See `reviewResponse.redProvenance`.",
+    "result": "6 failed, 1 passed, 7 total.",
+    "rows": [
+      "(a) writes the mission and the reduced market into the row, and advances its version — RED: `body.missions` was `[]` (expected the `[id, {...offer, status: 'Active'}]` pair); GREEN after.",
+      "(b) leaves the row untouched when the append loses its revision — PASSED BOTH SIDES by design: it is the atomicity pin the new write must not break. Forces the lost-race arm deterministically by calling the exported `appendDurableAcceptContract` with an EMPTY prior history while the stream holds the imported baseline, so `toJournalBatch` (JournalCampaignEventStore.ts:232) pins `expectedRevision` to 0 against an actual head of 1.",
+      "(c) malformed stored body (unparseable payload) — RED with an UNTYPED throw: `SyntaxError: Expected property name or '}' in JSON at position 2`, raised at campaignAcceptContractCommand.ts:148 out of the prepared transaction (stack in red.log). GREEN: typed `{kind:'offer-not-durable', contractId, reason:'source-record-absent'}`. This is carry-forward R2, reproduced verbatim.",
+      "(c2) market whose `offers` is not an array — RED with an UNTYPED throw: `TypeError: market.offers.map is not a function` at missionSerialization.ts:74. GREEN: typed `source-record-absent`.",
+      "(c3) `missions` that is not the serialized map — RED: the command COMMITTED (the base read never looked at `missions`), which would have made the row write index a shape it cannot. GREEN: typed `source-record-absent`, nothing appended.",
+      "(d) a SECOND actor accepting the offer the first acceptance consumed — RED: committed a second `ContractAccepted` under `pid-guest`. GREEN: `{kind:'offer-not-durable', reason:'offer-absent'}`, no receipt. This is carry-forward R5.",
+      "(e) the SAME actor re-submitting a committed acceptance — RED (base behaviour): `{kind:'duplicate', commandId}` from the command-identity arm. GREEN: `offer-absent`, and the row is byte-identical to its post-first-acceptance state. Pinned as a deliberate consequence, not claimed as exactly-once."
+    ],
+    "harness": "Real `better-sqlite3` on a temp file (`mkdtemp`), `resetSQLiteService()` per test, `importCampaignBaseline` for the stream, the campaigns row seeded exactly as the whole-envelope PUT leaves it. Test (a) additionally reopens the file with a fresh `new Database(databasePath)` after `resetSQLiteService()` and re-asserts the row — the write is durable, not in-process state."
+  },
+  "task64Exposure": {
+    "pinned": "Test (a) calls `saveCampaign(<the post-acceptance envelope>, SEEDED_VERSION)` — a client still holding the pre-acceptance base version — and asserts `kind === 'conflict'`. So the ordinary client save after a committed acceptance takes the EXISTING 409 path rather than silently overwriting the materialized row.",
+    "notSolved": "No bridge that refreshes the client's cached base version is added. That is task 6.4. This slice makes the divergence loud instead of silent; it does not close it."
+  },
+  "gates": {
+    "focusedJest": "`npx jest src/lib/campaign src/lib/events/journal` — 219 suites passed, 3157 tests passed, 0 failed (charter expected 218+). Log: green-suite.log.",
+    "tsc": "`npx tsc --noEmit --skipLibCheck` — exit 0, no diagnostics. Log: tsc.log.",
+    "oxlint": "`npx oxlint src/lib/campaign/authority/` — 0 warnings, 0 errors on 20 files. Log: lint-fmt.log.",
+    "oxfmt": "`npx oxfmt --check` on both changed files — \"All matched files use the correct format.\" Log: lint-fmt.log.",
+    "build": "NOT run as a gate per charter. The repo's pre-commit hook ran its own build; the commit and the amend both exited 0.",
+    "e2e": "not run — out of charter scope, and this slice changes no client surface.",
+    "openspecValidate": "not run — no spec file was edited."
+  },
+  "logs": {
+    "directory": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-p1-62a3-20260915/",
+    "sha256": {
+      "red.log": "a40ae2fb30356c7a76144588ab5cd01a3451d7197205cdd9cdd0b2184bde353e",
+      "green-suite.log": "1cd1c1c0467901adfc0702b9251760ccadf6727aeeb455550e18e925b98df80e",
+      "tsc.log": "a6ce7f41eaf235b981cdbfe9a3d6a5d9a3502b6bd605ffc2acf78679a4ee9a2f",
+      "lint-fmt.log": "9ca320e464f6c52d3e362da732115a01f10ad1d5af06aa953f7b37e5e84f605e"
+    }
+  },
+  "constraintsHonored": {
+    "D12": "The private envelope is unchanged — same `buildCampaignSourcePrivateEnvelope` call with the same baseline, accepted contract and remaining market. No private fact is added to any wire payload. The existing 6.2a assertion that the terminal compact payload contains no `paymentTerms` still passes (campaignCommandPipelineOfferDurability.test.ts:290).",
+    "D13": "Source-side materialization only. The accepted mission is derived from the STORED offer; the caller's contract object is still used for nothing but naming the id.",
+    "exactlyOnceWriter": "NOT claimed. The SHALL at spec.md:185 is 6.2b's. This slice adds no second writer — the row update is one statement inside the command's own transaction, after its own append — and it is a prerequisite for 6.2b, not a discharge of it.",
+    "noSpecEdits": "None. No SHALL was contradicted, so the stop-and-report clause did not fire.",
+    "noProductionFlagFlips": "`CAMPAIGN_JOURNAL_AUTHORITY_ENABLED` untouched and still false, so no user-visible acceptance behaviour changes before the 5.7 cutover.",
+    "noClientChanges": "None. `acceptContractOffer` still applies locally; removing that is 6.2b's half and is blocked on the identity/seat prerequisite recorded in r2-p1-62b-local-20260915.json.",
+    "rootCheckoutUntouched": "All work in the named worktree. `git status --porcelain` there is empty at HEAD."
+  },
+  "observationsForTheNextSlice": [
+    "Retry vocabulary changed for AcceptContract. An identical re-submit by the same actor used to answer `{kind:'duplicate'}` (the events' sequences differ on the retry, so the command digest differs and the identity arm fires); it now answers `{kind:'offer-not-durable', reason:'offer-absent'}`, because `prepare` reads the reduced market before the append can consult the command log. Both mean \"nothing more was written\", but 6.2b's client routing must not read `offer-absent` as a retryable durability fact in this case — the offer is gone because THIS actor already consumed it. Pinned by test (e).",
+    "The co-op host remains a second ungated AcceptContract writer (recorded, unchanged, in the 6.2b brief's `coopHostSecondWriter`). It does not go through `/api/campaigns/[id]/commands` and therefore neither reduces the row's market nor gains a mission from this write. 6.2b's exactly-once obligation is still only satisfiable for the /commands path until that host path is brought under it or explicitly excluded.",
+    "`readCampaignSourceMarket` now refuses a body whose `missions` is malformed even though the pre-6.2a-3 command never read that field. That is a deliberate widening of `source-record-absent`: the row write indexes every mission entry's key, so a body that cannot answer \"which mission is this\" must be refused rather than rewritten."
+  ],
+  "split": {
+    "reason": "Coordinator directive 2026-09-15: policy is split rather than trim; the reference commit's 611 changed lines exceed the ≤500 cap.",
+    "referenceCommit": {
+      "sha": "1474efb7112f0b69452aba8d76929381eb31db9a",
+      "branch": "codex/roadmap-r2-p1-62a3-source-row-20260915",
+      "state": "INTACT — `git rev-parse codex/roadmap-r2-p1-62a3-source-row-20260915` still resolves to 1474efb71. Nothing on it was amended, rebased or deleted by the split.",
+      "shortstat": "2 files changed, 600 insertions(+), 11 deletions(-)  [611 changed lines]"
+    },
+    "splitBranch": "codex/roadmap-r2-p1-62a3-source-row-split-20260915, branched from b46433b1f",
+    "commits": [
+      {
+        "label": "A",
+        "sha": "66360fd1f05d7934bc917dec5cd5efeb563c4ae9",
+        "parent": "b46433b1f52b5be58490e4f8f5c64f728a52d100",
+        "subject": "feat(campaign): let the source record follow the accepted contract in the same commit",
+        "subjectMatchesReference": true,
+        "contents": "The whole product change plus the four charter-required rows (a), (b), (c), (d) and the shared test harness.",
+        "shortstat": "2 files changed, 543 insertions(+), 11 deletions(-)",
+        "numstat": {
+          "src/lib/campaign/authority/campaignAcceptContractCommand.ts": "+164 / -11",
+          "src/lib/campaign/authority/__tests__/campaignAcceptContractSourceRow.test.ts": "+379 / -0"
+        },
+        "changedLines": 554,
+        "capVerdict": "OVER the ≤500 cap by 54. See `capStillExceededAtA` below — this is reported, not trimmed.",
+        "green": "`npx jest src/lib/campaign/authority/__tests__/campaignAcceptContractSourceRow.test.ts` at this tree — 4 passed, 4 total, exit 0. oxfmt --check clean on the trimmed test file.",
+        "log": "green-commitA.log",
+        "sha256": "bfa2c1d8ce84c131ea51c10ee85c19965d1a33a4dcc76806df8b2c9ce7da764d"
+      },
+      {
+        "label": "B",
+        "sha": "dcaa8fcc7322fc2934baa2aebb816f095fc4f8c0",
+        "parent": "66360fd1f05d7934bc917dec5cd5efeb563c4ae9",
+        "subject": "test(campaign): pin the malformed-shape refusals and the same-actor re-submit after an accepted contract",
+        "contents": "TEST-ONLY. Adds rows (c2), (c3) and (e) back verbatim. No product file is touched.",
+        "shortstat": "1 file changed, 57 insertions(+)",
+        "numstat": {
+          "src/lib/campaign/authority/__tests__/campaignAcceptContractSourceRow.test.ts": "+57 / -0"
+        },
+        "changedLines": 57,
+        "capVerdict": "PASS (57 ≤ 500).",
+        "green": "`npx jest src/lib/campaign/authority/__tests__/campaignAcceptContractSourceRow.test.ts` at this tree — 7 passed, 7 total, exit 0. `npx tsc --noEmit --skipLibCheck` — exit 0, no diagnostics. oxfmt --check clean.",
+        "logs": {
+          "green-commitB.log": "82726b4d7d6c195affc087b85759fafc792627043cb78a586a6c7805408da0a7",
+          "tsc-commitB.log": "a6ce7f41eaf235b981cdbfe9a3d6a5d9a3502b6bd605ffc2acf78679a4ee9a2f"
+        }
+      }
+    ],
+    "identityCheck": {
+      "command": "git diff 1474efb71 HEAD --stat",
+      "output": "(empty)",
+      "corroboration": "`git rev-parse 1474efb71^{tree} HEAD^{tree}` returns the SAME tree object on both: 5976937ec56ce2ebb7d42dd7c4f07723feb61783. The split stack's final tree is byte-identical to the reference commit.",
+      "method": "Commit A took the product file and a line-range-trimmed copy of the reference test file; commit B restored the test file with `git checkout 1474efb71 -- <test file>`, so the final content is the reference blob rather than a retyped approximation."
+    },
+    "capStillExceededAtA": {
+      "verdict": "The two-commit shape the directive specifies CANNOT reach ≤500 at commit A, and this is arithmetic rather than a judgement call.",
+      "arithmetic": "Commit A's mandated contents are the product change (164 + 11 = 175 changed lines) plus the four charter-required rows and the shared harness they need (379 lines: ~135 of header, fixtures, seed helper and beforeEach/afterEach, plus ~244 for rows a/b/c/d). 175 + 379 = 554. The floor is 554, so no arrangement of the two specified commits lands under 500.",
+      "whatTheSplitDidAchieve": "The worst commit fell from 611 to 554 changed lines (-9%), and the three non-charter rows are now isolated in a 57-line test-only commit that can be reviewed or dropped independently.",
+      "shapesThatWouldReach500": [
+        "A three-commit stack: A1 = product change + test harness/fixtures + rows (a) and (b); A2 = rows (c) and (d); B = rows (c2), (c3), (e). Each lands well under 500, at the cost of A1 shipping the product change with only half its proof.",
+        "Accept commit A at 554 as the reviewable unit, on the grounds that the product half is 175 lines and the remaining 379 is the red-first proof the charter itself mandates."
+      ],
+      "notDone": "Neither was chosen unilaterally. The directive named two commits and named A's contents; both were honored exactly, and the residual overage is surfaced here for the coordinator's decision rather than resolved by trimming a charter-required row."
+    },
+    "redLog": "UNCHANGED — the split adds no new red. The captured red remains red.log (sha256 a40ae2fb30356c7a76144588ab5cd01a3451d7197205cdd9cdd0b2184bde353e), taken by restoring the base product file under the full 7-row test file: 6 failed, 1 passed. Rows (a)(c)(c2)(c3)(d)(e) red, row (b) green by design.",
+    "notPushed": "No push, no PR. Both branches are local to the worktree."
+  },
+  "reviewResponse": {
+    "review": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-p1-62a3-source-row-review-20260915.json — commit A APPROVE-WITH-REQUIRED-EDITS (RE-1, RE-2), commit B APPROVE.",
+    "appliedAs": "CODE for both required edits, per the coordinator's instruction to prefer the code guards over RE-1's argument-only alternative. No spec files edited; no client changes; no flag flips.",
+    "shape": "Two commits preserved. Commit A rebuilt to carry both guards plus three new red-first rows; commit B rebuilt on the new A, still test-only and still exactly its three rows.",
+    "commits": [
+      {
+        "label": "A (rebuilt)",
+        "sha": "4a50e36929e048002749e502e0a5c7b3fb274744",
+        "parent": "b46433b1f52b5be58490e4f8f5c64f728a52d100",
+        "subject": "feat(campaign): let the source record follow the accepted contract in the same commit",
+        "subjectUnchanged": true,
+        "supersedes": "66360fd1f05d7934bc917dec5cd5efeb563c4ae9",
+        "shortstat": "3 files changed, 784 insertions(+), 14 deletions(-)",
+        "numstat": {
+          "src/lib/campaign/authority/campaignAcceptContractCommand.ts": "+258 / -13",
+          "src/lib/campaign/authority/__tests__/campaignAcceptContractSourceRow.test.ts": "+507 / -0",
+          "src/lib/campaign/authority/__tests__/campaignCommandPipelineArtifactUse.test.ts": "+19 / -1"
+        },
+        "changedLines": 798,
+        "green": "`npx jest <the row suite>` at this tree — 7 passed, 7 total (rows a, b, c, f, d, g, h), exit 0. Log green-commitA-review.log."
+      },
+      {
+        "label": "B (rebuilt)",
+        "sha": "87ed9d2391f53fe90242c0c38aa7f314ac4455c0",
+        "parent": "4a50e36929e048002749e502e0a5c7b3fb274744",
+        "subject": "test(campaign): pin the malformed-shape refusals and the same-actor re-submit after an accepted contract",
+        "supersedes": "dcaa8fcc7322fc2934baa2aebb816f095fc4f8c0",
+        "shortstat": "1 file changed, 57 insertions(+)",
+        "changedLines": 57,
+        "testOnly": true,
+        "green": "10 passed, 10 total, exit 0 (log green-commitB-review.log); `npx tsc --noEmit --skipLibCheck` exit 0 (log tsc-commitB-review.log)."
+      }
+    ],
+    "commitAGrowth": {
+      "before": 554,
+      "after": 798,
+      "delta": "+244",
+      "reported": "As instructed: reported, NOT trimmed. No row was removed to make room.",
+      "composition": "+95/-3 on the product file (the two guards and their doc comments), +131/-3 on the row test (three new rows, the `recordExtras` harness parameter, the corrected header), and +19/-1 on a sibling fixture the RE-2 guard exposed. Commit A is now 798 changed lines against the ≤500 cap — 298 over, up from 54. The cap and the review's required edits pull in opposite directions; the review was treated as binding and the cap as the thing to report."
+    },
+    "RE_1": {
+      "title": "The row write bypassed D2's source-mutation gate.",
+      "fix": "`storedRecordIsNotSource` in campaignAcceptContractCommand.ts, called from `readCampaignSourceMarket` immediately after the stored record and body parse. It runs `parseCampaignAuthority(storedRecord.authority)` and refuses (returns null → the existing typed `source-record-absent`) only when the parse SUCCEEDS and `isSourceInstance` is false.",
+      "tolerance": "`parsed-and-not-source`, never `not-parsed-as-source`, exactly as the review required. A record predating D2 carries no `authority`, `parseCampaignAuthority` answers `failed` for it, and every such row stays acceptable — including every row the existing suites seed. The rationale is recorded in the function's doc comment: `saveCampaign` can afford the stricter reading because it re-stamps the authority it writes, whereas this command only reads and declines to invent a verdict about a record that never claimed one.",
+      "testRow": "(f) refuses a stored record whose authority parses as a replica, appending nothing — seeds `{role:'replica', sourceInstanceId:'src-1', grantId:'grant-1', scopes:['campaign']}` at the envelope level via a new `recordExtras` parameter on the test's `seedSourceRecord`, then asserts the typed `source-record-absent`, a null command receipt, and a byte-identical row.",
+      "red": "MEASURED. Before the guard this row returned `{kind:'committed'}` — the acceptance committed AND the replica's row was rewritten. Captured in red-review-edits.log."
+    },
+    "RE_2": {
+      "title": "An offer that is an object but not a usable contract was either an untyped throw or a malformed mission written into the source record.",
+      "fix": "`isStoredContractOffer`, applied to the RAW stored offer at the lookup in `prepare`. It requires `isContract(offer)` AND that `paymentTerms` carries a numeric `salvagePercent` plus six amount fields `rehydrateMoney` reads as amounts.",
+      "whyIsContractAlone_isNotEnough": "MEASURED, and this is the part that goes beyond the review's literal minimal fix. `isContract` accepts any non-null `paymentTerms` object (src/types/campaign/Mission.ts:384-396), so the review's own P2 case — `paymentTerms: {}` — PASSES it. Gating on `isContract` alone would have closed P1 and left P2 exactly as the review found it: rehydration turns the missing amounts into `Money.ZERO`, and the raw offer is copied verbatim into the row, so the campaign records a contract worth nothing as one it signed. The amount check is what actually closes P2.",
+      "whyNotNarrowerThanRehydrateMoney": "`isStoredMoney` mirrors `rehydrateMoney`'s accepted shapes (number, or an object with numeric `amount` or `centsValue`; missionSerialization.ts:19-27) rather than narrowing to the `number` `Money.toJSON` emits. Narrowing would refuse a legacy row that the codebase can already read correctly, which is a different bug from the one being fixed.",
+      "refusalKindChosen": "`offer-absent`, for BOTH halves, and the reason is recorded at the call site. The record and its market read fine — rows (c)/(c2)/(c3) own the case where they do not — and only this one entry fails to be an offer. `source-record-absent` would send an operator to investigate a perfectly readable record, while `offer-absent` names what is true and points at the recovery that can work: get a usable offer to the source, then retry. The `CampaignOfferDurabilityReason` doc comments were updated so the two reasons still describe what they now mean.",
+      "testRows": [
+        "(g) refuses an offer that is an object but not a contract — `offers: [{id: STORED_ID}]`. RED reproduced the review's P1 verbatim: `EventJournalCanonicalizationError: JCS cannot represent undefined`, untyped, out of the prepared transaction.",
+        "(h) refuses a contract-shaped offer whose payment terms are unreadable — the real fixture offer with `paymentTerms: {}`. RED reproduced the review's P2: `{kind:'committed'}`, with the offer materialized into the row."
+      ],
+      "bothNowAssert": "the typed `offer-absent`, a null command receipt, and a byte-identical `campaigns` row."
+    },
+    "sideEffectFound": {
+      "what": "The RE-2 guard turned two rows of `campaignCommandPipelineArtifactUse.test.ts` red ('the same id sealed only on a never-activated candidate commits' and 'an unknown contract id commits'), both expecting `committed` and receiving `offer-not-durable`.",
+      "cause": "That suite's `seedDurableMarket` fixture (:202-215 before the edit) seeded offers with `paymentTerms: {}` and no `createdAt` / `updatedAt`. Those offers fail `isMission`, so they fail `isContract` before the amount check is even reached — the fixture was the review's P2 shape, already sitting in the tree.",
+      "resolution": "The FIXTURE was completed — `createdAt` / `updatedAt` stamped and real serialized payment terms supplied — rather than the guard loosened. Justification recorded in the fixture's own comment: no real market writes that shape, because `buildContractRecord` → `createContract` stamps both timestamps and `Money.toJSON` emits numbers. Loosening the guard to admit a shape production never produces would have re-opened exactly what RE-2 asked to close.",
+      "note": "This is the third file in commit A and the reason its numstat is not two files. It is a genuine finding surfaced BY the required edit, not scope creep: without it commit A is not green."
+    },
+    "redProvenance": {
+      "statement": "The ten rows' red was captured in TWO runs, and this is stated plainly because the earlier evidence wording obscured it.",
+      "run1": "red.log (sha256 a40ae2fb30356c7a76144588ab5cd01a3451d7197205cdd9cdd0b2184bde353e) — the SEVEN rows that existed at 1474efb71 (a, b, c, c2, c3, d, e), run against the base product file at b46433b1f. Result 6 failed / 1 passed; (b) green by design.",
+      "run2": "red-review-edits.log (sha256 ee6c7296c01181e9b27d8bcb0b87b7d70044fe93edfe877acd32fc25e17a29fb) — the full ten-row file against the POST-SPLIT product file, before the RE-1/RE-2 guards. Result 3 failed / 7 passed: exactly (f), (g), (h). (f) returned `committed`; (g) threw `EventJournalCanonicalizationError: JCS cannot represent undefined`; (h) returned `committed`.",
+      "notClaimed": "No single run covers all ten rows red, and none is claimed to. The later rows did not exist at the earlier base, so a combined capture was never possible.",
+      "greenAfterGuards": "green-review-edits.log (sha256 f1f6b4928c11fa53ebf47c82cb7939807096beb09e8cae1a49b755cf53015908) — 10 passed, 10 total."
+    },
+    "gates": {
+      "rowSuiteAtA": "7 passed / 7 total, exit 0 — green-commitA-review.log (6958989cf5b1c9abb6f7e82bf936a633b893f83d7d6d67aa3cde04b3880bd0bb).",
+      "rowSuiteAtB": "10 passed / 10 total, exit 0 — green-commitB-review.log (3dfe122f379f93a6ea5a6be87378f6cbe6abc70f1ef2f33929e84ada0a541069).",
+      "focusedBatteries": "`npx jest src/lib/campaign src/lib/events/journal` at B — 219 suites passed, 3160 tests passed, 0 failed, exit 0 — green-suite-review-edits.log (14f07d52eef8edf0e8c6402a17f148e9291a88ea42c9d38397c614cb953b9307). Test count rose 3157 → 3160: the three new rows.",
+      "tsc": "exit 0, no diagnostics, at B — tsc-commitB-review.log (a6ce7f41eaf235b981cdbfe9a3d6a5d9a3502b6bd605ffc2acf78679a4ee9a2f).",
+      "oxlintOxfmt": "`npx oxlint src/lib/campaign/authority/` 0 warnings 0 errors on 20 files; `npx oxfmt --check` clean on all three changed files — lint-fmt-review-edits.log (d1e7a5338ea0241772981af4dd3b258ca7f0324127147ae86a8025fe46fbea57).",
+      "build": "not run as a gate; the repo's pre-commit hook ran its own on both commits, both exit 0."
+    },
+    "refsPreserved": {
+      "reference": "codex/roadmap-r2-p1-62a3-source-row-20260915 → 1474efb7112f0b69452aba8d76929381eb31db9a, INTACT and unmodified.",
+      "preReviewSplit": "backup/r2-p1-62a3-split-pre-review → dcaa8fcc7322fc2934baa2aebb816f095fc4f8c0, created BEFORE the branch was rebuilt so the superseded A/B stack stays permanently reachable rather than reflog-only.",
+      "rebuiltStack": "codex/roadmap-r2-p1-62a3-source-row-split-20260915 → 87ed9d239 (B) → 4a50e3692 (A) → b46433b1f."
+    },
+    "identityVsReference": {
+      "note": "The final tree is NO LONGER byte-identical to 1474efb71, and must not be — the review required product changes. The previous round's identity check is superseded.",
+      "delta": "`git diff 1474efb71 HEAD` → 3 files changed, 245 insertions(+), 7 deletions(-): +95/-3 campaignAcceptContractCommand.ts (the two guards), +131/-3 campaignAcceptContractSourceRow.test.ts (three rows, the harness parameter, the header correction), +19/-1 campaignCommandPipelineArtifactUse.test.ts (the fixture completion). Nothing else in the tree differs from the reference."
+    },
+    "notPushed": "No push, no PR. All branches local to the worktree.",
+    "reviewNotesNotActioned": [
+      "The reviewer's IMPRECISE NON-CLAIM finding is accepted and is a real error in this artefact: the earlier claim said `CAMPAIGN_JOURNAL_AUTHORITY_ENABLED` being false is what refuses every command, but the command route gates on `deps.authority.kind`, which the API resolves from the MIGRATION MARKER (`resolveCampaignAuthorityFromStores`), not from that constant. The conclusion (no user-visible change today) is UNVERIFIED by this session either way; the stated reason was wrong and is withdrawn here rather than restated.",
+      "The co-op host second-writer finding (`CampaignGmArbiter` :557/:576) is unchanged and remains out of this slice's scope, as both the implementer and the reviewer record.",
+      "`saved_at` staleness, the rehydrated-vs-raw `remainingMarket` representation split, and the idempotent-replay version bump were all recorded by the reviewer as non-blocking and are NOT addressed here."
+    ]
+  },
+  "split2": {
+    "reason": "Coordinator directive 2026-09-15, third round ('798 is a split, not an overage'), as amended by the fourth-round decision to restore row (b) into A1. The reviewed two-commit pair is re-split into three commits with the same final tree.",
+    "branch": "codex/roadmap-r2-p1-62a3-source-row-split-20260915, rebuilt from b46433b1f",
+    "commits": [
+      {
+        "label": "A1",
+        "sha": "2fdbbd7d93a2a2dbfde0d93e8c72642bd20fd032",
+        "parent": "b46433b1f52b5be58490e4f8f5c64f728a52d100",
+        "subject": "feat(campaign): let the source record follow the accepted contract in the same commit",
+        "subjectUnchanged": true,
+        "contents": "The FULL product change (the row write plus the RE-1 authority guard and the RE-2 offer guard), the campaignCommandPipelineArtifactUse fixture completion, the shared test harness, and rows (a) and (b) - the materialization and its atomicity pin, kept with the behaviour they prove.",
+        "shortstat": "3 files changed, 631 insertions(+), 14 deletions(-)",
+        "numstat": {
+          "src/lib/campaign/authority/campaignAcceptContractCommand.ts": "+258 / -13",
+          "src/lib/campaign/authority/__tests__/campaignAcceptContractSourceRow.test.ts": "+354 / -0",
+          "src/lib/campaign/authority/__tests__/campaignCommandPipelineArtifactUse.test.ts": "+19 / -1"
+        },
+        "changedLines": 645,
+        "capVerdict": "ACCEPTED at 645 by coordinator decision, with the arithmetic recorded below. Over the 500-line budget by 145.",
+        "green": "Row suite 2 passed / 2 total (rows (a) and (b)), exit 0; the whole src/lib/campaign/authority battery 19 suites / 134 tests passed, exit 0 - which also proves the fixture completion green here, since that file ships in this commit. Log green-A1.log. npx tsc --noEmit --skipLibCheck exit 0, log tsc-A1.log. oxfmt --check clean."
+      },
+      {
+        "label": "A2",
+        "sha": "d73568998727cd306d563686bbf18c469dbe7328",
+        "parent": "2fdbbd7d93a2a2dbfde0d93e8c72642bd20fd032",
+        "subject": "test(campaign): pin the accepted-contract refusals for malformed rows, foreign actors and non-source records",
+        "contents": "TEST-ONLY. Five refusal rows: (c), (d), (f), (g), (h). No product file touched.",
+        "shortstat": "1 file changed, 153 insertions(+)",
+        "changedLines": 153,
+        "capVerdict": "PASS (153 <= 500).",
+        "green": "Row suite 7 passed / 7 total - rows a, b, c, f, d, g, h - exit 0. Log green-A2.log. oxfmt --check clean."
+      },
+      {
+        "label": "B",
+        "sha": "d3309b178f1efef2ca2ea32bcd78c7993357c853",
+        "parent": "d73568998727cd306d563686bbf18c469dbe7328",
+        "subject": "test(campaign): pin the malformed-shape refusals and the same-actor re-submit after an accepted contract",
+        "contents": "TEST-ONLY and UNCHANGED from the reviewed B: rows (c2), (c3), (e), same 57 lines, same message.",
+        "shortstat": "1 file changed, 57 insertions(+)",
+        "changedLines": 57,
+        "capVerdict": "PASS (57 <= 500).",
+        "green": "Row suite 10 passed / 10 total, exit 0 (green-B2.log). npx tsc --noEmit --skipLibCheck exit 0 (tsc-B2.log). Focused batteries npx jest src/lib/campaign src/lib/events/journal - 219 suites / 3160 tests passed, 0 failed, exit 0 (green-suite-split2.log). oxlint 0 warnings 0 errors on 20 files; oxfmt --check clean on all three changed files (lint-fmt-split2.log)."
+      }
+    ],
+    "identityCheck": {
+      "command": "git diff 87ed9d239 HEAD --stat",
+      "output": "(empty)",
+      "corroboration": "git rev-parse 87ed9d239^{tree} HEAD^{tree} returns the SAME tree object for both: 76ab6e82714fe7739217636efb878d6cf652e29e. The three-commit stack final tree is byte-identical to the reviewed pair.",
+      "method": "Each commit's test-file revision was derived from the reviewed B blob (git show 87ed9d239:<path>) by line-range truncation, and the product and fixture files were taken with git checkout 87ed9d239 -- <paths>. Nothing was retyped, so identity is structural rather than eyeballed."
+    },
+    "a1SizeAccepted": {
+      "decision": "Coordinator, fourth round: row (b) restored into A1 because the write and its atomicity pin belong in one commit, and A1 accepted at its measured size.",
+      "measured": "A1 is 645 changed lines (631 insertions + 14 deletions) against a 500-line budget - over by 145. With row (b) in A2 instead it measured 596; that variant was built and discarded by this decision.",
+      "arithmetic": "A1's NON-ROW content is 540 changed lines and is the floor for any green commit that carries the product change: the product file 271 (258 + 13), the campaignCommandPipelineArtifactUse fixture completion 20 (19 + 1), and the test file's header, imports, offer fixture, beforeEach/afterEach and seed helpers 249 (lines 1-248 plus the closing brace). 540 > 500 with ZERO test rows present. Rows (a) and (b) add 105 lines on top, giving 645.",
+      "whyTheHarnessCannotMoveOut": "Splitting the harness into its own commit would produce a commit whose only new file is a test file containing no `it` blocks. Jest fails such a file ('Your test suite must contain at least one test'), so that commit would not be green on its own - the property this split exists to preserve. 500 is therefore unreachable without weakening the proof.",
+      "whatTheSplitAchieved": "Worst commit 798 -> 645 (-19%); two of the three commits are well inside the budget (153 and 57); the product change lands with exactly the two rows that prove it, and the seven remaining refusal rows are reviewable in two test-only steps.",
+      "notDone": "No row was trimmed, no test weakened, and no guard dropped to fit the budget."
+    },
+    "refsPreserved": {
+      "reference": "codex/roadmap-r2-p1-62a3-source-row-20260915 -> 1474efb7112f0b69452aba8d76929381eb31db9a, INTACT.",
+      "reviewedPair": "backup/r2-p1-62a3-reviewed-pair -> 87ed9d2391f53fe90242c0c38aa7f314ac4455c0, so the reviewed A/B pair (4a50e3692 / 87ed9d239) stays permanently reachable.",
+      "preReviewSplit": "backup/r2-p1-62a3-split-pre-review -> dcaa8fcc7322fc2934baa2aebb816f095fc4f8c0.",
+      "current": "codex/roadmap-r2-p1-62a3-source-row-split-20260915 -> d3309b178 (B) -> d73568998 (A2) -> 2fdbbd7d9 (A1) -> b46433b1f.",
+      "supersededByThisRound": "The three-commit variant with row (b) in A2 (ed77dbe9c / 349951fe8 / 925f4c91b) is superseded and intentionally NOT kept under a backup ref: its final tree is the same 76ab6e82 tree the reviewed pair already preserves, so nothing is lost."
+    },
+    "knownImperfection": "A1's test file carries the FINAL header comment, which lists rows (c) through (h) in its predicted-red summary although A1 contains only (a) and (b). Editing the header at A1 and again at A2/B would add churn and put the byte-identity requirement at risk, so the header ships once at its final wording. The inconsistency is confined to intermediate commits in a stack meant to land together.",
+    "logs": {
+      "green-A1.log": "da0d83c8e3dc2d4aa0923cdaed8814ed9a88723fb167d8ae88234d2622bbfac7",
+      "tsc-A1.log": "a6ce7f41eaf235b981cdbfe9a3d6a5d9a3502b6bd605ffc2acf78679a4ee9a2f",
+      "green-A2.log": "4249f135ace96a89e6836e84ab34bf40c964f4c4e8dd94bde80cb9f6cc168925",
+      "green-B2.log": "58b4ea51427a22def0cc5dfb0e33f687dfdab64451d9c858c5948adf3fa5ff30",
+      "tsc-B2.log": "a6ce7f41eaf235b981cdbfe9a3d6a5d9a3502b6bd605ffc2acf78679a4ee9a2f",
+      "lint-fmt-split2.log": "a3f22fa7e8d4998075a91408a1b4000950c4c890f18a549a751a0f9679ae703e",
+      "green-suite-split2.log": "6e88fe477bb58ea13d013fc8ced94770b198b8c868f0e5f97326e4ebfef72a5d"
+    },
+    "redLog": "UNCHANGED. This round re-cuts commits only; no product line and no test row differs from the reviewed pair, so no new red exists. The two captures remain red.log (rows a-e against the base product file) and red-review-edits.log (rows f/g/h against the post-split product file), as reviewResponse.redProvenance records.",
+    "expectationMismatch": "The third-round directive predicted 'A2: 9/9'. The measured count at A2 is 7/7 - rows a, b, c, f, d, g, h. Nine is the count only if (c2) and (c3) are also present, and those are commit B's. Reported rather than reconciled to the expectation.",
+    "notPushed": "No push, no PR. All branches local to the worktree."
+  },
+  "nonClaims": [
+    "NOT CLAIMED: that any commit is under the 500-line budget. A1 is 645 and was ACCEPTED at that size by coordinator decision; its irreducible floor is 540 before any test row. See split2.a1SizeAccepted.",
+    "NOT CLAIMED: that the 500-line budget was met in any earlier round either. Commit A was 611 before the first split, 554 after it, and 798 after the required review edits.",
+    "NOT CLAIMED: any client routing. `acceptContractOffer` still applies the acceptance locally; 6.2b stays blocked on the single-player identity/seat prerequisite.",
+    "NOT CLAIMED: the task 6.4 bridge. The stale-baseVersion window is pinned as a 409, not closed.",
+    "NOT CLAIMED: the exactly-once contract-writer SHALL at spec.md:185. It is 6.2b's, and this slice does not discharge it.",
+    "NOT CLAIMED: any change in live behaviour today. `CAMPAIGN_JOURNAL_AUTHORITY_ENABLED` is false, so every command is still refused `campaign-not-on-journal-authority` before it commits; the materialization is reachable only after the 5.7 cutover (structural reading of campaignCommandPipeline.ts:346-348, not a runtime measurement).",
+    "NOT CLAIMED: that the ≤500-line cap was met. It was exceeded by 111 lines and the overage is reported above rather than hidden by a split.",
+    "NOT CLAIMED: that the full repo suite passes. Only `src/lib/campaign` and `src/lib/events/journal` were run, per charter.",
+    "NOT CLAIMED: that the co-op host path was exercised. It was neither run nor changed.",
+    "NOT CLAIMED: any e2e or browser verification. This slice touches no client surface, so none was attempted."
+  ]
+}

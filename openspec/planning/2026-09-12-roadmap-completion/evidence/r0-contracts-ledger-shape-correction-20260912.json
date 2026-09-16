@@ -1,0 +1,12 @@
+{
+  "at": "2026-09-12T22:35:52.315Z",
+  "initialAccountingExit": 1,
+  "cause": "Composite terminal receipt initially omitted required mainSha and cleanupReceipt fields.",
+  "correction": {
+    "evidence": "evidence/r0-contracts-completion-20260912.json",
+    "rootReconciliation": "evidence/contracts-root-reconciliation-20260912.json",
+    "mainSha": "92d04fc6bcc2e49fd40d63d6f0cfd2a9c72eb14c",
+    "cleanupReceipt": "evidence/r0-contracts-completion-20260912.json"
+  },
+  "qualification": "The completion receipt links all three accepted cleanup receipts; mainSha is the containing latest contract main. No underlying proof or source changed."
+}

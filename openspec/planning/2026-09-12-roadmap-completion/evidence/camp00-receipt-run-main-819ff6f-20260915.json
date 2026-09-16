@@ -1,0 +1,329 @@
+{
+  "schema": "camp00-receipt-run-main/v1",
+  "runAt": "2026-09-15",
+  "lane": "camp00-receipt-run (GP-JUSTIFIED; existing proof02-rerun worktree, detached at exact main)",
+  "task": "roadmap R2.camp-0 task 0.4 (add-saved-custom-unit-campaign-roster 0.4) -- CAMP-00 loopback production listener RECEIPT RUN at exact main, after the #1701 validator fix",
+  "verdict": "EXACT-MAIN RECEIPT PRODUCED (command-level): the frozen camp-00 command array ran green at exact main and all 17 frozen assertions converted true. The PR-provenanced camp01 receipt DIRECTORY that task 0.4 also names is NOT produced and is owner-blocked -- see nonClaims and ownerBlocked below.",
+
+  "exactMain": {
+    "sha": "819ff6fd86696f88b7a9f23540b5caa2ca0a5ace",
+    "subject": "fix(qc): send the packaged-socket credential on the subprotocol like the client (#1701)",
+    "isOriginMainTip": true,
+    "originMainAtFetch": "819ff6fd86696f88b7a9f23540b5caa2ca0a5ace",
+    "verifiedBy": "git fetch origin && git checkout --detach 819ff6fd8...; git rev-parse HEAD == git rev-parse origin/main",
+    "parents": ["8cacf20a6 feat(combat): rebuild the live host from the journal head on restart (#1704)"],
+    "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/proof02-rerun",
+    "priorWorktreeHead": "b0a190f2774455d5c4e16f7ce2039614b688eb11 (branch codex/roadmap-proof02-starmap-settle-20260915)",
+    "workingTreeCleanBeforeCheckout": true,
+    "workingTreeCleanAfterRun": true,
+    "npmCiRerun": false,
+    "npmCiRerunRationale": "git diff --stat b0a190f27 819ff6fd8 -- package.json package-lock.json returned EMPTY, so the worktree's existing node_modules is still exactly correct for this SHA. No reinstall performed."
+  },
+
+  "fixPresentAtThisSha": {
+    "pr": 1701,
+    "credentialProtocolsOccurrences": 2,
+    "replayPromiseCatchOccurrences": 1,
+    "validatorSha256": "bfb232970ec3813a42471742262fda8a55454c9d17b0cdd0914a0ed4a790620c",
+    "validatorSha256MatchesFixLaneRecord": true,
+    "note": "sha256 of scripts/validate-multiplayer-packaged-socket.mjs at 819ff6fd8 is byte-identical to the sha256AtCommit recorded in evidence/camp00-validator-fix-local-20260915.json, proving #1701 landed unmodified."
+  },
+
+  "frozenContract": {
+    "source": "scripts/qc/camp01-authority-receipt.contract.mjs -> WAVE_CONTRACTS['camp-00']",
+    "sourceSha256": "8d360592e96831322faa86d53e1348fa4ac6ef33b504fe7db34d22c7437f0bd3",
+    "selfValidation": "the contract module validates commandSequenceDigest(row.commandSequence) === row.canonicalArgvDigest at import; it imported cleanly at this SHA",
+    "wave": "camp-00",
+    "commandId": "camp-00",
+    "childChange": "bind-packaged-server-to-loopback",
+    "commandSequence": [["@npm", "run", "validate:multiplayer:packaged-socket"]],
+    "canonicalArgvDigest": "8e4005d9f13011f8229bbd457d23a9297a1fc17f0d843c70a1da4bb37c04a501",
+    "runRootTemplate": ".sisyphus/evidence/playtest/camp00-loopback-<sha>",
+    "artifacts": ["command-result.json", "receipt-manifest.json", "listener-result.json", "wave-result.json"],
+    "assertionCount": 17,
+    "predecessors": ["proof-02-triage", "proof-02-required-repairs"],
+    "capSubject": "product-pr",
+    "maxFiles": 4,
+    "maxChangedLines": 180,
+    "reporterContracts": [],
+    "contractUnmodified": "no file under scripts/qc or scripts/ was edited by this lane; git status --porcelain empty before and after"
+  },
+
+  "adapterContract": {
+    "source": "scripts/qc/camp01-camp00-listener-adapter.mjs",
+    "sourceSha256": "3c9885fcb44aca718eb2792c3588221ab7df8854f4da81cb969a0e795e05873f",
+    "runIdRegex": "^camp01-[0-9a-f]{32}$",
+    "behaviour": "convertCamp00Observation() double-reads listener-observation.json through one fd, requires byte-stable reads, canonical bytes, exact key set, the frozen field values, unlinks the observation, then writes listener-result.json + wave-result.json carrying the 17 frozen assertions"
+  },
+
+  "buildFacts": {
+    "buildStepIsInsideTheFrozenCommand": true,
+    "buildCommand": "scripts/next/run-next.mjs build --webpack (invoked by runCamp00Authority, 8 min budget)",
+    "hydrateCommand": "scripts/hydrate-next-standalone-multiplayer-server.mjs (60 s budget)",
+    "buildEnvFrozenByTheScript": {
+      "CAMP01_NEXT_DIST_DIR": ".next (relative; the script overrides the caller's value)",
+      "CAMP01_RUNTIME_LEASE": "sha256(CAMP01_RUN_ID)",
+      "MEKSTATION_NEXT_DIST_DIR": ".next",
+      "CI": "1",
+      "NEXT_TELEMETRY_DISABLED": "1"
+    },
+    "staleNextRemovedBeforeRun": {
+      "removed": true,
+      "sizeBefore": "1.6G",
+      "rationale": "the worktree carried a stale non-E2E .next from a previous lane; runCamp00Authority builds into <root>/.next and its finally removes that tree, so a fresh checkout would have had none. Removing it first makes the build a clean exact-main build rather than an incremental one over foreign output."
+    },
+    "nextRemovedByFinallyAfterRun": true,
+    "standaloneServerProduced": "implied by exit 0 -- runCamp00Authority throws 'standalone missing' if .next/standalone/server.js or server.next-config.json is absent",
+    "twoCoreBudgetCheck": "Win32_Process node.exe scan before launch showed no next build / playwright / jest from any other lane (only outline-mcp-server stdio processes matched the filter on their path). No wait was required."
+  },
+
+  "invocation": {
+    "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/proof02-rerun",
+    "command": "npm run validate:multiplayer:packaged-socket",
+    "resolvesTo": "node scripts/validate-multiplayer-packaged-socket.mjs",
+    "matchesFrozenCommandSequence": true,
+    "env": {
+      "PATH prepend": "/c/Users/wroll/AppData/Local/nvm/v22.22.0",
+      "CAMP01_ARTIFACT_DIR": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/camp00-receipt-main-20260915/artifacts",
+      "CAMP01_RUN_ID": "camp01-5ae84d2d6376855b150202dc87c53d8e",
+      "CAMP01_NEXT_DIST_DIR": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/proof02-rerun/.next"
+    },
+    "envRationale": "scripts/validate-multiplayer-packaged-socket.mjs main() takes the runCamp00Authority branch only when all three CAMP01_* vars are set; runCamp00Authority throws 'camp-00 environment missing' otherwise. CAMP01_RUN_ID must satisfy the adapter's ^camp01-[0-9a-f]{32}$ regex, so a crypto.randomBytes(16) hex id was used. Same env shape as the prior two lanes, so this run is directly comparable to them.",
+    "runOnce": true,
+    "node": "v22.22.0",
+    "npm": "11.6.2",
+    "startedAt": "2026-09-15T12:11:02Z",
+    "endedAt": "2026-09-15T12:13:15Z",
+    "durationSeconds": 133,
+    "exitCode": 0
+  },
+
+  "journeyExecuted": {
+    "note": "derived from runCamp00Authority reaching finalizeObservation with exit 0; every step below is a precondition of that",
+    "steps": [
+      "next build --webpack + hydrate-next-standalone-multiplayer-server",
+      "standalone server.js + server.next-config.json present",
+      "next-import-sentinel.cjs preload written",
+      "bindPort(0) ephemeral loopback port acquired (50740)",
+      "initial packaged server started with hostname omitted; MEKSTATION_LISTENER_READY observed",
+      "wire token issued; POST /api/multiplayer/matches created a match",
+      "first WebSocket join + replay (this is the step that failed with HTTP 400 on the pre-#1701 validator)",
+      "initial child stopped; port released",
+      "restarted with HOSTNAME=127.0.0.1 NODE_ENV=development on the SAME port; ready observed",
+      "second WebSocket join + replay",
+      "restarted child stopped; port released",
+      "REJECT_HOSTS matrix rejected before next prepare (sentinel-guarded)",
+      "0.0.0.0 / :: / 192.168.1.10 rejected under NODE_ENV=development",
+      "finalizeObservation wrote listener-observation.json"
+    ]
+  },
+
+  "receiptArtifacts": {
+    "produced": true,
+    "handEdited": false,
+    "rawObservation": {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/camp00-receipt-main-20260915/artifacts/listener-observation.json",
+      "bytes": 821,
+      "sha256": "5690e50ca063bb28b4b380ebc15c5e9d17ce787fa58bc0b74f647387001cd307",
+      "producedBy": "finalizeObservation() inside the frozen command",
+      "content": {
+        "schema": "camp01-listener-observation/v1",
+        "wave": "camp-00",
+        "parentRunId": "camp01-5ae84d2d6376855b150202dc87c53d8e",
+        "initialHostnameInput": "omitted",
+        "restartHostnameInput": "127.0.0.1",
+        "packagedModeEnvironmentIndependent": true,
+        "initial": {
+          "configuredHostname": "127.0.0.1",
+          "boundAddress": "127.0.0.1",
+          "family": "IPv4",
+          "requestedPort": 50740,
+          "boundPort": 50740,
+          "readyRecordCount": 1
+        },
+        "restart": {
+          "configuredHostname": "127.0.0.1",
+          "boundAddress": "127.0.0.1",
+          "family": "IPv4",
+          "requestedPort": 50740,
+          "boundPort": 50740,
+          "readyRecordCount": 1
+        },
+        "ipv4UnspecifiedRejected": true,
+        "ipv6UnspecifiedRejected": true,
+        "ipv6LoopbackRejected": true,
+        "hostnameMatrixPassed": true,
+        "rejectedBeforeNextPrepare": true,
+        "standalonePreparedInArtifactDir": true,
+        "packagedSocketJourneyPassed": true,
+        "observationNoReplaceFinalized": true,
+        "portReusableAfterEachChild": true
+      }
+    },
+    "adapterConversion": {
+      "method": "convertCamp00Observation({directory, runId}) executed against a COPY of the artifact directory, because the adapter unlinks the observation it consumes; the raw observation above is preserved untouched at its original path",
+      "inputDirectory": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/camp00-receipt-main-20260915/adapter-input",
+      "inputSha256": "5690e50ca063bb28b4b380ebc15c5e9d17ce787fa58bc0b74f647387001cd307",
+      "result": "ADAPTER_OK",
+      "observationUnlinkedByAdapter": true,
+      "outputs": [
+        {
+          "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/camp00-receipt-main-20260915/adapter-input/listener-result.json",
+          "bytes": 197,
+          "sha256": "49e5de08936d4556be2d21beb2592671d7abb5c9a379082d1d8208876ea37d29",
+          "content": {
+            "schema": "camp01-listener-result/v1",
+            "wave": "camp-00",
+            "runId": "camp01-5ae84d2d6376855b150202dc87c53d8e",
+            "boundAddress": "127.0.0.1",
+            "expectedAddressMatched": true,
+            "unspecifiedAddressRejected": true
+          }
+        },
+        {
+          "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/camp00-receipt-main-20260915/adapter-input/wave-result.json",
+          "bytes": 819,
+          "sha256": "55d2c366d2da68adbc9086770f64ab51b96a264bd64469d419f3f55abe0d48e4",
+          "waveStatus": "passed"
+        }
+      ]
+    }
+  },
+
+  "assertionTally": {
+    "totalFrozenAssertions": 17,
+    "passed": 17,
+    "failed": 0,
+    "notReached": 0,
+    "exactKeySetMatchAgainstFrozenContract": true,
+    "verifiedBy": "sorted key list of wave-result.json assertions compared to sorted WAVE_CONTRACTS['camp-00'].assertions at this SHA -- JSON.stringify equality true",
+    "assertions": {
+      "boundAddressIsLoopback===true": true,
+      "expectedAddressMatched===true": true,
+      "hostnameMatrixPassed===true": true,
+      "initialHostnameOmitted===true": true,
+      "ipv4UnspecifiedRejected===true": true,
+      "ipv6LoopbackRejected===true": true,
+      "ipv6UnspecifiedRejected===true": true,
+      "observationNoReplaceFinalized===true": true,
+      "observationStableAcrossReads===true": true,
+      "packagedModeEnvironmentIndependent===true": true,
+      "packagedSocketJourneyPassed===true": true,
+      "portReusableAfterEachChild===true": true,
+      "rejectedBeforeNextPrepare===true": true,
+      "restartHostnameExplicitLoopback===true": true,
+      "runtimeOutputRemoved===true": true,
+      "standalonePreparedInArtifactDir===true": true,
+      "unspecifiedAddressRejected===true": true
+    }
+  },
+
+  "comparisonToPriorRuns": {
+    "priorFailedRun": {
+      "evidence": "evidence/camp00-receipt-run-20260915.json",
+      "sha": "5fac5a58c95c351cbfe37a7ab16fbb371b8022df",
+      "exit": 1,
+      "durationSeconds": 252,
+      "failure": "WebSocket join -> Unexpected server response: 400 (token-in-url), uncaught, finally skipped, .next left behind, 0/17 assertions reached"
+    },
+    "fixLaneRun": {
+      "evidence": "evidence/camp00-validator-fix-local-20260915.json",
+      "sha": "f8abc1844 + 2d38ede7c (pre-merge branch)",
+      "exit": 0,
+      "durationSeconds": 185,
+      "assertions": "17/17"
+    },
+    "thisRun": {
+      "sha": "819ff6fd8 (exact main, #1701 merged)",
+      "exit": 0,
+      "durationSeconds": 133,
+      "assertions": "17/17"
+    },
+    "conclusion": "the fix lane's green result reproduces at exact main on a different worktree with an independently generated run id and a different ephemeral port -- the prior WebSocket-400 failure class is closed at exact main."
+  },
+
+  "environmentHygiene": {
+    "ownedPortUsed": "none -- the frozen path calls bindPort(0) and the OS assigned 50740; the module-level defaultPort 3700+(pid%1000) belongs to the non-camp00 main() branch and was never taken",
+    "port3639": "0 connections before the run and 0 after (owned port never bound)",
+    "port3600": "0 connections before the run and 0 after (never touched)",
+    "port50740AfterRun": "two 127.0.0.1 TimeWait entries, no Listen -- the packaged servers closed cleanly",
+    "orphanProcesses": "Win32_Process node.exe filtered on proof02-rerun|standalone|next after the run -> none",
+    "processesKilled": "none -- the lane waited for the run to exit on its own",
+    "runtimeOutputRemoved": ".next absent after the run, proving runCamp00Authority's finally executed (the pre-#1701 failure mode left it behind)"
+  },
+
+  "logs": [
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/camp00-receipt-main-20260915/camp00-run.log",
+      "sha256": "7167e4c61a7f1d793e29904f81938ebb9e92a0f659d73fb2b68253218b37f47b",
+      "content": "header (SHA, node/npm, env, argv) + npm banner + EXITCODE=0 + endedAt; the validator's own child-process output is captured internally by runCommand and not re-emitted on success"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/camp00-receipt-main-20260915/adapter-convert.log",
+      "sha256": "e1444bb13c33c70f2187b4f86e7f09ef1692dd5f5eea1da9b7572fd70df15cf4",
+      "content": "ADAPTER_OK"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/camp00-receipt-main-20260915/run-id.txt",
+      "sha256": "390529a5e78c92470ab270841d0276801c78db54b7e6dba8f123d1e08836408e",
+      "content": "camp01-5ae84d2d6376855b150202dc87c53d8e"
+    }
+  ],
+
+  "task_0_4_verdict": {
+    "verdict": "EXACT-MAIN RECEIPT PRODUCED",
+    "scope": "command-level receipt only",
+    "whatIsProven": "at exact main 819ff6fd8, the immutable camp-00 row's pinned command array (npm run validate:multiplayer:packaged-socket, canonicalArgvDigest 8e4005d9f1...) executes green (exit 0, 133 s) and its finalized observation converts through the frozen adapter to a wave-result of status=passed carrying all 17 frozen assertions true, with the exact key set the contract freezes.",
+    "whatIsNotProven": "the PR-provenanced camp01 receipt DIRECTORY under .sisyphus/evidence/playtest/camp00-loopback-<sha>/ (command-result.json + receipt-manifest.json + listener-result.json + wave-result.json, written by qc:camp01-authority-receipt:write and checked by qc:camp01-authority-receipt:validate --mode=exact-main) was NOT produced by this lane.",
+    "strictCapPreserved": "no product or spec code was touched, so the camp-00 product-pr cap (4 files / 180 lines) is trivially intact at 0/0; the reporterContracts list is empty for this row and nothing was reported into it."
+  },
+
+  "ownerBlocked": {
+    "githubReviewGate": {
+      "authority": "roadmap node R2.camp-0 githubReviewGate + add-saved-custom-unit-campaign-roster P.2 + scripts/qc/camp01-github-provenance.mjs",
+      "requirement": "a non-dismissed APPROVED review on the exact head, by a NON-AUTHOR with WRITE / MAINTAIN / ADMIN on repository id 1014984218 (SwiggitySwerve/MekStation, base main)",
+      "soloException": false,
+      "status": "OWNER-BLOCKED REGARDLESS of this run",
+      "explicitNonClaim": "This lane does NOT claim the githubReviewGate is satisfied, and nothing in this artefact should be read as satisfying it. The gate requires a real second-collaborator APPROVED review; soloException=false means no self-approval carve-out exists. No agent lane can produce that. Task 0.4 therefore cannot close on the strength of this receipt alone."
+    },
+    "receiptControllerBlockers": [
+      "writeReceipt() requires a `provenance` object whose specTupleId and ownedPrTupleId resolve against the registry -- real merged PR numbers, merge SHAs, approval ids and reviewer logins (validateProvenance, camp01-authority-receipt.schemas.mjs:163). Not available without the review gate.",
+      "writeReceipt() requires `reviewedHead` and a `capProvenance` carrying reviewedHeadReceiptId + reviewedHeadReceiptManifestDigest for capSubject='product-pr' rows (validateCap, schemas.mjs:122) -- i.e. a prior reviewed-head receipt must already exist.",
+      "camp-00's predecessors ['proof-02-triage','proof-02-required-repairs'] must each supply a predecessor receipt id; neither receipt exists yet in this program (R2.triage is still state=planned in roadmap.json).",
+      "task 0.4's literal text additionally requires the post-merge exact-main rerun of BOTH write and validate under a new run root with the exact product merge tuple -- which presupposes the merged, approved product PR that does not exist."
+    ],
+    "contractObservationNotARepair": {
+      "observation": "runLogicalCommand (camp01-authority-receipt.mjs:113) builds a hermetic child env of SystemRoot, ComSpec, PATH, CAMP01_RUN_ID, CAMP01_ARTIFACT_DIR, CAMP01_INVOCATION_ID, CAMP01_EXECUTION_ID, CAMP01_EVIDENCE_REGISTRY. It does NOT set CAMP01_NEXT_DIST_DIR, which validate-multiplayer-packaged-socket.mjs:503 requires as the third condition for taking the runCamp00Authority branch.",
+      "consequence": "INFERENCE (not executed this session, because the controller is blocked upstream on provenance anyway): under the controller's own env the camp-00 command would fall through to the ordinary main() path, write no listener-observation.json, and convertCamp00Observation would then fail. If that inference holds, the full controller path for camp-00 needs a separate look before any real receipt attempt.",
+      "actionTaken": "NONE. No product, script, spec or contract code was modified. This is recorded as an observation for the owner, not a repair, per the task's audit-before-repair instruction and R2.triage's repair-only-proved-causes rule."
+    }
+  },
+
+  "nonClaims": [
+    "No closure of roadmap task 0.4 is claimed. The githubReviewGate (real non-author APPROVED review on the exact head; soloException=false) is owner-blocked regardless of this run's outcome.",
+    "No camp01 receipt DIRECTORY was written; qc:camp01-authority-receipt:write and :validate were NOT invoked. The artefacts here are the raw observation produced by the frozen command plus the frozen adapter's conversion of a copy of it.",
+    "No command-result.json or receipt-manifest.json exists -- two of the four artifacts the camp-00 row declares are absent, so validateReceiptDirectory would reject this artefact set as a receipt directory. It is not one and is not presented as one.",
+    "No product code, script, spec, task, roadmap or contract file was modified, committed, pushed or PR'd by this lane.",
+    "No approvals of any kind were sought or granted.",
+    "The run was executed ONCE; no retry, no cherry-picking of a green attempt.",
+    "The desktop/scripts/test-build.js packaged-Electron smoke (which shares openAndJoin and was broken identically per the diagnosis) was NOT re-run by this lane.",
+    "CI coverage is unchanged: per the diagnosis, no GitHub workflow has a camp-00 leg, so this green result is local-only evidence.",
+    "The `runLogicalCommand` env-shape observation above is an INFERENCE from reading the two files, not a reproduced failure."
+  ],
+
+  "inputs": [
+    "openspec/planning/2026-09-12-roadmap-completion/roadmap.json (node R2.camp-0)",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/camp00-receipt-run-20260915.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/camp00-diagnosis-20260915.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/camp00-validator-fix-local-20260915.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/camp00-validator-fix-review-20260915.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-triage-camp0-admission-brief-20260915.json",
+    "openspec/changes/add-saved-custom-unit-campaign-roster/tasks.md (sections P.2, 0.1-0.4)",
+    "scripts/qc/camp01-authority-receipt.contract.mjs",
+    "scripts/qc/camp01-camp00-listener-adapter.mjs",
+    "scripts/qc/camp01-authority-receipt.mjs",
+    "scripts/qc/camp01-authority-receipt.schemas.mjs",
+    "scripts/validate-multiplayer-packaged-socket.mjs",
+    "docs/qc/mekstation-qc-registry.json (grepped: contains NO camp00/camp-00 row -- the camp-00 contract lives only in camp01-authority-receipt.contract.mjs)"
+  ]
+}

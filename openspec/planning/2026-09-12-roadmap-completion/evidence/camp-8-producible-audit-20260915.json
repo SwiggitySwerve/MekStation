@@ -1,0 +1,143 @@
+{
+  "schema": "camp-8-producible-audit/v1",
+  "at": "2026-09-15T21:30:00.000Z",
+  "role": "GP-JUSTIFIED read-only audit: jest runs, one controller invocation, a scratch-space fixture dry run. No edits to tracked files, no commits, no pushes, no sub-agents, no builds, no product runs on any port. Executed exactly the three orderedSlicePlan items from evidence/r2-camp-8-admission-brief-20260915.json.",
+  "inputsRead": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-camp-8-admission-brief-20260915.json (full read; orderedSlicePlan SLICE-1..3, controllerPredecessorGate, predecessorStatusTable)",
+    "scripts/qc/camp01-h-composition-publisher.mjs:204-209 (gateReceiptId) plus full file",
+    "openspec/changes/add-saved-custom-unit-campaign-roster/specs/journey-qc/spec.md (REDUCED CLAIM amendment, 2026-08-09)",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/camp-proof-exact-main-controller-20260915.json (pattern mirrored for SLICE-2)",
+    "scripts/qc/camp01-authority-receipt.contract.mjs (WAVE_CONTRACTS['camp-01h'] row)",
+    "scripts/qc/run-camp01-authority-receipt.mjs (parseControllerArguments, buildProvenanceRecord, proof(), assertState, exactKeys)",
+    "scripts/qc/run-camp01-production.mjs, scripts/qc/camp01-durable-facts.mjs, scripts/qc/camp01-git-trust.mjs (createProductionDependencies / inspectInitiating / real git fetch)",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/camp00-receipt-run-main-819ff6f-20260915.json, camp01a-receipt-run-main-20260915.json, camp01bc-receipt-run-main-20260915.json (schema/keys read for SLICE-3(c))"
+  ],
+  "worktree": {
+    "path": ".sisyphus/roadmap-completion-20260912/worktrees/archive-original-main-proof",
+    "preFlightCheck": "git status --porcelain empty at session start; Win32_Process node.exe enumeration found no process with this worktree's path in its command line; treated as not busy and used.",
+    "fetchedOriginMainSha": "e07ce0ef9672c3e8e578d7773c979e03f5e92c27",
+    "fetchedOriginMainSubject": "spec(openspec): reconcile ledger and task rows with merged exact-main receipts (batch 1) (#1718)",
+    "detachedCheckoutForSlice1": "e07ce0ef9672c3e8e578d7773c979e03f5e92c27 (git checkout --detach origin/main, porcelain empty)",
+    "concurrentMutationObserved": "Between the SLICE-2 controller invocation and the post-run cleanup `git checkout --detach HEAD`, this worktree's checked-out commit changed from e07ce0ef9672... to 2b3075d821560a1c2a19a503c4cb883be4f1bf45 (test(campaign): falsify a source-private leak through room-code hydration (#1719)) without this session running any command that would move HEAD other than the final `git checkout --detach HEAD` itself, whose reflog line reads 'moving from codex/roadmap-camp-01h-audit-e07ce0ef9-20260915 to 2b3075d82...'. The audit branch's OWN ref never moved (git branch -D reported '(was e07ce0ef9)' at deletion time, matching creation). This means another concurrent process checked out this SAME worktree directory to a newer commit while this session's branch was still checked out -- i.e. this worktree is a SHARED, actively-mutating resource in this multi-agent session, exactly like the race the admission brief documented for a DIFFERENT worktree (archive-edit-recovery-20260915). e07ce0ef9... remains a verified ancestor of 2b3075d82... (git merge-base --is-ancestor confirmed true), so nothing was lost or corrupted by the race; SLICE-1's jest run and SLICE-2's SHA-pinned argv were both captured before this was noticed and are unaffected.",
+    "finalState": "detached HEAD at 2b3075d82 (left as found by the concurrent process rather than force-reset, since forcing it back would itself be an uninstructed mutation of a resource another lane is actively using); porcelain empty; audit branch deleted; one harmless gitignored empty directory (.sisyphus/evidence/playtest/.camp01-repair-registry, created by the controller's own createProductionDependencies setup, matching the same side effect documented in the camp-proof precedent) was removed by this session as cleanup."
+  },
+  "slice1": {
+    "id": "SLICE-1",
+    "command": "node node_modules/jest/bin/jest.js --coverage=false --runTestsByPath scripts/__tests__/camp01-h-composition.test.ts scripts/__tests__/camp01-h-report-normalizer.test.ts --runInBand",
+    "scopeDecision": "Scoped to exactly the two files the task named (camp01-h-composition.test.ts, camp01-h-report-normalizer.test.ts) rather than the full qc:camp01-authority-receipt:test suite (34 files) or a --testPathPattern over 'camp01-authority-receipt-*' -- the admission brief's own SLICE-1 text explicitly allows either form ('or a --testPathPattern scoped to camp01-h-composition.test.ts specifically').",
+    "cwd": "worktree, detached at e07ce0ef9672c3e8e578d7773c979e03f5e92c27",
+    "exit": 0,
+    "result": {
+      "testSuites": "2 passed, 2 total",
+      "tests": "108 passed, 1 skipped, 109 total",
+      "timeSeconds": 26.629
+    },
+    "outputSha256": "6ed23ac9c27f36e990fa6ac0d753c3c1688a896578937724fe70e52441820eee",
+    "outputSavedTo": "scratchpad camp8-audit/slice1-output.txt",
+    "nonClaims": "Does not close task 8.1 or any sub-clause; does not run any of camp-01h's 6 frozen commands; does not produce a camp01h-journey-<sha> directory or wave-result.json for camp-01h; touched no product/spec/contract/roadmap file. This is hermetic fixture-driven jest infrastructure reconfirmation only, as the brief itself states."
+  },
+  "slice2": {
+    "id": "SLICE-2",
+    "purpose": "Attempt the real production controller once for wave camp-01h at exact-main, mirroring the argv shape and branch-checkout discipline documented in evidence/camp-proof-exact-main-controller-20260915.json, and record the exact refusal verbatim.",
+    "tupleResearch": {
+      "specTuple": "prove-saved-custom-unit-campaign-journey|1215|d2c27d85087a094e2734b92aee629a542a9d097a|solo-maintainer|SwiggitySwerve",
+      "specTupleWhy": "camp-01h's row.childChange is 'prove-saved-custom-unit-campaign-journey' (read from WAVE_CONTRACTS['camp-01h'] this session). Reused the already-verified #1215 merge SHA d2c27d850... from the camp-proof evidence file per the task's explicit instruction not to fabricate a tuple.",
+      "specTupleLedgerVerification": "git show d2c27d85087a094e2734b92aee629a542a9d097a:openspec/active-change-ledger.json this session -> allowedActiveChanges contains an entry named 'prove-saved-custom-unit-campaign-journey' (21 entries total, list-of-objects shape with a .name field, not a flat string array -- corrects an initial mis-parse in this session's own scratch check).",
+      "productTuple": "1718|e8ad704fb42ec5426627c7e79bf6b24cbc29438c|solo-maintainer|SwiggitySwerve|e07ce0ef9672c3e8e578d7773c979e03f5e92c27",
+      "productTupleWhy": "camp-01h's capSubject is 'product-pr' (mandatory --product per buildProvenanceRecord's 'provenance subject drift' check) and, for mode=exact-main, camp01-github-provenance.mjs/buildProvenanceRecord require owned.mergeSha === --sha, i.e. the owned PR's merge commit must BE the exact-main tip supplied. PR #1718 is the PR whose merge commit is the current origin/main tip.",
+      "productTupleLiveVerification": "gh api repos/SwiggitySwerve/MekStation/commits/e07ce0ef9672c3e8e578d7773c979e03f5e92c27/pulls -> number 1718, head e8ad704fb42ec5426627c7e79bf6b24cbc29438c. gh api repos/SwiggitySwerve/MekStation/pulls/1718 -> merged=true, merge_commit_sha=e07ce0ef9672c3e8e578d7773c979e03f5e92c27, user=SwiggitySwerve, merged_by=SwiggitySwerve, base=main. gh api repos/SwiggitySwerve/MekStation/collaborators -> exactly one collaborator, SwiggitySwerve, admin=true (sentinel-eligible, though this run never reached the sentinel check -- see refusalAnalysis).",
+      "programSpecOmitted": "camp-01h is not camp-proof, so validatePreflight's programSpecChanges check expects [] for this wave; no --program-spec tuples were supplied (not required per REQUIRED['proof'])."
+    },
+    "branchDiscipline": {
+      "branchName": "codex/roadmap-camp-01h-audit-e07ce0ef9-20260915",
+      "createdWith": "git checkout -b codex/roadmap-camp-01h-audit-e07ce0ef9-20260915 origin/main",
+      "commitsOnBranch": 0,
+      "deletedWith": "git checkout --detach HEAD; git branch -D codex/roadmap-camp-01h-audit-e07ce0ef9-20260915",
+      "deletionConfirmed": "'Deleted branch codex/roadmap-camp-01h-audit-e07ce0ef9-20260915 (was e07ce0ef9672c3e8e578d7773c979e03f5e92c27).' -- verified this session; `git branch -a | grep camp-01h-audit` returns nothing afterward."
+    },
+    "invocation": {
+      "argvDispatch": "bash array (${ARGS[@]}), no eval, no shell interpretation of the pipe separators inside tuple values -- verified by reading the live process's own CommandLine via Win32_Process, which showed the literal unescaped pipe characters in argv exactly as intended.",
+      "command": "node scripts/qc/run-camp01-production.mjs proof --mode=exact-main --wave=camp-01h --sha=e07ce0ef9672c3e8e578d7773c979e03f5e92c27 --run-root=.sisyphus/evidence/playtest/camp01h-journey-e07ce0ef9672c3e8e578d7773c979e03f5e92c27 --spec=prove-saved-custom-unit-campaign-journey|1215|d2c27d85087a094e2734b92aee629a542a9d097a|solo-maintainer|SwiggitySwerve --product=1718|e8ad704fb42ec5426627c7e79bf6b24cbc29438c|solo-maintainer|SwiggitySwerve|e07ce0ef9672c3e8e578d7773c979e03f5e92c27",
+      "cwd": "worktree, on branch codex/roadmap-camp-01h-audit-e07ce0ef9-20260915 at e07ce0ef9672...",
+      "envDelta": "PATH prefixed with C:/Users/wroll/AppData/Local/nvm/v22.22.0 only. No CAMP01_* variable set by the caller."
+    },
+    "outcome": {
+      "verdict": "DID NOT REFUSE FAST -- hung with zero output, then force-killed as a safety stop per the task's own precondition ('the controller invocation must refuse before starting anything -- if it tries to start a server, stop and record').",
+      "wallDurationBeforeKill": "exceeded the tool's 120s foreground timeout; moved to background; killed via Stop-Process shortly after the notification arrived (elapsed well over 120s total).",
+      "stdout": "",
+      "stdoutSha256Empty": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "",
+      "stderrSha256Empty": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "honestStatement": "No refusal text was ever produced by the real controller invocation. This is itself the recorded finding: unlike camp-proof's exact-main run (which refused in 6 seconds with 'CAMP01_CONTROLLER_INVALID: controller state fields drift'), the camp-01h exact-main invocation with the same argv shape and branch discipline produced no output at all before being killed. No refusal was fabricated to fill this gap.",
+      "safetyChecksAtKillTime": {
+        "childProcessesOfPid40240": "none (Win32_Process ParentProcessId=40240 query returned empty)",
+        "listeningPorts3600_3639_3000_3001": "none bound",
+        "outboundConnectionsFromPid40240": "none observed (Get-NetTCPConnection -OwningProcess 40240 empty)",
+        "sideEffectsAfterKillAndCleanup": "worktree porcelain empty; no camp01h-journey-<sha> run-root directory created anywhere; only the harmless gitignored empty .camp01-repair-registry directory existed (removed by this session), matching the exact side effect the camp-proof precedent documented as harmless."
+      }
+    },
+    "rootCauseAnalysis": {
+      "staticReadFinding": "run-camp01-production.mjs's runProduction() does `return runController(argv, await createProductionDependencies(options));` -- createProductionDependencies() runs and must resolve BEFORE runController()/proof() is ever invoked. camp01-durable-facts.mjs's inspectInitiating() (called from createProductionDependencies) and camp01-git-trust.mjs both perform REAL git subprocess calls, and camp01-git-trust.mjs:78 issues a real network `git fetch --no-tags --no-recurse-submodules <remoteUrl> +HEAD:refs/camp01/fetched-head +refs/heads/main:refs/camp01/fetched-main` against https://github.com/SwiggitySwerve/MekStation.git, with no explicit timeout visible in invokeGit(). This is a plausible, though not conclusively confirmed, explanation for a silent multi-minute hang in a network-restricted agent sandbox: a fetch that never completes (and never errors) would produce exactly the zero-output, zero-child-process-at-check-time, zero-listening-port symptom observed (a short-lived git-remote-https subprocess spawned and later exited/blocked in a way this session's single post-hoc process check did not catch), without ever starting a server or binding a port -- consistent with, not a violation of, the stop condition.",
+      "isolatedProbeConfirmation": "To separate 'does createProductionDependencies hang' from 'does proof()'s own predecessor-gate logic behave as the brief hypothesized', this session wrote a scratch probe (probe-controller.mjs, sha256 ee2d2a0f1936930625a93f27518f806e32b04ae1422eb4a9b0502ad2df914172) that imports the unmodified, checked-out run-camp01-authority-receipt.mjs and calls its exported runController() DIRECTLY with a fake in-memory state store (load always returns null) and dependencies.verifyPreflight/inspectRowRoot stubbed to THROW if ever reached -- entirely bypassing createProductionDependencies and any git/network activity. Given the exact same camp-01h argv used in the real invocation above, this probe's runController() call returned INSTANTLY with: 'CAMP01_CONTROLLER_INVALID: controller state fields drift', WITHOUT ever invoking the verifyPreflight stub. This proves, independent of the hang, that proof()'s own logic order is: buildProvenanceRecord (passed, since the supplied --spec/--product tuples are well-formed and match row.childChange / capSubject / exact-main mergeSha) -> state = store.load(wave) = null (no registered controller state exists for a standalone camp-01h run) -> because camp-01h's capSubject is 'product-pr' (not 'none'), the null-state synthesis shortcut does NOT apply -> assertState(null, 'camp-01h') calls exactKeys(null, [...]) which fails immediately on '!value' -> throws 'controller state fields drift' BEFORE the predecessor-gate dependency (verifyPreflight, which is what would check camp-01g / proof-02-triage / proof-02-required-repairs / camp-01h-required-repairs) is ever called.",
+      "conclusionVsAdmissionBriefHypothesis": "This CONTRADICTS, rather than confirms, the admission brief's SLICE-2 hypothesis that 'any real controller invocation... would fail fast on the FIRST unmet predecessor it checks (most likely camp-01g...), before ever reaching the composition/witness logic'. The isolated probe proves the predecessor chain is NEVER reached at all for a standalone camp-01h proof invocation -- the controller-state precondition (the same structural blocker camp-proof's own evidence file names as finding F1: a PR-owning row's exact-main proof is only reachable as the tail of an uninterrupted register-pr-target -> reviewed-head-proof -> exact-main-proof lifecycle re-read from on-disk state) fires first, exactly as it did for camp-proof. This is a MORE precise structural finding than either this brief or the camp-proof brief stated in isolation: it generalizes finding F1 from camp-proof to EVERY capSubject='product-pr' wave (camp-00 through camp-01h all have capSubject='product-pr' or 'audit-pr'; none is 'none'), meaning a standalone, unregistered proof invocation can NEVER reach the predecessor gate for any of these rows -- register-pr-target must run first, in the same initiating root, before any proof mode is attempted. The real invocation's hang means this exact chain of reasoning was not independently reconfirmed end-to-end through the real dependency-injected path in this session; only the isolated, dependency-injection-bypassed probe confirms it directly and unambiguously for camp-01h."
+    }
+  },
+  "slice3": {
+    "id": "SLICE-3",
+    "scratchScriptPaths": [
+      "scratchpad/camp8-audit/slice3-fixture-dry-run.mjs (sha256 c8b9b77d13083055472562710e2283e855d4de7e5c125ff08e73ccabebc091a8)",
+      "scratchpad/camp8-audit/slice3b-severity-probe.mjs (sha256 ad88c3c86d2a511ccddadd191a577589f67938155d20a1e294eecfef3ee8210d)"
+    ],
+    "moduleUnderTest": "scripts/qc/camp01-h-composition-publisher.mjs, imported read-only via a file:// dynamic import from the checked-out (unmodified) worktree; nothing under the repository tree was written by either scratch script.",
+    "findings": {
+      "gateReceiptIdIsContentIndependent": {
+        "claim": "gateReceiptId(gate) produces the SAME id whether or not any real receipt file exists anywhere on disk, because it is a pure hash over a hardcoded literal ({gate, requiredRowIds:[], registeredRowIds:[], reviewedHeadRowIds:[], exactMainRowIds:[], cleanupRowIds:[]}) with no io parameter and no filesystem read in its body.",
+        "executionEvidence": "Ran publishCamp01HComposition() twice against two independent, all-passed canonical fixture sets: run-a (an empty scratch root with NO receipt-shaped file anywhere) and run-b-with-fake-receipt (a scratch root additionally containing a planted FAKE-proof-02-required-repairs-receipt.json with an unrelated fabricated receiptId, to simulate a real receipt being present). Both runs produced BYTE-IDENTICAL saveReceiptId/reloadReceiptId in the custom-save-reload witness's facts: saveReceiptId=receipt-8fc9e92ada950928c2663e82b926b693, reloadReceiptId=receipt-6d02ca986e772aface12eafc4b93f535. An independent third recomputation, calling the module's own exported artifactDigest() with the exact literal structure read from source (bypassing publishCamp01HComposition entirely), produced the SAME two ids and confirmed matchesRunAOutput=true and matchesRunBOutput=true.",
+        "status": "CONFIRMED BY EXECUTION (was previously a static-code-read finding only)."
+      },
+      "severityIsHardcodedConstant": {
+        "claim": "Every H finding gets severity:'minor' and disposition:EMPTY_DISPOSITION({outcome:'lower-severity',...}) regardless of which reporter/witness label produced the failing observation -- experienceFor() never reads a severity signal from the underlying observation or report content.",
+        "executionEvidence": "Ran publishCamp01HComposition() twice with two structurally different failure shapes: shape1 flips the FIRST observation of reporter '02-command-browser-quick' (witnessLabel custom-save-reload) to 'failed'; shape2 flips the FIRST observation of reporter '06-viewport-layout-sweep' (witnessLabel canonical-combat-post-battle, a completely different reporter/label/test-id set) to 'failed'. Both runs produced exactly 1 finding, severity='minor' in both cases, disposition identical to EMPTY_DISPOSITION in both cases, and audit-reconciliation.json's criticalMajorDispositions array EMPTY in both cases (severityConstantAcrossShapes=true).",
+        "status": "CONFIRMED BY EXECUTION."
+      },
+      "wrongInvocationIdIsASilentNoOp": {
+        "claim": "CAMP01_INVOCATION_ID !== '06-viewport-layout-sweep' does not 'reject' with an error -- the function returns undefined and writes NOTHING.",
+        "executionEvidence": "Called publishCamp01HComposition({CAMP01_INVOCATION_ID:'not-the-gate', ...}) against a fresh empty root; the call returned normally (no throw) and fs.readdirSync(root) after the call listed zero files.",
+        "status": "CONFIRMED BY EXECUTION -- corrects the SLICE-3 plan text's own wording ('the composer's CAMP01_INVOCATION_ID... gate rejecting any other invocation id'); the real behavior is a silent early return, not a rejection/throw."
+      },
+      "nonCanonicalReportIsRejected": {
+        "claim": "A hand-formatted (non-canonicalBytes) report file is rejected before any composition logic runs.",
+        "executionEvidence": "Wrote the first reporter's report file as plain JSON.stringify(report) (no trailing newline, i.e. NOT canonicalBytes(report)) and left the other five canonical; publishCamp01HComposition() threw 'CAMP01_H_COMPOSITION_INVALID: non-canonical composed report' with no cause.",
+        "status": "CONFIRMED BY EXECUTION."
+      },
+      "happyPathArtifactSet": {
+        "claim": "An all-passed synthetic fixture set produces phase='final' and every literal-true (===true) assertion resolving to true.",
+        "executionEvidence": "16 files written (6 reports/*.json + session-authority-map.json + combat-authority.json + audit-reconciliation.json + wave-result.json + 3x witnesses/<label>/authority.json + 3x witnesses/<label>/experience.json), wave-result.json status='passed', combat-authority.json status='final', every '===true' assertion key true, commandBrowserObservedCount=13 (the 13 H_TEST_IDS entries for '02-command-browser-quick'), commandBrowserFailureCount=0, positiveObservationsRecorded=3 (one per witness label).",
+        "status": "CONFIRMED BY EXECUTION."
+      },
+      "threeNamedWaveResultFilesAreNotConsumedByHComposition": {
+        "claim": "The composer does not consume camp-00/01a/01b/01c wave-results at all; camp-01h's predecessors table lists only camp-01g plus three virtual repair/triage gates, none of which are camp-00/01a/01b/01c.",
+        "evidence": "Read (not executed -- these files describe a different schema entirely, not the raw playwright/ux-audit report shapes camp01-h-composition-publisher.mjs's readCanonical()/reporterContracts consume): camp00-receipt-run-main-819ff6f-20260915.json (schema camp01-controller-style wave-run summary for camp-00), camp01a-receipt-run-main-20260915.json (camp-01a), camp01bc-receipt-run-main-20260915.json (camp-01b+c combined) -- none share a schema, invocationId, or normalizedPath with any of camp-01h's own six reporterContracts (01-ux-audit-deep through 06-viewport-layout-sweep). Cross-checked at runtime: ROW.reporterContracts.map(r => r.normalizedPath) (printed via the SLICE-3 script's own ROW import) lists only 'reports/01-ux-audit-deep.json' through 'reports/06-viewport-layout-sweep.json' -- there is no code path in camp01-h-composition-publisher.mjs that could ever open a file at any of the three named evidence paths. WAVE_CONTRACTS['camp-01h'].predecessors is exactly ['camp-01g','proof-02-triage','proof-02-required-repairs','camp-01h-required-repairs'] -- camp-00/01a/01b/01c are not direct predecessors of camp-01h at all (they are camp-01g's own upstream ancestry, checked only when camp-01g's OWN row is proved, not when camp-01h's row is proved -- resolvePreflightFacts only walks row.predecessors, one level, not the full recursive ancestry).",
+        "whatAnHCompositionWouldSayAboutThem": "Nothing -- an H composition run has zero code-level awareness of these three files' existence or content. They are informative to a human reading camp-01h's transitive history, but structurally invisible to publishCamp01HComposition() and to camp-01h's own predecessor gate (which only ever asks for a 'camp-01g' exact-main receipt directly, not camp-00/01a/01b/01c individually).",
+        "status": "CONFIRMED (static read of schema/paths on both sides, plus a runtime print of the real module's own reporterContracts list; no execution of the normalizer against these three files was attempted, since their schemas are not report-normalizer input shapes at all -- attempting it would not have exercised any real code path and was correctly not attempted)."
+      }
+    }
+  },
+  "whatRemainsOwnerOnly": {
+    "restatedNotReduced": [
+      "The real 6-command camp-01h execution (qc:ux-audit:deep, qc:command:browser:quick, qc:campaign-long:browser, and the 3 layout-sweep Playwright specs) has never been run for this wave; 0/9 child tasks checked; nothing in this session ran or attempted to run any of the 6.",
+      "A controller-registered camp-01h receipt requires the full register-pr-target -> reviewed-head proof -> exact-main proof lifecycle against a REAL owned product PR for the prove-saved-custom-unit-campaign-journey child change -- this session's isolated probe confirms structurally that no standalone proof invocation, however correctly argued, can produce one.",
+      "camp-01g has product code shipped but no controller-recognized receipt; proof-02-triage is roadmap state=planned; proof-02-required-repairs and camp-01h-required-repairs cannot exist before proof-02-triage and the (nonexistent) camp-01h audit respectively. All four remain unmet.",
+      "githubReviewGate G1 remains structurally unsatisfiable (1 collaborator, 0 required reviews, soloException=false per the admission brief, re-verified this session via gh api collaborators returning exactly one entry, SwiggitySwerve, admin=true).",
+      "The genuine three-witness / three-session acceptance requirement (gate G2) remains owner-only; nothing in this audit substitutes fixture-satisfied artifacts for real browser sessions.",
+      "R2.combat-browser dependency remains unscoped and blocked on an open owner decision at R2.combat, untouched by this session."
+    ]
+  },
+  "branchCleanupConfirmation": {
+    "auditBranchDeleted": true,
+    "worktreePorcelainAtEnd": "empty",
+    "strayEmptyDirectoryRemoved": ".sisyphus/evidence/playtest/.camp01-repair-registry (gitignored, empty, created by the controller's createProductionDependencies setup; removed by this session)",
+    "rootCheckoutUntouched": "git status --porcelain in the root checkout (E:/Projects/MekStation) shows only the pre-existing modifications visible at session start, none newly introduced by this session -- confirmed by inspection before and after.",
+    "noBuildsOrProductRuns": "The only long-running process this session started was the SLICE-2 controller invocation, which never bound a port, spawned no visible child process at check time, and was force-killed once it exceeded the expected fail-fast window, per the task's own stop condition."
+  }
+}

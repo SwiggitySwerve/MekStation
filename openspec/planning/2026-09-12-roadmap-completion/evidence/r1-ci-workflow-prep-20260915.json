@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "r1-ci-workflow-prep-20260915",
+  "capturedAt": "2026-09-15",
+  "scope": "R1.ci workflow-activation prefix: customizer-regressions PR job + nightly e2e-full asset/build prerequisite. Prepared in an isolated worktree; not pushed, merged, or opened as a PR.",
+  "package": "openspec/changes/add-customizer-pr-regression-gate",
+  "worktree": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/ci-customizer-gate-20260915",
+    "branch": "codex/roadmap-ci-customizer-gate-20260915",
+    "baseRef": "origin/main",
+    "baseSha": "c3b4cc1e3ace35ff95b7999d9680a5d657ca344f",
+    "commitSha": "1c7b8298cb5b948b3c030a4e0bcff6a60ef1a33a",
+    "commitMessageSubject": "ci: activate customizer regression gate in pr-checks and nightly"
+  },
+  "patch": {
+    "source": "git -C E:/Projects/MekStation diff -- .github/workflows/",
+    "savedTo": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/ci-draft.patch",
+    "sha256": "33d9eb1575603af106e70fcd3784e0d27e443fff6d1a24826f886bd2084484d3",
+    "appliedCleanly": true,
+    "applyMethod": "git apply --check then git apply, in the new worktree, against origin/main c3b4cc1e3"
+  },
+  "filesChanged": {
+    "summaryStat": "2 files changed, 94 insertions(+), 1 deletion(-)",
+    "files": [
+      {
+        "path": ".github/workflows/pr-checks.yml",
+        "changedLines": "76 insertions",
+        "sha256AfterCommit": "16e06b1fb57a722531666bd849ec75e98da95413a2ad8467e208f86e7cc538b8"
+      },
+      {
+        "path": ".github/workflows/nightly-validation.yml",
+        "changedLines": "18 insertions, 1 deletion",
+        "sha256AfterCommit": "4ee25555fa14b3c23ee5d43ca08093d3166d96216b7eec3a6fab90e19acbcfb8"
+      }
+    ]
+  },
+  "reviewFindings": {
+    "a_aggregatorBlocksMerge": {
+      "verified": true,
+      "detail": "customizer-regressions added to needs: [detect-changes, install-deps] with the standard per-step detect-changes code/e2e skip gate (pr-checks.yml lines 578-648, job added between seam-anchors and desktop-typecheck). lint-and-test's needs array (pr-checks.yml lines 700-721) now includes customizer-regressions alongside the other 18 members; the aggregator's 'Assert every fan-out check succeeded' step (lines 724-736) fails the run on any needed job whose toJSON(needs) result is not 'success', including a job that reports success-but-skipped-steps on a docs-only PR. A documentation-only PR (no code/e2e path match) still passes because every working step inside customizer-regressions is gated behind the same detect-changes condition used by e2e-smoke/seam-anchors, so the job itself reports success with no-op steps."
+    },
+    "b_playwrightInvocationExact": {
+      "verified": true,
+      "flagForOrchestrator": "The task brief for this step named the flag '--workers=1', but the draft's actual step (pr-checks.yml line 638) uses '--trace=retain-on-failure' instead and carries NO '--workers=1'. This is NOT a defect in the draft -- it is the brief's expectation that is stale. design.md Decision 3 states the gate run in full: 'node scripts/playwright/run-playwright.mjs test e2e/customizer-equipment-catalog.spec.ts e2e/customizer-record-sheet-rendering.spec.ts e2e/customizer-edit-recovery.spec.ts --project=chromium --retries=0 --trace=retain-on-failure' -- no --workers=1, and the rationale given is explicit: 'A gate must not retry a flaky regression to green ... but zero retries makes the configured trace mode dead: no first retry, no trace ... The invocation therefore carries --trace=retain-on-failure ... so a failing run keeps its trace.' The already-merged job-scoped contract module (scripts/qc/openspec-ci-contracts.mjs, requiredWorkflowJobContracts[0].requiredRuns[2].run) pins this exact string byte-for-byte, also without --workers=1 (playwright.config.ts already sets workers: 1 globally for CI, per its own comment in nightly-validation.yml, so the flag would be redundant, not wrong, but it is not part of the canonical/contracted command). I verified the draft's run string character-for-character against both design.md and openspec-ci-contracts.mjs and they match each other and the draft. Adding --workers=1 would deviate from the frozen contract string without any package-spec justification, so I left the draft as-is rather than 'fixing' it toward the brief's flag.",
+      "detail": "Env vars on the invocation step (lines 635-637) are MEKSTATION_E2E_SERVER_COMMAND='node .next/standalone/server.js' and HOSTNAME='127.0.0.1', matching both the proposal and the contract module. Counted test() cases directly in the three spec files in the root checkout: customizer-equipment-catalog.spec.ts=3, customizer-record-sheet-rendering.spec.ts=6, customizer-edit-recovery.spec.ts=3 (grep -n 'test(' on each file), totalling 12, confirming the job runs the shipped 12-case surface against the production standalone server (fetch-assets:true + validate:assets:strict at lines 596-602, npm run build with NEXT_PUBLIC_E2E_MODE/NEXT_PUBLIC_E2E_TEST at lines 604-609, both before the browser step)."
+    },
+    "c_nightlyLaneConsistent": {
+      "verified": true,
+      "detail": "nightly-validation.yml e2e-full job (lines 145-188 post-fix) gains fetch-assets:'true' on setup-node-and-install, a 'Validate record-sheet assets' step (npm run validate:assets:strict), a 'Build production app' step with the same NEXT_PUBLIC_E2E_MODE/NEXT_PUBLIC_E2E_TEST env, and the full-suite Playwright invocation is switched from 'npx playwright test --project=chromium --ignore-snapshots' to 'node scripts/playwright/run-playwright.mjs test --project=chromium --ignore-snapshots' with the same MEKSTATION_E2E_SERVER_COMMAND/HOSTNAME env as the PR job. timeout-minutes: 180 is unchanged (line 139, outside the diff hunk). No requiredWorkflowJobContracts entry exists for nightly-validation.yml (the validator only reads pr-checks.yml, confirmed via grep on scripts/qc/validate-openspec-ci-quality.mjs), so this lane is checked only against design.md decision 2/5 by manual reading, not by an automated contract; it matches the proposal's stated 'same strict asset prerequisite and production build ... retaining its 180-minute timeout.' NOTE (pre-existing, out of scope): the job's header comment block (lines 120-131) still describes the lane as running 'against the self-booted Next dev server' -- now technically the production standalone server via MEKSTATION_E2E_SERVER_COMMAND override of the same webServer plugin. Left unedited: the package proposal/design/tasks do not call for a comment rewrite here and the phrase is not factually false (the server is still self-booted by the webServer plugin, just with a different command)."
+    },
+    "d_noNewDependency": {
+      "verified": true,
+      "detail": "Diffed only .github/workflows/*; no package.json or package-lock.json changes in this patch. Confirmed the previously-approved yaml devDependency (evidence/ci-yaml-dependency-user-approval-20260912.json) is already present and locked at 2.9.0 in the worktree's package.json (line 318: \"yaml\": \"^2.9.0\") and package-lock.json (line 99) -- it was merged in PR #1647 (da524f7f5, 'ci: add OpenSpec contract modules') as part of the already-complete contract-modules prefix, not introduced by this change. No other dependency was added or modified."
+    }
+  },
+  "editsMade": [
+    {
+      "file": ".github/workflows/pr-checks.yml",
+      "change": "Corrected the customizer-regressions job's leading comment from 'catalog (3), record sheets (5), edit recovery (2)' to 'catalog (3), record sheets (6), edit recovery (3)'.",
+      "justification": "The comment described the superseded 10-case baseline. Direct grep of test() cases in the three spec files confirms 3/6/3=12, matching proposal.md ('twelve cases: equipment catalog (3), record-sheet rendering (6), and edit recovery (3)'), tasks.md 6.1/6.2, and the e2e-testing spec delta. Also flagged as a known discrepancy in openspec/planning/2026-09-12-roadmap-completion/evidence/ci-module-independent-review-20260912.json ('observedComment': 'record sheets (5), edit recovery (2)' vs 'requiredCorrectedComment': 'record sheets (6), edit recovery (3)'). This is the only edit made; every other line of the root draft matched the package spec and the (currently unwired but present) job-scoped contract in scripts/qc/openspec-ci-contracts.mjs exactly, so no other changes were justified."
+    }
+  ],
+  "qcResults": [
+    {
+      "command": "npm run qc:openspec-ci:validate (node scripts/qc/validate-openspec-ci-quality.mjs --json)",
+      "ranFrom": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/archive-original-main-proof, detached at commit 1c7b8298c (this branch's tip) after confirming git status --porcelain was empty at its prior HEAD 5b229be21; restored to 5b229be21 afterward",
+      "exit": 0,
+      "result": "status: pass, errors: [], aggregatorNeeds.actual includes customizer-regressions",
+      "stdoutSha256": "81059e697fe571608440b488525cfb43e53cdd66e3a914b1c8bedc8098c8080c",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "caveat": "IMPORTANT: this validator (335 lines, as currently checked out from origin/main) does NOT import scripts/qc/openspec-workflow-contracts.mjs or scripts/qc/openspec-ci-contracts.mjs and has no requiredWorkflowJobContracts check -- confirmed via grep for '^import' and 'requiredWorkflowJobContracts' in the checked-out file (only node:fs/node:path/node:url imports present). The two contract modules exist on main (merged by PR #1647 / da524f7f5, the 'contract-modules' prefix) but are dead code until a separate, not-yet-merged 'workflow wiring' prefix imports them into this validator -- see openspec/planning/2026-09-12-roadmap-completion/evidence/ci-module-independent-review-20260912.json ('moduleWiringAbsent': true) and ci-admission-four-prefixes.json (prefix 2, blocked on prefix 1 plus main-verified browser proof). A pass from this command today is expected regardless of the customizer-regressions job's exact shape; it does not mechanically prove findings (a)-(d) above. Those were verified by hand against scripts/qc/openspec-ci-contracts.mjs's requiredWorkflowJobContracts data (currently unreferenced by the validator) plus the openspec package text."
+    },
+    {
+      "command": "NODE_OPTIONS=--max-old-space-size=4096 node node_modules/jest/bin/jest.js --runInBand --runTestsByPath scripts/__tests__/openspec-ci-quality-qc.test.ts",
+      "ranFrom": "same detached checkout as above",
+      "exit": 0,
+      "result": "1 suite, 5 tests passed (the current 166-line baseline test file on main, NOT the 675-line recovered file with the 9 job-contract mutation tests described in ci-test-source-recovery.json -- that expanded test file belongs to the same not-yet-merged wiring prefix and was not present in this checkout)",
+      "stdoutSha256": "9e5c6d74338ff9102243ae7606b7b96f72004055826877f2960aed45716e27c6"
+    },
+    {
+      "command": "actionlint",
+      "ran": false,
+      "reason": "actionlint is not on PATH (checked via `where`/`which`); per task instructions it was not installed."
+    }
+  ],
+  "remainingGates": [
+    "Must not merge before PR #1667 (the three customizer e2e spec files) is on main -- this job references them by path only and they do not yet exist on main.",
+    "Must not merge before the workflow-wiring prefix (scripts/qc/validate-openspec-ci-quality.mjs importing openspec-workflow-contracts.mjs/openspec-ci-contracts.mjs, plus the expanded 675-line mutation test suite) lands, per ci-admission-four-prefixes.json prefixes 2-4 -- otherwise the merged workflow activation ships with no automated regression protection against someone weakening the customizer-regressions job later.",
+    "tasks.md 5.4 (observe the new Customizer Regressions check run on an actual pull request and confirm the aggregator blocks on it) remains unchecked and cannot be satisfied until this branch is pushed and opened as a PR against exact main -- both push and PR creation were explicitly out of scope for this session.",
+    "A 12-case production browser proof must exist on exact current main (not a stale/dirty checkout) before this is considered merge-ready, per the task's closure note; this session did not run Playwright (explicitly disallowed) and relied on the 2026-09-12 evidence logs (browser-production-followups-final.log, 12/12) plus the static contract/text comparison performed here."
+  ],
+  "notVerifiable": [
+    "Whether the customizer-regressions job actually passes when executed by GitHub Actions runners (no remote CI was triggered; static review + local jest/validator only).",
+    "Whether e2e/customizer-equipment-catalog.spec.ts, customizer-record-sheet-rendering.spec.ts, and customizer-edit-recovery.spec.ts on PR #1667's branch are byte-identical to the copies read in this session (this session read them from the dirty root checkout at E:/Projects/MekStation, not from PR #1667's branch)."
+  ]
+}

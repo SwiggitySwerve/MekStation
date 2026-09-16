@@ -1,0 +1,51 @@
+{
+  "pr": 1734,
+  "branch": "codex/roadmap-r9-roster-damage-s1-20260915",
+  "reviewedCommit": "b325ae19185d765e50c3a8d04807a7ca4b926b2b",
+  "finalHead": "6759b3066c9f66c3670c70c2556675a5d410f62b",
+  "autoMergeArmed": false,
+  "contentGuard": {
+    "method": "file set from `git diff --name-only origin/main...<head>` vs the reviewed file set, plus per-file blob equality against the reviewed commit; re-run after update-branch",
+    "fileCountAtMerge": 3,
+    "blobEquality": "all files blob-identical to the reviewed commit at the gated head",
+    "result": "PASS"
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "expectedHeadShaGuardUsed": true,
+    "newHead": "6759b3066c9f66c3670c70c2556675a5d410f62b"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "otherChecksCount": 27,
+    "otherChecksBuckets": {
+      "pass": 27
+    },
+    "totalChecks": 31
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r9-roster-damage-s1-1734-final-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "efd8a136d523adfa81fda303adb608e3563575ee",
+  "mergeCommitParents": [
+    "be71efec018481b08e44281cca0c2e21f07456f3"
+  ],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1734 --squash --match-head-commit 6759b3066c9f66c3670c70c2556675a5d410f62b",
+  "mergedAt": "2026-09-15T16:51:15Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "The merge commit changes exactly 3 file(s), all blob-identical to the gated head 6759b3066c9f66c3670c70c2556675a5d410f62b.",
+  "mainAfter": "efd8a136d523adfa81fda303adb608e3563575ee",
+  "worktree": {
+    "fastForward": "NOT PERFORMED - coordinator designated the owned worktrees as off-limits for these PRs",
+    "result": "SKIPPED (intentional)"
+  },
+  "timestamps": {
+    "receiptWrittenAt": "2026-09-15T17:02:00Z"
+  }
+}

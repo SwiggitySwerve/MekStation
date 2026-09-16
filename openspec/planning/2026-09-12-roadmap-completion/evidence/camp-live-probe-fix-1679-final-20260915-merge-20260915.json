@@ -1,0 +1,104 @@
+{
+  "pr": 1679,
+  "branch": "codex/roadmap-camp-live-probe-fix-20260915",
+  "status": "BLOCKED - NOT MERGED",
+  "blockedReason": "Deterministic CI failure on the updated head: PR 1677's umbrella-pin guard (merged to main at 07:22:49Z, minutes earlier) requires every tracked scripts/__tests__/camp01-*.test.ts suite to be pinned into the viewport-sweep umbrella. This PR adds a new camp01 suite (camp01-live-browser-adversarial.test.ts) without adding it to that pin list, so the guard fires. Needs a one-line fix on the branch, not a retry.",
+  "reviewedCommit": "f7a94d769ccb0da8546f3953c0489c6c7b4b60aa",
+  "finalHead": "f01cdca721ce79a356cfa625d5320fa8e4436e33",
+  "autoMergeArmed": false,
+  "contentGuard": {
+    "preUpdate": {
+      "fileSetEqualToReviewed": true,
+      "files": [
+        "scripts/__tests__/camp01-live-browser-adversarial.test.ts",
+        "scripts/qc/camp01-live-browser-adversarial.mjs"
+      ],
+      "diffstat": "2 files changed, 191 insertions(+), 1 deletion(-)",
+      "blobEquality": "trivially satisfied - reviewed commit == PR head (f7a94d769)",
+      "result": "PASS"
+    },
+    "postUpdate": {
+      "fileSet": "unchanged - same 2 files, no files added by the update merge",
+      "diffstat": "2 files changed, 191 insertions(+), 1 deletion(-)",
+      "blobEquality": {
+        "scripts/__tests__/camp01-live-browser-adversarial.test.ts": "equal to f7a94d769",
+        "scripts/qc/camp01-live-browser-adversarial.mjs": "equal to f7a94d769"
+      },
+      "result": "PASS"
+    }
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "oldHead": "f7a94d769ccb0da8546f3953c0489c6c7b4b60aa",
+    "newHead": "f01cdca721ce79a356cfa625d5320fa8e4436e33",
+    "expectedHeadShaGuard": "f7a94d769ccb0da8546f3953c0489c6c7b4b60aa",
+    "reason": "branch was BEHIND after #1677 merged to main"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "fail",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "otherChecksCount": 26,
+    "terminalTally": { "pass": 28, "fail": 2, "pending": 0 },
+    "totalChecks": 30,
+    "pollLog": "07:27:57 2 pending -> 07:35:47 28 pass / 2 fail / 0 pending"
+  },
+  "failures": {
+    "runId": "34941793165",
+    "headAtRun": "f01cdca721ce79a356cfa625d5320fa8e4436e33",
+    "isSupersededRun": false,
+    "failingChecks": [
+      {
+        "name": "Lint and Test",
+        "role": "required aggregator - red solely because of the Unit Tests (3/6) shard below",
+        "jobId": "104293301659",
+        "link": "https://github.com/SwiggitySwerve/MekStation/actions/runs/34941793165/job/104293301659",
+        "decisiveLine": "Assert every fan-out check succeeded"
+      },
+      {
+        "name": "Unit Tests (3/6)",
+        "jobId": "104292142777",
+        "link": "https://github.com/SwiggitySwerve/MekStation/actions/runs/34941793165/job/104292142777",
+        "suite": "scripts/__tests__/run-viewport-sweep.test.ts",
+        "tally": "Tests: 1 failed, 5945 passed, 5946 total",
+        "failedTests": [
+          {
+            "name": "PROOF-4E viewport sweep orchestrator > pins every tracked camp01-*.test.ts suite into the umbrella, not just the literal string",
+            "assertion": "expect(pinnedCamp01Suites).toEqual(trackedCamp01Suites)",
+            "assertionSite": "scripts/__tests__/run-viewport-sweep.test.ts:410",
+            "diff": "Expected -1 / Received +0; the single missing entry is \"camp01-live-browser-adversarial.test.ts\"",
+            "meaning": "The guard globs scripts/__tests__ for /^camp01-.*\\.test\\.ts$/ (line 408) and compares that tracked set against the umbrella's pinned set. This PR's new test file is tracked but not pinned."
+          }
+        ]
+      }
+    ],
+    "rootCause": "Cross-PR interaction, not a flake and not a superseded run. PR 1677 (merged 07:22:49Z, this session) introduced the guard in scripts/__tests__/run-viewport-sweep.test.ts + package.json. PR 1679 adds scripts/__tests__/camp01-live-browser-adversarial.test.ts. The two are individually green but jointly red: the new camp01 suite must also be added to the umbrella pin list in package.json.",
+    "suggestedFix": "On branch codex/roadmap-camp-live-probe-fix-20260915, add \"camp01-live-browser-adversarial.test.ts\" to the viewport-sweep umbrella pin list in package.json, push, then resume. NOT ATTEMPTED by this session - source edits are out of scope for the merge manager.",
+    "retriedBlindly": false
+  },
+  "premergeReceipt": {
+    "path": null,
+    "ready": null,
+    "note": "NOT RUN - step 5 gate was never reached because required check 'Lint and Test' is red on the current head"
+  },
+  "mergeCommit": null,
+  "mergedAt": null,
+  "mainAtBlockTime": "2d410f3ca4d7153497c94ee2944618ee735e99af",
+  "camp01LiveAdversarialWorkflow": {
+    "workflowId": "329205862",
+    "name": "CAMP-01 Live Adversarial Evidence",
+    "observed": false,
+    "reason": "This workflow was to be watched on the main-branch run triggered BY this PR's merge. The PR did not merge, so no such run exists yet. First-green-run proof remains OUTSTANDING."
+  },
+  "worktree": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/camp-receipt-verification",
+    "fastForward": "NOT PERFORMED - per coordinator instruction (another lane owns this worktree); PR also did not merge",
+    "result": "SKIPPED (intentional)"
+  },
+  "timestamps": {
+    "guardStartedAt": "2026-09-15T07:26:40Z",
+    "checksTerminalAt": "2026-09-15T07:35:47Z",
+    "receiptWrittenAt": "2026-09-15T07:37:30Z"
+  }
+}

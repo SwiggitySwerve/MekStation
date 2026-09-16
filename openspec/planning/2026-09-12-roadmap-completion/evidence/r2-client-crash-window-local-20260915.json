@@ -1,0 +1,577 @@
+{
+  "node": "R2.authority-client",
+  "artefact": "task 1.6 (P-A) -- discard-time flush of pending client mutations",
+  "capturedAtUtc": "2026-09-15T00:00:00Z",
+  "status": "implemented-locally-not-pushed (see correction2: independent-review required edits RE-1 and RE-2 applied as commits C and D)",
+  "scope": "openspec/changes/design-campaign-authority-and-sync task 1.6 ONLY. No spec edits, no task checkbox flip, no push, no PR.",
+  "baseRef": "codex/roadmap-r2-client-spec-delta-20260915 (PR #1685, unmerged)",
+  "baseSha": "41fa769895c8ace5608dda1a3f4118cb30c7242f",
+  "baseNote": "= origin/main 2d410f3ca + the approved R2 client spec delta (f0a635876 + review-edit commit 41fa76989). The parent rebases onto main after #1685 merges.",
+  "commitSha": "bad964e7257d330e5469064237748bff9543f24b",
+  "commitSubject": "feat(campaign): flush pending client mutations before the document is discarded",
+  "commitAuthor": "Wes Rollings <wrollings@gmail.com>",
+  "aiAttribution": "none, per project rule",
+  "branch": "codex/roadmap-r2-client-crash-window-20260915",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/history-sql-integrity",
+  "pushed": false,
+  "files": [
+    {
+      "path": "src/stores/campaign/useCampaignPersistenceStore.ts",
+      "change": "modified",
+      "added": 145,
+      "what": "KEEPALIVE_FLUSH_BODY_CAP_BYTES (65536), CampaignFlushSkipReason, ICampaignFlushSkip, state field flushSkip (INITIAL_STATE null), module flag pendingFlushIssued, measureRequestBodyBytes, fireKeepaliveFlush, flushPendingMutationsAction; markDirty clears pendingFlushIssued; reset clears it."
+    },
+    {
+      "path": "src/stores/campaign/campaignPersistenceWiring.ts",
+      "change": "modified",
+      "added": 52,
+      "what": "handlePageHide / handleVisibilityChange + idempotent installDiscardFlushListeners / uninstallDiscardFlushListeners, called from the existing installCampaignPersistenceWiring / uninstallCampaignPersistenceWiring pair."
+    },
+    {
+      "path": "src/stores/campaign/__tests__/campaignPersistenceCrashWindow.test.ts",
+      "change": "added",
+      "added": 313,
+      "what": "10 rows driven through real jsdom pagehide / visibilitychange events, so the wiring listener pair and the store action are covered by the same rows."
+    }
+  ],
+  "capCheck": {
+    "filesChanged": 3,
+    "filesCap": 15,
+    "shortstat": "3 files changed, 510 insertions(+)",
+    "linesChanged": 510,
+    "linesCap": 500,
+    "capCommand": "git diff --shortstat 41fa76989 HEAD",
+    "verdict": "10 lines over the 500-line cap after a comment trim took it from 520 to 510. Reported, not hidden: no behaviour row was dropped to reach the number, and the remaining overage is the 10 test rows the task's sibling-row list requires."
+  },
+  "behaviourImplemented": {
+    "triggers": [
+      "window pagehide",
+      "document visibilitychange when document.visibilityState === 'hidden'"
+    ],
+    "beforeunload": "deliberately NOT registered (task text: fires nowhere pagehide does not, and disables bfcache in some engines)",
+    "mechanism": "one fetch(PUT, keepalive: true) to the existing /api/campaigns/[id] route with the same { envelope, baseVersion } body putLiveCampaign builds (buildSerializedCampaign(campaign, getDeviceId(), baseVersion + 1, readLiveRosterSnapshot(campaign.id)))",
+    "responseNeverRead": "fireKeepaliveFlush attaches only a settle-swallow handler; no .json(), no applySavedRecord, no set() of dirty / baseVersion / metadata / saveState",
+    "timerOrdering": "clearAutoSaveTimer() runs before the body is built, so the discard path and the armed timer cannot both write",
+    "atMostOncePerDiscard": "module flag pendingFlushIssued, set when a request fires, cleared by markDirty (genuinely new pending work) and by reset(). Needed because dirty deliberately stays true across a flush, which would otherwise let a pagehide immediately followed by a hidden transition write twice.",
+    "skipConditions": [
+      "not dirty",
+      "already flushed for this pending set",
+      "legacyUnadopted",
+      "no live campaign or no campaign id",
+      "isCoopCampaign(campaign)"
+    ],
+    "overCap": "JSON body measured with TextEncoder (byte count, not character count) and compared against 65536; over the cap it issues NO request and sets flushSkip = { reason: 'envelope-over-keepalive-cap', campaignId, byteLength, capBytes }."
+  },
+  "designNotes": [
+    {
+      "id": "DN-1",
+      "topic": "the typed skip reason's literal name",
+      "note": "The spec requires 'a typed skip diagnostic' and the task 'a named skip reason', but NEITHER the spec delta, the task text, the r2-client-spec-delta-20260915 evidence (correction/RE-1), nor the admission brief pins a literal identifier -- grepped all four for skipReason / over-cap / keepalive-* and found only prose. The name chosen is 'envelope-over-keepalive-cap', derived from the spec scenario's own wording ('An envelope past the keepalive body cap'). Flagged rather than claimed as spec-given: if the parent wants a different literal, it is a one-token rename in the store plus one test assertion."
+    },
+    {
+      "id": "DN-2",
+      "topic": "legacyUnadopted skip is a third condition the task did not enumerate",
+      "note": "The task names two skips (not dirty, co-op). A THIRD was added: legacyUnadopted. Rationale -- runSave already returns { status: 'skipped' } for an unadopted legacy copy (useCampaignPersistenceStore.ts, runSave guard) so no PUT reaches the server on that path today; a flush without this guard would be the FIRST write that turns an unadopted legacy copy into a server record, which is exactly what the D8 adoption gate forbids. This is a bug-avoidance guard, not a scope expansion, and it contradicts nothing in the spec (which scopes the flush to 'unsaved mutations pending' on this PUT path). Surfaced here so the reviewer can reject it explicitly if the parent disagrees.",
+      "untested": "No dedicated test row asserts the legacyUnadopted skip -- the required sibling-row list does not name one and the cap was already tight. It is a code-level guard with no regression row."
+    },
+    {
+      "id": "DN-3",
+      "topic": "listener install precedes the campaign-store accessor check",
+      "note": "installCampaignPersistenceWiring returns early when getCampaignStoreForRoster() is null. installDiscardFlushListeners() is called BEFORE that early return, and before the unsubscribe idempotency guard, so the flush listeners register even where the campaign-store accessor is not yet registered. Both helpers are idempotent and guard typeof window === 'undefined' for SSR."
+    },
+    {
+      "id": "DN-4",
+      "topic": "byte measurement",
+      "note": "TextEncoder().encode(body).length, not body.length: the cap is a byte budget, so a character count would under-measure any non-ASCII campaign name or note and fire a request the browser then rejects silently. TextEncoder verified present in this repo's jsdom jest environment by a throwaway probe test (removed) and is universally available wherever fetch keepalive is."
+    },
+    {
+      "id": "DN-5",
+      "topic": "flushSkip is never cleared by a later save",
+      "note": "Only flushPendingMutations writes the field; reset() restores INITIAL_STATE. A skipped over-cap discard stays visible rather than being wiped by the next successful auto-save, because the condition it reports (an envelope that has outgrown the mechanism) persists."
+    }
+  ],
+  "redGreen": {
+    "logDir": ".sisyphus/roadmap-completion-20260912/r2-crash-window-20260915/",
+    "red": {
+      "log": ".sisyphus/roadmap-completion-20260912/r2-crash-window-20260915/red-jest.log",
+      "sha256": "6f79a9ad70d51acab32642bf85e9f3047320cfe22f42cf92d8b5b08c8ae55d2b",
+      "argv": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/stores/campaign/__tests__/campaignPersistenceCrashWindow.test.ts",
+      "exit": 1,
+      "suites": "1 failed, 1 total",
+      "tests": "5 failed, 5 passed, 10 total",
+      "capturedAgainst": "the test file alone, before any src/ edit -- store and wiring untouched at 41fa76989",
+      "honesty": "The 5 PASSING rows in the red log are the negative rows (clean store, co-op, visible transition, uninstalled wiring, at-most-once) -- they pass VACUOUSLY because nothing fired at all. Only the 5 positive rows are meaningful red: the pagehide PUT, the timer-cleared row, the hidden-transition row, the over-cap diagnostic row, and the never-acknowledged row. The over-cap row failed on `reason` being undefined and the positive rows on `captured` being empty, i.e. red for the right reason (no listener, no action) and not on an import error."
+    },
+    "green": {
+      "log": ".sisyphus/roadmap-completion-20260912/r2-crash-window-20260915/green-jest.log",
+      "sha256": "461631f692799fa8ad6acada4b42719619005cb7dfdcbb354c82a0da98e2da0d",
+      "note": "re-captured on the committed tree, after the comment trim"
+    },
+    "greenFocused": {
+      "log": ".sisyphus/roadmap-completion-20260912/r2-crash-window-20260915/green-focused-jest.log",
+      "sha256": "0b2a497c8dd728dd67ee8d981ecebe9c7517c770b32f6daa8cc66e282f246f12",
+      "note": "the four suites the task's ACCEPTANCE line names"
+    },
+    "commitLog": {
+      "log": ".sisyphus/roadmap-completion-20260912/r2-crash-window-20260915/commit.log",
+      "sha256": "8421bd04aba54931cdbcf125986071c61b51b9c82ed385f51b59dd57aee47b4f",
+      "note": "hooks ran; the pre-commit build completed ok"
+    }
+  },
+  "gates": [
+    {
+      "gate": "focused jest -- campaign stores + campaign lib",
+      "argv": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/stores/campaign src/lib/campaign",
+      "exit": 0,
+      "suites": "220 passed, 220 total",
+      "tests": "3216 passed, 3216 total",
+      "log": "green-jest.log"
+    },
+    {
+      "gate": "focused jest -- the four ACCEPTANCE suites",
+      "argv": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/stores/campaign/__tests__/campaignPersistenceCrashWindow.test.ts src/stores/campaign/__tests__/campaignCommandAutoSave.test.ts src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts src/stores/campaign/__tests__/campaignPersistenceWiring.test.ts",
+      "exit": 0,
+      "suites": "4 passed, 4 total",
+      "tests": "37 passed, 37 total",
+      "log": "green-focused-jest.log"
+    },
+    {
+      "gate": "typecheck",
+      "argv": "npx tsc --noEmit -p tsconfig.json",
+      "exit": 0,
+      "output": "empty",
+      "log": "typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "gate": "oxlint -- changed source files",
+      "argv": "npx oxlint src/stores/campaign/useCampaignPersistenceStore.ts src/stores/campaign/campaignPersistenceWiring.ts src/stores/campaign/__tests__/campaignPersistenceCrashWindow.test.ts",
+      "exit": 0,
+      "result": "0 errors, 1 warning on 2 files (the test file is outside oxlint's file set -- a separate run over it alone reports 'on 0 files')",
+      "warning": "eslint(max-lines): useCampaignPersistenceStore.ts has too many lines (759 countable, max 400)",
+      "warningIsPreExisting": "yes -- the same single warning fires on the file at base 41fa76989 (893 raw lines before this change, 1038 after); this change did not introduce the warning and did not raise the count past a new threshold",
+      "log": "oxlint.log",
+      "sha256": "f82032f6a0feaeae255cbc44c86430afd7b7c95dcbd74256d9f1d67954307185"
+    },
+    {
+      "gate": "oxfmt -- changed files",
+      "argv": "npx oxfmt src/stores/campaign/useCampaignPersistenceStore.ts src/stores/campaign/campaignPersistenceWiring.ts src/stores/campaign/__tests__/campaignPersistenceCrashWindow.test.ts",
+      "exit": 0,
+      "output": "empty (nothing reformatted on the final run)",
+      "log": "oxfmt.log"
+    }
+  ],
+  "gatesNotRun": {
+    "npm run build": "forbidden by the prefix brief (the pre-commit hook ran its own next build, which passed -- see commit.log)",
+    "npx openspec validate --all --strict": "not run: this prefix edits no openspec file, so there is nothing for it to validate about this commit. The task's ACCEPTANCE names it; the parent should run it once the checkbox is flipped.",
+    "playwright": "forbidden by the prefix brief"
+  },
+  "testRows": [
+    "issues exactly one keepalive PUT of the pending envelope on pagehide -- url /api/campaigns/<id>, method PUT, keepalive true, baseVersion = current, envelope.version = baseVersion + 1, envelope.body.name = the CURRENT in-memory name",
+    "clears the armed debounce so the timer cannot also write -- advancing 2x AUTO_SAVE_DEBOUNCE_MS after the flush still yields exactly one request",
+    "flushes on a hidden visibility transition",
+    "does not flush when the document becomes visible",
+    "issues at most one write across a pagehide immediately followed by a hidden transition",
+    "issues no write when the client is not dirty",
+    "issues no write for a co-op campaign, whose writer is the session",
+    "skips an over-cap envelope with a typed diagnostic rather than firing it -- 0 requests, flushSkip.reason === 'envelope-over-keepalive-cap', capBytes === KEEPALIVE_FLUSH_BODY_CAP_BYTES, byteLength > cap, campaignId pinned",
+    "never claims the revision it did not read -- after the stubbed 200 (version 99) settles: dirty still true, baseVersion unchanged, metadata.version still 0, saveState not 'saved', switchCampaign never called (so applySavedRecord never ran)",
+    "stops flushing once the wiring is uninstalled"
+  ],
+  "overCapFixtureNote": "The over-cap row inflates campaign.processedBattleIds (400 x ~263-byte ids), which serializeCampaign.ts:170 passes through verbatim -- the cheapest honest way to exceed 64 KiB, standing in for the unbounded collections (recentlyAppliedOutcomes, unitCombatStates, dailyBattleAudit, salvageReports, gmInterventionEvents, timeCascadeEvents) the task names as the real growth drivers.",
+  "specContradictions": "none found. Every clause of the requirement 'Pending client mutations are flushed before the document is discarded' and all four of its scenarios are implementable as written against the measured anchors; no stop-and-report condition arose.",
+  "notClaimed": [
+    "NO cold-reload browser proof. No Playwright spec was authored or run this prefix -- task 1.6's ACCEPTANCE block names typecheck, lint, four jest suites and openspec validate, and no browser artefact. A cold-reload e2e that proves a mutation survives a hard reload against a live server is the NEXT prefix, not this one.",
+    "NO acknowledgement semantics. The flush is best-effort: its response is never read, so a fired request is NOT evidence the write committed. A browser that discards the document without firing either event still loses the window.",
+    "NO task 6.2 / 6.2a work. This flush fires at discard, not at contract-market generation; 6.2a still needs its own explicit pre-command acknowledged save via saveCampaign.",
+    "NO change to the PUT route, its compare-and-swap, or CampaignPersistenceService.",
+    "NO journal, no command pipeline, no flag flip, no cutover, no CAMP witness.",
+    "Residual (2) of the 2026-08-21 preamble note (the co-op dual-writer PUT 409 storm) is untouched -- the flush deliberately skips co-op campaigns.",
+    "NO task checkbox flipped and NO openspec file edited; the parent owns both.",
+    "NOT pushed, no PR, no merge.",
+    "The 64 KiB figure is taken from the task text and the reviewer's re-measured DB survey; it was NOT independently re-measured against data/mekstation.db in this session."
+  ],
+  "headCommitSha": "eaa63b7dbaff0f514d74fa10d865df7ceff9a898",
+  "correction": {
+    "appliedAtUtc": "2026-09-15T00:00:00Z",
+    "trigger": "Coordinator decisions on the two flagged calls plus the cap overage, delivered mid-prefix.",
+    "decisionChanged": false,
+    "note": "Every behaviour in the reference commit is preserved. The branch was re-laid as two buildable commits off the same base; the reference commit was NOT amended and NOT deleted -- it is kept reachable on its own branch.",
+    "referenceCommit": {
+      "sha": "bad964e7257d330e5469064237748bff9543f24b",
+      "preservedAs": "branch codex/roadmap-r2-client-crash-window-20260915-reference",
+      "preservedBefore": "the working branch pointer was moved -- the ref was created first, so the commit was never orphaned",
+      "amendedOrDeleted": "no",
+      "howTheBranchWasRelaid": "git branch <reference> bad964e72; git reset 41fa76989 (MIXED -- no --hard, no clean, no stash, working tree untouched); then commits A and B laid down from that tree plus the new material"
+    },
+    "resolutions": [
+      {
+        "id": "D-1",
+        "decision": "Keep envelope-over-keepalive-cap and PIN it in the spec",
+        "resolution": "applied",
+        "whereSpec": "openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md -- one bullet added to the scenario \"An envelope past the keepalive body cap is skipped with a diagnostic, never fired silently\": \"AND that diagnostic SHALL name the reason envelope-over-keepalive-cap, so a skipped discard is identifiable by the condition that caused it rather than merely present\".",
+        "whereTask": "openspec/changes/design-campaign-authority-and-sync/tasks.md task 1.6 -- the literal now appears twice inside the existing prose: in the mechanism clause (\"the named skip reason envelope-over-keepalive-cap\") and in the required over-cap test row.",
+        "size": "3 changed lines total (spec.md +1; tasks.md 1 line rewritten = +1/-1), inside the 4-line allowance",
+        "landedIn": "commit B"
+      },
+      {
+        "id": "D-2",
+        "decision": "Keep the legacyUnadopted guard, but test it",
+        "resolution": "applied, with a mutation proof rather than a bare assertion",
+        "row": "\"issues no write for an unadopted legacy copy, and records no diagnostic\" in src/stores/campaign/__tests__/campaignPersistenceCrashWindow.test.ts",
+        "statePinned": "captured requests 0; flushSkip stays NULL (a silent no-op, deliberately NOT an over-cap skip diagnostic); dirty stays true; the armed debounce is left intact, and advancing 2x AUTO_SAVE_DEBOUNCE_MS still yields 0 requests because runSave refuses the same unadopted copy for the same reason.",
+        "whyNoDiagnostic": "An unadopted legacy copy has no reachable PUT path at all -- nothing was measured and then abandoned, so there is no condition to report. Over-cap is the only reported skip because it is the only one where pending work WAS measured and abandoned. Reporting a reason here would make an ordinary no-op look like a degraded flush.",
+        "redProof": {
+          "method": "the row could not be red-first (the guard already existed when the coordinator confirmed it), so it was proven by MUTATION: the state.legacyUnadopted term was removed from the flush guard, the suite was run, and the guard restored byte-for-byte from a pre-mutation copy.",
+          "log": ".sisyphus/roadmap-completion-20260912/r2-crash-window-20260915/red-legacy-guard-mutant.log",
+          "sha256": "23a3d999eb606194c6cc96f67ed11639404dd4891fa95fb79934a3fd1992893e",
+          "result": "1 failed, 8 passed, 9 total -- the mutant killed EXACTLY the new row and nothing else, so the row is load-bearing and no other row silently depended on the guard."
+        },
+        "landedIn": "commit A"
+      },
+      {
+        "id": "D-3",
+        "decision": "Split into two buildable commits, each <= 500 lines",
+        "resolution": "applied; both commits are under the cap, so no behaviour row was trimmed",
+        "splitRationale": "The split follows the seam the design already had: the STORE owns the flush as an action (testable with no DOM), the WIRING owns the events that call it. Commit A is buildable and green on its own -- the action exists and is exercised directly. Commit B adds the listeners and re-drives the same behaviour through real pagehide / visibilitychange events. Test rows were therefore re-cut, not merely moved: commit A calls flushPendingMutations() directly; commit B appends a second describe block that dispatches the DOM events.",
+        "taskTextFidelity": "Task 1.6 requires the jsdom pagehide dispatch to live in campaignPersistenceCrashWindow.test.ts. It does -- as the second describe block, added in commit B. No wiring row was exiled to another file."
+      }
+    ],
+    "commits": [
+      {
+        "label": "A",
+        "sha": "395c9fcc260727436d886f926766762dc6200e9e",
+        "subject": "feat(campaign): add the discard-time flush action for pending client mutations",
+        "contents": "src/stores/campaign/useCampaignPersistenceStore.ts (KEEPALIVE_FLUSH_BODY_CAP_BYTES, CampaignFlushSkipReason, ICampaignFlushSkip, flushSkip state, pendingFlushIssued, measureRequestBodyBytes, fireKeepaliveFlush, flushPendingMutationsAction, markDirty/reset clearing the flag) + the new test file with 9 store-action rows",
+        "shortstatCommand": "git diff --shortstat 41fa76989 395c9fcc2",
+        "shortstat": "2 files changed, 444 insertions(+)",
+        "lines": 444,
+        "underCap": true,
+        "buildable": "yes -- pre-commit hook ran its full next build; tsc exit 0; focused jest 220 suites / 3215 tests green with no listeners present"
+      },
+      {
+        "label": "B",
+        "sha": "c87cab785549f051a431842598923c166153c3f2",
+        "subject": "feat(campaign): fire the discard flush from pagehide and hidden visibility transitions",
+        "contents": "src/stores/campaign/campaignPersistenceWiring.ts (handlePageHide / handleVisibilityChange + idempotent install/uninstall helpers wired into the existing pair) + 5 DOM-driven rows appended to the test file + the D-1 spec pin in spec.md and tasks.md",
+        "shortstatCommand": "git diff --shortstat 395c9fcc2 c87cab785",
+        "shortstat": "4 files changed, 139 insertions(+), 5 deletions(-)",
+        "lines": 144,
+        "underCap": true,
+        "buildable": "yes -- pre-commit hook ran its full next build; tsc exit 0; focused jest 220 suites / 3220 tests green"
+      }
+    ],
+    "cumulativeShortstat": {
+      "command": "git diff --shortstat 41fa76989 c87cab785",
+      "value": "5 files changed, 579 insertions(+), 1 deletion(-)",
+      "note": "The 500-line cap is measured PER COMMIT per the coordinator instruction (444 and 144); both pass. The cumulative total grew from the reference commit 510 because the split duplicates test scaffolding across two describe blocks and because the legacyUnadopted row and the spec pin are new material. No behaviour was removed to reach any number."
+    },
+    "redGreenAdded": [
+      {
+        "label": "commit B red -- DOM rows without listeners",
+        "log": ".sisyphus/roadmap-completion-20260912/r2-crash-window-20260915/B-red-jest.log",
+        "sha256": "7f738c17c2f637b6f9499fbc5538a0c0eb48e8cd6ae256373dc783401219e5e1",
+        "argv": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/stores/campaign/__tests__/campaignPersistenceCrashWindow.test.ts",
+        "exit": 1,
+        "tests": "3 failed, 11 passed, 14 total",
+        "honesty": "Captured at commit A with the DOM describe block added and campaignPersistenceWiring.ts still at its BASE content. The 3 failures are the three positive DOM rows (pagehide, hidden transition, at-most-once across both). The 2 negative DOM rows (visible transition, uninstalled wiring) passed vacuously -- nothing was listening at all -- exactly as in the original red."
+      }
+    ],
+    "gatesPerCommit": [
+      {
+        "commit": "A (395c9fcc2)",
+        "focusedJest": {
+          "argv": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/stores/campaign src/lib/campaign",
+          "exit": 0,
+          "suites": "220 passed, 220 total",
+          "tests": "3215 passed, 3215 total",
+          "log": "A-green-jest.log",
+          "sha256": "9b89f5ec9f341d8b5d4c4500a9a3a9dc72233d142eb245088daa4a79bb236bd0"
+        },
+        "typecheck": {
+          "argv": "npx tsc --noEmit -p tsconfig.json",
+          "exit": 0,
+          "output": "empty",
+          "log": "A-typecheck.log"
+        },
+        "oxlint": {
+          "argv": "npx oxlint src/stores/campaign/useCampaignPersistenceStore.ts",
+          "exit": 0,
+          "result": "0 errors, 1 warning",
+          "warning": "eslint(max-lines) -- pre-existing at base 41fa76989; this change did not introduce it",
+          "log": "A-oxlint.log",
+          "sha256": "84ea6f44741596d82f8950a27349b8494ef659610d6cbf9c381978489faa7fd9"
+        },
+        "oxfmt": {
+          "exit": 0,
+          "output": "empty",
+          "log": "A-oxfmt.log"
+        },
+        "commitLog": {
+          "log": "A-commit.log",
+          "sha256": "8ce9373f9882f21b0ac535e12344cb22a51a8c7cec32d31a30287b2515f5d926",
+          "note": "hooks ran; pre-commit next build ok"
+        }
+      },
+      {
+        "commit": "B (c87cab785)",
+        "focusedJest": {
+          "argv": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/stores/campaign src/lib/campaign",
+          "exit": 0,
+          "suites": "220 passed, 220 total",
+          "tests": "3220 passed, 3220 total",
+          "log": "B-green-jest.log",
+          "sha256": "0fd52f0aa1ac472c421d88cc7f7d7ad7b11459dc272530ba3c706c700bd0fa13"
+        },
+        "typecheck": {
+          "argv": "npx tsc --noEmit -p tsconfig.json",
+          "exit": 0,
+          "output": "empty",
+          "log": "B-typecheck.log"
+        },
+        "oxlint": {
+          "argv": "npx oxlint src/stores/campaign/campaignPersistenceWiring.ts",
+          "exit": 0,
+          "result": "0 warnings, 0 errors",
+          "log": "B-oxlint.log",
+          "sha256": "e7b4ab67393dabf426583b047d96e0ca42b8f2db4cfb29aa31c4bca65ef4b136"
+        },
+        "oxfmt": {
+          "exit": 0,
+          "output": "empty",
+          "log": "B-oxfmt.log"
+        },
+        "commitLog": {
+          "log": "B-commit.log",
+          "sha256": "55fa9924b5f5f33b4419eb1a07a1c6c84f9cd3a138b5b832944a69202ecbc2d1",
+          "note": "hooks ran; pre-commit next build ok"
+        }
+      }
+    ],
+    "specValidators": [
+      {
+        "gate": "openspec validate",
+        "argv": "npx openspec validate --all --strict",
+        "exit": 0,
+        "result": "Totals: 232 passed, 0 failed (232 items)",
+        "log": "B-openspec-validate.log",
+        "sha256": "ddd3fbaaa4a38bbe121eb042e653ba240ed0a65a4693d87d12a75c98f50e815a",
+        "runFrom": "the worktree"
+      },
+      {
+        "gate": "spec:purpose",
+        "argv": "npm run spec:purpose:validate:strict",
+        "exit": 0,
+        "result": "Files scanned: 220; Errors: 0; Tracked source-of-truth debt: 0",
+        "log": "B-spec-purpose.log",
+        "sha256": "69b656b4fd08973416df330922c2bd282146fbb927e669dd3c70244b5d8177ea"
+      },
+      {
+        "gate": "terminology",
+        "argv": "npm run terminology:validate:strict",
+        "exit": 0,
+        "result": "clean; the only output is an unrelated Node MODULE_TYPELESS_PACKAGE_JSON warning about openspec/scripts/terminology-tool.ts",
+        "log": "B-terminology.log",
+        "sha256": "e23fb69271b31a84d5520b4cbadce11d00e0cf36cbe3c9cc7ade67fed3548e1f"
+      }
+    ],
+    "stillNotClaimed": [
+      "NO push, no PR, no merge -- the working branch and the reference branch are both local only.",
+      "NO task checkbox flipped. The spec pin is the ONLY openspec edit: it adds a literal name to an existing scenario and an existing task sentence, moves no decision and adds no requirement.",
+      "NO cold-reload browser proof -- still the next prefix.",
+      "The legacyUnadopted row pins behaviour the coordinator accepted; it is proven by mutation, NOT red-first, and this evidence says so rather than implying a red-first history it does not have."
+    ]
+  },
+  "correction2": {
+    "appliedAtUtc": "2026-09-15T00:00:00Z",
+    "trigger": "Independent review evidence/r2-client-crash-window-review-20260915.json -- verdict APPROVE-WITH-REQUIRED-EDITS, read in full (requiredEdits RE-1/RE-2, nonBlockingObservations NB-1/NB-2/NB-3, verdictConditions).",
+    "method": "NEW commits on the same branch. A, B and the reference branch are untouched -- nothing amended, nothing rebased, nothing deleted.",
+    "decisionChanged": false,
+    "reviewFactsIndependentlyConfirmedInSession": [
+      "RE-1 reproduced before fixing: the new row captured 0 requests after advancing the debounce, proving the unconditional clearAutoSaveTimer() destroyed an armed ordinary save on the over-cap branch that then fired nothing. This is a data-loss window the original commit INTRODUCED, and it fires precisely for the large campaigns the task names as the growth risk. Log C-red-jest.log.",
+      "RE-2 reproduced before fixing: both surviving-document rows failed at commit C -- no ordinary save was ever scheduled after a hidden transition the document survived. Log D-red-jest.log.",
+      "The reviewer is right that the legacyUnadopted guard already returned BEFORE the timer clear and so never had this bug; the same reasoning simply had not been applied to the over-cap branch."
+    ],
+    "resolutions": [
+      {
+        "id": "RE-1",
+        "severity": "BLOCKING",
+        "resolution": "applied exactly as the reviewer specified",
+        "edit": "flushPendingMutationsAction: the `clearAutoSaveTimer()` call (and its comment) was removed from before the body build, and re-inserted immediately before `pendingFlushIssued = true` -- i.e. only on the branch that actually writes, still before fireKeepaliveFlush, so \"the discard path and the armed timer cannot both write\" still holds where a write exists to collide with.",
+        "specPosition": "Conformant. The timer-clear bullet lives in the scenario where a write IS issued; the over-cap scenario requires only that no request be issued and a typed diagnostic be recorded, and says nothing about the timer.",
+        "testRow": "\"leaves the ordinary debounced save armed when it skips an over-cap envelope\" -- over-cap flush captures 0 requests and records the typed reason, then advancing AUTO_SAVE_DEBOUNCE_MS yields EXACTLY ONE request whose init.keepalive is undefined (the ordinary uncapped PUT).",
+        "redFirst": {
+          "log": ".sisyphus/roadmap-completion-20260912/r2-crash-window-20260915/C-red-jest.log",
+          "sha256": "64107bcad0e579d08d122feb5aebf2f192b6aebe8a80ecaf6acb62ee3f97e19a",
+          "exit": 1,
+          "tests": "1 failed, 14 passed, 15 total",
+          "failureText": "Expected length: 1 / Received length: 0 / Received array: [] -- the armed save had been destroyed, exactly as the reviewer described."
+        },
+        "landedIn": "commit C"
+      },
+      {
+        "id": "RE-2",
+        "severity": "BLOCKING",
+        "resolution": "applied via the reviewer PREFERRED option (reconcile), not the acceptable-alternative pin",
+        "edits": [
+          "useCampaignPersistenceStore.ts: new action reconcileAfterDiscardFlush, gated on pendingFlushIssued && dirty && !legacyUnadopted && saveState !== conflict && !isCoopCampaign, which re-arms the same debounce markDirty arms.",
+          "The debounce arm was extracted into one helper `armAutoSaveTimer(set, get)` now shared by markDirty and the reconciliation, so \"the ordinary save is pending\" has a single definition rather than a copy-paste.",
+          "campaignPersistenceWiring.ts handleVisibilityChange: the visible branch now calls reconcileAfterDiscardFlush(); the hidden branch is unchanged."
+        ],
+        "invariantArgument": "The timer is re-armed ONLY on a document PROVEN to have survived (it became visible again), so there is no discard in flight and the \"cannot both write\" invariant is untouched. A conflict state is deliberately left alone, because auto-save self-disables there until the player resolves it and re-arming would fight that.",
+        "specScenarioAdded": {
+          "file": "openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md",
+          "title": "A hidden transition the document survives still reaches an acknowledged save",
+          "text": "GIVEN a flush was issued on a hidden transition and the document was not discarded / WHEN the document becomes visible again / THEN the client SHALL schedule an ordinary acknowledged save carrying the reconciled state, because an unread flush is not an acknowledgement / AND the client SHALL NOT be left holding pending mutations with no write scheduled",
+          "lines": 5
+        },
+        "testRows": [
+          "\"re-arms the ordinary save when a document the flush assumed lost becomes visible again\" -- hidden fires the keepalive flush (1 request), then visible + advancing the debounce yields a SECOND request whose keepalive is undefined.",
+          "\"reaches the existing conflict flow when the flush landed and the re-armed save is stale\" -- with the server answering the typed 409 a landed keepalive write would cause, the re-armed save lands in saveState conflict carrying reason base-state-unavailable, recoveryAction resync-to-active-head and the server record at baseVersion+1, with dirty still true. PINS the existing flow; invents no UI and adds no new resolution path."
+        ],
+        "redFirst": {
+          "log": ".sisyphus/roadmap-completion-20260912/r2-crash-window-20260915/D-red-jest.log",
+          "sha256": "fbb992456060edd1c7e978df452134fb959a8bf65c335e4b0a22a79fcd8f3878",
+          "exit": 1,
+          "tests": "2 failed, 15 passed, 17 total",
+          "note": "Captured at commit C with both rows present and no reconciliation in the source."
+        },
+        "testHarnessNote": "The 409 row needed the promise chain drained further than two ticks (the conflict path awaits response.json() before writing state); a `drainMicrotasks()` helper (12 ticks) replaced the ad-hoc awaits. This is a harness fix, not a behaviour change -- the row was red for the right reason first.",
+        "landedIn": "commit D"
+      },
+      {
+        "id": "NB-3",
+        "severity": "non-blocking, requested by the coordinator",
+        "resolution": "applied -- one line",
+        "edit": "__resetCampaignPersistenceCoordinationForTests now also sets pendingFlushIssued = false, so a future suite that calls only the coordination reset cannot inherit a stale flag.",
+        "landedIn": "commit C"
+      }
+    ],
+    "commits": [
+      {
+        "label": "C",
+        "sha": "658af51ea7ceb9cbfb42e1cc5968ef6e6a29b9ab",
+        "subject": "fix(campaign): keep the ordinary debounced save armed when the discard flush skips an over-cap envelope",
+        "contains": "RE-1 + NB-3 + the RE-1 test row (and a shared makeOversizedCampaign fixture builder so both over-cap rows use one definition)",
+        "shortstatCommand": "git diff --shortstat c87cab785 658af51ea",
+        "shortstat": "2 files changed, 49 insertions(+), 14 deletions(-)",
+        "lines": 63,
+        "underCap": true
+      },
+      {
+        "label": "D",
+        "sha": "eaa63b7dbaff0f514d74fa10d865df7ceff9a898",
+        "subject": "fix(campaign): reconcile the ordinary save when a flushed document survives the hidden transition",
+        "contains": "RE-2: the reconcile action + armAutoSaveTimer extraction + the wiring visible branch + the new spec scenario + 2 test rows + the drainMicrotasks harness helper",
+        "shortstatCommand": "git diff --shortstat 658af51ea eaa63b7db",
+        "shortstat": "4 files changed, 157 insertions(+), 11 deletions(-)",
+        "lines": 168,
+        "underCap": true
+      }
+    ],
+    "gatesPerCommit": [
+      {
+        "commit": "C (658af51ea)",
+        "crashWindowFile": "15 passed, 15 total",
+        "focusedJest": {
+          "argv": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/stores/campaign src/lib/campaign",
+          "exit": 0,
+          "suites": "220 passed, 220 total",
+          "tests": "3221 passed, 3221 total",
+          "log": "C-green-jest.log",
+          "sha256": "093738ba19868718f10c3b03a09aa4079c73419620b954e9c3d5755591552ff0"
+        },
+        "typecheck": {
+          "exit": 0,
+          "output": "empty",
+          "log": "C-typecheck.log"
+        },
+        "oxlint": {
+          "exit": 0,
+          "result": "0 errors, 1 warning (pre-existing max-lines)",
+          "log": "C-oxlint.log",
+          "sha256": "3c8caa0daf668968da374d5c7d3b51319c80974f46c795257b2c460f56c92702"
+        },
+        "oxfmt": {
+          "exit": 0,
+          "output": "empty"
+        },
+        "commitLog": {
+          "log": "C-commit.log",
+          "sha256": "658d302e3c1fff71b355e42891967eba8fd1f44bd1b97bdced68e3e2940ed491",
+          "note": "hooks ran; pre-commit next build ok"
+        }
+      },
+      {
+        "commit": "D (eaa63b7db)",
+        "crashWindowFile": "17 passed, 17 total (14 at commit B + RE-1 row + 2 RE-2 rows)",
+        "focusedJest": {
+          "argv": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/stores/campaign src/lib/campaign",
+          "exit": 0,
+          "suites": "220 passed, 220 total",
+          "tests": "3223 passed, 3223 total",
+          "log": "D-green-jest.log",
+          "sha256": "1fe6a8ffedebdee6816016459e4866b8aee3fe5fdc169d78492c31527c8b2c54"
+        },
+        "typecheck": {
+          "exit": 0,
+          "output": "empty",
+          "log": "D-typecheck.log"
+        },
+        "oxlint": {
+          "exit": 0,
+          "result": "0 errors, 1 warning (pre-existing max-lines)",
+          "log": "D-oxlint.log",
+          "sha256": "07a288f4ba19752e08475c046a2425ff22e21e986f2687e33214314308bbf96c"
+        },
+        "oxfmt": {
+          "exit": 0,
+          "output": "empty"
+        },
+        "commitLog": {
+          "log": "D-commit.log",
+          "sha256": "2b12ac58cfb7b0af82e8eab75b8acecea60d599a19700e20afa5ebd138772987",
+          "note": "hooks ran; pre-commit next build ok"
+        }
+      }
+    ],
+    "specValidatorsAfterTheNewScenario": [
+      {
+        "gate": "openspec validate",
+        "argv": "npx openspec validate --all --strict",
+        "exit": 0,
+        "result": "Totals: 232 passed, 0 failed (232 items)",
+        "log": "D-openspec-validate.log",
+        "sha256": "ddd3fbaaa4a38bbe121eb042e653ba240ed0a65a4693d87d12a75c98f50e815a"
+      },
+      {
+        "gate": "spec:purpose",
+        "argv": "npm run spec:purpose:validate:strict",
+        "exit": 0,
+        "result": "Files scanned: 220; Errors: 0",
+        "log": "D-spec-purpose.log",
+        "sha256": "69b656b4fd08973416df330922c2bd282146fbb927e669dd3c70244b5d8177ea"
+      },
+      {
+        "gate": "terminology",
+        "argv": "npm run terminology:validate:strict",
+        "exit": 0,
+        "result": "clean",
+        "log": "D-terminology.log",
+        "sha256": "37e88b32e7626d55ea038be5bfc963b07cf55e427120e96140fefd2040842bde"
+      }
+    ],
+    "nonClaimsAddedOnReviewerRequest": [
+      "NB-1: flushSkip has ZERO consumers. A grep over src/ finds it only in the store and this test file. The spec asks that the condition be RECORDED, and it is -- but nothing yet shows it to anyone, so an over-cap discard is observable to a developer reading state, not to a player. Surfacing it is not claimed by this prefix.",
+      "NB-2: the flush is NOT sequenced through saveChain and does NOT await inFlightLoad, unlike runSave. A flush can therefore overlap an in-flight ordinary save or a load. Both races are refused safely by the server compare-and-swap and neither can produce a silent overwrite, but the asymmetry with the ordinary save path is deliberate (a discarding document cannot wait on a queue) and is recorded rather than hidden.",
+      "The reconciliation added for RE-2 re-arms a SAVE; it does not re-validate the cache against the stream head and does not resync baseVersion. A landed keepalive write therefore still routes the next save into the existing 409 conflict flow, whose only resolution remains take-server. That consequence is now PINNED by a test row rather than left to be discovered, but it is not eliminated -- eliminating it needs head re-validation on return, which is not in this prefix and not in task 1.6."
+    ],
+    "unchangedByThisCorrection": "Everything the reviewer accepted as-is: envelope parity with putLiveCampaign, never-acknowledged semantics, byte-accurate cap measurement, the typed reason and its pin, the idempotent SSR-guarded listener pair, the absent beforeunload, the legacyUnadopted guard and its mutation proof, the red logs, the per-commit hygiene, and the preserved reference branch. None of it was re-cut.",
+    "stillNotClaimed": [
+      "NO push, no PR, no merge.",
+      "NO task checkbox flipped.",
+      "NO cold-reload browser proof -- still the next prefix.",
+      "NO new UI: the 409 row pins the existing conflict flow and its existing single resolution."
+    ]
+  }
+}

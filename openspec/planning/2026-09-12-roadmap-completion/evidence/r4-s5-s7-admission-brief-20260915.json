@@ -1,0 +1,473 @@
+{
+  "artefact": "r4-s5-s7-admission-brief",
+  "date": "2026-09-15",
+  "mode": "READ-ONLY discovery. No worktree mutation, no commits, no checkout changes, no pushes, no sub-agents, no builds/tests run in this session.",
+  "scope": {
+    "roadmapNodes": [
+      "R4.S5",
+      "R4.S6",
+      "R4.S7"
+    ],
+    "taskKeys": [
+      "adopt-combat-journal-cutover-and-gm-rewind#1.5@18",
+      "adopt-combat-journal-cutover-and-gm-rewind#1.6@19",
+      "adopt-combat-journal-cutover-and-gm-rewind#1.7@20"
+    ],
+    "package": "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind",
+    "note8x": "tasks.md is 34 lines total (sections 0-3 only); NO 8.x rows exist for this package. Confirmed by reading the full file. The prompt's 'any 8.x rows' instruction is a non-finding for this package."
+  },
+  "sourcesRead": {
+    "roadmapJson": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json (untracked/local-only file: `git status --porcelain` shows `?? `; NOT present on origin/main, so read directly from disk per the task's own fallback allowance)",
+    "changePackage": [
+      "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/proposal.md (full, 35 lines)",
+      "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/design.md (full, 28 lines)",
+      "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/tasks.md (full, 34 lines)",
+      "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/specs/gm-combat-interventions/spec.md (full, 74 lines)",
+      "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/notepad.md (80-scenario inventory, header + full table)"
+    ],
+    "s1s4Evidence": [
+      "evidence/r4-s1-journal-batches-review-20260915.json (verdictSummary, residualRisks RR-1..RR-7)",
+      "evidence/r4-s2-s4-admission-brief-20260915.json (part1-4, nonClaims — prior brief for 1.2-1.4)",
+      "evidence/r4-s3b-repoint-started-local-20260915.json (whatWasBuilt, theUnavailablePortDesign, theSecondBlocker, recommendedNextStep, split)",
+      "evidence/r4-s3b-repoint-started-review-20260915.json (dangling-export observation)",
+      "evidence/r4-s4-restart-recovery-local-20260915.json (whatWasBuilt, seedingDecision, risksFlaggedForTheOwner S4-R1/R2/R3, nonClaims)",
+      "evidence/r4-s4-restart-recovery-review-20260915.json (axis3 divergenceRefusal incl. KEY_QUESTION, axis6 rr1, whatTask14StillOwes, reviewerAddedFindings S4-R4/N1/N2/N3, dispositionOfAuthorFlaggedRisks, subject)"
+    ],
+    "designCampaignAuthoritySync": "openspec/changes/design-campaign-authority-and-sync/design.md line ~43 (D8/D10 paragraph, grepped verbatim) — the shape S6/S7 is instructed to borrow.",
+    "worktree": {
+      "path": ".sisyphus/roadmap-completion-20260912/worktrees/history-runtime-integrity",
+      "headAtReadTime": "d950bb65ca5e2c6db98e2743b1d7bff4ab32e8aa (merge commit: 'Merge branch main into codex/roadmap-r4-s4-restart-recovery-20260915'; merge of 5cd7df07b and f6c5bd15a)",
+      "branch": "codex/roadmap-r4-s4-restart-recovery-20260915 (matches the S4 review's `subject.branch`; the prompt's alternative name codex/roadmap-r4-s4-a-restart-recovery-20260915 was not the exact ref found — the branch checked out at read time is named codex/roadmap-r4-s4-restart-recovery-20260915, i.e. S4 with main merged in, containing S1-S4's full stack)",
+      "filesReadForThisSituBrief": [
+        "src/lib/multiplayer/server/matchJournalAuthority.ts (mode enum + override)",
+        "src/lib/multiplayer/server/MatchStreamJournalMirror.ts (full — S1 mirror, revision-offset comment, toMatchJournalBatch)",
+        "src/lib/multiplayer/server/DurableMatchStore.ts:740-1010 (appendCommandBatch commit path + mirrorCommittedBatch wiring)",
+        "src/lib/multiplayer/server/history/matchStoreBranchSegmentReader.ts:1-55 (revisionForMatchSequence, the ONE explicit offset function)",
+        "src/lib/multiplayer/server/matchAuthorityBaseline.ts:1-40 (MatchBaselineSource / import machinery, D4 shape, pre-existing from the archived adopt-combat-event-journal-authority change)",
+        "src/services/persistence/SQLiteService.ts:70-95 (confirms only journal_mode=WAL and foreign_keys=ON are set; no busy_timeout pragma — RR-1's premise, independently reverified)",
+        "src/lib/multiplayer/server/journalAuthorityShadow.ts:1-50 (confirms this is a DIFFERENT, older shadow mechanism — decide-path replay shadow from task 2.3/2.4 — not the S1 mirror tripwire; naming-collision risk flagged below)",
+        "src/lib/campaign/authority/campaignAuthorityMigration.ts:1-70 (CampaignAuthorityMigrationState = legacy|shadowing|journal|blocked, cutover marker, rollback law — the concrete, already-shipped shape S7 is told to imitate)",
+        "src/lib/events/journal/EventJournalCanonicalizer.ts:40-120 (canonicalize() switch — confirms `undefined` falls to the `default: fail('unsupported-value', ...)` arm; JCS-undefined is a real, reproducible throw, not a inferred claim)",
+        "grep for revisionForMatchSequence across src/ (7 files: 4 production, 3 test, plus the reader's own test = 4 test suites total)",
+        "grep for CampaignAuthorityMigrationState across src/ (confirms it exists ONLY on the campaign side; no combat/match analog exists yet)",
+        "grep for revision-conflict|duplicate-command test files (confirms existing coverage is legacy-log-only or mirror-only, never journal-head-as-authority)"
+      ]
+    }
+  },
+  "residualsCarriedForwardFromS1S4Verbatim": [
+    {
+      "id": "RR-1",
+      "origin": "S1 review, evidence/r4-s1-journal-batches-review-20260915.json",
+      "originalText": "No busy_timeout pragma. SQLiteService sets only journal_mode = WAL and foreign_keys = ON (src/services/persistence/SQLiteService.ts:83-86), so a mirror append contending with any other campaign writer throws SQLITE_BUSY immediately. Combined with the disclosed no-catch-up behaviour, a single lock collision permanently desynchronizes that match stream. Must be closed by S4 (recovery) or S6 (parity gate) before the mode flips.",
+      "correctionAppliedByS4Review": "better-sqlite3 applies a 5000ms DEFAULT busy_timeout even with no explicit pragma (measured: rr1-busy-timeout-20260915.log = {timeout:5000}). The premise 'throws immediately' was wrong at the driver level; the residual narrows to 'a lock held longer than 5s', not 'ordinary concurrent load'. S4 DETECTS a fallen-behind mirror (divergence refusal); it does NOT repair or set an explicit timeout. RR-1 remains open for S6/S7 to close by an explicit ruling.",
+      "stillOpenFor": "R4.S7"
+    },
+    {
+      "id": "create-path seeding gap",
+      "origin": "S2 review (r4-s2-live-head-admission-review-20260915.json, '4_createPathFinding') and independently re-measured by S4 local/review",
+      "text": "ServerMatchHost.create's opening events (GameCreated+GameStarted) are persisted via persistInitialEvents -> store.appendEvent, which is NOT the appendCommandBatch boundary S1's mirror hooks (DurableMatchStore.ts mirrorCommittedBatch). So a freshly created match NEVER gets a journal head/effective-head row from its own creation; the first REAL command batch's expectedRevision is the match's next sequence (>=2), the journal stream is empty at revision 0, mirrorMatchBatchToJournal returns revision-conflict, and backfillGenesisBranches() is never reached. Every later batch conflicts the same way — the gap is permanent per match, not a one-batch race. Every match diverges on its first post-create batch; shadow parity cannot be claimed until this is closed.",
+      "measuredEvidence": "S4 local's seedingDecision.jcsUndefinedNote and prefix B's create-path row: getProcessShadowMismatchCount() === 1 AND effectiveHeadBranchId() === null after a follow-up batch on a freshly created match.",
+      "stillOpenFor": "R4.S7 (explicitly owed by task 1.4/S4, per its own seedingDecision.whatIsOwed: 'Seeding the mirror at match creation ... Owner: task 1.7 (S6)')"
+    },
+    {
+      "id": "S4-R1",
+      "origin": "S4 local (risksFlaggedForTheOwner) and S4 review (axis3_divergenceRefusal.KEY_QUESTION), UPHELD not escalated",
+      "text": "The divergence refusal (MatchRecoveryJournalHead.ts:118-125, comparing logRevision vs head.revision AND events.length vs head.revision) treats a lagging SHADOW mirror as grounds to refuse the WHOLE match at boot. At mode 'shadow' the legacy log is still authoritative, so a mirror that fell behind arguably should not stop a healthy match from serving. Implemented as fail-closed per the parent brief's instruction ('refuse typed rather than silently preferring either'). Inert today (mode 'off', and even 'shadow' cannot install a head because of the create-path gap above) but S6/S7 MUST decide: gate the refusal on mode 'enabled' only, add mirror catch-up, or accept the refusal with an operator repair path.",
+      "reviewerAddedConstraint": "A mode-gated refusal would make the SAME persisted state yield two different recovery answers depending on process configuration, reintroducing exactly the drift S3 removed (matchJournalAuthorityStartedDerived.ts's own doc: 'THIS READS PERSISTED STATE, NEVER THE CUTOVER FLAG'). Any S7 design that proposes gating on mode must reconcile this against S3's stated principle, not silently violate it.",
+      "stillOpenFor": "R4.S7"
+    },
+    {
+      "id": "S4-R4",
+      "origin": "S4 review (reviewerAddedFindings), severity medium/inert-now/MUST-carry",
+      "text": "The journal recovery arm (MatchRecovery.ts:240-248, journal.kind==='journal' branch) calls registerRecoveredHost(..., foldMatchSession(...)) and continues, jumping over the ENTIRE checkpoint/recovery block at :250-341. This skips FOUR properties the legacy arm has: (1) emptyHistory:'corrupt' refusal for an active match with 0 events, (2) integrityOf's event-identity-uniqueness check (duplicate receiptId across distinct sequences), (3) quarantineAuthorityCorruption (never invoked on the journal arm), (4) cache.record(...) checkpoint refresh (S4-R2, already named by the author). Unreachable in production today for the same create-path reason. The moment task 1.7 seeds the mirror at creation, EVERY match takes the journal arm and loses all four properties fleet-wide in one step.",
+      "recommendedAction": "S5/S6/S7 either route the journal arm through checkpointRecoveryPort with the journal head as headRevision, or explicitly re-justify each dropped property in the S7 receipt. No code change was requested in the S4 slice itself.",
+      "stillOpenFor": "R4.S7"
+    },
+    {
+      "id": "RR-4 (forward SHALL tension)",
+      "origin": "S1 review residualRisks + reaffirmed in r4-s2-s4-admission-brief part4 contradiction C3",
+      "text": "specs/gm-combat-interventions/spec.md line ~12 requires finalization to 'append an immutable correction fact through the authoritative transaction'. S1's mirror is a deliberately NON-atomic two-database split (match file writes the command commit; campaign file's journal is mirrored in a SEPARATE, best-effort, post-tx() call — DurableMatchStore.ts's own comment: 'the cross-file pair is deliberately NOT atomic at S1'). Not contradicted today (mode 'off', no rewind route touched) but the S6/S7 receipt must ANSWER this rather than inherit S1's deferral silently.",
+      "architecturalOptionsObservedInSession": "The campaign side already solved an equivalent problem via appendCampaignCommandBatch (src/lib/campaign/sync/JournalCampaignEventStore.ts, cited by campaignAuthorityMigration.ts) — ONE atomic batch-plus-verify-after-apply against the journal, with the legacy read becoming a downstream/derived concern rather than a second co-equal writer. S7 must decide whether combat adopts the same pattern (journal as sole write authority, mp_match_events becomes a derived/compatibility read) or documents a permanent two-writer reconciliation story. This is flagged as an OWNER DECISION below, not implemented by any brief so far.",
+      "stillOpenFor": "R4.S7 (explicitly, per RR-4's own text: 'the S6 receipt must answer this')"
+    },
+    {
+      "id": "task 1.3 marker retirement + wording amendment",
+      "origin": "S3b local (recommendedNextStep) and S3b review (dangling-export observation)",
+      "text": "Sub-prefix (3) of task 1.3 — drop the mp_journal_authority_started marker WRITE, the table, and its port — remains open and is now explicitly bound to the cutover (task 1.7) rather than to S3, because (S3b's theSecondBlocker) 8 of 39 assertions in journalAuthorityRecovery.test.ts and journalAuthorityRollbackProof.test.ts run on InMemoryMatchStore / a capability-db-less DurableMatchStore where the marker is the ONLY started record; retiring the marker's authority at recovery demotes those matches to legacy-compatible and fails those assertions. Migrating those 8 assertions onto capability-backed, actually-mirrored fixtures IS the retirement work. Two items travel with it per S3b: (a) re-enable the 'unavailable + marker -> blocked' refusal that had to be relaxed to unblock the repoint (proof-suite row 1 is the tripwire), and (b) the task 1.3 wording amendment — 'retire the marker WRITE' is narrower than 'retire the marker' outright; an owner ruling is needed on whether the table+read are also dropped or kept as a compatibility shim.",
+      "danglingExport": "isMatchJournalAuthorityStartedDerived (matchJournalAuthorityStartedDerived.ts:135-141) now has ZERO production consumers (only the S3a test suite calls it). Correct and harmless, but S3b's reviewer recommends sub-prefix (3) / task 1.7 retire it together with the marker path, or the two answers stay in sync for nobody.",
+      "migrationRiskNote": "S3b measured that migrating those journal suites hits the SAME JCS-undefined wall the create-path seeding gap does (host opening events carry undefined members; the canonicalizer refuses them). The two residuals (create-path seeding, marker-retirement migration) are coupled through this one canonicalizer gap.",
+      "stillOpenFor": "R4.S7"
+    },
+    {
+      "id": "task 1.4 second clause (unclaimed)",
+      "origin": "S4 review (whatTask14StillOwes)",
+      "text": "'prove with the umbrella's restart pack against a rewound match' (tasks.md line 17, second clause of task 1.4) was NOT claimed by the S4 slice. No e2e spec was touched in either S4 commit. What remains: run the umbrella restart pack (E2E-05/E2E-06/E2E-15) against a genuinely REWOUND match and remove whatever test.fail marks that pack carries for the restart arm. S4's own widened live-path test in tryFoldActivatedRewindBranch is exposed here but only argued, not live-proven.",
+      "recommendedOwner": "The same slice that lands the rewound-match restart pack, or S6/S7 if the pack's live surface is gated behind the cutover flag. NOTE: this residual belongs to task 1.4/R4.S4's own checkbox, which stays unticked; it is listed here because S7's cutover work is a plausible place it gets picked up, not because S5/S6/S7 are required to close it.",
+      "stillOpenFor": "R4.S4 primarily; possibly folded into R4.S7 if convenient, but NOT a hard dependency of S5/S6/S7's own admitted scope."
+    }
+  ],
+  "tasks": {
+    "1.5": {
+      "roadmapNode": "R4.S5",
+      "literalTaskText": "1.5 S5-a: make the sequence-versus-revision offset explicit at every derivation site; re-pin the four suites that encode it.",
+      "checkboxState": "unchecked [ ] (tasks.md line 18)",
+      "currentSourceState": {
+        "explicitSite": "src/lib/multiplayer/server/history/matchStoreBranchSegmentReader.ts:49-51 — `export function revisionForMatchSequence(sequence) { return sequence + 1; }`. This is the ONE named, explicit derivation function in the codebase. It is consumed by MatchCheckpointHistory.ts, MatchRecovery.ts, and MatchRecoveryJournalHead.ts (all read-side / recovery-side consumers), and by its own test.",
+        "implicitSiteA": "src/lib/multiplayer/server/MatchStreamJournalMirror.ts:14-25 (module doc comment, verified read in full) — states 'A match event carries a 0-based sequence and the journal numbers revisions from 1, so the match store's next sequence already equals the journal head's revision — which is why expectedRevision passes through untranslated. TRUE ONLY ON A STREAM NEVER REWOUND ... The mirror must not be enabled on a rewound match until S5-b (task 1.6) sources the expected revision from the journal head.' This is an invariant stated ONLY in a comment; toMatchJournalBatch (line ~75-105) passes input.expectedRevision straight through with no named function call and NO runtime guard against the rewound case the comment itself warns about.",
+        "implicitSiteB": "src/lib/multiplayer/server/DurableMatchStore.ts:791-806 — the AUTHORITATIVE commit-time check (`SELECT COALESCE(MAX(sequence)+1,0) AS next FROM mp_match_events ...; if (head.next !== batch.expectedRevision) return revision-conflict`) computes 'next sequence' inline, with no named offset function and no comment connecting it to the journal's revision numbering at all — a reader of this file alone would not learn that this number and a journal revision differ by a documented, sequence+1 offset.",
+        "fourSuitesThatEncodeIt": [
+          "src/lib/multiplayer/server/history/__tests__/matchStoreBranchSegmentReader.test.ts (the reader's own suite, verified present)",
+          "src/lib/multiplayer/server/__tests__/matchCheckpointEquivalence.test.ts (verified present via grep for revisionForMatchSequence)",
+          "src/lib/multiplayer/server/__tests__/matchRecoveryCheckpointDoor.test.ts (verified present via grep)",
+          "src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindRebuild.test.ts (verified present via grep)"
+        ],
+        "fourSuitesConfidence": "HIGH but not certain-complete: this is the exact set of test files that import/reference revisionForMatchSequence today (measured by grep across the whole worktree src/ tree, 7 hits total = 4 production + these 3 test files + the reader's own test = 4 test suites). The task's own phrase 'the four suites that encode it' matches this count exactly, which is why this brief treats the match as load-bearing rather than coincidental — but the exact grep was not repeated with every possible synonym (e.g. a suite could encode the relationship without naming the function). Treat as the primary candidate set, confirm-by-diff when the slice starts."
+      },
+      "deltaShallMapping": "NONE of the five gm-combat-interventions SHALLs are discharged by this task. Confirmed by the same reasoning the r4-s2-s4-admission-brief used for 1.2-1.4 (part4_contradictionsAndUncoveredShalls): COMBAT_JOURNAL_AUTHORITY_MODE stays 'off' in this slice, so no production behavior visible to any spec scenario changes. 1.5 is a pure internal-correctness/infra seam, same category as S1-S4.",
+      "existingTests": "The four suites above already pass today against the CURRENT (partially-implicit) state of the offset; they are not red. Nothing currently tests that the mirror REFUSES or guards against being enabled on a rewound stream — the doc comment's warning is unenforced.",
+      "theGap": "Two distinct problems, not one: (a) the offset is stated three different ways in three files (an explicit function; a comment-only 'passes through untranslated because next==revision, but only pre-rewind'; and a bare inline computation with no comment at all) — 'every derivation site' is not yet uniform, and a future editor changing one site has no compiler or test signal that the other two need to change with it. (b) the ONE place that explicitly warns about the rewound-stream exception (the mirror's own doc comment) has NO runtime enforcement: nothing stops mirrorMatchBatchToJournal from being invoked (under a test override, or later once S7 seeds it) against a match whose store-side sequence numbering has been perturbed by a rewind (superseded tail moved to mp_match_events_superseded, per the same comment) — so the passthrough could silently mirror a WRONG revision the day a rewound match's shadow mode gets exercised.",
+      "boundedSliceCharter": {
+        "behavior": "Replace the two implicit derivation sites with named, shared functions colocated with (or re-exporting) revisionForMatchSequence, and add a runtime guard at the mirror boundary that refuses (typed, not silently) when the target stream is not a fresh/never-rewound stream — i.e., make the currently comment-only invariant self-enforcing. Re-pin the four suites to assert against the new explicit names/guards rather than (or in addition to) the existing behavior.",
+        "filesEstimate": [
+          "src/lib/multiplayer/server/MatchStreamJournalMirror.ts (replace the passthrough comment with a call to a named function; add the rewound-stream guard)",
+          "src/lib/multiplayer/server/DurableMatchStore.ts (route the commit-time 'next sequence' read through the same named concept for documentation/consistency; NOT a behavior change to the check itself)",
+          "src/lib/multiplayer/server/history/matchStoreBranchSegmentReader.ts (possibly export a second small helper, e.g. isRewoundStream or similar predicate, if one does not already exist under another name — verify against matchAuthorityBaseline.ts's LIVE_PATH_BRANCH_IDS/isLivePathBranchId first, since S4 already built exactly this predicate for the read side and it should be REUSED, not reinvented)",
+          "src/lib/multiplayer/server/history/__tests__/matchStoreBranchSegmentReader.test.ts (re-pin)",
+          "src/lib/multiplayer/server/__tests__/matchCheckpointEquivalence.test.ts (re-pin)",
+          "src/lib/multiplayer/server/__tests__/matchRecoveryCheckpointDoor.test.ts (re-pin)",
+          "src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindRebuild.test.ts (re-pin)",
+          "src/lib/multiplayer/server/__tests__/matchStreamJournalMirror.sqlite.test.ts (new red-first case: mirror attempted against a rewound stream)"
+        ],
+        "fileCount": "8 (within the 15-file cap)",
+        "redFirstTestNames": [
+          "'mirrorMatchBatchToJournal refuses (or is never reached) when the stream's served branch is not the live-path baseline' — construct a match, activate a rewind (moving the tail to mp_match_events_superseded per the existing rewind machinery), then attempt to mirror a batch under `_setCombatJournalAuthorityModeForTests('shadow')`; RED today because nothing guards this — the mirror would currently compute a passthrough expectedRevision against the POST-rewind sequence numbering with no cross-check against the branch state at all.",
+          "'MatchStreamJournalMirror and DurableMatchStore's commit-time revision check agree on the SAME named offset for an equivalent input' — a same-file or cross-file assertion that both computations reduce to one shared function/constant; RED today only in the sense that no such shared symbol exists to assert equality against (this is closer to a refactor-safety test than a behavior test, and should be framed as 'this compiles and both call sites reference the same export' rather than a runtime assertion, to avoid a vacuous always-passing test)."
+        ],
+        "estimatedLines": "150-300 (mirror guard + shared helper + one new sqlite test + light edits to the four suites for re-pinning; the four suites are RE-PINNED, not rewritten, so their diffs should be small)",
+        "gates": [
+          "npm.cmd run typecheck",
+          "npm.cmd run lint",
+          "npm.cmd run format:check",
+          "npm.cmd run build",
+          "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/multiplayer/server"
+        ],
+        "nonClaims": "Does not flip any mode. Does not seed the mirror at creation (that is S7). Does not discharge any gm-combat-interventions SHALL. Does not resolve S4-R1, S4-R4, RR-1, or RR-4 — it is a precondition that PREVENTS a new, currently-latent bug (mirroring a rewound stream with an unguarded passthrough revision) from surfacing once S7's create-path seeding and S4-R1's shadow-mode questions are resolved."
+      },
+      "dependencies": [
+        "R4.S1 (mirror exists)",
+        "R4.S4 (matchAuthorityBaseline.ts's isLivePathBranchId / LIVE_PATH_BRANCH_IDS predicate — REUSE, do not reinvent, per S4's own stated rationale for centralizing that set)"
+      ],
+      "ownerDecisionsNeeded": "None identified that block starting this slice. One judgment call for the implementer: whether the rewound-stream guard should be a hard throw (fail-closed) or a typed refusal result threaded through MatchJournalMirrorResult's existing union (adds a member) — recommend the latter for consistency with every other refusal in this module, but it is a design choice, not an owner ruling, since it does not touch any spec or frozen contract.",
+      "residualsThisSliceDischarges": "None of the six residuals above are named as this task's responsibility; this slice is a precondition-hardening step, not a residual-closing one. It reduces future risk surface for R4.S7's create-path seeding (S7-a below) by ensuring the mirror cannot silently mis-derive a revision once seeding starts happening on every match, including ones that get rewound."
+    },
+    "1.6": {
+      "roadmapNode": "R4.S6",
+      "literalTaskText": "1.6 S5-b: the expected revision for a commit comes from the journal head; sequence-conflict and duplicate-command refusals proven against races.",
+      "checkboxState": "unchecked [ ] (tasks.md line 19)",
+      "currentSourceState": {
+        "authoritativeCheckIsLegacyOnly": "DurableMatchStore.ts:791-806 (verified read) — the ONLY expected-revision check that actually gates a commit reads `mp_match_events` (`MAX(sequence)+1`), inside the SAME transaction as the insert. The journal mirror runs AFTER this transaction commits (mirrorCommittedBatch, called post-tx() at the bottom of appendCommandBatch, verified read) and is explicitly a non-authoritative, best-effort side write ('A mirror failure therefore never fails the command'). So today, 'the expected revision for a commit' comes ENTIRELY from the legacy log; the journal head is never consulted at commit time, only at read time (S2's readEffectiveHead) and recovery time (S4's MatchRecoveryJournalHead).",
+        "existingRaceSafety": "The commit-time check IS already race-safe against the legacy log, because it runs inside `this.db.transaction(...)` (better-sqlite3, synchronous, verified read at DurableMatchStore.ts:775). Two overlapping appendCommandBatch calls for the same matchId serialize at the SQLite transaction boundary; the loser sees a genuine revision-conflict or (for a true duplicate commandId) the pre-check at the top of the transaction answers duplicate-command from the stored receipt. This existing safety is legacy-log-scoped, not journal-head-scoped.",
+        "existingTestCoverageIsSplit": "matchCommandBatch.test.ts / matchStoreBatchContract.test.ts test the LEGACY revision-conflict/duplicate-command paths. matchStreamJournalMirror.sqlite.test.ts tests the MIRROR's OWN revision-conflict/duplicate-command handling (MatchStreamJournalMirror.ts's kind:'revision-conflict'/'duplicate-command' results), which is a downstream, non-authoritative echo of the SAME journal-side check, not the commit gate. No test exercises the journal head AS the authoritative source for a commit-time decision, because no production code path does that yet.",
+        "rr2Relevance": "S1 review's RR-2 (medium): 'Intra-process mirror ordering is preserved only because better-sqlite3 transactions are synchronous ... If the writer ever becomes genuinely async, mirrors for the same match will reorder and the stream will conflict forever.' This is the ONE place a genuine 'race' concern already exists in the codebase for this seam, and it is about the MIRROR's ordering relative to itself across concurrent commits, not about two clients racing a single commit (which the legacy transaction already serializes)."
+      },
+      "deltaShallMapping": "NONE directly. Same reasoning as 1.5 — mode stays 'off' in any admittable slice, so no spec scenario becomes newly reachable. This task is a precondition for 'Superseded Combat Commands Are Rejected' (the STALE_BRANCH SHALL) becoming provably race-safe once the journal IS the authority, and for RR-4's 'authoritative transaction' language to mean anything once (if) combat adopts the campaign's atomic-batch pattern.",
+      "existingTests": "See currentSourceState.existingTestCoverageIsSplit above. Zero tests today prove a race outcome where the JOURNAL head is the value being raced over, because no code reads the journal head to gate a commit.",
+      "theGap": "The task's literal text presumes a routing change ('the expected revision ... comes from the journal head') that has NOT happened and CANNOT happen at the default mode ('off') without being the cutover flip itself, which the task's own numbering (S5-b, i.e. part of the S5 seam, not S6's cutover) suggests should land BEFORE the reviewed-cutover task 1.7 — this is worth an explicit owner note: task 1.6's roadmap node is R4.S6 (Wave 4, 'Expected-head race and duplicate-command refusal'), positioned BEFORE R4.S7 ('Shadow parity, migration states and reviewed cutover'), yet the tasks.md prose labels it 'S5-b' (part of the S5 seam) while design.md's own section list separates 'S5 revision offset' from 'S6 reviewed cutover' with NOTHING in between for this task — i.e. the design.md text and the tasks.md/roadmap numbering disagree about whether 1.6 is S5's second half or a standalone S6. This brief follows the ROADMAP's R4.S6 assignment (authoritative for admission) and flags the S5-b/S6 naming mismatch as a documentation inconsistency, not a blocking contradiction (both describe the same work: expected-revision-from-journal-head plus race proofs).",
+      "boundedSliceCharter": {
+        "behavior": "Build a MODE-GATED (test-override only, never touching the 'off' default) alternate expected-revision resolution path modeled directly on S4's MatchRecoveryJournalHead.ts pattern (same 'legacy | journal | diverged'-shaped tri-state, but for the WRITE/commit side instead of the recovery side), and a race-proof test suite that drives concurrent appendCommandBatch calls against a real SQLite-backed match store with the journal mirror active under `_setCombatJournalAuthorityModeForTests('shadow'|'enabled')`, proving: (a) two commits racing the SAME expectedRevision — exactly one wins with a typed sequence/revision-conflict for the loser; (b) two commits with the SAME commandId (a genuine duplicate, e.g. a retried client) resolve to the IDENTICAL receipt regardless of arrival order; (c) the mirror's OWN revision-conflict/duplicate-command arms (already implemented in MatchStreamJournalMirror.ts, currently untested per S1 review RR-5 for two of its arms) are exercised by the SAME race, not just by hand-constructed unit inputs.",
+        "raceRealismCaveat": "better-sqlite3 executes transactions synchronously on the Node main thread; a 'race' cannot be a true OS-level race without literally forking processes or using worker_threads against the same SQLite file. The realistic, valuable race to prove is at the ASYNC BOUNDARY the codebase actually has: `tx()` (sync, legacy-authoritative) followed by `await this.mirrorCommittedBatch(...)` (async, non-authoritative) — i.e., two `appendCommandBatch` calls fired without awaiting the first, exercising Node's microtask interleaving between the synchronous transaction commits and their asynchronous mirror follow-ups. This is precisely RR-2's concern. Recommend the slice's 'race' claim be scoped honestly to this interleaving, not oversold as a multi-process concurrency proof.",
+        "filesEstimate": [
+          "src/lib/multiplayer/server/MatchCommitJournalHead.ts (new; write-side sibling of MatchRecoveryJournalHead.ts, mode-gated, not wired into the default appendCommandBatch path)",
+          "src/lib/multiplayer/server/__tests__/matchCommitJournalHeadRace.sqlite.test.ts (new; the race-proof suite)",
+          "src/lib/multiplayer/server/DurableMatchStore.ts (additive only: an optional/test-visible hook point if needed to interleave two calls deterministically; avoid touching the default commit path's behavior)"
+        ],
+        "fileCount": "3 (well within the 15-file cap; likely fits in one PR unless the RR-2 synchronous-mirror invariant assertion — a separate, smaller addition — is folded in, which would add 1 file)",
+        "redFirstTestNames": [
+          "'two commits racing the same expectedRevision: exactly one commits, the other receives a typed revision-conflict naming the journal-derived actual revision' — RED today because no journal-derived expected-revision function exists to name in the conflict result; the existing revision-conflict already fires (from the legacy check) but does not cite the journal head at all.",
+          "'a retried duplicate commandId racing its own original resolves to the identical receipt under journal-mode' — RED today only in the sense that no test exercises this under `_setCombatJournalAuthorityModeForTests` at all; the underlying duplicate-command logic (legacy, pre-check in the transaction) likely already passes an equivalent legacy-mode version of this test, so this is close to a MIGRATION of an existing test to the new mode rather than a wholly new behavior — call this out honestly rather than claiming a new RED."
+        ],
+        "estimatedLines": "200-400",
+        "gates": [
+          "npm.cmd run typecheck",
+          "npm.cmd run lint",
+          "npm.cmd run format:check",
+          "npm.cmd run build",
+          "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/multiplayer/server"
+        ],
+        "nonClaims": "Does not change the DEFAULT ('off') commit-time authoritative check. Does not discharge the 'Superseded Combat Commands Are Rejected' SHALL (mode stays off in production). Does not resolve RR-1 (busy_timeout policy) or RR-4 (single-transaction architecture) — those are explicitly named as S6/S7's to answer and are addressed as owner-decision items below, not implemented here."
+      },
+      "dependencies": [
+        "R4.S5 (1.5) — needs the hardened, explicit offset function/guard so a journal-derived expected revision is computed consistently for both never-rewound and (eventually) rewound streams.",
+        "R4.S1 (mirror) and R4.S4 (MatchRecoveryJournalHead.ts as the direct structural template for the new write-side consult)"
+      ],
+      "ownerDecisionsNeeded": [
+        "What counts as an acceptable 'race' proof for a single-process, synchronous-SQLite-transaction engine: async-boundary interleaving (recommended, and the only race that actually exists in this codebase today) vs. a heavier multi-process/worker_thread harness. Recommend the owner accept the async-boundary framing explicitly in the S6 receipt to pre-empt a reviewer later asking 'but is this a REAL race'.",
+        "RR-1's disposition (see R4.S7 below — this brief treats RR-1's final closure as S7's business per the original review's own 'S4 or S6' framing, now that S4 has narrowed but not closed it; task 1.6 should at minimum NOT worsen RR-1's exposure, and its race suite is a natural place to also assert the busy_timeout value once S7 sets one)."
+      ],
+      "residualsThisSliceDischarges": "None fully. Provides the write-side structural twin to S4's read-side MatchRecoveryJournalHead, which R4.S7-d (below) needs as a building block for the migration-state machine's 'journal' state to mean anything at commit time. Narrows RR-2 by giving it an explicit test (does not close RR-1 or RR-4)."
+    },
+    "1.7": {
+      "roadmapNode": "R4.S7",
+      "literalTaskText": "1.7 S6: reviewed cutover flag with shadow parity, migration states and rollback law in the campaign cutover's shape; new matches admit through the journal, legacy completed matches keep their reads. Rollback proof: revert the flag, no row erased.",
+      "checkboxState": "unchecked [ ] (tasks.md line 20)",
+      "currentSourceState": {
+        "noPerStreamMigrationStateExists": "grep for CampaignAuthorityMigrationState across the whole worktree src/ tree returns hits ONLY under src/lib/campaign/authority/ (campaignAuthorityMigration.ts + its test). No combat/match analog (e.g. a MatchAuthorityMigrationState) exists anywhere in src/lib/multiplayer/server/. COMBAT_JOURNAL_AUTHORITY_MODE (matchJournalAuthority.ts:14-18, verified read in full) remains a single process-wide hardcoded const ('off') with only a test-only override (`_setCombatJournalAuthorityModeForTests`) — no per-match state, no marker/cutover record analogous to campaignAuthorityMigration's cutover marker, no rollback law encoded anywhere for combat streams.",
+        "theShapeToImitateIsReal": "src/lib/campaign/authority/campaignAuthorityMigration.ts:1-70 (verified read in full) — CampaignAuthorityMigrationState = 'legacy' | 'shadowing' | 'journal' | 'blocked'; a durable cutover marker recording sourceSnapshotRevision/Digest, baseline identity, projector version, schema-pipeline fingerprint, first journal-authority command; rollback law: 'snapshot-authority rollback is permitted only while the journal head still equals the imported baseline and no journal-authority command has committed; afterwards the campaign uses a compatible journal reader or enters blocked — never a silent legacy fallback. Journal rows are never deleted by any transition.' This is a concrete, shipped, testable pattern, not a design-doc abstraction.",
+        "twoDifferentShadowMechanismsAlreadyExistNamingRisk": "journalAuthorityShadow.ts (verified read in full header) is a DIFFERENT, OLDER mechanism from task 2.3/2.4's still-off combat-journal-authority path — it shadow-compares the DECIDE-PATH REPLAY (re-running decideCommandBatch against a hydrated session) against a successful legacy dispatch, and is purely diagnostic. This is NOT the S1 mirror's parity mechanism (recordProcessShadowComparison / getProcessShadowMismatchCount, referenced from matchJournalAuthority.ts and consulted by S4's divergence logic), which compares the JOURNAL MIRROR's revision/count against the legacy log. S7's 'shadow parity' work must not conflate these two — recommend the S7 design explicitly name which 'shadow' it means every time, since the directory already has two.",
+        "matchAuthorityBaselineAlreadyHasImportMachinery": "src/lib/multiplayer/server/matchAuthorityBaseline.ts:1-40 (verified read) is the PRE-EXISTING 'honest baseline import' machinery from the archived adopt-combat-event-journal-authority change (task 1.3 of THAT package, per its own doc comment) — MatchBaselineSource = 'retained-log' | 'legacy-baseline', with the same D4-style 'never invent a prefix / never rewrite a baseline' rules the campaign side's D8/D10 shape also follows. This is NOT the same file S4's LIVE_PATH_BRANCH_IDS/isLivePathBranchId lives in despite the similar name (matchAuthorityBaseline.ts vs the constants S4 moved there) — VERIFY this is the actual same file (it is: S4 local's whatWasBuilt.sharedLivePathSet names 'src/lib/multiplayer/server/matchAuthorityBaseline.ts' as the destination for the moved LIVE_PATH_BRANCH_IDS set, and the file this brief read independently also defines MATCH_BASELINE_BRANCH_ID at its top — same file, two purposes already living in it: baseline-import types AND the live-path branch-id set). S7 should decide whether the NEW per-match migration-state marker belongs in this same file (extending its existing import-machinery role) or a new sibling file, given it already carries two responsibilities.",
+        "jcsUndefinedIsAVerifiedRealGap": "src/lib/events/journal/EventJournalCanonicalizer.ts:58-76 (verified read) — the canonicalize() switch's `default:` arm calls `fail('unsupported-value', 'JCS cannot represent ' + typeof value)` for ANY typeof not in {boolean, number, string, object}; `typeof undefined === 'undefined'` falls through to this default and throws. This is a real, reproducible defect against ANY payload carrying an own-enumerable `undefined`-valued property (Object.keys() includes such keys; JSON.stringify would silently drop them, but this canonicalizer does not special-case that difference). This file is SHARED between the campaign and combat journal paths — a fix here is cross-cutting and must not change canonicalization output for any EXISTING committed campaign event (a byte-for-byte behavior change to canonicalizeJsonV1 could change historical digests if any existing stored event happens to rely on the current throw-vs-silent-drop distinction; this needs an explicit compatibility check, not an assumption that campaign events never carry undefined fields)."
+      },
+      "deltaShallMapping": "This is the FIRST task in the S1-S7 chain positioned to eventually discharge SHALLs (once flipped), but the flip itself is explicitly OUT OF SCOPE for admitted work per this brief's charter ('a cutover flip is NOT admitted work'). The admittable slices below (S7-a..S7-d) discharge ZERO gm-combat-interventions SHALLs; they build and prove the machinery that COULD discharge them once an owner approves flipping COMBAT_JOURNAL_AUTHORITY_MODE away from 'off' in production, which is a separate, later, owner-gated action this brief does not scope.",
+      "existingTests": "None for a migration-state machine (none exists to test). journalAuthorityRecovery.test.ts / journalAuthorityRollbackProof.test.ts test the OLDER task-2.3/2.4 marker path, 8 of whose assertions are the specific blocker S3b measured (see residuals above) and will need migrating as part of S7-b.",
+      "theGap": "Four independently-gateable pieces of missing work, none individually satisfying 'reviewed cutover flag with shadow parity, migration states and rollback law' on its own, and NONE of which alone fits describing 'S6' as a single PR given the parent node's own maxFiles:15/maxNonGeneratedLines:500 caps against the size of what's actually owed (create-path seeding touches ServerMatchHost + the canonicalizer + a new mirror call site; marker retirement touches ~9 files per S2-S4 brief's part3; the recovery checkpoint-port routing touches MatchRecovery.ts's ~100-line block; the migration-state machine itself is comparable in scope to campaignAuthorityMigration.ts, which the campaign side did NOT ship as one PR either, per the user's own project memory of that work being split into PR 1/2/3 sub-slices — though that memory is not independently re-verified in this session and is offered as directional context only, not a citation).",
+      "recommendedDecomposition": {
+        "principle": "Mirror the roadmap's own instruction on the R4.S5 node ('decomposition: navigation paths only. Before assignment, select one behavior, exact files and original task IDs; split until original/default caps fit') — apply the SAME splitting discipline to R4.S7 that R4.matrix already applied to turn task 1.5 into its own node distinct from 1.6/1.7. This brief proposes four sub-slices, S7-a through S7-d, each independently reviewable and receiptable, all still gated behind COMBAT_JOURNAL_AUTHORITY_MODE staying 'off' in production (or test-override-only) — none of them is 'the flip'.",
+        "slices": [
+          {
+            "id": "R4.S7-a",
+            "title": "Create-path seeding: mirror a fresh match's opening events",
+            "behavior": "Route ServerMatchHost.create's opening events (persistInitialEvents -> store.appendEvent, currently outside the appendCommandBatch/mirror boundary) through a mirror call so a freshly created match gets a real genesis head/effective-head row under a mode override, closing the create-path gap S2/S4 both named. Fix the JCS-undefined canonicalization gap FOR REAL in EventJournalCanonicalizer.ts (treat an own-enumerable `undefined`-valued property as absent, matching JSON.stringify's silent-drop semantics) rather than relying on the test-only JSON-roundtrip workaround S3b's proof suite uses today — with an explicit compatibility check that no existing stored campaign-journal digest depends on the current throw behavior (grep/inspect whether any committed campaign event payload has ever contained an own undefined property; if categorically impossible by TypeScript's own event-authoring types, state that as the compatibility argument instead of a runtime migration).",
+            "filesEstimate": [
+              "src/lib/events/journal/EventJournalCanonicalizer.ts (the undefined-handling fix — SHARED file, smallest possible diff)",
+              "src/lib/events/journal/__tests__/EventJournalCanonicalizer.test.ts (or wherever its existing suite lives — re-pin/extend for the new undefined-as-absent behavior; locate exact path before starting)",
+              "src/lib/multiplayer/server/ServerMatchHost.ts or ServerMatchHostEvents.ts (route persistInitialEvents's events through a mirror call under mode override)",
+              "src/lib/multiplayer/server/MatchStreamJournalMirror.ts (a create-specific entry point if the existing mirrorMatchBatchToJournal signature does not fit an opening-events batch cleanly — verify before assuming a new function is needed)",
+              "a new sqlite test file proving a freshly created match has a real head at revision 2 under mode 'shadow'"
+            ],
+            "fileCount": "5 (within cap)",
+            "redFirstTest": "'a freshly created match under mode shadow has a journal head at revision 2 (GameCreated+GameStarted) immediately after creation, before any command batch commits' — RED today by direct measurement already on record (S4 review's KEY_QUESTION byConstructionReason chain, and S4 local's seedingDecision citing the S2 review's create-path row): no head exists until the FIRST real command batch, and that first batch itself fails to install one because its expectedRevision (>=2) does not match the empty journal's revision 0.",
+            "estimatedLines": "200-350",
+            "gates": [
+              "npm.cmd run typecheck",
+              "npm.cmd run lint",
+              "npm.cmd run format:check",
+              "npm.cmd run build",
+              "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/multiplayer/server src/lib/events/journal"
+            ],
+            "dependencies": [
+              "R4.S1 (mirror)",
+              "R4.S5 (the hardened offset guard, since seeded genesis events must also respect the never-rewound invariant 1.5 encodes)"
+            ],
+            "dischargesResiduals": [
+              "create-path seeding gap (fully, if the slice lands as scoped)",
+              "is the unblocking precondition for S7-b, S7-c, and for S4-R1/S4-R4 to become live-testable rather than argued-by-construction"
+            ],
+            "ownerDecisionNeeded": "Whether the canonicalizer fix ships as a genuine production behavior change (undefined-as-absent) now, gated by a compatibility argument, or whether S7-a instead sanitizes ONLY the combat opening-events call site (strip undefined keys before handing events to the mirror) and leaves the shared canonicalizer's stricter behavior untouched for every other caller. The latter is smaller and lower-risk; the former is more correct long-term (JSON.stringify parity) and unblocks any FUTURE caller with the same shape. Recommend the narrower call-site sanitization for THIS slice, with the canonicalizer-level fix flagged as a separate, non-blocking follow-up (avoids touching campaign-side digest behavior at all)."
+          },
+          {
+            "id": "R4.S7-b",
+            "title": "Complete task 1.3's marker retirement (sub-prefix 3) now that S7-a provides real heads",
+            "behavior": "Migrate the 8 assertions in journalAuthorityRecovery.test.ts and journalAuthorityRollbackProof.test.ts that currently rely on InMemoryMatchStore / a capability-db-less DurableMatchStore (where mp_journal_authority_started is the ONLY started record) onto capability-backed fixtures that get a REAL mirrored head via S7-a's seeding. Re-enable the 'unavailable + marker -> blocked' refusal S3b had to relax (proof-suite row 1 is the named tripwire). Drop the mp_journal_authority_started WRITE; resolve the wording-amendment question (table+read also dropped, or kept as a compatibility shim) via an explicit owner ruling recorded in the change's notepad (workers never edit openspec/**, per this package's own stated rule). Retire the dangling isMatchJournalAuthorityStartedDerived export or give it a real caller.",
+            "filesEstimate": [
+              "src/lib/multiplayer/server/matchJournalAuthorityStartedDerived.ts",
+              "src/lib/multiplayer/server/ServerMatchHostJournalAuthority.ts",
+              "src/lib/multiplayer/server/DurableMatchStore.ts (drop the write; decide table fate)",
+              "src/lib/multiplayer/server/matchCommandBatch.ts (the journalAuthorityStarted field's fate, if the table is fully dropped)",
+              "src/lib/multiplayer/server/IMatchStore.ts",
+              "src/lib/multiplayer/server/__tests__/journalAuthorityRecovery.test.ts (migrate 4 of the 8 assertions)",
+              "src/lib/multiplayer/server/__tests__/journalAuthorityRollbackProof.test.ts (migrate the other 4)",
+              "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/notepad.md (record the wording-amendment ruling; NO task/spec text edits per the package rule)"
+            ],
+            "fileCount": "8 (within cap, but this is the MOST FILE-DENSE of the four sub-slices per S2-S4 brief's own part3 estimate for 'sub-prefixes B/C')",
+            "redFirstTest": "'a match store with no capabilityDb, that never mirrored anything, is refused typed (blocked/recovery-fact-read-failed or an equivalent), not silently answered legacy-compatible, when the marker itself is also absent' — this is proof-suite row 1's shape, currently RELAXED (not red, just not enforced) per S3b's own account.",
+            "estimatedLines": "300-500 (near the cap; a further split into 'drop the write' vs 'migrate the 8 assertions' is plausible if this overflows)",
+            "gates": [
+              "npm.cmd run typecheck",
+              "npm.cmd run lint",
+              "npm.cmd run format:check",
+              "npm.cmd run build",
+              "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/multiplayer/server"
+            ],
+            "dependencies": [
+              "R4.S7-a (real heads to migrate the 8 assertions onto)",
+              "R4.S3a/S3b (already merged; deriveMatchJournalAuthorityStartedHead is the base this slice finishes retiring the marker around)"
+            ],
+            "dischargesResiduals": [
+              "task 1.3 marker retirement + wording amendment (fully)",
+              "the dangling isMatchJournalAuthorityStartedDerived export (fully)"
+            ],
+            "ownerDecisionNeeded": "The wording-amendment ruling itself (table+read dropped outright, or read kept as a compatibility shim) — this brief recommends DROP BOTH (write, read, and table), since S3b's own derived-head module already provides an equivalent, MORE CORRECT signal (persisted-state-based, not marker-based) for every caller that currently reads getJournalAuthorityStarted, and keeping a shim after S7-a provides real heads would recreate the exact 'two sources of started' drift task 1.3 exists to remove. State this as a RECOMMENDATION, not a unilateral decision — the owner should confirm before the slice starts, since it is explicitly named as needing a ruling by two separate pieces of prior evidence (S3b review and this brief's re-reading of it)."
+          },
+          {
+            "id": "R4.S7-c",
+            "title": "Route the journal recovery arm through checkpointRecoveryPort (S4-R4)",
+            "behavior": "Extend MatchRecovery.ts's journal.kind==='journal' arm (currently :240-248, jumping straight to registerRecoveredHost) to pass through checkpointRecoveryPort with the journal head's revision as headRevision, recovering the four properties S4-R4 named as lost (empty-history refusal, event-identity-uniqueness integrity check, quarantine eligibility, checkpoint cache refresh) — OR, if the owner rules one or more of these properties is genuinely not meaningful for a journal-authoritative stream (e.g., quarantine's sequence-gap/broken-lineage/duplicate-receipt vocabulary may not map 1:1 onto journal-head semantics), write the explicit re-justification receipt S4-R4 asked for instead of a code change for that specific property.",
+            "filesEstimate": [
+              "src/lib/multiplayer/server/MatchRecovery.ts",
+              "src/lib/multiplayer/server/MatchRecoveryJournalHead.ts (if the journal arm's return shape needs to carry more information for checkpointRecoveryPort to consume)",
+              "src/lib/multiplayer/server/__tests__/matchRecoveryCheckpointDoor.test.ts (extend to cover the journal arm going through the same door)",
+              "a new or extended sqlite test proving the four properties on a journal-path match once S7-a provides real heads"
+            ],
+            "fileCount": "4 (well within cap; FILE-DISJOINT from S7-b — different files entirely — safe to run in PARALLEL with S7-b once S7-a lands)",
+            "redFirstTest": "'an active journal-path match with zero events is refused as corrupt (matching the legacy arm's emptyHistory check), not silently registered as a servable empty host' — RED today by the reviewer's own direct code citation (MatchRecovery.ts:283 for the legacy arm's behavior vs. the journal arm's unconditional registerRecoveredHost at :240-248).",
+            "estimatedLines": "150-300",
+            "gates": [
+              "npm.cmd run typecheck",
+              "npm.cmd run lint",
+              "npm.cmd run format:check",
+              "npm.cmd run build",
+              "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/multiplayer/server"
+            ],
+            "dependencies": [
+              "R4.S7-a (a real journal-path match to test against; today the journal arm is unreachable in production and only test-constructible)",
+              "R4.S4 (MatchRecoveryJournalHead.ts, extended in place)"
+            ],
+            "dischargesResiduals": [
+              "S4-R4 (fully, if all four properties are routed through or explicitly re-justified)"
+            ],
+            "ownerDecisionNeeded": "Per-property: is quarantineAuthorityCorruption meaningful for a journal-authoritative stream at all, given its QUARANTINABLE reasons (sequence-gap/broken-lineage/duplicate-receipt/missing-digest) were designed around the LEGACY log's failure modes? Recommend the owner confirm whether an equivalent set of journal-side corruption shapes exists (the divergence refusal already covers one: log/journal disagreement) or whether quarantine simply does not apply here and S4-R4's fourth property should be closed by an explicit non-claim rather than new code."
+          },
+          {
+            "id": "R4.S7-d",
+            "title": "Migration-state machine + shadow-parity gate + rollback law (the actual S6/S7 capstone)",
+            "behavior": "Build the match/combat analog of CampaignAuthorityMigrationState ('legacy' | 'shadowing' | 'journal' | 'blocked') per design.md's own words for S6, reusing matchAuthorityBaseline.ts's existing MatchBaselineSource import machinery for the 'honest baseline import' half and S6's (task 1.6's) journal-derived-revision consult for the 'journal' state's write-side meaning, keyed per match stream (not process-wide, unlike today's single COMBAT_JOURNAL_AUTHORITY_MODE const). This slice ALSO ships the four owner-decision resolutions below as CODE (not just documentation) but does NOT flip the production default: the machinery lands with the default state remaining 'legacy' (equivalent to today's mode 'off') for every existing match, exercised only under test overrides and/or a scoped per-match opt-in, exactly as task 1.7's own text distinguishes 'new matches admit through the journal' (a FUTURE default once flipped) from what THIS slice proves (the mechanism that WOULD do that, reviewed and tested).",
+            "encodesTheseOwnerDecisions": [
+              "S4-R1: gate the shadow-mode divergence refusal on mode 'enabled' only, OR add mirror catch-up, OR accept the refusal with an operator repair path — RECOMMENDATION: given S3's own stated principle (recovery reads persisted state, never the cutover flag) a MODE-gate would be architecturally wrong; recommend instead that a match's MIGRATION STATE (not the process mode) determines whether the divergence refusal applies — a match in 'shadowing' state gets the refusal (it is claiming journal parity, so divergence is a real defect to surface FOR THAT MATCH specifically, without touching healthy matches still in 'legacy' state that have no head at all and thus no divergence to detect). This reframes S4-R1 as ALREADY SOLVED by the migration-state model itself, rather than needing a separate mode-vs-match decision — flag this reframing for owner confirmation since it changes the shape of the question S4-R1 originally posed.",
+              "RR-1: an explicit busy_timeout policy. RECOMMENDATION: set an explicit pragma (e.g. matching or slightly exceeding better-sqlite3's 5000ms default, such as 8000-10000ms) alongside a bounded retry-with-backoff on SQLITE_BUSY specifically for the mirror's transaction (not the primary match commit, which must stay fast), since the mirror is the side write that can tolerate extra latency the primary commit cannot. State this as a recommendation requiring owner sign-off on the exact timeout value, not a unilateral implementation choice.",
+              "RR-4: the single-vs-two-writer architecture. RECOMMENDATION: given how much analogous machinery ALREADY exists on the campaign side (appendCampaignCommandBatch's atomic-batch-plus-verify-after-apply pattern), recommend the owner decide whether combat should eventually adopt the SAME pattern (journal as sole write authority; mp_match_events becomes a derived/replay-only projection) as a LATER change, OR whether S7-d should instead formally document the two-writer reconciliation story (mirror failure -> shadow-mismatch counter -> S4's divergence refusal -> match blocked pending operator repair) AS the permanent answer to RR-4's SHALL tension, accepting that 'the authoritative transaction' in spec language maps to 'the match-file transaction, with the journal as an eventually-consistent, refusal-gated mirror' rather than literally one transaction. This is the single biggest architectural fork in the whole S5-S7 admission and should not be decided by an implementer without an explicit ruling.",
+              "Task 1.3's wording amendment — already recommended under S7-b (drop write+read+table); repeated here because the migration-state machine is the natural place the marker's REPLACEMENT signal (the per-match migration state itself) lives, closing the loop S3 opened."
+            ],
+            "rollbackLawEncodedAs": "Direct analog of campaignAuthorityMigration.ts's rule: 'a match's migration state may only revert from shadowing/journal back toward legacy while the journal head still equals what the mirror most recently wrote AND no journal-authoritative read/write has actually been served from it; afterwards the match uses a compatible legacy reader or enters blocked — never a silent fallback. Journal rows (event_journal_events, event_journal_stream_heads, event_history_effective_heads) are NEVER deleted by any transition, matching proposal.md's own Impact section ('Rollback is additive and history-preserving: revert the cutover flag; never erase journal, branch, receipt or audit rows').",
+            "rollbackProofTest": "'reverting a match's migration state from journal/shadowing to legacy leaves every journal row byte-identical (row counts and digests before/after) and the match continues serving via the legacy reader' — this is the literal rollback-proof clause task 1.7 names ('Rollback proof: revert the flag, no row erased').",
+            "filesEstimate": [
+              "src/lib/multiplayer/server/matchAuthorityMigration.ts (new; combat analog of campaignAuthorityMigration.ts)",
+              "src/lib/multiplayer/server/matchAuthorityBaseline.ts (extend or cross-reference; decide whether the new state machine lives here given the file's existing dual role, or is deliberately kept separate — recommend SEPARATE, given S7's own review of this file already flagged it as carrying two responsibilities)",
+              "src/lib/multiplayer/server/matchJournalAuthority.ts (the process-wide mode const likely becomes a fallback/default for matches with no per-match state yet, rather than being deleted outright — verify against however 1.6's write-side consult and S7-a's seeding actually read mode vs. per-match state)",
+              "src/services/persistence/SQLiteService.ts (busy_timeout pragma, if the owner approves the RR-1 recommendation)",
+              "src/lib/multiplayer/server/__tests__/matchAuthorityMigration.test.ts (new; the state machine's own suite, mirroring campaignAuthorityMigration.test.ts's structure)",
+              "src/lib/multiplayer/server/__tests__/matchAuthorityMigrationRollback.sqlite.test.ts (new; the rollback-proof test)"
+            ],
+            "fileCount": "6 estimated, but THIS SLICE IS THE MOST LIKELY OF THE FOUR TO EXCEED THE 500-LINE CAP given campaignAuthorityMigration.ts's own scope (a full state machine + marker persistence + rollback law is comparable in size to that file, which was itself absorbed into design-campaign-authority-and-sync across multiple sequenced PRs per that package's own history) — recommend the coordinator treat S7-d as a PROVISIONAL node that itself gets split (e.g. S7-d1 state-machine types+transitions, S7-d2 marker persistence, S7-d3 rollback proof) once a worker actually measures the diff, rather than assuming one PR suffices.",
+            "redFirstTest": "'a match with no migration-state row defaults to legacy and behaves byte-identically to today's mode-off match' (the safety net proving the new machinery is additive) followed by 'a match transitioned to shadowing gets the S4-R1 divergence refusal while a match still in legacy does not' (the reframed S4-R1 resolution) — both RED today because the migration-state type does not exist.",
+            "estimatedLines": "400-500+ (near or over cap; expect a split)",
+            "gates": [
+              "npm.cmd run typecheck",
+              "npm.cmd run lint",
+              "npm.cmd run format:check",
+              "npm.cmd run build",
+              "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/multiplayer/server"
+            ],
+            "dependencies": [
+              "R4.S5, R4.S6 (both), R4.S7-a, R4.S7-b, R4.S7-c — this is the capstone and should land LAST",
+              "the owner rulings on S4-R1's reframing, RR-1's timeout value, and RR-4's architecture BEFORE implementation starts, not discovered mid-slice"
+            ],
+            "dischargesResiduals": [
+              "S4-R1 (via the reframing above, pending owner confirmation)",
+              "RR-1 (via the explicit pragma, pending owner-approved value)",
+              "RR-4 (via an explicit documented architecture ruling, whichever way the owner decides)",
+              "completes the literal task 1.7 text's 'migration states and rollback law' clause"
+            ],
+            "explicitNonClaim": "This slice does NOT flip COMBAT_JOURNAL_AUTHORITY_MODE's production default, and does NOT itself close the 34-of-80 (or 34-real-of-80) e2e reconciliation task 0.1 owes, and does NOT remove any test.fail mark from the umbrella's rewind-pack group (task 3.2) — those remain separate, later, receipt-gated actions per the package's own task list sections 2 and 3."
+          }
+        ]
+      }
+    }
+  },
+  "ordering": {
+    "sequence": [
+      "R4.S5 (task 1.5) — START FIRST. No owner decision required to begin; lowest risk; unblocks S6 and reduces S7-a/S7-d risk surface.",
+      "R4.S6 (task 1.6) — after S5. One owner-decision needed (race-proof framing) but non-blocking to START (can begin while the framing question is being ruled on, since the async-boundary interleaving approach is this brief's stated recommendation and the only race that actually exists in the codebase).",
+      "R4.S7-a (create-path seeding + canonicalizer fix) — can start in PARALLEL with S6 (file-disjoint: touches EventJournalCanonicalizer.ts, ServerMatchHost.ts/ServerMatchHostEvents.ts, MatchStreamJournalMirror.ts's create entry point — none overlap S6's MatchCommitJournalHead.ts/DurableMatchStore.ts hook point, though DurableMatchStore.ts is touched by both S6 and, potentially, S7-a's mirror wiring — VERIFY at start-of-slice whether S7-a actually needs to touch DurableMatchStore.ts or only ServerMatchHost's construction path; if the latter, the two slices are fully file-disjoint and safe to parallelize). Needs its OWN owner decision (canonicalizer fix scope) before or during the slice.",
+      "R4.S7-b (marker retirement) and R4.S7-c (recovery checkpoint-port routing) — both depend on S7-a landing first, but are FILE-DISJOINT from each other (S7-b: matchJournalAuthorityStartedDerived.ts / ServerMatchHostJournalAuthority.ts / DurableMatchStore.ts / matchCommandBatch.ts / IMatchStore.ts; S7-c: MatchRecovery.ts / MatchRecoveryJournalHead.ts) — SAFE TO RUN IN PARALLEL once S7-a is merged.",
+      "R4.S7-d (migration-state machine, shadow parity, rollback law) — LAST. Depends on S5, S6, S7-a, S7-b, S7-c all landing, AND on three owner rulings (S4-R1 reframing, RR-1 timeout value, RR-4 architecture) being made BEFORE implementation starts, not discovered mid-slice. Almost certainly needs its own further split (S7-d1/d2/d3) once a worker measures the actual diff against the 500-line cap."
+    ],
+    "recommendedFirstSlice": "R4.S5 (task 1.5) — make the sequence/revision offset explicit at the mirror boundary and re-pin the four suites (matchStoreBranchSegmentReader.test.ts, matchCheckpointEquivalence.test.ts, matchRecoveryCheckpointDoor.test.ts, ServerMatchHost.rewindRebuild.test.ts). It is the only one of the seven proposed slices (1.5, 1.6, S7-a, S7-b, S7-c, S7-d) that requires ZERO owner decisions to begin, has the smallest and most precisely bounded file list (8 files, 150-300 lines), reuses an already-shipped predicate (S4's isLivePathBranchId) rather than inventing new machinery, and directly reduces the risk that S7-a's create-path seeding (the very next, and most load-bearing, slice) introduces a wrong-revision mirror on any stream that gets rewound while shadow mode is exercised."
+  },
+  "residualDischargeMatrix": {
+    "note": "Cross-reference: which named S1-S4 residual is closed by which proposed slice, and which remain owner-only regardless of any slice landing.",
+    "rows": [
+      {
+        "residual": "RR-1 (busy_timeout)",
+        "closedBy": "R4.S7-d",
+        "ownerRulingRequired": true,
+        "rulingNeeded": "exact timeout value + retry policy"
+      },
+      {
+        "residual": "RR-2 (synchronous-mirror-ordering invariant)",
+        "closedBy": "R4.S6 (test added, not fully 'closed' — an invariant COMMENT already exists; S6 gives it a test)",
+        "ownerRulingRequired": false
+      },
+      {
+        "residual": "RR-3 (backfillGenesisBranches is stream-agnostic)",
+        "closedBy": "NONE of S5-S7 as scoped — this was disclosed and ACCEPTED by the S1 author/reviewer as a deliberate side effect, not something S5-S7's tasks.md text asks to fix. Flagged here only so it is not silently forgotten; recommend explicit non-claim in every S5-S7 receipt rather than a fix.",
+        "ownerRulingRequired": false
+      },
+      {
+        "residual": "RR-4 (single-transaction SHALL tension)",
+        "closedBy": "R4.S7-d",
+        "ownerRulingRequired": true,
+        "rulingNeeded": "single-writer (journal-authoritative, campaign-pattern) vs. documented two-writer reconciliation"
+      },
+      {
+        "residual": "RR-5 (mirror's own untested arms)",
+        "closedBy": "R4.S6 (the race suite exercises the mirror's revision-conflict/duplicate-command arms under real contention, covering at least one of the two RR-5 names)",
+        "ownerRulingRequired": false
+      },
+      {
+        "residual": "RR-6 (isCapabilityDbAvailable outside try/catch)",
+        "closedBy": "NONE of S5-S7 as scoped — low severity, not named by any 1.5/1.6/1.7 text; flagged as an available freebie if any slice's diff happens to touch that exact line, not worth its own slice.",
+        "ownerRulingRequired": false
+      },
+      {
+        "residual": "RR-7 (task 1.1's unclaimed 'both rewind routes answer a real preview' clause)",
+        "closedBy": "NONE of S5-S7 — belongs to task 1.1/R4.S1's own checkbox and to task 2.x's preview-route work (section 2 of tasks.md), out of this brief's scope.",
+        "ownerRulingRequired": false
+      },
+      {
+        "residual": "create-path seeding gap",
+        "closedBy": "R4.S7-a",
+        "ownerRulingRequired": true,
+        "rulingNeeded": "canonicalizer fix scope (shared-file fix vs. call-site sanitization)"
+      },
+      {
+        "residual": "S4-R1 (shadow-mode divergence refusal gating)",
+        "closedBy": "R4.S7-d (via migration-state reframing)",
+        "ownerRulingRequired": true,
+        "rulingNeeded": "confirm the reframing (per-match state, not process mode, governs the refusal) is acceptable"
+      },
+      {
+        "residual": "S4-R2 (no checkpoint cache refresh on journal path)",
+        "closedBy": "R4.S7-c (folded into the same checkpointRecoveryPort routing as S4-R4)",
+        "ownerRulingRequired": false
+      },
+      {
+        "residual": "S4-R4 (journal arm skips checkpointRecoveryPort's other 3 properties)",
+        "closedBy": "R4.S7-c",
+        "ownerRulingRequired": true,
+        "rulingNeeded": "whether quarantine's vocabulary maps onto journal-side corruption at all"
+      },
+      {
+        "residual": "task 1.3 marker retirement + wording amendment",
+        "closedBy": "R4.S7-b",
+        "ownerRulingRequired": true,
+        "rulingNeeded": "drop table+read+write outright (this brief's recommendation) vs. keep read as compatibility shim"
+      },
+      {
+        "residual": "isMatchJournalAuthorityStartedDerived dangling export",
+        "closedBy": "R4.S7-b",
+        "ownerRulingRequired": false
+      },
+      {
+        "residual": "task 1.4 second clause (restart pack vs. rewound match, live)",
+        "closedBy": "NONE of S5-S7 as scoped — belongs to R4.S4's own checkbox / task 3.2's test.fail removal; noted, not claimed, by this brief.",
+        "ownerRulingRequired": false
+      }
+    ]
+  },
+  "openQuestionsForTheOwner": [
+    "Does the S5/S6 naming split in design.md ('S5 revision offset' vs 'S6 reviewed cutover', six seams S1-S6 total) actually mean tasks.md's 1.5+1.6 together ARE 'S5' (S5-a and S5-b) and 1.7 alone is 'S6', while the ROADMAP separately numbers these as R4.S5/R4.S6/R4.S7 (three distinct nodes, one task each)? This brief followed the ROADMAP's three-node numbering as authoritative for admission purposes (since that is what taskKeys/dependsOn/receipt are tracked against) but flags that design.md's prose and the roadmap's node count disagree by one — worth a documentation fix, not a blocking issue.",
+    "S4-R1's reframing (migration-state-governs-the-refusal, not process-mode) changes the shape of a question the S4 review explicitly left open for 'S6' to answer — confirm this reframing is an acceptable resolution before R4.S7-d implements it, since it is this brief's recommendation, not a prior ruling.",
+    "RR-4's single-vs-two-writer architecture fork is the single largest undecided design question in the entire S5-S7 scope. It should be settled (even provisionally) before R4.S7-a's create-path seeding lands, because seeding every match's opening events into the mirror is far more consequential if the journal is later made the sole write authority (every match's full history must replay cleanly from it) than if it remains a best-effort shadow (a bad seed only affects shadow-parity reporting).",
+    "The canonicalizer fix's blast radius (R4.S7-a): confirm whether ANY existing committed campaign-journal event has ever carried an own-enumerable undefined-valued property, or whether TypeScript's own authoring types make this categorically impossible for campaign events specifically (in which case the fix is safe by construction for campaign and the compatibility concern is moot) — this brief did NOT verify this empirically (would require querying live/test campaign journal data, out of scope for a read-only source/spec discovery pass) and it is the one open technical fact-check that could change R4.S7-a's risk assessment materially."
+  ],
+  "nonClaims": [
+    "No source file in the worktree or main checkout was modified in this session. Every code citation above is a read-only excerpt from `Read`/`grep`/`sed -n` against the checked-out worktree at .sisyphus/roadmap-completion-20260912/worktrees/history-runtime-integrity, whose HEAD at read time was merge commit d950bb65ca5e2c6db98e2743b1d7bff4ab32e8aa on branch codex/roadmap-r4-s4-restart-recovery-20260915 (S1-S4 fully stacked, S4 rebased/merged onto main).",
+    "No test was run, no build was run, no typecheck/lint/format was run in this session. All red/green claims either (a) cite a prior evidence artifact's own recorded result verbatim (S1/S3b/S4 local+review JSONs), or (b) are explicitly framed as an ESTIMATE / this brief's own reasoning about what WOULD be red, clearly labeled as such and not asserted as measured.",
+    "All file lists, line-count estimates, and slice boundaries for 1.5, 1.6, and the four S7 sub-slices are PROPOSALS, not measurements — no worktree was created or modified to attempt any of them, matching the same discipline the r4-s2-s4-admission-brief used for its own part3 estimates.",
+    "This brief does not amend openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/tasks.md, design.md, or proposal.md. It does not tick any checkbox. `git status` on that change directory was not re-run at the end of this session but no Edit/Write tool was used against any file under openspec/, and no git-mutating command was run against the main checkout.",
+    "The roadmap.json file this brief reads from is untracked on the main checkout (`git status --porcelain` shows `?? openspec/planning/2026-09-12-roadmap-completion/roadmap.json`) and does not exist on origin/main (`git show origin/main:<path>` fails with 'exists on disk, but not in origin/main'). It was read directly from the local working tree per the task's own instruction to read spec/task content via git show for TRACKED content, with roadmap.json itself being the one necessary exception since it is the local planning artifact the task asks to be read.",
+    "One piece of directional-only context (the claim that the campaign side's own migration machinery shipped across multiple sequenced PRs rather than one) is explicitly marked in the S7-d section as NOT independently re-verified in this session and offered only as a size-sanity-check, not a citation.",
+    "The four suites named for task 1.5's re-pin ('matchStoreBranchSegmentReader.test.ts, matchCheckpointEquivalence.test.ts, matchRecoveryCheckpointDoor.test.ts, ServerMatchHost.rewindRebuild.test.ts') were identified by grepping for the literal string 'revisionForMatchSequence' across the worktree's src/ tree. This is a strong but not exhaustive method — a suite could encode the sequence/revision relationship without naming that exact function. Treated as the primary, load-bearing candidate list because the count (exactly four test files) matches the task text's own phrase ('the four suites') exactly, but flagged as confirm-by-diff, not certain-complete.",
+    "No sub-agent was spawned for this task, per the assignment's explicit prohibition. All reading, grepping, and synthesis in this brief was done directly."
+  ]
+}

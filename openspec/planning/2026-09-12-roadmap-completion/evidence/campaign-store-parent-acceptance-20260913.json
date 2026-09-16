@@ -1,0 +1,411 @@
+{
+  "at": "2026-09-13T03:24:07.155Z",
+  "status": "local-verified",
+  "base": "4ee8989f4909505319c6c916d4fbcbadf86ec782",
+  "changedLines": 188,
+  "files": [
+    {
+      "path": "openspec/specs/force-management/spec.md",
+      "sha256": "1e119db35f60fb9e9418176862afe3d23b59130dee7b050914842b990944c757",
+      "gitOid": "7bcf23c1c23cae47c92c9adc04ba8148e59adc6c"
+    },
+    {
+      "path": "openspec/specs/personnel-management/spec.md",
+      "sha256": "b96598f03ed270bb480aefbcc318c86d89e46ab50fbbc4313727242c6b0a1f1d",
+      "gitOid": "2e0fc0c65f09e1735b34b11febec60371957adf0"
+    },
+    {
+      "path": "openspec/specs/repair/spec.md",
+      "sha256": "b70ef517832ead297f48cffa0e14dba46d2d5baf68b275026e9a3829ed5f9e1a",
+      "gitOid": "6f99e0ca45e75ed02b43eb5c69fef4c37694cc62"
+    },
+    {
+      "path": "openspec/specs/game-session-management/spec.md",
+      "sha256": "ab3a07fb600f93733ded36e32decb1ad954a2c0332ef057859c0d274d4e90bb2",
+      "gitOid": "e38cc6656945af83ef54a8bdda3a4f68a649dc8b"
+    },
+    {
+      "path": "src/constants/PilotConstants.ts",
+      "sha256": "9d97c0ef9eefa31e4771cab2e4b6e5a65b45913aca3bfb60dccfa232f72ad272",
+      "gitOid": "11f0822045f5724e0b8010ab8ab5de5739e6a3a1"
+    },
+    {
+      "path": "src/constants/scenario/rats/ratTypes.ts",
+      "sha256": "d5adab9e1b327a476979fd694ba0160cbcb28d5ceb715891f64ebadee21b0fed",
+      "gitOid": "8c4a73ff84eb603210ef96019abef927cc503f96"
+    },
+    {
+      "path": "src/engine/adapters/CompendiumAdapter.ts",
+      "sha256": "49bfc91f04b58d3c773ad8a40f1d6da8977ab257d760f737f0a2beb04aeef61f",
+      "gitOid": "1563cde81d28b399898617a6631bddd7dc8c4e62"
+    },
+    {
+      "path": "src/engine/GameEngine.ts",
+      "sha256": "26981b686805bd4f30e347bb5ee984dd040459afdcb120296ffce8092a4cf5ee",
+      "gitOid": "b290f07b4ca32050b4943fd32f9cb1cafcbc2182"
+    },
+    {
+      "path": "src/engine/types.ts",
+      "sha256": "1c01e835df9f6f82337a0daa29b7db03ef3222e27f841b8435a311a365326f3a",
+      "gitOid": "38bcd1408b0cd5f36d938db3850283cd1284333c"
+    },
+    {
+      "path": "src/services/generators/OpForGeneratorService.ts",
+      "sha256": "c1fdefe60a199d5d0e16ed5ed11fc1f49e1a9d08940831af4c5ae2f01571e99c",
+      "gitOid": "c40637fc7fd2b0e2f4851e9db57b6e6bdc2fba61"
+    },
+    {
+      "path": "src/services/generators/ScenarioGeneratorService.ts",
+      "sha256": "7f890cf0c29a5e2ecacc4df43c814bdd35b15b7c7ac9a9f7b3204d4662c531f8",
+      "gitOid": "cae4a8da2fa2677cf29988e646660a5e9f7cf651"
+    },
+    {
+      "path": "src/stores/useForceStore.apiActions.ts",
+      "sha256": "4cd8ec2a39be6ddb7dba40264c789a0c2f473cc9a9a17190504057603832a79c",
+      "gitOid": "7045dd3f9432b95cddabba2e8b2224ea530aa458"
+    },
+    {
+      "path": "src/stores/useForceStore.helpers.ts",
+      "sha256": "6db95ec6028a48d422a3c29e18285319015e5548d79cb450f28f5985fdc78a62",
+      "gitOid": "7953c4516923667dfe7348223168ebf74ebfe430"
+    },
+    {
+      "path": "src/stores/useForceStore.ts",
+      "sha256": "dfbd19d0ace6cb499728187bf5956c6a27c0c08f0e3133bb4e62c5068363f1b4",
+      "gitOid": "6f8720ae7853e5da3954122d8e838286f5482505"
+    },
+    {
+      "path": "src/stores/useForceStore.types.ts",
+      "sha256": "c04f3f90f6f1a8193014ed1cb883d947bbf6b53cc59c2dc4f46d2bc2ccae9ccd",
+      "gitOid": "ce9d456a7707725414412698e10c8a0a3e055f3a"
+    },
+    {
+      "path": "src/stores/useGameplayStore.ts",
+      "sha256": "ff2113f44cc5e2415615877df32458f378f863ca1e486514091d3de56ae450f9",
+      "gitOid": "73ddbf6c936af35ff5f69ba6823346e4f8148fd1"
+    },
+    {
+      "path": "src/stores/usePilotStore.ts",
+      "sha256": "66843c96ea9aab7fa12114af8dc9e6af30e9f33b7949eacfc659e72fbfe20925",
+      "gitOid": "6e8107d4f1fffe13131c1fa66c7a04dd9857d005"
+    },
+    {
+      "path": "src/stores/usePilotStore.types.ts",
+      "sha256": "36d0245275fbe61bcb8f2b45c242a678d0efa912cf8a9c85b486f80011928c4c",
+      "gitOid": "4bef057c4df6a9abb6a2bc13a091f7d9cd7d76e5"
+    },
+    {
+      "path": "src/stores/useQuickGameStore.actions.ts",
+      "sha256": "efa64dde87d83cd39ac2c7322641a41c42492ecaaf05a359170edf42f8a1b6a8",
+      "gitOid": "09359accba81b9f669a490bb0af055fe95e0fc8b"
+    },
+    {
+      "path": "src/stores/useQuickGameStore.helpers.ts",
+      "sha256": "9a199411c1e4dd5fbc9f82d71c452b9d71b64de5111e4430635a35ca408ddb33",
+      "gitOid": "074d31d2a8498865030f2b79d1d3cef78b581dab"
+    },
+    {
+      "path": "src/stores/useQuickGameStore.ts",
+      "sha256": "1175b1585c8105d12b5e8686231fefee1419483d757fd362f425b5a49a08e864",
+      "gitOid": "6f52c42832061f09c5fdf1c04c02ad9ba4e4e5c4"
+    },
+    {
+      "path": "src/stores/useRepairStore.storeActions.ts",
+      "sha256": "f7a47db833a381a7880e27383682db5cb7c976e1e9fdfbafe971ebe3cd96177c",
+      "gitOid": "5026ffcb05a7bd9e1d047635abc2c9c21656fdde"
+    },
+    {
+      "path": "src/stores/useRepairStore.ts",
+      "sha256": "a81a02f3befaf72019faea0261efdc6550ec584e9608e94d68c67519a65bb732",
+      "gitOid": "5129f986172098c3fc56ffaafb989ada91b4977f"
+    },
+    {
+      "path": "src/types/force/ForceInterfaces.ts",
+      "sha256": "ca89e471c82360f5ab1af75c08c991662c865f30c590d4012bbc86606a7cb81e",
+      "gitOid": "549dc7a815387099d1f3ceae718c8a8dc37562c6"
+    },
+    {
+      "path": "src/types/gameplay/GameSessionCoreTypes.ts",
+      "sha256": "537b09d55845378e4a3666e6bcacdf0ebad3292e8f68491b492df3a9dc01420a",
+      "gitOid": "e1f5aa108fada29e57fc6db40fbfbba60d0a2cba"
+    },
+    {
+      "path": "src/types/pilot/PilotInterfaces.ts",
+      "sha256": "c61eabfdf2d28957f14a8bc5bed9daccc2b52bedfd3e72b96566bf3520d28feb",
+      "gitOid": "98d768d4da734ad1350c71a2a619cbf3aec56457"
+    },
+    {
+      "path": "src/types/quickgame/QuickGameInterfaces.ts",
+      "sha256": "099631b65399f87e575ff8c9f8eaa15b7b326b4e890ae68ffa8b1a3188414726",
+      "gitOid": "ae35ac046bea9a318e203e0fe8927a14f6d627cf"
+    },
+    {
+      "path": "src/types/repair/repairAssessment.ts",
+      "sha256": "161bbec1d0bf2a56d292d45a0c8743d552836cf8da31f1a2d7ac63cc2f04133e",
+      "gitOid": "6976855d9a667e38f1093ef297c54a354b50654b"
+    },
+    {
+      "path": "src/types/repair/repairCalculations.ts",
+      "sha256": "a9c416dc1c61a2b8fdb416fbd88943b5b7e89ab62f85b2633ebe912e02279659",
+      "gitOid": "7361ea85139b7b1d91903570af093bd31bdf09b8"
+    },
+    {
+      "path": "src/types/repair/repairTypes.ts",
+      "sha256": "3d6b3ceef55d428166b65dc3878c804d1527dbe2a2bdd6403ec5d9f1804a4235",
+      "gitOid": "4f958d705bb4b08a3877f052cbefe11b2c1317a5"
+    }
+  ],
+  "commands": [
+    {
+      "name": "openspec-all-strict",
+      "exe": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "C:/Users/wroll/AppData/Roaming/npm/node_modules/@fission-ai/openspec/bin/openspec.js",
+        "validate",
+        "--all",
+        "--strict",
+        "--no-interactive"
+      ],
+      "startedAt": "2026-09-13T03:16:12.551Z",
+      "endedAt": "2026-09-13T03:16:21.989Z",
+      "exit": 0,
+      "signal": null,
+      "stdout": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/campaign-store-parent-gates-20260913/openspec-all-strict.stdout.log",
+        "sha256": "2754dbee9c7f3c73dafb72bec4284c7de4a886d9f795955954f8d77c5768a12d"
+      },
+      "stderr": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/campaign-store-parent-gates-20260913/openspec-all-strict.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "spec:purpose:validate:strict",
+      "exe": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "spec:purpose:validate:strict"
+      ],
+      "startedAt": "2026-09-13T03:16:21.998Z",
+      "endedAt": "2026-09-13T03:16:35.357Z",
+      "exit": 0,
+      "signal": null,
+      "stdout": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/campaign-store-parent-gates-20260913/spec-purpose-validate-strict.stdout.log",
+        "sha256": "1f3f3893e45c1bb6094c86940933ff2f05b8c9d7d395176a7d91b1f5fe61bc66"
+      },
+      "stderr": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/campaign-store-parent-gates-20260913/spec-purpose-validate-strict.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "terminology:validate:strict",
+      "exe": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "terminology:validate:strict"
+      ],
+      "startedAt": "2026-09-13T03:16:35.362Z",
+      "endedAt": "2026-09-13T03:17:09.645Z",
+      "exit": 0,
+      "signal": null,
+      "stdout": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/campaign-store-parent-gates-20260913/terminology-validate-strict.stdout.log",
+        "sha256": "d15011da7521e031b3bea845889b040bc9e0f3dee6f2e974e2fd7ba0697781a0"
+      },
+      "stderr": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/campaign-store-parent-gates-20260913/terminology-validate-strict.stderr.log",
+        "sha256": "845299e7e8684122898ebd8276ff7f383e292bc740f462a54698e5b6329e7691"
+      }
+    },
+    {
+      "name": "qc:openspec-ci:validate",
+      "exe": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "qc:openspec-ci:validate"
+      ],
+      "startedAt": "2026-09-13T03:17:09.680Z",
+      "endedAt": "2026-09-13T03:17:13.084Z",
+      "exit": 0,
+      "signal": null,
+      "stdout": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/campaign-store-parent-gates-20260913/qc-openspec-ci-validate.stdout.log",
+        "sha256": "f01feb11318234aab4764fe76151b78c06905527212a8f8723626fcf616b71d6"
+      },
+      "stderr": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/campaign-store-parent-gates-20260913/qc-openspec-ci-validate.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "diff-check",
+      "exe": "git",
+      "args": [
+        "diff",
+        "--check",
+        "--",
+        "openspec/specs/force-management/spec.md",
+        "openspec/specs/personnel-management/spec.md",
+        "openspec/specs/repair/spec.md",
+        "openspec/specs/game-session-management/spec.md"
+      ],
+      "startedAt": "2026-09-13T03:17:13.117Z",
+      "endedAt": "2026-09-13T03:17:13.595Z",
+      "exit": 0,
+      "signal": null,
+      "stdout": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/campaign-store-parent-gates-20260913/diff-check.stdout.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/campaign-store-parent-gates-20260913/diff-check.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "review": {
+    "at": "2026-09-13T03:16:12.445Z",
+    "reviewer": "/root/cursor_grok_route independent read-only Luna/high",
+    "result": "No blocking findings",
+    "scope": "97 unique source references; parent read complete 188-line diff",
+    "docs": [
+      {
+        "path": "openspec/specs/force-management/spec.md",
+        "sha256": "1e119db35f60fb9e9418176862afe3d23b59130dee7b050914842b990944c757"
+      },
+      {
+        "path": "openspec/specs/personnel-management/spec.md",
+        "sha256": "b96598f03ed270bb480aefbcc318c86d89e46ab50fbbc4313727242c6b0a1f1d"
+      },
+      {
+        "path": "openspec/specs/repair/spec.md",
+        "sha256": "b70ef517832ead297f48cffa0e14dba46d2d5baf68b275026e9a3829ed5f9e1a"
+      },
+      {
+        "path": "openspec/specs/game-session-management/spec.md",
+        "sha256": "ab3a07fb600f93733ded36e32decb1ad954a2c0332ef057859c0d274d4e90bb2"
+      }
+    ],
+    "sources": [
+      {
+        "path": "src/constants/PilotConstants.ts",
+        "sha256": "9d97c0ef9eefa31e4771cab2e4b6e5a65b45913aca3bfb60dccfa232f72ad272"
+      },
+      {
+        "path": "src/constants/scenario/rats/ratTypes.ts",
+        "sha256": "d5adab9e1b327a476979fd694ba0160cbcb28d5ceb715891f64ebadee21b0fed"
+      },
+      {
+        "path": "src/engine/adapters/CompendiumAdapter.ts",
+        "sha256": "49bfc91f04b58d3c773ad8a40f1d6da8977ab257d760f737f0a2beb04aeef61f"
+      },
+      {
+        "path": "src/engine/GameEngine.ts",
+        "sha256": "26981b686805bd4f30e347bb5ee984dd040459afdcb120296ffce8092a4cf5ee"
+      },
+      {
+        "path": "src/engine/types.ts",
+        "sha256": "1c01e835df9f6f82337a0daa29b7db03ef3222e27f841b8435a311a365326f3a"
+      },
+      {
+        "path": "src/services/generators/OpForGeneratorService.ts",
+        "sha256": "c1fdefe60a199d5d0e16ed5ed11fc1f49e1a9d08940831af4c5ae2f01571e99c"
+      },
+      {
+        "path": "src/services/generators/ScenarioGeneratorService.ts",
+        "sha256": "7f890cf0c29a5e2ecacc4df43c814bdd35b15b7c7ac9a9f7b3204d4662c531f8"
+      },
+      {
+        "path": "src/stores/useForceStore.apiActions.ts",
+        "sha256": "4cd8ec2a39be6ddb7dba40264c789a0c2f473cc9a9a17190504057603832a79c"
+      },
+      {
+        "path": "src/stores/useForceStore.helpers.ts",
+        "sha256": "6db95ec6028a48d422a3c29e18285319015e5548d79cb450f28f5985fdc78a62"
+      },
+      {
+        "path": "src/stores/useForceStore.ts",
+        "sha256": "dfbd19d0ace6cb499728187bf5956c6a27c0c08f0e3133bb4e62c5068363f1b4"
+      },
+      {
+        "path": "src/stores/useForceStore.types.ts",
+        "sha256": "c04f3f90f6f1a8193014ed1cb883d947bbf6b53cc59c2dc4f46d2bc2ccae9ccd"
+      },
+      {
+        "path": "src/stores/useGameplayStore.ts",
+        "sha256": "ff2113f44cc5e2415615877df32458f378f863ca1e486514091d3de56ae450f9"
+      },
+      {
+        "path": "src/stores/usePilotStore.ts",
+        "sha256": "66843c96ea9aab7fa12114af8dc9e6af30e9f33b7949eacfc659e72fbfe20925"
+      },
+      {
+        "path": "src/stores/usePilotStore.types.ts",
+        "sha256": "36d0245275fbe61bcb8f2b45c242a678d0efa912cf8a9c85b486f80011928c4c"
+      },
+      {
+        "path": "src/stores/useQuickGameStore.actions.ts",
+        "sha256": "efa64dde87d83cd39ac2c7322641a41c42492ecaaf05a359170edf42f8a1b6a8"
+      },
+      {
+        "path": "src/stores/useQuickGameStore.helpers.ts",
+        "sha256": "9a199411c1e4dd5fbc9f82d71c452b9d71b64de5111e4430635a35ca408ddb33"
+      },
+      {
+        "path": "src/stores/useQuickGameStore.ts",
+        "sha256": "1175b1585c8105d12b5e8686231fefee1419483d757fd362f425b5a49a08e864"
+      },
+      {
+        "path": "src/stores/useRepairStore.storeActions.ts",
+        "sha256": "f7a47db833a381a7880e27383682db5cb7c976e1e9fdfbafe971ebe3cd96177c"
+      },
+      {
+        "path": "src/stores/useRepairStore.ts",
+        "sha256": "a81a02f3befaf72019faea0261efdc6550ec584e9608e94d68c67519a65bb732"
+      },
+      {
+        "path": "src/types/force/ForceInterfaces.ts",
+        "sha256": "ca89e471c82360f5ab1af75c08c991662c865f30c590d4012bbc86606a7cb81e"
+      },
+      {
+        "path": "src/types/gameplay/GameSessionCoreTypes.ts",
+        "sha256": "537b09d55845378e4a3666e6bcacdf0ebad3292e8f68491b492df3a9dc01420a"
+      },
+      {
+        "path": "src/types/pilot/PilotInterfaces.ts",
+        "sha256": "c61eabfdf2d28957f14a8bc5bed9daccc2b52bedfd3e72b96566bf3520d28feb"
+      },
+      {
+        "path": "src/types/quickgame/QuickGameInterfaces.ts",
+        "sha256": "099631b65399f87e575ff8c9f8eaa15b7b326b4e890ae68ffa8b1a3188414726"
+      },
+      {
+        "path": "src/types/repair/repairAssessment.ts",
+        "sha256": "161bbec1d0bf2a56d292d45a0c8743d552836cf8da31f1a2d7ac63cc2f04133e"
+      },
+      {
+        "path": "src/types/repair/repairCalculations.ts",
+        "sha256": "a9c416dc1c61a2b8fdb416fbd88943b5b7e89ab62f85b2633ebe912e02279659"
+      },
+      {
+        "path": "src/types/repair/repairTypes.ts",
+        "sha256": "3d6b3ceef55d428166b65dc3878c804d1527dbe2a2bdd6403ec5d9f1804a4235"
+      }
+    ],
+    "qualification": "Original reviewed-sources text contained a malformed66-character useGameplayStore fingerprint. Preserved failed preflight; parent verified all26files unchanged against HEAD and recomputed exact64-character hashes. This supersedes that fingerprint only.",
+    "limits": [
+      "Reference repair only; source interface snippets omit later fields",
+      "Spectator/interactive seed assertion completeness is a nonblocking existing gap",
+      "No new product runtime proof"
+    ]
+  },
+  "limits": [
+    "No new runtime proof; scope is four reference specifications",
+    "Not yet committed/published; main verification and owned cleanup pending"
+  ]
+}

@@ -1,0 +1,309 @@
+{
+  "artefact": "r4-s3b-repoint-started-local",
+  "date": "2026-09-15",
+  "roadmapNode": "R4.S3",
+  "package": "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind",
+  "task": "1.3 (S3), sub-prefix (2) of 3 \u2014 repoint the marker READ sites at the derived head; no table/write drop",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/history-runtime-integrity",
+  "base": "bb346350e (S3a, stacked on S2/S1)",
+  "branch": "codex/roadmap-r4-s3b-repoint-started-20260915",
+  "commit": {
+    "head": "7330ed0f8fb487678e87346a31c3c6ca306f98f0",
+    "stack": [
+      "a593490d82d20cc108d4dbf6ff547b331b680d86 - (A) feat(combat): select the recovery reader from the mirrored journal head",
+      "7330ed0f8fb487678e87346a31c3c6ca306f98f0 - (B) test(combat): pin the recovery reader's pre-cutover transition arms"
+    ],
+    "reference": "0890acadec21d7f1f12c1f8584460f8cc517f4cd, preserved on branch codex/roadmap-r4-s3b-repoint-started-20260915-reference",
+    "branch": "codex/roadmap-r4-s3b-repoint-started-20260915",
+    "base": "bb346350e (S3a)"
+  },
+  "node": "v22.22.0 (measured in-session: `node -v`)",
+  "status": "COMMITTED AS TWO STACKED COMMITS, GREEN, NOT PUSHED. a593490d8 (production + the new-behaviour rows, 495 insertions - inside the <=500 cap) then 7330ed0f8 (the transition-pin rows, test-only). The final tree is byte-identical to the single-commit reference 0890acade. Focused jest 170/170 suites, 1328/1328 tests at the top; 170/1324 at the intermediate level. Zero regressions.",
+  "whatWasBuilt": {
+    "module": {
+      "path": "src/lib/multiplayer/server/matchJournalAuthorityStartedDerived.ts",
+      "added": [
+        "`IMatchJournalAuthorityStartedHead` \u2014 the FOUR load-bearing head fields (streamType/streamId/branchId/effectiveGeneration). `revision` and `digest` are deliberately absent: both recovery seeds overwrite them (`journalHeadFromReceipt` from the receipt, `refoldedJournalHead` from the refold), so carrying them would mean inventing two values nothing reads. Confirms the S3a reviewer's `whereABooleanCANNOTReplaceTheRecord` finding; no commandId / firstRevision / lastRevision / committedAt is derived, so the S5-a sequence-vs-revision offset is not inherited.",
+        "`MatchJournalAuthorityStartedOutcome` \u2014 tri-state `started` | `not-started` | `unavailable`.",
+        "`deriveMatchJournalAuthorityStartedHead(store, matchId)` returning that outcome from the SAME `readEffectiveHead` call."
+      ],
+      "kept": "`isMatchJournalAuthorityStartedDerived` is now a thin `kind === 'started'` projection over the outcome, so the boolean and the head cannot drift. Its silent-false for `unavailable` is retained for non-recovery callers exactly as the parent decision permits."
+    },
+    "siteA": {
+      "path": "src/lib/multiplayer/server/ServerMatchHost.ts",
+      "change": "`selectRecoveredMatchRollbackReader` no longer reads `store.getJournalAuthorityStarted`. It derives the outcome, feeds `started.head` to `journalHeadFromReceipt` / `refoldedJournalHead` (both retyped to the four-field identity) and passes the same value as the selector's `started`. `unavailable` returns `blocked/'recovery-fact-read-failed'` rather than the legacy branch. The function is now exported, because `isJournalAuthorityEnabled()` collapses `legacy-compatible` and `blocked` into the same `false` and those are precisely the two outcomes this boundary must not confuse.",
+      "branchIntegrity": "UNCHANGED and deliberate: the `EventHistoryBranchError('branch-integrity')` throw from a corrupt head is still caught by the pre-existing try at the top of the function and converted to `blocked/'recovery-fact-read-failed'`. That is fail-closed, not a legacy choice, and is now PINNED by row 5 instead of inherited."
+    },
+    "siteB": {
+      "path": "src/lib/multiplayer/server/ServerMatchHostJournalAuthority.ts",
+      "change": "The `existingStarted != null` gate became `derived-started OR marker-present`, wrapped in a try that folds a branch-integrity throw into the existing `persistenceFailure` STORE_FAILURE shape (line 186 sits BETWEEN this function's two try blocks, so an uncaught throw would otherwise escape the commit path \u2014 the S3a reviewer's asymmetry finding).",
+      "whyTheMarkerTermSurvivesHere": "It is NOT a second source of the started fact. It is the write-once guard belonging to the legacy marker WRITE directly below it, which the parent instructed to keep untouched for sub-prefix (3); both terms are deleted together there. Measured necessity: a plain repoint duplicates the marker insert at mode `off`, where the mirror never runs so the derived answer is permanently `not-started` \u2014 `DurableMatchStore.ts` and `InMemoryMatchStore.ts` BOTH throw `journal-authority-started already exists` on the second batch. The OR form is a strict superset guard: strictly fewer marker writes than before, never more."
+    },
+    "proofSuite": {
+      "path": "src/lib/multiplayer/server/__tests__/matchRecoveryStartedFromJournalHead.sqlite.test.ts",
+      "boundary": "Real temp-file SQLite, two databases (match db + campaign capability db) opened the way production opens them.",
+      "rows": [
+        "1. a journal-started match does not fall back to the legacy reader when the capability database is unavailable",
+        "2. started (head installed by the mirror, NO marker) \u2192 journal-compatible carrying the derived branchId / effectiveGeneration",
+        "3. not-started (mirror never ran) \u2192 legacy-compatible, unchanged behaviour pinned",
+        "4. marker present and NO head (old-path artifact) \u2192 decision follows the head, i.e. legacy-compatible",
+        "5. corrupt head (branch status forced to 'superseded') \u2192 blocked/'recovery-fact-read-failed', never legacy; the read does not escape"
+      ]
+    }
+  },
+  "redGreen": {
+    "red": {
+      "log": ".sisyphus/roadmap-completion-20260912/r4-s3b-20260915/red-repoint-20260915.log",
+      "sha256": "bc2af46b05a947354f3055ec0300dd9b4cbc6e5f2379f92ecf89867b3550502c",
+      "result": "Tests: 4 failed, 1 passed, 5 total.",
+      "honesty": "Measured against the FINAL fixture with ONLY the decision-path hunks reverted (the `export` kept so the suite still compiles), not against an earlier draft fixture. Rows 1, 2, 4 and 5 fail; row 3 passes because it pins behaviour this slice does not change \u2014 a red row 3 would have meant the fixture was wrong, not the code.",
+      "row4Evidence": "At base, row 4 returns `journal-compatible` with `digest: e2efa02e\u2026`, i.e. the decision demonstrably came from the marker. That is the discriminator the S3a reviewer asked for."
+    },
+    "green": {
+      "log": ".sisyphus/roadmap-completion-20260912/r4-s3b-20260915/green-repoint-20260915.log",
+      "sha256": "ae7e1c20c1147c385ec2bda36f36c3544fd504f99ab9114faa77a5d83318ecd2",
+      "result": "Tests: 5 passed, 5 total."
+    }
+  },
+  "theUnavailablePortDesign": {
+    "parentDecision": "An unready capability port on a match that may have started must NOT silently answer 'not started'; (c) capability-unavailable (port absent/unready) \u2192 typed refusal mapped to the existing blocked/quarantine state rather than legacy fallback.",
+    "whatWasImplemented": "The parent's rule, with ONE consistent adjustment: `port absent` and `port unready` are SPLIT rather than lumped.",
+    "split": {
+      "portAbsent": "`not-started`. A store with no branch port (e.g. `InMemoryMatchStore`, which has none \u2014 `grep readEffectiveHead src/lib/multiplayer/server/InMemoryMatchStore.ts` returns zero hits) has no journal at all, so it cannot have mirrored anything. This is a statement, not a dodge. Lumping it into the refusal would have blocked recovery for EVERY match on that store kind, including plain legacy matches that never touched journal authority.",
+      "portUnreadyButPresent": "`unavailable` \u2192 `blocked/'recovery-fact-read-failed'`. The store CAN journal, may already have started this match, and cannot say."
+    },
+    "measuredConsequenceOfTheRefusal": "THIS IS THE BLOCKER. `isCapabilityDbAvailable()` is `customCapabilityDb !== undefined || getSQLiteService().isInitialized()` (`durableCapabilityPorts.ts:59-60`). Production builds the store as `new DurableMatchStore()` with NO `capabilityDb` (`getDefaultMatchStore.ts:73`), so in any process that never initialized the campaign SQLiteService the probe is FALSE for every match \u2014 the shipped shape at mode `off`. The refusal therefore blocks recovery for ordinary legacy matches, not just possibly-started ones. Measured cost: 3 of the 11 regressions (`durableViewerDelivery PROCESS RESTART`, `hardenedTransport replay-window-after-recovery`, `rollback proof baseline-only`), all on matches that never used journal authority.",
+    "narrowingAttemptedAndDISPROVEN": "A gate gating the refusal on `getLastCommandReceipt(matchId) != null` (rationale: only a committed batch can mirror, so a receipt-free match provably has no head) was implemented and measured. It does NOT work \u2014 `DBG-RECEIPT m-durable-restart-client true` for a legacy-path match in `durableViewerDelivery`, so a receipt is not evidence of the batch/mirror path. The narrowing was removed; no match-DB-local fact was found that separates 'could have mirrored' from 'never journalled'.",
+    "openOptions": [
+      "(i) Owner revises the decision: `unavailable` answers `not-started` (S3a's silent false) at the recovery site too. Closes 3 of 11 regressions; leaves row 1 of the proof suite unachievable and the hole the parent named open.",
+      "(ii) Record 'this stream was mirrored' on the MATCH database at mirror time so the recovery site can distinguish the two cases without the capability db. That is new S1 surface, not a sub-prefix-(2) change.",
+      "(iii) Guarantee the capability database is open wherever recovery runs, and pin it. The S3a reviewer flagged option (c) as 'only acceptable with a real pin'; it is now DISPROVEN as a standing property \u2014 four existing suites recover with no capability db at all."
+    ]
+  },
+  "theSecondBlocker": {
+    "name": "sub-prefixes (2) and (3) are not separable at the recovery site",
+    "measurement": "With the unavailable-refusal REMOVED (repoint only), the four affected suites still fail 8 of 39: `journalAuthorityRecovery` \u00d74 and `journalAuthorityRollbackProof` \u00d74.",
+    "why": "Those suites drive real journal-authority commits on `InMemoryMatchStore` and on `new DurableMatchStore({ path })` with no capability database. No head is ever mirrored there, so the `mp_journal_authority_started` marker is their ONLY started record. Retiring the marker's authority at recovery \u2014 which is exactly what proof-suite row 4 pins and what the parent required ('decision follows the head, not the marker') \u2014 demotes those matches to `legacy-compatible` and their `isJournalAuthorityEnabled() === true` assertions fail.",
+    "consequence": "Proof-suite row 4 and those 8 assertions are the same coin. There is no implementation that satisfies both. Landing sub-prefix (2) requires migrating those 8 assertions onto capability-backed, actually-mirrored stores \u2014 which IS the marker retirement that sub-prefix (3) exists to do.",
+    "migrationRisk": "Not free. A measured obstacle: the host's own opening events carry `undefined` members, and the journal canonicalizer refuses them \u2014 `EventJournalCanonicalizationError: JCS cannot represent undefined` out of `canonicalizeCommandIdentityV1`. The mirror swallows this as a shadow mismatch and installs NO head. The new proof suite works around it by JSON round-tripping the opening events; a migration of the two journal suites would hit the same wall on whatever events they commit."
+  },
+  "regressionLedger": {
+    "baselineReMeasured": "The four suites are GREEN at bb346350e: `Test Suites: 4 passed, 4 total; Tests: 39 passed, 39 total` (measured in-session by reverting the three production files to the base and running the four files).",
+    "withTheSlice": "Test Suites: 4 failed, 166 passed, 170 total; Tests: 11 failed, 1315 passed, 1326 total",
+    "log": ".sisyphus/roadmap-completion-20260912/r4-s3b-20260915/gate-focused-jest-blocked-20260915.log",
+    "sha256": "cae98b5b925debfee4bd07739353c4dcae4883081a55a403ae8efcb7f0f7f380",
+    "failures": [
+      "journalAuthorityRecovery \u203a CRASH: commit then die before publish; retry returns prior receipt and resumes delivery",
+      "journalAuthorityRecovery \u203a ROLLBACK: off mode cannot override a started fact or mutate durable facts",
+      "journalAuthorityRecovery \u203a ROLLBACK: shadow mode cannot override a started fact or mutate durable facts",
+      "journalAuthorityRecovery \u203a ROLLBACK: enabled mode cannot override a started fact or mutate durable facts",
+      "journalAuthorityRollbackProof \u203a proves baseline-only rollback compares every persisted baseline tuple field to the durable head",
+      "journalAuthorityRollbackProof \u203a proves a crash after the first batch transaction recovers journal authority and appends contiguously",
+      "journalAuthorityRollbackProof \u203a proves post-command compatible rollback refolds the recorded head and subsequent commands round-trip",
+      "journalAuthorityRollbackProof \u203a proves post-command incompatible rollback blocks (\u00d72 parameterised rows)",
+      "durableViewerDelivery \u203a PROCESS RESTART: rebuilt host delivers the tail once to a reconnecting client; a later command is seen",
+      "hardenedTransport M2 \u203a the replay window is closed after recovery \u2014 a pre-restart intent is still a duplicate"
+    ],
+    "attribution": {
+      "unavailableRefusal": 3,
+      "markerDemotion": 8
+    }
+  },
+  "gates": [
+    {
+      "name": "typecheck",
+      "argv": [
+        "node",
+        "node_modules/typescript/bin/tsc",
+        "-p",
+        "tsconfig.json",
+        "--noEmit"
+      ],
+      "exit": 0,
+      "log": ".sisyphus/roadmap-completion-20260912/r4-s3b-20260915/gate-typecheck-20260915.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "note": "empty log = zero diagnostics"
+    },
+    {
+      "name": "lint (oxlint)",
+      "argv": [
+        "npx",
+        "oxlint",
+        "<the three changed production files>"
+      ],
+      "exit": 0,
+      "result": "Found 1 warning and 0 errors \u2014 `eslint(max-lines)` on ServerMatchHost.ts (943 lines counted, max 400). PRE-EXISTING: the file is far over the cap at the base; this slice adds a net 12 lines to it.",
+      "log": ".sisyphus/roadmap-completion-20260912/r4-s3b-20260915/gate-oxlint-20260915.log",
+      "sha256": "5771875fc77a096ad24eaac0928ac23a346923a70911fc3f8f37b7f5ee5953d1"
+    },
+    {
+      "name": "format check (oxfmt)",
+      "argv": [
+        "npx",
+        "oxfmt",
+        "--check",
+        "<the three production files + the new suite>"
+      ],
+      "exit": 0,
+      "result": "All matched files use the correct format (after an oxfmt write pass).",
+      "log": ".sisyphus/roadmap-completion-20260912/r4-s3b-20260915/gate-oxfmt-20260915.log",
+      "sha256": "c0fec4e35eaea19d08e45f713732ad15566bda3f3ed8a2990ddcafaf78d55ebb"
+    },
+    {
+      "name": "focused jest (src/lib/multiplayer/server + src/lib/events/journal)",
+      "argv": [
+        "node",
+        "node_modules/jest/bin/jest.js",
+        "--maxWorkers=2",
+        "--coverage=false",
+        "src/lib/multiplayer/server",
+        "src/lib/events/journal"
+      ],
+      "exit": 1,
+      "result": "FAILED \u2014 11 failed, 1315 passed, 1326 total. See regressionLedger. This is why nothing was committed."
+    }
+  ],
+  "surface": {
+    "filesChanged": 4,
+    "shortstat": "3 tracked files changed, 146 insertions(+), 41 deletions(-) vs bb346350e, plus 1 new untracked test file (321 lines)",
+    "capCheck": "Within the \u226415 files / \u2264500 lines cap.",
+    "files": [
+      "src/lib/multiplayer/server/matchJournalAuthorityStartedDerived.ts (modified)",
+      "src/lib/multiplayer/server/ServerMatchHost.ts (modified)",
+      "src/lib/multiplayer/server/ServerMatchHostJournalAuthority.ts (modified)",
+      "src/lib/multiplayer/server/__tests__/matchRecoveryStartedFromJournalHead.sqlite.test.ts (new)"
+    ],
+    "savedPatch": {
+      "path": ".sisyphus/roadmap-completion-20260912/r4-s3b-20260915/s3b-repoint-tracked.patch",
+      "sha256": "ab4c513ca86895c1a8dd34432d0ceea51725fc5851edb25ba8467c3bfcf07c44",
+      "note": "Tracked-file diff vs bb346350e. The new suite is copied alongside it as matchRecoveryStartedFromJournalHead.sqlite.test.ts (sha256 2b81311b990dd6f5c79b23aac42a0f9cb5760b1956f4fea8deb31101422fb996), so the slice survives independently of the dirty worktree."
+    }
+  },
+  "nonClaims": [
+    "NOT COMMITTED. No commit, no push, no PR. The branch `codex/roadmap-r4-s3b-repoint-started-20260915` sits at bb346350e with the work as uncommitted changes; the tracked diff is saved as `.sisyphus/roadmap-completion-20260912/r4-s3b-20260915/s3b-repoint-tracked.patch` (sha256 893a82576aff5af797d8f1a8305c10307b043ccb6ce8fa80ae06d41af6780bbc) with the suite alongside it (sha256 8512b797275e57a2c7b3a9fe483d16a1caf234c064ea9d6830631ff3b65a0dae).",
+    "The marker WRITE, the `mp_journal_authority_started` table, the `IMatchStore.getJournalAuthorityStarted?` port and the `IMatchCommandBatch.journalAuthorityStarted` field are ALL untouched \u2014 sub-prefix (3).",
+    "`COMBAT_JOURNAL_AUTHORITY_MODE` is untouched and still ships `off`; no production mode flip.",
+    "Task box 1.3 is NOT checked. No openspec spec file was edited. No SHALL in this change's delta specs constrains the 'started' fact (the S3a reviewer verified zero hits for started/marker in `specs/`), so no SHALL is contradicted by the blocker \u2014 this is a pinned-test and owner-decision conflict, not a spec conflict.",
+    "Rows 5 and 6 of `journalAuthorityStartedDerived.sqlite.test.ts` were not weakened or deleted; that suite is untouched and still green.",
+    "The 11 regressions are NOT pre-existing \u2014 the four suites were re-measured green at the base in this session.",
+    "No dependency added; no `npm run build` run as a gate.",
+    "The JCS-cannot-represent-undefined finding on the host's opening events is REPORTED, not fixed \u2014 it is S1 surface and out of this slice's scope.",
+    "The marker read is BACK in the recovery decision path as a disclosed transition arm, per ruling (2). It is not a competing source: the head wins wherever it exists, and the arm is deleted by task 1.7."
+  ],
+  "recommendedNextStep": "Sub-prefix (3) - drop the marker write, the `mp_journal_authority_started` table and its port - remains open and is now explicitly bound to the cutover (task 1.7) rather than to S3. Two items must travel with it: re-enable the `unavailable + marker -> blocked` refusal (proof-suite row 1 is the tripwire), and the task 1.3 wording amendment the parent carries into the S7 admission.",
+  "correction": {
+    "date": "2026-09-15",
+    "source": "parent coordinator rulings, binding for this slice",
+    "supersedes": "`theUnavailablePortDesign.openOptions` and `theSecondBlocker` as written above - both are resolved by the rulings and are retained only as the measurement that produced them.",
+    "ruling1_unavailableAtRecovery": {
+      "rule": "unavailable AND marker present -> `blocked`; unavailable AND no marker -> `not-started` (legacy-compatible); `port absent` -> `not-started` as already built.",
+      "implemented": true,
+      "effect": "Removes the collateral that blocked ordinary legacy matches. `durableViewerDelivery PROCESS RESTART`, `hardenedTransport` replay-window and `rollback proof baseline-only` are GREEN again (measured: `DBG baseline-only unavailable false` -> no marker -> legacy)."
+    },
+    "ruling2_noMarkerRetirementHere": {
+      "rule": "design.md removes the marker path 'once S1 is the writer' - that is the cutover (task 1.7, mode != off), not S3 under mode off. Transition semantics: the derived head WINS when present; where no head exists the marker is honoured.",
+      "implemented": true,
+      "effect": "`journalAuthorityRecovery` x4 are GREEN again. The marker arm is a disclosed, commented transition arm at the recovery site that task 1.7 deletes.",
+      "taskWordingNote": "Task 1.3's literal 'retire the `mp_journal_authority_started` marker write' is now understood as landing with the cutover (task 1.7), not with S3 under mode `off`; the parent will carry that wording amendment into tasks.md at S7 admission and this slice edited no openspec file."
+    },
+    "proofSuiteRowsNow": [
+      "1. unavailable + marker present -> blocked (one-way boundary holds for a match the old path marked started)",
+      "2. unavailable + NO marker -> legacy-compatible (the deliberate concession ruling 1 makes explicit)",
+      "3. head present, no marker -> journal-compatible carrying the derived identity",
+      "4. head present + marker naming a DIFFERENT branch -> decision follows the head ('main', not 'stale-marker-branch')",
+      "5. no head, no marker -> legacy-compatible (unchanged behaviour)",
+      "6. NEW - no head + marker present -> marker honoured ('marker-only-branch' rides out); the pair to row 4, same two signals, opposite winner",
+      "7. corrupt head -> blocked/'recovery-fact-read-failed', never legacy"
+    ],
+    "redGreenReMeasured": {
+      "red": "Tests: 4 failed, 3 passed, 7 total - rows 1, 3, 4 and 7 fail against the base decision path; rows 2, 5 and 6 pass because they pin behaviour this slice preserves. Row 6 passing red-side is the point: the transition arm must NOT change. Log `red-repoint-20260915.log`, sha256 e023b923ff08bc49069e60a7ff0e90eef5e18ddfbff974b574bd3d9bc98ace33.",
+      "green": "Tests: 7 passed, 7 total. Log `green-repoint-20260915.log`, sha256 b485314d2174279d88d54c5263d4028e4c8496e457444164c7f7ce750538bbfe."
+    },
+    "gatesAfterRulings": {
+      "typecheck": "exit 0, empty log (sha256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)",
+      "oxlint": "0 errors, 1 warning - pre-existing `eslint(max-lines)` on ServerMatchHost.ts (sha256 d2da918b148489d2d0e1360791628b40c5ec295f686c9260687730163a5d009f)",
+      "oxfmt": "All matched files use the correct format (sha256 da3c1954f91e159a65c79f2f8863539ea5857c4e8b199c7aafe8569c870fa796)",
+      "focusedJest": "Test Suites: 1 failed, 169 passed, 170 total; Tests: 4 failed, 1324 passed, 1328 total (was 11 failed) - log `gate-focused-jest-20260915.log`, sha256 d40978e4bfaf7f9ec82946777b3086e61ffa5875447745c3fe25a28ea995f3a3",
+      "surface": "3 tracked files, +166/-43 vs bb346350e, plus the new 421-line suite - inside the <=15 files / <=500 lines cap."
+    },
+    "residualConflict": {
+      "name": "ruling (1) and ruling (2)'s stated expectation disagree for `unavailable + marker present`",
+      "failures": [
+        "journalAuthorityRollbackProof > proves a crash after the first batch transaction recovers journal authority and appends contiguously",
+        "journalAuthorityRollbackProof > proves post-command compatible rollback refolds the recorded head and subsequent commands round-trip",
+        "journalAuthorityRollbackProof > proves post-command incompatible rollback blocks (x2 parameterised rows)"
+      ],
+      "measuredShape": "Instrumented at the decision site: `DBG crash-first-batch unavailable true`, `DBG post-command-compatible unavailable true`, `DBG post-command-blocked-digest-mismatch unavailable true`, `DBG post-command-blocked-unsupported-effective-generation unavailable true` - i.e. branch port PRESENT, capability database NOT open, marker PRESENT. Ruling (1) blocks exactly that, so `isJournalAuthorityEnabled()` is false where the suite asserts true (journalAuthorityRollbackProof.test.ts:317). These suites build `new DurableMatchStore({ path: target.file })` with no `capabilityDb` and never initialize SQLiteService.",
+      "whyItIsATension": "Ruling (2) named the rollback assertions as staying green, and ruling (1) is what stops them. The two are consistent everywhere EXCEPT this shape, where the head's existence is unknowable.",
+      "argumentForRelaxing": "The marker and the mirrored head AGREE BY CONSTRUCTION today: the marker writes `MATCH_BASELINE_BRANCH_ID` ('main') / `MATCH_BASELINE_FIRST_GENERATION` (1), and the mirror's genesis backfill produces the same branch id and generation (verified in the S3a review's derivability table). The divergence row 4 pins is a synthetic shape no production writer can currently produce. So blocking here refuses a match whose marker head would have been identical to the unreadable one, at the cost of 4 pinned proofs.",
+      "argumentForKeeping": "It is the literal one-way-boundary rule the parent set, and it stays correct the moment any writer can produce a head that disagrees with the marker - which is precisely what the cutover introduces.",
+      "theOneLineChoice": "Either (A) keep ruling (1) and migrate those 4 assertions onto capability-backed stores (scope growth, and it drags in the JCS-undefined obstacle recorded under `theSecondBlocker.migrationRisk`), or (B) narrow ruling (1) to honour the marker when the head is unreadable - i.e. `unavailable` behaves as `not-started` - which lands 0 regressions and reduces the proof suite to 6 rows by deleting row 1. NOT decided here; ruling (1) is implemented as written and the tree is left red rather than weakened silently."
+    },
+    "resolution": {
+      "date": "2026-09-15",
+      "source": "parent coordinator, choice (B), binding",
+      "rule": "Ruling (1) is NARROWED for the mode-off transition window: `unavailable` behaves as `not-started`, so the marker is honoured where present and legacy answers otherwise. Rationale: the marker and the mirrored head agree by construction today (marker writes MATCH_BASELINE_BRANCH_ID / MATCH_BASELINE_FIRST_GENERATION; the mirror's genesis backfill installs the same branch and generation), so no writer can produce a head that disagrees with the marker it would be substituting for - the refusal is not yet load-bearing.",
+      "deferredTo_1_7": "`unavailable + marker present -> blocked/'recovery-fact-read-failed'` BECOMES load-bearing at the cutover (task 1.7), which introduces writers that can move the effective head off the marker's values, and MUST be re-enabled there. Recorded in two places so it cannot be lost: a block comment at the decision site in `ServerMatchHost.selectRecoveredMatchRollbackReader` ('THIS STOPS BEING TRUE AT THE CUTOVER (task 1.7)'), and proof-suite row 1, named 'honours the marker over an unreadable head, which task 1.7 must flip to a refusal', which pins today's behaviour so 1.7 turns it red deliberately rather than silently. The parent carries this into the S7 admission alongside the task 1.3 wording amendment.",
+      "row1Now": "Head INSTALLED at mode enabled, marker present naming 'stale-marker-branch', store reopened with no capability database. Asserts `journal-compatible` carrying branchId 'stale-marker-branch' - i.e. the unreadable head is ignored and the marker wins. Rewriting this row to assert the refusal is the 1.7 task.",
+      "supersedesResidualConflict": "`correction.residualConflict` is RESOLVED by option (B) as recorded there; it is retained as the measurement that produced the choice, not as an open item."
+    },
+    "finalRedGreen": {
+      "red": "Tests: 3 failed, 4 passed, 7 total, measured against the base decision path (marker-only) with the export kept so the suite compiles. Rows 3, 4 and 7 fail - the three new behaviours. Rows 1, 2, 5 and 6 pass, which is the point: they pin transition arms this slice must NOT change. Log `red-repoint-20260915.log`, sha256 714c1f97fa14793d2fbd30804873f2890a9c50e9a6f16e7aa31d2ad132a8c8c6.",
+      "green": "Tests: 7 passed, 7 total. Log `green-repoint-20260915.log`, sha256 685cea859dd7013e1041eace6bc22156c60cb1bf38fa8152311dfa44df7ae388."
+    },
+    "finalGates": {
+      "measuredOn": "the committed tree 0890acade (re-run after the pre-commit hooks' oxlint --fix / oxfmt --write pass)",
+      "focusedJest": "exit 0 - Test Suites: 170 passed, 170 total; Tests: 1328 passed, 1328 total. Zero regressions (S3a base was 169 suites / 1321 tests; +1 suite, +7 rows). Log `gate-focused-jest-20260915.log`, sha256 e5db39097f382ba86c87383aa9058e7b4d11f326bae906e405f8d75e28d32d4e.",
+      "typecheck": "exit 0, empty log (sha256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)",
+      "oxlint": "0 errors, 1 warning - pre-existing `eslint(max-lines)` on ServerMatchHost.ts, a file already far over the 400 cap at the base. Log sha256 a1672ea0e40d0ffa76e601a6d029c11fee92f143dee1f3a5b1bac90c6c6539ec.",
+      "oxfmt": "All matched files use the correct format (sha256 efa74ba71c076609aad6a5d9e68527efe4e348d9d9086256e7c91a3be1c4f1c8)",
+      "prePushBuild": "The pre-commit hook ran the full `next build` and it passed; the commit is the hook-formatted tree."
+    },
+    "capCheck": {
+      "measured": "`git diff --shortstat bb346350e HEAD -- src/` -> 4 files changed, 591 insertions(+), 43 deletions(-).",
+      "filesCap": "PASS - 4 files against the <=15 cap.",
+      "linesCap": "EXCEEDED - 591 insertions against the <=500 cap (target <=400). Disclosed, not silently breached. The production diff is 170 insertions / 43 deletions across three files; the overage is the 421-line proof suite, which grew from 5 rows to 7 across the two rounds of rulings (row 2 for the unavailable concession, row 6 for the marker-honoured transition arm, row 1 reframed as the 1.7 tripwire). No row was dropped to meet a line count."
+    }
+  },
+  "split": {
+    "date": "2026-09-15",
+    "source": "parent coordinator cap decision: split, do not trim",
+    "why": "The single commit 0890acade was 591 insertions against a <=500 cap. Splitting keeps every proof row instead of deleting coverage to satisfy a line count, and it separates two things that were only incidentally together: the repoint itself, and the rows that pin the pre-cutover arms the repoint left standing.",
+    "referenceBranch": "codex/roadmap-r4-s3b-repoint-started-20260915-reference was created at 0890acade BEFORE the branch pointer moved, so the pre-split commit remains reachable.",
+    "method": "`git reset --soft bb346350e` on the branch (never --hard, never stash), then two commits built from the index. No content was rewritten by hand: commit (B) restores the exact file captured from 0890acade before the reset.",
+    "commitA": {
+      "sha": "a593490d82d20cc108d4dbf6ff547b331b680d86",
+      "parent": "bb346350e",
+      "subject": "feat(combat): select the recovery reader from the mirrored journal head",
+      "contents": "All production change - `deriveMatchJournalAuthorityStartedHead` plus its head-identity and outcome types, the recovery-site repoint including the export and the task-1.7 block comment, the commit-path repoint at ServerMatchHostJournalAuthority - plus the three proof rows for the behaviours it INTRODUCES: derived head identity on a started stream, head-wins-over-a-disagreeing-marker, and the typed refusal on a corrupt head.",
+      "shortstat": "`git diff --shortstat bb346350e a593490d8 -- src/` -> 4 files changed, 495 insertions(+), 43 deletions(-)",
+      "capCheck": "PASS - 4 files (<=15) and 495 insertions (<=500).",
+      "gates": {
+        "s3bSuite": "3 passed, 3 total - green on its own, which was the requirement for this level.",
+        "focusedJest": "Test Suites: 170 passed, 170 total; Tests: 1324 passed, 1324 total (1321 at base + 3 new rows). Log `gate-A-focused-jest-20260915.log`, sha256 4af7d115bde80dfbab15ff39d1002c9137ba87e9b5bdebfd0820ae6f6df0cd19.",
+        "typecheck": "exit 0, empty log (sha256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)",
+        "oxlint": "0 errors, 1 warning - the pre-existing `max-lines` on ServerMatchHost.ts (sha256 a1672ea0e40d0ffa76e601a6d029c11fee92f143dee1f3a5b1bac90c6c6539ec)",
+        "oxfmt": "All matched files use the correct format (sha256 2368a5636096dd9364fde84ca80c9d1ce60c66cc14beff617778db869ad53cd9)",
+        "prePushBuild": "pre-commit hook ran the full `next build`; passed."
+      }
+    },
+    "commitB": {
+      "sha": "7330ed0f8fb487678e87346a31c3c6ca306f98f0",
+      "parent": "a593490d8",
+      "subject": "test(combat): pin the recovery reader's pre-cutover transition arms",
+      "contents": "The four transition-pin rows: marker honoured while no head exists; neither signal -> legacy; unreadable head + marker -> marker honoured (the task-1.7 tripwire); unreadable head + no marker -> legacy.",
+      "shortstat": "`git diff --shortstat a593490d8 7330ed0f8 -- src/` -> 1 file changed, 102 insertions(+), 6 deletions(-)",
+      "testOnly": "MEASURED, not asserted: the staged diff against its parent touches exactly one path, src/lib/multiplayer/server/__tests__/matchRecoveryStartedFromJournalHead.sqlite.test.ts. Because no production file changes, the four added rows run against commit (A)'s production tree and pass there - each pins behaviour (A) already implements, which is what 'green at its parent by construction' means here.",
+      "gates": {
+        "s3bSuite": "7 passed, 7 total. Log `gate-B-s3b-suite-20260915.log`, sha256 41c4c332f0caa24f8eec071d87dd6569d345ded51024593509616a6829277bb6.",
+        "focusedJest": "Test Suites: 170 passed, 170 total; Tests: 1328 passed, 1328 total. Log `gate-B-focused-jest-20260915.log`, sha256 9b0b678a2a1ff06c1a296d9209b3121954ea4c212343c9bad520b4354b408085.",
+        "typecheck": "exit 0, empty log (sha256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855)",
+        "oxlint": "0 errors, 1 warning - the same pre-existing `max-lines` (sha256 857fe8b761f71dea60c3c5646e1b7c7d7fef777180d82def48cd246b2b115572)",
+        "oxfmt": "All matched files use the correct format (sha256 505406f0163edd223dcc3fb72f6c68b22945210222b429c0ef876c7773d6a2bd)",
+        "prePushBuild": "pre-commit hook ran the full `next build`; passed."
+      }
+    },
+    "byteIdentity": "`git diff 0890acade 7330ed0f8` is EMPTY, and the two commit trees compare equal (`git rev-parse HEAD^{tree}` == `git rev-parse 0890acade^{tree}`). The split changed how the work is recorded, not what it contains.",
+    "supersedes": "`correction.capCheck` records the pre-split overage (591 insertions). It is resolved by this split: the production level now measures 495, and no proof row was dropped."
+  }
+}

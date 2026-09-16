@@ -1,0 +1,170 @@
+{
+  "artefact": "r4-s2-live-head-admission-review",
+  "date": "2026-09-15",
+  "reviewer": "independent reviewer (journal/authority scope), not the author",
+  "mode": "READ-ONLY: no edits to source or spec, no commits, no pushes, no sub-agents, no builds. Only this file written.",
+  "subject": {
+    "roadmapNode": "R4.S2",
+    "package": "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind",
+    "task": "1.2 (box left UNCHECKED - confirmed)",
+    "branch": "codex/roadmap-r4-s2-live-head-admission-20260915",
+    "commits": ["fce4f47d9", "3ebede292"],
+    "base": "e1ccf668c (R4.S1, PR #1684)",
+    "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/history-runtime-integrity",
+    "surfaceReverified": "git show --stat: fce4f47d9 = 2 files +17/-2; 3ebede292 = 1 file +463/-0; total 3 files +480/-2 - within the 15-file / 500-line cap"
+  },
+
+  "verdict": "APPROVE-WITH-REQUIRED-EDITS",
+  "verdictSummary": "The proof is real, the discrimination is honest and independently reproduced, and the spec amendment is both the correct mechanic and the correct text. ONE required edit: the ADDED-block preamble three lines above the amended requirement still claims all three requirements were 'Moved VERBATIM' from the umbrella - after fce4f47d9 that is false for `Superseded Combat Commands Are Rejected`, and the umbrella's own SPLIT RECEIPT asserts mechanical verbatim verification of exactly those three moves.",
+
+  "1_specAndTaskAmendment": {
+    "mechanicIsCorrect": true,
+    "finding": "ADDED-in-place is right, not MODIFIED. `Superseded Combat Commands Are Rejected` exists ONLY as an ADDED entry in this package's delta - verified absent from openspec/specs/ (a repo-wide grep for STALE_BRANCH across openspec/specs/ returns nothing) and present in this delta under `## ADDED Requirements`. A second entry of the same requirement name under `## MODIFIED Requirements` in the same delta would be a duplicate header, and the ADDED text IS the text the archive installs. The author's specDeltaDecision reasoning is sound and matches what I measured.",
+    "openspecStrict": "Re-ran independently on the worktree: `npx openspec validate adopt-combat-journal-cutover-and-gm-rewind --strict` -> \"Change 'adopt-combat-journal-cutover-and-gm-rewind' is valid\" (exit 0). The inline HTML comment inside the requirement body does not trip strict.",
+    "wordingMatchesShippedBehavior": {
+      "verdict": "EXACT",
+      "staleArm": "spec.md: 'a command refused because the stream has moved on SHALL carry the active branch and a resync action' vs shipped refuseStale - ServerMatchHostBranchAdmission.ts:83-87 `LIVE_BRANCH_ADMISSION_PHRASING = { STALE_BRANCH: EXPECTED_HEAD_RESYNC_ACTION, GM_ONLY: 'gm-role-required', MATCH_QUARANTINED: HISTORY_INTEGRITY_BLOCKED_REASON }` and the `!onLivePath -> refuseStale(ctx, envelope, head, revision)` arm at ServerMatchHostBranchAdmission.ts:186-191. conflictHead + recoveryAction present. MATCHES.",
+      "integrityArm": "spec.md: 'refused with a typed history-integrity block that names no head' vs shipped ServerMatchHostBranchAdmission.ts:75-76 `HISTORY_INTEGRITY_BLOCKED_REASON = 'history-integrity-blocked'`, returned via `if (!isBranchIntegrityFailure(error)) throw error; return refuse(ctx, envelope, 'MATCH_QUARANTINED');` at lines 164-166 (branch consult) and 238-240 (rebuild consult). Neither refuse path attaches conflictHead or recoveryAction - the doc comment at lines 70-74 says so explicitly ('Not a recovery action: there is none it can take'). MATCHES, including the ABSENCE claims.",
+      "newScenario": "'Persisted effective head does not name an effective branch' - WHEN/THEN wording is behaviourally exact, and its 'SHALL append nothing' half is asserted on BOTH stores in the proof."
+    },
+    "contradictionSweep": {
+      "withinPackage": "NO CONTRADICTION. The retained scenario 'Old branch command arrives' governs a CLIENT-NAMED superseded branch; the new scenario governs the PERSISTED head naming a non-effective branch. Different subjects, different answers, both present. Task 2.3 (unchanged) still describes the client-named shape as STALE_BRANCH and stays consistent.",
+      "addAuthoritativeHistoryBranches": "NO CONTRADICTION. add-authoritative-history-branches/specs/gm-combat-interventions/spec.md:12-14 'Player command targets stale branch - WHEN a command NAMES a superseded combat branch -> STALE_BRANCH with the active head and resync action' is the client-named shape again. The shipped code comment at ServerMatchHostBranchAdmission.ts:172-180 cites this exact SHALL as the reason the head-status re-read arm was REMOVED (naming the branch the authority just left would violate it). The amendment is aligned with that SHALL, not against it.",
+      "umbrellaE2E": "NO CONTRADICTION. harden-gm-two-player-campaign-sessions/specs/e2e-testing/spec.md:172-174 (E2E-41) is again the delayed CLIENT command targeting the superseded branch -> STALE_BRANCH.",
+      "umbrellaTaskNarrativeDrift": "REAL BUT OUT OF SURFACE, non-blocking. harden-gm-two-player-campaign-sessions/tasks.md:312 still reads 'both STALE_BRANCH arms are structurally dead', and :313's 14.2-a receipt shape (2) still reads 'an intent arriving while the effective branch is superseded is refused the same way' (i.e. STALE_BRANCH). Both are task/receipt NARRATIVE, not SHALLs, in a DIFFERENT change whose 14.2 box is BLOCKED on this package and closes by receipt at task 2.3. Correcting them belongs with that receipt, not with this proof slice. Recorded as RN-2."
+    },
+    "fourShapeMappingVsUmbrella14_2a": {
+      "verdict": "COVERS ALL FOUR; shape 2's ANSWER deliberately diverges from the receipt's 2026-09-02 wording, and that divergence IS the point of fce4f47d9.",
+      "rows": [
+        "(1) umbrella: 'effective head is not the live-path identity -> STALE_BRANCH with conflictHead and recoveryAction resync-to-active-head' | test shape 1 asserts code STALE_BRANCH, reason LIVE_BRANCH_ADMISSION_PHRASING.STALE_BRANCH, recoveryAction EXPECTED_HEAD_RESYNC_ACTION, conflictHead {branchId:'candidate-1', revision:before}. VERBATIM MATCH.",
+        "(2) umbrella: 'an intent arriving while the effective branch is superseded is refused the same way' (= STALE_BRANCH) | test shape 2 asserts MATCH_QUARANTINED + 'history-integrity-blocked', NO conflictHead, NO recoveryAction, NO STALE_BRANCH frame. DIVERGENT BY DESIGN - History B (PR #1674) removed the STALE_BRANCH arm as unreachable by construction; the receipt text is stale and was flagged for owner ruling in r3-history-b-repair-20260915.json and rated 'REAL BUT NOT A SPEC CONTRADICTION; correctly deferred to the owner' by that review. fce4f47d9 is that owner amendment, and it matches the admission brief's part2 proposedAmendedText.",
+        "(3) umbrella: 'targetRevision-bearing non-request payload from a non-host -> GM_ONLY (gm-role-required)' | test shape 3 asserts GM_ONLY + LIVE_BRANCH_ADMISSION_PHRASING.GM_ONLY ('gm-role-required', ServerMatchHostBranchAdmission.ts:85), no conflictHead, and the host's identical payload commits. VERBATIM MATCH.",
+        "(4) umbrella: 'a player MAY submit a non-mutating RewindRequest -> accepted-for-gm-review, derives no event' | test shape 4 asserts INVALID_INTENT with reason 'accepted-for-gm-review' (ACCEPTED_FOR_GM_REVIEW, ServerMatchHostBranchAdmission.ts:94) plus a two-store census. VERBATIM MATCH."
+      ]
+    },
+    "workersNeverEditOpenspecRule": "The package tasks.md preamble carries 'workers never edit `openspec/**`'. This amendment is an OWNER-facing ruling explicitly requested by the admission brief (part2_task1_2_amendment), not a delegated worker edit, and the receipt documents it as such. Noted, not a violation."
+  },
+
+  "2_proofTest": {
+    "file": "src/lib/multiplayer/server/__tests__/ServerMatchHostBranchAdmission.journalHead.test.ts (463 lines, 7 rows)",
+    "realSQLiteBoundary": "CONFIRMED. Two real temp-file databases per row - `mkdtemp` + `multiplayer-matches.db` (DurableMatchStore) and `mekstation.db` (getSQLiteService, the capability DB the branch port binds on). No jest mocks, no fakes, no in-memory store. The head is read back through `store.readEffectiveHead(streamOf(matchId))` and journal rows counted with raw SQL over `event_journal_events`.",
+    "headProvenanceIsGenuine": "CONFIRMED. `seedJournalHead` commits a REAL batch through `store.appendCommandBatch!(...)` - the same boundary the host's commit path calls - and asserts `committed.kind === 'committed'` and `journalCount === 1` BEFORE reading the head. No head row is hand-built. This is the S1-to-S2 join the task owes, and it is exactly what the shipped 14.2 suite (raw-SQL head) could not prove.",
+    "productionDefaultUntouched": "CONFIRMED. matchJournalAuthority.ts is NOT in the diff (3-file diffstat re-verified). Read at HEAD: `export const COMBAT_JOURNAL_AUTHORITY_MODE = 'off' as CombatJournalAuthorityMode;` (matchJournalAuthority.ts:18-19). The mirror is turned on only by `_setCombatJournalAuthorityModeForTests` (lines 34-38), set in beforeEach and reset to null in afterEach.",
+    "perShapeRefusalAndNoAppend": "CONFIRMED for all four. Every shape captures `before = (await store.getEvents(matchId)).length` and `journalBefore = journalCount(matchId)` and asserts BOTH unchanged after the refusal - the match store and the journal, not one of them. Shapes 1/2/4 additionally prove the host survives (shape 1 re-admits after adoptServedBranch; shape 2 receives the same typed refusal on a second intent, where a throw would have killed the match; shapes 3/4 commit the next legal intent).",
+    "absenceAssertionsAreReal": "Shape 2 uses `expect(refusal).not.toHaveProperty('conflictHead')` and `.not.toHaveProperty('recoveryAction')` plus `expect(errorOf(frames,'STALE_BRANCH')).toBeUndefined()` - property-absence, not undefined-equality, so a present-but-undefined field would still fail. That is precisely the amended SHALL's 'names no head' half.",
+    "coldReopenIsGenuine": "CONFIRMED. `store.close(); resetSQLiteService(); openCampaign(); store = openStore();` then a NEW host - both files closed and reopened from disk. A head living only in an open handle would answer null and admit; the row asserts `readEffectiveHead(...).branchId === CANDIDATE` and then STALE_BRANCH with conflictHead. The disclosed sequence-collision warning on re-persist is real (I observed MATCH_LOG_DIVERGENCE logging in my own run) and is correctly characterised as beside the point - admission answers before the engine.",
+    "modeOffRowIsHonest": "CONFIRMED, and it is the honest pin of finding #48: `readEffectiveHead === null`, `journalCount === 0`, no STALE_BRANCH, no MATCH_QUARANTINED, and the intent COMMITS. It does not dress the dead production path as anything else.",
+    "tautologicalOrOverMocked": {
+      "verdict": "NONE OVER-MOCKED. One row is a control, and it is correctly labelled as such.",
+      "detail": "The join row ('the mirrored head is the live-path identity and admits legal intents') survives D4 (both consults disabled) because its assertion is 'no refusal + committed'. That is a CONTROL, not a discriminator, and D1 reds it (the effectiveGeneration===1 assertion depends on the mirror). The evidence says exactly this ('only the join row's admitted-intent half and the mode-off row survive'). No row asserts a constant against itself; every refusal row asserts an exported production constant, a two-store census, and host liveness."
+    },
+    "disclosedHandConstruction": "Shape 1 and the cold-reopen row move the head row directly via createBranch + transitionBranchStatus + an UPDATE of event_history_effective_heads, because the branch port exposes no activation call (the compare-and-swap lives in the branch-activation seam). The helper's comment says so and the receipt lists it as a non-claim. ACCEPTED - what is NOT hand-built is the head's INSTALLATION, which is the claim under review."
+  },
+
+  "3_discrimination": {
+    "logsOpened": "All six discrimination logs present at .sisyphus/roadmap-completion-20260912/r4-s2-20260915/. I recomputed sha256 over all 12 recorded files: ALL 12 MATCH the evidence's sha256 block byte for byte.",
+    "countsReproducedFromLogs": {
+      "green-01": "7 passed / 7",
+      "D1 (mirror off)": "6 failed, 1 passed - failing rows are join, shape 1, shape 2, shape 3, shape 4, cold-reopen; survivor is the mode-off row. Matches the claim exactly.",
+      "D2 (branch consult off)": "4 failed, 3 passed - failing rows are shape 1, shape 3, shape 4, cold-reopen; shape 2 GREEN. Matches.",
+      "D3 (rebuild consult off)": "7 passed / 7. Matches.",
+      "D4 (both off)": "5 failed, 2 passed - failing rows are shapes 1, 2, 3, 4 and cold-reopen. Matches.",
+      "green-02": "7 passed / 7"
+    },
+    "d3IsCorrectlyExplained": {
+      "verdict": "CORRECT - D3 is redundancy, NOT a dead consult, and the source proves it.",
+      "reasoning": "Under D2 the BRANCH consult is short-circuited and shape 2 stays green, so the REBUILD consult answers it (ServerMatchHostBranchAdmission.ts:232-240: 'This consult reads the stream's effective head too, so it is the FIRST place persisted corruption surfaces on the intent path' -> catch isBranchIntegrityFailure -> MATCH_QUARANTINED). Under D3 the REBUILD consult is short-circuited and shape 2 STILL asserts MATCH_QUARANTINED + 'history-integrity-blocked' and passes - that frame can only have come from the BRANCH consult's own guard at lines 161-167. So the branch-consult arm is demonstrably executed, not dead. D4 removes both and shape 2 reds, which is the falsification that closes it. IMPORTANT DISTINCTION the author got right: what History B removed as unreachable is the head-STATUS RE-READ arm (comment at lines 172-180: 'The head's own branch status is deliberately NOT re-read'); what remains live is readEffectiveHead THROWING a branch-integrity failure that BOTH consults catch and translate. D3's all-green is fully explained by that pair and is not evidence of a dead consult."
+    },
+    "perturbationsReverted": "CONFIRMED. `git status --porcelain` in the worktree is EMPTY. `git log --oneline` HEAD is 3ebede292 on codex/roadmap-r4-s2-live-head-admission-20260915, parent fce4f47d9, grandparent e1ccf668c - unchanged, no amend, no stray commit. The production file perturbed in D2/D3/D4 (ServerMatchHostIntent.ts) is clean."
+  },
+
+  "4_createPathFinding": {
+    "verified": true,
+    "citation": "ServerMatchHost.create (ServerMatchHost.ts:440-458) builds the host, whose construction-time events go through `persistInitialEvents` (ServerMatchHost.ts:1232-1248, doc comment: 'Persist whatever events the session emitted at construction time (typically GameCreated + GameStarted). Runs as fire-and-forget'), which delegates to the helper calling `await ctx.store.appendEvent(ctx.matchId, evt);` (ServerMatchHostEvents.ts:95). That is the single-event path, NOT `appendCommandBatch` - and appendCommandBatch is the only boundary S1's mirror hooks. The bypass is real as described.",
+    "consequenceForS4_task1_4": "LOAD-BEARING. Task 1.4 says restart recovery 'rebuilds the live host from the journal head AND the effective branch'. The HEAD survives this bypass (which is why S2 is unaffected), but the journal TAIL does not track the match log once create's non-batch persist runs ahead of the mirror - the author measured the next batch mirroring `revision-conflict`. Any S4 rebuild that reads EVENTS from the journal (rather than only the head) would rebuild an incomplete session. S4 must either seed the mirror at match creation or explicitly restrict itself to head-and-branch reads and say so in its receipt.",
+    "consequenceForS6_task1_7": "BLOCKING FOR S6, NOT FOR S2. Task 1.7 promises 'shadow parity' and 'new matches admit through the journal'. Shadow parity is structurally unachievable while create's initial events bypass the mirror - the shadow counter starts diverging on the FIRST post-create batch of every match. S6 cannot honestly claim parity until the create path is routed through (or the mirror seeded before) the batch boundary.",
+    "isItABlockerForThisSlice": "NO. S2's consult reads ONLY `readEffectiveHead` (ServerMatchHostBranchAdmission.ts:161-168), and the head is correctly and durably installed by a real mirrored batch - proven live by the cold-reopen row. The suite asserts on the head and explicitly not on the journal tail, and both the test comment and the receipt's nonClaims disclose the gap rather than hiding it. Merging this proof slice does not depend on it.",
+    "whereItMustBeClosed": "Task 1.7 (S6, the reviewed cutover flag with shadow parity) at the LATEST - that is the box whose promise the gap falsifies. Task 1.4 (S4) is the first consumer that breaks without it and must state its dependency. Recommend S1's disclosed 'no-catch-up' be upgraded from a receipt disclosure to a NAMED remainder on 1.7."
+  },
+
+  "5_hygiene": {
+    "surfaceCap": "PASS - 3 files, +480/-2 vs e1ccf668c; cap is 15 files / 500 lines.",
+    "conventionalCommits": "PASS - `spec(combat): amend S2 wording for the integrity-blocked head` and `test(combat): prove live journal-head admission for the four illegal command shapes`. The `spec(...)` type has repo precedent (c7d1a1c5d `spec(openspec): ...`).",
+    "author": "PASS - both commits Wes Rollings <wrollings@gmail.com>.",
+    "aiAttribution": "PASS - grep over both full commit bodies for claude / co-authored / generated with / anthropic returns NOTHING.",
+    "checkbox": "PASS - task 1.2 remains `- [ ]` in the amended tasks.md; no box was checked. Verified in the fce4f47d9 diff.",
+    "hooksHonored": "PASS as reported, corroborated. commit-2.log is present at 181141 bytes with the matching sha256, and the pre-commit build line is the author's cited evidence. I did not re-run the build (outside read-only review scope); the artefact exists and hashes as claimed.",
+    "oxlintScopeNote": "CONFIRMED HONEST. `.oxlintrc.json` ignorePatterns contains `**/__tests__/**` (line 45, alongside `**/openspec/**` at line 33). The new file lives in `src/lib/multiplayer/server/__tests__/`, so '0 warnings, 0 errors on 0 FILES' means 'the linter saw nothing', exactly as the receipt states - and the receipt refuses to dress the repo-wide 84 warnings as a delta. Good faith.",
+    "rootCheckoutUntouched": "PASS - the root E:/Projects/MekStation working tree carries no modification from this branch's work; the amended tasks.md text exists only on the branch."
+  },
+
+  "6_reviewerRuns": {
+    "environment": "Node v22.22.0 (PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0), run in the worktree at 3ebede292, tree clean before and after.",
+    "runs": [
+      {
+        "argv": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/multiplayer/server/__tests__/ServerMatchHostBranchAdmission.journalHead.test.ts",
+        "exit": 0,
+        "result": "1 suite passed, 7 tests passed / 7, 27.414 s - all seven row names printed and matching the claimed rows. REPRODUCED."
+      },
+      {
+        "argv": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/multiplayer/server",
+        "exit": 0,
+        "result": "146 suites passed / 146, 1081 tests passed / 1081, 35.917 s. No regression in the focused server area."
+      },
+      {
+        "argv": "npx tsc --noEmit --skipLibCheck",
+        "exit": 0,
+        "result": "0 errors."
+      },
+      {
+        "argv": "npx openspec validate adopt-combat-journal-cutover-and-gm-rewind --strict",
+        "exit": 0,
+        "result": "Change 'adopt-combat-journal-cutover-and-gm-rewind' is valid."
+      }
+    ],
+    "noteOnCounts": "My focused run scoped only `src/lib/multiplayer/server` (146/1081); the author's gate also included `src/lib/events/journal` (168/1314). The server-only subset is a strict subset and the numbers are consistent."
+  },
+
+  "requiredEdits": [
+    {
+      "id": "RE-1",
+      "severity": "documentation accuracy - blocking only because the false claim is load-bearing at archive time and nothing mechanical guards it",
+      "file": "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/specs/gm-combat-interventions/spec.md",
+      "lines": "3-9 (the ADDED-block preamble comment)",
+      "problem": "Line 4 reads 'Moved VERBATIM from `harden-gm-two-player-campaign-sessions` on 2026-09-04'. After fce4f47d9 that is FALSE for one of the three: `Superseded Combat Commands Are Rejected` now carries a second SHALL clause and a new scenario the umbrella's text does not have. The umbrella's own SPLIT RECEIPT (harden-gm-two-player-campaign-sessions/tasks.md:299) asserts 'Verified mechanically (verify-split.py against origin/main): three whole moves verbatim ... (SPLIT-VERIFIED)' - a claim this commit silently invalidates, three lines above the edit that invalidates it. No verify-split.py remains in the repo to catch it (searched repo-wide; absent), so prose is the only guard.",
+      "exactEdit": "Append one sentence inside the existing comment, after line 8 ('change replaces the reduced headers the umbrella's archive installs.') and before the closing '-->' on line 9:\n\nAMENDED SINCE THE MOVE: `Superseded Combat Commands Are Rejected` is no longer verbatim - its SHALL was split into a staleness arm and a persisted-corruption arm, and one scenario added, on 2026-09-15 (S2 / task 1.2, commit `fce4f47d9`), per History B's repair (PR #1674). The other two ADDED requirements remain verbatim.\n\nNothing else changes. Amend fce4f47d9 in place or land it as a third commit on the branch."
+    }
+  ],
+
+  "recommendedNonBlocking": [
+    {
+      "id": "RN-1",
+      "what": "The mode-off row pins the literal string 'off' via `_setCombatJournalAuthorityModeForTests('off')` rather than clearing the override with `null` (which falls through to COMBAT_JOURNAL_AUTHORITY_MODE at matchJournalAuthority.ts:18). The row is titled 'production default (mode off)'; if S6 flips the const, the row keeps asserting 'off' and quietly stops being the production pin it claims to be. Passing `null`, or adding `expect(COMBAT_JOURNAL_AUTHORITY_MODE).toBe('off')`, makes it track production instead of restating a belief about production. Not required - today the two are the same value and the row's discrimination role (D1 survivor) is unaffected.",
+      "owner": "S6 / task 1.7 at the latest, since that is the commit that would falsify it."
+    },
+    {
+      "id": "RN-2",
+      "what": "harden-gm-two-player-campaign-sessions/tasks.md:312 ('both STALE_BRANCH arms are structurally dead') and :313's 14.2-a receipt shape (2) ('refused the same way') are now stale against the amended package spec. Out of this slice's surface and in a different change; correct them with the 14.2 closing receipt at package task 2.3, not here.",
+      "owner": "task 2.3 receipt."
+    },
+    {
+      "id": "RN-3",
+      "what": "Promote S1's disclosed 'no-catch-up' from a receipt disclosure to a NAMED remainder on task 1.7 (S6), citing ServerMatchHost.ts:1232-1248 -> ServerMatchHostEvents.ts:95. Shadow parity cannot be claimed while create's initial events bypass appendCommandBatch, and S4 (task 1.4) is the first consumer that breaks on it.",
+      "owner": "tasks 1.4 and 1.7."
+    }
+  ],
+
+  "whatIDidNotVerify": [
+    "The pre-commit `npm run build` was not re-run by me - commit-2.log exists and its sha256 matches the receipt, but I did not independently rebuild.",
+    "The `src/lib/events/journal` half of the author's 168/1314 gate was not re-run; I ran the `src/lib/multiplayer/server` subset only.",
+    "I did not re-apply the D1-D4 perturbations. Their logs' sha256 all match the receipt and the failing ROW NAMES inside each log match the claims; I verified reproducibility of the green state and verified D3's causal explanation from the SOURCE (ServerMatchHostBranchAdmission.ts:161-167 vs 232-240) rather than by re-perturbing.",
+    "No live / e2e run. E2E-41 and the rewind-pack rows remain strict expected failures; nothing here un-gates them.",
+    "No claim about whether task 1.2's box should be checked - that is the owner's, and it correctly remains unchecked."
+  ],
+
+  "nonClaims": [
+    "This review discharges no SHALL. The five requirements in the package's gm-combat-interventions delta remain undischarged in production; the amendment corrects a requirement's TEXT and the suite proves an infrastructure seam.",
+    "Finding #48 is unchanged: COMBAT_JOURNAL_AUTHORITY_MODE is 'off' in production, so all four shapes remain structurally dead on the live path - now pinned honestly by the mode-off row rather than left implicit.",
+    "No production source file was modified by the subject commits, and none by this review. Only this file was written."
+  ]
+}

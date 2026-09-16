@@ -1,0 +1,92 @@
+{
+  "at": "2026-09-13T05:35:53.126Z",
+  "status": "local-verified",
+  "worker": "Cursor Grok 4.6 High",
+  "review": "Luna Max independent plus parent exact diff and evidence verification",
+  "testSha256": "f95344692550def0ec705297a212bd9cb8cde2b737574d9aef15447f07171c13",
+  "sourceSha256": "6ed37ea6aaa7954b2c603b1e3dd542dcd949668c7dff4ad2559cc9c45de3c589",
+  "build": {
+    "authoritativeDirectNpmCli": {
+      "command": [
+        "C:\\nvm4w\\nodejs\\node.exe",
+        "C:\\nvm4w\\nodejs\\node_modules\\npm\\bin\\npm-cli.js",
+        "run",
+        "build"
+      ],
+      "workingDirectory": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\bv-prewarmer-test",
+      "pid": 78224,
+      "startedAtUtc": "2026-09-13T05:29:12.8053274Z",
+      "endedAtUtc": "2026-09-13T05:32:10.5850869Z",
+      "exitCode": 0,
+      "stdoutPath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\bv-physical-dependencies-recovery-terra-20260913\\npm-cli-build.stdout.log",
+      "stderrPath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\bv-physical-dependencies-recovery-terra-20260913\\npm-cli-build.stderr.log",
+      "stdoutSha256": "9fabe300ba678699f65a0afdb5e9577b1549b3435cdb2be9a655f618c1065dc9",
+      "stderrSha256": "87fc4d6a6537bafe882333dc075feaed3c1d72cf6361fc5b3e7ec8e04108f7db",
+      "stdoutBytes": 7014,
+      "stderrBytes": 85376
+    },
+    "wrapperNpmCmd": {
+      "command": [
+        "C:\\nvm4w\\nodejs\\npm.cmd",
+        "run",
+        "build"
+      ],
+      "workingDirectory": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\bv-prewarmer-test",
+      "pid": 75944,
+      "startedAtUtc": "2026-09-13T05:23:02.7953014Z",
+      "endedAtUtc": "2026-09-13T05:28:32.5650652Z",
+      "exitCode": 0,
+      "stdoutPath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\bv-physical-dependencies-recovery-terra-20260913\\npm-build-attempt-2.stdout.log",
+      "stderrPath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\bv-physical-dependencies-recovery-terra-20260913\\npm-build-attempt-2.stderr.log",
+      "stdoutSha256": "cc1e224504a958c1452df442fa228f45ed8fefaa00eb7a3f726ef0f9621d2664",
+      "stderrSha256": "78d58e06ceebe20dd05d3df9401dc0a6dc0860b9009ad18c357b5a759a7c1ff7",
+      "stdoutBytes": 7060,
+      "stderrBytes": 3666242
+    },
+    "preservedFailedLauncher": {
+      "command": [
+        "C:\\Program Files\\nodejs\\npm.cmd",
+        "run",
+        "build"
+      ],
+      "workingDirectory": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\bv-prewarmer-test",
+      "pid": null,
+      "startedAtUtc": "2026-09-13T05:22:39.5786685Z",
+      "endedAtUtc": "2026-09-13T05:22:39.6851413Z",
+      "exitCode": null,
+      "stdoutPath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\bv-physical-dependencies-recovery-terra-20260913\\npm-build.stdout.log",
+      "stderrPath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\bv-physical-dependencies-recovery-terra-20260913\\npm-build.stderr.log",
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutBytes": 0,
+      "stderrBytes": 0
+    }
+  },
+  "verifiedRecoveryReceipts": [
+    "materialize-owned-dependencies.cjs",
+    "npm-build-attempt-2.result.json",
+    "npm-build-attempt-2.stderr.log",
+    "npm-build-attempt-2.stdout.log",
+    "npm-build.result.json",
+    "npm-build.stderr.log",
+    "npm-build.stdout.log",
+    "npm-cli-build.result.json",
+    "npm-cli-build.stderr.log",
+    "npm-cli-build.stdout.log",
+    "post-build-verification.json",
+    "preflight.json",
+    "promote-verified-stage-attempt-2.cjs",
+    "promotion-attempt-2-result.json",
+    "promotion-failure.json",
+    "source-after-manifest.json",
+    "source-manifest.json",
+    "staging-manifest.json",
+    "verify-and-report.cjs"
+  ],
+  "limits": [
+    "One regression test; no product source changes",
+    "Failed junction build retained",
+    "Raw logs are Git-ignored local evidence"
+  ],
+  "nextBase": "5b229be21e87815f10ce6521dda77b52eef75e3c"
+}

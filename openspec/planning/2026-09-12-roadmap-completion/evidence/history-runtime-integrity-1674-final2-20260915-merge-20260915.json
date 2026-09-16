@@ -1,0 +1,85 @@
+{
+  "pr": 1674,
+  "branch": "codex/roadmap-history-runtime-integrity-20260915",
+  "attempt": 2,
+  "supersedes": "the HELD receipt at history-runtime-integrity-1674-final-20260915-merge-20260915.json, which is kept untouched as the record of the first (failed) attempt",
+  "priorAttemptSummary": "Attempt 1 head cdad71c7b failed CI with 3 tests red (2 in ServerMatchHostBranchAdmission.test.ts, 1 in matchStoreBatchContract.test.ts), all EventHistoryBranchError from the stricter root/effective-head contract meeting un-normalized fixtures. Coordinator issued HOLD; parent repaired the fixtures.",
+  "reviewedCommit": "87313aeff",
+  "reviewedCommitNote": "repair commit; independent review of the repair: APPROVE (per coordinator). Blob reference for this attempt's content guard.",
+  "headAtResume": "5bb7afca9e7c0b89cbb50ada1275094a21df4839",
+  "headAtResumeNote": "repair commit 87313aeff merged with the earlier remote update-branch commit cdad71c7b",
+  "finalHead": "ed6a5d1d960fdcd330cbf82be8aeb30fbeb0d31c",
+  "anomaly": null,
+  "autoMergeArmed": false,
+  "contentGuard": {
+    "preUpdate": {
+      "fileSetSize": 8,
+      "fileSetAsSpecified": true,
+      "files": [
+        "src/lib/events/journal/EventHistoryBranchContract.ts",
+        "src/lib/events/journal/SQLiteEventHistoryBranchStore.ts",
+        "src/lib/events/journal/__tests__/SQLiteEventHistoryBranchStore.test.ts",
+        "src/lib/multiplayer/server/ServerMatchHostBranchAdmission.ts",
+        "src/lib/multiplayer/server/__tests__/ServerMatchHostBranchAdmission.test.ts",
+        "src/lib/multiplayer/server/__tests__/campaignProgressionReaders.durable.integrity.test.ts",
+        "src/lib/multiplayer/server/__tests__/matchStoreBatchContract.test.ts",
+        "src/lib/multiplayer/server/campaignProgressionReaders.durable.ts"
+      ],
+      "diffstat": "8 files changed, 450 insertions(+), 48 deletions(-)",
+      "blobEquality": "all 8 blobs identical to 87313aeff",
+      "result": "PASS"
+    },
+    "postUpdate": {
+      "fileSet": "unchanged - same 8 files, no files added by the update merge",
+      "diffstat": "8 files changed, 450 insertions(+), 48 deletions(-)",
+      "blobEquality": "all 8 blobs still identical to 87313aeff",
+      "result": "PASS"
+    }
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "oldHead": "5bb7afca9e7c0b89cbb50ada1275094a21df4839",
+    "newHead": "ed6a5d1d960fdcd330cbf82be8aeb30fbeb0d31c",
+    "expectedHeadShaGuard": "5bb7afca9e7c0b89cbb50ada1275094a21df4839",
+    "reason": "branch became BEHIND after #1675, #1676 and #1677 merged to main; strict branch protection requires up-to-date",
+    "note": "This forced a fresh CI run even though the resume head was already 30/30 green, because an out-of-date branch cannot merge under strict protection."
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "otherChecksCount": 26,
+    "otherChecksBuckets": { "pass": 26 },
+    "totalChecks": 30,
+    "pollLog": "07:37:44 23 pending/3 pass -> 07:44:09 30 pass / 0 fail / 0 pending",
+    "repairConfirmation": "The three tests that failed in attempt 1 (ServerMatchHostBranchAdmission x2, matchStoreBatchContract x1) are green on this head; no EventHistoryBranchError remains."
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/history-runtime-integrity-1674-final2-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "bcc34f7cdbd144eafb9709fff5c9bb8936fcb3b7",
+  "mergeCommitParents": ["2d410f3ca4d7153497c94ee2944618ee735e99af"],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1674 --squash --match-head-commit ed6a5d1d960fdcd330cbf82be8aeb30fbeb0d31c",
+  "mergedAt": "2026-09-15T07:44:32Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "The merge commit changes exactly the 8 guarded files, blob-identical to the gated final head ed6a5d1d9.",
+  "mainAfter": "bcc34f7cdbd144eafb9709fff5c9bb8936fcb3b7",
+  "worktree": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/history-runtime-integrity",
+    "branch": "codex/roadmap-history-runtime-integrity-20260915",
+    "fastForward": "ATTEMPTED AND CORRECTLY ABORTED",
+    "result": "SKIPPED - diverged",
+    "note": "The worktree is being actively used by another lane: its HEAD moved from 5bb7afca9 to 79667696c between two consecutive reads seconds apart. `git merge --ff-only ed6a5d1d9` refused with 'Not possible to fast-forward, aborting' and made NO changes. Left untouched by design; no deletions performed."
+  },
+  "timestamps": {
+    "resumeReceivedAt": "2026-09-15T07:26:00Z",
+    "guardStartedAt": "2026-09-15T07:26:20Z",
+    "checksTerminalAt": "2026-09-15T07:44:09Z",
+    "mergedAt": "2026-09-15T07:44:32Z",
+    "receiptWrittenAt": "2026-09-15T07:46:00Z"
+  }
+}

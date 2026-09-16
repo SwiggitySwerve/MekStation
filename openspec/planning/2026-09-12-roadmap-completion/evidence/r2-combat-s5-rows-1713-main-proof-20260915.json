@@ -1,0 +1,42 @@
+{
+  "node": "R2.combat",
+  "artefact": "r2-combat-s5-rows-1713-main-proof-20260915",
+  "capturedAtUtc": "2026-09-15T14:16:39.321Z",
+  "pr": 1713,
+  "slice": "R2.combat S5 follow-up: co-op snapshot denials at the unit level + row rename (test-only; mutation-proven)",
+  "reviewedHead": "deafe9ecfea7c2dfbd3818d90a633c8e0dd68255",
+  "mergeCommit": "4d7d17c3def5aa1989bd4819654f3eeec1fcc400",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/archive-original-main-proof (detached at the merge commit)",
+  "runtime": {
+    "node": "v22.22.0"
+  },
+  "files": [
+    "src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx",
+    "src/lib/campaign/coop/__tests__/launchCoopMission.test.ts"
+  ],
+  "blobEquality": {
+    "diffLines": 0,
+    "identical": true
+  },
+  "gates": {
+    "jest": {
+      "scope": "mission-launch.coop + src/lib/campaign/coop + src/lib/campaign/readiness",
+      "result": "see jest.log",
+      "exit": 0,
+      "sha256": "ea13271b89fc92e1bc8fb0ad36ccfb935906fae90edc113536d1651d1432adf3"
+    },
+    "tsc": {
+      "exit": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "openspecStrict": {
+      "exit": 0,
+      "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3"
+    },
+    "qcOpenspecCi": {
+      "exit": 0,
+      "sha256": "1d2b3ffbba3922d328cc2b02fa1de7ccedad6b3382227fa903deccf9a0d5900c"
+    }
+  },
+  "acceptance": "exact-main accepted; task line 7 proven for co-op on main (per the follow-up review); line-8 consolidated receipt pending"
+}

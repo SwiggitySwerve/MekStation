@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "triage-personnel-disposition",
+  "capturedAt": "2026-09-12",
+  "worktree": "E:/Projects/MekStation",
+  "scope": "Comment/reference-only correction; no behavior, tasks, inventory, roadmap, or Git changes.",
+  "originalConcern": "Inventory note said missing rosterEntryToPerson reference; current canonical architecture intentionally requires the rosterEntryToPerson/IPerson bridge and tests to be absent.",
+  "proposedDisposition": {
+    "state": "dispositioned",
+    "disposition": "existing",
+    "text": "The original missing-shim concern is obsolete. The current split roster/pilot architecture and focused behavior evidence exist; this closes only the finite inventory concern and does not claim complete architecture runtime coverage."
+  },
+  "archivedDestinations": [
+    {
+      "path": "openspec/changes/archive/2026-05-01-migrate-personnel-to-roster-employment/specs/personnel-management/spec.md",
+      "exists": true
+    },
+    {
+      "path": "openspec/changes/archive/2026-05-03-wire-iperson-hard-cutover/design.md",
+      "exists": true
+    },
+    {
+      "path": "openspec/changes/archive/2026-05-03-wire-iperson-hard-cutover/",
+      "exists": true
+    }
+  ],
+  "sourceEdits": [
+    {
+      "path": "src/types/campaign/CampaignRosterEntry.ts",
+      "line": 11,
+      "oldReference": "openspec/changes/migrate-personnel-to-roster-employment/specs/personnel-management/spec.md",
+      "newReference": "openspec/changes/archive/2026-05-01-migrate-personnel-to-roster-employment/specs/personnel-management/spec.md",
+      "beforeSha256": "81d8a842313e9b082bb608d5defa4a0a4368f0b2c58246253c431262633aae31",
+      "afterSha256": "f42f487151b449ae5e4cc7c48dcad0469e7d46d855bc23e25d2ead2de4d9b667",
+      "exactOldOccurrenceCount": 1,
+      "replacementOperationCount": 1
+    },
+    {
+      "path": "src/lib/campaign/utils/pilotLookup.ts",
+      "line": 15,
+      "oldReference": "openspec/changes/wire-iperson-hard-cutover/design.md",
+      "newReference": "openspec/changes/archive/2026-05-03-wire-iperson-hard-cutover/design.md",
+      "beforeSha256": "49da4f1d5a45a60a0eac6d05119f83643f8db7554d9464b2fc5478d4d069d5e3",
+      "afterSha256": "26779deec25050979bb99900fbcc66c3e354f37515ec06bb580799411508fef3",
+      "exactOldOccurrenceCount": 1,
+      "replacementOperationCount": 1
+    },
+    {
+      "path": "openspec/specs/campaign-personnel-architecture/spec.md",
+      "line": 222,
+      "oldReference": "openspec/changes/wire-iperson-hard-cutover/",
+      "newReference": "openspec/changes/archive/2026-05-03-wire-iperson-hard-cutover/",
+      "beforeSha256": "a72517b65490dc84e1c04fbcc2ae4d162f1bb35187736b304e49a7f023a6f5e6",
+      "afterSha256": "0e86bfc6fdf0089b340e0db49b396b9001936ada3ede08acac054fc5c2e8ec55",
+      "oldTextSegment": "Implementation tracked at",
+      "newTextSegment": "Implementation is archived at",
+      "exactOldPathOccurrenceCount": 1,
+      "exactOldTextSegmentOccurrenceCount": 1,
+      "replacementOperationCount": 2
+    }
+  ],
+  "focusedProof": {
+    "receipt": "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-armor-personnel-verification.json",
+    "result": "passed",
+    "combinedRun": true,
+    "testSuites": 10,
+    "tests": 254,
+    "clarification": "254 tests across 10 suites is the combined armor-allocation/personnel run; it is not 254 personnel-only tests.",
+    "parentHashRecheck": "21 source/test hashes rechecked; all before/after hashes equal in the proof worktree."
+  },
+  "limits": [
+    "Focused tests do not prove the complete personnel architecture or every production consumer.",
+    "They do not prove UI behavior, migration history, or every persistence/API boundary.",
+    "No complete capability runtime claim is made; broader roadmap publication and closure gates remain parent-owned."
+  ],
+  "verification": [
+    "All three old active targets are absent.",
+    "All three archived destination paths exist.",
+    "Only comments/reference prose changed in the three owned files."
+  ],
+  "replacementAudit": {
+    "canonicalSpecPathOccurrencesAtEdit": 1,
+    "canonicalSpecWordingOccurrencesAtEdit": 1,
+    "canonicalTotalReplacementOperations": 2,
+    "canonicalReverseReconstructionSha256": "a72517b65490dc84e1c04fbcc2ae4d162f1bb35187736b304e49a7f023a6f5e6",
+    "canonicalReverseReconstructionMatchesBefore": true,
+    "explanation": "The canonical spec mismatch was not caused by multiple path occurrences. One path occurrence and one adjacent wording occurrence were changed on line 222; the wording change added four bytes. Reversing both segments exactly reconstructs the recorded before hash."
+  }
+}

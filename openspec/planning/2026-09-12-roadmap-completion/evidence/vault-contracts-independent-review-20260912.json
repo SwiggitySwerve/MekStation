@@ -1,0 +1,243 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "vault-contracts-independent-review-20260912",
+  "capturedAt": "2026-09-12T21:00:00Z",
+  "status": "accepted-with-limits",
+  "review": "Independent R0.contracts review of retained design-vault-campaign-separation-and-maps proposal, design, and tasks",
+  "verdict": {
+    "content": "admit-with-bounded-wording-repair",
+    "implementationAdmission": "blocked",
+    "runtimeAuthority": "unproven",
+    "reason": "The retained prose separates source evidence from runtime and production authority, preserves the CAMP F/G/H sequencing gate, keeps schema v2 occupied, keeps D1 and the unresolved pilot version authority, and leaves all implementation and acceptance tasks unchecked except the bounded D3 prerequisite. Current ledger and council evidence still retain exact-main, approval, and three-witness receipt gates."
+  },
+  "candidate": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/vault-contracts",
+    "head": "ca0687d25264033376862347e494ddf15cd92bec",
+    "change": "design-vault-campaign-separation-and-maps",
+    "files": [
+      {
+        "path": "openspec/changes/design-vault-campaign-separation-and-maps/proposal.md",
+        "admissionSha256": "141b816e98644ed12f706c54ea896acd6484a72277a972d2c0a6bc55e93c2099",
+        "retainedSha256": "e8845c31e8d41fa8a2cf75aa84d4e05a773defad649a918aa906f302853cd18d",
+        "bytes": 6762,
+        "lines": 34
+      },
+      {
+        "path": "openspec/changes/design-vault-campaign-separation-and-maps/design.md",
+        "admissionSha256": "9921309636df9bf8a1bbf67cfc3011d70176170fc202d15a94a33ce4f48ac0fa",
+        "retainedSha256": "8f83a88ee0ec0066cdf7665f41aa8a1ded64d37ff4a457efcaaad4f0f63add24",
+        "bytes": 9007,
+        "lines": 53
+      },
+      {
+        "path": "openspec/changes/design-vault-campaign-separation-and-maps/tasks.md",
+        "admissionSha256": "6d2e4ec703b9abf22521d85c5dd4ad2dea070bba94790b2d7d1b5c3396541531",
+        "retainedSha256": "ec7968afd628890c7060052de1b880b17831035ffde20ab520ed7c75c89b8151",
+        "bytes": 5424,
+        "lines": 43
+      }
+    ],
+    "diffMeasured": {
+      "proposal": { "additions": 7, "deletions": 7, "logicalReplacements": 7 },
+      "design": { "additions": 5, "deletions": 5, "logicalReplacements": 5 },
+      "tasks": { "additions": 2, "deletions": 2, "logicalReplacements": 2 },
+      "totalAdditions": 14,
+      "totalDeletions": 14,
+      "totalChangedLines": 28,
+      "laneMetadataReportedChangedLines": 52,
+      "laneMetadataDifference": "The lane count uses a different scope/count; this review measures the fresh three-document diff and does not count report.md."
+    }
+  },
+  "workerLane": {
+    "path": ".sisyphus/roadmap-completion-20260912/grok-vault-contracts-1",
+    "model": "grok-4.6",
+    "effort": "high",
+    "startedAt": "2026-09-12T20:07:33.510Z",
+    "finishedAt": "2026-09-12T20:17:33.553Z",
+    "running": false,
+    "driverPid": 78472,
+    "pid": 20680,
+    "stopReason": "10-minute owned lane budget",
+    "code": null,
+    "successClaimPresent": false,
+    "statusSha256": "e4d76250c9c23763f2881360187c359b8593838bf43c1a74a4068eb6007d124a",
+    "reportSha256": "9b664b4ce4abbc86e5afbbe5cb607ab63ffd8b7acb77ec72200258e93098d666",
+    "eventsSha256": "2620aa18a853940a1f6ec208f7ade6976077b0fabc52b103b08089f46bdc794f",
+    "reportLimit": "The retained report says checks had not run; independent checks are recorded below."
+  },
+  "changedLineAnchors": [
+    { "file": "proposal.md", "lines": "5", "effect": "Replaces fuzzy/already-removed source prose with exact CreateCampaignPage.submit.ts, SQLite version, travel, SVG 2.5D, disabled journal, and open-acceptance boundaries." },
+    { "file": "proposal.md", "lines": "10-13", "effect": "Changes shipped/already-implemented language to current-tree/present-in-source language and preserves no-second-renderer/asset scope." },
+    { "file": "proposal.md", "lines": "24", "effect": "Keeps pilot instances on the current-tree roster-entry shape and D1 reference/provenance boundary." },
+    { "file": "proposal.md", "lines": "32", "effect": "States SVG 2.5D renderer presence is not measured 4v4 or production-authority proof." },
+    { "file": "design.md", "lines": "5", "effect": "Bounds D3, occupies schema v2, preserves existing travel/rendering seams, and states journal authority is disabled." },
+    { "file": "design.md", "lines": "19", "effect": "Makes new renderer/engine/assets, second counter, and journal cutover explicit non-goals." },
+    { "file": "design.md", "lines": "26", "effect": "Keeps D3 as a regression contract rather than vault-package runtime proof." },
+    { "file": "design.md", "lines": "39", "effect": "Preserves travel charge/balance continuity and says preview/commit source is not replay-authority proof." },
+    { "file": "design.md", "lines": "45", "effect": "Makes migration and D3 regression future implementation work and says v3 is not implemented." },
+    { "file": "tasks.md", "lines": "5", "effect": "Keeps only the bounded D3 prerequisite checked and states it does not close package work or prove production authority." },
+    { "file": "tasks.md", "lines": "27", "effect": "Leaves travel-action test work unchecked and says preview/commit source is not acceptance closure." }
+  ],
+  "groundTruthSources": [
+    {
+      "boundary": "custom-unit version producer/history",
+      "files": [
+        { "path": "src/services/units/UnitRepository.ts", "sha256": "d9a7f0439b2ebe8b23154dbdfae7716faef4b6b8f32c7b51bea37d50c93d9dae", "lines": "102-106,157-217" },
+        { "path": "src/services/units/VersionRepository.ts", "sha256": "21aab0e1bcf18079f213b1aa82617e741c5fc026f76815bbea13b8ab1c62226d", "lines": "60-70,83-113,145-193" }
+      ],
+      "finding": "UnitRepository creates/increments current_version and unit_versions; VersionRepository reads history and performs reverts. One existing seam is present; no second counter is justified."
+    },
+    {
+      "boundary": "occupied schema v2",
+      "files": [
+        { "path": "src/lib/campaign/persistence/campaignMigration.ts", "sha256": "598a26d8780d1607d53944ed537d284e341ce008eedc6b6c2d7c93b1496416dc", "lines": "25,54-65,77-89,93-127" },
+        { "path": "src/types/campaign/SerializedCampaign.ts", "sha256": "ec7a1d39d7f2372582ed29d4539e36fb4ba560fc79a3917aa3afe1852835ec05", "lines": "149-156,308-327" }
+      ],
+      "finding": "Schema v2 owns authority metadata. Provenance requires a future compatible rung; v2 must not be overwritten and v3 is not implemented."
+    },
+    {
+      "boundary": "D3 identity",
+      "files": [
+        { "path": "src/components/gameplay/pages/campaigns/create/CreateCampaignPage.submit.ts", "sha256": "8e0a25b5a5d8feef6f1fb9e84dbf743aa7d4e555dd29e77301097adc852b0956", "lines": "152-183" }
+      ],
+      "finding": "No UNIT_TEMPLATES name/tonnage OR-match is present; root-force membership uses minted unit.id and the projection carries unitRef/unitSource/sourceVersion. The source seam is verified, while regression/package/runtime proof remains open."
+    },
+    {
+      "boundary": "travel",
+      "files": [
+        { "path": "src/lib/starmap/starmapTravelPreview.ts", "sha256": "377cf569ab4bd7739c5f16e5c3e207338f100e3af772e60f8515f1fc6709a2b1", "lines": "61-199" },
+        { "path": "src/stores/campaign/useCampaignStore.dayActions.ts", "sha256": "87474d70c47a8c52c05912b4f68508bafbb1d8defecc164f91ea0a29311683b6", "lines": "365-480" }
+      ],
+      "finding": "Preview/commit calculates and applies days, fees, daily processing, projected funds, arrival, and activity. Authoritative travel/opportunity events, replay, and co-op acceptance remain open; no second clock is needed."
+    },
+    {
+      "boundary": "isometric view",
+      "files": [
+        { "path": "src/components/gameplay/HexMapDisplay/HexMapDisplay.tsx", "sha256": "a3539030188efd8c09ece73e0d3b45a1ab41aa87f983abb12a6da1436ce23d26" },
+        { "path": "src/components/gameplay/HexMapDisplay/HexMapDisplay.isometric.ts", "sha256": "6da439f29f6d9114a1fa5ec0e0d1dbec977421f5342add188e319bdc2f252edd" },
+        { "path": "src/components/gameplay/HexMapDisplay/HexMapDisplay.isometricSceneLayer.tsx", "sha256": "ee9d17600f83c226d6a417e348c64211b56d5f4a94ceabedcd182419039c57fd" },
+        { "path": "src/components/gameplay/HexMapDisplay/HexMapDisplay.projectionControls.ts", "sha256": "cc0630e396a50b914d3778ea24089a6775c3623dcc3df9260d26e7ed77c4b897" }
+      ],
+      "finding": "Existing SVG 2.5D projection, extrusion, tokens, facing, depth, and controls are source evidence. Picking/overlay/preference/performance acceptance remains open."
+    },
+    {
+      "boundary": "journal authority",
+      "files": [
+        { "path": "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts", "sha256": "392fd63f42a7d3bc13f29d74557264674483dcdb6dedc1046161130e6588940e", "lines": "4-8,23-27,36-37" },
+        { "path": "src/lib/campaign/sync/JournalCampaignEventStore.ts", "sha256": "0b352cd89fe64ee7d8c817fdae5855cce5e1198d097eb3bea772d71f0686ebf0", "lines": "83,454-469" },
+        { "path": "e2e/campaign-two-device-drive.spec.ts", "sha256": "e3301cf540668c6fa5225c8f90ca5ec146d448f45a21acd4f74d7e32716de449", "lines": "443-456" }
+      ],
+      "finding": "Production journal authority remains disabled; e2e opt-in is not cutover. Source presence is not runtime or production authority."
+    }
+  ],
+  "ledgerAndArchive": {
+    "ledgerPath": "openspec/active-change-ledger.json",
+    "activeRows": [
+      { "name": "add-saved-custom-unit-campaign-roster", "status": "in-progress", "gate": "later parent 9.1 exact-main receipt; not archived" },
+      { "name": "add-camp01-authority-receipts", "status": "in-progress", "gate": "later parent 9.1 exact-main receipt; not archived" },
+      { "name": "prove-saved-custom-unit-campaign-journey", "status": "in-progress", "gate": "later parent 9.1 exact-main receipt; not archived" },
+      { "name": "design-vault-campaign-separation-and-maps", "status": "proposed", "gate": "implementation remains gated; P1 1.1-1.5 not started" },
+      { "name": "design-campaign-authority-and-sync", "status": "proposed", "gate": "current reconciled successor/sole journal home; later parent receipt gate" }
+    ],
+    "councilPath": "openspec/council-decisions/2026-08-20-campaign-journal-reconciliation-and-next-work.md",
+    "councilLines": "62-70",
+    "councilFinding": "F/G were archived on 2026-08-20, H remains active and unarchived, H is receipt-sealed only under reduced claims, and the safe default is blocked. The current successor design-campaign-authority-and-sync must not be treated as an old predecessor whose active row or directory should disappear.",
+    "retainedDocsCircularGateCheck": "No predecessor, active-ledger, directory-absence, or circular whole-package phrase was found in the retained three documents."
+  },
+  "repairScope": {
+    "owner": "Grok worker, if parent elects to apply wording repair",
+    "cap": "Exactly three owned Markdown files; no source code, specs outside the change, checkboxes, Git, runtime, build, install, server, or external messages.",
+    "changes": [
+      {
+        "file": "proposal.md",
+        "line": 29,
+        "replacement": "Existing custom-unit UnitRepository create/update path produces the SQLite current_version/unit_versions rows, while VersionRepository reads history/reverts them; pilot version authority remains an unresolved admission decision."
+      },
+      {
+        "file": "design.md",
+        "line": 25,
+        "replacement": "Custom-unit sourceVersion must resolve through the existing UnitRepository producer and VersionRepository history/revert seam over SQLite current_version/unit_versions, without a second counter."
+      },
+      {
+        "file": "tasks.md",
+        "line": 5,
+        "replacement": "(Bounded identity prerequisite only; parent evidence and live source 2026-09-12. It does not satisfy the exact-main receipt, approval, or three-witness gates and does not close remaining vault/campaign implementation tasks or prove runtime/production authority.)"
+      }
+    ],
+    "preserve": ["CAMP F/G/H gate", "D1 thin references", "pilot version authority unresolved", "existing travel charges/balances", "future-only cross-campaign progression", "only task 1.3 checked"]
+  },
+  "checks": [
+    {
+      "id": "strict-openspec",
+      "command": ["C:/nvm4w/nodejs/node.exe", "C:/Users/wroll/AppData/Roaming/npm/node_modules/@fission-ai/openspec/bin/openspec.js", "validate", "design-vault-campaign-separation-and-maps", "--strict"],
+      "exitCode": 0,
+      "result": "Change is valid",
+      "stdout": ".sisyphus/roadmap-completion-20260912/vault-contracts-independent-review/checks/strict-openspec.stdout.log",
+      "stderr": ".sisyphus/roadmap-completion-20260912/vault-contracts-independent-review/checks/strict-openspec.stderr.log",
+      "exit": ".sisyphus/roadmap-completion-20260912/vault-contracts-independent-review/checks/strict-openspec.exit"
+    },
+    {
+      "id": "spec-purpose",
+      "command": ["C:/nvm4w/nodejs/node.exe", "E:/Projects/MekStation/node_modules/tsx/dist/cli.mjs", "openspec/scripts/spec-purpose-lint.ts", "--root", ".", "--spec-root", "openspec/specs", "--json"],
+      "exitCode": 0,
+      "result": "217 files scanned; errors and tracked debt empty",
+      "stdout": ".sisyphus/roadmap-completion-20260912/vault-contracts-independent-review/checks/spec-purpose.stdout.log",
+      "stderr": ".sisyphus/roadmap-completion-20260912/vault-contracts-independent-review/checks/spec-purpose.stderr.log",
+      "exit": ".sisyphus/roadmap-completion-20260912/vault-contracts-independent-review/checks/spec-purpose.exit"
+    },
+    {
+      "id": "terminology",
+      "command": ["C:/nvm4w/nodejs/node.exe", "E:/Projects/MekStation/node_modules/tsx/dist/cli.mjs", "openspec/scripts/terminology-tool.ts", "validate", "--strict", "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/vault-contracts/openspec/changes/design-vault-campaign-separation-and-maps"],
+      "exitCode": 0,
+      "result": "8 files scanned; no terminology violations",
+      "stdout": ".sisyphus/roadmap-completion-20260912/vault-contracts-independent-review/checks/terminology.stdout.log",
+      "stderr": ".sisyphus/roadmap-completion-20260912/vault-contracts-independent-review/checks/terminology.stderr.log",
+      "exit": ".sisyphus/roadmap-completion-20260912/vault-contracts-independent-review/checks/terminology.exit"
+    },
+    {
+      "id": "candidate-qc",
+      "command": ["C:/nvm4w/nodejs/node.exe", "scripts/qc/validate-openspec-ci-quality.mjs", "--json"],
+      "exitCode": 0,
+      "result": "pass; 8/8 workflow contracts, 18/18 aggregator needs, 4 protected contexts, 3/3 package scripts, and 14/14 active changes accounted",
+      "stdout": ".sisyphus/roadmap-completion-20260912/vault-contracts-independent-review/checks/candidate-qc.stdout.log",
+      "stderr": ".sisyphus/roadmap-completion-20260912/vault-contracts-independent-review/checks/candidate-qc.stderr.log",
+      "exit": ".sisyphus/roadmap-completion-20260912/vault-contracts-independent-review/checks/candidate-qc.exit"
+    },
+    {
+      "id": "scoped-markdown-format",
+      "command": ["C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js", "exec", "--no", "--", "prettier", "--check", "openspec/changes/design-vault-campaign-separation-and-maps/proposal.md", "openspec/changes/design-vault-campaign-separation-and-maps/design.md", "openspec/changes/design-vault-campaign-separation-and-maps/tasks.md"],
+      "exitCode": 0,
+      "result": "All matched files use Prettier code style",
+      "stdout": ".sisyphus/roadmap-completion-20260912/vault-contracts-independent-review/checks/scoped-markdown-format.stdout.log",
+      "stderr": ".sisyphus/roadmap-completion-20260912/vault-contracts-independent-review/checks/scoped-markdown-format.stderr.log",
+      "exit": ".sisyphus/roadmap-completion-20260912/vault-contracts-independent-review/checks/scoped-markdown-format.exit"
+    },
+    {
+      "id": "retained-integrity",
+      "command": ["C:/nvm4w/nodejs/node.exe", "inline retained-document byte/hash/LCS and task-status check"],
+      "exitCode": 0,
+      "result": "Admission hashes match root originals; 14 additions/14 deletions; no unchecked task became checked",
+      "stdout": ".sisyphus/roadmap-completion-20260912/vault-contracts-independent-review/checks/integrity.stdout.log",
+      "stderr": ".sisyphus/roadmap-completion-20260912/vault-contracts-independent-review/checks/integrity.stderr.log",
+      "exit": ".sisyphus/roadmap-completion-20260912/vault-contracts-independent-review/checks/integrity.exit"
+    },
+    {
+      "id": "unified-diff",
+      "command": ["diff -u root-original retained-vault for each of the three docs"],
+      "exitCode": 1,
+      "expected": true,
+      "result": "Non-empty diffs expected; stderr empty; counts 7/7, 5/5, and 2/2",
+      "stdout": ".sisyphus/roadmap-completion-20260912/vault-contracts-independent-review/checks/diff-*.stdout.log",
+      "stderr": ".sisyphus/roadmap-completion-20260912/vault-contracts-independent-review/checks/diff-*.stderr.log",
+      "exit": ".sisyphus/roadmap-completion-20260912/vault-contracts-independent-review/checks/diff-*.exit"
+    }
+  ],
+  "rawEvidenceDirectory": ".sisyphus/roadmap-completion-20260912/vault-contracts-independent-review",
+  "publishedEvidencePath": "openspec/planning/2026-09-12-roadmap-completion/evidence/vault-contracts-independent-review-20260912.json",
+  "limits": [
+    "No tests, build, install, server, browser, external message, Git mutation, or runtime authority action was performed.",
+    "This review does not archive CAMP H, satisfy the later parent 9.1 exact-main receipt, approve a proposal, or create three independent authority witnesses.",
+    "The source hashes prove the inspected bytes at review time; they do not prove production deployment or live authority.",
+    "The worker lane timed out by owned budget; independent content and checks determine this verdict."
+  ]
+}

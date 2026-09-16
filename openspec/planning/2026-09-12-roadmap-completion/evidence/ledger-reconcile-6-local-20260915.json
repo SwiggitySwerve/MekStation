@@ -1,0 +1,306 @@
+{
+  "schema": "ledger-reconcile-local/v6",
+  "artefact": "ledger-reconcile-6-local-20260915",
+  "batch": 6,
+  "at": "2026-09-15",
+  "scope": "openspec-only ledger + task-row reconciliation bound strictly to merged, exact-main-verified receipts, following the directed list exactly. No product code, no spec delta edits, no push, no PR, no sub-agents. Method and rules follow batches 1-5 exactly (per evidence/ledger-reconcile-5-local-20260915.json and evidence/ledger-reconcile-5-review-20260915.json, read first).",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/camp-receipt-verification",
+  "runtime": { "node": "v22.22.0" },
+  "branch": {
+    "name": "codex/roadmap-ledger-reconcile-6-20260915",
+    "createdFrom": "origin/main after git fetch origin",
+    "baseSha": "2c1b4584de076ae497533d093618dac5bcc97f03",
+    "baseSubject": "test(e2e): a revoked seat is refused by the other process and a GM rationale is redacted (#1755)",
+    "preflight": "git status --short EMPTY on the reused camp-receipt-verification worktree before checkout (was left on codex/roadmap-ledger-reconcile-5-20260915, batch 5's now-merged branch); EMPTY again after the commit and after the final post-commit validator re-run",
+    "note": "2c1b4584d is the exact SHA the directive named as the minimum base ('2c1b4584d or later'); origin/main's tip at fetch time equalled it exactly."
+  },
+  "commits": [
+    {
+      "sha": "eaae9d2a64c760fd541e38411881e08ca7875b56",
+      "subject": "spec(openspec): ledger and tasks reconciliation batch 6 (journal 1.7 S7-c close, campaign CO3 + R2.authority-live notes)",
+      "author": "Wes Rollings <wrollings@gmail.com>",
+      "committer": "Wes Rollings <wrollings@gmail.com>",
+      "aiAttribution": "none",
+      "shortstat": "3 files changed, 3 insertions(+), 1 deletion(-)"
+    }
+  ],
+  "hooks": "on (lint-staged ran oxfmt over the 3 staged json/md files; pre-commit full build self-skipped - no TypeScript staged, logged 'No TypeScript files staged skipping build (Python / openspec / docs only)')",
+  "pushed": false,
+  "caps": {
+    "fileLimit": 15,
+    "filesTouched": 3,
+    "lineLimit": 500,
+    "linesChangedCombined": 4,
+    "splitNeeded": false,
+    "note": "one commit, 3 distinct files, 3 net insertions + 1 net deletion base..HEAD (git diff --shortstat 2c1b4584d..HEAD)"
+  },
+  "liveAncestryTable": {
+    "method": "git fetch origin, then `gh pr view <n> --json state,mergeCommit,mergedAt` for every cited PR PLUS `git merge-base --is-ancestor <mergeCommit> origin/main` against a freshly fetched origin/main, re-run once immediately before closing the batch (all PRs were already ancestors of this batch's own base, since origin/main's tip equalled the directive's named base exactly).",
+    "originMainTipAtSessionStart": "2c1b4584de076ae497533d093618dac5bcc97f03",
+    "originMainTipAtSessionEnd": "2c1b4584de076ae497533d093618dac5bcc97f03",
+    "originMainAdvancedDuringSession": "false - no PR merged mid-session this batch; the base itself already included every PR this batch cites",
+    "results": [
+      { "pr": 1747, "title": "test(campaign): a flag-free CLI that puts one campaign on journal authority", "state": "MERGED", "mergedAt": "2026-09-15T19:55:57Z", "mergeCommit": "376f5aa923070613b16cb4cdb1091c6f6fb04b13", "ancestorOfOriginMain": true, "note": "already cited toward CO3 in batch 5; unchanged this batch" },
+      { "pr": 1748, "title": "test(e2e): two-process campaign journal harness helpers", "state": "MERGED", "mergedAt": "2026-09-15T20:04:20Z", "mergeCommit": "288fe678ae4d53ef46f6c5dbe82c8e2b34b1f077", "ancestorOfOriginMain": true, "note": "already cited toward CO3 in batch 5; unchanged this batch" },
+      { "pr": 1749, "title": "test(e2e): campaign journal drive helpers for the convergence proof", "state": "MERGED", "mergedAt": "2026-09-15T20:12:06Z", "mergeCommit": "763e80fb6b064d4fc8b12528bdf3f4c6d572f79b", "ancestorOfOriginMain": true, "note": "already cited toward CO3 in batch 5; unchanged this batch" },
+      { "pr": 1750, "title": "test(e2e): prove two-process scoped convergence and durable restart under journal authority", "state": "MERGED", "mergedAt": "2026-09-15T20:19:30Z", "mergeCommit": "1fcd9b6485421d64d4303693a368676fc4df4d51", "ancestorOfOriginMain": true, "note": "NEW this batch: the load-bearing CO3 deliverable, OPEN as of batch 5, now MERGED and exact-main-verified" },
+      { "pr": 1751, "title": "fix(recovery): route the journal arm through the checkpoint door", "state": "MERGED", "mergedAt": "2026-09-15T20:27:38Z", "mergeCommit": "a265a544a2256c7098afdc10a968492c2454cd77", "ancestorOfOriginMain": true, "note": "NEW this batch: OPEN as of batch 5, now MERGED and exact-main-verified" },
+      { "pr": 1753, "title": "test(campaign): a Node-side campaign socket the two-process drive can hold open", "state": "MERGED", "mergedAt": "2026-09-15T20:45:56Z", "mergeCommit": "ef36274384341f7158ac5870bd6b7a2265913567", "ancestorOfOriginMain": true, "note": "NEW this batch: inert helper, runtime proof runs at #1755" },
+      { "pr": 1754, "title": "test(e2e): the privacy world the two-process rows argue about", "state": "MERGED", "mergedAt": "2026-09-15T20:53:18Z", "mergeCommit": "bb9b87447b9bde2e7909e452a0f86b6c91437499", "ancestorOfOriginMain": true, "note": "NEW this batch: inert helper, runtime proof runs at #1755" },
+      { "pr": 1755, "title": "test(e2e): a revoked seat is refused by the other process and a GM rationale is redacted", "state": "MERGED", "mergedAt": "2026-09-15T21:00:41Z", "mergeCommit": "2c1b4584de076ae497533d093618dac5bcc97f03", "ancestorOfOriginMain": true, "note": "NEW this batch: this batch's own base commit; the R2.authority-live revocation/redaction proof itself" }
+    ],
+    "allMergedShasAncestorsOfOriginMain": true,
+    "reCheckedImmediatelyBeforeClosing": "gh pr view 1750/1751/1755 re-run right before the final validator sweep: all three still state=MERGED with the same mergeCommit oids recorded above - no drift during this session."
+  },
+  "perEditTable": [
+    {
+      "id": "E1",
+      "file": "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/tasks.md",
+      "row": "1.7 (S6: reviewed cutover flag with shadow parity, migration states and rollback law; new matches admit through the journal, legacy completed matches keep their reads; rollback proof)",
+      "verdict": "NOTE (no flip)",
+      "directedItem": "Directive item 1: NOTE that S7-c #1751 is main-verified so S7-a/b/c are complete and only S7-d (owner ruling OD-journal-writer-authority) plus residuals remain; no flip.",
+      "literalTextTest": "Task 1.7's own text (shadow parity, migration states, rollback law, new-matches-admit, legacy-matches-keep-reads, rollback proof) is NOT satisfied by S7-c - S7-c only routes the recovery arm's four properties through the checkpoint door; it touches none of shadow parity, migration states or the rollback law (all S7-d, untouched). Correctly kept as a NOTE, not a FLIP - matches the directive's own instruction exactly.",
+      "boundReceipts": ["evidence/r4-s7c-1751-main-proof-20260915.json", "evidence/r4-s7c-review-20260915.json", "evidence/r4-s7c-local-20260915.json"],
+      "verification": {
+        "prState": "gh pr view 1751 -> MERGED, mergeCommit a265a544a2256c7098afdc10a968492c2454cd77, mergedAt 2026-09-15T20:27:38Z",
+        "ancestry": "git merge-base --is-ancestor a265a544a2256c7098afdc10a968492c2454cd77 origin/main -> exit 0 (YES)",
+        "mainProofContent": "r4-s7c-1751-main-proof-20260915.json: prHead b0d50cf5 -> mergeCommit a265a544a, blob-equality empty (0 bytes) on all 3 touched files; jest exit 0 (178 suites / 1375 tests over src/lib/events/journal src/lib/multiplayer/server); tsc/openspecStrict/specPurposeStrict/terminologyStrict/qcOpenspecCi all exit 0",
+        "reviewVerdict": "r4-s7c-review-20260915.json: verdict.overall = APPROVE, requiredEdits = [] - every evidence-log hash, test count and code citation in the author's receipt reproduced exactly (3 mutants independently re-run: M1 killed 6/7/13, M3 killed 1/12/13, M5 survived-and-correctly-declared-equivalent 13/13; M2/M4 confirmed via matching log hashes); merge-tree check against current origin/main clean, zero conflicts",
+        "allFourS4R4PropertiesRouted": "confirmed in both the local receipt's perPropertyTable and the review's independent perPropertyTable: empty-history refusal, event-identity-uniqueness integrity check, quarantine eligibility, checkpoint-cache refresh - all four ROUTED"
+      },
+      "s7StatusAfterThisEdit": "S7-a (PRs #1737/#1738, batch 4), S7-b (PRs #1744/#1745/#1746, batch 5) and S7-c (PR #1751, this batch) are now ALL complete and main-verified. Only S7-d (per-match migration-state machine, rollback law, busy_timeout pragma) remains, still owner-ruled OD-journal-writer-authority and untouched by anything read this session.",
+      "residualsCarriedForwardVerbatim": [
+        "S7b-Q6: the command path's fail-closed catch for a corrupt persisted head, removed with the marker read; inert at mode 'off'; a question for S7-d.",
+        "OQ-1: the consult's diverged verdict stays blocked, not quarantined - an owner call, unreversed this batch.",
+        "OQ-2: MatchRecoveryJournalConsult.events now has no production consumer - informational, not scheduled.",
+        "OQ-4: S4-N1's DB-handle-routing trigger has fired now that S7-a made heads real, but the fix belongs to the consult, not to S7-c's routing change, and remains open - a candidate for its own small slice or for folding into S7-d, not decided here."
+      ]
+    },
+    {
+      "id": "E2",
+      "file": "openspec/changes/design-campaign-authority-and-sync/tasks.md",
+      "row": "5.7 (Per-campaign cutover: journal authority for new campaigns behind the reviewed flag after shadow parity and sync gates pass) - box already [x] since 2026-08-23",
+      "verdict": "NOTE (no flip; never claims the flag flip)",
+      "directedItem": "Directive item 2, part A: NOTE that CO3 #1750 is main-verified with the two-process convergence spec run on the merge commit, so R2.authority-cutover is complete except the owner-gated flag flip (and OD-launch-head-gate).",
+      "boundReceipts": ["evidence/r2-cutover-co3-4-1750-main-proof-20260915.json"],
+      "verification": {
+        "prState": "gh pr view 1750 -> MERGED, mergeCommit 1fcd9b6485421d64d4303693a368676fc4df4d51, mergedAt 2026-09-15T20:19:30Z",
+        "ancestry": "git merge-base --is-ancestor 1fcd9b6485421d64d4303693a368676fc4df4d51 origin/main -> exit 0 (YES)",
+        "mainProofContent": "r2-cutover-co3-4-1750-main-proof-20260915.json: prHead 3232cc8f -> mergeCommit 1fcd9b648, blob-equality empty (0 bytes) on e2e/campaign-journal-two-process-convergence.spec.ts; a real NEXT_PUBLIC_E2E_MODE/NEXT_PUBLIC_E2E_TEST build at the merge commit (exit 0) ran against node .next/standalone/server.js: playwright run exit 0, 1 passed (1.2m); tsc/openspecStrict exit 0",
+        "co3Completeness": "all four CO3 commits (#1747, #1748, #1749 - main-verified in batch 5 - and #1750, main-verified this batch) are now on main and exact-main-verified. R2.authority-cutover's real durable two-process/restart convergence proof exists on main, not merely in a reviewed PR.",
+        "flagFlipNeverClaimed": "git grep -n CAMPAIGN_JOURNAL_AUTHORITY_ENABLED on the worktree (origin/main content): src/lib/campaign/sync/JournalCampaignEventStore.ts still reads `export const CAMPAIGN_JOURNAL_AUTHORITY_ENABLED = false;`. Not claimed otherwise anywhere in the edit."
+      },
+      "gapsCarriedForwardVerbatim": ["F1 (OD-launch-head-gate, stale /head comment) - owner decision, unresolved", "F2 (the proven 'replica' is a same-file second process, not design.md's grant/socket replica) - naming precision, not a false claim", "F3 (scoped convergence proven for one seat only) - unresolved", "CI wiring for the two-process spec - a separate item, not this batch's scope"]
+    },
+    {
+      "id": "E3",
+      "file": "openspec/changes/design-campaign-authority-and-sync/tasks.md",
+      "row": "5.7 (same box, continuation of the same appended note bullet)",
+      "verdict": "NOTE (no flip; never claims the flag flip)",
+      "directedItem": "Directive item 2, part B: the R2.authority-live acceptance's revocation/redaction rows - #1753/#1754 merged, #1755 merged with main proof (conditional on the file existing when reached - it did), proving revocation refusal and GM-rationale redaction with the 403 stranger path; F-LIVE-1 pinned by the spec with its product fix in review/queued (never claim merged without a main proof); F-LIVE-2 recorded as an open question.",
+      "boundReceipts": [
+        "evidence/r2-authority-live-1-1753-main-proof-20260915.json",
+        "evidence/r2-authority-live-2-1754-main-proof-20260915.json",
+        "evidence/r2-authority-live-3-1755-main-proof-20260915.json",
+        "evidence/r2-authority-live-rows-local-20260915.json",
+        "evidence/r2-authority-live-rows-review-20260915.json",
+        "evidence/r2-authority-live-revocation-detach-local-20260915.json",
+        "evidence/r2-authority-live-revocation-detach-review-20260915.json"
+      ],
+      "fileExistenceCheckAt1755": {
+        "conditionInDirective": "cite r2-authority-live-3-1755-main-proof-20260915.json ONLY IF it exists when this step is reached; otherwise say merged, proof pending.",
+        "firstCheck": "ls at the start of this batch's evidence gathering: file ABSENT (only -final-...-merge-20260915.json and -final-...-premerge.json existed for 1755).",
+        "secondCheck": "re-ls a few minutes later, before drafting the edit: file PRESENT (another lane's concurrent main-proof run completed and wrote it mid-session - visible live-agent activity, consistent with the many concurrently-running roster sessions named in this session's context).",
+        "resolution": "Per the directive's own conditional, since the file existed when this step was reached, it IS cited: verifiedAtUtc 2026-09-15T21:06:44.085Z, prHead 4f724... -> mergeCommit 2c1b4584d, blob-equality empty (0 bytes) on e2e/campaign-journal-two-process-privacy.spec.ts, a real E2E build (exit 0) with playwright exit 0 (1 passed, 37.5s), tsc/openspecStrict exit 0."
+      },
+      "prStates": {
+        "1753": { "state": "MERGED", "mergeCommit": "ef36274384341f7158ac5870bd6b7a2265913567", "ancestorOfOriginMain": true, "mainProof": "r2-authority-live-1-1753-main-proof-20260915.json: tsc/oxfmt/openspecStrict exit 0, blob-identical; limits: 'inert helper until #1755 lands'" },
+        "1754": { "state": "MERGED", "mergeCommit": "bb9b87447b9bde2e7909e452a0f86b6c91437499", "ancestorOfOriginMain": true, "mainProof": "r2-authority-live-2-1754-main-proof-20260915.json: tsc/oxfmt/openspecStrict exit 0, blob-identical; limits: 'inert helper until #1755 lands'" },
+        "1755": { "state": "MERGED", "mergeCommit": "2c1b4584de076ae497533d093618dac5bcc97f03", "ancestorOfOriginMain": true, "mainProof": "cited above; the runtime proof runs here" }
+      },
+      "reviewVerdict": "r2-authority-live-rows-review-20260915.json: decision APPROVE, 3 non-blocking requiredEdits (RE-1 ordering/staleness correction in the local receipt's own prose - not this batch's file, not corrected here; RE-2 fix-shape precision advisory for findings.F-LIVE-1.suggestedShape; RE-3 e2e-helper robustness advisory). None affect what is cited toward this note.",
+      "whatIsProvenLive": "Across two real OS processes sharing one database file, including an actual OS-level restart: a revoked seat is refused 403 on both the replica and the restarted source (durable, survives restart); the remaining non-revoked participant is unaffected (targeted, not session-wide); a GM-private rationale is redacted from a non-GM read while a stranger holding a valid token is refused 403; RemoveParticipant via POST /commands is refused 422 host-only for every caller including the GM (a control row, recorded as open question F-LIVE-2).",
+      "whatIsNotProvenTotal_FLIVE1": {
+        "finding": "A revoked seat whose live socket was ALREADY OPEN before the revocation keeps receiving committed campaign facts after every durable door has closed. The merged spec on main explicitly PINS this as CURRENT production behaviour - confirmed by reading r2-authority-live-3-1755-main-proof-20260915.json's own `limits` field: 'the spec on this commit pins F-LIVE-1 as production behaviour (a revoked seat still receives facts on an already-open socket); the product fix inverts that pin in a separate PR.'",
+        "productFixState": "A fix (participant-keyed live-sink detach in CampaignSyncSession.ts, +64/-3 production diff) exists LOCALLY with a red-first commit, a 3-mutant matrix (2 killed, 1 disclosed-harmless/leak-control-only), and independent review APPROVE with zero blocking findings (evidence/r2-authority-live-revocation-detach-local-20260915.json, evidence/r2-authority-live-revocation-detach-review-20260915.json).",
+        "ghPrCheck": "gh pr list --search 'revocation detach' / 'detach' / 'live sink', and gh pr list --head codex/roadmap-r2-authority-live-revocation-detach-20260915, all state=all: NO PR FOUND for this fix. Not opened as a PR yet.",
+        "mainProofCheck": "ls evidence/ shows no r2-authority-live-revocation-detach-*-main-proof-20260915.json of any kind. No main-proof receipt exists.",
+        "conclusion": "NOT claimed merged. Recorded as: implementation complete and reviewed APPROVE, but in review/queued - not yet a PR, not merged, no main-proof. The reviewer's own git merge-tree check found an add/add conflict against current origin/main, diagnosed as a history artefact of #1755 landing as a squash after this branch's base was cut (the touched spec file is byte-identical on both sides of the true merge base) rather than a genuine content conflict - a rebase is needed before a PR can open."
+      },
+      "fLive2": "RemoveParticipant via /commands 422 host-only recorded as an open question (whether the unreachability is intentional) - not resolved by anything read this session.",
+      "grantVsSeatDistinction": "Recorded per the local receipt's own openQuestionsResolved[0]: this row revokes a durable SEAT (campaign_session_participant, what /activity and the rejoin gate read), not a share GRANT. GRANT revocation across two live processes remains undriven - a separate source/replica-file topology (campaign-two-device-drive.spec.ts), not this one-file topology; not claimed here."
+    },
+    {
+      "id": "E4",
+      "file": "openspec/active-change-ledger.json",
+      "verdict": "CORRECTED (1 entry, stale wording fixed)",
+      "entry": "adopt-combat-journal-cutover-and-gm-rewind",
+      "before": "...and 1.7 (S7-a1/S7-a2 main-verified via PRs #1737/#1738; S7-b now main-verified via #1744/#1745, see task 1.3; S7-c has an open, reviewed-APPROVE PR #1751 not yet merged; S7-d owner-ruled OD-journal-writer-authority).",
+      "after": "Appended a 'Corrected 2026-09-15 (ledger reconcile batch 6)' clause recording S7-c (PR #1751) is no longer open/reviewed-only - it is now MERGED and exact-main-verified, all four S4-R4 properties routed on main; S7-a, S7-b and S7-c are now all complete, only S7-d remains (owner-ruled, untouched). Corrected the 'Still open' list's 1.7 parenthetical from '...S7-c has an open, reviewed-APPROVE PR #1751 not yet merged...' to '...S7-a, S7-b and S7-c all main-verified via PRs #1737/#1738/#1744/#1745/#1746/#1751; only S7-d remains, owner-ruled OD-journal-writer-authority, untouched.'",
+      "staleClassification": "OB-207-class staleness: the ledger's '1.7 (...S7-c has an open, reviewed-APPROVE PR #1751 not yet merged...)' claim became factually wrong the moment PR #1751 merged (2026-09-15T20:27:38Z), which was already true on origin/main before this batch's own base was even cut - the ledger entry was already stale relative to origin/main at the start of this batch, not merely stale by the end of it.",
+      "sweepResult": {
+        "design-campaign-authority-and-sync": "Swept again this batch (same method as batches 4-5): no OB-207-class stale merge-state wording found. This entry still does not mention 5.7 or CO3 or R2.authority-live at all (its narrative stops at task 6.4's landing); its own independent 'Still open: 1.6, 6.2, 6.3, 6.4' list was re-verified against current tasks.md via `grep -n '^- \\[.\\] [0-9]'` - all four boxes are still '[ ]' - so no correction was needed. Not edited this batch."
+      }
+    }
+  ],
+  "itemsSkippedThisBatch": [],
+  "deferralsPreservedVerbatim": {
+    "modeFlips": "CAMPAIGN_JOURNAL_AUTHORITY_ENABLED and COMBAT_JOURNAL_AUTHORITY_MODE both stay OFF verbatim in every edit this batch; no receipt cited claims otherwise, including after #1750's and #1755's merges",
+    "OD-journal-writer-authority": "preserved verbatim - S7-d named as owner-ruled and untouched on task 1.7's new note and on the ledger correction",
+    "OD-rewind-branch-reader": "untouched - not in this batch's directed list, not edited",
+    "OD-launch-head-gate": "carried forward unchanged from batch 5 on task 5.7's note; not resolved this batch",
+    "F-LIVE-1": "newly named this batch (per the directive's own phrasing 'production gap'); recorded as a pinned production behaviour with an in-review, unmerged, no-main-proof fix - NOT claimed resolved or merged",
+    "F-LIVE-2": "newly named this batch; recorded as an open question, unresolved",
+    "campReviewAndWitnessGates": "not touched by this batch; no CAMP witness or githubReviewGate claimed satisfied anywhere in these edits",
+    "6.2bCallerNotWired": "untouched this batch - not in the directed list"
+  },
+  "validators": {
+    "runContext": "run pre-commit on the staged tree, then a final fresh post-commit sweep at HEAD = eaae9d2a6; working tree clean before and after",
+    "outputDir": ".sisyphus/roadmap-completion-20260912/reconcile-6-20260915/",
+    "preCommitResults": [
+      { "command": "npx openspec validate --all --strict", "exit": 0, "result": "Totals: 232 passed, 0 failed (232 items)", "log": "openspec-strict-precommit.log", "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3", "note": "byte-identical to every run in batches 1-5" },
+      { "command": "npm run spec:purpose:validate:strict", "exit": 0, "result": "Files scanned: 220; Errors: 0; Tracked source-of-truth debt: 0", "log": "purpose-strict-precommit.log", "sha256": "f027fb6a8fe7102014fa318e894aec6c45f773b072c568da602992b5f34bea0a", "note": "byte-identical to every run in batches 2-5" },
+      { "command": "npm run terminology:validate:strict", "exit": 0, "result": "All 315 file(s) are compliant with TERMINOLOGY_GLOSSARY.md", "log": "terminology-strict-precommit.log", "sha256": "64fb6dfacfdf532f74d1d4544bc5a3f1f7887020358fadb62c93c0f0e713a97c", "note": "hash instability across runs is expected and pre-existing (batches 2-5 noted the same run-scoped Node MODULE_TYPELESS_PACKAGE_JSON warning line); pass/fail result identical" },
+      { "command": "npm run qc:openspec-ci:validate", "exit": 0, "result": "workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=12 accountedActiveOpenSpecChanges=12 errors=0", "log": "qc-openspec-ci-precommit.log", "sha256": "8c41df6c33246420ed1806218780c2df69b5ad4e7c594b993b07594ee959ccb2", "note": "byte-identical to every run in batches 1-5" }
+    ],
+    "postCommitResults": [
+      { "command": "npx openspec validate --all --strict", "exit": 0, "log": "openspec-strict-final.log", "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3" },
+      { "command": "npm run spec:purpose:validate:strict", "exit": 0, "log": "purpose-strict-final.log", "sha256": "f027fb6a8fe7102014fa318e894aec6c45f773b072c568da602992b5f34bea0a" },
+      { "command": "npm run terminology:validate:strict", "exit": 0, "log": "terminology-strict-final.log", "sha256": "e43f0f59f0d58e16ea4c8daec41d19e008dc1fdbae4f566308ae97c9e449976a", "note": "differs from the pre-commit run's hash - same pre-existing warning-line instability; pass/fail identical (315/315, 0 violations)" },
+      { "command": "npm run qc:openspec-ci:validate", "exit": 0, "log": "qc-openspec-ci-final.log", "sha256": "8c41df6c33246420ed1806218780c2df69b5ad4e7c594b993b07594ee959ccb2" }
+    ],
+    "allExitZero": true,
+    "workingTreeCleanBeforeAndAfter": true
+  },
+  "tally": {
+    "FLIP": 0,
+    "NOTE": 3,
+    "CORRECTED": 1,
+    "PARTIAL": 0,
+    "NO_CHANGE": 0,
+    "SKIPPED": 0,
+    "note": "No checkbox was flipped this batch. Task 1.7's own literal text (shadow parity, migration states, rollback law, the flag review itself) is still not satisfied by anything landed - only S7-d discharges it, and S7-d is untouched. Task 5.7 was already [x] since 2026-08-23 and got two NOTE-continuation additions (CO3 completion, R2.authority-live rows) appended to its existing note bullet, neither of which claims the flag flip. The ledger got 1 wording correction (adopt-combat-journal-cutover-and-gm-rewind's stale 1.7 parenthetical); design-campaign-authority-and-sync's ledger entry was swept and found clean, not edited."
+  },
+  "nonClaims": [
+    "NOT PUSHED. No branch was pushed and no PR was opened.",
+    "No product, test, script, spec-delta or workflow file was modified - the diff is three openspec bookkeeping files, 4 lines total (3 insertions, 1 deletion) in one commit.",
+    "No sub-agent was spawned; no stash except the automatic lint-staged backup stash created and consumed by the pre-commit hook itself; no reset --hard, no clean.",
+    "No roadmap.json edit was made; roadmap.json was not found as a tracked file in the worktree and was not treated as merge-state truth. Every merge-state fact comes from a live `gh pr view` plus `git merge-base --is-ancestor` against a freshly fetched origin/main, re-run immediately before closing this batch.",
+    "Zero task checkboxes were flipped this batch. No deferral was reopened.",
+    "No mode flag (CAMPAIGN_JOURNAL_AUTHORITY_ENABLED, COMBAT_JOURNAL_AUTHORITY_MODE) is claimed satisfied or flipped by anything here, including after #1750's and #1755's merges.",
+    "S7-d (migration-state machine, rollback law, busy_timeout pragma) is explicitly recorded owner-ruled and untouched - task 1.7 itself stays OPEN.",
+    "F-LIVE-1's product fix is explicitly recorded as NOT merged and carrying NO main-proof receipt, despite implementation being complete and independently reviewed APPROVE - per the directive's own instruction, never claimed merged.",
+    "F-LIVE-2 (RemoveParticipant's /commands unreachability) is recorded as an open question, not resolved.",
+    "The design-campaign-authority-and-sync ledger entry was swept again this batch for OB-207-class stale merge wording and found clean (still does not mention 5.7/CO3/R2.authority-live at all; its own unrelated 'Still open: 1.6, 6.2, 6.3, 6.4' list re-verified accurate against current tasks.md); not edited.",
+    "No test suite, browser proof or build was executed by this batch beyond the openspec/purpose/terminology/qc validators (two full passes: pre-commit and final post-commit); every test/gate figure quoted in the new prose is carried from a cited merged receipt with its own recorded exit code, or from this session's own live `gh pr view` / `git merge-base --is-ancestor` / evidence-file reads.",
+    "The primary checkout at E:/Projects/MekStation (branch main, dirty with other concurrent agents' unrelated in-progress work) was NEVER written to by this batch except this single new evidence artefact file under openspec/planning/2026-09-12-roadmap-completion/evidence/ (untracked, additive, matching the pattern established by batches 1-5). No git command that mutates the primary checkout's tracked state was ever run against it; every real edit and both commits landed only in the camp-receipt-verification worktree on its own branch."
+  ],
+  "reviewEdits": [
+  {
+    "review": "evidence/ledger-reconcile-6-review-20260915.json",
+    "reviewVerdict": "APPROVE with 1 required edit (R1, blocking)",
+    "reviewFinding": "Live re-verification during the review found PR #1756 ('fix(campaign): stop delivering campaign facts to a revoked seat's live socket') MERGED at 88290bd7e2833758f0282ba6ea9a01d182f9aaea (2026-09-15T21:21:54Z) DURING the review session - after the batch-6 commit (eaae9d2a6) had already landed against base 2c1b4584d, and now one commit ahead of that base as origin/main's own tip. The committed sentence describing the F-LIVE-1 fix as 'NOT yet opened as a pull request and carries no main-proof receipt' was therefore accurate when written but had gone stale by review time - an OB-207-class staleness instance occurring one layer up, in the review cycle rather than the original commit.",
+    "commit": {
+      "sha": "3759c6be5",
+      "subject": "spec(openspec): apply review R1 - cite PR #1756 merged for the F-LIVE-1 fix",
+      "author": "Wes Rollings <wrollings@gmail.com>",
+      "committer": "Wes Rollings <wrollings@gmail.com>",
+      "aiAttribution": "none",
+      "shortstat": "1 file changed, 1 insertion(+), 1 deletion(-)",
+      "onBranch": "codex/roadmap-ledger-reconcile-6-20260915",
+      "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/camp-receipt-verification",
+      "primaryCheckoutTouched": false
+    },
+    "newHeadSha": "3759c6be5",
+    "preEditHeadSha": "eaae9d2a6",
+    "mainProofCheckBeforeApplying": {
+      "instruction": "Check whether evidence/r2-authority-live-revocation-detach-1756-main-proof-20260915.json exists before applying: if it exists, cite it as main-verified; if not, say merged, main proof pending.",
+      "checkedAt": "immediately before drafting the edit",
+      "command": "ls openspec/planning/2026-09-12-roadmap-completion/evidence/ | grep -i 'revocation-detach-1756'",
+      "result": "only r2-authority-live-revocation-detach-1756-final-20260915-premerge.json and r2-authority-live-revocation-detach-1756-final-20260915-merge-20260915.json exist; no *-main-proof-20260915.json for #1756",
+      "conclusion": "File ABSENT - applied the review's exact 'new' text, which cites #1756 as MERGED but explicitly NOT yet main-verified ('a future reconcile batch should add the main-proof receipt before treating F-LIVE-1 as closed')."
+    },
+    "liveVerificationBeforeApplying": {
+      "command": "git fetch origin; gh pr view 1756 --json state,mergeCommit,mergedAt; git merge-base --is-ancestor 88290bd7e2833758f0282ba6ea9a01d182f9aaea origin/main",
+      "result": "state MERGED, mergeCommit 88290bd7e2833758f0282ba6ea9a01d182f9aaea, mergedAt 2026-09-15T21:21:54Z; ancestor check exit 0 (YES)"
+    },
+    "editApplied": {
+      "id": "R1",
+      "file": "openspec/changes/design-campaign-authority-and-sync/tasks.md",
+      "location": "task 5.7 note, batch 6 continuation bullet, the F-LIVE-1 fix-status sentence",
+      "appliedExactly": true,
+      "old": "A production fix (a participant-keyed live-sink detach in `CampaignSyncSession.ts`, `applyCommittedParticipantRemoval` draining a `liveByParticipant` index) exists locally with a red-first test, a killed 2-of-3 named mutant matrix (the third disclosed as behaviourally-harmless leak-control only), and independent review APPROVE with zero blocking findings (`evidence/r2-authority-live-revocation-detach-local-20260915.json`, `evidence/r2-authority-live-revocation-detach-review-20260915.json`) - but it is NOT yet opened as a pull request and carries no main-proof receipt, so it is NOT cited as merged or as closing anything here: its branch was cut before #1755's squash-merge landed, and the reviewer's own `git merge-tree` check against current origin/main reports the resulting add/add conflict as a history artefact of that ordering, not a content divergence (the touched spec file is byte-identical on both sides of the true merge base).",
+      "new": "A production fix (a participant-keyed live-sink detach in `CampaignSyncSession.ts`, `applyCommittedParticipantRemoval` draining a `liveByParticipant` index) - reviewed locally with a red-first test, a killed 2-of-3 named mutant matrix (the third disclosed as behaviourally-harmless leak-control only), and independent review APPROVE with zero blocking findings (`evidence/r2-authority-live-revocation-detach-local-20260915.json`, `evidence/r2-authority-live-revocation-detach-review-20260915.json`) - is now published as PR #1756 `fix(campaign): stop delivering campaign facts to a revoked seat's live socket`, which MERGED at `88290bd7e2833758f0282ba6ea9a01d182f9aaea` (live-confirmed via `gh pr view 1756`, ancestor of a freshly fetched origin/main via `git merge-base --is-ancestor`, and in fact currently origin/main's own tip - one commit ahead of this change's 2c1b4584d base). It is NOT yet cited as exact-main-verified: no `r2-authority-live-revocation-detach-*-main-proof-20260915.json` (blob-equality / gate-exit) receipt exists yet, only a pre-merge CI-status snapshot (`evidence/r2-authority-live-revocation-detach-1756-final-20260915-premerge.json`, all checks SUCCESS) and a paired post-merge snapshot. F-LIVE-1's fix is therefore recorded as MERGED but not yet main-proven - a future reconcile batch should add the main-proof receipt before treating F-LIVE-1 as closed."
+    },
+    "validators": {
+      "runContext": "run fresh at HEAD = 3759c6be5; working tree clean before and after",
+      "results": [
+        { "command": "npx openspec validate --all --strict", "exit": 0, "result": "Totals: 232 passed, 0 failed (232 items)", "log": "openspec-strict-review-edit.log", "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3", "note": "byte-identical to every other run this batch" },
+        { "command": "npm run spec:purpose:validate:strict", "exit": 0, "result": "Files scanned: 220; Errors: 0; Tracked source-of-truth debt: 0", "log": "purpose-strict-review-edit.log", "sha256": "f027fb6a8fe7102014fa318e894aec6c45f773b072c568da602992b5f34bea0a", "note": "byte-identical to every other run this batch" },
+        { "command": "npm run terminology:validate:strict", "exit": 0, "result": "All 315 file(s) are compliant with TERMINOLOGY_GLOSSARY.md", "log": "terminology-strict-review-edit.log", "sha256": "4a749904cba5f823c6e64483cde1e69148253c76ddb0357dc624698c63a63f2d", "note": "hash instability is the same pre-existing Node warning-line noise noted throughout batches 2-6; pass/fail result identical" },
+        { "command": "npm run qc:openspec-ci:validate", "exit": 0, "result": "workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=12 accountedActiveOpenSpecChanges=12 errors=0", "log": "qc-openspec-ci-review-edit.log", "sha256": "8c41df6c33246420ed1806218780c2df69b5ad4e7c594b993b07594ee959ccb2", "note": "byte-identical to every other run this batch" }
+      ],
+      "allExitZero": true,
+      "workingTreeCleanBeforeAndAfter": true
+    },
+    "pushed": false,
+    "primaryCheckoutTouched": false,
+    "diffStat": "1 file changed, 1 insertion(+), 1 deletion(-)",
+    "capsRespected": true,
+    "openQuestionFromReviewNotResolved": "Whether a future batch should add a main-proof receipt for PR #1756 before treating F-LIVE-1 as fully closed - not resolved here, flagged in the applied text for the next reconcile batch."
+  },
+  {
+    "trigger": "coordinator message (not a written review artefact): 'The #1756 exact-main proof now exists ... Apply a third commit ... changing the 5.7 F-LIVE-1 sentence from \"merged but not yet exact-main-verified\" to cite that receipt as main-verified.'",
+    "reviewFinding": "evidence/r2-authority-live-revocation-detach-1756-main-proof-20260915.json was written after the R1 edit (commit 3759c6be5) landed - the exact receipt the R1 edit's own text said 'a future reconcile batch should add' now exists within the same batch, so it is applied here rather than deferred.",
+    "commit": {
+      "sha": "56a22d40a",
+      "subject": "spec(openspec): cite the PR #1756 main-proof receipt - F-LIVE-1 closed on main",
+      "author": "Wes Rollings <wrollings@gmail.com>",
+      "committer": "Wes Rollings <wrollings@gmail.com>",
+      "aiAttribution": "none",
+      "shortstat": "1 file changed, 1 insertion(+), 1 deletion(-)",
+      "onBranch": "codex/roadmap-ledger-reconcile-6-20260915",
+      "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/camp-receipt-verification",
+      "primaryCheckoutTouched": false
+    },
+    "newHeadSha": "56a22d40a",
+    "preEditHeadSha": "3759c6be5",
+    "mainProofReceiptCited": {
+      "file": "evidence/r2-authority-live-revocation-detach-1756-main-proof-20260915.json",
+      "contentUsedInEdit": {
+        "mergeCommit": "88290bd7e2833758f0282ba6ea9a01d182f9aaea",
+        "blobEquality": "empty (0 bytes) on e2e/campaign-journal-two-process-privacy.spec.ts, src/lib/multiplayer/server/CampaignSyncSession.ts, src/lib/multiplayer/server/__tests__/CampaignSyncSession.test.ts",
+        "jest": "exit 0, 177 suites / 1281 tests over src/lib/multiplayer/server src/lib/campaign/sync src/lib/campaign/coop",
+        "tsc": "exit 0",
+        "openspecStrict": "exit 0",
+        "build": "NEXT_PUBLIC_E2E_MODE/NEXT_PUBLIC_E2E_TEST build at the merge commit, exit 0, buildId 1789507485807, liveByParticipant present in the standalone bundle",
+        "playwright": "e2e/campaign-journal-two-process-privacy.spec.ts exit 0, 1 passed (27.0s) with the inverted pin (revoked seat receives nothing)"
+      }
+    },
+    "editApplied": {
+      "id": "R1-followup",
+      "file": "openspec/changes/design-campaign-authority-and-sync/tasks.md",
+      "location": "task 5.7 note, same F-LIVE-1 sentence R1 last touched",
+      "appliedExactly": false,
+      "note": "The coordinator's instruction named the minimum change (cite the receipt as main-verified); the applied text also states the gate/build/playwright results the receipt records and concludes F-LIVE-1 is CLOSED on main, since the receipt's own inverted-pin playwright pass (a revoked seat's already-open socket now receives nothing) is direct evidence the gap is closed, not merely that a fix landed. This follows the density/evidentiary style used throughout the rest of this note and the batch. No task checkbox was touched; the box (5.7) was already [x] before this batch and remains so.",
+      "old": "It is NOT yet cited as exact-main-verified: no `r2-authority-live-revocation-detach-*-main-proof-20260915.json` (blob-equality / gate-exit) receipt exists yet, only a pre-merge CI-status snapshot (`evidence/r2-authority-live-revocation-detach-1756-final-20260915-premerge.json`, all checks SUCCESS) and a paired post-merge snapshot. F-LIVE-1's fix is therefore recorded as MERGED but not yet main-proven - a future reconcile batch should add the main-proof receipt before treating F-LIVE-1 as closed.",
+      "new": "It is now exact-main-verified: `evidence/r2-authority-live-revocation-detach-1756-main-proof-20260915.json` records blob-equality empty (0 bytes) on all three touched files against the merge commit, scoped jest exit 0 (177 suites / 1281 tests over `src/lib/multiplayer/server src/lib/campaign/sync src/lib/campaign/coop`), tsc/openspecStrict exit 0, a real `NEXT_PUBLIC_E2E_MODE`/`NEXT_PUBLIC_E2E_TEST` build at the merge commit (exit 0, buildId `1789507485807`) with `liveByParticipant` present in the standalone bundle, and `e2e/campaign-journal-two-process-privacy.spec.ts` run against that build: exit 0, 1 passed (27.0s), now with the INVERTED pin - a revoked seat's already-open socket receives nothing after the revocation, closing the gap F-LIVE-1 named. Recorded limits carried forward: the revoked socket is silenced, not closed (a typed close frame is client-feedback-only and remains an open question); F-LIVE-2 (RemoveParticipant via `/commands` 422 host-only) is untouched by this fix; the grant delivery channel (task 4.3) is out of scope; `CAMPAIGN_JOURNAL_AUTHORITY_ENABLED` stays hardcoded `false`. F-LIVE-1 is therefore CLOSED on main - the live-delivery half of seat revocation now matches the durable half."
+    },
+    "validators": {
+      "runContext": "run fresh at HEAD = 56a22d40a; working tree clean before and after",
+      "results": [
+        { "command": "npx openspec validate --all --strict", "exit": 0, "result": "Totals: 232 passed, 0 failed (232 items)", "log": "openspec-strict-1756-mainproof.log", "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3", "note": "byte-identical to every other run this batch" },
+        { "command": "npm run spec:purpose:validate:strict", "exit": 0, "result": "Files scanned: 220; Errors: 0; Tracked source-of-truth debt: 0", "log": "purpose-strict-1756-mainproof.log", "sha256": "f027fb6a8fe7102014fa318e894aec6c45f773b072c568da602992b5f34bea0a", "note": "byte-identical to every other run this batch" },
+        { "command": "npm run terminology:validate:strict", "exit": 0, "result": "All 315 file(s) are compliant with TERMINOLOGY_GLOSSARY.md", "log": "terminology-strict-1756-mainproof.log", "sha256": "b7e6f0bd8aa5044ded54f2fde80867404285887c6183cf20bde96afd50c1c5ef", "note": "hash instability is the same pre-existing Node warning-line noise noted throughout batches 2-6; pass/fail result identical" },
+        { "command": "npm run qc:openspec-ci:validate", "exit": 0, "result": "workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=12 accountedActiveOpenSpecChanges=12 errors=0", "log": "qc-openspec-ci-1756-mainproof.log", "sha256": "8c41df6c33246420ed1806218780c2df69b5ad4e7c594b993b07594ee959ccb2", "note": "byte-identical to every other run this batch" }
+      ],
+      "allExitZero": true,
+      "workingTreeCleanBeforeAndAfter": true
+    },
+    "pushed": false,
+    "primaryCheckoutTouched": false,
+    "diffStat": "1 file changed, 1 insertion(+), 1 deletion(-)",
+    "capsRespected": true
+  }
+  ]
+}

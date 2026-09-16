@@ -1,0 +1,151 @@
+{
+  "schema": "proof02-browser-rerun/v1",
+  "node": "R2.triage",
+  "artefact": "proof02-browser-rerun-main-1290676-20260915",
+  "generatedAtUtc": "2026-09-15T11:22:00Z",
+  "generatedBy": "agent:proof02-rerun (GP-JUSTIFIED serialized browser lane; read-only on product/spec files)",
+  "purpose": "Discharge the two owed browser re-runs recorded as nonClaims on proof02Diagnosis.A.localDelivery and proof02Diagnosis.B.localDelivery.merge.mainProof: campaign-starmap-logistics (diagnosis A) and gm-campaign-ledger-control-plane (diagnosis B), on an exact main containing #1695, #1696 and #1697.",
+  "main": {
+    "commit": "1290676377e311aafac8966287b4967db16eed61",
+    "isOriginMainTip": true,
+    "originMainTipVerifiedBy": "git rev-parse origin/main after git fetch origin",
+    "containsPrs": {
+      "1695": "7f4ade5b6bf10c2b1898c7064ba5c9bba295f6f0 (ancestor: verified via git merge-base --is-ancestor)",
+      "1696": "c0428a2c3d7f70a0182c80866ca0f2558529d943 (ancestor: verified via git merge-base --is-ancestor)",
+      "1697": "129067637 (the tested commit itself)"
+    }
+  },
+  "worktree": {
+    "used": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/proof02-rerun",
+    "createdForThisRun": true,
+    "headDetachedAt": "1290676377e311aafac8966287b4967db16eed61",
+    "gitStatusPorcelainAfterRuns": "empty (clean)",
+    "npmCi": { "exit": 0, "durationSeconds": 21, "packages": 1088, "node": "v22.22.0" },
+    "whyNotCampReceiptVerification": "camp-receipt-verification was clean and idle, and was used first: git checkout --detach to the target SHA succeeded and NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build compiled the Next app, but the build's final step (scripts/hydrate-next-standalone-multiplayer-server.mjs) refused with {\"ok\":false,\"error\":\"Unsafe hydration destination (runtime loader tsx) contains a symlink or junction: .next\\\\standalone\\\\node_modules\"}. Cause: that worktree's node_modules is a Windows JUNCTION to E:/Projects/MekStation/node_modules (verified with Get-Item LinkType=Junction), so Next reproduced the junction inside .next/standalone and the hydration guard (assertSafeDestinationPath) correctly blocked a write that would have reached through into the shared root node_modules. Nothing was deleted or forced; the task's documented fallback (fresh worktree + npm ci) was taken instead. That worktree keeps only an unhydrated .next build artefact (gitignored); no tracked file was touched.",
+    "neverTouched": ".sisyphus/roadmap-completion-20260912/worktrees/browser"
+  },
+  "build": {
+    "command": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build",
+    "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/proof02-rerun",
+    "exit": 0,
+    "durationSeconds": 225,
+    "buildId": "1789470531485",
+    "standaloneServer": "present (.next/standalone/server.js)",
+    "node": "v22.22.0",
+    "logs": ["build.stdout.log", "build.stderr.log", "build.meta.txt"]
+  },
+  "invocationDecision": {
+    "taskDefaultPerSpec": "MEKSTATION_E2E_SERVER_COMMAND='node .next/standalone/server.js' HOSTNAME=127.0.0.1 MEKSTATION_E2E_PORT=3639 node scripts/playwright/run-playwright.mjs test <spec> --project=chromium --retries=0 --workers=1",
+    "receiptFrozenInvocation": "npm run qc:command:browser:quick = node scripts/playwright/run-playwright.mjs test --project=chromium e2e/campaign-starmap-logistics.spec.ts e2e/campaign-customizer-handoff.spec.ts e2e/gm-campaign-ledger-control-plane.spec.ts --workers=1",
+    "chosen": "receipt-frozen invocation for the primary run",
+    "why": "proof02Fresh (evidence/proof02-browser-quick-20260915.json, the run whose two observations these fixes were diagnosed from) froze the qc:command:browser:quick wrapper with MEKSTATION_E2E_SERVER_COMMAND and MEKSTATION_E2E_PORT overrides. It covers BOTH owed specs in one serialized (--workers=1) pass, so the result is directly observation-comparable with the baseline (13 tests). retries=0 is the effective config value locally (playwright.config.ts: retries = process.env.CI ? 2 : 0; CI unset).",
+    "perSpecUsedFor": "the single flake re-check of spec A, which used the task's per-spec command verbatim"
+  },
+  "runs": [
+    {
+      "id": "run-quick",
+      "label": "primary: receipt-frozen qc:command:browser:quick (covers both owed specs)",
+      "command": "MEKSTATION_E2E_SERVER_COMMAND='node .next/standalone/server.js' HOSTNAME=127.0.0.1 MEKSTATION_E2E_PORT=3639 npm run qc:command:browser:quick",
+      "exit": 1,
+      "durationSeconds": 58,
+      "playwrightSummaryLine": "1 failed ... 12 passed (49.9s)",
+      "totalTests": 13,
+      "serverLine": "MEKSTATION_LISTENER_READY {\"configuredHostname\":\"127.0.0.1\",\"boundAddress\":\"127.0.0.1\",\"family\":\"IPv4\",\"port\":3639}",
+      "perSpec": {
+        "e2e/campaign-starmap-logistics.spec.ts": "1 test, 1 FAILED (previews, approves, and reloads campaign travel consequences @campaign @starmap @logistics)",
+        "e2e/gm-campaign-ledger-control-plane.spec.ts": "7 tests, 7 PASSED (includes 'guest direct route shows only player-safe ledger projection' 7.4s, the proof-02 diagnosis-B observation)",
+        "e2e/campaign-customizer-handoff.spec.ts": "5 tests, 5 PASSED (not owed; carried by the frozen wrapper)"
+      },
+      "logs": ["run-quick.stdout.log", "run-quick.stderr.log", "run-quick.meta.txt"]
+    },
+    {
+      "id": "run-specA-recheck",
+      "label": "flake re-check of spec A only (new/different failure class -> one extra run, no loop)",
+      "command": "MEKSTATION_E2E_SERVER_COMMAND='node .next/standalone/server.js' HOSTNAME=127.0.0.1 MEKSTATION_E2E_PORT=3639 node scripts/playwright/run-playwright.mjs test e2e/campaign-starmap-logistics.spec.ts --project=chromium --retries=0 --workers=1",
+      "exit": 1,
+      "durationSeconds": 14,
+      "playwrightSummaryLine": "1 failed (campaign starmap logistics > previews, approves, and reloads campaign travel consequences)",
+      "totalTests": 1,
+      "logs": ["run-specA-recheck.stdout.log", "run-specA-recheck.stderr.log", "run-specA-recheck.meta.txt"]
+    }
+  ],
+  "classification": {
+    "B_guestCacheStands_pr1695": {
+      "owedRerun": "e2e/gm-campaign-ledger-control-plane.spec.ts",
+      "verdict": "GREEN - diagnosis B confirmed fixed on main",
+      "evidence": "All 7 tests in the spec passed in run-quick, including the exact baseline observation 'guest direct route shows only player-safe ledger projection @gm-ledger', which in proof02Fresh failed with a 10s page.waitForFunction timeout at gm-campaign-ledger-control-plane.spec.ts:645 waiting for the client campaign store to reflect the refreshed record. It now passes in 7.4s.",
+      "closes": "proof02Diagnosis.B.localDelivery.nonClaims[0] and .merge.mainProof.browserRerun='owed'"
+    },
+    "A_equipmentAbortEscalation_pr1696_1697": {
+      "owedRerun": "e2e/campaign-starmap-logistics.spec.ts",
+      "verdict": "DIAGNOSIS-A CLASS GONE, but the spec still FAILS on a DIFFERENT, reproducible cause",
+      "diagnosisAClassEvidence": "In both runs the aborted equipment JSON fetches are still OBSERVED but are no longer FATAL, and there is NO [EquipmentOfficialLoader] console.error anywhere in the diagnostics. run-quick observed net::ERR_ABORTED on /data/equipment/official/weapons/ballistic-machinegun.json and missile-atm.json; run-specA-recheck on missile-atm.json and missile-mrm.json - all non-fatal. The proof02Fresh signature was exactly these aborts EACH PAIRED WITH a console.error from [EquipmentOfficialLoader] 'Failed to load weapons from ... (missing, unreadable, or malformed)', and the harness treats any console.error as fatal. That pairing no longer occurs, which is what #1696/#1697 set out to fix.",
+      "remainingFailure": {
+        "failureClass": "browser-diagnostic-gate (assertNoErrors in e2e/helpers/browserDiagnostics.ts:140)",
+        "fatalEventCount": 1,
+        "fatalEvent": {
+          "type": "requestfailed",
+          "method": "PUT",
+          "url": "http://localhost:3639/api/campaigns/<campaignId>",
+          "pageUrl": "http://localhost:3639/gameplay/campaigns/<campaignId>/starmap",
+          "resourceType": "fetch",
+          "failureText": "net::ERR_ABORTED"
+        },
+        "whyFatal": "e2e/helpers/browserDiagnosticsModel.ts:43-63 forgives net::ERR_ABORTED for reads but keeps aborted API WRITES fatal by design ('a save cancelled by navigation is silent data loss (the fire-and-forget persistence bug class from the 2026-07 co-op waves)'): fatal iff the url matches /\\/api(\\/|\\?|$)/ AND the method is not GET/HEAD/OPTIONS.",
+        "reproducible": "yes - identical single fatal event in both independent runs (11:17:45.896Z and 11:21:02.711Z, different campaign ids); NOT a flake",
+        "sameClassAsDiagnosisA": false,
+        "sameClassAsDiagnosisB": false,
+        "presentInBaseline": "not reported - proof02Fresh's recorded rootSignal for this observation names only the two aborted equipment JSON fetches each paired with an [EquipmentOfficialLoader] console.error; no aborted PUT /api/campaigns is recorded there. UNVERIFIED whether the PUT abort was already occurring in that run and merely masked by the console.error fatals (the baseline log run-stdout-stderr.log was not re-read for this file).",
+        "relatedWorkNotClaimed": "INFERENCE ONLY (no code read to prove it): an aborted campaign PUT cancelled by navigation is the same shape as the pending-client-mutation flush work merged as #1694 ('flush pending client mutations before the document is discarded') and the concurrently active discard-flush diagnostic lane. This file makes no claim about ownership, cause, or fix for it - it is reported as a raw, reproducible observation for triage."
+      }
+    }
+  },
+  "triageRewriteDecision": {
+    "canProof02TriageRewriteBeMadeNow": false,
+    "confirmedFixedOnMain": [
+      "diagnosis B (guest cache stands, #1695)",
+      "diagnosis A's escalation class (equipment unload-cancelled fetch no longer produces a fatal console.error, #1696 + #1697)"
+    ],
+    "whatRemains": [
+      "campaign-starmap-logistics 'previews, approves, and reloads campaign travel consequences' is still RED on exact main 129067637 - reproducibly, on a third and previously unrecorded cause: an aborted PUT /api/campaigns/<id> (fatal-by-design aborted API write).",
+      "Exact observation-set equality against the 2026-08-12 historical anchor is therefore still NOT met (anchor: 1 non-pass with knownFailureCode development-mime-diagnostic on a DEV server; now: 1 non-pass with an aborted-API-write signature on a STANDALONE build - count matches, cause does not).",
+      "A proof-02 triage rewrite needs a decision on the aborted campaign PUT: diagnose it (third cause), or record it as a separately-owned observation (it plausibly belongs to the in-flight client-flush/discard work, not to R2.triage)."
+    ],
+    "netChangeVsProof02Fresh": "non-passing observations 2 -> 1; the gm-ledger observation is removed outright and the starmap observation's cause has changed from equipment-loader escalation to an aborted campaign PUT."
+  },
+  "portDiscipline": {
+    "portOwned": 3639,
+    "listeningBeforeEachRun": false,
+    "listeningAfterAllRuns": false,
+    "contentionObserved": "port 3639 was held by another lane (the browser worktree's zz-diag-discard-flush runs, PIDs 15720 then 76412) at two points during this task. This session never killed, signalled, or inspected beyond netstat; it waited (60s poll) until the port showed no LISTENING socket. Two-core budget was also honoured: before each of the two builds and before each browser run, node.exe command lines were checked via powershell.exe and the run was held while any 'next build' or playwright process was live (the r2-prepared-journal-api lane was building repeatedly).",
+    "cleanup": "Playwright's own webServer lifecycle tore down the standalone server after each run; no taskkill was needed and none was issued."
+  },
+  "artifacts": {
+    "directory": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/proof02-rerun-20260915/",
+    "files": [
+      { "path": "build.meta.txt", "sha256": "f1e78c363dd6ffc37c7214d1ff43ad3b61a69290e57d9c9ff91c1f8f78c3b794" },
+      { "path": "build.stdout.log", "sha256": "d1512d2778d63ef5008d89324de77cf6912ef953c6632a4f3f32dddcadd5ee7a" },
+      { "path": "build.stderr.log", "sha256": "2367510a3e116c2669c942bb3166f2bde6296979c6436f71d1fe009e502f060e" },
+      { "path": "npmci.meta.txt", "sha256": "6f00eede4eddb058eda510c7088e6e15732bba3385871ce4076f6aa98d7dc67b" },
+      { "path": "npmci.stdout.log", "sha256": "45e2f12988ec8b2f6be7194d7dc6a1de80ec21c0820740a565f5c8d25be233df" },
+      { "path": "npmci.stderr.log", "sha256": "f50b4253754c76ed8f5ca7b3c2f939aadedb10fff34b58cef03e6c27f967b5fb" },
+      { "path": "run-quick.meta.txt", "sha256": "2fcc56c13085471fb181d8e6fbea50bc15393ff1f673e41b209ae0d0cf052961" },
+      { "path": "run-quick.stdout.log", "sha256": "dcd2c12a2c909fa7174a540fc285c3c0e5b8f61fdf271eebd2de68cbe2648dc4" },
+      { "path": "run-quick.stderr.log", "sha256": "2dfb9a6212c18baf950f9001378b6145cd0f9ce417c34046bed4325d584a4f18" },
+      { "path": "run-specA-recheck.meta.txt", "sha256": "2dd688aa8685e466029cf8ea6c703fc35d3501fedeecb0cdcfe9be807f14130c" },
+      { "path": "run-specA-recheck.stdout.log", "sha256": "0665d9ba9aa283189849c210a2bf291709d67d9b3c5c5c3b7dd3f166e893dae3" },
+      { "path": "run-specA-recheck.stderr.log", "sha256": "2dfb9a6212c18baf950f9001378b6145cd0f9ce417c34046bed4325d584a4f18" },
+      { "path": "test-results/campaign-starmap-logistics-e37ee-ampaign-travel-consequences-chromium/error-context.md", "sha256": "f4dc4629511d71bf76cfdd7525bbaa24ca41c7dc0d4b475e382af0b148c5995f" },
+      { "path": "test-results/campaign-starmap-logistics-e37ee-ampaign-travel-consequences-chromium/test-failed-1.png", "sha256": "93cc4a84b05145a5bcc095915baf8d5dd4f061ef5a8446e006676111fdea79d8" }
+    ],
+    "note": "run-specA-recheck.stderr.log and run-quick.stderr.log hash identically: both contain only the single benign '[WebServer] Yjs was already imported' line. test-results/ holds the LAST run's copy (run-specA-recheck); Playwright overwrites that directory per run, so the run-quick screenshot is not separately retained (its sha256, 93cc4a84..., is byte-identical to the baseline bundle's screenshot)."
+  },
+  "nonClaims": [
+    "No product, spec, test, roadmap or documentation file was edited. No commit, push, PR, or merge. Only this evidence JSON and the untracked .sisyphus log bundle were written.",
+    "--prod-evidence was never used.",
+    "This file does not rewrite the 2026-08-12 proof-02-triage audit doc, does not close R2.triage, and does not update roadmap.json - it supplies the two owed re-run results and the classification a triage rewrite would consume.",
+    "No diagnosis, severity, owner, or fix is claimed for the aborted PUT /api/campaigns observation; it is recorded as a reproducible raw observation only.",
+    "No claim is made about whether the aborted PUT was already present-but-masked in the proof02Fresh baseline run.",
+    "The historical 2026-08-12 anchor remains a dev-server run; this remains a standalone/production run, so the build-mode caveat recorded in proof02-browser-quick-20260915.json still applies to any equality comparison."
+  ]
+}
