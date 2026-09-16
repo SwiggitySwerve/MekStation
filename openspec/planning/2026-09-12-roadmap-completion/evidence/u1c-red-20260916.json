@@ -1,0 +1,70 @@
+{
+  "unit": "U1c",
+  "stage": "red",
+  "at": "2026-09-16T00:00:00.000Z",
+  "baseline": "7489e311fc0e2a2846c342786b21ad1ea09d29bb",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u1c",
+  "branch": "codex/roadmap-u1c-e2e-75-77-20260916",
+  "principle": "Both reds were taken against SHIPPED code at the baseline commit, before any implementation line existed in the worktree. R2 is a live browser failure at the real boundary, not a unit-level restatement.",
+
+  "R1": {
+    "name": "the lifecycle-pack selector does not exist",
+    "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=lifecycle-pack",
+    "cwd": ".sisyphus/roadmap-completion-20260912/worktrees/u1c",
+    "exitCode": 2,
+    "stderr": "[qc:gm-two-player-campaign] UNKNOWN_GROUP group=lifecycle-pack",
+    "bootedAnything": false,
+    "provesWhat": "The ladder has no lifecycle group to run, so no lifecycle row can be gated by CI today.",
+    "predictionCorrection": "The admission receipt predicted exit 3 NOT_IMPLEMENTED. The observed exit is 2 UNKNOWN_GROUP, because `lifecycle-pack` is absent from GROUP_CATALOG entirely rather than reserved-without-a-spec: buildRunPlan throws UNKNOWN_GROUP at scripts/qc/gm-two-player-campaign-core.cjs:44 before the NOT_IMPLEMENTED branch at :172 is reachable, and runCli maps UNKNOWN_GROUP to 2 at :257-261. The admission receipt said the exact code would be captured rather than predicted; this is that capture."
+  },
+
+  "R2": {
+    "name": "shipped code does not assert any lifecycle state unconditionally",
+    "probe": {
+      "file": "e2e/gm-two-player-resilience.pack.spec.ts",
+      "edit1": "removed the tautological guard at :685-690 - `if (/^(behind|syncing|reconnecting)$/.test(p2BehindState)) { expect(p2BehindState).toMatch(/^(behind|syncing|reconnecting)$/); }` - leaving the bare expect, so the assertion actually runs",
+      "edit2": "test( -> test.only( on the E2E-14 row at :588, so the probe ran one row instead of the whole respawning pack; playwright.config.ts:102 sets forbidOnly only under CI, so .only is permitted locally",
+      "disposition": "both edits reverted with `git checkout -- e2e/gm-two-player-resilience.pack.spec.ts` immediately after capture; `git status --porcelain` then showed only units.json and the admission receipt"
+    },
+    "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=resilience-pack",
+    "exitCode": 1,
+    "duration": "10.8s for the row",
+    "failureVerbatim": [
+      "x  1 [chromium] > e2e\\gm-two-player-resilience.pack.spec.ts:588:6 > E2E-14 a viewer that stops acknowledging is bounded and recovers alone @E2E-14 (10.8s)",
+      "",
+      "1) [chromium] > e2e\\gm-two-player-resilience.pack.spec.ts:588:6 > E2E-14 a viewer that stops acknowledging is bounded and recovers alone @E2E-14",
+      "",
+      "    Error: expect(received).toMatch(expected)",
+      "",
+      "    Expected pattern: /^(behind|syncing|reconnecting)$/",
+      "    Received string:  \"finalized\"",
+      "",
+      "      686 |     // without a later delivery does not flip client.ready, so the banner",
+      "      687 |     // often stays live; the frozen cursor is the shipped posture then.",
+      "    > 688 |     expect(p2BehindState).toMatch(/^(behind|syncing|reconnecting)$/);",
+      "          |                           ^",
+      "        at ...\\worktrees\\u1c\\e2e\\gm-two-player-resilience.pack.spec.ts:688:27",
+      "",
+      "  1 failed"
+    ],
+    "provesWhat": "On baseline 7489e311f the ONLY reads of data-testid=\"tactical-lifecycle-state\" anywhere in e2e/ are (a) this tautological guard, which asserts a string against a pattern it has already been tested against and therefore can never fail, and (b) the disjunctive `^(live|finalized)$` command-gating poll at the same file :876-881. When the guard is removed the shipped banner reports `finalized` for a viewer whose delivery cursor is provably frozen at the unacked cap - so not one of the letter's nine states is pinned by any live row, and the one state the suite does observe is the converged-adjacent one.",
+    "strongerThanPredicted": "The admission receipt predicted the banner would read `live`. It read `finalized`, which is the same class of finding (a converged posture on an isolated viewer) with a sharper edge: `finalized` is one of the two states carrying commandsEnabled: true (src/lib/multiplayer/tacticalLifecycleState.ts:155), so the shipped surface was telling a cursor-frozen viewer that commands were enabled.",
+    "notAClaim": "This red is evidence about ASSERTION COVERAGE, not a product defect report. Whether `finalized` is the correct posture for an unacked-capped viewer is E2E-14's question and belongs to its own row; U1c does not rule on it and does not change that row. The residual is named in the local receipt."
+  },
+
+  "environmentProvenByR2": {
+    "note": "R2 doubles as the environment proof for stage 3: the production build served through `node server.js` booted, three contexts joined, and the server log shows `intent dispatched ... intent=GoProne` and `intent=AdvancePhase`, which is the wire-level intent lever the lifecycle row's `sealed` state depends on.",
+    "buildExit": 0,
+    "standaloneServerJs": ".next/standalone/server.js present (7325 bytes)",
+    "e2eModeInBundle": "grep -c '__E2E_MODE__' .next/static/chunks/pages/_app-*.js = 1",
+    "junctionHydrateRefusal": {
+      "observed": true,
+      "message": "{\"ok\": false, \"error\": \"Unsafe hydration destination (runtime loader tsx) contains a symlink or junction: .next\\\\standalone\\\\node_modules\", \"hint\": \"Run npm run build first so .next/standalone/server.js exists, then hydrate the standalone multiplayer server.\"}",
+      "buildStillExitedZero": true,
+      "blocking": false,
+      "whyNotBlocking": "The ladder runner launches `node server.js` (scripts/qc/gm-two-player-campaign-core.cjs:212-215), and server.js only takes the standalone path when server.next-config.json exists beside it (server.js:35-46, `isStandaloneRuntime`). That file is absent in this worktree, so server.js boots the ordinary Next production server from .next/ and never reads the unhydrated .next/standalone/node_modules. R2 booting and running a full three-context row is the live proof."
+    }
+  },
+
+  "nextRedR3": "The new pack's own first live run is recorded in the local receipt rather than here: the pack is landed with all eight postures asserted at once, so its first run IS the red-to-green transition and its failures are reported as the mutant matrix instead."
+}

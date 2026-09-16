@@ -1,0 +1,265 @@
+{
+  "unit": "U1c",
+  "stage": "local",
+  "at": "2026-09-16T00:00:00.000Z",
+  "baseline": "7489e311fc0e2a2846c342786b21ad1ea09d29bb",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u1c",
+  "branch": "codex/roadmap-u1c-e2e-75-77-20260916",
+  "committed": false,
+  "status": "ready",
+  "statusNote": "Both admission-stage blockers are resolved by the parent's split ruling: U1c ships row A (five postures) inside the cap, and row B (pending, blocked) goes to successor U1e. Every gate is green and three mutants are killed against row A.",
+
+  "blockersResolved": [
+    {
+      "id": "B1",
+      "was": "817 product lines against a 500 cap",
+      "resolution": "parent ruled SPLIT. Row A ships here; row B is held for U1e as a patch outside the diff.",
+      "now": { "productLinesAdded": 478, "cap": 500, "parentTarget": 450, "underCap": true, "overTargetBy": 28 },
+      "howTheLinesCameDown": [
+        "the transition recorder and its series reader were removed from row A - they exist to catch postures that are NOT stable, and all five row-A postures are held stable by construction (syncing and behind by the withheld ReplayEnd, the other three by the match sitting still). Row B needs them, so they live in the U1e patch. This is a simplification, not a weakened assertion: ordering is now carried by program order plus the ordered list asserted at the end.",
+        "the `pending` and `blocked` arms, their drive loop, and the collision frame builder moved to row B",
+        "comments cut to the sanctioned budget - one file header carrying the three non-claims, the gate note and the F1 finding; one line per drive arm; short function docs"
+      ],
+      "residualOverTarget": "28 lines over the 450 target and 22 under the 500 cap. Getting to 450 would mean cutting the header's non-claim wording or the F1 note, both of which the ruling explicitly required to stay. Reported rather than resolved by deleting sanctioned content."
+    },
+    {
+      "id": "B2",
+      "was": "six letter-states drivable, not seven - `reconnecting` never reaches the DOM",
+      "resolution": "parent accepted it as a third recorded non-claim. Row A therefore proves live (control), sealed, finalized, syncing, behind."
+    }
+  ],
+
+  "lineCounts": {
+    "method": "wc -l for the new file; git diff --numstat for tracked files; code/comment/blank split computed by walking the file with a block-comment state machine",
+    "e2e/gm-two-player-lifecycle.pack.spec.ts": {
+      "status": "new",
+      "total": 445,
+      "code": 305,
+      "comment": 110,
+      "blank": 31,
+      "headerCommentLines": 47
+    },
+    "scripts/__tests__/gm-two-player-campaign-qc.test.ts": { "added": 25, "removed": 1 },
+    "scripts/qc/gm-two-player-campaign-core.cjs": { "added": 7, "removed": 1 },
+    "openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md": { "added": 1, "removed": 0 },
+    "productTotalAdded": 478,
+    "ledgerAndReceipts": {
+      "openspec/planning/2026-09-12-roadmap-completion/units.json": 55,
+      "evidence/u1c-admission-20260916.json": 550,
+      "evidence/u1c-red-20260916.json": 70,
+      "evidence/u1c-local-20260916.json": "this file"
+    },
+    "fileCount": 7,
+    "fitsFileCap": true,
+    "fitsLineCap": true
+  },
+
+  "rowBHandoff": {
+    "patch": ".sisyphus/roadmap-completion-20260912/u1e-row-b.patch",
+    "bytes": 40399,
+    "outsideTheDiff": "yes - .gitignore:189 (`.sisyphus/*`) covers it; `git check-ignore -v` confirms, and `git status --porcelain .sisyphus/` is empty",
+    "shape": "a unified diff from the shipped row A file to the seven-posture version, so U1e can read exactly what row B adds: the MutationObserver posture recorder and its series reader, the ordered cursor, the dropNextIntent and collideNextDelivery arms, the drive loop that tolerates a detached control, and the collision frame builder",
+    "whatU1eInherits": "the same spec file and the same `lifecycle-pack` group; row A already pins that row B's two sentences collide with none of the five driven here, read through the product's own exported derivation rather than a copy of the message table"
+  },
+
+  "whatRowAProves": {
+    "row": "E2E-75 lifecycle postures are distinct, announced and correctly gated @lifecycle-pack @E2E-75",
+    "ladder": "one match, one guest socket, precedence order: live (control) -> sealed -> finalized -> syncing -> behind",
+    "levers": {
+      "sealed": "a real GoProne Intent on the guest's own socket - the UI path needs a hex selection with no stable per-hex locator (the finding gm-two-player-privacy.pack.spec.ts:117-143 measured); the engine answers MovementDeclared, which deriveTacticalWireFacts reads as a sealed choice",
+      "finalized": "advancePhase past Movement",
+      "syncing": "one delivery withheld with the answering ReplayEnd held, so the posture holds instead of flashing",
+      "behind": "socket death plus ONE refused reopen with ReplayEnd still held; ReplayEnd is the only frame that clears recoveringFromGap AND sets ready (client.ts:288-311), so one held kind serves both postures"
+    },
+    "obligationsPerPosture": [
+      "stable locator - identified by data-state, never by the wording",
+      "persistent text - non-empty on every posture including the converged one",
+      "announcement - role=status + aria-live=polite + aria-atomic=true, and the platform's own aria snapshot asserted to carry THIS posture's sentence",
+      "non-color-only - pairwise-distinct sentences across all five; the obligation with teeth, because LIFECYCLE_TONE (lifecycleState.ts:60-71) gives behind/rewound/rebuilding one palette triple and pending/syncing/reconnecting another",
+      "correct command gating - both ways, read from the sr-only #networked-action-refusal node aria-describedby points at"
+    ],
+    "crossPosture": [
+      "the five captures are asserted as an ORDERED list, not a set",
+      "syncing and behind are the gated pair; their two refusal sentences are distinct",
+      "row B's pending and blocked sentences are pinned as distinct from all five driven ones and from each other, derived through deriveTacticalLifecyclePosture so the pin reads the product's own message table"
+    ],
+    "acceptedDeviation": "the gate asserted is `tacticalCommandAvailability` (tacticalCommandGate.ts:60-73), NOT `posture.commandsEnabled`. The two diverge deliberately (that file's header :11-21) and only the former reaches the DOM. Parent accepted: it is the rendered surface."
+  },
+
+  "nonClaims": [
+    {
+      "posture": "reconnecting",
+      "wording": "`reconnectScheduled` is a real client field (client.ts:1125) and deriveState maps it (tacticalLifecycleState.ts:202), but no available lever renders it; three levers were tried with a MutationObserver recording every transition.",
+      "levers": [
+        { "lever": "one plain socket close (the retry succeeds on the first RECONNECT_INITIAL_MS backoff)", "recordedSeries": "live, sealed, finalized, pending, syncing, pending, finalized, behind" },
+        { "lever": "a close plus ONE refused reopen - two backoff windows, 500ms + 1s", "recordedSeries": "live, sealed, pending, finalized, syncing, finalized, behind" },
+        { "lever": "context.setOffline(true) - the lever gm-two-player-resilience.pack.spec.ts:865-871 uses", "result": "INERT against a routed socket, because routeWebSocket dials the server from Playwright's process rather than the page's", "recordedSeries": "live, sealed, pending, finalized, syncing, finalized" }
+      ],
+      "whyTheOutageCannotBeWidened": "measured on screen, not inferred: the lobby mounts the session with maxReconnectAttempts: 2 (src/pages/multiplayer/lobby/[roomCode].tsx:296) and a third failed attempt renders 'Multiplayer unavailable - The client reached the reconnect limit without establishing a live session'; and a 60s outage lets the server reap the seat, rendering 'SEAT_TIMED_OUT ... Match ended'.",
+      "notAClaim": "that this is a defect. What is unproven is only that the posture ever reaches the DOM; chasing the mechanism means reading React commit behaviour in src/, which this unit does not own."
+    },
+    {
+      "posture": "rewound",
+      "wording": "PROJECTION_REWOUND is not a member of ErrorCodeSchema (src/types/multiplayer/Protocol.ts:741-787), so the wire cannot carry it. Producer owned by add-authoritative-history-branches / R6.B7."
+    },
+    {
+      "posture": "rebuilding",
+      "wording": "PROJECTION_REBUILDING is a pure function of a live correction lease (EventHistoryDurableRebuild.ts:45-59) and no in-paths lever acquires one - every acquireCorrectionLease call site sits behind a rewind or correction commit, and the only routed one answers 404 no-authoritative-history. Deferred to adopt-combat-journal-cutover-and-gm-rewind."
+    },
+    {
+      "posture": "pending and blocked",
+      "wording": "held for successor unit U1e as row B; not a permanent non-claim. Both were driven green during U1c's seven-posture build before the split, and the patch preserves that code."
+    }
+  ],
+
+  "findingsReportedNotFixed": [
+    {
+      "id": "F1",
+      "title": "A launched match leaves BOTH surfaces permanently at `pending`, masking live/sealed/finalized for the whole match.",
+      "owner": "finding recorded in the unit ledger; fix owner unassigned. No roadmap node owns src/lib/multiplayer/client.ts or the lobby component, so assigning one would widen the program's ownership map - an owner call, not an agent call.",
+      "measured": "20s at launch and 25s across a full close/reconnect cycle, both host and guest, posture `pending` at every one-second sample, banner reading 'Your command is awaiting the match server.'",
+      "rootCause": "the lobby Ready control dispatches a real `SetReady` Intent (src/components/multiplayer/LobbyPanel.tsx:141-147); every sent intent is remembered in `pendingIntents` (client.ts:1336); and an intent is settled ONLY by an Event whose payload.intentId matches (client.ts:349-352) or an Error carrying it (client.ts:394). The server answers SetReady with LobbyUpdated, which is neither, so the entry is never removed. `pending` (precedence 7) then outranks live (10), sealed (8) and finalized (9).",
+      "consequenceForPlayers": "every player who clicks Ready is told for the entire match that a command is awaiting the server, while the command gate does NOT refuse `pending` - so the surface is fully playable while permanently announcing an unresolved command.",
+      "whatTheRowDoesAboutIt": "reloads once after launch and says why at the call site. `pendingIntents` is per-client (constructed empty at client.ts:607), so a fresh document has no carry-over, and reloading a live match is an ordinary player action. Measured after the reload: both surfaces report `live`. The parent's ruling is to keep this launch path.",
+      "notFixed": "the fix is in src/, which this unit does not own."
+    },
+    {
+      "id": "F2",
+      "title": "`npm run build` exits 1 in a junction-node_modules worktree even though the compile succeeds.",
+      "message": "{\"ok\": false, \"error\": \"Unsafe hydration destination (runtime loader tsx) contains a symlink or junction: .next\\\\standalone\\\\node_modules\"}",
+      "impact": "none on this unit's proof path - the ladder runner launches `node server.js`, which takes the standalone path only when server.next-config.json sits beside it (server.js:35-46), and that file is absent here.",
+      "trap": "the build's EXIT CODE cannot be used as the success signal in this worktree, and a `npm run build | tail` pipeline hides that by reporting tail's status. Success is read from the artifacts instead: the Route (pages) table printed, .next/standalone/server.js present at 7325 bytes, and __E2E_MODE__ present in the app chunk."
+    },
+    {
+      "id": "F3",
+      "title": "oxlint covers NONE of the files this unit changed.",
+      "evidence": ".oxlintrc.json ignorePatterns contains `e2e/**`, `**/scripts/**` and `**/openspec/**`. `npm run lint` reports the same 84 warnings / 0 errors over the same 3810 files in this worktree as on clean main.",
+      "consequence": "the lint gate is a real no-regression check but VACUOUS for this diff, and 'lint clean on my changes' would be a false claim. An `// eslint-disable-next-line no-console` added during development was removed for the same reason - it suppressed a rule that does not run here."
+    },
+    {
+      "id": "F4",
+      "title": "E2E-15 in the resilience pack fails on clean origin/main - pre-existing, not caused by this unit.",
+      "observed": "`Expected pattern: /^(live|finalized)$/  Received string: \"\"` after the 150s poll at gm-two-player-resilience.pack.spec.ts:875, i.e. the banner is absent entirely after the host restart.",
+      "provenPreExisting": [
+        "reproduced twice in the U1C worktree (1 failed / 1 passed, 2.8m each), deterministically - E2E-14 passes, E2E-15 fails",
+        "reproduced on a SEPARATE detached worktree at origin/main 7489e311f with its own fresh production build: identical result, 1 failed / 1 passed, E2E-15 (2.6m)",
+        "the run plan for --group=resilience-pack built from this unit's qc core is BYTE-IDENTICAL to the plan built from origin/main's qc core (compared by JSON.stringify of the whole plan object, including args, port and server command)"
+      ],
+      "relationToThisUnit": "none. This unit adds a new spec file, a group registration and a tasks.md note; it touches no src/ and no other spec.",
+      "priorArt": "tasks.md:592 already records 'resilience E2E-15 read an empty lifecycle state after 3.8 minutes' as part of finding #102, which was later attributed to a stale build. This run rules that attribution out: the build was fresh on both trees.",
+      "notFixed": "outside this unit's ownership; surfaced for the parent."
+    }
+  ],
+
+  "mutants": [
+    {
+      "id": "M1",
+      "mutation": "MESSAGES.behind and MESSAGES.syncing both set to one sentence (src/lib/multiplayer/tacticalLifecycleState.ts)",
+      "rebuilt": true,
+      "verdict": "KILLED",
+      "observed": "Expected: \"behind\"  Received: \"syncing\"  at e2e/gm-two-player-lifecycle.pack.spec.ts:282  expect(seenText.get(text) ?? state).toBe(state);",
+      "capturedBeforeFailing": "live,sealed,finalized,syncing",
+      "whyItMatters": "the non-colour-only obligation's real test: these two postures already share a palette triple, so nothing but the sentence separates them"
+    },
+    {
+      "id": "M1-equivalent",
+      "mutation": "a first M1 attempt replaced MESSAGES.behind with an ASCII-ellipsis copy of the syncing sentence",
+      "rebuilt": true,
+      "verdict": "SURVIVED, and correctly - it was EQUIVALENT, not a mutation",
+      "rootCause": "the shipped sentences end in U+2026 HORIZONTAL ELLIPSIS; an ASCII '...' copy is a different string, so no collision was created. Recorded because a survived mutant is worthless evidence until it is shown to be equivalent.",
+      "note": "observed during the pre-split seven-posture build; the corrected M1 above is the one that counts"
+    },
+    {
+      "id": "M2",
+      "mutation": "aria-live=\"polite\" removed from the banner (src/components/multiplayer/TacticalLifecycleStateBanner.tsx)",
+      "rebuilt": true,
+      "verdict": "KILLED",
+      "observed": "expect(locator).toHaveAttribute(expected) failed — Expected: \"polite\"  Received: \"\"  — Locator: getByTestId('tactical-lifecycle-state')",
+      "capturedBeforeFailing": "(none — killed on the first posture)"
+    },
+    {
+      "id": "M3",
+      "mutation": "`syncing` removed from GATE_REASONS (src/lib/multiplayer/tacticalCommandGate.ts), so one gated posture stops refusing commands",
+      "rebuilt": true,
+      "typecheckStillClean": "yes — measured: `npx tsc --noEmit` exited 0 WITH the mutant applied, because GatedTacticalState is keyof typeof GATE_REASONS and the union simply shrinks. The mutant is invisible to the compiler, which is why a live row has to catch it.",
+      "verdict": "KILLED",
+      "observed": "Expected: true  Received: false  at e2e/gm-two-player-lifecycle.pack.spec.ts:289  expect(gateRefused).toBe(GATED_STATES.has(state));",
+      "capturedBeforeFailing": "live,sealed,finalized"
+    }
+  ],
+
+  "gates": {
+    "cpuCheckBeforeEveryBuildAndPlaywrightRun": "powershell -NoProfile -c \"(Get-CimInstance Win32_Process -Filter \\\"name='node.exe'\\\" | ? { $_.CommandLine -match 'next.*build|playwright' }).Count\" printed 0 before each",
+    "build": {
+      "command": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build",
+      "exitCode": 1,
+      "exitCodeIsNotTheSignal": "see F2",
+      "routeTablePrinted": true,
+      "standaloneServerJs": "present, 7325 bytes",
+      "e2eModeInBundle": "grep -c '__E2E_MODE__' .next/static/chunks/pages/_app-*.js = 1",
+      "builtFromCleanSrc": "yes — every mutant reverted with `git checkout -- src/`, and `git status --porcelain src/` was empty before the final build"
+    },
+    "row": {
+      "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=lifecycle-pack",
+      "exitCode": 0,
+      "result": "1 passed (8.8s)",
+      "captured": "live,sealed,finalized,syncing,behind",
+      "determinism": "three green runs of row A (9.0s / 8.8s / 8.8s), identical captured list"
+    },
+    "regressionExactlyOnce": {
+      "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=exactly-once-pack",
+      "why": "the pack whose WS-route harness row A's levers are modelled on",
+      "exitCode": 0,
+      "result": "4 passed (13.8s)"
+    },
+    "regressionResilience": {
+      "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=resilience-pack",
+      "why": "the only other pack that reads the lifecycle banner",
+      "exitCode": 1,
+      "result": "1 passed, 1 failed (2.8m) — E2E-14 passes, E2E-15 fails",
+      "verdict": "PRE-EXISTING, proven on clean origin/main with its own fresh build; see F4"
+    },
+    "typecheck": { "command": "npx tsc --noEmit -p tsconfig.json", "exitCode": 0 },
+    "lint": {
+      "command": "npm run lint (oxlint)",
+      "worktree": "84 warnings, 0 errors over 3810 files",
+      "cleanMainBaseline": "84 warnings, 0 errors over 3810 files",
+      "verdict": "no regression, but VACUOUS for this diff — see F3"
+    },
+    "formatCheck": {
+      "command": "npx oxfmt --check on the three changed code files",
+      "exitCode": 0,
+      "result": "All matched files use the correct format (3 files); tasks.md is markdown and oxfmt does not match it"
+    },
+    "qcPinSuite": {
+      "command": "npx jest --watchAll=false --runTestsByPath scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+      "result": "10 passed, 10 total"
+    },
+    "openspecCi": {
+      "command": "npm run qc:openspec-ci:validate",
+      "result": "workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0"
+    },
+    "roadmapValidator": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "exitCode": 0,
+      "result": "ROADMAP VALIDATION PASSED: 73 nodes, 13 packages, 376 tasks, 40 triage rows"
+    }
+  },
+
+  "registration": {
+    "group": "lifecycle-pack:22",
+    "whyOwner22": "matches its 22.3 siblings cleanup-ownership:22 and backpressure:22",
+    "whyANewCatalogEntry": "unlike U1b's evidence-smoke:27 this name was never reserved, which is why the red answered exit 2 UNKNOWN_GROUP rather than exit 3 NOT_IMPLEMENTED",
+    "notRespawning": "the row closes and reopens its OWN routed socket, never the server",
+    "pinSuiteEditsInOneChange": "the groups pin, a dedicated plan pin, the `all` args list and the implemented whitelist all moved together, the discipline tasks.md:585 records",
+    "u1eReusesIt": "row B joins this same group and spec file, so no second registration is needed"
+  },
+
+  "tasksMd": {
+    "row": "22.3 (line 584)",
+    "action": "one PROGRESS note, rewritten for row A after the split; the checkbox is NOT checked",
+    "why": "22.3 covers E2E-71..80 and E2E-76/77/80 remain open. U1c is tick-less by the parent's RES-5 ruling in any case."
+  },
+
+  "notCommitted": "No commit and no push, per the brief — the parent commits from a checkout with a real node_modules."
+}

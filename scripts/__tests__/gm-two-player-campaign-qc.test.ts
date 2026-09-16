@@ -5,7 +5,7 @@ const repoRoot = path.resolve(__dirname, '../..');
 const runner = path.join(repoRoot, 'scripts/qc/run-gm-two-player-campaign.mjs');
 const core = require('../qc/gm-two-player-campaign-core.cjs');
 const groups =
-  'fixture-smoke,membership-smoke,evidence-smoke,fault-smoke,smoke,authority-pack1,exactly-once-pack,fault-pack,token-pack,restart-pack,resilience-pack,authority-order,authority-recovery,privacy-pack,proposal-pack,three-context-pack,two-device-pack,authority,visibility,combat-pack1,rewind-pack,combat,campaign,failure,performance,cleanup-ownership,backpressure,all,traceability,quality,manual-setup,scope'.split(
+  'fixture-smoke,membership-smoke,evidence-smoke,fault-smoke,smoke,authority-pack1,exactly-once-pack,fault-pack,token-pack,restart-pack,resilience-pack,authority-order,authority-recovery,privacy-pack,proposal-pack,three-context-pack,two-device-pack,authority,visibility,combat-pack1,rewind-pack,combat,campaign,failure,performance,cleanup-ownership,backpressure,lifecycle-pack,all,traceability,quality,manual-setup,scope'.split(
     ',',
   );
 /** The server command a non-respawning implemented group is planned with. */
@@ -437,6 +437,26 @@ describe('GM and two-player campaign QC runner', () => {
       faultSmokeServerCommand(core, repoRoot),
     );
 
+    // `lifecycle-pack` (E2E-75). Predicted red before the catalog entry:
+    // the name was in NEITHER GROUP_CATALOG nor SPEC_BY_GROUP, so
+    // buildRunPlan threw UNKNOWN_GROUP - exit 2 on main, not the exit 3
+    // a reserved-but-unimplemented name gives. Not respawning.
+    const lifecyclePlan = core.buildRunPlan({
+      group: 'lifecycle-pack',
+      runId: 'task-22-lifecycle-pack',
+      repoRoot,
+    });
+    expect(lifecyclePlan.args).toEqual([
+      path.join(repoRoot, 'scripts/playwright/run-playwright.mjs'),
+      'test',
+      '--project=chromium',
+      'e2e/gm-two-player-lifecycle.pack.spec.ts',
+      '--workers=1',
+    ]);
+    expect(lifecyclePlan.environment.MEKSTATION_E2E_SERVER_COMMAND).toBe(
+      faultSmokeServerCommand(core, repoRoot),
+    );
+
     // `all` is the union of every registered SPEC_BY_GROUP entry.
     // Predicted red of this pin today, before `all` had a SPEC_BY_GROUP
     // entry: the group was already in GROUP_CATALOG (owner 34) and
@@ -476,6 +496,7 @@ describe('GM and two-player campaign QC runner', () => {
       'e2e/gm-two-player-rewind.pack.spec.ts',
       'e2e/gm-two-player-backpressure.pack.spec.ts',
       'e2e/gm-two-player-evidence.pack.spec.ts',
+      'e2e/gm-two-player-lifecycle.pack.spec.ts',
       '--workers=1',
     ]);
     // restart-pack, resilience-pack, authority-recovery, and the
@@ -557,6 +578,9 @@ describe('GM and two-player campaign QC runner', () => {
       // NOT_IMPLEMENTED for the whole program; it leaves this loop only
       // now that a spec exists for it.
       'evidence-smoke',
+      // 22.3's E2E-75 row. Never a reserved name, so before this change
+      // it answered UNKNOWN_GROUP (exit 2), not NOT_IMPLEMENTED (exit 3).
+      'lifecycle-pack',
       'all',
     ];
     for (const group of groups.filter(

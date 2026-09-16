@@ -1,0 +1,550 @@
+{
+  "unit": "U1c",
+  "stage": "admission",
+  "at": "2026-09-16T00:00:00.000Z",
+  "node": "R6.umbrella",
+  "nodeState": "planned",
+  "nodeDependsOn": [
+    "R2.authority-live"
+  ],
+  "nodeDependencyStates": {
+    "R2.authority-live": "main-verified"
+  },
+  "dependenciesReady": true,
+  "activePackage": "harden-gm-two-player-campaign-sessions",
+  "taskKeys": [],
+  "taskKeysNote": "units.json U1c carries an EMPTY taskKeys array, the same shape U1b carried. Row 22.3 (openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md:584) is the umbrella row covering E2E-71..E2E-80; the U1 split left it held by PK-rewind-branch-reader. Stage 7 (tick) therefore has no row of its own to check and is expected to be recorded not-applicable, exactly as the parent ruled for U1b (RES-1 in u1b-admission-20260916.json).",
+  "baseline": "7489e311fc0e2a2846c342786b21ad1ea09d29bb",
+  "originMain": "7489e311fc0e2a2846c342786b21ad1ea09d29bb",
+  "baselineEqualsOriginMain": true,
+  "baselineProof": "git rev-parse origin/main and git log -1 --format=%H origin/main both printed 7489e311fc0e2a2846c342786b21ad1ea09d29bb in this session; the worktree's git rev-parse HEAD printed the same value.",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u1c",
+  "branch": "codex/roadmap-u1c-e2e-75-77-20260916",
+  "ownedPaths": [
+    "e2e",
+    "scripts/qc",
+    "openspec/changes/harden-gm-two-player-campaign-sessions"
+  ],
+  "ownedPathsNote": "src/ is NOT owned. Every finding below that requires a product-code seam is therefore an owner gate, not a task.",
+  "behavior": "E2E-75 lifecycle states are distinct and accessible for the eight drivable states and E2E-77 conflict messages are actionable and safe for the four reachable classes; the rewound state and the stale-branch class are not claimed (deferred to the branch lane and the rewind packet) and the unit records that non-claim in its admission.",
+  "behaviorReconciliation": "DISCOVERY CONTRADICTS THE BEHAVIOR SENTENCE ON BOTH COUNTS, with one shared root cause. E2E-75: SEVEN states are drivable in-paths, not eight - `rebuilding` joins `rewound` as undrivable. E2E-77: THREE classes are reachable in-paths, not four - `rebuild` joins `stale branch` as unreachable. The shared root cause is that no in-paths lever acquires an EventHistory correction lease, and the rebuild refusal is a pure function of that lease. Evidence is in projectionRebuildReachability below. This is the decision the parent must rule on before stage 2.",
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500
+  },
+  "ciClass": "product",
+  "reviewClasses": [
+    "routine"
+  ],
+  "selectedBy": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "output": "U1c",
+    "exit": 0
+  },
+  "environment": {
+    "worktreeCreated": "git worktree add --detach E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u1c origin/main",
+    "worktreeHead": "7489e311fc0e2a2846c342786b21ad1ea09d29bb",
+    "nodeModules": "junction to E:\\Projects\\MekStation\\node_modules (cmd //c mklink /J) - 'Junction created' confirmed",
+    "husky": "npx husky run in the worktree",
+    "node": "v22.22.0 (node --version in the worktree with the pinned PATH)",
+    "worktreeStatus": "clean (git status --porcelain empty after branch creation)",
+    "rootWorkingTreeTouched": false,
+    "rootWriteCount": 1,
+    "rootWritePath": "openspec/planning/2026-09-12-roadmap-completion/evidence/u1c-admission-20260916.json",
+    "buildOrPlaywrightRun": false
+  },
+  "specLetters": {
+    "E2E-75": {
+      "file": "openspec/changes/harden-gm-two-player-campaign-sessions/specs/e2e-testing/spec.md",
+      "lines": "317-319",
+      "when": "the harness drives pending, sealed, finalized, syncing, reconnecting, behind, rebuilding, rewound, and blocked states",
+      "then": "each SHALL have a stable locator, persistent text, non-color-only semantics, correct command gating, and an assistive-technology announcement",
+      "fiveObligationsDecomposed": {
+        "stableLocator": "a locator that does not depend on the message wording. Shipped: data-testid=\"tactical-lifecycle-state\" plus data-state=<state> (src/components/multiplayer/TacticalLifecycleStateBanner.tsx:31-32). The row asserts getByTestId(...).getAttribute('data-state') equals the driven state name.",
+        "persistentText": "the banner renders on EVERY posture including `live`, not only on trouble (src/lib/lifecycle/lifecycleState.ts:19-25 says so explicitly). The row asserts the element is visible and its textContent is non-empty in every driven state, and that the text is the state's own MESSAGES entry (src/lib/multiplayer/tacticalLifecycleState.ts:132-143) rather than a shared string.",
+        "nonColorOnlySemantics": "colour alone must not carry the state. This is the obligation with real teeth: LIFECYCLE_TONE (src/lib/lifecycle/lifecycleState.ts:60-71) gives `behind`, `rewound` and `rebuilding` the IDENTICAL palette triple 'border-sky-700 bg-sky-900/30 text-sky-200', and `pending`/`syncing`/`reconnecting` share 'border-amber-700 bg-amber-900/30 text-amber-200'. Three states are colour-indistinguishable from each other and another three likewise. The non-colour signal is therefore the MESSAGE TEXT plus data-state. The row asserts the rendered text differs pairwise across every driven state - i.e. the set of texts has the same cardinality as the set of driven states - which is a property a tone-only banner cannot satisfy.",
+        "correctCommandGating": "commandsEnabled is true for exactly `live` and `finalized` (src/lib/multiplayer/tacticalLifecycleState.ts:155). The row asserts the action bar's intent controls are operable in `finalized` and NOT operable in the seven degraded states, read through the shipped commandGate prop path (src/components/multiplayer/NetworkedGameSurface.tsx:392-397) rather than by clicking a disabled button - clicking a disabled control is a no-op either way and proves nothing (the discipline gmRewindPreviewPhrasing.ts:22-26 already names).",
+        "assistiveTechnologyAnnouncement": "the banner is role=\"status\" aria-live=\"polite\" aria-atomic=\"true\" (TacticalLifecycleStateBanner.tsx:34-39). Assertion method: Playwright role/name queries - page.getByRole('status') resolves the banner, and its accessible NAME is its text content (no aria-label, no aria-labelledby), so `expect(page.getByRole('status', { name: MESSAGES[state] }))` is the announcement assertion. An accessibility snapshot (page.accessibility.snapshot()) is captured per state as EVIDENCE in the run directory, but the GATE is the role/name query - a snapshot diff would gate on sibling chrome the unit does not own."
+      }
+    },
+    "E2E-77": {
+      "file": "openspec/changes/harden-gm-two-player-campaign-sessions/specs/e2e-testing/spec.md",
+      "lines": "325-327",
+      "when": "a command rejects for stale revision, stale branch, authorization, integrity, or rebuild",
+      "then": "the UI SHALL identify the actor-safe conflict class, base revision or branch, and recovery action without leaking private data",
+      "threeObligationsDecomposed": {
+        "actorSafeConflictClass": "the surface must name WHICH class refused, in words an actor can act on. Shipped surfaces: (a) src/components/multiplayer/NetworkedGameSurface.overlays.tsx:230-253 IntentErrorToast, data-testid=\"intent-error-toast\", role=\"alert\", text 'Action rejected (<CODE>): <reason>'; (b) the lifecycle banner's `blocked` posture message (tacticalLifecycleState.ts:139). The row asserts the toast text contains the class code and that two different classes produce two different codes.",
+        "baseRevisionOrBranch": "for a branch refusal the frame carries conflictHead {branchId, revision} (tacticalLifecycleState.ts:44-47, read defensively at :249-266) and the posture carries it through at :158. For the classes actually reachable (below) the wire carries a `reason` discriminator instead of a head - e.g. PROTOCOL_VIOLATION/sequence-collision. The row asserts the discriminator is present and specific, and records as a NON-CLAIM that no reachable class carries a numeric base revision today.",
+        "recoveryActionWithoutLeak": "the recovery action is rendered VERBATIM from the server and never paraphrased: src/components/multiplayer/NetworkedGameSurface.branchRecovery.tsx:8-21, data-testid=\"tactical-branch-recovery-action\". The 'without leaking private data' clause is implemented as a deliberate DROP of operator detail - gmRewindPreviewPhrasing.ts:10-15 ('THE `detail` FIELD IS NEVER SHOWN' - it names branch ids, outcome ids and revisions) and ServerMatchHostBranchAdmission.ts:205-207 ('the lease id, owner and fencing epoch are authority facts ... naming a rebuild's owner to a player is a disclosure this refusal does not need to make'). The row asserts the SAFETY property directly: the rendered conflict text does not contain the peer's playerId, the peer's wire token, the lease id, or any branch id the actor was not already shown - the same 'assert at the safety property, not at a proxy for it' discipline U1b's M4 mutant forced (tasks.md:588)."
+      }
+    }
+  },
+  "stateTable": {
+    "unionSource": "src/lib/lifecycle/lifecycleState.ts:26-36 - LifecycleState is a ten-member union: the letter's nine plus `live`. Deliberately total across the tactical, campaign and GM surfaces (:13-16).",
+    "derivationSource": "src/lib/multiplayer/tacticalLifecycleState.ts:188-208 deriveState, strict severity precedence.",
+    "surface": "src/components/multiplayer/TacticalLifecycleStateBanner.tsx, mounted at src/components/multiplayer/NetworkedGameSurface.tsx:345.",
+    "rows": [
+      {
+        "state": "blocked",
+        "derivation": "src/lib/multiplayer/tacticalLifecycleState.ts:189 - input.client.blockedBySequenceCollision; set at src/lib/multiplayer/client.ts:897 when two different event identities claim one delivery sequence",
+        "drivable": true,
+        "lever": "The in-page WebSocket route harness already shipped in e2e/gm-two-player-exactly-once.pack.spec.ts - openTacticalFixture(browser, request, 'collision') at :159, installHarness at :309, the colliding frame synthesised at :557-562 and re-sent via route.send at :375. Lives entirely in e2e/.",
+        "existingLiveRow": "e2e/gm-two-player-exactly-once.pack.spec.ts:154 'E2E-12 collision blocks the cursor' - asserts the TOAST text /PROTOCOL_VIOLATION.*sequence-collision/i at :166, never the banner's data-state. The lifecycle half is unasserted.",
+        "gap": "no data-state assertion, no announcement assertion, no command-gating assertion"
+      },
+      {
+        "state": "syncing",
+        "derivation": "tacticalLifecycleState.ts:201 - input.client.recoveringFromGap",
+        "drivable": true,
+        "lever": "openTacticalFixture(..., 'gap') at e2e/gm-two-player-exactly-once.pack.spec.ts:126 - the harness withholds one viewer delivery sequence then sends a later one. The pack header at :8-10 states the contract in the letter's own words: 'that context SHALL enter syncing or behind state'.",
+        "existingLiveRow": "E2E-11 at :121 asserts phase text and convergence only. e2e/gm-two-player-resilience.pack.spec.ts:685-690 reads the banner but asserts CONDITIONALLY - `if (/^(behind|syncing|reconnecting)$/.test(p2BehindState))` - so a run where the banner said `live` passes the row unchanged.",
+        "gap": "no unconditional assertion of the state anywhere"
+      },
+      {
+        "state": "behind",
+        "derivation": "tacticalLifecycleState.ts:203 - !input.client.ready; ready flips on ReplayEnd (src/lib/multiplayer/client.ts:84-85)",
+        "drivable": true,
+        "lever": "the window between socket open and ReplayEnd on a fresh join, widened by the same 'gap' harness (hold the replay tail); or context.setOffline(true) then online, which forces a rejoin (e2e/gm-two-player-resilience.pack.spec.ts:865-871)",
+        "existingLiveRow": "same conditional read as `syncing` (resilience :685-690)",
+        "gap": "unasserted"
+      },
+      {
+        "state": "reconnecting",
+        "derivation": "tacticalLifecycleState.ts:202 - input.client.reconnectScheduled",
+        "drivable": true,
+        "lever": "page.context().setOffline(true) then a send, which schedules a reconnect. The resilience pack already drives offline/online on both contexts at :865-867.",
+        "existingLiveRow": "conditional only (resilience :685-690)",
+        "gap": "unasserted"
+      },
+      {
+        "state": "pending",
+        "derivation": "tacticalLifecycleState.ts:204 - input.client.pendingIntentCount > 0",
+        "drivable": true,
+        "lever": "hold the acknowledgement for an in-flight intent. Two shipped seams: the per-viewer unacked seam (e2e/helpers/viewerUnackedBound.ts, used by the backpressure pack) which is exactly a 'stop acking' lever; or the WS route harness's ack path (acknowledgementsFor at e2e/gm-two-player-exactly-once.pack.spec.ts:582).",
+        "existingLiveRow": "none - no row reads data-state=pending",
+        "gap": "unasserted; the assertion window needs the ack held rather than raced"
+      },
+      {
+        "state": "sealed",
+        "derivation": "tacticalLifecycleState.ts:205 - sealedChoiceAwaitingReveal, computed by deriveTacticalWireFacts at :166-186 from the actor's own MovementDeclared / AttackDeclared / PhysicalAttackDeclared (:217-223), and cleared by the next finalization",
+        "drivable": true,
+        "lever": "declare a movement or attack as the local side through the shipped action bar before the phase finalizes - the authority and exactly-once packs already drive declarations (advanceToWeaponAttack / advanceToPhysicalAttack, e2e/gm-two-player-exactly-once.pack.spec.ts:65, :131)",
+        "existingLiveRow": "none",
+        "gap": "unasserted"
+      },
+      {
+        "state": "finalized",
+        "derivation": "tacticalLifecycleState.ts:206 - finalizationLanded, from AttacksRevealed or a PhaseChanged whose fromPhase is Movement / WeaponAttack / PhysicalAttack (:225-234)",
+        "drivable": true,
+        "lever": "advance the phase past one of those three - the same advanceTo* helpers",
+        "existingLiveRow": "e2e/gm-two-player-resilience.pack.spec.ts:876-881 polls for `^(live|finalized)$` - the COMMANDS_ENABLED_STATES pair (:122). It proves command gating, never that `finalized` is distinct from `live`.",
+        "gap": "never asserted as its own distinct state"
+      },
+      {
+        "state": "rebuilding",
+        "derivation": "tacticalLifecycleState.ts:192 - projectionSignal === 'PROJECTION_REBUILDING', admitted at :90 from the wire code, mapped in at src/hooks/useMultiplayerSession.helpers.ts:146-153",
+        "drivable": false,
+        "whyNot": "See projectionRebuildReachability below. The refusal is emitted ONLY by refuseDuringHistoryRebuild (src/lib/multiplayer/server/ServerMatchHostBranchAdmission.ts:220-244), which is a pure read of readMatchStreamRebuild -> readDurableStreamRebuild (src/lib/events/journal/EventHistoryDurableRebuild.ts:45-59) over the correction-lease tables. No in-paths lever creates a lease.",
+        "existingLiveRow": "none"
+      },
+      {
+        "state": "rewound",
+        "derivation": "tacticalLifecycleState.ts:194 - projectionSignal === 'PROJECTION_REWOUND'",
+        "drivable": false,
+        "whyNot": "PROJECTION_REWOUND is not a member of ErrorCodeSchema (src/types/multiplayer/Protocol.ts:741-787 - the enum carries PROJECTION_REBUILDING at :770 and STALE_BRANCH at :780, and no REWOUND member), so the wire CANNOT carry it. The source says so in its own words at tacticalLifecycleState.ts:33-37 and at src/lib/campaign/lifecycle/campaignLifecycleState.ts:17-22, which adds the discipline this unit adopts verbatim: 'Simulating it would be a lie about what the product does.'",
+        "existingLiveRow": "none",
+        "declaredNonClaim": true
+      },
+      {
+        "state": "live",
+        "derivation": "tacticalLifecycleState.ts:207 - the default",
+        "drivable": true,
+        "lever": "the steady state of any joined match",
+        "note": "NOT one of the letter's nine (lifecycleState.ts:19-25 explains why it is in the union anyway). Driven as the control arm so the seven degraded states are proven DISTINCT from the converged one rather than merely present."
+      }
+    ],
+    "summary": {
+      "unionMembers": 10,
+      "letterMembers": 9,
+      "drivableInPaths": 7,
+      "drivableList": [
+        "pending",
+        "sealed",
+        "finalized",
+        "syncing",
+        "reconnecting",
+        "behind",
+        "blocked"
+      ],
+      "notDrivable": [
+        "rebuilding",
+        "rewound"
+      ],
+      "behaviorSentenceSaid": 8,
+      "discrepancy": "the behavior sentence's 'eight drivable states' counts `rebuilding`; the code says it is not drivable in-paths"
+    }
+  },
+  "classTable": {
+    "letterClasses": [
+      "stale revision",
+      "stale branch",
+      "authorization",
+      "integrity",
+      "rebuild"
+    ],
+    "rows": [
+      {
+        "class": "integrity",
+        "wireCodes": [
+          "PROTOCOL_VIOLATION (sequence-collision)",
+          "DUPLICATE_INTENT",
+          "INVALID_INTENT",
+          "BAD_ENVELOPE"
+        ],
+        "source": "src/types/multiplayer/Protocol.ts:756-761 labels RATE_LIMITED / DUPLICATE_INTENT 'intent integrity defenses'; DUPLICATE_INTENT is emitted at src/lib/multiplayer/server/ServerMatchHostIntent.ts:270; the sequence-collision integrity block is raised client-side at src/lib/multiplayer/client.ts:897 and surfaced as PROTOCOL_VIOLATION/sequence-collision",
+        "reachable": true,
+        "how": "already driven LIVE today: e2e/gm-two-player-exactly-once.pack.spec.ts:154-167 (collision -> toast /PROTOCOL_VIOLATION.*sequence-collision/i) and :62-86 (duplicate). Both use the in-spec WS route harness; no src/ seam.",
+        "surfaceThatRendersIt": "IntentErrorToast (NetworkedGameSurface.overlays.tsx:230-253) plus the banner's `blocked` posture",
+        "notReachableVariant": "MATCH_QUARANTINED / history-integrity-blocked (ServerMatchHostBranchAdmission.ts:62-66, :73, :155-158) needs PERSISTED branch-table corruption - the WRITE-capable lever e2e/gm-two-player-failure.pack.spec.ts:71-77 names as the reason E2E-68 stays deferred. Recorded as a narrower non-claim inside the integrity row."
+      },
+      {
+        "class": "authorization",
+        "wireCodes": [
+          "GM_ONLY",
+          "AUTH_REJECTED"
+        ],
+        "source": "GM_ONLY: src/lib/multiplayer/server/ServerMatchHostBranchAdmission.ts:74 (phrasing 'gm-role-required'), :80 (union member), :144 (the refusal), gated by namesRewindCut at :244-251. AUTH_REJECTED: src/lib/multiplayer/server/bindCampaignSyncConnection.ts:936 ('membership-revoked'), :978 ('campaign-gm-seat-taken'), :1104/:1158 ('campaign-tactical-seats-full').",
+        "reachable": true,
+        "how": "GM_ONLY is reachable on the LIVE intent path with no rewind and no journal: a non-host context sends an intent carrying a numeric `targetRevision` (any rewind-cut-shaped payload), and refuseLiveBranchAdmission answers GM_ONLY at :144 before validate/reduce. Precondition: hasHistoryBranchStore && isHistoryBranchStoreReady (:129-130) - true for DurableMatchStore with the campaign database open, which the ladder runner's fixture already provides. AUTH_REJECTED is separately reachable on the campaign channel via membership revocation, already exercised by the membership smoke lane.",
+        "surfaceThatRendersIt": "IntentErrorToast - 'Action rejected (GM_ONLY)'",
+        "recoveryActionShipped": "LIVE_BRANCH_ADMISSION_PHRASING.GM_ONLY = 'gm-role-required' (:74)"
+      },
+      {
+        "class": "stale revision",
+        "wireCodes": [
+          "STALE_REVISION (command door)",
+          "CAMPAIGN_STALE_HEAD (wire door)"
+        ],
+        "source": "ExpectedHeadRefusalCode at src/lib/events/journal/EventHistoryExpectedHead.ts:36-43 is STALE_BRANCH | STALE_REVISION | STALE_GENERATION, decided at :113; the recovery action is EXPECTED_HEAD_RESYNC_ACTION = 'resync-to-active-head' (:34). CAMPAIGN_STALE_HEAD is emitted at src/lib/multiplayer/server/bindCampaignSyncConnection.ts:844-850 and mapped to the UI code STALE_BRANCH at src/lib/campaign/lifecycle/campaignLifecycleState.ts:377.",
+        "reachable": "probable - MUST BE PROBED IN STAGE 2 BEFORE THE ROW IS WRITTEN",
+        "how": "NOT on the tactical channel: 'the combat wire names no expected head (finding #38)' - ServerMatchHostBranchAdmission.ts:5-6, restated at :215-218 ('the combat wire carries no client-claimed expected head, so the staleness arm has nothing here to compare and cannot be honestly answered'). It is the CAMPAIGN COMMAND door: POST /api/campaigns/[id]/commands with a stale expectedHead, described at campaignLifecycleState.ts:30-36. Existing campaign drive helpers (e2e/helpers/campaignJournalDrive.ts, e2e/helpers/campaignRoutes.ts) reach that route today. The stage-2 probe is a single request with a deliberately stale head, asserting a 409 carrying recoveryAction 'resync-to-active-head'.",
+        "surfaceThatRendersIt": "the campaign sync banner (data-testid=\"campaign-sync-state\", already asserted live at e2e/coop-campaign-two-browser-journey.spec.ts:392) plus the server action rendered verbatim beside the control (campaignLifecycleState.ts:48-56)",
+        "caveat": "the campaign surface deliberately COLLAPSES the whole staleness family onto the single UI code STALE_BRANCH with one recovery (campaignLifecycleState.ts:72-78: 'a superseded branch, a moved revision and a bumped generation are three findings with ONE recovery, and a surface offering three would invent a distinction the human cannot act on'). So the row proves the CLASS is identified and actionable; it CANNOT prove the UI distinguishes 'stale revision' from 'stale branch', and must say so."
+      },
+      {
+        "class": "rebuild",
+        "wireCodes": [
+          "PROJECTION_REBUILDING"
+        ],
+        "source": "ErrorCodeSchema member at src/types/multiplayer/Protocol.ts:764-770; tactical refusal at src/lib/multiplayer/server/ServerMatchHostBranchAdmission.ts:220-244; campaign refusal at src/lib/multiplayer/server/campaignSyncRebuildAdmission.ts:49, :86; command-pipeline arm at src/lib/campaign/authority/campaignCommandPipeline.ts:407",
+        "reachable": false,
+        "whyNot": "see projectionRebuildReachability below",
+        "surfaceThatRendersIt": "banner `rebuilding` posture (tacticalLifecycleState.ts:141) plus the toast",
+        "undeclaredNonClaim": true
+      },
+      {
+        "class": "stale branch",
+        "wireCodes": [
+          "STALE_BRANCH"
+        ],
+        "source": "src/lib/multiplayer/server/ServerMatchHostBranchAdmission.ts:79 (union), :265-275 (refuseStale, carrying {branchId, revision} as conflictHead), :73 (recovery 'resync-to-active-head'); typed on the client at src/lib/multiplayer/tacticalLifecycleState.ts:49-53 and admitted at :91-97",
+        "reachable": false,
+        "whyNot": "refuseStale fires only when the effective head is NOT on the live path (:177-182) - i.e. after a rewind activated a replacement branch. The entire rewind lane is an expected-failure lane: e2e/gm-two-player-rewind.pack.spec.ts:3-6 states it outright - 'the combat stream is never journaled (finding #48), so preview/commit answer 404 no-authoritative-history and STALE_BRANCH is unreachable' - and every row in that pack carries test.fail(true, '... @until-journal-cutover') (:41, :74, :316).",
+        "declaredNonClaim": true
+      }
+    ],
+    "summary": {
+      "letterClasses": 5,
+      "reachableInPaths": 3,
+      "reachableList": [
+        "integrity",
+        "authorization",
+        "stale revision (campaign command door, pending a stage-2 probe)"
+      ],
+      "notReachable": [
+        "rebuild",
+        "stale branch"
+      ],
+      "behaviorSentenceSaid": 4,
+      "discrepancy": "the behavior sentence's 'four reachable classes' counts `rebuild`; the code says it is not reachable in-paths"
+    }
+  },
+  "projectionRebuildReachability": {
+    "claim": "No in-paths lever puts a match or campaign stream into PROJECTION_REBUILDING, so neither the `rebuilding` lifecycle state nor the `rebuild` conflict class can be driven from e2e/ or scripts/qc alone.",
+    "chain": [
+      "The tactical refusal is refuseDuringHistoryRebuild (src/lib/multiplayer/server/ServerMatchHostBranchAdmission.ts:220-244). It is a pure read: `rebuilding = ctx.store.readMatchStreamRebuild(matchId)`; null means no refusal (:236).",
+      "readMatchStreamRebuild is src/lib/multiplayer/server/DurableMatchStore.ts:706-707 -> readDurableStreamRebuild({streamType:'match', streamId}).",
+      "readDurableStreamRebuild (src/lib/events/journal/EventHistoryDurableRebuild.ts:45-59) reads the branch + correction-lease tables in DATABASE_PATH (./data/mekstation.db, migrations 23-24 per the header at :12-18) and answers null when the SQLite service is uninitialized (:47).",
+      "So a refusal requires a LIVE CORRECTION LEASE ROW. Every acquireCorrectionLease call site in the tree: src/lib/multiplayer/server/history/GmCombatRewindCommit.ts:145, src/lib/multiplayer/server/ServerMatchHostRewindRebuild.ts:231, src/lib/multiplayer/server/history/CoordinatedOutcomeCorrectionTarget.steps.ts:174, src/lib/campaign/rebuild/CampaignRetroactiveCorrectionCommit.ts:175.",
+      "The only one behind an HTTP route is GmCombatRewindCommit, served by src/pages/api/matches/[id]/rewind-commit.ts - and that route is the @until-journal-cutover lane which answers 404 no-authoritative-history because the combat stream is never journaled (e2e/gm-two-player-rewind.pack.spec.ts:3-6).",
+      "CampaignRetroactiveCorrectionCommit has NO api route (find over src/pages/api and src/app/api for *correct*/*rewind* returns only campaigns/[id]/rewind-preview.ts, matches/[id]/rewind-preview.ts, matches/[id]/rewind-commit.ts; the two preview routes write nothing and take no lease)."
+    ],
+    "optionsToUnblock": [
+      {
+        "id": "OPT-A",
+        "name": "drop rebuilding/rebuild from this unit",
+        "cost": "0 lines",
+        "consequence": "E2E-75 claims seven states, E2E-77 claims three classes; the two rebuild-dependent obligations are deferred alongside the already-deferred rewound/stale-branch pair, to the same journal-cutover lane (adopt-combat-journal-cutover-and-gm-rewind) that gates the rewind pack.",
+        "revertCost": "none",
+        "agentRecommendation": "RECOMMENDED"
+      },
+      {
+        "id": "OPT-B",
+        "name": "write a correction-lease row into ./data/mekstation.db from an e2e helper",
+        "cost": "~50-70 lines in e2e/helpers/",
+        "consequence": "stays inside ownedPaths, but it is an out-of-product DATA lever: it fabricates authority state no product path produced. The harness has deliberately NOT adopted write levers - e2e/gm-two-player-failure.pack.spec.ts:71-77 leaves E2E-68 deferred for exactly this reason ('needs a WRITE-capable lever'). Adopting one here silently sets the precedent that pack refused to set.",
+        "revertCost": "low (delete the helper) but the precedent is not revertable",
+        "agentRecommendation": "not recommended without an explicit owner ruling"
+      },
+      {
+        "id": "OPT-C",
+        "name": "extend the shipped /api/e2e/fault lever with a lease-arm kind",
+        "cost": "~25-40 lines across src/pages-modules/api/e2eFaultRoute.ts and src/lib/multiplayer/server/DurableMatchStore.ts (E2E_FAULT_KINDS at :350)",
+        "consequence": "the architecturally correct lever - it reuses the existing per-run-token-guarded, one-shot, session-scoped seam (e2eFaultRoute.ts:79-95) and keeps the refusal on the REAL server path. But it touches src/, which U1c does NOT own.",
+        "revertCost": "low",
+        "agentRecommendation": "the right answer if the owner wants the rebuild obligations claimed - but it is an owner gate and a scope widening, and the goal statement forbids widening a unit while it is being worked"
+      }
+    ],
+    "gateVerdict": "OWNER DECISION REQUIRED. Default if the parent does not rule: OPT-A."
+  },
+  "gateAnalysis": {
+    "needsSrcChangeForTheRecommendedScope": false,
+    "needsSrcChangeForTheBehaviorSentenceAsWritten": true,
+    "srcChangeReason": "only to reach `rebuilding` / `rebuild` (OPT-C). The seven states and three classes recommended below are all reachable through shipped product paths with levers that live in e2e/.",
+    "ownerGateNeeded": "one, on projectionRebuildReachability (OPT-A vs OPT-C).",
+    "noFlagFlip": "No production flag is touched. MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY is the authority-recovery group's fixture arm (scripts/qc/gm-two-player-campaign-core.cjs:73-77) and is NOT armed by anything proposed here.",
+    "noOwnerWitnesses": "reviewClasses is ['routine'] - Lane B is not required.",
+    "newGroupRegistration": "GROUP_CATALOG (scripts/qc/gm-two-player-campaign-core.cjs:5) has no reserved `lifecycle` or `conflict` name - unlike `evidence-smoke:27` which U1b inherited. A new catalog entry is therefore required. Proposed owner number 22, matching the other umbrella-22.3 groups (cleanup-ownership:22, backpressure:22)."
+  },
+  "nonClaims": {
+    "rewoundState": {
+      "rowHeaderWording": "NOT CLAIMED - `rewound`: PROJECTION_REWOUND is not a member of ErrorCodeSchema (src/types/multiplayer/Protocol.ts:741-787), so the wire cannot carry it and no live row can drive it. Deferred to add-authoritative-history-branches / R6.B7, which owns the producer. Simulating the frame would assert a product behaviour that does not exist.",
+      "receiptWording": "E2E-75's ninth state `rewound` is not claimed by U1c. The refusal code PROJECTION_REWOUND appears in no server vocabulary - neither ErrorCodeSchema (Protocol.ts:741-787) nor either campaign door (campaignLifecycleState.ts:24-44) admits it - so the state is reachable-when-emitted and nothing emits it. The producer is owned by add-authoritative-history-branches, tracked as R6.B7. U1c drives the other eight union members and asserts, as the sweep at campaignLifecycleState.ts:41-44 already does on the campaign side, that no live signal reaches `rewound` in the meantime."
+    },
+    "staleBranchClass": {
+      "rowHeaderWording": "NOT CLAIMED - `stale branch`: STALE_BRANCH fires only from refuseStale (ServerMatchHostBranchAdmission.ts:265-275) when the effective head has left the live path, which requires a completed rewind activation. The combat stream is never journaled (finding #48), so the whole rewind lane is test.fail @until-journal-cutover (e2e/gm-two-player-rewind.pack.spec.ts:3-6). Deferred to the PK-rewind-branch-reader packet.",
+      "receiptWording": "E2E-77's `stale branch` class is not claimed by U1c. The tactical wire names no client-claimed expected head (ServerMatchHostBranchAdmission.ts:5-6), so the only STALE_BRANCH producer is the live-path check at :177-182, which needs an activated replacement branch. The rewind pack that would create one is an expected-failure lane by its own header. Deferred to PK-rewind-branch-reader, which owns the branch reader."
+    },
+    "rebuildPairNewlyDiscovered": {
+      "rowHeaderWording": "NOT CLAIMED - `rebuilding` state and `rebuild` conflict class: PROJECTION_REBUILDING is a pure function of a live correction lease (EventHistoryDurableRebuild.ts:45-59), and no in-paths lever acquires one - all four acquireCorrectionLease call sites sit behind rewind/correction commits, and the only routed one (matches/[id]/rewind-commit) is the @until-journal-cutover lane. Deferred to adopt-combat-journal-cutover-and-gm-rewind.",
+      "status": "NOT declared in the unit's behavior sentence. This is the discovery that forces the parent decision."
+    },
+    "narrowerNonClaimsInsideClaimedRows": [
+      "MATCH_QUARANTINED (history-integrity-blocked) is not driven: it needs persisted branch-table corruption, the WRITE-capable lever e2e/gm-two-player-failure.pack.spec.ts:71-77 names as E2E-68's blocker. The integrity class is proven through the sequence-collision and duplicate-intent arms instead.",
+      "No reachable conflict class carries a numeric BASE REVISION today. conflictHead {branchId, revision} exists and is read defensively (tacticalLifecycleState.ts:249-266), but its only producer is refuseStale, which is the unreachable stale-branch arm. The 'base revision or branch' clause is therefore proven for the discriminator the reachable classes DO carry, and the numeric-head half is recorded as unproven.",
+      "The campaign surface collapses STALE_REVISION / STALE_GENERATION onto one UI code with one recovery, by design (campaignLifecycleState.ts:72-78). The row proves the class is identified and actionable; it does not prove three-way distinctness, because the product deliberately does not offer it."
+    ]
+  },
+  "estimate": {
+    "combinedBothScenarios": {
+      "files": [
+        {
+          "path": "e2e/gm-two-player-lifecycle.pack.spec.ts",
+          "action": "add",
+          "lines": "360-430",
+          "what": "seven driven states plus the `live` control: per-state drive, data-state assertion, role/name announcement assertion, pairwise-distinct message assertion, command-gating assertion, accessibility snapshot captured as evidence"
+        },
+        {
+          "path": "e2e/gm-two-player-conflict.pack.spec.ts",
+          "action": "add",
+          "lines": "250-310",
+          "what": "three reachable classes: collision/duplicate integrity arm, GM_ONLY authorization arm, campaign stale-head arm; per-class class-code assertion, verbatim recovery-action assertion, and the leak-safety assertion (no peer playerId, no wire token, no lease id in the rendered text)"
+        },
+        {
+          "path": "scripts/qc/gm-two-player-campaign-core.cjs",
+          "action": "edit",
+          "lines": "20-26",
+          "what": "two GROUP_CATALOG entries (lifecycle-pack:22, conflict-pack:22) plus two SPEC_BY_GROUP entries with their why-comments; `all` auto-expands (:160-166)"
+        },
+        {
+          "path": "scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+          "action": "edit",
+          "lines": "10-18",
+          "what": "the groups pin, the implemented whitelist, two plan pins and the all-args pin - all four move in the same edit, the discipline tasks.md:585 records"
+        },
+        {
+          "path": "openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md",
+          "action": "edit",
+          "lines": "2",
+          "what": "one PROGRESS line per scenario under row 22.3"
+        }
+      ],
+      "fileCount": 5,
+      "fitsFileCap": true,
+      "nonGeneratedLineRange": [
+        642,
+        770
+      ],
+      "fitsLineCap": false,
+      "capBinding": "maxNonGeneratedLines (500). Exceeded by roughly 140-270 lines.",
+      "measurementBasis": "Landed comparables read in this session: e2e/gm-two-player-backpressure.pack.spec.ts and e2e/gm-two-player-evidence.pack.spec.ts are each a single-row strict pack in the 190-330 line band (U1b's own estimate put its one row at 190-240 and it landed inside 500 with four sibling files). A seven-state pack is materially larger than a one-row pack: it needs seven independent drives, and three of them (pending, syncing, reconnecting) need their own hold/offline seam setup."
+    },
+    "split": {
+      "recommended": true,
+      "U1c": {
+        "scenario": "E2E-75",
+        "behavior": "E2E-75 lifecycle states are distinct and accessible for the seven states drivable in-paths (pending, sealed, finalized, syncing, reconnecting, behind, blocked) plus the `live` control; `rewound` and `rebuilding` are not claimed and the unit records both non-claims.",
+        "files": 4,
+        "nonGeneratedLines": "400-470",
+        "fitsCaps": true,
+        "group": "lifecycle-pack:22",
+        "ownershipPaths": "unchanged"
+      },
+      "U1d": {
+        "scenario": "E2E-77",
+        "behavior": "E2E-77 conflict messages are actionable and safe for the three classes reachable in-paths (integrity, authorization, stale revision); `stale branch` and `rebuild` are not claimed and the unit records both non-claims.",
+        "files": 4,
+        "nonGeneratedLines": "290-350",
+        "fitsCaps": true,
+        "group": "conflict-pack:22",
+        "ownershipPaths": "same three paths as U1c - the two units are file-disjoint EXCEPT for scripts/qc/gm-two-player-campaign-core.cjs, scripts/__tests__/gm-two-player-campaign-qc.test.ts and tasks.md, so they must run SEQUENTIALLY, not in parallel (the holders rule forbids two in-flight units owning one path)."
+      }
+    }
+  },
+  "redPlan": {
+    "principle": "Reproduce the failure at the real boundary - a live browser run against the production build through the ladder runner - before any implementation line, following the two-red pattern U1b used (tasks.md:588).",
+    "U1c_E2E75": {
+      "R1": {
+        "name": "the lifecycle selector is unimplemented",
+        "how": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=lifecycle-pack",
+        "expected": "exit 3, stderr '[qc:gm-two-player-campaign] NOT_IMPLEMENTED group=lifecycle-pack owner=undefined' (the name is not in GROUP_CATALOG at all, so buildRunPlan throws UNKNOWN_GROUP at :44 rather than NOT_IMPLEMENTED at :172 - the exact code is captured, not predicted)",
+        "cost": "seconds, boots nothing",
+        "provesWhat": "the ladder has no lifecycle group to run"
+      },
+      "R2": {
+        "name": "shipped code does not assert lifecycle state unconditionally",
+        "how": "in the worktree only, remove the `if (/^(behind|syncing|reconnecting)$/.test(p2BehindState))` guard at e2e/gm-two-player-resilience.pack.spec.ts:685-690 so the expect runs unconditionally, then run NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=resilience-pack",
+        "expected": "the row fails on the isolated viewer's banner reading `live` rather than a degraded state - the comment at :685-687 predicts exactly this ('Isolation without a later delivery does not flip client.ready, so the banner often stays live')",
+        "provesWhat": "that on baseline 7489e311f the only banner reads in the suite are conditional or disjunctive, so NO state in the letter's nine is pinned by any live row",
+        "disposition": "reverted immediately after the output is captured into the red receipt (the on-shipped-code probe, U1b's R1 pattern)"
+      },
+      "R3": {
+        "name": "the new pack's own first live run, wired to one state only",
+        "how": "land the pack driving only the `live` control arm and asserting the seven-element distinct-message set, then run --group=lifecycle-pack",
+        "expected": "fails naming the six states never reached",
+        "note": "R3 is the red that survives into the receipt; R1 and R2 are the on-shipped-code probes"
+      }
+    },
+    "U1d_E2E77": {
+      "R1": {
+        "name": "the conflict selector is unimplemented",
+        "how": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=conflict-pack",
+        "expected": "exit 3 UNKNOWN_GROUP"
+      },
+      "R2": {
+        "name": "shipped code asserts no recovery action and no leak-safety on any conflict",
+        "how": "grep -rn 'tactical-branch-recovery-action' e2e/ returns NOTHING on baseline (confirmed in this session); the only live conflict assertion in the suite is the toast text regex at e2e/gm-two-player-exactly-once.pack.spec.ts:166, which asserts a code and a reason and nothing about recovery or leakage. Take the grep and the row as the documented red, then add a probe to that row asserting the toast text does not contain the peer's wire token and watch it pass-or-fail on shipped code before writing the pack.",
+        "provesWhat": "no live row asserts any of E2E-77's three obligations today"
+      },
+      "R3": {
+        "name": "the new pack's first live run with only the integrity arm wired",
+        "expected": "fails naming the two classes never driven"
+      }
+    },
+    "mutantsPlanned": [
+      "M1 (U1c): make two states share one message (point `behind` at MESSAGES.rebuilding) - must be KILLED by the pairwise-distinct assertion, which is the non-colour-only obligation's real test given the identical sky-700 palette at lifecycleState.ts:66-69",
+      "M2 (U1c): drop aria-live from the banner - must be KILLED by the role/name query, not merely by a snapshot diff",
+      "M3 (U1c): widen commandsEnabled to include `pending` - must be KILLED by the command-gating assertion in the pending arm",
+      "M4 (U1d): paraphrase the recovery action instead of rendering it verbatim - must be KILLED by an exact-string assertion against the server's own action constant",
+      "M5 (U1d): include the operator `detail` field in the rendered conflict text - must be KILLED by the leak-safety assertion (the U1b M4 lesson: assert at the safety property, not at a proxy for it)"
+    ]
+  },
+  "acceptanceCommands": {
+    "preflightBeforeAnyBuildOrPlaywright": "powershell -NoProfile -c \"(Get-CimInstance Win32_Process -Filter \\\"name='node.exe'\\\" | ? { $_.CommandLine -match 'next.*build|playwright' }).Count\" must print 0",
+    "nodeVersion": "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "build": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build (the ladder runner serves the PRODUCTION build; a live tree whose build predates its checkout answers PageNotFoundError - LAW 69, tasks.md:590)",
+    "mainProofLadderRunner": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=lifecycle-pack (U1c) / --group=conflict-pack (U1d)",
+    "groupToRegisterUnder": "a NEW catalog entry is required - GROUP_CATALOG (scripts/qc/gm-two-player-campaign-core.cjs:5) reserves no lifecycle or conflict name. Proposed: lifecycle-pack:22 and conflict-pack:22, owner 22 matching the sibling umbrella-22.3 groups cleanup-ownership:22 and backpressure:22. Neither belongs in RESPAWNING_GROUPS (:15-20): no proposed row kills the server.",
+    "regressionOnSharedSurfaces": [
+      "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=exactly-once-pack (the WS route harness the lifecycle levers borrow)",
+      "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=resilience-pack (the only other pack that reads the banner)"
+    ],
+    "typecheck": "npm run typecheck",
+    "lint": "npm run lint (oxlint - the warning count must be compared against the same command run on origin/main at 7489e311f, not against a remembered pin)",
+    "formatCheck": "npm run format:check (oxfmt --check on the changed files)",
+    "qcPinSuite": "npx jest --watchAll=false --runTestsByPath scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+    "openspecCi": "npm run qc:openspec-ci:validate",
+    "roadmapValidator": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs (must print ROADMAP VALIDATION PASSED with unchanged counts) and --next",
+    "portDiscipline": "port 3639 is the primary-server port for any direct Playwright invocation; the ladder runner derives its own fixture port from the run id (deriveFixturePort, gm-two-player-campaign-core.cjs:31-40) and needs no port argument"
+  },
+  "decisionNeeded": {
+    "verdict": "split",
+    "recommendation": "U1c = E2E-75 (seven drivable states + the live control). U1d = E2E-77 (three reachable classes). Run them sequentially, not in parallel.",
+    "reasons": [
+      "The combined estimate is 642-770 non-generated lines against a 500-line cap. The cap is exceeded by the smaller of the two scenarios' whole budget, so trimming cannot save the combined shape.",
+      "The two scenarios share three files (the qc core, the qc pin suite, tasks.md). Splitting keeps each unit's diff reviewable, but it also means the two units cannot be in flight together - the holders rule forbids two in-flight units owning one path.",
+      "The two scenarios have different risk profiles. E2E-75 is a pure UI-observation pack over levers that already exist. E2E-77 has one arm (stale revision) whose reachability is PROBABLE but unproven, and carries the leak-safety assertion that U1b's M4 mutant showed is the easiest thing in this repo to fake. Bundling them would let the weaker arm hold the stronger one hostage.",
+      "Splitting isolates the owner gate: the rebuild pair blocks one obligation in each scenario, and a split lets the parent rule once and have the ruling apply cleanly to two narrower behavior sentences."
+    ],
+    "residualsForTheParentToRuleOn": [
+      {
+        "id": "RES-1",
+        "issue": "The behavior sentence says EIGHT drivable states for E2E-75; the code says seven. `rebuilding` is a pure function of a correction lease no in-paths lever creates (projectionRebuildReachability).",
+        "options": [
+          "OPT-A drop it (behavior sentence rewritten to seven)",
+          "OPT-B e2e SQLite write lever",
+          "OPT-C extend /api/e2e/fault with a lease-arm kind (src/, owner gate)"
+        ],
+        "agentRecommendation": "OPT-A. OPT-C is the architecturally correct lever and should become its own narrower successor unit if the owner wants the rebuild obligations claimed; it must not be smuggled into U1c as a widening.",
+        "blocking": true
+      },
+      {
+        "id": "RES-2",
+        "issue": "The behavior sentence says FOUR reachable classes for E2E-77; the code says three. Same root cause as RES-1.",
+        "options": [
+          "accept three (stale revision, authorization, integrity)",
+          "hold U1d until OPT-C lands"
+        ],
+        "agentRecommendation": "accept three. Holding U1d gains nothing: the three reachable classes are unproven today and each one proven is a real reduction in risk.",
+        "blocking": true
+      },
+      {
+        "id": "RES-3",
+        "issue": "The `stale revision` class is reachable only on the CAMPAIGN command door, not the tactical channel (ServerMatchHostBranchAdmission.ts:5-6, :215-218). That makes E2E-77's pack cross-surface: two of its three arms are tactical and one is campaign. It also means the pack asserts the campaign banner (campaign-sync-state) as well as the tactical toast.",
+        "options": [
+          "accept the cross-surface pack (the shared vocabulary at lifecycleState.ts:13-16 says the three surfaces are ONE product, which is the argument for it)",
+          "drop stale revision and claim two classes"
+        ],
+        "agentRecommendation": "accept the cross-surface pack, but require a stage-2 PROBE of the campaign commands door before the arm is written - reachability there is probable, not verified in this session.",
+        "blocking": false
+      },
+      {
+        "id": "RES-4",
+        "issue": "Both units need a NEW GROUP_CATALOG entry. U1b inherited a pre-reserved name (evidence-smoke:27); U1c/U1d do not have that luxury.",
+        "options": [
+          "register lifecycle-pack:22 and conflict-pack:22",
+          "fold both rows into an existing group"
+        ],
+        "agentRecommendation": "register two new groups. Folding into an existing group would make a failure in one scenario indistinguishable from a failure in the other, and the qc pin suite is the tripwire that keeps an unregistered group from going dark (NOVEL N1 in tasks.md:585).",
+        "blocking": false
+      },
+      {
+        "id": "RES-5",
+        "issue": "taskKeys is empty, as it was for U1b. Stage 7 has no row to tick.",
+        "options": [
+          "accept a tick-less unit (the U1b precedent, parent-ruled)",
+          "co-hold row 22.3@584"
+        ],
+        "agentRecommendation": "accept tick-less, same as U1b. Row 22.3 covers E2E-71..80 and its rewind-gated members are still open.",
+        "blocking": false
+      }
+    ],
+    "parentActionsRequired": [
+      "Rule RES-1 and RES-2 (the rebuild pair) - both are blocking.",
+      "Approve or reject the split into U1c (E2E-75) and U1d (E2E-77), and if approved, write U1d into units.json with the narrowed behavior sentence quoted from nonClaims above.",
+      "Rule RES-3 (cross-surface E2E-77 pack) and RES-4 (two new qc groups)."
+    ]
+  },
+  "notes": [
+    "No product or test file was modified in this stage. The worktree is clean at 7489e311f; the only write outside it is this receipt.",
+    "No build and no Playwright run was performed, per the stage-1 constraint. Every reachability claim above is a SOURCE claim with a file:line citation, not a measured live result. The three claims that most need a live probe in stage 2 are: GM_ONLY reachability (needs hasHistoryBranchStore && isHistoryBranchStoreReady true under the ladder fixture, ServerMatchHostBranchAdmission.ts:129-130), the campaign commands door's STALE_REVISION 409, and the `pending` assertion window.",
+    "A PreToolUse hook fired once naming a gRPC/proto workflow. It is a false positive triggered by the filename src/types/multiplayer/Protocol.ts; this repository has no gRPC and no protobuf. Recorded rather than acted on.",
+    "Discipline adopted verbatim from the source: 'Simulating it would be a lie about what the product does' (campaignLifecycleState.ts:21-22). No arm of either proposed pack injects a synthetic server Error frame to manufacture a state the server cannot produce. The WS route harness is used to WITHHOLD, DUPLICATE and COLLIDE real frames - all three are transport faults the client contract already specifies - never to invent a refusal code."
+  ],
+  "parentDecision": {
+    "at": "2026-09-16T19:55:44.110Z",
+    "decision": "split",
+    "applied": "U1c narrowed to E2E-75 (seven drivable states + live control; rewound non-claim); U1d added planned for E2E-77 (three reachable classes; stale-branch non-claim); run sequentially because they share the qc core, pin suite and tasks.md",
+    "narrowedBehavior": "E2E-75 lifecycle states are distinct and accessible: a strict Playwright row under a new lifecycle-pack group drives the seven drivable lifecycle states plus the live control through existing in-paths levers and asserts, per state, the data-state, the accessible role/name announcement, pairwise-distinct messages and command gating, capturing an accessibility snapshot as evidence; the ninth state (rewound) is not claimed because PROJECTION_REWOUND is not in ErrorCodeSchema and its producer belongs to add-authoritative-history-branches (R6.B7)."
+  }
+}

@@ -3,7 +3,7 @@ const crypto = require('node:crypto');
 const net = require('node:net');
 const path = require('node:path');
 const GROUP_CATALOG =
-  'fixture-smoke:26,membership-smoke:15,evidence-smoke:27,fault-smoke:28,smoke:15,authority-pack1:21,exactly-once-pack:21,fault-pack:21,token-pack:21,restart-pack:21,resilience-pack:21,authority-order:21,authority-recovery:21,privacy-pack:30,proposal-pack:30,three-context-pack:30,two-device-pack:30,authority:29,visibility:30,combat-pack1:31,rewind-pack:31,combat:31,campaign:32,failure:32,performance:33,cleanup-ownership:22,backpressure:22,all:34,traceability:34,quality:34,manual-setup:34,scope:34';
+  'fixture-smoke:26,membership-smoke:15,evidence-smoke:27,fault-smoke:28,smoke:15,authority-pack1:21,exactly-once-pack:21,fault-pack:21,token-pack:21,restart-pack:21,resilience-pack:21,authority-order:21,authority-recovery:21,privacy-pack:30,proposal-pack:30,three-context-pack:30,two-device-pack:30,authority:29,visibility:30,combat-pack1:31,rewind-pack:31,combat:31,campaign:32,failure:32,performance:33,cleanup-ownership:22,backpressure:22,lifecycle-pack:22,all:34,traceability:34,quality:34,manual-setup:34,scope:34';
 const REGISTERED_GROUPS = Object.freeze(
   Object.fromEntries(
     GROUP_CATALOG.split(',').map((entry) => {
@@ -135,6 +135,12 @@ function buildRunPlan({ group, runId, repoRoot }) {
     // RESPAWNING_GROUPS: the row closes its own contexts, never the
     // server.
     'evidence-smoke': ['e2e/gm-two-player-evidence.pack.spec.ts'],
+    // E2E-75 (umbrella 22.3). Unlike its 22.3 siblings this name was NOT
+    // reserved in GROUP_CATALOG, so the catalog entry and this mapping
+    // land together (owner 22). Not respawning: the row closes and
+    // reopens its OWN routed socket, never the server. U1e's row B joins
+    // this same group and spec file.
+    'lifecycle-pack': ['e2e/gm-two-player-lifecycle.pack.spec.ts'],
   };
   // `authority` expands to the eight titled E2E-01..18 packs, in the
   // same pin order those packs already occupy in SPEC_BY_GROUP.
