@@ -1,0 +1,17 @@
+{
+  "unit": "U1e",
+  "stage": "review",
+  "at": "2026-09-16T23:14:13.873Z",
+  "lane": "A",
+  "reviewerModel": "claude-sonnet (Agent model: sonnet)",
+  "implementerModel": "grok-4.6 (cursor-agent, Cursor Grok 4.6 High) finishing a first draft by claude-opus-5, with claude-fable-5-1 parent",
+  "reviewerEffort": "default",
+  "head": "f5b297669d602847e8369962220bab6583fd025d",
+  "reviewedHead": "f5b297669d602847e8369962220bab6583fd025d",
+  "verdict": "APPROVE",
+  "outputPath": "evidence/u1e-lane-a-review-20260916.md",
+  "outputSha256": "b6f5675070a1b02e36cf37408836f859c0fec3ce4a14be8a0ec71951231d7b0f",
+  "sharedContext": "none: reviewer received only the diff range, the head, the contract and spec files on the head, and re-ran tsc/oxlint/oxfmt/jest in its own throwaway worktree",
+  "laneB": "not required (review classes: routine)",
+  "githubApproval": "none recorded; Lane A is engineering evidence, never a GitHub approval"
+}

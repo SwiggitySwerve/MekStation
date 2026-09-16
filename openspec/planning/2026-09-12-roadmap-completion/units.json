@@ -345,10 +345,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "local-verified",
+      "state": "complete",
       "baseline": "ac874764a8767fba564cdeacfa565c107d94ae75",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "f5b297669d602847e8369962220bab6583fd025d",
+      "mergeSha": "8a7a4419d1d9bc5cae00d8100d92110ecb87fcce",
       "stageReceipts": {
         "admission": {
           "path": "evidence/u1e-admission-20260916.json",
@@ -366,10 +366,31 @@
           "at": "2026-09-16T22:48:21.654Z",
           "summary": "lifecycle-pack 2 passed three times with identical captures (row A live,sealed,finalized,syncing,behind; row B pending,blocked), exactly-once-pack 4 passed, tsc 0, oxfmt clean, oxlint vacuous for these paths, pin suite 11/11, qc:openspec-ci errors=0, roadmap validator PASSED; three mutants killed (pending and blocked sharing one sentence, blocked dropped from GATE_REASONS, aria-live removed); 318 product lines over 3 files; the parent re-ran lifecycle-pack (2 passed) and the pin suite independently"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "review": {
+          "path": "evidence/u1e-review-20260916.json",
+          "head": "f5b297669d602847e8369962220bab6583fd025d",
+          "reviewedHead": "f5b297669d602847e8369962220bab6583fd025d",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet)",
+          "implementerModel": "grok-4.6 (cursor-agent, Cursor Grok 4.6 High) finishing a first draft by claude-opus-5, with claude-fable-5-1 parent",
+          "outputSha256": "b6f5675070a1b02e36cf37408836f859c0fec3ce4a14be8a0ec71951231d7b0f",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u1e-merge-20260916.json",
+          "pr": 1792,
+          "head": "f5b297669d602847e8369962220bab6583fd025d",
+          "mergeSha": "8a7a4419d1d9bc5cae00d8100d92110ecb87fcce"
+        },
+        "mainProof": {
+          "path": "evidence/u1e-mainproof-20260916.json",
+          "mergeCommit": "8a7a4419d1d9bc5cae00d8100d92110ecb87fcce",
+          "verdict": "PASS",
+          "runtime": "  2 passed (22.8s)"
+        },
+        "tick": {
+          "path": "evidence/u1e-tick-20260916.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "predecessor": "U1c",

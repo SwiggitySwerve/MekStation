@@ -1,0 +1,15 @@
+{
+  "unit": "U1e",
+  "stage": "merge",
+  "at": "2026-09-16T23:14:15.736Z",
+  "pr": 1792,
+  "title": "test(e2e): E2E-75 lifecycle postures row B drive pending and blocked",
+  "head": "f5b297669d602847e8369962220bab6583fd025d",
+  "mergeSha": "8a7a4419d1d9bc5cae00d8100d92110ecb87fcce",
+  "mergedAt": "2026-09-16T23:09:41Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityDiffLines": 0
+}
