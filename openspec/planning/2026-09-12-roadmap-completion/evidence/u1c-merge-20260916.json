@@ -1,0 +1,15 @@
+{
+  "unit": "U1c",
+  "stage": "merge",
+  "at": "2026-09-16T21:41:15.849Z",
+  "pr": 1790,
+  "title": "test(e2e): E2E-75 lifecycle postures row A are distinct and accessible",
+  "head": "00fdeab76dbdb76cf9877c2a6a7313ca09942fac",
+  "mergeSha": "22fe4a5547ce70e0a72a4837ab9897ba7d2ceda3",
+  "mergedAt": "2026-09-16T21:37:11Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityDiffLines": 0
+}

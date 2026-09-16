@@ -1,0 +1,34 @@
+{
+  "unit": "U1c",
+  "stage": "mainProof",
+  "at": "2026-09-16T21:41:15.929Z",
+  "mergeCommit": "22fe4a5547ce70e0a72a4837ab9897ba7d2ceda3",
+  "checkout": "root checkout fast-forwarded to the merge commit (real node_modules; hydrate step runs)",
+  "runtime": {
+    "build": "exit 0",
+    "e2eBundleMarker": "__E2E_MODE__ present in _app chunk (run log)",
+    "playwright": "lifecycle-pack:   1 passed (9.1s)",
+    "tsc": "exit 0"
+  },
+  "commands": {
+    "validator": "ROADMAP VALIDATION PASSED: 73 nodes, 13 packages, 376 tasks, 40 triage rows",
+    "gitAncestry": "ROADMAP VALIDATION PASSED: 73 nodes, 13 packages, 376 tasks, 40 triage rows (--git)",
+    "next": "NONE-ADMISSIBLE: 0 owner-gated, 5 blocked",
+    "openspecStrict": "Totals: 229 passed, 0 failed (229 items)",
+    "qcOpenspecCi": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+    "qcPin": "Tests:       22 passed, 22 total"
+  },
+  "logs": ".sisyphus/roadmap-completion-20260912/u1c-main-proof-20260916/ (local; sha256 below)",
+  "logHashes": [
+    "adea0c1829fcc012e34c6372ee769888cb6bdcd8eeb41f319fd3a2c1e013fb8e *build.log",
+    "8e1f8501b06707db812f7b3703fa3261b1084f0ab578fc7da2e23623b1157f71 *git-check.log",
+    "fcbc8a8e908c6fe1f9bef582237b81d9544010efdb6a3aeb730de328ada7bbea *next.log",
+    "ddfdad8a15b1c7125171f6c160d5cbafce03efb70e451989b862be993ed9a500 *openspec-strict.log",
+    "2a43e1043a12a18d8bbbdef914323f458f1f9bcb951b5ca1ad7c6969cfad8ce5 *playwright.log",
+    "ada1ed70bb026eced226ccfa183e2ef0bcfeb5adff01f46d7af986e0001ef8dd *qc-openspec-ci.log",
+    "fdaaf06337808e24fd5315172232e33e10e79c5e0be2adc4d4c57c547fec7dd9 *qc-pin.log",
+    "28d3b9e880a77975493dc7e359144c0295a4f694cfe0af4f928c22307bc5c320 *tsc.log",
+    "8e1f8501b06707db812f7b3703fa3261b1084f0ab578fc7da2e23623b1157f71 *validator.log"
+  ],
+  "verdict": "PASS"
+}
