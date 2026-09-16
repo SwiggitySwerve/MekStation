@@ -1,11 +1,59 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(scriptDir, '..', '..', '..');
 const planningDir = scriptDir;
 const errors = [];
+
+const argv = process.argv.slice(2);
+const readOption = (name) => {
+  const index = argv.indexOf(name);
+  return index >= 0 && index + 1 < argv.length ? argv[index + 1] : null;
+};
+const snapshotOverride = readOption('--snapshot');
+const roadmapOverride = readOption('--roadmap');
+const wantNext = argv.includes('--next');
+const wantGit = argv.includes('--git');
+
+const SENSITIVE_REVIEW_CLASSES = ['authority', 'privacy', 'migration', 'replay', 'idempotency', 'concurrency'];
+const REVIEW_CLASSES = [...SENSITIVE_REVIEW_CLASSES, 'routine'];
+const STAGE_NAMES = ['admission', 'red', 'local', 'review', 'merge', 'mainProof', 'tick'];
+const REQUIRED_STAGES_BY_STATE = {
+  planned: [],
+  blocked: [],
+  'owner-gated': [],
+  admitted: ['admission'],
+  implementing: ['admission'],
+  'local-verified': ['admission', 'red', 'local'],
+  'pr-open': ['admission', 'red', 'local'],
+  'review-required': ['admission', 'red', 'local'],
+  'ci-running': ['admission', 'red', 'local'],
+  merged: ['admission', 'red', 'local', 'review', 'merge'],
+  'main-verified': ['admission', 'red', 'local', 'review', 'merge', 'mainProof'],
+  complete: ['admission', 'red', 'local', 'review', 'merge', 'mainProof', 'tick'],
+  archived: ['admission', 'red', 'local', 'review', 'merge', 'mainProof', 'tick'],
+};
+const STATE_RANK = {
+  planned: 0,
+  blocked: 0,
+  'owner-gated': 0,
+  admitted: 1,
+  implementing: 2,
+  'local-verified': 3,
+  'pr-open': 4,
+  'review-required': 5,
+  'ci-running': 6,
+  merged: 7,
+  'main-verified': 8,
+  complete: 9,
+  archived: 10,
+};
+const IN_FLIGHT_STATES = new Set(['admitted', 'implementing', 'local-verified', 'pr-open', 'review-required', 'ci-running', 'merged']);
+const TERMINAL_UNIT_STATES = new Set(['main-verified', 'complete', 'archived']);
+const DOCS_PREFIXES = ['openspec/planning/', 'docs/'];
 
 const fail = (message) => {
   if (errors.length < 100) errors.push(message);
@@ -17,6 +65,20 @@ const hasValue = (value) => {
   return value !== null && typeof value === 'object' && Object.keys(value).length > 0;
 };
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+const isHex40 = (value) => typeof value === 'string' && /^[0-9a-f]{40}$/i.test(value);
+// Historical node receipts were never normalised: some are null, some a bare evidence path, some an
+// object whose main SHA field drifted between mainSha and mainSHA. Read all three shapes tolerantly.
+const readReceipt = (node) => {
+  const receipt = node && typeof node === 'object' ? node.receipt : node;
+  if (receipt === null || receipt === undefined) return {};
+  if (typeof receipt === 'string') return receipt.trim() ? { evidence: receipt.trim() } : {};
+  if (typeof receipt !== 'object') return {};
+  const result = {};
+  const mainSha = receipt.mainSha ?? receipt.mainSHA;
+  if (typeof mainSha === 'string') result.mainSha = mainSha;
+  if (hasValue(receipt.evidence)) result.evidence = receipt.evidence;
+  return result;
+};
 const countBy = (values, key) => values.reduce((counts, value) => {
   const name = value[key];
   counts.set(name, (counts.get(name) || 0) + 1);
@@ -29,10 +91,13 @@ const checkUnique = (values, label) => {
 };
 
 try {
-  const roadmapFile = path.join(planningDir, 'roadmap.json');
-  const snapshotFile = path.join(planningDir, 'evidence', 'admission-snapshot.json');
+  const roadmapFile = roadmapOverride ? path.resolve(process.cwd(), roadmapOverride) : path.join(planningDir, 'roadmap.json');
+  const roadmapDir = path.dirname(roadmapFile);
+  const snapshotFile = snapshotOverride
+    ? path.resolve(process.cwd(), snapshotOverride)
+    : path.join(roadmapDir, 'evidence', 'admission-snapshot.json');
   const inventoryFile = path.resolve(repoRoot, 'docs/audits/2026-09-12-customizer-spec-reconciliation/inventory.json');
-  const deliveryFile = path.join(planningDir, 'DELIVERY.md');
+  const deliveryFile = path.join(roadmapDir, 'DELIVERY.md');
   const roadmap = readJson(roadmapFile);
   const snapshot = readJson(snapshotFile);
   const inventory = readJson(inventoryFile);
@@ -164,10 +229,11 @@ try {
   for (const id of expectedTriage.keys()) if (!seenTriage.has(id)) fail("missing triage row: " + id);
 
   const links = [
-    [roadmap.sourceSnapshot, planningDir], [roadmap.inventorySource, repoRoot],
-    [roadmap.deliveryContract, planningDir], [roadmap.workerContract, planningDir],
-    [roadmap.completionContract, planningDir], [roadmap.progress, planningDir],
+    [roadmap.sourceSnapshot, roadmapDir], [roadmap.inventorySource, repoRoot],
+    [roadmap.deliveryContract, roadmapDir], [roadmap.workerContract, roadmapDir],
+    [roadmap.completionContract, roadmapDir], [roadmap.progress, roadmapDir],
   ];
+  if (roadmap.unitLedger !== undefined) links.push([roadmap.unitLedger, roadmapDir]);
   for (const [link, base] of links) if (typeof link !== 'string' || !fs.existsSync(path.resolve(base, link))) fail(`missing roadmap link: ${link}`);
   for (const node of nodes) for (const ownershipPath of node.ownershipPaths || []) {
     if (typeof ownershipPath !== 'string' || !fs.existsSync(path.resolve(repoRoot, ownershipPath))) fail(`${node.id} ownership path missing: ${ownershipPath}`);
@@ -181,11 +247,234 @@ try {
     if (!gate || gate.state !== "APPROVED" || gate.exactHead !== true || gate.nonAuthor !== true || gate.nonDismissed !== true || gate.soloException !== false || !Array.isArray(gate.permissions) || gate.permissions.length !== 3 || !["WRITE", "MAINTAIN", "ADMIN"].every((permission) => gate.permissions.includes(permission))) fail(id + " has invalid CAMP GitHub review gate");
   }
   for (const node of nodes.filter((item) => item.state === 'complete' || item.state === 'archived')) {
-    const receipt = node.receipt;
-    const mainSha = receipt?.mainSha ?? receipt?.mainSHA;
-    if (!receipt || typeof mainSha !== "string" || !/^[0-9a-f]{40}$/i.test(mainSha)) fail(node.id + " terminal receipt lacks valid 40-hex main SHA");
-    if (!hasValue(receipt?.evidence)) fail(`${node.id} terminal receipt lacks evidence`);
-    if (!hasValue(receipt?.cleanupReceipt ?? receipt?.cleanup)) fail(`${node.id} terminal receipt lacks cleanup receipt`);
+    const receipt = readReceipt(node);
+    if (!isHex40(receipt.mainSha)) fail(node.id + " terminal receipt lacks valid 40-hex main SHA");
+    if (!hasValue(receipt.evidence)) fail(`${node.id} terminal receipt lacks evidence`);
+    if (!hasValue(node.receipt?.cleanupReceipt ?? node.receipt?.cleanup)) fail(`${node.id} terminal receipt lacks cleanup receipt`);
+  }
+
+  // ------------------------------------------------------------------ unit ledger (roadmap.unitLedger)
+  let nextLine = null;
+  let nextExitCode = 0;
+  if (roadmap.unitLedger !== undefined) {
+    const ledgerFile = path.resolve(roadmapDir, String(roadmap.unitLedger));
+    const ledger = fs.existsSync(ledgerFile) ? readJson(ledgerFile) : null;
+    if (!ledger) fail(`unit ledger is unreadable: ${roadmap.unitLedger}`);
+    else {
+      const units = Array.isArray(ledger.units) ? ledger.units : [];
+      const packets = Array.isArray(ledger.packets) ? ledger.packets : [];
+      const deferrals = Array.isArray(ledger.deferrals) ? ledger.deferrals : [];
+      if (!hasValue(ledger.holdersRule)) fail('unit ledger lacks holders rule text');
+      if (typeof ledger.programSnapshot !== 'string' || !fs.existsSync(path.resolve(roadmapDir, ledger.programSnapshot))) {
+        fail(`unit ledger programSnapshot missing: ${ledger.programSnapshot}`);
+      }
+      checkUnique(units.map((unit) => ({ value: unit.id })), 'unit id');
+      checkUnique(packets.map((packet) => ({ value: packet.id })), 'packet id');
+      checkUnique(deferrals.map((deferral) => ({ value: deferral.id })), 'deferral id');
+      const unitById = new Map(units.map((unit) => [unit.id, unit]));
+      const packetById = new Map(packets.map((packet) => [packet.id, packet]));
+      const taskByKey = actualByKey;
+
+      // ---- holders: every task key referenced anywhere must exist, and no key may sit in two holders
+      const holders = new Map();
+      const claim = (key, holderId) => {
+        if (!taskByKey.has(key)) { fail(`${holderId} references unknown task key ${key}`); return; }
+        if (holders.has(key)) fail(`task key ${key} is held twice: ${holders.get(key)} and ${holderId}`);
+        else holders.set(key, holderId);
+      };
+      for (const unit of units) for (const key of Array.isArray(unit.taskKeys) ? unit.taskKeys : []) claim(key, unit.id);
+      for (const packet of packets) for (const key of Array.isArray(packet.taskKeys) ? packet.taskKeys : []) claim(key, packet.id);
+      for (const deferral of deferrals) for (const key of Array.isArray(deferral.taskKeys) ? deferral.taskKeys : []) claim(key, deferral.id);
+
+      // ---- per-unit structure
+      const tickedKeys = new Set();
+      for (const unit of units) {
+        const label = unit.id;
+        if (!knownStates.includes(unit.state)) fail(`${label} has unknown state: ${unit.state}`);
+        const receipts = unit.stageReceipts && typeof unit.stageReceipts === 'object' ? unit.stageReceipts : null;
+        if (!receipts) { fail(`${label}.stageReceipts is not an object`); continue; }
+        for (const stage of STAGE_NAMES) {
+          if (!(stage in receipts)) fail(`${label}.stageReceipts lacks ${stage}`);
+          const value = receipts[stage];
+          if (value !== null && (typeof value !== 'object' || Array.isArray(value))) fail(`${label}.stageReceipts.${stage} is neither null nor an object`);
+          if (value !== null && typeof value === 'object' && !hasValue(value.path)) fail(`${label}.stageReceipts.${stage} lacks an evidence path`);
+        }
+        if (receipts.tick) for (const key of unit.taskKeys || []) tickedKeys.add(key);
+
+        const ownerNodeId = typeof unit.reownedTo === 'string' ? unit.reownedTo : unit.node;
+        if (!nodeById.has(unit.node)) fail(`${label} names unknown node ${unit.node}`);
+        if (typeof unit.reownedTo === 'string' && !nodeById.has(unit.reownedTo)) fail(`${label} is re-owned to unknown node ${unit.reownedTo}`);
+        const ownerNode = nodeById.get(ownerNodeId);
+
+        const ownershipPaths = Array.isArray(unit.ownershipPaths) ? unit.ownershipPaths : [];
+        if (!ownershipPaths.length) fail(`${label} has no ownership paths`);
+        for (const ownershipPath of ownershipPaths) {
+          if (typeof ownershipPath !== 'string' || !fs.existsSync(path.resolve(repoRoot, ownershipPath))) fail(`${label} ownership path missing: ${ownershipPath}`);
+          else if (ownerNode && !(ownerNode.ownershipPaths || []).includes(ownershipPath)) fail(`${label} owns ${ownershipPath}, which is not owned by ${ownerNodeId}`);
+        }
+        const derivedCiClass = ownershipPaths.length && ownershipPaths.every((item) => DOCS_PREFIXES.some((prefix) => String(item).startsWith(prefix) || String(item) + '/' === prefix)) ? 'docs' : 'product';
+        if (unit.ciClass !== derivedCiClass) fail(`${label}.ciClass is ${unit.ciClass} but its ownership paths derive ${derivedCiClass}`);
+
+        const reviewClasses = Array.isArray(unit.reviewClasses) ? unit.reviewClasses : [];
+        if (!reviewClasses.length) fail(`${label} has no review classes`);
+        for (const reviewClass of reviewClasses) if (!REVIEW_CLASSES.includes(reviewClass)) fail(`${label} has unknown review class ${reviewClass}`);
+
+        const caps = unit.caps && typeof unit.caps === 'object' ? unit.caps : null;
+        if (!caps) fail(`${label}.caps is not an object`);
+        else {
+          if (!Number.isInteger(caps.maxFiles) || caps.maxFiles < 1 || caps.maxFiles > 15) fail(`${label}.caps.maxFiles must be an integer in 1..15`);
+          if (!Number.isInteger(caps.maxNonGeneratedLines) || caps.maxNonGeneratedLines < 1 || caps.maxNonGeneratedLines > 500) fail(`${label}.caps.maxNonGeneratedLines must be an integer in 1..500`);
+          if (ownerNode && Number.isInteger(ownerNode.maxFiles) && caps.maxFiles > ownerNode.maxFiles) fail(`${label}.caps.maxFiles exceeds ${ownerNodeId}`);
+          if (ownerNode && Number.isInteger(ownerNode.maxNonGeneratedLines) && caps.maxNonGeneratedLines > ownerNode.maxNonGeneratedLines) fail(`${label}.caps.maxNonGeneratedLines exceeds ${ownerNodeId}`);
+        }
+
+        for (const key of Array.isArray(unit.taskKeys) ? unit.taskKeys : []) {
+          if (ownerNode && !(ownerNode.taskKeys || []).includes(key)) fail(`${label} holds ${key}, which is not a task key of ${ownerNodeId}`);
+        }
+
+        // ---- stage monotonicity
+        const required = REQUIRED_STAGES_BY_STATE[unit.state] ?? null;
+        if (required === null) fail(`${label} has a state with no receipt ladder: ${unit.state}`);
+        else for (const stage of required) if (!receipts[stage]) fail(`${label} is ${unit.state} without a ${stage} receipt`);
+        let seenGap = false;
+        for (const stage of STAGE_NAMES) {
+          if (!receipts[stage]) seenGap = true;
+          else if (seenGap) fail(`${label} has a ${stage} receipt with an earlier stage missing`);
+        }
+
+        // ---- head chain
+        const rank = STATE_RANK[unit.state] ?? 0;
+        if (rank >= STATE_RANK.merged) {
+          if (!isHex40(unit.prHead)) fail(`${label}.prHead is not a 40-hex head`);
+          if (!isHex40(receipts.review?.head)) fail(`${label} review receipt has no 40-hex head`);
+          if (!isHex40(receipts.merge?.head)) fail(`${label} merge receipt has no 40-hex head`);
+          if (receipts.review?.head !== unit.prHead) fail(`${label} review head does not equal prHead`);
+          if (receipts.merge?.head !== unit.prHead) fail(`${label} merge head does not equal prHead`);
+          if (!isHex40(unit.mergeSha)) fail(`${label}.mergeSha is not a 40-hex commit`);
+          if (receipts.merge?.mergeSha !== unit.mergeSha) fail(`${label} merge receipt mergeSha does not equal unit mergeSha`);
+        }
+        if (receipts.mainProof) {
+          if (!isHex40(receipts.mainProof.mergeCommit)) fail(`${label} mainProof receipt has no 40-hex merge commit`);
+          if (receipts.merge && receipts.merge.mergeSha !== receipts.mainProof.mergeCommit) fail(`${label} mainProof merge commit does not equal the merge receipt mergeSha`);
+        }
+
+        // ---- review independence
+        if (receipts.review) {
+          const reviewerModel = receipts.review.reviewerModel;
+          const implementerModel = receipts.review.implementerModel;
+          if (!hasValue(reviewerModel) || !hasValue(implementerModel)) fail(`${label} review receipt lacks reviewerModel/implementerModel`);
+          else if (reviewerModel === implementerModel) fail(`${label} review receipt is not cross-model: ${reviewerModel} reviewed itself`);
+          if (!isHex40(receipts.review.reviewedHead ?? receipts.review.head)) fail(`${label} review receipt has no 40-hex reviewed head`);
+        }
+
+        // ---- sensitive classes need an owner ruling bound to the merged head
+        const sensitive = reviewClasses.filter((reviewClass) => SENSITIVE_REVIEW_CLASSES.includes(reviewClass));
+        if (sensitive.length && rank >= STATE_RANK.merged) {
+          const ruling = packets.find((packet) => (packet.blocks || []).includes(unit.id) && packet.ruling);
+          if (!ruling) fail(`${label} carries sensitive classes (${sensitive.join(', ')}) and is ${unit.state} without a packet ruling`);
+          else if (ruling.ruling.ruledHead !== receipts.merge?.head) fail(`${label} packet ruling ${ruling.id} is bound to ${ruling.ruling.ruledHead}, not the merged head`);
+        }
+
+        // ---- owner gate
+        if (unit.state === 'owner-gated' || (unit.ownerGate !== null && unit.ownerGate !== undefined)) {
+          const packetId = unit.ownerGate?.packetId;
+          if (!hasValue(packetId)) fail(`${label} is owner-gated without ownerGate.packetId`);
+          else if (!packetById.has(packetId)) fail(`${label} is gated on unknown packet ${packetId}`);
+          else if (packetById.get(packetId).decision !== null) fail(`${label} is gated on ${packetId}, which already carries a decision`);
+        }
+
+        // ---- tick receipt: the live row must actually read "- [x]"
+        if (receipts.tick) {
+          for (const key of unit.taskKeys || []) {
+            const task = taskByKey.get(key);
+            if (!task) continue;
+            const sourceFile = path.resolve(repoRoot, task.sourcePath);
+            if (!fs.existsSync(sourceFile)) { fail(`${label} tick receipt cannot read ${task.sourcePath}`); continue; }
+            const rows = fs.readFileSync(sourceFile, 'utf8').split(String.fromCharCode(10))
+              .map((line) => /^\s*- \[([ xX])\] (.*)$/.exec(line))
+              .filter((match) => match && match[2].trim() === String(task.text).trim());
+            if (task.sourceIdExplicit && !String(task.text).startsWith(String(task.sourceId))) fail(`${label} tick receipt cannot anchor ${key} on its source id`);
+            if (rows.length !== 1) fail(`${label} tick receipt matched ${rows.length} live rows for ${key} by source id and text`);
+            else if (rows[0][1].toLowerCase() !== 'x') fail(`${label} tick receipt claims ${key} but the live row is not checked`);
+          }
+        }
+      }
+
+      // ---- packets
+      for (const packet of packets) {
+        const label = packet.id;
+        for (const blocked of Array.isArray(packet.blocks) ? packet.blocks : []) if (!unitById.has(blocked)) fail(`${label} blocks unknown unit ${blocked}`);
+        for (const nodeId of Array.isArray(packet.nodes) ? packet.nodes : []) if (!nodeById.has(nodeId)) fail(`${label} names unknown node ${nodeId}`);
+        if (!hasValue(packet.question) || !String(packet.question).trim().endsWith('?')) fail(`${label} has no closed question`);
+        const options = Array.isArray(packet.options) ? packet.options : [];
+        if (options.length < 2) fail(`${label} has fewer than two options`);
+        for (const option of options) for (const field of ['label', 'consequence', 'effort']) if (!hasValue(option?.[field])) fail(`${label} has an option missing ${field}`);
+        if (!hasValue(packet.agentRecommendation)) fail(`${label} lacks an agent recommendation`);
+        if (!hasValue(packet.revertCost)) fail(`${label} lacks a revert cost`);
+        if (packet.decision !== null && !hasValue(packet.decision)) fail(`${label}.decision is neither null nor a recorded decision`);
+        if (packet.ruling !== null) {
+          if (!isHex40(packet.ruling?.ruledHead)) fail(`${label}.ruling has no 40-hex ruledHead`);
+          if (packet.decision === null) fail(`${label} carries a ruling with no decision`);
+        }
+      }
+
+      // ---- deferrals
+      for (const deferral of deferrals) {
+        if (!nodeById.has(deferral.deferredToNode)) fail(`${deferral.id} defers to unknown node ${deferral.deferredToNode}`);
+        if (!hasValue(deferral.reason)) fail(`${deferral.id} lacks a reason`);
+        if (!Array.isArray(deferral.taskKeys) || !deferral.taskKeys.length) fail(`${deferral.id} defers no task keys`);
+      }
+
+      // ---- holders rule, per activated package
+      const activatedPackages = new Set();
+      for (const unit of units) for (const key of unit.taskKeys || []) {
+        const task = taskByKey.get(key);
+        if (task) activatedPackages.add(task.package);
+      }
+      for (const packageName of activatedPackages) {
+        for (const task of tasks) {
+          if (task.package !== packageName || task.checkedAtAdmission !== false) continue;
+          if (tickedKeys.has(task.key)) continue;
+          if (!holders.has(task.key)) fail(`activated package ${packageName} leaves ${task.key} open and unheld`);
+        }
+      }
+
+      // ---- optional live ancestry proof
+      if (wantGit) {
+        for (const unit of units) {
+          if ((STATE_RANK[unit.state] ?? 0) < STATE_RANK['main-verified']) continue;
+          if (!isHex40(unit.mergeSha)) { fail(`${unit.id} is ${unit.state} without a 40-hex mergeSha to prove`); continue; }
+          try {
+            execFileSync('git', ['merge-base', '--is-ancestor', unit.mergeSha, 'origin/main'], { cwd: repoRoot, stdio: 'ignore' });
+          } catch {
+            fail(`${unit.id} mergeSha ${unit.mergeSha} is not an ancestor of origin/main`);
+          }
+        }
+      }
+
+      // ---- next admissible unit
+      if (wantNext) {
+        const inFlightPaths = new Set(units.filter((unit) => IN_FLIGHT_STATES.has(unit.state)).flatMap((unit) => unit.ownershipPaths || []));
+        let ownerGated = 0;
+        let blocked = 0;
+        let chosen = null;
+        for (const unit of units) {
+          if (TERMINAL_UNIT_STATES.has(unit.state)) continue;
+          if (unit.state === 'owner-gated' || (unit.ownerGate !== null && unit.ownerGate !== undefined)) { ownerGated += 1; continue; }
+          if (chosen) { blocked += 1; continue; }
+          const ownerNode = nodeById.get(typeof unit.reownedTo === 'string' ? unit.reownedTo : unit.node);
+          const dependenciesReady = (ownerNode?.dependsOn || []).every((dependency) => {
+            const state = nodeById.get(dependency)?.state;
+            return state === 'main-verified' || state === 'complete';
+          });
+          const pathFree = !(unit.ownershipPaths || []).some((ownershipPath) => inFlightPaths.has(ownershipPath));
+          if (unit.state === 'planned' && dependenciesReady && pathFree) chosen = unit.id;
+          else blocked += 1;
+        }
+        if (chosen) { nextLine = chosen; nextExitCode = 0; }
+        else { nextLine = `NONE-ADMISSIBLE: ${ownerGated} owner-gated, ${blocked} blocked`; nextExitCode = 3; }
+      }
+    }
   }
 
   const derivedCounts = {
@@ -200,6 +489,9 @@ try {
     console.error(`ROADMAP VALIDATION FAILED (${errors.length} issue${errors.length === 1 ? '' : 's'})`);
     for (const error of errors) console.error(`- ${error}`);
     process.exitCode = 1;
+  } else if (wantNext) {
+    console.log(nextLine ?? 'NONE-ADMISSIBLE: 0 owner-gated, 0 blocked');
+    process.exitCode = nextLine ? nextExitCode : 3;
   } else {
     console.log(`ROADMAP VALIDATION PASSED: ${derivedCounts.nodes ?? nodes.length} nodes, ${derivedCounts.packages} packages, ${derivedCounts.tasks} tasks, ${derivedCounts.triage} triage rows`);
   }

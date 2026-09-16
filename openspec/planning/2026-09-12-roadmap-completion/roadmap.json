@@ -14235,6 +14235,7 @@
   "workerContract": "WORKERS.md",
   "completionContract": "README.md",
   "progress": "PROGRESS.md",
+  "unitLedger": "units.json",
   "taskAnchorPolicy": "Keys identify immutable admission occurrences: package#sourceId@sourceLine. Original duplicate IDs are retained as distinct rows. Unnumbered tasks use explicit snapshot line anchors plus source SHA and exact text; neither IDs nor current line stability are invented.",
   "taskClosurePolicy": "primaryNode owns final disposition, not necessarily every implementation clause. Compound CAMP prerequisites span coverageNodes and close in parent journey reconciliation. Later predecessor-admission tasks are owned by their consumer, never marked satisfied by the early wording repair.",
   "executionHold": {
