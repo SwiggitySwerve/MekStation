@@ -1,0 +1,234 @@
+{
+  "schemaVersion": 1,
+  "programSnapshot": "evidence/admission-snapshot.json",
+  "holdersRule": "For every package that has at least one unit (an activated package), every OPEN occurrence of that package in the admission snapshot (checkedAtAdmission false and not since ticked by a unit tick receipt) must be held by exactly one unit, packet or deferral. A row therefore leaves the loop only by being delivered, parked in a packet, or deferred to a named sibling node: narrowing the program fails validation instead of hiding.",
+  "units": [
+    {
+      "id": "U0",
+      "node": "R0.plan",
+      "taskKeys": [],
+      "behavior": "Prove the seven-stage loop end to end on this very PR's follow-up: the unit closes when a validator run on the merge commit passes with --next printing U1.",
+      "ownershipPaths": [
+        "openspec/planning/2026-09-12-roadmap-completion"
+      ],
+      "ciClass": "docs",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 6,
+        "maxNonGeneratedLines": 200
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null
+    },
+    {
+      "id": "U1",
+      "node": "R6.umbrella",
+      "taskKeys": [
+        "harden-gm-two-player-campaign-sessions#22.3@584"
+      ],
+      "behavior": "Implement and pass E2E-71 through E2E-80 for latency, catch-up, backpressure, accessible lifecycle UX, confirmation, typed conflicts, evidence completeness, cleanup, and exact-main post-merge audits.",
+      "ownershipPaths": [
+        "e2e",
+        "scripts/qc",
+        "openspec/changes/harden-gm-two-player-campaign-sessions"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null
+    },
+    {
+      "id": "U2",
+      "node": "R6.umbrella",
+      "taskKeys": [
+        "harden-gm-two-player-campaign-sessions#21.2@547"
+      ],
+      "behavior": "Implement and pass E2E-19 through E2E-30 for pre-serialization privacy, sealed choices, immediate public facts, fog projections, live/replay/export parity, unauthorized access, veto/timeout, and simultaneous proposal attribution.",
+      "ownershipPaths": [
+        "e2e",
+        "scripts/qc",
+        "openspec/changes/harden-gm-two-player-campaign-sessions"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "privacy"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null
+    },
+    {
+      "id": "U3",
+      "node": "R6.umbrella",
+      "taskKeys": [
+        "harden-gm-two-player-campaign-sessions#21.1@492"
+      ],
+      "behavior": "Implement and pass E2E-01 through E2E-18 for durable creation, order, atomicity, idempotency, replay/live recovery, cursor integrity, slow-client isolation, restart, reauthentication, active routing, and heartbeat, under the scoped non-claim that the campaign genesis clauses gated at design-campaign-authority-and-sync task 5.7 stay open.",
+      "ownershipPaths": [
+        "e2e",
+        "scripts/qc",
+        "openspec/changes/harden-gm-two-player-campaign-sessions"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "idempotency",
+        "replay",
+        "concurrency"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null
+    }
+  ],
+  "packets": [
+    {
+      "id": "PK-rewind-branch-reader",
+      "blocks": [],
+      "nodes": [
+        "R6.umbrella",
+        "R4.rewind",
+        "R6.B6"
+      ],
+      "taskKeys": [
+        "harden-gm-two-player-campaign-sessions#14.2@311",
+        "harden-gm-two-player-campaign-sessions#14.4@318",
+        "harden-gm-two-player-campaign-sessions#16.2@356",
+        "harden-gm-two-player-campaign-sessions#19.2@426",
+        "harden-gm-two-player-campaign-sessions#21.3@559",
+        "harden-gm-two-player-campaign-sessions#22.2@575",
+        "harden-gm-two-player-campaign-sessions#23.3@604"
+      ],
+      "question": "Should matchStoreBranchSegmentReader be taught to serve MATCH_BASELINE_BRANCH_ID alongside root, or should the rewind mirror write onto root instead, given that the rewind-branch fold is unreachable for match streams today?",
+      "options": [
+        {
+          "label": "(a) teach matchStoreBranchSegmentReader to serve the baseline id alongside root",
+          "consequence": "LIVE_PATH_BRANCH_IDS already treats root and the baseline id as one line, so the reader change keeps the mirror write where it is and leaves rows already written onto the baseline id readable; it is a product change to the match-store segment reader and widens what the live path serves.",
+          "effort": "one bounded product slice inside the match-store segment reader plus its tests"
+        },
+        {
+          "label": "(b) mirror onto root",
+          "consequence": "Leaves the reader untouched and makes the mirror write land where the reader already looks, but changes where every future rewind branch is recorded and must reconcile rows already written onto the baseline id.",
+          "effort": "one bounded product slice at the mirror write plus a reconciliation of already-written baseline rows"
+        }
+      ],
+      "agentRecommendation": "Option (a): LIVE_PATH_BRANCH_IDS already treats root and the baseline id as one line, so serving both from the reader matches the contract that exists and does not move rows that were already written.",
+      "revertCost": "Low for (a) - a single reader predicate behind its own tests, revertable by one commit with no data migration. Higher for (b) - rows written onto root after the flip must be located and moved back, so a revert becomes a data reconciliation rather than a code revert.",
+      "decision": null,
+      "ruling": null
+    }
+  ],
+  "deferrals": [
+    {
+      "id": "DF-journal-cutover-combat-rows",
+      "taskKeys": [
+        "harden-gm-two-player-campaign-sessions#14.1@301",
+        "harden-gm-two-player-campaign-sessions#14.5@324"
+      ],
+      "deferredToNode": "R4.rewind",
+      "reason": "tasks.md:299 records the owner ruling that \"GM combat rewind leaves this change. Successor `adopt-combat-journal-cutover-and-gm-rewind` created\". tasks.md:302 under 14.1 reads \"BLOCKED on `journal-cutover` (2026-09-04, owner ruling): the requirement `Combat Intervention Has Distinct Preview and Commit Phases` moved verbatim to successor `adopt-combat-journal-cutover-and-gm-rewind` (its box 2.1 closes this one by receipt).\" and tasks.md:325 under 14.5 reads \"verification of the moved requirements is successor `adopt-combat-journal-cutover-and-gm-rewind` box 3.1, which closes this one by receipt.\" R4.rewind is the roadmap node holding that successor package open rows."
+    },
+    {
+      "id": "DF-coordinated-correction",
+      "taskKeys": [
+        "harden-gm-two-player-campaign-sessions#17.1@387",
+        "harden-gm-two-player-campaign-sessions#17.2@391",
+        "harden-gm-two-player-campaign-sessions#17.4@399"
+      ],
+      "deferredToNode": "R4.rewind",
+      "reason": "tasks.md:299 KEPT `Applied Campaign Outcome Requires Coordinated Correction` in this change but moved `Superseded Combat Commands Are Rejected` and the replacement-branch clause to `adopt-combat-journal-cutover-and-gm-rewind`. The saga these three rows describe records combat supersession in the SOURCE authority first, so its source half is the moved combat-journal work carried by R4.rewind and the campaign-side target half cannot be proven end to end before that lands."
+    },
+    {
+      "id": "DF-shared-projection-contract",
+      "taskKeys": [
+        "harden-gm-two-player-campaign-sessions#12.1@252"
+      ],
+      "deferredToNode": "R6.B7",
+      "reason": "tasks.md:259 states the row needs an owner act rather than code: \"WHAT WOULD CLOSE 12.1 as written: either the owner narrows its letter to per-surface-policy-proven (mostly true today, legacy snapshot excepted) or approves the shared-contract slice.\" The same note records that \"a shared projection/digest contract is a DESIGNED slice, not a test-authoring afternoon\", so the row is deferred to the authorized branch/effect history lane terminating at R6.B7 instead of being narrowed here."
+    },
+    {
+      "id": "DF-branch-and-time-cascade",
+      "taskKeys": [
+        "harden-gm-two-player-campaign-sessions#2.3@32",
+        "harden-gm-two-player-campaign-sessions#16.1@350",
+        "harden-gm-two-player-campaign-sessions#16.3@372",
+        "harden-gm-two-player-campaign-sessions#16.4@374",
+        "harden-gm-two-player-campaign-sessions#16.5@382",
+        "harden-gm-two-player-campaign-sessions#18.1@405",
+        "harden-gm-two-player-campaign-sessions#22.1@574"
+      ],
+      "deferredToNode": "R6.B7",
+      "reason": "These rows are the branch-activation schema (2.3), the campaign retroactive-rebuild family (16.1, 16.3, 16.4, 16.5), branch/effective-head/supersession rendering (18.1) and the E2E-46 through E2E-60 rows that exercise them (22.1); every one rides the authorized branch/effect history lane whose terminal node R6.B7 is already a declared dependency of R6.umbrella. tasks.md:373 under 16.3 reads \"clause B waits on 16.2 activation\" and 16.2 is parked in PK-rewind-branch-reader; tasks.md:383 under 16.5 reads that it \"cannot close while 16.1 to 16.4 are open\"."
+    },
+    {
+      "id": "DF-closure-rows",
+      "taskKeys": [
+        "harden-gm-two-player-campaign-sessions#25.1@633",
+        "harden-gm-two-player-campaign-sessions#25.4@640"
+      ],
+      "deferredToNode": "R2.journey",
+      "reason": "The two closure rows run the full gate sweep and reconcile all 80 acceptance scenarios to test identifiers and evidence paths; neither can be honestly run until the umbrella rows above are delivered, parked or deferred, so both are deferred to the R2.journey reconciliation node. The ledger keys carry the admission-snapshot lines (25.1@633, 25.4@640) while the live tasks.md rows now sit at lines 630 and 637."
+    }
+  ]
+}
