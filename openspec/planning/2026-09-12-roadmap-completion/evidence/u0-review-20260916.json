@@ -1,0 +1,17 @@
+{
+  "unit": "U0",
+  "stage": "review",
+  "at": "2026-09-16T16:03:48.635Z",
+  "lane": "A",
+  "reviewerModel": "claude-sonnet (Agent model: sonnet)",
+  "implementerModel": "claude-fable-5-1",
+  "reviewerEffort": "default",
+  "head": "5764b6e3a87be4f4bc2e93d681e8370c2293fa90",
+  "reviewedHead": "5764b6e3a87be4f4bc2e93d681e8370c2293fa90",
+  "verdict": "APPROVE",
+  "outputPath": "evidence/u0-lane-a-review-20260916.md",
+  "outputSha256": "0d016ecb64dd82c3e9f3ac820324736eb4b214f3d335953724f267f16a4ec63f",
+  "sharedContext": "none: reviewer received only the diff range, the head, the contract files on the head and the acceptance commands",
+  "laneB": "not required (review classes: routine)",
+  "githubApproval": "none recorded; Lane A is engineering evidence, never a GitHub approval"
+}

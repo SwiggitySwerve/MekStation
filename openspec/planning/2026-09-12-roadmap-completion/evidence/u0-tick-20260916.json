@@ -1,0 +1,8 @@
+{
+  "unit": "U0",
+  "stage": "tick",
+  "at": "2026-09-16T16:03:48.637Z",
+  "taskKeys": [],
+  "note": "U0 holds no task rows; nothing in any tasks.md is checked by this unit. The behavior clause closes when --next prints U1 on the merge commit of this closing PR, which is recorded after that merge in evidence/u0-closure-20260916.json (local until the next unit cites it as its baseline).",
+  "tickedOnMain": null
+}

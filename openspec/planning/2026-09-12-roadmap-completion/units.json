@@ -19,10 +19,10 @@
         "maxFiles": 6,
         "maxNonGeneratedLines": 200
       },
-      "state": "local-verified",
+      "state": "complete",
       "baseline": "fc12d9d20c9e114a7010e723279ce5714c8a34af",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "5764b6e3a87be4f4bc2e93d681e8370c2293fa90",
+      "mergeSha": "66fe4303905ccf347b894d7d8e648caca7e07d07",
       "stageReceipts": {
         "admission": {
           "path": "evidence/u0-admission-20260916.json",
@@ -40,10 +40,30 @@
           "at": "2026-09-16T15:57:35.648Z",
           "allGatesExit0": true
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "review": {
+          "path": "evidence/u0-review-20260916.json",
+          "head": "5764b6e3a87be4f4bc2e93d681e8370c2293fa90",
+          "reviewedHead": "5764b6e3a87be4f4bc2e93d681e8370c2293fa90",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet)",
+          "implementerModel": "claude-fable-5-1",
+          "outputSha256": "0d016ecb64dd82c3e9f3ac820324736eb4b214f3d335953724f267f16a4ec63f",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u0-merge-20260916.json",
+          "pr": 1784,
+          "head": "5764b6e3a87be4f4bc2e93d681e8370c2293fa90",
+          "mergeSha": "66fe4303905ccf347b894d7d8e648caca7e07d07"
+        },
+        "mainProof": {
+          "path": "evidence/u0-mainproof-20260916.json",
+          "mergeCommit": "66fe4303905ccf347b894d7d8e648caca7e07d07",
+          "verdict": "PASS"
+        },
+        "tick": {
+          "path": "evidence/u0-tick-20260916.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null
     },
