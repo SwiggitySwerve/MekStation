@@ -33,8 +33,8 @@ Spec / metadata / consumers (read-only):
 - `src/types/equipment/EquipmentCategory.ts`
 - `src/services/equipment/EquipmentLookupService.ts` (ammo rows keep `compatibleWeaponIds`)
 - `src/components/customizer/equipment/CompactFilterBar.tsx` (imports `CATALOG_OTHER_CATEGORIES` from owned filters)
-- `.sisyphus/equipment-catalog-20260910/filter-audit/REPORT.md` (old findings)
-- `.sisyphus/equipment-catalog-20260910/catalog-tests-corrected.json` (182 passed earlier)
+- `../2026-09-16-evidence-distilled/equipment-catalog-20260910.md` (formerly `.sisyphus/equipment-catalog-20260910/filter-audit/REPORT.md`) (old findings)
+- `../2026-09-16-evidence-distilled/equipment-catalog-20260910.md` (formerly `.sisyphus/equipment-catalog-20260910/catalog-tests-corrected.json`) (182 passed earlier)
 
 ## Checks
 

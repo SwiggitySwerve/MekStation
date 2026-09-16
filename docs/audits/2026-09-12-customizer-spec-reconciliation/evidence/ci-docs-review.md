@@ -16,6 +16,6 @@ The `customizer-regressions` job is bounded to 20 minutes, requires `detect-chan
 
 The nightly `e2e-full` lane performs strict asset validation and the same production build environment while retaining its `timeout-minutes: 180` bound.
 
-Local production evidence: all 10 cases passed in about 69 seconds with one worker against the hydrated standalone server on port 3636. The run is recorded in `.sisyphus/spec-reconciliation-20260912/browser-production-ip.log`. Strict asset validation reported config/manifest `v0.3.1`, 554 expected, 554 present, and 0 missing. That proves configured asset presence for the checkout; it does not prove cache freshness or asset provenance.
+Local production evidence: all 10 cases passed in about 69 seconds with one worker against the hydrated standalone server on port 3636. The run is recorded in `../../2026-09-16-evidence-distilled/spec-reconciliation-20260912.md` (formerly `.sisyphus/spec-reconciliation-20260912/browser-production-ip.log`). Strict asset validation reported config/manifest `v0.3.1`, 554 expected, 554 present, and 0 missing. That proves configured asset presence for the checkout; it does not prove cache freshness or asset provenance.
 
 Remote pull-request execution and aggregator observation remain unchecked (OpenSpec task 5.4).

@@ -24,7 +24,7 @@ Size everyday coding jobs to a few files and one regression. Break a large modul
 
 ## Grok CLI
 
-The user permits Grok CLI for workhorse coding and everyday driver tasks. Existing local runners under `.sisyphus/equipment-density-20260910/` show an explicit `grok-4.6`, high-effort, no-subagents route with bounded turns, prompt files, hidden windows, and durable status/output. This is historical integration evidence, not proof that a fresh model call is healthy.
+The user permits Grok CLI for workhorse coding and everyday driver tasks. Existing local runners under `../../../docs/audits/2026-09-16-evidence-distilled/equipment-density-20260910.md` (formerly `.sisyphus/equipment-density-20260910/`) show an explicit `grok-4.6`, high-effort, no-subagents route with bounded turns, prompt files, hidden windows, and durable status/output. This is historical integration evidence, not proof that a fresh model call is healthy.
 
 Before first use, verify the installed executable and current help/options, supported model/effort, ownership isolation, and output paths. Record that probe in the roadmap evidence. Do not read or print credential stores. Start with one small isolated task and inspect the real exit, result, diff, and regression evidence before expanding use. Preserve declared permissions and local scope; do not rely on an old runner's permission-mode option as authorization to bypass current controls.
 

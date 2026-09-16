@@ -15,14 +15,14 @@ Verified September 9-10, 2026 (America/Denver). Parent integration used Cursor A
 ## Verification
 
 - Production build and standalone hydration passed: build `1789018854161`.
-- All **21 browser scenarios passed**, with no skips or retries: [browser results](../../.sisyphus/grok-followups-20260909/final-browser-results.json).
+- All **21 browser scenarios passed**, with no skips or retries: [browser results](2026-09-16-evidence-distilled/grok-followups-20260909.md) (formerly `.sisyphus/grok-followups-20260909/final-browser-results.json`).
 - **88 focused assertions in 17 suites passed**. The subsequently strengthened durable-recovery suite also passed.
 - Full TypeScript check passed with an 8 GB Node allowance. The first attempt exhausted Node's default 4 GB heap; that attempt is not counted as a pass.
 - Lint passed with 81 existing warnings and no errors. Changed files pass formatting. The repository-wide format check reports 13 files in the other task's model/chassis audit directories; those files were left untouched.
 - Strict OpenSpec validation passed for `enable-saved-custom-unit-combat`. Its task checkboxes remain unchanged.
-- Complete stable suite: **35,061 passed, 16 skipped, 1 failed** across 2,651 suites (2,650 passed). The single failure is `scripts/__tests__/qc-registry.test.ts`: the other task's new `/compendium/chassis` page is missing from the app-shell coverage manifest. No failing assertions remain in this repair scope. [Exact totals and failing assertion](../../.sisyphus/grok-followups-20260909/final-stable-summary.json).
+- Complete stable suite: **35,061 passed, 16 skipped, 1 failed** across 2,651 suites (2,650 passed). The single failure is `scripts/__tests__/qc-registry.test.ts`: the other task's new `/compendium/chassis` page is missing from the app-shell coverage manifest. No failing assertions remain in this repair scope. [Exact totals and failing assertion](2026-09-16-evidence-distilled/grok-followups-20260909.md) (formerly `.sisyphus/grok-followups-20260909/final-stable-summary.json`).
 
-Detailed local evidence: [acceptance ledger](../../.sisyphus/grok-followups-20260909/COORDINATION.md), [unmodified-production navigation proof](../../.sisyphus/grok-followups-20260909/final-navigation-proof.json), [build verification](../../.sisyphus/grok-followups-20260909/final-build-verification.json), and [durable recovery output](../../.sisyphus/grok-followups-20260909/final-durable-proof-jest.log). The `.sisyphus` evidence directory is local and ignored by Git.
+Detailed local evidence: [acceptance ledger](2026-09-16-evidence-distilled/grok-followups-20260909.md) (formerly `.sisyphus/grok-followups-20260909/COORDINATION.md`), [unmodified-production navigation proof](2026-09-16-evidence-distilled/grok-followups-20260909.md) (formerly `.sisyphus/grok-followups-20260909/final-navigation-proof.json`), [build verification](2026-09-16-evidence-distilled/grok-followups-20260909.md) (formerly `.sisyphus/grok-followups-20260909/final-build-verification.json`), and [durable recovery output](2026-09-16-evidence-distilled/grok-followups-20260909.md) (formerly `.sisyphus/grok-followups-20260909/final-durable-proof-jest.log`). The `.sisyphus` evidence directory is local and ignored by Git.
 
 ## Scope and next improvements
 

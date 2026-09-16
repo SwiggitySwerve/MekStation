@@ -22,7 +22,7 @@ The expanded browser run exposed a layout test that assumed the old header heigh
 
 The separate `qc:validate` registry command reports four stale references to the archived `prove-live-coop-campaign-journey` change. A clean checkout of the exact target commit produces byte-for-byte identical errors. No registry/spec-archive repair is included in this PR; the complete stable suite and OpenSpec CI quality checks still pass.
 
-Earlier shared-checkout formatting and chassis route-coverage failures do not occur in this isolated PR tree. Local logs, reports, source fingerprints, and failed-attempt evidence are retained under `.sisyphus/pr-customizer-20260910/` (ignored by Git).
+Earlier shared-checkout formatting and chassis route-coverage failures do not occur in this isolated PR tree. Local logs, reports, source fingerprints, and failed-attempt evidence are retained under `2026-09-16-evidence-distilled/pr-customizer-20260910.md` (formerly `.sisyphus/pr-customizer-20260910/`) (ignored by Git).
 
 ## Supported behavior
 

@@ -44,7 +44,7 @@ Three Grok CLI `grok-4.6` workers ran in parallel with explicit `high` effort an
 
 The preview at [localhost:3611](http://localhost:3611/customizer) serves the verified build using its existing preview databases. Browser tests used isolated browser contexts and separate databases on port 3634. The isolated test server was shut down after verification. No staging, commit, push, or unrelated-file repair was performed. OpenSpec task checkboxes were left unchanged.
 
-Detailed logs and preserved failed attempts: `.sisyphus/equipment-catalog-20260910/`.
+Detailed logs and preserved failed attempts: `../2026-09-16-evidence-distilled/equipment-catalog-20260910.md` (formerly `.sisyphus/equipment-catalog-20260910/`).
 
 ![Independent Electronics filter](electronics-desktop.png)
 

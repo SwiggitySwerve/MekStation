@@ -1,7 +1,7 @@
 # Preview worker report
 
-Lane: `.sisyphus/record-sheet-repair-20260910/preview-worker`
-Spec gate: `.sisyphus/record-sheet-repair-20260910/spec-ready.json` (`success: true`, `repair-record-sheet-rendering`)
+Lane: `../../2026-09-16-evidence-distilled/record-sheet-repair-20260910.md` (formerly `.sisyphus/record-sheet-repair-20260910/preview-worker`)
+Spec gate: `../../2026-09-16-evidence-distilled/record-sheet-repair-20260910.md` (formerly `.sisyphus/record-sheet-repair-20260910/spec-ready.json`) (`success: true`, `repair-record-sheet-rendering`)
 
 ## Follow-up (this session)
 

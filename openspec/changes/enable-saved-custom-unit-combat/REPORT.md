@@ -13,7 +13,7 @@ GameCreated records a strict detached construction snapshot. Recovery and rewind
 - All 21 final browser scenarios pass, including saved-design campaign persistence and reload with server readback.
 - All 88 focused assertions pass; the strengthened durable-recovery suite also passes. Full type checking, lint, production build/standalone hydration and strict change validation pass.
 
-The [follow-up audit](../../../docs/audits/2026-09-10-non-3d-followups.md) records the complete stable-suite result and unrelated shared-tree verification limitations. Original worker reports and execution evidence remain in the local `.sisyphus/grok-followups-20260909` directory.
+The [follow-up audit](../../../docs/audits/2026-09-10-non-3d-followups.md) records the complete stable-suite result and unrelated shared-tree verification limitations. Original worker reports and execution evidence remain in the local `../../../docs/audits/2026-09-16-evidence-distilled/grok-followups-20260909.md` (formerly `.sisyphus/grok-followups-20260909`) directory.
 
 ## Boundaries
 
