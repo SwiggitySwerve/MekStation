@@ -1,0 +1,558 @@
+{
+  "evidenceKind": "r2-combat-admission-brief",
+  "date": "2026-09-15",
+  "roadmapNode": "R2.combat",
+  "roadmapFile": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+  "changePackage": "enable-saved-custom-unit-combat",
+  "sourceOfTruth": "origin/main (fetched fresh this session); root checkout has an uncommitted edit to this change's proposal.md which was NOT read or relied on -- all content below is git show origin/main:<path>",
+  "originMainTipAtWriteTime": "be7f85b867aa3e8576e5e3d27e309276203bc24b",
+  "roadmapNodeRaw": {
+    "id": "R2.combat",
+    "wave": 2,
+    "title": "Reconcile saved-custom combat implementation with all six original tasks",
+    "kind": "verification",
+    "state": "planned",
+    "dependsOn": [
+      "R1.remote"
+    ],
+    "ownershipPaths": [
+      "src/lib",
+      "src/services",
+      "src/engine",
+      "e2e",
+      "openspec/changes/enable-saved-custom-unit-combat"
+    ],
+    "acceptance": [
+      "npm.cmd run typecheck",
+      "npm.cmd run lint",
+      "npm.cmd run format:check",
+      "npm.cmd run build",
+      "Actual SQLite saved construction, immutable GameCreated snapshot, setup/replay/cold reopen and edit/delete/no-substitution proof"
+    ],
+    "owner": "parent; assign bounded Luna high worker on admission",
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "receipt": null,
+    "decomposition": "Navigation paths only. Before assignment, select one behavior, exact files and original task IDs; split until original/default caps fit. Each child PR needs its own reviewed-head and exact-main receipt."
+  },
+  "dependencyR1Remote": {
+    "state": "main-verified",
+    "closureVerdict": "CLOSABLE-NOW: all 6 acceptance lines satisfied, 20/20 taskKeys PROVEN; tasks.md on origin/main already 20/20 checked",
+    "closureReceipt": "evidence/r1-remote-closure-20260915.json",
+    "conclusion": "R1.remote is closed / main-verified as of 2026-09-15T10:57:00Z. R2.combat's dependency gate is satisfied; nothing blocks starting R2.combat verification work on that account."
+  },
+  "criticalContextFinding": {
+    "summary": "This is not a from-scratch implementation gap. A single large commit (c8780618e, PR #1635, feat(customizer): complete saved-design editing and combat flow, merged 2026-09-10) authored the change folder (proposal/design/tasks/specs/REPORT.md) and landed roughly 6582 insertions of production source plus tests implementing essentially all six task lines in the same commit. The tasks.md checkboxes were deliberately left unchecked: both proposal.md (Existing OpenSpec task checkboxes and canonical specs remain unchanged) and REPORT.md (Task checkboxes remain unchanged until explicitly requested) state this is intentional, not incomplete work.",
+    "consequence": "The roadmap's planned / OPEN / receipt-null classification is checkbox-literal and technically correct, but it undercounts what already exists in source. R2.combat's real job is reconciliation and fresh verification (matching the node's own kind:verification tag), not net-new feature work: confirm each task's claimed behavior against current origin/main source and tests, re-run the four static gates and the relevant test matrix at the current tip (main has advanced several commits past c8780618e, including at least one campaign-authority projection change), and decide whether checkboxes and archival should now proceed.",
+    "processAnomalyFlagged": "openspec/specs/custom-unit-combat/spec.md and the custom-source clauses of openspec/specs/mission-contracts/spec.md (the source-of-truth specs) were created and modified by a separate commit f39c2b71c (docs(spec): clarify campaign combat catalog contracts, PR #1653, 2026-09-12), a docs-labeled PR, not the normal openspec-archive merge-on-completion flow, and it happened before this change's own tasks.md checkboxes were ever checked or the change was archived. This is a single-source-of-truth process irregularity worth flagging to the owner: the canonical spec already reflects this change's delta content while the change folder is still open with unchecked boxes. Not something this brief fixes; surfaced for the owner decision list."
+  },
+  "sourceFilesInventory": {
+    "note": "All files below exist on origin/main today (confirmed via git ls-tree -r origin/main). Citing existence and line content is a SOURCE CITATION, not a closure claim; no test run or build was executed by this read-only discovery task.",
+    "changeFolder": [
+      "openspec/changes/enable-saved-custom-unit-combat/.openspec.yaml",
+      "openspec/changes/enable-saved-custom-unit-combat/REPORT.md",
+      "openspec/changes/enable-saved-custom-unit-combat/design.md",
+      "openspec/changes/enable-saved-custom-unit-combat/proposal.md",
+      "openspec/changes/enable-saved-custom-unit-combat/specs/custom-unit-combat/spec.md",
+      "openspec/changes/enable-saved-custom-unit-combat/specs/mission-contracts/spec.md",
+      "openspec/changes/enable-saved-custom-unit-combat/tasks.md"
+    ],
+    "productionSource": [
+      "src/types/contracts/CustomCombatSnapshot.ts",
+      "src/services/units/customCombatDefinition.ts",
+      "src/services/units/serverCustomCombatDefinition.ts",
+      "src/services/units/listCampaignSavedDesigns.ts",
+      "src/pages/api/units/custom/combat-catalog.ts",
+      "src/engine/adapters/CompendiumAdapter.ts",
+      "src/engine/InteractiveSession.recovery.ts",
+      "src/engine/InteractiveSession.setup.ts",
+      "src/engine/InteractiveSession.ts",
+      "src/engine/types.ts",
+      "src/engine/combatSeedDerivation.ts",
+      "src/lib/campaign/readiness/canonicalCatalogAdmission.ts",
+      "src/lib/campaign/readiness/useCombatCatalog.ts",
+      "src/lib/events/replay/CombatLifecycleSharedSchemas.ts",
+      "src/lib/events/replay/CombatLifecycleBaselineSchemaPack.ts",
+      "src/lib/multiplayer/server/fogOfWar.ts",
+      "src/lib/multiplayer/server/matchUnitBootstrap.ts",
+      "src/lib/multiplayer/server/MatchRecovery.ts",
+      "src/lib/multiplayer/server/ServerMatchHostRewindRebuild.ts",
+      "src/services/encounter/EncounterService.ts",
+      "src/pages/gameplay/campaigns/[id]/mech-bay.tsx",
+      "src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx",
+      "src/components/gameplay/pages/campaigns/create/CreateCampaignPage.RosterStep.tsx"
+    ],
+    "tests": [
+      "src/engine/adapters/__tests__/customCombatDefinition.test.ts",
+      "src/engine/__tests__/customCombatRecovery.recordedSnapshot.test.ts",
+      "src/engine/__tests__/InteractiveSession.recovery.test.ts",
+      "src/lib/multiplayer/server/__tests__/customCombatRecovery.durableAuthority.test.ts",
+      "src/lib/multiplayer/server/__tests__/customConstructionTransport.test.ts",
+      "src/lib/multiplayer/server/__tests__/customConstructionVisibility.test.ts",
+      "src/lib/events/replay/__tests__/CustomConstructionReplay.test.ts",
+      "src/lib/campaign/readiness/__tests__/canonicalCatalogAdmission.test.ts",
+      "src/lib/campaign/readiness/__tests__/useCombatCatalog.test.tsx",
+      "src/services/units/__tests__/listCampaignSavedDesigns.test.ts",
+      "src/__tests__/integration/customCombatDefinition.integration.test.ts",
+      "src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx",
+      "e2e/saved-custom-combat.spec.ts"
+    ],
+    "originatingCommit": "c8780618e53da41d5b7d70921a6bc2b29d2bb27d (PR #1635, 2026-09-10T14:19:35-06:00): 109 files changed, 6582 insertions(+), 327 deletions(-)"
+  },
+  "tasks": [
+    {
+      "taskKey": "enable-saved-custom-unit-combat#line-3@3",
+      "literalText": "Define strict supported-construction projection, server reader, custom combat catalog endpoint, and saved-design picker merge.",
+      "checkboxOnOriginMain": "[ ] (unchecked)",
+      "sourceCitations_NOT_closure": [
+        "src/types/contracts/CustomCombatSnapshot.ts:1-16 -- strict zod projection built from the generated UnitContract.options[0] (biped BattleMech branch); header comment states projection .strip()s library metadata and recorded/replay validation is .strict().",
+        "src/services/units/customCombatDefinition.ts:19-34 -- parseCustomCombatDefinition(payload,id): rejects non custom-* ids, non-BattleMech unitType, non-Biped configuration, and id mismatch; this is the 'strict supported-construction projection' entry point.",
+        "src/services/units/serverCustomCombatDefinition.ts:22-45 -- readServerCustomCombatDefinition(id): the 'server reader'; loads the SQLite unit row via getUnitRepository(), overwrites embedded id/chassis/variant with the row's own values before parsing (so a forged inner id cannot select another design), returns null on any failure.",
+        "src/services/units/serverCustomCombatDefinition.ts:47-55 -- listServerCustomCombatRefs(): filters repository rows to those whose id is custom-prefixed AND independently re-parses successfully.",
+        "src/pages/api/units/custom/combat-catalog.ts:1-38 -- GET /api/units/custom/combat-catalog; 'the custom combat catalog endpoint'; returns { customCombatRefs: string[] } from listServerCustomCombatRefs(); carries an @spec header pointing at this change's delta spec.",
+        "src/services/units/listCampaignSavedDesigns.ts:19-45 -- listCampaignSavedDesigns(): the 'saved-design picker merge'; Promise.allSettled over the local (getCustomUnitService) and server (customUnitApiService) sources into one Map keyed by id, server rows applied AFTER local rows so an identical id is overwritten by server metadata (matches the delta-spec requirement 'prefer server metadata for an identical id'); throws only if server is rejected AND the map is empty (both sources unusable)."
+      ],
+      "deltaSpecShallsMapped": [
+        "custom-unit-combat spec.md, Requirement 'Supported saved construction is resolved by authority': 'The combat adapter SHALL support an exact persisted custom-* reference only when the server library contains a matching biped BattleMech construction accepted by the shared strict snapshot projection... SHALL NOT trust a client-supplied construction.'",
+        "custom-unit-combat spec.md, Requirement 'Campaign picker preserves durable saved identities': 'SHALL merge server-saved metadata with existing local saved-design metadata, prefer server metadata for an identical id... Local-only visibility SHALL NOT imply server combat eligibility.'"
+      ],
+      "existingTestCoverage": [
+        "src/engine/adapters/__tests__/customCombatDefinition.test.ts -- 2 cases: 'uses the saved construction and exact custom identity instead of a stock fallback' (line 31), 'rejects unknown nested construction keys on the recorded snapshot' (line 68).",
+        "src/services/units/__tests__/listCampaignSavedDesigns.test.ts -- 2 cases: 'includes server-saved designs and prefers server metadata for the same exact id' (line 16), 'keeps server records available without IndexedDB and exposes failure when no source is available' (line 43).",
+        "src/__tests__/integration/customCombatDefinition.integration.test.ts -- 3 cases incl. 'does not grant eligibility from saved metadata with missing construction or unsupported chassis topology' (line 213) and 'keeps custom eligibility unavailable when the API is malformed or offline without losing canonical entries' (line 224)."
+      ],
+      "gap": "No code gap found against the task's literal text. The only open item is VERIFICATION, not implementation: these named tests and the endpoint have not been re-run against the current origin/main tip (be7f85b86) inside this roadmap effort, and no receipt exists (roadmapNode.receipt is null). Minor secondary note (not a task-text gap): the catalog endpoint's own header says 'No auth is added here' -- the delta spec does not require auth, so this is a note for the owner, not a defect against this task.",
+      "boundedSliceCharter": {
+        "behavior": "Re-verify (no behavior change expected) that the strict projection, server reader, catalog endpoint and picker merge still behave as specified at the current origin/main tip.",
+        "exactFiles": [
+          "src/types/contracts/CustomCombatSnapshot.ts",
+          "src/services/units/customCombatDefinition.ts",
+          "src/services/units/serverCustomCombatDefinition.ts",
+          "src/services/units/listCampaignSavedDesigns.ts",
+          "src/pages/api/units/custom/combat-catalog.ts"
+        ],
+        "redFirstTestNames": [
+          "src/engine/adapters/__tests__/customCombatDefinition.test.ts > uses the saved construction and exact custom identity instead of a stock fallback",
+          "src/engine/adapters/__tests__/customCombatDefinition.test.ts > rejects unknown nested construction keys on the recorded snapshot",
+          "src/services/units/__tests__/listCampaignSavedDesigns.test.ts > includes server-saved designs and prefers server metadata for the same exact id",
+          "src/__tests__/integration/customCombatDefinition.integration.test.ts > does not grant eligibility from saved metadata with missing construction or unsupported chassis topology"
+        ],
+        "whatTurnsRed": "Any of the above going red at current tip is the reproduction signal that something regressed between c8780618e and be7f85b86 (e.g. a UnitContract schema change, a UnitRepository change, or a route-helper change under initializeApiDatabase) -- only THEN does a fix slice open, scoped to the single failing file.",
+        "expectedChangedLines": "0 source lines (verification only); if a fix slice is required, bound it separately to <=500 lines / <=15 files against just the failing file(s) above.",
+        "gates": [
+          "npm.cmd run typecheck",
+          "npm.cmd run lint",
+          "npx jest src/engine/adapters/__tests__/customCombatDefinition.test.ts src/services/units/__tests__/listCampaignSavedDesigns.test.ts src/__tests__/integration/customCombatDefinition.integration.test.ts"
+        ],
+        "nonClaims": [
+          "Does not check any tasks.md boxes.",
+          "Does not add authentication to the catalog endpoint (not required by the delta spec).",
+          "Does not touch the campaign picker UI beyond confirming the data layer it consumes."
+        ]
+      },
+      "dependencies": [
+        "R1.remote (satisfied / main-verified)"
+      ],
+      "deferralOrOwnerDecision": null
+    },
+    {
+      "taskKey": "enable-saved-custom-unit-combat#line-4@4",
+      "literalText": "Adapt exact custom references and carry their immutable snapshot through seeded setup and GameCreated.",
+      "checkboxOnOriginMain": "[ ] (unchecked)",
+      "sourceCitations_NOT_closure": [
+        "src/engine/adapters/CompendiumAdapter.ts:165-190 (approx) -- adaptUnit() branch for unitId.startsWith('custom-'): reads via injected reader or defaultReadCustom (customUnitApiService.getById), calls parseCustomCombatDefinition, THROWS on failure ('Saved custom unit ...') rather than falling back to a stock unit, and attaches customUnitDefinition on the adapted result.",
+        "src/engine/InteractiveSession.setup.ts:48-58 -- appendRecordedCustomCombatSnapshot(patch, unit, adapted): calls recordedCustomCombatSnapshotPatch and copies the resulting customUnitDefinition onto the mutable GameUnit patch.",
+        "src/engine/InteractiveSession.setup.ts:31,137,143 -- gameUnitsWithAdaptedCombatSeeds()/adaptedCombatSeedPatch() call the above during seeded setup, i.e. before GameCreated is emitted.",
+        "src/engine/InteractiveSession.recovery.ts:82-95 -- recordedCustomCombatSnapshotPatch(unit, adapted): pulls the accepted construction off either the adapted unit or the existing unit, validates identity via requireRecordedCustomCombatSnapshot, and detaches it (JSON round-trip through detachCustomCombatSnapshot) before returning the patch -- this is the 'immutable snapshot' carried onto GameCreated.",
+        "src/services/encounter/EncounterService.ts:419-439 -- materialization path: resolveEncounterCustomCombatReader() lazily imports readServerCustomCombatDefinition for server launches; deriveSeededGameUnits() + attachRecordedCustomCombatSnapshots() run before GameCreated is recorded; comment states canonical misses may launch unseeded but 'custom units never' (i.e. no silent substitution)."
+      ],
+      "deltaSpecShallsMapped": [
+        "custom-unit-combat spec.md, Requirement 'Supported saved construction is resolved by authority', Scenario 'Saved design seeds its actual construction' and 'Missing or unsupported design refuses launch'.",
+        "custom-unit-combat spec.md, Requirement 'Recorded construction survives library changes' (the snapshot-onto-GameCreated half)."
+      ],
+      "existingTestCoverage": [
+        "src/engine/__tests__/customCombatRecovery.recordedSnapshot.test.ts -- 7 cases incl. 'copies a detached snapshot onto GameCreated units and keeps instance id distinct from unitRef' (line 103) and 'refuses a construction snapshot attached to a canonical unit reference' (line 204).",
+        "src/__tests__/integration/customCombatDefinition.integration.test.ts -- 'reads server construction, seeds the exact runtime unit, recovers it, remains stable after library editing and deletion' (line 59).",
+        "src/engine/adapters/__tests__/customCombatDefinition.test.ts -- 'uses the saved construction and exact custom identity instead of a stock fallback' (line 31, asserts the throw-not-substitute behavior)."
+      ],
+      "gap": "No code gap found. As with line-3, the remaining work is re-verification at current tip plus deciding whether the roster-instance-id vs unitRef distinction ('their immutable snapshot' -- separate game-unit identity) has adequate assertion coverage for every entry point that seeds units (co-op host path specifically; EncounterService.ts is the single materializer, so co-op should inherit this for free, but that inheritance has not been independently re-confirmed since c8780618e).",
+      "boundedSliceCharter": {
+        "behavior": "Confirm the CompendiumAdapter/InteractiveSession.setup/EncounterService chain still refuses-without-substitution and still carries a detached snapshot at current tip; extend coverage only if a co-op-specific seeding gap is found.",
+        "exactFiles": [
+          "src/engine/adapters/CompendiumAdapter.ts",
+          "src/engine/InteractiveSession.setup.ts",
+          "src/engine/InteractiveSession.recovery.ts",
+          "src/services/encounter/EncounterService.ts"
+        ],
+        "redFirstTestNames": [
+          "src/engine/__tests__/customCombatRecovery.recordedSnapshot.test.ts > copies a detached snapshot onto GameCreated units and keeps instance id distinct from unitRef",
+          "src/engine/__tests__/customCombatRecovery.recordedSnapshot.test.ts > refuses a construction snapshot attached to a canonical unit reference",
+          "src/__tests__/integration/customCombatDefinition.integration.test.ts > reads server construction, seeds the exact runtime unit, recovers it, remains stable after library editing and deletion",
+          "src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx (full file -- confirms co-op still routes through the same EncounterService seeding path; no dedicated custom-unit assertion currently exists here per this review, which is the one concrete co-op gap worth a red-first probe)"
+        ],
+        "whatTurnsRed": "A regression in the throw-on-unsupported behavior, or a co-op path that bypasses EncounterService's seeding call and reintroduces a silent stock-fallback, would turn the last item red once a probe assertion is added; today it simply has no assertion either way.",
+        "expectedChangedLines": "0 for the re-verification; if the co-op-seeding probe reveals a real bypass, bound the fix to EncounterService.ts and the coop test file only (<=500 lines, 2 files).",
+        "gates": [
+          "npm.cmd run typecheck",
+          "npx jest src/engine/__tests__/customCombatRecovery.recordedSnapshot.test.ts src/__tests__/integration/customCombatDefinition.integration.test.ts src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx"
+        ],
+        "nonClaims": [
+          "Does not add a new co-op custom-unit e2e scenario (that belongs to R2.combat-browser).",
+          "Does not change adaptUnit's public signature."
+        ]
+      },
+      "dependencies": [
+        "line-3 (catalog/reader must exist for the reader injection this relies on)",
+        "R1.remote (satisfied)"
+      ],
+      "deferralOrOwnerDecision": null
+    },
+    {
+      "taskKey": "enable-saved-custom-unit-combat#line-5@5",
+      "literalText": "Recover and rewind from validated recorded construction; wire server readers and preserve canonical behavior.",
+      "checkboxOnOriginMain": "[ ] (unchecked)",
+      "sourceCitations_NOT_closure": [
+        "src/engine/InteractiveSession.recovery.ts:102-148 -- attachRecordedCustomCombatSnapshots()/attachRecordedCustomCombatSnapshot(): prefers an already-present detached snapshot; if absent AND the unitRef is custom-*, requires an injected readCustom or throws; never silently skips a custom unit.",
+        "src/engine/InteractiveSession.recovery.ts:165-220 -- deriveAdaptedUnitsFromSession()/adaptRecoveredGameUnit(): rewind/recovery entry point; if gameUnit.customUnitDefinition is present, re-validates via requireRecordedCustomCombatSnapshot and adapts using a snapshot-only reader (never live-looks-up a present snapshot); canonical units without a snapshot fall through to the ordinary adaptUnit(unitRef, options, readCustom) path unchanged (line 203) -- this is the 'preserve canonical behavior' clause.",
+        "src/lib/multiplayer/server/matchUnitBootstrap.ts:9,113-136 -- wires readServerCustomCombatDefinition as the injected server-side reader for bootstrap/recovery, and re-detaches any adapted.customUnitDefinition before it is persisted.",
+        "src/lib/multiplayer/server/MatchRecovery.ts -- touched by the originating commit (+12/-? lines per commit stat) for rebuildSessionFromEvents/recoverActiveMatches wiring into the above."
+      ],
+      "deltaSpecShallsMapped": [
+        "custom-unit-combat spec.md, Requirement 'Recorded construction survives library changes' and both its scenarios (durable recovery after edit/delete; invalid recorded construction cannot fall back).",
+        "custom-unit-combat spec.md, Requirement 'Supported saved construction is resolved by authority' (canonical adaptation SHALL retain its existing behavior)."
+      ],
+      "existingTestCoverage": [
+        "src/engine/__tests__/customCombatRecovery.recordedSnapshot.test.ts -- 'recovers from the recorded snapshot and does not consult live authority' (line 147), 'refuses a present invalid snapshot without live lookup fallback' (line 175), 'refuses a present snapshot whose identity is not the source unitRef' (line 191), 'never silently skips a custom unit missing both snapshot and definition' (line 220).",
+        "src/lib/multiplayer/server/__tests__/customCombatRecovery.durableAuthority.test.ts -- header states this is the durable (real SQLite, not in-memory) proof: launches, persists via DurableMatchStore, closes/reopens the store, mutates AND deletes the library row, then recovers and asserts the recorded construction (not the mutated/deleted library data) drives the recovered session; 2 top-level cases.",
+        "src/__tests__/integration/customCombatDefinition.integration.test.ts:59 -- 'reads server construction, seeds the exact runtime unit, recovers it, remains stable after library editing and deletion'."
+      ],
+      "gap": "No code gap found; this task line's behavior is the most heavily tested of the six (recordedSnapshot.test.ts alone has 7 cases plus the dedicated durableAuthority.test.ts). The acceptance line's own wording ('setup/replay/cold reopen and edit/delete/no-substitution proof') is close to verbatim what durableAuthority.test.ts already exercises. The gap is exclusively: this suite has not been re-run at current origin/main tip inside this roadmap effort, and no receipt records that run.",
+      "boundedSliceCharter": {
+        "behavior": "Re-run the durable-authority and recorded-snapshot suites at current tip and capture the result as this node's primary acceptance-line-5 evidence (the roadmap's fifth acceptance line maps almost directly onto this existing test).",
+        "exactFiles": [
+          "src/engine/InteractiveSession.recovery.ts",
+          "src/lib/multiplayer/server/matchUnitBootstrap.ts",
+          "src/lib/multiplayer/server/MatchRecovery.ts"
+        ],
+        "redFirstTestNames": [
+          "src/lib/multiplayer/server/__tests__/customCombatRecovery.durableAuthority.test.ts (both cases)",
+          "src/engine/__tests__/customCombatRecovery.recordedSnapshot.test.ts (all 7 cases)",
+          "src/__tests__/integration/customCombatDefinition.integration.test.ts > reads server construction, seeds the exact runtime unit, recovers it, remains stable after library editing and deletion"
+        ],
+        "whatTurnsRed": "A change to DurableMatchStore's file format, SQLiteService lifecycle, or UnitRepository's delete/mutate semantics since c8780618e would turn the durableAuthority test red; that failure IS the reproduction, no separate repro step needed.",
+        "expectedChangedLines": "0 (this is the strongest candidate for a pure verification-only slice among the six).",
+        "gates": [
+          "npx jest src/lib/multiplayer/server/__tests__/customCombatRecovery.durableAuthority.test.ts src/engine/__tests__/customCombatRecovery.recordedSnapshot.test.ts --runInBand"
+        ],
+        "nonClaims": [
+          "Does not claim this satisfies the roadmap's browser/production proof requirement for R2.combat-browser (that node covers an actual terminal combat launch in the browser, which this jest suite does not exercise)."
+        ]
+      },
+      "dependencies": [
+        "line-4 (setup-time snapshot attach must exist for recovery to have something to prefer)",
+        "R1.remote (satisfied)"
+      ],
+      "deferralOrOwnerDecision": "The roadmap's acceptance line 5 ('Actual SQLite saved construction, immutable GameCreated snapshot, setup/replay/cold reopen and edit/delete/no-substitution proof') should be satisfied by re-running this existing suite rather than authoring a new one -- flag to the owner so a duplicate proof isn't commissioned."
+    },
+    {
+      "taskKey": "enable-saved-custom-unit-combat#line-6@6",
+      "literalText": "Extend replay gating and verify private construction redaction for owners, opponents, spectators, and recovery streams.",
+      "checkboxOnOriginMain": "[ ] (unchecked)",
+      "sourceCitations_NOT_closure": [
+        "src/lib/events/replay/CombatLifecycleSharedSchemas.ts:548-641 -- gameUnitSchema (z.object) adds customUnitDefinition: customCombatSnapshotSchema.optional() at line 554; the whole object is .strict() (line 641) then .refine() (lines 642-653) enforcing 'unit.customUnitDefinition === undefined || (unit.unitRef.startsWith(custom-) && unit.customUnitDefinition.id === unit.unitRef)' -- this is the 'extend replay gating' clause.",
+        "src/lib/multiplayer/server/fogOfWar.ts:125,132 -- projection strips customUnitDefinition from a unit payload when any unit in the batch carries one, via a destructure-and-omit ({ customUnitDefinition: _snapshot, ...publicUnit }) -- the redaction mechanism.",
+        "src/lib/multiplayer/server/__tests__/customConstructionVisibility.test.ts:79,92 -- 'redacts both snapshots for spectator and unknown audiences' and 'preserves the existing full-visibility contract when fog is off'.",
+        "src/lib/multiplayer/server/__tests__/customConstructionTransport.test.ts:42 -- single case explicitly named 'keeps custom construction private through live, replay, and reconnect publication' -- covers all three transport surfaces the task/spec calls out.",
+        "src/lib/events/replay/__tests__/CustomConstructionReplay.test.ts:29,68 -- 'accepts recorded construction and preserves the distinct game identity' and 'keeps canonical history readable while invalidating its older parser fingerprint' -- the second case is the concrete evidence for design decision #5's 'deterministic parser identity' / fingerprint-invalidation requirement."
+      ],
+      "deltaSpecShallsMapped": [
+        "custom-unit-combat spec.md, Requirement 'Replay validates construction without external lookup' and its Scenario 'Strict nested snapshot validation'.",
+        "custom-unit-combat spec.md, Requirement 'Construction follows server visibility rules' and its Scenario 'Hidden construction remains private' (owner / opponent / spectator)."
+      ],
+      "existingTestCoverage": [
+        "customConstructionVisibility.test.ts (2 cases: spectator/unknown redaction, fog-off full visibility)",
+        "customConstructionTransport.test.ts (1 case covering live + replay + reconnect together)",
+        "CustomConstructionReplay.test.ts (2 cases: strict acceptance + fingerprint invalidation)"
+      ],
+      "gap": "No code gap found against the literal task text; owner/opponent/spectator, live/reconnect/replay, and parser-fingerprint invalidation are each independently named and tested. The one thing not independently confirmed by this review is whether 'recovery streams' specifically (as opposed to live/replay/reconnect) has its own named assertion, or whether it is assumed covered transitively through MatchRecovery reusing the same fogOfWar projection -- worth a one-line confirmation rather than a code change.",
+      "boundedSliceCharter": {
+        "behavior": "Re-run the redaction/transport/replay-fingerprint suites at current tip; add ONE targeted assertion only if 'recovery stream' redaction turns out to bypass fogOfWar's shared projection (currently believed not to, based on matchUnitBootstrap.ts wiring through the same detachCustomCombatSnapshot/fog path, but not independently proven by a named test in this review).",
+        "exactFiles": [
+          "src/lib/events/replay/CombatLifecycleSharedSchemas.ts",
+          "src/lib/multiplayer/server/fogOfWar.ts",
+          "src/lib/multiplayer/server/MatchRecovery.ts"
+        ],
+        "redFirstTestNames": [
+          "src/lib/multiplayer/server/__tests__/customConstructionVisibility.test.ts (both cases)",
+          "src/lib/multiplayer/server/__tests__/customConstructionTransport.test.ts (the single case)",
+          "src/lib/events/replay/__tests__/CustomConstructionReplay.test.ts (both cases)",
+          "PROPOSED new case (only if the recovery-stream gap above is confirmed real): src/lib/multiplayer/server/__tests__/customConstructionVisibility.test.ts > redacts recorded construction on a rebuilt-from-events recovery stream for a non-owner viewer"
+        ],
+        "whatTurnsRed": "A schema drift that removes the .strict()/.refine() pairing on gameUnitSchema, or a fogOfWar change that stops destructuring customUnitDefinition, would turn the existing suites red immediately.",
+        "expectedChangedLines": "0 for re-verification; the one proposed new case (if needed) is a single test file addition, well under the 500-line/15-file cap.",
+        "gates": [
+          "npx jest src/lib/multiplayer/server/__tests__/customConstructionVisibility.test.ts src/lib/multiplayer/server/__tests__/customConstructionTransport.test.ts src/lib/events/replay/__tests__/CustomConstructionReplay.test.ts"
+        ],
+        "nonClaims": [
+          "Does not modify the shared gameUnitSchema or fogOfWar production logic unless a real gap is proven."
+        ]
+      },
+      "dependencies": [
+        "line-4 and line-5 (schema/fog operate on the snapshot those tasks attach and recover)",
+        "R1.remote (satisfied)"
+      ],
+      "deferralOrOwnerDecision": null
+    },
+    {
+      "taskKey": "enable-saved-custom-unit-combat#line-7@7",
+      "literalText": "Wire shared catalog admission and campaign consumers; reject malformed, unsupported, missing, or mismatched references before materialization.",
+      "checkboxOnOriginMain": "[ ] (unchecked)",
+      "sourceCitations_NOT_closure": [
+        "src/lib/campaign/readiness/canonicalCatalogAdmission.ts:69-93 -- admitCanonicalExactReference(): the shared admission guard; denies 'roster_source_custom' when a custom-source unit is not exact-membership in catalog.customCombatRefs (lines 79-88), denies 'source_ref_mismatch' when a custom-* unitRef appears under a non-custom source (lines 90-92) -- this is the 'reject ... mismatched references before materialization' clause.",
+        "src/lib/campaign/readiness/canonicalCatalogAdmission.ts:159-172 (approx, fetchCanonicalCatalogSnapshot) -- fetches /api/units/custom/combat-catalog independently of the canonical catalog fetch; a failed/malformed custom fetch leaves the canonical catalog snapshot intact (custom failure does not discard canonical) per parseCustomCombatRefsPayload (lines 223-231) returning undefined on any non-array/non-string-array payload.",
+        "src/lib/campaign/readiness/useCombatCatalog.ts:1-31 -- the browser hook wiring the above into React state for readiness surfaces.",
+        "src/pages/gameplay/campaigns/[id]/mech-bay.tsx:19,21,96,114 -- consumes both useCombatCatalog and listCampaignSavedDesigns.",
+        "src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx:35,63 -- consumes useCombatCatalog for mission-launch readiness.",
+        "src/components/gameplay/pages/campaigns/create/CreateCampaignPage.RosterStep.tsx:7,38 -- consumes listCampaignSavedDesigns for the campaign-creation roster step.",
+        "src/services/encounter/EncounterService.ts:419-439 -- re-resolves the selected saved construction at materialization time via attachRecordedCustomCombatSnapshots before GameCreated, i.e. after readiness admission but still before any state mutation is recorded -- 'Server materialization SHALL re-resolve selected saved construction before recording combat' (design decision #7)."
+      ],
+      "deltaSpecShallsMapped": [
+        "mission-contracts spec.md (MODIFIED), Requirement 'Canonical combat catalog readiness is explicit' and its three scenarios (ready catalog resolves exact source; custom catalog fails independently; canonical catalog failure blocks launch).",
+        "mission-contracts spec.md (MODIFIED), Requirement 'Campaign launch requires an authoritative canonical source' and its three scenarios (mixed roster; invalid selection blocked; co-op launch revalidates authority)."
+      ],
+      "existingTestCoverage": [
+        "src/lib/campaign/readiness/__tests__/canonicalCatalogAdmission.test.ts -- 3 cases covering the admission guard.",
+        "src/lib/campaign/readiness/__tests__/useCombatCatalog.test.tsx -- 2 cases for the hook.",
+        "src/services/units/__tests__/listCampaignSavedDesigns.test.ts -- covers the picker-merge half already cited under line-3.",
+        "src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx -- exists and was touched by the originating commit (+12 lines), naming co-op specifically, though (per the line-4 entry above) this review did not find a custom-unit-specific assertion inside it -- see the line-4 gap note; the SAME gap applies here for the 'co-op launch revalidates authority' scenario specifically."
+      ],
+      "gap": "Wiring into all three named consumers (mech-bay, mission launch, campaign-create roster step) is confirmed present. The one concrete, testable gap: mission-launch.coop.test.tsx does not appear (per grep in this review) to assert the 'Co-op launch revalidates authority' scenario for a CUSTOM (as opposed to canonical) roster unit specifically -- i.e. there is no named test proving a co-op host with a missing/foreign/stale custom-source reference is rejected before composition. This is the single most concrete, addressable gap found in this entire review.",
+      "boundedSliceCharter": {
+        "behavior": "Add a co-op-specific custom-source authority-revalidation test; if it passes without code changes, this closes the gap as verification; if it fails, fix canonicalCatalogAdmission's co-op call site to route custom sources through the same guard.",
+        "exactFiles": [
+          "src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx",
+          "src/lib/campaign/readiness/canonicalCatalogAdmission.ts"
+        ],
+        "redFirstTestNames": [
+          "PROPOSED: src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx > co-op rejects a missing/foreign/stale custom-source roster reference before composition or encounter launch (net-new; this is the red-first test -- write it first, confirm it goes red or green honestly, do not assume)."
+        ],
+        "whatTurnsRed": "If co-op's launch path calls admitCanonicalExactReference (or an equivalent) per-unit the same way solo launch does, the new test should be GREEN immediately (pure verification). If co-op has a separate, older admission code path that predates the custom-source branch, the new test goes RED and identifies exactly which file needs the guard wired in.",
+        "expectedChangedLines": "0-40 if verification-only; if a real gap is found, bound the fix to canonicalCatalogAdmission.ts's co-op call site only, well under 500 lines / 15 files.",
+        "gates": [
+          "npm.cmd run typecheck",
+          "npx jest src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx src/lib/campaign/readiness/__tests__/canonicalCatalogAdmission.test.ts"
+        ],
+        "nonClaims": [
+          "Does not add a live two-browser co-op custom-unit proof (that is R2.authority-live / R2.combat-browser territory, not R2.combat)."
+        ]
+      },
+      "dependencies": [
+        "line-3 (catalog endpoint/picker)",
+        "R1.remote (satisfied)"
+      ],
+      "deferralOrOwnerDecision": "Flag to the owner: this is the one task line where this review recommends actually writing a new test (not just re-running existing ones) before declaring the task's acceptance criteria met."
+    },
+    {
+      "taskKey": "enable-saved-custom-unit-combat#line-8@8",
+      "literalText": "Verify focused tests, persisted SQLite reopen/recovery after library mutation, browser handoff with server readback, and required static/build/spec checks.",
+      "checkboxOnOriginMain": "[ ] (unchecked)",
+      "sourceCitations_NOT_closure": [
+        "e2e/saved-custom-combat.spec.ts (125 lines, 1 Playwright test) -- 'server-saved construction reaches campaign persistence with distinct identities': creates a custom unit via POST /api/units/custom, confirms it in GET /api/units/custom/combat-catalog, drives the campaign-create wizard to select it, asserts a distinct roster-instance id vs the source customId, submits (PUT /api/campaigns/:id), reads back via GET /api/campaigns/:id, navigates to mech-bay, reloads the page (cold reload), confirms roster projection identity is unchanged, then cleans up (DELETE both).",
+        "src/lib/multiplayer/server/__tests__/customCombatRecovery.durableAuthority.test.ts -- the 'persisted SQLite reopen/recovery after library mutation' proof, already cited in full under line-5: real DurableMatchStore, close/reopen, library mutate AND delete, recover from recorded history.",
+        "REPORT.md's self-reported numbers ('All 21 final browser scenarios pass... All 88 focused assertions pass... Full type checking, lint, production build/standalone hydration and strict change validation pass') are SELF-REPORTED inside the same commit that authored the change -- no separate roadmap receipt corroborates them, and this review's direct count of named it()/test() blocks across the 13 customCombat-specific files above totals roughly 27, not 88 -- the 88/21 figures most likely aggregate across the WHOLE PR #1635 batch (which also shipped the sibling add-customizer-edit-recovery change and unrelated customizer-tab/dialog work in the same commit), not this change alone. Treat REPORT.md's numbers as UNVERIFIED / not scoped to this change until independently re-run and re-counted."
+      ],
+      "deltaSpecShallsMapped": [
+        "custom-unit-combat spec.md, Requirement 'Campaign picker preserves durable saved identities', Scenario 'Saved design survives the browser handoff' -- this is exactly what e2e/saved-custom-combat.spec.ts proves.",
+        "custom-unit-combat spec.md, Requirement 'Recorded construction survives library changes', Scenario 'Durable recovery after design edit and deletion' -- this is exactly what customCombatRecovery.durableAuthority.test.ts proves."
+      ],
+      "existingTestCoverage": [
+        "e2e/saved-custom-combat.spec.ts (1 scenario, browser handoff + cold reload + server readback)",
+        "customCombatRecovery.durableAuthority.test.ts (2 scenarios, real SQLite)",
+        "The full customCombat-specific test set listed in sourceFilesInventory.tests (~13 files, ~27 named cases by this review's direct count)"
+      ],
+      "gap": "Two concrete gaps, both about PROOF FRESHNESS rather than missing behavior: (1) none of the four static gates (typecheck, lint, format:check, build) named in the roadmap node's own acceptance list have been re-run and receipted at the CURRENT origin/main tip (be7f85b86) for this change's ownership paths -- main has moved several commits past c8780618e; (2) REPORT.md's aggregate pass counts are not independently reproducible from this change's files alone and should not be cited as this node's evidence without a fresh, change-scoped run. Separately (a boundary, not a gap): e2e/saved-custom-combat.spec.ts proves campaign persistence/picker/mech-bay reload, NOT an actual combat launch/materialization through the terminal UI -- that is explicitly R2.combat-browser's job (see dependencies below), so it should not be treated as missing from R2.combat.",
+      "boundedSliceCharter": {
+        "behavior": "Produce the receipt: run the four static gates plus the full customCombat-specific jest matrix plus e2e/saved-custom-combat.spec.ts, scoped to this change's ownership paths, at current origin/main tip; write the pass/fail per task line into a single evidence file. No source edits expected.",
+        "exactFiles": [
+          "(evidence output file only) openspec/planning/2026-09-12-roadmap-completion/evidence/r2-combat-verification-<date>.json"
+        ],
+        "redFirstTestNames": [
+          "npm.cmd run typecheck (repo-wide; ownership paths are a subset)",
+          "npm.cmd run lint",
+          "npm.cmd run format:check",
+          "npm.cmd run build",
+          "npx jest <all 13 customCombat-specific test files listed in sourceFilesInventory.tests>",
+          "npx playwright test e2e/saved-custom-combat.spec.ts"
+        ],
+        "whatTurnsRed": "Any gate or named test failing at current tip is the reproduction of a real regression since c8780618e; that failure, not a hypothesis, determines whether a follow-on fix slice (scoped to the specific failing area per the line-3..line-7 entries above) is needed.",
+        "expectedChangedLines": "0 (pure verification/receipt slice).",
+        "gates": [
+          "npm.cmd run typecheck",
+          "npm.cmd run lint",
+          "npm.cmd run format:check",
+          "npm.cmd run build"
+        ],
+        "nonClaims": [
+          "Does not check tasks.md boxes (an explicit separate owner action per proposal.md's own stated policy).",
+          "Does not produce a new browser combat-launch proof (R2.combat-browser).",
+          "Does not re-litigate or re-cite REPORT.md's 21/88 figures as this node's evidence."
+        ]
+      },
+      "dependencies": [
+        "line-3 through line-7 (this is the consolidated verification of all preceding lines)",
+        "R1.remote (satisfied)",
+        "R2.combat-browser (downstream/sibling, NOT a blocking dependency -- it extends what R2.combat proves into an actual production browser combat launch; R2.combat's acceptance does not require it)"
+      ],
+      "deferralOrOwnerDecision": "Owner decision needed: once this slice's receipt is green, should tasks.md's six boxes be checked and the change routed toward archive, or does the team want to hold the change open until R2.combat-browser also lands? The proposal.md/REPORT.md wording ('checkboxes remain unchanged until explicitly requested') implies this decision was always meant to be made later, and 'later' is now."
+    }
+  ],
+  "acceptanceLineAnalysis": [
+    {
+      "acceptanceLine": "npm.cmd run typecheck",
+      "proofArtefactNeeded": "Fresh command output (exit 0) captured at current origin/main tip (be7f85b86 or later), written into the verification receipt. Does not exist yet for this node.",
+      "existingOrToBeProduced": "to be produced",
+      "productionBrowserRunRequired": false,
+      "route": null
+    },
+    {
+      "acceptanceLine": "npm.cmd run lint",
+      "proofArtefactNeeded": "Fresh command output (exit 0) at current tip.",
+      "existingOrToBeProduced": "to be produced",
+      "productionBrowserRunRequired": false,
+      "route": null
+    },
+    {
+      "acceptanceLine": "npm.cmd run format:check",
+      "proofArtefactNeeded": "Fresh command output (exit 0) at current tip.",
+      "existingOrToBeProduced": "to be produced",
+      "productionBrowserRunRequired": false,
+      "route": null
+    },
+    {
+      "acceptanceLine": "npm.cmd run build",
+      "proofArtefactNeeded": "Fresh production build output (exit 0) at current tip.",
+      "existingOrToBeProduced": "to be produced",
+      "productionBrowserRunRequired": false,
+      "route": null
+    },
+    {
+      "acceptanceLine": "Actual SQLite saved construction, immutable GameCreated snapshot, setup/replay/cold reopen and edit/delete/no-substitution proof",
+      "proofArtefactNeeded": "A jest run of src/lib/multiplayer/server/__tests__/customCombatRecovery.durableAuthority.test.ts (real SQLite via DurableMatchStore, close/reopen, library mutate+delete, recover) plus src/engine/__tests__/customCombatRecovery.recordedSnapshot.test.ts (no-substitution / no-live-lookup-on-present-snapshot cases) plus e2e/saved-custom-combat.spec.ts (browser handoff + cold reload + server readback). All three files ALREADY EXIST and already target close to this exact scenario -- the proof artefact to produce is a fresh, receipted RUN of these three, not new test authorship (except the one proposed co-op case under line-7).",
+      "existingOrToBeProduced": "existing tests, fresh run + receipt to be produced",
+      "productionBrowserRunRequired": true,
+      "route": "e2e/saved-custom-combat.spec.ts drives /gameplay/campaigns/create (wizard) -> PUT /api/campaigns/:id -> /gameplay/campaigns/:id/mech-bay (reload). This is a real Playwright browser run against a production-mode server per existing project convention (NEXT_PUBLIC_E2E_MODE/E2E_TEST, per the customizer-regressions CI job pattern seen in r1-remote-closure-20260915.json). Note: this route proves campaign persistence and picker/mech-bay, NOT an actual combat encounter launch; a true production combat-launch browser proof for a custom unit is R2.combat-browser's route, not this node's."
+    }
+  ],
+  "orderedSlicePlan": [
+    {
+      "order": 1,
+      "sliceId": "R2.combat.S1-line3-picker-catalog-verify",
+      "coversTaskKeys": [
+        "line-3"
+      ],
+      "kind": "verification",
+      "parallelSafeWith": [
+        "R2.combat.S2-line4-setup-verify (file-disjoint: different files)"
+      ],
+      "filesTouched": [
+        "src/types/contracts/CustomCombatSnapshot.ts",
+        "src/services/units/customCombatDefinition.ts",
+        "src/services/units/serverCustomCombatDefinition.ts",
+        "src/services/units/listCampaignSavedDesigns.ts",
+        "src/pages/api/units/custom/combat-catalog.ts"
+      ],
+      "rationale": "No dependency on the other slices; the catalog/picker layer is read by everything downstream but this slice only re-confirms it, it does not change it."
+    },
+    {
+      "order": 2,
+      "sliceId": "R2.combat.S2-line4-setup-verify",
+      "coversTaskKeys": [
+        "line-4"
+      ],
+      "kind": "verification (+ 1 proposed coop-seeding probe test, contingent)",
+      "parallelSafeWith": [
+        "R2.combat.S1-line3-picker-catalog-verify"
+      ],
+      "filesTouched": [
+        "src/engine/adapters/CompendiumAdapter.ts",
+        "src/engine/InteractiveSession.setup.ts",
+        "src/engine/InteractiveSession.recovery.ts",
+        "src/services/encounter/EncounterService.ts"
+      ],
+      "rationale": "Depends conceptually on S1's reader existing, but does not touch S1's files -- can run in parallel; only needs S1 to have confirmed the reader contract is unchanged, which is a fast check."
+    },
+    {
+      "order": 3,
+      "sliceId": "R2.combat.S3-line5-recovery-verify",
+      "coversTaskKeys": [
+        "line-5"
+      ],
+      "kind": "verification (strongest existing coverage of the six; highest-confidence green)",
+      "parallelSafeWith": [],
+      "filesTouched": [
+        "src/engine/InteractiveSession.recovery.ts",
+        "src/lib/multiplayer/server/matchUnitBootstrap.ts",
+        "src/lib/multiplayer/server/MatchRecovery.ts"
+      ],
+      "rationale": "Shares InteractiveSession.recovery.ts with S2 (both READ it, S2 also touches setup.ts which imports from recovery.ts) -- run after S2 to avoid a false-positive green from stale mental state about that shared file, though neither slice is expected to EDIT it."
+    },
+    {
+      "order": 4,
+      "sliceId": "R2.combat.S4-line6-replay-fog-verify",
+      "coversTaskKeys": [
+        "line-6"
+      ],
+      "kind": "verification (+ 1 proposed recovery-stream redaction probe, contingent)",
+      "parallelSafeWith": [
+        "R2.combat.S1-line3-picker-catalog-verify"
+      ],
+      "filesTouched": [
+        "src/lib/events/replay/CombatLifecycleSharedSchemas.ts",
+        "src/lib/multiplayer/server/fogOfWar.ts",
+        "src/lib/multiplayer/server/MatchRecovery.ts"
+      ],
+      "rationale": "Depends on S3 having confirmed MatchRecovery's shape is unchanged (S4 also reads MatchRecovery.ts for the recovery-stream probe) -- sequence after S3; file-disjoint from S1/S2 so those two can run in parallel with S4 EXCEPT for the shared MatchRecovery.ts read, which is read-only in all slices so a true conflict is unlikely."
+    },
+    {
+      "order": 5,
+      "sliceId": "R2.combat.S5-line7-catalog-admission-and-coop-probe",
+      "coversTaskKeys": [
+        "line-7"
+      ],
+      "kind": "verification + ONE new red-first test (the coop custom-source authority probe) -- the highest-value slice in this plan",
+      "parallelSafeWith": [],
+      "filesTouched": [
+        "src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx",
+        "src/lib/campaign/readiness/canonicalCatalogAdmission.ts"
+      ],
+      "rationale": "Must run after S1 (catalog) and S4 (fog/replay, since co-op composition may touch both) to have full confidence any redness found here is real and not a byproduct of an earlier slice's unverified assumption."
+    },
+    {
+      "order": 6,
+      "sliceId": "R2.combat.S6-line8-consolidated-receipt",
+      "coversTaskKeys": [
+        "line-8"
+      ],
+      "kind": "consolidated verification + gates; produces the final admission receipt for the whole node",
+      "parallelSafeWith": [],
+      "filesTouched": [
+        "(evidence output only)"
+      ],
+      "rationale": "Must run LAST: it re-runs the four static gates repo-wide plus the full customCombat jest matrix plus the e2e spec, and its receipt is what flips roadmapNode.receipt from null. Depends on S1-S5 having resolved any redness first, otherwise this slice's own run just re-discovers the same failures without attribution."
+    }
+  ],
+  "summary": {
+    "headline": "The six enable-saved-custom-unit-combat tasks are checkbox-unchecked by deliberate policy, not because the work is missing: PR #1635 (commit c8780618e, 2026-09-10) already landed a comprehensive, well-tested implementation covering all six task lines. R2.combat's real job -- consistent with its own roadmap kind:'verification' tag -- is to re-confirm that implementation against the current origin/main tip, close one genuine test-coverage gap (co-op custom-source authority revalidation, line-7), and produce the receipt the roadmap is missing.",
+    "dependencyStatus": "R1.remote is CLOSABLE-NOW / main-verified; R2.combat is unblocked to start immediately.",
+    "realGapsFound": [
+      "No fresh receipt for the four static gates (typecheck/lint/format:check/build) or the customCombat test matrix at the CURRENT origin/main tip (line-8).",
+      "No named test proves co-op specifically revalidates authority for a CUSTOM-source roster reference (as distinct from canonical) before composition (line-7) -- the one place this review recommends writing new test code, not just re-running old tests.",
+      "REPORT.md's self-reported 21-scenario / 88-assertion figures are not independently reproducible as scoped to this change alone and should not be cited as this node's evidence."
+    ],
+    "processFlagsForOwner": [
+      "Canonical SoT specs (openspec/specs/custom-unit-combat/spec.md, openspec/specs/mission-contracts/spec.md) were already updated via a separate docs PR (#1653) ahead of this change's own archival -- a single-source-of-truth sequencing anomaly worth a decision, not a blocker to verification.",
+      "Once S6's receipt is green, an explicit owner decision is needed on checking tasks.md's six boxes and whether to archive now or hold for R2.combat-browser."
+    ],
+    "recommendedFirstSlice": "R2.combat.S1-line3-picker-catalog-verify, run in parallel with S2 (line-4) -- both are pure re-verification of already-comprehensively-tested code with the lowest risk of surfacing a real regression, and clearing them fast builds confidence before the higher-value S5 (line-7 coop probe, the one slice with real new-test-authorship risk)."
+  }
+}

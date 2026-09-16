@@ -1,0 +1,50 @@
+{
+  "at": "2026-09-13T08:40:37.968Z",
+  "status": "not-accepted-correction-in-progress",
+  "base": "44b94adbbb333a9d4965e057b34290e19fc0e781",
+  "parentGate": {
+    "exit": 1,
+    "suites": {
+      "passed": 41,
+      "failed": 4
+    },
+    "tests": {
+      "passed": 362,
+      "failed": 26
+    },
+    "unexecuted": [
+      "build",
+      "typecheck",
+      "lint",
+      "format",
+      "purpose",
+      "terminology",
+      "quality",
+      "openspec"
+    ]
+  },
+  "review": "REQUEST_CHANGES: durable reader swallowed branch-integrity; correction assigned with real reader-to-launch regression.",
+  "supersedingPlan": "evidence/r3-integrity-prefix-admission-20260913.json",
+  "artifacts": [
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-branch-integrity-final-review-terra-20260913/report.json",
+      "sha256": "37f76e0b2af2c67b9d8e8666bfb443f9ef4b155e725f491a855caa2f499a5df2"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-branch-integrity-final-review-terra-20260913/review.md",
+      "sha256": "681237e6bc368c25da74c75b12e1798d26620af0f354a7c49657c2d8c3d11ffe"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-branch-integrity-parent-gates-20260913/report.json",
+      "sha256": "cf07057cd41fa2ac48b6b22a8f6f0e3ec09a57556a9bdb784626eac11b1e4f3a"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-branch-integrity-parent-gates-20260913/driver-status.json",
+      "sha256": "5754fc6bb27fb2218e5f5b732a42c89834645578b55e74d8297f70d0925d377c"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-branch-integrity-parent-gates-20260913/journal-persistence.stderr.log",
+      "sha256": "a2bde5dc6095f1115df85b623bbf561fd57da70153911c67348ec24b1754a575"
+    }
+  ]
+}

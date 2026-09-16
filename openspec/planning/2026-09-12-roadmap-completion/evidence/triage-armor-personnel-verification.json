@@ -1,0 +1,102 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "triage-armor-personnel-verification",
+  "capturedAt": "2026-09-12",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/routing",
+  "branch": "codex/roadmap-routing-closure-20260912",
+  "baseCommitBeforeRun": "47c4464840eaa7c62044533621eb265a4ab71215",
+  "commitAfterRun": "cafd0bac3667a1e0f9123a609195c54ec8ceeade",
+  "parentCommitDuringRun": {
+    "occurred": true,
+    "deltaScope": "audit/OpenSpec documentation closure only",
+    "srcPathsChanged": false
+  },
+  "requestedTests": [
+    "src/stores/__tests__/useVehicleStore.autoAllocate.test.ts",
+    "src/__tests__/utils/construction/armorAutoAllocation.test.ts",
+    "src/__tests__/unit/utils/construction/armorCalculations.test.ts",
+    "src/lib/campaign/utils/__tests__/pilotLookup.test.ts",
+    "src/lib/campaign/processors/__tests__/financialProcessor.test.ts",
+    "src/lib/campaign/processors/__tests__/vocationalTrainingProcessor.test.ts",
+    "src/lib/campaign/medical/__tests__/doctorCapacity.test.ts",
+    "src/lib/campaign/ranks/__tests__/rankService.test.ts",
+    "src/lib/campaign/progression/__tests__/aging.test.ts",
+    "src/stores/campaign/__tests__/criticalRoundTrip.test.ts"
+  ],
+  "pathCheck": {
+    "requested": 10,
+    "existing": 10,
+    "missing": []
+  },
+  "command": "NODE_OPTIONS=--max-old-space-size=8192 node node_modules/jest/bin/jest.js --runInBand --runTestsByPath <the ten requested paths above>",
+  "result": {
+    "exitCode": 0,
+    "timedOut": false,
+    "testSuitesPassed": 10,
+    "testSuitesTotal": 10,
+    "testsPassed": 254,
+    "testsTotal": 254,
+    "snapshots": 0,
+    "durationSeconds": 2.126
+  },
+  "rowCoverage": {
+    "armor-diagram": {
+      "proved": [
+        "tracked and turreted vehicle armor share distributions",
+        "VTOL rotor allocation and zero-tonnage behavior",
+        "biped, quad, tripod, LAM, and QuadVee point allocation",
+        "paired-location symmetry, torso front/rear splits, max caps, no unallocated points",
+        "location limits, armor totals, weight, points, critical slots, cost, and fill helper calculations"
+      ],
+      "limits": [
+        "Focused tests are numeric/store construction proof; they do not prove every ArmorDiagram renderer, visual variant, interaction, or browser persistence requirement."
+      ]
+    },
+    "campaign-personnel-architecture": {
+      "proved": [
+        "pilot vault lookup identity, empty/unknown/duplicate handling",
+        "salary, overhead, food/housing, loan, tax, maintenance, negative balance, and double-deduction processor gates",
+        "vocational training eligibility, timer/XP behavior, seeded determinism, and pipeline registration",
+        "doctor capacity, injured-patient counting, overload penalty, and doctor selection",
+        "role-to-profession mapping, rank naming, promotion/demotion, officer boundary, time-in-rank, and recent-promotion behavior",
+        "aging milestones, age calculations, birthday behavior, NPC/options gates, trait/attribute deltas, and event emission",
+        "Critical status preservation across campaign persist/rehydrate round trip"
+      ],
+      "limits": [
+        "These focused tests do not prove the complete personnel architecture, all production consumers, UI behavior, migration history, or every persistence and API boundary."
+      ]
+    }
+  },
+  "hashVerification": {
+    "filesCompared": 21,
+    "allBeforeAfterSha256Equal": true,
+    "detailsFile": ".sisyphus/roadmap-completion-20260912/triage-proof/armor-personnel-status-and-hashes.md"
+  },
+  "rawCommandLog": ".sisyphus/roadmap-completion-20260912/triage-proof/armor-personnel-jest-command.log",
+  "argv": [
+    "node_modules/jest/bin/jest.js",
+    "--runInBand",
+    "--runTestsByPath",
+    "src/stores/__tests__/useVehicleStore.autoAllocate.test.ts",
+    "src/__tests__/utils/construction/armorAutoAllocation.test.ts",
+    "src/__tests__/unit/utils/construction/armorCalculations.test.ts",
+    "src/lib/campaign/utils/__tests__/pilotLookup.test.ts",
+    "src/lib/campaign/processors/__tests__/financialProcessor.test.ts",
+    "src/lib/campaign/processors/__tests__/vocationalTrainingProcessor.test.ts",
+    "src/lib/campaign/medical/__tests__/doctorCapacity.test.ts",
+    "src/lib/campaign/ranks/__tests__/rankService.test.ts",
+    "src/lib/campaign/progression/__tests__/aging.test.ts",
+    "src/stores/campaign/__tests__/criticalRoundTrip.test.ts"
+  ],
+  "environment": {
+    "NODE_OPTIONS": "--max-old-space-size=8192"
+  },
+  "rawCommandLogSha256": "456d645249a3458a1e834fbf3a1ad8be234877970ab1239286876d5315a1fb3c",
+  "statusAndHashRecordSha256": "046a42ed39277456728da1c57b78e426a1e42a06fbccaf2db3b832a088a9f95c",
+  "parentReview": {
+    "at": "2026-09-12T12:26:33.599Z",
+    "rawTotalsMatch": true,
+    "sourceHashesRechecked": 21,
+    "productDiffEmpty": true
+  }
+}

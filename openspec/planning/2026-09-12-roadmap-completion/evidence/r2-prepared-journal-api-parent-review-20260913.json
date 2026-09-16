@@ -1,0 +1,48 @@
+{
+  "at": "2026-09-13T06:16:53.055Z",
+  "status": "source-and-focused-evidence-accepted-for-full-gates",
+  "base": "f16e758b09f776ef5abd51b87ea8472f4f3c0efe",
+  "files": [
+    {
+      "path": "src/lib/events/journal/SQLiteEventJournalWriter.ts",
+      "sha256": "82a319953c24d5f98a143d38f509c11d6ce3420ee55738a7444190fbfd180a4d",
+      "gitOid": "c8fe11dd94fc2fc12d5309fa5ff0d1c80fb644a7",
+      "lineCount": 471,
+      "bytes": 19895,
+      "mtimeUtc": "2026-09-13T05:55:22.9190428Z"
+    },
+    {
+      "path": "src/lib/events/journal/__tests__/SQLiteEventJournalWriter.test.ts",
+      "sha256": "c3daafceb06743fca9452e3b559d43f3e621185bd97094a4177382bbbd6e3cdd",
+      "gitOid": "0048637278d7b4a9c96bd05bf1e4786efe8db1eb",
+      "lineCount": 723,
+      "bytes": 26886,
+      "mtimeUtc": "2026-09-13T05:56:51.2032623Z"
+    }
+  ],
+  "changedLines": 489,
+  "worker": {
+    "model": "Cursor Grok4.6High",
+    "session": "44dc592a-614e-43ea-81e5-e4de9bfdaac4",
+    "exit": 0
+  },
+  "review": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-prepared-journal-api-correction-review-terra-20260913/review.json",
+    "sha256": "72b6c4f110c7b587ba44be946fcca847e52ed79b7c8faad5547edb3ec9e40707",
+    "qualificationPath": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-prepared-journal-api-correction-review-terra-20260913/qualification.json",
+    "qualificationSha256": "a13d132e8663c97194771353750fcd5ee43a3abdb17f0ce3c9993b525579b5dc"
+  },
+  "focused": {
+    "writerTests": 15,
+    "relatedTests": 21,
+    "relatedSuites": 2,
+    "totalsNotCombined": true
+  },
+  "parentQualifications": [
+    "Red callable cases left real SQLite counts unchanged and receipts absent; reproduced defect is explicit guard/error-order contract, not proven committed data loss",
+    "Current max-lines warning is not established as pre-existing. Cohesive concrete writer remains471physical lines, below500hard guardrail",
+    "No campaign producer/private replay/cutover or generic IEventJournal change",
+    "Full isolated gates and normal publication/main proof remain pending; later CAMP exact-head approval and three-witness gates unwaived"
+  ],
+  "artifactHashesVerified": 10
+}

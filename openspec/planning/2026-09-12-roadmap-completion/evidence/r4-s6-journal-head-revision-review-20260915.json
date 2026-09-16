@@ -1,0 +1,178 @@
+{
+  "artefact": "r4-s6-journal-head-revision-review-20260915",
+  "reviewer": "independent-review-agent (GP-justified: three-commit stack review, Bash/Read/Write only)",
+  "date": "2026-09-15",
+  "scope": "Independent review of adopt-combat-journal-cutover-and-gm-rewind task 1.6 (R4.S6): commits A b3dfa46b2, B 4aa12c2a2, C bb639a869 on branch codex/roadmap-r4-s6-journal-head-revision-20260915, base d5beb854",
+  "verdict": "APPROVE",
+  "worktreeVerification": {
+    "path": ".sisyphus/roadmap-completion-20260912/worktrees/history-runtime-integrity",
+    "branch": "codex/roadmap-r4-s6-journal-head-revision-20260915 (confirmed via git branch --show-current)",
+    "log": "git log --oneline -6: bb639a869, 4aa12c2a2, b3dfa46b2, d5beb8542, 6795b48e4, 8cacf20a6 -- matches expected A/B/C/base exactly",
+    "statusShort": "clean at session start (git status --short empty)",
+    "note": "During axis-6 merge-tree investigation, a command-chaining mistake (`git checkout -b <bad-name>` failed, but the subsequent `git merge --no-commit --no-ff origin/main` still executed against the live worktree branch) produced real conflict markers in the working tree. This was caught immediately and reversed with `git merge --abort`; `git status --short` confirmed clean and `git log --oneline -1` confirmed HEAD unchanged at bb639a869 afterward. No repo file was left modified. Disclosed per the verify-never-infer standard rather than omitted."
+  },
+  "axis1_design": {
+    "verdict": "PASS",
+    "findings": [
+      {
+        "claim": "Mode-gated consult: 'off'/'shadow' use store-derived revision, 'enabled' reads the journal head",
+        "citation": "src/lib/multiplayer/server/matchCommitJournalHead.ts:78-98 (resolveMatchCommitExpectedRevision) -- `if (getCombatJournalAuthorityMode() !== 'enabled') return storeExpectedRevision(nextMatchSequence);` else `readEffectiveStreamHead(...)` and returns `{ kind: 'journal', expectedRevision: head.revision }`",
+        "verified": true
+      },
+      {
+        "claim": "Consult runs outside the mirror's/append's transaction",
+        "citation": "src/lib/multiplayer/server/DurableMatchStore.ts:1006-1016 (mirrorCommittedBatch) calls `resolveMatchCommitExpectedRevision(db, matchId, batch.expectedRevision)` BEFORE calling `mirrorMatchBatchToJournal`, which opens its own transaction in MatchStreamJournalMirror.ts. Confirmed no shared transaction scope.",
+        "verified": true
+      },
+      {
+        "claim": "Identity is checked before revision, so a stale-by-one-revision retry with matching command identity replays from receipt rather than conflicting",
+        "citation": "src/lib/events/journal/SQLiteEventJournalWriter.ts:175 (`const existing = this.findReceipt(input.commandId)` -- returns hydrated batch or 'command-identity-conflict' before any revision read) vs line 191 (`actualRevision !== input.expectedRevision` -> 'revision-conflict'). The identity check strictly precedes the revision check in source order and in control flow (identity branch returns before revision is even read).",
+        "verified": true
+      },
+      {
+        "claim": "S6-R1 (create-path seeding must precede any cutover flip) is an explicit non-claim, not a silent assumption",
+        "citation": "receipt riskFlaggedForTheOwner[0] (S6-R1) states the consult answers the head's revision unconditionally, names the create-path gap, and states the ORDERING constraint for S7 explicitly. Cross-checked against the passing test row 'appends at the head when the match log has run ahead of it' (matchCommitJournalHead.sqlite.test.ts:312-339), which asserts this behavior as current rather than hiding it.",
+        "verified": true
+      },
+      {
+        "claim": "Guard lift is keyed on the arm ('store' vs 'journal'), not re-reading the mode",
+        "citation": "src/lib/multiplayer/server/MatchStreamJournalMirror.ts:173 -- `if (input.expected.kind === 'store' && !isLivePathBranchId(branchId))`. Confirmed the mirror does not call getCombatJournalAuthorityMode() itself.",
+        "verified": true
+      }
+    ]
+  },
+  "axis2_tests": {
+    "verdict": "PASS",
+    "redFirstEvidence": {
+      "logPath": ".sisyphus/roadmap-completion-20260912/r4-s6-20260915/red-journal-head-20260915.log",
+      "sha256Match": true,
+      "computedSha256": "bf55805c1ba4e725a6b382fa95a4d698018c22c5ff960b6336e360301214d34b",
+      "content": "Verified tail of log: 'Test Suites: 1 failed, 1 total / Tests: 4 failed, 2 passed, 6 total', matching the receipt's redFirst.result exactly. Failure content (rewound-stream instead of duplicate-command/mirrored) matches the receipt's failuresMeasured list."
+    },
+    "mutantReproduction": [
+      {
+        "id": "M4",
+        "mutation": "matchCommitJournalHead.ts journal arm: replaced `head.revision` with `journalHeadRevisionForNextMatchSequence(nextMatchSequence)` while keeping kind:'journal'",
+        "commandRun": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/multiplayer/server src/lib/events/journal",
+        "result": "1 suite / 1 test failed",
+        "failingRow": "the expected revision for a commit comes from the journal head > appends at the head when the match log has run ahead of it",
+        "matchesReceipt": true,
+        "restored": "cp from scratchpad backup; git status --short confirmed clean after restore"
+      },
+      {
+        "id": "M7",
+        "mutation": "MatchStreamJournalMirror.ts guard: dropped the arm condition, restoring S5's blanket refusal (`if (!isLivePathBranchId(branchId))`)",
+        "commandRun": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/multiplayer/server src/lib/events/journal",
+        "result": "1 suite / 4 tests failed",
+        "failingRows": [
+          "mirrors a rewound stream onto the activated branch at the head revision",
+          "exactly one writer commits and the loser is refused typed",
+          "replays a retried command from its receipt without a second append",
+          "refuses the same command id carrying different work and appends nothing"
+        ],
+        "matchesReceipt": "Matches commitC.mutantMatrixRerun claim of 4 tests (up from 3 in the first-pass A+B-only matrix) exactly.",
+        "restored": "cp from scratchpad backup; git status --short confirmed clean after restore"
+      },
+      {
+        "id": "M1",
+        "mutation": "matchStoreBranchSegmentReader.ts revisionForMatchSequence: `return sequence` (dropped the +1 offset)",
+        "commandRun": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/multiplayer/server src/lib/events/journal",
+        "result": "53 suites / 173 tests failed",
+        "matchesReceipt": "Matches commitC.mutantMatrixRerun claim of 173 tests exactly (up from 172 in the first-pass matrix); suite count 53 matches both passes.",
+        "restored": "cp from scratchpad backup; git status --short confirmed clean after restore"
+      }
+    ],
+    "notReproduced": ["M2", "M3", "M5", "M6", "M8 -- not independently reproduced; time-boxed to 3 mutants across the 3 named layers (helper, translation/task-1.6, guard) per the task's own axis-2 instruction ('reproduce at least M4 ... and two others')."]
+  },
+  "axis3_gates": {
+    "verdict": "PASS -- all gates re-run from scratch on the shipped tree (commit C, HEAD) and match the receipt exactly",
+    "results": [
+      {
+        "gate": "focused suites named in receipt (matchCommitJournalHead + matchStreamJournalMirror)",
+        "command": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/multiplayer/server/__tests__/matchCommitJournalHead.sqlite.test.ts src/lib/multiplayer/server/__tests__/matchStreamJournalMirror.sqlite.test.ts",
+        "exitCode": 0,
+        "result": "2 suites passed / 17 tests passed",
+        "matchesReceipt": true
+      },
+      {
+        "gate": "focused scope (src/lib/multiplayer/server + src/lib/events/journal)",
+        "command": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/multiplayer/server src/lib/events/journal",
+        "exitCode": 0,
+        "result": "172 suites passed / 1346 tests passed",
+        "matchesReceipt": true
+      },
+      {
+        "gate": "tsc",
+        "command": "npx tsc --noEmit -p tsconfig.json",
+        "exitCode": 0,
+        "result": "no diagnostics",
+        "matchesReceipt": true
+      },
+      {
+        "gate": "oxfmt --check (5 changed files)",
+        "command": "npx oxfmt --check <5 files>",
+        "exitCode": 0,
+        "result": "All matched files use the correct format",
+        "matchesReceipt": true
+      },
+      {
+        "gate": "oxlint (3 production/mirror files)",
+        "command": "npx oxlint <3 files>",
+        "exitCode": 0,
+        "result": "1 warning (pre-existing max-lines on DurableMatchStore.ts, 1030 lines), 0 errors",
+        "matchesReceipt": true
+      },
+      {
+        "gate": "openspec validate --all --strict",
+        "command": "npx openspec validate --all --strict",
+        "exitCode": 0,
+        "result": "232 passed, 0 failed",
+        "matchesReceipt": true
+      }
+    ],
+    "note": "Build gate not independently re-run (matches the receipt's own disclosure that it relies on the pre-commit hook's `next build`, not a standalone gate; re-running a full `next build` was out of scope for this review given the CPU-limited environment)."
+  },
+  "axis4_caps": {
+    "verdict": "APPROVE-WITH-RECOMMENDATION",
+    "measurements": {
+      "A": "4 files, 154 insertions(+), 28 deletions(-) = 182 lines (git show --stat, verified)",
+      "B": "1 file, 340 insertions(+) = 340 lines (git show --stat, verified)",
+      "C": "1 file, 131 insertions(+), 32 deletions(-) = 163 lines (git show --stat, verified)",
+      "AplusB": 522,
+      "totalVsBase": "5 files, 593 insertions(+), 28 deletions(-) = 621 lines, matching the receipt's capsCompliance.lineCap exactly"
+    },
+    "judgment": "A+B is NOT a genuine harness floor. The receipt's own claims establish that A, B, and C are three independently buildable, independently green commits (verified: the two-suite gate after C shows both the new suite and the untouched S5 mirror suite passing; A's isolated diff for the 3 production/adjacent files is confirmed byte-identical to the origin/main-vs-HEAD diff for those files, meaning A stands alone cleanly). Since B and C already sit in one file (matchCommitJournalHead.sqlite.test.ts) and are structured as sequential, self-consistent commits, splitting into three PRs (A, B, C) costs nothing but one extra review and removes the deliberate cap violation entirely.",
+    "recommendation": "(ii) Three-PR split: PR1 = A (182 lines, production-only, well under cap), PR2 = B (340 lines, the four-row proof suite, under cap), PR3 = C (163 lines, the three restored rows atop B, under cap). This is strictly better than the receipt's proposed (i) two-PR split (A+B at 522, 22 lines over cap, 'deliberately' per coordinator instruction) because it achieves full cap compliance with no loss of the split-never-trim policy's intent -- every row still ships, nothing is trimmed, and no PR needs a recorded overage.",
+    "doNotPerform": "Per the task charter, the split itself was NOT performed -- this is a recommendation only, no branch or PR was created."
+  },
+  "axis5_hygiene": {
+    "verdict": "PASS",
+    "findings": [
+      "git log -3 --format=%B: no AI attribution string in any of the three commit messages (A, B, C) -- confirmed by direct read.",
+      "git show --stat on each of A/B/C: no path under openspec/** touched by any of the three commits.",
+      "backup/r4-s6-pre-prose-restore ref exists at e4b15dba11fc32e4f83c2bee36a48cb028d6a03c (git rev-parse --verify, confirmed) and git merge-base --is-ancestor confirms it is NOT an ancestor of the current branch HEAD -- i.e. it is preserved separately, not part of the shipped stack, as claimed."
+    ]
+  },
+  "axis6_mergeTree": {
+    "verdict": "CONFLICTS FOUND -- documented, not blocking, root cause identified with evidence",
+    "commandRun": "git fetch origin; git merge-tree --write-tree origin/main HEAD",
+    "conflictingFiles": [
+      "src/lib/multiplayer/server/DurableMatchStore.ts",
+      "src/lib/multiplayer/server/MatchStreamJournalMirror.ts",
+      "src/lib/multiplayer/server/__tests__/matchStreamJournalMirror.sqlite.test.ts"
+    ],
+    "rootCauseEvidence": [
+      "git diff d5beb85421c03ea768d1509c76066bf99ef2780c origin/main -- <3 files> is EMPTY: the local S5 base (d5beb854) is byte-identical to origin/main's tip for these files, even though d5beb854 is NOT itself an ancestor of origin/main (git merge-base --is-ancestor returns false; origin/main's S5 landed as PRs #1716/#1717 with different commit SHAs -- faf03445d and 4e5a74b9f -- via squash/rebase-style merge).",
+      "git diff origin/main HEAD -- <3 files> stat is exactly '32/41/10' line changes, matching commit A's per-file diff stats exactly. This confirms diff(origin/main, HEAD) for these 3 files IS commit A's diff, verbatim.",
+      "Conclusion: the reported conflicts are a git-merge-algorithm artifact of history divergence (the local branch's S5 commits have different SHAs/parents than the merged PR commits despite identical file content), not a genuine content conflict. A's changes are additive and self-contained relative to origin/main's actual file content."
+    ],
+    "recommendation": "Rebasing (or re-cherry-picking A/B/C) onto origin/main directly, rather than merging the divergent local-S5-based branch, should resolve this cleanly given the verified content identity. This was not performed (out of scope: 'do not switch branches, do not rebase' per the task charter) and is reported as a finding for whoever prepares the PR."
+  },
+  "requiredEdits": [],
+  "nonClaims": [
+    "M2, M3, M5, M6, M8 were not independently reproduced (time-boxed to 3 mutants per the task's own minimum instruction).",
+    "The `next build` gate was not independently re-run.",
+    "No push, commit, or PR was made. No memory writes. No sub-agents used.",
+    "One transient, self-corrected working-tree mutation occurred during axis-6 investigation (an accidental `git merge --no-commit` from a chained command whose first half failed) and was reversed with `git merge --abort` before any further action; verified clean via git status --short and git log --oneline -1 immediately after."
+  ]
+}

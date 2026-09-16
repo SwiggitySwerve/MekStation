@@ -1,0 +1,72 @@
+{
+  "slice": "R2.authority task 6.4 CAS bridge commit A (refreshAfterCommittedCommand + fence echo)",
+  "pr": 1724,
+  "prHead": "f3933d8cb5e79b67c2901c4dccfe52bddd7e3fad",
+  "mergeCommit": "231c7848aa0850b616a84581ff3c54e1d5ddb6bf",
+  "verifiedAtUtc": "2026-09-15T15:26:25.085Z",
+  "worktree": "archive-original-main-proof (detached at merge commit, own node_modules)",
+  "node": "v22.22.0",
+  "blobEquality": {
+    "files": [
+      "src/stores/campaign/__tests__/campaignCommandAckRefresh.test.ts",
+      "src/stores/campaign/useCampaignPersistenceStore.ts"
+    ],
+    "note": "the SerializedCampaign.ts fence type hunk collapsed at update-branch because #1721 already carried the byte-identical hunk; merge commit touches only the two store files",
+    "command": "git diff --stat <prHead> <merge> -- <files>",
+    "result": "empty (0 bytes)"
+  },
+  "gates": {
+    "jest": {
+      "scope": "src/stores/campaign src/lib/campaign/authority",
+      "exit": 0,
+      "suites": 46,
+      "tests": 479
+    },
+    "tsc": {
+      "exit": 0,
+      "outputBytes": 0
+    },
+    "openspecStrict": {
+      "exit": 0
+    },
+    "specPurposeStrict": {
+      "exit": 0
+    },
+    "terminologyStrict": {
+      "exit": 0
+    },
+    "qcOpenspecCi": {
+      "exit": 0
+    }
+  },
+  "logs": {
+    "jest": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1724-20260915/jest.log",
+      "sha256": "0bd29da5a0149b8c8d4c896c3ef2c23e87c4d9cca9a707c506edd85b4921c2af"
+    },
+    "openspec": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1724-20260915/openspec.log",
+      "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3"
+    },
+    "purpose": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1724-20260915/purpose.log",
+      "sha256": "629026f25215446af06f7491ea5757f56e6f66d00cb70d6d432438cb6cb9adf7"
+    },
+    "qcOpenspecCi": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1724-20260915/qc-openspec-ci.log",
+      "sha256": "8c41df6c33246420ed1806218780c2df69b5ad4e7c594b993b07594ee959ccb2"
+    },
+    "terminology": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1724-20260915/terminology.log",
+      "sha256": "cb75c767fce77affd267000c5d559965ce13243e37fbda79456738141485b7ac"
+    },
+    "tsc": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1724-20260915/tsc.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "limits": [
+    "scoped jest only",
+    "no browser proof of the acknowledged-refresh path (jsdom rows only); 6.2b caller not wired; commit B (#1725) not yet merged"
+  ]
+}

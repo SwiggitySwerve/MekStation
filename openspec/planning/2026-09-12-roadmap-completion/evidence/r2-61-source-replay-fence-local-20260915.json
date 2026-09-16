@@ -1,0 +1,434 @@
+{
+  "node": "r2-61-source-replay-fence",
+  "artefact": "local implementation receipt (no push, no PR)",
+  "capturedAtUtc": "2026-09-15",
+  "role": "implementer",
+  "task": "design-campaign-authority-and-sync task 6.1 / P0b -- the borrowed-handle campaign write with CAS plus a durable `sourceReplayFence`",
+  "sourceBrief": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-authority-residual-brief-20260915.json /q1_task6_1",
+  "base": {
+    "branch": "codex/roadmap-r2-61-source-replay-fence-20260915",
+    "branchedFrom": "origin/main",
+    "baseSha": "83887b7467deba22c1b0b6aa6fb1be8ba6bc4600",
+    "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/r2-prepared-journal-api",
+    "node": "v24.15.0",
+    "preExistingState": "git status --porcelain empty at branch creation",
+    "note": "origin/main advanced to 1e43090c505f0b3d97fb71f099a9060e1936438c during the session (a concurrent agent fetched in the shared .git). Every diff figure below is measured against the recorded base 83887b746, NOT against the moved ref. This branch has NOT been rebased onto the newer origin/main."
+  },
+  "commits": [
+    {
+      "sha": "33bc64fa4",
+      "role": "A -- product + harness + rows (a),(b),(b2),(c)",
+      "subject": "feat(campaign): materialize the source row through a fence-bound borrowed-handle write",
+      "author": "Wes Rollings <wrollings@gmail.com>",
+      "committer": "Wes Rollings <wrollings@gmail.com>",
+      "aiAttribution": "none",
+      "hooks": "husky pre-commit ran oxlint --fix, oxfmt --write, tsc --noEmit --skipLibCheck and the full next build; all passed, no --no-verify"
+    },
+    {
+      "sha": "3864fbeb5",
+      "role": "B -- test-only rows (d),(e),(f)",
+      "subject": "test(campaign): pin the fence against a winning PUT and the P0a baseline capture",
+      "author": "Wes Rollings <wrollings@gmail.com>",
+      "committer": "Wes Rollings <wrollings@gmail.com>",
+      "aiAttribution": "none",
+      "hooks": "husky pre-commit ran oxlint --fix, oxfmt --write, tsc --noEmit --skipLibCheck and the full next build; all passed, no --no-verify"
+    }
+  ],
+  "files": [
+    {
+      "path": "src/types/campaign/SerializedCampaign.ts",
+      "added": 25,
+      "removed": 0,
+      "what": "optional `sourceReplayFence` on SerializedCampaign + the `ICampaignSourceReplayFence` interface"
+    },
+    {
+      "path": "src/services/campaignPersistence/CampaignPersistenceService.ts",
+      "added": 32,
+      "removed": 1,
+      "what": "the fence guard beside the existing baseVersion CAS in saveCampaign; server-owned fence pinned from the stored row"
+    },
+    {
+      "path": "src/services/campaignPersistence/campaignSourceMaterialization.ts",
+      "added": 158,
+      "removed": 0,
+      "what": "NEW: materializeCampaignSourceRow (borrowed handle, CAS predicate, fence stamp) + storedReplayFenceOf/withoutClientFence"
+    },
+    {
+      "path": "src/lib/campaign/authority/campaignAcceptContractCommand.ts",
+      "added": 46,
+      "removed": 11,
+      "what": "the existing 6.2a-3 row write routed through the fenced writer; fenceRevision carried across prepare->extend"
+    },
+    {
+      "path": "src/lib/campaign/authority/__tests__/campaignSourceReplayFence.test.ts",
+      "added": 417,
+      "removed": 0,
+      "what": "NEW: the six red-first rows, real SQLite on a temp file with cold reopen"
+    }
+  ],
+  "shortstat": "5 files changed, 678 insertions(+), 12 deletions(-) (git diff --shortstat 83887b746..HEAD)",
+  "caps": {
+    "filesCap": 15,
+    "filesUsed": 5,
+    "linesCap": 500,
+    "linesUsed": 678,
+    "capBreach": true,
+    "breachExplanation": "The ≤500-line cap is EXCEEDED by 178 lines. Product code is 261 added lines (25 + 32 + 158 + 46); the test file is 417. Not split into stacked prefixes, deliberately: (1) splitting the test file from the product edit would break red-first -- a test-only prefix is red by construction and a product-only prefix ships unproven; (2) the 158-line campaignSourceMaterialization.ts is ~135 lines MOVED out of CampaignPersistenceService.ts, forced by an oxlint `max-lines` warning the in-place version introduced (see gates.oxlint below), so landing it as a separate prefix would mean shipping a known new lint warning in prefix 1 and removing it in prefix 2. Reported rather than split, per the task's 'split into stacked prefixes if needed; report'.",
+    "note": "Superseded by the `split` section: the work is now two stacked commits. Figures there, not here."
+  },
+  "designRationale": {
+    "clauseImplemented": "Borrowed-handle campaign write with CAS plus a durable `sourceReplayFence` that rejects a later generic whole-envelope overwrite goes in `src/services/campaignPersistence/CampaignPersistenceService.ts` beside the existing `baseVersion` CAS (tasks.md:100, task 6.1 body, origin/main).",
+    "specCitations": [
+      "openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md:111 -- 'Borrowed-handle campaign writes SHALL use CAS and a `sourceReplayFence` that rejects later generic whole-envelope overwrites. Source snapshot/cache version, original command receipt revision, and current journal revision SHALL remain distinct.'",
+      "openspec/changes/design-campaign-authority-and-sync/design.md:104 (D12) -- 'Borrowed-handle campaign write with CAS; durable `sourceReplayFence` rejects later generic whole-envelope `saveCampaign` overwrites (`CampaignPersistenceService.ts:103-158`).'",
+      "openspec/changes/design-campaign-authority-and-sync/tasks.md:103 (task 6.4) -- 'a committed acceptance must leave the client able to (a) continue auto-saving without a spurious conflict or a `sourceReplayFence` refusal' -- the explicit owner of the client-side bridge, which is why 6.1 may leave the client refused."
+    ],
+    "decisions": [
+      {
+        "decision": "The fence rides INSIDE the stored envelope as an optional top-level `SerializedCampaign.sourceReplayFence`, not a new `campaigns` column.",
+        "why": "Neither the spec sentence nor D12 nor the 6.1 task body names a column, a table, or a migration. The field is optional and absent on every row the source has never materialized, so no ladder step and no SQLite migration are required; `migrateSerializedCampaign` spreads `...snapshot` at every step and `hydrateCampaignRecord` spreads `...migrated`, so the field survives the ladder untouched. NO MIGRATION WAS ADDED and none was needed -- the task's STOP condition ('if a schema column/migration is REQUIRED by the design text, say so and STOP') was evaluated and did not fire."
+      },
+      {
+        "decision": "The fence is ONE number: `rootPublicRevision`, the journal revision the row was materialized THROUGH (inclusive).",
+        "why": "That is the minimum that discharges both duties the task names -- 'so a replay cannot regress or double-apply'. A replay standing AT it has already been applied (no-op); a replay standing BEHIND it would regress the row (typed refusal). A digest was considered and rejected as over-built: the private envelope already carries `sourceBodyDigest` over the captured baseline body, and a second digest here would duplicate it without answering either question."
+      },
+      {
+        "decision": "The fence is judged BEFORE the CAS inside materializeCampaignSourceRow.",
+        "why": "Load-bearing ordering. A replay of an already-materialized prefix necessarily holds the row version it read BEFORE that materialization moved the row, so a CAS-first reading would report `conflict` for exactly the case that must be a silent no-op. MEASURED by row (b2): it passes the stale pre-materialization version, and relocating the CAS check above the fence block turns it red with { kind: 'conflict', currentVersion: 8 } while rows (a)/(b)/(c) stay green. CORRECTION: an earlier revision of this receipt claimed this was 'Pinned by red rows (b) and (d) together'. That was false -- (b) passes the CURRENT version so its predicate is never true at the fence block, and (d) short-circuits on storedFence === null. Caught by review RE-1; see reviewResponse.re1."
+      },
+      {
+        "decision": "The fence is stamped by the writer, never accepted from the caller; and it is stripped from every INCOMING PUT envelope.",
+        "why": "Same discipline as `buildCampaignSourcePrivateEnvelope` deriving its own digest -- a caller must not be able to record a watermark that disagrees with the write it performed. On the PUT path the fence is a server-owned fact like `instanceId` and `authority`: a client echoes it to prove it has SEEN the materialization, and can neither set nor advance it (`withoutClientFence`)."
+      },
+      {
+        "decision": "The whole-envelope rejection is the EXISTING `conflict` result, not a new refusal kind or a new status code.",
+        "why": "Task 6.1's own NON-CLAIMS include 'no HTTP surface change'. A new `refused` reason would have widened `ErrorResponse` in src/pages/api/campaigns/[id].ts, whose single `refused` branch answers 403 'replica instance cannot accept local mutation' -- a factually wrong message for a fence rejection. The 409 conflict path already returns `current`, the stored record, which now CARRIES the fence, so the client can see exactly what it was standing behind without any new field, code, or route edit. Pinned by red row (f), which asserts the conflict AND that `result.current.sourceReplayFence` equals the stored fence."
+      },
+      {
+        "decision": "The existing 6.2a-3 acceptance producer's raw UPDATE was ROUTED through the fenced writer; a non-ok result throws.",
+        "why": "The clause is about 'the source replay/materialization write to the campaigns row'. That write already exists on main (campaignAcceptContractCommand.ts, extend()); leaving it raw would have made the fence dead code that nothing ever stamps. This adds no NEW producer (the 6.1 non-claim), it re-routes the one that merged in #1706-1708. Throwing on a non-ok result rather than returning a refusal is deliberate: it rolls back the whole prepared transaction, append included, so a compact ledger entry can never survive a materialization that did not apply -- the state spec.md:184-185 calls unreachable."
+      },
+      {
+        "decision": "materializeCampaignSourceRow lives in a new sibling module rather than in CampaignPersistenceService.ts.",
+        "why": "Written in place first; oxlint then reported a NEW `eslint(max-lines)` warning (427 counted lines vs a 400 maximum) that did not exist on main. The half the design text places 'beside the existing baseVersion CAS' -- the guard that REJECTS a later generic whole-envelope overwrite -- is still in CampaignPersistenceService.ts (saveCampaign, immediately above the baseVersion comparison). Only the write that STAMPS the fence moved. Recorded as a knowing, narrow reading of the placement sentence."
+      }
+    ],
+    "threeDistinctNumbersInvariant": "Preserved, and the fence is a FOURTH number that is never conflated with them. `ICampaignSourceBaseline.sourceRowVersion` is the campaigns-row version at capture; `ICampaignSourceBaseline.rootPublicRevision` is the PRE-append capture revision; the row `version` is the whole-envelope PUT's CAS token; `sourceReplayFence.rootPublicRevision` is the POST-append materialization watermark. Red row (e) asserts `baseline.rootPublicRevision < sourceReplayFence.rootPublicRevision` and `baseline.sourceRowVersion === SEEDED_VERSION` while `row.version === SEEDED_VERSION + 1`, so three of the four are pinned apart by a passing assertion."
+  },
+  "redFirst": {
+    "discipline": "Test authored and watched fail before any product edit.",
+    "log": ".sisyphus/roadmap-completion-20260912/r2-61-fence-20260915/red.log",
+    "logSha256": "b8fe4e824899939e6e9ae0a562460b08ee682fceb4f5446692c0b5803ee0b805",
+    "howCaptured": "The three modified product files were reverted with `git checkout --` to the base SHA and the new campaignSourceMaterialization.ts was removed, leaving ONLY the final test file on top of base. Product files were restored from copies afterwards and re-verified green (see green-rows.log).",
+    "result": "Test Suites: 1 failed, 1 total / Tests: 0 total -- 'Could not locate module @/services/campaignPersistence/campaignSourceMaterialization'. A whole-suite red: the module under test does not exist at base.",
+    "honestCaveatOnGranularity": "An EARLIER revision of this same test file (before the max-lines extraction moved materializeCampaignSourceRow out of CampaignPersistenceService.ts) imported from CampaignPersistenceService, which DOES exist at base, so the suite ran and produced a per-row red of 6 failed / 6 total with these observed reasons: (a) `expect(recordOf(row).sourceReplayFence).toStrictEqual(...)` received undefined; (b) and (c) `expect(fence).toBeDefined()` received undefined; (d) `TypeError: materializeCampaignSourceRow is not a function`; (e) `expect(received).toBeLessThan(expected)` -- Expected: < -1, Received: 1 (the `?? -1` fallback firing because no fence existed); (f) `expect(materialized.sourceReplayFence).toBeDefined()` received undefined. THAT LOG WAS OVERWRITTEN when red was re-captured against the final import path; it is recorded here as observed-but-no-longer-archived rather than presented as an artefact on disk. The archived red.log is the final test file against base.",
+    "rows": [
+      {
+        "row": "a",
+        "claim": "a source-side materialization writes the row under CAS and records the fence",
+        "how": "runs the real executeCampaignCommand AcceptContract against real SQLite; asserts the committed row's `sourceReplayFence` equals { rootPublicRevision: <post-append journal event count> }, that row.version advanced, and re-reads both after a COLD REOPEN of the database file"
+      },
+      {
+        "row": "b",
+        "claim": "replaying the same journal prefix against a row already at that fence is a no-op (no second write, no version bump)",
+        "how": "calls materializeCampaignSourceRow with the SAME fenceRevision and a deliberately DIFFERENT record body; asserts { kind: 'noop', reason: 'already-at-fence' } and that row.version AND row.payload are byte-unchanged"
+      },
+      {
+        "row": "c",
+        "claim": "a stale replay (fence behind the row) is refused typed",
+        "how": "calls materializeCampaignSourceRow with fenceRevision one below the row's watermark; asserts { kind: 'refused', reason: 'stale-replay-fence' } and that row.version AND row.payload are byte-unchanged"
+      },
+      {
+        "row": "d",
+        "claim": "a concurrent whole-envelope PUT that wins CAS makes the replay take the conflict path (no overwrite)",
+        "how": "a real saveCampaign PUT lands first and takes the row to SEEDED_VERSION+1; the materialization still holding SEEDED_VERSION asserts { kind: 'conflict', currentVersion: SEEDED_VERSION+1 }, that the body was NOT overwritten, and that no fence was stamped"
+      },
+      {
+        "row": "e",
+        "claim": "P0a baseline capture happens under the prepared transaction",
+        "how": "cold-reopens the database, reads the journal-private envelope off the terminal event, and asserts baseline.sourceRowVersion === SEEDED_VERSION while the materialized row.version === SEEDED_VERSION+1 -- only possible if the capture read happened inside the SAME transaction as the append and the row write; plus baseline.rootPublicRevision < fence.rootPublicRevision and that the baseline body still holds the consumed offer (replay starts from the source record, not compact genesis)"
+      },
+      {
+        "row": "f",
+        "claim": "a later generic whole-envelope overwrite that carries no fence is rejected (the spec SHALL)",
+        "how": "a PUT carrying the CORRECT current baseVersion -- so the existing CAS would pass -- but a body with no mission and no fence; asserts kind 'conflict', that result.current.sourceReplayFence is the stored fence, and that the stored payload is byte-unchanged with the mission intact"
+      }
+    ],
+    "p0aDefinition": "P0a IS on origin/main. Definition used: `SQLiteEventJournalWriter.appendPreparedWithExtension` (src/lib/events/journal/SQLiteEventJournalWriter.ts:98-137), a single `.immediate()` transaction running a caller `prepare(db)` read, then the append, then a caller `extend(db, context, append)`. The 6.1 task body pins it at main SHA 79c789e2a. Row (e) was therefore RUN, not skipped."
+  },
+  "green": {
+    "perRowLog": ".sisyphus/roadmap-completion-20260912/r2-61-fence-20260915/green-rows.log",
+    "perRowLogSha256": "fb930208ae812c1e0c358232870ab353d986a49b1078bb76105129053515eb03",
+    "result": "6 passed, 6 total -- rows (a) through (f) all green"
+  },
+  "gates": [
+    {
+      "gate": "jest battery: src/lib/campaign src/lib/events/journal",
+      "command": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/campaign src/lib/events/journal",
+      "baseline": "219 suites / 3162 tests passed (baseline.log, sha256 c66ad153c25b00dffc15220b0b5c3caa561232b699721b1d137881e1172d4af0) -- matches the author baseline of 219 suites / 3160+",
+      "after": "220 suites / 3168 tests passed, 0 failed (green.log, sha256 c3ec0aa77cad4e348dfcd55522739f596a434b5a29a9c316c9afe7f32a639473)",
+      "delta": "+1 suite, +6 tests -- exactly the new file. No pre-existing test changed verdict.",
+      "verdict": "PASS"
+    },
+    {
+      "gate": "jest adjacent (not required, run because the edit touches a service the battery does not cover)",
+      "command": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/__tests__/api/campaigns src/stores/campaign src/pages-modules/api src/services",
+      "after": "356 suites passed / 4963 passed, 2 skipped, 0 failed (adjacent.log, sha256 4427139d572c8d293fe4ebedb5a7c89379a0959944af802a7b97275a412347d4)",
+      "why": "saveCampaign's new fence guard is reachable from the campaign PUT route, the persistence store, and the coop persistence integration suite -- none of which the two gate batteries run. No regression.",
+      "verdict": "PASS"
+    },
+    {
+      "gate": "tsc --noEmit",
+      "command": "npx tsc --noEmit",
+      "after": "exit 0, empty output (tsc.log, sha256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 -- the sha256 of the empty string)",
+      "verdict": "PASS"
+    },
+    {
+      "gate": "oxlint on changed files",
+      "command": "npx oxlint <the 5 changed files>",
+      "after": "Found 0 warnings and 0 errors.",
+      "interimFinding": "The first in-place implementation put materializeCampaignSourceRow inside CampaignPersistenceService.ts and oxlint reported a NEW warning: 'eslint(max-lines): File has too many lines (427). Maximum allowed is 400.' The file went 434 -> 602 total lines. Extracting the writer to campaignSourceMaterialization.ts cleared it (service back to 465 total lines).",
+      "verdict": "PASS"
+    },
+    {
+      "gate": "oxfmt on changed files",
+      "command": "npx oxfmt <the 5 changed files>",
+      "after": "clean, no output; re-run by the pre-commit hook with --write and produced no further modifications",
+      "verdict": "PASS"
+    },
+    {
+      "gate": "npx openspec validate --all --strict",
+      "after": "exit 0 -- Totals: 232 passed, 0 failed (openspec.log, sha256 a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3)",
+      "verdict": "PASS"
+    },
+    {
+      "gate": "next build",
+      "how": "NOT run as a standalone gate, per the task. Run once by the husky pre-commit hook during the commit; it completed (TypeScript finished in 48s, build proceeded to completion and the commit landed as ac2782f4e).",
+      "verdict": "PASS (via hook)"
+    }
+  ],
+  "clauseAccounting": {
+    "task": "6.1 P0b",
+    "nowSatisfied": [
+      "Borrowed-handle campaign write with CAS -- the materialization runs on the caller's handle inside appendPreparedWithExtension's transaction and carries an explicit `WHERE id = ? AND version = ?` predicate plus a pre-read version comparison. Rows (a) and (d).",
+      "A durable `sourceReplayFence` that rejects a later generic whole-envelope overwrite -- stamped by the writer, persisted in the row payload, survives a cold reopen, and refuses an unfenced PUT that would otherwise pass the baseVersion CAS. Rows (a) and (f).",
+      "The fence guard sits in CampaignPersistenceService.ts beside the existing `baseVersion` CAS (saveCampaign, immediately preceding the `baseVersion !== currentVersion` comparison).",
+      "Replay cannot regress or double-apply -- no-op at the fence, typed refusal behind it. Rows (b) and (c).",
+      "Capture the baseline under the P0a prepared transaction (exact persisted SerializedCampaign body, source row `version`, source body digest, root public journal revision) -- this was already implemented by 6.2a-3 (#1706-1708); this slice PINS it against the fenced write so the two cannot drift. Row (e). NOTE: this clause is now proven, not newly built."
+    ],
+    "alreadySatisfiedBeforeThisSlice": [
+      "Optional journal-private field on ICampaignJournalEnvelope, envelopeOf unchanged -- S1 (#1686)",
+      "Private type, conditional constructor, contract-only replay fold in campaignSourcePrivateEnvelope.ts -- S1/S2",
+      "Three typed replay-refusal rows, no silent compact fallback -- S2 (#1687)",
+      "Grant projection collapsed to the single envelopeOf narrowing site -- S3 (#1688)"
+    ],
+    "stillOpenAfterThisSlice": [
+      "The tasks.md 6.1 checkbox remains UNCHECKED and was not touched (checkbox flips are out of scope for this slice by instruction). 6.1 as a whole is now materially discharged in product terms, but the checkbox belongs to whoever reconciles the task after review.",
+      "'Replay starts from `sourceRecord.body`, not from the compact genesis snapshot' -- the replay FOLD (replayCampaignSourceContracts) exists from S1/S2 and is proven by row (e)'s baseline-body assertion, but there is no REPLAY DRIVER in production that consumes the fence to re-materialize a row. materializeCampaignSourceRow is the door such a driver will use; nothing calls it today except the acceptance producer. Building the driver is not named by 6.1 and was not built.",
+      "The client-side bridge: a fenced row refuses the client's next unfenced auto-save PUT with a 409. That is the intended rejection and is explicitly task 6.4's to bridge ('continue auto-saving without a spurious conflict or a `sourceReplayFence` refusal'). 6.1 does NOT close it and this slice does not claim to.",
+      "A distinct HTTP reason for a fence rejection (as opposed to reusing the 409 conflict) -- deliberately not introduced, per 6.1's 'no HTTP surface change' non-claim. If 6.4 wants the client to distinguish a fence refusal from a stale-version conflict by status/reason rather than by inspecting `current.sourceReplayFence`, that is 6.4's surface change to make."
+    ]
+  },
+  "nonClaims": [
+    "NO PUSH, NO PR. The commit exists only in the local worktree on branch codex/roadmap-r2-61-source-replay-fence-20260915.",
+    "NO SPEC EDIT. No file under openspec/changes/ was modified. No SHALL was found to be contradicted; had one been, the instruction was to stop and report, and that path was not taken because none was.",
+    "NO CHECKBOX FLIP. tasks.md is untouched; 6.1 and 6.2 remain unchecked.",
+    "NO MIGRATION. No SQLite migration was added and the migration ladder was not touched. The fence needed neither, because it is an optional field on the stored JSON envelope.",
+    "NO FLAG FLIP. CAMPAIGN_JOURNAL_AUTHORITY_ENABLED is untouched and remains false. Nothing in this slice runs on a production path while that flag is off.",
+    "NO NEW PRODUCER. The acceptance producer that writes the campaigns row merged with 6.2a-3; this slice re-routes its existing write through the fenced writer and adds no second producer.",
+    "NO HTTP SURFACE CHANGE. src/pages/api/campaigns/[id].ts is untouched; no new status code, no new error `kind`, no new `reason` on the wire. A fence rejection is the existing 409 conflict.",
+    "NO DEPENDENCY ADDED. package.json and package-lock.json are untouched.",
+    "NO CLIENT CHANGE. No store, page, or component was modified; the client cannot yet see or echo a fence, which is precisely why a fenced row refuses its next PUT until 6.4.",
+    "THE FENCE IS NOT A JOURNAL HEAD AND IS NOT THE ROW VERSION. It is a fourth durable number. Any reader that treats `sourceReplayFence.rootPublicRevision` as a branch head or as a CAS token is misreading it.",
+    "materializeCampaignSourceRow's `conflict`, `noop` and `refused` results are UNREACHABLE from the acceptance producer by construction (one immediate transaction; the new fence is strictly above any the row can hold) and are proven only by direct calls in the test. The producer throws on them, which rolls the append back. That unreachability is an argument, not a measurement.",
+    "This branch is based on 83887b746 and has NOT been rebased onto the newer origin/main (1e43090c5). Whoever ships it should rebase and re-run the gates.",
+    "Commit A is 608 lines against a 500 cap (567 at review + 41 for RE-1's row (b2)), accepted by the coordinator with the floor arithmetic recorded in split.capJustification. Not silently waved through.",
+    "The superseded monolith ac2782f4e (backup/r2-61-fence-monolith) still carries a Co-Authored-By trailer, and the pre-RE-1 pair cff0fbaaa (backup/r2-61-fence-pair-pre-re1) lacks row (b2). Neither is shippable; the shippable head is 3864fbeb5.",
+    "The mutation in reviewResponse.re1.mutationProof was applied to the working tree ONLY, run, and reverted with `git checkout --`. It is in NO commit on this branch; the diff is archived as a file for review."
+  ],
+  "logs": {
+    "root": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-61-fence-20260915/",
+    "files": [
+      {
+        "name": "baseline.log",
+        "sha256": "c66ad153c25b00dffc15220b0b5c3caa561232b699721b1d137881e1172d4af0",
+        "lines": 225
+      },
+      {
+        "name": "red.log",
+        "sha256": "b8fe4e824899939e6e9ae0a562460b08ee682fceb4f5446692c0b5803ee0b805",
+        "lines": 32
+      },
+      {
+        "name": "green.log",
+        "sha256": "c3ec0aa77cad4e348dfcd55522739f596a434b5a29a9c316c9afe7f32a639473",
+        "lines": 226
+      },
+      {
+        "name": "adjacent.log",
+        "sha256": "4427139d572c8d293fe4ebedb5a7c89379a0959944af802a7b97275a412347d4",
+        "lines": 925
+      },
+      {
+        "name": "tsc.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "lines": 0
+      },
+      {
+        "name": "openspec.log",
+        "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3",
+        "lines": 234
+      },
+      {
+        "name": "green-A.log",
+        "sha256": "51ee99ccc60b64e048035d2dc2c482b5a1dc2cefa2ef2bcdb3d77c784ea2f90a",
+        "of": "commit A rows (a),(b),(b2),(c) -- 4/4"
+      },
+      {
+        "name": "green-A-batteries.log",
+        "sha256": "79aa3d52c30735ff642cfb421e5a377c413ce480c29595a5d0bc66f7564b0b20",
+        "of": "commit A batteries 220/3166"
+      },
+      {
+        "name": "green-B-rows.log",
+        "sha256": "ef92457c8b90b7c3b100f3a0f2da080a384d100117d1c4767b9210fb778977fe",
+        "of": "commit B rows (a)-(f) incl. (b2) -- 7/7"
+      },
+      {
+        "name": "green-B.log",
+        "sha256": "8c5418584569d1ae5358f736227de8c11db31a634f2025261cbfa3ba9e242306",
+        "of": "commit B batteries 220/3169"
+      },
+      {
+        "name": "mutation-order-swap.diff",
+        "sha256": "d81a23724231ebbfb874593dac92b79326b9ae32bc214dc7919f6fc1252eea5f",
+        "of": "RE-1 mutation: CAS check relocated above the fence block (applied to worktree only, reverted)"
+      },
+      {
+        "name": "mutation-order-swap.log",
+        "sha256": "601abd2ed7852d587248ccfc75b92a0b05945672ec873fa39e4ffb2e61c7bfda",
+        "of": "RE-1 mutation run: 1 failed (b2), 3 passed"
+      }
+    ]
+  },
+  "split": {
+    "reason": "Coordinator correction, 2026-09-15: (1) the original single commit carried a Co-Authored-By trailer, which violates the project rule 'Never add AI attribution to commits or PRs' -- no commit on this branch names Claude or Anthropic; (2) 678 lines is a split, not an overage.",
+    "finalShape": "Coordinator decision, 2026-09-15: row (c) is restored into A. Rows (b) and (c) are twins -- same function, same row, opposite verdicts, separated only by which side of the fence the caller stands -- and must review together. B is rows (d), (e), (f). Review round 2 then added row (b2) to A per RE-1 (see reviewResponse).",
+    "headAfterSplit": "3864fbeb5",
+    "supersededAttempts": {
+      "note": "An interim A/B pair (8ea1a310b / aa2741dae) briefly moved row (c) into B under the earlier 'if A exceeds 500, move row (c)' instruction. Superseded by the coordinator decision above and no longer on the branch; recorded so the reflog is legible.",
+      "measured": "that A was 538 insertions -- still over 500, which is what prompted the decision"
+    },
+    "commitA": {
+      "sha": "33bc64fa4",
+      "parent": "83887b7467deba22c1b0b6aa6fb1be8ba6bc4600 (base)",
+      "contents": "all four product files (SerializedCampaign.ts, CampaignPersistenceService.ts, campaignSourceMaterialization.ts, campaignAcceptContractCommand.ts) + the test harness + rows (a) materialize-and-fence, (b) replay-at-fence-is-a-no-op, (b2) the same with a STALE row version, (c) stale-replay typed refusal",
+      "shortstat": "5 files changed, 608 insertions(+), 12 deletions(-)",
+      "sizePlainly": "608 lines. Was 567 at review; RE-1's row (b2) added 41 test-only lines. Over the 500 cap by 108, ACCEPTED by the coordinator at its measured size on the floor arithmetic below, which the RE-1 addition does not change (the floor is product 261 + harness ~240 either way).",
+      "numstat": {
+        "src/lib/campaign/authority/__tests__/campaignSourceReplayFence.test.ts": "347/0",
+        "src/lib/campaign/authority/campaignAcceptContractCommand.ts": "46/11",
+        "src/services/campaignPersistence/CampaignPersistenceService.ts": "32/1",
+        "src/services/campaignPersistence/campaignSourceMaterialization.ts": "158/0",
+        "src/types/campaign/SerializedCampaign.ts": "25/0"
+      },
+      "greenOnItsOwn": {
+        "rows": "4 passed, 4 total -- rows (a), (b), (b2), (c)",
+        "rowLog": ".sisyphus/roadmap-completion-20260912/r2-61-fence-20260915/green-A.log",
+        "rowLogSha256": "51ee99ccc60b64e048035d2dc2c482b5a1dc2cefa2ef2bcdb3d77c784ea2f90a",
+        "batteries": "220 suites / 3166 tests passed, 0 failed on src/lib/campaign + src/lib/events/journal (4 of the 7 rows exist at this commit)",
+        "batteryLog": ".sisyphus/roadmap-completion-20260912/r2-61-fence-20260915/green-A-batteries.log",
+        "batteryLogSha256": "79aa3d52c30735ff642cfb421e5a377c413ce480c29595a5d0bc66f7564b0b20",
+        "tsc": "npx tsc --noEmit exit 0 on the commit-A tree",
+        "oxlint": "0 warnings, 0 errors across all five changed files. Imports and the bodyOf/StoredBody helpers that ONLY rows (d)/(e)/(f) use are pruned from A (oxlint has no-unused-vars: error), which is why B re-adds them."
+      }
+    },
+    "commitB": {
+      "sha": "3864fbeb5",
+      "parent": "33bc64fa4",
+      "contents": "test-only. One file. Rows (d) rival-PUT conflict path, (e) P0a prepared-transaction baseline capture, (f) whole-envelope overwrite rejection, plus the imports/helpers those rows need back and the header restored to the full predicted-red list.",
+      "shortstat": "1 file changed, 118 insertions(+), 7 deletions(-)",
+      "productCodeTouched": "none -- the only file in the diff is the test",
+      "greenOnItsOwn": {
+        "rows": "7 passed, 7 total -- rows (a), (b), (b2), (c), (d), (e), (f)",
+        "rowLog": ".sisyphus/roadmap-completion-20260912/r2-61-fence-20260915/green-B-rows.log",
+        "rowLogSha256": "ef92457c8b90b7c3b100f3a0f2da080a384d100117d1c4767b9210fb778977fe",
+        "batteries": "220 suites / 3169 tests passed, 0 failed",
+        "batteryLog": ".sisyphus/roadmap-completion-20260912/r2-61-fence-20260915/green-B.log",
+        "batteryLogSha256": "8c5418584569d1ae5358f736227de8c11db31a634f2025261cbfa3ba9e242306",
+        "tsc": "npx tsc --noEmit exit 0"
+      },
+      "capVerdict": "118 vs the 500 cap -- UNDER"
+    },
+    "treeIdentity": {
+      "check": "git diff ac2782f4e 3864fbeb5 --stat",
+      "result": "1 file changed, 41 insertions(+) -- campaignSourceReplayFence.test.ts only",
+      "scopeOfTheDifference": "The ONLY divergence from the reviewed monolith tree is RE-1's row (b2) plus its five-line entry in the file header. Zero product-code drift: campaignSourceMaterialization.ts, CampaignPersistenceService.ts, campaignAcceptContractCommand.ts and SerializedCampaign.ts are byte-identical to ac2782f4e, which the --stat above shows by listing no other file.",
+      "priorIdentity": "Before RE-1, git diff --quiet ac2782f4e cff0fbaaa exited 0 (TREES IDENTICAL). That pair is preserved at backup/r2-61-fence-pair-pre-re1, so the RE-1 delta is reviewable in isolation as cff0fbaaa..3864fbeb5.",
+      "alsoChecked": "git diff --shortstat 83887b746..3864fbeb5 = 5 files, 719 insertions(+), 12 deletions(-) -- the monolith's 678 plus RE-1's 41"
+    },
+    "capJustification": {
+      "cap": 500,
+      "commitA": 608,
+      "accepted": true,
+      "acceptedBy": "coordinator, 2026-09-15",
+      "floorArithmetic": "Product code is 261 insertions (SerializedCampaign 25 + CampaignPersistenceService 32 + campaignSourceMaterialization 158 + campaignAcceptContractCommand 46). The test harness -- file header, imports, the offer fixture, acceptContract, readRow/recordOf, the real-SQLite beforeEach/afterEach, seedSourceRecord, seedOneOffer, run, materializeOnce -- is ~240 lines before a single it() block. 261 + 240 = 501 with ZERO rows. So 500 is unreachable for ANY green commit that carries the product change; the only way under it is to ship product code untested, which is not an option.",
+      "precedentCitedByCoordinator": "the 6.2a-3 A1 commit at 645 lines. Cited as supplied by the coordinator; NOT independently verified in this session.",
+      "measuredAlternative": "Moving row (c) to B was tried and measured: A = 538, still over. That is why the twins were restored instead.",
+      "re1Note": "RE-1 added 41 test-only lines to A (567 -> 608). The floor arithmetic is unchanged: the cap is unreachable because of product 261 + harness ~240, not because of row count."
+    },
+    "backupBranches": [
+      {
+        "name": "backup/r2-61-fence-monolith",
+        "sha": "ac2782f4eab8b4ddae3800ccdbdf570fe1e40f15",
+        "note": "the superseded single commit; it still carries the Co-Authored-By trailer and must NOT be shipped. Kept only as the tree-identity reference."
+      },
+      {
+        "name": "backup/r2-61-fence-pair-pre-re1",
+        "sha": "cff0fbaaa",
+        "note": "the A/B pair as submitted for review, before RE-1 added row (b2). Kept as the before-picture for the RE-1 delta; not shippable."
+      }
+    ]
+  },
+  "coordination": {
+    "note": "The 6.4 branch codex/roadmap-r2-64-cas-bridge-20260915 copies the SerializedCampaign fence type hunk VERBATIM and echoes the fence on the client PUT / flush path.",
+    "ordering": "6.1 lands first.",
+    "implication": "When 6.1 merges, 6.4 must DROP its copied hunk rather than merge it -- two identical sourceReplayFence / ICampaignSourceReplayFence definitions in src/types/campaign/SerializedCampaign.ts would be a redeclaration, not a textual conflict git can resolve. The type as landed here is the single definition.",
+    "contractFor64": "A client that echoes the stored sourceReplayFence back on its PUT passes the guard in saveCampaign; one that omits it, or sends a different rootPublicRevision, takes the existing 409 whose current record carries the stored fence. withoutClientFence strips whatever the client sent before the row is written, so the client can never set or advance the fence -- echoing is a proof of having SEEN the materialization, never a write.",
+    "notClaimedHere": "6.1 makes no client change and does not bridge the refusal into a post-acknowledgement refresh. That remains task 6.4's, per tasks.md:103.",
+    "provenance": "branch name, copied-hunk fact and landing order supplied by the coordinator; not independently verified in this session."
+  },
+  "reviewResponse": {
+    "review": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-61-source-replay-fence-review-20260915.json",
+    "verdict": "A APPROVE-WITH-REQUIRED-EDITS (RE-1, test-only); B APPROVE",
+    "re1": {
+      "finding": "The fence-before-CAS ordering was ASSERTED, not falsified. Rows (b) and (c) pass `expectedRowVersion: row.version` -- the CURRENT version of the already-materialized row -- so the predicate `row.version !== args.expectedRowVersion` is false wherever they reach the fence block; row (d) never reaches that block at all because its row carries no stored fence. Swapping the two blocks could not change any of the six verdicts.",
+      "accepted": true,
+      "concession": "The finding is correct and the error was mine. This receipt's designRationale.decisions[2] claimed the ordering was 'Pinned by red rows (b) and (d) together'. It was not: (b) cannot discriminate because it passes the current version, and (d) short-circuits on `storedFence === null` before the ordering matters. That sentence was an inference presented as a measurement. RE-1 makes it true; the claim now rests on the measured mutation below rather than on reading.",
+      "edit": "One row added to A after row (b): (b2) 'is a no-op at the fence even when the replay version is stale'. Materializes once, then calls materializeCampaignSourceRow with fenceRevision = fence.rootPublicRevision, expectedRowVersion = SEEDED_VERSION (the PRE-materialization version, deliberately stale), nextVersion = SEEDED_VERSION + 1 and a different record body; asserts { kind: 'noop', reason: 'already-at-fence' } and that row.version and row.payload are byte-unchanged.",
+      "landedIn": "commit A (33bc64fa4), by amend; B re-created on top as 3864fbeb5",
+      "mutationProof": {
+        "purpose": "Prove (b2) discriminates on ORDERING, not merely on outcome.",
+        "mutation": "In src/services/campaignPersistence/campaignSourceMaterialization.ts, the CAS check `if (row.version !== args.expectedRowVersion) return { kind: 'conflict', currentVersion: row.version };` was moved ABOVE the storedFence block -- i.e. CAS-first instead of fence-first. Product behaviour was otherwise untouched.",
+        "diff": ".sisyphus/roadmap-completion-20260912/r2-61-fence-20260915/mutation-order-swap.diff",
+        "diffSha256": "d81a23724231ebbfb874593dac92b79326b9ae32bc214dc7919f6fc1252eea5f",
+        "diffSummary": "+4 / -4 lines, one hunk pair, block relocation only",
+        "result": "KILLED by (b2) and by (b2) ALONE -- 1 failed, 3 passed, 4 total.",
+        "observedFailure": "expect(received).toStrictEqual(expected): expected { kind: 'noop', reason: 'already-at-fence' }, received { kind: 'conflict', currentVersion: 8 } -- exactly the value RE-1 predicted from code reading.",
+        "corroboratesTheReview": "Rows (a), (b) and (c) stayed GREEN under the mutation, which independently confirms the reviewer's claim that no pre-existing row discriminates on the ordering.",
+        "log": ".sisyphus/roadmap-completion-20260912/r2-61-fence-20260915/mutation-order-swap.log",
+        "logSha256": "601abd2ed7852d587248ccfc75b92a0b05945672ec873fa39e4ffb2e61c7bfda",
+        "restored": "git checkout -- src/services/campaignPersistence/campaignSourceMaterialization.ts; git status then showed only the test file modified, and the file is byte-identical to ac2782f4e's in the shipped tree (see split.treeIdentity.scopeOfTheDifference).",
+        "reviewerBasis": "RE-1 was recorded as INFERENCE from code reading, explicitly not measured, because the review was read-only. This mutation is the measurement, and it agreed with the inference exactly."
+      }
+    },
+    "re2": {
+      "finding": "If RE-1 were declined, commit A's body and designRationale.decisions[2] would have to stop claiming the ordering is 'Pinned by red rows (b) and (d) together'.",
+      "disposition": "Moot -- RE-1 was taken. The claim is nonetheless REWRITTEN rather than left to stand on the old wording: decisions[2] and commit A's body now cite (b2) and the measured mutation, not (b)/(d)."
+    },
+    "recommendedCompanionNotTaken": {
+      "what": "RE-1's recommended (not required) companion: a twin row with a stale expectedRowVersion AND fenceRevision = fence.rootPublicRevision - 1, asserting { kind: 'refused', reason: 'stale-replay-fence' }.",
+      "why": "The coordinator's instruction was 'Add ONE row'. Not taken, and recorded as an open option rather than silently dropped. It would mirror (c) the way (b2) mirrors (b); the ordering itself is already falsified without it, since the refusal branch sits inside the same storedFence block the mutation relocated."
+    }
+  }
+}

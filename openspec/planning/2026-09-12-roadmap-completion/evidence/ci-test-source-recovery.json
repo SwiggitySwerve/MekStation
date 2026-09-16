@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-09-12T14:26:13.253Z",
+  "status": "exact-pre-trim-source-restored",
+  "file": "scripts/__tests__/openspec-ci-quality-qc.test.ts",
+  "damagedSha256": "73e6aa8ab9098913c4a5dd3310d364d6ad00d962b37967c6e1ef5477545d90e0",
+  "restoredSha256": "37cc951ad23379e647b2217750932f18c1843c247ee1f4a3e7e36da79b97b026",
+  "restoredLines": 675,
+  "method": "Recovered last successful Jest SWC source map sourcesContent; formatted via repository oxfmt stdin using original file path; resulting bytes exactly match worker-recorded pre-trim SHA-256.",
+  "evidence": [
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/ci-recovery/damaged-original.ts",
+      "sha256": "73e6aa8ab9098913c4a5dd3310d364d6ad00d962b37967c6e1ef5477545d90e0"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/ci-recovery/27.map",
+      "sha256": "d3ff40f6663ec90f2974dd8d7e93ab68c9b6a1dfc77311e0f25929e7c080332c"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/ci-recovery/27-cached.ts",
+      "sha256": "ed52fabd4c9eb830c5137c965d8249b563e2c929b8cc3893fd9a5829f2aa7646"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/ci-recovery/ba.map",
+      "sha256": "ae85a4758593331ac1da19d91d56d0c3241a2cafaf5eb2353150e8807784825e"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/ci-recovery/ba-cached.ts",
+      "sha256": "23f685c82d7a35f267b68ef82bef6ce3882d917e5943e0033f0189a48da4740d"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/ci-recovery/ba-formatted-via-stdin.ts",
+      "sha256": "37cc951ad23379e647b2217750932f18c1843c247ee1f4a3e7e36da79b97b026"
+    }
+  ],
+  "limitations": [
+    "Focused CI tests must be re-run after recovery.",
+    "Original 580-line dirty source is preserved separately; recovered 675-line source includes authorized added mutation checks.",
+    "PR size must be handled by splitting delivery, never trimming coverage."
+  ]
+}

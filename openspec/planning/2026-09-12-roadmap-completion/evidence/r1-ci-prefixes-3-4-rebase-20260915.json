@@ -1,0 +1,158 @@
+{
+  "task": "R1 CI prefixes 3-4 rebase onto origin/main (post PR #1678 squash-merge)",
+  "date": "2026-09-15",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/ci-customizer-gate-20260915",
+  "context": {
+    "prMerged": {
+      "number": 1678,
+      "ciPrefix": 2,
+      "headBefore": "c3f2fc80e",
+      "mergedIntoMainAs": "0f86b4ee9e7b8fb7ffdad499bc60209e5358586b"
+    },
+    "originMainVerified": "0f86b4ee9e7b8fb7ffdad499bc60209e5358586b"
+  },
+  "rebases": [
+    {
+      "label": "prefix-3",
+      "branch": "codex/roadmap-ci-quality-test-20260915",
+      "command": "git rebase --onto origin/main c3f2fc80e codex/roadmap-ci-quality-test-20260915",
+      "oldSha": "14a7a5b9b",
+      "newSha": "fb1d643064e057625ef5d66e0ad137da47a1b399",
+      "exitCode": 0,
+      "outcome": "clean replay, no conflicts",
+      "logFile": ".sisyphus/roadmap-completion-20260912/ci-prefixes-3-4-rebase-20260915/rebase1-test-onto-main.log",
+      "logSha256": "84e9f51a074c1441fff1fb2f3a5bb7e3b5a100bca9ee834b9a05b1e5439e46b2"
+    },
+    {
+      "label": "prefix-4",
+      "branch": "codex/roadmap-ci-quality-mutations-20260915",
+      "command": "git rebase --onto codex/roadmap-ci-quality-test-20260915 14a7a5b9b codex/roadmap-ci-quality-mutations-20260915",
+      "oldSha": "06d65d2e3",
+      "newSha": "534372297bad41a19cb73719d6df16aa0725feb5",
+      "exitCode": 0,
+      "outcome": "clean replay, no conflicts",
+      "logFile": ".sisyphus/roadmap-completion-20260912/ci-prefixes-3-4-rebase-20260915/rebase2-mutations-onto-test.log",
+      "logSha256": "f0f7b8240518ebfb86f2b044fe0584bfd92426d1d1edd8618eb10c792c0f2d73"
+    }
+  ],
+  "ancestryChecks": [
+    {
+      "check": "git merge-base --is-ancestor origin/main fb1d643064e057625ef5d66e0ad137da47a1b399",
+      "result": "PASS",
+      "meaning": "prefix-3 new head descends from origin/main"
+    },
+    {
+      "check": "git merge-base --is-ancestor fb1d643064e057625ef5d66e0ad137da47a1b399 534372297bad41a19cb73719d6df16aa0725feb5",
+      "result": "PASS",
+      "meaning": "prefix-4 new head descends from prefix-3 new head"
+    }
+  ],
+  "testFileHashChecks": {
+    "path": "scripts/__tests__/openspec-ci-quality-qc.test.ts",
+    "atPrefix3NewHead": {
+      "sha": "fb1d643064e057625ef5d66e0ad137da47a1b399",
+      "lines": 580,
+      "sha256": "ed52fabd4c9eb830c5137c965d8249b563e2c929b8cc3893fd9a5829f2aa7646",
+      "expectedSha256": "ed52fabd4c9eb830c5137c965d8249b563e2c929b8cc3893fd9a5829f2aa7646",
+      "matchesExpected": true
+    },
+    "atPrefix4NewHead": {
+      "sha": "534372297bad41a19cb73719d6df16aa0725feb5",
+      "lines": 675,
+      "sha256": "37cc951ad23379e647b2217750932f18c1843c247ee1f4a3e7e36da79b97b026",
+      "expectedSha256": "37cc951ad23379e647b2217750932f18c1843c247ee1f4a3e7e36da79b97b026",
+      "matchesExpected": true
+    }
+  },
+  "diffShortstats": [
+    {
+      "range": "origin/main..fb1d643064e057625ef5d66e0ad137da47a1b399",
+      "result": "1 file changed, 414 insertions(+)",
+      "expected": "1 file, +414",
+      "matchesExpected": true
+    },
+    {
+      "range": "fb1d643064e057625ef5d66e0ad137da47a1b399..534372297bad41a19cb73719d6df16aa0725feb5",
+      "result": "1 file changed, 95 insertions(+)",
+      "expected": "1 file, +95",
+      "matchesExpected": true
+    }
+  ],
+  "gates": {
+    "runnerCheckout": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/archive-original-main-proof",
+    "originalHead": "5b229be21e87815f10ce6521dda77b52eef75e3c",
+    "preconditionStatusPorcelainEmpty": true,
+    "runs": [
+      {
+        "label": "prefix-3-head",
+        "detachedSha": "fb1d643064e057625ef5d66e0ad137da47a1b399",
+        "checkoutLog": ".sisyphus/roadmap-completion-20260912/ci-prefixes-3-4-rebase-20260915/checkout-new3.log",
+        "checkoutLogSha256": "6a66c24165aceef24d527d699be6795e38930a55cd53a833606f0c7d0528f7c7",
+        "jest": {
+          "argv": ["node", "node_modules/jest/bin/jest.js", "--runInBand", "--coverage=false", "--runTestsByPath", "scripts/__tests__/openspec-ci-quality-qc.test.ts"],
+          "exitCode": 0,
+          "testSuites": "1 passed, 1 total",
+          "tests": "28 passed, 28 total",
+          "expectedTests": "28/28",
+          "matchesExpected": true,
+          "logFile": ".sisyphus/roadmap-completion-20260912/ci-prefixes-3-4-rebase-20260915/jest-new3.log",
+          "logSha256": "c768910b89bb17a1dbf307ffcb09465b68377d4648fc9bfacf35d08f3ad0d2fd"
+        },
+        "oxfmt": {
+          "argv": ["npx", "oxfmt", "--check", "scripts/__tests__/openspec-ci-quality-qc.test.ts"],
+          "exitCode": 0,
+          "result": "All matched files use the correct format.",
+          "logFile": ".sisyphus/roadmap-completion-20260912/ci-prefixes-3-4-rebase-20260915/oxfmt-new3.log",
+          "logSha256": "3bda8ab55470711300eecf65a35afdedc4e256e85c9c591b10fdb5a7284e77cf"
+        }
+      },
+      {
+        "label": "prefix-4-head",
+        "detachedSha": "534372297bad41a19cb73719d6df16aa0725feb5",
+        "checkoutLog": ".sisyphus/roadmap-completion-20260912/ci-prefixes-3-4-rebase-20260915/checkout-new4.log",
+        "checkoutLogSha256": "0242bfc33bfe6f89726959be12bab236c737d8f838bcb91745b482e1dbdf71d1",
+        "jest": {
+          "argv": ["node", "node_modules/jest/bin/jest.js", "--runInBand", "--coverage=false", "--runTestsByPath", "scripts/__tests__/openspec-ci-quality-qc.test.ts"],
+          "exitCode": 0,
+          "testSuites": "1 passed, 1 total",
+          "tests": "37 passed, 37 total",
+          "expectedTests": "37/37",
+          "matchesExpected": true,
+          "logFile": ".sisyphus/roadmap-completion-20260912/ci-prefixes-3-4-rebase-20260915/jest-new4.log",
+          "logSha256": "3b8694b62c807ea5ce8b5b3d4a02c053afed1e5a06450a401347e5330b9585b2"
+        },
+        "oxfmt": {
+          "argv": ["npx", "oxfmt", "--check", "scripts/__tests__/openspec-ci-quality-qc.test.ts"],
+          "exitCode": 0,
+          "result": "All matched files use the correct format.",
+          "logFile": ".sisyphus/roadmap-completion-20260912/ci-prefixes-3-4-rebase-20260915/oxfmt-new4.log",
+          "logSha256": "e6ec314b0735059b3e820c5e0da208690d089f06eb53f97629d1d3e52a8a561c"
+        },
+        "qcOpenspecCiValidate": {
+          "argv": ["npm", "run", "qc:openspec-ci:validate"],
+          "exitCode": 0,
+          "result": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=13 accountedActiveOpenSpecChanges=13 errors=0",
+          "logFile": ".sisyphus/roadmap-completion-20260912/ci-prefixes-3-4-rebase-20260915/qc-openspec-ci-validate-new4.log",
+          "logSha256": "b57c56c8aa5f6220e20203254be8c1823e0bec263085bfdcad085cb9021bba9e"
+        }
+      }
+    ],
+    "restore": {
+      "target": "5b229be21e87815f10ce6521dda77b52eef75e3c",
+      "verifiedHeadAfterRestore": "5b229be21e87815f10ce6521dda77b52eef75e3c",
+      "statusPorcelainEmptyAfterRestore": true,
+      "logFile": ".sisyphus/roadmap-completion-20260912/ci-prefixes-3-4-rebase-20260915/restore-5b229be21.log",
+      "logSha256": "aab948efaef3904ffe0c469e6141741db2fd5b648dc77f6db867d9db3428de15"
+    }
+  },
+  "finalState": {
+    "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/ci-customizer-gate-20260915",
+    "branch": "codex/roadmap-ci-quality-mutations-20260915",
+    "head": "534372297bad41a19cb73719d6df16aa0725feb5",
+    "statusPorcelainEmpty": true
+  },
+  "environment": {
+    "node": "v22.22.0"
+  },
+  "result": "PASS - both prefixes rebased cleanly with no conflicts; ancestry, file hashes, and diff shortstats match expected values exactly; jest (28/28 and 37/37) and oxfmt pass on both heads; qc:openspec-ci:validate exits 0 with 0 errors at prefix-4 head; gate runner checkout restored to original HEAD with clean status."
+}

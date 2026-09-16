@@ -1,0 +1,185 @@
+{
+  "schema": "camp-proof-exact-main-controller/v1",
+  "node": "R2.receipts (acceptance-line controller leg) + R2.triage predecessor gate",
+  "artefact": "camp-proof-exact-main-controller-20260915",
+  "generatedAtUtc": "2026-09-15T13:10:00Z",
+  "generatedBy": "agent (GP-JUSTIFIED single frozen-controller invocation at exact main; read-only on product/spec/contract/roadmap files)",
+  "purpose": "Satisfy R2.receipts's acceptance-line clause 'Use controller and frozen camp-proof command ID ... at exact main' by running the real production controller ONCE at exact main under the declared solo-maintainer sentinel, and record the outcome verbatim. Gated follow-on: the proof-02-reproduction wave, only if a camp-proof exact-main receipt was actually written.",
+
+  "environment": {
+    "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/proof02-rerun",
+    "branchCreated": "codex/roadmap-camp-proof-exact-main-a11ef14f-20260915",
+    "branchCreationCommand": "git checkout -b codex/roadmap-camp-proof-exact-main-a11ef14f-20260915 origin/main",
+    "branchLeftInPlace": true,
+    "commitsOnBranch": 0,
+    "priorWorktreeHead": "e048a43cd251b7515af7ff23371148b904817ad2 (detached; 'test(e2e): settle the pending campaign save before the starmap spec navigates (#1714)')",
+    "exactMainSha": "a11ef14fdf586b96eb30d49329b1a99b63281725",
+    "exactMainSubject": "test(campaign): prove the discard-time flush reaches the server and survives a cold reload (#1709)",
+    "fetchedAtUtc": "2026-09-15T12:48:00Z",
+    "ancestryVerified": "git merge-base --is-ancestor e048a43cd... a11ef14fd... -> true (the prior pinned detached SHA is an ancestor of the new tip)",
+    "node": "v22.22.0 (PATH prefixed with /c/Users/wroll/AppData/Local/nvm/v22.22.0)",
+    "git": "2.54.0.windows.1",
+    "port3639": "free before and after (netstat); never bound -- the run never reached server/build stages",
+    "port3600": "never touched",
+    "prodEvidenceFlag": "never used",
+    "otherLanesCheckedBeforeRun": "Win32_Process node.exe enumeration found one active jest lane (PID 14808, campaignAuthoritativeState.test.ts). Waited with a 60s poll loop until zero node.exe command lines matched jest|playwright|next build|run-next; LANES CLEAR at 2026-09-15T12:55:55Z. Then ran."
+  },
+
+  "tupleResearch": {
+    "rowRead": "scripts/qc/camp01-authority-receipt.contract.mjs WAVE_CONTRACTS['camp-proof'] -- commandId 'camp-proof', canonicalArgvDigest 68e44c6b37134fb790026e615b26ddda39fb68cbf49921be33e1d1a1bd4d48a0, runRootTemplate '.sisyphus/evidence/playtest/camp-proof-<sha>', bootstrapProductRef 'refs/heads/codex/implement-camp01-authority-receipts', capSubject 'product-pr' (maxFiles 15 / maxChangedLines 500), predecessors [].",
+    "specTupleChosen": {
+      "value": "add-camp01-authority-receipts|1215|d2c27d85087a094e2734b92aee629a542a9d097a|solo-maintainer|SwiggitySwerve",
+      "why": "openspec/changes/add-camp01-authority-receipts/tasks.md:99 records that the 2026-08-10 receipt cycle cited spec PR #1215 (d2c27d850) for ALL ELEVEN tuples (the --spec tuple plus the ten --program-spec tuples). Re-verified live this session rather than trusted.",
+      "liveVerification": "gh api repos/SwiggitySwerve/MekStation/pulls/1215 -> merged=true, merge_commit_sha=d2c27d85087a094e2734b92aee629a542a9d097a, head=0b79e7920334d13d8b970df2ff2373515b73e693, user=SwiggitySwerve, merged_by=SwiggitySwerve, base=main.",
+      "ledgerVerification": "git show d2c27d85087a094e2734b92aee629a542a9d097a:openspec/active-change-ledger.json -> 21 allowedActiveChanges; all TEN PROGRAM_CHILD_CHANGES present (MISSING: []). git cat-file -e for openspec/changes/<child>/tasks.md at that SHA succeeded for all ten. This is exactly what camp01-github-provenance.mjs verifyLedgeredSpec requires.",
+      "ancestryVerification": "git merge-base --is-ancestor d2c27d850... a11ef14fd... -> true (verifyAncestor would pass). git merge-base --is-ancestor d2c27d850... f7f08cf9f... -> true (the GitHub compare(specMerge, ownedHead) status would be 'ahead')."
+    },
+    "programSpecTuples": "Ten tuples, one per PROGRAM_CHILD_CHANGES entry, all citing PR #1215 / d2c27d850 / solo-maintainer / SwiggitySwerve -- the same single-citation pattern tasks.md:90 declares ('the ... merge serves as the ledgered citation for the camp-proof spec tuple and all ten --program-spec tuples').",
+    "ownedProductTupleChosen": {
+      "value": "1709|f7f08cf9f215ec31e935e12be05250b72d2dbf0e|solo-maintainer|SwiggitySwerve|a11ef14fdf586b96eb30d49329b1a99b63281725",
+      "why": "camp-proof is capSubject='product-pr', so --product is MANDATORY (buildProvenanceRecord fails 'provenance subject drift' without it). In exact-main mode the controller requires owned.mergeSha === --sha, and camp01-github-provenance.mjs assertReceiptIdentity additionally requires mainOid === owned.mergeSha -- i.e. the owned PR's merge commit must BE the live main tip. PR #1709 is the only real PR that satisfies that today.",
+      "liveVerification": "gh api repos/SwiggitySwerve/MekStation/pulls/1709 -> merged=true, merge_commit_sha=a11ef14fdf586b96eb30d49329b1a99b63281725 (= origin/main tip), head=f7f08cf9f215ec31e935e12be05250b72d2dbf0e, user=SwiggitySwerve, merged_by=SwiggitySwerve, base=main. git cat-file -e on the head OID succeeded locally.",
+      "honesty": "No PR number or SHA in this file was invented; every one was read from the live GitHub API or from git object existence checks in this session."
+    },
+    "sentinelArmRead": "scripts/qc/camp01-github-provenance.mjs:147 -- approvalId==='solo-maintainer' requires collaborators exactly [reviewer], pull.user.login===reviewer, merged_by.login===reviewer (when mergeSha is cited), and permission ADMIN. Both cited PRs (#1215, #1709) are owner-authored and owner-merged, so the sentinel would have been satisfiable had the run reached preflight. IT DID NOT -- see refusalAnalysis.",
+    "campNextDistDirNote": "OD-camp00-controller-env (roadmap.json ownerDecisions) re-verified independently this session by reading scripts/qc/camp01-proof-environment.mjs:111 and :119: CAMP01_NEXT_DIST_DIR is injected and allow-listed only when row.wave==='camp-00'. It has no bearing on camp-proof or proof-02-reproduction."
+  },
+
+  "runs": [
+    {
+      "id": "attempt-0-harness-fault",
+      "isControllerVerdict": false,
+      "startedAtUtc": "2026-09-15T12:56:15Z",
+      "endedAtUtc": "2026-09-15T13:02:12Z",
+      "exit": 127,
+      "what": "A first invocation was assembled as a single shell string and dispatched through 'eval'. The Git-Bash shell re-interpreted the literal pipe separators inside the tuple values as shell pipes, so the child process never received the intended argv.",
+      "stderrVerbatimTranscript": "repeated \"/usr/bin/bash: line 15: <fragment>: command not found\" for every tuple fragment, then a single line: CAMP01_CONTROLLER_INVALID: invalid spec tuple",
+      "classification": "HARNESS QUOTING FAULT, not a controller finding. The 'invalid spec tuple' message is an artefact of the mangled argv; it says nothing about the real tuple, which was never delivered to the controller.",
+      "sideEffects": "None beyond createProductionDependencies' own ensureDirectory of the worktree's .sisyphus/evidence/playtest (already a tracked path). Worktree porcelain empty afterwards. NOTE: this attempt's stdout/stderr log files were OVERWRITTEN by the real run below (same filenames); the stderr text above is transcript-sourced, and no reconstructed log file was fabricated.",
+      "usefulSignal": "createProductionDependencies -> inspectInitiating COMPLETED without refusing, which is the first proof that the branch checkout resolved the prior lane's CAMP01_TARGET_INVALID blocker (see priorBlockerResolved)."
+    },
+    {
+      "id": "camp-proof-exact-main",
+      "isControllerVerdict": true,
+      "wave": "camp-proof",
+      "mode": "exact-main",
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/proof02-rerun",
+      "argc": 18,
+      "command": "node scripts/qc/run-camp01-production.mjs proof --mode=exact-main --wave=camp-proof --sha=a11ef14fdf586b96eb30d49329b1a99b63281725 --run-root=.sisyphus/evidence/playtest/camp-proof-a11ef14fdf586b96eb30d49329b1a99b63281725 --spec=add-camp01-authority-receipts|1215|d2c27d85087a094e2734b92aee629a542a9d097a|solo-maintainer|SwiggitySwerve --product=1709|f7f08cf9f215ec31e935e12be05250b72d2dbf0e|solo-maintainer|SwiggitySwerve|a11ef14fdf586b96eb30d49329b1a99b63281725 --program-spec=add-camp01-authority-receipts|1215|d2c27d85087a094e2734b92aee629a542a9d097a|solo-maintainer|SwiggitySwerve --program-spec=bind-packaged-server-to-loopback|1215|d2c27d85087a094e2734b92aee629a542a9d097a|solo-maintainer|SwiggitySwerve --program-spec=add-campaign-roster-source-readiness|1215|d2c27d85087a094e2734b92aee629a542a9d097a|solo-maintainer|SwiggitySwerve --program-spec=add-authoritative-campaign-coop-snapshot|1215|d2c27d85087a094e2734b92aee629a542a9d097a|solo-maintainer|SwiggitySwerve --program-spec=authorize-campaign-coop-participation|1215|d2c27d85087a094e2734b92aee629a542a9d097a|solo-maintainer|SwiggitySwerve --program-spec=enforce-campaign-unit-source-launch-boundary|1215|d2c27d85087a094e2734b92aee629a542a9d097a|solo-maintainer|SwiggitySwerve --program-spec=add-saved-custom-unit-campaign-picker|1215|d2c27d85087a094e2734b92aee629a542a9d097a|solo-maintainer|SwiggitySwerve --program-spec=persist-saved-custom-unit-campaign-creation|1215|d2c27d85087a094e2734b92aee629a542a9d097a|solo-maintainer|SwiggitySwerve --program-spec=resolve-saved-custom-units-in-mech-bay|1215|d2c27d85087a094e2734b92aee629a542a9d097a|solo-maintainer|SwiggitySwerve --program-spec=prove-saved-custom-unit-campaign-journey|1215|d2c27d85087a094e2734b92aee629a542a9d097a|solo-maintainer|SwiggitySwerve",
+      "argvDispatch": "bash array (no eval, no shell interpretation of the pipe separators); the exact argv is preserved verbatim in camp-proof-exact-main.cmd.txt",
+      "envDelta": "PATH prefixed with C:/Users/wroll/AppData/Local/nvm/v22.22.0 only. No CAMP01_* variable was set by the caller.",
+      "startedAtUtc": "2026-09-15T13:02:40Z",
+      "endedAtUtc": "2026-09-15T13:02:46Z",
+      "wallDurationSeconds": 6,
+      "exit": 1,
+      "stdout": "",
+      "stderrVerbatim": "CAMP01_CONTROLLER_INVALID: controller state fields drift",
+      "artifactsWritten": [],
+      "receiptManifestDigest": null,
+      "verdict": "REFUSED-NO-REGISTERED-CONTROLLER-STATE"
+    }
+  ],
+
+  "refusalAnalysis": {
+    "message": "CAMP01_CONTROLLER_INVALID: controller state fields drift",
+    "codePath": [
+      "scripts/qc/run-camp01-production.mjs runProduction -> createProductionDependencies (PASSED: inspectInitiating accepted the branch checkout)",
+      "scripts/qc/run-camp01-authority-receipt.mjs runController -> proof()",
+      "proof(): buildProvenanceRecord PASSED (spec childChange matched row.childChange; capSubject 'product-pr' matched the supplied --product; exact-main owned.mergeSha === --sha)",
+      "proof(): run-root equality with row.runRootTemplate.replace('<sha>', sha) PASSED",
+      "proof(): validateProofInputs PASSED (the ten --program-spec childChange names exactly equal PROGRAM_CHILD_CHANGES; no dispositions/repairs supplied)",
+      "proof(): const state = store.load('camp-proof') -> null (createFileStateStore reads .sisyphus/evidence/playtest/.camp01-controller/camp-proof/state.json, which does not exist in this initiating root)",
+      "proof(): the state===null && row.capSubject==='none' synthesis does NOT apply because camp-proof is capSubject='product-pr'",
+      "proof(): assertState(null,'camp-proof') -> exactKeys(null, ['schema','wave','rowDigest','repairSource','registration','ownedTarget','proofTarget','runs','lifecycle'], 'controller state') -> fail('controller state fields drift')"
+    ],
+    "rootCause": "camp-proof is a PR-owning row: its exact-main proof is only reachable as the tail of the controller's own uninterrupted lifecycle in ONE initiating root -- 'register-pr-target' (records the owned product worktree), then a reviewed-head 'proof' run (whose final run is re-read from the same state file), then the exact-main 'proof' run. The controller re-reads that state from disk; a fresh initiating root has none, so a standalone exact-main invocation is structurally unreachable regardless of how real the tuples are.",
+    "secondGateThatWouldAlsoHaveFired": "Even with a registered state, the exact-main arm requires state.runs to contain a reviewed-head FINAL run whose provenance.owned.prNumber/headSha match the supplied --product and whose run.sha equals owned.headSha ('reviewed-head final missing or provenance-unbound'). No reviewed-head run exists for PR #1709.",
+    "notReached": [
+      "verifyPreflight / camp01-github-provenance.mjs -- NO GitHub API call was made by the controller. The solo-maintainer sentinel arm was therefore NOT exercised in this run.",
+      "inspectRowRoot, createProofTarget (git worktree add --detach), prepareEnvironment (npm ci / hermetic env), observeCleanState, executeReceipt (the frozen camp-proof jest command), exportReceipt, the public validator, cleanup."
+    ],
+    "classification": "REFUSED on the controller's own lifecycle precondition -- NOT on the sentinel, NOT on provenance, NOT on the hermetic environment. No workaround was attempted (no register-pr-target, no reviewed-head run, no hand-written controller state file)."
+  },
+
+  "priorBlockerResolved": {
+    "priorFinding": "evidence/proof02-reproduction-writer-attempt-20260915.json -> CAMP01_TARGET_INVALID: owned worktree must have a branch (camp01-target-authority.mjs:36 via camp01-durable-facts.mjs inspectInitiating), because the initiating worktree was DETACHED.",
+    "statusNow": "RESOLVED for the initiating-root gate. With the worktree on branch codex/roadmap-camp-proof-exact-main-a11ef14f-20260915 and a clean tracked tree, createProductionDependencies/inspectInitiating completed in BOTH invocations this session and the controller proceeded into argument parsing and proof(). The prior lane's conclusion that the controller 'cannot currently be invoked from any of the detached exact-main proof worktrees' is confirmed as a property of DETACHED checkouts specifically; a branch checkout at the same SHA clears it.",
+    "whatRemainsForProof02": "Unchanged and untouched: the proof-02-reproduction row's predecessor gate still requires a durable exact-main camp-proof receipt, which still does not exist anywhere in this repository."
+  },
+
+  "structuralFindings": [
+    {
+      "id": "F1",
+      "finding": "'Exact main' in this controller is not 'today's origin/main tip' in the abstract -- camp01-github-provenance.mjs assertReceiptIdentity requires mode==='exact-main' && sha === owned.mergeSha && mainOid === owned.mergeSha. The exact-main receipt is pinned to the MERGE COMMIT of the wave's own owned product PR, and that merge commit must still be the live main tip at run time.",
+      "consequence": "A fresh exact-main camp-proof receipt at any given tip is only producible by running the full uninterrupted cycle against a FRESH owned product PR that is then merged as the newest commit on main -- exactly the cycle tasks.md:95 describes and that evidence/r2-receipts-closure-20260915.json records as owner-blocked at gate G1. It cannot be minted retroactively against an arbitrary historical tip.",
+      "evidence": "scripts/qc/camp01-github-provenance.mjs assertReceiptIdentity; run-camp01-authority-receipt.mjs proof() reviewed-head binding clause; tasks.md:99 (the 2026-08-10 exact-main receipt was taken at 48f806f97, the merge_commit_sha of owned PR #1216)."
+    },
+    {
+      "id": "F2",
+      "finding": "Eight of the ten PROGRAM_CHILD_CHANGES are no longer ledger-accounted at today's main tip (only add-camp01-authority-receipts and prove-saved-custom-unit-campaign-journey remain in allowedActiveChanges at a11ef14fd). This does NOT block citation: verifyLedgeredSpec reads the ledger AT THE CITED MERGE SHA, and all ten are present at d2c27d850.",
+      "consequence": "Future camp-proof runs must keep citing a historical merge SHA (such as #1215 / d2c27d850) for the eleven tuples; citing a recent SHA would fail 'cited spec is not ledger-accounted at merge SHA' for the eight archived children.",
+      "evidence": "git show a11ef14fd:openspec/active-change-ledger.json vs git show d2c27d850:openspec/active-change-ledger.json, both read this session."
+    }
+  ],
+
+  "waveVerdicts": [
+    {
+      "wave": "camp-proof",
+      "mode": "exact-main",
+      "verdict": "REFUSED-NO-REGISTERED-CONTROLLER-STATE",
+      "receiptWritten": false,
+      "receiptManifestDigest": null
+    },
+    {
+      "wave": "proof-02-reproduction",
+      "mode": "exact-main",
+      "verdict": "NOT-RUN-GATED",
+      "receiptWritten": false,
+      "receiptManifestDigest": null,
+      "reason": "The task authorised this wave ONLY if the camp-proof exact-main receipt was written. It was not, so the run was not attempted. Independently, the row's own frozen predecessor gate ['camp-proof'] would have refused in verifyPreflight for the same missing receipt."
+    }
+  ],
+
+  "sideEffectVerification": {
+    "worktreePorcelainBefore": "empty",
+    "worktreePorcelainAfter": "empty",
+    "controllerStateDirAfter": ".sisyphus/evidence/playtest/.camp01-controller does not exist (confirmed by ls after the run) -- the controller wrote no state",
+    "runRootAfter": "no .sisyphus/evidence/playtest/camp-proof-a11ef14fd... directory exists in the worktree or anywhere under E:/Projects/MekStation",
+    "directoriesCreatedByTheController": [
+      ".sisyphus/evidence/playtest/.camp01-cleanups (empty, inside the WORKTREE)",
+      ".sisyphus/evidence/playtest/.camp01-repair-registry (empty, inside the WORKTREE)"
+    ],
+    "rootCheckoutEvidenceUntouched": "git status --porcelain .sisyphus/evidence in the ROOT checkout returns empty; nothing was written to or deleted from the root checkout's .sisyphus/evidence",
+    "strayProofWorktrees": "git worktree list shows no mekstation-camp01-proof-* entry -- createProofTarget was never reached",
+    "port3639": "free before and after",
+    "commits": "none; the branch has zero commits beyond origin/main",
+    "pushes": "none",
+    "prsOrMerges": "none"
+  },
+
+  "artifacts": {
+    "directory": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/camp-proof-exact-main-20260915/",
+    "files": [
+      { "path": "camp-proof-exact-main.cmd.txt", "sizeBytes": 1770, "sha256": "738839e27675b8277f281f5f084850d6021c645c1d0f29d6ec0180059bba939a", "note": "verbatim argv of the single real controller invocation" },
+      { "path": "camp-proof-exact-main.stdout.log", "sizeBytes": 0, "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" },
+      { "path": "camp-proof-exact-main.stderr.log", "sizeBytes": 57, "sha256": "7c7a61633660e0c81e5d14ce37d435d8d142ea49bcc682afe71f662012ca1330", "note": "content: CAMP01_CONTROLLER_INVALID: controller state fields drift" }
+    ],
+    "receiptArtifacts": "NONE. No command-result.json, no receipt-manifest.json, no wave-result.json, no proof02-reproduction.json was produced by any run in this session."
+  },
+
+  "explicitNonClaims": [
+    "A camp-proof receipt produced under the PROOF-6B0 solo-maintainer sentinel satisfies add-camp01-authority-receipts AS REDUCED (specs/journey-qc/spec.md:60 plus the :67 scenario clause) and explicitly DOES NOT satisfy the roster P.2 non-author clause at openspec/changes/add-saved-custom-unit-campaign-roster/specs/journey-qc/spec.md:46, which is unreduced and requires a real non-dismissed exact-head APPROVED review from an authorized non-author. This session produced no receipt at all, so it does not even reach the reduced claim.",
+    "This session did not produce an exact-main camp-proof receipt. R2.receipts's acceptance-line controller clause remains UNSATISFIED at exact main, and R2.triage's predecessor gate remains UNMET.",
+    "The solo-maintainer sentinel arm was NOT exercised: the controller refused before any GitHub API call, so nothing here is evidence about sentinel behaviour, collaborator state, or approval provenance at the current tip.",
+    "No product, spec, contract, test, roadmap, or documentation file was edited. No commit, push, PR, or merge. The branch carries zero commits.",
+    "--prod-evidence was never used. Ports 3639 and 3600 were never bound; no process was killed or waited on other than the pre-run poll for other lanes' jest/playwright/build.",
+    "No repair of the lifecycle gate was attempted: register-pr-target was not run, no reviewed-head run was attempted, and no controller state file was hand-written.",
+    "The 2026-08-10 exact-main receipt (48f806f97 / sha256:f6f3f619...) remains the only exact-main camp-proof receipt, is far behind a11ef14fd, and lives outside this repository in the operator clone E:/Projects/MekStation-proof."
+  ],
+
+  "whatWouldActuallyCloseTheLine": [
+    "1. A fresh owned product PR for add-camp01-authority-receipts (within the camp-proof caps: at most 15 files and 500 changed lines), branched so that camp01-target-authority's owned-target contract is satisfiable.",
+    "2. In ONE initiating root, uninterrupted: 'proof --mode=reviewed-head' at that PR's head; then merge it as the newest commit on main; then 'proof --mode=exact-main --sha=<its merge_commit_sha>'; then export/reopen and 'cleanup'.",
+    "3. Per gate G1, every citation in that cycle would again carry the solo-maintainer sentinel while SwiggitySwerve is the sole collaborator -- so the resulting receipt would again satisfy add-camp01-authority-receipts as reduced and NOT the roster P.2 clause. Nothing in this session changes that."
+  ]
+}

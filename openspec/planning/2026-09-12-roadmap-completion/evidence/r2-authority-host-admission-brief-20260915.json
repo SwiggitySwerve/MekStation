@@ -1,0 +1,178 @@
+{
+  "node": "R2.authority-host",
+  "artefact": "r2-authority-host-admission-brief-20260915",
+  "capturedAtUtc": "2026-09-15T14:00:00.000Z",
+  "role": "read-only discovery; produces no edits, no commits, no checkout changes, no pushes",
+  "sources": {
+    "gitFetchHeadOriginMain": "4e5a74b9fddda382945277b15d76e2e09397d56c",
+    "worktreeUsedForSourceGrep": ".sisyphus/roadmap-completion-20260912/worktrees/r2-prepared-journal-api",
+    "worktreeHead": "4e5a74b9fddda382945277b15d76e2e09397d56c",
+    "worktreeIsAncestorOfOriginMain": true,
+    "roadmapJson": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json (nodes R2.authority-host, R2.authority-cutover, R2.authority-live, R2.authority, R2.authority-client)",
+    "tasksMd": "git show origin/main:openspec/changes/design-campaign-authority-and-sync/tasks.md",
+    "designMd": "git show origin/main:openspec/changes/design-campaign-authority-and-sync/design.md",
+    "specDeltas": [
+      "git show origin/main:openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md",
+      "git show origin/main:openspec/changes/design-campaign-authority-and-sync/specs/coop-campaign-sync/spec.md",
+      "git show origin/main:openspec/changes/design-campaign-authority-and-sync/specs/campaign-access-projection/spec.md"
+    ],
+    "priorEvidence": [
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-authority-residual-brief-20260915.json (node R2.authority; q6/q7 and the host-view-staleness residual are the direct predecessor of this brief)",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-authority-client-admission-brief-20260915.json (node R2.authority-client; P-A/P-B/P-C prefixes; this node's dependsOn)"
+    ]
+  },
+  "q1_whatWasAdmitted": {
+    "nodeAcceptanceQuoted": [
+      "Reproduce host-view staleness across command acknowledgement and reconnect; prove revision-bound projection freshness without client substitution",
+      "Focused real host/source/store and privacy tests, required gates and exact-main receipt"
+    ],
+    "nodeMeta": {
+      "wave": 2,
+      "kind": "implementation",
+      "state": "planned",
+      "taskKeys": [],
+      "dependsOn": [
+        "R2.authority-client"
+      ],
+      "ownershipPaths": [
+        "src/lib/multiplayer/server",
+        "src/lib/campaign"
+      ],
+      "maxFiles": 15,
+      "maxNonGeneratedLines": 500
+    },
+    "noTaskRowNamesThisDirectly": true,
+    "nearestTaskRows": [
+      "tasks.md Group 6.4 (unchecked) is the client-CAS/production-record half of the same refresh-after-commit problem, but scoped to bridging SerializedCampaign.baseVersion vs journal expectedRevision for the client's own writes, not the host's live view of events it did not itself just write via a PUT",
+      "tasks.md preamble, dated 2026-08-22 note under Group 1: the literal, named source of this node's acceptance criterion. Quoted verbatim: Residual RECORDED, deliberately not patched (host view staleness, root-caused 2026-08-22): the GM/host browser does not see an approved co-op proposal in its OWN campaign surfaces until a reload ... Root cause is the two-store split this change exists to remove, NOT a wiring gap ... A refetch would therefore return the stale record, and mirroring the broadcast into the host store would duplicate the guest mirror machinery that tasks 3.2-3.5 replace with the source/replica model. Fix it with those tasks (the host reads the same authoritative projection it publishes), not before.",
+      "design.md D9, GM view is a grant property, not a hosting property: The GM's full view comes from holding the all-scopes grant. Usually the GM hosts the source, but a GM connecting from another device gets a full-scope replica, same mechanism, no special path. This is the design-level instruction this node's title paraphrases: there is no bespoke host projection concept in the design; the host's own live view SHALL be produced by the SAME grant/projection mechanism used for every other viewer (D4), just with the all-scopes grant.",
+      "openspec/changes/design-campaign-authority-and-sync/specs/coop-campaign-sync/spec.md:69, AND the host GM surfaces SHALL continue to show the full history (Scenario: Snapshot and log are scoped to the guest's grant) -- adjacent but narrower: this scenario asserts guest scoping does not degrade an already-working host view; it does not by itself require the host's own dashboard state object to update live from its own committed events.",
+      "R2.authority-live's acceptance (sibling/successor node) names the same defect by result: fix client debounce loss and host-view staleness where reproduced, confirming the roadmap's own model treats this as an outstanding, unfixed defect, not a closed one, despite Group 3's tasks 3.1-3.6 all being checked [x] on origin/main."
+    ],
+    "conclusion": "The node was admitted purely from the tasks.md preamble's dated residual note and the roadmap's own prior audit (R2.authority residual brief), not from any checked or unchecked task row. It is a verification-and-repair node: reproduce a named, root-caused, deliberately-deferred defect, then close it using the source/replica projection mechanism Group 3 already built for every other consumer (D4/D9), extended to the host's own browser surface."
+  },
+  "q2_whatSourceAlreadyDoes": {
+    "summary": "The grant-projection/replica machinery (Group 3, D4/D5/D9) is fully built and used by guests. The host's own browser tab receives committed events over the same transport but the component never folds them back into its own displayed campaign state. This is a citation of the current gap, not a claim it is closed.",
+    "hostBranchDoesNotUpdateDisplayedState": {
+      "file": "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+      "hostEffect": "lines 116-166: useEffect guarded by `if (coopMode !== 'host' || !matchId || !roomCode) return;` (line 117) opens `connectStoredCampaignSyncTransport({ matchId, role: 'host', roomCode })` (line 120, no lastSeq passed, see reconnect finding below) and its onFrame handler (lines 127-165) only calls setLastRefusalCode/setLastRefusalAction (refusal banner), setAuditEvents (line 148, comment: Task 3.6: keep the GM's received stream so the scope audit panel can show how each event was classified at emission. Host-only), and setPending/proposal bookkeeping. On a message.kind === 'CampaignEvent' frame (line 141) it only clears the refusal code (lines 142-144); there is no call to store.setState(...) anywhere in this effect, so the campaign object read by the rest of the dashboard (useCampaignStore(), line 53) is never advanced by the host's own live event stream.",
+      "guestBranchForComparison": "lines 181-249: the guest useEffect (guarded coopMode !== 'guest', line 182) defines projectMirrorToCampaign (line 196) which reads useCampaignMirrorStore.getState().campaign (line 197) and calls store.setState({ campaign: applyAuthoritativeStateToGuestCampaign(current, authoritative) }) (lines 200-203), once immediately (line 208) and again inside onFrame after every committed event or snapshot is folded into the mirror store (line 246). This is the exact mechanism the host branch lacks.",
+      "reusableProjectionFn": "src/lib/campaign/coop/campaignMirrorProjection.ts (53 lines total): applyAuthoritativeStateToGuestCampaign(campaign: ICampaign, state: ICampaignAuthoritativeState): ICampaign is a pure function; despite its guest-specific name, its signature and body (lines 8-25) take a plain ICampaign and ICampaignAuthoritativeState and return a new ICampaign with currentDate, finances.balance, and factionStandings projected from state. Nothing in its implementation is guest-specific; it is reusable for the host's own view with no modification, which is the D9-mandated same mechanism, no special path."
+    },
+    "reconnectDoesNotBackfillHost": {
+      "file": "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx:120-125",
+      "finding": "The host's connectStoredCampaignSyncTransport({ matchId, role: 'host', roomCode }) call passes no lastSeq. The guest's call at line 188 explicitly threads lastSeq: useCampaignMirrorStore.getState().lastSequence to resume from a cursor.",
+      "transportDefault": "src/lib/campaign/coop/campaignSyncTransport.ts:89 let lastSeq = options.lastSeq ?? -1; and :215 ...(lastSeq >= 0 ? { lastSeq } : {}) confirms a caller that omits lastSeq gets no cursor threaded into the (re)connect handshake, so a host reconnect (tab refresh, brief network loss) has no mechanism analogous to the guest's cursor-resumable backfill (task 3.3/D5) to catch the host's own dashboard state up on events it missed while disconnected. (The audit-panel auditEvents state is populated the same way and has the identical gap; the acceptance's host/store emphasis targets the campaign object the rest of the dashboard reads, but the reconnect gap is structurally identical for both.)"
+    },
+    "persistedRecordConfirmedStale": {
+      "file": "src/pages/api/campaigns/[id].ts:1-18 (route doc comment) plus 40-46 (readCampaign/saveCampaign imports from CampaignPersistenceService)",
+      "finding": "GET returns the stored SerializedCampaign via readCampaign (CampaignPersistenceService), the same whole-envelope row PUT-guarded by baseVersion CAS. This is the exact row the tasks.md preamble residual names as stale after a co-op proposal commits through CampaignMatchHost.applyHostIntent (in-memory sync-session state plus journal append plus broadcast) without touching this row. A GET refetch of /api/campaigns/:id today would therefore return the pre-commit record, confirming the preamble's claim (A refetch would therefore return the stale record) is still literally true at HEAD 4e5a74b9f.",
+      "boundaryNote": "Bridging this row to journal revision is tasks.md 6.4's literal scope (per the client admission brief's P-C and the R2.authority residual brief q5), which already sits under the sibling node R2.authority-client / a to-be-defined 6.4 slice. R2.authority-host's acceptance (without client substitution) reads as: fix the host's own live-event-stream view without resorting to a REST refetch of this known-stale row, i.e. the fix is the same live grant-projection path guests already use, not a second attempt at refetching the row. This brief treats 6.4 (the row-level CAS bridge) as out of scope for R2.authority-host and in scope for R2.authority-cutover/R2.authority-client, consistent with the node's own dependsOn chain (host depends on client, cutover depends on host)."
+    },
+    "coopSyncSpecScenarioAdjacentNotSatisfying": {
+      "citation": "openspec/changes/design-campaign-authority-and-sync/specs/coop-campaign-sync/spec.md:64-69, Scenario: Snapshot and log are scoped to the guest's grant ... AND the host GM surfaces SHALL continue to show the full history",
+      "whyNotSatisfying": "This scenario is a scope-leak control (GM must still see everything a scoped guest is denied) verified by campaignSurfaceParity.test.ts (the GM projection is the only one carrying every fact, line 356) at the projection level (server-side digest comparison across three viewer projections). It does not exercise the browser-side host dashboard component at all, so it provides no coverage of whether the host's own useCampaignStore campaign object advances when the host's own browser receives its own committed events."
+    },
+    "campaignGmArbiterSecondWriterResidual": {
+      "note": "Recorded here for completeness, not this node's job: CampaignGmArbiter.commitProposal (src/lib/multiplayer/server/CampaignGmArbiter.ts:453) commits an approved co-op proposal through CampaignMatchHost.applyHostIntent, which IS the authoritative committed state the host projection this node builds must read from. That commit path itself is correct and is the root of the staleness (the view-side fold is missing, not the write-side authority); the R2.authority residual brief's q7 (CampaignGmArbiter as a second AcceptContract writer bypassing 6.2a) is a different, narrower residual specific to accepted-contract writes and is explicitly deferred to already-checked Group 3 tasks, not to this node."
+    }
+  },
+  "q3_existingTests": {
+    "noDirectCoverage": "grep confirms no test file exists for src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx exercising the host role's live-update path: `find .../__tests__ -iname *CampaignCoopRouteSurfaceConnected*` returns nothing. `grep -rl CampaignCoopRouteSurfaceConnected src --include=*.test.*` returns only CampaignLifecycleGate.test.tsx, GuestProposalSurface.test.tsx, GuestRebuildStaleGate.test.tsx (all guest-named) and CampaignDashboardPage.reactivity.test.tsx (whose four it() rows -- re-renders when the active campaign changes in the store, two mission-materialization rows, one checkpoint-failure row -- exercise generic store-driven re-rendering and mission routing, not the host transport-to-store update path).",
+    "adjacentProjectionTests": [
+      "src/lib/multiplayer/server/__tests__/campaignSurfaceParity.test.ts, server-side viewer-projection digest parity (GM vs Player1 vs Player2); proves the source-side projection is correct, not that a host browser applies it to its own displayed state",
+      "src/lib/campaign/delivery/__tests__/projectCampaignStreamForGrant.test.ts, grant-scoped leak tests, same source-side scope only",
+      "src/lib/multiplayer/server/__tests__/CampaignMatchHost.test.ts:378 an intent is rejected against the host state, not a stale-mirror balance, proves the host's own in-memory authoritative state (server-side) is used for validation, i.e. the write/validate path is not stale; irrelevant to the host's browser display path"
+    ],
+    "conclusion": "Zero regression coverage exists for the defect this node exists to close. Any slice must add red-first component/integration coverage before or alongside the fix."
+  },
+  "q4_theGap": {
+    "statement": "The host's own browser tab, despite receiving the full (GM all-scopes) committed event stream over the same campaign-sync transport guests use, never folds those events back into the useCampaignStore campaign object the rest of the host's dashboard reads. The guest branch of the exact same component performs this fold on every event (and once eagerly on mount) via a pure, already-generic projection function; the host branch only updates refusal/audit/pending UI state. Reconnect makes this worse: the host's transport connect call passes no cursor, so a disconnect-reconnect has no backfill mechanism even in principle. The persisted REST record (/api/campaigns/:id) that a naive refetch-based fix would reach for is independently confirmed stale for the same underlying reason (host commits bypass it), so read the projection, not a refetch (the node's without client substitution clause) is the only viable fix shape and matches D9's directive that the GM view is just another grant-scoped projection consumer.",
+    "twoDistinctReproductions": [
+      "(a) Live: host approves/commits a co-op proposal (or the host itself, as sole player in a solo-hosted session, advances state) and the host's own dashboard does not reflect it until a manual reload, because the host effect's CampaignEvent handler never calls store.setState.",
+      "(b) Reconnect: a host that disconnects and reconnects (tab refresh, brief network loss) has no cursor threaded into the reconnect handshake, so events committed while disconnected are not backfilled into the host's view even after reconnect, unlike the guest path's lastSeq resume."
+    ]
+  },
+  "q5_boundedSliceCharters": [
+    {
+      "id": "H0",
+      "title": "Red-first reproduction: host's own committed events do not reach its displayed campaign state",
+      "behavior": "A component/integration-level test that connects a host-role CampaignCoopRouteSurfaceConnected to a fake/real campaign-sync transport, commits a CampaignEvent (e.g. FundsChanged or CampaignDayAdvanced) as the host would receive it from its own approved proposal, and asserts the rendered/store campaign state does NOT change today (a positive-red row proving the defect), then a second row for reconnect: disconnect, commit an event server-side, reconnect, assert the host's store state does not catch up.",
+      "filesTouchedEstimate": [
+        "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx (new, test-only)"
+      ],
+      "maxFilesCheck": "1 file, well under the 15-file / 500-line node cap",
+      "redFirst": "Both rows must be committed and observed red (failing for the right reason -- assert the current stale value, not a thrown error) before H1 is written, per this repo's write-the-failing-test-first rule",
+      "gates": "npm.cmd run typecheck; npm.cmd run lint; npm.cmd run format:check; focused jest for the new file",
+      "nonClaims": [
+        "Does not touch production code",
+        "Does not decide the fix mechanism yet -- H1/H2 do"
+      ],
+      "modeOffConstraint": "No flag flip; CAMPAIGN_JOURNAL_AUTHORITY_ENABLED stays false; this exercises the existing co-op sync-session/transport path only",
+      "dependsOnOwnerDecision": false,
+      "implementableNow": true
+    },
+    {
+      "id": "H1",
+      "title": "Fold committed events into the host's own displayed campaign state (live case)",
+      "behavior": "Extend the host useEffect in CampaignCoopRouteSurfaceConnected.tsx (lines 116-166) so that on message.kind === 'CampaignEvent' (and CampaignSnapshotPublished, for parity with the guest path's snapshot handling) the host also derives an ICampaignAuthoritativeState from its own already-full-scope event stream and calls store.setState({ campaign: applyAuthoritativeStateToGuestCampaign(current, authoritative) }), reusing the existing pure projection function from campaignMirrorProjection.ts rather than inventing a host-specific one (D9: same mechanism, no special path). Concretely this likely means giving the host branch its own lightweight fold (or reusing useCampaignMirrorStore's applyEvent/applySnapshot with a host-scoped instance) since the host does not currently maintain any local authoritative-state accumulator distinct from auditEvents (a plain array, not a folded state).",
+      "filesTouchedEstimate": [
+        "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx (host effect, ~20-60 changed lines)",
+        "possibly src/lib/campaign/coop/campaignMirrorProjection.ts (rename/generalize export, or add a thin host-facing wrapper -- decide at implementation time whether the Guest in the name is worth changing given it is now dual-purpose) or a small new host-side fold helper beside it",
+        "the H0 test file, extended to green"
+      ],
+      "maxFilesCheck": "estimated 2-3 files, under the 15-file / 500-line cap; split further if the fold-state design grows",
+      "redFirst": "H0's live-case row must be red before this lands, green after",
+      "gates": "npm.cmd run typecheck; npm.cmd run lint; npm.cmd run format:check; npm.cmd run build; focused jest",
+      "nonClaims": [
+        "Does not touch CampaignPersistenceService or /api/campaigns/[id] (that row's staleness is 6.4's job, not this node's)",
+        "Does not change CampaignMatchHost/CampaignGmArbiter's write/commit path",
+        "Does not address reconnect backfill -- that is H2",
+        "No flag flip"
+      ],
+      "modeOffConstraint": "CAMPAIGN_JOURNAL_AUTHORITY_ENABLED stays false throughout; this is a read-side (event-consumption) change only, exercised entirely through the existing co-op sync-session transport that is already live in production for guests",
+      "dependsOnOwnerDecision": false,
+      "implementableNow": true
+    },
+    {
+      "id": "H2",
+      "title": "Thread a resume cursor into the host's transport (re)connect so a reconnect backfills missed events",
+      "behavior": "Pass a lastSeq (analogous to the guest's useCampaignMirrorStore.getState().lastSequence, line 188) into the host's connectStoredCampaignSyncTransport({ matchId, role: 'host', roomCode, lastSeq }) call (line 120), sourced from whatever host-side sequence tracker H1 introduces. Requires H1's fold/tracker to exist first (sequencing dependency, not an owner-decision dependency).",
+      "filesTouchedEstimate": [
+        "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx (host effect connect call + dependency array)",
+        "the H0 reconnect-case test file, extended to green"
+      ],
+      "maxFilesCheck": "1-2 files",
+      "redFirst": "H0's reconnect-case row must be red before this lands, green after",
+      "gates": "npm.cmd run typecheck; npm.cmd run lint; npm.cmd run format:check; focused jest",
+      "nonClaims": [
+        "Does not address the persisted-record staleness (6.4)",
+        "No flag flip"
+      ],
+      "modeOffConstraint": "Same as H1",
+      "dependsOnOwnerDecision": false,
+      "implementableNow": "after H1 lands (sequencing, not identity/seat dependency)"
+    }
+  ],
+  "q6_dependencies": {
+    "needsOwnerIdentitySeatDecision_6_2b": "None of H0/H1/H2. The single-player identity/seat gap (roadmap.json ownerDecisions, 2026-09-15T09:56:02.105Z; R2.authority residual brief q3) blocks routing a command through /commands for a caller without an established principal. H0-H2 are entirely about the host consuming events it is already authorized to receive (GM all-scopes grant, an existing, already-authenticated co-op host session) and reflecting them in its own display; no new write path, no new caller identity, nothing crosses /commands.",
+    "needsP1DeliverySidePrereq_auditPrivacyDeliveryEpochSchema": "None. The delivery-epoch schema (add-authority-audit-and-privacy-proof, PR 1302-1311, archived 2026-08-22) is already merged and is what the existing grant-projection/transport machinery H1 reuses runs on. R2.authority residual brief's tasks.md preamble confirms DELIVERY GATE SATISFIED 2026-08-22 and that this unblocks tasks 3.2-3.5/5.4-5.6 generally; H0-H2 consume that already-unblocked machinery read-only and add no new delivery-side surface.",
+    "implementableNowSummary": "All three charters (H0, H1, H2) are implementable now, sequentially (H0 red then H1 green for the live case then H2 green for the reconnect case), with zero dependency on the 6.2b owner decision or any further P1/delivery-side landing. The only real dependency is the stated node dependsOn, R2.authority-client, but that dependency is a roadmap sequencing/ownership convention (client node owns the crash-window/CAS-adjacent client work under the same design doc), not a code dependency: nothing in H0-H2 imports or waits on R2.authority-client's own deliverables (crash-window flush, contract-market client wiring). This brief does not recommend skipping the stated dependsOn ordering, only notes that no code coupling was found that would force it.",
+    "explicitlyOutOfScopeForThisNode": [
+      "6.4 CAS-counter bridge (SerializedCampaign.baseVersion vs journal expectedRevision), R2.authority-client's/6.4's job",
+      "6.2b client command routing and the single-player identity/seat decision, unrelated write-path problem",
+      "CampaignGmArbiter as a second ungated AcceptContract writer (R2.authority residual brief q7), recorded residual explicitly deferred to already-checked Group 3 tasks, not this node",
+      "Any CAMPAIGN_JOURNAL_AUTHORITY_ENABLED flag flip or production cutover, R2.authority-cutover's job"
+    ]
+  },
+  "q7_whatCutoverWouldThenNeed": [
+    "6.4: bridge SerializedCampaign.baseVersion (client CAS) and the journal's expectedRevision after a committed acceptance, per R2.authority residual brief q5 and the client admission brief's P-C (not chartered here; owner has explicitly declined to pre-select refetch-vs-widen-/commands)",
+    "6.2b: route the single-player client accept path through the source command pipeline, blocked on the recorded owner decision (single-player principal/seat for campaign commands, or explicit co-op-host-only scoping)",
+    "Reconciliation of Group 3/4/5's checked-but-nonclaim task rows per R2.authority-live's acceptance (explicitly reconcile 1.2/1.3 and 4.3/4.5/5.7 checked-task nonclaims)",
+    "The CampaignGmArbiter second-writer residual for AcceptContract (q7 of the R2.authority residual brief), which the tasks.md preamble assigns to a re-opening of already-checked Group 3 (3.2-3.5), not to a new bounded PR",
+    "task 5.7's own acceptance: reviewed flag states (new/legacy/shadowing/journal/blocked), parity gate, no fallback on missing journal stream, compatible rollback (D10), entirely unstarted per tasks.md checkbox state on origin/main",
+    "Real two-process source/replica convergence proof (R2.authority-live's acceptance: real isolated source and replica processes, append/restart/catch-up/revocation/redaction), currently only proven in-process/mocked per the existing test suite reviewed here",
+    "A production readiness review of CAMPAIGN_JOURNAL_AUTHORITY_ENABLED itself, which remains false throughout every slice in this brief and every landed PR reviewed for this brief (P0b, 6.2a, 6.2a-3, crash-window stack)"
+  ],
+  "recommendedFirstSlice": "H0 (red-first reproduction test for both the live-update and reconnect cases) is the correct first PR: it is test-only, single-file, requires no design decision, and turns the tasks.md preamble's prose claim (the GM/host browser does not see an approved co-op proposal ... until a reload) into an executable, falsifiable assertion pinned to the exact component and line ranges cited in q2 above. H1 (live-case fix, reusing the existing pure applyAuthoritativeStateToGuestCampaign projection per D9's same mechanism, no special path) should follow immediately after as the smallest behavior-bearing slice, with H2 (reconnect cursor) as a clearly separable follow-up PR once H1's fold/tracker exists."
+}

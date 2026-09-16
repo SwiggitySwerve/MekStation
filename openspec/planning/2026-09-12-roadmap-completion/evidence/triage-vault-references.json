@@ -1,0 +1,338 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "triage-vault-references",
+  "capturedAt": "2026-09-12",
+  "worktree": "E:/Projects/MekStation",
+  "scope": "Bounded read-only inventory for unit-comparison, user-identity, and vault-sync canonical references. Only this evidence file is owned. No source, canonical spec, roadmap, task, build, test, server, or Git state changes were made.",
+  "ownedPaths": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-vault-references.json"
+  ],
+  "inputInventory": {
+    "path": "docs/audits/2026-09-12-customizer-spec-reconciliation/inventory.json",
+    "sha256": "fe9d25951ee79c34c74f0b8f64aee51dbd94265b30a057ae735ca83301376822",
+    "initialConcerns": {
+      "unit-comparison": "Planned API examples describe bare payloads while current catalog and unit endpoints return success/data envelopes; no implemented route was found.",
+      "user-identity": "The spec references a vault IdentityService test at an absent path; verify whether the test moved or the requirement is stale.",
+      "vault-sync": "Several useVaultImport.ts and VaultInterfaces.ts ranges exceed current files; refresh links and verify planned vault behavior."
+    }
+  },
+  "rows": [
+    {
+      "id": "unit-comparison",
+      "originalConcern": "The original inventory treated comparison as planned, cited bare API result types, and reported no implemented comparison route.",
+      "currentStatus": "documentation_reconciled_runtime_pending",
+      "reconciliationAlreadyCorrect": [
+        {
+          "claim": "The current API uses success/data envelopes.",
+          "evidence": [
+            {
+              "path": "src/pages/api/catalog.ts",
+              "lines": "45-55",
+              "mapping": "Both filtered and full catalog responses return success: true, data, and count."
+            },
+            {
+              "path": "src/pages/api/units.ts",
+              "lines": "145-156, 177-188",
+              "mapping": "Single-unit and query responses return success: true, data, and count where applicable; missing units return success: false and error."
+            },
+            {
+              "path": "src/pages/compare/index.tsx",
+              "lines": "41-52, 88-99",
+              "mapping": "The comparison page reads data.data for both catalog and full-unit requests."
+            }
+          ]
+        },
+        {
+          "claim": "A comparison route and UI are already present in the checkout.",
+          "evidence": [
+            {
+              "path": "src/pages/compare/index.tsx",
+              "lines": "1-16, 119-150",
+              "mapping": "The tracked /compare page loads the catalog, adds/removes up to four units, and renders desktop/mobile comparison surfaces."
+            },
+            {
+              "path": "src/components/pages/compare/ComparePage.components.tsx",
+              "lines": "15-78, 85-132, 135-203, 205-292",
+              "mapping": "Search/add, capacity hint, responsive cards, and comparison table components are implemented."
+            },
+            {
+              "path": "e2e/app-shell-route-proof.spec.ts",
+              "lines": "783-810",
+              "mapping": "The route-proof harness includes the unit-comparison deep-link, title, and search textbox affordance."
+            }
+          ]
+        }
+      ],
+      "exactRemainingStaleReferencesOrContracts": [],
+      "currentStateAndLimits": "The comparison UI route and components are existing in the current checkout, so the original missing-UI/planned-only finding is closed as a path-existence fact. There is no dedicated comparison API route; the UI consumes the existing catalog and unit APIs. The selected stale contract statements were corrected in this documentation update. Existing route-proof coverage establishes navigation affordances only; it does not prove the full comparison requirements, API failure behavior, or responsive visual behavior. Preserve any broader planned acceptance work as planned until focused runtime proof exists.",
+      "focusedProofCommandIfRequired": "npx.cmd playwright test e2e/app-shell-route-proof.spec.ts --grep \"unit comparison deep-links\"",
+      "proofRun": false,
+      "resolvedInThisCorrection": {
+        "path": "openspec/specs/unit-comparison/spec.md",
+        "beforeSha256": "66961e636fa6111fa92ebc10e2eb191202e7f90caca6d249f66e1dea481b9f0d",
+        "afterSha256": "a57e0a86135ee6c5dcd2604d5f7d679ddd9d4a145edc39ad0fdb8cf44768306e",
+        "beforeBytes": 20800,
+        "afterBytes": 20990,
+        "replacements": [
+          {
+            "oldText": "- **GET /api/catalog**: Returns `IUnitEntry[]` for search\n- **GET /api/units?id={id}**: Returns `IUnitDetails` for comparison",
+            "newText": "- **GET /api/catalog**: Returns `{ success: true, data: IUnitEntry[], count: number }` for search\n- **GET /api/units?id={id}**: Returns `{ success: true, data: IUnitDetails }` for comparison",
+            "oldOccurrences": 1,
+            "newOccurrences": 1,
+            "afterLines": "651-652",
+            "reason": "Document the live success/data response envelopes used by the existing endpoints."
+          },
+          {
+            "oldText": "The repository currently has no shipped unit-comparison page or route. The comparison requirements remain planned and are not implementation-completion evidence. The existing catalog and unit endpoints return success/data response envelopes; a future comparison surface must use those current API contracts rather than the bare payload examples shown in the planning text.",
+            "newText": "The repository ships a `/compare` unit-comparison page and comparison components. The page consumes the existing `GET /api/catalog` and `GET /api/units?id={id}` endpoints and extracts their `success`/`data` response envelopes. There is no dedicated comparison API route; comparison is assembled in the page from those existing catalog and unit endpoints. The comparison requirements and acceptance status remain subject to focused runtime proof and are not closed by this implementation reference.",
+            "oldOccurrences": 1,
+            "newOccurrences": 1,
+            "afterLines": "814-816",
+            "reason": "Distinguish the shipped UI route from the absence of a dedicated comparison API route and retain the runtime-proof boundary."
+          }
+        ],
+        "immutableByteBackup": {
+          "path": "C:/tmp/triage-vault-references.before-unit-doc-correction.aa9130420.json",
+          "sha256": "aa91304209cd47404a3f72794dbb905b8c4bceda0dbb918e719c5c1b826b6210",
+          "bytes": 15325
+        },
+        "focusedChecks": [
+          {
+            "command": "npx.cmd openspec validate unit-comparison --strict",
+            "exitCode": 0,
+            "result": "Specification 'unit-comparison' is valid"
+          },
+          {
+            "command": "git diff --check -- openspec/specs/unit-comparison/spec.md",
+            "exitCode": 0,
+            "result": "No whitespace errors"
+          }
+        ]
+      }
+    },
+    {
+      "id": "user-identity",
+      "originalConcern": "The original inventory referenced src/__tests__/services/vault/IdentityService.test.ts, which is absent.",
+      "currentStatus": "reference_repaired_runtime_and_tests_present",
+      "reconciliationAlreadyCorrect": [
+        {
+          "path": "openspec/specs/user-identity/spec.md",
+          "lines": "825-830",
+          "mapping": "The service test pointer now names src/services/vault/__tests__/IdentityService.test.ts."
+        },
+        {
+          "path": "src/services/vault/__tests__/IdentityService.test.ts",
+          "lines": "388-464",
+          "mapping": "The moved test exists and covers createIdentity, unlockIdentity, wrong-password rejection, public identity extraction, signing, and verification."
+        },
+        {
+          "path": "src/services/vault/IdentityService.ts",
+          "lines": "399-469",
+          "mapping": "The referenced create, unlock, public-identity, and friend-code verification functions exist."
+        },
+        {
+          "path": "src/__tests__/api/vault/identity.test.ts",
+          "lines": "1-419",
+          "mapping": "The API test path named by the spec exists."
+        },
+        {
+          "path": "src/pages/api/vault/identity/index.ts",
+          "lines": "36-155, 165-180",
+          "mapping": "GET, POST, and PATCH handlers exist and their response shapes match the identity spec examples, including POST success/publicIdentity."
+        }
+      ],
+      "exactRemainingStaleReferencesOrContracts": [],
+      "currentStateAndLimits": "The absent-path concern is resolved by a moved test reference, not by deleting or weakening a requirement. Identity service, persistence/API files, and both service/API test paths exist. Static presence and source inspection do not prove that the test command passes in the current environment, database persistence, or cryptographic availability; the service test conditionally skips Web Crypto dependent cases when Ed25519 is unavailable.",
+      "focusedProofCommandIfRequired": "npm.cmd test -- --watchAll=false --runTestsByPath src/services/vault/__tests__/IdentityService.test.ts src/__tests__/api/vault/identity.test.ts --runInBand",
+      "proofRun": false
+    },
+    {
+      "id": "vault-sync",
+      "originalConcern": "The original inventory cited stale numeric ranges in useVaultImport.ts and VaultInterfaces.ts.",
+      "currentStatus": "symbol_references_repaired_runtime_present_planned_expansion_open",
+      "reconciliationAlreadyCorrect": [
+        {
+          "path": "openspec/specs/vault-sync/spec.md",
+          "lines": "100-102, 155-157, 255-257, 284, 303, 337, 347, 375, 397, 425, 450, 475, 503, 525, 552, 570",
+          "mapping": "The former numeric source ranges were replaced with symbol-owned references to useVaultExport/useVaultImport, the domain type modules, BundlePreview, and SignBundleResponse."
+        },
+        {
+          "path": "src/hooks/useVaultImport.ts",
+          "lines": "30-38, 40-91, 97-224",
+          "mapping": "BundlePreview, UseVaultImportState, UseVaultImportActions, and useVaultImport all exist in the current 224-line hook."
+        },
+        {
+          "path": "src/types/vault/VaultInterfaces.ts",
+          "lines": "1-26",
+          "mapping": "The current file is an intentional barrel re-export; old deep ranges cannot be valid source ownership."
+        },
+        {
+          "path": "src/types/vault/VaultImportExportTypes.ts",
+          "lines": "17-145",
+          "mapping": "The bundle, export/import result, conflict/options, exportable content, and handler types named by vault-sync are defined in the domain module."
+        },
+        {
+          "path": "src/hooks/useVaultExport.ts",
+          "lines": "28-33, 50-94",
+          "mapping": "SignBundleResponse, state/actions, and useVaultExport exist at the symbol references used by the spec."
+        }
+      ],
+      "exactRemainingStaleReferencesOrContracts": [],
+      "currentStateAndLimits": "The stale-range concern is closed for vault-sync: no numeric VaultInterfaces.ts, useVaultImport.ts, useVaultExport.ts, or VaultImportExportTypes.ts references remain in the selected spec. Import/export hooks, bundle/import services, API signing, integration tests, and sync-engine tests are present. The separate design-vault-campaign-separation-and-maps package remains planned: its proposal says the remaining work is template provenance/migration, opportunities/authority rules, and map/interface acceptance; tasks 1.1-1.8, 2.1-5.4 remain unchecked except resolved prerequisite 1.3. Existing vault implementation and tests do not close that planned campaign/map package.",
+      "plannedPackageEvidence": [
+        {
+          "path": "openspec/changes/design-vault-campaign-separation-and-maps/proposal.md",
+          "lines": "5-14, 18-25, 27-33",
+          "mapping": "The proposal explicitly distinguishes shipped custom-unit versioning/starmap pieces from remaining provenance, opportunities, and map/interface work."
+        },
+        {
+          "path": "openspec/changes/design-vault-campaign-separation-and-maps/tasks.md",
+          "lines": "1-42",
+          "mapping": "The package retains unchecked implementation and verification tasks; only 1.3 is checked as a resolved prerequisite."
+        }
+      ],
+      "focusedProofCommandIfRequired": "npm.cmd test -- --watchAll=false --runTestsByPath src/hooks/__tests__/useVaultImport.test.ts src/hooks/__tests__/useVaultImport.string-and-reset.test.ts src/hooks/__tests__/useVaultExport.test.ts src/services/vault/__tests__/BundleService.test.ts src/services/vault/__tests__/ImportService.test.ts src/__tests__/integration/vault/VaultExportImportFlow.test.ts --runInBand",
+      "proofRun": false
+    }
+  ],
+  "sourceHashes": [
+    {
+      "path": "docs/audits/2026-09-12-customizer-spec-reconciliation/inventory.json",
+      "sha256": "fe9d25951ee79c34c74f0b8f64aee51dbd94265b30a057ae735ca83301376822"
+    },
+    {
+      "path": "openspec/specs/unit-comparison/spec.md",
+      "sha256": "a57e0a86135ee6c5dcd2604d5f7d679ddd9d4a145edc39ad0fdb8cf44768306e"
+    },
+    {
+      "path": "openspec/specs/user-identity/spec.md",
+      "sha256": "1f96a710250a2c37dd93bd5d769e73b37988b5944ce8f6bd04fff3dec62a2d61"
+    },
+    {
+      "path": "openspec/specs/vault-sync/spec.md",
+      "sha256": "7d47f56e0886a44ca611f0f6d2b2432d8f10744275880224ee7c55998dd65b69"
+    },
+    {
+      "path": "openspec/specs/api-layer/spec.md",
+      "sha256": "6b1deca57aa633f3cd715804b2be30c95e3d0d9233dcd4c9774927260d34dc55"
+    },
+    {
+      "path": "src/pages/compare/index.tsx",
+      "sha256": "5ee6ec5234d41b88938ac4d802f01bacdf1b0707b6978feda368e54393620e20"
+    },
+    {
+      "path": "src/components/pages/compare/ComparePage.components.tsx",
+      "sha256": "782ea7ced9069e121ad48ea8e31598e885dab06b0642e370de850f27e81f9787"
+    },
+    {
+      "path": "src/pages/api/catalog.ts",
+      "sha256": "db17fa2f7da1dc01f1469e1bf9205910d4d00abc91a815d53a833f7e8c95b62d"
+    },
+    {
+      "path": "src/pages/api/units.ts",
+      "sha256": "f60899ccdedaf727d1ac6b9cb97ba8d631a63db119ceb06ce0d98f5a4a0030fe"
+    },
+    {
+      "path": "e2e/app-shell-route-proof.spec.ts",
+      "sha256": "7dbd16a2c75153e65b591a2462cc7b00a4c74e0496b87a4f23f91b6d382453c1"
+    },
+    {
+      "path": "src/services/vault/IdentityService.ts",
+      "sha256": "5d46a2146d4cc9b3ee7fa17424324ad917f7d30fe0952c24b943693b0946cb78"
+    },
+    {
+      "path": "src/services/vault/__tests__/IdentityService.test.ts",
+      "sha256": "abe982edfb24e0b190d54f5ab8e0f883a1fe7105cadaa0ff5ea7b1ce23c87aeb"
+    },
+    {
+      "path": "src/__tests__/api/vault/identity.test.ts",
+      "sha256": "f9f5f8fdd5c588969ff40dbb2ca1ad925e357a06a959b46c931935c99863d819"
+    },
+    {
+      "path": "src/pages/api/vault/identity/index.ts",
+      "sha256": "dfe9af5647a06fd8b3394abe12b3974e794066849efad83e9e637a84b27f7ee9"
+    },
+    {
+      "path": "src/hooks/useVaultImport.ts",
+      "sha256": "8f9617be78e42a7f63a29615d25a168ea5616e97b19bd5adfebec103d3829f7c"
+    },
+    {
+      "path": "src/hooks/useVaultExport.ts",
+      "sha256": "fc6c9f4e02808555d499a35add2d81b0e675210a72032d72dd2fed562c1f6b80"
+    },
+    {
+      "path": "src/hooks/useVaultImport.helpers.ts",
+      "sha256": "803c676479a8907ff590131db42bc58b21fb60cfa08263a86e044b05038c0e27"
+    },
+    {
+      "path": "src/types/vault/VaultInterfaces.ts",
+      "sha256": "dd1abb87456ff38402588523788ccf1ee318f9c13a8b0cb50f5578d86f886261"
+    },
+    {
+      "path": "src/types/vault/VaultCoreTypes.ts",
+      "sha256": "42e19a2fde94f0ac3014a52812fb7a7e67cf75db5b101b7a9a313d96b57bdc68"
+    },
+    {
+      "path": "src/types/vault/VaultImportExportTypes.ts",
+      "sha256": "2bcce7bd876156ca442b9fb8a9f8b9df81c657713050f34dff21501a4e6f4140"
+    },
+    {
+      "path": "src/services/vault/ImportService.ts",
+      "sha256": "632b0c82b881d8918b4956f1025464b3f9df7754891a05422d35d6038fb1ed70"
+    },
+    {
+      "path": "src/services/vault/BundleService.ts",
+      "sha256": "b044e0d91842c6807ae44b73cf37dc89919b384998e1960547a5f3713d7198b3"
+    },
+    {
+      "path": "openspec/changes/design-vault-campaign-separation-and-maps/proposal.md",
+      "sha256": "141b816e98644ed12f706c54ea896acd6484a72277a972d2c0a6bc55e93c2099"
+    },
+    {
+      "path": "openspec/changes/design-vault-campaign-separation-and-maps/tasks.md",
+      "sha256": "6d2e4ec703b9abf22521d85c5dd4ad2dea070bba94790b2d7d1b5c3396541531"
+    }
+  ],
+  "validation": [
+    {
+      "command": "npx.cmd openspec validate unit-comparison --strict",
+      "exitCode": 0,
+      "result": "Specification 'unit-comparison' is valid"
+    },
+    {
+      "command": "git diff --check -- openspec/specs/unit-comparison/spec.md",
+      "exitCode": 0,
+      "result": "No whitespace errors"
+    }
+  ],
+  "limits": [
+    "This artifact records static live-file evidence and hashes; it does not claim that any focused test command passes.",
+    "The unit-comparison route exists in the tracked checkout, but the canonical spec's no-route boundary and bare Required APIs bullets remain stale and were not edited under this ownership boundary.",
+    "Existing identity, vault import/export, and sync tests establish available proof surfaces only; skipped/failed runtime behavior, persistence, cryptographic support, API integration, and full acceptance remain unverified.",
+    "The vault campaign separation/maps package remains planned according to its unchecked tasks; current vault implementation presence does not close that package.",
+    "Line mappings are anchored to the captured files and recorded SHA-256 values; future edits may move line numbers."
+  ],
+  "documentationCorrection": {
+    "appliedAt": "2026-09-12",
+    "scope": "Only openspec/specs/unit-comparison/spec.md was corrected; no planned requirements were removed or marked complete.",
+    "previousReceiptSha256": "aa91304209cd47404a3f72794dbb905b8c4bceda0dbb918e719c5c1b826b6210",
+    "immutableByteBackup": {
+      "path": "C:/tmp/triage-vault-references.before-unit-doc-correction.aa9130420.json",
+      "sha256": "aa91304209cd47404a3f72794dbb905b8c4bceda0dbb918e719c5c1b826b6210",
+      "bytes": 15325
+    },
+    "correctedSpecSha256": "a57e0a86135ee6c5dcd2604d5f7d679ddd9d4a145edc39ad0fdb8cf44768306e",
+    "focusedChecks": [
+      {
+        "command": "npx.cmd openspec validate unit-comparison --strict",
+        "exitCode": 0,
+        "result": "Specification 'unit-comparison' is valid"
+      },
+      {
+        "command": "git diff --check -- openspec/specs/unit-comparison/spec.md",
+        "exitCode": 0,
+        "result": "No whitespace errors"
+      }
+    ]
+  }
+}

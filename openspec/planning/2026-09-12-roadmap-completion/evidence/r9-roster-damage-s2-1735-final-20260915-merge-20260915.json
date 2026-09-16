@@ -1,0 +1,52 @@
+{
+  "pr": 1735,
+  "branch": "codex/roadmap-r9-roster-damage-20260915",
+  "reviewedCommit": "f5d3db42f232e3bd565823a9ec38c000f442e47d",
+  "finalHead": "979f73581741a31c95c75f0d3d298df9a02215c0",
+  "autoMergeArmed": false,
+  "contentGuard": {
+    "method": "file set from `git diff --name-only origin/main...<head>` vs the reviewed file set, plus per-file blob equality against the reviewed commit; re-run after update-branch",
+    "fileCountAtMerge": 5,
+    "blobEquality": "all files blob-identical to the reviewed commit at the gated head",
+    "result": "PASS"
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "expectedHeadShaGuardUsed": true,
+    "newHead": "979f73581741a31c95c75f0d3d298df9a02215c0"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "otherChecksCount": 27,
+    "otherChecksBuckets": {
+      "pass": 27
+    },
+    "totalChecks": 31
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r9-roster-damage-s2-1735-final-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "17525370e00bfd8f022783f2bf1f6b9250422ca6",
+  "mergeCommitParents": [
+    "efd8a136d523adfa81fda303adb608e3563575ee"
+  ],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1735 --squash --match-head-commit 979f73581741a31c95c75f0d3d298df9a02215c0",
+  "mergedAt": "2026-09-15T17:00:32Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "The merge commit changes exactly 5 file(s), all blob-identical to the gated head 979f73581741a31c95c75f0d3d298df9a02215c0.",
+  "mainAfter": "17525370e00bfd8f022783f2bf1f6b9250422ca6",
+  "worktree": {
+    "fastForward": "NOT PERFORMED - coordinator designated the owned worktrees as off-limits for these PRs",
+    "result": "SKIPPED (intentional)"
+  },
+  "notes": "Did NOT go DIRTY after 1734 squash: update-branch collapsed the diff from 8 files to its own 5 (+498), all blob-identical to the reviewed head.",
+  "timestamps": {
+    "receiptWrittenAt": "2026-09-15T17:02:00Z"
+  }
+}

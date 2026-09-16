@@ -1,0 +1,249 @@
+{
+  "artefact": "r3-history-b-repair-review",
+  "date": "2026-09-15",
+  "reviewer": "independent reviewer (journal/authority scope, not the author)",
+  "mode": "read-only; no edits, commits, pushes, sub-agents, or builds; worktree checkout untouched",
+  "subject": {
+    "prefix": "B (history-runtime-integrity) for roadmap R3.storage",
+    "pr": 1674,
+    "branch": "codex/roadmap-history-runtime-integrity-20260915",
+    "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/history-runtime-integrity",
+    "commits": [
+      "b1fae82a7 (original B content)",
+      "87313aeffcad9ab51b832ee33025477d82991915 (repair)"
+    ],
+    "mergeBase": "4cf52fe73"
+  },
+  "verdict": "APPROVE",
+  "requiredEdits": [],
+  "environment": {
+    "node": "v22.22.0 (verified in-session)",
+    "pathExport": "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH"
+  },
+
+  "findings": {
+    "1_specGrounding": {
+      "verdict": "GROUNDED",
+      "quotedShalls": [
+        {
+          "file": "openspec/changes/add-authoritative-history-branches/specs/event-store/spec.md:52",
+          "requirement": "Branch Activation Is Verified, Compare-and-Swap, and Atomic",
+          "quote": "The same transaction SHALL lock and verify the current unexpired lease ID, owner, and epoch while comparing the expected head/generation, then activate the candidate, increment the generation by exactly one, supersede the prior branch, publish artifact invalidations, and enable new-generation effects.",
+          "bearing": "Supersession of the prior branch and installation of the replacement head are ONE transaction. A COMMITTED head naming a superseded branch is therefore a state no activation can produce."
+        },
+        {
+          "file": "openspec/changes/add-authoritative-history-branches/specs/event-store/spec.md:9",
+          "requirement": "Branches Preserve Immutable Parent and Base Lineage / Scenario: Authorized rewind creates replacement branch",
+          "quote": "the prior branch SHALL remain unchanged and effective until activation succeeds",
+          "bearing": "There is no legitimate transient in which the head's branch is non-effective."
+        },
+        {
+          "file": "openspec/changes/add-authoritative-history-branches/specs/event-store/spec.md:30",
+          "requirement": "Branch Resolution Preserves Contiguous Order and Integrity / Scenario: Branch suffix has a gap or digest mismatch",
+          "quote": "the branch SHALL be quarantined or blocked with a typed integrity error",
+          "bearing": "Typed integrity refusal (and the word 'quarantined') is the spec's established answer to persisted integrity failure."
+        },
+        {
+          "file": "openspec/changes/add-authoritative-history-branches/specs/event-store/spec.md:105",
+          "requirement": "Branch Rollback Preserves the Effective Head and Generation",
+          "quote": "command, effect, and correction admission SHALL stop and the stream SHALL expose a typed truthful blocked state",
+          "bearing": "A typed truthful blocked state that stops command admission is exactly what the MATCH_QUARANTINED frame implements at the intent boundary."
+        },
+        {
+          "file": "openspec/changes/add-authoritative-history-branches/specs/gm-combat-interventions/spec.md:11-14",
+          "requirement": "Scenario: Player command targets stale branch",
+          "quote": "the server SHALL return `STALE_BRANCH` with the active head and resync action / AND it SHALL append nothing",
+          "bearing": "STALE_BRANCH OWES an active head. Under a corrupt head there is no trustworthy active head, so STALE_BRANCH would have to lie. Correctly rejected by the author."
+        }
+      ],
+      "wireConsistency": {
+        "definition": "src/types/multiplayer/Protocol.ts:784-787 — 'Umbrella 15.4 binder: recovery refused this match's authority and quarantined the session. Distinct from UNKNOWN_MATCH so a known corrupt match is not described as missing.'",
+        "assessment": "Consistent. The code's stated meaning is 'a KNOWN match whose authority was refused' — precisely this case. The frame contract (Protocol.ts:739-741) says 'Connection stays OPEN unless the server also follows up with `Close`', so an Error frame alone is a non-fatal refusal by definition.",
+        "consumerAudit": {
+          "method": "grep MATCH_QUARANTINED across src/ and e2e/; trace the client Error-frame path end to end",
+          "preExistingProducer": "src/lib/multiplayer/server/bindMultiplayerSocketConnection.ts:330 via refusalForMissingHost, delivered through closeWithTypedError (:390-407) which sends Error + Close + socket.close(1008). reason = 'match-quarantined'.",
+          "newProducer": "ServerMatchHostBranchAdmission.ts:166 and :240 via refuse(), which sends an Error frame ONLY (ctx.broadcast) and does NOT close. reason = 'history-integrity-blocked'.",
+          "clientPath": [
+            "src/lib/multiplayer/client.ts:389-401 — Error handler settles the pending intent by intentId and re-emits { code, reason, conflictHead, recoveryAction }. No code-specific branching, no close, no state deletion.",
+            "src/hooks/useMultiplayerSession.helpers.ts:271-296 handleClientError — any string code other than 'CLIENT_ERROR' goes to setProjectionSignal (only if non-null) + setIntentError. It does NOT set status 'error' and does NOT set closedInfo for a coded frame.",
+            "src/lib/multiplayer/tacticalLifecycleState.ts:86-100 projectionSignalFromServerError — handles only PROJECTION_REBUILDING and STALE_BRANCH; every other code returns null ('deliberately total and deliberately narrow ... an unknown code must map to \"no signal\" rather than throw')."
+          ],
+          "misinterpretationRisk": "NONE FOUND. No client-side code branches on MATCH_QUARANTINED at all: zero non-server, non-test references. There is no auto-leave, no local-state delete, no socket teardown driven by the code. Session teardown is driven by the separate Close frame / socket close (createClientCloseHandler), which this path does not emit.",
+          "recoveryActionOmission": {
+            "typeLevel": "SAFE — ErrorMessageSchema (Protocol.ts:805-830) declares conflictHead, activeHead and recoveryAction as .optional(), documented 'Optional because most error codes have no head to report'. tsc --noEmit -p tsconfig.json exit 0 re-run in this review.",
+            "runtime": "SAFE — client.ts passes recoveryAction through as undefined; readRecoveryAction is only reached for STALE_BRANCH. The pre-existing MATCH_QUARANTINED producer (bindMultiplayerSocketConnection.ts:330) likewise carries only a reason, so a reason-only quarantine frame is already the shipped shape.",
+            "conflictHeadOmission": "Correct and spec-required: naming a head here would invite a resync onto the corrupt row, which the gm-combat 'Player command targets stale branch' scenario forbids by demanding the ACTIVE head."
+          }
+        }
+      },
+      "observations": [
+        {
+          "severity": "minor / non-blocking",
+          "title": "Protocol.ts MATCH_QUARANTINED docstring now under-describes the code",
+          "detail": "Protocol.ts:784-786 still attributes the code solely to the 'Umbrella 15.4 binder'. The code now has a second, structurally different producer (a live per-intent refusal that does not close the socket). The two are distinguishable only by `reason` ('match-quarantined' vs 'history-integrity-blocked').",
+          "recommendation": "Add one comment line at Protocol.ts:784 in a FOLLOW-UP, not this PR — the B surface is at 498/500 and the new producer is thoroughly documented in ServerMatchHostBranchAdmission.ts:26-35. Not required: no consumer reads the docstring, and no behavior depends on it."
+        },
+        {
+          "severity": "informational",
+          "title": "Refusal is broadcast, not unicast",
+          "detail": "refuse() calls ctx.broadcast(err) (ServerMatchHostBranchAdmission.ts:308), so every socket on the match receives the MATCH_QUARANTINED frame carrying the originating player's intentId. Pre-existing behaviour shared with STALE_BRANCH and GM_ONLY; not introduced by this commit. Benign here — every peer on a corrupt stream is equally blocked."
+        }
+      ]
+    },
+
+    "2_unreachabilityClaim": {
+      "verdict": "CONFIRMED for the port read path; the author's 'BY CONSTRUCTION' phrasing is slightly stronger than the SQLite write path warrants",
+      "sqlitePort": {
+        "file": "src/lib/events/journal/SQLiteEventHistoryBranchStore.ts:120-160",
+        "evidence": "readEffectiveHead LEFT JOINs event_history_effective_heads to event_history_branches on (stream_type, stream_id, branch_id) and at :146-152 throws EventHistoryBranchError('branch-integrity') unless row.status === 'effective'. A caller can therefore NEVER receive a head naming a non-effective branch — it either gets an effective head, null, or the typed refusal. The subsequent readBranch could not have observed a 'superseded' status."
+      },
+      "inMemoryPort": {
+        "file": "src/lib/events/inMemoryHistoryBranchPort.ts:110-124",
+        "evidence": "transitionBranchStatus deletes the head row in the same call that moves a branch off effective: `if (current.status === 'effective' && to !== 'effective') { this.heads.delete(streamKey(stream)); }` (:121-123). The corrupt pair is not representable."
+      },
+      "writersThatCanProduceTheState": {
+        "activation": {
+          "file": "src/lib/events/journal/EventHistoryActivation.ts:106-163",
+          "finding": "SAFE. The entire sequence runs inside one db.transaction(): transitionBranchStatus(prior,'superseded') at :138, transitionBranchStatus(candidate,'effective') at :139, writeSupersession at :140, repointEffectiveHead at :148. The stranded-head window exists only inside the uncommitted, synchronous better-sqlite3 transaction and is never committed. This matches the spec SHALL quoted above."
+        },
+        "portApiGap": {
+          "severity": "minor / pre-existing / non-blocking",
+          "finding": "The SQLite port's transitionBranchStatus (SQLiteEventHistoryBranchStore.ts:233-259) ONLY updates the branch row — unlike the in-memory port, it does NOT drop or repoint the head. A direct caller doing transitionBranchStatus(stream, <effective branch>, 'superseded') outside the activation transaction would therefore COMMIT the corrupt pair through the public port API, with no raw SQL required. This is exactly what the ORIGINAL test did (the pre-repair test called branches().transitionBranchStatus(..., 'root', 'superseded')), so the author's rewrite to raw SQL slightly overstates 'not producible through the API'.",
+          "productionExposure": "NONE TODAY. Grep of transitionBranchStatus callers outside __tests__ returns only EventHistoryActivation.ts:138-139 plus pure pass-through port wiring (journalCapabilityPorts.ts:231-235, durableCapabilityPorts.ts:69-73, DurableMatchStore.ts:613 declare, JournalCampaignEventStore.ts:308 declare, storeCapabilityPorts.ts:55 interface). No production surface performs a bare supersede.",
+          "recommendation": "Follow-up (outside this PR and this line cap): make the SQLite port symmetric with the in-memory port — either drop the head row on an effective->non-effective transition, or refuse a bare supersede of the head's branch outside activation. Filing this is the durable fix; it does NOT argue for keeping the removed arm."
+        }
+      },
+      "armRemovalRecommendation": {
+        "recommendation": "REMOVAL IS CORRECT — do not restore as defense-in-depth.",
+        "rationale": [
+          "The arm is genuinely dead: readEffectiveHead throws before control can reach readBranch, in both ports.",
+          "Restoring it would not add defense — it would add a WRONG answer. Its only reachable window was between the two reads, where it would emit conflictHead = the branch the authority has just left, i.e. a resync target that the gm-combat spec scenario explicitly forbids ('STALE_BRANCH with the active head').",
+          "Defense-in-depth for this shape already exists and is stronger: the typed branch-integrity refusal at the store, now translated rather than propagated.",
+          "The removal is documented in place with the citing comment at ServerMatchHostBranchAdmission.ts:166-175."
+        ]
+      }
+    },
+
+    "3_errorTranslationScope": {
+      "verdict": "CORRECT AND NARROW",
+      "predicate": {
+        "file": "src/lib/multiplayer/server/ServerMatchHostBranchAdmission.ts:270-275",
+        "quote": "return ( error instanceof EventHistoryBranchError && error.code === 'branch-integrity' );",
+        "assessment": "Both catch sites call `if (!isBranchIntegrityFailure(error)) throw error;` before returning a refusal, so every other EventHistoryBranchError code (unknown-branch, no-effective-branch, invalid-ancestry, duplicate-effective-branch, illegal-status-transition, GENERATION_EXHAUSTED, STALE_CORRECTION_LEASE) and every non-EventHistoryBranchError exception rethrows unchanged. No swallow."
+      },
+      "catchScope": "Each try wraps exactly ONE call — readMatchStreamRebuild (:236-241) and readEffectiveHead (:161-167). getEvents, the servedBranchId comparison, and the refusal construction all sit outside the guards, so no unrelated failure can be absorbed.",
+      "noAppendOnRefusal": {
+        "verdict": "CONFIRMED BY TRACE, not only by the test",
+        "trace": [
+          "src/lib/multiplayer/server/ServerMatchHostIntent.ts:215-217 — `const refusal = refuseDuringHistoryRebuild(ctx, envelope) ?? (await refuseLiveBranchFromIntent(...)); if (refusal) return refusal;`",
+          "Everything that can write runs strictly AFTER that early return: refuseUnauthorizedCommand (:219), refuseForeignUnitCommand (:235), the rate limiter (:243), duplicate-intent detection (:257+), and the engine/append path below them.",
+          "The refusal path itself performs only ctx.broadcast(err) (ServerMatchHostBranchAdmission.ts:308) — a socket send, no store or journal call.",
+          "Both reads inside the guards are SELECT-only (SQLiteEventHistoryBranchStore.readEffectiveHead is a single prepared SELECT; readMatchStreamRebuild reads rebuild/head state)."
+        ],
+        "testCorroboration": "The rewritten test independently pins it at the real SQLite boundary: `expect((await store.getEvents(matchId)).length).toBe(before)` AND `expect(journalCount()).toBe(journalBefore)`, asserted after BOTH the first and the second intent."
+      }
+    },
+
+    "4_cutoverTask12Conflict": {
+      "verdict": "REAL BUT NOT A SPEC CONTRADICTION; correctly deferred to the owner — do NOT amend in this PR",
+      "text": {
+        "file": "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/tasks.md:15",
+        "quote": "- [ ] 1.2 S2: route `readEffectiveHead` and the live branch admission consult through the journal head so both `STALE_BRANCH` arms are reachable; prove with the four illegal command shapes the umbrella's 14.2-a receipt names."
+      },
+      "analysis": [
+        "It is a TASK, not a SHALL. No requirement in either delta spec demands two STALE_BRANCH arms; the only STALE_BRANCH SHALL (gm-combat-interventions/spec.md:13) demands ONE behaviour — 'STALE_BRANCH with the active head and resync action' — which the surviving !onLivePath arm delivers. So there is no spec/implementation contradiction today.",
+        "The task is UNCHECKED and belongs to a DIFFERENT change (adopt-combat-journal-cutover-and-gm-rewind), whose own rule is that workers never edit openspec/**. Editing it here would also be an out-of-prefix change on a 498/500 budget.",
+        "The wording is nonetheless STALE: it predates b1fae82a7's readEffectiveHead join, and an S2 implementer following it literally would resurrect an arm that can only report the branch the authority has just left as the 'active head' — the exact lie the gm-combat scenario forbids."
+      ],
+      "recommendation": "Later S2 concern, tracked now. The author's evidence already flags it under decision.flaggedForOwner; carry that flag into the PR description so the S2 owner rules on it before picking 1.2 up. Suggested amended intent for the owner to ratify: 'route readEffectiveHead and the live branch admission consult through the journal head so the STALE_BRANCH arm is reachable on the journal head, and a head not naming an effective branch answers MATCH_QUARANTINED.' No edit required in PR #1674."
+    },
+
+    "5_tests": {
+      "verdict": "RED/GREEN SOUND; ASSERTIONS STRENGTHENED, NOT WEAKENED",
+      "redLog": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/history-b-repair-20260915/red-01-target-files.log",
+        "sha256Claimed": "9a18811936b29e543b2bf13bd2a5bad2628914be41f2deac73f9fc4a7a034e70",
+        "sha256Recomputed": "9a18811936b29e543b2bf13bd2a5bad2628914be41f2deac73f9fc4a7a034e70",
+        "match": true,
+        "content": "Test Suites: 1 failed, 1 passed, 2 total; Tests: 1 failed, 74 passed, 75 total. Failure is the uncaught EventHistoryBranchError with the full stack SQLiteEventHistoryBranchStore.readEffectiveHead:148 -> EventHistoryEffectiveStreamHead:47 -> EventHistoryDurableRebuild:57 -> DurableMatchStore.readMatchStreamRebuild:698 -> ServerMatchHostBranchAdmission:196 -> ServerMatchHostIntent.handleIntent:216 — confirming the author's redStackVerified claim verbatim, and confirming the throw escaped through the REBUILD consult ahead of the branch consult."
+      },
+      "greenLog": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/history-b-repair-20260915/green-01-target-files.log",
+        "sha256Claimed": "0d0edb6a1e6c7834561e7bd15a0af6552681add79ad2ed96296c73a216e3e0ec",
+        "sha256Recomputed": "0d0edb6a1e6c7834561e7bd15a0af6552681add79ad2ed96296c73a216e3e0ec",
+        "match": true,
+        "content": "Test Suites: 2 passed, 2 total; Tests: 75 passed, 75 total."
+      },
+      "redCaveat": "The red log captures the ORIGINAL test ('stale-superseded') failing, not the rewritten test failing against pre-fix source. INFERENCE (not separately executed, because verifying it would require mutating the checkout, which this review is forbidden to do): the rewritten test would fail identically pre-fix — it drives the same DB state by raw SQL, and without the guards readMatchStreamRebuild throws out of handleIntent so `await host.handleIntent(...)` rejects. The proven stack in the red log is that exact defect, so the red is genuine evidence for the fix.",
+      "realBoundary": "CONFIRMED. The rewritten test runs against a real better-sqlite3 database: it drives raw SQL through `db.prepare(...)` on event_history_branches and reads back the stranded row from event_history_effective_heads before asserting (ServerMatchHostBranchAdmission.test.ts:229-280), and the host is a DurableMatchStore-backed ServerMatchHost. Not a mock.",
+      "assertionStrength": {
+        "original": "asserted STALE_BRANCH with recoveryAction + conflictHead {branchId:'root'} — one frame assertion, no append or survival check.",
+        "rewritten": "asserts the stranded head row exists in SQL; asserts the MATCH_QUARANTINED frame with reason 'history-integrity-blocked'; asserts NO conflictHead; asserts NO recoveryAction; asserts NO STALE_BRANCH frame; asserts mp match-event count unchanged; asserts event_journal_events census unchanged; then issues a SECOND intent and asserts the same typed answer with both counts still unchanged (host survives).",
+        "assessment": "STRICTLY STRONGER. The original asserted a behaviour that is now known to be a lie under corruption; the replacement asserts the truthful refusal plus three properties the original never checked (no append, no journal write, host survives)."
+      },
+      "scenarioACoverage": {
+        "claim": "genuinely superseded-by-activation head -> STALE_BRANCH still covered",
+        "verified": true,
+        "testName": "player intent on a non-effective branch refused STALE_BRANCH with head + resync",
+        "location": "src/lib/multiplayer/server/__tests__/ServerMatchHostBranchAdmission.test.ts:196-211",
+        "evidence": "Calls activateReplacement(matchId) (the real activation path), then asserts { code:'STALE_BRANCH', recoveryAction: EXPECTED_HEAD_RESYNC_ACTION, conflictHead:{ branchId:'candidate-1' } } and that no event was appended. Untouched by this commit and green in the re-run below.",
+        "companion": "The admit-side counterpart 'a host rebuilt onto the activated branch admits live intents on it' (:213-227) is likewise untouched and green, so the removal did not silently broaden refusal."
+      },
+      "law40Tripwire": "Correctly raised 2 -> 3 with MATCH_QUARANTINED added to the ErrorCodeSchema arrayContaining assertion (:188-194), and the source-side `satisfies Record<LiveBranchAdmissionCode, string>` (:83-92) makes a codeless reason a compile error. The total-record discipline is preserved, not bypassed."
+    },
+
+    "6_runsAndHygiene": {
+      "testRun": {
+        "argv": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/multiplayer/server/__tests__/ServerMatchHostBranchAdmission.test.ts src/lib/multiplayer/server/__tests__/matchStoreBatchContract.test.ts src/lib/events/journal",
+        "node": "v22.22.0",
+        "exit": 0,
+        "result": "Test Suites: 24 passed, 24 total; Tests: 308 passed, 308 total; Time: 7.953 s",
+        "note": "Independently executed by this review in the subject worktree, not read from the author's logs. Includes SQLiteEventHistoryBranchStore.test.ts, EventHistoryActivation.test.ts, EventHistoryCommandAdmission.test.ts, EventHistoryDurableRebuild.test.ts and EventHistoryExpectedHead.test.ts — every suite owning a contract this commit leans on."
+      },
+      "typecheck": {
+        "argv": "npx tsc --noEmit -p tsconfig.json",
+        "exit": 0,
+        "diagnostics": 0,
+        "note": "Independently re-run by this review; under the 5-minute budget."
+      },
+      "hygiene": {
+        "lineCap": {
+          "argv": "git diff --shortstat 4cf52fe73 87313aeff",
+          "measured": "8 files changed, 450 insertions(+), 48 deletions(-)",
+          "changedLines": 498,
+          "cap": 500,
+          "status": "UNDER — confirmed independently"
+        },
+        "commitMessages": "Conventional and accurate: 'fix(history): translate branch-integrity refusals into a typed live-match block' and 'fix(history): preserve integrity refusals through campaign launch'. The body states the spec grounding, the rejected alternatives, and the arm removal.",
+        "author": "Both commits authored AND committed by Wes Rollings <wrollings@gmail.com> — verified via git log --format='%an <%ae>|%cn <%ce>'.",
+        "aiAttribution": "NONE. grep -i over the full commit bodies for claude/co-authored/generated with/anthropic/codex returns no match.",
+        "openspecEdits": "NONE. `git diff --name-only 4cf52fe73 87313aeff | grep -c '^openspec/'` = 0. The stale cutover task 1.2 was correctly left alone.",
+        "unrelatedChanges": "NONE. All 8 files are in prefix B's declared surface (EventHistoryBranchContract.ts, SQLiteEventHistoryBranchStore.ts + its test, campaignProgressionReaders.durable.ts + its test from b1fae82a7; ServerMatchHostBranchAdmission.ts + its test and matchStoreBatchContract.test.ts from 87313aeff). No drive-by reformatting in the repair diff.",
+        "workingTree": "CLEAN (git status --porcelain empty) on branch codex/roadmap-history-runtime-integrity-20260915. Checkout not modified by this review.",
+        "deadSurface": "readBranch is fully removed from ServerMatchHostBranchAdmission.ts (zero references) and IBranchAdmissionHost (:96-102) carries no now-unused port method — the arm removal left no orphan.",
+        "commitHooks": {
+          "severity": "minor / disclosed / non-blocking",
+          "finding": "The author's own evidence records that the first commit used --no-verify (unauthorized by commit discipline) and was then amended with hooks enabled. The amend's hook log (green-06-commit-hooks.log) shows 'lint-staged could not find any staged files' and 'No TypeScript files staged — skipping build' — i.e. the hook ran but was a NO-OP on this commit's content, so the pre-commit gate did not actually inspect the change.",
+          "mitigation": "Materially neutral: the gates the hook would have run were run separately by the author (tsc, oxlint, oxfmt) and this review independently re-verified the two that matter — tsc --noEmit exit 0 and the full focused jest sweep 308/308 green. Honestly disclosed rather than hidden.",
+          "recommendation": "No action on this PR. Worth a reminder that a --no-verify commit cannot be retroactively gated by an --amend with nothing staged."
+        },
+        "lintSubstitution": "The author substituted oxlint for eslint and documented why (no eslint config in this repo; package.json defines \"lint\": \"oxlint\"). Correct substitution, correctly disclosed, with the failed eslint attempt preserved."
+      }
+    }
+  },
+
+  "nonBlockingFollowUps": [
+    "Make the SQLite branch port symmetric with the in-memory port on effective->non-effective transitions (drop or refuse, rather than stranding the head). Pre-existing; the only remaining writer that can commit the corrupt pair.",
+    "Owner ruling on adopt-combat-journal-cutover-and-gm-rewind tasks.md:15 ('both STALE_BRANCH arms are reachable') before S2 is picked up — the wording predates the readEffectiveHead join and would steer an implementer into restoring a lying arm.",
+    "One comment line at Protocol.ts:784 acknowledging the second, non-closing MATCH_QUARANTINED producer. Deferred out of PR #1674 because the surface is at 498/500.",
+    "Escalation to a real registry quarantine (MatchHostRegistry.isQuarantined / ReplayQuarantineRegistry) is explicitly non-claimed: a corrupt match still accepts connections and refuses each intent. Consistent and safe, but a reconnect currently binds normally rather than closing with MATCH_QUARANTINED at the binder. Design decision for a later slice."
+  ],
+
+  "reviewerNonClaims": [
+    "The rewritten test was NOT executed against pre-fix source — that would require mutating the checkout, which this review is forbidden to do. Its red is inferred from the proven red stack, and labelled as inference above.",
+    "CI was not re-run against 87313aeff; all execution evidence here is local on Node v22.22.0.",
+    "e2e / browser proof not taken; this is a server-side unit/integration change.",
+    "Blob-identity of b1fae82a7 against the earlier reviewed 22cbe105fc was accepted as given in the review brief, not independently recomputed.",
+    "No file in the subject worktree was modified, and no push, merge, or PR action was taken. The only write performed by this review is this artefact."
+  ]
+}

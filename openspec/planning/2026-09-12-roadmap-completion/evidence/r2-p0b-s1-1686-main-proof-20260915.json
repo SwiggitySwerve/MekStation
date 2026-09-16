@@ -1,0 +1,60 @@
+{
+  "node": "R2.authority",
+  "artefact": "r2-p0b-s1-1686-main-proof-20260915",
+  "capturedAtUtc": "2026-09-15T10:13:59.034Z",
+  "pr": 1686,
+  "slice": "P0b S1 (design-campaign-authority-and-sync task 6.1, D12 source-private envelope, first prefix)",
+  "reviewedHead": "78333f3516b80f57de2e5e63409fe28ae70580c8",
+  "mergeCommit": "69ae5374455eb3b4cb0d1cb3d918477c9fba9e68",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/archive-original-main-proof (detached at the merge commit)",
+  "runtime": {
+    "node": "v22.22.0",
+    "path": "/c/Users/wroll/AppData/Local/nvm/v22.22.0"
+  },
+  "files": [
+    "src/lib/campaign/authority/campaignSourcePrivateEnvelope.ts",
+    "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+    "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts"
+  ],
+  "blobEquality": {
+    "command": "git diff --stat 78333f35 69ae5374 -- <3 files>",
+    "diffLines": 0,
+    "identical": true
+  },
+  "gates": {
+    "jest": {
+      "scope": "src/lib/campaign/sync src/lib/campaign/authority src/lib/campaign/delivery",
+      "result": "42 suites / 262 tests passed",
+      "exit": 0,
+      "log": ".sisyphus/roadmap-completion-20260912/main-proof-1686-20260915/jest.log",
+      "sha256": "69cd80fda6ace8f501c5ba2a2aa29b1f95ef89440415738ca1712848801eb21e"
+    },
+    "tsc": {
+      "exit": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "openspecStrict": {
+      "exit": 0,
+      "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3"
+    },
+    "purposeStrict": {
+      "exit": 0,
+      "sha256": "a9d942aa830647b4ac15e7c4046225c706300a676efce33a928a592d9951e847"
+    },
+    "terminologyStrict": {
+      "exit": 0,
+      "sha256": "6fb26ca1909a1c2e2216fc5a925eb946895e1d198b5f8b5554eb8f453bdea3af"
+    },
+    "qcOpenspecCi": {
+      "exit": 0,
+      "sha256": "1d2b3ffbba3922d328cc2b02fa1de7ccedad6b3382227fa903deccf9a0d5900c"
+    }
+  },
+  "ciOnHead": "all 31 check runs SUCCESS on 78333f35 (recorded in r2-p0b-s1-1686-final-20260915-premerge.json)",
+  "acceptance": "exact-main accepted: merge commit content equals reviewed head for every PR file; focused suites, typecheck and the four validators pass at 69ae5374",
+  "nonClaims": [
+    "CAMPAIGN_JOURNAL_AUTHORITY_ENABLED remains false; no production behaviour change",
+    "S2 (#1687) and S3 (#1688) not yet merged; task 6.1 stays open until the stack lands",
+    "no browser run required for this slice (journal-only)"
+  ]
+}

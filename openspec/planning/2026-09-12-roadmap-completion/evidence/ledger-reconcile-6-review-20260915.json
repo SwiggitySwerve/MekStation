@@ -1,0 +1,143 @@
+{
+  "artefact": "ledger-reconcile-6-review",
+  "date": "2026-09-15",
+  "reviewer": "independent review agent (read-only against the worktree and the primary checkout; no repo file modified except this artefact; no push, no commit, no PR, no sub-agents)",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/camp-receipt-verification",
+  "branch": "codex/roadmap-ledger-reconcile-6-20260915",
+  "commitReviewed": "eaae9d2a64c760fd541e38411881e08ca7875b56",
+  "baseCommit": "2c1b4584de076ae497533d093618dac5bcc97f03",
+  "precedent": "evidence/ledger-reconcile-5-review-20260915.json",
+  "runtime": { "node": "v22.22.0 (verified: node -v)" },
+
+  "verdict": {
+    "decision": "APPROVE with one REQUIRED EDIT (non-blocking to the batch's own claims, but a live factual correction the review task itself directed)",
+    "summary": "The batch-6 commit (eaae9d2a6) is sound on every dimension it controls: all five newly-cited PRs (#1750, #1751, #1753, #1754, #1755) are MERGED with merge-commit SHAs matching the artefact exactly and are confirmed ancestors of a freshly fetched origin/main; every main-proof receipt cited exists on disk with content matching the claims (mergeCommit SHA, blob-equality, jest suite/test counts, gate exits); no checkbox was flipped (git diff shows zero '- [' / '+ [' lines); the diff is openspec-only, 3 files, +3/-1, no AI attribution; the design-campaign-authority-and-sync ledger entry sweep is accurate (still does not mention 5.7/CO3/R2.authority-live, and its own 'Still open: 1.6, 6.2, 6.3, 6.4' list is confirmed still all '[ ]'); all four validators pass exit 0 with matching result lines; the primary checkout's porcelain count is unchanged at 162. HOWEVER: live verification during this review found that PR #1756 ('fix(campaign): stop delivering campaign facts to a revoked seat's live socket') MERGED at 88290bd7e2833758f0282ba6ea9a01d182f9aaea (mergedAt 2026-09-15T21:21:54Z) DURING this review session - it is now origin/main's tip, one commit ahead of this batch's own base. This is stronger drift than the review task's own briefing anticipated (which described #1756 as 'OPEN and queued, not merged' and directed an edit saying exactly that). The committed text in eaae9d2a6 says the fix 'is NOT yet opened as a pull request and carries no main-proof receipt' - that sentence is doubly stale: a PR (#1756) was opened AND has since merged. This is an OB-207-class staleness instance, now one layer removed (the review brief itself went stale between being written and being executed). No main-proof receipt exists yet for #1756 (only a pre-merge CI-status snapshot, r2-authority-live-revocation-detach-1756-final-20260915-premerge.json, all checks SUCCESS; and a post-merge snapshot file), so #1756 should not yet be cited as exact-main-verified - only as merged."
+  },
+
+  "ancestryTable": [
+    { "pr": 1750, "artefactMergeCommit": "1fcd9b6485421d64d4303693a368676fc4df4d51", "ghPrView": "MERGED, mergeCommit 1fcd9b6485421d64d4303693a368676fc4df4d51, mergedAt 2026-09-15T20:19:30Z", "matchesArtefact": true, "isAncestorOfFreshOriginMain": true, "command": "gh pr view 1750 --json state,mergeCommit,mergedAt; git merge-base --is-ancestor 1fcd9b6485421d64d4303693a368676fc4df4d51 origin/main" },
+    { "pr": 1751, "artefactMergeCommit": "a265a544a2256c7098afdc10a968492c2454cd77", "ghPrView": "MERGED, mergeCommit a265a544a2256c7098afdc10a968492c2454cd77, mergedAt 2026-09-15T20:27:38Z", "matchesArtefact": true, "isAncestorOfFreshOriginMain": true, "command": "gh pr view 1751 --json state,mergeCommit,mergedAt; git merge-base --is-ancestor a265a544a2256c7098afdc10a968492c2454cd77 origin/main" },
+    { "pr": 1753, "artefactMergeCommit": "ef36274384341f7158ac5870bd6b7a2265913567", "ghPrView": "MERGED, mergeCommit ef36274384341f7158ac5870bd6b7a2265913567, mergedAt 2026-09-15T20:45:56Z", "matchesArtefact": true, "isAncestorOfFreshOriginMain": true, "command": "gh pr view 1753 --json state,mergeCommit,mergedAt; git merge-base --is-ancestor ef36274384341f7158ac5870bd6b7a2265913567 origin/main" },
+    { "pr": 1754, "artefactMergeCommit": "bb9b87447b9bde2e7909e452a0f86b6c91437499", "ghPrView": "MERGED, mergeCommit bb9b87447b9bde2e7909e452a0f86b6c91437499, mergedAt 2026-09-15T20:53:18Z", "matchesArtefact": true, "isAncestorOfFreshOriginMain": true, "command": "gh pr view 1754 --json state,mergeCommit,mergedAt; git merge-base --is-ancestor bb9b87447b9bde2e7909e452a0f86b6c91437499 origin/main" },
+    { "pr": 1755, "artefactMergeCommit": "2c1b4584de076ae497533d093618dac5bcc97f03", "ghPrView": "MERGED, mergeCommit 2c1b4584de076ae497533d093618dac5bcc97f03, mergedAt 2026-09-15T21:00:41Z", "matchesArtefact": true, "isAncestorOfFreshOriginMain": true, "command": "gh pr view 1755 --json state,mergeCommit,mergedAt; git merge-base --is-ancestor 2c1b4584de076ae497533d093618dac5bcc97f03 origin/main", "note": "this batch's own base commit" },
+    { "pr": 1756, "artefactMergeCommit": null, "ghPrView": "MERGED, mergeCommit 88290bd7e2833758f0282ba6ea9a01d182f9aaea, mergedAt 2026-09-15T21:21:54Z", "matchesArtefact": false, "isAncestorOfFreshOriginMain": true, "command": "gh pr view 1756 --json state,mergeCommit,mergedAt,headRefOid; git merge-base --is-ancestor 88290bd7e2833758f0282ba6ea9a01d182f9aaea origin/main; git rev-parse origin/main", "note": "NOT cited by the batch-6 commit's own diff (batch 6 correctly did not claim it merged - it wasn't, when batch 6's author checked). Cited here only because the review task's briefing referenced #1756 as OPEN/queued and directed an edit; live re-verification shows it is now MERGED and is currently origin/main's tip (88290bd7e2833758f0282ba6ea9a01d182f9aaea), one commit ahead of this batch's base 2c1b4584d. No main-proof (blob-equality/gate-exit) receipt exists for #1756 yet - only evidence/r2-authority-live-revocation-detach-1756-final-20260915-premerge.json (pre-merge CI snapshot, all checks SUCCESS, state OPEN as of 21:21:45Z) and a paired -merge-20260915.json snapshot." }
+  ],
+  "originMainTip": {
+    "atBatch6SessionStart": "2c1b4584de076ae497533d093618dac5bcc97f03 (per artefact)",
+    "atThisReviewTime": "88290bd7e2833758f0282ba6ea9a01d182f9aaea",
+    "advancedDuringOrAfterBatch6": true,
+    "advancedBy": "PR #1756, merged 2026-09-15T21:21:54Z - after batch 6's commit (eaae9d2a6, authored against base 2c1b4584d) was already made",
+    "command": "git fetch origin; git rev-parse origin/main"
+  },
+
+  "mainProofReceiptsChecked": [
+    {
+      "file": "evidence/r4-s7c-1751-main-proof-20260915.json",
+      "existsInPrimaryCheckout": true,
+      "contentVerified": {
+        "prHead": "b0d50cf53262e8b6d5f2d03b916e2bf893f1e6ac",
+        "mergeCommit": "a265a544a2256c7098afdc10a968492c2454cd77",
+        "matchesGhPrView": true,
+        "blobEquality": "empty (0 bytes) on all 3 touched files - matches artefact claim",
+        "jest": "exit 0, 178 suites, 1375 tests - matches artefact claim",
+        "otherGates": "tsc/openspecStrict/specPurposeStrict/terminologyStrict/qcOpenspecCi all exit 0 - matches artefact claim"
+      }
+    },
+    { "file": "evidence/r2-cutover-co3-4-1750-main-proof-20260915.json", "existsInPrimaryCheckout": true },
+    { "file": "evidence/r2-authority-live-1-1753-main-proof-20260915.json", "existsInPrimaryCheckout": true },
+    { "file": "evidence/r2-authority-live-2-1754-main-proof-20260915.json", "existsInPrimaryCheckout": true },
+    { "file": "evidence/r2-authority-live-3-1755-main-proof-20260915.json", "existsInPrimaryCheckout": true },
+    { "file": "evidence/r4-s7c-review-20260915.json", "existsInPrimaryCheckout": true },
+    { "file": "evidence/r2-authority-live-rows-review-20260915.json", "existsInPrimaryCheckout": true },
+    { "file": "evidence/r2-authority-live-revocation-detach-local-20260915.json", "existsInPrimaryCheckout": true },
+    { "file": "evidence/r2-authority-live-revocation-detach-review-20260915.json", "existsInPrimaryCheckout": true },
+    { "file": "evidence/r2-authority-live-revocation-detach-1756-final-20260915-premerge.json", "existsInPrimaryCheckout": true, "note": "not cited by the batch-6 commit; found during this review's live re-check of the F-LIVE-1 fix's PR state" }
+  ],
+
+  "checkboxDiffCheck": {
+    "command": "git diff 2c1b4584d..HEAD | grep -E '^[+-]- \\['",
+    "result": "empty (no output, grep exit 1)",
+    "pass": true,
+    "conclusion": "No task checkbox was flipped in this batch's commit. Matches the artefact's tally (FLIP: 0)."
+  },
+
+  "perEditTable": [
+    {
+      "id": "E1",
+      "file": "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/tasks.md",
+      "row": "1.7 S7-c close note",
+      "artefactVerdict": "NOTE (no flip)",
+      "reviewFinding": "PASS - the new note bullet accurately states PR #1751 is MERGED (verified live), cites r4-s7c-1751-main-proof-20260915.json correctly (content verified above), and explicitly keeps task 1.7 itself OPEN because shadow parity/migration states/rollback law (S7-d) are untouched. No overclaim."
+    },
+    {
+      "id": "E2",
+      "file": "openspec/changes/design-campaign-authority-and-sync/tasks.md",
+      "row": "5.7 CO3-completion continuation note",
+      "artefactVerdict": "NOTE (no flip; never claims the flag flip)",
+      "reviewFinding": "PASS - #1750 MERGED (verified live), cited main-proof exists and matches; the note correctly states CAMPAIGN_JOURNAL_AUTHORITY_ENABLED remains hardcoded false (independently re-confirmed: git grep on the worktree still shows `= false;` in JournalCampaignEventStore.ts, consistent with the artefact's own note; not re-verified byte-for-byte in this review beyond trusting the artefact's grep since the flag's file was not independently re-read line-by-line, but no edit in the diff touches production code so the claim carries no risk)."
+    },
+    {
+      "id": "E3",
+      "file": "openspec/changes/design-campaign-authority-and-sync/tasks.md",
+      "row": "5.7 R2.authority-live rows note (revocation/redaction + F-LIVE-1/F-LIVE-2)",
+      "artefactVerdict": "NOTE (no flip; never claims the flag flip)",
+      "reviewFinding": "PARTIAL - REQUIRED EDIT. #1753, #1754, #1755 are all correctly MERGED and ancestor-verified with matching main-proof receipts (see ancestry table and mainProofReceiptsChecked above); the live proof description (403 refusal on both replica and restarted source, targeted not session-wide, GM-rationale redaction, RemoveParticipant 422 host-only control) is consistent with r2-authority-live-3-1755-main-proof-20260915.json's own recorded content and is not contradicted by anything read in this review. THE DEFECT: the committed sentence 'it is NOT yet opened as a pull request and carries no main-proof receipt, so it is NOT cited as merged or as closing anything here' is now factually wrong on two counts - a PR (#1756) WAS opened, and it has since MERGED (mergedAt 2026-09-15T21:21:54Z, merge commit 88290bd7e2833758f0282ba6ea9a01d182f9aaea, confirmed ancestor of origin/main and in fact currently ITS TIP). This was true at commit-authoring time per the artefact's own account (batch 6 checked and #1756 genuinely did not exist yet or was not yet opened) but went stale between the batch-6 commit landing and this review running - exactly the OB-207-class staleness pattern the whole reconcile series exists to catch, now occurring one layer up (in the review cycle itself, not the original commit). This is NOT a fault of the batch-6 author (nothing in eaae9d2a6 claims something false as of when it was written) - it is a live-state fact that must be corrected NOW, before this note is read by anyone else, per Verify-Never-Infer."
+    },
+    {
+      "id": "E4",
+      "file": "openspec/active-change-ledger.json",
+      "artefactVerdict": "CORRECTED (1 entry)",
+      "reviewFinding": "PASS - the ledger's adopt-combat-journal-cutover-and-gm-rewind reason field's new 'Corrected 2026-09-15 (ledger reconcile batch 6)' clause matches the tasks.md 1.7 note's content and PR numbers exactly (cross-checked both texts in the diff above); the 'Still open' list correctly reads '...S7-a, S7-b and S7-c all main-verified via PRs #1737/#1738/#1744/#1745/#1746/#1751; only S7-d remains...'. design-campaign-authority-and-sync's ledger entry sweep-and-no-edit claim is confirmed: its reason field (read in full) makes no mention of 5.7, CO3, or R2.authority-live, and its own independent 'Still open: 1.6, 6.2, 6.3, 6.4' list was re-verified against current tasks.md via grep - all four rows are still '- [ ]' (verified: lines 30, 106, 108, 110)."
+    }
+  ],
+
+  "requiredEdits": [
+    {
+      "id": "R1",
+      "blocking": true,
+      "severity": "medium - the committed prose makes a now-false claim about a live PR's existence and merge state",
+      "file": "openspec/changes/design-campaign-authority-and-sync/tasks.md",
+      "location": "task 5.7 note, batch 6 continuation bullet, the F-LIVE-1 fix-status sentence",
+      "old": "A production fix (a participant-keyed live-sink detach in `CampaignSyncSession.ts`, `applyCommittedParticipantRemoval` draining a `liveByParticipant` index) exists locally with a red-first test, a killed 2-of-3 named mutant matrix (the third disclosed as behaviourally-harmless leak-control only), and independent review APPROVE with zero blocking findings (`evidence/r2-authority-live-revocation-detach-local-20260915.json`, `evidence/r2-authority-live-revocation-detach-review-20260915.json`) - but it is NOT yet opened as a pull request and carries no main-proof receipt, so it is NOT cited as merged or as closing anything here: its branch was cut before #1755's squash-merge landed, and the reviewer's own `git merge-tree` check against current origin/main reports the resulting add/add conflict as a history artefact of that ordering, not a content divergence (the touched spec file is byte-identical on both sides of the true merge base).",
+      "new": "A production fix (a participant-keyed live-sink detach in `CampaignSyncSession.ts`, `applyCommittedParticipantRemoval` draining a `liveByParticipant` index) - reviewed locally with a red-first test, a killed 2-of-3 named mutant matrix (the third disclosed as behaviourally-harmless leak-control only), and independent review APPROVE with zero blocking findings (`evidence/r2-authority-live-revocation-detach-local-20260915.json`, `evidence/r2-authority-live-revocation-detach-review-20260915.json`) - is now published as PR #1756 `fix(campaign): stop delivering campaign facts to a revoked seat's live socket`, which MERGED at `88290bd7e2833758f0282ba6ea9a01d182f9aaea` (live-confirmed via `gh pr view 1756`, ancestor of a freshly fetched origin/main via `git merge-base --is-ancestor`, and in fact currently origin/main's own tip - one commit ahead of this change's 2c1b4584d base). It is NOT yet cited as exact-main-verified: no `r2-authority-live-revocation-detach-*-main-proof-20260915.json` (blob-equality / gate-exit) receipt exists yet, only a pre-merge CI-status snapshot (`evidence/r2-authority-live-revocation-detach-1756-final-20260915-premerge.json`, all checks SUCCESS) and a paired post-merge snapshot. F-LIVE-1's fix is therefore recorded as MERGED but not yet main-proven - a future reconcile batch should add the main-proof receipt before treating F-LIVE-1 as closed."
+    }
+  ],
+
+  "ledgerCorrectionMatchesMain": {
+    "verdict": "PASS",
+    "detail": "The active-change-ledger.json reason-field correction for adopt-combat-journal-cutover-and-gm-rewind is internally consistent with tasks.md's own 1.7 note (same PR numbers #1737/#1738/#1744/#1745/#1746/#1751, same S7-a/b/c/d completeness claims). No fact in the ledger correction is contradicted by any live command run in this review."
+  },
+
+  "scopeCheck": {
+    "openspecOnlyDiff": true,
+    "filesChanged": ["openspec/active-change-ledger.json", "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/tasks.md", "openspec/changes/design-campaign-authority-and-sync/tasks.md"],
+    "diffStat": "3 files changed, 3 insertions(+), 1 deletion(-)",
+    "command": "git diff --stat 2c1b4584d..HEAD",
+    "capsRespected": { "fileLimit": "3 of 15", "lineLimit": "4 of 500", "splitNeeded": false },
+    "aiAttributionInCommit": false,
+    "aiAttributionCommand": "git log -1 --format=%B HEAD; git diff 2c1b4584d..HEAD | grep -iE 'claude|anthropic|co-authored|generated with|ai-generated'",
+    "aiAttributionResult": "no match (grep exit 1)"
+  },
+
+  "validators": {
+    "runContext": "run fresh against HEAD = eaae9d2a6 in the camp-receipt-verification worktree; git status --short empty before and after each run",
+    "results": [
+      { "command": "npx openspec validate --all --strict", "exit": 0, "result": "Totals: 232 passed, 0 failed (232 items)", "matchesArtefact": true },
+      { "command": "npm run spec:purpose:validate:strict", "exit": 0, "result": "Files scanned: 220; Errors: 0; Tracked source-of-truth debt: 0", "matchesArtefact": true },
+      { "command": "npm run terminology:validate:strict", "exit": 0, "result": "Found 315 file(s) to scan; All 315 file(s) are compliant with TERMINOLOGY_GLOSSARY.md", "matchesArtefact": true, "note": "pre-existing MODULE_TYPELESS_PACKAGE_JSON warning line present, as documented in the artefact - does not affect exit code or pass/fail" },
+      { "command": "npm run qc:openspec-ci:validate", "exit": 0, "result": "workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=12 accountedActiveOpenSpecChanges=12 errors=0", "matchesArtefact": true }
+    ],
+    "allExitZero": true,
+    "workingTreeCleanAfter": true
+  },
+
+  "primaryCheckoutIntegrityCheck": {
+    "claim": "primary checkout at E:/Projects/MekStation was never written to by batch 6 except the one new evidence artefact file, and its dirty-set porcelain count stays 162",
+    "porcelainLineCount": { "command": "git -C E:/Projects/MekStation status --porcelain | wc -l", "result": 162, "expected": 162, "match": true }
+  },
+
+  "openQuestionsNotResolvedByThisReview": [
+    "Whether a future batch should add a main-proof (blob-equality/gate-exit) receipt for PR #1756 before task 5.7's note treats F-LIVE-1 as fully closed - not resolved here, flagged in R1's replacement text as a note for the next reconcile batch.",
+    "Whether the recurring pattern of PR state changing between when reconcile-batch prose is drafted and when it is reviewed (seen now in batches 4, 5, and 6/this review) warrants a process change (e.g. a final live re-check step immediately before the review artefact itself is written, mirroring what batch 6 already does for its own commit) - flagged for the preparer/process owner, not fixed here."
+  ]
+}

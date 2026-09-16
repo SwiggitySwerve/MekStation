@@ -1,0 +1,65 @@
+{
+  "pr": 1690,
+  "branch": "codex/roadmap-ci-quality-mutations-20260915",
+  "status": "BLOCKED - NOT MERGED",
+  "blockedReason": "update-branch refused with HTTP 422 'merge conflict between base and head'. This is the stacked-PR-after-squash-merge problem: resolving it needs a rebase and force-push of the branch, which is source/branch work outside the merge manager's scope and explicitly forbidden by the operating constraints (no force-push).",
+  "reviewedCommit": "534372297bad41a19cb73719d6df16aa0725feb5",
+  "finalHead": "534372297bad41a19cb73719d6df16aa0725feb5",
+  "headUnchanged": true,
+  "autoMergeArmed": false,
+  "stackedOn": "PR 1689 (codex/roadmap-ci-quality-test-20260915), merged as squash 2af7b2259 at 08:31:58Z",
+  "contentGuard": {
+    "fileSet": ["scripts/__tests__/openspec-ci-quality-qc.test.ts"],
+    "fileSetEqualToReviewed": true,
+    "diffstatVsMergeBase": "1 file changed, 509 insertions(+)",
+    "diffstatNote": "509 insertions is measured from the merge-base 0f86b4ee9 (where the file does not exist), so it covers 1689's 414 lines plus this PR's own additions - expected for an un-updated stacked PR",
+    "sha256AtHead": "37cc951ad23379e647b2217750932f18c1843c247ee1f4a3e7e36da79b97b026",
+    "sha256Expected": "37cc951ad23379e647b2217750932f18c1843c247ee1f4a3e7e36da79b97b026",
+    "sha256Match": true,
+    "result": "PASS - the content itself is exactly the reviewed content; the blocker is purely a merge-graph problem"
+  },
+  "updateBranch": {
+    "attempted": true,
+    "succeeded": false,
+    "expectedHeadShaGuard": "534372297bad41a19cb73719d6df16aa0725feb5",
+    "httpStatus": 422,
+    "apiMessage": "merge conflict between base and head",
+    "headAfterAttempt": "534372297bad41a19cb73719d6df16aa0725feb5 (unchanged - the failed call mutated nothing)"
+  },
+  "conflictDiagnosis": {
+    "type": "add/add conflict on scripts/__tests__/openspec-ci-quality-qc.test.ts",
+    "mergeBase": "0f86b4ee9e7b8fb7ffdad499bc60209e5358586b",
+    "mergeBaseSubject": "ci(qc): activate the twelve-case customizer production browser gate (#1678)",
+    "fileExistsAtMergeBase": false,
+    "mainSideBlob": "5986a0c9e0742e8e684053d7d7df13beafb1e614 (added by 1689's squash commit 2af7b2259)",
+    "branchSideChain": ["534372297 test(qc): reject nine further customizer gate weakenings", "fb1d64306 test(qc): cover the job-scoped OpenSpec CI contracts", "0f86b4ee9 (#1678)"],
+    "squashCommitIsAncestorOfBranch": false,
+    "reviewedBranchCommitIsAncestorOfBranch": true,
+    "explanation": "PR 1689 was squash-merged, which creates a NEW commit (2af7b2259) that is not an ancestor of this branch. From the shared base 0f86b4ee9 the file does not exist, so main and the branch each appear to ADD the same path with different content. Git has no common ancestor for the file and refuses to auto-merge.",
+    "notAFlake": true,
+    "retriedBlindly": false
+  },
+  "suggestedFix": "Rebase codex/roadmap-ci-quality-mutations-20260915 onto current main, dropping the now-redundant fb1d64306 commit (its content landed via 1689's squash), then force-push and resume. NOT ATTEMPTED by this session: rebase + force-push are outside merge-manager scope and force-push is forbidden.",
+  "checksAtTerminal": {
+    "note": "Not polled to terminal on an updated head - the PR never became mergeable under strict branch protection (branch must be up to date), so no gated run exists."
+  },
+  "premergeReceipt": {
+    "path": null,
+    "ready": null,
+    "note": "NOT RUN - step 5 gate was never reached because update-branch could not make the branch up-to-date"
+  },
+  "mergeCommit": null,
+  "mergedAt": null,
+  "mainAtBlockTime": "2af7b22598e1ec40ba405e86182daf862d04c526",
+  "forwardRisk": "The same add/add failure mode should be expected for any remaining stacked pair whose two PRs touch the SAME file after the parent is squash-merged. Queued stacked pairs to watch: 1687 (on 1686) and 1688 (on 1687). The earlier stacked pair 1676/1677 updated cleanly ONLY because those two PRs touched disjoint files.",
+  "worktree": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/ci-customizer-gate-20260915",
+    "fastForward": "NOT PERFORMED - per coordinator instruction; PR also did not merge",
+    "result": "SKIPPED (intentional)"
+  },
+  "timestamps": {
+    "guardStartedAt": "2026-09-15T08:32:10Z",
+    "updateBranchFailedAt": "2026-09-15T08:32:20Z",
+    "receiptWrittenAt": "2026-09-15T08:34:00Z"
+  }
+}

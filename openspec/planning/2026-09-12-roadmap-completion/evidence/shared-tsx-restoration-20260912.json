@@ -1,0 +1,264 @@
+{
+  "recordedAt": "2026-09-12T16:45:55.214Z",
+  "reason": "Restore tsx removed when standalone hydration traversed node_modules junction into shared root",
+  "source": "E:\\Projects\\MekStation\\.next\\standalone\\node_modules\\tsx",
+  "corroboratingSource": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\browser\\node_modules\\tsx",
+  "target": "E:\\Projects\\MekStation\\node_modules\\tsx",
+  "version": "4.22.4",
+  "files": [
+    {
+      "path": "dist/cjs/api/index.cjs",
+      "sha256": "a15d3802fd3286a8544c877b13b219f7c3e1a1ab21e83f758192b9f7210de718"
+    },
+    {
+      "path": "dist/cjs/api/index.d.cts",
+      "sha256": "8c2b1a98cc24f9efb1d8705b3c3c1929d3a4f42273466da97df62c7b253eaeee"
+    },
+    {
+      "path": "dist/cjs/api/index.d.mts",
+      "sha256": "8c2b1a98cc24f9efb1d8705b3c3c1929d3a4f42273466da97df62c7b253eaeee"
+    },
+    {
+      "path": "dist/cjs/api/index.mjs",
+      "sha256": "600ba2de0ee0c1592a4b2306daf4a9db960c588c5562e68bc2b77fa7d2f5414c"
+    },
+    {
+      "path": "dist/cjs/index.cjs",
+      "sha256": "49069c795ff40f563ab0b1f3d32336e58f61f8d5dc7dece0173097eb0b4067ad"
+    },
+    {
+      "path": "dist/cjs/index.mjs",
+      "sha256": "ae97ad3e7f4a51370750712a5a4f940c21bac6c369fc3cd30d2472c7b339f76c"
+    },
+    {
+      "path": "dist/cli.cjs",
+      "sha256": "cafff497ea8f0a25ab33acb1e7561328ab12c0664c2673ec489c6a2cd3b571a3"
+    },
+    {
+      "path": "dist/cli.mjs",
+      "sha256": "5d5b2a9f9cf4d6a8b44326b676417e00b42ad04037ed173b7af82ea8146a4fc0"
+    },
+    {
+      "path": "dist/client-D_mPDF5S.mjs",
+      "sha256": "3a59578e44917527095c006ecd29b6e61fe5bbf05d5bc809cc7cc6112beedbbd"
+    },
+    {
+      "path": "dist/client-D3mGB526.cjs",
+      "sha256": "f39baa1746411223094df90350710061f9986e07396dd311e3a74ed3df1b63e7"
+    },
+    {
+      "path": "dist/esm/api/index.cjs",
+      "sha256": "1e4e4b2dbb41d31b58b748d64c6b6f137f86b8113a010e99e13d92a7e260490d"
+    },
+    {
+      "path": "dist/esm/api/index.d.cts",
+      "sha256": "eb9096c517da313cbedce8818d9cadb82bbf02cd6f4a65db4cee42ac01f4272c"
+    },
+    {
+      "path": "dist/esm/api/index.d.mts",
+      "sha256": "eb9096c517da313cbedce8818d9cadb82bbf02cd6f4a65db4cee42ac01f4272c"
+    },
+    {
+      "path": "dist/esm/api/index.mjs",
+      "sha256": "6108c0ae308c9399e240e9d6cb43d2a291f4a55418c982f3ae017f9357a86053"
+    },
+    {
+      "path": "dist/esm/index.cjs",
+      "sha256": "db3b7f0d773da7dc057826c14c2144f8e7642216478239fa0906ff5ed8813e3d"
+    },
+    {
+      "path": "dist/esm/index.mjs",
+      "sha256": "1c7ca3706f7cad59a29568f46592263c17dc0c462d3ded7866e5eddeebaff78e"
+    },
+    {
+      "path": "dist/get-pipe-path-_tAJyU_v.mjs",
+      "sha256": "559be651995cc7188166ca09af99ea08b9b1453767e42fff203b53fa1a403217"
+    },
+    {
+      "path": "dist/get-pipe-path-D4YM6rQt.cjs",
+      "sha256": "4676e923789ccd968968161547bcac8fb8337b76c0d033f6049332d0ac4025ec"
+    },
+    {
+      "path": "dist/index-BWFBUo6r.cjs",
+      "sha256": "fe29b97b254312970fceb8995a519abc8751f26972c221281959a7d77858a464"
+    },
+    {
+      "path": "dist/index-D9F1FXzN.cjs",
+      "sha256": "25149b5ccbb804aba96f2bacb4cf49f6657f606d37d559ed9ca0e2087362aba5"
+    },
+    {
+      "path": "dist/index-gbaejti9.mjs",
+      "sha256": "76febbe946957c96066d1d59293c4a26fc874c05876394cf4c178e4f4d0b6ba8"
+    },
+    {
+      "path": "dist/index-XurvG3JN.mjs",
+      "sha256": "128dc5756da9bec342781ee30127611c958f921e15016b06dd866de28d906245"
+    },
+    {
+      "path": "dist/lexer-DgIbo0BU.cjs",
+      "sha256": "9b92935847bf0f6daade96b21c8271139ed8b48ef3fa59647af0ef1d36770db0"
+    },
+    {
+      "path": "dist/lexer-DQCqS3nf.mjs",
+      "sha256": "6b77bebaee2dd7741177e287a78ef4329d9ef91f6939d09cfcf0029b3859f883"
+    },
+    {
+      "path": "dist/loader.cjs",
+      "sha256": "f1d1dba840cb20875fcd1fd0932c0e6053e124845b0f93c079be5139aae08683"
+    },
+    {
+      "path": "dist/loader.mjs",
+      "sha256": "7dcee7691241fdd4a59a52879597d22d603d770a764282724eaca7cab03b389f"
+    },
+    {
+      "path": "dist/node-features-B9BBLzwu.mjs",
+      "sha256": "f324cd636e296f32b792c57719c3eccb759504bd88cb19ec3618740e086df211"
+    },
+    {
+      "path": "dist/node-features-CQLdkVE6.cjs",
+      "sha256": "465bf87bb3a950640a443d3b3a395263043c7e7bf9fbaea4cd3111a50fc531a8"
+    },
+    {
+      "path": "dist/package-Bj47PlGH.mjs",
+      "sha256": "31b587813befa47ca880321f641a6eba6a0a2e0fcd94d966d39cab68b570ad7f"
+    },
+    {
+      "path": "dist/package-DMqO70yR.cjs",
+      "sha256": "9a5f5918de8055cf26c5df3fbdc61d3d2ead8303119a360a810a43d85ac6e6d6"
+    },
+    {
+      "path": "dist/patch-repl.cjs",
+      "sha256": "33f5f6755270054783f4c568d0d48d4a79fecde965ec6f91ca27f0f949ba6da6"
+    },
+    {
+      "path": "dist/patch-repl.mjs",
+      "sha256": "3850acac507aa554620693d272bed6b7ac1e1b8ab5af406581c632522ad8c872"
+    },
+    {
+      "path": "dist/preflight.cjs",
+      "sha256": "5ef95c5c4b5875dbc270b9591676a2138e4df82bcebde945eebb1eadf721b192"
+    },
+    {
+      "path": "dist/preflight.mjs",
+      "sha256": "ed9364ea1eb3dfd8477ab92cd4add34b163355b65727ba21eae0de463fd33ece"
+    },
+    {
+      "path": "dist/register-BnTWPeIB.mjs",
+      "sha256": "d00720a0c2a5d07998fc2ca4b9f6a62c8ba9091dd2c134eb659b2ef24cbb16cc"
+    },
+    {
+      "path": "dist/register-BOkp8V6j.cjs",
+      "sha256": "27207674d8a75f1332863ddbed1bfae0740861a092b92c418f7916b97a4129a1"
+    },
+    {
+      "path": "dist/register-CKju0f8h.cjs",
+      "sha256": "bb60bafe25b4a742066387dfcdf8a057a3783658a3e02cfe542713dc86037975"
+    },
+    {
+      "path": "dist/register-CqMfTiWi.mjs",
+      "sha256": "983f77efe73f7cd4ec9479e3809606f1e2f54f5e94457171c93107bd97ad4936"
+    },
+    {
+      "path": "dist/repl.cjs",
+      "sha256": "bd40f96bdb621ee9a090ccb56ef42e63571a9ea0efe554a76693ebc98dafd50f"
+    },
+    {
+      "path": "dist/repl.mjs",
+      "sha256": "f35d60ad607c0cfb6b468b303e2c3efab55a0de2275251e880ecbbfbaafcb92d"
+    },
+    {
+      "path": "dist/require-CjvaJWEr.cjs",
+      "sha256": "933caf845ab6b9c6aa13b2a21dd08da71a3d45b5e4244d3f4bd47eceb808da3d"
+    },
+    {
+      "path": "dist/require-DzmC1hVr.mjs",
+      "sha256": "f4ad896f108a89d5a721609a3c40900f4c577c42274cbbdd3d156e5df6c300b1"
+    },
+    {
+      "path": "dist/suppress-warnings.cjs",
+      "sha256": "028063d20bd49083f03a0b1ed4f7a3d55fac1f64f5aca0e58e1ec61601f20ee7"
+    },
+    {
+      "path": "dist/suppress-warnings.mjs",
+      "sha256": "4c7d8eb24f7c16282453bc18d649c310028a63d3850e6590338932cdd896017f"
+    },
+    {
+      "path": "dist/temporary-directory-B83uKxJF.cjs",
+      "sha256": "da189099aba4a7aff1e0ca337cd71410a0f96abc66298403db041cb812cbd24c"
+    },
+    {
+      "path": "dist/temporary-directory-BDDVQOvU.mjs",
+      "sha256": "918e7718e0579ae7d800c3dc9fc6c27626102198463bbb4051e40b2dbcf932b5"
+    },
+    {
+      "path": "dist/types-Cxp8y2TL.d.ts",
+      "sha256": "f462b6fc33bc3f82d1551ac0678834dfff89192ce1e848eb0bb8ca5bfe8bc76f"
+    },
+    {
+      "path": "LICENSE",
+      "sha256": "8dded67841a9261a622c739fb61c81785e93765de852828ceeb9403d20a74581"
+    },
+    {
+      "path": "node_modules/.bin/esbuild",
+      "sha256": "020b954fd13a2c5ee8aabd5a73e24c10a4750099ed5e02f07dc7265c6758a054"
+    },
+    {
+      "path": "node_modules/.bin/esbuild.cmd",
+      "sha256": "b00afc3761267058834ab0968f58748f0422efe0eb0321540544770cafbf7a69"
+    },
+    {
+      "path": "node_modules/.bin/esbuild.ps1",
+      "sha256": "9a24efc13fb6ef9def6c5aaf7787e7203d0982e2ab8627b64a41eb033945b7f5"
+    },
+    {
+      "path": "node_modules/@esbuild/win32-x64/esbuild.exe",
+      "sha256": "ec02ee9b14ab332416fedd10614dfb80eed5304d94f67745067c011934a8c3c3"
+    },
+    {
+      "path": "node_modules/@esbuild/win32-x64/package.json",
+      "sha256": "4a63b84fa1059fef348e29e3a39c26168213bb7f0aa1ac0174e439cc1e62a9f8"
+    },
+    {
+      "path": "node_modules/@esbuild/win32-x64/README.md",
+      "sha256": "29cf512fa580b72392176bf694933ae0decaf18116fdeee917511b445411ce16"
+    },
+    {
+      "path": "node_modules/esbuild/bin/esbuild",
+      "sha256": "fe9a7b65a540d8df1a0f59941d52e7c1260c36fed9a2af3dd966f15381b6eb76"
+    },
+    {
+      "path": "node_modules/esbuild/install.js",
+      "sha256": "612294e278914443bdcf81cb17f54afec34dbdd2ebd999a6ee187912320cc315"
+    },
+    {
+      "path": "node_modules/esbuild/lib/main.d.ts",
+      "sha256": "161c8e0690c46021506e32fda85956d785b70f309ae97011fd27374c065cac9b"
+    },
+    {
+      "path": "node_modules/esbuild/lib/main.js",
+      "sha256": "8331fe1d8b3a07381f33cc425fcfaa94776e263113653f80ec3ba433e9657e73"
+    },
+    {
+      "path": "node_modules/esbuild/LICENSE.md",
+      "sha256": "b40ec5baec7bb34fa5b1c09521fa3cd52d5fad7adafed74932a2010d3612a681"
+    },
+    {
+      "path": "node_modules/esbuild/package.json",
+      "sha256": "d55d1d19fcc5b6079e4a71dd4111340c79c682bc36835ac7058a0c364c7db58a"
+    },
+    {
+      "path": "node_modules/esbuild/README.md",
+      "sha256": "6d481cd60ec3c679e5e395f547ab4221147f35642894f6b95a8df38fd25c87bd"
+    },
+    {
+      "path": "package.json",
+      "sha256": "b0d63b124b9b85b53d09cff256fa7832cb6a774f8b90ae1353e63df5275824b2"
+    },
+    {
+      "path": "README.md",
+      "sha256": "44e63909767a6f7b21d4103df9417e3ab88bae17a3bc77b93fdcfb94176e3211"
+    }
+  ],
+  "restoredAt": "2026-09-12T16:45:55.541Z",
+  "verifiedIdentical": true
+}

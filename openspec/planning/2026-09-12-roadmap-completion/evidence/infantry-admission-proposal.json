@@ -1,0 +1,22 @@
+{
+  "at": "2026-09-12T11:48:39.389Z",
+  "node": "R1.infantry",
+  "status": "read-only-admission-proposal",
+  "baseline": "be7f85b867aa3e8576e5e3d27e309276203bc24b",
+  "files": [
+    "src/components/customizer/infantry/InfantryPreviewTab.tsx",
+    "src/components/customizer/infantry/InfantryRecordSheetPreview.tsx",
+    "src/components/customizer/infantry/__tests__/InfantryPreviewTab.test.tsx",
+    "openspec/changes/repair-record-sheet-rendering/specs/record-sheet-export/spec.md",
+    "openspec/changes/repair-record-sheet-rendering/tasks.md"
+  ],
+  "estimatedChangedLines": 237,
+  "dependencies": "Shared preview helpers already exist on baseline. Existing active ledger entry already accounts for repair-record-sheet-rendering; do not copy the mixed root ledger diff.",
+  "followup": "The58-line Infantry browser case requires the new245-line print/PDF helper and A4 constant. Publish it under R1.browser in separately capped prefixes. Broad canonical rendering synchronization is closure work.",
+  "parentAdmissionCautions": [
+    "Task/evidence prose from the combined local tree must not claim the isolated5-fileprefix contains all12browsercases; preserve historical receipts with explicit scope, keep later browser acceptance open until its owning slice",
+    "Rerun focused preview/staging/store-switch tests and required static/build checks on exact candidate; fresh browser evidence may use a separately hashed proof artifact, but its publication and final package acceptance remain with R1.browser/R1.remote",
+    "Canonical record-sheet export diff and unrelated annotation/ledger/archive/research changes are excluded"
+  ],
+  "performedChecks": "Source and diff review only; no implementation/tests/build executed in this admission audit"
+}

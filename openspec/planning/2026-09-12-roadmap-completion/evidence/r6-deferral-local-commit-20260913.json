@@ -1,0 +1,204 @@
+{
+  "createdAt": "2026-09-13T10:50:42.332Z",
+  "node": "R6.deferrals",
+  "state": "local-verified",
+  "base": "44b94adbbb333a9d4965e057b34290e19fc0e781",
+  "commit": "20bb868fc5f6e9c1db7602b255eac6c67a50eb7d",
+  "branch": "codex/roadmap-r6-deferrals-20260913",
+  "worktree": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\r6-deferrals",
+  "files": [
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r6-deferral-source-parent-disposition-20260913.json",
+      "sha256": "9ff0b7a3a2e0394dc2a376ac5db55efc34c39903094bf318163e2f963dc265ae",
+      "lines": 109
+    }
+  ],
+  "changedLines": 109,
+  "checks": [
+    {
+      "name": "stage",
+      "exit": 0,
+      "stdout": {
+        "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\r6-deferral-delivery-20260913\\attempt1\\stage.stdout.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\r6-deferral-delivery-20260913\\attempt1\\stage.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "staged-cap",
+      "exit": 0,
+      "stdout": {
+        "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\r6-deferral-delivery-20260913\\attempt1\\staged-cap.stdout.log",
+        "sha256": "9ee8b4e41d897ee5e9797be87e1ed908c7db56f6907cfa53b7a9c3e358e1a51c"
+      },
+      "stderr": {
+        "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\r6-deferral-delivery-20260913\\attempt1\\staged-cap.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "commit",
+      "exit": 0,
+      "stdout": {
+        "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\r6-deferral-delivery-20260913\\attempt1\\commit.stdout.log",
+        "sha256": "b7fe5a21515ca23ff7b6393375ef9355c0e4e6fa8285eb52ec78f438e69f42f8"
+      },
+      "stderr": {
+        "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\r6-deferral-delivery-20260913\\attempt1\\commit.stderr.log",
+        "sha256": "29d74050437b1f5f2789435c475ddca9feaff6f3e62f112608c4da1554f791e0"
+      }
+    },
+    {
+      "name": "head",
+      "exit": 0,
+      "stdout": {
+        "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\r6-deferral-delivery-20260913\\attempt1\\head.stdout.log",
+        "sha256": "8f27a3b5b77b4896b8920ca25572f1e0fd4812f3736bf3011cdac2f3be08d716"
+      },
+      "stderr": {
+        "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\r6-deferral-delivery-20260913\\attempt1\\head.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "typecheck",
+      "exit": 0,
+      "stdout": {
+        "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\r6-deferral-delivery-20260913\\attempt1\\typecheck.stdout.log",
+        "sha256": "d140a6ce62dda0946fe30dd882dbb8209f05be72c8fa8850e5634755a399e50f"
+      },
+      "stderr": {
+        "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\r6-deferral-delivery-20260913\\attempt1\\typecheck.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "lint",
+      "exit": 0,
+      "stdout": {
+        "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\r6-deferral-delivery-20260913\\attempt1\\lint.stdout.log",
+        "sha256": "0b30783f44f76417ea3c93e066471f7bedef21d5f184b935d45fe48e19419a7e"
+      },
+      "stderr": {
+        "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\r6-deferral-delivery-20260913\\attempt1\\lint.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "format",
+      "exit": 0,
+      "stdout": {
+        "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\r6-deferral-delivery-20260913\\attempt1\\format.stdout.log",
+        "sha256": "b0e8c5dd8abd860a6aa54631f43a7c4859a11f34e8c14f166a374eb2e05fb551"
+      },
+      "stderr": {
+        "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\r6-deferral-delivery-20260913\\attempt1\\format.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "purpose",
+      "exit": 0,
+      "stdout": {
+        "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\r6-deferral-delivery-20260913\\attempt1\\purpose.stdout.log",
+        "sha256": "9c9dedbe404fddce952fc281cd52844ad00158eb099c1e78ad9c144f8c553e66"
+      },
+      "stderr": {
+        "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\r6-deferral-delivery-20260913\\attempt1\\purpose.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "terminology",
+      "exit": 0,
+      "stdout": {
+        "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\r6-deferral-delivery-20260913\\attempt1\\terminology.stdout.log",
+        "sha256": "0aa5a9766e05dd5717dd0716600178778d9b12c1aae493920c77b9911ab367e0"
+      },
+      "stderr": {
+        "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\r6-deferral-delivery-20260913\\attempt1\\terminology.stderr.log",
+        "sha256": "378cbdc83dd70d9ac7c15514c422290fc1e55d2a5ecb37b52e638f8f3c8b5ee1"
+      }
+    },
+    {
+      "name": "openspec-ci",
+      "exit": 0,
+      "stdout": {
+        "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\r6-deferral-delivery-20260913\\attempt1\\openspec-ci.stdout.log",
+        "sha256": "f01feb11318234aab4764fe76151b78c06905527212a8f8723626fcf616b71d6"
+      },
+      "stderr": {
+        "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\r6-deferral-delivery-20260913\\attempt1\\openspec-ci.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "openspec-all",
+      "exit": 0,
+      "stdout": {
+        "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\r6-deferral-delivery-20260913\\attempt1\\openspec-all.stdout.log",
+        "sha256": "cc90ade73c964f27cfcde5ca721882bbaef3d4c6cab944254433acb7eafcd407"
+      },
+      "stderr": {
+        "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\r6-deferral-delivery-20260913\\attempt1\\openspec-all.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "final-status",
+      "exit": 0,
+      "stdout": {
+        "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\r6-deferral-delivery-20260913\\attempt1\\final-status.stdout.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\r6-deferral-delivery-20260913\\attempt1\\final-status.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "normalHook": "Passed; original documentation-only build exemption retained. No product build claim.",
+  "independentReview": {
+    "path": ".sisyphus/roadmap-completion-20260912/r6-deferral-publication-readiness-luna-20260913/review.json",
+    "sha256": "0a5fb52b11dd6cc8247e98f1312cad9bd591295d1c3c90e0367b2b8bcf265122",
+    "scope": "Independent historical source evidence readiness. Parent cap measurement concerns this single receipt, not its 15 referenced source files."
+  },
+  "processes": [
+    {
+      "pid": 62316,
+      "absent": true
+    },
+    {
+      "pid": 33608,
+      "absent": true
+    },
+    {
+      "pid": 40164,
+      "absent": true
+    }
+  ],
+  "rootIndexSha256": "a65b683940b6449651a074132f39d8b8da156ef5620af6aa1b62eb7c8698b953",
+  "rawEvidence": [
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r6-deferral-delivery-20260913/admission.json",
+      "sha256": "3879d8665504016ca974f7696c80f90a80873b7b941781efd5af87bd962124ec"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r6-deferral-delivery-20260913/attempt1/commit-gates.json",
+      "sha256": "2da92a9b8695692dfb9b9f2676b105d4de5cf67d8974d237e7218bfbfb7a8923"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r6-deferral-delivery-20260913/source-byte-check.json",
+      "sha256": "fb55984abcd50a362f9c53c079cc10d23137598e7c9a1216dd50c09d2834c790"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r6-deferral-delivery-20260913/publication-payload.json",
+      "sha256": "791c17bed75eb05164f55530cf03c3affae0e06fe8387783a5782dbdbdc9e454"
+    }
+  ],
+  "publication": "Not yet attempted; exact payload prepared. Six other existing publication blocks unaffected.",
+  "limits": "Historical source disposition only; original tasks8.1–8.3 remain unchecked, explicitfuturedeferrals retained. No runtimeproof, sourcepatch, productioncutover or CAMPwaiver."
+}

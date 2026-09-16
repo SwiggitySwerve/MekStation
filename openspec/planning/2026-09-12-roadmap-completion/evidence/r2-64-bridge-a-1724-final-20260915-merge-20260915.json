@@ -1,0 +1,52 @@
+{
+  "pr": 1724,
+  "branch": "codex/roadmap-r2-64-a-cas-bridge-20260915",
+  "reviewedCommit": "a5edc507f97d46ca3ee3ffebcbb4f42f1556815e",
+  "finalHead": "f3933d8cb5e79b67c2901c4dccfe52bddd7e3fad",
+  "autoMergeArmed": false,
+  "contentGuard": {
+    "method": "file set from `git diff --name-only origin/main...<head>` vs the reviewed file set, plus per-file blob equality against the reviewed commit; re-run after update-branch",
+    "fileCountAtMerge": 2,
+    "blobEquality": "all files blob-identical to the reviewed commit at the gated head",
+    "result": "PASS"
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "expectedHeadShaGuardUsed": true,
+    "newHead": "f3933d8cb5e79b67c2901c4dccfe52bddd7e3fad"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "otherChecksCount": 27,
+    "otherChecksBuckets": {
+      "pass": 27
+    },
+    "totalChecks": 31
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-64-bridge-a-1724-final-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "231c7848aa0850b616a84581ff3c54e1d5ddb6bf",
+  "mergeCommitParents": [
+    "fbb3f2c81f6d7f2b2a9f80e3d9f94c332d2dbfae"
+  ],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1724 --squash --match-head-commit f3933d8cb5e79b67c2901c4dccfe52bddd7e3fad",
+  "mergedAt": "2026-09-15T15:24:01Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "The merge commit changes exactly 2 file(s), all blob-identical to the gated head f3933d8cb5e79b67c2901c4dccfe52bddd7e3fad.",
+  "mainAfter": "231c7848aa0850b616a84581ff3c54e1d5ddb6bf",
+  "worktree": {
+    "fastForward": "NOT PERFORMED - coordinator designated the owned worktrees as off-limits for these PRs",
+    "result": "SKIPPED (intentional)"
+  },
+  "notes": "Predicted-clean case CONFIRMED: never went DIRTY. src/types/campaign/SerializedCampaign.ts dropped out of the diff entirely after update-branch because its hunk was byte-identical to the 6.1 copy already on main via 1721, leaving the PR two own files (607+/11-), both blob-identical to the reviewed head.",
+  "timestamps": {
+    "receiptWrittenAt": "2026-09-15T17:02:00Z"
+  }
+}

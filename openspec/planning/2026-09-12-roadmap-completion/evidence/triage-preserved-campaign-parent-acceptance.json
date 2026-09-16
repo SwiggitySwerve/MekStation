@@ -1,0 +1,61 @@
+{
+  "recordedAt": "2026-09-12T14:28:45.016Z",
+  "receipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-preserved-campaign.json",
+    "sha256": "790fe20a2adc0a57d38948d2f21015d7d755e2a9afd7e0500cf7f1f06112c256"
+  },
+  "verifiedFiles": [
+    "docs/audits/2026-09-12-customizer-spec-reconciliation/inventory.json",
+    "openspec/specs/campaign-bay-ui/spec.md",
+    "src/lib/campaign/bays/resolveMechBayUnit.ts",
+    "src/components/campaign/bays/MechBay.tsx",
+    "src/lib/campaign/customizer/campaignCustomizerRoute.ts",
+    "src/components/campaign/bays/__tests__/MechBay.test.tsx",
+    "openspec/specs/campaign-hud/spec.md",
+    "src/lib/campaign/hooks/useCampaignDashboardSummary.ts",
+    "src/stores/campaign/campaignCommandSelectors.ts",
+    "src/lib/campaign/hooks/__tests__/useCampaignDashboardSummary.test.ts",
+    "openspec/specs/campaign-persistence/spec.md",
+    "src/lib/campaign/persistence/campaignEnvelope.ts",
+    "src/lib/campaign/persistence/serializeCampaign.ts",
+    "src/types/campaign/SerializedCampaign.ts",
+    "src/lib/campaign/authority/campaignAdoptedUnitReference.ts",
+    "src/stores/campaign/useCampaignPersistenceStore.ts",
+    "src/lib/campaign/authority/__tests__/campaignAdoptedUnitReference.test.ts",
+    "src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts",
+    "src/stores/campaign/__tests__/campaignPersistenceRoundTrip.test.ts",
+    "openspec/specs/campaign-unit-combat-state/spec.md",
+    "src/types/campaign/UnitCombatState.ts",
+    "src/types/campaign/RosterUnitProjection.ts",
+    "src/types/campaign/Campaign.ts",
+    "src/stores/campaign/campaignRosterStore.types.ts",
+    "src/stores/campaign/useCampaignRosterStore.ts",
+    "src/components/campaign/RosterStateCards.tsx",
+    "src/types/campaign/CampaignInterfaces.types.ts",
+    "src/types/campaign/CampaignInterfaces.runtime.ts",
+    "src/lib/campaign/processors/postBattleProcessor.ts",
+    "src/lib/campaign/processors/repairQueueBuilderProcessor.ts",
+    "src/lib/campaign/processors/__tests__/repairQueueBuilderProcessor.test.ts",
+    "src/types/campaign/__tests__/CampaignInterfaces.test.ts",
+    "openspec/specs/event-store/spec.md",
+    "src/lib/events/journal/EventJournalContract.ts",
+    "src/lib/events/journal/SQLiteEventJournal.ts",
+    "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+    "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts",
+    "src/lib/events/journal/__tests__/EventJournalConformance.ts",
+    "src/lib/events/journal/__tests__/SQLiteEventJournalTestHarness.ts",
+    "src/lib/events/journal/__tests__/SQLiteEventJournalConformance.test.ts",
+    "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts",
+    "src/lib/campaign/sync/__tests__/campaignJournalAuthorityEnabled.test.ts"
+  ],
+  "exactSpecReconstruction": {
+    "path": "openspec/specs/campaign-unit-combat-state/spec.md",
+    "beforeSha256": "d5c1a3fc09aeb76de796cc5fc1280304a72ce3528115dac643246164e46b372e",
+    "afterSha256": "1f1a01edd4ab3297c1fa2db096b21ea0f5edf6eb9c3e0f39967d2480a960e860"
+  },
+  "limits": [
+    "Source-level finite inventory review only; tests referenced by the worker were inspected but not executed in this receipt.",
+    "Four completed migration boundaries are documented; max-state damage-bar calculation remains unfinished and must retain an explicit roadmap owner.",
+    "Production campaign journal authority is disabled; fixture opt-in is not production cutover."
+  ]
+}

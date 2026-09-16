@@ -1,0 +1,88 @@
+{
+  "pr": 1678,
+  "branch": "codex/roadmap-ci-customizer-gate-20260915",
+  "reviewedCommit": "c3f2fc80e271c940d9d14730ec1eda9ffe21ba8d",
+  "finalHead": "d176dc3e0d785820ab78efd03ec78fea86a81e58",
+  "anomaly": null,
+  "autoMergeArmed": false,
+  "priorPhase": "This PR was OBSERVE-ONLY earlier in the session; that observation is recorded separately at evidence/ci-prefix2-1678-observation-20260915.json. It was released for merge after #1682 (paper-size settle) landed on main, so that this run's Customizer Regressions job would include the settle fix.",
+  "contentGuard": {
+    "postUpdate": {
+      "fileSetSize": 9,
+      "fileSetAsSpecified": true,
+      "files": [
+        ".github/workflows/nightly-validation.yml",
+        ".github/workflows/pr-checks.yml",
+        "openspec/active-change-ledger.json",
+        "openspec/changes/add-customizer-pr-regression-gate/.openspec.yaml",
+        "openspec/changes/add-customizer-pr-regression-gate/design.md",
+        "openspec/changes/add-customizer-pr-regression-gate/proposal.md",
+        "openspec/changes/add-customizer-pr-regression-gate/specs/e2e-testing/spec.md",
+        "openspec/changes/add-customizer-pr-regression-gate/tasks.md",
+        "scripts/qc/validate-openspec-ci-quality.mjs"
+      ],
+      "blobEquality": "all 9 blobs identical to c3f2fc80e, including openspec/active-change-ledger.json (the update-branch 3-way merge left it byte-identical to the reviewed side)",
+      "result": "PASS"
+    }
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "oldHead": "c3f2fc80e271c940d9d14730ec1eda9ffe21ba8d",
+    "newHead": "d176dc3e0d785820ab78efd03ec78fea86a81e58",
+    "expectedHeadShaGuard": "c3f2fc80e271c940d9d14730ec1eda9ffe21ba8d",
+    "reason": "branch was BEHIND; update was also deliberately sequenced AFTER #1682 so the Customizer Regressions run would exercise the settle fix"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "otherChecksCount": 27,
+    "otherChecksBuckets": { "pass": 27 },
+    "totalChecks": 31,
+    "pollLog": "08:01:42 2 pending / CUSTREG absent -> 08:08:46 31 pass / 0 pending / CUSTREG pass"
+  },
+  "customizerRegressions": {
+    "present": true,
+    "ran": true,
+    "skipped": false,
+    "name": "Customizer Regressions",
+    "bucket": "pass",
+    "state": "SUCCESS",
+    "conclusion": "SUCCESS",
+    "runId": "34944696611",
+    "jobId": "104301323788",
+    "link": "https://github.com/SwiggitySwerve/MekStation/actions/runs/34944696611/job/104301323788",
+    "startedAt": "2026-09-15T08:02:11Z",
+    "completedAt": "2026-09-15T08:07:58Z",
+    "durationSec": 347,
+    "includedSettleFix": true,
+    "settleFixEvidence": "The branch was updated onto main at 79de4f195, which already contained #1682's paper-size settle change to e2e/customizer-record-sheet-rendering.spec.ts; this 347s run therefore exercised the post-settle spec.",
+    "comparisonToObservationRun": "The earlier observe-only run (34940815550 / job 104289034959) took 335s on the pre-settle base; this post-settle run took 347s. Both SUCCESS, both clearly executed rather than skipped."
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ci-customizer-gate-1678-final-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "0f86b4ee9e7b8fb7ffdad499bc60209e5358586b",
+  "mergeCommitParents": ["79de4f19591f72c3d5295c2ac71118589027ed36"],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1678 --squash --match-head-commit d176dc3e0d785820ab78efd03ec78fea86a81e58",
+  "mergedAt": "2026-09-15T08:09:11Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "The merge commit changes exactly the 9 guarded files, all blob-identical to the gated head.",
+  "mainAfter": "0f86b4ee9e7b8fb7ffdad499bc60209e5358586b",
+  "sideEffect": "With this merged, 'Customizer Regressions' is now a standing check on main: subsequent PRs in this session report 31 checks instead of 30.",
+  "worktree": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/ci-customizer-gate-20260915",
+    "fastForward": "NOT PERFORMED - per coordinator instruction (worktree is on another branch)",
+    "result": "SKIPPED (intentional)"
+  },
+  "timestamps": {
+    "releasedAt": "2026-09-15T08:01:00Z",
+    "checksTerminalAt": "2026-09-15T08:08:46Z",
+    "mergedAt": "2026-09-15T08:09:11Z",
+    "receiptWrittenAt": "2026-09-15T08:18:30Z"
+  }
+}

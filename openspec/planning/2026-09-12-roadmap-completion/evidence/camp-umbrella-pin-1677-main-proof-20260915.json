@@ -1,0 +1,45 @@
+{
+  "proof": "PROOF 3 -- PR #1677 (umbrella pin)",
+  "commitTested": {
+    "merge": "2d410f3ca4d7153497c94ee2944618ee735e99af",
+    "mergeSubject": "test(qc): pin the three drifted camp01 suites into the umbrella (#1677)",
+    "reviewedHead": "f81a154e5f4abead13a66e0e2ec218b793deaf61",
+    "reviewedHeadSubject": "test(qc): pin the three drifted camp01 suites into the umbrella"
+  },
+  "blobEquality": [
+    {
+      "path": "package.json",
+      "mergeOid": "db797e9e47100e4d0af5b77a29c400e12cb9a4f2",
+      "reviewedHeadOid": "db797e9e47100e4d0af5b77a29c400e12cb9a4f2",
+      "match": true
+    },
+    {
+      "path": "scripts/__tests__/run-viewport-sweep.test.ts",
+      "mergeOid": "62f1be0a005a4466fa7304678dee98604e0c8c44",
+      "reviewedHeadOid": "62f1be0a005a4466fa7304678dee98604e0c8c44",
+      "match": true
+    }
+  ],
+  "commands": [
+    {
+      "cmd": "node node_modules/jest/bin/jest.js --runInBand --coverage=false --runTestsByPath scripts/__tests__/run-viewport-sweep.test.ts",
+      "exitCode": 0,
+      "counts": "Test Suites: 1 passed, 1 total; Tests: 12 passed, 12 total",
+      "logPath": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/main-proof-1675-1677-20260915/proof3-viewport-sweep-jest.log",
+      "sha256": "6f574983d55fc05b7872d013361fa58009668b30bade52adb47b4e45d08366a0"
+    },
+    {
+      "cmd": "npm run qc:camp01-authority-receipt:test",
+      "exitCode": 0,
+      "counts": "Test Suites: 28 passed, 28 total; Tests: 10 skipped, 753 passed, 763 total; Time: 283.378 s",
+      "logPath": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/main-proof-1675-1677-20260915/proof3-camp01-authority-receipt.log",
+      "sha256": "024282aa3290f77553a6f0c05701259d657f23f94cff8c558c65f460c7693be6"
+    }
+  ],
+  "environment": {
+    "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/history-sql-integrity",
+    "node": "v22.22.0",
+    "checkoutMode": "git checkout --detach 2d410f3ca4d7153497c94ee2944618ee735e99af"
+  },
+  "result": "PASS -- both blobs identical between merge and reviewed head; viewport sweep 12/12 and camp01 authority receipt umbrella 28 suites / 753 passed / 10 skipped exactly as expected."
+}

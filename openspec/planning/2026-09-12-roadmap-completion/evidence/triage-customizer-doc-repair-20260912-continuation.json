@@ -1,0 +1,212 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "triage-customizer-doc-repair-20260912-continuation",
+  "capturedAt": "2026-09-12",
+  "worktree": "E:/Projects/MekStation",
+  "baseline": "be7f85b867aa3e8576e5e3d27e309276203bc24b",
+  "fetchedOriginMain": "6c4eac5c7b7a2aece3aab0443ce606943db6cf0b",
+  "scope": "Four source-grounded repairs to canonical customizer specifications identified by triage-preserved-customizer.json. No product code, tests, generated data, roadmap, task, checkbox, ledger, or other specification files were changed.",
+  "ownedPaths": [
+    "openspec/specs/aerospace-unit-system/spec.md",
+    "openspec/specs/app-settings/spec.md",
+    "openspec/specs/equipment-tray/spec.md",
+    "openspec/specs/protomech-unit-system/spec.md",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-customizer-doc-repair-20260912-continuation.json"
+  ],
+  "preexistingWorktreeNote": "The checkout was already dirty with unrelated reconciliation, workflow, source, test, and audit changes. They were preserved. No Git state mutation was performed.",
+  "specHashes": [
+    {
+      "path": "openspec/specs/aerospace-unit-system/spec.md",
+      "beforeSha256": "1c4d2082e70a13d58d71855b74bce7f536987fc4c5a56f9a7fa47101347b3c0b",
+      "afterSha256": "cf4458cc59f358faee783038b3b9100ce33046ac23d23cec1368e3c2df17f329"
+    },
+    {
+      "path": "openspec/specs/app-settings/spec.md",
+      "beforeSha256": "16517c1fdc440bb42c6927133e44500617a076c938c3a14a0296c2ce7aa7894a",
+      "afterSha256": "c9f4050741ff601ae429b51417ab74b0cf8020c019fc05418e7d47ee731514cc"
+    },
+    {
+      "path": "openspec/specs/equipment-tray/spec.md",
+      "beforeSha256": "ba463cd83f2270393c3caf40ce4c40b7348b0c4bd3396a317d33be8c6fa0675c",
+      "afterSha256": "7f8a1b314cc583c355ff51e7eb7640724ee8a40abe2af9bc5900a63487304e4b"
+    },
+    {
+      "path": "openspec/specs/protomech-unit-system/spec.md",
+      "beforeSha256": "11a127cb4055fe36bc5b4a91d02284d26fcc73474faf8ebcfe6dbf41f25d3d56",
+      "afterSha256": "455a4a0b5415d965364095d7a49f6f3d9d15211cdea69774dc101321a264eb77"
+    }
+  ],
+  "repairs": [
+    {
+      "id": "aerospace-unit-system",
+      "path": "openspec/specs/aerospace-unit-system/spec.md",
+      "specLines": "1352-1354",
+      "before": "Initial specification documenting fully-implemented aerospace unit system",
+      "after": "Initial specification documenting the implemented aerospace state, BLK parsing, validation rules, and customizer/renderer seams; aerospace deserialization remains planned",
+      "sourceAnchors": [
+        {
+          "path": "src/services/units/handlers/AerospaceUnitHandler.ts",
+          "lines": "140-147",
+          "sha256": "044ba686fe4c99888264ddb44adf2b25afb4957c2eed14443aee083bdd88f531",
+          "evidence": "deserialize returns createFailureResult with Aerospace deserialization not yet implemented."
+        },
+        {
+          "path": "src/components/customizer/aerospace/AerospaceCustomizer.tsx",
+          "lines": "31-40,65-148",
+          "sha256": "a86ad73036c168001d1c4830848a040fc9958e14d428316467ddf7f44944a4f8",
+          "evidence": "Live registry-driven aerospace customizer shell and tabs."
+        },
+        {
+          "path": "src/services/printing/svgRecordSheetRenderer/aerospaceRenderer.ts",
+          "lines": "47-166",
+          "sha256": "a398eb8975b151263a0ff12d39277b18a4c52d8eddcaebada8316492173b8d37",
+          "evidence": "Live aerospace renderer field and equipment/footer seams."
+        }
+      ],
+      "retainedDeferral": "Serialized aerospace deserialization remains planned; no implementation or completion claim was added."
+    },
+    {
+      "id": "app-settings",
+      "path": "openspec/specs/app-settings/spec.md",
+      "specLines": "134-135,150-152,223-228",
+      "before": "Stale useAppSettingsStore and ArmorDiagramGridPreview implementation-map references",
+      "after": "Store usage is described through applicable stores; the map names live src paths for useCustomizerSettingsStore, CustomizerSettings, and ArmorDiagramModePreview. Persistence wording now uses store-specific keys with the live customizer key as an example.",
+      "sourceAnchors": [
+        {
+          "path": "src/stores/useCustomizerSettingsStore.ts",
+          "lines": "103-107,189-217",
+          "sha256": "4a8d1c8b61d974fef6ab493d3bd852c1222bf6a0dfbe495fa19f7e9154c43f29",
+          "evidence": "Live customizer settings store and persisted key `mekstation-customizer-settings`."
+        },
+        {
+          "path": "src/components/settings/CustomizerSettings.tsx",
+          "lines": "3-5,13-71",
+          "sha256": "e829b835b6fa956d198de7f0d27c52977a0064abb30c5b8160f425943f7c96bb",
+          "evidence": "Live settings form reads useCustomizerSettingsStore and renders ArmorDiagramModePreview."
+        },
+        {
+          "path": "src/components/customizer/armor/ArmorDiagramPreview.tsx",
+          "lines": "323-365",
+          "sha256": "b7626e8078de3d0dd42877cc401ef43971ea1776b9889c74300ce5c51e3031ef",
+          "evidence": "ArmorDiagramModePreview is the live mode preview export."
+        }
+      ],
+      "retainedDeferral": "Fresh browser persistence, route-transition, and accessibility proof remain planned; this repair changes documentation paths and wording only."
+    },
+    {
+      "id": "equipment-tray",
+      "path": "openspec/specs/equipment-tray/spec.md",
+      "specLines": "211-232",
+      "before": "Structural equipment was described as excluded from the tray while later requirements required structural display.",
+      "after": "Structural components are excluded from assignable Unassigned/Mounted groups, while non-removable structural entries are grouped under Fixed systems and critical slots remain visible in Critical Slots.",
+      "sourceAnchors": [
+        {
+          "path": "src/components/customizer/equipment/GlobalLoadoutTray.tsx",
+          "lines": "66-99,302-324",
+          "sha256": "73a38ffc7a33eaf42bddfebdddad8a9f9a0ba3736715e47392bde48f736aab92",
+          "evidence": "Items are partitioned into unassigned, mounted, and fixedSystems; fixed systems render in a dedicated Fixed systems section."
+        },
+        {
+          "path": "src/components/customizer/equipment/GlobalLoadoutTray.helpers.ts",
+          "lines": "49-54",
+          "sha256": "d551bb9279ae7bbb3209c83cc71ef19d9a42d41bbce9c1ce7469471d347e0d9c",
+          "evidence": "Non-removable items are classified as fixed systems."
+        }
+      ],
+      "retainedDeferral": "Responsive, persistence, and removal browser proof remain planned."
+    },
+    {
+      "id": "protomech-unit-system",
+      "path": "openspec/specs/protomech-unit-system/spec.md",
+      "specLines": "730-746,838-845",
+      "before": "Customizer was described as Structure-only with no equipment or preview tabs.",
+      "after": "The spec documents the registry-driven tab shell, live Preview path, registered Equipment placeholder, active-tab rendering with Structure default, and the current store's 2-9 ton clamp while retaining Ultraheavy construction as unresolved.",
+      "sourceAnchors": [
+        {
+          "path": "src/components/customizer/shared/tabRegistry.tsx",
+          "lines": "443-497",
+          "sha256": "064386c991c71ed9e5188eb15630f12fe380d1035ec02178630a28fa9b1ab07d",
+          "evidence": "PROTOMECH_TABS registers overview, structure, armor, mainGun, equipment, conditional glider, preview, and fluff."
+        },
+        {
+          "path": "src/components/customizer/protomech/ProtoMechEquipmentTab.tsx",
+          "lines": "1-35",
+          "sha256": "c45a0da9ccf8a9f025948fb6a8c8919c20bc09a47f25e70ce4b1042b630aab07",
+          "evidence": "Equipment tab body is an explicit add-protomech-construction placeholder."
+        },
+        {
+          "path": "src/components/customizer/protomech/ProtoMechPreviewTab.tsx",
+          "lines": "29-103",
+          "sha256": "c8069af09f2ebcca02cd910db67e461fb522beb1d8b12dede16651277d37e14b",
+          "evidence": "Preview tab reads the store and wires record-sheet preview and print actions."
+        },
+        {
+          "path": "src/stores/useProtoMechStore.ts",
+          "lines": "110-122",
+          "sha256": "7c36896f086c0dc72ed0113e0cec0f0f562a1f9ec484c4d7dc1da7acd2f626e3",
+          "evidence": "setTonnage clamps the active store to 2-9."
+        },
+        {
+          "path": "src/stores/protoMechState.ts",
+          "lines": "146-153",
+          "sha256": "6ac6b9049c340e34fd17b8fad6bc02ab389744565ecbd074c295e3b1cb9e632d",
+          "evidence": "State comment still mentions 2-15, so the spec records the active 2-9 store contract and leaves Ultraheavy construction unresolved."
+        }
+      ],
+      "retainedDeferral": "Equipment construction, simplified BV/cost/IS behavior, deserialization, and fresh browser/renderer proof remain planned."
+    }
+  ],
+  "validation": [
+    {
+      "command": "npx.cmd openspec validate aerospace-unit-system --strict",
+      "exitCode": 0,
+      "rawOutput": "Specification 'aerospace-unit-system' is valid"
+    },
+    {
+      "command": "npx.cmd openspec validate app-settings --strict",
+      "exitCode": 0,
+      "rawOutput": "Specification 'app-settings' is valid"
+    },
+    {
+      "command": "npx.cmd openspec validate equipment-tray --strict",
+      "exitCode": 0,
+      "rawOutput": "Specification 'equipment-tray' is valid"
+    },
+    {
+      "command": "npx.cmd openspec validate protomech-unit-system --strict",
+      "exitCode": 0,
+      "rawOutput": "Specification 'protomech-unit-system' is valid"
+    },
+    {
+      "command": "npm.cmd exec -- prettier --check openspec/specs/aerospace-unit-system/spec.md openspec/specs/app-settings/spec.md openspec/specs/equipment-tray/spec.md openspec/specs/protomech-unit-system/spec.md",
+      "exitCode": 0,
+      "rawOutput": "Checking formatting...\nAll matched files use Prettier code style!"
+    },
+    {
+      "command": "git diff --check -- openspec/specs/aerospace-unit-system/spec.md openspec/specs/app-settings/spec.md openspec/specs/equipment-tray/spec.md openspec/specs/protomech-unit-system/spec.md",
+      "exitCode": 0,
+      "rawOutput": ""
+    },
+    {
+      "command": "ConvertFrom-Json evidence/triage-customizer-doc-repair-20260912-continuation.json",
+      "exitCode": 0,
+      "rawOutput": "JSON valid; ownedPaths=5; repairs=4"
+    },
+    {
+      "command": "npm.cmd exec -- prettier --check evidence/triage-customizer-doc-repair-20260912-continuation.json openspec/specs/aerospace-unit-system/spec.md openspec/specs/app-settings/spec.md openspec/specs/equipment-tray/spec.md openspec/specs/protomech-unit-system/spec.md",
+      "exitCode": 0,
+      "rawOutput": "Checking formatting...\nAll matched files use Prettier code style!"
+    },
+    {
+      "command": "npx.cmd oxfmt --check openspec/specs/aerospace-unit-system/spec.md openspec/specs/app-settings/spec.md openspec/specs/equipment-tray/spec.md openspec/specs/protomech-unit-system/spec.md",
+      "exitCode": 1,
+      "rawOutput": "Expected at least one target file",
+      "note": "Oxfmt does not accept Markdown targets in this checkout; the applicable scoped Markdown formatter check is the passing Prettier command above."
+    }
+  ],
+  "limits": [
+    "No tests, builds, servers, browser runs, generated data, or runtime changes were performed.",
+    "The receipt proves source-to-spec reconciliation and strict spec validity only; it does not prove whole capability completion or fresh runtime behavior.",
+    "Recommendations and disposition remain subject to parent review and acceptance."
+  ]
+}

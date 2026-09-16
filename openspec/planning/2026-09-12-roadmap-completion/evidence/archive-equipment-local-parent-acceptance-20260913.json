@@ -1,0 +1,66 @@
+{
+  "at": "2026-09-13T08:14:58.245Z",
+  "state": "local-verified",
+  "base": "44b94adbbb333a9d4965e057b34290e19fc0e781",
+  "scope": "Five byte-identical equipment archive moves; only six-line named ledger removal",
+  "independentReview": "Terra/high APPROVE",
+  "gates": "strict OpenSpec, purpose, terminology, quality and diffcheck passed",
+  "limits": [
+    "Documentation archive only; committed original combined browser suite remains3/4. Equipment two cases passed independently.",
+    "No publication, exact-main archive proof or cleanup yet."
+  ],
+  "files": [
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/archive-equipment-review-terra-20260913/report.json",
+      "sha256": "392d3a99d281c59ad8eba1e72ba6ca690b946412ae8682d4827a4eccb93748f9"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/archive-equipment-review-terra-20260913/review.md",
+      "sha256": "cae4bb3dcb81d1903f8603d27d6c7780dc079f1d47ff3f789978c15897af7a58"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/archive-equipment-parent-gates-20260913/report.json",
+      "sha256": "4a613ecac76e359f7f255a72feed29d1f72738b390864a292fbf271855abad23"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/archive-equipment-parent-gates-20260913/driver-status.json",
+      "sha256": "29c626baa9a1b6026782f98825be25e50a04dff22b43c1f82bb773792822aace"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/archive-equipment-parent-gates-20260913/parent-source-review.json",
+      "sha256": "95a603ff3b0e46f80c90eb61d89b4aaa8ae9e448f8cbb3f8996ae9657445f4ad"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/archive-equipment-parent-gates-20260913/purpose.stdout.log",
+      "sha256": "8242594fd152f5bda0d934dfc506a85563a8dca907fea84a85f362ff2db2a122"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/archive-equipment-parent-gates-20260913/purpose.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/archive-equipment-parent-gates-20260913/terminology.stdout.log",
+      "sha256": "466b95b1deac243fb70c64df4ba36a4e7e61890b8157c63ea052abbd57cd16b1"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/archive-equipment-parent-gates-20260913/terminology.stderr.log",
+      "sha256": "11c9b3af3def313c095bcfc122001c367023827967aa0365704f293905e4ff9c"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/archive-equipment-parent-gates-20260913/openspec.stdout.log",
+      "sha256": "db077f0e73ad09a8ebae1408e2ce4bba7faa98e754ef86e02ba54d52dc7ee2c2"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/archive-equipment-parent-gates-20260913/openspec.stderr.log",
+      "sha256": "5bc31df123a2e521acdd2c0d9477b367feec506471a91065d0a6b32c09089ed5"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/archive-equipment-parent-gates-20260913/quality.stdout.log",
+      "sha256": "93add825658a06fdd24118cf462b5b9505da537e9d26b460b2487b609d352526"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/archive-equipment-parent-gates-20260913/quality.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

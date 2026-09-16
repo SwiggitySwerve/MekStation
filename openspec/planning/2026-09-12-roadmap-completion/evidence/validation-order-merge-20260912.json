@@ -1,0 +1,14 @@
+{
+  "at": "2026-09-12T19:37:01.981Z",
+  "node": "R9.validation-order",
+  "pr": {
+    "number": 1642,
+    "url": "https://github.com/SwiggitySwerve/MekStation/pull/1642",
+    "head": "5dfcf0182e88dfac97e613795fc4738471e5c91d",
+    "merge": "ca0687d25264033376862347e494ddf15cd92bec"
+  },
+  "premerge": "evidence/validation-order-attempt-2-premerge.json",
+  "exactMainTreeMatchesReviewedHead": true,
+  "status": "merged; fresh exact-main checks running, cleanup pending",
+  "reviewedSourceHashes": "evidence/validation-order-local-verification-20260912.json"
+}

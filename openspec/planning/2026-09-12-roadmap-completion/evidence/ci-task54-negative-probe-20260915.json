@@ -1,0 +1,106 @@
+{
+  "task": "roadmap R1.ci task 5.4 — failing owned negative probe closed unmerged",
+  "purpose": "Prove the 'Customizer Regressions' CI gate (carried by workflow on branch codex/roadmap-ci-customizer-gate-20260915, head c3f2fc80e2) actually fails the build and blocks the required 'Lint and Test' aggregator when a customizer e2e case breaks. Complements the positive-path evidence already captured on parent PR #1678 (run 34940815550), which showed the gate passing on a real change.",
+  "base_commit": "c3f2fc80e2",
+  "base_branch_note": "prefix-2 head carrying the Customizer Regressions job in the workflow, per codex/roadmap-ci-customizer-gate-20260915",
+  "worktree": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/ci-negative-probe-20260915",
+    "branch": "codex/roadmap-ci-negative-probe-20260915",
+    "created_from": "c3f2fc80e2",
+    "removed_after": true
+  },
+  "probe_commit": {
+    "sha": "33c1f3ce60c003e30ef1122aa589f015771b8920",
+    "message": "probe(ci): intentional customizer failure for R1.ci task 5.4 negative probe (do not merge)",
+    "author": "Wes Rollings <wrollings@gmail.com>",
+    "diff": "diff --git a/e2e/customizer-equipment-catalog.spec.ts b/e2e/customizer-equipment-catalog.spec.ts\nindex a36276a65..feab7d370 100644\n--- a/e2e/customizer-equipment-catalog.spec.ts\n+++ b/e2e/customizer-equipment-catalog.spec.ts\n@@ -134,6 +134,7 @@ async function rowName(row: Locator) {\n test('electronics and compatible ammo update without changing unrelated filters @customizer', async ({\n   page,\n }, testInfo) => {\n+  expect(1, 'roadmap R1.ci task 5.4 negative probe: intentional failure, never merge').toBe(2);\n   await loadAtlas(page);\n   const search = page.getByRole('textbox', {\n     name: 'Search equipment',",
+    "files_changed": ["e2e/customizer-equipment-catalog.spec.ts"],
+    "insertions": 1,
+    "deletions": 0
+  },
+  "pull_request": {
+    "number": 1680,
+    "url": "https://github.com/SwiggitySwerve/MekStation/pull/1680",
+    "title": "[NEGATIVE PROBE — DO NOT MERGE] R1.ci task 5.4: customizer gate must block",
+    "base": "main",
+    "head": "codex/roadmap-ci-negative-probe-20260915",
+    "auto_merge_armed": false,
+    "final_state": "CLOSED",
+    "merged": false,
+    "closed_via": "gh pr close 1680 --comment",
+    "close_comment": "Negative probe complete: Customizer Regressions FAILURE + Lint and Test aggregator red observed; closed unmerged per roadmap R1.ci task 5.4."
+  },
+  "workflow_run": {
+    "run_id": "34941958817",
+    "run_url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/34941958817"
+  },
+  "observed_checks": {
+    "customizer_regressions": {
+      "name": "Customizer Regressions",
+      "job_id": "104292621602",
+      "job_url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/34941958817/job/104292621602",
+      "conclusion": "FAILURE",
+      "bucket": "fail",
+      "first_seen": "2026-09-15T07:30:47Z",
+      "terminal_seen": "2026-09-15T07:35:58Z",
+      "approx_duration": "~5m"
+    },
+    "lint_and_test_aggregator": {
+      "name": "Lint and Test",
+      "job_id": "104294031008",
+      "job_url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/34941958817/job/104294031008",
+      "conclusion": "FAILURE",
+      "bucket": "fail",
+      "terminal_seen": "2026-09-15T07:35:58Z"
+    },
+    "unrelated_pre_existing_failure": {
+      "name": "Format Check",
+      "job_id": "104292621184",
+      "conclusion": "FAILURE",
+      "note": "Failing from the earliest snapshot (07:30:47), before the probe's own test run started (~07:33:43-07:35:04). Pre-existing on base c3f2fc80e2, unrelated to the injected assertion; not part of the R1.ci task 5.4 proof."
+    },
+    "other_jobs": "All other jobs in run 34941958817 (Unit Tests 1-6/6, Type Check, Lint, A11y Tests, Determinism Audit, Coverage Floor, Desktop Tests, Desktop Type Check, E2E Smoke, Statistical Proof PR, Perf Budget PR, Perf Smoke Tests, Validate BV Parity, Validate Combat Suite, Schema Bridge, Build Storybook, Seam Anchors, Build Test / mac, linux, win, Install Dependencies, Detect Changes, Prepare Build Artifacts) reached SUCCESS."
+  },
+  "decisive_log_lines": {
+    "source": "gh run view 34941958817 --job 104292621602 --log",
+    "job_step": "Run customizer browser regressions",
+    "lines": [
+      "1) [chromium] \u203a e2e/customizer-equipment-catalog.spec.ts:134:5 \u203a electronics and compatible ammo update without changing unrelated filters @customizer",
+      "Error: roadmap R1.ci task 5.4 negative probe: intentional failure, never merge",
+      "expect(received).toBe(expected) // Object.is equality",
+      "Expected: 2",
+      "Received: 1",
+      "> 137 |   expect(1, 'roadmap R1.ci task 5.4 negative probe: intentional failure, never merge').toBe(2);",
+      "at /home/runner/work/MekStation/MekStation/e2e/customizer-equipment-catalog.spec.ts:137:88",
+      "2 failed",
+      "[chromium] \u203a e2e/customizer-equipment-catalog.spec.ts:134:5 \u203a electronics and compatible ammo update without changing unrelated filters @customizer",
+      "[chromium] \u203a e2e/customizer-record-sheet-rendering.spec.ts:322:5 \u203a Print writes one current sheet into the reserved window at the selected paper @customizer",
+      "10 passed (1.3m)"
+    ],
+    "note": "A second, unrelated failure occurred in customizer-record-sheet-rendering.spec.ts:322 (paper backing-size mismatch/timeout) — a pre-existing flake in that spec, not caused by this probe's injected assertion. The decisive proof for R1.ci task 5.4 is the first failure, whose Error message is exactly the injected probe string at exactly the injected line (137)."
+  },
+  "cleanup": {
+    "remote_branch_deleted": "codex/roadmap-ci-negative-probe-20260915",
+    "remote_branch_delete_confirmed": true,
+    "worktree_removed": true,
+    "worktree_removed_at_commit": "33c1f3ce60c003e30ef1122aa589f015771b8920",
+    "local_branch_deleted": true,
+    "local_branch_delete_confirmed": true
+  },
+  "close_timestamp_utc": "2026-09-15T07:36:38Z",
+  "close_timestamp_source": "gh pr view 1680 --json closedAt",
+  "logs_directory": ".sisyphus/roadmap-completion-20260912/ci-negative-probe-20260915/",
+  "logs_files": [
+    "checks-t0.json",
+    "checks-20260915T072945Z.json",
+    "checks-20260915T073047Z.json",
+    "checks-20260915T073149Z.json",
+    "checks-20260915T073252Z.json",
+    "checks-20260915T073353Z.json",
+    "checks-20260915T073456Z.json",
+    "checks-20260915T073558Z.json",
+    "customizer-regressions-job-log-full.txt",
+    "decisive-log-lines.txt"
+  ],
+  "anomalies": "None outside the noted pre-existing Format Check failure and the unrelated record-sheet-rendering flake. Everything else matched expectation exactly."
+}

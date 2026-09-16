@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "triage-customizer-doc-independent-xhigh-review-20260912",
+  "capturedAt": "2026-09-12",
+  "route": "Luna/xhigh trial; independent bounded static review",
+  "worktree": "E:/Projects/MekStation",
+  "baseline": "be7f85b867aa3e8576e5e3d27e309276203bc24b",
+  "fetchedOriginMain": "6c4eac5c7b7a2aece3aab0443ce606943db6cf0b",
+  "scope": "Review only the newly repaired aerospace-unit-system, app-settings, equipment-tray, and protomech-unit-system canonical specs against the baseline and live code. No product/spec edits, tests, builds, servers, or Git mutations.",
+  "rawEvidence": ".sisyphus/roadmap-completion-20260912/spec-review-xhigh/review-raw.md",
+  "effort": {
+    "level": "high",
+    "elapsed": "approximately 35 minutes active wall-clock review; stopwatch not used",
+    "performanceOrCostClaim": false
+  },
+  "changedFiles": [
+    "openspec/specs/aerospace-unit-system/spec.md",
+    "openspec/specs/app-settings/spec.md",
+    "openspec/specs/equipment-tray/spec.md",
+    "openspec/specs/protomech-unit-system/spec.md"
+  ],
+  "specHashes": [
+    { "path": "openspec/specs/aerospace-unit-system/spec.md", "baselineSha256": "1c4d2082e70a13d58d71855b74bce7f536987fc4c5a56f9a7fa47101347b3c0b", "currentSha256": "cf4458cc59f358faee783038b3b9100ce33046ac23d23cec1368e3c2df17f329" },
+    { "path": "openspec/specs/app-settings/spec.md", "baselineSha256": "16517c1fdc440bb42c6927133e44500617a076c938c3a14a0296c2ce7aa7894a", "currentSha256": "c9f4050741ff601ae429b51417ab74b0cf8020c019fc05418e7d47ee731514cc" },
+    { "path": "openspec/specs/equipment-tray/spec.md", "baselineSha256": "ba463cd83f2270393c3caf40ce4c40b7348b0c4bd3396a317d33be8c6fa0675c", "currentSha256": "7f8a1b314cc583c355ff51e7eb7640724ee8a40abe2af9bc5900a63487304e4b" },
+    { "path": "openspec/specs/protomech-unit-system/spec.md", "baselineSha256": "11a127cb4055fe36bc5b4a91d02284d26fcc73474faf8ebcfe6dbf41f25d3d56", "currentSha256": "455a4a0b5415d965364095d7a49f6f3d9d15211cdea69774dc101321a264eb77" }
+  ],
+  "sourceHashes": {
+    "AerospaceUnitHandler.ts": "044ba686fe4c99888264ddb44adf2b25afb4957c2eed14443aee083bdd88f531",
+    "AerospaceCustomizer.tsx": "a86ad73036c168001d1c4830848a040fc9958e14d428316467ddf7f44944a4f8",
+    "aerospaceRenderer.ts": "a398eb8975b151263a0ff12d39277b18a4c52d8eddcaebada8316492173b8d37",
+    "useCustomizerSettingsStore.ts": "4a8d1c8b61d974fef6ab493d3bd852c1222bf6a0dfbe495fa19f7e9154c43f29",
+    "GlobalLoadoutTray.tsx": "73a38ffc7a33eaf42bddfebdddad8a9f9a0ba3736715e47392bde48f736aab92",
+    "GlobalLoadoutTray.helpers.ts": "d551bb9279ae7bbb3209c83cc71ef19d9a42d41bbce9c1ce7469471d347e0d9c",
+    "tabRegistry.tsx": "064386c991c71ed9e5188eb15630f12fe380d1035ec02178630a28fa9b1ab07d",
+    "ProtoMechEquipmentTab.tsx": "c45a0da9ccf8a9f025948fb6a8c8919c20bc09a47f25e70ce4b1042b630aab07",
+    "ProtoMechPreviewTab.tsx": "c8069af09f2ebcca02cd910db67e461fb522beb1d8b12dede16651277d37e14b",
+    "ProtoMechCustomizer.tsx": "9e56f548cdf05d3da116a50608ce54547ef4b17ee187b015b75a985c5189d10e",
+    "useProtoMechStore.ts": "7c36896f086c0dc72ed0113e0cec0f0f562a1f9ec484c4d7dc1da7acd2f626e3",
+    "InfantryUnitHandler.ts": "30fc7593f1fa69f4eb5989b0e86adcab005d94be6b817a0c4758bc6a9c39a95f"
+  },
+  "findings": [
+    {
+      "id": "settings-contract-and-schema-drift",
+      "severity": "P2",
+      "status": "follow-up",
+      "spec": "openspec/specs/app-settings/spec.md",
+      "lines": "132-152,206-219",
+      "finding": "The repaired text removes the exact localStorage key in favor of an example and retains a uiTheme-to-armor-diagram sync claim not evidenced by the split live stores.",
+      "evidence": [
+        "useAppearanceStore uses 'mekstation-appearance'; useAccessibilityStore uses 'mekstation-accessibility'; useCustomizerSettingsStore uses 'mekstation-customizer-settings'; useUIBehaviorStore uses 'mekstation-ui-behavior'.",
+        "GlobalStyleProvider reads appearance/accessibility; customizer armor reads useCustomizerSettingsStore."
+      ],
+      "impact": "The documentation contract is less precise and can imply synchronization that is not source-proven.",
+      "recommendedFollowUp": "Name the four authoritative keys and prove or remove the synchronization wording.",
+      "blocker": false
+    },
+    {
+      "id": "aerospace-file-count-map-stale",
+      "severity": "P2",
+      "status": "adjacent-preexisting-drift",
+      "spec": "openspec/specs/aerospace-unit-system/spec.md",
+      "lines": "1344",
+      "finding": "The related-documentation map still says the aerospace UI directory has six files; the live directory has 23.",
+      "impact": "Reference map is stale; the repaired changelog remains source-grounded.",
+      "recommendedFollowUp": "Refresh the map during the next aerospace documentation pass.",
+      "blocker": false
+    },
+    {
+      "id": "protomech-implementation-table-stale",
+      "severity": "P2",
+      "status": "follow-up",
+      "spec": "openspec/specs/protomech-unit-system/spec.md",
+      "lines": "721-738,821-830",
+      "finding": "The repaired hierarchy names Equipment and Preview components, but the implementation table omits both and retains stale approximate line counts.",
+      "impact": "The changed tab claims are accurate while the adjacent implementation map remains incomplete.",
+      "recommendedFollowUp": "Add the two files and refresh approximate counts when the documentation owner next edits the spec.",
+      "blocker": false
+    }
+  ],
+  "preservedDeferrals": [
+    "Aerospace deserialization remains planned and combat mechanics remain out of scope.",
+    "ProtoMech Equipment construction, deserialization, simplified calculations, and Ultraheavy construction remain planned or unresolved.",
+    "Infantry deserialization remains planned; its canonical spec was not changed in this review."
+  ],
+  "verification": {
+    "status": "source-grounded-no-blocker",
+    "diffBoundary": "Exactly four modified canonical spec paths against the requested baseline.",
+    "runtimeProof": false,
+    "testsBuildServersBrowsers": false,
+    "gitMutation": false
+  },
+  "conclusion": "No blocker found in the four repaired statements. Parent disposition is needed only for the bounded settings contract/schema follow-up and stale implementation maps.",
+  "limits": [
+    "No tests, builds, servers, browser runs, or formatter checks were performed.",
+    "Static source review cannot prove persistence, responsive behavior, renderer/print fidelity, or whole capability completion.",
+    "The equipment review did not exercise every imported structural-item path; it verified the current partition and generator seams only."
+  ]
+}

@@ -1,0 +1,443 @@
+{
+  "node": "R2.authority-cutover",
+  "slice": "CO3",
+  "artefact": "r2-authority-cutover-co3-local-20260915",
+  "capturedAtUtc": "2026-09-15T22:05:00.000Z",
+  "acceptanceLineUnderTest": "R2.authority-cutover roadmap.json acceptance[1]: 'Real durable source/restart and two-process scoped convergence before cutover acceptance; no E2E-only flag used as production proof.'",
+  "base": {
+    "branch": "codex/roadmap-r2-authority-cutover-co3-20260915",
+    "baseSha": "3d9ade77dcad0ede42777f33a88d4fe96ac19e06",
+    "baseRef": "origin/main",
+    "baseSubject": "fix(campaign): a committed command tells the cutover marker it happened (#1739)",
+    "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/proof02-rerun",
+    "verifiedBy": "git fetch origin; git log --oneline -3 origin/main; git checkout -q -B codex/roadmap-r2-authority-cutover-co3-20260915 origin/main; git rev-parse HEAD",
+    "stackDependency": {
+      "co0": "MERGED and present on this base. #1739 is the base commit itself (3d9ade77d). Its durable effect (recordFirstJournalAuthorityCommand reported from acknowledgeCommit) is asserted by this slice.",
+      "co1co2": "NOT MERGED AT CAPTURE TIME (2026-09-15T22:05Z): `git log --oneline -3 origin/codex/roadmap-r2-authority-cutover-co0-2-20260915` showed head 3543581b5 with PR #1740 still an open branch. SINCE MERGED: 566b60d02 'feat(campaign): give the cutover gate and the rollback law an operator surface (#1740)' is an ancestor of origin/main as of bff63c183. This slice branched from origin/main at 3d9ade77d, which predates that merge, so it carries no stack dependency on CO1/CO2 and no rollback-refused row.",
+      "authorityHost": "R2.authority-host (#1733) is on main by the base's ancestry; this slice adds no dependency on it beyond what main already carries."
+    }
+  },
+  "commits": [
+    {
+      "sha": "478055906934b6d3108154491601036769998d2d",
+      "subject": "test(campaign): a flag-free CLI that puts one campaign on journal authority",
+      "files": [
+        ".gitignore",
+        "scripts/e2e/campaign-journal-authority.ts"
+      ],
+      "nonGeneratedLines": 243
+    },
+    {
+      "sha": "b3c60763754a48ca63bfa9761584e7c388ef3c93",
+      "subject": "test(campaign): a two-process harness that shares one campaign database",
+      "files": [
+        "e2e/helpers/campaignJournalTwoProcess.ts"
+      ],
+      "nonGeneratedLines": 359
+    },
+    {
+      "sha": "3ed12c2300d9714c6a781919598a60834eae7b6d",
+      "subject": "test(campaign): the HTTP shapes the two-process cutover drive argues with",
+      "files": [
+        "e2e/helpers/campaignJournalDrive.ts"
+      ],
+      "nonGeneratedLines": 154
+    },
+    {
+      "sha": "c6be02fd6370576e3a1f5034c2395aaef19ba46f",
+      "subject": "test(campaign): two processes converge on one journal and survive a restart",
+      "files": [
+        "e2e/campaign-journal-two-process-convergence.spec.ts"
+      ],
+      "nonGeneratedLines": 476
+    }
+  ],
+  "commitDiscipline": {
+    "author": "Wes Rollings <wrollings@gmail.com> on all four (verified: git log -4 --format='%an <%ae>')",
+    "aiAttribution": "none (verified: `git log -4 --format='%B' | grep -ci 'claude|co-authored|generated with'` returned 0)",
+    "caps": "every commit is 1-2 files and <=476 non-generated lines; the four-way split exists BECAUSE the slice totals 1232 lines and the cap is 500 per commit - split rather than trimmed, as instructed",
+    "hooks": "on. Pre-commit ran lint-staged (oxlint --fix, oxfmt --write, tsc --noEmit) plus a full `npm run build` for each of the four commits. Committed bytes were diffed against the green-run bytes afterwards and are identical.",
+    "pushed": false,
+    "prOpened": false,
+    "gitignore": "scripts/** is ignored with an explicit allowlist; one line (`!scripts/e2e/campaign-journal-authority.ts`) was added following the existing `!scripts/e2e/relaunching-server.mjs` pattern. Without it the new CLI could not be committed at all."
+  },
+  "topology": {
+    "shape": "Two OS processes of the SAME packaged production server (.next/standalone/server.js) pointed at ONE campaign database file, plus the Playwright test process as a third handle on that file.",
+    "processA": {
+      "role": "REPLICA READER",
+      "who": "Playwright's own webServer",
+      "port": 3639,
+      "does": "creates the campaign (PUT), then only ever answers the read-only GET /activity. Never writes the campaign again."
+    },
+    "processB": {
+      "role": "SOURCE",
+      "who": "spawned by the spec",
+      "port": 3617,
+      "does": "binds the GM seat (POST /api/multiplayer/matches with coopCampaign), takes every POST /commands, and is the process that is killed and respawned.",
+      "whySourceIsTheSpawnedOne": "A spec cannot kill and respawn Playwright's own webServer, and the acceptance line requires an OS-level restart OF THE SOURCE. Inverting the roles is what makes the restart real rather than simulated."
+    },
+    "sharedDatabase": {
+      "what": "DATABASE_PATH (campaigns + campaign_authority_migration + the event journal + campaign_session_participant).",
+      "notShared": "MULTIPLAYER_DB_PATH. The source gets its own multiplayer match store in a temp dir, so the only shared thing is the campaign journal database this slice is actually about.",
+      "resolution": "The webServer's DATABASE_PATH is RELATIVE and server.js does process.chdir(__dirname) under the standalone layout, so the same env value names `<root>/.sisyphus/e2e-runtime/<runId>/mekstation.db` for a dev run and `<root>/.next/standalone/.sisyphus/e2e-runtime/<runId>/mekstation.db` for a packaged one. The harness RESOLVES rather than guesses: it opens each candidate read-only with fileMustExist and picks the one that actually holds the campaign row the server just wrote, failing loudly on anything but exactly one match. Measured: the packaged candidate is the live one."
+    },
+    "seatTopology": "Co-op HOST match creation. POST /api/multiplayer/matches with a coopCampaign payload runs commitCoopCampaignAuthority -> commitCampaignCreationCheckpoint with gmParticipantId = hostPlayerId, binding the durable GM membership BEFORE the 201. This is the only shipped path that produces a seat isActiveCampaignSeat accepts; the parent brief's suggestion of campaign-two-device-drive.spec.ts as a template is not usable (that spec's campaign has no participants at all). The #29 single-player seat gap is untouched.",
+    "whyFlagFree": {
+      "mechanism": "The campaign is moved onto journal authority by writing the durable marker directly against the shared file - writeCampaignMigrationMarker(createJournalNativeMarker(id)), the same call campaignAuthorityBlocked.test.ts makes, just against a real file two live servers also hold.",
+      "streamProvenance": "The journal STREAM it needs is NOT manufactured by the harness. Registering the co-op host already committed a CampaignSnapshotPublished baseline at sequence 0 through the durable store (CampaignMatchHost commits its initialState on open; selectCampaignEventStore hands it the JournalCampaignEventStore when SQLite is up). Measured in the drive: highestSequence is -1 after create and 0 after the match create, and the cutover reports path='marker', i.e. it appended nothing.",
+      "genesisArm": "The CLI retains an appendCampaignGenesis arm for an unseeded stream (a marker over an empty journal resolves to `blocked`, never `journal`). That arm is production code too and reads no flag. The drive asserts WHICH arm ran, so the receipt cannot silently describe the wrong one.",
+      "whyNotE2EOnly": "isCampaignJournalAuthorityEnabled() ORs the hardcoded-false CAMPAIGN_JOURNAL_AUTHORITY_ENABLED with an arm requiring BOTH NEXT_PUBLIC_E2E_MODE==='true' AND MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY==='1' in one process - a combination a real deployment can never assemble. Neither key is set anywhere in this proof. Everything downstream of the marker (isActiveCampaignSeat, resolveCampaignAuthorityFromStores, executeCampaignCommand, the activity read) is the ordinary production path, because none of it can tell how the marker got there: resolveCampaignAuthorityFromStores reads the durable marker row and nothing else."
+    }
+  },
+  "steps": [
+    {
+      "n": 1,
+      "step": "Flag switches read from a real Node process that loaded the production modules",
+      "assertion": "cutoverFlag=false, effective=false, e2eEnvKey='MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY', and that key undefined in the runner env",
+      "result": "PASS",
+      "note": "The env-key assertion doubles as the replica proof: playwright.config.ts forwards the arm to its webServer ONLY when the parent env already carries it."
+    },
+    {
+      "n": 2,
+      "step": "PUT /api/campaigns/<id> on the replica (3639) creates the campaign",
+      "assertion": "response.ok()",
+      "result": "PASS"
+    },
+    {
+      "n": 3,
+      "step": "Resolve the server's real database file by the campaign row it just wrote",
+      "assertion": "exactly one of the two candidates holds the row",
+      "result": "PASS",
+      "note": "The packaged candidate under .next/standalone/ is the live one."
+    },
+    {
+      "n": 4,
+      "step": "Behavioural proof the gate is shut",
+      "assertion": "no cutover marker AND journal highestSequence === -1 after create",
+      "result": "PASS",
+      "note": "The create path (maybeAppendCampaignGenesisOnCreate) writes both a genesis and a marker when the gate opens; neither exists, so it did not fire."
+    },
+    {
+      "n": 5,
+      "step": "Spawn the source process (3617) on the SAME database file",
+      "assertion": "spawn env has no MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY; origin differs from the replica; port refused if already serving",
+      "result": "PASS"
+    },
+    {
+      "n": 6,
+      "step": "The source sees a campaign it never created",
+      "assertion": "GET /api/campaigns/<id> on 3617 returns 200",
+      "result": "PASS"
+    },
+    {
+      "n": 7,
+      "step": "POST /api/multiplayer/matches on the source binds the GM seat",
+      "assertion": "201",
+      "result": "PASS"
+    },
+    {
+      "n": 8,
+      "step": "The checkpoint's genesis stage stayed skipped",
+      "assertion": "still no cutover marker after the match create",
+      "result": "PASS"
+    },
+    {
+      "n": 9,
+      "step": "The co-op host seeded the journal stream",
+      "assertion": "highestSequence === 0",
+      "result": "PASS"
+    },
+    {
+      "n": 10,
+      "step": "Both processes answer the same scoped feed for the same seat",
+      "assertion": "GET /activity on 3617 and 3639 deep-equal; viewerSeat === 'gm' on the replica",
+      "result": "PASS"
+    },
+    {
+      "n": 11,
+      "step": "CONTROL: a command BEFORE the cutover is refused",
+      "assertion": "409 { kind:'blocked', reason:'campaign-not-on-journal-authority' }",
+      "result": "PASS",
+      "note": "Without this, every row after the cutover would also be satisfied by a route that simply accepts any seated caller."
+    },
+    {
+      "n": 12,
+      "step": "Flag-free cutover: write the journal-native marker",
+      "assertion": "marker.state==='journal', firstJournalAuthorityCommandId===null, path==='marker', highestSequence>=0, and the CLI process reports cutoverFlag=false / effective=false / e2eEnvValue=null",
+      "result": "PASS"
+    },
+    {
+      "n": 13,
+      "step": "The cutover appended nothing",
+      "assertion": "highestSequence unchanged; the replica's scoped feed deep-equals the pre-cutover one",
+      "result": "PASS",
+      "note": "A cutover that moved the head would have fabricated history, which D10 forbids."
+    },
+    {
+      "n": 14,
+      "step": "A real command on the SOURCE under journal authority",
+      "assertion": "200 { kind:'committed' } and state.balance === 1000000 - 1000, replayed from the stream",
+      "result": "PASS"
+    },
+    {
+      "n": 15,
+      "step": "CO0 (#1739) durable effect",
+      "assertion": "the durable marker row now carries firstJournalAuthorityCommandId === the committed command id",
+      "result": "PASS",
+      "note": "Asserted on the row, not on the response. This is the field D10's first rollback guard reads."
+    },
+    {
+      "n": 16,
+      "step": "TWO-PROCESS SCOPED CONVERGENCE",
+      "assertion": "the replica's scoped feed grows by exactly one entry, deep-equals the source's, and highestSequence === seeded + 1",
+      "result": "PASS",
+      "note": "The replica is a separate OS process with no live connection to the source's application state; it shares only the file."
+    },
+    {
+      "n": 17,
+      "step": "OS-LEVEL RESTART of the source",
+      "assertion": "kill, await exit, 750ms backoff, respawn on the same port with the same env; restarted pid !== prior pid",
+      "result": "PASS"
+    },
+    {
+      "n": 18,
+      "step": "The journal and the marker survived the restart",
+      "assertion": "highestSequence unchanged; the source's scoped feed deep-equals the pre-restart one; marker still state='journal' with the same firstJournalAuthorityCommandId",
+      "result": "PASS"
+    },
+    {
+      "n": 19,
+      "step": "The restarted source continues the SAME history (never a fresh log)",
+      "assertion": "a second command returns 200 and state.balance === 1000000 - 2*1000",
+      "result": "PASS",
+      "note": "A process that began a fresh log would replay ONE spend and answer 200 with the wrong ledger - healthy-looking and wrong. The balance is what separates the two."
+    },
+    {
+      "n": 20,
+      "step": "The marker records the FIRST command, not the latest",
+      "assertion": "firstJournalAuthorityCommandId is still the first command id",
+      "result": "PASS",
+      "note": "The field is provenance, not a cursor."
+    },
+    {
+      "n": 21,
+      "step": "The replica catches up AFTER the restart",
+      "assertion": "the replica's scoped feed is seeded + 2 entries and deep-equals the source's",
+      "result": "PASS"
+    },
+    {
+      "n": 22,
+      "step": "The gate stayed shut for the whole drive",
+      "assertion": "cutoverFlag=false, effective=false, arm key undefined in the runner env and in the spawn env",
+      "result": "PASS"
+    }
+  ],
+  "mutations": [
+    {
+      "id": "a",
+      "name": "skip the marker construction",
+      "change": "replaced the cutoverCampaignToJournalAuthority(...) call and its immediate assertions with `void cutoverCampaignToJournalAuthority;`",
+      "expected": "the source stays on snapshot authority, so the journal-authority assertions fail",
+      "observed": "FAILED at spec line 313: `expect(first.status).toBe(200)` received 409 with body {\"kind\":\"blocked\",\"reason\":\"campaign-not-on-journal-authority\"}",
+      "log": "mutation-a-no-marker.log",
+      "restored": true
+    },
+    {
+      "id": "b",
+      "name": "remove the OS-level restart",
+      "change": "replaced `source = await restartSourceServer(request, source, env);` with `void restartSourceServer;`",
+      "expected": "the same process keeps serving, so the restart assertions fail",
+      "observed": "FAILED at spec line 379: `expect(source.pid).not.toBe(priorPid)` - received pid 60000, expected not 60000",
+      "log": "mutation-b-no-restart.log",
+      "restored": true,
+      "note": "The pid identity assertion exists precisely so this mutation is detectable. Without it the post-restart rows would still hold for a drive that never restarted anything, because a second command advances the ledger either way."
+    }
+  ],
+  "gates": [
+    {
+      "gate": "E2E standalone build",
+      "command": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build",
+      "result": "PASS (exit 0)",
+      "log": "build-e2e-standalone.log"
+    },
+    {
+      "gate": "E2E bundle marker",
+      "command": "grep -c 'window.__E2E_MODE__=!0' .next/static/chunks/pages/_app-*.js",
+      "result": "PASS (1 hit in _app-b4f3e371ee8b87c1.js)",
+      "log": "e2e-bundle-marker.txt"
+    },
+    {
+      "gate": "Playwright green 1",
+      "command": "MEKSTATION_E2E_SERVER_COMMAND='node .next/standalone/server.js' HOSTNAME=127.0.0.1 MEKSTATION_E2E_PORT=3639 node scripts/playwright/run-playwright.mjs test e2e/campaign-journal-two-process-convergence.spec.ts --project=chromium --retries=0 --workers=1",
+      "result": "PASS (1 passed, 15.6s test / 20.5s wall, exit 0)",
+      "log": "green-1.log"
+    },
+    {
+      "gate": "Playwright green 2 (consecutive)",
+      "command": "same",
+      "result": "PASS (1 passed, 15.5s test / 20.3s wall, exit 0)",
+      "log": "green-2.log"
+    },
+    {
+      "gate": "tsc",
+      "command": "npx tsc --noEmit --skipLibCheck",
+      "result": "PASS (no output)"
+    },
+    {
+      "gate": "oxfmt",
+      "command": "npx oxfmt --check <the 4 files>",
+      "result": "PASS (all matched files use the correct format)"
+    },
+    {
+      "gate": "oxlint",
+      "command": "npx oxlint (repo-wide)",
+      "result": "PASS but VACUOUS for this slice - oxlint lints NONE of the four files. .oxlintrc.json ignorePatterns contains '**/scripts/**' (the CLI), 'e2e/**' and '**/*.spec.ts' (all three e2e files); invoked on the four paths directly, oxlint reports 'Finished ... on 0 files'. Repo-wide: 84 pre-existing warnings elsewhere, 0 errors, none attributable here because none of these files are analysed. Real coverage for this slice is tsc + oxfmt + the pre-commit lint-staged/build chain."
+    },
+    {
+      "gate": "openspec strict",
+      "command": "npx openspec validate --strict --all",
+      "result": "PASS (232 passed, 0 failed, exit 0)",
+      "log": "openspec-strict.log"
+    }
+  ],
+  "iterationsBeforeGreen": [
+    {
+      "log": "run0-babel-transform-failure.log",
+      "finding": "Playwright's babel transform refuses the TypeScript `declare` class fields in JournalCampaignEventStore.ts, so an e2e spec cannot import the genesis append or the migration machinery AT ALL. Resolved by moving that work into an `npx tsx` CLI - the runner this repo already uses for TypeScript CLIs (scripts/cleanup-broken-encounters.ts et al)."
+    },
+    {
+      "log": "run1-genesis-already-journaled.log",
+      "finding": "appendCampaignGenesis returned `already-journaled`: registering the co-op host had ALREADY seeded the campaign's journal stream. This is what makes the marker-only cutover both correct and the brief's prescribed shape."
+    },
+    {
+      "log": "run2-head-branchless.log",
+      "finding": "GET /api/campaigns/<id>/head answers `no-authoritative-stream` for a campaign whose journal demonstrably holds events, because it resolves the event-history BRANCH record and a plain journal append creates none. The convergence read was moved to GET /activity, which is derived from the committed journal AND scoped to the caller's durable seat."
+    },
+    {
+      "log": "run3-advanceday-not-projected.log",
+      "finding": "AdvanceDay derives CampaignDayAdvanced, which the activity projection returns null for BY DESIGN ('the clock the other rows are stamped with, never a row of its own'). The command was changed to SpendFunds, which derives FundsChanged - both a feed row and a ledger movement, so the balance doubles as the fresh-log detector."
+    }
+  ],
+  "ports": {
+    "primary": 3639,
+    "second": 3617,
+    "secondSource": "existing harness default MEKSTATION_E2E_SECOND_PORT from campaign-two-device-drive.spec.ts; no new port-derivation code",
+    "neverUsed": [
+      3600
+    ],
+    "prodEvidenceFlag": "never passed",
+    "freeBefore": "confirmed - `netstat -ano | findstr :3617` and `:3639` showed no LISTENING socket before each run",
+    "freeAfter": "confirmed - `netstat -ano | findstr LISTENING | findstr ':3617 :3639'` returned nothing after the greens, after the mutations, and at capture time"
+  },
+  "nonClaims": [
+    "The production cutover flag is NOT flipped. CAMPAIGN_JOURNAL_AUTHORITY_ENABLED remains hardcoded false in src/lib/campaign/sync/JournalCampaignEventStore.ts; no file under src/ was touched by this slice at all (all four commits are e2e/, scripts/e2e/ and one .gitignore line).",
+    "This is a TEST-PROCESS proof of the production code path with a DIRECTLY CONSTRUCTED marker. It demonstrates that once a campaign's durable marker says `journal`, the production command pipeline, seat gate, authority resolver and scoped read behave correctly across two OS processes and an OS-level restart. It does NOT demonstrate that any shipped code path currently puts a production campaign into that marker state - that is the cutover itself, which stays off.",
+    "The single-player identity/seat gap (finding #29, recorded owner decision 2026-09-15T09:56:02.105Z) is NOT addressed. The drive uses a genuinely co-op-hosted campaign, which is a real shipped topology, not a workaround.",
+    "The rollback-refused row is NOT included. scripts/campaign-authority-cutover.ts is a CO1/CO2 deliverable; PR #1740 was unmerged AT CAPTURE TIME (2026-09-15T22:05Z) and has since landed on main as 566b60d02 (verified: `git merge-base --is-ancestor 566b60d02 origin/main` succeeds at origin/main bff63c183). This branch is based on 3d9ade77d, which predates that merge, so it carries no rollback-refused row either way. The marker FIELD that rollback reads (firstJournalAuthorityCommandId) IS asserted here; the CLI that reads it is not. Adding the row after a rebase onto main is a small addition to this same spec, not a new drive.",
+    "The shadow-parity route to `journal` is NOT exercised. The campaign is cut over directly to the journal-native state, matching D10's journal-native arm; the legacy -> shadowing -> journal parity gate is a separate row.",
+    "Replication across SEPARATE database files is NOT re-proven - that is campaign-two-device-drive.spec.ts. This slice proves the opposite property: one file, two processes.",
+    "No WebSocket is opened. Convergence is read back through the scoped activity route, which is derived from the durable record; the broadcast/cursor socket path is not driven.",
+    "The event-history BRANCH surface is not exercised: /head answers `no-authoritative-stream` for these campaigns because nothing in this path writes a branch record. Stated as a measured fact, not worked around.",
+    "CI wiring is NOT done and is a separate item. No .github/workflows file was touched. The new spec carries @campaign @multiplayer @two-process @authority tags but no CI lane selects it, exactly as campaign-two-device-drive.spec.ts has none today.",
+    "No spec checkbox was flipped, no dependency added, no migration added, no push, no PR.",
+    "The pre-commit hook's bare `npm run build` replaced the E2E standalone bundle after the last commit. All measured runs pre-date that; a re-run requires rebuilding with NEXT_PUBLIC_E2E_MODE=true."
+  ],
+  "openQuestions": [
+    "F1 (owner decision, before any flag flip): campaignLaunchHead.ts:24-28 justifies the ungated launch with a premise CO3 measured false both ways - a co-op-hosted campaign HAS a stream at sequence 0 with the flag off, and after cutover /head STILL answers no-authoritative-stream because nothing on this path writes a branch record. The launch gate therefore proceeds ungated for precisely the campaigns it exists to gate. Either /head must learn to read the journal, or the branch record must be written on the cutover path, or the comment and the gate must be restated to match what they actually do.",
+    "F2 (acceptance-note wording): the second process here is a same-file server, not design.md's grant/socket replica. What CO3 proves is per-request derivation from the durable record across two OS processes. The node's acceptance note should say so in one sentence so 'two-process' is not over-read as source/replica.",
+    "F3 (cheap follow-up on this same spec): 'scoped' is proven for ONE seat. The seesGmPrivateDetail filtering branch and the 403 stranger path on /activity are not driven.",
+    "CI wiring for this spec (and arguably for campaign-two-device-drive.spec.ts, which also has no lane): a new tag in nightly-validation.yml's subsystem matrix, a dedicated two-process lane, or staying local-only. Both specs spawn a second server process on a fixed port, which is the real constraint on running them under a parallel CI matrix. Not decided anywhere in openspec/ or .github/; owner-level.",
+    "Should the marker-only cutover arm become a fourth verb on scripts/campaign-authority-cutover.ts, now that #1740 has landed? That CLI exposes parity and rollback verbs but no way to seed a campaign onto journal authority from nothing. Today that gap is filled by scripts/e2e/campaign-journal-authority.ts, which is e2e-scoped by name and location. If an operator ever needs it, the two should be one tool rather than two.",
+    "The rollback-refused row remains unproven end-to-end. Now that 566b60d02 is on main, it is a small addition to this same spec after a rebase (the marker field it depends on is already asserted here), not a new drive."
+  ],
+  "logs": {
+    "dir": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-authority-cutover-co3-20260915/",
+    "sha256File": "SHA256SUMS.txt",
+    "sha256": {
+      "build-e2e-standalone.log": "9f6d3e3e66f6627deab10bf0564a7ff4d907a73dab21ba7061d011b147b029e3",
+      "e2e-bundle-marker.txt": "b6ed646a52c47dd411979ee6041f2f6b5bb1647cc017756684f1ada77e33759b",
+      "green-1.log": "6c22e721e06d6de88e76a78e02cec27315c4e663f0406f0105ac6efbc2980fb2",
+      "green-2.log": "6cb050af011bf93df559ac478906f91bba4c6227b76f162f98d6215edfff7736",
+      "mutation-a-no-marker.log": "da2983747948ccf0fdfb3c5dd53417a572adc57df7d86074928ec6eadb0132c6",
+      "mutation-b-no-restart.log": "924172a5759d793580e9196c85d492a0b4ff58a137a2487c791c7bf5122ff146",
+      "openspec-strict.log": "39e12908ef397e9d6c50cdd6e4873078be21bb578fc31461d28ca107d8b0417e",
+      "run0-babel-transform-failure.log": "2c0a756db782bdbc1566b96235f2386df22038dbba4e6da8c659d6cd8c131428",
+      "run1-genesis-already-journaled.log": "e3c44b55ba5966658f1f06edffe2ec21950255f81426fe5cace863adbf77811c",
+      "run2-head-branchless.log": "dce8693b793955674f2439b7ab05a5fb8b826b743b025f29744aa72946ce0621",
+      "run3-advanceday-not-projected.log": "640c8410b32b011f569ae1ec1efe2b35a6e21d32295caf86c2a24c9ee4afcba6"
+    }
+  },
+  "reviewFindings": {
+    "verdict": "APPROVE",
+    "artefact": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-authority-cutover-co3-review-20260915.json",
+    "acceptanceLineStatement": "Satisfied at the tier reachable without the owner-gated flag flip.",
+    "reviewerLiveRun": {
+      "command": "MEKSTATION_E2E_SERVER_COMMAND='node .next/standalone/server.js' HOSTNAME=127.0.0.1 MEKSTATION_E2E_PORT=3639 node scripts/playwright/run-playwright.mjs test e2e/campaign-journal-two-process-convergence.spec.ts --project=chromium --retries=0 --workers=1",
+      "exitCode": 0,
+      "result": "1 passed",
+      "testDurationSeconds": 18.6,
+      "log": "review-green-1.log",
+      "sha256": "567c3efd0ec6d5937632b2fc79765d62de97d46007463a532133875ee8783893",
+      "note": "Reproduced independently of the author's two greens (15.6s / 15.5s). The reviewer also recomputed sha256 for four of the author's logs and all four matched the recorded values."
+    },
+    "findings": [
+      {
+        "id": "F1",
+        "severity": "medium",
+        "type": "product gap - owner note, out of CO3 scope",
+        "title": "/head answers no-authoritative-stream for a campaign that IS on journal authority, and the comment justifying the ungated launch is now stale",
+        "file": "src/lib/campaign/authority/campaignLaunchHead.ts:24-28 (stale premise), :99-105 (the null-branch answer), src/lib/events/journal/EventHistoryCandidateBuild.ts:195 (the only production createBranch caller)",
+        "detail": "campaignLaunchHead.ts:24-28 justifies proceeding ungated with the premise 'While the cutover flag is off no campaign has a journal stream'. CO3 measured that premise false BOTH ways: a co-op-hosted campaign has a stream at sequence 0 with the flag off, and after cutover /head STILL answers no-authoritative-stream because nothing on this path writes a branch record. So the launch gate proceeds ungated for exactly the campaigns it exists to gate. Owner decision required before any flag flip; no edit to this slice."
+      },
+      {
+        "id": "F2",
+        "severity": "medium",
+        "type": "scope naming",
+        "title": "The 'replica' is a same-file second process, not design.md's grant/socket replica",
+        "file": "openspec/changes/design-campaign-authority-and-sync/design.md:11,19-20,31,34 vs e2e/helpers/campaignJournalTwoProcess.ts:222-243",
+        "detail": "What is proven is PER-REQUEST DERIVATION FROM THE DURABLE RECORD by a second OS process holding the same file - not the grant/redeem/dial replica of design.md. The slice does not claim otherwise (spec:466-469), but a reader of the acceptance line could over-read 'two-process' as source/replica. Worth one sentence in the node's acceptance note."
+      },
+      {
+        "id": "F3",
+        "severity": "low-medium",
+        "type": "coverage gap",
+        "title": "'Scoped' convergence is proven for one seat only; the seesGmPrivateDetail filtering branch and the 403 stranger path are unexercised",
+        "file": "src/lib/campaign/activity/campaignActivityProjection.ts:63-71,222; src/pages-modules/api/campaignActivityRoute.ts:94-97",
+        "detail": "The drive reads /activity as the bound GM seat only. The GM-private-detail filter and the 403 refusal for a non-participant are not driven. Cheap follow-up row on the same spec."
+      },
+      {
+        "id": "F4",
+        "severity": "low",
+        "type": "receipt accuracy",
+        "title": "oxlint gate row understated the exclusion",
+        "detail": "Applied as RE1 to gates[] -> oxlint."
+      },
+      {
+        "id": "F5",
+        "severity": "low",
+        "type": "receipt staleness",
+        "title": "CO1/CO2-unmerged non-claim was stale",
+        "detail": "Applied as RE2 to nonClaims and to base.stackDependency.co1co2."
+      },
+      {
+        "id": "F6",
+        "severity": "informational",
+        "type": "advisory, no action",
+        "title": "The `?? 3600` fallback at spec:132 is inert but mirrors playwright.config.ts:3's own default",
+        "detail": "baseURL is always set under the Playwright config and the run pinned MEKSTATION_E2E_PORT=3639, so 3600 was never reachable. Repo convention, not a stray. No edit."
+      },
+      {
+        "id": "F7",
+        "severity": "informational",
+        "type": "commendation",
+        "title": "The database-resolution guard is the right instinct",
+        "detail": "Resolving the server's real database by the campaign row it just wrote - and failing loudly on anything but exactly one qualifying candidate - closes the failure mode where a wrong path opens an empty file and every later 'no rows' assertion passes for the wrong reason."
+      }
+    ],
+    "requiredEditsApplied": [
+      "RE1 (oxlint row)",
+      "RE2 (time-bound CO1/CO2 non-claim)"
+    ],
+    "requiredCodeEdits": "none - the review required no code change"
+  }
+}

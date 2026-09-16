@@ -1,0 +1,88 @@
+{
+  "at": "2026-09-12T12:44:44.799Z",
+  "targets": [
+    {
+      "name": "routing",
+      "head": "6c4eac5c7b7a2aece3aab0443ce606943db6cf0b",
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\routing",
+      "gitDir": "E:/Projects/MekStation/.git/worktrees/routing",
+      "ignored": [
+        ".husky/_/",
+        ".husky/_/.gitignore",
+        ".husky/_/applypatch-msg",
+        ".husky/_/commit-msg",
+        ".husky/_/h",
+        ".husky/_/husky.sh",
+        ".husky/_/post-applypatch",
+        ".husky/_/post-checkout",
+        ".husky/_/post-commit",
+        ".husky/_/post-merge",
+        ".husky/_/post-rewrite",
+        ".husky/_/pre-applypatch",
+        ".husky/_/pre-auto-gc",
+        ".husky/_/pre-commit",
+        ".husky/_/pre-merge-commit",
+        ".husky/_/pre-push",
+        ".husky/_/pre-rebase",
+        ".husky/_/prepare-commit-msg",
+        ".next/",
+        "node_modules/",
+        "playwright-report/",
+        "public/record-sheets/biped_pips/",
+        "public/record-sheets/templates_iso/",
+        "public/record-sheets/templates_us/",
+        "test-results/",
+        "tsconfig.tsbuildinfo"
+      ]
+    },
+    {
+      "name": "infantry",
+      "head": "b2755ee72f64618fefd4d0a7c83297fef409193e",
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\infantry",
+      "gitDir": "E:/Projects/MekStation/.git/worktrees/infantry",
+      "ignored": [
+        ".husky/_/",
+        ".husky/_/.gitignore",
+        ".husky/_/applypatch-msg",
+        ".husky/_/commit-msg",
+        ".husky/_/h",
+        ".husky/_/husky.sh",
+        ".husky/_/post-applypatch",
+        ".husky/_/post-checkout",
+        ".husky/_/post-commit",
+        ".husky/_/post-merge",
+        ".husky/_/post-rewrite",
+        ".husky/_/pre-applypatch",
+        ".husky/_/pre-auto-gc",
+        ".husky/_/pre-commit",
+        ".husky/_/pre-merge-commit",
+        ".husky/_/pre-push",
+        ".husky/_/pre-rebase",
+        ".husky/_/prepare-commit-msg",
+        ".next/",
+        "node_modules/",
+        "public/record-sheets/biped_pips/",
+        "public/record-sheets/templates_iso/",
+        "public/record-sheets/templates_us/",
+        "tsconfig.tsbuildinfo"
+      ]
+    }
+  ],
+  "exportRoot": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\exports\\routing-browser",
+  "exported": [
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\exports\\routing-browser\\playwright-report\\index.html",
+      "sha256": "22bcc3a75f07302811f0e86c2495bd27ef8665135b0a4b49755e6f0d59209121"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\exports\\routing-browser\\test-results\\.last-run.json",
+      "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903"
+    }
+  ],
+  "rawLogsRetainedAt": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912",
+  "ownedPortsClear": [
+    3637,
+    3638
+  ],
+  "status": "ready-for-non-force-worktree-removal"
+}

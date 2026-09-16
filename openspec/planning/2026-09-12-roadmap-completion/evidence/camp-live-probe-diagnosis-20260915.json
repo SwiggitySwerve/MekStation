@@ -1,0 +1,190 @@
+{
+  "artifact": "camp-live-probe-diagnosis",
+  "date": "2026-09-15",
+  "scope": "READ-ONLY root-cause diagnosis of the persistently red GitHub workflow 'CAMP-01 Live Adversarial Evidence' (workflow id 329205862), slice C1 of evidence/r2-receipts-revalidation-20260915.json",
+  "repository": "SwiggitySwerve/MekStation",
+  "workflowFile": "E:/Projects/MekStation/.github/workflows/camp01-live-adversarial.yml",
+  "methodNote": "Diagnosis is from CI logs, published run artifacts, and git diffs only. No Playwright run, no build, no edit, no commit was performed.",
+
+  "runHistory": {
+    "query": "gh api repos/:owner/:repo/actions/workflows/329205862/runs?per_page=100&created=2026-09-02 (plus gh run list --workflow 329205862 --status success)",
+    "totalRunsOnWorkflow": 482,
+    "lastPassingRun": {
+      "databaseId": 33644594559,
+      "conclusion": "success",
+      "headSha": "33fd57c3b448931415a32718a1009b581439ca3e",
+      "createdAt": "2026-09-02T14:49:45Z"
+    },
+    "firstFailingRun": {
+      "databaseId": 33645521430,
+      "conclusion": "failure",
+      "headSha": "8486a98ec4753bb31cb6cdd77dda2fdeba54f21d",
+      "createdAt": "2026-09-02T14:58:24Z",
+      "jobs": [
+        { "databaseId": 100299134719, "name": "Publish Live Evidence (ubuntu-latest)", "conclusion": "failure" },
+        { "databaseId": 100299134333, "name": "Publish Live Evidence (windows-latest)", "conclusion": "failure" },
+        { "databaseId": 100299974346, "name": "Live Tier Signal", "conclusion": "failure" }
+      ]
+    },
+    "latestRunExamined": {
+      "databaseId": 34936659219,
+      "conclusion": "failure",
+      "headSha": "c3b4cc1e3ace35ff95b7999d9680a5d657ca344f",
+      "createdAt": "2026-09-15T06:22:41Z"
+    },
+    "continuityClaim": "Every run after 33644594559 has conclusion=failure. `gh run list --workflow 329205862 --status success --limit 10` returns nothing newer than 2026-09-02T14:49:45Z, and the 100 most recent runs are all failures. 13 days, 0 green.",
+    "correctionToBrief": "The brief named run 33679587353 as the 09-02 exemplar; the true FIRST failing run is 33645521430 (2026-09-02T14:58:24Z), roughly six hours earlier."
+  },
+
+  "commitRange": {
+    "command": "git log --oneline 33fd57c3b448931415a32718a1009b581439ca3e..8486a98ec",
+    "commitCount": 1,
+    "commits": [
+      {
+        "sha": "8486a98ec4753bb31cb6cdd77dda2fdeba54f21d",
+        "subject": "test(e2e): the first navigation pays the dev server's cold compile outside any measured test (#1544)",
+        "filesChanged": [
+          "e2e/globalSetup.ts (new, 82 lines)",
+          "e2e/helpers/campaignRoutes.ts (new)",
+          "e2e/helpers/scenarioPackLoading.ts",
+          "e2e/helpers/warmupRoutes.ts (new)",
+          "openspec/changes/.../tasks.md",
+          "playwright.config.ts (+6)",
+          "src/__tests__/unit/e2eHarness/warmupDeclaration.test.ts (new, 195 lines)"
+        ]
+      }
+    ],
+    "note": "Exactly one commit separates the last green run from the first red run. No inference required to bound the culprit."
+  },
+
+  "observedFailure": {
+    "summaryOnAllFourLegs": {
+      "passed": 7,
+      "failed": 1,
+      "skippedWithReason": 3,
+      "skippedAsExpected": 3,
+      "skippedUnexpectedly": 0,
+      "unexpectedSkips": [],
+      "strictSkips": false,
+      "exitCode": 1
+    },
+    "failingProbeId": "proof5d5-playwright-failure-traversal",
+    "probeStatus": "failed",
+    "probeReasonCode": "PROBE_FAILED",
+    "artifactsExamined": [
+      "run 33645521430 -> camp01-live-adversarial-Linux/Linux.json",
+      "run 33645521430 -> camp01-live-adversarial-Windows/Windows.json",
+      "run 34936659219 -> camp01-live-adversarial-Linux/Linux.json",
+      "run 34936659219 -> camp01-live-adversarial-Windows/Windows.json"
+    ],
+    "identicalAcrossAllFour": true,
+    "decisiveLogLines": [
+      "PROOF-5D5 normalized report missing: Error: Cannot find module './e2e/globalSetup.ts'",
+      "Require stack: node_modules/playwright/lib/common/config.js -> node_modules/playwright/lib/program.js -> node_modules/@playwright/test/cli.js",
+      "at resolveScript (node_modules/playwright/lib/common/config.js:261:18)",
+      "at new FullConfigInternal (node_modules/playwright/lib/common/config.js:69:117)",
+      "at loadConfigFromFile (node_modules/playwright/lib/common/configLoader.js:331:10)",
+      "code: 'MODULE_NOT_FOUND'",
+      "[playwright] runtime cleanup failed: Camp01PlaywrightNormalizerError: CAMP01_PLAYWRIGHT_NORMALIZER_INVALID: raw report missing",
+      "at normalizeCollection (scripts/qc/camp01-playwright-normalizer.mjs:39:455)",
+      "at Object.finish (scripts/qc/camp01-runner-isolation.mjs:32:131)",
+      "at ChildProcess.<anonymous> (scripts/playwright/run-playwright.mjs:99:25)"
+    ],
+    "runnerStepLine": "{\"artifactPath\":\"/home/runner/work/MekStation/MekStation/artifacts/camp01-live-adversarial/Linux.json\",\"summary\":{\"passed\":7,\"failed\":1,...,\"exitCode\":1}} then ##[error]Process completed with exit code 1.",
+    "expectedVsObserved": {
+      "probeExpected": "The launcher writes reports/05-layout-helpers.json under the staged artifact directory, exits 1 with signal null, report.complete===true, exactly one failed observation, no surviving .runtime-<executionId>, no partial publication.",
+      "probeObserved": "Playwright CLI aborted during config load, before any test ran and before any JSON reporter output existed. The normalizer then threw 'raw report missing'; the normalized report was never written; camp01-live-browser-adversarial.mjs:265 threw 'PROOF-5D5 normalized report missing: <stderr>'."
+    }
+  },
+
+  "mechanism": {
+    "chain": [
+      "1. The probe (scripts/qc/camp01-live-browser-adversarial.mjs:260-264) synthesizes a throwaway Playwright config at <scratchRoot>/playwright.config.ts, where scratchRoot is an fs.mkdtemp() directory OUTSIDE the repository (scripts/qc/run-camp01-live-adversarial.mjs:237).",
+      "2. That synthetic config (failingPlaywrightConfig, scripts/qc/camp01-live-browser-adversarial.mjs:293-305) spreads the repo-root config object: `import baseConfig from '<repoRoot>/playwright.config.ts'; export default { ...baseConfig, testDir: <abs>, webServer: undefined, fullyParallel: false, retries: 0, workers: 1, projects: [{name:'chromium'}] }`.",
+      "3. The spread deliberately neutralizes every inherited key that is meaningless outside the repo/server context - testDir is overridden to an ABSOLUTE path, webServer is nulled - but the override list is a hand-maintained allowlist, not derived from the base config.",
+      "4. Commit 8486a98ec added `globalSetup: './e2e/globalSetup.ts'` to playwright.config.ts (line 83 at current main). It is a REPO-ROOT-RELATIVE string and is NOT in the probe's override list, so the spread copies it verbatim into the scratch config.",
+      "5. Playwright resolves script-valued config keys (globalSetup/globalTeardown) against the CONFIG FILE's own directory, not the process cwd. The launcher spawns the CLI with cwd=repoRoot (scripts/playwright/run-playwright.mjs:68), but the config lives in scratchRoot, so './e2e/globalSetup.ts' is looked up at <scratchRoot>/e2e/globalSetup.ts. The probe does create <scratchRoot>/e2e/ (as the synthetic testDir) but never places a globalSetup.ts in it -> MODULE_NOT_FOUND at config-load time, before any test executes.",
+      "6. With the CLI dead before the JSON reporter ran, camp01-playwright-normalizer.mjs:39 finds an empty raw directory and throws CAMP01_PLAYWRIGHT_NORMALIZER_INVALID: raw report missing; run-playwright.mjs:102-105 logs '[playwright] runtime cleanup failed' and exits 1; the probe's normalizedPath existence check (camp01-live-browser-adversarial.mjs:265) fails and the probe reports PROBE_FAILED.",
+      "7. The per-leg workflow step fails on the launcher exit code, both matrix legs go red, and live-tier-signal (scripts/qc/camp01-live-signal.mjs) reconciles both legs and fails the run."
+    ],
+    "secondaryDefect": "Even if the path resolved, the inherited globalSetup would be wrong for this probe. e2e/globalSetup.ts issues HTTP warm-up requests against the projects' baseURL, but the synthetic config sets `webServer: undefined` - no dev server is started. The warm-up would fail on connection refusal (or on 'no project declares a baseURL', since the synthetic config replaces `projects` with a bare `[{name:'chromium'}]`). globalSetup is server-dependent machinery and belongs in the same strip list as webServer regardless of path resolution.",
+    "whyNotCaughtPreMerge": "#1544 added src/__tests__/unit/e2eHarness/warmupDeclaration.test.ts, which holds the WARM-UP ROUTE DECLARATION against reality. Nothing holds the probe's synthetic-config OVERRIDE LIST against playwright.config.ts. There is no jest suite for scripts/qc/camp01-live-browser-adversarial.mjs at all (scripts/__tests__/ has 20+ camp01-*.test.ts files; no camp01-live-browser-adversarial.test.ts). The workflow has no pull_request trigger, so #1544 could not have gone red before merge.",
+    "notTheCause": [
+      "Not a Playwright or Node version bump: run 33645521430 and run 34936659219 both report Node v22.23.2 and Chromium 143.0.7499.4, and the failure text is byte-identical; the last green run is 9 minutes before the first red one on the same runner images.",
+      "Not a moved spec path: the probe writes its own deliberately-failing spec into scratchRoot at run time.",
+      "Not an environment-variable rename: the other 7 probes pass and the 3 skips are all disposition 'expected'.",
+      "Not the frozen argv or the camp-01h contract: the probe's launcher argv is constructed ad hoc and is absent from camp01-authority-receipt.contract.mjs commandSequence rows."
+    ]
+  },
+
+  "rootCause": {
+    "confirmed": true,
+    "confidence": "high - single-commit range, mechanism named in the log text, identical on all four legs across 13 days",
+    "statement": "Commit 8486a98ec (#1544) introduced `globalSetup: './e2e/globalSetup.ts'` into playwright.config.ts. The proof5d5-playwright-failure-traversal probe re-homes that config into an out-of-repo temp directory by spreading it, and its hand-maintained override list does not neutralize globalSetup, so Playwright resolves the repo-root-relative path against the temp directory and aborts at config load with MODULE_NOT_FOUND.",
+    "culpritAtCommit": "playwright.config.ts:+globalSetup (added in 8486a98ec4753bb31cb6cdd77dda2fdeba54f21d)",
+    "culpritAtCurrentMain": "E:/Projects/MekStation/playwright.config.ts:83",
+    "defectSiteAtCurrentMain": "E:/Projects/MekStation/scripts/qc/camp01-live-browser-adversarial.mjs:293-305 (failingPlaywrightConfig) - the override list that should have absorbed it",
+    "supportingSites": [
+      "E:/Projects/MekStation/scripts/qc/camp01-live-browser-adversarial.mjs:260-265 (synthetic config written into scratchRoot; normalizedPath existence check that throws)",
+      "E:/Projects/MekStation/scripts/qc/run-camp01-live-adversarial.mjs:237 (scratchRoot = fs.mkdtemp, outside the repo)",
+      "E:/Projects/MekStation/scripts/playwright/run-playwright.mjs:67-80 (spawn with cwd=repoRoot)",
+      "E:/Projects/MekStation/scripts/qc/camp01-playwright-normalizer.mjs:39 (fail 'raw report missing')",
+      "E:/Projects/MekStation/e2e/globalSetup.ts:1-45 (HTTP warm-up against baseURL; needs a live server)"
+    ],
+    "localReproductionCommand": {
+      "purpose": "Optional belt-and-braces confirmation; the CI evidence alone already pins the mechanism. Reproduces the exact CI failure on a developer host.",
+      "command": "npm run qc:camp01-live-adversarial -- --artifact \"artifacts/camp01-live-adversarial/local.json\"",
+      "expectedOutput": "summary {passed:7, failed:1, ...} with probe proof5d5-playwright-failure-traversal reason.message containing \"Cannot find module './e2e/globalSetup.ts'\"",
+      "narrowerAlternative": "node -e \"process.stdout.write(require('fs').readFileSync('artifacts/camp01-live-adversarial/local.json','utf8'))\" | node -e \"let s='';process.stdin.on('data',d=>s+=d).on('end',()=>console.log(JSON.parse(s).probes.find(p=>p.probeId==='proof5d5-playwright-failure-traversal').reason.message))\"",
+      "noteForParent": "Run from E:/Projects/MekStation. This agent did not run it (read-only charter)."
+    }
+  },
+
+  "proposedFix": {
+    "shape": "Close the class, not just the instance: make the probe's synthetic config neutralize every inherited key whose value is a repo-root-relative script path, and add the missing jest guard that holds the override list against the real playwright.config.ts.",
+    "changes": [
+      {
+        "file": "E:/Projects/MekStation/scripts/qc/camp01-live-browser-adversarial.mjs",
+        "site": "failingPlaywrightConfig, lines 293-305",
+        "edit": "Add `globalSetup: undefined,` (and `globalTeardown: undefined,` as the symmetric neutralizer - the base config has no globalTeardown today, and adding it pre-empts the identical break) to the generated config literal, with a one-line comment stating WHY: the config is re-homed into an out-of-repo scratch directory, so every repo-root-relative script path the base declares must be dropped, and globalSetup is server-dependent machinery that has no server here because webServer is undefined.",
+        "estimatedLines": "+5 (2 code, 3 comment)"
+      },
+      {
+        "file": "E:/Projects/MekStation/scripts/qc/camp01-live-browser-adversarial.mjs",
+        "site": "line 293",
+        "edit": "Export failingPlaywrightConfig so the guard can assert against it (currently module-private; the file already exports PROOF5D5_LIVE_PROBE_REGISTRATIONS at line 42).",
+        "estimatedLines": "+1 (add `export` keyword)"
+      },
+      {
+        "file": "E:/Projects/MekStation/scripts/__tests__/camp01-live-browser-adversarial.test.ts (new)",
+        "site": "new suite; scripts/__tests__/ is the established home for 20+ camp01-*.test.ts files",
+        "edit": "Declaration-held-against-reality guard, the same pattern #1544 itself used for warm-up routes. Read playwright.config.ts source, extract every top-level config key whose value is a relative path string literal (matching /^'\\.\\.?\\//), and assert failingPlaywrightConfig(base, testDir) emits an explicit override for each. Plus behavioural rows: (a) the generated config text contains `globalSetup: undefined`; (b) a row that adds a synthetic relative-path key to a stub base config and proves the guard goes red - so the guard cannot pass by construction.",
+        "estimatedLines": "~70-95"
+      }
+    ],
+    "totalEstimatedLines": "~80-105 across 2 files (1 modified, 1 new)",
+    "regressionTestThatWouldHaveCaught": "The new scripts/__tests__/camp01-live-browser-adversarial.test.ts declaration row. At the moment #1544 added `globalSetup: './e2e/globalSetup.ts'` to playwright.config.ts, the guard would have gone red in pr-checks (jest runs on PR; the live workflow does not), naming the unneutralized key - instead of the break landing on main and burning 13 days of the live tier.",
+    "rejectedAlternatives": [
+      "Write the synthetic config INTO the repo root so relative paths keep resolving - breaks the probe's out-of-repo isolation intent and would make globalSetup actually execute against a nonexistent server.",
+      "Point globalSetup at an absolute path in the synthetic config - would run the warm-up with webServer:undefined and fail on connection refusal; the probe wants no server.",
+      "Delete globalSetup from playwright.config.ts - reverts a real fix for finding #60 (cold-compile inside a measured test) to work around a probe defect. Wrong direction."
+    ],
+    "residualNotClaimed": "This fix is derived from logs and diffs only. Whether the probe then reaches its PROOF-5D5 oracle clean (exitCode 1, complete report, exactly one failed observation, no runtime residue, no partial publication) has NOT been observed in this session - the 13-day outage means no run has exercised the post-config-load path since 33644594559. The parent should treat the first green run as the proof, and be prepared for a second, separately-introduced defect hiding behind this one."
+  },
+
+  "contractImpact": {
+    "affectsFrozenCampCommandContracts": false,
+    "checkedSurfaces": [
+      "scripts/qc/camp01-authority-receipt.contract.mjs - camp-01h commandSequence and canonicalArgvDigest (d6855f61d03fc0c2bfc56c2f1dc38a227093e4fd3b01e3706749f2cf3c3d2d1a) reference the REAL layout-helpers invocation (`@node scripts/playwright/run-playwright.mjs test --project=chromium e2e/layout-sweep/layout-helpers.selftest.spec.ts --workers=1`). The probe's argv (`test --config=<scratch> --project=chromium --workers=1`) is constructed ad hoc at camp01-live-browser-adversarial.mjs:264 and appears in no frozen row.",
+      "The probe borrows the camp-01h row's issued identity (invocationId '05-layout-helpers', executionId) solely to satisfy the runner-isolation writer-binding. The proposed edit changes neither the identity nor the argv.",
+      "reporterContracts[] normalizedPath 'reports/05-layout-helpers.json' is read, not written, by the fix."
+    ],
+    "verdict": "NOT contract-affecting. The change is confined to a test-fixture generator inside the live probe plus a new jest guard. No frozen argv, no canonicalArgvDigest, no contract row, no receipt schema is touched. Implementation may proceed without a contract amendment.",
+    "realCommandRunsUnaffected": "The real camp-01h Playwright invocations use the repo-root playwright.config.ts with no --config override, so globalSetup resolves normally for them. Only the probe's re-homed copy is broken."
+  },
+
+  "downstreamImpact": {
+    "tasksMdClaim": "openspec/changes/add-camp01-authority-receipts/tasks.md section 5 declares the live tier publishes machine-readable pass/fail artifacts and is 'not optional manual evidence'. The tier has published failed==1 on every run for 13 days, so any receipt or audit asserting a clean live tier after 2026-09-02T14:49:45Z is unsupported.",
+    "blastRadius": "1 of 11 probes. The other 7 executed probes pass and the 3 skips carry disposition 'expected' with skippedUnexpectedly==0, so the remaining live coverage is intact - the tier is red, not blind."
+  }
+}

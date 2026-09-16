@@ -1,0 +1,21 @@
+{
+  "at": "2026-09-13T07:38:05.021Z",
+  "reason": "Automatic approval review requires exact commit payload and GitHub destination approval despite prior roadmap delivery authorization.",
+  "pending": [
+    {
+      "slice": "journal",
+      "commit": "6f795eb515aad090186e01f373447b3bb6d7801c",
+      "branch": "codex/roadmap-r2-prepared-journal-api-20260913",
+      "repository": "https://github.com/SwiggitySwerve/MekStation",
+      "body": ".sisyphus/roadmap-completion-20260912/r2-prepared-journal-api-delivery-20260913/pr-body-final-reviewed.md"
+    },
+    {
+      "slice": "chassis-archive",
+      "commit": "f6078a2a790129bb7faa53249710b4151b779ab9",
+      "branch": "codex/roadmap-archive-chassis-20260913",
+      "repository": "https://github.com/SwiggitySwerve/MekStation",
+      "body": ".sisyphus/roadmap-completion-20260912/archive-chassis-delivery-20260913/pr-body-reviewed.md"
+    }
+  ],
+  "browser77d9": "Prior separate approval remains pending; no retry authorized."
+}

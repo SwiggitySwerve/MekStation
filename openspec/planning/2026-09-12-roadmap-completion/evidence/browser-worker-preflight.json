@@ -1,0 +1,20 @@
+{
+  "at": "2026-09-12T13:05:37.138Z",
+  "capabilityCheck": "skill_surface_mismatch",
+  "drift": [
+    {
+      "surface": "skills",
+      "path": "skills/.system/openai-docs/SKILL.md",
+      "expected": "4371fcc6652d78309ccf5e7710a4fd22314ad7f1f4928a6c172ddae80c87cc87",
+      "actual": "8ce8021101bcea594ff92ee6cfd8ca7641a49ee66d7bc6070555f1a33fc239d9"
+    },
+    {
+      "surface": "skills",
+      "path": "skills/interview-protocol/SKILL.md",
+      "expected": "d2af0c0dd61f040e97696e419644d49da048a4bd5f8488fe626beac284d93359",
+      "actual": "0265b893caa157515d0f986d262393080c63974c6d10a0ec1c45734bb644f9e8"
+    }
+  ],
+  "routingAudit": "36 native roles verified high/xhigh; no forbidden routes",
+  "decision": "Narrow delegation to explicit native Luna/high workers. No capability change or lock regeneration."
+}

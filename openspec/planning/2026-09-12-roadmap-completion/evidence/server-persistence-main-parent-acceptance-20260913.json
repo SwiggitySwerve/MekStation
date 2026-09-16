@@ -1,0 +1,215 @@
+{
+  "capturedAt": "2026-09-13T01:42:28.393Z",
+  "status": "accepted-exact-main-documentation-proof",
+  "head": "106bfbc76886a6f19f1ac00143cfa1708f33f19f",
+  "pr": 1656,
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/server-persistence-specs",
+  "files": [
+    {
+      "path": "openspec/specs/database-schema/spec.md",
+      "bytes": 9015,
+      "sha256": "bc713041e3e09835edfcc7c2ce2821e4f2ca59a51ac2e73b4cb96ce9917bcf63",
+      "gitBlobOid": "2a68ac1a03b41a70917e2fa836a55772f5354fa3"
+    },
+    {
+      "path": "openspec/specs/persistence-services/spec.md",
+      "bytes": 8534,
+      "sha256": "45fbb18e0b71f17856919c2b5cdeca5b007774c1099c42c3cbfc75a51a468898",
+      "gitBlobOid": "944bb95da88744798f3a9010228a107c764f0f0b"
+    },
+    {
+      "path": "openspec/specs/unit-services/spec.md",
+      "bytes": 43823,
+      "sha256": "32e1603943d525c26b74212cd588c6354bffd86a12b8bd71aa6b584f75e056a3",
+      "gitBlobOid": "e6d40288b09a4ca5f81b0f6d5c3cae911640b543"
+    }
+  ],
+  "sources": [
+    {
+      "path": "src/components/customizer/tabs/MultiUnitTabsUnitState.ts",
+      "sha256": "43e24998962b38de079233f39e249e3221d60d591b804a54a7e8036889fd0b46",
+      "gitBlobOid": "5a549fdd707014293985420ce69299992582863f"
+    },
+    {
+      "path": "src/components/customizer/tabs/useMultiUnitTabsController.dialogs.ts",
+      "sha256": "a80d18a6ab353d3942f3fd844fe707ff93d7d5f72ccdc9993b5b000a428a26e9",
+      "gitBlobOid": "8d67764166c0da3a243150b72f19827f069ddcff"
+    },
+    {
+      "path": "src/components/customizer/tabs/restoreLibraryVersionToDraft.ts",
+      "sha256": "a8a243f780c7c2827bcae167cc59f8fc2ff98702db9db721fb6295e25576b617",
+      "gitBlobOid": "87ebdd52d8755a9d5ba30252d73bd0bbcea93955"
+    },
+    {
+      "path": "src/services/units/CustomUnitApiService.ts",
+      "sha256": "430f215730f40e08e294aaba0dcb10fe24ccdc4dd510730a1fc107f6c867691f",
+      "gitBlobOid": "c2c70f427259d59dc93ccc74958c8b8449e8c183"
+    },
+    {
+      "path": "src/services/units/CustomUnitService.ts",
+      "sha256": "c2dbfbdbc17b69961f050c87afd786ab98506919bac80cde4b0970204b168356",
+      "gitBlobOid": "b7f223a657d71717ccf6b1760da302ad743eeae7"
+    },
+    {
+      "path": "src/services/units/UnitRepository.ts",
+      "sha256": "d9a7f0439b2ebe8b23154dbdfae7716faef4b6b8f32c7b51bea37d50c93d9dae",
+      "gitBlobOid": "b2b5dea2373cdfc385844a1357d9af4c035bcd42"
+    },
+    {
+      "path": "src/services/units/VersionRepository.ts",
+      "sha256": "21aab0e1bcf18079f213b1aa82617e741c5fc026f76815bbea13b8ab1c62226d",
+      "gitBlobOid": "7da3647713a998f9823bd8b24463af815dea3584"
+    },
+    {
+      "path": "src/services/persistence/SQLiteService.ts",
+      "sha256": "13b09094392ac13633812d0c542cd81f2bf377cb7bba99e944d98d6d35adca67",
+      "gitBlobOid": "f50cf6e8864a20b073e57150989f72ab2272099c"
+    },
+    {
+      "path": "src/services/persistence/SQLiteService.migrations.ts",
+      "sha256": "a07b9c1bffce237a72c5b826bd196916e8bd4af11675ce464ab5ad7447f22f77",
+      "gitBlobOid": "505da50ca20d08f889aca956449229fb311d6842"
+    },
+    {
+      "path": "src/pages-modules/api/routeHelpers.ts",
+      "sha256": "b52e2d64632092d47cdd7b96e9756daef1270a85a9279a7d2de71d2d91a6a16c",
+      "gitBlobOid": "9a9c29cba3d38643de5c4d21d082e8b8a216a99e"
+    },
+    {
+      "path": "src/pages/api/units/custom/index.ts",
+      "sha256": "735cdd7ad945e6f2481a951fff952c53e3a8c8c8d2dedba8f1337c2293e0541c",
+      "gitBlobOid": "8db5617e06e02c1b1090f45a10c51187cc4191a9"
+    },
+    {
+      "path": "src/services/persistence/IndexedDBService.ts",
+      "sha256": "04619a6de085ad7ebc76768c591dc450be908b31adbacac3d58cb3d5695ea5fb",
+      "gitBlobOid": "aed133ebc57de9918549bab3324b8cf2095e4a1e"
+    }
+  ],
+  "checks": [
+    {
+      "name": "openspec-all",
+      "bin": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "C:/Users/wroll/AppData/Roaming/npm/node_modules/@fission-ai/openspec/bin/openspec.js",
+        "validate",
+        "--all",
+        "--strict",
+        "--no-interactive"
+      ],
+      "startedAt": "2026-09-13T01:39:24.816Z",
+      "endedAt": "2026-09-13T01:39:27.223Z",
+      "exit": 0,
+      "signal": null,
+      "logs": {
+        "stdout": {
+          "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/server-persistence-main-verification-20260913/openspec-all.stdout.log",
+          "sha256": "2754dbee9c7f3c73dafb72bec4284c7de4a886d9f795955954f8d77c5768a12d"
+        },
+        "stderr": {
+          "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/server-persistence-main-verification-20260913/openspec-all.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "name": "spec-purpose-validate-strict",
+      "bin": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "spec:purpose:validate:strict"
+      ],
+      "startedAt": "2026-09-13T01:39:27.224Z",
+      "endedAt": "2026-09-13T01:39:31.484Z",
+      "exit": 0,
+      "signal": null,
+      "logs": {
+        "stdout": {
+          "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/server-persistence-main-verification-20260913/spec-purpose-validate-strict.stdout.log",
+          "sha256": "910caffbc3aa2373591ef0fd04f925a418ac73c97babc79ae65f602e5279d859"
+        },
+        "stderr": {
+          "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/server-persistence-main-verification-20260913/spec-purpose-validate-strict.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "name": "terminology-validate-strict",
+      "bin": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "terminology:validate:strict"
+      ],
+      "startedAt": "2026-09-13T01:39:31.484Z",
+      "endedAt": "2026-09-13T01:39:57.244Z",
+      "exit": 0,
+      "signal": null,
+      "logs": {
+        "stdout": {
+          "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/server-persistence-main-verification-20260913/terminology-validate-strict.stdout.log",
+          "sha256": "d15011da7521e031b3bea845889b040bc9e0f3dee6f2e974e2fd7ba0697781a0"
+        },
+        "stderr": {
+          "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/server-persistence-main-verification-20260913/terminology-validate-strict.stderr.log",
+          "sha256": "c58a1d9dcf4e7c4c6fb35ea53513e1f56e8ea26e9db4b8976d9f9837dc444090"
+        }
+      }
+    },
+    {
+      "name": "qc-openspec-ci-validate",
+      "bin": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "qc:openspec-ci:validate"
+      ],
+      "startedAt": "2026-09-13T01:39:57.244Z",
+      "endedAt": "2026-09-13T01:40:00.169Z",
+      "exit": 0,
+      "signal": null,
+      "logs": {
+        "stdout": {
+          "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/server-persistence-main-verification-20260913/qc-openspec-ci-validate.stdout.log",
+          "sha256": "f01feb11318234aab4764fe76151b78c06905527212a8f8723626fcf616b71d6"
+        },
+        "stderr": {
+          "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/server-persistence-main-verification-20260913/qc-openspec-ci-validate.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "name": "diff-check",
+      "bin": "git",
+      "args": [
+        "diff",
+        "--check"
+      ],
+      "startedAt": "2026-09-13T01:40:00.169Z",
+      "endedAt": "2026-09-13T01:40:00.623Z",
+      "exit": 0,
+      "signal": null,
+      "logs": {
+        "stdout": {
+          "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/server-persistence-main-verification-20260913/diff-check.stdout.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr": {
+          "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/server-persistence-main-verification-20260913/diff-check.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    }
+  ],
+  "priorReview": {
+    "path": "E:/Projects/MekStation/openspec/planning/2026-09-12-roadmap-completion/evidence/server-persistence-parent-review-20260913.json",
+    "sha256": "d44248dfb08f1b83aa3c231c7e25612b557ab30046ff9ae9b97cbaac016773c7"
+  },
+  "limits": [
+    "Documentation/source proof only; no new product/build/browser/persistence-runtime proof.",
+    "Root reconciliation and owned cleanup still required."
+  ]
+}

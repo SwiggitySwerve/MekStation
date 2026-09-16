@@ -1,0 +1,75 @@
+{
+  "capturedAt": "2026-09-13T00:48:42.966Z",
+  "status": "accepted-owned-cleanup-postconditions",
+  "receipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/combat-reference-cleanup-20260913.json",
+    "sha256": "00f311c492d71d0d39cce54583344dee2959ad0524fc3b8494f7fdfaf44ea343"
+  },
+  "exportManifest": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/combat-reference-cleanup-20260913/export-manifest.json",
+    "sha256": "aa978f51a314c67d2dce76e08fc15cbbc445b1e3bd435d5e868131355627301b"
+  },
+  "reopenedArtifacts": 388,
+  "source": [
+    {
+      "path": "openspec/specs/c3-network-targeting/spec.md",
+      "exportedWorkingBytesSha256": "c34fe3348ee43cf57474204d423b23dbd44d32fbca1245fe2e7202de12ed14c9",
+      "gitBlobSha256": "c34fe3348ee43cf57474204d423b23dbd44d32fbca1245fe2e7202de12ed14c9",
+      "normalizedEqual": true
+    },
+    {
+      "path": "openspec/specs/combat-analytics/spec.md",
+      "exportedWorkingBytesSha256": "71d8676759ab0ab3fee34ac2e6fe0cbc99a02b4e63d190b8e0f92eec80c77a01",
+      "gitBlobSha256": "71d8676759ab0ab3fee34ac2e6fe0cbc99a02b4e63d190b8e0f92eec80c77a01",
+      "normalizedEqual": true
+    },
+    {
+      "path": "openspec/specs/firing-arc-calculation/spec.md",
+      "exportedWorkingBytesSha256": "c91bfbc8a745aa68891ebfbd53815a228bafa1b429816c617b02a26bb712ec8a",
+      "gitBlobSha256": "cdab5e4be32d7566b417f5daba87d05bdff4a45eebdc174a486ad53cbec65edf",
+      "normalizedEqual": true
+    },
+    {
+      "path": "openspec/specs/hull-down-position/spec.md",
+      "exportedWorkingBytesSha256": "2d1a1356028efc404f95bcdcc1a51d847ce1541b30dd1f8537e06e2f561987ae",
+      "gitBlobSha256": "2d1a1356028efc404f95bcdcc1a51d847ce1541b30dd1f8537e06e2f561987ae",
+      "normalizedEqual": true
+    },
+    {
+      "path": "openspec/specs/piloting-skill-rolls/spec.md",
+      "exportedWorkingBytesSha256": "2bcf431b95ba2eb190848bdeb4011a778704d314944ac88a14d96709d1459f76",
+      "gitBlobSha256": "a09c37e40cbb626ae7716f0d1d8c9f77902c8056e8969a4209f17c6d45059c5d",
+      "normalizedEqual": true
+    }
+  ],
+  "postconditionCommands": [
+    {
+      "args": [
+        "show-ref",
+        "--verify",
+        "--quiet",
+        "refs/heads/codex/roadmap-combat-reference-specs-20260912"
+      ],
+      "exitCode": 1
+    },
+    {
+      "args": [
+        "show-ref",
+        "--verify",
+        "--quiet",
+        "refs/remotes/origin/codex/roadmap-combat-reference-specs-20260912"
+      ],
+      "exitCode": 1
+    }
+  ],
+  "targetAbsent": true,
+  "registryEntryAbsent": true,
+  "indexUnchanged": true,
+  "rootFiveSpecsUnchanged": true,
+  "originalWorktreeRemoveExitCode": null,
+  "qualification": [
+    "Original worker receipt and post-check incorrectly set removal exit0 based on absence. That numeric exit is superseded as unknown; preserved originals are not authoritative for it. Fresh parent checks establish target/ref absence and retained artifact integrity.",
+    "Export sources are working-tree bytes; two containCRLF. Parent verified their LF-normalized content equals exact merged Git blobs.",
+    "All388exported files reopened; export/reopen/preflight records precede recorded removal postconditions. No deletion was repeated to reconstruct history."
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "ci-test-recovery-verification",
+  "capturedAt": "2026-09-12",
+  "worktree": "E:/Projects/MekStation",
+  "scope": "Focused verification of the recovered OpenSpec CI quality test. No source edits, trimming, Git changes, builds, or servers.",
+  "recoverySource": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ci-test-source-recovery.json",
+    "sha256": "6a2717e0c2607ee183d966dfd83b804b4970b85670eae55f4d8756ab1b3ec827",
+    "recoveredSha256": "37cc951ad23379e647b2217750932f18c1843c247ee1f4a3e7e36da79b97b026",
+    "recoveredLines": 675
+  },
+  "target": {
+    "path": "scripts/__tests__/openspec-ci-quality-qc.test.ts",
+    "beforeSha256": "37cc951ad23379e647b2217750932f18c1843c247ee1f4a3e7e36da79b97b026",
+    "afterSha256": "37cc951ad23379e647b2217750932f18c1843c247ee1f4a3e7e36da79b97b026",
+    "lines": 675,
+    "unchanged": true
+  },
+  "checks": [
+    {
+      "name": "focused Jest",
+      "command": "NODE_OPTIONS=--max-old-space-size=4096 node node_modules/jest/bin/jest.js --runInBand --runTestsByPath scripts/__tests__/openspec-ci-quality-qc.test.ts",
+      "status": "passed",
+      "result": "1 suite, 37 tests passed, exit 0; 5.677 seconds",
+      "rawLog": {
+        "path": ".sisyphus/roadmap-completion-20260912/ci-recovery/ci-quality-focused-jest.raw.log",
+        "sha256": "300d221868e1d9c068ced759ff317c4c90e43b7b5f85e1e7f6711f0f290060bb"
+      }
+    },
+    {
+      "name": "scoped formatting",
+      "command": "npx.cmd oxfmt --check scripts/__tests__/openspec-ci-quality-qc.test.ts",
+      "status": "passed",
+      "result": "All matched files use the correct format; 1 file.",
+      "rawLog": {
+        "path": ".sisyphus/roadmap-completion-20260912/ci-recovery/ci-quality-format.raw.log",
+        "sha256": "8c127bde54add9dc74c433f58e66ee0a6a2aa6fed9858a2f695980f965fef46c"
+      }
+    },
+    {
+      "name": "scoped diff check",
+      "command": "git diff --check -- scripts/__tests__/openspec-ci-quality-qc.test.ts",
+      "status": "passed",
+      "result": "No whitespace errors.",
+      "rawLog": {
+        "path": ".sisyphus/roadmap-completion-20260912/ci-recovery/ci-quality-diff-check.raw.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "coverageObserved": {
+    "covered": "Current workflow, branch protection, package wiring, active-change ledger, and customizer browser regression gate acceptance plus mutation rejection cases.",
+    "concerns": [
+      "This is validator contract coverage using local workflow/package/ledger fixtures and subprocesses; it does not execute the remote CI workflow or GitHub branch-protection API.",
+      "The focused run does not establish whole-repository test, build, browser, or release coverage.",
+      "The recovered 675-line source remains intact; its 37-test result is the available focused proof."
+    ]
+  },
+  "finalStatus": "verified"
+}

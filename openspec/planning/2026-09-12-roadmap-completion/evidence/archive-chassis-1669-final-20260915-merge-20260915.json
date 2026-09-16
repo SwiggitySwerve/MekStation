@@ -1,0 +1,64 @@
+{
+  "pr": 1669,
+  "branch": "codex/roadmap-archive-chassis-20260913",
+  "reviewedCommit": "f6078a2a790129bb7faa53249710b4151b779ab9",
+  "finalHead": "358f1e31d4a22a9990129202d6d0af16b57d1feb",
+  "anomaly": "PR was already merged at 2026-09-15T06:22:39Z before this merge-manager session began; verification below is post-hoc. Steps 5 (prepare-simple-merge.cjs) and 6 (gh pr merge) were therefore not executed by this session.",
+  "contentGuard": {
+    "method": "post-hoc: squash file set (ebe80aff8..c3b4cc1e3) compared to reviewed-commit file set; blob SHAs compared across reviewedCommit, finalHead, and merged main",
+    "fileSetEqual": true,
+    "files": [
+      "openspec/active-change-ledger.json",
+      "openspec/changes/archive/2026-09-12-establish-battlemech-chassis-index/.openspec.yaml",
+      "openspec/changes/archive/2026-09-12-establish-battlemech-chassis-index/design.md",
+      "openspec/changes/archive/2026-09-12-establish-battlemech-chassis-index/proposal.md",
+      "openspec/changes/archive/2026-09-12-establish-battlemech-chassis-index/specs/battlemech-chassis-index/spec.md",
+      "openspec/changes/archive/2026-09-12-establish-battlemech-chassis-index/tasks.md"
+    ],
+    "blobEquality": {
+      "openspec/active-change-ledger.json": "879ae5772d9e396d9f1dc0c84796e6735b5dd029",
+      "openspec/changes/archive/2026-09-12-establish-battlemech-chassis-index/.openspec.yaml": "e8cda9e50ea0cab62490e3e8f3e824b831aca6f0",
+      "openspec/changes/archive/2026-09-12-establish-battlemech-chassis-index/design.md": "8cd88f4c75b4521e7e205f3a6328d14ab7d2fc4c",
+      "openspec/changes/archive/2026-09-12-establish-battlemech-chassis-index/proposal.md": "172d6564cb1ebb7d25c00c7170a23f59c0c456e3",
+      "openspec/changes/archive/2026-09-12-establish-battlemech-chassis-index/specs/battlemech-chassis-index/spec.md": "31bd743ece8b81fe1203847def09a50c9dcf31e0",
+      "openspec/changes/archive/2026-09-12-establish-battlemech-chassis-index/tasks.md": "34196248de7dd37f35f182f15456e685ca76c84d"
+    },
+    "blobEqualityNote": "identical across reviewedCommit, finalHead and merged main for all 6 files",
+    "result": "PASS"
+  },
+  "updateBranch": {
+    "performedByThisSession": false,
+    "oldHead": "f6078a2a790129bb7faa53249710b4151b779ab9",
+    "newHead": "358f1e31d4a22a9990129202d6d0af16b57d1feb",
+    "note": "performed at ~06:19Z by the prior session"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "otherChecksCount": 26
+  },
+  "premergeReceipt": {
+    "path": null,
+    "ready": null,
+    "note": "not run by this session; PR merged before session start"
+  },
+  "mergeCommit": "c3b4cc1e3ace35ff95b7999d9680a5d657ca344f",
+  "mergeCommitParents": ["ebe80aff8f221f737c81b24e78c33fa3699daf06"],
+  "mergeStyle": "squash (single parent)",
+  "mergedAt": "2026-09-15T06:22:39Z",
+  "mainAfter": "c3b4cc1e3ace35ff95b7999d9680a5d657ca344f",
+  "worktree": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/archive-chassis",
+    "cleanBeforeFF": true,
+    "branch": "codex/roadmap-archive-chassis-20260913",
+    "fastForward": "ff-only from f6078a2a7 to 358f1e31d applied against the fetched commit object",
+    "result": "SUCCESS",
+    "note": "remote ref refs/heads/codex/roadmap-archive-chassis-20260913 no longer exists: repo has delete_branch_on_merge=true, so GitHub auto-deleted the branch on merge"
+  },
+  "timestamps": {
+    "verifiedAt": "2026-09-15T06:24:40Z",
+    "receiptWrittenAt": "2026-09-15T06:25:00Z"
+  }
+}

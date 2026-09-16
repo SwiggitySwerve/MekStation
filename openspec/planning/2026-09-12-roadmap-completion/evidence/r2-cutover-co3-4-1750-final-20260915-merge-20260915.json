@@ -1,0 +1,56 @@
+{
+  "pr": 1750,
+  "branch": "codex/roadmap-r2-authority-cutover-co3-20260915",
+  "reviewedCommit": "c6be02fd6370576e3a1f5034c2395aaef19ba46f",
+  "finalHead": "3232cc8fa6e9c197628d463194a0d34f96f60b49",
+  "autoMergeArmed": false,
+  "contentGuard": {
+    "method": "file set from `git diff --name-only origin/main...<head>` vs the PR's own reviewed files, plus per-file blob equality against the reviewed commit; re-run after update-branch",
+    "fileCountAtMerge": 1,
+    "diffstat": "476 insertions(+)",
+    "blobEquality": "all files blob-identical to the reviewed commit at the gated head unless noted",
+    "result": "PASS"
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "expectedHeadShaGuardUsed": true,
+    "newHead": "3232cc8fa6e9c197628d463194a0d34f96f60b49"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "Customizer Regressions": "pass",
+    "Unit Tests (6/6)": "pass",
+    "otherChecksCount": 27,
+    "otherChecksBuckets": {
+      "pass": 27
+    },
+    "totalChecks": 31,
+    "rerunsPerformed": 0
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-cutover-co3-4-1750-final-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "1fcd9b6485421d64d4303693a368676fc4df4d51",
+  "mergeCommitParents": [
+    "763e80fb6b064d4fc8b12528bdf3f4c6d572f79b"
+  ],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1750 --squash --match-head-commit 3232cc8fa6e9c197628d463194a0d34f96f60b49",
+  "mergedAt": "2026-09-15T20:19:30Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "The merge commit changes exactly 1 file(s), all blob-identical to the gated head 3232cc8fa6e9c197628d463194a0d34f96f60b49.",
+  "mainAfter": "1fcd9b6485421d64d4303693a368676fc4df4d51",
+  "worktree": {
+    "fastForward": "NOT PERFORMED - no owned worktree designated for this PR",
+    "result": "N/A"
+  },
+  "notes": "Per-PR cap 476 confirmed. Collapsed cleanly from the 5-file cumulative diff to its own single spec file. All four CO3 caps (243/359/154/476) verified against the post-collapse diffs.",
+  "timestamps": {
+    "receiptWrittenAt": "2026-09-15T20:35:00Z"
+  }
+}

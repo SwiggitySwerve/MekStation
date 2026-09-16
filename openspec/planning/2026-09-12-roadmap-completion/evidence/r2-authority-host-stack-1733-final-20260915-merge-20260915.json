@@ -1,0 +1,52 @@
+{
+  "pr": 1733,
+  "branch": "codex/roadmap-r2-authority-host-live-fold-20260915",
+  "reviewedCommit": "5973dc7fbe1250563f0b48801c7bd173ff165c1f",
+  "finalHead": "c4d408afaef38103455127712e8239b05e8bc31c",
+  "autoMergeArmed": false,
+  "contentGuard": {
+    "method": "file set from `git diff --name-only origin/main...<head>` vs the reviewed file set, plus per-file blob equality against the reviewed commit; re-run after update-branch",
+    "fileCountAtMerge": 6,
+    "blobEquality": "all files blob-identical to the reviewed commit at the gated head",
+    "result": "PASS"
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "expectedHeadShaGuardUsed": true,
+    "newHead": "c4d408afaef38103455127712e8239b05e8bc31c"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "otherChecksCount": 27,
+    "otherChecksBuckets": {
+      "pass": 27
+    },
+    "totalChecks": 31
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-authority-host-stack-1733-final-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "be71efec018481b08e44281cca0c2e21f07456f3",
+  "mergeCommitParents": [
+    "00901f4e097d9973ba4d48369d343f93d52092c8"
+  ],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1733 --squash --match-head-commit c4d408afaef38103455127712e8239b05e8bc31c",
+  "mergedAt": "2026-09-15T16:43:15Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "The merge commit changes exactly 6 file(s), all blob-identical to the gated head c4d408afaef38103455127712e8239b05e8bc31c.",
+  "mainAfter": "be71efec018481b08e44281cca0c2e21f07456f3",
+  "worktree": {
+    "fastForward": "NOT PERFORMED - coordinator designated the owned worktrees as off-limits for these PRs",
+    "result": "SKIPPED (intentional)"
+  },
+  "notes": "Supersedes the red-first #1732, which was closed rather than merged because a red-first test-only PR cannot satisfy the protected checks. This PR carries H0 + H1H2 + the comment commit as one green squash (841+/158-), with a recorded harness-floor overage. Updated twice (once early for an advance CI signal, once after 1730 landed); both guards passed with all six blobs identical to the reviewed head.",
+  "timestamps": {
+    "receiptWrittenAt": "2026-09-15T17:02:00Z"
+  }
+}

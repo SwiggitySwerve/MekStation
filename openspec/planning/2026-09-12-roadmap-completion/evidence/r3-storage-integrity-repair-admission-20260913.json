@@ -1,0 +1,31 @@
+{
+  "at": "2026-09-13T08:07:20.252Z",
+  "node": "R3.storage",
+  "status": "repair-admitted-after-parent-reproduction",
+  "base": "44b94adbbb333a9d4965e057b34290e19fc0e781",
+  "worktree": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\branch-integrity-repair",
+  "owner": "Terra/high implementation, separate review and parent final validation",
+  "scope": "Enforce defined root genesis digest and consistent effective-head branch status at SQLite/store boundaries, preserving legal atomic activation and existing migration history.",
+  "requirements": [
+    "add-authoritative-history-branches tasks1.1,1.2,1.4,1.5",
+    "event-store delta immutable branch identity and effective head"
+  ],
+  "caps": {
+    "files": 15,
+    "changedLines": 500
+  },
+  "limits": [
+    "Root exploit uses explicitly permitted creation seam; default production creation remains disabled.",
+    "Head disagreement reproduced through raw SQL, not an established normal production path.",
+    "Add migration forward; do not silently rewrite applied migration23. No data deletion, reset, root substitution or enablement of branch creation.",
+    "Stop and split if caps fail; activation/correction behavior beyond compatibility remains separate."
+  ],
+  "reproduction": {
+    "path": ".sisyphus/roadmap-completion-20260912/r3-storage-parent-proof-20260913/integrity-probe-result.json",
+    "sha256": "5f8c7aa0d3857eb77fac63470d519583b11e1668860801f393030c12ceebbe29",
+    "exit": 0
+  },
+  "failedBuild": {
+    "reason": "Next compiled; hydration correctly rejected junction destination. Preserve attempt; final repair gates need physical existing dependencies, no new install."
+  }
+}

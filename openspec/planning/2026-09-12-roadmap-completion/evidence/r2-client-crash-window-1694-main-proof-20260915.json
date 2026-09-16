@@ -1,0 +1,54 @@
+{
+  "evidenceKind": "exact-main-proof",
+  "prReference": 1694,
+  "commitTested": "c40a394f6030cc18157384518a4e62550d6b3727",
+  "reviewedCommit": "7515e88f5",
+  "blobEquality": [
+    "openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md 15ae32fa1c1f5144b95ecc0e482bde4d10e1a1b6 15ae32fa1c1f5144b95ecc0e482bde4d10e1a1b6 SAME",
+    "openspec/changes/design-campaign-authority-and-sync/tasks.md 9f55a680df7e616930cd5a07879304fb41293824 9f55a680df7e616930cd5a07879304fb41293824 SAME",
+    "src/stores/campaign/__tests__/campaignPersistenceCrashWindow.test.ts e67d4e69eab66c92061896f46bfac3303118d14f e67d4e69eab66c92061896f46bfac3303118d14f SAME",
+    "src/stores/campaign/campaignPersistenceWiring.ts 322ce53c097d992cd7f38fd314a7b3f7dda99170 322ce53c097d992cd7f38fd314a7b3f7dda99170 SAME",
+    "src/stores/campaign/useCampaignPersistenceStore.ts 5483d36a594689950592a5acb6f3c7faad373e02 5483d36a594689950592a5acb6f3c7faad373e02 SAME"
+  ],
+  "commands": [
+    {
+      "argv": [
+        "node",
+        "node_modules/jest/bin/jest.js",
+        "--maxWorkers=2",
+        "--coverage=false",
+        "src/stores/campaign",
+        "src/lib/campaign"
+      ],
+      "result": "jest exit 0\nTest Suites: 220 passed, 220 total\nTests:       3223 passed, 3223 total"
+    },
+    {
+      "argv": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "result": "typecheck exit 0"
+    },
+    {
+      "argv": [
+        "npx",
+        "openspec",
+        "validate",
+        "--all",
+        "--strict"
+      ],
+      "result": "openspec exit 0"
+    }
+  ],
+  "logSha256": [
+    "34806fe936e1a63f7826baf2035bf91a639309802b3f6f5d18014d4aaffdc0e3 */e/Projects/MekStation/.sisyphus/roadmap-completion-20260912/main-proof-1694-20260915/jest.stderr.log",
+    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 */e/Projects/MekStation/.sisyphus/roadmap-completion-20260912/main-proof-1694-20260915/jest.stdout.log",
+    "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3 */e/Projects/MekStation/.sisyphus/roadmap-completion-20260912/main-proof-1694-20260915/openspec.log",
+    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 */e/Projects/MekStation/.sisyphus/roadmap-completion-20260912/main-proof-1694-20260915/typecheck.stderr.log",
+    "d140a6ce62dda0946fe30dd882dbb8209f05be72c8fa8850e5634755a399e50f */e/Projects/MekStation/.sisyphus/roadmap-completion-20260912/main-proof-1694-20260915/typecheck.stdout.log"
+  ],
+  "nodeVersion": "v22.22.0",
+  "timestampUtc": "2026-09-15T09:50:05.390Z",
+  "parentAcceptance": "parent Astra ran and accepted"
+}

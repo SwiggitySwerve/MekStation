@@ -1,0 +1,68 @@
+{
+  "pr": 1689,
+  "branch": "codex/roadmap-ci-quality-test-20260915",
+  "reviewedCommit": "fb1d643064e057625ef5d66e0ad137da47a1b399",
+  "finalHead": "87f47388943f0f77da8e28820a5c6f1b1b39b3b6",
+  "anomaly": null,
+  "autoMergeArmed": false,
+  "contentGuard": {
+    "preUpdate": {
+      "fileSetEqualToReviewed": true,
+      "files": ["scripts/__tests__/openspec-ci-quality-qc.test.ts"],
+      "diffstat": "1 file changed, 414 insertions(+)",
+      "sha256AtHead": "ed52fabd4c9eb830c5137c965d8249b563e2c929b8cc3893fd9a5829f2aa7646",
+      "sha256Expected": "ed52fabd4c9eb830c5137c965d8249b563e2c929b8cc3893fd9a5829f2aa7646",
+      "sha256Match": true,
+      "result": "PASS"
+    },
+    "postUpdate": {
+      "fileSet": "unchanged - single file, no files added by the update merge",
+      "diffstat": "1 file changed, 414 insertions(+)",
+      "sha256AtHead": "ed52fabd4c9eb830c5137c965d8249b563e2c929b8cc3893fd9a5829f2aa7646",
+      "sha256Match": true,
+      "result": "PASS"
+    }
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "oldHead": "fb1d643064e057625ef5d66e0ad137da47a1b399",
+    "newHead": "87f47388943f0f77da8e28820a5c6f1b1b39b3b6",
+    "expectedHeadShaGuard": "fb1d643064e057625ef5d66e0ad137da47a1b399",
+    "reason": "branch was BEHIND after #1683 merged to main"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "otherChecksCount": 27,
+    "otherChecksBuckets": { "pass": 27 },
+    "totalChecks": 31,
+    "pollLog": "08:19:26 EMPTY -> 08:31:36 31 pass / 0 pending (slower run; queue contention observed around 08:22-08:28)"
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ci-quality-test-1689-final-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "2af7b22598e1ec40ba405e86182daf862d04c526",
+  "mergeCommitParents": ["bce2049d74ce6e48b5d0813fb506ada701257e47"],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1689 --squash --match-head-commit 87f47388943f0f77da8e28820a5c6f1b1b39b3b6",
+  "mergedAt": "2026-09-15T08:31:58Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "sha256 of scripts/__tests__/openspec-ci-quality-qc.test.ts read back from the merge commit on main is ed52fabd4c9eb830c5137c965d8249b563e2c929b8cc3893fd9a5829f2aa7646 - exact match to the reviewed digest.",
+  "mainAfter": "2af7b22598e1ec40ba405e86182daf862d04c526",
+  "downstreamEffect": "This squash merge is what put PR 1690 (stacked on this branch) into an unresolvable add/add conflict - see ci-quality-mutations-1690-final-20260915-merge-20260915.json.",
+  "worktree": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/ci-customizer-gate-20260915",
+    "fastForward": "NOT PERFORMED - per coordinator instruction",
+    "result": "SKIPPED (intentional)"
+  },
+  "timestamps": {
+    "guardStartedAt": "2026-09-15T08:19:00Z",
+    "checksTerminalAt": "2026-09-15T08:31:36Z",
+    "mergedAt": "2026-09-15T08:31:58Z",
+    "receiptWrittenAt": "2026-09-15T08:33:30Z"
+  }
+}

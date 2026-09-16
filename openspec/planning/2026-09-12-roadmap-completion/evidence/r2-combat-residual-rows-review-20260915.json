@@ -1,0 +1,143 @@
+{
+  "evidenceKind": "independent-review",
+  "date": "2026-09-15",
+  "reviewOf": "E:/Projects/MekStation/openspec/planning/2026-09-12-roadmap-completion/evidence/r2-combat-residual-rows-local-20260915.json",
+  "reviewer": "independent GP-justified reviewer subagent (Bash/Read/Write only, no repo mutation)",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/browser",
+  "branch": "codex/roadmap-r2-combat-residual-rows-20260915",
+  "commit": "8bc4d99e43d35fe2843ac2b8c8b860d92ba66ffb",
+  "node": "v22.22.0",
+
+  "verdict": "APPROVE",
+
+  "preflight": {
+    "gitStatusCleanBefore": {
+      "command": "git status --short",
+      "result": "empty output - clean tree"
+    },
+    "commitMessageAiAttribution": {
+      "command": "git log -1 --format=%B",
+      "result": "test(combat): pin the redacted custom construction on the recovery delivery stream",
+      "finding": "no AI attribution present"
+    },
+    "diffScopeNote": {
+      "issue": "git diff --stat origin/main..HEAD (two-dot) initially showed 9 files / -484 net because origin/main has advanced past the branch's base (actual origin/main = 15ca7b25b, not the 4e5a74b9f the task brief named), so the two-dot form mixes in unrelated divergent history from both sides.",
+      "resolution": "git merge-base origin/main HEAD = 4e5a74b9fddda382945277b15d76e2e09397d56c, exactly matching the base the artefact and task brief claim. git diff --stat 4e5a74b9f..HEAD and git diff --stat HEAD~1..HEAD both show only the single file: src/lib/multiplayer/server/__tests__/customCombatRecovery.recoveryDelivery.test.ts, 273 insertions(+), 0 deletions. git log --oneline -5 confirms HEAD~1 is 4e5a74b9f itself.",
+      "conclusion": "the commit under review touches exactly one file as claimed; the wider two-dot diff was a stale-base artefact of origin/main moving during the session, not evidence of scope creep in this commit"
+    }
+  },
+
+  "testJudgment": {
+    "assertsRecoveryRedactionForAllViewersBothDesigns": true,
+    "detail": "The single test 'serves owner, opponent and spectator the same redaction after recovery' (lines 214-272) persists TWO distinct custom units (owner + opponent), builds a real 1v1+spectator match, launches a live ServerMatchHost via the production buildMatchHostBootstrapFromMeta path, captures each of the three viewers' live join-replay snapshot-id deliveries (deliveredSnapshotIds, lines 180-194, using host.admitSocket + host.handleSessionJoin), deletes BOTH saved designs from the mutable UnitRepository, closes and reopens SQLiteService/UnitRepository/DurableMatchStore on the same files (a real cold reopen), calls recoverActiveMatches, and asserts the recovered host's delivery to the same three viewers is {owner:[ownerRef], opponent:[opponentRef], watcher:[]} — i.e. each combatant sees only its own snapshot id and the spectator sees neither.",
+    "assertionOrderIsLoadBearing": true,
+    "assertionOrderDetail": "Line 239 captures liveDelivery but does not assert it. Line 259 asserts recoveredDelivery against the literal redacted map FIRST. Line 265 then asserts recoveredDelivery equals liveDelivery. This ordering is correct and matches the artefact's claim: had the live literal been asserted first, a mutation that strips the recovery-path redaction could die on the live assertion without the recovery claim ever being exercised. As implemented, the recovered-path assertion is the one that must independently hold.",
+    "nonDestructiveRedactionAsserted": true,
+    "nonDestructiveDetail": "Lines 269-271 re-read the durable event log after the recovered assertions and confirm the persisted GameCreated still carries both snapshot ids, proving redaction is per-delivery and not a mutation of the stored history.",
+    "setupIsReal": true,
+    "setupDetail": "No jest.mock() or manual stub of DurableMatchStore/SQLiteService/UnitRepository/ServerMatchHost/recoverActiveMatches appears in the file. getSQLiteService/getUnitRepository are the real singletons (reset via resetSQLiteService/resetUnitRepository), DurableMatchStore points at a real on-disk SQLite file under a mkdtemp'd directory, and the units are persisted through the real UnitRepository.create call using a real Atlas AS7-D MTF-derived JSON fixture. The close/reset/reopen sequence (lines 246-251) is a genuine cold reopen, not a simulated one."
+  },
+
+  "testRun": {
+    "command": "node node_modules/jest/bin/jest.js --maxWorkers=1 --coverage=false src/lib/multiplayer/server/__tests__/customCombatRecovery.recoveryDelivery.test.ts",
+    "exit": 0,
+    "result": "Test Suites: 1 passed, 1 total; Tests: 1 passed, 1 total"
+  },
+
+  "mutantReproduction": [
+    {
+      "mutant": "M1",
+      "targetFile": "src/lib/multiplayer/server/fogOfWar.ts",
+      "targetLineConfirmed": 131,
+      "editApplied": "if (isUnitOwnedByPlayer(playerId, unit.id, state)) return unit;  ->  return unit;",
+      "editMethod": "sed -i \"s/if (isUnitOwnedByPlayer(playerId, unit.id, state)) return unit;/return unit;/\" src/lib/multiplayer/server/fogOfWar.ts",
+      "jestExit": 1,
+      "failingLine": "src/lib/multiplayer/server/__tests__/customCombatRecovery.recoveryDelivery.test.ts:259 - expect(recoveredDelivery).toEqual({owner:[ownerRef],opponent:[opponentRef],watcher:[]})",
+      "observedDiff": "recovered host served every viewer both snapshots: opponent gained the owner's id, owner gained the opponent's id, and watcher (spectator) received both instead of none",
+      "matchesArtefactClaim": true,
+      "restoredClean": true,
+      "restoreCommand": "git checkout -- src/lib/multiplayer/server/fogOfWar.ts",
+      "restoreVerification": "git status --short returned empty after restore"
+    },
+    {
+      "mutant": "M2",
+      "targetFile": "src/engine/InteractiveSession.recovery.ts",
+      "targetLineConfirmed": 193,
+      "targetLineNote": "artefact cited '~190'; the exact call-argument line inside the multi-line adaptUnit(...) call is 193. Same statement, same function (adaptRecoveredGameUnit).",
+      "editApplied": "snapshotOnlyReader(snapshot),  ->  readCustom,  (inside adaptRecoveredGameUnit's adaptUnit call)",
+      "editMethod": "sed -i '193s/snapshotOnlyReader(snapshot),/readCustom,/' src/engine/InteractiveSession.recovery.ts",
+      "jestExit": 1,
+      "failingLine": "src/lib/multiplayer/server/__tests__/customCombatRecovery.recoveryDelivery.test.ts:254 - expect(recovered.failed).toEqual([])",
+      "observedDiff": "recoverActiveMatches returned failed: ['custom-combat-recovery-delivery'] with console.warn '[MatchRecovery] failed to rebuild match ... Saved custom unit ... is missing, invalid or unsupported for combat' - with both designs deleted from the library, routing recovery through the live-library reader (readCustom) instead of the recorded snapshot reader cannot rebuild the match at all",
+      "matchesArtefactClaim": true,
+      "restoredClean": true,
+      "restoreCommand": "git checkout -- src/engine/InteractiveSession.recovery.ts",
+      "restoreVerification": "git status --short returned empty after restore"
+    }
+  ],
+
+  "gateExitCodes": [
+    {
+      "gate": "tsc",
+      "command": "npx tsc --noEmit -p tsconfig.json",
+      "exit": 0,
+      "output": "no diagnostics"
+    },
+    {
+      "gate": "oxfmt --check",
+      "command": "npx oxfmt --check src/lib/multiplayer/server/__tests__/customCombatRecovery.recoveryDelivery.test.ts",
+      "exit": 0,
+      "output": "All matched files use the correct format. (1 file)"
+    }
+  ],
+
+  "rewindUnreachabilityAssessment": {
+    "claim": "The boot-time rewind fold (tryFoldActivatedRewindBranch) is structurally unreachable for a match stream on this head because a genuinely-activated rewind branch's parent segment traces back to the baseline branch id 'main', and matchStoreBranchSegmentReader refuses every branch id but 'root'.",
+    "verdict": "CORRECT, verified by direct code reading",
+    "citationsVerified": [
+      {
+        "file": "src/lib/multiplayer/server/MatchStreamJournalMirror.ts",
+        "line": 165,
+        "confirmedText": "const branchId = effective?.branchId ?? MATCH_BASELINE_BRANCH_ID;",
+        "matches": true
+      },
+      {
+        "file": "src/lib/multiplayer/server/matchAuthorityBaseline.ts",
+        "line": 59,
+        "confirmedText": "export const MATCH_BASELINE_BRANCH_ID = 'main';",
+        "matches": true
+      },
+      {
+        "file": "src/lib/multiplayer/server/history/matchStoreBranchSegmentReader.ts",
+        "line": 131,
+        "confirmedText": "'unknown-branch', `A match store holds only the '${ROOT_EVENT_BRANCH_ID}' branch; '${segment.branchId}' has no events`",
+        "citedAs": "~128 in artefact",
+        "matches": true
+      },
+      {
+        "file": "src/lib/multiplayer/server/ServerMatchHostRewindRebuild.ts",
+        "lines": "131-159 (tryFoldActivatedRewindBranch)",
+        "confirmedText": "export async function tryFoldActivatedRewindBranch at line 131; body early-returns null when head is null or isLivePathBranchId(head.branchId), otherwise calls readActivatedBranchGameEvents -> resolveBranchPath -> materializeBranchPath(matchStoreBranchSegmentReader(store), path)",
+        "matches": true
+      },
+      {
+        "file": "src/lib/multiplayer/server/MatchRecovery.ts",
+        "line": 192,
+        "confirmedText": "const rewound = await tryFoldActivatedRewindBranch(store, meta.matchId); ... catch (e) { console.warn(...) } path lands the match in `failed`",
+        "matches": true
+      }
+    ],
+    "additionalLogicVerified": {
+      "isLivePathBranchIdSet": "LIVE_PATH_BRANCH_IDS = {MATCH_BASELINE_BRANCH_ID ('main'), ROOT_EVENT_BRANCH_ID ('root')} (matchAuthorityBaseline.ts lines 81-84). isLivePathBranchId(branchId) returns true only for these two.",
+      "reasoning": "tryFoldActivatedRewindBranch (ServerMatchHostRewindRebuild.ts:141-143) early-returns null when head.branchId is 'main' or 'root' — this is the fix that lets a never-rewound, freshly-mirrored match (which sits on 'main') recover normally without hitting the reader's refusal; the file's own doc comment (lines 120-129) explicitly says this refusal 'used to fail the whole match at boot' for that live-path case. But a match that has gone through an ACTUAL rewind (acquireCorrectionLease -> createCorrectionCandidateBranch -> activateCandidateBranch -> supersedeFrom) has an effective head on the candidate branch id, which is NOT in LIVE_PATH_BRANCH_IDS, so the early return does not fire; execution proceeds into readActivatedBranchGameEvents -> resolveBranchPath, whose resolved path's parent segment still names the baseline 'main' (since every candidate's parent is the baseline), and matchStoreBranchSegmentReader.read() throws unknown-branch for any branchId other than 'root'. This is a different, narrower code path than the one already fixed, and it is exactly what the artefact's probe reproduced (error text 'A match store holds only the root branch; main has no events' matches the reader's throw message verbatim)."
+    },
+    "note": "This review did not re-run the artefact's own throwaway probe (rewind-fold-blocker.probe.ts, not present in the repo per the artefact's own disclosure) since re-deriving it was out of scope ('do not attempt a fix' / assess from code). The code-reading chain above independently confirms the same conclusion the probe reported, with all five citations verified at exact line numbers.",
+    "ownershipAssessmentConcurrence": "The artefact's assignment of this gap to adopt-combat-journal-cutover-and-gm-rewind is consistent with what was read: nothing in enable-saved-custom-unit-combat touches matchStoreBranchSegmentReader, MatchStreamJournalMirror, or the branch-id constants: this is a pre-existing gap in the shared rewind/journal machinery, not a regression introduced by the reviewed commit."
+  },
+
+  "findings": [],
+
+  "requiredEdits": [],
+
+  "summary": "APPROVE. The single-file commit (8bc4d99e4, +273 lines, one test) is scoped exactly as claimed once diffed against the correct merge-base (4e5a74b9f) rather than a since-advanced origin/main. The test genuinely exercises a real DurableMatchStore/SQLiteService/UnitRepository through a cold reopen and recoverActiveMatches, asserts the recovered host's redaction before comparing it to the live host's (correct assertion order), and independently re-run mutant reproductions for both M1 (fogOfWar.ts:131) and M2 (InteractiveSession.recovery.ts:193) killed at the exact lines the preparer claimed, with the working tree verified clean after each restore. tsc and oxfmt both exit 0. The rewind-unreachability finding for enable-saved-custom-unit-combat tasks.md line 5 was independently verified by reading all five cited files/lines plus the isLivePathBranchId set, and the reasoning holds: it is a real, pre-existing gap in the shared rewind machinery, correctly scoped as out of this change's ownership."
+}

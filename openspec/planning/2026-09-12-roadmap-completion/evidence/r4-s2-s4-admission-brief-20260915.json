@@ -1,0 +1,203 @@
+{
+  "artefact": "r4-s2-s4-admission-brief",
+  "date": "2026-09-15",
+  "mode": "READ-ONLY discovery, no worktree mutation, no sub-agents, no builds/tests run",
+  "snapshot": {
+    "pr": 1684,
+    "head": "e1ccf668c954b9169385a496f80fe1348f19c60a",
+    "branch": "codex/roadmap-r4-s1-journal-batches-20260915",
+    "fetchedVia": "git fetch origin codex/roadmap-r4-s1-journal-batches-20260915; git show e1ccf668c:<path>",
+    "note": "e1ccf668c is R4.S1 rebased onto 1f84beef2 (main + history-A/B/C), per roadmap.json R4.S1.localDelivery.rebase. It already contains the History B repair (PR #1674) — ServerMatchHostBranchAdmission.ts on this snapshot has MATCH_QUARANTINED / HISTORY_INTEGRITY_BLOCKED_REASON / the 3-member LIVE_BRANCH_ADMISSION_PHRASING and the superseded-head STALE_BRANCH arm already removed."
+  },
+
+  "part1_taskInventory": {
+    "1.2": {
+      "id": "adopt-combat-journal-cutover-and-gm-rewind#1.2",
+      "roadmapNode": "R4.S2",
+      "checkbox": "unchecked [ ]",
+      "literalText": "S2: route `readEffectiveHead` and the live branch admission consult through the journal head so both `STALE_BRANCH` arms are reachable; prove with the four illegal command shapes the umbrella's 14.2-a receipt names.",
+      "exists": [
+        "ServerMatchHostBranchAdmission.ts:refuseLiveBranchAdmission already calls ctx.store.readEffectiveHead(stream) (line 163) and already implements the on-live-path STALE_BRANCH arm (onLivePath check, LIVE_PATH_BRANCH_IDS union servedBranchId, lines ~185-195) plus the GM_ONLY / accepted-for-gm-review arms for the other two illegal shapes.",
+        "DurableMatchStore.readEffectiveHead (declared IEventHistoryBranchPort['readEffectiveHead'], bound in durableCapabilityPorts.ts:76-77) already reads event_history_effective_heads — the SAME table S1's genesis backfill (SQLiteEventHistoryBranchStore.backfillGenesisBranches, invoked from MatchStreamJournalMirror.ts:171) populates. So 'route through the journal head' is mechanically already wired at the storage-read layer.",
+        "History B repair (PR #1674, evidence/r3-history-b-repair-20260915.json) already answers the persisted-corruption shape (head names a non-effective/superseded branch) as MATCH_QUARANTINED with reason HISTORY_INTEGRITY_BLOCKED_REASON='history-integrity-blocked', and REMOVED the `effective?.status==='superseded'` STALE_BRANCH arm as unreachable by construction (readEffectiveHead itself now LEFT JOINs and refuses unless the named branch is 'effective'; the in-memory port deletes the head row in the same call that moves a branch off 'effective'). Comment at ServerMatchHostBranchAdmission.ts:176-186 documents this explicitly.",
+        "The four illegal command shapes from the umbrella's 14.2-a receipt (harden-gm-two-player-campaign-sessions/tasks.md:313) are already handled in the SAME module, live, since Wave C7 (2026-09-02) — see part2 mapping below."
+      ],
+      "missing": [
+        "Production mode is still 'off' (matchJournalAuthority.ts:18 COMBAT_JOURNAL_AUTHORITY_MODE = 'off'), so no live match stream ever gets a journal head/effective-head row. readEffectiveHead(stream) returns null for every real match today, so `if (head === null) return null;` (line ~172) fires for every real intent and NONE of the four shapes is ever actually reachable in production — this is finding #48's 'structurally dead' state, and it remains dead on this snapshot. The mechanism exists; the data path that would exercise it (S1's mirror) is gated off.",
+        "No test on this snapshot exercises ServerMatchHostBranchAdmission against a REAL journal-backed head produced by S1's mirror (mode 'shadow' override + mirrorCommittedBatch). ServerMatchHostBranchAdmission.test.ts's existing fixtures construct heads directly (raw SQL / activateReplacement helper), not through the S1 mirror path — so the S1-to-S2 join (mirror writes a head -> admission reads that exact head) is UNPROVEN end-to-end, even though each half is separately tested.",
+        "No mode-flip decision (even a scoped one, e.g. per-match or shadow-only) has landed to make admission reachable for a live match; task 1.2 as literally worded ('route ... through the journal head') presumes routing work that turns out to already exist, and under-describes the actual remaining work, which is proving reachability once S1 is live and correcting the 'both arms' premise (see part2)."
+      ]
+    },
+
+    "1.3": {
+      "id": "adopt-combat-journal-cutover-and-gm-rewind#1.3",
+      "roadmapNode": "R4.S3",
+      "checkbox": "unchecked [ ]",
+      "literalText": "S3: retire the `mp_journal_authority_started` marker write; one source of \"started\".",
+      "exists": [
+        "mp_journal_authority_started table (DurableMatchStore.ts:207-219) and its write-once INSERT (DurableMatchStore.ts:897-921, guarded by a pre-check throwing 'journal-authority-started already exists') belong to the OLDER, still-'off' task-2.3/2.4 combat-journal-authority path (matchJournalAuthority.ts, ServerMatchHostJournalAuthority.ts:186-217, journalAuthorityAdmission.ts's per-match admission via a SEPARATE mp_journal_authority_baseline table). This is the 'enabled'-mode path the proposal.md calls out by name as writing 'mp_journal_authority_started rather than event_journal_events / event_journal_stream_heads' — i.e. the redundant marker task 1.3 targets.",
+        "getJournalAuthorityStarted (DurableMatchStore.ts:1060-1066, InMemoryMatchStore.ts:314) is read by ServerMatchHost.ts:1419-1420 and ServerMatchHostJournalAuthority.ts:186-187 to decide whether a match has already recorded its one-time started fact.",
+        "Nine files (production + 7 test files) reference journalAuthorityStarted / getJournalAuthorityStarted: DurableMatchStore.ts, InMemoryMatchStore.ts, ServerMatchHostJournalAuthority.ts, ServerMatchHost.ts, matchCommandBatch.ts, IMatchStore.ts, and __tests__/{journalAuthorityStarted.sqlite,journalAuthorityAdmission,journalAuthorityPath,journalAuthorityRecovery,journalAuthorityRollbackProof,journalAuthorityShadow,matchRollbackReaderSelection}.test.ts."
+      ],
+      "missing": [
+        "No derived 'is this stream started' signal backed by S1's real journal tables (event_journal_stream_heads / event_history_effective_heads existing for the stream) exists yet to replace the marker. Task 1.3's 'one source of started' implies such a derived check must be built before the old write can be retired without losing the capability its readers depend on.",
+        "No caller (ServerMatchHost.ts:1419, ServerMatchHostJournalAuthority.ts:186) has been repointed at S1's tables.",
+        "No decision has been made on whether mp_journal_authority_started is dropped (table + write + read) outright or the read stays as a compatibility shim while only the WRITE is retired (the task text says 'retire the marker write', which is narrower than deleting the table)."
+      ]
+    },
+
+    "1.4": {
+      "id": "adopt-combat-journal-cutover-and-gm-rewind#1.4",
+      "roadmapNode": "R4.S4",
+      "checkbox": "unchecked [ ]",
+      "literalText": "S4: restart recovery rebuilds the live host from the journal head and the effective branch; prove with the umbrella's restart pack against a rewound match.",
+      "exists": [
+        "MatchRecovery.recoverActiveMatches ALREADY has a journal/branch-aware path for the REWOUND case: tryFoldActivatedRewindBranch (ServerMatchHostRewindRebuild.ts:118-146) calls branches.readEffectiveHead(stream) (line 130), and if the head names a non-root branch, reads the ACTIVATED branch's events (readActivatedBranchGameEvents) rather than the legacy mp_match_events log, then MatchRecovery.ts:163-178 calls host.adoptServedBranch(rewound.branchId) and host.boundReplayToEffectiveHead(...) so the recovered host serves the activated branch.",
+        "ServerMatchHost exposes servedBranchId() / adoptServedBranch() / boundReplayToEffectiveHead() (ServerMatchHost.ts:525-587, 1163) as the plumbing this recovery path (and the live branch admission consult's onLivePath check) both consume."
+      ],
+      "missing": [
+        "For the ORDINARY (non-rewound) restart path — the common case — MatchRecovery.ts:194-260 rebuilds ENTIRELY from `store.getEvents(matchId, fromExclusive)` (the legacy mp_match_events log) through checkpointRecoveryPort/referenceRecoveryPort. It never reads readEffectiveHead or consults the journal at all in this branch. So 'restart recovery rebuilds the live host from the journal head' is true only for an already-rewound stream today; the mainline path is exactly the 'legacy event table alone' design.md explicitly says S4 must stop being.",
+        "No catch-up / divergence-detection exists between the legacy log and the journal mirror at boot. S1's own non-claims say explicitly: 'NO catch-up for a mirror that fell behind... closing it is S4/S6 work', and the review's RR-1 (no busy_timeout -> SQLITE_BUSY swallowed into the tripwire -> stream refuses every later mirror with revision-conflict forever) is an ordinary-load failure mode that only S4 (or S6) can close per that review's explicit escalation.",
+        "No restart-pack proof exists yet against a match that was mirrored into the journal (mode 'shadow'/'enabled') and then restarted — the only restart proof e2e rows (E2E-05, E2E-06, notepad.md) exercise the pre-journal legacy path; E2E-15 ('restart restores full authority') is itself classified 'missing' in notepad.md with 'active branch explicitly deferred'."
+      ]
+    }
+  },
+
+  "part2_task1_2_amendment": {
+    "problem": "Task 1.2's premise ('both STALE_BRANCH arms reachable') predates the History B repair (PR #1674). B removed the second STALE_BRANCH arm (a head naming a superseded branch) as unreachable by construction and replaced its refusal with MATCH_QUARANTINED for the persisted-corruption case. This was flagged for the owner verbatim in r3-history-b-repair-20260915.json.decision.flaggedForOwner: \"openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/tasks.md task 1.2 (S2) is UNCHECKED and reads: 'route readEffectiveHead and the live branch admission consult through the journal head so both STALE_BRANCH arms are reachable'. This commit leaves ONE STALE_BRANCH arm in ServerMatchHostBranchAdmission.ts, not two. That wording predates b1fae82a7's readEffectiveHead join... the S2 wording needs an owner ruling when that task is picked up.\" The independent review of B (r3-history-b-repair-review-20260915.json) separately rated the SHALL-text tension \"REAL BUT NOT A SPEC CONTRADICTION; correctly deferred to the owner — do NOT amend in this PR.\"",
+    "proposedAmendedText": "S2: with S1's mirror admitting matches at mode 'shadow'/'enabled', prove that ServerMatchHostBranchAdmission's live branch admission consult and readEffectiveHead become reachable against real journal-backed heads for a live match. Per History B's repair (PR #1674), ONE STALE_BRANCH arm is reachable on the live-activation path — a host still serving an identity (root/baseline or a prior servedBranchId) that the store has since superseded via activation (`!onLivePath`) — answered with the active branch and a resync action. A head naming a non-effective (superseded) branch is a SEPARATE, unreachable-by-construction shape on the live path (the branch-activation transaction cannot leave such a head) and is answered `MATCH_QUARANTINED` (`history-integrity-blocked`) as persisted-corruption, not `STALE_BRANCH`. Prove all four illegal command shapes the umbrella's 14.2-a receipt names, end to end, through a real journal head installed by S1's mirror (not a hand-constructed fixture head).",
+    "fourIllegalShapesMappedToRefusals": [
+      {
+        "shape": "(1) a player intent whose stream's effective head is not the live-path identity (host still serves root/baseline, or a prior servedBranchId, while the store has activated a replacement candidate)",
+        "refusal": "STALE_BRANCH — conflictHead = the active head, recoveryAction = resync-to-active-head (EXPECTED_HEAD_RESYNC_ACTION). This is the ONE reachable STALE_BRANCH arm after B's repair (`!onLivePath` in ServerMatchHostBranchAdmission.ts:~190-195)."
+      },
+      {
+        "shape": "(2) an intent arriving while the effective branch is superseded (a persisted head literally naming a non-effective/superseded branch)",
+        "refusal": "AMENDED by B: MATCH_QUARANTINED, reason history-integrity-blocked, no conflictHead, no recoveryAction. Pre-B this was answered STALE_BRANCH; post-B it is unreachable through the live admission consult by construction (readEffectiveHead itself refuses a non-effective branch as branch-integrity, caught and translated to MATCH_QUARANTINED at ServerMatchHostBranchAdmission.ts:163-166). The umbrella's 14.2-a receipt text still says STALE_BRANCH for this shape; that text is stale, per the owner-ruling flag above."
+      },
+      {
+        "shape": "(3) any non-request payload that carries targetRevision (a rewind cut) from a non-host actor",
+        "refusal": "GM_ONLY, reason gm-role-required (namesRewindCut(...) && actorId !== hostPlayerId branch, ServerMatchHostBranchAdmission.ts:~150-153). The host's own equivalent payload passes admission unchanged."
+      },
+      {
+        "shape": "(4) a player submits a non-mutating RewindRequest (targetRevision + reason)",
+        "refusal": "accepted-for-gm-review (ACCEPTED_FOR_GM_REVIEW), derives no event — answerAcceptedForGmReview, first branch checked in refuseLiveBranchAdmission (envelope.intent.kind === 'RewindRequest')."
+      }
+    ]
+  },
+
+  "part3_smallestPrefixes": [
+    {
+      "task": "1.2 (R4.S2)",
+      "estimateLabel": "ESTIMATE (not measured) — smallest buildable prefix",
+      "proposedScope": "Proof-only prefix. No behavior change to ServerMatchHostBranchAdmission.ts is required (B already implements the correct 3-way split). Wire a real-SQLite integration test that: mirrors a batch via S1's MatchStreamJournalMirror under `_setCombatJournalAuthorityModeForTests('shadow')` to install a genuine journal head/effective-head row for a match stream, then drives all four illegal shapes through refuseLiveBranchAdmission against that real store (not a hand-built fixture head), asserting the three refusal codes above. Update the doc comment / non-claims language, and (pending an owner ruling recorded in the change's notepad, since workers never edit openspec/**) leave a note that task 1.2's literal text needs the amendment in part2.",
+      "files": [
+        "src/lib/multiplayer/server/__tests__/ServerMatchHostBranchAdmission.journalBacked.sqlite.test.ts (new)",
+        "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/notepad.md (record the owner-ruling flag; no task/spec text edits)"
+      ],
+      "estimatedLines": "150-250 (one new test file; no production edit anticipated)",
+      "firstFailingTest": "Assert that under production defaults (mode 'off'), readEffectiveHead(stream) is null for a freshly created match and refuseLiveBranchAdmission returns null for all four shapes (proving the current dead-arm state) — RED is really 'admission does nothing', not a crash. Then, in the same file, flip to mode 'shadow', mirror a batch, and re-run the four shapes expecting the three refusal codes — this second block is RED before any change because no such SQLite-backed test/fixture wiring exists yet, and GREEN once written (no production code needed, only test scaffolding) since B's logic already exists.",
+      "acceptanceCommands": [
+        "npm.cmd run typecheck",
+        "npm.cmd run lint",
+        "npm.cmd run format:check",
+        "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/multiplayer/server"
+      ],
+      "dependenciesOnS1Symbols": [
+        "_setCombatJournalAuthorityModeForTests / getCombatJournalAuthorityMode (matchJournalAuthority.ts)",
+        "DurableMatchStore.appendCommandBatch's post-commit mirror call (mirrorCommittedBatch, DurableMatchStore.ts:964-968) to install a real head via MatchStreamJournalMirror",
+        "SQLiteEventHistoryBranchStore.backfillGenesisBranches (installs the effective-head row the admission consult reads)"
+      ],
+      "frozenContractTouchpoints": [
+        "LIVE_BRANCH_ADMISSION_PHRASING (LAW-40 total Record) — untouched if no new code is added; a lint/type failure would immediately flag any accidental 4th member.",
+        "ErrorCodeSchema (Protocol.ts) — untouched; MATCH_QUARANTINED already exists (added by B)."
+      ],
+      "campGates": "None found referencing R4.S2/S3/S4 specifically in openspec/planning/2026-09-12-roadmap-completion/DISCOVERY.md; the only CAMP-01H mention found there is about the unrelated saved-custom-combat launch path."
+    },
+    {
+      "task": "1.3 (R4.S3)",
+      "estimateLabel": "ESTIMATE (not measured) — likely needs its own 2-3 sub-prefix decomposition",
+      "proposedScope": "Sub-prefix A (smallest buildable slice): add a derived isJournalAuthorityStarted-equivalent read backed by S1's real tables (existence of an event_journal_stream_heads / event_history_effective_heads row for the match's stream) ALONGSIDE the existing marker, with no caller repointed yet and no write removed — pure additive read, decidable in isolation. Sub-prefixes B (repoint ServerMatchHost.ts:1419 and ServerMatchHostJournalAuthority.ts:186 callers) and C (drop the mp_journal_authority_started INSERT and, if desired, the table) are separate PRs given ~9 files already reference the marker (2 production read sites, 1 write site, 7 test files) and the 500-line/15-file cap.",
+      "files_subprefixA": [
+        "src/lib/multiplayer/server/matchJournalAuthority.ts or a new src/lib/multiplayer/server/matchJournalAuthorityStartedDerived.ts (derived read)",
+        "src/lib/multiplayer/server/__tests__/journalAuthorityStartedDerived.sqlite.test.ts (new)"
+      ],
+      "estimatedLines_subprefixA": "80-150",
+      "firstFailingTest": "With a real SQLite match store, mirror a batch (mode 'shadow') so the journal has a head/effective-head row for the stream, but WITHOUT ever inserting into mp_journal_authority_started (that write is driven by the separate, still-off task-2.3/2.4 path) — assert the new derived check answers 'started' from the journal state alone. RED today because no such derived function exists.",
+      "acceptanceCommands": [
+        "npm.cmd run typecheck",
+        "npm.cmd run lint",
+        "npm.cmd run format:check",
+        "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/multiplayer/server"
+      ],
+      "dependenciesOnS1Symbols": [
+        "event_journal_stream_heads / event_history_effective_heads rows installed by S1's mirror + genesis backfill",
+        "SQLiteEventHistoryBranchStore.readEffectiveHead as the existence probe"
+      ],
+      "frozenContractTouchpoints": [
+        "matchCommandBatch.ts's optional journalAuthorityStarted field is a public batch-shape contract consumed by DurableMatchStore.ts, InMemoryMatchStore.ts and ServerMatchHostJournalAuthority.ts — removing it (sub-prefix C) is a breaking shape change across all three and must be sequenced last, after callers stop reading the old marker."
+      ],
+      "campGates": "None found."
+    },
+    {
+      "task": "1.4 (R4.S4)",
+      "estimateLabel": "ESTIMATE (not measured) — single prefix, high complexity, near the cap",
+      "proposedScope": "Extend MatchRecovery.ts's non-rewound path to consult readEffectiveHead / the journal alongside (not yet instead of) store.getEvents, and add a divergence check: if a journal head exists for the stream but its revision/digest disagrees with what the legacy log implies, surface it as a recovery block (reusing the existing IMatchRecoveryBlock / AuthorityRecoveryBlockedReason vocabulary) rather than silently serving stale state. Do not yet attempt mirror catch-up (S1 disclosed no-catch-up is explicitly deferred to S4/S6; catch-up itself may need its own follow-up prefix if it does not fit under this cap alongside the divergence check).",
+      "files": [
+        "src/lib/multiplayer/server/MatchRecovery.ts",
+        "src/lib/multiplayer/server/__tests__/matchRecoveryCheckpointDoor.test.ts or a new matchRecoveryJournalDivergence.sqlite.test.ts"
+      ],
+      "estimatedLines": "300-500 (near or at the cap; a follow-up prefix for catch-up is plausible if divergence-detection alone consumes most of the budget)",
+      "firstFailingTest": "Real SQLite: create a match, mirror two batches (mode 'shadow') so the journal head sits at revision 2, then simulate a diverged legacy log (e.g. append a third legacy-only event bypassing the mirror, reproducing the RR-1 busy_timeout drop scenario) and restart recovery. Assert recovery either (a) reports a typed block naming the divergence, or (b) is provably the design's chosen resolution — whichever the owner picks; today recovery silently serves the legacy-only state with no journal consultation at all, so any such assertion is RED.",
+      "acceptanceCommands": [
+        "npm.cmd run typecheck",
+        "npm.cmd run lint",
+        "npm.cmd run format:check",
+        "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/multiplayer/server"
+      ],
+      "dependenciesOnS1Symbols": [
+        "MatchStreamJournalMirror's installed head/effective-head rows",
+        "SQLiteEventHistoryBranchStore.readEffectiveHead",
+        "the existing tryFoldActivatedRewindBranch / adoptServedBranch / boundReplayToEffectiveHead plumbing already used for the rewound-branch recovery path (ServerMatchHostRewindRebuild.ts, ServerMatchHost.ts:525-587)"
+      ],
+      "frozenContractTouchpoints": [
+        "IMatchRecoveryResult / IMatchRecoveryBlock / AuthorityRecoveryBlockedReason (public recovery-result shape consumed by MatchHostRegistry bootstrap and umbrella 15.3 tests) — adding a new block reason is additive but touches a typed union other suites pin.",
+        "RR-1 (no busy_timeout, evidence/r4-s1-journal-batches-review-20260915.json) is explicitly named as a blocker that 'must be closed by S4 (recovery) or S6 (parity gate) before the mode flips' — this task is one of the two places the review expects that residual to be answered, so the S4 receipt should explicitly state whether it closes RR-1 or defers it again to S6."
+      ],
+      "campGates": "None found referencing R4.S4 specifically."
+    }
+  ],
+
+  "part4_contradictionsAndUncoveredShalls": {
+    "contradictions": [
+      {
+        "id": "C1",
+        "location": "adopt-combat-journal-cutover-and-gm-rewind/tasks.md task 1.2 vs ServerMatchHostBranchAdmission.ts (post-B, on this snapshot)",
+        "description": "Task 1.2 says 'both STALE_BRANCH arms reachable'. Only one STALE_BRANCH arm exists on this snapshot; the second illegal shape (head names a superseded branch) is answered MATCH_QUARANTINED, not STALE_BRANCH. Already flagged for an owner ruling in r3-history-b-repair-20260915.json (decision.flaggedForOwner) and explicitly NOT amended by that PR's own instruction (workers never edit openspec/**). This brief's part2 proposes the amended text.",
+        "status": "OPEN — awaits owner ruling, per the flag."
+      },
+      {
+        "id": "C2",
+        "location": "adopt-combat-journal-cutover-and-gm-rewind/specs/gm-combat-interventions/spec.md 'Superseded Combat Commands Are Rejected' scenario 'Old branch command arrives' ('a command for a superseded branch' -> STALE_BRANCH) vs the MATCH_QUARANTINED translation for a head literally naming a superseded branch",
+        "description": "The SHALL's scenario text does not distinguish 'a command whose CLIENT belief is stale but the stream is healthy' from 'a command against a stream whose PERSISTED head names a superseded branch' (corruption). B's independent review (r3-history-b-repair-review-20260915.json) explicitly rated this tension 'REAL BUT NOT A SPEC CONTRADICTION; correctly deferred to the owner — do NOT amend in this PR.' This brief treats it as unresolved, not as a defect in B's PR.",
+        "status": "OPEN — reviewer-graded real-but-not-contradicting; owner ruling still pending."
+      },
+      {
+        "id": "C3 (RR-4, carried forward)",
+        "location": "gm-combat-interventions/spec.md line ~12 'SHALL append an immutable correction fact through the authoritative transaction' vs S1's two-database (match file / campaign file) non-atomic mirror split",
+        "description": "Not contradicted today (mode 'off', finalization/task 2.1 not yet implemented against this path), but the review flags that S6's receipt must answer this rather than inherit S1's deferral silently. Relevant to S2-S4 only insofar as none of them are positioned to resolve it; noted so the S2/S3/S4 receipts do not silently inherit it either.",
+        "status": "OPEN, deferred to S6 by design."
+      }
+    ],
+    "uncoveredShalls": [
+      "All five requirements in adopt-combat-journal-cutover-and-gm-rewind/specs/gm-combat-interventions/spec.md remain undischarged in production on this snapshot, because COMBAT_JOURNAL_AUTHORITY_MODE is still 'off': 'Combat Intervention Has Distinct Preview and Commit Phases' (finalization/preview SHALLs), 'Superseded Combat Commands Are Rejected' (STALE_BRANCH SHALL — mechanism exists but is dead against a live match), 'Combat Rewind Preserves Viewer-Specific Hidden State', 'Combat Rewind Is GM-Only and Append-Only' (replacement-branch clause), 'Combat Rebuild Gates Commands and Activation' (activation clause). S1's own evidence states this outright: 'NO SHALL is discharged by this seam alone.' Tasks 1.2/1.3/1.4 (S2-S4) do not discharge any of these five SHALLs either — they are infrastructure seams the design.md itself scopes as pre-conditions, with discharge deferred to task 2.x/3.x work after S6's reviewed cutover."
+    ]
+  },
+
+  "nonClaims": [
+    "No source file was modified in this session; the ServerMatchHostBranchAdmission.ts / MatchRecovery.ts / matchJournalAuthority.ts / DurableMatchStore.ts excerpts above are read-only citations from `git show e1ccf668c:<path>`.",
+    "No test was run in this session; all red/green claims about EXISTING evidence (S1 local + review, History B repair + review) are citations of those prior artefacts' own recorded results, not re-verified here.",
+    "The estimated line counts and prefix decompositions in part3 are proposals, not measurements — no worktree was created to attempt any of them.",
+    "This brief does not itself amend openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/tasks.md; part2's proposed text is a recommendation for the owner ruling the History-B evidence already flagged as outstanding."
+  ]
+}

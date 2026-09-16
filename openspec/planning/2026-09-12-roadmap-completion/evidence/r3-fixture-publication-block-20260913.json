@@ -1,0 +1,32 @@
+{
+  "at": "2026-09-13T09:19:33.296Z",
+  "status": "publication-blocked-awaiting-exact-payload-answer",
+  "payload": {
+    "repository": "https://github.com/SwiggitySwerve/MekStation",
+    "commit": "870f93856d5b09eb1ed7191be94a5a3e9e52103c",
+    "branch": "codex/roadmap-history-fixtures-20260913",
+    "base": "main",
+    "title": "test(history): use canonical genesis roots in fixtures",
+    "bodyFile": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\r3-fixture-commit-20260913\\pr-body-reviewed.md",
+    "bodySha256": "a856cc216c669a3723260831378479c9d8d2637ad27021b535d4cce1bb205de7",
+    "acceptance": "openspec/planning/2026-09-12-roadmap-completion/evidence/r3-fixture-prefix-local-commit-20260913.json",
+    "scope": "3existingtestfiles/9changedlines; separate new payload from all prior blocked publications",
+    "authorization": "User active roadmap requests incremental reviewed PRs and merging; no retry of browser/journal/chassis/equipment blocked payloads."
+  },
+  "payloadSha256": "5c0b0b568a9306edfd8196280478576ab24031afa4ef4658768d344b613567ea",
+  "automaticReview": {
+    "rejected": true,
+    "reason": "The action pushes repository source to an unverified external GitHub destination and opens a PR; broad approval for incremental PRs does not authorize exporting this exact code to that destination."
+  },
+  "executed": {
+    "push": false,
+    "pr": false,
+    "resultArtifactExists": false
+  },
+  "question": "Exact fixture publication approval requested asynchronously. No answer received at recording.",
+  "constraints": [
+    "Do not retry or export the same blocked fixture commit through descendants while its approval remains pending",
+    "Runtime B and SQL C local verification may continue; external delivery follows approved fixture prerequisite",
+    "Original browser/journal/chassis/equipment questions remain independent"
+  ]
+}

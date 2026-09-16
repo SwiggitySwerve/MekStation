@@ -1,0 +1,175 @@
+{
+  "schema": "proof02-browser-quick-run/v1",
+  "generatedAtUtc": "2026-09-15T08:45:00Z",
+  "generatedBy": "agent:browser-main-proof (GP-JUSTIFIED serialized browser QC run)",
+  "worktree": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/browser",
+    "headCommit": "bce2049d74ce6e48b5d0813fb506ada701257e47",
+    "buildIdBeforeRun": "1789460769679",
+    "buildIdAfterRun": "1789460769679",
+    "buildIdUnchanged": true,
+    "rebuildPerformed": false,
+    "gitStatusPorcelainTrackedChanges": [],
+    "gitStatusClean": true,
+    "note": "Root checkout at E:/Projects/MekStation was not modified or built; all execution happened in the pre-built worktree above. This evidence file itself is written to the untracked (non-git-tracked, `?? ` in `git status`) openspec/planning/2026-09-12-roadmap-completion/evidence/ scratch directory in the root checkout tree, per explicit task instruction; no tracked root-checkout file was touched."
+  },
+  "preflight": {
+    "scriptsInspected": [
+      "package.json #qc:command:browser:quick",
+      "package.json #validate:multiplayer:packaged-socket",
+      "scripts/playwright/run-playwright.mjs",
+      "playwright.config.ts",
+      "scripts/qc/camp01-runner-isolation.mjs",
+      "scripts/qc/camp01-capture-transaction.mjs",
+      "scripts/validate-multiplayer-packaged-socket.mjs",
+      "scripts/qc/camp01-camp00-listener-adapter.mjs (name-checked only, not needed once camp00 path was ruled out)"
+    ],
+    "qcCommandBrowserQuickDefinition": "node scripts/playwright/run-playwright.mjs test --project=chromium e2e/campaign-starmap-logistics.spec.ts e2e/campaign-customizer-handoff.spec.ts e2e/gm-campaign-ledger-control-plane.spec.ts --workers=1",
+    "serverStartMechanism": "playwright.config.ts webServer.command defaults to 'npm run dev' (dev server) but reads `process.env.MEKSTATION_E2E_SERVER_COMMAND` first, and reads `process.env.MEKSTATION_E2E_PORT` (default 3600) to build both the base URL and the webServer.env PORT value. Neither is hardcoded in a way that blocks override -- no STOP condition was hit.",
+    "hostnameHandling": "server.js (identical file at repo root and at .next/standalone/server.js) auto-forces hostname to 127.0.0.1 whenever it detects standalone-runtime markers (packaged Next config + .next dir present next to it), regardless of the HOSTNAME env var. Manually confirmed by starting the standalone server directly: log line `MEKSTATION_LISTENER_READY {\"configuredHostname\":\"127.0.0.1\",\"boundAddress\":\"127.0.0.1\",\"family\":\"IPv4\",\"port\":3639}`. No HOSTNAME override was needed.",
+    "portChosen": 3639,
+    "portChoiceRationale": "3639 confirmed free via `netstat -ano | grep :3639` before any action; never touched port 3600 per constraint.",
+    "manualSanityCheckBeforeRealRun": {
+      "purpose": "Verify `node .next/standalone/server.js` binds and answers on an owned port before spending the single allowed QC run.",
+      "command": "PORT=3639 node .next/standalone/server.js (backgrounded, manually)",
+      "result": "Bound 127.0.0.1:3639 (IPv4), curl http://localhost:3639/ -> HTTP 200, curl http://127.0.0.1:3639/ -> HTTP 200",
+      "cleanupNote": "bash `kill $!` did not terminate the real Windows process (git-bash job PID != Windows PID on this host). Verified via `netstat -ano` that a node.exe (Windows PID 35452) was still LISTENING on 3639 after the bash-level kill, then force-terminated it with `taskkill //PID 35452 //F`, then re-verified the port showed no LISTENING state (only TIME_WAIT). Same PID-mismatch caveat applies below to the real QC run's webServer child."
+    }
+  },
+  "realRun": {
+    "label": "qc:command:browser:quick against existing standalone build",
+    "commandInvoked": "npm run qc:command:browser:quick",
+    "resolvedPlaywrightArgv": [
+      "<node>",
+      "<repoRoot>/node_modules/@playwright/test/cli.js",
+      "test",
+      "--project=chromium",
+      "e2e/campaign-starmap-logistics.spec.ts",
+      "e2e/campaign-customizer-handoff.spec.ts",
+      "e2e/gm-campaign-ledger-control-plane.spec.ts",
+      "--workers=1"
+    ],
+    "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/browser",
+    "envOverridesSetByThisRun": {
+      "PATH": "prepended /c/Users/wroll/AppData/Local/nvm/v22.22.0 (node v22.22.0 verified)",
+      "MEKSTATION_E2E_PORT": "3639",
+      "MEKSTATION_E2E_SERVER_COMMAND": "node .next/standalone/server.js"
+    },
+    "effectiveWebServerCommand": "node .next/standalone/server.js (confirmed via captured stdout: `[WebServer] MEKSTATION_LISTENER_READY {..., \"port\":3639}` and `[WebServer] > Ready on http://127.0.0.1:3639`)",
+    "startedAtUtc": "2026-09-15T08:38:44Z",
+    "endedAtUtc": "2026-09-15T08:39:32Z",
+    "durationSeconds": 49,
+    "playwrightReportedDuration": "46.8s (13 tests, 1 worker)",
+    "exitCode": 1,
+    "retries": 0,
+    "runsAttempted": 1,
+    "serverPid": "Not captured directly -- the webServer child is spawned by the Playwright test runner process itself (not a direct child of this shell), and only a single foreground run was permitted (no-retries constraint), so no live PID poll was interleaved. Safety property verified instead: netstat showed no LISTENING socket on 3639 before the run, and none after the run completed (see cleanupVerification below).",
+    "testResultsSummary": {
+      "total": 13,
+      "passed": 11,
+      "failed": 2
+    },
+    "stdoutStderrLog": "run-stdout-stderr.log (copied into this evidence bundle)"
+  },
+  "observations": {
+    "runId": "2026-09-15 standalone qc:command:browser:quick (this run)",
+    "nonPassing": [
+      {
+        "observationId": "e2e/campaign-starmap-logistics.spec.ts::campaign starmap logistics::previews, approves, and reloads campaign travel consequences @campaign @starmap @logistics",
+        "status": "failed",
+        "durationSeconds": 2.6,
+        "failureClass": "browser-diagnostic-gate (assertNoErrors in e2e/helpers/browserDiagnostics.ts)",
+        "rootSignal": "Two fetches aborted for equipment data JSON under standalone-served static assets: GET /data/equipment/official/weapons/ballistic-machinegun.json and GET /data/equipment/official/weapons/missile-other.json both net::ERR_ABORTED, each paired with a console.error from [EquipmentOfficialLoader] 'Failed to load weapons from ... (missing, unreadable, or malformed)'.",
+        "matchesHistoricalObservationId": true,
+        "matchesHistoricalFailureCause": false,
+        "artifacts": [
+          "test-results/campaign-starmap-logistics-e37ee-ampaign-travel-consequences-chromium/test-failed-1.png",
+          "test-results/campaign-starmap-logistics-e37ee-ampaign-travel-consequences-chromium/error-context.md"
+        ]
+      },
+      {
+        "observationId": "e2e/gm-campaign-ledger-control-plane.spec.ts::GM campaign ledger control plane::guest direct route shows only player-safe ledger projection @gm-ledger",
+        "status": "failed",
+        "durationSeconds": 17.0,
+        "failureClass": "TimeoutError",
+        "rootSignal": "page.waitForFunction() timed out after 10000ms waiting on the client campaign store to reflect a refreshed record (gm-campaign-ledger-control-plane.spec.ts:645).",
+        "matchesHistoricalObservationId": false,
+        "matchesHistoricalFailureCause": false,
+        "artifacts": [
+          "test-results/gm-campaign-ledger-control-dc223-ayer-safe-ledger-projection-chromium/test-failed-1.png",
+          "test-results/gm-campaign-ledger-control-dc223-ayer-safe-ledger-projection-chromium/error-context.md"
+        ]
+      }
+    ],
+    "passingWithNote": "11 other tests passed, including 2 more from gm-campaign-ledger-control-plane.spec.ts and all 5 from campaign-customizer-handoff.spec.ts; full per-test list is in run-stdout-stderr.log."
+  },
+  "historicalComparison": {
+    "historicalAnchorDoc": "docs/audits/2026-08-12-proof-02-triage-starmap-mime.md",
+    "historicalAnchorCommit": "d34a197198a3b19d10ec332aefe7d055a5df8ef2",
+    "historicalRunId": "camp01-e8a70ce29fcf193ed1c709e5d8292f31",
+    "historicalNonPassingObservationCount": 1,
+    "historicalObservation": {
+      "observationId": "e2e/campaign-starmap-logistics.spec.ts::campaign starmap logistics::previews, approves, and reloads campaign travel consequences",
+      "status": "failed",
+      "failureFingerprint": "sha256:ce7ec763397b46091fb9e9a36c21ecda7ea255fc84b4433a8dd3601acb664144",
+      "knownFailureCode": "development-mime-diagnostic",
+      "severity": "low",
+      "cause": "Chromium refused to execute a dev-server-only script (`/_next/static/development/_clientMiddlewareManifest.js`) served with an application/json MIME type -- a Next.js DEV SERVER diagnostic specific to port 3600's `npm run dev` path."
+    },
+    "currentNonPassingObservationCount": 2,
+    "result": "NOT IDENTICAL -- both count and cause differ from the historical anchor.",
+    "diffDetail": {
+      "sharedObservationId": "campaign-starmap-logistics.spec.ts travel-consequences test still fails, but the FAILURE CAUSE has changed: no dev-server MIME manifest error occurred at all (expected -- this run used the standalone/production build, which has no `.next/dev/static/development/...` code path); instead two equipment data JSON fetches (ballistic-machinegun.json, missile-other.json) were aborted. This is a DIFFERENT failureFingerprint / different knownFailureCode from `development-mime-diagnostic`, not a re-observation of the same low-severity known issue.",
+      "addedObservation": "gm-campaign-ledger-control-plane.spec.ts 'guest direct route shows only player-safe ledger projection' -- a 10s waitForFunction timeout not present at all in the historical anchor's single-observation set.",
+      "removedObservation": "none (the historical observation's *id* still fails, only its cause changed; see sharedObservationId note above -- this is reported separately from a clean removal since exact-equality still fails)"
+    },
+    "importantCaveat": "This comparison is NOT apples-to-apples on build mode. The 2026-08-12 historical anchor ran against the DEV server on port 3600 (`npm run dev`, per the doc's cause section referencing `.next/dev/static/development/...`). This 2026-09-15 run was deliberately pointed at the pre-built STANDALONE/PRODUCTION build on port 3639 per this task's explicit instructions (a live dev server / fresh build was out of scope for this worktree). A dev-mode-only MIME diagnostic cannot recur in a production build by construction, so the disappearance of `development-mime-diagnostic` is expected and uninformative; the two NEW failures (equipment JSON 404/aborted fetch, and the ledger-projection timeout) are the operative signal and appear to be standalone-build-specific issues (likely a static-asset-serving or data-path difference between `npm run dev` and the standalone server) that were not exercised by the historical dev-mode run at all.",
+    "acceptanceBarStated": "exact observation-set equality",
+    "acceptanceBarMet": false
+  },
+  "camp00Receipt": {
+    "requested": "task 0.4: camp-00 loopback listener receipt run via scripts/validate-multiplayer-packaged-socket.mjs runCamp00Authority",
+    "attempted": false,
+    "reasonCannotRun": [
+      "runCamp00Authority() requires all three of CAMP01_ARTIFACT_DIR, CAMP01_RUN_ID, and CAMP01_NEXT_DIST_DIR to be set (else it throws 'camp-00 environment missing'); these come from a full camp01 orchestration runtime lease that was not provisioned for this task and is out of scope here.",
+      "Even if that env were provisioned, runCamp00Authority() UNCONDITIONALLY runs a fresh production build first (`await runCommand(['scripts/next/run-next.mjs','build','--webpack'], ...)` followed by the standalone hydration script) before doing anything else -- this directly violates this task's explicit 'do not rebuild' / 'verify BUILD_ID; do not rebuild' constraint.",
+      "runCamp00Authority()'s `finally` block unconditionally deletes the entire .next directory (`fs.rmSync(nextDist, {recursive:true, force:true})`) once it finishes -- this would destroy the exact pre-built standalone artifact (BUILD_ID 1789460769679) this task was told to verify and leave untouched, which is an irreversible action on a worktree I was told not to rebuild."
+    ],
+    "alternativePathNoted": "The same script also has a non-authority main() fallback (invoked when the three CAMP01_* env vars are absent) that can run against an already-hydrated standalone dir without any build step, using its own owned port and no browser witness -- it does a raw WebSocket multiplayer socket smoke test (issue token, create match, join, restart server, reconnect). It was NOT run: it produces a different, unrelated JSON shape on stdout (packagedMultiplayerReachability / packagedRestartReconnect), not the `camp01-listener-observation/v1` receipt schema that runCamp00Authority() writes via finalizeObservation(), which is what task 0.4 and the roadmap tracking specifically refer to as 'the camp-00 receipt'. Running it and presenting its output as the camp-00 receipt would misrepresent which artifact was actually produced, so it was skipped as out of scope for this task.",
+    "conclusion": "No camp-00 receipt artifact was produced by this session. This is consistent with the task's own framing: 'the receipt run is externally gated on a real second-collaborator review (soloException=false) -- you produce the run artefact, not closure' -- here, no artefact could be produced at all without breaking the no-rebuild constraint, so nothing is claimed toward closing task 0.4."
+  },
+  "cleanupVerification": {
+    "portOwned": 3639,
+    "portListeningBeforeRun": false,
+    "portListeningAfterRun": false,
+    "postRunNetstatState": "Only TIME_WAIT entries for historical client sockets to 127.0.0.1:3639 remain (normal TCP teardown residue, not a listening socket).",
+    "ownedPidSurvives": false,
+    "notes": "Playwright's own webServer lifecycle management tore down the standalone server child at test-run end without manual intervention this time (unlike the earlier manual sanity check, where a bash-level `kill` alone did not stop the real Windows process and a `taskkill //PID <winpid> //F` was required). Port 3600 was never touched or queried for occupancy beyond the read-only preflight check; no process on 3600 was started, inspected, or killed by this session."
+  },
+  "artifacts": {
+    "evidenceBundleDirectory": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/proof02-browser-quick-20260915/",
+    "note": "This is a NEW directory created by this session for the copy; the script's own output locations (test-results/, playwright-report/ inside the worktree) were left untouched/unmodified -- only copied FROM.",
+    "files": [
+      { "path": "run-stdout-stderr.log", "sha256": "45dd278e70cf3836f1eccf0fbb4d94b4862c07a7961a77879ef7d8e22b4d3f63" },
+      { "path": "exit_code.txt", "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865" },
+      { "path": "duration_seconds.txt", "sha256": "6169555d9248be7e184f52250129b0d66c9932af74f4ac7bc716c20013fca362" },
+      { "path": "test-results/.last-run.json", "sha256": "d6f9bf8f05d0273a0eaa144738779b21b3e84c7b6354f39d53e1d2d7c999bc85" },
+      { "path": "test-results/campaign-starmap-logistics-e37ee-ampaign-travel-consequences-chromium/test-failed-1.png", "sha256": "93cc4a84b05145a5bcc095915baf8d5dd4f061ef5a8446e006676111fdea79d8" },
+      { "path": "test-results/campaign-starmap-logistics-e37ee-ampaign-travel-consequences-chromium/error-context.md", "sha256": "23b9f19cdfc983a300d3782212d9d08170a7f2fe79a082edb369b7535300ccc7" },
+      { "path": "test-results/gm-campaign-ledger-control-dc223-ayer-safe-ledger-projection-chromium/test-failed-1.png", "sha256": "0c5eb1db7b6a7040667ca3d06d35aabd76c16ec7b496131e032e510c1d82d420" },
+      { "path": "test-results/gm-campaign-ledger-control-dc223-ayer-safe-ledger-projection-chromium/error-context.md", "sha256": "b9c25507e5b991818945b7af557d860f81de8ceada91bb11bd222c5749f0f88c" },
+      { "path": "playwright-report/index.html", "sha256": "ee655f8bf762aa42296894539dd79ef03a49e405711c7d8a46cd339bdf8612d0" },
+      { "path": "playwright-report/data/6e8b7d534fec085434e31d486a92073f4072bbda.png", "sha256": "0c5eb1db7b6a7040667ca3d06d35aabd76c16ec7b496131e032e510c1d82d420" },
+      { "path": "playwright-report/data/9c877db05b61e573a8bec55bcb4e55eab5c8ed8b.png", "sha256": "93cc4a84b05145a5bcc095915baf8d5dd4f061ef5a8446e006676111fdea79d8" },
+      { "path": "playwright-report/data/82cfc7468a6e1ea094bb97597ec2de36d5f8886f.md", "sha256": "23b9f19cdfc983a300d3782212d9d08170a7f2fe79a082edb369b7535300ccc7" },
+      { "path": "playwright-report/data/bd8041e37be41f61ae29c75c39aca0b4ca2492b0.md", "sha256": "b9c25507e5b991818945b7af557d860f81de8ceada91bb11bd222c5749f0f88c" }
+    ]
+  },
+  "nonClaims": [
+    "This run does NOT re-write, close, or supersede the 2026-08-12 proof-02-triage audit doc. It only supplies the fresh-run comparison input that a triage rewrite would need.",
+    "This run does NOT close roadmap R2.camp-0 task 0.4. No camp-00 authority receipt was produced (see camp00Receipt.conclusion); closure remains gated on a real second-collaborator review per the task's own framing, independent of this evidence.",
+    "This run does NOT constitute an apples-to-apples dev-vs-dev comparison against the historical anchor -- it is standalone/production build vs the historical dev-server run (see historicalComparison.importantCaveat). A true exact-equality re-check against the historical anchor would need a dev-mode run on the historical anchor's own terms, which was out of scope for this worktree.",
+    "No approvals, sign-offs, or severity/outcome determinations are made here for the two new observations (equipment JSON fetch abort; ledger-projection timeout) -- they are reported as raw observations only, not triaged or fingerprinted against the camp01 cause-graph tooling.",
+    "No source code, spec, or documentation file was edited by this session. No push, merge, PR, or commit was made. The root checkout's tracked files were not modified; only a new file was written under the untracked openspec/planning/.../evidence/ scratch directory as instructed."
+  ]
+}

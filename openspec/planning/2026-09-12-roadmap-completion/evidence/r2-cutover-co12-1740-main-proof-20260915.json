@@ -1,0 +1,83 @@
+{
+  "slice": "R2.authority-cutover CO1/CO2: shadow-parity driver and rollback surface (ops module + operator CLI)",
+  "pr": 1740,
+  "prHead": "3543581b5a0874c4e39ae47a682eac481cb2bf1d",
+  "mergeCommit": "566b60d02ee1a7aaf430d48b2c1b374b37e6029a",
+  "verifiedAtUtc": "2026-09-15T18:01:27.211Z",
+  "worktree": "archive-original-main-proof (detached at merge commit, Node v22.22.0)",
+  "blobEquality": {
+    "files": [
+      ".gitignore",
+      "scripts/__tests__/campaign-authority-cutover.test.ts",
+      "scripts/campaign-authority-cutover.ts",
+      "src/lib/campaign/authority/__tests__/campaignAuthorityCutoverOps.test.ts",
+      "src/lib/campaign/authority/campaignAuthorityCutoverOps.ts"
+    ],
+    "command": "git diff --stat <prHead> <merge> -- <files>",
+    "result": "empty (0 bytes)"
+  },
+  "gates": {
+    "jest": {
+      "scope": "src/lib/campaign/authority src/services/campaignPersistence",
+      "exit": 0,
+      "suites": 26,
+      "tests": 189
+    },
+    "tsc": {
+      "exit": 0,
+      "outputBytes": 0
+    },
+    "cliHelpSmoke": {
+      "command": "npx tsx scripts/campaign-authority-cutover.ts --help",
+      "exit": 0
+    },
+    "openspecStrict": {
+      "exit": 0
+    },
+    "specPurposeStrict": {
+      "exit": 0
+    },
+    "terminologyStrict": {
+      "exit": 0
+    },
+    "qcOpenspecCi": {
+      "exit": 0
+    }
+  },
+  "logs": {
+    "cliHelp": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1740-20260915/cli-help.log",
+      "sha256": "e6b80a73f2160760693a048b52fa6a281a02da9cb579f615d6ed9412579cd534"
+    },
+    "jest": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1740-20260915/jest.log",
+      "sha256": "973da71c1b3ab0ad40daffe28b430621c1ad59a5325fb44743a0db3bc80a556b"
+    },
+    "openspec": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1740-20260915/openspec.log",
+      "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3"
+    },
+    "purpose": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1740-20260915/purpose.log",
+      "sha256": "629026f25215446af06f7491ea5757f56e6f66d00cb70d6d432438cb6cb9adf7"
+    },
+    "qcOpenspecCi": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1740-20260915/qc-openspec-ci.log",
+      "sha256": "8c41df6c33246420ed1806218780c2df69b5ad4e7c594b993b07594ee959ccb2"
+    },
+    "terminology": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1740-20260915/terminology.log",
+      "sha256": "652b970d77eb1cd243833028cc4a3e4a565150a19d933685b881fb673bd64cef"
+    },
+    "tsc": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1740-20260915/tsc.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "limits": [
+    "scoped jest only",
+    "the CLI is typechecked by no gate and linted by no gate (scripts/** ignored); only --help smoke run here; never run against a real database",
+    "no campaign advanced; production flag unchanged",
+    "CO3 two-process/restart proof pending"
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "node": "R4.S5",
+  "artefact": "r4-s5-b-1717-main-proof-20260915",
+  "capturedAtUtc": "2026-09-15T14:38:14.048Z",
+  "pr": 1717,
+  "slice": "R4.S5 commit B: refuse to mirror a rewound match stream (task 1.5) — completes R4.S5",
+  "reviewedHead": "14d5295953a68a22b7893e1f8effc9087d259c05",
+  "mergeCommit": "4e5a74b9fddda382945277b15d76e2e09397d56c",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/r2-prepared-journal-api (detached at the merge commit; Node v24.15.0 — deviation from the Node 22 CI runtime recorded)",
+  "files": [
+    "src/lib/multiplayer/server/MatchStreamJournalMirror.ts",
+    "src/lib/multiplayer/server/__tests__/matchStreamJournalMirror.sqlite.test.ts",
+    "+ S5 files"
+  ],
+  "blobEquality": {
+    "command": "git diff --stat <head> 4e5a74b9f -- src/lib/multiplayer/server",
+    "diffLines": 0,
+    "identical": true
+  },
+  "gates": {
+    "jest": {
+      "scope": "src/lib/multiplayer/server src/lib/events/journal",
+      "result": "171 suites / 1341 tests passed",
+      "exit": 0,
+      "sha256": "5cdf6731f047ede11126fbd750b213f35ddd86add751bd5b6ba7a5df31be1531"
+    },
+    "tsc": {
+      "exit": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "openspecStrict": {
+      "exit": 0,
+      "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3"
+    },
+    "qcOpenspecCi": {
+      "exit": 0,
+      "sha256": "1d2b3ffbba3922d328cc2b02fa1de7ccedad6b3382227fa903deccf9a0d5900c"
+    }
+  },
+  "acceptance": "exact-main accepted; R4.S5 (A #1716 + B #1717) fully on main",
+  "nonClaims": [
+    "task 1.5 checkbox flip belongs to the reconciliation batch",
+    "S5 mutant matrix owed at 1.6 (S6 lane)",
+    "S5-R1 refusal permanent for rewound streams until 1.6",
+    "mode off"
+  ]
+}

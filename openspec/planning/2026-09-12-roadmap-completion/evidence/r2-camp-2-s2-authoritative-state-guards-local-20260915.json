@@ -1,0 +1,254 @@
+{
+  "schema": "r2-camp-2-s2-local/v1",
+  "at": "2026-09-15T12:51:25.454Z",
+  "node": "R2.camp-2",
+  "slice": "SLICE-2",
+  "title": "Direct unit-test coverage for buildCampaignAuthoritativeState guard-throw branches",
+  "brief": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-camp-2-admission-brief-20260915.json (taskKeys[0].gap, orderedSlicePlan SLICE-2)",
+  "taskKey": "add-saved-custom-unit-campaign-roster#2.1@20",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/archive-edit-recovery-20260915",
+  "branch": "codex/roadmap-r2-camp-2-authoritative-state-guards-20260915",
+  "base": {
+    "sha": "53d4356a849b3c4d5a27288acc332e3cbb46b6c0",
+    "ref": "origin/main at fetch time (2026-09-15)",
+    "subject": "test(campaign): pin the accepted-contract refusals for malformed rows, foreign actors and non-source records (#1707)",
+    "note": "origin/main advanced to a11ef14fdf586b96eb30d49329b1a99b63281725 while this slice ran (other lanes landing PRs in the same shared session); this branch is based on 53d4356a849b3c4d5a27288acc332e3cbb46b6c0 and was NOT rebased."
+  },
+  "commit": {
+    "sha": "c674a5dfc76c868cd83c2ae6665d5157f2bfe989",
+    "subject": "test(campaign): pin the authoritative-state roster guards the co-op panel relies on",
+    "author": "Wes Rollings <wrollings@gmail.com>",
+    "committer": "Wes Rollings <wrollings@gmail.com>",
+    "body": "test(campaign): pin the authoritative-state roster guards the co-op panel relies on",
+    "aiAttribution": "none — no Co-Authored-By or generated-with trailer",
+    "hooks": "enabled (lint-staged oxlint+oxfmt+tsc, then the full next build)",
+    "pushed": false
+  },
+  "files": [
+    "src/lib/campaign/coop/__tests__/campaignAuthoritativeState.test.ts"
+  ],
+  "numstat": "233\t0\tsrc/lib/campaign/coop/__tests__/campaignAuthoritativeState.test.ts",
+  "shortstat": "1 file changed, 233 insertions(+)",
+  "caps": {
+    "maxFiles": 15,
+    "maxLines": 500,
+    "actualFiles": 1
+  },
+  "firstRun": {
+    "command": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/campaign/coop/__tests__/campaignAuthoritativeState.test.ts",
+    "log": "first-run.log",
+    "result": "5 passed, 5 total; exit 0",
+    "redFirstDiscipline": "HONEST RECORD: all 5 rows were GREEN on their first run. This is a verification-only coverage slice — the product already implements every guard correctly (campaignAuthoritativeState.ts lines 53-58 and 87-94 on the base SHA), so there was no red-then-green cycle to observe. Discrimination was therefore proven after the fact by the mutation campaign below, not by an initial failing run."
+  },
+  "rows": [
+    "rejects a roster unit whose persisted source is neither canonical nor custom",
+    "rejects a roster unit missing its catalog reference",
+    "rejects a force that references a unit absent from the roster projection",
+    "rejects a roster unit claimed by two forces",
+    "projects the roster source identity and force membership the co-op snapshot binds to"
+  ],
+  "mutationCampaign": {
+    "method": "One mutation at a time against src/lib/campaign/coop/campaignAuthoritativeState.ts, each a single-line guard removal or loosening; the full 5-row suite was re-run per mutation; the file was restored with `git checkout -- <file>` after every run (verified clean: `git status --porcelain` showed only the untracked new test file).",
+    "mutations": [
+      {
+        "id": "M1",
+        "target": "projectRosterUnits invalid-source guard",
+        "diff": "-    if (parsed.kind === 'invalid') {\n+    if (false) {",
+        "log": "mutation-M1.log",
+        "exit": 1,
+        "killed": [
+          "rejects a roster unit whose persisted source is neither canonical nor custom"
+        ],
+        "survived": [
+          "rejects a roster unit missing its catalog reference",
+          "rejects a force that references a unit absent from the roster projection",
+          "rejects a roster unit claimed by two forces",
+          "projects the roster source identity and force membership the co-op snapshot binds to"
+        ]
+      },
+      {
+        "id": "M2",
+        "target": "projectRosterUnits missing-catalog-reference guard",
+        "diff": "-    if (!unit.unitRef) {\n+    if (false) {",
+        "log": "mutation-M2.log",
+        "exit": 1,
+        "killed": [
+          "rejects a roster unit missing its catalog reference"
+        ],
+        "survived": [
+          "rejects a roster unit whose persisted source is neither canonical nor custom",
+          "rejects a force that references a unit absent from the roster projection",
+          "rejects a roster unit claimed by two forces",
+          "projects the roster source identity and force membership the co-op snapshot binds to"
+        ]
+      },
+      {
+        "id": "M3",
+        "target": "projectForceUnits absent-roster-unit guard",
+        "diff": "-      if (!rosterIds.has(unitId)) {\n+      if (false) {",
+        "log": "mutation-M3.log",
+        "exit": 1,
+        "killed": [
+          "rejects a force that references a unit absent from the roster projection"
+        ],
+        "survived": [
+          "rejects a roster unit whose persisted source is neither canonical nor custom",
+          "rejects a roster unit missing its catalog reference",
+          "rejects a roster unit claimed by two forces",
+          "projects the roster source identity and force membership the co-op snapshot binds to"
+        ]
+      },
+      {
+        "id": "M4",
+        "target": "projectForceUnits duplicate-force-membership guard",
+        "diff": "-      if (claimed.has(unitId)) {\n+      if (false) {",
+        "log": "mutation-M4.log",
+        "exit": 1,
+        "killed": [
+          "rejects a roster unit claimed by two forces"
+        ],
+        "survived": [
+          "rejects a roster unit whose persisted source is neither canonical nor custom",
+          "rejects a roster unit missing its catalog reference",
+          "rejects a force that references a unit absent from the roster projection",
+          "projects the roster source identity and force membership the co-op snapshot binds to"
+        ]
+      },
+      {
+        "id": "M5",
+        "target": "projectRosterUnits source-identity projection (happy-path discriminator)",
+        "diff": "-      unitSource: parsed.source,\n+      unitSource: 'canonical',",
+        "log": "mutation-M5.log",
+        "exit": 1,
+        "killed": [
+          "projects the roster source identity and force membership the co-op snapshot binds to"
+        ],
+        "survived": [
+          "rejects a roster unit whose persisted source is neither canonical nor custom",
+          "rejects a roster unit missing its catalog reference",
+          "rejects a force that references a unit absent from the roster projection",
+          "rejects a roster unit claimed by two forces"
+        ]
+      }
+    ],
+    "verdict": "All 5 rows discriminate: every mutation killed exactly one row, and every row was killed by exactly one mutation (a 1:1 kill matrix). No row survived the whole campaign, so no row is dead weight.",
+    "assertionLevelCaveat": "Within each of the 4 guard rows the helper also asserts `expect(projected).toBeUndefined()` ('nothing projected'). That assertion is NOT independently mutation-killable: the builder has no partial-return path, so any mutation that leaves the throw intact also leaves the assignment unreached. Each guard row's actual killer is the message-matched `toThrow`. This is recorded rather than claimed as proven, and the test file's helper comment says the same."
+  },
+  "gates": [
+    {
+      "name": "new suite + src/lib/campaign/coop + CampaignSync + CampaignHostRegistry",
+      "command": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/campaign/coop src/types/campaign/__tests__/CampaignSync.test.ts src/lib/multiplayer/server/__tests__/CampaignHostRegistry.test.ts",
+      "exit": 0,
+      "result": "10 suites passed, 73 tests passed",
+      "log": "gate-jest.log"
+    },
+    {
+      "name": "tsc",
+      "command": "npx tsc --noEmit -p tsconfig.json",
+      "exit": 0,
+      "result": "no diagnostics (empty log)",
+      "log": "gate-tsc.log"
+    },
+    {
+      "name": "oxlint (changed file)",
+      "command": "npx oxlint src/lib/campaign/coop/__tests__/campaignAuthoritativeState.test.ts",
+      "exit": 0,
+      "result": "0 warnings, 0 errors — but reported \"on 0 files\": .oxlintrc.json ignorePatterns includes \"**/__tests__/**\", \"**/*.test.ts\". Test files are lint-exempt by project config, so this gate is vacuous for this slice by design, not by a bad invocation (probed: `npx oxlint src/lib/campaign/coop/` lints 11 non-test files; the same command on an existing sibling test file also reports 0 files).",
+      "log": "gate-oxlint.log"
+    },
+    {
+      "name": "oxfmt --check (changed file)",
+      "command": "npx oxfmt --check src/lib/campaign/coop/__tests__/campaignAuthoritativeState.test.ts",
+      "exit": 0,
+      "result": "All matched files use the correct format (1 file)",
+      "log": "gate-oxfmt.log"
+    },
+    {
+      "name": "openspec validate --all --strict",
+      "command": "npx openspec validate --all --strict",
+      "exit": 0,
+      "result": "232 passed, 0 failed (232 items)",
+      "log": "gate-openspec.log"
+    },
+    {
+      "name": "pre-commit hook (lint-staged + full next build)",
+      "command": "git commit (hooks enabled, never bypassed)",
+      "exit": 0,
+      "result": "oxlint --fix, oxfmt --write, npx tsc --noEmit --skipLibCheck, then the full `npm run build` all completed; the commit landed.",
+      "log": "commit.log"
+    }
+  ],
+  "logs": {
+    "commit.log": {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-camp-2-s2-20260915/commit.log",
+      "sha256": "05be531ab2575cd4d824973ca95177cf6e3128a5a2101bfd12bdd611e7747010",
+      "bytes": 195891
+    },
+    "first-run.log": {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-camp-2-s2-20260915/first-run.log",
+      "sha256": "2f4f2c991b6df6de6d40709f44a12c4483d6aeae1acb02914783b47709a8611d",
+      "bytes": 743
+    },
+    "gate-jest.log": {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-camp-2-s2-20260915/gate-jest.log",
+      "sha256": "3c89f2f1ea6f793b34be4b14ce8e58adfd8ab241099b88da848a617b3db0041d",
+      "bytes": 2022
+    },
+    "gate-openspec.log": {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-camp-2-s2-20260915/gate-openspec.log",
+      "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3",
+      "bytes": 6954
+    },
+    "gate-oxfmt.log": {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-camp-2-s2-20260915/gate-oxfmt.log",
+      "sha256": "71203a67c07380a740263e359c0e6f508a950cfa5089483fa4e0ed3958db46a5",
+      "bytes": 112
+    },
+    "gate-oxlint.log": {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-camp-2-s2-20260915/gate-oxlint.log",
+      "sha256": "7be76dc1307b1762bec6288a63311c08a19fdfe9812ff01cf1921b4d9f93ba4b",
+      "bytes": 77
+    },
+    "gate-tsc.log": {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-camp-2-s2-20260915/gate-tsc.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "mutation-M1.log": {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-camp-2-s2-20260915/mutation-M1.log",
+      "sha256": "5128349f1bf591a829edfe45d2236d8401dc861051e2ebd50a7e3b69bc308a2d",
+      "bytes": 1682
+    },
+    "mutation-M2.log": {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-camp-2-s2-20260915/mutation-M2.log",
+      "sha256": "e25556ec713b11e6d5632d4696683e995b422e83452b1a12b917b2bfa38eefab",
+      "bytes": 1669
+    },
+    "mutation-M3.log": {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-camp-2-s2-20260915/mutation-M3.log",
+      "sha256": "15bd7b8f595db3d17572c64169c610a2d998cebe729f98b13118d2e63d7cc528",
+      "bytes": 1696
+    },
+    "mutation-M4.log": {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-camp-2-s2-20260915/mutation-M4.log",
+      "sha256": "fab3fe12a0d487a319c36b52c8cfc58114a89231f5c5c9c6a755a6a12935bd7b",
+      "bytes": 1660
+    },
+    "mutation-M5.log": {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-camp-2-s2-20260915/mutation-M5.log",
+      "sha256": "57d26925ab243d47f763ddf1be2d5b800f4bfeed8c85120c077596f0c4b9a82c",
+      "bytes": 2008
+    }
+  },
+  "nonClaims": [
+    "NO product change: src/lib/campaign/coop/campaignAuthoritativeState.ts is byte-identical to the base SHA (`git diff <base> HEAD -- <file>` is empty). Every mutation was reverted with `git checkout -- <file>`.",
+    "NO panel-test change: src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx's jest.mock of this module was left in place untouched, per SLICE-2's own non-claim.",
+    "NO spec, tasks.md, checkbox, or contract edits. No openspec/ file was written by this slice other than this evidence JSON.",
+    "NO frozen-command run: neither camp-01b argv array was executed (no `npm test --runTestsByPath ...` frozen sequence, no `npm run verify:qc:coop-campaign-journey`, no Playwright leg). The canonicalArgvDigest 8ace8ae2a924103218b629d757de23f771cbf0da4f60bae4390ca284580d9bcd was not reproduced. That is SLICE-1 work.",
+    "camp-01b receipt tiers UNCHANGED: no CAMP01_ARTIFACT_DIR / CAMP01_RUN_ID run, no wave-result.json, no command-result.json, no receipt-manifest.json, no .sisyphus/evidence/playtest/camp01b-snapshot-<sha> directory. The controller-registered receipt does not exist before or after this slice.",
+    "Does NOT close roadmap task 2.1 or 2.2. It narrows taskKeys[0].gap (the guard branches now have direct, mutation-proven coverage) but leaves the receipt-writer clause, the predecessor camp-01a receipt, and githubReviewGateG1 exactly as the admission brief found them.",
+    "The new test file is NOT one of the 4 files WAVE_CONTRACTS pins for camp-01b, so no contract edit or canonicalArgvDigest renegotiation was needed or made.",
+    "NOT pushed; no PR opened; no branch merged.",
+    "No defect was found or fixed — the guards were already correct. The `expect(projected).toBeUndefined()` assertion inside each guard row is structurally unkillable (see mutationCampaign.assertionLevelCaveat) and is not claimed as mutation-proven."
+  ]
+}

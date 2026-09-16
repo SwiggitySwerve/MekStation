@@ -1,0 +1,66 @@
+{
+  "task": "roadmap R1.ci — reconcile add-customizer-pr-regression-gate tasks.md for boxes 3.1, 3.3, 5.4",
+  "context": "3 of 20 tasks.md boxes lagged evidence already landed on main via PRs #1678, #1680 (unmerged probe), #1689, #1690: 3.1's wording overstated authorship of a pre-existing module, 3.3's mutation-test box lacked its landing commits, and 5.4 was unchecked despite both a positive and a negative CI observation existing.",
+  "worktree": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/ci-package-reconcile-20260915",
+    "branch": "codex/roadmap-ci-package-reconcile-20260915",
+    "base": "origin/main",
+    "baseCommit": "3bf096346c1077a82b7d03d8a5ec70111c07c187"
+  },
+  "commit": {
+    "sha": "f95e1be3d0642274c842b111310875c89558d160",
+    "message": "docs(openspec): record the customizer gate observations for tasks 3.1, 3.3 and 5.4",
+    "author": "Wes Rollings <wrollings@gmail.com>",
+    "filesChanged": ["openspec/changes/add-customizer-pr-regression-gate/tasks.md"],
+    "insertions": 3,
+    "deletions": 3
+  },
+  "diffSummary": {
+    "3.1": "Reworded from claiming the validator 'extracted' contracts into a module it implied it created, to stating the module pre-existed via #1647 and this change wired the validator into it. Box state unchanged ([x]).",
+    "3.3": "Appended merge evidence: #1689 (2af7b22598e1ec40ba405e86182daf862d04c526, 28/28 tests passing) and #1690 (3bf096346c1077a82b7d03d8a5ec70111c07c187, 37/37 tests passing). Box state unchanged ([x]).",
+    "5.4": "Checked the box and appended evidence: positive observation PR #1678 (run 34940815550, job 104289034959, Customizer Regressions SUCCESS, Lint and Test aggregator SUCCESS) and negative probe PR #1680 (run 34941958817, job 104292621602, Customizer Regressions FAILURE, Lint and Test aggregator FAILURE, closed unmerged)."
+  },
+  "sourceEvidenceFilesRead": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/ci-prefix2-1678-observation-20260915.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/ci-task54-negative-probe-20260915.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/ci-quality-test-1689-main-proof-20260915.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/ci-quality-mutations-1690-main-proof-20260915.json"
+  ],
+  "validators": {
+    "runIn": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/archive-original-main-proof",
+    "procedure": "Confirmed worktree clean and detached at 5b229be21e87815f10ce6521dda77b52eef75e3c; detached to commit f95e1be3d0642274c842b111310875c89558d160 (the reconcile commit); ran all four validators; restored detach to 5b229be21e87815f10ce6521dda77b52eef75e3c afterward (confirmed clean, no residual changes).",
+    "results": [
+      {
+        "command": "npx openspec validate --all --strict",
+        "exitCode": 0,
+        "tail": "Totals: 232 passed, 0 failed (232 items)",
+        "logPath": ".sisyphus/roadmap-completion-20260912/ci-package-reconcile-20260915/openspec-validate.log",
+        "logSha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3"
+      },
+      {
+        "command": "npm run spec:purpose:validate:strict",
+        "exitCode": 0,
+        "tail": "Files scanned: 220; Errors: 0; Tracked source-of-truth debt: 0",
+        "logPath": ".sisyphus/roadmap-completion-20260912/ci-package-reconcile-20260915/spec-purpose-validate.log",
+        "logSha256": "629026f25215446af06f7491ea5757f56e6f66d00cb70d6d432438cb6cb9adf7"
+      },
+      {
+        "command": "npm run terminology:validate:strict",
+        "exitCode": 0,
+        "tail": "no reported terminology violations (only a MODULE_TYPELESS_PACKAGE_JSON node warning, non-fatal)",
+        "logPath": ".sisyphus/roadmap-completion-20260912/ci-package-reconcile-20260915/terminology-validate.log",
+        "logSha256": "421cc93a43675bd75f12cef22f7a344fd299afec0109a5b316850ec45d0cebdf"
+      },
+      {
+        "command": "npm run qc:openspec-ci:validate",
+        "exitCode": 0,
+        "tail": "workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=12 accountedActiveOpenSpecChanges=12 errors=0",
+        "logPath": ".sisyphus/roadmap-completion-20260912/ci-package-reconcile-20260915/qc-openspec-ci-validate.log",
+        "logSha256": "8c41df6c33246420ed1806218780c2df69b5ad4e7c594b993b07594ee959ccb2"
+      }
+    ]
+  },
+  "pushed": false,
+  "nodeVersion": "v22.22.0",
+  "timestampUtc": "2026-09-15T08:57:40.000Z"
+}

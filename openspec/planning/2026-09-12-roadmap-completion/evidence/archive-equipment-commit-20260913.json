@@ -1,0 +1,17 @@
+{
+  "at": "2026-09-13T08:15:55.644Z",
+  "state": "local-verified-committed",
+  "commit": "0f26b709f33ecb5513058844e8077d61b5a2a3ed",
+  "branch": "codex/roadmap-archive-equipment-20260913",
+  "base": "44b94adbbb333a9d4965e057b34290e19fc0e781",
+  "publication": "not-attempted",
+  "body": {
+    "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\archive-equipment-delivery-20260913\\pr-body-reviewed.md",
+    "sha256": "492410786a7b7d08878025852ebc2c3d5ed9dc8ac310189097322519e150e83d"
+  },
+  "commandReceipt": {
+    "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\archive-equipment-parent-gates-20260913\\commit.json",
+    "sha256": "53ac3664ddfb6f9a2375ac29318106d793e2a3b3446b727b274688bf5a09dafe"
+  },
+  "limits": "Independent review and local gates passed; remote checks/main proof/cleanup remain pending."
+}

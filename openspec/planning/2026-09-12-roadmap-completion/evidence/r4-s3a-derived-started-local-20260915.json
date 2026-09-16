@@ -1,0 +1,182 @@
+{
+  "artefact": "r4-s3a-derived-started-local",
+  "date": "2026-09-15",
+  "roadmapNode": "R4.S3",
+  "package": "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind",
+  "task": "1.3 (S3) — sub-prefix (1) of 3 only; box left UNCHECKED",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/history-runtime-integrity",
+  "mode": "additive derived read + real-SQLite proof suite; no caller repointed, no table dropped, cutover mode unchanged; no push, no PR, no merge, no openspec/** spec or task edits",
+  "base": {
+    "branch": "codex/roadmap-r4-s3a-derived-started-20260915",
+    "createdFrom": "c315b9f99474d24ce01e2d09f2e02bde4f4d6bab",
+    "parentBranch": "codex/roadmap-r4-s2-live-head-admission-20260915",
+    "stacked": "on R4.S2, itself stacked on R4.S1 (PR #1684). The parent rebases onto main after those merge; this branch follows it.",
+    "worktreeCleanAtStart": true,
+    "node": "v22.22.0 (verified in-session)"
+  },
+
+  "commit": {
+    "sha": "bb346350e",
+    "subject": "feat(combat): derive journal-authority started state from the mirrored stream",
+    "author": "Wes Rollings <wrollings@gmail.com>",
+    "aiAttribution": "none (per task brief and E:/Projects/CLAUDE.md)",
+    "preCommitHook": "lint-staged (oxlint --fix, oxfmt --write, tsc --noEmit --skipLibCheck) + full `npm run build` (TypeScript staged) — hook exit 0, standalone server hydrated",
+    "log": ".sisyphus/roadmap-completion-20260912/r4-s3a-20260915/commit-20260915.log",
+    "sha256": "bae89511a4c5ee003a220512b5c2689d932c8f5db07c05b7a2af0d1081af4e1e"
+  },
+
+  "surface": {
+    "shortstatVsBase": "git diff --shortstat c315b9f99 -> 2 files changed, 301 insertions(+)",
+    "cap": "<= 15 files / <= 500 lines — PASS (2 files, 301 lines; 199 lines of headroom)",
+    "files": [
+      {
+        "path": "src/lib/multiplayer/server/matchJournalAuthorityStartedDerived.ts",
+        "status": "A",
+        "added": 78,
+        "removed": 0,
+        "kind": "new production module — the derived read, one exported function"
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/journalAuthorityStartedDerived.sqlite.test.ts",
+        "status": "A",
+        "added": 223,
+        "removed": 0,
+        "kind": "new real-SQLite proof suite, 7 rows"
+      }
+    ],
+    "existingProductionFilesChanged": 0,
+    "whyNoExistingFileChanged": "The derivation is a free function taking the store, so no interface (IMatchStore), no store implementation (DurableMatchStore / InMemoryMatchStore) and no batch shape (matchCommandBatch.IMatchCommandBatch.journalAuthorityStarted) is touched. That keeps sub-prefix (1) decidable in isolation and leaves the 7 marker-referencing test files untouched."
+  },
+
+  "derivedSignal": {
+    "symbol": "isMatchJournalAuthorityStartedDerived(store: object, matchId: string): boolean",
+    "module": "src/lib/multiplayer/server/matchJournalAuthorityStartedDerived.ts",
+    "definition": "TRUE if and only if the match's stream { streamType: 'match', streamId: matchId } has an effective head row installed in `event_history_effective_heads` — i.e. the branch port's `readEffectiveHead(stream)` answers non-null.",
+    "whyTheEffectiveHeadRow": [
+      "S1's mirror (`mirrorMatchBatchToJournal`) appends the event rows, installs `event_journal_stream_heads`, and runs `backfillGenesisBranches()` (genesis branch + effective head) inside ONE `appendPreparedWithExtension` transaction, so the effective head cannot exist without the events it heads. Measured by the S1 suite (matchStreamJournalMirror.sqlite.test.ts) and re-measured here.",
+      "The effective head is the exact row S2's live branch admission consult (`ServerMatchHostBranchAdmission.refuseLiveBranchAdmission` -> `ctx.store.readEffectiveHead`) and S4's rewound-restart path (`ServerMatchHostRewindRebuild.tryFoldActivatedRewindBranch`) read. Deriving 'started' from the same row makes 'started' and 'the journal can answer for this match' one fact rather than two that can drift — which is what task 1.3's 'one source of started' asks for.",
+      "Using the journal tail (`event_journal_events` MAX revision) instead would have been a second, weaker definition: it answers about rows S2/S4 never consult."
+    ],
+    "preFirstBatchBehaviour": {
+      "answer": "FALSE, including for a live, event-carrying match.",
+      "reason": "`ServerMatchHost.create` persists a match's initial events through `store.appendEvent`, which is NOT the batch path and never mirrors. Only `appendCommandBatch` reaches `mirrorCommittedBatch`. A created match whose first COMMAND BATCH has not committed therefore has no journal row of any kind and is honestly not started.",
+      "provenanceOfTheCaveat": "Measured and recorded by the S2 slice — openspec/planning/2026-09-12-roadmap-completion/evidence/r4-s2-live-head-admission-local-20260915.json, proofSuite.measuredBehaviorWorthRecording: 'after a mirrored seed batch (journal revision 1), host creation added 2 match events and 0 journal rows, and the next host batch mirrored revision-conflict'. This is S1's disclosed no-catch-up, not a defect in the derivation.",
+      "pinnedBy": "row 1 of the proof suite ('answers not-started for a match whose stream has no journal rows')"
+    },
+    "flagRelationship": "The signal reads PERSISTED STATE, never `getCombatJournalAuthorityMode()`. At the shipped mode (`off`) nothing mirrors, so every match answers false (row 4). A stream mirrored while the mode was on keeps answering true after the mode goes off, because the rows are still on disk and the question is about the stream, not about this process's configuration.",
+    "absentOrUnreadyPort": "A store with no branch port (`hasHistoryBranchStore` false — e.g. InMemoryMatchStore) or one whose capability database is not open (`isHistoryBranchStoreReady` false — a DurableMatchStore in a process that never initialized SQLiteService) answers FALSE. It cannot have mirrored anything, so 'not started' is the honest answer rather than a refusal.",
+    "corruptHeadBehaviour": {
+      "answer": "The typed `EventHistoryBranchError('branch-integrity')` thrown by `readEffectiveHead` PROPAGATES — deliberately not caught.",
+      "reason": "A head naming a non-effective (superseded) branch is persisted corruption no activation can produce (branch supersession and head installation are one transaction). Answering 'not started' would bury that under a legal-looking answer. The live intent path already refuses this shape MATCH_QUARANTINED / 'history-integrity-blocked' (History B, PR #1674).",
+      "pinnedBy": "row 7 of the proof suite",
+      "consequenceForSubPrefix2": "A caller repointed at this signal must be prepared for the throw, or wrap it, exactly as `ServerMatchHostBranchAdmission` does at lines 163-166 today. Flagged, not decided here."
+    }
+  },
+
+  "redGreen": {
+    "order": "test authored and run FIRST against no module, then run again against a stub that answers false, so the red is behavioural rather than a module-resolution accident (the S1 method)",
+    "red1_moduleMissing": {
+      "description": "Suite authored; `matchJournalAuthorityStartedDerived` does not exist.",
+      "argv": ["node", "node_modules/jest/bin/jest.js", "--maxWorkers=2", "--coverage=false", "src/lib/multiplayer/server/__tests__/journalAuthorityStartedDerived.sqlite.test.ts"],
+      "exit": 1,
+      "result": "Test Suites: 1 failed, 1 total; Tests: 0 total",
+      "failure": "Cannot find module '../matchJournalAuthorityStartedDerived'",
+      "log": ".sisyphus/roadmap-completion-20260912/r4-s3a-20260915/red-1-module-missing-20260915.log",
+      "sha256": "4e0005e81fc630fdf84f8684a85a359ab745eb8476612ee3c93d08b82c49577d"
+    },
+    "red2_behavioural": {
+      "description": "Module present as a stub returning a constant false. Proves each failure is 'the derived signal does not answer started', not a resolution error.",
+      "exit": 1,
+      "result": "Test Suites: 1 failed, 1 total; Tests: 4 failed, 3 passed, 7 total",
+      "failedInRed": [
+        "answers started once a batch is committed through the mirror",
+        "still answers started after a cold reopen of both databases",
+        "does not write the legacy marker when the mirror starts the stream",
+        "refuses typed rather than answering not-started on a corrupt head"
+      ],
+      "passedInRed": [
+        "answers not-started for a match whose stream has no journal rows",
+        "answers not-started at the production default mode, marker unchanged",
+        "is not flipped by the legacy marker the old path writes"
+      ],
+      "passedInRedIsCorrect": "All three are NEGATIVE rows — the constant-false stub is right about them by accident, which is exactly why rows 2/3/6 and 7 have to exist. The stub is the 'always says not started' mutant and the suite kills it.",
+      "log": ".sisyphus/roadmap-completion-20260912/r4-s3a-20260915/red-2-behavioural-20260915.log",
+      "sha256": "337f756dd65b7dec92650614adc086095e97378831bb3045fb1233b355acdf81"
+    },
+    "green": {
+      "exit": 0,
+      "result": "Test Suites: 1 passed, 1 total; Tests: 7 passed, 7 total",
+      "log": ".sisyphus/roadmap-completion-20260912/r4-s3a-20260915/green-suite-20260915.log",
+      "sha256": "6839e162ccc396627f20a32ed44510aa3814bfa3cab6c70332b32331d36dde61"
+    }
+  },
+
+  "proofSuite": {
+    "file": "src/lib/multiplayer/server/__tests__/journalAuthorityStartedDerived.sqlite.test.ts",
+    "boundary": "Two temp-file SQLite databases opened the way production opens them — `multiplayer-matches.db` for DurableMatchStore and `mekstation.db` for the campaign/journal capability database via getSQLiteService — plus a cold reopen of BOTH. No head row is hand-built: every 'started' row installs its head by committing a real batch through `DurableMatchStore.appendCommandBatch` under `_setCombatJournalAuthorityModeForTests('shadow')`.",
+    "rows": [
+      { "n": 1, "name": "answers not-started for a match whose stream has no journal rows", "asserts": "derived() === false AND the legacy marker read is null, for a created match with no committed batch — the pre-first-batch definition" },
+      { "n": 2, "name": "answers started once a batch is committed through the mirror", "asserts": "batch commits (kind 'committed') at the test-configured mode 'shadow'; derived() === true" },
+      { "n": 3, "name": "still answers started after a cold reopen of both databases", "asserts": "store.close() + resetSQLiteService() + reopen from disk; derived() === true — the answer lives on DISK, not in an open handle" },
+      { "n": 4, "name": "answers not-started at the production default mode, marker unchanged", "asserts": "mode 'off': the batch still commits and 2 match events land, derived() === false, marker read still null — the honest production pin" },
+      { "n": 5, "name": "is not flipped by the legacy marker the old path writes", "asserts": "mode 'off' + a batch carrying `journalAuthorityStarted`: the marker read answers commandId 'cmd-1' while derived() === false — INDEPENDENCE, marker -> derived direction" },
+      { "n": 6, "name": "does not write the legacy marker when the mirror starts the stream", "asserts": "mode 'shadow', batch without the marker field: derived() === true while the marker read is still null — INDEPENDENCE, derived -> marker direction" },
+      { "n": 7, "name": "refuses typed rather than answering not-started on a corrupt head", "asserts": "after a real mirrored head, the genesis branch row is forced to status 'superseded' with the head still naming it; derived() throws EventHistoryBranchError instead of answering false" }
+    ],
+    "discriminationForSubPrefix2": "Rows 5 and 6 are the pair that makes sub-prefix (2) falsifiable: a repoint that simply renames the marker read would pass rows 1-4 and 7 and FAIL both 5 and 6. Row 5 in particular is the only row where the marker is non-null, and it pins the derived answer at false there."
+  },
+
+  "gates": [
+    {
+      "name": "focused jest",
+      "argv": ["C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe", "node_modules/jest/bin/jest.js", "--maxWorkers=2", "--coverage=false", "src/lib/multiplayer/server", "src/lib/events/journal"],
+      "exit": 0,
+      "result": "Test Suites: 169 passed, 169 total; Tests: 1321 passed, 1321 total",
+      "log": ".sisyphus/roadmap-completion-20260912/r4-s3a-20260915/gate-focused-jest-20260915.log",
+      "sha256": "f6145ca37cb85eedd7bcf6dbba50bbe97685464e20fd38bd420b9457e739065e",
+      "note": "Run AFTER the oxfmt whitespace fix, so this log matches the committed tree. Zero failures: the three failures R4.S1's evidence recorded as pre-existing (root-branch digest / effective-head fixture collisions from history prefix C) are no longer present on this stacked base.",
+      "arithmeticCheck": "1321 total - 7 new rows = 1314; the same two paths at base c315b9f99 are asserted to hold 1314 — NOT independently re-measured in this session (the base run was not repeated). UNVERIFIED as arithmetic proof; the zero-failure result is the measured claim."
+    },
+    {
+      "name": "typecheck",
+      "argv": ["C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe", "node_modules/typescript/bin/tsc", "-p", "tsconfig.json", "--noEmit"],
+      "exit": 0,
+      "log": ".sisyphus/roadmap-completion-20260912/r4-s3a-20260915/gate-typecheck-20260915.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "note": "empty log = zero diagnostics"
+    },
+    {
+      "name": "lint (oxlint — this repo's linter; package.json \"lint\": \"oxlint\")",
+      "argv": ["npx", "oxlint", "src/lib/multiplayer/server/matchJournalAuthorityStartedDerived.ts", "src/lib/multiplayer/server/__tests__/journalAuthorityStartedDerived.sqlite.test.ts"],
+      "exit": 0,
+      "result": "Found 0 warnings and 0 errors. (Finished on 1 file — oxlint's config excludes __tests__ from the lint set; the production module is the file it linted.)",
+      "log": ".sisyphus/roadmap-completion-20260912/r4-s3a-20260915/gate-oxlint-20260915.log",
+      "sha256": "b38d58020e1359bbdd8551dc6df3ef3411f82a0d4c8bc169cdeeb63d3d0417ef"
+    },
+    {
+      "name": "format check (oxfmt)",
+      "argv": ["npx", "oxfmt", "--check", "<the same two files>"],
+      "exit": 0,
+      "result": "All matched files use the correct format.",
+      "log": ".sisyphus/roadmap-completion-20260912/r4-s3a-20260915/gate-oxfmt-20260915.log",
+      "sha256": "6b7a3961c6a0a6bf7f4dc2d4f42928846d0a9722b97116b70906422fdf746db6",
+      "note": "First --check run failed on the test file (the `batch(started?)` signature wrapped); `npx oxfmt` rewrote it, the focused jest gate was then re-run, and this log is the passing recheck."
+    }
+  ],
+
+  "nonClaims": [
+    "NO CALLER REPOINTED. `ServerMatchHost.ts:1419` (selectRecoveredMatchRollbackReader) and `ServerMatchHostJournalAuthority.ts:186` still read `store.getJournalAuthorityStarted`. Nothing in production calls `isMatchJournalAuthorityStartedDerived` — it is reachable only from the new test. That is sub-prefix (2).",
+    "NO TABLE OR WRITE DROPPED. `mp_journal_authority_started` (DurableMatchStore.ts:207-219), its write-once INSERT (DurableMatchStore.ts:897-921), its read (DurableMatchStore.ts:1060, InMemoryMatchStore.ts:314), the `IMatchStore.getJournalAuthorityStarted?` port and the `IMatchCommandBatch.journalAuthorityStarted` field are all untouched. That is sub-prefix (3).",
+    "CUTOVER MODE UNCHANGED. `COMBAT_JOURNAL_AUTHORITY_MODE` is still `'off'`; mode 'shadow' appears only through `_setCombatJournalAuthorityModeForTests` inside the new suite, reset in afterEach.",
+    "NO SHALL DISCHARGED. This slice proves a derived read exists and is independent of the marker; it does not deliver task 1.3's 'one source of started', which needs sub-prefixes (2) and (3). Task box 1.3 stays UNCHECKED.",
+    "NO openspec/** EDIT. No spec, task, proposal or design text was changed; nothing in the change package contradicted this slice's definition, so no stop-and-report was triggered.",
+    "NO PUSH / PR / MERGE. Commit bb346350e sits on codex/roadmap-r4-s3a-derived-started-20260915 in the worktree only. The root checkout was not touched.",
+    "NO CATCH-UP. A mirror that fell behind (S1's disclosed gap, visible through the create-path caveat above) is not closed here; the derived signal answers about the HEAD, which the create-path events do not move. Closing the lag is S4/S6 work."
+  ],
+
+  "flaggedForOwner": [
+    "Sub-prefix (2) must decide what a repointed caller does with the propagated `EventHistoryBranchError('branch-integrity')` on a corrupt head. The legacy marker read never throws, so a bare rename of the call site changes the failure mode of `selectRecoveredMatchRollbackReader` (which currently wraps the marker read in a try/catch — ServerMatchHost.ts:1412) and of `ServerMatchHostJournalAuthority`'s pre-append check (which does not).",
+    "Sub-prefix (2) must also decide the ASYNC/SYNC seam: `getJournalAuthorityStarted` is async (Promise), `isMatchJournalAuthorityStartedDerived` is sync because `readEffectiveHead` is sync. Both current call sites `await` the marker read, so a sync answer is source-compatible at both, but the shape difference should be noted rather than discovered.",
+    "Sub-prefix (2) must decide the semantic gap the derived signal does NOT carry: the marker is a RECORD (commandId, firstRevision, lastRevision, head tuple, committedAt) and `selectRecoveredMatchRollbackReader` consumes `started` as a value, not just a boolean, feeding `selectMatchRollbackReader({ baseline, started, recordedHead, refoldedHead, ... })`. A boolean cannot replace that call's `started` argument as-is; sub-prefix (2) either derives the tuple from the journal head + last command receipt, or narrows what that selector needs. This is the largest unknown left in task 1.3 and was NOT resolved here."
+  ]
+}

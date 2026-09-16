@@ -1,0 +1,331 @@
+{
+  "schema": "r2-camp-5-admission-brief/v1",
+  "at": "2026-09-15T16:30:00.000Z",
+  "role": "read-only discovery; no product/spec/tasks/contract edits made; single evidence artifact only; no builds/tests/sub-agents executed this session",
+  "sourceSnapshot": {
+    "originMainAtFetchStart": "273ed7883420d6198094d6d23abde855cc327510",
+    "originMainAtFetchEnd": "1e43090c505f0b3d97fb71f099a9060e1936438c",
+    "note": "`git fetch origin` this session moved the local origin/main ref from 273ed7883420 to 1e43090c505f (main advanced during this session's window). All `git show origin/main:<path>` reads below reflect the CURRENT tip, 1e43090c505f.",
+    "worktreeUsedForSourceReading": ".sisyphus/roadmap-completion-20260912/worktrees/archive-original-main-proof",
+    "worktreeHeadSha": "273ed7883420d6198094d6d23abde855cc327510",
+    "worktreeMatchesCurrentOriginMainTip": false,
+    "driftCheckPerformed": "`git diff 273ed7883420..origin/main -- openspec/changes/add-saved-custom-unit-campaign-roster/tasks.md scripts/qc/camp01-authority-receipt.contract.mjs src/components/gameplay/pages/campaigns/create/savedCustomUnitCampaignAdapter.ts src/components/gameplay/pages/campaigns/create/CreateCampaignPage.RosterStep.tsx src/components/gameplay/pages/campaigns/create/CreateCampaignPage.hooks.ts src/components/gameplay/pages/campaigns/create/CreateCampaignPage.types.ts src/components/gameplay/pages/campaigns/create/__tests__/savedCustomUnitCampaignAdapter.test.ts src/components/gameplay/pages/campaigns/create/__tests__/CreateCampaignPage.RosterStep.test.tsx src/components/gameplay/pages/campaigns/create/__tests__/CreateCampaignPage.rosterPersistence.test.ts e2e/campaign-customizer-handoff.spec.ts openspec/changes/archive/2026-08-20-add-saved-custom-unit-campaign-picker/ --stat` returns EMPTY -- byte-identical between the pinned worktree HEAD and the current origin/main tip on every file this brief cites. The worktree's Read/grep results below are therefore drift-safe for this brief's purposes even though the worktree HEAD is one snapshot behind the live tip."
+  },
+  "roadmapNode": {
+    "id": "R2.camp-5",
+    "wave": 2,
+    "title": "Saved-design picker producer",
+    "kind": "verification",
+    "state": "planned",
+    "dependsOn": ["R2.camp-4"],
+    "ownershipPaths": [
+      "openspec/changes/add-saved-custom-unit-campaign-roster",
+      "scripts/qc",
+      "src",
+      "e2e"
+    ],
+    "acceptance": [
+      "Use immutable camp-01e contract row; preserve its strict PR cap, reporters, authority facts and real approval requirements",
+      "Audit shipped code before any repair; exact-main receipt required"
+    ],
+    "owner": "parent; assign bounded Luna high worker on admission",
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "taskKeys": [
+      "add-saved-custom-unit-campaign-roster#5.1@36",
+      "add-saved-custom-unit-campaign-roster#5.2@37",
+      "add-saved-custom-unit-campaign-roster#5.3@38"
+    ],
+    "receipt": null,
+    "decomposition": "Navigation paths only. Before assignment, select one behavior, exact files and original task IDs; split until original/default caps fit. Each child PR needs its own reviewed-head and exact-main receipt.",
+    "githubReviewGate": {
+      "authority": "add-saved-custom-unit-campaign-roster P.2 and scripts/qc/camp01-github-provenance.mjs",
+      "state": "APPROVED",
+      "nonDismissed": true,
+      "exactHead": true,
+      "nonAuthor": true,
+      "permissions": ["WRITE", "MAINTAIN", "ADMIN"],
+      "soloException": false
+    }
+  },
+  "predecessorClosures": {
+    "r2camp4": {
+      "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-camp-4-admission-brief-20260915.json",
+      "verdict": "All three taskKeys of CAMP-01D (mission-launch/dashboard/Mech-Bay/fast-forward injection + launchCoopMission guard placement + frozen 3-command wave) already implemented and covered, gap NONE FOUND.",
+      "closedOnlyAt": "command-level receipt tier (SLICE-1, recommended, not confirmed executed by that brief); controller-registered and PR-provenanced tiers remain owner-blocked."
+    },
+    "r2camp3": {
+      "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-camp-3-admission-brief-20260915.json",
+      "verdict": "Tasks 3.1-3.2 (CAMP-01C) fully implemented and covered, gap NONE FOUND.",
+      "closedOnlyAt": "command-level receipt tier only (not confirmed executed)."
+    },
+    "r2camp2": {
+      "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-camp-2-admission-brief-20260915.json",
+      "verdict": "Task 2.1 real and shipped via PR #1231/#1233 (self-authored, self-merged, zero reviews). One gap: buildCampaignAuthoritativeState's guard-throw branches untested.",
+      "closedOnlyAt": "command-level receipt tier only."
+    },
+    "r2camp1": {
+      "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-camp-1-admission-brief-20260915.json",
+      "verdict": "Tasks 1.1-1.4 (CAMP-01A) fully shipped and tested, gap NONE FOUND. Task 1.5 receipt run NOT done.",
+      "closedOnlyAt": "command-level receipt tier (recommended, not confirmed executed)."
+    },
+    "r2camp0": {
+      "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/camp00-receipt-run-main-819ff6f-20260915.json",
+      "verdict": "Command-level exact-main receipt produced (17/17 frozen assertions true at 819ff6fd8); PR-provenanced camp01-authority-receipt directory explicitly NOT produced.",
+      "closedOnlyAt": "command-level receipt tier only."
+    },
+    "whatThisMeansForCampFive": "R2.camp-5 (camp-01e) inherits the identical five-tier ceiling every predecessor in this chain has hit: (1) a command-level exact-main receipt is achievable today, (2) a controller-registered receipt is NOT achievable because camp-01e's own frozen predecessors list is ['camp-01d'] and no camp-01a/b/c/d controller-registered receipt exists yet (re-verified this session: `find .sisyphus/evidence/playtest -iname '*camp01e*'` and `git ls-files | grep -i camp01e` both return zero matches; `ls .sisyphus/evidence/playtest/` shows exactly one unrelated directory, 2026-07-07-live-playtest/), and (3) a PR-provenanced closure of roadmap tasks 5.1/5.2/5.3 is blocked on the same structurally unsatisfiable single-collaborator githubReviewGate every predecessor hit (re-verified live this session)."
+  },
+  "combatBriefCrossReference": {
+    "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-combat-admission-brief-20260915.json (roadmap node R2.combat, change enable-saved-custom-unit-combat) and evidence/r2-combat-s1-s4-verification-20260915.json",
+    "sharedSurface": "src/services/units/listCampaignSavedDesigns.ts -- listCampaignSavedDesigns(): Promise.allSettled merge of local (getCustomUnitService/IndexedDB) and server (customUnitApiService) saved-design metadata into one Map keyed by id, server rows applied AFTER local so an identical id is overwritten by server metadata.",
+    "howCampFiveUsesIt": "src/components/gameplay/pages/campaigns/create/CreateCampaignPage.RosterStep.tsx:7,37-38 imports listCampaignSavedDesigns directly and calls it as the sole data source for the Saved Designs picker group (task 5.2's render surface); the raw rows are then passed through camp-01e's OWN validateSavedBattleMechIndex (savedCustomUnitCampaignAdapter.ts, task 5.1's concern) for runtime shape-validation before becoming picker options.",
+    "howCombatUsesIt": "R2.combat task line-3 (enable-saved-custom-unit-combat#line-3@3) names the SAME listCampaignSavedDesigns() function as its own 'saved-design picker merge' concern, for a DIFFERENT purpose: combat-catalog eligibility (merging local/server metadata so the combat adapter and mission-launch readiness know which saved designs are server-eligible), not campaign-roster display. R2.combat's own frozen test file for this function, src/services/units/__tests__/listCampaignSavedDesigns.test.ts, is NOT one of camp-01e's three frozen commandSequence files.",
+    "liveStatusOfSharedFile": "Per r2-combat-s1-s4-verification-20260915.json (S1, this session 2026-09-15, main SHA 818e654e0ac): listCampaignSavedDesigns.test.ts passed 3/3 suites, 12/12 tests, exit 0, with zero citation drift against the function's cited line ranges. The shared function is green and stable at a tip 61 commits past this brief's own worktree pin, with no functional diff on the file itself between the two SHAs.",
+    "overlapAssessment": "The overlap is REAL at the data-source level (one shared function, two independent consumers) but is NOT a code-gap or duplication risk for camp-01e's own literal task text: camp-01e's task 5.1 is scoped to validateSavedBattleMechIndex's OWN validation/mapping logic (a pure function operating on already-fetched rows), not to listCampaignSavedDesigns' merge semantics, which R2.combat owns and tests separately. A worker admitted onto R2.camp-5 should NOT re-litigate or extend listCampaignSavedDesigns.ts or its own test file -- that is R2.combat's scope -- but SHOULD be aware that any future change to listCampaignSavedDesigns' return shape (field names, id semantics) is a cross-node breaking-change risk for RosterStep.tsx's SavedDesignsGroup, and that CreateCampaignPage.RosterStep.test.tsx fully mocks listCampaignSavedDesigns (jest.mock with a jest.fn()), so camp-01e's own frozen test file would NOT catch a real integration break in that shared function -- only R2.combat's own listCampaignSavedDesigns.test.ts and any future end-to-end coverage would."
+  },
+  "criticalContextFinding": {
+    "title": "The archived child change's tasks.md again claims a receipt and a council-review document that cannot be verified on origin/main, but the underlying product PR is real, merged, self-approved, and untouched by any second reviewer -- the fifth occurrence of this exact pattern in the CAMP-01 chain",
+    "archivedChild": "openspec/changes/archive/2026-08-20-add-saved-custom-unit-campaign-picker/ (proposal.md + tasks.md)",
+    "claimText": "openspec/changes/archive/2026-08-20-add-saved-custom-unit-campaign-picker/tasks.md line 1: 'Completed 2026-08-20 (reconciliation): implemented and delivered by the CAMP-01E wave (product PR #1237); attested by the durable reviewed-head + exact-main + cleanup receipts (full durable index readmitted 23/23 through validator plus all four anchors after CAMP-R1, 2026-08-12) and the council review at `openspec/council-decisions/2026-08-12-camp01-wave-execution-review.md`.' All of tasks 1.1, 1.2, 2.1, 2.2, 2.3, 3.1, 3.2 in that file are marked [x].",
+    "verification": [
+      "`git cat-file -e origin/main:openspec/council-decisions/2026-08-12-camp01-wave-execution-review.md` -> fatal: path does not exist in origin/main. Identical finding to the camp-00/01a/01b/01c/01d archived children's citation of the same nonexistent document.",
+      "`gh pr view 1237 --repo SwiggitySwerve/MekStation --json number,title,state,mergedAt,mergeCommit,author,mergedBy,reviews,files` -> MERGED, mergedAt 2026-08-13T20:42:34Z, mergeCommit dd42832c6e37d184ea143a2d086f43567233c07b, title 'feat(campaign): add saved-design picker with distinct roster identity', author=SwiggitySwerve, mergedBy=SwiggitySwerve, reviews=[] (empty). The PR is REAL and MERGED (9 files: e2e/campaign-customizer-handoff.spec.ts +57/-0, CreateCampaignPage.RosterStep.tsx +123/-2, CreateCampaignPage.hooks.ts +16/-2, CreateCampaignPage.submit.ts +7/-4, CreateCampaignPage.types.ts +5/-0, CreateCampaignPage.RosterStep.test.tsx +61/-1, CreateCampaignPage.rosterPersistence.test.ts +81/-1, savedCustomUnitCampaignAdapter.test.ts +36 new, savedCustomUnitCampaignAdapter.ts +54 new), but self-authored, self-merged, with zero recorded GitHub reviews -- same shape as camp-01b's PR #1231/#1233, camp-01c's PR #1235, camp-01d's PR #1236.",
+      "`git merge-base --is-ancestor dd42832c6e37d184ea143a2d086f43567233c07b origin/main` -> exit 0 (IS an ancestor). The product code genuinely shipped to main.",
+      "`find .sisyphus/evidence/playtest -iname '*camp01e*'` and `git ls-files | grep -i camp01e` both return zero matches -- no camp01-authority-receipt controller-registered directory exists for camp-01e anywhere in the repository or the durable evidence tree, despite the archived tasks.md's claim of 'durable reviewed-head + exact-main + cleanup receipts'.",
+      "`gh api repos/SwiggitySwerve/MekStation/collaborators` this session -> exactly one collaborator, SwiggitySwerve, permission admin. No second collaborator exists to have produced the non-author APPROVED review the claim implies."
+    ],
+    "conclusion": "This is the FIFTH consecutive CAMP-01 sub-wave (after camp-00, camp-01a, camp-01b, camp-01c, camp-01d) whose archived child tasks.md asserts a governed receipt and cites the same nonexistent 2026-08-12 council-review document. The product code for camp-01e genuinely shipped (PR #1237, real ancestor of origin/main, independently re-verified below by direct source/test reads) but the RECEIPT and REVIEW-GATE claims are false in the same narrow way its predecessors' were: self-authored, self-merged, zero reviews, no controller-registered receipt directory. A worker admitted onto R2.camp-5 MUST NOT cite PR #1237, the '23/23 readmitted' figure, or the 2026-08-12 council review as satisfying task 5.3's receipt clause."
+  },
+  "frozenContractRow": {
+    "source": "scripts/qc/camp01-authority-receipt.contract.mjs -> WAVE_CONTRACTS['camp-01e']",
+    "sourceFileVerifiedOnOriginMain": "1e43090c505f (current tip; byte-identical to the pinned worktree's 273ed7883420 on this file per driftCheckPerformed above)",
+    "wave": "camp-01e",
+    "commandId": "camp-01e",
+    "childChange": "add-saved-custom-unit-campaign-picker",
+    "runRootTemplate": ".sisyphus/evidence/playtest/camp01e-picker-<sha>",
+    "commandSequence": [
+      [
+        "@npm", "test", "--", "--watchAll=false", "--runTestsByPath",
+        "src/components/gameplay/pages/campaigns/create/__tests__/savedCustomUnitCampaignAdapter.test.ts",
+        "src/components/gameplay/pages/campaigns/create/__tests__/CreateCampaignPage.RosterStep.test.tsx",
+        "src/components/gameplay/pages/campaigns/create/__tests__/CreateCampaignPage.rosterPersistence.test.ts",
+        "--runInBand"
+      ],
+      ["@node", "scripts/playwright/run-playwright.mjs", "test", "--project=chromium", "e2e/campaign-customizer-handoff.spec.ts", "--workers=1"]
+    ],
+    "canonicalArgvDigest": "052993da0c60c14d2af410f61c15eb44ea6d3eba85644d9a0beb0069f16c828b",
+    "artifacts": ["command-result.json", "receipt-manifest.json", "wave-result.json", "desktop.png", "mobile-390x844.png"],
+    "assertions": [
+      "savedDesignIdPresent===true",
+      "rosterInstanceIdPresent===true",
+      "unitRefMatched===true",
+      "unitSourceCustom===true",
+      "rootForceContainsInstance===true",
+      "programmaticNamesPresent===true",
+      "narrowViewportUsable===true"
+    ],
+    "predecessors": ["camp-01d"],
+    "capSubject": "product-pr",
+    "maxFiles": 10,
+    "maxChangedLines": 450,
+    "reporterContracts": [],
+    "captureContract": "scripts/qc/camp01-authority-receipt.contract.mjs CAPTURE_CONTRACTS['camp-01e'] = [{invocationId:'camp-01e-picker-browser', commandSequenceIndex:1, artifactPaths:['desktop.png','mobile-390x844.png']}] -- ties the second commandSequence entry (the Playwright run) to a required desktop + narrow-viewport screenshot pair, gated in the e2e spec itself by `process.env.CAMP01_INVOCATION_ID === 'camp-01e-picker-browser'`.",
+    "criticalDifferenceFromCamp01c/dRows": "Unlike camp-01c/d, camp-01e's second commandSequence entry is a DIRECT `node scripts/playwright/run-playwright.mjs ...` invocation of exactly one spec file, not an `npm run verify:qc:coop-campaign-journey`/`qc:command:readiness-stable:quick` chained package script. This makes camp-01e's own browser leg lighter/more bounded than camp-01c's or camp-01d's (a single spec file target vs a 9-jest-suite + 2-spec chain), though it is still a real production-mode Playwright run, not a jest mock."
+  },
+  "taskKeys": [
+    {
+      "key": "add-saved-custom-unit-campaign-roster#5.1@36",
+      "sourceId": "5.1",
+      "literalText": "5.1 Runtime-validate saved BattleMech index entries and test exact id/source/display/tonnage mapping plus honest invalid-record exclusion.",
+      "checkboxStateOnOriginMain": "[ ] unchecked (roster umbrella tasks.md, line 36); the underlying archived child's own tasks.md (archive/2026-08-20-add-saved-custom-unit-campaign-picker, tasks 1.1/1.2) shows [x]",
+      "verifiedAgainstOriginMain": "tasks.md line 36 re-read via `git show origin/main:openspec/changes/add-saved-custom-unit-campaign-roster/tasks.md` at 1e43090c505f this session",
+      "whatSourceAlreadyDoes": [
+        "src/components/gameplay/pages/campaigns/create/savedCustomUnitCampaignAdapter.ts:19-42 mapRow() -- for each raw row: rejects a non-nonEmpty `id` ('empty-id'), rejects `(row.unitType ?? row.entityType) !== UnitType.BATTLEMECH` ('non-battlemech'), rejects a non-nonEmpty `name` ('empty-name'), rejects a non-finite or non-positive `tonnage` ('invalid-tonnage'); only on passing all four does it return a `SavedDesignOption {id, name, tonnage, currentVersion}` where `currentVersion` defaults to 1 if the raw value is not a positive integer.",
+        "src/components/gameplay/pages/campaigns/create/savedCustomUnitCampaignAdapter.ts:43-61 validateSavedBattleMechIndex(rows) -- guards non-array input, skips non-object/array entries as 'empty-id', and returns `{options, rejected}` with rejected as an explicit, typed observation list (never silently dropped, never inferred/coerced into a construction-payload fallback) -- this is the 'honest invalid-record exclusion' clause.",
+        "The `id`/`name`/`tonnage` mapping is an EXACT passthrough of the raw row's own values (no chassis/variant string is used to derive `id`, no display-name derivation from other fields) -- this is the 'exact id/source/display/tonnage mapping' clause; 'source' in the task text is satisfied structurally by every option this function returns being destined exclusively for the picker's 'custom'-source add path (RosterStep.tsx:213-215 hardcodes `'custom'` as the unitSource for every SavedDesignsGroup onAdd call)."
+      ],
+      "deltaShallsMapped": [
+        "add-saved-custom-unit-campaign-picker proposal.md 'What Changes': 'Runtime-validate saved BattleMech index entries before they become picker options.'"
+      ],
+      "existingTests": [
+        "src/components/gameplay/pages/campaigns/create/__tests__/savedCustomUnitCampaignAdapter.test.ts:12-41 'maps exact identity and excludes invalid rows without inference' -- a single table-driven test feeding 7 rows (1 valid-with-ignored-chassis-field, then empty-id, non-battlemech, empty-name, and three invalid-tonnage variants including a string-typed tonnage and +Infinity) and asserting `result.options` equals exactly the one valid mapped option (with an explicit `expect(result.options[0]?.id).not.toContain('Warhammer')` proving the id is the raw id, not a derived chassis/variant string) plus `result.rejected.map(r => r.reason)` equals the exact ordered reason list."
+      ],
+      "gap": "NONE FOUND for the literal text of task 5.1. Runtime validation exists, is total (every input class task 5.1 names -- id, source/battlemech-type, display name, tonnage -- is independently checked), rejection is explicit and typed rather than silently dropped or inferred, and the one existing test exercises every named rejection reason plus the exact-mapping positive case. Independently re-verified by direct source and test-file reads against origin/main at 1e43090c505f via the pinned (byte-identical on this file) worktree.",
+      "productionBrowserRunRequired": false
+    },
+    {
+      "key": "add-saved-custom-unit-campaign-roster#5.2@37",
+      "sourceId": "5.2",
+      "literalText": "5.2 Render named Stock Templates and Saved Designs groups with loading, empty, failure/retry, keyboard, feedback, desktop, and 390×844 behavior.",
+      "checkboxStateOnOriginMain": "[ ] unchecked (roster umbrella tasks.md, line 37); the archived child's own tasks.md (task 2.1) shows [x]",
+      "verifiedAgainstOriginMain": "tasks.md line 37 re-read via `git show origin/main:...tasks.md` at 1e43090c505f; byte-identical to the pinned worktree",
+      "whatSourceAlreadyDoes": [
+        "CreateCampaignPage.RosterStep.tsx:170-176 -- 'Stock Templates' named group with `data-camp01-fixture-alias='Stock Templates'`/`data-camp01-fixture-id='camp01-picker-stock-template'`; CreateCampaignPage.RosterStep.tsx:89-97 -- 'Saved Designs' named group with `data-camp01-fixture-alias='Saved Designs'`/`data-camp01-fixture-id='camp01-picker-saved-design'` -- both are the exact 'named' groups task 5.2 requires, independently addressable by the controller's capture contract.",
+        "CreateCampaignPage.RosterStep.tsx:40-141 SavedDesignsGroup -- a `{status: 'loading'|'ready'|'error', options, rejected}` state machine: loading shows 'Loading saved designs' (line 81); a resolved-but-empty options array shows 'No saved designs' (line 85, the 'empty' state); a rejected promise sets status='error' and shows 'Saved designs unavailable' plus a `Retry saved designs` button that bumps a `tick` state to re-trigger the effect (lines 71-72, 101-110, the 'failure/retry' clause); a resolved options array with >0 rejected rows shows '{rejected} saved designs unavailable' alongside the still-rendered valid options (the 'honest exclusion feedback' half of 5.2's 'feedback' clause) -- all four status strings render inside a single `role='status'` paragraph (line 98), giving one live-region announcement point for screen readers.",
+        "CreateCampaignPage.RosterStep.tsx:101-110,113-136 -- every interactive element in both groups (the Retry button and every 'Add saved design ...'/'Add stock template ...' option) is a native `<button type='button'>` with an explicit `aria-label`, which is inherently keyboard-operable (Tab-focusable, Enter/Space-activatable) by native HTML semantics without any custom keydown handling -- this satisfies 5.2's 'keyboard' clause structurally, though no test in this brief's file set exercises an explicit `fireEvent.keyDown`/Tab-order assertion (flagged below as a citation gap, not a functional gap).",
+        "e2e/campaign-customizer-handoff.spec.ts:353-403 'selects a saved custom unit at desktop and 390x844 without collapsing identities' -- drives the real production wizard at default (desktop) viewport, then (gated on `CAMP01_INVOCATION_ID==='camp-01e-picker-browser'`) resizes to `{width:390,height:844}` and captures `mobile-390x844.png` after a `desktop.png` capture -- this is the literal 'desktop, and 390×844 behavior' clause; the functional assertions in this test (the `data-unit-source='custom'`/`data-unit-ref` checks) run unconditionally at BOTH viewport widths regardless of the invocation-id gate, so the desktop/mobile FUNCTIONAL proof does not depend on running under the receipt controller, only the screenshot ARTIFACTS do."
+      ],
+      "deltaShallsMapped": [
+        "add-saved-custom-unit-campaign-picker proposal.md 'What Changes': 'Present Stock Templates and Saved Designs as separate named groups with honest loading, empty, failure, and retry states.' 'Prove keyboard, feedback, desktop, and 390x844 behavior through the production roster step.'"
+      ],
+      "existingTests": [
+        "src/components/gameplay/pages/campaigns/create/__tests__/CreateCampaignPage.RosterStep.test.tsx:30-81 'selects durable saved metadata from listCampaignSavedDesigns without replacing roster ids' -- exercises the ready/non-empty state and confirms the `data-unit-ref` attribute on an already-selected roster row is unaffected by re-fetching.",
+        "src/components/gameplay/pages/campaigns/create/__tests__/CreateCampaignPage.RosterStep.test.tsx:83-112 'shows representative unit names and passes unitRef when adding a template unit' -- Stock Templates group, empty saved-design list ('empty' state via `loadSavedDesignIndex={async () => []}`), plus a `screen.findByRole('status')` presence check.",
+        "src/components/gameplay/pages/campaigns/create/__tests__/CreateCampaignPage.RosterStep.test.tsx:114-171 'loads saved designs with custom source, status, retry, and named groups' -- exercises error ('Saved designs unavailable'), the Retry button by literal `fireEvent.click(screen.getByRole('button', {name: 'Retry saved designs'}))`, the post-retry ready state with a partial-rejection message ('1 saved designs unavailable'), and both named group headings.",
+        "e2e/campaign-customizer-handoff.spec.ts:353-403 (cited above) -- the only test in the frozen set that exercises the real desktop/390x844 production surface; also the ONLY place `narrowViewportUsable` (a camp-01e wave assertion) and the desktop/mobile screenshot pair are proven together with a live browser."
+      ],
+      "gap": "Loading/empty/failure/retry/named-groups/desktop/390x844 are all directly exercised by name across the three cited test files -- NONE FOUND for those six of the seven named behaviors. The 'keyboard' clause has NO dedicated keyboard-interaction test (no `fireEvent.keyDown`, no explicit Tab-order or focus-management assertion) anywhere in the three frozen test files or the e2e spec; the behavior is structurally present (native `<button>` elements are keyboard-operable by default) but this is a CITATION gap -- 'keyboard...behavior' is asserted by task 5.2's own literal text as something to be tested, and no test names it explicitly. This is the single most concrete, addressable gap found in this node's review.",
+      "productionBrowserRunRequired": true
+    },
+    {
+      "key": "add-saved-custom-unit-campaign-roster#5.3@38",
+      "sourceId": "5.3",
+      "literalText": "5.3 Propagate stable source/fresh instance without substitution or construction payload and add the Saved Designs picker scenario to `e2e/campaign-customizer-handoff.spec.ts`. The immutable `camp-01e` row SHALL pin separate ordered command arrays for `npm.cmd test -- --watchAll=false --runTestsByPath src/components/gameplay/pages/campaigns/create/__tests__/savedCustomUnitCampaignAdapter.test.ts src/components/gameplay/pages/campaigns/create/__tests__/CreateCampaignPage.RosterStep.test.tsx src/components/gameplay/pages/campaigns/create/__tests__/CreateCampaignPage.rosterPersistence.test.ts --runInBand` and `node scripts/playwright/run-playwright.mjs test --project=chromium e2e/campaign-customizer-handoff.spec.ts --workers=1`. Run the authority writer with `--wave=camp-01e`, its run root/SHA/command id, and exact spec/product tuples but no caller command text, then matching reviewed-head validation; after merge rerun both under a new exact-main run root with the exact product merge tuple and exact-main SHA/mode; review, publish within 10 files/450 lines, merge, audit, and prune before CAMP-01F.",
+      "checkboxStateOnOriginMain": "[ ] unchecked (roster umbrella tasks.md, line 38); the archived child's own tasks.md (tasks 2.2, 2.3, 3.1, 3.2) shows [x], citing PR #1237 and the absent council-review document per criticalContextFinding above",
+      "verifiedAgainstOriginMain": "tasks.md line 38 re-read via `git show origin/main:...tasks.md` at 1e43090c505f; byte-identical to the pinned worktree",
+      "whatSourceAlreadyDoes": [
+        "'Propagate stable source ... without substitution': CreateCampaignPage.RosterStep.tsx:211-216 SavedDesignsGroup's `onAdd` handler is wired to `onAddTemplateUnit(name, tonnage, unitRef, 'custom', sourceVersion)` where `unitRef` is the picker option's own `id` (the exact saved-design id from validateSavedBattleMechIndex, never rewritten) and `sourceVersion` is that option's own `currentVersion` -- the saved-design identity is carried through verbatim, never replaced with a stock/canonical ref.",
+        "'... fresh instance': CreateCampaignPage.hooks.ts:88-100 `handleAddTemplateUnit` mints `const unitId = createEntityId('unit')` -- a NEW roster-scoped id, structurally distinct from `unitRef` -- for every add, including saved-design adds; the roster entry stores BOTH `id` (fresh) and `unitRef` (stable/preserved) as separate fields.",
+        "'... without ... construction payload': CreateCampaignPage.types.ts:6-13 `SelectedUnit` interface is `{id, unitRef?, unitSource?, sourceVersion?, name, tonnage}` -- there is structurally NO field on this type capable of carrying a construction payload (no `unitConfigurations`/`customUnitDefinition`/similar key exists on the roster-draft type at all), so the picker's add path cannot smuggle one through even if it wanted to; this is a stronger guarantee than a runtime check would be (there is no code path that could construct such a field).",
+        "'... add the Saved Designs picker scenario to e2e/campaign-customizer-handoff.spec.ts': confirmed present at e2e/campaign-customizer-handoff.spec.ts:353-403 (test name 'selects a saved custom unit at desktop and 390x844 without collapsing identities'), added by PR #1237 itself (the PR's file list shows `e2e/campaign-customizer-handoff.spec.ts +57/-0`, the ONLY e2e-file change in that PR)."
+      ],
+      "deltaShallsMapped": [
+        "add-saved-custom-unit-campaign-picker tasks.md (archived child numbering) task 2.2: 'Mint a fresh roster-instance id per add while preserving exact unitRef, unitSource=custom, and root-force membership without copying construction state.' Task 2.3: 'Extend e2e/campaign-customizer-handoff.spec.ts through saved-design selection and prove presentation plus draft/root-force identity evidence.'"
+      ],
+      "existingTests": [
+        "src/components/gameplay/pages/campaigns/create/__tests__/CreateCampaignPage.rosterPersistence.test.ts:359-433 'preserves saved-design identity through roster submit and publishes CAMP-01E wave-result' -- the wave-result-writing test; computes and self-validates ALL SEVEN frozen camp-01e assertions verbatim inside a single `assertions` object (`narrowViewportUsable`, `programmaticNamesPresent`, `rootForceContainsInstance` via `rootIds.includes(customMech.id)`, `rosterInstanceIdPresent` via `first?.id !== second?.id && first?.id !== savedId` -- proving TWO separate adds of the same saved design mint TWO DISTINCT fresh instance ids, neither equal to the saved-design id itself, `savedDesignIdPresent` via `first?.unitRef === savedId`, `unitRefMatched`, `unitSourceCustom`), then writes `wave-result.json` in the exact `camp01-wave-result/v1` schema when `CAMP01_ARTIFACT_DIR`/`CAMP01_RUN_ID` are set -- the same self-recording pattern camp-01a/b/c/d's frozen tests use.",
+        "e2e/campaign-customizer-handoff.spec.ts:353-403 (cited under 5.2) -- separately proves the same no-substitution identity claim through the real browser/production wizard: `selected.getAttribute('data-unit-ref')` equals `savedId` while `selected.getAttribute('data-testid')` (which embeds the roster-instance id) does NOT contain `savedId` -- an independent, browser-level re-proof of the same 'stable source / fresh instance / no substitution' guarantee the jest test proves at the store level."
+      ],
+      "gap": "The test-coverage half of 5.3 is FULLY covered: the wave-result-writing jest test computes and self-validates every one of the 7 frozen assertions, the e2e scenario the task text names by exact file path exists and independently re-proves the identity-preservation claim in a real browser, and both were confirmed present and passing-shaped by direct source reads. The receipt-writer half of 5.3 (the immutable row invocation, review, merge, audit, prune sequence) is NOT done and cannot be closed past the command-level tier for the same two structural reasons every sibling node hits: (a) predecessor camp-01d (and transitively camp-01c/b/a/00) has no controller-recognized receipt yet, and (b) the githubReviewGate is unsatisfiable with a single repository collaborator (re-verified live this session: `gh api repos/SwiggitySwerve/MekStation/collaborators` returns exactly one entry, SwiggitySwerve, admin).",
+      "productionBrowserRunRequired": true
+    }
+  ],
+  "sourceFilesInventory": {
+    "method": "Direct Read/grep of the pinned worktree (.sisyphus/roadmap-completion-20260912/worktrees/archive-original-main-proof, HEAD 273ed7883420) plus `git show origin/main:<path>` for tasks.md/proposal.md/contract-row text at the current tip 1e43090c505f; a targeted `git diff <worktree-head>..origin/main --stat` over every file cited below returned empty, confirming byte-identity between the two SHAs for this brief's purposes",
+    "files": [
+      { "path": "src/components/gameplay/pages/campaigns/create/savedCustomUnitCampaignAdapter.ts", "lines": 62, "note": "full file read -- SavedDesignOption, SavedDesignRejection, mapRow, validateSavedBattleMechIndex" },
+      { "path": "src/components/gameplay/pages/campaigns/create/CreateCampaignPage.RosterStep.tsx", "lines": 378, "note": "full file read -- SavedDesignsGroup state machine, named-group fixture ids, RosterStep composition" },
+      { "path": "src/components/gameplay/pages/campaigns/create/CreateCampaignPage.hooks.ts", "note": "grepped for handleAddTemplateUnit; read lines 37-48 and 88-100 (fresh unitId minting via createEntityId('unit'))" },
+      { "path": "src/components/gameplay/pages/campaigns/create/CreateCampaignPage.types.ts", "note": "read lines 1-52 -- SelectedUnit/RosterStepProps field shapes; confirmed no construction-payload-capable field exists" },
+      { "path": "src/components/gameplay/pages/campaigns/create/__tests__/savedCustomUnitCampaignAdapter.test.ts", "lines": 41, "note": "full file read" },
+      { "path": "src/components/gameplay/pages/campaigns/create/__tests__/CreateCampaignPage.RosterStep.test.tsx", "lines": 172, "note": "full file read -- all 3 it() blocks" },
+      { "path": "src/components/gameplay/pages/campaigns/create/__tests__/CreateCampaignPage.rosterPersistence.test.ts", "lines": 433, "note": "read lines 1-60 (imports/setup) and 359-433 (the camp-01e wave-result-writing test) in full" },
+      { "path": "e2e/campaign-customizer-handoff.spec.ts", "lines": 630, "note": "grepped for saved-design/camp01e keywords; read lines 340-530 in full (both saved-design-picker and persistence scenarios)" },
+      { "path": "scripts/qc/camp01-authority-receipt.contract.mjs", "note": "grepped for the camp-01a through camp-01h WAVE_CONTRACTS rows plus CAPTURE_CONTRACTS; camp-01e row and its capture contract extracted verbatim" },
+      { "path": "openspec/changes/archive/2026-08-20-add-saved-custom-unit-campaign-picker/proposal.md", "note": "full file read via git show origin/main" },
+      { "path": "openspec/changes/archive/2026-08-20-add-saved-custom-unit-campaign-picker/tasks.md", "note": "full file read via git show origin/main" },
+      { "path": "openspec/changes/add-saved-custom-unit-campaign-roster/tasks.md", "note": "P. through 9. sections read via git show origin/main at 1e43090c505f" },
+      { "path": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json", "note": "R2.camp-5 node extracted verbatim via a targeted Python json walk" },
+      { "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-camp-3-admission-brief-20260915.json", "note": "full read -- predecessor closure facts and house style" },
+      { "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-camp-4-admission-brief-20260915.json", "note": "full read -- direct predecessor's closure state and pattern reused" },
+      { "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-combat-admission-brief-20260915.json", "note": "full read -- shared-surface (listCampaignSavedDesigns.ts) cross-reference, task line-3" },
+      { "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-combat-s1-s4-verification-20260915.json", "note": "read S1 (line-3) section in full -- listCampaignSavedDesigns.test.ts live pass status (12/12) at main SHA 818e654e0ac" }
+    ]
+  },
+  "controllerPredecessorGate": {
+    "source": "scripts/qc/camp01-durable-facts.mjs resolvePreflightFacts() (mechanism documented in the R2.camp-1 brief; not re-read line-by-line this session)",
+    "verifiedThisSession": "`find .sisyphus/evidence/playtest -iname '*camp01e*'` returns zero matches. `ls .sisyphus/evidence/playtest/` shows exactly one directory, 2026-07-07-live-playtest/, unrelated to any camp-0x wave. `git ls-files | grep -i camp01e` also returns zero matches.",
+    "consequence": "camp-01e's own controller run (qc:camp01-authority-receipt:write --wave=camp-01e ...) would fail camp-01d's predecessor check today -- an exact continuation of the chain the R2.camp-1/2/3/4 briefs documented."
+  },
+  "githubReviewGateG1": {
+    "name": "Eligible non-author GitHub APPROVED review on the exact head",
+    "citedFrom": "roadmap.json R2.camp-5.githubReviewGate; scripts/qc/camp01-github-provenance.mjs (same module cited by every camp-1/2/3/4 G1)",
+    "liveFactsAsOf20260915": "Re-verified this session: `gh api repos/SwiggitySwerve/MekStation/collaborators` returns exactly one entry (SwiggitySwerve, admin/maintain/push/pull/triage all true). camp-01e's real merged PR #1237 was authored AND merged by that same single collaborator with reviews=[] -- confirmed via `gh pr view 1237 --json author,mergedBy,reviews` this session.",
+    "soloException": false,
+    "satisfiability": "STRUCTURALLY UNSATISFIABLE today, identically to R2.camp-0/1/2/3/4: soloException is explicitly false. Any future product PR touching camp-01e's scope needs a real second-collaborator APPROVED review that cannot be produced by an agent session and does not exist today.",
+    "impactOnThisNode": "Even a perfect audit-only PR that touches zero camp-01e-owned behavior would still be unable to close task 5.3's receipt clause, because the controller's exact-main mode requires a merged, approved PR, and merging requires this gate. This also retroactively confirms PR #1237 never satisfied the gate the archived child's tasks.md implies it did."
+  },
+  "crossNodeCoordinationRisk": [
+    {
+      "sharedFile": "src/services/units/listCampaignSavedDesigns.ts",
+      "finding": "See combatBriefCrossReference above in full. Summary: this function is the single data source both camp-01e's SavedDesignsGroup picker (this node) and R2.combat's line-3 (a wholly separate OpenSpec change, enable-saved-custom-unit-combat) build on, for two structurally different concerns (roster-picker display/identity vs. combat-catalog eligibility merge). It is green (12/12 tests) as of a main SHA 61 commits past this brief's own worktree pin, with zero functional drift on the file itself.",
+      "implication": "Any future repair slice under R2.camp-5's ownership that changes listCampaignSavedDesigns.ts's return SHAPE (not just its merge logic) is a cross-node breaking-change risk for R2.combat's catalog/eligibility consumers, and vice versa. Since CreateCampaignPage.RosterStep.test.tsx fully MOCKS listCampaignSavedDesigns (a `jest.mock` with a bare `jest.fn()`), camp-01e's own three frozen test files would not catch such a break -- only R2.combat's own listCampaignSavedDesigns.test.ts (not in camp-01e's frozen file set) or a future end-to-end proof would. A worker admitted onto R2.camp-5 should NOT touch listCampaignSavedDesigns.ts -- that file's ownership belongs to R2.combat's scope -- and should grep for all its call sites before considering any change near it."
+    },
+    {
+      "sharedConcept": "the CreateCampaignPage.RosterStep.test.tsx mock boundary (listCampaignSavedDesigns fully mocked) mirrors the exact 'coverage-shape, evolved-after-freeze' pattern the R2.camp-2/R2.camp-4 briefs flagged for other test files in this chain",
+      "finding": "Unlike the camp-01b coverage hole the R2.camp-2 brief found, this is NOT itself a defect: RosterStep.test.tsx deliberately mocks the LOWER-level data-fetch function (listCampaignSavedDesigns) to control the picker's input deterministically per test case (empty/ready/error), while leaving camp-01e's OWN validateSavedBattleMechIndex real and unmocked (the mock returns raw unvalidated rows, and the component's own runtime-validation call is what filters them) -- so the 'loads saved designs with custom source, status, retry, and named groups' test at line 114 genuinely exercises production validation logic, not a stub of it.",
+      "implication": "No repair needed here; flagged only so a future auditor does not mistake this mock structure for a coverage hole without checking which layer is actually mocked (the fetch, not the validation)."
+    }
+  ],
+  "productionBrowserRunRequiredSummary": {
+    "answer": true,
+    "reasoning": "camp-01e's WAVE_CONTRACTS commandSequence has a second entry that directly invokes `node scripts/playwright/run-playwright.mjs test --project=chromium e2e/campaign-customizer-handoff.spec.ts --workers=1` -- a real production-mode Playwright run of one spec file (not a chained package script like camp-01c/d's `verify:qc:coop-campaign-journey`). This IS lighter than camp-01c's or camp-01d's browser leg (a single spec file, no 9-suite jest chain first), but it is still a genuine browser run, and the frozen CAPTURE_CONTRACTS row requires `desktop.png`/`mobile-390x844.png` artifacts from it, gated on `CAMP01_INVOCATION_ID==='camp-01e-picker-browser'` inside the spec file itself."
+  },
+  "orderedSlicePlan": [
+    {
+      "id": "SLICE-1",
+      "priority": 1,
+      "title": "Command-level camp-01e receipt run at exact-main (audit evidence, zero product files, includes the single-spec browser leg)",
+      "behaviour": "Reproduce the established camp-00/camp-01a/b/c/d command-level pattern for camp-01e: on a freshly fetched, detached-HEAD worktree at verified origin/main, export CAMP01_ARTIFACT_DIR (a fresh evidence directory) and CAMP01_RUN_ID (a crypto-random `camp01-<32hex>` id), then run both frozen commands in order -- the 3-file jest suite (savedCustomUnitCampaignAdapter.test.ts, CreateCampaignPage.RosterStep.test.tsx, CreateCampaignPage.rosterPersistence.test.ts, --runInBand), then the single-spec Playwright run of e2e/campaign-customizer-handoff.spec.ts with CAMP01_INVOCATION_ID=camp-01e-picker-browser so the desktop.png/mobile-390x844.png pair is captured. Record exit codes, the produced wave-result.json (schema camp01-wave-result/v1), and all 7 frozen assertion values verbatim.",
+      "filesChanged": 0,
+      "filesTouchedList": [],
+      "redFirstTestNames": "NONE -- pure reproduction run of already-passing, already-shipped code. Per source verification above, tasks 5.1-5.3's core behavior is fully implemented and covered; no repair is needed for the literal task text (the sole gap, 5.2's missing explicit keyboard-interaction test, is a citation gap in EXISTING coverage naming, not a behavior gap -- see nonClaims).",
+      "linesEstimate": "0 product/spec lines; 1 new evidence JSON file (unbounded, evidence-only, same category as the predecessor camp-0x receipt-run artifacts)",
+      "gates": {
+        "frozenCommands": [
+          "npm test -- --watchAll=false --runTestsByPath src/components/gameplay/pages/campaigns/create/__tests__/savedCustomUnitCampaignAdapter.test.ts src/components/gameplay/pages/campaigns/create/__tests__/CreateCampaignPage.RosterStep.test.tsx src/components/gameplay/pages/campaigns/create/__tests__/CreateCampaignPage.rosterPersistence.test.ts --runInBand",
+          "node scripts/playwright/run-playwright.mjs test --project=chromium e2e/campaign-customizer-handoff.spec.ts --workers=1"
+        ],
+        "canonicalArgvDigestMustMatch": "052993da0c60c14d2af410f61c15eb44ea6d3eba85644d9a0beb0069f16c828b",
+        "envRequired": ["CAMP01_ARTIFACT_DIR=<fresh dir>", "CAMP01_RUN_ID=camp01-<32 lowercase hex chars>", "CAMP01_INVOCATION_ID=camp-01e-picker-browser (for the desktop/mobile screenshot pair)"],
+        "expectedExit": 0,
+        "expectedAssertions": "all 7 camp-01e assertions true (see frozenContractRow.assertions)",
+        "browserLegNote": "Lighter than camp-01c's/camp-01d's browser leg: one spec file, no chained 9-suite package script first. Still needs a built/served app for the Playwright run to succeed."
+      },
+      "nonClaims": [
+        "Does NOT close roadmap task 5.3's receipt clause -- the controller write/validate invocations the task text names are not run.",
+        "Does NOT produce a controller-recognized durable receipt directory under .sisyphus/evidence/playtest/camp01e-picker-<sha>/.",
+        "Does NOT satisfy or attempt to satisfy githubReviewGateG1.",
+        "Does NOT modify savedCustomUnitCampaignAdapter.ts, CreateCampaignPage.RosterStep.tsx, CreateCampaignPage.hooks.ts, CreateCampaignPage.types.ts, or listCampaignSavedDesigns.ts.",
+        "Does NOT add the missing explicit keyboard-interaction test flagged under task 5.2's gap -- that is a separate, optional, small (1 file, well under cap) follow-on slice a worker MAY choose to author if the owner wants task 5.2's literal 'keyboard' clause independently named rather than structurally inferred; this SLICE-1 does not require it to reproduce the frozen row's own 7 assertions, none of which name keyboard behavior."
+      ],
+      "fileDisjointParallelizableWith": [
+        "none in this node -- zero product-file footprint; safe to run in parallel with any other roadmap node's slice, though it contends for local build/Playwright resources with any concurrent camp-0x or R2.combat browser-leg receipt run -- avoid running those concurrently on the same machine"
+      ]
+    },
+    {
+      "id": "SLICE-1B",
+      "priority": 1,
+      "title": "(Optional, small, non-blocking) add an explicit keyboard-interaction assertion to CreateCampaignPage.RosterStep.test.tsx",
+      "behaviour": "If the owner wants task 5.2's literal 'keyboard' clause independently named in test code (rather than relying on native-button-semantics as structural proof), add ONE new test case to CreateCampaignPage.RosterStep.test.tsx asserting a saved-design or stock-template button is reachable via Tab and activatable via Enter/Space (e.g. `fireEvent.keyDown(button, {key: 'Enter'})` after focusing it, or an explicit `userEvent.tab()` + `userEvent.keyboard('{Enter}')` sequence), then confirm it passes without any production code change (native `<button>` elements already support this).",
+      "filesChanged": 1,
+      "filesTouchedList": ["src/components/gameplay/pages/campaigns/create/__tests__/CreateCampaignPage.RosterStep.test.tsx"],
+      "redFirstTestNames": ["PROPOSED: CreateCampaignPage RosterStep > activates a saved-design option via keyboard (Tab + Enter) without a pointer event"],
+      "linesEstimate": "under 30 lines, 1 file -- well inside the 10-file/450-line camp-01e cap",
+      "gates": ["npx jest src/components/gameplay/pages/campaigns/create/__tests__/CreateCampaignPage.RosterStep.test.tsx"],
+      "whatTurnsRed": "This is expected to pass immediately (GREEN) since native buttons are keyboard-operable by default; it would only go RED if some wrapper/library swallowed keyboard events, which would itself be a real accessibility regression worth fixing.",
+      "nonClaims": [
+        "Does NOT change the frozen camp-01e canonicalArgvDigest or commandSequence -- this test file is already one of the three pinned files, so adding a case inside it does not require a contract change.",
+        "Does NOT itself produce or attempt a controller-registered receipt.",
+        "This slice is OPTIONAL -- the gap it addresses is a citation gap (missing explicit naming), not a functional defect; SLICE-1 does not depend on it."
+      ],
+      "fileDisjointParallelizableWith": ["SLICE-1 (SLICE-1 only READS this file, does not modify it)"]
+    },
+    {
+      "id": "SLICE-2",
+      "priority": 2,
+      "title": "(Blocked, do not start) camp-01e controller-registered reviewed-head receipt",
+      "behaviour": "Run `npm run qc:camp01-authority-receipt:write -- --wave=camp-01e ...` and `:validate ... --mode=reviewed-head` for real, registering a durable receipt the controller's own readIndex() recognizes.",
+      "filesChanged": 0,
+      "blocker": "controllerPredecessorGate: camp-01d (and transitively camp-01c, camp-01b, camp-01a, camp-00) has no controller-recognized exact-main receipt + cleanup record yet. This slice cannot proceed until the predecessor chain closes through the controller, which is itself owner-blocked on githubReviewGateG1 all the way down. Do not attempt SLICE-2 before that predecessor chain exists, or the controller will fail fast with 'predecessor receipt missing: camp-01d'.",
+      "fileDisjointParallelizableWith": []
+    },
+    {
+      "id": "SLICE-3",
+      "priority": 3,
+      "title": "(Blocked, external) camp-01e exact-main PR-provenanced receipt and roadmap task 5.3 closure",
+      "behaviour": "After a real product/spec PR pair exists for the (already-shipped) camp-01e code and passes the controller's reviewed-head mode, merge with a real non-author APPROVED review, then rerun the controller in exact-main mode.",
+      "blocker": "githubReviewGateG1 -- structurally unsatisfiable with one repository collaborator (re-verified live this session). No agent session can produce a second collaborator's approval.",
+      "fileDisjointParallelizableWith": []
+    }
+  ],
+  "dependencySummary": {
+    "onR2camp4": "R2.camp-5 depends on R2.camp-4 twice over: (a) the roadmap edge dependsOn:[R2.camp-4], and (b) the frozen camp-01e WAVE_CONTRACTS row's own predecessors:[camp-01d], enforced by the controller's durable-index predecessor check. R2.camp-4's own brief recommends but does not confirm execution of its SLICE-1; no camp-01d durable receipt exists yet. R2.camp-5 inherits the same state: it can reach the same command-level evidence tier (SLICE-1) but cannot reach the controller-registered tier until camp-01a, camp-01b, camp-01c, and camp-01d all reach it first, and cannot reach exact-main PR closure until camp-00's, camp-01a's, camp-01b's, camp-01c's, camp-01d's, and camp-01e's own githubReviewGate are ALL satisfied.",
+    "whatCampFiveCanDeliverUnderTheOwnerGate": "A command-level, evidence-only receipt (SLICE-1) proving the already-shipped camp-01e code (real, merged, on origin/main via PR #1237) still passes its frozen 3-file jest suite AND its single-spec Playwright browser leg (with the desktop/mobile screenshot pair) at exact-main, with the same 7/7 assertion tally the wave contract requires. Optionally, a small non-blocking follow-on (SLICE-1B) can independently name task 5.2's 'keyboard' clause in test code. This mirrors what camp00-receipt-run-main and the recommended R2.camp-1/2/3/4 SLICE-1s already established as the pattern for this entire chain.",
+    "whatStaysBlocked": "Everything past command-level evidence: the controller-registered receipt (needs camp-01a's, camp-01b's, camp-01c's, and camp-01d's own controller receipts first, transitively needing camp-00's), and any real PR closure of roadmap task 5.3 (needs a second GitHub collaborator's non-author APPROVED review, soloException=false, structurally absent today -- now demonstrated unsatisfied for the fifth consecutive sub-wave by PR #1237's own zero-review history)."
+  },
+  "productionBrowserRunRequired": true,
+  "recommendedFirstSlice": "SLICE-1",
+  "summary": "All three taskKeys of R2.camp-5 (CAMP-01E: runtime-validating saved BattleMech index rows with honest invalid-record exclusion; rendering named Stock Templates and Saved Designs groups with loading/empty/failure-retry/feedback/desktop/390x844 behavior; and propagating a stable saved-design source id alongside a fresh, structurally construction-payload-free roster-instance id, plus the required e2e scenario) are ALREADY IMPLEMENTED and already covered by the exact three jest files plus the one e2e spec the frozen camp-01e contract row names, verified by direct source and test-file reads against origin/main at 1e43090c505f (drift-checked byte-identical against the pinned worktree's 273ed7883420 on every cited file). Two things are worth flagging rather than a code gap: (1) task 5.2's 'keyboard' clause has no explicitly-named keyboard-interaction test -- native button semantics make the behavior structurally present, but no test names it, which is a small, optional, non-blocking follow-on (SLICE-1B); (2) camp-01e shares its picker's data source, listCampaignSavedDesigns.ts, with a wholly separate OpenSpec change (R2.combat / enable-saved-custom-unit-combat), which owns that file and its own test coverage -- confirmed green (12/12 tests) as of a main SHA 61 commits ahead of this brief's own pin, with zero functional drift on the file itself; camp-01e's own frozen tests fully mock that function and would not catch a break in it. No red-first work, no repair PR, and no code changes are needed for tasks 5.1-5.3's literal text -- gap NONE FOUND (except the optional keyboard-citation gap). This is the fifth consecutive CAMP-01 sub-wave (after camp-00, camp-01a, camp-01b, camp-01c, camp-01d) whose archived child change (2026-08-20-add-saved-custom-unit-campaign-picker) makes an affirmative but unverifiable completion claim citing a council-review document (2026-08-12) that does not exist on origin/main; camp-01e's product PR #1237 is real and merged (mergeCommit dd42832c6e, confirmed an ancestor of origin/main), but -- like its four predecessors -- it was self-authored, self-merged, with zero recorded GitHub reviews, so the claimed 'durable reviewed-head + exact-main + cleanup receipts' were never produced (independently confirmed: zero camp01a/b/c/d/e directories exist anywhere in the durable evidence tree). The achievable next step is SLICE-1: a command-level exact-main receipt run reproducing both frozen commandSequence entries (the 3-file jest suite and the single-spec Playwright browser leg with its required desktop/mobile screenshot pair), mirroring the pattern already established for camp-00/camp-01a/b/c/d. Task 5.3's controller-registered and PR-provenanced receipt tiers remain blocked on the identical two structural gates every predecessor in this chain hits: the predecessor chain (camp-01d, and transitively camp-01c/b/a/00) has no controller-recognized receipt yet, and the single-collaborator githubReviewGate (soloException=false, re-verified live this session via `gh api .../collaborators`) is structurally unsatisfiable in an agent session."
+}

@@ -1,0 +1,24 @@
+{
+  "at": "2026-09-12T13:08:19.657Z",
+  "node": "R1.browser",
+  "baseline": "6c4eac5c7b7a2aece3aab0443ce606943db6cf0b",
+  "branch": "codex/roadmap-customizer-browser-20260912",
+  "canonicalWorktreePath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\browser",
+  "gitDirectory": "E:/Projects/MekStation/.git/worktrees/browser",
+  "sourceFiles": [
+    {
+      "path": "e2e/helpers/recordSheetPrintHarness.ts",
+      "sha256": "1cd6bfbc47854db09f1b00f84085189eca768a2b70da510e78fa8928f645a2c6"
+    },
+    {
+      "path": "e2e/customizer-record-sheet-rendering.spec.ts",
+      "sha256": "575545d4993fcc4b39011affc683bcedf9cac8503a2c66e6c770b0c24978cf7b"
+    },
+    {
+      "path": "e2e/customizer-edit-recovery.spec.ts",
+      "sha256": "6a52c53e932a97e5b17ddda42bf306bf0cf99522016ed8711b1152dd2ec2a81a"
+    }
+  ],
+  "scope": "Three-file435changed-line proposed browser proof. Initially copy only renderer/helper; leave original ambiguous selector until fresh fullsuite reproduction.",
+  "cleanup": "Exact owned path and HEAD, clean state, no-force Git removal only after exported proof and verified merge."
+}

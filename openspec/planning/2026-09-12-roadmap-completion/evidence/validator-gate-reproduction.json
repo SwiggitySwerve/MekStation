@@ -1,0 +1,8 @@
+{
+  "at": "2026-09-12T11:20:38.358Z",
+  "mode": "missing-camp",
+  "expectedExit": 1,
+  "actualExit": 1,
+  "stdout": "",
+  "stderr": "node:internal/modules/esm/load:187\r\n    throw new ERR_UNSUPPORTED_ESM_URL_SCHEME(parsed, schemes);\r\n          ^\r\n\r\nError [ERR_UNSUPPORTED_ESM_URL_SCHEME]: Only URLs with a scheme in: file, data, and node are supported by the default ESM loader. On Windows, absolute paths must be valid file:// URLs. Received protocol 'e:'\r\n    at throwIfUnsupportedURLScheme (node:internal/modules/esm/load:187:11)\r\n    at defaultLoad (node:internal/modules/esm/load:82:3)\r\n    at ModuleLoader.load (node:internal/modules/esm/loader:815:12)\r\n    at ModuleLoader.loadAndTranslate (node:internal/modules/esm/loader:594:31)\r\n    at #createModuleJob (node:internal/modules/esm/loader:624:36)\r\n    at #getJobFromResolveResult (node:internal/modules/esm/loader:343:34)\r\n    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:311:41)\r\n    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:664:25) {\r\n  code: 'ERR_UNSUPPORTED_ESM_URL_SCHEME'\r\n}\r\n\r\nNode.js v22.22.0\r\n"
+}

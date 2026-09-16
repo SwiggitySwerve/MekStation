@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "customizer-layout-final-review-20260913",
+  "capturedAt": "2026-09-13T00:56:08.950Z",
+  "status": "pass",
+  "candidate": {
+    "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/customizer-layout-specs/worktree",
+    "branch": "codex/roadmap-customizer-layout-specs-20260912",
+    "baseGitOid": "e29d71677ea3f090d2ea0c3e1ee7cadd5db030c0",
+    "headGitOid": "873edbf2f7c1b906cd9fb71123e19584f06c5082",
+    "fastForwardExit": 0
+  },
+  "boundedReview": {
+    "fourFileChangedLines": 261,
+    "lineCap": 500,
+    "globalOpenSpec": { "command": "openspec.cmd validate --all --strict --no-interactive", "exit": 0, "result": "232 passed, 0 failed" },
+    "purposeStrictExit": 0,
+    "terminologyStrictExit": 0,
+    "candidateQcExit": 0,
+    "scopedDiffCheckExit": 0,
+    "postNameArmorStrictExit": 0,
+    "sourceIdentity": { "count": 23, "mismatches": 0, "allGitBlobIdsFull40": true, "allSha256ValuesFull64": true }
+  },
+  "corrections": {
+    "CLR-001": "resolved",
+    "CLR-003": "resolved",
+    "CLR-004": "resolved",
+    "rendererName": "resolved: VariantLocation export from VariantLocationRenderer.tsx",
+    "CLR-005": "separate R1 tracked source-comment item"
+  },
+  "rawEvidence": {
+    "report": { "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/customizer-layout-final-review-20260913/report.json", "sha256": "a83f36ac9ec3e9b5a17078a25fdee2bed220af9cc9b66c84f8cb2ca97a5dba51", "bytes": 8218 },
+    "capture": { "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/customizer-layout-final-review-20260913/capture.json", "sha256": "63726c4dc3173cbc673951b73030dc6dde514d091874aa88e9bd642596fe9535", "bytes": 25529 },
+    "finalCapture": { "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/customizer-layout-final-review-20260913/final-capture.json", "sha256": "8fe87d9ba1843298c89f70c09702b90d39dc1ff281355064c90a56827efd4dd5", "bytes": 14335 },
+    "postNameCorrection": { "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/customizer-layout-final-review-20260913/post-name-correction.json", "sha256": "8911672143c5557ffdd672e7c96f91b8177bf5ef0ea352b9e84d2a31890f056e", "bytes": 663 }
+  },
+  "priorReviewPreserved": {
+    "reportSha256": "9e7bf661d094047ac5cdf36be321b9791bb670bb998bbf9193269532a816f443",
+    "identityManifestSha256": "d39ca773955c672b3e1cee5e6f22445ee285d3140c4d9b28b861e9e034f11445"
+  },
+  "parentAction": "No remaining finding in this bounded correction scope. Keep CLR-005 tracked separately under R1."
+}

@@ -1,0 +1,474 @@
+{
+  "evidenceKind": "r9-roster-damage-local-implementation",
+  "date": "2026-09-15",
+  "node": "R9.roster-damage",
+  "lane": "opus",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/browser",
+  "branch": "codex/roadmap-r9-roster-damage-20260915",
+  "baseSha": "231c7848aa0850b616a84581ff3c54e1d5ddb6bf",
+  "baseShaNote": "origin/main at `git fetch origin` time and the branch point (`git merge-base HEAD origin/main` = `git rev-parse HEAD~4` = 231c7848a). origin/main advanced to 16e7346f2 during this session from other lanes; this branch was NOT rebased onto it.",
+  "worktreeStateAtStart": "clean (`git status --short` empty before `git checkout -q -B`)",
+  "worktreeStateAtEnd": "clean; branch has 4 commits ahead of its base and is NOT pushed",
+  "logDirectory": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r9-roster-damage-20260915/",
+  "parentDecisionsHonoured": {
+    "twoSlices": "S1 read side + S2 population through the source authority, each landed as a red-tests commit followed by a product commit.",
+    "openQuestion1": "Parent ruled that reading `unitMaxStates` alone does not satisfy the source-authority acceptance clause because nothing populates it. S2 adds the production writer. Confirmed independently this session: before S2, `grep -rn \"unitMaxStates\" src/ --include=*.ts --include=*.tsx | grep -v __tests__` returned 15 hits, every one a type declaration, a serialize/deserialize pass-through, or a read with its own absent-entry branch. Zero writers.",
+    "openQuestion2": "The scenario at `openspec/specs/campaign-unit-combat-state/spec.md` (Damage bar rendering) named only `maxArmorPerLocation`, which S1 makes wrong. It was extended in the same commit as the product change (b325ae191). See `specChange` below.",
+    "noSubAgents": "No Agent tool calls were made.",
+    "noPushNoPr": "No `git push`, no `gh pr` invocation.",
+    "noMemoryWrites": "No memory or wiki writes.",
+    "noNewDependencies": "No package.json / package-lock.json change.",
+    "attribution": "All four commits authored and committed as Wes Rollings <wrollings@gmail.com> via `git -c user.name=... -c user.email=...`. `git log -1 --format=%B <sha> | grep -iE 'claude|co-authored|generated with'` returns nothing on all four."
+  },
+  "caps": {
+    "declaredByParent": "<=15 files and <=500 non-generated lines per commit/PR",
+    "roadmapNodeCaps": "maxFiles 5, maxNonGeneratedLines 500",
+    "note": "The roadmap node's 3-path ownershipPaths and 5-file cap describe the READ-side slice only. The parent's S2 decision requires a production writer, which necessarily reaches the roster-join and campaign-load call sites. Per-commit file counts stay within BOTH caps (max 5 files in any one commit); the whole-branch file count is 8 distinct files, which exceeds the node's maxFiles of 5. Flagged rather than trimmed, per 'split rather than trim'.",
+    "wholeBranch": {
+      "distinctFiles": 8,
+      "files": [
+        "src/components/campaign/__tests__/RosterStateCards.test.tsx",
+        "src/components/campaign/RosterStateCards.tsx",
+        "openspec/specs/campaign-unit-combat-state/spec.md",
+        "src/stores/campaign/__tests__/campaignUnitMaxStates.test.tsx",
+        "src/stores/campaign/campaignUnitMaxStates.ts",
+        "src/lib/campaign/maxState/unitMaxStateResolver.ts",
+        "src/stores/campaign/useCampaignPersistenceStore.ts",
+        "src/components/gameplay/pages/campaigns/create/CreateCampaignPage.submit.ts"
+      ],
+      "totalInsertions": 842,
+      "totalDeletions": 28
+    }
+  },
+  "commits": [
+    {
+      "slice": "S1",
+      "kind": "red-tests",
+      "sha": "608e2f1b37bb10b729e5a1d16e8e5c1c2ca95aeb",
+      "shortSha": "608e2f1b3",
+      "subject": "test(campaign): characterize roster damage bar against construction maxima",
+      "files": [
+        "src/components/campaign/__tests__/RosterStateCards.test.tsx"
+      ],
+      "fileCount": 1,
+      "insertions": 238,
+      "deletions": 0,
+      "capArithmetic": "1 file <= 15 and <= 5; 238 non-generated lines <= 500"
+    },
+    {
+      "slice": "S1",
+      "kind": "product",
+      "sha": "b325ae19185d765e50c3a8d04807a7ca4b926b2b",
+      "shortSha": "b325ae191",
+      "subject": "fix(campaign): derive roster damage bar from construction maxima",
+      "files": [
+        "src/components/campaign/RosterStateCards.tsx",
+        "openspec/specs/campaign-unit-combat-state/spec.md"
+      ],
+      "fileCount": 2,
+      "insertions": 102,
+      "deletions": 24,
+      "capArithmetic": "2 files <= 15 and <= 5; 102 insertions + 24 deletions = 126 changed lines <= 500"
+    },
+    {
+      "slice": "S2",
+      "kind": "red-tests",
+      "sha": "2e0e62fe9227cf980bf79f93d14ad4a1dc94ab0d",
+      "shortSha": "2e0e62fe9",
+      "subject": "test(campaign): characterize construction-maxima population for roster units",
+      "files": [
+        "src/stores/campaign/__tests__/campaignUnitMaxStates.test.tsx",
+        "src/stores/campaign/campaignUnitMaxStates.ts"
+      ],
+      "fileCount": 2,
+      "insertions": 312,
+      "deletions": 0,
+      "capArithmetic": "2 files <= 15 and <= 5; 312 non-generated lines <= 500",
+      "deviation": "This red commit carries a 16-line declared no-op `campaignUnitMaxStates.ts` seam alongside the tests. Reason: the repo's pre-commit hook runs `npx tsc --noEmit --skipLibCheck`, which REFUSED a tests-only commit importing a module that does not yet exist (`TS2307: Cannot find module '../campaignUnitMaxStates'`, captured in the first commit attempt). `--no-verify` is forbidden without explicit authorisation, so the seam was declared with no behaviour and the implementation landed in the next commit. All five rows present at this commit fail behaviourally against that no-op - see `redFirstEvidence.s2.behaviouralRedAgainstNoOpSeam`."
+    },
+    {
+      "slice": "S2",
+      "kind": "product",
+      "sha": "f5d3db42f232e3bd565823a9ec38c000f442e47d",
+      "shortSha": "f5d3db42f",
+      "subject": "feat(campaign): populate unit construction maxima from the source authority",
+      "files": [
+        "src/lib/campaign/maxState/unitMaxStateResolver.ts",
+        "src/stores/campaign/campaignUnitMaxStates.ts",
+        "src/stores/campaign/useCampaignPersistenceStore.ts",
+        "src/components/gameplay/pages/campaigns/create/CreateCampaignPage.submit.ts",
+        "src/stores/campaign/__tests__/campaignUnitMaxStates.test.tsx"
+      ],
+      "fileCount": 5,
+      "insertions": 190,
+      "deletions": 4,
+      "capArithmetic": "5 files <= 15 and <= 5; 190 insertions + 4 deletions = 194 changed lines <= 500",
+      "note": "The +23 lines in the test file are one added coverage row for the source/ref mismatch gate introduced by this commit. It is NOT red-first-authored; it is covered by mutant S2-M3 instead. Flagged rather than hidden."
+    }
+  ],
+  "redFirstEvidence": {
+    "s1": {
+      "log": "s1-red-jest.log",
+      "sha256": "88471ff2968208b60177eab2aadcd5b763c6dac05a8ced778c5b0ea3f585f7f3",
+      "command": "npx jest src/components/campaign/__tests__/RosterStateCards.test.tsx --maxWorkers=2",
+      "exitCode": 1,
+      "summary": "Tests: 4 failed, 1 passed, 5 total",
+      "failingRows": [
+        {
+          "row": "a",
+          "name": "derives the damage figure from current armor/structure against construction maxima when nothing is destroyed",
+          "reason": "TestingLibraryElementError: Unable to find an element by: [data-testid=\"roster-unit-damage-percent\"] - the heuristic yields totalDamage 0 for armor-only damage, so the whole block is omitted from the DOM."
+        },
+        {
+          "row": "b",
+          "name": "renders an explicit maxima-unavailable state instead of a percentage when the unit has no construction max-state",
+          "reason": "TestingLibraryElementError: Unable to find an element by: [data-testid=\"roster-unit-damage-unavailable\"] - no unavailable affordance existed."
+        },
+        {
+          "row": "c",
+          "name": "does not let destroyed component/location counts drive the damage figure",
+          "reason": "expect(received).toBeNull() / Received: <span class=\"text-text-theme-muted w-16 text-xs\">Damage</span> - the destroyed-count heuristic rendered a Damage block for a unit at full armor and structure."
+        },
+        {
+          "row": "d",
+          "name": "reacts to a live armor change in the campaign store",
+          "reason": "TestingLibraryElementError: Unable to find an element by: [data-testid=\"roster-unit-damage-percent\"]"
+        }
+      ],
+      "greenAtRedTime": [
+        {
+          "row": "e",
+          "name": "leaves the readiness badge and Needs Repair block untouched by maxima presence",
+          "note": "Passed before the product change. It is a regression guard for acceptance clause 3 ('preserve readiness as a separate projection'), not a red row. Reported explicitly rather than counted as red-first."
+        }
+      ],
+      "greenLog": "s1-green-jest.log",
+      "greenSha256": "c1b804bdd2c4e7faf02a2dda99e134288988eac2409c27309290f49bde3c9bbb",
+      "greenSummary": "Tests: 5 passed, 5 total (exit 0)"
+    },
+    "s2": {
+      "moduleResolutionRed": {
+        "log": "s2-red-jest.log",
+        "sha256": "96a79aaa9e8f73bd6db46af0741e6d312a3a6a357d643704c12bfa281fa09f4a",
+        "exitCode": 1,
+        "summary": "Test suite failed to run: Cannot find module '../campaignUnitMaxStates'. Honest but weak red - captured before any product code existed."
+      },
+      "behaviouralRedAgainstNoOpSeam": {
+        "log": "s2-red-jest-noop-stub.log",
+        "sha256": "b4586b15564762ea46fa5b91c57ec651e74419d9c0755d07b06cea8f32b792f3",
+        "command": "npx jest src/stores/campaign/__tests__/campaignUnitMaxStates.test.tsx --maxWorkers=2, against a no-op `ensureCampaignUnitMaxStates`",
+        "exitCode": 1,
+        "summary": "Tests: 5 failed, 5 total",
+        "failingRows": [
+          {
+            "name": "resolves canonical roster maxima through the canonical unit service",
+            "reason": "maxState Received: undefined - no entry written."
+          },
+          {
+            "name": "resolves custom roster maxima through the custom unit source",
+            "reason": "Expected customUnitApiService.getById to have been called with \"custom-workbench-atlas\"; it was never called - the custom source was never consulted."
+          },
+          {
+            "name": "leaves the entry absent when the custom design is deleted",
+            "reason": "the sibling canonical unit's entry was Received: undefined - nothing resolved at all, so the 'does not poison the batch' half could not hold."
+          },
+          {
+            "name": "backfills a missing entry when an existing campaign is loaded",
+            "reason": "unitMaxStates['unit-1'] Received: undefined after a real loadCampaign - the load path did not backfill."
+          },
+          {
+            "name": "renders a real damage percentage on the roster card once maxima are populated",
+            "reason": "threw 'maxima were not populated' before reaching the render assertion."
+          }
+        ],
+        "note": "The sixth row (source/ref mismatch gate) was added in the product commit and is not in this log."
+      },
+      "greenLog": "s2-green-jest.log",
+      "greenSha256": "2cc698962bc68017fbd17f1445636f84d6b8b3fecf8999a8763200d39d7af9d2",
+      "greenSummary": "Tests: 6 passed, 6 total (exit 0)"
+    }
+  },
+  "mutantTable": [
+    {
+      "id": "S1-M1",
+      "slice": "S1",
+      "description": "Swap maxima and current in the per-location diff: `max - current` becomes `current - max` in both the armor and structure loops.",
+      "file": "src/components/campaign/RosterStateCards.tsx",
+      "caught": true,
+      "log": "s1-mutant-1.log",
+      "sha256": "2c572fbb1c9bec39fea31a6a32b0079f6679bcc65991998aacefc39b6db8de98",
+      "result": "Tests: 2 failed, 3 passed - rows (a) and (d)."
+    },
+    {
+      "id": "S1-M2",
+      "slice": "S1",
+      "description": "Drop the structure term: delete the `maxStructurePerLocation` loop so only armor contributes to the percentage.",
+      "file": "src/components/campaign/RosterStateCards.tsx",
+      "caught": true,
+      "log": "s1-mutant-2.log",
+      "sha256": "1ca09d5b9163a5e3e2e46ca0817736cc6fae235748a35b3d4b54d0bdb7bfa696",
+      "result": "Tests: 2 failed, 3 passed - rows (a) and (d); 60% becomes 74%."
+    },
+    {
+      "id": "S1-M3",
+      "slice": "S1",
+      "description": "Fall back to a stock max-state constant when maxima are missing instead of reporting unavailable.",
+      "file": "src/components/campaign/RosterStateCards.tsx",
+      "caught": true,
+      "log": "s1-mutant-3.log",
+      "sha256": "1b9224ce46a530e5cd7e9930d045799cdb7ff883aa27e4daa0b94ec338f7b5ea",
+      "result": "Tests: 1 failed, 4 passed - row (b)."
+    },
+    {
+      "id": "S2-M1",
+      "slice": "S2",
+      "description": "Return a stock substitute max-state from the resolver's catch branch instead of null, so a deleted custom design gets fabricated maxima.",
+      "file": "src/lib/campaign/maxState/unitMaxStateResolver.ts",
+      "caught": true,
+      "log": "s2-mutant-1.log",
+      "sha256": "b9d454d46e74bfc06eb6eb60b9ddadac61e5b81c483c800ad154d2a462811896",
+      "result": "Tests: 1 failed, 5 passed - 'leaves the entry absent when the custom design is deleted'."
+    },
+    {
+      "id": "S2-M2",
+      "slice": "S2",
+      "description": "Use the adapted unit's armor map for maxStructurePerLocation as well, conflating the two construction surfaces.",
+      "file": "src/lib/campaign/maxState/unitMaxStateResolver.ts",
+      "caught": true,
+      "log": "s2-mutant-2.log",
+      "sha256": "0d22636d34da5711b9ebfa3c6482b72b547b6484bda1a401879b5f1022c4193e",
+      "result": "Tests: 2 failed, 4 passed - both the canonical and custom resolution rows."
+    },
+    {
+      "id": "S2-M3",
+      "slice": "S2",
+      "description": "Drop the source/ref agreement gate so a ref is resolved by prefix alone regardless of the roster's recorded unitSource.",
+      "file": "src/lib/campaign/maxState/unitMaxStateResolver.ts",
+      "caught": true,
+      "log": "s2-mutant-3.log",
+      "sha256": "1a88b24c357da6021dfde24802da5685800756ad85b74919bcb891e497c75da3",
+      "result": "Tests: 1 failed, 5 passed - 'leaves the entry absent when the ref contradicts the recorded source'."
+    },
+    {
+      "id": "S2-M4",
+      "slice": "S2",
+      "description": "Remove the `await ensureCampaignUnitMaxStates()` call from the campaign-load path.",
+      "file": "src/stores/campaign/useCampaignPersistenceStore.ts",
+      "caught": true,
+      "log": "s2-mutant-4.log",
+      "sha256": "daf3eeac384424feece7451d6135e59f4e348bfbc4da3e95be6d4c8a78c434c7",
+      "result": "Tests: 1 failed, 5 passed - 'backfills a missing entry when an existing campaign is loaded'."
+    },
+    {
+      "id": "S2-M5",
+      "slice": "S2",
+      "description": "Strip the `custom-` prefix before calling adaptUnit, routing custom designs through the canonical service instead of the custom source.",
+      "file": "src/lib/campaign/maxState/unitMaxStateResolver.ts",
+      "caught": true,
+      "log": "s2-mutant-5.log",
+      "sha256": "3f44336419a7719c050740bce7544823aedff4efd5c3ed32ba1ea3eee433baab",
+      "result": "Tests: 1 failed, 5 passed - 'resolves custom roster maxima through the custom unit source'."
+    }
+  ],
+  "mutantProcedure": "Each mutant was applied to a byte-identical copy of the pristine file, the focused suite was run, and the pristine copy was restored. `diff -q` against the pristine backups confirmed exact restoration before the gate runs (`RESTORES_CLEAN`).",
+  "gateTable": [
+    {
+      "slice": "S1",
+      "gate": "focused jest (new suite)",
+      "command": "npx jest src/components/campaign/__tests__/RosterStateCards.test.tsx --maxWorkers=2",
+      "exitCode": 0,
+      "counts": "5 passed / 5 total, 1 suite",
+      "log": "s1-green-jest.log"
+    },
+    {
+      "slice": "S1",
+      "gate": "scoped jest",
+      "command": "npx jest src/components/campaign src/stores/campaign src/lib/campaign --maxWorkers=2",
+      "exitCode": 0,
+      "counts": "260 suites passed / 260; 3553 tests passed / 3553",
+      "log": "s1-gate-jest-scoped.log"
+    },
+    {
+      "slice": "S1",
+      "gate": "typecheck",
+      "command": "npx tsc --noEmit -p tsconfig.json",
+      "exitCode": 0,
+      "counts": "0 errors (empty log)",
+      "log": "s1-gate-tsc.log"
+    },
+    {
+      "slice": "S1",
+      "gate": "format",
+      "command": "npx oxfmt --check src/components/campaign/RosterStateCards.tsx src/components/campaign/__tests__/RosterStateCards.test.tsx",
+      "exitCode": 0,
+      "counts": "2 files checked, all correctly formatted",
+      "log": "s1-gate-oxfmt.log"
+    },
+    {
+      "slice": "S1",
+      "gate": "lint",
+      "command": "npx oxlint src/components/campaign/RosterStateCards.tsx src/components/campaign/__tests__/RosterStateCards.test.tsx",
+      "exitCode": 0,
+      "counts": "0 warnings, 0 errors (oxlint reports 'on 1 file' - the repo's oxlint config excludes __tests__ paths; pre-existing configuration, not changed here)",
+      "log": "s1-gate-oxlint.log"
+    },
+    {
+      "slice": "S1",
+      "gate": "openspec strict",
+      "command": "npx openspec validate --all --strict",
+      "exitCode": 0,
+      "counts": "232 passed, 0 failed (232 items)",
+      "log": "s1-gate-openspec.log"
+    },
+    {
+      "slice": "S1",
+      "gate": "spec purpose strict",
+      "command": "npm run spec:purpose:validate:strict",
+      "exitCode": 0,
+      "counts": "220 files scanned, 0 errors, 0 tracked source-of-truth debt",
+      "log": "s1-gate-spec-purpose.log"
+    },
+    {
+      "slice": "S1",
+      "gate": "pre-commit hook (full next build + tsc + pretty-quick)",
+      "command": "git commit (husky pre-commit)",
+      "exitCode": 0,
+      "counts": "passed on both S1 commits (608e2f1b3, b325ae191)",
+      "log": "not captured to file; hook output appeared in the commit transcript"
+    },
+    {
+      "slice": "S2",
+      "gate": "focused jest (new suite)",
+      "command": "npx jest src/stores/campaign/__tests__/campaignUnitMaxStates.test.tsx --maxWorkers=2",
+      "exitCode": 0,
+      "counts": "6 passed / 6 total, 1 suite",
+      "log": "s2-green-jest.log"
+    },
+    {
+      "slice": "S2",
+      "gate": "scoped jest",
+      "command": "npx jest src/components/campaign src/stores/campaign src/lib/campaign --maxWorkers=2",
+      "exitCode": 0,
+      "counts": "261 suites passed / 261; 3559 tests passed / 3559",
+      "log": "s2-gate-jest-scoped.log"
+    },
+    {
+      "slice": "S2",
+      "gate": "jest for the touched create-campaign page",
+      "command": "npx jest src/components/gameplay/pages/campaigns --maxWorkers=2",
+      "exitCode": 0,
+      "counts": "11 suites passed / 11; 35 tests passed / 35",
+      "log": "s2-gate-jest-createpage.log"
+    },
+    {
+      "slice": "S2",
+      "gate": "typecheck",
+      "command": "npx tsc --noEmit -p tsconfig.json",
+      "exitCode": 0,
+      "counts": "0 errors (empty log)",
+      "log": "s2-gate-tsc.log"
+    },
+    {
+      "slice": "S2",
+      "gate": "format",
+      "command": "npx oxfmt --check <5 changed files>",
+      "exitCode": 0,
+      "counts": "5 files checked, all correctly formatted",
+      "log": "s2-gate-oxfmt.log"
+    },
+    {
+      "slice": "S2",
+      "gate": "lint",
+      "command": "npx oxlint <5 changed files>",
+      "exitCode": 0,
+      "counts": "1 warning, 0 errors - eslint(max-lines) on useCampaignPersistenceStore.ts (925 reported region, file is 1470 lines). PRE-EXISTING: the same warning fires on the unmodified origin/main copy of that file (verified this session by linting a copy of `git show origin/main:src/stores/campaign/useCampaignPersistenceStore.ts`). This change adds 6 lines to a file already ~1064 lines over the 400-line limit.",
+      "log": "s2-gate-oxlint.log"
+    },
+    {
+      "slice": "S2",
+      "gate": "openspec strict",
+      "command": "npx openspec validate --all --strict",
+      "exitCode": 0,
+      "counts": "232 passed, 0 failed (232 items)",
+      "log": "s2-gate-openspec.log"
+    },
+    {
+      "slice": "S2",
+      "gate": "spec purpose strict",
+      "command": "npm run spec:purpose:validate:strict",
+      "exitCode": "not re-run",
+      "counts": "n/a",
+      "log": "n/a - S2 touches no spec file; the S1 run covers the only spec change on this branch."
+    },
+    {
+      "slice": "S2",
+      "gate": "pre-commit hook (full next build + tsc + pretty-quick)",
+      "command": "git commit (husky pre-commit)",
+      "exitCode": 0,
+      "counts": "passed on both S2 commits (2e0e62fe9, f5d3db42f). One earlier attempt was BLOCKED by the hook's tsc step - see the S2 red commit's `deviation`.",
+      "log": "not captured to file; hook output appeared in the commit transcript"
+    }
+  ],
+  "s1Design": {
+    "file": "src/components/campaign/RosterStateCards.tsx",
+    "before": "`computeDamageBarData` computed `totalDamage = destroyedComponents.length * 2 + destroyedLocations.length * 4` and the whole damage block was gated on `totalDamage > 0`. A unit with real armor loss and no destroyed component rendered identically to a unit at full health.",
+    "after": "`IDamageBarData` carries `damagePercent: number | null` and `maximaUnavailable: boolean` in place of `totalDamage`. `computeDamagePercent` sums the armor and structure points named by `IUnitMaxState` and the points still present in `IUnitCombatState`, clamping each per-location loss to [0, max]; locations the max-state does not name are skipped, matching `buildTicketsFromUnitState`'s unknown-maximum rule. A max-state with no positive points returns null ('unknown', not '0% damaged'). The `useDamageBarData` selector now also reads `state.campaign?.unitMaxStates?.[unitId]` inside the SAME subscription, and its shallow-equality memo compares `damagePercent` + `maximaUnavailable` instead of `totalDamage`.",
+    "render": "The bar renders only when `damagePercent !== null && damagePercent > 0`, with the width set to the percentage and a `data-testid=\"roster-unit-damage-percent\"` label. When `maximaUnavailable` is true the card renders a `data-testid=\"roster-unit-damage-unavailable\"` row reading 'Maxima unavailable'. Neither branch ever shows a stock maximum or a 0% placeholder.",
+    "readinessUntouched": "`getReadinessStyles`, `unit.readiness`, and the 'Needs Repair' block were not modified. Verified by the row-(e) regression guard and by the diff (b325ae191 touches only the damage-bar shape, the selector, and the two render branches)."
+  },
+  "s2PopulationDesign": {
+    "whereTheAuthorityIsCalled": {
+      "resolver": "src/lib/campaign/maxState/unitMaxStateResolver.ts - `resolveUnitMaxState` calls `adaptUnit(unitRef, {}, readCustom)` from `src/engine/adapters/CompendiumAdapter.ts`. That is the SAME entry point combat launch uses (`deriveCombatSeededGameUnits` in `src/engine/combatSeedDerivation.ts:56`), and it is where the canonical/custom split already lives: `custom-` refs go to `CustomUnitDefinitionReader` (browser default `customUnitApiService.getById`; server `readServerCustomCombatDefinition` is injectable through the optional `readCustom` parameter), every other ref to `getCanonicalUnitService().getById`. `adaptUnit` is called with no `initialDamage`, so `adapted.armor` / `adapted.structure` / `adapted.ammo` are construction values.",
+      "keySpaceNote": "The resulting location keys are the adapter's lowercase snake form (`center_torso`, `center_torso_rear`, ...). Verified this session that `IUnitCombatState.currentArmorPerLocation` uses the SAME space: `combatOutcome.ts:168` sets `armorRemaining: {...state.armor}` from the engine unit, and `postBattleProcessor.helpers.ts:186` feeds that straight into `createInitialCombatState`. The `'CT'`/`'LT'` examples in the `IUnitMaxState` doc comment are aspirational and do not match runtime data; that comment was NOT edited (out of the minimum diff), and is listed as an open question.",
+      "wiringModule": "src/stores/campaign/campaignUnitMaxStates.ts - `ensureCampaignUnitMaxStates()` reads the live campaign via `getCampaignStoreForRoster()` and the roster units via `useCampaignRosterStore`, resolves only the missing entries, re-reads the live campaign after the async resolve, and merges (never replaces) via `updateCampaign`. If the campaign was switched or cleared during the resolve, the result is discarded.",
+      "callSite1_rosterJoin": "src/components/gameplay/pages/campaigns/create/CreateCampaignPage.submit.ts - `await ensureCampaignUnitMaxStates()` immediately after the `for (const unit of selectedUnits) addSelectedUnitToRoster(...)` loop and before `saveCampaign()`. This is the only production caller of `useCampaignRosterStore.addUnit` (verified: `grep -rn '\\.addUnit(' src/ --include=*.ts --include=*.tsx | grep -v __tests__` returns exactly this one campaign-roster site plus the unrelated `useQuickGameStore.addUnit`).",
+      "callSite2_campaignLoad": "src/stores/campaign/useCampaignPersistenceStore.ts - `await ensureCampaignUnitMaxStates()` inside `runLoad`'s `if (!cacheStands)` block, immediately after `writeLiveCampaign(loadedCampaign)` and `restoreRosterProjection(id, migrated.body.rosterProjection)`, so the roster the resolver reads is the one the server record just restored."
+    },
+    "howMissingDesignsStayUnavailable": [
+      "No `unitRef` on the roster projection -> `null`, no entry.",
+      "Ref contradicts the recorded `unitSource` (canonical source with a `custom-` ref, or custom source with a non-`custom-` ref), or `parseRosterUnitSource` reports `invalid` -> `null`, no entry, and the other authority is never consulted. Mirrors `admitCanonicalExactReference`'s `source_ref_mismatch` denial.",
+      "Canonical miss -> `adaptUnit` returns `null` -> no entry.",
+      "Deleted or invalid custom design -> `adaptUnit` THROWS ('Saved custom unit ... is missing, invalid or unsupported for combat.'); the resolver catches and returns `null` -> no entry. The throw is caught per-unit, so one unresolvable design does not poison the rest of the batch (covered by a test row).",
+      "Nothing is ever substituted: there is no stock fallback path in the resolver, and mutant S2-M1 proves the tests detect one if added.",
+      "A unit with no entry falls through to S1's explicit 'Maxima unavailable' affordance on the card."
+    ],
+    "idempotence": "`resolveMissingUnitMaxStates` skips any unit that already has an entry, so an existing pinned construction snapshot is never re-derived and a repeat call resolves nothing and writes nothing.",
+    "persistenceAnswer": {
+      "roundTrips": true,
+      "migrationNeeded": false,
+      "evidence": "`unitMaxStates` is already carried both ways on both persistence paths, read directly this session: server envelope serialize `src/lib/campaign/persistence/serializeCampaign.ts:166` and deserialize `:236`; localStorage persist `src/stores/campaign/useCampaignStore.persistence.ts:288` and rehydrate `:381`. It is declared optional on both `ICampaign` (`src/types/campaign/Campaign.ts:162`) and `SerializedCampaign` (`src/types/campaign/SerializedCampaign.ts:194`). No schema or migration change was added."
+    },
+    "dirtyFlagNote": "On the campaign-load path the backfill's `updateCampaign` fires the `campaignPersistenceWiring` subscription's `markDirty`, but `runLoad`'s own `set({ dirty: false, ... })` runs afterwards and clears it. Net effect: the backfilled maxima live in the in-memory campaign and are written on the next save rather than triggering an immediate autosave. This is deliberate (no write amplification on load) and is safe because the resolution is idempotent and re-runs on every load until the entries persist."
+  },
+  "specChange": {
+    "file": "openspec/specs/campaign-unit-combat-state/spec.md",
+    "commit": "b325ae19185d765e50c3a8d04807a7ca4b926b2b",
+    "whatChanged": [
+      "The existing 'Damage bar rendering' scenario was extended: it now names `currentStructurePerLocation` alongside `currentArmorPerLocation` and `IUnitMaxState.maxStructurePerLocation` alongside `maxArmorPerLocation`, states that locations the max-state does not name are skipped, and adds a clause that the percentage is not derived from destroyed-component or destroyed-location counts.",
+      "A sibling scenario 'Absent max-state entry at the damage bar' was added, mirroring the repair-ticket generator's existing 'Absent max-state entry' convention: an explicit 'maxima unavailable' affordance, no percentage, no stock substitute, no 0% placeholder."
+    ],
+    "whatWasDeliberatelyNotChanged": "Migration status item 3 (the 'Not closed' narrative claim that `computeDamageBarData` still uses the destroyed-count heuristic) was left exactly as-is. The parent's instruction was 'do not flip any checkbox'; that item is a status marker owned by the roadmap, not scenario text. It is now factually stale - see open question 1.",
+    "noOtherSpecFilesTouched": true
+  },
+  "nonClaims": [
+    "NO browser proof. The change was not observed in a running app; no preview server was started, no Playwright/e2e spec was run or added. All evidence is jest/RTL at the component and store boundary plus static gates.",
+    "NO owner-gated review. No independent reviewer ran against this branch; no PR exists, so no GitHub review gate, no `exactHead`/`nonAuthor` evidence.",
+    "NO push and NO PR - the branch exists only in the local worktree. Nothing is on origin.",
+    "NO exact-main verification. The branch was cut from 231c7848a and origin/main has since advanced to 16e7346f2 from other lanes; this branch was NOT rebased and has not been tested against current main.",
+    "NO full test suite run. Only the focused suites, the scoped `src/components/campaign src/stores/campaign src/lib/campaign` sweep, and `src/components/gameplay/pages/campaigns` were run. The pre-commit hook's full `next build` passed on all four commits, but `npm test` across the whole repo was not run.",
+    "NO e2e coverage was added for the roster card. The brief noted `e2e/campaign-customizer-handoff.spec.ts` renders this component and would be the extension point; that was out of scope for these two slices.",
+    "The S2 red commit is NOT tests-only - it carries a 16-line declared no-op seam because the pre-commit typecheck refuses a test importing a non-existent module. Behavioural red for all five original rows is captured separately against that no-op.",
+    "The sixth S2 test row (source/ref mismatch) was authored AFTER the red commit, alongside the product code it covers. It is backed by mutant S2-M3 rather than by a red-first run.",
+    "The `IUnitMaxState` doc comment in `src/types/campaign/UnitCombatState.ts` was NOT edited. That file is in the node's ownershipPaths but needed no change; it is a zero-line file on this branch.",
+    "This change does NOT alter `deriveRosterReadiness` or `deriveReadinessFromCarryForward`. Readiness keeps its own separately-owned gap (it still cannot distinguish 'damaged by armor loss alone' from 'ready' without consulting a max-state), which is now resolvable but was not in scope.",
+    "The resolver's optional `readCustom` parameter has no production caller - both wired call sites are browser-side and fall through to `adaptUnit`'s default `customUnitApiService.getById`. It exists to mirror `deriveCombatSeededGameUnits`' established signature so a server-side caller can inject `readServerCustomCombatDefinition`.",
+    "No claim is made that every existing campaign will show a real percentage. A campaign whose roster units have no `unitRef`, a ref that no longer resolves, or a deleted custom design will still show 'Maxima unavailable' - correctly and by design."
+  ],
+  "openQuestions": [
+    "Migration status item 3 in `openspec/specs/campaign-unit-combat-state/spec.md` still reads '- Not closed.' and still describes `computeDamageBarData` as using the `destroyedCount * 2 + destroyedLocationCount * 4` heuristic. That is now factually false on this branch. It was left untouched because the parent forbade checkbox/status flips. The parent (or a follow-up) should decide whether to close it - both halves of the acceptance (read side and population) are now implemented.",
+    "`IUnitMaxState`'s doc comment (`src/types/campaign/UnitCombatState.ts:111-114`) gives `'LT'` / `'CT'` as example location keys, but the runtime key space on every producer and consumer is the adapter's lowercase snake form (`center_torso`, `left_torso`, `center_torso_rear`). The comment is misleading. Fixing it is a one-line doc change inside the node's ownershipPaths; it was skipped to keep the diff to lines the task justifies. Worth a follow-up.",
+    "The whole-branch file count (8 distinct files) exceeds the roadmap node's `maxFiles: 5`. Per-commit counts are within it. The overrun is entirely a consequence of the parent's S2 decision, which requires a production writer at the roster-join and campaign-load call sites - work the node's own `decomposition` note had excluded as 'persistence/authority redesign'. The parent should confirm the node's caps/ownershipPaths are updated rather than treating this as a cap breach.",
+    "`ensureCampaignUnitMaxStates` is not wired to the Mech Bay refit/re-add flow or to any post-battle path, because no other production site adds a unit to `useCampaignRosterStore`. If a future flow adds one, it must call the same function - there is no subscription-based catch-all.",
+    "On the campaign-load path the backfill runs only when `cacheStands` is false (i.e. when the record is actually deserialized). When the live in-memory copy is reused, the backfill is skipped on the assumption it already ran for that copy earlier in the session. That holds for the current load flow but is an assumption, not a proof."
+  ]
+}

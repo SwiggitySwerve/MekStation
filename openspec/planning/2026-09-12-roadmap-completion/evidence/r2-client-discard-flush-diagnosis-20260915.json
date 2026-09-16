@@ -1,0 +1,242 @@
+{
+  "node": "R2.authority-client",
+  "artefact": "Root-cause diagnosis of the deterministic case (a) failure in e2e/campaign-crash-window-flush.spec.ts",
+  "capturedAtUtc": "2026-09-15T11:25:00Z",
+  "status": "diagnosed; minimal fix authored and validated 3x green; NOT committed (see `commitDecision`)",
+  "scope": "Measured probes only. No product code was read-modified, no push, no PR, no spec edit, no task checkbox flip. The worktree is clean at HEAD.",
+
+  "environment": {
+    "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/browser",
+    "branch": "codex/roadmap-r2-client-crash-window-browser-20260915",
+    "head": "7a53ce3d14d322827a1d478254a8352ae955c7e0",
+    "headSubject": "fix(campaign): acknowledge a hidden-transition flush by reading the record it wrote",
+    "treeCleanAtStart": true,
+    "treeCleanAtEnd": true,
+    "node": "v22.22.0",
+    "npm": "11.6.2",
+    "chromium": "HeadlessChrome/143.0.7499.4 (Playwright bundled)",
+    "port": "3639 only; verified free before the first run and 0 sockets of any state after the last",
+    "buildReuse": {
+      "decision": "reused the existing standalone build; NO `next build` was run this session",
+      "buildId": "1789469389794",
+      "buildIdMtimeLocal": "2026-09-15 04:51:47 -0600",
+      "headCommitTime": "2026-09-15 04:56:12 -0600",
+      "treeIdentityCheck": "`git diff --stat 877cd2bf826bafc8e476ca517eba12b3885b7662 7a53ce3d1` is EMPTY -- HEAD is a reword of the commit the prior session built, so the build's source tree is HEAD's tree.",
+      "positiveProofTheBuildCarriesTheFix": "case (c) asserts the reconciliation PUT answers 200 (RECONCILE_PUT_STATUS), which only the 7a53ce3d1 store produces; it passed in all three validation runs. The pre-fix store measured 409 there.",
+      "rootAndStandaloneBuildIdsMatch": true,
+      "buildSlotCheck": "Win32_Process node.exe enumerated before the first run: no `next build`, no jest; only MCP stdio servers. The IDLE claim is verified for probe P1 specifically, which is the probe that rests on it; it was NOT re-verified before each later probe, and at the end of the session another lane's `next build` was running in the history-runtime-integrity worktree. This does not affect any conclusion: P1 alone refutes the load hypothesis (3/3 failed verified-idle), and P8 is load-independent by construction -- the close arm landed 3/3 while the navigation arm landed 0/3 within the SAME run under identical conditions. No `next build` was started by this session."
+    }
+  },
+
+  "symptomAsFiled": {
+    "test": "e2e/campaign-crash-window-flush.spec.ts case (a) -- 'a discarded document flushes its pending mutation and the cold reload reads it back'",
+    "failure": "expect.poll(serverRecord.version).toBe(before.version + 1) -- expected 2, received 1, 20 s budget exhausted. One PUT is issued and reported net::ERR_ABORTED.",
+    "history": "passed 4/4 earlier the same day (run4 at 9869841be); now fails deterministically, and reproduces byte-identically with the parent commit's store file (A/B), so it is not the F1 fix."
+  },
+
+  "rootCause": {
+    "statement": "Chromium 143 does not complete a `keepalive` fetch that is issued from `pagehide` when the document is leaving because of a NAVIGATION. The renderer aborts the request before the network service dispatches it, and the server receives nothing. The same request issued when the TAB CLOSES is handed to the browser process and completes normally.",
+    "whereItBreaks": "Entirely inside the browser. The request never reaches the Node process: observed directly, not inferred.",
+    "whyTheTestFails": "Case (a) discards the document with `page.goto('about:blank')`, i.e. a navigation -- the one discard shape where Chromium does not honour `keepalive`. The assertion that the write lands is therefore asserting a property the browser does not provide through that mechanism.",
+    "whyItEverPassed": "NOT EXPLAINED, and reported as such. The prior session measured the same mechanism green twice (run3, run4). This session measured it 0/15 across headless and headed. Whatever produced the earlier pass, the 0/15 plus the product-independent control below show it is not a property the test can rely on. No environmental difference between the two sessions was identified. The build id, Playwright command and port are recorded as identical in both evidence files; MACHINE STATE at the earlier run was not captured and is therefore not claimed either way."
+  },
+
+  "classification": {
+    "primary": "BROWSER SEMANTICS",
+    "secondaryActionable": "TEST-MECHANISM DEFECT -- the spec chose a discard shape whose guarantee Chromium does not offer, and asserts a landing stronger than the requirement's own word ('best-effort').",
+    "ruledOut": [
+      "TEST RACE (in the sense of a timing race inside the spec): refuted. The failure is not intermittent on the navigation path -- 0/15. The genuine nondeterminism found (V3) is in the BROWSER, not in the spec's sequencing.",
+      "ENVIRONMENT-LOAD: refuted by probe 1. 3/3 failed with the machine idle (no `next build`, no jest running, verified via Win32_Process before the run).",
+      "PRODUCT DEFECT: refuted by probe 8. A 17-byte keepalive PUT fired from a hand-written `pagehide` listener, with no product code anywhere in the path, reproduces the identical split (0/3 on navigation, 3/3 on close).",
+      "Envelope size / the 64 KiB keepalive cap: refuted. The measured body is 3597 bytes, 5.5% of the cap, and the store's over-cap branch never fires.",
+      "Route, method or content-type gate: refuted by probe 3 V1. The identical request from a live document answers 200 in 7 ms.",
+      "The F1 reconciliation fix (7a53ce3d1): refuted by the prior session's A/B and re-confirmed here -- the failure is reproduced by code with no product involvement at all."
+    ]
+  },
+
+  "probes": [
+    {
+      "id": "P1",
+      "question": "Is it a CPU-load race? (candidate cause 1)",
+      "command": "MEKSTATION_E2E_SERVER_COMMAND='node .next/standalone/server.js' HOSTNAME=127.0.0.1 MEKSTATION_E2E_PORT=3639 node scripts/playwright/run-playwright.mjs test e2e/campaign-crash-window-flush.spec.ts --project=chromium --retries=0 --workers=1 --repeat-each=3 --grep 'cold reload reads it back'",
+      "preconditions": "Win32_Process node.exe enumerated first: no `next build`, no jest. Port 3639 free.",
+      "exit": 1,
+      "result": "3 failed / 3. Identical signature each time: expected 2, received 1, plus net::ERR_ABORTED on the PUT.",
+      "verdict": "REFUTED. Load is not required to reproduce.",
+      "log": "p1-case-a-idle-x3.log",
+      "sha256": "8105fc9788abb74947ba12550445620e0347fab047c32820b16edb8700584c10"
+    },
+    {
+      "id": "P2",
+      "question": "Does the request reach the server at all? (candidate cause 2)",
+      "method": "Server-side observation WITHOUT touching product code or taking a second port: `node --require <hook> .next/standalone/server.js` as MEKSTATION_E2E_SERVER_COMMAND. The hook wraps `http.createServer`'s handler and logs every request the OS delivers. Playwright still owns the webServer lifecycle and the port.",
+      "firstAttemptWasWrong": "The first hook subscribed to `req.on('data')`, which puts the request stream in flowing mode and steals the body from Next's parser; every route then hung (res-close at ~10 s, writableFinished false) and the run failed in seeding instead. Recorded rather than hidden: the hook was rewritten strictly passive (headers only, `res.on('finish')` only) and the healthy run below is the one that counts.",
+      "exit": 1,
+      "result": "Case (a) failed with its normal signature. Server-side: the seed's `POST /api/campaigns/<id>/adopt` answered 201 in 6 ms and every GET answered 200 in 2-4 ms, so the observation is healthy. ZERO PUT requests of any kind were delivered to the server during the whole run.",
+      "verdict": "The keepalive PUT never reaches the server. Not a 4xx, not a slow commit -- no bytes arrive.",
+      "logs": [
+        { "name": "p2-case-a-serverobs.log", "sha256": "204078802a5a23dfc6396c4253d9bd5cf75c1eef82fb0aa2b6b5f65cc74bc448" },
+        { "name": "p2-server-requests.ndjson", "sha256": "c6b5ee20d0989ee9a563daeda9d500eb8a58ce9e3b8e337661daf6de9ca49d94" },
+        { "name": "diag-request-hook.cjs", "sha256": "f8c313ad4da882c91bd96e087e8d41185a674bb54beb81bcee53ee388deec479" }
+      ]
+    },
+    {
+      "id": "P3/P4",
+      "question": "Which discard shapes honour keepalive? (candidate cause 3)",
+      "method": "Scratch spec e2e/zz-diag-discard-flush.spec.ts (deleted afterwards; the worktree is clean) with seven variants, each instrumented with request/response/requestfailed listeners and the PUT body byte length, run against the same hooked server.",
+      "variants": [
+        { "id": "V1", "discard": "none -- flushPendingMutations() called from a LIVE document", "landed": "2/2", "detail": "PUT 3597 bytes, response 200 in 7 ms. The product's request, route and body are all fine." },
+        { "id": "V2", "discard": "page.goto('about:blank')", "landed": "0/2 here (0/15 across the session)", "detail": "[req] and [fail] carry the SAME millisecond timestamp -- aborted before dispatch." },
+        { "id": "V3", "discard": "page.goto(same-origin API URL)", "landed": "1/2", "detail": "THE KEY OBSERVATION: the same variant landed in one run and not in the next. The navigation path is genuinely nondeterministic, which is what makes the earlier 4/4 possible." },
+        { "id": "V4", "discard": "page.close({ runBeforeUnload: true })", "landed": "2/2", "detail": "Server answered 200. No client-side request event is reported at all on this path." },
+        { "id": "V5", "discard": "location.href = 'about:blank' (renderer-initiated)", "landed": "0/1", "detail": "Rules out Playwright's CDP-driven navigation as the cause." },
+        { "id": "V6", "discard": "location.href = same-origin URL (renderer-initiated)", "landed": "0/1", "detail": "Same." },
+        { "id": "V7", "discard": "page.reload()", "landed": "1/1", "detail": "CONFOUNDED and therefore not used: the reloaded app can issue its own save, so a version bump is not evidence of the flush." }
+      ],
+      "verdict": "Navigation kills it (nondeterministically); closing the tab does not. Not a cross-origin/process-swap effect (V3 and V6 are same-origin) and not a Playwright artefact (V5/V6 are renderer-initiated).",
+      "logs": [
+        { "name": "p3-variants.log", "sha256": "6685327d7bf6a74cdbaa213e69b4e567765226342da5ca6ba6b1ce2745d2a05f" },
+        { "name": "p3-server-requests.ndjson", "sha256": "da67618dae9c582712885e7fca43926f6987be4fb9e3cec9bffbcca06cdb342b" },
+        { "name": "p4-variants.log", "sha256": "7d1ed65bf9b8ffcf12b603c8554b8c60d69bd4f3aa24a0b290c41c871b292bf6" },
+        { "name": "p4-server-requests.ndjson", "sha256": "cfa62788c247fd7e8eb2dd3c7c54c18786519146d85eb7c5112dad59163bd2a2" }
+      ]
+    },
+    {
+      "id": "P5",
+      "question": "How deterministic are the two candidate mechanisms?",
+      "command": "... --repeat-each=6 --grep 'V2 about-blank|V8 page-close-rigorous'",
+      "exit": 0,
+      "result": "about:blank landed 0/6. page.close landed 6/6, every one with putsBeforeDiscard=0 (the 2 s debounce had not fired, so the only possible writer was the flush).",
+      "observabilityCost": "putsObserved=0 on the close path even with a CONTEXT-level request listener -- a request issued as the page closes is not reported to Playwright at all.",
+      "log": "p5-determinism.log",
+      "sha256": "35e526a5debe4676c456a2b22749b7cdbad7275b044a804a98963ec7561d9905"
+    },
+    {
+      "id": "P6",
+      "question": "Does the close path still DISCRIMINATE, or does closing land the write for some reason unrelated to the listeners?",
+      "method": "Red arm on the close path: drop exactly the two registrations `campaignPersistenceWiring` makes, then close.",
+      "exit": 0,
+      "result": "4/4 correctly LOST the mutation (server record unmoved).",
+      "verdict": "The close path is a valid control: 11/11 rescued with the listeners, 4/4 lost without them.",
+      "log": "p6-close-redarm.log",
+      "sha256": "c31cdfd85ef8256675dc920ecd56d0c7fa10a7ad15ad97eee13c0fab96feada5"
+    },
+    {
+      "id": "P7",
+      "question": "Is this a HEADLESS artefact? (i.e. does it affect real users?)",
+      "command": "... --repeat-each=3 --headed --grep 'V2 about-blank'",
+      "exit": 0,
+      "result": "0/3 landed. Headed Chromium behaves identically.",
+      "verdict": "Not a headless artefact. A real user who navigates away from the app loses the window on this Chromium too.",
+      "log": "p7-headed-aboutblank.log",
+      "sha256": "fe22296b695a0926662ca4f6aebf7cdd9a6f75e55e5c89b80637d639c088aafd"
+    },
+    {
+      "id": "P8",
+      "question": "Is anything about the PRODUCT's request responsible? (candidate cause 4)",
+      "method": "A 17-byte keepalive PUT to `/api/campaigns/zzprobe-<tag>` fired from a hand-written `pagehide` listener installed via addInitScript. No store, no envelope, no digest, no product code in the path. Arrival is read from the server hook, so the response status is irrelevant.",
+      "exit": 0,
+      "result": "On navigation: 0 of 3 arrived. On close: 3 of 3 arrived (each answered 400, as a garbage body should).",
+      "verdict": "DECISIVE. The product's flush is exonerated completely -- body size, content-type, route, envelope construction and the F1 digest are all irrelevant. The split is a property of Chromium.",
+      "logs": [
+        { "name": "p8-bare-keepalive.log", "sha256": "739c4407f4e7042e4626777a4c3658f7d4c810661d275ca5cf27e25bfe6d2cb4" },
+        { "name": "p8-server-requests.ndjson", "sha256": "586e2ab2f9cae2536c91d095e7fd4ea0a155b9bee826e48066bea3c00eea249a" }
+      ]
+    }
+  ],
+
+  "tally": {
+    "navigationDiscard_aboutBlank": "0 landed / 15 attempts (headless and headed)",
+    "navigationDiscard_sameOriginBrowserInitiated": "1 landed / 2 attempts -- nondeterministic",
+    "navigationDiscard_rendererInitiated": "0 landed / 2 attempts",
+    "closeDiscard": "11 landed / 11 attempts (8 probe + 3 validation runs)",
+    "closeDiscard_redArm": "0 landed / 7 attempts (4 probe + 3 validation runs) -- correct",
+    "bareKeepaliveControl": "navigation 0/3, close 3/3"
+  },
+
+  "minimalCorrectFix": {
+    "nature": "TEST-ONLY. One file: e2e/campaign-crash-window-flush.spec.ts. No product change, no spec change.",
+    "patch": ".sisyphus/roadmap-completion-20260912/discard-flush-diag-20260915/proposed-case-a-close-discard.patch",
+    "patchSha256": "6b2451cb331e134d061f9942ad0328c143a00c022dac0827600d86cad76e6d27",
+    "diffstat": "1 file changed, 79 insertions(+), 30 deletions(-)",
+    "changes": [
+      "Case (a) discards with `page.close({ runBeforeUnload: true })` instead of `page.goto('about:blank')` -- the discard shape whose keepalive guarantee Chromium actually honours, and the one task 1.6 itself names ('hard reload or close').",
+      "`serverRecord` takes an `APIRequestContext` instead of a `Page`, because case (a) reads the record after its page is gone. Every other call site passes `page.request`, so their behaviour is unchanged.",
+      "The cold reload runs on `context.newPage()` after `context.addInitScript(() => localStorage.clear())`, and is wrapped in its OWN `withGate` so closing the first page does not buy the reopened document an unwatched console. The gate's strictness is preserved, not traded away.",
+      "`expect(puts).toHaveLength(1)` is REMOVED from case (a) and the removal is documented in the test: a request issued as the page closes is not reported to Playwright at page or context level (measured), so the count cannot be taken there. `expect(puts).toHaveLength(0)` BEFORE the discard is kept -- it still proves the 2 s debounce had not fired, so the flush is the only possible writer. The 'at most one write per discard' claim is owned by the jsdom suite, which counts against a mocked fetch.",
+      "The RED ARM is moved to the SAME discard. This is required, not cosmetic: a red arm that discarded a different way would only prove that other way loses the mutation, and the pair would stop discriminating.",
+      "The file header's LIMIT paragraph is updated to match what case (a) now pins, and the measured Chromium finding is recorded above the test so the next reader does not 'simplify' it back to a navigation."
+    ],
+    "whatIsNotWeakened": "The proof still spans a real production build, the real SQLite route, a real document discard, and a cold reload with localStorage cleared at document start. The revision assertion is exact (`before.version + 1`), which no second accepted write could produce, and the red arm still shows zero movement without the listeners.",
+    "validation": {
+      "gates": [
+        { "command": "npx oxfmt e2e/campaign-crash-window-flush.spec.ts", "exit": 0 },
+        { "command": "npx tsc --noEmit -p tsconfig.json", "exit": 0, "stdout": "empty" }
+      ],
+      "browserRuns": {
+        "command": "MEKSTATION_E2E_SERVER_COMMAND='node .next/standalone/server.js' HOSTNAME=127.0.0.1 MEKSTATION_E2E_PORT=3639 node scripts/playwright/run-playwright.mjs test e2e/campaign-crash-window-flush.spec.ts --project=chromium --retries=0 --workers=1",
+        "repetitions": 3,
+        "results": [
+          { "log": "fix-run1.log", "exit": 0, "result": "4 passed (41.9s)", "sha256": "fffab3d9f7daa841f42c3317ee257eed5c8a2948d4fc2b5c2361a79c2b109404" },
+          { "log": "fix-run2.log", "exit": 0, "result": "4 passed (18.5s)", "sha256": "de175a6791d33fe836d3548269da4243cec0af3725774fc860a925100fdda0a1" },
+          { "log": "fix-run3.log", "exit": 0, "result": "4 passed (17.9s)", "sha256": "df40b7e98660189cf4de61e5868ef37f9338815dc0917ac848275cdebef14e44" }
+        ]
+      }
+    }
+  },
+
+  "commitDecision": {
+    "committed": false,
+    "why": "The brief authorises a commit only 'if the root cause is a TEST defect'. The root cause measured here is BROWSER SEMANTICS, whose branch in the brief says to report and propose rather than act. The fix was therefore authored, gated and proven 3x green, then the worktree was restored to HEAD so nothing lands without the orchestrator's decision.",
+    "toApply": "git apply .sisyphus/roadmap-completion-20260912/discard-flush-diag-20260915/proposed-case-a-close-discard.patch, from the worktree root. The patch applies cleanly to 7a53ce3d1 and needs no rebuild.",
+    "treeStateNow": "clean at 7a53ce3d1; the scratch spec e2e/zz-diag-discard-flush.spec.ts was deleted; port 3639 has 0 sockets."
+  },
+
+  "specCitations": {
+    "requirement": {
+      "file": "openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md:157-158",
+      "title": "Requirement: Pending client mutations are flushed before the document is discarded",
+      "text": "The client persistence layer SHALL make exactly one bounded, BEST-EFFORT durable write of the pending campaign envelope when the document is discarded or becomes hidden while unsaved mutations are pending...",
+      "reading": "The requirement obliges the client to ISSUE the write, not to guarantee it lands. Measured against it, the product is CONFORMANT on every path tested: the flush fires, carries the current envelope and baseVersion, clears the armed timer, and is issued exactly once. The browser's refusal to dispatch it on a navigation is outside what the requirement asks of the client."
+    },
+    "nonClaimItFallsUnder": {
+      "file": "openspec/changes/design-campaign-authority-and-sync/tasks.md:30 (task 1.6 P-A, NON-CLAIMS sentence)",
+      "text": "The flush is best-effort -- a browser that discards the document without firing either event still loses the window, and a keepalive request whose response is never read is not evidence it committed.",
+      "fit": "PARTIAL, and stated honestly rather than stretched. The non-claim anticipates a browser that fires NO event; here both events fire and the request IS issued -- the browser then declines to dispatch it. The second clause covers the consequence exactly ('not evidence it committed'), but the first clause does not describe this failure mode. The non-claim is narrower than reality and should be widened by the bounded slice below."
+    },
+    "alsoRelevant": {
+      "file": "same spec, the scenario 'An unread flush never claims a revision it did not earn'",
+      "why": "Unaffected. A flush that never reached the server cannot have claimed a revision, and the F1 reconciliation read refuses to adopt anything when the record has not moved -- which is exactly what it did on every failing run."
+    }
+  },
+
+  "proposedBoundedSlice": {
+    "title": "Widen task 1.6's non-claim to the measured Chromium behaviour, and adopt the discard shape the guarantee holds for",
+    "size": "One test file + one non-claim sentence. No product code, no route change, no new capability.",
+    "steps": [
+      "1. Apply the validated test patch above (case (a) + red arm discard by tab close). Proven 3x green with a 4/4 red arm.",
+      "2. Amend task 1.6's NON-CLAIMS in openspec/changes/design-campaign-authority-and-sync/tasks.md to replace 'a browser that discards the document without firing either event still loses the window' with a sentence that also covers the measured case: a browser that fires the event, accepts the keepalive request, and then declines to dispatch it because the document is leaving via a NAVIGATION rather than a close. Cite this evidence file. Measured 2026-09-15 on Chromium 143.0.7499.4, headless and headed alike, with a product-independent control.",
+      "3. Record the residual in the change's risk list rather than fixing it: on this Chromium, a user who navigates away from the app (address bar, external link, back out of the SPA) still loses up to 2 s of mutations. Tab close, window close and the in-app SPA route change (which discards no document at all) are covered."
+    ],
+    "explicitlyNotProposed": [
+      "No product change. `keepalive` is the correct API, the task considered and rejected `sendBeacon` (POST-only; the route 405s POST), and swapping it would be a product change chasing a browser behaviour -- outside this brief and outside task 1.6's scope.",
+      "No `fetchLater()` / Pending Beacon adoption. It is the API that would actually close the navigation gap, but it is a new platform dependency with its own availability story and belongs in its own plan, not in a test-repair slice.",
+      "No widening of the diagnostics gate. The gate is correct; the close path simply produces no aborted-PUT event to allow."
+    ]
+  },
+
+  "nonClaims": [
+    "The precise Chromium code path is NOT identified. What is established is the BEHAVIOURAL rule, measured from both sides: keepalive issued during a navigation unload is aborted before dispatch; keepalive issued during a tab-close unload completes. No Chromium source was read and no upstream bug was matched.",
+    "Why the prior session measured the navigation path green twice is NOT explained. No environmental difference was found. The 0/15 this session, plus the product-independent control, are offered as the reason the test must not depend on it -- not as a claim about what changed.",
+    "`page.reload()` landed 1/1 but is NOT recommended: the reloaded app can issue its own save, so a version bump there is not evidence of the flush. It was excluded on that ground, not on its result.",
+    "Single-player only, Chromium only, no co-op, no journal authority, no flag flip. CAMPAIGN_JOURNAL_AUTHORITY_ENABLED was not set for any run.",
+    "No claim that the flush rescues a process kill. A kill fires neither event and loses the window, exactly as task 1.6 already says.",
+    "The `--prod-evidence` flag was NOT used, per instruction. No `next build` was run; the existing standalone build was reused and its identity to HEAD's tree is evidenced above.",
+    "Task 1.6's checkbox is NOT flipped and no openspec file was edited."
+  ],
+
+  "logs": {
+    "dir": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/discard-flush-diag-20260915/",
+    "note": "sha256 for every file is recorded beside its probe above. `campaign-crash-window-flush.spec.ts.orig` (sha256 45e6c3cd36629171dab53651ee94837559d5414c11b06a5e4bbffc4f399992f7) is the pre-patch copy of the spec, kept so the patch can be checked against what it was built on. `gate-tsc.log` and `gate-oxfmt.log` are empty (both exited 0 with no output)."
+  }
+}

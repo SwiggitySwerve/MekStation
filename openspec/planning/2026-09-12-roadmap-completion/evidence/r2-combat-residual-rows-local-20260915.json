@@ -1,0 +1,171 @@
+{
+  "evidenceKind": "local-slice-receipt",
+  "date": "2026-09-15",
+  "roadmapNode": "R2.combat",
+  "changePackage": "enable-saved-custom-unit-combat",
+  "slice": "r2-combat-residual-rows",
+  "statementOfNature": "Test-only slice sent to close the two residuals named by r2-combat-s6-consolidated-20260915.json: perTaskLineTable line 5's REWIND clause (zero coverage) and line 6's RECOVERY STREAMS redaction (inferred, not asserted). ONE of the two is closed. The other is NOT closable by any test today: the rewind-fold machinery it names is structurally unreachable for a match stream on origin/main, proven here with a unit-free probe. No product file, spec file or tasks checkbox was edited.",
+
+  "base": {
+    "branch": "codex/roadmap-r2-combat-residual-rows-20260915",
+    "baseSha": "4e5a74b9fddda382945277b15d76e2e09397d56c",
+    "baseShaProvenance": "git fetch origin && git checkout -b <branch> origin/main, run in this session at the start of the slice",
+    "originMainAtEndOfSlice": "f685a5391f6e69b73932cdef5323dd2d247e55a6",
+    "originMainDriftNote": "origin/main advanced by other lanes DURING this slice (f685a5391 'fix(campaign): stop a co-op guest asking for the GM share grants it cannot list (#1720)'). The branch was NOT rebased; every result below is against 4e5a74b9f.",
+    "priorEvidenceHeadCompared": "4d7d17c3d (the S6 consolidated receipt's head; 4e5a74b9f is a descendant)",
+    "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/browser",
+    "node": "v22.22.0",
+    "worktreeCleanBefore": true,
+    "worktreeCleanAfter": true
+  },
+
+  "commit": {
+    "sha": "8bc4d99e43d35fe2843ac2b8c8b860d92ba66ffb",
+    "message": "test(combat): pin the redacted custom construction on the recovery delivery stream",
+    "author": "Wes Rollings <wrollings@gmail.com>",
+    "aiAttribution": "none",
+    "hooks": "on (pre-commit ran the full next build; it completed ok:true)",
+    "pushed": false,
+    "prOpened": false,
+    "messageDeviation": "The brief's commit subject named BOTH rewind recovery and redacted recovery delivery. Only the delivery row landed, so the subject was narrowed to what the commit actually contains rather than claiming the rewind half."
+  },
+
+  "files": [
+    {
+      "path": "src/lib/multiplayer/server/__tests__/customCombatRecovery.recoveryDelivery.test.ts",
+      "status": "added",
+      "lines": 273
+    }
+  ],
+  "shortstat": "1 file changed, 273 insertions(+)",
+  "caps": { "filesCap": 15, "filesUsed": 1, "linesCap": 500, "linesUsed": 273 },
+
+  "firstRunResults": {
+    "honestNote": "The row was GREEN on its first complete run. The product already implements the behaviour; this is coverage, not a fix. Red-first was therefore not available, and discrimination is established by mutation instead (below).",
+    "run": {
+      "command": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/multiplayer/server/__tests__/customCombatRecovery.recoveryDelivery.test.ts",
+      "exit": 0,
+      "suites": "1 passed / 1 total",
+      "tests": "1 passed / 1 total",
+      "log": "firstrun-recoveryDelivery.log"
+    },
+    "assertionOrderIsLoadBearing": "The live host's per-viewer delivery is CAPTURED but not asserted against a literal until after the recovery assertions. An earlier draft asserted the live literal first, and mutation M1 then died on the LIVE path at line 235 without ever reaching the recovery claim - which is precisely the inference this row exists to replace. The order was changed so the RECOVERED delivery is the one compared against the literal first (line 259), and the live/recovered equality is the follow-on assertion (line 265)."
+  },
+
+  "mutationTable": [
+    {
+      "id": "M1",
+      "intent": "skip the detach/redaction on the recovery delivery",
+      "file": "src/lib/multiplayer/server/fogOfWar.ts",
+      "line": 131,
+      "from": "if (isUnitOwnedByPlayer(playerId, unit.id, state)) return unit;",
+      "to": "return unit;",
+      "result": "KILLED",
+      "jestExit": 1,
+      "killedAt": "customCombatRecovery.recoveryDelivery.test.ts:259 - expect(recoveredDelivery).toEqual({owner:[ownerRef],opponent:[opponentRef],watcher:[]})",
+      "observedDiff": "the RECOVERED host served every viewer both snapshots: owner got both, opponent got both, and the spectator ('watcher') got both instead of none",
+      "restored": "git checkout -- src/lib/multiplayer/server/fogOfWar.ts (tree verified clean)",
+      "log": "mutation-M1-fogdetach.log",
+      "honestCaveat": "There is NO recovery-only line to mutate: the redaction lives at a shared detach point that the live broadcast, the live replay and the recovery replay all reach through ServerMatchHostReplay. That shared-ness is exactly why line 6's recovery audience was 'inferred'. What M1 proves is the missing half of that inference - that the RECOVERY-path delivery actually executes that shared line - because the kill lands on the recovered host's own assertion, not on the live one."
+    },
+    {
+      "id": "M2",
+      "intent": "skip the recorded-snapshot re-attach, so recovery consults the mutable library instead of the recorded history",
+      "file": "src/engine/InteractiveSession.recovery.ts",
+      "line": 190,
+      "from": "await adaptUnit(gameUnit.unitRef, options, snapshotOnlyReader(snapshot))",
+      "to": "await adaptUnit(gameUnit.unitRef, options, readCustom)",
+      "result": "KILLED",
+      "jestExit": 1,
+      "killedAt": "customCombatRecovery.recoveryDelivery.test.ts:254 - expect(recovered.failed).toEqual([])",
+      "observedDiff": "recoverActiveMatches returned failed: ['custom-combat-recovery-delivery'] - with both saved designs deleted from the library before recovery, a recovery that looks the construction up live cannot rebuild the match at all",
+      "restored": "git checkout -- src/engine/InteractiveSession.recovery.ts (tree verified clean)",
+      "log": "mutation-M2-snapshot-reattach.log"
+    }
+  ],
+
+  "gates": [
+    { "gate": "touched suite", "command": "jest --maxWorkers=2 --coverage=false src/lib/multiplayer/server/__tests__/customCombatRecovery.recoveryDelivery.test.ts", "exit": 0, "result": "1 suite / 1 test passed", "log": "firstrun-recoveryDelivery.log", "sha256": "cb4764fc6575600cc66f42958678208561d523be18994d6acef544c4d764837f" },
+    { "gate": "scoped jest (src/lib/multiplayer/server + src/engine)", "command": "jest --maxWorkers=2 --coverage=false src/lib/multiplayer/server src/engine", "exit": 0, "result": "180 suites passed / 180 total, 1523 tests passed / 1523 total, 43.1s", "log": "gate-jest-scopes.log", "sha256": "45950a3225da1b35fae8144e49f617e95bacd73cc3f9f7acfa52185ab8b9c340" },
+    { "gate": "tsc", "command": "npx tsc --noEmit --skipLibCheck", "exit": 0, "result": "no diagnostics (empty log)", "log": "gate-tsc.log", "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" },
+    { "gate": "oxfmt on changed files", "command": "npx oxfmt <file> then npx oxfmt --check <file>", "exit": 0, "result": "All matched files use the correct format (1 file)", "log": "gate-oxfmt.log", "sha256": "34de5e16aefa405cdfe039f869bd73905449cf1db54cae32c125c153d691d74f" },
+    { "gate": "openspec", "command": "npx openspec validate --all --strict", "exit": 0, "result": "Totals: 232 passed, 0 failed (232 items)", "log": "gate-openspec.log", "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3" },
+    { "gate": "pre-commit hook (full next build)", "command": "git commit (hooks on)", "exit": 0, "result": "build ok:true, standalone server hydrated", "log": "commit.log", "sha256": "66c4a911fa31e28471fedb0a866f32ce6719200e280778636a8f5645aba0aa56" }
+  ],
+  "logRoot": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-combat-residuals-20260915/",
+
+  "residualsClosed": [
+    {
+      "residual": "perTaskLineTable line 6 - 'RECOVERY STREAMS specifically is still unproven ... coverage for the recovery stream is INFERRED via matchUnitBootstrap.ts's shared detach call'",
+      "verdict": "CLOSED",
+      "closedBy": "src/lib/multiplayer/server/__tests__/customCombatRecovery.recoveryDelivery.test.ts - 'serves owner, opponent and spectator the same redaction after recovery'",
+      "whatItAsserts": [
+        "a real DurableMatchStore match with config.fogOfWar true, 1v1 seats plus a spectator seat, and TWO DISTINCT custom saved designs (one per side) is launched by ServerMatchHost.create through the production buildMatchHostBootstrapFromMeta path, and the persisted GameCreated carries both snapshots",
+        "the owner's, opponent's and spectator's live join-replay deliveries are captured",
+        "BOTH saved designs are then deleted from the mutable unit library",
+        "the store is closed, SQLiteService and UnitRepository are reset, both are reopened on the same files, and recoverActiveMatches rebuilds the host - failed is empty",
+        "the RECOVERED host's join-replay delivery to the same three viewers is the redacted one: owner sees only its own snapshot id, opponent only its own, spectator none",
+        "that recovered delivery equals the live host's, viewer for viewer",
+        "the durable history the recovered host replays from still carries both snapshots, so the redaction is per-delivery and not destructive"
+      ],
+      "whyThisIsNotTheOLDCoverage": "customConstructionVisibility.test.ts calls filterEventForPlayer/filterEventForSpectator directly; customConstructionTransport.test.ts drives an InMemoryMatchStore host built by ServerMatchHost.create and its third channel is 'reconnect' on that LIVE host. Neither reaches ServerMatchHost.recover. This row's host comes out of recoverActiveMatches on real SQLite after a cold reopen."
+    }
+  ],
+
+  "residualsStillOpen": [
+    {
+      "residual": "perTaskLineTable line 5 - \"THE 'REWIND' CLAUSE HAS NO NAMED ASSERTION\"",
+      "verdict": "STILL OPEN - AND NOT CLOSABLE BY A TEST AT 4e5a74b9f",
+      "severityRestated": "moderate, unchanged",
+      "finding": "The rewind clause cannot be proven for ANY match, custom or canonical, because the boot-time rewind fold is structurally unreachable for a match stream on this head. A candidate branch cut from a mirrored match stream has parentBranchId 'main' (MATCH_BASELINE_BRANCH_ID), and matchStoreBranchSegmentReader refuses every branch id but 'root' by name.",
+      "evidenceChain": [
+        "src/lib/multiplayer/server/MatchStreamJournalMirror.ts:165 - the mirror appends on `effective?.branchId ?? MATCH_BASELINE_BRANCH_ID`, and a match stream has no effective head before its first mirror, so EVERY mirrored match's journal events land on 'main'",
+        "src/lib/multiplayer/server/matchAuthorityBaseline.ts:59 - MATCH_BASELINE_BRANCH_ID = 'main'",
+        "src/lib/multiplayer/server/history/matchStoreBranchSegmentReader.ts:~128 - read() throws EventHistoryBranchError('unknown-branch', \"A match store holds only the 'root' branch; '<id>' has no events\") for any segment whose branchId is not ROOT_EVENT_BRANCH_ID",
+        "src/lib/multiplayer/server/ServerMatchHostRewindRebuild.ts:131-159 - tryFoldActivatedRewindBranch resolves the activated branch PATH, whose parent segment therefore names 'main', through that reader",
+        "src/lib/multiplayer/server/MatchRecovery.ts:192 - recoverActiveMatches calls tryFoldActivatedRewindBranch first, so the throw is caught at line 347 and the whole match lands in `failed`"
+      ],
+      "probe": {
+        "what": "A unit-free repro: a match with TWO SYNTHETIC PhaseChanged events (no units, no custom construction, no canonical catalog) committed through appendCommandBatch at mode 'shadow', then rewound with the PRODUCTION calls - acquireCorrectionLease -> createCorrectionCandidateBranch (which also seeds the candidate's journal head at its base) -> sealArtifactManifest -> activateCandidateBranch -> supersedeFrom - and then folded.",
+        "result": "tryFoldActivatedRewindBranch REJECTED with EventHistoryBranchError: \"A match store holds only the 'root' branch; 'main' has no events\"",
+        "log": "probe-rewind-fold-blocker.log",
+        "logSha256": "b1a4d844a676c07f3bc6e29221931a479b51b4b8b5e8342fd033bf62e73b43b0",
+        "source": "rewind-fold-blocker.probe.ts (kept in the log directory only; it was copied into src/, run, and deleted - it is NOT in the commit and NOT in the repo)",
+        "sourceSha256": "5e46803a1ee04906e3e1393296ae3270a715fd7e0762f1db6c3108364244b23f",
+        "whyThisProbeSettlesIt": "It shares zero code with custom construction. The failure is therefore NOT a defect of enable-saved-custom-unit-combat; it is a gap in the rewind machinery that line 5's text happens to name."
+      },
+      "ownershipAssessment": "This belongs to `adopt-combat-journal-cutover-and-gm-rewind`, whose own tasks 2.1 / 2.3 / 2.5 / 3.1 (the moved umbrella 14.1 / 14.2 / 14.4 / 14.5 requirements) are ALL still unchecked at this head, and whose e2e rewind pack is tagged strict-expected-failure `@until-journal-cutover`. So the gap is consistent with that change's declared state rather than a regression against it. It is NOT, however, named anywhere in that change's artefacts: a grep for 'unknown-branch', \"only the 'root' branch\", 'matchStoreBranchSegmentReader' and \"'main' has no events\" across openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/ returns ZERO hits in this session. Owner decision required.",
+      "whatWouldCloseIt": "Either (a) the journal-cutover change teaches matchStoreBranchSegmentReader to serve the baseline branch id as well as 'root' (the two name the same single line of history - matchAuthorityBaseline.ts's own LIVE_PATH_BRANCH_IDS comment already says so), or (b) the mirror lands match events on 'root'. Until one of those exists there is no rewound match session to recover a recorded construction from, so line 5's rewind clause has nothing to assert against. Both are product changes and were explicitly out of scope for this slice."
+    }
+  ],
+
+  "incidentalFindings": [
+    {
+      "id": "F1",
+      "severity": "low-but-real, latent",
+      "what": "The S1 journal mirror cannot represent a REAL match launch. A live InteractiveSession's launch log carries explicitly-undefined optional properties, and the journal's JCS canonicalizer refuses them outright.",
+      "evidence": "Calling mirrorMatchBatchToJournal with the in-memory events of a real buildMatchHostBootstrapFromMeta launch threw 'JCS cannot represent undefined'. A walk of those events named 9 undefined properties across the 2-event log: game_created.actorId, game_created.payload.config.seed, payload.units[0..1].movementMode / .initiativeEquipment / .c3Equipment, and game_started.actorId.",
+      "whyItIsLatent": "DurableMatchStore.mirrorCommittedBatch is gated on getCombatJournalAuthorityMode() !== 'off' and the production mode is off, so this does not fire today. It also never fails the command - the throw is caught and recorded on the shadow tripwire as 'journal-mirror:JCS cannot represent undefined'.",
+      "whyItMatters": "If the mode is flipped to 'shadow' for real traffic, EVERY match's launch batch would miss the mirror and bump the shadow mismatch counter, and the counter is what S6 consults before promoting the journal to authority. The mirror receives the caller's in-memory batch, not the round-tripped form the store persists.",
+      "workaroundUsedHere": "The throwaway probe offered the batch as JSON.parse(JSON.stringify(events)) - exactly the shape mp_match_events holds, since the store writes JSON.stringify(event). This is scaffolding for the probe only; nothing in the committed row depends on it.",
+      "notFiled": "No pending task or spec edit was created - out of scope for this slice."
+    }
+  ],
+
+  "explicitNonClaims": [
+    "This slice did NOT close line 5's rewind residual. It is restated as open, with a new and stronger reason than the S6 receipt had.",
+    "NO product source file was edited. The two mutation edits were applied, measured, and reverted with `git checkout --`; `git status --porcelain` was verified empty after each.",
+    "NO spec file, tasks.md file, or checkbox was touched. All six enable-saved-custom-unit-combat boxes remain '[ ]'.",
+    "NO push, NO PR, NO branch other than codex/roadmap-r2-combat-residual-rows-20260915.",
+    "No stash, no reset --hard, no clean, no rm -rf of any tracked path.",
+    "NO sub-agents were spawned.",
+    "The rewind probe file is NOT part of the commit and does not exist anywhere under src/. It lives only in the log directory as an artefact.",
+    "This slice did NOT run the full repo test suite. Only the touched suite plus src/lib/multiplayer/server and src/engine (180 suites / 1523 tests). Repo-wide test health is NOT claimed.",
+    "No browser / live-server proof was taken. The delivery row is a jest row over real SQLite and a real ServerMatchHost, not a live socket against the production server.",
+    "The row proves the JOIN-REPLAY channel of the recovery delivery (handleSessionJoin). It does NOT separately assert the recovered host's live broadcastEvent channel; that channel is covered on a live host by customConstructionTransport.test.ts and shares the same filter, but this slice makes no new claim about it.",
+    "The claim 'exactly as the live stream does' is scoped to per-viewer customUnitDefinition id sets. The row does not compare full message payloads between the live and recovered hosts.",
+    "F1 (the mirror's JCS refusal) is reported, not fixed and not filed. No claim is made about whether it is already known to the journal-cutover owners.",
+    "origin/main moved during the slice; the branch was NOT rebased onto f685a5391 and no claim is made about the row against that newer head.",
+    "The commit subject was narrowed from the brief's wording because only one of the two rows landed."
+  ]
+}

@@ -1,0 +1,299 @@
+{
+  "schema": "r2-camp-7-admission-brief/v1",
+  "at": "2026-09-15T18:00:00.000Z",
+  "role": "read-only discovery; no product/spec/tasks/contract edits made; single evidence artifact only; no builds/tests/sub-agents executed this session",
+  "sourceSnapshot": {
+    "originMainAtFetch": "293d21bb0e3874768f3b0269115d465313230f4d",
+    "originMainHeadSubject": "feat(customizer): ship equipment catalog, record-sheet rendering and chassis index (#1636)",
+    "worktreeUsedForSourceReading": ".sisyphus/roadmap-completion-20260912/worktrees/archive-edit-recovery-20260915",
+    "worktreeHeadSha": "1e43090c505f0b3d97fb71f099a9060e1936438c",
+    "worktreeIsAncestorOfOriginMainAtFetch": true,
+    "driftCheckPerformed": "`git diff 1e43090c505f..origin/main --stat` over every file this brief cites (add-saved-custom-unit-campaign-roster/tasks.md, camp01-authority-receipt.contract.mjs, MechBay.tsx, MechBay.test.tsx, resolveMechBayUnit.ts, mech-bay.tsx, campaign-customizer-handoff.spec.ts, missionReadinessProjection.ts, useCombatCatalog.ts, listCampaignSavedDesigns.ts, the archived resolve-saved-custom-units-in-mech-bay change) returned EMPTY -- byte-identical between the pinned worktree HEAD and the current origin/main tip for every cited file. The worktree is one commit behind (1e43090c5 -> ... -> 293d21bb0, be7f85b86, c8780618e, 45a94017a, c7d1a1c5d, 439af6bca per this session's git log), but none of those intervening commits touch this node's ownership paths.",
+    "workingTreeDivergesFromOriginMain": "openspec/changes/add-saved-custom-unit-campaign-roster/tasks.md has local UNCOMMITTED wording edits (confirmed via `git diff origin/main -- <path>`). The task 7.1 paragraph itself is edited: origin/main's text says the camp-01g exact-main receipt 'is also the cross-path admission evidence consumed by `adopt-campaign-event-journal-authority` PR 3 task 3.0; that PR proves journal-level lineage only and cannot claim or substitute for the CAMP-01H three-session witness.' The local working copy instead says 'This validated exact-main receipt is historical cross-path admission evidence for the archived `openspec/changes/archive/2026-08-21-adopt-campaign-event-journal-authority` PR 3 task 3.0. Current campaign authority responsibility belongs to `design-campaign-authority-and-sync` task 5.7; it proves journal-level lineage only and cannot claim or substitute for the CAMP-01H three-session witness.' The local edit is factually AHEAD of origin/main here: `git ls-tree -r origin/main -- openspec/changes/archive/2026-08-21-adopt-campaign-event-journal-authority/` confirms that change IS archived on origin/main already (its own tasks.md task 3.0 cites CAMP-01G by the same task-7.1 receipt this brief evaluates), consistent with the project's own memory of a 2026-08-20 council MERGE-THEN-SUPERSEDE decision folding that work into design-campaign-authority-and-sync. This local diff does not change task 7.1's checkbox state, its commandSequence, or its frozen assertions -- only a citation/attribution sentence. Per the task charter this brief reads origin/main via `git show`, and the roadmap node's own taskKeys/acceptance text below is quoted from origin/main, not the local working copy."
+  },
+  "roadmapNode": {
+    "id": "R2.camp-7",
+    "wave": 2,
+    "title": "Mech Bay source resolution and editing",
+    "kind": "verification",
+    "state": "planned",
+    "dependsOn": ["R2.camp-6"],
+    "ownershipPaths": [
+      "openspec/changes/add-saved-custom-unit-campaign-roster",
+      "scripts/qc",
+      "src",
+      "e2e"
+    ],
+    "acceptance": [
+      "Use immutable camp-01g contract row; preserve its strict PR cap, reporters, authority facts and real approval requirements",
+      "Audit shipped code before any repair; exact-main receipt required"
+    ],
+    "owner": "parent; assign bounded Luna high worker on admission",
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "taskKeys": ["add-saved-custom-unit-campaign-roster#7.1@46"],
+    "receipt": null,
+    "decomposition": "Navigation paths only. Before assignment, select one behavior, exact files and original task IDs; split until original/default caps fit. Each child PR needs its own reviewed-head and exact-main receipt.",
+    "githubReviewGate": {
+      "authority": "add-saved-custom-unit-campaign-roster P.2 and scripts/qc/camp01-github-provenance.mjs",
+      "state": "APPROVED",
+      "nonDismissed": true,
+      "exactHead": true,
+      "nonAuthor": true,
+      "permissions": ["WRITE", "MAINTAIN", "ADMIN"],
+      "soloException": false
+    },
+    "downstreamDependents": [
+      "R2.camp-8 (Three-witness campaign acceptance) dependsOn [R2.camp-7, R2.combat-browser]",
+      "R2.combat-browser dependsOn [R2.combat, R2.camp-7]",
+      "R9.roster-damage dependsOn [R2.camp-7]"
+    ]
+  },
+  "predecessorClosures": {
+    "r2camp6": {
+      "source": "NO ADMISSION BRIEF EXISTS for R2.camp-6 as of this session (`ls openspec/planning/2026-09-12-roadmap-completion/evidence/` contains r2-camp-1 through r2-camp-5 admission briefs but no r2-camp-6 file). This is a GAP in the predecessor chain, independently backfilled below by this session's own live verification since R2.camp-7's frozen row lists camp-01f as its predecessor.",
+      "independentVerificationThisSession": {
+        "roadmapNode": "R2.camp-6 = CAMP-01F, taskKeys ['add-saved-custom-unit-campaign-roster#6.1@42'], dependsOn [R2.camp-5]",
+        "taskCheckboxOnOriginMain": "[ ] unchecked (umbrella tasks.md line 42)",
+        "archivedChild": "openspec/changes/archive/2026-08-20-persist-saved-custom-unit-campaign-creation/ -- its own tasks.md is fully [x] and claims 'attested by the durable reviewed-head + exact-main + cleanup receipts ... and the council review at openspec/council-decisions/2026-08-12-camp01-wave-execution-review.md'",
+        "councilDocExists": false,
+        "productPr": "#1239, merged mergedAt=2026-08-13T22:59:30Z, mergeCommit db00c138289c8809577bb6c33dfb9582affb580a, author=mergedBy=SwiggitySwerve, reviews=[] (verified this session via `gh pr view 1239`)",
+        "mergeCommitIsAncestorOfOriginMain": "not independently re-checked this session (PR state=MERGED against base main is sufficient corroboration; the identical pattern was independently ancestor-verified for camp-01d's #1236 and camp-01e's #1237/#1242 in sibling briefs and this session's own camp-01g check below)",
+        "controllerReceiptDirectory": "NONE -- the same `find .sisyphus/evidence/playtest -iname '*camp01f*'` / `git ls-files | grep -i camp01f` this session (run together with the camp-01g check below) returned zero matches for camp01f as well as camp01g",
+        "verdict": "CAMP-01F (task 6.1) follows the IDENTICAL pattern as camp-00 through camp-01e: real, merged, self-authored/self-merged/zero-review product PR (#1239, files: e2e/campaign-customizer-handoff.spec.ts, CreateCampaignPage.submit.ts, CreateCampaignPage.forceReconciliation.test.ts, CreateCampaignPage.rosterPersistence.test.ts, CreateCampaignPage.submitPersistence.test.tsx [new], useCampaignPersistenceStore.ts), no controller-registered receipt, unsatisfiable single-collaborator githubReviewGate. This node was NOT deep-audited line-by-line this session (no source/test full reads of CreateCampaignPage.submitPersistence.test.tsx or useCampaignPersistenceStore.ts were performed here); this is a citation gap this brief flags rather than closes."
+      },
+      "consequenceForCampSeven": "R2.camp-7's own frozen predecessors:['camp-01f'] check would fail today for the same structural reason every predecessor in the chain fails: no camp-01f controller-recognized receipt exists in .sisyphus/evidence/playtest or git history."
+    },
+    "r2camp5": {
+      "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-camp-5-admission-brief-20260915.json",
+      "verdict": "All three taskKeys of CAMP-01E (saved-design picker: runtime validation, named-group rendering, stable-source/fresh-instance propagation) already implemented and covered, gap NONE FOUND except an optional non-blocking keyboard-citation gap.",
+      "closedOnlyAt": "command-level receipt tier (SLICE-1, recommended, not confirmed executed by that brief); controller-registered and PR-provenanced tiers remain owner-blocked."
+    },
+    "r2camp4": {
+      "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-camp-4-admission-brief-20260915.json",
+      "verdict": "All three taskKeys of CAMP-01D (trusted-snapshot injection at every launch call site) already implemented and covered, gap NONE FOUND.",
+      "closedOnlyAt": "command-level receipt tier only (not confirmed executed by that brief)."
+    },
+    "chainSummaryThroughCamp00": "camp-00 through camp-01f (R2.camp-0 through R2.camp-6) form one unbroken chain: every wave's product code is real, merged to origin/main, and (per direct source/test verification in this session and the five prior briefs) behaviorally matches its own delta SHALLs with gap NONE FOUND in every case examined; every wave's archived child tasks.md asserts a governed receipt plus a council-review document (openspec/council-decisions/2026-08-12-camp01-wave-execution-review.md) that does NOT exist on origin/main; every wave's real product PR was self-authored and self-merged by the sole repository collaborator with zero recorded GitHub reviews; and no camp01-authority-receipt controller-registered directory exists anywhere in the repository for ANY of camp-00 through camp-01f."
+  },
+  "criticalContextFinding": {
+    "title": "The archived child change's tasks.md again claims a receipt and a council-review document that cannot be verified on origin/main, but the underlying product PR is real, merged, self-approved, and untouched by any second reviewer -- the sixth occurrence of this exact pattern in the CAMP-01 chain",
+    "archivedChild": "openspec/changes/archive/2026-08-20-resolve-saved-custom-units-in-mech-bay/ (proposal.md + design.md + tasks.md + specs/campaign-bay-ui/spec.md)",
+    "claimText": "openspec/changes/archive/2026-08-20-resolve-saved-custom-units-in-mech-bay/tasks.md line 1: 'Completed 2026-08-20 (reconciliation): implemented and delivered by the CAMP-01G wave (product PR #1240 (merge commit #1242)); attested by the durable reviewed-head + exact-main + cleanup receipts (full durable index readmitted 23/23 through validator plus all four anchors after CAMP-R1, 2026-08-12) and the council review at `openspec/council-decisions/2026-08-12-camp01-wave-execution-review.md`.' All of tasks 1.1, 1.2, 2.1, 2.2, 2.3, 3.1, 3.2 in that file are marked [x].",
+    "verification": [
+      "`git cat-file -e origin/main:openspec/council-decisions/2026-08-12-camp01-wave-execution-review.md` -> fatal: path does not exist in origin/main. Identical finding to the camp-00/01a/01b/01c/01d/01e archived children's citation of the same nonexistent document.",
+      "`gh pr view 1240 --repo SwiggitySwerve/MekStation --json number,title,state,mergedAt,mergeCommit,author,mergedBy,reviews,files` -> MERGED, mergedAt 2026-08-14T02:07:02Z, mergeCommit d79b04efb636458f76a3e907b4bf8d4068860ef2, title 'feat(campaign): resolve saved custom units in Mech Bay', author=SwiggitySwerve, mergedBy=SwiggitySwerve, reviews=[] (empty). The PR is REAL and MERGED (6 files: e2e/campaign-customizer-handoff.spec.ts +103/-0, src/components/campaign/bays/MechBay.tsx +32/-6, src/components/campaign/bays/__tests__/MechBay.test.tsx +32/-0, src/components/gameplay/pages/campaigns/create/CreateCampaignPage.submit.ts +1/-0, src/lib/campaign/bays/resolveMechBayUnit.ts +73/-0 [new file], src/pages/gameplay/campaigns/[id]/mech-bay.tsx +43/-24), but self-authored, self-merged, with zero recorded GitHub reviews -- same shape as camp-01b through camp-01f's PRs.",
+      "`gh pr view 1242 ...` -> the literal GitHub merge commit PR (title 'Merge pull request #1240 from SwiggitySwerve/codex/camp-01g'), same author/mergedBy/reviews=[], same file list, same mergeCommit oid.",
+      "`git merge-base --is-ancestor d79b04efb636458f76a3e907b4bf8d4068860ef2 origin/main` -> exit 0 (IS an ancestor). The product code genuinely shipped to main.",
+      "`find .sisyphus/evidence/playtest -iname '*camp01g*'` and `git ls-files | grep -i camp01g` both return zero matches -- no camp01-authority-receipt controller-registered directory exists for camp-01g anywhere in the repository or the durable evidence tree, despite the archived tasks.md's claim of 'durable reviewed-head + exact-main + cleanup receipts'.",
+      "`gh api repos/SwiggitySwerve/MekStation/collaborators` this session -> exactly one collaborator, SwiggitySwerve, permission admin. No second collaborator exists to have produced the non-author APPROVED review the claim implies.",
+      "`gh api repos/SwiggitySwerve/MekStation/branches/main/protection` this session -> required_approving_review_count=0. GitHub branch protection itself does not require any approving review on main; the 'eligible non-author APPROVED review' gate (G1) is a self-imposed CAMP-01 package requirement (camp01-github-provenance.mjs), not a GitHub-enforced control, and cannot be satisfied by tightening branch protection."
+    ],
+    "conclusion": "This is the SIXTH consecutive CAMP-01 sub-wave (after camp-00, camp-01a, camp-01b, camp-01c, camp-01d, camp-01e -- and, per this session's own independent camp-01f check above, the seventh counting camp-01f) whose archived child tasks.md asserts a governed receipt and cites the same nonexistent 2026-08-12 council-review document. The product code for camp-01g genuinely shipped (PR #1240/#1242, real ancestor of origin/main, independently re-verified below by direct source/test reads) but the RECEIPT and REVIEW-GATE claims are false in the same narrow way its predecessors' were: self-authored, self-merged, zero reviews, no controller-registered receipt directory. A worker admitted onto R2.camp-7 MUST NOT cite PR #1240/#1242, the '23/23 readmitted' figure, or the 2026-08-12 council review as satisfying task 7.1's receipt clause.",
+    "conflictingClaimFlaggedNotAccepted": {
+      "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-receipts-closure-20260915.json, perTaskTable id '4.1', receipts[1]",
+      "claimText": "'e2e/campaign-customizer-handoff.spec.ts:409 (F) and :528 (G) are the frozen reporter test ids' and gap text: 'the underlying delivery evidence (real camp-01f/camp-01g durable receipts) is also not repo-resident (lives in the operator clone E:/Projects/MekStation-proof)'",
+      "assessment": "UNVERIFIED and NOT ACCEPTED as evidence of a real camp-01g receipt: that claim is about a DIFFERENT OpenSpec change (add-camp01-authority-receipts, its own task 4.1, concerning reporter-tooling delivery, not roadmap task 7.1's own receipt-writer clause), and it explicitly locates the alleged receipt outside this repository (an operator clone at E:/Projects/MekStation-proof, out of scope for this GP-JUSTIFIED read-only session and not independently checkable from origin/main or this repo's git history). This session's own live checks -- `find .sisyphus/evidence/playtest -iname '*camp01g*'` and `git ls-files | grep -i camp01g`, both zero matches -- directly contradict any claim that a controller-registered camp-01g receipt exists inside this repository. A worker admitted onto R2.camp-7 should treat the operator-clone claim as an unverifiable, out-of-repo assertion, not as satisfying this node's own controllerPredecessorGate or githubReviewGate."
+    }
+  },
+  "frozenContractRow": {
+    "source": "scripts/qc/camp01-authority-receipt.contract.mjs -> WAVE_CONTRACTS['camp-01g']",
+    "sourceFileVerifiedOnOriginMain": "293d21bb0e3874768f3b0269115d465313230f4d (byte-identical to the pinned worktree's 1e43090c505f on this file per driftCheckPerformed above)",
+    "wave": "camp-01g",
+    "commandId": "camp-01g",
+    "childChange": "resolve-saved-custom-units-in-mech-bay",
+    "runRootTemplate": ".sisyphus/evidence/playtest/camp01g-mech-bay-<sha>",
+    "commandSequence": [
+      ["@npm", "test", "--", "--watchAll=false", "--runTestsByPath", "src/components/campaign/bays/__tests__/MechBay.test.tsx", "--runInBand"],
+      ["@npm", "run", "qc:command:readiness-stable:quick"],
+      ["@node", "scripts/playwright/run-playwright.mjs", "test", "--project=chromium", "e2e/campaign-customizer-handoff.spec.ts", "--workers=1"]
+    ],
+    "canonicalArgvDigest": "ae3582f0603a9028613a874859974617281750628e33e71080a70c308bfc105f",
+    "artifacts": ["command-result.json", "receipt-manifest.json", "wave-result.json", "reports/mech-bay-authority.json"],
+    "assertions": [
+      "coldReloaded===true",
+      "rosterInstanceIdPresent===true",
+      "unitRefMatched===true",
+      "unitSourceCustom===true",
+      "cachedNamePreserved===true",
+      "tonnagePreserved===true",
+      "bvAvailabilityHonest===true",
+      "unresolvedSourceVisible===true"
+    ],
+    "predecessors": ["camp-01f"],
+    "capSubject": "product-pr",
+    "maxFiles": 7,
+    "maxChangedLines": 350,
+    "reporterContracts": [
+      {
+        "invocationId": "camp-01g-mech-bay-browser",
+        "producerId": "scripts/playwright/run-playwright.mjs",
+        "reporterId": "camp01-mech-bay-authority-reporter/v1",
+        "reportSchema": "camp01-mech-bay-authority/v1",
+        "normalizedPath": "reports/mech-bay-authority.json",
+        "sourceIds": ["e2e/campaign-customizer-handoff.spec.ts"],
+        "requiredTestIds": [
+          "e2e/campaign-customizer-handoff.spec.ts::campaign customizer handoff @campaign @customizer::cold reloads a saved custom unit into Mech Bay without source substitution"
+        ],
+        "allowedStatuses": ["passed"],
+        "minimumObservedTests": 1,
+        "completeObservationSet": true
+      }
+    ],
+    "criticalDifferenceFromCamp01e/dRows": "Unlike camp-01d's three chained-package-script commandSequence, camp-01g's second and third entries mirror camp-01e's SHAPE (one command-screen-slice run + one DIRECT single-spec Playwright invocation), but camp-01g ADDS a dedicated reporter contract (gReporters) absent from camp-01a through camp-01f: the Playwright leg must ALSO emit a normalized reports/mech-bay-authority.json (schema camp01-mech-bay-authority/v1) whose requiredTestIds names the exact cold-reload test by its full Playwright test id, with allowedStatuses=['passed'] and completeObservationSet=true. A generic wave-result boolean is explicitly insufficient per the archived child's own design.md D3: 'Generic wave booleans do not satisfy authority' -- the trusted Playwright reporter must produce the structured report from the real browser test."
+  },
+  "taskKeys": [
+    {
+      "key": "add-saved-custom-unit-campaign-roster#7.1@46",
+      "sourceId": "7.1",
+      "literalText": "7.1 Resolve by source/ref without stock borrowing or hidden unresolved rows and extend `e2e/campaign-customizer-handoff.spec.ts` through cold-reloaded Mech Bay. The immutable `camp-01g` row SHALL pin separate ordered command arrays for `npm.cmd test -- --watchAll=false --runTestsByPath src/components/campaign/bays/__tests__/MechBay.test.tsx --runInBand`, `npm.cmd run qc:command:readiness-stable:quick`, and `node scripts/playwright/run-playwright.mjs test --project=chromium e2e/campaign-customizer-handoff.spec.ts --workers=1`. Run the authority writer with `--wave=camp-01g`, its run root/SHA/command id, and exact spec/product tuples but no caller command text, then matching reviewed-head validation; after merge rerun both under a new exact-main run root with the exact product merge tuple and exact-main SHA/mode; review, publish within 7 files/350 lines, merge, audit, and prune before CAMP-01H. This validated exact-main receipt is also the cross-path admission evidence consumed by `adopt-campaign-event-journal-authority` PR 3 task 3.0; that PR proves journal-level lineage only and cannot claim or substitute for the CAMP-01H three-session witness.",
+      "checkboxStateOnOriginMain": "[ ] unchecked (roster umbrella tasks.md, line 46); the archived child's own tasks.md (tasks 1.1, 1.2, 2.1, 2.2, 2.3, 3.1, 3.2) shows [x], citing PR #1240/#1242 and the absent council-review document per criticalContextFinding above",
+      "verifiedAgainstOriginMain": "tasks.md line 46 re-read via `git show origin/main:openspec/changes/add-saved-custom-unit-campaign-roster/tasks.md` at 293d21bb0e3874768f3b0269115d465313230f4d this session",
+      "whatSourceAlreadyDoes": [
+        "src/lib/campaign/bays/resolveMechBayUnit.ts:23-73 resolveMechBayLoadout() -- for each roster unit, parses unitSource via parseRosterUnitSource(); if parsed.source==='custom', looks up unit.unitRef in a Map keyed by savedDesigns[].id (the saved-design authority, sourced from listCampaignSavedDesigns() by the page). If NOT found: adds unit.unitId to unresolvedUnitIds, still sets unitTonnageById from the persisted cachedTonnage (unitConfigurations?.[unitId]?.tonnage ?? unit.tonnage) when present, sets NO battle value, and `continue`s -- no canonical/stock lookup is ever attempted for a custom-source unit ('without stock borrowing'). If found: sets unitTonnageById to cachedTonnage ?? saved.tonnage, and only sets unitBattleValueById/customBvAvailableIds when saved.battleValue is a positive number ('honest BV, not fabricated').",
+        "src/pages/gameplay/campaigns/[id]/mech-bay.tsx:106-133 -- on mount, fetches the canonical index (loadCanonicalIndexWithBV) AND listCampaignSavedDesigns(), maps saved rows to {id, tonnage, battleValue}, and feeds both into buildMechBayUnitLoadoutMaps (a thin wrapper around resolveMechBayLoadout, line 64-92) alongside the live campaign.unitConfigurations -- this is the page-level wiring that gives resolveMechBayLoadout its 'saved-unit authority' input on every mount/cold-load.",
+        "src/components/campaign/bays/MechBay.tsx:265-320 MechBay() / :82-232 MechBayRow() -- threads unresolvedUnitIds and customBvAvailableIds per-unit into each row: renders a `data-testid='mech-bay-unresolved-<unitId>'` 'Unresolved source' paragraph when unresolvedSource is true (line 136-143, 'hidden unresolved rows' is explicitly rejected -- the row is NOT hidden, it is a visible flagged state), and computes bvLabel (line 96-102) as 'unavailable' for any customSource row unless customBvAvailable is true, never falling back to a canonical/stock BV number for a custom-source row.",
+        "src/lib/campaign/readiness/missionReadinessProjection.ts:126-140 admitCanonicalExactReference() (imported from canonicalCatalogAdmission.ts, the SAME camp-01a/camp-01d shared guard) denies ANY unit with parsed.source==='custom' (roster_source_custom) before mission readiness/launch -- this independently satisfies the delta spec's 'Unresolved custom source blocks launch side effects' scenario, but note it blocks EVERY custom-source unit (resolved or unresolved), not specifically the unresolved ones; camp-01g's own resolveMechBayLoadout code does not itself gate readiness/launch -- that gating is inherited unconditionally from the pre-existing camp-01a/01d guard, a cross-node dependency documented under crossNodeCoordinationRisk below.",
+        "src/services/units/listCampaignSavedDesigns.ts:19-45 -- the shared saved-design authority both this node and R2.camp-5's picker and R2.combat's catalog-eligibility merge consume; merges local IndexedDB rows with server rows (server wins on id collision), throwing only if the server call rejected AND zero rows resulted (a soft-fail-open otherwise)."
+      ],
+      "deltaShallsMapped": [
+        "resolve-saved-custom-units-in-mech-bay specs/campaign-bay-ui/spec.md Requirement 'Mech Bay Resolves Saved Custom Roster Identity Honestly', Scenario 'Cold reload resolves exact custom source' -> resolveMechBayUnit.ts's saved-design Map lookup by unit.unitRef, no canonical fallback.",
+        "... Scenario 'Cached identity metadata remains stable' -> unitTonnageById set from cachedTonnage ?? saved.tonnage; unitBattleValueById set ONLY from saved.battleValue (never copied from a stock/canonical entry for a custom-source row).",
+        "... Scenario 'Missing saved source stays visible' -> the `if (!saved) { unresolvedUnitIds.add(...); ...; continue; }` branch -- row remains in the units array (never filtered out), keeps cachedTonnage, gets no BV.",
+        "... Scenario 'Unresolved custom source blocks launch side effects' -> satisfied by the PRE-EXISTING canonicalCatalogAdmission.ts admitCanonicalExactReference guard (camp-01a/camp-01d scope), which denies roster_source_custom unconditionally, not by any new camp-01g-owned gating logic.",
+        "... Scenario 'Receipt authority is reporter-owned' -> the frozen row's gReporters contract (reports/mech-bay-authority.json, requiredTestIds naming the exact cold-reload Playwright test)."
+      ],
+      "existingTests": [
+        "src/components/campaign/bays/__tests__/MechBay.test.tsx:315-344 'resolves custom saved designs without stock substitution and keeps unresolved rows visible' -- a single test with TWO roster units (one resolvable via a matching savedDesigns entry, one with a unitRef that has no matching saved design). Asserts: the resolved unit's heading keeps data-unit-ref/data-unit-source='custom', its weight/BV render from the SAVED design (70 tons, '1,312 (available)'), and it shows NO unresolved marker; the unresolved unit shows the `mech-bay-unresolved-roster-missing` testid, its cached weight (55 tons) still renders, its BV renders 'unavailable', and `resolved.unitBattleValueById.has('roster-missing')` is false. The test then computes and self-validates all 8 frozen camp-01g assertions verbatim inline and (when CAMP01_ARTIFACT_DIR/CAMP01_RUN_ID are set) writes wave-result.json with flag 'wx' -- the identical self-writing pattern camp-01a through camp-01f's frozen tests use. Note: this test's own 'coldReloaded===true' key is a HARD-CODED true (jest cannot perform an actual browser cold reload); the real cold-reload proof is the e2e test below, gated behind the reporter contract, not this jest assertion.",
+        "src/components/campaign/bays/__tests__/MechBay.test.tsx:218-291 'resolves canonical weight and BV while preserving refit tonnage fallbacks' -- a pre-existing (not camp-01g-authored) canonical/stock-path regression, confirms canonical-source units still resolve tonnage/BV from the canonical index + unitConfigurations fallback and are unaffected by the new custom-source branch.",
+        "e2e/campaign-customizer-handoff.spec.ts:528-627 'cold reloads a saved custom unit into Mech Bay without source substitution' -- the exact reporter-pinned browser test. Seeds a custom design directly into IndexedDB, creates a real production campaign through the wizard (adding that saved design), navigates to /mech-bay, performs an ACTUAL page.reload(), and asserts: the row's heading has data-unit-source='custom' and data-unit-ref=<savedId>, displays the saved name, shows '70 tons' and 'BV: unavailable' (no bv field was seeded), and the roster-instance testid-derived id is NOT equal to the saved-design id ('rosterInstanceIdPresent'/'unitRefMatched' proven live). It THEN deletes the IndexedDB record, reloads again, and asserts the SAME roster-instance row now shows the `mech-bay-unresolved-<instanceId>` testid while still keeping data-unit-source='custom', data-unit-ref=<savedId>, the cached name, and '70 tons' -- proving 'Missing saved source stays visible' end-to-end in a real browser. When CAMP01_INVOCATION_ID==='camp-01g-mech-bay-browser', the test attaches a structured 'camp01-mech-bay-authority/v1' JSON payload via testInfo.attach() with digest-bound identity/tonnage/BV/unresolved fields matching the frozen assertion names -- this is the artifact the trusted Playwright reporter normalizes into reports/mech-bay-authority.json."
+      ],
+      "gap": "NONE FOUND for the literal text of task 7.1. Source-by-ref resolution with no stock/canonical fallback for custom units, no hidden unresolved rows (the unresolved row stays rendered with an explicit marker, never filtered from the units array), and the required cold-reload e2e extension all exist and are independently verified against origin/main at 293d21bb0e3 via the pinned (byte-identical on every cited file) worktree, both at the jest level (MechBay.test.tsx:315-344) and at the real-browser level (campaign-customizer-handoff.spec.ts:528-627, including an actual page.reload() and a genuine IndexedDB-delete-then-reload unresolved-path proof). The one scenario this brief flags as satisfied by a DIFFERENT node's code rather than camp-01g's own new logic is 'blocks launch side effects for unresolved custom units' -- that guarantee comes unconditionally from the pre-existing camp-01a/camp-01d canonicalCatalogAdmission.ts guard (which blocks ALL custom-source units from readiness/launch, resolved or not), not from any readiness-aware logic inside resolveMechBayUnit.ts or MechBay.tsx themselves. This is not a functional gap (the delta scenario's outcome is true today) but is worth a worker's awareness: camp-01g's OWN frozen jest/e2e tests do not themselves exercise a launch-blocking assertion for an unresolved unit; that coverage lives in camp-01a's/camp-01d's own frozen files (missionReadinessProjection.test.ts, fastForwardCombatRunner.test.ts, launchCoopMission.test.ts), not in MechBay.test.tsx or this e2e scenario.",
+      "productionBrowserRunRequired": true
+    }
+  ],
+  "sourceFilesInventory": {
+    "method": "Direct Read/grep of the pinned worktree (.sisyphus/roadmap-completion-20260912/worktrees/archive-edit-recovery-20260915, HEAD 1e43090c505f, confirmed byte-identical to origin/main at 293d21bb0e3 for every file below via a targeted `git diff --stat`) plus `git show origin/main:<path>` for tasks.md/proposal.md/design.md/spec.md/contract-row text and `gh pr view`/`gh api` for GitHub provenance",
+    "files": [
+      { "path": "src/lib/campaign/bays/resolveMechBayUnit.ts", "lines": 73, "note": "full file read -- resolveMechBayLoadout(), the core source-aware resolution/unresolved-tracking logic" },
+      { "path": "src/pages/gameplay/campaigns/[id]/mech-bay.tsx", "lines": 216, "note": "full file read -- page-level wiring of useCombatCatalog, listCampaignSavedDesigns, buildMechBayUnitLoadoutMaps, and the MechBay component" },
+      { "path": "src/components/campaign/bays/MechBay.tsx", "lines": 322, "note": "full file read -- MechBayRow/MechBay components, unresolvedSource/customBvAvailable rendering" },
+      { "path": "src/components/campaign/bays/__tests__/MechBay.test.tsx", "lines": 344, "note": "full file read -- all 11 it() blocks, focused on the camp-01g-authored test at lines 315-344 and the pre-existing canonical-path test at 218-291" },
+      { "path": "src/lib/campaign/readiness/missionReadinessProjection.ts", "note": "read lines 1-150 -- admitCanonicalExactReference call site confirming the shared camp-01a/camp-01d guard denies custom-source units unconditionally" },
+      { "path": "src/lib/campaign/readiness/useCombatCatalog.ts", "lines": 31, "note": "full file read -- thin hook wrapping fetchCanonicalCatalogSnapshot, consumed by mech-bay.tsx" },
+      { "path": "src/services/units/listCampaignSavedDesigns.ts", "lines": 45, "note": "full file read -- the shared saved-design authority (local IndexedDB + server merge, server wins on id collision)" },
+      { "path": "e2e/campaign-customizer-handoff.spec.ts", "lines": 630, "note": "full file read -- imports/setup (1-178), all 5 test() blocks located by line number, and the camp-01g-relevant cold-reload test read in full (528-627)" },
+      { "path": "scripts/qc/camp01-authority-receipt.contract.mjs", "note": "read for the camp-01g WAVE_CONTRACTS row and its gReporters array (lines 12, 34, 41) plus assertWaveRow/assertReporter validation logic" },
+      { "path": "openspec/changes/archive/2026-08-20-resolve-saved-custom-units-in-mech-bay/proposal.md", "note": "full file read via git show origin/main" },
+      { "path": "openspec/changes/archive/2026-08-20-resolve-saved-custom-units-in-mech-bay/design.md", "note": "full file read via git show origin/main -- D1/D2/D3 decisions" },
+      { "path": "openspec/changes/archive/2026-08-20-resolve-saved-custom-units-in-mech-bay/specs/campaign-bay-ui/spec.md", "note": "full file read via git show origin/main -- 5 scenarios" },
+      { "path": "openspec/changes/archive/2026-08-20-resolve-saved-custom-units-in-mech-bay/tasks.md", "note": "full file read via git show origin/main" },
+      { "path": "openspec/changes/archive/2026-08-20-persist-saved-custom-unit-campaign-creation/tasks.md", "note": "full file read via git show origin/main -- the camp-01f archived child, used to independently backfill the missing R2.camp-6 brief" },
+      { "path": "openspec/changes/archive/2026-08-21-adopt-campaign-event-journal-authority/tasks.md", "note": "grepped for camp-01g references (task 3.0/3.3) -- confirms this archived change's own cross-path admission task depends on camp-01g's receipt, which does not exist" },
+      { "path": "openspec/changes/add-saved-custom-unit-campaign-roster/tasks.md", "note": "P. through 9. sections read via git show origin/main at 293d21bb0e3; local uncommitted diff against origin/main separately captured (see sourceSnapshot.workingTreeDivergesFromOriginMain)" },
+      { "path": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json", "note": "R2.camp-6, R2.camp-7, R2.camp-8, R2.combat-browser, R9.roster-damage nodes extracted verbatim via a targeted Python json walk" },
+      { "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-camp-1-admission-brief-20260915.json", "note": "full read -- house style and chain-opening facts" },
+      { "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-camp-2-admission-brief-20260915.json", "note": "full read -- predecessor closure facts" },
+      { "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-camp-3-admission-brief-20260915.json", "note": "full read -- predecessor closure facts" },
+      { "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-camp-4-admission-brief-20260915.json", "note": "full read -- direct chain predecessor's pattern and cross-node risk template reused" },
+      { "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-camp-5-admission-brief-20260915.json", "note": "full read -- direct predecessor's pattern; listCampaignSavedDesigns cross-node note reused/extended" },
+      { "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/camp01bc-receipt-run-main-20260915.json", "note": "full read -- the grants-403 diagnosis for camp-01b/c/d's shared verify:qc:coop-campaign-journey leg; independently determined NOT applicable to camp-01g's own frozen row (see crossNodeCoordinationRisk)" },
+      { "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-receipts-closure-20260915.json", "note": "read for its perTaskTable id '4.1' F/G binding note; the operator-clone camp-01f/camp-01g receipt claim flagged as unverified/out-of-repo, not accepted (see criticalContextFinding.conflictingClaimFlaggedNotAccepted)" }
+    ]
+  },
+  "controllerPredecessorGate": {
+    "source": "scripts/qc/camp01-durable-facts.mjs resolvePreflightFacts() (mechanism documented in the R2.camp-1 brief; not re-read line-by-line this session)",
+    "verifiedThisSession": "`find .sisyphus/evidence/playtest -iname '*camp01f*' -o -iname '*camp01g*'` returns zero matches. `git ls-files | grep -i 'camp01f\\|camp01g'` also returns zero matches. `ls .sisyphus/evidence/playtest/` shows exactly one directory, 2026-07-07-live-playtest/, unrelated to any camp-0x wave.",
+    "consequence": "camp-01g's own controller run (qc:camp01-authority-receipt:write --wave=camp-01g ...) would fail camp-01f's predecessor check today -- an exact continuation of the chain the R2.camp-1 through R2.camp-5 briefs documented, independently re-confirmed for camp-01f/g by this session."
+  },
+  "githubReviewGateG1": {
+    "name": "Eligible non-author GitHub APPROVED review on the exact head",
+    "citedFrom": "roadmap.json R2.camp-7.githubReviewGate; scripts/qc/camp01-github-provenance.mjs (same module cited by every camp-1 through camp-5 G1)",
+    "liveFactsAsOf20260915": "Re-verified this session: `gh api repos/SwiggitySwerve/MekStation/collaborators` returns exactly one entry (SwiggitySwerve, admin/maintain/push/pull/triage all true). camp-01g's real merged PRs #1240/#1242 were authored AND merged by that same single collaborator with reviews=[] -- confirmed via `gh pr view 1240`/`gh pr view 1242` this session. `gh api repos/SwiggitySwerve/MekStation/branches/main/protection` confirms required_approving_review_count=0 at the GitHub-enforced level -- the gate is a package-level requirement, not a repo setting that could be relaxed.",
+    "soloException": false,
+    "satisfiability": "STRUCTURALLY UNSATISFIABLE today, identically to R2.camp-0 through R2.camp-5: soloException is explicitly false. Any future product PR touching camp-01g's scope needs a real second-collaborator APPROVED review that cannot be produced by an agent session and does not exist today.",
+    "impactOnThisNode": "Even a perfect audit-only PR that touches zero camp-01g-owned behavior would still be unable to close task 7.1's receipt clause, because the controller's exact-main mode requires a merged, approved PR, and merging requires this gate. This also retroactively confirms PR #1240/#1242 never satisfied the gate the archived child's tasks.md implies it did."
+  },
+  "crossNodeCoordinationRisk": [
+    {
+      "topic": "The grants-403 blocker documented in camp01bc-receipt-run-main-20260915.json does NOT block camp-01g's own frozen row",
+      "finding": "That evidence file found camp-01b/c/d's LAST frozen command (`npm run verify:qc:coop-campaign-journey`, package.json:199) fails deterministically because e2e/coop-campaign-ui-audit.spec.ts asserts zero console errors and GET /api/campaigns/<id>/grants returns 403 four times in one browser context during that spec. camp-01g's OWN frozen commandSequence does NOT include verify:qc:coop-campaign-journey at all -- its second entry is qc:command:readiness-stable:quick (already independently proven green, exit 0, 4/4 suites/44/44 tests, in the camp-01d leg of that same evidence run) and its third entry is a DIRECT single-spec Playwright run of e2e/campaign-customizer-handoff.spec.ts. This session read that spec file in full (630 lines): it has no global console-error listener/assertion (the top-of-file setup at lines 1-178 and the single test.afterAll at 160-179 do not install one), and its cold-reload test (528-627) creates a campaign through the plain wizard-submit flow and never calls or references /api/campaigns/[id]/grants or any coop/host-registration endpoint.",
+      "implication": "A worker admitted onto R2.camp-7 should NOT assume the grants-403 issue blocks SLICE-1's browser leg the way it blocks camp-01b/c/d's. This is a genuinely different reproduction-risk profile from those three siblings and should be verified by an actual run rather than inherited by analogy -- but nothing in the source or spec text found this session suggests campaign-customizer-handoff.spec.ts would hit the same failure. This is an INFERENCE from static reads, not a live-run confirmation; a real command-level reproduction (SLICE-1 below) is the only way to make this claim EXPECTED-VERIFIED rather than INFERENCE."
+    },
+    {
+      "sharedFile": "src/services/units/listCampaignSavedDesigns.ts",
+      "finding": "The same shared saved-design authority function R2.camp-5's picker and R2.combat's catalog-eligibility merge use (see r2-camp-5-admission-brief-20260915.json combatBriefCrossReference) is ALSO camp-01g's own saved-unit authority source, consumed directly by mech-bay.tsx (not mocked in any camp-01g-owned file at the integration level; MechBay.test.tsx and resolveMechBayUnit's own unit tests instead pass a raw `savedDesigns` array directly to resolveMechBayLoadout(), bypassing listCampaignSavedDesigns() entirely at the jest layer).",
+      "implication": "camp-01g's own frozen jest test (MechBay.test.tsx) does NOT exercise listCampaignSavedDesigns() itself -- only the real browser e2e test does (indirectly, via the real Mech Bay page mount). A future change to listCampaignSavedDesigns()'s return shape (field names, merge precedence) is a cross-node breaking-change risk shared by THREE consumers now (R2.camp-5's picker, R2.combat's catalog eligibility, and R2.camp-7's Mech Bay resolution), and only the real e2e/browser layer across all three nodes would catch an integration break -- no jest suite in any of the three nodes' frozen file sets does."
+    },
+    {
+      "sharedGuard": "src/lib/campaign/readiness/canonicalCatalogAdmission.ts (admitCanonicalExactReference)",
+      "finding": "As documented in the r2-camp-4-admission-brief's crossNodeCoordinationRisk, this is the shared guard for camp-01a, camp-01d, R2.combat, and (per this brief's own gap analysis) implicitly for camp-01g's 'blocks launch side effects' delta scenario too -- camp-01g's own code (resolveMechBayUnit.ts, MechBay.tsx) never calls this guard directly; it relies on missionReadinessProjection.ts (owned by camp-01a/camp-01d) already denying every custom-source unit before readiness/launch is ever computed.",
+      "implication": "Any future repair scoped to R2.camp-7's ownership paths that touches missionReadinessProjection.ts or canonicalCatalogAdmission.ts (rather than resolveMechBayUnit.ts/MechBay.tsx/mech-bay.tsx, the files camp-01g's own cap and frozen commandSequence actually own) would be touching a FOURTH node's shared surface and should be flagged to the parent rather than folded into a camp-01g-scoped PR."
+    }
+  ],
+  "productionBrowserRunRequiredSummary": {
+    "answer": true,
+    "reasoning": "camp-01g's WAVE_CONTRACTS commandSequence[2] is a direct `node scripts/playwright/run-playwright.mjs test --project=chromium e2e/campaign-customizer-handoff.spec.ts --workers=1` invocation of the SAME spec file camp-01e's row also runs (all 5 tests in that file execute, not just the cold-reload one), plus the frozen gReporters contract requires a genuine, normalized reports/mech-bay-authority.json produced from the real browser test's testInfo.attach() payload -- a jest-only run cannot satisfy this reporter contract. Unlike camp-01b/c/d, camp-01g's browser leg is NOT the heavier coop-campaign-journey chain and (per crossNodeCoordinationRisk above) shows no evidence of hitting the grants-403 signature that blocks those three siblings, but this remains an INFERENCE from static source/spec reads, not a live-run confirmation."
+  },
+  "orderedSlicePlan": [
+    {
+      "id": "SLICE-1",
+      "priority": 1,
+      "title": "Command-level camp-01g receipt run at exact-main (audit evidence, zero product files, includes the readiness-stable and single-spec browser legs plus the mech-bay-authority reporter artifact)",
+      "behaviour": "Reproduce the established camp-00 through camp-01f command-level pattern for camp-01g: on a freshly fetched, detached-HEAD worktree at verified origin/main, export CAMP01_ARTIFACT_DIR (a fresh evidence directory) and CAMP01_RUN_ID (a crypto-random `camp01-<32hex>` id), then run all three frozen commands in order -- the 1-file jest suite (MechBay.test.tsx, --runInBand), then `npm run qc:command:readiness-stable:quick`, then the single-spec Playwright run of e2e/campaign-customizer-handoff.spec.ts with CAMP01_INVOCATION_ID=camp-01g-mech-bay-browser so the reports/mech-bay-authority.json reporter artifact is produced from the real cold-reload test's testInfo.attach() payload. Record exit codes, the produced wave-result.json (schema camp01-wave-result/v1), all 8 frozen assertion values verbatim, and the normalized mech-bay-authority.json report.",
+      "filesChanged": 0,
+      "filesTouchedList": [],
+      "redFirstTestNames": "NONE -- pure reproduction run of already-passing, already-shipped code. Per source verification above, task 7.1's core behavior is fully implemented and covered; no repair is needed for the literal task text.",
+      "linesEstimate": "0 product/spec lines; 1 new evidence JSON file (unbounded, evidence-only, same category as the predecessor camp-0x receipt-run artifacts)",
+      "gates": {
+        "frozenCommands": [
+          "npm test -- --watchAll=false --runTestsByPath src/components/campaign/bays/__tests__/MechBay.test.tsx --runInBand",
+          "npm run qc:command:readiness-stable:quick",
+          "node scripts/playwright/run-playwright.mjs test --project=chromium e2e/campaign-customizer-handoff.spec.ts --workers=1"
+        ],
+        "canonicalArgvDigestMustMatch": "ae3582f0603a9028613a874859974617281750628e33e71080a70c308bfc105f",
+        "envRequired": ["CAMP01_ARTIFACT_DIR=<fresh dir>", "CAMP01_RUN_ID=camp01-<32 lowercase hex chars>", "CAMP01_INVOCATION_ID=camp-01g-mech-bay-browser (required for the reports/mech-bay-authority.json reporter artifact)"],
+        "expectedExit": 0,
+        "expectedAssertions": "all 8 camp-01g assertions true (see frozenContractRow.assertions)",
+        "reporterNote": "Unlike camp-01a through camp-01f, this row's browser leg must also satisfy a reporterContracts entry (gReporters) -- normalize the Playwright attachment into reports/mech-bay-authority.json with requiredTestIds/allowedStatuses/completeObservationSet all matching, not just get a green exit code.",
+        "browserLegNote": "All 5 tests in campaign-customizer-handoff.spec.ts run (not just the cold-reload one) since the frozen row targets the whole file, not a single --grep. Per crossNodeCoordinationRisk, no static evidence points to a grants-403-style failure in this file, but that has not been live-verified this session -- budget for the possibility that the run surfaces a NEW, previously-undocumented failure the way camp01bc's run did for its own siblings."
+      },
+      "nonClaims": [
+        "Does NOT close roadmap task 7.1's receipt clause -- the controller write/validate invocations the task text names are not run.",
+        "Does NOT produce a controller-recognized durable receipt directory under .sisyphus/evidence/playtest/camp01g-mech-bay-<sha>/.",
+        "Does NOT satisfy or attempt to satisfy githubReviewGateG1.",
+        "Does NOT modify resolveMechBayUnit.ts, MechBay.tsx, mech-bay.tsx, missionReadinessProjection.ts, canonicalCatalogAdmission.ts, or listCampaignSavedDesigns.ts.",
+        "Does NOT independently backfill R2.camp-6's own missing admission brief -- this brief's predecessorClosures.r2camp6 section is a same-session convenience check, not a substitute for a dedicated R2.camp-6 brief with its own full source/test verification."
+      ],
+      "fileDisjointParallelizableWith": [
+        "none in this node -- zero product-file footprint; safe to run in parallel with any other roadmap node's slice, though it contends for local build/Playwright resources with any concurrent camp-0x or R2.combat browser-leg receipt run -- avoid running those concurrently on the same machine"
+      ]
+    },
+    {
+      "id": "SLICE-2",
+      "priority": 2,
+      "title": "(Blocked, do not start) camp-01g controller-registered reviewed-head receipt",
+      "behaviour": "Run `npm run qc:camp01-authority-receipt:write -- --wave=camp-01g ...` and `:validate ... --mode=reviewed-head` for real, registering a durable receipt the controller's own readIndex() recognizes.",
+      "filesChanged": 0,
+      "blocker": "controllerPredecessorGate: camp-01f (and transitively camp-01e/d/c/b/a/00) has no controller-recognized exact-main receipt + cleanup record yet. This slice cannot proceed until the predecessor chain closes through the controller, which is itself owner-blocked on githubReviewGateG1 all the way down. Do not attempt SLICE-2 before that predecessor chain exists, or the controller will fail fast with 'predecessor receipt missing: camp-01f'.",
+      "fileDisjointParallelizableWith": []
+    },
+    {
+      "id": "SLICE-3",
+      "priority": 3,
+      "title": "(Blocked, external) camp-01g exact-main PR-provenanced receipt and roadmap task 7.1 closure",
+      "behaviour": "After a real product/spec PR pair exists for the (already-shipped) camp-01g code and passes the controller's reviewed-head mode, merge with a real non-author APPROVED review, then rerun the controller in exact-main mode.",
+      "blocker": "githubReviewGateG1 -- structurally unsatisfiable with one repository collaborator (re-verified live this session). No agent session can produce a second collaborator's approval.",
+      "fileDisjointParallelizableWith": []
+    }
+  ],
+  "dependencySummary": {
+    "onR2camp6": "R2.camp-7 depends on R2.camp-6 twice over: (a) the roadmap edge dependsOn:[R2.camp-6], and (b) the frozen camp-01g WAVE_CONTRACTS row's own predecessors:[camp-01f], enforced by the controller's durable-index predecessor check. No R2.camp-6 admission brief exists yet (a gap this brief flags and partially backfills); this session's own independent check found camp-01f's product code real/merged/self-reviewed (PR #1239) with no controller-recognized receipt, matching every other predecessor.",
+    "whatCampSevenCanDeliverUnderTheOwnerGate": "A command-level, evidence-only receipt (SLICE-1) proving the already-shipped camp-01g code (real, merged, on origin/main via PR #1240/#1242) still passes its frozen 1-file jest suite, its readiness-stable command-screen-slice run, AND its single-spec Playwright browser leg (with the required reports/mech-bay-authority.json reporter artifact) at exact-main, with the same 8/8 assertion tally the wave contract requires. This mirrors what camp00-receipt-run-main and the recommended R2.camp-1 through R2.camp-5 SLICE-1s already established as the pattern for this entire chain, with the added wrinkle of camp-01g's own reporter-normalization requirement.",
+    "whatStaysBlocked": "Everything past command-level evidence: the controller-registered receipt (needs camp-01a through camp-01f's own controller receipts first, transitively needing camp-00's), and any real PR closure of roadmap task 7.1 (needs a second GitHub collaborator's non-author APPROVED review, soloException=false, structurally absent today -- now demonstrated unsatisfied for the sixth-documented (seventh counting camp-01f) consecutive sub-wave by PR #1240/#1242's own zero-review history).",
+    "downstreamImpact": "R2.camp-8 (three-witness acceptance, CAMP-01H) and R2.combat-browser both list R2.camp-7 as a hard dependency; R9.roster-damage also depends on R2.camp-7. None of those three can be admitted with a satisfied dependency edge until R2.camp-7 itself reaches at least the same evidence tier this brief recommends (SLICE-1), and R2.camp-8's own frozen camp-01h row additionally lists 'camp-01g' as one of its OWN predecessors -- so the controller-registered-tier blocker on camp-01g propagates directly into camp-01h's own eligibility, independent of camp-01h's other predecessors (proof-02-triage, proof-02-required-repairs, camp-01h-required-repairs)."
+  },
+  "productionBrowserRunRequired": true,
+  "recommendedFirstSlice": "SLICE-1",
+  "summary": "R2.camp-7's single taskKey (7.1, CAMP-01G: source-by-ref Mech Bay resolution for unitSource=custom roster entries, with no stock/canonical fallback, no hidden unresolved rows, and a cold-reload e2e extension) is ALREADY IMPLEMENTED and already covered by the exact jest file plus e2e spec the frozen camp-01g contract row names, verified by direct source and test-file reads against origin/main at 293d21bb0e3 (drift-checked byte-identical against the pinned worktree's 1e43090c505f on every cited file). resolveMechBayUnit.ts's resolveMechBayLoadout() looks up unitRef against a saved-design authority map for any custom-source unit, never falls back to the canonical/stock catalog, keeps an unresolved entry visible (never filtered) with its cached tonnage and an explicit unresolved marker, and reports BV only when the saved design itself supplies one. MechBay.tsx renders that unresolved state visibly rather than hiding the row. The cold-reload e2e scenario (campaign-customizer-handoff.spec.ts:528-627) proves this live in a real browser through an actual page.reload(), including a genuine delete-then-reload unresolved-path proof -- gap NONE FOUND for the literal task text. One nuance flagged rather than a gap: the delta spec's 'blocks launch side effects for unresolved custom units' scenario is satisfied by the PRE-EXISTING camp-01a/camp-01d canonicalCatalogAdmission.ts guard (which blocks ALL custom-source units unconditionally), not by any readiness-aware logic inside camp-01g's own files -- camp-01g's own frozen tests do not themselves assert launch-blocking. This is the sixth documented (seventh counting an independently-verified but previously-brief-less camp-01f) consecutive CAMP-01 sub-wave whose archived child change (2026-08-20-resolve-saved-custom-units-in-mech-bay) makes an affirmative but unverifiable completion claim citing a council-review document (2026-08-12) that does not exist on origin/main; camp-01g's product PRs #1240/#1242 are real and merged (mergeCommit d79b04efb636, confirmed an ancestor of origin/main), but -- like every predecessor -- self-authored, self-merged, with zero recorded GitHub reviews, so the claimed 'durable reviewed-head + exact-main + cleanup receipts' were never produced inside this repository (zero camp01f/camp01g directories exist anywhere in the durable evidence tree or git history; a separate evidence file's claim that such receipts exist in an out-of-repo operator clone is flagged as unverified and not accepted). A genuinely new finding for this node: the grants-403 blocker that stalls camp-01b/c/d's shared verify:qc:coop-campaign-journey command does NOT appear to apply to camp-01g's own frozen row, since camp-01g's browser leg is a direct single-spec run of campaign-customizer-handoff.spec.ts, which has no blanket console-error assertion and never touches the /api/campaigns/[id]/grants endpoint (an inference from static reads, not yet live-verified). No R2.camp-6 admission brief exists yet; this session independently backfilled its essentials (real, merged, self-reviewed PR #1239; no controller receipt) to confirm the predecessor chain's shape but did not perform a full source/test audit of that node. The achievable next step is SLICE-1: a command-level exact-main receipt run reproducing all three frozen commandSequence entries plus the mech-bay-authority reporter normalization, mirroring the pattern already established for camp-00 through camp-01f. Task 7.1's controller-registered and PR-provenanced receipt tiers remain blocked on the identical two structural gates every predecessor in this chain hits: the predecessor chain (camp-01f, and transitively camp-01e/d/c/b/a/00) has no controller-recognized receipt yet, and the single-collaborator githubReviewGate (soloException=false, re-verified live this session via `gh api .../collaborators` and `gh api .../branches/main/protection`) is structurally unsatisfiable in an agent session."
+}

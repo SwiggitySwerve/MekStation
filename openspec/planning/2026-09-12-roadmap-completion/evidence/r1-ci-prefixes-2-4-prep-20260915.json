@@ -1,0 +1,1292 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "r1-ci-prefixes-2-4-prep-20260915",
+  "capturedAt": "2026-09-15",
+  "scope": "R1.ci capped prefixes 2, 3 and 4 for openspec/changes/add-customizer-pr-regression-gate. Prepared in isolated worktrees; nothing was pushed, merged, or opened as a pull request. The root checkout working tree was read only and left untouched (162 dirty paths before and after).",
+  "supersedes": "openspec/planning/2026-09-12-roadmap-completion/evidence/r1-ci-workflow-prep-20260915.json (this record rebases that sibling prefix-2 fragment onto current main, extends it to the full prefix-2 scope, and completes prefixes 3 and 4)",
+  "packageOnMain": {
+    "question": "Does openspec/changes/add-customizer-pr-regression-gate exist on origin/main, and does openspec/active-change-ledger.json list it?",
+    "packageExistsOnMain": false,
+    "ledgerListsItOnMain": false,
+    "commands": [
+      {
+        "argv": [
+          "git",
+          "ls-tree",
+          "-r",
+          "--name-only",
+          "origin/main",
+          "--",
+          "openspec/changes/add-customizer-pr-regression-gate/"
+        ],
+        "exitCode": 0,
+        "stdout": "(empty)"
+      },
+      {
+        "argv": [
+          "git",
+          "show",
+          "origin/main:openspec/active-change-ledger.json"
+        ],
+        "exitCode": 0,
+        "grep": "customizer-pr-regression",
+        "matches": 0
+      }
+    ],
+    "ledgerEntriesOnMain": 12,
+    "ledgerEntriesAfterPrefix2": 13,
+    "note": "The package is entirely new to main; prefix 2 therefore carries all six package files plus the single ledger addition."
+  },
+  "baseDrift": {
+    "siblingBaseSha": "c3b4cc1e3ace35ff95b7999d9680a5d657ca344f",
+    "siblingCommitSha": "1c7b8298cb5b948b3c030a4e0bcff6a60ef1a33a",
+    "originMainAtStart": "13e4b9ea1c3d37c231eb21d0e977c3eeaa7593d5",
+    "action": "git rebase origin/main in the existing worktree; the sibling commit replayed cleanly to 6e21b530bb58de0cadbaec82d53a9d31195ece43 (no conflict: main had only advanced openspec ledger/archive and planning-evidence paths).",
+    "reasonRebaseWasRequired": "Before the rebase, git diff --shortstat origin/main reported 8 files / 101 lines because the stale base still carried the repair-equipment-catalog package that #1670 archived. Measuring the cap against a stale base would have been wrong in both directions."
+  },
+  "worktrees": {
+    "prep": {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/ci-customizer-gate-20260915",
+      "hasNodeModules": false,
+      "statusPorcelainAtStart": "empty",
+      "headAtStart": "1c7b8298cb5b948b3c030a4e0bcff6a60ef1a33a",
+      "branchAtStart": "codex/roadmap-ci-customizer-gate-20260915"
+    },
+    "gateRunner": {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/archive-original-main-proof",
+      "hasNodeModules": true,
+      "headRecordedBeforeUse": "5b229be21e87815f10ce6521dda77b52eef75e3c",
+      "statusPorcelainBeforeUse": "empty",
+      "method": "git checkout --detach <prefix commit> per gate wave",
+      "headRestoredAfter": "5b229be21e87815f10ce6521dda77b52eef75e3c",
+      "statusPorcelainAfterRestore": "empty",
+      "packageJsonIdenticalToPrefixCommits": true,
+      "yamlDevDependencyResolved": "2.9.0"
+    }
+  },
+  "prefixes": [
+    {
+      "id": 2,
+      "branch": "codex/roadmap-ci-customizer-gate-20260915",
+      "base": {
+        "ref": "origin/main",
+        "sha": "13e4b9ea1c3d37c231eb21d0e977c3eeaa7593d5"
+      },
+      "commits": [
+        {
+          "sha": "6e21b530bb58de0cadbaec82d53a9d31195ece43",
+          "subject": "ci: activate customizer regression gate in pr-checks and nightly",
+          "origin": "sibling lane commit 1c7b8298c, rebased unchanged onto current main"
+        },
+        {
+          "sha": "b3077f197f0844da8afaa80e8ecd30ae662a9fd5",
+          "subject": "ci(qc): wire job-scoped contract modules into the OpenSpec CI validator",
+          "origin": "this lane"
+        }
+      ],
+      "tipSha": "b3077f197f0844da8afaa80e8ecd30ae662a9fd5",
+      "size": {
+        "filesChanged": 10,
+        "fileCap": 15,
+        "insertions": 373,
+        "deletions": 123,
+        "changedLines": 496,
+        "changedLineCap": 500,
+        "withinCap": true,
+        "headroomLines": 4,
+        "splitRequired": false,
+        "command": [
+          "git",
+          "diff",
+          "--shortstat",
+          "origin/main",
+          "b3077f197"
+        ]
+      },
+      "files": [
+        {
+          "path": ".github/workflows/nightly-validation.yml",
+          "insertions": 18,
+          "deletions": 1,
+          "sha256": "4ee25555fa14b3c23ee5d43ca08093d3166d96216b7eec3a6fab90e19acbcfb8"
+        },
+        {
+          "path": ".github/workflows/pr-checks.yml",
+          "insertions": 76,
+          "deletions": 0,
+          "sha256": "16e06b1fb57a722531666bd849ec75e98da95413a2ad8467e208f86e7cc538b8"
+        },
+        {
+          "path": "openspec/active-change-ledger.json",
+          "insertions": 6,
+          "deletions": 0,
+          "sha256": "c5e2ae45824db41594e574e94649fcd413a35d9d9c78ac647f65e3bea13018c3"
+        },
+        {
+          "path": "openspec/changes/add-customizer-pr-regression-gate/.openspec.yaml",
+          "insertions": 2,
+          "deletions": 0,
+          "sha256": "a4ed664eb8476e85e347872f52baefe664358318725d07ee4e28ea918d6fd9d4"
+        },
+        {
+          "path": "openspec/changes/add-customizer-pr-regression-gate/README.md",
+          "insertions": 3,
+          "deletions": 0,
+          "sha256": "8e1bcc8db36f3c7d16dbad9ad55658da6b31227c03f0854be3e351433dff2937"
+        },
+        {
+          "path": "openspec/changes/add-customizer-pr-regression-gate/design.md",
+          "insertions": 56,
+          "deletions": 0,
+          "sha256": "5da6d4cd82089b934074289b47a384086d86fa7d9fe89c2a6d77717053b93de0"
+        },
+        {
+          "path": "openspec/changes/add-customizer-pr-regression-gate/proposal.md",
+          "insertions": 35,
+          "deletions": 0,
+          "sha256": "c28f049fb79c03eb43f21ab0995fac2b0b4412feee68e47934fc925fce5074c7"
+        },
+        {
+          "path": "openspec/changes/add-customizer-pr-regression-gate/specs/e2e-testing/spec.md",
+          "insertions": 116,
+          "deletions": 0,
+          "sha256": "b50add408fe533e0305c6ff5a5e4b9e14601ed244e8cec61ee96d437ed0e74ba"
+        },
+        {
+          "path": "openspec/changes/add-customizer-pr-regression-gate/tasks.md",
+          "insertions": 37,
+          "deletions": 0,
+          "sha256": "d49274d0282e40a51dc89c22870ca745917f2548bfa037dca7426f1c2ede6288"
+        },
+        {
+          "path": "scripts/qc/validate-openspec-ci-quality.mjs",
+          "insertions": 24,
+          "deletions": 122,
+          "sha256": "c034c606e510348fbfc32f0ef87c0e27536c1ceec8e31d5de7da27808dc2ef86"
+        }
+      ],
+      "packageFileProvenance": "The six package files were copied byte-for-byte from the untracked root folder E:/Projects/MekStation/openspec/changes/add-customizer-pr-regression-gate/ and verified with diff -r (identical) plus per-file sha256; no root file was modified.",
+      "ledgerBoundary": {
+        "honored": true,
+        "detail": "Only the add-customizer-pr-regression-gate entry was appended (6 insertions, 0 deletions). The root checkout dirty ledger diff also removes establish-battlemech-chassis-index, add-customizer-edit-recovery and repair-equipment-catalog and rewrites the repair-record-sheet-rendering reason; none of that was copied. establish-battlemech-chassis-index and repair-equipment-catalog are already absent from main, archived by #1669 and #1670.",
+        "appendedEntry": {
+          "name": "add-customizer-pr-regression-gate",
+          "status": "in-progress",
+          "lastReviewed": "2026-09-12"
+        }
+      },
+      "validatorWiring": {
+        "importsCiContracts": true,
+        "importsWorkflowContracts": true,
+        "symbolsImported": [
+          "requiredAggregatorNeeds",
+          "requiredPackageScripts",
+          "requiredProtectedContexts",
+          "requiredWorkflowJobContracts",
+          "requiredWorkflowTokens",
+          "parseWorkflowJobs",
+          "validateJobTokens"
+        ],
+        "localDuplicatesDeleted": [
+          "requiredProtectedContexts",
+          "requiredAggregatorNeeds",
+          "requiredWorkflowTokens",
+          "requiredPackageScripts",
+          "workflowJobBlock",
+          "parseAggregatorNeeds"
+        ],
+        "aggregatorMembers": 19,
+        "aggregatorMembersObserved": "aggregatorNeeds=19/19 in the validator summary line, customizer-regressions included",
+        "jobScopedContracts": "workflowJobContracts=1/1 (customizer-regressions-gate against the parsed customizer-regressions job)",
+        "manifestField": "workflowJobContracts added to the --json manifest and to the human summary line"
+      },
+      "gates": [
+        {
+          "name": "openspec CI validator",
+          "argv": [
+            "npm",
+            "run",
+            "qc:openspec-ci:validate"
+          ],
+          "resolvedArgv": [
+            "node",
+            "scripts/qc/validate-openspec-ci-quality.mjs"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "workflowContracts": "8/8",
+            "workflowJobContracts": "1/1",
+            "aggregatorNeeds": "19/19",
+            "protectedContexts": 4,
+            "packageScripts": "3/3",
+            "activeOpenSpecChanges": 13,
+            "accountedActiveOpenSpecChanges": 13,
+            "errors": 0
+          },
+          "log": {
+            "path": ".sisyphus/roadmap-completion-20260912/ci-prefixes-2-4-20260915/p2-qc-openspec-ci-validate.log",
+            "sha256": "b57c56c8aa5f6220e20203254be8c1823e0bec263085bfdcad085cb9021bba9e"
+          }
+        },
+        {
+          "name": "validator negative probe (teeth check; diagnostic, not a required gate)",
+          "argv": [
+            "node",
+            "scripts/qc/validate-openspec-ci-quality.mjs"
+          ],
+          "env": {
+            "MEKSTATION_PR_WORKFLOW_PATH": "<scratchpad copy of pr-checks.yml with --retries=0 rewritten to --retries=1>"
+          },
+          "exitCode": 1,
+          "expectedExitCode": 1,
+          "counts": {
+            "errors": 2
+          },
+          "errorCodes": [
+            "workflow-job-token-missing",
+            "workflow-job-condition-invalid"
+          ],
+          "purpose": "Proves the newly wired job-scoped contract is not vacuously passing: one weakened flag inside the customizer-regressions job fails the validator. Before this prefix the same mutation passed, because the validator never read requiredWorkflowJobContracts. The mutated file lived only in the session scratchpad; no worktree was dirtied.",
+          "log": {
+            "path": ".sisyphus/roadmap-completion-20260912/ci-prefixes-2-4-20260915/p2-negative-probe-retries.log",
+            "sha256": "8dbcfaea25b8d23809f641bb0592cebceb6035e49a5840417de0c5a3714e9ffd"
+          }
+        },
+        {
+          "name": "focused jest (baseline suite present on main)",
+          "argv": [
+            "node",
+            "node_modules/jest/bin/jest.js",
+            "--runInBand",
+            "--runTestsByPath",
+            "scripts/__tests__/openspec-ci-quality-qc.test.ts"
+          ],
+          "env": {
+            "NODE_OPTIONS": "--max-old-space-size=4096"
+          },
+          "exitCode": 0,
+          "counts": {
+            "suites": 1,
+            "tests": 5,
+            "failed": 0
+          },
+          "note": "166-line baseline file; the expanded suites arrive in prefixes 3 and 4.",
+          "log": {
+            "path": ".sisyphus/roadmap-completion-20260912/ci-prefixes-2-4-20260915/p2-jest-baseline.log",
+            "sha256": "07a5457daf070710529024bf7e5d5e9e6741e59204d12b2e6d1757eec26b52ae"
+          }
+        },
+        {
+          "name": "openspec strict validation",
+          "argv": [
+            "npx",
+            "openspec",
+            "validate",
+            "--all",
+            "--strict"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "passed": 233,
+            "failed": 0,
+            "items": 233
+          },
+          "log": {
+            "path": ".sisyphus/roadmap-completion-20260912/ci-prefixes-2-4-20260915/p2-openspec-validate.log",
+            "sha256": "cc62e9d81a0558537872348a883222aa66d0b29fb098efde1470c7e1e39894c7"
+          }
+        },
+        {
+          "name": "spec purpose strict",
+          "argv": [
+            "npm",
+            "run",
+            "spec:purpose:validate:strict"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "filesScanned": 220,
+            "errors": 0,
+            "trackedSourceOfTruthDebt": 0
+          },
+          "log": {
+            "path": ".sisyphus/roadmap-completion-20260912/ci-prefixes-2-4-20260915/p2-spec-purpose.log",
+            "sha256": "629026f25215446af06f7491ea5757f56e6f66d00cb70d6d432438cb6cb9adf7"
+          }
+        },
+        {
+          "name": "terminology strict",
+          "argv": [
+            "npm",
+            "run",
+            "terminology:validate:strict"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "filesScanned": 320,
+            "violations": 0
+          },
+          "log": {
+            "path": ".sisyphus/roadmap-completion-20260912/ci-prefixes-2-4-20260915/p2-terminology.log",
+            "sha256": "8e14ee59e26105670e77a02cd1e8c7a74248e84db40c7b667abe5fc4d1414453"
+          }
+        },
+        {
+          "name": "format check (changed source file)",
+          "argv": [
+            "npx",
+            "oxfmt",
+            "--check",
+            "scripts/qc/validate-openspec-ci-quality.mjs"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "files": 1,
+            "misformatted": 0
+          },
+          "note": "The other nine changed files are YAML, JSON and Markdown, which oxfmt does not process.",
+          "log": {
+            "path": ".sisyphus/roadmap-completion-20260912/ci-prefixes-2-4-20260915/p2-oxfmt.log",
+            "sha256": "924a1f5484ec7853ed5674da715844f47e8a95901003ce4c8f6d6307388bb858"
+          }
+        },
+        {
+          "name": "lint",
+          "argv": [
+            "npm",
+            "run",
+            "lint"
+          ],
+          "resolvedArgv": [
+            "oxlint"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "files": 3795,
+            "errors": 0,
+            "warnings": 84
+          },
+          "note": "The 84 warnings are pre-existing repository-wide (max-lines-per-function and similar); none are attributable to this prefix.",
+          "log": {
+            "path": ".sisyphus/roadmap-completion-20260912/ci-prefixes-2-4-20260915/p2-lint.log",
+            "sha256": "a70f789b72ecf3b572fb08d773497ec9ccddc0a669eacd368f3873ecc8fa87da"
+          }
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "branch": "codex/roadmap-ci-quality-test-20260915",
+      "base": {
+        "ref": "codex/roadmap-ci-customizer-gate-20260915",
+        "sha": "b3077f197f0844da8afaa80e8ecd30ae662a9fd5"
+      },
+      "stackedOnPrefix2": true,
+      "commits": [
+        {
+          "sha": "1d38c4cee1a4c0dec8d5b6ddda4d35eb4be5da13",
+          "subject": "test(qc): cover the job-scoped OpenSpec CI contracts"
+        }
+      ],
+      "tipSha": "1d38c4cee1a4c0dec8d5b6ddda4d35eb4be5da13",
+      "size": {
+        "filesChanged": 1,
+        "fileCap": 15,
+        "insertions": 414,
+        "deletions": 0,
+        "changedLines": 414,
+        "changedLineCap": 500,
+        "withinCap": true,
+        "splitRequired": false,
+        "command": [
+          "git",
+          "diff",
+          "--numstat",
+          "b3077f197",
+          "1d38c4cee"
+        ]
+      },
+      "files": [
+        {
+          "path": "scripts/__tests__/openspec-ci-quality-qc.test.ts",
+          "lines": 580,
+          "sha256": "ed52fabd4c9eb830c5137c965d8249b563e2c929b8cc3893fd9a5829f2aa7646"
+        }
+      ],
+      "sourceVerification": {
+        "source": ".sisyphus/roadmap-completion-20260912/ci-recovery/27-cached.ts",
+        "expectedSha256": "ed52fabd4c9eb830c5137c965d8249b563e2c929b8cc3893fd9a5829f2aa7646",
+        "observedSha256": "ed52fabd4c9eb830c5137c965d8249b563e2c929b8cc3893fd9a5829f2aa7646",
+        "match": true,
+        "placedBytesIdentical": true,
+        "trimmedOrWeakened": false
+      },
+      "gates": [
+        {
+          "name": "focused jest against the wired validator",
+          "argv": [
+            "node",
+            "node_modules/jest/bin/jest.js",
+            "--runInBand",
+            "--runTestsByPath",
+            "scripts/__tests__/openspec-ci-quality-qc.test.ts"
+          ],
+          "env": {
+            "NODE_OPTIONS": "--max-old-space-size=4096"
+          },
+          "exitCode": 0,
+          "counts": {
+            "suites": 1,
+            "tests": 28,
+            "failed": 0
+          },
+          "note": "5 pre-existing cases plus 23 customizer browser regression gate cases. Every case passed on the first run against the prefix-2 validator; no validator change was needed and no test was edited, trimmed, or weakened.",
+          "log": {
+            "path": ".sisyphus/roadmap-completion-20260912/ci-prefixes-2-4-20260915/p3-jest.log",
+            "sha256": "9705ea015494f036d176d0c2c03294f4b386cafa3129f351f7171e5711c9f035"
+          }
+        },
+        {
+          "name": "format check",
+          "argv": [
+            "npx",
+            "oxfmt",
+            "--check",
+            "scripts/__tests__/openspec-ci-quality-qc.test.ts"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "files": 1,
+            "misformatted": 0
+          },
+          "log": {
+            "path": ".sisyphus/roadmap-completion-20260912/ci-prefixes-2-4-20260915/p3-oxfmt.log",
+            "sha256": "3bda8ab55470711300eecf65a35afdedc4e256e85c9c591b10fdb5a7284e77cf"
+          }
+        },
+        {
+          "name": "whitespace check",
+          "argv": [
+            "git",
+            "diff",
+            "--check",
+            "--",
+            "scripts/__tests__/openspec-ci-quality-qc.test.ts"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "errors": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "branch": "codex/roadmap-ci-quality-mutations-20260915",
+      "base": {
+        "ref": "codex/roadmap-ci-quality-test-20260915",
+        "sha": "1d38c4cee1a4c0dec8d5b6ddda4d35eb4be5da13"
+      },
+      "stackedOnPrefix3": true,
+      "commits": [
+        {
+          "sha": "ba8fb32b7913d1890fb85a053f8cdf037e21f542",
+          "subject": "test(qc): reject nine further customizer gate weakenings"
+        }
+      ],
+      "tipSha": "ba8fb32b7913d1890fb85a053f8cdf037e21f542",
+      "size": {
+        "filesChanged": 1,
+        "fileCap": 15,
+        "insertions": 95,
+        "deletions": 0,
+        "changedLines": 95,
+        "changedLineCap": 500,
+        "withinCap": true,
+        "splitRequired": false,
+        "command": [
+          "git",
+          "diff",
+          "--numstat",
+          "1d38c4cee",
+          "ba8fb32b7"
+        ]
+      },
+      "files": [
+        {
+          "path": "scripts/__tests__/openspec-ci-quality-qc.test.ts",
+          "lines": 675,
+          "sha256": "37cc951ad23379e647b2217750932f18c1843c247ee1f4a3e7e36da79b97b026"
+        }
+      ],
+      "sourceVerification": {
+        "source": ".sisyphus/roadmap-completion-20260912/ci-recovery/ba-formatted-via-stdin.ts",
+        "locatedVia": "openspec/planning/2026-09-12-roadmap-completion/evidence/ci-test-source-recovery.json evidence[5]",
+        "expectedSha256": "37cc951ad23379e647b2217750932f18c1843c247ee1f4a3e7e36da79b97b026",
+        "observedSha256": "37cc951ad23379e647b2217750932f18c1843c247ee1f4a3e7e36da79b97b026",
+        "match": true,
+        "placedBytesIdentical": true,
+        "trimmedOrWeakened": false
+      },
+      "gates": [
+        {
+          "name": "focused jest against the wired validator",
+          "argv": [
+            "node",
+            "node_modules/jest/bin/jest.js",
+            "--runInBand",
+            "--runTestsByPath",
+            "scripts/__tests__/openspec-ci-quality-qc.test.ts"
+          ],
+          "env": {
+            "NODE_OPTIONS": "--max-old-space-size=4096"
+          },
+          "exitCode": 0,
+          "counts": {
+            "suites": 1,
+            "tests": 37,
+            "failed": 0
+          },
+          "expectedTests": 37,
+          "matchesExpected": true,
+          "log": {
+            "path": ".sisyphus/roadmap-completion-20260912/ci-prefixes-2-4-20260915/p4-jest.log",
+            "sha256": "591ba634f8054361acab194128159caabe67987232b67181f7d10f10366d58ec"
+          }
+        },
+        {
+          "name": "format check",
+          "argv": [
+            "npx",
+            "oxfmt",
+            "--check",
+            "scripts/__tests__/openspec-ci-quality-qc.test.ts"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "files": 1,
+            "misformatted": 0
+          },
+          "log": {
+            "path": ".sisyphus/roadmap-completion-20260912/ci-prefixes-2-4-20260915/p4-oxfmt.log",
+            "sha256": "1693835f91a204b505501fd70511c39f8d0a51c05107dd6208461e0ca12a7370"
+          }
+        },
+        {
+          "name": "whitespace check",
+          "argv": [
+            "git",
+            "diff",
+            "--check",
+            "--",
+            "scripts/__tests__/openspec-ci-quality-qc.test.ts"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "errors": 0
+          }
+        }
+      ]
+    }
+  ],
+  "validatorDefects": {
+    "found": 0,
+    "detail": "The root draft of scripts/qc/validate-openspec-ci-quality.mjs applied unmodified and needed no correction. Checked by hand: (a) it imports all five data exports from openspec-ci-contracts.mjs and both functions from openspec-workflow-contracts.mjs; (b) it deletes the four now-duplicated local tables and the two regex helpers workflowJobBlock and parseAggregatorNeeds with no remaining references; (c) aggregator needs are read from the parsed YAML job rather than a needs: [ ... ] regex, with a scalar-needs normalisation branch the regex form did not have; (d) workflowJobContracts is surfaced in both the --json manifest and the human summary line; (e) the yaml runtime dependency the new module needs is already a resolved devDependency at 2.9.0, merged with the contract modules in #1647.",
+    "observations": [
+      "The wiring changes the validator from substring matching to parsed-YAML job scoping only for requiredWorkflowJobContracts; requiredWorkflowTokens keeps its loose whole-file matching by design, as the contract module comment states.",
+      "parseWorkflowJobs pushes workflow-yaml-invalid and returns an empty jobs map on a parse failure, so a malformed pr-checks.yml surfaces as an explicit error rather than a silent pass. Confirmed by reading the module; not separately probed this session.",
+      "Before this prefix the two contract modules were dead code on main: the ci-module-independent-review-20260912.json finding moduleWiringAbsent is now closed by commit b3077f197."
+    ]
+  },
+  "mergeOrdering": {
+    "prefix1": {
+      "status": "merged",
+      "pr": 1647,
+      "note": "scripts/qc/openspec-ci-contracts.mjs and openspec-workflow-contracts.mjs; dead code on main until prefix 2 imports them."
+    },
+    "prefix2": {
+      "gatedOn": [
+        "PR #1667",
+        "12-case browser proof on exact main"
+      ],
+      "mustLandBefore": [
+        "prefix 3",
+        "prefix 4"
+      ]
+    },
+    "prefix3": {
+      "gatedOn": [
+        "prefix 2"
+      ]
+    },
+    "prefix4": {
+      "gatedOn": [
+        "prefix 3"
+      ]
+    },
+    "rule": "Prefixes 3 and 4 must not merge before prefix 2: their suites assert against requiredWorkflowJobContracts, which only takes effect once the validator imports the contract modules. Prefix 3 and prefix 4 carry no additional external gate of their own beyond prefix 2 landing."
+  },
+  "blockers": [
+    {
+      "id": "B1-1667-record-sheet-case-count",
+      "severity": "blocking for prefix 2",
+      "statement": "The package spec delta requires e2e/customizer-record-sheet-rendering.spec.ts to carry 6 cases (twelve total across the three files) plus the print / blocked-popup / canvas-failure / PDF-page-structure coverage. On origin/main 13e4b9ea1 that file has 2 cases; the other two files are at their required 3 and 3. The missing 4 cases are in PR #1667 (codex/roadmap-customizer-browser-20260912, state OPEN, mergedAt null). Verified by piping git show origin/main:<file> to grep -cE on the test( opener.",
+      "effect": "Prefix 2 must merge AFTER #1667. Until then the pr-checks.yml job comment (record sheets (6), edit recovery (3)), proposal.md, and the e2e-testing delta all describe a surface main does not have, and the job would execute 8 cases rather than the contracted 12.",
+      "correctsPriorEvidence": "r1-ci-workflow-prep-20260915.json recorded this gate as the three customizer e2e spec files do not yet exist on main. That wording is now stale: all three paths ARE on main, shipped by #1636. The live gate is the record-sheet case count, not file existence. The merge ordering it prescribed is unchanged and still correct."
+    },
+    {
+      "id": "B2-browser-proof-on-exact-main",
+      "severity": "blocking for prefix 2",
+      "statement": "Task 5.3 / 6.2 evidence (12/12 in about 69 seconds, .sisyphus/spec-reconciliation-20260912/browser-production-followups-final.log) was produced on 2026-09-12 against a dirty local checkout, not against exact current main. Playwright was explicitly out of scope this session, so no browser run was performed.",
+      "effect": "A 12-case production browser proof on exact main (in practice, main with #1667 merged) is still owed before prefix 2 is merge-ready."
+    },
+    {
+      "id": "B3-task-5.4-unchecked",
+      "severity": "open, not resolvable locally",
+      "statement": "tasks.md 5.4 (observe the Customizer Regressions check run on a real pull request and confirm the aggregator blocks on it) remains unchecked. It requires a push and an open PR, both out of scope here.",
+      "effect": "The package cannot be archived on prefix 2 alone."
+    },
+    {
+      "id": "B4-nightly-lane-uncontracted",
+      "severity": "informational",
+      "statement": "requiredWorkflowJobContracts covers pr-checks.yml only. The nightly-validation.yml e2e-full changes in prefix 2 carry no automated contract and are protected by review against design.md decisions 2 and 5 alone.",
+      "effect": "A future weakening of the nightly asset/build prerequisite would not be caught by npm run qc:openspec-ci:validate."
+    },
+    {
+      "id": "B5-cap-headroom",
+      "severity": "informational",
+      "statement": "Prefix 2 lands at 496 of 500 changed lines, 4 lines of headroom. Any further addition to this prefix forces a further stacked split.",
+      "effect": "No split was required this session. Nothing was trimmed or weakened to fit."
+    }
+  ],
+  "outOfScopeRespected": [
+    "no push",
+    "no merge",
+    "no PR",
+    "no root working-tree modification",
+    "no npm run build",
+    "no Playwright",
+    "no dependency install",
+    "no stash, reset --hard, clean, force or deletion"
+  ],
+  "finalStatus": "prefixes 2, 3 and 4 prepared, gated green locally, and committed on three stacked branches; all three remain unpushed. Prefix 2 is gated on PR #1667 plus a 12-case browser proof on exact main; prefixes 3 and 4 are gated only on prefix 2 landing.",
+  "revision-2": {
+    "capturedAt": "2026-09-15",
+    "trigger": "Independent review openspec/planning/2026-09-12-roadmap-completion/evidence/r1-ci-prefixes-2-4-review-20260915.json: prefix 2 APPROVE-WITH-REQUIRED-EDITS (RE-1), prefix 3 APPROVE, prefix 4 APPROVE-WITH-REQUIRED-EDITS (RE-2). Coordinator also directed a restack onto the new origin/main that carries merged PR #1667.",
+    "newBase": {
+      "ref": "origin/main",
+      "sha": "b39b8291706c36b9ad0c876a5e1b11e5b3612b7d",
+      "previousBase": "13e4b9ea1c3d37c231eb21d0e977c3eeaa7593d5",
+      "driftInTouchedPaths": {
+        "command": [
+          "git",
+          "diff",
+          "--stat",
+          "13e4b9ea1",
+          "origin/main",
+          "--",
+          "scripts/qc/",
+          ".github/workflows/",
+          "scripts/__tests__/",
+          "openspec/active-change-ledger.json"
+        ],
+        "result": "empty",
+        "meaning": "No file any of these three prefixes touches changed between the old and new base; the rebases were pure replays with no conflict."
+      }
+    },
+    "twelveCaseConfirmation": {
+      "question": "Does origin/main b39b82917 now carry the contracted twelve-case customizer surface (3 / 6 / 3)?",
+      "answer": "yes",
+      "method": "git show origin/main:<file> piped to grep -cE on the ^\\s*test\\( opener, per file",
+      "counts": {
+        "e2e/customizer-equipment-catalog.spec.ts": 3,
+        "e2e/customizer-record-sheet-rendering.spec.ts": 6,
+        "e2e/customizer-edit-recovery.spec.ts": 3,
+        "total": 12
+      },
+      "closesBlocker": "B1-1667-record-sheet-case-count",
+      "note": "PR #1667 is merged. The record-sheet pack moved from 2 cases to 6, so the pr-checks.yml job comment, proposal.md and the e2e-testing delta now describe the surface main actually has."
+    },
+    "requiredEditsApplied": [
+      {
+        "id": "RE-1",
+        "prefix": 2,
+        "severity": "minor",
+        "action": "Removed openspec/changes/add-customizer-pr-regression-gate/README.md (git rm) and amended it out of the prefix-2 tip commit. .openspec.yaml is retained.",
+        "rationale": "The reviewer found zero precedent for a package README across 557 archived and 11 other active OpenSpec change packages, and its 3 lines duplicated the proposal opening sentence.",
+        "verification": [
+          {
+            "check": "file absent from the tracked tree",
+            "command": [
+              "git",
+              "ls-files",
+              "openspec/changes/add-customizer-pr-regression-gate/"
+            ],
+            "result": "5 files: .openspec.yaml, design.md, proposal.md, specs/e2e-testing/spec.md, tasks.md"
+          },
+          {
+            "check": "nothing referenced the removed file",
+            "command": [
+              "grep",
+              "-rn",
+              "add-customizer-pr-regression-gate/README"
+            ],
+            "result": "no references"
+          },
+          {
+            "check": "corroborated by the terminology scanner file count",
+            "result": "320 files at revision 1, 319 files at revision 2 — exactly one fewer"
+          }
+        ],
+        "capEffect": "Prefix 2 drops from 10 files / 496 changed lines to 9 files / 493, lifting headroom from 4 lines to 7 as the reviewer predicted."
+      },
+      {
+        "id": "RE-2",
+        "prefix": 4,
+        "severity": "moderate",
+        "action": "Rewrote the prefix-4 commit message body to enumerate only the nine cases the commit actually adds, and removed the three unsupported claims.",
+        "claimsRemoved": [
+          "'a job-level if' — that case (rejects disabled job) is added by prefix 3, not prefix 4",
+          "'an unsafe run shell at workflow or job or step scope' — no such test exists in either prefix; the 675-line file contains no occurrence of 'shell'",
+          "'an artifact upload that drops its retention or paths' — no such test exists; the added upload case mutates the step's if:, and prefix 3's mutates its uses:"
+        ],
+        "newBodyEnumerates": [
+          "NEXT_PUBLIC_E2E_TEST flipped from 'true' to 'false' on the production build",
+          "timeout-minutes lowered from 20 to 19",
+          "job name changed from 'Customizer Regressions'",
+          "needs reduced from [detect-changes, install-deps] to [detect-changes]",
+          "skip step condition replaced with `if: false`",
+          "upload step condition reduced from failure() && (code || e2e) to bare failure()",
+          "setup step swapped from ./.github/actions/setup-node-and-install to actions/setup-node@v6",
+          "Playwright browser-cache step condition replaced with always()",
+          "strict asset validation and production build steps transposed, breaking the required in-job order"
+        ],
+        "verification": [
+          {
+            "check": "body matches the diff",
+            "method": "Re-read the +331..+409 it.each block on the rebased commit and enumerated its nine entries before writing the message."
+          },
+          {
+            "check": "reword did not change the tree",
+            "command": [
+              "git",
+              "diff",
+              "--stat",
+              "a52f8cc0d",
+              "06d65d2e3"
+            ],
+            "result": "empty"
+          }
+        ],
+        "subjectLineUnchanged": "test(qc): reject nine further customizer gate weakenings — the reviewer confirmed the 'nine' count is correct."
+      }
+    ],
+    "shaMap": [
+      {
+        "prefix": 2,
+        "branch": "codex/roadmap-ci-customizer-gate-20260915",
+        "commit": "sibling workflow activation",
+        "old": "6e21b530bb58de0cadbaec82d53a9d31195ece43",
+        "new": "1ba1a0d02",
+        "note": "replayed unchanged onto the new base"
+      },
+      {
+        "prefix": 2,
+        "branch": "codex/roadmap-ci-customizer-gate-20260915",
+        "commit": "validator wiring + package + ledger (tip)",
+        "old": "b3077f197f0844da8afaa80e8ecd30ae662a9fd5",
+        "intermediateAfterRebaseBeforeAmend": "b1108833a082f839e0829a4ee88095e0a4675e1f",
+        "new": "c3f2fc80e271c940d9d14730ec1eda9ffe21ba8d",
+        "change": "RE-1 README removal amended in"
+      },
+      {
+        "prefix": 3,
+        "branch": "codex/roadmap-ci-quality-test-20260915",
+        "commit": "recovered 580-line suite (tip)",
+        "old": "1d38c4cee1a4c0dec8d5b6ddda4d35eb4be5da13",
+        "new": "14a7a5b9bc2bfe615f378070baa96d96993cc84b",
+        "change": "restack only; message and bytes unchanged"
+      },
+      {
+        "prefix": 4,
+        "branch": "codex/roadmap-ci-quality-mutations-20260915",
+        "commit": "nine further mutations (tip)",
+        "old": "ba8fb32b7913d1890fb85a053f8cdf037e21f542",
+        "intermediateAfterRebaseBeforeAmend": "a52f8cc0d4e4bcda03e5c3e99465a719f1a53302",
+        "new": "06d65d2e3856b702fd4ab4effda7b3fad280f703",
+        "change": "RE-2 commit-message reword; tree identical"
+      }
+    ],
+    "prefixesAfterRevision": [
+      {
+        "id": 2,
+        "branch": "codex/roadmap-ci-customizer-gate-20260915",
+        "base": {
+          "ref": "origin/main",
+          "sha": "b39b8291706c36b9ad0c876a5e1b11e5b3612b7d"
+        },
+        "commits": [
+          "1ba1a0d02",
+          "c3f2fc80e271c940d9d14730ec1eda9ffe21ba8d"
+        ],
+        "tipSha": "c3f2fc80e271c940d9d14730ec1eda9ffe21ba8d",
+        "size": {
+          "filesChanged": 9,
+          "fileCap": 15,
+          "insertions": 370,
+          "deletions": 123,
+          "changedLines": 493,
+          "changedLineCap": 500,
+          "withinCap": true,
+          "headroomLines": 7,
+          "splitRequired": false
+        },
+        "files": [
+          {
+            "path": ".github/workflows/nightly-validation.yml",
+            "insertions": 18,
+            "deletions": 1,
+            "sha256": "4ee25555fa14b3c23ee5d43ca08093d3166d96216b7eec3a6fab90e19acbcfb8"
+          },
+          {
+            "path": ".github/workflows/pr-checks.yml",
+            "insertions": 76,
+            "deletions": 0,
+            "sha256": "16e06b1fb57a722531666bd849ec75e98da95413a2ad8467e208f86e7cc538b8"
+          },
+          {
+            "path": "openspec/active-change-ledger.json",
+            "insertions": 6,
+            "deletions": 0,
+            "sha256": "c5e2ae45824db41594e574e94649fcd413a35d9d9c78ac647f65e3bea13018c3"
+          },
+          {
+            "path": "openspec/changes/add-customizer-pr-regression-gate/.openspec.yaml",
+            "insertions": 2,
+            "deletions": 0,
+            "sha256": "a4ed664eb8476e85e347872f52baefe664358318725d07ee4e28ea918d6fd9d4"
+          },
+          {
+            "path": "openspec/changes/add-customizer-pr-regression-gate/design.md",
+            "insertions": 56,
+            "deletions": 0,
+            "sha256": "5da6d4cd82089b934074289b47a384086d86fa7d9fe89c2a6d77717053b93de0"
+          },
+          {
+            "path": "openspec/changes/add-customizer-pr-regression-gate/proposal.md",
+            "insertions": 35,
+            "deletions": 0,
+            "sha256": "c28f049fb79c03eb43f21ab0995fac2b0b4412feee68e47934fc925fce5074c7"
+          },
+          {
+            "path": "openspec/changes/add-customizer-pr-regression-gate/specs/e2e-testing/spec.md",
+            "insertions": 116,
+            "deletions": 0,
+            "sha256": "b50add408fe533e0305c6ff5a5e4b9e14601ed244e8cec61ee96d437ed0e74ba"
+          },
+          {
+            "path": "openspec/changes/add-customizer-pr-regression-gate/tasks.md",
+            "insertions": 37,
+            "deletions": 0,
+            "sha256": "d49274d0282e40a51dc89c22870ca745917f2548bfa037dca7426f1c2ede6288"
+          },
+          {
+            "path": "scripts/qc/validate-openspec-ci-quality.mjs",
+            "insertions": 24,
+            "deletions": 122,
+            "sha256": "c034c606e510348fbfc32f0ef87c0e27536c1ceec8e31d5de7da27808dc2ef86"
+          }
+        ],
+        "removedSinceRevision1": [
+          {
+            "path": "openspec/changes/add-customizer-pr-regression-gate/README.md",
+            "reason": "RE-1"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "branch": "codex/roadmap-ci-quality-test-20260915",
+        "base": {
+          "ref": "codex/roadmap-ci-customizer-gate-20260915",
+          "sha": "c3f2fc80e271c940d9d14730ec1eda9ffe21ba8d"
+        },
+        "tipSha": "14a7a5b9bc2bfe615f378070baa96d96993cc84b",
+        "size": {
+          "filesChanged": 1,
+          "fileCap": 15,
+          "insertions": 414,
+          "deletions": 0,
+          "changedLines": 414,
+          "changedLineCap": 500,
+          "withinCap": true,
+          "splitRequired": false
+        },
+        "files": [
+          {
+            "path": "scripts/__tests__/openspec-ci-quality-qc.test.ts",
+            "lines": 580,
+            "sha256": "ed52fabd4c9eb830c5137c965d8249b563e2c929b8cc3893fd9a5829f2aa7646"
+          }
+        ],
+        "bytesUnchangedAcrossRebase": true
+      },
+      {
+        "id": 4,
+        "branch": "codex/roadmap-ci-quality-mutations-20260915",
+        "base": {
+          "ref": "codex/roadmap-ci-quality-test-20260915",
+          "sha": "14a7a5b9bc2bfe615f378070baa96d96993cc84b"
+        },
+        "tipSha": "06d65d2e3856b702fd4ab4effda7b3fad280f703",
+        "size": {
+          "filesChanged": 1,
+          "fileCap": 15,
+          "insertions": 95,
+          "deletions": 0,
+          "changedLines": 95,
+          "changedLineCap": 500,
+          "withinCap": true,
+          "splitRequired": false
+        },
+        "files": [
+          {
+            "path": "scripts/__tests__/openspec-ci-quality-qc.test.ts",
+            "lines": 675,
+            "sha256": "37cc951ad23379e647b2217750932f18c1843c247ee1f4a3e7e36da79b97b026"
+          }
+        ],
+        "bytesUnchangedAcrossRebase": true
+      }
+    ],
+    "stackingProof": [
+      {
+        "command": [
+          "git",
+          "merge-base",
+          "--is-ancestor",
+          "origin/main",
+          "c3f2fc80e"
+        ],
+        "exitCode": 0
+      },
+      {
+        "command": [
+          "git",
+          "merge-base",
+          "--is-ancestor",
+          "c3f2fc80e",
+          "14a7a5b9b"
+        ],
+        "exitCode": 0
+      },
+      {
+        "command": [
+          "git",
+          "merge-base",
+          "--is-ancestor",
+          "14a7a5b9b",
+          "06d65d2e3"
+        ],
+        "exitCode": 0
+      }
+    ],
+    "gatesRerun": {
+      "runtime": {
+        "node": "v22.22.0",
+        "path": "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+        "changeFromRevision1": "Revision 1 ran the validator and jest on the default Node v24.15.0 (C:/nvm4w/nodejs/node.exe). Revision 2 pins Node 22 as directed, matching the independent reviewer. Every count is identical on both runtimes.",
+        "workingDirectory": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/archive-original-main-proof"
+      },
+      "prefix2": [
+        {
+          "name": "openspec CI validator",
+          "argv": [
+            "node",
+            "scripts/qc/validate-openspec-ci-quality.mjs"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "workflowContracts": "8/8",
+            "workflowJobContracts": "1/1",
+            "aggregatorNeeds": "19/19",
+            "protectedContexts": 4,
+            "packageScripts": "3/3",
+            "activeOpenSpecChanges": 13,
+            "accountedActiveOpenSpecChanges": 13,
+            "errors": 0
+          },
+          "log": {
+            "path": ".sisyphus/roadmap-completion-20260912/ci-prefixes-2-4-20260915/r2-p2-qc-validate.log",
+            "sha256": "733ab69d272db2fd5d9a47b9a4fc4ff307b5ac517131ebd2a2f41b734f2e2c68"
+          }
+        },
+        {
+          "name": "validator negative probe (--retries=0 rewritten to --retries=1 in a scratchpad copy)",
+          "argv": [
+            "node",
+            "scripts/qc/validate-openspec-ci-quality.mjs"
+          ],
+          "env": {
+            "MEKSTATION_PR_WORKFLOW_PATH": "<scratchpad mutated pr-checks.yml>"
+          },
+          "exitCode": 1,
+          "expectedExitCode": 1,
+          "counts": {
+            "errors": 2
+          },
+          "errorCodes": [
+            "workflow-job-token-missing",
+            "workflow-job-condition-invalid"
+          ],
+          "log": {
+            "path": ".sisyphus/roadmap-completion-20260912/ci-prefixes-2-4-20260915/r2-p2-negative-probe.log",
+            "sha256": "8dbcfaea25b8d23809f641bb0592cebceb6035e49a5840417de0c5a3714e9ffd"
+          }
+        },
+        {
+          "name": "focused jest (baseline suite)",
+          "argv": [
+            "node",
+            "node_modules/jest/bin/jest.js",
+            "--runInBand",
+            "--runTestsByPath",
+            "scripts/__tests__/openspec-ci-quality-qc.test.ts"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "suites": 1,
+            "tests": 5,
+            "failed": 0
+          },
+          "log": {
+            "path": ".sisyphus/roadmap-completion-20260912/ci-prefixes-2-4-20260915/r2-p2-jest.log",
+            "sha256": "bfe61c61e327e769685b7d6aadb4d6edd9d2333a6c4d501370f65da8c5fffb2c"
+          }
+        },
+        {
+          "name": "openspec strict validation",
+          "argv": [
+            "npx",
+            "openspec",
+            "validate",
+            "--all",
+            "--strict"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "passed": 233,
+            "failed": 0,
+            "items": 233
+          },
+          "log": {
+            "path": ".sisyphus/roadmap-completion-20260912/ci-prefixes-2-4-20260915/r2-p2-openspec-validate.log",
+            "sha256": "cc62e9d81a0558537872348a883222aa66d0b29fb098efde1470c7e1e39894c7"
+          }
+        },
+        {
+          "name": "spec purpose strict",
+          "argv": [
+            "npm",
+            "run",
+            "spec:purpose:validate:strict"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "filesScanned": 220,
+            "errors": 0,
+            "trackedSourceOfTruthDebt": 0
+          },
+          "log": {
+            "path": ".sisyphus/roadmap-completion-20260912/ci-prefixes-2-4-20260915/r2-p2-spec-purpose.log",
+            "sha256": "629026f25215446af06f7491ea5757f56e6f66d00cb70d6d432438cb6cb9adf7"
+          }
+        },
+        {
+          "name": "terminology strict",
+          "argv": [
+            "npm",
+            "run",
+            "terminology:validate:strict"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "filesScanned": 319,
+            "violations": 0
+          },
+          "note": "319 rather than revision 1’s 320, because RE-1 removed one Markdown file.",
+          "log": {
+            "path": ".sisyphus/roadmap-completion-20260912/ci-prefixes-2-4-20260915/r2-p2-terminology.log",
+            "sha256": "e3c8dfbed3796ab62231525347dfebbc7b1a710b88081b155ca55b108aae96c5"
+          }
+        },
+        {
+          "name": "format check",
+          "argv": [
+            "npx",
+            "oxfmt",
+            "--check",
+            "scripts/qc/validate-openspec-ci-quality.mjs"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "files": 1,
+            "misformatted": 0
+          },
+          "log": {
+            "path": ".sisyphus/roadmap-completion-20260912/ci-prefixes-2-4-20260915/r2-p2-oxfmt.log",
+            "sha256": "71203a67c07380a740263e359c0e6f508a950cfa5089483fa4e0ed3958db46a5"
+          }
+        },
+        {
+          "name": "lint",
+          "argv": [
+            "npm",
+            "run",
+            "lint"
+          ],
+          "resolvedArgv": [
+            "oxlint"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "files": 3795,
+            "errors": 0,
+            "warnings": 84
+          },
+          "note": "Warning count unchanged from revision 1; all pre-existing.",
+          "log": {
+            "path": ".sisyphus/roadmap-completion-20260912/ci-prefixes-2-4-20260915/r2-p2-lint.log",
+            "sha256": "b787867ebc23c102eeffa24386abfeccfcd46602fe9cfc0e971543d12a4639bb"
+          }
+        }
+      ],
+      "prefix3": [
+        {
+          "name": "focused jest",
+          "argv": [
+            "node",
+            "node_modules/jest/bin/jest.js",
+            "--runInBand",
+            "--runTestsByPath",
+            "scripts/__tests__/openspec-ci-quality-qc.test.ts"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "suites": 1,
+            "tests": 28,
+            "failed": 0
+          },
+          "log": {
+            "path": ".sisyphus/roadmap-completion-20260912/ci-prefixes-2-4-20260915/r2-p3-jest.log",
+            "sha256": "21c046987ffa621bf74227c8fae1f0789677845535f5f9f6cdc2ed18636dad64"
+          }
+        },
+        {
+          "name": "format check",
+          "argv": [
+            "npx",
+            "oxfmt",
+            "--check",
+            "scripts/__tests__/openspec-ci-quality-qc.test.ts"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "files": 1,
+            "misformatted": 0
+          },
+          "log": {
+            "path": ".sisyphus/roadmap-completion-20260912/ci-prefixes-2-4-20260915/r2-p3-oxfmt.log",
+            "sha256": "3f1e8aaceafd55d80f129e78beb63e9fd9b0f935daa98e1d3923941bf22fe39b"
+          }
+        }
+      ],
+      "prefix4": [
+        {
+          "name": "focused jest",
+          "argv": [
+            "node",
+            "node_modules/jest/bin/jest.js",
+            "--runInBand",
+            "--runTestsByPath",
+            "scripts/__tests__/openspec-ci-quality-qc.test.ts"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "suites": 1,
+            "tests": 37,
+            "failed": 0
+          },
+          "expectedTests": 37,
+          "matchesExpected": true,
+          "log": {
+            "path": ".sisyphus/roadmap-completion-20260912/ci-prefixes-2-4-20260915/r2-p4-jest.log",
+            "sha256": "7d5b614dc443ce7a1d6536d880e3d04b9eae3a2328a27b2fe09d20728ffaecfb"
+          }
+        },
+        {
+          "name": "format check",
+          "argv": [
+            "npx",
+            "oxfmt",
+            "--check",
+            "scripts/__tests__/openspec-ci-quality-qc.test.ts"
+          ],
+          "exitCode": 0,
+          "counts": {
+            "files": 1,
+            "misformatted": 0
+          },
+          "log": {
+            "path": ".sisyphus/roadmap-completion-20260912/ci-prefixes-2-4-20260915/r2-p4-oxfmt.log",
+            "sha256": "e869f91728bd422aae28b382dd0ac21efc96968541e0ddf3e08e2a759f75599b"
+          }
+        }
+      ],
+      "ladder": "5/5 at prefix 2, 28/28 at prefix 3, 37/37 at prefix 4 — the expected progression, reproduced on Node 22 after the restack."
+    },
+    "gateWorktree": {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/archive-original-main-proof",
+      "headBeforeUse": "5b229be21e87815f10ce6521dda77b52eef75e3c",
+      "statusPorcelainBeforeUse": "empty",
+      "headRestoredAfter": "5b229be21e87815f10ce6521dda77b52eef75e3c",
+      "statusPorcelainAfterRestore": "empty"
+    },
+    "blockerStatusAfterRevision": [
+      {
+        "id": "B1-1667-record-sheet-case-count",
+        "status": "CLOSED",
+        "detail": "PR #1667 merged; origin/main b39b82917 carries 3 / 6 / 3 = 12 cases, confirmed by grep."
+      },
+      {
+        "id": "B2-browser-proof-on-exact-main",
+        "status": "OPEN",
+        "detail": "A 12-case production browser proof against exact main b39b82917 is still owed. Playwright remained out of scope this session, so none was run."
+      },
+      {
+        "id": "B3-task-5.4-unchecked",
+        "status": "OPEN",
+        "detail": "Requires a push and an open PR; still out of scope."
+      },
+      {
+        "id": "B4-nightly-lane-uncontracted",
+        "status": "OPEN (informational)",
+        "detail": "Unchanged: requiredWorkflowJobContracts covers pr-checks.yml only."
+      },
+      {
+        "id": "B5-cap-headroom",
+        "status": "IMPROVED (informational)",
+        "detail": "Headroom on prefix 2 rose from 4 lines to 7 after RE-1."
+      }
+    ],
+    "hygiene": {
+      "pushed": false,
+      "merged": false,
+      "pullRequestOpened": false,
+      "rootWorkingTreeEdits": "none — this evidence file is the only write, at the path the coordinator specified",
+      "amendJustification": "All three branches are local and were never pushed, so rebase and amend rewrite no published history.",
+      "branchUpstreams": "none configured on any of the three branches (the misleading origin/main upstream on the prefix-2 branch was unset in revision 1 and did not return after the rebase)"
+    },
+    "finalStatus": "Both required edits applied; all three prefixes restacked on origin/main b39b82917 in order and re-gated green on Node 22. Prefix 2 is 9 files / 493 lines, prefix 3 is 1 file / 414 lines, prefix 4 is 1 file / 95 lines — all within cap. Nothing pushed. The only remaining prefix-2 merge gate is the 12-case browser proof on exact main (B2); prefixes 3 and 4 are gated only on prefix 2 landing."
+  }
+}

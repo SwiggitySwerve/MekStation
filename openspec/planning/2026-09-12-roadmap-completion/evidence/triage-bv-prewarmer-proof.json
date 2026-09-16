@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "triage-bv-prewarmer-proof",
+  "capturedAt": "2026-09-12",
+  "worktree": "E:/Projects/MekStation",
+  "scope": "Focused closure of the bv-validation-tooling report-path override and catalog-version/count cache invalidation concern. No product/spec/task/roadmap/Git edits; no real report/cache/corpus mutation.",
+  "supersedes": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-armor-bv-disposition.json",
+    "priorDisposition": "deferred",
+    "newDisposition": "existing after this proof"
+  },
+  "sources": [
+    {
+      "path": "src/services/encounter/bvCatalogPrewarmer.ts",
+      "sha256": "6ed37ea6aaa7954b2c603b1e3dd542dcd949668c7dff4ad2559cc9c45de3c589",
+      "anchors": "145-214 public prewarmCatalogBV; 226-389 path/report/cache helpers"
+    },
+    {
+      "path": "src/services/encounter/__tests__/bvCatalogPrewarmer.test.ts",
+      "sha256": "82f5b4797e1640401f50d663a4094afbbea1a48cb112e62404d44a4916a2017a",
+      "anchors": "12-76 focused public-boundary test"
+    }
+  ],
+  "testDesign": {
+    "service": "Real NodeCanonicalUnitService reads the live catalog index; no mocked resolver or production report/cache is used.",
+    "temporaryInputs": "Each case uses a temporary report and cache path through PrewarmOptions; cleanup removes the temporary directory.",
+    "cases": [
+      "Injected report path supplies BV for two real catalog IDs and returns source report.",
+      "Same catalog version returns the persisted cache despite changed report values.",
+      "Changed catalog version misses cache and reads changed report values.",
+      "Changed catalog entry count misses cache and reads the report."
+    ]
+  },
+  "proofRuns": [
+    {
+      "test": "src/services/encounter/__tests__/bvCatalogPrewarmer.test.ts",
+      "command": "NODE_OPTIONS=--max-old-space-size=4096 node node_modules/jest/bin/jest.js --runInBand --runTestsByPath src/services/encounter/__tests__/bvCatalogPrewarmer.test.ts",
+      "result": {
+        "exitCode": 0,
+        "suites": "1/1 passed",
+        "tests": "1/1 passed",
+        "durationSeconds": 1.624
+      },
+      "rawLog": {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-bv-prewarmer-proof-jest.raw.log",
+        "sha256": "03bb608bf8600fc419a9207007d28b645823a4756d0255b1d4152f85ad2c6f10"
+      }
+    },
+    {
+      "test": "scripts/__tests__/validate-bv-fail-loud.test.ts",
+      "command": "NODE_OPTIONS=--max-old-space-size=4096 node node_modules/jest/bin/jest.js --runInBand --runTestsByPath scripts/__tests__/validate-bv-fail-loud.test.ts",
+      "result": {
+        "exitCode": 0,
+        "suites": "1/1 passed",
+        "tests": "5/5 passed",
+        "durationSeconds": 12.244
+      },
+      "rawLog": {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-bv-prewarmer-proof-validate-bv.raw.log",
+        "sha256": "1dea0367ec1917688b1c3a21d83eee670e5897e5c1aa9f51554e599bf8f2c8b8"
+      }
+    }
+  ],
+  "currentDisposition": {
+    "state": "dispositioned",
+    "disposition": "existing",
+    "owner": "R9.triage",
+    "remainingDefects": [],
+    "text": "The report-path override and catalog-version/count cache invalidation behavior are now proven at the public prewarmCatalogBV boundary. The hypothetical check-new-pattern script remains intentionally out of scope because the canonical spec labels it uncommitted.",
+    "nextMinimalAction": "Use this receipt to replace the earlier deferred BV row; no further repair is indicated for the bounded concern."
+  },
+  "limits": [
+    "This proof does not recalculate the full catalog, run the full BV validation command, fetch assets, or prove all BV accuracy patterns.",
+    "The committed fixture is temporary and test-local; no production validation-output or .cache files were changed."
+  ]
+}

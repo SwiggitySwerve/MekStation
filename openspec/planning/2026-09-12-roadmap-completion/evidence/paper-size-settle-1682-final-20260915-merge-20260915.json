@@ -1,0 +1,65 @@
+{
+  "pr": 1682,
+  "branch": "codex/roadmap-paper-size-settle-20260915",
+  "reviewedCommit": "9b59a19f8ada676e8cb504905751ac91a9a9905c",
+  "finalHead": "4ec4d063fcef658fb8e303bda81689d1c8b11a7c",
+  "anomaly": null,
+  "autoMergeArmed": false,
+  "purpose": "paper-size settle fix for the customizer record-sheet e2e spec; merged BEFORE 1678 so that 1678's Customizer Regressions run would include it",
+  "contentGuard": {
+    "preUpdate": {
+      "fileSetEqualToReviewed": true,
+      "files": ["e2e/customizer-record-sheet-rendering.spec.ts"],
+      "diffstat": "1 file changed, 8 insertions(+)",
+      "blobEquality": "trivially satisfied - reviewed commit == PR head (9b59a19f8)",
+      "result": "PASS"
+    },
+    "postUpdate": {
+      "fileSet": "unchanged - single file, no files added by the update merge",
+      "diffstat": "1 file changed, 8 insertions(+)",
+      "blobEquality": { "e2e/customizer-record-sheet-rendering.spec.ts": "equal to 9b59a19f8" },
+      "result": "PASS"
+    }
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "oldHead": "9b59a19f8ada676e8cb504905751ac91a9a9905c",
+    "newHead": "4ec4d063fcef658fb8e303bda81689d1c8b11a7c",
+    "expectedHeadShaGuard": "9b59a19f8ada676e8cb504905751ac91a9a9905c",
+    "reason": "branch was BEHIND after #1681 merged to main"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "otherChecksCount": 26,
+    "otherChecksBuckets": { "pass": 26 },
+    "totalChecks": 30,
+    "pollLog": "07:55:41 EMPTY -> 08:00:29 30 pass / 0 pending"
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/paper-size-settle-1682-final-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "79de4f19591f72c3d5295c2ac71118589027ed36",
+  "mergeCommitParents": ["1f84beef2967ce071f25ffa1b6f94240d9507b58"],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1682 --squash --match-head-commit 4ec4d063fcef658fb8e303bda81689d1c8b11a7c",
+  "mergedAt": "2026-09-15T08:00:52Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "The merge commit changes exactly e2e/customizer-record-sheet-rendering.spec.ts with blob 42b57c7bd, identical to the gated head.",
+  "mainAfter": "79de4f19591f72c3d5295c2ac71118589027ed36",
+  "worktree": {
+    "path": null,
+    "fastForward": "NOT APPLICABLE - no owned worktree specified for this PR",
+    "result": "N/A"
+  },
+  "timestamps": {
+    "guardStartedAt": "2026-09-15T07:55:00Z",
+    "checksTerminalAt": "2026-09-15T08:00:29Z",
+    "mergedAt": "2026-09-15T08:00:52Z",
+    "receiptWrittenAt": "2026-09-15T08:18:00Z"
+  }
+}

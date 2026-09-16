@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "triage-allocation-tab-requirement-map-20260912",
+  "capturedAt": "2026-09-12",
+  "supersedes": "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-allocation-tab-superseding-20260912-continuation.json",
+  "baseline": "be7f85b867aa3e8576e5e3d27e309276203bc24b",
+  "fetchedOriginMain": "6c4eac5c7b7a2aece3aab0443ce606943db6cf0b",
+  "scope": "Read-only canonical Requirement-to-active-authority map for three inventory rows. No source/spec/test mutation, build, server, browser, or new runtime campaign.",
+  "classification": {
+    "implemented-focused": "Active production authority is present and bounded tests exercise the requirement; broader runtime proof may remain.",
+    "broader-proof-pending": "No concrete missing behavior found; the smallest remaining check is wider integration/runtime proof.",
+    "normative-active-route-mismatch": "The canonical Requirement names behavior absent from the active route; confirm the spec is current before repair.",
+    "legacy-documentation-seam": "An exported/tested legacy helper exists without active callers; this is not a production defect by itself."
+  },
+  "rows": [
+    {
+      "id": "critical-slot-allocation",
+      "disposition": "implemented-focused; broader-proof-pending",
+      "requirements": [
+        {"heading":"Location Slot Counts; MechLocation Enum Expansion","spec":"critical-slot-allocation/spec.md:9-49,328-338","classification":"implemented-focused","authority":"CriticalSlotAllocation.ts constants/types -> topology.ts and queries.ts; unit count/location tests","boundary":"Run one active configuration-change/placement integration check if acceptance requires UI/runtime proof."},
+        {"heading":"Fixed Component Placement; Fixed Slot Protection; Side Torso Engine Slots","spec":"critical-slot-allocation/spec.md:50-86,182-261","classification":"implemented-focused","authority":"slotOperations/topology.ts, queries.ts, placement.ts, placementOptions.ts; fixed/overflow/atomic slot tests","boundary":"No missing behavior found. CriticalSlotAllocation.ts fixed/distributed APIs have no active callers found: legacy-documentation-seam, not unresolved authority."},
+        {"heading":"Distributed Slot Components; Actuator Requirements; Slot Assignment Workflow; Slot Unassignment Workflow; Configuration-Aware Slot Validation","spec":"critical-slot-allocation/spec.md:61-181,311-327","classification":"implemented-focused; broader-proof-pending","authority":"placement.ts, catalogEquipmentPlacement.ts, useUnitEquipmentStore.ts; catalog and CriticalSlotsPlacement tests","boundary":"Focused tests prove pure/catalog boundaries; context-menu/full active-route failure-without-mutation proof remains."},
+        {"heading":"Equipment Displacement on Configuration Change; Configuration Slot Count Constants","spec":"critical-slot-allocation/spec.md:262-310","classification":"broader-proof-pending","authority":"displacementUtils.ts and configuration-aware query/placement imports; displacement tests","boundary":"Displacement helper behavior is tested, but no live configuration-change caller/runtime receipt was run."}
+      ]
+    },
+    {
+      "id": "critical-slots-display",
+      "disposition": "normative-active-route-mismatch for Unallocated Equipment Display; otherwise implemented-focused with broader proof pending",
+      "requirements": [
+        {"heading":"Location-Based Slot Display; Slot Color Coding; Drag and Drop Equipment Placement; Multi-Slot Equipment Visual Continuity; Equipment Selection and Assignment; Equipment Removal; Toolbar Controls; Click-to-Select Placed Equipment","spec":"critical-slots-display/spec.md:9-202,235-260","classification":"implemented-focused; broader-proof-pending","authority":"UnitEditorWithRoutingTabContent -> CriticalSlotsTab -> LocationGrid/SlotRow and slot action/placement modules; focused component and placement tests","boundary":"Legacy CriticalSlotsDisplay is exported/tested but has no active production import; its existence does not make active authority unresolved. Verify responsive/non-biped active route if needed."},
+        {"heading":"Unallocated Equipment Display; VerticalSlotChip Component","spec":"critical-slots-display/spec.md:203-298","classification":"normative-active-route-mismatch","authority":"CriticalSlotsTab.tsx:95-111,226-239 renders Button/span chips in one flex-wrap list; VerticalSlotChip.tsx exists and is tested but has no active import. index.ts exports CriticalSlotsDisplay, not VerticalSlotChip.","boundary":"Smallest check: active CriticalSlotsTab render test asserting VerticalSlotChip and required category/collapse UI. Treat as mismatch only if this canonical spec remains current."}
+      ]
+    },
+    {
+      "id": "tab-management",
+      "disposition": "implemented-focused; broader-proof-pending",
+      "requirements": [
+        {"heading":"Tab State Management; Tab Creation; Tab Duplication; Tab Closing; Tab Selection; Tab Renaming; Tab Reordering; Modal State Management","spec":"tab-management/spec.md:52-277,456-485","classification":"implemented-focused","authority":"useTabManagerStore.ts and test/helpers; focused store tests pass","boundary":"No concrete missing behavior found; browser-level persistence/reload remains unrun."},
+        {"heading":"Sub-Tab Persistence; Tab ID Validation and Sanitization; Tab Persistence","spec":"tab-management/spec.md:278-364,417-455","classification":"implemented-focused; broader-proof-pending","authority":"useTabManagerStore.ts partialize/hydration/sanitize and persistence tests; CustomizerWithRouter route recovery tests","boundary":"Smallest remaining check is cold reload plus invalid deep-link recovery; existing receipts are route-scoped."},
+        {"heading":"Simulation Viewer Tab Navigation","spec":"tab-management/spec.md:365-416","classification":"implemented-focused; broader-proof-pending","authority":"simulation-viewer/useTabNavigationStore.ts and helper tests cover URL/history/popstate semantics","boundary":"Simulation viewer is a separate obligation from customizer tabs; browser back/forward/reload receipt is pending."}
+      ]
+    }
+  ],
+  "sourceTestHashes": {
+    "openspec/specs/critical-slot-allocation/spec.md":"ceafca574b2065e5cdf6d26273e3db0e0653f74cb4a22aed18b0aeb24cd46d84",
+    "openspec/specs/critical-slots-display/spec.md":"3befc509d6a013d03043eddfa1098d009bfe4da3dd6adcf7617d92b838a3fbd5",
+    "openspec/specs/tab-management/spec.md":"4c442e8f40b7e9c64830d3c028c7bf9649e197f0172a4aeb1114b239fce5b9d6",
+    "src/components/customizer/tabs/CriticalSlotsTab.tsx":"28fd7f3a62ff56aa8800625a6eee9257da772e17cf05dc10677994ef3331465d",
+    "src/components/customizer/critical-slots/VerticalSlotChip.tsx":"af94e9e3a8832f8370b4b2575fbaecd2082cd6edf3c150ca9e5b6d82ce292ddc",
+    "src/__tests__/components/customizer/critical-slots/VerticalSlotChip.test.tsx":"02021b238f641eda1e50a35a7956704748ff79dda66ce01f8464487edc3da28f",
+    "src/components/customizer/critical-slots/CriticalSlotsDisplay.tsx":"9b196201236b4f4554c2430d1ef1f75216da7d912ebd0878cd007eed2938e006",
+    "src/stores/useTabManagerStore.ts":"f159a03bffd54e8e746440769bd867957c11bda9b4719671402d7639931369e9"
+  },
+  "inheritedExactRefs": "All allocation/tab source and focused-test hashes are recorded in superseded evidence/triage-allocation-tab-superseding-20260912-continuation.json; its corrected useTabManagerStore fingerprint is preserved.",
+  "parentReceipts": [
+    ["openspec/planning/2026-09-12-roadmap-completion/evidence/browser-local-verification.json","c76d6d400ea0802b5a4006cae0c96e6c22c7ec73398a326c2cdc630cea758604","baseline 6c4; record-sheet/edit-recovery E2E only"],
+    ["openspec/planning/2026-09-12-roadmap-completion/evidence/routing-local-verification.json","f9f67a67115dcc48112a90628e8e74a417c098ef1b4b0073e0ad560059041473","baseline be7; route-only"],
+    ["openspec/planning/2026-09-12-roadmap-completion/evidence/routing-main-verification.json","5223ab68e0b9a444a062213096fdd26a27029b6babe27e387103a4fcf4822377","main 47c; earlier than fetched 6c4"],
+    ["openspec/planning/2026-09-12-roadmap-completion/evidence/routing-closure-main-verification.json","0e50e300843d1ca324d7e5bf7d07c2fc9ffb88cecf35161fd88804e7477a3a37","main 6c4; closure checks, no row runtime proof"]
+  ],
+  "focusedCheck": "Prior superseding receipt records bounded Jest exit 0: 12 suites, 197 tests, 0 snapshots; this mapping added no test/build/server/browser run.",
+  "conclusion": "Allocation and tab-management needs-proof labels were broader-proof gaps, not identified missing normative behavior. Display has one concrete active-route mismatch against the current canonical Unallocated Equipment Display/VerticalSlotChip requirements; confirm spec currency before repair."
+}

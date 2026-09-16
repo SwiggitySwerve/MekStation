@@ -1,0 +1,47 @@
+{
+  "createdAt": "2026-09-13T09:36:07.272Z",
+  "node": "R4.matrix",
+  "taskKey": "adopt-combat-journal-cutover-and-gm-rewind#0.1@9",
+  "status": "admitted",
+  "scope": "80 scenario source/evidence classification; no product implementation or runtime acceptance",
+  "baseline": {
+    "rootHead": "be7f85b867aa3e8576e5e3d27e309276203bc24b",
+    "originMain": "44b94adbbb333a9d4965e057b34290e19fc0e781"
+  },
+  "predecessor": {
+    "evidence": "evidence/r0-contracts-completion-20260912.json",
+    "rootReconciliation": "evidence/contracts-root-reconciliation-20260912.json",
+    "mainSha": "92d04fc6bcc2e49fd40d63d6f0cfd2a9c72eb14c",
+    "cleanupReceipt": "evidence/r0-contracts-completion-20260912.json"
+  },
+  "workers": [
+    {
+      "agent": "/root/r3_branch_integrity_repair",
+      "model": "gpt-5.6-terra",
+      "effort": "high",
+      "rows": "01..40"
+    },
+    {
+      "agent": "/root/r3_storage_security_review",
+      "model": "gpt-5.6-terra",
+      "effort": "high",
+      "rows": "41..80"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r4-matrix-parent-20260913/static-test-index.json",
+      "sha256": "d0743a3dd96f92a59be9935658e2b00cd0174ae75ca21eff7692ffd9df226a56"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r4-matrix-parent-20260913/runner-plans.json",
+      "sha256": "110af612d794789feddf902ea432ee937e482c48e902c44f4f2c25ced6de6ddf"
+    }
+  ],
+  "limits": [
+    "Original 34/80 is historical only.",
+    "Static index matches declarations, not semantic coverage.",
+    "No skip removal, gate weakening, original task checkbox change, or new feature scope.",
+    "All runtime/current-head and publication gates remain."
+  ]
+}

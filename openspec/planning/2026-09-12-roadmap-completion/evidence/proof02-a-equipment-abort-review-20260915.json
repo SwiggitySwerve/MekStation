@@ -1,0 +1,440 @@
+{
+  "schema": "proof02-a-equipment-abort-review/v1",
+  "generatedAtUtc": "2026-09-15T00:00:00Z",
+  "generatedBy": "agent:proof02-a-equipment-abort-review (INDEPENDENT REVIEWER, not the author; read-only; GP-JUSTIFIED)",
+  "verdict": "APPROVE-WITH-REQUIRED-EDITS",
+  "subject": {
+    "commit": "027549ce6196dcb96b9cd138ae8e765fca16e154",
+    "branch": "codex/roadmap-equipment-abort-signal-20260915",
+    "base": "3bf096346c1077a82b7d03d8a5ec70111c07c187 (origin/main)",
+    "subjectLine": "fix(equipment): stop escalating unload-cancelled equipment fetches as load failures",
+    "filesChanged": 7,
+    "insertions": 453,
+    "deletions": 12
+  },
+  "reviewEnvironment": {
+    "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/archive-original-main-proof",
+    "entryHead": "5b229be21e87815f10ce6521dda77b52eef75e3c (clean)",
+    "runHead": "027549ce6196dcb96b9cd138ae8e765fca16e154",
+    "exitHead": "5b229be21e87815f10ce6521dda77b52eef75e3c (clean, restored)",
+    "node": "v22.22.0",
+    "rootCheckoutMutated": false,
+    "filesWrittenByReviewer": [
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/proof02-a-equipment-abort-review-20260915.json"
+    ]
+  },
+
+  "axis1_abortClassification": {
+    "question": "Is the sentinel produced ONLY when signal.aborted (or AbortError with an aborted signal), never for a genuine network failure on a live signal?",
+    "verdict": "SOUND - no path found where a genuine failure on a live signal becomes 'interrupted'.",
+    "branchTrace": [
+      {
+        "site": "src/services/equipment/EquipmentFileReader.ts:11-20 (isServer branch)",
+        "behaviour": "Server path runs before any signal handling and is unchanged; returns null on error. createEquipmentLoadAbort() returns NO_ABORT when `typeof window === 'undefined'` (equipmentLoadAbort.ts:56-58), so no signal ever reaches the server branch from the registry.",
+        "risk": "none"
+      },
+      {
+        "site": "src/services/equipment/EquipmentFileReader.ts:55-58",
+        "quote": "if (signal?.aborted) { return EQUIPMENT_READ_ABORTED; }",
+        "behaviour": "Pre-flight short-circuit. Only reachable with an already-aborted signal. Skips ~29 doomed fetches.",
+        "risk": "none"
+      },
+      {
+        "site": "src/services/equipment/EquipmentFileReader.ts:66-70 (!response.ok)",
+        "behaviour": "Returns null, logger.warn. Unchanged. A cancelled fetch never yields a non-ok Response, so no cancellation can reach here.",
+        "risk": "none"
+      },
+      {
+        "site": "src/services/equipment/EquipmentFileReader.ts:73-77 (catch) via isAbortRejection at :19-24",
+        "quote": "function isAbortRejection(error: unknown, signal?: AbortSignal): boolean { if (signal?.aborted) { return true; } return (error as { name?: unknown } | null)?.name === 'AbortError'; }",
+        "behaviour": "Live signal (aborted === false) => falls through to the name check. The only producer of name === 'AbortError' for this fetch is our own signal, which is by construction not aborted in that branch, so the live-signal path cannot yield the sentinel from a real failure. The ambiguous `TypeError: Failed to fetch` stays a failure on a live signal.",
+        "risk": "none-in-practice"
+      }
+    ],
+    "acceptedWindowSemantics": {
+      "observation": "isAbortRejection tests `signal?.aborted` FIRST and ignores the error entirely. Once the signal is aborted, EVERY rejection inside the try block becomes the sentinel - including a genuine SyntaxError from `await response.json()` on a malformed file, or a real DNS/network failure that raced pagehide.",
+      "assessment": "Deliberate and correct for the stated purpose: 'interrupted' is a WINDOW classification (the document is unloading, nothing we report can be acted on), not an ERROR classification. No user-visible loss, because a document that has fired pagehide and does not survive reports nothing anyway. Flagged only so the semantics are not later mistaken for per-error discrimination.",
+      "severity": "note"
+    },
+    "contractDeviation": {
+      "statedContract": "sentinel iff signal.aborted, or AbortError with an aborted signal",
+      "asImplemented": "sentinel iff signal.aborted, OR error.name === 'AbortError' regardless of signal state",
+      "reachability": "unreachable from this code - our signal is the only one passed to fetch, so an AbortError with a live signal has no producer",
+      "severity": "note"
+    },
+    "pinsVerified": [
+      "src/services/equipment/__tests__/EquipmentOfficialLoader.abort.test.ts:149-188 'still records a genuine network failure while the signal is live' - asserts controller.signal.aborted === false, interrupted falsy, errors/warnings recorded, logger.error fired, and itemsLoaded === 1 (load carried on past the failure).",
+      "src/services/equipment/__tests__/EquipmentOfficialLoader.abort.test.ts:190-207 'records a genuine network failure when no signal is supplied at all' - 2 errors recorded, errorSpy called.",
+      "Both use the IDENTICAL rejection object (unloadCancelRejection() at :68-70) as the interrupted case at :116-147, so the boundary is pinned on the error shape, not on a convenient fixture."
+    ]
+  },
+
+  "axis2_interruptedSemantics": {
+    "question": "Does any consumer treat unready-after-interrupt as an error, spin, or serve a partial catalog? Is the registry re-initialised on a surviving document? Is pagehide the right trigger?",
+    "verdict": "PARTIAL - one real consumer defect and one unbacked commit-message claim.",
+    "findings": [
+      {
+        "id": "F1",
+        "severity": "MAJOR",
+        "title": "useEquipmentRegistry reports ready over an unready, unmapped registry after an interrupt",
+        "site": "src/hooks/useEquipmentRegistry.ts:39-47",
+        "quote": "if (!initAttempted) { setInitAttempted(true); registry.initialize().then(() => setIsReady(true)).catch((error) => { logger.error('Equipment registry initialization failed', error); }); }",
+        "mechanism": "An interrupted initialize RESOLVES normally - EquipmentRegistry.ts:121-122 is a bare `if (result.interrupted) { return; }`, not a throw. So `.then(() => setIsReady(true))` fires while `registry.isReady()` is false. buildNameMappings() (EquipmentRegistry.ts:130) was skipped, so nameToIdMap and idToTypeMap are EMPTY and every `registry.lookup()` (EquipmentRegistry.ts:215-270, which reads only those two maps) returns not-found. `initAttempted` is already true and the effect deps are `[initAttempted]`, so the hook never retries.",
+        "regressionVsBase": "Before this commit an interrupted load still fell through to buildNameMappings() + isInitialized = true, so the hook's isReady and the registry agreed (partial catalog, honest ready flag). After it, isReady is true over a registry whose name lookups resolve nothing. A new silent-wrong state was introduced on exactly the surviving-document path the commit message claims to handle.",
+        "reachability": "Requires pagehide to fire while the FIRST load is in flight AND the document to survive - i.e. bfcache restore (back/forward) or a cancelled hard navigation. pagehide does NOT fire on a Next.js client-side route change, so normal in-app navigation is unaffected. Narrow, but real and user-visible (an equipment browser / customizer rendering with zero resolvable equipment and no recovery).",
+        "sameShapeElsewhere": [
+          "src/pages/_app.tsx:119-128 - initializeBrowserServices().then(() => { installMatchLogMaintenance(); setServicesReady(true); }) sets servicesReady over an unready registry; useEffect deps [] so it never retries.",
+          "src/services/serviceRegistry.ts:67-70 - initializeServices() resolves as if complete."
+        ]
+      },
+      {
+        "id": "F2",
+        "severity": "MODERATE",
+        "title": "'a surviving document reloads' is not wired - there is no pageshow / bfcache-restore re-init",
+        "evidence": "grep for pageshow|bfcache across src/ returns ZERO lifecycle handlers (only unrelated `persisted*` identifiers in GmCampaignInterventionControlPlane). The only production path that re-calls initialize() on an unready registry is src/services/construction/CalculationService.ts:257-262.",
+        "quote": "EquipmentRegistry.ts:118-120 // An interrupted load leaves the corpus partial. Stay unready so a // surviving document (bfcache restore, cancelled navigation) reloads // it instead of serving half a catalog forever.",
+        "assessment": "Staying unready is correct. Nothing reloads it. abort.test.ts:257-274 proves recoverability only because the TEST itself calls registry.initialize() a second time; no production lifecycle event does. The commit message and evidence designNotes overstate what ships.",
+        "secondaryRisk": "CalculationService.calculateHeatProfile at :257-262 does `if (!registry.isReady()) { registry.initialize().catch(...); return zeroed heat; }`. EquipmentRegistry has no in-flight promise dedup (unlike EquipmentLookupService.ts:97-102 which memoises initPromise), so a permanently-unready registry turns every heat-profile call into a fresh full ~30-fetch load while returning heatGenerated: 0. Pre-existing shape, newly reachable as a steady state."
+      },
+      {
+        "id": "F3",
+        "severity": "MODERATE",
+        "title": "The second, unsignalled load path is not covered, so the targeted logger.error escalation can still fire",
+        "site": "src/services/equipment/EquipmentLookupService.ts:108-114",
+        "quote": "if (!loader.getIsLoaded()) { this.loadResult = await loader.loadOfficialEquipment(); }",
+        "mechanism": "getEquipmentLoader() is a singleton shared with the registry. EquipmentLookupService.initialize() runs on the same routes the commit targets (src/services/units/unitLoaderService/unitLoader.ts:66, src/components/customizer/tabs/restoreLibraryVersionToDraft.ts:74, src/hooks/useEquipmentBrowser.ts:235, src/pages/api/equipment/catalog.ts:63) and passes NO signal. When it checks getIsLoaded() while the registry's signalled load is still in flight, it starts a SECOND concurrent ~30-fetch load with no abort plumbing; those cancellations still go logger.warn -> recordFileLoadFailure -> logger.error (EquipmentOfficialLoader.ts:47-55).",
+        "assessment": "Whether this actually fires on the failing e2e route is a timing question this review could not settle without a browser run - stated as a code-path observation, NOT as a proven regression. But the path plainly exists and is unsignalled, so the fix is not airtight against its own stated goal ('the e2e browser-diagnostics gate failed the run on the product's own derived console.error')."
+      },
+      {
+        "id": "F6",
+        "severity": "NOTE",
+        "title": "pagehide is the right trigger; persisted is ignored; in-repo precedent also registers beforeunload",
+        "site": "src/services/equipment/equipmentLoadAbort.ts:60-66 vs src/pages/compare/index.tsx:38-39",
+        "quote": "window.addEventListener('beforeunload', abortCatalogFetch); window.addEventListener('pagehide', abortCatalogFetch);",
+        "assessment": "pagehide is the correct and more reliable of the two (it fires where beforeunload does not, including bfcache entry), so a single listener is defensible; the inconsistency with the existing compare-page precedent is cosmetic. Ignoring event.persisted is also correct on its own terms - in-flight fetches are cancelled or frozen on bfcache entry either way, so a persisted check would not save the load. The right pairing for persisted=true is a pageshow re-init (F2), not a persisted guard."
+      }
+    ]
+  },
+
+  "axis3_callSiteCoverage": {
+    "question": "Do all six initialize() call sites pass through the new plumbing? Any listener leak?",
+    "verdict": "COVERAGE COMPLETE (the wiring is inside initialize(), so every caller inherits it with no signature change). NO listener leak. But the evidence JSON's list of the six sites is WRONG.",
+    "actualEquipmentRegistryInitializeSites": [
+      "src/pages/_app.tsx:32",
+      "src/services/serviceRegistry.ts:69",
+      "src/services/units/unitLoaderService/unitLoader.ts:70",
+      "src/services/construction/CalculationService.ts:258",
+      "src/components/customizer/tabs/restoreLibraryVersionToDraft.ts:75",
+      "src/hooks/useEquipmentRegistry.ts:42"
+    ],
+    "evidenceListError": {
+      "id": "F5",
+      "severity": "MINOR",
+      "claimedSite": "src/services/equipment/EquipmentCalculatorService.ts:66",
+      "reality": "That is `this.registry.initialize()` where `private readonly registry: IFormulaRegistry` (EquipmentCalculatorService.ts:51, imported from './FormulaRegistry' at :25). It is the FORMULA registry, not the EquipmentRegistry, and is entirely unaffected by this change.",
+      "omittedSite": "src/hooks/useEquipmentRegistry.ts:42 - a genuine EquipmentRegistry.initialize() site, and the one carrying the F1 defect.",
+      "impact": "The count of six is coincidentally right; the set is wrong, and the omitted member is precisely the site where the interrupted contract breaks. The author's own coverage claim therefore did not examine the defective consumer."
+    },
+    "listenerLeak": {
+      "verdict": "NONE",
+      "reasoning": "createEquipmentLoadAbort() is called per-initialize INSIDE the `if (!this.loader.getIsLoaded())` guard (EquipmentRegistry.ts:111-112), never at module scope. abort.dispose() runs in a `finally` (EquipmentRegistry.ts:124-126), so the pagehide listener is removed on every exit path including the interrupted `return` at :122 and any throw. Concurrent initialize() calls each own and each remove their own listener. A second initialize() after an abort builds a FRESH AbortController, so a one-shot controller never poisons a retry (proven by abort.test.ts:257-274).",
+      "adjacentNote": "EquipmentRegistry has no in-flight promise memoisation, so N concurrent initialize() calls run N concurrent full loads and add N listeners (all removed). Pre-existing; not introduced here."
+    }
+  },
+
+  "axis4_r9NonRegression": {
+    "requirement": "R9.equipment-loader - 'Report partial official equipment load failures accurately' (openspec/planning/2026-09-12-roadmap-completion/PR-SLICES.md:126)",
+    "verdict": "NOT REGRESSED",
+    "shippedTestUnmodified": {
+      "path": "src/services/equipment/__tests__/EquipmentOfficialLoader.failure.test.ts",
+      "check": "git diff 3bf096346 027549ce6 -- <path> => empty diff",
+      "result": "unmodified"
+    },
+    "reproduced": {
+      "command": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/services/equipment/__tests__/EquipmentOfficialLoader.abort.test.ts src/services/equipment/__tests__/EquipmentOfficialLoader.failure.test.ts src/services/equipment/__tests__/EquipmentLoaderService.schemaBridge.test.ts",
+      "result": "Test Suites: 3 passed, 3 total. Tests: 11 passed, 11 total.",
+      "runBy": "reviewer, at 027549ce6, in the designated worktree"
+    },
+    "optionalFieldSafety": {
+      "field": "IEquipmentLoaderTypes.IEquipmentLoadResult.interrupted?: boolean (EquipmentLoaderTypes.ts:11-16)",
+      "reasoning": "interruptedLoadResult() (EquipmentOfficialLoader.ts:62-68) is the ONLY constructor that sets the key, and it is reachable only from the sentinel branches. Every pre-existing result literal (EquipmentOfficialLoader.ts:236-241 and :243-248, EquipmentLookupService.ts:117-122) keeps the exact 4-key shape, so existing toEqual pins cannot see the new field.",
+      "verified": "105 suites / 2101 tests green, failure.test.ts included and unedited."
+    },
+    "genuineFailureSemanticsUnchanged": "recordFileLoadFailure (EquipmentOfficialLoader.ts:47-55) is untouched; the abort branches return BEFORE it, so counts, errors[], warnings[] and the logger.error message text for real failures are byte-identical. Pinned by abort.test.ts:175-187 asserting errors AND warnings AND the error-log message AND itemsLoaded === 1."
+  },
+
+  "axis5_testsAndGates": {
+    "redLog": {
+      "path": ".sisyphus/roadmap-completion-20260912/proof02-a-20260915/red-abort.log",
+      "opened": true,
+      "sha256Recomputed": "7dff03aa065bec4be9c50be59a760caf558a8356740f1d085f2c3241aae9498f",
+      "sha256MatchesEvidence": true,
+      "summaryLine": "Test Suites: 1 failed, 1 total / Tests: 3 failed, 2 passed, 5 total",
+      "failedAsExpected": [
+        "official equipment load under an aborted signal > returns the aborted sentinel without fetching when the signal is already aborted",
+        "official equipment load under an aborted signal > treats an unload-cancelled fetch as interrupted, not as a load failure",
+        "equipment registry init cancelled by pagehide > aborts the in-flight equipment fetches and leaves the registry unready"
+      ],
+      "greenOnRedByDesign": [
+        "still records a genuine network failure while the signal is live",
+        "records a genuine network failure when no signal is supplied at all"
+      ],
+      "verdict": "RED LOG IS REAL. The red-first claim holds, and the two green-on-red rows are correctly characterised as over-broadening pins rather than as new behaviour."
+    },
+    "greenFocused": {
+      "reproduced": true,
+      "result": "5/5 passed (abort.test.ts alone, inside the 3-suite run above)",
+      "evidenceLogSha256Recomputed": "58ca3aabc1c4024241a45003d300995dca68eb40f5f7e030c4201085d92ca6a1",
+      "matchesEvidence": true
+    },
+    "greenBroad": {
+      "reproduced": true,
+      "command": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/services/equipment src/__tests__/service/equipment src/__tests__/hooks/useEquipmentCalculations src/__tests__/service/units src/__tests__/integration/dataLoading src/services/units src/services/construction src/__tests__/service/construction",
+      "result": "Test Suites: 105 passed, 105 total. Tests: 2101 passed, 2101 total.",
+      "matchesEvidenceClaim": true,
+      "evidenceLogSha256Recomputed": "2911160d2b746fe725e7f62c76ba52cbc9f432a55e9b6de032501a169c14d0a4"
+    },
+    "tsc": {
+      "command": "node node_modules/typescript/bin/tsc --noEmit -p tsconfig.json",
+      "exitCode": 0,
+      "output": "clean",
+      "runBy": "reviewer"
+    },
+    "lintFormatGates": {
+      "gate-oxfmt.log": "All matched files use the correct format (7 files)",
+      "gate-oxlint.log": "Found 0 warnings and 0 errors (6 files)",
+      "gate-tsc.log": "empty (clean)",
+      "note": "author-produced logs; tsc independently re-run and confirmed by the reviewer"
+    },
+    "testQualityNote": "abort.test.ts:227-275 drives the real pagehide path end to end (dispatches a real Event('pagehide') on window against a hanging fetch and asserts the signal actually reached fetch at :240-242). This is a genuinely strong test. Its final assertion at :270 proves the MECHANISM of recovery, not its TRIGGER - see F2."
+  },
+
+  "axis6_hygiene": {
+    "fileCap": { "value": 7, "cap": 15, "pass": true },
+    "lineCap": { "value": 465, "cap": 500, "pass": true, "detail": "453 insertions + 12 deletions" },
+    "conventionalCommit": { "value": "fix(equipment): stop escalating unload-cancelled equipment fetches as load failures", "pass": true },
+    "author": { "author": "Wes Rollings <wrollings@gmail.com>", "committer": "Wes Rollings <wrollings@gmail.com>", "pass": true },
+    "aiAttribution": {
+      "id": "F4",
+      "severity": "MINOR-BLOCKING",
+      "pass": false,
+      "found": "Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>",
+      "repoConvention": "0 of the last 30 commits on main (measured at 3bf096346 via `git log -30 --format=%(trailers:key=Co-Authored-By,valueonly)`) carry any Co-Authored-By trailer. The established MekStation convention is no AI attribution.",
+      "evidenceContradiction": "proof02-a-equipment-abort-local-20260915.json asserts build.commit.aiAttributionInCommitBody = false. That assertion is FALSE - the trailer is present in the commit body.",
+      "remediation": "Trivial: the commit is local and unpushed."
+    },
+    "unrelatedChanges": { "pass": true, "detail": "All 7 paths are under src/services/equipment/. No drive-by reformatting; the diff hunks are confined to the abort plumbing." },
+    "openspecEdits": { "pass": true, "detail": "No file under openspec/ is touched by 027549ce6." },
+    "scopeDiscipline": { "pass": true, "detail": "Product source net +110 lines; the sentinel-in-a-separate-module decision (equipmentLoadAbort.ts) is correctly justified - three shipped suites jest.mock EquipmentFileReader with a readJsonFile-only factory (EquipmentLoaderService.schemaBridge.test.ts:33, src/__tests__/hooks/useEquipmentCalculations.test.ts:27, src/__tests__/service/units/EquipmentMapping.canonical.test.ts:13), which would have erased a co-located named export. Avoiding shipped-test edits here was the right call." }
+  },
+
+  "requiredEdits": [
+    {
+      "id": "RE1",
+      "blocking": true,
+      "target": "commit 027549ce6 message body",
+      "action": "Remove the line `Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>`. 30 of 30 recent main commits carry no such trailer. Use `git history reword` (or amend) - the commit is local and unpushed."
+    },
+    {
+      "id": "RE2",
+      "blocking": true,
+      "target": "openspec/planning/2026-09-12-roadmap-completion/evidence/proof02-a-equipment-abort-local-20260915.json",
+      "action": "Two corrections. (a) build.commit.aiAttributionInCommitBody currently says false while the trailer is present - set it to the truth after RE1 lands. (b) designNotes[0] lists `src/services/equipment/EquipmentCalculatorService.ts:66` as a registry init site; it is `IFormulaRegistry.initialize()` (EquipmentCalculatorService.ts:51 declares `private readonly registry: IFormulaRegistry`, imported from './FormulaRegistry' at :25). Replace it with the real sixth site, `src/hooks/useEquipmentRegistry.ts:42`."
+    },
+    {
+      "id": "RE3",
+      "blocking": true,
+      "target": "src/hooks/useEquipmentRegistry.ts:41-46",
+      "action": "Stop reporting ready over an interrupted init. Replace `.then(() => setIsReady(true))` with a readiness read that cannot lie, e.g. `.then(() => setIsReady(registry.isReady()))`, and make the attempt re-armable (reset initAttempted, or drop the latch, when initialize() resolves without the registry becoming ready) so a surviving document can retry. Add a test pinning: after an interrupted initialize, the hook's isReady is false. Mirror the same read at src/pages/_app.tsx:121-123 if servicesReady is meant to imply an equipment-ready app.",
+      "rationale": "An interrupted initialize resolves rather than throws (EquipmentRegistry.ts:121-122), buildNameMappings() is skipped, and every registry.lookup() (EquipmentRegistry.ts:215-270) then resolves nothing while the hook advertises ready. This is a state that did not exist before the commit."
+    },
+    {
+      "id": "RE4",
+      "blocking": true,
+      "target": "commit message body + evidence designNotes",
+      "action": "Either wire an actual recovery trigger (a `pageshow` listener that re-runs initialize() when the registry is unready) or downgrade the claim. As shipped, 'the registry stays unready so a surviving document reloads' names a reload that nothing performs - src/ has zero pageshow/bfcache handlers, and the only production re-init is the per-call retry at CalculationService.ts:257-262. Honest wording: 'stays unready rather than caching a partial catalog; recovery depends on the next initialize() caller.'",
+      "note": "Wiring pageshow is a legitimate follow-up slice; correcting the claim is not optional."
+    }
+  ],
+
+  "recommendedNotRequired": [
+    {
+      "id": "RN1",
+      "target": "src/services/equipment/EquipmentLookupService.ts:108-114",
+      "action": "Thread the same signal (or share the registry's in-flight load) through the lookup service's unsignalled loadOfficialEquipment() call. It runs on the same routes against the same singleton loader, so unload cancellations there still escalate to logger.error via recordFileLoadFailure. Until this is closed, the e2e browser-diagnostics gate is not provably clean on customizer/unit routes - see F3."
+    },
+    {
+      "id": "RN2",
+      "target": "src/services/equipment/EquipmentRegistry.ts:103",
+      "action": "Memoise the in-flight initialize promise the way EquipmentLookupService.ts:97-102 already does. With six call sites and a registry that can now stay unready, concurrent and repeated full ~30-fetch loads are reachable (notably from CalculationService.calculateHeatProfile)."
+    },
+    {
+      "id": "RN3",
+      "target": "src/services/equipment/EquipmentFileReader.ts:19-24",
+      "action": "Optional: document in the comment that the signal.aborted check is a WINDOW test, not a per-error test - once aborted, a genuine SyntaxError from response.json() is also swallowed as interrupted. Harmless as designed, but easy to misread as error discrimination."
+    }
+  ],
+
+  "whatIsGood": [
+    "The core classification is correct and genuinely well pinned. Using the identical TypeError('Failed to fetch') object on both sides of the boundary (abort.test.ts:68-70 used at :127 and at :161/:197) is the right way to prove the discrimination is the signal state and not the error text.",
+    "The pagehide test at abort.test.ts:227-275 drives the real lifecycle event against a hanging fetch and asserts the signal actually reached fetch - not a mocked stand-in.",
+    "Relocating the sentinel to an unmocked module instead of editing three shipped suites is exactly the right instinct, and the evidence documents the failed first attempt honestly.",
+    "Optional `interrupted?` keeps every existing 4-key toEqual pin valid; verified across 2101 tests.",
+    "success stays false for an interrupted load, so a partial corpus is never marked loaded (EquipmentLoaderService.ts:75) - the subtle trap that `errors.length === 0` would otherwise have sprung is called out in the evidence and is correctly handled.",
+    "The listener lifecycle is clean: per-call controller, finally-dispose, fresh controller on retry.",
+    "Every numeric claim in the author's evidence that this review could check - red 3/2 of 5, green 5/5, 105 suites / 2101 tests, three log sha256s, tsc clean, failure.test.ts unmodified - reproduced exactly."
+  ],
+
+  "reviewerVerificationLedger": [
+    { "claim": "7 files, +453/-12", "proof": "git diff --stat 3bf096346 027549ce6", "status": "CONFIRMED" },
+    { "claim": "author/committer Wes Rollings", "proof": "git show --no-patch --format", "status": "CONFIRMED" },
+    { "claim": "no AI attribution", "proof": "git show --no-patch --format=%b; git log -30 trailer survey", "status": "REFUTED - trailer present, repo convention is none" },
+    { "claim": "no openspec edits", "proof": "git diff --stat file list", "status": "CONFIRMED" },
+    { "claim": "failure.test.ts unmodified", "proof": "git diff 3bf096346 027549ce6 -- <path> (empty)", "status": "CONFIRMED" },
+    { "claim": "red log 3 failed / 2 passed", "proof": "grep of red-abort.log summary lines + sha256", "status": "CONFIRMED" },
+    { "claim": "focused green 5/5", "proof": "reviewer jest run at 027549ce6", "status": "CONFIRMED" },
+    { "claim": "broad 105 suites / 2101 tests", "proof": "reviewer jest run at 027549ce6", "status": "CONFIRMED" },
+    { "claim": "tsc clean", "proof": "reviewer tsc --noEmit -p tsconfig.json, exit 0", "status": "CONFIRMED" },
+    { "claim": "six registry initialize() call sites, all covered", "proof": "grep of src/ for EquipmentRegistry.initialize sites + type check of EquipmentCalculatorService.registry", "status": "COVERAGE CONFIRMED, EVIDENCE LIST REFUTED (one wrong member, one omitted)" },
+    { "claim": "no path where a real failure becomes interrupted on a live signal", "proof": "branch trace of EquipmentFileReader.ts:11-77 + the two green-on-red pins reproduced", "status": "CONFIRMED" },
+    { "claim": "a surviving document reloads", "proof": "grep pageshow|bfcache across src/ => zero handlers", "status": "REFUTED as shipped - mechanism exists, trigger does not" }
+  ],
+
+  "recheck": {
+    "generatedAtUtc": "2026-09-15T00:00:00Z",
+    "generatedBy": "agent:proof02-a-equipment-abort-review (same reviewer, second pass, read-only)",
+    "stack": [
+      { "commit": "4a27ac4ba", "role": "commit 1 - abort plumbing (message-only amend of 027549ce6)" },
+      { "commit": "06a20d6ac", "role": "commit 2 - RE3 outcome plumbing + hook re-arm" }
+    ],
+    "worktree": {
+      "runHead": "06a20d6ac3c998087fba22564cfc81361421818b",
+      "exitHead": "5b229be21e87815f10ce6521dda77b52eef75e3c (clean, restored)"
+    },
+
+    "RE1": {
+      "verdict": "CONFIRMED",
+      "treeIdentity": {
+        "027549ce6": "cb4761a0b0e885b78cffc267ef865332a9bac57b",
+        "4a27ac4ba": "cb4761a0b0e885b78cffc267ef865332a9bac57b",
+        "identical": true
+      },
+      "trailerRemoved": true,
+      "authorPreserved": "Wes Rollings <wrollings@gmail.com> (author and committer)",
+      "detail": "Message-only amend as described; no code moved."
+    },
+
+    "RE2": {
+      "verdict": "ACCEPTED AS REPORTED",
+      "note": "Coordinator reports the evidence JSON now names src/hooks/useEquipmentRegistry.ts:42 as the sixth site and corrects the attribution field. The underlying facts this reviewer established are unchanged: EquipmentCalculatorService.ts:66 is IFormulaRegistry.initialize(), and the six EquipmentRegistry sites are _app.tsx:32, serviceRegistry.ts:69, unitLoader.ts:70, CalculationService.ts:258, restoreLibraryVersionToDraft.ts:75, useEquipmentRegistry.ts:42."
+    },
+
+    "RE3": {
+      "verdict": "CLOSED - correctly and minimally",
+      "design": {
+        "type": "export type EquipmentRegistryInitOutcome = 'ready' | 'interrupted' (EquipmentRegistry.ts:58-65)",
+        "docQuote": "Callers MUST NOT treat a resolved initialize() as proof of readiness - only the `ready` outcome (or isReady()) says that.",
+        "assessment": "An explicit outcome union is the right shape: it makes the previously invisible third state nameable at every call site instead of hiding it behind a resolved void promise, and the doc comment states the contract callers must honour."
+      },
+      "callSiteAudit": {
+        "compiles": "tsc --noEmit -p tsconfig.json exit 0, re-run by reviewer at 06a20d6ac. void -> union is a non-breaking widening for the five sites that discard the result.",
+        "treatsInterruptedAsReady": "NONE report ready.",
+        "perSite": [
+          { "site": "src/hooks/useEquipmentRegistry.ts:42-53", "handling": "CONSUMES the outcome. 'interrupted' => setInitAttempted(false) and return, without touching isReady.", "verdict": "correct" },
+          { "site": "src/services/construction/CalculationService.ts:257-262", "handling": "Already guards on registry.isReady() and re-attempts per call; outcome discarded but readiness is read from the registry, not from resolution.", "verdict": "correct" },
+          { "site": "src/pages/_app.tsx:32", "handling": "Discards the outcome; servicesReady becomes true regardless.", "verdict": "acceptable residual - VERIFIED: grep for `servicesReady` across src/ excluding _app.tsx returns ZERO consumers, so the flag gates nothing today. Recorded residual is accurate. Worth a one-line comment at the prop so a future consumer does not mistake it for an equipment-ready signal." },
+          { "site": "src/services/serviceRegistry.ts:69", "handling": "Discards; initializeServices() resolves as if complete.", "verdict": "residual - no production caller observed to branch on it" },
+          { "site": "src/services/units/unitLoaderService/unitLoader.ts:70", "handling": "Discards, then proceeds to resolve unit equipment against a possibly-unmapped registry.", "verdict": "residual, narrow - only reachable mid-unload; on a bfcache-restored document the continuation could resolve equipment against empty maps. Pre-existing in kind (the old code proceeded against a PARTIAL registry), not a new regression." },
+          { "site": "src/components/customizer/tabs/restoreLibraryVersionToDraft.ts:75", "handling": "Same shape as unitLoader: discards, then parseUnit/mapToUnitState.", "verdict": "residual, narrow - same reasoning" }
+        ],
+        "recommendation": "Not blocking. Consider a follow-up that has unitLoader.ts:70 and restoreLibraryVersionToDraft.ts:75 branch on the 'interrupted' outcome (abandon the continuation rather than build a draft from an unmapped registry). Both are unload-window-only."
+      },
+      "terminationArgument": {
+        "verdict": "SOUND - the re-arm cannot loop",
+        "trace": "setInitAttempted(false) re-runs the effect (deps [initAttempted]) => registry.isReady() false => !initAttempted => setInitAttempted(true) + a fresh initialize(). Each attempt calls createEquipmentLoadAbort() which builds a NEW AbortController (equipmentLoadAbort.ts:60-66), so the one-shot abort of the previous attempt never poisons the retry. A second 'interrupted' outcome therefore requires a SECOND pagehide event. pagehide does not fire on a visible document and does not fire on a Next.js client-side route change, so each additional interruption costs one real user navigation: the recursion is bounded by user actions, not self-sustaining.",
+        "unloadingDocumentCase": "If the document is genuinely unloading (not bfcache), the retry's fetches are cancelled by the browser with a LIVE fresh signal, so they classify as genuine failures (EquipmentFileReader.ts:19-24), errors are recorded, buildNameMappings runs and initialize() returns 'ready'. The loop terminates on the first retry even in the worst case. It cannot re-enter the 'interrupted' branch without a new pagehide.",
+        "concurrency": "initAttempted stays true for the duration of an attempt, so at most one load is in flight per hook instance; no attempt fan-out.",
+        "pinnedBy": "useEquipmentRegistry.interrupted.test.tsx:117-139 installs a fetch that hangs on EVERY load (hangLoads = Number.MAX_SAFE_INTEGER) and asserts the hook stays not-ready with no console.error - a spin or an error storm would surface here."
+      }
+    },
+
+    "RE4": {
+      "verdict": "CLOSED IN CODE; ONE RESIDUAL IN THE COMMIT-1 MESSAGE",
+      "codeComment": {
+        "site": "src/services/equipment/EquipmentRegistry.ts:128-131",
+        "quote": "// An interrupted load leaves the corpus partial. Stay unready rather // than caching half a catalog; recovery depends on the next // initialize() caller (useEquipmentRegistry re-arms its attempt). // No pageshow / bfcache re-init is wired.",
+        "assessment": "Exactly the honest wording asked for, and it now names the real recovery path plus the explicit non-claim. Accepted."
+      },
+      "residual": {
+        "id": "RC1",
+        "severity": "MINOR, non-blocking",
+        "site": "commit 4a27ac4ba message body",
+        "quote": "the registry stays unready so a surviving document reloads instead of serving half a catalog",
+        "issue": "The message was not touched by the RE4 correction. As of commit 2 the claim is substantively TRUE (the hook's re-arm is a real trigger), but commit 1 will be published as its own PR, and in PR 1 alone nothing re-initialises. Suggested reword for PR 1's body: '...stays unready rather than caching half a catalog; the recovery trigger lands in the follow-up.'",
+        "blocking": false,
+        "reasoning": "The durable artefact (the code comment) is correct, the stack lands together, and commit 1's tree is unchanged from the already-reviewed 027549ce6."
+      },
+      "pageshow": "Still not wired. Correctly recorded as residual R1. Accepted - a lifecycle re-init is a legitimate separate slice, and the hook re-arm covers the realistic restore path."
+    },
+
+    "testsAndGatesRechecked": {
+      "redHook": {
+        "log": ".sisyphus/roadmap-completion-20260912/proof02-a-20260915/red-hook.log",
+        "opened": true,
+        "sha256": "8502edb33139a76d42b5ea5a04079e6e6289781eb3f91ee305f4ba6413f5c362",
+        "summary": "Test Suites: 1 failed, 1 total / Tests: 2 failed, 1 passed, 3 total",
+        "failures": [
+          "'never reports ready while the registry itself is unready' - Expected: false, Received: true (the hook advertising ready over an unready registry: the exact F1 defect)",
+          "'retries after an interruption instead of latching the attempt' - Expected: true, Received: false (the latched attempt)"
+        ],
+        "greenOnRedByDesign": "'reports ready on an uninterrupted init' - the non-regression pin for the happy path.",
+        "verdict": "RED LOG IS REAL and its two failures reproduce F1's two halves precisely. Red-first claim holds."
+      },
+      "greenHook": {
+        "log": "green-hook.log",
+        "sha256": "99cb5c35a3787d9e34a2940f0ae0982fd139cb7ae3ff792bf69180f93ebac2c0",
+        "claimed": "3/3",
+        "reviewerRerun": "Test Suites: 1 passed, 1 total. Tests: 3 passed, 3 total.",
+        "status": "CONFIRMED"
+      },
+      "focused2Suites": { "claimed": "2 suites / 8 tests", "reviewerRerun": "Test Suites: 2 passed, 2 total. Tests: 8 passed, 8 total.", "status": "CONFIRMED" },
+      "tsc": { "command": "node node_modules/typescript/bin/tsc --noEmit -p tsconfig.json", "exitCode": 0, "runBy": "reviewer at 06a20d6ac", "status": "CONFIRMED" },
+      "gateLogs": { "gate-oxfmt.log": "All matched files use the correct format", "gate-oxlint.log": "Found 0 warnings and 0 errors", "gate-tsc.log": "empty (clean)", "note": "author logs; tsc independently re-run" },
+      "notRerunByReviewer": [
+        "105 suites / 2101 (equipment tier) - re-run and confirmed by this reviewer in the FIRST pass at 027549ce6, whose tree is byte-identical to 4a27ac4ba; author's green-equipment-suite-105.log covers it at 06a20d6ac",
+        "164 suites / 2847 (hooks tier) - accepted on the author's log; the 3 tests it adds were re-run directly"
+      ]
+    },
+
+    "lineAccounting": {
+      "commit1": "7 files, 453 insertions, 12 deletions (465 changed lines)",
+      "commit2": "3 files, 209 insertions, 7 deletions (216 changed lines)",
+      "cumulative": "9 files, 658 insertions, 15 deletions (673 changed lines)",
+      "coordinatorFigureCorrection": "Coordinator quoted commit 2 as ~193; it is 209 insertions / 216 changed lines. The 658 cumulative figure is insertions-only. Immaterial to the cap either way.",
+      "capPerCommit": "Both commits are under 500 on either metric, so the two-stacked-PR plan satisfies the cap.",
+      "capVerdict": "PASS"
+    },
+
+    "perCommitVerdict": [
+      {
+        "commit": "4a27ac4ba",
+        "verdict": "APPROVE",
+        "basis": "Tree byte-identical to the already-reviewed 027549ce6 (cb4761a0b...), AI attribution removed, author preserved. All first-pass findings on this tree (abort classification sound, no listener leak, R9 not regressed, red/green/tsc reproduced) carry over unchanged.",
+        "residuals": ["RC1 - the message still claims a reload that PR 1 alone does not perform (MINOR, non-blocking)"]
+      },
+      {
+        "commit": "06a20d6ac",
+        "verdict": "APPROVE",
+        "basis": "RE3 closed with the minimum correct change: an explicit outcome union instead of a resolved void, the hook reading readiness honestly and re-arming, a sound termination argument verified independently (a retry cannot re-enter 'interrupted' without a new pagehide), a real red log whose two failures are the two halves of the defect, 3/3 green and tsc 0 both re-run by the reviewer, and all six call sites compiling with none reporting ready.",
+        "residuals": [
+          "_app.tsx:32 and serviceRegistry.ts:69 discard the outcome - verified harmless today (servicesReady has zero consumers)",
+          "unitLoader.ts:70 and restoreLibraryVersionToDraft.ts:75 discard the outcome and continue against a possibly-unmapped registry - unload-window-only, pre-existing in kind, worth a follow-up",
+          "R1 - no pageshow/bfcache re-init (accepted as a separate slice)",
+          "RN1 from the first pass still open: EquipmentLookupService.ts:114 loads unsignalled on the same routes, so the targeted logger.error escalation is not provably eliminated without a browser run"
+        ]
+      }
+    ],
+
+    "overallVerdict": "APPROVE (both commits). All four required edits are closed or acceptably disposed; no new blocking findings. The remaining items are recorded residuals and follow-up candidates, not gates."
+  }
+}

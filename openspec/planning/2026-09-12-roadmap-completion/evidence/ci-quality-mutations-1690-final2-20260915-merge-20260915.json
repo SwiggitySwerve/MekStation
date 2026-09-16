@@ -1,0 +1,73 @@
+{
+  "pr": 1690,
+  "branch": "codex/roadmap-ci-quality-mutations-20260915",
+  "attempt": 2,
+  "supersedes": "the BLOCKED receipt at ci-quality-mutations-1690-final-20260915-merge-20260915.json, kept untouched as the record of the conflict",
+  "priorAttemptSummary": "Attempt 1 could not be updated: update-branch returned HTTP 422 'merge conflict between base and head' - an add/add conflict on scripts/__tests__/openspec-ci-quality-qc.test.ts created when PR 1689 was squash-merged (the squash commit is not an ancestor of this stacked branch). Resolution was out of merge-manager scope; the parent resolved it.",
+  "resolutionByParent": "Parent merged origin/main (2af7b2259) into the branch keeping the branch's 675-line file, producing head f01681cf7. sha256 of the file unchanged at 37cc951ad2...",
+  "reviewedCommit": "534372297bad41a19cb73719d6df16aa0725feb5",
+  "headAtResume": "f01681cf768af0e741e62246132dd526ad337ca2",
+  "finalHead": "98fcb96bf3570bff7ed05ec487e0f51bac12d1e4",
+  "anomaly": null,
+  "autoMergeArmed": false,
+  "contentGuard": {
+    "atResume": {
+      "fileSetVsMergeBase": ["scripts/__tests__/openspec-ci-quality-qc.test.ts"],
+      "sha256": "37cc951ad23379e647b2217750932f18c1843c247ee1f4a3e7e36da79b97b026",
+      "sha256Match": true,
+      "blobVsReviewed": "5ee4efd1ce1f9c01b1b083b6afb891e315983c9f == blob at 534372297 (EQUAL)",
+      "result": "PASS"
+    },
+    "postUpdate": {
+      "fileSet": ["scripts/__tests__/openspec-ci-quality-qc.test.ts"],
+      "diffstat": "1 file changed, 95 insertions(+)",
+      "sha256": "37cc951ad23379e647b2217750932f18c1843c247ee1f4a3e7e36da79b97b026",
+      "sha256Match": true,
+      "blobVsReviewed": "EQUAL",
+      "result": "PASS"
+    }
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "succeeded": true,
+    "oldHead": "f01681cf768af0e741e62246132dd526ad337ca2",
+    "newHead": "98fcb96bf3570bff7ed05ec487e0f51bac12d1e4",
+    "expectedHeadShaGuard": "f01681cf768af0e741e62246132dd526ad337ca2",
+    "reason": "branch was BEHIND after #1685 merged to main",
+    "conflictResolvedNote": "This update succeeded where attempt 1 failed, because the parent's merge of main into the branch gave the two sides a common ancestor for the file."
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "otherChecksCount": 27,
+    "otherChecksBuckets": { "pass": 27 },
+    "totalChecks": 31,
+    "pollLog": "08:43:48 2 pending -> 08:51:04 31 pass / 0 pending"
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ci-quality-mutations-1690-final2-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "3bf096346c1077a82b7d03d8a5ec70111c07c187",
+  "mergeCommitParents": ["318f4ecc1c0a01fe5de45b904a1581503cbef8b9"],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1690 --squash --match-head-commit 98fcb96bf3570bff7ed05ec487e0f51bac12d1e4",
+  "mergedAt": "2026-09-15T08:51:29Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "sha256 of the file read back from the merge commit on main is 37cc951ad23379e647b2217750932f18c1843c247ee1f4a3e7e36da79b97b026 - exact match to the reviewed digest.",
+  "mainAfter": "3bf096346c1077a82b7d03d8a5ec70111c07c187",
+  "worktree": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/ci-customizer-gate-20260915",
+    "fastForward": "NOT PERFORMED - per coordinator instruction",
+    "result": "SKIPPED (intentional)"
+  },
+  "timestamps": {
+    "resumeReceivedAt": "2026-09-15T08:42:40Z",
+    "checksTerminalAt": "2026-09-15T08:51:04Z",
+    "mergedAt": "2026-09-15T08:51:29Z",
+    "receiptWrittenAt": "2026-09-15T09:21:00Z"
+  }
+}

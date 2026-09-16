@@ -1,0 +1,16 @@
+{
+  "at": "2026-09-13T08:41:24.533Z",
+  "supersedes": "Only review artifact hashes in r3-integrity-parent-gate-failure-20260913.json, captured before reviewer terminal finalization. Parent gate logs and verdict unchanged.",
+  "verdict": "REQUEST_CHANGES",
+  "reviewerTerminal": true,
+  "artifacts": [
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-branch-integrity-final-review-terra-20260913/review.md",
+      "sha256": "c5ce0e92267d75e713c4e93ca6bec0be8e5da35199d952458d440c5ddfc4791f"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-branch-integrity-final-review-terra-20260913/report.json",
+      "sha256": "b0271a6626271cbbcfb26d185dd4bb11751dd5e4a95ec275b732252dff58b5ce"
+    }
+  ]
+}

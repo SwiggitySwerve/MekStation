@@ -1,0 +1,135 @@
+{
+  "task": "R3.activation P1 close-out determination",
+  "date": "2026-09-15",
+  "verifiedAgainst": {
+    "ref": "origin/main",
+    "sha": "1f84beef2967ce071f25ffa1b6f94240d9507b58",
+    "fetchCommand": "git fetch origin main",
+    "readCommand": "git show origin/main:openspec/changes/add-authoritative-history-branches/tasks.md"
+  },
+  "brief": "openspec/planning/2026-09-12-roadmap-completion/evidence/r3-activation-r4-s1-admission-brief-20260915.json (R3.activation section), which proposed 'P1 (0-40 lines): doc/receipt close-out of what's already done, no code' as the only admissible prefix for tasks 2.1-2.7.",
+  "outcome": "NO EDIT REQUIRED. tasks.md on origin/main already carries the exact scoped non-claim language the brief's P1 would have added; the section is internally accurate and every cited artifact was independently verified to exist on origin/main. No misleading text was found, so per task instructions the correct action is to make no edit and record this determination.",
+  "tasks": [
+    {
+      "id": "2.1",
+      "line": 35,
+      "checkbox": "[x]",
+      "text": "Add authorized candidate creation plus a durable correction lease with opaque ID, owner, expiry, monotonically increasing fencing epoch, expected branch/revision/digest/generation, actor, and reason.",
+      "evidenceClaims": [
+        "src/lib/events/journal/EventHistoryCandidateBuild.ts exports createCorrectionCandidateBranch",
+        "src/lib/events/journal/EventHistoryCorrectionLeaseContract.ts exists",
+        "src/lib/events/journal/SQLiteEventHistoryCorrectionLeaseStore.ts exists",
+        "Receipt text at tasks.md:36 describes createCorrectionCandidateBranch as four ordered refusable steps inside one db.transaction"
+      ],
+      "verification": "VERIFIED. All three files exist on origin/main (git cat-file -e). `export function createCorrectionCandidateBranch(` found at EventHistoryCandidateBuild.ts:154. Receipt paragraph at tasks.md:36 matches the cited artifact and behavior. Receipt also names PR cut commits #1504 (schema) and #1507 (lease store), both of which are real merged commits on origin/main (c9e3e5334, 4fa3dbd10).",
+      "editMade": "none"
+    },
+    {
+      "id": "2.2",
+      "line": 42,
+      "checkbox": "[x]",
+      "text": "Reject commands with `PROJECTION_REBUILDING` while the live lease rebuilds; make restart recovery/expiry explicit and never queue commands invisibly.",
+      "evidenceClaims": [
+        "src/lib/events/journal/EventHistoryCommandAdmission.ts exports readRebuildRefusal and admitStreamCommand",
+        "src/lib/multiplayer/server/ServerMatchHostIntent.ts calls refuseDuringHistoryRebuild",
+        "src/lib/events/journal/EventHistoryDurableRebuild.ts exports readDurableStreamRebuild",
+        "Receipt text at tasks.md:43 (CLOSED 2026-09-02) describes adoption at both live admission sites (combat + campaign)"
+      ],
+      "verification": "VERIFIED. `export function readRebuildRefusal(` at EventHistoryCommandAdmission.ts:105, `export function admitStreamCommand(` at :138, and admitStreamCommand calls readRebuildRefusal at :145. ServerMatchHostIntent.ts imports refuseDuringHistoryRebuild at :43 and calls it at :216. EventHistoryDurableRebuild.ts exports readDurableStreamRebuild at :45. All files and symbols exist exactly as cited.",
+      "editMade": "none"
+    },
+    {
+      "id": "2.3",
+      "line": 47,
+      "checkbox": "[x]",
+      "text": "Verify replay, viewer projections, and an immutable server-derived affected-artifact manifest before activation.",
+      "evidenceClaims": [
+        "src/lib/events/journal/EventHistoryImpactDerivation.ts exports deriveAndSealCandidateImpact",
+        "src/lib/events/journal/EventHistoryCandidateVerification.ts exports verifyCandidatePath",
+        "src/lib/events/journal/EventHistoryArtifactManifest.ts exists",
+        "Receipt text at tasks.md:48 (CLOSES this box) describes the locked verify->materialise->probe->seal order"
+      ],
+      "verification": "VERIFIED. `export async function deriveAndSealCandidateImpact<TState>(` at EventHistoryImpactDerivation.ts:226; `export async function verifyCandidatePath<TState>(` at EventHistoryCandidateVerification.ts:172; EventHistoryArtifactManifest.ts exists. Receipt names PR cuts #1515 (storage) and #1518 (verification), both real merged commits on origin/main (a959ce1ed, 8def745b3). Note: the admission brief's own citation line numbers for 2.3 onward (it says tasks.md:49, :56, :59, :62) are each off by one versus this fetched origin/main copy (actual lines 48, 55, 58, 61) -- a citation-numbering drift in the brief itself, not a defect in tasks.md; the quoted text was located and matches verbatim at the corrected line.",
+      "editMade": "none"
+    },
+    {
+      "id": "2.4",
+      "line": 54,
+      "checkbox": "[ ]",
+      "text": "Fence the prior effective generation; serialize the fence against lease-to-admitted promotion, stop new leases/admissions, supersede unleased pending rows, and keep the candidate waiting plus prior branch effective while an old-generation delivery has an unknown target result.",
+      "evidenceClaims": [
+        "PROGRESS note at tasks.md:55 claims the generation fence itself is implemented (supersession row prior_generation = N) in EventHistoryActivation.ts",
+        "PROGRESS note explicitly states the remainder (serialize-against-lease-to-admitted-promotion, stop-new-admissions, supersede-unleased-pending, waiting arm) is 'NOT CLAIMED and gated on the cross-stream effect-receipt change'"
+      ],
+      "verification": "VERIFIED and NOT MISLEADING. The checkbox is correctly [ ] (open). The PROGRESS text already draws the exact line the brief wanted drawn: what is built (the fence/supersession row) vs. what depends on add-cross-stream-effect-receipts (confirmed on this snapshot: `grep -c '\\[x\\]' openspec/changes/add-cross-stream-effect-receipts/tasks.md` = 0, `grep -c '\\[ \\]'` = 51 on origin/main; the change directory exists under openspec/changes/, not openspec/changes/archive/; `git grep -n 'DeliveryLease|deliveryLease|EffectReceipt' -- src --include='*.ts'` on origin/main returns 0 matches). No edit needed -- the non-claim already exists verbatim.",
+      "editMade": "none"
+    },
+    {
+      "id": "2.5",
+      "line": 57,
+      "checkbox": "[ ]",
+      "text": "Lock and verify the current unexpired correction lease ID, owner, and epoch with the expected-head comparison. If a prior receipt was accepted, atomically create the higher-version replacement outbox and pending saga while activating the candidate, incrementing generation by exactly one, superseding the prior branch, and publishing invalidations; otherwise activate without correction. Never wait for a pre-activation replacement receipt.",
+      "evidenceClaims": [
+        "PROGRESS note at tasks.md:58 claims the 'otherwise activate without correction' path (lease lock+verify, expected-head comparison, generation+1, GENERATION_EXHAUSTED refusal) is built in EventHistoryActivation.ts",
+        "PROGRESS note explicitly states 'NOT CLAIMED: the accepted-prior-receipt arm ... no receipt exists to have been accepted; closes with the effect-receipt change'"
+      ],
+      "verification": "VERIFIED and NOT MISLEADING. Checkbox correctly [ ]. The accepted-prior-receipt arm's absence is already explicitly disclaimed with its blocker named. No production 'replacement outbox' / 'pending saga' symbol exists in src (checked via the brief's own grep, corroborated by the same DeliveryLease/EffectReceipt grep above returning 0 in src/lib/events and src/lib/multiplayer). No edit needed.",
+      "editMade": "none"
+    },
+    {
+      "id": "2.6",
+      "line": 60,
+      "checkbox": "[ ]",
+      "text": "Prove deterministic replay, correction-lease restart/expiry/takeover, stale-owner activation rejection with an unchanged head, stale-head activation, safe-integer generation exhaustion before mutation, injected activation failure, both fence/admission serial orders, accepted-prior-receipt activation, and target outage/restart at each saga boundary.",
+      "evidenceClaims": [
+        "PROGRESS note at tasks.md:61 claims everything provable without a delivery lease is proven in EventHistoryActivation.test.ts (stale-owner, stale-head, generation-exhaustion, injected-failure rollback, both serial orders against the correction lease, unsealed-manifest refusal)",
+        "PROGRESS note explicitly states 'NOT CLAIMED: fence/admission serial orders against a delivery lease, accepted-prior-receipt proofs, and the waiting arm - all gated on the effect-receipt change'"
+      ],
+      "verification": "VERIFIED and NOT MISLEADING. Checkbox correctly [ ]. EventHistoryActivation.test.ts exists on origin/main. `git grep -n 'STALE_CORRECTION_LEASE' -- src` on origin/main returns 0 matches (the symbol appears only in openspec/changes/add-authoritative-history-branches/specs/event-store/spec.md:66) -- confirming this SHALL is genuinely uncovered and the task's [ ] state plus its non-claim are both accurate, not overstated. No edit needed.",
+      "editMade": "none"
+    },
+    {
+      "id": "2.7",
+      "line": 63,
+      "checkbox": "[ ]",
+      "text": "After independent review and focused gates pass, merge, rerun activation/failure on exact main, and prune the branch/worktree.",
+      "evidenceClaims": [
+        "No inline receipt/progress note exists for this task; it is a pure process/merge step sequentially blocked on 2.4-2.6 closing (or a scoped split)"
+      ],
+      "verification": "VERIFIED. Line 63 carries no progress annotation, correctly reflecting that this is an unstarted, purely sequential step with nothing to misrepresent. No edit needed.",
+      "editMade": "none"
+    }
+  ],
+  "additionalCorroboration": {
+    "prCommitsVerified": [
+      { "pr": 1495, "commit": "c113a24d4", "subject": "feat(persistence): a genesis branch per stream, at the generation it stored (#1495)" },
+      { "pr": 1497, "commit": "2aae8b071", "subject": "feat(events): branch lineage names the rule you broke instead of a column (#1497)" },
+      { "pr": 1504, "commit": "c9e3e5334", "subject": "feat(persistence): a rebuild permission that outlives the host holding it (#1504)" },
+      { "pr": 1507, "commit": "4fa3dbd10", "subject": "feat(events): the lease says whether you may still act, not just that you held it (#1507)" },
+      { "pr": 1515, "commit": "a959ce1ed", "subject": "feat(persistence): an activation records what it will break, and cannot widen it later (#1515)" },
+      { "pr": 1518, "commit": "8def745b3", "subject": "feat(events): a candidate proves it replays the same way twice before it can matter (#1518)" }
+    ],
+    "crossStreamEffectReceiptsStatus": {
+      "checkedComplete": 0,
+      "checkedIncomplete": 51,
+      "archived": false,
+      "note": "Confirms the blocker named in 2.4/2.5/2.6's non-claims is real and current."
+    },
+    "unrelatedObservation": {
+      "note": "openspec/active-change-ledger.json on origin/main still lists add-authoritative-history-branches with status 'proposed' and lastReviewed 2026-07-30, which predates the 2026-09-02 implementation receipts for tasks 1.1-2.3 (6 merged PRs). This looks stale, but the task instructions scoped any edit strictly to tasks.md with a 40-line cap and no ledger changes, so it was left untouched and is only recorded here as an observation, not acted on.",
+      "action": "none taken; out of scope for this task"
+    }
+  },
+  "editSummary": {
+    "editsRequired": false,
+    "filesChanged": [],
+    "commitSha": null,
+    "commitMessage": null,
+    "worktreeCreated": false,
+    "validatorsRun": {
+      "openspecValidateAllStrict": "not run -- no edit required, so no validation gate applies",
+      "specPurposeValidateStrict": "not run -- no edit required",
+      "terminologyValidateStrict": "not run -- no edit required"
+    }
+  }
+}

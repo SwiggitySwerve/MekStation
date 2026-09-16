@@ -1,0 +1,68 @@
+{
+  "pr": 1756,
+  "branch": "codex/roadmap-r2-authority-live-revocation-detach-main-20260915",
+  "reviewedCommit": "c19047b20da2f0c5c5f9023aed8272f479fb0d49",
+  "finalHead": "c19047b20da2f0c5c5f9023aed8272f479fb0d49",
+  "anomaly": null,
+  "autoMergeArmed": false,
+  "purpose": "Product fix (revocation detach) closing the red rows asserted by the #1755 privacy spec.",
+  "contentGuard": {
+    "fileSetEqualToReviewed": true,
+    "fileCount": 3,
+    "files": [
+      "e2e/campaign-journal-two-process-privacy.spec.ts",
+      "src/lib/multiplayer/server/CampaignSyncSession.ts",
+      "src/lib/multiplayer/server/__tests__/CampaignSyncSession.test.ts"
+    ],
+    "diffstat": "3 files changed, 234 insertions(+), 33 deletions(-)",
+    "blobEquality": "trivially satisfied - reviewed commit == PR head; no update-branch was performed",
+    "result": "PASS"
+  },
+  "updateBranch": {
+    "performedByThisSession": false,
+    "reason": "NOT NEEDED - the PR was rebuilt onto main by cherry-pick and reported mergeStateStatus CLEAN; `git merge-base --is-ancestor origin/main <head>` confirmed UP-TO-DATE against main at 2c1b4584d."
+  },
+  "stackRelationship": {
+    "buildsOn": "#1755 (r2-authority-live-3), merged at 2c1b4584d",
+    "sharedFile": "e2e/campaign-journal-two-process-privacy.spec.ts - this PR edits the spec #1755 introduced",
+    "dirtyEncountered": false,
+    "why": "The branch was cherry-picked onto current main rather than left stacked on the 1755 branch, so no add/add conflict arose against 1755's squash."
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "Customizer Regressions": "pass",
+    "Unit Tests (6/6)": "pass",
+    "otherChecksCount": 27,
+    "otherChecksBuckets": { "pass": 27 },
+    "totalChecks": 31,
+    "pollLog": "already terminal at first snapshot 21:21:31 - 31 pass / 0 pending",
+    "rerunsPerformed": 0
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-authority-live-revocation-detach-1756-final-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "88290bd7e2833758f0282ba6ea9a01d182f9aaea",
+  "mergeCommitParents": ["2c1b4584de076ae497533d093618dac5bcc97f03"],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1756 --squash --match-head-commit c19047b20da2f0c5c5f9023aed8272f479fb0d49",
+  "mergedAt": "2026-09-15T21:21:54Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "The merge commit changes exactly the 3 guarded files, all blob-identical to the gated head.",
+  "mainAfter": "88290bd7e2833758f0282ba6ea9a01d182f9aaea",
+  "flakeWatch": {
+    "consecutiveCleanPRsSinceFixes": 16,
+    "note": "No rerun has been required on any PR since #1741 (selected-paper settle) and #1742 (QC fixture port range) landed. Both previously-escalated flakes have stayed green on every run since."
+  },
+  "worktree": { "fastForward": "NOT PERFORMED - no owned worktree designated for this PR", "result": "N/A" },
+  "timestamps": {
+    "guardStartedAt": "2026-09-15T21:20:40Z",
+    "checksTerminalAt": "2026-09-15T21:21:31Z",
+    "mergedAt": "2026-09-15T21:21:54Z",
+    "receiptWrittenAt": "2026-09-15T21:23:00Z"
+  }
+}

@@ -1,0 +1,83 @@
+{
+  "slice": "selected-paper print settle fix (Customizer Regressions required check reliability)",
+  "pr": 1741,
+  "prHead": "e363b2fe65d55d31626bad1c60bd1c9877d7a934",
+  "mergeCommit": "91b66b04c6f79a365e40b94e25c93e8c00ffa8a3",
+  "verifiedAtUtc": "2026-09-15T18:37:29.662Z",
+  "worktree": "archive-original-main-proof (detached at merge commit, Node v22.22.0)",
+  "blobEquality": {
+    "files": [
+      "e2e/customizer-record-sheet-rendering.spec.ts"
+    ],
+    "command": "git diff --stat <prHead> <merge> -- <file>",
+    "result": "empty (0 bytes)"
+  },
+  "gates": {
+    "tsc": {
+      "exit": 0,
+      "outputBytes": 0
+    },
+    "oxfmt": {
+      "exit": 0
+    },
+    "openspecStrict": {
+      "exit": 0
+    }
+  },
+  "ciEvidence": "the PR own Customizer Regressions run passed first try (merge manager); the red gate on the PR was the unrelated port-binding QC test, rerun 31/31",
+  "runtimeOnMerge": {
+    "attempt1": {
+      "worktree": "archive-original-main-proof",
+      "buildId": "1789495843525",
+      "e2eBundle": "window.__E2E_MODE__=!0 in _app-b4f3e371ee8b87c1.js",
+      "result": "6/6 failed at each test first assertion (deep-equality + 10s predicate timeout)",
+      "disposition": "environment-invalid, not a regression: this worktree public/record-sheets holds only mm-data-version.json (no templates_iso/templates_us/biped_pips), the same asset gap the diagnosis lane recorded; the browser worktree with assets passed the whole file 6/6 on the branch",
+      "logs": {
+        "build": {
+          "path": ".sisyphus/roadmap-completion-20260912/main-proof-1741-20260915/build.log",
+          "sha256": "6f603cde03c3793aa4a27cff9f73a40445a02976ba4725db31cb79fdade1d2d2"
+        },
+        "playwright": {
+          "path": ".sisyphus/roadmap-completion-20260912/main-proof-1741-20260915/playwright.log",
+          "sha256": "7d630767223fe9623ebc0933d047e02b55d0fe05e2622c84bc4ed87a07fb4499"
+        }
+      }
+    },
+    "attempt2": {
+      "worktree": "browser (detached at the merge commit; has public/record-sheets assets)",
+      "buildId": "1789497196313",
+      "e2eBundle": "window.__E2E_MODE__=!0 in _app-b4f3e371ee8b87c1.js",
+      "command": "MEKSTATION_E2E_SERVER_COMMAND=node .next/standalone/server.js HOSTNAME=127.0.0.1 MEKSTATION_E2E_PORT=3639 run-playwright test e2e/customizer-record-sheet-rendering.spec.ts --project=chromium --retries=0 --workers=1",
+      "result": "exit 0, 6 passed (54.7s)",
+      "port3639ListenAfter": 0,
+      "logs": {
+        "build": {
+          "path": ".sisyphus/roadmap-completion-20260912/main-proof-1741-20260915/build2.log",
+          "sha256": "150e04cded167c023a648bd829dda13ed375e95d4114c1e3cebe45c2adb5939d"
+        },
+        "playwright": {
+          "path": ".sisyphus/roadmap-completion-20260912/main-proof-1741-20260915/playwright2.log",
+          "sha256": "d014f5f866c6632d77585bbd6b7ecff6a558c1fcb271d82f35a39f90c76a0d5c"
+        }
+      }
+    }
+  },
+  "logs": {
+    "tsc": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1741-20260915/tsc.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "oxfmt": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1741-20260915/oxfmt.log",
+      "sha256": "bd579d324c8cb3fbb6672f3d9df46c39fe3ca08a11dfcc3eaea46ce7e8acd87d"
+    },
+    "openspec": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1741-20260915/openspec.log",
+      "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3"
+    }
+  },
+  "limits": [
+    "the race does not reproduce on this 16-core machine; the fix rests on CI log evidence, code reading, and the PR own green Customizer Regressions run",
+    "no assets were fetched for the proof worktree (unverified asset acquisition is forbidden)"
+  ]
+}

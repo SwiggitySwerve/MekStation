@@ -1,0 +1,437 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "vault-contracts-delivery-preflight-20260912",
+  "capturedDate": "2026-09-12",
+  "status": "delivery-ready-with-limits",
+  "review": "Final staged delivery preflight for the three-document vault/campaign contract wording repair",
+  "candidate": {
+    "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/vault-contracts",
+    "branch": "codex/roadmap-vault-contracts-20260912",
+    "head": "ca0687d25264033376862347e494ddf15cd92bec",
+    "change": "design-vault-campaign-separation-and-maps",
+    "deliveryBasis": "candidate HEAD to the current staged candidate",
+    "headToCandidate": {
+      "files": 3,
+      "additions": 26,
+      "deletions": 26,
+      "changedLines": 52,
+      "under500LineCap": true,
+      "rootOriginalComparisonsExcludedFromDeliveryCount": true
+    },
+    "documents": [
+      {
+        "path": "openspec/changes/design-vault-campaign-separation-and-maps/proposal.md",
+        "status": "M",
+        "additions": 9,
+        "deletions": 9,
+        "workingRawSha256": "1f8b29b27cf318a4d30003c213e3660bd373748bb79dba5da3c7fdbcb57bd027",
+        "workingLfSha256": "0ae412ba1ed21917129cb29c46d546ca1cb5f27cfbfa6508d3b545083272fc17",
+        "indexRawSha256": "0ae412ba1ed21917129cb29c46d546ca1cb5f27cfbfa6508d3b545083272fc17",
+        "indexLfSha256": "0ae412ba1ed21917129cb29c46d546ca1cb5f27cfbfa6508d3b545083272fc17",
+        "headRawSha256": "5edfb5c47285b1b0e50242bef5f68448e25256ccce11580704944a1c4efd19b2",
+        "headLfSha256": "5edfb5c47285b1b0e50242bef5f68448e25256ccce11580704944a1c4efd19b2",
+        "workingIndexLfEqual": true,
+        "workingBytes": 6853,
+        "indexBytes": 6820,
+        "headBytes": 5416
+      },
+      {
+        "path": "openspec/changes/design-vault-campaign-separation-and-maps/design.md",
+        "status": "M",
+        "additions": 12,
+        "deletions": 12,
+        "workingRawSha256": "7cd71e0f655043d14138df4f73bd68aad30506fdf0cb8e399f0ffe6ece632834",
+        "workingLfSha256": "1e07e9fd3262f02c425d4e5c034d73d8816f331f437db0b69b926da417747b71",
+        "indexRawSha256": "1e07e9fd3262f02c425d4e5c034d73d8816f331f437db0b69b926da417747b71",
+        "indexLfSha256": "1e07e9fd3262f02c425d4e5c034d73d8816f331f437db0b69b926da417747b71",
+        "headRawSha256": "81fc35a77888668c88923026ce7068d39c437f5a47dc2fa78ed6328c8f2cfe78",
+        "headLfSha256": "81fc35a77888668c88923026ce7068d39c437f5a47dc2fa78ed6328c8f2cfe78",
+        "workingIndexLfEqual": true,
+        "workingBytes": 9048,
+        "indexBytes": 8996,
+        "headBytes": 8019
+      },
+      {
+        "path": "openspec/changes/design-vault-campaign-separation-and-maps/tasks.md",
+        "status": "M",
+        "additions": 5,
+        "deletions": 5,
+        "workingRawSha256": "5c6a3f12ee756be208c7371654f0504ccbfab1fd0202663801b8620c8931c562",
+        "workingLfSha256": "59e5714457431118bd26fefcf1f969ee156a4c4675a8796eb0a4b8e27641d359",
+        "indexRawSha256": "59e5714457431118bd26fefcf1f969ee156a4c4675a8796eb0a4b8e27641d359",
+        "indexLfSha256": "59e5714457431118bd26fefcf1f969ee156a4c4675a8796eb0a4b8e27641d359",
+        "headRawSha256": "bdbe64261dba75b2427eb9dd769748e27b145e6e9cdcaf1294160b0d443a652a",
+        "headLfSha256": "bdbe64261dba75b2427eb9dd769748e27b145e6e9cdcaf1294160b0d443a652a",
+        "workingIndexLfEqual": true,
+        "workingBytes": 5505,
+        "indexBytes": 5463,
+        "headBytes": 4703
+      }
+    ],
+    "stagedNamesExact": true,
+    "unstagedNames": [],
+    "stagedStatus": [
+      "M  openspec/changes/design-vault-campaign-separation-and-maps/design.md",
+      "M  openspec/changes/design-vault-campaign-separation-and-maps/proposal.md",
+      "M  openspec/changes/design-vault-campaign-separation-and-maps/tasks.md"
+    ]
+  },
+  "baseTargetGuard": {
+    "base": "ca0687d25264033376862347e494ddf15cd92bec",
+    "target": "d3540bfea33a2ba8eb86d28759743590615f7c53",
+    "targetAlreadyFetched": true,
+    "ancestorCheck": {
+      "argv": ["git", "merge-base", "--is-ancestor", "ca0687d25264033376862347e494ddf15cd92bec", "d3540bfea33a2ba8eb86d28759743590615f7c53"],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/vault-contracts",
+      "exitCode": 0,
+      "timedOut": false,
+      "stdout": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/base-ancestry.stdout.log", "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "bytes": 0},
+      "stderr": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/base-ancestry.stderr.log", "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "bytes": 0},
+      "exit": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/base-ancestry.exit", "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa", "bytes": 2}
+    },
+    "targetDiff": {
+      "argv": ["git", "diff", "--name-only", "ca0687d25264033376862347e494ddf15cd92bec..d3540bfea33a2ba8eb86d28759743590615f7c53"],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/vault-contracts",
+      "exitCode": 0,
+      "timedOut": false,
+      "changedPathCount": 11,
+      "overlapWithCandidateChange": [],
+      "disjoint": true,
+      "stdout": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/base-target-files.stdout.log", "sha256": "ac9d9d68851d731d73f0c8c713916528e8b241de0663ec1b074494d4b723c399", "bytes": 516},
+      "stderr": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/base-target-files.stderr.log", "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "bytes": 0},
+      "exit": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/base-target-files.exit", "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa", "bytes": 2}
+    },
+    "targetNumstat": {
+      "argv": ["git", "diff", "--numstat", "ca0687d25264033376862347e494ddf15cd92bec..d3540bfea33a2ba8eb86d28759743590615f7c53"],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/vault-contracts",
+      "exitCode": 0,
+      "timedOut": false,
+      "stdout": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/base-target-numstat.stdout.log", "sha256": "c467cb169382aef6de077f0e9b6e3729009389aabfe15d0bbd81f974ebdcb42d", "bytes": 578},
+      "stderr": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/base-target-numstat.stderr.log", "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "bytes": 0},
+      "exit": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/base-target-numstat.exit", "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa", "bytes": 2}
+    }
+  },
+  "exactChangedClauses": [
+    {
+      "path": "openspec/changes/design-vault-campaign-separation-and-maps/proposal.md",
+      "line": 29,
+      "text": "Existing custom-unit UnitRepository create/update path produces the SQLite current_version/unit_versions rows, while VersionRepository provides history/revert operations; pilot version authority remains an unresolved admission decision."
+    },
+    {
+      "path": "openspec/changes/design-vault-campaign-separation-and-maps/design.md",
+      "line": 25,
+      "text": "Custom-unit sourceVersion must resolve through the existing UnitRepository producer and VersionRepository history/revert seam over SQLite current_version/unit_versions, without a second counter."
+    },
+    {
+      "path": "openspec/changes/design-vault-campaign-separation-and-maps/tasks.md",
+      "line": 5,
+      "text": "(Bounded identity prerequisite only; parent evidence and live source 2026-09-12. It does not satisfy the exact-main receipt, approval, or three-witness gates and does not close remaining vault/campaign implementation tasks or prove runtime/production authority.)"
+    }
+  ],
+  "preservation": {
+    "checkedTaskIds": ["1.3"],
+    "taskCount": 28,
+    "uncheckedTaskCount": 27,
+    "d1ThinReferences": true,
+    "campFGHSequencingGate": true,
+    "schemaV2OccupiedFutureProvenanceRung": true,
+    "travelChargeContinuity": true,
+    "pilotVersionAuthorityUnresolved": true,
+    "progressionDeferred": true,
+    "sourcePresenceIsNotRuntimeOrProductionAuthority": true,
+    "noCircularPredecessorOrActiveLedgerDirectoryAbsenceGate": true
+  },
+  "liveGateSeparation": {
+    "activeLedger": "openspec/active-change-ledger.json",
+    "activeRowsPreserved": [
+      "add-saved-custom-unit-campaign-roster: in-progress; later parent 9.1 exact-main receipt; not archived",
+      "add-camp01-authority-receipts: in-progress; later parent 9.1 exact-main receipt; not archived",
+      "prove-saved-custom-unit-campaign-journey: in-progress; later parent 9.1 exact-main receipt; not archived",
+      "design-vault-campaign-separation-and-maps: proposed; P1 1.1-1.5 not started",
+      "design-campaign-authority-and-sync: proposed current successor and reconciled sole journal home"
+    ],
+    "archiveBoundary": "F/G are archived; H is active and unarchived. The current design-campaign-authority-and-sync successor is not an archived predecessor to remove.",
+    "councilReceipt": "openspec/council-decisions/2026-08-20-campaign-journal-reconciliation-and-next-work.md:62-70",
+    "councilFinding": "H is receipt-sealed only under reduced claims and the safe default remains blocked.",
+    "gatesNotWaived": ["exact-main receipt", "owner approval", "three independent witnesses", "runtime/production authority", "implementation and acceptance completion"]
+  },
+  "sourceAuthorityHashes": [
+    {"path": "src/services/units/UnitRepository.ts", "sha256": "d9a7f0439b2ebe8b23154dbdfae7716faef4b6b8f32c7b51bea37d50c93d9dae", "finding": "Existing create/update path produces SQLite current_version and unit_versions rows."},
+    {"path": "src/services/units/VersionRepository.ts", "sha256": "21aab0e1bcf18079f213b1aa82617e741c5fc026f76815bbea13b8ab1c62226d", "finding": "Existing history and revert operations."},
+    {"path": "src/lib/campaign/persistence/campaignMigration.ts", "sha256": "598a26d8780d1607d53944ed537d284e341ce008eedc6b6c2d7c93b1496416dc", "finding": "Schema v2 owns authority metadata; provenance must use a future rung."},
+    {"path": "src/components/gameplay/pages/campaigns/create/CreateCampaignPage.submit.ts", "sha256": "8e0a25b5a5d8feef6f1fb9e84dbf743aa7d4e555dd29e77301097adc852b0956", "finding": "D3 identity seam has no UNIT_TEMPLATES name/tonnage OR-match and uses minted ids."},
+    {"path": "src/lib/starmap/starmapTravelPreview.ts", "sha256": "377cf569ab4bd7739c5f16e5c3e207338f100e3af772e60f8515f1fc6709a2b1", "finding": "Existing preview/commit calculations cover travel days, fees, daily processing, funds, arrival, and activity."},
+    {"path": "src/stores/campaign/useCampaignStore.dayActions.ts", "sha256": "87474d70c47a8c52c05912b4f68508bafbb1d8defecc164f91ea0a29311683b6", "finding": "Existing travel action commits the preview result and activity entries."},
+    {"path": "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts", "sha256": "392fd63f42a7d3bc13f29d74557264674483dcdb6dedc1046161130e6588940e", "finding": "Production journal authority remains disabled pending opt-in."},
+    {"path": "src/lib/campaign/sync/JournalCampaignEventStore.ts", "sha256": "0b352cd89fe64ee7d8c817fdae5855cce5e1198d097eb3bea772d71f0686ebf0", "finding": "Authority-disabled factory remains in-memory."},
+    {"path": "e2e/campaign-two-device-drive.spec.ts", "sha256": "e3301cf540668c6fa5225c8f90ca5ec146d448f45a21acd4f74d7e32716de449", "finding": "Source documents the unavailable production-writer convergence path."}
+  ],
+  "husky": {
+    "coreHooksPath": ".husky/_",
+    "coreHooksPathCheck": {
+      "argv": ["git", "config", "--get", "core.hooksPath"],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/vault-contracts",
+      "exitCode": 0,
+      "stdout": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/husky-config.stdout.log", "sha256": "6badc70e7ab6707b8126920f5881cf95e44ca73c2969738e5bf972018555005b", "bytes": 9},
+      "stderr": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/husky-config.stderr.log", "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "bytes": 0},
+      "exit": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/husky-config.exit", "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa", "bytes": 2}
+    },
+    "preCommitPath": ".husky/pre-commit",
+    "preCommitSha256": "e69afc50012b56535dbccd3e19d963820d66d72b6bfe86572341857c7c3ff2c6",
+    "preCommitRecorded": true,
+    "invoked": false,
+    "docsOnlyBuildBranch": "No TypeScript files staged — skipping build (Python / openspec / docs only)"
+  },
+  "checks": [
+    {
+      "id": "status",
+      "argv": ["git", "status", "--short", "--branch"],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/vault-contracts",
+      "exitCode": 0,
+      "timedOut": false,
+      "stdout": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/status.stdout.log", "sha256": "3ec1aa5f2264a453916c3cac6c6b6c1127776c1e4e554d886eebf1835ba01dfc", "bytes": 259},
+      "stderr": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/status.stderr.log", "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "bytes": 0},
+      "exit": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/status.exit", "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa", "bytes": 2}
+    },
+    {
+      "id": "staged-name-only",
+      "argv": ["git", "diff", "--cached", "--name-only"],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/vault-contracts",
+      "exitCode": 0,
+      "timedOut": false,
+      "stdout": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/staged-name-only.stdout.log", "sha256": "5e06be4ff6fcdffae336d1c8b2e3b0735d2f7d437ce3dcf7f36364c6afa8eddf", "bytes": 208},
+      "stderr": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/staged-name-only.stderr.log", "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "bytes": 0},
+      "exit": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/staged-name-only.exit", "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa", "bytes": 2}
+    },
+    {
+      "id": "staged-numstat",
+      "argv": ["git", "diff", "--cached", "--numstat"],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/vault-contracts",
+      "exitCode": 0,
+      "timedOut": false,
+      "stdout": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/staged-numstat.stdout.log", "sha256": "3152c480d18e824162c4f57c309ee0b5416231402824926dc4714caed74f7908", "bytes": 222},
+      "stderr": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/staged-numstat.stderr.log", "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "bytes": 0},
+      "exit": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/staged-numstat.exit", "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa", "bytes": 2}
+    },
+    {
+      "id": "staged-shortstat",
+      "argv": ["git", "diff", "--cached", "--shortstat"],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/vault-contracts",
+      "exitCode": 0,
+      "timedOut": false,
+      "stdout": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/staged-shortstat.stdout.log", "sha256": "9836a2885b898cdcbdc9f770a69454db3735cf6fb5bce782c158faf3c9366930", "bytes": 52},
+      "stderr": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/staged-shortstat.stderr.log", "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "bytes": 0},
+      "exit": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/staged-shortstat.exit", "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa", "bytes": 2}
+    },
+    {
+      "id": "staged-whitespace",
+      "argv": ["git", "diff", "--cached", "--check"],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/vault-contracts",
+      "exitCode": 0,
+      "timedOut": false,
+      "stdout": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/staged-check.stdout.log", "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "bytes": 0},
+      "stderr": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/staged-check.stderr.log", "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "bytes": 0},
+      "exit": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/staged-check.exit", "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa", "bytes": 2}
+    },
+    {
+      "id": "staged-diff-patch",
+      "argv": ["git", "diff", "--cached"],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/vault-contracts",
+      "exitCode": 0,
+      "timedOut": false,
+      "stdout": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/staged-diff.patch", "sha256": "7acc286ac31ce480f2866eab2cfed9829f1a6aa6b055f9ffc9f9cae8d3abab56", "bytes": 27792},
+      "stderr": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/staged-diff.stderr.log", "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "bytes": 0},
+      "exit": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/staged-diff.exit", "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa", "bytes": 2}
+    },
+    {
+      "id": "working-index-lf-hashes",
+      "argv": ["C:/nvm4w/nodejs/node.exe", "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/working-index-hashes.cjs"],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/vault-contracts",
+      "exitCode": 0,
+      "timedOut": false,
+      "scriptSha256": "b0ca668a0e0bcc5db8f67d5b34e4954a87afd4f5d1a50db7067a5edabe6888ea",
+      "stdout": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/working-index-hashes.stdout.log", "sha256": "3ff9f16cb12ecd7c1060c3a83ebf27e60924981a489f15b7ac1a22926caead2e", "bytes": 3547},
+      "stderr": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/working-index-hashes.stderr.log", "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "bytes": 0},
+      "exit": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/working-index-hashes.exit", "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa", "bytes": 2}
+    },
+    {
+      "id": "scoped-diff-cap",
+      "argv": ["C:/nvm4w/nodejs/node.exe", "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/staged-scope.cjs"],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/vault-contracts",
+      "exitCode": 0,
+      "timedOut": false,
+      "scriptSha256": "10eb1344fd60f5af045c8432cea81274e3916727e96b9cdab24059f876517079",
+      "stdout": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/staged-scope.stdout.log", "sha256": "994429ab6576c61321bfbfd255551e89ef0ca42da2a605cfe67d97cd8ba7e022", "bytes": 1421},
+      "stderr": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/staged-scope.stderr.log", "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "bytes": 0},
+      "exit": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/staged-scope.exit", "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa", "bytes": 2}
+    },
+    {
+      "id": "structural-docs",
+      "argv": ["C:/nvm4w/nodejs/node.exe", "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/structural-docs.cjs"],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/vault-contracts",
+      "exitCode": 0,
+      "timedOut": false,
+      "scriptSha256": "4ac5650f42f7b3c466ea794caf584b8c72987f37106a7baea77f94375a3de4c8",
+      "stdout": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/structural-docs.stdout.log", "sha256": "8ef16f774938a84dda7e856e2854ffb091fcea7831b27216b17cc8c8d238ae05", "bytes": 400},
+      "stderr": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/structural-docs.stderr.log", "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "bytes": 0},
+      "exit": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/structural-docs.exit", "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa", "bytes": 2}
+    },
+    {
+      "id": "prettier-target-classification",
+      "argv": ["C:/nvm4w/nodejs/node.exe", "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/prettier-target-classification.cjs"],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/vault-contracts",
+      "exitCode": 0,
+      "timedOut": false,
+      "scriptSha256": "edd6fcdfac684b5012d74f41a3d858adea4af29d30fd3bc2433e757a033de043",
+      "stdout": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/prettier-target-classification.stdout.log", "sha256": "7f55e02f7646b101c0f6cdb5bc496000e04bfa7b70854d3483644eeaa0269ae0", "bytes": 398},
+      "stderr": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/prettier-target-classification.stderr.log", "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "bytes": 0},
+      "exit": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/prettier-target-classification.exit", "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa", "bytes": 2}
+    },
+    {
+      "id": "prettier-default",
+      "argv": ["C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js", "exec", "--no", "--", "prettier", "--check", "openspec/changes/design-vault-campaign-separation-and-maps/proposal.md", "openspec/changes/design-vault-campaign-separation-and-maps/design.md", "openspec/changes/design-vault-campaign-separation-and-maps/tasks.md"],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/vault-contracts",
+      "exitCode": 0,
+      "timedOut": false,
+      "qualification": "default formatter command passed with zero candidate targets checked because .prettierignore contains openspec/; no --no-ignore or force formatting was used",
+      "stdout": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/prettier-default.stdout.log", "sha256": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20", "bytes": 66},
+      "stderr": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/prettier-default.stderr.log", "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "bytes": 0},
+      "exit": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/prettier-default.exit", "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa", "bytes": 2}
+    },
+    {
+      "id": "strict-openspec",
+      "argv": ["C:/nvm4w/nodejs/node.exe", "C:/Users/wroll/AppData/Roaming/npm/node_modules/@fission-ai/openspec/bin/openspec.js", "validate", "design-vault-campaign-separation-and-maps", "--strict"],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/vault-contracts",
+      "exitCode": 0,
+      "timedOut": false,
+      "result": "Change valid",
+      "stdout": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/strict-openspec.stdout.log", "sha256": "e5f3ffd5b42ef56f9a800bda3b0bfd4134fb6a792c0627b1ba73229a7d675a0f", "bytes": 60},
+      "stderr": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/strict-openspec.stderr.log", "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "bytes": 0},
+      "exit": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/strict-openspec.exit", "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa", "bytes": 2}
+    },
+    {
+      "id": "spec-purpose",
+      "argv": ["C:/nvm4w/nodejs/node.exe", "E:/Projects/MekStation/node_modules/tsx/dist/cli.mjs", "openspec/scripts/spec-purpose-lint.ts", "--root", ".", "--spec-root", "openspec/specs", "--json"],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/vault-contracts",
+      "exitCode": 0,
+      "timedOut": false,
+      "result": "217 files scanned; errors and trackedDebt empty",
+      "stdout": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/spec-purpose.stdout.log", "sha256": "3374a26262d00c93fded56ec4f2d25c866f4fa98769b6e8f1c9760db727b2b5b", "bytes": 1900},
+      "stderr": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/spec-purpose.stderr.log", "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "bytes": 0},
+      "exit": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/spec-purpose.exit", "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa", "bytes": 2}
+    },
+    {
+      "id": "terminology",
+      "argv": ["C:/nvm4w/nodejs/node.exe", "E:/Projects/MekStation/node_modules/tsx/dist/cli.mjs", "openspec/scripts/terminology-tool.ts", "validate", "--strict", "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/vault-contracts/openspec/changes/design-vault-campaign-separation-and-maps"],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/vault-contracts",
+      "exitCode": 0,
+      "timedOut": false,
+      "result": "8 files scanned; no terminology violations",
+      "stdout": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/terminology.stdout.log", "sha256": "71c19b106eac683c601862a99b579470c747f4f785f96da043b53c7cb0e2d2ef", "bytes": 185},
+      "stderr": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/terminology.stderr.log", "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "bytes": 0},
+      "exit": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/terminology.exit", "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa", "bytes": 2}
+    },
+    {
+      "id": "candidate-qc",
+      "argv": ["C:/nvm4w/nodejs/node.exe", "scripts/qc/validate-openspec-ci-quality.mjs", "--json"],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/vault-contracts",
+      "exitCode": 0,
+      "timedOut": false,
+      "result": "pass",
+      "stdout": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/candidate-qc.stdout.log", "sha256": "e73d2bc631637ff8806d9adbf1a31052b575044d797a04f184aec21f5b8e6985", "bytes": 10199},
+      "stderr": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/candidate-qc.stderr.log", "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "bytes": 0},
+      "exit": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/candidate-qc.exit", "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa", "bytes": 2}
+    }
+  ],
+  "structuralResult": {
+    "check": "structural-vault-documents",
+    "headings": {"proposal": true, "design": true, "tasks": true},
+    "clauses": {"producer": true, "d2": true, "taskGate": true, "authority": true, "camp": true, "d1": true, "v2": true, "travel": true, "progression": true, "noCircular": true},
+    "checkedTasks": ["1.3"],
+    "taskCount": 28,
+    "exitCode": 0,
+    "stdout": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/structural-docs.stdout.log", "sha256": "8ef16f774938a84dda7e856e2854ffb091fcea7831b27216b17cc8c8d238ae05", "bytes": 400},
+    "stderr": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/structural-docs.stderr.log", "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "bytes": 0},
+    "exit": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/structural-docs.exit", "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa", "bytes": 2}
+  },
+  "formatterQualification": {
+    "ignoreFile": ".prettierignore",
+    "ignoredPrefix": "openspec/",
+    "targetCount": 3,
+    "ignoredTargets": [
+      "openspec/changes/design-vault-campaign-separation-and-maps/proposal.md",
+      "openspec/changes/design-vault-campaign-separation-and-maps/design.md",
+      "openspec/changes/design-vault-campaign-separation-and-maps/tasks.md"
+    ],
+    "formatterCheckedTargets": [],
+    "noForceFormat": true,
+    "defaultCommandExitCode": 0,
+    "classificationExitCode": 0,
+    "classificationStdout": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/prettier-target-classification.stdout.log", "sha256": "7f55e02f7646b101c0f6cdb5bc496000e04bfa7b70854d3483644eeaa0269ae0", "bytes": 398},
+    "defaultStdout": {"path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/prettier-default.stdout.log", "sha256": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20", "bytes": 66}
+  },
+  "workerReceipt": {
+    "path": ".sisyphus/roadmap-completion-20260912/grok-vault-wording-2",
+    "statusSha256": "790f2edbc539b4de60265385f73b39e420b1f61e6271d0c0b3f43761b510aab8",
+    "reportSha256": "a68752aea89daa32248232edbe1712b2aafdd13bfdfff5e22480e2f255b8417e",
+    "eventsSha256": "1dd3abefca2e306f178230851c900d97468aac0134ab2bb9a4dba7a9215fd622",
+    "stderrSha256": "b3e62995cdc9d267dd575413b26c5eb3c56eb3f54d816fc4ace8f7b91c7d1b1f",
+    "driverPid": 54248,
+    "pid": 24400,
+    "running": false,
+    "exitCode": 1,
+    "stopReason": "Error: max turns reached",
+    "successClaimPresent": false,
+    "acceptanceBasis": "independent content and check evidence, not worker exit status"
+  },
+  "prBody": {
+    "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/pr-body.md",
+    "sha256": "8c22bbbc44dbc8a4c685c811a706ff2e44ab19b1610373e434a413fb2f441b60",
+    "factualClaims": [
+      "The current custom-unit producer is UnitRepository create/update with VersionRepository history/revert; pilot authority remains unresolved.",
+      "The exact-main receipt, owner approval, three-witness, runtime/production-authority, and package implementation gates remain open.",
+      "The delivery is three bounded documentation corrections and does not close the package."
+    ]
+  },
+  "rawEvidence": {
+    "checksDirectory": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks",
+    "streamHashManifest": {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/stream-hashes.stdout.log",
+      "sha256": "52a4866f866e35b7b7bed09fd7bdb5375a5b430cae0436f6e1c5a65eb4b07f3f"
+    },
+    "scriptHashes": {
+      "working-index-hashes.cjs": "b0ca668a0e0bcc5db8f67d5b34e4954a87afd4f5d1a50db7067a5edabe6888ea",
+      "staged-scope.cjs": "10eb1344fd60f5af045c8432cea81274e3916727e96b9cdab24059f876517079",
+      "structural-docs.cjs": "4ac5650f42f7b3c466ea794caf584b8c72987f37106a7baea77f94375a3de4c8",
+      "prettier-target-classification.cjs": "edd6fcdfac684b5012d74f41a3d858adea4af29d30fd3bc2433e757a033de043"
+    },
+    "stagedPatch": {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/checks/staged-diff.patch",
+      "sha256": "7acc286ac31ce480f2866eab2cfed9829f1a6aa6b055f9ffc9f9cae8d3abab56",
+      "bytes": 27792
+    }
+  },
+  "mutationsAndLimits": {
+    "stagedExactlyThreeDocuments": true,
+    "commit": false,
+    "push": false,
+    "fetch": false,
+    "reset": false,
+    "stash": false,
+    "autoconflictResolution": false,
+    "build": false,
+    "install": false,
+    "server": false,
+    "ledgerChanges": false,
+    "sourceChanges": false,
+    "runtimeAuthorityClaim": false,
+    "packageClosureClaim": false,
+    "taskCompletionClaim": false,
+    "approvalClaim": false,
+    "threeWitnessClaim": false
+  },
+  "deliveryReview": {
+    "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/delivery-review.md",
+    "sha256": "da6217673ddd9ff1f825bbf408477c39a6592f20692b1a106715d2f8374d38e7"
+  }
+}

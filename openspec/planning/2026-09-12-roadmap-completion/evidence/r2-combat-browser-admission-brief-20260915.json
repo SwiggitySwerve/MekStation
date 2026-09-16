@@ -1,0 +1,163 @@
+{
+  "evidenceKind": "r2-combat-browser-admission-brief",
+  "date": "2026-09-15",
+  "roadmapNode": "R2.combat-browser",
+  "roadmapFile": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+  "role": "read-only discovery; no product/spec/tasks edits made; single evidence artifact only; no builds/tests/sub-agents executed this session",
+  "sourceSnapshot": {
+    "originMainFetchedThisSession": true,
+    "note": "openspec/planning/2026-09-12-roadmap-completion/ (roadmap.json, DELIVERY.md, WORKERS.md, HANDOFF.md, README.md, PROGRESS.md, PR-SLICES.md, PUBLICATION.md, DISCOVERY.md, evidence/) is UNTRACKED (git status --porcelain shows '?? openspec/planning/2026-09-12-roadmap-completion/') -- it does not exist on origin/main at all (`git show origin/main:openspec/planning/2026-09-12-roadmap-completion/roadmap.json` fails with 'exists on disk, but not in origin/main'). All planning-doc content below is read directly from the local working tree, not origin/main. Product source, e2e specs, and openspec/changes/openspec/specs content below WAS read via origin/main where cited; the read-only worktree at .sisyphus/roadmap-completion-20260912/worktrees/proof02-rerun (HEAD a3f7f4947297a8785713b416db7f87e97bed25c9) was used only to confirm this worktree's own tip, not for divergent source reads -- the primary checkout's origin/main tip (be7f85b86...) matched what the sibling r2-combat brief cites, so direct `git show origin/main:<path>` reads from the primary checkout were used for product/spec/e2e files.",
+    "originMainTipAtWriteTime": "be7f85b867aa3e8576e5e3d27e309276203bc24b (per gitStatus context and confirmed as the sibling r2-combat-admission-brief-20260915.json's cited tip)"
+  },
+  "roadmapNodeRaw": {
+    "id": "R2.combat-browser",
+    "wave": 2,
+    "title": "Extend supported-custom production combat through terminal and post-battle persistence",
+    "kind": "implementation",
+    "state": "planned",
+    "dependsOn": ["R2.combat", "R2.camp-7"],
+    "ownershipPaths": [
+      "e2e",
+      "src/__tests__/integration",
+      "openspec/changes/enable-saved-custom-unit-combat"
+    ],
+    "acceptance": [
+      "Reproduce current browser acceptance gap; prove actual server-saved biped custom launch, commands, terminal flow and durable post-battle state alongside canonical comparison",
+      "Preserve local-only/unsupported fail-closed and canonical-only fast-forward boundaries; assign any revealed product repair its own spec and capped PR"
+    ],
+    "owner": "parent; assign bounded Luna high worker on admission",
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "taskKeys": [],
+    "receipt": null,
+    "decomposition": "Navigation paths only. Before assignment, select one behavior, exact files and original task IDs; split until original/default caps fit. Each child PR needs its own reviewed-head and exact-main receipt."
+  },
+  "downstreamDependents": [
+    "R2.camp-8 (Three-witness campaign acceptance, CAMP-01H) dependsOn [R2.camp-7, R2.combat-browser] -- per r2-camp-8-admission-brief-20260915.json this edge is UNSATISFIED because R2.combat-browser 'is entirely unscoped (zero taskKeys, no admission brief)'"
+  ],
+  "originalAdmissionSource": {
+    "title": "This node was NOT admitted from enable-saved-custom-unit-combat's own task text (that change's six tasks -- catalog/reader/picker, adapt+seed, recover+rewind, replay/redaction -- contain zero mentions of 'terminal', 'post-battle', or 'production combat launch'; confirmed via grep across proposal.md/design.md/tasks.md/specs/*.md, zero hits). The real admission source is the LIVE (unarchived, 0/9 unchecked) child change `prove-saved-custom-unit-campaign-journey` (CAMP-01H), reached through add-saved-custom-unit-campaign-roster's design.md/proposal.md/tasks.md/specs/journey-qc/spec.md.",
+    "quotedSource1": "openspec/changes/add-saved-custom-unit-campaign-roster/design.md:71 -- '5. launch through the production UI/API into a server-issued game session, inspect command visibility, execute at least one accepted player command, prove the same session survives navigation and cold reload, reach a terminal production resolution, return to the campaign, observe an accepted persisted post-battle consequence, then cold reload and reconcile the same roster-instance id, custom `unitRef`, source kind, mission/session identity, terminal result, and post-battle campaign state while the saved-custom row remains present and unchanged.'",
+    "quotedSource2": "openspec/changes/add-saved-custom-unit-campaign-roster/proposal.md:12 -- 'Add a browser trust anchor that proves the same custom id through save, campaign creation, server-backed campaign/force persistence, cold reload, and Mech Bay, then proves both supported custom admission and canonical admission from the mixed roster into playable combat with authoritative session/post-battle persistence after navigation and cold reload.'",
+    "quotedSource3_theExplicitOwnerReduction": "openspec/changes/add-saved-custom-unit-campaign-roster/specs/journey-qc/spec.md (REDUCED CLAIM, amended 2026-08-09 per the program owner's 2026-08-08 decision) -- verbatim: 'This amendment REDUCES the claim rather than satisfying it: the browser trust anchor's saved-custom-unit boundary attestations -- server-issued custom-unit identity, roster-instance identity, custom source kind without substitution, custom-launch blocking, and the live server-session command/terminal/post-battle consequence chain -- are NOT attested by the redefined witnesses, remain unbuilt as attestations ... and remain owned by the CAMP-01 product wave series exactly as the acceptance-decoupling declaration assigns; the receipt machinery's fact-slot contract continues to name the unreduced entities and remains fixture-satisfiable only until that series re-points it; no green three-witness run under this amendment SHALL be cited as satisfying the unreduced claim.'",
+    "whatThisMeans": "R2.camp-8 / CAMP-01H's own 'canonical-combat-post-battle' witness is explicitly REDUCED to long-campaign checkpoint persistence for CANONICAL units only (reloaded ten-contract checkpoint chain). The program owner's 2026-08-08 decision deliberately carved the actual saved-CUSTOM-unit combat-launch-through-post-battle proof OUT of CAMP-01H and assigned it to 'the CAMP-01 product wave series' -- i.e. real product/e2e work, not the journey-qc audit gate. R2.combat (this node's sibling, task lines 3-6 of enable-saved-custom-unit-combat) built and unit/integration-tested the underlying product code for that boundary. R2.combat-browser is the still-unclaimed browser-proof half of that same 2026-08-08 owner decision -- confirmed independently by the sibling r2-combat and r2-camp-8 admission briefs (see ownerDecisionDependency below), which is the SAME finding this brief's originating charter asked to be located."
+  },
+  "existingE2ECoverage": {
+    "e2e/saved-custom-combat.spec.ts": {
+      "testCount": 1,
+      "testName": "server-saved construction reaches campaign persistence with distinct identities @customizer @campaign",
+      "route": "POST /api/units/custom -> GET /api/units/custom/combat-catalog -> /gameplay/campaigns/create (wizard, adds the saved design to roster) -> PUT /api/campaigns/:id -> /gameplay/campaigns/:id/mech-bay (+ reload)",
+      "assertions": "customId matches ^custom-, catalog contains customId, roster instance id is distinct from customId, readback rosterProjection contains the custom unit with unitSource:'custom', root force contains the roster unit, Mech Bay displays the design and survives a page reload with an identical rosterProjection.",
+      "gapConfirmedByThisSession": "Reading the full file confirms exactly one test() call and it never navigates past /mech-bay -- no /missions/:id/launch, no /gameplay/encounters/:id, no pre-battle, no auto-resolve/interactive click, no /gameplay/games/:id, no post-battle-review-screen. This is the SAME conclusion the sibling r2-combat-admission-brief-20260915.json already reached (line 443: 'this route proves campaign persistence and picker/mech-bay, NOT an actual combat encounter launch; a true production combat-launch browser proof for a custom unit is R2.combat-browser's route, not this node's') -- independently re-verified here by a direct file read rather than cited secondhand."
+    },
+    "e2e/campaign-customizer-handoff.spec.ts": {
+      "relevantTests": [
+        "'returns from campaign customizer into mission readiness with deployment validation refresh' -- reaches /gameplay/campaigns/:id/missions/:missionId/launch, asserts mission-readiness-panel and that launch-mission-direct becomes enabled/labeled 'Launch with warnings', but NEVER CLICKS launch-mission-direct. Uses a CANONICAL Atlas (ATLAS_AS7_D_E2E_UNIT_ID), not a server-saved custom design.",
+        "'creates a saved custom unit campaign through accepted server persistence' (CAMP-01G) -- creates a campaign with a locally-IndexedDB-seeded custom unit, reaches /mech-bay, asserts data-unit-source='custom' resolution and an unresolved-fallback path when the local IndexedDB row is deleted. Never reaches missions/:id/launch at all for the custom-unit path; stops at Mech Bay resolution."
+      ],
+      "gapConfirmedByThisSession": "grep for game-completed|post-battle-review-screen|auto-resolve-btn against this file returns zero matches. Confirms this file (R2.camp-7's own frozen coverage) proves Mech Bay resolution and the customizer refit round-trip, not a combat launch, for either a canonical or a custom unit."
+    },
+    "e2e/encounter-combat-continuity.spec.ts": {
+      "description": "The ONLY existing e2e spec that drives the full pre-battle -> auto-resolve/interactive -> terminal (game-completed) -> post-battle-review-screen -> apply-outcome-cta -> campaign-roster-reconciliation chain, with 5 test() cases (auto-resolve, interactive 1v1, Custom-template map authoring, multi-unit interactive play, and a fifth variant).",
+      "gapConfirmedByThisSession": "Uses `createMinimalCampaign` + `createAssignedLance`/`createTestLance` fixtures that build forces directly through Zustand-store `page.evaluate` calls with hardcoded CANONICAL unit ids (PLAYER_UNIT_ID='atlas-as7-d', OPPONENT_UNIT_ID='marauder-mad-3r', plus 'locust-lct-1v'/'warhammer-whm-6r' for the multi-unit case) -- never a server-saved custom-* unitRef, never routed through the real campaign-creation wizard or missions/:id/launch page. This is the canonical-only 'terminal + post-battle' proof pattern that a new/extended spec needs to MIRROR for a saved custom unit, not duplicate for canonical units again."
+    },
+    "conclusion": "No existing e2e spec combines (a) a real server-persisted saved-custom unit (custom-* id, catalog-eligible) with (b) the full production route campaign-create -> missions/:id/launch (click launch-mission-direct, not just assert it's enabled) -> /gameplay/encounters/:id -> pre-battle -> auto-resolve or interactive -> /gameplay/games/:id terminal (game-completed) -> /gameplay/games/:id/review (post-battle-review-screen, apply-outcome-cta) -> back to the campaign with an accepted post-battle consequence -> cold reload reconciling the same roster-instance id / unitRef / unitSource. That exact combined proof is the node's acceptance gap, confirmed by direct reads of the three specs above rather than inferred."
+  },
+  "productionRouteAndCodeCitations": {
+    "route": "campaign create wizard (adds saved design to roster, same as saved-custom-combat.spec.ts) -> PUT /api/campaigns/:id -> /gameplay/campaigns/:id/missions/:missionId/launch -> click launch-mission-direct -> /gameplay/encounters/:encounterId?campaignId=&missionId= -> click launch-encounter-btn -> /gameplay/encounters/:id/pre-battle -> auto-resolve-btn OR interactive setup -> /gameplay/games/:sessionId (terminal, game-completed) -> /gameplay/games/:sessionId/review (post-battle-review-screen) -> apply-outcome-cta -> /gameplay/campaigns/:id?pendingBattle=:sessionId (roster reconciled).",
+    "stepByStepCodeCitations_CITATION_NOT_CLOSURE": [
+      {
+        "step": "mission-launch readiness page reads the custom combat catalog and mission readiness",
+        "files": [
+          "src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx:35-36 -- imports/calls useCombatCatalog(router.asPath) and buildMissionReadinessProjection",
+          "src/lib/campaign/readiness/useCombatCatalog.ts (fetches GET /api/units/custom/combat-catalog, same endpoint saved-custom-combat.spec.ts already exercises)",
+          "src/lib/campaign/readiness/missionReadinessProjection.ts (selectedRosterUnitsForLaunch, imported by missionLaunchPage.launch.ts:24)"
+        ]
+      },
+      {
+        "step": "clicking launch-mission-direct navigates to the SAME /gameplay/encounters/:id route the continuity spec already exercises for canonical units",
+        "files": [
+          "src/pages-modules/gameplay/campaigns/missionLaunchPage.launch.ts:279 -- void router.push(destination) after buildLaunchEncounter/campaignEncounterHref",
+          "src/pages-modules/gameplay/campaigns/missionLaunchPage.helpers.ts:73-86 -- campaignEncounterHref() returns `/gameplay/encounters/${encounterId}?campaignId=&missionId=` -- byte-identical route shape to the one e2e/encounter-combat-continuity.spec.ts already drives for canonical units",
+          "src/pages-modules/gameplay/campaigns/missionLaunchPage.surfaces.tsx:172 -- data-testid='launch-mission-direct' is the exact clickable element the existing campaign-customizer-handoff.spec.ts test asserts is enabled but never clicks"
+        ]
+      },
+      {
+        "step": "real, non-test-gated server-authoritative custom-unit resolution at launch (this is the code R2.combat already unit/integration-tested)",
+        "files": [
+          "src/services/encounter/EncounterService.ts:419-439 -- resolveEncounterCustomCombatReader() + deriveSeededGameUnits() + attachRecordedCustomCombatSnapshots() run unconditionally before GameCreated; comment states 'custom units never [skip] -- missing or invalid construction fails the launch'. No E2E/test-mode branch guards this path -- confirmed by direct read this session; this is the same production code path a real browser launch would hit."
+        ]
+      },
+      {
+        "step": "terminal result and post-battle application (already proven end-to-end for canonical units by encounter-combat-continuity.spec.ts)",
+        "files": [
+          "e2e/encounter-combat-continuity.spec.ts:659-699 -- game-completed testid, return-to-campaign-btn, then /gameplay/games/:id/review -> post-battle-review-screen -> apply-outcome-cta -> pendingBattleOutcomes/processedBattleIds reconciliation via the campaign Zustand store (same mechanism a custom-unit variant would assert)."
+        ]
+      }
+    ],
+    "conclusionOnProductCode": "No product-code gap was found for the SINGLE-PLAYER launch path: EncounterService's custom-combat seeding is real, unconditional production code (verified by R2.combat's own S1-S4 receipts, all green at current tip), and missionLaunchPage.launch.ts routes into the exact same /gameplay/encounters/:id -> pre-battle -> game -> review chain the continuity spec already proves for canonical units. This is a TEST-AUTHORING gap, not a product gap, UNLESS the new spec's first real run surfaces an actual regression (e.g. a co-op-only code path silently bypassing EncounterService, or a Mech Bay resolved-unit id not round-tripping into the roster passed to launch) -- see boundedSliceCharter.nonClaims below for the fail-closed contingency."
+  },
+  "ownerDecisionDependency": {
+    "sourceQuote": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-combat-admission-brief-20260915.json line 406 -- 'Owner decision needed: once this slice's receipt is green, should tasks.md's six boxes be checked and the change routed toward archive, or does the team want to hold the change open until R2.combat-browser also lands? The proposal.md/REPORT.md wording (\"checkboxes remain unchanged until explicitly requested\") implies this decision was always meant to be made later, and \"later\" is now.'",
+    "implicationForThisNode": "R2.combat (enable-saved-custom-unit-combat, this node's hard dependency) is functionally verification-complete (S1-S4 jest re-runs all green at current tip per r2-combat-s1-s4-verification-20260915.json) but the change folder itself is deliberately left open/unarchived pending exactly this decision, and that decision text explicitly names R2.combat-browser as the reason to hold it open. This node's admission is therefore gated on the SAME unresolved owner call, not merely on R2.combat's code being correct. A worker admitted onto R2.combat-browser should flag this rather than assume R2.combat is closed just because its tests pass."
+  },
+  "camp8OverlapNote": {
+    "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-camp-8-admission-brief-20260915.json lines 208-210",
+    "quote": "'The journey-qc spec's own text defers \"the unreduced combat-chain claim (server session, accepted command, terminal result, post-battle consequence) ... to the product wave series\" -- and R2.combat-browser's roadmap entry is titled \"Extend supported-custom production combat through terminal and post-battle persistence\" with zero taskKeys. These are naming the SAME unbuilt capability from two different roadmap nodes ... The parent should resolve R2.combat-browser's scoping before either node's real implementation work begins, to avoid two independently-admitted workers duplicating or conflicting over the same combat-launch-to-post-battle-persistence surface.'",
+    "implication": "This brief's decomposition below is written so that R2.combat-browser produces the actual e2e proof/product-code slice, and CAMP-01H (R2.camp-8) continues to consume only its own REDUCED canonical-checkpoint claim -- no overlap in deliverables, but the parent should sequence R2.combat-browser's PR ahead of, or independent of, CAMP-01H's own gates so neither worker cites the other's in-flight artifact."
+  },
+  "boundedSliceCharter": {
+    "behavior": "Add ONE new Playwright spec (recommended: e2e/saved-custom-combat-launch.spec.ts, sibling to and reusing the setup pattern of e2e/saved-custom-combat.spec.ts) that: (1) creates a server-saved custom unit via POST /api/units/custom exactly as saved-custom-combat.spec.ts does; (2) creates a campaign through the real wizard with that saved design in the roster; (3) navigates to /gameplay/campaigns/:id/missions/:missionId/launch and asserts mission-readiness-panel shows the custom unit ready; (4) CLICKS launch-mission-direct (the step every existing spec stops short of); (5) follows the resulting /gameplay/encounters/:id route through launch-encounter-btn -> pre-battle -> auto-resolve-btn (cheapest terminal path, mirroring encounter-combat-continuity.spec.ts's first test) -> asserts game-completed; (6) navigates to the review screen, asserts post-battle-review-screen, clicks apply-outcome-cta; (7) reads back GET /api/campaigns/:id and asserts the roster still carries the same rosterId/unitRef/unitSource:'custom' triple, and that a page reload preserves it -- i.e. reproduces exactly the roadmap's acceptance line 1 ('actual server-saved biped custom launch, commands, terminal flow and durable post-battle state alongside canonical comparison'). A second, minimal case (or a parametrized second run within the same spec) repeats the identical route with a CANONICAL unit id only, to give the 'alongside canonical comparison' clause its own explicit witness rather than relying on encounter-combat-continuity.spec.ts's different fixture path as an implicit comparison.",
+    "exactFiles": [
+      "e2e/saved-custom-combat-launch.spec.ts (new)",
+      "e2e/fixtures/campaign.ts (only if createMinimalCampaign/persistCampaignThroughDashboard needs a small extension to accept a pre-created custom unitRef in the roster -- verify need during red-first authoring before touching this file)"
+    ],
+    "redFirstTestNames": [
+      "e2e/saved-custom-combat-launch.spec.ts > server-saved custom unit launches through the real terminal and applies a durable post-battle consequence @customizer @campaign @combat",
+      "e2e/saved-custom-combat-launch.spec.ts > canonical roster unit launches through the same route for comparison @combat (or a parametrized second case in the same test)"
+    ],
+    "whatTurnsRed": "This is new coverage, not a regression re-run, so 'red-first' here means: write the test against current origin/main BEFORE any product change, run it, and let its natural failure point (if any) reveal whether EncounterService's custom-unit seeding actually reaches this specific browser route end-to-end. Per productionRouteAndCodeCitations above, the expectation (not yet proven by an actual run) is that it passes with ZERO product changes, because every hop in the route already has real, tested, unconditional production code. If it fails, the failure's exact hop (readiness panel never shows ready, launch-mission-direct stays disabled, the encounter never launches, or the roster loses unitSource='custom' after apply-outcome) IS the reproduction and names the file to fix.",
+    "expectedChangedLines": "Primarily a new test file (roughly 150-250 lines, well under the 500-line/15-file cap). 0 production lines expected; if the first real run surfaces a genuine product gap, bound the fix to the single failing file identified by that run and keep it inside this same PR's cap, OR spin it out as its own capped follow-up per the roadmap acceptance line 2 ('assign any revealed product repair its own spec and capped PR') if it would blow the cap.",
+    "gates": [
+      "npm.cmd run typecheck",
+      "npm.cmd run lint",
+      "node scripts/playwright/run-playwright.mjs test --project=chromium e2e/saved-custom-combat-launch.spec.ts --workers=1"
+    ],
+    "buildRunInvocationCorrection": {
+      "instructionReceived": "\"the build/run invocation (standalone server on 3639, never --prod-evidence)\"",
+      "verifiedFindingThisSession": "grep -rn 3639 across the entire repository (excluding node_modules) returned ZERO matches -- no file, script, or config in this repo references port 3639. The repo's actual e2e webServer convention, read directly from scripts/playwright/run-playwright.mjs:34-51, is: the DEV e2e server runs on the default PORT the dev server binds (not overridden by run-playwright.mjs itself), and the OPTIONAL --prod-evidence flag (which run-playwright.mjs explicitly strips before forwarding to the Playwright CLI) builds and starts `.next/standalone/server.js` on PORT 3600 via `npx kill-port 3600 --silent && npm run build && node .next/standalone/server.js`. This is flagged as UNVERIFIED-AGAINST-SOURCE per this project's own verify-never-infer rule rather than silently corrected without comment: the orchestrating instruction's '3639' and 'standalone server' pairing does not match anything in this repository as of be7f85b86. The recommended invocation above (node scripts/playwright/run-playwright.mjs test --project=chromium e2e/saved-custom-combat-launch.spec.ts --workers=1, WITHOUT --prod-evidence) matches the exact convention every sibling combat/campaign spec in package.json (qc:campaign-long:browser, qc:command:browser:quick, verify:qc:encounter-combat-continuity, etc.) already uses -- default dev-mode webServer, not the standalone/production server, and never --prod-evidence."
+    },
+    "nonClaims": [
+      "Does not add a live two-browser co-op custom-unit proof -- that is R2.authority-live territory per the sibling r2-combat brief and r2-combat-s5-coop-custom-authority-local-20260915.json, not this node's single-player ownershipPaths (openspec/changes/enable-saved-custom-unit-combat has no coop-specific task lines in this node's scope).",
+      "Does not touch or extend CAMP-01H / prove-saved-custom-unit-campaign-journey's own REDUCED canonical-combat-post-battle witness -- that witness is deliberately scoped to canonical long-campaign checkpoints only per its 2026-08-09 owner amendment; this node's new spec is independent evidence, not a CAMP-01H artifact, and should not be cited as satisfying CAMP-01H's assertion list.",
+      "Does not check any tasks.md boxes for enable-saved-custom-unit-combat -- that remains the open owner decision named above.",
+      "Does not weaken the local-only/unsupported fail-closed boundary or the canonical-only fast-forward boundary (roadmap acceptance line 2) -- the new spec's canonical-comparison case exists specifically to keep both boundaries independently witnessed side by side.",
+      "Does not assume the product code has zero gaps -- if the first real run of the new spec fails, the fix is bounded per redFirstTestNames/whatTurnsRed above and, if it would exceed this PR's cap, deferred to its own capped follow-up rather than absorbed here."
+    ]
+  },
+  "campGatesAndSequencing": {
+    "R2.camp7Dependency": "R2.combat-browser dependsOn R2.camp-7 (Mech Bay source resolution and editing). Per r2-camp-7-admission-brief-20260915.json, camp-01g's underlying product code (Mech Bay custom-unit resolution, resolveMechBayUnit.ts) is real and merged, but its own controller-registered receipt and githubReviewGate (non-author APPROVED review) are unsatisfiable in a single-collaborator repository -- the SAME structural gap R2.combat's own githubReviewGate would face. This node's admission should not block on that unsatisfiable review-gate machinery; it depends on camp-7's underlying Mech Bay resolution code being correct (which existing tests already show), not on its receipt apparatus closing.",
+    "R2.camp8Sequencing": "R2.camp-8 (CAMP-01H) depends on this node. Per camp8OverlapNote above, the parent should treat R2.combat-browser's new spec as landing independently of, and not gated by, CAMP-01H's own six-command gate -- CAMP-01H's REDUCED claim does not exercise saved-custom-unit combat launch at all, so there is no real ordering constraint forcing R2.combat-browser to wait for CAMP-01H, only the reverse (camp-8's roadmap dependsOn edge)."
+  },
+  "recommendedFirstSlice": "Author e2e/saved-custom-combat-launch.spec.ts per boundedSliceCharter above: reuse e2e/saved-custom-combat.spec.ts's custom-unit-creation-and-roster-assignment setup verbatim through the /mech-bay checkpoint, then extend past it through missions/:id/launch (click launch-mission-direct), the existing /gameplay/encounters/:id pre-battle/auto-resolve/game-completed/post-battle-review-screen chain (reusing encounter-combat-continuity.spec.ts's route/testid pattern), and a final roster readback proving the custom unitRef/unitSource survive the whole loop plus a cold reload. Run it once, red-first, against current origin/main with zero product changes; if green, this closes both of this node's acceptance lines in one PR (bounded, no product files touched). If it surfaces a real regression, bound the fix to the single failing file and keep it inside the same PR's 15-file/500-line cap, or split into its own capped follow-up if it would not fit.",
+  "filesReadThisSession": [
+    "openspec/planning/2026-09-12-roadmap-completion/roadmap.json (R2.combat-browser node extracted)",
+    "openspec/planning/2026-09-12-roadmap-completion/README.md, PROGRESS.md, PR-SLICES.md, PUBLICATION.md, DISCOVERY.md (grepped for 'combat-browser' -- only PROGRESS.md and PR-SLICES.md restate the roadmap row verbatim, no additional decomposition guidance found; DELIVERY.md/WORKERS.md/HANDOFF.md have zero mentions)",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-combat-admission-brief-20260915.json (full read)",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-combat-s1-s4-verification-20260915.json (head read, all slices green at current tip)",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-camp-7-admission-brief-20260915.json (head read through frozenContractRow)",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-camp-8-admission-brief-20260915.json (grepped for combat-browser/unscoped references)",
+    "openspec/changes/add-saved-custom-unit-campaign-roster/design.md, proposal.md, tasks.md, specs/journey-qc/spec.md (grepped for terminal/post-battle/production combat, then read matched lines in full)",
+    "openspec/changes/enable-saved-custom-unit-combat/*.md, specs/*/*.md (grepped for the same terms -- zero hits, confirming this node's admission text does not originate there)",
+    "openspec/changes/prove-saved-custom-unit-campaign-journey/tasks.md (confirmed 0/9 unchecked, live/unarchived)",
+    "e2e/saved-custom-combat.spec.ts (full read)",
+    "e2e/campaign-customizer-handoff.spec.ts (targeted reads around launch-mission-direct and data-unit-source usages)",
+    "e2e/encounter-combat-continuity.spec.ts (header + first two test bodies + helper functions read)",
+    "e2e/combat.spec.ts, encounter-flow.spec.ts, encounter.spec.ts (test names only, to map the existing combat/encounter e2e surface)",
+    "src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx (header + imports)",
+    "src/pages-modules/gameplay/campaigns/missionLaunchPage.launch.ts, missionLaunchPage.helpers.ts, missionLaunchPage.surfaces.tsx (targeted reads for the launch route and launch-mission-direct testid)",
+    "src/services/encounter/EncounterService.ts:400-441 (server-authoritative custom-unit seeding at launch)",
+    "package.json (e2e/qc script conventions, ports, --prod-evidence usage)",
+    "scripts/playwright/run-playwright.mjs (full webServer/port/--prod-evidence logic read to correct the 3639 instruction)"
+  ]
+}

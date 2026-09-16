@@ -1,0 +1,68 @@
+{
+  "receipt": "prerequisite-contracts-preparation-20260912",
+  "status": "prepared_launch_pending",
+  "launchPerformed": false,
+  "baseline": {
+    "originMain": "c44bf05720591efc5e40186c1a9f49b4afebe44a",
+    "candidate": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\prerequisite-contracts",
+    "branch": "codex/roadmap-prerequisite-contracts-20260912",
+    "candidateHead": "c44bf05720591efc5e40186c1a9f49b4afebe44a"
+  },
+  "ownedPaths": [
+    "openspec/changes/add-authoritative-history-branches/proposal.md",
+    "openspec/changes/add-authoritative-history-branches/tasks.md",
+    "openspec/changes/add-cross-stream-effect-receipts/tasks.md"
+  ],
+  "rootHashes": {
+    "openspec/changes/add-authoritative-history-branches/proposal.md": "3958b718e76dd00611187a1e36fd7c692e7b4d9240d7d8b96bb7690023fd7089",
+    "openspec/changes/add-authoritative-history-branches/tasks.md": "b68c9186a2c5dcdeb03411f1f5f9cb91bd365d7d4437e3faf7f0822e0f4f9040",
+    "openspec/changes/add-cross-stream-effect-receipts/tasks.md": "df8269c0f5342f2fb74079fc25c67c1a05dd1d07261644ceba7a480dcce94184"
+  },
+  "candidateHashes": {
+    "openspec/changes/add-authoritative-history-branches/proposal.md": "3958b718e76dd00611187a1e36fd7c692e7b4d9240d7d8b96bb7690023fd7089",
+    "openspec/changes/add-authoritative-history-branches/tasks.md": "b68c9186a2c5dcdeb03411f1f5f9cb91bd365d7d4437e3faf7f0822e0f4f9040",
+    "openspec/changes/add-cross-stream-effect-receipts/tasks.md": "df8269c0f5342f2fb74079fc25c67c1a05dd1d07261644ceba7a480dcce94184"
+  },
+  "diffCap": {
+    "files": 3,
+    "insertions": 5,
+    "deletions": 4,
+    "changedLines": 9,
+    "cap": 200
+  },
+  "review": {
+    "json": "openspec/planning/2026-09-12-roadmap-completion/evidence/prerequisite-contract-review-20260912.json",
+    "raw": ".sisyphus/roadmap-completion-20260912/prerequisite-contract-review/prerequisite-contract-review-20260912.md",
+    "findings": ["F1", "F2", "F3", "F4"]
+  },
+  "laneArtifacts": {
+    "directory": ".sisyphus/roadmap-completion-20260912/grok-prerequisite-contracts-1",
+    "admission": {
+      "path": ".sisyphus/roadmap-completion-20260912/grok-prerequisite-contracts-1/admission.json",
+      "sha256": "44e4ded3fe5f682c1479eacf44fd6a1bde3599a5096c27f5e248daa39e70275b"
+    },
+    "report": {
+      "path": ".sisyphus/roadmap-completion-20260912/grok-prerequisite-contracts-1/report.md",
+      "sha256": "b65d46d2797895f9dbca595ee3e6501859156703e6889b62bce7bb23819e4e8f"
+    },
+    "prompt": {
+      "path": ".sisyphus/roadmap-completion-20260912/grok-prerequisite-contracts-1/prompt.md",
+      "sha256": "ffa3b6a14b9f57b3ee6a50b600d17673cbff718beb53f1e99c0b0436a78c4996"
+    },
+    "driver": {
+      "path": ".sisyphus/roadmap-completion-20260912/grok-prerequisite-contracts-1/driver.cjs",
+      "sha256": "a35a5ecceecd5d4ca17cb5303bf4d0aa6626411a5a45084f0b0f2d0e1448884d",
+      "nodeCheckExit": 0
+    },
+    "statusOnLaunch": ".sisyphus/roadmap-completion-20260912/grok-prerequisite-contracts-1/status.json",
+    "freshLogsOnLaunch": [
+      ".sisyphus/roadmap-completion-20260912/grok-prerequisite-contracts-1/events.ndjson",
+      ".sisyphus/roadmap-completion-20260912/grok-prerequisite-contracts-1/stderr.log"
+    ]
+  },
+  "preserved": [
+    "Dirty root checkout and unrelated edits",
+    "Origin/main originals before copy",
+    "CAMP gates, checkboxes, and current review artifacts"
+  ]
+}

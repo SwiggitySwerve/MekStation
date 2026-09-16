@@ -1,0 +1,125 @@
+{
+  "task": "R1.archives third archive on exact main bce2049d74ce6e48b5d0813fb506ada701257e47",
+  "pr": 1683,
+  "targetCommit": "bce2049d74ce6e48b5d0813fb506ada701257e47",
+  "targetCommitMessage": "docs(openspec): archive verified customizer edit recovery package (#1683)",
+  "targetCommitParent": "0f86b4ee9e7b8fb7ffdad499bc60209e5358586b",
+  "note": "targetCommitParent (bce2049d^) is main immediately before the #1683 squash merge",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/camp-receipt-verification",
+  "nodeVersion": "v22.22.0",
+  "sessionBranch": "codex/roadmap-camp-live-probe-fix-20260915",
+  "sessionHeadBeforeAndAfter": "71a22399f21158ec3fc4d5b402c0d1946b1f4527",
+  "workingTreeCleanBeforeAndAfter": true,
+  "logDir": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/main-proof-1683-20260915/",
+  "resultJson": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/main-proof-1683-20260915/result.json",
+  "checks": {
+    "1_archiveMove": {
+      "oldPathAddCustomizerEditRecovery": {
+        "existsAtTargetCommit": false,
+        "result": "PASS"
+      },
+      "newArchivePath": "openspec/changes/archive/2026-09-15-add-customizer-edit-recovery",
+      "newArchivePathFileCount": 5,
+      "newArchivePathFiles": [
+        "openspec/changes/archive/2026-09-15-add-customizer-edit-recovery/.openspec.yaml",
+        "openspec/changes/archive/2026-09-15-add-customizer-edit-recovery/design.md",
+        "openspec/changes/archive/2026-09-15-add-customizer-edit-recovery/proposal.md",
+        "openspec/changes/archive/2026-09-15-add-customizer-edit-recovery/specs/customizer-edit-recovery/spec.md",
+        "openspec/changes/archive/2026-09-15-add-customizer-edit-recovery/tasks.md"
+      ],
+      "blobOidEquality": {
+        "method": "git ls-tree -r bce2049d^ -- openspec/changes/add-customizer-edit-recovery  vs  git ls-tree -r bce2049d -- openspec/changes/archive/2026-09-15-add-customizer-edit-recovery",
+        "preMoveBlobs": {
+          ".openspec.yaml": "e8cda9e50ea0cab62490e3e8f3e824b831aca6f0",
+          "design.md": "590ef574a653c44443afb73fbe9736c85f3e6106",
+          "proposal.md": "5595077714da1c8bf9a2f1a362d7bc4810bee5ee",
+          "specs/customizer-edit-recovery/spec.md": "5acd1297a9308119a45af976488f189aaa4f5958",
+          "tasks.md": "dfbd36de98afb4b9d65479b22b216f80515fdb89"
+        },
+        "postMoveBlobs": {
+          ".openspec.yaml": "e8cda9e50ea0cab62490e3e8f3e824b831aca6f0",
+          "design.md": "590ef574a653c44443afb73fbe9736c85f3e6106",
+          "proposal.md": "5595077714da1c8bf9a2f1a362d7bc4810bee5ee",
+          "specs/customizer-edit-recovery/spec.md": "5acd1297a9308119a45af976488f189aaa4f5958",
+          "tasks.md": "dfbd36de98afb4b9d65479b22b216f80515fdb89"
+        },
+        "allFiveIdentical": true,
+        "result": "PASS"
+      }
+    },
+    "2_ledgerDiff": {
+      "method": "git diff bce2049d^ bce2049d -- openspec/active-change-ledger.json",
+      "diffScope": "exactly one hunk, 6 deletions, 0 additions",
+      "removedEntry": {
+        "name": "add-customizer-edit-recovery",
+        "status": "in-progress",
+        "reason": "User-requested next customizer improvements: visible draft/library state, saved history and per-unit editing recovery. Excludes model and combat work.",
+        "lastReviewed": "2026-09-10"
+      },
+      "otherwiseIdenticalToParent": true,
+      "postMergeGrepCountForName": 0,
+      "result": "PASS"
+    },
+    "3_canonicalSpecsUnchanged": {
+      "method": "git diff bce2049d^ bce2049d -- openspec/specs",
+      "diffEmpty": true,
+      "result": "PASS"
+    },
+    "4_validators": {
+      "openspecValidateAllStrict": {
+        "argv": ["npx", "openspec", "validate", "--all", "--strict"],
+        "exitCode": 0,
+        "passed": 232,
+        "failed": 0,
+        "totalItems": 232,
+        "result": "PASS"
+      },
+      "specPurposeValidateStrict": {
+        "argv": ["npm", "run", "spec:purpose:validate:strict"],
+        "underlyingArgv": ["npx", "tsx", "openspec/scripts/spec-purpose-lint.ts"],
+        "exitCode": 0,
+        "filesScanned": 220,
+        "errors": 0,
+        "trackedSourceOfTruthDebt": 0,
+        "result": "PASS"
+      },
+      "terminologyValidateStrict": {
+        "argv": ["npm", "run", "terminology:validate:strict"],
+        "underlyingArgv": ["npx", "ts-node", "openspec/scripts/terminology-tool.ts", "validate", "--strict"],
+        "exitCode": 0,
+        "filesScanned": 315,
+        "violations": 0,
+        "result": "PASS"
+      },
+      "qcOpenspecCiValidate": {
+        "argv": ["npm", "run", "qc:openspec-ci:validate"],
+        "underlyingArgv": ["node", "scripts/qc/validate-openspec-ci-quality.mjs"],
+        "exitCode": 0,
+        "summary": "workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=12 accountedActiveOpenSpecChanges=12 errors=0",
+        "result": "PASS"
+      }
+    },
+    "5_allThreeArchivesLanded": {
+      "archivesPresent": [
+        "openspec/changes/archive/2026-09-12-establish-battlemech-chassis-index",
+        "openspec/changes/archive/2026-09-12-repair-equipment-catalog",
+        "openspec/changes/archive/2026-09-15-add-customizer-edit-recovery"
+      ],
+      "originalsAbsentFromChangesRoot": [
+        "openspec/changes/establish-battlemech-chassis-index",
+        "openspec/changes/repair-equipment-catalog",
+        "openspec/changes/add-customizer-edit-recovery"
+      ],
+      "originalsAbsentFromLedger": {
+        "establish-battlemech-chassis-index": 0,
+        "repair-equipment-catalog": 0,
+        "add-customizer-edit-recovery": 0
+      },
+      "result": "PASS"
+    }
+  },
+  "verdict": "PASS",
+  "summary": "On main commit bce2049d74ce6e48b5d0813fb506ada701257e47 (squash merge of PR #1683), the add-customizer-edit-recovery change is correctly archived: the old path is gone, the new archive path openspec/changes/archive/2026-09-15-add-customizer-edit-recovery holds all 5 files with blob OIDs byte-identical to the pre-move originals, and the ledger diff across the merge is exactly the 6-line removal of that one entry with nothing else touched. openspec/specs is untouched by the merge. All four OpenSpec CI validators (openspec validate --all --strict, spec:purpose:validate:strict, terminology:validate:strict, qc:openspec-ci:validate) pass clean with 0 errors/violations on this commit. All three original archive-track changes (chassis-index, equipment-catalog, edit-recovery) now live exclusively under openspec/changes/archive/ with no stray originals in openspec/changes/ or the ledger. Verification performed by detached checkout in the camp-receipt-verification worktree; the worktree was restored to its starting branch codex/roadmap-camp-live-probe-fix-20260915 at HEAD 71a22399f21158ec3fc4d5b402c0d1946b1f4527, clean.",
+  "verifiedAt": "2026-09-15",
+  "verifiedBy": "camp-receipt-verification worktree, detached-HEAD proof run against origin/main after git fetch origin main"
+}

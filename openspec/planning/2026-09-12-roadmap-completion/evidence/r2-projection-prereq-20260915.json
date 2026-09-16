@@ -1,0 +1,316 @@
+{
+  "node": "R2.authority",
+  "artefact": "r2-projection-prereq-20260915",
+  "capturedAtUtc": "2026-09-15T06:35:22.018Z",
+  "status": "projection-prerequisite-resolved-spec-delta-committed-not-pushed",
+  "scope": {
+    "rootMutations": false,
+    "productMutations": false,
+    "pushed": false,
+    "prOpened": false,
+    "tasksChecked": 0,
+    "tasksRemoved": 0,
+    "deferralsRemoved": 0
+  },
+  "baseSha": "c3b4cc1e3ace35ff95b7999d9680a5d657ca344f",
+  "baseRef": "origin/main",
+  "commitSha": "0eeb1aa15b6ba72527d4931dd8e0abb15427ef53",
+  "branch": "codex/roadmap-r2-projection-prereq-20260915",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/r2-projection-prereq-20260915",
+  "mergedPrerequisite": {
+    "pr": 1668,
+    "sha": "79c789e2a",
+    "description": "prepared journal append transaction; SQLiteEventJournalWriter.appendPreparedWithExtension verified present at origin/main SQLiteEventJournalWriter.ts:98"
+  },
+  "supersededEvidence": {
+    "blocker": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-contract-projection-parent-review-20260913.json",
+    "blockerStatus": "source-audience-blocker-accepted-no-implementation-admission",
+    "rawProposal": ".sisyphus/roadmap-completion-20260912/r2-contract-projection-readiness-revision-2-20260913/report.json",
+    "note": "The unapplied 40-line draft patch in that directory used decision id D11, which already belongs to the P0a prepared-append freeze on origin/main (design.md:73). This delta uses D12 and rewrites the text to ADMIT a decision rather than restate the block."
+  },
+  "files": [
+    {
+      "path": "openspec/changes/design-campaign-authority-and-sync/design.md",
+      "added": 16,
+      "removed": 0
+    },
+    {
+      "path": "openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md",
+      "added": 29,
+      "removed": 0
+    },
+    {
+      "path": "openspec/changes/design-campaign-authority-and-sync/tasks.md",
+      "added": 8,
+      "removed": 0
+    }
+  ],
+  "capCheck": {
+    "fileCap": 15,
+    "filesChanged": 3,
+    "lineCap": 500,
+    "linesChanged": 53,
+    "withinCap": true
+  },
+  "blocker": {
+    "statement": "Every campaign-scope recipient receives an unredacted payload today, so any full-contract field added to ICampaignAuthoritativeState or to a campaignEvent payload is by construction a restricted-guest-visible fact. The prerequisite was therefore to admit an explicit audience contract naming which full-contract and market fields each scope may see and which boundary enforces it, before the P0 producer could be implemented.",
+    "verifiedAnchors": [
+      "src/lib/campaign/sync/campaignEventScope.ts:35 -- ContractAccepted default scope is campaign",
+      "src/lib/campaign/delivery/projectCampaignStreamForGrant.ts:140-174 -- freezeProjected strips only sequence; every event type forwards its payload verbatim; no field redaction",
+      "src/lib/campaign/sync/applyCampaignEvent.ts:91-97 -- ContractAccepted folds the contract into shared state; :75 -- CampaignSnapshotPublished replaces state wholesale",
+      "src/lib/campaign/coop/roomCodeGuestHydration.ts:46-55 -- genesis payload.state taken wholesale; :73-84 -- composed with in-scope items; :126-158 -- republished as another campaign-scope snapshot",
+      "src/types/campaign/CampaignSync.ts:66-73 -- ICampaignAcceptedContract is contractId, name, employerFactionId only; :85-111 -- ICampaignAuthoritativeState has no full-contract or market field; :226-228 and :451 -- compact payloads",
+      "src/types/campaign/campaignSyncSchemas.ts:44-48,64-71 -- AcceptContract intent validates exactly those three fields",
+      "src/lib/multiplayer/server/CampaignMatchHostIntent.ts:189-201 -- host emits ContractAccepted with the caller summary contract",
+      "src/types/campaign/Mission.ts:135-186 -- IContract adds employerId, targetId, paymentTerms, salvageRights, salvagePercent, hostileTerritory, exchangeSalvage, commandRights, moraleLevel, atbContractType",
+      "src/types/campaign/CampaignCommandExtensions.ts:38-44 -- ICampaignContractMarket.offers is readonly IContract[]",
+      "src/lib/events/journal/EventJournalCanonicalizer.ts:62-77 -- typeof undefined falls to the default branch and fails unsupported-value; :104-117 -- hashes exactly the enumerable own keys",
+      "src/lib/campaign/sync/JournalCampaignEventStore.ts:91-96 -- ICampaignJournalEnvelope; :128-132 -- computeCampaignStateDigest hashes canonical state; :177-181 -- envelopeOf returns payload.campaignEvent only. CORRECTED 2026-09-15: envelopeOf has FIVE call sites (JournalCampaignEventStore.ts:270 and :397, campaignJournalReads.ts:41 and :63, GmCampaignImpactDerivation.ts:157), not two, and grant projection is NOT among them -- projectCampaignStreamForGrant.ts:252 narrows inline.",
+      "src/lib/campaign/persistence/serializeCampaign.ts:147 -- missions serialized from source; :194 -- contractMarket serialized; :219,:264 -- rehydrated",
+      "src/stores/campaign/campaignCommandActions.ts:454-495 -- acceptContractOffer today mutates the browser store and rewrites contractMarket client-side",
+      "src/lib/campaign/coop/campaignAuthoritativeState.ts -- no occurrence of the substring contract at all; the wire builder leaves contracts empty",
+      "src/lib/campaign/delivery/projectCampaignStreamForGrant.ts:252 -- inline narrowing const event = stored.payload.campaignEvent; envelopeOf is never called on this path (verified 2026-09-15)",
+      "src/lib/campaign/delivery/projectCampaignStreamForGrant.ts:264-266 -- only a grant holding every scope receives CampaignSnapshotPublished rows, so the GM grant does NOT receive identical wire facts to a restricted grant",
+      "src/lib/campaign/delivery/projectCampaignStreamForGrant.ts:269 -- every delivery item carries projectedEventIdentity: stored.eventDigest",
+      "src/lib/events/journal/EventJournalCanonicalizer.ts:211 -- the digest material includes payload: event.payload, so the delivered identity commits to the whole stored payload including any private field",
+      "src/lib/campaign/sync/hostCampaignEventJournal.ts:150-153 -- a second ICampaignJournalEnvelope construction site with all three fields explicit; the private field must be OPTIONAL or this path stops compiling (reviewer cited this under src/lib/multiplayer/server/, the actual path is src/lib/campaign/sync/)",
+      "src/lib/campaign/delivery/projectCampaignStreamForGrant.ts:50,:62 -- the file already type- and value-imports from JournalCampaignEventStore, and that module imports nothing from delivery/, so adding envelopeOf to the existing value import creates no cycle"
+    ]
+  },
+  "decision": {
+    "id": "D12",
+    "chosen": "source-only",
+    "summary": "Full accepted IContract and the remaining ICampaignContractMarket are source-only facts carried on a journal-private field of ICampaignJournalEnvelope, a sibling of campaignEvent, never inside it. No grant scope -- campaign, team:, player:, or the GM all-scopes grant -- entitles a recipient to them over the wire, because no wire-bearing type names them.",
+    "enforcingBoundary": "envelopeOf (JournalCampaignEventStore.ts:177-181) returns stored.payload.campaignEvent and nothing else. CORRECTED 2026-09-15 after independent review: it is NOT the single narrowing today. It is used by JournalCampaignEventStore.ts:270 and :397, campaignJournalReads.ts:41 and :63, and GmCampaignImpactDerivation.ts:157, while grant projection narrows INLINE at projectCampaignStreamForGrant.ts:252 (const event = stored.payload.campaignEvent;) and never calls envelopeOf. The boundary is therefore two lines in two files today; task 6.1 carries an explicit obligation to route :252 through envelopeOf, collapsing it to one, and the spec SHALL is stated as an ADDED obligation rather than as current behavior.",
+    "alternativeRejected": "Explicit guest field projection -- classify each full-contract and market field, then add a redacting projector emitting a whitelisted subset to campaign-scope recipients.",
+    "rejectionGrounds": [
+      "A second projection path would have to stay correct at three independent emission surfaces (grant projection, room-code recomposed hydration, client snapshot schema); a redactor any one surface bypasses leaks permanently because streams are immutable and reclassification is a new event, never an edit (D3).",
+      "It requires editing roomCodeGuestHydration.ts and a client schema, paths the recorded R2 implementation ceiling does not cover, so it would silently exceed the admitted prefix.",
+      "No product requirement names a guest-visible full-contract field; the compact projection already satisfies every current guest surface, so the whitelist would ship empty.",
+      "Under D3 the correct shape for a future guest-visible contract detail is a new event type stamped with its own scope carrying exactly that fact, not a field-level redactor over a payload whose default audience is already too wide."
+    ],
+    "legacyBinding": "The private field is conditionally constructed and absent when no admitted private payload exists; never an empty object and never an enumerable undefined property, because the canonicalizer rejects undefined and hashes exactly the enumerable own keys, and the state digest hashes the canonical state.",
+    "notAdmitted": [
+      "full private HTTP readback (still blocked)",
+      "any widening of the /commands response, guest hydration, or the co-op mirror",
+      "producer implementation, flag flip, or cutover; CAMPAIGN_JOURNAL_AUTHORITY_ENABLED remains false",
+      "authoritative materialization or replay of unrelated non-contract missions"
+    ]
+  },
+  "validators": [
+    {
+      "validator": "openspec validate --all --strict",
+      "command": "npx openspec validate --all --strict",
+      "exit": 0,
+      "log": ".sisyphus/roadmap-completion-20260912/r2-projection-prereq-20260915/openspec-strict.log",
+      "logSha256": "896a5edfef7c000e9b4b73dba674f1bc7b111cc37a7f785ab26a6a105bcfe5e9",
+      "baselineLog": ".sisyphus/roadmap-completion-20260912/r2-projection-prereq-20260915/baseline/openspec-strict.log",
+      "baselineExit": 0,
+      "baselineLogSha256": "896a5edfef7c000e9b4b73dba674f1bc7b111cc37a7f785ab26a6a105bcfe5e9"
+    },
+    {
+      "validator": "spec:purpose:validate:strict",
+      "command": "npm run spec:purpose:validate:strict",
+      "exit": 0,
+      "log": ".sisyphus/roadmap-completion-20260912/r2-projection-prereq-20260915/spec-purpose.log",
+      "logSha256": "b69fcab7b4f958de363b62cd26698b6e9060eeb154a16ddc94f04fae7df2080c",
+      "baselineLog": ".sisyphus/roadmap-completion-20260912/r2-projection-prereq-20260915/baseline/spec-purpose.log",
+      "baselineExit": 0,
+      "baselineLogSha256": "b69fcab7b4f958de363b62cd26698b6e9060eeb154a16ddc94f04fae7df2080c"
+    },
+    {
+      "validator": "terminology:validate:strict",
+      "command": "npm run terminology:validate:strict",
+      "exit": 0,
+      "log": ".sisyphus/roadmap-completion-20260912/r2-projection-prereq-20260915/terminology.log",
+      "logSha256": "de3c9507c62974fabd3e5f1fac3cd1c4cb1b52a1af7d6e06aaddbc8bee9f187f",
+      "baselineLog": ".sisyphus/roadmap-completion-20260912/r2-projection-prereq-20260915/baseline/terminology.log",
+      "baselineExit": 0,
+      "baselineLogSha256": "d659a5772335ffb863b138f66bd6388ab6cd5d285e901679a85a0aed72935b31"
+    },
+    {
+      "validator": "qc:openspec-ci:validate",
+      "command": "npm run qc:openspec-ci:validate",
+      "exit": 0,
+      "log": ".sisyphus/roadmap-completion-20260912/r2-projection-prereq-20260915/qc-openspec-ci.log",
+      "logSha256": "93add825658a06fdd24118cf462b5b9505da537e9d26b460b2487b609d352526",
+      "baselineLog": ".sisyphus/roadmap-completion-20260912/r2-projection-prereq-20260915/baseline/qc-openspec-ci.log",
+      "baselineExit": 0,
+      "baselineLogSha256": "93add825658a06fdd24118cf462b5b9505da537e9d26b460b2487b609d352526"
+    }
+  ],
+  "validatorNote": "All four validators were run FIRST on the untouched worktree at base c3b4cc1e3 (baseline/ logs) and then on the delta. Every baseline exit is 0, so there is no pre-existing failure to record and none is masked. The openspec-strict, spec-purpose and qc-openspec-ci logs are byte-identical before and after; the terminology log differs only in incidental run output, and both runs report 318 files scanned with 0 violations.",
+  "implementationBrief": {
+    "prefix": "P0b then P1, in that order; P1 is not implementation-ready until P0b merges",
+    "p0b": {
+      "task": "6.1",
+      "behavior": "Add an optional journal-private field to ICampaignJournalEnvelope as a sibling of campaignEvent; leave envelopeOf returning stored.payload.campaignEvent unchanged. Capture the baseline under the P0a prepared transaction: exact persisted SerializedCampaign body, source row version, source body digest, root public journal revision. Replay starts from sourceRecord.body, never from the compact genesis snapshot (which carries empty contracts and no market). Borrowed-handle campaign write with CAS plus a durable sourceReplayFence rejecting a later generic whole-envelope overwrite. Private/public identity mismatch or unsupported replay schema blocks or rebuilds; no silent compact fallback. REQUIRED sub-step added 2026-09-15 (RE-2): route projectCampaignStreamForGrant.ts:252 through envelopeOf so the two narrowing sites collapse to one and the spec SHALL is satisfied on the day it ships. The private field must be OPTIONAL or hostCampaignEventJournal.ts:150-153 stops compiling.",
+      "filesToTouch": [
+        "src/lib/campaign/sync/JournalCampaignEventStore.ts (envelope field; envelopeOf UNCHANGED)",
+        "src/lib/campaign/delivery/projectCampaignStreamForGrant.ts (REQUIRED by RE-2: replace the inline narrowing at :252 with envelopeOf(stored), added to the existing value import at :62)",
+        "src/lib/campaign/authority/campaignSourcePrivateEnvelope.ts (NEW: private type, conditional constructor, contract-only replay fold)",
+        "src/services/campaignPersistence/CampaignPersistenceService.ts (borrowed-handle CAS write + sourceReplayFence, beside the existing baseVersion CAS at :103-158)",
+        "src/lib/campaign/authority/campaignSourceGenesis.ts (read-only reference: proves the compact genesis is not the private baseline)",
+        "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts (tests)"
+      ],
+      "failingTestFirst": "In src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts, at the REAL SQLite reopen boundary: commit an accepted contract carrying full IContract detail plus a remaining market, close the database, reopen it, and assert (a) the source recovers the full contract and market from the journal-private envelope field, and (b) envelopeOf on the same stored row yields only the compact ICampaignAcceptedContract. This fails before 6.1 because no private field exists, so (a) has nothing to read.",
+      "secondRedRow": "A legacy envelope with no private payload canonicalizes to byte-identical canonical bytes and an identical computeCampaignStateDigest value as it does on origin/main -- proving conditional absence, not an empty object and not enumerable undefined."
+    },
+    "p1": {
+      "task": "6.2",
+      "behavior": "Route the toolbar acceptContractOffer path through the source command pipeline and the existing active-seat /commands route. Command identity sha256(canonical({campaignId, authenticatedActorId, kind: AcceptContract, contractId})) excluding expectedRevision; duplicate receipt lookup BEFORE the offer read; compact name and employerFactionId server-derived from the stored offer with employerFactionId the exact opaque IContract.employerId (no aliases, no case folding); full contract and remaining market to the 6.1 private envelope only; acknowledgement returns the original receipt revision plus the current public head.",
+      "filesToTouch": [
+        "src/stores/campaign/campaignCommandActions.ts (:454-495 toolbar path)",
+        "src/lib/campaign/authority/campaignCommandPipeline.ts",
+        "src/pages/api/campaigns/[id]/commands.ts (authorization gate UNCHANGED; response stays compact)",
+        "src/lib/campaign/authority/__tests__/campaignCommandPipeline.test.ts (tests)"
+      ],
+      "failingTestFirst": "In src/lib/campaign/authority/__tests__/campaignCommandPipeline.test.ts: submit the same AcceptContract intent twice with different expectedRevision values and assert one commit plus one duplicate-command receipt (command identity excludes expectedRevision), and assert the emitted ContractAccepted carries employerFactionId exactly equal to the stored offer employerId while the full contract appears only on the private envelope.",
+      "leakRows": [
+        "src/lib/campaign/delivery/__tests__/projectCampaignStreamForGrant.test.ts -- no employer, target, paymentTerms, salvageRights, moraleLevel, atbContractType or market offer on any campaign-scope delivery item; the GM all-scopes grant is a SAME-SHAPE control, not a wider one",
+        "src/lib/campaign/coop/__tests__/roomCodeGuestHydration.test.ts -- the recomposed campaign-scope snapshot carries none of those fields",
+        "a third row pins the accepted residual honestly: projectedEventIdentity on a delivered item still equals the stored eventDigest computed over the whole payload, asserted as EXPECTED rather than pretending the private bytes leave no wire trace"
+      ],
+      "falsification": "Deleting the envelopeOf narrowing must turn the leak rows red while the compact control stays green. CORRECTED 2026-09-15 (RE-2): this is only valid AFTER 6.1 routes projectCampaignStreamForGrant.ts:252 through envelopeOf -- with the inline narrowing in place the grant leak row stays GREEN after that deletion and the proof is vacuous. Run the deletion and confirm the grant row actually goes red."
+    },
+    "acceptanceCommands": [
+      "npx tsc --noEmit",
+      "npx jest src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts src/lib/campaign/authority/__tests__/campaignCommandPipeline.test.ts src/lib/campaign/delivery/__tests__/projectCampaignStreamForGrant.test.ts src/lib/campaign/coop/__tests__/roomCodeGuestHydration.test.ts",
+      "npx openspec validate --all --strict",
+      "npm run spec:purpose:validate:strict",
+      "npm run terminology:validate:strict",
+      "npm run qc:openspec-ci:validate"
+    ],
+    "capCheck": {
+      "p0b": {
+        "files": 6,
+        "note": "CORRECTED 2026-09-15. The earlier note rested on the false premise that projectCampaignStreamForGrant.ts stays untouched; it does not -- 6.1 must edit :252. Six files, still far inside the 15-file / 500-line ceiling. roomCodeGuestHydration.ts and the client snapshot schema DO stay untouched, which remains the reason source-only fits the recorded ceiling and the redactor alternative did not (the redactor would have required editing all three surfaces plus the schema, and would have had to stay correct at each)."
+      },
+      "p1": {
+        "files": 4,
+        "note": "within the same cap; the 6.3 proof rows add 2 existing test files, total 12 files across the whole prefix (corrected from 11 after projectCampaignStreamForGrant.ts joined 6.1)"
+      }
+    }
+  },
+  "couldNotVerify": [
+    "No product test, build, lint, runtime, CAMP witness, approval or cutover was run or claimed by this artefact; the change is documentation-only.",
+    "The implementation brief file list is a PLAN derived from verified current source shapes, not a measured diff; the exact changed-line count for 6.1/6.2 has not been measured.",
+    "PR #1668 presence was verified by git log on origin/main (79c789e2a) and by the presence of appendPreparedWithExtension at SQLiteEventJournalWriter.ts:98; its runtime behavior was not exercised here."
+  ],
+  "correction": {
+    "appliedAtUtc": "2026-09-15T06:54:35.369Z",
+    "trigger": "independent review verdict APPROVE-WITH-REQUIRED-EDITS, openspec/planning/2026-09-12-roadmap-completion/evidence/r2-projection-prereq-review-20260915.json",
+    "correctionCommitSha": "6a277d376a5cb829066b4e08a309db3904af678d",
+    "priorCommitSha": "0eeb1aa15b6ba72527d4931dd8e0abb15427ef53",
+    "amended": false,
+    "note": "A NEW commit on the same branch; 0eeb1aa15 is preserved in history, not rewritten. Still not pushed. The source-only decision itself is unchanged -- every edit is text-level.",
+    "decisionChanged": false,
+    "reviewerFactsIndependentlyVerifiedInSession": [
+      "projectCampaignStreamForGrant.ts:252 narrows inline and never calls envelopeOf -- CONFIRMED, reviewer correct",
+      "projectCampaignStreamForGrant.ts:264-266 gates CampaignSnapshotPublished on entitledToFullState -- CONFIRMED, so the GM grant does receive more rows than a restricted grant",
+      "projectCampaignStreamForGrant.ts:269 stamps projectedEventIdentity: stored.eventDigest -- CONFIRMED",
+      "EventJournalCanonicalizer.ts:211 includes payload in the digest material -- CONFIRMED",
+      "envelopeOf has five call sites, not two -- CONFIRMED (my original evidence undercounted)",
+      "a second envelope construction site exists with all three fields explicit -- CONFIRMED, at src/lib/campaign/sync/hostCampaignEventJournal.ts:150-153 (the reviewer cited src/lib/multiplayer/server/, which does not exist; the finding is right, the path was wrong)"
+    ],
+    "resolutions": [
+      {
+        "id": "RE-1",
+        "severity": "blocking",
+        "resolution": "applied",
+        "choice": "Option (b) of the coordinator ambiguity: state the measured truth in D12 AND make the SHALL an explicit ADDED obligation of task 6.1, rather than weakening the SHALL to describe current behavior. Chosen because option (a) would leave grant projection narrowing inline forever, which is the one surface the decision is about, and would make 6.3 permanently vacuous.",
+        "where": "design.md D12 heading (is -> becomes) and the rewritten enforcing-boundary paragraph; evidence decision.enforcingBoundary and the JournalCampaignEventStore anchor"
+      },
+      {
+        "id": "RE-2",
+        "severity": "blocking",
+        "resolution": "applied",
+        "where": "tasks.md 6.1 gains an explicit required sub-step (replace projectCampaignStreamForGrant.ts:252 with envelopeOf(stored), adding it to the existing value import at :62 -- verified no cycle, since JournalCampaignEventStore imports nothing from delivery/) plus the optional-field compile note for hostCampaignEventJournal.ts:150-153; tasks.md 6.3 records that its 1:1 falsification is only valid after that sub-step; evidence filesToTouch, capCheck.p0b and p1.falsification corrected. The implementer is no longer told the file stays untouched."
+      },
+      {
+        "id": "RE-3",
+        "severity": "blocking",
+        "resolution": "applied",
+        "where": "spec.md scenario \"Host and source retain the full private fact\", final AND bullet: now \"no more of the full contract or the remaining market than any other campaign-scope recipient -- namely none\", with the D4 raw-stream / snapshot-row entitlement named as unchanged and orthogonal."
+      },
+      {
+        "id": "RE-4",
+        "severity": "blocking",
+        "resolution": "applied",
+        "choice": "ACCEPT as an explicit residual; do NOT exclude the private bytes from the digest material.",
+        "justification": "Excluding the private field from canonicalizeEventDigestV1 material would strip the private payload of the journal hash-chain tamper-evidence that D1 and D3 rest on -- the private facts would then be the only part of the envelope not covered by the chain, which is a worse property than a high-bar confirmation oracle. It would also require editing EventJournalCanonicalizer, shared by every stream type, a blast radius far outside this change and outside the cap. The carve-out is therefore stated positively (only the one-way commitment crosses; never the values), the private field is REQUIRED to stay inside the digest material, and a prohibition is added: the source exposes no surface confirming a candidate private payload against a delivered identity.",
+        "where": "spec.md requirement body gains an explicit carve-out paragraph and \"Their VALUES\" narrows the absolute SHALL NOT list; design.md D12 gains an \"Accepted residual\" paragraph; design.md Risks / Trade-offs gains a bullet; tasks.md 6.3 gains a row pinning the commitment as EXPECTED."
+      },
+      {
+        "id": "RE-5",
+        "severity": "should-fix",
+        "resolution": "applied",
+        "where": "spec.md:106 pre-existing P1 requirement body and its scenario bullet both amended to gate on a contract that NAMES the readback audience, its concrete caller, and its authentication story, and to state that D12 is not that contract; the new requirement body and design.md \"What this decision does NOT admit\" say the same from the other side. Two pre-existing sentences were TIGHTENED in place -- no requirement, task, receipt, non-claim or deferral was removed."
+      }
+    ],
+    "capCheckAfterCorrection": {
+      "fileCap": 15,
+      "filesChanged": 3,
+      "lineCap": 500,
+      "addedVsBase": 61,
+      "removedVsBase": 2,
+      "changedVsBase": 63,
+      "withinCap": true,
+      "removedLinesNote": "The 2 removed lines are the two pre-existing readback-gate sentences replaced by tightened RE-5 wording. No task checkbox is checked (still 0), no task removed, no deferral removed."
+    },
+    "validators": [
+      {
+        "validator": "openspec validate --all --strict",
+        "command": "npx openspec validate --all --strict",
+        "exit": 0,
+        "log": ".sisyphus/roadmap-completion-20260912/r2-projection-prereq-20260915/correction-20260915/openspec-strict.log",
+        "logSha256": "896a5edfef7c000e9b4b73dba674f1bc7b111cc37a7f785ab26a6a105bcfe5e9",
+        "baselineLog": ".sisyphus/roadmap-completion-20260912/r2-projection-prereq-20260915/correction-20260915/baseline/openspec-strict.log",
+        "baselineExit": 0,
+        "baselineLogSha256": "896a5edfef7c000e9b4b73dba674f1bc7b111cc37a7f785ab26a6a105bcfe5e9"
+      },
+      {
+        "validator": "spec:purpose:validate:strict",
+        "command": "npm run spec:purpose:validate:strict",
+        "exit": 0,
+        "log": ".sisyphus/roadmap-completion-20260912/r2-projection-prereq-20260915/correction-20260915/spec-purpose.log",
+        "logSha256": "b69fcab7b4f958de363b62cd26698b6e9060eeb154a16ddc94f04fae7df2080c",
+        "baselineLog": ".sisyphus/roadmap-completion-20260912/r2-projection-prereq-20260915/correction-20260915/baseline/spec-purpose.log",
+        "baselineExit": 0,
+        "baselineLogSha256": "baf79e25e775829c95f31dc9a28017581dc2cf3168623a6730d35ee43dbf542c"
+      },
+      {
+        "validator": "terminology:validate:strict",
+        "command": "npm run terminology:validate:strict",
+        "exit": 0,
+        "log": ".sisyphus/roadmap-completion-20260912/r2-projection-prereq-20260915/correction-20260915/terminology.log",
+        "logSha256": "7938c5c42ca0a20629f02c8b5fd9f9185959f4405e4d378bab6b94703cada62a",
+        "baselineLog": ".sisyphus/roadmap-completion-20260912/r2-projection-prereq-20260915/correction-20260915/baseline/terminology.log",
+        "baselineExit": 0,
+        "baselineLogSha256": "32c634f5691bbf728cac7626ffae4cac1c2400cbc740f039e3697b046d630c53"
+      },
+      {
+        "validator": "qc:openspec-ci:validate",
+        "command": "npm run qc:openspec-ci:validate",
+        "exit": 0,
+        "log": ".sisyphus/roadmap-completion-20260912/r2-projection-prereq-20260915/correction-20260915/qc-openspec-ci.log",
+        "logSha256": "93add825658a06fdd24118cf462b5b9505da537e9d26b460b2487b609d352526",
+        "baselineLog": ".sisyphus/roadmap-completion-20260912/r2-projection-prereq-20260915/correction-20260915/baseline/qc-openspec-ci.log",
+        "baselineExit": 0,
+        "baselineLogSha256": "93add825658a06fdd24118cf462b5b9505da537e9d26b460b2487b609d352526"
+      }
+    ],
+    "validatorNote": "Baseline re-run for this correction used a FRESH detached worktree checked out at the base SHA c3b4cc1e3 (.sisyphus/roadmap-completion-20260912/worktrees/r2-projection-prereq-baseline-20260915), not the earlier logs: all four exit 0, so no failure is pre-existing and none is masked. The delta run then exits 0 on all four, with change/design-campaign-authority-and-sync passing strict validation (openspec-strict.log:81). Log sha256 note: openspec-strict and qc-openspec-ci are byte-identical between baseline and delta; spec-purpose and terminology embed the absolute worktree path in their output, so their two hashes differ by path text alone while both report 0 errors / 0 violations.",
+    "stillNotClaimed": [
+      "no product test, build, lint, runtime exercise, CAMP witness, approval or cutover was run or claimed; the change remains documentation-only",
+      "not pushed, no PR opened, no root checkout tracked file modified",
+      "CAMPAIGN_JOURNAL_AUTHORITY_ENABLED remains false"
+    ],
+    "residualRisksAcknowledged": [
+      "ACCEPTED AND NOW RECORDED: delivered projectedEventIdentity commits to private bytes (RE-4) -- in design.md Risks and the spec carve-out",
+      "ACCEPTED AND NOW RECORDED: D12 constrains read paths and wire types only; a future bulk stored-row copy path (export, backup, replay-to-another-host, support bundle) would carry the private payload and needs its own decision. None exists in src/ today",
+      "ACCEPTED AND NOW RECORDED: the private field must stay OPTIONAL or the second construction site at hostCampaignEventJournal.ts:150-153 stops compiling",
+      "NOT SIZED: the D3-shaped remedy for a future guest-visible contract detail (a new event type plus reducer plus QC pin ripple) is a real cost the decision accepts but does not estimate"
+    ]
+  }
+}

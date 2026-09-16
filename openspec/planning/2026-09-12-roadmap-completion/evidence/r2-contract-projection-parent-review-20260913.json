@@ -1,0 +1,211 @@
+{
+  "at": "2026-09-13T02:16:37.494Z",
+  "status": "source-audience-blocker-accepted-no-implementation-admission",
+  "reviewer": "parent Astra; independent Terra high proposal",
+  "rawProposal": ".sisyphus/roadmap-completion-20260912/r2-contract-projection-readiness-revision-2-20260913/report.json",
+  "evidence": [
+    {
+      "path": "src/types/campaign/CampaignSync.ts",
+      "expectedSha256": "9cb0a6191c5812a7be3b3c2e36d70a5a5c8fbe2a5970b0fef87f5eb1ab193559",
+      "sha256": "9cb0a6191c5812a7be3b3c2e36d70a5a5c8fbe2a5970b0fef87f5eb1ab193559",
+      "gitOid": "d9540526b96e9043557f7306b162a8fcc66174e1",
+      "matches": true
+    },
+    {
+      "path": "src/types/campaign/campaignSyncSchemas.ts",
+      "expectedSha256": "d34d86256f7b7470e5be91ada207a098c57ecf682d4d66c7be0e8d9a88dac3db",
+      "sha256": "d34d86256f7b7470e5be91ada207a098c57ecf682d4d66c7be0e8d9a88dac3db",
+      "gitOid": "9d46d03ba23497a1f6b96b3e11cdc4df9d7cac63",
+      "matches": true
+    },
+    {
+      "path": "src/types/campaign/SerializedCampaign.ts",
+      "expectedSha256": "ec7a1d39d7f2372582ed29d4539e36fb4ba560fc79a3917aa3afe1852835ec05",
+      "sha256": "ec7a1d39d7f2372582ed29d4539e36fb4ba560fc79a3917aa3afe1852835ec05",
+      "gitOid": "bdd873020ba2440ad1ce4113b12e9f8034d2129b",
+      "matches": true
+    },
+    {
+      "path": "src/types/campaign/CampaignCommandExtensions.ts",
+      "expectedSha256": "9734abdda5912a1e29da08ced5626fa969a9d58008136fa9fe036d29753b5649",
+      "sha256": "9734abdda5912a1e29da08ced5626fa969a9d58008136fa9fe036d29753b5649",
+      "gitOid": "50d0f2befec64457e1d059910bd0de689e909b82",
+      "matches": true
+    },
+    {
+      "path": "src/types/campaign/Mission.ts",
+      "expectedSha256": "3bd6c61faa9504ade51ff7ca8f1a3b90726c3376ca8436bd1b73aa05a30505d8",
+      "sha256": "3bd6c61faa9504ade51ff7ca8f1a3b90726c3376ca8436bd1b73aa05a30505d8",
+      "gitOid": "5d079d45b18f782ebf99e71afd5aed2c89ef4b27",
+      "matches": true
+    },
+    {
+      "path": "src/lib/campaign/persistence/serializeCampaign.ts",
+      "expectedSha256": "64211d91b6dfeddcdbe82fd634a4db4f6b2c8d03fa51c7fbd6f27447aac2d424",
+      "sha256": "64211d91b6dfeddcdbe82fd634a4db4f6b2c8d03fa51c7fbd6f27447aac2d424",
+      "gitOid": "7cb580b5d60294fb0add865a3503dc90b9a265f5",
+      "matches": true
+    },
+    {
+      "path": "src/lib/campaign/contractMarket.ts",
+      "expectedSha256": "cbd10abe80c3f65c49d52c68777f3d3414c3198ca79d1c0e9fb9ec02e3af53aa",
+      "sha256": "cbd10abe80c3f65c49d52c68777f3d3414c3198ca79d1c0e9fb9ec02e3af53aa",
+      "gitOid": "af24b76651aa0970f7e059276f473c0b320d1136",
+      "matches": true
+    },
+    {
+      "path": "src/stores/campaign/campaignCommandActions.ts",
+      "expectedSha256": "e8d454d312299ea366e818699243c5eac37f2dbc962e5866cacb185c3c3641d3",
+      "sha256": "e8d454d312299ea366e818699243c5eac37f2dbc962e5866cacb185c3c3641d3",
+      "gitOid": "9526d7bacda906543a743676bdf57de34945cba7",
+      "matches": true
+    },
+    {
+      "path": "src/lib/campaign/coop/campaignAuthoritativeState.ts",
+      "expectedSha256": "34b53ceca1f9d5a08316be784422211057d707801771dc6ab69d846f56f2cb53",
+      "sha256": "34b53ceca1f9d5a08316be784422211057d707801771dc6ab69d846f56f2cb53",
+      "gitOid": "a73c0f28bc13f6e5d8273839bddaca9b4f364884",
+      "matches": true
+    },
+    {
+      "path": "src/lib/campaign/authority/campaignSourceGenesis.ts",
+      "expectedSha256": "242d561f032206f6e2e9a390573decd903b2ce58b34d5d7dae2fc8172f7f86f8",
+      "sha256": "242d561f032206f6e2e9a390573decd903b2ce58b34d5d7dae2fc8172f7f86f8",
+      "gitOid": "7cfabf440b5d56599363a942d0989ad9042a06c9",
+      "matches": true
+    },
+    {
+      "path": "src/lib/multiplayer/server/CampaignMatchHostIntent.ts",
+      "expectedSha256": "024b8777c2f5bb898aa3bc0fa75abf89d58642de6c748ad31b79350098cbcc75",
+      "sha256": "024b8777c2f5bb898aa3bc0fa75abf89d58642de6c748ad31b79350098cbcc75",
+      "gitOid": "adbfe0e365780b4f80b2d9996a50a4023c1cd129",
+      "matches": true
+    },
+    {
+      "path": "src/lib/campaign/sync/applyCampaignEvent.ts",
+      "expectedSha256": "ef304f28771412faa7efd82036508d12a4b3b7c4380aa5e16fc348d3a6a31890",
+      "sha256": "ef304f28771412faa7efd82036508d12a4b3b7c4380aa5e16fc348d3a6a31890",
+      "gitOid": "7d916199bd66c620e79906df0e81f84901cf3bfb",
+      "matches": true
+    },
+    {
+      "path": "src/lib/campaign/sync/campaignEventScope.ts",
+      "expectedSha256": "d7b122b0faf70e8867d800684c085dd600f1c6f91a167af785d332149855cd13",
+      "sha256": "d7b122b0faf70e8867d800684c085dd600f1c6f91a167af785d332149855cd13",
+      "gitOid": "88d6b1e861f73667b391b1c99b62a07a99370fab",
+      "matches": true
+    },
+    {
+      "path": "src/lib/campaign/coop/roomCodeGuestHydration.ts",
+      "expectedSha256": "fbabeb104bacc4f2428a71cfd3b7d1dd015eb09a3decdf1b97f27cb149e03a77",
+      "sha256": "fbabeb104bacc4f2428a71cfd3b7d1dd015eb09a3decdf1b97f27cb149e03a77",
+      "gitOid": "19359be05b8036e395555bd6467ff70fdd616ee9",
+      "matches": true
+    },
+    {
+      "path": "src/lib/campaign/delivery/projectCampaignStreamForGrant.ts",
+      "expectedSha256": "74f1bd9d726dbc4d5ee89892d499b96493d4f995ee5f0946d7de7845f51a6aac",
+      "sha256": "74f1bd9d726dbc4d5ee89892d499b96493d4f995ee5f0946d7de7845f51a6aac",
+      "gitOid": "4fc8e7b745e9da10df6fa3aada9a9b13b54c1806",
+      "matches": true
+    },
+    {
+      "path": "src/lib/events/journal/EventJournalCanonicalizer.ts",
+      "expectedSha256": "a0159e724b31bd9274ec26f395b3b23cc11fd96d0ef81fe6ec4de363ab8e1fa0",
+      "sha256": "a0159e724b31bd9274ec26f395b3b23cc11fd96d0ef81fe6ec4de363ab8e1fa0",
+      "gitOid": "5acedcca9af0ad14fd9cc1b80a0d48fea5f6c8b6",
+      "matches": true
+    },
+    {
+      "path": "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+      "expectedSha256": "0b352cd89fe64ee7d8c817fdae5855cce5e1198d097eb3bea772d71f0686ebf0",
+      "sha256": "0b352cd89fe64ee7d8c817fdae5855cce5e1198d097eb3bea772d71f0686ebf0",
+      "gitOid": "58bfac1178ac11e6a513b02d579b04d22b1acd62",
+      "matches": true
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r2-contract-projection-readiness-revision-2-20260913/proposal.md",
+      "expectedSha256": "63d0afefb46bc2c8f266e2ab4b27775fa2b308f2ad1e4231c820b1e3806f0815",
+      "sha256": "63d0afefb46bc2c8f266e2ab4b27775fa2b308f2ad1e4231c820b1e3806f0815",
+      "gitOid": null,
+      "matches": true
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r2-contract-projection-readiness-revision-2-20260913/openspec-r2-contract-projection-readiness-revision-2.patch",
+      "expectedSha256": "8e6c3c1f561d745137051e9e56a92fe6d97d9f5dbee8bd9d81478162b2e96d30",
+      "sha256": "8e6c3c1f561d745137051e9e56a92fe6d97d9f5dbee8bd9d81478162b2e96d30",
+      "gitOid": null,
+      "matches": true
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r2-contract-projection-readiness-revision-2-20260913/git-apply-check.log",
+      "expectedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gitOid": null,
+      "matches": true
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r2-contract-projection-readiness-revision-2-20260913/git-apply-numstat.log",
+      "expectedSha256": "ffb5bdd5a1e541695ca5633764a0c5ac2323e3bbfbbfc91d93a92de5a54d7855",
+      "sha256": "ffb5bdd5a1e541695ca5633764a0c5ac2323e3bbfbbfc91d93a92de5a54d7855",
+      "gitOid": null,
+      "matches": true
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r2-contract-projection-readiness-revision-2-20260913/openspec-strict.log",
+      "expectedSha256": "ad63b3a1d5c06177f18618485c3e107882ca1cd317915b29640ce4b4d10275b4",
+      "sha256": "ad63b3a1d5c06177f18618485c3e107882ca1cd317915b29640ce4b4d10275b4",
+      "gitOid": null,
+      "matches": true
+    }
+  ],
+  "commands": [
+    {
+      "args": [
+        "apply",
+        "--check",
+        ".sisyphus/roadmap-completion-20260912/r2-contract-projection-readiness-revision-2-20260913/openspec-r2-contract-projection-readiness-revision-2.patch"
+      ],
+      "start": "2026-09-13T02:16:37.349Z",
+      "end": "2026-09-13T02:16:37.405Z",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "apply",
+        "--numstat",
+        ".sisyphus/roadmap-completion-20260912/r2-contract-projection-readiness-revision-2-20260913/openspec-r2-contract-projection-readiness-revision-2.patch"
+      ],
+      "start": "2026-09-13T02:16:37.405Z",
+      "end": "2026-09-13T02:16:37.494Z",
+      "exit": 0,
+      "stdout": "10\t0\topenspec/changes/design-campaign-authority-and-sync/design.md\n22\t0\topenspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md\n8\t0\topenspec/changes/design-campaign-authority-and-sync/tasks.md\n",
+      "stderr": ""
+    }
+  ],
+  "findings": [
+    {
+      "id": "P0-AUDIENCE",
+      "status": "confirmed",
+      "detail": "Campaign-scoped ContractAccepted forwards full payload; room-code guest hydration republishes common genesis state. Proposed full contracts/market broaden audience. Preserve current compact guest fields with an explicit source-only or field-projection prerequisite."
+    },
+    {
+      "id": "P0-UNDEFINED",
+      "status": "confirmed",
+      "detail": "Canonicalizer rejects enumerable undefined; legacy optional fields must stay absent. Adding empty objects also changes legacy digest."
+    },
+    {
+      "id": "P0-TEST-BOUNDARY",
+      "status": "corrected-proposal",
+      "detail": "Contract-only projection can prove unrelated full contract replay preservation. Original non-contract serialized input immutability is separate and does not prove materialization."
+    }
+  ],
+  "limits": [
+    "40-line contextual draft only, not applied",
+    "No product tests, runtime, publication, CAMP approval or cutover claimed",
+    "Native goal remains active; audience boundary investigation continues"
+  ],
+  "rawIgnored": true
+}

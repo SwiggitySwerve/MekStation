@@ -1,0 +1,301 @@
+{
+  "brief": "r3-activation-r4-s1-admission-brief",
+  "generatedAt": "2026-09-15",
+  "snapshot": {
+    "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/history-sql-integrity",
+    "branch": "codex/roadmap-history-bc-prep-20260915",
+    "headSHA": "d2fd6da05",
+    "note": "== origin/main + history prefixes A, B, C (per task brief). git log -1 on the worktree confirms d2fd6da05 'fix(history): guard persisted root and effective-head writes'."
+  },
+  "roadmapNodes": {
+    "R3.storage": {
+      "state": "local-verified",
+      "taskKeys": [
+        "add-authoritative-history-branches#1.1@16",
+        "add-authoritative-history-branches#1.2@19",
+        "add-authoritative-history-branches#1.3@22",
+        "add-authoritative-history-branches#1.4@25",
+        "add-authoritative-history-branches#1.5@28",
+        "add-authoritative-history-branches#1.6@31"
+      ],
+      "usedOnlyAsContext": true
+    },
+    "R4.matrix": {
+      "state": "pr-open",
+      "taskKeys": ["adopt-combat-journal-cutover-and-gm-rewind#0.1@9"],
+      "usedOnlyAsContext": true
+    }
+  },
+  "R3.activation": {
+    "title": "Finish candidate activation, correction lease and generation fencing",
+    "dependsOn": ["R3.storage"],
+    "maxFiles": 15,
+    "maxNonGeneratedLinesDefault": 500,
+    "taskCount": 7,
+    "tasks": [
+      {
+        "taskKey": "add-authoritative-history-branches#2.1@35",
+        "line": 35,
+        "checkboxState": "[x]",
+        "literalText": "Add authorized candidate creation plus a durable correction lease with opaque ID, owner, expiry, monotonically increasing fencing epoch, expected branch/revision/digest/generation, actor, and reason.",
+        "alreadyExists": {
+          "summary": "Fully implemented and receipted on this snapshot.",
+          "files": [
+            "src/lib/events/journal/EventHistoryCandidateBuild.ts (createCorrectionCandidateBranch)",
+            "src/lib/events/journal/EventHistoryCorrectionLeaseContract.ts",
+            "src/lib/events/journal/SQLiteEventHistoryCorrectionLeaseStore.ts"
+          ],
+          "citation": "openspec/changes/add-authoritative-history-branches/tasks.md:36 (receipt on 2.1): 'authorized candidate creation is createCorrectionCandidateBranch (EventHistoryCandidateBuild.ts) - four ordered refusable steps inside ONE db.transaction: prove the lease LIVE via requireLiveLease ... re-verify the bound head ... resolve the base event from the real journal; create through a store holding the permitting seam.'"
+        },
+        "missing": "Nothing at task-text granularity; task is closed.",
+        "nonclaim": "Receipt states production stays creation-off (module-private permitting seam); this is by design, not a gap for this task."
+      },
+      {
+        "taskKey": "add-authoritative-history-branches#2.2@42",
+        "line": 42,
+        "checkboxState": "[x]",
+        "literalText": "Reject commands with `PROJECTION_REBUILDING` while the live lease rebuilds; make restart recovery/expiry explicit and never queue commands invisibly.",
+        "alreadyExists": {
+          "summary": "Closed and adopted at both live admission sites.",
+          "files": [
+            "src/lib/events/journal/EventHistoryCommandAdmission.ts (admitStreamCommand / readRebuildRefusal)",
+            "src/lib/multiplayer/server/ServerMatchHostIntent.ts (refuseDuringHistoryRebuild)",
+            "src/lib/events/journal/EventHistoryDurableRebuild.ts (readDurableStreamRebuild)"
+          ],
+          "citation": "openspec/changes/add-authoritative-history-branches/tasks.md:43-44 (receipt on 2.2, CLOSED 2026-09-02, Wave C3 seam 3a): 'readRebuildRefusal extracted from admitStreamCommand ... adopted at BOTH live admission sites - combat: refuseDuringHistoryRebuild in ServerMatchHostIntent.handleIntent ...; campaign: exactly one third blocked arm in executeCampaignCommand'."
+        },
+        "missing": "Nothing; task is closed.",
+        "nonclaim": "Combat-side staleness arm on the wire (finding #38) is explicitly out of scope for this box."
+      },
+      {
+        "taskKey": "add-authoritative-history-branches#2.3@47",
+        "line": 47,
+        "checkboxState": "[x]",
+        "literalText": "Verify replay, viewer projections, and an immutable server-derived affected-artifact manifest before activation.",
+        "alreadyExists": {
+          "summary": "Closed; deriveAndSealCandidateImpact runs replay verification, per-viewer projection re-derivation, and manifest sealing in the locked order.",
+          "files": [
+            "src/lib/events/journal/EventHistoryImpactDerivation.ts (deriveAndSealCandidateImpact)",
+            "src/lib/events/journal/EventHistoryCandidateVerification.ts (verifyCandidatePath)",
+            "src/lib/events/journal/EventHistoryArtifactManifest.ts"
+          ],
+          "citation": "openspec/changes/add-authoritative-history-branches/tasks.md:49 (receipt on 2.3): 'EventHistoryImpactDerivation.deriveAndSealCandidateImpact runs the locked order - verify the candidate (3b) -> materialise the prior effective head -> probe BOTH heads TWICE per viewer ... -> replay_checkpoints rows ... -> seal through 3a's store.'"
+        },
+        "missing": "Nothing at task-text granularity; task is closed.",
+        "nonclaim": "Replay/export artifact kinds are not derivable server-side yet (no revision-carrying index); concrete campaign/combat viewer digesters are injected, not concretely adopted here."
+      },
+      {
+        "taskKey": "add-authoritative-history-branches#2.4@54",
+        "line": 54,
+        "checkboxState": "[ ]",
+        "literalText": "Fence the prior effective generation; serialize the fence against lease-to-admitted promotion, stop new leases/admissions, supersede unleased pending rows, and keep the candidate waiting plus prior branch effective while an old-generation delivery has an unknown target result.",
+        "alreadyExists": {
+          "summary": "The generation fence itself (supersession row recording prior_generation = N) is implemented. Everything that depends on a delivery/effect-receipt admission concept is not.",
+          "files": ["src/lib/events/journal/EventHistoryActivation.ts (248 lines; supersedeAndFence-style transaction, GENERATION_EXHAUSTED at line 74)"],
+          "citation": "openspec/changes/add-authoritative-history-branches/tasks.md:56 (progress on 2.4): 'the prior effective generation IS fenced - the supersession row (prior_generation = N) is the fence, recorded once inside the activation transaction, no new table; new correction leases naming the fenced generation are refused by the existing expected-head comparison'."
+        },
+        "missing": {
+          "summary": "Serializing the fence against lease-to-admitted promotion, stopping new admissions, superseding unleased pending rows, and the 'waiting' arm (candidate waits / prior branch stays effective while an old-generation delivery has an unknown target result) are all unbuilt.",
+          "reason": "These require a delivery lease / admission state / outbox concept that does not exist on this snapshot -- add-cross-stream-effect-receipts (the change that defines delivery leases and admitted-effect state) is 0/51 tasks complete and NOT archived on this snapshot (verified: `grep -c '\\[x\\]' openspec/changes/add-cross-stream-effect-receipts/tasks.md` = 0, `grep -c '\\[ \\]'` = 51; the directory is present under openspec/changes/, not openspec/changes/archive/).",
+          "grepEvidence": "grep -rln 'DeliveryLease|deliveryLease|EffectReceipt' src --include='*.ts' returns only EventHistoryActivation.ts itself (its own doc-comment referring to the future dependency), confirming no delivery-lease/effect-receipt production symbol exists yet."
+        },
+        "nonclaim": "openspec/changes/add-authoritative-history-branches/tasks.md:56 explicitly states this half is 'gated on the cross-stream effect-receipt change (unstarted on main - there is no delivery lease, no admission state, no lease-to-admitted promotion, and the only outbox is a pending/published publication outbox)'. Do not propose building this until add-cross-stream-effect-receipts lands."
+      },
+      {
+        "taskKey": "add-authoritative-history-branches#2.5@57",
+        "line": 57,
+        "checkboxState": "[ ]",
+        "literalText": "Lock and verify the current unexpired correction lease ID, owner, and epoch with the expected-head comparison. If a prior receipt was accepted, atomically create the higher-version replacement outbox and pending saga while activating the candidate, incrementing generation by exactly one, superseding the prior branch, and publishing invalidations; otherwise activate without correction. Never wait for a pre-activation replacement receipt.",
+        "alreadyExists": {
+          "summary": "The 'otherwise activate without correction' path is fully built: lease lock+verify, expected-head comparison, generation increment by exactly one, GENERATION_EXHAUSTED refusal before any write.",
+          "files": ["src/lib/events/journal/EventHistoryActivation.ts"],
+          "citation": "openspec/changes/add-authoritative-history-branches/tasks.md:59 (progress on 2.5): 'the current unexpired correction lease is locked and its id/owner/epoch verified with the expected-head comparison inside ONE db.transaction ...; demote-before-promote forced by the partial unique index; generation incremented by exactly one; GENERATION_EXHAUSTED refused before any write.'"
+        },
+        "missing": {
+          "summary": "The accepted-prior-receipt arm (atomically creating the higher-version replacement outbox + pending saga while activating) does not exist.",
+          "reason": "No receipt concept exists yet to accept; same effect-receipt-change dependency as 2.4.",
+          "grepEvidence": "grep -rln 'PublicationOutbox|publication_outbox|pendingPublication' src/lib/events src/lib/multiplayer only matches the existing per-match mp_match_outbox / mp_combat_outcome_outbox machinery (storeCapabilityPorts.ts, DurableMatchStore.ts, IMatchStore.ts, InMemoryMatchStore.ts, ServerMatchHost.ts, ServerMatchHostJournalAuthority.ts, ServerMatchHostPublication.ts) -- there is no cross-stream 'replacement outbox' / 'pending saga' symbol anywhere in src."
+        },
+        "nonclaim": "openspec/changes/add-authoritative-history-branches/tasks.md:59 states: 'NOT CLAIMED: the accepted-prior-receipt arm (atomic higher-version replacement outbox + pending saga) - no receipt exists to have been accepted; closes with the effect-receipt change.'"
+      },
+      {
+        "taskKey": "add-authoritative-history-branches#2.6@60",
+        "line": 60,
+        "checkboxState": "[ ]",
+        "literalText": "Prove deterministic replay, correction-lease restart/expiry/takeover, stale-owner activation rejection with an unchanged head, stale-head activation, safe-integer generation exhaustion before mutation, injected activation failure, both fence/admission serial orders, accepted-prior-receipt activation, and target outage/restart at each saga boundary.",
+        "alreadyExists": {
+          "summary": "Everything provable without a delivery lease is proven: stale-owner rejection (byte-identical census), stale-head refusal, safe-integer generation exhaustion before mutation, injected mid-transaction failure rollback, both serial orders against the correction lease, unsealed-manifest refusal.",
+          "files": ["src/lib/events/journal/__tests__/EventHistoryActivation.test.ts (510 lines; GENERATION_EXHAUSTED test at line 306: \"it('refuses GENERATION_EXHAUSTED before any mutation at the safe-integer bound', ...)\")"],
+          "citation": "openspec/changes/add-authoritative-history-branches/tasks.md:62 (progress on 2.6): 'stale-owner activation rejected with a byte-identical census; stale-head activation refused; safe-integer generation exhaustion refused before mutation; injected mid-transaction failure rolls the whole activation back ...; both serial orders (activation-then-lease refused on generation, lease-then-activation refused on the lease) proven against the correction lease'."
+        },
+        "missing": {
+          "summary": "Fence/admission serial orders against a DELIVERY lease, accepted-prior-receipt activation proofs, and target outage/restart at saga boundaries are unproven -- because none of those concepts exist yet.",
+          "grepEvidence": "grep -rn 'STALE_CORRECTION_LEASE' src returns 0 matches in production code; the symbol is referenced only in the spec (openspec/changes/add-authoritative-history-branches/specs/event-store/spec.md:66: '- THEN activation SHALL reject with STALE_CORRECTION_LEASE'). This is an UNCOVERED SHALL on this snapshot -- no test and no production error code named STALE_CORRECTION_LEASE exist."
+        },
+        "nonclaim": "openspec/changes/add-authoritative-history-branches/tasks.md:62: 'NOT CLAIMED: fence/admission serial orders against a delivery lease, accepted-prior-receipt proofs, and the waiting arm - all gated on the effect-receipt change.'"
+      },
+      {
+        "taskKey": "add-authoritative-history-branches#2.7@63",
+        "line": 63,
+        "checkboxState": "[ ]",
+        "literalText": "After independent review and focused gates pass, merge, rerun activation/failure on exact main, and prune the branch/worktree.",
+        "alreadyExists": {
+          "summary": "This is a process/merge step, not a code task. No corresponding source artifact is expected; it depends on 2.4-2.6 first being closed (or split) and merged.",
+          "files": []
+        },
+        "missing": "The independent review + merge + exact-main rerun + prune cycle itself; blocked on 2.4-2.6 closing (or a scoped split of what IS closeable -- e.g. re-running 2.1-2.3+2.5(partial)+2.6(partial) as their own PR while 2.4/2.5-remainder/2.6-remainder wait on add-cross-stream-effect-receipts).",
+        "nonclaim": "No task text carve-out; this is purely sequential on the rest of the section."
+      }
+    ],
+    "contradictionsFound": [
+      {
+        "description": "tasks.md marks add-authoritative-history-branches Section 3 'Combat Rewind - PR 3' (tasks 3.1-3.5) entirely unstarted ([ ] on all five boxes, lines 67-71 in this worktree's copy), yet production source on this same snapshot already implements a working combat-rewind commit/preview pipeline that imports and calls the activation/candidate/verification machinery from Section 2.",
+        "citation": "src/lib/multiplayer/server/history/GmCombatRewindCommit.ts:32-42 imports activateCandidateBranch (from EventHistoryActivation), resolveBranchPath, createCorrectionCandidateBranch, verifyCandidatePath, and its module doc-comment (lines 1-27) states 'add-authoritative-history-branches; umbrella 13.5, seam 3b-iv-a' and cites '@spec openspec/changes/harden-gm-two-player-campaign-sessions/specs/gm-combat-interventions/spec.md' -- an older, different change than either add-authoritative-history-branches or adopt-combat-journal-cutover-and-gm-rewind.",
+        "resolution": "Not a real contradiction once traced: the rewind code is wired but INERT on live matches. GmCombatRewindCommit.ts:102-105 refuses with 'no-authoritative-history' whenever `deps.branches.readEffectiveHead(stream) === null` -- and on this snapshot every real match stream IS null, because match combat commands still append only to `mp_match_events` (src/lib/multiplayer/server/DurableMatchStore.ts:158 CREATE TABLE, :746 appendCommandBatch, :802-806 INSERT INTO mp_match_events), never to `event_journal_events` (src/services/persistence/SQLiteService.eventJournal.migration.ts:49), and PR1's genesis backfill only creates a branch/effective-head row for streams that already have journal events (tasks.md:18). So the code exists as pre-wired scaffolding from an earlier change but has zero live behavior until R4.S1 task 1.1 (S1) makes match streams journal-authoritative. This should be surfaced to the roadmap owner as a sizing note: PR 3's domain logic (branch cut, fence, activation call sites) is largely already written; PR 3's remaining work is closer to 'prove it live once S1 lands' than 'build it from scratch'."
+      },
+      {
+        "description": "A parallel 'combat journal authority' shadow/parity scaffold already exists (matchJournalAuthority.ts, ServerMatchHostJournalAuthority.ts, and six journalAuthority*.test.ts suites) that mirrors the campaign-side cutover pattern S1-S6 describes, but its mode constant is hardcoded to 'off' and its append target is still mp_match_events, not event_journal_events.",
+        "citation": "src/lib/multiplayer/server/matchJournalAuthority.ts:1-3 doc-comment: 'Combat journal-authority types and consume-apply seam (task 2.3). Flag OFF matches CAMPAIGN_JOURNAL_AUTHORITY_ENABLED.' and line 18: 'export const COMBAT_JOURNAL_AUTHORITY_MODE = \"off\" as CombatJournalAuthorityMode;'",
+        "resolution": "Not a contradiction with tasks.md (task 1.1/1.7 explicitly describe a 'reviewed cutover flag with shadow parity' as future work), but it materially changes the size estimate for R4.S1 task 1.1: a shadow-compare harness (digest comparison, decide/apply/verify/publish pipeline) already exists and can likely be adapted rather than built new. This should be called out to whoever picks up R4.S1 so they read matchJournalAuthority.ts and ServerMatchHostJournalAuthority.ts before writing anything new."
+      }
+    ],
+    "uncoveredSHALLs": [
+      {
+        "shall": "openspec/changes/add-authoritative-history-branches/specs/event-store/spec.md:66 -- 'activation SHALL reject with STALE_CORRECTION_LEASE'",
+        "status": "No source symbol named STALE_CORRECTION_LEASE exists anywhere in src (grep -rn 'STALE_CORRECTION_LEASE' src returns 0 results). No test exercises it. This SHALL is entirely unimplemented on this snapshot and is squarely task 2.5/2.6 scope."
+      },
+      {
+        "shall": "openspec/changes/add-authoritative-history-branches/specs/event-store/spec.md:52,72,76-77,88,97-98,103 (the delivery-fence / accepted-prior-receipt cluster)",
+        "status": "Depends entirely on add-cross-stream-effect-receipts (0/51 tasks done, not archived). No test can exist yet because the delivery-lease/admission types it references do not exist in source."
+      }
+    ],
+    "prefixes": [
+      {
+        "id": "R3.activation-P1",
+        "covers": ["2.4 (fence-only remainder)", "2.5 (otherwise-activate path is already done; nothing left to build here)", "2.7 (merge step)"],
+        "rationale": "2.4's fence itself and 2.5's no-correction path are DONE per the receipts read above. The only remaining buildable slice in 2.4/2.5/2.6 that does NOT require add-cross-stream-effect-receipts is: (a) closing out the review/merge of what already exists (2.1-2.3, the done halves of 2.4-2.6), and (b) formally re-scoping 2.4/2.5/2.6's remaining boxes as blocked-on-successor in the tasks.md text so 2.7's merge is not gated on undeliverable work.",
+        "existingFiles": [
+          "src/lib/events/journal/EventHistoryActivation.ts",
+          "src/lib/events/journal/__tests__/EventHistoryActivation.test.ts"
+        ],
+        "newFiles": [],
+        "estimatedNonGeneratedChangedLines": "0-40 (tasks.md re-scoping text plus a receipt entry; no production code change)",
+        "failingTestFirst": "None -- this prefix is a documentation/receipt close-out, not a code change. If the team wants a code deliverable instead, the smallest real one is exporting STALE_CORRECTION_LEASE as a typed-but-currently-unreachable refusal code with a single unit test asserting it exists in the refusal union, so the type is ready before add-cross-stream-effect-receipts lands (optional, not required by task text).",
+        "acceptanceCommands": [
+          "npm.cmd run typecheck",
+          "npm.cmd run lint",
+          "npm.cmd run format:check",
+          "npm.cmd test -- --watchAll=false --runTestsByPath src/lib/events/journal/__tests__/EventHistoryActivation.test.ts"
+        ],
+        "dependenciesOnBC": "None -- this prefix only touches PR2 (Section 2) code, which is entirely on the storage side already merged as prefixes A/B/C per the worktree name (history-sql-integrity).",
+        "capCheck": "Well under 15 files / 500 lines (history package ceiling 1000)."
+      },
+      {
+        "id": "R3.activation-P2 (BLOCKED)",
+        "covers": ["2.4 remainder (fence-vs-lease-to-admitted-promotion serialization, stop-new-admissions, supersede-unleased-pending)", "2.5 remainder (accepted-prior-receipt arm)", "2.6 remainder (delivery-lease serial orders, accepted-prior-receipt proofs, saga-boundary outage/restart)"],
+        "rationale": "Cannot be built on this snapshot. Requires add-cross-stream-effect-receipts' delivery lease, admission state, and outbox/saga types, none of which exist. Do not propose a prefix here; flag as blocked and revisit once that change lands (it is currently 0/51 tasks, not started).",
+        "existingFiles": [],
+        "newFiles": [],
+        "estimatedNonGeneratedChangedLines": "Not estimable without the upstream change's types.",
+        "failingTestFirst": "N/A -- blocked.",
+        "acceptanceCommands": [],
+        "dependenciesOnBC": "None directly; depends on add-cross-stream-effect-receipts, a sibling change, not on history prefixes B/C.",
+        "capCheck": "N/A -- not buildable yet."
+      }
+    ]
+  },
+  "R4.S1": {
+    "title": "Committed match batches and journal heads",
+    "dependsOn": ["R3.storage", "R4.matrix"],
+    "maxFiles": 15,
+    "maxNonGeneratedLinesDefault": 500,
+    "taskCount": 2,
+    "tasks": [
+      {
+        "taskKey": "adopt-combat-journal-cutover-and-gm-rewind#0.2@10",
+        "line": 10,
+        "checkboxState": "[ ]",
+        "literalText": "Verify on fetched exact main that `add-authoritative-history-branches` exposes the branch port this change activates through (`hasHistoryBranchStore`, `readEffectiveHead`, supersession), and record the exact SHA and the port's shape.",
+        "alreadyExists": {
+          "summary": "The port itself is real and already consumed by match-side code, well beyond what this verification task describes -- it just hasn't been formally re-verified/recorded against exact main by this change's own task.",
+          "files": [
+            "src/lib/events/storeCapabilityPorts.ts:147 (export function hasHistoryBranchStore)",
+            "src/lib/multiplayer/server/ServerMatchHostBranchAdmission.ts:35-38 (imports hasHistoryBranchStore, isHistoryBranchStoreReady) and :136 (const head = ctx.store.readEffectiveHead(stream);)",
+            "src/lib/events/journal/EventHistoryActivation.ts, EventHistoryBranchContract.ts, SQLiteEventHistoryBranchStore.ts (supersession)"
+          ],
+          "citation": "src/lib/multiplayer/server/ServerMatchHostBranchAdmission.ts:1-24 doc-comment: 'Active only when the store exposes IEventHistoryBranchPort and that port is ready ... DurableMatchStore always binds the six members, but the campaign database they read may never have been opened.'"
+        },
+        "missing": "Only the formality: this task is a verification/recording step (SHA + port shape), not a build step. It is unstarted purely because no one has run the check-and-record step yet, not because the port is missing.",
+        "nonclaim": "None in task text; this is a pure verification task."
+      },
+      {
+        "taskKey": "adopt-combat-journal-cutover-and-gm-rewind#1.1@14",
+        "line": 14,
+        "checkboxState": "[ ]",
+        "literalText": "S1: append every committed combat batch to `event_journal_events` at the expected revision and install `event_journal_stream_heads` and the match's genesis / `event_history_effective_heads` row on the first batch. Both rewind routes answer a real preview on a live match. Receipt must state that no SHALL is discharged by this seam alone.",
+        "alreadyExists": {
+          "summary": "The event_journal_events table, its writer, and the branch/effective-head machinery all exist independently. A shadow-mode combat journal-authority scaffold (decide->append->apply->verify->publish pipeline mirroring the already-shipped campaign cutover) also exists but is hardcoded OFF and still targets mp_match_events, not event_journal_events.",
+          "files": [
+            "src/services/persistence/SQLiteService.eventJournal.migration.ts:49 (CREATE TABLE event_journal_events)",
+            "src/lib/events/journal/SQLiteEventJournalWriter.ts, SQLiteEventJournal.ts (generic journal writer, used today by campaign streams)",
+            "src/lib/multiplayer/server/matchJournalAuthority.ts (COMBAT_JOURNAL_AUTHORITY_MODE = 'off' at line 18; decide/apply/verify seam)",
+            "src/lib/multiplayer/server/ServerMatchHostJournalAuthority.ts (332 lines; 'DECIDE -> APPEND-AT-REVISION -> APPLY-COMMITTED-BATCH -> VERIFY -> PUBLISH' pipeline, doc-commented as mirroring the campaign pattern)",
+            "src/lib/multiplayer/server/__tests__/journalAuthorityAdmission.test.ts, journalAuthorityPath.test.ts, journalAuthorityRecovery.test.ts, journalAuthorityRollbackProof.test.ts, journalAuthorityShadow.test.ts, journalAuthorityStarted.sqlite.test.ts (6 existing suites for the campaign-side analog)"
+          ],
+          "citation": "src/lib/multiplayer/server/matchJournalAuthority.ts:1-3: 'Combat journal-authority types and consume-apply seam (task 2.3). Flag OFF matches CAMPAIGN_JOURNAL_AUTHORITY_ENABLED.'"
+        },
+        "missing": {
+          "summary": "Combat batches still append ONLY to mp_match_events (a per-match-db table), never to the shared event_journal_events table. Nothing installs event_journal_stream_heads or a genesis event_history_effective_heads row for a match stream on its first committed batch.",
+          "grepEvidence": "src/lib/multiplayer/server/DurableMatchStore.ts:158 (CREATE TABLE mp_match_events), :746 (appendCommandBatch = async ...), :802-806 (INSERT INTO mp_match_events ...). No call in this file (or anywhere in src/lib/multiplayer/server) inserts into event_journal_events. src/lib/multiplayer/server/history/GmCombatRewindCommit.ts:102-105 confirms the consequence at the consumption side: 'if (deps.branches.readEffectiveHead(stream) === null) { return refuseCommit(\"no-authoritative-history\", ...) }' -- i.e. every real match today has no effective head because it has no journal genesis row."
+        },
+        "nonclaim": "Task text itself: 'Receipt must state that no SHALL is discharged by this seam alone' -- i.e. this task must NOT claim to close any umbrella SHALL on its own; it is plumbing only."
+      }
+    ],
+    "contradictionsFound": [],
+    "uncoveredSHALLs": [],
+    "prefixes": [
+      {
+        "id": "R4.S1-P1",
+        "covers": ["0.2 (verification/recording)"],
+        "rationale": "Pure documentation/verification task: fetch exact main, confirm hasHistoryBranchStore/readEffectiveHead/supersession are present and exported at their current shape, record the SHA in this change's notepad/receipt.",
+        "existingFiles": [],
+        "newFiles": ["A receipt line in adopt-combat-journal-cutover-and-gm-rewind's notepad or tasks.md progress note (no src/ changes)"],
+        "estimatedNonGeneratedChangedLines": "0 (no production code)",
+        "failingTestFirst": "None -- not a code change.",
+        "acceptanceCommands": ["git -C <exact-main-checkout> log -1 --format=%H", "grep -n hasHistoryBranchStore src/lib/events/storeCapabilityPorts.ts"],
+        "dependenciesOnBC": "Reads the R3.storage prefix B/C content (hasHistoryBranchStore, readEffectiveHead, supersession symbols) to confirm their shape by name; no code dependency, just a citation target.",
+        "capCheck": "Trivially within cap."
+      },
+      {
+        "id": "R4.S1-P2",
+        "covers": ["1.1 (S1: journal-write the combat commit path)"],
+        "rationale": "Smallest buildable slice: make DurableMatchStore.appendCommandBatch also append the same committed batch to event_journal_events at the expected revision (reusing SQLiteEventJournalWriter, the same writer campaign streams use), and install event_journal_stream_heads + a genesis event_history_effective_heads row the first time a match stream is written. This can and should reuse the existing (currently OFF/mp_match_events-only) matchJournalAuthority.ts / ServerMatchHostJournalAuthority.ts shadow scaffold rather than writing a second pipeline from scratch -- read those two files first.",
+        "existingFiles": [
+          "src/lib/multiplayer/server/DurableMatchStore.ts (appendCommandBatch, line 746)",
+          "src/lib/multiplayer/server/matchJournalAuthority.ts",
+          "src/lib/multiplayer/server/ServerMatchHostJournalAuthority.ts",
+          "src/lib/events/journal/SQLiteEventJournalWriter.ts",
+          "src/lib/events/journal/EventHistoryEffectiveStreamHead.ts"
+        ],
+        "newFiles": [
+          "Likely none if matchJournalAuthority.ts's existing shadow path is promoted; otherwise a small adapter module (e.g. MatchStreamJournalWriter.ts) if the shadow scaffold's shape does not fit the real write path cleanly -- this must be decided by reading matchJournalAuthority.ts/ServerMatchHostJournalAuthority.ts in full before estimating file count."
+        ],
+        "estimatedNonGeneratedChangedLines": "150-350 (real SQLite write-path wiring plus genesis/head installation plus tests; task text explicitly requires 'Both rewind routes answer a real preview on a live match', which needs an integration-level test touching GmCombatRewindPreview.ts too)",
+        "failingTestFirst": "A real-SQLite test asserting that after committing one combat batch through DurableMatchStore.appendCommandBatch, event_journal_events contains the batch's events at the expected revision AND event_history_effective_heads has a genesis row for that match's stream (currently: this assertion fails because appendCommandBatch never touches event_journal_events). No mocks -- must run against a real better-sqlite3 db per the design's real-SQLite-boundary convention already used throughout EventHistoryActivation.test.ts.",
+        "acceptanceCommands": [
+          "npm.cmd run typecheck",
+          "npm.cmd run lint",
+          "npm.cmd run format:check",
+          "npm.cmd test -- --watchAll=false --runTestsByPath src/lib/multiplayer/server/__tests__/journalAuthorityPath.test.ts src/lib/multiplayer/server/__tests__/journalAuthorityStarted.sqlite.test.ts --runInBand",
+          "npm.cmd run verify:qc:multiplayer:contracts"
+        ],
+        "dependenciesOnBC": "Depends on R3.storage's branch/effective-head symbols (readEffectiveHead, event_history_effective_heads schema) by name -- those are prefix A/B content per the R3.storage receipt (PR 1a/1b/1c). No new dependency on prefix C beyond what R3.storage already shipped.",
+        "capCheck": "Likely within 15 files / 500 lines if the existing shadow scaffold is reused; flag for a split into two PRs (write-path wiring, then rewind-route live-preview proof) if the real file count creeps past 15 once the shadow scaffold's actual shape is inspected."
+      }
+    ]
+  },
+  "openQuestionsForRoadmapOwner": [
+    "R3.activation tasks 2.4-2.6 have real, receipted, buildable-today remainders of exactly zero: everything left in them is explicitly gated on add-cross-stream-effect-receipts (0/51, not started). Confirm whether R3.activation should be re-scoped to close 2.1-2.3+2.7(review/merge of what exists) now and split the 2.4-2.6 remainders into a new node that depends on add-cross-stream-effect-receipts, rather than carrying them as 'planned' against R3.storage alone.",
+    "R4.S1 task 1.1 should be assigned to a worker instructed to read matchJournalAuthority.ts and ServerMatchHostJournalAuthority.ts FIRST -- there is a real risk of building a second parallel shadow/decide-apply-verify pipeline when one already exists in OFF mode for exactly this purpose."
+  ]
+}

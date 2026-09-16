@@ -1,0 +1,56 @@
+{
+  "pr": 1740,
+  "branch": "codex/roadmap-r2-authority-cutover-co0-2-20260915",
+  "reviewedCommit": "b620467ccfc4dad81fec7bd54944330fba2d4287",
+  "finalHead": "3543581b5a0874c4e39ae47a682eac481cb2bf1d",
+  "autoMergeArmed": false,
+  "contentGuard": {
+    "method": "file set from `git diff --name-only origin/main...<head>` vs the reviewed file set, plus per-file blob equality against the reviewed commit; re-run after update-branch",
+    "fileCountAtMerge": 5,
+    "diffstat": "652 insertions(+)",
+    "blobEquality": "all files blob-identical to the reviewed commit at the gated head",
+    "result": "PASS"
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "expectedHeadShaGuardUsed": true,
+    "oldHead": "b620467ccfc4dad81fec7bd54944330fba2d4287",
+    "newHead": "3543581b5a0874c4e39ae47a682eac481cb2bf1d",
+    "reason": "branch was BEHIND"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "Customizer Regressions": "pass",
+    "otherChecksCount": 27,
+    "otherChecksBuckets": {
+      "pass": 27
+    },
+    "totalChecks": 31
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-cutover-co12-1740-final-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "566b60d02ee1a7aaf430d48b2c1b374b37e6029a",
+  "mergeCommitParents": [
+    "3d9ade77dcad0ede42777f33a88d4fe96ac19e06"
+  ],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1740 --squash --match-head-commit 3543581b5a0874c4e39ae47a682eac481cb2bf1d",
+  "mergedAt": "2026-09-15T17:59:14Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "The merge commit changes exactly 5 file(s), all blob-identical to the gated head 3543581b5a0874c4e39ae47a682eac481cb2bf1d.",
+  "mainAfter": "566b60d02ee1a7aaf430d48b2c1b374b37e6029a",
+  "worktree": {
+    "fastForward": "NOT PERFORMED - no owned worktree designated for this PR",
+    "result": "N/A"
+  },
+  "notes": "Did NOT go DIRTY after CO0 squash: update-branch collapsed the diff from 8 files to its own 5, with CO0 three files (campaignCommandPipeline.ts, campaignCutoverMarkerIo.ts and the marker test) dropping out.",
+  "timestamps": {
+    "receiptWrittenAt": "2026-09-15T18:10:00Z"
+  }
+}

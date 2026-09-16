@@ -1,0 +1,54 @@
+{
+  "pr": 1687,
+  "branch": "codex/roadmap-r2-p0b-s2-source-replay-20260915",
+  "reviewedCommit": "8f7f79d850cd526fa0eb6b52e389ecd59caa8a8b",
+  "resolvedHeadFromParent": "1a5ba24ce1cb483df37b551e417d155267ca12f1",
+  "finalHead": "27a871c583130beb7f1c6498626c26a1be1bdadf",
+  "autoMergeArmed": false,
+  "contentGuard": {
+    "method": "file set from `git diff --name-only origin/main...<head>` compared to the reviewed file set, plus per-file blob equality against the reviewed commit; re-run after update-branch",
+    "fileCountAtMerge": 2,
+    "blobEquality": "all files blob-identical to the reviewed commit at the gated head (exceptions, if any, are described in notes)",
+    "result": "PASS"
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "expectedHeadShaGuardUsed": true,
+    "newHead": "27a871c583130beb7f1c6498626c26a1be1bdadf"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "otherChecksCount": 27,
+    "otherChecksBuckets": {
+      "pass": 27
+    },
+    "totalChecks": 31,
+    "totalChecksNote": "31 because #1678 added the standing \"Customizer Regressions\" check to main"
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-p0b-s2-1687-final2-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "6a658c4ac3c4947d3e8dcd33e312e0655f0deda1",
+  "mergeCommitParents": [
+    "c0428a2c3d7f70a0182c80866ca0f2558529d943"
+  ],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1687 --squash --match-head-commit 27a871c583130beb7f1c6498626c26a1be1bdadf",
+  "mergedAt": "2026-09-15T10:43:34Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "The merge commit changes exactly 2 file(s), all blob-identical to the gated head 27a871c583130beb7f1c6498626c26a1be1bdadf.",
+  "mainAfter": "6a658c4ac3c4947d3e8dcd33e312e0655f0deda1",
+  "worktree": {
+    "fastForward": "NOT PERFORMED unless the coordinator designated the worktree as free; several owned worktrees were explicitly off-limits (parent in use / other branch).",
+    "result": "SKIPPED or SUCCESS per coordinator instruction for this PR"
+  },
+  "notes": "Went DIRTY after 1686 squash (add/add on the two shared files). Reported per policy; parent resolved by merging main keeping the branch contents. Delta vs main = S2 exact 219+/9-; the third file dropped out because 1686 already put it on main. NOTE: this session issued one update-branch against the DIRTY head because the mergeability probe and the update call were batched in a single command; it returned 422 and mutated nothing.",
+  "timestamps": {
+    "receiptWrittenAt": "2026-09-15T15:00:00Z"
+  }
+}

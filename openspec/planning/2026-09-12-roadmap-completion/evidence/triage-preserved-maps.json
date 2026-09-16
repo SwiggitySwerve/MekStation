@@ -1,0 +1,275 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "triage-preserved-maps",
+  "capturedAt": "2026-09-12",
+  "worktree": "E:/Projects/MekStation",
+  "originalInventory": {
+    "path": "docs/audits/2026-09-12-customizer-spec-reconciliation/inventory.json",
+    "sha256": "FE9D25951EE79C34C74F0B8F64AEE51DBD94265B30A057AE735CA83301376822",
+    "selection": "Six rows marked preserve-planned; five were structural and p2p-sync-system was a source-crosscheck with an explicit separate vault collaboration/CRDT note."
+  },
+  "roadmapOwnership": {
+    "triageOwner": "R9.triage — parent; assign bounded Luna high worker on admission",
+    "nonWaiver": "This finite inventory classifies preserved references and proof boundaries only. It does not discharge R8.travel, R8.opportunities, R8.starmap, R8.isometric, or R8.journey, and it does not convert planned work into runtime completion."
+  },
+  "rows": [
+    {
+      "id": "superheavy-mech-system",
+      "originalConcern": "Initial inventory marked the superheavy specification preserve-planned with no direct PR1634/1635/1636 coupling; preserve its active-domain requirements and planned proof boundary.",
+      "currentStatus": "existing_with_bounded_proof_gap",
+      "finiteDisposition": {
+        "state": "existing",
+        "disposition": "existing-with-bounded-proof-gap",
+        "rationale": "Live validation rules, BV constants, pipe-separated critical-slot parsing, and the customizer double-slot seam exist and are linked to this canonical spec. Focused tests cover selected tonnage, placement, and transition behavior. The spec remains broader than these seams, so this closes finite reference inventory only.",
+        "remainingAdmittedObligation": {
+          "owner": "R9.triage for disposition; domain owners are SuperheavyValidationRules.ts, BattleValue.ts, criticalSlotUtils.ts, and critical-slots UI modules.",
+          "nextProof": "Run the listed focused validation, BV, parser, and customizer tests when this domain is admitted; reconcile any remaining BV/reference cases against the canonical spec.",
+          "status": "deferred_proof"
+        }
+      },
+      "specEvidence": {
+        "path": "openspec/specs/superheavy-mech-system/spec.md",
+        "sha256": "7B1FD6174D4318DEF34B9FF41C6013383CDECA08A06EE5F4DFBEED754FEFEAFD",
+        "lines": [
+          {"lines": "49-258", "mapping": "Core superheavy detection, double-slot critical system, CritEntry model, construction constraints, BV calculation, and structure requirements."},
+          {"lines": "285-367", "mapping": "Customizer double-slot display and pairing requirements."},
+          {"lines": "465-684", "mapping": "Superheavy validation rules and validation scenarios."},
+          {"lines": "684-800", "mapping": "Implementation examples and BattleTech/MegaMek references; these are specification context, not runtime proof."}
+        ]
+      },
+      "sourceEvidence": [
+        {"path": "src/utils/validation/rules/SuperheavyValidationRules.ts", "sha256": "90C10875F7953A1707CB7AF621B344BD1327A6D8FBB5ED49F7B23BDB1CBE6600", "lines": "22-135", "mapping": "isSuperheavyFromContext plus cockpit, gyro, and 101-104 tonnage-gap validation rules; @spec links this canonical spec."},
+        {"path": "src/types/validation/BattleValue.ts", "sha256": "4A2463797AD266A1B6C1A38EA86693067526A38FA6679EE4099BEC747716ACB8", "lines": "86-127,179-199", "mapping": "Superheavy defensive multiplier, engine multipliers, and superheavy-aware engine BV selection."},
+        {"path": "src/utils/physical/criticalSlotUtils.ts", "sha256": "98C0DF1994C88F921CC77399C156E51D7C079D61B9B24F14AD02E08252B8D831", "lines": "117-141", "mapping": "parsePipeSeparatedCritEntry models the MTF pipe form used for superheavy double-slot entries."},
+        {"path": "src/components/customizer/critical-slots/LocationGrid.tsx", "sha256": "C4DDADF2148A7EDFA87BC37CD355A4FE1EDAE014D85DE030CD8BC796F99718A0", "lines": "66-127", "mapping": "LocationGrid derives isSuperheavy and creates double-slot CritEntry rows for the customizer."},
+        {"path": "src/components/customizer/critical-slots/DoubleSlotRow.tsx", "sha256": "8869FCF6F8E306A7809EF406906C9871063756503DE16EBE7FF0C42E5E9BDCAA", "lines": "155-182,220-359", "mapping": "DoubleSlotRow renders paired and single superheavy slots with drag/drop, context actions, and an explicit double-slot indicator."}
+      ],
+      "focusedTests": [
+        {"path": "src/__tests__/components/customizer/tabs/CriticalSlotsPlacement.test.ts", "sha256": "7E3534D471CF95B4A116E5B70D8DA41F529AE25A17E82F0F9E613E4D8EEDAE82", "lines": "110-158", "mapping": "Checks superheavy occupied slots are not offered as unwired pairing targets and threads unitIsSuperheavy through placement logic."},
+        {"path": "src/__tests__/components/customizer/tabs/StructureTransitions.test.ts", "sha256": "3C63824F2EEA9A098D5D9F46C5A293EB8C3260F4B8CA1AA38DF345CA094AEBA1", "lines": "42-50", "mapping": "Checks crossing the superheavy tonnage boundary updates the store gyro type."},
+        {"path": "src/__tests__/service/validation/rules/battlemech/BattleMechRules.test.ts", "sha256": "3671710D7B5B347BF64D9F09CE1B8CFCC23FC56663F51ABDFBF2A442D23FDB81", "lines": "93-103", "mapping": "Checks 150-ton and 200-ton superheavy tonnage cases in the BattleMech validation suite."}
+      ],
+      "smallestRelevantExactTestCommand": "npm.cmd test -- --watchAll=false --runTestsByPath src/__tests__/components/customizer/tabs/CriticalSlotsPlacement.test.ts src/__tests__/components/customizer/tabs/StructureTransitions.test.ts src/__tests__/service/validation/rules/battlemech/BattleMechRules.test.ts --runInBand",
+      "remainingMissingProof": [
+        "No test command was run under this read-only inventory assignment.",
+        "The cited seams do not prove every BV reference example, every construction constraint, every critical-slot import/export path, or every superheavy UI interaction."
+      ],
+      "explicitNonClaims": ["No claim of complete superheavy-mech-system runtime capability or MegaMek parity."]
+    },
+    {
+      "id": "tactical-map-interface",
+      "originalConcern": "Initial inventory marked the tactical map specification preserve-planned with no direct customizer coupling; preserve the map contract and planned domain work.",
+      "currentStatus": "existing_with_R8_isometric_follow_up",
+      "finiteDisposition": {
+        "state": "existing",
+        "disposition": "existing-with-admitted-R8-follow-up",
+        "rationale": "HexMapDisplay is a live facade over the nested renderer. The renderer composes terrain, tokens, projection metadata, firing arcs, LOS, persistent effects, and attack effects. The shared tactical projection builder and browser smoke surface provide direct evidence for current map behavior.",
+        "remainingAdmittedObligation": {
+          "owner": "R8.isometric — parent; assign bounded Luna high worker on admission.",
+          "nextProof": "Complete or verify the explicitly planned SVG isometric picking, overlays, and preferences work under R8.isometric; this inventory does not waive that node.",
+          "status": "deferred_R8_work"
+        }
+      },
+      "specEvidence": {
+        "path": "openspec/specs/tactical-map-interface/spec.md",
+        "sha256": "ECADA6CB99D294A2B7F2C845B2EE5D7941FD889364B968FA54E3B2FB560B0109",
+        "lines": [
+          {"lines": "48-200", "mapping": "Hex rendering, pan/zoom, terrain visualization, effects, unit tokens, selection, and feedback contracts."},
+          {"lines": "1694-1747", "mapping": "Firing arc shading and LOS overlay coexistence requirements."},
+          {"lines": "2390-2655", "mapping": "Layered map, projection, explainability, fog, and top-down/isometric contracts."},
+          {"lines": "3102-3383", "mapping": "Isometric presentation, terrain/unit visibility, and projection requirements."},
+          {"lines": "4407-4551", "mapping": "Validation, implementation notes, and current HexMapDisplay implementation references."}
+        ]
+      },
+      "sourceEvidence": [
+        {"path": "src/components/gameplay/HexMapDisplay.tsx", "sha256": "8DAD1549BA9D620CCC84E0B15789968B4E4DA7F02E34A57DA26A071FFE843B06", "lines": "1-6", "mapping": "Compatibility facade exporting the nested HexMapDisplay renderer and props."},
+        {"path": "src/components/gameplay/HexMapDisplay/HexMapDisplay.tsx", "sha256": "A3539030188EFD8C09ECE73E0D3B45A1AB41AA87F983ABB12A6DA1436CE23D26", "lines": "27-253", "mapping": "Live renderer composes projection metadata, terrain symbols, overlays, unit tokens, persistent effects, and attack effects."},
+        {"path": "src/utils/gameplay/tacticalMapProjection.ts", "sha256": "604D2FD7E95D8231B320643A07C4693E44BDE46C403058B08348C5E07F8E40E5", "lines": "64-192", "mapping": "buildTacticalMapHexProjectionLookup and buildTacticalMapHexProjection derive terrain, movement, combat, intent, status, source references, and explanations."},
+        {"path": "src/constants/hexMap.ts", "sha256": "99C5872459A40207316F653B27255BB4318ADF34C537B214D0949B84331D9658", "lines": "15-29,79-145", "mapping": "Flat-top hex dimensions, colors, axial-to-pixel/pixel-to-hex conversion, and distance utility."}
+      ],
+      "focusedTests": [
+        {"path": "src/utils/gameplay/__tests__/tacticalMapProjection.test.ts", "sha256": "D600096A42156D85E394F42BAADF634F357709715F685622FEBBDC5A041356F0", "lines": "1-6 plus imported fragments", "mapping": "Facade imports six focused projection test fragments covering movement details, same-hex modes, range/arc options, blocked targets, and LOS blocker references."},
+        {"path": "e2e/tactical-map-visual-smoke.spec.ts", "sha256": "493E4F241E3D9EA4CAB21A929E5E672F30D86F38A6CF01012D77B6E1E125620E", "lines": "188-293,1094-1143,1385-1643", "mapping": "Browser smoke scenarios inspect shared projection metadata, terrain/elevation labels, pan/zoom, isometric occluders, and LOS blocker evidence."}
+      ],
+      "smallestRelevantExactTestCommand": "npm.cmd test -- --watchAll=false --runTestsByPath src/utils/gameplay/__tests__/tacticalMapProjection.test.ts --runInBand",
+      "remainingMissingProof": [
+        "No test command was run under this read-only inventory assignment.",
+        "The focused seams do not prove every one of the very large specification's interaction, accessibility, replay, and browser scenarios.",
+        "R8.isometric remains an admitted roadmap obligation for SVG isometric picking, overlays, and preferences."
+      ],
+      "explicitNonClaims": ["No claim of complete tactical-map-interface capability or R8.isometric completion."]
+    },
+    {
+      "id": "terrain-generation",
+      "originalConcern": "Initial inventory marked terrain generation preserve-planned with no direct customizer coupling; preserve deterministic generation and active terrain dependencies.",
+      "currentStatus": "existing_with_generation_proof_boundary",
+      "finiteDisposition": {
+        "state": "existing",
+        "disposition": "existing-with-bounded-proof-gap",
+        "rationale": "The live generator has seeded RNG, Perlin/octave noise, biome weights, deterministic base generation, and a preset feature overlay. The imported helper test suite covers dimensions, reproducibility, biome distributions, clustering, structures, and preset maps.",
+        "remainingAdmittedObligation": {
+          "owner": "R9.triage for disposition; domain owners are terrainGenerator.ts, terrainFeatures.ts, and terrain-system contracts.",
+          "nextProof": "Run the generator helper suite and reconcile any remaining statistical or edge-case claims against current implementation; keep unseeded random fallback distinct from deterministic seeded proof.",
+          "status": "deferred_proof"
+        }
+      },
+      "specEvidence": {
+        "path": "openspec/specs/terrain-generation/spec.md",
+        "sha256": "A823764B7B51E92326AEEDA7CF3D7880A411469264D24F7939FCD556C1645D36",
+        "lines": [
+          {"lines": "48-362", "mapping": "Seeded RNG, Perlin/octave noise, biome weights, elevation, terrain selection, deterministic generation, grid dimensions, distributions, and edge cases."},
+          {"lines": "391-515", "mapping": "Feature creation, noise parameters, preset directives, clustering, application pass, and structure placement."},
+          {"lines": "741-793", "mapping": "Implementation algorithm overview, edge cases, dependencies, and consumers."}
+        ]
+      },
+      "sourceEvidence": [
+        {"path": "src/utils/gameplay/terrainGenerator.ts", "sha256": "85CFC1B39764F0E979D1F153D30A90EF689B233BFC92605D8FCAB12063CD1264", "lines": "39-199,216-296", "mapping": "BIOME_WEIGHTS, gradient/noise helpers, generateTerrain seeded map generation, and generateTerrainMap preset entrypoint."},
+        {"path": "src/utils/gameplay/terrainGeneratorTypes.ts", "sha256": "B3B19F02CDE5F4FC9A8D6C012F20C179F13DDD6F9E3FA6866BC3F16E9FE08840", "lines": "14-68", "mapping": "Biome/config/directive types and SeededRandom shared by base and feature passes."},
+        {"path": "src/utils/gameplay/terrainFeatures.ts", "sha256": "FD56BD79A97A11DF2E03BADD9653A47438BC83077264C5D8519F65B482E0981B", "lines": "61-176,215-392,416-496", "mapping": "Seeded clusters, building footprints, roads, building IDs, ordered feature application, and preset-to-directive conversion."}
+      ],
+      "focusedTests": [
+        {"path": "src/__tests__/unit/utils/gameplay/terrainGenerator.test.ts", "sha256": "513CDA84E347BB57F964B31736D58FA4242D62C73A63F53C120B6B7FF67F25B2", "lines": "1", "mapping": "One-line facade importing the real generator test helper."},
+        {"path": "src/__tests__/unit/utils/gameplay/terrainGenerator.test-helpers.ts", "sha256": "274687E44DD06A3FEAD57864C4AC9AC5CF6AD19D5191108E7C104619B4B14D5E", "lines": "13-112,157-284,417-590,792-883", "mapping": "Actual tests cover dimensions, seeded reproducibility, biomes, coherence, edge cases, preset directives, clustering, structure overlays, and generated-map preset identity."}
+      ],
+      "smallestRelevantExactTestCommand": "npm.cmd test -- --watchAll=false --runTestsByPath src/__tests__/unit/utils/gameplay/terrainGenerator.test.ts --runInBand",
+      "remainingMissingProof": [
+        "No test command was run under this read-only inventory assignment.",
+        "The static evidence does not establish performance acceptance for very large grids, exact statistical tolerances in every environment, or all downstream campaign/map-loading consumers.",
+        "The generator uses Math.random only when no seed is supplied; this inventory does not claim deterministic behavior for that fallback."
+      ],
+      "explicitNonClaims": ["No claim of complete procedural terrain generation or downstream campaign map acceptance."]
+    },
+    {
+      "id": "terrain-system",
+      "originalConcern": "Initial inventory marked terrain system preserve-planned with no direct customizer coupling; preserve terrain types, movement, combat, cover, heat, LOS, and stacking contracts.",
+      "currentStatus": "existing_with_rule_surface_proof_boundary",
+      "finiteDisposition": {
+        "state": "existing",
+        "disposition": "existing-with-bounded-proof-gap",
+        "rationale": "The live terrain definitions expose 20 terrain types, cover levels, feature/hex interfaces, and mechanical properties. Shared movement, cover, and LOS helpers are present, with focused tests for movement, cover, and terrain definitions.",
+        "remainingAdmittedObligation": {
+          "owner": "R9.triage for disposition; domain owners are TerrainTypeDefinitions.ts, terrainMovementCost.ts, terrainCover.ts, and lineOfSight.terrain.ts.",
+          "nextProof": "Run the listed movement, cover, terrain-type, and LOS focused tests as a domain admission; reconcile any remaining stacked-terrain and full LOS matrix gaps.",
+          "status": "deferred_proof"
+        }
+      },
+      "specEvidence": {
+        "path": "openspec/specs/terrain-system/spec.md",
+        "sha256": "699A22BFF87EE21887FE569C9BCF9F297994F03E913C49E8B413FEEE98347AE7",
+        "lines": [
+          {"lines": "44-319", "mapping": "Terrain type enumeration, movement, to-hit, cover, heat, LOS, feature stacking, and elevation-change requirements."},
+          {"lines": "345-399", "mapping": "Configured terrain-grid and integrated terrain/elevation projection requirements."},
+          {"lines": "417-631", "mapping": "Terrain interfaces, property tables, level validation, and stacking compatibility rules."},
+          {"lines": "635-662", "mapping": "Dependencies, consumers, implementation notes, and edge cases."}
+        ]
+      },
+      "sourceEvidence": [
+        {"path": "src/types/gameplay/TerrainTypeDefinitions.ts", "sha256": "1379B27842FE9F66E5F19B26EE8AF4CEBE7EAD516FDAFF2016E76265FD4C8B5F", "lines": "7-146", "mapping": "TerrainType and CoverLevel enums plus ITerrainFeature, ITerrainProperties, IHexTerrain, and IGeneratedMap contracts."},
+        {"path": "src/utils/gameplay/terrainMovementCost.ts", "sha256": "0A20BF1DEC1791A363D5F03168282B6B122C4C2D0D471E54BBDE7BB9E96F7CB5", "lines": "50-149", "mapping": "Primary-feature selection and per-motive movement-cost modifiers, including level-dependent snow, ultra rough, ultra rubble, and terrain-tag access."},
+        {"path": "src/utils/gameplay/terrainCover.ts", "sha256": "6F020561B08C59C2066F2BF39F900D54720DF7B92879F44F297400334BB77A40", "lines": "93-149,207-267", "mapping": "Target-hex and horizontal-cover derivation, water eligibility, terrain-tag cover, and unit eligibility."},
+        {"path": "src/utils/gameplay/lineOfSight.terrain.ts", "sha256": "E1A50B34D1D4D608280FFBDFA323D217ACFB48A7F7AD418615095DA322BDC3D5", "lines": "29-68,211-268,328-342", "mapping": "Terrain feature parsing, effective terrain height, LOS density, terrain LOS effects, and blocking terrain lookup."}
+      ],
+      "focusedTests": [
+        {"path": "src/__tests__/unit/types/gameplay/TerrainTypes.test.ts", "sha256": "AC2972B55EE01D311B2571151BD283BE855A177A5F51A6D1E263EC57117C1575", "lines": "1", "mapping": "One-line facade importing the actual terrain definitions test helper."},
+        {"path": "src/__tests__/unit/types/gameplay/TerrainTypes.test-helpers.ts", "sha256": "CADCF206DAB49CD85B42D36644E3391132B409752232A525021E877DE4235A1B", "lines": "14-68,112-238,474-615,633-668", "mapping": "Actual tests cover all 20 terrain types, property completeness, movement, to-hit, heat, cover, LOS, special rules, and interface compliance."},
+        {"path": "src/utils/gameplay/__tests__/terrainMovementCost.test.ts", "sha256": "32646BE025D8BDC8056342C208107482E57B6BD65BD9A6F988F95366F9568D50", "lines": "40-177", "mapping": "Covers base/stacked movement cost, terrain-tag parity, per-motive swamp/sand/mud/ice, snow, ultra rough, and ultra rubble."},
+        {"path": "src/utils/gameplay/__tests__/terrainCover.test.ts", "sha256": "C40DEAD28C274E6CFB03935EF2BC7AF26AC208960BBEE8CA54F449A3DC33973E", "lines": "54-291", "mapping": "Covers target terrain, water, swamp, woods, adjacent elevation/building cover, unit eligibility, and terrain-tag cover."}
+      ],
+      "smallestRelevantExactTestCommand": "npm.cmd test -- --watchAll=false --runTestsByPath src/__tests__/unit/types/gameplay/TerrainTypes.test.ts src/utils/gameplay/__tests__/terrainMovementCost.test.ts src/utils/gameplay/__tests__/terrainCover.test.ts --runInBand",
+      "remainingMissingProof": [
+        "No test command was run under this read-only inventory assignment.",
+        "The cited tests do not establish the complete terrain/LOS matrix across all map projections, every stacked-feature interaction, or all combat and movement consumers."
+      ],
+      "explicitNonClaims": ["No claim of complete terrain-system rule parity or full battlefield integration."]
+    },
+    {
+      "id": "unit-sprite-system",
+      "originalConcern": "Initial inventory marked unit sprite system preserve-planned with no direct customizer coupling; preserve the homemade asset and tactical token-rendering contract.",
+      "currentStatus": "existing_with_focused_proof",
+      "finiteDisposition": {
+        "state": "existing",
+        "disposition": "existing-with-focused-proof",
+        "rationale": "The live MechSprite, ArmorPipRing, MechToken integration, selector, and public catalog match the spec's implementation references. Focused tests cover rotation, selection, tint, shape cues, zoom behavior, archetype/weight selection, catalog coverage, URLs, and metadata.",
+        "remainingAdmittedObligation": {
+          "owner": "R9.triage for disposition; domain owners are MechSprite.tsx, ArmorPipRing.tsx, MechToken.tsx, spriteSelector.ts, and public/sprites/mechs/.",
+          "nextProof": "Retain this as existing and run the listed focused component/selector tests if a release or domain admission requires fresh execution.",
+          "status": "deferred_execution_only"
+        }
+      },
+      "specEvidence": {
+        "path": "openspec/specs/unit-sprite-system/spec.md",
+        "sha256": "951F1A4564D7E98B22F30A02DF95381EC9BEB423975BAA3BBD10B9A86635BB55",
+        "lines": [
+          {"lines": "50-168", "mapping": "Homemade silhouette catalog, facing indicator, armor-pip overlay, scaling/zoom, side tint, colorblind shape cue, and selection ring requirements."},
+          {"lines": "172-185", "mapping": "Relationships and implementation references for MechSprite, ArmorPipRing, MechToken, and the public catalog."}
+        ]
+      },
+      "sourceEvidence": [
+        {"path": "src/components/gameplay/sprites/MechSprite.tsx", "sha256": "40308D6BEB0C36B1073EEEB30AB0379E727909AACC96AE8A2043EFFA0E7414C0", "lines": "198-296,323-350", "mapping": "Props, facing-to-degree conversion, reduced-motion animation, selector integration, low-zoom glyph collapse, data metadata, tint, shape cue, and selection ring."},
+        {"path": "src/components/gameplay/sprites/ArmorPipRing.tsx", "sha256": "F3590930E7F004727750D9566903B919631A065148410E3D2FAAA86A2BB43E22", "lines": "115-159,201-289", "mapping": "ArmorPipState/zoom props, suppression below 0.35, simplification below 0.6, ordered location projection, and pip rendering."},
+        {"path": "src/components/gameplay/UnitToken/MechToken.tsx", "sha256": "420A480B47B349061D06E58794E1A22C883F7AB1A6D71D72157D7E32A783D99E", "lines": "65-188", "mapping": "Mech token composition passes zoom, selection, armor-pip state, and token data into ArmorPipRing and MechSprite."},
+        {"path": "src/utils/sprites/spriteSelector.ts", "sha256": "0572CA3B77EB34E1CA5EC018D956435DEE580489453E01670563E9E3CD59A139", "lines": "44-109", "mapping": "Archetype/weight resolution and complete sprite combo catalog export."}
+      ],
+      "focusedTests": [
+        {"path": "src/components/gameplay/sprites/__tests__/MechSprite.test.tsx", "sha256": "15EE82045A44DF202FBF934E7EB237B3762F1538B020C210780746F0178B231E", "lines": "53-223", "mapping": "Covers facing rotation, selection ring, side tint, colorblind shapes, sprite IDs, and zoom behavior."},
+        {"path": "src/utils/sprites/__tests__/spriteSelector.test.ts", "sha256": "D798A284A41FBFB705334CDFD9EF2A0AA3236A33418A58F19C7CC2DEB03D4358", "lines": "46-157", "mapping": "Covers catalog uniqueness, asset URLs, archetype resolution, weight buckets including SUPERHEAVY, and metadata."}
+      ],
+      "smallestRelevantExactTestCommand": "npm.cmd test -- --watchAll=false --runTestsByPath src/components/gameplay/sprites/__tests__/MechSprite.test.tsx src/utils/sprites/__tests__/spriteSelector.test.ts --runInBand",
+      "remainingMissingProof": ["No test command was run under this read-only inventory assignment."],
+      "explicitNonClaims": ["No claim that every public SVG asset has independent visual review or that all non-mech unit sprite systems are covered by this row."]
+    },
+    {
+      "id": "p2p-sync-system",
+      "originalConcern": "Initial inventory marked this source-crosscheck row preserve-planned and explicitly described a separate planned vault collaboration/CRDT concern; do not rewrite it around saved campaign custom units.",
+      "currentStatus": "existing_vault_crdt_with_deferred_real_peer_proof",
+      "finiteDisposition": {
+        "state": "existing_with_deferred_proof",
+        "disposition": "existing-vault-crdt-deferred-multi-peer-proof",
+        "rationale": "The live P2P surface provides room lifecycle, y-webrtc/Yjs/Y.Map synchronization, a Zustand synced vault store, mock BroadcastChannel mode, and unit/integration coverage. The browser E2E file explicitly leaves the real multi-peer flow as fixme, so that proof remains deferred.",
+        "boundary": "This row owns the content vault's unit/pilot/force CRDT sync. It is separate from campaign saved-custom persistence and authoritative campaign synchronization; campaign state is intentionally excluded from SyncableItemType.",
+        "remainingAdmittedObligation": {
+          "owner": "R9.triage for disposition; P2P domain owners are SyncProvider.ts, useSyncedVaultStore.ts, useSyncRoomStore.ts, MockSyncProvider.ts, and their test harness. Campaign saved-custom persistence remains with the campaign sync/authority owners, not this p2p-sync-system row.",
+          "nextProof": "Admit a bounded real multi-peer WebRTC/E2E proof for the vault CRDT when scheduled; retain the campaign boundary test and do not use this row to waive R8 or campaign journey work.",
+          "status": "deferred_real_peer_proof"
+        }
+      },
+      "specEvidence": {
+        "path": "openspec/specs/p2p-sync-system/spec.md",
+        "sha256": "06EA1734F452C277C372D896F031714DF174A1BD64A9D7E143ABF3FD64351085",
+        "lines": [
+          {"lines": "5-64", "mapping": "Scope, WebRTC/Yjs/Y.Map architecture, room lifecycle, and Zustand observation contract for vault items."},
+          {"lines": "66-306", "mapping": "Room codes, room management, CRDT vault synchronization, selective sync, connection state, and UI requirements."},
+          {"lines": "307-346", "mapping": "Mock Sync Provider requirement for E2E without WebRTC."},
+          {"lines": "612-873", "mapping": "Implementation notes, mock testing flow, dependencies, and future campaign consumer note."},
+          {"lines": "875-905", "mapping": "Explicit non-goals and related specifications, including no manual conflict UI and no sync history."}
+        ]
+      },
+      "sourceEvidence": [
+        {"path": "src/lib/p2p/SyncProvider.ts", "sha256": "CAAC930A586ECB5302BE4F3EFD077D247DD1C4FC7D0C09E27B29863035C3CAE8", "lines": "211-331,414-444", "mapping": "Creates/joins/destroys rooms, exposes connection state, Y.Doc, Y.Map, and Y.Array access."},
+        {"path": "src/lib/p2p/useSyncedVaultStore.ts", "sha256": "710DA765DDAAE6831548C82A29D2BCD4E94429E574B30025922D63D36B5DCCCE", "lines": "41-190,292-342", "mapping": "Binds Zustand vault items to a Y.Map, observes room changes, and implements add/update/remove/import/selectors for unit/pilot/force content."},
+        {"path": "src/lib/p2p/useSyncRoomStore.ts", "sha256": "CFF4D133D9E92A79813F7A78D192806E76260481F814F9A9CFA4928ACC96323F", "lines": "40-170,218-265", "mapping": "Room store actions and selectors for create, join, leave, connection state, peers, and local identity."},
+        {"path": "src/lib/p2p/MockSyncProvider.ts", "sha256": "E024B2B1DC132A25D9BA6EF4B162E1523CF8BE77227C56E3D5F96403AF0D518C", "lines": "4-42,94-180,242-352", "mapping": "BroadcastChannel mock room, Y.Doc/Y.Map access, cleanup, and mock-mode selection for browser testing."},
+        {"path": "src/lib/p2p/types.ts", "sha256": "CD7ED3BFD4C3E6194DEB6AB8E8FE0DCA5DA56E3CBB74505B7ED6A9311A0BA6B1", "lines": "34-219,256-273", "mapping": "SyncState, room, syncable vault item, metadata, actions, and P2P configuration contracts; the syncable item model is content-vault scoped."}
+      ],
+      "focusedTests": [
+        {"path": "src/lib/p2p/__tests__/useSyncedVaultStore.test.ts", "sha256": "1EAD45BA3972F3A95A886DB62D88D825DD3E310DE250C11976E4BE2770D4670F", "lines": "46-425", "mapping": "Covers vault state, add/update/remove, metadata, sync toggles, import, type filtering, and workflows."},
+        {"path": "src/lib/p2p/__tests__/p2pSessionSync.integration.test.ts", "sha256": "D2C2DAE8BF60544F3C9F43E23257B04F02D079C110D6B78361C01599DAA8694D", "lines": "124-176,228-451,467-502", "mapping": "Covers host/guest convergence, guest intent translation, rejection, and host-disconnect pending state."},
+        {"path": "src/lib/p2p/__tests__/campaignSyncBoundary.test.ts", "sha256": "CF05A136456F6748CF19A204987959A6A03B6F7C160B0A741565C75006C99BC9", "lines": "2-31", "mapping": "Explicitly proves campaign is not a SyncableItemType and cannot enter the vault Y.Map; this is the saved-custom/campaign boundary."},
+        {"path": "e2e/p2p-sync.spec.ts", "sha256": "4FAAFE47778A530131D1A810A65B0481921D32E39AC9221CED395BDF6BA4CBD2", "lines": "59-253,256-270", "mapping": "Mock-mode browser flow covers room/item operations; lines 256-270 mark the real multi-peer flow fixme, preserving the deferred proof boundary."},
+        {"path": "src/lib/p2p/__tests__/roomCodes.test.ts", "sha256": "C628CADEF1B6A4C54C8307E77D647112D87786FB7A1A0FA596F0A0E08B52B30A", "lines": "20-165", "mapping": "Covers generation, normalization, formatting, validation, parsing, hint, and placeholder contracts."}
+      ],
+      "smallestRelevantExactTestCommand": "npm.cmd test -- --watchAll=false --runTestsByPath src/lib/p2p/__tests__/useSyncedVaultStore.test.ts src/lib/p2p/__tests__/p2pSessionSync.integration.test.ts src/lib/p2p/__tests__/campaignSyncBoundary.test.ts src/lib/p2p/__tests__/roomCodes.test.ts --runInBand",
+      "remainingMissingProof": [
+        "No test command was run under this read-only inventory assignment.",
+        "The real WebRTC multi-peer browser scenarios remain test.describe.fixme and are not proof of transport acceptance.",
+        "This row does not cover campaign saved-custom persistence, authoritative campaign state, or the R8 travel/journey obligations."
+      ],
+      "explicitNonClaims": ["No claim of real-peer WebRTC completion, campaign saved-custom persistence, or whole multiplayer capability completion."]
+    }
+  ],
+  "globalNonClaims": [
+    "A source path, focused test path, browser scenario, or SHA-256 match is evidence of a current seam only; it is not runtime completion proof.",
+    "No tests, builds, servers, or runtime commands were run for this read-only inventory.",
+    "No source, canonical spec, task, roadmap, or Git files were modified by this pass; only this new evidence file is owned."
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "node": "R2.authority",
+  "artefact": "r2-p0b-s2-1687-main-proof-20260915",
+  "capturedAtUtc": "2026-09-15T10:46:09.864Z",
+  "pr": 1687,
+  "slice": "P0b S2 (design-campaign-authority-and-sync task 6.1, D13 source-side materialization: replay source contracts from private envelopes with typed refusals)",
+  "reviewedHead": "27a871c583130beb7f1c6498626c26a1be1bdadf (branch head after the DIRTY resolution merge 1a5ba24ce; its own file contents were verified equal to the reviewed S2 commits)",
+  "mergeCommit": "6a658c4ac3c4947d3e8dcd33e312e0655f0deda1",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/camp-receipt-verification (detached at the merge commit)",
+  "runtime": {
+    "node": "v22.22.0"
+  },
+  "files": [
+    "src/lib/campaign/authority/campaignSourcePrivateEnvelope.ts",
+    "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts"
+  ],
+  "blobEquality": {
+    "command": "git diff --stat 27a871c58 6a658c4ac -- <2 files>",
+    "diffLines": 0,
+    "identical": true
+  },
+  "gates": {
+    "jest": {
+      "scope": "src/lib/campaign/sync src/lib/campaign/authority src/lib/campaign/delivery",
+      "result": "42 suites / 265 tests passed",
+      "exit": 0,
+      "sha256": "aa35b864fa96f0be4e61a1465afaa2b36b6bb781d16709128e60470588de4c4c"
+    },
+    "tsc": {
+      "exit": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "openspecStrict": {
+      "exit": 0,
+      "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3"
+    },
+    "qcOpenspecCi": {
+      "exit": 0,
+      "sha256": "1d2b3ffbba3922d328cc2b02fa1de7ccedad6b3382227fa903deccf9a0d5900c"
+    }
+  },
+  "acceptance": "exact-main accepted",
+  "nonClaims": [
+    "CAMPAIGN_JOURNAL_AUTHORITY_ENABLED remains false",
+    "S3 (#1688) not yet merged; task 6.1 stays open until the stack lands"
+  ]
+}

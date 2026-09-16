@@ -1,0 +1,11 @@
+{
+  "at": "2026-09-13T07:34:51.975Z",
+  "head": "f6078a2a790129bb7faa53249710b4151b779ab9",
+  "base": "44b94adbbb333a9d4965e057b34290e19fc0e781",
+  "status": "clean-local-commit",
+  "normalCommitExit": 0,
+  "summary": "commit f6078a2a790129bb7faa53249710b4151b779ab9\nAuthor:     Wes Rollings <wrollings@gmail.com>\nAuthorDate: Sun Sep 13 01:33:38 2026 -0600\nCommit:     Wes Rollings <wrollings@gmail.com>\nCommitDate: Sun Sep 13 01:33:38 2026 -0600\n\n    docs(openspec): archive verified chassis index package\n\n openspec/active-change-ledger.json                                  | 6 ------\n .../2026-09-12-establish-battlemech-chassis-index}/.openspec.yaml   | 0\n .../2026-09-12-establish-battlemech-chassis-index}/design.md        | 0\n .../2026-09-12-establish-battlemech-chassis-index}/proposal.md      | 0\n .../specs/battlemech-chassis-index/spec.md                          | 0\n .../2026-09-12-establish-battlemech-chassis-index}/tasks.md         | 0\n 6 files changed, 6 deletions(-)\n",
+  "numstat": "0\t6\topenspec/active-change-ledger.json\n0\t0\topenspec/changes/{establish-battlemech-chassis-index => archive/2026-09-12-establish-battlemech-chassis-index}/.openspec.yaml\n0\t0\topenspec/changes/{establish-battlemech-chassis-index => archive/2026-09-12-establish-battlemech-chassis-index}/design.md\n0\t0\topenspec/changes/{establish-battlemech-chassis-index => archive/2026-09-12-establish-battlemech-chassis-index}/proposal.md\n0\t0\topenspec/changes/{establish-battlemech-chassis-index => archive/2026-09-12-establish-battlemech-chassis-index}/specs/battlemech-chassis-index/spec.md\n0\t0\topenspec/changes/{establish-battlemech-chassis-index => archive/2026-09-12-establish-battlemech-chassis-index}/tasks.md\n",
+  "parentAcceptance": "evidence/archive-chassis-local-parent-acceptance-20260913.json",
+  "publication": "not-started"
+}

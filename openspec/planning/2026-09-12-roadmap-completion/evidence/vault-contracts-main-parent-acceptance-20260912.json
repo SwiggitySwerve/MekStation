@@ -1,0 +1,630 @@
+{
+  "schemaVersion": 1,
+  "capturedAt": "2026-09-12T22:17:44.330Z",
+  "status": "accepted",
+  "receipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/vault-contracts-main-verification-20260912.json",
+    "sha256": "865e2107ed75dac63d68b4a5f2505eb266c44930ffcc67b7540696461b796544"
+  },
+  "artifacts": [
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-delivery/updated-head-1.json",
+      "sha256": "9eb65e4f45c79dc58930793046e9c5ef9c2166f2eb2cb02631b85f408a6c3de8",
+      "bytes": 1038
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/01-pre-head.exit.json",
+      "sha256": "b37e1f95ca3a0d1039cea0401905de46267f7e6032c21526395b7ec12e06653b",
+      "bytes": 143
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/01-pre-head.metadata.json",
+      "sha256": "e911e80ce338c1cda4d03ff411f205c8516f869d608e473f4970a449d207bf4d",
+      "bytes": 901
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/01-pre-head.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/01-pre-head.stdout.log",
+      "sha256": "8dfdfaf3eb1297a3d0abdc93eace231794ad37a51dcd4673e532752725b3f1fd",
+      "bytes": 41
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/02-pre-status.exit.json",
+      "sha256": "0ee126f9f72d27926eaa76351b7709c73e9f0e1de10255bb209882be2f85cd1c",
+      "bytes": 145
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/02-pre-status.metadata.json",
+      "sha256": "e978e7901cd757ebb56ecaa21ba66d33f349f0e50ef1800e1a1d3bade92907b6",
+      "bytes": 924
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/02-pre-status.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/02-pre-status.stdout.log",
+      "sha256": "4794e9fd076e3e1afabfa1e01b81a43bdef21d6f120c58ff907e75f2b2a395cd",
+      "bytes": 101
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/03-handoff-object-hashes.exit.json",
+      "sha256": "0118de2ed6c66b385a95a612ef32b93bf9b2dceb16e4ed40cdbcfd3e0d53326c",
+      "bytes": 156
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/03-handoff-object-hashes.metadata.json",
+      "sha256": "c2dea88d576209feed70d89362669114f061472a3d8bee3df10c0e3a4d3c2622",
+      "bytes": 1038
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/03-handoff-object-hashes.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/03-handoff-object-hashes.stdout.log",
+      "sha256": "8e730995d80985e525a5b41bead7bee2d8e115fc3f73fd50f47ff58927b33bbc",
+      "bytes": 1464
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/04-detach-to-merged-main.exit.json",
+      "sha256": "c0d31371559bb7910353d01c4c55ddc9c677db79ad194e331289ce07215de412",
+      "bytes": 156
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/04-detach-to-merged-main.metadata.json",
+      "sha256": "3a4a91ed1a5916484866226da488344dd4bc92a407cf73b05dfb194e05e97835",
+      "bytes": 992
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/04-detach-to-merged-main.stderr.log",
+      "sha256": "aa255558df0373ddd7364f12f8cdd1908d973220354b6adc519a174364b4c88d",
+      "bytes": 101
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/04-detach-to-merged-main.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/05-post-head.exit.json",
+      "sha256": "8832680ba999b930cfa9d7bb3c881a7e2841f8721c9bb8f847579dfd4db2f2c5",
+      "bytes": 144
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/05-post-head.metadata.json",
+      "sha256": "91fc2e0ac36b1d5efc561d59f51b0cd6a1e7ba98b6400fdc5a982f5d2afa1cd1",
+      "bytes": 904
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/05-post-head.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/05-post-head.stdout.log",
+      "sha256": "f9fc2c08e3da8a2e2ccb789d16a3649db3d98b77558e56f70454576cd6c8dabb",
+      "bytes": 41
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/06-post-status.exit.json",
+      "sha256": "33ef58aaae76e20a662cc33c202cae855af23bd240e2bf2a57253697bd7a01a7",
+      "bytes": 146
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/06-post-status.metadata.json",
+      "sha256": "a709b5e7189a1a0b3e7801d12c58cd8b9a7222b2b6f7aacd6246c4e557280082",
+      "bytes": 926
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/06-post-status.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/06-post-status.stdout.log",
+      "sha256": "ba051334ebc33f3162a4fd5be48615e03c8dac8ec7977e7c2752dbc1cf981841",
+      "bytes": 20
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/07-base-scope-name-only.exit.json",
+      "sha256": "5f8a3504768a55b0ced1287d8386714426248359c584a7e37e0d534c0d7b3356",
+      "bytes": 155
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/07-base-scope-name-only.metadata.json",
+      "sha256": "80b698644e20f29efb33553c489c9368d1e2d572bbbe722622d969bce3a6e604",
+      "bytes": 1030
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/07-base-scope-name-only.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/07-base-scope-name-only.stdout.log",
+      "sha256": "5e06be4ff6fcdffae336d1c8b2e3b0735d2f7d437ce3dcf7f36364c6afa8eddf",
+      "bytes": 208
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/08-base-scope-numstat.exit.json",
+      "sha256": "3493188828737ec7c59075660b756016f5f4d64d55da48341f6b25e08e33f97e",
+      "bytes": 153
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/08-base-scope-numstat.metadata.json",
+      "sha256": "44101bb0169896fba41876db32e9f786cab007e53beb60cddb63b5bdaceaa1d0",
+      "bytes": 1022
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/08-base-scope-numstat.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/08-base-scope-numstat.stdout.log",
+      "sha256": "3152c480d18e824162c4f57c309ee0b5416231402824926dc4714caed74f7908",
+      "bytes": 222
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/09-base-scope-shortstat.exit.json",
+      "sha256": "f246c425b90845223afe11285f7f3aa280fa0e2842ff971a7371b59975908d34",
+      "bytes": 155
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/09-base-scope-shortstat.metadata.json",
+      "sha256": "223bd07cca17d276be5a15978840e9b1236aae49140a4b6e818da72aae743528",
+      "bytes": 1029
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/09-base-scope-shortstat.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/09-base-scope-shortstat.stdout.log",
+      "sha256": "9836a2885b898cdcbdc9f770a69454db3735cf6fb5bce782c158faf3c9366930",
+      "bytes": 52
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/10-base-diff-check.exit.json",
+      "sha256": "621759fec65d2d098cf1d53bded89d05e58e5bcf9fe4e2c7b52c6476465532c2",
+      "bytes": 150
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/10-base-diff-check.metadata.json",
+      "sha256": "104bfd96b46de3fa53381206bc3689787827f1262c5748f1cbfd7c464ad5c1f1",
+      "bytes": 1009
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/10-base-diff-check.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/10-base-diff-check.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/11-reviewed-merged-diff-quiet.exit.json",
+      "sha256": "cc8e2eff9787a2cd6b5d4f6c1edf0f19ec89b48501f52058e0b24de4ec77e106",
+      "bytes": 161
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/11-reviewed-merged-diff-quiet.metadata.json",
+      "sha256": "a4c9a2e7ba5df259b3d35792ed20fb2f0691deeae0b299dd99250db81398b6b5",
+      "bytes": 1287
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/11-reviewed-merged-diff-quiet.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/11-reviewed-merged-diff-quiet.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/12-reviewed-merged-ancestor.exit.json",
+      "sha256": "1d5197ae452c4b4e74d8afa299dd839d090f65c65ed883cecc8c7bd1f9d0f435",
+      "bytes": 160
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/12-reviewed-merged-ancestor.metadata.json",
+      "sha256": "9437fa402817e6b77c4888f032bfc5f1bd893e45b0ebbf590a4e7fb1473871e1",
+      "bytes": 1055
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/12-reviewed-merged-ancestor.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/12-reviewed-merged-ancestor.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/13-exact-tree-and-source-hashes.exit.json",
+      "sha256": "452da8df18f2d2edcb383c553c72e174776a17948c3fb939f52d0fbbc5e0662b",
+      "bytes": 164
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/13-exact-tree-and-source-hashes.metadata.json",
+      "sha256": "4711fd202eea816500207b45f503a76d5bb7a876bf19eda9ce6f666a701271b1",
+      "bytes": 1057
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/13-exact-tree-and-source-hashes.stderr.log",
+      "sha256": "92877a078f46f830006a82a55cc0a1264ef465bd6996f2313a6980cb6e8868b3",
+      "bytes": 1044
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/13-exact-tree-and-source-hashes.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/14-targeted-openspec-strict.exit.json",
+      "sha256": "a8d7bf6266360b9fc06bb03c50b4c31cb8f1760c3f5f042ec21214bf7a5f7b54",
+      "bytes": 159
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/14-targeted-openspec-strict.metadata.json",
+      "sha256": "145aff9ff32f5c8ab6f8b9f607b71089afca1ea7c3d41b9598968d0041305046",
+      "bytes": 1077
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/14-targeted-openspec-strict.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/14-targeted-openspec-strict.stdout.log",
+      "sha256": "e5f3ffd5b42ef56f9a800bda3b0bfd4134fb6a792c0627b1ba73229a7d675a0f",
+      "bytes": 60
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/15-all-openspec-strict.exit.json",
+      "sha256": "c5ba5031ca36256cb0a46f96d441fd27b9505d127dd96e8053f53ba2b761ab09",
+      "bytes": 154
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/15-all-openspec-strict.metadata.json",
+      "sha256": "82b9d2334c1474c87d47249a4653c0c270d1f6edaa558c10d1bee0458441f3a6",
+      "bytes": 1052
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/15-all-openspec-strict.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/15-all-openspec-strict.stdout.log",
+      "sha256": "16c5c323579e9f348bc2adb0830ebd7bb199a73726ab1098c72331305dcca967",
+      "bytes": 6919
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/16-spec-purpose.exit.json",
+      "sha256": "1b62085c01865db285c262421d6ca1bd4c3a3518b82e4b378d112734afd600e8",
+      "bytes": 147
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/16-spec-purpose.metadata.json",
+      "sha256": "c13f1e150f16042df8a2ef8fe5b8bc130880d6676f2022b12a4056c7e886a34a",
+      "bytes": 1053
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/16-spec-purpose.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/16-spec-purpose.stdout.log",
+      "sha256": "3374a26262d00c93fded56ec4f2d25c866f4fa98769b6e8f1c9760db727b2b5b",
+      "bytes": 1900
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/17-terminology-strict.exit.json",
+      "sha256": "1489eedcd7c604df1d3cbebc9743bdf921a3e5e8be9f550d089088bc61f675de",
+      "bytes": 153
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/17-terminology-strict.metadata.json",
+      "sha256": "06316b0b0eb3a6e6f743a87c2da0e979519e579dd93460f06291e93ac4dccacf",
+      "bytes": 1176
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/17-terminology-strict.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/17-terminology-strict.stdout.log",
+      "sha256": "71c19b106eac683c601862a99b579470c747f4f785f96da043b53c7cb0e2d2ef",
+      "bytes": 185
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/18-candidate-qc.exit.json",
+      "sha256": "11afecc33f14aa5dbec4c6e9cc44c3a8ce90936bf20cc97efda97477ef5c17b9",
+      "bytes": 147
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/18-candidate-qc.metadata.json",
+      "sha256": "2f2fc4cd9dc164ea9568d092fd50a48c1ce74e9b2f27f096ef318639980b182f",
+      "bytes": 936
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/18-candidate-qc.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/18-candidate-qc.stdout.log",
+      "sha256": "e73d2bc631637ff8806d9adbf1a31052b575044d797a04f184aec21f5b8e6985",
+      "bytes": 10199
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/19-structural-docs.exit.json",
+      "sha256": "d0ef88d2bc0a5509423daf3644378983ff32a7bf26fea51e505f84c25a541ba2",
+      "bytes": 150
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/19-structural-docs.metadata.json",
+      "sha256": "98dcde7ffd211a8f00a970f84bdf07b08c49afa3cb060df30f75fd138f92c1ac",
+      "bytes": 998
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/19-structural-docs.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/19-structural-docs.stdout.log",
+      "sha256": "8ef16f774938a84dda7e856e2854ffb091fcea7831b27216b17cc8c8d238ae05",
+      "bytes": 400
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/20-formatter-target-classification.exit.json",
+      "sha256": "a87021c7e1fc879f049f9341c4da54f35d1a10b38f248f3ea521bbb6403dc2aa",
+      "bytes": 166
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/20-formatter-target-classification.metadata.json",
+      "sha256": "d4f927afa135783f8d8de9599aabf1faaf216eec7d0297b2a6b3884e99539df3",
+      "bytes": 1061
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/20-formatter-target-classification.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/20-formatter-target-classification.stdout.log",
+      "sha256": "7f55e02f7646b101c0f6cdb5bc496000e04bfa7b70854d3483644eeaa0269ae0",
+      "bytes": 398
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/21-final-clean-status.exit.json",
+      "sha256": "1986360d24c159cd887b83063745055e5e62af52c07edd31c8e9e8bff0ab604e",
+      "bytes": 153
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/21-final-clean-status.metadata.json",
+      "sha256": "66ca86817336f26dd2e7e90fff6ce2028b00af4e7a5a4ba3246c04cf6e2e0897",
+      "bytes": 947
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/21-final-clean-status.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/21-final-clean-status.stdout.log",
+      "sha256": "ba051334ebc33f3162a4fd5be48615e03c8dac8ec7977e7c2752dbc1cf981841",
+      "bytes": 20
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/22-exact-tree-and-source-hashes-corrected.exit.json",
+      "sha256": "978b69486dcceb553f4b5b442037415d78b5ec53b51bec54361bf0a0960a58c1",
+      "bytes": 173
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/22-exact-tree-and-source-hashes-corrected.metadata.json",
+      "sha256": "20484262ae4a6d0c055c96eaaea160ee3e64d1ef22559e1064acb6e0ecd93ce6",
+      "bytes": 1295
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/22-exact-tree-and-source-hashes-corrected.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/22-exact-tree-and-source-hashes-corrected.stdout.log",
+      "sha256": "bde92f8acb64787c633cf00da4985dd99325fe2141c049fc8f736cde96dcfb84",
+      "bytes": 4339
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/22a-exact-tree-crlf-diagnosis.exit.json",
+      "sha256": "8f44fff3729a5cfae52ef38b8e14806c5aaabbccfa5b19df6df2425bfbdef3fb",
+      "bytes": 162
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/22a-exact-tree-crlf-diagnosis.metadata.json",
+      "sha256": "1361de4c8d18fac8d83c376eb7860c1041bddf694ea6f5ea8c2dcd033e035c31",
+      "bytes": 1267
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/22a-exact-tree-crlf-diagnosis.stderr.log",
+      "sha256": "0d6afa229455b4b88f153f3b972ee8aa66dc9220fe6737b95ce1d1c81b3fa613",
+      "bytes": 2064
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/22a-exact-tree-crlf-diagnosis.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/23-root-scope-status.exit.json",
+      "sha256": "18b2e172530f713db9f612e30acf3a0bddc57233df888820b0211a82680080aa",
+      "bytes": 152
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/23-root-scope-status.metadata.json",
+      "sha256": "62ca5498219cf991a596e88e88c1011700daad254a6a0712f22a79a0184b3a1a",
+      "bytes": 1111
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/23-root-scope-status.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/23-root-scope-status.stdout.log",
+      "sha256": "e9bd76b9b8bee20a6624b4c64717430d3acf79b9ebca2d7cb2420a838a4073ae",
+      "bytes": 5692
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/handoff-manifest.json",
+      "sha256": "c8f737c00179f7e0d1c9e2a173539654d33ce2f17fc3644167d040c27332934a",
+      "bytes": 1038
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/handoff-object-check.cjs",
+      "sha256": "3384a225670309f332f6b4abb68d9e1b5749f33fb4dbc6325cb9ead5ac45b582",
+      "bytes": 1992
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/index.ndjson",
+      "sha256": "93409050028f67ec61f33b17126b839185e8d82864e7c05bd87814795e562eef",
+      "bytes": 23480
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/run-correction.cjs",
+      "sha256": "ec3dc228eafa2b5b8b6803b8271765f077e7ceeeeafb651fffd4e632f2ddb424",
+      "bytes": 2585
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/run-proof.cjs",
+      "sha256": "b4ffbe5f93b31978ec129496b07e47bf7d4245a10e89531204abaf0ba8da1b76",
+      "bytes": 7367
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/run-root-scope.cjs",
+      "sha256": "7ecf243f28e784dc9be911095428f2bdfabc966d0d4bc87ae7dad23f3e6c94a0",
+      "bytes": 2444
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/runner-summary.json",
+      "sha256": "66ae39becd4627a00155108a98bbff7011f78dce5b6c301aeb4677f804089a5a",
+      "bytes": 3155
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/source-manifest.json",
+      "sha256": "bde92f8acb64787c633cf00da4985dd99325fe2141c049fc8f736cde96dcfb84",
+      "bytes": 4339
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/source-tree-check.cjs",
+      "sha256": "46654d82a7476cd6374996b2c872bd836fa2c0f78857f8f061d1b3a2d8e47742",
+      "bytes": 5297
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-main-verification/checks/write-evidence.cjs",
+      "sha256": "2665e77838db0d168a00ec680e4c153fdd7270c4ac0d3fcac6bca1a17b7ab574",
+      "bytes": 7248
+    }
+  ],
+  "commandCount": 24,
+  "requiredCommandCount": 21,
+  "retainedNonzeroCommands": [
+    {
+      "id": "12-reviewed-merged-ancestor",
+      "exit": 1
+    },
+    {
+      "id": "13-exact-tree-and-source-hashes",
+      "exit": 1
+    }
+  ],
+  "qualifications": [
+    "Reviewed and merged source blobs equal; reviewed commit ancestry is not required after squash merge.",
+    "Failed initial raw CRLF versus LF comparison is preserved and superseded by exact normalized source proof.",
+    "22a diagnosis returned exit zero; the worker summary calling it a diagnostic failure is imprecise.",
+    "Documentation-only proof; no CAMP, authority, travel or provenance runtime gates closed."
+  ],
+  "documents": [
+    {
+      "path": "openspec/changes/design-vault-campaign-separation-and-maps/proposal.md",
+      "expectedSha256": "0ae412ba1ed21917129cb29c46d546ca1cb5f27cfbfa6508d3b545083272fc17",
+      "reviewed": {
+        "gitBlobId": "50f56ca7da19fc4d6c83717032664a5490780724",
+        "rawSha256": "0ae412ba1ed21917129cb29c46d546ca1cb5f27cfbfa6508d3b545083272fc17",
+        "crlfNormalizedSha256": "0ae412ba1ed21917129cb29c46d546ca1cb5f27cfbfa6508d3b545083272fc17",
+        "bytes": 6820
+      },
+      "mergedMain": {
+        "gitBlobId": "50f56ca7da19fc4d6c83717032664a5490780724",
+        "rawSha256": "0ae412ba1ed21917129cb29c46d546ca1cb5f27cfbfa6508d3b545083272fc17",
+        "crlfNormalizedSha256": "0ae412ba1ed21917129cb29c46d546ca1cb5f27cfbfa6508d3b545083272fc17",
+        "bytes": 6820
+      },
+      "workingTree": {
+        "rawSha256": "1f8b29b27cf318a4d30003c213e3660bd373748bb79dba5da3c7fdbcb57bd027",
+        "crlfNormalizedSha256": "0ae412ba1ed21917129cb29c46d546ca1cb5f27cfbfa6508d3b545083272fc17",
+        "bytes": 6853
+      }
+    },
+    {
+      "path": "openspec/changes/design-vault-campaign-separation-and-maps/design.md",
+      "expectedSha256": "1e07e9fd3262f02c425d4e5c034d73d8816f331f437db0b69b926da417747b71",
+      "reviewed": {
+        "gitBlobId": "2b21aa011b2876d974b1f540b16e3e2d99f7a528",
+        "rawSha256": "1e07e9fd3262f02c425d4e5c034d73d8816f331f437db0b69b926da417747b71",
+        "crlfNormalizedSha256": "1e07e9fd3262f02c425d4e5c034d73d8816f331f437db0b69b926da417747b71",
+        "bytes": 8996
+      },
+      "mergedMain": {
+        "gitBlobId": "2b21aa011b2876d974b1f540b16e3e2d99f7a528",
+        "rawSha256": "1e07e9fd3262f02c425d4e5c034d73d8816f331f437db0b69b926da417747b71",
+        "crlfNormalizedSha256": "1e07e9fd3262f02c425d4e5c034d73d8816f331f437db0b69b926da417747b71",
+        "bytes": 8996
+      },
+      "workingTree": {
+        "rawSha256": "7cd71e0f655043d14138df4f73bd68aad30506fdf0cb8e399f0ffe6ece632834",
+        "crlfNormalizedSha256": "1e07e9fd3262f02c425d4e5c034d73d8816f331f437db0b69b926da417747b71",
+        "bytes": 9048
+      }
+    },
+    {
+      "path": "openspec/changes/design-vault-campaign-separation-and-maps/tasks.md",
+      "expectedSha256": "59e5714457431118bd26fefcf1f969ee156a4c4675a8796eb0a4b8e27641d359",
+      "reviewed": {
+        "gitBlobId": "74f377c4411dc52e6d5b37c936c6ee10fa52cb98",
+        "rawSha256": "59e5714457431118bd26fefcf1f969ee156a4c4675a8796eb0a4b8e27641d359",
+        "crlfNormalizedSha256": "59e5714457431118bd26fefcf1f969ee156a4c4675a8796eb0a4b8e27641d359",
+        "bytes": 5463
+      },
+      "mergedMain": {
+        "gitBlobId": "74f377c4411dc52e6d5b37c936c6ee10fa52cb98",
+        "rawSha256": "59e5714457431118bd26fefcf1f969ee156a4c4675a8796eb0a4b8e27641d359",
+        "crlfNormalizedSha256": "59e5714457431118bd26fefcf1f969ee156a4c4675a8796eb0a4b8e27641d359",
+        "bytes": 5463
+      },
+      "workingTree": {
+        "rawSha256": "5c6a3f12ee756be208c7371654f0504ccbfab1fd0202663801b8620c8931c562",
+        "crlfNormalizedSha256": "59e5714457431118bd26fefcf1f969ee156a4c4675a8796eb0a4b8e27641d359",
+        "bytes": 5505
+      }
+    }
+  ],
+  "mergedMain": "92d04fc6bcc2e49fd40d63d6f0cfd2a9c72eb14c"
+}

@@ -1,0 +1,13 @@
+{
+  "at": "2026-09-12T13:35:24.775Z",
+  "rows": [
+    "c3-network-targeting",
+    "campaign-personnel-architecture"
+  ],
+  "c3SourceHashesRechecked": 14,
+  "c3RawArtifactsRechecked": 2,
+  "personnelEditsReverseReconstructed": 3,
+  "scope": "Finite original inventory concerns only; reference publication and main verification remain required.",
+  "roadmapBackup": ".sisyphus/roadmap-completion-20260912/roadmap-before-two-dispositions.json",
+  "roadmapAfter": "9eb75946873d93d5cf79be0766663ed8e87acb85d4862ad0de39b695cb0bdea1"
+}

@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "triage-allocation-tab-superseding-20260912-continuation",
+  "capturedAt": "2026-09-12",
+  "supersedes": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-validation-order-repair.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/validation-handoff-fingerprint-check.json"
+  ],
+  "baseline": "be7f85b867aa3e8576e5e3d27e309276203bc24b",
+  "fetchedOriginMain": "6c4eac5c7b7a2aece3aab0443ce606943db6cf0b",
+  "scope": "Read-only source/receipt cross-check for critical-slot-allocation, critical-slots-display, and tab-management; one bounded Jest command; no product, spec, checklist, build, server, or browser changes.",
+  "fingerprintCorrection": {
+    "path": "src/stores/useTabManagerStore.ts",
+    "oldReceipt": "openspec/planning/2026-09-12-roadmap-completion/evidence/validation-handoff-fingerprint-check.json",
+    "malformedRecordedSha256": "f159a03bffd54e8e746440769bd867957c11bda9b4719671402d763993136e9",
+    "correctedSha256": "f159a03bffd54e8e746440769bd867957c11bda9b4719671402d7639931369e9",
+    "correctedLength": 64,
+    "oldReceiptPreserved": true
+  },
+  "rows": [
+    {
+      "id": "critical-slot-allocation",
+      "recommendedDisposition": "needs-proof",
+      "finding": "Active placement uses configuration-aware topology/queries/placement options and unit-store mutation. Pure allocation, catalog confirmation, and engine/gyro displacement tests pass. CriticalSlotAllocation.ts still exposes a separate fixed/distributed allocation API with no active callers found, so authority and cross-configuration integration remain unresolved.",
+      "sourceRefs": [
+        ["src/types/construction/CriticalSlotAllocation.ts", "236c5e8a120a10b330098a9d6ea6c04794a06a02364f165739ca0095060c05ee", "59-94,174-235,300-330"],
+        ["src/utils/construction/slotOperations/topology.ts", "3e9648bec3bcd62711915551396caa8e24b8e2ed9b83b27f2e988bee28fcb433", "8-76"],
+        ["src/utils/construction/slotOperations/queries.ts", "1dd5f44a9890abd46b2eef440b6a32150d362cf00b90ed9d0054f77b2952a795", "29-63"],
+        ["src/utils/construction/slotOperations/placement.ts", "509d903deb35e15503ed6e3a2a6cba764388d38a8bbcef056e40649bd351ce17", "17-116"],
+        ["src/utils/construction/slotOperations/placementOptions.ts", "fab681489be9c38efdcc59c857a7b51353de5efbbc665e069760c1c4c19ca66e", "17-41"],
+        ["src/utils/construction/displacementUtils.ts", "c72266405f5f267bbf4edaea79b2b7d47b2fa78b52810b564885929044532ee9", "40-83,127-249"],
+        ["src/stores/unit/catalogEquipmentPlacement.ts", "eb9c54fb0fa46797a536a3cc412a35290014bb25003715a822dc301fa6d02eec", "43-95"],
+        ["src/stores/unit/useUnitEquipmentStore.ts", "4e1b6f98f67fd77714e7f270142b7fad3839aebda9c124a2f569f8085790fed1", "93-168,210-220"]
+      ],
+      "testRefs": [
+        ["src/__tests__/unit/types/construction/CriticalSlotAllocation.test.ts", "2f904e35c5993019301ea0a66a1e4468faa303f39e132056a6897cfe00bcbb84"],
+        ["src/__tests__/unit/utils/construction/slotOperations.test.ts", "ed666dc8cb8d64e81b4cad60b0daafbbf81c6c734385a3a08955bc1d3083fe23"],
+        ["src/__tests__/unit/utils/construction/displacementUtils.test.ts", "c0984bef1e106e5d8b39acd7c81c7dcfa4f35244b5a3c8a252c97bafed20ac35"],
+        ["src/stores/unit/__tests__/catalogEquipmentPlacement.test.ts", "38d8008338bc9033068ae696025eb860f38ca951dbb360ae7079fade96943657"],
+        ["src/__tests__/components/customizer/tabs/CriticalSlotsPlacement.test.ts", "7e3534d471cf95b4a116e5b70d8da41f529ae25a17e82f0f9e613e4d8eedae82"]
+      ],
+      "limits": ["No proof that one allocation authority replaces the legacy API.", "No cross-configuration active-route, failure-without-mutation, or production integration proof."]
+    },
+    {
+      "id": "critical-slots-display",
+      "recommendedDisposition": "needs-proof",
+      "finding": "UnitEditorWithRoutingTabContent mounts CriticalSlotsTab, which renders LocationGrid directly and switches configuration through getLocationsForConfig. CriticalSlotsDisplay is exported/tested but has no active production import; it hardcodes the eight biped locations and desktop/mobile layout. Its tests therefore do not prove the active route or non-biped rendering.",
+      "sourceRefs": [
+        ["src/components/customizer/UnitEditorWithRoutingTabContent.tsx", "4a0685ef8e327dced5041c339941482aee1a44cf1b9f1aac9959c0bb153768fb", "21-64"],
+        ["src/components/customizer/tabs/CriticalSlotsTab.tsx", "28fd7f3a62ff56aa8800625a6eee9257da772e17cf05dc10677994ef3331465d", "39-92,242-310"],
+        ["src/components/customizer/tabs/CriticalSlotsTab.logic.ts", "7caa8a6436afb6252ac24cb4b450b31e809c12603b86908c3747d2687ad632a2", "81-204,341-380"],
+        ["src/components/customizer/critical-slots/CriticalSlotsDisplay.tsx", "9b196201236b4f4554c2430d1ef1f75216da7d912ebd0878cd007eed2938e006", "55-268"],
+        ["src/components/customizer/critical-slots/LocationGrid.tsx", "c4ddadf2148a7edfa87bc37cd355a4fe1edae014d85de030cd8bc796f99718a0", "66-175"]
+      ],
+      "testRefs": [
+        ["src/__tests__/components/customizer/critical-slots/CriticalSlotsDisplay.test.tsx", "5aea9932c5e7e5eaced929a9f69e2ee1e3c69624b2384480c6280b61909a7e55"],
+        ["src/__tests__/components/customizer/critical-slots/SlotRow.test.tsx", "9fed877be698a9f9217d8df810d5da97e71541ea9ff824b143efc53ce1ea1780"],
+        ["src/__tests__/components/customizer/tabs/CriticalSlotsTab.test.tsx", "0e0fc5c10f2c98b4f601003ab2b3629836412387790a87154c924fd44c91819c"],
+        ["src/__tests__/components/customizer/tabs/CriticalSlotsPlacement.test.ts", "7e3534d471cf95b4a116e5b70d8da41f529ae25a17e82f0f9e613e4d8eedae82"]
+      ],
+      "limits": ["Legacy display tests prove toolbar/grid callbacks and SlotRow states only.", "Active-route responsive geometry, supported non-biped configurations, and canonical-vs-legacy seam are unproven."]
+    },
+    {
+      "id": "tab-management",
+      "recommendedDisposition": "needs-proof",
+      "finding": "Customizer tabs are persisted by useTabManagerStore in localStorage with activeTabId and per-unit lastSubTab; CustomizerWithRouter gates URL/state sync on router readiness and hydration, gives explicit URL tabs precedence, and restores stored sub-tabs only when the URL omits its tab. Simulation viewer uses a separate URL/history store. Focused tests pass, but full cold reload and browser back/forward acceptance remains outside this bounded run.",
+      "sourceRefs": [
+        ["src/stores/useTabManagerStore.ts", "f159a03bffd54e8e746440769bd867957c11bda9b4719671402d7639931369e9", "37-50,104-170,281-520"],
+        ["src/components/customizer/CustomizerWithRouter.tsx", "b8d35e3c956db68551c2d670e60b85ad748865269fe36c0dd7de12daabe9dd66", "89-100,205-217,262-425"],
+        ["src/hooks/useCustomizerRouter.ts", "1a1cf81bb6570b7e73cae79f2c82a9172106c854991da7cd9199f4053491b77a", "226-290,311-370"],
+        ["src/stores/simulation-viewer/useTabNavigationStore.ts", "fb8b01c65d7181dc037fba17863197ed7b4c96b9fa63c0d14ee4e4d9cd843300", "27-203"]
+      ],
+      "testRefs": [
+        ["src/__tests__/stores/useTabManagerStore.test.ts", "638ae80e9ef3acb53c38c85b732a95f214153d000422a8a847cc0517dc286834"],
+        ["src/__tests__/stores/useTabManagerStore.test-helpers.ts", "1c70e7f7e42310c3a29ac618fbd6c248b224aa95cd32ee5cf210c3769eab1546"],
+        ["src/__tests__/stores/useTabManagerStore.persistence.test.ts", "d9edf663e183c4dbaa0c04a818f8fe3a3b8bce2a8c077dd71c133c8b43d0f0c1"],
+        ["src/stores/simulation-viewer/__tests__/useTabNavigationStore.test-helpers.ts", "d518c79b04239a52d546c479b33a9ec3974362b1ff68c614f259df1265a3dd88"],
+        ["src/hooks/__tests__/useCustomizerRouter.recovery.test.tsx", "48bbe23eea5dd26c366e310353889b2f6774b1f276609a541ef26556f0725ea9"],
+        ["src/components/customizer/__tests__/CustomizerWithRouter.routing.test.tsx", "f94ae9b73a7fa6a8b38474050c4ccb8bc23fa45e2a1699bf3fd7db488b8eba49"]
+      ],
+      "limits": ["No fresh browser/server cold reload, invalid deep-link recovery, or simulation back/forward runtime proof.", "Current worktree route files match origin/main but differ from root HEAD; do not attribute the explicit-tab behavior to root commit be7 alone."]
+    }
+  ],
+  "focusedCheck": {
+    "command": "C:/nvm4w/nodejs/node.exe node_modules/jest/bin/jest.js --runInBand --silent --runTestsByPath src/__tests__/unit/types/construction/CriticalSlotAllocation.test.ts src/__tests__/unit/utils/construction/displacementUtils.test.ts src/__tests__/unit/utils/construction/slotOperations.test.ts src/stores/unit/__tests__/catalogEquipmentPlacement.test.ts src/__tests__/components/customizer/tabs/CriticalSlotsPlacement.test.ts src/__tests__/components/customizer/critical-slots/CriticalSlotsDisplay.test.tsx src/__tests__/components/customizer/critical-slots/SlotRow.test.tsx src/__tests__/stores/useTabManagerStore.test.ts src/__tests__/stores/useTabManagerStore.persistence.test.ts src/stores/simulation-viewer/__tests__/useTabNavigationStore.test.ts src/hooks/__tests__/useCustomizerRouter.recovery.test.tsx src/components/customizer/__tests__/CustomizerWithRouter.routing.test.tsx",
+    "cwd": "E:\\Projects\\MekStation",
+    "exitCode": 0,
+    "timedOut": false,
+    "rawLog": "PASS unit src/__tests__/components/customizer/tabs/CriticalSlotsPlacement.test.ts\nPASS unit src/__tests__/components/customizer/critical-slots/SlotRow.test.tsx\nPASS unit src/components/customizer/__tests__/CustomizerWithRouter.routing.test.tsx\nPASS unit src/stores/simulation-viewer/__tests__/useTabNavigationStore.test.ts\nPASS unit src/__tests__/stores/useTabManagerStore.test.ts\nPASS unit src/__tests__/stores/useTabManagerStore.persistence.test.ts\nPASS unit src/__tests__/components/customizer/critical-slots/CriticalSlotsDisplay.test.tsx\nPASS unit src/stores/unit/__tests__/catalogEquipmentPlacement.test.ts\nPASS unit src/__tests__/unit/utils/construction/slotOperations.test.ts\nPASS unit src/hooks/__tests__/useCustomizerRouter.recovery.test.tsx\nPASS unit src/__tests__/unit/utils/construction/displacementUtils.test.ts\nPASS unit src/__tests__/unit/types/construction/CriticalSlotAllocation.test.ts\n\nTest Suites: 12 passed, 12 total\nTests: 197 passed, 197 total\nSnapshots: 0 total\nTime: 3.117 s, estimated 12 s\nstderr: [same PASS lines from git-bash wrapper]; stdout: empty; timedOut: false; exitCode: 0."
+  },
+  "parentReceipts": [
+    ["openspec/planning/2026-09-12-roadmap-completion/evidence/browser-local-verification.json", "c76d6d400ea0802b5a4006cae0c96e6c22c7ec73398a326c2cdc630cea758604", "baseline 6c4; build/typecheck/lint/format/browser passed for owned record-sheet/edit-recovery E2E; does not prove these three rows"],
+    ["openspec/planning/2026-09-12-roadmap-completion/evidence/routing-local-verification.json", "f9f67a67115dcc48112a90628e8e74a417c098ef1b4b0073e0ad560059041473", "baseline be7; route focused/typecheck/lint/format/spec/build/browser receipt; route-only scope"],
+    ["openspec/planning/2026-09-12-roadmap-completion/evidence/routing-main-verification.json", "5223ab68e0b9a444a062213096fdd26a27029b6babe27e387103a4fcf4822377", "mainSha 47c; route-focused exact-main receipt, earlier than fetched origin/main 6c4"],
+    ["openspec/planning/2026-09-12-roadmap-completion/evidence/routing-closure-main-verification.json", "0e50e300843d1ca324d7e5bf7d07c2fc9ffb88cecf35161fd88804e7477a3a37", "mainSha 6c4; closure spec/CI/purpose/format/terminology checks only, no row-specific runtime proof"]
+  ],
+  "limits": ["Old receipts and ledger were not altered.", "No full build, typecheck, lint, server, browser, or product/spec/checklist mutation was performed here.", "Parent owns final acceptance, canonical seam decision, and any later runtime proof."]
+}

@@ -1,0 +1,115 @@
+{
+  "at": "2026-09-12T12:13:54.049Z",
+  "reviewer": "/root/roadmap_campaign_proof",
+  "model": "gpt-5.6-luna",
+  "effort": "high",
+  "scope": "Source cross-check only, zero tests run. Fifth row was completed after an initial helper failure.",
+  "rows": [
+    {
+      "id": "armor-diagram",
+      "finding": "Allocator source and numeric tests match current ratios; renderer interaction, switching and persistence remain unproved. No formula repair indicated.",
+      "sources": [
+        {
+          "path": "openspec/specs/armor-diagram/spec.md",
+          "sha256": "9876b93a4e2a8b476d475888cd2238fee5d17f622c74387f8cddfcf6925ec5b9"
+        },
+        {
+          "path": "src/stores/useVehicleStore.actions.ts",
+          "sha256": "e1fcdae55c3e5457f6112a5cd64baa4b49eab10abc11cb0fc6b86719f7f0277b"
+        },
+        {
+          "path": "src/stores/__tests__/useVehicleStore.autoAllocate.test.ts",
+          "sha256": "e9ec1aebc70776cf000bf628d7cb2eef917bfb3ad68b56cec1cd04ee1719e754"
+        }
+      ]
+    },
+    {
+      "id": "bv-validation-tooling",
+      "finding": "Current validation command and report/cache/fallback resolver exist. Hypothetical check-new-pattern script is intentionally absent. Report coverage, invalidation and fixture behavior require focused proof.",
+      "sources": [
+        {
+          "path": "openspec/specs/bv-validation-tooling/spec.md",
+          "sha256": "07c82adf18d0f7082fbc2018cfe04f87e86708047efe229b588be473ac99d8ac"
+        },
+        {
+          "path": "scripts/validate-bv.ts",
+          "sha256": "b04956555e9949e48f5c5faadcb1168ee9ff348aa81cd4d5761b05588e05cb99"
+        },
+        {
+          "path": "src/services/encounter/bvCatalogPrewarmer.ts",
+          "sha256": "6ed37ea6aaa7954b2c603b1e3dd542dcd949668c7dff4ad2559cc9c45de3c589"
+        }
+      ]
+    },
+    {
+      "id": "c3-network-targeting",
+      "finding": "Behavior exists across current C3 modules. Audit reports remaining stale destruction and equipment references; inspect exact replacement scope before the reference-only repair. No behavioral defect reproduced.",
+      "sources": [
+        {
+          "path": "openspec/specs/c3-network-targeting/spec.md",
+          "sha256": "e52b99784c4d6f2984abe302c1c4ca3a481f5a7b69947cbe3261d26c78f05d23"
+        },
+        {
+          "path": "src/utils/gameplay/c3Network/state.ts",
+          "sha256": "7f67f25d3a57d6bc21c785fdad4e271088aa739d969ac4e0624ff82420cb705d"
+        },
+        {
+          "path": "src/utils/gameplay/toHit/c3.ts",
+          "sha256": "02c33b6d873c1d772c92a6dc3834aab143b78cae8b663faafe96e7d3e14d0a97"
+        },
+        {
+          "path": "src/services/equipment/EquipmentNameMapper.ts",
+          "sha256": "e22c3d9bfe946d5e04cd0064b73b892f95e54c8cc5b500877d40a92b9ccd6455"
+        }
+      ]
+    },
+    {
+      "id": "campaign-combat-loop",
+      "finding": "Canonical and supported-custom admission/refusal sources exist. Existing browser test stops at save/reload; actual terminal combat/post-battle proof remains assigned to R2.combat-browser and CAMP-01H. This is pending required work, not a new deferral.",
+      "sources": [
+        {
+          "path": "openspec/specs/campaign-combat-loop/spec.md",
+          "sha256": "c03ac3ebfb07e8c4eae7a35c9b313a932926d108f19f085c362116b8707b30f5"
+        },
+        {
+          "path": "src/lib/campaign/readiness/canonicalCatalogAdmission.ts",
+          "sha256": "d4f6556799b5318a02dd4c7b0e26072c120c09b72caf37017d6deca067d96636"
+        },
+        {
+          "path": "src/lib/campaign/encounter/materializeCampaignMissionEncounter.ts",
+          "sha256": "aa41451c3684dec9a2a267d992a39350c8139649cb4a802cb61e7b8c717c5584"
+        },
+        {
+          "path": "e2e/saved-custom-combat.spec.ts",
+          "sha256": "47f981ba93e67a789c882b8eb7cdf013c1ae54a31a89f1f9ecd794435f627bab"
+        }
+      ]
+    },
+    {
+      "id": "campaign-personnel-architecture",
+      "finding": "Inventory note is stale: current spec intentionally requires legacy rosterEntryToPerson/IPerson shims absent. Roster/pilot split exists; positive references are corrected. Focused runtime tests and historical source-comment cleanup remain to assess; do not restore a removed adapter.",
+      "sources": [
+        {
+          "path": "openspec/specs/campaign-personnel-architecture/spec.md",
+          "sha256": "a72517b65490dc84e1c04fbcc2ae4d162f1bb35187736b304e49a7f023a6f5e6"
+        },
+        {
+          "path": "src/types/campaign/CampaignRosterEntry.ts",
+          "sha256": "81d8a842313e9b082bb608d5defa4a0a4368f0b2c58246253c431262633aae31"
+        },
+        {
+          "path": "src/lib/campaign/utils/pilotLookup.ts",
+          "sha256": "49da4f1d5a45a60a0eac6d05119f83643f8db7554d9464b2fc5478d4d069d5e3"
+        },
+        {
+          "path": "src/lib/campaign/processors/financialProcessor.ts",
+          "sha256": "a69f1f2b7e56a2a984b143db14bc7004f33a2e0b2e2871082fb59cc9db48af3a"
+        },
+        {
+          "path": "src/lib/campaign/processors/vocationalTrainingProcessor.ts",
+          "sha256": "11517fd9c52832807f9a09f89d6ee8fd0287945d8330a1e89232a03f0212e48a"
+        }
+      ]
+    }
+  ]
+}

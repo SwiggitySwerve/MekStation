@@ -1,0 +1,385 @@
+{
+  "schema": "ledger-reconcile-local/v3",
+  "artefact": "ledger-reconcile-3-local-20260915",
+  "batch": 3,
+  "at": "2026-09-15",
+  "scope": "openspec-only ledger + task-row reconciliation bound strictly to merged, exact-main-verified receipts written AFTER batch 2's base. No product code, no spec delta edits, no push, no PR, no sub-agents.",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/camp-receipt-verification",
+  "runtime": {
+    "node": "v22.22.0"
+  },
+  "branch": {
+    "name": "codex/roadmap-ledger-reconcile-3-20260915",
+    "createdFrom": "origin/main after git fetch origin",
+    "baseSha": "00901f4e097d9973ba4d48369d343f93d52092c8",
+    "baseSubject": "test(journal): restore the replay-from-receipt, never-rewound and log-ahead rows (#1730)",
+    "preflight": "git status --porcelain EMPTY on the reused camp-receipt-verification worktree before checkout; EMPTY again after the commit",
+    "batch2Base": "4e5a74b9fddda382945277b15d76e2e09397d56c",
+    "batch2CommitsInBase": "b1b47e653e8b0 and d17c1ae8f2ee (batch 2's local commit plus its review-edit commit) are both ancestors of this base",
+    "rebase": "After the initial batch-3 commit and item 4, the coordinator flagged item 5 as eligible (PR #1734 merged). Since PR #1734's own merge commit efd8a136d had already advanced origin/main past this branch's original base (through PR #1733 too) and #1734 itself edited openspec/specs/campaign-unit-combat-state/spec.md (extending the 'Damage bar rendering' scenario and adding an 'Absent max-state entry' scenario), `git rebase origin/main` was run so item 5's edit would build on the true current content of that file rather than a stale pre-#1734 copy. The rebase replayed the two existing commits cleanly (no conflicts - neither touches any file #1733/#1734 touched) and changed only their SHAs; content, diffstat and checkbox lines are byte-identical before and after (verified via `git diff -U0` re-run post-rebase)."
+  },
+  "commits": [
+    {
+      "sha": "c6e694ea95792e4b040aaa5f7102b683b878b6cc",
+      "originalPreRebaseSha": "c77c3bcb2a844b959231a8cb59a42c46080868d5",
+      "subject": "spec(openspec): reconcile ledger and task rows with merged exact-main receipts (batch 3)",
+      "author": "Wes Rollings <wrollings@gmail.com>",
+      "committer": "Wes Rollings <wrollings@gmail.com>",
+      "aiAttribution": "none",
+      "hooks": "on (lint-staged ran oxfmt over the 4 staged json/md files; pre-commit full build self-skipped - no TypeScript staged)",
+      "shortstat": "4 files changed, 14 insertions(+), 13 deletions(-)",
+      "pushed": false
+    },
+    {
+      "sha": "2265e755d6bc95da9fe6f18d8913e7df4593b5b9",
+      "originalPreRebaseSha": "8b8a78473ff3ee54bca581cd8b97e57f2745faba",
+      "subject": "spec(openspec): flip task 1.6 journal-head revision/race receipt (batch 3, item 4)",
+      "author": "Wes Rollings <wrollings@gmail.com>",
+      "committer": "Wes Rollings <wrollings@gmail.com>",
+      "aiAttribution": "none",
+      "hooks": "on (lint-staged ran oxfmt over the 1 staged file; pre-commit full build self-skipped - no TypeScript staged)",
+      "shortstat": "1 file changed, 2 insertions(+), 1 deletion(-)",
+      "pushed": false
+    },
+    {
+      "sha": "82ce7c59f4e16d38257141afc6f987004efdc778",
+      "subject": "spec(openspec): close roster damage-bar migration item 3 by PR #1734 (batch 3, item 5)",
+      "author": "Wes Rollings <wrollings@gmail.com>",
+      "committer": "Wes Rollings <wrollings@gmail.com>",
+      "aiAttribution": "none",
+      "hooks": "on (lint-staged ran oxfmt over the 1 staged file; pre-commit full build self-skipped - no TypeScript staged)",
+      "shortstat": "1 file changed, 1 insertion(+), 1 deletion(-)",
+      "pushed": false
+    }
+  ],
+  "caps": {
+    "fileLimit": 15,
+    "filesTouched": 6,
+    "lineLimit": 500,
+    "linesChanged": 32,
+    "splitNeeded": false,
+    "note": "6 distinct files across the three commits (4 + 1 + 1, no overlap), 32 total lines (27 + 3 + 2)"
+  },
+  "liveAncestryChecks": {
+    "method": "git fetch origin, then `gh pr view <n> --json state,mergedAt,mergeCommit` for every cited PR PLUS `git merge-base --is-ancestor <mergeCommit> origin/main` against a freshly fetched origin/main. roadmap.json was not consulted for merge-state truth.",
+    "originMainTipAtVerification": "00901f4e097d9973ba4d48369d343f93d52092c8",
+    "results": [
+      { "pr": 1721, "state": "MERGED", "mergedAt": "2026-09-15T14:55:54Z", "mergeCommit": "15ca7b25b61473901909ac9954feb7677f1985f4", "ancestorOfOriginMain": true },
+      { "pr": 1722, "state": "MERGED", "mergedAt": "2026-09-15T15:15:45Z", "mergeCommit": "fbb3f2c81f6d7f2b2a9f80e3d9f94c332d2dbfae", "ancestorOfOriginMain": true },
+      { "pr": 1724, "state": "MERGED", "mergedAt": "2026-09-15T15:24:01Z", "mergeCommit": "231c7848aa0850b616a84581ff3c54e1d5ddb6bf", "ancestorOfOriginMain": true },
+      { "pr": 1725, "state": "MERGED", "mergedAt": "2026-09-15T15:44:30Z", "mergeCommit": "dc8b8f65d2d8b8562ce721ee4f3a9ca81a7a6a11", "ancestorOfOriginMain": true },
+      { "pr": 1726, "state": "MERGED", "mergedAt": "2026-09-15T15:33:54Z", "mergeCommit": "8c8f8221c4c1882f671d8fad7c2386ef9d10ca44", "ancestorOfOriginMain": true },
+      { "pr": 1731, "state": "MERGED", "mergedAt": "2026-09-15T15:59:33Z", "mergeCommit": "392c207de703049565b70ca6fe17005aca8f0641", "ancestorOfOriginMain": true },
+      { "pr": 1734, "state": "OPEN", "note": "checked for directed item 5 gate condition; NOT merged, so item 5 was skipped regardless of evidence-file state" }
+    ]
+  },
+  "perEditTable": [
+    {
+      "id": "E1",
+      "file": "openspec/changes/design-campaign-authority-and-sync/tasks.md",
+      "row": "6.1 (P0b journal-private source envelope / borrowed-handle CAS / durable sourceReplayFence / P0a baseline capture)",
+      "verdict": "FLIP",
+      "before": "- [ ] 6.1 ... ; sub-bullet named the borrowed-handle CAS write, the durable sourceReplayFence, and the P0a baseline capture as NOT delivered by P0b (PRs #1686-#1688)",
+      "after": "- [x] 6.1 ... ; sub-bullet rewritten to Receipt (FLIP), recording that PR #1721 (commit A) adds materializeCampaignSourceRow with an explicit WHERE id = ? AND version = ? CAS judged against a durable sourceReplayFence that routes any whole-envelope PUT lacking the stored fence through the existing 409 conflict path, and PR #1722 (commit B) pins the three required rows: (d) a real saveCampaign PUT winning the CAS forces the conflict path with no overwrite, (e) the P0a baseline capture happens under the prepared transaction, (f) an unfenced whole-envelope PUT with the correct baseVersion is still rejected via the existing 409",
+      "boundReceipts": [
+        "evidence/r2-61-fence-a-1721-main-proof-20260915.json",
+        "evidence/r2-61-fence-b-1722-main-proof-20260915.json"
+      ],
+      "literalTextTest": {
+        "clause1": "\"Borrowed-handle campaign write with CAS\" - SATISFIED. #1721's materializeCampaignSourceRow writes on the caller's borrowed handle with an explicit WHERE id = ? AND version = ? CAS (PR body, verified live via `gh pr view 1721 --json body`).",
+        "clause2": "\"a durable sourceReplayFence that rejects a later generic whole-envelope overwrite\" - SATISFIED. The PUT guard in CampaignPersistenceService.saveCampaign sends any whole-envelope PUT that does not carry the stored fence down the existing 409 path; #1722 row (f) is exactly this assertion and is green (9/9 with parent rows, exit 0).",
+        "clause3": "\"Capture the baseline under the P0a prepared transaction\" - SATISFIED. #1722 row (e) directly asserts the P0a baseline capture happens under the prepared transaction, proving the captured sourceRowVersion is the pre-materialization version."
+      },
+      "reviewBasis": "Independent review evidence/r2-61-source-replay-fence-review-20260915.json: stack verdict APPROVE-WITH-REQUIRED-EDITS. Its one required edit (RE-1, row b2: falsify the fence-before-CAS ordering with a deliberately stale expectedRowVersion, since rows (b)/(c)/(d) all passed a CURRENT version and could not have exercised the ordering) is confirmed applied in #1721's own PR body (\"(b2) a replay holding the stale pre-materialization version is still a no-op ... this row falsifies the fence-before-CAS ordering\"). Commit B reviewed APPROVE outright.",
+      "gatesInMainProofs": "Jest 220 suites/3166 tests (#1721) then 220/3169 (#1722); tsc 0 both; openspecStrict/specPurposeStrict/terminologyStrict/qcOpenspecCi all exit 0 both.",
+      "residualsCarried": [
+        "no production replay driver consumes the fence yet (the 6.2a acceptance producer's raw row write is the only caller)",
+        "client-side bridge is task 6.4's, lands separately",
+        "CAMPAIGN_JOURNAL_AUTHORITY_ENABLED unchanged",
+        "the fence is an event count, not a stream revision"
+      ]
+    },
+    {
+      "id": "E2",
+      "file": "openspec/changes/design-campaign-authority-and-sync/tasks.md",
+      "row": "6.4 (bridge the two compare-and-swap counters after a committed acceptance)",
+      "verdict": "PARTIAL",
+      "before": "- [ ] 6.4 ... (no sub-bullet)",
+      "after": "- [ ] 6.4 ... + Progress sub-bullet naming the merged mapping/refresh/fence-echo work and the residual",
+      "boundReceipts": [
+        "evidence/r2-64-bridge-a-1724-main-proof-20260915.json",
+        "evidence/r2-64-bridge-b-1725-main-proof-20260915.json"
+      ],
+      "noFlipBecause": "Directed as expected-PARTIAL: PR #1724's own non-claims state verbatim \"no 6.2b caller is wired (it lands with 6.2b)\", and 6.2b acceptance routing remains owner-blocked per task 6.2's own Progress note (blocked on the single-player identity/seat owner decision). The bridge mechanics (mapping, refreshAfterCommittedCommand, fence echo) are main-verified but nothing yet calls refreshAfterCommittedCommand in production.",
+      "gatesInMainProofs": "src/stores/campaign 26 suites/330 tests (#1724) then 26/335 (#1725); tsc clean; openspec strict 232/232 (#1725). Independent review APPROVE-WITH-REQUIRED-EDITS with both edits applied (evidence/r2-64-cas-bridge-review-20260915.json).",
+      "residualsNamedOnTheRow": [
+        "6.2b caller not wired (PR #1724's own non-claim)",
+        "no /commands response widening",
+        "fence echo inert until a real caller exercises #1721's product change",
+        "the 409 retry-noise residual (task 1.6) is untouched"
+      ]
+    },
+    {
+      "id": "E3",
+      "file": "openspec/changes/enable-saved-custom-unit-combat/tasks.md",
+      "row": "line 6 - extend replay gating and verify private construction redaction for owners, opponents, spectators, and recovery streams",
+      "verdict": "FLIP",
+      "before": "- [ ] ... Progress (PARTIAL): owners/opponents/spectators asserted; RECOVERY STREAMS covered only transitively through matchUnitBootstrap's shared detach",
+      "after": "- [x] ... Receipt (FLIP): recovery-streams redaction now directly and mutation-proven at exact main via PR #1726",
+      "boundReceipts": [
+        "evidence/r2-combat-residual-rows-1726-main-proof-20260915.json",
+        "evidence/r2-combat-residual-rows-review-20260915.json"
+      ],
+      "rationale": "PR #1726 adds customCombatRecovery.recoveryDelivery.test.ts: two custom saved designs, fog on, 1v1 plus spectator, launched via ServerMatchHost.create on a real DurableMatchStore; captures live per-viewer join-replay deliveries, deletes both library entries, closes and reopens the store/SQLiteService/UnitRepository, rebuilds via recoverActiveMatches, and asserts the recovered host's delivery against the redacted literal first then the live delivery second. Mutation-proven and independently reproduced by the reviewer: removing the owner check in fogOfWar.ts:131 fails the recovered-delivery literal; replacing snapshotOnlyReader(snapshot) with readCustom in InteractiveSession.recovery.ts leaves recovered.failed non-empty. Review verdict APPROVE, zero required edits (evidence/r2-combat-residual-rows-review-20260915.json).",
+      "gatesInMainProof": "scoped jest src/lib/multiplayer/server + src/engine 180 suites/1523 tests, tsc, oxfmt, openspec strict 232/0, pre-commit build ok.",
+      "nonClaimCarried": "the row covers the join-replay channel, not the recovered host's live broadcast channel"
+    },
+    {
+      "id": "E4",
+      "file": "openspec/changes/enable-saved-custom-unit-combat/tasks.md",
+      "row": "line 5 - recover and rewind from validated recorded construction",
+      "verdict": "PARTIAL (residual re-stated as owner decision)",
+      "before": "\"Held rather than checked: a follow-up row lane owns one assertion binding ServerMatchHostRewindRebuild to a recorded custom snapshot.\"",
+      "after": "\"Held rather than checked, now as an owner decision (OD-rewind-branch-reader, 2026-09-15): the rewind clause is structurally unreachable for any match stream on the current head ... independently re-verified by the reviewer against all five cited files/lines (verdict APPROVE, no required edits).\"",
+      "boundReceipts": [
+        "evidence/r2-combat-residual-rows-1726-main-proof-20260915.json (owner-decision note)",
+        "evidence/r2-combat-residual-rows-review-20260915.json (rewindUnreachabilityAssessment, independently verified)"
+      ],
+      "noFlipBecause": "Directed as-is: PR #1726's own body records this is NOT closed and is filed as owner decision OD-rewind-branch-reader (the journal mirror appends onto the baseline branch id while the match-store segment reader serves only root, so an activated rewind branch throws in tryFoldActivatedRewindBranch), belonging to adopt-combat-journal-cutover-and-gm-rewind. Box stays [ ]; only the wording of the residual changed from 'a follow-up row lane owns one assertion' (implying a coverage gap) to the accurate 'structurally unreachable, needs a product change elsewhere' framing, matching the reviewer's independent verification."
+    },
+    {
+      "id": "E5",
+      "file": "openspec/changes/enable-saved-custom-unit-combat/tasks.md",
+      "row": "line 8 - verify focused tests, SQLite reopen/recovery, browser handoff with server readback, static/build/spec checks (build-env caveat only)",
+      "verdict": "NOTE (row already [x]; wording corrected, no checkbox change)",
+      "before": "\"(b) BUILD ENV - the acceptance build carried NEXT_PUBLIC_E2E_MODE/NEXT_PUBLIC_E2E_TEST so one build served both the acceptance line and the browser artefact, and a flag-free vanilla build was not separately run.\"",
+      "after": "\"(b) BUILD ENV, corrected 2026-09-15: the 'one build served both' framing is now stale - R2.combat-browser's launch proof (PR #1731) rebuilt independently at the merge commit (BUILD_ID 1789488081479, distinct from this row's own BUILD_ID 1789482231591) rather than sharing this row's build artefact. The residual that remains open, unchanged: every build proven on main for either row still carries the E2E public flags, and a flag-free vanilla production build has still never been run separately.\"",
+      "boundReceipts": [
+        "evidence/r2-combat-browser-launch-1731-main-proof-20260915.json"
+      ],
+      "verificationNote": "Read the main-proof file directly: its runtime.build field still shows `NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build`, i.e. a flag-free vanilla build was NOT run by #1731 either. The directive's framing ('now closed by the E2E build and spec run on the merge commit') is honored narrowly: only the 'shared build' half of the caveat is corrected as stale (combat-browser now has its own independent build), and the still-open 'no vanilla build ever run' half is explicitly preserved rather than claimed closed - verify-never-infer forbids overclaiming resolution the evidence does not show."
+    },
+    {
+      "id": "E6",
+      "file": "openspec/changes/enable-saved-custom-unit-combat/tasks.md",
+      "row": "trailing policy sentence",
+      "verdict": "NOTE",
+      "before": "\"...three rows flipped and three held with the residual named on the row...\"",
+      "after": "appended: \"Reconciled again 2026-09-15 (batch 3) against PRs #1726 and #1731 ... four rows are flipped and two held; the 'rewind' residual ... recorded as owner decision OD-rewind-branch-reader ... the verification row's build-env note is corrected...\"",
+      "rationale": "Keeps the file's own running tally accurate after E3/E4/E5."
+    },
+    {
+      "id": "E7",
+      "file": "openspec/changes/add-saved-custom-unit-campaign-roster/tasks.md",
+      "rows": "2.2 (camp-01b), 3.2 (camp-01c), 4.3 (camp-01d)",
+      "verdict": "NOTE (no flips)",
+      "before": "each row's sub-bullet stated the SECOND (or THIRD) frozen command array, verify:qc:coop-campaign-journey, exits 1 on four 403s, fixed by merged PR #1720, re-run against main at or after f685a5391 'not performed here'",
+      "after": "each row's sub-bullet updated to record that the owed re-run HAS now been performed at exact main 231c7848aa0850b616a84581ff3c54e1d5ddb6bf and is FULL GREEN: camp-01b commandSequence[1] 9/9 suites, 142/142 tests, zero '403' occurrences; camp-01c and camp-01d's shared final array identically green; explicit statement that this is a COMMAND-LEVEL RECEIPT ONLY, not controller-registered, not PR-provenanced, and not a CAMP witness",
+      "boundReceipts": [
+        "evidence/camp01bcd-receipt-run-main-231c784-20260915.json"
+      ],
+      "explicitNonFlip": "No checkbox changed. Rows 2.2, 3.2 and 4.3 stay `- [ ]` because the controller-registered tier (qc:camp01-authority-receipt:write/:validate never invoked; command-result.json/receipt-manifest.json absent; unbroken missing-predecessor chain back to camp-00) and the PR-provenanced tier (githubReviewGate - non-author exact-head APPROVED review, soloException false - owner-blocked on a single-collaborator repository) remain unaddressed and were not re-verified by this re-run, exactly as camp01bcd-receipt-run-main-231c784-20260915.json's own tierStatement records verbatim."
+    },
+    {
+      "id": "E8",
+      "file": "openspec/active-change-ledger.json",
+      "verdict": "NOTE (3 entries refreshed)",
+      "entries": [
+        {
+          "name": "design-campaign-authority-and-sync",
+          "reasonChange": "Removes 6.1 from the 'still open' list and records its FLIP (PRs #1721/#1722); records 6.4's bridge landing (PRs #1724/#1725) with the 6.2b-caller-not-wired residual; 'still open' list is now 1.6, 6.2, 6.3, 6.4."
+        },
+        {
+          "name": "enable-saved-custom-unit-combat",
+          "reasonChange": "Records the redaction row's FLIP (PR #1726, four of six rows now checked), restates the rewind residual as owner decision OD-rewind-branch-reader, and records that R2.combat-browser is now separately proven (PR #1731) without claiming it closes the held rows' own text, plus the corrected build-env framing."
+        },
+        {
+          "name": "add-saved-custom-unit-campaign-roster",
+          "reasonChange": "Replaces the stale 'NO command-level receipt / re-run not performed' framing with the now-performed full-green re-run at 231c7848aa (evidence/camp01bcd-receipt-run-main-231c784-20260915.json), explicitly restating that this is command-level only and does not itself constitute a CAMP witness or close tasks 2.2/3.2/4.3."
+        }
+      ]
+    }
+  ],
+  "itemsSkippedThisBatch": [],
+  "itemsSkippedThenAppliedAsFollowUpCommits": [
+    {
+      "item": 4,
+      "originalReason": "At initial batch-3 commit time, `evidence/r4-s6-c-1730-main-proof-20260915.json` did not exist (verified by `ls`; only r4-s6-c-1730-final2-20260915-premerge.json was present), so task 1.6 was left open per the directive.",
+      "resolution": "The coordinator reported the C main-proof now exists (alongside r4-s6-a-1728 and r4-s6-b-1729). Re-verified live and applied as commit 2265e755d - see the `item4` section below."
+    },
+    {
+      "item": 5,
+      "originalReason": "At initial batch-3 commit time, `gh pr view 1734 --json state` returned OPEN and `evidence/r9-roster-damage-s1-1734-main-proof-20260915.json` did not exist.",
+      "resolution": "The coordinator reported PR #1734 is now MERGED (efd8a136d) and the main-proof evidence file now exists. Re-verified live and applied as commit 82ce7c59f - see the `item5` section below."
+    }
+  ],
+  "item4": {
+    "file": "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/tasks.md",
+    "row": "1.6 S5-b: the expected revision for a commit comes from the journal head; sequence-conflict and duplicate-command refusals proven against races.",
+    "verdict": "FLIP",
+    "before": "- [ ] 1.6 S5-b: ... (no sub-bullet)",
+    "after": "- [x] 1.6 S5-b: ... + Receipt sub-bullet",
+    "boundReceipts": [
+      "evidence/r4-s6-a-1728-main-proof-20260915.json",
+      "evidence/r4-s6-b-1729-main-proof-20260915.json",
+      "evidence/r4-s6-c-1730-main-proof-20260915.json",
+      "evidence/r4-s6-journal-head-revision-review-20260915.json"
+    ],
+    "liveAncestryChecks": {
+      "method": "gh pr view <n> --json state,mergedAt,mergeCommit for each PR, then git merge-base --is-ancestor <mergeCommit> origin/main against a freshly fetched origin/main.",
+      "originMainTipAtVerification": "be71efec018481b08e44281cca0c2e21f07456f3",
+      "results": [
+        { "pr": 1728, "state": "MERGED", "mergedAt": "2026-09-15T16:07:24Z", "mergeCommit": "16e7346f20303acd518df8c21c7b2ff04a22fe0a", "ancestorOfOriginMain": true },
+        { "pr": 1729, "state": "MERGED", "mergedAt": "2026-09-15T16:15:38Z", "mergeCommit": "423381ff0eb026bb4f3834949aae555cd70d0ca9", "ancestorOfOriginMain": true },
+        { "pr": 1730, "state": "MERGED", "mergedAt": "2026-09-15T16:34:35Z", "mergeCommit": "00901f4e097d9973ba4d48369d343f93d52092c8", "ancestorOfOriginMain": true, "note": "this is this batch's own original base commit" }
+      ]
+    },
+    "literalTextTest": {
+      "clause1": "\"the expected revision for a commit comes from the journal head\" - SATISFIED. PR A #1728 adds resolveMatchCommitExpectedRevision(db, matchId, nextMatchSequence) in matchCommitJournalHead.ts: returns the store-derived answer at mode off/shadow, and at mode enabled reads readEffectiveStreamHead and returns the head's own revision. Independently verified by the reviewer at matchCommitJournalHead.ts:78-98 (axis1_design, verified: true).",
+      "clause2": "\"sequence-conflict and duplicate-command refusals proven against races\" - SATISFIED. MatchStreamJournalMirror.ts surfaces the typed kinds 'revision-conflict' (grep-confirmed: this is the SAME kind ServerMatchHostJournalAuthority.ts:111/258 relabels to the outer reason string 'sequence-conflict' when broadcasting) and 'duplicate-command' directly. PR B #1729's suite consults the same head with two writers before either appends (real SQLite, losing writer on its own connection): 'exactly one writer commits and the loser is refused typed' (revision-conflict, no partial write) and 'refuses the same command id carrying different work and appends nothing' (typed duplicate-command, journal rows byte-identical). PR C #1730 restores the never-rewound race control and the stale-by-one-revision replay-from-receipt row proving identity is checked before revision. Reviewer independently re-ran the full mutant matrix (8/8 killed, including M4 and M1/M7) and reproduced the exact failing rows the receipts claim (axis2_tests, verdict PASS)."
+    },
+    "reviewBasis": "Independent review evidence/r4-s6-journal-head-revision-review-20260915.json: verdict APPROVE, zero required edits. axis1_design PASS (5 citations independently verified against source line numbers), axis2_tests PASS (red-first log sha256 matched, 3 mutants independently reproduced with git-status-clean restores after each).",
+    "residualsCarried_notClausesOfThisRow": [
+      "S6-R1: at mode enabled the consult answers the head's revision unconditionally even when the match log holds events the journal never received (the create-path gap); create-path seeding (R4.S7-a, in progress) must land before any cutover flip - an S7 ordering constraint, not a clause of this box's text",
+      "S6-R2: mutant M4 (keeps the 'journal' label while sourcing the number from the store) is killed by exactly one row, the log-ahead row in PR B; any later change to the consult should re-run M4 specifically"
+    ],
+    "gatesInMainProofs": "Jest 172 suites/1342 tests (#1728), 151 suites/1113 tests scoped (#1729), 173 suites/1349 tests (#1730); tsc 0 all three; openspecStrict/specPurposeStrict/terminologyStrict/qcOpenspecCi exit 0 all three; all blob-identical to their reviewed PR heads.",
+    "validators": {
+      "outputDir": ".sisyphus/roadmap-completion-20260912/reconcile-3-20260915/item4/",
+      "results": [
+        { "command": "npx openspec validate --all --strict", "exit": 0, "log": "openspec-strict.log", "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3" },
+        { "command": "npm run spec:purpose:validate:strict", "exit": 0, "log": "purpose-strict.log", "sha256": "f027fb6a8fe7102014fa318e894aec6c45f773b072c568da602992b5f34bea0a" },
+        { "command": "npm run terminology:validate:strict", "exit": 0, "log": "terminology-strict.log", "sha256": "817faf3a989efc8822ec8290884fc34e93711182bfc8a515e2b33d704cd53a66" },
+        { "command": "npm run qc:openspec-ci:validate", "exit": 0, "log": "qc-openspec-ci.log", "sha256": "8c41df6c33246420ed1806218780c2df69b5ad4e7c594b993b07594ee959ccb2" }
+      ],
+      "allExitZero": true,
+      "note": "run before the item-5 rebase, on the pre-rebase commit 8b8a78473; content re-verified unchanged after the rebase moved this commit to 2265e755d"
+    },
+    "commitSha": "2265e755d6bc95da9fe6f18d8913e7df4593b5b9",
+    "commitShaBeforeRebase": "8b8a78473ff3ee54bca581cd8b97e57f2745faba"
+  },
+  "item5": {
+    "file": "openspec/specs/campaign-unit-combat-state/spec.md",
+    "row": "Migration status item 3 (RosterStateCards.tsx damage bar)",
+    "verdict": "CLOSED (migration-status prose item, not a task checkbox)",
+    "before": "3. **Migrate `RosterStateCards.tsx` damage bar to read `currentArmorPerLocation` against `IUnitMaxState`. — Not closed.** `RosterStateCards.tsx` selects canonical `IUnitCombatState` from `campaign.unitCombatStates[unitId]`, but `computeDamageBarData` still uses the destroyed-component/location heuristic (`destroyedCount * 2 + destroyedLocationCount * 4`) because the card has no `IUnitMaxState` companion. The desired max-state percentage in the damage-bar scenario is unchanged. This remaining heuristic is `R9.roster-damage` after `R2.camp-7`.",
+    "after": "3. **Migrate `RosterStateCards.tsx` damage bar to read `currentArmorPerLocation` against `IUnitMaxState`. — Closed by PR #1734 `efd8a136d523adfa81fda303adb608e3563575ee` (2026-09-15, `R9.roster-damage` S1).** `computeDamageBarData` now diffs current armor and structure per location against `campaign.unitMaxStates[unitId]`, skipping locations the max-state does not name; the destroyed-component/location heuristic is deleted. When no `IUnitMaxState` entry exists, the card renders an explicit 'maxima unavailable' affordance rather than a stock-substituted maximum or a fabricated percentage. Exact-main proof evidence/r9-roster-damage-s1-1734-main-proof-20260915.json; independent review APPROVE. NOT closed by this PR: population of `campaign.unitMaxStates` itself through the canonical/custom source authority is a separate, still-queued PR #1735 (OPEN, not merged as of 2026-09-15) - this item's closure covers the read-side rendering rule only, not the data-population boundary.",
+    "boundReceipts": [
+      "evidence/r9-roster-damage-s1-1734-main-proof-20260915.json",
+      "evidence/r9-roster-damage-review-20260915.json"
+    ],
+    "liveAncestryChecks": {
+      "method": "gh pr view 1734 --json state,mergedAt,mergeCommit, then git merge-base --is-ancestor <mergeCommit> origin/main against a freshly fetched origin/main.",
+      "originMainTipAtVerification": "efd8a136d523adfa81fda303adb608e3563575ee",
+      "results": [
+        { "pr": 1734, "state": "MERGED", "mergedAt": "2026-09-15T16:51:15Z", "mergeCommit": "efd8a136d523adfa81fda303adb608e3563575ee", "ancestorOfOriginMain": true, "note": "this IS origin/main's tip at verification time" }
+      ],
+      "pr1735CheckedAndNotClaimedMerged": {
+        "pr": 1735,
+        "state": "OPEN",
+        "title": "feat(campaign): populate roster construction maxima through the canonical/custom source authority",
+        "note": "Live-checked per the coordinator's explicit instruction not to claim it merged; confirmed still OPEN and NOT cited as closing anything in this edit."
+      }
+    },
+    "rebaseNote": "This branch's original base (00901f4e0) predated both PR #1733 and PR #1734 on origin/main; PR #1734 itself had already changed openspec/specs/campaign-unit-combat-state/spec.md (extending the 'Damage bar rendering' scenario with structure and adding an 'Absent max-state entry at the damage bar' scenario). `git diff HEAD efd8a136d -- openspec/specs/campaign-unit-combat-state/spec.md` confirmed this divergence before editing. The branch was rebased onto origin/main (see top-level branch.rebase) so this item's edit builds on the true current file content rather than a stale pre-#1734 copy; the migration-status item 3 edit itself is a single line, orthogonal to #1734's own requirement-scenario edits.",
+    "gatesInMainProof": "Jest 62 suites/619 tests, tsc 0, openspecStrict/specPurposeStrict/terminologyStrict/qcOpenspecCi exit 0, blob-identical to reviewed head 6759b3066; independent review APPROVE (evidence/r9-roster-damage-review-20260915.json).",
+    "validators": {
+      "outputDir": ".sisyphus/roadmap-completion-20260912/reconcile-3-20260915/item5/",
+      "results": [
+        { "command": "npx openspec validate --all --strict", "exit": 0, "log": "openspec-strict.log", "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3" },
+        { "command": "npm run spec:purpose:validate:strict", "exit": 0, "log": "purpose-strict.log", "sha256": "f027fb6a8fe7102014fa318e894aec6c45f773b072c568da602992b5f34bea0a" },
+        { "command": "npm run terminology:validate:strict", "exit": 0, "log": "terminology-strict.log", "sha256": "79f4abb69268907b9155941b6c61d710c409a0bb6fbf657d2076a7bdbea2da96" },
+        { "command": "npm run qc:openspec-ci:validate", "exit": 0, "log": "qc-openspec-ci.log", "sha256": "8c41df6c33246420ed1806218780c2df69b5ad4e7c594b993b07594ee959ccb2" }
+      ],
+      "allExitZero": true
+    },
+    "commitSha": "82ce7c59f4e16d38257141afc6f987004efdc778"
+  },
+  "stalenessSweep": {
+    "filesSwept": [
+      "openspec/active-change-ledger.json",
+      "openspec/changes/design-campaign-authority-and-sync/tasks.md",
+      "openspec/changes/enable-saved-custom-unit-combat/tasks.md",
+      "openspec/changes/add-saved-custom-unit-campaign-roster/tasks.md"
+    ],
+    "method": "grep -i 'not merged|unmerged|NOT yet merged' across the four touched files",
+    "result": "No OB-207-class stale-merge-state wording found beyond what E1-E7 already corrected (add-saved-custom-unit-campaign-roster's one hit at task P.1 is literal spec requirement text about a controller rejecting 'foreign/unmerged/wrong-SHA PRs', not a state claim, and was left untouched)."
+  },
+  "deferralsPreservedVerbatim": {
+    "modeFlips": "every mode flip stays OFF; no receipt in this batch claims otherwise",
+    "campReviewAndWitnessGates": "githubReviewGate and the CAMP-01H three-session witness gate are preserved verbatim on every roster note; none is claimed satisfied",
+    "OD-flush-mechanism": "untouched - task 1.6 P-A's navigation-discard residual was not in this batch's directed list and was not edited",
+    "OD-rewind-branch-reader": "newly recorded this batch (E4), not reopened - it replaces a prior implication of an ordinary coverage gap with the correct 'owner decision, needs a product change elsewhere' framing"
+  },
+  "receiptsReadButNotActedOn": [
+    {
+      "artefact": "evidence/r9-roster-damage-admission-brief-20260915.json, -local-, -review-20260915.json",
+      "reason": "PR #1734 is still OPEN (verified live) and no main-proof exists; directed item 5's gate failed on both conditions, so these were read only to confirm the skip was correct, not acted on."
+    }
+  ],
+  "validators": {
+    "runAt": "worktree pre-commit tree (identical content re-verified post-commit at c77c3bcb2)",
+    "outputDir": ".sisyphus/roadmap-completion-20260912/reconcile-3-20260915/",
+    "results": [
+      {
+        "command": "npx openspec validate --all --strict",
+        "exit": 0,
+        "result": "Totals: 232 passed, 0 failed (232 items)",
+        "log": "openspec-strict.log",
+        "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3",
+        "note": "byte-identical to batch 1/2's openspecStrict gate hash"
+      },
+      {
+        "command": "npm run spec:purpose:validate:strict",
+        "exit": 0,
+        "result": "Files scanned: 220; Errors: 0; Tracked source-of-truth debt: 0",
+        "log": "purpose-strict.log",
+        "sha256": "f027fb6a8fe7102014fa318e894aec6c45f773b072c568da602992b5f34bea0a",
+        "note": "differs from batch 2's hash only because the embedded 'Spec root' path names this batch's own worktree (camp-receipt-verification vs reconcile-1); result content (220 files, 0 errors) is identical"
+      },
+      {
+        "command": "npm run terminology:validate:strict",
+        "exit": 0,
+        "result": "All 315 file(s) are compliant with TERMINOLOGY_GLOSSARY.md",
+        "log": "terminology-strict.log",
+        "sha256": "0c1057062cb9d3ee0870f950d3e8bd9ac8a2685282aab4a8c6084cd6e3eeecb7 (pre-commit) / a412a436a4f8451d03023a1b7e9f9093a7aafe23a668083d2b43a19fdb5d1a91 (post-commit)",
+        "note": "hash instability across both pre/post-commit runs is expected and pre-existing (batch 2 noted the same): output carries a run-scoped Node MODULE_TYPELESS_PACKAGE_JSON warning line; the pass/fail result (0 violations, 315 files compliant) is unchanged in every run"
+      },
+      {
+        "command": "npm run qc:openspec-ci:validate",
+        "exit": 0,
+        "result": "workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=12 accountedActiveOpenSpecChanges=12 errors=0",
+        "log": "qc-openspec-ci.log",
+        "sha256": "8c41df6c33246420ed1806218780c2df69b5ad4e7c594b993b07594ee959ccb2",
+        "note": "byte-identical to batch 1/2's qc-openspec-ci gate hash"
+      }
+    ],
+    "postCommitRerun": {
+      "outputDir": ".sisyphus/roadmap-completion-20260912/reconcile-3-20260915/post-commit/",
+      "allExitZero": true,
+      "workingTreeCleanBeforeAndAfter": true
+    }
+  },
+  "tally": {
+    "FLIP": 3,
+    "PARTIAL": 2,
+    "NOTE": 4,
+    "MIGRATION_STATUS_CLOSED": 1,
+    "NO_CHANGE": 0,
+    "SKIPPED": 0,
+    "note": "FLIP now includes item4 (task 1.6). item5 is a migration-status prose closure, not a task checkbox, tallied separately. Both items were initially SKIPPED at first commit time and applied as follow-up commits once the coordinator confirmed their evidence gates now pass (see itemsSkippedThenAppliedAsFollowUpCommits)."
+  },
+  "nonClaims": [
+    "NOT PUSHED. No branch was pushed and no PR was opened.",
+    "No product, test, script, spec-delta or workflow file was modified - the diff is four openspec bookkeeping files, 27 lines.",
+    "No sub-agent was spawned; no stash, no reset --hard, no clean.",
+    "No roadmap.json edit was made. roadmap.json is untracked and was not treated as merge-state truth; every merge-state fact comes from a live `gh pr view` plus `git merge-base --is-ancestor` against a freshly fetched origin/main.",
+    "The camp-01b/01c/01d re-run is COMMAND-LEVEL only and flips no roster checkbox; this batch only records that the previously-owed re-run is now full green.",
+    "No githubReviewGate, CAMP-01H witness gate, or journal/combat mode flag is claimed satisfied by anything here.",
+    "No test suite, browser proof or build was executed by this batch beyond the four validators (per commit); every test/gate figure quoted in the notes is carried from a cited merged receipt with its own recorded exit code.",
+    "Task 1.6 (adopt-combat-journal-cutover-and-gm-rewind) and the campaign-unit-combat-state spec.md migration item were initially left untouched (both directed gate conditions failed at first-commit time) and were later applied as two follow-up commits (item4, item5) once the coordinator confirmed the missing evidence now exists; see itemsSkippedThenAppliedAsFollowUpCommits.",
+    "The enable-saved-custom-unit-combat line-8 flag-free-vanilla-build residual is carried forward, not resolved.",
+    "PR #1735 (population of campaign.unitMaxStates through the source authority) is NOT claimed merged anywhere in this artefact - live-checked OPEN at item-5 edit time and stated as such on the row itself.",
+    "The branch was rebased onto origin/main between item 4 and item 5 (see branch.rebase); this changed two commit SHAs but no content. Still not pushed after the rebase."
+  ]
+}

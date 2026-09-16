@@ -1,0 +1,363 @@
+{
+  "node": "R2.authority-client",
+  "artefact": "Independent review of the 3-commit discard-flush stack (C1 9869841be / C2 7a53ce3d1 / C3 3224f91f9) on base c40a394f6",
+  "capturedAtUtc": "2026-09-15T12:20:00Z",
+  "reviewer": "independent reviewer (not the author of any commit in the stack)",
+  "mode": "READ-ONLY. No edits, no commits, no pushes, no sub-agents, no builds, no Playwright runs, port 3639 untouched.",
+
+  "environment": {
+    "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/browser",
+    "branch": "codex/roadmap-r2-client-crash-window-browser-20260915",
+    "headAtStart": "3224f91f9bf892cc6ca0d3cfed15fda65590dae1",
+    "headAtEnd": "3224f91f9bf892cc6ca0d3cfed15fda65590dae1",
+    "gitStatusPorcelainAtStart": "empty",
+    "gitStatusPorcelainAtEnd": "empty",
+    "node": "v22.22.0",
+    "cumulativeDiffVsBase": "3 files changed, 841 insertions(+), 12 deletions(-) (e2e/campaign-crash-window-flush.spec.ts +406, campaignPersistenceCrashWindow.test.ts +276/-, useCampaignPersistenceStore.ts +171/-)",
+    "openspecFilesTouchedByTheStack": "NONE (git diff --name-only c40a394f6 3224f91f9 | grep -i openspec returns nothing)",
+    "task16CheckboxState": "still `- [ ] 1.6` at HEAD (openspec/changes/design-campaign-authority-and-sync/tasks.md:30) -- not flipped by any commit in the stack"
+  },
+
+  "verdicts": [
+    {
+      "commit": "9869841be",
+      "subject": "test(campaign): prove the discard-time flush reaches the server and survives a cold reload",
+      "verdict": "APPROVE",
+      "asAStackMember": true,
+      "notes": [
+        "349 lines vs a requested 200-line budget -- OVER by 149 and disclosed in the commit's own evidence file (`lineBudget.verdict`). Drivers named (4th test = the permanent red arm; local withGate wrapper; per-function comments). Accepted: no assertion was traded for the number.",
+        "C1 IN ISOLATION IS NOT A GREEN TREE on this machine: case (a) discards by `page.goto('about:blank')`, which the C3 diagnosis measured at 0/15, and C1's `RECONCILE_PUT_STATUS = 409` pins the very defect C2 fixes. Both are corrected inside this stack. A bisect landing on C1 or C2 alone therefore has a red e2e; that is a property of the stack shape, not a defect of the commit, but the stack should land as one PR rather than be split."
+      ]
+    },
+    {
+      "commit": "7a53ce3d1",
+      "subject": "fix(campaign): acknowledge a hidden-transition flush by reading the record it wrote",
+      "verdict": "APPROVE",
+      "notes": [
+        "The critical soundness question -- is the digest comparison dead code? -- is answered NO by source reading, not by the browser result alone (see axis 3).",
+        "Two disclosed behavioural deltas on the failure paths (an extra GET; the ordinary save delayed by one round trip) mean the commit message's 'failure paths byte-identical to today' is true of the STATE but not of the request sequence or the timing. The store's own docstrings and the evidence file's nonClaims both say so; no edit required, but the phrasing is looser than the code."
+      ]
+    },
+    {
+      "commit": "3224f91f9",
+      "subject": "test(campaign): discard through tab close so the keepalive flush proof matches Chromium semantics",
+      "verdict": "APPROVE-WITH-REQUIRED-EDITS",
+      "requiredEdits": ["RE-1"],
+      "notes": [
+        "The test-mechanism correction itself is sound and well-evidenced; the required edit is hygiene plus one numeric-accuracy fix, neither of which touches behaviour."
+      ]
+    }
+  ],
+
+  "requiredEdits": [
+    {
+      "id": "RE-1",
+      "commit": "3224f91f9",
+      "severity": "blocking-for-merge, trivial to fix",
+      "title": "C3 carries an AI-attribution trailer that C2 had stripped -- the stack is internally inconsistent and violates the project rule",
+      "measured": "`git log -1 --format=%B 3224f91f9` ends with `Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>`. The same grep over 9869841be and 7a53ce3d1 returns nothing (C2 was amended by the coordinator from 877cd2bf8 to 7a53ce3d1 for exactly this reason -- the C2 evidence file still records `aiAttribution: \"Co-Authored-By: Claude Sonnet 5 ...\"` pre-amend, which is why the inconsistency is traceable).",
+      "rule": "CLAUDE.md Guardrails -- 'Never add AI attribution to commits or PRs.'",
+      "fix": "Strip the trailer from 3224f91f9 (`git history reword`, or a rebase) before the stack is pushed. History-only; no file content changes.",
+      "alsoFix": {
+        "what": "Two measured counts written into e2e/campaign-crash-window-flush.spec.ts disagree with the diagnosis evidence they cite.",
+        "inFile": "e2e/campaign-crash-window-flush.spec.ts (block above the case (a) test): \"`page.goto('about:blank')` landed 0/12 ... `page.close()` landed 8/8\".",
+        "inCommitMessage": "0/15 landed; 11/11 landed.",
+        "inEvidence": "r2-client-discard-flush-diagnosis-20260915.json `tally`: navigationDiscard_aboutBlank 0/15; closeDiscard 11/11 (8 probe + 3 validation).",
+        "why": "The file's numbers appear to be the probe-only subtotals while the commit message uses the probe+validation totals; nothing says so, so a reader reconciling the two finds unexplained drift in a repo whose standing rule is 'Verify, never infer'. Either restate the file's counts as 0/15 and 11/11, or label them 'probe runs only'.",
+        "severity": "documentation accuracy; no assertion depends on it"
+      },
+      "alsoFix2": {
+        "what": "One over-generalisation repeated in C3's commit message and in roadmap.json's OD-flush-mechanism.",
+        "claim": "'a keepalive fetch issued from pagehide is aborted before dispatch when the document leaves via navigation (0/15 landed)'.",
+        "measured": "0/15 is the about:blank figure. The diagnosis's own tally records `navigationDiscard_sameOriginBrowserInitiated: 1 landed / 2 attempts -- nondeterministic` (probe P3/P4 variant V3). Navigation-discard is therefore NONDETERMINISTIC, not uniformly zero -- which is also the only account the diagnosis offers for the earlier 4/4 pass.",
+        "severity": "low; the conservative reading (do not depend on it) is unchanged, but the owner decision text should say 'nondeterministic, 0/15 on about:blank' rather than a flat 0/15 for all navigation."
+      }
+    }
+  ],
+
+  "axes": [
+    {
+      "axis": 1,
+      "name": "C2 correctness vs spec",
+      "verdict": "PASS",
+      "findings": [
+        {
+          "id": "A1.1",
+          "question": "Is adoption gated on version match AND envelope-digest match of what THIS client flushed?",
+          "verdict": "PASS",
+          "evidence": "src/stores/campaign/useCampaignPersistenceStore.ts:1061-1092 `adoptFlushedRevision`: `if (record.version !== flushed.baseVersion + 1) return false;` then `if (flushedEnvelopeDigest(record) !== flushed.envelopeDigest) return false;` -- both must pass before `applySavedRecord`. `flushed` is captured at flush time (`:1035-1039`) from the envelope actually sent."
+        },
+        {
+          "id": "A1.2",
+          "question": "THE CRITICAL CHECK -- does the server rewrite `savedAt`, which would make the digest never match and the fix dead code?",
+          "verdict": "PASS -- the server does NOT pin or rewrite savedAt. The fix is live, not dead.",
+          "evidence": "src/services/campaignPersistence/CampaignPersistenceService.ts:354-407 `prepareCampaignWrite` returns `{...incoming.record, instanceId, authority}` on every branch -- it overwrites EXACTLY the three fields the digest excludes and nothing else. src/services/campaignPersistence/CampaignPersistenceService.ts:118-155 `saveCampaign` then overwrites only `version` (`{...prepared.record, version: nextVersion}`) before `JSON.stringify(stored)` into the payload column. `savedAt` rides through from the client envelope (minted at src/lib/campaign/persistence/campaignEnvelope.ts:46, `new Date().toISOString()` per build). Independently corroborated by the measured browser case (c) = 200: a digest that could never match would leave case (c) at 409.",
+          "safetyOfIncludingSavedAt": "Safe and load-bearing. It is the field that makes the digest identify THIS write rather than any state that merely looks like ours. The residual the author already states -- a different writer sending a byte-identical envelope with the same millisecond savedAt would also match -- is harmless because the stored state is then identical either way."
+        },
+        {
+          "id": "A1.3",
+          "question": "Does the exclusion set exactly match what the server pins?",
+          "verdict": "PASS",
+          "evidence": "Excluded: `version`, `instanceId`, `authority` (:307-315 comment + :316-325 body). Pinned by the server: `instanceId` and `authority` (prepareCampaignWrite, all three branches) and `version` (saveCampaign:132-135). Exact correspondence -- no over-exclusion (which would weaken the check) and no under-exclusion (which would break it)."
+        },
+        {
+          "id": "A1.4",
+          "question": "Does `dirty` stay true after adoption, and does exactly one ordinary save follow?",
+          "verdict": "PASS with one narrow caveat",
+          "evidence": "`applySavedRecord` sets `dirty:false` (:618-638) and `adoptFlushedRevision` immediately restores `set({ dirty: true })` (:1085). `armAutoSaveTimer` is called exactly once, in the reconciliation's single `.then` (:1144-1149), and `armAutoSaveTimer` itself clears before arming (:964-966). jsdom row 'adopts the revision the flush provably earned' asserts dirty===true after adoption, then exactly 2 PUTs total with `putBaseVersion(puts[1]) === BASE_VERSION + 1`.",
+          "caveat": "If the reconciliation READ outlives the 2 s debounce AND a markDirty landed during it, the mutation's own timer can fire first (it correctly awaits `inFlightLoad` and so uses the adopted token, so it is not stale), and the reconciliation then arms a SECOND timer -> one redundant no-op PUT. Harmless (no data loss, no conflict) but it breaks 'exactly one' in that window. Narrow: requires a >2 s read."
+        },
+        {
+          "id": "A1.5",
+          "question": "Is the armed timer cleared before the read?",
+          "verdict": "PASS",
+          "evidence": ":1137 `clearAutoSaveTimer();` is executed synchronously before `adoptFlushedRevision` is called at :1138. The discard-path/timer mutual-exclusion invariant of the base requirement is preserved, and the mutation-armed stale-token save is taken over rather than raced (jsdom row 'adopts the earned revision even when a mutation arrived after the flush')."
+        },
+        {
+          "id": "A1.6",
+          "question": "Are the failure paths byte-identical to today?",
+          "verdict": "PASS on state, FAIL on the literal wording",
+          "evidence": "On every failure branch (read throws / !response.ok / wrong version / digest mismatch) `adoptFlushedRevision` returns false having called no setter, and the reconciliation arms the ordinary save on the untouched `baseVersion` -- state-identical to pre-C2. TWO observable deltas remain: (a) a GET is now issued that was not issued before, and (b) the save is armed one round trip later than before. Both are disclosed (store docstring :1106-1113 and the C2 evidence nonClaim 'a round trip wide rather than zero'), so this is a wording looseness in the commit message, not a hidden change."
+        },
+        {
+          "id": "A1.7",
+          "question": "Spec conformance -- 'An unread flush never claims a revision it did not earn'.",
+          "verdict": "PASS",
+          "evidence": "spec.md:~168-172. The revision is recorded only after an authoritative GET proves the row is the one this client wrote; `fireKeepaliveFlush` (:942-957) is byte-identical to base -- still unread, no applySavedRecord, no baseVersion advance. The base version advances on the strength of a READ, never of having fired.",
+          "cosmeticNote": "Between adoption and the reconciled save the store is transiently `saveState:'saved'` AND `dirty:true`. The 'Unsaved changes' badge keys off `dirty` (CampaignSaveStatusCard.tsx:111-115), so the user-visible pending signal is correctly retained; only the small status badge reads 'Saved' alongside it. Cosmetic, non-blocking."
+        },
+        {
+          "id": "A1.8",
+          "question": "Spec conformance -- 'A hidden transition the document survives still reaches an acknowledged save'.",
+          "verdict": "PASS",
+          "evidence": "spec.md:~178-182 demands an ordinary ACKNOWLEDGED save and no pending mutations with no write scheduled. Pre-C2 only the scheduling half held (the save was refused 409 -- finding F1, measured). Post-C2 the reconciled PUT carries N+1 and measured 200 in a real browser (case (c)), with 'Unsaved changes' and 'Save refused' both asserted hidden afterwards.",
+          "guardsUnchanged": "co-op (isCoopCampaign), legacyUnadopted and saveState==='conflict' short-circuit BEFORE any read is issued (:1126-1135). The PUT route and its CAS are untouched (confirmed: the stack's cumulative diff names no file under src/pages/api or src/services)."
+        }
+      ]
+    },
+    {
+      "axis": 2,
+      "name": "Race / ordering",
+      "verdict": "PASS with two non-blocking residuals",
+      "findings": [
+        {
+          "id": "A2.1",
+          "question": "Is publishing the read as `inFlightLoad` safe against a concurrent runSave?",
+          "verdict": "PASS",
+          "evidence": "`runSave` awaits `inFlightLoad` before it reads `get().baseVersion` (:699-701, then :715). The reconciliation assigns `inFlightLoad = reconciliation` SYNCHRONOUSLY inside the visibilitychange handler (:1153), so any save that starts afterwards blocks on it. The `.finally` clears it under an identity check (:1154-1158), the same shape `loadCampaignAction` uses (:778-783), so a concurrent load's assignment is not clobbered.",
+          "residual": "A save ALREADY past its `inFlightLoad` await when the reconciliation starts is not blocked. Reaching that needs an explicit `saveCampaign()` (Save-now) in flight across a hidden->visible transition; the debounced path cannot be there because the flush cleared its timer. Narrow, and the worst outcome is a stale-token 409 -- the pre-existing behaviour."
+        },
+        {
+          "id": "A2.2",
+          "question": "Can a concurrent runLoad interleave badly with the reconciliation?",
+          "verdict": "PASS with a non-blocking residual",
+          "residual": "R-1 below: a `loadCampaign` that starts during the reconciliation read and resolves FIRST at a newer revision (N+2, written by another device) can be overwritten by the reconciliation's `applySavedRecord(N+1)`, downgrading `baseVersion`. Consequence is a 409 on the next save -- a conflict banner, never a silent overwrite, because the strict CAS is what catches it. Reachability is low (a route mount coinciding with a tab return)."
+        },
+        {
+          "id": "A2.3",
+          "question": "Can a markDirty during the read lose the adoption or double-save?",
+          "verdict": "PASS",
+          "evidence": "markDirty (:1166-1180) sets dirty and re-arms; the reconciliation's `.then` then clears and re-arms once more, so exactly one timer survives, and `set({dirty:true})` after `applySavedRecord` means the mutation's dirty flag cannot be erased by the adoption. The live campaign is NOT overwritten by adoption -- `applySavedRecord` sets only `lastPersistedCampaign`, never `writeLiveCampaign` (contrast `rollbackCoopCampaign` at :641-665, which does) -- so a post-flush mutation in memory survives intact.",
+          "onlyCaveat": "the >2 s-read double-timer window in A1.4."
+        },
+        {
+          "id": "A2.4",
+          "question": "Does the single-slot `issuedFlush` hold across a double flush?",
+          "verdict": "FAIL (narrow) -- residual R-2",
+          "measured": "`issuedFlush` is OVERWRITTEN on every flush (:1035-1039), while `pendingFlushIssued` is reset to false by markDirty (:1169). So the sequence [visibilitychange hidden -> flush1 lands, server N->N+1] -> [markDirty while hidden, e.g. a background/cron mutation] -> [pagehide -> flush2 fires on the SAME stale baseVersion N, server refuses 409 unread] -> [document survives, visible] leaves `issuedFlush` describing flush2 while the server row carries flush1's bytes. Version matches (N+1) but the digest does not -> no adoption -> the ordinary save goes out on N -> 409 'Save refused', i.e. the exact F1 symptom C2 exists to remove, re-reachable in this one sequence.",
+          "severity": "low -- requires a mutation between two discard events in one hidden episode; not reachable by an ordinary tab switch, which is the case F1 was filed for and which is fixed.",
+          "notBlocking": "the outcome is a conflict banner, not data loss, and it is the pre-C2 behaviour rather than a new failure mode."
+        }
+      ]
+    },
+    {
+      "axis": 3,
+      "name": "Digest helper choice and production-shape stability",
+      "verdict": "PASS",
+      "findings": [
+        {
+          "id": "A3.1",
+          "question": "Is `toCanonicalJson` + `sha256Sync` (rather than the journal's strict JCS canonicalizer) the right choice?",
+          "verdict": "PASS -- justified, and the stated reason checks out",
+          "evidence": "src/utils/events/hashUtils.ts:20-36 `toCanonicalJson` is `JSON.stringify(obj, sortingReplacer)`. Because it IS JSON.stringify, an `undefined`-valued key is absent on both sides of the round trip. The journal's JCS encoder rejects `undefined` outright, and `serializeCampaign` emits `undefined` for absent optionals (campaignStartDate, dailyBattleAudit, loans, and the whole W3.1 optional tail at src/lib/campaign/persistence/serializeCampaign.ts:155-198), so JCS would in fact throw on the discard path as the comment claims."
+        },
+        {
+          "id": "A3.2",
+          "question": "Can any field serialize differently pre-wire vs after the SQLite round trip (Money.toJSON, Map entries, Date), making the digest mismatch in production even when the flush landed?",
+          "verdict": "NO -- stable by construction, for two independent reasons",
+          "reason1_serializerAlreadyFlattens": "`serializeCampaign` (src/lib/campaign/persistence/serializeCampaign.ts:126-200) is explicitly a JSON-safe projection: Maps become `Array.from(...entries())` (forces, missions), Dates become ISO strings (currentDate, campaignStartDate), and `serializeFinances` (:45-76) flattens EVERY Money to `.amount` and every loan Date to ISO. No Money, Date or Map instance is present in `envelope.body` at digest time. `Money.toJSON` (src/types/campaign/Money.ts:113-115) is therefore never even reached on this path.",
+          "reason2_fixedPoint": "Even if one were present, JSON.stringify applies `toJSON` BEFORE the replacer (ES SerializeJSONProperty step order), so the pre-wire digest sees exactly the value the post-round-trip digest sees. Generally: `JSON.parse(JSON.stringify(x))` is a fixed point of JSON.stringify, and the sorting replacer is deterministic on plain data (Object.keys().sort() is the same UTF-16 order on both sides), so digest(x) === digest(roundTrip(x)) for ANY x -- including NaN/Infinity->null, functions/symbols dropped, and sparse-array holes->null.",
+          "serverSideNoOp": "The server does not perturb `body`: `hydrateCampaignRecord` (src/lib/campaign/authority/campaignAuthorityHydrate.ts:34-61) runs `migrateSerializedCampaign`, whose ladder (src/lib/campaign/persistence/campaignMigration.ts:53-64) has steps only for fromVersion 0 and 1 while `buildSerializedCampaign` always stamps `CURRENT_CAMPAIGN_SCHEMA_VERSION = 2` -- so the ladder is an identity for any client write. GET returns the hydrated stored record verbatim (`parseStoredCampaignRow` :316-336).",
+          "clientSideMigrateIsAlsoNoOp": "`migrateClientRecord` (:514-516) calls the same ladder, likewise identity at v2."
+        },
+        {
+          "id": "A3.3",
+          "question": "Does the browser case (c) 200 prove the production shape matches?",
+          "verdict": "YES, and it is the right corroboration -- but it is corroboration, not the proof",
+          "reasoning": "Case (c) exercises a real production build, a real serializeCampaign over a real campaign with a roster projection, the real SQLite payload column and the real GET handler, and the reconciled PUT measured 200 where it measured 409 before the fix -- which is only reachable through a digest match. That is a genuine end-to-end positive. It is however ONE campaign shape (freshly seeded + advance-day), so it does not by itself cover Money/Map/optional-undefined-heavy campaigns; A3.1/A3.2's construction argument is what covers those, and the jsdom rows additionally pass the envelope through a real `JSON.stringify` -> `JSON.parse` round trip (`parsePutBody`/`storedFromFlush`) before recomputing the digest."
+        },
+        {
+          "id": "A3.4",
+          "question": "Any latent fragility in the digest coupling?",
+          "verdict": "non-blocking note",
+          "note": "The digest assumes the server does not migrate an incoming envelope. That holds because the client always writes at CURRENT schema. If a future schema bump ever ships a server ahead of a client, the ladder would run on the incoming envelope and every digest would mismatch -- the fix would silently revert to today's 409 behaviour rather than misfire. Degrades safe, worth one sentence in the store docstring if the team ever ships mixed versions."
+        }
+      ]
+    },
+    {
+      "axis": 4,
+      "name": "Tests -- reruns, red log, e2e assertions",
+      "verdict": "PASS",
+      "measuredRuns": [
+        {
+          "command": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/stores/campaign/__tests__/campaignPersistenceCrashWindow.test.ts",
+          "cwd": "the browser worktree at HEAD 3224f91f9",
+          "exit": 0,
+          "result": "1 suite passed, 23 passed / 23 total, 10.361 s",
+          "matchesAuthorClaim": "YES (author claimed 23/23)"
+        },
+        {
+          "command": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false <the four task-1.6 acceptance suites>",
+          "exit": 0,
+          "result": "4 suites passed, 50 passed / 50 total, 2.984 s",
+          "matchesAuthorClaim": "YES (author claimed 50/50)"
+        },
+        {
+          "command": "npx tsc --noEmit -p tsconfig.json",
+          "exit": 0,
+          "stdout": "empty",
+          "note": "e2e/ is in scope for this tsconfig, so the C3 spec type-checks too"
+        },
+        {
+          "command": "npx oxlint src/stores/campaign/useCampaignPersistenceStore.ts (+ the two test files, which oxlint's config excludes)",
+          "exit": 0,
+          "result": "1 warning, 0 errors -- eslint(max-lines): 854 lines, maximum 400",
+          "preExisting": "YES in kind (the file was already far over 400 at base: 1099 physical lines at c40a394f6, 1258 at HEAD). C2 adds ~159 physical lines to an already-oversize module. Non-blocking, but the file is now a standing architecture-review candidate."
+        }
+      ],
+      "findings": [
+        {
+          "id": "A4.1",
+          "question": "Is the red log's discrimination honest?",
+          "verdict": "PASS -- and unusually well stated",
+          "evidence": "The C2 evidence records 3 failed / 20 passed against the reverted store, with the three failures named by their actual assertion deltas (getRequests() 0 vs 1 twice; the re-armed PUT carrying baseVersion 7 instead of 8). The `honestNote` explicitly declares the other three new rows NON-discriminating pins of the failure paths rather than claiming six red rows. The method (write patch -> revert store -> run -> re-apply) is the right shape for a red arm on a fix whose tests live beside it."
+        },
+        {
+          "id": "A4.2",
+          "question": "Do the two REWRITTEN regression rows still assert what they used to?",
+          "verdict": "PASS",
+          "evidence": "'re-arms the ordinary save ...' changed only from counting `captured` to counting `putRequests()` (necessary -- the reconciliation now also GETs) and gained a `drainMicrotasks()` before the timer advance; the substantive assertions (2 PUTs, second one non-keepalive) are unchanged. 'reaches the existing conflict flow ...' was renamed to '... when the record cannot be read back and ...' because its all-409 stub is now the failed-READ path; every state assertion (conflict, base-state-unavailable, server record at N+1, still dirty) survives verbatim. The rename is honest rather than a quiet weakening."
+        },
+        {
+          "id": "A4.3",
+          "question": "Does C3 keep the RED ARM discriminating?",
+          "verdict": "PASS",
+          "evidence": "The red arm moved to the SAME `page.close({runBeforeUnload:true})` discard as case (a) -- required, since a red arm on a different discard shape would only prove that other shape loses the mutation. Its discriminators are server-side and unaffected by the close-path observability loss: `after.version === before.version` and `after.body.currentDate === before.body.currentDate`. Measured 0/7 landed without the listeners (diagnosis P6 4/4 + 3 validation runs) against 11/11 with them.",
+          "minorNote": "The in-file comment says the initScript drops 'exactly the two registrations campaignPersistenceWiring makes ... and nothing else'. Structurally it drops ANY `pagehide` on window and ANY `visibilitychange` on document. Verified by grep that the only other registration of either in src/ is `pagehide` in src/pages/compare/index.tsx, a route this spec never visits -- so the claim is true of the app today, but it is an app-state claim, not a structural one."
+        },
+        {
+          "id": "A4.4",
+          "question": "Is dropping `expect(puts).toHaveLength(1)` from case (a) compensated by the version+1 assertion?",
+          "verdict": "PASS, with the right qualification already in the source",
+          "reasoning": "The removal is forced, not chosen: a request issued as the page closes is not reported to Playwright at page OR context level (measured, diagnosis P5 -- putsObserved=0 even with a context-level listener), so the count is unobtainable there, and keeping it would have made the assertion unfalsifiable rather than strong. Compensation is two-part and adequate: (i) `expect(puts).toHaveLength(0)` BEFORE the discard is retained, proving the 2 s debounce had not fired so the flush is the only possible writer; (ii) `expect.poll(version).toBe(before.version + 1)` is EXACT. Note the precise strength: +1 excludes a second ACCEPTED write, not a second ISSUED-and-refused one -- and the commit message says exactly that ('which no second accepted write could produce'). The at-most-one-ISSUED claim is delegated to the jsdom row 'issues at most one write across a pagehide immediately followed by a hidden transition', which counts against a mocked fetch. The delegation is stated in-file, so no claim is orphaned."
+        },
+        {
+          "id": "A4.5",
+          "question": "Are case (c)'s assertions strong enough to be the F1 proof?",
+          "verdict": "PASS",
+          "evidence": "Case (c) pins RECONCILE_PUT_STATUS = 200 (a pinned equality, not a loose 2xx), asserts 'Unsaved changes' VISIBLE after the hidden flush (the flush acknowledged nothing) and HIDDEN after the reconciled save, and asserts 'Save refused' hidden. It also records the status as a testInfo annotation so a regression is legible in the report, not just in the failure. This is the negative-and-positive pair the finding needed."
+        }
+      ]
+    },
+    {
+      "axis": 5,
+      "name": "Non-claims and wording",
+      "verdict": "PASS with one wording gap already flagged by the author",
+      "findings": [
+        {
+          "id": "A5.1",
+          "subject": "The navigation-discard residual",
+          "verdict": "ADEQUATELY RECORDED, INCOMPLETELY PROPAGATED",
+          "measured": "The residual -- on Chromium 143 a user who navigates away (address bar, external link, backing out of the SPA) still loses up to 2 s of mutations -- is stated in the C3 commit message, in the spec file's header LIMIT paragraph and case-(a) comment block, and in r2-client-crash-window-case-a-close-discard-20260915.json nonClaims[0].",
+          "gap": "The diagnosis's own `proposedBoundedSlice` step 2 -- widen task 1.6's NON-CLAIMS sentence in openspec/changes/design-campaign-authority-and-sync/tasks.md, whose current text ('a browser that discards the document WITHOUT FIRING EITHER EVENT still loses the window') does not describe the measured mode (both events fire, the request is issued, the browser declines to dispatch it) -- was deliberately NOT performed, and the case-a evidence says so explicitly. That is the correct call for a no-openspec-edits brief, but it leaves task 1.6's non-claim narrower than reality. It should be actioned by the owner before 1.6 is ticked.",
+          "reviewerAgreement": "The author's own fit assessment ('PARTIAL, and stated honestly rather than stretched') is accurate: the second clause ('a keepalive request whose response is never read is not evidence it committed') does cover the consequence; the first clause does not cover the mechanism."
+        },
+        {
+          "id": "A5.2",
+          "subject": "'This is a test-only correction, not a scope narrowing' (C3 commit message)",
+          "verdict": "PASS",
+          "reasoning": "The claim rests on spec.md:157-158, which obliges a BEST-EFFORT write -- the client must ISSUE it, not guarantee dispatch. That reading is correct on the text, and the product is conformant on every path measured (the flush fires, carries the current envelope and baseVersion, clears the armed timer, fires once). Swapping the discard shape changes what the TEST can observe, not what the requirement asks."
+        },
+        {
+          "id": "A5.3",
+          "subject": "roadmap.json ownerDecisions OD-flush-mechanism",
+          "verdict": "PRESENT AND CORRECTLY SCOPED",
+          "measured": "Recorded at 2026-09-15T11:27:35.708Z, node R2.authority-client, status 'owner decision required; NOT implemented; residual recorded', citing evidence/r2-client-discard-flush-diagnosis-20260915.json. It correctly frames the choice (a new POST surface for sendBeacon, or fetchLater(), both changing admitted task text and adding API surface) rather than pre-deciding it.",
+          "oneCorrection": "see RE-1.alsoFix2 -- its '(0/15)' should be qualified as the about:blank figure; same-origin navigation measured 1/2, i.e. nondeterministic."
+        },
+        {
+          "id": "A5.4",
+          "subject": "Unexplained earlier green",
+          "verdict": "HONEST",
+          "note": "The diagnosis states plainly that it cannot explain why the navigation path measured 4/4 in the earlier session, records that no environmental difference was found, and offers V3's 1/2 nondeterminism as the mechanism that makes an earlier pass POSSIBLE without claiming it is the cause. That is the right standard; it is not papered over."
+        },
+        {
+          "id": "A5.5",
+          "subject": "Stale field in the C2 evidence file",
+          "verdict": "non-blocking",
+          "measured": "r2-client-flush-reconcile-local-20260915.json records `commitSha: 877cd2bf826bafc8e476ca517eba12b3885b7662` and `aiAttribution: \"Co-Authored-By: Claude Opus 5 (1M context) -- the session-mandated trailer\"`. HEAD's C2 is 7a53ce3d1 with no trailer (the coordinator's amend). `git diff --stat 877cd2bf8 7a53ce3d1` is empty per the diagnosis file, so the TREE claim is unaffected; only the sha and attribution fields are stale. Worth a one-line correction when the stack lands."
+        }
+      ]
+    },
+    {
+      "axis": 6,
+      "name": "Hygiene",
+      "verdict": "FAIL on one item (RE-1); PASS on the rest",
+      "findings": [
+        { "id": "A6.1", "item": "Conventional commit subjects", "verdict": "PASS", "measured": "test(campaign): / fix(campaign): / test(campaign): -- all scoped, imperative, under the usual width." },
+        { "id": "A6.2", "item": "Author and committer identity", "verdict": "PASS", "measured": "All three commits: author AND committer `Wes Rollings <wrollings@gmail.com>`, matching the machine-local identity block." },
+        { "id": "A6.3", "item": "No AI attribution", "verdict": "FAIL on C3", "measured": "9869841be clean, 7a53ce3d1 clean (post-amend), 3224f91f9 carries `Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>`. See RE-1." },
+        { "id": "A6.4", "item": "No openspec edits", "verdict": "PASS", "measured": "`git diff --name-only c40a394f6 3224f91f9 | grep -i openspec` returns nothing." },
+        { "id": "A6.5", "item": "No checkbox flips", "verdict": "PASS", "measured": "tasks.md:30 still reads `- [ ] 1.6` at HEAD; tasks.md is not in the stack's diff at all." },
+        { "id": "A6.6", "item": "Per-commit line caps", "verdict": "PASS with one disclosed overage", "measured": "C1 349 lines vs a 200 request -- over by 149, self-reported with named drivers. C2 3 files / 469 changed lines vs a <=15 files / <=500 lines cap -- within. C3 1 file / 109 changed lines -- within." },
+        { "id": "A6.7", "item": "Worktree discipline", "verdict": "PASS", "measured": "HEAD 3224f91f9 and `git status --porcelain` empty at both the start and the end of this review; the A/B swaps and the scratch diag spec from the earlier sessions were all restored/deleted." }
+      ]
+    }
+  ],
+
+  "nonBlockingNotes": [
+    {
+      "id": "R-1",
+      "title": "A concurrent runLoad can be undone by the reconciliation's adoption",
+      "detail": "If `loadCampaign` starts during the reconciliation read and resolves FIRST at a newer revision written elsewhere (N+2), the reconciliation's later `applySavedRecord(N+1)` downgrades `baseVersion` and `metadata`. The strict CAS turns the next save into a 409 rather than an overwrite, so the failure mode is a conflict banner, not data loss. Reachability is low (a dashboard route mount coinciding with a tab return). If it is ever worth closing, the cheapest guard is to re-check `inFlightLoad === reconciliation` (or that `get().baseVersion` is still `flushed.baseVersion`) immediately before `applySavedRecord`."
+    },
+    {
+      "id": "R-2",
+      "title": "Single-slot `issuedFlush` lets the F1 symptom re-emerge after a double flush",
+      "detail": "See A2.4. Sequence: hidden-flush lands; a mutation occurs while hidden (clearing `pendingFlushIssued` but not `issuedFlush`); pagehide fires a second flush on the same stale token, which the server refuses; the document then survives. The read finds the FIRST flush's bytes at N+1, the digest records the SECOND's, so nothing is adopted and the reconciled save is refused 409. Narrow, not a regression (it is the pre-C2 behaviour), and safe (conflict, never overwrite)."
+    },
+    {
+      "id": "R-3",
+      "title": "A >2 s reconciliation read can produce one redundant no-op PUT",
+      "detail": "See A1.4. Requires a markDirty during a read that outlives the 2 s debounce. No data loss and no conflict; it simply breaks the 'exactly one save follows' phrasing in that window."
+    },
+    {
+      "id": "R-4",
+      "title": "useCampaignPersistenceStore.ts is 1258 physical lines (854 by oxlint's count) against a 400-line rule",
+      "detail": "Pre-existing and unchanged in kind by this stack (1099 physical at base), but C2 adds ~159 lines to it. A standing architecture-review candidate, not a gate on this stack."
+    },
+    {
+      "id": "R-5",
+      "title": "The stack is only green as a whole",
+      "detail": "C1 alone pins the F1 409 and discards by navigation (0/15); C2 alone still discards by navigation. Only C3 makes the e2e file green on this machine. Land the three together; do not split or cherry-pick."
+    }
+  ],
+
+  "reviewerNonClaims": [
+    "NO Playwright run was performed by this review. Every browser result cited (case (a) 8/8 under repeat-each=2, case (c) 200, the 0/15 vs 11/11 split, the bare-keepalive control) is the AUTHOR's measurement, read from the four evidence files. This review re-ran only the jsdom suites, tsc and oxlint.",
+    "No build was run; port 3639 was never taken.",
+    "The digest round-trip stability conclusion (A3.2) is derived from source reading of serializeCampaign / serializeFinances / toCanonicalJson / prepareCampaignWrite / hydrateCampaignRecord plus the JSON fixed-point property. It was NOT re-measured with an independent probe over a large or optional-heavy campaign; the corroborating measurements are the author's browser case (c) and the jsdom suite's real stringify/parse round trip.",
+    "Co-op, journal authority, the 64 KiB over-cap skip in a browser, Firefox and WebKit are all outside what this stack or this review covers -- unchanged from the authors' own non-claims.",
+    "No judgement is offered on whether task 1.6 should now be ticked; the non-claim widening (A5.1 gap) and OD-flush-mechanism are owner decisions."
+  ]
+}

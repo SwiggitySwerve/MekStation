@@ -1,0 +1,30 @@
+{
+  "at": "2026-09-13T07:35:47.581Z",
+  "route": "Cursor Grok 4.6 High",
+  "reportedModel": "Cursor Grok 4.6 High",
+  "providerExit": 0,
+  "taskAccepted": false,
+  "taskState": "blocked-before-prompt-read",
+  "reason": "Worker response reports PowerShell hooks executed by Git Bash failed before file/shell/search access; no repair report or edited launcher accepted.",
+  "ownedRunnerTerminal": true,
+  "cleanupReported": true,
+  "evidence": [
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/auxiliary-timeout-repair-cursor-20260913/result/93c95b52-2eb7-4376-8d34-206c4ee72913/result.json",
+      "sha256": "f6d9879904e21ef12858f1c58f8bc6b94d86d4943172df9ece1da400c2e19b19"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/auxiliary-timeout-repair-cursor-20260913/result/93c95b52-2eb7-4376-8d34-206c4ee72913/response.txt",
+      "sha256": "d1014da401099d52643a4b32fbdfcbfd4a71519db9560d36733db740a5ff0953"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/auxiliary-timeout-repair-cursor-20260913/result/93c95b52-2eb7-4376-8d34-206c4ee72913/stdout.log",
+      "sha256": "fd2188e8535b21944eeadc27e34319c8e8c52775cc015ad56747eb5ed4a4f4df"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/auxiliary-timeout-repair-cursor-20260913/result/93c95b52-2eb7-4376-8d34-206c4ee72913/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "fallback": "Bounded Terra/high repair; global Cursor hooks unchanged"
+}

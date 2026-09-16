@@ -1,0 +1,27 @@
+{
+  "at": "2026-09-12T20:38:01.444Z",
+  "sourceMain": "e58642acede495c45b3b4d4e606dffaa52ccab18",
+  "files": [
+    {
+      "path": "openspec/specs/equipment-services/spec.md",
+      "expected": "a4a503b0a943b7053c6f0442233044a21098f5f3f27aae84e9ab089de2a02d15",
+      "actual": "a4a503b0a943b7053c6f0442233044a21098f5f3f27aae84e9ab089de2a02d15",
+      "accepted": "32d8197b35e45c65842701076d7a5cfd9043838dc6486a0605237caaf4da77f8"
+    },
+    {
+      "path": "openspec/specs/data-loading-architecture/spec.md",
+      "expected": "02cb19e2be214cf3462de1a8e12ae2cd52fa6e78d70fbcc85b0e512d0593c6e9",
+      "actual": "02cb19e2be214cf3462de1a8e12ae2cd52fa6e78d70fbcc85b0e512d0593c6e9",
+      "accepted": "cfa90d423f395ae2dddc0aa28697929c451ff9788cb58466ef838b2b97b2a66f"
+    },
+    {
+      "path": "openspec/specs/construction-rules-core/spec.md",
+      "expected": "6e066186cbe9fd5174a9a4148bcdee55d9d1d93be60f0a86fc8b08056e3b4fe8",
+      "actual": "6e066186cbe9fd5174a9a4148bcdee55d9d1d93be60f0a86fc8b08056e3b4fe8",
+      "accepted": "85fefb6f310e6132e4bd99ec4f5f92cb2612731c1505d1e0637cf4c9db6e9aa1"
+    }
+  ],
+  "backup": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\spec-data-services-root-reconciliation",
+  "gitIndexUnchanged": true,
+  "scope": "Only the three original root proposals still matching admission were replaced with accepted main bytes; all other dirty files preserved"
+}

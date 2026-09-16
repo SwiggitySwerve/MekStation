@@ -1,0 +1,250 @@
+{
+  "at": "2026-09-13T03:08:09.568Z",
+  "status": "main-verified",
+  "pr": 1657,
+  "head": "4ebb910618dfd41b35426655c8c3ca04b1c632ef",
+  "main": "4ee8989f4909505319c6c916d4fbcbadf86ec782",
+  "files": [
+    {
+      "path": "openspec/specs/compendium-browser/spec.md",
+      "sha256": "ab2a14a28db8a0c50133698944706617d7d3aa43c78eda1945d65a55fd4936e6",
+      "gitOid": "429eb4525f75cc77ca65b7c374375bad21e6c25c"
+    },
+    {
+      "path": "openspec/specs/equipment-browser/spec.md",
+      "sha256": "4b068743a38023768ecd668519d519edba229d9db821ada744582807e1da2137",
+      "gitOid": "2cecec767aa63882f43ccc0070af949ee0b9068a"
+    },
+    {
+      "path": "src/pages/compendium/index.tsx",
+      "sha256": "201b31158e662b63e30e4739a2881e0822f5acf7da7ed28f63a13ec852bc77fd",
+      "gitOid": "4350f997bc426219afa57bad949d96aba57fb535"
+    },
+    {
+      "path": "src/pages/compendium/units/index.tsx",
+      "sha256": "63b8f7097e3981fd0128bb1f09cafb322f03c9112542711606adb69a9be0d5e0",
+      "gitOid": "be9f8c20b40e4b028e87e44f5640d3ef67d0ce19"
+    },
+    {
+      "path": "src/types/pages/UnitPageTypes.ts",
+      "sha256": "b6acd42ad9d521a69ef8c7045462f4397f9a9737acf3f243703e2837e35d5ce0",
+      "gitOid": "376aff45c00e48d90cb84cee183709241151d744"
+    },
+    {
+      "path": "src/pages/compendium/equipment/index.tsx",
+      "sha256": "9a0fb9f5d4292fe8c4c7c434551821112700db2e8ee95ae13144468345d75fef",
+      "gitOid": "26d9975b17e994419a5471ff127b718a42391c98"
+    },
+    {
+      "path": "src/pages/api/equipment/catalog.ts",
+      "sha256": "ae1dae4fb90abf29a4c2aea416dbb0499d4a2217d78d94f338e6681a6adf7d6f",
+      "gitOid": "6ac9e5bd1446617222461b1fb625eb9a663ab056"
+    },
+    {
+      "path": "src/pages/compendium/rules/[id].tsx",
+      "sha256": "b292c4c4ac6fbe71e4dca4e0df98d195b93c24ce8ee53d4bc0b971f5b22ddd28",
+      "gitOid": "0318a696c1962bcf185deed13207734064c5e227"
+    },
+    {
+      "path": "src/pages/compendium/rules/index.tsx",
+      "sha256": "d7e54462699c18ac0c075cc54e374d144d6be967171588a480bd4f53240f0ed6",
+      "gitOid": "9e6054b94da12871109d956147687b72ec0891c4"
+    },
+    {
+      "path": "src/engine/adapters/CompendiumAdapter.ts",
+      "sha256": "49bfc91f04b58d3c773ad8a40f1d6da8977ab257d760f737f0a2beb04aeef61f",
+      "gitOid": "1563cde81d28b399898617a6631bddd7dc8c4e62"
+    },
+    {
+      "path": "src/engine/adapters/CompendiumAdapter.weaponData.ts",
+      "sha256": "f8ba4d8e08a37003b60d2645f85a431e77cb617fc46cbfb342f1961f3cbf51a8",
+      "gitOid": "b77a8ecc4d10198ded6c68468d331e53b8863e15"
+    },
+    {
+      "path": "src/engine/adapters/CompendiumWeaponData.ts",
+      "sha256": "81802b44255b20462eb2d99605f06cdc70cca3095bc5cbe1e9046ddda9a309c1",
+      "gitOid": "b41bb657f55a8ba6c938b4d503405c2b154e089d"
+    },
+    {
+      "path": "src/engine/adapters/CompendiumAdapter.armor.ts",
+      "sha256": "beee4e0022e4fa7b6d4fb9ab04c57218315393682e93ede1c3e7aed630fa3902",
+      "gitOid": "9cfea2206f084915d6918fd509520b6eafc7cb3e"
+    },
+    {
+      "path": "src/engine/types.ts",
+      "sha256": "1c01e835df9f6f82337a0daa29b7db03ef3222e27f841b8435a311a365326f3a",
+      "gitOid": "38bcd1408b0cd5f36d938db3850283cd1284333c"
+    },
+    {
+      "path": "src/pages/customizer/[[...slug]].tsx",
+      "sha256": "235e79d43de57a68854d9969add70e52dd13a9926dbdc4d0df8f436e2c6ec5ea",
+      "gitOid": "0813dc1ece9ae041a932a2063300615971ba518d"
+    },
+    {
+      "path": "src/components/customizer/shared/tabRegistry.tsx",
+      "sha256": "8fc21041a01af69629cfc368c28ff6056dfb763f5db94178d03ad30d91e86969",
+      "gitOid": "d380d5e68ec7fa3bdb1d3836ef614a240c4e3a37"
+    },
+    {
+      "path": "src/components/customizer/equipment/EquipmentBrowser.tsx",
+      "sha256": "8cb9db439d8ebf579d95acac5e1a0aa9702d3a1c148433fb359877c6d17f3834",
+      "gitOid": "b706300156db36ece841fcb0df2bec940af96d24"
+    },
+    {
+      "path": "src/components/customizer/equipment/CompactFilterBar.tsx",
+      "sha256": "059bd9def72711a22a1704c5b20531deaa775038dbdb5b99b6ef9ae37d605133",
+      "gitOid": "135350e59f5c6b406dade835a9b849b4ad0bd7b2"
+    },
+    {
+      "path": "src/stores/useEquipmentStore.ts",
+      "sha256": "ccd37a7e68e768c0936502ed13b62bc7d98711f2990f414d0806aa0eae410d3d",
+      "gitOid": "1f97cc13fa41c3d91e3d95682970d11dfe33ed03"
+    },
+    {
+      "path": "src/stores/useEquipmentStore.filters.ts",
+      "sha256": "1ad606e3f3f122d3899cbd1462e590e958c19d553e43853d1a033757398097b8",
+      "gitOid": "bca30b6a8c8c5e0fcec34ba106723edd19c1520c"
+    },
+    {
+      "path": "src/hooks/useEquipmentBrowser.ts",
+      "sha256": "d8dbc3b057ce32cdb4a4ef4b7a64fe68ca6b2932570d710b880d236c23187552",
+      "gitOid": "8b74eaa2afe502634f82f86ec93bd49d646bbfca"
+    },
+    {
+      "path": "src/services/equipment/EquipmentLookupService.ts",
+      "sha256": "b76fc24376c6f6d75bafabb2e1acc7728f40d895eca44a83c3fa7b8fd6d8ce1f",
+      "gitOid": "d9d2ae711d998f543ecdd5b676e3b75a17b8ff99"
+    },
+    {
+      "path": "src/hooks/useEquipmentFiltering.ts",
+      "sha256": "1e2e3edd542ea62b9f56d21d16f52effab777de5bfe315cb4c2b8bfa50986045",
+      "gitOid": "ce02ab073513c69e0dc081a92b5358f151490328"
+    },
+    {
+      "path": "src/components/customizer/equipment/equipmentConstants.ts",
+      "sha256": "2a426c1effed11e5f72e269525cdab4d660f33f00469301f3e92847ad23ce2cb",
+      "gitOid": "b52847d45924a72c039dc391edbe5bb7fd52bfca"
+    },
+    {
+      "path": "src/hooks/useEquipmentCalculations.ts",
+      "sha256": "6da0e77b3ab49506f2120edd49908f0367e5c7a94961d7abd6205a6c985aa2bb",
+      "gitOid": "b60b1fb8d84e870386abda31c9b64d2f46b13977"
+    }
+  ],
+  "commands": [
+    {
+      "name": "openspec-all-strict",
+      "exe": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "C:/Users/wroll/AppData/Roaming/npm/node_modules/@fission-ai/openspec/bin/openspec.js",
+        "validate",
+        "--all",
+        "--strict",
+        "--no-interactive"
+      ],
+      "startedAt": "2026-09-13T03:06:08.595Z",
+      "endedAt": "2026-09-13T03:06:12.877Z",
+      "exit": 0,
+      "signal": null,
+      "stdout": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/catalog-browser-main-gates-20260913/openspec-all-strict.stdout.log",
+        "sha256": "2754dbee9c7f3c73dafb72bec4284c7de4a886d9f795955954f8d77c5768a12d"
+      },
+      "stderr": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/catalog-browser-main-gates-20260913/openspec-all-strict.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "spec:purpose:validate:strict",
+      "exe": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "spec:purpose:validate:strict"
+      ],
+      "startedAt": "2026-09-13T03:06:12.883Z",
+      "endedAt": "2026-09-13T03:06:17.626Z",
+      "exit": 0,
+      "signal": null,
+      "stdout": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/catalog-browser-main-gates-20260913/spec-purpose-validate-strict.stdout.log",
+        "sha256": "556446ac7f43d06dbaf1a824be5c97c44d0a3cc386a49fb07b76734b0584694d"
+      },
+      "stderr": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/catalog-browser-main-gates-20260913/spec-purpose-validate-strict.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "terminology:validate:strict",
+      "exe": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "terminology:validate:strict"
+      ],
+      "startedAt": "2026-09-13T03:06:17.654Z",
+      "endedAt": "2026-09-13T03:06:44.972Z",
+      "exit": 0,
+      "signal": null,
+      "stdout": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/catalog-browser-main-gates-20260913/terminology-validate-strict.stdout.log",
+        "sha256": "d15011da7521e031b3bea845889b040bc9e0f3dee6f2e974e2fd7ba0697781a0"
+      },
+      "stderr": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/catalog-browser-main-gates-20260913/terminology-validate-strict.stderr.log",
+        "sha256": "236193432373f3d7d00b0600895e74190be2a4c8bd2c051f8613a87ab9a1d3e6"
+      }
+    },
+    {
+      "name": "qc:openspec-ci:validate",
+      "exe": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "qc:openspec-ci:validate"
+      ],
+      "startedAt": "2026-09-13T03:06:45.010Z",
+      "endedAt": "2026-09-13T03:06:46.905Z",
+      "exit": 0,
+      "signal": null,
+      "stdout": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/catalog-browser-main-gates-20260913/qc-openspec-ci-validate.stdout.log",
+        "sha256": "f01feb11318234aab4764fe76151b78c06905527212a8f8723626fcf616b71d6"
+      },
+      "stderr": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/catalog-browser-main-gates-20260913/qc-openspec-ci-validate.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "diff-check",
+      "exe": "git",
+      "args": [
+        "diff",
+        "--check",
+        "--",
+        "openspec/specs/compendium-browser/spec.md",
+        "openspec/specs/equipment-browser/spec.md"
+      ],
+      "startedAt": "2026-09-13T03:06:47.216Z",
+      "endedAt": "2026-09-13T03:06:47.700Z",
+      "exit": 0,
+      "signal": null,
+      "stdout": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/catalog-browser-main-gates-20260913/diff-check.stdout.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/catalog-browser-main-gates-20260913/diff-check.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "limits": [
+    "Five documentation gates on exact merged commit; no new product/browser/runtime proof",
+    "Raw ignored logs remain local evidence"
+  ],
+  "cleanup": "pending"
+}

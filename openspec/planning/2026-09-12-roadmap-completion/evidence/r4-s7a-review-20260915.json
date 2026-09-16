@@ -1,0 +1,213 @@
+{
+  "artefact": "review",
+  "date": "2026-09-15",
+  "roadmapNode": "R4.S7-a",
+  "task": "adopt-combat-journal-cutover-and-gm-rewind task 1.7 preparation: independent review of S7-a1 (mirror canonicalisation fix) and S7-a2 (create-path journal seeding, S6-R1 ordering constraint)",
+  "reviewerRole": "independent reviewer (fresh context, no repo edits except this file)",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/reconcile-1",
+  "branch": "codex/roadmap-r4-s7a-seeding-jcs-20260915",
+  "base": "423381ff0",
+  "commitsReviewed": [
+    { "sha": "f957ea4ed", "subject": "test(journal): pin that the mirror must represent a real match launch", "shortstat": "+303/-0" },
+    { "sha": "5f7b10799", "subject": "fix(journal): mirror a match event in the form the store persists", "shortstat": "+57/-3" },
+    { "sha": "b0e6abfb2", "subject": "test(journal): pin that the create path seeds the match journal stream", "shortstat": "+292/-0" },
+    { "sha": "b9ab4a668", "subject": "feat(journal): seed a match's journal stream on the create path", "shortstat": "+94/-0 (3 files)" }
+  ],
+  "verdict": "APPROVE",
+  "verdictSummary": "Both slices verify as designed and claimed. a1's fix is a genuine, minimal, correctly-scoped canonicalization workaround (matches the admission brief's own explicit recommendation to sanitize the call site rather than the shared canonicalizer). a2's create-path seeding is a real structural-capability extension with no new event type, no mode flip, no schema change, and correctly gated by both the existing mode-off return and a landed-every-event guard. Red-first is genuine and reproduced exactly as claimed. All cited file:line references check out exactly. All gates are green. Merge-tree against the pinned main SHA (17525370e) is clean. One coverage gap found by independent mutation (the partial-persist guard in ServerMatchHostEvents.ts is untested) is NOT a hidden defect -- the preparer's own receipt already discloses it verbatim as S7a-Q4 and characterizes it correctly as a non-blocking scope note. No blocking defects. Recommend two stacked PRs as detailed in packagingRecommendation.",
+  "findings": [
+    {
+      "id": "F1",
+      "axis": "a1 design",
+      "severity": "informational",
+      "status": "confirmed",
+      "text": "withoutUndefinedProperties is defined in MatchStreamJournalMirror.ts:94-109 and applied exactly once, inside toMatchJournalBatch, to matchEvent before it is used to build the per-event IMatchJournalEnvelope (MatchStreamJournalMirror.ts:173). Both canonicalization passes downstream -- the command-identity digest (EventJournalCommandIdentity.ts -> canonicalizeJsonV1 over the whole batch) and each event's own digest (SQLiteEventJournalWriter.ts:235 canonicalizeEventDigestV1) -- consume this one already-stripped envelope, so the two passes cannot disagree about which form of the event they are hashing.",
+      "citations": [
+        "src/lib/multiplayer/server/MatchStreamJournalMirror.ts:94-109 (withoutUndefinedProperties)",
+        "src/lib/multiplayer/server/MatchStreamJournalMirror.ts:173 (single call site, inside toMatchJournalBatch)"
+      ]
+    },
+    {
+      "id": "F2",
+      "axis": "a1 design",
+      "severity": "informational",
+      "status": "confirmed",
+      "text": "The stripped form is a fixed point of DurableMatchStore's own durable form. DurableMatchStore.ts:843 writes JSON.stringify(event) for a batch append, and (at the pre-a2 line numbers, i.e. the state right after 5f7b10799) DurableMatchStore.ts:1163 and :1269 read it back with JSON.parse -- an own-enumerable undefined-valued property does not survive that stringify/parse round trip, so withoutUndefinedProperties(event) and JSON.parse(JSON.stringify(event)) agree on every event this codebase actually persists (they diverge only on values withoutUndefinedProperties does NOT drop -- functions, symbols, Dates, BigInts -- which is deliberate, see F3). After a2 lands the file grows by 56 lines and the same statements sit at :843 (unchanged) and :1219/:1325 (getEvents' JSON.parse) -- verified both states directly, no drift in meaning.",
+      "citations": [
+        "src/lib/multiplayer/server/DurableMatchStore.ts:843 (JSON.stringify(event), append-batch loop)",
+        "src/lib/multiplayer/server/DurableMatchStore.ts:1163 at 5f7b10799 / :1219 at HEAD (JSON.parse(row.event_json), outbox read)",
+        "src/lib/multiplayer/server/DurableMatchStore.ts:1269 at 5f7b10799 / :1325 at HEAD (rows.map JSON.parse, getEvents)"
+      ]
+    },
+    {
+      "id": "F3",
+      "axis": "a1 design",
+      "severity": "informational",
+      "status": "confirmed",
+      "text": "The shared canonicalizer (EventJournalCanonicalizer.ts) is untouched by this stack (not in the four commits' touched-file list). Its canonicalize() switch (lines 60-73) has a default: arm that calls fail('unsupported-value', ...) for any typeof outside {boolean, number, string, object} -- typeof undefined === 'undefined' falls into that default and throws EventJournalCanonicalizationError('unsupported-value'), which is exactly the throw the a1 red suite measures and the a1 fix suite still exercises for a genuinely non-representable value (a function, typeof 'function', also hits the same default arm). The canonicalizeJsonV1 entry point (line 123-125) is a thin wrapper over the same canonicalize().",
+      "citations": [
+        "src/lib/events/journal/EventJournalCanonicalizer.ts:60-73 (canonicalize switch, default: arm)",
+        "src/lib/events/journal/EventJournalCanonicalizer.ts:123-125 (canonicalizeJsonV1)"
+      ]
+    },
+    {
+      "id": "F4",
+      "axis": "a1 design",
+      "severity": "informational",
+      "status": "confirmed",
+      "text": "SQLiteEventJournalWriter.ts:430 writes payloadJson: canonicalizeJsonV1(event.payload) at commit time, and SQLiteEventJournalWriter.ts:345 re-canonicalizes the parsed form on read and compares against the stored event_digest (canonicalizeEventDigestV1(event).digest !== event.eventDigest -> integrity(...)). Both line numbers match the review brief's citations exactly.",
+      "citations": [
+        "src/lib/events/journal/SQLiteEventJournalWriter.ts:430",
+        "src/lib/events/journal/SQLiteEventJournalWriter.ts:345"
+      ]
+    },
+    {
+      "id": "F5",
+      "axis": "a2 design",
+      "severity": "informational",
+      "status": "confirmed",
+      "text": "seedJournalFromInitialEvents (DurableMatchStore.ts, new method) mirrors the GameCreated + GameStarted events the caller hands it -- no new event type is introduced anywhere in the diff. Its expectedRevision is nextMatchSequenceAfter(null), which resolves to the exported constant MATCH_FIRST_SEQUENCE = 0 (matchStoreBranchSegmentReader.ts:50,67-73) -- i.e. the empty-journal revision, matching an empty log's expectation on both arms of the consult. It is called through mirrorCommittedBatch (the SAME method appendCommandBatch uses), which still opens with `if (getCombatJournalAuthorityMode() === 'off') return;` (DurableMatchStore.ts:1000) -- the pre-existing early return, unmodified by this stack, gates the seed path exactly as it gates every command batch.",
+      "citations": [
+        "src/lib/multiplayer/server/DurableMatchStore.ts:1000 (mode-off early return, unchanged)",
+        "src/lib/multiplayer/server/DurableMatchStore.ts (seedJournalFromInitialEvents, b9ab4a668 diff)",
+        "src/lib/multiplayer/server/history/matchStoreBranchSegmentReader.ts:50,67-73 (MATCH_FIRST_SEQUENCE=0, nextMatchSequenceAfter(null))"
+      ]
+    },
+    {
+      "id": "F6",
+      "axis": "a2 design",
+      "severity": "informational",
+      "status": "confirmed",
+      "text": "seedJournalFromInitialEvents is declared as an OPTIONAL method on IMatchStore (IMatchStore.ts, `seedJournalFromInitialEvents?(...)`) -- a genuine structural-flag capability, matching appendCommandBatch's own optionality. InMemoryMatchStore.ts implements appendCommandBatch but does NOT implement seedJournalFromInitialEvents (grepped, zero hits) -- confirming the in-memory store lacks the capability and its behavior is unchanged by this stack. persistInitialEvents (ServerMatchHostEvents.ts) calls it only when `persisted === ctx.events.length && ctx.store.seedJournalFromInitialEvents` -- i.e. only after every opening event landed AND only when the store offers the capability.",
+      "citations": [
+        "src/lib/multiplayer/server/IMatchStore.ts (seedJournalFromInitialEvents? declaration)",
+        "src/lib/multiplayer/server/InMemoryMatchStore.ts (no seedJournalFromInitialEvents, grep confirmed)",
+        "src/lib/multiplayer/server/ServerMatchHostEvents.ts:114-117 (persisted-count + capability guard)"
+      ]
+    },
+    {
+      "id": "F7",
+      "axis": "a2 design",
+      "severity": "informational",
+      "status": "confirmed",
+      "text": "A create at mode 'off' writes nothing to the journal -- reproduced live: the a2 suite's third row ('seeds nothing at all while the cutover mode is off') passes at HEAD and journalEventIds() is empty in that row. No migration, no schema change, no new dependency: git diff --name-only 423381ff0..b9ab4a668 touches only the four production files plus the two new test files, all under src/lib/multiplayer/server/.",
+      "citations": [
+        "src/lib/multiplayer/server/__tests__/matchCreatePathJournalSeed.sqlite.test.ts:255-263",
+        "git diff --name-only 423381ff0 b9ab4a668 (6 files, all under src/lib/multiplayer/server/)"
+      ]
+    },
+    {
+      "id": "F8",
+      "axis": "packaging / dependency",
+      "severity": "informational",
+      "status": "confirmed by direct test",
+      "text": "a2 is NOT independently mergeable without a1 -- verified empirically, not just inferred from commit order. Cherry-picked b0e6abfb2 + b9ab4a668 onto base 423381ff0 (skipping 5f7b10799's fix) in a throwaway branch: both cherry-picks applied cleanly with no conflicts, but the a2 suite then reproduced the EXACT SAME 2 red rows as the genuine a2-red commit (head stuck at revision 0 / branchId 'root' instead of 'main'/2; journalEventIds() == ['cmd-first:0'] with the opening prefix missing). This proves GameCreated/GameStarted carry the same explicitly-undefined properties the a1 fix targets, and a2's seed silently fails (caught by mirrorCommittedBatch's error handling, recorded as a mismatch reason) without a1's fix in place. The throwaway branch was deleted after the check; working tree returned to origin HEAD (b9ab4a668) clean.",
+      "citations": [
+        "empirical: git cherry-pick b0e6abfb2 b9ab4a668 onto 423381ff0, then jest matchCreatePathJournalSeed.sqlite.test.ts -> 2 failed / 2 passed, byte-identical failure shapes to the genuine b0e6abfb2 red state"
+      ]
+    },
+    {
+      "id": "F9",
+      "axis": "red-first",
+      "severity": "informational",
+      "status": "confirmed by direct reproduction",
+      "text": "Checked out f957ea4ed (a1 red) and ran matchStreamJournalMirrorLaunch.sqlite.test.ts: 3 failed / 2 passed, exactly as claimed. The three failures are 'JCS cannot represent undefined' thrown from EventJournalCanonicalizer.ts:40 (via EventJournalCommandIdentity.ts:29 and SQLiteEventJournalWriter.ts:123/136), and the tripwire assertion 'Expected: 0, Received: 1' for the shadow mismatch counter. Checked out b0e6abfb2 (a2 red) and ran matchCreatePathJournalSeed.sqlite.test.ts: 2 failed / 2 passed, exactly as claimed -- 'leaves the journal head equal to the store-derived head' fails with {branchId:'root',revision:0} instead of {branchId:'main',revision:2}, and 'lets the enabled consult accept the first commit with no missing prefix' fails with journalEventIds() == ['cmd-first:0'] (the two opening events silently absent). Both reproductions match the review brief's descriptions verbatim.",
+      "citations": [
+        "empirical: jest run at f957ea4ed -> 'Test Suites: 1 failed, 1 total / Tests: 3 failed, 2 passed, 5 total'",
+        "empirical: jest run at b0e6abfb2 -> 'Test Suites: 1 failed, 1 total / Tests: 2 failed, 2 passed, 4 total'"
+      ]
+    },
+    {
+      "id": "F10",
+      "axis": "coverage gap (mutation)",
+      "severity": "low, disclosed",
+      "status": "confirmed, but NOT a hidden defect -- already disclosed by the preparer as S7a-Q4",
+      "text": "Mutated ServerMatchHostEvents.ts to remove the `persisted === ctx.events.length` guard (keeping only the capability check). Ran both new suites (9/9 pass) and the wider src/lib/multiplayer/server suite (153/153 suites, 1122/1122 tests pass) -- the mutant fully survives. No existing test simulates a partial persistInitialEvents failure (one appendEvent throwing mid-loop) followed by a seed attempt, so nothing currently proves the guard is load-bearing. HOWEVER: the preparer's own local receipt (r4-s7a-local-20260915.json, openQuestions[3], id S7a-Q4) discloses this exact gap verbatim ('the partial-persist case is reported as legacy rather than as damaged... Distinguishing the two needs the durable per-match state S7-d would introduce') and rates it 'low, scope note' -- correctly, since a partial persist is already a pre-existing degraded state (console.warn + no event) unrelated to this slice's new code, and the guard's only job is to fail safe (no head over a partial log), which the ABSENCE of a test does not disprove -- it is simply unexercised. Reverted cleanly (git checkout --) after the check.",
+      "citations": [
+        "empirical: mutant on src/lib/multiplayer/server/ServerMatchHostEvents.ts:114-117 -> 153 suites / 1122 tests still green",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/r4-s7a-local-20260915.json openQuestions[3] (S7a-Q4)"
+      ]
+    }
+  ],
+  "mutantTable": [
+    {
+      "slice": "a1",
+      "id": "M1",
+      "description": "Neuter the undefined-strip: change `if (child === undefined) continue;` to `if (false) continue;` in withoutUndefinedProperties (MatchStreamJournalMirror.ts:105).",
+      "expectedResult": "reproduces the original 3-red state",
+      "actualResult": "CAUGHT -- 3 failed / 2 passed, identical failure shapes to the genuine a1-red commit",
+      "reverted": true
+    },
+    {
+      "slice": "a1",
+      "id": "M3 (brief-specified)",
+      "description": "Replace withoutUndefinedProperties's body with `return JSON.parse(JSON.stringify(value)) as T;` -- the explicitly-rejected alternative named in the commit message.",
+      "expectedResult": "the typed-refusal row ('still refuses a genuinely non-representable value, typed') must fail",
+      "actualResult": "CAUGHT exactly as predicted -- 4 passed / 1 failed; the poisoned function-valued property is silently dropped by JSON.stringify, the batch mirrors successfully instead of throwing, and the row asserting rejects.toThrow() fails with 'Resolved to value: {kind: mirrored}' instead of rejecting",
+      "reverted": true
+    },
+    {
+      "slice": "a2",
+      "id": "M-mode-gate (brief-specified)",
+      "description": "Remove the `if (getCombatJournalAuthorityMode() === 'off') return;` early return from mirrorCommittedBatch (DurableMatchStore.ts:1000), which also gates the seed path since seedJournalFromInitialEvents calls mirrorCommittedBatch.",
+      "expectedResult": "the additivity-guard row ('seeds nothing at all while the cutover mode is off') must fail",
+      "actualResult": "CAUGHT -- 'seeds nothing at all while the cutover mode is off' fails: journalEventIds() now returns the two seeded rows instead of []",
+      "reverted": true
+    },
+    {
+      "slice": "a2",
+      "id": "M-partial-persist",
+      "description": "Remove the `persisted === ctx.events.length &&` guard in persistInitialEvents (ServerMatchHostEvents.ts:114-116), leaving only the capability check.",
+      "expectedResult": "not predicted by the brief; run to find any additional coverage gap",
+      "actualResult": "SURVIVED -- both new suites (9/9) and the wider src/lib/multiplayer/server suite (153 suites / 1122 tests) stay green. See finding F10: this is a real but already-disclosed (S7a-Q4) coverage gap, not a hidden one, and not blocking given mode is hardcoded off.",
+      "reverted": true
+    }
+  ],
+  "gateTable": [
+    { "gate": "matchStreamJournalMirrorLaunch.sqlite.test.ts + matchCreatePathJournalSeed.sqlite.test.ts at HEAD", "command": "npx jest <both files> --maxWorkers=2", "result": "PASS", "detail": "2 suites, 9 tests, 0 failed" },
+    { "gate": "scoped jest", "command": "npx jest src/lib/events/journal src/lib/multiplayer/server --maxWorkers=2", "result": "PASS", "detail": "175 suites, 1355 tests, 0 failed, 43.4s" },
+    { "gate": "wider jest", "command": "npx jest src/lib/multiplayer --maxWorkers=2", "result": "PASS", "detail": "169 suites, 1323 tests, 0 failed, 37.8s" },
+    { "gate": "tsc", "command": "npx tsc --noEmit -p tsconfig.json", "result": "PASS", "detail": "exit 0, no output" },
+    { "gate": "oxfmt --check", "command": "npx oxfmt --check <6 changed files>", "result": "PASS", "detail": "exit 0, 'All matched files use the correct format.'" },
+    { "gate": "oxlint", "command": "npx oxlint <6 changed files>", "result": "PASS (1 pre-existing warning, 0 errors)", "detail": "eslint(max-lines): DurableMatchStore.ts has 1051 (oxlint-counted) lines against a 400 cap -- pre-existing at origin/main per the preparer's own receipt (S7a-Q5, 1030 lines pre-slice via stash-diff measurement); this slice adds ~21 oxlint-counted lines to an already-over-cap file. Not a new violation category, not introduced by this stack." },
+    { "gate": "openspec validate", "command": "npx openspec validate --all --strict", "result": "PASS", "detail": "232 passed, 0 failed, exit 0" }
+  ],
+  "openQuestionAssessment": [
+    {
+      "id": "S7a-Q2",
+      "text": "Seed idempotency rests on the journal's command-identity check (duplicateIsSuccess treats any duplicate-command as success), which would also swallow a genuinely divergent retry (two different opening logs for one match id) rather than surfacing it as a conflict. No production path produces that today.",
+      "assessment": "NOT a blocking defect for the admitted scope. COMBAT_JOURNAL_AUTHORITY_MODE is a hardcoded 'off' const with no env read (matchJournalAuthority.ts:18-19, verified directly) -- every path this slice adds is unreachable in production. The divergent-retry scenario requires a live command-batch stream at a non-off mode, which does not exist today. Concur with the preparer's own severity ('medium, owner ruling wanted before any flip') and recommend it be carried forward explicitly to S7-d, where the migration-state machine is meant to replace command-identity-based idempotency with a durable per-match 'seeded' fact -- exactly as S7a-Q2 itself proposes."
+    },
+    {
+      "id": "S7a-Q3",
+      "text": "Seeding at create makes S5-R1's inherited warning MORE reachable: a rewound match now has a head, so at mode 'shadow' its later live-path batches would meet the rewound-stream refusal and pin the shadow-mismatch counter above zero. No row here covers a seeded-then-rewound match at 'shadow'.",
+      "assessment": "NOT a blocking defect for the admitted scope, for the same reason as S7a-Q2 -- mode 'shadow' is reachable only through _setCombatJournalAuthorityModeForTests, never in production while COMBAT_JOURNAL_AUTHORITY_MODE stays the hardcoded 'off' const. This is a genuine residual: it should be carried forward and closed before any process is EVER run at 'shadow' against real traffic (S7-d's stated job, per the S6 receipt's own S6-R1/S4-R1 framing). Concur with the preparer's characterization ('medium, inherited and NOT closed') -- recommend it be tracked explicitly as a precondition-check item in whatever S7-d's task list or design.md ends up naming as the shadow-mode readiness gate, rather than silently assumed closed by this slice."
+    }
+  ],
+  "hygiene": {
+    "aiAttributionInCommits": "NONE found in any of the four commit messages (checked full message + `git log --format='%(trailers)'` for all four SHAs) -- clean.",
+    "openspecPathsTouched": "NONE -- `git diff --name-only 423381ff0 b9ab4a668` touches only src/lib/multiplayer/server/** (4 production files + 2 new test files). Confirmed zero openspec/** paths in this stack.",
+    "fileCountCap": "6 files touched, well within any stated cap.",
+    "mergeTreeVsPinnedMain": {
+      "pinnedMainSha": "17525370e00bfd8f022783f2bf1f6b9250422ca6",
+      "command": "git merge-tree --write-tree 17525370e b9ab4a668",
+      "result": "CLEAN -- returned a tree hash (8bfa4b031be5f019c880df43986e5f59521da4b8) with no conflict markers, exit 0. Re-run twice (once via origin/main pre-fetch, once explicitly against the pinned SHA after origin/main advanced mid-review) with the identical tree hash both times.",
+      "note": "origin/main advanced past the pinned SHA during this review (another concurrent session merged #1736, tip now cd416634a) -- expected in a multi-agent swarm. The merge-tree check against the pinned 17525370e (matching the task brief's stated main state) is clean; recommend a fresh merge-tree check immediately before actual PR creation given main is moving."
+    }
+  },
+  "packagingRecommendation": {
+    "recommendation": "Two PRs, STACKED (not independent) -- PR-1 = a1 (f957ea4ed + 5f7b10799), PR-2 = a2 (b0e6abfb2 + b9ab4a668) based on PR-1's branch, merged in that order.",
+    "rationale": "a1 is independently mergeable on its own (closes the S1 residual for the match-mirror path standalone; its own suite is fully green and self-contained). a2 is NOT independently mergeable -- empirically verified in finding F8 that a2's product code silently fails without a1's fix in place, because the seeded GameCreated/GameStarted events carry the same explicitly-undefined properties a1 fixes. Squashing all four into one PR would also work (no technical blocker) but stacking preserves the two independently-reviewable, independently-revertable units the review brief and the roadmap's own S7-a/S7-b/S7-c/S7-d sub-slicing discipline call for, and matches how S1/S5/S6 in this same chain were each landed as their own PR."
+  },
+  "requiredEdits": [],
+  "evidenceHashes": {
+    "preparerReceiptSha256": "263d294ace513ec4c27c483c86d08e3ea7328a185922e26722bb04108d7ddd23"
+  },
+  "nonClaims": [
+    "NO REPO FILES were modified by this review except this evidence file itself. Every mutant applied during mutation testing was reverted via `git checkout --` and confirmed via `git status --short` (clean) before moving to the next check; the one throwaway branch created for the F8 dependency check (temp-dep-check) was deleted and the worktree returned to HEAD=b9ab4a668 before writing this file.",
+    "NO PUSH, NO COMMIT, NO PR was made from the worktree.",
+    "NO MEMORY FILES were written.",
+    "NO SUB-AGENTS were spawned.",
+    "This review did not re-verify S6's own receipts/gates independently -- it read the S6 risk-flagged section (S6-R1, S6-R2) and the S5/S7 admission brief's task-1.7 section only as far as needed to cross-check S7-a's design against what those documents already established, per the task's stated inputs."
+  ]
+}

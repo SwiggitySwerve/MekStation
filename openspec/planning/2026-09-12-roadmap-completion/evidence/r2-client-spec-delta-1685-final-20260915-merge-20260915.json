@@ -1,0 +1,83 @@
+{
+  "pr": 1685,
+  "branch": "codex/roadmap-r2-client-spec-delta-20260915",
+  "reviewedCommit": "41fa769895c8ace5608dda1a3f4118cb30c7242f",
+  "finalHead": "55c8b9d8a156736c42a1a178564bd97cd27a394f",
+  "anomaly": "One CI run was red on an unrelated flaky perf test; resolved by a single justified rerun (details below). No content change.",
+  "autoMergeArmed": false,
+  "contentGuard": {
+    "preUpdate": {
+      "fileSetEqualToReviewed": true,
+      "files": [
+        "openspec/changes/design-campaign-authority-and-sync/design.md",
+        "openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md",
+        "openspec/changes/design-campaign-authority-and-sync/tasks.md"
+      ],
+      "diffstat": "3 files changed, 79 insertions(+), 3 deletions(-)",
+      "blobEquality": "trivially satisfied - reviewed commit == PR head (41fa76989)",
+      "result": "PASS"
+    },
+    "postUpdate": {
+      "fileSet": "unchanged - same 3 files, no files added by the update merge",
+      "diffstat": "3 files changed, 79 insertions(+), 3 deletions(-)",
+      "blobEquality": "all 3 blobs equal to 41fa76989",
+      "result": "PASS"
+    }
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "oldHead": "41fa769895c8ace5608dda1a3f4118cb30c7242f",
+    "newHead": "55c8b9d8a156736c42a1a178564bd97cd27a394f",
+    "expectedHeadShaGuard": "41fa769895c8ace5608dda1a3f4118cb30c7242f",
+    "reason": "branch was BEHIND (base 2d410f3ca) after later merges"
+  },
+  "flakeAndRerun": {
+    "firstRunId": "34947697774",
+    "firstRunResult": "2 fail / 29 pass - required 'Lint and Test' red via 'Unit Tests (3/6)'",
+    "failingSuite": "src/__tests__/performance.test.tsx",
+    "failingTest": "Performance Tests > VirtualizedTimeline > should render 5000 events in <500ms",
+    "assertion": "expect(end - start).toBeLessThan(500) at src/__tests__/performance.test.tsx:55",
+    "observed": "Received: 608.7472139999954 (budget 500ms)",
+    "tally": "Tests: 1 failed, 5973 passed, 5974 total",
+    "causationAnalysis": "This PR's diff is THREE OPENSPEC MARKDOWN FILES ONLY. A docs-only diff cannot change React render timing, so the PR provably did not cause this failure. It is a wall-clock timing budget miss on a shared runner - the known flaky-perf-budget class in this repo.",
+    "actionTaken": "Single targeted `gh run rerun 34947697774 --failed`. This was NOT a blind retry: it was taken only after reading the failure, identifying the specific timing assertion, and establishing that the docs-only diff could not be causally related.",
+    "rerunResult": "31 pass / 0 fail / 0 pending - confirms flake",
+    "standingRecommendation": "This perf budget (500ms for 5000 events) is tight enough to flake on CI runners; widening it is tracked as a separate concern, not addressed here."
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "otherChecksCount": 27,
+    "otherChecksBuckets": { "pass": 27 },
+    "totalChecks": 31,
+    "pollLog": "08:34:43 4 pending -> 08:39:32 29 pass / 2 fail; rerun -> 08:42:02 31 pass / 0 pending"
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-client-spec-delta-1685-final-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "318f4ecc1c0a01fe5de45b904a1581503cbef8b9",
+  "mergeCommitParents": ["2af7b22598e1ec40ba405e86182daf862d04c526"],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1685 --squash --match-head-commit 55c8b9d8a156736c42a1a178564bd97cd27a394f",
+  "mergedAt": "2026-09-15T08:42:30Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "The merge commit changes exactly the 3 guarded files, blob-identical to the gated head.",
+  "mainAfter": "318f4ecc1c0a01fe5de45b904a1581503cbef8b9",
+  "worktree": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/r2-client-spec-delta-20260915",
+    "cleanBeforeFF": true,
+    "branch": "codex/roadmap-r2-client-spec-delta-20260915",
+    "fastForward": "ff-only 41fa76989 -> 55c8b9d8a",
+    "result": "SUCCESS"
+  },
+  "timestamps": {
+    "guardStartedAt": "2026-09-15T08:34:00Z",
+    "checksTerminalAt": "2026-09-15T08:42:02Z",
+    "mergedAt": "2026-09-15T08:42:30Z",
+    "receiptWrittenAt": "2026-09-15T09:20:30Z"
+  }
+}

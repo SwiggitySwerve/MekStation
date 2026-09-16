@@ -1,0 +1,53 @@
+{
+  "pr": 1730,
+  "branch": "codex/roadmap-r4-s6-c-rows-20260915",
+  "reviewedCommit": "0a08c63937e1515afd500c63d648d4cd19a5eff8",
+  "resolvedHeadFromParent": "ee87fe5253b9061ce730f7b5786a4205b00711e0",
+  "finalHead": "ee87fe5253b9061ce730f7b5786a4205b00711e0",
+  "autoMergeArmed": false,
+  "contentGuard": {
+    "method": "file set from `git diff --name-only origin/main...<head>` vs the reviewed file set, plus per-file blob equality against the reviewed commit; re-run after update-branch",
+    "fileCountAtMerge": 1,
+    "blobEquality": "all files blob-identical to the reviewed commit at the gated head",
+    "result": "PASS"
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "expectedHeadShaGuardUsed": true,
+    "newHead": "ee87fe5253b9061ce730f7b5786a4205b00711e0"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "otherChecksCount": 27,
+    "otherChecksBuckets": {
+      "pass": 27
+    },
+    "totalChecks": 31
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r4-s6-c-1730-final2-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "00901f4e097d9973ba4d48369d343f93d52092c8",
+  "mergeCommitParents": [
+    "423381ff0eb026bb4f3834949aae555cd70d0ca9"
+  ],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1730 --squash --match-head-commit ee87fe5253b9061ce730f7b5786a4205b00711e0",
+  "mergedAt": "2026-09-15T16:34:35Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "The merge commit changes exactly 1 file(s), all blob-identical to the gated head ee87fe5253b9061ce730f7b5786a4205b00711e0.",
+  "mainAfter": "00901f4e097d9973ba4d48369d343f93d52092c8",
+  "worktree": {
+    "fastForward": "NOT PERFORMED - coordinator designated the owned worktrees as off-limits for these PRs",
+    "result": "SKIPPED (intentional)"
+  },
+  "notes": "Went DIRTY after 1729 squash exactly as predicted (add/add on the shared suite file); reported, parent resolved. Delta vs main = matchCommitJournalHead.sqlite.test.ts +131/-32. update-branch returned a benign 422 \"There are no new commits on the base branch\" because the resolved head already contained main. FLAKE THEN GREEN: run 34994385846 failed the same selected-paper print test (Expected 1 / Received 0); one targeted rerun returned 31/31.",
+  "timestamps": {
+    "receiptWrittenAt": "2026-09-15T17:02:00Z"
+  }
+}

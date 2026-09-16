@@ -1,0 +1,112 @@
+{
+  "at": "2026-09-12T12:41:17.314Z",
+  "mainSha": "6c4eac5c7b7a2aece3aab0443ce606943db6cf0b",
+  "checks": [
+    {
+      "name": "closure-main-spec-1",
+      "status": {
+        "name": "closure-main-spec-1",
+        "args": [
+          "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+          "exec",
+          "--",
+          "openspec",
+          "validate",
+          "--all",
+          "--strict"
+        ],
+        "cwd": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\routing",
+        "startedAt": "2026-09-12T12:40:25.360Z",
+        "driverPid": 75020,
+        "running": false,
+        "pid": 34404,
+        "code": 0,
+        "finishedAt": "2026-09-12T12:40:27.644Z"
+      },
+      "log": ".sisyphus/roadmap-completion-20260912/routing-checks/closure-main-spec-1.log",
+      "sha256": "e21ee5a93b949a4d54b08178b22d10d3ab304c1b55e46a00f05c1cfc9b56c76e"
+    },
+    {
+      "name": "closure-main-ci-1",
+      "status": {
+        "name": "closure-main-ci-1",
+        "args": [
+          "scripts/qc/validate-openspec-ci-quality.mjs"
+        ],
+        "cwd": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\routing",
+        "startedAt": "2026-09-12T12:40:25.367Z",
+        "driverPid": 52604,
+        "running": false,
+        "pid": 78764,
+        "code": 0,
+        "finishedAt": "2026-09-12T12:40:25.494Z"
+      },
+      "log": ".sisyphus/roadmap-completion-20260912/routing-checks/closure-main-ci-1.log",
+      "sha256": "c0cb54085851dc9acb986613616f6992117a3fd0bd09d508938c634750b7cbb2"
+    },
+    {
+      "name": "closure-main-purpose-1",
+      "status": {
+        "name": "closure-main-purpose-1",
+        "args": [
+          "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+          "run",
+          "spec:purpose:validate:strict"
+        ],
+        "cwd": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\routing",
+        "startedAt": "2026-09-12T12:40:25.378Z",
+        "driverPid": 23096,
+        "running": false,
+        "pid": 70632,
+        "code": 0,
+        "finishedAt": "2026-09-12T12:40:27.414Z"
+      },
+      "log": ".sisyphus/roadmap-completion-20260912/routing-checks/closure-main-purpose-1.log",
+      "sha256": "4708af7f12b7d5cd9d30468cfca5c63fcea51e33147e3b0da6c0189219d09b04"
+    },
+    {
+      "name": "closure-main-format-1",
+      "status": {
+        "name": "closure-main-format-1",
+        "args": [
+          "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+          "run",
+          "format:check"
+        ],
+        "cwd": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\routing",
+        "startedAt": "2026-09-12T12:40:25.378Z",
+        "driverPid": 78828,
+        "running": false,
+        "pid": 66228,
+        "code": 0,
+        "finishedAt": "2026-09-12T12:40:37.293Z"
+      },
+      "log": ".sisyphus/roadmap-completion-20260912/routing-checks/closure-main-format-1.log",
+      "sha256": "43de755b02e480e39e34f1cff50595e5fd484a4fbbe93aac3a32a677d09a01bb"
+    },
+    {
+      "name": "closure-main-terminology-1",
+      "status": {
+        "name": "closure-main-terminology-1",
+        "args": [
+          "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+          "run",
+          "terminology:validate:strict"
+        ],
+        "cwd": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\routing",
+        "startedAt": "2026-09-12T12:40:25.385Z",
+        "driverPid": 40060,
+        "running": false,
+        "pid": 48352,
+        "code": 0,
+        "finishedAt": "2026-09-12T12:40:34.204Z"
+      },
+      "log": ".sisyphus/roadmap-completion-20260912/routing-checks/closure-main-terminology-1.log",
+      "sha256": "cbc1c23d158697909608a8e0de6f1c3a360f937ff588d4f367e4797aba4b0c2b"
+    }
+  ],
+  "originalRootFilesUnchanged": true,
+  "canonicalDeltaExactMatch": true,
+  "source": "E:\\Projects\\MekStation\\openspec\\changes\\fix-customizer-explicit-tab-precedence",
+  "target": "E:\\Projects\\MekStation\\openspec\\changes\\archive\\2026-09-12-fix-customizer-explicit-tab-precedence"
+}

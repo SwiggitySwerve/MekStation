@@ -1,0 +1,52 @@
+{
+  "pr": 1716,
+  "branch": "codex/roadmap-r4-s5-a-explicit-offsets-20260915",
+  "reviewedCommit": "6795b48e4d7fac7af257ab6e64decd86b06144a9",
+  "finalHead": "18b6762024f04782bdd1ad8e4bd81de6658b79c9",
+  "autoMergeArmed": false,
+  "contentGuard": {
+    "method": "file set from `git diff --name-only origin/main...<head>` compared to the reviewed file set, plus per-file blob equality against the reviewed commit; re-run after update-branch",
+    "fileCountAtMerge": 8,
+    "blobEquality": "all files blob-identical to the reviewed commit at the gated head (exceptions, if any, are described in notes)",
+    "result": "PASS"
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "expectedHeadShaGuardUsed": true,
+    "newHead": "18b6762024f04782bdd1ad8e4bd81de6658b79c9"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "otherChecksCount": 27,
+    "otherChecksBuckets": {
+      "pass": 27
+    },
+    "totalChecks": 31,
+    "totalChecksNote": "31 because #1678 added the standing \"Customizer Regressions\" check to main"
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r4-s5-a-1716-final-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "faf03445d421fc2b9a52c20d5dddfbdb5f82cb02",
+  "mergeCommitParents": [
+    "4d7d17c3def5aa1989bd4819654f3eeec1fcc400"
+  ],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1716 --squash --match-head-commit 18b6762024f04782bdd1ad8e4bd81de6658b79c9",
+  "mergedAt": "2026-09-15T14:22:23Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "The merge commit changes exactly 8 file(s), all blob-identical to the gated head 18b6762024f04782bdd1ad8e4bd81de6658b79c9.",
+  "mainAfter": "faf03445d421fc2b9a52c20d5dddfbdb5f82cb02",
+  "worktree": {
+    "fastForward": "NOT PERFORMED unless the coordinator designated the worktree as free; several owned worktrees were explicitly off-limits (parent in use / other branch).",
+    "result": "SKIPPED or SUCCESS per coordinator instruction for this PR"
+  },
+  "timestamps": {
+    "receiptWrittenAt": "2026-09-15T15:00:00Z"
+  }
+}

@@ -1,0 +1,194 @@
+{
+  "capturedAt": "2026-09-15T00:00:00Z",
+  "capturedBy": "read-only admission-brief agent (GP-JUSTIFIED discovery)",
+  "sourceSnapshot": {
+    "ref": "origin/main",
+    "sha": "2d410f3ca4d7153497c94ee2944618ee735e99af",
+    "note": "Fetched twice during this session; the second fetch advanced one commit (2d410f3ca, a QC-suite-pin-only commit, #1677) past the prompt's stated floor 0df5ed2bf. Diffed and confirmed it touches no file cited below. All file reads were `git show <sha>:<path>` against this ref, no worktree checkout was used."
+  },
+  "roadmapNode": "R2.authority-client",
+  "status": "not-implementation-ready; two structural gaps block a buildable prefix today",
+  "sections": {
+    "1_client_mutation_path_today": {
+      "summary": "Every single-player campaign mutation runs entirely inside the browser Zustand store. None of it reaches the server command pipeline. Persistence to the server is a whole-envelope PUT, debounced 2s after the last mutation, not a command.",
+      "mutation_entry_points": {
+        "pattern": "applyCampaignMutation(...) inside src/stores/campaign/campaignCommandActions.ts mutates the in-memory ICampaign object directly and returns a new object reference (the store's own dirty signal).",
+        "still_client_only_actions": [
+          "addAcquisitionRequest (campaignCommandActions.ts:190)",
+          "removeAcquisitionRequest (campaignCommandActions.ts:230)",
+          "hireCandidate (campaignCommandActions.ts:302)",
+          "takeLoan (campaignCommandActions.ts:379)",
+          "acceptContractOffer (campaignCommandActions.ts:454)",
+          "declineContractOffer (campaignCommandActions.ts:509)",
+          "reorderRepairTicketPriority (campaignBayActions.ts:122)",
+          "setSalvageItemStatus (campaignBayActions.ts:228)",
+          "commitRefitOrder (campaignRefitActions.ts:79)",
+          "the day-advance pipeline in useCampaignStore.dayActions.ts (createCampaignDayActions, :482)",
+          "generic mutation helpers in useCampaignStore.actions.ts (createCampaignStoreActions, :312)",
+          "combat-outcome application in useCampaignStore.outcomes.ts"
+        ],
+        "acceptContractOffer_detail": "campaignCommandActions.ts:454-495 finds the offer in campaign.contractMarket.offers, calls acceptContractEngine(campaign, offer) which folds into campaign.missions, then strips the offer from contractMarket.offers. Both missions and contractMarket are full-ICampaign fields; no server call is made. Single production caller: src/pages/gameplay/campaigns/[id]/contract-market.tsx:71, `const result = acceptContractOffer(offerId);` — synchronous, no await, no network."
+      },
+      "persistence_bridge": {
+        "file": "src/stores/campaign/campaignPersistenceWiring.ts",
+        "mechanism": "installCampaignPersistenceWiring() subscribes to the campaign store; any reference change to `campaign` after the first (load) observation calls useCampaignPersistenceStore.getState().markDirty(). Treats ICampaign as immutable-by-convention: every mutation site returns a new object, so reference inequality is the dirty signal. This is a blunt instrument -- it cannot distinguish which action mutated the campaign, only that something did."
+      },
+      "debounced_autosave": {
+        "file": "src/stores/campaign/useCampaignPersistenceStore.ts",
+        "constant": "AUTO_SAVE_DEBOUNCE_MS = 2000 (line 42)",
+        "markDirtyAction": "lines 797-820: sets dirty:true, clears any existing autoSaveTimer, and (unless the campaign has an active coop session, checked via isCoopCampaign) sets a new setTimeout(..., 2000) that calls performSave() when it fires.",
+        "save_path": "performSave -> runSave (line 561) -> putLiveCampaign (line 456) -> `fetch('/api/campaigns/' + id, { method:'PUT', body: JSON.stringify({ envelope, baseVersion }) })`. Serialized behind a module-level `saveChain` promise so overlapping writes cannot both read the same `baseVersion` CAS token (comment at lines 189-195, fixed 2026-08-22 per tasks.md task-group-1 preamble residual note).",
+        "what_it_writes": "The FULL envelope: buildSerializedCampaign(campaign, deviceId, baseVersion+1, rosterSnapshot) -- not a command, not an event, a whole-object overwrite guarded only by the SerializedCampaign row's baseVersion/version CAS in CampaignPersistenceService.saveCampaign (src/services/campaignPersistence/CampaignPersistenceService.ts:95-158)."
+      },
+      "crash_window": {
+        "verbatim_design_admission": "openspec/changes/design-campaign-authority-and-sync/tasks.md, preamble note dated 2026-08-21: \"Unsaved-mutation loss window on hard reload -- client mutations ride the 2s debounced auto-save with no beforeunload/pagehide flush, and task 1.3's rehydrated-cache head validation (correct per 'stale cache is refreshed, not trusted') refetch-replaces the localStorage copy of un-PUT-ed work: up to 2s of user actions are silently discarded on hard reload/close. E2e helpers now wait for the PUT (worked around in e2e/helpers/campaignFlow.ts + campaign-organic-contract.spec.ts); the product fix (flush-on-pagehide or dirty-state reconciliation on load) belongs to the cutover-era client rewiring (5.7 scope). Both stay red-by-honesty in nightly until their owning groups land.\"",
+        "verified_mechanism": "Confirmed against source: markDirtyAction (useCampaignPersistenceStore.ts:797-820) only schedules a setTimeout; no beforeunload/pagehide/visibilitychange listener exists anywhere in useCampaignPersistenceStore.ts or campaignPersistenceWiring.ts (grepped both files for those tokens: zero matches). A hard reload or tab close inside the 2s window loses every mutation since the last successful PUT -- the in-memory Zustand `campaign` object is gone, and any localStorage persist middleware copy is superseded by task 1.3's head-validation refetch-replace on the next load (design-campaign-authority-and-sync spec 'Stale cache is refreshed, not trusted').",
+        "orphaned_status": "5.7 (tasks.md task 5.7) is checked [x] complete as of 2026-08-23 and its receipt explicitly does NOT claim this fix -- 5.7's own non-claims list does not mention it, and no other checked-or-open task in Groups 1-6 names beforeunload/pagehide or dirty-state-reconciliation-on-load. This is a real gap: the crash window has no owning task in the current package (see section 5)."
+      }
+    },
+    "2_server_command_path": {
+      "pipeline_file": "src/lib/campaign/authority/campaignCommandPipeline.ts",
+      "route_file": "src/pages/api/campaigns/[id]/commands.ts",
+      "ordering": "command -> validate (against the replayed stream, never caller-supplied state) -> append with expected-post-state-digest (fsync, atomic batch) -> acknowledge (re-projected from the stream after commit, never assumed) -- see campaignCommandPipeline.ts:1-37 doc comment and executeCampaignCommand (line 313-480).",
+      "authority_gate": "executeCampaignCommand first checks deps.authority.kind: 'blocked' -> {kind:'blocked'}; anything other than 'journal' -> {kind:'blocked', reason:'campaign-not-on-journal-authority'} (lines 317-322). Authority is resolved per campaign via resolveCampaignAuthorityFromStores, which reads the durable migration marker (task 5.7). CAMPAIGN_JOURNAL_AUTHORITY_ENABLED is false, and no campaign enters 'journal' authority by default, so EVERY campaign gets 'blocked'/'campaign-not-on-journal-authority' from this route today unless it went through the (also currently inert) adopt/genesis hooks.",
+      "revision_expectedRevision_contract": {
+        "field": "ICampaignCommandRequest.expectedRevision (optional, campaignCommandPipeline.ts:210-235)",
+        "semantics": "resolveCommandBase (lines 253-303): undefined or === priorEvents.length means 'at-head'; out of range means 'revision-unknown'; otherwise the server replays events[0..expected) to reconstruct the base the client claims to have written against, and compares the client's optional declaredFields to the server-derived touched-field set (diffCampaignFields). This is the JOURNAL revision (event count / stream revision), NOT the SerializedCampaign row's `baseVersion`/`version` used by the PUT route -- two independent CAS counters exist today with no bridge between them.",
+        "response_shape_on_conflict": "{kind:'conflict', reason, head:{branchId,revision}, recoveryAction, conflictingFields, expectedSequence?, actualSequence?} -- distinct from the PUT route's {status:409, current, currentVersion, conflictingFields} conflict body (useCampaignPersistenceStore.ts readConflictBody, ~line 430-453)."
+      },
+      "acknowledgement_shape": "commands.ts:150-220 maps CampaignCommandResult to HTTP: 200 {kind:'committed', events, state} or {kind:'duplicate', commandId}; 422 {kind:'rejected', reason}; 409 {kind:'blocked',...} or {kind:'conflict',...} or {kind:'invalidated-artifact',...}; 500 {kind:'divergent', expectedDigest, actualDigest}. `state` is ICampaignAuthoritativeState -- a COMPACT flat ledger (campaignId, day, balance, rosterUnits, pilots, contracts, factionStanding, salvagePool; src/types/campaign/CampaignSync.ts:80-111), not the full ICampaign the client store holds.",
+      "current_client_consumption": "NONE IN PRODUCTION. Grepped origin/main for every reference to '[id]/commands' or 'campaigns/.../commands': the only non-test hits are (a) the route file itself, (b) two test files that import the handler directly, (c) a component test docstring, and (d) src/lib/campaign/lifecycle/campaignLifecycleState.ts, which defines campaignRefusalFromCommandRefusal (line 447) to parse the route's 409 bodies into a shared lifecycle-posture vocabulary -- but grepping for callers of that function outside its own file and its test turns up zero. It is a fully-built, fully-typed parser with no production caller. No client code issues a fetch to this route today."
+    },
+    "3_mutation_inventory": {
+      "routed_through_pipeline_today": "Only inside CampaignMatchHost (the multiplayer co-op host), which reuses the same validateCampaignIntent/append-with-digest ordering when a co-op session happens to be open (task 1.2 receipt, tasks.md line 17-19). Single-player campaigns NEVER go through it -- confirmed by task 1.2's own NON-CLAIM: \"the client is NOT rewired... Single-player mutations still apply through the client Zustand store.\"",
+      "server_pipeline_knows_only_six_intent_kinds": [
+        "SpendFunds", "HirePilot", "AcceptContract", "AllocateSalvage", "RemoveParticipant", "AdvanceDay"
+      ],
+      "client_side_action_count_beyond_those_six": "addAcquisitionRequest, removeAcquisitionRequest, hireCandidate, takeLoan, declineContractOffer, reorderRepairTicketPriority, setSalvageItemStatus, commitRefitOrder, plus the whole day-advance/outcome-application machinery in useCampaignStore.dayActions.ts and useCampaignStore.outcomes.ts have NO corresponding intent kind in ICampaignIntent at all (src/types/campaign/CampaignSync.ts:434-448 union). Routing any of them through the pipeline is not just a wiring change, it is a new intent-type addition with its own validate/reduce pair.",
+      "package_task_assignment": {
+        "task_6.1_P0b": "openspec/changes/design-campaign-authority-and-sync/tasks.md line 98: journal-private source envelope, full source baseline, contract-only replay. Touches src/lib/campaign/sync/JournalCampaignEventStore.ts (ICampaignJournalEnvelope), a NEW src/lib/campaign/authority/campaignSourcePrivateEnvelope.ts, and src/services/campaignPersistence/CampaignPersistenceService.ts (CAS + sourceReplayFence). Explicit NON-CLAIMS: no producer, no flag flip, no HTTP surface change. Confirmed not yet on origin/main: campaignSourcePrivateEnvelope.ts does not exist in the tree at the fetched SHA.",
+        "task_6.2_P1": "tasks.md line 99: 'Route the toolbar path in src/stores/campaign/campaignCommandActions.ts (today a browser-store mutation) through the source command pipeline... and the existing active-seat route.../commands.ts'. This is the ONLY package task that assigns client-side mutation routing, and it names exactly ONE mutation: acceptContractOffer. It is explicitly gated: 'not implementation-ready until 6.1 is merged.'",
+        "task_6.3": "boundary/leak proofs for 6.1+6.2 only; no additional client scope.",
+        "everything_else_in_scope_for_R2.authority-client's_stated_acceptance_criteria_has_no_open_task": "The prompt's acceptance criteria ('Route source mutations and browser cache through durable acknowledgement... demote client persistence to revision cache') describes work far broader than task 6.2's single-mutation scope, and the debounce/crash-window fix (section 1) has no open task anywhere in Groups 1-6. See section 5."
+      }
+    },
+    "4_proposed_prefixes": [
+      {
+        "id": "P-A",
+        "title": "Reproduce and close the debounced-save crash window (independent of P0b/P1)",
+        "rationale": "This is the only piece of the roadmap node's acceptance text that is buildable today without waiting on 6.1/6.2 -- it touches only the existing client persistence store, not the journal or the command pipeline.",
+        "files": {
+          "existing": [
+            "src/stores/campaign/useCampaignPersistenceStore.ts (add a flush-on-unload path; the module already exports markDirtyAction/performSave/runSave to reuse)",
+            "src/stores/campaign/campaignPersistenceWiring.ts (install a beforeunload/pagehide listener alongside the existing store subscription, same install/uninstall pair pattern)"
+          ],
+          "new": [
+            "src/stores/campaign/__tests__/campaignPersistenceCrashWindow.test.ts (or extend campaignCommandAutoSave.test.ts)"
+          ]
+        },
+        "estimated_changed_lines": "~120-180 (a synchronous-best-effort flush using navigator.sendBeacon or a fetch with keepalive:true, since a real async PUT is not guaranteed to complete during pagehide; plus wiring the listener install/uninstall; plus the test)",
+        "failing_test_first": "Simulate: markDirty() (arms the 2s timer) -> immediately fire the pagehide/beforeunload handler under test (jsdom dispatch, no real timer wait) -> assert a synchronous best-effort save attempt was made (sendBeacon called, or a keepalive fetch issued) with the CURRENT in-memory campaign body, not the last-persisted one. This currently fails because no such listener exists (grepped and confirmed zero hits for beforeunload/pagehide in both files).",
+        "acceptance_commands": "npm run typecheck; npm run lint; npx jest src/stores/campaign/__tests__/campaignPersistenceCrashWindow.test.ts; full unit suite as the other tasks in this package do (`npm test` or the project's equivalent full-suite script) to catch any regression in the existing autosave suites (campaignCommandAutoSave.test.ts, useCampaignPersistenceStore.test.ts).",
+        "dependencies": "None on P0b/P1. Does not touch the journal, the command pipeline, or ICampaignJournalEnvelope."
+      },
+      {
+        "id": "P-B",
+        "title": "Client acceptContractOffer through the command pipeline (P1 / task 6.2) -- GATED on 6.1 merging",
+        "rationale": "This is the one mutation the package actually assigns to client-side pipeline routing. It cannot be built correctly before 6.1 lands: the server-side AcceptContract validation has no server-held record of contract-market offers today (generateAtBContracts runs client-side only, in src/pages/gameplay/campaigns/[id]/contract-market.tsx:47), so 'server-derived name/employer from the stored offer' (task 6.2's own text) has nothing to read until 6.1's private envelope carries a persisted market baseline.",
+        "files": {
+          "existing": [
+            "src/stores/campaign/campaignCommandActions.ts (acceptContractOffer, lines 454-495 -- becomes async, posts to /commands instead of mutating locally)",
+            "src/pages/gameplay/campaigns/[id]/contract-market.tsx (handleAccept, lines 69-77 -- await the new async result, handle the new result shape)",
+            "src/lib/campaign/authority/campaignCommandPipeline.ts (only if the AcceptContract intent payload shape changes from {contract: ICampaignAcceptedContract} to {contractId: string} per task 6.2's command-identity definition)",
+            "src/types/campaign/CampaignSync.ts (IAcceptContractIntentPayload, if the payload shape changes -- currently line 449-452 takes a full compact contract object from the caller, but 6.2 specifies the command identity is sha256(canonical({campaignId, authenticatedActorId, kind:'AcceptContract', contractId})) -- i.e. the caller supplies only a contractId, not the contract, a payload-shape change)",
+            "src/lib/campaign/lifecycle/campaignLifecycleState.ts (wire the already-built but currently-uncalled campaignRefusalFromCommandRefusal, line 447, into this call site)"
+          ],
+          "new": [
+            "none anticipated beyond test files"
+          ]
+        },
+        "estimated_changed_lines": "~250-400 depending on whether the intent payload shape changes (larger) or is left as-is with server-side offer lookup added on top (smaller) -- a design decision task 6.2's own text does not fully resolve (it says 'stable contractId... duplicate lookup before offer read' which reads as a payload change, but does not show the new type)",
+        "failing_test_first": "A real-server-route test (extending src/__tests__/api/campaigns/campaignCommandsRoute.test.ts) that POSTs an AcceptContract command for a contractId the server has never seen persisted (because generateAtBContracts only ran client-side) and asserts a typed rejection distinct from 'insufficient-standing' -- proving today's pipeline cannot honor this mutation at all, which is the actual gap 6.1's private envelope exists to close.",
+        "acceptance_commands": "Same typecheck/lint/build + targeted jest suites (campaignCommandActions.test.ts equivalent, campaignCommandsRoute.test.ts, contract-market page test) + full unit suite, matching every other task's verification pattern in this package.",
+        "dependencies": {
+          "blocks_on": "task 6.1 (P0b) merging -- specifically the existence and shape of src/lib/campaign/authority/campaignSourcePrivateEnvelope.ts and the persisted market baseline it captures under the SQLiteEventJournalWriter.appendPreparedWithExtension transaction (src/lib/events/journal/SQLiteEventJournalWriter.ts:98, on main since commit 79c789e2a, #1668).",
+          "does_not_flip": "CAMPAIGN_JOURNAL_AUTHORITY_ENABLED stays false; every campaign not on journal authority still gets {kind:'blocked', reason:'campaign-not-on-journal-authority'} from the route, so this prefix MUST preserve a client-side fallback to today's local mutation on that specific blocked reason, or single-player play breaks entirely for the overwhelming majority of campaigns (every one not migrated)."
+        }
+      },
+      {
+        "id": "P-C",
+        "title": "Bridge the two CAS counters (baseVersion vs journal revision) -- prerequisite research, not yet a buildable prefix",
+        "rationale": "Section 2 found two independent optimistic-concurrency tokens (SerializedCampaign.version/baseVersion on the whole-envelope PUT route, and the journal stream revision/expectedRevision on the command route) with no defined mapping. The roadmap node's acceptance text ('demote client persistence to revision cache') implies the client cache should key off the JOURNAL revision, but task 1.3 (already done) keys the cache off (instanceId, revision) where 'revision' is read from campaignCacheKeyOf(record) -- need to verify by reading src/stores/campaign/campaignCacheIdentity or equivalent whether that revision is the SerializedCampaign.version or a journal-derived number before sizing this prefix; NOT verified in this session and flagged rather than guessed.",
+        "estimated_changed_lines": "unknown -- research spike, not sized",
+        "dependencies": "Should be resolved before P-B ships, since P-B's acknowledgement includes a 'state' object the client currently has no cache slot for."
+      }
+    ],
+    "5_contradictions_and_gaps": [
+      {
+        "type": "orphaned acceptance criterion",
+        "description": "The roadmap node's acceptance text asks to 'reproduce source mutation and debounced-save crash window' and 'demote client persistence to revision cache.' Task 1.3 (cache demotion to (instanceId, revision)) is already [x] complete (2026-08-24 receipt). The crash-window fix is explicitly named as a residual in tasks.md's 2026-08-21 preamble note but assigned to '5.7 scope' -- yet task 5.7 is also [x] complete (2026-08-23 receipt) and its own non-claims list does NOT include the crash window. No open task in Groups 1-6 owns this fix. Either the roadmap node is asking for work the package tasks.md never actually assigned an owner to, or the assignment is implicit in 'cutover-era client rewiring' language that no numbered task captures. This should be resolved (a new task added to the package, or the roadmap node's acceptance text narrowed) before treating P-A as 'covered by the existing package.'"
+      },
+      {
+        "type": "unresolved reducer/shape mismatch (previously flagged, still unresolved)",
+        "description": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-authority-admission-parent-review-20260913.json (parentFindings[1]) recorded: 'acceptContractOffer changes missions and contractMarket; ContractAccepted reducer changes contracts only. This is a reproduced source mismatch, not an executable failing test yet.' Verified still true at the current snapshot: campaignCommandActions.ts:477-491 mutates ICampaign.missions (via acceptContractEngine) and ICampaign.contractMarket.offers; the server-side reducer CAMPAIGN_EVENT_REDUCERS.ContractAccepted (applyCampaignEvent.ts) only writes ICampaignAuthoritativeState.contracts, a compact keyed-by-contractId record of {contractId, name, employerFactionId} (CampaignSync.ts:65-73). These are two different state trees (full ICampaign vs compact ledger) with no reconciliation function connecting a server-committed ContractAccepted event back into campaign.missions for single-player. Task 6.2 does not name this reconciliation as in-scope; it only defines the server-side command shape. This gap must close before P-B can be more than a parallel, disconnected write path."
+      },
+      {
+        "type": "unresolved dependency: server has no persisted contract-market state",
+        "description": "src/pages/gameplay/campaigns/[id]/contract-market.tsx:47 calls generateAtBContracts(shellCampaign) entirely client-side and stores the result only in the browser's campaign.contractMarket. Task 6.2's own text acknowledges this ('Browser-generated offer persistence is NOT assumed... not evidence the server stored the offer') but neither 6.1 nor 6.2 names a task that PERSISTS the market to the server in the first place -- 6.1 captures a baseline of the SOURCE RECORD as it exists at transaction time, which for an unmigrated campaign has never had a server-side market write at all. Without a market-persistence step, 6.2's 'duplicate lookup before offer read' and 'server-derived name/employer from the stored offer' have no stored offer to read in the common case. This looks like a genuine hole between 6.1 and 6.2's stated scopes, not just an implementation detail deferred to 6.2's implementer."
+      },
+      {
+        "type": "SHALL with no test found in this session's search radius",
+        "description": "campaign-authority spec.md's requirement 'Client storage is a cache, never a source' (scenario 'Stale cache is refreshed, not trusted') is covered by task 1.3's suite (cache identity 8/8 per its receipt). However the spec's sibling scenario language ('A client with a cached projection at revision N... SHALL apply events N+1..M (or refetch the projection) before rendering authoritative state') describes EVENT REPLAY on the client, which no client code path performs today -- task 1.3's mechanism is refetch-replace only ('replace-not-merge on divergence' per the task title itself), never incremental event application. This may be intentional (refetch satisfies the OR clause) but was not independently verified against a client-side event-replay code path in this session; flagged as EXPECTED (not fully checked) rather than asserted as a gap."
+      }
+    ]
+  },
+  "filesReadInFull": [
+    "openspec/changes/design-campaign-authority-and-sync/proposal.md",
+    "openspec/changes/design-campaign-authority-and-sync/design.md",
+    "openspec/changes/design-campaign-authority-and-sync/tasks.md",
+    "openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md",
+    "src/stores/campaign/useCampaignPersistenceStore.ts",
+    "src/stores/campaign/campaignPersistenceWiring.ts",
+    "src/stores/campaign/campaignCommandActions.ts",
+    "src/lib/campaign/authority/campaignCommandPipeline.ts",
+    "src/pages/api/campaigns/[id]/commands.ts",
+    "src/lib/campaign/sync/applyCampaignEvent.ts (partial)",
+    "src/lib/multiplayer/server/CampaignMatchHostIntent.ts (partial)",
+    "src/types/campaign/CampaignSync.ts (partial)",
+    "src/services/campaignPersistence/CampaignPersistenceService.ts (partial)",
+    "src/lib/campaign/lifecycle/campaignLifecycleState.ts (partial)",
+    "src/pages/gameplay/campaigns/[id]/contract-market.tsx (partial)",
+    "src/lib/events/journal/SQLiteEventJournalWriter.ts (signature check only)",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-authority-pilot-parent-review-20260913.json (local, not in origin/main)",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-authority-admission-parent-review-20260913.json (local, not in origin/main)",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-contract-projection-parent-review-20260913.json (partial, local, not in origin/main)"
+  ],
+  "sourceBlobOids": {
+    "openspec/changes/design-campaign-authority-and-sync/design.md": "9980e96771d4fe4de4be5c4c9e78cce2e68a0e54",
+    "openspec/changes/design-campaign-authority-and-sync/proposal.md": "25eaa752330c6a46bdd6fbfb46850624e3c2bc47",
+    "openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md": "e27f9b09ca91287e94f472aff77f02a7aefd49cf",
+    "openspec/changes/design-campaign-authority-and-sync/tasks.md": "bd52adf2294abee22bb7233fb744532e5c7c5426",
+    "src/lib/campaign/authority/campaignCommandPipeline.ts": "c2bd85d68f7e9c12c91929187bf2cde3f446edc6",
+    "src/lib/campaign/delivery/projectCampaignStreamForGrant.ts": "4fc8e7b745e9da10df6fa3aada9a9b13b54c1806",
+    "src/lib/campaign/lifecycle/campaignLifecycleState.ts": "123f9de460ce8207a248f38e8697ab1f800f6146",
+    "src/lib/campaign/sync/JournalCampaignEventStore.ts": "58bfac1178ac11e6a513b02d579b04d22b1acd62",
+    "src/lib/campaign/sync/applyCampaignEvent.ts": "7d916199bd66c620e79906df0e81f84901cf3bfb",
+    "src/lib/events/journal/SQLiteEventJournalWriter.ts": "c8fe11dd94fc2fc12d5309fa5ff0d1c80fb644a7",
+    "src/lib/multiplayer/server/CampaignMatchHostIntent.ts": "adbfe0e365780b4f80b2d9996a50a4023c1cd129",
+    "src/pages/api/campaigns/[id].ts": "2a51ef21b25db3f64452b750b5d56c19433c0914",
+    "src/pages/api/campaigns/[id]/commands.ts": "c8675532bddb69168e508324c2843fab89df4970",
+    "src/pages/gameplay/campaigns/[id]/contract-market.tsx": "04a73bdc96e0022131284fa42361bf5bc803ab43",
+    "src/services/campaignPersistence/CampaignPersistenceService.ts": "e4bd624e3890b558632a70a0b059454f4eadd044",
+    "src/stores/campaign/campaignCommandActions.ts": "9526d7bacda906543a743676bdf57de34945cba7",
+    "src/stores/campaign/campaignPersistenceWiring.ts": "078de941d4e2b18d0c8953e64648fb3cd6805dca",
+    "src/stores/campaign/useCampaignPersistenceStore.ts": "04e2dcd900ab053275a459cff146973170d36c14",
+    "src/types/campaign/CampaignSync.ts": "d9540526b96e9043557f7306b162a8fcc66174e1"
+  },
+  "nonClaims": [
+    "No implementation performed. No tests written or run. No build/typecheck/lint executed.",
+    "campaignSourcePrivateEnvelope.ts (task 6.1) confirmed absent from origin/main at this snapshot; its shape is inferred only from tasks.md/design.md prose, not from code.",
+    "P-C (CAS-counter bridge) is flagged as unresolved research, not sized as a buildable prefix.",
+    "The intent-payload-shape question in P-B (whether AcceptContract's payload changes from {contract} to {contractId}) is stated as an open design question, not resolved here.",
+    "This brief does not modify the worktree at .sisyphus/roadmap-completion-20260912/worktrees/r3-storage-review; it was not used (git status there was not clean enough to warrant an operation; the origin/main git-show path sufficed for every file needed)."
+  ]
+}

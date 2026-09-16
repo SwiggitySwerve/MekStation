@@ -1,0 +1,122 @@
+{
+  "at": "2026-09-13T04:18:58.742Z",
+  "status": "accepted-owned-cleanup",
+  "pr": 1661,
+  "main": "f7e926057bf0981ed34eda843de74e35d0792aa3",
+  "head": "2067e5fb4578b1a8093481881fc64e21489e9138",
+  "wt": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/remaining-reference-specs",
+  "ref": "refs/heads/codex/roadmap-remaining-reference-specs-20260913",
+  "worktreeRemoved": true,
+  "localBranchCompareDeleted": true,
+  "sharedDependencyTargetPreserved": true,
+  "exportedFiles": 55,
+  "manifest": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/remaining-reference-cleanup-20260913/manifest.json",
+    "sha256": "d84c0aee0b33175c5689e19fe4cb4133b9130add0fbe14326fc07f3f84140bd3"
+  },
+  "commands": [
+    {
+      "at": "2026-09-13T04:18:34.461Z",
+      "exe": "git",
+      "args": [
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/remaining-reference-specs",
+      "exit": 0,
+      "stdout": "f7e926057bf0981ed34eda843de74e35d0792aa3\n",
+      "stderr": ""
+    },
+    {
+      "at": "2026-09-13T04:18:34.651Z",
+      "exe": "git",
+      "args": [
+        "status",
+        "--porcelain"
+      ],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/remaining-reference-specs",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "at": "2026-09-13T04:18:34.698Z",
+      "exe": "git",
+      "args": [
+        "rev-parse",
+        "refs/heads/codex/roadmap-remaining-reference-specs-20260913"
+      ],
+      "cwd": "E:/Projects/MekStation",
+      "exit": 0,
+      "stdout": "2067e5fb4578b1a8093481881fc64e21489e9138\n",
+      "stderr": ""
+    },
+    {
+      "at": "2026-09-13T04:18:35.586Z",
+      "exe": "git",
+      "args": [
+        "status",
+        "--short",
+        "--ignored"
+      ],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/remaining-reference-specs",
+      "exit": 0,
+      "stdout": "!! .husky/_/\n!! node_modules/\n",
+      "stderr": ""
+    },
+    {
+      "at": "2026-09-13T04:18:35.646Z",
+      "exe": "git",
+      "args": [
+        "worktree",
+        "list",
+        "--porcelain"
+      ],
+      "cwd": "E:/Projects/MekStation",
+      "exit": 0,
+      "stdout": "worktree E:/Projects/MekStation\nHEAD be7f85b867aa3e8576e5e3d27e309276203bc24b\nbranch refs/heads/main\n\nworktree C:/tmp/MekStation-gameplay-audit-a72208b0-2\nHEAD a72208b08de5f8a1bef49f61db3ddc46a54012e8\ndetached\n\nworktree C:/tmp/MekStation-gm2p-spec-886508048\nHEAD 5b546a39ec29dd2e79c845946dc84b3619ee25ee\nbranch refs/heads/codex/continue-gm-two-player-campaign\n\nworktree C:/Users/wroll/.codex/worktrees/af7e/MekStation\nHEAD 327f10787d529a95328bef05e3732ebb02efbee7\ndetached\n\nworktree C:/Users/wroll/.codex/worktrees/combat-event-durability/MekStation\nHEAD 85e7138feaea0333c2dafbd2f974ef5977450af1\ndetached\n\nworktree C:/Users/wroll/.codex/worktrees/combat-turn-rail/MekStation\nHEAD 67805c8302f78c5205921cafbee9d4544783fb96\ndetached\n\nworktree E:/CodexWorktrees/MekStation-maintain\nHEAD 2c775907ae285e27dd7103c8c29e061fcc6d91e4\nbranch refs/heads/maintain/modularity-hard-guardrail-wave1\n\nworktree E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/browser\nHEAD 77d9a9480a3a47b1849f166db01278f93f3d8094\nbranch refs/heads/codex/roadmap-customizer-browser-20260912\n\nworktree E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/bv-prewarmer-test\nHEAD 4d8d931601b46904130975efee4a4a6eee61b7cc\nbranch refs/heads/codex/roadmap-bv-prewarmer-test-20260913\n\nworktree E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/camp-receipt-verification\nHEAD 92d04fc6bcc2e49fd40d63d6f0cfd2a9c72eb14c\nbranch refs/heads/codex/roadmap-camp-receipt-verification-20260912\n\nworktree E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/final-canonical-proposals\nHEAD 4d8d931601b46904130975efee4a4a6eee61b7cc\nbranch refs/heads/codex/roadmap-final-canonical-proposals-20260913\n\nworktree E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/r2-prepared-journal-specs\nHEAD 4ee8989f4909505319c6c916d4fbcbadf86ec782\nbranch refs/heads/codex/roadmap-r2-prepared-journal-specs-20260913\n\nworktree E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/record-sheet-spec\nHEAD 0f252dd2bb6ba4899511b1e555bdb11fb5b478d2\nbranch refs/heads/codex/roadmap-record-sheet-renderer-spec-20260913\n\nworktree E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/remaining-reference-specs\nHEAD f7e926057bf0981ed34eda843de74e35d0792aa3\ndetached\n\nworktree E:/Projects/mekstation-l66\nHEAD 74bd093a65c483ed8d25e4d91adddf3677368090\ndetached\n\nworktree E:/Projects/mekstation-l83\nHEAD 7f821e7795db67ba60010b44c15aeb5f86d2838e\ndetached\n\nworktree E:/Projects/mekstation-l89\nHEAD 439af6bca6c54cf60472e8d7e9c191a962ee93ab\ndetached\n\n",
+      "stderr": ""
+    },
+    {
+      "at": "2026-09-13T04:18:58.659Z",
+      "exe": "git",
+      "args": [
+        "worktree",
+        "remove",
+        "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/remaining-reference-specs"
+      ],
+      "cwd": "E:/Projects/MekStation",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "at": "2026-09-13T04:18:58.696Z",
+      "exe": "git",
+      "args": [
+        "update-ref",
+        "-d",
+        "refs/heads/codex/roadmap-remaining-reference-specs-20260913",
+        "2067e5fb4578b1a8093481881fc64e21489e9138"
+      ],
+      "cwd": "E:/Projects/MekStation",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "at": "2026-09-13T04:18:58.741Z",
+      "exe": "git",
+      "args": [
+        "worktree",
+        "list",
+        "--porcelain"
+      ],
+      "cwd": "E:/Projects/MekStation",
+      "exit": 0,
+      "stdout": "worktree E:/Projects/MekStation\nHEAD be7f85b867aa3e8576e5e3d27e309276203bc24b\nbranch refs/heads/main\n\nworktree C:/tmp/MekStation-gameplay-audit-a72208b0-2\nHEAD a72208b08de5f8a1bef49f61db3ddc46a54012e8\ndetached\n\nworktree C:/tmp/MekStation-gm2p-spec-886508048\nHEAD 5b546a39ec29dd2e79c845946dc84b3619ee25ee\nbranch refs/heads/codex/continue-gm-two-player-campaign\n\nworktree C:/Users/wroll/.codex/worktrees/af7e/MekStation\nHEAD 327f10787d529a95328bef05e3732ebb02efbee7\ndetached\n\nworktree C:/Users/wroll/.codex/worktrees/combat-event-durability/MekStation\nHEAD 85e7138feaea0333c2dafbd2f974ef5977450af1\ndetached\n\nworktree C:/Users/wroll/.codex/worktrees/combat-turn-rail/MekStation\nHEAD 67805c8302f78c5205921cafbee9d4544783fb96\ndetached\n\nworktree E:/CodexWorktrees/MekStation-maintain\nHEAD 2c775907ae285e27dd7103c8c29e061fcc6d91e4\nbranch refs/heads/maintain/modularity-hard-guardrail-wave1\n\nworktree E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/browser\nHEAD 77d9a9480a3a47b1849f166db01278f93f3d8094\nbranch refs/heads/codex/roadmap-customizer-browser-20260912\n\nworktree E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/bv-prewarmer-test\nHEAD 4d8d931601b46904130975efee4a4a6eee61b7cc\nbranch refs/heads/codex/roadmap-bv-prewarmer-test-20260913\n\nworktree E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/camp-receipt-verification\nHEAD 92d04fc6bcc2e49fd40d63d6f0cfd2a9c72eb14c\nbranch refs/heads/codex/roadmap-camp-receipt-verification-20260912\n\nworktree E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/final-canonical-proposals\nHEAD 4d8d931601b46904130975efee4a4a6eee61b7cc\nbranch refs/heads/codex/roadmap-final-canonical-proposals-20260913\n\nworktree E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/r2-prepared-journal-specs\nHEAD 4ee8989f4909505319c6c916d4fbcbadf86ec782\nbranch refs/heads/codex/roadmap-r2-prepared-journal-specs-20260913\n\nworktree E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/record-sheet-spec\nHEAD 0f252dd2bb6ba4899511b1e555bdb11fb5b478d2\nbranch refs/heads/codex/roadmap-record-sheet-renderer-spec-20260913\n\nworktree E:/Projects/mekstation-l66\nHEAD 74bd093a65c483ed8d25e4d91adddf3677368090\ndetached\n\nworktree E:/Projects/mekstation-l83\nHEAD 7f821e7795db67ba60010b44c15aeb5f86d2838e\ndetached\n\nworktree E:/Projects/mekstation-l89\nHEAD 439af6bca6c54cf60472e8d7e9c191a962ee93ab\ndetached\n\n",
+      "stderr": ""
+    }
+  ],
+  "limit": "Only program-owned local worktree and compare-guarded local branch removed; remote branch status unchanged by this cleanup"
+}

@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "triage-equipment-loader-repair",
+  "capturedAt": "2026-09-12",
+  "worktree": "E:/Projects/MekStation",
+  "scope": "Narrow repair of the admitted equipment-load-result-error-semantics residual. Only EquipmentOfficialLoader.ts, EquipmentLoaderService.ts, the focused failure test, this receipt, and uniquely named triage logs are owned. No product/spec/task/roadmap/Git workflow or catalog asset changes.",
+  "expectedContract": {
+    "path": "openspec/specs/equipment-services/spec.md",
+    "lines": "674-680",
+    "sha256": "a4a503b0a943b7053c6f0442233044a21098f5f3f27aae84e9ab089de2a02d15",
+    "behavior": "A missing or malformed equipment file is logged as an error, remaining files continue loading, and the failure is included in IEquipmentLoadResult.errors."
+  },
+  "repair": {
+    "sourceChanges": [
+      {
+        "path": "src/services/equipment/EquipmentOfficialLoader.ts",
+        "sha256": "92b520e154648bae97219f3d92c3fb7521a99e9f9fc51e2a1b1c4c039c4d73fb",
+        "lines": "46-54,110-113,139-142,168-171,195-200",
+        "change": "Record each null indexed category file in errors and emit a path-bearing official-loader logger.error while retaining the existing warnings for compatibility."
+      },
+      {
+        "path": "src/services/equipment/EquipmentLoaderService.ts",
+        "sha256": "5bbdcbb90898beee29a4dd4677de9498efb890235e410cc175391711fbb47b9c",
+        "lines": "71-83",
+        "change": "Always publish the latest result.errors through getLoadErrors and set isLoaded to result.success, so failed partial loads and successful retries report truthful state."
+      }
+    ],
+    "test": {
+      "path": "src/services/equipment/__tests__/EquipmentOfficialLoader.failure.test.ts",
+      "sha256": "90a1f879fd0a07c271a2b3a2e98fc99def7f8bee43fea0f99b61f70ea8023938",
+      "coverage": [
+        "Real EquipmentLoaderService.loadOfficialEquipment and unmocked readJsonFile browser/fetch boundary",
+        "Malformed weapons file",
+        "Missing ammunition file",
+        "Missing electronics file",
+        "Missing miscellaneous equipment file",
+        "Successful retained weapon row after partial failures",
+        "Path-bearing console.error diagnostics agreeing with result.errors",
+        "Failed load state and getLoadErrors agreement",
+        "Recovery retry clears diagnostics and restores isLoaded=true"
+      ],
+      "methodUnderTestMocked": false,
+      "ioControl": "Only global.fetch responses are controlled to provide deterministic 404 and JSON parse rejection responses; the loader and reader remain real."
+    }
+  },
+  "verification": {
+    "focusedCommand": "./node_modules/.bin/jest --runInBand --selectProjects unit --runTestsByPath src/services/equipment/__tests__/EquipmentOfficialLoader.failure.test.ts src/__tests__/service/equipment/EquipmentLoaderService.test.ts src/services/equipment/__tests__/EquipmentLoaderService.schemaBridge.test.ts",
+    "focusedLog": {
+      "path": ".sisyphus/roadmap-completion-20260912/triage-proof/equipment-official-loader-repair-20260912T0850Z-focused.log",
+      "sha256": "c06f811a54fd117664f133d7f39c00d9656d161ba7ae45e605b23f8442aaefcc",
+      "result": "3 suites passed, 109 tests passed, no forceExit"
+    },
+    "originalRedLogPreserved": {
+      "path": ".sisyphus/roadmap-completion-20260912/triage-proof/equipment-official-loader-failure-20260912T0830Z-red.log",
+      "sha256": "65ce356f5468f8d173fc88ac007650d4ce25102e6ebe86c96ddb977e7a4c24e0",
+      "result": "Pre-repair red reproduction preserved: expected errors for missing/malformed files, received []"
+    },
+    "receiptJsonParse": "passed",
+    "sourceSpecBoundary": "equipment-services spec unchanged; official catalog fallback scope unchanged"
+  },
+  "smallestNextAction": "Parent review the four-category error semantics and retry-state change; independent parent gates may then admit the repair. No further implementation is required in this bounded seam."
+}

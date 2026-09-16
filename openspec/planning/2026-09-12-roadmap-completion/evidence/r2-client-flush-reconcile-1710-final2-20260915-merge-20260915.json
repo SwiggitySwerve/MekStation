@@ -1,0 +1,54 @@
+{
+  "pr": 1710,
+  "branch": "codex/roadmap-r2-client-flush-reconcile-20260915",
+  "reviewedCommit": "7a53ce3d14d322827a1d478254a8352ae955c7e0",
+  "resolvedHeadFromParent": "9e63abab4b9acaf488b3ccfa7e44eae7c6e7e7b9",
+  "finalHead": "39556deb29263ed64103e5d2ec66d1db13e036af",
+  "autoMergeArmed": false,
+  "contentGuard": {
+    "method": "file set from `git diff --name-only origin/main...<head>` compared to the reviewed file set, plus per-file blob equality against the reviewed commit; re-run after update-branch",
+    "fileCountAtMerge": 3,
+    "blobEquality": "all files blob-identical to the reviewed commit at the gated head (exceptions, if any, are described in notes)",
+    "result": "PASS"
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "expectedHeadShaGuardUsed": true,
+    "newHead": "39556deb29263ed64103e5d2ec66d1db13e036af"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "otherChecksCount": 27,
+    "otherChecksBuckets": {
+      "pass": 27
+    },
+    "totalChecks": 31,
+    "totalChecksNote": "31 because #1678 added the standing \"Customizer Regressions\" check to main"
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-client-flush-reconcile-1710-final2-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "83887b7467deba22c1b0b6aa6fb1be8ba6bc4600",
+  "mergeCommitParents": [
+    "2b98ce5b049e7b63a38161057961d0185bb42a31"
+  ],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1710 --squash --match-head-commit 39556deb29263ed64103e5d2ec66d1db13e036af",
+  "mergedAt": "2026-09-15T13:05:30Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "The merge commit changes exactly 3 file(s), all blob-identical to the gated head 39556deb29263ed64103e5d2ec66d1db13e036af.",
+  "mainAfter": "83887b7467deba22c1b0b6aa6fb1be8ba6bc4600",
+  "worktree": {
+    "fastForward": "NOT PERFORMED unless the coordinator designated the worktree as free; several owned worktrees were explicitly off-limits (parent in use / other branch).",
+    "result": "SKIPPED or SUCCESS per coordinator instruction for this PR"
+  },
+  "notes": "Reported DIRTY after 1709 squash; parent resolved. One file (useCampaignPersistenceStore.ts) is not blob-identical to the pre-resolution reviewed head, as expected. VERIFIED NO DRIFT: the +/- line set of that file delta is byte-identical between the original reviewed delta and the post-resolution delta vs main (171 delta lines on both sides).",
+  "timestamps": {
+    "receiptWrittenAt": "2026-09-15T15:00:00Z"
+  }
+}

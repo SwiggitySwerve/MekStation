@@ -1,0 +1,24 @@
+{
+  "capturedAt": "2026-09-12T14:11:50.477Z",
+  "scope": "Parent accepts six finite source/reference classifications; no tests or whole-domain completion claimed.",
+  "sourceReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-preserved-maps.json",
+    "sha256": "0f739dd7c06de72080e9d99300a33c40a76f68085c951cdf14b471860386fb32"
+  },
+  "verifiedFileHashes": 50,
+  "rows": [
+    "superheavy-mech-system",
+    "tactical-map-interface",
+    "terrain-generation",
+    "terrain-system",
+    "unit-sprite-system",
+    "p2p-sync-system"
+  ],
+  "backup": {
+    "path": ".sisyphus/roadmap-completion-20260912/roadmap-before-six-map-dispositions.json",
+    "sha256": "e516eab9c697c77318a9029890c2eb796db553c8ee7b65ddda296b4609d9de89"
+  },
+  "afterSha256": "247102aa278ba5a3cc508f55b3b25b68a130868bdfbf8ffcd1c0a735a4d9fc7d",
+  "totalDispositioned": 17,
+  "nonWaiver": "R8.isometric, R8.journey and all campaign authority/effect obligations remain open."
+}

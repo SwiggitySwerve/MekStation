@@ -1,0 +1,66 @@
+{
+  "pr": 1692,
+  "branch": "codex/roadmap-ci-package-reconcile-20260915",
+  "reviewedCommit": "f95e1be3d0642274c842b111310875c89558d160",
+  "finalHead": "11f2fa2f4f69e265d1a6d73266b6dd8a16f0965e",
+  "anomaly": null,
+  "autoMergeArmed": false,
+  "contentGuard": {
+    "preUpdate": {
+      "fileSetEqualToReviewed": true,
+      "files": ["openspec/changes/add-customizer-pr-regression-gate/tasks.md"],
+      "diffstat": "1 file changed, 3 insertions(+), 3 deletions(-)",
+      "blobEquality": "trivially satisfied - reviewed commit == PR head (f95e1be3d)",
+      "result": "PASS"
+    },
+    "postUpdate": {
+      "fileSet": "unchanged - single file, no files added by the update merge",
+      "diffstat": "1 file changed, 3 insertions(+), 3 deletions(-)",
+      "blobEquality": { "openspec/changes/add-customizer-pr-regression-gate/tasks.md": "equal to f95e1be3d" },
+      "result": "PASS"
+    }
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "oldHead": "f95e1be3d0642274c842b111310875c89558d160",
+    "newHead": "11f2fa2f4f69e265d1a6d73266b6dd8a16f0965e",
+    "expectedHeadShaGuard": "f95e1be3d0642274c842b111310875c89558d160",
+    "reason": "branch was BEHIND after #1684 merged to main"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "otherChecksCount": 27,
+    "otherChecksBuckets": { "pass": 27 },
+    "totalChecks": 31,
+    "pollLog": "09:03:41 4 pending -> 09:08:32 31 pass / 0 pending"
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ci-package-reconcile-1692-final-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "5fac5a58c95c351cbfe37a7ab16fbb371b8022df",
+  "mergeCommitParents": ["95042d9196795afe33662954686c57cd4b1749a2"],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1692 --squash --match-head-commit 11f2fa2f4f69e265d1a6d73266b6dd8a16f0965e",
+  "mergedAt": "2026-09-15T09:08:56Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "The merge commit changes exactly openspec/changes/add-customizer-pr-regression-gate/tasks.md, blob-identical to the gated head.",
+  "mainAfter": "5fac5a58c95c351cbfe37a7ab16fbb371b8022df",
+  "worktree": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/ci-package-reconcile-20260915",
+    "cleanBeforeFF": true,
+    "branch": "codex/roadmap-ci-package-reconcile-20260915",
+    "fastForward": "ff-only f95e1be3d -> 11f2fa2f4",
+    "result": "SUCCESS"
+  },
+  "timestamps": {
+    "guardStartedAt": "2026-09-15T09:02:50Z",
+    "checksTerminalAt": "2026-09-15T09:08:32Z",
+    "mergedAt": "2026-09-15T09:08:56Z",
+    "receiptWrittenAt": "2026-09-15T09:22:15Z"
+  }
+}

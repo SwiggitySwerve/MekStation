@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "validation-order-xhigh-correction-20260912",
+  "capturedAt": "2026-09-12",
+  "worker": {
+    "model": "gpt-5.6-luna",
+    "effort": "xhigh",
+    "route": "native bounded validation correction",
+    "commandNode": "C:/nvm4w/nodejs/node.exe",
+    "tsxUsed": false
+  },
+  "baseline": {
+    "branch": "main",
+    "head": "be7f85b867aa3e8576e5e3d27e309276203bc24b",
+    "fetchedMain": "6c4eac5c7",
+    "preHashes": {
+      "src/services/validation/UnitValidationRegistry.ts": "E59576E02D2234AD6CDA283E910767979A0706A2AA86D4B7AA9E542AEEDEA57C",
+      "src/__tests__/service/validation/UnitValidationHierarchyOrder.test.ts": "FE6FB7B5EBC162DEB87713E6C6FD3D12D3BBA1DDE7B7C55C1174C93B6B77FFBE",
+      "src/services/validation/__tests__/initializeUnitValidation.test.ts": "201DB22F7CE7517E0FEFF96CF75068433AFB5ADAF876935ECD59535940A544C4"
+    }
+  },
+  "ownedPaths": [
+    "src/services/validation/UnitValidationRegistry.ts",
+    "src/__tests__/service/validation/UnitValidationHierarchyOrder.test.ts",
+    "src/services/validation/__tests__/initializeUnitValidation.test.ts"
+  ],
+  "boundedFixes": [
+    "Removed the override tombstone set so a more-specific same-ID rule survives a less-specific explicit override.",
+    "Changed the initializer assertion from global priority sorting to universal, category, unit-type order with ascending priority inside each level."
+  ],
+  "regression": {
+    "path": "src/__tests__/service/validation/UnitValidationHierarchyOrder.test.ts",
+    "assertion": "universal X, category Y overrides X, unit-type X resolves as [Y, X]",
+    "postHash": "A300659A8717F4389D8C63233F03889020C22784C1097F5FCDEA36F0EDB971B4"
+  },
+  "extensionCharacterization": {
+    "scenario": "category P, unit C extends P with priority 1, unit sibling U with priority 0",
+    "observedOrder": ["U", "P", "C"],
+    "recommendation": "Clarify the effective ordering anchor for extension wrappers. If every category rule must precede every unit-type rule, keep the wrapper at the parent level while preserving P-before-C. If sibling unit priority may precede the extended parent, state that explicitly. No extension semantics changed here."
+  },
+  "commands": [
+    {
+      "name": "initializer-and-hierarchy-baseline",
+      "exit": 1,
+      "elapsedSeconds": 4.9,
+      "log": ".sisyphus/roadmap-completion-20260912/validation-order-xhigh/baseline-focused-jest.log"
+    },
+    {
+      "name": "tombstone-regression-before-fix",
+      "exit": 1,
+      "elapsedSeconds": 2.9765122,
+      "log": ".sisyphus/roadmap-completion-20260912/validation-order-xhigh/tombstone-red.log"
+    },
+    {
+      "name": "extension-characterization",
+      "exit": 0,
+      "elapsedSeconds": 2.8153984,
+      "log": ".sisyphus/roadmap-completion-20260912/validation-order-xhigh/extension-characterization.log"
+    },
+    {
+      "name": "focused-final-validation",
+      "exit": 0,
+      "suites": 6,
+      "tests": 124,
+      "elapsedSeconds": 3.4712316,
+      "log": ".sisyphus/roadmap-completion-20260912/validation-order-xhigh/focused-green-final-jest.log"
+    }
+  ],
+  "postHashes": {
+    "src/services/validation/UnitValidationRegistry.ts": "34E9E0C29C18C0A1F2F2FF0FBE134105D28CAAD5563D3AE6AB27C3CDBC7D88B0",
+    "src/__tests__/service/validation/UnitValidationHierarchyOrder.test.ts": "A300659A8717F4389D8C63233F03889020C22784C1097F5FCDEA36F0EDB971B4",
+    "src/services/validation/__tests__/initializeUnitValidation.test.ts": "7737565B431F2B9248B0D2C43862614A11A2A7789F08B886F18C494F8898138A"
+  },
+  "rawLogSha256": {
+    "baseline-focused-jest.log": "9D6FBE9DEAE5800CC2F4EDAE08C456FFAB9E0E3619F2AE3C7E7CABF3A7389041",
+    "tombstone-red.log": "4E2DC7E88AAE762CC8F2C2441C17C240E4860B17F8E11782E2AF21BDBBAB7CEA",
+    "extension-characterization.log": "D5B75E762053AD192518B39AD4E5031B2C5A8773A30A876B4B99A6F08514F30D",
+    "focused-green-final-jest.log": "038912F8F5F5AD008CB79D741E2D108869051FDC46FDB690408F0212E36BC868"
+  },
+  "limits": [
+    "No build, typecheck, server, install, spec edit, or Git mutation.",
+    "Unrelated dirty files were preserved; parent owns review and final delivery."
+  ]
+}

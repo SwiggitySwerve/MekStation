@@ -1,0 +1,111 @@
+{
+  "artifact": "camp-live-probe-fix-review",
+  "date": "2026-09-15",
+  "reviewer": "independent-reviewer (read-only, GP-JUSTIFIED: independent read-only review with one verification run)",
+  "subject": {
+    "commit": "f7a94d769ccb0da8546f3953c0489c6c7b4b60aa",
+    "branch": "codex/roadmap-camp-live-probe-fix-20260915",
+    "base": "b39b8291706c36b9ad0c876a5e1b11e5b3612b7d",
+    "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/camp-receipt-verification",
+    "filesChanged": 2,
+    "insertions": 191,
+    "deletions": 1,
+    "sourcesRead": [
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/camp-live-probe-diagnosis-20260915.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/camp-live-probe-fix-local-20260915.json"
+    ]
+  },
+  "findings": [
+    {
+      "item": "1. Root-cause fix exactness",
+      "verdict": "PASS",
+      "citation": "scripts/qc/camp01-live-browser-adversarial.mjs (git show f7a94d769): diff hunk touches only lines 290-311. Old: `function failingPlaywrightConfig(baseConfigPath, testDirectory) {`. New: an 11-line why-comment plus `export function failingPlaywrightConfig(baseConfigPath, testDirectory) {`, and inside the returned template literal exactly two new lines are inserted immediately after `webServer: undefined,`: `globalSetup: undefined,` and `globalTeardown: undefined,`. `testDir`, `webServer: undefined`, `fullyParallel: false`, `retries: 0`, `workers: 1`, `projects: [{ name: 'chromium' }]` are byte-identical before and after -- no other generated-literal key, no argv construction (line 264, untouched), no reporter/output path handling was touched.",
+      "evidence": "Diffed the generated literal directly via `git show f7a94d769 -- scripts/qc/camp01-live-browser-adversarial.mjs`; independently confirmed against playwright.config.ts (`grep -n \"globalSetup: './e2e/globalSetup.ts'\" playwright.config.ts` -> line 83) that this is the exact key named in the diagnosis's `culpritAtCurrentMain`."
+    },
+    {
+      "item": "2. Guard test quality (real-config-driven, anti-vacuity, no tautology)",
+      "verdict": "PASS",
+      "citation": "scripts/__tests__/camp01-live-browser-adversarial.test.ts:40-41 reads the REAL file: `const CONFIG_PATH = path.join(REPO_ROOT, 'playwright.config.ts'); ... readFileSync(CONFIG_PATH, 'utf-8')` -- not a hardcoded key list. `declaredRelativePathKeys` (line 85) is a general regex (`/^ {2}([A-Za-z_$][\\w$]*): (['\"])(\\.\\.?\\/[^'\"]*)\\2\\s*,/gm`) over that text, so any future top-level relative-path-literal key (not just globalSetup) is picked up automatically. `isNeutralized` (line 107) is a general policy (undefined/null, or an absolute-path string, or a non-string value) rather than a value transcribed from the implementation -- not a snapshot test. Anti-vacuity: the first `it` (line 136) asserts `declaredRelativePathKeys(configSource).length` is nonzero against the REAL config, so a broken/always-empty parser cannot pass silently. The fourth `it` (line 159) constructs a stub base config with a novel key (`storageStateSeed`) the generator has never heard of and asserts the guard names exactly that key (`toEqual(['storageStateSeed'])`) -- this is a genuine red-turning row, not an implementation mirror, because the expected value is derived from the guard's own general rule applied to a fixture the implementation cannot have special-cased. No `.only`/`.skip` present in the file.",
+      "evidence": "Full-file read of scripts/__tests__/camp01-live-browser-adversarial.test.ts (177 lines); independently ran the suite (see item 4)."
+    },
+    {
+      "item": "3. Contract impact (camp-01h commandSequence / canonicalArgvDigest)",
+      "verdict": "PASS -- not contract-affecting, independently re-verified",
+      "citation": "`grep -rn \"globalSetup\\|globalTeardown\" scripts/qc/*.mjs` returns matches ONLY inside the changed file itself (comment lines 298/301 and code lines 310-311 of camp01-live-browser-adversarial.mjs) -- zero matches in any *contract*.mjs. `grep -n -- '--config' scripts/qc/*.mjs` finds `--config=${configPath}` only at camp01-live-browser-adversarial.mjs:264 (unchanged by this commit, part of the probe's own ad hoc argv), not inside camp01-authority-receipt.contract.mjs. Read camp01-authority-receipt.contract.mjs line 35 directly: the frozen `camp-01h` row's `commandSequence` uses the real spec path `e2e/layout-sweep/layout-helpers.selftest.spec.ts` with no `--config` override, and its `canonicalArgvDigest` is `d6855f61d03fc0c2bfc56c2f1dc38a227093e4fd3b01e3706749f2cf3c3d2d1a`, matching the digest cited in both the diagnosis and the author's evidence verbatim. `commandSequenceDigest` (contract.mjs:74-75) hashes only `row.commandSequence`, which this commit does not touch anywhere in the contract file, so the digest cannot have drifted.",
+      "evidence": "Direct grep + Read of scripts/qc/camp01-authority-receipt.contract.mjs (this session, this review)."
+    },
+    {
+      "item": "4a. Guard test run",
+      "verdict": "PASS -- 4/4, matches author's claimed green",
+      "citation": "`node node_modules/jest/bin/jest.js --runInBand --runTestsByPath scripts/__tests__/camp01-live-browser-adversarial.test.ts` -> `Test Suites: 1 passed, 1 total`, `Tests: 4 passed, 4 total`, exit 0.",
+      "commands": [
+        {
+          "cmd": "node node_modules/jest/bin/jest.js --runInBand --runTestsByPath scripts/__tests__/camp01-live-browser-adversarial.test.ts",
+          "exitCode": 0,
+          "result": "4 passed, 4 total (all rows: 'finds relative-path keys...', 'neutralizes or absolutizes...', 'drops the server-dependent lifecycle hooks...', 'goes red when the base config gains an unneutralized relative-path key')"
+        }
+      ]
+    },
+    {
+      "item": "4b. oxfmt --check",
+      "verdict": "PASS",
+      "commands": [
+        {
+          "cmd": "npx oxfmt --check scripts/__tests__/camp01-live-browser-adversarial.test.ts scripts/qc/camp01-live-browser-adversarial.mjs",
+          "exitCode": 0,
+          "result": "All matched files use the correct format. Finished in 18ms on 2 files."
+        }
+      ]
+    },
+    {
+      "item": "4c. A/B config-load reproduction",
+      "verdict": "PASS -- independently reproduced, matches diagnosis and author's claim byte-for-byte on the decisive lines",
+      "citation": "Built a standalone harness (not the author's script, an independently authored equivalent) that imports the SHIPPED `failingPlaywrightConfig` from the worktree's committed .mjs, writes the generated config + a self-test spec into a fresh `os.tmpdir()` mkdtemp root outside the repo, and runs `node node_modules/@playwright/test/cli.js test --config=<scratch>/playwright.config.ts --project=chromium --list` with cwd=repoRoot -- the same cwd/config split the diagnosis names.",
+      "commands": [
+        {
+          "cmd": "node <scratchpad>/ab-config-load.mjs A   # generated config as shipped",
+          "exitCode": 0,
+          "stdout": "Listing tests:\n  [chromium] \u203a layout-helpers.selftest.spec.ts:3:90 \u203a Layout sweep helpers self-test \u203a expectClickable \u203a fails a display:none target\nTotal: 1 test in 1 file"
+        },
+        {
+          "cmd": "node <scratchpad>/ab-config-load.mjs B   # globalSetup: undefined -> './e2e/globalSetup.ts' (pre-fix shape)",
+          "exitCode": 1,
+          "stderr": "Error: Cannot find module './e2e/globalSetup.ts'\nRequire stack:\n- node_modules/playwright/lib/common/config.js\n- node_modules/playwright/lib/program.js\n- node_modules/@playwright/test/cli.js\n    at resolveScript (node_modules/playwright/lib/common/config.js:261:18)\n    at new FullConfigInternal (node_modules/playwright/lib/common/config.js:69:117)\n    code: 'MODULE_NOT_FOUND'"
+        }
+      ],
+      "note": "Variant B's stderr matches the diagnosis's decisiveLogLines verbatim ('Cannot find module ./e2e/globalSetup.ts', same require-stack head at config.js:261/69, same MODULE_NOT_FOUND code). This independently pins the fix to the cause: dropping the two neutralizer lines reproduces the exact 13-day CI failure locally; restoring them makes the config load and collect the spec."
+    },
+    {
+      "item": "5. Hygiene",
+      "verdict": "PASS",
+      "checks": [
+        "Conventional commit: 'fix(qc): neutralize repo-relative config paths in the camp01 live probe's synthetic config' -- valid type(scope): subject form.",
+        "Author: 'Wes Rollings <wrollings@gmail.com>' (git show -s --format='%an <%ae>') -- matches the current user identity on file.",
+        "No AI attribution: grepped full commit message for claude/anthropic/co-authored/generated -- the only hits are false positives from prose ('the generated config', 'requires the generated config'), no Co-Authored-By or Generated-with line present.",
+        "Cap: 2 files changed (<=15), 191 insertions + 1 deletion = 192 changed lines (<=500).",
+        "No unrelated changes: `git show --stat f7a94d769` lists exactly the two named files; the .mjs diff hunk (verified in item 1) contains only the neutralizer + export + comment edit, nothing else.",
+        "CI unit-project pickup independently confirmed: jest.config.js unitJestConfig.roots includes '<rootDir>/scripts', testMatch includes '**/__tests__/**/*.(test|spec).(js|ts|tsx)', and the new file is not excluded by unitTestPathIgnorePatterns (only excludes *.a11y.test.*). package.json's qc:camp01-authority-receipt:test --runTestsByPath list (line 152) does NOT include the new file (correct -- it is not one of the 25 existing camp01 authority-receipt suites), but .github/workflows/pr-checks.yml:153 runs `npx jest --selectProjects unit --ci --shard=${{ matrix.shard }}/6`, which discovers the new file via the roots+testMatch glob regardless of the umbrella list. So the guard IS exercised in CI, just via the broad unit shard rather than the umbrella command."
+      ]
+    }
+  ],
+  "verdict": "APPROVE",
+  "requiredEdits": [],
+  "residualRisks": [
+    "CI green on the actual 'CAMP-01 Live Adversarial Evidence' workflow (id 329205862) has not been observed -- the branch is not pushed, so the first real CI run remains the outstanding proof, as the author's own evidence discloses under nonClaims.",
+    "The fix and this review both stop at Playwright config-load + `--list` collection. The probe's own PROOF-5D5 oracle (exitCode 1, report.complete===true, exactly one failed observation, no surviving .runtime-<executionId>, no partial publication) has not been exercised end-to-end since the last green run 2026-09-02T14:49:45Z; a second, separately-introduced defect could still be hiding behind this one on the post-config-load path, exactly as the diagnosis flagged.",
+    "The guard's key-extraction regex is scoped to single-line, two-space-indented, quoted string literals at the top level of the config object -- a future relative path expressed differently (e.g. inside a variable assigned before the config literal, or a multi-line value) would not be caught. This matches the narrow bug class the diagnosis and fix both explicitly scope to, so it is a documented and accepted narrowness rather than an oversight."
+  ],
+  "commandsRun": [
+    { "cmd": "node --version", "exitCode": 0, "result": "v22.22.0" },
+    { "cmd": "git show --stat f7a94d769", "exitCode": 0 },
+    { "cmd": "git show f7a94d769 -- scripts/qc/camp01-live-browser-adversarial.mjs", "exitCode": 0 },
+    { "cmd": "grep -n \"^  [A-Za-z_$][A-Za-z0-9_$]*:\" playwright.config.ts", "exitCode": 0 },
+    { "cmd": "grep -rn \"globalSetup\\|globalTeardown\" scripts/qc/*.mjs", "exitCode": 1, "note": "grep exit 1 semantics: matches found (in the changed file only), grep -rln piped chain for --config also checked separately" },
+    { "cmd": "grep -n \"camp-01h\\|commandSequence\\|canonicalArgvDigest\" scripts/qc/camp01-authority-receipt.contract.mjs", "exitCode": 0 },
+    { "cmd": "node node_modules/jest/bin/jest.js --runInBand --runTestsByPath scripts/__tests__/camp01-live-browser-adversarial.test.ts", "exitCode": 0, "result": "4 passed, 4 total" },
+    { "cmd": "npx oxfmt --check scripts/__tests__/camp01-live-browser-adversarial.test.ts scripts/qc/camp01-live-browser-adversarial.mjs", "exitCode": 0, "result": "All matched files use the correct format" },
+    { "cmd": "node <scratchpad>/ab-config-load.mjs A", "exitCode": 0, "result": "config loads, 1 test collected" },
+    { "cmd": "node <scratchpad>/ab-config-load.mjs B", "exitCode": 1, "result": "MODULE_NOT_FOUND, matches diagnosis decisiveLogLines" },
+    { "cmd": "git show -s --format='%an <%ae>%n---BODY---%n%B' f7a94d769 | grep -i \"claude|anthropic|co-authored|generated\"", "exitCode": 0, "result": "only false-positive prose matches for 'generated config'; no attribution lines" }
+  ]
+}

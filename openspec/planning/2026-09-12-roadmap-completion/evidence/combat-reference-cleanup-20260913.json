@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "combat-reference-cleanup-20260913",
+  "status": "cleanup-verified",
+  "capturedAt": "2026-09-13T00:42:00.3799257Z",
+  "pr": 1654,
+  "candidate": {
+    "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/combat-reference-specs",
+    "testedMain": "873edbf2f7c1b906cd9fb71123e19584f06c5082",
+    "localBranch": "codex/roadmap-combat-reference-specs-20260912",
+    "localBranchOidBeforeRemoval": "cf260435e996c2ca61a1b397874bcd3c34e0804c",
+    "trackingRefOidBeforeRemoval": "4ad7fbe0000384f481e869f24114e5e885782768",
+    "remoteBranchBeforeRemoval": "absent",
+    "preRemovalDetached": true,
+    "preRemovalClean": true,
+    "preRemovalNonReparse": true,
+    "preRemovalUntrackedCount": 0,
+    "preRemovalIgnoredCount": 17
+  },
+  "sourceBlobs": [
+    {"path":"openspec/specs/c3-network-targeting/spec.md","bytes":8333,"sha256":"c34fe3348ee43cf57474204d423b23dbd44d32fbca1245fe2e7202de12ed14c9","gitBlobObjectId":"3dc0add9fbb36993e398171a06e6741078288bec"},
+    {"path":"openspec/specs/combat-analytics/spec.md","bytes":51674,"sha256":"71d8676759ab0ab3fee34ac2e6fe0cbc99a02b4e63d190b8e0f92eec80c77a01","gitBlobObjectId":"c08df5116bfcbe86387c2b233ba223c569dc9575"},
+    {"path":"openspec/specs/firing-arc-calculation/spec.md","bytes":16294,"sha256":"c91bfbc8a745aa68891ebfbd53815a228bafa1b429816c617b02a26bb712ec8a","gitBlobObjectId":"17397d8fd5fba82d8a14070a8e41f68029b64acd"},
+    {"path":"openspec/specs/hull-down-position/spec.md","bytes":16035,"sha256":"2d1a1356028efc404f95bcdcc1a51d847ce1541b30dd1f8537e06e2f561987ae","gitBlobObjectId":"642179551bdd4269b9e0ccad936eb26232dd4b5c"},
+    {"path":"openspec/specs/piloting-skill-rolls/spec.md","bytes":35765,"sha256":"2bcf431b95ba2eb190848bdeb4011a778704d314944ac88a14d96709d1459f76","gitBlobObjectId":"69027e50866158803cbe9d0a23487e00f364d99f"}
+  ],
+  "export": {
+    "root": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/combat-reference-cleanup-20260913",
+    "manifest": "export-manifest.json",
+    "manifestSha256": "aa978f51a314c67d2dce76e08fc15cbbc445b1e3bd435d5e868131355627301b",
+    "manifestListedFileCount": 388,
+    "manifestListedBytes": 5006132,
+    "manifestShaFile": {"path":"export-manifest-sha256.txt","sha256":"fdda3edbeb2a28799f320b96635a0f58e456af11120bc932aac2c64bb259431c"},
+    "reopenCheck": {"path":"export-reopen-check.json","sha256":"1d084e9efc70ea7dca3cc0009c0c2edce56af53dab1bfb8c5463f080ceb60868","reopened":true,"missing":0,"hashMismatches":0,"sourceBlobMismatches":0,"outputReparsePoints":0},
+    "preflight": {"path":"cleanup-preflight.json","sha256":"0fc8196e6b22d88511bc1a4f59e034552c1f8b7314bc137a39ec88212ec00382","proceedGuard":true},
+    "postCleanupCheck": {"path":"post-cleanup-check.json","sha256":"519947f22ceb325aecddeffeca9f8c8a8f9b904f08a198e19b8c13d9263bdd1f","verified":true},
+    "fileIndex": {"path":"export-file-index.txt","sha256":"b03350e72b36a8597156f6b3591d42e8c610fdb4bbbfd522b2ad2c7c4b3b2724"}
+  },
+  "receiptsPreserved": [
+    {"path":"receipts/canonical/combat-reference-main-parent-acceptance-20260913.json","sourceSha256":"d3fbb6c2637a384e248bcacde786d55e40c871b29de2acd22d68c77496132791"},
+    {"path":"receipts/canonical/combat-reference-specs-review-parent-acceptance-20260912.json","sourceSha256":"09034a1f67908eda25f1364f9b0c1e5afedf78fbbc883d00ded57919a9d0acaf"},
+    {"path":"receipts/canonical/combat-reference-specs-review-20260912.json","sourceSha256":"3e2737663060c2d1d52e01dfdce62a77cd2875640978322b41a92cbbb8d5ab07"},
+    {"path":"receipts/canonical/combat-reference-1654-current-20260913-premerge.json","sourceSha256":"1e67a1ee7ed1a06f8b2ef07efa5b07b7440badddf84ecdf2e1e4f056dd884dd6"},
+    {"path":"receipts/combat-reference-specs-delivery/","contentsPreserved":true},
+    {"path":"receipts/combat-reference-specs-review/","contentsPreserved":true},
+    {"path":"receipts/combat-reference-main-verification-20260913/","contentsPreserved":true}
+  ],
+  "commands": {
+    "preflight": {"status":"passed","exitCode":0,"artifact":"cleanup-preflight.json"},
+    "correctedExport": {"status":"passed","exitCode":0,"artifact":"export-manifest.json"},
+    "reopen": {"status":"passed","exitCode":0,"artifact":"export-reopen-check.json"},
+    "worktreeRemove": {"status":"passed","exitCode":0,"basis":"postcondition verified; wrapper output ended before trailing numeric line"},
+    "localRefDelete": {"status":"passed","exitCode":0,"guard":"cf260435e996c2ca61a1b397874bcd3c34e0804c","postRefCheckExit":128},
+    "trackingRefDelete": {"status":"passed","exitCode":0,"guard":"4ad7fbe0000384f481e869f24114e5e885782768","postRefCheckExit":128},
+    "postCleanup": {"status":"passed","exitCode":0,"artifact":"post-cleanup-check.json"}
+  },
+  "preservedFailures": [
+    {"path":"export-failure-attempt-1.txt","sha256":"eb6e72abb992d89e850759b818594ff7979b9eabdfb4d23fb1573179a9ad1f5d","reason":"initial PowerShell export used literal '+' in Join-Path expressions; corrected without touching the candidate"}
+  ],
+  "scopeLimits": [
+    "No source, root ledger, build, server, browser, install, stage, commit, push, or product-test changes were made.",
+    "All candidate-local tracked evidence and the ignored .husky/_ tree were exported before removal.",
+    "The canonical receipt records the observed postconditions because the cleanup wrapper output was interrupted before its trailing numeric lines."
+  ],
+  "finalVerification": {
+    "capturedAt": "2026-09-13T00:45:25.2752589Z",
+    "receiptReparsed": true,
+    "sourceBlobChecks": "5/5 matched",
+    "exportReopen": {"reopened":true,"missing":0,"hashMismatches":0,"sourceBlobMismatches":0,"outputReparsePoints":0},
+    "postCleanup": {"verified":true,"worktreeAbsent":true,"registryEntryAbsent":true,"localRefAbsent":true,"trackingRefAbsent":true},
+    "artifactHashes": [
+      {"path":"export-manifest.json","sha256":"aa978f51a314c67d2dce76e08fc15cbbc445b1e3bd435d5e868131355627301b"},
+      {"path":"export-manifest-sha256.txt","sha256":"fdda3edbeb2a28799f320b96635a0f58e456af11120bc932aac2c64bb259431c"},
+      {"path":"export-reopen-check.json","sha256":"1d084e9efc70ea7dca3cc0009c0c2edce56af53dab1bfb8c5463f080ceb60868"},
+      {"path":"cleanup-preflight.json","sha256":"0fc8196e6b22d88511bc1a4f59e034552c1f8b7314bc137a39ec88212ec00382"},
+      {"path":"post-cleanup-check.json","sha256":"519947f22ceb325aecddeffeca9f8c8a8f9b904f08a198e19b8c13d9263bdd1f"},
+      {"path":"export-file-index.txt","sha256":"b03350e72b36a8597156f6b3591d42e8c610fdb4bbbfd522b2ad2c7c4b3b2724"},
+      {"path":"export-failure-attempt-1.txt","sha256":"eb6e72abb992d89e850759b818594ff7979b9eabdfb4d23fb1573179a9ad1f5d"}
+    ],
+    "sourceBlobSha256": [
+      "c34fe3348ee43cf57474204d423b23dbd44d32fbca1245fe2e7202de12ed14c9",
+      "71d8676759ab0ab3fee34ac2e6fe0cbc99a02b4e63d190b8e0f92eec80c77a01",
+      "c91bfbc8a745aa68891ebfbd53815a228bafa1b429816c617b02a26bb712ec8a",
+      "2d1a1356028efc404f95bcdcc1a51d847ce1541b30dd1f8537e06e2f561987ae",
+      "2bcf431b95ba2eb190848bdeb4011a778704d314944ac88a14d96709d1459f76"
+    ],
+    "exitCodes": {"preflight":0,"correctedExport":0,"reopen":0,"worktreeRemove":0,"localRefDelete":0,"trackingRefDelete":0,"postCleanup":0}
+  },
+  "verified": true
+}

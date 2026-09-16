@@ -1,0 +1,61 @@
+{
+  "at": "2026-09-13T21:14:56.000Z",
+  "authorization": {
+    "quote": "Then fix whatever you need to get things unblocked",
+    "context": "New user instruction responding to the seven exact reviewed publication blockers; parent explicitly acknowledged publication scope. Prior rejected attempts remain unchanged."
+  },
+  "prs": [
+    {
+      "headRefName": "codex/roadmap-r6-deferrals-20260913",
+      "headRefOid": "20bb868fc5f6e9c1db7602b255eac6c67a50eb7d",
+      "mergeStateStatus": "BLOCKED",
+      "number": 1673,
+      "url": "https://github.com/SwiggitySwerve/MekStation/pull/1673"
+    },
+    {
+      "headRefName": "codex/roadmap-r4-matrix-20260913",
+      "headRefOid": "6d493d508fe797e9a4342cbc0bd41b13ff376be4",
+      "mergeStateStatus": "BLOCKED",
+      "number": 1672,
+      "url": "https://github.com/SwiggitySwerve/MekStation/pull/1672"
+    },
+    {
+      "headRefName": "codex/roadmap-history-fixtures-20260913",
+      "headRefOid": "870f93856d5b09eb1ed7191be94a5a3e9e52103c",
+      "mergeStateStatus": "BLOCKED",
+      "number": 1671,
+      "url": "https://github.com/SwiggitySwerve/MekStation/pull/1671"
+    },
+    {
+      "headRefName": "codex/roadmap-archive-equipment-20260913",
+      "headRefOid": "0f26b709f33ecb5513058844e8077d61b5a2a3ed",
+      "mergeStateStatus": "BLOCKED",
+      "number": 1670,
+      "url": "https://github.com/SwiggitySwerve/MekStation/pull/1670"
+    },
+    {
+      "headRefName": "codex/roadmap-archive-chassis-20260913",
+      "headRefOid": "f6078a2a790129bb7faa53249710b4151b779ab9",
+      "mergeStateStatus": "BLOCKED",
+      "number": 1669,
+      "url": "https://github.com/SwiggitySwerve/MekStation/pull/1669"
+    },
+    {
+      "headRefName": "codex/roadmap-r2-prepared-journal-api-20260913",
+      "headRefOid": "6f795eb515aad090186e01f373447b3bb6d7801c",
+      "mergeStateStatus": "BEHIND",
+      "number": 1668,
+      "url": "https://github.com/SwiggitySwerve/MekStation/pull/1668"
+    },
+    {
+      "headRefName": "codex/roadmap-customizer-browser-20260912",
+      "headRefOid": "77d9a9480a3a47b1849f166db01278f93f3d8094",
+      "mergeStateStatus": "BEHIND",
+      "number": 1667,
+      "url": "https://github.com/SwiggitySwerve/MekStation/pull/1667"
+    }
+  ],
+  "scopeAccountingUnchanged": true,
+  "raw": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\publication-unblock-20260913",
+  "limits": "Published only. No merges, main proof, task closure or cleanup claimed."
+}

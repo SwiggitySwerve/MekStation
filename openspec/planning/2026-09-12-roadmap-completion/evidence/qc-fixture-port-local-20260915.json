@@ -1,0 +1,110 @@
+{
+  "task": "Fix CI flake diagnosed in port-binding-flake-diagnosis-20260915.json: deriveFixturePort's port band overlaps the OS ephemeral port range",
+  "date": "2026-09-15",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/browser",
+  "base": {
+    "branch_created": "codex/roadmap-qc-fixture-port-range-20260915",
+    "created_from": "origin/main",
+    "base_sha": "91b66b04c6f79a365e40b94e25c93e8c00ffa8a3",
+    "pre_branch_status_check": "git status --short was empty before checkout -B (no tracked modifications)",
+    "node": "v22.22.0 (via /c/Users/wroll/AppData/Local/nvm/v22.22.0)"
+  },
+  "commits": [
+    {
+      "step": "red-first",
+      "sha": "66853bfcc2b031c3822ae89d207dea3124b1f1eb",
+      "subject": "test(qc): pin the fixture port below the ephemeral range",
+      "file": "scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+      "stat": "1 file changed, 18 insertions(+)",
+      "diff_file": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/qc-fixture-port-20260915/commit1.diff",
+      "diff_sha256": "21f90512a5ccf6d831108382647c14711c25c5aeffec11535680619b81cbfdaa",
+      "hook_build_behavior": "TypeScript file staged (.ts) -> pre-commit hook ran 'No TypeScript files staged' check, matched, and ran the full 'npm run build' (Next.js production build completed, ~3-5 min) before allowing the commit."
+    },
+    {
+      "step": "product-fix",
+      "sha": "3bfc4387e9cf614478ee20329a9bfef48daa0eb8",
+      "subject": "fix(qc): derive the fixture port below the ephemeral range",
+      "file": "scripts/qc/gm-two-player-campaign-core.cjs",
+      "stat": "1 file changed, 4 insertions(+), 1 deletion(-)",
+      "diff_file": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/qc-fixture-port-20260915/commit2.diff",
+      "diff_sha256": "0956735148c5c6505cce73eb0db5ac50aaf430bc2b233f886943688fa6ba3e9f",
+      "hook_build_behavior": "Only a .cjs file staged (no .ts/.tsx) -> pre-commit hook printed 'No TypeScript files staged — skipping build (Python / openspec / docs only)' and skipped the full Next.js build, per the file's own documented rationale (build only catches TS-level issues; CI still runs the full gauntlet on the PR)."
+    }
+  ],
+  "diffs": {
+    "commit1_test_only": "diff --git a/scripts/__tests__/gm-two-player-campaign-qc.test.ts b/scripts/__tests__/gm-two-player-campaign-qc.test.ts\nindex a1608937a..3401d6000 100644\n--- a/scripts/__tests__/gm-two-player-campaign-qc.test.ts\n+++ b/scripts/__tests__/gm-two-player-campaign-qc.test.ts\n@@ -559,6 +559,24 @@ describe('GM and two-player campaign QC runner', () => {\n       ),\n     ).toThrow(/FOREIGN_PATH/);\n   });\n+  it('derives fixture ports outside the OS ephemeral port range', () => {\n+    // CI flake (43692 EADDRINUSE, PRs #1720/#1741): the fixed 37000-46999\n+    // band sits inside Linux's default ephemeral range (32768-60999), so\n+    // the kernel can transiently claim the \"reserved\" port out from under\n+    // this test's own bind. Every derived port must stay clear of that\n+    // range for the runIds this file actually pins, plus a couple of\n+    // synthetic ones to keep the contract from narrowing to a stale list.\n+    const runIds = [\n+      'task-26-membership-smoke',\n+      'task-21-authority-recovery',\n+      'task-26-foreign-listener',\n+      'task-26-fixture-smoke',\n+      'synthetic-port-range-check-a',\n+    ];\n+    for (const runId of runIds) {\n+      expect(core.deriveFixturePort(runId)).toBeLessThan(32768);\n+    }\n+  });\n   it('refuses and preserves a ready foreign server on the fixture port', async () => {\n     const runId = 'task-26-foreign-listener';\n     const port = core.deriveFixturePort(runId);\n",
+    "commit2_product_fix": "diff --git a/scripts/qc/gm-two-player-campaign-core.cjs b/scripts/qc/gm-two-player-campaign-core.cjs\nindex 14ffcb85f..9d4d3aa9d 100644\n--- a/scripts/qc/gm-two-player-campaign-core.cjs\n+++ b/scripts/qc/gm-two-player-campaign-core.cjs\n@@ -35,7 +35,10 @@ function deriveFixturePort(runId) {\n     .createHash('sha256')\n     .update(validateRunId(runId))\n     .digest();\n-  return 37000 + (bytes.readUInt32BE(0) % 10000);\n+  // 20000-29999 stays below the OS ephemeral/local port range (Linux\n+  // default 32768-60999) so a concurrently-running process can't have\n+  // this \"reserved\" port auto-assigned out from under a fixture bind.\n+  return 20000 + (bytes.readUInt32BE(0) % 10000);\n }\n function buildRunPlan({ group, runId, repoRoot }) {\n   const owner = REGISTERED_GROUPS[group];\n"
+  },
+  "verification_evidence": {
+    "red_log": {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/qc-fixture-port-20260915/red.log",
+      "sha256": "38f0eb772c9991cd42f4bf1d308a11fe5b8eb04478b4c8bddca9f3e95a19692b",
+      "command": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+      "result": "1 failed, 9 passed, 10 total. New row 'derives fixture ports outside the OS ephemeral port range' failed: expect(received=37455).toBeLessThan(32768), at line 577, proving the assertion exercises the pre-fix 37000 base."
+    },
+    "green_log": {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/qc-fixture-port-20260915/green.log",
+      "sha256": "9a9ac35a4d8ed682242b1e378ab4dce993b5270abe366e1677076d570f626c2e",
+      "command": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+      "result": "10 passed, 10 total, after applying the 20000-base fix."
+    },
+    "mutant_log": {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/qc-fixture-port-20260915/mutant.log",
+      "sha256": "ba6820ebdb8164ae0d08b84ad319f4fe5545b9d5b9e1c4302954ab6d4bc75f55",
+      "procedure": "After committing the product fix, reverted deriveFixturePort's base back to 37000 in the working tree (no commit), reran the same single-file jest command, confirmed the new regression row failed identically (received=37455, same as the red run), then restored the base to 20000 and confirmed `git status --short` / `git diff` were empty (working tree exactly matches commit 3bfc4387e).",
+      "result": "1 failed, 9 passed, 10 total -- same failure as red_log, confirming the new test genuinely pins the range and is not a false-positive/tautology."
+    },
+    "full_scripts_tests_log": {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/qc-fixture-port-20260915/full-scripts-tests.log",
+      "sha256": "827ad54ec56321a0a2caa2f94a4b9be1197e6a89b6cddbe8e84051facedf23ba",
+      "command": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false scripts/__tests__",
+      "result": "71 suites passed, 71 total; 1035 passed / 10 skipped of 1045 tests. No regressions from the fix."
+    },
+    "tsc_log": {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/qc-fixture-port-20260915/tsc.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "command": "npx tsc --noEmit -p tsconfig.json",
+      "result": "Exit 0, empty output (no type errors)."
+    },
+    "oxfmt_log": {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/qc-fixture-port-20260915/oxfmt.log",
+      "sha256": "59a66de887668bfe7d5acd8a20b9cc9b615e89ba2480365fc0219e885a0ed210",
+      "command": "npx oxfmt --check scripts/__tests__/gm-two-player-campaign-qc.test.ts scripts/qc/gm-two-player-campaign-core.cjs",
+      "result": "'All matched files use the correct format.' (2 files checked)."
+    },
+    "oxlint_scope_note": {
+      "claim": "oxlint does not cover either changed file",
+      "verification": "Read .oxlintrc.json directly: 'ignorePatterns' array includes '**/scripts/**' (line 30) and '**/__tests__/**' (line 45). Both changed files (scripts/__tests__/gm-two-player-campaign-qc.test.ts and scripts/qc/gm-two-player-campaign-core.cjs) fall under one or both of these ignore globs, so oxlint was not run against them; oxfmt (formatting only) is the applicable gate and it passed."
+    }
+  },
+  "gates": {
+    "jest_single_file": "PASS (10/10) -- see green_log",
+    "jest_full_scripts_tests": "PASS (1035/1035 run, 10 skipped) -- see full_scripts_tests_log",
+    "tsc_noEmit": "PASS -- see tsc_log",
+    "oxfmt_check": "PASS -- see oxfmt_log",
+    "oxlint": "N/A -- both files are outside oxlint's configured scope (see oxlint_scope_note)",
+    "pre_commit_hook_build": "Ran in full for commit 1 (.ts staged); correctly skipped for commit 2 (.cjs-only staged) per the hook's own documented TS-file gate in .husky/pre-commit"
+  },
+  "frozen_contract_statement": {
+    "file": "scripts/qc/camp01-authority-receipt.contract.mjs",
+    "claim": "The port base change does not touch any frozen contract hash.",
+    "evidence": [
+      "git status --short after both commits never lists camp01-authority-receipt.contract.mjs -- the file was not modified.",
+      "grep -n '37000|MEKSTATION_E2E_PORT|\"PORT\"|gm-two-player-campaign-core' scripts/qc/camp01-authority-receipt.contract.mjs returned no matches -- the contract file never references deriveFixturePort, its output range, the PORT/MEKSTATION_E2E_PORT env vars, or the core module at all.",
+      "Read lines 74-75 directly: `export function commandSequenceDigest(commandSequence) { return createHash('sha256').update(JSON.stringify(commandSequence)).digest('hex'); }` -- the only hash function in the file, and it hashes only the JSON-serialized commandSequence argv arrays (e.g. ['@npm','test','--','--watchAll=false',...]) declared per-wave in the WAVE_CONTRACTS table (lines 24-35), never any port number or the environment produced by gm-two-player-campaign-core.cjs.",
+      "Conclusion: no frozen canonicalArgvDigest value is derived from or sensitive to deriveFixturePort's port range, so the fix cannot change any frozen-contract hash."
+    ]
+  },
+  "diagnosis_alignment": {
+    "root_cause_confirmed_locally": "core.deriveFixturePort('task-26-foreign-listener') was directly evaluated via `node -e` against the pre-fix code and returned 43692 -- the exact port from both CI failures (PR 1741 and PR 1720) in port-binding-flake-diagnosis-20260915.json, confirming this is the same deterministic hash/runId pinpointed by the diagnosis.",
+    "fix_applied": "Ranked fix #1 from the diagnosis: base moved from 37000 to 20000 (range now 20000-29999), clear of the Linux/Windows/macOS default ephemeral port ranges.",
+    "excluded_approaches": "Did not widen timeouts, add jest.retryTimes(), or wrap the test in a retry loop, per the diagnosis's explicit rejection of those as noise-suppression rather than a root-cause fix.",
+    "frozen_command_contracts_untouched": true
+  },
+  "non_claims": [
+    "Did not observe the actual GitHub-hosted CI runner at fix time -- this fix removes the derived port from the OS ephemeral range (the diagnosis's best-supported root cause) rather than directly proving the CI runner's kernel took port 43692 as an ephemeral source port at the instant of either historical failure.",
+    "Did not run the fixture-smoke e2e/gm-two-player-fixture.smoke.spec.ts or the cleanup-ownership e2e spec live in a browser; verification here is limited to the unit-project jest suite (scripts/__tests__), tsc, and oxfmt, per the bounded scope of this task.",
+    "Did not push the branch or open a PR -- per the task's GP-JUSTIFIED scope, the parent session publishes.",
+    "Did not attempt to reproduce EADDRINUSE under artificial concurrent port pressure locally; relied on the mutation test (reverting to base 37000) to prove the new regression row is a true, non-tautological pin of the range rather than an unconditionally-passing assertion."
+  ]
+}

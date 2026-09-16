@@ -1,0 +1,218 @@
+{
+  "artefact": "r4-s3a-derived-started-review",
+  "date": "2026-09-15",
+  "roadmapNode": "R4.S3",
+  "subject": {
+    "package": "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind",
+    "task": "1.3 (S3), sub-prefix (1) of 3 — additive derived read only; no repoint, no drop",
+    "commit": "bb346350e",
+    "base": "c315b9f99 (S2, stacked on S1 / PR #1684)",
+    "branch": "codex/roadmap-r4-s3a-derived-started-20260915",
+    "authorEvidence": "openspec/planning/2026-09-12-roadmap-completion/evidence/r4-s3a-derived-started-local-20260915.json"
+  },
+  "reviewer": {
+    "role": "independent reviewer, journal/authority scope — not the author",
+    "mode": "read-only; no edits, commits, pushes, sub-agents or builds. Only write is this file.",
+    "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/history-runtime-integrity",
+    "worktreeStateAtReview": "codex/roadmap-r4-s3a-derived-started-20260915 @ bb346350e, `git status --porcelain` empty; checkout not changed by this review",
+    "node": "v22.22.0 (measured in-session: `node -v`)"
+  },
+
+  "verdict": "APPROVE",
+  "verdictRationale": "The slice is exactly what it claims: one 78-line free function plus a 223-line real-SQLite suite, zero existing production files touched, zero openspec edits, task box 1.3 still unchecked. The derived definition is the RIGHT one — the effective-head row is the same row S2 admission and S4 recovery consult, so 'started' and 'the journal can answer for this match' become one fact instead of two that drift. The red logs are genuine and the constant-false mutant is killed by four rows. Every gate re-measured green in this session. All findings below are for sub-prefix (2); none of them is reachable at sub-prefix (1), where nothing in production calls the function.",
+
+  "findings": {
+    "1_definitionSoundness": {
+      "verdict": "SOUND",
+      "specBasis": {
+        "designSHALLs": "NONE. `openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/design.md:11` carries the whole S3 mandate as one bullet — quote: '**S3 marker retirement.** The `mp_journal_authority_started` marker path is removed once S1 is the writer; no second source of \"started\".' `tasks.md:16` — quote: '1.3 S3: retire the `mp_journal_authority_started` marker write; one source of \"started\".'",
+        "deltaSpecs": "The change ships exactly one delta spec, `specs/gm-combat-interventions/spec.md`. `grep -rn 'started|marker|mp_journal_authority' openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/specs/` returns ZERO hits. VERIFIED: no SHALL in this change's delta specs constrains the 'started' fact at all. The author's `nonClaims` entry 'NO SHALL DISCHARGED' is therefore literally correct, and the design bullet + task line are the only normative text the slice answers to. The reviewer could NOT check the derivation against a SHALL because none exists — that is a property of the package, not a defect in the slice.",
+        "moduleSpecTag": "The module cites its authority honestly: `matchJournalAuthorityStartedDerived.ts:40` — '@spec openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/design.md (S3)'."
+      },
+      "isEffectiveHeadTheRightDerivedFact": {
+        "answer": "YES, and it is the strongest of the three candidates.",
+        "why": [
+          "ATOMICITY. `MatchStreamJournalMirror.ts:12-15` — quote: 'ONE TRANSACTION, JOURNAL SIDE ONLY. Event rows, stream head, genesis branch and effective head commit together or not at all'. The install is inside `appendPreparedWithExtension` (`MatchStreamJournalMirror.ts:130-159`), with `branches.backfillGenesisBranches()` called at line 155 only after `appended.kind === 'committed'`. So an effective head cannot exist without the events it heads — the head is never a lie about the rows.",
+          "SAME ROW AS THE CONSUMERS. `readEffectiveHead` is the row S2's live branch admission and S4's rewound-restart path read. Deriving 'started' from it makes 'started' and 'the journal can answer for this match' ONE fact. The alternative candidate — journal tail, i.e. MAX(`event_journal_events.stream_revision`) — would be a second, weaker definition over rows S2/S4 never consult. The module states this reasoning at `matchJournalAuthorityStartedDerived.ts:15-23`.",
+          "CORRECT KEYING. `event_history_effective_heads` PRIMARY KEY is (stream_type, stream_id) (`SQLiteService.historyBranches.migration.ts:190`), and the module keys on `{ streamType: MATCH_STREAM_TYPE, streamId: matchId }` (`matchJournalAuthorityStartedDerived.ts:73-76`) with `MATCH_STREAM_TYPE = 'match'` (`MatchStreamJournalMirror.ts:41`). No cross-match or cross-stream-kind collision is possible."
+        ]
+      },
+      "semanticMatchToTheMarker": {
+        "markerWriteSite": "`ServerMatchHostJournalAuthority.ts:186-205`. The write is conditional on the marker's own absence — quote, lines 186-192: 'const existingStarted = ctx.store.getJournalAuthorityStarted ? await ctx.store.getJournalAuthorityStarted(ctx.matchId) : null; ... const started: IMatchJournalAuthorityStarted | undefined = existingStarted != null ? undefined : { ... }'. The record is then carried on the batch (`:217`, `journalAuthorityStarted: started`) and inserted write-once by `DurableMatchStore.ts:897-921` (guarded by a SELECT + throw 'journal-authority-started already exists' at :903-905).",
+        "consumerA_writeSite": "BOOLEAN-EQUIVALENT. `ServerMatchHostJournalAuthority.ts:191` uses ONLY `existingStarted != null`. `grep` for `existingStarted\\.` across `src/` returns zero field reads. A boolean substitutes here with no loss.",
+        "consumerB_recovery": "RECORD, but only barely. `ServerMatchHost.ts:1419-1451` (`selectRecoveredMatchRollbackReader`). `grep -rn \"started\\.(commandId|firstRevision|lastRevision|head|committedAt|matchId)\" src/` returns exactly TWO hits, both `started.head`: `ServerMatchHost.ts:1442` (`journalHeadFromReceipt(started.head, receipt)`) and `:1444` (inside `refoldedJournalHead(started.head, ...)`). VERIFIED: `commandId`, `firstRevision`, `lastRevision`, `committedAt` and `matchId` are read by NO production site.",
+        "consumerC_selector": "NULLNESS ONLY. `matchRollbackReaderSelection.ts:20` types the field `readonly started: object | null;` and the function branches on `facts.started == null` at `:87` and nowhere else. The selector itself already accepts a boolean-equivalent.",
+        "correctionToTheAuthorEvidence": "The author's third `flaggedForOwner` bullet says the record is 'consumed as a value, not just a boolean, feeding selectMatchRollbackReader({ baseline, started, ... })' and calls it 'the largest unknown left in task 1.3'. HALF RIGHT, and the half that is wrong makes sub-prefix (2) materially smaller: `selectMatchRollbackReader` consumes `started` as `object | null` and tests only nullness (`matchRollbackReaderSelection.ts:20, :87`). The record is consumed one level UP, in `selectRecoveredMatchRollbackReader`, and only its `.head`."
+      },
+      "whereABooleanCANNOTReplaceTheRecord": {
+        "theOnlySite": "`ServerMatchHost.ts:1442` and `:1444` need a six-field head tuple (`IMatchJournalAuthorityHead`) to seed `recordedHead` and `refoldedHead`. A bare boolean supplies nothing there.",
+        "butOnlyFourOfSixFieldsAreLoadBEARING": "Both seeds OVERWRITE `revision` and `digest`: `journalHeadFromReceipt` returns `{ ...startedHead, revision: receipt.lastRevision, digest: receipt.expectedPostStateDigest }` (`ServerMatchHost.ts:1487-1491`) and `refoldedJournalHead` returns `{ ...startedHead, revision: last.sequence, digest: digestCommandPostState(session.getSession()) }` (`:1507-1510`). What survives from `started.head` into both is exactly `streamType`, `streamId`, `branchId`, `effectiveGeneration`. `headsEqual` (`matchRollbackReaderSelection.ts:58-69`) compares recordedHead against refoldedHead, and those four cancel identically because both spread the SAME object — so only `effectiveGeneration` is independently load-bearing, at `matchRollbackReaderSelection.ts:100-103` ('unsupported-effective-generation'), plus `branchId` which rides out on the returned `{ kind: 'journal-compatible', head }`.",
+        "conclusion": "Sub-prefix (2) does NOT need to reconstruct { commandId, firstRevision, lastRevision, committedAt }. It needs a head identity of four fields, and `readEffectiveHead` already returns all four."
+      },
+      "derivabilityFromS1sMirroredRowsToday": {
+        "answer": "YES for every load-bearing field. NO S1 EXTENSION IS NEEDED.",
+        "table": [
+          { "field": "head.streamType", "consumedBy": "spread into both heads", "source": "IEventHistoryEffectiveHead.streamType — `EventHistoryBranchContract.ts:110`; column `event_history_effective_heads.stream_type` — `SQLiteService.historyBranches.migration.ts:184`", "available": true },
+          { "field": "head.streamId", "consumedBy": "spread into both heads", "source": "IEventHistoryEffectiveHead.streamId — `EventHistoryBranchContract.ts:111`; column `.stream_id` — migration `:185`", "available": true },
+          { "field": "head.branchId", "consumedBy": "spread; rides out on the journal-compatible decision", "source": "IEventHistoryEffectiveHead.branchId — `EventHistoryBranchContract.ts:112`; column `.branch_id` — migration `:186`", "available": true, "valueAgreesWithTheMarker": "VERIFIED. The marker writes `branchId: MATCH_BASELINE_BRANCH_ID` (`ServerMatchHostJournalAuthority.ts:199`), which is the literal 'main' (`matchAuthorityBaseline.ts:58`). The mirror passes `effective?.branchId ?? MATCH_BASELINE_BRANCH_ID` (`MatchStreamJournalMirror.ts:137`) into `expectedBranchId`, the writer stores it verbatim into `event_journal_stream_heads.branch_id` (`SQLiteEventJournalWriter.ts:458, :463`), and the genesis backfill SELECTs `head.branch_id` straight into `event_history_effective_heads.branch_id` (`SQLiteService.historyBranches.migration.ts:121-126`). A reviewer trap checked and cleared: `SQLiteService.eventJournal.migration.ts:32, 54, 88` originally pinned `CHECK (branch_id = 'root')`, which would have forced the derived branchId to 'root' and diverged it from the marker's 'main' — but `SQLiteService.branchPin.migration.ts:59-60` replaces that pin with `CHECK (length(trim(branch_id)) > 0)` on all three journal tables. So the derived branchId is 'main', identical to the marker's." },
+          { "field": "head.effectiveGeneration", "consumedBy": "the 'unsupported-effective-generation' block — `matchRollbackReaderSelection.ts:100-103`", "source": "IEventHistoryEffectiveHead.effectiveGeneration — `EventHistoryBranchContract.ts:113`; column `.effective_generation` — migration `:187-188`", "available": true, "valueAgreesWithTheMarker": "YES. The marker writes `MATCH_BASELINE_FIRST_GENERATION` = 1 (`ServerMatchHostJournalAuthority.ts:201`, `matchAuthorityBaseline.ts:66`). The backfill COALESCEs `match_authority_baseline.effective_generation` for the stream, defaulting to FIRST_EFFECTIVE_GENERATION (`SQLiteService.historyBranches.migration.ts:124-131`) — the baseline-aware value, which is the stronger of the two." },
+          { "field": "head.revision", "consumedBy": "NOTHING — overwritten at `ServerMatchHost.ts:1489` and `:1508`", "source": "if ever wanted: `event_journal_stream_heads.stream_revision` (`SQLiteService.eventJournal.migration.ts:89`)", "available": true },
+          { "field": "head.digest", "consumedBy": "NOTHING — overwritten at `ServerMatchHost.ts:1490` and `:1509`", "source": "NOT in the journal rows. `event_journal_stream_heads.event_digest` is an EVENT digest; the marker's head.digest is `decided.postStateDigest`, a STATE digest. The state digest lives in `mp_command_receipts.expectedPostStateDigest`, which `selectRecoveredMatchRollbackReader` ALREADY reads at `ServerMatchHost.ts:1436-1438`.", "available": "via the receipt the caller already holds — no new read" },
+          { "field": "commandId", "consumedBy": "NOTHING in production", "source": "`event_journal_events.command_id` / `event_journal_batches.command_id` at the stream's first revision", "available": true },
+          { "field": "firstRevision / lastRevision", "consumedBy": "NOTHING in production", "source": "`event_journal_batches.first_stream_revision` / `.last_stream_revision` (`SQLiteEventJournalWriter.ts:420`)", "available": true, "caveat": "would need the sequence-vs-revision offset, which is exactly task 1.5 (S5-a) and carries the never-rewound precondition at `MatchStreamJournalMirror.ts:17-25`. Since no consumer reads these, sub-prefix (2) should NOT derive them and should not inherit the offset risk." },
+          { "field": "committedAt", "consumedBy": "NOTHING in production", "source": "`event_history_effective_heads.installed_at` (migration `:189`) or `event_journal_events.recorded_at`", "available": true }
+        ],
+        "s1ExtensionNeeded": false
+      }
+    },
+
+    "2_errorSemantics": {
+      "verdict": "ACCEPTABLE NOW, CORRECTLY FLAGGED, ONE GAP THE AUTHOR DID NOT NAME",
+      "theThrow": "`readEffectiveHead` throws `EventHistoryBranchError('branch-integrity')` when the head row names a branch whose status is not 'effective' — `SQLiteEventHistoryBranchStore.ts:147-150`, quote: \"if (row.status !== 'effective') { throw new EventHistoryBranchError('branch-integrity', `Effective head '${row.branchId}' ... does not name an effective branch`) }\". The derived module does not catch it (`matchJournalAuthorityStartedDerived.ts:72-77`) and says so in its own header (`:57-64`).",
+      "isNotCatchingRight": "YES for this slice. Answering false on persisted corruption would bury a quarantine-grade fact under a legal-looking 'never started', and the live path already refuses this shape MATCH_QUARANTINED (History B, PR #1674). The module's comment states exactly this.",
+      "asymmetryAtTheTwoCallSites": {
+        "verified": "Site A, `selectRecoveredMatchRollbackReader`, IS inside a try: `ServerMatchHost.ts:1415` opens `try {`, the marker read is at `:1419-1421`, and the catch at `:1455+` returns `{ kind: 'blocked', reason: 'recovery-fact-read-failed', preserved: MATCH_ROLLBACK_PRESERVED_FACTS }`. Site B, the pre-append check at `ServerMatchHostJournalAuthority.ts:186-188`, is NOT: inside `commitJournalAuthorityCommand` (opens `:123`) the try blocks span `:159-164` and `:210-228`, and line 186 falls between them. A throw there escapes the command path uncaught.",
+        "author'sFlagIsAccurate": "The author's first `flaggedForOwner` bullet names both sites and both shapes correctly.",
+        "consequenceToDecideAtSubPrefix2": "At site A a propagated branch-integrity error is arguably an IMPROVEMENT in honesty but a CHANGE in outcome: it converts to `blocked/'recovery-fact-read-failed'`, which at `ServerMatchHost.ts:357-361` sets `journalAuthorityEnabled = false` and stamps `rollbackBlockReason`. At site B it is a new uncaught throw on the commit path. Neither is decided here and neither is reachable at sub-prefix (1)."
+      },
+      "syncVsAsync": {
+        "verified": "`getJournalAuthorityStarted` is async (`DurableMatchStore.ts:1060-1062`, `InMemoryMatchStore.ts:314-316`, port `IMatchStore.ts:545-548`); `isMatchJournalAuthorityStartedDerived` is sync because `readEffectiveHead` is sync (`storeCapabilityPorts.ts:48-50`). Both existing call sites `await` the marker read (`ServerMatchHost.ts:1420`, `ServerMatchHostJournalAuthority.ts:187`), and `await` on a non-thenable is a no-op, so a sync answer is source-compatible at both. The author's second flag is correct.",
+        "reviewerAddition": "Awaiting a sync value still yields a microtask tick, which does NOT preserve the current synchrony guarantees of anything between the read and the append at site B. Worth a glance at sub-prefix (2), not a blocker."
+      },
+      "gapTheAuthorDidNotName": {
+        "severity": "HIGH for sub-prefix (2); ZERO for sub-prefix (1)",
+        "finding": "The unready/absent-port branch is a SILENT FALSE, and at site A a silent false breaks a documented one-way boundary. `matchJournalAuthorityStartedDerived.ts:70-71` answers false when `hasHistoryBranchStore` or `isHistoryBranchStoreReady` is false. `isHistoryBranchStoreReady` returns `candidate.isCapabilityDbAvailable()` (`storeCapabilityPorts.ts:169-179`), and `storeCapabilityPorts.ts:133-137` documents exactly the process shape that makes it false — quote: 'DurableMatchStore always assigns the six branch methods, so hasHistoryBranchStore is true even when the process never called SQLiteService.initialize().' If a repointed site A runs in such a process for a match that HAS mirrored, the derived answer is false, `selectMatchRollbackReader` takes the `facts.started == null` branch (`matchRollbackReaderSelection.ts:87`) and returns `legacy-compatible`, and `ServerMatchHost.ts:357-358` then sets `journalAuthorityEnabled = false`. That contradicts the selector's own stated law — `matchRollbackReaderSelection.ts:82-83`, quote: 'A started fact is a one-way boundary: it can never choose legacy again.' The MARKER cannot do this: it is a row on the match DB, which is open whenever the store is.",
+        "whyItIsNotAProblemAtSubPrefix1": "Nothing in production calls the derived function (verified: `grep -rn 'isMatchJournalAuthorityStartedDerived' src/` hits only the module and the new test).",
+        "requiredAtSubPrefix2": "The unready port must be distinguished from 'not started' at site A — a third answer ('cannot tell'), or a refusal, or a documented precondition that site A never runs before `SQLiteService.initialize()`. A bare boolean repoint at site A would silently downgrade a journal-authority match to the legacy reader on restart."
+      }
+    },
+
+    "3_tests": {
+      "verdict": "REAL, DISCRIMINATING, NO TAUTOLOGY THAT MATTERS",
+      "realSQLite": "VERIFIED. Two temp-file databases: `multiplayer-matches.db` for `DurableMatchStore` and `mekstation.db` for the capability DB via `getSQLiteService` (`journalAuthorityStartedDerived.sqlite.test.ts:113-122, :134-141`). No head row is hand-built — every 'started' row is installed by committing a real batch through `store.appendCommandBatch` (`:162, :169, :182, :195, :202, :209`).",
+      "coldReopenIsGenuine": "VERIFIED, row 3 (`:168-177`): `store.close(); resetSQLiteService(); openCampaign(); store = openStore();` — both handles are dropped and both databases are reopened from disk before the assertion. This is a real on-disk survival test, not a same-handle re-read. The suite header states the motive at `:14-17`.",
+      "rows5and6Discriminate": "VERIFIED. Row 5 (`:190-199`) is the only row where the marker is non-null: at mode 'off' it commits a batch CARRYING `journalAuthorityStarted`, then asserts `(await marker())?.commandId === 'cmd-1'` AND `derived() === false`. Row 6 (`:201-206`) is the mirror image at mode 'shadow': `derived() === true` while `await marker()` is null. Together they pin both directions of independence, which is what makes a sub-prefix-(2) repoint that merely RENAMES the marker read fail (it would pass rows 1-4 and 7 and fail 5 and 6). The suite states this design at `:6-11`.",
+      "redLogsAreReal": {
+        "verified": "Both logs exist on disk and were read in full: `.sisyphus/roadmap-completion-20260912/r4-s3a-20260915/red-1-module-missing-20260915.log` (1145 bytes) and `red-2-behavioural-20260915.log` (4267 bytes).",
+        "red2Content": "Genuine behavioural red, not a resolution accident. The log shows 3 passed / 4 failed with real assertion diffs — 'Expected: true / Received: false' at the three positive rows and 'Received function did not throw' with 'Expected constructor: EventHistoryBranchError' at row 7.",
+        "constantFalseMutantKilled": "VERIFIED from the log itself. The four rows that went red under the constant-false stub are: 'answers started once a batch is committed through the mirror', 'still answers started after a cold reopen of both databases', 'does not write the legacy marker when the mirror starts the stream', 'refuses typed rather than answering not-started on a corrupt head' — i.e. rows 2, 3, 6 and 7. The three that passed under the stub (rows 1, 4, 5) are all NEGATIVE rows the stub is accidentally right about, which is exactly why 2/3/6/7 must exist. The author's `passedInRedIsCorrect` note is accurate.",
+        "constantTrueMutantAlsoKilled": "Reviewer check, not in the author's evidence: rows 1, 4 and 5 all assert `derived() === false`, so the opposite 'always started' mutant dies too. Both poles are covered.",
+        "minorDiscrepancyDisclosedAndBenign": "The red-2 log's source excerpts are two lines below the committed file (it cites `:167` / `:178` / `:206` / `:223` where the committed file has `:165` / `:176` / `:204` / `:221`). That is the pre-oxfmt copy of the test, and the author discloses the reflow in the evidence's oxfmt gate note ('First --check run failed on the test file (the `batch(started?)` signature wrapped)'). Row names and the pass/fail split match the committed suite exactly. Not a fabrication concern."
+      },
+      "tautologyScan": {
+        "result": "One near-tautological HALF, load-bearing half intact.",
+        "detail": "Row 6's second assertion `expect(await marker()).toBeNull()` is close to trivially true: `batch()` is built without the `journalAuthorityStarted` field (`:98-107`) and `DurableMatchStore` only INSERTs the marker when that field is present (`DurableMatchStore.ts:897`). The row survives on its first assertion (`derived() === true`), which the stub killed. No change required.",
+        "row7IsNotATautology": "It forces real persisted corruption with a direct `UPDATE event_history_branches SET status = 'superseded'` (`:213-219`) against a head installed by a real batch, then asserts the typed throw. That exercises the actual guard at `SQLiteEventHistoryBranchStore.ts:147-150`.",
+        "row4IsNotATautology": "Mode 'off' could look circular given the module never reads the flag, but the row also asserts the batch still commits and `(await store.getEvents(MATCH_ID))` has length 2 (`:184-185`) — it pins that match persistence is unaffected while the mirror is silent. That is a real production pin."
+      },
+      "isolationHygiene": "`afterEach` resets the mode to null, resets shadow stats, closes the store, resets the SQLite singleton and removes the temp dir with `maxRetries: 3` (`:144-150`). No leak into sibling suites — corroborated by the 147-suite focused run below."
+    },
+
+    "4_gatesReMeasuredByTheReviewer": [
+      {
+        "name": "new suite",
+        "argv": ["node", "node_modules/jest/bin/jest.js", "--maxWorkers=2", "--coverage=false", "src/lib/multiplayer/server/__tests__/journalAuthorityStartedDerived.sqlite.test.ts"],
+        "result": "Test Suites: 1 passed, 1 total; Tests: 7 passed, 7 total (7.376 s)",
+        "allSevenNamed": true,
+        "matchesAuthorClaim": true
+      },
+      {
+        "name": "focused jest — src/lib/multiplayer/server",
+        "argv": ["node", "node_modules/jest/bin/jest.js", "--maxWorkers=2", "--coverage=false", "src/lib/multiplayer/server"],
+        "result": "Test Suites: 147 passed, 147 total; Tests: 1088 passed, 1088 total (35.864 s)",
+        "note": "Zero failures. The author's wider gate additionally included `src/lib/events/journal` (169 suites / 1321 tests); this review re-measured the `server` path only, which is the path the change touches. No regression."
+      },
+      {
+        "name": "typecheck",
+        "argv": ["node", "node_modules/typescript/bin/tsc", "-p", "tsconfig.json", "--noEmit"],
+        "result": "zero diagnostics printed (empty output)",
+        "matchesAuthorClaim": true
+      }
+    ],
+
+    "5_hygiene": {
+      "surfaceCap": "PASS. `git show --stat bb346350e` — '2 files changed, 301 insertions(+)'. Both files are ADDED (`git show --name-status`: two `A` rows). Well inside the <=15 files / <=500 lines cap.",
+      "noProductionFileTouched": "VERIFIED. The only production file in the commit is the NEW module. `IMatchStore`, `DurableMatchStore`, `InMemoryMatchStore`, `matchCommandBatch`, `ServerMatchHost` and `ServerMatchHostJournalAuthority` are all unmodified — consistent with the author's `existingProductionFilesChanged: 0`.",
+      "conventionalCommit": "PASS — 'feat(combat): derive journal-authority started state from the mirrored stream'.",
+      "author": "PASS — Author AND Committer both 'Wes Rollings <wrollings@gmail.com>'.",
+      "noAiAttribution": "PASS — commit body is empty; `git log -1 --format=%B | grep -i 'claude|co-authored|generated with'` returns nothing.",
+      "noOpenspecEdits": "PASS — `git show --name-only bb346350e | grep openspec` returns nothing.",
+      "taskBoxUnchecked": "PASS — `tasks.md:16` still reads '- [ ] 1.3 S3: retire ...'.",
+      "hooksHonored": "The author's evidence records the pre-commit hook (lint-staged: oxlint --fix, oxfmt --write, tsc --noEmit --skipLibCheck, plus full `npm run build`) at exit 0, log `commit-20260915.log` (98024 bytes, present on disk). NOT independently re-run by this review — running a build is outside the read-only scope. The reviewer's own tsc pass and the green oxfmt/oxlint logs corroborate the tree is formatted and typed.",
+      "scopeDiscipline": "PASS. Every `nonClaim` in the author's evidence was spot-checked and held: no caller repointed (`grep -rn 'isMatchJournalAuthorityStartedDerived' src/` hits only the module and its test), no table or write dropped (`mp_journal_authority_started` DDL at `DurableMatchStore.ts:207-219`, write at `:897-921`, read at `:1060-1067` all intact), cutover mode still 'off' with 'shadow' appearing only via `_setCombatJournalAuthorityModeForTests` inside the new suite."
+    },
+
+    "6_nonBlockingNotes": [
+      {
+        "note": "Parameter is typed `store: object` (`matchJournalAuthorityStartedDerived.ts:67`) rather than `IMatchStore`. That mirrors how `hasHistoryBranchStore` is written (`storeCapabilityPorts.ts:147-149`) and is defensible, but it means passing any unrelated object compiles and silently answers false. Tightening to `IMatchStore` at sub-prefix (2) would buy a compile-time guard where the answer starts mattering.",
+        "severity": "LOW"
+      },
+      {
+        "note": "The module is currently reachable only from its test — dead in production by design for this slice. That is the correct shape for an additive sub-prefix and is explicitly disclosed, but it means the module carries no production evidence until sub-prefix (2). Nothing to fix.",
+        "severity": "INFORMATIONAL"
+      },
+      {
+        "note": "Honesty credit: the author's focused-jest gate self-marks its own arithmetic as 'UNVERIFIED as arithmetic proof' because the base run was not repeated. That is the right disclosure discipline and matches this reviewer's independent finding of zero failures.",
+        "severity": "INFORMATIONAL"
+      }
+    ]
+  },
+
+  "subPrefix2Brief": {
+    "goal": "Repoint the two marker READ sites at the derived answer, with the recovery site's head identity derived from the effective head. The marker WRITE and table stay — that is sub-prefix (3).",
+    "scopeCap": "<= 6 files / <= 400 lines. If it grows past that, the unready-port decision (below) is being over-engineered — split it.",
+    "files": [
+      {
+        "path": "src/lib/multiplayer/server/matchJournalAuthorityStartedDerived.ts",
+        "change": "Add a second export `deriveMatchJournalAuthorityStartedHead(store, matchId): IMatchJournalAuthorityHead | null` returning `{ streamType: head.streamType, streamId: head.streamId, branchId: head.branchId, effectiveGeneration: head.effectiveGeneration, revision: <ignored-by-consumers>, digest: <ignored-by-consumers> }` from the SAME `readEffectiveHead` call. Keep the boolean as a thin `!== null` over it so the two answers cannot drift. DO NOT derive commandId / firstRevision / lastRevision / committedAt — no production site reads them (verified by grep), and firstRevision/lastRevision would drag in the S5-a sequence-vs-revision offset and its never-rewound precondition (`MatchStreamJournalMirror.ts:17-25`) for no consumer."
+      },
+      {
+        "path": "src/lib/multiplayer/server/ServerMatchHostJournalAuthority.ts",
+        "change": "Replace the `existingStarted != null` gate at `:186-192` with the derived boolean. This site reads ONLY nullness, so it is a clean swap. Decide the throw: line 186 sits between the try blocks at `:159-164` and `:210-228`, so a branch-integrity error escapes the commit path uncaught — either wrap it into the existing `persistenceFailure` shape or let it escape deliberately and say why."
+      },
+      {
+        "path": "src/lib/multiplayer/server/ServerMatchHost.ts",
+        "change": "In `selectRecoveredMatchRollbackReader` (`:1409-1456`), replace `store.getJournalAuthorityStarted(matchId)` with `deriveMatchJournalAuthorityStartedHead(store, matchId)` and feed that head to `journalHeadFromReceipt` (`:1442`) and `refoldedJournalHead` (`:1444`); pass the same value as the selector's `started` (it is typed `object | null` and only nullness-tested — `matchRollbackReaderSelection.ts:20, :87`). NOTE the existing try at `:1415` already converts a throw to `blocked/'recovery-fact-read-failed'` — confirm that is the intended outcome for a corrupt head here rather than an accident."
+      }
+    ],
+    "theDecisionThatMustBeMadeFirst": {
+      "name": "unready / absent branch port at the recovery site",
+      "problem": "`isMatchJournalAuthorityStartedDerived` returns a SILENT false when the branch port is absent or its capability DB is not open (`matchJournalAuthorityStartedDerived.ts:70-71`; `storeCapabilityPorts.ts:133-137, :169-179`). At the recovery site that false routes into `matchRollbackReaderSelection.ts:87` and yields `legacy-compatible`, which sets `journalAuthorityEnabled = false` (`ServerMatchHost.ts:357-358`) — contradicting the selector's own law at `:82-83` ('A started fact is a one-way boundary: it can never choose legacy again'). The marker could never do this; it lives on the match DB, open whenever the store is.",
+      "options": "(a) make the derived read return a tri-state and have the recovery site treat 'cannot tell' as `blocked/'recovery-fact-read-failed'`; (b) refuse typed on an unready port at the recovery site only; (c) prove by construction that the recovery path never runs before `SQLiteService.initialize()` and pin that with a test. Pick one and say why in the slice's evidence.",
+      "recommendation": "(a) or (b). (c) is only acceptable with a real pin, not an assertion."
+    },
+    "failingTestToWriteFirst": {
+      "name": "'a journal-started match does not fall back to the legacy reader when the capability database is unavailable'",
+      "file": "src/lib/multiplayer/server/__tests__/journalAuthorityStartedDerived.sqlite.test.ts (extend) or a new recovery-focused sibling",
+      "shape": "Commit a real batch at mode 'shadow' so the effective head is installed (reuse `openStore()` + `appendCommandBatch`), assert `derived() === true`, then reopen the DurableMatchStore in a state where `isCapabilityDbAvailable()` answers false (close/reset the campaign singleton WITHOUT `openCampaign()` — the existing `resetSQLiteService()` already gives the handle to do it), and assert the recovery decision is NOT `legacy-compatible`. Under today's silent-false this row goes RED — that is the proof the slice is fixing a real hole and not just renaming a call.",
+      "secondRow": "'a corrupt head at the recovery site produces the decided outcome' — force `status = 'superseded'` as row 7 does (`:213-219`) and assert whichever of blocked/throw sub-prefix (2) chooses, so the error semantics are pinned rather than inherited."
+    },
+    "whatSubPrefix2MustNOTDo": [
+      "Do NOT drop the marker write, the `mp_journal_authority_started` table, the `IMatchStore.getJournalAuthorityStarted?` port or the `IMatchCommandBatch.journalAuthorityStarted` field — that is sub-prefix (3), and keeping them is what lets rows 5 and 6 of the existing suite stay meaningful.",
+      "Do NOT weaken or delete rows 5 and 6 of `journalAuthorityStartedDerived.sqlite.test.ts` — they are the only guard against a repoint that renames the marker read.",
+      "Do NOT touch the cutover mode; `COMBAT_JOURNAL_AUTHORITY_MODE` stays 'off'.",
+      "Do NOT check task box 1.3 — it closes only after sub-prefix (3)."
+    ]
+  },
+
+  "reviewerVerificationLedger": {
+    "commandsRunInThisSession": [
+      "node -v -> v22.22.0",
+      "git log --oneline -4 + git status --porcelain (worktree) -> bb346350e on codex/roadmap-r4-s3a-derived-started-20260915, clean",
+      "git show --stat bb346350e -> 2 files changed, 301 insertions(+)",
+      "git show --format=... --name-status bb346350e -> author/committer Wes Rollings, two A rows",
+      "git log -1 --format=%B | grep -i 'claude|co-authored|generated with' -> NONE",
+      "git show --name-only bb346350e | grep openspec -> no match",
+      "jest --maxWorkers=2 --coverage=false <new suite> -> 7 passed / 7 total",
+      "jest --maxWorkers=2 --coverage=false src/lib/multiplayer/server -> 147 suites / 1088 tests passed",
+      "tsc -p tsconfig.json --noEmit -> zero diagnostics",
+      "full reads: matchJournalAuthorityStartedDerived.ts, journalAuthorityStartedDerived.sqlite.test.ts, matchRollbackReaderSelection.ts, matchAuthorityBaseline.ts, red-1/red-2 logs, r4-s3a-derived-started-local-20260915.json",
+      "targeted reads: ServerMatchHost.ts:350-370/1390-1530, ServerMatchHostJournalAuthority.ts:150-235, DurableMatchStore.ts:200-220/890-930/1029-1075, MatchStreamJournalMirror.ts:1-200, storeCapabilityPorts.ts:1-200, SQLiteEventHistoryBranchStore.ts:120-190, SQLiteEventJournalWriter.ts (branch_id sites), SQLiteService.eventJournal.migration.ts, SQLiteService.historyBranches.migration.ts, SQLiteService.branchPin.migration.ts, EventHistoryBranchContract.ts:105-166, design.md, tasks.md, specs/"
+    ],
+    "notVerified": [
+      "The pre-commit hook / `npm run build` was NOT re-run (read-only scope). Author's log `commit-20260915.log` exists on disk at the recorded size; its exit-0 claim is taken on the author's evidence, corroborated by this reviewer's independent tsc pass.",
+      "The author's wider focused gate (169 suites / 1321 tests including `src/lib/events/journal`) was not re-run at full width; the `src/lib/multiplayer/server` half was re-measured green.",
+      "The log sha256 values in the author's evidence were not recomputed."
+    ]
+  }
+}

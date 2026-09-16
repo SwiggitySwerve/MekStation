@@ -1,0 +1,270 @@
+{
+  "at": "2026-09-12T11:36:06.892Z",
+  "baseline": "be7f85b867aa3e8576e5e3d27e309276203bc24b",
+  "branch": "codex/roadmap-routing-precedence-20260912",
+  "owned": [
+    {
+      "path": "src/hooks/useCustomizerRouter.ts",
+      "sha256": "1a1cf81bb6570b7e73cae79f2c82a9172106c854991da7cd9199f4053491b77a"
+    },
+    {
+      "path": "src/hooks/__tests__/useCustomizerRouter.recovery.test.tsx",
+      "sha256": "48bbe23eea5dd26c366e310353889b2f6774b1f276609a541ef26556f0725ea9"
+    },
+    {
+      "path": "src/components/customizer/CustomizerWithRouter.tsx",
+      "sha256": "b8d35e3c956db68551c2d670e60b85ad748865269fe36c0dd7de12daabe9dd66"
+    },
+    {
+      "path": "src/components/customizer/__tests__/CustomizerWithRouter.routing.test.tsx",
+      "sha256": "f94ae9b73a7fa6a8b38474050c4ccb8bc23fa45e2a1699bf3fd7db488b8eba49"
+    },
+    {
+      "path": "openspec/specs/customizer-routing/spec.md",
+      "sha256": "0a73eaad02a565b1da64c7ed5277aedf84f367eba609d120c805acc43defb0c9"
+    },
+    {
+      "path": "openspec/changes/fix-customizer-explicit-tab-precedence/.openspec.yaml",
+      "sha256": "a4ed664eb8476e85e347872f52baefe664358318725d07ee4e28ea918d6fd9d4"
+    },
+    {
+      "path": "openspec/changes/fix-customizer-explicit-tab-precedence/design.md",
+      "sha256": "2328c2f8821202ef7aac04351767b9e57572d001be6a18fbfc408ecda4a326fe"
+    },
+    {
+      "path": "openspec/changes/fix-customizer-explicit-tab-precedence/proposal.md",
+      "sha256": "41762fe61062760b75aa0e799600e9f79ad982453400ea7913ec3d41cb9a7a46"
+    },
+    {
+      "path": "openspec/changes/fix-customizer-explicit-tab-precedence/specs/customizer-routing/spec.md",
+      "sha256": "6ddd0e574a13367a81224650aeda5fee91af142f8e98b82880d76d30fc2517cd"
+    },
+    {
+      "path": "openspec/changes/fix-customizer-explicit-tab-precedence/tasks.md",
+      "sha256": "e86f8bd194ff5fd88b421bd9172d39b8c0852dee9ba7872efefad7246f4234c1"
+    },
+    {
+      "path": "e2e/customizer-edit-recovery.spec.ts",
+      "sha256": "f04641daff42dea7ff459c56d7a3efbb87463ade8c62d11a0f931e37a364b4e0"
+    },
+    {
+      "path": "openspec/specs/customizer-tabs/spec.md",
+      "sha256": "23acfe7825ea5afc1a800b4ff8c11239a986a60a31fe2f023e25933cd8ad2d76"
+    },
+    {
+      "path": "openspec/active-change-ledger.json",
+      "sha256": "ef3fbc1bbc452a71c0605973cf7e5169f2b32127e91a6803f515538353a7cdf1"
+    }
+  ],
+  "checks": [
+    {
+      "name": "bootstrap-1",
+      "status": {
+        "name": "bootstrap-1",
+        "args": [
+          "C:\\nvm4w\\nodejs\\node_modules\\npm\\bin\\npm-cli.js",
+          "ci",
+          "--fund=false",
+          "--audit=false"
+        ],
+        "cwd": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\routing",
+        "startedAt": "2026-09-12T11:13:28.353Z",
+        "driverPid": 6356,
+        "running": false,
+        "pid": 35576,
+        "code": 0,
+        "finishedAt": "2026-09-12T11:13:51.432Z"
+      },
+      "log": ".sisyphus/roadmap-completion-20260912/routing-checks/bootstrap-1.log",
+      "sha256": "b831248725d5536a5c10a561e17aae55788da93b7deed8ecb1fdf7d2e785b2fb"
+    },
+    {
+      "name": "focused-2",
+      "status": {
+        "name": "focused-2",
+        "args": [
+          "node_modules/jest/bin/jest.js",
+          "--runInBand",
+          "--runTestsByPath",
+          "src/hooks/__tests__/useCustomizerRouter.test.ts",
+          "src/hooks/__tests__/useCustomizerRouter.recovery.test.tsx",
+          "src/components/customizer/__tests__/CustomizerWithRouter.routing.test.tsx",
+          "src/lib/campaign/customizer/__tests__/campaignCustomizerRoute.test.ts"
+        ],
+        "cwd": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\routing",
+        "startedAt": "2026-09-12T11:34:35.656Z",
+        "driverPid": 29988,
+        "running": false,
+        "pid": 30256,
+        "code": 0,
+        "finishedAt": "2026-09-12T11:34:37.950Z"
+      },
+      "log": ".sisyphus/roadmap-completion-20260912/routing-checks/focused-2.log",
+      "sha256": "d4587c61279b1b888aa7bb4505985d7c21a3fa5bb568bcf01e97cb71304d0d91"
+    },
+    {
+      "name": "typecheck-2",
+      "status": {
+        "name": "typecheck-2",
+        "args": [
+          "node_modules/typescript/bin/tsc",
+          "--noEmit",
+          "--incremental",
+          "false"
+        ],
+        "cwd": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\routing",
+        "startedAt": "2026-09-12T11:34:35.656Z",
+        "driverPid": 75108,
+        "running": false,
+        "pid": 20388,
+        "code": 0,
+        "finishedAt": "2026-09-12T11:35:09.216Z"
+      },
+      "log": ".sisyphus/roadmap-completion-20260912/routing-checks/typecheck-2.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "lint-1",
+      "status": {
+        "name": "lint-1",
+        "args": [
+          "C:\\nvm4w\\nodejs\\node_modules\\npm\\bin\\npm-cli.js",
+          "run",
+          "lint"
+        ],
+        "cwd": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\routing",
+        "startedAt": "2026-09-12T11:15:02.696Z",
+        "driverPid": 74568,
+        "running": false,
+        "pid": 58032,
+        "code": 0,
+        "finishedAt": "2026-09-12T11:15:05.912Z"
+      },
+      "log": ".sisyphus/roadmap-completion-20260912/routing-checks/lint-1.log",
+      "sha256": "cdddfe946fe51a9f6322769d1c5f581804f7b51601295b91070be5916bc07e4f"
+    },
+    {
+      "name": "format-1",
+      "status": {
+        "name": "format-1",
+        "args": [
+          "C:\\nvm4w\\nodejs\\node_modules\\npm\\bin\\npm-cli.js",
+          "run",
+          "format:check"
+        ],
+        "cwd": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\routing",
+        "startedAt": "2026-09-12T11:15:02.702Z",
+        "driverPid": 38572,
+        "running": false,
+        "pid": 12236,
+        "code": 0,
+        "finishedAt": "2026-09-12T11:15:23.699Z"
+      },
+      "log": ".sisyphus/roadmap-completion-20260912/routing-checks/format-1.log",
+      "sha256": "124508059a8015ef975353f40c6c04fd828ecfe1718b13a07504a0bb994c4366"
+    },
+    {
+      "name": "spec-1",
+      "status": {
+        "name": "spec-1",
+        "args": [
+          "C:\\nvm4w\\nodejs\\node_modules\\npm\\bin\\npm-cli.js",
+          "exec",
+          "--",
+          "openspec",
+          "validate",
+          "--all",
+          "--strict"
+        ],
+        "cwd": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\routing",
+        "startedAt": "2026-09-12T11:15:02.710Z",
+        "driverPid": 10460,
+        "running": false,
+        "pid": 78976,
+        "code": 0,
+        "finishedAt": "2026-09-12T11:15:07.095Z"
+      },
+      "log": ".sisyphus/roadmap-completion-20260912/routing-checks/spec-1.log",
+      "sha256": "749c0403cd63049e2a19c1b3d26d389e4476ef4afac7ec2aa473501a5179076f"
+    },
+    {
+      "name": "ci-contract-1",
+      "status": {
+        "name": "ci-contract-1",
+        "args": [
+          "scripts/qc/validate-openspec-ci-quality.mjs"
+        ],
+        "cwd": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\routing",
+        "startedAt": "2026-09-12T11:15:02.724Z",
+        "driverPid": 63264,
+        "running": false,
+        "pid": 54104,
+        "code": 0,
+        "finishedAt": "2026-09-12T11:15:02.916Z"
+      },
+      "log": ".sisyphus/roadmap-completion-20260912/routing-checks/ci-contract-1.log",
+      "sha256": "c968e046e95971f5a7ac68d0db299bc701def40bc6087d19c9ac4be2cf776bf3"
+    },
+    {
+      "name": "build-1",
+      "status": {
+        "name": "build-1",
+        "args": [
+          "scripts/next/run-next.mjs",
+          "build",
+          "--webpack"
+        ],
+        "cwd": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\routing",
+        "startedAt": "2026-09-12T11:18:08.678Z",
+        "driverPid": 19300,
+        "running": false,
+        "pid": 21084,
+        "code": 0,
+        "finishedAt": "2026-09-12T11:20:07.799Z"
+      },
+      "log": ".sisyphus/roadmap-completion-20260912/routing-checks/build-1.log",
+      "sha256": "7942a7f0d723a3f7c3817e2ac2640f4ea748f620b0d3c31a0c6ba12a50de1afd"
+    },
+    {
+      "name": "browser-production-1",
+      "status": {
+        "name": "browser-production-1",
+        "args": [
+          "scripts/playwright/run-playwright.mjs",
+          "test",
+          "e2e/customizer-edit-recovery.spec.ts",
+          "--project=chromium",
+          "--grep",
+          "explicit Structure",
+          "--retries=0",
+          "--workers=1",
+          "--trace=retain-on-failure"
+        ],
+        "cwd": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\routing",
+        "startedAt": "2026-09-12T11:21:37.708Z",
+        "driverPid": 76848,
+        "running": false,
+        "pid": 26460,
+        "code": 0,
+        "finishedAt": "2026-09-12T11:22:04.061Z"
+      },
+      "log": ".sisyphus/roadmap-completion-20260912/routing-checks/browser-production-1.log",
+      "sha256": "1ed68d0e6a6666aff695b517f01e5be98c5cc2e6b608f917be458b7f808f314d"
+    }
+  ],
+  "counts": {
+    "focusedTests": 12,
+    "focusedSuites": 4,
+    "productionBrowserCases": 1,
+    "retries": 0
+  },
+  "review": "Luna found no production defect; parent completed campaign hydration/return callback characterization and real return-route helper checks. Full campaign loader/persistence and hard navigation remain governed by their separate journey package.",
+  "candidateCommit": "aff3a051a0f52e0b35005ea1b3b7406381f577dc",
+  "commitHook": {
+    "state": "passed",
+    "log": ".sisyphus/roadmap-completion-20260912/routing-checks/commit-1.log",
+    "sha256": "4339a63528284d863929ffb64bd0810df2f3378c34a4a02db63dd82946e6ff95",
+    "clean": true,
+    "ownedHashesUnchanged": true
+  }
+}

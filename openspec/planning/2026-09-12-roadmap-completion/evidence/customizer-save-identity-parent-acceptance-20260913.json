@@ -1,0 +1,89 @@
+{
+  "at": "2026-09-13T04:55:16.420Z",
+  "status": "accepted-bounded-source-review",
+  "disposition": "NO_PRODUCT_DEFECT_ADMITTED",
+  "review": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/customizer-save-identity-reachability-terra-20260913/report.json",
+    "sha256": "0f8d86e5eea0407016f7f7bfec074770887bfee055df436fa69e194f547022b1"
+  },
+  "candidate": {
+    "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\final-canonical-proposals",
+    "head": "4d8d931601b46904130975efee4a4a6eee61b7cc",
+    "sourceFiles": [
+      {
+        "path": "src/components/customizer/dialogs/SaveUnitDialog.tsx",
+        "sha256": "4fd65120188cda5650a54b4d4458c890f9a3c76b3abc5b9942149fa7306668e2",
+        "bytes": 13170,
+        "blobOid": "aa984caa5aa093d35a078260106d5892b2956d52"
+      },
+      {
+        "path": "src/components/customizer/tabs/MultiUnitTabs.tsx",
+        "sha256": "7fb7f1066e4025fd8b986a99e8125b65f787703ffc1f70f1247cd159dfbb9c98",
+        "bytes": 9494,
+        "blobOid": "cc018f5ed46048cf03710c97b340e5bf467eb795"
+      },
+      {
+        "path": "src/components/customizer/tabs/useMultiUnitTabsController.dialogs.ts",
+        "sha256": "a80d18a6ab353d3942f3fd844fe707ff93d7d5f72ccdc9993b5b000a428a26e9",
+        "bytes": 9891,
+        "blobOid": "8d67764166c0da3a243150b72f19827f069ddcff"
+      },
+      {
+        "path": "src/components/customizer/tabs/useMultiUnitTabsController.helpers.ts",
+        "sha256": "1699f69562da8e929f348ec079a369e67092d21ec7cb8f7127acf3035f46b175",
+        "bytes": 4473,
+        "blobOid": "f4c508c13a83474e40a1f1201d4afa99c54b1003"
+      },
+      {
+        "path": "src/services/units/UnitNameValidator.ts",
+        "sha256": "313d58e9025b5ea162ba598403a006977827b301420af155ff6c36014c4ebcd9",
+        "bytes": 8695,
+        "blobOid": "562619ef35cab49169cb8457a03276e54b28eef3"
+      },
+      {
+        "path": "src/services/units/UnitRepository.ts",
+        "sha256": "d9a7f0439b2ebe8b23154dbdfae7716faef4b6b8f32c7b51bea37d50c93d9dae",
+        "bytes": 12153,
+        "blobOid": "b2b5dea2373cdfc385844a1357d9af4c035bcd42"
+      },
+      {
+        "path": "src/services/units/unitLoaderService/unitLoader.ts",
+        "sha256": "77335fe032756f89020301cdf89ce561ea77d21c234392a956cf85da3531e41d",
+        "bytes": 5289,
+        "blobOid": "e8bf27857c28326fe0a074bd0b539a3c71ee3ffc"
+      },
+      {
+        "path": "src/services/units/unitLoaderService/createUnitSession.ts",
+        "sha256": "d8da5ca086fad6ef09f3ba854a16b86cf8b700300ebe3dd2f155a9eeb290f325",
+        "bytes": 1741,
+        "blobOid": "75075f39a4da5f58eca4d88cd4e68fb4f6086654"
+      },
+      {
+        "path": "src/stores/unitStoreRegistry.ts",
+        "sha256": "1dc4e6a402461fcb55d9f411b85c6aefb25ea5879ade4bfd5b3d716f876cc83f",
+        "bytes": 8539,
+        "blobOid": "e34d4e2bd3c4ef82ad2b350ed718fb8fddc23810"
+      },
+      {
+        "path": "src/components/customizer/campaign/useCampaignCustomizerRouting.ts",
+        "sha256": "ec1384e2b3c7a138a810cc74d7e986adfeea1dce24b4e45c15495d7babe7c0a2",
+        "bytes": 7384,
+        "blobOid": "f07b4c6953155413a8b8ad2dc10ddca4df395cab"
+      },
+      {
+        "path": "src/components/customizer/tabs/restoreLibraryVersionToDraft.ts",
+        "sha256": "a8a243f780c7c2827bcae167cc59f8fc2ff98702db9db721fb6295e25576b617",
+        "bytes": 3040,
+        "blobOid": "87ebdd52d8755a9d5ba30252d73bd0bbcea93955"
+      },
+      {
+        "path": "e2e/customizer-edit-recovery.spec.ts",
+        "sha256": "f04641daff42dea7ff459c56d7a3efbb87463ade8c62d11a0f931e37a364b4e0",
+        "bytes": 15508,
+        "blobOid": "3d28dcaa76e1ff5a5208352b1330f21801b36a59"
+      }
+    ]
+  },
+  "findings": "Supported editor identity producers use UUIDs while library creates use custom-prefixed UUIDs. The proposed same-ID exclusion sequence does not establish a supported-flow defect.",
+  "limits": "No new runtime proof. Artificial props, handcrafted storage, and unproven historic records do not establish an admitted defect. Normal Overwrite requirement remains binding. Canonical draft must remove its unsupported ordinary-flow defect claim."
+}

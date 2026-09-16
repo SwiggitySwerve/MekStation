@@ -1,0 +1,48 @@
+{
+  "slice": "R2.authority-cutover CO3 part 1: flag-free campaign journal authority CLI",
+  "pr": 1747,
+  "prHead": "ef60e5cde7da6782145e32a69908ca0d84df6c7c",
+  "mergeCommit": "376f5aa923070613b16cb4cdb1091c6f6fb04b13",
+  "verifiedAtUtc": "2026-09-15T19:58:05.216Z",
+  "worktree": "r2-prepared-journal-api (detached at merge commit)",
+  "blobEquality": {
+    "files": [
+      ".gitignore",
+      "scripts/e2e/campaign-journal-authority.ts"
+    ],
+    "command": "git diff --stat <prHead> <merge> -- <files>",
+    "result": "empty (0 bytes)"
+  },
+  "gates": {
+    "tsc": {
+      "exit": 0,
+      "outputBytes": 0
+    },
+    "cliSmoke": {
+      "command": "npx tsx scripts/e2e/campaign-journal-authority.ts --help",
+      "exit": 0,
+      "output": "{ok:true,cutoverFlag:false,effective:false,e2eEnvKey:MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY,e2eEnvValue:null}"
+    },
+    "openspecStrict": {
+      "exit": 0
+    }
+  },
+  "logs": {
+    "cliHelp": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1747-20260915/cli-help.log",
+      "sha256": "9c52d01f4cc252e38166c84434af5d1b6767b3d83af821e371ed30e104edea4d"
+    },
+    "tsc": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1747-20260915/tsc.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "openspec": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1747-20260915/openspec.log",
+      "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3"
+    }
+  },
+  "limits": [
+    "inert helper until #1750 lands; the two-process runtime proof is run at #1750 merge commit",
+    "scripts/** is neither typechecked by the root tsconfig nor linted (oxlint ignores scripts/**); tsc exit 0 here covers src/ only"
+  ]
+}

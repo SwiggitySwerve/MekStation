@@ -1,0 +1,100 @@
+{
+  "task": "Fix the systemic CI flake diagnosed in selected-paper-flake-diagnosis-20260915.json: sequence the two concurrent CPU-bound record-sheet render pipelines (Atlas's stalled print, Locust's fresh preview) in e2e/customizer-record-sheet-rendering.spec.ts by settling Locust's own render before releasing the stalled print pips.",
+  "diagnosis_path": "E:/Projects/MekStation/openspec/planning/2026-09-12-roadmap-completion/evidence/selected-paper-flake-diagnosis-20260915.json",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/browser",
+  "base_sha": "cd416634a3d783131e4564050bd388a923f11cdb",
+  "base_sha_note": "origin/main HEAD at fetch time (commit: spec(openspec): ledger and tasks reconciliation batch 3 ... (#1736))",
+  "branch": "codex/roadmap-selected-paper-settle-20260915",
+  "commit_sha": "bfce65b3f60b75b829ea8301b8c7407abfd07b3d",
+  "commit_message_subject": "test(e2e): settle the Locust render before releasing the stalled print pips",
+  "commit_author": "Wes Rollings <wrollings@gmail.com>",
+  "diff": {
+    "file": "e2e/customizer-record-sheet-rendering.spec.ts",
+    "location": "inside the try block of the 'Print writes one current sheet into the reserved window at the selected paper @customizer' test, immediately after `await loadLocustBesideAtlas(page);` (line 354) and before the `finally { releasePips(); }` block (lines 355-357)",
+    "patch": "diff --git a/e2e/customizer-record-sheet-rendering.spec.ts b/e2e/customizer-record-sheet-rendering.spec.ts\nindex 42b57c7bd..9ab35d12a 100644\n--- a/e2e/customizer-record-sheet-rendering.spec.ts\n+++ b/e2e/customizer-record-sheet-rendering.spec.ts\n@@ -352,6 +352,8 @@ test('Print writes one current sheet into the reserved window at the selected pa\n     expect((await popup).isClosed()).toBe(false);\n     expect(await printCount(page)).toBe(0);\n     await loadLocustBesideAtlas(page);\n+    await waitForBacking(page, LETTER);\n+    await expectSheetType(page, 'Locust LCT-1V');\n   } finally {\n     releasePips();\n   }",
+    "patch_file": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/selected-paper-settle-20260915/diff.patch",
+    "patch_file_sha256": "6e31eb0b0c45cbcdae48a6de86f3ea642745fc88cc2bf783fd131d5a4bfabe9e"
+  },
+  "code_reading_confirmation": {
+    "helpers_read": "e2e/customizer-record-sheet-rendering.spec.ts lines 77-205 (loadLocustBesideAtlas, waitForBacking, latestSheetSvg, sheetTypeName, expectSheetType) plus the critical section lines 322-372",
+    "waitForBacking": "lines 138-145: `async function waitForBacking(page, size) { await expect.poll(async () => backingSize(page)).toEqual({ width: size.backingWidth, height: size.backingHeight }); }` -- polls the preview canvas's actual backing-store pixel size against the expected paper size until it matches (proves the preview canvas has re-rendered at the new size).",
+    "expectSheetType": "lines 201-205: `async function expectSheetType(page, name) { await expect.poll(async () => sheetTypeName(await latestSheetSvg(page))).toBe(name); }` -- polls the most recently captured SVG blob's embedded '<... id=\"type\">' text until it matches the expected unit type name (proves the newly-loaded unit's own SVG has been captured, not a stale one).",
+    "loadLocustBesideAtlas": "lines 77-94: clicks 'Add unit', selects canonical, searches/filters for 'Locust LCT-1V', clicks Load Unit, waits for the dialog to close, switches to the Preview tab, and waits for the zoom label to be visible. Does NOT itself wait for the record-sheet render to complete -- confirmed no polling on canvas/SVG state inside this helper, which is exactly why a caller-side settle is needed after it.",
+    "releasePips": "a local Promise-resolver captured in the test body (not a helper in recordSheetPrintHarness.ts): `let releasePips!: () => void; const heldPips = new Promise<void>((resolve) => { releasePips = resolve; });`. The route handler on '**/record-sheets/biped_pips/**' (times: 1) awaits `heldPips` before calling `route.continue()`, so calling `releasePips()` in the `finally` block is what unblocks Atlas's stalled print pipeline.",
+    "sequencing_confirmed": "The inserted `await waitForBacking(page, LETTER); await expectSheetType(page, 'Locust LCT-1V');` runs BETWEEN `loadLocustBesideAtlas(page)` (line 354, kicks off Locust's CPU-bound preview render) and the `finally` block's `releasePips()` (line 356, which unblocks Atlas's stalled print pipeline) -- so Locust's preview must fully settle to its final backing size and correct SVG type BEFORE Atlas's print is allowed to resume, eliminating the window in which both CPU-bound render pipelines could run concurrently.",
+    "precedent_match": "waitForBacking is the identical predicate (same function, same LETTER constant) used by the same-day commit 9b59a19f8/79de4f195's settle pattern already present at spec.ts:305-308 in the earlier 'preview shows the last requested unit...' test: `await waitForBacking(page, LETTER); await loadLocustBesideAtlas(page); await waitForBacking(page, LETTER); await expectSheetType(page, 'Locust LCT-1V');` -- the fix in this task reuses that exact waitForBacking+expectSheetType pair at the one remaining unsettled tab-switch point the diagnosis identified."
+  },
+  "verification_gates": {
+    "oxfmt_check": { "command": "npx oxfmt --check e2e/customizer-record-sheet-rendering.spec.ts", "exit_code": 0, "output": "All matched files use the correct format." },
+    "tsc_noEmit": { "command": "npx tsc --noEmit -p tsconfig.json", "exit_code": 0, "output": "(clean, no errors)", "note": "e2e/**/*.ts is covered by root tsconfig.json's include glob ('next-env.d.ts', '**/*.ts', '**/*.tsx', '.next/types/**/*.ts'); the exclude list only removes node_modules, scripts/, desktop/, and src/pages test files, so no separate e2e tsconfig exists and the root config was used directly." }
+  },
+  "build": {
+    "command": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build",
+    "exit_code": 0,
+    "build_id_used_for_playwright_runs": "1789493129312",
+    "e2e_mode_verified": "grep -o \"__E2E_MODE__=!?[01]\" .next/static/chunks/pages/_app-b4f3e371ee8b87c1.js -> __E2E_MODE__=!0",
+    "log_file": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/selected-paper-settle-20260915/build-before.log",
+    "log_sha256": "fcfa903bad3077058149e36cf0d42831b58869b92099112353dc62b654328c4f"
+  },
+  "per_run_table": [
+    {
+      "phase": "before (baseline, unfixed spec, stashed the fix first)",
+      "command": "MEKSTATION_E2E_SERVER_COMMAND='node .next/standalone/server.js' HOSTNAME=127.0.0.1 MEKSTATION_E2E_PORT=3639 node scripts/playwright/run-playwright.mjs test e2e/customizer-record-sheet-rendering.spec.ts --project=chromium --retries=0 --workers=1 --repeat-each=3 -g \"selected paper\"",
+      "result": "3 passed (49.3s)",
+      "exit_code": 0,
+      "log_file": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/selected-paper-settle-20260915/before-run.log",
+      "log_sha256": "6a057cf1b0c451a917886b535bfdf1f60bbc996b2189db110592537d672d7cda",
+      "note": "Did not reproduce the race locally -- expected, see non_claims. This dev machine has far more CPU headroom than CI's 2 vCPU ubuntu-latest runner."
+    },
+    {
+      "phase": "after (fixed spec, -g filtered)",
+      "command": "same as above, fix applied, --repeat-each=3",
+      "result": "3 passed (20.8s)",
+      "exit_code": 0,
+      "log_file": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/selected-paper-settle-20260915/after-run.log",
+      "log_sha256": "9117f39c0f8d2afc6dc53c830deabf356fd062d3349e98a3fef8bdc8defc6a0c"
+    },
+    {
+      "phase": "whole-file (fixed spec, no -g filter, all 6 tests in the file)",
+      "command": "MEKSTATION_E2E_SERVER_COMMAND='node .next/standalone/server.js' HOSTNAME=127.0.0.1 MEKSTATION_E2E_PORT=3639 node scripts/playwright/run-playwright.mjs test e2e/customizer-record-sheet-rendering.spec.ts --project=chromium --retries=0 --workers=1",
+      "result": "6 passed (30.5s)",
+      "exit_code": 0,
+      "log_file": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/selected-paper-settle-20260915/whole-file-run.log",
+      "log_sha256": "4086abd6c56c4893667c12d47eaa1af7c8c80c188330c4389d5fe1d676ba5743"
+    },
+    {
+      "phase": "settle-removed (load-bearing check: temporarily git-stashed the fix again, ran once, restored via git stash pop)",
+      "command": "same as before-run but --repeat-each omitted (single run), -g \"selected paper\"",
+      "result": "1 passed (9.0s)",
+      "exit_code": 0,
+      "log_file": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/selected-paper-settle-20260915/settle-removed-run.log",
+      "log_sha256": "29cf029b4ca3a59e3b345fecdfbce25ed5ca4012b1df89582c9dea09b015b7be",
+      "note": "Race did NOT reproduce even with the settle removed, on this local machine. This is consistent with the diagnosis's own local_reproduction finding (0/N local reproductions of the race; the race is dependent on CI's 2 vCPU contention, which this dev machine does not have). The fix's load-bearing status therefore rests on the CI evidence in the diagnosis (three independent CI failures at the exact code location this fix targets, two of them proven non-deterministic same-commit reruns), not on a local red-first pin -- exactly as the diagnosis's own fix_candidates_ranked[0].red_first_pin anticipated (it proposed CDP CPU throttling as the only way to force local reproduction, which this task's instructions did not direct and which was not executed)."
+    }
+  ],
+  "commit": {
+    "command": "git commit -m \"test(e2e): settle the Locust render before releasing the stalled print pips\" (full body in commit_message_subject context above and in git log)",
+    "exit_code": 0,
+    "sha": "bfce65b3f60b75b829ea8301b8c7407abfd07b3d",
+    "pre_commit_hook": "husky pre-commit ran lint-staged (oxlint --fix, oxfmt --write, tsc --noEmit --skipLibCheck on the staged .ts file) then a full `npm run build` (TypeScript-files-staged trigger) -- all completed successfully (exit 0).",
+    "log_file": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/selected-paper-settle-20260915/commit.log",
+    "log_sha256": "02df5b5600529fbf2f36752299cdff92f01e5293205f4f185fc3fe2c04ce0c00",
+    "post_commit_build_id": "1789493704194",
+    "post_commit_build_id_note": "The pre-commit hook's bare `npm run build` (no NEXT_PUBLIC_E2E_MODE/NEXT_PUBLIC_E2E_TEST env vars set in its invocation, confirmed via package.json's plain `build` script and no lint-staged/husky override) replaced the E2E-mode standalone bundle used for the four Playwright runs above (BUILD_ID 1789493129312) with a plain production build (BUILD_ID 1789493704194). No further E2E rebuild was performed after the commit since no additional Playwright run was needed."
+  },
+  "gate_compliance": {
+    "cpu_gate_checks": "Ran `powershell -NoProfile -c \"(Get-CimInstance Win32_Process -Filter \\\"name='node.exe'\\\" | ? { $_.CommandLine -match 'next.*build|jest|playwright' }).Count\"` immediately before the build and before each of the four Playwright runs and before the commit; every check returned 0 on the first attempt (no sleep-loop wait was ever needed).",
+    "port": "3639 only, via MEKSTATION_E2E_PORT=3639, for every Playwright run.",
+    "prod_evidence_flag": "Never used --prod-evidence."
+  },
+  "non_claims": [
+    "Did NOT widen any timeout (playwright.config.ts's expect.timeout stayed at 10_000ms, untouched; no test.slow() or per-assertion timeout override was added).",
+    "Did NOT change any assertion's expected value -- the fix adds two new settle assertions using the existing waitForBacking/expectSheetType helpers and the existing LETTER constant; no pre-existing assertion in the file was modified.",
+    "Did NOT touch any product code -- the entire diff is confined to e2e/customizer-record-sheet-rendering.spec.ts.",
+    "Did NOT reproduce the intermittent CI race on this local machine, either before or after the fix, and NOT even with the fix removed. This local machine (16 logical processors, plus ~200+ unrelated node.exe processes from other concurrent agent sessions sharing the box, though the specific build/jest/playwright gate was clear at every check) does not have CI's 2 vCPU constraint that the diagnosis identifies as the actual trigger condition, so a local pass in every configuration (before, after, whole-file, and settle-removed) is expected and does not by itself prove or disprove the fix -- the evidence for the fix's correctness is the code-reading confirmation above (the fix closes exactly the concurrency window the diagnosis's three independent CI failure logs point to) plus the precedent that the same author already applied and shipped the identical settle pattern at two sibling tab-switch points in this same file earlier the same day.",
+    "This local machine is NOT the CI runner and no claim is made that local pass/fail results predict CI behavior beyond the reasoning above.",
+    "Did NOT run the CDP CPU-throttling red-first pin proposed by the diagnosis's fix_candidates_ranked[0].red_first_pin -- out of scope for this task's explicit step list.",
+    "Did NOT push, open a PR, or fetch/download any external assets during this task."
+  ],
+  "summary": "Applied the diagnosis's rank-1 fix: inserted `await waitForBacking(page, LETTER); await expectSheetType(page, 'Locust LCT-1V');` at e2e/customizer-record-sheet-rendering.spec.ts (after the loadLocustBesideAtlas call, before releasePips() in the finally block), sequencing Locust's preview render to fully settle before Atlas's stalled print is released -- eliminating the concurrent-CPU-bound-render window that caused the CI flake. All local gates passed (oxfmt, tsc, build, 4 Playwright run configurations, pre-commit hook). Committed as bfce65b3f60b75b829ea8301b8c7407abfd07b3d on branch codex/roadmap-selected-paper-settle-20260915 off base cd416634a3d783131e4564050bd388a923f11cdb. The race itself was not reproducible locally in any configuration (consistent with the diagnosis's own finding that it depends on CI's 2 vCPU contention), so this fix is validated by code-reading plus precedent, not a local red-first pin."
+}

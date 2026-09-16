@@ -1,0 +1,73 @@
+{
+  "slice": "R4.S7-b pair 3: retire the dangling started-derivation surface (+ review comment edits)",
+  "pr": 1746,
+  "prHead": "f1be1750e1b33be6400f8ea619e008cfe2a6455d",
+  "mergeCommit": "b81242d1b668bc5d1a6e067c463cc5b332652a09",
+  "verifiedAtUtc": "2026-09-15T19:50:02.549Z",
+  "worktree": "archive-original-main-proof (detached at merge commit, Node v22.22.0)",
+  "blobEquality": {
+    "files": [
+      "src/lib/multiplayer/server/__tests__/journalAuthorityStartedDerived.sqlite.test.ts",
+      "src/lib/multiplayer/server/__tests__/matchMarkerRetirementRecovery.sqlite.test.ts",
+      "src/lib/multiplayer/server/__tests__/matchRecoveryStartedFromJournalHead.sqlite.test.ts",
+      "src/lib/multiplayer/server/matchJournalAuthorityStartedDerived.ts"
+    ],
+    "command": "git diff --stat <prHead> <merge> -- <files>",
+    "result": "empty (0 bytes)"
+  },
+  "dirtyResolution": "add/add after #1745 squash resolved by merging origin/main keeping the branch file (f1be1750e)",
+  "gates": {
+    "jest": {
+      "scope": "src/lib/events/journal src/lib/multiplayer/server",
+      "exit": 0,
+      "suites": 177,
+      "tests": 1367
+    },
+    "tsc": {
+      "exit": 0,
+      "outputBytes": 0
+    },
+    "openspecStrict": {
+      "exit": 0
+    },
+    "specPurposeStrict": {
+      "exit": 0
+    },
+    "terminologyStrict": {
+      "exit": 0
+    },
+    "qcOpenspecCi": {
+      "exit": 0
+    }
+  },
+  "logs": {
+    "jest": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1746-20260915/jest.log",
+      "sha256": "99a228f233da8cd1145e38e34d463688f62efdbdbc521ac12c065899550f45aa"
+    },
+    "openspec": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1746-20260915/openspec.log",
+      "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3"
+    },
+    "purpose": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1746-20260915/purpose.log",
+      "sha256": "629026f25215446af06f7491ea5757f56e6f66d00cb70d6d432438cb6cb9adf7"
+    },
+    "qcOpenspecCi": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1746-20260915/qc-openspec-ci.log",
+      "sha256": "8c41df6c33246420ed1806218780c2df69b5ad4e7c594b993b07594ee959ccb2"
+    },
+    "terminology": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1746-20260915/terminology.log",
+      "sha256": "367d74a06a157e92df4177f8aad4800759f031946cd2885741a200f08f32a601"
+    },
+    "tsc": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1746-20260915/tsc.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "limits": [
+    "scoped jest only",
+    "S7-b complete on main: task 1.3 discharged in production; marker table/read port/batch field remain (OQ-2 owner ruling); unavailable->blocked refusal withdrawn; mode off"
+  ]
+}

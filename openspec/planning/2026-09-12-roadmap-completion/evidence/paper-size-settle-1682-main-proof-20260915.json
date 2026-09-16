@@ -1,0 +1,37 @@
+{
+  "proof": "PROOF 2 - PR #1682 (paper-size settle) merge-to-main verification",
+  "date": "2026-09-15",
+  "pr": 1682,
+  "mergeCommit": "79de4f19591f72c3d5295c2ac71118589027ed36",
+  "reviewedHead": "9b59a19f8",
+  "blobEquality": {
+    "file": "e2e/customizer-record-sheet-rendering.spec.ts",
+    "method": "git rev-parse <commit>:<path> compared between 79de4f19591f72c3d5295c2ac71118589027ed36 and 9b59a19f8",
+    "mergeBlob": "42b57c7bd6e4e896f31161c54a1536edec735481",
+    "reviewedBlob": "42b57c7bd6e4e896f31161c54a1536edec735481",
+    "result": "MATCH"
+  },
+  "scopeCheck": {
+    "file": "tsconfig.json",
+    "finding": "include patterns are ['next-env.d.ts', '**/*.ts', '**/*.tsx', '.next/types/**/*.ts'] and exclude does not scope out e2e/ -- e2e/*.ts falls in tsconfig include scope",
+    "chosenVerification": "npx tsc --noEmit -p tsconfig.json (e2e is in scope)"
+  },
+  "verification": {
+    "tscNoEmit": {
+      "command": "npx tsc --noEmit -p tsconfig.json",
+      "exitCode": 0,
+      "result": "clean, no type errors"
+    },
+    "playwrightListSupplemental": {
+      "command": "npx playwright test e2e/customizer-record-sheet-rendering.spec.ts --list",
+      "exitCode": 0,
+      "result": "Total: 6 tests in 1 file",
+      "expectedMatch": true,
+      "note": "supplemental confirmation only -- no browser run performed"
+    }
+  },
+  "browserRunPerformed": false,
+  "logDirectory": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/main-proof-1678-1682-campproof-20260915/",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/archive-original-main-proof",
+  "nodeVersion": "v22.22.0"
+}

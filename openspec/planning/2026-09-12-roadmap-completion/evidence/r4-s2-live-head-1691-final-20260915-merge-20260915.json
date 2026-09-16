@@ -1,0 +1,80 @@
+{
+  "pr": 1691,
+  "branch": "codex/roadmap-r4-s2-live-head-admission-20260915",
+  "reviewedCommit": "c315b9f99474d24ce01e2d09f2e02bde4f4d6bab",
+  "finalHead": "a5f0df352ca1ecc9f1f782147659220e870bae5e",
+  "anomaly": null,
+  "autoMergeArmed": false,
+  "stackedOn": "PR 1684 (S1), merged as squash 95042d919",
+  "contentGuard": {
+    "preUpdate": {
+      "fileSetVsMain": [
+        "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/specs/gm-combat-interventions/spec.md",
+        "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/tasks.md",
+        "src/lib/multiplayer/server/DurableMatchStore.ts",
+        "src/lib/multiplayer/server/MatchStreamJournalMirror.ts",
+        "src/lib/multiplayer/server/__tests__/ServerMatchHostBranchAdmission.journalHead.test.ts",
+        "src/lib/multiplayer/server/__tests__/matchStreamJournalMirror.sqlite.test.ts",
+        "src/lib/multiplayer/server/durableCapabilityPorts.ts"
+      ],
+      "diffstat": "7 files changed, 998 insertions(+), 3 deletions(-)",
+      "note": "EXPECTED 7-file diff before update: the branch still carried S1 commit e1ccf668c, so 1684's four files rode along. Not a discrepancy.",
+      "mergeStateAtCheck": "MERGEABLE / BEHIND - NOT dirty, so the stacked-conflict policy did not apply",
+      "result": "PASS (as-expected stacked state)"
+    },
+    "postUpdate": {
+      "fileSetVsMain": [
+        "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/specs/gm-combat-interventions/spec.md",
+        "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/tasks.md",
+        "src/lib/multiplayer/server/__tests__/ServerMatchHostBranchAdmission.journalHead.test.ts"
+      ],
+      "diffstat": "3 files changed, 499 insertions(+), 2 deletions(-)",
+      "collapsedCorrectly": true,
+      "note": "after update-branch the four S1 files dropped out of the diff, leaving exactly the three files specified for this PR",
+      "blobEquality": "all 3 blobs equal to c315b9f99",
+      "result": "PASS"
+    }
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "oldHead": "c315b9f99474d24ce01e2d09f2e02bde4f4d6bab",
+    "newHead": "a5f0df352ca1ecc9f1f782147659220e870bae5e",
+    "expectedHeadShaGuard": "c315b9f99474d24ce01e2d09f2e02bde4f4d6bab",
+    "reason": "branch was BEHIND after #1684 and #1692 merged; the update also collapsed the stacked diff"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "otherChecksCount": 27,
+    "otherChecksBuckets": { "pass": 27 },
+    "totalChecks": 31,
+    "pollLog": "09:10:24 2 pending -> 09:19:14 31 pass / 0 pending"
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r4-s2-live-head-1691-final-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "823bdf3acbaaa8a5d7ddccfff0f0f1a30e2688ee",
+  "mergeCommitParents": ["5fac5a58c95c351cbfe37a7ab16fbb371b8022df"],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1691 --squash --match-head-commit a5f0df352ca1ecc9f1f782147659220e870bae5e",
+  "mergedAt": "2026-09-15T09:19:42Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "The merge commit changes exactly the 3 guarded files, blob-identical to the gated head.",
+  "mainAfter": "823bdf3acbaaa8a5d7ddccfff0f0f1a30e2688ee",
+  "stackedPolicyOutcome": "No DIRTY state arose. Contrast with PR 1690, which did go dirty because it shared a file with its squash-merged predecessor. Confirmed twice this session: a stacked PR updates cleanly when its file set is disjoint from the predecessor, and conflicts when it is not.",
+  "worktree": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/history-runtime-integrity",
+    "fastForward": "NOT PERFORMED - per coordinator instruction (parent uses this worktree)",
+    "result": "SKIPPED (intentional)"
+  },
+  "timestamps": {
+    "guardStartedAt": "2026-09-15T09:09:20Z",
+    "checksTerminalAt": "2026-09-15T09:19:14Z",
+    "mergedAt": "2026-09-15T09:19:42Z",
+    "receiptWrittenAt": "2026-09-15T09:22:30Z"
+  }
+}

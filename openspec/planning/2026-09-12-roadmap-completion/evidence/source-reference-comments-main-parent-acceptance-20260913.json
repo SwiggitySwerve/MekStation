@@ -1,0 +1,111 @@
+{
+  "at": "2026-09-13T06:44:10.804Z",
+  "state": "accepted-main-proof",
+  "pr": 1666,
+  "mainSha": "44b94adbbb333a9d4965e057b34290e19fc0e781",
+  "files": [
+    {
+      "path": "src/components/customizer/tabs/CustomizerTabs.tsx",
+      "sha256": "d55189f7c34de84bfb2682fec40611aa6cd4a8b62fdf3594d87954a1cc7dcc5c",
+      "nonTriviaTokensEqual": true,
+      "oid": "110b11a8c1ad052b22aa8251c5a0e734fd017219"
+    },
+    {
+      "path": "src/utils/gameplay/pilotingSkillRolls/types.ts",
+      "sha256": "4b4225f3f55532537a2df67d621db2b58eea5cda864dcf9d80e2865401505a2b",
+      "nonTriviaTokensEqual": true,
+      "oid": "6b74b15d9fdbde47f3991f63fe2326fa411bf846"
+    },
+    {
+      "path": "src/types/campaign/UnitCombatState.ts",
+      "sha256": "d347985ceaf08e0e3908dc42fc48bb63ed714eadcf52d598c5eb584852cbce8f",
+      "nonTriviaTokensEqual": true,
+      "oid": "fa5f38814cc44f180deb771df39653da4d2f57cd"
+    },
+    {
+      "path": "src/lib/campaign/hooks/useCampaignDashboardSummary.ts",
+      "sha256": "b4fb4d9e77892ed3803bdf104f7b80362c6b190da872fd681e241f6d8f2f1a63",
+      "nonTriviaTokensEqual": true,
+      "oid": "93f6f631e38f1fc65660ba5da1aff57ec42c66d4"
+    }
+  ],
+  "gates": {
+    "static": 8,
+    "build": 1
+  },
+  "verifiedArtifactReferences": [
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\source-reference-comments-main-gates-20260913/typecheck.stdout.log",
+      "sha256": "d140a6ce62dda0946fe30dd882dbb8209f05be72c8fa8850e5634755a399e50f"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\source-reference-comments-main-gates-20260913/typecheck.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\source-reference-comments-main-gates-20260913/lint.stdout.log",
+      "sha256": "48800278501b382c85687cb2003ac627c1b45705156135632b5c2b24f8cd0d3a"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\source-reference-comments-main-gates-20260913/lint.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\source-reference-comments-main-gates-20260913/format-check.stdout.log",
+      "sha256": "dfd7f3b3727fed3d79cbe71cdfbfb252768d525058bf00949a2f724079499ea0"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\source-reference-comments-main-gates-20260913/format-check.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\source-reference-comments-main-gates-20260913/openspec.stdout.log",
+      "sha256": "cc90ade73c964f27cfcde5ca721882bbaef3d4c6cab944254433acb7eafcd407"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\source-reference-comments-main-gates-20260913/openspec.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\source-reference-comments-main-gates-20260913/spec-purpose-validate-strict.stdout.log",
+      "sha256": "5798aaa5f80bdb3ff377dce501b4b585c931696bb994dfc6694105840bc41719"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\source-reference-comments-main-gates-20260913/spec-purpose-validate-strict.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\source-reference-comments-main-gates-20260913/terminology-validate-strict.stdout.log",
+      "sha256": "0aa5a9766e05dd5717dd0716600178778d9b12c1aae493920c77b9911ab367e0"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\source-reference-comments-main-gates-20260913/terminology-validate-strict.stderr.log",
+      "sha256": "0211af1f77e347aa3b524b2bf9ac871fb103d737af5071412d6687ab34474d4c"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\source-reference-comments-main-gates-20260913/qc-openspec-ci-validate.stdout.log",
+      "sha256": "f01feb11318234aab4764fe76151b78c06905527212a8f8723626fcf616b71d6"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\source-reference-comments-main-gates-20260913/qc-openspec-ci-validate.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\source-reference-comments-main-gates-20260913/diff-check.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\source-reference-comments-main-gates-20260913/diff-check.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\source-reference-comments-main-gates-20260913/build.stdout.log",
+      "sha256": "2b7eafe5f198eb9573ddb1482d6b475d1994dcfadc3d68e24aee550c9730fa4d"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\source-reference-comments-main-gates-20260913/build.stderr.log",
+      "sha256": "64b2d1edc69c36d1c4a18204eda1981b8f116ea17a4cfbbc0a135a6189ff32ce"
+    }
+  ],
+  "limits": "Four comment/reference corrections only; executable token equality retained. No new behavior or browser proof."
+}

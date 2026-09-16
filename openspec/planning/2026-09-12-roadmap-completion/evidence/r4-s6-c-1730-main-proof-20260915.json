@@ -1,0 +1,70 @@
+{
+  "slice": "R4.S6 commit C: restored replay-from-receipt, never-rewound and log-ahead rows",
+  "pr": 1730,
+  "prHead": "ee87fe5253b9061ce730f7b5786a4205b00711e0",
+  "mergeCommit": "00901f4e097d9973ba4d48369d343f93d52092c8",
+  "verifiedAtUtc": "2026-09-15T16:38:54.634Z",
+  "worktree": "archive-original-main-proof (detached at merge commit, Node v22.22.0)",
+  "blobEquality": {
+    "files": [
+      "src/lib/multiplayer/server/__tests__/matchCommitJournalHead.sqlite.test.ts"
+    ],
+    "command": "git diff --stat <prHead> <merge> -- <file>",
+    "result": "empty (0 bytes)"
+  },
+  "dirtyResolution": "add/add after #1729 squash resolved by merging origin/main keeping the branch suite file (ee87fe525)",
+  "gates": {
+    "jest": {
+      "scope": "src/lib/events/journal src/lib/multiplayer/server",
+      "exit": 0,
+      "suites": 173,
+      "tests": 1349
+    },
+    "tsc": {
+      "exit": 0,
+      "outputBytes": 0
+    },
+    "openspecStrict": {
+      "exit": 0
+    },
+    "specPurposeStrict": {
+      "exit": 0
+    },
+    "terminologyStrict": {
+      "exit": 0
+    },
+    "qcOpenspecCi": {
+      "exit": 0
+    }
+  },
+  "logs": {
+    "jest": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1730-20260915/jest.log",
+      "sha256": "d9f2fd3bf588330ac73883917f1e0226bcbb9c242a947ad0d334cf5e1a0c68c7"
+    },
+    "openspec": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1730-20260915/openspec.log",
+      "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3"
+    },
+    "purpose": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1730-20260915/purpose.log",
+      "sha256": "629026f25215446af06f7491ea5757f56e6f66d00cb70d6d432438cb6cb9adf7"
+    },
+    "qcOpenspecCi": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1730-20260915/qc-openspec-ci.log",
+      "sha256": "8c41df6c33246420ed1806218780c2df69b5ad4e7c594b993b07594ee959ccb2"
+    },
+    "terminology": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1730-20260915/terminology.log",
+      "sha256": "c4f84b3d9a0a82009e20a64ae6dcb301fa95576755a13a841696862a54a9f20c"
+    },
+    "tsc": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1730-20260915/tsc.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "limits": [
+    "scoped jest only",
+    "S6 stack complete on main (A #1728, B #1729, C #1730); the consult is not live under enabled mode until S7-a seeding lands (S6-R1); M4 remains killed by a single row (S6-R2)"
+  ]
+}

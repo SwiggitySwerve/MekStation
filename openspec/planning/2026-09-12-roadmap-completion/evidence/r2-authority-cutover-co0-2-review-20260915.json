@@ -1,0 +1,417 @@
+{
+  "node": "R2.authority-cutover",
+  "artefact": "r2-authority-cutover-co0-2-review-20260915",
+  "role": "independent review (read-only; no repo file modified except transient mutants, each reverted)",
+  "slices": ["CO0", "CO1", "CO2"],
+  "reviewedAtUtc": "2026-09-15T00:00:00.000Z",
+  "reviewer": "general-purpose subagent (GP-JUSTIFIED: independent reviewer of a four-commit product stack; Bash/Read/Grep/Write only)",
+  "verdict": "APPROVE — ADMIT AS IS. No required edits. Every claim in the preparer receipt that I checked held up under independent execution; the receipt's non-claims are unusually honest and one of them (the AcceptContract coverage gap) I proved with my own surviving mutant. Three findings recorded, all non-blocking; one of them is a correction to the receipt's own gate table rather than to the code.",
+
+  "subject": {
+    "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/history-runtime-integrity",
+    "branch": "codex/roadmap-r2-authority-cutover-co0-2-20260915",
+    "headAtReview": "b620467ccfc4dad81fec7bd54944330fba2d4287",
+    "base": "8c8f8221c4c1882f671d8fad7c2386ef9d10ca44",
+    "commandVerifyingStack": "git log --oneline -6 && git status --short && git rev-parse --abbrev-ref HEAD",
+    "commitsConfirmed": [
+      "9a11188f2 test(campaign): pin that the command pipeline reports its first commit to the cutover marker",
+      "186049b89 feat(campaign): a committed command tells the cutover marker it happened",
+      "a8dab849e test(campaign): pin the operator surfaces that drive cutover and rollback",
+      "b620467cc feat(campaign): give the cutover gate and the rollback law a way to be invoked"
+    ],
+    "worktreeCleanBeforeAndAfter": "git status --short returned empty at review start and again after every mutant revert (final check: empty, HEAD still b620467cc)",
+    "primaryCheckoutUntouched": "git -C E:/Projects/MekStation rev-parse HEAD -> be7f85b867aa3e8576e5e3d27e309276203bc24b (unchanged; no agent-path contamination)",
+    "filesChangedAcrossStack": [
+      ".gitignore",
+      "scripts/__tests__/campaign-authority-cutover.test.ts",
+      "scripts/campaign-authority-cutover.ts",
+      "src/lib/campaign/authority/__tests__/campaignAuthorityCutoverOps.test.ts",
+      "src/lib/campaign/authority/__tests__/campaignCommandPipelineCutoverMarker.test.ts",
+      "src/lib/campaign/authority/campaignAuthorityCutoverOps.ts",
+      "src/lib/campaign/authority/campaignCommandPipeline.ts",
+      "src/lib/campaign/authority/campaignCutoverMarkerIo.ts"
+    ],
+    "filesChangedCommand": "git diff --name-only 8c8f8221c HEAD"
+  },
+
+  "axis1_CO0_markerWiring": {
+    "verdict": "VERIFIED — the wiring is where the receipt says it is, and it is double-gated.",
+    "findings": [
+      {
+        "claim": "recordFirstCommandOnMarker is called from acknowledgeCommit, the single point both commit paths reach.",
+        "evidence": "src/lib/campaign/authority/campaignCommandPipeline.ts:355 (the call, first statement of acknowledgeCommit); reached from the ordinary batch path at :550-556 and from the 6.2a durable AcceptContract path at :494-500. Read in this session.",
+        "status": "CONFIRMED"
+      },
+      {
+        "claim": "It fires only for journal-authority commits.",
+        "evidence": "Two independent gates. (1) src/lib/campaign/authority/campaignCommandPipeline.ts:392-397 — executeCampaignCommand returns {kind:'blocked'} for authority.kind==='blocked' and 'campaign-not-on-journal-authority' for anything that is not 'journal', BEFORE the stream is read, so acknowledgeCommit is unreachable off journal authority. (2) src/lib/campaign/authority/campaignAuthorityMigration.ts:301-307 — recordFirstJournalAuthorityCommand itself returns invalid-transition unless marker.state==='journal', and campaignCommandPipeline.ts:349-351 discards a non-'ok' result without writing.",
+        "status": "CONFIRMED"
+      },
+      {
+        "claim": "It does not fire for snapshot or shadow authority.",
+        "evidence": "src/lib/campaign/authority/campaignAuthorityMode.ts:87-95 — marker.state 'legacy' AND 'shadowing' both resolve to {kind:'snapshot'}; only 'journal' with a live stream resolves to {kind:'journal'} (:96-103). A shadowing campaign therefore fails gate (1) above, and would fail gate (2) even if it did not.",
+        "status": "CONFIRMED"
+      },
+      {
+        "claim": "It fires only after the append commits.",
+        "evidence": "Ordinary path: src/lib/campaign/authority/campaignCommandPipeline.ts:537-548 returns early on 'sequence-conflict', 'command-identity-conflict', and any non-'committed' kind; only a committed batch falls through to acknowledgeCommit at :550. AcceptContract path: :492-493 returns outcome.result on 'refused'; only the non-refused branch calls acknowledgeCommit. Validation/rejection paths (:509-516) return before any append.",
+        "status": "CONFIRMED"
+      },
+      {
+        "claim": "Only the FIRST command is recorded.",
+        "evidence": "campaignCommandPipeline.ts:347 returns early when marker.firstJournalAuthorityCommandId !== null; campaignAuthorityMigration.ts:308-317 refuses a second distinct id independently. Pinned by the row 'records only the FIRST command, not the latest one' and killed mutants M1/M3/M4.",
+        "status": "CONFIRMED"
+      },
+      {
+        "claim": "Same database handle, NOT the same transaction (the preparer's disclosure).",
+        "evidence": "Same handle: src/pages/api/campaigns/[id]/commands.ts:130-133 builds the journal on getSQLiteService().getDatabase(); src/services/campaignPersistence/CampaignMigrationMarkerStore.ts:32 (read) and :55 (write) call the same singleton accessor. Not the same transaction: the append runs inside src/lib/events/journal/SQLiteEventJournalWriter.ts:74-76 (`this.db.transaction(...)`), which returns to appendCampaignCommandBatch (src/lib/campaign/sync/JournalCampaignEventStore.ts:289) before acknowledgeCommit is even called. The disclosure is accurate and complete.",
+        "status": "CONFIRMED — disclosure accurate"
+      }
+    ],
+    "crashWindow": {
+      "question": "Is the append-committed / marker-unwritten window fail-safe under the second D10 guard?",
+      "verdict": "FAIL-SAFE — and PROVEN BY EXECUTION in this session, not merely reasoned.",
+      "proof": "Mutant M1 (delete the recordFirstCommandOnMarker call) reproduces the crash window's exact durable state: batch committed, marker never stamped. Under M1 the row 'refuses a rollback once a journal-authority command has committed' produced `{kind:'rollback-prohibited', reason:'journal-head-past-baseline'}` instead of the command reason — i.e. the rollback was STILL PROHIBITED, just for the other reason. Observed output in this session's mut-M1 log, lines 53-57. The receipt marked this 'reasoned from the code, NOT proven by a crash test'; the mutant run upgrades it to executed evidence for the durable-state consequence.",
+      "codeCorroboration": "src/lib/campaign/authority/campaignAuthorityMigration.ts:338-346 — baselineHead is importedBaseline.baselineSequence (0) or -1 when null; any committed batch puts highestSequence at >= 1 (imported baseline) or >= 0 (journal-native), so `journalHighestSequence !== baselineHead` holds and guard 2 prohibits. No arrangement of the window permits a rollback.",
+      "dedicatedCrashTestFeasibility": "FEASIBLE NOW and cheap — a `jest.mock('../campaignCutoverMarkerIo')` whose write throws or no-ops reproduces the window in-process without adding a production seam (the module is imported as a const, so module mocking is the natural lever). INFERENCE: I did not author or execute such a test, because writing a repo test file is outside this review's mandate. RECOMMENDATION: do NOT file it. Mutant M1 already delivers the same evidence, and a dedicated row that only re-proves a mutant's result is redundant coverage. Record the OS-level restart proof as the genuine residual — that is CO3 territory and the receipt already declares it."
+    }
+  },
+
+  "axis2_CO1_CO2_opsAndRollback": {
+    "verdict": "VERIFIED — composition only; nothing is reachable from a request path, a cron, or a flag; state transitions match D10.",
+    "findings": [
+      {
+        "claim": "Nothing is invoked on a request path; no cron; the ops module's only production importer is the CLI.",
+        "evidence": "grep -rn 'campaignAuthorityCutoverOps' --include=*.ts --include=*.tsx src scripts e2e -> exactly three hits: src/lib/campaign/authority/__tests__/campaignAuthorityCutoverOps.test.ts:30 (its own suite), scripts/campaign-authority-cutover.ts:39 (the CLI), scripts/__tests__/campaign-authority-cutover.test.ts:5 (a doc comment, not an import). No hit under src/pages, no scheduler, no setInterval.",
+        "status": "CONFIRMED"
+      },
+      {
+        "claim": "No flag flip.",
+        "evidence": "src/lib/campaign/sync/JournalCampaignEventStore.ts:84 still reads `export const CAMPAIGN_JOURNAL_AUTHORITY_ENABLED = false;`, and `git diff --name-only 8c8f8221c HEAD` lists no file under src/lib/campaign/sync/ at all.",
+        "status": "CONFIRMED"
+      },
+      {
+        "claim": "No campaign is advanced by default.",
+        "evidence": "Every transition requires an operator to run the CLI for one named campaign: scripts/campaign-authority-cutover.ts:81-93 (parseCutoverArgs refuses a missing or flag-shaped campaignId and refuses extra args) and :116-119 (one campaign per invocation, no sweep mode). The CLI is a tracked but un-imported top-level script.",
+        "status": "CONFIRMED"
+      },
+      {
+        "claim": "Parity transitions: shadowing -> journal | blocked.",
+        "evidence": "src/lib/campaign/authority/campaignAuthorityCutoverOps.ts:107-122 gates on marker !== null, then marker.state === 'shadowing', then a non-null snapshot projection, then delegates to runCampaignShadowParity. The runner (src/lib/campaign/authority/campaignShadowParityRunner.ts:80-118) re-gates on 'shadowing', compares projections, persists via advanceAfterShadowParity, and returns 'cutover' for state 'journal' or 'blocked' with BOTH digests preserved. The ops module invents no verdict of its own.",
+        "status": "CONFIRMED — composition only, as claimed"
+      },
+      {
+        "claim": "Rollback is refused after a committed journal-authority command.",
+        "evidence": "src/lib/campaign/authority/campaignAuthorityCutoverOps.ts:146-157 reads the marker, supplies the LIVE journal head (`await store.highestSequence(campaignId)`, :152) and persists only on 'rolled-back' (:154-156). The law itself is untouched at src/lib/campaign/authority/campaignAuthorityMigration.ts:332-337. Killed mutants N4 (persist despite prohibition) and N5 (hardcoded head).",
+        "status": "CONFIRMED"
+      },
+      {
+        "claim": "Rollback from `blocked` is permitted per design.md D10.",
+        "designCitation": "openspec/changes/design-campaign-authority-and-sync/design.md:43 — verbatim: \"Snapshot-authority rollback is permitted only while the journal head equals the imported baseline and no journal-authority command has committed; afterwards the campaign uses a compatible journal reader or enters `blocked`, never a silent legacy fallback.\" Read in this session. The permission is stated ENTIRELY in terms of the two guards; the state being left is not a condition anywhere in the sentence.",
+        "codeCitation": "src/lib/campaign/authority/campaignAuthorityMigration.ts:328-351 — rollbackToSnapshotAuthority has NO state check whatsoever, and its success branch returns `{...marker, state:'legacy', blocked:null}`. Permitting rollback from `blocked` is therefore a PRE-EXISTING property of the shipped law, not something CO2 introduced; CO2 merely declines to add a gate D10 does not ask for.",
+        "reviewerJudgement": "ACCEPTED as consistent with D10 as written. I note the tension the receipt does not: D10's clause 'afterwards ... enters `blocked`' describes the state a campaign reaches when the window has CLOSED, which reads against rolling back out of it. But a campaign blocked by a parity MISMATCH (the other route into `blocked`) has by construction committed nothing of its own, so both guards genuinely pass — and because src/lib/campaign/authority/campaignAuthorityMode.ts:105-112 maps marker state 'blocked' to authority kind 'blocked' (which campaignAcceptsCommands at :119-121 refuses outright), rollback is that campaign's ONLY exit. Forbidding it would strand the campaign with no route anywhere. The reading is correct and the test row pins that `blocked` is cleared rather than carried into a legacy marker.",
+        "status": "CONFIRMED — sound reading, tension named"
+      }
+    ],
+    "observationPreExisting": {
+      "id": "OBS-1",
+      "severity": "INFO — pre-existing, NOT in this diff, no action required for this admission",
+      "text": "src/lib/campaign/authority/campaignShadowParityRunner.ts:15-18 says a parity mismatch 'leaves the snapshot authoritative: the campaign keeps working on the log that is still correct'. That is not what happens: src/lib/campaign/authority/campaignAuthorityMode.ts:105-112 maps marker state 'blocked' to authority kind 'blocked', and campaignAcceptsCommands (:119-121) returns false for it, so a blocked campaign accepts NO commands rather than continuing on its snapshot. The comment shipped with 5.7's runner and is untouched by this stack (git diff --name-only 8c8f8221c HEAD does not list campaignShadowParityRunner.ts). Worth a one-line comment correction in a later slice; it also strengthens the case for CO2's rollback-from-blocked, since rollback is the blocked campaign's only exit."
+    }
+  },
+
+  "axis3_hygieneJudgements": {
+    "a_untypedCli": {
+      "question": "Is an untyped, never-executed CLI acceptable in this stack, or should CO1/CO2's entry point be a typechecked module under src/ with the CLI reduced to a thin wrapper?",
+      "judgement": "ACCEPTABLE AS IS. NO REQUIRED EDIT.",
+      "reasoning": [
+        "The decision logic is ALREADY under src/ and IS typechecked. Every gate, every state transition and every typed refusal lives in src/lib/campaign/authority/campaignAuthorityCutoverOps.ts, which the root project compiles — `npx tsc --noEmit -p tsconfig.json` exited 0 in this session. scripts/campaign-authority-cutover.ts is already the thin wrapper the question proposes: its whole body is parse (:81-93), init (:112-113), dispatch (:116-119), print + exit-code map (:121-125). There is no decision in it to move.",
+        "The gap is real and confirmed: root tsconfig.json:28-30 excludes `scripts/**/*`; scripts/tsconfig.json includes only validate-bv.ts, validate-parity.ts, data-migration/**/*.ts and ../src/**, so this file is in NO typecheck project. Confirmed by reading both files this session.",
+        "The stack's own precedent already accepts tracked-but-untypechecked top-level CLIs: .gitignore:41-42 allowlists scripts/print-combat-validation-gaps.ts and scripts/expand-unit-type-requirements.mjs, and scripts/cleanup-broken-encounters.ts (the shape this file copied, including its test location) sits in exactly the same position. Adding a third is uniform with the stack, not a new exception.",
+        "I EXECUTED the CLI this session, which the receipt could not claim: `npx tsx scripts/campaign-authority-cutover.ts --help` printed the usage and exited 0; `npx tsx scripts/campaign-authority-cutover.ts parrity x` printed `error: Unknown command: parrity` plus the usage and exited 1. That live-verifies the tsx shebang path, the `require.main === module` guard (:128), the --help branch (:97-100), the parse-failure branch (:102-109) and the usage constant — the parts most likely to be broken by an untyped file. No database is opened on either path (resetSQLiteService is at :112, after parsing).",
+        "Moving the entry point under src/ would pull an operator maintenance CLI into the Next.js build graph for a file with zero decisions in it — a larger and less uniform change than the residual risk warrants."
+      ],
+      "recommendedFollowUp": "NON-BLOCKING pending task, not a merge condition: add scripts/campaign-authority-cutover.ts (and the two other allowlisted .ts scripts) to scripts/tsconfig.json's include once that project's PRE-EXISTING failures are cleared. Those failures are confirmed not caused by this work — scripts/tsconfig.json pins lib:['es2020'] while src/ uses es2021 APIs ('replaceAll'/'at'), and the errors land in untouched src/ files. The receipt's openQuestion 1 already names this; it should become a filed follow-up rather than an open question."
+    },
+    "b_throwingStub": {
+      "question": "Was the throwing stub in the red commit declared, inert, and replaced by the product commit?",
+      "judgement": "ACCEPTABLE — all three, verified.",
+      "declared": "Named explicitly in the commit body of a8dab849e ('The module lands here as CONTRACT ONLY: both compositions throw, so the red log is behavioural rather than an unresolved import that the pre-commit build would have refused to compile') and again in the receipt under commits[2].stubDisclosure.",
+      "inert": "`git show --stat a8dab849e` lists exactly two files — the test and the stub. Nothing imported the stub at that commit except its own suite; scripts/campaign-authority-cutover.ts does not exist until b620467cc. There is therefore NO commit in this stack at which a reachable code path can throw the stub error.",
+      "replaced": "`grep -n 'not implemented\\|throw new Error' src/lib/campaign/authority/campaignAuthorityCutoverOps.ts` at HEAD returns nothing (exit 1). The stub bodies are fully gone.",
+      "redQuality": "The red is genuinely behavioural, not a compile failure: co1-co2-red-jest.log line 5 shows `parity cutover driver not implemented` as the failure message, with 11 failed / 255 passed across 37 suites. The stub was the right call — the alternative (a missing module) would have failed tsc and therefore the pre-commit `next build`, so the red commit could not have landed with hooks on."
+    },
+    "c_cliMainUntested": {
+      "question": "cliMain untested and never run against a real database — acceptable?",
+      "judgement": "ACCEPTABLE FOR MERGE. PARTIALLY CLOSED BY THIS REVIEW. Recorded as a residual with one condition before first operator use.",
+      "nowCovered": "The DB-free half of cliMain is live-verified by my two executions above (--help exit 0; bad subcommand exit 1 with usage). scripts/__tests__/campaign-authority-cutover.test.ts covers parseCutoverArgs across 4 rows plus a usage-contract row — 5 rows total, all green in my scoped run.",
+      "stillUncovered": "resetSQLiteService/initialize (:112-113), durableCampaignAuthorityCutoverDeps() construction (:114), and the three DB-dependent exit codes (0 / 2 / 3, :122-125). Exercising them requires a real campaign in a real database, which is correctly outside both the preparer's and this reviewer's mandate.",
+      "conditionBeforeFirstProductionUse": "An operator dry-run against a throwaway copy of a database — one `parity <id>` on a non-shadowing campaign (expect exit 3, `{kind:'not-shadowing'}`) and one `rollback <id>` on a campaign with no marker (expect exit 3, `{kind:'marker-absent'}`). Both are read-only refusals that write nothing, so they prove the SQLite init + deps + exit-code mapping without touching any campaign's state. This is a RESIDUAL to record, not a merge blocker: CAMPAIGN_JOURNAL_AUTHORITY_ENABLED is false and the CLI has no automatic caller."
+    }
+  },
+
+  "axis4_redFirst": {
+    "verdict": "VERIFIED by hash AND content. Both red logs are authentic and say what the receipt says they say.",
+    "hashCheck": {
+      "command": "sha256sum on E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-authority-cutover-20260915/*.log",
+      "result": "ALL SIX CHECKED HASHES MATCH THE RECEIPT EXACTLY",
+      "matched": [
+        "co0-red-jest-fullsuite.log 0b822d5c277fb96db361394ec05bada81fbb4f058a131dfc8b7b40c3e3370a45",
+        "co1-co2-red-jest.log fdd79984c5e2d935668bb320912d5dc4db8f003df6afd6a145e4672e026199d1",
+        "co0-green-jest-scoped.log 21c4d4832004bb8b7de05c4624509e324b7253d325e6085cda80dfbf6df00b63",
+        "co1-co2-green-jest.log 39bb290aad6187c5e5169fcbba6ed2e119fc0cef825e9d7051a05a916fa03925",
+        "co0-mutant-M1.log ea147340b2272d9efb62cfb186bef8a15172a55e228d0559e562506a3d5ed72b",
+        "co1-co2-mutant-N1.log 1983be8bb94f8b47b26a22462645507ff8ff62b0c87b416871711d9c292f0261"
+      ]
+    },
+    "CO0red": {
+      "rowsRed": 3,
+      "contentVerified": "Read co0-red-jest-fullsuite.log directly. Rows 1-2 ('records a committed command on the durable marker', 'records only the FIRST command, not the latest one') fail with `Expected: \"cmd-first\" / Received: null` at test lines 144 and 156. Row 3 ('refuses a rollback once a journal-authority command has committed') fails with the exact substitution the brief predicted: `- reason: \"journal-authority-command-committed\" / + reason: \"journal-head-past-baseline\"`. That is the load-bearing red — it demonstrates the first D10 guard could not fire and rollback fell through to the second.",
+      "honestyNote": "The receipt discloses that the other 2 rows of that suite ('leaves the marker alone for a campaign still on snapshot authority', 'leaves the marker untouched when the command never commits') were GREEN before the change, vacuously, and names mutant M2 as what gives the second one teeth. That disclosure is correct and is the kind of thing a receipt usually hides.",
+      "status": "CONFIRMED"
+    },
+    "CO1CO2red": {
+      "rowsRed": 11,
+      "contentVerified": "Read co1-co2-red-jest.log: `Test Suites: 1 failed, 36 passed, 37 total` / `Tests: 11 failed, 255 passed, 266 total`, with the failure message `parity cutover driver not implemented` (the contract-only stub). All 11 named rows appear.",
+      "twelfthRowDisclosure": "The current suite has 12 rows, not 11. The extra row ('names the state first, before asking for a snapshot at all') was added in the PRODUCT commit b620467cc (+14 lines to the test file) after mutant N1 survived. The receipt states this explicitly rather than implying the row was red-first. I independently confirmed the ordering: `git show --stat a8dab849e` = 264 test lines, `git show --stat b620467cc` = +14 on the same file. The disclosure is accurate and the row is red-by-construction against the throwing stub, so red-first ordering is not weakened — but it is correctly labelled as authored after the red commit.",
+      "status": "CONFIRMED"
+    }
+  },
+
+  "axis5_mutants": {
+    "method": "Each mutant applied to the working tree via a UTF-8 Python edit, run with `npx jest --maxWorkers=2 --selectProjects unit --testPathPattern \"src/lib/campaign/authority\"` (22 suites / 166 tests baseline), then `git checkout -- <file>` and `git status --short` confirmed empty. One jest process at a time throughout. Node v22.22.0 on PATH.",
+    "reproduced": [
+      {
+        "id": "M1",
+        "slice": "CO0",
+        "mutation": "Delete the `recordFirstCommandOnMarker(campaignId, commandId);` call from acknowledgeCommit (campaignCommandPipeline.ts:355).",
+        "result": "KILLED — 3 failed / 163 passed / 22 suites",
+        "failingRows": [
+          "command pipeline records the first journal-authority command > records a committed command on the durable marker",
+          "command pipeline records the first journal-authority command > records only the FIRST command, not the latest one",
+          "command pipeline records the first journal-authority command > refuses a rollback once a journal-authority command has committed"
+        ],
+        "matchesReceipt": true,
+        "reviewerNote": "Doubles as the crash-window fail-safe proof — see axis1.crashWindow."
+      },
+      {
+        "id": "M4",
+        "slice": "CO0",
+        "mutation": "Invert the already-recorded guard: `marker.firstJournalAuthorityCommandId !== null` -> `=== null` (campaignCommandPipeline.ts:347).",
+        "result": "KILLED — 3 failed / 163 passed / 22 suites",
+        "failingRows": [
+          "records a committed command on the durable marker",
+          "records only the FIRST command, not the latest one",
+          "refuses a rollback once a journal-authority command has committed"
+        ],
+        "matchesReceipt": true
+      },
+      {
+        "id": "N1",
+        "slice": "CO1",
+        "mutation": "Delete the `marker.state !== 'shadowing'` gate from runCampaignParityCutover (campaignAuthorityCutoverOps.ts:109-111), letting the runner's own gate answer instead.",
+        "result": "KILLED — 1 failed / 165 passed / 22 suites",
+        "failingRows": [
+          "campaign authority cutover operator surfaces > parity cutover > names the state first, before asking for a snapshot at all"
+        ],
+        "matchesReceipt": true,
+        "reviewerNote": "Killed by exactly the remediation row the receipt says was added for it, and by nothing else. This independently confirms the receipt's honest admission that N1 SURVIVED the original 11 rows — the discrimination between 'not-shadowing' and 'snapshot-absent' rests entirely on that one row."
+      },
+      {
+        "id": "N4",
+        "slice": "CO2",
+        "mutation": "Persist a legacy marker even when the rollback law prohibited the rollback (write `{...marker, state:'legacy', blocked:null}` on the prohibited branch of campaignAuthorityCutoverOps.ts:154-156).",
+        "result": "KILLED — 2 failed / 164 passed / 22 suites",
+        "failingRows": [
+          "campaign authority cutover operator surfaces > rollback > refuses once a journal-authority command has committed",
+          "campaign authority cutover operator surfaces > rollback > refuses once the journal head has moved past the baseline"
+        ],
+        "matchesReceipt": true
+      }
+    ],
+    "reviewerOriginatedMutant": {
+      "id": "R1",
+      "slice": "CO0",
+      "purpose": "Probe the gap the receipt DECLARES but does not measure: 'THE AcceptContract COMMIT PATH IS WIRED BUT NOT COVERED BY A ROW.'",
+      "mutation": "At the AcceptContract call site ONLY (campaignCommandPipeline.ts:497), replace `request.commandId` with the literal 'MUTANT-R1-wrong-command-id'. The ordinary batch call site at :553 left intact.",
+      "scope": "npx jest --maxWorkers=2 --selectProjects unit --testPathPattern \"(src/lib/campaign|src/services/campaignPersistence)\"",
+      "result": "SURVIVED — exit 0, 205 suites / 2986 tests, zero failures",
+      "interpretation": "Direct measurement of the declared gap. A campaign whose FIRST journal-authority command is an AcceptContract would stamp its cutover marker with a wrong command id, and the entire campaign + campaignPersistence suite is blind to it. The consequence is bounded: D10's first guard checks only `!== null`, so a wrong id still PROHIBITS rollback correctly — the damage is provenance quality (which command actually cut the campaign over), not safety. The receipt's non-claim is therefore honest AND correctly scoped.",
+      "recommendation": "NON-BLOCKING. Add one row driving an AcceptContract as the first command and asserting the stamped id, at the slice that flips the flag. Not a merge condition: the id is provenance, the guard is a null check, and the flag is false."
+    },
+    "survivorsAmongReceiptMutants": "None. All four receipt mutants I reproduced were killed, by exactly the rows the receipt names."
+  },
+
+  "axis6_gatesOnHead": {
+    "allRunByReviewerThisSession": true,
+    "environment": "Node v22.22.0 (PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0), jest --maxWorkers=2, one process at a time, `next build` never run.",
+    "gates": [
+      {
+        "gate": "scoped jest (broader than the preparer's scope)",
+        "command": "npx jest --maxWorkers=2 --selectProjects unit --testPathPattern \"(src/lib/campaign|src/services/campaignPersistence|scripts/__tests__/campaign-authority-cutover)\"",
+        "exitCode": 0,
+        "result": "PASS — Test Suites: 206 passed / 206 total; Tests: 2991 passed / 2991 total; 50.04 s",
+        "note": "The brief's requested scope. Covers both new suites plus every campaign and campaignPersistence suite — 206 suites against the preparer's 38, and zero regressions."
+      },
+      {
+        "gate": "typecheck (root project)",
+        "command": "npx tsc --noEmit -p tsconfig.json",
+        "exitCode": 0,
+        "result": "PASS — empty output"
+      },
+      {
+        "gate": "format",
+        "command": "npx oxfmt --check <all 7 changed files>",
+        "exitCode": 0,
+        "result": "PASS — 'All matched files use the correct format.' Finished in 47ms on 7 files."
+      },
+      {
+        "gate": "lint",
+        "command": "npx oxlint <all 7 changed files>",
+        "exitCode": 0,
+        "result": "PASS — 'Found 0 warnings and 0 errors.' BUT: 'Finished in 20ms on 3 files' — only 3 of the 7 paths were actually linted. See finding F-2."
+      },
+      {
+        "gate": "openspec",
+        "command": "npx openspec validate --all --strict",
+        "exitCode": 0,
+        "result": "PASS — Totals: 232 passed, 0 failed (232 items). Unchanged from the receipt's before/after figure."
+      },
+      {
+        "gate": "openspec checkbox / spec edits",
+        "command": "git diff --name-only 8c8f8221c HEAD",
+        "exitCode": 0,
+        "result": "PASS — no file under openspec/ appears in the diff. tasks.md, design.md and the ledger are untouched, as the brief requires."
+      },
+      {
+        "gate": "AI attribution in commit messages",
+        "command": "git log 8c8f8221c..HEAD --format=\"%H%n%B%n---\" | grep -iE \"claude|anthropic|co-authored|generated with|robot-emoji\"",
+        "exitCode": 1,
+        "result": "PASS — zero matches across all four commit messages."
+      },
+      {
+        "gate": "live CLI smoke (reviewer-added, DB-free paths only)",
+        "command": "npx tsx scripts/campaign-authority-cutover.ts --help  ;  npx tsx scripts/campaign-authority-cutover.ts parrity x",
+        "exitCode": "0 and 1 respectively",
+        "result": "PASS — usage printed and exit 0; then 'error: Unknown command: parrity' plus usage and exit 1. First execution of this CLI anywhere; closes the help/parse half of the receipt's 'cliMain is untested' non-claim. No database opened on either path."
+      }
+    ],
+    "gateNotRunAndWhy": {
+      "fullUnitSuite": "NOT re-run by the reviewer (~17 min wall). The preparer's final-full-jest.log at b620467cc records 2694 suites / 35331 passed / 0 failed / 46 skipped, and my 206-suite scoped run over the entire blast radius found zero failures. Accepting the preparer's figure for the untouched remainder.",
+      "nextBuild": "Explicitly forbidden by the review brief. The pre-commit hook ran it on all four commits per the receipt."
+    }
+  },
+
+  "axis7_capsAndPackaging": {
+    "caps": {
+      "command": "git show --numstat --format=\"\" <sha> per commit",
+      "rows": [
+        { "sha": "9a11188f2", "files": 1, "added": 213, "deleted": 0, "withinCaps": true },
+        { "sha": "186049b89", "files": 2, "added": 98, "deleted": 0, "withinCaps": true },
+        { "sha": "a8dab849e", "files": 2, "added": 332, "deleted": 0, "withinCaps": true },
+        { "sha": "b620467cc", "files": 5, "added": 334, "deleted": 14, "withinCaps": true }
+      ],
+      "verdict": "PASS — every commit is <= 15 files and <= 500 lines, with the largest at 5 files / 348 total changed lines."
+    },
+    "mergeTree": {
+      "command": "git fetch origin && git merge-tree --write-tree origin/main HEAD",
+      "originMainAtReview": "cd416634a3d783131e4564050bd388a923f11cdb — 'spec(openspec): ledger and tasks reconciliation batch 3 ... (#1736)'",
+      "briefSaidMainWasAt": "17525370e — STALE. origin/main advanced past that during the session; I measured cd416634a with `git rev-parse origin/main` after a fresh fetch. Reporting the measured value, not the brief's.",
+      "mergeBase": "8c8f8221c4c1882f671d8fad7c2386ef9d10ca44",
+      "exitCode": 0,
+      "resultTree": "4327c80cebeecd4f17f74046f56f74b782148323",
+      "conflicts": [],
+      "conflictCount": 0,
+      "verdict": "CLEAN — exit 0 with a bare tree OID and no conflict section. Zero conflicting files.",
+      "semanticDriftCheck": {
+        "command": "git diff --stat 8c8f8221c origin/main -- src/lib/campaign src/services/campaignPersistence scripts .gitignore",
+        "result": "Main-side changes since the base touch only src/lib/campaign/coop/campaignAuthoritativeFold.ts, src/lib/campaign/coop/campaignMirrorProjection.ts and src/lib/campaign/maxState/unitMaxStateResolver.ts (301 insertions / 10 deletions).",
+        "interpretation": "No overlap with any of the eight files in this stack, and nothing under src/lib/campaign/authority/. The clean merge is semantic as well as textual — the PRs referenced in the brief (#1733/#1734/#1735 campaign coop + stores) do not intersect this work. Rebase risk is nil."
+      }
+    },
+    "packagingRecommendation": {
+      "recommendation": "TWO STACKED PRs — PR-CO0 (9a11188f2 + 186049b89) first, then PR-CO1/2 (a8dab849e + b620467cc) based on it.",
+      "hardDependency": "CO1/CO2 CANNOT ship alone: src/lib/campaign/authority/campaignAuthorityCutoverOps.ts:45 imports `durableCampaignMarkerIo` from ./campaignCutoverMarkerIo, a file created by CO0's product commit 186049b89. Stacking order is forced; a parallel pair is not an option.",
+      "whySplitRatherThanOnePr": [
+        "CO0 is a REGRESSION FIX with a different provenance from CO1/CO2. recordFirstJournalAuthorityCommand shipped uncalled in task 5.2 (PR #1261), so D10's first rollback guard has read a permanently-null field since then. That is a defect worth its own reviewer attention and its own revert handle — and the receipt's openQuestion 5 asks whether it should be filed against 5.2 rather than 5.7. A separate PR keeps that question answerable.",
+        "CO0 is small and independently mergeable: 3 files / 311 added lines, a closed story (the marker now gets stamped), and green on its own tree per co0-green-jest-scoped.log.",
+        "CO1/CO2 is the larger, more opinionated slice (5 files, a new operator CLI, a .gitignore allowlist entry, a rollback-from-blocked reading of D10) and benefits from review that is not competing for attention with a regression fix."
+      ],
+      "acceptableAlternative": "A SINGLE 4-commit PR is defensible if the team prefers one review pass: 8 files / 977 added lines total, well inside any per-PR cap, and the two slices share one module and one CLI. Nothing in CO1/CO2 is separable from CO0's module, so a single PR loses nothing but the independent revert handle.",
+      "notRecommended": "Splitting red from product into separate PRs. a8dab849e ships a module whose exported functions throw; it is inert at that commit (no importer beyond its own suite — verified) but merging it alone would put throwing exports on main for no benefit.",
+      "prBodyMustCarry": [
+        "The AcceptContract coverage gap (receipt non-claim, now measured — my mutant R1 survived 205 suites).",
+        "The corrected lint claim (finding F-2 — scripts/ is not linted; the receipt's gate row overstates coverage).",
+        "The marker-write exception path (finding F-1) flagged for the flag-flip slice.",
+        "CO3 is NOT done: no two-process convergence, no OS-level restart proof. The receipt states this; the PR must too."
+      ]
+    }
+  },
+
+  "findings": [
+    {
+      "id": "F-1",
+      "severity": "LOW — non-blocking; unreachable today; flag for the flag-flip slice",
+      "title": "A marker-io exception now turns a COMMITTED command into an error response",
+      "detail": "recordFirstCommandOnMarker (src/lib/campaign/authority/campaignCommandPipeline.ts:344-353) calls durableCampaignMarkerIo.read and .write with no try/catch, as the first statement of acknowledgeCommit (:355) — i.e. AFTER the batch has committed. A throw from either propagates out of acknowledgeCommit, out of executeCampaignCommand (which has no catch), into the route's try/catch at src/pages/api/campaigns/[id]/commands.ts:129 and out through sendCaughtApiError. The client would be told its command FAILED when the journal has already committed it. Before this change that path could not throw.",
+      "whyNotBlocking": [
+        "Unreachable today: CAMPAIGN_JOURNAL_AUTHORITY_ENABLED is false (src/lib/campaign/sync/JournalCampaignEventStore.ts:84), so no campaign reaches journal authority.",
+        "Self-recovering: a client retry with the same commandId hits command-identity-conflict and returns {kind:'duplicate'} -> HTTP 200 (campaignCommandPipeline.ts:543-545; commands.ts:158-164).",
+        "Fail-safe for D10 even if the marker never gets stamped — proven by mutant M1 in this session (rollback stays prohibited via journal-head-past-baseline).",
+        "The realistic trigger is a genuine SQLite fault that would have broken the append first; the benign cases are already handled (uninitialized service -> null at campaignCutoverMarkerIo.ts:42; corrupt row -> null at :44)."
+      ],
+      "recommendation": "At the slice that flips the flag, decide between (a) wrapping the marker report in try/catch + a logged warning — honest, since the fail-safe is proven, but it does swallow a real DB fault; or (b) making the stamp ATOMIC with the append. Option (b) is precedented in this codebase and is the stronger fix: src/lib/events/journal/SQLiteEventJournalWriter.ts:56 documents appendWithExtension as existing precisely so 'durable consumers make a receipt ... inside the same SQLite transaction', and src/lib/campaign/sync/campaignCombatOutcomeInbox.ts:80 already uses `journal.appendWithExtension(batch, (db, append) => {...})` for exactly this. It would mean appendCampaignCommandBatch accepting an extension, which touches 5 call sites — correctly out of scope for a composition-only slice, which is why this is a recommendation and not a required edit. The receipt's openQuestion 2 raises the atomicity question but does not name the available mechanism; it should."
+    },
+    {
+      "id": "F-2",
+      "severity": "MEDIUM (receipt honesty) / LOW (code)",
+      "title": "The receipt's lint gate row is VACUOUS for the CLI — scripts/ is not linted at all",
+      "detail": "The receipt's gate tables record 'lint: npx oxlint <changed files> -> PASS, 0 warnings, 0 errors' and the non-claims say the script's 'correctness rests on oxlint, oxfmt, and the jest suite'. oxlint does not lint it. `.oxlintrc.json` ignorePatterns includes `**/scripts/**` (read this session). Measured: `npx oxlint scripts/campaign-authority-cutover.ts` reports 'Found 0 warnings and 0 errors. Finished in 9ms on 0 files' — a pass over an empty set. Passing all 7 changed paths reports 'on 3 files', so 4 of the 7 were silently skipped. So scripts/campaign-authority-cutover.ts has NO typecheck (root tsconfig.json:30 excludes scripts/**/*; scripts/tsconfig.json does not include it) AND NO lint. Only oxfmt and the 5-row jest suite touch it.",
+      "impact": "No code defect found — I read the file end to end and executed its DB-free paths; nothing in it is wrong. The defect is in the evidence: a reader of the receipt would believe a gate covers the file that does not. That is exactly the drift 'Verify, never infer' exists to catch, and it should be corrected before the receipt is cited.",
+      "requiredEdit": null,
+      "recommendation": "Correct the receipt's gate rows and the non-claim to say oxfmt + jest only, citing .oxlintrc.json's `**/scripts/**` ignore. Carry the corrected statement into the PR body. No code change."
+    },
+    {
+      "id": "F-3",
+      "severity": "INFO — declared by the receipt, now MEASURED by this review",
+      "title": "The AcceptContract commit path's marker stamp is behaviourally unpinned",
+      "detail": "My mutant R1 replaced `request.commandId` with a literal at the AcceptContract call site only (campaignCommandPipeline.ts:497) and SURVIVED a 205-suite / 2986-test run across src/lib/campaign and src/services/campaignPersistence. The receipt declares this gap ('THE AcceptContract COMMIT PATH IS WIRED BUT NOT COVERED BY A ROW ... No mutant distinguishes the two call sites'); this review supplies the mutant it lacked.",
+      "boundedConsequence": "A campaign whose first journal-authority command is an AcceptContract would stamp a wrong command id. D10's first guard tests only `!== null` (campaignAuthorityMigration.ts:332), so rollback is still correctly prohibited — the loss is provenance quality, not safety.",
+      "recommendation": "One row at the flag-flip slice: drive an AcceptContract as the first command and assert the stamped id. Non-blocking."
+    }
+  ],
+
+  "requiredEdits": [],
+
+  "receiptAccuracyAssessment": {
+    "verdict": "HIGH. Every load-bearing claim I independently checked held: the four commit shas and their file/line counts, all six log hashes, both red logs' contents and row counts, all four reproduced mutants and their exact killed-by rows, the no-flag-flip / no-cron / no-route claims, the same-handle-not-same-transaction disclosure, the D10 quotation, the tsconfig exclusion, the 232/232 openspec figure, and the absence of any openspec edit.",
+    "aboveAverageHonesty": [
+      "Names its own contract-only stub as 'a deviation worth naming' rather than burying it.",
+      "Labels two of the five CO0 rows as GREEN-before (vacuously) so a reader counting rows is not misled.",
+      "Discloses that mutant N1 SURVIVED first and that the killing row was authored AFTER the red commit — I confirmed both independently.",
+      "Declares the AcceptContract gap, the untypechecked script, the unrebased base, and the untested cliMain without being asked."
+    ],
+    "correctionsNeeded": [
+      "F-2: the lint gate row and the 'rests on oxlint' non-claim are vacuous for scripts/ and must be restated.",
+      "F-1: openQuestion 2 asks whether atomicity is worth doing but does not name appendWithExtension, which already exists for exactly this purpose one file away — the question is more answerable than it appears.",
+      "The brief's stated origin/main (17525370e) is stale; the measured head at review time is cd416634a."
+    ]
+  },
+
+  "residualsRecorded": [
+    "CO3 is not done: no two-process convergence proof, no OS-level restart proof, no second `node server.js`. The CO0 proof is real-SQLite but single-process (:memory:); the CO1/CO2 proofs use an InMemoryEventJournal with a Map-backed marker io.",
+    "cliMain's DB-dependent half (SQLite init, deps construction, exit codes 0/2/3) is unexecuted. Before first operator use, run the two read-only refusals named in axis3.c against a throwaway database copy.",
+    "scripts/campaign-authority-cutover.ts is typechecked and linted by nothing. Fold into a later tsconfig repair; scripts/tsconfig.json's pre-existing lib-target failures must be cleared first and are not this work's doing.",
+    "OBS-1: campaignShadowParityRunner.ts:15-18's comment about a blocked campaign 'still working' contradicts campaignAuthorityMode.ts:105-112. Pre-existing, one-line comment fix in a later slice.",
+    "The branch is based on 8c8f8221c, not current origin/main (cd416634a). merge-tree is clean and main-side drift does not touch these files, so no rebase is required — but the green suite figures are against the base tree."
+  ],
+
+  "reviewerNonClaims": [
+    "I did not re-run the full unit suite (~17 min); I accept the preparer's final-full-jest.log figure for suites outside my 206-suite scoped run.",
+    "I did not run `next build` (forbidden by the brief).",
+    "I did not execute the CLI's database-touching paths — no campaign was read, advanced, blocked, or rolled back by this review.",
+    "I did not author or run a dedicated crash-window test; the fail-safe conclusion rests on executed mutant M1 plus a code read of campaignAuthorityMigration.ts:332-346.",
+    "I did not rebase, push, commit, or modify any repo file. The four mutants and R1 were applied to the working tree and reverted with `git checkout --`; `git status --short` was verified empty after each, and HEAD is still b620467cc.",
+    "The claim that a `jest.mock('../campaignCutoverMarkerIo')` crash-window test is feasible is INFERENCE from the module's import shape — not executed."
+  ]
+}

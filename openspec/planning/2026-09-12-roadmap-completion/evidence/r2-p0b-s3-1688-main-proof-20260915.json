@@ -1,0 +1,57 @@
+{
+  "node": "R2.authority",
+  "artefact": "r2-p0b-s3-1688-main-proof-20260915",
+  "capturedAtUtc": "2026-09-15T10:54:45.519Z",
+  "pr": 1688,
+  "slice": "P0b S3 (design-campaign-authority-and-sync task 6.1: grant projection narrowed through envelopeOf, no private leak) — completes the P0b stack S1/S2/S3",
+  "reviewedHead": "3d8373d23006f59efa2da1beb56a2596e8045c0c (branch head after the remote update-branch merge; branch file contents equal the reviewed S3 commits)",
+  "mergeCommit": "e7cbe9e00de224715dc7233b6028b66312ab5877",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/archive-original-main-proof (detached at the merge commit)",
+  "runtime": {
+    "node": "v22.22.0"
+  },
+  "files": [
+    "src/lib/campaign/delivery/__tests__/projectCampaignStreamForGrant.test.ts",
+    "src/lib/campaign/delivery/projectCampaignStreamForGrant.ts",
+    "src/lib/multiplayer/server/projection/ViewerProjectionService.ts"
+  ],
+  "blobEquality": {
+    "command": "git diff --stat 3d8373d23 e7cbe9e00 -- <3 files>",
+    "diffLines": 0,
+    "identical": true
+  },
+  "gates": {
+    "jest": {
+      "scope": "src/lib/campaign/sync src/lib/campaign/authority src/lib/campaign/delivery src/lib/multiplayer/server/projection",
+      "result": "48 suites / 307 tests passed",
+      "exit": 0,
+      "sha256": "c58c7b4c49d367eef401ab06a2164927f136a2d168dfd22f465c0292cba9a5fb"
+    },
+    "tsc": {
+      "exit": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "openspecStrict": {
+      "exit": 0,
+      "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3"
+    },
+    "purposeStrict": {
+      "exit": 0,
+      "sha256": "a9d942aa830647b4ac15e7c4046225c706300a676efce33a928a592d9951e847"
+    },
+    "terminologyStrict": {
+      "exit": 0,
+      "sha256": "34a2146e87a1a53f98f3d5e2121800e486f2e9fd3ffb701ba10a066e53f6f82a"
+    },
+    "qcOpenspecCi": {
+      "exit": 0,
+      "sha256": "1d2b3ffbba3922d328cc2b02fa1de7ccedad6b3382227fa903deccf9a0d5900c"
+    }
+  },
+  "acceptance": "exact-main accepted; P0b (task 6.1 D12/D13 source-private envelope) is fully on main as of e7cbe9e00",
+  "nonClaims": [
+    "CAMPAIGN_JOURNAL_AUTHORITY_ENABLED remains false",
+    "task 6.1 checkbox flip belongs to the ledger reconciliation PR, bound to the S1/S2/S3 main-proof receipts",
+    "6.3 falsification remains partial per the local receipt"
+  ]
+}

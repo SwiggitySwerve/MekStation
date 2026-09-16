@@ -1,0 +1,30 @@
+{
+  "capturedAt": "2026-09-13T01:37:38.983Z",
+  "wt": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/customizer-layout-specs/worktree",
+  "main": "8f72371064675740d2ea710b869f7c7673e4c11d",
+  "head": "44bbb62d677ff1e6bd825d8555a36d301f275bb3",
+  "branch": "codex/roadmap-customizer-layout-specs-20260912",
+  "indexHash": "a65b683940b6449651a074132f39d8b8da156ef5620af6aa1b62eb7c8698b953",
+  "ignored": "!! .husky/_/\n!! node_modules/",
+  "dependencyJunctionTarget": "E:/Projects/MekStation/node_modules",
+  "sourceBytesExportedBeforeRemoval": true,
+  "manifestSha256": "ee1bae60b61cd6ef6e89fe27925678b9372482690e664eeebba519fa132610a6",
+  "fileCount": 36,
+  "status": "owned-cleanup-verified",
+  "worktreeRemoveExit": 0,
+  "removed": true,
+  "rootIndexUnchanged": true,
+  "manifest": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/customizer-layout-cleanup-20260913/manifest.json",
+    "sha256": "ee1bae60b61cd6ef6e89fe27925678b9372482690e664eeebba519fa132610a6"
+  },
+  "commands": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/customizer-layout-cleanup-20260913/commands.json",
+    "sha256": "fc947f0dd0364b0e55ff49ecdfa03c68e846e93a6c4199e526ab2012774b61ba"
+  },
+  "residualOperations": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/customizer-layout-cleanup-20260913/residual-operations.json",
+    "sha256": "6c2700761cd22d081247279b7920c0f7b4c5990f61f11e66515f4fc87df60282"
+  },
+  "qualification": "Git non-force worktree remove exited0 and unregistered target, leaving only owned node_modules junction. Exact verified junction was unlinked and empty directory removed non-recursively; shared dependency target preserved."
+}

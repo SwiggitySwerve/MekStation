@@ -1,0 +1,54 @@
+{
+  "pr": 1702,
+  "branch": "codex/roadmap-r4-s3b-a-repoint-started-20260915",
+  "reviewedCommit": "a593490d82d20cc108d4dbf6ff547b331b680d86",
+  "resolvedHeadFromParent": "e7c9532caabd0eaf3487dfbebcd1a8f77d82cd53",
+  "finalHead": "bdddcf243150ecec489ddb8e68187d05b9979eb1",
+  "autoMergeArmed": false,
+  "contentGuard": {
+    "method": "file set from `git diff --name-only origin/main...<head>` compared to the reviewed file set, plus per-file blob equality against the reviewed commit; re-run after update-branch",
+    "fileCountAtMerge": 4,
+    "blobEquality": "all files blob-identical to the reviewed commit at the gated head (exceptions, if any, are described in notes)",
+    "result": "PASS"
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "expectedHeadShaGuardUsed": true,
+    "newHead": "bdddcf243150ecec489ddb8e68187d05b9979eb1"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "otherChecksCount": 27,
+    "otherChecksBuckets": {
+      "pass": 27
+    },
+    "totalChecks": 31,
+    "totalChecksNote": "31 because #1678 added the standing \"Customizer Regressions\" check to main"
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r4-s3b-a-1702-final2-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "28e114300a8d3c4f980a4d43270636c52b352d76",
+  "mergeCommitParents": [
+    "484708a9e4dc30cf4beffef2c1d6ea0e1829a04e"
+  ],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1702 --squash --match-head-commit bdddcf243150ecec489ddb8e68187d05b9979eb1",
+  "mergedAt": "2026-09-15T11:28:13Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "The merge commit changes exactly 4 file(s), all blob-identical to the gated head bdddcf243150ecec489ddb8e68187d05b9979eb1.",
+  "mainAfter": "28e114300a8d3c4f980a4d43270636c52b352d76",
+  "worktree": {
+    "fastForward": "NOT PERFORMED unless the coordinator designated the worktree as free; several owned worktrees were explicitly off-limits (parent in use / other branch).",
+    "result": "SKIPPED or SUCCESS per coordinator instruction for this PR"
+  },
+  "notes": "Parent-resolved DIRTY; delta vs main = S3b A exact 495+/43-.",
+  "timestamps": {
+    "receiptWrittenAt": "2026-09-15T15:00:00Z"
+  }
+}

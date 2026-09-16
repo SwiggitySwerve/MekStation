@@ -1,0 +1,52 @@
+{
+  "pr": 1729,
+  "branch": "codex/roadmap-r4-s6-b-suite-20260915",
+  "reviewedCommit": "5f370239ec6001c679d8a07e3ebc653b31b2bd14",
+  "finalHead": "d5430e6aed7947f90a419cd4bcef2298df5d8f71",
+  "autoMergeArmed": false,
+  "contentGuard": {
+    "method": "file set from `git diff --name-only origin/main...<head>` vs the reviewed file set, plus per-file blob equality against the reviewed commit; re-run after update-branch",
+    "fileCountAtMerge": 1,
+    "blobEquality": "all files blob-identical to the reviewed commit at the gated head",
+    "result": "PASS"
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "expectedHeadShaGuardUsed": true,
+    "newHead": "d5430e6aed7947f90a419cd4bcef2298df5d8f71"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "otherChecksCount": 27,
+    "otherChecksBuckets": {
+      "pass": 27
+    },
+    "totalChecks": 31
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r4-s6-b-1729-final-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "423381ff0eb026bb4f3834949aae555cd70d0ca9",
+  "mergeCommitParents": [
+    "16e7346f20303acd518df8c21c7b2ff04a22fe0a"
+  ],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1729 --squash --match-head-commit d5430e6aed7947f90a419cd4bcef2298df5d8f71",
+  "mergedAt": "2026-09-15T16:15:38Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "The merge commit changes exactly 1 file(s), all blob-identical to the gated head d5430e6aed7947f90a419cd4bcef2298df5d8f71.",
+  "mainAfter": "423381ff0eb026bb4f3834949aae555cd70d0ca9",
+  "worktree": {
+    "fastForward": "NOT PERFORMED - coordinator designated the owned worktrees as off-limits for these PRs",
+    "result": "SKIPPED (intentional)"
+  },
+  "notes": "Collapsed cleanly after 1728 squash exactly as predicted (disjoint files): diff went from 5 files to its own suite file, +340.",
+  "timestamps": {
+    "receiptWrittenAt": "2026-09-15T17:02:00Z"
+  }
+}

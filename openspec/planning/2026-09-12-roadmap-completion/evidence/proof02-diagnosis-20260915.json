@@ -1,0 +1,139 @@
+{
+  "schema": "proof02-browser-quick-diagnosis/v1",
+  "generatedAtUtc": "2026-09-15T09:05:00Z",
+  "generatedBy": "agent:proof02-browser-quick-diag (GP-JUSTIFIED diagnosis-only run; no source edits, no push, no rebuild)",
+  "buildIdentity": {
+    "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/browser",
+    "headCommit": "bce2049d74ce6e48b5d0813fb506ada701257e47",
+    "headVerifiedInSession": true,
+    "buildIdBeforeRuns": "1789460769679",
+    "buildIdAfterRuns": "1789460769679",
+    "buildIdUnchanged": true,
+    "rebuildPerformed": false,
+    "gitStatusPorcelainBefore": [],
+    "gitStatusPorcelainAfter": [],
+    "gitStatusClean": true,
+    "rootCheckoutTouched": false,
+    "node": "v22.22.0 (PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0)",
+    "serverCommand": "node .next/standalone/server.js",
+    "port": 3639,
+    "portNeverUsed": [3600]
+  },
+  "runs": [
+    {
+      "id": "A",
+      "spec": "e2e/campaign-starmap-logistics.spec.ts",
+      "command": "node scripts/playwright/run-playwright.mjs test e2e/campaign-starmap-logistics.spec.ts --project=chromium --retries=0 --workers=1 --trace=on --output=<diagDir>/A-test-results",
+      "env": {
+        "MEKSTATION_E2E_PORT": "3639",
+        "MEKSTATION_E2E_SERVER_COMMAND": "node .next/standalone/server.js",
+        "PLAYWRIGHT_HTML_REPORT": "<diagDir>/A-report"
+      },
+      "exitCode": 1,
+      "result": "1 failed (campaign-starmap-logistics.spec.ts:155 travel consequences); other tests in file not reported individually by list reporter tail",
+      "log": ".sisyphus/roadmap-completion-20260912/proof02-diag-20260915/A-run.log",
+      "trace": ".sisyphus/roadmap-completion-20260912/proof02-diag-20260915/A-test-results/campaign-starmap-logistics-e37ee-ampaign-travel-consequences-chromium/trace.zip",
+      "traceSha256": "4fd2e93c9170bc3e91709d376e76f1dd0e258e6ea8ebe9b2ea449ace017ac928"
+    },
+    {
+      "id": "B",
+      "spec": "e2e/gm-campaign-ledger-control-plane.spec.ts",
+      "command": "node scripts/playwright/run-playwright.mjs test e2e/gm-campaign-ledger-control-plane.spec.ts --project=chromium --retries=0 --workers=1 --trace=on --output=<diagDir>/B-test-results",
+      "env": {
+        "MEKSTATION_E2E_PORT": "3639",
+        "MEKSTATION_E2E_SERVER_COMMAND": "node .next/standalone/server.js",
+        "PLAYWRIGHT_HTML_REPORT": "<diagDir>/B-report"
+      },
+      "exitCode": 1,
+      "result": "6 passed, 1 failed (gm-campaign-ledger-control-plane.spec.ts:591 guest direct route, 17.5s) — same single test as the 2026-09-15 quick run",
+      "log": ".sisyphus/roadmap-completion-20260912/proof02-diag-20260915/B-run.log",
+      "trace": ".sisyphus/roadmap-completion-20260912/proof02-diag-20260915/B-test-results/gm-campaign-ledger-control-dc223-ayer-safe-ledger-projection-chromium/trace.zip",
+      "traceSha256": "5d7f74d2d45c0b7258cd1607874d54e9e1b85041defa56f9096cc7da9a394dd8",
+      "siblingTraces": {
+        "gm-campaign-ledger-control-13160-om-the-server-campaign-list-chromium/trace.zip": "605e03121a5100ea396b7f5ca28814efdce9abfd9f848cc835a5c1e8d0512e0f",
+        "gm-campaign-ledger-control-2a7b2-the-GM-takes-manual-control-chromium/trace.zip": "adcee17583dce28a7cae996552d5ad3194d77fb9acb15fc732f1f817b0373135",
+        "gm-campaign-ledger-control-4896b-and-unit-reload-corrections-chromium/trace.zip": "67fdeb75aa465d2af187311ae1170edf70f2f020b3ff647f59350d44ddfee8ba",
+        "gm-campaign-ledger-control-c73d1-fects-until-manual-takeover-chromium/trace.zip": "4d19ce4c0eaf2673b1fe6f637a55f4dd13d2251a398a586352bd6e752692db78",
+        "gm-campaign-ledger-control-f7fba-redacts-a-merchant-reversal-chromium/trace.zip": "33c1a6c4e2ffe8c5f3344c63878a3fa40d456e905a3549fe38bac277b3d4ea6a",
+        "gm-campaign-ledger-control-faf8b-an-accumulated-time-cascade-chromium/trace.zip": "ba542bf5fbc6f63c847211fbb5f2757631737a8ee4fe4c4740e8988592df9561"
+      }
+    }
+  ],
+  "observations": [
+    {
+      "id": "A",
+      "title": "campaign-starmap-logistics travel-consequences fails the browser-diagnostics gate on aborted equipment-data fetches",
+      "classification": "PRODUCT-BUG",
+      "secondaryClassification": "TEST-HARNESS (contributing: the gate's benign-abort carve-out covers the network event but not the console.error the product derives from it)",
+      "packagingRuledOut": {
+        "verdict": "NOT a standalone-packaging gap",
+        "evidence": [
+          ".next/standalone/public/data/equipment/official/weapons/ contains 13 files, identical count to worktree public/ (ls, this session)",
+          "both named files present: .next/standalone/public/data/equipment/official/weapons/ballistic-machinegun.json (6219 bytes), missile-other.json (39488 bytes)",
+          "trace B network log shows ~30 equipment JSON files fetched successfully from the standalone server in the same session",
+          "the aborted file differs run to run (quick run: ballistic-machinegun.json + missile-other.json; run A: ballistic-autocannon.json + missile-atm.json) — inconsistent with a missing file"
+        ],
+        "r9ManifestSyncImplication": "This run is positive evidence FOR R9.manifest-sync: the tracked asset manifest is present and served by the standalone server."
+      },
+      "rootCause": "Every page load runs the app-global equipment registry init (src/pages/_app.tsx:24-33 initializeBrowserServices -> getEquipmentRegistry().initialize()), which issues ~30 fetches for /data/equipment/official/**. A Playwright page.goto() is a hard document navigation, which cancels the previous document's in-flight fetches with net::ERR_ABORTED. src/services/equipment/EquipmentFileReader.ts:34-44 cannot distinguish an unload-cancelled fetch (TypeError: Failed to fetch) from a real failure, returns null, and src/services/equipment/EquipmentOfficialLoader.ts:46-53 (recordFileLoadFailure, called at :111) escalates it to logger.error. e2e/helpers/browserDiagnosticsModel.ts:41-60 deliberately treats a non-API GET net::ERR_ABORTED as BENIGN, but every console.error is fatal (browserDiagnostics.ts:95-98 + :131), so the product's own derived error re-escalates the abort the gate just forgave.",
+      "traceCorrelation": {
+        "runA": [
+          "goto /gameplay/campaigns/campaign-1789462015868-8glnla4 at trace t=23968ms; abort+console.error for weapons/ballistic-autocannon.json at t=23991/23993ms (23ms later)",
+          "goto /gameplay/campaigns/<id>/starmap at t=24537ms; abort+console.error for weapons/missile-atm.json at t=24566ms (29ms later)"
+        ],
+        "conclusion": "1:1 correlation between a hard navigation and the abort. Navigation-cancel, not 404, not CORS, not MIME."
+      },
+      "whyTheDevAnchorWasGreen": "INFERENCE (not measured this session): a dev server's slower module graph shifts when the equipment fetches are in flight relative to the test's navigations. No NODE_ENV branch exists in the loader path. Note src/pages/_app.tsx:35-58 useProductionRouteTransitionRecovery is production-only and hard-reloads via window.location.assign() after a 3s stalled client route transition — a second production-only source of document unload, not observed firing in these traces.",
+      "smallestCorrectFix": {
+        "primary": "Thread an AbortSignal through the equipment load path and treat an aborted read as 'not attempted', never a failure. src/services/equipment/EquipmentRegistry / EquipmentLoaderService creates a controller aborted on window 'pagehide'; src/services/equipment/EquipmentFileReader.ts:34 passes {signal} to fetch and its catch (:42-44) returns a distinct aborted sentinel instead of null; src/services/equipment/EquipmentOfficialLoader.ts:108-112 (and the ammunition/electronics/misc siblings at :137-141, :166-170, :193-197) skip recordFileLoadFailure for that sentinel. A genuinely missing or malformed file still logs error.",
+          "alternativeArchitectural": "Stop eagerly initializing the equipment registry for every route in src/pages/_app.tsx:24-33 and make it lazy for the surfaces that use it (useEquipmentRegistry consumers are customizer/preview only). Removes ~30 fetches per campaign page load and the race with it. Larger blast radius; not the minimum.",
+        "rejected": "Widening e2e/helpers/browserDiagnosticsModel.ts to forgive the loader's console.error text — that masks real equipment-load failures and puts product-specific strings in the harness."
+      },
+      "regressionTest": "Unit test beside src/services/equipment/__tests__/EquipmentOfficialLoader.failure.test.ts: a file read that rejects with the abort sentinel MUST NOT call logger.error and MUST NOT push an entry into result.errors, while a 404/malformed read still does both. The e2e gate (qc:command:browser:quick) is the integration proof.",
+      "capEstimate": "SMALL — 3 files + 1 unit test, ~60 LOC net.",
+      "contractImpact": {
+        "frozenCampContract": "none touched",
+        "r9ManifestSyncReceipt": "unaffected (confirmed working)",
+        "r9HydrationSafetyReceipt": "unaffected — no change to scripts/hydrate-next-standalone-multiplayer-server.mjs or scripts/mm-data/sync-browser-config.mjs"
+      }
+    },
+    {
+      "id": "B",
+      "title": "gm-campaign-ledger-control-plane guest direct route: the guest's stale local campaign name survives the server refresh",
+      "classification": "PRODUCT-BUG",
+      "standaloneSpecific": false,
+      "falseLeadCorrected": {
+        "claim": "the failure screenshot / error-context.md shows 'Campaign not found'",
+        "correction": "That snapshot is captured at test END, after the finally-block deleteCampaign. Trace frame-snapshots show the page rendered the campaign WITH the guest co-op badge at t=15538ms (guest=true) and 'Campaign not found' appears only at t=25569ms, i.e. during cleanup after DELETE /api/campaigns/<id> at t=25571ms. The page was NOT broken at the moment of the timeout."
+      },
+      "rootCause": "The failing half of the waitForFunction predicate (e2e/gm-campaign-ledger-control-plane.spec.ts:645-669) is campaign.name === expectedName, not coopSession.mode === 'guest'. The test stamps a stale local name ('__guest-client-stale__', spec:10) plus guest coopSession into the store WITHOUT saving (spec:266-310), then reloads. src/pages-modules/gameplay/campaigns/campaignPageShell.tsx:144-146 correctly forces a server refresh for a guest (guestNeedsServerRefresh, landed 2026-07-09 in ba92b4569 / #1022). But src/stores/campaign/useCampaignPersistenceStore.ts:696-712 then discards that refresh: evaluateCampaignCache (src/lib/campaign/persistence/campaignCacheKey.ts:63-81) compares only (instanceId, revision); the guest's local copy diverged in CONTENT without a revision bump, so the verdict is 'usable', cacheStands is true (:701-702), loadedCampaign is the stale local copy (:703-704) and writeLiveCampaign is skipped (:709-710). The stale name therefore survives forever and the predicate never becomes true.",
+      "regressionOrigin": {
+        "commit": "f45bab0d2 2026-08-24 'feat(campaign): give the cached campaign copy an identity (#1339)'",
+        "introduced": "the cacheStands short-circuit at useCampaignPersistenceStore.ts:696-712",
+        "explainsAnchor": "The 2026-08-12 dev anchor predates #1339, which is why the anchor was green. The failing test itself is older (last touched 77fb47efa / 66bbea4bb, 2026-08-02) — the test did not move; the product did.",
+        "environmentIndependence": "INFERENCE (dev server not re-run this session): the failing decision is a pure data comparison with no NODE_ENV / dev-vs-prod branch anywhere in useCampaignPersistenceStore.ts:696-712 or campaignCacheKey.ts, so the same verdict is reached on the dev server. Classified PRODUCT-BUG, not STANDALONE-PACKAGING."
+      },
+      "specAlignment": "openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md:34-38 ('Client storage is a cache, never a source' / 'Stale cache is refreshed, not trusted') only scopes its scenario to revision N < head M. A guest replica whose content diverged at EQUAL revision falls through that scenario, which is the hole #1339 opened: for a replica, (instanceId, revision) equality does not imply content equality, because a guest's copy is mutated by host broadcast and local session state rather than by its own PUTs. The non-guest case is still covered by the dirty-state exemption at campaignPageShell.tsx:152-156.",
+      "smallestCorrectFix": {
+        "change": "src/stores/campaign/useCampaignPersistenceStore.ts:701-702 — a cache may not stand for a guest replica: cacheStands = verdict.kind === 'usable' && liveCampaign?.id === migrated.campaignId && liveCampaign.coopSession?.mode !== 'guest'. The existing preserveGuestCoopSession (:252-266) already keeps the guest coopSession when the server record replaces the copy, so the replacement branch is already correct for this case.",
+        "why": "It restores the intent of guestNeedsServerRefresh (campaignPageShell.tsx:144-146) that #1339 silently nullified, without weakening the keyed-cache policy for source clients.",
+        "alternativeRejected": "Relaxing the test to drop the name assertion — that would delete the authority proof (server record wins over a diverged replica) the test exists to hold."
+      },
+      "regressionTest": "Extend src/stores/campaign/__tests__/campaignCacheIdentity.test.ts: given a live campaign with coopSession.mode === 'guest' and a cachedCampaignKey EQUAL to the server record's (instanceId, revision) but a diverged name, runLoad MUST replace the live campaign with the server record and MUST preserve coopSession.mode === 'guest'; the same case with coopSession null MUST still keep the cache (verdict 'usable', no write).",
+      "capEstimate": "SMALL — 1 production line + 1-2 unit cases, <30 LOC net.",
+      "contractImpact": {
+        "frozenCampContract": "none touched (no CAMP-0x acceptance artefact edited)",
+        "campaignAuthorityDomain": "inside design-campaign-authority-and-sync task 1.3 (the #1339 keyed-cache work); the guest carve-out narrows when a cache may stand and should be noted against that change's task 1.3 rather than introduced silently",
+        "r9ManifestSyncReceipt": "unaffected",
+        "r9HydrationSafetyReceipt": "unaffected"
+      }
+    }
+  ],
+  "cleanup": {
+    "port3639Listener": "none (netstat -ano | grep :3639 returned no rows after both runs)",
+    "ownedPidsRemaining": "none — both Playwright runs were foreground and exited; the webServer child is torn down by the runner. No server was started manually in this session.",
+    "port3600": "never touched",
+    "prodEvidenceFlag": "never used",
+    "sourceEdits": "none; only untracked evidence/trace files under .sisyphus/roadmap-completion-20260912/proof02-diag-20260915/ and this evidence file"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "recordedAt": "2026-09-12T16:23:37.846Z",
+  "path": "src/services/equipment/__tests__/EquipmentOfficialLoader.failure.test.ts",
+  "beforeSha256": "90a1f879fd0a07c271a2b3a2e98fc99def7f8bee43fea0f99b61f70ea8023938",
+  "afterCastSha256": "bbfd569fc44ae963c5a1038a783521ff129619f2fb3f6e9d4f61569b8420b977",
+  "currentSha256": "b4a6dd8c09d9ba15519e48964a5860f5884c9ca3d35541d26a98cad75823586f",
+  "change": "Explicit unknown boundary for intentional partial fetch-response test fixture; repository formatting applied only to the test.",
+  "evidence": "equipment-loader-checks/attempt-1-status.json",
+  "verification": "Pre-correction isolated 109 tests passed; full typecheck failed TS2352. Correction is not yet rechecked by Jest/typecheck. No build or later gate ran.",
+  "scope": "Same test updated in initiating and isolated loader checkout; no product implementation change."
+}

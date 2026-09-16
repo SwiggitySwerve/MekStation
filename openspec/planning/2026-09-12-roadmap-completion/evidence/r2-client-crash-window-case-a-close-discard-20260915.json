@@ -1,0 +1,104 @@
+{
+  "node": "R2.authority-client",
+  "artefact": "Application of the validated test-only patch for the case (a) discard-shape defect diagnosed in r2-client-discard-flush-diagnosis-20260915.json",
+  "capturedAtUtc": "2026-09-15T11:35:00Z",
+  "status": "applied, gated, verified 8/8, committed",
+  "scope": "Test-only change to one spec file. No product code, no spec/openspec file, no task checkbox flip. No sub-agents used. No push, no PR.",
+
+  "sourceDiagnosis": {
+    "file": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-client-discard-flush-diagnosis-20260915.json",
+    "rootCause": "Chromium 143 aborts a keepalive fetch issued from pagehide when the document leaves via NAVIGATION (0/15 landed across headless+headed runs), but completes it normally when the TAB CLOSES (11/11 landed). A product-independent 17-byte keepalive control reproduced the identical split, exonerating the client flush implementation.",
+    "classification": "BROWSER SEMANTICS, secondary TEST-MECHANISM DEFECT (the spec chose a discard shape whose guarantee Chromium does not offer).",
+    "commitDecisionInSourceDiagnosis": "not committed there -- authored, gated, and proven 3x green, then reverted to HEAD pending orchestrator decision to apply.",
+    "specCitation": "openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md:157-158 -- the client persistence layer SHALL make a bounded, BEST-EFFORT durable write on discard; the requirement obliges issuing the write, not guaranteeing the browser dispatches it."
+  },
+
+  "environment": {
+    "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/browser",
+    "branch": "codex/roadmap-r2-client-crash-window-browser-20260915",
+    "baseCommit": "7a53ce3d14d322827a1d478254a8352ae955c7e0",
+    "baseCommitSubject": "fix(campaign): acknowledge a hidden-transition flush by reading the record it wrote",
+    "treeCleanAtStart": true,
+    "node": "v22.22.0",
+    "port": "3639 only; verified no LISTENING socket before the run and no LISTENING socket after (TIME_WAIT entries from closed client sockets are expected and self-clear; none were killed)",
+    "buildReuseForTestRun": {
+      "decision": "reused the existing standalone build for the 8x verification run; no `next build` was run manually for that purpose",
+      "buildId": "1789469389794",
+      "buildIdSource": "./.next/BUILD_ID in the worktree",
+      "matchesDiagnosisEvidence": true
+    }
+  },
+
+  "patch": {
+    "path": ".sisyphus/roadmap-completion-20260912/discard-flush-diag-20260915/proposed-case-a-close-discard.patch",
+    "sha256": "6b2451cb331e134d061f9942ad0328c143a00c022dac0827600d86cad76e6d27",
+    "checkBeforeApply": "git apply --check succeeded cleanly against 7a53ce3d1",
+    "applied": "git apply (no --check) applied cleanly, no conflicts, no reject files",
+    "resultingDiffSha256": "6b2451cb331e134d061f9942ad0328c143a00c022dac0827600d86cad76e6d27",
+    "diffstat": "e2e/campaign-crash-window-flush.spec.ts | 109 +++++++++++++++++++++++--------- (1 file changed, 79 insertions(+), 30 deletions(-))",
+    "diffSummary": [
+      "Case (a) discards via page.close({ runBeforeUnload: true }) instead of page.goto('about:blank').",
+      "serverRecord() takes an APIRequestContext instead of a Page (case (a) reads the record after its page is closed); every other call site now passes page.request or the fixture's `request` explicitly.",
+      "Cold reload runs on a freshly opened page (context.newPage()) after context.addInitScript(() => localStorage.clear()), wrapped in its own withGate call.",
+      "expect(puts).toHaveLength(1) removed from case (a); the file documents why in a comment above the test: a request issued as the page closes is not reported to Playwright at page or context level (measured), so the count cannot be taken there -- the jsdom suite owns the exactly-once-write claim against a mocked fetch. expect(puts).toHaveLength(0) BEFORE the discard is kept, still proving the debounce had not fired.",
+      "RED ARM moved to the SAME discard shape (page.close) so the pair keeps discriminating -- a red arm on a different discard would only prove that other shape loses the mutation.",
+      "File header LIMIT paragraph and a new comment block above the test record the measured Chromium finding (navigation 0/15, close 11/11, bare-keepalive control 0/3 vs 3/3) so a future reader does not revert this to a navigation discard."
+    ],
+    "whatStillDiscriminates": "The revision assertion (before.version + 1, exact) and the red arm's zero-movement checks (version unchanged, currentDate unchanged, puts.toHaveLength(0)) still fail without the two campaignPersistenceWiring listeners -- confirmed by the RED ARM test passing in the same run."
+  },
+
+  "gates": [
+    {
+      "command": "npx tsc --noEmit -p tsconfig.json",
+      "exit": 0,
+      "stdout": "empty"
+    },
+    {
+      "command": "npx oxfmt --check e2e/campaign-crash-window-flush.spec.ts",
+      "exit": 0,
+      "result": "All matched files use the correct format."
+    }
+  ],
+
+  "browserRun": {
+    "command": "MEKSTATION_E2E_SERVER_COMMAND='node .next/standalone/server.js' HOSTNAME=127.0.0.1 MEKSTATION_E2E_PORT=3639 node scripts/playwright/run-playwright.mjs test e2e/campaign-crash-window-flush.spec.ts --project=chromium --retries=0 --workers=1 --repeat-each=2",
+    "exit": 0,
+    "result": "8 passed (33.0s) -- 4 cases x2 repeat-each",
+    "cases": [
+      "a discarded document flushes its pending mutation and the cold reload reads it back @campaign -- 2/2",
+      "a surviving document takes the ordinary debounced save, exactly once @campaign -- 2/2",
+      "a hidden transition flushes without acknowledging, and returning re-arms a save @campaign -- 2/2",
+      "RED ARM: without the discard listeners the same mutation never reaches the server @campaign -- 2/2"
+    ],
+    "log": ".sisyphus/roadmap-completion-20260912/case-a-close-20260915/run1-8x.log",
+    "logSha256": "5aa84f411b76d354427b4cafbd26defd640902a1beb1b7b9c195ff2fd9e5a37e",
+    "diffCapturedForRecord": ".sisyphus/roadmap-completion-20260912/case-a-close-20260915/applied.diff",
+    "diffCapturedSha256": "6b2451cb331e134d061f9942ad0328c143a00c022dac0827600d86cad76e6d27"
+  },
+
+  "commit": {
+    "sha": "3224f91f9bf892cc6ca0d3cfed15fda65590dae1",
+    "branch": "codex/roadmap-r2-client-crash-window-browser-20260915",
+    "author": "Wes Rollings <wrollings@gmail.com>",
+    "subject": "test(campaign): discard through tab close so the keepalive flush proof matches Chromium semantics",
+    "filesChanged": "e2e/campaign-crash-window-flush.spec.ts (1 file changed, 79 insertions(+), 30 deletions(-))",
+    "hooksRun": "pre-commit ran (full next build per repo convention, executed via background Bash; completed successfully, exit 0). Not manually triggered for verification -- it is the repo's standard husky pre-commit gate.",
+    "noAiAttributionInBody": "correct -- only the required Co-Authored-By trailer line is present",
+    "pushed": false,
+    "prOpened": false
+  },
+
+  "postCommitTreeState": {
+    "gitStatus": "clean, branch codex/roadmap-r2-client-crash-window-browser-20260915",
+    "note": "The pre-commit hook's `next build` regenerated .next/standalone as a side effect of the hooked commit (repo convention, not a task-initiated rebuild); it ran AFTER the 8x verification run captured above, so it does not affect the validity of that run's evidence."
+  },
+
+  "nonClaims": [
+    "The navigation-discard loss remains. A user who navigates away from the app (address bar, external link, back out of the SPA) still loses up to the 2 s debounce window of mutations on this Chromium. Tab close, window close, and in-app SPA route changes (which discard no document) are covered.",
+    "No product code was changed. The client's flush behavior is unchanged; only the test's discard mechanism and its assertions were corrected to match what Chromium actually guarantees.",
+    "No openspec file was edited and no task checkbox was flipped by this action, per instruction. The diagnosis's `proposedBoundedSlice` step 2 (widening task 1.6's NON-CLAIMS in design-campaign-authority-and-sync/tasks.md) was NOT performed here -- that remains an open item for the owner/orchestrator to decide and action separately.",
+    "The owner decision on sendBeacon / fetchLater (Pending Beacon) adoption to close the navigation-discard gap is pending and was explicitly out of scope per the diagnosis's `explicitlyNotProposed` list -- not evaluated or recommended here.",
+    "Why the same navigation-discard mechanism passed 4/4 in an earlier session is still not explained (per source diagnosis); this action did not re-investigate that question.",
+    "Single-player only, Chromium only -- no co-op, no journal authority flag, consistent with the source diagnosis's scope."
+  ]
+}

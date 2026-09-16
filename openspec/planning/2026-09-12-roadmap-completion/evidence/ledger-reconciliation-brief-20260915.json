@@ -1,0 +1,2360 @@
+{
+  "schemaVersion": 1,
+  "title": "Ledger reconciliation brief -- roadmap-completion program (2026-09-12 roadmap) vs origin/main",
+  "generatedAt": "2026-09-15",
+  "method": {
+    "sources": [
+      "openspec/planning/2026-09-12-roadmap-completion/roadmap.json (LOCAL/untracked -- confirmed via `git status --porcelain` this whole planning directory is untracked (?? prefix) on every branch, including local main; it has no committed history at all (`git log --all -- roadmap.json` is empty). Read from local disk per task scope, not from origin/main.)",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/*.json (LOCAL/untracked, same as above; 555 files at read time; only filenames containing the literal substring \"main-proof\" were treated as accepted receipts, per instruction)",
+      "openspec/active-change-ledger.json read via `git show origin/main:openspec/active-change-ledger.json`",
+      "each change tasks.md read via `git show origin/main:openspec/changes/<change>/tasks.md`",
+      "`git fetch origin` run first; local working tree (dirty, on branch main, many modified/deleted files per git status) was not read or trusted for any checkbox or ledger fact"
+    ],
+    "acceptanceRule": "A roadmap-evidence file counts as an accepted \"main-proof\" receipt only if its filename contains the literal substring \"main-proof\". Files named \"*-main-verification-*\", \"*-completion-*\", \"*-parent-acceptance-*\", \"*-local-*\", \"*-review-*\", \"*-premerge-*\", \"*-merge-*\" do NOT count, even when their content describes an exact-main SHA and passing gates (this repo used a \"main-verification\"/\"completion\" naming convention for the 2026-09-12 wave 0 work, before adopting the \"main-proof\" convention on 2026-09-13 onward; the earlier files are flagged per-row below rather than silently accepted or silently dropped).",
+    "verdictLegend": {
+      "FLIP": "The task text is fully discharged by a merged, exact-main \"main-proof\"-named receipt (or, for a pure documentation/verification task, by a recorded finding inside a PR that itself carries a main-proof receipt); a follow-up PR should simply check the box.",
+      "PARTIAL": "A main-proof receipt (or the roadmap node's own admission text) covers part of the task; a named residual remains open. The checkbox should stay unchecked until the residual clears, or the task text should be split.",
+      "OPEN": "No merged exact-main receipt exists for this task at all (planned/blocked/unmerged/in-flight-only), or the only \"proof\" offered is prose in an admission brief rather than a receipt.",
+      "ALREADY-CHECKED-NO-ROADMAP-RECEIPT": "The checkbox is already [x] on origin/main today (real, pre-existing fact, verified by reading tasks.md at origin/main), but this roadmap effort supplies no main-proof-named evidence file for it and the owning roadmap node carries no receipt (node state is frequently still \"planned\" or the claim lives only in an admission-brief driftNote). Not FLIP (nothing to flip -- it is already flipped) and not the same as PARTIAL/OPEN (no admitted gap and no roadmap-generated proof either). Reported separately so the caller does not mistake pre-roadmap history for this roadmap's output, and so a stale ledger/roadmap-node status gets flagged."
+    }
+  },
+  "addSubsystemLanesAndCi": {
+    "found": false,
+    "evidence": [
+      "`git ls-tree origin/main openspec/changes/` has no add-subsystem-lanes-and-ci directory",
+      "no local openspec/changes/add-subsystem-lanes-and-ci directory",
+      "roadmap.json has no node whose ownershipPaths or taskKeys reference add-subsystem-lanes-and-ci, and no node title matches",
+      "the only occurrence of the string anywhere in scope is inside the ledger reason for a DIFFERENT change, harden-gm-two-player-campaign-sessions: \"...does not modify the active add-subsystem-lanes-and-ci requirement names.\" -- i.e. it is named there as an existing requirement-name namespace this other change must not collide with, not as a change of its own."
+    ],
+    "conclusion": "Not evaluated for reconciliation -- it is not a change in this roadmap, not an openspec change directory, and not a ledger entry. If the caller intended a different/renamed change, it needs to be re-identified."
+  },
+  "changes": {
+    "add-authoritative-history-branches": {
+      "ledgerOnOriginMain": {
+        "status": "proposed",
+        "lastReviewed": "2026-07-30",
+        "reason": "Wave 7 of the entity-history program: add immutable branch lineage, verified replacement-branch activation, domain-command revalidation instead of generic merge, and recoverable combat/campaign correction sagas after linear authority and effect receipts are proven.",
+        "staleness": "STALE. lastReviewed 2026-07-30 predates all roadmap-completion activity (baseline 2026-09-12, most receipts dated 2026-09-15). Ledger status \"proposed\" does not reflect that 4 of 9 tracked task groups (0.2 doc-repair, 1.1-1.4 storage, 2.1-2.3 activation, 8.1-8.3 deferral) already have code merged to main or checkboxes already true; status should arguably be \"in-progress\"."
+      },
+      "taskTable": [
+        {
+          "taskId": "0.1",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R6.B4",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": "No receipt; node planned, depends on R5.E10 (add-cross-stream-effect-receipts), which is 0/51.",
+          "note": null
+        },
+        {
+          "taskId": "0.2",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R0.contracts",
+          "roadmapNodeState": "complete",
+          "receipts": [
+            "evidence/r0-contracts-completion-20260912.json (NOT \"main-proof\" named -- NOT accepted per strict rule)"
+          ],
+          "verdict": "PARTIAL",
+          "residual": "Node state is \"complete\" and receipt.mainSha=92d04fc6b is a real merged exact-main SHA (PR #1651/#1648/#1650 all merged), but the evidence filenames use the pre-2026-09-13 \"-completion-\"/\"-main-verification-\" convention, not \"-main-proof-\". Under the strict acceptance rule given, this is NOT an accepted receipt, so 0.2 cannot be FLIPped on that basis alone. Separately, task 0.2's actual text (\"re-review every PR seam... before PR 1\") is a re-review-before-implementation gate, which is logically satisfied once PR1 (R3.storage) began, but no row explicitly closes it.",
+          "note": "Recommend either (a) re-running/re-naming an exact-main receipt for R0.contracts under the current main-proof convention, or (b) treating pre-2026-09-13 \"-main-verification-\"/\"-completion-\" filenames as a grandfathered-equivalent class -- a decision for the roadmap owner, not inferred here."
+        },
+        {
+          "taskId": "1.1",
+          "checkboxOnOriginMain": "checked",
+          "roadmapNode": "R3.storage",
+          "roadmapNodeState": "main-verified",
+          "receipts": [
+            "evidence/history-fixtures-1671-main-proof-20260915.json (commit 4cf52fe73)"
+          ],
+          "verdict": "FLIP",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "1.2",
+          "checkboxOnOriginMain": "checked",
+          "roadmapNode": "R3.storage",
+          "roadmapNodeState": "main-verified",
+          "receipts": [
+            "evidence/history-b-1674-main-proof-20260915.json (commit bcc34f7cd)"
+          ],
+          "verdict": "FLIP",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "1.3",
+          "checkboxOnOriginMain": "checked",
+          "roadmapNode": "R3.storage",
+          "roadmapNodeState": "main-verified",
+          "receipts": [
+            "evidence/history-c-1681-main-proof-20260915.json (commit 1f84beef2)"
+          ],
+          "verdict": "FLIP",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "1.4",
+          "checkboxOnOriginMain": "checked",
+          "roadmapNode": "R3.storage",
+          "roadmapNodeState": "main-verified",
+          "receipts": [
+            "evidence/history-fixtures-1671-main-proof-20260915.json",
+            "evidence/history-b-1674-main-proof-20260915.json",
+            "evidence/history-c-1681-main-proof-20260915.json"
+          ],
+          "verdict": "FLIP",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "1.5",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R3.storage",
+          "roadmapNodeState": "main-verified",
+          "receipts": [
+            "evidence/history-b-1674-main-proof-20260915.json",
+            "evidence/history-c-1681-main-proof-20260915.json"
+          ],
+          "verdict": "PARTIAL",
+          "residual": "Node's own receipt.remaining field says verbatim: \"task checkboxes 1.1-1.6 reconciliation against source at closeout\". jest/typecheck/lint/format all pass in the merged prefixes and an independent review (evidence/r3-history-b-repair-review-20260915.json, APPROVE) exists, but the roadmap itself has not yet performed the \"reconciliation against source\" step that would justify flipping 1.5.",
+          "note": null
+        },
+        {
+          "taskId": "1.6",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R3.storage",
+          "roadmapNodeState": "main-verified",
+          "receipts": [
+            "evidence/history-fixtures-1671-main-proof-20260915.json",
+            "evidence/history-b-1674-main-proof-20260915.json",
+            "evidence/history-c-1681-main-proof-20260915.json"
+          ],
+          "verdict": "PARTIAL",
+          "residual": "Exact-main resolver reruns are proven for all three merged prefixes (A/B/C), but the node's own receipt.remaining explicitly lists as still owed: \"branches auto-deleted on merge; worktrees history-fixtures/history-runtime-integrity/history-sql-integrity/branch-integrity-repair/r3-storage-review pending identity-verified removal\" -- task 1.6 literally requires \"...and prune the merged branch/worktree\", which is not yet done.",
+          "note": null
+        },
+        {
+          "taskId": "2.1",
+          "checkboxOnOriginMain": "checked",
+          "roadmapNode": "R3.activation",
+          "roadmapNodeState": "blocked",
+          "receipts": [],
+          "verdict": "ALREADY-CHECKED-NO-ROADMAP-RECEIPT",
+          "residual": "R3.activation.receipt is null; admissionBrief.finding says \"2.1-2.3 already receipted/implemented\" but names no main-proof evidence file for that claim inside this roadmap's evidence set -- the assertion is prose in an admission brief, not a receipt.",
+          "note": null
+        },
+        {
+          "taskId": "2.2",
+          "checkboxOnOriginMain": "checked",
+          "roadmapNode": "R3.activation",
+          "roadmapNodeState": "blocked",
+          "receipts": [],
+          "verdict": "ALREADY-CHECKED-NO-ROADMAP-RECEIPT",
+          "residual": "Same basis as 2.1.",
+          "note": null
+        },
+        {
+          "taskId": "2.3",
+          "checkboxOnOriginMain": "checked",
+          "roadmapNode": "R3.activation",
+          "roadmapNodeState": "blocked",
+          "receipts": [],
+          "verdict": "ALREADY-CHECKED-NO-ROADMAP-RECEIPT",
+          "residual": "Same basis as 2.1.",
+          "note": null
+        },
+        {
+          "taskId": "2.4",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R3.activation",
+          "roadmapNodeState": "blocked",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": "admissionBrief.finding: \"2.4-2.6 half-built, remaining halves (delivery-lease/accepted-receipt arms, STALE_CORRECTION_LEASE) depend on add-cross-stream-effect-receipts (0/51, unarchived)\".",
+          "note": null
+        },
+        {
+          "taskId": "2.5",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R3.activation",
+          "roadmapNodeState": "blocked",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": "Blocked on add-cross-stream-effect-receipts, same as 2.4.",
+          "note": null
+        },
+        {
+          "taskId": "2.6",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R3.activation",
+          "roadmapNodeState": "blocked",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": "Blocked on add-cross-stream-effect-receipts, same as 2.4.",
+          "note": null
+        },
+        {
+          "taskId": "2.7",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R3.activation",
+          "roadmapNodeState": "blocked",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": "admissionBrief.disposition: \"2.7 merge/prune blocked on those [same predecessor]\".",
+          "note": null
+        },
+        {
+          "taskId": "3.1",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R3.combat",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "3.2",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R3.combat",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "3.3",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R3.combat",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "3.4",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R3.combat",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "3.5",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R3.combat",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "4.1",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R6.B4",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "4.2",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R6.B4",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "4.3",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R6.B4",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "4.4",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R6.B4",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "4.5",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R6.B4",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "5.1",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R6.B5",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "5.2",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R6.B5",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "5.3",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R6.B5",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "5.4",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R6.B5",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "5.5",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R6.B5",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "5.6",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R6.B5",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "5.7",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R6.B5",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "6.1",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R6.B6",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "6.2",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R6.B6",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "6.3",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R6.B6",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "6.4",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R6.B6",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "6.5",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R6.B6",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "7.1",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R6.B7",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "7.2",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R6.B7",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "7.3",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R6.B7",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "7.4",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R6.B7",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "7.5",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R6.B7",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "7.6",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R6.B7",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "8.1",
+          "checkboxOnOriginMain": "unchecked (BY DESIGN -- see explicitDeferralsToPreserveVerbatim)",
+          "roadmapNode": "R6.deferrals",
+          "roadmapNodeState": "main-verified",
+          "receipts": [
+            "evidence/r6-deferrals-1673-main-proof-20260915.json (commit ebe80aff8)"
+          ],
+          "verdict": "OPEN",
+          "residual": "Explicit permanent deferral; do not flip. See crossCuttingNotes.",
+          "note": null
+        },
+        {
+          "taskId": "8.2",
+          "checkboxOnOriginMain": "unchecked (BY DESIGN)",
+          "roadmapNode": "R6.deferrals",
+          "roadmapNodeState": "main-verified",
+          "receipts": [
+            "evidence/r6-deferrals-1673-main-proof-20260915.json"
+          ],
+          "verdict": "OPEN",
+          "residual": "Same as 8.1.",
+          "note": null
+        },
+        {
+          "taskId": "8.3",
+          "checkboxOnOriginMain": "unchecked (BY DESIGN)",
+          "roadmapNode": "R6.deferrals",
+          "roadmapNodeState": "main-verified",
+          "receipts": [
+            "evidence/r6-deferrals-1673-main-proof-20260915.json"
+          ],
+          "verdict": "OPEN",
+          "residual": "Same as 8.1.",
+          "note": null
+        }
+      ]
+    },
+    "add-cross-stream-effect-receipts": {
+      "ledgerOnOriginMain": {
+        "status": "proposed",
+        "lastReviewed": "2026-07-30",
+        "reason": "Wave 6 of the entity-history program: add target-scoped transactional outbox/inbox receipts, side-effect-free replay, causal cross-stream history, and exactly-once combat-to-campaign effect application over at-least-once delivery.",
+        "staleness": "Stale relative to 2026-09-15 roadmap activity, though for this change the ledger and reality agree: literally nothing is implemented yet (0/51 per roadmap.packages summary)."
+      },
+      "taskTable": [
+        {
+          "taskId": "0.1",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R5.E1",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "0.2",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R0.contracts",
+          "roadmapNodeState": "complete",
+          "receipts": [
+            "evidence/r0-contracts-completion-20260912.json (NOT \"main-proof\" named)"
+          ],
+          "verdict": "PARTIAL",
+          "residual": "Same situation as add-authoritative-history-branches#0.2 above: shared R0.contracts node, doc reconciliation merged to main (PR #1651/#1648/#1650) but evidence predates the main-proof naming convention.",
+          "note": null
+        },
+        {
+          "taskId": "1.1",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R5.E1",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "1.2",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R5.E1",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "1.3",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R5.E1",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "1.4",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R5.E1",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "1.5",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R5.E1",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "2.1",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R5.E2",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "2.2",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R5.E2",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "2.3",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R5.E2",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "2.4",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R5.E2",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "2.5",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R5.E2",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "2.6",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R5.E2",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "3.1",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R5.E3",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "3.2",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R5.E3",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "3.3",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R5.E3",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "3.4",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R5.E3",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "3.5",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R5.E3",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "4.1",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R5.E4",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "4.2",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R5.E4",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "4.3",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R5.E4",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "4.4",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R5.E4",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "4.5",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R5.E4",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "4.6",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R5.E4",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "5.1",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R5.E5",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "5.2",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R5.E5",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "5.3",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R5.E5",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "5.4",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R5.E5",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "5.5",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R5.E5",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "6.1",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R5.E6",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "6.2",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R5.E6",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "6.3",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R5.E6",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "6.4",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R5.E6",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "6.5",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R5.E6",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "7.1",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R5.E7",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "7.2",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R5.E7",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "7.3",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R5.E7",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "7.4",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R5.E7",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "7.5",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R5.E7",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "8.1",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R5.E8",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "8.2",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R5.E8",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "8.3",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R5.E8",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "8.4",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R5.E8",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "9.1",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R5.E9",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "9.2",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R5.E9",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "9.3",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R5.E9",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "9.4",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R5.E9",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "10.1",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R5.E10",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "10.2",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R5.E10",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "10.3",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R5.E10",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "10.4",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R5.E10",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        }
+      ],
+      "note": "All 51 numbered tasks (0.1-10.4) are unchecked on origin/main and every owning node (R5.E1-E10) is \"planned\" with receipt:null -- nothing in this change has started. This is the gating predecessor add-authoritative-history-branches task 0.1 and R3.activation tasks 2.4-2.7 wait on."
+    },
+    "adopt-combat-journal-cutover-and-gm-rewind": {
+      "ledgerOnOriginMain": {
+        "status": "proposed",
+        "lastReviewed": "2026-09-04",
+        "reason": "Owner ruling 2026-09-04 on the 2026-09-03 inventory-and-sync council: GM combat rewind is withdrawn from harden-gm-two-player-campaign-sessions because the combat match stream is never journaled in production (finding #48) and the umbrella delta would otherwise merge SHALLs the code violates on archive. This successor owns the six match-stream journal cutover seams, the moved gm-combat-interventions requirements (preview/commit phases, replacement-branch creation and activation, STALE_BRANCH rejection, per-viewer fog rebuild), the closes of umbrella boxes 14.1/14.2/14.4/14.5 by receipt, the 80-scenario reconcile, and the un-gate of rows E2E-40 to 44 and E2E-76, which run in the umbrella as strict expected failures tagged @until-journal-cutover. Unfunded until scheduled; its box 0.1 is the first deliverable when it opens.",
+        "staleness": "The freshest ledger entry of the seven (2026-09-04), but still stale relative to 2026-09-15 receipts: describes the change as \"unfunded until scheduled\" with \"box 0.1 is the first deliverable when it opens\", whereas by 2026-09-15 boxes 0.1, 0.2, 1.1, 1.2, and half of 1.3 have merged PRs with main-proof receipts (S1 #1684, S2 #1691, S3a #1693)."
+      },
+      "taskTable": [
+        {
+          "taskId": "0.1",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R4.matrix",
+          "roadmapNodeState": "main-verified",
+          "receipts": [
+            "evidence/r4-matrix-1672-main-proof-20260915.json (commit 13e4b9ea1)"
+          ],
+          "verdict": "PARTIAL",
+          "residual": "Node's own mainProof record says verbatim: \"task01: unchecked (source assertions only; runtimeEvidence null)\". The 80-row classification (34 real / 6 strict-expected-failure / 40 missing) is merged and main-proofed, but it is a source-code classification exercise, not runtime acceptance evidence per row -- the roadmap deliberately does not claim the checkbox on that basis.",
+          "note": null
+        },
+        {
+          "taskId": "0.2",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R4.S1",
+          "roadmapNodeState": "main-verified",
+          "receipts": [
+            "evidence/r4-s1-journal-batches-1684-main-proof-20260915.json (commit 95042d919)"
+          ],
+          "verdict": "FLIP",
+          "residual": null,
+          "note": "Node receipt.summary: \"task 0.2 verified\"; localDelivery.task02: \"verification only: branch port surfaces present on main b7d65099; supersession write lives in EventHistoryActivation.ts:204 not the branch store\" -- a pure verify-and-record task, fully discharged and carried inside the main-proofed PR #1684."
+        },
+        {
+          "taskId": "1.1",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R4.S1",
+          "roadmapNodeState": "main-verified",
+          "receipts": [
+            "evidence/r4-s1-journal-batches-1684-main-proof-20260915.json (commit 95042d919)"
+          ],
+          "verdict": "PARTIAL",
+          "residual": "Task text itself demands \"Both rewind routes answer a real preview on a live match. Receipt must state that no SHALL is discharged by this seam alone.\" The merged PR's own nonClaims list says: \"no rewind-route acceptance; task 1.1 rewind preview not claimed\", \"no S2-S6, no mirror catch-up\". The create-path mirroring gap (ServerMatchHost.create bypasses the batch mirror) is explicitly carried forward to S4/S6/S7.",
+          "note": null
+        },
+        {
+          "taskId": "1.2",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R4.S2",
+          "roadmapNodeState": "main-verified",
+          "receipts": [
+            "evidence/r4-s2-live-head-1691-main-proof-20260915.json (commit 823bdf3ac)"
+          ],
+          "verdict": "PARTIAL",
+          "residual": "The four illegal-command-shape refusals are proven end-to-end through a journal head installed by S1's mirror (per admissionBrief finding + review reproduction 7/7). Residual named in the same receipt: \"mode stays off; create-path seeding routed to 1.4/1.7\" -- i.e. shadow parity is not yet claimed for matches created via ServerMatchHost.create, which never seeds the mirror.",
+          "note": null
+        },
+        {
+          "taskId": "1.3",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R4.S3",
+          "roadmapNodeState": "sub-prefix-1-main-verified",
+          "receipts": [
+            "evidence/r4-s3a-derived-started-1693-main-proof-20260915.json (commit f8abc1844)"
+          ],
+          "verdict": "PARTIAL",
+          "residual": "Only sub-prefix 1 (additive derived-started signal from S1 tables, PR #1693) is merged and main-proofed. Sub-prefix 2 (repoint the two production callers off the mp_journal_authority_started marker, split A/B, PRs #1702/#1703) is only \"published-queued-with-merge-manager\" as of this snapshot -- no main-proof evidence exists for it yet. Per parentRulings, actual retirement of the marker write/table is explicitly NOT this task's scope and is deferred again to task 1.7: \"marker retirement is NOT this slice... = cutover (task 1.7)\".",
+          "note": null
+        },
+        {
+          "taskId": "1.4",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R4.S4",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": "Status \"implemented-local; independent review running (review-r4-s4)\" -- not merged, no receipt of any kind yet.",
+          "note": null
+        },
+        {
+          "taskId": "1.5",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R4.S5",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "1.6",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R4.S6",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "1.7",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R4.S7",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": "R4.S7.residualsFromS1S2 names six specific pre-existing blockers that must close before this task/the mode flip: no busy_timeout pragma; create-path events never mirrored (\"shadow parity cannot be claimed until closed\"); no mirror catch-up; forward authoritative-transaction SHALL (RR-4); task 1.3 marker retirement + wording amendment owed; S1 canonicalizer refuses `undefined` in host opening events so no head is installed on the create path.",
+          "note": null
+        },
+        {
+          "taskId": "2.1",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R4.rewind",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "2.2",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R4.rewind",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "2.3",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R4.rewind",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "2.4",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R4.rewind",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "2.5",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R4.rewind",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "3.1",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R4.rewind",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "3.2",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R4.rewind",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "3.3",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R4.rewind",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        }
+      ]
+    },
+    "design-campaign-authority-and-sync": {
+      "ledgerOnOriginMain": {
+        "status": "proposed",
+        "lastReviewed": "2026-08-20",
+        "reason": "Server-authoritative campaign state with source/replica instance model, share grants, and scope-filtered event broadcast (GM full view, players receive only in-scope events) on the existing hash-chained SQLite event journal; driven by the 2026-08-07 visual-audit finding that campaigns are browser-local. CAMP-01H / PR 1245 landed on main at 2a8a46183; implementation remains gated on the later parent 9.1 receipt. Reconciled 2026-08-20 (council decision 2026-08-20-campaign-journal-reconciliation-and-next-work): sole surviving home for campaign journal work; absorbed the superseded adopt-campaign-event-journal-authority (design D10 + rewritten D4 + Group 5); journal-bound implementation gates on the narrow dependencies named in its tasks preamble.",
+        "staleness": "SEVERELY STALE. Ledger status is \"proposed\" and lastReviewed is 2026-08-20, yet origin/main tasks.md already shows tasks 1.1 through 5.7 (26 of 30 numbered items) checked [x] -- work described in this reconciliation window's own predecessor sessions (per project memory, PRs #1253-#1264 merged 2026-08-20 through the same day this ledger entry was last reviewed). \"proposed\" is not an accurate status for a change with 26/30 tasks already checked on main."
+      },
+      "taskTable": [
+        {
+          "taskId": "1.1",
+          "checkboxOnOriginMain": "checked",
+          "roadmapNode": "R2.authority-live",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "ALREADY-CHECKED-NO-ROADMAP-RECEIPT",
+          "residual": "Checkbox already true on origin/main (pre-dates this 2026-09-12 roadmap). R2.authority-live, the node formally owning taskKeys 1.1-5.7, is still state \"planned\" with receipt:null -- the roadmap has not caught up to reality for this task group.",
+          "note": null
+        },
+        {
+          "taskId": "1.2",
+          "checkboxOnOriginMain": "checked",
+          "roadmapNode": "R2.authority-live",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "ALREADY-CHECKED-NO-ROADMAP-RECEIPT",
+          "residual": "Checkbox already true on origin/main (pre-dates this 2026-09-12 roadmap). R2.authority-live, the node formally owning taskKeys 1.1-5.7, is still state \"planned\" with receipt:null -- the roadmap has not caught up to reality for this task group.",
+          "note": null
+        },
+        {
+          "taskId": "1.3",
+          "checkboxOnOriginMain": "checked",
+          "roadmapNode": "R2.authority-live",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "ALREADY-CHECKED-NO-ROADMAP-RECEIPT",
+          "residual": "Checkbox already true on origin/main (pre-dates this 2026-09-12 roadmap). R2.authority-live, the node formally owning taskKeys 1.1-5.7, is still state \"planned\" with receipt:null -- the roadmap has not caught up to reality for this task group.",
+          "note": null
+        },
+        {
+          "taskId": "1.4",
+          "checkboxOnOriginMain": "checked",
+          "roadmapNode": "R2.authority-live",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "ALREADY-CHECKED-NO-ROADMAP-RECEIPT",
+          "residual": "Checkbox already true on origin/main (pre-dates this 2026-09-12 roadmap). R2.authority-live, the node formally owning taskKeys 1.1-5.7, is still state \"planned\" with receipt:null -- the roadmap has not caught up to reality for this task group.",
+          "note": null
+        },
+        {
+          "taskId": "1.5",
+          "checkboxOnOriginMain": "checked",
+          "roadmapNode": "R2.authority-live",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "ALREADY-CHECKED-NO-ROADMAP-RECEIPT",
+          "residual": "Checkbox already true on origin/main (pre-dates this 2026-09-12 roadmap). R2.authority-live, the node formally owning taskKeys 1.1-5.7, is still state \"planned\" with receipt:null -- the roadmap has not caught up to reality for this task group.",
+          "note": null
+        },
+        {
+          "taskId": "2.1",
+          "checkboxOnOriginMain": "checked",
+          "roadmapNode": "R2.authority-live",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "ALREADY-CHECKED-NO-ROADMAP-RECEIPT",
+          "residual": "Same as 1.1-1.5.",
+          "note": null
+        },
+        {
+          "taskId": "2.2",
+          "checkboxOnOriginMain": "checked",
+          "roadmapNode": "R2.authority-live",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "ALREADY-CHECKED-NO-ROADMAP-RECEIPT",
+          "residual": "Same as 1.1-1.5.",
+          "note": null
+        },
+        {
+          "taskId": "2.3",
+          "checkboxOnOriginMain": "checked",
+          "roadmapNode": "R2.authority-live",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "ALREADY-CHECKED-NO-ROADMAP-RECEIPT",
+          "residual": "Same as 1.1-1.5.",
+          "note": null
+        },
+        {
+          "taskId": "3.1",
+          "checkboxOnOriginMain": "checked",
+          "roadmapNode": "R2.authority-live",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "ALREADY-CHECKED-NO-ROADMAP-RECEIPT",
+          "residual": "Same as 1.1-1.5.",
+          "note": null
+        },
+        {
+          "taskId": "3.2",
+          "checkboxOnOriginMain": "checked",
+          "roadmapNode": "R2.authority-live",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "ALREADY-CHECKED-NO-ROADMAP-RECEIPT",
+          "residual": "Same as 1.1-1.5.",
+          "note": null
+        },
+        {
+          "taskId": "3.3",
+          "checkboxOnOriginMain": "checked",
+          "roadmapNode": "R2.authority-live",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "ALREADY-CHECKED-NO-ROADMAP-RECEIPT",
+          "residual": "Same as 1.1-1.5.",
+          "note": null
+        },
+        {
+          "taskId": "3.4",
+          "checkboxOnOriginMain": "checked",
+          "roadmapNode": "R2.authority-live",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "ALREADY-CHECKED-NO-ROADMAP-RECEIPT",
+          "residual": "Same as 1.1-1.5.",
+          "note": null
+        },
+        {
+          "taskId": "3.5",
+          "checkboxOnOriginMain": "checked",
+          "roadmapNode": "R2.authority-live",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "ALREADY-CHECKED-NO-ROADMAP-RECEIPT",
+          "residual": "Same as 1.1-1.5.",
+          "note": null
+        },
+        {
+          "taskId": "3.6",
+          "checkboxOnOriginMain": "checked",
+          "roadmapNode": "R2.authority-live",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "ALREADY-CHECKED-NO-ROADMAP-RECEIPT",
+          "residual": "Same as 1.1-1.5.",
+          "note": null
+        },
+        {
+          "taskId": "4.1",
+          "checkboxOnOriginMain": "checked",
+          "roadmapNode": "R2.authority-live",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "ALREADY-CHECKED-NO-ROADMAP-RECEIPT",
+          "residual": "Same as 1.1-1.5.",
+          "note": null
+        },
+        {
+          "taskId": "4.2",
+          "checkboxOnOriginMain": "checked",
+          "roadmapNode": "R2.authority-live",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "ALREADY-CHECKED-NO-ROADMAP-RECEIPT",
+          "residual": "Same as 1.1-1.5.",
+          "note": null
+        },
+        {
+          "taskId": "4.3",
+          "checkboxOnOriginMain": "checked",
+          "roadmapNode": "R2.authority-live",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "ALREADY-CHECKED-NO-ROADMAP-RECEIPT",
+          "residual": "Same as 1.1-1.5.",
+          "note": null
+        },
+        {
+          "taskId": "4.4",
+          "checkboxOnOriginMain": "checked",
+          "roadmapNode": "R2.authority-live",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "ALREADY-CHECKED-NO-ROADMAP-RECEIPT",
+          "residual": "Same as 1.1-1.5.",
+          "note": null
+        },
+        {
+          "taskId": "4.5",
+          "checkboxOnOriginMain": "checked",
+          "roadmapNode": "R2.authority-live",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "ALREADY-CHECKED-NO-ROADMAP-RECEIPT",
+          "residual": "Same as 1.1-1.5.",
+          "note": null
+        },
+        {
+          "taskId": "5.1",
+          "checkboxOnOriginMain": "checked",
+          "roadmapNode": "R2.authority-live",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "ALREADY-CHECKED-NO-ROADMAP-RECEIPT",
+          "residual": "Same as 1.1-1.5.",
+          "note": null
+        },
+        {
+          "taskId": "5.2",
+          "checkboxOnOriginMain": "checked",
+          "roadmapNode": "R2.authority-live",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "ALREADY-CHECKED-NO-ROADMAP-RECEIPT",
+          "residual": "Same as 1.1-1.5.",
+          "note": null
+        },
+        {
+          "taskId": "5.3",
+          "checkboxOnOriginMain": "checked",
+          "roadmapNode": "R2.authority-live",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "ALREADY-CHECKED-NO-ROADMAP-RECEIPT",
+          "residual": "Same as 1.1-1.5.",
+          "note": null
+        },
+        {
+          "taskId": "5.4",
+          "checkboxOnOriginMain": "checked",
+          "roadmapNode": "R2.authority-live",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "ALREADY-CHECKED-NO-ROADMAP-RECEIPT",
+          "residual": "Same as 1.1-1.5.",
+          "note": null
+        },
+        {
+          "taskId": "5.5",
+          "checkboxOnOriginMain": "checked",
+          "roadmapNode": "R2.authority-live",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "ALREADY-CHECKED-NO-ROADMAP-RECEIPT",
+          "residual": "Same as 1.1-1.5.",
+          "note": null
+        },
+        {
+          "taskId": "5.6",
+          "checkboxOnOriginMain": "checked",
+          "roadmapNode": "R2.authority-live",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "ALREADY-CHECKED-NO-ROADMAP-RECEIPT",
+          "residual": "Same as 1.1-1.5.",
+          "note": null
+        },
+        {
+          "taskId": "5.7",
+          "checkboxOnOriginMain": "checked",
+          "roadmapNode": "R2.authority-live",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "ALREADY-CHECKED-NO-ROADMAP-RECEIPT",
+          "residual": "Same as 1.1-1.5. Also load-bearing: this exact task is the one add-cross-stream-effect-receipts task 0.1 requires fresh exact-main receipts for -- since no roadmap main-proof receipt exists for 5.7 itself, task 0.1's predecessor-verification requirement is not satisfiable from this roadmap's evidence alone.",
+          "note": null
+        },
+        {
+          "taskId": "1.6",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R2.authority (informal -- no formal taskKeys entry anywhere; tracked via R2.authority.clientSpecDelta and R2.authority-client)",
+          "roadmapNodeState": "implementing (R2.authority-client)",
+          "receipts": [
+            "evidence/r2-client-spec-delta-1685-main-proof-20260915.json (commit 318f4ecc1)"
+          ],
+          "verdict": "FLIP",
+          "residual": null,
+          "note": "PR #1685 merged; blobs 3/3 identical to reviewed head; validators exit 0 x4. Content matches task 1.6's full text (pagehide/visibilitychange-hidden keepalive PUT, beforeunload excluded, co-op exempt, over-cap skip diagnostic, never treated as acknowledgement) including its own built-in NON-CLAIMS (\"no journal, no command pipeline, no flag flip... Residual (2), the co-op dual-writer PUT 409 storm, is untouched\") -- those limits are part of the task's accepted scope, not a gap against it."
+        },
+        {
+          "taskId": "6.1",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R2.authority.p0b (informal)",
+          "roadmapNodeState": "pr-open-stacked",
+          "receipts": [
+            "evidence/r2-p0b-s1-1686-main-proof-20260915.json (commit 69ae537445, sub-prefix S1 only)"
+          ],
+          "verdict": "PARTIAL",
+          "residual": "p0b.nonClaims states verbatim: \"task 6.1 partial: borrowed-handle CAS + durable sourceReplayFence in CampaignPersistenceService not implemented; baseline capture under P0a belongs with the producer\". Only S1 (private envelope field) has a main-proof receipt; S2 (source-replay refusal rows, PR #1687) and S3 (envelopeOf routing, PR #1688) show reviewed/APPROVE status in this snapshot but no main-proof-named evidence file yet.",
+          "note": null
+        },
+        {
+          "taskId": "6.2",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R2.authority.p1 (informal)",
+          "roadmapNodeState": "6.2a-pr-open-stacked",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": "Task text: \"6.2 split into 6.2a market durability + 6.2b acceptance routing... neither is separable... 6.2 is not done until both hold.\" 6.2a is split into three PRs (#1698/#1699/#1700), all still open (gates green, review APPROVE, but no merge/main-proof evidence in this snapshot). 6.2b (p62b) is explicitly \"blocked-owner-decision\" with three named blockers: (A) no single-player transport for /commands exists (auth + seat identity gap); (B1) campaignRefusalFromCommandRefusal has no offer-not-durable refusal surface; (B2) spec.md:184-192 requires the campaigns row to update from the same commit, which 6.2a does not yet do.",
+          "note": null
+        },
+        {
+          "taskId": "6.3",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R2.authority (informal)",
+          "roadmapNodeState": "not started",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": "Boundary/falsification proofs for 6.1+6.2; explicitly depends on both being routed first (\"this falsification is only valid AFTER 6.1 routes... run it and confirm the grant leak row actually goes red\").",
+          "note": null
+        },
+        {
+          "taskId": "6.4",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R2.authority (informal)",
+          "roadmapNodeState": "not started",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": "clientSpecDelta.correction: \"RE-4 new unchecked task 6.4 owns the row-version/journal-revision bridge\" -- this task did not exist before the 2026-09-15 spec-delta PR #1685 split it out; it is new, unsized, and unowned beyond \"not a licence for 6.2 to ship the mismatch unrecorded\".",
+          "note": null
+        }
+      ],
+      "structuralNote": "design-campaign-authority-and-sync tasks 1.6 and 6.1-6.4 are not formally present in ANY roadmap node's taskKeys array (R2.authority, R2.authority-client, R2.authority-host, R2.authority-cutover all have taskKeys: []). All of the \"informal\" verdicts above are inferred from prose inside R2.authority's nested receipt sub-objects (p0b, p1, p1Admission, clientSpecDelta, projectionPrerequisite), not from a formal taskKeys binding. A follow-up roadmap edit should populate taskKeys on the correct node(s) for 1.6 and 6.1-6.4 so this reconciliation can be done mechanically next time."
+    },
+    "add-saved-custom-unit-campaign-roster": {
+      "ledgerOnOriginMain": {
+        "status": "in-progress",
+        "lastReviewed": "2026-08-14",
+        "reason": "CAMP-01 parent specification: select a server-saved custom BattleMech in campaign creation and preserve separate roster-instance and source-design identities through root-force persistence, cold reload, Mech Bay, and mission readiness. CAMP-01H / PR 1245 landed on main at 2a8a46183. Remains active until the later parent 9.1 exact-main receipt gate. Not archived.",
+        "staleness": "Reasonably current given the change is genuinely still open; the 9.1 parent gate it names is still open per tasks.md (unchecked) and per this roadmap (R2.journey planned, no receipt)."
+      },
+      "taskTable": [
+        {
+          "taskId": "0.1",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R2.camp-0",
+          "roadmapNodeState": "implementing",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "0.2",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R2.camp-0",
+          "roadmapNodeState": "implementing",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "0.3",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R2.camp-0",
+          "roadmapNodeState": "implementing",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "0.4",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R2.camp-0",
+          "roadmapNodeState": "implementing",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "1.1",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R2.camp-1",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "1.2",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R2.camp-1",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "1.3",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R2.camp-1",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "1.4",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R2.camp-1",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "1.5",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R2.camp-1",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "2.1",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R2.camp-2",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "2.2",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R2.camp-2",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "3.1",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R2.camp-3",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "3.2",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R2.camp-3",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "4.1",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R2.camp-4",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "4.2",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R2.camp-4",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "4.3",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R2.camp-4",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "5.1",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R2.camp-5",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "5.2",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R2.camp-5",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "5.3",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R2.camp-5",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "6.1",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R2.camp-6",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "7.1",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R2.camp-7",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "8.1",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R2.camp-8",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "P.0",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R2.journey",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "P.1",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R2.journey",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "P.2",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R2.journey",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "P.3",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R2.journey",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "P.4",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R2.journey",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "9.1",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R2.journey",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        }
+      ],
+      "note": "Every numbered task (P.0-P.4, 0.1-0.4, 1.1-9.1) is unchecked on origin/main; no node in this cluster carries a receipt. R2.camp-0/R2.triage (state \"implementing\") is doing substantial LIVE, UNMERGED diagnostic work as of 2026-09-15 toward re-establishing the shared camp-proof harness baseline (add-camp01-authority-receipts is the treated-as-authority predecessor per task P.0): a fresh qc:command:browser:quick run found the historical PROOF-02 anchor no longer reproduces cleanly (2 new failures vs the 2026-08-12 baseline: an equipment-fetch abort-signal false failure, classified PRODUCT-BUG, fix in local/PR-open state codex/roadmap-equipment-abort-signal-20260915, PRs stacked and still open; and an unresolved gm-campaign-ledger-control-plane.spec.ts 10s timeout with no diagnosis recorded yet in this dataset). None of this is merged to main, so none of it can flip a checkbox in add-saved-custom-unit-campaign-roster yet -- it is pre-work for the frozen P.0-P.4 CAMP-PROOF admission gate that the ten child OpenSpecs (including this one) route through."
+    },
+    "enable-saved-custom-unit-combat": {
+      "ledgerOnOriginMain": {
+        "status": "in-progress",
+        "lastReviewed": "2026-09-09",
+        "reason": "User-requested recovery of deferred non-3D saved-custom-unit combat work: exact authoritative admission, immutable construction snapshots, replay/recovery and fog proof, and campaign picker/readiness integration. Excludes model and tactical presentation work.",
+        "staleness": "Not obviously stale; matches the roadmap's \"nothing started\" reality."
+      },
+      "taskTable": [
+        {
+          "taskId": "line-3 (Define strict supported-construction projection...)",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R2.combat",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "line-4 (Adapt exact custom references...)",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R2.combat",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "line-5 (Recover and rewind from validated recorded construction...)",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R2.combat",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "line-6 (Extend replay gating and verify private construction redaction...)",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R2.combat",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "line-7 (Wire shared catalog admission and campaign consumers...)",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R2.combat",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "line-8 (Verify focused tests, persisted SQLite reopen/recovery...)",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R2.combat",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        }
+      ],
+      "note": "This change's tasks.md uses unlabeled bullet lines rather than numbered IDs (10 lines total, 6 of them checkbox task lines); the roadmap taskKeys use synthetic \"line-N\" anchors. All 6 are unchecked; R2.combat is \"planned\" with receipt:null. A second node, R2.combat-browser, exists (\"planned\", taskKeys: []) as a placeholder for browser-journey proof once R2.combat lands -- nothing to reconcile there yet."
+    },
+    "design-vault-campaign-separation-and-maps": {
+      "ledgerOnOriginMain": {
+        "status": "proposed",
+        "lastReviewed": "2026-08-14",
+        "reason": "Vault/campaign separation (immutable versioned templates to campaign instance copies per the 2026-08-06 council decision and D1), starmap travel economy with dynamic opportunities, and the isometric battlefield view. CAMP-01H / PR 1245 landed on main at 2a8a46183; implementation remains gated on the later parent 9.1 receipt. P1 1.1-1.5 not started.",
+        "staleness": "STALE on its own explicit claim. \"P1 1.1-1.5 not started\" is contradicted by origin/main tasks.md: task 1.3 is already checked [x] there, with a self-scoping note (\"Bounded identity prerequisite only... does not satisfy the exact-main receipt, approval, or three-witness gates\"). This roadmap's own admission text agrees the ledger is wrong: R7.provenance.admissionBrief.driftNote says verbatim \"1.2 (unitSource/sourceVersion on IRosterUnitProjection) and 1.3 (D3 identity seam, [x]) already implemented; ledger reason string stale\" -- though note the roadmap's own claim that 1.2 is \"already implemented\" is NOT matched by the tasks.md checkbox (1.2 is still unchecked on origin/main), so that half of the driftNote is itself an unverified assertion, not a receipt (see task 1.2 row below)."
+      },
+      "taskTable": [
+        {
+          "taskId": "1.1",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R7.versions",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "1.2",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R7.provenance",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": "The roadmap's own admissionBrief.driftNote asserts 1.2 is \"already implemented\" in code (unitSource/sourceVersion on IRosterUnitProjection), but (a) the checkbox on origin/main tasks.md is still unchecked, and (b) no main-proof-named receipt exists anywhere in the evidence set for this claim. Per the \"do not infer closure from source citations\" rule, this is left OPEN rather than FLIPped; it is flagged here specifically because the roadmap's own prose contradicts both the checkbox and its own evidence trail, and needs a human check (find/verify the PR that actually implemented this, if any, and issue a real main-proof receipt) before it is closed either way.",
+          "note": null
+        },
+        {
+          "taskId": "1.3",
+          "checkboxOnOriginMain": "checked",
+          "roadmapNode": "R7.provenance",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "ALREADY-CHECKED-NO-ROADMAP-RECEIPT",
+          "residual": "Checkbox true on origin/main with its own inline scope note: \"(Resolved prerequisite verified 2026-09-12; this does not close the remaining vault/campaign implementation tasks.)\" Confirmed by the roadmap's own driftNote (\"1.3 (D3 identity seam, [x]) already implemented\"). No main-proof-named roadmap evidence file backs this specific commit, and R7.provenance carries receipt:null.",
+          "note": null
+        },
+        {
+          "taskId": "1.4",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R7.provenance",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": "Task 1.4's own text names the wrong migration rung: it says \"v1->v2\" but current main / design D4 requires \"v2->v3\" (schema v2 is occupied by campaign-authority metadata; campaignMigration.ts CURRENT_CAMPAIGN_SCHEMA_VERSION=2). The task text needs a wording amendment before this can be implemented or verified -- see crossCuttingNotes.receiptBindingNotesOwed.",
+          "note": null
+        },
+        {
+          "taskId": "1.5",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R7.provenance",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "1.6",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R7.provenance",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "1.7",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R7.context",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "1.8",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R7.context",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "2.1",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R8.travel",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "2.2",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R8.travel",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "2.3",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R8.travel",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "2.4",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R8.opportunities",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "2.5",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R8.opportunities",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "2.6",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R8.opportunities",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "2.7",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R8.opportunities",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "3.1",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R8.starmap",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "3.2",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R8.starmap",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "3.3",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R8.starmap",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "3.4",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R8.starmap",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "4.1",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R8.isometric",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "4.2",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R8.isometric",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "4.3",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R8.isometric",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "4.4",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R8.isometric",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "4.5",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R8.isometric",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "5.1",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R8.journey",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "5.2",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R8.journey",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "5.3",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R8.journey",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        },
+        {
+          "taskId": "5.4",
+          "checkboxOnOriginMain": "unchecked",
+          "roadmapNode": "R8.journey",
+          "roadmapNodeState": "planned",
+          "receipts": [],
+          "verdict": "OPEN",
+          "residual": null,
+          "note": null
+        }
+      ]
+    }
+  },
+  "crossCuttingNotes": {
+    "explicitDeferralsToPreserveVerbatim": [
+      {
+        "change": "add-authoritative-history-branches",
+        "tasks": [
+          "8.1",
+          "8.2",
+          "8.3"
+        ],
+        "note": "Deliberately, permanently unchecked. Node R6.deferrals is state \"main-verified\" with an accepted main-proof receipt (evidence/r6-deferrals-1673-main-proof-20260915.json, commit ebe80aff8), and that receipt itself says: \"tasks81to83: unchecked (explicit future-only deferral preserved)\". The disposition text: \"Tasks 8.1-8.3 retained as explicit future-only simulation restrictions.\" Do NOT flip these checkboxes in any follow-up PR; the receipt proves the deferral was verified, not that the deferred work happened."
+      },
+      {
+        "change": "adopt-combat-journal-cutover-and-gm-rewind / design-campaign-authority-and-sync",
+        "tasks": [
+          "n/a -- cutover flags, not a single task line"
+        ],
+        "note": "Every merged prefix in this reconciliation window (R4.S1 #1684, R4.S2 #1691, R4.S3a #1693, design-campaign-authority-and-sync clientSpecDelta #1685, p0b S1 #1686) explicitly states the production cutover mode/flag stays OFF: \"mode stays off\", \"flag stays false\", \"CAMPAIGN_JOURNAL_AUTHORITY_ENABLED is false\". No receipt in this window claims or should be read as claiming a production activation."
+      }
+    ],
+    "receiptBindingNotesOwed": [
+      {
+        "change": "add-camp01-authority-receipts (predecessor consumed by add-saved-custom-unit-campaign-roster P.0-P.4; not itself one of the 8 named target changes, but load-bearing for R2.receipts / R2.camp-0..8)",
+        "note": "roadmap.json admission text (line ~1621 of the raw file): \"tasks.md:44 binds 4.1 F/G reporter obligations to PROOF-4C2/4C3 receipts never written; discharged inside product waves (e2e/campaign-customizer-handoff.spec.ts:409,:528) - record or amend binding.\" I.e. add-camp01-authority-receipts task 4.1 textually promises F/G reporter obligations bound to PROOF-4C2/4C3 receipts that were never actually written as separate receipts; the roadmap's own position is that the obligation was discharged elsewhere (inside product-wave e2e assertions) and that the task 4.1 text or the binding needs to be amended to match, not that the gap should be silently ignored. Carried forward here because R2.receipts (dependency of R2.triage, which gates every R2.camp-* node) inherits this binding."
+      },
+      {
+        "change": "design-vault-campaign-separation-and-maps",
+        "note": "R7.provenance admissionBrief.driftNote: \"roadmap.json frozen quote for task 1.4 says v1->v2 migration rung; main tasks.md/design D4 say v2->v3 (schema v2 occupied by campaign-authority metadata, campaignMigration.ts CURRENT_CAMPAIGN_SCHEMA_VERSION=2)\". Task 1.4's own text is stale relative to the current schema and needs a wording amendment before it can be implemented or verified; this is a receipt-binding/wording gap, not an implementation gap."
+      }
+    ]
+  },
+  "summary": {
+    "totals": {
+      "FLIP": 6,
+      "PARTIAL": 9,
+      "OPEN": 162,
+      "ALREADY-CHECKED-NO-ROADMAP-RECEIPT": 30
+    },
+    "totalTasksReconciled": 207,
+    "byChange": {
+      "add-authoritative-history-branches": {
+        "FLIP": 4,
+        "PARTIAL": 3,
+        "OPEN": 36,
+        "ALREADY-CHECKED-NO-ROADMAP-RECEIPT": 3,
+        "totalTasks": 46
+      },
+      "add-cross-stream-effect-receipts": {
+        "FLIP": 0,
+        "PARTIAL": 1,
+        "OPEN": 50,
+        "ALREADY-CHECKED-NO-ROADMAP-RECEIPT": 0,
+        "totalTasks": 51
+      },
+      "adopt-combat-journal-cutover-and-gm-rewind": {
+        "FLIP": 1,
+        "PARTIAL": 4,
+        "OPEN": 12,
+        "ALREADY-CHECKED-NO-ROADMAP-RECEIPT": 0,
+        "totalTasks": 17
+      },
+      "design-campaign-authority-and-sync": {
+        "FLIP": 1,
+        "PARTIAL": 1,
+        "OPEN": 3,
+        "ALREADY-CHECKED-NO-ROADMAP-RECEIPT": 26,
+        "totalTasks": 31
+      },
+      "add-saved-custom-unit-campaign-roster": {
+        "FLIP": 0,
+        "PARTIAL": 0,
+        "OPEN": 28,
+        "ALREADY-CHECKED-NO-ROADMAP-RECEIPT": 0,
+        "totalTasks": 28
+      },
+      "enable-saved-custom-unit-combat": {
+        "FLIP": 0,
+        "PARTIAL": 0,
+        "OPEN": 6,
+        "ALREADY-CHECKED-NO-ROADMAP-RECEIPT": 0,
+        "totalTasks": 6
+      },
+      "design-vault-campaign-separation-and-maps": {
+        "FLIP": 0,
+        "PARTIAL": 0,
+        "OPEN": 27,
+        "ALREADY-CHECKED-NO-ROADMAP-RECEIPT": 1,
+        "totalTasks": 28
+      }
+    },
+    "headline": "Across the 7 changes that exist in this roadmap (add-subsystem-lanes-and-ci does not exist and was excluded): 6 task rows are fully proven by an accepted main-proof receipt and should be checked in a follow-up PR, 9 are partially proven with a named residual, 162 have no roadmap-generated proof at all, and 30 are already checked on origin/main from work that predates this roadmap and carry no roadmap main-proof receipt (mostly design-campaign-authority-and-sync 1.1-5.7, plus add-authoritative-history-branches 2.1-2.3 and design-vault-campaign-separation-and-maps 1.3). Two ledger entries are materially stale relative to origin/main: design-campaign-authority-and-sync (status \"proposed\" despite 26/30 tasks checked) and design-vault-campaign-separation-and-maps (explicitly says \"P1 1.1-1.5 not started\" while 1.3 is checked)."
+  },
+  "proposedEdits": [
+    {
+      "file": "openspec/changes/add-authoritative-history-branches/tasks.md",
+      "edit": "Check boxes 1.1, 1.2, 1.3, 1.4 (already true elsewhere on main; listed for completeness -- no-op if already checked at edit time).",
+      "boundReceipts": [
+        "evidence/history-fixtures-1671-main-proof-20260915.json",
+        "evidence/history-b-1674-main-proof-20260915.json",
+        "evidence/history-c-1681-main-proof-20260915.json"
+      ]
+    },
+    {
+      "file": "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/tasks.md",
+      "edit": "Check box 0.2 (\"Verify on fetched exact main that add-authoritative-history-branches exposes the branch port...\").",
+      "boundReceipts": [
+        "evidence/r4-s1-journal-batches-1684-main-proof-20260915.json"
+      ]
+    },
+    {
+      "file": "openspec/changes/design-campaign-authority-and-sync/tasks.md",
+      "edit": "Check box 1.6 (P-A crash-window flush).",
+      "boundReceipts": [
+        "evidence/r2-client-spec-delta-1685-main-proof-20260915.json"
+      ]
+    },
+    {
+      "file": "openspec/active-change-ledger.json",
+      "edit": "Update the design-campaign-authority-and-sync entry: status \"proposed\" -> \"in-progress\" (26/30 tasks already checked on main) and lastReviewed to a current date; the 2026-08-20 reconciliation note should stay but no longer read as the freshest state.",
+      "boundReceipts": [
+        "origin/main openspec/changes/design-campaign-authority-and-sync/tasks.md (26/30 checked, verified this session)"
+      ]
+    },
+    {
+      "file": "openspec/active-change-ledger.json",
+      "edit": "Update the design-vault-campaign-separation-and-maps entry: remove or correct \"P1 1.1-1.5 not started\" (1.3 is checked) and update lastReviewed.",
+      "boundReceipts": [
+        "origin/main openspec/changes/design-vault-campaign-separation-and-maps/tasks.md (1.3 checked, verified this session)"
+      ]
+    },
+    {
+      "file": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+      "edit": "Add formal taskKeys entries for design-campaign-authority-and-sync 1.6 and 6.1/6.2/6.3/6.4 to the node(s) that actually own them (currently only tracked informally in prose inside R2.authority's nested receipt objects); update R2.authority-live's state away from \"planned\" given 26 of its 26 owned taskKeys are already checked on origin/main, or explicitly document why it deliberately does not track pre-existing work.",
+      "boundReceipts": []
+    },
+    {
+      "file": "openspec/changes/design-vault-campaign-separation-and-maps/tasks.md",
+      "edit": "Amend task 1.4's wording from the stated \"v1->v2\" migration rung to \"v2->v3\" to match current schema reality (campaignMigration.ts CURRENT_CAMPAIGN_SCHEMA_VERSION=2) before it is implemented or verified.",
+      "boundReceipts": [
+        "R7.provenance.admissionBrief.driftNote (roadmap.json, not itself a merged receipt -- this is a spec-wording fix, not a code claim)"
+      ]
+    }
+  ]
+}

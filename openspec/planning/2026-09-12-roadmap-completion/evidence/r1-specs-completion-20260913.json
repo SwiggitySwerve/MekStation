@@ -1,0 +1,446 @@
+{
+  "at": "2026-09-13T05:28:52.064Z",
+  "status": "complete-canonical-specification-delivery",
+  "main": "5b229be21e87815f10ce6521dda77b52eef75e3c",
+  "prefixes": [
+    {
+      "id": "customizer-five-specs",
+      "pr": {
+        "number": 1641,
+        "url": "https://github.com/SwiggitySwerve/MekStation/pull/1641",
+        "head": "eece56d47e394d2b7d46e44d66d9166664b7f606",
+        "merge": "1ecc1c300df7e53ba5e8d434e4d033a01ed96f73"
+      },
+      "receipt": {
+        "mainSha": "1ecc1c300df7e53ba5e8d434e4d033a01ed96f73",
+        "evidence": "evidence/customizer-specs-main-verification-20260912.json",
+        "cleanupReceipt": "evidence/customizer-specs-cleanup-20260912.json"
+      }
+    },
+    {
+      "id": "data-services",
+      "pr": {
+        "number": 1645,
+        "url": "https://github.com/SwiggitySwerve/MekStation/pull/1645",
+        "head": "e46be07fd837ee3637d893b8df04ba951f5fc447",
+        "merge": "e58642acede495c45b3b4d4e606dffaa52ccab18"
+      },
+      "receipt": {
+        "mainSha": "e58642acede495c45b3b4d4e606dffaa52ccab18",
+        "evidence": "evidence/spec-data-services-main-verification-20260912.json",
+        "cleanupReceipt": "evidence/spec-data-services-cleanup-20260912.json"
+      }
+    },
+    {
+      "id": "source-anchors",
+      "pr": {
+        "number": 1649,
+        "url": "https://github.com/SwiggitySwerve/MekStation/pull/1649",
+        "head": "54b45026ec5d2922062479e8d02919e5d0b32fc8",
+        "merge": "583b3e9bf954506a3b5fbac0359165e9407cf264"
+      },
+      "receipt": {
+        "mainSha": "583b3e9bf954506a3b5fbac0359165e9407cf264",
+        "evidence": "evidence/source-anchors-main-verification-20260912.json",
+        "parentAcceptance": "evidence/source-anchors-main-parent-acceptance-20260912.json",
+        "cleanupReceipt": "evidence/source-anchors-cleanup-20260912.json"
+      }
+    },
+    {
+      "id": "campaign-catalog-contracts",
+      "pr": {
+        "number": 1653,
+        "url": "https://github.com/SwiggitySwerve/MekStation/pull/1653",
+        "head": "bad6aa22be1219fefe21f2743c57c74fe74bdce3",
+        "merge": "f39c2b71c1788507733fa78571d85156951fb2a0"
+      },
+      "receipt": {
+        "mainSha": "f39c2b71c1788507733fa78571d85156951fb2a0",
+        "evidence": "evidence/campaign-catalog-main-parent-acceptance-20260913.json",
+        "cleanupReceipt": "evidence/campaign-catalog-cleanup-parent-acceptance-20260913.json"
+      }
+    },
+    {
+      "id": "battlearmor-autosave-details",
+      "pr": {
+        "number": 1652,
+        "url": "https://github.com/SwiggitySwerve/MekStation/pull/1652",
+        "head": "da1cbc448f11443c1e5aa6b40d9ee5984729b28b",
+        "merge": "e29d71677ea3f090d2ea0c3e1ee7cadd5db030c0"
+      },
+      "receipt": {
+        "mainSha": "e29d71677ea3f090d2ea0c3e1ee7cadd5db030c0",
+        "evidence": "evidence/battlearmor-autosave-main-parent-acceptance-20260913.json",
+        "cleanupReceipt": "evidence/battlearmor-autosave-cleanup-parent-acceptance-20260913.json"
+      }
+    },
+    {
+      "id": "combat-reference-contracts",
+      "pr": {
+        "number": 1654,
+        "url": "https://github.com/SwiggitySwerve/MekStation/pull/1654",
+        "head": "4ad7fbe0000384f481e869f24114e5e885782768",
+        "merge": "873edbf2f7c1b906cd9fb71123e19584f06c5082"
+      },
+      "receipt": {
+        "mainSha": "873edbf2f7c1b906cd9fb71123e19584f06c5082",
+        "evidence": "evidence/combat-reference-main-parent-acceptance-20260913.json",
+        "cleanupReceipt": "evidence/combat-reference-cleanup-parent-acceptance-20260913.json"
+      }
+    },
+    {
+      "id": "customizer-layout-details",
+      "pr": {
+        "number": 1655,
+        "url": "https://github.com/SwiggitySwerve/MekStation/pull/1655",
+        "head": "44bbb62d677ff1e6bd825d8555a36d301f275bb3",
+        "merge": "8f72371064675740d2ea710b869f7c7673e4c11d"
+      },
+      "receipt": {
+        "mainSha": "8f72371064675740d2ea710b869f7c7673e4c11d",
+        "evidence": "evidence/customizer-layout-main-parent-acceptance-20260913.json",
+        "cleanupReceipt": "evidence/customizer-layout-cleanup-parent-acceptance-20260913.json"
+      }
+    },
+    {
+      "id": "server-persistence-authority",
+      "pr": {
+        "number": 1656,
+        "url": "https://github.com/SwiggitySwerve/MekStation/pull/1656",
+        "head": "0a273dc8a4f56c7f689cc9595766dfdbdc81c65e",
+        "merge": "106bfbc76886a6f19f1ac00143cfa1708f33f19f"
+      },
+      "receipt": {
+        "mainSha": "106bfbc76886a6f19f1ac00143cfa1708f33f19f",
+        "evidence": "evidence/server-persistence-main-parent-acceptance-20260913.json",
+        "cleanupReceipt": "evidence/server-persistence-cleanup-parent-acceptance-20260913.json"
+      }
+    },
+    {
+      "id": "catalog-browser-comparison",
+      "pr": {
+        "number": 1657,
+        "url": "https://github.com/SwiggitySwerve/MekStation/pull/1657",
+        "head": "4ebb910618dfd41b35426655c8c3ca04b1c632ef",
+        "merge": "4ee8989f4909505319c6c916d4fbcbadf86ec782"
+      },
+      "receipt": {
+        "mainSha": "4ee8989f4909505319c6c916d4fbcbadf86ec782",
+        "evidence": "evidence/catalog-browser-main-parent-acceptance-20260913.json",
+        "cleanupReceipt": "evidence/catalog-browser-cleanup-parent-acceptance-20260913.json"
+      }
+    },
+    {
+      "id": "record-sheet-export-contract",
+      "receipt": {
+        "mainSha": "186ecf4063187eacf23bbc1a4ad8b0e75579b1f9",
+        "evidence": "evidence/record-sheet-prefix2-main-parent-acceptance-20260913.json",
+        "cleanupReceipt": "evidence/record-sheet-cleanup-parent-acceptance-20260913.json"
+      }
+    },
+    {
+      "id": "campaign-store-references",
+      "pr": {
+        "number": 1659,
+        "url": "https://github.com/SwiggitySwerve/MekStation/pull/1659",
+        "head": "f02a7258146f8142fed076eb957a70c261af9afc",
+        "merge": "d02341852fb594599af6bcd882c3da1fdb8b069f"
+      },
+      "receipt": {
+        "mainSha": "d02341852fb594599af6bcd882c3da1fdb8b069f",
+        "evidence": "evidence/campaign-store-main-parent-acceptance-20260913.json",
+        "cleanupReceipt": "evidence/campaign-store-cleanup-parent-acceptance-20260913.json"
+      }
+    },
+    {
+      "id": "unit-comparison-contract",
+      "pr": {
+        "number": 1658,
+        "url": "https://github.com/SwiggitySwerve/MekStation/pull/1658",
+        "head": "98fad23e5b51dd57e0657e11c9f9273060705b93",
+        "merge": "57098180595b62d68cb57b4224b724cfb82a9244"
+      },
+      "receipt": {
+        "mainSha": "57098180595b62d68cb57b4224b724cfb82a9244",
+        "evidence": "evidence/unit-comparison-main-parent-acceptance-20260913.json",
+        "cleanupReceipt": "evidence/unit-comparison-cleanup-parent-acceptance-20260913.json"
+      }
+    },
+    {
+      "id": "remaining-reference-specs",
+      "pr": {
+        "number": 1661,
+        "url": "https://github.com/SwiggitySwerve/MekStation/pull/1661",
+        "head": "2067e5fb4578b1a8093481881fc64e21489e9138",
+        "merge": "f7e926057bf0981ed34eda843de74e35d0792aa3"
+      },
+      "receipt": {
+        "mainSha": "f7e926057bf0981ed34eda843de74e35d0792aa3",
+        "evidence": "evidence/remaining-reference-main-parent-acceptance-20260913.json",
+        "cleanupReceipt": "evidence/remaining-reference-cleanup-parent-acceptance-20260913.json"
+      }
+    },
+    {
+      "id": "final-canonical-proposals",
+      "pr": {
+        "number": 1664,
+        "url": "https://github.com/SwiggitySwerve/MekStation/pull/1664",
+        "head": "4f4b3a2e1b01e4d87bbbc70d9d8466801d234f03",
+        "merge": "5b229be21e87815f10ce6521dda77b52eef75e3c"
+      },
+      "receipt": {
+        "mainSha": "5b229be21e87815f10ce6521dda77b52eef75e3c",
+        "evidence": "evidence/final-canonical-main-parent-acceptance-20260913.json",
+        "cleanupReceipt": "evidence/final-canonical-cleanup-parent-acceptance-20260913.json"
+      }
+    }
+  ],
+  "rootCanonicalPathsVerified": 48,
+  "files": [
+    {
+      "path": "openspec/specs/aerospace-unit-system/spec.md",
+      "gitOid": "729ab9f86714efed6d9cf85b45dce0df50c49ce5",
+      "sha256": "c664246362054e9bc183381d99c60f106eb349e0d186cdc467534170fbaad0b3"
+    },
+    {
+      "path": "openspec/specs/app-settings/spec.md",
+      "gitOid": "64c84f43d6e94580268e7808061463c70e7988f7",
+      "sha256": "65dc02ac16a000a0322c71b173f88a59ca8e9f56f37ee40a74bf6d18f290d5a6"
+    },
+    {
+      "path": "openspec/specs/armor-diagram-variants/spec.md",
+      "gitOid": "e1c8a77796a612cea02f5164ee5bc26c92f21de0",
+      "sha256": "97d49cd85226dccd4045fa9ed691692ffd73cc064c05c8a5e1e4184bc6693cb1"
+    },
+    {
+      "path": "openspec/specs/auto-save-persistence/spec.md",
+      "gitOid": "bb4c75e00d80fcb882e7dfee9150ed9877d222d6",
+      "sha256": "60fc6006476c650e7620273c0232393bc2d70279b0dead61195452bcf95cd4bb"
+    },
+    {
+      "path": "openspec/specs/battle-armor-unit-system/spec.md",
+      "gitOid": "2217ed6459d68dab4cc5655e5e6c31a85d10debd",
+      "sha256": "63bac7a76e828d74076926155533537a422e6a25f4ae9ee135c8c85b183a7f19"
+    },
+    {
+      "path": "openspec/specs/bv-validation-tooling/spec.md",
+      "gitOid": "1cbe2bc1799f4d922f2676e0aba295b776400322",
+      "sha256": "5819cd29936fd9d2fadaf8f5d0769743fb89aa5a877a56d65683133d375dc76a"
+    },
+    {
+      "path": "openspec/specs/c3-network-targeting/spec.md",
+      "gitOid": "3dc0add9fbb36993e398171a06e6741078288bec",
+      "sha256": "c34fe3348ee43cf57474204d423b23dbd44d32fbca1245fe2e7202de12ed14c9"
+    },
+    {
+      "path": "openspec/specs/campaign-combat-loop/spec.md",
+      "gitOid": "9fef807256d0cbd1867aca22302132221a3dfad6",
+      "sha256": "c862ad4277355d53b9f0cc1344c7de28ad5eaa45df253c3f6f9ba4f21280b6ba"
+    },
+    {
+      "path": "openspec/specs/campaign-personnel-architecture/spec.md",
+      "gitOid": "748f393622f489c63b5ce7ea7ea8f8f6047e7ef1",
+      "sha256": "df31cdfe64a141ac5dde82ace4de44756513874cfa67ff57d8476f5eeeff15ad"
+    },
+    {
+      "path": "openspec/specs/campaign-unit-combat-state/spec.md",
+      "gitOid": "99ff5aeeadafcddb77c72dc41bf0787b8bf9abf7",
+      "sha256": "a75aeb0e4ebcb0c0f8a6fabaaf08256ffe55161d434b6ce5e37650f80577a87d"
+    },
+    {
+      "path": "openspec/specs/combat-analytics/spec.md",
+      "gitOid": "c08df5116bfcbe86387c2b233ba223c569dc9575",
+      "sha256": "71d8676759ab0ab3fee34ac2e6fe0cbc99a02b4e63d190b8e0f92eec80c77a01"
+    },
+    {
+      "path": "openspec/specs/compendium-browser/spec.md",
+      "gitOid": "429eb4525f75cc77ca65b7c374375bad21e6c25c",
+      "sha256": "ab2a14a28db8a0c50133698944706617d7d3aa43c78eda1945d65a55fd4936e6"
+    },
+    {
+      "path": "openspec/specs/construction-rules-core/spec.md",
+      "gitOid": "423868cbdd36ad27583f85c2dfabe024fb231c18",
+      "sha256": "85fefb6f310e6132e4bd99ec4f5f92cb2612731c1505d1e0637cf4c9db6e9aa1"
+    },
+    {
+      "path": "openspec/specs/critical-slots-display/spec.md",
+      "gitOid": "e62e09eafe76ed1269871916c09f35cff8a34d31",
+      "sha256": "08abd446de493fc1191e9b911368b5f8a66d7311da27694d04a7297cca5b0e4e"
+    },
+    {
+      "path": "openspec/specs/customizer-responsive-layout/spec.md",
+      "gitOid": "6ead2196374a1195b61dd60e2f542a954a34d456",
+      "sha256": "d3575a6b666f0dcabb5c9d80e8f8ba91039b0d7bbd82476d4454eb16a4e1e687"
+    },
+    {
+      "path": "openspec/specs/customizer-routing/spec.md",
+      "gitOid": "9a43bbe4de4182d11da4ac9d016170f64f7d24f9",
+      "sha256": "0a73eaad02a565b1da64c7ed5277aedf84f367eba609d120c805acc43defb0c9"
+    },
+    {
+      "path": "openspec/specs/customizer-tabs/spec.md",
+      "gitOid": "436d5a085aba057a1090903153b510db7646bcfe",
+      "sha256": "0c3631c6f6205e36a6da1b5ec4202797d02dd900f803ac1cc75c971ee6bb3994"
+    },
+    {
+      "path": "openspec/specs/data-loading-architecture/spec.md",
+      "gitOid": "a7f2948143090f673f17578f7659477b2476b749",
+      "sha256": "cfa90d423f395ae2dddc0aa28697929c451ff9788cb58466ef838b2b97b2a66f"
+    },
+    {
+      "path": "openspec/specs/database-schema/spec.md",
+      "gitOid": "2a68ac1a03b41a70917e2fa836a55772f5354fa3",
+      "sha256": "bc713041e3e09835edfcc7c2ce2821e4f2ca59a51ac2e73b4cb96ce9917bcf63"
+    },
+    {
+      "path": "openspec/specs/e2e-testing/spec.md",
+      "gitOid": "5eab7985804a68b3f9fddce80790b21a7b46fcce",
+      "sha256": "8b559b973c27fd45df8117018b1a19380d179f67cb87dc21001d7006726fa25b"
+    },
+    {
+      "path": "openspec/specs/equipment-browser/spec.md",
+      "gitOid": "2cecec767aa63882f43ccc0070af949ee0b9068a",
+      "sha256": "4b068743a38023768ecd668519d519edba229d9db821ada744582807e1da2137"
+    },
+    {
+      "path": "openspec/specs/equipment-services/spec.md",
+      "gitOid": "ff65db1b69672b4af6255dfc8c02ad151f49599e",
+      "sha256": "32d8197b35e45c65842701076d7a5cfd9043838dc6486a0605237caaf4da77f8"
+    },
+    {
+      "path": "openspec/specs/equipment-tray/spec.md",
+      "gitOid": "2d90826b63e73672bd259f4cf0e4bdc28ccc7efc",
+      "sha256": "cebacfa9f94c801f2e8e137c1342793d8db73290e9795f2ad23010b2d3a8fdc5"
+    },
+    {
+      "path": "openspec/specs/firing-arc-calculation/spec.md",
+      "gitOid": "17397d8fd5fba82d8a14070a8e41f68029b64acd",
+      "sha256": "cdab5e4be32d7566b417f5daba87d05bdff4a45eebdc174a486ad53cbec65edf"
+    },
+    {
+      "path": "openspec/specs/force-management/spec.md",
+      "gitOid": "7bcf23c1c23cae47c92c9adc04ba8148e59adc6c",
+      "sha256": "1e119db35f60fb9e9418176862afe3d23b59130dee7b050914842b990944c757"
+    },
+    {
+      "path": "openspec/specs/game-session-management/spec.md",
+      "gitOid": "e38cc6656945af83ef54a8bdda3a4f68a649dc8b",
+      "sha256": "ab3a07fb600f93733ded36e32decb1ad954a2c0332ef057859c0d274d4e90bb2"
+    },
+    {
+      "path": "openspec/specs/hull-down-position/spec.md",
+      "gitOid": "642179551bdd4269b9e0ccad936eb26232dd4b5c",
+      "sha256": "2d1a1356028efc404f95bcdcc1a51d847ce1541b30dd1f8537e06e2f561987ae"
+    },
+    {
+      "path": "openspec/specs/mission-contracts/spec.md",
+      "gitOid": "4e9f95f24aeb4b7543df1bd828247483e8ae972b",
+      "sha256": "e7c8285915e24c049e85563f0871b122e123e0aa75fbe8f93f19fa126e4e3959"
+    },
+    {
+      "path": "openspec/specs/mm-data-asset-integration/spec.md",
+      "gitOid": "aacc833d485f686c71295f83ab995bad4bb18c06",
+      "sha256": "5beabebfe54b2a2e3e9aadd0ab87e480062eed0de257507571681b69c2a74dd7"
+    },
+    {
+      "path": "openspec/specs/overview-basic-info/spec.md",
+      "gitOid": "c053239b539d33769741cdd1cc300cd22d156f94",
+      "sha256": "4530c174c24f635bb7621f0b3a900f19fe3071482a68216e37c8f822dbca2bdf"
+    },
+    {
+      "path": "openspec/specs/persistence-services/spec.md",
+      "gitOid": "944bb95da88744798f3a9010228a107c764f0f0b",
+      "sha256": "45fbb18e0b71f17856919c2b5cdeca5b007774c1099c42c3cbfc75a51a468898"
+    },
+    {
+      "path": "openspec/specs/personnel-management/spec.md",
+      "gitOid": "2e0fc0c65f09e1735b34b11febec60371957adf0",
+      "sha256": "b96598f03ed270bb480aefbcc318c86d89e46ab50fbbc4313727242c6b0a1f1d"
+    },
+    {
+      "path": "openspec/specs/piloting-skill-rolls/spec.md",
+      "gitOid": "69027e50866158803cbe9d0a23487e00f364d99f",
+      "sha256": "a09c37e40cbb626ae7716f0d1d8c9f77902c8056e8969a4209f17c6d45059c5d"
+    },
+    {
+      "path": "openspec/specs/protomech-unit-system/spec.md",
+      "gitOid": "2b9b4fa9ead90593d17df879286ea458ca542b6d",
+      "sha256": "191c5b3536c66d26dadac03da3f6de172574171ce1359ee3441120d308e1d8e8"
+    },
+    {
+      "path": "openspec/specs/record-sheet-export/spec.md",
+      "gitOid": "d5cc7cff982cc648e80d1398fd232ca519d2169b",
+      "sha256": "14f5688c087fd08f7bbda4f7f15b616f887554fe0d37adb100efcd5a0cf20456"
+    },
+    {
+      "path": "openspec/specs/release-build-system/spec.md",
+      "gitOid": "b15e2753f07b1dd86b38b583949c4a0e51ca3490",
+      "sha256": "75ef2de11f3baeeace8ec9651e3551810c2f53fc5d4ff1c70c2be29cd5da06f1"
+    },
+    {
+      "path": "openspec/specs/repair/spec.md",
+      "gitOid": "6f99e0ca45e75ed02b43eb5c69fef4c37694cc62",
+      "sha256": "b70ef517832ead297f48cffa0e14dba46d2d5baf68b275026e9a3829ed5f9e1a"
+    },
+    {
+      "path": "openspec/specs/toast-notifications/spec.md",
+      "gitOid": "24f5cd91f575ffa9e630599c217e71fdcff3566f",
+      "sha256": "5cd76fa006d8f107cc0fafcffe102168b66843785e02ca30bfd365ba09437d21"
+    },
+    {
+      "path": "openspec/specs/unit-comparison/spec.md",
+      "gitOid": "9903944fb92c8aa3b87473da319b7d6b268fde38",
+      "sha256": "9d95014c819338fbd876b9d4688fedc9ee15dbacbfb8e2e36039df7f4e8971c1"
+    },
+    {
+      "path": "openspec/specs/unit-services/spec.md",
+      "gitOid": "e6d40288b09a4ca5f81b0f6d5c3cae911640b543",
+      "sha256": "32e1603943d525c26b74212cd588c6354bffd86a12b8bd71aa6b584f75e056a3"
+    },
+    {
+      "path": "openspec/specs/unit-validation-framework/spec.md",
+      "gitOid": "3204c33048f0c42f962c0ca527857abfff5cd1f9",
+      "sha256": "7bfc2f9d64234b09661c682fb19a6f0918b5414fabd77483f44cb049663acf2d"
+    },
+    {
+      "path": "openspec/specs/user-identity/spec.md",
+      "gitOid": "737e254e4aba206f4e68e184f5167cef54e16dc9",
+      "sha256": "faed932c4afaec49969b2879b80577a36180246e42522f721223a9500e99ed28"
+    },
+    {
+      "path": "openspec/specs/utility-patterns/spec.md",
+      "gitOid": "52c21cdc2d94759d8de015a21908f2f530d53cb8",
+      "sha256": "e76d729a60a426b218a29fb5b9bcd4ac4f933b8028ccf453446922982f51b985"
+    },
+    {
+      "path": "openspec/specs/vault-sync/spec.md",
+      "gitOid": "7c6a6d373166b2bb53c2748c7d3f5e71a833bf94",
+      "sha256": "838ad698a97ddfaaa0ccbaf0df02eb77d382f7207f9ebe42487378a071a9592e"
+    },
+    {
+      "path": "openspec/specs/vehicle-unit-system/spec.md",
+      "gitOid": "312c93efa240fe2de05ad302f497ed8d7a435fba",
+      "sha256": "213363c794edaa1ffa9eb00df8c759cfd5e8c06bf78f7e61a48b8617bbc32b8d"
+    },
+    {
+      "path": "openspec/specs/battlemech-chassis-index/spec.md",
+      "gitOid": "b843f3f2e198a66c9cc7cbfc8e3e74fc203df151",
+      "sha256": "37a63513bfa6124d062c51845ebb12d2853c7768cb2bd8f15c1d528ae8f108a3"
+    },
+    {
+      "path": "openspec/specs/custom-unit-combat/spec.md",
+      "gitOid": "fc5139af9fa77a517de69dee392af0e5aa7ec330",
+      "sha256": "803ac906accad431daa8e84cef924c00733b0896b5c511e28fbc5da29bdfaba5"
+    },
+    {
+      "path": "openspec/specs/customizer-edit-recovery/spec.md",
+      "gitOid": "f3f0a354356cd3d9d73ab53a3d85baebdf6b8230",
+      "sha256": "4fae1069a8687858ecdcb48589e8b87c50a1ad9d23d87970cf3b6d29b7de8051"
+    }
+  ],
+  "limits": [
+    "R1.specs canonical documentation delivery only; R1.references,archives,CI/browser and product roadmap remain separate.",
+    "Each prefix retains exact-main verification and cleanup limits; current normalized root inventory contains no additional canonical drafts.",
+    "No inference of runtime completion for all220capabilities."
+  ]
+}

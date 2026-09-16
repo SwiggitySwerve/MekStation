@@ -1,0 +1,330 @@
+{
+  "node": "R2.authority-cutover",
+  "artefact": "r2-authority-cutover-admission-brief-20260915",
+  "capturedAtUtc": "2026-09-15T16:10:00.000Z",
+  "role": "read-only discovery; no edits, no commits, no builds, no jest, no sub-agents",
+  "sources": {
+    "localHead": "be7f85b867aa3e8576e5e3d27e309276203bc24b",
+    "originMainAtFetch": "231c7848aa0850b616a84581ff3c54e1d5ddb6bf",
+    "driftCheck": "git diff be7f85b..origin/main scoped to src/lib/campaign/authority/, src/lib/campaign/sync/, src/services/campaignPersistence/, src/pages/api/campaigns/, src/__tests__/api/campaigns/, e2e/campaign-two-device-drive.spec.ts, scripts/e2e/relaunching-server.mjs -- 12 files differ (task 6.1 private-envelope + 6.2a-3 source-row work: campaignAcceptContractCommand.ts, campaignSourcePrivateEnvelope.ts, campaignSourceMaterialization.ts, commands.ts +11 lines (new 'offer-not-durable' 409 case), JournalCampaignEventStore.ts +36/-19 (optional sourcePrivate envelope field, additive, does not touch CAMPAIGN_JOURNAL_AUTHORITY_ENABLED or the append/verify path this brief cites), CampaignPersistenceService.ts). None of the 12 touch the migration-state machine, the marker store, the authority-mode resolver, the shadow-parity runner, the SQLite migration, campaignAuthorityBlocked.test.ts, or the two-device e2e spec -- this brief's findings hold unchanged against origin/main.",
+    "roadmapJson": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json (node R2.authority-cutover line ~6100, node R2.authority-host line ~6068, ownerDecisions[] line ~12976)",
+    "tasksMd": "openspec/changes/design-campaign-authority-and-sync/tasks.md (task 5.7 line 89, Group 5 lines 72-89, task 1.4 line 24)",
+    "designMd": "openspec/changes/design-campaign-authority-and-sync/design.md (D10 line 43, D8 line 40)",
+    "specDelta": "openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md",
+    "priorEvidence": [
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-authority-residual-brief-20260915.json (node R2.authority)",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-authority-host-admission-brief-20260915.json (node R2.authority-host, this node's stated dependsOn)"
+    ]
+  },
+  "q0_taskCheckboxStatusIsMisleading": {
+    "finding": "tasks.md:89 has task 5.7 checked '[x]' on both local HEAD and origin/main, and the roadmap's own admissionBrief note for this node (roadmap.json line ~6118) says 'discovery only; depends on R2.authority-host H0-H2 for implementation order'. Neither is a reliable signal of what's actually built: the checkbox reflects PR #1337 landing the migration-state/parity/authority-mode machinery (verified below), and the node's SECOND acceptance line -- 'real durable source/restart and two-process scoped convergence before cutover acceptance; no E2E-only flag used as production proof' -- was added specifically because the roadmap's own pattern on sibling R2.authority-* nodes (per the R2.authority residual brief) is checked-task-rows hiding unproven integration claims. This brief treats the checkbox as evidence of 'machinery exists', not 'acceptance satisfied'.",
+    "dependsOnHostFinding": "R2.authority-host's H0-H2 (host live-view fold + reconnect cursor) are UI/transport-layer fixes to CampaignCoopRouteSurfaceConnected.tsx and have zero code overlap with this node's ownershipPaths (src/lib/campaign/sync, src/lib/campaign/persistence, src/lib/campaign/authority) -- confirmed by grep: none of H0-H2's cited files (CampaignCoopRouteSurfaceConnected.tsx, campaignMirrorProjection.ts) appear anywhere under src/lib/campaign/authority/ or src/lib/campaign/sync/JournalCampaignEventStore.ts. The dependsOn is a roadmap sequencing/ownership convention (same as R2.authority-host's own note about R2.authority-client), not a code coupling -- every slice proposed below is implementable now regardless of R2.authority-host's landing state."
+  },
+  "existingMachinery": [
+    {
+      "component": "Migration-state type + pure transitions (D10, task 5.2)",
+      "file": "src/lib/campaign/authority/campaignAuthorityMigration.ts",
+      "lines": "44-48 (CampaignAuthorityMigrationState = legacy|shadowing|journal|blocked)",
+      "shippedBy": "PR #1261 (feat(campaign): migration states and durable cutover marker for journal authority)"
+    },
+    {
+      "component": "createLegacyMarker / createJournalNativeMarker (legacy + new-campaign 'journal' states)",
+      "file": "src/lib/campaign/authority/campaignAuthorityMigration.ts",
+      "lines": "149-162",
+      "shippedBy": "PR #1261"
+    },
+    {
+      "component": "importCampaignBaseline (enters 'shadowing' from a legacy snapshot, D8+D10 one adoption surface)",
+      "file": "src/lib/campaign/authority/campaignAuthorityMigration.ts",
+      "lines": "173-237 (shadowing marker literal at 227-236)",
+      "shippedBy": "PR #1261"
+    },
+    {
+      "component": "evaluateShadowParity + advanceAfterShadowParity (parity gate; 'shadowing'->'journal' on equality, ->'blocked' with both digests on mismatch)",
+      "file": "src/lib/campaign/authority/campaignAuthorityMigration.ts",
+      "lines": "246-290",
+      "shippedBy": "PR #1261"
+    },
+    {
+      "component": "recordFirstJournalAuthorityCommand (marks the marker's firstJournalAuthorityCommandId, the rollback guard's data source)",
+      "file": "src/lib/campaign/authority/campaignAuthorityMigration.ts",
+      "lines": "297-322",
+      "shippedBy": "PR #1261",
+      "productionCallers": "NONE -- grep -rln \"recordFirstJournalAuthorityCommand\" src/ --include=*.ts, excluding __tests__, returns only the defining file itself. See clauseStatus.compatibleRollback for the consequence."
+    },
+    {
+      "component": "rollbackToSnapshotAuthority (D10 rollback law: prohibited once firstJournalAuthorityCommandId is set, or once journal head has moved past the imported baseline; otherwise returns to 'legacy', journal rows never deleted)",
+      "file": "src/lib/campaign/authority/campaignAuthorityMigration.ts",
+      "lines": "328-351",
+      "shippedBy": "PR #1261",
+      "productionCallers": "NONE -- grep -rln \"rollbackToSnapshotAuthority\" src/ --include=*.ts, excluding __tests__, returns only the defining file. No API route, admin script, or ops tool invokes it anywhere in src/ or scripts/."
+    },
+    {
+      "component": "isMaterializedSnapshotCompatible (fingerprint-bound materialization invalidation)",
+      "file": "src/lib/campaign/authority/campaignAuthorityMigration.ts",
+      "lines": "364-377",
+      "shippedBy": "PR #1261"
+    },
+    {
+      "component": "Durable marker persistence (one row per campaign, campaign_authority_migration table)",
+      "file": "src/services/campaignPersistence/CampaignMigrationMarkerStore.ts",
+      "lines": "29-61 (readCampaignMigrationMarker 29-46, writeCampaignMigrationMarker 49-61)",
+      "shippedBy": "PR #1261"
+    },
+    {
+      "component": "SQLite migration 9 creating the table",
+      "file": "src/services/persistence/SQLiteService.migrations.ts",
+      "lines": "375-388",
+      "shippedBy": "PR #1261"
+    },
+    {
+      "component": "Shadow-parity runner (drives the parity gate: replays the journal, compares against the live snapshot projection, writes the advanced marker)",
+      "file": "src/lib/campaign/authority/campaignShadowParityRunner.ts",
+      "lines": "70-119 (runCampaignShadowParity)",
+      "shippedBy": "PR #1337 (feat(campaign): decide journal authority per campaign, not per process)",
+      "productionCallers": "NONE -- grep -rln \"runCampaignShadowParity\" src/ --include=*.ts, excluding __tests__, returns only the defining file. Nothing in src/pages/api or scripts/ schedules or triggers a parity run; a campaign entering 'shadowing' has no automatic or manually-triggerable path to 'journal' today."
+    },
+    {
+      "component": "Per-campaign authority resolution composing the marker + a live journal-stream probe (task 5.7's literal machinery: 'no fallback on missing journal stream')",
+      "file": "src/lib/campaign/authority/resolveCampaignAuthorityFromStores.ts",
+      "lines": "43-82",
+      "shippedBy": "PR #1337"
+    },
+    {
+      "component": "Pure per-mode decision: legacy/shadowing -> snapshot; journal with no stream -> blocked('journal-authority-without-stream'); journal with a stream -> journal; blocked marker -> blocked (its own reason); corrupt marker -> blocked('marker-unreadable'); absent marker -> snapshot",
+      "file": "src/lib/campaign/authority/campaignAuthorityMode.ts",
+      "lines": "74-118 (case 'legacy' 89-90, 'shadowing' 91-95, 'journal' 96-103, 'blocked' 104-110, exhaustive default 111-116)",
+      "shippedBy": "PR #1337"
+    },
+    {
+      "component": "Command pipeline's authority gate -- only executes when authority.kind === 'journal'; every other kind (including 'blocked') refuses before any journal read",
+      "file": "src/lib/campaign/authority/campaignCommandPipeline.ts",
+      "lines": "317-322 (executeCampaignCommand)",
+      "shippedBy": "PR #1337 / later hardened by the source-row split stack (#1706-1708, unrelated to this clause)",
+      "gapNoted": "This gate never calls recordFirstJournalAuthorityCommand after a successful commit -- see clauseStatus.compatibleRollback."
+    },
+    {
+      "component": "Production cutover flag (single hardcoded false constant, the 'reviewed flag' clause)",
+      "file": "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+      "lines": "83 (export const CAMPAIGN_JOURNAL_AUTHORITY_ENABLED = false), 450-463 (its one other production read site, gating whether a lazily-constructed journal is even attempted)",
+      "shippedBy": "PR #1337 (constant introduced); line 83's value has never been true on origin/main per git log -p (not separately re-verified line-by-line across every commit, but no PR title in the authority/sync history claims a flip)"
+    },
+    {
+      "component": "e2e-only true path for the flag, deliberately double-gated so production cannot arm it (this is the exact mechanism the acceptance's 'no E2E-only flag used as production proof' clause warns against)",
+      "file": "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts",
+      "lines": "1-38 (isCampaignJournalAuthorityEnabled 36-38: CAMPAIGN_JOURNAL_AUTHORITY_ENABLED || e2eJournalAuthorityArmed())",
+      "shippedBy": "PR #1617 (test(campaign): the end-to-end drive can arm journal authority for its own campaigns without moving the production default)"
+    },
+    {
+      "component": "Flag consumption at the three production write/read entrypoints (all pass isCampaignJournalAuthorityEnabled() to a hook that is otherwise inert)",
+      "file": "src/pages/api/campaigns/[id].ts:249 (creation genesis hook), src/pages/api/campaigns/[id]/adopt.ts:145 (legacy adoption hook), src/pages/api/multiplayer/matches/index.ts:267 (surfaced in the match-list response body)",
+      "lines": "see component",
+      "shippedBy": "PR #1337 / #1333"
+    },
+    {
+      "component": "Legacy adoption hook (D8+D10 one adoption surface: browser-held campaign -> baseline import -> 'shadowing')",
+      "file": "src/lib/campaign/authority/campaignLegacyAdoption.ts",
+      "lines": "1-194 (whole file; maybeAdoptLegacyCampaign is the exported entrypoint adopt.ts calls)",
+      "shippedBy": "PR #1333 (feat(campaign): adopt a browser-held campaign instead of faking its birth)"
+    },
+    {
+      "component": "Creation-time genesis hook (new campaigns born journal-native when the flag is on)",
+      "file": "src/lib/campaign/authority/campaignCreationCheckpointPorts.ts",
+      "lines": "1-43",
+      "shippedBy": "PR #1502 (feat(campaign): creation acknowledges only after every authority record commits)"
+    },
+    {
+      "component": "Snapshot backfill / records-not-guess migration path",
+      "file": "src/lib/campaign/authority/campaignSnapshotBackfill.ts",
+      "lines": "1-331",
+      "shippedBy": "PR #1503 (feat(campaign): a legacy campaign migrates on its records, never on a guess)"
+    },
+    {
+      "component": "Real-route, real-SQLite proof of the 'no fallback on missing journal stream' clause -- single process, in-memory node-mocks-http request against the actual Next.js API handler and a real (temp-file) SQLite database",
+      "file": "src/__tests__/api/campaigns/campaignAuthorityBlocked.test.ts",
+      "lines": "1-135 (4 cases: never-began-migration accepts writes L76; journal-marker-no-stream refuses L84; refuses even with a snapshot record present L99; blocked distinct from a stale-write 409 L119)",
+      "shippedBy": "PR #1337, one case added by PR #1543"
+    },
+    {
+      "component": "Simulated same-process restart proof (close and reopen the same SQLite file) for campaign host-instance identity -- adjacent machinery, NOT the cutover marker itself",
+      "file": "src/__tests__/api/campaigns/campaigns.authority.test.ts",
+      "lines": "202-224",
+      "shippedBy": "predates this node; not part of the 5.1-5.7 PR stack"
+    },
+    {
+      "component": "Real two-OS-process harness (source server + independently-spawned second server, own port, own SQLite file) -- the closest existing reusable pattern for a two-process cutover proof, but built for source/replica GRANT sync (task 4.5, D2/D5/D6), not the migration-state machine",
+      "file": "e2e/campaign-two-device-drive.spec.ts",
+      "lines": "1-27 (header), 41-106 (startSecondServer: spawns `node server.js` with its own PORT/DATABASE_PATH/HOSTNAME), 434-461 (explicit 'NOT DRIVEN HERE' footer)",
+      "shippedBy": "PR #1341 (test(campaign): drive a shared campaign across two real server processes)",
+      "criticalFinding": "Lines 434-461 state in the spec's own header comment that source-to-replica EVENT CONVERGENCE cannot be driven on a live server today by ANY supported path, because the only production event writer (the co-op match host, via createDefaultCampaignEventStore) uses the in-memory store while CAMPAIGN_JOURNAL_AUTHORITY_ENABLED is false, and POST /commands requires a campaign already on journal authority, which requires a cutover marker, which only the flag-gated genesis/adoption hooks write. This is a first-party, already-landed, already-honest admission of exactly the gap this node's acceptance clause 2 names."
+    },
+    {
+      "component": "Single-server-process restart wrapper (kills and respawns ONE server for fault-injection e2e scenarios) -- proves crash-recovery of one process, not concurrent two-process convergence",
+      "file": "scripts/e2e/relaunching-server.mjs",
+      "lines": "1-49",
+      "shippedBy": "predates this node (umbrella 21.x restart harness)"
+    },
+    {
+      "component": "Co-op command auth gate this node's write path sits behind: a caller needs an active `campaign_session_participant` row (co-op seat) to reach /commands at all",
+      "file": "src/services/campaignPersistence/CampaignSessionParticipantStore.ts",
+      "lines": "255-269 (isActiveCampaignSeat)",
+      "shippedBy": "predates this node",
+      "relevance": "Single-player campaigns (no co-op session) have no participant row and therefore CANNOT reach POST /api/campaigns/[id]/commands under any marker state -- see ownerGatedParts."
+    }
+  ],
+  "clauseStatus": [
+    {
+      "clause": "reviewed flag",
+      "onMain": "CAMPAIGN_JOURNAL_AUTHORITY_ENABLED (JournalCampaignEventStore.ts:83) is a single hardcoded `false` constant; isCampaignJournalAuthorityEnabled() (campaignJournalAuthorityEnabled.ts:36-38) ORs in an e2e-only opt-in (NEXT_PUBLIC_E2E_MODE + MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY, both required) that a production process can never satisfy. Every production read site (campaigns/[id].ts:249, adopt.ts:145, multiplayer/matches/index.ts:267) goes through this function.",
+      "missing": "No reviewed-cutover PROCESS exists (no runbook, no staged-rollout mechanism, no per-environment override) -- there is exactly one flag and one e2e escape hatch, nothing describing what 'reviewed' means operationally.",
+      "verdict": "machinery present; a genuinely reviewed production flip is undefined, not merely unflipped"
+    },
+    {
+      "clause": "new state",
+      "onMain": "createJournalNativeMarker (campaignAuthorityMigration.ts:154-162), wired at creation via campaignCreationCheckpointPorts.ts behind the flag.",
+      "verdict": "fully present and tested (campaignAuthorityMigration.test.ts)"
+    },
+    {
+      "clause": "legacy state",
+      "onMain": "createLegacyMarker (campaignAuthorityMigration.ts:149-150); resolveCampaignAuthorityMode 'legacy' case (campaignAuthorityMode.ts:89-90) reads snapshot; an absent marker row also reads as legacy/snapshot (campaignAuthorityMode.ts:86).",
+      "verdict": "fully present and tested"
+    },
+    {
+      "clause": "shadowing state",
+      "onMain": "importCampaignBaseline (campaignAuthorityMigration.ts:173-237) enters it from a legacy import; resolveCampaignAuthorityMode keeps the snapshot authoritative while shadowing (campaignAuthorityMode.ts:91-95, comment explains why).",
+      "verdict": "fully present and tested for the transition and the read-side mode; NOT exercised end-to-end because nothing drives the parity check that is supposed to advance a shadowing campaign (see 'parity gate' below) -- a real campaign that entered shadowing today would stay there forever"
+    },
+    {
+      "clause": "journal state",
+      "onMain": "advanceAfterShadowParity's equality branch (campaignAuthorityMigration.ts:289); resolveCampaignAuthorityMode's 'journal' branch additionally requires a live stream (campaignAuthorityMode.ts:96-103); executeCampaignCommand only runs when authority.kind === 'journal' (campaignCommandPipeline.ts:317-322).",
+      "verdict": "fully present and tested at the unit/integration level; production-reachable only via the flag, which is off"
+    },
+    {
+      "clause": "blocked state",
+      "onMain": "advanceAfterShadowParity's mismatch branch preserves both digests (campaignAuthorityMigration.ts:275-288); resolveCampaignAuthorityMode's 'blocked' case and 'journal-without-stream' auto-block (campaignAuthorityMode.ts:96-110); CAMPAIGN_AUTHORITY_BLOCKED_REASONS enumerates the three reasons (campaignAuthorityMode.ts:35-42); campaignCommandPipeline.ts:317-318 refuses commands outright.",
+      "verdict": "fully present and tested, including a real-route/real-SQLite proof (campaignAuthorityBlocked.test.ts)"
+    },
+    {
+      "clause": "parity gate",
+      "onMain": "evaluateShadowParity + advanceAfterShadowParity are correct pure functions (campaignAuthorityMigration.ts:239-290); runCampaignShadowParity (campaignShadowParityRunner.ts:70-119) correctly composes journal-replay + snapshot-projection + the pure gate + marker persistence.",
+      "missing": "Nothing calls runCampaignShadowParity anywhere in src/ or scripts/ outside its own tests (verified by grep, no callers). There is no cron, no admin endpoint, no CLI script, and no code path reachable from any HTTP route that runs a shadow-parity comparison. A campaign that reaches 'shadowing' has no way to advance.",
+      "verdict": "the gate itself (comparison + transition) is proven; the thing that DRIVES the gate does not exist in production"
+    },
+    {
+      "clause": "no fallback on missing journal stream",
+      "onMain": "resolveCampaignAuthorityFromStores.ts:61-77 probes the journal ONLY for a marker already in 'journal' state, catches a journal-read failure and reports journalHasStream=false rather than falling through (comment at 72-76: 'what must NOT happen is quietly serving the snapshot instead'); resolveCampaignAuthorityMode.ts:96-103 blocks with 'journal-authority-without-stream' rather than starting a fresh log or reading the snapshot. Proven with a real route + real SQLite in campaignAuthorityBlocked.test.ts:84-117 (including the 'even with a snapshot record sitting right there' case).",
+      "verdict": "fully present, tested at the real-route/real-SQLite level, single-process only"
+    },
+    {
+      "clause": "compatible rollback",
+      "onMain": "rollbackToSnapshotAuthority (campaignAuthorityMigration.ts:328-351) correctly implements the D10 law as a pure function: prohibited once firstJournalAuthorityCommandId is non-null, prohibited once the journal head has moved past the imported baseline, otherwise returns to 'legacy' with journal rows untouched. Unit-tested in campaignAuthorityMigration.test.ts.",
+      "missing": "TWO independent, verified gaps, not one: (1) recordFirstJournalAuthorityCommand has zero production callers -- executeCampaignCommand (campaignCommandPipeline.ts:317-322) checks authority.kind === 'journal' and proceeds, but never calls back into the migration marker to record the command that just committed. Grep across src/ confirms the exported function is invoked nowhere but its own defining file. (2) rollbackToSnapshotAuthority itself has zero production callers -- no API route, admin tool, or script exposes an operator-triggered rollback. CONSEQUENCE: even in a hypothetical future where the flag is on and a campaign reaches 'journal', its firstJournalAuthorityCommandId would stay null forever through the current pipeline, so the rollback law's primary guard ('journal-authority-command-committed') can never fire -- rollback would always fall through to the baseline-head check, which is a real but PARTIAL substitute for the intended two-guard law.",
+      "verdict": "the law's logic is correct and tested in isolation; it is disconnected from the one production write path that is supposed to feed it, and there is no operational surface to invoke it at all -- this is the most concrete, previously-uncited defect this brief found"
+    },
+    {
+      "clause": "restart-never-creates-fresh-log proof",
+      "onMain": "resolveCampaignAuthorityMode.ts:96-101 blocks rather than starting a fresh stream at sequence 0 when a journal-authority marker finds no stream (the exact restart scenario the design doc comment at campaignAuthorityMode.ts:16-18 names: 'A fresh log. Starting a new stream at sequence 0 would silently discard the campaign's history'). Proven with a real route + real SQLite by closing and reopening the actual database connection between the marker write and the read (campaignAuthorityBlocked.test.ts uses getSQLiteService()/resetSQLiteService() around a real file).",
+      "missing": "The restart proof is IN-PROCESS (same Node process, same SQLite handle closed/reopened via resetSQLiteService()). It has never been proven across an actual OS-level process restart (kill the server, start a new `node server.js`, reconnect to the same database file) for the migration marker specifically -- the closest such harness (campaigns.authority.test.ts:202-224) proves a DIFFERENT fact (host-instance identity stability), not the cutover marker's restart behaviour.",
+      "verdict": "logic and real-SQLite-single-process proof both present; genuine cross-process restart proof does not exist for this specific machinery"
+    },
+    {
+      "clause": "task text's own citation -- 'this task is the campaign-side predecessor add-cross-stream-effect-receipts task 0.1 verifies'",
+      "onMain": "add-cross-stream-effect-receipts tasks.md shows task 0.1 unchecked, 51 open tasks total per roadmap.json packages[] counts (checked 0, open 51) -- confirmed by reading the roadmap.json packages array at the top of this discovery.",
+      "verdict": "the downstream verifier this task feeds has not run against it; not evaluated further, out of this node's scope"
+    }
+  ],
+  "twoProcessProof": {
+    "whatTheAcceptanceAsksFor": "roadmap.json's second acceptance line for this node: 'Real durable source/restart and two-process scoped convergence before cutover acceptance; no E2E-only flag used as production proof.' Read together with e2e/campaign-two-device-drive.spec.ts's own footer (lines 434-461), this is not a hypothetical ask -- the closest existing test already documents, in production code comments, that it cannot be driven today.",
+    "whatWouldBeNeeded": [
+      "A real second OS process (spawn('node', ['server.js'], { env: { PORT, DATABASE_PATH, ... } })) pointed at its OWN SQLite file -- e2e/campaign-two-device-drive.spec.ts:41-106 (startSecondServer) is a directly reusable pattern, already proven to boot a second server with its own database.",
+      "A campaign whose marker is already in 'journal' state with a non-empty journal stream on BOTH processes' shared or replicated storage -- today this requires either (a) flipping isCampaignJournalAuthorityEnabled() via the e2e-only env var (which the acceptance explicitly forbids treating as production proof), or (b) a test-scoped direct call to importCampaignBaseline + advanceAfterShadowParity + writeCampaignMigrationMarker against a real SQLite file, bypassing the flag entirely by calling the pure/marker-store functions directly the way campaignAuthorityBlocked.test.ts already does for the single-process case.",
+      "A real write on process A (through POST /commands, which requires authority.kind==='journal' -- satisfiable via (b) above) followed by a real read on process B against the same or a replicated database file, asserting B's projection reflects A's committed event without any in-memory sharing between the two Node processes.",
+      "A real OS-level restart of at least one process mid-scenario (kill and respawn, reusing scripts/e2e/relaunching-server.mjs's spawn/respawn pattern) with a re-read afterward, to fold the 'restart' half of the acceptance into the same proof rather than leaving it as a separate in-process-only test."
+    ],
+    "minimumHonestRuntimeProof": "One new e2e (or scripts/qc) spec, modeled directly on campaign-two-device-drive.spec.ts's process-spawning shape, that (1) uses the marker-store/journal functions directly (not the production flag) to put a campaign on real journal authority against a real SQLite file, (2) spawns a second real server process pointed at the SAME database file (not a separate one -- convergence via a shared durable store is the property under test, distinct from the existing spec's separate-file replica-sync scenario), (3) commits a command via POST /commands on process A, (4) reads the campaign via GET /api/campaigns/[id] on process B and asserts the committed event is visible, and (5) kills and respawns one process mid-scenario to fold in the restart proof. This does NOT require flipping CAMPAIGN_JOURNAL_AUTHORITY_ENABLED in production -- it only requires the test harness to construct a journal-state marker directly, exactly as campaignAuthorityBlocked.test.ts already does for its single-process cases.",
+    "cost": "Estimated 1 new spec file (~150-250 lines, following campaign-two-device-drive.spec.ts's existing ~460-line pattern for process lifecycle) plus no production code changes if the existing marker/journal functions are sufficient -- BUT the compatibleRollback gap (recordFirstJournalAuthorityCommand never called) means a two-process proof that also exercises rollback mid-scenario would surface that gap immediately, so a slice ordering that proves basic convergence FIRST and rollback SEPARATELY (after the wiring gap is fixed) is recommended over one large spec.",
+    "existingAllGreenDoesNotSubstitute": "verify:qc:multiplayer-reliability and the other frozen CAMP-01 journeys referenced elsewhere in roadmap.json exercise co-op SYNC (transport, grants, delivery), never the campaign-authority migration-state machine, because CAMPAIGN_JOURNAL_AUTHORITY_ENABLED is false in every one of those runs -- confirmed by campaign-two-device-drive.spec.ts's own footer citing the same flag as the reason convergence cannot be driven."
+  },
+  "ownerGatedParts": {
+    "od_journalWriterAuthority_doesNotApply": "roadmap.json's OD-journal-writer-authority (ownerDecisions[], node field literally 'R4.S7') is about the COMBAT match-journal migration-state machine being designed in R4.S7 (a DIFFERENT system under src/lib/multiplayer/server/, per openspec/planning/2026-09-12-roadmap-completion/evidence/r4-s5-s7-admission-brief-20260915.json lines ~49, ~216-224, which explicitly models its S7-a..S7-d slices on THIS node's already-shipped campaignAuthorityMigration.ts as precedent). It does not gate anything in this node -- the coincidence is that both systems independently number a step '5.7'/'S7'. Verified by reading the 'node' field of the OD entry directly in roadmap.json rather than inferring from the topic string.",
+    "od_flushMechanism_doesNotApply": "roadmap.json's OD-flush-mechanism is scoped to node 'R2.authority-client' task 1.6 (fetch-keepalive-on-pagehide vs sendBeacon for flushing an in-flight client write on navigation-discard). It is a client-side write-durability concern for the EXISTING (pre-cutover) save path, not part of task 5.7's migration-state/parity/rollback clauses. It does not gate this node's slices; it would only matter downstream if a future two-process proof relied on the client's own flush behaviour to land a command, which none of the slices below do (they drive commands directly via HTTP, not through the browser page-lifecycle path OD-flush-mechanism is about).",
+    "actualGate_singlePlayerIdentity": "The real owner-blocked dependency for PRODUCTION cutover (not discovery) is the recorded 2026-09-15T09:56:02.105Z owner decision ('single-player identity/seat for campaign commands (6.2b + OB-2)', roadmap.json ownerDecisions[]): POST /api/campaigns/[id]/commands requires an active campaign_session_participant row (isActiveCampaignSeat, CampaignSessionParticipantStore.ts:255-269), which only a co-op session creates. A single-player campaign -- the majority case -- has no participant row and therefore no path to /commands under ANY migration state, flag value, or marker content. Even a fully-wired, fully-tested, fully-flipped cutover would only ever activate for co-op campaigns until this identity gap is resolved. This is a genuine blocker on PRODUCTION ACTIVATION of the machinery this node verifies, not on the discovery/proof work itself.",
+    "actualGate_productionFlagFlip": "Flipping CAMPAIGN_JOURNAL_AUTHORITY_ENABLED (JournalCampaignEventStore.ts:83) from false to true in production is not covered by any existing ownerDecisions[] entry -- it is a new decision this node's own acceptance criterion implicitly requires an owner to make ('no E2E-only flag used as production proof' presumes a real flip is eventually the goal). This brief does not recommend flipping it and none of the proposed slices require it (the two-process proof constructs journal-authority markers directly, bypassing the flag, exactly as the existing single-process test already does).",
+    "whatIsDeliverableWithoutAnyFlagFlipOrOwnerRuling": [
+      "Wiring recordFirstJournalAuthorityCommand into executeCampaignCommand's success path (closes the compatibleRollback gap) -- pure code change plus tests, no flag touch, no identity model needed.",
+      "A shadow-parity DRIVER (scheduled job, admin-only endpoint, or CLI script) that calls the already-correct runCampaignShadowParity for campaigns in 'shadowing' -- needs a design decision on WHERE it runs (cron vs on-demand vs admin route) but not an owner ruling on identity or the production flag.",
+      "The two-process convergence + restart proof described above, built entirely against test-constructed journal-state markers.",
+      "A rollback OPERATIONAL surface (script or admin route) exposing rollbackToSnapshotAuthority, now that it would have real data to act on.",
+      "None of this requires single-player identity or a production flag flip; it only requires the campaign under test to already hold a co-op session (which the existing two-device spec's fixtures already construct)."
+    ]
+  },
+  "slices": [
+    {
+      "id": "CO0",
+      "title": "Wire recordFirstJournalAuthorityCommand into the command pipeline's success path",
+      "behavior": "executeCampaignCommand (campaignCommandPipeline.ts:313-353+) currently checks authority.kind === 'journal' and proceeds straight to the journal append; it never reports the commit back to the migration marker. Add a call to recordFirstJournalAuthorityCommand(marker, commandId) plus writeCampaignMigrationMarker after a successful append-and-verify, gated on the marker's current state being 'journal' with firstJournalAuthorityCommandId still null (the idempotent/already-set paths in recordFirstJournalAuthorityCommand already handle repeats safely).",
+      "redFirst": "New test: commit a command against a journal-state campaign (constructed directly via the marker store, bypassing the flag, as campaignAuthorityBlocked.test.ts already does), then assert readCampaignMigrationMarker(...).marker.firstJournalAuthorityCommandId equals the committed commandId. This is red today (field stays null) because of the verified gap above.",
+      "filesTouchedEstimate": ["src/lib/campaign/authority/campaignCommandPipeline.ts (~10-20 changed lines)", "a new or extended test file under src/lib/campaign/authority/__tests__/ or src/__tests__/api/campaigns/"],
+      "maxFilesCheck": "2-3 files, well under the 15-file/500-line node cap",
+      "gates": "typecheck; lint; format:check; focused jest for the touched files",
+      "nonClaims": ["Does not add a rollback API route (CO2's job)", "Does not touch the flag", "Does not address single-player identity"],
+      "dependsOnOwnerDecision": false,
+      "implementableNow": true
+    },
+    {
+      "id": "CO1",
+      "title": "A driver for the shadow-parity gate (turns 'shadowing' into a state that can actually advance)",
+      "behavior": "Add a callable entrypoint (an admin-only API route or a scripts/ CLI, whichever this repo's existing admin/ops convention favours -- needs a quick look at any existing admin route pattern before choosing) that: reads a campaign's marker, if 'shadowing' builds the live snapshot projection and calls the already-correct runCampaignShadowParity, and returns the outcome (cutover/blocked/not-shadowing). This is composition only -- no new business logic, since evaluateShadowParity/advanceAfterShadowParity/runCampaignShadowParity are already correct and tested.",
+      "redFirst": "New test proving a 'shadowing' campaign advances to 'journal' (or 'blocked' on an engineered mismatch) THROUGH the new entrypoint, not just through direct unit calls to the runner.",
+      "filesTouchedEstimate": ["one new route or script file", "one new test file"],
+      "maxFilesCheck": "2 files",
+      "gates": "typecheck; lint; format:check; build (if a new API route); focused jest",
+      "nonClaims": ["Does not decide production scheduling policy (cron vs on-demand) -- that is a design choice to make explicit in the PR, not defer silently", "Does not flip the flag"],
+      "dependsOnOwnerDecision": false,
+      "implementableNow": true
+    },
+    {
+      "id": "CO2",
+      "title": "An operational rollback surface exposing rollbackToSnapshotAuthority",
+      "behavior": "Add an admin-only route or script that reads a campaign's marker and journal highest-sequence, calls rollbackToSnapshotAuthority, and persists the result. Depends on CO0 landing first so firstJournalAuthorityCommandId is ever non-null in practice (otherwise this slice's 'prohibited' branch is untestable against a realistic marker).",
+      "redFirst": "Two rows: rollback succeeds when the journal head still equals the imported baseline and no command has committed; rollback is prohibited once CO0's wiring has recorded a first command.",
+      "filesTouchedEstimate": ["one new route or script file", "one new test file"],
+      "maxFilesCheck": "2 files",
+      "gates": "typecheck; lint; format:check; build; focused jest",
+      "nonClaims": ["Does not attempt an UNDO of already-applied journal-authority commands beyond the state-machine's own definition (marker returns to legacy; journal rows are never deleted, per D10)"],
+      "dependsOnOwnerDecision": false,
+      "implementableNow": "after CO0"
+    },
+    {
+      "id": "CO3",
+      "title": "Two-process convergence + restart proof",
+      "behavior": "New e2e/qc spec, modeled on e2e/campaign-two-device-drive.spec.ts's process-spawning pattern (lines 41-106), that: (1) constructs a journal-authority marker directly against a real SQLite file (bypassing the production flag, as described in twoProcessProof), (2) spawns a second real `node server.js` process pointed at the SAME database file, (3) commits a command via POST /commands on process A, (4) reads via GET /api/campaigns/[id] on process B and asserts convergence, (5) kills and respawns one process mid-scenario (reusing scripts/e2e/relaunching-server.mjs's spawn/respawn shape) and re-asserts convergence + the no-fresh-log guarantee across the real OS-level restart.",
+      "redFirst": "The spec's first commit should assert convergence and restart with today's e2e/qc harness plumbing but WITHOUT the marker constructed (proving the current gap: two processes sharing one file diverge, or the second process cannot even see a journal stream) BEFORE wiring in the direct marker construction to make it pass -- follows this repo's write-the-failing-test-first rule at the harness level, not the production-code level, since CO0-CO2 are the production-code slices.",
+      "filesTouchedEstimate": ["one new e2e spec file (~200-300 lines)", "possibly a small shared test helper if journal-marker construction is duplicated across this spec and campaignAuthorityBlocked.test.ts"],
+      "maxFilesCheck": "1-2 files",
+      "gates": "typecheck; lint; format:check; the e2e/qc runner this repo uses for two-process specs (same lane as campaign-two-device-drive.spec.ts)",
+      "nonClaims": ["Does not flip CAMPAIGN_JOURNAL_AUTHORITY_ENABLED in production", "Does not address single-player identity (uses a co-op-seated campaign, same as the existing two-device spec's fixtures)", "Does not claim this proves REPLICA sync (a separate, already-proven mechanism per PR #1341) -- this proves same-file multi-process convergence for the AUTHORITY machinery specifically"],
+      "dependsOnOwnerDecision": false,
+      "implementableNow": "independent of CO0-CO2, though most useful after CO0 (so a rollback-under-convergence row can be added later without a second harness build)"
+    }
+  ],
+  "gates": {
+    "everySlice": "npm.cmd run typecheck; npm.cmd run lint; npm.cmd run format:check; focused jest for touched files",
+    "codeBearingSlices": "additionally npm.cmd run build (CO1/CO2 if they add API routes)",
+    "harnessSlice": "CO3 additionally requires whatever runner campaign-two-device-drive.spec.ts itself runs under (grepped but not independently re-verified in this brief; whoever picks up CO3 should confirm the exact npm script before writing the spec)"
+  },
+  "nonClaims": [
+    "This brief does not claim task 5.7's checkbox is wrong to be checked -- the machinery it names (states, transitions, marker persistence, the authority-mode resolver, the no-fallback guarantee) is genuinely built and genuinely tested at the unit and single-process-real-SQLite level.",
+    "This brief does not claim the shadow-parity gate or the rollback law are logically incorrect -- both pure-function implementations match D10's stated rules exactly, verified by reading every line.",
+    "This brief does not claim single-player campaigns are a defect in this node's own scope -- that gap belongs to the recorded 6.2b/OB-2 owner decision, cited here only because it explains why cutover activation is gated beyond this node's own deliverables.",
+    "This brief does not run any test, build, or lint command -- 'gates' above states what each slice must pass when a worker picks it up, not something this discovery session executed.",
+    "This brief does not modify roadmap.json, tasks.md, or any source file.",
+    "This brief does not claim completeness of the grep-based 'zero production callers' findings against every possible dynamic call (e.g. a string-keyed dispatch table) -- static grep across .ts/.tsx source is the verification method used, consistent with this node's read-only, no-build constraint; a worker implementing CO0/CO2 should re-confirm with the same or a stronger method before relying on the gap as justification."
+  ],
+  "openQuestions": [
+    "Where should the shadow-parity driver (CO1) and the rollback surface (CO2) live operationally -- a scheduled job, an admin-only HTTP route, or a CLI script? No existing admin/ops route convention was located in this discovery session's scope; whoever picks up CO1 should grep for an existing admin-route pattern (if any) before choosing.",
+    "Should CO3's two-process proof share a database file (true convergence) or exercise both same-file and cross-file (replica-style) scenarios in one spec, or stay narrowly scoped to same-file per this brief's recommendation? The existing campaign-two-device-drive.spec.ts already owns the cross-file replica case; duplicating it here would be redundant.",
+    "Is there an existing admission or design note (not found in this session's reads) that already decided the flag-flip review process ('reviewed flag') procedurally? This brief did not find one under openspec/ and treats it as undefined.",
+    "Given recordFirstJournalAuthorityCommand has been dead code since PR #1261 (task 5.2, well before 5.7's own PR #1337), should CO0 be treated as closing a task-5.2 regression rather than new task-5.7 scope? This brief files it under this node because task 5.7's own 'compatible rollback' clause is what surfaces the consequence, but the origin is earlier."
+  ]
+}

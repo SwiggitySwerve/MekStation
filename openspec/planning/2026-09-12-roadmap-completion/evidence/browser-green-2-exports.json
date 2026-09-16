@@ -1,0 +1,221 @@
+{
+  "at": "2026-09-12T13:25:06.457Z",
+  "exportRoot": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\exports\\browser-green-2",
+  "files": [
+    {
+      "path": "test-results\\.last-run.json",
+      "sha256": "bedad679f2d5aeadf893fcb39e32fdfcc942c36c4654d60dc21a6a157388645c",
+      "bytes": 96
+    },
+    {
+      "path": "test-results\\customizer-edit-recovery-s-71c90-e-selected-draft-customizer-chromium\\library-recovery-mobile.png",
+      "sha256": "961a61fb0c65c84ac499a9339eeb2f9e1d40b29a53a63bf9cc289b90b0b084be",
+      "bytes": 35262
+    },
+    {
+      "path": "test-results\\customizer-edit-recovery-u-4b397-independent-tabs-customizer-chromium\\edit-recovery-mobile.png",
+      "sha256": "403931f02757850327c38fc61e226a83f961c76674802976da95d3456c308a51",
+      "bytes": 47221
+    },
+    {
+      "path": "test-results\\customizer-equipment-catal-335ca-nrelated-filters-customizer-chromium\\electronics-desktop.png",
+      "sha256": "0104240ae2ef6b483e5073ebec1eff417321b19f3053375004f22b2632e03786",
+      "bytes": 77108
+    },
+    {
+      "path": "test-results\\customizer-equipment-catal-63444-sktop-and-mobile-customizer-chromium\\catalog-desktop.png",
+      "sha256": "490ddb2ed4562d9a267b145cdaa1ff014232f80b796c54d911c3fd08225dcd9e",
+      "bytes": 69250
+    },
+    {
+      "path": "test-results\\customizer-equipment-catal-63444-sktop-and-mobile-customizer-chromium\\catalog-mobile.png",
+      "sha256": "94b2d14e4e37a83d2bc230a005f0c600265cb7a34e15807332a6f92a3f2853e2",
+      "bytes": 43194
+    },
+    {
+      "path": "test-results\\customizer-equipment-catal-63444-sktop-and-mobile-customizer-chromium\\placement-mobile.png",
+      "sha256": "3f4e5947101567e73a16851016fd0157380063085bd76bca7ef28d327e31b1bf",
+      "bytes": 43480
+    },
+    {
+      "path": "test-results\\customizer-equipment-catal-f2690-sktop-and-mobile-customizer-chromium\\density-desktop-scrolled.png",
+      "sha256": "a27e89cbda01b82e0d54510df3eb1ac77443d1573e5ddc9fd682610765c9ef28",
+      "bytes": 92027
+    },
+    {
+      "path": "test-results\\customizer-equipment-catal-f2690-sktop-and-mobile-customizer-chromium\\density-desktop-sidebar.png",
+      "sha256": "3c01d1bfe50ac55dbf24ff2300a42afa4ab326851d865ba844381357027c1491",
+      "bytes": 87873
+    },
+    {
+      "path": "test-results\\customizer-equipment-catal-f2690-sktop-and-mobile-customizer-chromium\\density-desktop-wide.png",
+      "sha256": "442d90f8343fc386454cc84f90c7836bed901a66ecf6e49f440beef7bbcad68c",
+      "bytes": 68321
+    },
+    {
+      "path": "test-results\\customizer-equipment-catal-f2690-sktop-and-mobile-customizer-chromium\\density-mobile.png",
+      "sha256": "918ba9d39f3dc394a4a39597b64bcef2350fe4de0041b8b0d399306e3240d2e0",
+      "bytes": 57652
+    },
+    {
+      "path": "test-results\\customizer-record-sheet-re-02aca-o-a-one-page-PDF-customizer-chromium\\atlas-a4-page-box.pdf",
+      "sha256": "f78abd0cbdb3b812af703f8e2fabd86b1ab2da3df792246887c92448bc940503",
+      "bytes": 1115745
+    },
+    {
+      "path": "test-results\\customizer-record-sheet-re-02aca-o-a-one-page-PDF-customizer-chromium\\atlas-letter-after-retry.pdf",
+      "sha256": "612a7db495dba4b981e0777ec4af25ebceab8e0d70511f2a7130548871f2cb4c",
+      "bytes": 1111822
+    },
+    {
+      "path": "test-results\\customizer-record-sheet-re-29763-e-selected-paper-customizer-chromium\\error-context.md",
+      "sha256": "884b282aed3ab244054bd73f3d985c5819043f4382f3b1d9515a8cb7c312d3c4",
+      "bytes": 12525
+    },
+    {
+      "path": "test-results\\customizer-record-sheet-re-29763-e-selected-paper-customizer-chromium\\test-failed-1.png",
+      "sha256": "783f653444d4199c70073697abb552292d1998c7e4f74e63d182215e38b21145",
+      "bytes": 174915
+    },
+    {
+      "path": "test-results\\customizer-record-sheet-re-29763-e-selected-paper-customizer-chromium\\test-failed-2.png",
+      "sha256": "27abb4affaed83ae85739b62b71e5e860d2e6ee7b4fa91c915f5a3c26227b944",
+      "bytes": 4253
+    },
+    {
+      "path": "test-results\\customizer-record-sheet-re-29763-e-selected-paper-customizer-chromium\\trace.zip",
+      "sha256": "a775ef61451d6f79cdb3c182afe0f6eed3035c547daf239b0a17de1ddfe6bc4f",
+      "bytes": 3254837
+    },
+    {
+      "path": "test-results\\customizer-record-sheet-re-69880-metry-and-export-customizer-chromium\\infantry-a4.pdf",
+      "sha256": "1e4598a454400bbbd1a340b13f00aed0cffaaa937e7c81ff89aff30573c3d8b0",
+      "bytes": 224093
+    },
+    {
+      "path": "test-results\\customizer-record-sheet-re-de5ee-tter-and-A4-PDFs-customizer-chromium\\atlas-a4.pdf",
+      "sha256": "f12c1909261fa8d20fbee118e1b209eb28386d83bb0302190583269c0cd23d91",
+      "bytes": 1115745
+    },
+    {
+      "path": "test-results\\customizer-record-sheet-re-de5ee-tter-and-A4-PDFs-customizer-chromium\\atlas-letter-after-switch.pdf",
+      "sha256": "654c50e8ce7b8e47c37125b48da67f20b6e396eeb469e03d90aad6b79f2c6afc",
+      "bytes": 1111822
+    },
+    {
+      "path": "test-results\\customizer-record-sheet-re-de5ee-tter-and-A4-PDFs-customizer-chromium\\atlas-letter.pdf",
+      "sha256": "a6efb25a814171722fd2587f17c6958d0194969252a3afe29e3672c2daf369fd",
+      "bytes": 1111822
+    },
+    {
+      "path": "test-results\\customizer-record-sheet-re-de5ee-tter-and-A4-PDFs-customizer-chromium\\locust-letter.pdf",
+      "sha256": "27e643544524efd6ed6cfd5b931d5dcb3ef0123a70d25ea32378bb415f11ace2",
+      "bytes": 931365
+    },
+    {
+      "path": "playwright-report\\data\\26779366f0171fc261d631ab45e6ee9dc8c78fce.zip",
+      "sha256": "a775ef61451d6f79cdb3c182afe0f6eed3035c547daf239b0a17de1ddfe6bc4f",
+      "bytes": 3254837
+    },
+    {
+      "path": "playwright-report\\data\\7a33d5db6370b6de345e990751aa1f1da65ad675.png",
+      "sha256": "27abb4affaed83ae85739b62b71e5e860d2e6ee7b4fa91c915f5a3c26227b944",
+      "bytes": 4253
+    },
+    {
+      "path": "playwright-report\\data\\877569d0dada9bdfb9e08476927e67cd20eac7f4.png",
+      "sha256": "783f653444d4199c70073697abb552292d1998c7e4f74e63d182215e38b21145",
+      "bytes": 174915
+    },
+    {
+      "path": "playwright-report\\data\\f1f9a90591bcb724eb82a0fd905119aebf75c598.md",
+      "sha256": "884b282aed3ab244054bd73f3d985c5819043f4382f3b1d9515a8cb7c312d3c4",
+      "bytes": 12525
+    },
+    {
+      "path": "playwright-report\\index.html",
+      "sha256": "df692fec4b03de861bd25a977e4485add7ea537f24e56888bf0a1af34232bf03",
+      "bytes": 602779
+    },
+    {
+      "path": "playwright-report\\trace\\assets\\codeMirrorModule-Bucv2d7q.js",
+      "sha256": "ba645c56235b9be917fe2f053ed2809d22854094d162661372930a1206115581",
+      "bytes": 298247
+    },
+    {
+      "path": "playwright-report\\trace\\assets\\defaultSettingsView-BEpdCv1S.js",
+      "sha256": "edd9c8780cd94561621487661505fa8d184fbc2b2ced5ec178006af19bab2f97",
+      "bytes": 631564
+    },
+    {
+      "path": "playwright-report\\trace\\codeMirrorModule.C3UTv-Ge.css",
+      "sha256": "eb0b48397129ddd6af23cae979051d4ef010a0dcfb8d46c2dbf289c90b76c6da",
+      "bytes": 6012
+    },
+    {
+      "path": "playwright-report\\trace\\codicon.DCmgc-ay.ttf",
+      "sha256": "0f1d5219934e96e83b8db162d60b4d8c09b5de1e7d38031cbafe4a3c0f2889c9",
+      "bytes": 80340
+    },
+    {
+      "path": "playwright-report\\trace\\defaultSettingsView.ConWv5KN.css",
+      "sha256": "96d45d390bf81dda8b648e47dcb2aff2f815376e3710c798a446c11f3664a865",
+      "bytes": 110037
+    },
+    {
+      "path": "playwright-report\\trace\\index.BxQ34UMZ.js",
+      "sha256": "d001af7fd4bf3b8520f37456211a498e655257d6c6fa6a612934fabac6342cbc",
+      "bytes": 6160
+    },
+    {
+      "path": "playwright-report\\trace\\index.C4Y3Aw8n.css",
+      "sha256": "307bff88f8fc7ab823d1c2a77d57359863bd740ab1dc61bff5f133cd56424bb3",
+      "bytes": 1872
+    },
+    {
+      "path": "playwright-report\\trace\\index.html",
+      "sha256": "caaa9965a34f3dd51d1d8251bc08fcfad2c2cd16c0ef21b00d5512c170c3eb2b",
+      "bytes": 2283
+    },
+    {
+      "path": "playwright-report\\trace\\manifest.webmanifest",
+      "sha256": "d8540500603a32a39fe7e5a0375dc0f9ebafd11118e06a846db7efc608223ab9",
+      "bytes": 429
+    },
+    {
+      "path": "playwright-report\\trace\\playwright-logo.svg",
+      "sha256": "6b0a4367bdeab10995bc239278f04c68c10e48adbec15e799e01909a0d66dcb9",
+      "bytes": 5033
+    },
+    {
+      "path": "playwright-report\\trace\\snapshot.html",
+      "sha256": "e192546675329f804bb9d4afbd96f7a1368e53cc42a05f0cc4a57949df7bc245",
+      "bytes": 935
+    },
+    {
+      "path": "playwright-report\\trace\\sw.bundle.js",
+      "sha256": "de39a53b34100a5bbb01f35ce5970ffd3e2dafaa727f9536c8c92c2f563185ab",
+      "bytes": 95223
+    },
+    {
+      "path": "playwright-report\\trace\\uiMode.Btcz36p_.css",
+      "sha256": "bfe8330cc78eeb1b1c4d8983aab7068d725526e407903ee19e515996250cb221",
+      "bytes": 60239
+    },
+    {
+      "path": "playwright-report\\trace\\uiMode.BWTwXl41.js",
+      "sha256": "af19fd578c2678972e847a36c819fb1eb0b4cddcc813e5de2c7013d6287b717f",
+      "bytes": 36196
+    },
+    {
+      "path": "playwright-report\\trace\\uiMode.html",
+      "sha256": "171b232842c96ee525fd4a2a99073f7a8bbb6658d44c96eab1d02c055efef622",
+      "bytes": 647
+    },
+    {
+      "path": "playwright-report\\trace\\xtermModule.DYP7pi_n.css",
+      "sha256": "7c5a01f382f76539fc9b4db6b18e18a7035741845fd14968c5cdc0a7e373d817",
+      "bytes": 4150
+    }
+  ]
+}

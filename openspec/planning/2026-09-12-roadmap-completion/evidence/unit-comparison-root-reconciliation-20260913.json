@@ -1,0 +1,17 @@
+{
+  "at": "2026-09-13T03:34:14.969Z",
+  "status": "reconciled",
+  "main": "57098180595b62d68cb57b4224b724cfb82a9244",
+  "files": [
+    {
+      "path": "openspec/specs/unit-comparison/spec.md",
+      "before": "a57e0a86135ee6c5dcd2604d5f7d679ddd9d4a145edc39ad0fdb8cf44768306e",
+      "after": "9d95014c819338fbd876b9d4688fedc9ee15dbacbfb8e2e36039df7f4e8971c1"
+    }
+  ],
+  "indexBefore": "a65b683940b6449651a074132f39d8b8da156ef5620af6aa1b62eb7c8698b953",
+  "indexAfter": "a65b683940b6449651a074132f39d8b8da156ef5620af6aa1b62eb7c8698b953",
+  "otherDirtyFilesVerified": 521,
+  "preflight": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/unit-comparison-root-reconciliation-20260913/preflight.json",
+  "limit": "Only one accepted proposal file replaced; root remains dirty on its original main checkout"
+}

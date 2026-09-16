@@ -1,0 +1,12 @@
+{
+  "at": "2026-09-13T08:17:33.893Z",
+  "action": "Push equipment archive commit and open PR",
+  "commit": "0f26b709f33ecb5513058844e8077d61b5a2a3ed",
+  "destination": "https://github.com/SwiggitySwerve/MekStation",
+  "branch": "codex/roadmap-archive-equipment-20260913",
+  "result": "automatic-approval-review-rejected-before-execution",
+  "reason": "External GitHub source/spec egress; exact payload authorization not clear to reviewer.",
+  "question": "Exact commit/destination/branch/body-hash approval asked; unanswered.",
+  "publicationPerformed": false,
+  "retryAllowed": false
+}

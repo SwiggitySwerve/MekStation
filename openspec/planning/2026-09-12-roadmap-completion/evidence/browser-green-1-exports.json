@@ -1,0 +1,101 @@
+{
+  "at": "2026-09-12T13:22:14.791Z",
+  "exportRoot": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\exports\\browser-green-1",
+  "files": [
+    {
+      "path": "test-results\\.last-run.json",
+      "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903",
+      "bytes": 45
+    },
+    {
+      "path": "test-results\\customizer-edit-recovery-s-71c90-e-selected-draft-customizer-chromium\\library-recovery-mobile.png",
+      "sha256": "ba1e09fe3cae1006204fd1729654c43410772a043c7cbd67c98c82fc0b57c979",
+      "bytes": 35259
+    },
+    {
+      "path": "test-results\\customizer-edit-recovery-u-4b397-independent-tabs-customizer-chromium\\edit-recovery-mobile.png",
+      "sha256": "772aa6797de9a4e6e29a83f417b679107adfd9daf8899a834ff12a1f26ef8b4e",
+      "bytes": 47235
+    },
+    {
+      "path": "test-results\\customizer-equipment-catal-335ca-nrelated-filters-customizer-chromium\\electronics-desktop.png",
+      "sha256": "0104240ae2ef6b483e5073ebec1eff417321b19f3053375004f22b2632e03786",
+      "bytes": 77108
+    },
+    {
+      "path": "test-results\\customizer-equipment-catal-63444-sktop-and-mobile-customizer-chromium\\catalog-desktop.png",
+      "sha256": "490ddb2ed4562d9a267b145cdaa1ff014232f80b796c54d911c3fd08225dcd9e",
+      "bytes": 69250
+    },
+    {
+      "path": "test-results\\customizer-equipment-catal-63444-sktop-and-mobile-customizer-chromium\\catalog-mobile.png",
+      "sha256": "0d8685340d43a0193cf855a746ddee1051f2a9af7244fc6c69b80c68acc58632",
+      "bytes": 42827
+    },
+    {
+      "path": "test-results\\customizer-equipment-catal-63444-sktop-and-mobile-customizer-chromium\\placement-mobile.png",
+      "sha256": "3f4e5947101567e73a16851016fd0157380063085bd76bca7ef28d327e31b1bf",
+      "bytes": 43480
+    },
+    {
+      "path": "test-results\\customizer-equipment-catal-f2690-sktop-and-mobile-customizer-chromium\\density-desktop-scrolled.png",
+      "sha256": "a27e89cbda01b82e0d54510df3eb1ac77443d1573e5ddc9fd682610765c9ef28",
+      "bytes": 92027
+    },
+    {
+      "path": "test-results\\customizer-equipment-catal-f2690-sktop-and-mobile-customizer-chromium\\density-desktop-sidebar.png",
+      "sha256": "3c01d1bfe50ac55dbf24ff2300a42afa4ab326851d865ba844381357027c1491",
+      "bytes": 87873
+    },
+    {
+      "path": "test-results\\customizer-equipment-catal-f2690-sktop-and-mobile-customizer-chromium\\density-desktop-wide.png",
+      "sha256": "442d90f8343fc386454cc84f90c7836bed901a66ecf6e49f440beef7bbcad68c",
+      "bytes": 68321
+    },
+    {
+      "path": "test-results\\customizer-equipment-catal-f2690-sktop-and-mobile-customizer-chromium\\density-mobile.png",
+      "sha256": "918ba9d39f3dc394a4a39597b64bcef2350fe4de0041b8b0d399306e3240d2e0",
+      "bytes": 57652
+    },
+    {
+      "path": "test-results\\customizer-record-sheet-re-02aca-o-a-one-page-PDF-customizer-chromium\\atlas-a4-page-box.pdf",
+      "sha256": "745cbd1c3a5c0ae8eb5bdc85f40a1042ab343bd42db5bae097334e7ad503c48a",
+      "bytes": 1115745
+    },
+    {
+      "path": "test-results\\customizer-record-sheet-re-02aca-o-a-one-page-PDF-customizer-chromium\\atlas-letter-after-retry.pdf",
+      "sha256": "59bc5695a4fefa9d2c52b569f2ba45fb5e4ad423f5f29c33c5ecbc513d0a297b",
+      "bytes": 1111822
+    },
+    {
+      "path": "test-results\\customizer-record-sheet-re-69880-metry-and-export-customizer-chromium\\infantry-a4.pdf",
+      "sha256": "9ec530aad69bcc7d5a03ceb4648be4fc342a06227fcf5c832abc6079bd3a0099",
+      "bytes": 222224
+    },
+    {
+      "path": "test-results\\customizer-record-sheet-re-de5ee-tter-and-A4-PDFs-customizer-chromium\\atlas-a4.pdf",
+      "sha256": "a9fa5c66813c1126e05cd5c4986a3208ae17a57867674e4ef1840ad99d414e4b",
+      "bytes": 1115745
+    },
+    {
+      "path": "test-results\\customizer-record-sheet-re-de5ee-tter-and-A4-PDFs-customizer-chromium\\atlas-letter-after-switch.pdf",
+      "sha256": "f0a93d2799389efcf0e88b00eb9e9407956f1a714152b206265b7f9759f05703",
+      "bytes": 1111822
+    },
+    {
+      "path": "test-results\\customizer-record-sheet-re-de5ee-tter-and-A4-PDFs-customizer-chromium\\atlas-letter.pdf",
+      "sha256": "2993596db79aaaab35c4699a8403aa4913f73ab35eaf297681fcd7de0d6d75b8",
+      "bytes": 1111822
+    },
+    {
+      "path": "test-results\\customizer-record-sheet-re-de5ee-tter-and-A4-PDFs-customizer-chromium\\locust-letter.pdf",
+      "sha256": "bfc9c83aeafdfbd60a41455919192773be8ef755eddc88fb2189bb4ccef855a7",
+      "bytes": 931365
+    },
+    {
+      "path": "playwright-report\\index.html",
+      "sha256": "e9f47116ebdb87774ce5ee7d3d669f5f210cf8fdc476d95297e4ef8219fb9c25",
+      "bytes": 602795
+    }
+  ]
+}

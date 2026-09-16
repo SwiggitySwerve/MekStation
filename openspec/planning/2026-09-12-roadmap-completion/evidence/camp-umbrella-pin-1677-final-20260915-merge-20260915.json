@@ -1,0 +1,74 @@
+{
+  "pr": 1677,
+  "branch": "codex/roadmap-camp-umbrella-pin-20260915",
+  "reviewedCommit": "f81a154e5f4abead13a66e0e2ec218b793deaf61",
+  "finalHead": "83812d156253964f81e7c645725da4b6589dcda0",
+  "anomaly": null,
+  "autoMergeArmed": false,
+  "stackedOn": "PR 1676 (codex/roadmap-camp-qc-registry-20260915)",
+  "contentGuard": {
+    "preUpdate": {
+      "fileSetVsMain": [
+        "docs/qc/mekstation-qc-registry.json",
+        "package.json",
+        "scripts/__tests__/run-viewport-sweep.test.ts"
+      ],
+      "diffstat": "3 files changed, 21 insertions(+), 5 deletions(-)",
+      "note": "EXPECTED 3-file diff: the PR was stacked on 1676, so before update-branch its diff vs main still carried 1676's docs/qc/mekstation-qc-registry.json change. Not a discrepancy.",
+      "result": "PASS (as-expected stacked state)"
+    },
+    "postUpdate": {
+      "fileSetVsMain": ["package.json", "scripts/__tests__/run-viewport-sweep.test.ts"],
+      "diffstat": "2 files changed, 17 insertions(+), 1 deletion(-)",
+      "collapsedCorrectly": true,
+      "note": "after update-branch the 1676 file dropped out of the diff, leaving exactly this PR's own two files as required",
+      "blobEquality": {
+        "package.json": "equal to f81a154e5",
+        "scripts/__tests__/run-viewport-sweep.test.ts": "equal to f81a154e5"
+      },
+      "result": "PASS"
+    }
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "oldHead": "f81a154e5f4abead13a66e0e2ec218b793deaf61",
+    "newHead": "83812d156253964f81e7c645725da4b6589dcda0",
+    "expectedHeadShaGuard": "f81a154e5f4abead13a66e0e2ec218b793deaf61",
+    "reason": "branch was BEHIND after #1676 merged to main; update also collapsed the stacked diff"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "otherChecksCount": 26,
+    "otherChecksBuckets": { "pass": 26 },
+    "totalChecks": 30,
+    "pollLog": "07:16:04 2 pending -> 07:22:29 30 pass/0 pending"
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/camp-umbrella-pin-1677-final-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "2d410f3ca4d7153497c94ee2944618ee735e99af",
+  "mergeCommitParents": ["0df5ed2bfb53e7bf8e42f601179f50c367f65725"],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1677 --squash --match-head-commit 83812d156253964f81e7c645725da4b6589dcda0",
+  "mergedAt": "2026-09-15T07:22:49Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "The merge commit changes exactly package.json and scripts/__tests__/run-viewport-sweep.test.ts, blob-identical to the gated final head 83812d156.",
+  "mainAfter": "2d410f3ca4d7153497c94ee2944618ee735e99af",
+  "worktree": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/camp-receipt-verification",
+    "fastForward": "NOT PERFORMED - per coordinator instruction, another lane is using this worktree on a different branch",
+    "observedBranchAtCheck": "codex/roadmap-camp-live-probe-fix-20260915",
+    "result": "SKIPPED (intentional)"
+  },
+  "timestamps": {
+    "guardStartedAt": "2026-09-15T07:15:20Z",
+    "checksTerminalAt": "2026-09-15T07:22:29Z",
+    "mergedAt": "2026-09-15T07:22:49Z",
+    "receiptWrittenAt": "2026-09-15T07:24:30Z"
+  }
+}

@@ -1,0 +1,110 @@
+{
+  "date": "2026-09-15",
+  "sourceOfFindings": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-receipts-revalidation-20260915.json",
+    ".sisyphus/roadmap-completion-20260912/r2-receipts-revalidation-20260915/REPORT.md (sections C2 and C3)"
+  ],
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/camp-receipt-verification",
+  "baseSha": "4cf52fe731e1adb4fb43050d882a485f34f67398",
+  "baseShaSubject": "test(history): use canonical genesis roots in fixtures (#1671)",
+  "node": "v22.22.0 (via /c/Users/wroll/AppData/Local/nvm/v22.22.0)",
+  "npm": "11.6.2",
+  "sliceC2": {
+    "branch": "codex/roadmap-camp-qc-registry-20260915",
+    "baseBranch": "origin/main",
+    "commit": "5c764fc8f15b8b48b9395ec2e5e8021262d00499",
+    "commitSubject": "fix(qc): repoint multiplayer-coop-sync registry references to archived change",
+    "filesChanged": [
+      { "path": "docs/qc/mekstation-qc-registry.json", "insertions": 4, "deletions": 4 }
+    ],
+    "shortstat": "1 file changed, 4 insertions(+), 4 deletions(-)",
+    "rootCause": "multiplayer-coop-sync surface's specRefs[1..3] and activeChangeRefs[0] pointed at openspec/changes/prove-live-coop-campaign-journey/..., which was archived to openspec/changes/archive/2026-07-07-prove-live-coop-campaign-journey/. Its spec deltas already live in the canonical openspec/specs/{coop-campaign-sync,e2e-testing,multiplayer-server}/spec.md (verified present on disk), matching the pattern of the other 26 surfaces which all carry an empty activeChangeRefs.",
+    "fix": "Repointed specRefs[1..3] from the archived change path to the canonical openspec/specs/ paths and cleared activeChangeRefs to [].",
+    "verification": {
+      "command": "npm run qc:validate",
+      "red": {
+        "exitCode": 1,
+        "summaryLine": "QC registry: 27 surfaces, 4 errors, 0 warnings.",
+        "logPath": ".sisyphus/roadmap-completion-20260912/camp-hygiene-20260915/c2-red-qc-validate.log",
+        "sha256": "f5519d4b6c3ab458cc8e3e378f7ba3cddff211f0379685b0a354ffbd3b8a085c"
+      },
+      "green": {
+        "exitCode": 0,
+        "summaryLine": "QC registry: 27 surfaces, 0 errors, 0 warnings.",
+        "logPath": ".sisyphus/roadmap-completion-20260912/camp-hygiene-20260915/c2-green-qc-validate.log",
+        "sha256": "923f2251751f054a7d833cc1669e2fde2f741459d06ccc04e60b4bf292dd207f"
+      }
+    },
+    "formatCheck": {
+      "command": "npx oxfmt --check docs/qc/mekstation-qc-registry.json package.json",
+      "exitCode": 0,
+      "logPath": ".sisyphus/roadmap-completion-20260912/camp-hygiene-20260915/c3-oxfmt.log",
+      "sha256": "d42da72833d41d7b8b52c9eff92bcc5082981d1d079fdd1c19f4e5e272417c28",
+      "note": "run combined with slice C3's files in one pass; both were clean"
+    }
+  },
+  "sliceC3": {
+    "branch": "codex/roadmap-camp-umbrella-pin-20260915",
+    "baseBranch": "codex/roadmap-camp-qc-registry-20260915",
+    "stackedOn": "5c764fc8f15b8b48b9395ec2e5e8021262d00499",
+    "commit": "f81a154e5f4abead13a66e0e2ec218b793deaf61",
+    "commitSubject": "test(qc): pin the three drifted camp01 suites into the umbrella",
+    "filesChanged": [
+      { "path": "package.json", "insertions": 1, "deletions": 1 },
+      { "path": "scripts/__tests__/run-viewport-sweep.test.ts", "insertions": 16, "deletions": 0 }
+    ],
+    "shortstat": "2 files changed, 17 insertions(+), 1 deletion(-)",
+    "rootCause": "The camp01TestFiles pin in scripts/__tests__/run-viewport-sweep.test.ts (array ~155-176, asserted against package.json's qc:camp01-authority-receipt:test script string ~386-388) only proved literal-string equality between the array and the script. It never asserted the array covered every tracked camp01-*.test.ts suite on disk, so suites could drift outside the umbrella silently. Three had: camp01-capture-policy-aggregation.test.ts, camp01-live-signal.test.ts, camp01-live-status-report.test.ts (21 tests, all green when run separately per the source evidence).",
+    "fix": "Added a new jest assertion comparing the camp01- prefixed subset of camp01TestFiles against the sorted glob of scripts/__tests__/camp01-*.test.ts on disk (reproduced red first), then added the three missing entries to camp01TestFiles and to the matching qc:camp01-authority-receipt:test script string in package.json (green).",
+    "verification": {
+      "targetedTest": {
+        "command": "node node_modules/jest/bin/jest.js scripts/__tests__/run-viewport-sweep.test.ts --runInBand",
+        "red": {
+          "exitCode": 1,
+          "summary": "1 failed, 11 passed, 12 total -- new completeness assertion failed listing the 3 missing camp01-* suites",
+          "logPath": ".sisyphus/roadmap-completion-20260912/camp-hygiene-20260915/c3-red-jest.log",
+          "sha256": "e2c3948c0a1df4f12641f0025044ab0f5f6257e6c6acb44e0afcd8dd3b9ac981"
+        },
+        "green": {
+          "exitCode": 0,
+          "summary": "12 passed, 12 total",
+          "logPath": ".sisyphus/roadmap-completion-20260912/camp-hygiene-20260915/c3-green-jest.log",
+          "sha256": "8fcc31ff4ae811e39c116ff08173a7aeae0d95e88aa8b2e44b7c1caac7e7e688"
+        }
+      },
+      "umbrella": {
+        "command": "npm run qc:camp01-authority-receipt:test",
+        "before": {
+          "source": "r2-receipts-revalidation-20260915.json (prior session, same acceptance command)",
+          "suites": "25 passed / 0 failed / 25 total",
+          "tests": "731 passed / 10 skipped / 741 total"
+        },
+        "after": {
+          "exitCode": 0,
+          "suites": "28 passed / 0 failed / 28 total",
+          "tests": "753 passed / 10 skipped / 763 total",
+          "durationSeconds": 269.191,
+          "logPath": ".sisyphus/roadmap-completion-20260912/camp-hygiene-20260915/c3-umbrella-after.log",
+          "sha256": "bfebb5ccb3396f85073726dd66da1a311713b980f62cae50beeb45285e306f40"
+        }
+      },
+      "formatCheck": {
+        "command": "npx oxfmt --check scripts/__tests__/run-viewport-sweep.test.ts package.json",
+        "exitCode": 0,
+        "logPath": ".sisyphus/roadmap-completion-20260912/camp-hygiene-20260915/c3-oxfmt.log",
+        "sha256": "d42da72833d41d7b8b52c9eff92bcc5082981d1d079fdd1c19f4e5e272417c28"
+      },
+      "lint": {
+        "command": "npx oxlint scripts/__tests__/run-viewport-sweep.test.ts package.json",
+        "exitCode": 0,
+        "logPath": ".sisyphus/roadmap-completion-20260912/camp-hygiene-20260915/c3-oxlint.log",
+        "sha256": "ba5e4f1fbd4dd3959e58c39f6ef2124ff2329aef86571fa8d9224ce16645ab65",
+        "note": "Task asked for `npx eslint`, but the repo has no eslint.config.* (npx eslint errors with 'ESLint couldn't find an eslint.config file'). The project's actual lint tool is oxlint (package.json `lint` script). Ran that instead; both target files are excluded from oxlint's scope by .oxlintrc.json ignorePatterns (`**/scripts/**`, `**/__tests__/**`), so it reports 0 files / 0 errors by the repo's own lint scoping, not because the check was skipped."
+      }
+    }
+  },
+  "worktreeStateAfter": "clean, on branch codex/roadmap-camp-umbrella-pin-20260915, HEAD at f81a154e5",
+  "unverifiable": [
+    "Whether origin/main's post-4cf52fe73 advance (to 4cf52fe73 being the fetched tip at the time this work started; the repo moved further during this session per environment reminders) affects these two files -- diffed base..origin/main for the touched files at branch-creation time and found no overlap, so both commits apply cleanly on top of the base used."
+  ]
+}

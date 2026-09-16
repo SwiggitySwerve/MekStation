@@ -1,0 +1,22 @@
+{
+  "at": "2026-09-13T03:08:46.490Z",
+  "status": "reconciled",
+  "main": "4ee8989f4909505319c6c916d4fbcbadf86ec782",
+  "files": [
+    {
+      "path": "openspec/specs/compendium-browser/spec.md",
+      "before": "547228e009cddcc14cfe8348e7f3626395e5d3dbd04ccc78fffb52a39ea4a0d3",
+      "after": "ab2a14a28db8a0c50133698944706617d7d3aa43c78eda1945d65a55fd4936e6"
+    },
+    {
+      "path": "openspec/specs/equipment-browser/spec.md",
+      "before": "6afa047791ac2c2c3afd90c6b51ac99602ca284f97ef5391f8578ceec82888dd",
+      "after": "4b068743a38023768ecd668519d519edba229d9db821ada744582807e1da2137"
+    }
+  ],
+  "indexBefore": "a65b683940b6449651a074132f39d8b8da156ef5620af6aa1b62eb7c8698b953",
+  "indexAfter": "a65b683940b6449651a074132f39d8b8da156ef5620af6aa1b62eb7c8698b953",
+  "otherDirtyFilesVerified": 510,
+  "preflight": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/catalog-browser-root-reconciliation-20260913/preflight.json",
+  "limit": "Only two accepted proposal files replaced; root remains dirty on its original main checkout"
+}

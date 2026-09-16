@@ -1,0 +1,18 @@
+{
+  "at": "2026-09-12T20:44:40.905Z",
+  "supersedesCountingOnly": "evidence/vault-contracts-independent-review-20260912.json",
+  "originalReceiptSha256": "a9edc682361f3fdd6dd6476e2281fb5d83e73641d79bbc02d59993ccddcd0902",
+  "candidateBase": "ca0687d25264033376862347e494ddf15cd92bec",
+  "deliveryDiff": {
+    "added": 26,
+    "deleted": 26,
+    "total": 52,
+    "numstat": "12\t12\topenspec/changes/design-vault-campaign-separation-and-maps/design.md\n9\t9\topenspec/changes/design-vault-campaign-separation-and-maps/proposal.md\n5\t5\topenspec/changes/design-vault-campaign-separation-and-maps/tasks.md\n"
+  },
+  "rootProposalToCandidate": {
+    "added": 14,
+    "deleted": 14,
+    "total": 28
+  },
+  "correction": "The review measured root proposal to retained candidate, whereas delivery counts compare candidate HEAD to retained candidate. The 52-line lane figure excludes report.md and is correct for delivery. Source hashes match; content findings remain valid."
+}

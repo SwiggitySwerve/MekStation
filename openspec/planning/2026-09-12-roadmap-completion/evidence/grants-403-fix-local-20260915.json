@@ -1,0 +1,219 @@
+{
+  "schema": "grants-403-fix-local/v1",
+  "runAt": "2026-09-15",
+  "lane": "grants-403-fix (GP-JUSTIFIED: bounded product fix for a probe-proved defect with a red-first unit test and one frozen-journey re-run; no sub-agents, no push, no PR, no spec/contract/frozen-file edits, no --prod-evidence)",
+  "task": "Apply the minimalCorrectFix from evidence/grants-403-journey-diagnosis-20260915.json: stop a co-op GUEST browser issuing GET /api/campaigns/<id>/grants, which the server correctly refuses `not-campaign-gm` and Chromium logs as a console error that the frozen co-op UI audit sweep flags.",
+
+  "environment": {
+    "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/proof02-rerun",
+    "node": "v22.22.0 (PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0)",
+    "port": "3639 only; confirmed 0 listeners via Get-NetTCPConnection immediately before the journey run. Port 3600 never used, never kill-ported.",
+    "twoCoreBudget": "A Win32_Process node.exe scan found `next build --webpack` active in sibling worktrees archive-edit-recovery-20260915 / r2-prepared-journal-api / archive-original-main-proof. This lane WAITED and re-scanned to COUNT=0 before starting its own E2E build. No process was killed.",
+    "detachedBranchLeftAlone": "codex/roadmap-camp-proof-exact-main-a11ef14f-20260915 (untouched; no checkout, no commit, no delete). The worktree left detached HEAD 83887b746 by creating a NEW branch off origin/main, as instructed.",
+    "workingTreeCleanAfter": true,
+    "workingTreeCleanVerifiedBy": "`git status --porcelain` empty after the commit and again after the journey run."
+  },
+
+  "branch": {
+    "name": "codex/roadmap-guest-share-panel-grants-20260915",
+    "base": "293d21bb0e3874768f3b0269115d465313230f4d",
+    "baseSubject": "test(combat): pin the restart divergence refusal and the create-path gap (#1705)",
+    "baseRecordedBy": "`git fetch origin && git rev-parse origin/main` in this session",
+    "baseNote": "origin/main (293d21bb0) is NOT an ancestor of the worktree's prior detached HEAD 83887b746 (#1710) - the two lanes diverged. VERIFIED IN SESSION that this does not affect the defect: `git diff --stat 293d21bb0 83887b746 -- src/components/campaign/share/ src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.tsx e2e/coop-campaign-ui-audit.spec.ts` is EMPTY, so all three files the diagnosis cites are byte-identical at both commits and the defect was present at this base. The diagnosis's BUILD_ID 1789477978135 belongs to the 83887b746 tree and was therefore NOT reused; this lane rebuilt.",
+    "pushed": false,
+    "prOpened": false
+  },
+
+  "commit": {
+    "sha": "164d18a5ca97b4b2d3719acfe35d35f9de22fcbe",
+    "subject": "fix(campaign): stop a co-op guest asking for the GM share grants it cannot list",
+    "author": "Wes Rollings <wrollings@gmail.com>",
+    "committer": "Wes Rollings <wrollings@gmail.com>",
+    "aiAttribution": "NONE - no Co-Authored-By, no generated-with trailer",
+    "hooks": "ON. The husky pre-commit gate ran `npx lint-staged` and, because .tsx files were staged, the full `npm run build` (.next/BUILD_ID advanced to 1789480684818 during the commit, which is how the build is known to have run). No --no-verify.",
+    "shortstat": "3 files changed, 171 insertions(+), 10 deletions(-)",
+    "capCheck": "3 files / 181 changed lines - within the 15-file / 500-line caps."
+  },
+
+  "files": [
+    {
+      "path": "src/components/campaign/share/CampaignSharePanelConnected.tsx",
+      "numstat": "+29 -9",
+      "sha256After": "7e2cd143c9ed39721ffc50bdc003f3f53322e0fb515d062822da84a71a325a69",
+      "what": [
+        "Added prop `coopMode?: CoopSessionMode | null` (imported from @/types/campaign/CoopSession) - this browser's LOCAL role in the co-op session, as distinct from the stored authority, which describes the CAMPAIGN and reads identically in every browser a shared server serves.",
+        "Narrowed the fetch precondition: `const mayListGrants = isSource && coopMode !== 'guest'`, and `load` now gates on `mayListGrants` instead of `isSource` (dependency array updated to match).",
+        "Corrected the stale module header (the old text described only the replica case and predated the caller gate #1521 added) and the stale fetchGrants doc comment.",
+        "Absent coopMode defaults to null, so single-player and every non-co-op mount keep the previous behaviour exactly."
+      ]
+    },
+    {
+      "path": "src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.tsx",
+      "numstat": "+6 -1",
+      "sha256After": "f07894f83e470dec61235064793cd0010fa2a5f98610a8b242bc36a9d994f006",
+      "what": "Passes `coopMode={campaign.coopSession?.mode}` alongside the matchId the mount already passed, plus the comment explaining why the authority alone cannot tell the two browsers apart. No other change to the dashboard."
+    },
+    {
+      "path": "src/components/campaign/share/__tests__/CampaignSharePanelConnected.test.tsx",
+      "numstat": "+136 -0",
+      "sha256After": "8e5a5aa859665ec3bcde285047b729b54540c1f56b65b9ed9842258b9e5390f9",
+      "what": "NEW test file (sibling of the existing CampaignSharePanel.test.tsx). Four rows: the red-first guest row, plus three pins - host-mode source still fetches (and at the exact URL), single-player source still fetches, replica still does not. Mocks global.fetch and asserts on the call count to the /grants endpoint."
+    }
+  ],
+
+  "frozenFileCompliance": {
+    "claim": "NO frozen file was edited.",
+    "verifiedBy": "`git diff --name-only HEAD~1 HEAD | grep -E '^e2e/|^scripts/qc/|^package.json'` returns NOTHING. The three changed paths are all under src/.",
+    "specificallyUntouched": [
+      "e2e/coop-campaign-ui-audit.spec.ts - the alternative fix (widening its critical() filter at :207-213) was REJECTED by the diagnosis and is not present in this diff.",
+      "e2e/coop-campaign-two-browser-journey.spec.ts",
+      "package.json:199 (verify:qc:coop-campaign-journey) - argv unchanged",
+      "scripts/qc/camp01-authority-receipt.contract.mjs",
+      "every openspec/ spec and contract file"
+    ],
+    "serverGate": "UNTOUCHED. src/pages/api/campaigns/[id]/grants.ts and src/lib/campaign/grants/campaignShareService.ts are not in the diff - the #1521 exposure stays closed.",
+    "clientErrorNotSwallowed": "No catch, no filter, no console suppression was added. The console error disappears because the request is not issued."
+  },
+
+  "redFirst": {
+    "order": "The test file was written and run BEFORE any product edit. Product edits began only after the red was observed.",
+    "command": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false --runTestsByPath src/components/campaign/share/__tests__/CampaignSharePanelConnected.test.tsx src/components/campaign/share/__tests__/CampaignSharePanel.test.tsx",
+    "exit": 1,
+    "totals": "Test Suites: 1 failed, 1 passed, 2 total. Tests: 1 failed, 9 passed, 10 total.",
+    "failingRow": "CampaignSharePanelConnected grants request > a guest-mode panel issues no grants request",
+    "failureVerbatim": "expect(jest.fn()).not.toHaveBeenCalled() -- Expected number of calls: 0, Received number of calls: 1, 1: \"/api/campaigns/campaign-1/grants\", {\"cache\": \"no-store\", \"headers\": {}}",
+    "whyThisIsTheRightRed": "Exactly ONE of the four rows failed, and it is the guest row. The host-mode, single-player and replica pins all PASSED at the base commit, which proves they pin pre-existing behaviour rather than describing the fix - so a regression in any of them would be caught by a row that was green before the change.",
+    "log": { "name": "red-unit.log", "sha256": "e76415ac4e9a8d6f8eeb2fe22ce9573e0a5aa09a07f3e57cabffea5836d64594", "bytes": 26068 }
+  },
+
+  "green": {
+    "unitOnly": {
+      "command": "same --runTestsByPath pair as the red run",
+      "exit": 0,
+      "totals": "Test Suites: 2 passed, 2 total. Tests: 10 passed, 10 total.",
+      "log": { "name": "green-unit.log", "sha256": "71dff7a26515267e9e1f331ec98f87a78c858fa129dd24f076c8597403de87eb", "bytes": 20178 }
+    },
+    "panelPlusDashboardSuites": {
+      "command": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false --runTestsByPath <2 share suites> <4 dashboard suites>",
+      "suites": [
+        "src/components/campaign/share/__tests__/CampaignSharePanelConnected.test.tsx",
+        "src/components/campaign/share/__tests__/CampaignSharePanel.test.tsx",
+        "src/components/gameplay/pages/campaigns/dashboard/__tests__/CampaignDashboardPage.coopPersistenceRegression.test.tsx",
+        "src/components/gameplay/pages/campaigns/dashboard/__tests__/CampaignDashboardPage.launch.test.ts",
+        "src/components/gameplay/pages/campaigns/dashboard/__tests__/CampaignDashboardPage.reactivity.test.tsx",
+        "src/components/gameplay/pages/campaigns/dashboard/__tests__/CampaignSaveStatusCard.test.tsx"
+      ],
+      "exit": 0,
+      "totals": "Test Suites: 6 passed, 6 total. Tests: 27 passed, 27 total.",
+      "note": "Re-run AFTER the oxfmt pass and the comment normalization, so this log reflects the committed tree.",
+      "log": { "name": "green-suites.log", "sha256": "3d67462d3d85ce1c32b63928988dab696843045707ea836e883e049e8c1f47aa", "bytes": 30161 }
+    }
+  },
+
+  "gates": [
+    {
+      "gate": "panel + dashboard suites + src/components/campaign/share",
+      "command": "jest --runTestsByPath (6 suites, listed above)",
+      "exit": 0,
+      "result": "6 suites / 27 tests passed"
+    },
+    {
+      "gate": "tsc",
+      "command": "npx tsc --noEmit",
+      "exit": 0,
+      "result": "clean (empty output)",
+      "note": "First tsc pass FAILED with TS7053 in the new test file (an `unknown[]` helper indexed positionally). Fixed by typing the helper as `grantsCallUrls(mock): string[]`; re-run clean. Recorded because the failure was in this lane's own new code, not pre-existing.",
+      "log": { "name": "tsc.log", "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "bytes": 0 }
+    },
+    {
+      "gate": "oxfmt (changed files)",
+      "command": "npx oxfmt <3 changed files>",
+      "exit": 0,
+      "result": "formatted; the reformat was re-tested (see green-suites.log)"
+    },
+    {
+      "gate": "oxlint (changed files)",
+      "command": "npx oxlint <3 changed files>",
+      "exit": 0,
+      "result": "0 errors, 1 warning",
+      "warning": "eslint(no-unused-vars): Type 'CampaignAuthority' is imported but never used, at CampaignSharePanelConnected.tsx.",
+      "warningIsPreExisting": "VERIFIED IN SESSION, not assumed: the base version of the file was checked out in place and linted on its own, producing the SAME warning at its line 26. This lane did not introduce it and, per surgical-change discipline, did not remove it - deleting an unrelated dead import is not justifiable by this task."
+    },
+    {
+      "gate": "openspec validate --all --strict",
+      "command": "npx openspec validate --all --strict",
+      "exit": 0,
+      "result": "Totals: 232 passed, 0 failed (232 items)",
+      "log": { "name": "openspec.log", "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3", "bytes": 6954 }
+    },
+    {
+      "gate": "husky pre-commit",
+      "command": "implicit on `git commit` (hooks ON, no --no-verify)",
+      "exit": 0,
+      "result": "lint-staged + full `npm run build` both passed"
+    }
+  ],
+
+  "e2eBuild": {
+    "command": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build",
+    "exit": 0,
+    "buildId": "1789480896885",
+    "buildIdReadFrom": ".next/BUILD_ID after the build exited",
+    "priorBuildIdInThisWorktree": "1789477978135 (the diagnosis lane's, at detached 83887b746), then 1789480684818 (written by the pre-commit hook's plain non-E2E build). Neither was reused for the journey.",
+    "compile": "Compiled successfully in 42s; TypeScript finished in 55s; 71 static pages generated.",
+    "log": { "name": "e2e-build.log", "sha256": "f184fa2851314effdb9bc0cc08514977512011c74b71a06da0185751b372e2e5", "bytes": 3549463 }
+  },
+
+  "journeyRun": {
+    "runsPerformed": 1,
+    "command": "MEKSTATION_E2E_SERVER_COMMAND='node .next/standalone/server.js' HOSTNAME=127.0.0.1 MEKSTATION_E2E_PORT=3639 npm run verify:qc:coop-campaign-journey",
+    "frozenScript": "package.json:199 - argv byte-identical to the receipt lane's; the only substitutions are the documented standalone-server + port-3639 harness env the sibling proof02 lanes use.",
+    "exit": 0,
+    "jestLeg": "Test Suites: 9 passed, 9 total. Tests: 138 passed, 138 total.",
+    "playwrightLeg": "2 passed (34.6s)",
+    "playwrightRows": [
+      "ok 1 [chromium] e2e/coop-campaign-two-browser-journey.spec.ts:260:7 - host and guest create, join, arbitrate, and reload through campaign-sync (5.7s)",
+      "ok 2 [chromium] e2e/coop-campaign-ui-audit.spec.ts:312:7 - co-op campaign UI audit - captures evidence and asserts co-op screen fit, visibility, and actions (6.8s)"
+    ],
+    "sweepResult": "ZERO 403s. `grep -c '403' journey-run.log` = 0. The terminal assertion at e2e/coop-campaign-ui-audit.spec.ts:843 (unexpected critical console/page errors during co-op UI audit) passed, where the four prior receipt executions failed it with exactly 4x 'Failed to load resource: the server responded with a status of 403 (Forbidden)'.",
+    "deltaFromDiagnosis": "The diagnosis measured 4 server-side 403s (all `not-campaign-gm`, all from the guest token) matching the 4 console errors 1:1. After the fix the guest issues no such request, so both counts are 0.",
+    "log": { "name": "journey-run.log", "sha256": "2f82c8935ae080a8c9204614735303f5de366adbddaf8a42db15c0fd27128d8d", "bytes": 19075 }
+  },
+
+  "logDir": ".sisyphus/roadmap-completion-20260912/grants-403-fix-20260915/",
+
+  "ownerDecisionsLeftOpen": [
+    {
+      "id": "D1",
+      "question": "Should a co-op GUEST's dashboard render the share panel at all?",
+      "status": "OPEN - deliberately NOT answered by this lane.",
+      "whatThisFixDidAndDidNot": "The fix stops the guest ASKING, so the failing request and the live Revoke buttons beside the fetched grant rows are both gone (the grant list is empty, and CampaignSharePanel renders no revoke affordance for an empty list). It does NOT change what the guest is TOLD: on a shared server the guest's stored authority is still `source` - it is literally the host's record - so the panel still renders the source variant, now as an empty share box rather than the 'you are a guest mirror' truth.",
+      "whyNotDecidedHere": "Answering it means deciding what a shared-server guest's stored authority SHOULD read, which is a campaign-replication design question, not part of the 403 this lane was asked to fix.",
+      "owner": "design-campaign-authority-and-sync"
+    },
+    {
+      "id": "D2",
+      "question": "Should `verify:qc:coop-campaign-journey` be wired into CI?",
+      "status": "OPEN - out of scope for this lane; see nonClaims.",
+      "owner": "roadmap / CI wiring"
+    }
+  ],
+
+  "nonClaims": [
+    "NOT RUN: the two-device co-op topology (each device its own server, the guest holding a genuine replica). The pre-existing isSource guard is expected to suppress the call there and the replica row in the new test pins that path at the unit level, but the two-device browser topology was NOT exercised by this lane.",
+    "NO CI WIRING: no .github/workflows/ file was touched. `verify:qc:coop-campaign-journey` remains in no workflow, which is the blind spot D2 names and the reason #1521 shipped this mismatch unnoticed. This lane did not close it.",
+    "NOT PUSHED: the branch exists only locally. No `git push`, no PR, no merge.",
+    "NOT RUN: the frozen row's DEFAULT webServer path (`npm run dev`), which kill-ports 3600 and is forbidden by this lane's charter. The standalone-server + port-3639 substitution matches the sibling proof02 lanes and the diagnosis probe.",
+    "NOT RUN: the full repository test suite, lint sweep, or e2e suite beyond the six named jest suites and the one frozen journey command. oxfmt/oxlint were run on the three changed files only.",
+    "NOT CLAIMED: any receipt for waves camp-01b, camp-01c or camp-01d. This lane ran the frozen command once, as fix verification; the waves' own receipts are theirs to re-take.",
+    "NOT CLAIMED: that the mobile-390 viewport arm was independently isolated. The journey command ran the audit spec whole and it passed end to end, which covers that arm, but no per-arm measurement was taken.",
+    "NOT REMOVED: the pre-existing unused `CampaignAuthority` type import flagged by oxlint. Verified pre-existing at the base commit; left alone as out-of-scope.",
+    "NOT MODIFIED: the server-side gate, the audit spec's critical() filter, any openspec spec, any qc contract module, or package.json."
+  ],
+
+  "inputs": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/grants-403-journey-diagnosis-20260915.json (rootCause, minimalCorrectFix, frozenFileImpact, ownerDecisions - the fix applied is the one specified there, unchanged)",
+    "openspec/changes/design-campaign-authority-and-sync/specs/campaign-replication/spec.md (listing is the source/GM's capability - the reason the server gate is correct and was not weakened)",
+    "src/types/campaign/CoopSession.ts (CoopSessionMode = 'host' | 'guest' - the fact the client already held)"
+  ]
+}

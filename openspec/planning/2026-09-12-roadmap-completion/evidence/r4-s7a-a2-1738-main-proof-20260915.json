@@ -1,0 +1,72 @@
+{
+  "slice": "R4.S7-a2: seed a match journal stream on the create path (S6-R1)",
+  "pr": 1738,
+  "prHead": "a048e5e5f5d5aeb26622bf0436b142bd7735c953",
+  "mergeCommit": "a8ec5105d6411163311c44fc711332266972e1a7",
+  "verifiedAtUtc": "2026-09-15T17:47:21.469Z",
+  "worktree": "archive-original-main-proof (detached at merge commit, Node v22.22.0)",
+  "blobEquality": {
+    "files": [
+      "src/lib/multiplayer/server/DurableMatchStore.ts",
+      "src/lib/multiplayer/server/IMatchStore.ts",
+      "src/lib/multiplayer/server/ServerMatchHostEvents.ts",
+      "src/lib/multiplayer/server/__tests__/matchCreatePathJournalSeed.sqlite.test.ts"
+    ],
+    "command": "git diff --stat <prHead> <merge> -- <files>",
+    "result": "empty (0 bytes)"
+  },
+  "gates": {
+    "jest": {
+      "scope": "src/lib/events/journal src/lib/multiplayer",
+      "exit": 0,
+      "suites": 191,
+      "tests": 1559
+    },
+    "tsc": {
+      "exit": 0,
+      "outputBytes": 0
+    },
+    "openspecStrict": {
+      "exit": 0
+    },
+    "specPurposeStrict": {
+      "exit": 0
+    },
+    "terminologyStrict": {
+      "exit": 0
+    },
+    "qcOpenspecCi": {
+      "exit": 0
+    }
+  },
+  "logs": {
+    "jest": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1738-20260915/jest.log",
+      "sha256": "a43b28c8001070dbeabc36404f046286be98d276bd29d0c47dd4d81674bd8b26"
+    },
+    "openspec": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1738-20260915/openspec.log",
+      "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3"
+    },
+    "purpose": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1738-20260915/purpose.log",
+      "sha256": "629026f25215446af06f7491ea5757f56e6f66d00cb70d6d432438cb6cb9adf7"
+    },
+    "qcOpenspecCi": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1738-20260915/qc-openspec-ci.log",
+      "sha256": "8c41df6c33246420ed1806218780c2df69b5ad4e7c594b993b07594ee959ccb2"
+    },
+    "terminology": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1738-20260915/terminology.log",
+      "sha256": "4eb5cf78d9930bfc4247467fa15d073ce82a4295c0061c78d5301731d46b0ae5"
+    },
+    "tsc": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1738-20260915/tsc.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "limits": [
+    "scoped jest only",
+    "mode stays off; S7a-Q2 (seed idempotency via command identity) and S7a-Q3 (seeded-then-rewound at shadow pins the mismatch counter) carried to S7-d; partial-persist guard mutant survived (S7a-Q4)"
+  ]
+}

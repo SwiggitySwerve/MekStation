@@ -1,0 +1,355 @@
+{
+  "artefact": "r4-s7a-local",
+  "date": "2026-09-15",
+  "roadmapNode": "R4.S7",
+  "subSlice": "S7-a (S7-a1 JCS-undefined + S7-a2 create-path seeding)",
+  "task": "adopt-combat-journal-cutover-and-gm-rewind task 1.7 PREPARATION. No SHALL is discharged by this slice and no checkbox was ticked.",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/reconcile-1",
+  "branch": "codex/roadmap-r4-s7a-seeding-jcs-20260915",
+  "base": {
+    "sha": "423381ff0eb026bb4f3834949aae555cd70d0ca9",
+    "ref": "origin/main at fetch time 2026-09-15",
+    "includesRequiredPrs": {
+      "#1729": "423381ff0 test(journal): journal-head consult suite (race, duplicate-command, store|journal expectation) — IS the base sha itself",
+      "#1728": "16e7346f2 feat(combat): source the expected revision from the journal head — present at HEAD~1 of base (git log --oneline -8)"
+    },
+    "worktreeCleanBeforeCheckout": "git status --short returned empty before and after `git checkout -q -B codex/roadmap-r4-s7a-seeding-jcs-20260915 origin/main`"
+  },
+  "commitAuthor": "Wes Rollings <wrollings@gmail.com> (per -c user.name/-c user.email on every commit; no AI attribution trailer on any commit)",
+
+  "commits": [
+    {
+      "order": 1,
+      "slice": "S7-a1",
+      "phase": "red",
+      "sha": "f957ea4edadc0ea31c2d65de3ef89e84a25ff835",
+      "subject": "test(journal): pin that the mirror must represent a real match launch",
+      "files": [
+        "src/lib/multiplayer/server/__tests__/matchStreamJournalMirrorLaunch.sqlite.test.ts (new)"
+      ],
+      "shortstat": "1 file changed, 303 insertions(+)",
+      "capArithmetic": "files 1 of 15 (14 headroom); non-generated lines 303 of 500 (197 headroom). Within cap; no split needed."
+    },
+    {
+      "order": 2,
+      "slice": "S7-a1",
+      "phase": "product",
+      "sha": "5f7b1079940fd346a1b41e76848d03f0acc8b4b4",
+      "subject": "fix(journal): mirror a match event in the form the store persists",
+      "files": ["src/lib/multiplayer/server/MatchStreamJournalMirror.ts"],
+      "shortstat": "1 file changed, 57 insertions(+), 3 deletions(-)",
+      "capArithmetic": "files 1 of 15; non-generated lines 60 (57+3) of 500. Within cap."
+    },
+    {
+      "order": 3,
+      "slice": "S7-a2",
+      "phase": "red",
+      "sha": "b0e6abfb2cae37162006007e2ad162e1b5418f86",
+      "subject": "test(journal): pin that the create path seeds the match journal stream",
+      "files": [
+        "src/lib/multiplayer/server/__tests__/matchCreatePathJournalSeed.sqlite.test.ts (new)"
+      ],
+      "shortstat": "1 file changed, 292 insertions(+)",
+      "capArithmetic": "files 1 of 15; non-generated lines 292 of 500. Within cap."
+    },
+    {
+      "order": 4,
+      "slice": "S7-a2",
+      "phase": "product",
+      "sha": "b9ab4a668d34ae9d7d2e7c9710484d13c751ba0d",
+      "subject": "feat(journal): seed a match's journal stream on the create path",
+      "files": [
+        "src/lib/multiplayer/server/DurableMatchStore.ts (+56)",
+        "src/lib/multiplayer/server/IMatchStore.ts (+23)",
+        "src/lib/multiplayer/server/ServerMatchHostEvents.ts (+15)"
+      ],
+      "shortstat": "3 files changed, 94 insertions(+)",
+      "capArithmetic": "files 3 of 15; non-generated lines 94 of 500. Within cap."
+    }
+  ],
+  "capsComplianceSummary": "Every commit is inside the node's maxFiles 15 / maxNonGeneratedLines 500. Largest single commit: 303 lines (1 file). Whole slice across four commits: 6 distinct files, 749 insertions + 3 deletions. No trimming was required and none was done.",
+
+  "designDecision": {
+    "question": "S7-a1: make the mirror canonicalise a batch it can actually persist by (i) mirroring the store-persisted (round-tripped) form of the batch, or (ii) stripping explicitly-undefined properties before canonicalisation.",
+    "chosen": "(ii) — strip own-enumerable `undefined`-valued properties, recursively, inside the mirror's own batch builder. NOT a JSON round-trip, and NOT a change to the shared canonicalizer.",
+    "whereItLands": "src/lib/multiplayer/server/MatchStreamJournalMirror.ts — new exported `withoutUndefinedProperties`, applied to `matchEvent` inside `toMatchJournalBatch`.",
+    "citations": {
+      "whatTheStorePersists": "src/lib/multiplayer/server/DurableMatchStore.ts:843 `const eventJson = JSON.stringify(event);` (the batch commit's per-event write) and the read-back sites :1163 / :1269 `JSON.parse(row.event_json) as IGameEvent`. JSON.stringify omits own-enumerable undefined-valued properties, so the store's durable form of a launch event is ALREADY the event minus exactly those properties. Stripping them therefore makes the mirrored payload equal to what the store persists rather than diverging from it.",
+      "whatTheJournalPersistsAndComparesDigestsAgainst": "src/lib/events/journal/SQLiteEventJournalWriter.ts:430 stores `payloadJson: canonicalizeJsonV1(event.payload)` — the CANONICAL form, not JSON.stringify — and :345 re-derives `canonicalizeEventDigestV1(event).digest` over the parsed-back payload and compares it to the stored `eventDigest`. A canonical string can never carry an `undefined` back, so the stripped form is a fixed point of the journal's own storage: write-time digest and read-time verification digest agree by construction.",
+      "whereTheThrowActuallyFires": "Measured, not assumed: the red log's stack shows the first throw in `canonicalizeCommandIdentityV1` (src/lib/events/journal/EventJournalCommandIdentity.ts:29, called from SQLiteEventJournalWriter.ts:123), BEFORE any event digest. That is why the strip is applied inside `toMatchJournalBatch` (which builds the raw batch both canonicalisations consume) rather than at the DurableMatchStore call site — one form for both passes. Log: s7a1-red.log.",
+      "whyNotOptionI": "A JSON round-trip performs the same undefined-drop PLUS silent coercions: a function or symbol value vanishes, a Date becomes a string, a BigInt throws an untyped TypeError instead of the journal's typed `EventJournalCanonicalizationError`. Mutant M3 measures this directly — replacing `withoutUndefinedProperties(matchEvent)` with `JSON.parse(JSON.stringify(matchEvent))` leaves four of five rows green and kills only 'still refuses a genuinely non-representable value, typed'. Log: s7a1-mutant-M3.log.",
+      "whyNotTheSharedCanonicalizer": "src/lib/events/journal/EventJournalCanonicalizer.ts is shared with the campaign journal path. The admission brief flagged a compatibility risk there (`currentSourceState.jcsUndefinedIsAVerifiedRealGap`). Leaving `canonicalizeJsonV1` byte-identical is a CATEGORICAL compatibility argument — no existing committed campaign event digest can move, because no campaign code path changed at all — rather than a runtime migration or an argued-by-inspection one. The brief's own ownerDecisionNeeded recommended exactly this narrower shape.",
+      "digestEqualityProvenNotAsserted": "Row 'mirrors the event in exactly the form the store persists' reads `event_journal_events.payload_json` back and compares `payload.matchEvent` to `JSON.parse(JSON.stringify(event))` for a real launch batch. Mutants M2 (also drop nulls) and M4 (undefined becomes null) both kill on that single row."
+    },
+    "s7a2SeedingShape": {
+      "question": "the exact expected seeding shape (baseline event / marker at revision 0 or the stream's first event)",
+      "answer": "The brief's S7-a redFirstTest names it verbatim: 'a freshly created match under mode shadow has a journal head at revision 2 (GameCreated+GameStarted) immediately after creation, before any command batch commits.' So the seed mirrors the engine's OWN two opening events as one batch — no new event type, no synthetic baseline event, no marker row. The stream's first two events ARE the seed, on MATCH_BASELINE_BRANCH_ID, taking the head from revision 0 to revision 2.",
+      "expectedRevision": "`nextMatchSequenceAfter(null)` (src/lib/multiplayer/server/history/matchStoreBranchSegmentReader.ts:67-73, = MATCH_FIRST_SEQUENCE 0). Both arms of the S6 consult agree on 0 for a fresh stream: at 'shadow'/'off' `storeExpectedRevision(0)` translates through `journalHeadRevisionForNextMatchSequence` (identity, :86-90) and at 'enabled' `readEffectiveStreamHead` returns the MISSING_HEAD revision 0 (src/lib/events/journal/EventHistoryEffectiveStreamHead.ts:34-48).",
+      "commandId": "`create:${matchId}` — derived from the match id alone, so a repeated seed re-derives the same identity and the journal's command-identity check answers `duplicate-command`, which the seed call treats as success (`duplicateIsSuccess`) rather than as a tripwire mismatch. Counting an idempotent retry as a mismatch would pin above zero the very counter S6 consults before promotion.",
+      "wiring": "`seedJournalFromInitialEvents` is an OPTIONAL structural-flag capability on IMatchStore, in the same shape and with the same stated rationale as `appendCommandBatch` (src/lib/multiplayer/server/IMatchStore.ts:501-517 for the existing precedent). `persistInitialEvents` calls it after the append loop, and only when `persisted === ctx.events.length` — a head installed over a partial log would claim events the store does not hold. DurableMatchStore implements it by reusing `mirrorCommittedBatch`, so the mode gate, the capability-db check, the expected-revision consult and the shadow tripwire remain one implementation rather than two that can drift."
+    },
+    "s7a2NeededNoModeFlipAndNoMigration": "The stop-condition in the charter did not fire. S7-a2 is satisfiable with the cutover mode left at 'off': the seed is gated by the same `getCombatJournalAuthorityMode() === 'off'` early return the commit-path mirror already had (DurableMatchStore.mirrorCommittedBatch), so at the shipped mode the create path is byte-identical to before — pinned by the row 'seeds nothing at all while the cutover mode is off', which mutant M3 (removing that gate) kills. No schema change, no migration, no new table, no new event type."
+  },
+
+  "redFirstEvidence": {
+    "discipline": "Each slice's failing test was committed BEFORE the product change, with its red log captured against a tree containing no product change at all.",
+    "S7-a1": {
+      "redLog": "s7a1-red.log",
+      "redLogSha256": "1f84d196dce886d33afd406bf2db60d6f582ea3d6adcab702efafe63bfcab148",
+      "capturedAt": "before commit f957ea4ed; no product edit existed in the tree",
+      "result": "Tests: 3 failed, 2 passed, 5 total",
+      "redRows": [
+        "mirrors a real launch batch without throwing and lands every event — EventJournalCanonicalizationError: JCS cannot represent undefined, thrown from canonicalizeCommandIdentityV1",
+        "mirrors the event in exactly the form the store persists — same throw",
+        "keeps the shadow mismatch counter clean for a committed launch batch — Expected: 0, Received: 1 (the throw is caught and recorded as `journal-mirror:JCS cannot represent undefined`, exactly F1's latency claim)"
+      ],
+      "greenAtRedTime": [
+        "the launch log really does carry explicitly-undefined properties — the fixture guard; the real launch log carries >= 9 undefined paths including [0].actorId and [0].payload.config.seed, and two per-unit .movementMode",
+        "still refuses a genuinely non-representable value, typed — pinned BEFORE the fix so the fix cannot be one that loses it"
+      ],
+      "greenLog": "s7a1-green.log",
+      "greenLogSha256": "58995b4e673aee67cee329cb0f4d95ed614d730b3d5f318f9a68f6dc9179dc79",
+      "greenResult": "Tests: 5 passed, 5 total"
+    },
+    "S7-a2": {
+      "redLog": "s7a2-red.log",
+      "redLogSha256": "a4cb7a10e6afb1f6d617800be73bbbd3490d5f7018f7deca2bfde7f10fa3498e",
+      "capturedAt": "before commit b0e6abfb2; no product edit existed in the tree",
+      "result": "Tests: 2 failed, 2 passed, 4 total",
+      "redRows": [
+        "leaves the journal head equal to the store-derived head — store-derived head 2, actual effective head {branchId: 'root', revision: 0}",
+        "lets the enabled consult accept the first commit with no missing prefix — the journal's event list came back as ['cmd-first:0'] with the two opening events absent. This is S6-R1 MEASURED rather than argued: at mode 'enabled' the batch landed at the head and the journal's history silently omitted the prefix."
+      ],
+      "greenAtRedTime": [
+        "seeds nothing at all while the cutover mode is off — the additivity guard",
+        "reports a match created before this change rather than seeding it — the pre-existing-match guard"
+      ],
+      "greenLog": "s7a2-green.log",
+      "greenLogSha256": "b73b484a7a71dc9714e393b6ba40a3c15515aa84a80a64d064d597ccfcaef17c",
+      "greenResult": "Tests: 4 passed, 4 total"
+    },
+    "chargedRowsFromTheCharter": {
+      "S7-a1-row1": "'a real InteractiveSession launch batch mirrors under shadow without throwing and the mirrored event count matches' → row 'mirrors a real launch batch without throwing and lands every event' (asserts result {kind:'mirrored'} and mirroredPayloads().length === events.length).",
+      "S7-a1-row2": "'the shadow mismatch counter stays at 0 for that batch' → row 'keeps the shadow mismatch counter clean for a committed launch batch' (drives the REAL DurableMatchStore.appendCommandBatch path so the tripwire is the production one).",
+      "S7-a1-row3": "'an event with a genuinely non-representable value still fails typed' → row 'still refuses a genuinely non-representable value, typed'. A FUNCTION was chosen over a BigInt deliberately: the repo's tsconfig target rejects BigInt literals (TS2737, measured), and a function is the stronger discriminator because JSON.stringify drops it in silence exactly as it drops an undefined.",
+      "S7-a2-row1": "'after create, readEffectiveStreamHead for the match equals the store-derived head' → row 'leaves the journal head equal to the store-derived head' (compares against journalHeadRevisionForNextMatchSequence over the store's own getEvents length, not a literal).",
+      "S7-a2-row2": "'the S6 consult under enabled accepts the first commit without conflict' → row 'lets the enabled consult accept the first commit with no missing prefix' (asserts committed.kind === 'committed', the full three-event journal order, head revision 3, and a clean tripwire).",
+      "S7-a2-row3": "'a pre-existing unseeded match is detected and reported by the recovery/derived-head path rather than silently seeded' → row 'reports a match created before this change rather than seeding it'. Appends the opening events through `appendEvent` one at a time (the pre-change create path), then asserts deriveMatchJournalAuthorityStartedHead === {kind:'not-started'}, an empty journal event list, and head revision 0 against a store-derived head of 2 — the disagreement stays visible. Cites S3b's own stated behaviour, src/lib/multiplayer/server/matchJournalAuthorityStartedDerived.ts:25-32 ('BEFORE THE FIRST BATCH THE ANSWER IS FALSE, INCLUDING FOR A LIVE MATCH ... This is S1's disclosed no-catch-up, not a bug in the derivation')."
+    }
+  },
+
+  "mutantMatrices": {
+    "method": "Each mutant is a single-anchor source edit applied to the COMMITTED product file, run against that slice's suite only, then reverted with `git checkout -- <file>`; `git status --short` verified empty after each matrix. No mutant is in any commit.",
+    "S7-a1": {
+      "target": "src/lib/multiplayer/server/MatchStreamJournalMirror.ts",
+      "count": 4,
+      "rows": [
+        {
+          "id": "M1",
+          "mutation": "`kept[key] = withoutUndefinedProperties(child)` → `kept[key] = child` (shallow strip: top level only)",
+          "outcome": "KILLED — 3 failed, 2 passed. Nested undefineds (payload.config.seed, per-unit movementMode) survive and the canonicalizer still throws.",
+          "log": "s7a1-mutant-M1.log",
+          "sha256": "87017da9363d18d66bfdd591dc3689963b1eefddf62513110a8b1eaed57ce35a"
+        },
+        {
+          "id": "M2",
+          "mutation": "`if (child === undefined) continue;` → `if (child === undefined || child === null) continue;` (also drop nulls)",
+          "outcome": "KILLED — 1 failed on 'mirrors the event in exactly the form the store persists'. The batch still mirrors, but the mirrored payload no longer equals what the store persists, which is the property the choice rests on.",
+          "log": "s7a1-mutant-M2.log",
+          "sha256": "3fa02c2e50cf3304d43caf4ec97fd343c996d0821ee9fa852a4700a7eb6ba492"
+        },
+        {
+          "id": "M3",
+          "mutation": "`matchEvent: withoutUndefinedProperties(matchEvent)` → `matchEvent: JSON.parse(JSON.stringify(matchEvent)) as IGameEvent` (option (i), the rejected alternative)",
+          "outcome": "KILLED — 1 failed, and ONLY on 'still refuses a genuinely non-representable value, typed'. This is the decisive measurement behind the design decision: option (i) is observationally identical on every other row and differs exactly by losing the typed refusal.",
+          "log": "s7a1-mutant-M3.log",
+          "sha256": "89f5dede39b3c73a13aff7b5ef69a8bee3a92f65433d9edf7af90ef57934c813"
+        },
+        {
+          "id": "M4",
+          "mutation": "`if (child === undefined) continue;` → `if (child === undefined) { kept[key] = null; continue; }` (undefined becomes null rather than absent)",
+          "outcome": "KILLED — 1 failed on the store-persisted-form row. Proves the row discriminates 'absent' from 'present as null', which is the exact difference JSON.stringify encodes.",
+          "log": "s7a1-mutant-M4.log",
+          "sha256": "eb7f44ca52f8ae4ec753faebd4feb3219d1e64df804e7eb980907b28c197f0a4"
+        }
+      ]
+    },
+    "S7-a2": {
+      "targets": [
+        "src/lib/multiplayer/server/ServerMatchHostEvents.ts",
+        "src/lib/multiplayer/server/DurableMatchStore.ts"
+      ],
+      "count": 4,
+      "rows": [
+        {
+          "id": "M1",
+          "mutation": "ServerMatchHostEvents: the `await ctx.store.seedJournalFromInitialEvents(...)` call replaced with `void ctx.store.seedJournalFromInitialEvents;` (capability referenced but never invoked)",
+          "outcome": "KILLED — 2 failed (both seeding rows), 2 passed (both guards). The wiring, not just the implementation, is load-bearing.",
+          "log": "s7a2-mutant-M1.log",
+          "sha256": "5c321c6d6451d81227c3785a410fe41e3c874d8cd3274320d0eaef077ee8de97"
+        },
+        {
+          "id": "M2",
+          "mutation": "seed `ctx.events` → `ctx.events.slice(0, 1)` (seed only GameCreated)",
+          "outcome": "KILLED — 2 failed. A partial seed leaves head revision 1 against a store-derived head of 2, and the enabled first commit then lands with a one-event prefix missing.",
+          "log": "s7a2-mutant-M2.log",
+          "sha256": "86bcb81438b9ec216c7451904d36eae09c7bfd558d3dbf43ee4c23592d5cae16"
+        },
+        {
+          "id": "M3",
+          "mutation": "DurableMatchStore.mirrorCommittedBatch: `if (getCombatJournalAuthorityMode() === 'off') return;` → `if (false) return;` (the mode gate removed)",
+          "outcome": "KILLED — 1 failed, and precisely 'seeds nothing at all while the cutover mode is off'. This is the additivity proof: the slice cannot reach production behaviour while the shipped mode is 'off'.",
+          "log": "s7a2-mutant-M3.log",
+          "sha256": "3f3823ee865719c60774dfc5aad7303ebf9df39d6834f4e18cb67517f9bb2f74"
+        },
+        {
+          "id": "M4",
+          "mutation": "seed `expectedRevision: nextMatchSequenceAfter(null)` → `expectedRevision: events.length` (seed at the post-append sequence instead of at an empty journal's revision)",
+          "outcome": "KILLED — 1 failed, on the shadow row. Note honestly WHICH row: at 'enabled' the consult ignores the passed sequence and reads the head, so only the 'shadow' row can distinguish the two sources here — the same asymmetry S6-R2 warned about for its own M4. The 'enabled' row survives this mutant by construction and is not claimed to kill it.",
+          "log": "s7a2-mutant-M4.log",
+          "sha256": "19cadf9bdbf5126a1285ae26ebbda81265c82a4ffb8eac9a23602cc0f6ca5007"
+        }
+      ]
+    }
+  },
+
+  "gateTables": {
+    "S7-a1": [
+      {
+        "gate": "changed suite — matchStreamJournalMirrorLaunch.sqlite.test.ts",
+        "command": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/multiplayer/server/__tests__/matchStreamJournalMirrorLaunch.sqlite.test.ts",
+        "result": "PASS — 5 passed, 5 total",
+        "log": "s7a1-green.log"
+      },
+      {
+        "gate": "scoped jest — src/lib/events/journal src/lib/multiplayer/server",
+        "command": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/events/journal src/lib/multiplayer/server",
+        "result": "PASS — 174 suites, 1351 tests, 0 failures",
+        "log": "s7a1-scoped-jest.log",
+        "sha256": "f1db2083f92d9b3c4a84045822f5af83a94f8176476fbd0a267cf52535f043c6"
+      }
+    ],
+    "S7-a2": [
+      {
+        "gate": "changed suite — matchCreatePathJournalSeed.sqlite.test.ts",
+        "command": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/multiplayer/server/__tests__/matchCreatePathJournalSeed.sqlite.test.ts",
+        "result": "PASS — 4 passed, 4 total",
+        "log": "s7a2-green.log"
+      },
+      {
+        "gate": "scoped jest — src/lib/events/journal src/lib/multiplayer/server",
+        "command": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/events/journal src/lib/multiplayer/server",
+        "result": "PASS — 175 suites, 1355 tests, 0 failures",
+        "log": "s7a2-scoped-jest.log",
+        "sha256": "1724bd209a1bc29401b21c2579787ec7ed67fa9af3e8b743dcddfbcef0e97670"
+      },
+      {
+        "gate": "widened jest — src/lib/multiplayer (persistInitialEvents has callers outside the scoped path, e.g. src/lib/multiplayer/__tests__/mirrorConvergence.integration.test.ts)",
+        "command": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/multiplayer",
+        "result": "PASS — 169 suites, 1323 tests, 0 failures",
+        "log": "s7a2-multiplayer-wide-jest.log",
+        "sha256": "ce58fb2af914c2cdc53f5aae90fcc1255df621b020cea29be2614fcf7a6ffa50"
+      }
+    ],
+    "sliceWide": [
+      {
+        "gate": "npx tsc --noEmit -p tsconfig.json",
+        "result": "PASS — exit 0, no diagnostics",
+        "log": "final-gates.log",
+        "sha256": "6b97e34c7f689d14bb5844b9402e71eb2d988ba9ce559dbcb87b215af91750f1"
+      },
+      {
+        "gate": "npx oxfmt --check <6 changed files>",
+        "result": "PASS — 'All matched files use the correct format', exit 0",
+        "log": "final-gates.log"
+      },
+      {
+        "gate": "npx oxlint <6 changed files>",
+        "result": "PASS with 1 PRE-EXISTING warning, 0 errors, exit 0. The warning is eslint(max-lines) on DurableMatchStore.ts. Measured against the base by `git stash` / re-run: the same warning fires at origin/main with 1030 lines; this slice takes it to 1051. Pre-existing condition carried forward, not introduced.",
+        "log": "final-gates.log"
+      },
+      {
+        "gate": "npx openspec validate --all --strict",
+        "result": "PASS — Totals: 232 passed, 0 failed (232 items)",
+        "log": "openspec-validate.log",
+        "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3"
+      },
+      {
+        "gate": "next build",
+        "result": "PASS x4 — the husky pre-commit hook runs a full `next build` and every one of the four commits completed. No standalone `npm run build` was run separately; the hook's build on each commit is what is claimed. Before each commit the machine was polled for a competing `next build` (Get-CimInstance Win32_Process filter on node.exe with a next.*build command line) and the commit waited in a sleep loop until the count reached 0."
+      }
+    ]
+  },
+
+  "evidenceDir": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r4-s7a-20260915/",
+  "evidenceHashes": {
+    "final-gates.log": "6b97e34c7f689d14bb5844b9402e71eb2d988ba9ce559dbcb87b215af91750f1",
+    "openspec-validate.log": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3",
+    "s7a1-green.log": "58995b4e673aee67cee329cb0f4d95ed614d730b3d5f318f9a68f6dc9179dc79",
+    "s7a1-mutant-M1.log": "87017da9363d18d66bfdd591dc3689963b1eefddf62513110a8b1eaed57ce35a",
+    "s7a1-mutant-M2.log": "3fa02c2e50cf3304d43caf4ec97fd343c996d0821ee9fa852a4700a7eb6ba492",
+    "s7a1-mutant-M3.log": "89f5dede39b3c73a13aff7b5ef69a8bee3a92f65433d9edf7af90ef57934c813",
+    "s7a1-mutant-M4.log": "eb7f44ca52f8ae4ec753faebd4feb3219d1e64df804e7eb980907b28c197f0a4",
+    "s7a1-red.log": "1f84d196dce886d33afd406bf2db60d6f582ea3d6adcab702efafe63bfcab148",
+    "s7a1-scoped-jest.log": "f1db2083f92d9b3c4a84045822f5af83a94f8176476fbd0a267cf52535f043c6",
+    "s7a2-green.log": "b73b484a7a71dc9714e393b6ba40a3c15515aa84a80a64d064d597ccfcaef17c",
+    "s7a2-multiplayer-wide-jest.log": "ce58fb2af914c2cdc53f5aae90fcc1255df621b020cea29be2614fcf7a6ffa50",
+    "s7a2-mutant-M1.log": "5c321c6d6451d81227c3785a410fe41e3c874d8cd3274320d0eaef077ee8de97",
+    "s7a2-mutant-M2.log": "86bcb81438b9ec216c7451904d36eae09c7bfd558d3dbf43ee4c23592d5cae16",
+    "s7a2-mutant-M3.log": "3f3823ee865719c60774dfc5aad7303ebf9df39d6834f4e18cb67517f9bb2f74",
+    "s7a2-mutant-M4.log": "19cadf9bdbf5126a1285ae26ebbda81265c82a4ffb8eac9a23602cc0f6ca5007",
+    "s7a2-red.log": "a4cb7a10e6afb1f6d617800be73bbbd3490d5f7018f7deca2bfde7f10fa3498e",
+    "s7a2-scoped-jest.log": "1724bd209a1bc29401b21c2579787ec7ed67fa9af3e8b743dcddfbcef0e97670"
+  },
+
+  "residualsAddressed": {
+    "S1-canonicalizer-refuses-undefined-in-host-opening-events": "CLOSED by S7-a1 for the match-mirror path, and closed by a fix rather than by a test-only JSON round-trip. The roadmap node's residualsFromS1S2 wording ('must be fixed before mode flip') is satisfied for the combat mirror. The SHARED canonicalizer's own strictness is deliberately unchanged, so the identical latent shape remains open for any OTHER future caller that hands it an undefined — recorded below as an open question, not claimed closed.",
+    "create-path-events-never-mirrored": "CLOSED by S7-a2 for a match created through `ServerMatchHost.create` under a non-'off' mode. Matches that already exist are explicitly NOT retro-seeded and are reported not-started instead; the brief's `dischargesResiduals` phrasing ('fully, if the slice lands as scoped') is met for new matches only, which is what 'create-path seeding' means.",
+    "S6-R1-ordering-constraint": "SATISFIED as a precondition, not as a flip. S6-R1 said 'the create-path seeding (R4.S7-a) must land BEFORE the cutover flip'. This slice is that landing. The flip itself remains an owner-gated later action."
+  },
+
+  "nonClaims": [
+    "NO MODE FLIP. `COMBAT_JOURNAL_AUTHORITY_MODE` in src/lib/multiplayer/server/matchJournalAuthority.ts is untouched and still reads `'off' as CombatJournalAuthorityMode`, a hard-coded const with no env read. Every path this slice adds is unreachable in production; every non-'off' mode in the two new suites is a `_setCombatJournalAuthorityModeForTests` override, and the mutant that removes the mode gate is killed by a dedicated row.",
+    "NO CUTOVER. The journal remains a mirror. `mp_match_events` remains the authoritative commit-time check in DurableMatchStore; nothing in this slice makes the journal authoritative for any read or write.",
+    "S7-b UNTOUCHED. The `mp_journal_authority_started` marker write, the table, the read, and the dangling `isMatchJournalAuthorityStartedDerived` export are all exactly as they were. No wording amendment was proposed or applied.",
+    "S7-c UNTOUCHED. MatchRecovery.ts's journal arm is not routed through `checkpointRecoveryPort`; S4-R4's four named properties (empty-history refusal, event-identity-uniqueness integrity check, quarantine eligibility, checkpoint cache refresh) are neither recovered nor re-justified here.",
+    "S7-d UNTOUCHED. No migration-state machine, no per-match migration state, no shadow-parity gate, no rollback law, no busy_timeout pragma. S4-R1, RR-1 and RR-4 are not resolved and are not touched.",
+    "OD-journal-writer-authority PRESERVED. The mirror is still a post-transaction side effect of the match store's own commit, and the seed deliberately reuses that same path rather than opening a second writer. The two-writer reconciliation story (mirror failure -> shadow-mismatch counter -> divergence refusal) is unchanged; RR-4's SHALL tension is neither resolved nor worsened.",
+    "NO SPEC OR TASK EDIT. No file under openspec/changes/** was touched. Task 1.7 remains '[ ]', as do 1.1-1.6 and everything in sections 2 and 3. This receipt file under openspec/planning/**/evidence/ is the only openspec path written, matching how R4.S4/S5/S6 delivered theirs.",
+    "NO SHALL DISCHARGED. Per the admission brief's deltaShallMapping, S7-a discharges zero gm-combat-interventions SHALLs. It builds machinery that could discharge them once an owner approves a flip.",
+    "NO NEW DEPENDENCY, NO MIGRATION, NO SCHEMA CHANGE. package.json, package-lock.json and every migration file are untouched; `seedJournalFromInitialEvents` writes only into tables the existing mirror already writes.",
+    "NO PUSH, NO PR, NO MERGE. Four commits exist only on the worktree branch codex/roadmap-r4-s7a-seeding-jcs-20260915 at E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/reconcile-1. The primary checkout's own branch and working tree were not touched apart from this evidence file. The parent publishes.",
+    "NO SUB-AGENTS were spawned. NO memory file was written.",
+    "NO BROWSER OR LIVE-SERVER PROOF was taken. Both slices are jest rows over real temp-file SQLite, a real DurableMatchStore and (for S7-a2) the real `ServerMatchHost.create` factory. That is a real boundary, but it is not a live socket against a running server.",
+    "NO REPO-WIDE TEST RUN. Only the changed suites, src/lib/events/journal + src/lib/multiplayer/server, and a widened src/lib/multiplayer pass. Repo-wide test health is NOT claimed; the four pre-commit `next build` runs are the only whole-repo signal.",
+    "The mirror's `integrity-conflict` arm remains untested, as S6 also stated."
+  ],
+
+  "openQuestions": [
+    {
+      "id": "S7a-Q1",
+      "severity": "low, latent, cross-cutting",
+      "text": "The SHARED canonicalizer still refuses an own-enumerable undefined (EventJournalCanonicalizer.ts:75-76). This slice fixed the MATCH MIRROR's call site only, which is the narrower and categorically-compatible choice the admission brief recommended. Any FUTURE caller — campaign or combat — that hands `canonicalizeJsonV1` a payload with an undefined property will hit the identical throw, and will hit it as a caught tripwire entry rather than a compile error. The canonicalizer-level fix (undefined-as-absent, matching JSON.stringify parity) remains a live, non-blocking follow-up and would need its own compatibility argument for existing campaign digests."
+    },
+    {
+      "id": "S7a-Q2",
+      "severity": "medium, owner ruling wanted before any flip",
+      "text": "The seed is idempotent only through the journal's command-identity check, and the seed call treats `duplicate-command` as success. That is correct for a genuine retry of the SAME opening log, but it would also swallow the pathological case of two DIFFERENT opening logs for one match id (the identity check compares the batch fingerprint, so a divergent retry should surface as a conflict rather than a duplicate — this was NOT exercised by a row here because no production path produces it today). If S7-d's migration-state machine gives a match a durable 'seeded' fact, that fact would be a stronger guard than the command identity and should probably replace this arm."
+    },
+    {
+      "id": "S7a-Q3",
+      "severity": "medium, inherited and NOT closed",
+      "text": "S5-R1's forward warning to S7 still stands in full and this slice makes it MORE reachable, not less: 'if S7 seeds the mirror at creation while the process is at shadow, every rewound match still pins the mismatch counter above zero.' Seeding at create means a rewound match now HAS a head, so its later live-path batches meet the `rewound-stream` refusal at mode 'shadow' and land on the tripwire. No row here covers a seeded-then-rewound match at 'shadow'. Whoever owns S7-d should decide whether the divergence/refusal behaviour is keyed on the per-match migration state (the brief's reframing of S4-R1) before any process runs at 'shadow' for real traffic."
+    },
+    {
+      "id": "S7a-Q4",
+      "severity": "low, scope note",
+      "text": "`persistInitialEvents` seeds only when EVERY opening event persisted. A partial persist therefore leaves a match with a log and no head — indistinguishable, to every reader, from a pre-existing unseeded match. That is the intended failure direction (no head beats a head that claims events the store lacks), but it means the partial-persist case is reported as 'legacy' rather than as 'damaged'. Distinguishing the two needs the durable per-match state S7-d would introduce."
+    },
+    {
+      "id": "S7a-Q5",
+      "severity": "low, hygiene",
+      "text": "DurableMatchStore.ts trips eslint(max-lines) at 1051 lines against a 400 limit. The warning pre-exists at origin/main (1030 lines, measured by stashing this slice's diff and re-running oxlint) and this slice adds 21 lines to it. Not introduced here and not in scope to fix, but the file is now carrying three journal-adjacent responsibilities and is a natural extraction candidate whenever S7-b or S7-d next opens it."
+    }
+  ]
+}

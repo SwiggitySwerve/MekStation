@@ -1,0 +1,37 @@
+{
+  "at": "2026-09-13T10:05:28.703Z",
+  "status": "automatic-approval-review-rejected-before-execution",
+  "payload": {
+    "repository": "https://github.com/SwiggitySwerve/MekStation",
+    "branch": "codex/roadmap-r4-matrix-20260913",
+    "commit": "6d493d508fe797e9a4342cbc0bd41b13ff376be4",
+    "base": "main",
+    "title": "docs: map all eighty campaign acceptance scenarios",
+    "worktree": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\r4-matrix",
+    "files": [
+      {
+        "path": "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/notepad.md",
+        "sha256": "4ae60bcd1f7044b6cfe03d95255815f359e86b7f3ec470c24a6a2ed560785d30"
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r4-matrix-local-verification-20260913.json",
+        "sha256": "d753668441b19d8016fba21a46acc33ae366740feb5d98dfcdbd077503d4d3c6"
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r4-matrix-parent-acceptance-20260913.json",
+        "sha256": "54ae26e6ecdfcbb467aac5f5ba688b541ed804287241fccb564a66bb10cf2c14"
+      }
+    ],
+    "prBody": {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\r4-matrix-delivery-20260913\\pr-body-reviewed.md",
+      "sha256": "7a18ee5dbb07ebc585afe7b16f30589c911166bc428b065cd5e603395e9d203f"
+    },
+    "actions": [
+      "push exact reviewed commit on named branch",
+      "open pull request against main"
+    ]
+  },
+  "reason": "This action pushes the reviewed documentation commit and opens a PR to an external GitHub destination, exporting repository contents without trusted user authorization for this exact payload and destination.",
+  "publicationResultAbsent": true,
+  "next": "Await exact user approval; do not retry or use alternate export route."
+}

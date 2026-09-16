@@ -1,0 +1,63 @@
+{
+  "evidenceKind": "r6-deferrals-1673-main-proof",
+  "timestampUtc": "2026-09-15T06:30:35Z",
+  "prReference": "PR #1673 \"docs: preserve player simulation deferral evidence\", squash-merged as ebe80aff8f221f737c81b24e78c33fa3699daf06",
+  "commitTested": "ebe80aff8f221f737c81b24e78c33fa3699daf06",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/r2-prepared-journal-api",
+  "checkoutCommand": "git checkout --detach ebe80aff8f221f737c81b24e78c33fa3699daf06",
+  "preconditionCheck": {
+    "gitStatusPorcelainEmptyBeforeCheckout": true,
+    "headAfterCheckout": "ebe80aff8f221f737c81b24e78c33fa3699daf06"
+  },
+  "blobComparison": {
+    "file": "openspec/planning/2026-09-12-roadmap-completion/evidence/r6-deferral-source-parent-disposition-20260913.json",
+    "ebe80aff8Blob": "b86cf509415f11d8f13f99450f4fc19b440323df",
+    "reviewedCommit": "20bb868fc5f6e9c1db7602b255eac6c67a50eb7d",
+    "reviewedBlob": "b86cf509415f11d8f13f99450f4fc19b440323df",
+    "identical": true
+  },
+  "commands": [
+    {
+      "argv": ["npx", "openspec", "validate", "--all", "--strict"],
+      "exitCode": 0,
+      "summaryLine": "Totals: 234 passed, 0 failed (234 items)",
+      "logPath": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/main-proof-api-deferrals-20260915/v1-openspec-validate.stdout.log",
+      "logSha256": "cc90ade73c964f27cfcde5ca721882bbaef3d4c6cab944254433acb7eafcd407"
+    },
+    {
+      "argv": ["npm", "run", "spec:purpose:validate:strict"],
+      "exitCode": 0,
+      "summaryLine": "Files scanned: 220; Errors: 0; Tracked source-of-truth debt: 0",
+      "logPath": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/main-proof-api-deferrals-20260915/v2-spec-purpose-strict.stdout.log",
+      "logSha256": "e82ad908eb69a83cca63bc179565f926296f681ac3f9a7e33874be7b98a23143"
+    },
+    {
+      "argv": ["npm", "run", "terminology:validate:strict"],
+      "exitCode": 0,
+      "summaryLine": "Found 322 file(s) to scan; No terminology violations found; all 322 file(s) compliant",
+      "logPath": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/main-proof-api-deferrals-20260915/v3-terminology-strict.stdout.log",
+      "logSha256": "0aa5a9766e05dd5717dd0716600178778d9b12c1aae493920c77b9911ab367e0"
+    },
+    {
+      "argv": ["npm", "run", "qc:openspec-ci:validate"],
+      "exitCode": 0,
+      "summaryLine": "workflowContracts=8/8 aggregatorNeeds=18/18 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=14 accountedActiveOpenSpecChanges=14 errors=0",
+      "logPath": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/main-proof-api-deferrals-20260915/v4-qc-openspec-ci.stdout.log",
+      "logSha256": "f01feb11318234aab4764fe76151b78c06905527212a8f8723626fcf616b71d6"
+    }
+  ],
+  "tasksChecked": {
+    "file": "openspec/changes/add-authoritative-history-branches/tasks.md",
+    "lines": {
+      "8.1": "- [ ] 8.1 Keep player-authored simulation creation disabled; enabling it requires a separate approved UX change.",
+      "8.2": "- [ ] 8.2 A future change may promote only by revalidating semantic commands against the current target and emitting new target events with provenance.",
+      "8.3": "- [ ] 8.3 A future change MUST prove simulations cannot dispatch effects, reveal hidden history, mutate authority, or bypass branch/revision validation."
+    },
+    "allUnchecked": true
+  },
+  "finalWorktreeState": {
+    "leftDetachedAt": "ebe80aff8f221f737c81b24e78c33fa3699daf06",
+    "gitStatusPorcelainEmpty": true
+  },
+  "fullResultAndLogs": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/main-proof-api-deferrals-20260915/result.json"
+}

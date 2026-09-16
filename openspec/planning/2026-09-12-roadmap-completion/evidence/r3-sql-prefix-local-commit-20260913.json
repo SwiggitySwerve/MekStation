@@ -1,0 +1,287 @@
+{
+  "at": "2026-09-13T09:21:51.583Z",
+  "status": "local-verified-committed-not-published",
+  "prefix": "R3.storage.C",
+  "commit": "fd335ee371c522957544c96b1e7f62772075b504",
+  "base": "22cbe105fc9b050cc136f823d4bddc5f6fb6c8fc",
+  "branch": "codex/roadmap-history-sql-integrity-20260913",
+  "files": [
+    {
+      "path": "src/services/persistence/SQLiteService.historyBranchesIntegrity.migration.ts",
+      "sha256": "10c49bb4ddd36c046a9ee2a5874273927b82c61d1cf77315ee9f7841ea4e263a"
+    },
+    {
+      "path": "src/services/persistence/SQLiteService.migrations.ts",
+      "sha256": "220fa101e4b7a043fa6c6b5a64f570f3b772cec74d0ad4810cf9f494eaa96bfe"
+    },
+    {
+      "path": "src/services/persistence/__tests__/SQLiteService.actionAudit.migration.test.ts",
+      "sha256": "dbdf74039ec73575d30d302ec585e96946545d3b91141525260edaf41e0c4ec6"
+    },
+    {
+      "path": "src/services/persistence/__tests__/SQLiteService.actionAuditSessionIdentity.migration.test.ts",
+      "sha256": "323f01aa73803a4d18b27a61b82970eb3922f88ba312b1e24bc06131945c1f62"
+    },
+    {
+      "path": "src/services/persistence/__tests__/SQLiteService.campaignGrants.migration.test.ts",
+      "sha256": "1ec523fa87879c92222f85dbb2084ce0854bd10dcc71ec847284e9549a550cb1"
+    },
+    {
+      "path": "src/services/persistence/__tests__/SQLiteService.deliveryEpochs.migration.test.ts",
+      "sha256": "8f7e00821d7c21516d8d06acc20c06fd90eb1dbeab696d6b1370e9a18b10b330"
+    },
+    {
+      "path": "src/services/persistence/__tests__/SQLiteService.historyBranches.migration.test.ts",
+      "sha256": "375e2d1adf796a0e00885c0e11a444f22b53549c001457b4d1ef5428f684c729"
+    },
+    {
+      "path": "src/services/persistence/__tests__/SQLiteService.privateRecordRejectionOnce.migration.test.ts",
+      "sha256": "9f2c83ef4d3268170e91acd49e1d882da93eafc5745778eb105d431e047ba399"
+    },
+    {
+      "path": "src/services/persistence/__tests__/SQLiteService.privateRecords.migration.test.ts",
+      "sha256": "043cf4f6d47374131b267ba1407c017a5d42cd85c3c2bc05bbf3773f81e8c74b"
+    },
+    {
+      "path": "src/services/persistence/__tests__/SQLiteService.replayCheckpoints.migration.test.ts",
+      "sha256": "578d805e2c98c1e1db2b6ff22934884bae55cdaae354f7d6b89977e9aff6962e"
+    },
+    {
+      "path": "src/services/persistence/__tests__/SQLiteService.replayCheckpointsBranch.migration.test.ts",
+      "sha256": "9b056349323d5532d3929c739e59757fea8c50c1f67cb6dcf029429ef1d8c951"
+    }
+  ],
+  "changedLines": 167,
+  "tests": {
+    "passed": 423,
+    "suites": 47,
+    "exit": 0
+  },
+  "gates": [
+    {
+      "name": "sql-integrity",
+      "exe": "C:\\nvm4w\\nodejs\\node.exe",
+      "args": [
+        "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/history-sql-integrity/node_modules/jest/bin/jest.js",
+        "--runInBand",
+        "--coverage=false",
+        "src/lib/events/journal",
+        "src/services/persistence",
+        "src/lib/multiplayer/server/__tests__/campaignProgressionReaders.durable.integrity.test.ts",
+        "src/lib/multiplayer/server/__tests__/CampaignSyncSession.test.ts"
+      ],
+      "startedAt": "2026-09-13T09:13:15.390Z",
+      "exitCode": 0,
+      "signal": null,
+      "finishedAt": "2026-09-13T09:14:40.596Z"
+    },
+    {
+      "name": "normal-commit-with-build-hook",
+      "exe": "git",
+      "args": [
+        "commit",
+        "-m",
+        "fix(history): guard persisted root and effective-head writes"
+      ],
+      "startedAt": "2026-09-13T09:14:40.882Z",
+      "exitCode": 0,
+      "signal": null,
+      "finishedAt": "2026-09-13T09:19:08.977Z"
+    },
+    {
+      "name": "typecheck",
+      "exe": "C:\\nvm4w\\nodejs\\node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "typecheck"
+      ],
+      "startedAt": "2026-09-13T09:19:09.007Z",
+      "exitCode": 0,
+      "signal": null,
+      "finishedAt": "2026-09-13T09:20:10.058Z"
+    },
+    {
+      "name": "lint",
+      "exe": "C:\\nvm4w\\nodejs\\node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "lint"
+      ],
+      "startedAt": "2026-09-13T09:20:10.058Z",
+      "exitCode": 0,
+      "signal": null,
+      "finishedAt": "2026-09-13T09:20:11.496Z"
+    },
+    {
+      "name": "format",
+      "exe": "C:\\nvm4w\\nodejs\\node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "format:check"
+      ],
+      "startedAt": "2026-09-13T09:20:11.496Z",
+      "exitCode": 0,
+      "signal": null,
+      "finishedAt": "2026-09-13T09:20:27.386Z"
+    },
+    {
+      "name": "purpose",
+      "exe": "C:\\nvm4w\\nodejs\\node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "spec:purpose:validate:strict"
+      ],
+      "startedAt": "2026-09-13T09:20:27.387Z",
+      "exitCode": 0,
+      "signal": null,
+      "finishedAt": "2026-09-13T09:20:28.949Z"
+    },
+    {
+      "name": "terminology",
+      "exe": "C:\\nvm4w\\nodejs\\node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "terminology:validate:strict"
+      ],
+      "startedAt": "2026-09-13T09:20:28.950Z",
+      "exitCode": 0,
+      "signal": null,
+      "finishedAt": "2026-09-13T09:20:39.720Z"
+    },
+    {
+      "name": "quality",
+      "exe": "C:\\nvm4w\\nodejs\\node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "qc:openspec-ci:validate"
+      ],
+      "startedAt": "2026-09-13T09:20:39.720Z",
+      "exitCode": 0,
+      "signal": null,
+      "finishedAt": "2026-09-13T09:20:39.999Z"
+    },
+    {
+      "name": "openspec",
+      "exe": "C:\\nvm4w\\nodejs\\node.exe",
+      "args": [
+        "C:/Users/wroll/AppData/Roaming/npm/node_modules/@fission-ai/openspec/bin/openspec.js",
+        "validate",
+        "--all",
+        "--strict"
+      ],
+      "startedAt": "2026-09-13T09:20:39.999Z",
+      "exitCode": 0,
+      "signal": null,
+      "finishedAt": "2026-09-13T09:20:41.072Z"
+    }
+  ],
+  "normalHookBuildAndHydrationPassed": true,
+  "combined19SourcesMatchReviewedFrozenComposition": true,
+  "independentReview": "APPROVE_SCOPED /root/r3_storage_security_review",
+  "limits": [
+    "No publication/mainproof/cleanup",
+    "PrefixA publication approval remains pending; do not indirectly export it through B or C",
+    "Migration23unchanged; migration31guardsnewwrites without rewriting existing evidence",
+    "No CAMPcutover or player simulationenablement"
+  ],
+  "artifacts": [
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-sql-prefix-delivery-gates-20260913/report.json",
+      "sha256": "a7de88cd5212973baaa15447d2fbc8ddb074153eca5450b11b96f9d62358bb77"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-sql-prefix-delivery-gates-20260913/driver-status.json",
+      "sha256": "0f69e105880210458c8c6b75ab06a53c13478832799e770ec76e62bbfd854768"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-sql-prefix-delivery-gates-20260913/affinity.json",
+      "sha256": "62cf545d544c4ffa8557b97e4a620a7b26503ced51a85bbfc9dad656622c9297"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-sql-prefix-delivery-gates-20260913/sql-integrity.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-sql-prefix-delivery-gates-20260913/sql-integrity.stderr.log",
+      "sha256": "7ae46c1a01b84c1596f6f02204b57253a9532e69e1ac403fa1a0a2fbf7088f92"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-sql-prefix-delivery-gates-20260913/normal-commit-with-build-hook.stdout.log",
+      "sha256": "955e2a7f7393403ca39a7a00b918a513f746995e11ad4a102bad141776ee4e05"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-sql-prefix-delivery-gates-20260913/normal-commit-with-build-hook.stderr.log",
+      "sha256": "429bc9f2dbb45d86c0d2d8eac52dcbafaaace69e40fdac482ece8d01133385c2"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-sql-prefix-delivery-gates-20260913/typecheck.stdout.log",
+      "sha256": "d140a6ce62dda0946fe30dd882dbb8209f05be72c8fa8850e5634755a399e50f"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-sql-prefix-delivery-gates-20260913/typecheck.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-sql-prefix-delivery-gates-20260913/lint.stdout.log",
+      "sha256": "f210ae70341a380305695f5f88b17a490e629e8bac26db13c88c95f723a29e46"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-sql-prefix-delivery-gates-20260913/lint.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-sql-prefix-delivery-gates-20260913/format.stdout.log",
+      "sha256": "4eb32894e554059b3938dd611bcb1930a577f1c31cee7bb382564f80efe6d470"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-sql-prefix-delivery-gates-20260913/format.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-sql-prefix-delivery-gates-20260913/purpose.stdout.log",
+      "sha256": "69b656b4fd08973416df330922c2bd282146fbb927e669dd3c70244b5d8177ea"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-sql-prefix-delivery-gates-20260913/purpose.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-sql-prefix-delivery-gates-20260913/terminology.stdout.log",
+      "sha256": "0aa5a9766e05dd5717dd0716600178778d9b12c1aae493920c77b9911ab367e0"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-sql-prefix-delivery-gates-20260913/terminology.stderr.log",
+      "sha256": "5785c83e5401625a982001eb651d616cd4c9a1b4f26ddd7ee234ac97b6f88f29"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-sql-prefix-delivery-gates-20260913/quality.stdout.log",
+      "sha256": "f01feb11318234aab4764fe76151b78c06905527212a8f8723626fcf616b71d6"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-sql-prefix-delivery-gates-20260913/quality.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-sql-prefix-delivery-gates-20260913/openspec.stdout.log",
+      "sha256": "cc90ade73c964f27cfcde5ca721882bbaef3d4c6cab944254433acb7eafcd407"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-sql-prefix-delivery-gates-20260913/openspec.stderr.log",
+      "sha256": "5bc31df123a2e521acdd2c0d9477b367feec506471a91065d0a6b32c09089ed5"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-sql-prefix-parent-20260913/transfer.json",
+      "sha256": "4a3cd509591b2c57edc555c94d9e02c7239c5c82cd99a82e5053effde49eb9c5"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r3-integrity-corrected-final-review-terra-20260913/report.json",
+      "sha256": "a1239b046aa95d3be1ff6750f1e787d55b09d22fc6ee3dfb97306b04dea5677b"
+    }
+  ]
+}

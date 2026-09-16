@@ -1,0 +1,67 @@
+{
+  "task": "Independent review of branch codex/roadmap-qc-fixture-port-range-20260915 (commits 66853bfcc red-first, 3bfc4387e fix), base 91b66b04c",
+  "date": "2026-09-15",
+  "verdict": "APPROVE",
+  "verificationCommands": [
+    "git -C E:/Projects/MekStation log --oneline -5 codex/roadmap-qc-fixture-port-range-20260915",
+    "git -C E:/Projects/MekStation merge-base 91b66b04c codex/roadmap-qc-fixture-port-range-20260915",
+    "git -C E:/Projects/MekStation show --stat 66853bfcc",
+    "git -C E:/Projects/MekStation show --stat 3bfc4387e",
+    "git -C E:/Projects/MekStation show -p 66853bfcc -- scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+    "git -C E:/Projects/MekStation show -p 3bfc4387e -- scripts/qc/gm-two-player-campaign-core.cjs",
+    "git -C E:/Projects/MekStation diff --stat 91b66b04c 3bfc4387e",
+    "git -C E:/Projects/MekStation diff 91b66b04c 3bfc4387e -- scripts/qc/camp01-authority-receipt.contract.mjs",
+    "grep -ni 'port|37000|deriveFixture|gm-two-player-campaign-core' scripts/qc/camp01-authority-receipt.contract.mjs",
+    "grep -rnE '\\b2[0-9]{4}\\b' src scripts e2e playwright.config.ts .github",
+    "grep -rn 'MEKSTATION_E2E_PORT' src scripts e2e playwright.config.ts .github",
+    "grep -rn '\"dev\"|\"start\"|PORT' package.json",
+    "node scratch script (deriveFixturePort mirror, base 37000 vs 20000) for the 5 test runIds",
+    "sha256sum on .sisyphus/roadmap-completion-20260912/qc-fixture-port-20260915/red.log and grep for the failing assertion"
+  ],
+  "checks": {
+    "1_diff_is_exactly_scoped": {
+      "result": "PASS",
+      "evidence": "git diff --stat 91b66b04c 3bfc4387e shows exactly two files: scripts/__tests__/gm-two-player-campaign-qc.test.ts (18 insertions) and scripts/qc/gm-two-player-campaign-core.cjs (5 changed: 4 insertions, 1 deletion). git show -p for both commits confirms 66853bfcc adds only one new `it(...)` block (18 lines, no other edits) after the existing 'refuses FOREIGN_PATH' test at line 559, and 3bfc4387e changes only the `return 37000 + ...` line in deriveFixturePort to `return 20000 + ...` plus a 3-line explanatory comment. Nothing else touched in either commit."
+    },
+    "2_red_then_green": {
+      "result": "PASS",
+      "evidence": "red.log at E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/qc-fixture-port-20260915/red.log exists on disk; sha256sum matches the receipt's claimed hash exactly (38f0eb772c9991cd42f4bf1d308a11fe5b8eb04478b4c8bddca9f3e95a19692b, 64 hex chars, valid sha256). grep of the file shows the new test 'derives fixture ports outside the OS ephemeral port range' failed with `expect(received).toBeLessThan(expected)` / `Received: 37455` at scripts/__tests__/gm-two-player-campaign-qc.test.ts:577:45 -- i.e. red against the pre-fix 37000 base, for the FIRST runId in the test's array ('task-26-membership-smoke'). Independently recomputed deriveFixturePort('task-26-membership-smoke', base=37000) in a scratch node script mirroring the real sha256/readUInt32BE formula and got 37455 -- exact match, confirming the red log is genuine and not fabricated. Did not independently re-execute jest for the green state (not required to trust the receipt once the red log's authenticity and the diff's correctness are both independently confirmed by direct computation of the fix's output -- see check 3)."
+    },
+    "3_port_range_table": {
+      "result": "PASS",
+      "table": [
+        { "runId": "task-26-membership-smoke", "before_base37000": 37455, "after_base20000": 20455 },
+        { "runId": "task-21-authority-recovery", "before_base37000": 41166, "after_base20000": 24166 },
+        { "runId": "task-26-foreign-listener", "before_base37000": 43692, "after_base20000": 26692 },
+        { "runId": "task-26-fixture-smoke", "before_base37000": 44273, "after_base20000": 27273 },
+        { "runId": "synthetic-port-range-check-a", "before_base37000": 37556, "after_base20000": 20556 }
+      ],
+      "method": "Copied the real deriveFixturePort/validateRunId body from git show 3bfc4387e:scripts/qc/gm-two-player-campaign-core.cjs into a scratch script at C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/derive-port-check.cjs and ran it under node v22.22.0 (nvm path exported).",
+      "task-26-foreign-listener_check": "Confirmed exactly as specified: 43692 before (matches both CI failure logs verbatim -- PR 1741 and PR 1720, per port-binding-flake-diagnosis-20260915.json) and 26692 after, which falls inside 20000-29999.",
+      "range_vs_os_ephemeral_ranges": "20000-29999 is entirely below and disjoint from Linux's default ephemeral range (32768-60999), Windows' default (49152-65535), and macOS's default (49152-65535). All 6 evaluated ports (5 test runIds + task-26-foreign-listener) land in [20455, 27273], comfortably inside 20000-29999 and nowhere near any of the three ranges' floors."
+    },
+    "4_no_fixed_port_collision": {
+      "result": "PASS",
+      "grep_command": "grep -rnE '\\b2[0-9]{4}\\b' src scripts e2e playwright.config.ts .github (excluding node_modules), plus grep -rn 'MEKSTATION_E2E_PORT' over the same paths, plus grep -rn '\"dev\"|\"start\"|PORT' package.json",
+      "findings": "Every 5-digit match in the 20000-29999-shaped grep is a C-bills/BV/cost/timeout-ms literal in test fixtures (e.g. hireCost: 25000, Money(25000), timeout: 20000, tonnage * 20000) -- none is a TCP port. MEKSTATION_E2E_PORT has exactly 4 references: two in gm-two-player-campaign-core.cjs (set from plan.environment, read back as Number), two in the qc test file (building the same env var string for assertions), and playwright.config.ts:3 which defaults it to '3600' when unset. package.json's dev script runs `npx kill-port 3600` -- the dev server's fixed port is 3600, far outside 20000-29999. No fixed port literal anywhere in src/scripts/e2e/playwright.config.ts/.github collides with the new 20000-29999 band."
+    },
+    "5_frozen_contract_untouched": {
+      "result": "PASS",
+      "evidence": "git diff 91b66b04c 3bfc4387e -- scripts/qc/camp01-authority-receipt.contract.mjs produced no output (file byte-identical across the whole branch). grep -ni 'port|37000|deriveFixture|gm-two-player-campaign-core' over the contract file returned zero matches to any of those terms (only unrelated matches like 'reporterContracts', 'supportPayment'-style false positives from the word 'port' inside other identifiers were absent -- confirmed by reading the full grep output, which contains no line referencing ports or the core module). Read lines 74-76 directly: `export function commandSequenceDigest(commandSequence) { return createHash('sha256').update(JSON.stringify(commandSequence)).digest('hex'); }` is the only hash-producing function in the file and it hashes only the commandSequence argv arrays declared per-wave in WAVE_CONTRACTS (e.g. camp-00's `[[\"@npm\",\"run\",\"validate:multiplayer:packaged-socket\"]]`), never a port number or process.env. The frozen canonicalArgvDigest values (e.g. camp-00: 8e4005d9f13011f8229bbd457d23a9297a1fc17f0d843c70a1da4bb37c04a501) are therefore structurally incapable of being affected by deriveFixturePort's range."
+    },
+    "6_non_claim_stated_plainly": {
+      "result": "PASS",
+      "evidence": "Both evidence JSONs already state the non-claim plainly and I confirm it independently: port-binding-flake-diagnosis-20260915.json's non_claims list item 1 says the OS-ephemeral-allocator culprit is 'the best-supported inference after ruling out every in-repo cause, not a directly observed fact' and item 1 of that list also says the actual failing GitHub-hosted runner VM was never netstat'd at the failure instant. qc-fixture-port-local-20260915.json's non_claims item 1 restates it for the fix: 'Did not observe the actual GitHub-hosted CI runner at fix time.' Neither document, nor either commit message, claims the runner's kernel allocator was directly observed assigning port 43692 -- the fix is justified by removing the derived port from the OS ephemeral range, which is independently verifiable math (this review's check 3), not by an unverifiable live-runner observation."
+    }
+  },
+  "additionalFindings": [
+    "No AI attribution in either commit message (git log -1 --format=%B on both 66853bfcc and 3bfc4387e contains no Co-Authored-By or Generated-with lines).",
+    "Author on both commits is Wes Rollings <wrollings@gmail.com>, matching the machine-local identity block in CLAUDE.md.",
+    "The red-first ordering is real, not simulated after the fact: 66853bfcc (test-only, red) predates 3bfc4387e (fix, green) by commit timestamp (12:18:45 vs 12:29:41 on 2026-09-15), and the red.log's sha256 hash matches the file currently on disk, so the claimed failure was not fabricated retroactively."
+  ],
+  "requiredEdits": [],
+  "non_claims": [
+    "Did not independently re-run jest against the branch's working tree in this session (per the task's read-only/no-checkout scope) -- verification of the green state relies on (a) the red log's authenticity being independently confirmed via sha256 + direct recomputation matching 37455, and (b) direct recomputation of the post-fix formula for all 6 runIds landing correctly in 20000-29999, which together make the receipt's 'PASS after fix' claim mechanically inevitable rather than something requiring re-execution to trust.",
+    "Did not netstat or otherwise inspect any live CI runner -- this review, like the two evidence documents it checks, treats the OS-ephemeral-range argument as verifiable arithmetic (confirmed) rather than a live-runner observation (never claimed by either evidence doc)."
+  ]
+}

@@ -1,0 +1,151 @@
+{
+  "at": "2026-09-12T20:38:01.372Z",
+  "scope": "R1.specs/data-services",
+  "head": "e58642acede495c45b3b4d4e606dffaa52ccab18",
+  "pr": {
+    "baseRefName": "main",
+    "headRefOid": "e46be07fd837ee3637d893b8df04ba951f5fc447",
+    "mergeCommit": {
+      "oid": "e58642acede495c45b3b4d4e606dffaa52ccab18"
+    },
+    "mergedAt": "2026-09-12T20:34:51Z",
+    "number": 1645,
+    "state": "MERGED",
+    "url": "https://github.com/SwiggitySwerve/MekStation/pull/1645"
+  },
+  "sourceHashes": {
+    "openspec/specs/equipment-services/spec.md": "32d8197b35e45c65842701076d7a5cfd9043838dc6486a0605237caaf4da77f8",
+    "openspec/specs/data-loading-architecture/spec.md": "cfa90d423f395ae2dddc0aa28697929c451ff9788cb58466ef838b2b97b2a66f",
+    "openspec/specs/construction-rules-core/spec.md": "85fefb6f310e6132e4bd99ec4f5f92cb2612731c1505d1e0637cf4c9db6e9aa1"
+  },
+  "rawStatus": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\spec-data-services-main-1\\status.json",
+  "statusSha256": "80099ec0c28ed010715dd17d4e36192ec2a74cf2b186c8b76af88531be132eab",
+  "commands": [
+    {
+      "id": "strict-openspec",
+      "executable": "C:\\nvm4w\\nodejs\\node.exe",
+      "args": [
+        "C:/Users/wroll/AppData/Roaming/npm/node_modules/@fission-ai/openspec/bin/openspec.js",
+        "validate",
+        "--all",
+        "--strict"
+      ],
+      "cwd": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\spec-data-services",
+      "stdout": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\spec-data-services-main-1\\strict-openspec.stdout.log",
+      "stderr": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\spec-data-services-main-1\\strict-openspec.stderr.log",
+      "startedAt": "2026-09-12T20:35:56.910Z",
+      "exitCode": 0,
+      "signal": null,
+      "finishedAt": "2026-09-12T20:35:58.180Z",
+      "stdoutSha256": "16c5c323579e9f348bc2adb0830ebd7bb199a73726ab1098c72331305dcca967",
+      "stderrSha256": "5bc31df123a2e521acdd2c0d9477b367feec506471a91065d0a6b32c09089ed5"
+    },
+    {
+      "id": "purpose",
+      "executable": "C:\\nvm4w\\nodejs\\node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "spec:purpose:validate:strict"
+      ],
+      "cwd": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\spec-data-services",
+      "stdout": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\spec-data-services-main-1\\purpose.stdout.log",
+      "stderr": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\spec-data-services-main-1\\purpose.stderr.log",
+      "startedAt": "2026-09-12T20:35:58.189Z",
+      "exitCode": 0,
+      "signal": null,
+      "finishedAt": "2026-09-12T20:36:00.216Z",
+      "stdoutSha256": "e8abef5ade2cfe4f7229aedcbbf7d555a0de9db9f6146cb5b221934e5057b3a7",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "terminology",
+      "executable": "C:\\nvm4w\\nodejs\\node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "terminology:validate:strict"
+      ],
+      "cwd": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\spec-data-services",
+      "stdout": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\spec-data-services-main-1\\terminology.stdout.log",
+      "stderr": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\spec-data-services-main-1\\terminology.stderr.log",
+      "startedAt": "2026-09-12T20:36:00.221Z",
+      "exitCode": 0,
+      "signal": null,
+      "finishedAt": "2026-09-12T20:36:13.141Z",
+      "stdoutSha256": "f900b2f139d48a4fce3da66f12105cdd633a1cfe6dc8102211bcf03cc6a1cce7",
+      "stderrSha256": "1fb0fe2db397921d614cda553df34623603dfb23309b1d2635dda6042d6546a3"
+    },
+    {
+      "id": "ci-qc",
+      "executable": "C:\\nvm4w\\nodejs\\node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "qc:openspec-ci:validate"
+      ],
+      "cwd": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\spec-data-services",
+      "stdout": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\spec-data-services-main-1\\ci-qc.stdout.log",
+      "stderr": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\spec-data-services-main-1\\ci-qc.stderr.log",
+      "startedAt": "2026-09-12T20:36:13.166Z",
+      "exitCode": 0,
+      "signal": null,
+      "finishedAt": "2026-09-12T20:36:14.728Z",
+      "stdoutSha256": "f01feb11318234aab4764fe76151b78c06905527212a8f8723626fcf616b71d6",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "markdown",
+      "executable": "C:\\nvm4w\\nodejs\\node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "exec",
+        "--no",
+        "--",
+        "prettier",
+        "--check",
+        "openspec/specs/equipment-services/spec.md",
+        "openspec/specs/data-loading-architecture/spec.md",
+        "openspec/specs/construction-rules-core/spec.md"
+      ],
+      "cwd": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\spec-data-services",
+      "stdout": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\spec-data-services-main-1\\markdown.stdout.log",
+      "stderr": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\spec-data-services-main-1\\markdown.stderr.log",
+      "startedAt": "2026-09-12T20:36:14.741Z",
+      "exitCode": 0,
+      "signal": null,
+      "finishedAt": "2026-09-12T20:36:17.828Z",
+      "stdoutSha256": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "diff-check",
+      "executable": "git",
+      "args": [
+        "diff",
+        "--check",
+        "HEAD^",
+        "HEAD",
+        "--",
+        "openspec/specs/equipment-services/spec.md",
+        "openspec/specs/data-loading-architecture/spec.md",
+        "openspec/specs/construction-rules-core/spec.md"
+      ],
+      "cwd": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\spec-data-services",
+      "stdout": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\spec-data-services-main-1\\diff-check.stdout.log",
+      "stderr": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\spec-data-services-main-1\\diff-check.stderr.log",
+      "startedAt": "2026-09-12T20:36:17.830Z",
+      "exitCode": 0,
+      "signal": null,
+      "finishedAt": "2026-09-12T20:36:17.918Z",
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "success": true,
+  "limits": [
+    "Documentation-only exact-main proof; no new runtime/build tests",
+    "Prior forced-strict diagnostic failed the non-strict warning expectation; retained separately, not a passing gate"
+  ],
+  "cleanupPending": true
+}

@@ -1,0 +1,35 @@
+{
+  "capturedAt": "2026-09-12T14:15:23.174Z",
+  "scope": "Parent accepts five finite source/reference repairs, with current file-level fingerprints and exact before-byte reconstruction.",
+  "receipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-campaign-references.json",
+    "sha256": "e7f9e83224e223b0a3fb174e2306d71976224a13200296f98a54781509483ce3"
+  },
+  "verifiedFileHashes": 34,
+  "reconstruction": [
+    {
+      "specPath": "openspec/specs/game-session-management/spec.md",
+      "afterSha256": "52843d4febc0354f597c6f0f6685b23145168a44c008cf253e02e2f3c4d802d6",
+      "beforeSha256": "9fe96ee67f02791d8b312558b2e9a7a64eb6753e2e36911c4429f4d0d00611f4",
+      "selection": "Exact recorded line avoids prefix overlap between IQuickGameUnit and IQuickGameUnitRequest."
+    },
+    {
+      "specPath": "openspec/specs/personnel-management/spec.md",
+      "afterSha256": "631325c73e3332b68cfb59410c80e649187e060e3340b8eebc9fcb39972dea21",
+      "beforeSha256": "05197ae318cc42f048b76f176f9259711a0414d64f939e7d8e910531747d2ebe",
+      "selection": "Exact recorded line avoids prefix overlap between IQuickGameUnit and IQuickGameUnitRequest."
+    }
+  ],
+  "rows": [
+    "combat-analytics",
+    "force-management",
+    "game-session-management",
+    "personnel-management",
+    "repair"
+  ],
+  "limits": [
+    "No new runtime execution is claimed for these five reference rows.",
+    "Original malformed grouped/directory fingerprint records were corrected and retained in the worker backup.",
+    "Publication and exact-main acceptance remain open."
+  ]
+}

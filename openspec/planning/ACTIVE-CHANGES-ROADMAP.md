@@ -1,57 +1,11 @@
-# Active OpenSpec Roadmap
+# Active OpenSpec roadmap
 
-**Status date:** 2026-06-30
-**Scope:** Current OpenSpec queue after the QC/release-readiness implementation waves.
+Current roadmap: [2026-09-12 implementation and completion program](2026-09-12-roadmap-completion/README.md).
 
-## Current Queue
+The preserved admission inventory contains 220 canonical specifications and 13 original change packages. The local active ledger now contains 12 packages after routing was archived; the three original archive moves remain local and this is not a fetched-main package count. The completion program accounts for 376 original task occurrences and 73 dependency nodes. The original 173 checked and 203 open counts are historical bookkeeping. All 40 finite inventory rows have recorded dispositions; their remaining implementation, publication and runtime gates retain separate owners. None of these counts establishes runtime completion.
 
-There are no active OpenSpec changes.
+Use the current program's [dependency and task ledger](2026-09-12-roadmap-completion/roadmap.json), [progress](2026-09-12-roadmap-completion/PROGRESS.md), [delivery contract](2026-09-12-roadmap-completion/DELIVERY.md), and [worker policy](2026-09-12-roadmap-completion/WORKERS.md). The [inventory overview](../../docs/audits/2026-09-12-customizer-spec-reconciliation/inventory-overview.md) lists all canonical capabilities and active packages.
 
-`openspec.cmd list --json` returns:
+The previous June 30 zero-active queue and 211-spec validation were a historical snapshot. They are preserved in [the historical index](2026-09-12-roadmap-completion/evidence/2026-06-30-roadmap-index.md). Older numbered phase plans remain historical context; their queue counts and source claims must be re-grounded before reuse.
 
-```json
-{"changes":[]}
-```
-
-## Current Validation Baseline
-
-| Gate | Result |
-| --- | --- |
-| `openspec.cmd validate --all --strict` | 211 specs passed, 0 failed |
-| `npm.cmd run spec:purpose:validate:strict` | 211 files scanned, 0 errors |
-| `npm.cmd run terminology:validate:strict` | 222 live OpenSpec files scanned, 0 violations |
-| `npm.cmd run qc:openspec-ci:validate` | workflow contracts 8/8, aggregator needs 17/17, errors 0 |
-
-## What Evolved During Implementation
-
-The older active-roadmap lanes have been superseded by archived changes and current source-of-truth specs. The important evolved surfaces now live directly in canonical specs and QC registry coverage:
-
-- App shell route, deep-link, refresh, replay-library, and UI-flow-shell proof.
-- Campaign economy, long-campaign stability, post-combat base/economy recovery, and time-cascade behavior.
-- GM authority, private/public redaction, cascade preview, combat interventions, and unit reload reconciliation.
-- Encounter-to-combat continuity, tactical projection parity, tactical map rule explanations, top-down legibility, and isometric elevation.
-- Combat catalog/rules parity, known-gap honesty, non-BattleMech scope matrices, customizer/export data gates, multiplayer recovery, replay recovery, and maintenance code health.
-
-## Next Change Protocol
-
-Use this sequence for any new feature or behavior that evolves from the current implementation:
-
-1. Create a new focused OpenSpec change.
-2. Keep delta specs scoped to the capability that changed.
-3. Implement and verify against the change artifacts.
-4. Sync accepted deltas into `openspec/specs`.
-5. Merge implementation through PR.
-6. Archive the change after it lands on `main`.
-7. Re-run:
-
-```powershell
-openspec.cmd validate --all --strict
-npm.cmd run spec:purpose:validate:strict
-npm.cmd run terminology:validate:strict
-npm.cmd run qc:openspec-ci:validate
-npm.cmd run qc:app-completion:release -- --json
-```
-
-## Notes
-
-Archived change directories remain durable history. They should not be treated as active backlog unless a new OpenSpec change explicitly reopens that behavior.
+Existing OpenSpec tasks/deltas remain requirement authority. Implement through independently reviewed, capped PRs, verify exact heads and merged main, synchronize accepted canonical deltas, then archive with durable evidence and update the active ledger. Do not infer completion from this index, an old receipt, or the presence of a source module.

@@ -1,0 +1,258 @@
+{
+  "at": "2026-09-13T06:27:20.516Z",
+  "state": "focused-static-build-accepted-browser-pending",
+  "base": "5b229be21e87815f10ce6521dda77b52eef75e3c",
+  "report": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/archive-original-main-proof-20260913/final-proof-report.json",
+    "sha256": "bcfb421d3408463d041106bc4c8cd1c91e9ec8f24e433b6838390ea763d382fc"
+  },
+  "verifiedArtifacts": [
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\archive-original-main-proof-20260913\\01-jest-customizer.stdout.log",
+      "sha256": "ad5041414338223be9b2b2b5af0d92856a0f6b2740cbfcdf972e95777907fbc6"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\archive-original-main-proof-20260913\\01-jest-customizer.stderr.log",
+      "sha256": "9ad85edd3cd84ea42223cdac831386fec7c77b34de695876a6e1da2c1d5302d2"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\archive-original-main-proof-20260913\\02-jest-chassis.stdout.log",
+      "sha256": "ad5041414338223be9b2b2b5af0d92856a0f6b2740cbfcdf972e95777907fbc6"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\archive-original-main-proof-20260913\\02-jest-chassis.stderr.log",
+      "sha256": "53058daadc426e107b716ccdc6c8bc9b004284ef6bd577434bbeab87cf4bf1ab"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\archive-original-main-proof-20260913\\03-jest-equipment.stdout.log",
+      "sha256": "ad5041414338223be9b2b2b5af0d92856a0f6b2740cbfcdf972e95777907fbc6"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\archive-original-main-proof-20260913\\03-jest-equipment.stderr.log",
+      "sha256": "a15aaa60715d8c849fa90d0fd1699bccfc3d27458fc651c25cfc0640c6b08564"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\archive-original-main-proof-20260913\\04-typecheck.stdout.log",
+      "sha256": "d140a6ce62dda0946fe30dd882dbb8209f05be72c8fa8850e5634755a399e50f"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\archive-original-main-proof-20260913\\04-typecheck.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\archive-original-main-proof-20260913\\05-lint.stdout.log",
+      "sha256": "3296735dce85960c0ce085391edd73f03d36bea0bf5943c9b175089016e71e82"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\archive-original-main-proof-20260913\\05-lint.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\archive-original-main-proof-20260913\\06-format-check.stdout.log",
+      "sha256": "8b6cf4b73a4b8fc7b268f674f28a36e2d6a445a93a90c3517e6a0c5202664930"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\archive-original-main-proof-20260913\\06-format-check.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\archive-original-main-proof-20260913\\07-openspec-strict.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\archive-original-main-proof-20260913\\07-openspec-strict.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\archive-original-main-proof-20260913\\07-openspec-strict.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\archive-original-main-proof-20260913\\07-openspec-strict.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\archive-original-main-proof-20260913\\07b-openspec-strict.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\archive-original-main-proof-20260913\\07b-openspec-strict.stderr.log",
+      "sha256": "f8afd60a04eafa399eb8321e06208664bf4d9f97f40342be3c526ef19ef695f7"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\archive-original-main-proof-20260913\\07c-openspec-strict.stdout.log",
+      "sha256": "cc90ade73c964f27cfcde5ca721882bbaef3d4c6cab944254433acb7eafcd407"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\archive-original-main-proof-20260913\\07c-openspec-strict.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\archive-original-main-proof-20260913\\08-spec-purpose-strict.stdout.log",
+      "sha256": "629026f25215446af06f7491ea5757f56e6f66d00cb70d6d432438cb6cb9adf7"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\archive-original-main-proof-20260913\\08-spec-purpose-strict.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\archive-original-main-proof-20260913\\09-terminology-strict.stdout.log",
+      "sha256": "0aa5a9766e05dd5717dd0716600178778d9b12c1aae493920c77b9911ab367e0"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\archive-original-main-proof-20260913\\09-terminology-strict.stderr.log",
+      "sha256": "64786e3246b8d8357500524d52a343662a6145e58bb9dae26c0847e33260dc04"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\archive-original-main-proof-20260913\\11-qc-openspec-ci.stdout.log",
+      "sha256": "f01feb11318234aab4764fe76151b78c06905527212a8f8723626fcf616b71d6"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\archive-original-main-proof-20260913\\11-qc-openspec-ci.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\archive-original-main-proof-20260913\\10-verify-qc.stdout.log",
+      "sha256": "ad39baf79f0df58f7fbb6f408c13a3f6808af72f4423b7d19fcbc89ae0a6544a"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\archive-original-main-proof-20260913\\10-verify-qc.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\archive-original-main-proof-20260913\\12-production-build.stdout.log",
+      "sha256": "ef7739bebaa17d6486b35b27527fb15e244a9d3a85b63d2a46bb685c9dbf4f35"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\archive-original-main-proof-20260913\\12-production-build.stderr.log",
+      "sha256": "b54f65c721deb4406d827e53441d2fa93fefd4f41ae60733822333202857b278"
+    }
+  ],
+  "focusedTests": {
+    "customizer": {
+      "suites": 4,
+      "tests": 23
+    },
+    "chassis": {
+      "suites": 2,
+      "tests": 18
+    },
+    "equipment": {
+      "suites": 5,
+      "tests": 31
+    }
+  },
+  "ledgerHashQualification": {
+    "rawAndGitSha256": "d9faceb665f174d9c5e4a3eae09d1f580f602e7591f70d4432fb327fdc452e5e",
+    "reportedTrimmedTextSha256": "341e4e65694a297dce9293aed9418b3b9348186c09da527c038459c0c90b054d",
+    "originalPreserved": true
+  },
+  "limitations": [
+    "Browser proof pending",
+    "Broader verify:qc failed on four stale frozen-base registry paths; preserved and not reported passing",
+    "Report ledger fingerprint hashes trimmed text; qualification records actual Git bytes"
+  ],
+  "sourceFingerprintsVerified": [
+    {
+      "path": "package.json",
+      "sha256": "eeebcb46214017104ed9cad6feab8f4a7e941816552585fb8230731d6931ad17"
+    },
+    {
+      "path": "playwright.config.ts",
+      "sha256": "762eab86f455ce7029fd48bb0b54d728d6bb819d919d8ef7f927a7ee3044329f"
+    },
+    {
+      "path": "scripts/playwright/run-playwright.mjs",
+      "sha256": "b25d7ea88d9e01dee09d29b25cc9a9d51bc56e739eab9d97e22960a4f50cc311"
+    },
+    {
+      "path": "server.js",
+      "sha256": "e4f973d2cfa7f4c25775e4ce9315b7398655a6a17cfc799793545de84a59ecf6"
+    },
+    {
+      "path": "openspec/changes/add-customizer-edit-recovery/tasks.md",
+      "sha256": "e5cdccf04354576f4e87b26c49a8718a7d0077601ac78e6ec77cbbac36345814"
+    },
+    {
+      "path": "openspec/changes/establish-battlemech-chassis-index/tasks.md",
+      "sha256": "c8a9311e7f83ceb012b52dd3190c8491f191e22e70f742d751136d09d6e4fc05"
+    },
+    {
+      "path": "openspec/changes/repair-equipment-catalog/tasks.md",
+      "sha256": "8eb02dc97e9be437f695887e363f6f4ff39697c20c6c9c5e831e893576f1a987"
+    },
+    {
+      "path": "openspec/specs/customizer-edit-recovery/spec.md",
+      "sha256": "4fae1069a8687858ecdcb48589e8b87c50a1ad9d23d87970cf3b6d29b7de8051"
+    },
+    {
+      "path": "openspec/specs/battlemech-chassis-index/spec.md",
+      "sha256": "37a63513bfa6124d062c51845ebb12d2853c7768cb2bd8f15c1d528ae8f108a3"
+    },
+    {
+      "path": "openspec/specs/equipment-browser/spec.md",
+      "sha256": "c94ed1594e0a066128693929c0ec28317da2f863530428802df9cf33c08a0151"
+    },
+    {
+      "path": "e2e/customizer-edit-recovery.spec.ts",
+      "sha256": "f04641daff42dea7ff459c56d7a3efbb87463ade8c62d11a0f931e37a364b4e0"
+    },
+    {
+      "path": "e2e/customizer-equipment-catalog.spec.ts",
+      "sha256": "379c1884d33696c76e0ec6c415cd3e7b30affbbb23f876cd4742b5ae88674087"
+    },
+    {
+      "path": "e2e/compendium.spec.ts",
+      "sha256": "12e6a407a355609b4c49ed5efc11fd13da09a3c6bd0a255bb60654a87a84207d"
+    },
+    {
+      "path": "src/stores/unit/__tests__/unitEditHistory.test.ts",
+      "sha256": "eced8d477fa0f211343815be1d9813f4770d67e558ca410152d87bbde05ea8b4"
+    },
+    {
+      "path": "src/components/customizer/tabs/__tests__/useSavedHistoryDialog.test.tsx",
+      "sha256": "d1c28c81645be959c98deb0aa2833c25ca8ab825822224fb539824fca73ac37a"
+    },
+    {
+      "path": "src/components/customizer/tabs/__tests__/customizerRecoveryBoundaries.test.tsx",
+      "sha256": "4cfd0b2189658cdb062f0c4e798b01f6d4c496ca4a51e9a95079022bc6411c1f"
+    },
+    {
+      "path": "src/components/customizer/tabs/__tests__/restoreLibraryVersionToDraft.test.ts",
+      "sha256": "92de94ffcece8afd521320345652cfeb8f82b3917405986bfb1356ec27619987"
+    },
+    {
+      "path": "src/services/units/chassis/__tests__/chassisIndex.test.ts",
+      "sha256": "fc54c61581450a5460e8631d41d59b76039a069abb1271a3643d740df1ca1692"
+    },
+    {
+      "path": "src/__tests__/api/chassis.test.ts",
+      "sha256": "b1549680b856fd71b9e0dfcbf76762b6fb83bd5a3fa99b7dd9ed2a1d8f9affca"
+    },
+    {
+      "path": "docs/audits/2026-09-10-chassis-index/verify-browser.mjs",
+      "sha256": "b9e351e16a72ea7416db98260efea5d9c2269cdcd0439570b745685d927de2ae"
+    },
+    {
+      "path": "src/__tests__/stores/equipmentCatalogFilters.test.ts",
+      "sha256": "d600d32d4c63bf96376edf0c2a615005036add86f884c3894667f89c163127b8"
+    },
+    {
+      "path": "src/hooks/__tests__/useEquipmentBrowser.catalog.test.tsx",
+      "sha256": "64ad7408593f37f7849c24e5808d2b1872ac64559c4162b26e5b823581a265e5"
+    },
+    {
+      "path": "src/stores/unit/__tests__/catalogEquipmentPlacement.test.ts",
+      "sha256": "90549d1a88e5914366174a69625fb6f894807ca85a9095408e95d0ab7136e03d"
+    },
+    {
+      "path": "src/components/customizer/equipment/__tests__/CatalogPlacementDialog.test.tsx",
+      "sha256": "fecf1bddf4ae032d0693e48c4cd04922ec12154d3fef8cc1206774ed342b7e14"
+    },
+    {
+      "path": "src/components/customizer/equipment/__tests__/EquipmentCatalogCard.test.tsx",
+      "sha256": "ff587397aab649ae9c6efc325fcd859ddce8b91bd116315a76bca0dd8a8b8df5"
+    }
+  ],
+  "frozenHeadVerified": "5b229be21e87815f10ce6521dda77b52eef75e3c"
+}

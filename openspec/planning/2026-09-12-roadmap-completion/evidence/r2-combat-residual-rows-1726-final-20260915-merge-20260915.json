@@ -1,0 +1,51 @@
+{
+  "pr": 1726,
+  "branch": "codex/roadmap-r2-combat-residual-rows-20260915",
+  "reviewedCommit": "8bc4d99e43d35fe2843ac2b8c8b860d92ba66ffb",
+  "finalHead": "937ef4f14560232cd0b9124da862bb70c806f591",
+  "autoMergeArmed": false,
+  "contentGuard": {
+    "method": "file set from `git diff --name-only origin/main...<head>` vs the reviewed file set, plus per-file blob equality against the reviewed commit; re-run after update-branch",
+    "fileCountAtMerge": 1,
+    "blobEquality": "all files blob-identical to the reviewed commit at the gated head",
+    "result": "PASS"
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "expectedHeadShaGuardUsed": true,
+    "newHead": "937ef4f14560232cd0b9124da862bb70c806f591"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "otherChecksCount": 27,
+    "otherChecksBuckets": {
+      "pass": 27
+    },
+    "totalChecks": 31
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-combat-residual-rows-1726-final-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "8c8f8221c4c1882f671d8fad7c2386ef9d10ca44",
+  "mergeCommitParents": [
+    "231c7848aa0850b616a84581ff3c54e1d5ddb6bf"
+  ],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1726 --squash --match-head-commit 937ef4f14560232cd0b9124da862bb70c806f591",
+  "mergedAt": "2026-09-15T15:33:54Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "The merge commit changes exactly 1 file(s), all blob-identical to the gated head 937ef4f14560232cd0b9124da862bb70c806f591.",
+  "mainAfter": "8c8f8221c4c1882f671d8fad7c2386ef9d10ca44",
+  "worktree": {
+    "fastForward": "NOT PERFORMED - coordinator designated the owned worktrees as off-limits for these PRs",
+    "result": "SKIPPED (intentional)"
+  },
+  "timestamps": {
+    "receiptWrittenAt": "2026-09-15T17:02:00Z"
+  }
+}

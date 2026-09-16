@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "triage-source-comment-cleanup",
+  "capturedAt": "2026-09-12",
+  "worktree": "E:/Projects/MekStation",
+  "scope": "Bounded comment-only cleanup for three directly verified stale source comments. No executable code, spec, roadmap, task, test, build, server, or Git state changes were made.",
+  "ownedPaths": [
+    "src/utils/gameplay/pilotingSkillRolls/types.ts",
+    "src/types/campaign/UnitCombatState.ts",
+    "src/lib/campaign/hooks/useCampaignDashboardSummary.ts",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-source-comment-cleanup.json"
+  ],
+  "rows": [
+    {
+      "id": "psr-category-comment",
+      "path": "src/utils/gameplay/pilotingSkillRolls/types.ts",
+      "lines": "63-66",
+      "originalComment": " * by category instead of enumerating all 27 codes.",
+      "correctedComment": " * by category instead of enumerating individual codes.",
+      "oldText": " * by category instead of enumerating all 27 codes.",
+      "newText": " * by category instead of enumerating individual codes.",
+      "oldOccurrences": 1,
+      "newOccurrences": 1,
+      "beforeSha256": "01cb3533d1c9cb46e9fabe04852f9bfd95061489fa328b49359d6840c9088bc6",
+      "afterSha256": "754bfbd679763144963effd97cf7833c68ab5a243c18d1d384f2005b79b9e8fd",
+      "beforeBytes": 4605,
+      "afterBytes": 4609,
+      "verification": "The surrounding comment describes four category buckets; the correction removes an unnecessary exact-count claim while preserving the taxonomy explanation.",
+      "reverseReconstruction": {
+        "method": "Replace newText with oldText exactly once in the after bytes.",
+        "expectedSha256": "01cb3533d1c9cb46e9fabe04852f9bfd95061489fa328b49359d6840c9088bc6",
+        "verified": true
+      },
+      "priorFingerprintDrift": "The file hash changes because comment bytes changed; this is expected comment-only drift from prior test fingerprints."
+    },
+    {
+      "id": "combat-ready-comment",
+      "path": "src/types/campaign/UnitCombatState.ts",
+      "lines": "62-63",
+      "originalComment": "  /** True when CT structure is zero or unit was tagged destroyed. */",
+      "correctedComment": "  /** Deployment eligibility flag; isUnitCombatReady also checks CT structure. */",
+      "oldText": "  /** True when CT structure is zero or unit was tagged destroyed. */",
+      "newText": "  /** Deployment eligibility flag; isUnitCombatReady also checks CT structure. */",
+      "oldOccurrences": 1,
+      "newOccurrences": 1,
+      "beforeSha256": "aac63f2c13032941fe20d16cd6ab767914b2c3d53f331b2a42de631ae3b780ab",
+      "afterSha256": "d347985ceaf08e0e3908dc42fc48bb63ed714eadcf52d598c5eb584852cbce8f",
+      "beforeBytes": 5474,
+      "afterBytes": 5486,
+      "verification": "isUnitCombatReady returns false when combatReady is false and separately rejects current CT structure at zero or below (lines 120-134).",
+      "reverseReconstruction": {
+        "method": "Replace newText with oldText exactly once in the after bytes.",
+        "expectedSha256": "aac63f2c13032941fe20d16cd6ab767914b2c3d53f331b2a42de631ae3b780ab",
+        "verified": true
+      },
+      "priorFingerprintDrift": "The file hash changes because the eligibility comment changed; executable readiness logic and its prior fingerprints were preserved."
+    },
+    {
+      "id": "dashboard-subscription-comment",
+      "path": "src/lib/campaign/hooks/useCampaignDashboardSummary.ts",
+      "lines": "11-14",
+      "originalComment": " * The hook is intentionally a pure selector — it produces a snapshot of\n * the current state. No subscriptions, no side effects. Components that\n * need live updates re-render when their consumed store slices change\n * (the standard Zustand pattern); the hook's caller controls reactivity.",
+      "correctedComment": " * The hook subscribes to campaign and roster store slices through Zustand\n * selectors and memoizes the derived summary. Store updates to consumed\n * slices re-render the hook; deriving the summary has no other side effects.",
+      "oldText": " * The hook is intentionally a pure selector — it produces a snapshot of\n * the current state. No subscriptions, no side effects. Components that\n * need live updates re-render when their consumed store slices change\n * (the standard Zustand pattern); the hook's caller controls reactivity.",
+      "newText": " * The hook subscribes to campaign and roster store slices through Zustand\n * selectors and memoizes the derived summary. Store updates to consumed\n * slices re-render the hook; deriving the summary has no other side effects.",
+      "oldOccurrences": 1,
+      "newOccurrences": 1,
+      "beforeSha256": "f321dd2465694e7bbfcc1e26c4529699f36a43094983de10f9177e01a7ff4e74",
+      "afterSha256": "f07cbff05ce9e732c659e51f8e5a7ef696b6554388aac5291f51fa20e10d191b",
+      "beforeBytes": 16618,
+      "afterBytes": 16551,
+      "verification": "The hook imports useStore/useCampaignRosterStore and subscribes to campaign and roster slices in the live function at lines 431-439; useMemo derives the summary without other side effects.",
+      "reverseReconstruction": {
+        "method": "Replace newText with oldText exactly once in the after bytes.",
+        "expectedSha256": "f321dd2465694e7bbfcc1e26c4529699f36a43094983de10f9177e01a7ff4e74",
+        "verified": true
+      },
+      "priorFingerprintDrift": "The file hash changes because the subscription comment changed; store subscription behavior and prior test fingerprints were preserved."
+    }
+  ],
+  "validation": [
+    {
+      "command": "npx.cmd oxfmt --check src/utils/gameplay/pilotingSkillRolls/types.ts src/types/campaign/UnitCombatState.ts src/lib/campaign/hooks/useCampaignDashboardSummary.ts",
+      "exitCode": 0,
+      "result": "All matched files use the correct format."
+    },
+    {
+      "command": "git diff --check -- src/utils/gameplay/pilotingSkillRolls/types.ts src/types/campaign/UnitCombatState.ts src/lib/campaign/hooks/useCampaignDashboardSummary.ts",
+      "exitCode": 0,
+      "result": "No whitespace errors"
+    }
+  ],
+  "limits": [
+    "This receipt records source comments only; no tests, builds, lint, typecheck, servers, or runtime commands were run.",
+    "The diff was inspected as three comment replacements with no executable changes; comments do not constitute runtime proof.",
+    "Before/after SHA-256 values are anchored to the captured live files. Prior test fingerprints may report byte drift solely because these comments changed.",
+    "Reverse reconstruction was verified from each after image to its recorded before SHA-256; no historical receipt hashes were changed."
+  ]
+}

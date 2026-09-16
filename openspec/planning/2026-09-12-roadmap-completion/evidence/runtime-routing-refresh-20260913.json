@@ -1,0 +1,48 @@
+{
+  "at": "2026-09-13T00:11:15.261Z",
+  "status": "routing-revalidated-after-runtime-update",
+  "capabilityCheck": {
+    "cwd": "C:/Users/wroll/.codex",
+    "command": "omx capabilities check --lockfile omx-capabilities.lock.json",
+    "exit": 0,
+    "result": "OK: capabilities satisfied"
+  },
+  "routingAudit": {
+    "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File C:/Users/wroll/.codex/skills/adaptive-model-routing/scripts/audit-routing.ps1",
+    "exit": 0,
+    "globalModel": "gpt-6-astra",
+    "globalEffort": "high",
+    "agents": 36,
+    "xhighAgents": 4,
+    "otherAgentsHigh": true
+  },
+  "effectiveConcurrency": {
+    "totalIncludingParent": 4,
+    "children": 3
+  },
+  "oldNativeHandles": "Absent from authoritative agent list after runtime update; no old worker resumed implicitly.",
+  "currentAssignments": [
+    "authority_admission_xhigh",
+    "battlearmor_main_verify",
+    "ci_reconcile_verify"
+  ],
+  "deferredUnfinished": [
+    "R2.receipts prior assignment lacks output directory and must be freshly assigned when capacity allows.",
+    "Prior Max authority assignment lacked output directory; replacement is Luna xhigh."
+  ],
+  "localSourceFingerprints": [
+    {
+      "path": "C:/Users/wroll/.codex/config.toml",
+      "sha256": "205269b9644b179ca3670c07435155372c6bd07e6ad95d8d4d9c01196afba856"
+    },
+    {
+      "path": "C:/Users/wroll/.codex/omx-capabilities.lock.json",
+      "sha256": "3cc0e9fe0002d3e477ca03f184d47234cefb1acad484dcc8d795a69b402a9ca0"
+    },
+    {
+      "path": "C:/Users/wroll/.codex/agents/executor.toml",
+      "sha256": "59e1a4cb753b50fe53e5c869b133d27630e03f7f4bb73302e615899efefb9a28"
+    }
+  ],
+  "noGlobalConfigMutation": true
+}

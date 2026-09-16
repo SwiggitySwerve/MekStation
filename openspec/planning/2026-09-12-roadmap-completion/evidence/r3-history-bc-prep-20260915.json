@@ -1,0 +1,433 @@
+{
+  "at": "2026-09-15T06:36:21.988Z",
+  "purpose": "Prepare R3.storage prefixes B (runtime integrity) and C (SQL integrity) for publication on top of main+A, ahead of PR #1671 (prefix A) landing.",
+  "scope": "Preparation and local proof only. No push, no PR, no merge performed.",
+  "baseMain": {
+    "ref": "origin/main",
+    "sha": "c3b4cc1e3ace35ff95b7999d9680a5d657ca344f",
+    "subject": "docs(openspec): archive verified chassis index package (#1669)",
+    "note": "Newer than the expected ebe80aff8f22 (ebe80aff8 is its parent). Prefix A (#1671) is NOT yet on main at fetch time: the three fixture files still differ from 870f93856d."
+  },
+  "checkout": {
+    "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/history-sql-integrity",
+    "branch": "codex/roadmap-history-bc-prep-20260915",
+    "head": "d2fd6da059ed1616182cfc11a4ae33d665f8c940",
+    "statusPorcelainEmpty": true,
+    "rationale": "Reused the existing history-sql-integrity worktree because it already carries an installed node_modules; no new worktree was created and no node_modules were copied, linked, installed, or rebuilt. package.json and package-lock.json are byte-identical between fd335ee37 and c3b4cc1e3, so the existing install stays valid."
+  },
+  "originalBranchesUnchanged": {
+    "codex/roadmap-history-fixtures-20260913": "870f93856d5b09eb1ed7191be94a5a3e9e52103c",
+    "codex/roadmap-history-runtime-integrity-20260913": "22cbe105fc9b050cc136f823d4bddc5f6fb6c8fc",
+    "codex/roadmap-history-sql-integrity-20260913": "fd335ee371c522957544c96b1e7f62772075b504"
+  },
+  "cherryPicks": [
+    {
+      "id": "A",
+      "purpose": "Normalize three parentless-root test fixtures to the canonical genesis digest.",
+      "source": "870f93856d5b09eb1ed7191be94a5a3e9e52103c",
+      "result": "e2590ba6100cbc5a4b52f75b0b620f12db587dd0",
+      "exitCode": 0,
+      "conflicts": [],
+      "files": [
+        "src/lib/events/journal/__tests__/EventHistoryArtifactManifest.test.ts",
+        "src/services/persistence/__tests__/SQLiteService.artifactManifest.migration.test.ts",
+        "src/services/persistence/__tests__/SQLiteService.correctionLeases.migration.test.ts"
+      ],
+      "log": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/history-bc-prep-20260915/cherry-pick-A.stdout.log",
+        "sha256": "8421c62c920ca8a8212d19980c0035ff1e123f128ac90bd63bd06ef16a734f67"
+      }
+    },
+    {
+      "id": "B",
+      "purpose": "Validate persisted roots and effective heads at runtime; durable campaign reader preserves integrity refusal.",
+      "source": "22cbe105fc9b050cc136f823d4bddc5f6fb6c8fc",
+      "result": "381ef3ab7fb12637e516f767a4585a82bf03eae3",
+      "exitCode": 0,
+      "conflicts": [],
+      "files": [
+        "src/lib/events/journal/EventHistoryBranchContract.ts",
+        "src/lib/events/journal/SQLiteEventHistoryBranchStore.ts",
+        "src/lib/events/journal/__tests__/SQLiteEventHistoryBranchStore.test.ts",
+        "src/lib/multiplayer/server/__tests__/campaignProgressionReaders.durable.integrity.test.ts",
+        "src/lib/multiplayer/server/campaignProgressionReaders.durable.ts"
+      ],
+      "log": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/history-bc-prep-20260915/cherry-pick-B.stdout.log",
+        "sha256": "56d30f5fe5f069a51b3b7c467ca824371a6882530e1405eccbcb6d45b8e9b0b3"
+      }
+    },
+    {
+      "id": "C",
+      "purpose": "Forward SQLite migration 31 guards malformed new roots and ineffective head pointers.",
+      "source": "fd335ee371c522957544c96b1e7f62772075b504",
+      "result": "d2fd6da059ed1616182cfc11a4ae33d665f8c940",
+      "exitCode": 0,
+      "conflicts": [],
+      "files": [
+        "src/services/persistence/SQLiteService.historyBranchesIntegrity.migration.ts",
+        "src/services/persistence/SQLiteService.migrations.ts",
+        "src/services/persistence/__tests__/SQLiteService.actionAudit.migration.test.ts",
+        "src/services/persistence/__tests__/SQLiteService.actionAuditSessionIdentity.migration.test.ts",
+        "src/services/persistence/__tests__/SQLiteService.campaignGrants.migration.test.ts",
+        "src/services/persistence/__tests__/SQLiteService.deliveryEpochs.migration.test.ts",
+        "src/services/persistence/__tests__/SQLiteService.historyBranches.migration.test.ts",
+        "src/services/persistence/__tests__/SQLiteService.privateRecordRejectionOnce.migration.test.ts",
+        "src/services/persistence/__tests__/SQLiteService.privateRecords.migration.test.ts",
+        "src/services/persistence/__tests__/SQLiteService.replayCheckpoints.migration.test.ts",
+        "src/services/persistence/__tests__/SQLiteService.replayCheckpointsBranch.migration.test.ts"
+      ],
+      "log": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/history-bc-prep-20260915/cherry-pick-C.stdout.log",
+        "sha256": "2aa6d285c538f6673721366e1f601038828d9e954b60d468002e490686c35216"
+      }
+    }
+  ],
+  "blobEquality": {
+    "allEqual": true,
+    "driftCount": 0,
+    "entries": [
+      {
+        "file": "src/lib/events/journal/__tests__/EventHistoryArtifactManifest.test.ts",
+        "source": "32054032581812f520c4081ba89bce8e788fddbf",
+        "cherryPicked": "32054032581812f520c4081ba89bce8e788fddbf",
+        "equal": true
+      },
+      {
+        "file": "src/services/persistence/__tests__/SQLiteService.artifactManifest.migration.test.ts",
+        "source": "5e79a3dc4ccbbff91f659c8e4e8b02c49d6afea5",
+        "cherryPicked": "5e79a3dc4ccbbff91f659c8e4e8b02c49d6afea5",
+        "equal": true
+      },
+      {
+        "file": "src/services/persistence/__tests__/SQLiteService.correctionLeases.migration.test.ts",
+        "source": "44fd5f1a55d2e573be0c5a04d63c6a8403b45502",
+        "cherryPicked": "44fd5f1a55d2e573be0c5a04d63c6a8403b45502",
+        "equal": true
+      },
+      {
+        "file": "src/lib/events/journal/EventHistoryBranchContract.ts",
+        "source": "5f6bbef36f6ebb3693f0f5d9e4c22d65a9fc6d0a",
+        "cherryPicked": "5f6bbef36f6ebb3693f0f5d9e4c22d65a9fc6d0a",
+        "equal": true
+      },
+      {
+        "file": "src/lib/events/journal/SQLiteEventHistoryBranchStore.ts",
+        "source": "ce2b4b3e8125f532969818b8e04b1fe4f84389f2",
+        "cherryPicked": "ce2b4b3e8125f532969818b8e04b1fe4f84389f2",
+        "equal": true
+      },
+      {
+        "file": "src/lib/events/journal/__tests__/SQLiteEventHistoryBranchStore.test.ts",
+        "source": "37f81c4ec84c4f5aca72077e91a90a2eb39d8eef",
+        "cherryPicked": "37f81c4ec84c4f5aca72077e91a90a2eb39d8eef",
+        "equal": true
+      },
+      {
+        "file": "src/lib/multiplayer/server/__tests__/campaignProgressionReaders.durable.integrity.test.ts",
+        "source": "71b1d6526fd3fe6eb796a90c88579119ea848f8a",
+        "cherryPicked": "71b1d6526fd3fe6eb796a90c88579119ea848f8a",
+        "equal": true
+      },
+      {
+        "file": "src/lib/multiplayer/server/campaignProgressionReaders.durable.ts",
+        "source": "edb843a8115b1efa33e5e5d494a5def86229efaa",
+        "cherryPicked": "edb843a8115b1efa33e5e5d494a5def86229efaa",
+        "equal": true
+      },
+      {
+        "file": "src/services/persistence/SQLiteService.historyBranchesIntegrity.migration.ts",
+        "source": "d780a5e45e19e26d89b93098a75abd2e72edacb5",
+        "cherryPicked": "d780a5e45e19e26d89b93098a75abd2e72edacb5",
+        "equal": true
+      },
+      {
+        "file": "src/services/persistence/SQLiteService.migrations.ts",
+        "source": "4812053b95a7fc00397f5e90b812c9d7f58565a8",
+        "cherryPicked": "4812053b95a7fc00397f5e90b812c9d7f58565a8",
+        "equal": true
+      },
+      {
+        "file": "src/services/persistence/__tests__/SQLiteService.actionAudit.migration.test.ts",
+        "source": "92415fcb315d10dbeb7dd042581f28265e16f077",
+        "cherryPicked": "92415fcb315d10dbeb7dd042581f28265e16f077",
+        "equal": true
+      },
+      {
+        "file": "src/services/persistence/__tests__/SQLiteService.actionAuditSessionIdentity.migration.test.ts",
+        "source": "a2e8896148a0060d64a062504da956a36465ef08",
+        "cherryPicked": "a2e8896148a0060d64a062504da956a36465ef08",
+        "equal": true
+      },
+      {
+        "file": "src/services/persistence/__tests__/SQLiteService.campaignGrants.migration.test.ts",
+        "source": "ef89090e5e4694a5e42664e95b49e2e801108ac7",
+        "cherryPicked": "ef89090e5e4694a5e42664e95b49e2e801108ac7",
+        "equal": true
+      },
+      {
+        "file": "src/services/persistence/__tests__/SQLiteService.deliveryEpochs.migration.test.ts",
+        "source": "9d5617784eba7bdd21a44055b3c09427771fe50c",
+        "cherryPicked": "9d5617784eba7bdd21a44055b3c09427771fe50c",
+        "equal": true
+      },
+      {
+        "file": "src/services/persistence/__tests__/SQLiteService.historyBranches.migration.test.ts",
+        "source": "43d4cc08f2f7eddd2c3eca95e6bfe607b070c87e",
+        "cherryPicked": "43d4cc08f2f7eddd2c3eca95e6bfe607b070c87e",
+        "equal": true
+      },
+      {
+        "file": "src/services/persistence/__tests__/SQLiteService.privateRecordRejectionOnce.migration.test.ts",
+        "source": "8f15447169854185c1a40385befe355c61ed3234",
+        "cherryPicked": "8f15447169854185c1a40385befe355c61ed3234",
+        "equal": true
+      },
+      {
+        "file": "src/services/persistence/__tests__/SQLiteService.privateRecords.migration.test.ts",
+        "source": "65c6828bcb7fc553b75bf2fabc042e430a17181c",
+        "cherryPicked": "65c6828bcb7fc553b75bf2fabc042e430a17181c",
+        "equal": true
+      },
+      {
+        "file": "src/services/persistence/__tests__/SQLiteService.replayCheckpoints.migration.test.ts",
+        "source": "c7eb8b73f9f171080acac5948067df46a8ae2adb",
+        "cherryPicked": "c7eb8b73f9f171080acac5948067df46a8ae2adb",
+        "equal": true
+      },
+      {
+        "file": "src/services/persistence/__tests__/SQLiteService.replayCheckpointsBranch.migration.test.ts",
+        "source": "8b19b60a43b6993f30cbe8c0fd9efb4217c5d6a3",
+        "cherryPicked": "8b19b60a43b6993f30cbe8c0fd9efb4217c5d6a3",
+        "equal": true
+      }
+    ],
+    "evidence": {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/history-bc-prep-20260915/blob-equality.txt",
+      "sha256": "8bf6ee4a1f847b4e60c2729405c9c240007c54788629817369cedcb4c586a034"
+    }
+  },
+  "environment": {
+    "note": "The ambient C:/nvm4w/nodejs symlink now resolves to Node v24.15.0 (NODE_MODULE_VERSION 137) while the worktree better-sqlite3 native binding is compiled for NODE_MODULE_VERSION 127. The first jest run under v24.15.0 failed with 40 failed / 7 passed suites, every failure the same \"compiled against a different Node.js version\" binding error. This is environment drift, not a code defect.",
+    "remedyChosen": "Ran every gate with C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe instead of rebuilding better-sqlite3. Node 22 is what .github/workflows pins (node-version: 22) and what package.json engines (>=22.12.0) admits, so this matches CI rather than diverging from it, and leaves node_modules byte-unchanged.",
+    "remedyRejected": "npm rebuild better-sqlite3 would have rebuilt the binding for Node 24, which no CI job uses.",
+    "failedRunPreserved": {
+      "stderr": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/history-bc-prep-20260915/ab-jest-node24-abi-mismatch.stderr.log",
+        "sha256": "d039cfb16bbd72a84c3b7a939071a2e887b90691dd78e3c6552afa78c09cf135"
+      },
+      "exitCode": 1,
+      "result": "40 failed, 7 passed, 47 total suites; 301 failed, 127 passed, 428 total tests",
+      "node": "v24.15.0"
+    },
+    "nodeUsedForGates": "v22.22.0",
+    "nodeAbi": {
+      "v22.22.0": 127,
+      "v24.15.0": 137
+    }
+  },
+  "gates": [
+    {
+      "stage": "main+A+B",
+      "name": "focused-jest",
+      "exe": "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+      "args": [
+        "node_modules/jest/bin/jest.js",
+        "--maxWorkers=2",
+        "--coverage=false",
+        "src/lib/events/journal",
+        "src/services/persistence",
+        "src/lib/multiplayer/server/__tests__/campaignProgressionReaders.durable.integrity.test.ts",
+        "src/lib/multiplayer/server/__tests__/CampaignSyncSession.test.ts"
+      ],
+      "exitCode": 0,
+      "suites": {
+        "passed": 47,
+        "total": 47
+      },
+      "tests": {
+        "passed": 428,
+        "total": 428
+      },
+      "priorProof": {
+        "suites": 47,
+        "tests": 421,
+        "base": "44b94adbbb333a9d4965e057b34290e19fc0e781"
+      },
+      "delta": "+7 tests, same 47 suites. The extra tests come from main advancing 44b94adb -> c3b4cc1e3 (notably #1668 prepared append transaction), not from B.",
+      "stdout": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/history-bc-prep-20260915/ab-jest.stdout.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/history-bc-prep-20260915/ab-jest.stderr.log",
+        "sha256": "08d8dc8a01bb012bc4e8fe124df6f86c844ad5a68ff2df80eacf3117d56c2ac2"
+      }
+    },
+    {
+      "stage": "main+A+B",
+      "name": "typecheck",
+      "exe": "npm run typecheck (tsc --noEmit --skipLibCheck)",
+      "exitCode": 0,
+      "stdout": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/history-bc-prep-20260915/ab-typecheck.stdout.log",
+        "sha256": "d140a6ce62dda0946fe30dd882dbb8209f05be72c8fa8850e5634755a399e50f"
+      },
+      "stderr": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/history-bc-prep-20260915/ab-typecheck.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "stage": "main+A+B+C",
+      "name": "focused-jest",
+      "exe": "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+      "args": [
+        "node_modules/jest/bin/jest.js",
+        "--maxWorkers=2",
+        "--coverage=false",
+        "src/lib/events/journal",
+        "src/services/persistence",
+        "src/lib/multiplayer/server/__tests__/campaignProgressionReaders.durable.integrity.test.ts",
+        "src/lib/multiplayer/server/__tests__/CampaignSyncSession.test.ts"
+      ],
+      "exitCode": 0,
+      "suites": {
+        "passed": 47,
+        "total": 47
+      },
+      "tests": {
+        "passed": 430,
+        "total": 430
+      },
+      "priorProof": {
+        "suites": 47,
+        "tests": 423,
+        "base": "44b94adbbb333a9d4965e057b34290e19fc0e781"
+      },
+      "delta": "+7 tests versus the prior proof, same 47 suites, and exactly +2 over this run of the B stage, matching the prior 421 -> 423 step.",
+      "stdout": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/history-bc-prep-20260915/abc-jest.stdout.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/history-bc-prep-20260915/abc-jest.stderr.log",
+        "sha256": "d96456d3698ac63f976952adfb5f97865e9bc9f708672c935feac72af8c48e08"
+      }
+    },
+    {
+      "stage": "main+A+B+C",
+      "name": "typecheck",
+      "exe": "npm run typecheck (tsc --noEmit --skipLibCheck)",
+      "exitCode": 0,
+      "stdout": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/history-bc-prep-20260915/abc-typecheck.stdout.log",
+        "sha256": "d140a6ce62dda0946fe30dd882dbb8209f05be72c8fa8850e5634755a399e50f"
+      },
+      "stderr": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/history-bc-prep-20260915/abc-typecheck.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "stage": "main+A+B+C",
+      "name": "lint",
+      "exe": "npm run lint",
+      "exitCode": 0,
+      "result": "84 warnings, 0 errors across 3796 files",
+      "stdout": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/history-bc-prep-20260915/abc-lint.stdout.log",
+        "sha256": "8d0d15df9ec0a5f4c421d5bec057bc0180cb87030ff6cc9462d802bb1de52a4a"
+      },
+      "stderr": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/history-bc-prep-20260915/abc-lint.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "stage": "main+A+B+C",
+      "name": "format:check",
+      "exe": "npm run format:check (oxfmt --check .)",
+      "exitCode": 0,
+      "result": "All matched files use the correct format (7942 files)",
+      "stdout": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/history-bc-prep-20260915/abc-format.stdout.log",
+        "sha256": "8896bcf2c365f22440d2dba6f43c567a7c52ac0e46af0de5a4935fa43c21d652"
+      },
+      "stderr": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/history-bc-prep-20260915/abc-format.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "notRun": [
+    "npm run build (explicitly excluded by the task brief)",
+    "git push / gh pr create / gh pr merge (explicitly excluded)",
+    "the broader parent gate suite (spec:purpose, terminology, qc:openspec-ci, openspec validate) - out of scope for this preparation pass"
+  ],
+  "followUpAfterPR1671SquashMerges": {
+    "premise": "PR #1671 squash-merges prefix A onto main under a NEW sha. A cherry-pick of 870f93856d would then be empty, so A must be DROPPED rather than replayed. Using the A cherry-pick sha as the <upstream> argument to git rebase --onto drops it structurally, so no empty-commit conflict arises.",
+    "steps": [
+      {
+        "n": 1,
+        "cmd": "git -C E:/Projects/MekStation fetch origin main",
+        "note": "Refresh origin/main so it carries the squashed A."
+      },
+      {
+        "n": 2,
+        "cmd": "git -C E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/history-sql-integrity branch codex/roadmap-history-runtime-integrity-20260915 381ef3ab7fb12637e516f767a4585a82bf03eae3",
+        "note": "Name the B tip so the prep branch itself is never rewritten."
+      },
+      {
+        "n": 3,
+        "cmd": "git -C E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/history-sql-integrity rebase --onto origin/main e2590ba6100cbc5a4b52f75b0b620f12db587dd0 codex/roadmap-history-runtime-integrity-20260915",
+        "note": "Replays only the B commit onto the squashed main. Expected result: a single commit \"fix(history): preserve integrity refusals through campaign launch\". This becomes the PR-B branch."
+      },
+      {
+        "n": 4,
+        "cmd": "git -C E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/history-sql-integrity branch codex/roadmap-history-sql-integrity-20260915 d2fd6da059ed1616182cfc11a4ae33d665f8c940",
+        "note": "Name the C tip."
+      },
+      {
+        "n": 5,
+        "cmd": "git -C E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/history-sql-integrity rebase --onto codex/roadmap-history-runtime-integrity-20260915 381ef3ab7fb12637e516f767a4585a82bf03eae3 codex/roadmap-history-sql-integrity-20260915",
+        "note": "Stacks C on the rebased B. Open PR C against the B branch; or wait for B to merge, then re-run this step as: git rebase --onto origin/main 381ef3ab7fb12637e516f767a4585a82bf03eae3 codex/roadmap-history-sql-integrity-20260915 to retarget C at main."
+      },
+      {
+        "n": 6,
+        "cmd": "re-run the focused jest gate + typecheck (and lint/format for C) on each rebased branch",
+        "note": "Use C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe until better-sqlite3 is rebuilt for the ambient Node 24, otherwise every SQLite suite fails on the ABI mismatch."
+      },
+      {
+        "n": 7,
+        "cmd": "verify blob equality again against 22cbe105fc9b050cc136f823d4bddc5f6fb6c8fc and fd335ee371c522957544c96b1e7f62772075b504",
+        "note": "Same procedure as blobEquality above. A rebase over a squashed A should still be blob-identical because A touches three fixture files that B and C do not modify."
+      }
+    ],
+    "conflictRisk": "LOW. A touches EventHistoryArtifactManifest.test.ts, SQLiteService.artifactManifest.migration.test.ts and SQLiteService.correctionLeases.migration.test.ts; B and C touch none of those three. There is no file overlap between A and B/C."
+  },
+  "logDir": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/history-bc-prep-20260915",
+  "logSha256": {
+    "ab-jest-node24-abi-mismatch.stderr.log": "d039cfb16bbd72a84c3b7a939071a2e887b90691dd78e3c6552afa78c09cf135",
+    "ab-jest-node24-abi-mismatch.stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ab-jest.stderr.log": "08d8dc8a01bb012bc4e8fe124df6f86c844ad5a68ff2df80eacf3117d56c2ac2",
+    "ab-jest.stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ab-typecheck.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ab-typecheck.stdout.log": "d140a6ce62dda0946fe30dd882dbb8209f05be72c8fa8850e5634755a399e50f",
+    "abc-format.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "abc-format.stdout.log": "8896bcf2c365f22440d2dba6f43c567a7c52ac0e46af0de5a4935fa43c21d652",
+    "abc-jest.stderr.log": "d96456d3698ac63f976952adfb5f97865e9bc9f708672c935feac72af8c48e08",
+    "abc-jest.stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "abc-lint.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "abc-lint.stdout.log": "8d0d15df9ec0a5f4c421d5bec057bc0180cb87030ff6cc9462d802bb1de52a4a",
+    "abc-typecheck.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "abc-typecheck.stdout.log": "d140a6ce62dda0946fe30dd882dbb8209f05be72c8fa8850e5634755a399e50f",
+    "cherry-pick-A.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "cherry-pick-A.stdout.log": "8421c62c920ca8a8212d19980c0035ff1e123f128ac90bd63bd06ef16a734f67",
+    "cherry-pick-B.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "cherry-pick-B.stdout.log": "56d30f5fe5f069a51b3b7c467ca824371a6882530e1405eccbcb6d45b8e9b0b3",
+    "cherry-pick-C.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "cherry-pick-C.stdout.log": "2aa6d285c538f6673721366e1f601038828d9e954b60d468002e490686c35216",
+    "blob-equality.txt": "8bf6ee4a1f847b4e60c2729405c9c240007c54788629817369cedcb4c586a034"
+  }
+}

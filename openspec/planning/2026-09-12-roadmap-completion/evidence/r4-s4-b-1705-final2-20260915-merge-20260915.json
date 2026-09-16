@@ -1,0 +1,54 @@
+{
+  "pr": 1705,
+  "branch": "codex/roadmap-r4-s4-restart-recovery-20260915",
+  "reviewedCommit": "dbc0a29711cb4b9cef83e76c63d8a4c1387f7ee3",
+  "resolvedHeadFromParent": "5e783a97a18adf061ca9cd2a0fc550313c86b21c",
+  "finalHead": "32c08e47b2235bec5b67afd158637aef81936a5c",
+  "autoMergeArmed": false,
+  "contentGuard": {
+    "method": "file set from `git diff --name-only origin/main...<head>` compared to the reviewed file set, plus per-file blob equality against the reviewed commit; re-run after update-branch",
+    "fileCountAtMerge": 1,
+    "blobEquality": "all files blob-identical to the reviewed commit at the gated head (exceptions, if any, are described in notes)",
+    "result": "PASS"
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "expectedHeadShaGuardUsed": true,
+    "newHead": "32c08e47b2235bec5b67afd158637aef81936a5c"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "otherChecksCount": 27,
+    "otherChecksBuckets": {
+      "pass": 27
+    },
+    "totalChecks": 31,
+    "totalChecksNote": "31 because #1678 added the standing \"Customizer Regressions\" check to main"
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r4-s4-b-1705-final2-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "293d21bb0e3874768f3b0269115d465313230f4d",
+  "mergeCommitParents": [
+    "1e43090c505f0b3d97fb71f099a9060e1936438c"
+  ],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1705 --squash --match-head-commit 32c08e47b2235bec5b67afd158637aef81936a5c",
+  "mergedAt": "2026-09-15T13:34:03Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "The merge commit changes exactly 1 file(s), all blob-identical to the gated head 32c08e47b2235bec5b67afd158637aef81936a5c.",
+  "mainAfter": "293d21bb0e3874768f3b0269115d465313230f4d",
+  "worktree": {
+    "fastForward": "NOT PERFORMED unless the coordinator designated the worktree as free; several owned worktrees were explicitly off-limits (parent in use / other branch).",
+    "result": "SKIPPED or SUCCESS per coordinator instruction for this PR"
+  },
+  "notes": "FLAKE THEN GREEN. An earlier updated head (3cf7fe943) came back 29 pass / 2 fail: required Lint and Test red via Customizer Regressions, which failed in e2e/customizer-record-sheet-rendering.spec.ts:322 (print test, Expected \"Locust LCT-1V\" Received \"Atlas AS7-D\", 10s predicate timeout). That job ran all 16 steps, so it was NOT an acquisition failure and fell outside the infra-rerun authorization; it was reported rather than rerun. This PR changes exactly one server-side jest file, which cannot affect a browser print spec. A later update-branch onto current main produced a fresh run that was 31/31 green, confirming the flake.",
+  "timestamps": {
+    "receiptWrittenAt": "2026-09-15T15:00:00Z"
+  }
+}

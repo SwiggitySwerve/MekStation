@@ -1,0 +1,338 @@
+{
+  "receipt": "prerequisite-contracts-main-verification-20260912",
+  "status": "pass",
+  "pr": 1648,
+  "candidate": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\prerequisite-contracts",
+  "requestedPreDetachHead": "a1c0099f3d7473a8b63b255b91e1c2c65f38f379",
+  "detachedHead": "b39c04304e9e46ebbb5056fa947a145a7bf194d4",
+  "reviewedHead": "fb8343f072bc54ac91620bf7e7f73d254e1aece5",
+  "mergedMain": "b39c04304e9e46ebbb5056fa947a145a7bf194d4",
+  "parentMain": "da524f7f501b0485e3d8e67e973fce075670922c",
+  "reviewedTree": {
+    "mergedMain": "ae7b3369f9a4d8f590208b72a196c1b3f14c5ae3",
+    "reviewedHead": "ae7b3369f9a4d8f590208b72a196c1b3f14c5ae3",
+    "equal": true
+  },
+  "sourceHashes": [
+    {
+      "path": "openspec/changes/add-authoritative-history-branches/proposal.md",
+      "workingRawSha256": "e17cad35a5123cc188135aa85f6cf7f780f24601fbecfeb181ece96bd3f94ede",
+      "normalizedSha256": "3f7e4f4805593a0b0fc142616274488dd65dba72dee63aa575fddb7951f0006a",
+      "expectedCommittedSha256": "3f7e4f4805593a0b0fc142616274488dd65dba72dee63aa575fddb7951f0006a",
+      "matches": true,
+      "bytes": 3798,
+      "crlfCount": 46,
+      "lfCount": 46
+    },
+    {
+      "path": "openspec/changes/add-authoritative-history-branches/tasks.md",
+      "workingRawSha256": "64a58459e1423372ac04bb5282c06853fa05955ae163e583d91574ffa07c970a",
+      "normalizedSha256": "64a58459e1423372ac04bb5282c06853fa05955ae163e583d91574ffa07c970a",
+      "expectedCommittedSha256": "64a58459e1423372ac04bb5282c06853fa05955ae163e583d91574ffa07c970a",
+      "matches": true,
+      "bytes": 36952,
+      "crlfCount": 0,
+      "lfCount": 112
+    },
+    {
+      "path": "openspec/changes/add-cross-stream-effect-receipts/tasks.md",
+      "workingRawSha256": "62e4e238fd9ec9551aee5231583113301b16cf7d4af1b96e99a24de8a33048ff",
+      "normalizedSha256": "a77ec8f49e9c6860ded8c57f50c378b702ab775a4925bfccf7a57dce09a7fbf4",
+      "expectedCommittedSha256": "a77ec8f49e9c6860ded8c57f50c378b702ab775a4925bfccf7a57dce09a7fbf4",
+      "matches": true,
+      "bytes": 10495,
+      "crlfCount": 87,
+      "lfCount": 87
+    }
+  ],
+  "gates": {
+    "targetedOpenSpec": [
+      {
+        "id": "add-authoritative-history-branches",
+        "items": 1,
+        "passed": 1,
+        "failed": 0,
+        "exitCode": 0
+      },
+      {
+        "id": "add-cross-stream-effect-receipts",
+        "items": 1,
+        "passed": 1,
+        "failed": 0,
+        "exitCode": 0
+      }
+    ],
+    "allOpenSpec": {
+      "items": 231,
+      "passed": 231,
+      "failed": 0,
+      "exitCode": 0
+    },
+    "purpose": {
+      "filesScanned": 217,
+      "errors": 0,
+      "trackedDebt": 0,
+      "exitCode": 0
+    },
+    "terminology": {
+      "filesScanned": 319,
+      "violations": 0,
+      "exitCode": 0,
+      "stderrWarning": "MODULE_TYPELESS_PACKAGE_JSON"
+    },
+    "candidateCIQC": {
+      "status": "pass",
+      "exitCode": 0
+    },
+    "scoped": {
+      "reviewedTreeEqualityExit": 0,
+      "changedPaths": [
+        "openspec/changes/add-authoritative-history-branches/proposal.md",
+        "openspec/changes/add-authoritative-history-branches/tasks.md",
+        "openspec/changes/add-cross-stream-effect-receipts/tasks.md"
+      ],
+      "numstat": [
+        {
+          "additions": 2,
+          "deletions": 1,
+          "path": "openspec/changes/add-authoritative-history-branches/proposal.md"
+        },
+        {
+          "additions": 2,
+          "deletions": 2,
+          "path": "openspec/changes/add-authoritative-history-branches/tasks.md"
+        },
+        {
+          "additions": 1,
+          "deletions": 1,
+          "path": "openspec/changes/add-cross-stream-effect-receipts/tasks.md"
+        }
+      ],
+      "diffCheckExit": 0,
+      "workingTreeStatus": "## HEAD (no branch)",
+      "workingTreeDiffCheckExit": 0
+    },
+    "formatting": "excluded by task policy"
+  },
+  "commandsManifest": {
+    "path": ".sisyphus/roadmap-completion-20260912/prerequisite-contracts-main-verification/commands.json",
+    "sha256": "e44659f2428aad064636d697a5c39b7ee1f4ddcda88f4f925da6c8007fd5f0db",
+    "commandCount": 12,
+    "allExitZero": true
+  },
+  "rawLogs": [
+    {
+      "commandId": "01-openspec-target-authoritative-history",
+      "stream": "stdout",
+      "path": ".sisyphus/roadmap-completion-20260912/prerequisite-contracts-main-verification/raw/01-openspec-target-authoritative-history.stdout.log",
+      "sha256": "0ec28bbce0db74cf04cafff5595a30dd75ebda8518aa072764d7f3e910f5562e",
+      "bytes": 553,
+      "status": 0
+    },
+    {
+      "commandId": "01-openspec-target-authoritative-history",
+      "stream": "stderr",
+      "path": ".sisyphus/roadmap-completion-20260912/prerequisite-contracts-main-verification/raw/01-openspec-target-authoritative-history.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "status": 0
+    },
+    {
+      "commandId": "02-openspec-target-cross-stream-effects",
+      "stream": "stdout",
+      "path": ".sisyphus/roadmap-completion-20260912/prerequisite-contracts-main-verification/raw/02-openspec-target-cross-stream-effects.stdout.log",
+      "sha256": "bd56a989b5e19208d437fd324cead10bc56f5963f239043166ac84db7c8cb286",
+      "bytes": 551,
+      "status": 0
+    },
+    {
+      "commandId": "02-openspec-target-cross-stream-effects",
+      "stream": "stderr",
+      "path": ".sisyphus/roadmap-completion-20260912/prerequisite-contracts-main-verification/raw/02-openspec-target-cross-stream-effects.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "status": 0
+    },
+    {
+      "commandId": "03-openspec-all-strict",
+      "stream": "stdout",
+      "path": ".sisyphus/roadmap-completion-20260912/prerequisite-contracts-main-verification/raw/03-openspec-all-strict.stdout.log",
+      "sha256": "6069bc853f47df069571e79e233d147041b0742b7f57c35719f8375ac202b17d",
+      "bytes": 61947,
+      "status": 0
+    },
+    {
+      "commandId": "03-openspec-all-strict",
+      "stream": "stderr",
+      "path": ".sisyphus/roadmap-completion-20260912/prerequisite-contracts-main-verification/raw/03-openspec-all-strict.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "status": 0
+    },
+    {
+      "commandId": "04-purpose-strict",
+      "stream": "stdout",
+      "path": ".sisyphus/roadmap-completion-20260912/prerequisite-contracts-main-verification/raw/04-purpose-strict.stdout.log",
+      "sha256": "67617ca8eccf949d88155788059fcac3bd16454142000c66fc8d2237a09d3082",
+      "bytes": 208,
+      "status": 0
+    },
+    {
+      "commandId": "04-purpose-strict",
+      "stream": "stderr",
+      "path": ".sisyphus/roadmap-completion-20260912/prerequisite-contracts-main-verification/raw/04-purpose-strict.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "status": 0
+    },
+    {
+      "commandId": "05-terminology-strict",
+      "stream": "stdout",
+      "path": ".sisyphus/roadmap-completion-20260912/prerequisite-contracts-main-verification/raw/05-terminology-strict.stdout.log",
+      "sha256": "06c7961b0d4709a1010aba1f38caf9ab57eb82ce2c48ceb2422ed9d4b234db23",
+      "bytes": 189,
+      "status": 0
+    },
+    {
+      "commandId": "05-terminology-strict",
+      "stream": "stderr",
+      "path": ".sisyphus/roadmap-completion-20260912/prerequisite-contracts-main-verification/raw/05-terminology-strict.stderr.log",
+      "sha256": "e231c41f61c3960b0e9ab09bc8ac9c2306c04229c482e5bc26945e538962e41e",
+      "bytes": 584,
+      "status": 0
+    },
+    {
+      "commandId": "06-candidate-ciqc",
+      "stream": "stdout",
+      "path": ".sisyphus/roadmap-completion-20260912/prerequisite-contracts-main-verification/raw/06-candidate-ciqc.stdout.log",
+      "sha256": "e73d2bc631637ff8806d9adbf1a31052b575044d797a04f184aec21f5b8e6985",
+      "bytes": 10199,
+      "status": 0
+    },
+    {
+      "commandId": "06-candidate-ciqc",
+      "stream": "stderr",
+      "path": ".sisyphus/roadmap-completion-20260912/prerequisite-contracts-main-verification/raw/06-candidate-ciqc.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "status": 0
+    },
+    {
+      "commandId": "07-reviewed-tree-equality",
+      "stream": "stdout",
+      "path": ".sisyphus/roadmap-completion-20260912/prerequisite-contracts-main-verification/raw/07-reviewed-tree-equality.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "status": 0
+    },
+    {
+      "commandId": "07-reviewed-tree-equality",
+      "stream": "stderr",
+      "path": ".sisyphus/roadmap-completion-20260912/prerequisite-contracts-main-verification/raw/07-reviewed-tree-equality.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "status": 0
+    },
+    {
+      "commandId": "08-main-scoped-name-only",
+      "stream": "stdout",
+      "path": ".sisyphus/roadmap-completion-20260912/prerequisite-contracts-main-verification/raw/08-main-scoped-name-only.stdout.log",
+      "sha256": "5c8a64afe405dbd5c53a0ddf6acca9e916ad517848091a5917311803441f33c4",
+      "bytes": 184,
+      "status": 0
+    },
+    {
+      "commandId": "08-main-scoped-name-only",
+      "stream": "stderr",
+      "path": ".sisyphus/roadmap-completion-20260912/prerequisite-contracts-main-verification/raw/08-main-scoped-name-only.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "status": 0
+    },
+    {
+      "commandId": "09-main-scoped-diff-check",
+      "stream": "stdout",
+      "path": ".sisyphus/roadmap-completion-20260912/prerequisite-contracts-main-verification/raw/09-main-scoped-diff-check.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "status": 0
+    },
+    {
+      "commandId": "09-main-scoped-diff-check",
+      "stream": "stderr",
+      "path": ".sisyphus/roadmap-completion-20260912/prerequisite-contracts-main-verification/raw/09-main-scoped-diff-check.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "status": 0
+    },
+    {
+      "commandId": "10-working-tree-status",
+      "stream": "stdout",
+      "path": ".sisyphus/roadmap-completion-20260912/prerequisite-contracts-main-verification/raw/10-working-tree-status.stdout.log",
+      "sha256": "ba051334ebc33f3162a4fd5be48615e03c8dac8ec7977e7c2752dbc1cf981841",
+      "bytes": 20,
+      "status": 0
+    },
+    {
+      "commandId": "10-working-tree-status",
+      "stream": "stderr",
+      "path": ".sisyphus/roadmap-completion-20260912/prerequisite-contracts-main-verification/raw/10-working-tree-status.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "status": 0
+    },
+    {
+      "commandId": "11-working-tree-diff-check",
+      "stream": "stdout",
+      "path": ".sisyphus/roadmap-completion-20260912/prerequisite-contracts-main-verification/raw/11-working-tree-diff-check.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "status": 0
+    },
+    {
+      "commandId": "11-working-tree-diff-check",
+      "stream": "stderr",
+      "path": ".sisyphus/roadmap-completion-20260912/prerequisite-contracts-main-verification/raw/11-working-tree-diff-check.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "status": 0
+    },
+    {
+      "commandId": "12-main-scoped-numstat",
+      "stream": "stdout",
+      "path": ".sisyphus/roadmap-completion-20260912/prerequisite-contracts-main-verification/raw/12-main-scoped-numstat.stdout.log",
+      "sha256": "523b60acb134465c80dd89a067138bfe7bc762dcedf2cb717f39192e24f487d3",
+      "bytes": 196,
+      "status": 0
+    },
+    {
+      "commandId": "12-main-scoped-numstat",
+      "stream": "stderr",
+      "path": ".sisyphus/roadmap-completion-20260912/prerequisite-contracts-main-verification/raw/12-main-scoped-numstat.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "status": 0
+    }
+  ],
+  "scopeCap": {
+    "changedFiles": 3,
+    "changedLines": 9,
+    "cap": 200,
+    "withinCap": true
+  },
+  "limits": [
+    "No product, source, spec, or ledger changes were made.",
+    "No build, install, or server was run; CI owns the global build slot.",
+    "OpenSpec formatting was deliberately excluded.",
+    "The initial Start-Process launcher attempt opened Node REPL because its argument vector was empty; those diagnostic logs are preserved with launcher-failure suffix and are excluded from gate results. Successful gates use the direct argument-list launcher and separate raw stdout/stderr streams."
+  ],
+  "priorDelivery": {
+    "updatedHeadPath": ".sisyphus/roadmap-completion-20260912/prerequisite-contracts-delivery/updated-head-1.json",
+    "expectedFileHashes": {
+      "openspec/changes/add-authoritative-history-branches/proposal.md": "3f7e4f4805593a0b0fc142616274488dd65dba72dee63aa575fddb7951f0006a",
+      "openspec/changes/add-authoritative-history-branches/tasks.md": "64a58459e1423372ac04bb5282c06853fa05955ae163e583d91574ffa07c970a",
+      "openspec/changes/add-cross-stream-effect-receipts/tasks.md": "a77ec8f49e9c6860ded8c57f50c378b702ab775a4925bfccf7a57dce09a7fbf4"
+    },
+    "normalization": "Working-tree CRLF hashes are recorded separately; normalized LF bytes match committed hashes exactly."
+  }
+}

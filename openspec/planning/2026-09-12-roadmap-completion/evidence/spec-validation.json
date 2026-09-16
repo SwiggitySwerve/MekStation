@@ -1,0 +1,43 @@
+{
+  "at": "2026-09-12T11:28:40.856Z",
+  "results": [
+    {
+      "name": "strict-specs",
+      "args": [
+        "C:\\nvm4w\\nodejs\\node_modules\\npm\\bin\\npm-cli.js",
+        "exec",
+        "--",
+        "openspec",
+        "validate",
+        "--all",
+        "--strict"
+      ],
+      "exit": 0,
+      "log": "openspec/planning/2026-09-12-roadmap-completion/evidence/strict-specs-final.log",
+      "sha256": "be66eb6da9cd9d419c13a3c67006345c0f10b26e30a942fbf2fc4591f6671612",
+      "tail": "rain-rendering\n✓ spec/terrain-system\n✓ spec/theming-appearance\n✓ spec/time-cascade-system\n✓ spec/to-hit-resolution\n✓ spec/toast-notifications\n✓ spec/turnover-retention\n✓ spec/ui-flow-shell\n✓ spec/unit-comparison\n✓ spec/unit-entity-model\n✓ spec/unit-info-banner\n✓ spec/unit-services\n✓ spec/unit-sharing\n✓ spec/unit-sprite-system\n✓ spec/unit-store-architecture\n✓ spec/unit-validation-framework\n✓ spec/unit-versioning\n✓ spec/user-identity\n✓ spec/utility-patterns\n✓ spec/validation-patterns\n✓ spec/validation-rules-master\n✓ spec/vault-sync\n✓ spec/vehicle-unit-system\n✓ spec/weapon-resolution-system\n✓ spec/weapon-system\n✓ spec/weight-class-system\nTotals: 233 passed, 0 failed (233 items)\n- Validating...\n"
+    },
+    {
+      "name": "purpose",
+      "args": [
+        "C:\\nvm4w\\nodejs\\node_modules\\npm\\bin\\npm-cli.js",
+        "run",
+        "spec:purpose:validate:strict"
+      ],
+      "exit": 0,
+      "log": "openspec/planning/2026-09-12-roadmap-completion/evidence/purpose-final.log",
+      "sha256": "7c0ef64ff56416c105f73466d23eccbde4a97e9f1b2062a2a740d39278d03317",
+      "tail": "\n> mekstation-app@0.1.1 spec:purpose:validate:strict\n> npx tsx openspec/scripts/spec-purpose-lint.ts\n\nOpenSpec spec-purpose lint\nSpec root: E:/Projects/MekStation/openspec/specs\nFiles scanned: 220\nErrors: 0\nTracked source-of-truth debt: 0\n"
+    },
+    {
+      "name": "ci-contract",
+      "args": [
+        "scripts/qc/validate-openspec-ci-quality.mjs"
+      ],
+      "exit": 0,
+      "log": "openspec/planning/2026-09-12-roadmap-completion/evidence/ci-contract-final.log",
+      "sha256": "733ab69d272db2fd5d9a47b9a4fc4ff307b5ac517131ebd2a2f41b734f2e2c68",
+      "tail": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=13 accountedActiveOpenSpecChanges=13 errors=0\n"
+    }
+  ]
+}

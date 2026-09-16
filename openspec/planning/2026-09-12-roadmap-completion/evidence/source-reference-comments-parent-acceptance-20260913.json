@@ -1,0 +1,37 @@
+{
+  "at": "2026-09-13T06:10:16.882Z",
+  "wt": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/source-reference-comments",
+  "base": "9091428c0dc79a187ad5c56a2c0ac3acb72f2187",
+  "files": [
+    {
+      "path": "src/components/customizer/tabs/CustomizerTabs.tsx",
+      "sha256": "d55189f7c34de84bfb2682fec40611aa6cd4a8b62fdf3594d87954a1cc7dcc5c",
+      "nonTriviaTokensEqual": true
+    },
+    {
+      "path": "src/utils/gameplay/pilotingSkillRolls/types.ts",
+      "sha256": "4b4225f3f55532537a2df67d621db2b58eea5cda864dcf9d80e2865401505a2b",
+      "nonTriviaTokensEqual": true
+    },
+    {
+      "path": "src/types/campaign/UnitCombatState.ts",
+      "sha256": "d347985ceaf08e0e3908dc42fc48bb63ed714eadcf52d598c5eb584852cbce8f",
+      "nonTriviaTokensEqual": true
+    },
+    {
+      "path": "src/lib/campaign/hooks/useCampaignDashboardSummary.ts",
+      "sha256": "b4fb4d9e77892ed3803bdf104f7b80362c6b190da872fd681e241f6d8f2f1a63",
+      "nonTriviaTokensEqual": true
+    }
+  ],
+  "worker": "Cursor Grok4.6High",
+  "review": "source-reference-comments-review-terra-20260913/review.json",
+  "parent": "Exactdiff/source review; independent TypeScript5.8.3 nontrivia equality for all four files",
+  "changedLines": 25,
+  "dependencyDirectory": {
+    "physical": true,
+    "transferredFrom": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/source-reference-dependencies-20260913/node_modules",
+    "installedLockSha256": "cd186189e379eb7af1ec2d4517754d5340bcde385da765db08e4363122353997"
+  },
+  "limits": "Comment/reference-only; full gates and publication pending"
+}

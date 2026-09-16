@@ -1,0 +1,185 @@
+{
+  "artefact": "r2-p1-62a3-source-row-rereview-20260915",
+  "task": "6.2a-3 INDEPENDENT RE-REVIEW of the corrected three-commit stack (design-campaign-authority-and-sync) — does the author's response close RE-1 and RE-2, and does the re-split preserve the reviewed tree?",
+  "date": "2026-09-15",
+  "role": "INDEPENDENT REVIEWER (not the author). GP-JUSTIFIED: read-only re-review with test re-runs.",
+  "priorRound": {
+    "review": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-p1-62a3-source-row-review-20260915.json (commit A APPROVE-WITH-REQUIRED-EDITS on RE-1 + RE-2; commit B APPROVE)",
+    "authorResponse": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-p1-62a3-source-row-local-20260915.json → `reviewResponse` (the RE-1/RE-2 code fixes on the rebuilt A/B pair) and `split2` (the re-cut into A1/A2/B at the same tree)"
+  },
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/r2-prepared-journal-api",
+  "branch": "codex/roadmap-r2-p1-62a3-source-row-split-20260915",
+  "readOnlyDiscipline": {
+    "headAtStart": "d3309b178f1efef2ca2ea32bcd78c7993357c853",
+    "headAtEnd": "d3309b178f1efef2ca2ea32bcd78c7993357c853",
+    "porcelainAtStart": "(empty)",
+    "porcelainAtEnd": "(empty)",
+    "noCheckoutChanged": "No `git checkout`, no commit, no push, no branch move, no sub-agent, no build, no temporary file created inside the worktree. Every measurement is a read, a `git` query, or a jest/tsc run at HEAD.",
+    "node": "v24.15.0 (ambient — this worktree's better-sqlite3 is built for Node 24; no version switch)",
+    "onlyFileWritten": "This evidence JSON, under the MAIN repo's openspec/planning/... evidence directory, outside the worktree."
+  },
+
+  "verdict": {
+    "commitA1": {
+      "sha": "2fdbbd7d93a2a2dbfde0d93e8c72642bd20fd032",
+      "subject": "feat(campaign): let the source record follow the accepted contract in the same commit",
+      "verdict": "APPROVE",
+      "oneLine": "Both required edits are closed IN CODE, with the exact tolerance the review specified and with genuine red for every new row. The fixture the RE-2 guard exposed was completed to the shape production actually writes rather than the guard being loosened. Green on its own (2/2 rows plus the whole authority battery 19 suites / 134 tests), tsc clean. The 645-line size is over the ≤500 budget by 145 and is reported, not hidden — the coordinator's recorded acceptance stands and the arithmetic reproduces."
+    },
+    "commitA2": {
+      "sha": "d73568998727cd306d563686bbf18c469dbe7328",
+      "subject": "test(campaign): pin the accepted-contract refusals for malformed rows, foreign actors and non-source records",
+      "verdict": "APPROVE",
+      "oneLine": "Test-only, 153 lines, five refusal rows (c)(d)(f)(g)(h). Green on its own at 7/7. No product file touched. Nothing to change."
+    },
+    "commitB": {
+      "sha": "d3309b178f1efef2ca2ea32bcd78c7993357c853",
+      "subject": "test(campaign): pin the malformed-shape refusals and the same-actor re-submit after an accepted contract",
+      "verdict": "APPROVE",
+      "oneLine": "Test-only, 57 lines, byte-unchanged from the reviewed B. Green at 10/10, and the stack's final tree is byte-identical to the reviewed pair's."
+    }
+  },
+  "requiredEdits": [],
+
+  "items": {
+    "item1_RE1_closed": {
+      "verdict": "PASS",
+      "guardShape": "src/lib/campaign/authority/campaignAcceptContractCommand.ts:200-203 — `storedRecordIsNotSource` returns `parsed.kind === 'ok' && !isSourceInstance(parsed.authority)`. Called at :285 immediately after the stored record and body parse, and a `true` returns `null`, which becomes the existing typed `source-record-absent`.",
+      "refusesOnlyParsedNonSource": "VERIFIED against the parser. `parseCampaignAuthority` (src/lib/campaign/authority/campaignAuthority.ts:95-113) answers `ok` in exactly two cases — `role === 'source'`, or `role === 'replica'` with a payload `parseReplicaAuthority` (:153-190) fully accepts — and `failed` otherwise. `isSourceInstance` (:62-73) is true only for `role: 'source'`. So the conjunction fires for a WELL-FORMED REPLICA and for nothing else. This is `parsed-and-not-source`, exactly the shape RE-1 required.",
+      "preD2RowsStillAccepted": "VERIFIED, two ways. (i) Structurally: a record with no `authority` key reaches `parseCampaignAuthority(undefined)` → `typeof value !== 'object'` → `failed`, so the guard is false and the row is admitted. (ii) Empirically: the five `e2e/scenario-packs/campaign/*.campaign.json` production-captured envelopes carry keys `schemaVersion, campaignId, savedAt, originDeviceId, version, body` and NO `authority` at all (measured this session), and the 219-suite battery — whose seeds likewise carry none — is green at HEAD.",
+      "docCommentsUpdated": "PASS. The `source-record-absent` member's doc at :68-75 now reads \"does not exist, cannot be read, or is not a record this command may write - a replica, per D2's source-mutation gate\", and the call site at :277-283 names `saveCampaign`/`prepareCampaignWrite` and `storeRedeemedReplica` as the sibling gates this one refuses to be the exception to. The function's own comment states the tolerance rationale — `saveCampaign` can afford the stricter reading because it re-stamps the authority it writes; this command only reads, so it declines to invent a verdict about a record that never claimed one. Accurate on both halves.",
+      "rowFRedIsGenuine": "PASS — READ IN FULL. `.sisyphus/roadmap-completion-20260912/r2-p1-62a3-20260915/red-review-edits.log`, sha256 re-computed this session = ee6c7296c01181e9b27d8bcb0b87b7d70044fe93edfe877acd32fc25e17a29fb, MATCHES the evidence. Trailer `Tests: 3 failed, 7 passed, 10 total`; the three failures are exactly (f), (g), (h). Row (f)'s received block is a full `{kind:'committed'}` with a `ContractAccepted` at sequence 1 under `authorPlayerId: 'pid-solo'` — i.e. before the guard the acceptance COMMITTED against a replica-authority record, which is the RE-1 exposure reproduced verbatim rather than asserted. The failure is raised at the test's line 421 `toStrictEqual`, matching the HEAD blob's row (f).",
+      "rowFAssertsEnough": "PASS. Row (f) (test :409-441) asserts the typed `{kind:'offer-not-durable', contractId, reason:'source-record-absent'}`, a NULL command receipt, and `after.payload === before.payload` plus `after.version === before.version` — so the refusal covers both halves (no append, no row move), not just the return value."
+    },
+
+    "item2_RE2_closed": {
+      "verdict": "PASS — and the author's widening beyond the review's literal minimal fix is correct, not scope creep",
+      "gateShape": "src/lib/campaign/authority/campaignAcceptContractCommand.ts:448-461 — the lookup now refuses when `offer === null || storedOffer === null || !isStoredContractOffer(storedOffer)`. `isStoredContractOffer` (:222-231) = `isContract(offer)` AND `paymentTerms` is a non-null non-array object AND `typeof terms.salvagePercent === 'number'` AND all six of `STORED_PAYMENT_AMOUNT_FIELDS` pass `isStoredMoney`.",
+      "isStoredMoneyMirrorsRehydrate": "VERIFIED line-for-line. `rehydrateMoney` (src/lib/campaign/persistence/missionSerialization.ts:19-27) accepts a `Money` instance, a `number`, `{amount: number}`, `{centsValue: number}`, and otherwise silently returns `Money.ZERO`. `isStoredMoney` (:184-191) accepts `number`, `{amount: number}`, `{centsValue: number}` — the same acceptance set minus the `Money` instance, which cannot occur in a JSON-parsed stored payload. So the guard admits precisely the shapes the codebase can already read as amounts and refuses precisely the ones that would be INVENTED as zero. Narrowing to the bare `number` that `Money.toJSON` emits (src/types/campaign/Money.ts:113-115) would have refused legacy `{amount}`/`{centsValue}` rows the codebase reads correctly; the author's choice not to narrow is right.",
+      "sixFieldsAreTheRightSix": "VERIFIED against `IPaymentTerms` (src/types/campaign/PaymentTerms.ts:37-58): seven members, of which six are `Money` (`basePayment`, `successPayment`, `partialPayment`, `failurePayment`, `transportPayment`, `supportPayment`) and one is the `number` `salvagePercent`. `STORED_PAYMENT_AMOUNT_FIELDS` lists exactly those six and `salvagePercent` is checked separately. No field is missed and none is over-required.",
+      "salvagePercentIsTheSameClassOfFault": "PASS. `rehydratePaymentTerms` passes `terms.salvagePercent` straight into `createPaymentTerms`, whose `??` fills it from `createDefaultPaymentTerms()` — so a missing percent is silently invented exactly as a missing amount is. Requiring it is consistent, not extra.",
+      "bothProbesNowRefuseTyped": "MEASURED at HEAD. Row (g) — `offers: [{ id: STORED_ID }]`, the review's P1 — and row (h) — the real fixture offer with `paymentTerms: {}`, the review's P2 — both assert `{kind:'offer-not-durable', contractId, reason:'offer-absent'}`, a null command receipt, and a byte-identical row, and both are GREEN in the 10/10 run this session. Their red in `red-review-edits.log` is the review's two probes verbatim: (g) `EventJournalCanonicalizationError: JCS cannot represent undefined` with a stack through `computeCampaignStateDigest` → `campaignAcceptContractCommand.ts:414` → `SQLiteEventJournalWriter.ts:114 (prepare)` → `:136 (.immediate)`, i.e. UNTYPED out of the prepared transaction; (h) `{kind:'committed'}` with the offer materialized.",
+      "judgementOnGoingBeyondIsContract": "CONCUR with the author. The review's literal minimal fix — gate on `isContract` alone — closes P1 and leaves P2 open, because `isContract` (src/types/campaign/Mission.ts:384-396) requires only that `paymentTerms` be a non-null object, which `{}` satisfies. The author measured this and said so plainly. Since the raw offer is copied VERBATIM into the source record, admitting `{}` would write a contract worth nothing into the campaign as one it signed — the exact fault RE-2 named. The amount check is the part that actually closes RE-2; going past the review's wording here was required to satisfy its intent.",
+      "refusalKindJudgement": "APPROVED as chosen. `offer-absent` (not `source-record-absent`) for both halves is the right call and the reasoning is recorded at the call site (:450-457): the record and its market READ FINE — rows (c)/(c2)/(c3) own the case where they do not — and only this one entry fails to be an offer, so naming the record absent would send an operator to investigate something perfectly readable. The vocabulary also stays consistent with row (d), where an offer that is genuinely gone answers the same way. NOTE (non-blocking, carried below): the API route's 409 comment for this kind is now less accurate for the malformed-offer case.",
+      "docCommentsUpdated": "PASS. `offer-absent`'s doc at :76-80 now reads \"holds no USABLE contract under this `contractId` - absent, or present as something that is not a faithfully serialized offer\", which is exactly what the predicate enforces. `isStoredContractOffer`'s own comment at :210-221 states why `isContract` alone is insufficient, naming the `{}` case and the `Money.ZERO` consequence. `isStoredMoney`'s comment at :178-183 cites `missionSerialization.ts:19-27` as the mirror and says why it does not narrow. All three are accurate against the code they describe."
+    },
+
+    "item3_fixtureCompletion": {
+      "verdict": "PASS — completed to the real market shape; no guard loosened, no assertion weakened",
+      "diffIsTwoHunksOnly": "MEASURED. `git diff b46433b1f HEAD -- src/lib/campaign/authority/__tests__/campaignCommandPipelineArtifactUse.test.ts` is +19/-1 in exactly two hunks: an 8-line comment block added above `seedDurableMarket`, and the offer literal gaining `createdAt: NOW, updatedAt: NOW` and a real `paymentTerms` object in place of `paymentTerms: {}`. No `expect`, no `it`, no `describe`, and no other fixture in that file is touched — so no assertion was weakened or removed.",
+      "completedToProductionShape": "VERIFIED against the producers, not asserted. Every market offer in the codebase is minted by `generateAtBContracts` → `buildContractRecord` (src/lib/campaign/contracts/contractPayment.ts:85-100) → `createContract` (src/types/campaign/Mission.ts:458-494), which stamps `createdAt`/`updatedAt` from `new Date().toISOString()` and fills `paymentTerms` from `createDefaultPaymentTerms()` when none is given; the terms themselves come from `buildOutcomePaymentTerms` → `createPaymentTerms`, which fills all seven keys. Serialization through `Money.toJSON()` emits plain numbers. The completed fixture — `createdAt`/`updatedAt` strings plus seven numeric/`number` term fields — is that shape.",
+      "theCommentIsTrue": "PASS. The fixture's new comment claims `buildContractRecord` → `createContract` stamps both timestamps and `Money.toJSON` emits numbers. Both halves read and confirmed at the cited definitions this session.",
+      "notLoosening": "CONFIRMED by exclusion: the guard `isStoredContractOffer` is unchanged between the two sides of this decision, and the only edit is to the seed. The alternative — admitting a timestamp-less `paymentTerms: {}` offer — would have re-opened RE-2's P2 precisely.",
+      "greenAtA1": "The fixture ships in A1, and A1's own log (`green-A1.log`) runs the WHOLE `src/lib/campaign/authority` battery — 19 suites / 134 tests passed — which includes `campaignCommandPipelineArtifactUse.test.ts`. So the completion is proven green in the commit that introduces it, not only at HEAD."
+    },
+
+    "item4_measuredRuns": {
+      "verdict": "PASS — every author-claimed figure reproduces, and the per-commit logs' hashes all match",
+      "perCommitLogHashes": {
+        "method": "`sha256sum *.log` in .sisyphus/roadmap-completion-20260912/r2-p1-62a3-20260915/, compared against `split2.logs` and `reviewResponse.redProvenance` in the author's evidence.",
+        "green-A1.log": "da0d83c8e3dc2d4aa0923cdaed8814ed9a88723fb167d8ae88234d2622bbfac7 — MATCH",
+        "tsc-A1.log": "a6ce7f41eaf235b981cdbfe9a3d6a5d9a3502b6bd605ffc2acf78679a4ee9a2f — MATCH",
+        "green-A2.log": "4249f135ace96a89e6836e84ab34bf40c964f4c4e8dd94bde80cb9f6cc168925 — MATCH",
+        "green-B2.log": "58b4ea51427a22def0cc5dfb0e33f687dfdab64451d9c858c5948adf3fa5ff30 — MATCH",
+        "tsc-B2.log": "a6ce7f41eaf235b981cdbfe9a3d6a5d9a3502b6bd605ffc2acf78679a4ee9a2f — MATCH",
+        "green-suite-split2.log": "6e88fe477bb58ea13d013fc8ced94770b198b8c868f0e5f97326e4ebfef72a5d — MATCH",
+        "lint-fmt-split2.log": "a3f22fa7e8d4998075a91408a1b4000950c4c890f18a549a751a0f9679ae703e — MATCH",
+        "red-review-edits.log": "ee6c7296c01181e9b27d8bcb0b87b7d70044fe93edfe877acd32fc25e17a29fb — MATCH",
+        "red.log": "a40ae2fb30356c7a76144588ab5cd01a3451d7197205cdd9cdd0b2184bde353e — MATCH (unchanged from the prior round, as claimed)",
+        "green-review-edits.log": "f1f6b4928c11fa53ebf47c82cb7939807096beb09e8cae1a49b755cf53015908 — MATCH"
+      },
+      "perCommitLogContents": {
+        "A1": "READ. Two runs concatenated: the row suite at 2 passed / 2 total (rows (a) and (b)), then `src/lib/campaign/authority` at 19 suites / 134 tests passed. Both exit clean. The claim that A1 is green on its own — including the fixture completion — is supported by the log itself.",
+        "A2": "READ. Row suite 7 passed / 7 total, listing (a)(b)(c)(f)(d)(g)(h) in file order. Matches `split2` exactly, including the author's own `expectationMismatch` note that the third-round directive's predicted 9/9 was wrong and 7/7 is the true count — reported rather than reconciled, which is the right handling.",
+        "B": "READ. Row suite 10 passed / 10 total, all ten rows named."
+      },
+      "runsAtHeadThisSession": [
+        {
+          "command": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/campaign/authority/__tests__/campaignAcceptContractSourceRow.test.ts",
+          "at": "HEAD d3309b178",
+          "result": "Test Suites: 1 passed. Tests: 10 passed, 10 total. exit 0. All ten rows (a)(b)(c)(c2)(c3)(f)(d)(g)(h)(e) green."
+        },
+        {
+          "command": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/campaign src/lib/events/journal",
+          "at": "HEAD d3309b178",
+          "result": "Test Suites: 219 passed, 219 total. Tests: 3160 passed, 3160 total. 0 failed. exit 0. Time 50.9s. Reproduces the author's 219 / 3160 exactly (up from 3157 in the prior round — the three new rows)."
+        },
+        {
+          "command": "npx tsc --noEmit --skipLibCheck",
+          "at": "HEAD d3309b178",
+          "result": "exit 0, no diagnostics."
+        },
+        {
+          "command": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false <the 7 suites outside the two batteries that mention AcceptContract / executeCampaignCommand>",
+          "at": "HEAD d3309b178",
+          "result": "Test Suites: 7 passed, 7 total. Tests: 77 passed, 77 total. exit 0. EXTRA COVERAGE beyond the author's charter: HostGmReviewSurface, CampaignMatchHost, campaignCommandActions, campaignCommandAutoSave, CampaignSync, GmRebuildStaleGate, rewindPreviewRoute. None regressed on the new guards."
+        }
+      ],
+      "whyNotRerunEachCommitInPlace": "The charter forbids changing the checkout, so each commit was not checked out. Instead the author's per-commit logs were hash-verified AND read in full for their trailers and row names, and the HEAD state was measured independently. No claim in this review rests on a log whose hash was not re-computed this session.",
+      "notRun": "Full repo suite, `next build`, e2e/Playwright — out of review charter, matching the author's own non-claims."
+    },
+
+    "item5_hygiene": {
+      "verdict": "PASS on everything except the A1 size, which is a recorded, accepted overage rather than a hidden one",
+      "treeIdentity": "PASS. `git diff 87ed9d239 HEAD --stat` is EMPTY, and `git rev-parse 87ed9d239^{tree} HEAD^{tree}` returns 76ab6e82714fe7739217636efb878d6cf652e29e for both. The three-commit stack's final tree is byte-identical to the reviewed pair's, as claimed.",
+      "conventionalSubjects": "PASS. `feat(campaign): …`, `test(campaign): …`, `test(campaign): …` — all imperative, all scoped. A1's subject is unchanged from the originally reviewed commit A, which keeps the stack traceable across three rebuilds.",
+      "aiAttribution": "PASS — none. `git log b46433b1f..HEAD --format=\"%B%n%an|%ae|%cn|%ce\" | grep -inE \"co-authored|claude|anthropic|generated with|🤖\"` returns nothing (exit 1). Author and committer are `Wes Rollings <wrollings@gmail.com>` on all three commits.",
+      "paths": "PASS. `git diff --name-only b46433b1f HEAD` returns exactly three paths, all under src/: the product file, the row test, and the sibling fixture test. `| grep -c '^openspec/'` returns 0.",
+      "specEditsAndCheckboxes": "PASS — none. No file under openspec/ is in the diff, so no SHALL was edited and no tasks.md checkbox was flipped. The worktree is clean, so there is no unstaged openspec edit either.",
+      "flagUnflipped": "PASS. `CAMPAIGN_JOURNAL_AUTHORITY_ENABLED = false` at src/lib/campaign/sync/JournalCampaignEventStore.ts:84, outside the diff.",
+      "perCommitSize": {
+        "A1": "645 changed lines (631 insertions + 14 deletions), from `git show --numstat`: test 354/0, fixture 19/1, product 258/13. Reproduces the author's figure exactly. Over the ≤500 budget by 145.",
+        "A2": "153 (153/0). PASS.",
+        "B": "57 (57/0). PASS."
+      },
+      "sizeArithmeticChecked": "The author's floor claim reproduces: product 271 + fixture 20 = 291, plus the test file's header/imports/fixture/hooks/helpers at 249 (lines 1-248 plus the closing brace) = 540 changed lines with ZERO rows present. Rows (a)+(b) are the remaining 105 (354 − 249), giving 645. The 'harness cannot move out' argument also holds mechanically — a commit whose only new file is a test file with no `it` block fails jest outright, so it could not be green on its own, which is the property the split exists to preserve. Reviewer CONCURS with the coordinator's acceptance: 500 is unreachable here without either splitting the product change from half its proof or dropping a required row, and the author did neither.",
+      "splitContentsCorrect": "PASS. A1's test blob carries rows (a)(b) only (verified by reading A1's blob); A2 adds (c)(d)(f)(g)(h); B adds (c2)(c3)(e) and is byte-unchanged from the reviewed B at 57 lines with the same message."
+    },
+
+    "item6_newConcerns": {
+      "verdict": "PASS — no legitimately shaped offer is refused, and no new blocking exposure was introduced. Two narrow residuals recorded as non-blocking.",
+      "doRealMarketsPassTheRE2Guard": "MEASURED against production-captured data, not reasoned. All five `e2e/scenario-packs/campaign/*.campaign.json` packs were parsed this session. The three that carry offers (coop-guest-proposal, coop-host-review, navigation-briefing) hold four offers each, and every one has `createdAt`/`updatedAt` as strings, `type: 'contract'`, string `id`/`name`/`status`/`systemId`/`employerId`/`targetId`/`salvageRights`/`commandRights`, an array `scenarioIds`, and paymentTerms `{basePayment, successPayment, partialPayment, failurePayment, salvagePercent, transportPayment, supportPayment}` ALL as numbers — including `transportPayment: 0` / `supportPayment: 0`, which `isStoredMoney` accepts because `typeof 0 === 'number'`. Every one passes `isStoredContractOffer`. These packs also carry no `authority` key, so they also pass the RE-1 guard.",
+      "doRealMarketsPassAtTheProducer": "CORROBORATED at the source. The only offer producers under src/ are `generateAtBContracts` / `generateContractOffers` / the negotiation-scaled variant in src/lib/campaign/contractMarket.ts (:172-180, :233-241, :350-371, :417-425) — every one routes through `buildOutcomePaymentTerms` → `createPaymentTerms` (all seven keys filled) and `buildContractRecord` → `createContract` (both timestamps stamped). There is no second, looser mint path.",
+      "remainingRefusedShapesInSrc": "SWEPT. `grep -rn 'paymentTerms: {}' src/` returns exactly two hits: the deliberate negative fixture inside row (h) (campaignAcceptContractSourceRow.test.ts:515) and a prose reference inside the completed fixture's comment. No live seed anywhere under src/ still carries the refused shape. The component fixture at src/components/campaign/command/__fixtures__/commandFixtures.ts:123-137 mints through `createContract` + `createDefaultPaymentTerms`, so it is well-formed too.",
+      "coverageBeyondTheCharter": "The two named batteries (219 suites / 3160 tests) plus the 7 suites outside them that mention `AcceptContract` / `executeCampaignCommand` (77 tests) are all green at HEAD. That is every in-repo caller of the durable accept path found by grep. No fixture anywhere in the unit tree trips the new guards.",
+      "residual1_corruptReplicaAuthority": {
+        "severity": "non-blocking",
+        "what": "`storedRecordIsNotSource` is strictly WEAKER than `evaluateSourceMutationGate` for one shape: a record whose `authority.role === 'replica'` but whose replica payload is malformed (missing `sourceInstanceId`/`grantId`, or a bad `scopes` entry) makes `parseReplicaAuthority` return null → `parseCampaignAuthority` answers `failed` → the guard is false → the command writes the row. `saveCampaign`, going through `evaluateSourceMutationGate` (campaignAuthority.ts:119-127), REFUSES that same record because `failed` is a refusal there.",
+        "whyNotRequired": "This is a residual of the tolerance the review itself prescribed (`parsed-and-not-source`, never `not-parsed-as-source`, so pre-D2 rows survive), not a regression: before this commit EVERY record — replica, corrupt, or otherwise — was writable by this path, so the edit strictly reduces exposure. Reachability of a corrupt-replica row is UNVERIFIED in either direction by this session.",
+        "cheapTightening": "If the coordinator wants it closed later, the discriminator that preserves the legacy tolerance is the RAW role string rather than the parse verdict: refuse when `asRecord(storedRecord.authority)?.role` is present and is not `'source'`. A record with no `authority` still has no role and stays acceptable. One condition; not required here."
+      },
+      "residual2_api409AdviceNowLessAccurate": {
+        "severity": "non-blocking, and it is 6.2b's input rather than this slice's defect",
+        "what": "src/pages/api/campaigns/[id]/commands.ts:208-218 maps every `offer-not-durable` to HTTP 409 with the comment \"The offer this command names has not reached the source record yet, which an acknowledged save fixes.\" That advice is now wrong for two of the reasons this stack routes through it: the malformed-offer case (rows (g)/(h)) — where a save from a healthy client would in fact rewrite the market, so the advice is accidentally right but for the wrong reason — and the same-actor retry (row (e)), where saving can never make the consumed offer reappear.",
+        "priorRoundAlreadyFlaggedHalfOfThis": "The (e) half is the prior review's `theHazardFor62b`, already carried in commit B's message and in the row's inline comment. The (g)/(h) half is new with RE-2's widening of `offer-absent`. Recommend the 6.2b charter state plainly that `offer-absent` is NOT a flush-and-retry signal.",
+        "noConsumerBreaksToday": "The prior review's consumer sweep found no src/ consumer of these reason strings and no src/ caller of the `/commands` route at all. Nothing in this stack changes that."
+      },
+      "notNewButReconfirmed": "The stack does not touch the co-op second writer (`CampaignGmArbiter`, src/lib/multiplayer/server/CampaignGmArbiter.ts:557/:576), `saved_at` staleness, the rehydrated-vs-raw `remainingMarket` representation split, or the idempotent-replay version bump. All four were recorded non-blocking in the prior round and are correctly left alone; none is worsened by the RE-1/RE-2 edits."
+    }
+  },
+
+  "nonBlockingNotes": [
+    "EVIDENCE HYGIENE (author's local JSON, not the code): `nonClaims[5]` still states that `CAMPAIGN_JOURNAL_AUTHORITY_ENABLED` being false is WHY every command is refused, while `reviewResponse.reviewNotesNotActioned[0]` in the same file explicitly WITHDRAWS that reason as wrong (the route gates on `deps.authority.kind`, resolved from the migration marker). Both sentences now live in one artefact. The withdrawal is the correct one; the stale `nonClaims` entry should be struck so a later reader does not cite it. Note the A1 COMMIT MESSAGE's phrasing — 'CAMPAIGN_JOURNAL_AUTHORITY_ENABLED stays false' — is literally true (the constant is unchanged at JournalCampaignEventStore.ts:84) and is not a defect.",
+    "EVIDENCE ACCURACY: `nonClaims[6]` says the cap 'was exceeded by 111 lines' — a stale figure from an earlier round that contradicts `nonClaims[0]` (A1 at 645, over by 145) and `split2.a1SizeAccepted`. The 645/145 figures are the ones this review reproduced.",
+    "A1's test-file header lists predicted-red rows (c) through (h) although A1 contains only (a) and (b). The author discloses this as a `knownImperfection` and justifies shipping the final header once to protect the byte-identity requirement. Reviewer CONCURS — the inconsistency is confined to intermediate commits of a stack meant to land together, and correcting it at A1 and again at A2/B would add churn for no reviewer benefit.",
+    "The `red-first` evidence is honestly split across two captures and the author now says so plainly (`redProvenance`): red.log covers rows (a)-(e) against the base product file, red-review-edits.log covers (f)/(g)/(h) against the post-split product file. No single run covers all ten, and none is claimed to. This corrects the prior round's `redFirst.method` nit.",
+    "`isStoredMoney` accepts `NaN` (it is `typeof 'number'`), so an offer with `basePayment: NaN` would pass the guard and be copied into the row. `rehydrateMoney` would build `new Money(NaN)` from it identically, so the guard is not weaker than the reader it mirrors — but neither refuses it. Cosmetic; no producer emits it.",
+    "The 6.2b charter should carry two sentences as INPUTS rather than discoveries: (1) a same-actor retry of a committed acceptance now answers `offer-absent`, not `duplicate`; (2) `offer-absent` is not a flush-and-retry signal. tasks.md:101's claim that 'duplicate receipt lookup happens BEFORE the offer read' remains stale and is correctly out of scope for this slice.",
+    "Reviewer ran 7 suites outside the author's charter batteries (77 tests, all green) specifically to look for a fixture the new guards would break. None exists. This is offered as extra assurance, not as a new gate."
+  ],
+
+  "whatTheReviewerVerifiedDirectly": [
+    "Read the full product diff `git diff b46433b1f HEAD -- src/lib/campaign/authority/campaignAcceptContractCommand.ts`, including both new guards, their doc comments, and the call sites.",
+    "Read `parseCampaignAuthority`, `parseReplicaAuthority`, `isSourceInstance` and `evaluateSourceMutationGate` in src/lib/campaign/authority/campaignAuthority.ts to establish exactly which records the RE-1 guard refuses and which it tolerates.",
+    "Read `isMission` / `isContract` (src/types/campaign/Mission.ts:358-396), `createContract` (:458-494), `IPaymentTerms` + `createPaymentTerms` (src/types/campaign/PaymentTerms.ts:37-58, :257-270), `Money.toJSON` (src/types/campaign/Money.ts:113-115), `rehydrateMoney` / `rehydratePaymentTerms` / `rehydrateContractMarket` (src/lib/campaign/persistence/missionSerialization.ts:19-77), `buildContractRecord` (src/lib/campaign/contracts/contractPayment.ts:85-100) and `buildOutcomePaymentTerms` (:40-51).",
+    "Read the full fixture-completion diff of campaignCommandPipelineArtifactUse.test.ts and confirmed it is two hunks with no assertion touched.",
+    "Read rows (f), (g), (h) and (d) in full at HEAD, plus A1's test blob header via `git show`.",
+    "Read red-review-edits.log in full and re-computed the sha256 of every log in the evidence directory against the author's recorded hashes.",
+    "Read green-A1.log, green-A2.log and green-B2.log in full for their trailers and row names.",
+    "Parsed all five e2e campaign scenario packs and enumerated every offer's field types against `isStoredContractOffer`'s requirements and every envelope's `authority` key against the RE-1 guard.",
+    "Swept src/ for remaining `paymentTerms: {}` seeds, for all `paymentTerms` producers, and for every caller of `AcceptContract` / `executeCampaignCommand` outside the two charter batteries — then ran those 7 suites.",
+    "Re-ran at HEAD: the 10-row suite (10/10), `src/lib/campaign src/lib/events/journal` (219 suites / 3160 tests), `tsc --noEmit --skipLibCheck` (exit 0), and the 7 out-of-charter suites (77 tests).",
+    "Verified tree identity (`git diff 87ed9d239 HEAD --stat` empty; both trees 76ab6e82), per-commit numstat and authorship, the AI-attribution sweep, and the absence of any openspec path in the diff.",
+    "Confirmed the worktree HEAD and `git status --porcelain` unchanged and empty at start and end."
+  ]
+}

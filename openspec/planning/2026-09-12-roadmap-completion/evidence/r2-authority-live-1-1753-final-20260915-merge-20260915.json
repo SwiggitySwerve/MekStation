@@ -1,0 +1,64 @@
+{
+  "pr": 1753,
+  "branch": "codex/roadmap-r2-authority-live-1-socket-20260915",
+  "reviewedCommit": "dbb3fafbea6989f050aa154e0281ec7b5ce47c31",
+  "finalHead": "c4fa75854a936b40e27713b88c6c7a05e45f33b3",
+  "autoMergeArmed": false,
+  "contentGuard": {
+    "method": "file set from `git diff --name-only origin/main...<head>` vs the PR's own reviewed files, plus per-file blob equality against the reviewed commit; re-run after update-branch",
+    "fileCountAtMerge": 2,
+    "files": [
+      "e2e/helpers/campaignJournalDrive.ts",
+      "e2e/helpers/campaignJournalSocket.ts"
+    ],
+    "diffstat": "360 insertions(+), 22 deletions(-)",
+    "blobEquality": "all files blob-identical to the reviewed commit at the gated head",
+    "srcTouched": false,
+    "result": "PASS"
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "expectedHeadShaGuardUsed": true,
+    "oldHead": "dbb3fafbea6989f050aa154e0281ec7b5ce47c31",
+    "newHead": "c4fa75854a936b40e27713b88c6c7a05e45f33b3",
+    "reason": "branch was BEHIND"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "Customizer Regressions": "pass",
+    "Unit Tests (6/6)": "pass",
+    "otherChecksCount": 27,
+    "otherChecksBuckets": {
+      "pass": 27
+    },
+    "totalChecks": 31,
+    "rerunsPerformed": 0
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-authority-live-1-1753-final-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "ef36274384341f7158ac5870bd6b7a2265913567",
+  "mergeCommitParents": [
+    "55abb652a633b30ee578c1131b2c1bddf8cc6b1b"
+  ],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1753 --squash --match-head-commit c4fa75854a936b40e27713b88c6c7a05e45f33b3",
+  "mergedAt": "2026-09-15T20:45:56Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "The merge commit changes exactly 2 file(s), all blob-identical to the gated head c4fa75854a936b40e27713b88c6c7a05e45f33b3.",
+  "mainAfter": "ef36274384341f7158ac5870bd6b7a2265913567",
+  "dirtyEncountered": false,
+  "worktree": {
+    "fastForward": "NOT PERFORMED - no owned worktree designated for this PR",
+    "result": "N/A"
+  },
+  "notes": "Stack base. e2e-only, no src/ touched - confirmed from the file set.",
+  "timestamps": {
+    "receiptWrittenAt": "2026-09-15T21:02:00Z"
+  }
+}

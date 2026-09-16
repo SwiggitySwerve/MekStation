@@ -1,0 +1,320 @@
+{
+  "artefact": "r4-s2-live-head-admission-local",
+  "date": "2026-09-15",
+  "roadmapNode": "R4.S2",
+  "package": "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind",
+  "task": "1.2 (box left UNCHECKED)",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/history-runtime-integrity",
+  "mode": "proof-only + wording; no production behavior change; no push, no PR, no merge",
+  "base": {
+    "branch": "codex/roadmap-r4-s2-live-head-admission-20260915",
+    "createdFrom": "e1ccf668c954b9169385a496f80fe1348f19c60a",
+    "parentBranch": "codex/roadmap-r4-s1-journal-batches-20260915 (PR #1684, queued for merge)",
+    "stacked": true,
+    "note": "Stacked on R4.S1. The parent rebases onto main after #1684 merges; this branch follows it.",
+    "worktreeCleanAtStart": true
+  },
+  "commits": [
+    {
+      "sha": "fce4f47d9",
+      "subject": "spec(combat): amend S2 wording for the integrity-blocked head",
+      "shortstat": "2 files changed, 17 insertions(+), 2 deletions(-)",
+      "preCommitHook": "lint-staged (oxfmt on 2 md files); build SKIPPED (no TypeScript staged)"
+    },
+    {
+      "sha": "3ebede292",
+      "subject": "test(combat): prove live journal-head admission for the four illegal command shapes",
+      "shortstat": "1 file changed, 463 insertions(+)",
+      "preCommitHook": "lint-staged (oxlint --fix, oxfmt --write, tsc --noEmit --skipLibCheck) + full `npm run build` (TypeScript staged) — build line: '✓ Compiled successfully in 36.0s'; hook exit 0"
+    },
+    {
+      "sha": "c315b9f99",
+      "subject": "spec(combat): correct the verbatim-move preamble and pin the shipped cutover mode",
+      "shortstat": "2 files changed, 24 insertions(+), 5 deletions(-)",
+      "preCommitHook": "lint-staged + full `npm run build` (TypeScript staged) - build line: 'Compiled successfully in 41s'; hook exit 0",
+      "why": "review corrections RE-1 (required) and RN-1 (recommended). New commit, NOT an amend."
+    }
+  ],
+  "surface": {
+    "shortstatVsBase": "git diff --shortstat e1ccf668c -> 3 files changed, 499 insertions(+), 2 deletions(-)",
+    "cap": "<= 15 files / <= 500 lines - PASS (499 insertions, 1 line of headroom)",
+    "files": [
+      {
+        "path": "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/tasks.md",
+        "status": "M",
+        "change": "Task 1.2 text replaced with the admission brief's part2 wording. Box stays `[ ]`. No other task touched."
+      },
+      {
+        "path": "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/specs/gm-combat-interventions/spec.md",
+        "status": "M",
+        "change": "Requirement `Superseded Combat Commands Are Rejected`: SHALL text separates staleness from persisted corruption, plus one new scenario and an inline grounding comment (fce4f47d9); the ADDED-block preamble corrected so it no longer claims this requirement is a verbatim move (c315b9f99). 22 added lines, 1 replaced - within the <= 40 spec-line budget."
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/ServerMatchHostBranchAdmission.journalHead.test.ts",
+        "status": "A",
+        "change": "New proof suite, 482 lines, 7 rows (463 at 3ebede292, +19 at c315b9f99)."
+      }
+    ],
+    "productionSourceFilesChanged": 0
+  },
+  "specDeltaDecision": {
+    "question": "The task brief said 'add the minimal MODIFIED clause'. Why is the edit under ADDED instead?",
+    "answer": "`Superseded Combat Commands Are Rejected` is an ADDED requirement in THIS package (moved verbatim from the umbrella on 2026-09-04; it does not exist in `openspec/specs/gm-combat-interventions/spec.md`). A second entry with the same requirement name under `## MODIFIED Requirements` in the same delta would be a duplicate. The clause was therefore added in place in the ADDED entry, which is the same final text the archive installs.",
+    "grounding": [
+      "add-authoritative-history-branches/specs/event-store/spec.md, 'Branch Activation Is Verified, Compare-and-Swap, and Atomic' — supersession and head installation are ONE transaction, so a head naming a superseded branch is state no activation can produce.",
+      "same file, 'Branch Resolution Preserves Contiguous Order and Integrity' — a typed integrity refusal ('quarantined or blocked') is the established answer for persisted corruption.",
+      "PR #1674 / evidence r3-history-b-repair-20260915.json — MATCH_QUARANTINED + HISTORY_INTEGRITY_BLOCKED_REASON, and the removal of the superseded-head STALE_BRANCH arm as unreachable by construction.",
+      "r3-history-b-repair-review-20260915.json rated this tension 'REAL BUT NOT A SPEC CONTRADICTION; correctly deferred to the owner'. This commit is that owner-facing amendment; C1 and C2 of the admission brief are addressed by it."
+    ]
+  },
+  "proofSuite": {
+    "file": "src/lib/multiplayer/server/__tests__/ServerMatchHostBranchAdmission.journalHead.test.ts",
+    "rows": 7,
+    "headProvenance": "The journal head, genesis branch and effective-head row are installed by S1's mirror through a REAL committed batch on `DurableMatchStore.appendCommandBatch` (the same boundary the host's commit path calls), under `_setCombatJournalAuthorityModeForTests('shadow')`. No head row is hand-built.",
+    "measuredBehaviorWorthRecording": [
+      "`ServerMatchHost.create` persists its initial events OUTSIDE the batch path (`appendEvent`). Measured: after a mirrored seed batch (journal revision 1), host creation added 2 match events and 0 journal rows, and the next host batch mirrored `revision-conflict` (shadow mismatch counter +1). So the mirror must be seeded by the match's FIRST batch or it is permanently behind — S1's disclosed no-catch-up, visible here. The HEAD still stands, and the head is the only thing the S2 consult reads, which is why the rows assert on the head and not on the journal tail.",
+      "Shape 2 (persisted corruption) is answered by BOTH intent-path consults: `refuseDuringHistoryRebuild` runs first and is where History B's red stack actually threw, and `refuseLiveBranchAdmission`'s own guard is the backstop. Measured in D3/D4 below."
+    ],
+    "shapeToRefusalAsserted": [
+      {
+        "shape": "(1) intent whose stream head is no longer the live-path identity (host serves root/baseline, store activated a replacement)",
+        "asserted": "code STALE_BRANCH, reason LIVE_BRANCH_ADMISSION_PHRASING.STALE_BRANCH, recoveryAction EXPECTED_HEAD_RESYNC_ACTION, conflictHead { branchId: 'candidate-1', revision: <match event count> }; mp_match_events unchanged; event_journal_events unchanged; after host.adoptServedBranch('candidate-1') the next legal intent commits"
+      },
+      {
+        "shape": "(2) persisted head naming a non-effective (superseded) branch",
+        "asserted": "code MATCH_QUARANTINED, reason 'history-integrity-blocked', NO conflictHead property, NO recoveryAction property, no STALE_BRANCH frame; mp_match_events unchanged; event_journal_events unchanged; a second intent gets the same typed refusal (host alive, not thrown out of handleIntent)"
+      },
+      {
+        "shape": "(3) targetRevision-bearing non-request payload from a non-host actor",
+        "asserted": "code GM_ONLY, reason 'gm-role-required', no conflictHead; nothing appended; the host's own identical payload passes admission and commits"
+      },
+      {
+        "shape": "(4) player RewindRequest (targetRevision + reason)",
+        "asserted": "code INVALID_INTENT with reason 'accepted-for-gm-review'; mp_match_events and event_journal_events both unchanged; the next legal intent still commits"
+      }
+    ],
+    "additionalRows": [
+      "the mirrored head is the live-path identity (effectiveGeneration 1) and a legal intent is admitted — the S1-to-S2 join itself",
+      "cold reopen: both SQLite files closed and reopened from disk, a fresh DurableMatchStore and a fresh host still read the persisted head and still refuse STALE_BRANCH (the reopened host logs an expected sequence-collision warning re-persisting initial events over the existing log; admission answers before that reaches the engine)",
+      "production default (mode 'off'): no journal rows, readEffectiveHead(stream) === null, no STALE_BRANCH / MATCH_QUARANTINED frame, and the intent commits — the honest pin of finding #48"
+    ]
+  },
+  "discrimination": {
+    "why": "The admission brief predicted all refusals already exist post-History-B, so the suite came up GREEN on first complete run. The red step is therefore falsification: each perturbation below was applied, measured, and reverted (`git status` clean after each).",
+    "runs": [
+      {
+        "id": "green-01",
+        "perturbation": "none (first complete run after the seeding fix)",
+        "result": "7 passed / 7",
+        "log": "green-01-journalHead.log"
+      },
+      {
+        "id": "D1",
+        "perturbation": "test-configured mode override flipped 'shadow' -> 'off' in beforeEach (mirror installs no head)",
+        "result": "6 failed, 1 passed — only the mode-off row survives",
+        "log": "red-d1-mirror-off.log",
+        "proves": "every mode-on row depends on S1's mirror actually installing the head; none of them can pass on a hand-built or absent head"
+      },
+      {
+        "id": "D2",
+        "perturbation": "production `refuseLiveBranchFromIntent` call short-circuited in ServerMatchHostIntent.ts (reverted)",
+        "result": "4 failed, 3 passed — shapes 1, 3, 4 and the cold-reopen row red; shape 2 stayed green",
+        "log": "red-d2-consult-disabled.log",
+        "proves": "the branch-admission consult is what answers shapes 1/3/4; shape 2 survives because the rebuild consult answers it first"
+      },
+      {
+        "id": "D3",
+        "perturbation": "production `refuseDuringHistoryRebuild` call short-circuited instead (reverted)",
+        "result": "7 passed / 7",
+        "log": "red-d3-rebuild-consult-disabled.log",
+        "proves": "History B guarded BOTH consults; the branch consult independently answers the corruption shape, so either guard alone is a backstop"
+      },
+      {
+        "id": "D4",
+        "perturbation": "both consults short-circuited (reverted)",
+        "result": "5 failed, 2 passed — all five mode-on rows red; only the join row's admitted-intent half and the mode-off row survive",
+        "log": "red-d4-both-consults-disabled.log",
+        "proves": "shape 2 is discriminated once both guards are removed"
+      },
+      {
+        "id": "green-02",
+        "perturbation": "none (final, after reverting every perturbation)",
+        "result": "7 passed / 7",
+        "log": "green-02-journalHead-final.log"
+      }
+    ],
+    "evidenceDir": ".sisyphus/roadmap-completion-20260912/r4-s2-20260915/",
+    "sha256": {
+      "green-01-journalHead.log": "41e6917221fec03f391a157496a23b9019c4260ed0afd41ed0197c991d3884c8",
+      "red-d1-mirror-off.log": "6e1948c864fed28f512e8fe39f43ec659b13569b304888ac3c3460333255c28f",
+      "red-d2-consult-disabled.log": "80e7cf02d76019f512e628f978c939e6b56fe8649b02e9baa50b0446cfd0742d",
+      "red-d3-rebuild-consult-disabled.log": "3a9e1bf1831859a5e10f70fa6fe5ed7e06a3db9b5f98e08ad8d3571a8bc78992",
+      "red-d4-both-consults-disabled.log": "949d64c63de012a7aad1afdc1b32c298361889390c09e243dd369156804f12d6",
+      "green-02-journalHead-final.log": "543db97747cbd7c00f49feccd357d840f7399a42064ec0c8d0852bcc99d09dca",
+      "gate-jest-server-journal.log": "966d19e9ef808c5bf0e2602e85bdf1ad4daee04dbcea24d2408f8c978c04956c",
+      "gate-typecheck.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gate-oxlint.log": "fb100fad5a41ef970367032008bb25f87545291355e741fa0ed47c1524a01ad9",
+      "gate-oxlint-repo.log": "c973781a19fa79ee4e625963ee6ac4edb1640652d1b3aa6032d19c508eea6e4a",
+      "gate-oxfmt.log": "570a57884d84b076300063694436f16f1a5f1f71a5ebdcccb385957e7cbe593c",
+      "commit-2.log": "a5e0d73aa5e3fe5ffae02fc2e7fe884c7f21d67e08514bfc8632c3018bf2523a"
+    }
+  },
+  "gates": [
+    {
+      "argv": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/multiplayer/server/__tests__/ServerMatchHostBranchAdmission.journalHead.test.ts",
+      "exit": 0,
+      "counts": "1 suite passed, 7 tests passed",
+      "log": "green-02-journalHead-final.log"
+    },
+    {
+      "argv": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/multiplayer/server src/lib/events/journal",
+      "exit": 0,
+      "counts": "168 suites passed / 168, 1314 tests passed / 1314, 46.6 s",
+      "log": "gate-jest-server-journal.log"
+    },
+    {
+      "argv": "npx tsc --noEmit --skipLibCheck",
+      "exit": 0,
+      "counts": "0 errors (empty log)",
+      "log": "gate-typecheck.log"
+    },
+    {
+      "argv": "npx oxlint src/lib/multiplayer/server/__tests__/ServerMatchHostBranchAdmission.journalHead.test.ts",
+      "exit": 0,
+      "counts": "0 warnings, 0 errors on 0 files",
+      "note": "0 FILES, not 0 findings: `.oxlintrc.json` ignorePatterns excludes `**/__tests__/**` and `**/*.test.ts`. The new file cannot contribute a lint finding by construction.",
+      "log": "gate-oxlint.log"
+    },
+    {
+      "argv": "npm run lint (oxlint, repo-wide)",
+      "exit": 0,
+      "counts": "84 warnings, 0 errors on 3797 files",
+      "note": "Not claimed as a delta measurement against the base — the new file is oxlint-ignored, so it contributes none; 84 is the branch's standing pre-existing warning count.",
+      "log": "gate-oxlint-repo.log"
+    },
+    {
+      "argv": "npx oxfmt --check src/lib/multiplayer/server/__tests__/ServerMatchHostBranchAdmission.journalHead.test.ts",
+      "exit": 0,
+      "counts": "1 file, all matched files use the correct format",
+      "log": "gate-oxfmt.log"
+    },
+    {
+      "argv": "npx oxfmt --check <tasks.md> <spec.md>",
+      "exit": 2,
+      "counts": "'Expected at least one target file'",
+      "note": "oxfmt does not target .md on the CLI; the pre-commit lint-staged glob `*.{json,md,css}` DID run oxfmt --write over both markdown files (commit fce4f47d9 hook output) and made no change.",
+      "log": "gate-oxfmt.log"
+    },
+    {
+      "argv": "pre-commit hook on 3ebede292: lint-staged + npm run build",
+      "exit": 0,
+      "counts": "'✓ Compiled successfully in 36.0s'",
+      "note": "Hooks were left ON; the full build is the hook's own gate for a TypeScript-staged commit, not a gate this session chose to run.",
+      "log": "commit-2.log"
+    }
+  ],
+  "validators": [
+    {
+      "argv": "npx openspec validate --all --strict",
+      "exit": 0,
+      "result": "Totals: 232 passed, 0 failed (232 items)"
+    },
+    {
+      "argv": "npm run spec:purpose:validate:strict",
+      "exit": 0,
+      "result": "Files scanned: 220, Errors: 0, Tracked source-of-truth debt: 0"
+    },
+    {
+      "argv": "npm run terminology:validate:strict",
+      "exit": 0,
+      "result": "315 files scanned, no terminology violations"
+    }
+  ],
+  "nonClaims": [
+    "COMBAT_JOURNAL_AUTHORITY_MODE stays 'off' in production (matchJournalAuthority.ts:18). The mirror is turned on ONLY through `_setCombatJournalAuthorityModeForTests`, inside this suite, and is reset in afterEach. No production default was changed.",
+    "No production cutover. No mode-flip decision, scoped or otherwise, is made or proposed here. Finding #48's 'structurally dead in production' state is unchanged — and is now pinned honestly by the mode-off row rather than left implicit.",
+    "No production source file was modified. The D2/D3/D4 perturbations of ServerMatchHostIntent.ts were applied, measured and reverted; `git status` was verified clean after each, and the branch's only source addition is the new test file.",
+    "No SHALL is discharged. The five requirements in the package's gm-combat-interventions delta remain undischarged in production; S2 is an infrastructure seam, and the spec amendment corrects the requirement's TEXT, it does not satisfy it.",
+    "No S3 (task 1.3, mp_journal_authority_started retirement) and no S4 (task 1.4, restart recovery from the journal head) work is included. S4's RR-1 residual (no busy_timeout on the mirror) is untouched and still open.",
+    "Task 1.2's checkbox is left UNCHECKED. The wording is amended; the box is the owner's to check when S2's proof is accepted.",
+    "No push, no PR, no merge, no branch other than codex/roadmap-r4-s2-live-head-admission-20260915 was created or moved. The root checkout at E:/Projects/MekStation was not modified (only read, and written under .sisyphus/ + openspec/planning/**/evidence for this receipt).",
+    "The journal does NOT track the match log after host creation on this path (measured: the mirror falls to revision-conflict once ServerMatchHost.create's non-batch initial persist runs ahead of it). That gap is S1's disclosed no-catch-up, is closed by S4/S6, and is NOT claimed closed here.",
+    "Branch ACTIVATION in the stale-shape rows is written directly (createBranch + transitionBranchStatus + an UPDATE of the head row), because the branch port exposes no activation call — the compare-and-swap lives in the branch-activation seam. What is not hand-built is the head being moved: S1's mirror installed it.",
+    "The shipped-mode row's OUTCOME assertions do not by themselves discriminate the production constant (measured in D5): the create-path bypass keeps the journal empty even at mode 'shadow'. The row's constant pin is what a cutover falsifies. Recorded so no later reader mistakes that row for proof that the mirror is off."
+  ],
+  "correction": {
+    "trigger": "Independent review evidence/r4-s2-live-head-admission-review-20260915.json - verdict APPROVE-WITH-REQUIRED-EDITS. The review independently reproduced the suite (7/7), openspec strict, tsc 0, the server-subset gate (146/1081), and recomputed all 12 recorded sha256 as byte-for-byte matches.",
+    "commit": "c315b9f99 (new commit on the same branch; fce4f47d9 and 3ebede292 NOT amended, SHAs unchanged)",
+    "RE-1": {
+      "status": "APPLIED",
+      "file": "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/specs/gm-combat-interventions/spec.md",
+      "problem": "The ADDED-block preamble claimed all three requirements were 'Moved VERBATIM' from the umbrella. fce4f47d9 made that false for `Superseded Combat Commands Are Rejected`, three lines above the edit that falsified it - and the umbrella's SPLIT RECEIPT (harden-gm-two-player-campaign-sessions/tasks.md:299) asserts mechanical verbatim verification of exactly those three moves. The reviewer confirmed no verify-split.py survives in the repo, so prose is the only guard.",
+      "fix": "One sentence appended inside the existing HTML comment, before the closing '-->', in the reviewer's exact wording: it names the 2026-09-15 amendment, its commit `fce4f47d9`, History B (PR #1674), and states the other two ADDED requirements remain verbatim. Nothing else in the file changed."
+    },
+    "RN-1": {
+      "status": "APPLIED, and the fix changed shape once measured",
+      "file": "src/lib/multiplayer/server/__tests__/ServerMatchHostBranchAdmission.journalHead.test.ts",
+      "problem": "The shipped-mode row configured the override to the literal 'off' instead of running on the production constant, so a future S6 cutover would leave it asserting a belief about production rather than production itself.",
+      "firstAttemptWasWrong": "The first fix cleared the override and asserted `getCombatJournalAuthorityMode() === COMBAT_JOURNAL_AUTHORITY_MODE`. That is a TAUTOLOGY - the getter returns `override ?? CONST`, so with the override null the two are equal by construction. Caught by running D5 against it: with the constant flipped to 'shadow' the row stayed GREEN. Not shipped.",
+      "fix": "Clear the override (so the row genuinely runs on COMBAT_JOURNAL_AUTHORITY_MODE) AND pin that constant's value: `expect(getCombatJournalAuthorityMode()).toBe('off')` plus `expect(COMBAT_JOURNAL_AUTHORITY_MODE).toBe('off')`. The describe block is renamed 'the shipped cutover mode'.",
+      "newFindingFromD5": "LOAD-BEARING, and worth carrying to S4/S6. Flipping COMBAT_JOURNAL_AUTHORITY_MODE to 'shadow' does NOT change the row's OUTCOME assertions - no head, zero journal rows, intent commits - because the mirror's first batch loses to ServerMatchHost.create's non-batch initial persist (`appendEvent`, ServerMatchHostEvents.ts:95) and never lands, so the stream never gets a head. The constant pin is therefore the ONLY assertion in that row a cutover can falsify. This is a second, independent consequence of the create-path bypass the review graded load-bearing for task 1.4 (S4) and blocking for task 1.7 (S6) shadow parity: a naive cutover would leave mode-off-shaped evidence passing while describing the opposite configuration."
+    },
+    "RN-2": {
+      "status": "NOT APPLIED - out of surface, by the reviewer's own routing",
+      "what": "harden-gm-two-player-campaign-sessions/tasks.md:312-313 narrative is now stale against the amended package spec; the reviewer routes that correction to the 14.2 closing receipt at package task 2.3, in a different change."
+    },
+    "RN-3": {
+      "status": "NOT APPLIED here - belongs to tasks 1.4 / 1.7",
+      "what": "Promote S1's disclosed 'no-catch-up' from a receipt disclosure to a NAMED remainder on task 1.7 (S6). The D5 finding above strengthens the case: the bypass silently survives a mode flip.",
+      "recommendedOwner": "tasks 1.4 (S4, first consumer that breaks) and 1.7 (S6, whose parity promise it falsifies)"
+    },
+    "reRuns": [
+      {
+        "argv": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false <suite>",
+        "exit": 0,
+        "counts": "1 suite passed, 7 tests passed / 7",
+        "log": "green-03-post-review.log"
+      },
+      {
+        "argv": "npx openspec validate --all --strict",
+        "exit": 0,
+        "counts": "Totals: 232 passed, 0 failed (232 items)",
+        "log": "validate-post-review.log"
+      },
+      {
+        "argv": "npx oxfmt --check <suite>",
+        "exit": 0,
+        "counts": "1 file, correct format",
+        "log": "gate-oxfmt-post-review.log"
+      },
+      {
+        "argv": "npx tsc --noEmit --skipLibCheck",
+        "exit": 0,
+        "counts": "0 errors (empty log)",
+        "log": "gate-typecheck-post-review.log"
+      },
+      {
+        "argv": "D5: COMBAT_JOURNAL_AUTHORITY_MODE flipped 'off' -> 'shadow' in matchJournalAuthority.ts, shipped-mode row only (reverted)",
+        "exit": 1,
+        "counts": " 1 failed, 6 skipped - Expected: \"off\", Received: \"shadow\"",
+        "log": "red-d5-const-flipped.log",
+        "proves": "the corrected row now tracks the production constant; against the FIRST (tautological) attempt this same perturbation left it green"
+      }
+    ],
+    "sha256": {
+      "green-03-post-review.log": "59fe399eb3df4c30b8757e7edb350c813c3219fe0e8fba77ba723763e9222623",
+      "red-d5-const-flipped.log": "c48fc0db846468a46fe31f3cf63fc9aa2d86b8c5c9eb2bd5606361c4416b9e5f",
+      "validate-post-review.log": "ddd3fbaaa4a38bbe121eb042e653ba240ed0a65a4693d87d12a75c98f50e815a",
+      "gate-oxfmt-post-review.log": "b560b34eb308570e413117efa13ef61deec685bd0f932358f6fe6718a17129e8",
+      "gate-typecheck-post-review.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "commit-3.log": "fa708370ec4623bf7713cc218b5bfc1366e6f5391776c437443fbb257cb01038"
+    },
+    "unchangedByTheCorrection": [
+      "Task 1.2's checkbox is still `[ ]`.",
+      "COMBAT_JOURNAL_AUTHORITY_MODE is still 'off' in production; the D5 perturbation was reverted and `git status` verified clean.",
+      "No production source file is in the diff. matchJournalAuthority.ts is NOT part of the branch's surface.",
+      "The D1-D4 discrimination runs and their sha256 are untouched and still valid; the corrected row is still the D1 survivor.",
+      "No push, no PR, no merge, no amend."
+    ]
+  }
+}

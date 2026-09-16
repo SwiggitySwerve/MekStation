@@ -1,0 +1,49 @@
+{
+  "at": "2026-09-13T00:41:58.578Z",
+  "status": "sampled-historical-approval-gate-missing",
+  "repository": {
+    "id": 1014984218,
+    "nodeId": "R_kgDOPH9uGg",
+    "name": "SwiggitySwerve/MekStation"
+  },
+  "reads": [
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/camp-provenance-discovery-20260913/api-0.json",
+      "sha256": "05b920dddd396d629b57a09df51b70855778f735ae71a950b810c49a356722bf",
+      "endpoint": "repos/SwiggitySwerve/MekStation"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/camp-provenance-discovery-20260913/api-1.json",
+      "sha256": "221227a5577dd0193e9e25676c04487b5bdbc856c6d2a3564a35aeabc0254055",
+      "endpoint": "repos/SwiggitySwerve/MekStation/pulls/1094/reviews"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/camp-provenance-discovery-20260913/api-2.json",
+      "sha256": "cdb5bd733be0ff7a6c12e78ccf43049f7ba358fa59514fb83e0672ec171c8036",
+      "endpoint": "repos/SwiggitySwerve/MekStation/pulls/1217/reviews"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/camp-provenance-discovery-20260913/api-3.json",
+      "sha256": "b7780f5770c305184ea1ed9fc045b80966bd2cec158ef36351aa7b789602ebba",
+      "endpoint": "repos/SwiggitySwerve/MekStation/pulls/1256/reviews"
+    }
+  ],
+  "pullRequests": [
+    {
+      "endpoint": "repos/SwiggitySwerve/MekStation/pulls/1094/reviews",
+      "reviews": 0,
+      "eligibleExactHeadNonAuthorApproval": false
+    },
+    {
+      "endpoint": "repos/SwiggitySwerve/MekStation/pulls/1217/reviews",
+      "reviews": 0,
+      "eligibleExactHeadNonAuthorApproval": false
+    },
+    {
+      "endpoint": "repos/SwiggitySwerve/MekStation/pulls/1256/reviews",
+      "reviews": 0,
+      "eligibleExactHeadNonAuthorApproval": false
+    }
+  ],
+  "qualification": "PR1094 receipt specification, PR1217 CAMP-PROOF closure and PR1256 reconciliation currently return no reviews. This bounded sample does not establish absence of all eligible approvals across every historical product PR. Neither merge metadata nor solo-maintainer receipts satisfy current roster P.2."
+}

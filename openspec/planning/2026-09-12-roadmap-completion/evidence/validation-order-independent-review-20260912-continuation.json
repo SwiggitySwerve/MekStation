@@ -1,0 +1,60 @@
+{
+  "recordedAt": "2026-09-12T16:47:09.127Z",
+  "reviewer": "/root/validation_review",
+  "model": "gpt-5.6-luna",
+  "effort": "high",
+  "scope": "Parent transcribed terminal reviewer report; worker refused receipt writes under read-only role. Actual source/test correction belongs to xhigh followup.",
+  "verdict": "changes-required",
+  "files": [
+    {
+      "path": "src/services/validation/UnitValidationRegistry.ts",
+      "sha256": "e59576e02d2234ad6cda283e910767979a0706a2aa86d4b7aa9e542aeedea57c"
+    },
+    {
+      "path": "src/__tests__/service/validation/UnitValidationHierarchyOrder.test.ts",
+      "sha256": "fe6fb7b5ebc162deb87713e6c6fd3d12d3bba1dde7b7c55c1174c93b6b77ffbe"
+    },
+    {
+      "path": "openspec/specs/unit-validation-framework/spec.md",
+      "sha256": "048a4988168af495b4698f73d63f2e345a5a18d1aa7c57aa412f14eea204bd6d"
+    }
+  ],
+  "reportedChecks": [
+    {
+      "surface": "src/__tests__/service/validation registry/orchestrator/hierarchy",
+      "result": "3 suites 46 tests passed"
+    },
+    {
+      "surface": "src/services/validation/__tests__ registry/orchestrator/initialize",
+      "result": "2 suites passed,1 failed;76 tests passed,1 failed",
+      "failure": "initializeUnitValidation.test.ts:398-400 requires global numeric-priority ordering"
+    }
+  ],
+  "findings": [
+    {
+      "severity": "P1",
+      "path": "src/services/validation/__tests__/initializeUnitValidation.test.ts:392",
+      "message": "Existing global-priority assertion fails repaired level-order contract; update to meaningful per-level contract"
+    },
+    {
+      "severity": "P2",
+      "path": "src/services/validation/UnitValidationRegistry.ts:369",
+      "message": "Introduced override tombstones suppress more-specific duplicate X: universal X, category Y overrides X, unit X returns only Y"
+    },
+    {
+      "severity": "P2",
+      "path": "src/services/validation/UnitValidationRegistry.ts:405",
+      "message": "Extension chain at effective child level can run category parent after unit sibling; full-level-order vs atomic-chain contract requires explicit resolution"
+    },
+    {
+      "severity": "P3",
+      "path": "openspec/specs/unit-validation-framework/spec.md:50",
+      "message": "Pre-existing missing unknown-type warning; outside ordering repair"
+    }
+  ],
+  "limits": [
+    "Worker did not preserve new raw logs; use reported checks only as reviewer observations, not independent durable gate proof",
+    "xhigh followup must preserve real red/green logs and exact corrected bytes",
+    "No whole receipt or validation acceptance claimed"
+  ]
+}
