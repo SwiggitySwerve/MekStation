@@ -1,0 +1,379 @@
+{
+  "unit": "U1",
+  "stage": "admission",
+  "at": "2026-09-16T17:56:23.535Z",
+  "node": "R6.umbrella",
+  "nodeState": "planned",
+  "nodeDependsOn": [
+    "R2.authority-live"
+  ],
+  "nodeDependencyStates": {
+    "R2.authority-live": "main-verified"
+  },
+  "dependenciesReady": true,
+  "activePackage": "harden-gm-two-player-campaign-sessions",
+  "taskKeys": [
+    "harden-gm-two-player-campaign-sessions#22.3@584"
+  ],
+  "baseline": "19e5a061e466dad4d592b2d90f363402f5a0d950",
+  "originMain": "19e5a061e466dad4d592b2d90f363402f5a0d950",
+  "baselineEqualsOriginMain": true,
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u1",
+  "branch": "codex/roadmap-u1-e2e-71-80-20260916",
+  "ownedPaths": [
+    "e2e",
+    "scripts/qc",
+    "openspec/changes/harden-gm-two-player-campaign-sessions"
+  ],
+  "behavior": "Implement and pass E2E-71 through E2E-80 for latency, catch-up, backpressure, accessible lifecycle UX, confirmation, typed conflicts, evidence completeness, cleanup, and exact-main post-merge audits.",
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500
+  },
+  "ciClass": "product",
+  "reviewClasses": [
+    "routine"
+  ],
+  "selectedBy": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "output": "U1",
+    "exit": 0
+  },
+  "environment": {
+    "worktreeCreated": "git worktree add --detach E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u1 origin/main",
+    "worktreeHead": "19e5a061e466dad4d592b2d90f363402f5a0d950",
+    "nodeModules": "junction to E:\\Projects\\MekStation\\node_modules (cmd mklink /J)",
+    "husky": "npx husky run in the worktree",
+    "worktreeStatus": "clean (git status --porcelain empty at branch creation)",
+    "rootWorkingTreeTouched": false,
+    "rootWriteCount": 1,
+    "rootWritePath": "openspec/planning/2026-09-12-roadmap-completion/evidence/u1-admission-20260916.json"
+  },
+  "scenarioTable": [
+    {
+      "scenario": "E2E-71",
+      "letter": "nearest-rank p95 accepted-command-to-eligible-render latency SHALL be at most 250 milliseconds (spec.md:301-303)",
+      "status": "IMPLEMENTED-AND-REGISTERED",
+      "specFile": "e2e/gm-two-player-performance.pack.spec.ts",
+      "testTitle": "E2E-71/72/73 controlled loopback latency, catch-up and memory stay inside budget @performance @E2E-71 @E2E-72 @E2E-73",
+      "testLine": 109,
+      "group": "performance",
+      "groupCatalogEntry": "performance:33 (scripts/qc/gm-two-player-campaign-core.cjs:6)",
+      "inAllUnion": true,
+      "allUnionProof": "scripts/__tests__/gm-two-player-campaign-qc.test.ts:403-431 pins the `all` plan args and includes e2e/gm-two-player-performance.pack.spec.ts",
+      "latestEvidence": "tasks.md 22.4 DONE (2026-09-02, run w102-all-rebuilt-1): 39/39 rows in 9.3 minutes under the relaunching wrapper, 'performance E2E-71/72/73 inside budget'. tasks.md 23.2 CLOSED records measured p95 28.0/31.6 ms, p99 38.7/46.5 ms, cold catch-up 930/755 ms over 1,020 events."
+    },
+    {
+      "scenario": "E2E-72",
+      "letter": "nearest-rank p99 SHALL be at most 750 milliseconds against the committed long-log fixture (spec.md:305-307)",
+      "status": "IMPLEMENTED-AND-REGISTERED",
+      "specFile": "e2e/gm-two-player-performance.pack.spec.ts",
+      "testTitle": "E2E-71/72/73 controlled loopback latency, catch-up and memory stay inside budget @performance @E2E-71 @E2E-72 @E2E-73",
+      "testLine": 109,
+      "group": "performance",
+      "inAllUnion": true,
+      "latestEvidence": "same row as E2E-71; tasks.md 23.2 CLOSED records p99 38.7/46.5 ms measured twice on final code."
+    },
+    {
+      "scenario": "E2E-73",
+      "letter": "1,000-event cold catch-up SHALL finish within 2 seconds and within chunk, queue and memory limits (spec.md:309-311)",
+      "status": "IMPLEMENTED-AND-REGISTERED",
+      "specFile": "e2e/gm-two-player-performance.pack.spec.ts",
+      "testTitle": "E2E-71/72/73 controlled loopback latency, catch-up and memory stay inside budget @performance @E2E-71 @E2E-72 @E2E-73",
+      "testLine": 109,
+      "group": "performance",
+      "inAllUnion": true,
+      "latestEvidence": "tasks.md 23.2 CLOSED: cold catch-up 930/755 ms over 1,020 events.",
+      "statedNonClaim": "The pack header (lines 44-52) records that the campaign channel satisfies a cold join with a baseline plus tail rather than fixed-size ReplayChunk frames, so the '1,000-event authorized tail' is measured as recovered tail DEPTH with the chunk/queue/memory ceilings proving boundedness. That reading is declared in the spec header, not hidden."
+    },
+    {
+      "scenario": "E2E-74",
+      "letter": "WHEN Player 2 is slowed through the controlled send seam THEN its queue and memory SHALL remain within the declared limits and each healthy GM/Player 1 sample population SHALL retain nearest-rank p95 <= 250 ms and p99 <= 750 ms (spec.md:313-315)",
+      "status": "MISSING",
+      "specFile": null,
+      "testTitle": null,
+      "group": null,
+      "inAllUnion": false,
+      "latestEvidence": null,
+      "discovery": "grep -rn 'E2E-7[0-9]|E2E-80' over e2e/ and scripts/ returns no E2E-74 hit. grep -rln 'backpressure|Backpressure' over e2e/ and scripts/ returns nothing; the only backpressure sources are under src/ (ServerMatchBroadcaster.ts, ServerMatchHostEvents.ts, ServerMatchSocketTypes.ts and their jest suites)."
+    },
+    {
+      "scenario": "E2E-75",
+      "letter": "WHEN the harness drives pending, sealed, finalized, syncing, reconnecting, behind, rebuilding, rewound and blocked THEN each SHALL have a stable locator, persistent text, non-color-only semantics, correct command gating, and an assistive-technology announcement (spec.md:317-319)",
+      "status": "MISSING",
+      "specFile": null,
+      "testTitle": null,
+      "group": null,
+      "inAllUnion": false,
+      "latestEvidence": null,
+      "discovery": "No E2E-75 tag anywhere in e2e/ or scripts/. The product surface exists: src/lib/lifecycle/lifecycleState.ts declares the nine states plus `live`; src/components/multiplayer/TacticalLifecycleStateBanner.tsx renders data-testid='tactical-lifecycle-state' with data-state, role='status', aria-live='polite', aria-atomic='true' and a per-state tone; jest a11y coverage sits at src/components/multiplayer/__tests__/TacticalLifecycleStateBanner.a11y.test.tsx. What is absent is a LIVE browser row that drives the states."
+    },
+    {
+      "scenario": "E2E-76",
+      "letter": "WHEN the GM initiates a broad rewind on desktop and narrow viewport THEN impact summary, confirm, cancel, focus order, and primary recovery action SHALL remain visible and keyboard operable (spec.md:321-323)",
+      "status": "PARTIAL",
+      "specFile": "e2e/gm-two-player-rewind.pack.spec.ts",
+      "testTitle": "E2E-76 rewind confirmation prevents accidental invalidation @rewind-pack @E2E-76",
+      "testLine": 311,
+      "group": "rewind-pack",
+      "inAllUnion": true,
+      "latestEvidence": "None recorded as a PASS. The row body opens with test.fail(true, 'E2E-76 rewind confirmation prevents accidental invalidation @until-journal-cutover') at e2e/gm-two-player-rewind.pack.spec.ts:315-318, i.e. it is a declared strict expected failure.",
+      "missingAgainstLetter": [
+        "The row is an expected failure, so the letter is not satisfied by it. The pack header (lines 1-10) states: 'Strict expected failures until adopt-combat-journal-cutover-and-gm-rewind: the combat stream is never journaled (finding #48), so preview/commit answer 404 no-authoritative-history and STALE_BRANCH is unreachable.'",
+        "The body asserts blast radius, the actions container, confirm, cancel, the Tab focus cycle on desktop and at 375x812, Escape dismissal, an unchanged event census and a re-enabled preview button. It does NOT assert the letter's 'primary recovery action' (per tasks.md 19.3 Wave E6, on a refusal the primary becomes 'Ask the server again')."
+      ]
+    },
+    {
+      "scenario": "E2E-77",
+      "letter": "WHEN a command rejects for stale revision, stale branch, authorization, integrity, or rebuild THEN the UI SHALL identify the actor-safe conflict class, base revision or branch, and recovery action without leaking private data (spec.md:325-327)",
+      "status": "MISSING",
+      "specFile": null,
+      "testTitle": null,
+      "group": null,
+      "inAllUnion": false,
+      "latestEvidence": null,
+      "discovery": "No E2E-77 tag anywhere in e2e/ or scripts/. Product surfaces partially exist: src/lib/multiplayer/tacticalLifecycleState.ts:85-96 maps PROJECTION_REBUILDING and typed STALE_BRANCH (with conflictHead and recoveryAction) onto the tactical posture; src/lib/campaign/authority/campaignConflictDecision.ts and src/components/multiplayer/gmRewindPreviewPhrasing.ts carry the campaign-side and rewind-side phrasing."
+    },
+    {
+      "scenario": "E2E-78",
+      "letter": "WHEN any strict scenario passes or fails THEN its per-run directory SHALL contain unique role-labeled screenshots, trace, raw socket transcript, pre-serialization projection evidence, latency JSON, read-only durable-row export, role-specific state hashes, environment manifest, and cleanup log (spec.md:329-331)",
+      "status": "PARTIAL",
+      "specFile": "e2e/gm-two-player-fixture.smoke.spec.ts",
+      "testTitle": "E2E-78 incomplete evidence bundle fails closed and a complete one finalizes @E2E-78",
+      "testLine": 123,
+      "group": "fixture-smoke (also a member of the `smoke` union)",
+      "inAllUnion": true,
+      "latestEvidence": "tasks.md 22.3 PROGRESS (2026-09-03, Wave G2): LIVE l83 production build, fixture-smoke, 2 passed; jest evidence-fixture suite 12/12; three jest mutants killed.",
+      "missingAgainstLetter": [
+        "The completeness GATE is implemented and proven (EVIDENCE_KINDS x EVIDENCE_ROLES = 9 x 3 = 27 cells; finalize throws EVIDENCE_INCOMPLETE naming every missing cell and writes no manifest). What is not proven is the letter's subject - 'any strict scenario'. The same PROGRESS note states: 'NOT claimed: the existing packs do not emit a full 27-cell bundle (the three named packs opt in to partial evidence)'. gm-two-player-fixture.smoke, gm-two-player-membership.smoke and gm-two-player-performance.pack all pass allowIncompleteEvidence: true."
+      ]
+    },
+    {
+      "scenario": "E2E-79",
+      "letter": "WHEN a strict run finishes or aborts THEN cleanup SHALL close only harness-owned browser contexts, sockets, server, database connections, and per-run artifacts and SHALL preserve ambient browser tabs and unrelated processes (spec.md:333-335)",
+      "status": "IMPLEMENTED-AND-REGISTERED",
+      "specFile": "e2e/gm-two-player-cleanup-ownership.spec.ts",
+      "testTitle": "five rows tagged @E2E-79: 'preserves an ambient context and an unrelated identity' (:305), 'is idempotent, so a second teardown destroys nothing further' (:365), 'after a finished run leftover sockets server db and artifacts are gone' (:403), 'after an aborted run leftover sockets server db and artifacts are gone' (:408), 'after a run that dies mid-drive the harness still releases everything' (:413)",
+      "group": "cleanup-ownership",
+      "groupCatalogEntry": "cleanup-ownership:22 (scripts/qc/gm-two-player-campaign-core.cjs:6)",
+      "inAllUnion": true,
+      "latestEvidence": "tasks.md 22.3 PROGRESS (2026-09-03, Wave G1): LIVE l83 production build, 5 passed (11.4 s); mutants M1 killed by the crash row, M2 equivalent-and-kept, novel N1 (group unregistered) killed by the qc pin; tsc 0, oxlint 77-pin, qc pin suite 9/9.",
+      "statedNonClaim": "The spec header and the tasks.md note both record what could NOT be asserted: the Playwright webServer is ambient and outlives the row, product campaign sockets on that server, and a full-disk leak scan."
+    },
+    {
+      "scenario": "E2E-80",
+      "letter": "WHEN a major authority, delivery, projection, rewind, campaign or harness PR merges THEN the applicable staged three-context regression subset SHALL rerun against exact main before the next dependent PR begins and SHALL archive its result with the milestone: fixture isolation before durable role admission, membership after GM/P1/P2 roles land, and the evolving strict smoke subset thereafter (spec.md:337-340)",
+      "status": "MISSING",
+      "specFile": null,
+      "testTitle": null,
+      "group": null,
+      "inAllUnion": false,
+      "latestEvidence": "tasks.md 24.4 is [x] CLOSED (receipt 2026-08-29) and carries the SUBSTANCE: the staged ladder exists as data in scripts/qc/gm-two-player-campaign-core.cjs (fixture-smoke -> membership-smoke -> the evolving `smoke` union built one line per landed group inside buildRunPlan), narrowing it reds the plan pin (mutant killed), and the first smoke run on merged main 2185b5e3c was 2 passed. The receipt explicitly frames the per-merge discipline as 'a standing landing ritual', not an enforced gate.",
+      "discovery": "No E2E-80 tag anywhere in e2e/ or scripts/. No test row asserts the milestone -> group mapping or the archive contract."
+    }
+  ],
+  "gateAnalysis": {
+    "E2E-74": {
+      "ownerGated": false,
+      "gate": "none",
+      "channelMismatch": true,
+      "finding": "The only slow-client seam on main is the per-viewer unacked-frame bound - MAX_VIEWER_UNACKED = 64 at src/lib/multiplayer/server/projection/ViewerDeliveryCursors.ts:39, driven from e2e by installAckSwallow / driveUntilPlayer2Capped / VIEWER_UNACKED_CAP in e2e/helpers/viewerUnackedBound.ts and already used live by E2E-14 (e2e/gm-two-player-resilience.pack.spec.ts:588). That seam is on the TACTICAL match channel. The existing latency runner (ControlledLoopbackPerformanceRunner, driven by e2e/gm-two-player-performance.pack.spec.ts:109 via openCoopSession / joinGuestByRoomCode) measures the CAMPAIGN co-op channel, and grep for DeliveryAck / unacked / MAX_VIEWER_UNACKED over the campaign bind path returns nothing - the campaign channel has no ack-based queue bound to slow a client through.",
+      "consequence": "Satisfying E2E-74 inside U1's ownership paths means porting a latency observer onto the TACTICAL channel (test-only, e2e/). Adding a campaign-channel send seam instead would be a src/ product change, OUTSIDE ownershipPaths.",
+      "reusable": "/api/e2e/performance-probe (consumed at e2e/gm-two-player-performance.pack.spec.ts:677) supplies the paired server monotonic reading and is channel-agnostic; nearestRankPercentile and the budgets are committed in src/lib/multiplayer/performance/controlledLoopbackFixture.ts and are read, not redefined."
+    },
+    "E2E-75": {
+      "ownerGated": "partially",
+      "gate": "the `rewound` posture is unreachable on main",
+      "finding": "src/lib/multiplayer/tacticalLifecycleState.ts:33-37 states PROJECTION_REWOUND 'is not a member of ErrorCodeSchema, so the wire cannot carry it at all. A producer landing is what earns the second arm of the mapper'. src/lib/lifecycle/lifecycleState.ts:38-47 declares both projection signals as owned by add-authoritative-history-branches. The 2026-09-03 ERRATA on tasks.md 22.3 confirms the current split: 'tacticalLifecycleState maps PROJECTION_REBUILDING and nothing else, so rebuilding is now fed while rewound is still unreachable.'",
+      "consequence": "Eight of the nine states are drivable today; `rewound` needs a producer in src/ (add-authoritative-history-branches), outside U1's paths and on the same branch/journal lane as PK-rewind-branch-reader. Recommend the successor unit delivers the eight and parks `rewound` in a packet rather than faking it."
+    },
+    "E2E-76": {
+      "ownerGated": true,
+      "gate": "PK-rewind-branch-reader / adopt-combat-journal-cutover-and-gm-rewind",
+      "finding": "PK-rewind-branch-reader (units.json) asks whether matchStoreBranchSegmentReader should serve MATCH_BASELINE_BRANCH_ID alongside root, or the rewind mirror write onto root, 'given that the rewind-branch fold is unreachable for match streams today'. The rewind pack header names the same wall: preview/commit answer 404 no-authoritative-history because the combat stream is never journaled (finding #48).",
+      "confirmHalfCheck": "tasks.md 19.3 is [x] CLOSED (2026-09-02, Wave E7b): commitGmCombatRewind POSTs the previewed body to /api/matches/:id/rewind-commit, the dialog phrases committed/refused and disables confirm in flight, and the lobby passes both producers to the host surface. That same receipt ends 'NOT CLAIMED: the live three-browser row (E2E-76) is 22.3's'.",
+      "verdict": "The confirm wiring does NOT by itself make the row green. Every locator the row uses (gm-rewind-preview-dialog, gm-rewind-preview-blast-radius, gm-rewind-preview-actions, gm-rewind-confirm, gm-rewind-cancel) is behind a SUCCESSFUL preview, and the preview route answers 404 without journaled combat history - on the unavailable path the dialog swaps to the phrasing body. Whether enough chrome still renders to satisfy the letter at the UI boundary cannot be settled without a live run, which is out of scope for this stage.",
+      "recommendation": "Leave E2E-76 to the rewind-gated lane. Note for the parent: PK-rewind-branch-reader today holds 22.2@575 but NOT 22.3@584, so if E2E-76 is parked the packet's taskKeys (or a parked successor) must be the holder, or the holders rule leaves the row with no gate-aware owner."
+    },
+    "E2E-77": {
+      "ownerGated": "partially",
+      "gate": "stale branch class - PK-rewind-branch-reader, same reader finding",
+      "finding": "Five conflict classes. PROJECTION_REBUILDING is LIVE (src/lib/multiplayer/tacticalLifecycleState.ts:26-32: 'a real server refusal: the match stream refuses an engine-mutating intent while a correction lease rebuilds this match's history'). STALE_BRANCH is typed and wired but unreachable for match streams - the same reader defect PK-rewind-branch-reader names, plus rewind-pack finding #48. tasks.md 19.2@426 records 'STALE BRANCH and REBUILD are wired to the typed STALE_BRANCH / PROJECTION_REBUILDING codes and guarded unreachable until the branches leaf's admission gate (#1512) reaches a live command path'; 19.2@426 is ALREADY held by PK-rewind-branch-reader.",
+      "consequence": "Four classes (stale revision, authorization, integrity, rebuild) are candidates today; stale branch is gated. Same shape as E2E-75: deliver the reachable subset, park the gated clause."
+    },
+    "E2E-80": {
+      "ownerGated": false,
+      "gate": "none",
+      "ciWiringCheck": ".github/workflows/ holds auto-version.yml, camp01-live-adversarial.yml, nightly-validation.yml, pr-checks.yml, release.yml. grep for 'exact-main|exact main|post-merge' over .github/ returns NOTHING (every hit is under scripts/qc/camp01-*). pr-checks.yml triggers on pull_request to main; nightly-validation.yml on schedule + workflow_dispatch; camp01-live-adversarial.yml DOES trigger on push: branches: [main] - a post-merge exact-main-shaped job - but it runs the CAMP-01 authority receipt, not the gm-two-player staged three-context subset.",
+      "verdict": "A CI job that reruns the staged subset on push to main would touch .github/, which is OUTSIDE U1's ownershipPaths (e2e, scripts/qc, the change dir). The scenario IS provable inside the paths without CI wiring: the milestone -> group ladder already exists as data in scripts/qc/gm-two-player-campaign-core.cjs (fixture-smoke before role admission, membership-smoke when roles land, the evolving `smoke` union thereafter), so a qc-level milestone/archive contract plus its pin in scripts/__tests__/gm-two-player-campaign-qc.test.ts asserts the selection and the archive path in-paths.",
+      "residualJudgement": "Whether a declared-and-pinned contract satisfies the letter's 'SHALL rerun ... before the next dependent PR begins' as an ENFORCED gate, or whether the owner wants the .github/ job (a path amendment), is a judgement worth surfacing. tasks.md 24.4's own receipt already frames the per-merge discipline as 'a standing landing ritual'."
+    }
+  },
+  "estimate": {
+    "gaps": [
+      "E2E-74",
+      "E2E-75",
+      "E2E-77",
+      "E2E-80",
+      "E2E-76 (gated)",
+      "E2E-78 complete-bundle clause"
+    ],
+    "filesToAddOrChange": [
+      {
+        "path": "e2e/gm-two-player-backpressure.pack.spec.ts",
+        "action": "add",
+        "scenario": "E2E-74",
+        "lines": "220-300"
+      },
+      {
+        "path": "e2e/helpers/tacticalLatencyObserver.ts",
+        "action": "add",
+        "scenario": "E2E-74",
+        "lines": "160-220",
+        "note": "tactical-channel port of the observer script, clock correlation via /api/e2e/performance-probe, per-viewer sample split; the campaign-channel equivalent machinery in gm-two-player-performance.pack.spec.ts is 949 lines"
+      },
+      {
+        "path": "e2e/gm-two-player-lifecycle-ux.pack.spec.ts",
+        "action": "add",
+        "scenario": "E2E-75 + E2E-77",
+        "lines": "400-600"
+      },
+      {
+        "path": "scripts/qc/gm-two-player-exact-main-subset.cjs",
+        "action": "add",
+        "scenario": "E2E-80",
+        "lines": "80-120"
+      },
+      {
+        "path": "scripts/qc/gm-two-player-campaign-core.cjs",
+        "action": "edit",
+        "scenario": "group registration for every new pack + `all` membership",
+        "lines": "30-60"
+      },
+      {
+        "path": "scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+        "action": "edit",
+        "scenario": "catalog pin (:8), per-group plan pin, implemented whitelist (:502), all-args pin (:403-431)",
+        "lines": "60-110"
+      },
+      {
+        "path": "e2e/gm-two-player-rewind.pack.spec.ts",
+        "action": "edit",
+        "scenario": "E2E-76",
+        "lines": "20-60"
+      },
+      {
+        "path": "openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md",
+        "action": "edit",
+        "scenario": "22.3 PROGRESS/receipt",
+        "lines": "30-60"
+      }
+    ],
+    "fileCount": 8,
+    "fitsFileCap": true,
+    "nonGeneratedLineRange": [
+      1000,
+      1530
+    ],
+    "fitsLineCap": false,
+    "capBinding": "maxNonGeneratedLines (500). The 15-file cap is comfortable; the whole seam is 2x to 3x the line cap.",
+    "measurementBasis": "Comparable landed rows on main: gm-two-player-performance.pack.spec.ts 949 lines for three scenarios on one channel; gm-two-player-cleanup-ownership.spec.ts 418 lines for E2E-79 alone; gm-two-player-rewind.pack.spec.ts 356 lines for six rows; e2e/helpers/viewerUnackedBound.ts + viewerUnackedBoundEvidence.ts 543 lines for the E2E-14 drive."
+  },
+  "proposedSplit": {
+    "rationale": "The whole 22.3 seam does not fit one 500-line unit, and its three sub-seams have different gate status. Split by gate, ungated work first. All successors hold the same task row 22.3@584; the parent, not this lane, edits units.json.",
+    "u1Narrowed": {
+      "id": "U1",
+      "scenarios": [
+        "E2E-74"
+      ],
+      "behavior": "Prove slow-client backpressure stays bounded while the healthy GM and Player 1 sample populations hold nearest-rank p95 <= 250 ms and p99 <= 750 ms, measured on the tactical match channel through the shipped per-viewer unacked-frame seam.",
+      "ownerGated": false,
+      "files": 5,
+      "nonGeneratedLineEstimate": [
+        380,
+        520
+      ],
+      "capRisk": "At the ceiling. If the red stage shows the tactical observer port exceeding 500 lines, park the healthy-population half and narrow again to the queue/memory-bound half.",
+      "reuse": "installAckSwallow + driveUntilPlayer2Capped (e2e/helpers/viewerUnackedBound.ts), /api/e2e/performance-probe, nearestRankPercentile and the committed budgets in src/lib/multiplayer/performance/controlledLoopbackFixture.ts."
+    },
+    "successorA": {
+      "suggestedId": "U1b",
+      "scenarios": [
+        "E2E-80",
+        "E2E-78 complete-bundle clause"
+      ],
+      "behavior": "Pin the staged exact-main regression subset ladder (milestone -> group -> archive path) as a qc contract, and make one strict scenario emit a complete 27-cell evidence bundle so E2E-78's 'any strict scenario' subject is proven rather than only its gate.",
+      "ownerGated": false,
+      "nonGeneratedLineEstimate": [
+        200,
+        300
+      ],
+      "note": "Entirely within scripts/qc + e2e. Carries the residual judgement recorded under gateAnalysis.E2E-80."
+    },
+    "successorB": {
+      "suggestedId": "U1c",
+      "scenarios": [
+        "E2E-75",
+        "E2E-77"
+      ],
+      "behavior": "Drive the reachable lifecycle postures and typed conflict classes at the live three-context boundary, asserting stable locator, persistent text, non-color-only semantics, command gating and announcement per state, and actor-safe class + base revision/branch + recovery action per conflict.",
+      "ownerGated": "expected to raise a packet",
+      "nonGeneratedLineEstimate": [
+        400,
+        600
+      ],
+      "note": "`rewound` (no wire producer) and the stale-branch conflict class (PK-rewind-branch-reader) are not deliverable; expect this unit to deliver 8 of 9 states and 4 of 5 classes and park the remainder. May itself need a further split at the 500-line cap."
+    },
+    "rewindGated": {
+      "scenarios": [
+        "E2E-76"
+      ],
+      "recommendation": "Do not attempt inside U1. Hold under PK-rewind-branch-reader by adding harden-gm-two-player-campaign-sessions#22.3@584 to its taskKeys, or write a parked successor. Today the packet holds 22.2@575 but not 22.3@584."
+    }
+  },
+  "acceptanceCommands": {
+    "preflightBeforeAnyBuildOrPlaywright": "powershell -NoProfile -c \"(Get-CimInstance Win32_Process -Filter \\\"name='node.exe'\\\" | ? { $_.CommandLine -match 'next.*build|playwright' }).Count\" must print 0 (two-core CPU rule)",
+    "nodeVersion": "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "build": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build",
+    "liveGroup": "MEKSTATION_E2E_SERVER_COMMAND='node .next/standalone/server.js' HOSTNAME=127.0.0.1 MEKSTATION_E2E_PORT=3639 node scripts/playwright/run-playwright.mjs test e2e/gm-two-player-backpressure.pack.spec.ts --project=chromium --retries=0 --workers=1",
+    "liveRegressionOnTheSharedSeam": "MEKSTATION_E2E_SERVER_COMMAND='node .next/standalone/server.js' HOSTNAME=127.0.0.1 MEKSTATION_E2E_PORT=3639 node scripts/playwright/run-playwright.mjs test e2e/gm-two-player-resilience.pack.spec.ts --project=chromium --retries=0 --workers=1",
+    "regressionRationale": "e2e/helpers/viewerUnackedBound.ts is shared with E2E-14; a change to the ack-swallow helper must not red the resilience pack. resilience-pack is in RESPAWNING_GROUPS, so run it separately from the new pack, never back to back in one server lifetime (tasks.md 22.4 finding #102 errata: a live tree whose build predates its checkout answers PageNotFoundError after every respawn - rebuild first, LAW 69).",
+    "typecheck": "npm run typecheck",
+    "lint": "npm run lint",
+    "formatCheck": "npm run format:check",
+    "qcValidatorsCoveringScriptsQc": [
+      "npx jest --watchAll=false --runTestsByPath scripts/__tests__/gm-two-player-campaign-qc.test.ts --runInBand",
+      "node scripts/qc/run-gm-two-player-campaign.mjs --group=<new-group> --run-id=<run-id>   (the registered-selector path; `npm run verify:qc:gm-two-player-campaign -- --group=...` is the same entry point)",
+      "npm run qc:openspec-ci:validate"
+    ],
+    "openspec": "npx openspec validate harden-gm-two-player-campaign-sessions --strict --no-interactive",
+    "portDiscipline": "Port 3639 only for the primary server. Note that scripts/qc/gm-two-player-campaign-core.cjs derives its own fixture port from the run id (deriveFixturePort, 20000-29999), so the qc-runner path and the direct-Playwright path use different ports by design."
+  },
+  "decisionNeeded": {
+    "verdict": "split",
+    "reasons": [
+      "The full 22.3 seam measures 1000-1530 non-generated lines against a 500-line cap - 2x to 3x over. The 15-file cap is not the binding constraint (8 files).",
+      "Four of the ten scenarios are MISSING with no test row at all (E2E-74, E2E-75, E2E-77, E2E-80); two more are PARTIAL (E2E-76 is a declared strict expected failure, E2E-78 proves its gate but not the letter's 'any strict scenario' subject).",
+      "The gaps have DIFFERENT gate status, so one unit would mix ungated work with owner-gated work and stall on the gated half: E2E-74 and E2E-80 are ungated; E2E-75's `rewound` posture and E2E-77's stale-branch class are unreachable on main; E2E-76 is squarely behind PK-rewind-branch-reader.",
+      "Two gaps would need edits OUTSIDE ownershipPaths if taken the obvious way: a campaign-channel send seam for E2E-74 (src/) and a post-merge CI job for E2E-80 (.github/). Both have an in-paths alternative, which is what the split assumes - stating it so the parent can rule rather than letting a lane discover it mid-implementation."
+    ],
+    "recommendation": "Narrow U1 to E2E-74 only (ungated, in-paths, ~380-520 lines at the cap ceiling). Open successor U1b for E2E-80 + the E2E-78 complete-bundle clause (ungated, ~200-300 lines) and successor U1c for E2E-75 + E2E-77 (expect a packet for `rewound` and stale-branch, ~400-600 lines, may need a further split). Leave E2E-76 to the rewind lane and add 22.3@584 to PK-rewind-branch-reader's taskKeys - or to a parked successor - so the holders rule keeps a gate-aware owner for it.",
+    "parentActionsRequired": [
+      "Edit units.json: narrow U1's behavior + scenarios, create the successors, each holding harden-gm-two-player-campaign-sessions#22.3@584.",
+      "Decide the E2E-80 reading: in-paths qc contract (recommended) versus a .github/ ownership-path amendment.",
+      "Decide the holder for E2E-76: PK-rewind-branch-reader taskKeys amendment versus a parked successor unit.",
+      "Run the validator with no arguments before and after the ledger edit; it must print ROADMAP VALIDATION PASSED with unchanged counts."
+    ]
+  },
+  "notes": [
+    "No product or test file was modified in this stage. The worktree is clean at 19e5a061e466dad4d592b2d90f363402f5a0d950 on branch codex/roadmap-u1-e2e-71-80-20260916; no commit was made (the pre-commit hook runs the full Next build when .ts/.tsx are staged and its post-build hydration step refuses a junctioned node_modules - the parent handles that at commit time).",
+    "This receipt is the single root write permitted for this stage.",
+    "Every claim above cites a file and line read, or a command run, in this session. Two statements are explicitly marked as UNSETTLED rather than asserted: whether E2E-76's dialog chrome renders on the 404/unavailable path (needs a live run), and whether a pinned qc contract satisfies E2E-80's 'SHALL rerun before the next dependent PR' as an enforced gate (an owner judgement)."
+  ],
+  "parentDecision": {
+    "at": "2026-09-16T17:57:59.943Z",
+    "decision": "split",
+    "applied": "U1 narrowed to E2E-74; U1b (E2E-78 complete bundle) and U1c (E2E-75 eight states, E2E-77 four classes) added planned; row 22.3 moved to PK-rewind-branch-reader as its holder because E2E-76 is rewind-gated; PK-e2e-80-ci-wiring packet opened for the owner",
+    "narrowedBehavior": "E2E-74 slow-client backpressure stays bounded: a Playwright row on the tactical channel that drives a slow viewer against the MAX_VIEWER_UNACKED delivery bound and asserts the server-side queue and memory stay within the spec budget while other viewers keep receiving; in-paths only (e2e, scripts/qc); the campaign-channel seam is out of paths and not claimed."
+  }
+}

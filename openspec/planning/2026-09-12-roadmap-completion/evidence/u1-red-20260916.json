@@ -1,0 +1,34 @@
+{
+  "unit": "U1",
+  "stage": "red",
+  "node": "R6.umbrella",
+  "baseline": "19e5a061e466dad4d592b2d90f363402f5a0d950",
+  "branch": "codex/roadmap-u1-e2e-71-80-20260916",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u1",
+  "scenario": "E2E-74",
+  "row": "e2e/gm-two-player-backpressure.pack.spec.ts :: E2E-74 a slowed Player 2 stays inside the declared queue and memory limits while GM and Player 1 hold their latency budgets @backpressure @E2E-74",
+
+  "whatWasRed": {
+    "state": "the observation seam absent - exactly main's state",
+    "howReproduced": "The three `armTacticalObserver(page.context())` calls were replaced by `void armTacticalObserver;` so no init script was installed on any context. Nothing else in the row was changed. This is literally the harness as it exists on main: `grep -rn 'E2E-74' e2e/ scripts/` on 19e5a061e returns nothing and no tactical-channel observation seam exists there.",
+    "whyThisIsTheRightRed": "The row's three clauses all read through the observer. With the seam absent the row cannot observe the queue depth, the heap growth or a single latency sample, so it fails at the first read rather than passing on a weaker proxy. The match itself launched normally in the same run (the server log shows three sockets, Intents dispatched and DeliveryAcks flowing), which is what rules out a setup failure masquerading as the red."
+  },
+
+  "command": "MEKSTATION_E2E_SERVER_COMMAND='node server.js' NODE_ENV=production HOSTNAME=127.0.0.1 MEKSTATION_E2E_PORT=3639 MEKSTATION_E2E_REUSE_EXISTING_SERVER=false node scripts/playwright/run-playwright.mjs test e2e/gm-two-player-backpressure.pack.spec.ts --project=chromium --retries=0 --workers=1",
+  "exitCode": 1,
+  "result": "1 failed",
+  "assertionText": "Error: page.evaluate: Error: tactical observer not installed\n    at eval (eval at evaluate (:290:30), <anonymous>:3:26)\n    at UtilityScript.evaluate (<anonymous>:292:16)\n    at readTacticalObserver (e2e/helpers/tacticalBackpressureObserver.ts:169:15)\n    at e2e/gm-two-player-backpressure.pack.spec.ts:146:46",
+  "failingRow": "[chromium] > e2e\\gm-two-player-backpressure.pack.spec.ts:99:5 > E2E-74 a slowed Player 2 stays inside the declared queue and memory limits while GM and Player 1 hold their latency budgets @backpressure @E2E-74 (5.3s)",
+
+  "commandTemplateCorrection": {
+    "issue": "The stage-2 brief's template used `MEKSTATION_E2E_SERVER_COMMAND='node .next/standalone/server.js'`. That server cannot satisfy this repo's Playwright readiness gate.",
+    "evidence": [
+      "Attempt 1, `node .next/standalone/server.js`: the server logged 'Ready in 0ms' on 127.0.0.1:3639 and Playwright still failed with 'Error: Timed out waiting 120000ms from config.webServer.' The readiness URL is `${baseURL}/__playwright_e2e_ready__?runId=...` (playwright.config.ts:15,289) and that route is implemented in the repo-root `server.js`, not in Next's vanilla standalone output. The hydrate step that would have installed it is the one that refused the junctioned node_modules.",
+      "Attempt 2, `node server.js` with no NODE_ENV: the server booted in DEV mode and Turbopack panicked - 'Symlink [project]/node_modules is invalid, it points out of the filesystem root'. server.js:388-391 computes `dev = NODE_ENV !== 'production' && !isStandaloneRuntime && npm_lifecycle_event !== 'start'`, and the NODE_ENV forcing at server.js:57 is inside the `isStandaloneRuntime` branch only.",
+      "Attempt 3, `node server.js` with NODE_ENV=production: served the prebuilt .next, readiness satisfied, row ran. This is also the command the group catalog itself pins for a non-respawning group (scripts/qc/gm-two-player-campaign-core.cjs sets MEKSTATION_E2E_SERVER_COMMAND to 'node server.js' when needsRespawn is false)."
+    ],
+    "adopted": "NODE_ENV=production node server.js for every direct-Playwright invocation in stages 2 and 3. The junction therefore blocks two things, not one: the post-build hydrate step AND any dev-mode Turbopack boot."
+  },
+
+  "restoredTo": "The green row was restored byte-for-byte from a pre-edit copy before any further run; the post-restore run is recorded in u1-local-20260916.json."
+}

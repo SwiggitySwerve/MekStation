@@ -1,0 +1,168 @@
+{
+  "unit": "U1",
+  "stage": "local",
+  "node": "R6.umbrella",
+  "baseline": "19e5a061e466dad4d592b2d90f363402f5a0d950",
+  "branch": "codex/roadmap-u1-e2e-71-80-20260916",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u1",
+  "scenario": "E2E-74",
+  "committed": false,
+  "commitNote": "Not committed and not pushed, per the stage-3 brief: the pre-commit hook runs the full Next build and its hydrate step refuses a junctioned node_modules. The parent commits from a checkout with a real node_modules.",
+
+  "filesChanged": [
+    { "path": "e2e/gm-two-player-backpressure.pack.spec.ts", "action": "add", "lines": 244, "codeLines": 155, "note": "the E2E-74 row" },
+    { "path": "e2e/helpers/tacticalBackpressureObserver.ts", "action": "add", "lines": 277, "codeLines": 195, "note": "tactical-channel observation seam; readServerProbe and heapGrowthBytes are near-verbatim ports of the performance pack's private equivalents (~56 of those lines)" },
+    { "path": "e2e/types/window.d.ts", "action": "edit", "insertions": 19, "note": "__TACTICAL_OBSERVER_STATE__ and __TACTICAL_HEAP_BASELINE__ declarations" },
+    { "path": "scripts/qc/gm-two-player-campaign-core.cjs", "action": "edit", "insertions": 8, "deletions": 1, "note": "backpressure:22 in GROUP_CATALOG + the SPEC_BY_GROUP entry; deliberately NOT in RESPAWNING_GROUPS" },
+    { "path": "scripts/__tests__/gm-two-player-campaign-qc.test.ts", "action": "edit", "insertions": 29, "deletions": 1, "note": "catalog-string pin, plan pin + server-command pin for the new group, implemented whitelist, and the `all` plan args pin" }
+  ],
+  "authoredLineTotal": 577,
+  "capNote": "OVER the stage-3 target. The brief budgeted 'product lines under 450' assuming ~40 authored lines in units.json; the parent's units.json edit is +112, and these five files total 577 authored lines (410 code, 167 comment/blank). No assertion was dropped to reach a number: a first trim pass rewrote both file headers and recovered only 17 lines, which is the honest measure of how little padding is present. The parent owns the cap ruling; the options are to accept the overage, or to drop the server-RSS half of clause 2 (about 6 lines, but it is real coverage of a declared limit).",
+
+  "registration": {
+    "group": "backpressure",
+    "owner": 22,
+    "inAllUnion": true,
+    "allUnionProof": "SPEC_BY_GROUP.all expands to every key except `all`; the new key is pinned last in the `all` plan-args assertion in scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+    "respawning": false,
+    "serverCommandPinned": "node server.js"
+  },
+
+  "gates": [
+    {
+      "gate": "CPU check before every build and Playwright run",
+      "command": "powershell -NoProfile -c \"(Get-CimInstance Win32_Process -Filter \\\"name='node.exe'\\\" | ? { $_.CommandLine -match 'next.*build|playwright' }).Count\"",
+      "output": "0",
+      "timesRun": 3,
+      "result": "PASS"
+    },
+    {
+      "gate": "E2E-mode production build",
+      "command": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build",
+      "exitCode": 1,
+      "result": "PARTIAL - EXPECTED, recorded per the brief",
+      "failureVerbatim": "{ \"ok\": false, \"error\": \"Unsafe hydration destination (runtime loader tsx) contains a symlink or junction: .next\\\\standalone\\\\node_modules\", \"hint\": \"Run npm run build first so .next/standalone/server.js exists, then hydrate the standalone multiplayer server.\" }",
+      "continuationEvidence": [
+        "ls -la .next/standalone/server.js -> -rw-r--r-- 1 wroll 197609 7323 Sep 16 12:08 .next/standalone/server.js (exists)",
+        "grep -c '__E2E_MODE__' .next/static/chunks/pages/_app-*.js -> 1 (> 0, so the E2E flag is baked into the client bundle)"
+      ],
+      "consequence": "Next's own compile and page emit completed; only the post-build hydrate step failed, and it failed on the junction rather than on anything in this change."
+    },
+    {
+      "gate": "Playwright row, direct invocation",
+      "command": "MEKSTATION_E2E_SERVER_COMMAND='node server.js' NODE_ENV=production HOSTNAME=127.0.0.1 MEKSTATION_E2E_PORT=3639 MEKSTATION_E2E_REUSE_EXISTING_SERVER=false node scripts/playwright/run-playwright.mjs test e2e/gm-two-player-backpressure.pack.spec.ts --project=chromium --retries=0 --workers=1",
+      "exitCode": 0,
+      "result": "PASS",
+      "output": "ok 1 [chromium] > e2e\\gm-two-player-backpressure.pack.spec.ts:90:5 > E2E-74 a slowed Player 2 stays inside the declared queue and memory limits while GM and Player 1 hold their latency budgets @backpressure @E2E-74 (12.6s)\n\n  1 passed (16.2s)",
+      "note": "This is the final run, taken on the formatted and header-trimmed tree. The brief's `node .next/standalone/server.js` template does not work here; the substitution and its evidence are recorded in u1-red-20260916.json under commandTemplateCorrection."
+    },
+    {
+      "gate": "Registered group run (the path that puts the row in `all`)",
+      "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=backpressure --run-id=task-22-backpressure-u1",
+      "exitCode": 0,
+      "result": "PASS",
+      "output": "ok 1 [chromium] > e2e\\gm-two-player-backpressure.pack.spec.ts:99:5 > E2E-74 ... @backpressure @E2E-74 (10.7s)\n\n  1 passed (14.9s)"
+    },
+    {
+      "gate": "typecheck",
+      "command": "npx tsc --noEmit -p tsconfig.json",
+      "exitCode": 0,
+      "result": "PASS",
+      "output": "(no diagnostics)",
+      "note": "Re-run after the oxfmt pass and again after the header trim; 0 both times."
+    },
+    {
+      "gate": "lint",
+      "command": "npx oxlint",
+      "exitCode": 0,
+      "result": "PASS",
+      "output": "Found 84 warnings and 0 errors.",
+      "baselineComparison": "The same command on the ROOT checkout at the unchanged baseline 19e5a061e also prints 'Found 84 warnings and 0 errors.' - this change adds zero warnings. (Invoking oxlint with explicit file paths reports 'on 0 files', so the repo-wide invocation plus the baseline diff is what is recorded.)"
+    },
+    {
+      "gate": "format check",
+      "command": "npx oxfmt --check e2e/gm-two-player-backpressure.pack.spec.ts e2e/helpers/tacticalBackpressureObserver.ts e2e/types/window.d.ts scripts/qc/gm-two-player-campaign-core.cjs scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+      "exitCode": 0,
+      "result": "PASS",
+      "output": "All matched files use the correct format.\nFinished in 18ms on 5 files using 16 threads.",
+      "note": "First check found 2 files unformatted; `oxfmt --write` was applied and typecheck plus the qc jest pin suite were re-run afterwards, because a formatter pass between a green run and its receipt is exactly where a silent break hides."
+    },
+    {
+      "gate": "qc pin suite covering scripts/qc",
+      "command": "npx jest --watchAll=false --runTestsByPath scripts/__tests__/gm-two-player-campaign-qc.test.ts --runInBand",
+      "exitCode": 0,
+      "result": "PASS",
+      "output": "Test Suites: 1 passed, 1 total\nTests:       10 passed, 10 total"
+    },
+    {
+      "gate": "openspec CI quality validator",
+      "command": "node scripts/qc/validate-openspec-ci-quality.mjs",
+      "exitCode": 0,
+      "result": "PASS",
+      "output": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0"
+    },
+    {
+      "gate": "roadmap validator",
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "exitCode": 0,
+      "result": "PASS",
+      "output": "ROADMAP VALIDATION PASSED: 73 nodes, 13 packages, 376 tasks, 40 triage rows"
+    }
+  ],
+
+  "mutants": [
+    {
+      "id": "M1",
+      "intent": "the slow viewer is never slowed (the parent's 'disable the slow viewer')",
+      "mutation": "`p2Drop.arm();` removed, so Player 2's DeliveryAck frames are never swallowed",
+      "expected": "clause 1's floor cannot be met - Player 2's unacked window never reaches MAX_VIEWER_UNACKED",
+      "observed": "Error: Player 2 unacked never reached the cap (thrown by driveUntilPlayer2Capped after its 400-step budget)",
+      "verdict": "KILLED",
+      "proves": "the backpressure the row gates on is produced by the controlled send seam, not by ambient traffic; the row cannot pass against an un-slowed viewer"
+    },
+    {
+      "id": "M2",
+      "intent": "the per-client memory assertion is load-bearing (the parent's 'drop the memory assertion', in kill form)",
+      "mutation": "clause 2's ceiling `FIXTURE.memoryGrowthCeilingBytes.browserContext` collapsed to 0 bytes",
+      "expected": "red if the heap reading is real and non-zero; a SURVIVAL would have meant the CDP metric was never populated and the assertion was vacuous",
+      "observed": "expect(received).toBeLessThanOrEqual(expected) / Expected: <= 0 / Received: 17385896",
+      "verdict": "KILLED",
+      "proves": "Player 2's measured heap growth is 17,385,896 bytes (about 16.6 MiB) of real, non-zero growth - comfortably inside the declared 64 MiB ceiling, and measured rather than assumed"
+    },
+    {
+      "id": "M3",
+      "intent": "the healthy-viewer latency budget is load-bearing",
+      "mutation": "clause 3's p95 budget `FIXTURE.latencyBudgetsMs.p95` collapsed to 0 ms",
+      "expected": "red if a real percentile is computed over a real population; a SURVIVAL would have meant every sample scored 0 and the correlation was broken",
+      "observed": "expect(received).toBeLessThanOrEqual(expected) / Expected: <= 0 / Received: 25.399999998509884",
+      "verdict": "KILLED",
+      "proves": "the GM's nearest-rank p95 is a real 25.4 ms against the 250 ms budget - the clock correlation produces genuine sub-budget latencies rather than zeros"
+    },
+    {
+      "id": "M4",
+      "intent": "the population floor is load-bearing, and reveals the true population size",
+      "mutation": "MIN_HEALTHY_SAMPLES raised from 24 to 100000",
+      "expected": "red, printing the real scored count",
+      "observed": "expect(received).toBeGreaterThanOrEqual(expected) / Expected: >= 100000 / Received: 68",
+      "verdict": "KILLED",
+      "proves": "each healthy viewer's post-warm-up scored population is 68 samples - comfortably above the 24 floor, so the percentiles are computed over a real population and the floor is not silently satisfied by an empty one"
+    }
+  ],
+  "mutantDiscipline": "Every mutant was applied to a byte-for-byte copy of the green row, run live, and the row was restored from that copy before the next mutant. All four are kill-shaped: each mutation makes an assertion that SHOULD fail, so a survival would have exposed vacuity rather than being a weaker-but-passing variant.",
+
+  "lettersClaimed": {
+    "E2E-74": {
+      "clause1_queue": "Player 2's server-side unacked window reached MAX_VIEWER_UNACKED (64), stayed inside the declared 256-envelope per-connection limit, and `issued` then FROZE while the GM's and Player 1's kept growing; Player 2's client-side peak inbound depth stayed inside both the 256-envelope and 1 MiB declared limits.",
+      "clause2_memory": "Player 2's browser-client heap growth above its post-warm-up baseline stayed inside the declared 64 MiB ceiling (measured 16.6 MiB), and server RSS growth across the slowed window stayed inside the declared 128 MiB ceiling.",
+      "clause3_healthyLatency": "GM and Player 1 were scored SEPARATELY, never pooled, each over its own post-warm-up population (68 samples each); nearest-rank p95 <= 250 ms (measured 25.4 ms for the GM) and p99 <= 750 ms."
+    }
+  },
+
+  "notClaimed": [
+    "No `src/` file was changed. The campaign-channel seam stays out of scope: that channel has no ack-based queue bound, and adding one would be a product change outside this unit's ownership paths.",
+    "The client-side queue reading is APPLICATION level - delivered-but-unpainted envelopes and their serialized bytes - not `socket.bufferedAmount`, which finding #19 records as sitting at 0 on match traffic.",
+    "Frame bytes are the received string's length, within a few bytes of the wire rather than identical to it.",
+    "The build's hydrate step did not run; the row was proven against `node server.js` in production mode serving the prebuilt `.next`, not against a hydrated standalone bundle.",
+    "The `all` union was NOT run end to end here - only the new `backpressure` group and its membership pin. A 9-minute union run is a separate local/nightly proof (tasks.md 22.4)."
+  ]
+}
