@@ -8,7 +8,7 @@
  * carry bombs (chassisType === 'conventional-fighter' in the store).
  * The visibleWhen predicate lives in tabRegistry.ts.
  *
- * @spec openspec/changes/add-per-type-customizer-tabs/tasks.md §4.3–4.4
+ * @spec openspec/specs/multi-unit-tabs/spec.md
  * @wiredBy add-aerospace-construction
  */
 

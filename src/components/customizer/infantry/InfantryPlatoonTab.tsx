@@ -9,7 +9,7 @@
  * Future `add-infantry-construction` work should evolve InfantryBuildTab
  * directly; the alias avoids a breaking rename of the existing component.
  *
- * @spec openspec/changes/add-per-type-customizer-tabs/tasks.md §6.2
+ * @spec openspec/specs/multi-unit-tabs/spec.md
  */
 
 export { InfantryBuildTab as InfantryPlatoonTab } from './InfantryBuildTab';

@@ -5,7 +5,7 @@
  * dirtyTabs, and validationError tracking so every per-type customizer stays
  * thin: it delegates all tab-state logic here.
  *
- * Spec: openspec/changes/add-per-type-customizer-tabs/specs/multi-unit-tabs/spec.md
+ * Spec: openspec/specs/multi-unit-tabs/spec.md
  *   § Requirement: Tab Dirty Tracking
  *   § Requirement: Validation Error Markers
  */

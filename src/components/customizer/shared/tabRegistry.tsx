@@ -23,7 +23,7 @@
  *     the mech component for mechs and the per-type component for everything
  *     else.
  *
- * @spec openspec/changes/add-per-type-customizer-tabs/specs/multi-unit-tabs/spec.md
+ * @spec openspec/specs/multi-unit-tabs/spec.md
  * @spec openspec/changes/wire-non-mech-customizer-preview/specs/multi-unit-tabs/spec.md
  */
 

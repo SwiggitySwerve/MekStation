@@ -8,7 +8,7 @@
  * `wire-iperson-hard-cutover` PR5, every helper takes `(entry, pilot)`
  * directly — the legacy god-type and its bridge are gone.
  *
- * @spec openspec/changes/migrate-personnel-to-roster-employment/specs/personnel-management/spec.md
+ * @spec openspec/changes/archive/2026-05-01-migrate-personnel-to-roster-employment/specs/personnel-management/spec.md
  * @spec openspec/changes/archive/2026-05-01-decide-campaign-personnel-architecture/design.md
  */
 

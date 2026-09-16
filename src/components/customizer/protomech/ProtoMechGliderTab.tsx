@@ -7,7 +7,7 @@
  * Visibility rule: hidden for Ultraheavy ProtoMechs (tonnage >= 10).
  * The visibleWhen predicate lives in tabRegistry.ts.
  *
- * @spec openspec/changes/add-per-type-customizer-tabs/tasks.md §7.6
+ * @spec openspec/specs/multi-unit-tabs/spec.md
  * @wiredBy add-protomech-construction
  */
 

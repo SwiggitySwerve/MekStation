@@ -8,7 +8,7 @@
  *
  * ProtoMechs are Clan-tech mini-mechs operating in points of five.
  *
- * @spec openspec/changes/add-per-type-customizer-tabs/specs/multi-unit-tabs/spec.md
+ * @spec openspec/specs/multi-unit-tabs/spec.md
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 5.3
  */
 

@@ -5,7 +5,7 @@
  *   - Mobility mode selection: Jump Jets / UMU (underwater) / VTOL
  *   - MP allocation and weight accounting
  *
- * @spec openspec/changes/add-per-type-customizer-tabs/tasks.md §5.7
+ * @spec openspec/specs/multi-unit-tabs/spec.md
  * @wiredBy add-battlearmor-construction
  */
 

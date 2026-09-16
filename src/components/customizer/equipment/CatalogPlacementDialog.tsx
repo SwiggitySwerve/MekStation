@@ -15,7 +15,7 @@ interface CatalogPlacementDialogProps {
   readonly onPlaced: (message: string) => void;
 }
 
-/** @spec openspec/changes/repair-equipment-catalog/specs/equipment-browser/spec.md */
+/** @spec openspec/specs/equipment-browser/spec.md */
 export function CatalogPlacementDialog({
   equipment,
   readOnly,

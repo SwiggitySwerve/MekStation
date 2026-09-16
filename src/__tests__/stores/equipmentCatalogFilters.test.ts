@@ -8,7 +8,7 @@ import gauss from '../../../public/data/equipment/official/ammunition/gauss.json
 import lrm from '../../../public/data/equipment/official/ammunition/lrm.json';
 import srm from '../../../public/data/equipment/official/ammunition/srm.json';
 
-/** @spec openspec/changes/repair-equipment-catalog/specs/equipment-browser/spec.md */
+/** @spec openspec/specs/equipment-browser/spec.md */
 type CatalogItem = IEquipmentItem & {
   compatibleWeaponIds?: readonly string[];
 };

@@ -9,7 +9,7 @@
  * Future `add-battlearmor-construction` work should evolve this component
  * directly; the alias approach avoids a breaking rename of the existing tab.
  *
- * @spec openspec/changes/add-per-type-customizer-tabs/tasks.md §5.2
+ * @spec openspec/specs/multi-unit-tabs/spec.md
  */
 
 export { BattleArmorStructureTab as BattleArmorChassisTab } from './BattleArmorStructureTab';

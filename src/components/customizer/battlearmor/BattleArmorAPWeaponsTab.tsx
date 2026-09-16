@@ -5,7 +5,7 @@
  *   - One anti-personnel (AP) weapon slot per suit
  *   - Weight / crits accounting
  *
- * @spec openspec/changes/add-per-type-customizer-tabs/tasks.md §5.6
+ * @spec openspec/specs/multi-unit-tabs/spec.md
  * @wiredBy add-battlearmor-construction
  */
 

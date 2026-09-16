@@ -6,7 +6,7 @@
  *   - Left arm: Battle Claw / Cargo Lifter / Basic Manipulator / None
  *   - Right arm: same options
  *
- * @spec openspec/changes/add-per-type-customizer-tabs/tasks.md §5.4
+ * @spec openspec/specs/multi-unit-tabs/spec.md
  * @wiredBy add-battlearmor-construction
  */
 

@@ -7,7 +7,7 @@
  *   - Structural Integrity (SI)
  *   - Fuel Points (fuelPoints)
  *
- * @spec openspec/changes/add-per-type-customizer-tabs/tasks.md §4.2
+ * @spec openspec/specs/multi-unit-tabs/spec.md
  * @wiredBy add-aerospace-construction
  */
 
