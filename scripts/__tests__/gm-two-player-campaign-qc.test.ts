@@ -1,4 +1,5 @@
 import { spawnSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
 import net from 'node:net';
 import * as path from 'node:path';
 const repoRoot = path.resolve(__dirname, '../..');
@@ -602,6 +603,32 @@ describe('GM and two-player campaign QC runner', () => {
       expect(result.stderr).toContain('INVALID_RUN_ID');
     },
   );
+
+  it('pins the lifecycle-pack spec at two rows', () => {
+    // `lifecycle-pack` maps to ONE spec file, so the plan pin above cannot
+    // tell one row from two. Row B (pending and blocked, roadmap unit U1e)
+    // joined row A inside that file, which is the whole shape of the split:
+    // one group, one file, one `capturePosture`, two rows. A row deleted,
+    // renamed, or drifted off the group tag would leave the plan pin green
+    // and this one red, which is exactly the failure that pin cannot see.
+    const specArg = core
+      .buildRunPlan({
+        group: 'lifecycle-pack',
+        runId: 'task-22-lifecycle-pack-rows',
+        repoRoot,
+      })
+      .args.find((arg: string) => arg.endsWith('.spec.ts'));
+    expect(specArg).toBe('e2e/gm-two-player-lifecycle.pack.spec.ts');
+    const specPath = path.join(repoRoot, String(specArg));
+    const titles = Array.from(
+      readFileSync(specPath, 'utf8').matchAll(/^test\('([^']+)'/gm),
+      (match) => match[1],
+    );
+    expect(titles).toEqual([
+      'E2E-75 lifecycle postures are distinct, announced and correctly gated @lifecycle-pack @E2E-75',
+      'E2E-75 lifecycle postures pending and blocked are distinct, announced and correctly gated @lifecycle-pack @E2E-75',
+    ]);
+  });
 
   it('relays a non-zero Playwright status instead of reporting success', () => {
     // Any CI gate on this runner gates on the launcher's exit code, so a

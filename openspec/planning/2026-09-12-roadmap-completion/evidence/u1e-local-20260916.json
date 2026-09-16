@@ -1,0 +1,203 @@
+{
+  "unit": "U1e",
+  "stage": "local",
+  "at": "2026-09-16T22:48:21.654Z",
+  "baseline": "ac874764a8767fba564cdeacfa565c107d94ae75",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u1e",
+  "branch": "codex/roadmap-u1e-e2e-75-row-b-20260916",
+  "committed": false,
+  "status": "ready",
+  "implementerModel": "grok-4.6 (cursor-agent, Cursor Grok 4.6 High)",
+  "previousLane": "claude-opus-5 wrote the admission and red receipts and the first draft of row B; stopped before the local receipt",
+
+  "whatWasBuilt": "A second strict Playwright row in e2e/gm-two-player-lifecycle.pack.spec.ts under the existing lifecycle-pack group. It reloads after launch (FN-u1c-pending-intent-never-settles, reported not fixed), asserts live, then drives pending by swallowing the guest's next outbound Intent and blocked by delivering a real frame plus a same-sequence twin with a different event.id. Per posture it reuses row A's capturePosture (data-state, persistent text, role=status + aria-live=polite + aria-atomic=true with the aria snapshot carrying that sentence, pairwise-distinct sentences, command gating through #networked-action-refusal). Cross-posture: rendered text === deriveTacticalLifecyclePosture for pending and blocked, then a seven-member distinctness set against the five row-A sentences obtained from that same derivation; pending stays playable and blocked refuses, with the blocked refusal equal to the gate's own sentence and distinct from the gate's syncing and behind reasons. The pin suite now requires exactly two test() titles in that spec. Row A's test body and assertions are unchanged versus the baseline (git diff: header title line, an appended row-B comment block, two disarmed harness arms, and the new row; no row-A expect() edited). No src/ and no scripts/qc change.",
+
+  "rowAUntouched": {
+    "check": "git diff e2e/gm-two-player-lifecycle.pack.spec.ts against ac874764a",
+    "rowATestBody": "the test('E2E-75 lifecycle postures are distinct, announced and correctly gated @lifecycle-pack @E2E-75') block is byte-identical to the baseline",
+    "harness": "dropNextIntent and collideNextDelivery added, both false at construction; row A never calls them"
+  },
+
+  "lineCounts": {
+    "method": "block-comment state machine over the spec file (code vs // and /* */ vs blank); git diff --numstat for the tracked delta; a trailing empty line counted as blank",
+    "e2e/gm-two-player-lifecycle.pack.spec.ts": {
+      "added": 291,
+      "removed": 1,
+      "current": { "total": 736, "code": 486, "comment": 206, "blank": 44 }
+    },
+    "scripts/__tests__/gm-two-player-campaign-qc.test.ts": { "added": 27, "removed": 0 },
+    "openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md": { "added": 1, "removed": 0 },
+    "productTotalAdded": 318,
+    "cap": 500,
+    "underCap": true,
+    "fileCount": 3,
+    "fileCap": 15,
+    "underFileCap": true,
+    "noQcCoreChange": "scripts/qc/gm-two-player-campaign-core.cjs not edited; lifecycle-pack already maps to this spec"
+  },
+
+  "gates": {
+    "cpuCheckBeforeEveryBuildAndPlaywrightRun": "tasklist | findstr node.exe plus Get-CimInstance Win32_Process (wmic is not on PATH on this host). Before each build and each Playwright run the filter next (build|start)|@playwright|playwright.config|run-playwright|node_modules/playwright with cursor-agent excluded printed no blockers. Ambient MCP node processes and this agent were left running.",
+    "wmic": { "command": "wmic process where name='node.exe' get commandline", "exitCode": 1, "lastOutputLine": "'wmic' is not recognized as an internal or external command,", "replacement": "Get-CimInstance Win32_Process -Filter name='node.exe'" },
+    "build": {
+      "command": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build",
+      "exitCode": 1,
+      "lastOutputLine": "\"hint\": \"Run npm run build first so .next/standalone/server.js exists, then hydrate the standalone multiplayer server.\"",
+      "exitCodeIsNotTheSignal": "FN-u1c-build-exit-hidden-by-tail. Exit captured on its own line as BUILD_EXIT=1, never through a pipe.",
+      "routeTablePrinted": true,
+      "compiledSuccessfully": "✓ Compiled successfully in 21.0s (first clean build)",
+      "standaloneServerJs": "present, 7325 bytes",
+      "e2eModeInBundle": "Select-String __E2E_MODE__ over .next/static/chunks/pages/_app-*.js = 1",
+      "builtFromCleanSrc": "yes after the last mutant revert; git status --short -- src/ empty before the final build"
+    },
+    "row": {
+      "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=lifecycle-pack",
+      "exitCode": 0,
+      "lastOutputLine": "  2 passed (16.5s)",
+      "determinism": "three green runs plus a fourth after the clean post-mutant rebuild; row-B capture identical on every run that finished both rows"
+    },
+    "regressionExactlyOnce": {
+      "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=exactly-once-pack",
+      "exitCode": 0,
+      "lastOutputLine": "  4 passed (13.6s)"
+    },
+    "typecheck": {
+      "command": "npx tsc --noEmit",
+      "exitCode": 0,
+      "lastOutputLine": "",
+      "errors": 0
+    },
+    "formatCheck": {
+      "command": "npx oxfmt --check e2e/gm-two-player-lifecycle.pack.spec.ts scripts/__tests__/gm-two-player-campaign-qc.test.ts openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md",
+      "exitCode": 0,
+      "lastOutputLine": "Finished in 49ms on 2 files using 16 threads.",
+      "note": "tasks.md is markdown and oxfmt does not match it; the two TypeScript files matched"
+    },
+    "lint": {
+      "command": "npx oxlint e2e/gm-two-player-lifecycle.pack.spec.ts scripts/__tests__/gm-two-player-campaign-qc.test.ts openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md",
+      "exitCode": 0,
+      "lastOutputLine": "Finished in 28ms on 0 files using 16 threads.",
+      "also": "Found 0 warnings and 0 errors.",
+      "vacuous": true,
+      "reason": ".oxlintrc.json ignorePatterns includes e2e/**, **/scripts/** and **/openspec/**, so this gate covers none of the three changed files"
+    },
+    "qcPinSuite": {
+      "command": "npx jest --watchAll=false --runTestsByPath scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+      "exitCode": 0,
+      "lastOutputLine": "Ran all test suites within paths \"scripts/__tests__/gm-two-player-campaign-qc.test.ts\".",
+      "result": "11 passed, 11 total"
+    },
+    "openspecCi": {
+      "command": "npm run qc:openspec-ci:validate",
+      "exitCode": 0,
+      "lastOutputLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0"
+    },
+    "roadmapValidator": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "exitCode": 0,
+      "lastOutputLine": "ROADMAP VALIDATION PASSED: 73 nodes, 13 packages, 376 tasks, 40 triage rows"
+    }
+  },
+
+  "runs": [
+    {
+      "id": "lifecycle-1",
+      "exitCode": 0,
+      "lastOutputLine": "  2 passed (16.5s)",
+      "captured": "live,sealed,finalized,syncing,behind",
+      "rowBCaptured": "pending,blocked"
+    },
+    {
+      "id": "lifecycle-2",
+      "exitCode": 0,
+      "lastOutputLine": "  2 passed (14.7s)",
+      "captured": "live,sealed,finalized,syncing,behind",
+      "capturedNote": "row A printed ok 1; the captured= line sat in the truncated 20k tool log. The passing ordered-list assertion is those five names. rowB captured=pending,blocked was verbatim in the retained tail.",
+      "rowBCaptured": "pending,blocked"
+    },
+    {
+      "id": "lifecycle-3",
+      "exitCode": 0,
+      "lastOutputLine": "  2 passed (16.3s)",
+      "captured": "live,sealed,finalized,syncing,behind",
+      "capturedNote": "same as run 2: ok 1 plus verbatim rowB captured=pending,blocked in the retained tail.",
+      "rowBCaptured": "pending,blocked"
+    },
+    {
+      "id": "lifecycle-after-last-revert",
+      "why": "required rebuild on clean src after the last mutant revert",
+      "exitCode": 0,
+      "lastOutputLine": "  2 passed (16.1s)",
+      "captured": "live,sealed,finalized,syncing,behind",
+      "rowBCaptured": "pending,blocked"
+    },
+    {
+      "id": "exactly-once",
+      "exitCode": 0,
+      "lastOutputLine": "  4 passed (13.6s)"
+    }
+  ],
+
+  "mutants": [
+    {
+      "id": "M1",
+      "mutation": "MESSAGES.blocked set to the pending sentence in src/lib/multiplayer/tacticalLifecycleState.ts",
+      "rebuilt": true,
+      "verdict": "KILLED",
+      "observed": "row B: Expected: \"blocked\"  Received: \"pending\"  at e2e/gm-two-player-lifecycle.pack.spec.ts:521  expect(seenText.get(text) ?? state).toBe(state); called from :362 (blocked capture). row A also failed its held-back pin: Expected: not \"Your command is awaiting the match server.\" at :285.",
+      "capturedBeforeFailing": "row A live,sealed,finalized,syncing,behind; row B pending",
+      "reverted": "git checkout -- src/lib/multiplayer/tacticalLifecycleState.ts; git status --short -- src/ empty"
+    },
+    {
+      "id": "M2",
+      "mutation": "blocked key dropped from GATE_REASONS in src/lib/multiplayer/tacticalCommandGate.ts",
+      "rebuilt": true,
+      "verdict": "KILLED",
+      "rowASurvived": "ok 1, captured=live,sealed,finalized,syncing,behind — the coverage hole the red measured",
+      "observed": "Expected: true  Received: false  at e2e/gm-two-player-lifecycle.pack.spec.ts:528  expect(gateRefused).toBe(GATED_STATES.has(state)); called from :362 (blocked capture). 1 failed, 1 passed (16.2s).",
+      "capturedBeforeFailing": "row B pending",
+      "reverted": "git checkout -- src/lib/multiplayer/tacticalCommandGate.ts; git status --short -- src/ empty"
+    },
+    {
+      "id": "M3",
+      "mutation": "aria-live=\"polite\" removed from src/components/multiplayer/TacticalLifecycleStateBanner.tsx",
+      "rebuilt": true,
+      "verdict": "KILLED",
+      "observed": "expect(locator).toHaveAttribute(expected) failed — Expected: \"polite\"  Received: \"\"  — unexpected value \"null\" — at e2e/gm-two-player-lifecycle.pack.spec.ts:518. Row A from :216 (live), row B from :350 (pending).",
+      "capturedBeforeFailing": "(none — killed on the first posture of each row)",
+      "reverted": "git checkout -- src/components/multiplayer/TacticalLifecycleStateBanner.tsx; git status --short -- src/ empty"
+    }
+  ],
+
+  "nonClaims": [
+    "rewound — PROJECTION_REWOUND is not a member of ErrorCodeSchema; producer owned by add-authoritative-history-branches / R6.B7. Carried from U1c; not re-tested.",
+    "reconnecting — reconnectScheduled is a real client field that deriveState maps, but no available lever renders it (U1c measured three levers). Carried from U1c; not re-tested.",
+    "rebuilding — a pure function of a correction lease no in-paths lever acquires. Carried from U1c; not re-tested.",
+    "row B does not re-drive live, sealed, finalized, syncing or behind. Their sentences enter distinctness only through deriveTacticalLifecyclePosture.",
+    "posture.commandsEnabled is not asserted; the rendered surface is tacticalCommandAvailability via #networked-action-refusal."
+  ],
+
+  "findingsReportedNotFixed": [
+    {
+      "id": "FN-u1c-pending-intent-never-settles",
+      "handling": "REPORTED, NOT FIXED. src/ is outside this unit. The pending arm keeps row A's post-launch reload of both pages and asserts live before arming dropNextIntent, so the captured pending is the dropped intent rather than the lobby SetReady carry-over. Named at the call site (spec :334-338) and here. The pending lever itself is a swallowed Intent, which also never settles — by construction, because the server never sees the frame. That is the lever, not a second defect.",
+      "notFixed": "the SetReady/LobbyUpdated settlement hole is in src/lib/multiplayer/client.ts and the lobby, which this unit does not own."
+    },
+    {
+      "id": "FN-u1c-build-exit-hidden-by-tail",
+      "handling": "build exit captured as BUILD_EXIT=$LASTEXITCODE on its own line, never through a pipe. Success read from the route table, .next/standalone/server.js (7325 bytes) and __E2E_MODE__ count = 1."
+    },
+    {
+      "id": "FN-u1c-oxlint-ignores-unit-paths",
+      "handling": "npx oxlint on the three changed files finished on 0 files. Vacuous for this diff."
+    }
+  ],
+
+  "tasksMd": {
+    "row": "22.3",
+    "action": "one PROGRESS note for U1e row B, filled with the measured mutant file:line after this lane's rerun; the checkbox is NOT checked",
+    "why": "22.3 covers E2E-71..80 and E2E-76/77/80 remain open. U1e carries an empty taskKeys array."
+  },
+
+  "notCommitted": "No commit and no push, per the brief."
+}

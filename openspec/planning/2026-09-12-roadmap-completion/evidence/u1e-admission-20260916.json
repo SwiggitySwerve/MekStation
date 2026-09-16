@@ -1,0 +1,217 @@
+{
+  "unit": "U1e",
+  "stage": "admission",
+  "at": "2026-09-16T00:00:00.000Z",
+  "node": "R6.umbrella",
+  "predecessor": "U1c",
+  "predecessorState": "complete",
+  "activePackage": "harden-gm-two-player-campaign-sessions",
+  "taskKeys": [],
+  "taskKeysNote": "units.json U1e carries an EMPTY taskKeys array, the same shape U1b and U1c carried. Row 22.3 (openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md:585) is the umbrella row covering E2E-71..E2E-80 and it stays unchecked - E2E-76/77/80 remain open. Stage 7 (tick) therefore has no row of its own and is expected to be recorded not-applicable, as the parent ruled for U1b (RES-1) and U1c (RES-5).",
+  "baseline": "ac874764a8767fba564cdeacfa565c107d94ae75",
+  "originMain": "ac874764a8767fba564cdeacfa565c107d94ae75",
+  "baselineEqualsOriginMain": true,
+  "baselineProof": "git -C E:/Projects/MekStation fetch origin then git rev-parse origin/main printed ac874764a8767fba564cdeacfa565c107d94ae75 in this session; the worktree's git rev-parse HEAD printed the same value. Worktree HEAD line: 'HEAD is now at ac874764a docs(roadmap): U1c closure, review through tick, unit complete (#1791)'.",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u1e",
+  "branch": "codex/roadmap-u1e-e2e-75-row-b-20260916",
+  "environment": {
+    "worktreeCreated": "git -C E:/Projects/MekStation worktree add -b codex/roadmap-u1e-e2e-75-row-b-20260916 E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u1e ac874764a8767fba564cdeacfa565c107d94ae75",
+    "nodeModules": "junction to E:\\Projects\\MekStation\\node_modules (cmd //c mklink /J) - 'Junction created' confirmed",
+    "node": "v22.22.0 (node --version in the worktree with the pinned PATH)",
+    "worktreeStatusAtAdmission": "clean (git status --porcelain empty)",
+    "rootWorkingTreeTouched": false,
+    "rootWrites": 0,
+    "buildOrPlaywrightRunBeforeThisReceipt": false,
+    "cpuPreflight": "powershell -NoProfile -c \"(Get-CimInstance Win32_Process -Filter \\\"name='node.exe'\\\" | ? { $_.CommandLine -match 'next.*build|playwright' }).Count\" printed 0 at admission"
+  },
+  "ownedPaths": [
+    "e2e",
+    "scripts/qc",
+    "openspec/changes/harden-gm-two-player-campaign-sessions"
+  ],
+  "ownedPathsNote": "src/ is NOT owned. FN-u1c-pending-intent-never-settles is therefore reported, not fixed - the row keeps U1c's post-launch reload so the pending arm is driven deliberately by a dropped intent rather than inherited from the defect.",
+  "behavior": "E2E-75 lifecycle states, row B: a second strict row in e2e/gm-two-player-lifecycle.pack.spec.ts under the existing lifecycle-pack group drives pending and blocked through existing in-paths levers and asserts, per state, the data-state, the accessible announcement, pairwise-distinct messages against every row-A posture and command gating through the rendered tacticalCommandAvailability surface (#networked-action-refusal); the lifecycle-pack group grows to two rows and the pin suite records it.",
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500
+  },
+  "ciClass": "product",
+  "reviewClasses": [
+    "routine"
+  ],
+  "laneBNotRequired": "reviewClasses is ['routine'] - no owner ruling is required for this unit.",
+  "specLetter": {
+    "path": "openspec/changes/harden-gm-two-player-campaign-sessions/specs/e2e-testing/spec.md:317-319",
+    "text": "WHEN the harness drives pending, sealed, finalized, syncing, reconnecting, behind, rebuilding, rewound, and blocked states THEN each SHALL have a stable locator, persistent text, non-color-only semantics, correct command gating, and an assistive-technology announcement",
+    "rowBSubject": "pending and blocked - the two names row A held back under the cap ruling (units.json U1c.rowSplit20260916)"
+  },
+  "leversOnTheBaseline": [
+    {
+      "posture": "pending",
+      "derivation": "src/lib/multiplayer/tacticalLifecycleState.ts:204 - `if (input.client.pendingIntentCount > 0) return 'pending';`, precedence 7 of 10 in deriveState (:188-208)",
+      "clientField": "src/lib/multiplayer/client.ts:1123 - `pendingIntentCount: state.pendingIntents.size`; the map is written at :1336 on every sent intent and cleared ONLY by settlePendingIntent (:1377-1380), which is called from the Event handler when payload.intentId matches (:349-352) and from the Error handler (:394).",
+      "lever": "a new `dropNextIntent()` arm on the EXISTING per-page transport harness in this file (installLifecycleHarness, e2e/gm-two-player-lifecycle.pack.spec.ts:336-422): swallow the guest page's next client->server frame whose `kind` is `Intent` inside route.onMessage (:355-365). The client keeps the entry in pendingIntents, the server never sees the frame, and no receipt can ever carry its intentId - so the posture is PERMANENT rather than a one-round-trip transient.",
+      "leverProvenance": "the arm is lifted from .sisyphus/roadmap-completion-20260912/u1e-row-b.patch, which is U1c's own seven-posture build; U1c's local receipt records that both row-B arms were driven green there before the split.",
+      "stability": "permanent by construction. Nothing in client.ts removes a pendingIntents entry for an intent the server never received. Row B asserts that persistence explicitly (a re-read one second after the capture) so a transient pending between some other intent and its receipt cannot be mistaken for the driven one.",
+      "existingLiveRow": "NONE - see R0 below for the captured grep. No assertion anywhere in e2e/ reads or renders `pending`.",
+      "gap": "no rendered data-state, no rendered announcement, no rendered gating assertion for pending anywhere"
+    },
+    {
+      "posture": "blocked",
+      "derivation": "src/lib/multiplayer/tacticalLifecycleState.ts:189 - `if (input.client.blockedBySequenceCollision) return 'blocked';`, precedence 1 of 10, so it outranks the pending the row is already holding",
+      "clientField": "src/lib/multiplayer/client.ts:897 - `if (known !== identity) state.blockedBySequenceCollision = true;` inside admitByDelivery, reached when a delivery sequence at or below lastAppliedDelivery arrives carrying a DIFFERENT event identity (identityOf, :995-1002, is the event's own `id`). The flag is written in exactly one place and cleared in none: `grep -n blockedBySequenceCollision src/lib/multiplayer/client.ts` = :67 (public field), :162 (state field), :341/:379 (the PROTOCOL_VIOLATION emit edges), :611 (constructed false), :881 (admission short-circuit), :897 (the single write), :1122 (projection). Terminal by construction.",
+      "lever": "a new `collideNextDelivery()` arm on the same harness: on the next server->client frame carrying a numeric `deliverySequence`, forward the REAL frame and then a twin of it whose `event.id` is prefixed `collision-`. The first is applied and remembered (rememberApplied, client.ts:356); the twin then satisfies `deliverySequence <= state.lastAppliedDelivery` with a known-but-different identity and sets the flag. No refusal code is invented - the frame is a duplicate of one the server actually sent.",
+      "leverProvenance": "same patch; the same collision shape the shipped exactly-once pack builds by hand (e2e/gm-two-player-exactly-once.pack.spec.ts:557-562).",
+      "existingLiveRow": "e2e/gm-two-player-exactly-once.pack.spec.ts:154 'E2E-12 collision blocks the cursor' asserts the TOAST text /PROTOCOL_VIOLATION.*sequence-collision/i at :166 and never reads the banner. The lifecycle half of the collision is unasserted.",
+      "gap": "no rendered data-state, no rendered announcement, no rendered gating assertion for blocked anywhere"
+    }
+  ],
+  "gateSurface": {
+    "whatIsAsserted": "src/lib/multiplayer/tacticalCommandGate.ts:60-72 tacticalCommandAvailability, whose refused set is exactly the six keys of GATE_REASONS (:37-48) - blocked, rebuilding, rewound, syncing, reconnecting, behind - and whose reason string reaches the player through `aria-describedby` at src/components/multiplayer/NetworkedGameSurface.actionContext.ts:90 pointing at NETWORKED_ACTION_REFUSAL_ID (:22).",
+    "whereItRenders": "src/components/multiplayer/NetworkedGameSurface.actionbar.tsx:226-229 - `if (context.refusalReason === null) return null;` then a single sr-only span with that id. So the node's PRESENCE is the gate's answer and its text is the gate's reason, which is why row A reads presence plus text and row B does the same.",
+    "rowBSignificance": "pending is NOT a GATE_REASONS key and blocked IS. Row B is therefore the first row anywhere that exercises the gate in BOTH directions on postures whose gating has never been rendered: the player's own in-flight command must stay playable, and a collided stream must refuse.",
+    "notCommandsEnabled": "posture.commandsEnabled (tacticalLifecycleState.ts:147) is false for pending AND blocked and is rendered nowhere. The divergence is deliberate (tacticalCommandGate.ts:11-24). Row B asserts the rendered surface, as row A did, and says so at the call site.",
+    "banner": "src/components/multiplayer/TacticalLifecycleStateBanner.tsx:30-43 - one <p data-testid=\"tactical-lifecycle-state\" data-state={posture.state} role=\"status\" aria-live=\"polite\" aria-atomic=\"true\">{posture.message}</p>. The announcement contract is structural and identical in every posture; the per-posture half is that the announced CONTENT was this posture's own sentence."
+  },
+  "distinctnessStrategy": {
+    "obligation": "pairwise-distinct messages against EVERY row-A posture (live, sealed, finalized, syncing, behind) and against each other.",
+    "chosen": "row B captures its two sentences LIVE off the banner, then compares them against the five row-A messages obtained through the product's own exported derivation, deriveTacticalLifecyclePosture (tacticalLifecycleState.ts:139-156). Row A used the mirror image of this - it derived row B's two messages and pinned them against the five it drove live (row A :210-223).",
+    "whyNotReDriveRowA": "the brief forbids re-driving the row-A postures beyond what distinctness needs, and re-driving them would double the row's wall time and duplicate five arms that already pass in row A on every run of this same group. The derivation is the product's own message table, not a copy of it, so the comparison cannot drift from what the banner would render.",
+    "soundnessBinding": "the comparison is only meaningful if the rendered text and the derived message are the same string for a driven posture. Row B asserts exactly that for its own two - rendered text === derived message for pending and for blocked - which is what licenses comparing a derived row-A message against a rendered row-B one.",
+    "teeth": "the seven-member set (5 derived row-A + 2 rendered row-B) must have seven distinct members. LIFECYCLE_TONE (src/lib/lifecycle/lifecycleState.ts:60-71) gives behind/rewound/rebuilding ONE palette triple and pending/syncing/reconnecting another, so colour cannot separate pending from syncing; the sentence is the only thing that can."
+  },
+  "nonClaims": [
+    "rewound - PROJECTION_REWOUND is not a member of ErrorCodeSchema (src/types/multiplayer/Protocol.ts:741-787), so the wire cannot carry it; producer owned by add-authoritative-history-branches / R6.B7. Carried from U1c unchanged.",
+    "reconnecting - reconnectScheduled is a real client field and deriveState maps it (tacticalLifecycleState.ts:202), but no available lever renders it; U1c measured three levers with a MutationObserver recording every transition and the series steps straight to behind. Carried from U1c unchanged; row B does not re-test it.",
+    "rebuilding - a pure function of a correction lease no in-paths lever acquires (src/lib/events/journal/EventHistoryDurableRebuild.ts:45-59). Carried from U1c.",
+    "row B does not re-drive live, sealed, finalized, syncing or behind. Their sentences enter row B only through the product's own derivation, for the distinctness obligation."
+  ],
+  "findingsCarried": [
+    {
+      "id": "FN-u1c-pending-intent-never-settles",
+      "handling": "REPORTED, NOT FIXED - src/ is outside this unit's ownership. Row B keeps U1c's post-launch reload of both pages, so the pending posture it captures is the one its OWN dropped intent produced and not the lobby SetReady carry-over. The reload and the reason are named at the call site and in the local receipt.",
+      "riskIfTheReloadWereRemoved": "the row would still read `pending`, but it would be asserting the defect rather than the lever - the arm would pass even with dropNextIntent disarmed. Keeping the reload is what makes the pending arm falsifiable, and mutant M-C below is the proof."
+    },
+    {
+      "id": "FN-u1c-build-exit-hidden-by-tail",
+      "handling": "the build exit is captured separately and never through `| tail`; success is read from the route table, .next/standalone/server.js and the __E2E_MODE__ chunk grep."
+    },
+    {
+      "id": "FN-u1c-oxlint-ignores-unit-paths",
+      "handling": ".oxlintrc.json ignores e2e/**, **/scripts/** and **/openspec/**, so npm run lint covers NONE of this unit's files. The gate is run as a no-regression check and recorded as vacuous for this diff."
+    },
+    {
+      "id": "FN-u1c-e2e-15-fails-on-main",
+      "handling": "resilience-pack is NOT a gate of this unit (the regression group is exactly-once-pack, per the brief). Not run, not claimed."
+    }
+  ],
+  "rowAIsNotTouched": {
+    "rule": "row A stays exactly as shipped.",
+    "whatStaysByteIdentical": "the whole `test('E2E-75 lifecycle postures are distinct, announced and correctly gated ...')` block (e2e/gm-two-player-lifecycle.pack.spec.ts:117-238) and every assertion in it; the derivePosture helper (:240-250); capturePosture (:252-297); postureState (:299-313); sendGoProne (:315-329); parseFrame/stringField/numberField (:424-445).",
+    "whatIsExtendedAdditively": "installLifecycleHarness and the ILifecycleHarness interface gain two arms - dropNextIntent and collideNextDelivery - that are DISARMED at construction (dropIntent=false, collide=false) and that row A never calls. Row A's behaviour through the harness is therefore unchanged, and the three green runs of the two-row group are the measurement that says so rather than the argument.",
+    "whatIsEdited": "the file header's first line, 'Lifecycle posture pack - E2E-75 (umbrella 22.3), row A.' -> '..., rows A and B.', plus an appended row-B block. Declared here because leaving a header that calls a two-row file 'row A' would be a false statement about the file; no row-A comment is rewritten.",
+    "sharedHelperReuse": "row B calls row A's capturePosture unchanged, with its own seenText map and evidence array. That is the whole point of the split shipping into one file: the five obligations are asserted by ONE function for all seven postures, so the letter cannot be met differently in the two rows."
+  },
+  "estimate": {
+    "method": "drafted against the shipped file and the held patch; counted as added non-generated lines per file",
+    "files": [
+      {
+        "path": "e2e/gm-two-player-lifecycle.pack.spec.ts",
+        "added": "170-200",
+        "breakdown": "row-B header block ~20 comment; 1 import; ILifecycleHarness +4; installLifecycleHarness +22 code / +4 comment; collidingFrame + objectField + isRecord ~16; driveUntilPosture ~24 (code+comment); rowAMessages helper ~18; the row-B test body ~60 (code+comment)",
+        "removed": "1 (the header's row-A title line)"
+      },
+      {
+        "path": "scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+        "added": "22-30",
+        "breakdown": "one node:fs import plus a pin that reads the spec file and asserts the group now carries TWO rows with their titles and @E2E-75 tags"
+      },
+      {
+        "path": "openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md",
+        "added": "1",
+        "breakdown": "one PROGRESS line under the 22.3 row; no checkbox"
+      }
+    ],
+    "productTotalAdded": "193-231",
+    "cap": 500,
+    "underCap": true,
+    "fileCount": 3,
+    "fileCountPlusReceipts": 6,
+    "fileCap": 15,
+    "underFileCap": true,
+    "noQcCoreChange": "scripts/qc/gm-two-player-campaign-core.cjs is NOT edited. lifecycle-pack:22 is already in GROUP_CATALOG (:6) and SPEC_BY_GROUP (:143) and already maps to this one spec file, so a second test in the same file needs no registration. The brief's 'register nothing new if lifecycle-pack already maps to the spec' condition is satisfied - measured, not assumed."
+  },
+  "redPlan": {
+    "principle": "row B's obligations are about postures the shipped suite never RENDERS. The red is therefore a surviving-mutant measurement at the real boundary: a product change that breaks one of row B's obligations, applied to src/ on the baseline, rebuilt, and shown to leave the shipped lifecycle-pack row GREEN. Captured, not predicted.",
+    "R0": "static, captured: `git grep -n \"tactical-lifecycle-state\" -- e2e/` on the baseline resolves to FIVE sites - row A's two reads (gm-two-player-lifecycle.pack.spec.ts:265, :307), the resilience pack's own lifecycleState helper (gm-two-player-resilience.pack.spec.ts:247) and an identical exported copy in e2e/helpers/viewerUnackedBoundEvidence.ts:155 which `git grep -n \"lifecycleState(\" -- e2e/` shows has NO caller, plus the comment at resilience :685. The helper feeds exactly two assertions: the tautological guard at resilience :688-689 (`if (/^(behind|syncing|reconnecting)$/.test(p2BehindState)) expect(p2BehindState).toMatch(same)`) and the disjunctive `^(live|finalized)$` poll at :876-880. Not one of them renders or reads pending or blocked.",
+    "R1": "M-A applied (remove `blocked` from GATE_REASONS, src/lib/multiplayer/tacticalCommandGate.ts) -> full E2E build -> `--group=lifecycle-pack` on the SHIPPED one-row spec. Expected to PASS, proving the product can stop refusing commands in the blocked posture with the whole lifecycle gate green. The mutation is permissive-only, so it cannot break an unrelated pack by making something MORE available; tsc stays at 0 because GatedTacticalState is keyof typeof GATE_REASONS (the same invisibility U1c measured for its M3).",
+    "buildReuse": "the Next build compiles src/ only - Playwright compiles the spec at run time - so the SAME mutant build serves the red (shipped spec) and the kill (spec with row B). Each mutant is one build, and the survival half for M-B and M-C is taken on their own builds by stashing the spec change.",
+    "exactCodeIsCaptured": "U1c's red receipt records that its predicted exit code was wrong (2 UNKNOWN_GROUP, not 3 NOT_IMPLEMENTED). Nothing here is predicted into the receipt: the observed run output is what lands."
+  },
+  "mutantPlan": [
+    {
+      "id": "M-A",
+      "mutation": "remove `blocked` from GATE_REASONS (tacticalCommandGate.ts:37-48)",
+      "rowBAssertionThatShouldFail": "expect(gateRefused).toBe(GATED_STATES.has('blocked')) inside capturePosture - expected true, received false",
+      "whyRowAcannotCatchIt": "row A never drives blocked; its GATED_STATES set is spec-side data that no row-A assertion compares against the gate for that name.",
+      "alsoTheRed": true
+    },
+    {
+      "id": "M-B",
+      "mutation": "GATE_REASONS.blocked set to the exact syncing sentence",
+      "rowBAssertionThatShouldFail": "the refusal-distinctness assertion - the blocked refusal must differ from the gate's own syncing and behind reasons",
+      "whyRowAcannotCatchIt": "row A asserts its two rendered reasons (syncing, behind) are distinct from EACH OTHER; blocked's reason is not in that set."
+    },
+    {
+      "id": "M-C",
+      "mutation": "add `pending` to GATE_REASONS",
+      "rowBAssertionThatShouldFail": "expect(gateRefused).toBe(GATED_STATES.has('pending')) - expected false, received true",
+      "whyRowAcannotCatchIt": "row A never renders pending. This is the mutant that also proves the pending arm is falsifiable rather than riding FN-u1c-pending-intent-never-settles: a row that merely inherited the defect would still be looking at a pending banner, and this mutation is about what the GATE does in that posture.",
+      "riskNoted": "this one changes real behaviour for every surface with an in-flight command, so exactly-once-pack is re-run after it is reverted rather than under it; any collateral is reported, not hidden."
+    }
+  ],
+  "acceptanceCommands": {
+    "nodeVersion": "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "cpuPreflight": "powershell -NoProfile -c \"(Get-CimInstance Win32_Process -Filter \\\"name='node.exe'\\\" | ? { $_.CommandLine -match 'next.*build|playwright' }).Count\" must print 0 before EVERY build and EVERY Playwright run",
+    "build": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build - exit captured separately, never through `| tail`; success read from the printed route table, .next/standalone/server.js and grep -c __E2E_MODE__ .next/static/chunks/pages/_app-*.js = 1",
+    "row": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=lifecycle-pack (BOTH rows must pass; three runs with identical captures)",
+    "regression": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=exactly-once-pack",
+    "typecheck": "npx tsc --noEmit",
+    "formatCheck": "npx oxfmt --check on the changed code files",
+    "lint": "npx oxlint (recorded as vacuous - .oxlintrc.json ignores these paths)",
+    "qcPinSuite": "npx jest --watchAll=false --runTestsByPath scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+    "openspecCi": "npm run qc:openspec-ci:validate",
+    "roadmapValidator": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs - must print ROADMAP VALIDATION PASSED: 73 nodes, 13 packages, 376 tasks, 40 triage rows",
+    "portDiscipline": "the ladder runner derives its own fixture port from the run id (deriveFixturePort, gm-two-player-campaign-core.cjs:31-40); no port argument is passed and 3639 stays the primary-server port"
+  },
+  "validatorAtAdmission": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+    "exitCode": 0,
+    "output": "ROADMAP VALIDATION PASSED: 73 nodes, 13 packages, 376 tasks, 40 triage rows"
+  },
+  "decisionNeeded": [],
+  "risksForTheParent": [
+    {
+      "id": "RK-1",
+      "risk": "the pending lever needs the GUEST to be the side the turn-ownership gate opens, because advancePhase (e2e/helpers/gmTwoPlayerMatchFlow.ts:117-146) clicks whichever surface has an enabled control and only the guest page is routed through the harness.",
+      "mitigation": "the arm is set BEFORE the drive and the drive is a bounded loop (8 attempts, 500ms apart) that re-reads the posture between advances, so it fires on the guest's next intent whenever the rotation reaches it and fails loudly naming the last posture otherwise. Not a widening: the loop lives in e2e/.",
+      "escalatesIf": "eight advances pass without the guest ever acting - then the lever, not the unit, is wrong and the parent is told rather than the row being weakened."
+    },
+    {
+      "id": "RK-2",
+      "risk": "the blocked arm wedges the client that receives it - a collided client self-pauses and its phase control can detach mid-click.",
+      "mitigation": "the same bounded drive tolerates a failed click and keeps reading the posture, exactly as the held patch does; a genuinely stuck drive still runs out of attempts and throws."
+    },
+    {
+      "id": "RK-3",
+      "risk": "extending the shared harness could change row A's behaviour.",
+      "mitigation": "both arms are disarmed at construction and row A never calls them; the three green two-row runs with identical captured lists are the measurement. If row A's captured list changes at all, that is a blocker and the parent is told."
+    }
+  ],
+  "capVerdict": "UNDER CAP - estimate 193-231 product lines against 500, 3 product files against 15. No parent ruling is needed before implementation.",
+  "parentDecision": {
+    "at": "2026-09-16T22:53:17.888Z",
+    "decision": "go",
+    "note": "parent admitted the unit as planned; no widening"
+  }
+}
