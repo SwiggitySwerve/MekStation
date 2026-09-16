@@ -237,7 +237,80 @@
       "id": "U1c",
       "node": "R6.umbrella",
       "taskKeys": [],
-      "behavior": "E2E-75 lifecycle states are distinct and accessible for the eight drivable states and E2E-77 conflict messages are actionable and safe for the four reachable classes; the rewound state and the stale-branch class are not claimed (deferred to the branch lane and the rewind packet) and the unit records that non-claim in its admission.",
+      "behavior": "E2E-75 lifecycle states are distinct and accessible, row A: a strict Playwright row under the new lifecycle-pack group drives live (control), sealed, finalized, syncing and behind through existing in-paths levers and asserts, per state, the data-state, the accessible role/name announcement, pairwise-distinct messages (also distinct from the pending and blocked texts, read from the same constant) and command gating through the rendered tacticalCommandAvailability surface, capturing an accessibility snapshot as evidence. Non-claims: rewound (PROJECTION_REWOUND is not in ErrorCodeSchema; producer belongs to R6.B7), reconnecting (never renders under any available lever), and the pending/blocked arms, which ship as U1e row B.",
+      "ownershipPaths": [
+        "e2e",
+        "scripts/qc",
+        "openspec/changes/harden-gm-two-player-campaign-sessions"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "local-verified",
+      "baseline": "7489e311fc0e2a2846c342786b21ad1ea09d29bb",
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": {
+          "path": "evidence/u1c-admission-20260916.json",
+          "baseline": "7489e311fc0e2a2846c342786b21ad1ea09d29bb",
+          "at": "2026-09-16T19:55:44.110Z",
+          "decision": "split"
+        },
+        "red": {
+          "path": "evidence/u1c-red-20260916.json",
+          "at": "2026-09-16T00:00:00.000Z",
+          "summary": "R1: --group=lifecycle-pack exited 2 UNKNOWN_GROUP on shipped code (group never reserved); R2: with the tautological guard removed from the resilience row, the shipped banner told a viewer frozen at the unacked cap that it was finalized (expected behind|syncing|reconnecting), probe reverted"
+        },
+        "local": {
+          "path": "evidence/u1c-local-20260916.json",
+          "at": "2026-09-16T00:00:00.000Z",
+          "summary": "see receipt: row A passed through the ladder runner on the E2E standalone build; mutants killed; tsc, oxfmt, pin suite, qc:openspec-ci, roadmap validator green"
+        },
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "split20260916": {
+        "from": "E2E-75 lifecycle states are distinct and accessible for the eight drivable states and E2E-77 conflict messages are actionable and safe for the four reachable classes; the rewound state and the stale-branch class are not claimed (deferred to the branch lane and the rewind packet) and the unit records that non-claim in its admission.",
+        "reason": "admission receipt evidence/u1c-admission-20260916.json: combined estimate 642-770 non-generated lines against the 500 cap; the two scenarios share the qc core, pin suite and tasks.md, so they run sequentially as U1c (E2E-75) and U1d (E2E-77)",
+        "successor": "U1d"
+      },
+      "nonClaims20260916": [
+        "rewound state: PROJECTION_REWOUND is not a member of ErrorCodeSchema; producer owned by add-authoritative-history-branches (R6.B7)",
+        "reconnecting state: reconnectScheduled is real and deriveState maps it, but no available lever renders it (plain close, close plus refused reopen, setOffline all recorded by a MutationObserver over every transition); a third non-claim, not a defect claim",
+        "pending and blocked arms: held back as U1e row B under the cap ruling"
+      ],
+      "rowSplit20260916": {
+        "at": "2026-09-16T21:23:19.443Z",
+        "reason": "stage-3 measurement: the seven-posture row was 817 product lines (433 code, 301 comment, 40 blank in the spec; qc registration and pin +42/-2) against the 500 cap; the parent ruled trim-and-split rather than a harness-floor overage because the postures are independent fault arms and no assertion is dropped by shipping them in two rows",
+        "rowA": [
+          "live (control)",
+          "sealed",
+          "finalized",
+          "syncing",
+          "behind"
+        ],
+        "rowB": [
+          "pending",
+          "blocked"
+        ],
+        "successor": "U1e",
+        "rowBHeldAs": ".sisyphus/roadmap-completion-20260912/u1e-row-b.patch (local, applied by U1e from its own baseline)"
+      }
+    },
+    {
+      "id": "U1e",
+      "node": "R6.umbrella",
+      "taskKeys": [],
+      "behavior": "E2E-75 lifecycle states, row B: a second strict row in e2e/gm-two-player-lifecycle.pack.spec.ts under the existing lifecycle-pack group drives pending and blocked through existing in-paths levers and asserts, per state, the data-state, the accessible announcement, pairwise-distinct messages against every row-A posture and command gating through the rendered surface; the lifecycle-pack group grows to two rows and the pin suite records it. Non-claims carried from U1c: rewound, reconnecting.",
       "ownershipPaths": [
         "e2e",
         "scripts/qc",
@@ -264,7 +337,49 @@
         "mainProof": null,
         "tick": null
       },
-      "ownerGate": null
+      "ownerGate": null,
+      "predecessor": "U1c",
+      "nonClaims20260916": [
+        "rewound state (R6.B7 producer)",
+        "reconnecting state (never renders under any available lever; see U1c)"
+      ]
+    },
+    {
+      "id": "U1d",
+      "node": "R6.umbrella",
+      "taskKeys": [],
+      "behavior": "E2E-77 conflict messages are actionable and safe for the three reachable classes (integrity: sequence collision and duplicate intent; authorization: GM-only; rebuild/stale revision: campaign stale head) under a new conflict-pack group: per class the row asserts the class code, the verbatim named recovery action, and leak safety (no peer player id, wire token or lease id in the rendered text); the stale-branch class is not claimed (STALE_BRANCH is unreachable for match streams; PK-rewind-branch-reader) and the row header and receipt say so.",
+      "ownershipPaths": [
+        "e2e",
+        "scripts/qc",
+        "openspec/changes/harden-gm-two-player-campaign-sessions"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "nonClaims20260916": [
+        "stale-branch class: STALE_BRANCH unreachable for match streams (PK-rewind-branch-reader)",
+        "rebuild class (PROJECTION_REBUILDING): same missing correction-lease lever; deferred to adopt-combat-journal-cutover-and-gm-rewind"
+      ]
     },
     {
       "id": "U2",
@@ -453,6 +568,46 @@
       ],
       "deferredToNode": "R2.journey",
       "reason": "The two closure rows run the full gate sweep and reconcile all 80 acceptance scenarios to test identifiers and evidence paths; neither can be honestly run until the umbrella rows above are delivered, parked or deferred, so both are deferred to the R2.journey reconciliation node. The ledger keys carry the admission-snapshot lines (25.1@633, 25.4@640) while the live tasks.md rows now sit at lines 630 and 637."
+    }
+  ],
+  "findings": [
+    {
+      "id": "FN-u1c-pending-intent-never-settles",
+      "foundBy": "U1c",
+      "at": "2026-09-16T21:23:19.443Z",
+      "class": "product defect, player-visible",
+      "summary": "A launched match leaves both surfaces at the pending posture for the whole match (measured 20s at launch and 25s across a reconnect): the lobby Ready control sends a real SetReady intent (src/components/multiplayer/LobbyPanel.tsx) that the server answers with LobbyUpdated, which is neither an Event carrying payload.intentId nor an Error, so the client never settles the pending intent (src/lib/multiplayer/client.ts) and pending outranks live, sealed and finalized while the gate does not refuse pending.",
+      "evidence": "evidence/u1c-local-20260916.json findingsReportedNotFixed[F1]; the row reloads once after launch and says so at the call site",
+      "ownership": "no roadmap node owns src/lib/multiplayer/client.ts or src/components/multiplayer; assigning a fix owner widens the ownership map and is an owner call",
+      "recommendedSuccessor": "a product unit re-owned to a node given src/lib/multiplayer and src/components/multiplayer: settle a pending SetReady intent on the LobbyUpdated answer (or answer with an Event carrying the intentId), with a red jest at the client boundary and the U1c/U1e rows re-run without their post-launch reload",
+      "status": "recorded; fix owner unassigned"
+    },
+    {
+      "id": "FN-u1c-build-exit-hidden-by-tail",
+      "foundBy": "U1c",
+      "at": "2026-09-16T21:23:19.443Z",
+      "class": "harness",
+      "summary": "npm run build piped through tail reports the status of tail, hiding the hydrate step exit 1 in a junctioned worktree; the build marker and standalone server are the real signals",
+      "status": "recorded; proof commands capture the build exit separately"
+    },
+    {
+      "id": "FN-u1c-oxlint-ignores-unit-paths",
+      "foundBy": "U1c",
+      "at": "2026-09-16T21:23:19.443Z",
+      "class": "harness",
+      "summary": ".oxlintrc.json ignores e2e/**, **/scripts/** and **/openspec/**, so npm run lint covers none of the umbrella unit files; the lint gate is vacuous for e2e units and is recorded as such in their receipts",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u1c-e2e-15-fails-on-main",
+      "foundBy": "U1c",
+      "at": "2026-09-16T21:23:19.443Z",
+      "class": "product or harness defect, pre-existing on main",
+      "summary": "E2E-15 (resilience-pack row 2) fails deterministically on clean origin/main 7489e311f: Expected /^(live|finalized)$/ Received \"\" after the 150s poll at e2e/gm-two-player-resilience.pack.spec.ts:875; reproduced twice in the U1c worktree and once in a separate detached worktree at origin/main with its own fresh production build; the --group=resilience-pack run plan built from the U1c qc core is byte-identical to the one built from main. tasks.md:592 (finding #102) attributed the same symptom to a stale build; this run rules that out.",
+      "evidence": "evidence/u1c-local-20260916.json findingsReportedNotFixed[F4]",
+      "ownership": "resilience-pack is not a gate of U1c (its regression group is exactly-once-pack) and is not wired into CI (PK-e2e-80-ci-wiring); the row is owned by R6.umbrella paths (e2e) but the failure may be product-side",
+      "recommendedSuccessor": "a diagnosis unit under R6.umbrella: bisect whether the row or the product regressed, with the receipt naming the first failing main commit",
+      "status": "recorded; not a gate of this unit"
     }
   ]
 }
