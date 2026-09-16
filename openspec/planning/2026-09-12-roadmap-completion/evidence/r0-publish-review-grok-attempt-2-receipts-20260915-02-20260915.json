@@ -1,0 +1,20 @@
+{
+  "reviewer": "cursor-agent grok-4.6",
+  "planId": "receipts-20260915-02",
+  "branch": "codex/roadmap-r0-publish-receipts-20260915-02-20260915",
+  "head": "8087dbeaf1573503cb35f5ee752e5db53bced08c",
+  "verdict": "REJECT",
+  "verifierExitCode": null,
+  "verifierReport": {
+    "error": "shell-blocked",
+    "message": "Every Shell invocation in this reviewer session was rejected before execution, including node verify-publication-pr.js and git commands. Verifier JSON was not produced. Independent filesystem evidence already requires FAIL: git rev-list --parents -n 1 equivalent from the reflog shows HEAD parent 095973cafdeed194f85784ccedb3b9a8b68d285d, not plan base 1f67f814e3f04e8a38488de70ecd8396f9269ca6."
+  },
+  "independentChecks": {
+    "fileSetMatches": false,
+    "spotChecks": [],
+    "singleParentOnBase": false,
+    "noAttribution": true
+  },
+  "notes": "REJECT: shell was blocked so the verifier and sha256 spot checks never ran, and HEAD is not a single parent on the plan base. Reflog is 1f67f814 -> 095973ca (92-file title) -> 8087dbea; plan title is now 88 files and the publish-worktree committed manifest lists those 88 paths; COMMIT_EDITMSG has no Co-Authored-By / Generated with / Claude / Anthropic text.",
+  "at": "2026-09-15T23:59:00.000Z"
+}

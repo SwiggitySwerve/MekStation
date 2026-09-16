@@ -1,0 +1,27 @@
+{
+  "pr": 1776,
+  "planId": "combined",
+  "title": "docs(roadmap): publish the roadmap completion planning directory and audit documentation",
+  "prHead": "7b1ce31d7d3990741d4427d1fd488d667f75d1a3",
+  "mergeCommit": "b668d659a49fcd1aba9f08b7fafdb6f2eefadf52",
+  "mergeIsAncestorOfMain": true,
+  "mergeParentCount": 1,
+  "blobEqualityDiffLines": 0,
+  "checks": {
+    "openspecStrict": "0",
+    "purpose": "0",
+    "terminology": "0",
+    "qcOpenspecCi": "0",
+    "roadmapValidator": "0"
+  },
+  "logs": ".sisyphus/roadmap-completion-20260912/main-proof-1776-20260915/",
+  "logHashes": [
+    "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3 *openspec-strict.log",
+    "b3fcb3953671a7181f597c942ca1a45104d8e04369214822c1b056ba06c48486 *purpose.log",
+    "8c41df6c33246420ed1806218780c2df69b5ad4e7c594b993b07594ee959ccb2 *qc-openspec-ci.log",
+    "b185e5f101786a05e7aa9bd0cde15778607fa047fbdbec8a15158c89753c23fc *roadmap-validator.log",
+    "673b86d4fd947da4bfe663c311f3429f2d21893530e394b0c8f2b47903e3cd2c *terminology.log"
+  ],
+  "at": "2026-09-16T00:20:38.531Z",
+  "verdict": "PASS"
+}

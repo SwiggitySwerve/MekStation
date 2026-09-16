@@ -1,0 +1,21 @@
+{
+  "reviewer": "sonnet independent review",
+  "planId": "audit-details",
+  "pr": 1763,
+  "branch": "codex/roadmap-r0-publish-audit-details-20260915",
+  "head": "855de32a9544fbf8cd3f2161780ba098448508bd",
+  "verdict": "APPROVE",
+  "verifierVerdict": "PASS (node verify-publication-pr.js audit-details, exit 0): 1 linear commit on plan base 1f67f814e3f04e8a38488de70ecd8396f9269ca6, file set matches plan (4 files), no gitignored paths, commit message has no attribution text, bytes=57943, title matches plan title exactly.",
+  "checks": {
+    "1_file_set_and_hashes": "git diff --stat origin/main codex/roadmap-r0-publish-audit-details-20260915 shows exactly the 4 plan files (no manifest for this authored PR): ci-change-details.md, followup-details.md, reference-and-planning-details.md, spec-change-details.md. For each, sha256(git show <branch>:<path>) == sha256(root checkout file) exactly (no CRLF normalization needed, consistent with the PR body's claim). No extra/missing files.",
+    "2_caps": "Plan caps: '4 files, 419 authored lines (27+39+209+144); these four documents contain no markdown links'. Measured via wc -l on the committed blobs: ci-change-details.md=27, followup-details.md=39, reference-and-planning-details.md=209, spec-change-details.md=144, sum=419 -- matches plan and PR body exactly. Total committed bytes measured via git cat-file -s = 57,943, matches PR body.",
+    "3_links": "grep -noE ']\\([^)]*\\)' over all 4 committed .md files returned zero matches in every file -- confirms the plan's and PR body's 'no markdown links' claim. No links to resolve.",
+    "4_prose_evidence_refs": "Not applicable -- caps note and manual review confirm these four documents contain no markdown links; a scan for bare evidence/ path mentions in the four files' prose also found none (they are self-contained narrative/detail docs, not the ledger/progress files this checklist item targets).",
+    "5_ledger_validator": "Not applicable -- this is not the ledger PR.",
+    "6_pr_body_accuracy": "File count (4), total bytes (57,943), authored line counts (27/39/209/144=419) all verified exactly against git-derived measurements. 'Merge after: audit-data (PR #1761)' matches the plan's dependsOn: ['audit-data'], and gh pr list confirms codex/roadmap-r0-publish-audit-data-20260915 is PR #1761 (currently OPEN, not yet merged -- expected at this pre-merge review stage; PUBLICATION.md's admission process requires rechecking merge order at actual-merge time). No AI attribution found in the PR title, PR body, or the single commit message (git log origin/main..branch --format=%B): 'docs(audit): publish customizer spec reconciliation detail documents' with an empty body -- clean of co-authored-by/generated-with/claude/anthropic tokens. Commit author/committer is Wes Rollings <wrollings@gmail.com>.",
+    "7_content_sanity": "All 4 documents describe the 2026-09-12 customizer spec reconciliation audit (CI change details, followups, reference/planning details, spec change details) consistent with the roadmap completion program. Two incidental mentions of 'printable-model research' are explicitly exclusionary ('the unrelated printable-model research remains untouched'; 'the separate printable/model-library research remains a provenance and rights surface rather than an input to chassis identity') -- these correctly describe NOT mixing that unrelated work in, not a content leak. No claim anywhere that a raw log is available in Git."
+  },
+  "requiredEdits": [],
+  "notes": "Clean PASS across every checklist item. The one open dependency (audit-data / PR #1761 not yet merged) is a sequencing fact for the merge queue, not a defect in this PR's content or accounting -- PUBLICATION.md already requires rechecking the exact merged commit at each admission.",
+  "at": "2026-09-15T23:15:27Z"
+}

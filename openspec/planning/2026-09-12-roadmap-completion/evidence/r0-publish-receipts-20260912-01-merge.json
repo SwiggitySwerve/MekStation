@@ -1,0 +1,49 @@
+{
+  "planId": "receipts-20260912-01",
+  "pr": 1758,
+  "branch": "codex/roadmap-r0-publish-receipts-20260912-01-20260915",
+  "backfilled": true,
+  "backfillNote": "Written after the fact from live gh/git data at the coordinator's request; the merge itself was gated and executed at 2026-09-15T23:35:48Z. Values below are re-derived from the merged commit and the PR record, not reconstructed from memory.",
+  "reviewReceipt": "openspec/planning/2026-09-12-roadmap-completion/evidence/r0-publish-review-receipts-20260912-01-20260915.json",
+  "reviewReceiptCaveat": "At merge time this gate file reported verdict APPROVE with head 1c0c189d47a0dd717c779e03dfae2f61d994677f, matching the merged head exactly, and carried a populated 'pr' field (1758). The file was subsequently moved aside during the stray-Grok cleanup, and this session did NOT capture its 'reviewer' field before it was moved, so sonnet authorship cannot now be proven from this session's own records. The Grok-attempt receipts were REJECT verdicts lacking a 'pr' field, which is evidence against the read receipt having been one of them. Flagged to the coordinator at the time.",
+  "reviewedHead": "1c0c189d47a0dd717c779e03dfae2f61d994677f",
+  "finalHead": "1c0c189d47a0dd717c779e03dfae2f61d994677f",
+  "updateBranchPerformed": false,
+  "updateBranchNote": "PR reported mergeStateStatus CLEAN and `git merge-base --is-ancestor origin/main <head>` confirmed UP-TO-DATE, so no update-branch was required and the merged head equals the reviewed head exactly.",
+  "contentGuard": {
+    "fileCount": 100,
+    "outOfScopePaths": 0,
+    "allowedPrefixes": [
+      "openspec/planning/2026-09-12-roadmap-completion/",
+      "docs/audits/2026-09-12-customizer-spec-reconciliation/"
+    ],
+    "method": "git diff --name-only origin/main...<head>, then filtered for any path outside the allowed prefixes",
+    "diffstat": "100 files changed, 22787 insertions(+)",
+    "result": "PASS"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "totalChecks": 31,
+    "allPass": true,
+    "rerunsPerformed": 0
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r0-publish-receipts-20260912-01-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "bf98c6f2796f446a60090e6800ff628d42afff6b",
+  "mergeCommitParents": ["1f67f814e3f04e8a38488de70ecd8396f9269ca6"],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1758 --squash --match-head-commit 1c0c189d47a0dd717c779e03dfae2f61d994677f",
+  "mergedAt": "2026-09-15T23:35:48Z",
+  "mergedBy": "this session (guarded R0.publish queue)",
+  "mainBefore": "1f67f814e3f04e8a38488de70ecd8396f9269ca6",
+  "mainAfter": "bf98c6f2796f446a60090e6800ff628d42afff6b",
+  "postMergeVerification": "Merge commit confirmed single-parent off 1f67f814e; 100 changed files; 0 paths outside the allowed prefixes.",
+  "rootTripwireOutside": 59,
+  "at": "2026-09-16T00:05:00Z"
+}

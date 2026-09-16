@@ -1,0 +1,52 @@
+{
+  "at": "2026-09-16T00:26:55.550Z",
+  "mergeCommit": "b668d659a49fcd1aba9f08b7fafdb6f2eefadf52",
+  "closedSupersededPrs": [
+    1759,
+    1760,
+    1762,
+    1763,
+    1764,
+    1765,
+    1766,
+    1767,
+    1768,
+    1769,
+    1770,
+    1771,
+    1772,
+    1773,
+    1774,
+    1775
+  ],
+  "removedWorktrees": [
+    "publish",
+    "publish-b"
+  ],
+  "deletedBranches": [
+    "codex/roadmap-r0-publish-active-index-20260915",
+    "codex/roadmap-r0-publish-audit-details-20260915",
+    "codex/roadmap-r0-publish-audit-overview-20260915",
+    "codex/roadmap-r0-publish-contracts-20260915",
+    "codex/roadmap-r0-publish-receipts-20260912-02-20260915",
+    "codex/roadmap-r0-publish-receipts-20260913-01-20260915",
+    "codex/roadmap-r0-publish-receipts-20260913-02-20260915",
+    "codex/roadmap-r0-publish-receipts-20260915-01-20260915",
+    "codex/roadmap-r0-publish-receipts-20260915-02-20260915",
+    "codex/roadmap-r0-publish-receipts-20260915-03-20260915",
+    "codex/roadmap-r0-publish-receipts-20260915-04-20260915",
+    "codex/roadmap-r0-publish-receipts-20260915-05-20260915",
+    "codex/roadmap-r0-publish-receipts-undated-01-20260915",
+    "codex/roadmap-r0-publish-receipts-undated-02-20260915"
+  ],
+  "keptBranches": [
+    "codex/roadmap-r0-publish-ledger-20260915",
+    "codex/roadmap-r0-publish-progress-20260915"
+  ],
+  "rootTripwireOutsidePlanningDir": {
+    "before": 59,
+    "after": 59
+  },
+  "retained": "worktree main-proof (needed for the accounting PR proof; removed after it, recorded locally only), root node_modules untouched, user branches and worktrees untouched",
+  "log": ".sisyphus/roadmap-completion-20260912/cleanup-publication-20260915.log"
+}

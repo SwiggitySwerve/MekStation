@@ -1,0 +1,53 @@
+{
+  "reviewer": "sonnet independent review",
+  "planId": "receipts-20260912-01",
+  "pr": 1758,
+  "branch": "codex/roadmap-r0-publish-receipts-20260912-01-20260915",
+  "head": "1c0c189d47a0dd717c779e03dfae2f61d994677f",
+  "verdict": "APPROVE",
+  "verifierExitCode": 0,
+  "verifierReport": {
+    "id": "receipts-20260912-01",
+    "branch": "codex/roadmap-r0-publish-receipts-20260912-01-20260915",
+    "checks": [
+      "1 linear commit(s) on top of plan base 1f67f814e3f04e8a38488de70ecd8396f9269ca6",
+      "file set matches plan (100 files)",
+      "CRLF source normalized to LF by .gitattributes: openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-contract-inventory-20260912.json",
+      "CRLF source normalized to LF by .gitattributes: openspec/planning/2026-09-12-roadmap-completion/evidence/hydration-safety-cleanup-20260912.json",
+      "CRLF source normalized to LF by .gitattributes: openspec/planning/2026-09-12-roadmap-completion/evidence/hydration-safety-main-verification-20260912.json",
+      "CRLF source normalized to LF by .gitattributes: openspec/planning/2026-09-12-roadmap-completion/evidence/manifest-sync-main-verification-20260912.json",
+      "CRLF source normalized to LF by .gitattributes: openspec/planning/2026-09-12-roadmap-completion/evidence/next-spec-prefix-inventory-20260912.json",
+      "CRLF source normalized to LF by .gitattributes: openspec/planning/2026-09-12-roadmap-completion/evidence/prerequisite-contracts-cleanup-20260912.json",
+      "manifest hashes match blobs for 99 files",
+      "no gitignored paths",
+      "commit message has no attribution text"
+    ],
+    "failures": [],
+    "head": "1c0c189d47a0dd717c779e03dfae2f61d994677f",
+    "base": "1f67f814e3f04e8a38488de70ecd8396f9269ca6",
+    "commitCount": 1,
+    "bytes": 1132666,
+    "title": "docs(roadmap): publish generated receipts batch 20260912-01 (99 files)",
+    "verdict": "PASS"
+  },
+  "independentChecks": {
+    "linearOnBase": true,
+    "fileSetMatches": true,
+    "alreadyOnMainIdentical": [],
+    "spotChecks": [
+      {"path": "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-contracts-independent-review-20260912.json", "blobSha256": "e75644cbc238179f6348fb5f843ef90fe648d6de38f2a492e3c5a76c929f92a0", "manifestSha256": "e75644cbc238179f6348fb5f843ef90fe648d6de38f2a492e3c5a76c929f92a0", "rootSha256": "e75644cbc238179f6348fb5f843ef90fe648d6de38f2a492e3c5a76c929f92a0", "match": "exact"},
+      {"path": "openspec/planning/2026-09-12-roadmap-completion/evidence/hydration-safety-cleanup-20260912.json", "blobSha256": "f8957d8ef9237ca5984a7dfb595d5410111b946017c9b65bc76d859b132df47a", "manifestSha256": "f8957d8ef9237ca5984a7dfb595d5410111b946017c9b65bc76d859b132df47a", "rootSha256": "49bbd5f80b76cd2709b5b125464b066d3f89fae84bd1b49aee2eb1960c6ae97a", "match": "crlf-normalized"},
+      {"path": "openspec/planning/2026-09-12-roadmap-completion/evidence/next-spec-prefix-inventory-20260912.json", "blobSha256": "34f5b53138bb74ea7b54cdeb6d57f30e261817078e55deea5c811a4e4a391e49", "manifestSha256": "34f5b53138bb74ea7b54cdeb6d57f30e261817078e55deea5c811a4e4a391e49", "rootSha256": "3a22ba17e36b05bb89819fc5f7628c50aaf43fb09a64112df12f56d6788e015a", "match": "crlf-normalized"},
+      {"path": "openspec/planning/2026-09-12-roadmap-completion/evidence/continuation-admission-20260912.json", "blobSha256": "d6d90a18fc498a440091a0277ad325462d6fe9cf073998fdbd9d0b8ca8a2995f", "manifestSha256": "d6d90a18fc498a440091a0277ad325462d6fe9cf073998fdbd9d0b8ca8a2995f", "rootSha256": "d6d90a18fc498a440091a0277ad325462d6fe9cf073998fdbd9d0b8ca8a2995f", "match": "exact"},
+      {"path": "openspec/planning/2026-09-12-roadmap-completion/evidence/contracts-root-reconciliation-20260912.json", "blobSha256": "4ac5c52e31522b28114044e43fecb56d37fccadaf363777539735183da292a16", "manifestSha256": "4ac5c52e31522b28114044e43fecb56d37fccadaf363777539735183da292a16", "rootSha256": "4ac5c52e31522b28114044e43fecb56d37fccadaf363777539735183da292a16", "match": "exact"}
+    ],
+    "noIgnoredPaths": true,
+    "withinCaps": {"files": 100, "bytes": 1132666},
+    "noAttribution": true,
+    "prBodyAccurate": true,
+    "titleMatchesPlan": true
+  },
+  "requiredEdits": [],
+  "notes": "Single linear commit on plan base. Diff has 100 paths (99 evidence files + manifest), all match plan file list exactly. 6 CRLF-normalized files independently reconciled against .gitattributes LF normalization; 5 random spot-checked files all matched manifest and blob hashes (2 via CRLF normalization of the root working file). No gitignored paths, bytes (1,132,666) well under the 2MB cap, no attribution text in the commit message. PR #1758 title and body (file count 100, bytes 1,132,666, 6 CRLF files) match plan and independent counts exactly.",
+  "at": "2026-09-15T22:55:00Z"
+}

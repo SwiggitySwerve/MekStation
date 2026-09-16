@@ -1,0 +1,26 @@
+{
+  "pr": 1758,
+  "planId": "receipts-20260912-01",
+  "title": "docs(roadmap): publish generated receipts batch 20260912-01 (99 files)",
+  "prHead": "1c0c189d47a0dd717c779e03dfae2f61d994677f",
+  "mergeCommit": "bf98c6f2796f446a60090e6800ff628d42afff6b",
+  "mergeIsAncestorOfMain": true,
+  "mergeParentCount": 1,
+  "blobEqualityDiffLines": 0,
+  "checks": {
+    "openspecStrict": "0",
+    "purpose": "0",
+    "terminology": "0",
+    "qcOpenspecCi": "0",
+    "roadmapValidator": "skipped"
+  },
+  "logs": ".sisyphus/roadmap-completion-20260912/main-proof-1758-20260915/",
+  "logHashes": [
+    "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3 *openspec-strict.log",
+    "b3fcb3953671a7181f597c942ca1a45104d8e04369214822c1b056ba06c48486 *purpose.log",
+    "8c41df6c33246420ed1806218780c2df69b5ad4e7c594b993b07594ee959ccb2 *qc-openspec-ci.log",
+    "bc06f9c0cbd0742f337d4b7d17c0665dcbec627646f26b280a46fdaa509c0c9d *terminology.log"
+  ],
+  "at": "2026-09-15T23:38:28.414Z",
+  "verdict": "PASS"
+}

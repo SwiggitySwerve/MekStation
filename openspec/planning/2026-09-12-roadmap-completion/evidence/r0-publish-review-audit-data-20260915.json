@@ -1,0 +1,92 @@
+{
+  "reviewer": "sonnet independent review",
+  "planId": "audit-data",
+  "pr": 1761,
+  "branch": "codex/roadmap-r0-publish-audit-data-20260915",
+  "head": "02200e71d334ac1e7fa6bba73ceea4cdaf35aaa9",
+  "verdict": "APPROVE",
+  "verifierExitCode": 0,
+  "verifierReport": {
+    "id": "audit-data",
+    "branch": "codex/roadmap-r0-publish-audit-data-20260915",
+    "checks": [
+      "1 linear commit(s) on top of plan base 1f67f814e3f04e8a38488de70ecd8396f9269ca6",
+      "file set matches plan (11 files)",
+      "manifest hashes match blobs for 10 files",
+      "no gitignored paths",
+      "commit message has no attribution text"
+    ],
+    "failures": [],
+    "head": "02200e71d334ac1e7fa6bba73ceea4cdaf35aaa9",
+    "base": "1f67f814e3f04e8a38488de70ecd8396f9269ca6",
+    "commitCount": 1,
+    "bytes": 71981,
+    "title": "docs(audit): publish customizer spec reconciliation data and review receipts",
+    "verdict": "PASS"
+  },
+  "independentChecks": {
+    "linearOnBase": true,
+    "fileSetMatches": true,
+    "alreadyOnMainIdentical": [],
+    "spotChecks": [
+      {
+        "path": "docs/audits/2026-09-12-customizer-spec-reconciliation/verification.json",
+        "blobSha256": "808f7b991b411bee014c0eafd925636b607042dd2d16ff35023b884ad9b7e4ed",
+        "manifestSha256": "808f7b991b411bee014c0eafd925636b607042dd2d16ff35023b884ad9b7e4ed",
+        "rootSha256": "808f7b991b411bee014c0eafd925636b607042dd2d16ff35023b884ad9b7e4ed",
+        "match": "exact"
+      },
+      {
+        "path": "docs/audits/2026-09-12-customizer-spec-reconciliation/proposed-archive.json",
+        "blobSha256": "c8ad2166459dc92d2d235fb4b40a6280180760dc8743aece751d715e075fac3e",
+        "manifestSha256": "c8ad2166459dc92d2d235fb4b40a6280180760dc8743aece751d715e075fac3e",
+        "rootSha256": "c8ad2166459dc92d2d235fb4b40a6280180760dc8743aece751d715e075fac3e",
+        "match": "exact"
+      },
+      {
+        "path": "docs/audits/2026-09-12-customizer-spec-reconciliation/archive-result.json",
+        "blobSha256": "c295e917f802cd0b587b6a566d070df70f7744e61f241defbdbd7ef15217fa93",
+        "manifestSha256": "c295e917f802cd0b587b6a566d070df70f7744e61f241defbdbd7ef15217fa93",
+        "rootSha256": "c295e917f802cd0b587b6a566d070df70f7744e61f241defbdbd7ef15217fa93",
+        "match": "exact"
+      },
+      {
+        "path": "docs/audits/2026-09-12-customizer-spec-reconciliation/evidence/ci-manifest.json",
+        "blobSha256": "a711b21e1b9d7942b6766db09f9664183823e864a5d937cf97302e6969898c73",
+        "manifestSha256": "a711b21e1b9d7942b6766db09f9664183823e864a5d937cf97302e6969898c73",
+        "rootSha256": "a711b21e1b9d7942b6766db09f9664183823e864a5d937cf97302e6969898c73",
+        "match": "exact"
+      },
+      {
+        "path": "docs/audits/2026-09-12-customizer-spec-reconciliation/followup-verification.json",
+        "blobSha256": "96c66d33fd3cbc488a47a9c6d8498680e5b2d9e6b07ad47d87716c0bcc7cf9c4",
+        "manifestSha256": "96c66d33fd3cbc488a47a9c6d8498680e5b2d9e6b07ad47d87716c0bcc7cf9c4",
+        "rootSha256": "96c66d33fd3cbc488a47a9c6d8498680e5b2d9e6b07ad47d87716c0bcc7cf9c4",
+        "match": "exact"
+      }
+    ],
+    "noIgnoredPaths": true,
+    "withinCaps": {
+      "files": 11,
+      "bytes": 71981,
+      "filesOk": true,
+      "bytesOk": true
+    },
+    "noAttribution": true,
+    "prBodyAccurate": true,
+    "titleMatchesPlan": true,
+    "localOnlyIgnoredLogsVerified": {
+      "count": 15,
+      "allGitignored": true,
+      "noneCommitted": true,
+      "spotCheckedHashes": [
+        "assets.log",
+        "lint.log",
+        "typecheck-final.log"
+      ]
+    }
+  },
+  "requiredEdits": [],
+  "notes": "audit-data manifest carries localOnlyIgnoredLogs with 15 entries for the gitignored .log files under docs/audits/2026-09-12-customizer-spec-reconciliation/evidence/; verified count=15, all git check-ignore true, none present in the branch diff, and 3 spot-checked sha256 values (assets.log, lint.log, typecheck-final.log) match the root working files exactly. Independent spot check picked 5 files at random; all matched blob==manifest==root sha256 exactly (no CRLF normalization needed for the sampled files).",
+  "at": "2026-09-15T23:34:32.997Z"
+}

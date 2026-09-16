@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "terminal-at-agent-reachable-tier-20260915",
+  "status": "terminal-at-agent-reachable-tier-published-20260915",
   "createdAt": "2026-09-12T11:01:49.995Z",
   "baseline": "be7f85b867aa3e8576e5e3d27e309276203bc24b",
   "sourceSnapshot": "evidence/admission-snapshot.json",
@@ -6151,7 +6151,7 @@
       "wave": 0,
       "title": "Publish validated roadmap and durable accounting through capped documentation PRs",
       "kind": "delivery",
-      "state": "implementing",
+      "state": "complete",
       "dependsOn": [
         "R0.plan"
       ],
@@ -6169,7 +6169,68 @@
       "maxFiles": 15,
       "maxNonGeneratedLines": 500,
       "taskKeys": [],
-      "receipt": null,
+      "receipt": {
+        "mainSha": "b668d659a49fcd1aba9f08b7fafdb6f2eefadf52",
+        "mergedPrs": [
+          {
+            "pr": 1758,
+            "planId": "receipts-20260912-01",
+            "mergeCommit": "bf98c6f2796f446a60090e6800ff628d42afff6b",
+            "proof": "evidence/r0-publish-receipts-20260912-01-1758-main-proof-20260915.json"
+          },
+          {
+            "pr": 1761,
+            "planId": "audit-data",
+            "mergeCommit": "cb4058c6f0dbc9d9ca80b64196ffc58f4019401d",
+            "proof": "evidence/r0-publish-audit-data-1761-main-proof-20260915.json"
+          },
+          {
+            "pr": 1776,
+            "planId": "combined",
+            "mergeCommit": "b668d659a49fcd1aba9f08b7fafdb6f2eefadf52",
+            "proof": "evidence/r0-publish-combined-1776-main-proof-20260915.json",
+            "supersedes": [
+              1759,
+              1760,
+              1762,
+              1763,
+              1764,
+              1765,
+              1766,
+              1767,
+              1768,
+              1769,
+              1770,
+              1771,
+              1772,
+              1773,
+              1774,
+              1775
+            ]
+          }
+        ],
+        "evidence": [
+          "evidence/r0-publication-manifest-20260915.json",
+          "evidence/r0-evidence-batch-plan-20260915.json",
+          "evidence/r0-publication-plan-20260915.json",
+          "evidence/r0-local-evidence-hashes-20260915.json",
+          "evidence/r0-publication-branches-20260915.json",
+          "evidence/r0-publication-branches-b-20260915.json",
+          "evidence/r0-publish-review-combined-20260915.json",
+          "evidence/r0-publish-combined-merge.json",
+          "evidence/r0-publish-combined-1776-main-proof-20260915.json",
+          "evidence/r0-publish-receipts-20260912-01-1758-main-proof-20260915.json",
+          "evidence/r0-publish-audit-data-1761-main-proof-20260915.json",
+          "evidence/r0-publish-merge-log-20260915.txt",
+          "evidence/r0-publication-cleanup-20260915.json",
+          "evidence/r0-publish-receipts-20260912-01-merge.json",
+          "evidence/r0-publish-receipts-20260912-01-premerge.json",
+          "evidence/r0-publish-audit-data-merge.json",
+          "evidence/r0-publish-audit-data-premerge.json"
+        ],
+        "cleanupReceipt": "evidence/r0-publication-cleanup-20260915.json",
+        "limits": "The accounting PR that carries this receipt is itself verified on main only by the parent after its merge; its own merge and proof receipts stay local (.sisyphus/roadmap-completion-20260912/) like every terminal accounting PR of this program. The worktree main-proof is removed after that proof and recorded locally."
+      },
       "decomposition": "Roadmap publication may proceed independently of routing after local plan validation; links and validator inputs must remain valid at each published prefix.",
       "publicationPlan": "PUBLICATION.md",
       "documentationLineAllowances": [
@@ -6216,8 +6277,7 @@
         "at": "2026-09-15T22:04:02.991Z",
         "by": "user",
         "text": "I approve the exact payload — publish the planning directory"
-      },
-      "stateQualifier": "publication-approved"
+      }
     },
     {
       "wave": 2,
@@ -14607,6 +14667,19 @@
       "node": "R2.authority-cutover",
       "question": "campaignLaunchHead.ts justifies the ungated mission launch with the claim that no campaign has a journal stream while the flag is off; CO3 measured a co-op-hosted campaign holds a stream at seq 0 with the flag off, and after a marker cutover GET /head still answers no-authoritative-stream because it resolves the event-history branch record rather than the journal. Decide the /head semantics and the launch gate before any flag flip. Not worked around.",
       "evidence": "evidence/r2-authority-cutover-co3-review-20260915.json"
+    },
+    {
+      "id": "OD-publication-single-pr",
+      "raisedAtUtc": "2026-09-16T00:30:08.287Z",
+      "raisedBy": "user chat directive 2026-09-15 (\"all the documentation PRs can go in one single PR please\"; then \"admin merge ... without waiting for checks\")",
+      "node": "R0.publish",
+      "question": "The sixteen R0.publish PRs still open after #1758 and #1761 merged (ten generated-receipt batches and the six authored documentation prefixes) were consolidated into one PR (#1776) built file-by-file from their reviewed heads, merged as b668d659a49fcd1aba9f08b7fafdb6f2eefadf52 once its checks passed (enforce_admins is enabled on main, so no protection was bypassed). The PUBLICATION.md 15-file and 500-line gates and the per-batch 100-file/2 MB rule were waived by the owner for that single PR; link-order safety holds because every target landed in the same PR and the roadmap validator passed on the merged commit with its full input set. The first attempt to record this decision (before #1776) wrote an object key onto this array and was dropped by JSON serialisation, so #1776 shipped PROGRESS.md and a PR body claiming the entry existed; the combined-PR review caught it and this entry is the correction.",
+      "evidence": [
+        "evidence/r0-publication-plan-20260915.json consolidation20260915",
+        "evidence/r0-publish-combined-merge.json",
+        "evidence/r0-publish-combined-1776-main-proof-20260915.json",
+        "evidence/r0-publish-review-combined-20260915.json"
+      ]
     }
   ],
   "infraNotes": {
@@ -15280,5 +15353,51 @@
         "stateQualifier": "except-owner-gate"
       }
     ]
+  },
+  "publication20260915": {
+    "approval": "user chat directive 2026-09-15: \"I approve the exact payload - publish the planning directory\"",
+    "consolidation": "OD-publication-single-pr",
+    "originMainAfterPublication": "b668d659a49fcd1aba9f08b7fafdb6f2eefadf52",
+    "prs": [
+      {
+        "pr": 1758,
+        "planId": "receipts-20260912-01",
+        "mergeCommit": "bf98c6f2796f446a60090e6800ff628d42afff6b",
+        "proof": "evidence/r0-publish-receipts-20260912-01-1758-main-proof-20260915.json"
+      },
+      {
+        "pr": 1761,
+        "planId": "audit-data",
+        "mergeCommit": "cb4058c6f0dbc9d9ca80b64196ffc58f4019401d",
+        "proof": "evidence/r0-publish-audit-data-1761-main-proof-20260915.json"
+      },
+      {
+        "pr": 1776,
+        "planId": "combined",
+        "mergeCommit": "b668d659a49fcd1aba9f08b7fafdb6f2eefadf52",
+        "proof": "evidence/r0-publish-combined-1776-main-proof-20260915.json",
+        "supersedes": [
+          1759,
+          1760,
+          1762,
+          1763,
+          1764,
+          1765,
+          1766,
+          1767,
+          1768,
+          1769,
+          1770,
+          1771,
+          1772,
+          1773,
+          1774,
+          1775
+        ]
+      }
+    ],
+    "reviews": "every superseded PR and the combined PR hold sonnet APPROVE receipts (evidence/r0-publish-review-*-20260915.json); the twelve Grok placeholders are retained as evidence/r0-publish-review-grok-attempt-*-20260915.json",
+    "proofs": "exact-main proofs on each merge commit: blob equality against the PR head, single-parent squash, ancestor of main, openspec strict/purpose/terminology/qc-openspec-ci clean, roadmap validator PASSED on the combined merge commit (full input set present)",
+    "localOnlyEvidence": "seven planning raw logs and fifteen audit raw logs remain gitignored local files identified by sha256 (evidence/r0-local-evidence-hashes-20260915.json and the audit manifest)"
   }
 }

@@ -1,0 +1,83 @@
+{
+  "reviewer": "sonnet independent review",
+  "planId": "receipts-20260915-05",
+  "pr": 1771,
+  "branch": "codex/roadmap-r0-publish-receipts-20260915-05-20260915",
+  "head": "3aa291075fcc386604b40c3f7dca8a948edd5f63",
+  "verdict": "APPROVE",
+  "verifierExitCode": 0,
+  "verifierReport": {
+    "id": "receipts-20260915-05",
+    "branch": "codex/roadmap-r0-publish-receipts-20260915-05-20260915",
+    "checks": [
+      "1 linear commit(s) on top of plan base 1f67f814e3f04e8a38488de70ecd8396f9269ca6",
+      "file set matches plan (38 files)",
+      "manifest hashes match blobs for 37 files",
+      "CRLF source normalized to LF by .gitattributes: openspec/planning/2026-09-12-roadmap-completion/evidence/r7-r8-vault-travel-admission-brief-20260915.json",
+      "no gitignored paths",
+      "commit message has no attribution text"
+    ],
+    "failures": [],
+    "head": "3aa291075fcc386604b40c3f7dca8a948edd5f63",
+    "base": "1f67f814e3f04e8a38488de70ecd8396f9269ca6",
+    "commitCount": 1,
+    "bytes": 624225,
+    "title": "docs(roadmap): publish generated receipts batch 20260915-05 (37 files)",
+    "verdict": "PASS"
+  },
+  "independentChecks": {
+    "linearOnBase": true,
+    "fileSetMatches": true,
+    "alreadyOnMainIdentical": [],
+    "spotChecks": [
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r9-roster-damage-s2-1735-final-20260915-premerge.json",
+        "blobSha256": "227afbbbb16efa82505ae80c21d4f751e4b930c5f46569ecf8bde4e9e228ce6f",
+        "manifestSha256": "227afbbbb16efa82505ae80c21d4f751e4b930c5f46569ecf8bde4e9e228ce6f",
+        "rootSha256": "227afbbbb16efa82505ae80c21d4f751e4b930c5f46569ecf8bde4e9e228ce6f",
+        "match": "exact"
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r9-roster-damage-s2-1735-final-20260915-merge-20260915.json",
+        "blobSha256": "510a9763ce4f8914529b826a9696eb2d6b889deba26c4822a066897c63fd8125",
+        "manifestSha256": "510a9763ce4f8914529b826a9696eb2d6b889deba26c4822a066897c63fd8125",
+        "rootSha256": "510a9763ce4f8914529b826a9696eb2d6b889deba26c4822a066897c63fd8125",
+        "match": "exact"
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r4-s7c-1751-final-20260915-merge-20260915.json",
+        "blobSha256": "ade8faefb30be95a79e6127df6b4d5dda28b7c9ca7d587d7b4bc5d5955f4494d",
+        "manifestSha256": "ade8faefb30be95a79e6127df6b4d5dda28b7c9ca7d587d7b4bc5d5955f4494d",
+        "rootSha256": "ade8faefb30be95a79e6127df6b4d5dda28b7c9ca7d587d7b4bc5d5955f4494d",
+        "match": "exact"
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/selected-paper-settle-1741-final-20260915-merge-20260915.json",
+        "blobSha256": "9fadaa3d51d3d08496528b071d1e27b7d6c855ea3c8ae39e6f63bc82404b364a",
+        "manifestSha256": "9fadaa3d51d3d08496528b071d1e27b7d6c855ea3c8ae39e6f63bc82404b364a",
+        "rootSha256": "9fadaa3d51d3d08496528b071d1e27b7d6c855ea3c8ae39e6f63bc82404b364a",
+        "match": "exact"
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r4-s7b-2-1745-final-20260915-merge-20260915.json",
+        "blobSha256": "1db388e54ca11ac45e2437b75260817e31d3fe238cab21505b0c30856af571f8",
+        "manifestSha256": "1db388e54ca11ac45e2437b75260817e31d3fe238cab21505b0c30856af571f8",
+        "rootSha256": "1db388e54ca11ac45e2437b75260817e31d3fe238cab21505b0c30856af571f8",
+        "match": "exact"
+      }
+    ],
+    "noIgnoredPaths": true,
+    "withinCaps": {
+      "files": 38,
+      "bytes": 624225,
+      "filesOk": true,
+      "bytesOk": true
+    },
+    "noAttribution": true,
+    "prBodyAccurate": true,
+    "titleMatchesPlan": true
+  },
+  "requiredEdits": [],
+  "notes": "Independent spot check picked 5 files at random; all matched blob==manifest==root sha256 exactly (no CRLF normalization needed for the sampled files).",
+  "at": "2026-09-15T23:34:32.997Z"
+}

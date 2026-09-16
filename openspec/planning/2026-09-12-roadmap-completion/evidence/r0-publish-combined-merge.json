@@ -1,0 +1,44 @@
+{
+  "pr": 1776,
+  "planId": "combined",
+  "title": "docs(roadmap): publish the roadmap completion planning directory and audit documentation",
+  "state": "MERGED",
+  "headAtMerge": "7b1ce31d7d3990741d4427d1fd488d667f75d1a3",
+  "mergeCommit": "b668d659a49fcd1aba9f08b7fafdb6f2eefadf52",
+  "mergedAt": "2026-09-16T00:19:55Z",
+  "mergedBy": "SwiggitySwerve",
+  "base": "main",
+  "method": "gh pr merge --squash --admin --match-head-commit 7b1ce31d7, executed directly by the parent per the user directive to merge without waiting; all 31 checks (including the four required contexts) had already passed on that head, and enforce_admins is enabled on main so no protection was bypassed",
+  "contentGuard": {
+    "tool": "verify-combined.js run by the parent before push (branch refs deleted after merge, so not re-runnable)",
+    "verdict": "PASS",
+    "changed": 761,
+    "commits": 1,
+    "perPr": {
+      "receipts-20260912-02": "50/50 identical",
+      "receipts-20260913-01": "98/98",
+      "receipts-20260913-02": "36/36",
+      "receipts-20260915-01": "100/100",
+      "receipts-20260915-02": "89/89",
+      "receipts-20260915-03": "100/100",
+      "receipts-20260915-04": "100/100",
+      "receipts-20260915-05": "38/38",
+      "receipts-undated-01": "100/100",
+      "receipts-undated-02": "30/30",
+      "audit-details": "4/4",
+      "audit-overview": "3/3",
+      "contracts": "6/6",
+      "progress": "0/1 (refreshed from root)",
+      "ledger": "3/4 (roadmap.json refreshed from root)",
+      "active-index": "2/2"
+    },
+    "overlayEqualsRoot": [
+      "roadmap.json",
+      "PROGRESS.md"
+    ],
+    "unexpectedPaths": 0
+  },
+  "exactMainProof": "evidence/r0-publish-combined-1776-main-proof-20260915.json",
+  "reviewGate": "the combined-PR sonnet review was still running at merge time (receipt retained when it lands); every superseded PR holds a sonnet APPROVE receipt for the identical reviewed blobs",
+  "at": "2026-09-16T00:27:36.692Z"
+}

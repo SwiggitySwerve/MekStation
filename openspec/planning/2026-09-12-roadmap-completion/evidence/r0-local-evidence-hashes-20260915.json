@@ -1,0 +1,138 @@
+{
+  "generatedAt": "2026-09-15T22:26:59.397Z",
+  "rule": "PUBLICATION.md step 6: ignored raw logs are local exported evidence identified by hash; they are not force-added and are not claimed to be in Git",
+  "files": [
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ci-contract-final.log",
+      "bytes": 193,
+      "sha256": "733ab69d272db2fd5d9a47b9a4fc4ff307b5ac517131ebd2a2f41b734f2e2c68",
+      "gitignored": true
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/hydration-safety-independent-xhigh-review-20260912.raw.log",
+      "bytes": 2463,
+      "sha256": "6ccef378be1404e20980f48308f59b192f8b72b4fef116ebab650824f9d9dfd5",
+      "gitignored": true
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/purpose-final.log",
+      "bytes": 239,
+      "sha256": "7c0ef64ff56416c105f73466d23eccbde4a97e9f1b2062a2a740d39278d03317",
+      "gitignored": true
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/strict-specs-final.log",
+      "bytes": 7004,
+      "sha256": "be66eb6da9cd9d419c13a3c67006345c0f10b26e30a942fbf2fc4591f6671612",
+      "gitignored": true
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/terminology-current.log",
+      "bytes": 58318,
+      "sha256": "9c7ddd6fedb4f53fe3272bc69073aa562cf9e06829d4a52204557c29132081bc",
+      "gitignored": true
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-bv-prewarmer-proof-jest.raw.log",
+      "bytes": 429,
+      "sha256": "03bb608bf8600fc419a9207007d28b645823a4756d0255b1d4152f85ad2c6f10",
+      "gitignored": true
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-bv-prewarmer-proof-validate-bv.raw.log",
+      "bytes": 689,
+      "sha256": "1dea0367ec1917688b1c3a21d83eee670e5897e5c1aa9f51554e599bf8f2c8b8",
+      "gitignored": true
+    },
+    {
+      "path": "docs/audits/2026-09-12-customizer-spec-reconciliation/evidence/assets.log",
+      "bytes": 427,
+      "sha256": "75c2c99edba75eccaac574639d0b076917280f01bd514c38d4de7d2d91af3890",
+      "gitignored": true
+    },
+    {
+      "path": "docs/audits/2026-09-12-customizer-spec-reconciliation/evidence/browser-production-ip.log",
+      "bytes": 2212,
+      "sha256": "6635377489fe9485da8a880fb038d68c39e635bede23563d6184b4a0450a54e9",
+      "gitignored": true
+    },
+    {
+      "path": "docs/audits/2026-09-12-customizer-spec-reconciliation/evidence/build-webpack.log",
+      "bytes": 2606190,
+      "sha256": "ed5579fb5be84c410b5896e5baab4728af0354971500e88e87d0b4681a105c96",
+      "gitignored": true
+    },
+    {
+      "path": "docs/audits/2026-09-12-customizer-spec-reconciliation/evidence/ci-contracts-complete.log",
+      "bytes": 2360,
+      "sha256": "fcbac14bf4b55ea6c41c6145b9216278ab79e8202f410d2a93a9a703974f6474",
+      "gitignored": true
+    },
+    {
+      "path": "docs/audits/2026-09-12-customizer-spec-reconciliation/evidence/combat-contracts.log",
+      "bytes": 2330,
+      "sha256": "415a4c67fe59bba9c8279fe75a4a404a75c736f478e413986ea1c512577119ac",
+      "gitignored": true
+    },
+    {
+      "path": "docs/audits/2026-09-12-customizer-spec-reconciliation/evidence/editor-baseline.log",
+      "bytes": 1097,
+      "sha256": "5c1611b42129e7cef0de81ec708ca9fc66aabdba8dc7e8e1bdf46322945f2a2e",
+      "gitignored": true
+    },
+    {
+      "path": "docs/audits/2026-09-12-customizer-spec-reconciliation/evidence/format-whole.log",
+      "bytes": 559,
+      "sha256": "65ca75d0c66fcfb642fe67b159ff96011fb72334ecd3cfb5fffb1fae47864c00",
+      "gitignored": true
+    },
+    {
+      "path": "docs/audits/2026-09-12-customizer-spec-reconciliation/evidence/lint-final.log",
+      "bytes": 39125,
+      "sha256": "e1a88e82e29eb694b9d615fd35fe5ed9b5227482dda6970832ac83b3f011d7af",
+      "gitignored": true
+    },
+    {
+      "path": "docs/audits/2026-09-12-customizer-spec-reconciliation/evidence/lint.log",
+      "bytes": 39125,
+      "sha256": "f003c16b9a9eb88894b1e634d66629adca8798b09fd336e84a1295b0625be275",
+      "gitignored": true
+    },
+    {
+      "path": "docs/audits/2026-09-12-customizer-spec-reconciliation/evidence/openspec-all.log",
+      "bytes": 7076,
+      "sha256": "37f27a1f9d26e652f5c0d4c4bae05ebef45eaf62f544a8082f802c0613452fd1",
+      "gitignored": true
+    },
+    {
+      "path": "docs/audits/2026-09-12-customizer-spec-reconciliation/evidence/printing-baseline.log",
+      "bytes": 3477,
+      "sha256": "c2b64d567f05c5973a88a56314a840941ca597be404f20c22d1005b8629a9f5f",
+      "gitignored": true
+    },
+    {
+      "path": "docs/audits/2026-09-12-customizer-spec-reconciliation/evidence/purpose-final.log",
+      "bytes": 137,
+      "sha256": "a3911de992bc85c66b8d98144e41d0b6996542141b72fe535eaacd88dfc48f84",
+      "gitignored": true
+    },
+    {
+      "path": "docs/audits/2026-09-12-customizer-spec-reconciliation/evidence/terminology-final.log",
+      "bytes": 1369,
+      "sha256": "0bf89ae248952447a825aedb56db3207ac2ecd9ba0204e0812f747ccb04fca37",
+      "gitignored": true
+    },
+    {
+      "path": "docs/audits/2026-09-12-customizer-spec-reconciliation/evidence/typecheck-final.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gitignored": true
+    },
+    {
+      "path": "docs/audits/2026-09-12-customizer-spec-reconciliation/evidence/typecheck.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gitignored": true
+    }
+  ]
+}

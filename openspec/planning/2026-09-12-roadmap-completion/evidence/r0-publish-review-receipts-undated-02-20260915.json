@@ -1,0 +1,86 @@
+{
+  "reviewer": "sonnet independent review",
+  "planId": "receipts-undated-02",
+  "pr": 1775,
+  "branch": "codex/roadmap-r0-publish-receipts-undated-02-20260915",
+  "head": "ab4abfb69601f2a49bd03700abecc5ea2cc69f4b",
+  "verdict": "APPROVE",
+  "verifierExitCode": 0,
+  "verifierReport": {
+    "id": "receipts-undated-02",
+    "branch": "codex/roadmap-r0-publish-receipts-undated-02-20260915",
+    "checks": [
+      "1 linear commit(s) on top of plan base 1f67f814e3f04e8a38488de70ecd8396f9269ca6",
+      "file set matches plan (30 files)",
+      "manifest hashes match blobs for 29 files",
+      "CRLF source normalized to LF by .gitattributes: openspec/planning/2026-09-12-roadmap-completion/evidence/triage-gameplay-references.json",
+      "CRLF source normalized to LF by .gitattributes: openspec/planning/2026-09-12-roadmap-completion/evidence/triage-personnel-disposition.json",
+      "CRLF source normalized to LF by .gitattributes: openspec/planning/2026-09-12-roadmap-completion/evidence/triage-preserved-campaign.json",
+      "CRLF source normalized to LF by .gitattributes: openspec/planning/2026-09-12-roadmap-completion/evidence/triage-validation-order-repair.json",
+      "no gitignored paths",
+      "commit message has no attribution text"
+    ],
+    "failures": [],
+    "head": "ab4abfb69601f2a49bd03700abecc5ea2cc69f4b",
+    "base": "1f67f814e3f04e8a38488de70ecd8396f9269ca6",
+    "commitCount": 1,
+    "bytes": 290375,
+    "title": "docs(roadmap): publish generated receipts batch undated-02 (29 files)",
+    "verdict": "PASS"
+  },
+  "independentChecks": {
+    "linearOnBase": true,
+    "fileSetMatches": true,
+    "alreadyOnMainIdentical": [],
+    "spotChecks": [
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/validation-handoff-fingerprint-check.json",
+        "blobSha256": "9fb975945a65397755dce50aeb36760ca921b4d5ca906a4dcb6578576473c52b",
+        "manifestSha256": "9fb975945a65397755dce50aeb36760ca921b4d5ca906a4dcb6578576473c52b",
+        "rootSha256": "9fb975945a65397755dce50aeb36760ca921b4d5ca906a4dcb6578576473c52b",
+        "match": "exact"
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/unit-comparison-1658-attempt-3-premerge.json",
+        "blobSha256": "1e3950e3b882ba5bfd4572ec328cb3ee310434c741f687b57cdacce9bae9b3c8",
+        "manifestSha256": "1e3950e3b882ba5bfd4572ec328cb3ee310434c741f687b57cdacce9bae9b3c8",
+        "rootSha256": "1e3950e3b882ba5bfd4572ec328cb3ee310434c741f687b57cdacce9bae9b3c8",
+        "match": "exact"
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-vault-parent-acceptance.json",
+        "blobSha256": "c053b07dd33d12d0ddb1ce1021efbb0b997a52cc6c4334350b3a51bab8e87c2a",
+        "manifestSha256": "c053b07dd33d12d0ddb1ce1021efbb0b997a52cc6c4334350b3a51bab8e87c2a",
+        "rootSha256": "c053b07dd33d12d0ddb1ce1021efbb0b997a52cc6c4334350b3a51bab8e87c2a",
+        "match": "exact"
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-vault-references.json",
+        "blobSha256": "ac761487b83c983ae4ee67026500c29cfdbd771a8cca4b1e61485e47bd349ac4",
+        "manifestSha256": "ac761487b83c983ae4ee67026500c29cfdbd771a8cca4b1e61485e47bd349ac4",
+        "rootSha256": "ac761487b83c983ae4ee67026500c29cfdbd771a8cca4b1e61485e47bd349ac4",
+        "match": "exact"
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/unit-comparison-1658-final-premerge.json",
+        "blobSha256": "1992b44898fca81efde27a81ebe886b52afddf4e6193622299555436223d4877",
+        "manifestSha256": "1992b44898fca81efde27a81ebe886b52afddf4e6193622299555436223d4877",
+        "rootSha256": "1992b44898fca81efde27a81ebe886b52afddf4e6193622299555436223d4877",
+        "match": "exact"
+      }
+    ],
+    "noIgnoredPaths": true,
+    "withinCaps": {
+      "files": 30,
+      "bytes": 290375,
+      "filesOk": true,
+      "bytesOk": true
+    },
+    "noAttribution": true,
+    "prBodyAccurate": true,
+    "titleMatchesPlan": true
+  },
+  "requiredEdits": [],
+  "notes": "Independent spot check picked 5 files at random; all matched blob==manifest==root sha256 exactly (no CRLF normalization needed for the sampled files).",
+  "at": "2026-09-15T23:34:32.997Z"
+}

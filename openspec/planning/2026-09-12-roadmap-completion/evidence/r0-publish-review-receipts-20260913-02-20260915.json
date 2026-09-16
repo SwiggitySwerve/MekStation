@@ -1,0 +1,49 @@
+{
+  "reviewer": "sonnet independent review",
+  "planId": "receipts-20260913-02",
+  "pr": 1762,
+  "branch": "codex/roadmap-r0-publish-receipts-20260913-02-20260915",
+  "head": "ce9500e730720e35491ccf304ce4a3676db61d1f",
+  "verdict": "APPROVE",
+  "verifierExitCode": 0,
+  "verifierReport": {
+    "id": "receipts-20260913-02",
+    "branch": "codex/roadmap-r0-publish-receipts-20260913-02-20260915",
+    "checks": [
+      "1 linear commit(s) on top of plan base 1f67f814e3f04e8a38488de70ecd8396f9269ca6",
+      "already on main with identical content: openspec/planning/2026-09-12-roadmap-completion/evidence/r6-deferral-source-parent-disposition-20260913.json",
+      "manifest hashes match blobs for 36 files",
+      "no gitignored paths",
+      "commit message has no attribution text"
+    ],
+    "failures": [],
+    "head": "ce9500e730720e35491ccf304ce4a3676db61d1f",
+    "base": "1f67f814e3f04e8a38488de70ecd8396f9269ca6",
+    "commitCount": 1,
+    "bytes": 242491,
+    "title": "docs(roadmap): publish generated receipts batch 20260913-02 (36 files)",
+    "verdict": "PASS"
+  },
+  "independentChecks": {
+    "linearOnBase": true,
+    "fileSetMatches": true,
+    "alreadyOnMainIdentical": [
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/r6-deferral-source-parent-disposition-20260913.json"
+    ],
+    "spotChecks": [
+      {"path": "openspec/planning/2026-09-12-roadmap-completion/evidence/record-sheet-root-reconciliation-20260913.json", "blobSha256": "23f7562d7572796c6a7117e1ac8dee160abef8a4ccca1baa0e6470241007158c", "manifestSha256": "23f7562d7572796c6a7117e1ac8dee160abef8a4ccca1baa0e6470241007158c", "rootSha256": "23f7562d7572796c6a7117e1ac8dee160abef8a4ccca1baa0e6470241007158c", "match": "exact"},
+      {"path": "openspec/planning/2026-09-12-roadmap-completion/evidence/server-persistence-cleanup-20260913.json", "blobSha256": "38908f93eadf7e94a0cbfcd44eb5ed8e3459fcdd99ab5c31e96f6f4bfd53638f", "manifestSha256": "38908f93eadf7e94a0cbfcd44eb5ed8e3459fcdd99ab5c31e96f6f4bfd53638f", "rootSha256": "38908f93eadf7e94a0cbfcd44eb5ed8e3459fcdd99ab5c31e96f6f4bfd53638f", "match": "exact"},
+      {"path": "openspec/planning/2026-09-12-roadmap-completion/evidence/source-reference-comments-main-parent-acceptance-20260913.json", "blobSha256": "4ec08d6a33a3e94b163e6f9b45466d0748612bc2d3247ff0f837fc802f2da733", "manifestSha256": "4ec08d6a33a3e94b163e6f9b45466d0748612bc2d3247ff0f837fc802f2da733", "rootSha256": "4ec08d6a33a3e94b163e6f9b45466d0748612bc2d3247ff0f837fc802f2da733", "match": "exact"},
+      {"path": "openspec/planning/2026-09-12-roadmap-completion/evidence/record-sheet-prefix2-main-parent-acceptance-20260913.json", "blobSha256": "65c7113d290e2ff26bb550876f3b15f517c22299f02ddbafc40fab17b12341df", "manifestSha256": "65c7113d290e2ff26bb550876f3b15f517c22299f02ddbafc40fab17b12341df", "rootSha256": "65c7113d290e2ff26bb550876f3b15f517c22299f02ddbafc40fab17b12341df", "match": "exact"},
+      {"path": "openspec/planning/2026-09-12-roadmap-completion/evidence/record-sheet-prefix1-parent-acceptance-20260913.json", "blobSha256": "54c3047ac4223c07dd162b57f06c99a188ff472b586a8a91ebef559163d1d8a2", "manifestSha256": "54c3047ac4223c07dd162b57f06c99a188ff472b586a8a91ebef559163d1d8a2", "rootSha256": "54c3047ac4223c07dd162b57f06c99a188ff472b586a8a91ebef559163d1d8a2", "match": "exact"}
+    ],
+    "noIgnoredPaths": true,
+    "withinCaps": {"files": 36, "bytes": 242491},
+    "noAttribution": true,
+    "prBodyAccurate": true,
+    "titleMatchesPlan": true
+  },
+  "requiredEdits": [],
+  "notes": "Single linear commit on plan base. 1 planned file (r6-deferral-source-parent-disposition) is already on main byte-identical, confirmed via tree-equality on base and head, so the diff has 36 paths (35 evidence files + manifest) for the 36-file plan list. 5 random spot-checked files matched manifest and blob hashes exactly. No gitignored paths, bytes (242,491) under the 2MB cap, no attribution text. PR #1762 title matches plan; body states 36 files changed vs main + the 1 already-on-main file by name and total bytes 242,491 -- consistent with independent counts.",
+  "at": "2026-09-15T22:55:00Z"
+}

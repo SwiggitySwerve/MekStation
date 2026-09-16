@@ -1,0 +1,20 @@
+{
+  "reviewer": "cursor-agent grok-4.6",
+  "planId": "receipts-20260912-02",
+  "branch": "codex/roadmap-r0-publish-receipts-20260912-02-20260915",
+  "head": "e7e3b8cf4d42f9ea794efc81364ae25ad53ca426",
+  "verdict": "REJECT",
+  "verifierExitCode": null,
+  "verifierReport": {
+    "error": "shell-blocked",
+    "message": "Every Shell invocation in this reviewer session was rejected before execution, including node verify-publication-pr.js and git rev-parse. Verifier JSON was not produced."
+  },
+  "independentChecks": {
+    "fileSetMatches": false,
+    "spotChecks": [],
+    "singleParentOnBase": true,
+    "noAttribution": false
+  },
+  "notes": "REJECT because the session shell was blocked, so the verifier and git diff/show/sha256/%B checks never ran. Filesystem refs and reflog show head e7e3b8cf4d42f9ea794efc81364ae25ad53ca426 created as one commit from 1f67f814e3f04e8a38488de70ecd8396f9269ca6 with subject matching the plan title and no attribution in that subject, but blob hashes and the full commit body were not independently verified.",
+  "at": "2026-09-15T23:42:00.000Z"
+}
