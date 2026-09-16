@@ -1,5 +1,7 @@
 ## Why
 
+Current status (2026-09-12): the supported server-saved biped implementation shipped in PR 1635 and is synchronized to `openspec/specs/custom-unit-combat/spec.md` and the current mission contracts. The original motivation below is historical. This package remains active because its broader acceptance tasks are still unchecked; focused local proof does not close them.
+
 Saved custom BattleMechs remain blocked at campaign launch even though the customizer persists their construction. The user requested recovery of the deferred non-3D work after the clean-main reset. The saved implementation spans catalog admission, engine setup, recovery, replay validation, and fog projection; restoring only the adapter would leave an incomplete authority boundary.
 
 ## What Changes
