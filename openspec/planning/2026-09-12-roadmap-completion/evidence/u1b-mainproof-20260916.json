@@ -1,0 +1,34 @@
+{
+  "unit": "U1b",
+  "stage": "mainProof",
+  "at": "2026-09-16T19:41:51.448Z",
+  "mergeCommit": "ffc427a0850db3a7149a6720cc3d71ab99a0f6b1",
+  "checkout": "root checkout fast-forwarded to the merge commit (real node_modules; hydrate step runs)",
+  "runtime": {
+    "build": "  \"hydratedStandaloneServer\": \".next\\\\standalone\\\\server.js\",",
+    "e2eBundleMarker": "__E2E_MODE__ present in _app chunk (run log)",
+    "playwright": "evidence-smoke:   1 passed (12.1s)",
+    "tsc": "(clean)"
+  },
+  "commands": {
+    "validator": "ROADMAP VALIDATION PASSED: 73 nodes, 13 packages, 376 tasks, 40 triage rows",
+    "gitAncestry": "ROADMAP VALIDATION PASSED: 73 nodes, 13 packages, 376 tasks, 40 triage rows (--git)",
+    "next": "NONE-ADMISSIBLE: 0 owner-gated, 4 blocked",
+    "openspecStrict": "Totals: 229 passed, 0 failed (229 items)",
+    "qcOpenspecCi": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+    "qcPin": "Tests:       22 passed, 22 total"
+  },
+  "logs": ".sisyphus/roadmap-completion-20260912/u1b-main-proof-20260916/ (local; sha256 below)",
+  "logHashes": [
+    "d80d4cb669a84b22474f9d105e4d205fe1e8945693515518cc5df3fd2e8d8271 *build.log",
+    "b185e5f101786a05e7aa9bd0cde15778607fa047fbdbec8a15158c89753c23fc *git-check.log",
+    "5fa21e59215590073596fdcca1e817ef1921d0172e3b3ffcf122bdd025c5ee87 *next.log",
+    "fed248fc815eeb6f7bcba19c13e61a741afc1b5b5b5033b1c2d22a2195eccb0e *openspec-strict.log",
+    "9aea47b40ce6f82535911c3341fbeaf2c737833c2014ba401f8d8b25a38282c7 *playwright.log",
+    "4c2dafd093b946290aa4abe001ad8b3d65671b17c7682722c55a510ecc04f91e *qc-openspec-ci.log",
+    "797a5673795da5c3d95b6ce9e7769203ac4eea716290b8dca00a677fbb68ac3c *qc-pin.log",
+    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 *tsc.log",
+    "b185e5f101786a05e7aa9bd0cde15778607fa047fbdbec8a15158c89753c23fc *validator.log"
+  ],
+  "verdict": "PASS"
+}
