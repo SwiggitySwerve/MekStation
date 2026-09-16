@@ -1054,7 +1054,7 @@
       ],
       "ownershipPaths": [
         "src/components/customizer",
-        "openspec/changes/repair-record-sheet-rendering"
+        "openspec/changes/archive/2026-09-16-repair-record-sheet-rendering"
       ],
       "acceptance": [
         "npm.cmd run typecheck",
@@ -1106,6 +1106,13 @@
         "head": "0ffe4971ee29f6ad8fc2fa1ca30817b2d890c167",
         "base": "main",
         "mergeSha": "b2755ee72f64618fefd4d0a7c83297fef409193e"
+      },
+      "archive20260916": {
+        "originalPath": "openspec/changes/repair-record-sheet-rendering",
+        "archivePath": "openspec/changes/archive/2026-09-16-repair-record-sheet-rendering",
+        "taskSha256AtAdmission": "87fbc9e49f9e1f2c6ae9f40999dde4d4ae484d5314546ededd7dbb34c6cb2604",
+        "archivedAt": "2026-09-16T07:54:06.643Z",
+        "pr": "this PR"
       }
     },
     {
@@ -1127,7 +1134,7 @@
         "e2e/helpers/recordSheetPrintHarness.ts",
         "scripts/qc",
         "scripts/__tests__",
-        "openspec/changes/add-customizer-pr-regression-gate"
+        "openspec/changes/archive/2026-09-16-add-customizer-pr-regression-gate"
       ],
       "acceptance": [
         "npm.cmd run typecheck",
@@ -1335,6 +1342,13 @@
           "premerge": "evidence/ci-package-reconcile-1692-final-20260915-premerge.json",
           "mainProof": "evidence/ci-package-reconcile-1692-main-proof-20260915.json"
         }
+      },
+      "archive20260916": {
+        "originalPath": "openspec/changes/add-customizer-pr-regression-gate",
+        "archivePath": "openspec/changes/archive/2026-09-16-add-customizer-pr-regression-gate",
+        "taskSha256AtAdmission": "d49274d0282e40a51dc89c22870ca745917f2548bfa037dca7426f1c2ede6288",
+        "archivedAt": "2026-09-16T07:54:06.643Z",
+        "pr": "this PR"
       }
     },
     {
@@ -1446,7 +1460,7 @@
       "ownershipPaths": [
         "scripts/qc",
         "scripts/__tests__",
-        "openspec/changes/add-camp01-authority-receipts"
+        "openspec/changes/archive/2026-09-16-add-camp01-authority-receipts"
       ],
       "acceptance": [
         "npm.cmd run qc:camp01-authority-receipt:test",
@@ -1667,7 +1681,14 @@
           "branchLeft": "codex/roadmap-camp-proof-exact-main-a11ef14f-20260915 in the proof02-rerun worktree (zero commits; remove at cleanup)"
         }
       },
-      "stateQualifier": "except-owner-gate"
+      "stateQualifier": "except-owner-gate",
+      "archive20260916": {
+        "originalPath": "openspec/changes/add-camp01-authority-receipts",
+        "archivePath": "openspec/changes/archive/2026-09-16-add-camp01-authority-receipts",
+        "taskSha256AtAdmission": "8ac4a2d30d939eda3cf78a711c3fce2334416e23a3c055e060ad96cf1a69702c",
+        "archivedAt": "2026-09-16T07:54:06.643Z",
+        "pr": "this PR"
+      }
     },
     {
       "id": "R2.triage",
