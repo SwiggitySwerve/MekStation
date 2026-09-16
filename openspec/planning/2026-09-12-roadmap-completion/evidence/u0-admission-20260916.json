@@ -1,0 +1,39 @@
+{
+  "unit": "U0",
+  "stage": "admission",
+  "at": "2026-09-16T15:57:14.720Z",
+  "node": "R0.plan",
+  "nodeState": "local-verified",
+  "nodeDependsOn": [],
+  "dependenciesReady": true,
+  "activePackage": null,
+  "note": "docs-class dry run; holds no task rows",
+  "baseline": "fc12d9d20c9e114a7010e723279ce5714c8a34af",
+  "originMain": "fc12d9d20c9e114a7010e723279ce5714c8a34af",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u0",
+  "branch": "codex/roadmap-u0-loop-dry-run-20260916",
+  "ownedPaths": [
+    "openspec/planning/2026-09-12-roadmap-completion"
+  ],
+  "behavior": "Prove the seven-stage loop end to end on this very PR's follow-up: the unit closes when a validator run on the merge commit passes with --next printing U1.",
+  "caps": {
+    "maxFiles": 6,
+    "maxNonGeneratedLines": 200
+  },
+  "ciClass": "docs",
+  "reviewClasses": [
+    "routine"
+  ],
+  "selectedBy": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "output": "U0",
+    "exit": 0
+  },
+  "acceptanceCommands": [
+    "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs  (must print ROADMAP VALIDATION PASSED with unchanged counts before and after every ledger change)",
+    "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next  (must print U1 on the merge commit of the unit's closing PR)",
+    "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --git  (merge commit must be an ancestor of origin/main)",
+    "npx openspec validate --all --strict; npm run spec:purpose:validate:strict; npm run terminology:validate:strict; npm run qc:openspec-ci:validate"
+  ],
+  "plan": "PR-1 carries the admission, red and local receipts and moves U0 to local-verified; Lane A reviews PR-1 at its head; PR-1 merges with a head guard; PR-2 (the closing follow-up) records review, merge, mainProof and tick receipts and moves U0 to complete; --next on PR-2 merge commit must print U1."
+}

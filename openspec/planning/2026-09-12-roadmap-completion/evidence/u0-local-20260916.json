@@ -1,0 +1,48 @@
+{
+  "unit": "U0",
+  "stage": "local",
+  "at": "2026-09-16T15:57:35.648Z",
+  "changedFiles": [
+    "units.json",
+    "evidence/u0-admission-20260916.json",
+    "evidence/u0-red-20260916.json",
+    "evidence/u0-local-20260916.json"
+  ],
+  "caps": {
+    "maxFiles": 6,
+    "maxNonGeneratedLines": 200
+  },
+  "gates": [
+    {
+      "cmd": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "exit": 0,
+      "lastLine": "ROADMAP VALIDATION PASSED: 73 nodes, 13 packages, 376 tasks, 40 triage rows"
+    },
+    {
+      "cmd": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+      "exit": 0,
+      "lastLine": "U1"
+    },
+    {
+      "cmd": "npx openspec validate --all --strict",
+      "exit": 0,
+      "lastLine": "Totals: 229 passed, 0 failed (229 items)"
+    },
+    {
+      "cmd": "npm run spec:purpose:validate:strict",
+      "exit": 0,
+      "lastLine": "Errors: 0"
+    },
+    {
+      "cmd": "npm run terminology:validate:strict",
+      "exit": 0,
+      "lastLine": "\u001b[32m✓ No terminology violations found!"
+    },
+    {
+      "cmd": "npm run qc:openspec-ci:validate",
+      "exit": 0,
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0"
+    }
+  ],
+  "allGatesExit0": true
+}

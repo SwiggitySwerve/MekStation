@@ -19,14 +19,27 @@
         "maxFiles": 6,
         "maxNonGeneratedLines": 200
       },
-      "state": "planned",
-      "baseline": null,
+      "state": "local-verified",
+      "baseline": "fc12d9d20c9e114a7010e723279ce5714c8a34af",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/u0-admission-20260916.json",
+          "baseline": "fc12d9d20c9e114a7010e723279ce5714c8a34af",
+          "at": "2026-09-16T15:57:14.720Z"
+        },
+        "red": {
+          "path": "evidence/u0-red-20260916.json",
+          "at": "2026-09-16T15:57:15.089Z",
+          "probes": 4,
+          "allFailedAsRequired": true
+        },
+        "local": {
+          "path": "evidence/u0-local-20260916.json",
+          "at": "2026-09-16T15:57:35.648Z",
+          "allGatesExit0": true
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
