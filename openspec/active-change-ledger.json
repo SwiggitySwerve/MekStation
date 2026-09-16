@@ -25,12 +25,6 @@
       "lastReviewed": "2026-09-15"
     },
     {
-      "name": "add-camp01-authority-receipts",
-      "status": "in-progress",
-      "reason": "CAMP-PROOF child: immutable exact-SHA authority receipts, canonical provenance, durable evidence export, reviewed PROOF-02 triage, and cleanup-gated sequencing. CAMP-01H / PR 1245 landed on main at 2a8a46183. Remains active until the later parent 9.1 exact-main receipt gate. Not archived.",
-      "lastReviewed": "2026-08-14"
-    },
-    {
       "name": "prove-saved-custom-unit-campaign-journey",
       "status": "in-progress",
       "reason": "CAMP-01H child: three independent authority witnesses for custom save/reload, campaign readiness, and canonical combat/post-battle persistence with ranked experience reconciliation. CAMP-01H / PR 1245 landed on main at 2a8a46183. Remains active until the later parent 9.1 exact-main receipt gate. Not archived.",
@@ -58,18 +52,6 @@
       "name": "enable-saved-custom-unit-combat",
       "status": "in-progress",
       "reason": "User-requested recovery of deferred non-3D saved-custom-unit combat work: exact authoritative admission, immutable construction snapshots, replay/recovery and fog proof, and campaign picker/readiness integration. Excludes model and tactical presentation work. Reviewed 2026-09-15 against exact main 4d7d17c3d (the merge commit of PR #1713) using the consolidated S6 receipt openspec/planning/2026-09-12-roadmap-completion/evidence/r2-combat-s6-consolidated-20260915.json: all five of the roadmap node R2.combat acceptance lines are satisfied with recorded exit codes and log hashes (13 suites / 69 tests, typecheck / lint / format:check / build / openspec strict all exit 0, e2e saved-custom-combat 1 passed first attempt against the hydrated standalone production server). Three of the six task rows are now checked - the strict projection / catalog endpoint / picker merge row, the shared catalog admission row (S5 PRs #1712 and #1713, 11 mutations with no survivors), and the verification row. Reviewed again 2026-09-15 (batch 3): the redaction row (\"recovery streams\") is now closed too - PR #1726 8c8f8221c4 mutation-proves recovered-host delivery redaction through a real DurableMatchStore cold reopen, so four of six rows are now checked. Two rows remain held open with the residual named on the row: co-op happy-path snapshot carriage is structural via EncounterService rather than asserted; and the \"rewind\" clause, recorded as owner decision OD-rewind-branch-reader, is structurally unreachable for any match stream on the current head (the journal mirror appends onto the baseline branch id while the match-store segment reader serves only root) and belongs to adopt-combat-journal-cutover-and-gm-rewind. Two declared boundaries carried on the verification row: the production combat launch belongs to R2.combat-browser (now separately proven by PR #1731 392c207de7, a saved custom unit launching into production combat with no canonical substitution - not claimed as closing this row's own text), and every build proven on main for either row still carries the E2E public flags, so a flag-free vanilla production build has still never been run separately.",
-      "lastReviewed": "2026-09-15"
-    },
-    {
-      "name": "repair-record-sheet-rendering",
-      "status": "in-progress",
-      "reason": "User-requested record-sheet preview/PDF/print repair: shared SVG construction, bounded 4x PNG instead of 20x JPEG, correct Letter/A4 geometry and aspect, durable 20-300% manual zoom, Fit Width tracking until manual, last requested unit/paper render, URL cleanup, print popup reserved before the first await, recoverable async busy/errors, and readable critical tables within template bounds. Canonical specs are not edited in this change.",
-      "lastReviewed": "2026-09-10"
-    },
-    {
-      "name": "add-customizer-pr-regression-gate",
-      "status": "in-progress",
-      "reason": "User-requested customizer verification follow-up: dedicated asset-backed PR browser regressions, zero retries, required aggregator membership, scoped workflow mutation checks, and print/PDF failure-recovery coverage. Local verification and remote CI activation remain distinct. Reviewed 2026-09-15 against exact main e7cbe9e00: all 20 tasks are checked and proven, remote CI activation included - the customizer-regressions job exists on main and is the 17th of the 19 members of the Lint and Test aggregator, and it ran SUCCESS on live PRs #1690 and #1692. Closure verdict CLOSABLE-NOW; status stays in-progress only because the change directory is not archived yet.",
       "lastReviewed": "2026-09-15"
     }
   ]
