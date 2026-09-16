@@ -7,7 +7,7 @@
  *   Spec § Requirement: Validation Error Markers
  *     – Scenario: Error marker on validation failure
  *
- * @spec openspec/changes/add-per-type-customizer-tabs/specs/multi-unit-tabs/spec.md
+ * @spec openspec/specs/multi-unit-tabs/spec.md
  */
 
 import { render, screen } from '@testing-library/react';

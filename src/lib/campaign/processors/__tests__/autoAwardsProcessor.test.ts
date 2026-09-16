@@ -2,7 +2,7 @@
  * autoAwardsProcessor — vault-persistence regression suite.
  *
  * The previous test file was deleted in PR4 of `wire-iperson-hard-cutover`
- * because it was tied to the old `personnel: Map<string, IPerson>` shape.
+ * because it was tied to the old monolithic personnel-map shape.
  * This rewrite targets the post-PR5 architecture (roster store +
  * vault `IPilot.awards`) and locks in the bug fix made in
  * `chore/wire-auto-awards-persistence`: grants must reach the vault.

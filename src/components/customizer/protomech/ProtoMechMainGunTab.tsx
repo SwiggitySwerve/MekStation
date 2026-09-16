@@ -5,7 +5,7 @@
  *   - Main gun weapon selector — the unique ProtoMech-only main gun concept
  *   - Available main guns filtered by ProtoMech tonnage
  *
- * @spec openspec/changes/add-per-type-customizer-tabs/tasks.md §7.4
+ * @spec openspec/specs/multi-unit-tabs/spec.md
  * @wiredBy add-protomech-construction
  */
 

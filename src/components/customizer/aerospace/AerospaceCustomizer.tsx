@@ -5,7 +5,7 @@
  * Tab set is data-driven from AEROSPACE_TABS registry. The Bombs tab is
  * automatically hidden for conventional fighters via a visibleWhen predicate.
  *
- * @spec openspec/changes/add-per-type-customizer-tabs/specs/multi-unit-tabs/spec.md
+ * @spec openspec/specs/multi-unit-tabs/spec.md
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 4
  */
 

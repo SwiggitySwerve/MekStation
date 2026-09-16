@@ -5,7 +5,7 @@
  *   - Primary weapon selection from the infantry-weapons catalog
  *   - One primary weapon per platoon
  *
- * @spec openspec/changes/add-per-type-customizer-tabs/tasks.md §6.3
+ * @spec openspec/specs/multi-unit-tabs/spec.md
  * @wiredBy add-infantry-construction
  */
 

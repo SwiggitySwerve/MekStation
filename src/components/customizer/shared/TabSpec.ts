@@ -8,7 +8,7 @@
  * This is the authoritative contract that each per-type tab registry must
  * satisfy. Construction proposals reference this type when wiring real UI.
  *
- * @spec openspec/changes/add-per-type-customizer-tabs/specs/multi-unit-tabs/spec.md
+ * @spec openspec/specs/multi-unit-tabs/spec.md
  */
 
 import React from 'react';

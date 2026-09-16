@@ -6,7 +6,7 @@
  * automatically hidden for Jump and Mechanized platoons via a visibleWhen
  * predicate that reads infantryMotive from the store.
  *
- * @spec openspec/changes/add-per-type-customizer-tabs/specs/multi-unit-tabs/spec.md
+ * @spec openspec/specs/multi-unit-tabs/spec.md
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 5.2
  */
 

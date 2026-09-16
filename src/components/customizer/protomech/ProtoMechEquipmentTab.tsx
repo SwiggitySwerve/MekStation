@@ -5,7 +5,7 @@
  *   - Weapon and equipment mounts in arms and torso locations
  *   - ProtoMech-specific equipment catalog filtering
  *
- * @spec openspec/changes/add-per-type-customizer-tabs/tasks.md §7.5
+ * @spec openspec/specs/multi-unit-tabs/spec.md
  * @wiredBy add-protomech-construction
  */
 

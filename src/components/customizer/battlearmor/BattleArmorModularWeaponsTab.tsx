@@ -5,7 +5,7 @@
  *   - Modular mount per suit with weapon-selector dropdown
  *   - Weight / crits tracking per mount
  *
- * @spec openspec/changes/add-per-type-customizer-tabs/tasks.md §5.5
+ * @spec openspec/specs/multi-unit-tabs/spec.md
  * @wiredBy add-battlearmor-construction
  */
 

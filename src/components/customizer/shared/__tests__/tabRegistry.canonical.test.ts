@@ -15,7 +15,7 @@
  *     – Scenario: Infantry unit shows infantry tab set
  *     – Scenario: ProtoMech unit shows ProtoMech tab set
  *
- * @spec openspec/changes/add-per-type-customizer-tabs/specs/multi-unit-tabs/spec.md
+ * @spec openspec/specs/multi-unit-tabs/spec.md
  */
 
 // PreviewTab transitively imports jspdf (ESM-only module). Stub it so the

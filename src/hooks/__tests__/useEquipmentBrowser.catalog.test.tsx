@@ -10,7 +10,7 @@ import { EquipmentCategory, type IEquipmentItem } from '@/types/equipment';
 
 import { useEquipmentBrowser } from '../useEquipmentBrowser';
 
-/** @spec openspec/changes/repair-equipment-catalog/specs/equipment-browser/spec.md */
+/** @spec openspec/specs/equipment-browser/spec.md */
 const weapon: IEquipmentItem = {
   id: 'ac-10',
   name: 'AC/10',

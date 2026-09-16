@@ -5,7 +5,7 @@
  *   - 5-location armor allocation (Head / Torso / L-Arm / R-Arm / Legs)
  *   - Per-location max based on ProtoMech tonnage
  *
- * @spec openspec/changes/add-per-type-customizer-tabs/tasks.md §7.3
+ * @spec openspec/specs/multi-unit-tabs/spec.md
  * @wiredBy add-protomech-construction
  */
 

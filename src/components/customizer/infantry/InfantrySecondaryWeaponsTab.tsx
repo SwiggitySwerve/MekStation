@@ -5,7 +5,7 @@
  *   - Anti-personnel secondary weapons
  *   - Ratio per 4 troopers rule enforcement
  *
- * @spec openspec/changes/add-per-type-customizer-tabs/tasks.md §6.4
+ * @spec openspec/specs/multi-unit-tabs/spec.md
  * @wiredBy add-infantry-construction
  */
 

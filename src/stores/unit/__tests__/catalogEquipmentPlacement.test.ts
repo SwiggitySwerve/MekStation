@@ -11,7 +11,7 @@ import { previewCatalogEquipmentPlacement } from '../catalogEquipmentPlacement';
 import { getUnitEditHistory } from '../unitEditHistory';
 import { createNewUnitStore, createUnitStore } from '../useUnitStore';
 
-/** @spec openspec/changes/repair-equipment-catalog/specs/equipment-browser/spec.md */
+/** @spec openspec/specs/equipment-browser/spec.md */
 const laser: IEquipmentItem = {
   id: 'medium-laser',
   name: 'Medium Laser',

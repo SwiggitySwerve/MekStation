@@ -12,7 +12,7 @@
  * internally call `vault.find(...)` — helpers receive pre-resolved pilots.
  *
  * @spec openspec/specs/campaign-personnel-architecture/spec.md — Pre-join template requirement
- * @spec openspec/changes/wire-iperson-hard-cutover/design.md — Pre-join template decision
+ * @spec openspec/changes/archive/2026-05-03-wire-iperson-hard-cutover/design.md — Pre-join template decision
  */
 
 import type { IPilot } from '@/types/pilot/PilotInterfaces';

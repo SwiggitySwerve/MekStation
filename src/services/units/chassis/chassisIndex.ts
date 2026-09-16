@@ -58,7 +58,7 @@ function chassisId(name: string): ChassisId {
   return `battlemech:${slug}`;
 }
 
-/** @spec openspec/changes/establish-battlemech-chassis-index/specs/battlemech-chassis-index/spec.md */
+/** @spec openspec/specs/battlemech-chassis-index/spec.md */
 export function buildChassisIndex(source: unknown): IChassisIndex {
   const catalog = catalogSchema.parse(source);
   if (catalog.totalUnits !== catalog.units.length) {

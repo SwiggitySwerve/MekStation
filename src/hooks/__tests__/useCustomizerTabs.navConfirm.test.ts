@@ -6,7 +6,7 @@
  *     – Scenario: Dirty marker appears on edit
  *     – Scenario: Navigation warning: leaving a dirty tab prompts confirm
  *
- * @spec openspec/changes/add-per-type-customizer-tabs/specs/multi-unit-tabs/spec.md
+ * @spec openspec/specs/multi-unit-tabs/spec.md
  */
 
 import { act, renderHook } from '@testing-library/react';

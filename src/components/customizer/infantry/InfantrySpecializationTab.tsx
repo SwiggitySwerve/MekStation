@@ -4,7 +4,7 @@
  * Will be wired by `add-infantry-construction` to expose specialization
  * selection: Anti-Mech / Marine / SCUBA / Mountain / XCT / Paratroop / Tunnel
  *
- * @spec openspec/changes/add-per-type-customizer-tabs/tasks.md §6.6
+ * @spec openspec/specs/multi-unit-tabs/spec.md
  * @wiredBy add-infantry-construction
  */
 

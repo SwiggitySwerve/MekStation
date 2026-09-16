@@ -5,7 +5,7 @@
  * Tab set is data-driven from BATTLE_ARMOR_TABS registry — construction
  * proposals wire real content by updating the registry, not this file.
  *
- * @spec openspec/changes/add-per-type-customizer-tabs/specs/multi-unit-tabs/spec.md
+ * @spec openspec/specs/multi-unit-tabs/spec.md
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 5.1
  */
 
