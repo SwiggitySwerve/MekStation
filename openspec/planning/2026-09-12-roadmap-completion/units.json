@@ -173,20 +173,44 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
+      "state": "local-verified",
+      "baseline": "291eb81e05709b34c5087a7fe3ef4cfd111eedc6",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/u1b-admission-20260916.json",
+          "baseline": "291eb81e05709b34c5087a7fe3ef4cfd111eedc6",
+          "at": "2026-09-16T18:56:09.874Z",
+          "decision": "go"
+        },
+        "red": {
+          "path": "evidence/u1b-red-20260916.json",
+          "at": "2026-09-16T19:23:12.529Z",
+          "summary": "live finalize with the escape hatch removed named exactly the 24 missing cells (EVIDENCE_INCOMPLETE); evidence-smoke group was NOT_IMPLEMENTED"
+        },
+        "local": {
+          "path": "evidence/u1b-local-20260916.json",
+          "at": "2026-09-16T19:23:12.530Z",
+          "summary": "evidence-smoke row 1 passed through the ladder runner on the E2E standalone build; 27/27 cells captured; four mutants killed; tsc, oxlint baseline-equal, oxfmt clean, qc pin 10/10, evidence-fixture jest 12/12 unchanged, openspec strict, qc:openspec-ci 0, roadmap validator PASSED; smoke and cleanup-ownership groups still green"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
         "tick": null
       },
-      "ownerGate": null
+      "ownerGate": null,
+      "nonClaims20260916": [
+        "pre-serialization projection (captured post-wire only)"
+      ],
+      "authoredLines20260916": {
+        "product": 455,
+        "cap": 500,
+        "files": 6
+      },
+      "residuals20260916": [
+        "the shared secret scan in gmTwoPlayerEvidence.ts does not match JSON-escaped credentials inside nested frames; the row asserts the literal wire token is absent from its artifact instead; widening the scan is a src-adjacent fixture change for a later unit"
+      ]
     },
     {
       "id": "U1c",

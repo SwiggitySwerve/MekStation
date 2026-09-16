@@ -1,0 +1,72 @@
+{
+  "unit": "U1b",
+  "stage": "red",
+  "at": "2026-09-16T00:00:00.000Z",
+  "baseline": "291eb81e05709b34c5087a7fe3ef4cfd111eedc6",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u1b",
+  "branch": "codex/roadmap-u1b-e2e-78-bundle-20260916",
+  "principle": "The failure is reproduced at the real boundary - a live finalize inside the strict three-context sandbox - on SHIPPED code, before any implementation line is written. No assertion was weakened and no test was skipped.",
+
+  "R1": {
+    "name": "live strict finalize on shipped code fails naming 24 missing cells",
+    "probe": {
+      "file": "e2e/gm-two-player-fixture.smoke.spec.ts",
+      "edit": "removed the `, { allowIncompleteEvidence: true }` second argument from the finalize call at line 110-116, leaving finalize({ node, runId })",
+      "linesChanged": "1 call site, no assertion touched",
+      "disposition": "REVERTED with `git checkout -- e2e/gm-two-player-fixture.smoke.spec.ts` immediately after the output below was captured; `git status --porcelain` afterwards shows only the ledger files. The probe is evidence, not a shipped edit."
+    },
+    "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=fixture-smoke --run-id=u1b-red-fixture-smoke",
+    "exitCode": 1,
+    "result": "RED as predicted",
+    "playwrightSummary": "x  1 [chromium] > e2e\\gm-two-player-fixture.smoke.spec.ts:14:5 > creates three isolated future-role contexts @fixture-smoke (1.1s)\nok 2 [chromium] > e2e\\gm-two-player-fixture.smoke.spec.ts:120:5 > E2E-78 incomplete evidence bundle fails closed and a complete one finalizes @E2E-78 (28ms)\n\n1 failed\n1 passed (6.7s)",
+    "evidenceIncompleteTextVerbatim": "EvidenceBundleError: EVIDENCE_INCOMPLETE missing cells: trace/future-gm, trace/future-player-1, trace/future-player-2, screenshot/future-gm, screenshot/future-player-1, screenshot/future-player-2, socket-transcript/future-gm, socket-transcript/future-player-1, socket-transcript/future-player-2, projection/future-gm, projection/future-player-1, projection/future-player-2, latency/future-gm, latency/future-player-1, latency/future-player-2, durable-rows/future-gm, durable-rows/future-player-1, durable-rows/future-player-2, hashes/future-gm, hashes/future-player-1, hashes/future-player-2, cleanup-log/future-gm, cleanup-log/future-player-1, cleanup-log/future-player-2",
+    "throwSite": "at Object.finalize (e2e/fixtures/gmTwoPlayerEvidence.ts:259:15), called from e2e/gm-two-player-fixture.smoke.spec.ts:110:33",
+    "missingCellCount": 24,
+    "missingCellArithmetic": "8 kinds (trace, screenshot, socket-transcript, projection, latency, durable-rows, hashes, cleanup-log) x 3 roles (future-gm, future-player-1, future-player-2) = 24. The 3 cells NOT named are environment/future-gm, environment/future-player-1 and environment/future-player-2 - exactly the 3 the row writes at :99-109.",
+    "provesWhat": "On baseline 291eb81e0, the strict scenario closest to a complete bundle emits 3 of 27 cells, and the only reason it passes today is the escape hatch. No strict scenario on main emits a complete bundle - the precise gap this unit's behavior sentence names.",
+    "sideProofFromTheSameRun": "Row 2, the existing @E2E-78 gate row, stayed GREEN (28 ms) through the probe. It is a tmpdir/in-process control that takes no Playwright fixtures, so it is untouched by a strict-sandbox finalize - which is itself the evidence that the gate row does not prove the letter's 'any strict scenario' subject."
+  },
+
+  "R2": {
+    "name": "the evidence-smoke selector is unimplemented, so the new row would run nowhere",
+    "command": "node scripts/qc/run-gm-two-player-campaign.mjs --group=evidence-smoke --run-id=u1b-red-evidence-smoke",
+    "exitCode": 3,
+    "stderrVerbatim": "[qc:gm-two-player-campaign] NOT_IMPLEMENTED group=evidence-smoke owner=27",
+    "provesWhat": "`evidence-smoke` is registered in GROUP_CATALOG (scripts/qc/gm-two-player-campaign-core.cjs:6) with owner 27 but has no SPEC_BY_GROUP entry, so the ladder refuses it before booting a browser. A new evidence pack landed without this wiring would sit in no group - the finding-#33 failure mode the qc pin exists to catch.",
+    "cost": "instant; boots nothing"
+  },
+
+  "environmentFindings": {
+    "cpuPreflight": {
+      "command": "powershell -NoProfile -c \"(Get-CimInstance Win32_Process -Filter \\\"name='node.exe'\\\" | ? { $_.CommandLine -match 'next.*build|playwright' }).Count\"",
+      "output": "0",
+      "timesRun": 3,
+      "result": "PASS before the build and before each Playwright run"
+    },
+    "build": {
+      "command": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build",
+      "exitCode": 1,
+      "result": "PARTIAL - EXPECTED, the junction failure the brief names",
+      "failureVerbatim": "{ \"ok\": false, \"error\": \"Unsafe hydration destination (runtime loader tsx) contains a symlink or junction: .next\\\\standalone\\\\node_modules\", \"hint\": \"Run npm run build first so .next/standalone/server.js exists, then hydrate the standalone multiplayer server.\" }",
+      "continuationEvidence": [
+        "ls -la .next/standalone/server.js -> -rw-r--r-- 1 wroll 197609 7325 Sep 16 12:58 .next/standalone/server.js (exists)",
+        "grep -c '__E2E_MODE__' .next/static/chunks/pages/_app-*.js -> 1 (> 0)"
+      ],
+      "consequence": "Next's compile and page emit completed; only the post-build hydrate step failed, and it failed on the worktree's node_modules junction rather than on anything in this change."
+    },
+    "ladderRunnerNodeEnvFinding": {
+      "symptom": "The first R1 attempt, `node scripts/qc/run-gm-two-player-campaign.mjs --group=fixture-smoke ...` with no NODE_ENV, exited 1 before any test ran: '[WebServer] Error [TurbopackInternalError]: Symlink [project]/node_modules is invalid, it points out of the filesystem root' followed by 'Error: Process from config.webServer was not able to start. Exit code: 1'.",
+      "rootCause": "buildRunPlan pins MEKSTATION_E2E_SERVER_COMMAND to 'node server.js' for non-respawning groups (scripts/qc/gm-two-player-campaign-core.cjs:206-208), and runPlan spreads the plan OVER process.env (:285), so the command cannot be overridden from outside. Root server.js computes `dev = process.env.NODE_ENV !== 'production' && ...` (server.js:388-389); without NODE_ENV it boots Next in dev, and Turbopack refuses the worktree's node_modules junction.",
+      "resolution": "Prefix the ladder runner with NODE_ENV=production, which the plan does not override, so server.js serves the already-built .next. This is the same substitution U1 recorded (evidence/u1-local-20260916.json, 'Registered group run': `NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=backpressure ...`).",
+      "scope": "A worktree-junction artefact only. On a checkout with a real node_modules the unprefixed command works; the product is not implicated.",
+      "serverWarningObserved": "[WebServer] \"next start\" does not work with \"output: standalone\" configuration. Use \"node .next/standalone/server.js\" instead. - emitted, then the server came up and answered the warm-up probes ('/ answered 200 in 24 ms'), so it is a warning, not a failure."
+    }
+  },
+
+  "treeStateAfterRed": {
+    "command": "git status --porcelain",
+    "output": " M openspec/planning/2026-09-12-roadmap-completion/units.json\n?? openspec/planning/2026-09-12-roadmap-completion/evidence/u1b-admission-20260916.json",
+    "meaning": "The R1 probe is fully reverted; no product or test file is modified going into stage 3. The root checkout's working tree and index were not touched at any point.",
+    "commits": "none"
+  }
+}

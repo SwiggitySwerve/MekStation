@@ -128,6 +128,13 @@ function buildRunPlan({ group, runId, repoRoot }) {
     // unacked seam E2E-14 uses. NOT in RESPAWNING_GROUPS: the row
     // swallows acks, it never kills the server.
     backpressure: ['e2e/gm-two-player-backpressure.pack.spec.ts'],
+    // E2E-78 (umbrella 22.3). The strict three-context run that emits a
+    // COMPLETE 27-cell bundle and finalizes with no escape hatch. The
+    // name was reserved in GROUP_CATALOG from the start (owner 27) and
+    // answered NOT_IMPLEMENTED until this row existed. Kept out of
+    // RESPAWNING_GROUPS: the row closes its own contexts, never the
+    // server.
+    'evidence-smoke': ['e2e/gm-two-player-evidence.pack.spec.ts'],
   };
   // `authority` expands to the eight titled E2E-01..18 packs, in the
   // same pin order those packs already occupy in SPEC_BY_GROUP.
@@ -150,8 +157,8 @@ function buildRunPlan({ group, runId, repoRoot }) {
   // `all` expands to every group that already has a SPEC_BY_GROUP
   // entry. Reserved catalog names that still throw stay out
   // (`campaign` until a live E2E-46..60 row exists; visibility, combat
-  // as the unused umbrella name, evidence-smoke, fault-smoke, and the
-  // other 34-owned placeholders). `combat-pack1` and `rewind-pack`
+  // as the unused umbrella name, fault-smoke, and the other 34-owned
+  // placeholders). `combat-pack1`, `rewind-pack` and `evidence-smoke`
   // are implemented; the bare `combat` name stays reserved and
   // `rewind` stays free.
   // Specs are de-duplicated so the `smoke` umbrella and the `authority`
