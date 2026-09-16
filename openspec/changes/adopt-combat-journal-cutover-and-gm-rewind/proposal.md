@@ -23,7 +23,7 @@ The 2026-09-03 inventory-and-sync council found that archiving the umbrella with
 
 - `2026-08-29-adopt-combat-event-journal-authority` (archived complete at 24/24) built the batch-append, revision and recovery contract for one match stream behind a flag. This change is its production cutover: it turns the flag into a reviewed default and adds the writer paths that archived change left unwired. Nothing from that archive is re-litigated.
 - `harden-gm-two-player-campaign-sessions` keeps the GM-only / player-request clauses, the `PROJECTION_REBUILDING` refusal (its box 14.3 is closed), and the coordinated-correction boundary. Its delta spec carries a split notice naming this change.
-- `add-authoritative-history-branches` owns the branch/supersession port this change activates through; it is a dependency, not a duplicate.
+- `add-authoritative-history-branches` owns the branch/supersession storage/port this change consumes; that storage/port may land before cutover, and this change does not require the whole branches package to be complete or archived. Live Branch PR 3 rewind acceptance follows this change's S1-S4 and journal correctness/cutover gates. Receipt-consuming Branch PR 4+ remains behind the full exact-main cross-stream terminal/archive/prune gate in the branches task `0.1` amendment.
 
 ## Capabilities
 
