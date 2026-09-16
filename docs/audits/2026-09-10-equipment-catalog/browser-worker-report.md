@@ -64,10 +64,10 @@ Result: exit 0.
 Isolated Playwright run (already-running production `http://localhost:3634`, copied config, worker-local output):
 
 ```
-npx playwright test --config=.sisyphus/equipment-catalog-20260910/browser-worker/browser.config.cjs
+npx playwright test --config=../2026-09-16-evidence-distilled/equipment-catalog-20260910.md (formerly .sisyphus/equipment-catalog-20260910/browser-worker/browser.config.cjs)
 ```
 
-Config copy: `.sisyphus/equipment-catalog-20260910/browser-worker/browser.config.cjs`
+Config copy: `../2026-09-16-evidence-distilled/equipment-catalog-20260910.md` (formerly `.sisyphus/equipment-catalog-20260910/browser-worker/browser.config.cjs`)
 
 - `testMatch`: `customizer-equipment-catalog.spec.ts` only
 - `baseURL`: `http://localhost:3634`

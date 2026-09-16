@@ -1,7 +1,7 @@
 # Critical-worker report
 
 Lane: PDF critical-table readability inside existing `crits_*` rectangles.
-Spec-ready: `.sisyphus/record-sheet-repair-20260910/spec-ready.json` `success: true` (parent-validated).
+Spec-ready: `../../2026-09-16-evidence-distilled/record-sheet-repair-20260910.md` (formerly `.sisyphus/record-sheet-repair-20260910/spec-ready.json`) `success: true` (parent-validated).
 
 ## Files touched
 

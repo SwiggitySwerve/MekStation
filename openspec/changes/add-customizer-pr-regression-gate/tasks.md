@@ -28,10 +28,10 @@
 
 - [x] 5.1 Run the focused validator Jest suite and `format:check` on owned files.
 - [x] 5.2 List the customizer Playwright tests to confirm the gate's selection resolves to the intended set.
-- [x] 5.3 Parent: execute all three customizer files in a real Chromium browser against the hydrated production standalone server; 10/10 passed in about 69 seconds on local port 3636. Evidence: `.sisyphus/spec-reconciliation-20260912/browser-production-ip.log`.
+- [x] 5.3 Parent: execute all three customizer files in a real Chromium browser against the hydrated production standalone server; 10/10 passed in about 69 seconds on local port 3636. Evidence: `../../../docs/audits/2026-09-16-evidence-distilled/spec-reconciliation-20260912.md` (formerly `.sisyphus/spec-reconciliation-20260912/browser-production-ip.log`).
 - [x] 5.4 Parent: observe the new `Customizer Regressions` check run on a pull request and confirm the aggregator blocks on it. Evidence: positive observation on PR #1678 (run 34940815550, job 104289034959, SUCCESS; `Lint and Test` aggregator SUCCESS) and negative probe PR #1680 (run 34941958817, job 104292621602, FAILURE; `Lint and Test` aggregator FAILURE; closed unmerged).
 
 ## 6. Authorized follow-ups
 
-- [x] 6.1 Extend the same three-file selection to twelve cases: add real-browser Infantry zoom/paper/export coverage and explicit Structure versus persisted Preview navigation coverage. Both new cases failed against the pre-fix production build; evidence: `.sisyphus/spec-reconciliation-20260912/browser-production-followups-red.log`.
-- [x] 6.2 Run all twelve cases against the rebuilt production standalone server with zero retries and record the result. Passed 12/12 in about 69 seconds on port 3636; evidence: `.sisyphus/spec-reconciliation-20260912/browser-production-followups-final.log`.
+- [x] 6.1 Extend the same three-file selection to twelve cases: add real-browser Infantry zoom/paper/export coverage and explicit Structure versus persisted Preview navigation coverage. Both new cases failed against the pre-fix production build; evidence: `../../../docs/audits/2026-09-16-evidence-distilled/spec-reconciliation-20260912.md` (formerly `.sisyphus/spec-reconciliation-20260912/browser-production-followups-red.log`).
+- [x] 6.2 Run all twelve cases against the rebuilt production standalone server with zero retries and record the result. Passed 12/12 in about 69 seconds on port 3636; evidence: `../../../docs/audits/2026-09-16-evidence-distilled/spec-reconciliation-20260912.md` (formerly `.sisyphus/spec-reconciliation-20260912/browser-production-followups-final.log`).

@@ -28,7 +28,7 @@ Parent note: browser report confirms valid option disabled markup; a separate br
 - `src/stores/unit/unitEditHistory.ts` — undo label `'Add and place equipment'`
 - `src/types/equipment/MountedEquipment.ts` — `createMountedEquipment` defaults
 - `openspec/changes/repair-equipment-catalog/specs/equipment-browser/spec.md` — Add/place, translucent rows, existing Add
-- `.sisyphus/equipment-catalog-20260910/placement-tests.json` — prior 30/30 pass including owned suites
+- `../2026-09-16-evidence-distilled/equipment-catalog-20260910.md` (formerly `.sisyphus/equipment-catalog-20260910/placement-tests.json`) — prior 30/30 pass including owned suites
 
 ## Checks
 
@@ -109,7 +109,7 @@ node node_modules/jest/bin/jest.js --selectProjects unit --runInBand --runTestsB
 
 Result: 2 suites, 10 tests, all passed. Exit code 0. Duration ~11.8s.
 
-Prior hub run `.sisyphus/equipment-catalog-20260910/placement-tests.json`: 5 suites / 30 tests passed, including these two files plus omni, CriticalSlotsTab smoke, and unitEditHistory (those extras are not owned and were not re-run).
+Prior hub run `../2026-09-16-evidence-distilled/equipment-catalog-20260910.md` (formerly `.sisyphus/equipment-catalog-20260910/placement-tests.json`): 5 suites / 30 tests passed, including these two files plus omni, CriticalSlotsTab smoke, and unitEditHistory (those extras are not owned and were not re-run).
 
 No new regression test added because no defect was reproduced.
 

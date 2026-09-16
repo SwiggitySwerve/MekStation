@@ -12,9 +12,9 @@ OpenSpec change `repair-record-sheet-rendering` is created, populated, and stric
 - `openspec/changes/repair-record-sheet-rendering/specs/record-sheet-export/spec.md`
 - `openspec/active-change-ledger.json` (appended `repair-record-sheet-rendering` only; 14 entries)
 - `e2e/customizer-record-sheet-rendering.spec.ts`
-- `.sisyphus/record-sheet-repair-20260910/spec-ready.json`
-- `.sisyphus/record-sheet-repair-20260910/contract-proof/characterization.json`
-- `.sisyphus/record-sheet-repair-20260910/contract-proof/REPORT.md`
+- `../../2026-09-16-evidence-distilled/record-sheet-repair-20260910.md` (formerly `.sisyphus/record-sheet-repair-20260910/spec-ready.json`)
+- `../../2026-09-16-evidence-distilled/record-sheet-repair-20260910.md` (formerly `.sisyphus/record-sheet-repair-20260910/contract-proof/characterization.json`)
+- `../../2026-09-16-evidence-distilled/record-sheet-repair-20260910.md` (formerly `.sisyphus/record-sheet-repair-20260910/contract-proof/REPORT.md`)
 
 ## Checks
 
@@ -26,7 +26,7 @@ OpenSpec change `repair-record-sheet-rendering` is created, populated, and stric
 
 ## Characterization (before product repair)
 
-From `.sisyphus/record-sheet-repair-20260910/baseline.json`, `baseline-resize.json`, and `before-letter.svg`:
+From `../../2026-09-16-evidence-distilled/record-sheet-repair-20260910.md` (formerly `.sisyphus/record-sheet-repair-20260910/baseline.json`), `baseline-resize.json`, and `before-letter.svg`:
 
 - Preview/PDF canvas was 12240×15840 at 20x (~193 million pixels, 775526400 estimated RGBA bytes)
 - Manual zoom 82% and Fit Width 164% each reset to 67% after viewport resize

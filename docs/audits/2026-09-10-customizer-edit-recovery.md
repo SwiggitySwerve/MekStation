@@ -13,7 +13,7 @@ Accepted after 307 affected tests, a fresh production build, and both complete b
 
 ## Verification
 
-Evidence root: `.sisyphus/customizer-recovery-20260910`.
+Evidence root: `2026-09-16-evidence-distilled/customizer-recovery-20260910.md` (formerly `.sisyphus/customizer-recovery-20260910`).
 
 | Check                                  | Result                                    | Evidence                          |
 | -------------------------------------- | ----------------------------------------- | --------------------------------- |

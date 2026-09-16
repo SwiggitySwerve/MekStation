@@ -9,7 +9,7 @@
 - Document overflow: none.
 - Collapsed rows showed both Add and Add + place.
 - Evidence: `baseline-desktop-1318x912.png`, `baseline-catalog-clip-1318x912.png`, `baseline-metrics.json`.
-- Recapture: `node .sisyphus/equipment-density-20260910/proof-worker/capture-baseline.cjs`
+- Recapture: `node ../2026-09-16-evidence-distilled/equipment-density-20260910.md (formerly .sisyphus/equipment-density-20260910/proof-worker/capture-baseline.cjs)`
 
 ## Owned tests
 
