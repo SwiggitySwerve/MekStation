@@ -1,0 +1,45 @@
+# U1 Lane A Review — PR #1786 (E2E-74 slow-client backpressure)
+
+- base: 19e5a061e466dad4d592b2d90f363402f5a0d950
+- head: 5692ff99605974686ad9cd47a0d0dabe2b249146
+- reviewer: independent Lane A pass, no shared context with implementer
+
+## Verdict
+
+**APPROVE**
+
+## Findings
+
+- **Diff scope (exactly 9 files, nothing under `src/`).** `git diff --name-status 19e5a061e4…5692ff996` returns exactly: `e2e/gm-two-player-backpressure.pack.spec.ts` (A), `e2e/helpers/tacticalBackpressureObserver.ts` (A), `e2e/types/window.d.ts` (M), `openspec/planning/2026-09-12-roadmap-completion/evidence/u1-admission-20260916.json` (A), `evidence/u1-local-20260916.json` (A), `evidence/u1-red-20260916.json` (A), `openspec/planning/2026-09-12-roadmap-completion/units.json` (M), `scripts/__tests__/gm-two-player-campaign-qc.test.ts` (M), `scripts/qc/gm-two-player-campaign-core.cjs` (M). No `src/` file appears. Matches the required shape.
+
+- **Authored-line arithmetic checks out.** `git diff --numstat` on the 5 product/test files: `gm-two-player-backpressure.pack.spec.ts` 244/0 (new), `tacticalBackpressureObserver.ts` 277/0 (new), `window.d.ts` 19/0, `gm-two-player-campaign-qc.test.ts` 28/1, `gm-two-player-campaign-core.cjs` 7/1. Summing new-file totals plus edited-file ins+del gives 244+277+19+29+8 = 577, exactly the PR body's claim. `units.json`'s `capOverage20260916` block independently records `authoredLines: 577, code: 410, commentAndBlank: 167, cap: 500, overage: 77, files: 5` with a stated ruling that the observer helper (277 lines) is required alongside the row (244) and that no assertion was dropped to fit — this is an honestly-recorded harness-floor overage, not a silently-absorbed cap breach.
+
+- **Spec fidelity is strong and the assertions are live, not tautological.** E2E-74's letter (spec.md:313-315: Player 2 slowed through the controlled send seam; queue/memory within declared limits; each healthy GM/Player 1 population retains nearest-rank p95 ≤250ms, p99 ≤750ms) is asserted against real, committed budgets read from `controlledLoopbackFixture.ts` (`connectionQueue.maxEnvelopes: 256`, `maxBytes: 1 MiB`, `memoryGrowthCeilingBytes.server: 128 MiB`, `.browserContext: 64 MiB`, `latencyBudgetsMs: {p95:250, p99:750}`) — verified these constants exist verbatim in `src/lib/multiplayer/performance/controlledLoopbackFixture.ts`. The row's three clauses (queue, memory, healthy-latency) each assert against these numbers, never redeclare them. The "bounded" claim is asserted as three conjoined facts (window reached the cap, stayed inside the 256-envelope ceiling, then `issued` froze while healthy viewers kept advancing) rather than a single weak proxy — this closes the "queue simply never filled" escape the header itself calls out. `MIN_HEALTHY_SAMPLES = 24` is smaller than the campaign fixture's 200, but the code's rationale (smaller population makes nearest-rank p95 *stricter*, and the drive is bounded by frames-to-cap, not a committed mix) is sound and the mutant table shows the real population (68) comfortably clears the floor.
+
+- **The accessor-property WebSocket wrap is a sound design for the stated hazard.** `tacticalBackpressureObserver.ts` uses `Object.defineProperty(window, 'WebSocket', { get, set })` specifically because Playwright's `routeWebSocket` mock reassigns `globalThis.WebSocket` from its own init script (cited: `webSocketMockSource.js:329`), which would silently displace a one-time captured reference. The accessor's `set` re-wraps whatever is assigned, making the two init scripts' *relative order* irrelevant — this is the correct fix for the named race, and the test file's own comments ("Routes first... arm() is what starts the stall") show the ordering was reasoned about deliberately (routes/mocks installed, then `armTacticalObserver`, then `p2Drop.arm()` only after warm-up so initial traffic isn't stalled).
+
+- **No leakage into other packs.** `grep -rl "armTacticalObserver\|__TACTICAL_OBSERVER_STATE__\|tacticalBackpressureObserver" e2e/` returns only the new pack file, the new helper, and `window.d.ts` — no other spec file references the tactical observer, and each test gets a fresh browser context via `openContextPage(browser)`, so there is no cross-pack global-state risk.
+
+- **Red is a genuine boundary failure, not a masked setup error.** `evidence/u1-red-20260916.json`: the only edit made for the red was replacing the three `armTacticalObserver(...)` calls with `void armTacticalObserver;`, reproducing exactly main's absent-seam state (confirmed via `grep -rn 'E2E-74' e2e/ scripts/` on the baseline returning nothing). The failure (`Error: tactical observer not installed` at `readTacticalObserver`) fires at the first read, and the receipt explicitly notes the match itself launched normally in the same run (three sockets, Intents dispatched, DeliveryAcks flowing) — ruling out a setup failure masquerading as the red.
+
+- **Mutants are well-targeted and observed values are plausible.** Four mutants in `evidence/u1-local-20260916.json`, each hitting a distinct assertion: M1 removes the slow-viewer arm (kills on "unacked never reached the cap" after the 400-step budget); M2 collapses the memory ceiling to 0 (kills, observed real growth 17,385,896 bytes ≈16.6 MiB, comfortably under the real 64 MiB budget); M3 collapses the p95 budget to 0 (kills, observed a real 25.4ms); M4 raises `MIN_HEALTHY_SAMPLES` to 100000 (kills, observed real population 68). All four are kill-shaped (mutate toward an assertion that should fail) and each reveals a distinct, plausible real measurement rather than a suspicious round number.
+
+- **Registration is correct and consistent with the stated design.** `scripts/qc/gm-two-player-campaign-core.cjs` diff adds `backpressure:22` to `GROUP_CATALOG` and a `SPEC_BY_GROUP.backpressure` entry pointing at the new spec file, with a comment stating it is deliberately NOT in `RESPAWNING_GROUPS` (verified: `RESPAWNING_GROUPS` = `restart-pack, resilience-pack, authority-recovery, authority` — `backpressure` is absent). `scripts/__tests__/gm-two-player-campaign-qc.test.ts` adds: the catalog-string pin, a dedicated plan pin (`buildRunPlan({group:'backpressure',...})` asserting the exact Playwright args and that `MEKSTATION_E2E_SERVER_COMMAND` is `'node server.js'`, i.e. non-respawning), inclusion of the new spec file in the `all`-group plan-args pin, and inclusion of `'backpressure'` in the implemented-groups whitelist loop.
+
+- **Local tool runs in an isolated worktree (this review), matching the receipts:**
+  - `npx tsc --noEmit -p tsconfig.json` → exit 0, no diagnostics.
+  - `npx oxlint e2e/gm-two-player-backpressure.pack.spec.ts e2e/helpers/tacticalBackpressureObserver.ts scripts/qc/gm-two-player-campaign-core.cjs` → reports "0 files" for that explicit-path invocation (oxlint's config resolves globs, not explicit paths — the same quirk the local evidence already flagged). Ran the same repo-wide invocation the evidence used instead: `npx oxlint` → "Found 84 warnings and 0 errors" on the head worktree, identical to the evidence's baseline-vs-head comparison (84 both sides) — zero new warnings introduced.
+  - `npx oxfmt --check` on the same three files → "All matched files use the correct format." (exit 0).
+  - `node node_modules/jest/bin/jest.js --maxWorkers=1 --coverage=false scripts/__tests__/gm-two-player-campaign-qc.test.ts` → "Tests: 10 passed, 10 total", matching the receipt.
+
+- **Ledger (`units.json`) matches every claimed field.** U1: `state: "local-verified"`, `caps: {maxFiles:15, maxNonGeneratedLines:500}`, `stageReceipts.admission.decision: "split"`, `stageReceipts.red`/`local` populated with the same summaries as the standalone evidence files, `review`/`merge`/`mainProof`/`tick` all `null` (correctly unset pending this review and merge). `split20260916.successors: ["U1b","U1c"]`, `packets: ["PK-rewind-branch-reader (holds 22.3)", "PK-e2e-80-ci-wiring"]`. U1b and U1c both present with `state: "planned"`. In the `packets` array: `PK-rewind-branch-reader.taskKeys` includes `"harden-gm-two-player-campaign-sessions#22.3@584"` and `decision: null`; `PK-e2e-80-ci-wiring` present with `decision: null`. All confirmed by direct read.
+
+- **Roadmap validator.** `node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs` (no args) → `ROADMAP VALIDATION PASSED: 73 nodes, 13 packages, 376 tasks, 40 triage rows` (exit 0), exactly matching the required 73/13/376/40. `--next` → `NONE-ADMISSIBLE: 0 owner-gated, 5 blocked` (exit 3) — recorded as required; this reflects that no unit is currently admissible at this ledger state (U1 not yet merged/ticked, U1b/U1c still planned), not a defect in this PR's own content.
+
+- **No AI attribution.** Single commit on the branch (`5692ff996… test(e2e): E2E-74 slow-client backpressure stays bounded on the tactical channel`); `git log --format=%B` over the commit range and the PR body (fetched via `gh pr view 1786`) both contain no "Claude", "Anthropic", "Co-Authored-By", or "Generated with" strings.
+
+## Required edits
+
+none
+
+reviewedHead: 5692ff99605974686ad9cd47a0d0dabe2b249146

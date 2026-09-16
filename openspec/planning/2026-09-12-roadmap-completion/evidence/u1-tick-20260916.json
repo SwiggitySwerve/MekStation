@@ -1,0 +1,8 @@
+{
+  "unit": "U1",
+  "stage": "tick",
+  "at": "2026-09-16T18:45:25.613Z",
+  "taskKeys": [],
+  "note": "U1 holds no task row: row 22.3 is held by packet PK-rewind-branch-reader until E2E-76 can pass; E2E-74 is delivered and proven on main by this unit, which the successor that ticks 22.3 will cite.",
+  "tickedOnMain": null
+}
