@@ -251,10 +251,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "local-verified",
+      "state": "complete",
       "baseline": "7489e311fc0e2a2846c342786b21ad1ea09d29bb",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "00fdeab76dbdb76cf9877c2a6a7313ca09942fac",
+      "mergeSha": "22fe4a5547ce70e0a72a4837ab9897ba7d2ceda3",
       "stageReceipts": {
         "admission": {
           "path": "evidence/u1c-admission-20260916.json",
@@ -272,10 +272,31 @@
           "at": "2026-09-16T00:00:00.000Z",
           "summary": "see receipt: row A passed through the ladder runner on the E2E standalone build; mutants killed; tsc, oxfmt, pin suite, qc:openspec-ci, roadmap validator green"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "review": {
+          "path": "evidence/u1c-review-20260916.json",
+          "head": "00fdeab76dbdb76cf9877c2a6a7313ca09942fac",
+          "reviewedHead": "00fdeab76dbdb76cf9877c2a6a7313ca09942fac",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet)",
+          "implementerModel": "claude-opus-5 (Agent model: opus, general-purpose lane) with claude-fable-5-1 parent",
+          "outputSha256": "62409de41ca258f58569d93eee5e86f161268dee16eea02a0d7592ed45c51e6e",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u1c-merge-20260916.json",
+          "pr": 1790,
+          "head": "00fdeab76dbdb76cf9877c2a6a7313ca09942fac",
+          "mergeSha": "22fe4a5547ce70e0a72a4837ab9897ba7d2ceda3"
+        },
+        "mainProof": {
+          "path": "evidence/u1c-mainproof-20260916.json",
+          "mergeCommit": "22fe4a5547ce70e0a72a4837ab9897ba7d2ceda3",
+          "verdict": "PASS",
+          "runtime": "  1 passed (9.1s)"
+        },
+        "tick": {
+          "path": "evidence/u1c-tick-20260916.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "split20260916": {
