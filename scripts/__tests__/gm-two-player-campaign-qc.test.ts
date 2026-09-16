@@ -5,7 +5,7 @@ const repoRoot = path.resolve(__dirname, '../..');
 const runner = path.join(repoRoot, 'scripts/qc/run-gm-two-player-campaign.mjs');
 const core = require('../qc/gm-two-player-campaign-core.cjs');
 const groups =
-  'fixture-smoke,membership-smoke,evidence-smoke,fault-smoke,smoke,authority-pack1,exactly-once-pack,fault-pack,token-pack,restart-pack,resilience-pack,authority-order,authority-recovery,privacy-pack,proposal-pack,three-context-pack,two-device-pack,authority,visibility,combat-pack1,rewind-pack,combat,campaign,failure,performance,cleanup-ownership,all,traceability,quality,manual-setup,scope'.split(
+  'fixture-smoke,membership-smoke,evidence-smoke,fault-smoke,smoke,authority-pack1,exactly-once-pack,fault-pack,token-pack,restart-pack,resilience-pack,authority-order,authority-recovery,privacy-pack,proposal-pack,three-context-pack,two-device-pack,authority,visibility,combat-pack1,rewind-pack,combat,campaign,failure,performance,cleanup-ownership,backpressure,all,traceability,quality,manual-setup,scope'.split(
     ',',
   );
 /** The server command a non-respawning implemented group is planned with. */
@@ -351,6 +351,31 @@ describe('GM and two-player campaign QC runner', () => {
       'node server.js',
     );
 
+    // `backpressure` is E2E-74 (umbrella 22.3). Predicted red of this
+    // pin before the catalog grew the group: Object.keys(
+    // REGISTERED_GROUPS) lacked `backpressure`, so the first
+    // expect(toEqual(groups)) printed the missing name and
+    // buildRunPlan threw NOT_IMPLEMENTED, which left the group in the
+    // NOT_IMPLEMENTED loop below. The plan pin plus the implemented
+    // whitelist are what keep a silent skip from looking like a pass.
+    const backpressurePlan = core.buildRunPlan({
+      group: 'backpressure',
+      runId: 'task-22-backpressure',
+      repoRoot,
+    });
+    expect(backpressurePlan.args).toEqual([
+      path.join(repoRoot, 'scripts/playwright/run-playwright.mjs'),
+      'test',
+      '--project=chromium',
+      'e2e/gm-two-player-backpressure.pack.spec.ts',
+      '--workers=1',
+    ]);
+    // The row swallows acks; it never kills the server, so it must NOT
+    // pick up the relaunching wrapper.
+    expect(backpressurePlan.environment.MEKSTATION_E2E_SERVER_COMMAND).toBe(
+      'node server.js',
+    );
+
     // `authority` is the E2E-01..18 union (umbrella 21.4). Predicted
     // red of this pin today, before `authority` had a SPEC_BY_GROUP
     // entry: the group was already in GROUP_CATALOG (owner 29) and
@@ -427,6 +452,7 @@ describe('GM and two-player campaign QC runner', () => {
       'e2e/gm-two-player-cleanup-ownership.spec.ts',
       'e2e/gm-two-player-combat.pack1.spec.ts',
       'e2e/gm-two-player-rewind.pack.spec.ts',
+      'e2e/gm-two-player-backpressure.pack.spec.ts',
       '--workers=1',
     ]);
     // restart-pack, resilience-pack, authority-recovery, and the
@@ -502,6 +528,7 @@ describe('GM and two-player campaign QC runner', () => {
       'cleanup-ownership',
       'combat-pack1',
       'rewind-pack',
+      'backpressure',
       'all',
     ];
     for (const group of groups.filter(

@@ -70,10 +70,108 @@
     {
       "id": "U1",
       "node": "R6.umbrella",
-      "taskKeys": [
-        "harden-gm-two-player-campaign-sessions#22.3@584"
+      "taskKeys": [],
+      "behavior": "E2E-74 slow-client backpressure stays bounded: a Playwright row on the tactical channel that drives a slow viewer against the MAX_VIEWER_UNACKED delivery bound and asserts the server-side queue and memory stay within the spec budget while other viewers keep receiving; in-paths only (e2e, scripts/qc); the campaign-channel seam is out of paths and not claimed.",
+      "ownershipPaths": [
+        "e2e",
+        "scripts/qc",
+        "openspec/changes/harden-gm-two-player-campaign-sessions"
       ],
-      "behavior": "Implement and pass E2E-71 through E2E-80 for latency, catch-up, backpressure, accessible lifecycle UX, confirmation, typed conflicts, evidence completeness, cleanup, and exact-main post-merge audits.",
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "local-verified",
+      "baseline": "19e5a061e466dad4d592b2d90f363402f5a0d950",
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": {
+          "path": "evidence/u1-admission-20260916.json",
+          "baseline": "19e5a061e466dad4d592b2d90f363402f5a0d950",
+          "at": "2026-09-16T17:56:23.535Z",
+          "decision": "split"
+        },
+        "red": {
+          "path": "evidence/u1-red-20260916.json",
+          "at": "2026-09-16T18:25:22.663Z",
+          "summary": "observer not installed at the tactical boundary before the helper existed; four mutants killed"
+        },
+        "local": {
+          "path": "evidence/u1-local-20260916.json",
+          "at": "2026-09-16T18:25:22.663Z",
+          "summary": "row and group green on the E2E standalone build (port 3639, retries 0); tsc, oxlint baseline-equal, oxfmt clean, qc pin suite 10/10, qc:openspec-ci 0, roadmap validator PASSED"
+        },
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "split20260916": {
+        "from": "E2E-71 through E2E-80 (row 22.3)",
+        "reason": "admission receipt evidence/u1-admission-20260916.json: E2E-71/72/73/79 already implemented and registered; E2E-76 rewind-gated; E2E-75 (rewound state) and E2E-77 (stale-branch class) partly unreachable; E2E-80 needs a CI-wiring reading; the remaining implementation was estimated at 1000-1530 lines against the 500-line cap",
+        "successors": [
+          "U1b",
+          "U1c"
+        ],
+        "packets": [
+          "PK-rewind-branch-reader (holds 22.3)",
+          "PK-e2e-80-ci-wiring"
+        ]
+      },
+      "capOverage20260916": {
+        "authoredLines": 577,
+        "code": 410,
+        "commentAndBlank": 167,
+        "cap": 500,
+        "overage": 77,
+        "files": 5,
+        "ruling": "parent: harness floor recorded with arithmetic; the smallest complete slice for E2E-74 needs the tactical observer helper (277 lines) beside the row (244); the only split would be a behaviour-less helper unit costing a second full product-class CI run, against the owner CI-minute constraint; no assertion was dropped to fit"
+      }
+    },
+    {
+      "id": "U1b",
+      "node": "R6.umbrella",
+      "taskKeys": [],
+      "behavior": "E2E-78 evidence bundle is complete for a strict scenario: at least one strict pack row emits the full 27-cell bundle (every artifact kind for every role) and the finalize gate proves it live; the fixture-smoke gate row already proves the failure side.",
+      "ownershipPaths": [
+        "e2e",
+        "scripts/qc",
+        "openspec/changes/harden-gm-two-player-campaign-sessions"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null
+    },
+    {
+      "id": "U1c",
+      "node": "R6.umbrella",
+      "taskKeys": [],
+      "behavior": "E2E-75 lifecycle states are distinct and accessible for the eight drivable states and E2E-77 conflict messages are actionable and safe for the four reachable classes; the rewound state and the stale-branch class are not claimed (deferred to the branch lane and the rewind packet) and the unit records that non-claim in its admission.",
       "ownershipPaths": [
         "e2e",
         "scripts/qc",
@@ -191,7 +289,8 @@
         "harden-gm-two-player-campaign-sessions#19.2@426",
         "harden-gm-two-player-campaign-sessions#21.3@559",
         "harden-gm-two-player-campaign-sessions#22.2@575",
-        "harden-gm-two-player-campaign-sessions#23.3@604"
+        "harden-gm-two-player-campaign-sessions#23.3@604",
+        "harden-gm-two-player-campaign-sessions#22.3@584"
       ],
       "question": "Should matchStoreBranchSegmentReader be taught to serve MATCH_BASELINE_BRANCH_ID alongside root, or should the rewind mirror write onto root instead, given that the rewind-branch fold is unreachable for match streams today?",
       "options": [
@@ -208,6 +307,32 @@
       ],
       "agentRecommendation": "Option (a): LIVE_PATH_BRANCH_IDS already treats root and the baseline id as one line, so serving both from the reader matches the contract that exists and does not move rows that were already written.",
       "revertCost": "Low for (a) - a single reader predicate behind its own tests, revertable by one commit with no data migration. Higher for (b) - rows written onto root after the flip must be located and moved back, so a revert becomes a data reconciliation rather than a code revert.",
+      "decision": null,
+      "ruling": null,
+      "note": "Row 22.3 joined this packet on 2026-09-16: E2E-76 (rewind confirmation) cannot pass until the rewind branch reader ruling, so the row stays open while its ungated scenarios ship as row-less units U1, U1b and U1c; the tick of 22.3 belongs to a successor unit written after the ruling."
+    },
+    {
+      "id": "PK-e2e-80-ci-wiring",
+      "blocks": [],
+      "nodes": [
+        "R6.umbrella"
+      ],
+      "taskKeys": [],
+      "question": "Should E2E-80 (major merges trigger exact-main regression) be satisfied by a GitHub workflow job that reruns the gm-two-player group ladder on pushes to main (a .github/ change outside the unit paths, costing CI minutes per merge) or by a qc contract under scripts/qc that pins the milestone-to-group ladder and is run by the loop before the next dependent PR?",
+      "options": [
+        {
+          "label": "workflow job",
+          "consequence": "enforced on every push to main; CI minutes per merge; needs an ownership-path amendment for .github/",
+          "effort": "0.5 day"
+        },
+        {
+          "label": "qc contract run by the loop",
+          "consequence": "in paths and free of CI minutes, but enforced only when the loop runs it; the spec wording \"SHALL rerun before the next dependent PR\" is satisfied procedurally, not mechanically",
+          "effort": "0.5 day"
+        }
+      ],
+      "agentRecommendation": "qc contract run by the loop, given the owner CI-minute constraint; revisit if merges to main resume outside the loop",
+      "revertCost": "low: either form can be replaced by the other without touching product code",
       "decision": null,
       "ruling": null
     }

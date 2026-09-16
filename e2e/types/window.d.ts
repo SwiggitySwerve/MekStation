@@ -63,6 +63,25 @@ declare global {
     };
     /** This context's post-warm-up JS heap reading, in bytes. */
     __PERFORMANCE_HEAP_BASELINE__?: number;
+    /**
+     * Per-viewer TACTICAL observation (E2E-74, umbrella 22.3). Separate
+     * from `__PERFORMANCE_OBSERVER_STATE__` because that one watches the
+     * campaign sync transport; this one wraps `WebSocket` to watch the
+     * match socket, and a pack could legitimately arm both.
+     */
+    __TACTICAL_OBSERVER_STATE__?: {
+      frames: {
+        deliverySequence: number;
+        serverTs: string;
+        renderedAtMs: number;
+      }[];
+      peakPendingEnvelopes: number;
+      peakPendingBytes: number;
+      pendingEnvelopes: number;
+      pendingBytes: number;
+    };
+    /** This context's post-warm-up JS heap reading for the tactical pack. */
+    __TACTICAL_HEAP_BASELINE__?: number;
   }
 }
 
