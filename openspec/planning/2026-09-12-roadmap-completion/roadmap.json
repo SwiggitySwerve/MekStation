@@ -5377,10 +5377,7 @@
       "kind": "verification",
       "state": "planned",
       "dependsOn": [
-        "R6.B7",
-        "R4.rewind",
-        "R2.authority-live",
-        "R2.journey"
+        "R2.authority-live"
       ],
       "ownershipPaths": [
         "openspec/changes/harden-gm-two-player-campaign-sessions",
@@ -5510,7 +5507,18 @@
         "harden-gm-two-player-campaign-sessions#25.4@640"
       ],
       "receipt": null,
-      "decomposition": "Integration/disposition gate for 108 original task occurrences and80E2Erows; never one product PR. Missing behavior must become a bounded successor before implementation."
+      "decomposition": "Integration/disposition gate for 108 original task occurrences and80E2Erows; never one product PR. Missing behavior must become a bounded successor before implementation.",
+      "dependsOnAmended20260916": {
+        "at": "2026-09-16T08:23:18.942Z",
+        "by": "parent (Phase 6 of council decision openspec/council-decisions/2026-09-16-goal-drivable-roadmap-loop.md)",
+        "reason": "The umbrella node now hosts units for its three agent-reachable E2E rows (22.3, 21.2, 21.1), whose underlying behaviour is main-verified under R2.authority-live and which do not wait on the rewind/branch/journey lanes; the closure rows (25.1, 25.4) and every rewind- or saga-dependent row are held by deferrals and the PK-rewind-branch-reader packet in units.json, which name R6.B7, R4.rewind and R2.journey explicitly, so their dependency is preserved at the holder level. Without this amendment `--next` reports NONE-ADMISSIBLE after U0 (measured by the build lane).",
+        "previousDependsOn": [
+          "R6.B7",
+          "R4.rewind",
+          "R2.authority-live",
+          "R2.journey"
+        ]
+      }
     },
     {
       "id": "R6.deferrals",
