@@ -1,0 +1,15 @@
+{
+  "unit": "U1b",
+  "stage": "merge",
+  "at": "2026-09-16T19:41:51.367Z",
+  "pr": 1788,
+  "title": "test(e2e): E2E-78 a strict scenario emits the complete 27-cell evidence bundle",
+  "head": "2e127fd693f09054d722f54affdb15c11ea3269b",
+  "mergeSha": "ffc427a0850db3a7149a6720cc3d71ab99a0f6b1",
+  "mergedAt": "2026-09-16T19:35:54Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityDiffLines": 0
+}

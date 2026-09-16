@@ -173,10 +173,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "local-verified",
+      "state": "complete",
       "baseline": "291eb81e05709b34c5087a7fe3ef4cfd111eedc6",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "2e127fd693f09054d722f54affdb15c11ea3269b",
+      "mergeSha": "ffc427a0850db3a7149a6720cc3d71ab99a0f6b1",
       "stageReceipts": {
         "admission": {
           "path": "evidence/u1b-admission-20260916.json",
@@ -194,10 +194,31 @@
           "at": "2026-09-16T19:23:12.530Z",
           "summary": "evidence-smoke row 1 passed through the ladder runner on the E2E standalone build; 27/27 cells captured; four mutants killed; tsc, oxlint baseline-equal, oxfmt clean, qc pin 10/10, evidence-fixture jest 12/12 unchanged, openspec strict, qc:openspec-ci 0, roadmap validator PASSED; smoke and cleanup-ownership groups still green"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "review": {
+          "path": "evidence/u1b-review-20260916.json",
+          "head": "2e127fd693f09054d722f54affdb15c11ea3269b",
+          "reviewedHead": "2e127fd693f09054d722f54affdb15c11ea3269b",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet)",
+          "implementerModel": "claude-opus (Agent model: opus, omo-hephaestus lane) with claude-fable-5-1 parent",
+          "outputSha256": "75f66e7c2bd2696e832974ac6fdc42c4f9510a39a78df4a52b9c68e73dedf238",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u1b-merge-20260916.json",
+          "pr": 1788,
+          "head": "2e127fd693f09054d722f54affdb15c11ea3269b",
+          "mergeSha": "ffc427a0850db3a7149a6720cc3d71ab99a0f6b1"
+        },
+        "mainProof": {
+          "path": "evidence/u1b-mainproof-20260916.json",
+          "mergeCommit": "ffc427a0850db3a7149a6720cc3d71ab99a0f6b1",
+          "verdict": "PASS",
+          "runtime": "  1 passed (12.1s)"
+        },
+        "tick": {
+          "path": "evidence/u1b-tick-20260916.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "nonClaims20260916": [
