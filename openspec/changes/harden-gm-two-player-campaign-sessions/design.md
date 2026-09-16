@@ -72,8 +72,8 @@ interface ILiveCampaignCommand {
 interface ICommittedCommandBatch {
   commandId: string;
   branchId: string;
-  firstSequence: number;
-  lastSequence: number;
+  firstCommitPosition: number;
+  lastCommitPosition: number;
   eventIds: string[];
   committedAt: string;
 }
@@ -82,7 +82,7 @@ interface IOutboxRecord {
   outboxId: string;
   campaignSessionId: string;
   branchId: string;
-  sequence: number;
+  commitPosition: number;
   eventId: string;
   payload: unknown;
   committedAt: string;
@@ -139,11 +139,11 @@ Alternatives considered:
 - Extend the current undifferentiated `guest` model: rejected because it cannot prove P1/P2 ownership, readiness, privacy, or attribution.
 - Store participant state only in auth tokens: rejected because token expiry and process restart would erase session membership.
 
-### D3 — Stable command identity, authority sequence, delivery sequences, and replay/live deduplication
+### D3 — Stable command identity, authority ordering, delivery sequences, and replay/live deduplication
 
 Production intent envelopes MUST carry `commandId`/`intentId` and an idempotency key generated before the first send and reused across retries. The store maintains uniqueness on session plus idempotency identity for the authoritative match/campaign lifetime. Clients track both the active branch and a contiguous applied delivery sequence, not only a maximum high-water mark.
 
-The server-only journal uses a monotonic `authoritySequence`. Each viewer projection stream uses its own gapless `deliverySequence`. Players never receive hidden authority identifiers or inferable sequence gaps.
+The server-only journal uses a stream-local `streamRevision` for authority ordering inside one `(streamType, streamId, branchId)` and a database-wide monotonic `commitPosition` for deterministic cross-stream queries; `commitPosition` is a server receipt, not a shared optimistic-lock head, so unrelated streams do not contend on an expected global revision. `commandIndex` preserves deterministic order inside one atomic command batch, and predecessor digests chain only the owning stream and branch. The legacy match stream keeps its own `authoritySequence`, which maps onto the journal at `revision = sequence + 1`. None of these identities is a viewer delivery cursor. Each viewer projection stream uses its own gapless `deliverySequence`. Players never receive hidden authority identifiers or inferable sequence gaps.
 
 Delivery behavior:
 
@@ -193,15 +193,15 @@ The same projection function and contract tests are reused for live, replay, sna
 
 ### D5 — Rewind is append-only branch supersession
 
-No event is deleted or edited. A rewind commit selects a trusted checkpoint and creates a new branch whose base references the old branch and cutoff sequence.
+No event is deleted or edited. A rewind commit selects a trusted checkpoint and creates a new branch whose base references the old branch and cutoff stream revision.
 
 ```ts
 interface ISessionBranch {
   branchId: string;
   campaignSessionId: string;
   parentBranchId: string | null;
-  baseSequence: number;
-  effectiveHeadSequence: number;
+  baseRevision: number;
+  effectiveHeadRevision: number;
   status: 'effective' | 'superseded' | 'building' | 'blocked';
   createdByParticipantId: string;
   reasonCode: string;
@@ -213,7 +213,7 @@ interface ISupersessionRecord {
   supersessionId: string;
   oldBranchId: string;
   newBranchId: string;
-  cutoffSequence: number;
+  cutoffRevision: number;
   invalidatedEventIds: string[];
   invalidatedArtifactIds: string[];
   committedByParticipantId: string;
@@ -225,7 +225,7 @@ Only the GM may commit a rewind. A player may create a rewind request, which is 
 
 Old-branch commands receive a typed `STALE_BRANCH` rejection and no append. Offline clients resync to the active branch from their durable cursor. Prior branches remain visible only through authorized audit views.
 
-Trusted checkpoints are immutable projection caches keyed by authority head, branch, reducer version, and digest. Compaction may prune or regenerate caches, but it never removes command receipts, authoritative events, branch lineage, supersession, or audit facts.
+Trusted checkpoints are immutable projection caches keyed by stream, branch, stream revision, reducer version, and digest. Compaction may prune or regenerate caches, but it never removes command receipts, authoritative events, branch lineage, supersession, or audit facts.
 
 Alternatives considered:
 

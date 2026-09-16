@@ -307,7 +307,7 @@ Before Task 1, create `.omo/evidence/gm-two-player-live-campaign-sandbox/program
   Commit: Y | `feat(gm): commit combat corrections immutably`
 
 - [ ] 21. Add cache-only checkpoints and replay kernel
-  What to do / Must NOT do: add immutable checkpoint keyed by branch/head/reducer version/digest; full replay and checkpoint+tail equality; never compact authoritative facts; quarantine incompatibility/corruption per session.
+  What to do / Must NOT do: add immutable checkpoint keyed by stream/branch/stream-revision/reducer-version/digest; full replay and checkpoint+tail equality; never compact authoritative facts; quarantine incompatibility/corruption per session.
   Parallelization: Wave 4 | Blocked by: 7 | Blocks: 22, 23, 32, 34.
   References (executor has NO interview context - be exhaustive): OpenSpec `event-store` `Checkpoints and Compaction Are Cache-Only` and `Corrupt Authority Data Is Quarantined Per Session`; `MatchRecovery.ts`; replay/recovery tests; design D5/D9.
   Acceptance criteria (agent-executable): compatible cache equals full replay for authority plus all viewer digests; reducer/digest mismatch rebuilds or blocks; healthy control session stays available.
@@ -382,7 +382,7 @@ Before Task 1, create `.omo/evidence/gm-two-player-live-campaign-sandbox/program
   What to do / Must NOT do: inspect pre-serialization/raw/recovery/DOM/history/export for draft/sealed/fog/redaction/parity/unauthorized/veto/proposal behavior; no screenshot-only privacy claim.
   Parallelization: Wave 7 | Blocked by: 15, 17, 18, 25-28 | Blocks: 34.
   References (executor has NO interview context - be exhaustive): OpenSpec E2E-19..30; `gm-authority-redaction` delta; `audit-timeline` private-audit requirements.
-  Acceptance criteria (agent-executable): the exact visibility command below passes all 12; negative searches find zero GM-private/opponent-hidden/authority-sequence/private-ID/inferable-gap data in player artifacts.
+  Acceptance criteria (agent-executable): the exact visibility command below passes all 12; negative searches find zero GM-private/opponent-hidden/authority-sequence/stream-revision/commit-position/private-ID/inferable-gap data in player artifacts.
   QA scenarios (name the exact tool + invocation): `$runId = "task-30-$([DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds())"; npm.cmd run verify:qc:gm-two-player-campaign -- --group=visibility --run-id=$runId`; finalized reveal passes and projector, unauthorized-access, and private-audit lookup failures emit no forbidden player data; Evidence `test-results/gm-two-player/$runId/`.
   Commit: Y | `test(e2e): prove role-safe campaign visibility`
 
