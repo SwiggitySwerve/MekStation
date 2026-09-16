@@ -1,5 +1,5 @@
 /**
- * Lifecycle posture pack - E2E-75 (umbrella 22.3), row A.
+ * Lifecycle posture pack - E2E-75 (umbrella 22.3), rows A and B.
  *
  * E2E-75: "WHEN the harness drives pending, sealed, finalized, syncing,
  * reconnecting, behind, rebuilding, rewound, and blocked states THEN each
@@ -12,6 +12,29 @@
  * releases the one before it. `pending` and `blocked` are row B, held for
  * successor U1e which adds its row to this file under the same group; row A
  * pins that their sentences collide with none of the five driven here.
+ *
+ * Row B (unit U1e) drives those two, on its own match, through the same
+ * harness, and asserts the same five obligations through the same
+ * `capturePosture` - so the letter cannot be met one way in one row and
+ * another way in the other. It does NOT re-drive row A's five: their
+ * sentences enter the distinctness obligation through
+ * `deriveTacticalLifecyclePosture`, the product's own message table, which
+ * is the mirror image of the pin row A already carries for row B's two. What
+ * licenses that is asserted here rather than assumed - for each posture row
+ * B DOES drive, the sentence read off the banner is the sentence the product
+ * derives for it.
+ *
+ * Row B's two levers are additions to the harness below, disarmed at
+ * construction and never called by row A. `dropNextIntent` swallows the
+ * guest's next outbound `Intent`, so no receipt can ever carry its intentId
+ * (client.ts:349-352, :394, :1377-1380) and the posture is PERMANENT rather
+ * than the single round trip a healthy command takes - which is what
+ * separates a driven `pending` from one the product passes through on its
+ * own. `collideNextDelivery` forwards a real delivered frame and then a twin
+ * of it at the same sequence with a different `event.id`, which is exactly
+ * the condition client.ts:897 turns into `blockedBySequenceCollision`, a
+ * flag written in one place and cleared in none. Both faults are duplicates
+ * or omissions of frames the server really sent.
  *
  * THREE NON-CLAIMS. `reconnecting`: `reconnectScheduled` is a real field
  * (client.ts:1125) that deriveState maps (:202), but no available lever
@@ -51,6 +74,7 @@ import crypto from 'node:crypto';
 
 import type { IClientLifecycleState } from '@/lib/multiplayer/tacticalLifecycleState';
 
+import { tacticalCommandAvailability } from '@/lib/multiplayer/tacticalCommandGate';
 import { deriveTacticalLifecyclePosture } from '@/lib/multiplayer/tacticalLifecycleState';
 
 import {
@@ -86,6 +110,40 @@ const IDLE_CLIENT: IClientLifecycleState = {
   recoveringFromGap: false,
 };
 
+/** The five postures row A drives. Row B pins its two against them. */
+const ROW_A_STATES = [
+  'live',
+  'sealed',
+  'finalized',
+  'syncing',
+  'behind',
+] as const;
+
+/**
+ * The one condition that makes `deriveState` (tacticalLifecycleState.ts
+ * :188-208) answer each posture. Row B compares SENTENCES, so it needs the
+ * product to produce them; naming the conditions rather than the strings is
+ * what keeps this from becoming a second copy of the message table.
+ */
+const POSTURE_CONDITION: Readonly<
+  Record<
+    string,
+    {
+      readonly client?: Partial<IClientLifecycleState>;
+      readonly sealedChoiceAwaitingReveal?: boolean;
+      readonly finalizationLanded?: boolean;
+    }
+  >
+> = {
+  live: {},
+  sealed: { sealedChoiceAwaitingReveal: true },
+  finalized: { finalizationLanded: true },
+  syncing: { client: { recoveringFromGap: true } },
+  behind: { client: { ready: false } },
+  pending: { client: { pendingIntentCount: 1 } },
+  blocked: { client: { blockedBySequenceCollision: true } },
+};
+
 type WireFrame = Record<string, unknown>;
 
 interface IPostureEvidence {
@@ -106,6 +164,10 @@ interface ILifecycleHarness {
   send(frame: WireFrame): void;
   /** Swallow the next delivered frame once, opening a gap. */
   dropNextDelivery(): void;
+  /** Swallow the page's next outbound `Intent` once, so it never settles. */
+  dropNextIntent(): void;
+  /** Deliver the next delivered frame, then a twin at the same sequence. */
+  collideNextDelivery(): void;
   /** Withhold `ReplayEnd` until released. */
   holdReplayEnd(): void;
   /** Deliver every withheld `ReplayEnd`, oldest first. */
@@ -237,6 +299,183 @@ test('E2E-75 lifecycle postures are distinct, announced and correctly gated @lif
   }
 });
 
+test('E2E-75 lifecycle postures pending and blocked are distinct, announced and correctly gated @lifecycle-pack @E2E-75', async ({
+  browser,
+  request,
+}) => {
+  test.setTimeout(300_000);
+  const hostPage = await openContextPage(browser);
+  const guestPage = await openContextPage(browser);
+  // Routes must be installed before any socket opens.
+  const harness = await installLifecycleHarness(guestPage);
+  const seenText = new Map<string, string>();
+  const evidence: IPostureEvidence[] = [];
+  let identityIds: readonly string[] = [];
+  let matchId: string | null = null;
+  let hostBearer: string | null = null;
+
+  try {
+    const live = await launchOneVersusOne({
+      browser,
+      request,
+      hostPage,
+      guestPage,
+      hostName: 'Lifecycle B Host',
+      guestName: 'Lifecycle B Guest',
+      hostPassword: HOST_PASSWORD,
+      guestPassword: GUEST_PASSWORD,
+      // The drives below advance the phase repeatedly; 5 would end the match.
+      turnLimit: '20',
+    });
+    identityIds = live.identityIds;
+    matchId = live.match.matchId;
+    hostBearer = live.hostToken.token;
+
+    // Row A's reload, for the header's FINDING, and it matters MORE here:
+    // without it the surface already sits at `pending` from the lobby's
+    // never-settled `SetReady`, and the arm below would be reading that
+    // defect instead of its own dropped intent. Asserting `live` first is
+    // what makes the arm falsifiable rather than inherited.
+    await guestPage.reload();
+    await hostPage.reload();
+    await expect
+      .poll(() => postureState(guestPage), { timeout: 60_000 })
+      .toBe('live');
+
+    // pending: one of the guest's own commands swallowed in flight. Armed
+    // BEFORE the drive, because only this page is routed and the arm has to
+    // wait for the guest's own next intent rather than be paired with a click.
+    harness.dropNextIntent();
+    await driveUntilPosture(guestPage, hostPage, 'pending');
+    await capturePosture(guestPage, 'pending', seenText, evidence);
+    // PERMANENT, not the one round trip a healthy command takes. Nothing
+    // settles an intent the server never received, and this is the read that
+    // says the posture was driven rather than caught in passing.
+    await guestPage.waitForTimeout(2_000);
+    expect(await postureState(guestPage)).toBe('pending');
+
+    // blocked: two event identities claim one delivery sequence. Precedence 1
+    // (tacticalLifecycleState.ts:189), so it outranks the pending still held
+    // and the ladder stays additive - no fault is torn down to reach it.
+    harness.collideNextDelivery();
+    await driveUntilPosture(guestPage, hostPage, 'blocked');
+    await capturePosture(guestPage, 'blocked', seenText, evidence);
+
+    // ---- the letter's cross-posture obligations ----
+    expect(evidence.map((row) => row.state)).toEqual(['pending', 'blocked']);
+    // Each rendered sentence IS the product's own message for that posture.
+    // This is what licenses comparing a DERIVED row-A message against a
+    // RENDERED row-B one on the next assertion.
+    for (const row of evidence) {
+      expect(row.text).toBe(postureOf(row.state).message);
+    }
+    // Non-color-only across all SEVEN postures this pack drives, not just the
+    // two driven here: LIFECYCLE_TONE (lifecycleState.ts:60-71) gives
+    // pending/syncing/reconnecting one palette triple and behind another, so
+    // colour cannot separate pending from syncing and the sentence must. Row
+    // A's five arrive through the product's own derivation rather than being
+    // re-driven - the mirror of the pin row A carries for these two.
+    const allText = [
+      ...ROW_A_STATES.map((state) => postureOf(state).message),
+      ...evidence.map((row) => row.text),
+    ];
+    expect(new Set(allText).size).toBe(allText.length);
+    // Correct command gating, both ways. The player's OWN in-flight command
+    // stays playable and a collided stream refuses; tacticalCommandGate.ts
+    // :11-24 is why those are different questions.
+    expect(evidence.map((row) => row.gateRefused)).toEqual([false, true]);
+    // The refusal a player is given is the GATE's own sentence, and it names
+    // this posture rather than sharing one with the other gated states.
+    const blockedRefusal = evidence[1]?.refusalReason ?? null;
+    expect(blockedRefusal).toBe(refusalFor('blocked'));
+    expect([refusalFor('syncing'), refusalFor('behind')]).not.toContain(
+      blockedRefusal,
+    );
+  } finally {
+    // Always logged: on failure it names what the surface DID reach.
+    console.log(
+      `[lifecycle-pack] rowB captured=${evidence
+        .map((row) => row.state)
+        .join(',')}`,
+    );
+    if (matchId && hostBearer) {
+      await request.delete(`/api/multiplayer/matches/${matchId}`, {
+        headers: { Authorization: `Bearer ${hostBearer}` },
+      });
+    }
+    await deleteIdentities(request, identityIds);
+    await hostPage.context().close();
+    await guestPage.context().close();
+  }
+});
+
+/**
+ * Advances the phase until the guest reaches `state`, or fails naming what it
+ * actually reached.
+ *
+ * THE GUEST IS PASSED FIRST, and that is a measurement rather than a style.
+ * `advancePhase` takes the FIRST page whose control is enabled
+ * (helpers/gmTwoPlayerMatchFlow.ts:117-146); with the host first, eight
+ * advances ran without the guest ever clicking and the drive failed `Guest
+ * never reached pending; last posture finalized`. Both row-B faults are armed
+ * on the guest's own socket, so the drive has to prefer the guest and fall
+ * back to the host only when the turn gate has not opened the guest's control.
+ *
+ * A loop rather than a paired click, because the fault fires on the guest's
+ * own next intent or next delivery whenever the rotation reaches it. The throw
+ * is tolerated for the same reason the loop exists - a collided client
+ * self-pauses and its phase control DETACHES, so the advance that DELIVERS the
+ * collision can be the advance whose click loses its target. A lost click is
+ * only a lost click; a genuinely stuck drive still runs out of attempts.
+ */
+async function driveUntilPosture(
+  guestPage: Page,
+  hostPage: Page,
+  state: string,
+): Promise<void> {
+  for (let attempt = 0; attempt < 8; attempt += 1) {
+    if ((await postureState(guestPage)) === state) return;
+    try {
+      await advancePhase(guestPage, hostPage);
+    } catch {
+      // See above.
+    }
+    if ((await postureState(guestPage)) === state) return;
+    await guestPage.waitForTimeout(500);
+  }
+  if ((await postureState(guestPage)) === state) return;
+  throw new Error(
+    `Guest never reached ${state}; last posture ${await postureState(guestPage)}`,
+  );
+}
+
+/**
+ * The posture the product derives for one state name, checked to BE that
+ * state so a wrong condition cannot silently pin the wrong sentence.
+ */
+function postureOf(
+  state: string,
+): ReturnType<typeof deriveTacticalLifecyclePosture> {
+  const condition = POSTURE_CONDITION[state];
+  if (condition === undefined) {
+    throw new Error(`No derivation condition for ${state}`);
+  }
+  const posture = deriveTacticalLifecyclePosture({
+    client: { ...IDLE_CLIENT, ...condition.client },
+    sealedChoiceAwaitingReveal: condition.sealedChoiceAwaitingReveal ?? false,
+    finalizationLanded: condition.finalizationLanded ?? false,
+    projectionSignal: null,
+  });
+  expect(posture.state).toBe(state);
+  return posture;
+}
+
+/** The gate's own refusal sentence for one posture, or null when it allows. */
+function refusalFor(state: string): string | null {
+  const availability = tacticalCommandAvailability(postureOf(state));
+  return availability.available ? null : availability.reason;
+}
+
 /** The posture the product derives for one client-state override. */
 function derivePosture(
   client: Partial<IClientLifecycleState>,
@@ -339,6 +578,8 @@ async function installLifecycleHarness(page: Page): Promise<ILifecycleHarness> {
   let sendToServer: ((text: string) => void) | null = null;
   let closeServer: (() => void) | null = null;
   let dropDelivery = false;
+  let dropIntent = false;
+  let collide = false;
   let holdingReplayEnd = false;
   let refuseReopens = 0;
   const withheld: string[] = [];
@@ -361,6 +602,17 @@ async function installLifecycleHarness(page: Page): Promise<ILifecycleHarness> {
             identity = { matchId, playerId };
           }
         }
+        // Dropped on the way OUT, so the server never sees the command and
+        // nothing can ever receipt it. The client keeps its pendingIntents
+        // entry (client.ts:1336), which is the whole posture.
+        if (
+          dropIntent &&
+          frame !== null &&
+          stringField(frame, 'kind') === 'Intent'
+        ) {
+          dropIntent = false;
+          return;
+        }
         server.send(message);
       });
       server.onMessage((message) => {
@@ -377,6 +629,19 @@ async function installLifecycleHarness(page: Page): Promise<ILifecycleHarness> {
           frame === null ? null : numberField(frame, 'deliverySequence');
         if (dropDelivery && delivered !== null) {
           dropDelivery = false;
+          return;
+        }
+        // The real frame, then a duplicate of it at the SAME delivery
+        // sequence carrying a different event identity - the one condition
+        // admitByDelivery turns into blockedBySequenceCollision (:897).
+        if (collide && delivered !== null) {
+          collide = false;
+          const twin = frame === null ? null : collidingFrame(frame);
+          if (twin === null) {
+            throw new Error('Delivered frame could not be collided');
+          }
+          route.send(message);
+          route.send(twin);
           return;
         }
         route.send(message);
@@ -407,6 +672,12 @@ async function installLifecycleHarness(page: Page): Promise<ILifecycleHarness> {
     dropNextDelivery: () => {
       dropDelivery = true;
     },
+    dropNextIntent: () => {
+      dropIntent = true;
+    },
+    collideNextDelivery: () => {
+      collide = true;
+    },
     holdReplayEnd: () => {
       holdingReplayEnd = true;
     },
@@ -431,6 +702,25 @@ function parseFrame(message: unknown): WireFrame | null {
   }
   return typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)
     ? (parsed as WireFrame)
+    : null;
+}
+
+/** A twin of one delivered frame: same sequence, different event identity. */
+function collidingFrame(frame: WireFrame): string | null {
+  const event = objectField(frame, 'event');
+  const eventId = event === null ? null : stringField(event, 'id');
+  return eventId === null
+    ? null
+    : JSON.stringify({
+        ...frame,
+        event: { ...event, id: `collision-${eventId}` },
+      });
+}
+
+function objectField(value: WireFrame, key: string): WireFrame | null {
+  const field = value[key];
+  return typeof field === 'object' && field !== null && !Array.isArray(field)
+    ? (field as WireFrame)
     : null;
 }
 

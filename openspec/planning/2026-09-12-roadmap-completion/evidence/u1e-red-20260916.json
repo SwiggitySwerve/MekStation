@@ -1,0 +1,106 @@
+{
+  "unit": "U1e",
+  "stage": "red",
+  "at": "2026-09-16T00:00:00.000Z",
+  "baseline": "ac874764a8767fba564cdeacfa565c107d94ae75",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u1e",
+  "branch": "codex/roadmap-u1e-e2e-75-row-b-20260916",
+  "principle": "Every measurement below was taken against SHIPPED spec code at the baseline commit, before one line of row B existed in the worktree. R2 is a live browser failure at the real boundary - a shipped row that already drives the collision, made to look at the lifecycle half it never looks at - not a unit-level restatement of the gate function.",
+
+  "R0": {
+    "name": "no row anywhere reads or renders pending or blocked",
+    "command": "git grep -n \"tactical-lifecycle-state\" -- e2e/",
+    "capturedOutput": [
+      "e2e/gm-two-player-lifecycle.pack.spec.ts:265:  const banner = page.getByTestId('tactical-lifecycle-state');",
+      "e2e/gm-two-player-lifecycle.pack.spec.ts:307:        .getByTestId('tactical-lifecycle-state')",
+      "e2e/gm-two-player-resilience.pack.spec.ts:247:        .getByTestId('tactical-lifecycle-state')",
+      "e2e/gm-two-player-resilience.pack.spec.ts:685:    // behind / syncing / reconnecting is tactical-lifecycle-state. Isolation",
+      "e2e/helpers/viewerUnackedBoundEvidence.ts:155:        .getByTestId('tactical-lifecycle-state')"
+    ],
+    "secondCommand": "git grep -n \"lifecycleState(\" -- e2e/ (excluding the two declarations)",
+    "secondCapturedOutput": [
+      "e2e/gm-two-player-resilience.pack.spec.ts:643:    const p2BehindState = await lifecycleState(p2Page);",
+      "e2e/gm-two-player-resilience.pack.spec.ts:876:        .poll(() => lifecycleState(page), {"
+    ],
+    "reading": "The exported copy at e2e/helpers/viewerUnackedBoundEvidence.ts:151-160 has NO caller. The resilience pack's own copy (:243-253) feeds exactly two assertions: the tautological guard at :688-689 - `if (/^(behind|syncing|reconnecting)$/.test(p2BehindState)) { expect(p2BehindState).toMatch(/^(behind|syncing|reconnecting)$/); }`, which asserts a string against a pattern it has already been tested against and therefore cannot fail - and the disjunctive `^(live|finalized)$` poll at :876-880. Row A's two reads drive live, sealed, finalized, syncing and behind. Not one site anywhere renders or reads `pending` or `blocked`.",
+    "provesWhat": "the two postures row B owns have no live assertion of their data-state, their announcement or their command gating anywhere in the suite."
+  },
+
+  "R1": {
+    "name": "the blocked gate is compiler-invisible and suite-invisible",
+    "mutation": "src/lib/multiplayer/tacticalCommandGate.ts - the `blocked` key removed from GATE_REASONS (:37-48), so the surface stops refusing commands in the blocked posture",
+    "typecheck": {
+      "command": "npx tsc --noEmit -p tsconfig.json",
+      "exitCode": 0,
+      "why": "GatedTacticalState is `keyof typeof GATE_REASONS`, so the union simply shrinks and nothing fails to compile. The same invisibility U1c measured for its M3 on `syncing`."
+    },
+    "build": {
+      "command": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build",
+      "exitCode": 1,
+      "exitCodeIsNotTheSignal": "FN-u1c-build-exit-hidden-by-tail. The exit was captured on its own line, never through a pipe. The standalone hydrate step refuses the junctioned node_modules: {\"ok\": false, \"error\": \"Unsafe hydration destination (runtime loader tsx) contains a symlink or junction: .next\\\\standalone\\\\node_modules\"}.",
+      "routeTablePrinted": true,
+      "standaloneServerJs": "present, 7325 bytes",
+      "e2eModeInBundle": "grep -c '__E2E_MODE__' .next/static/chunks/pages/_app-*.js = 1"
+    },
+    "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=lifecycle-pack",
+    "specTreeAtRun": "SHIPPED - git status --porcelain showed no modification under e2e/ or scripts/; the only tracked change was the mutant in src/",
+    "exitCode": 0,
+    "resultVerbatim": [
+      "  ok 1 [chromium] > e2e\\gm-two-player-lifecycle.pack.spec.ts:117:5 > E2E-75 lifecycle postures are distinct, announced and correctly gated @lifecycle-pack @E2E-75 (4.5s)",
+      "",
+      "  1 passed (10.5s)"
+    ],
+    "rowALogLine": "[lifecycle-pack] captured=live,sealed,finalized,syncing,behind",
+    "provesWhat": "the product can stop refusing commands in the `blocked` posture entirely and the lifecycle gate group - the only group that asserts any lifecycle posture at all - stays green, with the compiler silent. The obligation row B carries is unguarded on shipped code."
+  },
+
+  "R2": {
+    "name": "the shipped collision row reaches the posture and does not look at it",
+    "whyThisRow": "e2e/gm-two-player-exactly-once.pack.spec.ts:154 'E2E-12 collision blocks the cursor before later delivery can advance it' already DRIVES a real sequence collision on the guest. It asserts the toast text /PROTOCOL_VIOLATION.*sequence-collision/i at :166-168 and nothing else about the surface. This is the real boundary, on shipped code, with the fault already armed by the shipped fixture.",
+    "probe": {
+      "file": "e2e/gm-two-player-exactly-once.pack.spec.ts",
+      "edit": "six assertion lines added immediately after the shipped toast assertion: `await expect(fixture.guestPage.getByTestId('tactical-lifecycle-state')).toHaveAttribute('data-state', 'blocked', { timeout: 15_000 });` followed by `await expect(fixture.guestPage.locator('#networked-action-refusal')).toHaveCount(1, { timeout: 15_000 });`",
+      "disposition": "reverted with `git checkout -- e2e/gm-two-player-exactly-once.pack.spec.ts` immediately after capture; `git status --porcelain` then showed only the src mutant and the untracked admission receipt"
+    },
+    "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=exactly-once-pack",
+    "exitCode": 1,
+    "failureVerbatim": [
+      "x  4 [chromium] > e2e\\gm-two-player-exactly-once.pack.spec.ts:154:7 > tactical client exactly-once delivery > E2E-12 collision blocks the cursor before later delivery can advance it @E2E-12 (16.7s)",
+      "",
+      "1) [chromium] > e2e\\gm-two-player-exactly-once.pack.spec.ts:154:7 > ... @E2E-12",
+      "",
+      "    Error: expect(locator).toHaveCount(expected) failed",
+      "",
+      "    Locator:  locator('#networked-action-refusal')",
+      "    Expected: 1",
+      "    Received: 0",
+      "    Timeout:  15000ms",
+      "",
+      "    Call log:",
+      "      - Expect \"toHaveCount\" with timeout 15000ms",
+      "      - waiting for locator('#networked-action-refusal')",
+      "        19 x locator resolved to 0 elements",
+      "           - unexpected value \"0\"",
+      "",
+      "      175 |       await expect(",
+      "      176 |         fixture.guestPage.locator('#networked-action-refusal'),",
+      "    > 177 |       ).toHaveCount(1, { timeout: 15_000 });",
+      "",
+      "  1 failed",
+      "  3 passed (27.6s)"
+    ],
+    "whichHalfPassed": "the FIRST probe assertion passed: the banner really does render data-state=\"blocked\" in the shipped collision row. What failed is the gate half - the sr-only refusal node the player's controls point at was resolved 19 times and was absent every time. So the posture reaches the DOM and the obligation about it is the unasserted one.",
+    "reverted": {
+      "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=exactly-once-pack (probe removed, same mutant build, nothing rebuilt)",
+      "exitCode": 0,
+      "resultVerbatim": "  4 passed (13.4s)",
+      "provesWhat": "the shipped row cannot fail on this. The same product defect that made the probe fail 19 consecutive polls is invisible to every row in the pack, which is exactly the coverage hole row B closes."
+    }
+  },
+
+  "whatWasNotPredicted": "Nothing in this receipt is a prediction. The admission receipt expected M-A to survive; the survival was then run and captured, and the R2 pair was added because a surviving mutant alone is a statement about coverage while the probe is a measurement that fails. The one thing the admission receipt got wrong and this run corrects: the admission's R0 wording said the baseline grep resolves to three sites. It resolves to FIVE - an unused exported copy of the reader lives at e2e/helpers/viewerUnackedBoundEvidence.ts:155 as well. The admission receipt was corrected in place before implementation began.",
+
+  "mutantStillAppliedAfterThisStage": "yes - M-A stays in src/ so the same build serves its kill once row B exists. The Next build compiles src/ only; Playwright compiles the spec at run time, so a spec-side addition needs no rebuild.",
+
+  "nextRed": "R1 and R2 are the stage-2 record. M-B and M-C are stage-3 mutants; each gets its own build, and each one's survival against the shipped one-row spec is re-measured on that same build by stashing the row-B change, so no mutant is reported killed without its survival half."
+}

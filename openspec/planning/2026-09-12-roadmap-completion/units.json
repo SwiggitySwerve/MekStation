@@ -345,14 +345,27 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
+      "state": "local-verified",
+      "baseline": "ac874764a8767fba564cdeacfa565c107d94ae75",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/u1e-admission-20260916.json",
+          "baseline": "ac874764a8767fba564cdeacfa565c107d94ae75",
+          "at": "2026-09-16T00:00:00.000Z",
+          "decision": "go"
+        },
+        "red": {
+          "path": "evidence/u1e-red-20260916.json",
+          "at": "2026-09-16T00:00:00.000Z",
+          "summary": "with blocked removed from GATE_REASONS on shipped code, tsc still exited 0 and lifecycle-pack still passed (1 passed); a six-line probe on the shipped collision row E2E-12 failed toHaveCount on #networked-action-refusal (expected 1, received 0): no shipped row asserted the pending or blocked posture; probe reverted"
+        },
+        "local": {
+          "path": "evidence/u1e-local-20260916.json",
+          "at": "2026-09-16T22:48:21.654Z",
+          "summary": "lifecycle-pack 2 passed three times with identical captures (row A live,sealed,finalized,syncing,behind; row B pending,blocked), exactly-once-pack 4 passed, tsc 0, oxfmt clean, oxlint vacuous for these paths, pin suite 11/11, qc:openspec-ci errors=0, roadmap validator PASSED; three mutants killed (pending and blocked sharing one sentence, blocked dropped from GATE_REASONS, aria-live removed); 318 product lines over 3 files; the parent re-ran lifecycle-pack (2 passed) and the pin suite independently"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
