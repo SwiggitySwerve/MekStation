@@ -1,0 +1,460 @@
+{
+  "unit": "U1b",
+  "stage": "admission",
+  "at": "2026-09-16T00:00:00.000Z",
+  "node": "R6.umbrella",
+  "nodeState": "planned",
+  "nodeDependsOn": [
+    "R2.authority-live"
+  ],
+  "nodeDependencyStates": {
+    "R2.authority-live": "main-verified"
+  },
+  "dependenciesReady": true,
+  "activePackage": "harden-gm-two-player-campaign-sessions",
+  "taskKeys": [],
+  "taskKeysNote": "units.json U1b carries an EMPTY taskKeys array. Row 22.3@584 was moved to PK-rewind-branch-reader by the U1 split decision (u1-admission-20260916.json parentDecision), so this unit delivers behavior without holding a tasks.md row. Stage 7 (tick) therefore has nothing to check unless the parent amends the ledger. FLAGGED for the parent, not resolved here.",
+  "baseline": "291eb81e05709b34c5087a7fe3ef4cfd111eedc6",
+  "originMain": "291eb81e05709b34c5087a7fe3ef4cfd111eedc6",
+  "baselineEqualsOriginMain": true,
+  "baselineProof": "git rev-parse origin/main and git log -1 --format=%H origin/main both printed 291eb81e05709b34c5087a7fe3ef4cfd111eedc6 in this session; the worktree HEAD prints the same.",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u1b",
+  "branch": "codex/roadmap-u1b-e2e-78-bundle-20260916",
+  "ownedPaths": [
+    "e2e",
+    "scripts/qc",
+    "openspec/changes/harden-gm-two-player-campaign-sessions"
+  ],
+  "ownedPathsNote": "U1 precedent (merge 6a358383e, `git show --stat`) counted scripts/__tests__/gm-two-player-campaign-qc.test.ts as in-paths, because it is the enforcement pin for scripts/qc. This unit assumes the same reading. src/ is NOT in paths under any reading.",
+  "behavior": "E2E-78 evidence bundle is complete for a strict scenario: at least one strict pack row emits the full 27-cell bundle (every artifact kind for every role) and the finalize gate proves it live; the fixture-smoke gate row already proves the failure side.",
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500
+  },
+  "ciClass": "product",
+  "reviewClasses": [
+    "routine"
+  ],
+  "selectedBy": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "output": "U1b",
+    "exit": 0
+  },
+  "environment": {
+    "worktreeCreated": "git worktree add --detach E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u1b origin/main",
+    "worktreeHead": "291eb81e05709b34c5087a7fe3ef4cfd111eedc6",
+    "nodeModules": "junction to E:\\Projects\\MekStation\\node_modules (cmd mklink /J), created in this session",
+    "husky": "npx husky run in the worktree",
+    "node": "v22.22.0 (node --version in the worktree with the pinned PATH)",
+    "worktreeStatus": "clean (git status --porcelain empty after branch creation)",
+    "rootWorkingTreeTouched": false,
+    "rootWriteCount": 1,
+    "rootWritePath": "openspec/planning/2026-09-12-roadmap-completion/evidence/u1b-admission-20260916.json",
+    "buildOrPlaywrightRun": false
+  },
+  "contract": {
+    "source": "e2e/fixtures/gmTwoPlayerEvidence.ts (280 lines on baseline)",
+    "cellCount": 27,
+    "cellFormula": "EVIDENCE_KINDS.length (9, declared at e2e/fixtures/gmTwoPlayerEvidence.ts:42-52) x EVIDENCE_ROLES.length (3, declared at :61-65)",
+    "kinds": [
+      {
+        "kind": "trace",
+        "specPhrase": "trace",
+        "line": 43
+      },
+      {
+        "kind": "screenshot",
+        "specPhrase": "unique role-labeled screenshots",
+        "line": 44
+      },
+      {
+        "kind": "socket-transcript",
+        "specPhrase": "raw socket transcript",
+        "line": 45
+      },
+      {
+        "kind": "projection",
+        "specPhrase": "pre-serialization projection evidence",
+        "line": 46
+      },
+      {
+        "kind": "latency",
+        "specPhrase": "latency JSON",
+        "line": 47
+      },
+      {
+        "kind": "durable-rows",
+        "specPhrase": "read-only durable-row export",
+        "line": 48
+      },
+      {
+        "kind": "hashes",
+        "specPhrase": "role-specific state hashes",
+        "line": 49
+      },
+      {
+        "kind": "environment",
+        "specPhrase": "environment manifest",
+        "line": 50
+      },
+      {
+        "kind": "cleanup-log",
+        "specPhrase": "cleanup log",
+        "line": 51
+      }
+    ],
+    "roles": [
+      "future-gm",
+      "future-player-1",
+      "future-player-2"
+    ],
+    "rolesNote": "EVIDENCE_ROLES (:61-65) are byte-identical to ROLES in e2e/fixtures/gmTwoPlayerCampaign.ts:13, which is what every fixture client's `client.role` carries (:133). Any OTHER role string passed to write() is recorded as an entry but matches NO matrix cell.",
+    "howFinalizeDecidesCompleteness": {
+      "collector": "openEvidenceBundle(runId, runtimeRoot) at :219-279 keeps an in-memory `entries: IEvidenceEntry[]`; write() at :231-252 pushes one entry per artifact after assertNoSecrets() and guards.assertRunOwnedPath().",
+      "matrixWalk": "listMissingEvidenceCells(entries) at :143-158 builds a Set of `${kind}\\0${role}` from the captured entries and walks EVIDENCE_KINDS x EVIDENCE_ROLES, returning every absent pair. Presence is exact string equality on BOTH kind and role.",
+      "gate": "finalize(environment, options) at :256-278: if absent.length > 0 AND options?.allowIncompleteEvidence !== true, it throws EvidenceBundleError('EVIDENCE_INCOMPLETE', `missing cells: ${formatMissingCells(absent)}`, absent) and writes NO manifest.json. Otherwise it writes manifest.json with { runId, environment, captured: entries, missing } to a run-owned path.",
+      "escapeHatch": "IFinalizeOptions.allowIncompleteEvidence: true (:103-105) is opt-in, never a default. Every live strict row on main passes it.",
+      "recordMissingIsNotACell": "recordMissing(kind, role, why) at :253-255 pushes onto a SEPARATE `missing` array that is written into the manifest but is NOT consulted by listMissingEvidenceCells. Declaring a hole does not fill a cell and does not open the gate.",
+      "writeApiIsStringOnly": "write(kind, role, name, body: string) at :174-179. There is NO binary/Buffer path on baseline. The body also passes assertNoSecrets() against four SECRET_PATTERNS at :115-120."
+    },
+    "whatTheFixtureSmokeGateRowProvesToday": {
+      "row": "e2e/gm-two-player-fixture.smoke.spec.ts:123 'E2E-78 incomplete evidence bundle fails closed and a complete one finalizes @E2E-78'",
+      "isStrictScenario": false,
+      "whyNotStrict": "The row takes no Playwright fixtures at all (`() => {}` at :123), opens no browser context, uses no createGmTwoPlayerCampaignFixture, and points the bundle at an os.tmpdir() runtimeRoot (:124). The spec's own definition of strict (specs/e2e-testing/spec.md:4) is three isolated contexts + one harness-owned server + one per-run SQLite database. This row has none of them.",
+      "failureSideProven": "bundle `e2e-78-incomplete` writes exactly ONE cell, trace/future-gm (:127). finalize with no options (:129) throws; the row asserts EvidenceBundleError, the EVIDENCE_INCOMPLETE code, that the message names screenshot/future-player-2 and cleanup-log/future-gm, that it does NOT name the one present cell trace/future-gm (:132-137), and that manifest.json was not written (:138-140). 1 of 27 present, 26 named missing.",
+      "completeSideProven": "bundle `e2e-78-complete` is filled by writeCompleteEvidenceMatrix (:143), the helper at gmTwoPlayerEvidence.ts:200-211 that writes a SYNTHETIC body `{\"kind\":\"<k>\",\"role\":\"<r>\"}` into every one of the 27 cells. finalize succeeds and the row asserts captured.length === 9*3 and missing === [] (:144-152).",
+      "gapAgainstTheLetter": "The letter's subject is 'any strict scenario'. The 27-cell side is proven only against a synthetic matrix written by a test helper in a tmpdir, and the failure side only against a hand-built 1-cell bundle. No scenario running in the strict sandbox has ever produced a complete bundle. This is exactly what tasks.md:586's Wave G2 note already declares: 'NOT claimed: the existing packs do not emit a full 27-cell bundle (the three named packs opt in to partial evidence)'."
+    }
+  },
+  "perRowCellTable": {
+    "method": "grep -rn 'allowIncompleteEvidence|recordMissing|bundle.write|writeCompleteEvidenceMatrix|finalize(' over e2e/ scripts/ src/ returned exactly four e2e files touching the bundle API (plus the fixture itself and the src/ jest suite). Each was then read and its kind/role arguments resolved to literals.",
+    "rows": [
+      {
+        "file": "e2e/gm-two-player-fixture.smoke.spec.ts",
+        "row": "creates three isolated future-role contexts @fixture-smoke",
+        "line": 14,
+        "group": "fixture-smoke (also in `smoke` and `all`)",
+        "strict": true,
+        "writes": "bundle.write('environment', client.role, 'context.json', ...) once per fixture client (:99-109)",
+        "cellsPresent": 3,
+        "cellsPresentList": [
+          "environment/future-gm",
+          "environment/future-player-1",
+          "environment/future-player-2"
+        ],
+        "cellsMissing": 24,
+        "cellsMissingSummary": "8 kinds x 3 roles: trace, screenshot, socket-transcript, projection, latency, durable-rows, hashes, cleanup-log",
+        "finalize": "line 110, WITH { allowIncompleteEvidence: true } (:115)",
+        "whyMissing": "The row's purpose is context/identity/storage isolation. It captures only the environment descriptor per role; no trace or screenshot is taken, no socket is tapped, no projection or latency is sampled, the durable read at :85-94 goes to a local `evidence` reader and is never written into the bundle, no state hash is computed, and cleanup (:119) runs after finalize so no cleanup-log can exist at gate time."
+      },
+      {
+        "file": "e2e/gm-two-player-fixture.smoke.spec.ts",
+        "row": "E2E-78 incomplete evidence bundle fails closed and a complete one finalizes @E2E-78",
+        "line": 123,
+        "group": "fixture-smoke (also in `smoke` and `all`)",
+        "strict": false,
+        "writes": "bundle `e2e-78-incomplete`: one write, trace/future-gm (:127). bundle `e2e-78-complete`: writeCompleteEvidenceMatrix, 27 synthetic cells (:143).",
+        "cellsPresent": "1 (incomplete bundle) / 27 (complete bundle, synthetic)",
+        "cellsMissing": "26 (incomplete bundle) / 0 (complete bundle)",
+        "finalize": "line 129 (strict, expected to throw) and line 144 (strict, expected to succeed)",
+        "whyMissing": "By design - this is the gate's own control row, not a scenario. Its complete bundle carries no real artifact: every body is the literal `{\"kind\":..,\"role\":..}` from the helper at gmTwoPlayerEvidence.ts:200-211."
+      },
+      {
+        "file": "e2e/gm-two-player-membership.smoke.spec.ts",
+        "row": "binds GM and two tactical seats durably and refuses a fourth identity @membership-smoke",
+        "line": 65,
+        "group": "membership-smoke (also in `smoke` and `all`)",
+        "strict": true,
+        "writes": "writeEvidenceBundle (:515-563) called at :185. bundle.write('socket-transcript', admission.label, ...) once per admission (:536-545) and bundle.write('durable-rows', 'membership', ...) (:547-552).",
+        "cellsPresent": 0,
+        "cellsPresentList": [],
+        "cellsMissing": 27,
+        "finalize": "line 553, WITH { allowIncompleteEvidence: true } (:560)",
+        "whyMissing": "ROLE MISMATCH, not absence of capture. The admission labels are the literals 'gm', 'p1', 'p2', 'fourth-control' (:190, :192, :197, :202) and the durable export uses the literal 'membership' (:549). None of the five is a member of EVIDENCE_ROLES, so listMissingEvidenceCells sees an empty matrix. This row already captures real socket transcripts and a real durable-row export for three real roles - it is 6 cells' worth of substance recorded under names the matrix cannot see."
+      },
+      {
+        "file": "e2e/gm-two-player-performance.pack.spec.ts",
+        "row": "E2E-71/72/73 controlled loopback latency, catch-up and memory stay inside budget @performance @E2E-71 @E2E-72 @E2E-73",
+        "line": 109,
+        "group": "performance (also in `all`)",
+        "strict": true,
+        "writes": "bundle.write('latency', 'controlled', 'performance.json', ...) (:347-352)",
+        "cellsPresent": 0,
+        "cellsMissing": 27,
+        "finalize": "line 353, WITH { allowIncompleteEvidence: true } (:360)",
+        "whyMissing": "Same role mismatch: the literal 'controlled' is the runner class, not a matrix role. The report is a cross-role aggregate by construction, so splitting it per role is a change to what the artifact MEANS, not a relabel."
+      },
+      {
+        "file": "e2e/gm-two-player-cleanup-ownership.spec.ts",
+        "row": "five @E2E-79 rows, all fed by the owned-run helper",
+        "line": 205,
+        "group": "cleanup-ownership (also in `all`)",
+        "strict": "partially - spawns its own owned child server, not the three-context fixture",
+        "writes": "bundle.write('cleanup-log', 'harness', 'owned.json', ...) (:206-211)",
+        "cellsPresent": 0,
+        "cellsMissing": 27,
+        "finalize": "NONE. `grep -c '\\.finalize(' e2e/gm-two-player-cleanup-ownership.spec.ts` returns 0.",
+        "whyMissing": "The role literal 'harness' is not a matrix role, and the bundle is never finalized, so the completeness gate never runs on it at all. The bundle here is used only as a run-owned WRITER whose file path the ownership rows then assert on (:216-219)."
+      }
+    ],
+    "closestRow": {
+      "row": "e2e/gm-two-player-fixture.smoke.spec.ts:14 'creates three isolated future-role contexts @fixture-smoke'",
+      "cells": "3 of 27",
+      "whyClosest": "It is the only bundle-using row whose write() role arguments are already the three matrix roles, and the only strict row that reaches the gate with a non-zero cell count. Membership and performance look closer by artifact substance but score literally zero, because presence is exact string equality on the role.",
+      "lacks": "24 cells - trace, screenshot, socket-transcript, projection, latency, durable-rows, hashes and cleanup-log, each for all three roles - plus the removal of { allowIncompleteEvidence: true } at :115."
+    }
+  },
+  "gateAnalysis": {
+    "needsSrcChange": false,
+    "needsOwnerGatedBehaviour": false,
+    "noRewindNoFlagNoWitnesses": "No rewind path, no production flag, and no owner witness is involved. The bundle, the fixture, the capture seams and the qc ladder are all inside e2e/ and scripts/qc.",
+    "captureSourceByKind": [
+      {
+        "kind": "environment",
+        "source": "already captured at e2e/gm-two-player-fixture.smoke.spec.ts:99-109; node/chromium/os are already assembled this way at e2e/gm-two-player-performance.pack.spec.ts:341-346",
+        "inPaths": true,
+        "risk": "none"
+      },
+      {
+        "kind": "durable-rows",
+        "source": "fixture.openEvidence('app'|'multiplayer') (e2e/fixtures/gmTwoPlayerCampaign.ts:171-176) over the run-owned SQLite files; per-viewer rows already exist via readViewerBoundEvidence / deliveryRowsFor (e2e/helpers/viewerUnackedBoundEvidence.ts:64, :121)",
+        "inPaths": true,
+        "risk": "none"
+      },
+      {
+        "kind": "hashes",
+        "source": "createHash('sha256') over each role's own captured projection + durable rows; the fixture already hashes this way (gmTwoPlayerCampaign.ts:200-202) and the bundle stores a per-entry sha256 (gmTwoPlayerEvidence.ts:247)",
+        "inPaths": true,
+        "risk": "none"
+      },
+      {
+        "kind": "latency",
+        "source": "per-role timing. Cheapest honest form is the page's own navigation/paint timing; the heavyweight form is the correlated clock pair via /api/e2e/performance-probe (src/pages/api/e2e/performance-probe.ts, consumed at e2e/gm-two-player-performance.pack.spec.ts:677 and e2e/helpers/tacticalBackpressureObserver.ts:180)",
+        "inPaths": true,
+        "risk": "The E2E-71..74 budgets must NOT be re-litigated here. E2E-78 requires a latency JSON per role, not a budget verdict; the row should record and explicitly NOT gate."
+      },
+      {
+        "kind": "socket-transcript",
+        "source": "page.on('websocket') + ws.on('framereceived'), exactly the captureSockets precedent at e2e/authority-privacy-three-context.spec.ts:152-164 (~12 lines)",
+        "inPaths": true,
+        "risk": "SECRET-SCAN COLLISION, VERIFIED. src/lib/multiplayer/client.ts:731-736 builds the SessionJoin frame with `token: runtime.wireToken`, so a raw client->server frame serialises as `\"token\":\"<wire token>\"`, which matches SECRET_PATTERNS[1] (/\"?token\"?\\s*[:=]\\s*\"[^\"]{16,}\"/i, gmTwoPlayerEvidence.ts:117). bundle.write would throw EVIDENCE_SECRET_LEAK. The precedent helper captures framereceived ONLY, which sidesteps it. Stage 2 must choose: (a) received-only transcript, declaring the direction limit, or (b) both directions with the token field redacted before write, declaring the redaction against the letter's word 'raw'. Recommend (b) with the redaction named in the row and the receipt - the guard is correct and must not be weakened."
+      },
+      {
+        "kind": "projection",
+        "source": "the viewer-scoped projection payload each role RECEIVES on its socket, and/or the run-owned durable projection rows read through openEvidence",
+        "inPaths": true,
+        "risk": "LETTER-FIDELITY RESIDUAL. The letter says 'pre-serialization projection evidence'. A browser-driven row can only see the POST-wire form; a genuinely pre-serialization capture would need a server-side seam in src/lib/multiplayer/server/projection/, which is outside ownedPaths. The in-paths artifact is the per-viewer delivered projection. This must be recorded as a named non-claim, not passed off as the letter."
+      },
+      {
+        "kind": "screenshot",
+        "source": "page.screenshot() -> Buffer",
+        "inPaths": true,
+        "risk": "BINARY. bundle.write takes `body: string` only (gmTwoPlayerEvidence.ts:174-179). See binaryArtifactDecision below."
+      },
+      {
+        "kind": "trace",
+        "source": "context.tracing.start() / stop({ path }) per role context. playwright.config.ts:142 sets trace: 'on-first-retry' and the qc packs run --retries=0, so an explicit per-context trace is required; nothing is captured today.",
+        "inPaths": true,
+        "risk": "BINARY (zip) + a second secret consideration: a Playwright trace archive records network traffic, and its entries are DEFLATE-compressed, so the text secret scan cannot meaningfully inspect it. Stage 2 should either start tracing with snapshots/screenshots/sources off to shrink the surface, or declare the limit explicitly. The mitigating fact is that every credential in the sandbox is a per-run ephemeral fixture token the fixture itself deletes on cleanup (tasks.md:487 receipt)."
+      },
+      {
+        "kind": "cleanup-log",
+        "source": "per-role record of what the harness closed, written after each role context is closed and before finalize",
+        "inPaths": true,
+        "risk": "ORDERING. fixture.cleanup() today runs in a finally AFTER finalize (e2e/gm-two-player-fixture.smoke.spec.ts:110 then :119). A complete bundle needs per-role close-then-record-then-finalize, with fixture.cleanup() still called in the finally (it is idempotent - proven by e2e/gm-two-player-cleanup-ownership.spec.ts:365)."
+      }
+    ],
+    "binaryArtifactDecision": {
+      "problem": "Two of the nine kinds (screenshot, trace) are binary. The bundle's only writer takes a string.",
+      "optionA": {
+        "name": "base64 into the existing string writer",
+        "cost": "0 fixture lines",
+        "secretScanSafety": "provably safe - all four SECRET_PATTERNS require a quote character or whitespace, and the base64 alphabet (A-Za-z0-9+/=) contains neither, so a bare base64 body can never match",
+        "objection": "the letter says the per-run directory SHALL CONTAIN screenshots and a trace. A .b64 file is not a screenshot, and a multi-megabyte base64 trace is a poor artifact.",
+        "verdict": "rejected - easy fix, not the correct one"
+      },
+      "optionB": {
+        "name": "add an additive binary writer to e2e/fixtures/gmTwoPlayerEvidence.ts",
+        "shape": "attach(kind, role, name, bytes: Buffer): IEvidenceEntry - same run-owned path check, same sha256/bytes entry, same `entries` array so listMissingEvidenceCells counts it; the text secret scan is skipped and that skip is documented at the call site",
+        "cost": "~30-40 lines in e2e/fixtures/gmTwoPlayerEvidence.ts, additive only",
+        "coverageLimit": "jest.config roots are ['<rootDir>/src','<rootDir>/scripts','<rootDir>/openspec'] - e2e/ is NOT a jest root, and the fixture's jest suite lives at src/__tests__/unit/evidence/gmTwoPlayerEvidence.test.ts, which is OUT of ownedPaths. The new writer's proof is therefore the live 27-cell row plus the existing 12-row jest suite continuing to pass unchanged. That limit must be declared, not implied.",
+        "verdict": "recommended"
+      }
+    },
+    "hostRowDecision": {
+      "optionExtend": "Extend the existing @fixture-smoke row (3/27 today). Smallest diff, no group work. Rejected: it turns the isolation gate into the heavyweight evidence row, and fixture-smoke is a member of both `smoke` and `all`, so every ladder run would pay for three traces and three screenshots.",
+      "optionNewPack": "Add e2e/gm-two-player-evidence.pack.spec.ts and register it under the RESERVED catalog name `evidence-smoke`. Recommended.",
+      "whyEvidenceSmoke": "`evidence-smoke:27` is ALREADY in GROUP_CATALOG (scripts/qc/gm-two-player-campaign-core.cjs:6) and in the qc test's groups pin (scripts/__tests__/gm-two-player-campaign-qc.test.ts:8), but has NO SPEC_BY_GROUP entry, so it exits 3 NOT_IMPLEMENTED today (core.cjs:169-172; asserted by the loop at qc test :534-542). Owner 27 is implementation-plan.md Todo 27 'Add evidence bundle and truly read-only durable probe' (:357-363), whose QA invocation is literally `--group=evidence-smoke --run-id=task-27-evidence-smoke` and whose acceptance criterion is 'passing and failing smoke scenarios each emit complete manifest/evidence'. Wiring this group is the designed home for this behavior, not an invention.",
+      "consequence": "GROUP_CATALOG needs NO edit (the name is already registered). SPEC_BY_GROUP gains one entry; `all` auto-expands from SPEC_BY_GROUP keys (core.cjs:163-168), so the qc all-args pin (qc test :403-431) and the `implemented` list (:505-533) must both be updated in the same edit - the same three-pin ritual U1 performed for `backpressure`."
+    }
+  },
+  "estimate": {
+    "files": [
+      {
+        "path": "e2e/gm-two-player-evidence.pack.spec.ts",
+        "action": "add",
+        "lines": "190-240",
+        "what": "the strict 27-cell row: three-context fixture, per-role tracing + socket tap armed before navigation, a small drive to produce real frames, per-role capture of all nine kinds, per-role context close, strict finalize with NO allowIncompleteEvidence, then assertions that manifest.captured has 27 entries, manifest.missing is empty, and every named file exists on disk under the run root"
+      },
+      {
+        "path": "e2e/helpers/gmTwoPlayerEvidenceCapture.ts",
+        "action": "add",
+        "lines": "110-160",
+        "what": "per-role capture helpers: socket tap + token redactor, projection/latency/hashes derivation, durable-row scoping, cleanup-log record. Comparable landed helper: e2e/helpers/tacticalBackpressureObserver.ts is 277 lines, but that one carries a WebSocket accessor wrap and clock correlation this unit does not need."
+      },
+      {
+        "path": "e2e/fixtures/gmTwoPlayerEvidence.ts",
+        "action": "edit",
+        "lines": "30-40",
+        "what": "additive attach(kind, role, name, bytes: Buffer) binary writer"
+      },
+      {
+        "path": "scripts/qc/gm-two-player-campaign-core.cjs",
+        "action": "edit",
+        "lines": "8-12",
+        "what": "SPEC_BY_GROUP['evidence-smoke'] entry plus its why-comment; GROUP_CATALOG unchanged"
+      },
+      {
+        "path": "scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+        "action": "edit",
+        "lines": "25-35",
+        "what": "evidence-smoke into the implemented list, its deterministic plan pin, and the all-args pin"
+      },
+      {
+        "path": "openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md",
+        "action": "edit",
+        "lines": "1-2 (long PROGRESS bullet)",
+        "what": "22.3 E2E-78 completion receipt with the declared non-claims"
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/units.json + evidence/u1b-*.json",
+        "action": "edit/add",
+        "lines": "ledger, receipt-class",
+        "what": "stage receipts; U1 counted units.json among its 9 files"
+      }
+    ],
+    "fileCount": 7,
+    "fitsFileCap": true,
+    "nonGeneratedLineRange": [
+      370,
+      490
+    ],
+    "fitsLineCap": "yes, but at the ceiling",
+    "capBinding": "maxNonGeneratedLines (500). The 15-file cap is comfortable.",
+    "measurementBasis": "Landed comparables read in this session: e2e/gm-two-player-backpressure.pack.spec.ts 244 lines (U1, one scenario) + e2e/helpers/tacticalBackpressureObserver.ts 277; e2e/gm-two-player-cleanup-ownership.spec.ts 418 for E2E-79's five rows; e2e/gm-two-player-fixture.smoke.spec.ts 159 for two rows; e2e/fixtures/gmTwoPlayerEvidence.ts 280. U1 itself authored 577 lines against the same 500 cap and recorded the overage, so this estimate is deliberately scoped to ONE row rather than a pack of rows.",
+    "trimLeversIfTheCapBinds": [
+      "Capture latency from the page's own navigation/paint timing rather than the correlated server-probe clock pair (saves ~40 lines; E2E-78 asks for a latency JSON, not a budget verdict - E2E-71..74 own the budgets).",
+      "Fold the capture helper into the spec file (no line saving, but removes a file) or, conversely, keep the helper and drop the separate redactor by capturing framereceived only and declaring the direction limit (saves ~20 lines, weakens the word 'raw').",
+      "If still over: park the trace kind behind a second unit. NOT recommended - a 26/27 bundle is exactly the state this unit exists to end."
+    ],
+    "splitRecommended": false
+  },
+  "redPlan": {
+    "principle": "The failure must be reproduced at the REAL boundary - a live finalize inside the strict sandbox - before any capture code is written, and it must name the exact missing cells.",
+    "R1": {
+      "name": "live strict finalize on shipped code fails naming 24 cells",
+      "how": "In the worktree only, delete the `, { allowIncompleteEvidence: true }` argument at e2e/gm-two-player-fixture.smoke.spec.ts:115 and run the fixture-smoke group live. The row fails inside finalize with EVIDENCE_INCOMPLETE listing exactly the 24 non-environment cells (8 kinds x 3 roles) and writes no manifest.",
+      "provesWhat": "That on baseline 291eb81e0 NO strict scenario emits a complete bundle - the precise gap the unit's behavior sentence names - and that the 3 present cells are environment/* for the three matrix roles.",
+      "command": "node scripts/qc/run-gm-two-player-campaign.mjs --group=fixture-smoke --run-id=u1b-red-fixture-smoke",
+      "disposition": "reverted immediately after the output is captured into the red receipt; it is a probe, not a shipped edit"
+    },
+    "R2": {
+      "name": "the evidence-smoke selector is unimplemented",
+      "how": "node scripts/qc/run-gm-two-player-campaign.mjs --group=evidence-smoke --run-id=u1b-red-evidence-smoke",
+      "expected": "exit 3, stderr '[qc:gm-two-player-campaign] NOT_IMPLEMENTED group=evidence-smoke owner=27'",
+      "provesWhat": "the ladder has no evidence group to run, so the new row would run nowhere - the finding-#33 / finding-N1 failure mode the qc pin exists to catch",
+      "cost": "seconds, boots nothing"
+    },
+    "R3": {
+      "name": "the new strict row's own first live finalize",
+      "how": "land the new pack row capturing ONLY the environment kind, run --group=evidence-smoke live, and keep the EVIDENCE_INCOMPLETE output naming its 24 cells before the eight capture kinds are added",
+      "provesWhat": "the new row is wired to the gate strictly (no allowIncompleteEvidence anywhere on its path), so the eventual green cannot come from an escape hatch",
+      "note": "R3 is the red that survives into the receipt; R1 is the on-shipped-code proof that the gap is real rather than an artifact of the new row"
+    },
+    "mutantsPlanned": [
+      "M1: drop one kind's capture (e.g. hashes for future-player-2) - the live finalize must go red naming exactly that cell",
+      "M2: relabel one capture's role to a non-matrix literal (the membership/performance failure mode) - the row must go red, proving the matrix is scored on the role string and not on artifact count",
+      "M3: reintroduce { allowIncompleteEvidence: true } on the new row's finalize - the row must go red on the manifest assertions (captured length 27, missing empty), proving the escape hatch cannot rescue it",
+      "NOVEL N1: remove the SPEC_BY_GROUP['evidence-smoke'] entry - the qc pin suite must go red"
+    ]
+  },
+  "acceptanceCommands": {
+    "preflightBeforeAnyBuildOrPlaywright": "powershell -NoProfile -c \"(Get-CimInstance Win32_Process -Filter \\\"name='node.exe'\\\" | ? { $_.CommandLine -match 'next.*build|playwright' }).Count\" must print 0 (two-core CPU rule)",
+    "nodeVersion": "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "build": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build",
+    "mainProofLadderRunner": "node scripts/qc/run-gm-two-player-campaign.mjs --group=evidence-smoke --run-id=<run-id>",
+    "mainProofRationale": "The ladder runner is the family's proof path because it wires the durable store this family needs and derives its own run-owned fixture port from the run id (deriveFixturePort, 20000-29999, scripts/qc/gm-two-player-campaign-core.cjs:33-42). The standalone MEKSTATION_E2E_SERVER_COMMAND / port-3639 Playwright invocation is a debugging convenience only and is NOT the acceptance command for this unit.",
+    "regressionOnSharedSurfaces": [
+      "node scripts/qc/run-gm-two-player-campaign.mjs --group=fixture-smoke --run-id=<run-id>   (the R1 probe touched it and it shares e2e/fixtures/gmTwoPlayerEvidence.ts)",
+      "node scripts/qc/run-gm-two-player-campaign.mjs --group=membership-smoke --run-id=<run-id>   (also finalizes a bundle through the edited fixture)"
+    ],
+    "typecheck": "npm run typecheck",
+    "lint": "npm run lint",
+    "formatCheck": "npm run format:check",
+    "qcPinSuite": "npx jest --watchAll=false --runTestsByPath scripts/__tests__/gm-two-player-campaign-qc.test.ts --runInBand",
+    "evidenceFixtureJestSuite": "npx jest --watchAll=false --runTestsByPath src/__tests__/unit/evidence/gmTwoPlayerEvidence.test.ts --runInBand   (must stay green unchanged - the file is NOT edited; it is the regression proof that attach() is additive)",
+    "openspecCi": "npm run qc:openspec-ci:validate",
+    "roadmapValidator": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs   (must print ROADMAP VALIDATION PASSED with unchanged counts, before and after every ledger edit)",
+    "portDiscipline": "Port 3639 is the primary-server port for any direct Playwright debugging run. The ladder runner uses its own derived port by design."
+  },
+  "decisionNeeded": {
+    "verdict": "go",
+    "reasons": [
+      "The behavior is deliverable entirely within ownedPaths: every one of the nine kinds has an in-paths capture source, verified file-by-file in this session. No src/ change, no rewind, no flag flip, no owner witness.",
+      "The estimate is 7 files and 370-490 non-generated lines against caps of 15 files and 500 lines - inside both, with named trim levers if the ceiling binds.",
+      "The host group is already designed and reserved: evidence-smoke:27 sits in GROUP_CATALOG with no SPEC_BY_GROUP entry, and implementation-plan.md Todo 27's QA invocation is exactly `--group=evidence-smoke`. Wiring it needs no catalog widening.",
+      "The red is available on shipped code before anything is written (R1: drop the allowIncompleteEvidence argument at fixture.smoke:115 and watch a live finalize name 24 cells), so the gap is proven at the real boundary rather than asserted."
+    ],
+    "residualsForTheParentToRuleOn": [
+      {
+        "id": "RES-1",
+        "issue": "units.json U1b has an EMPTY taskKeys array. Row 22.3@584 was reassigned to PK-rewind-branch-reader by the U1 split decision. Stage 7 (tick) has no row to check, and the holders rule attributes 22.3 to a packet this unit does not own.",
+        "options": [
+          "accept a tick-less unit (record the tick receipt as not-applicable with the reassignment quoted)",
+          "add harden-gm-two-player-campaign-sessions#22.3@584 to U1b's taskKeys as a co-holder"
+        ],
+        "agentRecommendation": "accept tick-less. 22.3 covers E2E-71..80; this unit closes one clause of one scenario and must not be allowed to tick a row whose rewind-gated members are still open.",
+        "blocking": false
+      },
+      {
+        "id": "RES-2",
+        "issue": "LETTER FIDELITY, 'pre-serialization projection evidence'. A browser-driven strict row can only capture the post-wire viewer projection; a truly pre-serialization capture needs a seam in src/lib/multiplayer/server/projection/, outside ownedPaths.",
+        "agentRecommendation": "capture the per-viewer delivered projection and declare the limit as a named non-claim in the row header and the 22.3 receipt, in the same style as the E2E-73 chunk-shape declaration (u1-admission-20260916.json scenarioTable E2E-73 statedNonClaim). Do NOT silently label a post-wire artifact 'pre-serialization'.",
+        "blocking": false
+      },
+      {
+        "id": "RES-3",
+        "issue": "LETTER FIDELITY, 'raw socket transcript'. VERIFIED collision: src/lib/multiplayer/client.ts:736 sends `token: runtime.wireToken` in SessionJoin, which matches the bundle's SECRET_PATTERNS[1] at e2e/fixtures/gmTwoPlayerEvidence.ts:117, so a genuinely raw both-directions transcript is refused with EVIDENCE_SECRET_LEAK - correctly.",
+        "agentRecommendation": "capture both directions and redact the token field before write, declaring the redaction. Never weaken the secret scan to make the letter fit.",
+        "blocking": false
+      },
+      {
+        "id": "RES-4",
+        "issue": "The additive attach() binary writer cannot get a jest row in-paths: jest.config roots are src/scripts/openspec (e2e/ is not a jest root) and the fixture's suite lives at src/__tests__/unit/evidence/gmTwoPlayerEvidence.test.ts, outside ownedPaths.",
+        "agentRecommendation": "proceed. Its proof is the live 27-cell row plus the unchanged 12-row jest suite staying green; record the coverage limit as a non-claim. If the parent prefers jest coverage, that is a one-file ownedPaths amendment to add src/__tests__/unit/evidence/gmTwoPlayerEvidence.test.ts - a decision for the parent, not this lane.",
+        "blocking": false
+      }
+    ],
+    "parentActionsRequired": [
+      "Rule RES-1 (tick-less unit versus co-holder taskKeys) before stage 7.",
+      "Optionally rule RES-4 (extend ownedPaths by the one jest file) before stage 2; the lane proceeds without it by default."
+    ]
+  },
+  "notes": [
+    "No product or test file was modified in this stage. The worktree is clean at 291eb81e05709b34c5087a7fe3ef4cfd111eedc6 on branch codex/roadmap-u1b-e2e-78-bundle-20260916; no commit was made.",
+    "No build and no Playwright run was started in this stage, per the stage-1 instruction.",
+    "This receipt is the single root write permitted for this stage.",
+    "Every claim above cites a file and line read, or a command run, in this session. Two statements are explicitly marked as residual judgements rather than asserted facts: whether a post-wire viewer projection satisfies the letter's 'pre-serialization' (RES-2) and whether a token-redacted transcript satisfies the letter's 'raw' (RES-3)."
+  ],
+  "parentDecision": {
+    "at": "2026-09-16T18:56:09.874Z",
+    "decision": "go",
+    "rulings": {
+      "RES-1": "accepted: U1b is a tick-less unit; row 22.3 stays held by PK-rewind-branch-reader until E2E-76 can pass, as for U1",
+      "RES-2": "recorded non-claim: the pre-serialization projection is captured post-wire from e2e; the bundle cell is the post-wire projection and the receipt says so",
+      "RES-3": "agreed: the socket transcript ships token-redacted; the secret scan in the fixture is never weakened",
+      "RES-4": "ownership paths unchanged; the attach helper is proven by the live row, not by a jest file outside the unit paths"
+    },
+    "landing": "new e2e/gm-two-player-evidence.pack.spec.ts under the reserved evidence-smoke group (already in GROUP_CATALOG, no SPEC_BY_GROUP entry yet); fixture-smoke stays as is"
+  }
+}

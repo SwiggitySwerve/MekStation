@@ -177,6 +177,23 @@ export interface IEvidenceBundle {
     name: string,
     body: string,
   ) => IEvidenceEntry;
+  /**
+   * Writes one BINARY artifact (a PNG screenshot, a trace archive).
+   *
+   * Two of the nine declared kinds are not text, and base64 through
+   * `write` would put a `.b64` file in the run directory when the letter
+   * requires the screenshot and the trace themselves. The secret scan is
+   * NOT skipped - the bytes are scanned as latin1, so this is never
+   * weaker than `write` - but its LIMIT is declared rather than implied:
+   * a DEFLATE-compressed archive stores entries compressed, so the scan
+   * cannot read inside one.
+   */
+  readonly attach: (
+    kind: EvidenceKind,
+    role: string,
+    name: string,
+    bytes: Buffer,
+  ) => IEvidenceEntry;
   /** Records an artifact the run intended but could not capture. */
   readonly recordMissing: (
     kind: EvidenceKind,
@@ -226,30 +243,47 @@ export function openEvidenceBundle(
   const entries: IEvidenceEntry[] = [];
   const missing: { kind: EvidenceKind; role: string; why: string }[] = [];
 
+  /**
+   * One record path for both writers: scan, resolve a run-owned target,
+   * write, push the matrix entry. The matrix is scored on what lands in
+   * `entries`, so a writer that built its entry separately could let a
+   * cell count without the same refusals having run.
+   */
+  const record = (
+    kind: EvidenceKind,
+    role: string,
+    name: string,
+    payload: Buffer,
+    scanned: string,
+  ): IEvidenceEntry => {
+    assertNoSecrets(kind, scanned);
+    const target = path.join(root, `${role}.${kind}.${name}`);
+    try {
+      guards.assertRunOwnedPath(target, runId, runtimeRoot);
+    } catch (error) {
+      throw new EvidenceBundleError(
+        'EVIDENCE_FOREIGN_PATH',
+        error instanceof Error ? error.message : String(error),
+      );
+    }
+    fs.writeFileSync(target, payload);
+    const entry: IEvidenceEntry = {
+      kind,
+      role,
+      file: path.relative(root, target),
+      sha256: createHash('sha256').update(payload).digest('hex'),
+      bytes: payload.byteLength,
+    };
+    entries.push(entry);
+    return entry;
+  };
+
   return {
     root,
-    write: (kind, role, name, body) => {
-      assertNoSecrets(kind, body);
-      const target = path.join(root, `${role}.${kind}.${name}`);
-      try {
-        guards.assertRunOwnedPath(target, runId, runtimeRoot);
-      } catch (error) {
-        throw new EvidenceBundleError(
-          'EVIDENCE_FOREIGN_PATH',
-          error instanceof Error ? error.message : String(error),
-        );
-      }
-      fs.writeFileSync(target, body, 'utf8');
-      const entry: IEvidenceEntry = {
-        kind,
-        role,
-        file: path.relative(root, target),
-        sha256: createHash('sha256').update(body).digest('hex'),
-        bytes: Buffer.byteLength(body, 'utf8'),
-      };
-      entries.push(entry);
-      return entry;
-    },
+    write: (kind, role, name, body) =>
+      record(kind, role, name, Buffer.from(body, 'utf8'), body),
+    attach: (kind, role, name, bytes) =>
+      record(kind, role, name, bytes, bytes.toString('latin1')),
     recordMissing: (kind, role, why) => {
       missing.push({ kind, role, why });
     },

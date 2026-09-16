@@ -241,7 +241,14 @@ async function postCampaignMatch(
   return { matchId, roomCode };
 }
 
-async function joinUntilSnapshot(
+/**
+ * Open one campaign socket from the role's own page and wait for the
+ * server's answer. Exported because the E2E-78 evidence pack re-joins
+ * each role with a frame tap armed: the drive's first join happens
+ * inside `openRecoverableCampaign`, before any caller can listen, and a
+ * transcript has to be captured at a socket the recorder saw open.
+ */
+export async function joinUntilSnapshot(
   client: IRecoveryClient,
   session: IRecoverySession,
   role: 'host' | 'guest',

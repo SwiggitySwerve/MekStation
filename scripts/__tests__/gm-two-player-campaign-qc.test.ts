@@ -415,6 +415,28 @@ describe('GM and two-player campaign QC runner', () => {
       authorityPlan.environment.MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY,
     ).toBe('1');
 
+    // `evidence-smoke` (E2E-78) runs the strict complete-bundle row and
+    // nothing else. Predicted red of this pin before the SPEC_BY_GROUP
+    // entry: buildRunPlan threw NOT_IMPLEMENTED group=evidence-smoke
+    // owner=27, which is the state `node scripts/qc/
+    // run-gm-two-player-campaign.mjs --group=evidence-smoke` was in on
+    // main. Not a respawning group: the row closes its own contexts.
+    const evidencePlan = core.buildRunPlan({
+      group: 'evidence-smoke',
+      runId: 'task-27-evidence-smoke',
+      repoRoot,
+    });
+    expect(evidencePlan.args).toEqual([
+      path.join(repoRoot, 'scripts/playwright/run-playwright.mjs'),
+      'test',
+      '--project=chromium',
+      'e2e/gm-two-player-evidence.pack.spec.ts',
+      '--workers=1',
+    ]);
+    expect(evidencePlan.environment.MEKSTATION_E2E_SERVER_COMMAND).toBe(
+      faultSmokeServerCommand(core, repoRoot),
+    );
+
     // `all` is the union of every registered SPEC_BY_GROUP entry.
     // Predicted red of this pin today, before `all` had a SPEC_BY_GROUP
     // entry: the group was already in GROUP_CATALOG (owner 34) and
@@ -453,6 +475,7 @@ describe('GM and two-player campaign QC runner', () => {
       'e2e/gm-two-player-combat.pack1.spec.ts',
       'e2e/gm-two-player-rewind.pack.spec.ts',
       'e2e/gm-two-player-backpressure.pack.spec.ts',
+      'e2e/gm-two-player-evidence.pack.spec.ts',
       '--workers=1',
     ]);
     // restart-pack, resilience-pack, authority-recovery, and the
@@ -529,6 +552,11 @@ describe('GM and two-player campaign QC runner', () => {
       'combat-pack1',
       'rewind-pack',
       'backpressure',
+      // 22.3's E2E-78 complete-bundle row. `evidence-smoke` sat in
+      // GROUP_CATALOG as owner 27 from the start and answered
+      // NOT_IMPLEMENTED for the whole program; it leaves this loop only
+      // now that a spec exists for it.
+      'evidence-smoke',
       'all',
     ];
     for (const group of groups.filter(
