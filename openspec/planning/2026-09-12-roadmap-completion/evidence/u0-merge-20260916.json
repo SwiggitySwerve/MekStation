@@ -1,0 +1,15 @@
+{
+  "unit": "U0",
+  "stage": "merge",
+  "at": "2026-09-16T16:03:48.636Z",
+  "pr": 1784,
+  "title": "docs(roadmap): U0 loop dry run, stages admission through local",
+  "head": "5764b6e3a87be4f4bc2e93d681e8370c2293fa90",
+  "mergeSha": "66fe4303905ccf347b894d7d8e648caca7e07d07",
+  "mergedAt": "2026-09-16T16:02:17Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --admin --match-head-commit (docs-class unit; administrative merge is the documented lane for docs PRs)",
+  "checksAtMerge": "docs-class: not waited on per GOAL.md standing constraints",
+  "parentCount": 1,
+  "blobEqualityDiffLines": 0
+}

@@ -1,0 +1,27 @@
+{
+  "unit": "U0",
+  "stage": "mainProof",
+  "at": "2026-09-16T16:03:48.636Z",
+  "mergeCommit": "66fe4303905ccf347b894d7d8e648caca7e07d07",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u0 (detached at the merge commit)",
+  "commands": {
+    "validator": "ROADMAP VALIDATION PASSED: 73 nodes, 13 packages, 376 tasks, 40 triage rows",
+    "next": "U1",
+    "gitAncestry": "ROADMAP VALIDATION PASSED: 73 nodes, 13 packages, 376 tasks, 40 triage rows (--git re-executed merge-base --is-ancestor)",
+    "openspecStrict": "Totals: 229 passed, 0 failed (229 items)",
+    "purpose": "Errors: 0",
+    "terminology": "\u001b[32m✓ No terminology violations found!",
+    "qcOpenspecCi": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0"
+  },
+  "logs": ".sisyphus/roadmap-completion-20260912/u0-main-proof-20260916/ (local; sha256 below)",
+  "logHashes": [
+    "b185e5f101786a05e7aa9bd0cde15778607fa047fbdbec8a15158c89753c23fc *git-check.log",
+    "f7c290d1d0dad48daf915503a7c7bf116cdde44bfbc9e0c27f1b8308b140c02b *next.log",
+    "fed248fc815eeb6f7bcba19c13e61a741afc1b5b5b5033b1c2d22a2195eccb0e *openspec-strict.log",
+    "ace886bddad0bab235495d36941de9a5d4f11312153b3e74897c787c3b877226 *purpose.log",
+    "4c2dafd093b946290aa4abe001ad8b3d65671b17c7682722c55a510ecc04f91e *qc-openspec-ci.log",
+    "1d2cb0c9767e0e63566fe2fe29b5b77d5faa2f885c4af2c4026143d45b124271 *terminology.log",
+    "b185e5f101786a05e7aa9bd0cde15778607fa047fbdbec8a15158c89753c23fc *validator.log"
+  ],
+  "verdict": "PASS"
+}
