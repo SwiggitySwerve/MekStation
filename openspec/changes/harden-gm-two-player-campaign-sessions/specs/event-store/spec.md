@@ -1,11 +1,12 @@
 ## ADDED Requirements
 
 ### Requirement: Atomic Command Event Batches
-The event store SHALL commit a command receipt, every event derived by that command, the resulting effective-head metadata, and recipient-neutral publication records in one transaction with a contiguous server-only authority sequence.
+The event store SHALL commit a command receipt, every event derived by that command, the resulting effective-head metadata, and recipient-neutral publication records in one transaction. Every event SHALL receive a contiguous revision in its owning stream and branch, a unique monotonically increasing server-only commit position whose numeric values MAY contain gaps, and a zero-based command index within the batch.
 
 #### Scenario: Batch commit succeeds completely
 - **WHEN** a command derives multiple combat or campaign events
-- **THEN** the receipt, events, head update, and publication records SHALL become durable together with no interleaving from another command
+- **THEN** the receipt, events, head update, and publication records SHALL become durable together with no interleaving from another command in the same owning stream
+- **AND** the batch SHALL preserve command-index order without requiring an expected global database head
 
 #### Scenario: Batch commit fails completely
 - **WHEN** any write in the command batch fails or collides
@@ -23,7 +24,7 @@ The event store SHALL retain stable command and idempotency receipts for the aut
 - **THEN** the store SHALL return an integrity conflict and SHALL not mutate the journal
 
 ### Requirement: Branches Preserve Immutable Supersession Lineage
-The event store SHALL represent correction and rewind as append-only branches with parent, base authority sequence, effective head, status, actor, reason, and supersession records. It SHALL NOT delete or rewrite prior authoritative events.
+The event store SHALL represent correction and rewind as append-only branches with parent, base stream revision, effective stream head, status, actor, reason, and supersession records. It SHALL NOT delete or rewrite prior authoritative events.
 
 #### Scenario: Replacement branch preserves prior history
 - **WHEN** the GM commits an authorized rewind
@@ -38,10 +39,10 @@ The event store SHALL represent correction and rewind as append-only branches wi
 - **THEN** the candidate branch SHALL remain blocked and the prior effective branch SHALL remain authoritative
 
 ### Requirement: Checkpoints and Compaction Are Cache-Only
-Trusted checkpoints SHALL be immutable projection caches keyed by branch, authority head, reducer version, and digest. Compaction SHALL NOT remove command receipts, authoritative events, branch lineage, supersession, outcome receipts, or audit facts.
+Trusted checkpoints SHALL be immutable projection caches keyed by stream, branch, stream revision, reducer version, and digest. Compaction SHALL NOT remove command receipts, authoritative events, branch lineage, supersession, outcome receipts, or audit facts.
 
 #### Scenario: Compatible checkpoint accelerates rebuild
-- **WHEN** a checkpoint's branch, head, reducer version, and digest match the requested replay base
+- **WHEN** a checkpoint's stream, branch, stream revision, reducer version, and digest match the requested replay base
 - **THEN** the system MAY resume projection from the checkpoint and SHALL produce the same state and audience digests as full replay
 
 #### Scenario: Incompatible checkpoint is not trusted
@@ -49,7 +50,7 @@ Trusted checkpoints SHALL be immutable projection caches keyed by branch, author
 - **THEN** recovery SHALL rebuild from an earlier trusted base or enter a truthful blocked state
 
 ### Requirement: Corrupt Authority Data Is Quarantined Per Session
-Recovery SHALL validate authority-sequence continuity, branch lineage, receipt uniqueness, and required digests before admitting commands or publication.
+Recovery SHALL validate stream-revision continuity, commit-position uniqueness, stream-scoped predecessor lineage, branch lineage, receipt uniqueness, and required digests before admitting commands or publication.
 
 #### Scenario: One corrupt session is isolated
 - **WHEN** validation fails for one match or campaign session
