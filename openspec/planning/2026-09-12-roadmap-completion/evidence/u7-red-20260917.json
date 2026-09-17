@@ -1,0 +1,50 @@
+{
+  "unit": "U7",
+  "at": "2026-09-17T09:38:18.730Z",
+  "baseline": "1d31dc8dcccde8f17b74596db8b2e9d7e6a68388",
+  "worktree": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\u7",
+  "branch": "codex/roadmap-u7-authorization-row-20260917",
+  "stage": "red",
+  "status": "measured",
+  "measurement": {
+    "lastOutputLine": "Node.js v22.22.0",
+    "exitCode": 1,
+    "id": "red-baseline",
+    "action": "red",
+    "at": "2026-09-17T09:35:35.7722182Z",
+    "log": ".sisyphus/u7-run/red-baseline.log",
+    "sha256": "6990a0a3f4b9b52d4ca1b881315db0accfc5556441a24b918f76207c3f4685e9",
+    "resultLines": [],
+    "outputSummary": {
+      "actualTitles": [
+        "E2E-77 reachable conflict messages are actionable and leak-safe @conflict-pack @E2E-77"
+      ],
+      "expectedAdditionalTitle": "E2E-77 seated non-host rewind commit is refused and leak-safe @conflict-pack @E2E-77",
+      "failure": "AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal",
+      "exitCode": 1
+    }
+  },
+  "command": "node .sisyphus/u7-run/red.cjs; buildRunPlan(--group=conflict-pack) resolves shipped spec, require both row titles",
+  "expectedFailure": "deepStrictEqual: shipped title list has one row; seated non-host rewind commit row is missing",
+  "build": {
+    "lastOutputLine": "}",
+    "exitCode": 1,
+    "id": "build-baseline",
+    "action": "build",
+    "at": "2026-09-17T09:37:24.4061698Z",
+    "log": ".sisyphus/u7-run/build-baseline.log",
+    "sha256": "714132c246a5b8133a3107fe3de4c38d4922e98d80d9f094c83e191fd2d2399c",
+    "resultLines": [
+      "✓ Compiled successfully in 39.1s",
+      "  \"error\": \"Unsafe hydration destination (runtime loader tsx) contains a symlink or junction: "
+    ],
+    "serverExists": true,
+    "bundleMarkerCount": 1,
+    "routeTablePrinted": true,
+    "rewindCommitRouteListed": true
+  },
+  "buildCommand": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build",
+  "productEditsBeforeMeasurement": false,
+  "probesReverted": "Probe was isolated in ignored scratch; no product or src probe to revert.",
+  "row1BaselineSha256": "f0fe81879b63b7b784969ea006f37e991e6c3b4bd5e976ef5be95c8603ca88e3"
+}

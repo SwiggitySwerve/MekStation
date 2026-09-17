@@ -323,3 +323,123 @@ function objectField(frame: WireFrame, key: string): WireFrame | null {
     ? (value as WireFrame)
     : null;
 }
+
+/**
+ * Row 2, U7: E2E-77 authorization through the existing rewind-commit route.
+ * The seated non-host uses its own credentials from the production login.
+ * GM_ONLY's UI clause is NOT claimed: NetworkedGameSurface.tsx mounts the
+ * rewind controls only for viewerRole === 'host-gm' and !spectator, and
+ * NetworkedGameSurface.gmRewind.tsx mounts the dialog only while open.
+ * The phrasing table's "Only the game master for this match can preview a
+ * rewind." therefore has no non-host surface here. Assert the actual route
+ * body, absent guest controls/dialog, and rendered guest text for leaks.
+ * The row-1 header's wire GM_ONLY non-claim remains specific to that row;
+ * this row sends no synthetic socket refusal and claims no other class.
+ * No correction lease is acquired: exact body and forbidden-field checks
+ * cover lease disclosure, but comparison against a live lease is not claimed.
+ */
+test('E2E-77 seated non-host rewind commit is refused and leak-safe @conflict-pack @E2E-77', async ({
+  browser,
+  request,
+}) => {
+  test.setTimeout(180_000);
+  let identityIds: readonly string[] = [];
+  const hostPage = await openContextPage(browser);
+  const guestPage = await openContextPage(browser);
+  const hostHarness = await installConflictHarness(hostPage);
+  // Observer only: collision and send levers remain disarmed in this row.
+  const harness = await installConflictHarness(guestPage);
+  const guestTokenResponse = guestPage.waitForResponse(
+    (response) =>
+      response.url().includes('/api/multiplayer/auth/token') &&
+      response.request().method() === 'POST' &&
+      response.status() === 200,
+    { timeout: 30_000 },
+  );
+  try {
+    const live = await launchOneVersusOne({
+      browser,
+      request,
+      hostPage,
+      guestPage,
+      hostName: 'Authorization Host',
+      guestName: 'Authorization Guest',
+      hostPassword: HOST_PASSWORD,
+      guestPassword: GUEST_PASSWORD,
+    });
+    identityIds = live.identityIds;
+    const guestToken = (await (await guestTokenResponse).json()) as {
+      readonly playerId: string;
+      readonly token: string;
+    };
+    await expect.poll(() => harness.identity).not.toBeNull();
+    const identity = requiredIdentity(harness);
+    expect(identity.matchId).toBe(live.match.matchId);
+    expect(guestToken.playerId).toBe(identity.playerId);
+    expect(guestToken.playerId).not.toBe(live.hostToken.playerId);
+    expect(guestToken.token.length).toBeGreaterThan(0);
+    await expect(
+      hostPage.getByTestId('networked-gm-rewind-controls'),
+    ).toBeVisible();
+    await expect(
+      guestPage.getByTestId('networked-gm-rewind-controls'),
+    ).toHaveCount(0);
+
+    const response = await guestPage
+      .context()
+      .request.post(`/api/matches/${live.match.matchId}/rewind-commit`, {
+        headers: { Authorization: `Bearer ${guestToken.token}` },
+        // Same baseline binding shape as useGmRewindProducers; authority
+        // must refuse before validating the historical head or taking a lease.
+        data: {
+          targetRevision: 0,
+          expectedBranchId: 'root',
+          expectedRevision: 0,
+          expectedDigest: '',
+          expectedGeneration: 1,
+        },
+      });
+    expect(response.status()).toBe(403);
+    const body = await response.text();
+    const answer = JSON.parse(body) as Record<string, unknown>;
+    expect(answer.kind).toBe('refused');
+    expect(answer.reason).toBe('gm-role-required');
+    await expect(guestPage.getByTestId('gm-rewind-preview-dialog')).toHaveCount(
+      0,
+    );
+    await expect(guestPage.getByTestId('gm-rewind-refusal')).toHaveCount(0);
+    const rendered = await guestPage.locator('body').innerText();
+    const cookies = [
+      ...(await hostPage.context().cookies()),
+      ...(await guestPage.context().cookies()),
+    ];
+    const secrets = [
+      live.hostToken.playerId,
+      live.hostToken.token,
+      requiredIdentity(hostHarness).token,
+      guestToken.playerId,
+      guestToken.token,
+      identity.token,
+      ...cookies.map((cookie) => cookie.value),
+    ].filter((value) => value.length > 0);
+    for (const text of [body, rendered]) {
+      for (const secret of secrets) {
+        // Boolean assertion keeps any offending credential out of the report.
+        expect(text.includes(secret)).toBe(false);
+      }
+      expect(
+        /playerId|wireToken|sessionToken|leaseId|lease_id/i.test(text),
+      ).toBe(false);
+    }
+    expect(answer).toEqual({
+      kind: 'refused',
+      reason: 'gm-role-required',
+      detail: 'Only the owning GM can request GM intervention previews.',
+    });
+    console.log('[conflict-pack] captured=authorization-gm-role-required');
+  } finally {
+    await deleteIdentities(request, identityIds);
+    await hostPage.context().close();
+    await guestPage.context().close();
+  }
+});

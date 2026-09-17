@@ -653,7 +653,7 @@ describe('GM and two-player campaign QC runner', () => {
     ]);
   });
 
-  it('pins the conflict-pack spec at one row', () => {
+  it('pins the conflict-pack spec at two rows', () => {
     const specArg = core
       .buildRunPlan({
         group: 'conflict-pack',
@@ -669,6 +669,7 @@ describe('GM and two-player campaign QC runner', () => {
     );
     expect(titles).toEqual([
       'E2E-77 reachable conflict messages are actionable and leak-safe @conflict-pack @E2E-77',
+      'E2E-77 seated non-host rewind commit is refused and leak-safe @conflict-pack @E2E-77',
     ]);
   });
 

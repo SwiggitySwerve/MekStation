@@ -1,0 +1,66 @@
+{
+  "unit": "U7",
+  "stage": "admission",
+  "at": "2026-09-17",
+  "baseline": "1d31dc8dcccde8f17b74596db8b2e9d7e6a68388",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u7",
+  "branch": "codex/roadmap-u7-authorization-row-20260917",
+  "levers": [
+    {
+      "evidence": "e2e/helpers/gmTwoPlayerMatchFlow.ts:246",
+      "lever": "launchOneVersusOne joins guest by room code, readies bravo-1, launches with host, and asserts both live surfaces and Movement."
+    },
+    {
+      "evidence": "e2e/gm-two-player-conflict.pack.spec.ts:243; e2e/helpers/gmTwoPlayerMatchFlow.ts:95; src/lib/multiplayer/server/auth.ts:275",
+      "lever": "Observe the guest's real authentication response and socket identity; use guestPage.context().request.post with its identity Bearer token. The REST route authenticates the actual player token."
+    },
+    {
+      "evidence": "src/pages/api/matches/[id]/rewind-commit.ts:84; :160; :195; :236; src/pages-modules/api/rewindCommitDeps.ts:62; src/lib/multiplayer/server/history/GmCombatRewindCommit.ts:76",
+      "lever": "Valid body reaches seated-player authorization, role derives from hostPlayerId, commit evaluates GM authority before history mutation and route returns the typed refused result with 403 for gm-role-required.",
+      "body": {
+        "kind": "refused",
+        "reason": "gm-role-required",
+        "detail": "Only the owning GM can request GM intervention previews."
+      },
+      "bodyEvidence": "src/lib/interventions/GmInterventionAuthority.ts:68-74; src/lib/multiplayer/server/history/GmCombatRewindCommit.ts:82-83"
+    },
+    {
+      "evidence": "src/components/multiplayer/gmRewindPreviewPhrasing.ts:67",
+      "lever": "Phrasing: Only the game master for this match can preview a rewind. The charter's src/lib/multiplayer/server/history/gmRewindPreviewPhrasing.ts path does not exist; this is the live source."
+    }
+  ],
+  "renderedSurfaceQuestion": {
+    "answer": "No non-host rewind refusal surface: NetworkedGameSurface gates GM controls with authorityProjection.viewerRole === 'host-gm' && !spectator; the dialog mounts only when those controls open it. Assert absent guest controls/dialog, route body and guest rendered text safety. GM_ONLY's UI clause is not claimed.",
+    "evidence": "src/components/multiplayer/NetworkedGameSurface.tsx:409; src/components/multiplayer/NetworkedGameSurface.gmRewind.tsx:113; src/components/multiplayer/GmRewindPreviewDialog.tsx:213"
+  },
+  "estimatePerFile": {
+    "e2e/gm-two-player-conflict.pack.spec.ts": "100-160 added lines; append row 2, preserve baseline bytes including row 1",
+    "scripts/__tests__/gm-two-player-campaign-qc.test.ts": "3-8 changed lines, two-row title pin",
+    "openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md": "one PROGRESS line, no checkbox",
+    "evidence/u7-admission-20260917.json": "receipt",
+    "evidence/u7-red-20260917.json": "receipt",
+    "evidence/u7-local-20260917.json": "receipt"
+  },
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedProductLines": 500,
+    "estimatedProductLines": "105-170",
+    "estimatedFiles": 6
+  },
+  "nonClaims": [
+    "GM_ONLY player-visible UI phrasing",
+    "wire GM_ONLY",
+    "stale branch, stale revision, rebuild, successful GM rewind",
+    "review, merge, main proof, tick"
+  ],
+  "risksForTheParent": [
+    "Owner decides whether route-level proof satisfies E2E-77 UI wording; no task checkbox is changed.",
+    "Known junction hydration build failure must be recorded with process exit and actual compiled artifacts.",
+    "Known oxlint ignores mean the required lint command covers zero changed files.",
+    "The named Hephaestus U7 table is absent from the supplied council synthesis; its authorization recommendation and open UI crux are at lines 22 and 46. Section C of review-what-needs-validation was read.",
+    "No correction lease is acquired; lease-id safety will check forbidden response keys/text and disclose that no live lease value exists in this scenario."
+  ],
+  "selection": "validate-roadmap.mjs --next printed U4 (exit 0). Per the charter U4 is in flight awaiting an owner ruling, and U7 is the next path-free planned unit in the validator's own order. The charter explicitly assigns U7; no ledger mutation.",
+  "acceptance": "Five planned builds (baseline, three mutants, clean rebuild), conflict-pack three clean runs, lifecycle-pack regression, tsc, format, lint, pin Jest, OpenSpec CI and roadmap validation. Each build/browser run waits for CPU ownership.",
+  "originMain": "1d31dc8dcccde8f17b74596db8b2e9d7e6a68388"
+}
