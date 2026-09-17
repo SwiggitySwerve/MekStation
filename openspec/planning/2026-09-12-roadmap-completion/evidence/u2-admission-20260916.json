@@ -1,0 +1,61 @@
+{
+  "unit": "U2",
+  "stage": "admission",
+  "at": "2026-09-17T01:17:02.824Z",
+  "baseline": "2a4a8d4254b0e2563e04ab4082b355b24bcbb0d8",
+  "behavior": "Implement and pass E2E-19 through E2E-30 for pre-serialization privacy, sealed choices, immediate public facts, fog projections, live/replay/export parity, unauthorized access, veto/timeout, and simultaneous proposal attribution.",
+  "taskKeys": [
+    "harden-gm-two-player-campaign-sessions#21.2@547"
+  ],
+  "reviewClasses": [
+    "privacy"
+  ],
+  "discovery": "evidence/u2u3-discovery-20260916.json (measured on a00b816dcf1d30cb40b08ce9901bcf66ea3cc125; the specs and helpers it ran are unchanged between that commit and this baseline: `git diff --stat` below is empty)",
+  "diffStatSinceDiscovery": "scripts/qc/gm-two-player-campaign-core.cjs | 6 +++++-\n 1 file changed, 5 insertions(+), 1 deletion(-)",
+  "inventory": {
+    "onMain": [
+      "E2E-20",
+      "E2E-21",
+      "E2E-22",
+      "E2E-23",
+      "E2E-24",
+      "E2E-26",
+      "E2E-27",
+      "E2E-28",
+      "E2E-29",
+      "E2E-30"
+    ],
+    "missing": [
+      "E2E-19",
+      "E2E-25"
+    ]
+  },
+  "whatBlocks19and25": {
+    "noTaggedRow": true,
+    "tasksMd": "548, 552, 557",
+    "srcFiles": [
+      "src/pages/multiplayer/lobby/[roomCode].tsx (passes onPreviewRewind/onConfirmRewind at 400-401; does not pass onPreviewHostGmCorrection/onApproveHostGmCorrection)",
+      "src/components/multiplayer/NetworkedGameSurface.tsx:411-417 (NetworkedHostGmControls render only when both correction callbacks are defined)",
+      "src/pages/e2e/networked-command-proof.tsx:180-181 (the only caller that wires the correction callbacks)"
+    ],
+    "ownership": {
+      "U2paths": [
+        "e2e",
+        "scripts/qc",
+        "openspec/changes/harden-gm-two-player-campaign-sessions"
+      ],
+      "commitHalf": "R4.rewind owns src/lib/interventions and src/lib/multiplayer/server (adopt-combat 3b-iv / tasks.md:552)",
+      "lobbyAndSurface": "no roadmap.json ownershipPaths entry lists src/pages/multiplayer or src/components/multiplayer"
+    }
+  },
+  "estimate": {
+    "productLines": 0,
+    "files": 0,
+    "kind": "proof-plus-recorded-hold"
+  },
+  "parentDecision": {
+    "at": "2026-09-17T01:17:02.824Z",
+    "decision": "admit as proof-plus-hold; park on a Lane B packet at review (privacy class)",
+    "narrowing": "no product line ships in this unit (rows 20-24 and 26-30 already pass on main; rows 19 and 25 need the GM-correction commit half owned outside these paths); ownership paths unchanged; the 21.2 checkbox is not touched until the owner rules"
+  }
+}
