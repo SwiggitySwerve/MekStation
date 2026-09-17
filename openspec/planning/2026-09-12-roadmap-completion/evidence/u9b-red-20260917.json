@@ -1,0 +1,214 @@
+{
+  "unit": "U9b",
+  "stage": "red",
+  "at": "2026-09-17T14:27:57.458Z",
+  "baseline": "384bab6cde85724787f5fed28d645b85d7f7a0cc",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u9b",
+  "branch": "codex/roadmap-u9b-rerun-parser-20260917",
+  "implementerModel": "claude-opus (Agent lane; codex, grok CLI and cursor-agent routes exhausted on 2026-09-17)",
+  "whatRedMeansHere": "The pin cases were added FIRST, against the U9 parser exactly as it merged (scripts/qc/validate-exact-main-regression-ladder.mjs sha256 16f3caabaca0b11af2201af192d3d64fe9060324afc30c3758ab6f269d92ac09, unmodified at this point). No product line was touched before this run.",
+  "filesAtRed": {
+    "scripts/qc/validate-exact-main-regression-ladder.mjs": {
+      "sha256": "16f3caabaca0b11af2201af192d3d64fe9060324afc30c3758ab6f269d92ac09",
+      "lines": 353,
+      "note": "UNCHANGED from main - this is the file the new cases are red against."
+    },
+    "scripts/__tests__/validate-exact-main-regression-ladder.test.ts": {
+      "sha256AtFirstRedRun": "78c4f1b7ab7d4f78eaa13f59cbf1b9821ee0fd33bae356f1890fc26b12611db5",
+      "linesAtFirstRedRun": 708,
+      "diffNumstatAtFirstRedRun": "164 added, 0 deleted (git diff --numstat)",
+      "sha256Final": "dbcc742a2b35c5034922c2f958a46e76a856dbd20396e172b23531d5eaec34d0",
+      "linesFinal": 728,
+      "whyTheHashMoved": "The first red run expressed the captured fixture with \\u escapes. `npx oxfmt` REWRITES a \\u escape back into the literal character, so running the format gate turned the ANSI escape, U+00B5 and U+203A into raw bytes and the pin source stopped being ASCII. The fixture was re-expressed by code point (ESC / MICRO / ANGLE via String.fromCharCode, interpolated into template literals), which the formatter leaves alone. The EMITTED BYTES are unchanged - both forms hash to a2f0508731b90b7a55bdf08e2bc45d23c3248f04f9f6239bf670f55673930406 - and the red run below was then repeated against this final pin text to keep the evidence bound to what ships."
+    }
+  },
+  "fixtureProvenance": {
+    "constant": "REAL_RUNNER_TAIL in the pin",
+    "source": ".sisyphus/roadmap-completion-20260912/u9-main-proof-20260917/exact-main-rerun-smoke.log (sha256 4be7332d341d4070049c261be3aaaf2b3f9cc740755129f40ee62060b5a9d106), last ten lines",
+    "sha256OfConstructedTail": "a2f0508731b90b7a55bdf08e2bc45d23c3248f04f9f6239bf670f55673930406",
+    "sha256OfRealLogTail": "a2f0508731b90b7a55bdf08e2bc45d23c3248f04f9f6239bf670f55673930406",
+    "byteLength": 1083,
+    "equalityProof": "A scratchpad script built the constant from the pin's escaped source form and compared it to the log's own last ten lines: 'equal: true', both sha256 a2f0508731b90b7a55bdf08e2bc45d23c3248f04f9f6239bf670f55673930406. The constant is written with \\u escapes (ESC, U+00B5, U+203A) so the pin source stays pure ASCII; the emitted bytes are identical to the log.",
+    "whatItContains": "seven ANSI-coloured web-server lines, the third per-test 'ok' row, a blank line, and the bare summary '  3 passed (21.2s)'. No line anywhere in the 141-line log carries a '<group>:' label."
+  },
+  "commands": [
+    {
+      "id": "R1",
+      "command": "npx jest scripts/__tests__/validate-exact-main-regression-ladder.test.ts",
+      "cwd": ".sisyphus/roadmap-completion-20260912/worktrees/u9b",
+      "node": "v22.22.0",
+      "summaryLine": "Tests:       8 failed, 27 passed, 35 total",
+      "lastLine": "Ran all test suites matching /scripts\\__tests__\\validate-exact-main-regression-ladder.test.ts/i.",
+      "exitCode": 1,
+      "note": "35 total = U9's 26 cases plus U9b's 9 new ones. All 26 existing cases still pass, unchanged, against the unchanged module."
+    },
+    {
+      "id": "R2",
+      "command": "cp <saved main copy> scripts/qc/validate-exact-main-regression-ladder.mjs && npx jest scripts/__tests__/validate-exact-main-regression-ladder.test.ts",
+      "cwd": ".sisyphus/roadmap-completion-20260912/worktrees/u9b",
+      "purpose": "Red repeated against the FINAL pin text (sha256 dbcc742a2b35c5034922c2f958a46e76a856dbd20396e172b23531d5eaec34d0) with the module put back byte-for-byte to main, so the red evidence binds to the pin that ships rather than to its pre-format draft.",
+      "moduleSha256DuringRun": "16f3caabaca0b11af2201af192d3d64fe9060324afc30c3758ab6f269d92ac09",
+      "summaryLine": "Tests:       8 failed, 27 passed, 35 total",
+      "lastLine": "Ran all test suites matching /scripts\\__tests__\\validate-exact-main-regression-ladder.test.ts/i.",
+      "exitCode": 1,
+      "restoredModuleSha256": "5b692c341df3f49221df5c915b5bf3bbc2e26a811c7ac11a1cffefb38d958f06",
+      "note": "Identical failure set to R1: the same 8 cases red, the same 27 green. Restored from a saved copy, not from git, and nothing was stashed."
+    }
+  ],
+  "failingAssertions": [
+    {
+      "case": "rerun reads the real runner > archives smoke 3/0 and is SATISFIED on the runner real bytes",
+      "assertion": "expect(archived).toEqual([{ group: 'smoke', passed: 3, failed: 0 }])  (line 624)",
+      "received": "[{ group: 'smoke', passed: 0, failed: 0 }]",
+      "why": "This is FN-u9-rerun-parser-expects-labeled-line reproduced at the boundary. The fake runner emits the real ladder runner's bytes; GROUP_LINE (/^([a-z0-9][a-z0-9-]*):\\s+(.*)$/) matches nothing in them, runGroup's row is undefined, and the archive records 0/0. The run then prints EXACT_MAIN_LADDER_MISSING and exits 1 - exactly what the U9 main proof recorded on 45d6134289051d316257641284976a2f9789ceed."
+    },
+    {
+      "case": "rerun reads the real runner > archives 2/1 and stays MISSING when the summary reports a failure",
+      "assertion": "expect(archived).toEqual([{ group: 'smoke', passed: 2, failed: 1 }])  (line 650)",
+      "received": "[{ group: 'smoke', passed: 0, failed: 0 }]",
+      "why": "Playwright's two-line failure summary ('  1 failed' then '  2 passed (8.1s)') is unreadable to the U9 parser. The VERDICT is right for the wrong reason - MISSING because nothing was read at all, not because a row failed - so the receipt is a lie about what the run proved. The case asserts the archived numbers separately from the verdict precisely so that distinction is held."
+    },
+    {
+      "case": "rerun reads the real runner > archives 2/1 and stays MISSING when the summary reports a flake",
+      "assertion": "expect(archived).toEqual([{ group: 'smoke', passed: 2, failed: 1 }])  (line 674)",
+      "received": "[{ group: 'smoke', passed: 0, failed: 0 }]",
+      "why": "Same unreadable-summary cause, and it also pins the decision this unit records: a flaky row counts as FAILED, because a row that only went green on retry is not 'ran clean against this exact commit'."
+    },
+    {
+      "case": "runner output reader > reads a labelled line still wins",
+      "assertion": "expect(read('smoke: 4 passed (1.1s)\\n  9 passed (2s)')).toEqual({ group: 'smoke', passed: 4, failed: 0 })  (line 695)",
+      "received": "undefined",
+      "why": "parseRunnerOutput is not exported by the U9 module, so the harness finds no member and returns undefined. This case exists to pin that the labelled form keeps precedence once the export lands."
+    },
+    {
+      "case": "runner output reader > reads a skipped row counts as neither",
+      "assertion": "expect(read('  1 skipped\\n  2 passed (3.3s)')).toEqual({ group: 'smoke', passed: 2, failed: 0 })  (line 695)",
+      "received": "undefined",
+      "why": "Same missing export. Pins the decision that a declared skip is not a failure and cannot zero out a real pass."
+    },
+    {
+      "case": "runner output reader > reads a did-not-run row counts as failed",
+      "assertion": "expect(read('  2 did not run\\n  1 passed (5s)')).toEqual({ group: 'smoke', passed: 1, failed: 2 })  (line 695)",
+      "received": "undefined",
+      "why": "Same missing export. Pins the fail-closed decision for an interrupted run."
+    },
+    {
+      "case": "runner output reader > reads repeated summaries add up",
+      "assertion": "expect(read('  1 passed (1s)\\n  2 passed (2s)')).toEqual({ group: 'smoke', passed: 3, failed: 0 })  (line 695)",
+      "received": "undefined",
+      "why": "Same missing export. Pins aggregation rather than last-line-wins."
+    },
+    {
+      "case": "runner output reader > reads prose that is not a summary",
+      "assertion": "expect(read('Running 3 tests using 1 worker')).toEqual({ group: 'smoke', passed: 0, failed: 0 })  (line 695)",
+      "received": "undefined",
+      "why": "Same missing export. Pins that a line carrying a digit and the word 'tests' is not a summary - the parser must not become greedy while learning the bare form."
+    }
+  ],
+  "casesAddedThatAlreadyPass": [
+    {
+      "case": "rerun reads the real runner > archives 0/0 and stays MISSING when only ok rows are printed",
+      "status": "PASSES against the U9 parser, and is recorded as such rather than dressed up as red.",
+      "why": "It is a regression guard for the property the fix must NOT break: output with per-test 'ok' rows and no summary line stays 0/0 and never becomes coverage. It goes red under mutant M3 below."
+    }
+  ],
+  "notRedBecauseNotChanged": "All 26 U9 cases pass unchanged in this run (milestone 4, receipt parsing 5, coverage rule 10, CLI 4, rerun branch 2, package script 1). The red is confined to the runner-output reading path.",
+  "nonClaims": [
+    "No product line was edited before this run; the module is byte-identical to main.",
+    "No Playwright run, no build, no npm install/ci/prune, no npm lifecycle. npm_config_dry_run=true exported in the shell.",
+    "Nothing committed, pushed or stashed; the root checkout was not touched."
+  ],
+  "requiredEditRevision2": {
+    "at": "2026-09-17T09:20:00Z",
+    "why": "Lane A review (.sisyphus/roadmap-completion-20260912/u9b-lane-a-review-pass1-20260917.md, finding 1, MEDIUM) found that the installed Playwright 1.57.0 list/line reporter emits a summary word the U9b regex does not recognise: `interrupted`. Mixed with a clean `N passed` line and no explicit `failed` line, the unrecognised row is silently dropped and the run reads as coverage - a FALSE SATISFIED, which inverts the module's stated fail-closed posture. This section records the revision-2 red run: the new pin cases were added FIRST, against the U9b module exactly as it stands at PR #1815 head 08a74231173b901144605695208f0c4f356c5d7d, before any product line was touched.",
+    "reviewedHead": "08a74231173b901144605695208f0c4f356c5d7d",
+    "reporterSourceRead": {
+      "file": "node_modules/playwright/lib/reporters/base.js",
+      "function": "generateSummaryMessage",
+      "playwrightVersion": "1.57.0 (node_modules/@playwright/test/package.json)",
+      "readDirectlyThisPass": true,
+      "everyLineItCanEmit": [
+        "  N failed",
+        "  N interrupted",
+        "  N flaky",
+        "  N skipped",
+        "  N did not run",
+        "  N passed (duration)",
+        "  1 error was not a part of any test, see above for details",
+        "  N errors were not a part of any test, see above for details"
+      ],
+      "secondMissedTokenFound": "Besides `interrupted`, generateSummaryMessage's last token counts FATAL ERRORS rather than tests: `${fatalErrors.length === 1 ? '1 error was not a part of any test' : fatalErrors.length + ' errors were not a part of any test'}, see above for details`. It is pushed only when `fatalErrors.length && expected + unexpected.length + interrupted.length + flaky.length > 0`, i.e. only when at least one test ran - precisely the shape that rides behind a clean `N passed` line. The U9b regex misses it too, so it produces the same false SATISFIED, and the charter's clause 'if generateSummaryMessage emits any other word the regex still misses, cover it the same way and pin it' applies.",
+      "nonSummaryLinesRuledOut": "The indented per-test headers pushed after `failed`/`interrupted`/`flaky` come from formatTestHeader with `{ indent: '    ' }` and no `index`, so they start with spaces then `[chromium]` - never a leading digit - and cannot match either regex."
+    },
+    "filesAtRedRevision2": {
+      "scripts/qc/validate-exact-main-regression-ladder.mjs": {
+        "sha256": "5b692c341df3f49221df5c915b5bf3bbc2e26a811c7ac11a1cffefb38d958f06",
+        "lines": 403,
+        "note": "UNCHANGED from PR #1815 head - this is the file the four new cases are red against. Matches the sha256 the Lane A review recorded for the same file."
+      },
+      "scripts/__tests__/validate-exact-main-regression-ladder.test.ts": {
+        "sha256": "47943d559fb1a40382a710f2f83f4cd4d4a4f9bbc7c3817abb1d396c087034da",
+        "lines": 775,
+        "note": "728 at head + 47 lines of new pin: two rerun-branch cases and two it.each rows."
+      }
+    },
+    "commands": [
+      {
+        "id": "R3",
+        "command": "npx jest scripts/__tests__/validate-exact-main-regression-ladder.test.ts",
+        "cwd": ".sisyphus/roadmap-completion-20260912/worktrees/u9b",
+        "node": "v22.22.0",
+        "summaryLine": "Tests:       4 failed, 35 passed, 39 total",
+        "lastLine": "Ran all test suites matching /scripts\\__tests__\\validate-exact-main-regression-ladder.test.ts/i.",
+        "exitCode": 1,
+        "note": "39 total = the 35 cases at head plus revision 2's 4 new ones. All 35 existing cases still pass, unchanged, against the unchanged module."
+      },
+      {
+        "id": "R4",
+        "command": "node <scratchpad>/u9b-probe.mjs  (imports the unmodified module and calls parseRunnerOutput then evaluateExactMain)",
+        "cwd": ".sisyphus/roadmap-completion-20260912/worktrees/u9b",
+        "purpose": "Show the failure is a FALSE SATISFIED, not merely a wrong count - the pin's first assertion stops at the archived row, so the verdict is proved separately here.",
+        "output": [
+          "interrupted+passed {\"group\":\"smoke\",\"passed\":2,\"failed\":0} -> SATISFIED",
+          "passed+fatal-singular {\"group\":\"smoke\",\"passed\":2,\"failed\":0} -> SATISFIED",
+          "passed+fatal-plural {\"group\":\"smoke\",\"passed\":2,\"failed\":0} -> SATISFIED"
+        ],
+        "exitCode": 0,
+        "note": "No file was edited by this probe; it only imports the module. All three inputs are runs that did not finish clean, and all three read as coverage before the fix."
+      }
+    ],
+    "failingAssertions": [
+      {
+        "case": "rerun reads the real runner > archives 2/1 and stays MISSING when the summary reports an interruption",
+        "assertion": "expect(archived).toEqual([{ group: 'smoke', passed: 2, failed: 1 }])  (line 702)",
+        "received": "[{ group: 'smoke', passed: 2, failed: 0 }]",
+        "why": "The injected runner prints the reporter's own spelling, `  1 interrupted` then `  2 passed (7.4s)`. PLAYWRIGHT_SUMMARY's alternation has no `interrupted`, so `if (!summary) continue;` drops the row entirely: the interrupted test is counted neither as passed nor as failed, the archive records 2/0, and the CLI prints SATISFIED and exits 0 (proved by R4) although a test never completed."
+      },
+      {
+        "case": "rerun reads the real runner > archives 2/1 and stays MISSING when a fatal error rode beside the passes",
+        "assertion": "expect(archived).toEqual([{ group: 'smoke', passed: 2, failed: 1 }])  (line 719)",
+        "received": "[{ group: 'smoke', passed: 2, failed: 0 }]",
+        "why": "Same silent-drop cause on the other missed token: `  2 passed (6.2s)` then `  1 error was not a part of any test, see above for details`. A fatal error raised outside any test is not a test failure Playwright can attribute, but it is still a run that did not complete clean, and the archive currently records it as 2/0 coverage."
+      },
+      {
+        "case": "runner output reader > reads an interrupted row counts as failed",
+        "assertion": "expect(read('  1 interrupted\\n  2 passed (5.1s)')).toEqual({ group: 'smoke', passed: 2, failed: 1 })  (line 762)",
+        "received": "{ group: 'smoke', passed: 2, failed: 0 }",
+        "why": "The unit-level twin of the rerun case, pinning parseRunnerOutput directly rather than through the archive. Mirrors the existing did-not-run row."
+      },
+      {
+        "case": "runner output reader > reads the plural fatal-error token counts as failed",
+        "assertion": "expect(read('  2 passed (4s)\\n  3 errors were not a part of any test, see above for details')).toEqual({ group: 'smoke', passed: 2, failed: 3 })  (line 762)",
+        "received": "{ group: 'smoke', passed: 2, failed: 0 }",
+        "why": "generateSummaryMessage spells the fatal-error token two ways - '1 error was not' and 'N errors were not'. The rerun case above covers the singular; this row covers the plural, so both branches of that ternary are pinned."
+      }
+    ],
+    "nonClaims": [
+      "No product line was edited before this run; scripts/qc/validate-exact-main-regression-ladder.mjs is byte-identical to PR #1815 head (sha256 5b692c34...).",
+      "No Playwright run, no build, no npm install/ci/prune. npm_config_dry_run=true exported in every shell.",
+      "Nothing committed, pushed or stashed; the root checkout at E:/Projects/MekStation was not touched."
+    ],
+    "status": "red-recorded"
+  },
+  "status": "red-recorded"
+}

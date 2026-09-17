@@ -9,6 +9,13 @@
  * a group the runner does not register, a receipt for the wrong commit (or a
  * failing one) counting as coverage, and the CLI reporting success while
  * groups are missing.
+ *
+ * U9b adds the fourth way, the one U9's own main proof found
+ * (FN-u9-rerun-parser-expects-labeled-line): --rerun reading the real ladder
+ * runner's output. That runner inherits Playwright's stdio and prints no
+ * `<group>:` label, so a rerun whose subset passed archived 0/0 and read
+ * MISSING. The rerun cases below feed the captured bytes of that very run
+ * back in, and pin what each Playwright summary word counts as.
  */
 import { spawnSync } from 'node:child_process';
 import * as fs from 'node:fs';
@@ -34,6 +41,46 @@ const ledgerEvidenceDir = path.join(
 const SHA_A = 'a1b2c3d4e5f60718293a4b5c6d7e8f9012345678';
 /** SHA_A with its last character changed, and nothing else. */
 const SHA_A_OFF_BY_ONE = `${SHA_A.slice(0, 39)}9`;
+
+/**
+ * The captured tail's non-ASCII bytes, built by code point: the ANSI
+ * escape, the micro sign in the web-server timings, and the single right-
+ * pointing angle quote Playwright puts between a spec path and a title.
+ * Naming them keeps this source pure ASCII - a raw escape byte in a test
+ * file is invisible in a diff, and the formatter rewrites a \u sequence
+ * back into the literal character.
+ */
+const ESC = String.fromCharCode(0x1b);
+const MICRO = String.fromCharCode(0xb5);
+const ANGLE = String.fromCharCode(0x203a);
+
+/**
+ * The last ten lines of the U9 main proof's real rerun log, byte for byte:
+ * seven ANSI-coloured web-server lines, the third per-test `ok` row, a blank
+ * line, and Playwright's bare summary. Nothing here says `smoke:` - that
+ * absence is the whole defect U9b repairs, and the noise is deliberate: a
+ * parser that can be fooled by a web-server line fails this case.
+ */
+const REAL_RUNNER_TAIL =
+  [
+    `${ESC}[2m[WebServer] ${ESC}[22m[mp-socket] upgrade verified matchId=502fc652-1e1b-4671-a664-1aa50526d42e playerId=pid_4REBpNHpUU1tpS52N2L67TGB71fc`,
+    `${ESC}[2m[WebServer] ${ESC}[22m[mp-socket] connection accepted matchId=502fc652-1e1b-4671-a664-1aa50526d42e channel=campaign playerId=pid_4REBpNHpUU1tpS52N2L67TGB71fc`,
+    `${ESC}[2m[WebServer] ${ESC}[22m[mp-socket] bound matchId=502fc652-1e1b-4671-a664-1aa50526d42e channel=campaign`,
+    `${ESC}[2m[WebServer] ${ESC}[22m[mp-socket] socket closed matchId=502fc652-1e1b-4671-a664-1aa50526d42e code=1008 reason=campaign-tactical-seats-full`,
+    `${ESC}[2m[WebServer] ${ESC}[22m GET / ${ESC}[32m200${ESC}[39m in 82ms${ESC}[2m (next.js: 3ms, application-code: 79ms)${ESC}[22m`,
+    `${ESC}[2m[WebServer] ${ESC}[22m DELETE /api/e2e/vault-identity ${ESC}[32m200${ESC}[39m in 1765${MICRO}s${ESC}[2m (next.js: 876${MICRO}s, application-code: 889${MICRO}s)${ESC}[22m`,
+    `${ESC}[2m[WebServer] ${ESC}[22m DELETE /api/e2e/vault-identity ${ESC}[32m200${ESC}[39m in 1685${MICRO}s${ESC}[2m (next.js: 656${MICRO}s, application-code: 1029${MICRO}s)${ESC}[22m`,
+    `  ok 3 [chromium] ${ANGLE} e2e\\gm-two-player-membership.smoke.spec.ts:65:5 ${ANGLE} binds GM and two tactical seats durably and refuses a fourth identity @membership-smoke (2.3s)`,
+    '',
+    '  3 passed (21.2s)',
+  ].join('\n') + '\n';
+
+/** The same run's first two `ok` rows, with no summary line after them. */
+const OK_ROWS_ONLY =
+  [
+    `  ok 1 [chromium] ${ANGLE} e2e\\gm-two-player-fixture.smoke.spec.ts:14:5 ${ANGLE} creates three isolated future-role contexts @fixture-smoke (2.2s)`,
+    `  ok 2 [chromium] ${ANGLE} e2e\\gm-two-player-fixture.smoke.spec.ts:123:5 ${ANGLE} E2E-78 incomplete evidence bundle fails closed and a complete one finalizes @E2E-78 (21ms)`,
+  ].join('\n') + '\n';
 
 interface IHarnessResult {
   readonly ok: boolean;
@@ -170,6 +217,53 @@ const mainProofReceipt = (
 
 function temporaryDirectory(): string {
   return fs.mkdtempSync(path.join(os.tmpdir(), 'u9-exact-main-ladder-'));
+}
+
+/** A fake ladder runner that prints exactly `output` on stdout and exits 0. */
+function fakeRunner(name: string, output: string): string {
+  const runnerScript = path.join(temporaryDirectory(), name);
+  fs.writeFileSync(
+    runnerScript,
+    `process.stdout.write(${JSON.stringify(output)});\n`,
+  );
+  return runnerScript;
+}
+
+/** One --rerun through an injected runner, with the rows it archived. */
+function rerunThrough(runnerScript: string): {
+  run: ILadderRun;
+  archived: IGroupRow[];
+  archiveDir: string;
+} {
+  const archiveDir = temporaryDirectory();
+  const run = value<ILadderRun>(
+    callExport(
+      'runExactMainLadder',
+      {
+        sha: SHA_A,
+        head: SHA_A,
+        rerun: true,
+        evidenceDir: temporaryDirectory(),
+        archiveDir,
+      },
+      runnerScript,
+    ),
+  );
+  const [archiveName] = fs
+    .readdirSync(archiveDir)
+    .filter((name) => name.endsWith('.json'));
+  const receipt = readJson(path.join(archiveDir, archiveName)) as {
+    groups: IGroupRow[];
+  };
+  return {
+    run,
+    archived: receipt.groups.map(({ group, passed, failed }) => ({
+      group,
+      passed,
+      failed,
+    })),
+    archiveDir,
+  };
 }
 
 describe('exact-main regression ladder milestone', () => {
@@ -529,6 +623,143 @@ describe('exact-main regression ladder rerun branch', () => {
       `EXACT_MAIN_LADDER_MISSING ${SHA_A} milestone=strict-smoke missing=smoke`,
     ]);
     expect(run.exitCode).toBe(1);
+  });
+});
+
+describe('exact-main regression ladder rerun reads the real runner', () => {
+  it('archives smoke 3/0 and is SATISFIED on the runner real bytes', () => {
+    const { run, archived, archiveDir } = rerunThrough(
+      fakeRunner('verbatim-runner.mjs', REAL_RUNNER_TAIL),
+    );
+    expect(archived).toEqual([{ group: 'smoke', passed: 3, failed: 0 }]);
+    expect(run.lines).toEqual([
+      `EXACT_MAIN_LADDER_SATISFIED ${SHA_A} milestone=strict-smoke groups=smoke`,
+    ]);
+    expect(run.exitCode).toBe(0);
+
+    // The round trip U9's main proof never reached: check mode reading the
+    // archived receipt back must now agree the sha is covered.
+    const recheck = runCli([
+      '--sha',
+      SHA_A,
+      '--evidence-dir',
+      archiveDir,
+      '--archive-dir',
+      temporaryDirectory(),
+    ]);
+    expect(recheck.stdout.trim()).toBe(
+      `EXACT_MAIN_LADDER_SATISFIED ${SHA_A} milestone=strict-smoke groups=smoke`,
+    );
+    expect(recheck.status).toBe(0);
+  });
+
+  it('archives 2/1 and stays MISSING when the summary reports a failure', () => {
+    const { run, archived } = rerunThrough(
+      fakeRunner('failing-runner.mjs', '  1 failed\n  2 passed (8.1s)\n'),
+    );
+    expect(archived).toEqual([{ group: 'smoke', passed: 2, failed: 1 }]);
+    expect(run.lines).toEqual([
+      `EXACT_MAIN_LADDER_MISSING ${SHA_A} milestone=strict-smoke missing=smoke`,
+    ]);
+    expect(run.exitCode).toBe(1);
+  });
+
+  it('archives 0/0 and stays MISSING when only ok rows are printed', () => {
+    const { run, archived } = rerunThrough(
+      fakeRunner('ok-rows-runner.mjs', OK_ROWS_ONLY),
+    );
+    expect(archived).toEqual([{ group: 'smoke', passed: 0, failed: 0 }]);
+    expect(run.lines).toEqual([
+      `EXACT_MAIN_LADDER_MISSING ${SHA_A} milestone=strict-smoke missing=smoke`,
+    ]);
+    expect(run.exitCode).toBe(1);
+  });
+
+  // A row that only went green on retry is not "ran clean against this exact
+  // commit", so flaky is counted as failed and a flaky rerun is not coverage.
+  it('archives 2/1 and stays MISSING when the summary reports a flake', () => {
+    const { run, archived } = rerunThrough(
+      fakeRunner('flaky-runner.mjs', '  1 flaky\n  2 passed (9.9s)\n'),
+    );
+    expect(archived).toEqual([{ group: 'smoke', passed: 2, failed: 1 }]);
+    expect(run.lines).toEqual([
+      `EXACT_MAIN_LADDER_MISSING ${SHA_A} milestone=strict-smoke missing=smoke`,
+    ]);
+    expect(run.exitCode).toBe(1);
+  });
+
+  // Playwright prints `N interrupted` for a run that never finished - a
+  // worker crash, the global timeout, --max-failures, or a SIGINT. It rides
+  // beside a clean `N passed` line with no `failed` line at all, so a parser
+  // blind to the word reads an aborted run as coverage. It counts as failed.
+  it('archives 2/1 and stays MISSING when the summary reports an interruption', () => {
+    const { run, archived } = rerunThrough(
+      fakeRunner(
+        'interrupted-runner.mjs',
+        '  1 interrupted\n  2 passed (7.4s)\n',
+      ),
+    );
+    expect(archived).toEqual([{ group: 'smoke', passed: 2, failed: 1 }]);
+    expect(run.lines).toEqual([
+      `EXACT_MAIN_LADDER_MISSING ${SHA_A} milestone=strict-smoke missing=smoke`,
+    ]);
+    expect(run.exitCode).toBe(1);
+  });
+
+  // The one summary token that counts errors rather than tests. Playwright
+  // prints it only when at least one test ran, so it rides directly behind a
+  // clean `N passed` line - the same false-coverage shape as an interruption.
+  it('archives 2/1 and stays MISSING when a fatal error rode beside the passes', () => {
+    const { run, archived } = rerunThrough(
+      fakeRunner(
+        'fatal-error-runner.mjs',
+        '  2 passed (6.2s)\n  1 error was not a part of any test, see above for details\n',
+      ),
+    );
+    expect(archived).toEqual([{ group: 'smoke', passed: 2, failed: 1 }]);
+    expect(run.lines).toEqual([
+      `EXACT_MAIN_LADDER_MISSING ${SHA_A} milestone=strict-smoke missing=smoke`,
+    ]);
+    expect(run.exitCode).toBe(1);
+  });
+});
+
+describe('exact-main regression ladder runner output reader', () => {
+  const read = (output: string): IGroupRow =>
+    value<IGroupRow>(
+      callExport('parseRunnerOutput', { group: 'smoke', output }),
+    );
+
+  it.each<[string, string, number, number]>([
+    [
+      'a labelled line still wins',
+      'smoke: 4 passed (1.1s)\n  9 passed (2s)',
+      4,
+      0,
+    ],
+    ['a skipped row counts as neither', '  1 skipped\n  2 passed (3.3s)', 2, 0],
+    [
+      'a did-not-run row counts as failed',
+      '  2 did not run\n  1 passed (5s)',
+      1,
+      2,
+    ],
+    [
+      'an interrupted row counts as failed',
+      '  1 interrupted\n  2 passed (5.1s)',
+      2,
+      1,
+    ],
+    [
+      'the plural fatal-error token counts as failed',
+      '  2 passed (4s)\n  3 errors were not a part of any test, see above for details',
+      2,
+      3,
+    ],
+    ['repeated summaries add up', '  1 passed (1s)\n  2 passed (2s)', 3, 0],
+    ['prose that is not a summary', 'Running 3 tests using 1 worker', 0, 0],
+  ])('reads %s', (_case, output, passed, failed) => {
+    expect(read(output)).toEqual({ group: 'smoke', passed, failed });
   });
 });
 

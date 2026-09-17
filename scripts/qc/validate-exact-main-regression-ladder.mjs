@@ -22,6 +22,12 @@
  * yields no groups rather than a pass, and a group counts as covered only
  * on the exact sha, from a receipt whose verdict is the passing word its
  * shape requires, with nothing failed and something passed.
+ *
+ * U9b narrows one thing only: what `--rerun` reads back from the runner it
+ * just spawned. Receipts are still read by parseReceiptGroups; the runner's
+ * own stdout is read by parseRunnerOutput, which also accepts Playwright's
+ * bare summary, because the runner inherits Playwright's stdio and prints
+ * no `<group>:` label (FN-u9-rerun-parser-expects-labeled-line).
  */
 import { spawn, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
@@ -128,6 +134,78 @@ export function parseReceiptGroups(receipt) {
 }
 
 /**
+ * Playwright's own end-of-run summary, as its list and line reporters print
+ * it: leading spaces, a count, one of six outcome words, and - for `passed`
+ * only - a parenthesised duration. Nothing may follow but that duration, so
+ * a line that merely contains a number and a word ("Running 3 tests using 1
+ * worker") is not a summary.
+ *
+ * The six words are every count-of-tests token generateSummaryMessage can
+ * push (playwright/lib/reporters/base.js, 1.57.0). `interrupted` was missing
+ * here until U9b's revision 2: a run with some interrupted tests, some
+ * passes and no explicit `failed` line printed a word this pattern rejected,
+ * so the row was dropped and the run read as clean coverage - a false
+ * SATISFIED, the one direction this contract must never fail in.
+ */
+const PLAYWRIGHT_SUMMARY =
+  /^ *(\d+) (passed|failed|flaky|skipped|did not run|interrupted)(?: \([^)]*\))? *$/;
+
+/**
+ * The one summary token generateSummaryMessage prints that counts ERRORS
+ * rather than tests: a fatal error raised outside any test, spelled "1 error
+ * was not a part of any test, see above for details" for one and "N errors
+ * were not ..." for more. Playwright pushes it only when at least one test
+ * ran, so it rides directly behind a clean `N passed` line - the same
+ * false-coverage shape as an interruption, and counted the same way.
+ */
+const PLAYWRIGHT_FATAL_ERRORS =
+  /^ *(\d+) errors? (?:was|were) not a part of any test, see above for details *$/;
+
+/**
+ * What the runner just proved about the ONE group it was asked to run.
+ *
+ * The labelled `<group>: N passed` form still wins wherever it appears, so a
+ * receipt-shaped line or an injected runner that labels its output reads
+ * exactly as it did before. Only when no labelled row names this group does
+ * Playwright's bare summary get attributed to it - and that attribution is
+ * sound only because runGroup spawns the runner once per group, so nothing
+ * else can be in that output. The real ladder runner prints no label at all
+ * (it inherits Playwright's stdio), which is why U9 archived 0/0 for a run
+ * that passed: finding FN-u9-rerun-parser-expects-labeled-line.
+ *
+ * `flaky`, `did not run`, `interrupted` and a fatal error outside any test
+ * all count as FAILED. A row that went green only on retry, a row an aborted
+ * run never executed, a test a worker crash cut short, and an error no test
+ * owns are each short of "ran clean against this exact commit", which is the
+ * only thing E2E-80 accepts. `skipped` counts as neither: a declared skip is
+ * not a failure and must not zero out a real pass. Output with no summary
+ * line at all stays 0/0 and can never become coverage.
+ */
+export function parseRunnerOutput({ group, output } = {}) {
+  const labelled = parseReceiptGroups({ runtime: { playwright: output } }).find(
+    (row) => row.group === group,
+  );
+  if (labelled) return labelled;
+  let passed = 0;
+  let failed = 0;
+  for (const line of String(output ?? '').split(/\r?\n/)) {
+    // The fatal-error token is checked first because it is not an outcome
+    // word at all: no branch below could read it, and leaving it to fall
+    // through would silently discard it the way `interrupted` was.
+    const fatal = PLAYWRIGHT_FATAL_ERRORS.exec(line);
+    if (fatal) {
+      failed += Number(fatal[1]);
+      continue;
+    }
+    const summary = PLAYWRIGHT_SUMMARY.exec(line);
+    if (!summary) continue;
+    if (summary[2] === 'passed') passed += Number(summary[1]);
+    else if (summary[2] !== 'skipped') failed += Number(summary[1]);
+  }
+  return { group, passed, failed };
+}
+
+/**
  * Whether the archived evidence covers the milestone's groups on this exact
  * commit. A group is covered only by a receipt whose mergeCommit (or, for an
  * archive receipt, sha) equals the sha character for character, whose
@@ -203,9 +281,10 @@ const defaultRunnerCommand = (group) => ({
 
 /**
  * One ladder group, its combined stdout and stderr teed into a log file
- * under the archive dir. The output is parsed through the same reader the
- * receipts use, so the runner's own `<group>: N passed` line and a recorded
- * receipt line can never be read two different ways.
+ * under the archive dir. The output is read by parseRunnerOutput, which
+ * accepts the labelled `<group>: N passed` line a receipt would carry and,
+ * failing that, Playwright's bare summary - the only thing the real ladder
+ * runner ever prints.
  */
 function runGroup({ group, archiveDir, runnerCommand }) {
   const { command, args } = runnerCommand(group);
@@ -222,15 +301,13 @@ function runGroup({ group, archiveDir, runnerCommand }) {
     child.once('error', reject);
     child.once('close', () => {
       fs.writeFileSync(logFile, output);
-      const row = parseReceiptGroups({ runtime: { playwright: output } }).find(
-        (parsed) => parsed.group === group,
-      );
+      const row = parseRunnerOutput({ group, output });
       resolve({
-        // A run whose output carried no readable row is recorded as nothing
-        // passed, so it cannot become coverage.
+        // A run whose output carried no readable summary is recorded as
+        // nothing passed, so it cannot become coverage.
         group,
-        passed: row?.passed ?? 0,
-        failed: row?.failed ?? 0,
+        passed: row.passed,
+        failed: row.failed,
         logSha256: createHash('sha256').update(output).digest('hex'),
       });
     });

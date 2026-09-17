@@ -1,0 +1,397 @@
+{
+  "unit": "U9b",
+  "stage": "local",
+  "revision": 2,
+  "at": "2026-09-17T15:09:13Z",
+  "revisionNote": "REVISION 2 - the pass after Lane A. Revision 1 (2026-09-17T14:35:04.899Z) is the pass that produced PR #1815 head 08a74231173b901144605695208f0c4f356c5d7d. Lane A (.sisyphus/roadmap-completion-20260912/u9b-lane-a-review-pass1-20260917.md) returned APPROVE-WITH-REQUIRED-EDITS on finding 1 (MEDIUM). This receipt is rewritten in full against the revised files; every number, gate line and mutant row below was measured in THIS pass, not carried forward. Where a fact is unchanged from revision 1 it was re-measured rather than copied.",
+  "baseline": "384bab6cde85724787f5fed28d645b85d7f7a0cc",
+  "revisedFrom": "08a74231173b901144605695208f0c4f356c5d7d",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u9b",
+  "branch": "detached at 08a74231173b901144605695208f0c4f356c5d7d",
+  "node": "R6.loop-harness",
+  "nodeRuntime": "v22.22.0",
+  "implementerModel": "claude-opus (Agent lane)",
+  "requiredEdit": {
+    "source": ".sisyphus/roadmap-completion-20260912/u9b-lane-a-review-pass1-20260917.md, finding 1, SEVERITY MEDIUM",
+    "finding": "The installed Playwright 1.57.0 list/line reporter emits a summary word the U9b PLAYWRIGHT_SUMMARY regex did not recognise: `interrupted`. Because an unmatched line is skipped by `if (!summary) continue;`, a run printing `  1 interrupted` alongside `  2 passed (...)` with no explicit `failed` line archived 2/0 and read SATISFIED - a FALSE SATISFIED, the one direction this contract must never fail in, and the exact inverse of the module's own stated fail-closed posture.",
+    "whatChanged": [
+      "PLAYWRIGHT_SUMMARY's alternation gained `interrupted`, which routes into the existing `else if (summary[2] !== 'skipped') failed += ...` branch, so an interrupted row counts as FAILED exactly as `flaky` and `did not run` already do.",
+      "A second missed token was found by reading generateSummaryMessage directly in this pass (see reporterSummaryVocabulary below) and covered the same way: the fatal-error token, which counts ERRORS rather than tests. A new PLAYWRIGHT_FATAL_ERRORS regex matches both of its spellings and adds its count to `failed`. It is tested FIRST in the loop, before PLAYWRIGHT_SUMMARY, because no branch below could read it and letting it fall through would discard it silently in exactly the way `interrupted` was.",
+      "The two doc comments over the regexes and over parseRunnerOutput were rewritten to say six words rather than five and to name the fatal-error token and why each counts as failed.",
+      "Four new pin cases: two rerun-branch cases driving the injected runner end to end (interruption, fatal error) and two it.each rows over parseRunnerOutput (interrupted, the plural fatal-error spelling)."
+    ],
+    "whatDidNotChange": "parseReceiptGroups, evaluateExactMain, resolveMilestone, MILESTONE_LADDER, check mode, the head-mismatch refusal, the idle wait, the archive filename and the archive shape. parseRunnerOutput's labelled-form precedence, its skipped-counts-as-neither rule and its no-summary-stays-0/0 rule are untouched. All 35 pin cases from PR #1815 head pass unchanged."
+  },
+  "reporterSummaryVocabulary": {
+    "readThisPass": true,
+    "file": "node_modules/playwright/lib/reporters/base.js (reached through the worktree's node_modules junction)",
+    "function": "generateSummaryMessage({ didNotRun, skipped, expected, interrupted, unexpected, flaky, fatalErrors })",
+    "playwrightVersion": "1.57.0 (node_modules/@playwright/test/package.json)",
+    "reporterInUse": "playwright.config.ts configures the `list` reporter for non-CI runs; playwright/lib/reporters/list.js declares `class ListReporter extends TerminalReporter`, so these are the lines the ladder runner's output actually carries.",
+    "everyLineItCanEmit": [
+      {
+        "spelling": "  N failed",
+        "pushedWhen": "unexpected.length",
+        "parsedAs": "failed"
+      },
+      {
+        "spelling": "  N interrupted",
+        "pushedWhen": "interrupted.length",
+        "parsedAs": "failed",
+        "note": "ADDED in this revision. Fires on a worker crash, the global timeout, --max-failures, or SIGINT."
+      },
+      {
+        "spelling": "  N flaky",
+        "pushedWhen": "flaky.length",
+        "parsedAs": "failed"
+      },
+      {
+        "spelling": "  N skipped",
+        "pushedWhen": "skipped",
+        "parsedAs": "neither"
+      },
+      {
+        "spelling": "  N did not run",
+        "pushedWhen": "didNotRun",
+        "parsedAs": "failed"
+      },
+      {
+        "spelling": "  N passed (duration)",
+        "pushedWhen": "expected",
+        "parsedAs": "passed",
+        "note": "The only word that carries a parenthesised duration."
+      },
+      {
+        "spelling": "  1 error was not a part of any test, see above for details",
+        "pushedWhen": "fatalErrors.length === 1 && expected + unexpected.length + interrupted.length + flaky.length > 0",
+        "parsedAs": "failed",
+        "note": "ADDED in this revision. Counts errors, not tests, and is pushed LAST - i.e. directly behind the `N passed` line."
+      },
+      {
+        "spelling": "  N errors were not a part of any test, see above for details",
+        "pushedWhen": "fatalErrors.length > 1 && expected + unexpected.length + interrupted.length + flaky.length > 0",
+        "parsedAs": "failed",
+        "note": "ADDED in this revision. The plural arm of the same ternary."
+      }
+    ],
+    "nonSummaryLinesRuledOut": "After `failed`, `interrupted` and `flaky`, generateSummaryMessage also pushes one indented header per offending test via formatTestHeader with `{ indent: '    ' }` and no `index`. Read directly: the header is `${indent}${index ? index + ') ' : ''}${title}`, so with no index it begins with four spaces then `[chromium]` - never a leading digit - and can match neither regex.",
+    "completeness": "These eight lines are every token generateSummaryMessage can push. Both regexes were then checked against all eight: six match PLAYWRIGHT_SUMMARY, two match PLAYWRIGHT_FATAL_ERRORS, none is left unread."
+  },
+  "behaviour": "The narrow successor of U9 (FN-u9-rerun-parser-expects-labeled-line). --rerun reads the ladder runner's real output for the single group it just ran: parseRunnerOutput({ group, output }) accepts the existing labelled `<group>: N passed` form first, and falling back to that, parses Playwright's bare summary lines and attributes them to that group. `passed` adds to passed; `failed`, `flaky`, `did not run`, `interrupted` and a fatal error outside any test all add to failed; `skipped` counts as neither; output with no summary line at all stays 0/0 and can never be coverage. Nothing else in the contract moved.",
+  "designDecisions": [
+    {
+      "id": "D1",
+      "decision": "The labelled form keeps precedence over the bare summary.",
+      "why": "The charter requires the labelled form to stay accepted. Reading it first means an injected runner, or any future runner that prefixes its group, is read exactly as U9 read it, and the bare-summary branch is reached only when no labelled row names this group.",
+      "revision": 1
+    },
+    {
+      "id": "D2",
+      "decision": "`flaky` counts as FAILED.",
+      "why": "A row that went green only on retry is not 'the staged subset ran clean against this exact commit', which is the only thing E2E-80 accepts. Pinned by 'archives 2/1 and stays MISSING when the summary reports a flake'.",
+      "revision": 1
+    },
+    {
+      "id": "D3",
+      "decision": "`did not run` counts as FAILED; `skipped` counts as neither.",
+      "why": "An aborted run left tests unexecuted, so the group is not proven - fail-closed. A declared skip is not a failure and must not be able to zero out a real pass. Both pinned in the runner-output-reader table.",
+      "revision": 1
+    },
+    {
+      "id": "D4",
+      "decision": "The summary is attributed to the ONE group --rerun just ran, with no further evidence that the numbers belong to it.",
+      "why": "runGroup spawns the runner once per group with `--group=<name>`, so nothing else can be in that child's output. Sound only under that one-group-per-invocation property; named in findingsReportedNotFixed F7 rather than defended by code. Lane A independently confirmed F7's shape and agreed it is not currently reachable.",
+      "revision": 1
+    },
+    {
+      "id": "D5",
+      "decision": "The summary regex requires the line to be nothing but the count, the word, and - for `passed` only - a parenthesised duration.",
+      "why": "So the parser cannot become greedy while learning the bare form. 'Running 3 tests using 1 worker' is not a summary and is pinned as 0/0; the seven ANSI-coloured web-server lines in the verbatim fixture start with an escape byte and never match.",
+      "revision": 1
+    },
+    {
+      "id": "D6",
+      "decision": "The captured fixture is built by code point (String.fromCharCode) and interpolated, not written as \\u escapes.",
+      "why": "`npx oxfmt` REWRITES a \\u escape back into the literal character, which turned the pin source into a file carrying raw ESC bytes - invisible in a diff and hostile to review. Naming ESC / MICRO / ANGLE keeps the source pure ASCII and the emitted bytes identical.",
+      "revision": 1
+    },
+    {
+      "id": "D7",
+      "decision": "`interrupted` counts as FAILED, on the same footing as `flaky` and `did not run`.",
+      "why": "Lane A's required edit. An interrupted test never produced a result, so the group is not proven clean on this commit; counting it as failed is the only reading that keeps the module's stated posture ('everything here fails closed'). Adding the word to the alternation is sufficient - the existing non-passed, non-skipped branch does the counting - so this is a one-token behaviour change, not a new code path. Pinned twice: once through the archive and CLI line, once directly on parseRunnerOutput.",
+      "revision": 2
+    },
+    {
+      "id": "D8",
+      "decision": "The fatal-error token is matched by its own regex, checked BEFORE the summary regex, and its count is added to `failed`.",
+      "why": "It is the one summary token that is not an outcome word and not a count of tests, so it cannot be folded into PLAYWRIGHT_SUMMARY's alternation without making that pattern's shape a lie. It is checked first because a `continue` after a failed match is exactly the silent-drop mechanism that produced the `interrupted` defect - ordering the explicit match ahead of the fall-through guard makes the drop impossible. Counting errors as failures is fail-closed and cannot invent coverage: the worst it can do is refuse a run that a human would have accepted.",
+      "revision": 2,
+      "alternativeRejected": "Ignoring the token, on the ground that a fatal error outside any test is not a test failure. Rejected: Playwright pushes it only when at least one test ran, i.e. it appears exactly beside a `N passed` line, which is precisely the false-SATISFIED shape Lane A found."
+    }
+  ],
+  "fixtureProvenance": {
+    "REAL_RUNNER_TAIL": {
+      "source": ".sisyphus/roadmap-completion-20260912/u9-main-proof-20260917/exact-main-rerun-smoke.log, last ten lines",
+      "sha256": "a2f0508731b90b7a55bdf08e2bc45d23c3248f04f9f6239bf670f55673930406",
+      "bytes": 1083,
+      "unchangedInRevision2": true,
+      "note": "Not re-derived in this pass; the constant is byte-unchanged (the test file's diff against HEAD adds 47 lines and deletes none, so no existing line moved). Lane A independently rebuilt this constant from the shipped source and confirmed it hashes to the same value as the log's own tail."
+    },
+    "OK_ROWS_ONLY": {
+      "source": "the same log's 'ok 1' and 'ok 2' rows (lines 88 and 89), with no summary line after them",
+      "sha256": "bff69c4c993c693c4c7c622706eeba400ed87c54a4d077f9a51d7de0469aca7d",
+      "unchangedInRevision2": true
+    },
+    "revision2Fixtures": {
+      "note": "The four new cases use SYNTHESISED output, not captured bytes, and that is stated rather than dressed up. No log in this repo's ledger contains an `interrupted` or a fatal-error line. Each synthesised string is the reporter's own format string with its interpolations filled in, transcribed from base.js in this pass: `  ${n} interrupted`, `  ${n} error was not a part of any test, see above for details` and its plural arm. What is NOT claimed: that a real Playwright run has been observed printing these lines in this repo."
+    }
+  },
+  "lineCounts": {
+    "method": "A scratchpad counter classifies each line as blank, comment (line starting // or inside a /* */ block) or code. It reproduces revision 1's recorded numbers exactly for both files at HEAD (403 = 282/100/21 and 728 = 625/57/46), so the revision-1 and revision-2 figures are comparable.",
+    "product": {
+      "scripts/qc/validate-exact-main-regression-ladder.mjs": {
+        "total": 430,
+        "code": 289,
+        "comment": 119,
+        "blank": 22,
+        "wasOnMain": 353,
+        "wasAtPrHead": 403,
+        "diffNumstatVsMain": "87 added, 10 deleted",
+        "diffNumstatVsPrHead": "35 added, 8 deleted"
+      }
+    },
+    "test": {
+      "scripts/__tests__/validate-exact-main-regression-ladder.test.ts": {
+        "total": 775,
+        "code": 663,
+        "comment": 64,
+        "blank": 48,
+        "wasOnMain": 544,
+        "wasAtPrHead": 728,
+        "diffNumstatVsMain": "231 added, 0 deleted",
+        "diffNumstatVsPrHead": "47 added, 0 deleted"
+      }
+    },
+    "diffDelta": {
+      "command": "git diff --numstat 384bab6cde85724787f5fed28d645b85d7f7a0cc -- scripts/",
+      "filesChanged": 2,
+      "added": 318,
+      "deleted": 10,
+      "net": 308,
+      "perFile": {
+        "scripts/qc/validate-exact-main-regression-ladder.mjs": "87 added, 10 deleted (net +77; 353 -> 430)",
+        "scripts/__tests__/validate-exact-main-regression-ladder.test.ts": "231 added, 0 deleted (net +231; 544 -> 775)"
+      },
+      "revision2Increment": {
+        "command": "git diff --numstat HEAD (HEAD = 08a74231173b901144605695208f0c4f356c5d7d)",
+        "added": 82,
+        "deleted": 8,
+        "net": 74,
+        "perFile": {
+          "scripts/qc/validate-exact-main-regression-ladder.mjs": "35 added, 8 deleted (net +27; 403 -> 430)",
+          "scripts/__tests__/validate-exact-main-regression-ladder.test.ts": "47 added, 0 deleted (net +47; 728 -> 775)"
+        },
+        "note": "The 8 deleted module lines are the two rewritten doc-comment passages (the five-words paragraph over PLAYWRIGHT_SUMMARY and the flaky/did-not-run paragraph over parseRunnerOutput). No executable line was deleted; the regex line and the loop body were extended, not replaced in substance."
+      }
+    },
+    "generated": "none - this unit ships no generated or copied data file",
+    "capCheck": {
+      "cap": "15 files, 500 non-generated lines (units.json U9b.caps, roadmap.json R6.loop-harness)",
+      "filesChanged": 2,
+      "readingA_thisUnitsDelta": {
+        "lines": 318,
+        "overage": "none",
+        "note": "318 added lines across two files against a 500-line cap, measured against the unit's stated baseline 384bab6cd. Inside the cap by either arithmetic (318 added, or 308 net)."
+      },
+      "readingB_twoFileFootprint": {
+        "lines": 1205,
+        "over": 705,
+        "arithmetic": "430 (module) + 775 (pin) = 1205; 1205 - 500 = 705 over.",
+        "note": "INHERITED and recorded rather than engineered away, exactly as revision 1 recorded it (1131, 631 over) and U9 before that (898, 398 over). Revision 2 adds 74 net to that inherited total. No assertion was dropped, merged or weakened to lower the number, and no file was split to move lines out of one file's count. Lane A reviewed and accepted the same arithmetic at revision 1."
+      },
+      "whyTheDeltaGrewInRevision2": "74 net lines for two behaviour words. 47 are pin: two full rerun-branch cases (each asserting the archived rows, the printed line and the exit code separately, spread by oxfmt's 80-column call formatting) and two it.each rows. 27 are module: a nine-line doc comment over the new PLAYWRIGHT_FATAL_ERRORS regex and its two-line body, a six-line paragraph added to PLAYWRIGHT_SUMMARY's comment explaining the defect, a rewritten failed/neither paragraph, and a six-line guarded branch with a three-line comment saying why it is checked first."
+    },
+    "sha256": {
+      "scripts/qc/validate-exact-main-regression-ladder.mjs": "cf15166c2d29eb206b44fd34a7dd917d016232b31ad10620be7095812deaaa1e",
+      "scripts/__tests__/validate-exact-main-regression-ladder.test.ts": "47943d559fb1a40382a710f2f83f4cd4d4a4f9bbc7c3817abb1d396c087034da",
+      "atPrHeadForComparison": {
+        "scripts/qc/validate-exact-main-regression-ladder.mjs": "5b692c341df3f49221df5c915b5bf3bbc2e26a811c7ac11a1cffefb38d958f06",
+        "scripts/__tests__/validate-exact-main-regression-ladder.test.ts": "dbcc742a2b35c5034922c2f958a46e76a856dbd20396e172b23531d5eaec34d0"
+      }
+    }
+  },
+  "gates": [
+    {
+      "id": "G1",
+      "command": "npx jest scripts/__tests__/validate-exact-main-regression-ladder.test.ts",
+      "summaryLine": "Tests:       39 passed, 39 total",
+      "lastLine": "Ran all test suites matching /scripts\\__tests__\\validate-exact-main-regression-ladder.test.ts/i.",
+      "exitCode": 0,
+      "note": "39 = U9's 26 cases, plus U9b revision 1's 9, plus revision 2's 4. All 35 pre-existing cases pass unchanged."
+    },
+    {
+      "id": "G2",
+      "command": "npx tsc --noEmit",
+      "lastLine": "(no output)",
+      "exitCode": 0
+    },
+    {
+      "id": "G3",
+      "command": "npx oxfmt --check scripts/qc/validate-exact-main-regression-ladder.mjs scripts/__tests__/validate-exact-main-regression-ladder.test.ts",
+      "lastLine": "Finished in 23ms on 2 files using 16 threads.",
+      "precedingLine": "All matched files use the correct format.",
+      "exitCode": 0
+    },
+    {
+      "id": "G4",
+      "command": "npm run lint:units",
+      "lastLine": "LINT_UNITS_PASS 100/100",
+      "fullOutput": "LINT_UNITS_PATH e2e 50 / LINT_UNITS_PATH scripts 50 / LINT_UNITS_PASS 100/100",
+      "exitCode": 0,
+      "note": "UNCHANGED at U14's recorded ceiling of 100. The revision-2 edits contributed zero new findings and the ceiling was not touched."
+    },
+    {
+      "id": "G5",
+      "command": "npm run qc:openspec-ci:validate",
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+      "exitCode": 0,
+      "note": "Not required by the revision-2 charter; re-run anyway so no gate in this receipt is carried forward unmeasured."
+    },
+    {
+      "id": "G6",
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "exitCode": 0
+    },
+    {
+      "id": "G7",
+      "command": "node scripts/qc/validate-exact-main-regression-ladder.mjs --sha 384bab6cde85724787f5fed28d645b85d7f7a0cc",
+      "lastLine": "EXACT_MAIN_LADDER_MISSING 384bab6cde85724787f5fed28d645b85d7f7a0cc milestone=strict-smoke missing=smoke",
+      "exitCode": 1,
+      "note": "Check mode only - --rerun was NOT passed. MISSING is the expected and correct reading at this baseline: no receipt in the evidence dir names 384bab6c as its merge commit, and U9 finding F3 still stands. This unit makes a passing rerun READABLE; it does not create the receipt. The sha was supplied explicitly so the gate does not depend on a network fetch; NOT CLAIMED: the default `git fetch` path was not exercised in this pass."
+    },
+    {
+      "id": "G8",
+      "command": "npx oxlint --config scripts/qc/oxlint-units.json --allow no-console <each of the two files>",
+      "lastLine": "Finished in 8ms on 1 file with 64 rules using 16 threads. (module) / Finished in 9ms on 1 file with 64 rules using 16 threads. (pin)",
+      "precedingLine": "Found 0 warnings and 0 errors.",
+      "exitCode": 0,
+      "note": "Run to prove G4's zero is NOT vacuous: the units config actually walks '1 file with 64 rules' for each edited file. The root .oxlintrc.json ignores **/scripts/**, so a plain `npx oxlint` on these paths would walk 0 files and its zero would mean nothing."
+    }
+  ],
+  "gatesRerunAfterMutants": "G1 and G3 were re-run AFTER the final mutant restore, against the restored module whose sha256 was printed immediately before G1 as cf15166c2d29eb206b44fd34a7dd917d016232b31ad10620be7095812deaaa1e - equal to the pre-mutant hash. G2 and G4 through G8 were run before the mutants, against a module byte-identical to the restored one (same hash), and are therefore bound to the shipping bytes.",
+  "mutants": {
+    "file": "scripts/qc/validate-exact-main-regression-ladder.mjs",
+    "preMutantSha256": "cf15166c2d29eb206b44fd34a7dd917d016232b31ad10620be7095812deaaa1e",
+    "method": "A copy of the revised module was saved before the first mutant. Each mutation is a unique-anchor text replacement performed by a scratchpad script that EXITS 9 with ANCHOR_NOT_UNIQUE unless the anchor occurs exactly once; the pin was then run, the file restored by copying the saved copy back (never git checkout, never stash), and its sha256 re-taken.",
+    "greenBaseline": "Tests: 39 passed, 39 total",
+    "allRestoredEqualPreMutant": true,
+    "table": [
+      {
+        "id": "M1",
+        "intent": "the bare Playwright summary is ignored again - only the labelled form parses (i.e. U9's defect reintroduced)",
+        "mutation": "parseRunnerOutput: `  if (labelled) return labelled;` -> `  return labelled ?? { group, passed: 0, failed: 0 };`",
+        "mutatedSha256": "d5bc40b733ba7096244c5780c6614d0c1012e2a5a3d85d05de2bbf675624f9dc",
+        "pinResult": "Tests: 10 failed, 29 passed, 39 total",
+        "jestExit": 1,
+        "caughtBy": [
+          "rerun reads the real runner > archives smoke 3/0 and is SATISFIED on the runner real bytes",
+          "rerun reads the real runner > archives 2/1 and stays MISSING when the summary reports a failure",
+          "rerun reads the real runner > archives 2/1 and stays MISSING when the summary reports a flake",
+          "rerun reads the real runner > archives 2/1 and stays MISSING when the summary reports an interruption",
+          "rerun reads the real runner > archives 2/1 and stays MISSING when a fatal error rode beside the passes",
+          "runner output reader > reads a skipped row counts as neither",
+          "runner output reader > reads a did-not-run row counts as failed",
+          "runner output reader > reads an interrupted row counts as failed",
+          "runner output reader > reads the plural fatal-error token counts as failed",
+          "runner output reader > reads repeated summaries add up"
+        ],
+        "restoredSha256": "cf15166c2d29eb206b44fd34a7dd917d016232b31ad10620be7095812deaaa1e",
+        "restoredEqualsPreMutant": true,
+        "note": "Six catchers at revision 1, ten now - the four new cases all route through the bare-summary branch, so they see this mutant too. The fail-closed cases stay GREEN (only-ok-rows, the U9 silent-runner case, 'prose that is not a summary', 'a labelled line still wins'): reverting to U9's behaviour loses coverage it should find and never invents coverage it should not."
+      },
+      {
+        "id": "M2",
+        "intent": "`N failed` is dropped, so a failing run archives as coverage",
+        "mutation": "parseRunnerOutput: `    else if (summary[2] !== 'skipped') failed += Number(summary[1]);` -> `    else if (summary[2] !== 'skipped') failed += 0;`",
+        "mutatedSha256": "2c3c06ff5e12bd21a2b316e0bf6f0a4c8fc074c39bc275bf6400557a5c60b263",
+        "pinResult": "Tests: 5 failed, 34 passed, 39 total",
+        "jestExit": 1,
+        "caughtBy": [
+          "rerun reads the real runner > archives 2/1 and stays MISSING when the summary reports a failure",
+          "rerun reads the real runner > archives 2/1 and stays MISSING when the summary reports a flake",
+          "rerun reads the real runner > archives 2/1 and stays MISSING when the summary reports an interruption",
+          "runner output reader > reads a did-not-run row counts as failed",
+          "runner output reader > reads an interrupted row counts as failed"
+        ],
+        "restoredSha256": "cf15166c2d29eb206b44fd34a7dd917d016232b31ad10620be7095812deaaa1e",
+        "restoredEqualsPreMutant": true,
+        "note": "Three catchers at revision 1, five now: the two interrupted cases join, because D7 routes `interrupted` through this same branch rather than adding a path of its own. The two fatal-error cases correctly do NOT catch it - they go through PLAYWRIGHT_FATAL_ERRORS, which this mutation does not touch. That split is the evidence D8's separate regex is a real second path and not a restatement of the first."
+      },
+      {
+        "id": "M3",
+        "intent": "a missing summary line is treated as 1 passed",
+        "mutation": "parseRunnerOutput: `  return { group, passed, failed };` -> `  return { group, passed: passed || 1, failed };`",
+        "mutatedSha256": "d2778a7a5ae0be7fb1f9040441b13f8db90c1ab55e768e9773de35953928915f",
+        "pinResult": "Tests: 3 failed, 36 passed, 39 total",
+        "jestExit": 1,
+        "caughtBy": [
+          "rerun branch > stays MISSING and exits 1 when the rerun proves nothing (a U9 case, still doing work)",
+          "rerun reads the real runner > archives 0/0 and stays MISSING when only ok rows are printed",
+          "runner output reader > reads prose that is not a summary"
+        ],
+        "restoredSha256": "cf15166c2d29eb206b44fd34a7dd917d016232b31ad10620be7095812deaaa1e",
+        "restoredEqualsPreMutant": true,
+        "note": "Same three catchers as revision 1, unchanged: none of the four new cases has a zero passed count, so none of them can see this mutant. Recorded as measured rather than rounded up."
+      },
+      {
+        "id": "M4",
+        "intent": "`interrupted` is removed from the summary regex again - i.e. Lane A finding 1 reintroduced",
+        "mutation": "PLAYWRIGHT_SUMMARY: `did not run|interrupted)` -> `did not run)`",
+        "mutatedSha256": "bfc88240c4f5d249129d1c950c1a7d7287fd1205272d277a6908efa3f6e8d56b",
+        "pinResult": "Tests: 2 failed, 37 passed, 39 total",
+        "jestExit": 1,
+        "caughtBy": [
+          "rerun reads the real runner > archives 2/1 and stays MISSING when the summary reports an interruption",
+          "runner output reader > reads an interrupted row counts as failed"
+        ],
+        "restoredSha256": "cf15166c2d29eb206b44fd34a7dd917d016232b31ad10620be7095812deaaa1e",
+        "restoredEqualsPreMutant": true,
+        "note": "Exactly two catchers, and they are exactly the two cases added for this word - which is the point: the required edit is pinned at both levels (through the archive and CLI line, and directly on the export) and by nothing else, so neither case is redundant with an existing one. Under the mutant the interrupted run archives 2/0 and reports SATISFIED again, reproducing Lane A's finding."
+      }
+    ],
+    "whyNoFifthMutantForTheFatalErrorBranch": "The fatal-error branch did not exist at PR #1815 head, so the revision-2 RED run is already the mutant-equivalent for it: the same two cases ('archives 2/1 and stays MISSING when a fatal error rode beside the passes' and 'reads the plural fatal-error token counts as failed') were run against a module with no such branch (sha256 5b692c34...) and both failed with `failed: 0` received, then both pass against the revised module. That is a measured red-to-green transition on the exact code under test, recorded in u9b-red-20260917.json requiredEditRevision2. The charter asked for four mutants and four were run; this is stated so the absence of a fifth row is not read as the branch being unpinned."
+  },
+  "nonClaims": [
+    "The REAL LADDER RUNNER WAS NOT SPAWNED in this lane, and no Playwright process ran. The charter forbids it here. Every rerun case injects a fake runner that reprints captured or transcribed bytes; the fix is proven against the recorded spelling of one real run plus the reporter's own source, not against a live Playwright. The parent's main proof is the first real exercise of this branch.",
+    "NO REAL RUN PRINTING `interrupted` OR A FATAL-ERROR LINE HAS BEEN OBSERVED IN THIS REPO. Both new behaviours are proven against generateSummaryMessage's source as read in this pass (playwright 1.57.0), and the pin fixtures are its format strings with their interpolations filled in - not captured bytes. If a future Playwright changed either spelling, this pin would still pass and the real rerun would silently stop reading the line. Both directions are fail-closed, so the failure mode is a false MISSING, never a false SATISFIED.",
+    "Counting a fatal error as `failed` is a JUDGEMENT, recorded as D8, not a measurement. Playwright itself does not call it a test failure; this contract treats it as one because the run did not complete clean. The number it adds is a count of errors, not of tests, so an archived `failed` count from that branch is not a test count.",
+    "Because the REAL_RUNNER_TAIL fixture is one captured run's bytes, a future Playwright version that changes its summary wording would pass this pin and still break the real rerun. The pin holds the spelling that exists today.",
+    "Enforcement is still PROCEDURAL, by the loop (PK-e2e-80-ci-wiring). Nothing runs this contract automatically - there is no workflow job and no hook.",
+    "The contract still reads RECEIPTS, not runs. It cannot detect a receipt reporting a run that did not happen; it can only refuse to count one it cannot read, one for the wrong commit, one that failed, or one that passed nothing.",
+    "No coverage was created. The contract reads MISSING at this baseline and at every merge commit in the ledger, because no main-proof receipt has ever recorded a passing smoke, fixture-smoke or membership-smoke group (U9 finding F3, unchanged).",
+    "The default archive dir is still gitignored (U9 finding F2), so an archive receipt written by --rerun still does not reach main on its own.",
+    "parseReceiptGroups, evaluateExactMain, resolveMilestone, MILESTONE_LADDER, check mode, the head-mismatch refusal, the idle wait, the archive filename and the archive shape are UNCHANGED by revision 2. All 35 pin cases from PR #1815 head pass byte-unchanged.",
+    "No build ran. No npm install, ci, prune or lifecycle ran anywhere - npm_config_dry_run=true was exported in every shell. Nothing was committed, pushed, stashed, amended or force-pushed. No tasks.md row was checked.",
+    "The root checkout at E:/Projects/MekStation was not touched: verified at the end - `git -C E:/Projects/MekStation status --short` printed nothing and its HEAD is 384bab6cde85724787f5fed28d645b85d7f7a0cc.",
+    "package.json, scripts/qc/run-gm-two-player-campaign.mjs, scripts/qc/gm-two-player-campaign-core.cjs, units.json, roadmap.json, evidence/admission-snapshot.json and u9b-admission-20260917.json were read, never modified. node_modules was read only, through the junction."
+  ],
+  "findingsReportedNotFixed": {
+    "F6": "`npx oxfmt` REWRITES a \\u escape sequence in a string literal into the literal character it names, so a fixture that deliberately carries control bytes cannot be written as \\u escapes. The workaround this unit uses is String.fromCharCode plus template interpolation. Unchanged in revision 2 - the new fixtures are pure ASCII and need no workaround.",
+    "F7": "The runner's one-group-per-invocation property is what makes attributing a bare summary to a group sound, and nothing enforces it. Lane A independently traced buildRunPlan and confirmed the property holds today (one --group, one Playwright invocation, one summary block) and that the risk is real in shape but not currently reachable. Enforcing it would mean changing the core module, which this unit does not own.",
+    "F8": "U9's F1-F5 all still stand and none are addressed here: SPEC_BY_GROUP is still not exported (F1); the default archive dir is still gitignored (F2); no receipt in the ledger has ever proved smoke, fixture-smoke or membership-smoke on an exact commit (F3); `runtime.playwright` is still not a consistently machine-readable field across the ledger's receipts (F4); the top-level-CLI-pollutes-stdout hazard for scripts/qc modules is unchanged (F5).",
+    "F9": "The oxlint units config reports '64 rules' for both files in this lane, where U9's receipt recorded '65 rules' for the pin. Both runs report 0 warnings and 0 errors, so nothing is hidden, but the two receipts disagree about the rule count and this lane did not investigate which is right.",
+    "F10": "NEW in revision 2. The parser now knows every line generateSummaryMessage can emit at Playwright 1.57.0, and that completeness is a snapshot, not a contract: nothing in this repo pins the reporter's vocabulary to the version installed, so a Playwright upgrade could add a seventh word and reintroduce exactly the defect Lane A found. A durable fix would read the vocabulary from the installed reporter, or assert the parser against a generated summary rather than a transcribed one. Out of scope for this narrow successor unit and reported rather than attempted."
+  },
+  "deviationsFromTheCharter": [
+    "The revision-2 charter names one required edit (`interrupted`) and adds 'if generateSummaryMessage emits any other word the regex still misses, cover it the same way and pin it'. Reading generateSummaryMessage produced one such other token - the fatal-error line - so it is covered and pinned under that clause. It is a second behaviour change beyond the single word Lane A named, and it is called out here rather than folded in silently.",
+    "Revision 1's deviations still stand and are unchanged: the captured fixture's three non-ASCII code points are produced by named String.fromCharCode constants rather than typed as raw bytes (because oxfmt unescapes \\u), and the unit decides `did not run` and `skipped` as well as the `flaky` the original charter asked about."
+  ],
+  "gitStatusShort": [
+    " M openspec/planning/2026-09-12-roadmap-completion/evidence/u9b-red-20260917.json",
+    " M scripts/__tests__/validate-exact-main-regression-ladder.test.ts",
+    " M scripts/qc/validate-exact-main-regression-ladder.mjs"
+  ],
+  "gitStatusNote": "u9b-local-20260917.json joins this list once written; the receipts are tracked files at PR #1815 head, so revision 2 shows them as modified rather than untracked. u9b-admission-20260917.json is untouched by this pass and correctly absent from the list.",
+  "status": "ready"
+}
