@@ -1,0 +1,17 @@
+{
+  "unit": "U7",
+  "stage": "review",
+  "at": "2026-09-17T10:06:56.903Z",
+  "lane": "A",
+  "reviewerModel": "claude-sonnet (Agent model: sonnet)",
+  "implementerModel": "codex gpt-6 (codex exec, sandbox bypassed) with claude-fable-5-1 parent",
+  "reviewerEffort": "default",
+  "head": "89de87394b21b2f70ae05075713e07df875d016b",
+  "reviewedHead": "89de87394b21b2f70ae05075713e07df875d016b",
+  "verdict": "APPROVE",
+  "outputPath": "evidence/u7-lane-a-review-20260917.md",
+  "outputSha256": "703706e80f3763b18f19cd37f5a4a74678e6b1e9f8871fe16822e6498ce17f70",
+  "sharedContext": "none: reviewer received only the diff range, the head, the contract and spec files on the head, and re-ran tsc/oxlint/oxfmt/jest in its own throwaway worktree",
+  "laneB": "not required (review classes: routine)",
+  "githubApproval": "none recorded; Lane A is engineering evidence, never a GitHub approval"
+}

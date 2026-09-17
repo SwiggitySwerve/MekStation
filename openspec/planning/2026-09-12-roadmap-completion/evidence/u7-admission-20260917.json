@@ -62,5 +62,10 @@
   ],
   "selection": "validate-roadmap.mjs --next printed U4 (exit 0). Per the charter U4 is in flight awaiting an owner ruling, and U7 is the next path-free planned unit in the validator's own order. The charter explicitly assigns U7; no ledger mutation.",
   "acceptance": "Five planned builds (baseline, three mutants, clean rebuild), conflict-pack three clean runs, lifecycle-pack regression, tsc, format, lint, pin Jest, OpenSpec CI and roadmap validation. Each build/browser run waits for CPU ownership.",
-  "originMain": "1d31dc8dcccde8f17b74596db8b2e9d7e6a68388"
+  "originMain": "1d31dc8dcccde8f17b74596db8b2e9d7e6a68388",
+  "parentDecision": {
+    "at": "2026-09-17T10:06:55.711Z",
+    "decision": "go",
+    "note": "parent admitted the unit as planned; no widening"
+  }
 }

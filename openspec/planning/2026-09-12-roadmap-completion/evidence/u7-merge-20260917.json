@@ -1,0 +1,15 @@
+{
+  "unit": "U7",
+  "stage": "merge",
+  "at": "2026-09-17T10:06:58.591Z",
+  "pr": 1805,
+  "title": "test(e2e): E2E-77 a seated non-host rewind commit is refused and leak-safe",
+  "head": "89de87394b21b2f70ae05075713e07df875d016b",
+  "mergeSha": "d701f63a8b0ab37ce38a57ff832823e13e1b187b",
+  "mergedAt": "2026-09-17T10:03:37Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityDiffLines": 0
+}
