@@ -1,0 +1,102 @@
+{
+  "unit": "U15a",
+  "stage": "red",
+  "at": "2026-09-17T15:52:00Z",
+  "baseline": "2d01d1a2ef28fe07e92529341f81875ee1338249",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u15a",
+  "branch": "codex/roadmap-u15a-combat-journal-e2e-arm-20260917",
+  "implementerModel": "claude-opus (Agent lane; codex, grok CLI and cursor-agent routes exhausted on 2026-09-17)",
+  "shellPreamble": "export npm_config_dry_run=true && export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH (node v22.22.0). No npm install/ci/prune was run at any point.",
+
+  "step1_moduleMissing": {
+    "why": "The pin was written before any product file existed, so the first run must fail on resolution, not on an assertion.",
+    "command": "npx jest src/lib/multiplayer/server/__tests__/combatJournalAuthorityEnabled.test.ts",
+    "exitCode": 1,
+    "failure": "Test suite failed to run: Cannot find module '../combatJournalAuthorityEnabled' from 'src/lib/multiplayer/server/__tests__/combatJournalAuthorityEnabled.test.ts', reported at the import on test-file line 20 (at Resolver._throwModNotFoundError, node_modules/jest-resolve/build/resolver.js:427:11).",
+    "lastLine": "Ran all test suites matching /src\\lib\\multiplayer\\server\\__tests__\\combatJournalAuthorityEnabled.test.ts/i.",
+    "totals": "Test Suites: 1 failed, 1 total. Tests: 0 total."
+  },
+
+  "step2_offStub": {
+    "stubShape": "src/lib/multiplayer/server/combatJournalAuthorityEnabled.ts exporting the real COMBAT_JOURNAL_AUTHORITY_E2E_ENV, an e2eCombatJournalAuthorityMode() that returns null unconditionally, and a resolveCombatJournalAuthorityMode() that never consults the environment. The two seams were wired for real at this step so the failure is the resolver's and not a second missing export: getCombatJournalAuthorityMode() in matchJournalAuthority.ts now returns `combatJournalAuthorityModeOverride ?? resolveCombatJournalAuthorityMode()`, and ServerMatchHost.ts's create site calls the new exported resolveBootstrapJournalAuthority(bootstrap.journalAuthority).",
+    "command": "npx jest src/lib/multiplayer/server/__tests__/combatJournalAuthorityEnabled.test.ts",
+    "exitCode": 1,
+    "totals": "Test Suites: 1 failed, 1 total. Tests: 4 failed, 6 passed, 10 total.",
+    "lastLine": "Ran all test suites matching /src\\lib\\multiplayer\\server\\__tests__\\combatJournalAuthorityEnabled.test.ts/i.",
+    "failed": [
+      {
+        "test": "arms shadow when both keys agree on shadow",
+        "assertion": "expect(e2eCombatJournalAuthorityMode()).toBe('shadow') at test line 66",
+        "received": "null",
+        "why": "The stub never reads the environment, so the armed case is indistinguishable from the unarmed one."
+      },
+      {
+        "test": "arms enabled when both keys agree on enabled",
+        "assertion": "expect(e2eCombatJournalAuthorityMode()).toBe('enabled') at test line 73",
+        "received": "null",
+        "why": "Same cause."
+      },
+      {
+        "test": "follows the arm through getCombatJournalAuthorityMode when no override is set",
+        "assertion": "expect(getCombatJournalAuthorityMode()).toBe('shadow') at test line 90",
+        "received": "'off'",
+        "why": "The getter seam is wired, so the failure is now the resolver's answer and not the getter's. This is the proof that the getter delegates: had the getter still read the constant, this case would fail identically, but the next case separates them."
+      },
+      {
+        "test": "derives the host bootstrap default from the getter, not the constant",
+        "assertion": "expect(resolveBootstrapJournalAuthority(undefined)).toBe(true) at test line 124",
+        "received": "false",
+        "why": "IMPORTANT ORDERING EVIDENCE: this test's two earlier assertions -- the ones driven by _setCombatJournalAuthorityModeForTests('enabled') and ('shadow') at test lines 116 and 119 -- already PASSED under the stub. That is precisely because the ServerMatchHost site now reads the getter; against the pre-unit expression `bootstrap.journalAuthority ?? COMBAT_JOURNAL_AUTHORITY_ENABLED` the line-116 assertion could never pass, since that constant is hardcoded false. The surviving failure at line 124 is the env arm alone, which is the stub's."
+      }
+    ],
+    "passedAndWhyThatIsNotEvidence": [
+      {
+        "test": "keeps the production constant at off so this unit is the arm, not the cutover",
+        "why": "Asserts COMBAT_JOURNAL_AUTHORITY_MODE === 'off' and COMBAT_JOURNAL_AUTHORITY_ENABLED === false. This unit never changes those, so the case is green at every step including the baseline. It is a guard against widening, not a red-first case."
+      },
+      {
+        "test": "refuses the mode key alone",
+        "why": "A resolver that never arms is trivially fail-closed. Vacuously green under the stub; only the mutants M1/M2 in stage 3 give it teeth."
+      },
+      {
+        "test": "refuses e2e mode alone",
+        "why": "Same vacuous reason."
+      },
+      {
+        "test": "refuses an unknown value, including the plausible ones",
+        "why": "Same vacuous reason; six values ('on', '1', 'true', 'off', 'ENABLED', '') all answered null because the stub answers null to everything."
+      },
+      {
+        "test": "lets the jest override beat the arm in both directions",
+        "why": "The override short-circuits before the resolver, so the stub is never consulted."
+      },
+      {
+        "test": "lets an explicit bootstrap request win over the arm in both directions",
+        "why": "An explicit boolean short-circuits the `??`, so the resolver is never consulted."
+      }
+    ]
+  },
+
+  "importCycleMeasured": {
+    "shapeBuilt": "Option A, the charter's preferred zero-argument form: combatJournalAuthorityEnabled.ts imports the VALUE COMBAT_JOURNAL_AUTHORITY_MODE and the TYPE CombatJournalAuthorityMode from './matchJournalAuthority', and matchJournalAuthority.ts imports the VALUE resolveCombatJournalAuthorityMode back from './combatJournalAuthorityEnabled'. That is a two-module runtime cycle.",
+    "verdict": "SHIPPED AS OPTION A. The cycle exists and is inert at load time; the fallback (constant passed in as a parameter) was not needed.",
+    "measurement": "The pin file imports '../combatJournalAuthorityEnabled' at its line 18 and '../matchJournalAuthority' only at its line 23, so jest enters the graph through the NEW module first -- the dangerous order, the one where matchJournalAuthority is still initialising when the new module's body runs. Under that order the suite loaded and ran all 10 cases, and the case that reads the cross-edge value through the new module ('keeps the production constant at off', which resolves COMBAT_JOURNAL_AUTHORITY_MODE) passed. Exit code 1 in both red runs came from assertions, never from a load error or an undefined import.",
+    "whyItIsInert": "The only cross-edge VALUE read, COMBAT_JOURNAL_AUTHORITY_MODE, is read inside a function body, never at module scope. By the time any caller invokes resolveCombatJournalAuthorityMode() both modules are fully initialised. The reverse edge is the same shape: matchJournalAuthority.ts calls resolveCombatJournalAuthorityMode() only from inside getCombatJournalAuthorityMode(). Neither module evaluates the other's binding during its own initialisation, which is the condition a CommonJS cycle needs to break.",
+    "limitOfThisMeasurement": "Measured under jest's CommonJS transform only. This lane is forbidden to run `next build`, so the ESM/webpack load order is NOT measured here. `npx tsc --noEmit` is reported in the local receipt and is the only other load-shape evidence this lane produces."
+  },
+
+  "filesTouchedAtRed": [
+    "src/lib/multiplayer/server/__tests__/combatJournalAuthorityEnabled.test.ts (new, the pin)",
+    "src/lib/multiplayer/server/combatJournalAuthorityEnabled.ts (new, RED STUB -- replaced in stage 3)",
+    "src/lib/multiplayer/server/matchJournalAuthority.ts (getter delegates to the resolver)",
+    "src/lib/multiplayer/server/ServerMatchHost.ts (create site calls resolveBootstrapJournalAuthority; the now-unused COMBAT_JOURNAL_AUTHORITY_ENABLED import removed)"
+  ],
+
+  "constraints": {
+    "npmConfigDryRun": "true",
+    "noInstalls": true,
+    "noGitMutations": true,
+    "noBuildOrPlaywright": true,
+    "rootCheckoutUntouched": true
+  }
+}
