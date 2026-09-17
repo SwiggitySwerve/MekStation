@@ -685,14 +685,27 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
-      "prHead": null,
+      "state": "local-verified",
+      "baseline": "2d01d1a2ef28fe07e92529341f81875ee1338249",
+      "prHead": "46de0b2f137d5c6f32f4637caad4c49c0aeaa276",
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/u15a-admission-20260917.json",
+          "baseline": "2d01d1a2ef28fe07e92529341f81875ee1338249",
+          "at": "2026-09-17T15:41:44.273Z",
+          "decision": "go"
+        },
+        "red": {
+          "path": "evidence/u15a-red-20260917.json",
+          "at": "2026-09-17T15:52:00Z",
+          "summary": "Pin written first (two-key law, getter follows the arm with the override winning, bootstrap helper): failed with the module missing, then against an always-off stub; implementation 10/10."
+        },
+        "local": {
+          "path": "evidence/u15a-local-20260917.json",
+          "at": "2026-09-17T16:12:00Z",
+          "summary": "claude-opus Agent lane. Resolver mirrors the campaign arm: armed to shadow or enabled only with NEXT_PUBLIC_E2E_MODE true AND an exact MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE value, production constant read first; getter returns the override or the resolver; the host bootstrap default derives from the getter through an exported helper. Gates: pin 10/10, focused suites 157 suites / 1155 tests, tsc 0, root oxlint 84 warnings 0 errors measured unchanged, oxfmt clean, qc:openspec-ci errors=0, validator PASSED; four mutants killed (mode key alone arms 1, unknown value arms 1, bootstrap reads the constant 1, getter bypasses the resolver 2), a fifth (arm consulted before the constant) recorded equivalent while the constant is the literal off; sha256 restored; parent verification in the worktree 10/10, tsc 0, oxlint 84/0; 84 product lines across three files plus a 143-line pin, under the cap; non-claims: no ladder run (U15b forwards the keys), the cutover not done, import cycle inert under jest (bundle exercised by CI); findings F1-F5 (a fifth constant pin; two charter-named pins are prose; PK-u15a-ruling to mint; ordering clause untestable; misconfigured arm is silent)."
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
@@ -1789,6 +1802,37 @@
         "replay"
       ],
       "minted20260917": "owner instruction 2026-09-17 accepting the second council's corrections (openspec/council-decisions/2026-09-17-review-what-needs-validation.md)"
+    },
+    {
+      "id": "PK-u15a-ruling",
+      "blocks": [
+        "U15a"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "U15a (combat-journal e2e arm: two-key resolver, production constant unchanged; review class authority) presents head 46de0b2f137d5c6f32f4637caad4c49c0aeaa276 on PR #1818. Does the owner rule that head so the PR merges?",
+      "options": [
+        {
+          "label": "rule the head",
+          "consequence": "an OWNER-RULING <head> comment and the owner-ruled label on PR #1818; the unit merges and proceeds to main proof",
+          "effort": "0.1 day owner"
+        },
+        {
+          "label": "reject",
+          "consequence": "the PR closes; the unit returns to planned with the objection recorded",
+          "effort": "0.1 day owner"
+        }
+      ],
+      "agentRecommendation": "rule the head once Lane A has approved it and the checks are green",
+      "revertCost": "low: a squash merge revert",
+      "decision": null,
+      "ruling": null,
+      "sensitiveClasses": [
+        "authority"
+      ],
+      "minted20260917": "loop, at the U15a fold (the council-2 shells covered U4/U5a/U5b/U8/U10; U15a was planned by the same corrections without a shell)"
     }
   ],
   "deferrals": [

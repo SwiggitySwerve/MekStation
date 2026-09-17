@@ -1,0 +1,295 @@
+{
+  "unit": "U15a",
+  "stage": "local",
+  "status": "ready",
+  "at": "2026-09-17T16:12:00Z",
+  "baseline": "2d01d1a2ef28fe07e92529341f81875ee1338249",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u15a",
+  "branch": "codex/roadmap-u15a-combat-journal-e2e-arm-20260917",
+  "node": "R2.authority-live",
+  "ciClass": "product",
+  "reviewClasses": ["authority", "routine"],
+  "implementerModel": "claude-opus (Agent lane; codex, grok CLI and cursor-agent routes exhausted on 2026-09-17)",
+  "nodeVersion": "v22.22.0",
+  "tscVersion": "5.8.3",
+  "oxlintVersion": "1.43.0",
+  "shellPreamble": "export npm_config_dry_run=true && export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH. No npm install, ci or prune was run anywhere in this lane.",
+
+  "whatShipped": {
+    "importCycleDecision": "OPTION A, the charter's preferred zero-argument form. combatJournalAuthorityEnabled.ts imports the value COMBAT_JOURNAL_AUTHORITY_MODE and the type CombatJournalAuthorityMode from './matchJournalAuthority'; matchJournalAuthority.ts imports the value resolveCombatJournalAuthorityMode back. The cycle exists and is INERT: neither module evaluates the other's binding at module scope -- both cross-edge reads sit inside function bodies. Measured, not assumed: the pin file enters the graph through the NEW module (its import at test line 18 precedes the matchJournalAuthority import at line 23), which is the dangerous order, and the suite loads and runs all 10 cases with no load error and no undefined import. The parameterised fallback was not needed. LIMIT: measured under jest's CommonJS transform and `tsc --noEmit` only; this lane is forbidden to run `next build`, so the ESM/webpack load order is not measured here.",
+    "consumerChanged": "Exactly one. ServerMatchHost.ts's create site was `bootstrap.journalAuthority ?? COMBAT_JOURNAL_AUTHORITY_ENABLED` (baseline line 452). That expression moved verbatim in meaning into a new exported helper `resolveBootstrapJournalAuthority(requested)` in the SAME file, with the constant read replaced by `getCombatJournalAuthorityMode() === 'enabled'`, and create now calls the helper. The now-unused COMBAT_JOURNAL_AUTHORITY_ENABLED import at line 103 was removed (oxlint would otherwise report it). DurableMatchStore.ts:1000, ServerMatchHost.ts:390, journalAuthorityAdmission.ts:218 and matchCommitJournalHead.ts:86 already called the getter and were not touched.",
+    "getterChanged": "getCombatJournalAuthorityMode() now returns `combatJournalAuthorityModeOverride ?? resolveCombatJournalAuthorityMode()`. The jest override still wins, so every suite driving shadow/enabled through _setCombatJournalAuthorityModeForTests is unaffected.",
+    "constantsUnchanged": "COMBAT_JOURNAL_AUTHORITY_MODE is still the literal 'off' and COMBAT_JOURNAL_AUTHORITY_ENABLED is still the derived false. Both are still exported. No cutover was performed.",
+    "seamJustification": "The charter's fallback was taken and this is the saying-so. ServerMatchHost.create needs a full IMatchHostBootstrap plus a created match row and an event-persistence poll, and -- decisively -- the default is NOT observable through it: with the mode override at 'enabled' and bootstrap.journalAuthority omitted, resolveJournalAuthorityForNewMatch calls isJournalAuthorityBaselineStore(store), InMemoryMatchStore is not one, and it returns {enabled:false, refusal:null}, byte-identical to the constant form's inert path (journalAuthorityAdmission.ts:177). Distinguishing the two at host level requires a SQLite-backed baseline store, which is a large fixture by any reading."
+  },
+
+  "lineCounts": {
+    "product": {
+      "src/lib/multiplayer/server/combatJournalAuthorityEnabled.ts": {
+        "kind": "new file",
+        "totalLines": 59,
+        "note": "Includes a 15-line file doc comment and per-export comments, per the repo's every-function-needs-a-comment rule."
+      },
+      "src/lib/multiplayer/server/ServerMatchHost.ts": {
+        "kind": "edit",
+        "added": 16,
+        "removed": 3,
+        "measuredBy": "git diff --numstat"
+      },
+      "src/lib/multiplayer/server/matchJournalAuthority.ts": {
+        "kind": "edit",
+        "added": 9,
+        "removed": 2,
+        "measuredBy": "git diff --numstat"
+      },
+      "totalProductAdded": 84,
+      "totalProductRemoved": 5
+    },
+    "test": {
+      "src/lib/multiplayer/server/__tests__/combatJournalAuthorityEnabled.test.ts": {
+        "kind": "new file",
+        "totalLines": 143,
+        "expectCalls": 23,
+        "note": "23 expect() call sites; 32 executed assertions, because the unknown-value case loops six values over two assertions."
+      }
+    },
+    "capsCheck": {
+      "filesChanged": 4,
+      "maxFiles": 15,
+      "nonGeneratedProductLinesAdded": 84,
+      "maxNonGeneratedLines": 500,
+      "verdict": "inside both caps"
+    },
+    "finalDigests": {
+      "src/lib/multiplayer/server/combatJournalAuthorityEnabled.ts": "c18b1a6b2fc2a858b4df258b1ac7d97ea27d8f84a435ec64e41a805e778d4bb7",
+      "src/lib/multiplayer/server/matchJournalAuthority.ts": "6432f900611b722b70bf8cd7d701e0e83a849eacfc52ea85cd679c1ad1db86ec",
+      "src/lib/multiplayer/server/ServerMatchHost.ts": "b8d0c9cf2501948f96815bc5ec69fde6c2be9443ac6bf39835f0f7375617b5ad",
+      "src/lib/multiplayer/server/__tests__/combatJournalAuthorityEnabled.test.ts": "6340970416f8da0a95c4b11b847ebe2074254d845373cdb25c24abf5718c2835"
+    }
+  },
+
+  "gates": [
+    {
+      "id": "G1",
+      "name": "the pin, green",
+      "command": "npx jest src/lib/multiplayer/server/__tests__/combatJournalAuthorityEnabled.test.ts",
+      "totals": "Test Suites: 1 passed, 1 total. Tests: 10 passed, 10 total.",
+      "lastLine": "Ran all test suites matching /src\\lib\\multiplayer\\server\\__tests__\\combatJournalAuthorityEnabled.test.ts/i.",
+      "exitCode": 0
+    },
+    {
+      "id": "G2",
+      "name": "focused suite",
+      "command": "npx jest src/lib/multiplayer/server",
+      "totals": "Test Suites: 157 passed, 157 total. Tests: 1155 passed, 1155 total.",
+      "lastLine": "Ran all test suites matching /src\\lib\\multiplayer\\server/i.",
+      "exitCode": 0
+    },
+    {
+      "id": "G2b",
+      "name": "the five pre-existing pins of the constant, run alone",
+      "command": "npx jest src/lib/multiplayer/server/__tests__/journalAuthorityShadow.test.ts src/lib/multiplayer/server/__tests__/ServerMatchHostBranchAdmission.journalHead.test.ts src/lib/multiplayer/server/__tests__/matchCreatePathJournalSeed.sqlite.test.ts src/lib/multiplayer/server/__tests__/matchRecoveryJournalArmDoor.sqlite.test.ts src/lib/multiplayer/server/__tests__/journalAuthorityPath.test.ts",
+      "totals": "Test Suites: 5 passed, 5 total. Tests: 33 passed, 33 total.",
+      "lastLine": "Ran all test suites matching /src\\lib\\multiplayer\\server\\__tests__\\journalAuthorityShadow.test.ts|src\\lib\\multiplayer\\server\\__tests__\\ServerMatchHostBranchAdmission.journalHead.test.ts|src\\lib\\multiplayer\\server\\__tests__\\matchCreatePathJournalSeed.sqlite.test.ts|src\\lib\\multiplayer\\server\\__tests__\\matchRecoveryJournalArmDoor.sqlite.test.ts|src\\lib\\multiplayer\\server\\__tests__\\journalAuthorityPath.test.ts/i.",
+      "exitCode": 0,
+      "note": "Includes journalAuthorityPath.test.ts:142, the fifth constant pin the charter did not name (admission finding F1)."
+    },
+    {
+      "id": "G3",
+      "name": "typecheck",
+      "command": "npx tsc --noEmit",
+      "lastLine": "(no output)",
+      "exitCode": 0
+    },
+    {
+      "id": "G4",
+      "name": "root lint",
+      "command": "npx oxlint",
+      "lastLine": "Finished in 273ms on 3811 files using 16 threads.",
+      "warningsLine": "Found 84 warnings and 0 errors.",
+      "exitCode": 0,
+      "baselineComparison": "UNCHANGED, and measured rather than assumed. The three product files were temporarily reverted to their HEAD contents (`git show HEAD:<path>`) and the two new files moved aside; `npx oxlint` on that tree printed `Found 84 warnings and 0 errors. Finished in 239ms on 3810 files using 16 threads.` The four files were then restored and all four sha256 digests re-verified identical. Same 84 warnings, same 0 errors; the file count rises 3810 -> 3811 for the one new product file (the test file sits under an ignored pattern)."
+    },
+    {
+      "id": "G5",
+      "name": "format check on changed files",
+      "command": "npx oxfmt --check src/lib/multiplayer/server/combatJournalAuthorityEnabled.ts src/lib/multiplayer/server/matchJournalAuthority.ts src/lib/multiplayer/server/ServerMatchHost.ts src/lib/multiplayer/server/__tests__/combatJournalAuthorityEnabled.test.ts",
+      "lastLine": "Finished in 20ms on 4 files using 16 threads.",
+      "resultLine": "All matched files use the correct format.",
+      "exitCode": 0,
+      "firstAttempt": "The first --check run reported `Format issues found in above 2 files.` (exit 1) for combatJournalAuthorityEnabled.ts and matchJournalAuthority.ts. `npx oxfmt` on those two was applied; it wrapped the ARMABLE_MODES array literal onto three lines and parenthesised the getter's `??` expression. Retained here rather than hidden: no formatter setting was weakened and no unrelated file was reformatted."
+    },
+    {
+      "id": "G6",
+      "name": "openspec CI quality validator",
+      "command": "npm run qc:openspec-ci:validate",
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+      "errors": 0,
+      "exitCode": 0
+    },
+    {
+      "id": "G7",
+      "name": "roadmap accounting validator",
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "exitCode": 0,
+      "note": "Counts identical to the pre-edit baseline run. `--next` printed U15a at the baseline, exit 0."
+    }
+  ],
+
+  "gatesNotRun": {
+    "npm run build": "Forbidden by the charter. No production build evidence exists in this lane.",
+    "playwright": "Forbidden by the charter. U15b wires the ladder and the parent proves it there."
+  },
+
+  "mutants": {
+    "protocol": "Each product file was copied before mutation; after each run the file was restored from the saved copy and its sha256 compared against the pre-mutant sha256. All four restorations matched exactly. Only the pin was run per mutant.",
+    "preMutantDigests": {
+      "src/lib/multiplayer/server/combatJournalAuthorityEnabled.ts": "c18b1a6b2fc2a858b4df258b1ac7d97ea27d8f84a435ec64e41a805e778d4bb7",
+      "src/lib/multiplayer/server/ServerMatchHost.ts": "b8d0c9cf2501948f96815bc5ec69fde6c2be9443ac6bf39835f0f7375617b5ad",
+      "src/lib/multiplayer/server/matchJournalAuthority.ts": "6432f900611b722b70bf8cd7d701e0e83a849eacfc52ea85cd679c1ad1db86ec"
+    },
+    "table": [
+      {
+        "id": "M1",
+        "file": "src/lib/multiplayer/server/combatJournalAuthorityEnabled.ts",
+        "mutation": "Deleted the guard line `if (process.env.NEXT_PUBLIC_E2E_MODE !== 'true') return null;` so the mode key alone arms.",
+        "caught": true,
+        "result": "Tests: 1 failed, 9 passed, 10 total. Exit 1.",
+        "failingTest": "refuses the mode key alone",
+        "failingAssertion": "expect(e2eCombatJournalAuthorityMode()).toBeNull() at test line 50-53; Received: \"enabled\"",
+        "restoredSha256": "c18b1a6b2fc2a858b4df258b1ac7d97ea27d8f84a435ec64e41a805e778d4bb7",
+        "restoreMatchesPreMutant": true
+      },
+      {
+        "id": "M2",
+        "file": "src/lib/multiplayer/server/combatJournalAuthorityEnabled.ts",
+        "mutation": "`ARMABLE_MODES.find(...) ?? null` became `?? 'enabled'` (with a null-guard kept for an absent key), so any unknown value arms as 'enabled'.",
+        "caught": true,
+        "result": "Tests: 1 failed, 9 passed, 10 total. Exit 1.",
+        "failingTest": "refuses an unknown value, including the plausible ones",
+        "failingAssertion": "expect(e2eCombatJournalAuthorityMode()).toBeNull(); Received: \"enabled\" on the first looped value 'on'",
+        "restoredSha256": "c18b1a6b2fc2a858b4df258b1ac7d97ea27d8f84a435ec64e41a805e778d4bb7",
+        "restoreMatchesPreMutant": true,
+        "firstFormTried": "A first form returned the raw env string as the mode; it was caught identically (Received: \"on\"). It was replaced with the charter's literal form ('arms as enabled') and the file restored between the two."
+      },
+      {
+        "id": "M3",
+        "file": "src/lib/multiplayer/server/ServerMatchHost.ts",
+        "mutation": "The helper body reverted to `return requested ?? COMBAT_JOURNAL_AUTHORITY_ENABLED;` and the constant re-imported -- i.e. the host seam reads the constant again, exactly as it did at baseline line 452.",
+        "caught": true,
+        "result": "Tests: 1 failed, 9 passed, 10 total. Exit 1.",
+        "failingTest": "derives the host bootstrap default from the getter, not the constant",
+        "failingAssertion": "expect(resolveBootstrapJournalAuthority(undefined)).toBe(true) under _setCombatJournalAuthorityModeForTests('enabled'); Received: false",
+        "restoredSha256": "b8d0c9cf2501948f96815bc5ec69fde6c2be9443ac6bf39835f0f7375617b5ad",
+        "restoreMatchesPreMutant": true
+      },
+      {
+        "id": "M4",
+        "file": "src/lib/multiplayer/server/matchJournalAuthority.ts",
+        "mutation": "The getter reverted to `combatJournalAuthorityModeOverride ?? COMBAT_JOURNAL_AUTHORITY_MODE`, bypassing the resolver entirely. Added beyond the charter's three so the third changed product file is not unmutated.",
+        "caught": true,
+        "result": "Tests: 2 failed, 8 passed, 10 total. Exit 1.",
+        "failingTests": [
+          "follows the arm through getCombatJournalAuthorityMode when no override is set (Expected 'shadow', Received 'off')",
+          "derives the host bootstrap default from the getter, not the constant"
+        ],
+        "restoredSha256": "6432f900611b722b70bf8cd7d701e0e83a849eacfc52ea85cd679c1ad1db86ec",
+        "restoreMatchesPreMutant": true
+      },
+      {
+        "id": "M5",
+        "file": "src/lib/multiplayer/server/combatJournalAuthorityEnabled.ts",
+        "mutation": "PROBE. The production-constant-first branch was collapsed to `return e2eCombatJournalAuthorityMode() ?? COMBAT_JOURNAL_AUTHORITY_MODE;`, i.e. the e2e arm is consulted BEFORE the production constant.",
+        "caught": false,
+        "result": "Tests: 10 passed, 10 total. Exit 0.",
+        "verdict": "EQUIVALENT MUTANT, and a disclosure rather than a gap. While COMBAT_JOURNAL_AUTHORITY_MODE is the literal 'off' the two orderings are observationally identical, so the 'production constant is read first' clause is UNFALSIFIABLE by any test at this commit. It becomes falsifiable only at the cutover, when the constant moves off 'off' -- and that is precisely when it matters, because only then can a set e2e key contradict it. Recorded so no reader mistakes the 10/10 green for coverage of that clause.",
+        "restoredSha256": "c18b1a6b2fc2a858b4df258b1ac7d97ea27d8f84a435ec64e41a805e778d4bb7",
+        "restoreMatchesPreMutant": true
+      }
+    ],
+    "postMutantGateRerun": "After every restoration, the full gate set was re-run end to end: pin 10/10 exit 0; suite 157/1155 exit 0; tsc exit 0; oxlint 84 warnings 0 errors exit 0; oxfmt --check clean exit 0; qc:openspec-ci errors=0 exit 0; roadmap validator PASSED with 75/13/376/40 exit 0."
+  },
+
+  "nonClaims": [
+    "NO LADDER RUN. No Playwright and no production build was executed in this lane. Nothing here demonstrates a genesis row being written, an E2E-01/02 clause passing, or any end-to-end behaviour. U15b forwards NEXT_PUBLIC_E2E_MODE and MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE through the qc-core env and playwright.config.ts, and the parent's proof there is what exercises the genesis clauses. This unit only makes that reachable.",
+    "THE PRODUCTION CONSTANT IS UNCHANGED. COMBAT_JOURNAL_AUTHORITY_MODE is still the literal 'off' and COMBAT_JOURNAL_AUTHORITY_ENABLED is still false. Verified by an assertion inside the pin itself, and by the five pre-existing pins all staying green.",
+    "THE CUTOVER IS NOT DONE. No process arms by default. Combat journal authority remains off everywhere unless a process sets BOTH keys, which no code in this repository does after this unit.",
+    "THE 'CONSTANT READ FIRST' ORDERING IS UNTESTED, NOT UNTESTABLE. M5 proves it is an equivalent mutant at this commit (see the mutant table). It is covered by no assertion today.",
+    "THE HOST CALL SITE IS PINNED ONLY THROUGH THE HELPER. The pin asserts resolveBootstrapJournalAuthority, not ServerMatchHost.create. A future edit that bypasses the helper and reads the constant at the call site is not caught by this pin; M3 mutates the helper body, which is where the baseline line-452 expression now lives.",
+    "THE IMPORT-CYCLE MEASUREMENT IS CJS-ONLY. The cycle was proven inert under jest's CommonJS transform in the dangerous import order, and `tsc --noEmit` is clean. The ESM/webpack load order under `next build` was NOT measured, because this lane may not build.",
+    "NO OXLINT RULE, FORMATTER SETTING OR VALIDATOR WAS WEAKENED, and no file outside src/lib/multiplayer/server plus the three u15a receipts was edited.",
+    "NO GIT MUTATION. Nothing was committed, pushed, stashed, amended or force-pushed; the root checkout at E:/Projects/MekStation was never written to and was verified still clean at 2d01d1a2ef28fe07e92529341f81875ee1338249."
+  ],
+
+  "findingsReportedNotFixed": [
+    {
+      "id": "F1",
+      "claim": "A fifth pin of the constant exists that the charter did not name.",
+      "evidence": "src/lib/multiplayer/server/__tests__/journalAuthorityPath.test.ts imports COMBAT_JOURNAL_AUTHORITY_ENABLED at line 13 and asserts expect(COMBAT_JOURNAL_AUTHORITY_ENABLED).toBe(false) at line 142. It was run explicitly in gate G2b and passes.",
+      "fixed": false,
+      "whyNot": "Nothing to fix; the parent's must-stay-green list is one entry short and should be corrected."
+    },
+    {
+      "id": "F2",
+      "claim": "Two of the four charter-named 'pins' are prose, not assertions.",
+      "evidence": "matchCreatePathJournalSeed.sqlite.test.ts:26 and matchRecoveryJournalArmDoor.sqlite.test.ts:23 mention COMBAT_JOURNAL_AUTHORITY_MODE only inside a file-header non-claim comment; grep finds no expect() over it in either file. They cannot go red from a constant change. Both were run in G2b and pass.",
+      "fixed": false,
+      "whyNot": "Nothing to fix; recorded so the parent does not over-count its guard rails."
+    },
+    {
+      "id": "F3",
+      "claim": "PK-u15a-ruling does not exist in units.json.",
+      "evidence": "units.json packets filtered for 'u15a'/'U15a' at the baseline returned an empty array. U15a's reviewClasses include `authority`, so DELIVERY.md step 5 makes Lane B mandatory and the PR cannot merge on Lane A alone.",
+      "fixed": false,
+      "whyNot": "units.json is outside this unit's ownership and the charter forbids editing it. The parent must mint the packet."
+    },
+    {
+      "id": "F4",
+      "claim": "The 'production constant read first' clause has no falsifying test at this commit.",
+      "evidence": "M5 in the mutant table: reordering the resolver so the e2e arm is consulted before the constant leaves all 10 cases green, exit 0.",
+      "fixed": false,
+      "whyNot": "It is unfalsifiable while the constant is 'off'; writing a test that fakes the constant would pin the fake, not the law. The cutover unit that moves the constant should add the case at that point."
+    },
+    {
+      "id": "F5",
+      "claim": "The arm has no runtime signal when it is misconfigured.",
+      "evidence": "e2eCombatJournalAuthorityMode() returns null for an unknown value with no log line, so MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE=on silently yields 'off'. Confirmed by the pin's unknown-value case over six values ('on', '1', 'true', 'off', 'ENABLED', '').",
+      "fixed": false,
+      "whyNot": "Fail-closed silence is the correct safety direction and adding a logger to this module was outside the unit's behaviour sentence. Flagged because it is a debugging trap for U15b: a ladder run that does not arm will look identical to one that was never asked to."
+    }
+  ],
+
+  "finalWorktreeState": {
+    "gitStatusShort": [
+      " M src/lib/multiplayer/server/ServerMatchHost.ts",
+      " M src/lib/multiplayer/server/matchJournalAuthority.ts",
+      "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u15a-admission-20260917.json",
+      "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u15a-red-20260917.json",
+      "?? src/lib/multiplayer/server/__tests__/combatJournalAuthorityEnabled.test.ts",
+      "?? src/lib/multiplayer/server/combatJournalAuthorityEnabled.ts"
+    ],
+    "note": "Captured before this receipt was written; the third untracked receipt (u15a-local-20260917.json) is this file and joins the list on the next status.",
+    "rootCheckout": "git -C E:/Projects/MekStation status --short printed nothing and HEAD is 2d01d1a2ef28fe07e92529341f81875ee1338249 -- clean and unchanged."
+  },
+
+  "receipts": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u15a-admission-20260917.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u15a-red-20260917.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u15a-local-20260917.json"
+  ],
+
+  "constraints": {
+    "npmConfigDryRun": "true",
+    "noInstalls": true,
+    "noGitMutations": true,
+    "noBuildOrPlaywright": true,
+    "rootCheckoutUntouched": true,
+    "unitsJsonUntouched": true,
+    "roadmapJsonUntouched": true,
+    "admissionSnapshotUntouched": true,
+    "noTasksMdCheckbox": true,
+    "noAiAttribution": true,
+    "noAbsoluteMachinePathsInProductFiles": "Verified: neither new product file nor either edited product file contains a drive letter or absolute path."
+  }
+}
