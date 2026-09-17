@@ -1,0 +1,207 @@
+{
+  "unit": "U17",
+  "stage": "admission",
+  "at": "2026-09-17T19:05:00Z",
+  "revisedAt": "2026-09-17T21:10:00Z",
+  "revision": "rewritten for the reduced scope after the parent split the unit on 2026-09-17; see scopeSplit below. The admission facts (baseline, --next, dependency and path checks) are unchanged and were taken before any code was written.",
+  "baseline": "6eff49a2d05a6d0e6db8e3b145adadf21bf122ad",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u17",
+  "branch": "codex/roadmap-u17-loop-scripts-20260917",
+  "node": "R6.loop-harness",
+  "nodeVersion": "v22.22.0",
+  "implementerModel": "claude-opus (Agent lane; codex, grok CLI and cursor-agent routes exhausted on 2026-09-17)",
+  "behavior": "Move the loop's stage-fold and park generators out of the parent's scratchpad into scripts/qc as parameterised, path-free tools with a jest pin and a shared library, so that half of the loop is reproducible from main (council 2 section D item 3). The closure and main-proof generators are the successor U17b.",
+  "admissionChecks": {
+    "validatorBefore": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows (exit 0)",
+    "nextOnBaseline": "node validate-roadmap.mjs --next printed U17 (exit 0) on 6eff49a2d in this worktree; U17 is the unit the loop selected, not a unit chosen by reading the file",
+    "nodeDependencies": "R6.loop-harness dependsOn is empty, so no predecessor node gate applies",
+    "unitState": "planned",
+    "pathFree": "U17 owns scripts/qc, scripts/__tests__ and package.json; U13 (the last holder of those paths) is complete and U12 is blocked, so no in-flight unit holds them",
+    "headOfWorktree": "6eff49a2d05a6d0e6db8e3b145adadf21bf122ad equals origin/main at admission"
+  },
+  "scopeSplit": {
+    "at": "2026-09-17",
+    "decidedBy": "parent",
+    "why": "the unit implemented in full measured 1121 product lines against a 500-line cap - more than twice the ceiling. An overage of that size is not recorded; the unit is split.",
+    "u17Ships": [
+      "scripts/qc/roadmap-ledger-lib.mjs",
+      "scripts/qc/roadmap-unit-fold.mjs",
+      "scripts/qc/roadmap-unit-park.mjs",
+      "package.json scripts roadmap:fold and roadmap:park",
+      "scripts/__tests__/roadmap-loop-scripts.test.ts (fold, park and shared-library cases)"
+    ],
+    "u17bStaged": {
+      "directory": ".sisyphus/roadmap-completion-20260912/u17b-staging/",
+      "files": [
+        "roadmap-unit-closure.mjs (382 lines)",
+        "roadmap-main-proof.mjs (276 lines)",
+        "roadmap-loop-closure-proof.test.ts (641 lines, 14 cases)",
+        "README.md (84 lines, naming what U17b must deliver)"
+      ],
+      "alsoStaged": "the two package.json lines roadmap:closure and roadmap:main-proof, quoted in the README",
+      "carriedForward": "the preserve-run-logs (U13) caller and the --skip-blob-check finding are both written up in that README as U17b deliverables"
+    },
+    "sharedLibraryKeptWhole": "roadmap-ledger-lib.mjs was NOT trimmed to the reduced scope: the closure imports 20 of its exports and the main proof 10, all of which still exist. Two exports have no consumer in what U17 ships - sha256 (2 lines) and lastLine (12 lines) - and lastLine is pinned directly by this unit anyway."
+  },
+  "referenceScriptInventory": [
+    {
+      "file": "loop-scripts-reference-20260917/unit-fold-stages-1-3-v2.js",
+      "lines": 72,
+      "hardcodes": "LEDGER_DATE default '20260916'; the planning path 'openspec/planning/2026-09-12-roadmap-completion' joined onto an argv worktree root; rewrites evidence/<lc>-admission-<date>.json in place to add parentDecision",
+      "positionalArguments": "unitId, worktreeRoot, redSummary, localSummary",
+      "reproducedBy": "U17"
+    },
+    {
+      "file": "loop-scripts-reference-20260917/unit-fold-stages-1-3-v3.js",
+      "lines": 70,
+      "hardcodes": "same date default and planning path; no longer rewrites the admission receipt (a rewritten receipt on main conflicted with the open PR) and records the parent decision on the unit entry as parentDecisionRecordedHere: true",
+      "positionalArguments": "unitId, worktreeRoot, redSummary, localSummary",
+      "reproduce": "v3",
+      "reproducedBy": "U17"
+    },
+    {
+      "file": "loop-scripts-reference-20260917/unit-closure-v2.js",
+      "lines": 224,
+      "hardcodes": "LEDGER_DATE default '20260916'; planning path P; reviewerModel 'claude-sonnet (Agent model: sonnet)'; sharedContext, laneB, githubApproval and merge method sentences; the log-path prefix strip 'E:/Projects/MekStation/'; blob equality taken over whole path prefixes",
+      "positionalArguments": "unitId, prNumber, reviewMdPath, proofLogDir, ladderGroup, implementerModel",
+      "reproducedBy": "U17b (staged)"
+    },
+    {
+      "file": "loop-scripts-reference-20260917/unit-closure-v3.js",
+      "lines": 238,
+      "hardcodes": "same date default, planning path, reviewer/lane sentences and 'E:/Projects/MekStation/' prefix strip; adds three environment switches - EXPECTED_REDS (JSON array; the proof passes only when the failed count equals its length and the array is written into the receipt), REPROOF_COMMIT (a named re-proof commit accepted as the checkout head) - and takes blob equality over the PR's OWN files from gh pr view --json files",
+      "positionalArguments": "unitId, prNumber, reviewMdPath, proofLogDir, ladderGroup, implementerModel",
+      "reproduce": "v3",
+      "reproducedBy": "U17b (staged)"
+    },
+    {
+      "file": "loop-scripts-reference-20260917/u12-park.js",
+      "lines": 108,
+      "hardcodes": "the unit id U12, the date 20260917, the three stage summaries, the whole finding object (id, foundBy, class, summary, evidence, ownership, recommendedSuccessor, status) and the blocked20260917 cause/nextIndependentAction/proof strings",
+      "positionalArguments": "checkoutRoot, prHeadSha, prNumber",
+      "reproducedBy": "U17"
+    },
+    {
+      "file": "loop-scripts-reference-20260917/u2-park.js",
+      "lines": 211,
+      "hardcodes": "the unit id U2, the date, a packet shell and its options, and the same shape of blocked block; read for the park shape only",
+      "positionalArguments": "checkoutRoot",
+      "reproducedBy": "read only"
+    },
+    {
+      "file": "loop-scripts-reference-20260917/u7-main-proof.sh",
+      "lines": 29,
+      "hardcodes": "PATH '/c/Users/wroll/AppData/Local/nvm/v22.22.0'; 'cd /e/Projects/MekStation'; D='.sisyphus/roadmap-completion-20260912/u7-main-proof-20260917'; an inline 120x30s CIM/powershell idle loop; the unit's runtime proof (NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=conflict-pack)",
+      "reproducedBy": "U17b (staged)"
+    },
+    {
+      "file": "loop-scripts-reference-20260917/u11-main-proof.sh",
+      "lines": 30,
+      "hardcodes": "same PATH, root cd, inline idle loop and u11 log directory; runtime proof is npx jest scripts/__tests__/machine-idle.test.ts plus a machine-idle CLI probe",
+      "reproducedBy": "U17b (staged)"
+    },
+    {
+      "file": "loop-scripts-reference-20260917/u9b-main-proof.sh",
+      "lines": 33,
+      "hardcodes": "same PATH, root cd, inline idle loop and u9b log directory; runtime proof is the exact-main ladder jest pin plus a check and a --rerun of validate-exact-main-regression-ladder.mjs and npm run lint:units",
+      "reproducedBy": "U17b (staged)"
+    },
+    {
+      "file": "loop-scripts-reference-20260917/u13-main-proof.sh",
+      "lines": 32,
+      "hardcodes": "same PATH, root cd, inline idle loop and u13 log directory; runtime proof is npx jest scripts/__tests__/preserve-run-logs.test.ts plus a read-only preserve-run-logs CLI probe and npm run lint:units",
+      "reproducedBy": "U17b (staged)"
+    },
+    {
+      "file": "loop-scripts-reference-20260917/u16-post-closure.js",
+      "lines": 110,
+      "hardcodes": "U16, the two proof directories, and the first-run/re-proof narrative; shows how a first proof run and a re-proof are recorded as extra fields on an already written mainProof receipt",
+      "reproducedBy": "U17b (staged) via --extra-runtime and --reproof-commit"
+    },
+    {
+      "file": "loop-scripts-reference-20260917/u9-post-closure.js",
+      "lines": 126,
+      "hardcodes": "U9 and its proof directory; extra runtime fields added after closure",
+      "reproducedBy": "U17b (staged) via --extra-runtime"
+    },
+    {
+      "file": "loop-scripts-reference-20260917/u9b-post-closure.js",
+      "lines": 88,
+      "hardcodes": "U9b, its proof directory and the finding id it resolves; extra runtime fields added after closure",
+      "reproducedBy": "U17b (staged) via --extra-runtime"
+    },
+    {
+      "file": "loop-scripts-reference-20260917/apply-council2-20260917.js",
+      "lines": 326,
+      "hardcodes": "the council-2 ledger edits; not in this unit's scope and not reproduced"
+    }
+  ],
+  "receiptShapesOnMain": {
+    "unitsJsonStageReceipts": {
+      "admission": "U14: path, baseline, at, decision; U13 (v3): the same four plus parentDecisionRecordedHere",
+      "red": "path, at, summary (U12, U13, U14 identical)",
+      "local": "path, at, summary (U12, U13, U14 identical)",
+      "review": "path, head, reviewedHead, reviewerModel, implementerModel, outputSha256, verdict (U17b)",
+      "merge": "path, pr, head, mergeSha (U17b)",
+      "mainProof": "path, mergeCommit, verdict, runtime (U17b)",
+      "tick": "path, taskKeys (U17b)"
+    },
+    "evidenceFiles": {
+      "review": "unit, stage, at, lane, reviewerModel, implementerModel, reviewerEffort, head, reviewedHead, verdict, outputPath, outputSha256, sharedContext, laneB, githubApproval",
+      "merge": "unit, stage, at, pr, title, head, mergeSha, mergedAt, mergedBy, method, checksAtMerge, parentCount, blobEqualityDiffLines (U14, v2) plus blobEqualityFiles (U13, v3)",
+      "mainProof": "unit, stage, at, mergeCommit, checkout, runtime{build,e2eBundleMarker,playwright,tsc}, commands{validator,gitAncestry,next,openspecStrict,qcOpenspecCi,qcPin}, logs, logHashes, verdict, and expectedReds only when the run reports reds",
+      "tick": "unit, stage, at, taskKeys, note, tickedOnMain"
+    },
+    "validatorConstraints": "validate-roadmap.mjs:320-356 requires every stage receipt to be null or an object with a non-empty path that exists on disk, and a product mainProof's runtime.playwright to parse as a ladder or jest line, with expectedReds length equal to the failed count; :400-414 binds review.head = merge.head = prHead and merge.mergeSha = mainProof.mergeCommit; :417-421 refuses a review receipt whose reviewerModel equals its implementerModel"
+  },
+  "design": {
+    "sharedLibrary": "scripts/qc/roadmap-ledger-lib.mjs - repo-root and planning-dir resolution from import.meta.url (no absolute path anywhere), a flag parser that refuses unknown and value-less flags, ledger read/write, unit lookup, sha256, last-matching-line, a validator runner, the stage-1-3 fold that fold and park both call, and the CLI wrapper that turns a refusal into a code and a non-zero exit",
+    "clis": [
+      "scripts/qc/roadmap-unit-fold.mjs --unit --date --receipts-dir --red-summary --local-summary",
+      "scripts/qc/roadmap-unit-park.mjs --unit --date --receipts-dir --finding <json> --pr-head --pr --cause --next-action"
+    ],
+    "clisMovedToU17b": [
+      "scripts/qc/roadmap-unit-closure.mjs --unit --pr --date --review --proof-dir --runtime-label --implementer [--extra-runtime --expected-reds --reproof-commit]",
+      "scripts/qc/roadmap-main-proof.mjs --merge --unit --date [--runtime-jest | --runtime-group | --runtime-command] [--dry-run]"
+    ],
+    "environmentSwitchesBecomeFlags": "v3's LEDGER_DATE becomes the required --date on both shipped CLIs; EXPECTED_REDS and REPROOF_COMMIT belong to the closure and move with it",
+    "u13Caller": "the preserve-run-logs (U13) caller lives in the closure and therefore moves to U17b; U13's module still has no caller in the repository until U17b lands, and the parent continues to run its CLI by hand",
+    "idleWait": "scripts/qc/machine-idle.mjs (U11) is called by the main proof and therefore moves to U17b",
+    "injectionPointsUsedOnlyByThePin": [
+      "--ledger-dir <dir>: points fold and park at a temporary copy of the ledger directory instead of the one beside the script; production runs omit it"
+    ]
+  },
+  "estimatePerFile": {
+    "scripts/qc/roadmap-ledger-lib.mjs": 150,
+    "scripts/qc/roadmap-unit-fold.mjs": 75,
+    "scripts/qc/roadmap-unit-park.mjs": 90,
+    "package.json": 2,
+    "scripts/__tests__/roadmap-loop-scripts.test.ts": 250,
+    "filesTouched": 4,
+    "receiptsAdded": 3,
+    "estimateNote": "the first admission estimate covered all four generators at 719 product lines and was 402 lines low against the 1121 delivered; that miss is recorded as finding F6 in the local receipt and is the reason the unit was split"
+  },
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "expectedProductLines": 317,
+    "expectedOverage": 0,
+    "note": "with the closure and the main proof staged for U17b, the reduced unit is expected to fit inside the cap; the delivered figure is recorded in the local receipt"
+  },
+  "risksForTheParent": [
+    "The shared library ships whole, so U17 carries 14 lines (sha256 and lastLine) whose only consumer is the staged U17b closure. Trimming them would make U17b's restore a three-file change instead of a two-file one.",
+    "U13's preserve-run-logs module still has no caller in the repository until U17b lands; the parent keeps running its CLI by hand before each worktree removal.",
+    "The closure and the main proof were written, gated and mutant-tested in this lane before the split (21/21) but are NOT proven on the head U17 ships; U17b must re-take every gate on its own baseline.",
+    "The pin copies the 17 MB ledger directory into a temporary directory under openspec/planning/ so that validate-roadmap.mjs resolves the real repository root three levels up; it removes it afterwards, and a crashed run would leave it behind.",
+    "v3's admission-receipt behaviour (leave the file alone, record parentDecisionRecordedHere on the unit entry) means the fold's admission entry has one key more than U14's; the pin asserts that exact difference rather than hiding it."
+  ],
+  "constraints": {
+    "npm": "npm_config_dry_run=true exported in every shell; no npm install, ci or prune anywhere",
+    "rootCheckout": "never touched",
+    "git": "no commit, push, stash, amend or force in this lane",
+    "build": "none",
+    "playwright": "none",
+    "proofLadder": "never run for real",
+    "editable": "scripts/qc, scripts/__tests__, package.json and the three u17 receipts"
+  }
+}
