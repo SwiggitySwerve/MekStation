@@ -1,0 +1,24 @@
+{
+  "unit": "U17b",
+  "stage": "merge",
+  "at": "2026-09-17T22:24:55.574Z",
+  "pr": 1839,
+  "title": "chore(qc): the roadmap loop's closure and main-proof generators move into the repository",
+  "head": "ca0dbe3d1089ebee5e2738c885064c07bb3f50a2",
+  "mergeSha": "a96d6ec78da8a8bd95bfc92def64fcd681f6f16d",
+  "mergedAt": "2026-09-17T22:20:18Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u17b-admission-20260917.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u17b-local-20260917.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u17b-red-20260917.json",
+    "package.json",
+    "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+    "scripts/qc/roadmap-main-proof.mjs",
+    "scripts/qc/roadmap-unit-closure.mjs"
+  ],
+  "blobEqualityDiffLines": 0
+}
