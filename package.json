@@ -16,6 +16,7 @@
     "start": "node .next/standalone/server.js",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
+    "lint:units": "node scripts/qc/lint-units.mjs",
     "format": "oxfmt --write .",
     "format:check": "oxfmt --check .",
     "typecheck": "tsc --noEmit --skipLibCheck",

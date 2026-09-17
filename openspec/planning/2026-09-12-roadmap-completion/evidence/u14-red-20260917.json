@@ -1,0 +1,74 @@
+{
+  "unit": "U14",
+  "stage": "red",
+  "at": "2026-09-17T11:47:00Z",
+  "baseline": "e6711f0c37b0c37c85e55b1d6a22d525a7de258d",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u14",
+  "branch": "codex/roadmap-u14-lint-units-20260917",
+  "implementerModel": "codex gpt-6 (codex exec, usage limit hit after admission measurement and config draft)",
+  "finisherModel": "claude-opus (Agent lane)",
+  "pin": "scripts/__tests__/lint-units.test.ts",
+  "pinWrittenBefore": "scripts/qc/lint-units.mjs, scripts/qc/lint-units.ceiling.json and the package.json script. scripts/qc/oxlint-units.json already existed from the codex lane, which is why eight config-drift cases pass in both red runs.",
+  "command": "npx jest scripts/__tests__/lint-units.test.ts",
+  "runs": [
+    {
+      "id": "R1",
+      "state": "module absent -- scripts/qc/lint-units.mjs does not exist",
+      "exitCode": 1,
+      "summaryLine": "Tests: 21 failed, 8 passed, 29 total",
+      "importFailure": "Error [ERR_MODULE_NOT_FOUND]: Cannot find module '...\\worktrees\\u14\\scripts\\qc\\lint-units.mjs' imported from '...\\worktrees\\u14\\[eval1]'",
+      "failingAssertions": [
+        "argv builder returns one argv per path, config and json format ahead of the path -- Expected: [[--config, ..., e2e], [--config, ..., --allow, no-console, scripts]]; Received: undefined",
+        "argv builder allows no-console for scripts only -- Received: undefined",
+        "argv builder rejects no paths / a blank path / no config / a negative ceiling / a fractional ceiling (5 cases) -- Expected substring 'INVALID_ARGUMENT'; Received the ERR_MODULE_NOT_FOUND text",
+        "verdict is PASS at 100/100, PASS at 99/100, FAIL at 101/100, PASS at 0/0, FAIL at 1/0 (5 cases) -- Received: undefined",
+        "verdict rejects negative findings / a fractional ceiling (2 cases) -- Expected substring 'INVALID_ARGUMENT'; Received the ERR_MODULE_NOT_FOUND text",
+        "ceiling file parses, and its ceiling is the sum of perPath -- Error: ENOENT, open 'scripts\\qc\\lint-units.ceiling.json'",
+        "package script is wired exactly once, with no `|| true` -- Expected: 'node scripts/qc/lint-units.mjs'; Received: undefined",
+        "CLI fails, and exits 1, when the deliberate finding is over the ceiling -- Expected: 'LINT_UNITS_FAIL 1/0'; Received: ''",
+        "CLI passes, and exits 0, when the ceiling admits it -- Expected: 'LINT_UNITS_PASS 1/1'; Received: ''",
+        "CLI rejects an unknown flag / a non-numeric ceiling / a ceiling flag with no value (3 cases) -- Expected substring 'LINT_UNITS_ERROR'; Received: ''"
+      ],
+      "passingAssertions": [
+        "config never re-hides the unit paths it exists to lint",
+        "config carries the root rules / plugins / env / categories / overrides block verbatim (5 cases)",
+        "config extends the root config so a new root rule cannot be missed",
+        "config inherits no-explicit-any as an error",
+        "NOTE: these eight read scripts/qc/oxlint-units.json and .oxlintrc.json only, and the config file already existed from the codex lane. They are green here by construction and prove nothing about the wrapper."
+      ]
+    },
+    {
+      "id": "R2",
+      "state": "always-PASS stub in place",
+      "stub": "export function buildLintUnitsArgs() { return []; }  export function evaluateLintUnits({ findings, ceiling }) { return { verdict: 'PASS', findings, ceiling }; }  -- no CLI",
+      "exitCode": 1,
+      "summaryLine": "Tests: 18 failed, 11 passed, 29 total",
+      "newlyPassingVacuously": [
+        "verdict is PASS at 100 findings against a ceiling of 100",
+        "verdict is PASS at 99 findings against a ceiling of 100",
+        "verdict is PASS at 0 findings against a ceiling of 0",
+        "These three are exactly the cases an always-PASS evaluate satisfies. They are why the pin also carries the FAIL cases and the CLI exit-code case: on their own the PASS cases would admit a gate that never fails."
+      ],
+      "stillFailing": [
+        "argv builder returns one argv per path, ... -- Expected 18 lines, Received 1 (the stub returns [])",
+        "argv builder allows no-console for scripts only -- Expected 5, Received 1",
+        "argv builder rejects no paths / a blank path / no config / a negative ceiling / a fractional ceiling (5 cases) -- Expected ok=false; Received ok=true (the stub validates nothing)",
+        "verdict is FAIL at 101 findings against a ceiling of 100 -- verdict differs",
+        "verdict is FAIL at 1 finding against a ceiling of 0 -- verdict differs",
+        "verdict rejects negative findings / a fractional ceiling (2 cases) -- Expected ok=false; Received ok=true",
+        "ceiling file parses ... -- ENOENT (file not written yet)",
+        "package script is wired exactly once -- Received: undefined (not wired yet)",
+        "CLI fails, and exits 1, when the deliberate finding is over the ceiling -- Expected 'LINT_UNITS_FAIL 1/0'; Received '' (stub has no CLI)",
+        "CLI passes, and exits 0, when the ceiling admits it -- Expected 'LINT_UNITS_PASS 1/1'; Received ''",
+        "CLI rejects an unknown flag / a non-numeric ceiling / a ceiling flag with no value (3 cases) -- Expected exit 1; Received exit 0"
+      ]
+    }
+  ],
+  "whatTheRedProves": [
+    "Every assertion that depends on the wrapper fails while the wrapper is absent, so none of them is passing on stale state.",
+    "An always-PASS evaluate is caught by three cases (FAIL at 101/100, FAIL at 1/0, and the CLI exit-1 case) -- the same three that mutant M1 later trips.",
+    "An empty-argv builder is caught by the two argv-shape cases and, through them, by the CLI cases -- the same set mutant M2 later trips.",
+    "The eight config cases were already green before any wrapper existed. They are drift pins on scripts/qc/oxlint-units.json, not evidence of implementation, and are recorded as such."
+  ],
+  "status": "red established"
+}
