@@ -12,6 +12,8 @@ import { hydrateGameSessionFromEvents } from '@/utils/gameplay/gameSession';
 
 import type { IDecideCommandBatchDeps } from './ServerMatchHostDecision';
 
+import { resolveCombatJournalAuthorityMode } from './combatJournalAuthorityEnabled';
+
 /** Process-wide cutover: off (legacy author), shadow (compare-only), enabled. */
 export type CombatJournalAuthorityMode = 'off' | 'shadow' | 'enabled';
 
@@ -25,9 +27,14 @@ export const COMBAT_JOURNAL_AUTHORITY_ENABLED =
 let combatJournalAuthorityModeOverride: CombatJournalAuthorityMode | null =
   null;
 
-/** Runtime mode, including the test override. Production reads the const. */
+/**
+ * Runtime mode. The jest override wins; otherwise the resolver reads the
+ * production constant first and only then the two-key e2e arm (U15a).
+ */
 export function getCombatJournalAuthorityMode(): CombatJournalAuthorityMode {
-  return combatJournalAuthorityModeOverride ?? COMBAT_JOURNAL_AUTHORITY_MODE;
+  return (
+    combatJournalAuthorityModeOverride ?? resolveCombatJournalAuthorityMode()
+  );
 }
 
 /** Test-only: drive shadow/enabled construction without flipping the const. */

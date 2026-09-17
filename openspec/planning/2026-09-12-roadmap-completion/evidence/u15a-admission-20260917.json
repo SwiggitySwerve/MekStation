@@ -1,0 +1,167 @@
+{
+  "unit": "U15a",
+  "stage": "admission",
+  "at": "2026-09-17T15:41:44.273Z",
+  "baseline": "2d01d1a2ef28fe07e92529341f81875ee1338249",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u15a",
+  "branch": "codex/roadmap-u15a-combat-journal-e2e-arm-20260917",
+  "node": "R2.authority-live",
+  "nodeState": "main-verified",
+  "ciClass": "product",
+  "reviewClasses": ["authority", "routine"],
+  "nodeVersion": "v22.22.0",
+  "tscVersion": "5.8.3",
+  "oxlintVersion": "1.43.0",
+  "implementerModel": "claude-opus (Agent lane; codex, grok CLI and cursor-agent routes exhausted on 2026-09-17)",
+  "schedulingNote": "`node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next` printed `U15a` on the baseline, exit 0. The no-argument run printed `ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows`, exit 0. Both measured in this worktree at the baseline before any edit.",
+  "worktreeStateAtAdmission": "`git status --short` empty; `git rev-parse HEAD` = 2d01d1a2ef28fe07e92529341f81875ee1338249; `git rev-parse --abbrev-ref HEAD` = codex/roadmap-u15a-combat-journal-e2e-arm-20260917. node_modules is a symlink to /e/Projects/MekStation/node_modules.",
+
+  "consumersAsRead": {
+    "method": "`grep -n COMBAT_JOURNAL_AUTHORITY -r src/lib/multiplayer/server` plus a sed read of each site in this worktree at the baseline.",
+    "productionSites": [
+      {
+        "file": "src/lib/multiplayer/server/DurableMatchStore.ts",
+        "line": 1000,
+        "expression": "if (getCombatJournalAuthorityMode() === 'off') return;",
+        "alreadyCallsGetter": true,
+        "changeNeeded": "none"
+      },
+      {
+        "file": "src/lib/multiplayer/server/ServerMatchHost.ts",
+        "line": 390,
+        "expression": "this.journalAuthorityShadow = !options.recovered && !this.journalAuthorityEnabled && getCombatJournalAuthorityMode() === 'shadow';",
+        "alreadyCallsGetter": true,
+        "changeNeeded": "none"
+      },
+      {
+        "file": "src/lib/multiplayer/server/ServerMatchHost.ts",
+        "line": 452,
+        "expression": "journalAuthority: bootstrap.journalAuthority ?? COMBAT_JOURNAL_AUTHORITY_ENABLED,",
+        "alreadyCallsGetter": false,
+        "changeNeeded": "THE ONE SITE THIS UNIT CHANGES. Reads the module constant directly, so a test override or an e2e arm cannot reach it.",
+        "importSite": "src/lib/multiplayer/server/ServerMatchHost.ts:103 imports COMBAT_JOURNAL_AUTHORITY_ENABLED; line 452 is its only use in the file, so the import goes with it or oxlint reports an unused import."
+      },
+      {
+        "file": "src/lib/multiplayer/server/journalAuthorityAdmission.ts",
+        "line": 218,
+        "expression": "mode: getCombatJournalAuthorityMode(),",
+        "alreadyCallsGetter": true,
+        "changeNeeded": "none"
+      },
+      {
+        "file": "src/lib/multiplayer/server/matchCommitJournalHead.ts",
+        "line": 86,
+        "expression": "if (getCombatJournalAuthorityMode() !== 'enabled') { return storeExpectedRevision(nextMatchSequence); }",
+        "alreadyCallsGetter": true,
+        "changeNeeded": "none"
+      }
+    ],
+    "definitionSite": {
+      "file": "src/lib/multiplayer/server/matchJournalAuthority.ts",
+      "lines": "18 (COMBAT_JOURNAL_AUTHORITY_MODE = 'off'), 22-23 (COMBAT_JOURNAL_AUTHORITY_ENABLED derived), 29-31 (getCombatJournalAuthorityMode, override ?? constant), 34-38 (_setCombatJournalAuthorityModeForTests)"
+    },
+    "existingPinsOfTheConstant": [
+      "src/lib/multiplayer/server/__tests__/journalAuthorityShadow.test.ts:225 expect(COMBAT_JOURNAL_AUTHORITY_MODE).toBe('off')",
+      "src/lib/multiplayer/server/__tests__/journalAuthorityShadow.test.ts:227 expect(COMBAT_JOURNAL_AUTHORITY_ENABLED).toBe(false)",
+      "src/lib/multiplayer/server/__tests__/ServerMatchHostBranchAdmission.journalHead.test.ts:464 expect(COMBAT_JOURNAL_AUTHORITY_MODE).toBe('off')",
+      "src/lib/multiplayer/server/__tests__/journalAuthorityPath.test.ts:142 expect(COMBAT_JOURNAL_AUTHORITY_ENABLED).toBe(false) -- NOT named in the charter; see findingsForTheParent F1",
+      "src/lib/multiplayer/server/__tests__/matchCreatePathJournalSeed.sqlite.test.ts:26 and matchRecoveryJournalArmDoor.sqlite.test.ts:23 reference COMBAT_JOURNAL_AUTHORITY_MODE in prose only (a no-cutover non-claim comment), not in an assertion"
+    ]
+  },
+
+  "importCycleAnalysis": {
+    "theEdgeThatCreatesIt": "matchJournalAuthority.ts must import a VALUE (resolveCombatJournalAuthorityMode) from combatJournalAuthorityEnabled.ts for getCombatJournalAuthorityMode() to consult the arm. If the new module also imports the VALUE COMBAT_JOURNAL_AUTHORITY_MODE back from matchJournalAuthority.ts, the two modules form a runtime cycle. A `import type { CombatJournalAuthorityMode }` edge is erased by TypeScript and is not part of the cycle.",
+    "extraCostOfTheValueEdge": "matchJournalAuthority.ts pulls in InteractiveSession, SeededRandom and hydrateGameSessionFromEvents at module scope (lines 7-9). A new module that imports a value from it inherits that whole graph, which a two-key env resolver has no reason to load.",
+    "decisionPendingMeasurement": "The charter permits the value import ONLY if it does not create a cycle at load time. The plan is to build the charter's preferred zero-argument shape (Option A) first and MEASURE it by running the pin plus the full `src/lib/multiplayer/server` suite; if any load-order failure or an oxlint/tsc cycle complaint appears, fall back to Option B (the production constant passed in as a parameter, leaving only a type-only edge). The red receipt records which was measured and which shipped.",
+    "optionA": "combatJournalAuthorityEnabled.ts imports { COMBAT_JOURNAL_AUTHORITY_MODE, type CombatJournalAuthorityMode } from './matchJournalAuthority'; resolveCombatJournalAuthorityMode() takes no argument.",
+    "optionB": "combatJournalAuthorityEnabled.ts imports only `import type { CombatJournalAuthorityMode }`; resolveCombatJournalAuthorityMode(productionMode: CombatJournalAuthorityMode) takes the constant from its one caller in matchJournalAuthority.ts. One directed runtime edge, no cycle, no engine graph."
+  },
+
+  "design": {
+    "newModule": "src/lib/multiplayer/server/combatJournalAuthorityEnabled.ts, mirroring src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts. Exports COMBAT_JOURNAL_AUTHORITY_E2E_ENV = 'MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE'; e2eCombatJournalAuthorityMode(): CombatJournalAuthorityMode | null returning 'shadow' or 'enabled' only when process.env.NEXT_PUBLIC_E2E_MODE === 'true' AND the key holds exactly one of those two literals (either key alone, an absent key, or any other value yields null); resolveCombatJournalAuthorityMode(): CombatJournalAuthorityMode returning the production constant when it is not 'off', else the e2e arm, else 'off'.",
+    "whyTheProductionConstantIsReadFirst": "Same law as the campaign resolver: a future cutover flip of COMBAT_JOURNAL_AUTHORITY_MODE stays one switch and cannot be weakened by an unset or hostile env.",
+    "getterChange": "getCombatJournalAuthorityMode() becomes `return combatJournalAuthorityModeOverride ?? resolveCombatJournalAuthorityMode();`. The test override keeps winning, so every existing suite that drives shadow/enabled through _setCombatJournalAuthorityModeForTests is unaffected.",
+    "constantsKept": "COMBAT_JOURNAL_AUTHORITY_MODE and COMBAT_JOURNAL_AUTHORITY_ENABLED stay exported and stay 'off' / false. Every existing pin of them stays green by construction, because this unit does not touch their values.",
+    "serverMatchHostSeam": "ServerMatchHost.ts:451-452 currently derives the bootstrap default inline. That expression moves, unchanged in meaning, into a small exported helper in the SAME file, and `create` calls it. The helper is what the pin asserts. See seamMeasurement for why the host itself is not the seam.",
+    "seamMeasurement": "Measured, not assumed: (1) ServerMatchHost.create's only reachable entry needs a full IMatchHostBootstrap -- mapRadius, turnLimit, SeededRandom, an IHexGrid, player/opponent units and a gameUnits roster -- plus a created match row and a poll until two events persist; the existing makeHost helper in __tests__/journalAuthorityAdmission.test.ts spans lines 140-172 and leans on three more fixture builders (createMinimalGrid, twoSidedRoster, makeMeta). (2) Worse, the default is NOT observable through that fixture: with the mode override at 'enabled' and bootstrap.journalAuthority omitted, the getter form yields requested=true, but resolveJournalAuthorityForNewMatch then calls isJournalAuthorityBaselineStore(store), and InMemoryMatchStore is not one, so it returns {enabled:false, refusal:null} -- byte-identical to the constant form's requested=false path (admitJournalAuthority returns {kind:'inert'} at journalAuthorityAdmission.ts:177). Distinguishing the two at host level therefore needs a SQLite-backed baseline store, which is a large fixture by any reading. The charter's stated fallback -- 'pin the derived expression through a small exported helper and say so' -- is taken, and this is the saying-so.",
+    "mutantM3underThisDesign": "M3 ('ServerMatchHost.ts:452 reads the constant again') is applied to the helper body in ServerMatchHost.ts, which IS the expression that lived at line 452. The residual the helper cannot cover is stated as a non-claim in the local receipt: a future edit that bypasses the helper at the call site is not caught by this pin."
+  },
+
+  "estimatePerFile": {
+    "src/lib/multiplayer/server/combatJournalAuthorityEnabled.ts": "NEW. 30-45 product lines including the doc comments the repo's every-function-needs-a-comment rule requires.",
+    "src/lib/multiplayer/server/matchJournalAuthority.ts": "EDIT. ~3 product lines changed (one import, the getter body, a comment).",
+    "src/lib/multiplayer/server/ServerMatchHost.ts": "EDIT. ~10 product lines (drop the now-unused COMBAT_JOURNAL_AUTHORITY_ENABLED import, add the exported helper with its comment, call it at the create site).",
+    "src/lib/multiplayer/server/__tests__/combatJournalAuthorityEnabled.test.ts": "NEW. 90-140 test lines.",
+    "totalProductEstimate": "45-60 non-generated product lines, well inside the 500 cap; 4 files, well inside the 15-file cap."
+  },
+
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500
+  },
+
+  "acceptanceCommands": [
+    "npx jest src/lib/multiplayer/server/__tests__/combatJournalAuthorityEnabled.test.ts",
+    "npx jest src/lib/multiplayer/server",
+    "npx tsc --noEmit",
+    "npx oxlint",
+    "npx oxfmt --check <changed files>",
+    "npm run qc:openspec-ci:validate",
+    "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs"
+  ],
+
+  "reviewGate": {
+    "note": "U15a's reviewClasses include `authority`, so under DELIVERY.md step 5 Lane B applies: the PR merges only after an owner ruling on its exact head, posted as a PR comment whose first line begins `OWNER-RULING <40-hex head>` with the `owner-ruled` label, void the moment the head moves. The parent should mint packet PK-u15a-ruling for it.",
+    "packetExistsToday": false,
+    "packetCheck": "units.json packets were filtered for `u15a`/`U15a` at the baseline; the result was an empty array. PK-u15a-ruling does not yet exist and this lane may not create it (units.json is out of this unit's ownership)."
+  },
+
+  "risksForTheParent": [
+    "This unit ARMS the combat-journal mode; it does not flip it. The two genesis clauses stay unprovable until U15b forwards MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE and NEXT_PUBLIC_E2E_MODE through the qc-core env and playwright.config.ts, and the parent runs the ladder there. Nothing in this lane demonstrates a genesis row being written.",
+    "The arm widens what an e2e process can turn on. The two-key law is the whole mitigation: a production process without NEXT_PUBLIC_E2E_MODE='true' cannot reach 'shadow' or 'enabled' through this path no matter what the mode key holds, and an e2e process that does not set the mode key gets 'off'. The pin is what holds that law; there is no runtime guard beyond it.",
+    "A stale environment is now load-bearing in a way it was not before. If a CI or developer shell leaks both keys, combat journal authority silently arms for that process. The pin's afterEach restores both keys so no jest suite can inherit the arm, but that discipline does not extend outside jest.",
+    "The unknown-value case fails CLOSED to 'off' by design. An operator who types MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE=on or =1 gets silence, not an error. That is the safe direction but it is also a debugging trap for U15b; the pin documents it and nothing logs it.",
+    "The ServerMatchHost helper pin cannot observe the create call site itself (see design.seamMeasurement). A future edit that reads the constant at the call site instead of calling the helper is not caught by this unit's pin.",
+    "The unit's review class is `authority`, so the PR is Lane-B gated and cannot merge on Lane A alone; PK-u15a-ruling does not exist in units.json yet."
+  ],
+
+  "findingsForTheParent": [
+    {
+      "id": "F1",
+      "claim": "A fifth pin of the constant exists that the charter did not name.",
+      "evidence": "src/lib/multiplayer/server/__tests__/journalAuthorityPath.test.ts imports COMBAT_JOURNAL_AUTHORITY_ENABLED at line 13 and asserts `expect(COMBAT_JOURNAL_AUTHORITY_ENABLED).toBe(false)` at line 142. The charter's must-stay-green list named journalAuthorityShadow.test.ts:225, ServerMatchHostBranchAdmission.journalHead.test.ts:464, matchCreatePathJournalSeed.sqlite.test.ts and matchRecoveryJournalArmDoor.sqlite.test.ts. This unit does not change the constant, so the pin stays green either way; recorded so the parent's list is complete.",
+      "impactOnThisUnit": "none"
+    },
+    {
+      "id": "F2",
+      "claim": "Two of the four charter-named 'pins' are prose, not assertions.",
+      "evidence": "matchCreatePathJournalSeed.sqlite.test.ts:26 and matchRecoveryJournalArmDoor.sqlite.test.ts:23 mention COMBAT_JOURNAL_AUTHORITY_MODE only inside a file-header non-claim comment. `grep -n COMBAT_JOURNAL_AUTHORITY` finds no expect() over it in either file. They cannot go red from a constant change; the real assertion pins are the three in F1's list.",
+      "impactOnThisUnit": "none"
+    }
+  ],
+
+  "constraints": {
+    "npmConfigDryRun": "true exported in every shell in this lane",
+    "noInstalls": true,
+    "rootCheckoutUntouched": true,
+    "noGitMutations": "no commit, push, stash, amend or force",
+    "noBuildOrPlaywright": true,
+    "ownedPaths": [
+      "src/lib/multiplayer/server",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/u15a-admission-20260917.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/u15a-red-20260917.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/u15a-local-20260917.json"
+    ],
+    "notTouched": [
+      "units.json",
+      "roadmap.json",
+      "evidence/admission-snapshot.json",
+      "scripts/",
+      "e2e/",
+      "playwright.config.ts",
+      "package.json",
+      "src/lib/campaign",
+      "any tasks.md checkbox"
+    ]
+  }
+}
