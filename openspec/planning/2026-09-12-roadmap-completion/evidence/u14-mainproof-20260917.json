@@ -1,0 +1,35 @@
+{
+  "unit": "U14",
+  "stage": "mainProof",
+  "at": "2026-09-17T12:24:45.478Z",
+  "mergeCommit": "724fcd0b42d4892ee94831ed4e7441dacd22e60f",
+  "checkout": "root checkout fast-forwarded to the merge commit (real node_modules; hydrate step runs)",
+  "runtime": {
+    "build": "exit 0",
+    "e2eBundleMarker": "__E2E_MODE__ present in _app chunk (run log)",
+    "playwright": "jest lint-units pin: Tests:       29 passed, 29 total",
+    "tsc": "exit 0"
+  },
+  "commands": {
+    "validator": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+    "gitAncestry": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows (--git)",
+    "next": "U4",
+    "openspecStrict": "Totals: 229 passed, 0 failed (229 items)",
+    "qcOpenspecCi": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+    "qcPin": "Tests:       24 passed, 24 total"
+  },
+  "logs": ".sisyphus/roadmap-completion-20260912/u14-main-proof-20260917/ (local; sha256 below)",
+  "logHashes": [
+    "4e9202c9d5e92a124fb57acfc68652534137b8aa013fa4b26fb7a612b46ad992 *build.log",
+    "3a226faf8a49ef91b0291f71bf5e370c534563e1b5519ffd82a6c05a40d22e8b *git-check.log",
+    "dcdc7f461660e7d955ca89650a9cf35d686379bdc3c7ec08ef417835c957aa29 *lint-units-cli.log",
+    "14fe80b28f07f9b9471d9d2654bf25d30a623addf0c3d4a1940a679aa68d53a6 *next.log",
+    "ddfdad8a15b1c7125171f6c160d5cbafce03efb70e451989b862be993ed9a500 *openspec-strict.log",
+    "9f068eef0ee7e442c137a27b5c2159ec3b0a0ccc3a9303ac167fb4b489e03a57 *playwright.log",
+    "ada1ed70bb026eced226ccfa183e2ef0bcfeb5adff01f46d7af986e0001ef8dd *qc-openspec-ci.log",
+    "2292a8c86c7d985dc4fe33ec8e0763777751442bb89a6ccc09758ecd944e45d1 *qc-pin.log",
+    "28d3b9e880a77975493dc7e359144c0295a4f694cfe0af4f928c22307bc5c320 *tsc.log",
+    "3a226faf8a49ef91b0291f71bf5e370c534563e1b5519ffd82a6c05a40d22e8b *validator.log"
+  ],
+  "verdict": "PASS"
+}

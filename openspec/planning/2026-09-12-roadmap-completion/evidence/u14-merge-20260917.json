@@ -1,0 +1,15 @@
+{
+  "unit": "U14",
+  "stage": "merge",
+  "at": "2026-09-17T12:24:45.390Z",
+  "pr": 1811,
+  "title": "chore(qc): lint:units target lints e2e and scripts against a measured ceiling",
+  "head": "a4babba2cf34a6db3ce275fc66cf20e230e4d052",
+  "mergeSha": "724fcd0b42d4892ee94831ed4e7441dacd22e60f",
+  "mergedAt": "2026-09-17T12:21:04Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityDiffLines": 0
+}

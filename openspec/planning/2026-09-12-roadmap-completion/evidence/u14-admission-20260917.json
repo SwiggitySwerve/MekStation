@@ -40,7 +40,10 @@
     "rootRulesVerbatim": {
       "note": "The root rule set applied unchanged to both paths -- the baseline before the scripts-scoped no-console allowance.",
       "total": 402,
-      "perPath": { "e2e": 50, "scripts": 352 },
+      "perPath": {
+        "e2e": 50,
+        "scripts": 352
+      },
       "perPathAndRule": {
         "e2e": {
           "typescript-eslint(no-explicit-any)": 19,
@@ -56,13 +59,22 @@
           "typescript-eslint(no-require-imports)": 7
         }
       },
-      "filesWithFindings": { "e2e": 27, "scripts": 71 },
-      "filesWalked": { "e2e": 194, "scripts": 170 }
+      "filesWithFindings": {
+        "e2e": 27,
+        "scripts": 71
+      },
+      "filesWalked": {
+        "e2e": 194,
+        "scripts": 170
+      }
     },
     "adopted": {
       "note": "no-console allowed for the scripts path only. scripts/ is a tree of CLIs that print by design, so 302 of its 352 findings were vacuous; e2e keeps no-console exactly as the root config sets it (its 14 stay counted). This is the ceiling.",
       "total": 100,
-      "perPath": { "e2e": 50, "scripts": 50 },
+      "perPath": {
+        "e2e": 50,
+        "scripts": 50
+      },
       "perPathAndRule": {
         "e2e": {
           "typescript-eslint(no-explicit-any)": 19,
@@ -85,14 +97,32 @@
         "typescript-eslint(explicit-module-boundary-types)": 3
       },
       "mostFrequentRules": [
-        ["typescript-eslint(no-explicit-any)", 49],
-        ["eslint(no-unused-vars)", 24],
-        ["eslint(no-console)", 14],
-        ["typescript-eslint(no-require-imports)", 10],
-        ["typescript-eslint(explicit-module-boundary-types)", 3]
+        [
+          "typescript-eslint(no-explicit-any)",
+          49
+        ],
+        [
+          "eslint(no-unused-vars)",
+          24
+        ],
+        [
+          "eslint(no-console)",
+          14
+        ],
+        [
+          "typescript-eslint(no-require-imports)",
+          10
+        ],
+        [
+          "typescript-eslint(explicit-module-boundary-types)",
+          3
+        ]
       ],
       "rulesWithNoFindings": "Only five of the 65 configured rules fire on these two trees; there is no sixth to list.",
-      "filesWithFindings": { "e2e": 27, "scripts": 14 },
+      "filesWithFindings": {
+        "e2e": 27,
+        "scripts": 14
+      },
       "determinism": "Five consecutive runs of the adopted two-invocation plan: e2e=50 scripts=50 total=100, all five."
     }
   },
@@ -142,7 +172,10 @@
     "scripts/__tests__/lint-units.test.ts": "200-260 test lines",
     "package.json": "1 line"
   },
-  "caps": { "maxFiles": 15, "maxNonGeneratedLines": 500 },
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500
+  },
   "risksForTheParent": [
     "The ceiling is a count, not a fingerprint: 100 new findings could replace the 100 measured ones and still pass. Mitigated only by the per-path split (a regression concentrated in one tree shows up as a path count change in the output), not eliminated.",
     "The scripts-scoped no-console allowance is a deliberate blind spot. If a scripts file ever must not print, this target will not say so.",
@@ -164,7 +197,10 @@
     "command": "node node_modules/oxlint/bin/oxlint --config scripts/qc/oxlint-units.json --format json --threads 2 e2e scripts",
     "exitCode": 1,
     "findings": 352,
-    "perPath": { "e2e": 0, "scripts": 352 },
+    "perPath": {
+      "e2e": 0,
+      "scripts": 352
+    },
     "perRule": {
       "eslint(no-console)": 302,
       "typescript-eslint(no-explicit-any)": 30,
@@ -179,5 +215,10 @@
       "Its 302 no-console findings were counted into the ceiling. A ceiling dominated by no-console in a tree of CLIs that print by design is close to vacuous; the adopted measurement allows no-console for scripts and the ceiling falls from 402 to 100.",
       "Its stated reason for not relying on `extends` alone was checked and is CORRECT (P3): extends drops rule options and does not carry plugins/env/categories/overrides. Its claim that inheritance was the ignore risk was not the operative problem (P1)."
     ]
+  },
+  "parentDecision": {
+    "at": "2026-09-17T12:24:42.470Z",
+    "decision": "go",
+    "note": "parent admitted the unit as planned; no widening"
   }
 }
