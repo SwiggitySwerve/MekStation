@@ -498,7 +498,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "owner-gated",
+      "state": "blocked",
       "baseline": "2a4a8d4254b0e2563e04ab4082b355b24bcbb0d8",
       "prHead": "754819f6ac054360d8b80f80b076782cf5c91111",
       "mergeSha": null,
@@ -533,11 +533,11 @@
         "mainProof": null,
         "tick": null
       },
-      "ownerGate": {
-        "packetId": "PK-privacy-21-2-tick",
-        "since": "2026-09-17T01:17:02.824Z",
-        "stage": "review",
-        "reason": "privacy review class requires a Lane B owner ruling; the row cannot tick without one"
+      "ownerGate": null,
+      "blocked20260917": {
+        "cause": "owner decision on PK-privacy-21-2-tick: hold; E2E-19/25 need the correction-surface wiring (R2.multiplayer-client unit U5b), a private-reason ingress and the combat-journal mode flip",
+        "nextIndependentAction": "U5a/U5b under R2.authority-live and R2.multiplayer-client, then a row-bearing R6.umbrella successor adds the two rows and ticks 21.2",
+        "proof": "ten rows proven on main: evidence/u2-local-20260916.json"
       }
     },
     {
@@ -562,10 +562,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "owner-gated",
+      "state": "main-verified",
       "baseline": "9d1351a780b74f095fb5864f8879419d2d27967b",
       "prHead": "935fe0423e9eef2c806ab8b4e012c9a9a8d6c929",
-      "mergeSha": null,
+      "mergeSha": "e3fc54384d1eca5ec4b3547a45276e50dd6c4b7e",
       "stageReceipts": {
         "admission": {
           "path": "evidence/u3-admission-20260916.json",
@@ -593,21 +593,444 @@
           "verdict": "APPROVE",
           "laneB": "pending: PK-u3-21-1-tick-and-merge"
         },
+        "merge": {
+          "path": "evidence/u3-merge-20260917.json",
+          "pr": 1797,
+          "head": "935fe0423e9eef2c806ab8b4e012c9a9a8d6c929",
+          "mergeSha": "e3fc54384d1eca5ec4b3547a45276e50dd6c4b7e",
+          "laneB": "PK-u3-21-1-tick-and-merge"
+        },
+        "mainProof": {
+          "path": "evidence/u3-mainproof-20260917.json",
+          "mergeCommit": "e3fc54384d1eca5ec4b3547a45276e50dd6c4b7e",
+          "verdict": "PASS",
+          "runtime": "authority: 3 failed / 17 passed",
+          "expectedReds": "E2E-01 genesis and E2E-02 genesis (design-campaign-authority-and-sync task 5.7 non-claim; FN-genesis-branch-row-is-a-mirror-side-effect) and E2E-16 (FN-u3-e2e-16-stale-reload-socket-count)"
+        },
+        "tick": null
+      },
+      "ownerGate": null,
+      "nonClaims20260916": [
+        "genesis clauses of E2E-01 and E2E-02 (event_history_branches genesis row; effectiveBranchId after restart): gated on design-campaign-authority-and-sync task 5.7, an owner-gated production flag (CAMPAIGN_JOURNAL_AUTHORITY_ENABLED); expected failures until the cutover, assertions untouched"
+      ],
+      "holdNote20260917": "row 21.1 stays open by the owner's ruling (PK-u3 option b); tick receipt deliberately null; the unit is main-verified, not complete"
+    },
+    {
+      "id": "U4",
+      "node": "R2.combat",
+      "taskKeys": [],
+      "behavior": "Pending intents settle on lobby answers: ILobbyUpdated (and the lobby Error frames) carry the originating intentId, stamped in ServerMatchHostLobbyIntents when the update is built, and the client's LobbyUpdated handler settles the pending intent before emitting, so a launched match no longer shows the pending posture for the whole match (FN-u1c-pending-intent-never-settles). Red-first: a client jest that delivers a LobbyUpdated carrying a pending intentId and asserts pendingIntentCount goes 1 -> 0 (red today because the handler never touches state). Lane B classes apply.",
+      "ownershipPaths": [
+        "src/lib"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "idempotency",
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
         "merge": null,
         "mainProof": null,
         "tick": null
       },
-      "ownerGate": {
-        "packetId": "PK-u3-21-1-tick-and-merge",
-        "since": "2026-09-17T04:50:28.677Z",
-        "stage": "review",
-        "head": "935fe0423e9eef2c806ab8b4e012c9a9a8d6c929",
-        "pr": 1797,
-        "reason": "sensitive review classes require a Lane B ruling on the exact head before merge"
+      "ownerGate": null,
+      "source20260917": "owner instruction 2026-09-17: \"Go with all the recommendations from the council and continue the loop\" (openspec/council-decisions/2026-09-17-post-loop-recommendations.md)",
+      "finding": "FN-u1c-pending-intent-never-settles",
+      "reownedNote": "R2.combat owns the exact string src/lib, which covers src/lib/multiplayer/client.ts, src/lib/multiplayer/server/ServerMatchHostLobbyIntents.ts and src/types/multiplayer/Protocol.ts (council B)"
+    },
+    {
+      "id": "U6",
+      "node": "R6.umbrella",
+      "taskKeys": [],
+      "behavior": "E2E-16 diagnosis: an instrumented probe row (reverted) records where the stale credential is caught on the guest reload (pre-dial clear versus refusal on the socket upgrade) and whether page.routeWebSocket saw the redial, classifies the deterministic red as harness race or product, and either repairs the row in-paths (under the cap) or records a non-claim with the measurement (FN-u3-e2e-16-stale-reload-socket-count).",
+      "ownershipPaths": [
+        "e2e",
+        "scripts/qc",
+        "openspec/changes/harden-gm-two-player-campaign-sessions"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
       },
-      "nonClaims20260916": [
-        "genesis clauses of E2E-01 and E2E-02 (event_history_branches genesis row; effectiveBranchId after restart): gated on design-campaign-authority-and-sync task 5.7, an owner-gated production flag (CAMPAIGN_JOURNAL_AUTHORITY_ENABLED); expected failures until the cutover, assertions untouched"
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260917": "owner instruction 2026-09-17: \"Go with all the recommendations from the council and continue the loop\" (openspec/council-decisions/2026-09-17-post-loop-recommendations.md)",
+      "finding": "FN-u3-e2e-16-stale-reload-socket-count"
+    },
+    {
+      "id": "U7",
+      "node": "R6.umbrella",
+      "taskKeys": [],
+      "behavior": "E2E-77 authorization class through the existing route boundary: a conflict-pack row drives POST /api/matches/:id/rewind-commit as a seated non-host and asserts the 403 gm-role-required code, the phrased refusal the product renders, and leak safety; the row header records that a player-visible GM_ONLY toast is not claimed (the rewind dialog mounts only for the host GM), which the owner may read as satisfying or not satisfying the letter's UI clause.",
+      "ownershipPaths": [
+        "e2e",
+        "scripts/qc",
+        "openspec/changes/harden-gm-two-player-campaign-sessions"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260917": "owner instruction 2026-09-17: \"Go with all the recommendations from the council and continue the loop\" (openspec/council-decisions/2026-09-17-post-loop-recommendations.md)",
+      "finding": "FN-u1d-authorization-class-has-no-wire-lever"
+    },
+    {
+      "id": "U5a",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "E2E-19 draft object: a GM rewind or correction preview creates a server-only private draft record that the E2E-19 row can assert on (today tasks.md:448 records that a preview creates no draft), written only when the preview succeeds and never visible in any player projection; red-first: a jest storage census showing zero draft rows after a successful preview.",
+      "ownershipPaths": [
+        "src/lib/multiplayer/server"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "privacy",
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260917": "owner instruction 2026-09-17: \"Go with all the recommendations from the council and continue the loop\" (openspec/council-decisions/2026-09-17-post-loop-recommendations.md)",
+      "rowsUnblocked": [
+        "E2E-19"
       ]
+    },
+    {
+      "id": "U5b",
+      "node": "R2.multiplayer-client",
+      "taskKeys": [],
+      "behavior": "E2E-25 correction surface: the lobby page passes onPreviewHostGmCorrection/onApproveHostGmCorrection to NetworkedGameSurface so the GM Preview/Approve-Fix controls render in production (today only src/pages/e2e/networked-command-proof.tsx wires them), and the finalize path carries a client-supplied private reason instead of the constant REWIND_COMMIT_REASON; red-first: a component test asserting the controls render for host-gm on the lobby page and a route test asserting the reason reaches the private record.",
+      "ownershipPaths": [
+        "src/pages/multiplayer",
+        "src/components/multiplayer",
+        "src/pages-modules/multiplayer"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "privacy",
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260917": "owner instruction 2026-09-17: \"Go with all the recommendations from the council and continue the loop\" (openspec/council-decisions/2026-09-17-post-loop-recommendations.md)",
+      "rowsUnblocked": [
+        "E2E-25"
+      ],
+      "note": "the server half of the reason ingress (rewind-commit route body) belongs to a companion unit under R2.authority-live if the route lives under src/lib/multiplayer/server; the lane measures which file owns it at admission"
+    },
+    {
+      "id": "U8",
+      "node": "R2.multiplayer-client",
+      "taskKeys": [],
+      "behavior": "Stale-head lever: the campaign command route accepts expectedRevision in its CommandBody (the pipeline already declares and refuses on mismatch) so a stale head answers 409 STALE_REVISION with the active head; red-first: a route test sending a stale expectedRevision and asserting 409 (red today because the field is not accepted).",
+      "ownershipPaths": [
+        "src/pages/api/campaigns"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "concurrency",
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260917": "owner instruction 2026-09-17: \"Go with all the recommendations from the council and continue the loop\" (openspec/council-decisions/2026-09-17-post-loop-recommendations.md)",
+      "finding": "FN-u1d-stale-head-class-has-no-in-paths-lever"
+    },
+    {
+      "id": "U9",
+      "node": "R6.loop-harness",
+      "taskKeys": [],
+      "behavior": "E2E-80 as a qc contract: scripts/qc/validate-exact-main-regression-ladder.mjs reads the milestone-to-group ladder from SPEC_BY_GROUP and reruns the required groups on the exact main commit before the next dependent PR, with a package script and a pin in scripts/__tests__ (PK-e2e-80-ci-wiring decision).",
+      "ownershipPaths": [
+        "scripts/qc",
+        "scripts/__tests__",
+        "package.json"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260917": "owner instruction 2026-09-17: \"Go with all the recommendations from the council and continue the loop\" (openspec/council-decisions/2026-09-17-post-loop-recommendations.md)"
+    },
+    {
+      "id": "U10",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "Rewind branch reader: matchStoreBranchSegmentReader serves MATCH_BASELINE_BRANCH_ID alongside root (PK-rewind-branch-reader option a), red-first with a jest that reads a segment written onto the baseline branch id and receives it (red today: the reader answers root only); no e2e row is ticked by this unit.",
+      "ownershipPaths": [
+        "src/lib/multiplayer/server"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "replay",
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260917": "owner instruction 2026-09-17: \"Go with all the recommendations from the council and continue the loop\" (openspec/council-decisions/2026-09-17-post-loop-recommendations.md)",
+      "packet": "PK-rewind-branch-reader"
+    },
+    {
+      "id": "U11",
+      "node": "R6.loop-harness",
+      "taskKeys": [],
+      "behavior": "Machine idle check: scripts/qc/machine-idle.mjs decides busy/idle from process images (next-server, node server.js, Playwright, Chromium) not command lines, excludes a caller-supplied own server pid, and throws when the enumeration tool is absent; jest pin; the ladder runner and the proof scripts call it before every build and run.",
+      "ownershipPaths": [
+        "scripts/qc",
+        "scripts/__tests__"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260917": "owner instruction 2026-09-17: \"Go with all the recommendations from the council and continue the loop\" (openspec/council-decisions/2026-09-17-post-loop-recommendations.md)"
+    },
+    {
+      "id": "U12",
+      "node": "R6.loop-harness",
+      "taskKeys": [],
+      "behavior": "Junction guard: an npm preinstall script refuses to run when the real path of the working directory is not the repository root the manifest belongs to (a junctioned worktree), so npm can no longer prune the root node_modules through a link (npm/cli#3669); no `|| true`; jest pin.",
+      "ownershipPaths": [
+        "scripts/qc",
+        "scripts/__tests__",
+        "package.json"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260917": "owner instruction 2026-09-17: \"Go with all the recommendations from the council and continue the loop\" (openspec/council-decisions/2026-09-17-post-loop-recommendations.md)"
+    },
+    {
+      "id": "U13",
+      "node": "R6.loop-harness",
+      "taskKeys": [],
+      "behavior": "Log preservation: a cleanup helper copies a run's logs into the ledger evidence directory with sha256 before any worktree removal and refuses the removal when the copy did not land; the proof scripts and lane cleanup call it; jest pin.",
+      "ownershipPaths": [
+        "scripts/qc",
+        "scripts/__tests__"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260917": "owner instruction 2026-09-17: \"Go with all the recommendations from the council and continue the loop\" (openspec/council-decisions/2026-09-17-post-loop-recommendations.md)"
+    },
+    {
+      "id": "U14",
+      "node": "R6.loop-harness",
+      "taskKeys": [],
+      "behavior": "Unit lint target: measure the oxlint finding count over e2e and scripts first (recorded in admission); add a lint:units package script with its own pin so unit receipts stop recording a vacuous gate, without un-ignoring paths that existing receipts pin (.oxlintrc.json line 53 and the scripts/openspec ignores stay).",
+      "ownershipPaths": [
+        "scripts/qc",
+        "scripts/__tests__",
+        "package.json",
+        ".oxlintrc.json"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260917": "owner instruction 2026-09-17: \"Go with all the recommendations from the council and continue the loop\" (openspec/council-decisions/2026-09-17-post-loop-recommendations.md)"
     }
   ],
   "packets": [
@@ -644,7 +1067,12 @@
       ],
       "agentRecommendation": "Option (a): LIVE_PATH_BRANCH_IDS already treats root and the baseline id as one line, so serving both from the reader matches the contract that exists and does not move rows that were already written.",
       "revertCost": "Low for (a) - a single reader predicate behind its own tests, revertable by one commit with no data migration. Higher for (b) - rows written onto root after the flip must be located and moved back, so a revert becomes a data reconciliation rather than a code revert.",
-      "decision": null,
+      "decision": {
+        "at": "2026-09-17T07:04:11.135Z",
+        "option": "a",
+        "text": "teach matchStoreBranchSegmentReader to serve MATCH_BASELINE_BRANCH_ID alongside root; successor unit U10 under R2.authority-live (owns src/lib/multiplayer/server); the eight held rows stay held here until row-bearing successors exist",
+        "source": "owner instruction 2026-09-17: \"Go with all the recommendations from the council and continue the loop\" (openspec/council-decisions/2026-09-17-post-loop-recommendations.md)"
+      },
       "ruling": null,
       "note": "Row 22.3 joined this packet on 2026-09-16: E2E-76 (rewind confirmation) cannot pass until the rewind branch reader ruling, so the row stays open while its ungated scenarios ship as row-less units U1, U1b and U1c; the tick of 22.3 belongs to a successor unit written after the ruling."
     },
@@ -670,7 +1098,12 @@
       ],
       "agentRecommendation": "qc contract run by the loop, given the owner CI-minute constraint; revisit if merges to main resume outside the loop",
       "revertCost": "low: either form can be replaced by the other without touching product code",
-      "decision": null,
+      "decision": {
+        "at": "2026-09-17T07:04:11.135Z",
+        "option": "qc contract run by the loop",
+        "text": "scripts/qc/validate-exact-main-regression-ladder.mjs reading SPEC_BY_GROUP, with a pin; no workflow job (R1.ci is not admissible and CI minutes are unmeasured); successor unit U9",
+        "source": "owner instruction 2026-09-17: \"Go with all the recommendations from the council and continue the loop\" (openspec/council-decisions/2026-09-17-post-loop-recommendations.md)"
+      },
       "ruling": null
     },
     {
@@ -700,7 +1133,12 @@
       "agentRecommendation": "tick on ten rows with a named deferral of E2E-19/25 to R4.rewind, matching how 14.1/14.5 and 17.x were deferred; the umbrella acceptance still gates the program on the deferred rows",
       "revertCost": "low: a deferral entry and a checkbox; reverting re-opens the row without touching product code",
       "privacyReview": "Lane A cross-model review of the parking head is recorded; Lane B (owner) ruling is required because the unit's review class is privacy",
-      "decision": null,
+      "decision": {
+        "at": "2026-09-17T07:04:11.135Z",
+        "option": "hold",
+        "text": "hold 21.2; the ten-row proof stays a receipt; no deferral of E2E-19/25 until the correction surfaces (onPreviewHostGmCorrection/onApproveHostGmCorrection wiring, a private reason ingress) and the combat-journal mode flip exist; the council's Oracle dissent (tick ten with a source-quoted deferral) is recorded",
+        "source": "owner instruction 2026-09-17: \"Go with all the recommendations from the council and continue the loop\" (openspec/council-decisions/2026-09-17-post-loop-recommendations.md)"
+      },
       "ruling": null
     },
     {
@@ -733,8 +1171,52 @@
       ],
       "agentRecommendation": "option (a): the repairs make the rows read the product's persisted state before any rejoin and remount after the reconnect limit, which is what the letter describes, and the genesis clauses are already the recorded 5.7 non-claim in the goal statement",
       "revertCost": "low: reverting the PR restores the two red rows; no product code moves",
+      "decision": {
+        "at": "2026-09-17T07:04:11.135Z",
+        "option": "b",
+        "text": "rule the head, merge PR #1797, hold 21.1 open until the 5.7 cutover makes the genesis clauses pass",
+        "source": "owner instruction 2026-09-17: \"Go with all the recommendations from the council and continue the loop\" (openspec/council-decisions/2026-09-17-post-loop-recommendations.md)"
+      },
+      "ruling": {
+        "ruledHead": "935fe0423e9eef2c806ab8b4e012c9a9a8d6c929",
+        "pr": 1797,
+        "commentId": 5710327985,
+        "author": "SwiggitySwerve",
+        "label": "owner-ruled",
+        "bodySha256": null,
+        "postedBy": "parent on the owner's instruction (the comment text quotes the instruction)"
+      }
+    },
+    {
+      "id": "PK-umbrella-acceptance-unsatisfiable",
+      "blocks": [],
+      "nodes": [
+        "R6.umbrella"
+      ],
+      "taskKeys": [],
+      "question": "R6.umbrella's acceptance says \"All reachable required E2E-01..80 assertions with ten-scenario reconnect/restart/correction proof\", but on main E2E-16 is deterministically red (FN-u3-e2e-16-stale-reload-socket-count) and E2E-19/25 have no row while their surfaces and the combat-journal mode flip are outside the umbrella's paths. Should the acceptance be read as \"reachable with the recorded findings and non-claims listed\", amended through an openspec change to name the gates, or kept literal so the program cannot close until every row is green?",
+      "options": [
+        {
+          "label": "read with recorded exclusions",
+          "consequence": "the umbrella can close with the findings and non-claims listed in its receipt; the excluded rows stay open in tasks.md under their holders",
+          "effort": "0.25 day (receipt wording)"
+        },
+        {
+          "label": "amend the acceptance through openspec",
+          "consequence": "the acceptance names the 5.7 and combat-journal gates explicitly; a spec delta PR; the row letters stay unchanged",
+          "effort": "0.5 day"
+        },
+        {
+          "label": "keep literal",
+          "consequence": "the program cannot close until E2E-16 is diagnosed green and 19/25 exist behind product work in other nodes",
+          "effort": "weeks, gated on other nodes"
+        }
+      ],
+      "agentRecommendation": "amend through openspec so the gates are named in the acceptance rather than implied by receipts",
+      "revertCost": "low: wording only",
       "decision": null,
-      "ruling": null
+      "ruling": null,
+      "raisedBy": "council 2026-09-17 (Oracle, Explore-Deep E5)"
     }
   ],
   "deferrals": [
@@ -880,7 +1362,23 @@
       "evidence": "evidence/u3-local-20260916.json findingsReportedNotFixed[E2E-16] and parentVerification20260916.runs",
       "ownership": "e2e (R6.umbrella paths) for the row; src/lib/multiplayer/client.ts (no owning node) if the product side is at fault",
       "recommendedSuccessor": "a diagnosis unit under R6.umbrella: probe the redial timing at the expiry instant, classify harness race vs product, then fix in-paths or packet",
-      "status": "recorded; blocks the 21.1 tick until green or non-claimed by the owner"
+      "status": "recorded; diagnosis unit U6 planned (council D8: routeWebSocket only sees sockets created after installation; setOffline may not sever an open socket; nothing in a00b816dc..12466da33 touched the token pack, client, lobby or socket route)"
+    },
+    {
+      "id": "FN-u3-wait-for-relaunch-can-pass-vacuously",
+      "foundBy": "council 2026-09-17 (Hephaestus)",
+      "at": "2026-09-17T07:04:11.135Z",
+      "class": "harness",
+      "summary": "waitForRelaunch in e2e/helpers/gmTwoPlayerAuthorityRecovery.ts polls /api/campaigns for a 200, which is already 200 if the server never died, so the death-trigger evidence of E2E-01/02 can pass vacuously when the process-exit-after-commit lever is not consumed.",
+      "status": "recorded; fold into U6 or a later R6.umbrella harness unit"
+    },
+    {
+      "id": "FN-genesis-branch-row-is-a-mirror-side-effect",
+      "foundBy": "council 2026-09-17 (Explore-Deep E1, Oracle P3, Hephaestus P3)",
+      "at": "2026-09-17T07:04:11.135Z",
+      "class": "spec/receipt disclosure",
+      "summary": "The campaign event_history_branches genesis row is never written by the campaign genesis path (awaitGenesisBranch only reads a marker); the sole non-test caller of backfillGenesisBranches is MatchStreamJournalMirror, which runs only when the combat-journal mode is not 'off' (matchJournalAuthority.ts sets the literal 'off'), and the backfill covers only streams that already exist. tasks.md:493 (DECISION D2, 2026-09-03) records the two genesis clauses green on 5d5307125, which no council seat could reproduce from current code; the clauses are gated on design-campaign-authority-and-sync task 5.7.",
+      "status": "recorded; D2's receipt to be annotated by the next R6.umbrella unit that touches tasks.md; one production build at 5d5307125 with --group=authority-recovery would settle the discrepancy if the owner wants it explained"
     }
   ]
 }

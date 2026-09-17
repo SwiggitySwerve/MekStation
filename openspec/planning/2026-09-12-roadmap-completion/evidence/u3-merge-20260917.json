@@ -1,0 +1,35 @@
+{
+  "unit": "U3",
+  "stage": "merge",
+  "at": "2026-09-17T07:05:00.273Z",
+  "pr": 1797,
+  "title": "test(e2e): E2E-02 reads the seats that survived the host death and E2E-15 remounts after the outage",
+  "head": "935fe0423e9eef2c806ab8b4e012c9a9a8d6c929",
+  "mergeSha": "e3fc54384d1eca5ec4b3547a45276e50dd6c4b7e",
+  "mergedAt": "2026-09-17T06:55:41Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head and the OWNER-RULING comment named that head (label owner-ruled present)",
+  "laneB": {
+    "packet": "PK-u3-21-1-tick-and-merge",
+    "ruledHead": "935fe0423e9eef2c806ab8b4e012c9a9a8d6c929",
+    "commentId": 5710327985,
+    "author": "SwiggitySwerve",
+    "labels": [
+      "owner-ruled"
+    ]
+  },
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "e2e/gm-two-player-authority-recovery.pack.spec.ts",
+    "e2e/gm-two-player-resilience.pack.spec.ts",
+    "e2e/helpers/gmTwoPlayerAuthorityRecovery.ts",
+    "openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u3-admission-20260916.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u3-diagnosis-20260916.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u3-local-20260916.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u3-red-20260916.json"
+  ],
+  "blobEqualityDiffLines": 0,
+  "blobEqualityNote": "compared over the PR's own changed files (main moved between the PR head and the merge: #1798 and the council decision landed in between)"
+}

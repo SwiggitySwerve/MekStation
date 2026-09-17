@@ -7082,6 +7082,65 @@
       },
       "hookedCommit": "evidence/hydration-safety-hooked-commit-20260912.json",
       "mergeEvidence": "evidence/hydration-safety-merge-20260912.json"
+    },
+    {
+      "id": "R2.multiplayer-client",
+      "wave": 2,
+      "title": "Own the multiplayer lobby page, surface components and page modules (client-side wiring that no node owned)",
+      "kind": "implementation",
+      "state": "planned",
+      "dependsOn": [
+        "R2.authority-live"
+      ],
+      "ownershipPaths": [
+        "src/pages/multiplayer",
+        "src/components/multiplayer",
+        "src/pages-modules/multiplayer",
+        "src/pages/api/campaigns"
+      ],
+      "acceptance": [
+        "Each unit reproduces its boundary red-first (jest at the client or route seam), passes tsc/oxlint/oxfmt and the focused suites, and lands with a Lane A review and, for wire/idempotency/privacy classes, a Lane B ruling on the exact head",
+        "No unit widens R2.authority-live's main-verified receipt: server paths stay with their owning nodes"
+      ],
+      "owner": "parent; bounded worker lanes per WORKERS.md",
+      "maxFiles": 15,
+      "maxNonGeneratedLines": 500,
+      "taskKeys": [],
+      "receipt": null,
+      "decomposition": "Row-less product units only (the node holds no task keys); rows that these units unblock are ticked by R6.umbrella units.",
+      "added20260917": {
+        "by": "parent",
+        "source": "owner instruction 2026-09-17: \"Go with all the recommendations from the council and continue the loop\" (openspec/council-decisions/2026-09-17-post-loop-recommendations.md)",
+        "why": "council B: no node owned src/pages/multiplayer, src/components/multiplayer or src/pages-modules/multiplayer; src/pages/api/campaigns added for the stale-head lever the council said needs the same ownership ruling"
+      }
+    },
+    {
+      "id": "R6.loop-harness",
+      "wave": 6,
+      "title": "Loop harness: idle check, junction guard, log preservation, lint target, E2E-80 contract",
+      "kind": "verification",
+      "state": "planned",
+      "dependsOn": [],
+      "ownershipPaths": [
+        "scripts/qc",
+        "scripts/__tests__",
+        "package.json",
+        ".oxlintrc.json"
+      ],
+      "acceptance": [
+        "Each harness unit ships with a jest pin and a red-first probe; no product path under src/ is touched"
+      ],
+      "owner": "parent; bounded worker lanes per WORKERS.md",
+      "maxFiles": 15,
+      "maxNonGeneratedLines": 500,
+      "taskKeys": [],
+      "receipt": null,
+      "decomposition": "Council D1-D5: one unit per fix, docs updates ride the closure PRs.",
+      "added20260917": {
+        "by": "parent",
+        "source": "owner instruction 2026-09-17: \"Go with all the recommendations from the council and continue the loop\" (openspec/council-decisions/2026-09-17-post-loop-recommendations.md)",
+        "why": "council D names three harness PRs touching package.json and .oxlintrc.json, which no dependency-ready node owns (R9.manifest-sync and R1.ci sit behind unready or archived dependencies)"
+      }
     }
   ],
   "tasks": [
