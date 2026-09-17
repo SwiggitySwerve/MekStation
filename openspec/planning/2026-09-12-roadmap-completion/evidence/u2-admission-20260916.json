@@ -10,7 +10,7 @@
   "reviewClasses": [
     "privacy"
   ],
-  "discovery": "evidence/u2u3-discovery-20260916.json (measured on a00b816dcf1d30cb40b08ce9901bcf66ea3cc125; the specs and helpers it ran are unchanged between that commit and this baseline: `git diff --stat` below is empty)",
+  "discovery": "evidence/u2u3-discovery-20260916.json (measured on a00b816dcf1d30cb40b08ce9901bcf66ea3cc125; the privacy and proposal specs and e2e/helpers it ran are unchanged between that commit and this baseline; the only diff in the checked paths is U1d's conflict-pack registration in scripts/qc/gm-two-player-campaign-core.cjs, shown below, which does not touch those specs)",
   "diffStatSinceDiscovery": "scripts/qc/gm-two-player-campaign-core.cjs | 6 +++++-\n 1 file changed, 5 insertions(+), 1 deletion(-)",
   "inventory": {
     "onMain": [
@@ -57,5 +57,6 @@
     "at": "2026-09-17T01:17:02.824Z",
     "decision": "admit as proof-plus-hold; park on a Lane B packet at review (privacy class)",
     "narrowing": "no product line ships in this unit (rows 20-24 and 26-30 already pass on main; rows 19 and 25 need the GM-correction commit half owned outside these paths); ownership paths unchanged; the 21.2 checkbox is not touched until the owner rules"
-  }
+  },
+  "wordingCorrected20260916": "Lane A review of the parking head found the earlier sentence claimed an empty diff while diffStatSinceDiscovery showed the qc registration; corrected without changing any measurement"
 }
