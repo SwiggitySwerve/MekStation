@@ -619,13 +619,66 @@
       "id": "U4",
       "node": "R2.combat",
       "taskKeys": [],
-      "behavior": "Pending intents settle on lobby answers: ILobbyUpdated (and the lobby Error frames) carry the originating intentId, stamped in ServerMatchHostLobbyIntents when the update is built, and the client's LobbyUpdated handler settles the pending intent before emitting, so a launched match no longer shows the pending posture for the whole match (FN-u1c-pending-intent-never-settles). Red-first: a client jest that delivers a LobbyUpdated carrying a pending intentId and asserts pendingIntentCount goes 1 -> 0 (red today because the handler never touches state). Lane B classes apply.",
+      "behavior": "Pending intents settle on lobby answers: LobbyUpdated (and the lobby Error frames) carry the originating intentId as an optional wire field, the server stamps it when it builds the update and the refusals, and the client's LobbyUpdated handler settles the pending intent before emitting, so a launched match no longer shows the pending posture for the whole match (FN-u1c-pending-intent-never-settles). Red-first entered through the socket parse path. Not re-proven here: the browser-visible posture leaving pending (a later R6.umbrella row); match-channel Event settlement unchanged; ForfeitMatch's separate paths unchanged; replayed LobbyUpdated frames answer no intent.",
       "ownershipPaths": [
-        "src/lib"
+        "src/lib",
+        "src/types/multiplayer"
       ],
       "ciClass": "product",
       "reviewClasses": [
         "idempotency",
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "local-verified",
+      "baseline": "9913f06e775b90cff8633ce3798b942f0536a2eb",
+      "prHead": "bf066c7c55bd2c26567cb55e00c2c99f2e1e41a5",
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": {
+          "path": "evidence/u4-admission-20260917.json",
+          "baseline": "9913f06e775b90cff8633ce3798b942f0536a2eb",
+          "at": "2026-09-17T07:49:37.028Z",
+          "decision": "go (parent), corrected per council C2 before the fold"
+        },
+        "red": {
+          "path": "evidence/u4-red-20260917.json",
+          "at": "2026-09-17T07:51:28.225Z",
+          "summary": "six new cases failed on the baseline through the socket parse path (the schema stripped intentId; the handler never touched state; the server frames carried no id) and pass with the fix"
+        },
+        "local": {
+          "path": "evidence/u4-local-20260917.json",
+          "at": "2026-09-17T07:55:45.546Z",
+          "summary": "focused suites 107/107 (parent re-ran the three new suites 72/72 and tsc 0); tsc 0; oxlint 0 errors; oxfmt clean; roadmap validator PASSED (75 nodes); three mutants killed (random id stamped; settle after emit; refusal omits id); 12 product lines, 142 test lines; implementer codex gpt-6 after the Grok CLI hung on tool use"
+        },
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260917": "owner instruction 2026-09-17: \"Go with all the recommendations from the council and continue the loop\" (openspec/council-decisions/2026-09-17-post-loop-recommendations.md)",
+      "finding": "FN-u1c-pending-intent-never-settles",
+      "reownedNote": "R2.combat owns the exact string src/lib, which covers src/lib/multiplayer/client.ts, src/lib/multiplayer/server/ServerMatchHostLobbyIntents.ts and src/types/multiplayer/Protocol.ts (council B)",
+      "correction20260917": {
+        "source": "owner instruction 2026-09-17 accepting the second council's corrections (openspec/council-decisions/2026-09-17-review-what-needs-validation.md)",
+        "what": "src/types/multiplayer added to R2.combat and to the unit's paths (council C2); the red-first was required to enter through the socket parse, which the lane's client tests do via the socket fixture"
+      }
+    },
+    {
+      "id": "U15a",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "Combat-journal e2e arm: src/lib/multiplayer/server/combatJournalAuthorityEnabled.ts mirrors campaignJournalAuthorityEnabled.ts (two keys: NEXT_PUBLIC_E2E_MODE and MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE) and every consumer of COMBAT_JOURNAL_AUTHORITY_MODE reads getCombatJournalAuthorityMode(); the production default stays 'off'. Red-first: a jest asserting the two-key arm yields the armed mode and a single key yields 'off' (red today: the literal constant). This is the arm, not the cutover; it makes the E2E-01/02 genesis clauses provable by the ladder.",
+      "ownershipPaths": [
+        "src/lib/multiplayer/server"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
         "routine"
       ],
       "caps": {
@@ -646,9 +699,74 @@
         "tick": null
       },
       "ownerGate": null,
-      "source20260917": "owner instruction 2026-09-17: \"Go with all the recommendations from the council and continue the loop\" (openspec/council-decisions/2026-09-17-post-loop-recommendations.md)",
-      "finding": "FN-u1c-pending-intent-never-settles",
-      "reownedNote": "R2.combat owns the exact string src/lib, which covers src/lib/multiplayer/client.ts, src/lib/multiplayer/server/ServerMatchHostLobbyIntents.ts and src/types/multiplayer/Protocol.ts (council B)"
+      "source20260917": "owner instruction 2026-09-17 accepting the second council's corrections (openspec/council-decisions/2026-09-17-review-what-needs-validation.md)"
+    },
+    {
+      "id": "U15b",
+      "node": "R6.loop-harness",
+      "taskKeys": [],
+      "behavior": "Forward the combat-journal e2e arm: the authority-recovery group in scripts/qc/gm-two-player-campaign-core.cjs sets MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE and playwright.config.ts forwards it to the server env; pin suite records it; red-first: the ladder's run plan for authority-recovery lacks the key today.",
+      "ownershipPaths": [
+        "scripts/qc",
+        "scripts/__tests__",
+        "playwright.config.ts"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260917": "owner instruction 2026-09-17 accepting the second council's corrections (openspec/council-decisions/2026-09-17-review-what-needs-validation.md)"
+    },
+    {
+      "id": "U16",
+      "node": "R0.plan",
+      "taskKeys": [],
+      "behavior": "Validator: --evidence default-on (every stage receipt path exists; mainProof.runtime parses as N failed / M passed; expectedReds is an array whose length equals the failed count, gated to product units, earlier product units backfilled), --github opt-in (PR state, owner-ruled label and OWNER-RULING head for sensitive units at rank merged or above), prefix-containment pathFree (today exact-string); red-first: a fixture ledger with a missing receipt path and a mainProof with an unexplained red must fail.",
+      "ownershipPaths": [
+        "openspec/planning/2026-09-12-roadmap-completion"
+      ],
+      "ciClass": "docs",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260917": "owner instruction 2026-09-17 accepting the second council's corrections (openspec/council-decisions/2026-09-17-review-what-needs-validation.md)",
+      "note": "docs class by derivation; inserted ahead of the product units so --next reaches it once U4 is out of flight"
     },
     {
       "id": "U6",
@@ -792,8 +910,10 @@
       "id": "U5a",
       "node": "R2.authority-live",
       "taskKeys": [],
-      "behavior": "E2E-19 draft object: a GM rewind or correction preview creates a server-only private draft record that the E2E-19 row can assert on (today tasks.md:448 records that a preview creates no draft), written only when the preview succeeds and never visible in any player projection; red-first: a jest storage census showing zero draft rows after a successful preview.",
+      "behavior": "E2E-19 GM read exposure: an authorized GM HTTP read route returns the private draft record that a successful rewind or correction preview already stores (rewind-preview.ts writes it via GmPrivatePreviewRecordWriter on the preview branch), through ViewerHistoryService's includePrivate, with access recorded and every player projection unchanged; red-first: a route test as the GM expecting the record (404 today because no route exists) and as a player expecting no private field. The E2E-19 row itself is a later R6.umbrella unit.",
       "ownershipPaths": [
+        "src/pages/api/matches",
+        "src/pages-modules/api",
         "src/lib/multiplayer/server"
       ],
       "ciClass": "product",
@@ -822,7 +942,11 @@
       "source20260917": "owner instruction 2026-09-17: \"Go with all the recommendations from the council and continue the loop\" (openspec/council-decisions/2026-09-17-post-loop-recommendations.md)",
       "rowsUnblocked": [
         "E2E-19"
-      ]
+      ],
+      "retargeted20260917": {
+        "source": "owner instruction 2026-09-17 accepting the second council's corrections (openspec/council-decisions/2026-09-17-review-what-needs-validation.md)",
+        "why": "the private draft record already ships (#1476), so the earlier red-first was already green; what E2E-19 lacks is a GM read route (council C3)"
+      }
     },
     {
       "id": "U5b",
@@ -1154,6 +1278,40 @@
       "source20260917": "owner instruction 2026-09-17: \"Go with all the recommendations from the council and continue the loop\" (openspec/council-decisions/2026-09-17-post-loop-recommendations.md)"
     },
     {
+      "id": "U17",
+      "node": "R6.loop-harness",
+      "taskKeys": [],
+      "behavior": "Loop scripts into the repo: the unit closure, stage fold and main-proof generators the parent ran from its scratchpad (unit-closure, fold-stages, main-proof, park) move under scripts/qc with a pin, so the loop is reproducible from main (council D3); U13's helper is called from them.",
+      "ownershipPaths": [
+        "scripts/qc",
+        "scripts/__tests__",
+        "package.json"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260917": "owner instruction 2026-09-17 accepting the second council's corrections (openspec/council-decisions/2026-09-17-review-what-needs-validation.md)"
+    },
+    {
       "id": "U14",
       "node": "R6.loop-harness",
       "taskKeys": [],
@@ -1442,7 +1600,8 @@
         "author": "SwiggitySwerve",
         "label": "owner-ruled",
         "bodySha256": null,
-        "postedBy": "parent on the owner's instruction (the comment text quotes the instruction)"
+        "postedBy": "parent on the owner's instruction (the comment text quotes the instruction)",
+        "deviationDisclosed20260917": "DELIVERY.md says the owner posts the ruling out of band; this comment was composed and posted by the loop from the owner's GitHub account on the owner's general chat instruction of 2026-09-17; the second council records it as a deviation; from here on the owner posts each ruling personally or names the head in chat before the loop posts it"
       }
     },
     {
@@ -1475,6 +1634,161 @@
       "decision": null,
       "ruling": null,
       "raisedBy": "council 2026-09-17 (Oracle, Explore-Deep E5)"
+    },
+    {
+      "id": "PK-u4-ruling",
+      "blocks": [
+        "U4"
+      ],
+      "nodes": [
+        "R2.combat"
+      ],
+      "taskKeys": [],
+      "question": "U4 (pending intents settle on lobby answers; review class idempotency) has a Lane A approved head on PR #1802. Does the owner rule that head so the PR merges?",
+      "options": [
+        {
+          "label": "rule the head",
+          "consequence": "an OWNER-RULING <head> comment and the owner-ruled label on U4's PR; the unit merges and proceeds to main proof",
+          "effort": "0.1 day owner"
+        },
+        {
+          "label": "reject",
+          "consequence": "the PR closes; the unit returns to planned with the objection recorded",
+          "effort": "0.1 day owner"
+        }
+      ],
+      "agentRecommendation": "rule the head once Lane A has approved it and the checks are green",
+      "revertCost": "low: a squash merge revert",
+      "decision": null,
+      "ruling": null,
+      "sensitiveClasses": [
+        "idempotency"
+      ],
+      "minted20260917": "owner instruction 2026-09-17 accepting the second council's corrections (openspec/council-decisions/2026-09-17-review-what-needs-validation.md)"
+    },
+    {
+      "id": "PK-u5a-ruling",
+      "blocks": [
+        "U5a"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "U5a (GM HTTP read exposure of the private draft record for E2E-19; review class privacy) will present a head. Does the owner rule it?",
+      "options": [
+        {
+          "label": "rule the head",
+          "consequence": "an OWNER-RULING <head> comment and the owner-ruled label on U5a's PR; the unit merges and proceeds to main proof",
+          "effort": "0.1 day owner"
+        },
+        {
+          "label": "reject",
+          "consequence": "the PR closes; the unit returns to planned with the objection recorded",
+          "effort": "0.1 day owner"
+        }
+      ],
+      "agentRecommendation": "rule the head once Lane A has approved it and the checks are green",
+      "revertCost": "low: a squash merge revert",
+      "decision": null,
+      "ruling": null,
+      "sensitiveClasses": [
+        "privacy"
+      ],
+      "minted20260917": "owner instruction 2026-09-17 accepting the second council's corrections (openspec/council-decisions/2026-09-17-review-what-needs-validation.md)"
+    },
+    {
+      "id": "PK-u5b-ruling",
+      "blocks": [
+        "U5b"
+      ],
+      "nodes": [
+        "R2.multiplayer-client"
+      ],
+      "taskKeys": [],
+      "question": "U5b (lobby page wires the host GM correction controls and the finalize path carries a private reason; review class privacy) will present a head. Does the owner rule it?",
+      "options": [
+        {
+          "label": "rule the head",
+          "consequence": "an OWNER-RULING <head> comment and the owner-ruled label on U5b's PR; the unit merges and proceeds to main proof",
+          "effort": "0.1 day owner"
+        },
+        {
+          "label": "reject",
+          "consequence": "the PR closes; the unit returns to planned with the objection recorded",
+          "effort": "0.1 day owner"
+        }
+      ],
+      "agentRecommendation": "rule the head once Lane A has approved it and the checks are green",
+      "revertCost": "low: a squash merge revert",
+      "decision": null,
+      "ruling": null,
+      "sensitiveClasses": [
+        "privacy"
+      ],
+      "minted20260917": "owner instruction 2026-09-17 accepting the second council's corrections (openspec/council-decisions/2026-09-17-review-what-needs-validation.md)"
+    },
+    {
+      "id": "PK-u8-ruling",
+      "blocks": [
+        "U8"
+      ],
+      "nodes": [
+        "R2.multiplayer-client"
+      ],
+      "taskKeys": [],
+      "question": "U8 (campaign command route accepts expectedRevision and answers 409 STALE_REVISION; review class concurrency) will present a head. Does the owner rule it?",
+      "options": [
+        {
+          "label": "rule the head",
+          "consequence": "an OWNER-RULING <head> comment and the owner-ruled label on U8's PR; the unit merges and proceeds to main proof",
+          "effort": "0.1 day owner"
+        },
+        {
+          "label": "reject",
+          "consequence": "the PR closes; the unit returns to planned with the objection recorded",
+          "effort": "0.1 day owner"
+        }
+      ],
+      "agentRecommendation": "rule the head once Lane A has approved it and the checks are green",
+      "revertCost": "low: a squash merge revert",
+      "decision": null,
+      "ruling": null,
+      "sensitiveClasses": [
+        "concurrency"
+      ],
+      "minted20260917": "owner instruction 2026-09-17 accepting the second council's corrections (openspec/council-decisions/2026-09-17-review-what-needs-validation.md)"
+    },
+    {
+      "id": "PK-u10-ruling",
+      "blocks": [
+        "U10"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "U10 (matchStoreBranchSegmentReader serves the baseline branch id; review class replay) will present a head. Does the owner rule it?",
+      "options": [
+        {
+          "label": "rule the head",
+          "consequence": "an OWNER-RULING <head> comment and the owner-ruled label on U10's PR; the unit merges and proceeds to main proof",
+          "effort": "0.1 day owner"
+        },
+        {
+          "label": "reject",
+          "consequence": "the PR closes; the unit returns to planned with the objection recorded",
+          "effort": "0.1 day owner"
+        }
+      ],
+      "agentRecommendation": "rule the head once Lane A has approved it and the checks are green",
+      "revertCost": "low: a squash merge revert",
+      "decision": null,
+      "ruling": null,
+      "sensitiveClasses": [
+        "replay"
+      ],
+      "minted20260917": "owner instruction 2026-09-17 accepting the second council's corrections (openspec/council-decisions/2026-09-17-review-what-needs-validation.md)"
     }
   ],
   "deferrals": [
@@ -1579,7 +1893,7 @@
       "foundBy": "U1d",
       "at": "2026-09-17T00:18:00.625Z",
       "class": "coverage gap, product lever missing",
-      "summary": "E2E-77's authorization class (GM_ONLY) cannot be produced from the wire: AdvancePhaseIntentSchema (src/lib/multiplayer/Protocol.ts) strips targetRevision at the socket door, so the branch-admission check that answers GM_ONLY for a non-host actor is reachable only from jest (ServerMatchHostBranchAdmission.test.ts). A live row needs either a wire intent that legitimately carries a rewind cut or an E2E-mode door.",
+      "summary": "E2E-77's authorization class (GM_ONLY) cannot be produced from the wire: AdvancePhaseIntentSchema (src/types/multiplayer/Protocol.ts) strips targetRevision at the socket door, so the branch-admission check that answers GM_ONLY for a non-host actor is reachable only from jest (ServerMatchHostBranchAdmission.test.ts). A live row needs either a wire intent that legitimately carries a rewind cut or an E2E-mode door.",
       "evidence": "evidence/u1d-admission-20260916.json classes[authorization]; evidence/u1d-local-20260916.json nonClaims",
       "ownership": "the lever lives in src/lib/multiplayer (protocol schema, server host); no roadmap node owns the client protocol path; assigning it widens the ownership map and is an owner call",
       "recommendedSuccessor": "a product unit under the node that owns src/lib/multiplayer/server (R2.authority-live paths) exposing a legitimate GM-only wire command, with a red jest at the socket door, then an e2e successor adding the authorization arm to conflict-pack",
@@ -1589,6 +1903,11 @@
         "pr": 1805,
         "merge": "d701f63a8b0ab37ce38a57ff832823e13e1b187b",
         "boundary": "HTTP route"
+      },
+      "citationCorrected20260917": {
+        "from": "src/lib/multiplayer/Protocol.ts",
+        "to": "src/types/multiplayer/Protocol.ts",
+        "source": "council 2 (Explore-Deep)"
       }
     },
     {
@@ -1596,11 +1915,16 @@
       "foundBy": "U1d",
       "at": "2026-09-17T00:18:00.625Z",
       "class": "coverage gap, product lever missing",
-      "summary": "E2E-77's rebuild/stale-revision class cannot be produced in-paths: the campaign command route (src/lib/campaign/.../commands.ts) never forwards expectedRevision, so the HTTP STALE_REVISION 409 is unreachable, and the wire CAMPAIGN_STALE_HEAD is a lost race behind CampaignMatchHost.runExclusive with no in-paths store interloper.",
+      "summary": "E2E-77's rebuild/stale-revision class cannot be produced in-paths: the campaign command route (src/pages/api/campaigns/[id]/commands.ts) never forwards expectedRevision, so the HTTP STALE_REVISION 409 is unreachable, and the wire CAMPAIGN_STALE_HEAD is a lost race behind CampaignMatchHost.runExclusive with no in-paths store interloper.",
       "evidence": "evidence/u1d-admission-20260916.json risksForTheParent[RK-2]; evidence/u1d-local-20260916.json nonClaims",
       "ownership": "src/lib/campaign and src/lib/multiplayer/server are owned by R2.authority-live (main-verified); a successor there can forward expectedRevision or expose an E2E-mode interloper",
       "recommendedSuccessor": "a product unit under R2.authority-live paths forwarding expectedRevision on the campaign command route (red jest at the route), then an e2e successor adding the stale-head arm to conflict-pack",
-      "status": "recorded; successor not yet planned (owner decides whether R2.authority-live reopens)"
+      "status": "recorded; successor not yet planned (owner decides whether R2.authority-live reopens)",
+      "citationCorrected20260917": {
+        "from": "src/lib/campaign/.../commands.ts",
+        "to": "src/pages/api/campaigns/[id]/commands.ts",
+        "source": "council 2 (Explore-Deep)"
+      }
     },
     {
       "id": "FN-u3-e2e-02-plain-drive-never-seated-players",
@@ -1648,7 +1972,8 @@
       "at": "2026-09-17T07:04:11.135Z",
       "class": "spec/receipt disclosure",
       "summary": "The campaign event_history_branches genesis row is never written by the campaign genesis path (awaitGenesisBranch only reads a marker); the sole non-test caller of backfillGenesisBranches is MatchStreamJournalMirror, which runs only when the combat-journal mode is not 'off' (matchJournalAuthority.ts sets the literal 'off'), and the backfill covers only streams that already exist. tasks.md:493 (DECISION D2, 2026-09-03) records the two genesis clauses green on 5d5307125, which no council seat could reproduce from current code; the clauses are gated on design-campaign-authority-and-sync task 5.7.",
-      "status": "recorded; D2's receipt to be annotated by the next R6.umbrella unit that touches tasks.md; one production build at 5d5307125 with --group=authority-recovery would settle the discrepancy if the owner wants it explained"
+      "status": "recorded; D2's receipt to be annotated by the next R6.umbrella unit that touches tasks.md; one production build at 5d5307125 with --group=authority-recovery would settle the discrepancy if the owner wants it explained",
+      "d2Falsified20260917": "git: at 5d5307125 MatchStreamJournalMirror.ts does not exist (git cat-file -e), backfillGenesisBranches has only its definition at SQLiteEventHistoryBranchStore.ts:69 (git grep), and authorityRecoveryEvidence.ts is byte-identical to HEAD while already asserting toHaveLength(1) over event_history_branches; D2's 4/0 green cannot have exercised a writer; the real gate is COMBAT_JOURNAL_AUTHORITY_MODE (U15a/U15b), task 5.7 being already checked"
     },
     {
       "id": "FN-u12-root-preinstall-runs-after-reify",
@@ -1671,6 +1996,14 @@
       "ownership": "R6.loop-harness (scripts/qc, scripts/__tests__)",
       "recommendedSuccessor": "U9b: parse the runner's Playwright summary (`N passed`, `N failed`, `N flaky`) for the single group the contract just ran, with a pin case whose fake runner prints the real runner's spelling verbatim from exact-main-rerun-smoke.log, and a main proof whose --rerun reaches SATISFIED on its merge commit",
       "status": "resolved by U9b (merge 7f2dbec09: the rerun archived smoke 3/0 and the contract printed SATISFIED)"
+    },
+    {
+      "id": "FN-u1b-proof-invalidated-by-helper-change",
+      "foundBy": "council 2 (Explore-Deep)",
+      "at": "2026-09-17T15:36:09.369Z",
+      "class": "proof staleness",
+      "summary": "PR #1797 (U3) changed postCampaignMatch in e2e/helpers/gmTwoPlayerAuthorityRecovery.ts (human host seat), which e2e/gm-two-player-evidence.pack.spec.ts uses via openRecoverableCampaign; U1b's main proof (ffc427a08) predates that. Re-proof on main: PASS: the evidence-smoke row (E2E-78) passes on current main with the U3 helper; the three reds were harness conditions (CPU contention; a non-E2E build after a root commit), recorded as findings (evidence/u1b-reproof-20260917.json).",
+      "status": "re-proven on main; receipt attached to U1b"
     }
   ]
 }
