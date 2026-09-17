@@ -1,0 +1,23 @@
+{
+  "unit": "U16",
+  "stage": "merge",
+  "at": "2026-09-17T16:52:38.159Z",
+  "pr": 1823,
+  "title": "docs(roadmap): validator checks receipt evidence by default, verifies owner rulings with --github, and blocks overlapping paths by prefix",
+  "head": "356f2037590cea2e8ab1ce11568ed8fa792dd17c",
+  "mergeSha": "da9f669b2e6f49645893b91ec0e73009e040e2c0",
+  "mergedAt": "2026-09-17T16:44:24Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u16-admission-20260917.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u16-local-20260917.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u16-red-20260917.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u3-mainproof-20260917.json",
+    "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+    "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs"
+  ],
+  "blobEqualityDiffLines": 0
+}

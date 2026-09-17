@@ -1,0 +1,140 @@
+{
+  "unit": "U16",
+  "stage": "mainProof",
+  "at": "2026-09-17T16:52:38.239Z",
+  "mergeCommit": "da9f669b2e6f49645893b91ec0e73009e040e2c0",
+  "checkout": "root checkout fast-forwarded to the merge commit (real node_modules; hydrate step runs)",
+  "runtime": {
+    "build": "exit 0",
+    "e2eBundleMarker": "__E2E_MODE__ present in _app chunk (run log)",
+    "playwright": "validate-roadmap.test: 9 passed (node --test, 0 failed; source: node-test.log)",
+    "tsc": "exit 0",
+    "validatorGithub": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows (exit 0)"
+  },
+  "commands": {
+    "validator": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+    "gitAncestry": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows (--git)",
+    "next": "U16",
+    "openspecStrict": "Totals: 229 passed, 0 failed (229 items)",
+    "qcOpenspecCi": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+    "qcPin": "Tests:       26 passed, 26 total"
+  },
+  "logs": ".sisyphus/roadmap-completion-20260912/u16-main-proof-20260917/ (re-proof on the fix commit; local; sha256 below)",
+  "logHashes": [
+    {
+      "file": "build.log",
+      "sha256": "6068a1b6943cdfd5a8aabd9a6ed0c9e4ec8521340b19688a1d925345b5ba1c89"
+    },
+    {
+      "file": "git-check.log",
+      "sha256": "3a226faf8a49ef91b0291f71bf5e370c534563e1b5519ffd82a6c05a40d22e8b"
+    },
+    {
+      "file": "lint-units-cli.log",
+      "sha256": "dcdc7f461660e7d955ca89650a9cf35d686379bdc3c7ec08ef417835c957aa29"
+    },
+    {
+      "file": "next.log",
+      "sha256": "b7308bd555e05a86e817c2a8a1385c1b228c682c6f409750cda92c2d182f7b51"
+    },
+    {
+      "file": "node-test.log",
+      "sha256": "c3eb79551b51dbd0bbd4e72848a13073f0d5a99f031b1dd0f6e27d94b31e30c1"
+    },
+    {
+      "file": "openspec-strict.log",
+      "sha256": "ddfdad8a15b1c7125171f6c160d5cbafce03efb70e451989b862be993ed9a500"
+    },
+    {
+      "file": "playwright.log",
+      "sha256": "3981f7e391ff279526c31375e7b7e4eab7152f765969355bd0d554e58ba4dfaa"
+    },
+    {
+      "file": "qc-openspec-ci.log",
+      "sha256": "ada1ed70bb026eced226ccfa183e2ef0bcfeb5adff01f46d7af986e0001ef8dd"
+    },
+    {
+      "file": "qc-pin.log",
+      "sha256": "e28f1e0bd154fcb6e844174a5d57a05762113b51f88c25ec4f1d2590df841a52"
+    },
+    {
+      "file": "tsc.log",
+      "sha256": "28d3b9e880a77975493dc7e359144c0295a4f694cfe0af4f928c22307bc5c320"
+    },
+    {
+      "file": "validator-github.log",
+      "sha256": "3a226faf8a49ef91b0291f71bf5e370c534563e1b5519ffd82a6c05a40d22e8b"
+    },
+    {
+      "file": "validator.log",
+      "sha256": "3a226faf8a49ef91b0291f71bf5e370c534563e1b5519ffd82a6c05a40d22e8b"
+    }
+  ],
+  "verdict": "PASS",
+  "firstRunOnMergeCommit": {
+    "commit": "da9f669b2e6f49645893b91ec0e73009e040e2c0",
+    "logs": ".sisyphus/roadmap-completion-20260912/u16-main-proof-20260917-first-run/ (local; sha256 below)",
+    "nodeTest": "node --test validate-roadmap.test.mjs: # pass 9 # fail 0",
+    "validator": "- U15b mainProof receipt runtime.playwright is not a ladder or jest result: authority-recovery: 2 failed / 2 passed (derived from the Playwright summary lines above; E2E-01 and E2E-02 are the failed rows)",
+    "validatorGithub": "- U15b mainProof receipt runtime.playwright is not a ladder or jest result: authority-recovery: 2 failed / 2 passed (derived from the Playwright summary lines above; E2E-01 and E2E-02 are the failed rows)",
+    "meaning": "the evidence mode this unit adds rejected U15b's mainProof receipt on its first run on main: that receipt's proof line carried the loop's derivation note inside the string (written before this grammar existed). The unit behaved as designed; the receipt spelling was the defect.",
+    "logHashes": [
+      {
+        "file": "build.log",
+        "sha256": "bbf62d8b0333c2eb8272867b2cb5d3231744eb605702917ec435e9582ca1e33b"
+      },
+      {
+        "file": "git-check.log",
+        "sha256": "6bb0b8424b258ae5518ad975813790559252107874bbdf1a8f1693ae1386fbf4"
+      },
+      {
+        "file": "lint-units-cli.log",
+        "sha256": "dcdc7f461660e7d955ca89650a9cf35d686379bdc3c7ec08ef417835c957aa29"
+      },
+      {
+        "file": "next.log",
+        "sha256": "6bb0b8424b258ae5518ad975813790559252107874bbdf1a8f1693ae1386fbf4"
+      },
+      {
+        "file": "node-test.log",
+        "sha256": "92e264192cd93070d58637325e6066cb039450d3e7c610c4f124e4db24d925f9"
+      },
+      {
+        "file": "openspec-strict.log",
+        "sha256": "ddfdad8a15b1c7125171f6c160d5cbafce03efb70e451989b862be993ed9a500"
+      },
+      {
+        "file": "playwright.log",
+        "sha256": "936409d574638fd6cc227dc1f84003e4b90dfe9209cac3ccb9014e99a9275a19"
+      },
+      {
+        "file": "qc-openspec-ci.log",
+        "sha256": "ada1ed70bb026eced226ccfa183e2ef0bcfeb5adff01f46d7af986e0001ef8dd"
+      },
+      {
+        "file": "qc-pin.log",
+        "sha256": "409355ee7df1840332fe9e7b27c0cd81974850ad9e7ad02e235a2c89048cc903"
+      },
+      {
+        "file": "tsc.log",
+        "sha256": "28d3b9e880a77975493dc7e359144c0295a4f694cfe0af4f928c22307bc5c320"
+      },
+      {
+        "file": "validator-github.log",
+        "sha256": "6bb0b8424b258ae5518ad975813790559252107874bbdf1a8f1693ae1386fbf4"
+      },
+      {
+        "file": "validator.log",
+        "sha256": "6bb0b8424b258ae5518ad975813790559252107874bbdf1a8f1693ae1386fbf4"
+      }
+    ]
+  },
+  "reproofCommit": "ed4231236d1c31ed011b1323c1b7145762279bc6",
+  "reproof": {
+    "commit": "ed4231236d1c31ed011b1323c1b7145762279bc6",
+    "what": "docs fix on main moving U15b's derivation note to runtime.playwrightNote and leaving the bare proof line `authority-recovery: 2 failed / 2 passed`; the full proof ladder rerun on that commit",
+    "nodeTest": "validate-roadmap.test: 9 passed (node --test, 0 failed; source: node-test.log)",
+    "validatorGithub": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+    "validator": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows"
+  }
+}

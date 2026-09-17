@@ -798,18 +798,53 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
-      "prHead": null,
-      "mergeSha": null,
+      "state": "complete",
+      "baseline": "4bcd6f8d5fa752270d40ed331423b37f89c15f8a",
+      "prHead": "356f2037590cea2e8ab1ce11568ed8fa792dd17c",
+      "mergeSha": "da9f669b2e6f49645893b91ec0e73009e040e2c0",
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "admission": {
+          "path": "evidence/u16-admission-20260917.json",
+          "baseline": "4bcd6f8d5fa752270d40ed331423b37f89c15f8a",
+          "at": "2026-09-17T16:22:35.500Z",
+          "decision": "go"
+        },
+        "red": {
+          "path": "evidence/u16-red-20260917.json",
+          "at": "2026-09-17T16:38:00.000Z",
+          "summary": "node --test pin written first against the baseline validator: 7 of 9 cases failed (missing receipt path passed, unexplained reds passed, exact-string pathFree, no --no-evidence notice, --github absent), 2 passed; after the change 9/9."
+        },
+        "local": {
+          "path": "evidence/u16-local-20260917.json",
+          "at": "2026-09-17T16:30:29.988Z",
+          "summary": "claude-opus Agent lane. Evidence mode on by default (--no-evidence opts out with a notice): every stage receipt path must exist; product-class mainProof proof lines must parse and carry expectedReds with one entry per failed row (U3's three reds backfilled). --github opt-in proves each sensitive unit's ruling through gh and fails loudly without gh. pathFree by prefix containment (latent at this baseline: --next printed U16 before and after; the pin's fixture exercises it). Gates: node --test 9/9; real ledger PASSED with evidence on, --no-evidence, --next U16, --git, --github; qc:openspec-ci errors=0; oxfmt inapplicable (.oxfmtignore ignores openspec: FN-u16-oxfmt-ignores-openspec); five mutants killed (missing path passes, expectedReds length ignored, exact-string pathFree, prose accepted as a proof line, --github failure dropped), sha256 restored; parent verification in the worktree 9/9 and every validator mode green; validator +86/-2 (501 to 585), test 249 lines, U3 receipt +5/-1, 343 changed lines under the cap; findings FN-u16-units-json-expectedreds-duplicate, FN-u16-jest-red-summary-unparsed, FN-u16-oxfmt-ignores-openspec, FN-u16-evidence-mode-does-not-read-content."
+        },
+        "review": {
+          "path": "evidence/u16-review-20260917.json",
+          "head": "356f2037590cea2e8ab1ce11568ed8fa792dd17c",
+          "reviewedHead": "356f2037590cea2e8ab1ce11568ed8fa792dd17c",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet)",
+          "implementerModel": "claude-opus (Agent lane)",
+          "outputSha256": "5a7d3879357aafc088c9aee16403c00a075f3f58b5f3f5410b26201fc9e72feb",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u16-merge-20260917.json",
+          "pr": 1823,
+          "head": "356f2037590cea2e8ab1ce11568ed8fa792dd17c",
+          "mergeSha": "da9f669b2e6f49645893b91ec0e73009e040e2c0"
+        },
+        "mainProof": {
+          "path": "evidence/u16-mainproof-20260917.json",
+          "mergeCommit": "da9f669b2e6f49645893b91ec0e73009e040e2c0",
+          "verdict": "PASS",
+          "runtime": "9 passed (node --test, 0 failed; source: node-test.log)",
+          "summary": "first run on the merge commit: the new evidence mode rejected U15b's proof-line spelling (the unit working as designed); docs fix ed4231236 corrected that receipt and the ladder was rerun there: validator PASSED in every mode, node --test 9/9"
+        },
+        "tick": {
+          "path": "evidence/u16-tick-20260917.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "source20260917": "owner instruction 2026-09-17 accepting the second council's corrections (openspec/council-decisions/2026-09-17-review-what-needs-validation.md)",

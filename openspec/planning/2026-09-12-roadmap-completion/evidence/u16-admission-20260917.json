@@ -7,10 +7,17 @@
   "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u16",
   "branch": "docs/roadmap-u16-validator-evidence-20260917",
   "node": "R0.plan (dependsOn: [] - no node dependency to verify)",
-  "ownershipPaths": ["openspec/planning/2026-09-12-roadmap-completion"],
+  "ownershipPaths": [
+    "openspec/planning/2026-09-12-roadmap-completion"
+  ],
   "ciClass": "docs",
-  "reviewClasses": ["routine"],
-  "caps": { "maxFiles": 15, "maxNonGeneratedLines": 500 },
+  "reviewClasses": [
+    "routine"
+  ],
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500
+  },
   "nextOnBaseline": {
     "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
     "line": "U16",
@@ -40,7 +47,9 @@
       "U14  | ciClass=product | \"jest lint-units pin: Tests:       29 passed, 29 total\"        | jest summary",
       "U9b  | ciClass=product | \"jest exact-main-ladder pin: Tests:       39 passed, 39 total\" | jest summary"
     ],
-    "reportReds": ["U3 (3 failed / 17 passed)"],
+    "reportReds": [
+      "U3 (3 failed / 17 passed)"
+    ],
     "existingExpectedReds": "U3's receipt already carries runtime.expectedReds, but as a single prose STRING, not an array: \"E2E-01 genesis and E2E-02 genesis (design-campaign-authority-and-sync task 5.7 non-claim; FN-genesis-branch-row-is-a-mirror-side-effect) and E2E-16 (FN-u3-e2e-16-stale-reload-socket-count)\". It also carries runtime.failedRows, a 3-entry array naming the three rows. The backfill therefore normalises that one field in place into a 3-entry array (one entry per failed row, carrying the row identity and the reason taken from the existing prose). No other field of any receipt is touched.",
     "otherRuntimeKeys": "U9 and U9b additionally carry runtime.exactMainCheck and runtime.exactMainRerun; U14 carries the lint-units pin in runtime.playwright. None of these is read by the new checks."
   },
@@ -57,7 +66,14 @@
   },
   "pathFreeEffectMeasuredOnTheBaseline": {
     "inFlightUnits": "U4 (local-verified), U15a (local-verified), U15b (local-verified)",
-    "inFlightPaths": ["src/lib", "src/types/multiplayer", "src/lib/multiplayer/server", "scripts/qc", "scripts/__tests__", "playwright.config.ts"],
+    "inFlightPaths": [
+      "src/lib",
+      "src/types/multiplayer",
+      "src/lib/multiplayer/server",
+      "scripts/qc",
+      "scripts/__tests__",
+      "playwright.config.ts"
+    ],
     "nextBeforeTheChange": "U16 (exit 0)",
     "nextAfterTheChangeExpectation": "U16 (exit 0) - measured again in the local receipt",
     "honestFinding": "On THIS baseline the prefix rule changes no unit's pathFree verdict and therefore does not move the --next selection. The charter anticipated the selection moving; it does not, because U15a is in flight holding 'src/lib/multiplayer/server' EXACTLY, so U5a and U10 are already blocked by the old exact-string test. The per-unit exact-vs-prefix table is identical for all 12 non-terminal units at this baseline.",
@@ -75,5 +91,10 @@
     "The backfill normalises U3's existing runtime.expectedReds prose string into an array. Grepped for 'expectedReds' across the worktree: the only hits are this receipt, the U3 mainProof receipt, units.json line 608 (a DUPLICATE COPY of the same prose inside U3's stageReceipts.mainProof ledger entry, which this unit may not edit and which the new check does not read - it reads the receipt FILE), the council decision prose, and the U16 behavior sentence. No code reads the field today, so the shape change has no consumer. The duplicate in units.json is left as prose and is a drift the parent may want to normalise in a later unit."
   ],
   "forbiddenMovesRespected": "No edit to units.json, roadmap.json or evidence/admission-snapshot.json; no tasks.md row touched; no validator check removed or relaxed; no commit, push or stash; npm_config_dry_run=true exported and no npm install/ci/prune run.",
-  "implementerModel": "claude-opus (Agent lane; codex, grok CLI and cursor-agent routes exhausted on 2026-09-17)"
+  "implementerModel": "claude-opus (Agent lane; codex, grok CLI and cursor-agent routes exhausted on 2026-09-17)",
+  "parentDecision": {
+    "at": "2026-09-17T16:51:14.895Z",
+    "decision": "go",
+    "note": "parent admitted the unit as planned; no widening"
+  }
 }
