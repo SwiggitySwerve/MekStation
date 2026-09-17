@@ -498,20 +498,38 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
+      "state": "owner-gated",
+      "baseline": "2a4a8d4254b0e2563e04ab4082b355b24bcbb0d8",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/u2-admission-20260916.json",
+          "baseline": "2a4a8d4254b0e2563e04ab4082b355b24bcbb0d8",
+          "at": "2026-09-17T01:17:02.824Z",
+          "decision": "admit as proof-plus-hold; park on a Lane B packet at review (privacy class)"
+        },
+        "red": {
+          "path": "evidence/u2-red-20260916.json",
+          "at": "2026-09-17T01:17:02.824Z",
+          "summary": "E2E-19 and E2E-25 have no tagged row on main (git grep); a tick of 21.2 has no receipt on main and would fail the validator; the ten existing rows are green (privacy-pack 6 passed, proposal-pack 2 passed)"
+        },
+        "local": {
+          "path": "evidence/u2-local-20260916.json",
+          "at": "2026-09-17T01:17:02.824Z",
+          "summary": "proof-plus-hold: zero product lines; privacy-pack 6 passed and proposal-pack 2 passed through the ladder runner on the discovery commit, specs unchanged to the baseline; logs hashed"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
         "tick": null
       },
-      "ownerGate": null
+      "ownerGate": {
+        "packetId": "PK-privacy-21-2-tick",
+        "since": "2026-09-17T01:17:02.824Z",
+        "stage": "review",
+        "reason": "privacy review class requires a Lane B owner ruling; the row cannot tick without one"
+      }
     },
     {
       "id": "U3",
@@ -611,6 +629,36 @@
       ],
       "agentRecommendation": "qc contract run by the loop, given the owner CI-minute constraint; revisit if merges to main resume outside the loop",
       "revertCost": "low: either form can be replaced by the other without touching product code",
+      "decision": null,
+      "ruling": null
+    },
+    {
+      "id": "PK-privacy-21-2-tick",
+      "blocks": [
+        "U2"
+      ],
+      "nodes": [
+        "R6.umbrella",
+        "R4.rewind"
+      ],
+      "taskKeys": [],
+      "heldRow": "harden-gm-two-player-campaign-sessions#21.2@547 (held by U2; this packet blocks U2)",
+      "question": "Row 21.2 names E2E-19 through E2E-30; ten rows (20-24, 26-30) pass on main through the ladder runner, while E2E-19 and E2E-25 (the GM-command letters) have no row because the GM-correction commit half (3b-iv) is unbuilt in src/pages/multiplayer/lobby, src/components/multiplayer and R4.rewind's paths. Should 21.2 be ticked on the ten proven rows with E2E-19/25 deferred by name to R4.rewind (a deferral entry citing this packet), or should the row stay open until 19 and 25 land, with the ten-row proof recorded as a receipt only?",
+      "options": [
+        {
+          "label": "tick on ten rows, defer 19/25 to R4.rewind",
+          "consequence": "21.2 closes now with a recorded deferral; the E2E table keeps 19/25 open under R4.rewind, whose successor must add both rows before the umbrella acceptance can pass",
+          "effort": "0.25 day (ledger deferral + tick receipt on main)"
+        },
+        {
+          "label": "hold 21.2 until 19 and 25 exist",
+          "consequence": "the row stays open; the ten-row proof is a receipt only; a product unit on the GM-correction commit half (outside the umbrella's paths) must land first, then the two rows, then the tick",
+          "effort": "2-4 days of product work in another node before the umbrella can move"
+        }
+      ],
+      "agentRecommendation": "tick on ten rows with a named deferral of E2E-19/25 to R4.rewind, matching how 14.1/14.5 and 17.x were deferred; the umbrella acceptance still gates the program on the deferred rows",
+      "revertCost": "low: a deferral entry and a checkbox; reverting re-opens the row without touching product code",
+      "privacyReview": "Lane A cross-model review of the parking head is recorded; Lane B (owner) ruling is required because the unit's review class is privacy",
       "decision": null,
       "ruling": null
     }

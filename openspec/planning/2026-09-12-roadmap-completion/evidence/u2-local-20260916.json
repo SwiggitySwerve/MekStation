@@ -1,0 +1,109 @@
+{
+  "unit": "U2",
+  "stage": "local",
+  "at": "2026-09-17T01:17:02.824Z",
+  "baseline": "2a4a8d4254b0e2563e04ab4082b355b24bcbb0d8",
+  "status": "ready-for-review; parks at review on the Lane B packet",
+  "runs": [
+    {
+      "group": "privacy-pack",
+      "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=privacy-pack",
+      "resultLine": "6 passed (28.7s)",
+      "exit": 0,
+      "log": "evidence/u2u3-discovery-privacy-20260916.log",
+      "rows": [
+        {
+          "row": "E2E-20",
+          "status": "passed",
+          "failure": null,
+          "alsoTags": [
+            "E2E-23",
+            "E2E-24"
+          ]
+        },
+        {
+          "row": "E2E-21",
+          "status": "passed",
+          "failure": null
+        },
+        {
+          "row": "E2E-27",
+          "status": "passed",
+          "failure": null
+        },
+        {
+          "row": "E2E-22",
+          "status": "passed",
+          "failure": null
+        },
+        {
+          "row": "E2E-26",
+          "status": "passed",
+          "failure": null
+        },
+        {
+          "row": "E2E-28",
+          "status": "passed",
+          "failure": null
+        }
+      ]
+    },
+    {
+      "group": "proposal-pack",
+      "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=proposal-pack",
+      "resultLine": "2 passed (2.2m)",
+      "exit": 0,
+      "log": "evidence/u2u3-discovery-proposal-20260916.log",
+      "note": "catalog name is proposal-pack, not proposals-pack",
+      "rows": [
+        {
+          "row": "E2E-30",
+          "status": "passed",
+          "failure": null
+        },
+        {
+          "row": "E2E-29",
+          "status": "passed",
+          "failure": null
+        }
+      ]
+    }
+  ],
+  "productLines": 0,
+  "gates": {
+    "note": "no product change: tsc/oxlint/oxfmt unchanged from main; roadmap validator PASSED after the ledger edit (see closure output)"
+  },
+  "logHashes": [
+    {
+      "file": "u2u3-discovery-20260916.json",
+      "sha256": "49baa827c9efacc8445cf05661f6ddf2f1c98fa3d9433feab57a4decb01c0363"
+    },
+    {
+      "file": "u2u3-discovery-authority-20260916.log",
+      "sha256": "328786ccc78d23e13e6c344c00f9eb4f5991123d22391ebf3f877ca3c94bd7cc"
+    },
+    {
+      "file": "u2u3-discovery-authority-recovery-rerun-20260916.log",
+      "sha256": "9fdc92f06668760b80f0a0fbc174f027a27613d52907552c9b4be8563821f05a"
+    },
+    {
+      "file": "u2u3-discovery-build-20260916.log",
+      "sha256": "24e78e3d9e842cde0e4ff464704593dabf7d889f35f4739c01c1e865eac20a45"
+    },
+    {
+      "file": "u2u3-discovery-privacy-20260916.log",
+      "sha256": "ae6687261d4177da9fdbcbd2615f9a99af95685420d43a68707f43f0f253df87"
+    },
+    {
+      "file": "u2u3-discovery-proposal-20260916.log",
+      "sha256": "446882d58fa710be1158737c2f26d30fc374d05960d0511eb6d335d8ddacbbb3"
+    },
+    {
+      "file": "u2u3-discovery-proposals-pack-name-20260916.log",
+      "sha256": "b2b575a9eb64d4dc1121d2c31517df6c9f7a18a74a27155798bc28086d87ac89"
+    }
+  ],
+  "nonClaims": [
+    "E2E-19 and E2E-25: no row exists; the GM-correction commit half (3b-iv) is product work in src/pages/multiplayer/lobby and src/components/multiplayer (no owning node) and src/lib/interventions + src/lib/multiplayer/server (R4.rewind)"
+  ]
+}

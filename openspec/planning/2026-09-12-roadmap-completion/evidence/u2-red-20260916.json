@@ -1,0 +1,25 @@
+{
+  "unit": "U2",
+  "stage": "red",
+  "at": "2026-09-17T01:17:02.824Z",
+  "baseline": "2a4a8d4254b0e2563e04ab4082b355b24bcbb0d8",
+  "principle": "the letter of 21.2 names twelve rows; on shipped code two of them do not exist and the validator refuses a tick without a receipt on main",
+  "R1": {
+    "command": "git grep -n -o -E '@E2E-(19|25)\\b' -- e2e",
+    "result": "no match: E2E-19 and E2E-25 have no tagged row on main",
+    "tasksMdLines": [
+      548,
+      552,
+      557
+    ]
+  },
+  "R2": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs with a 21.2 checkbox flipped in a scratch copy (not committed)",
+    "result": "would fail: tick receipt claims 21.2 but no tick receipt exists on main; the row stays unchecked",
+    "note": "not executed against the live tree; the validator rule is at validate-roadmap.mjs tick-receipt block"
+  },
+  "R3": {
+    "group": "authority-recovery / privacy-pack / proposal-pack",
+    "result": "privacy-pack 6 passed, proposal-pack 2 passed on the discovery commit (rows 20-24, 26-30 green); no red row among the ten"
+  }
+}
