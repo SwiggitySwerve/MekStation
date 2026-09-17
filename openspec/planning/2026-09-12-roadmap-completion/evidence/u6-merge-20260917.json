@@ -1,0 +1,15 @@
+{
+  "unit": "U6",
+  "stage": "merge",
+  "at": "2026-09-17T09:29:03.191Z",
+  "pr": 1803,
+  "title": "test(e2e): E2E-16 waits for the guest redial before asserting the vault prompt",
+  "head": "72abfd70e251c4d362a3a30bf97159b158b3c9d9",
+  "mergeSha": "4139f39e746cb2d0bb1aafbf5cea8ea9c4b48544",
+  "mergedAt": "2026-09-17T09:23:52Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityDiffLines": 0
+}

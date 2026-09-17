@@ -90,5 +90,10 @@
     "idlePolicy": "30-second polls; stop and report PID and command line after five minutes. Prior blocking processes absent at first gate.",
     "probeAdjustment": "Use temporary e2e browser init-script console probes of credential reads/writes/removals and WebSocket construction/open/error/close, plus independent page websocket and request listeners. This observes client decisions without rebuilding product code. Revert all probe edits after measurement.",
     "firstBuildAttempt": "PowerShell Stop preference treated webpack stderr progress as NativeCommandError; incomplete attempt counts toward six-build cap. Wrapper corrected to Continue for native execution only."
+  },
+  "parentDecision": {
+    "at": "2026-09-17T09:29:00.276Z",
+    "decision": "go",
+    "note": "parent admitted the unit as planned; no widening"
   }
 }
