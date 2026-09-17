@@ -1,0 +1,194 @@
+{
+  "unit": "U1d",
+  "stage": "local",
+  "at": "2026-09-17T00:12:47.450Z",
+  "baseline": "a00b816dcf1d30cb40b08ce9901bcf66ea3cc125",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u1d",
+  "branch": "codex/roadmap-u1d-e2e-77-20260916",
+  "committed": false,
+  "status": "ready",
+  "implementerModel": "grok-4.6 (cursor-agent, Cursor Grok 4.6 High)",
+
+  "whatWasBuilt": "One strict Playwright row in e2e/gm-two-player-conflict.pack.spec.ts under a new conflict-pack group. It reloads both surfaces after launch (FN-u1c-pending-intent-never-settles, reported not fixed), waits both networked-game-surface locators plus Movement, waits sealed after the first GoProne, then resends the same intentId. Per variant captureConflict asserts the player-visible IntentErrorToast for class code, the verbatim named recovery the product actually renders (the toast reason), leak-safety via text.includes(secret)===false against hostToken.playerId/token plus guest identity.playerId/token, and tactical-branch-recovery-action count 0. The harness collides and resends real frames and never invents a refusal code. conflict-pack is registered in GROUP_CATALOG (owner 22, next to lifecycle-pack) and SPEC_BY_GROUP the same way lifecycle-pack is registered, not in RESPAWNING_GROUPS; all auto-expands. The pin suite gains a dedicated plan pin, implemented-whitelist membership, all-args spec, groups catalog pin, and a one-row title pin. One 22.3 PROGRESS line (no checkbox) names U1d, the captured classes, the non-claims and the finding. No src/ product edit remains.",
+
+  "lineCounts": {
+    "method": "block-comment state machine over the new spec (code vs // and /* */ vs blank); git diff --numstat for tracked deltas; a trailing empty line not counted in total",
+    "e2e/gm-two-player-conflict.pack.spec.ts": {
+      "status": "new",
+      "total": 325,
+      "code": 246,
+      "comment": 56,
+      "blank": 24
+    },
+    "scripts/qc/gm-two-player-campaign-core.cjs": { "added": 5, "removed": 1 },
+    "scripts/__tests__/gm-two-player-campaign-qc.test.ts": { "added": 43, "removed": 1 },
+    "openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md": { "added": 1, "removed": 0 },
+    "productTotalAdded": 374,
+    "cap": 500,
+    "underCap": true,
+    "fileCount": 4,
+    "fileCap": 15,
+    "underFileCap": true
+  },
+
+  "gates": {
+    "cpuCheckBeforeEveryBuildAndPlaywrightRun": "tasklist | findstr node.exe plus Get-CimInstance Win32_Process -Filter name='node.exe'. wmic is not on PATH. Cursor-agent prompt text matching playwright is a false positive and was excluded. Before each build and each Playwright run no next build, next start, server.js or playwright process was active. Ambient MCP/agent node processes were left running.",
+    "build": {
+      "command": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build",
+      "exitCode": 1,
+      "lastOutputLine": "\"hint\": \"Run npm run build first so .next/standalone/server.js exists, then hydrate the standalone multiplayer server.\"",
+      "exitCodeIsNotTheSignal": "FN-u1c-build-exit-hidden-by-tail. Exit captured on its own line as BUILD_EXIT=1, never through a pipe.",
+      "routeTablePrinted": true,
+      "compiledSuccessfully": "Compiled successfully in 93s (clean-src rebuild after last mutant revert)",
+      "standaloneServerJs": "present, 7325 bytes",
+      "e2eModeInBundle": "Select-String __E2E_MODE__ over .next/static/chunks/pages/_app-*.js = 1",
+      "hydrateError": "Unsafe hydration destination (runtime loader tsx) contains a symlink or junction: .next\\standalone\\node_modules",
+      "builtFromCleanSrc": "yes after the last mutant revert; git status --short -- src/ empty before the final build"
+    },
+    "row": {
+      "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=conflict-pack",
+      "exitCode": 0,
+      "lastOutputLine": "  1 passed (6.3s)",
+      "determinism": "three green runs on the clean-src rebuild with identical captured=integrity-duplicate,integrity-collision"
+    },
+    "regressionExactlyOnce": {
+      "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=exactly-once-pack",
+      "exitCode": 0,
+      "lastOutputLine": "  4 passed (23.1s)"
+    },
+    "regressionLifecycle": {
+      "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=lifecycle-pack",
+      "exitCode": 0,
+      "lastOutputLine": "  2 passed (19.5s)"
+    },
+    "typecheck": {
+      "command": "npx tsc --noEmit",
+      "exitCode": 0,
+      "lastOutputLine": "TSC_EXIT=0",
+      "errors": 0
+    },
+    "formatCheck": {
+      "command": "npx oxfmt --check e2e/gm-two-player-conflict.pack.spec.ts scripts/qc/gm-two-player-campaign-core.cjs scripts/__tests__/gm-two-player-campaign-qc.test.ts openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md",
+      "exitCode": 0,
+      "lastOutputLine": "Finished in 118ms on 3 files using 16 threads.",
+      "note": "tasks.md is markdown and oxfmt does not match it; the three TypeScript/CJS files matched"
+    },
+    "lint": {
+      "command": "npx oxlint e2e/gm-two-player-conflict.pack.spec.ts scripts/qc/gm-two-player-campaign-core.cjs scripts/__tests__/gm-two-player-campaign-qc.test.ts openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md",
+      "exitCode": 0,
+      "lastOutputLine": "Finished in 67ms on 0 files using 16 threads.",
+      "also": "Found 0 warnings and 0 errors.",
+      "vacuous": true,
+      "reason": ".oxlintrc.json ignorePatterns includes e2e/**, **/scripts/** and **/openspec/**, so this gate covers none of the four changed files"
+    },
+    "qcPinSuite": {
+      "command": "npx jest --watchAll=false --runTestsByPath scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+      "exitCode": 0,
+      "lastOutputLine": "Ran all test suites within paths \"scripts/__tests__/gm-two-player-campaign-qc.test.ts\".",
+      "result": "12 passed, 12 total"
+    },
+    "openspecCi": {
+      "command": "npm run qc:openspec-ci:validate",
+      "exitCode": 0,
+      "lastOutputLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0"
+    },
+    "roadmapValidator": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "exitCode": 0,
+      "lastOutputLine": "ROADMAP VALIDATION PASSED: 73 nodes, 13 packages, 376 tasks, 40 triage rows"
+    }
+  },
+
+  "runs": [
+    {
+      "id": "conflict-1",
+      "why": "clean-src rebuild after last mutant revert",
+      "exitCode": 0,
+      "lastOutputLine": "  1 passed (15.8s)",
+      "captured": "integrity-duplicate,integrity-collision"
+    },
+    {
+      "id": "conflict-2",
+      "exitCode": 0,
+      "lastOutputLine": "  1 passed (12.2s)",
+      "captured": "integrity-duplicate,integrity-collision"
+    },
+    {
+      "id": "conflict-3",
+      "exitCode": 0,
+      "lastOutputLine": "  1 passed (6.3s)",
+      "captured": "integrity-duplicate,integrity-collision"
+    },
+    {
+      "id": "exactly-once",
+      "exitCode": 0,
+      "lastOutputLine": "  4 passed (23.1s)"
+    },
+    {
+      "id": "lifecycle",
+      "exitCode": 0,
+      "lastOutputLine": "  2 passed (19.5s)",
+      "captured": "live,sealed,finalized,syncing,behind",
+      "rowBCaptured": "pending,blocked"
+    }
+  ],
+
+  "mutants": [
+    {
+      "id": "M1",
+      "mutation": "src/lib/multiplayer/client.ts:382 reason 'sequence-collision' replaced with 'Intent id already accepted for this match'",
+      "rebuilt": true,
+      "verdict": "KILLED",
+      "observed": "expect(toast).toContainText(expected) at e2e/gm-two-player-conflict.pack.spec.ts:190 called from :162 (integrity-collision). Expected sequence-collision. Received the duplicate-intent reason.",
+      "reverted": "git checkout -- src/lib/multiplayer/client.ts; git status --short -- src/ empty"
+    },
+    {
+      "id": "M2",
+      "mutation": "src/lib/multiplayer/server/ServerMatchHostIntent.ts:271 DUPLICATE_INTENT reason interpolates envelope.playerId",
+      "rebuilt": true,
+      "verdict": "KILLED",
+      "observed": "expect(text.includes(secret)).toBe(false) at e2e/gm-two-player-conflict.pack.spec.ts:196 called from :151 (integrity-duplicate). Expected false. Received true.",
+      "reverted": "git checkout -- src/lib/multiplayer/server/ServerMatchHostIntent.ts; git status --short -- src/ empty"
+    },
+    {
+      "id": "M3",
+      "mutation": "src/components/multiplayer/NetworkedGameSurface.overlays.tsx:243 dropped `{code ? ` (${code})` : ''}`",
+      "rebuilt": true,
+      "verdict": "KILLED",
+      "observed": "expect(toast).toContainText(expected) at e2e/gm-two-player-conflict.pack.spec.ts:190 called from :151 (integrity-duplicate). Expected (DUPLICATE_INTENT). Received \"Action rejected: Intent id already accepted for this match\".",
+      "reverted": "git checkout -- src/components/multiplayer/NetworkedGameSurface.overlays.tsx; git status --short -- src/ empty"
+    }
+  ],
+
+  "nonClaims": [
+    "stale-branch — STALE_BRANCH is unreachable for match streams; held by packet PK-rewind-branch-reader. Named in the row header, the 22.3 PROGRESS note and this receipt.",
+    "authorization / GM_ONLY — AdvancePhaseIntentSchema (Protocol.ts:225-227) strips targetRevision at the socket door (z.object default, documented at :383-384), so namesRewindCut never sees a rewind-cut on the wire. RewindRequest answers INVALID_INTENT / accepted-for-gm-review, not GM_ONLY. Measured, not faked.",
+    "rebuild / campaign stale head — commands.ts:139-148 never forwards expectedRevision, so the HTTP STALE_REVISION 409 cannot be produced. Wire CAMPAIGN_STALE_HEAD is a lost-race behind CampaignMatchHost.runExclusive with no in-paths store interloper.",
+    "PROJECTION_REBUILDING — a pure function of a correction lease no in-paths lever acquires.",
+    "numeric base revision on reachable tactical classes — conflictHead {branchId, revision} is produced only by refuseStale, the unreachable stale-branch arm. PROTOCOL_VIOLATION and DUPLICATE_INTENT carry a reason discriminator, not a numeric head. The named recovery the product renders for the reachable class is the toast reason."
+  ],
+
+  "findingsReportedNotFixed": [
+    {
+      "id": "FN-u1c-pending-intent-never-settles",
+      "handling": "REPORTED, NOT FIXED. src/ is outside this unit. The row reloads both pages after launch and waits both surfaces plus Movement before the first GoProne, named at the call site (spec :103-125). Sending GoProne while the host is still reconnecting answers MATCH_PAUSED instead of DUPLICATE_INTENT (measured).",
+      "notFixed": "the SetReady/LobbyUpdated settlement hole is in src/lib/multiplayer/client.ts and the lobby, which this unit does not own."
+    },
+    {
+      "id": "FN-u1c-build-exit-hidden-by-tail",
+      "handling": "build exit captured as BUILD_EXIT=$LASTEXITCODE on its own line, never through a pipe. Success read from the route table, .next/standalone/server.js (7325 bytes) and __E2E_MODE__ count = 1."
+    },
+    {
+      "id": "FN-u1c-oxlint-ignores-unit-paths",
+      "handling": "npx oxlint on the four changed files finished on 0 files. Vacuous for this diff."
+    }
+  ],
+
+  "tasksMd": {
+    "row": "22.3",
+    "action": "one PROGRESS note for U1d, the captured classes, the non-claims and the finding; the checkbox is NOT checked",
+    "why": "22.3 covers E2E-71..80 and E2E-76/80 remain open. U1d carries an empty taskKeys array."
+  },
+
+  "notCommitted": "No commit and no push, per the brief."
+}
