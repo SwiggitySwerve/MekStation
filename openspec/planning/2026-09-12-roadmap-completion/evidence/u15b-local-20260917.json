@@ -1,0 +1,253 @@
+{
+  "unit": "U15b",
+  "stage": "local",
+  "at": "2026-09-17T16:10:31.840Z",
+  "baseline": "58fd434a486c408e8a9e0a495e7539d85490f416",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u15b",
+  "branch": "codex/roadmap-u15b-forward-combat-journal-arm-20260917",
+  "status": "ready",
+  "implementerModel": "claude-opus (Agent lane; codex, grok CLI and cursor-agent routes exhausted on 2026-09-17)",
+  "behaviorDelivered": "buildRunPlan's single `armsJournalAuthorityFixture` condition now carries two keys - MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY='1' and MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE='enabled' - so authority-recovery and the `authority` and `all` expansions that include it arm both journal fixtures; playwright.config.ts webServer.env forwards the combat key under the same presence guard the campaign key uses. No new group, no change to RESPAWNING_GROUPS, no change to the arming condition itself.",
+  "finalPlanEnvironment": {
+    "probe": "node -e \"core.buildRunPlan({group, runId:'u15b-final-'+group, repoRoot: process.cwd()}).environment\"",
+    "authority-recovery": {
+      "PLAYWRIGHT_E2E_RUN_ID": "u15b-final-authority-recovery",
+      "MEKSTATION_E2E_PORT": "23379",
+      "MEKSTATION_E2E_REUSE_EXISTING_SERVER": "false",
+      "PORT": "23379",
+      "MEKSTATION_E2E_SERVER_COMMAND": "node scripts/e2e/relaunching-server.mjs",
+      "MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY": "1",
+      "MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE": "enabled"
+    },
+    "authority": {
+      "MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY": "1",
+      "MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE": "enabled",
+      "MEKSTATION_E2E_SERVER_COMMAND": "node scripts/e2e/relaunching-server.mjs"
+    },
+    "all": {
+      "MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY": "1",
+      "MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE": "enabled",
+      "MEKSTATION_E2E_SERVER_COMMAND": "node scripts/e2e/relaunching-server.mjs"
+    },
+    "token-pack": {
+      "MEKSTATION_E2E_SERVER_COMMAND": "node server.js",
+      "journalKeys": "neither key present"
+    },
+    "smoke": {
+      "MEKSTATION_E2E_SERVER_COMMAND": "node server.js",
+      "journalKeys": "neither key present"
+    }
+  },
+  "lineCounts": {
+    "source": "git diff --numstat on the final tree",
+    "files": [
+      {
+        "path": "playwright.config.ts",
+        "class": "product",
+        "added": 11,
+        "removed": 0,
+        "codeAdded": 6,
+        "commentAdded": 5
+      },
+      {
+        "path": "scripts/qc/gm-two-player-campaign-core.cjs",
+        "class": "product",
+        "added": 14,
+        "removed": 3,
+        "codeAdded": 4,
+        "codeRemoved": 1,
+        "commentAdded": 10,
+        "commentRemoved": 2
+      },
+      {
+        "path": "scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+        "class": "test",
+        "added": 73,
+        "removed": 0
+      }
+    ],
+    "productTotal": { "added": 25, "removed": 3, "codeAdded": 10, "codeRemoved": 1 },
+    "testTotal": { "added": 73, "removed": 0 },
+    "filesTouched": 3,
+    "caps": { "maxFiles": 15, "maxNonGeneratedLines": 500 },
+    "capVerdict": "3 of 15 files; 98 non-generated changed lines of 500; 25 product added lines against the charter's under-40 estimate."
+  },
+  "gates": [
+    {
+      "id": "pin-green",
+      "command": "npx jest scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+      "lastLine": "Ran all test suites matching /scripts\\__tests__\\gm-two-player-campaign-qc.test.ts/i.",
+      "summaryLine": "Tests:       14 passed, 14 total",
+      "suites": "Test Suites: 1 passed, 1 total",
+      "exit": 0,
+      "note": "Re-run AFTER all four mutants were restored; the tree it ran against is the tree being handed back."
+    },
+    {
+      "id": "typecheck",
+      "command": "npx tsc --noEmit",
+      "lastLine": "(no output)",
+      "exit": 0,
+      "note": "playwright.config.ts is a TypeScript input, so this gate covers the config edit."
+    },
+    {
+      "id": "lint-config",
+      "command": "npx oxlint playwright.config.ts",
+      "lastLine": "Finished in 16ms on 1 file using 16 threads.",
+      "summaryLine": "Found 0 warnings and 0 errors.",
+      "exit": 0
+    },
+    {
+      "id": "lint-scripts-vacuous",
+      "command": "npx oxlint scripts/qc/gm-two-player-campaign-core.cjs scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+      "lastLine": "Finished in 8ms on 0 files using 16 threads.",
+      "summaryLine": "Found 0 warnings and 0 errors.",
+      "exit": 0,
+      "note": "VACUOUS, and measured as such: `on 0 files` is oxlint reporting that scripts/ is ignored by the root lint config. The two script files were not linted. Their style gate is oxfmt plus lint:units, both below."
+    },
+    {
+      "id": "format",
+      "command": "npx oxfmt --check scripts/qc/gm-two-player-campaign-core.cjs scripts/__tests__/gm-two-player-campaign-qc.test.ts playwright.config.ts",
+      "lastLine": "Finished in 45ms on 3 files using 16 threads.",
+      "summaryLine": "All matched files use the correct format.",
+      "exit": 0
+    },
+    {
+      "id": "lint-units",
+      "command": "npm run lint:units",
+      "lastLine": "LINT_UNITS_PASS 100/100",
+      "priorLines": ["LINT_UNITS_PATH e2e 50", "LINT_UNITS_PATH scripts 50"],
+      "exit": 0,
+      "note": "Unchanged ceiling: 100/100, no finding added by these edits and no ceiling touched."
+    },
+    {
+      "id": "openspec-ci",
+      "command": "npm run qc:openspec-ci:validate",
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+      "exit": 0
+    },
+    {
+      "id": "roadmap-validator",
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "exit": 0
+    },
+    {
+      "id": "next-probe",
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+      "lastLine": "U15b",
+      "exit": 0,
+      "note": "Run at admission, on the baseline."
+    }
+  ],
+  "preMutantSha256": {
+    "scripts/qc/gm-two-player-campaign-core.cjs": "8cc3b1dbd7305ad8d53fe05b1b5991ff54df1e763945ecc88a2de65f4e020cc2",
+    "playwright.config.ts": "0e4ee550903dbcd2d352ce2d624c6a442459470e07b72b4bdaac0f2ddccfe318",
+    "scripts/__tests__/gm-two-player-campaign-qc.test.ts": "bd9deedd400cc6b09a28ddbb246dca42c9436e032b8236cf908a84c7b8f6fad0"
+  },
+  "mutants": {
+    "driver": "A mutation script applied each mutant by exact string swap and threw if the anchor did not match exactly once, so a 'killed' verdict cannot come from an edit that silently did nothing. After each run the file was restored by copying back a pristine pre-mutant copy and the sha256 re-measured.",
+    "table": [
+      {
+        "id": "M1",
+        "file": "scripts/qc/gm-two-player-campaign-core.cjs",
+        "mutation": "The combat key is hoisted out of the `armsJournalAuthorityFixture` spread onto the plain environment object, so EVERY group carries it.",
+        "pinExit": 1,
+        "counts": "Tests: 1 failed, 13 passed, 14 total",
+        "killedBy": "GM and two-player campaign QC runner > leaves both journal keys off a group that does not arm the fixture",
+        "assertion": "expect(received).toBeUndefined() / Received: \"enabled\" at scripts/__tests__/gm-two-player-campaign-qc.test.ts:571:9",
+        "restoredSha256": "8cc3b1dbd7305ad8d53fe05b1b5991ff54df1e763945ecc88a2de65f4e020cc2",
+        "restoreMatchesPreMutant": true
+      },
+      {
+        "id": "M2",
+        "file": "scripts/qc/gm-two-player-campaign-core.cjs",
+        "mutation": "The combat key's value is 'shadow' instead of 'enabled'.",
+        "pinExit": 1,
+        "counts": "Tests: 1 failed, 13 passed, 14 total",
+        "killedBy": "GM and two-player campaign QC runner > registers the approved catalog and deterministic implemented plans",
+        "assertion": "toEqual diff: `-   \"MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE\": \"enabled\",` / `+   \"MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE\": \"shadow\",`",
+        "restoredSha256": "8cc3b1dbd7305ad8d53fe05b1b5991ff54df1e763945ecc88a2de65f4e020cc2",
+        "restoreMatchesPreMutant": true
+      },
+      {
+        "id": "M3",
+        "file": "playwright.config.ts",
+        "mutation": "The webServer.env forwards the combat key UNCONDITIONALLY (`MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE: process.env.<KEY> ?? ''`), dropping the presence guard.",
+        "pinExit": 1,
+        "counts": "Tests: 1 failed, 13 passed, 14 total",
+        "killedBy": "GM and two-player campaign QC runner > forwards the combat journal key from the Playwright webServer env",
+        "assertion": "expect(received).toMatch(expected) against the guarded-forward pattern /\\.\\.\\.\\(\\s*process\\.env\\.MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE\\s*\\?\\s*\\{...\\}\\s*:\\s*\\{\\s*\\}\\s*\\)/ at scripts/__tests__/gm-two-player-campaign-qc.test.ts:606:26. Note the `toContain` name check still passed here - it is the SHAPE assertion that kills this one, which is why both assertions exist.",
+        "restoredSha256": "0e4ee550903dbcd2d352ce2d624c6a442459470e07b72b4bdaac0f2ddccfe318",
+        "restoreMatchesPreMutant": true
+      },
+      {
+        "id": "M3b",
+        "file": "playwright.config.ts",
+        "mutation": "The webServer.env does NOT forward the combat key at all (the whole conditional spread deleted).",
+        "pinExit": 1,
+        "counts": "Tests: 1 failed, 13 passed, 14 total",
+        "killedBy": "GM and two-player campaign QC runner > forwards the combat journal key from the Playwright webServer env",
+        "assertion": "expect(received).toContain(expected) / Expected substring: \"MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE\"",
+        "restoredSha256": "0e4ee550903dbcd2d352ce2d624c6a442459470e07b72b4bdaac0f2ddccfe318",
+        "restoreMatchesPreMutant": true
+      }
+    ],
+    "killed": 4,
+    "survived": 0
+  },
+  "nonClaims": [
+    "NO ladder run and NO Playwright run happened in this lane. The pin proves the plan's environment object and the config's source text; it does not prove Playwright spawned a server with the key. Only a real authority-recovery run does, and the parent owns that proof.",
+    "The arm's EFFECT depends on U15a being merged. U15a (46de0b2f137d5c6f32f4637caad4c49c0aeaa276) is not an ancestor of this baseline, so on main today MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE reaches server.js and nothing reads it: COMBAT_JOURNAL_AUTHORITY_MODE is still the literal 'off' at src/lib/multiplayer/server/matchJournalAuthority.ts:18. This unit forwards an inert key until U15a lands.",
+    "The cutover itself is NOT done. The production constant is untouched by this unit (no src/ file was edited at all), and the arm only fires under NEXT_PUBLIC_E2E_MODE, which only playwright.config.ts's own webServer sets.",
+    "No claim that the E2E-01/02 genesis clauses are proved. This unit makes them REACHABLE once U15a merges; proving them is the parent's main-proof run.",
+    "The playwright.config.ts pin is a TEXT pin over the source, not a behavioral one. It asserts both key names appear and that the combat key sits inside the same `...(process.env.<KEY> ? { <KEY>: process.env.<KEY> } : {})` guard the campaign key uses. It cannot observe the env Playwright actually builds. The config is not imported under jest because it is an ESM TypeScript module that imports @playwright/test and derives a per-run port and runtime directory at load time; that cost is the reason for the text pin, and this is the receipt saying so out loud.",
+    "The `authority` and `all` expansions now arm combat journal authority for every spec in those composites, not only E2E-01/02. That blast radius is inherited from the existing campaign-key condition, not introduced by this unit, but it is real and is not claimed to be scoped.",
+    "The 'leaves both journal keys off a group that does not arm the fixture' case was already green on the red run (vacuously - no group set the combat key at all). It is a mutant guard, not red evidence, and the red receipt records it that way.",
+    "npx oxlint on the two script files is vacuous: oxlint reported `on 0 files` because scripts/ is ignored by the root lint config. No lint opinion was obtained on those two files."
+  ],
+  "findingsReportedNotFixed": [
+    {
+      "id": "F1",
+      "severity": "low",
+      "finding": "The combat arm value 'enabled' is hardcoded in the ladder plan. There is no ladder selector for a 'shadow' run, so the compare-only mode U15a's resolver accepts is unreachable from the QC runner. If a shadow-parity ladder run is ever wanted, it needs a plan-level knob; adding one now would widen this unit.",
+      "action": "reported, not fixed"
+    },
+    {
+      "id": "F2",
+      "severity": "low",
+      "finding": "Neither the plan nor the config validates the combat key's value. The QC runner always sets 'enabled', but the config forwards whatever is in process.env, so a hand-set MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE=on reaches the server and (per U15a's charter) resolves silently to 'off'. A misconfigured arm is silent. U15a's own receipt records the same finding on the resolver side; a value guard belongs in one place, not two.",
+      "action": "reported, not fixed"
+    },
+    {
+      "id": "F3",
+      "severity": "low",
+      "finding": "`armsJournalAuthorityFixture` is now the arming condition for two different subsystems' fixtures under one name that still reads campaign-shaped. A third key on the same condition would make the name actively misleading. Renaming it is a pure-rename diff that would touch no behavior, but it is outside this unit's sentence.",
+      "action": "reported, not fixed"
+    },
+    {
+      "id": "F4",
+      "severity": "informational",
+      "finding": "The regex in the config text pin is whitespace-tolerant so oxfmt may rewrap the guard, but it is still coupled to the `...(x ? {k: x} : {})` spelling. A future refactor to, say, a small `forwardIfPresent()` helper in the config would go red on a correct change. The comment in the pin says it is a text pin; this records the specific brittleness.",
+      "action": "reported, not fixed"
+    },
+    {
+      "id": "F5",
+      "severity": "informational",
+      "finding": "U15a is owner-gated on packet PK-u15a-ruling (authority review class). U15b's own review class is routine, so nothing blocks this PR - but merging U15b while U15a waits on that ruling leaves main carrying a forwarded key with no reader. The parent should sequence the two, or accept the inert interval knowingly.",
+      "action": "reported, not fixed"
+    }
+  ],
+  "finalGitStatusShort": [
+    " M playwright.config.ts",
+    " M scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+    " M scripts/qc/gm-two-player-campaign-core.cjs",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u15b-admission-20260917.json",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u15b-red-20260917.json",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u15b-local-20260917.json"
+  ],
+  "receipts": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u15b-admission-20260917.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u15b-red-20260917.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u15b-local-20260917.json"
+  ]
+}

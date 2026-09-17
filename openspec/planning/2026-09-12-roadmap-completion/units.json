@@ -732,14 +732,27 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
-      "prHead": null,
+      "state": "local-verified",
+      "baseline": "58fd434a486c408e8a9e0a495e7539d85490f416",
+      "prHead": "e1f5629e311f2492600fb4d30818cbaf1a8d5f9d",
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/u15b-admission-20260917.json",
+          "baseline": "58fd434a486c408e8a9e0a495e7539d85490f416",
+          "at": "2026-09-17T16:05:12.882Z",
+          "decision": "go"
+        },
+        "red": {
+          "path": "evidence/u15b-red-20260917.json",
+          "at": "2026-09-17T16:07:00.990Z",
+          "summary": "Pin extended first: 2 failed (the authority-recovery plan toEqual printed the missing combat key; the config text pin failed on the missing key name), 12 passed; implementation 14/14."
+        },
+        "local": {
+          "path": "evidence/u15b-local-20260917.json",
+          "at": "2026-09-17T16:10:31.840Z",
+          "summary": "claude-opus Agent lane. The run plan sets MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE=enabled under the existing arming condition next to the campaign key; playwright.config.ts forwards it under the same guard. Gates: pin 14/14, tsc 0, oxlint on playwright.config.ts 0/0 (vacuous for the two script files), oxfmt clean, lint:units LINT_UNITS_PASS 100/100, qc:openspec-ci errors=0, validator PASSED; four mutants killed (key on every group 1, shadow value 1, config forwards unconditionally 1, config does not forward 1), sha256 restored; parent verification in the worktree 14/14, tsc 0, LINT_UNITS_PASS 100/100; product 25 added / 3 removed across two files, 73 test lines, under the cap; non-claims: no ladder run in the unit, U15a not on the baseline (PR #1818 behind PK-u15a-ruling) so the key is inert on the server until it merges, the config pin is a text pin; findings F1-F5 recorded (no shadow selector, silent misconfiguration, campaign-shaped flag name arms two subsystems, regex coupled to the spread spelling, U15a owner-gated)."
+        },
         "review": null,
         "merge": null,
         "mainProof": null,

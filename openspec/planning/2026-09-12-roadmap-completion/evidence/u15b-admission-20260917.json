@@ -1,0 +1,116 @@
+{
+  "unit": "U15b",
+  "stage": "admission",
+  "at": "2026-09-17T16:05:12.882Z",
+  "baseline": "58fd434a486c408e8a9e0a495e7539d85490f416",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u15b",
+  "branch": "codex/roadmap-u15b-forward-combat-journal-arm-20260917",
+  "node": "R6.loop-harness",
+  "ciClass": "product",
+  "reviewClasses": [
+    "routine"
+  ],
+  "nextProbe": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "stdout": "U15b",
+    "exit": 0,
+    "note": "--next printed U15b on the baseline; the unit is the admissible one."
+  },
+  "u15aOnBaseline": {
+    "present": false,
+    "probe": "ls src/lib/multiplayer/server/combatJournalAuthorityEnabled.ts -> No such file or directory",
+    "gitLog": "git log --oneline --all -- src/lib/multiplayer/server/combatJournalAuthorityEnabled.ts -> 46de0b2f1 feat(multiplayer): combat-journal e2e arm resolves the authority mode from two keys",
+    "ancestry": "git merge-base --is-ancestor 46de0b2f137d5c6f32f4637caad4c49c0aeaa276 HEAD -> NO",
+    "branchesContaining": [
+      "codex/roadmap-u15a-combat-journal-e2e-arm-20260917",
+      "remotes/origin/codex/roadmap-u15a-combat-journal-e2e-arm-20260917"
+    ],
+    "keyNameSource": "U15a is NOT merged on this baseline, so the key name was read from the U15a charter (.sisyphus/roadmap-completion-20260912/u15a-charter-20260917.md) and cross-checked against the U15a unit entry in units.json: MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE with values 'shadow' or 'enabled'.",
+    "baselineConsumer": "src/lib/multiplayer/server/matchJournalAuthority.ts:18 holds COMBAT_JOURNAL_AUTHORITY_MODE = 'off' as a literal on this baseline; no env key is read on the server side yet.",
+    "u15aState": "local-verified in units.json, prHead 46de0b2f137d5c6f32f4637caad4c49c0aeaa276, mergeSha null, owner-gated on packet PK-u15a-ruling."
+  },
+  "planEnvironmentAsItStands": {
+    "probe": "node -e \"const core=require('./scripts/qc/gm-two-player-campaign-core.cjs'); ... core.buildRunPlan({group, runId:'u15b-probe-'+group, repoRoot: process.cwd()})\"",
+    "authority-recovery": {
+      "PLAYWRIGHT_E2E_RUN_ID": "u15b-probe-authority-recovery",
+      "MEKSTATION_E2E_PORT": "29491",
+      "MEKSTATION_E2E_REUSE_EXISTING_SERVER": "false",
+      "PORT": "29491",
+      "MEKSTATION_E2E_SERVER_COMMAND": "node scripts/e2e/relaunching-server.mjs",
+      "MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY": "1"
+    },
+    "authority": {
+      "PLAYWRIGHT_E2E_RUN_ID": "u15b-probe-authority",
+      "MEKSTATION_E2E_PORT": "25428",
+      "MEKSTATION_E2E_REUSE_EXISTING_SERVER": "false",
+      "PORT": "25428",
+      "MEKSTATION_E2E_SERVER_COMMAND": "node scripts/e2e/relaunching-server.mjs",
+      "MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY": "1"
+    },
+    "all": {
+      "PLAYWRIGHT_E2E_RUN_ID": "u15b-probe-all",
+      "MEKSTATION_E2E_PORT": "22420",
+      "MEKSTATION_E2E_REUSE_EXISTING_SERVER": "false",
+      "PORT": "22420",
+      "MEKSTATION_E2E_SERVER_COMMAND": "node scripts/e2e/relaunching-server.mjs",
+      "MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY": "1"
+    },
+    "token-pack": {
+      "PLAYWRIGHT_E2E_RUN_ID": "u15b-probe-token-pack",
+      "MEKSTATION_E2E_PORT": "29263",
+      "MEKSTATION_E2E_REUSE_EXISTING_SERVER": "false",
+      "PORT": "29263",
+      "MEKSTATION_E2E_SERVER_COMMAND": "node server.js"
+    },
+    "smoke": {
+      "PLAYWRIGHT_E2E_RUN_ID": "u15b-probe-smoke",
+      "MEKSTATION_E2E_PORT": "21841",
+      "MEKSTATION_E2E_REUSE_EXISTING_SERVER": "false",
+      "PORT": "21841",
+      "MEKSTATION_E2E_SERVER_COMMAND": "node server.js"
+    },
+    "reading": "The combat key is absent from every group today. That absence is the red."
+  },
+  "design": {
+    "core": "scripts/qc/gm-two-player-campaign-core.cjs buildRunPlan: the existing `armsJournalAuthorityFixture` spread (one condition, today one key) grows a second key MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE: 'enabled' beside MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY: '1'. No new group, no change to RESPAWNING_GROUPS, no change to the `armsJournalAuthorityFixture` condition itself, so the `authority` and `all` expansions inherit both keys the way they already inherit the campaign key. The comment above the 'authority-recovery' SPEC_BY_GROUP entry is extended to name both keys.",
+    "playwright": "playwright.config.ts webServer.env: add a conditional spread forwarding MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE from process.env only when present, exactly the shape the campaign key already uses. The existing whitelist comment is extended rather than duplicated.",
+    "pin": "scripts/__tests__/gm-two-player-campaign-qc.test.ts: (a) the authority-recovery plan toEqual grows the combat key at 'enabled'; (b) the `authority` expansion assertion and the `all` expansion assertion each grow a combat-key expectation next to the campaign-key expectation they already carry; (c) a new `it` proving a non-arming group (token-pack and smoke) carries neither key (toBeUndefined on both); (d) a new `it` reading playwright.config.ts as text and asserting the combat key is forwarded under the same `process.env.<KEY> ? { ... } : {}` guard as the campaign key. The config cannot be imported under jest cheaply (it is an ESM/TS Playwright config that computes a per-run port and runtime dir at module load and imports @playwright/test), so the text pin is the mechanism; it asserts both key names appear in the same guarded shape so an unconditional or absent forward is red.",
+    "notWidened": "No new group, no RESPAWNING_GROUPS change, no src/ edit, no e2e/ edit, no package.json edit, no ladder run."
+  },
+  "estimatePerFile": {
+    "scripts/qc/gm-two-player-campaign-core.cjs": "product: about 4 changed/added lines in the environment spread plus about 4 comment lines",
+    "playwright.config.ts": "product: about 6 added lines for the conditional spread plus about 3 comment lines",
+    "scripts/__tests__/gm-two-player-campaign-qc.test.ts": "test: about 45-60 added lines (one toEqual key, two toBe assertions, two new it cases with their comments)",
+    "totalProductEstimate": "under 20 product lines, well under the charter's 40-line estimate and the 500-line cap"
+  },
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "filesToTouch": 3,
+    "receiptsToWrite": 3
+  },
+  "acceptanceCommands": [
+    "npx jest scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+    "npx tsc --noEmit",
+    "npx oxlint playwright.config.ts",
+    "npx oxfmt --check <the three changed files>",
+    "npm run lint:units",
+    "npm run qc:openspec-ci:validate",
+    "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs"
+  ],
+  "risksForTheParent": [
+    "The parent's main proof runs the authority-recovery group with BOTH keys set. U15a is NOT merged on this baseline (46de0b2f1 lives only on the U15a branch and is not an ancestor of 58fd434a4), so on this baseline the combat key reaches server.js and nothing reads it: COMBAT_JOURNAL_AUTHORITY_MODE is still the literal 'off' at src/lib/multiplayer/server/matchJournalAuthority.ts:18. The forward is inert until U15a merges.",
+    "If U15a merges first, the same ladder run arms the combat journal-authority path for E2E-01/02 and the genesis clauses become provable. That is a behavior change in the proof, not in production: the arm requires NEXT_PUBLIC_E2E_MODE === 'true', which playwright.config.ts sets only for its own webServer.",
+    "Ordering: this unit can merge before or after U15a. Merging U15b first leaves an inert env key in the ladder plan; merging U15a first leaves a resolver nothing arms. Neither order breaks a gate, but the parent should not read a green authority-recovery run as genesis-clause evidence until BOTH are on main.",
+    "The `authority` and `all` expansions inherit the combat key because they include authority-recovery. A full `all` run therefore arms combat journal authority for every spec in the composite, not just E2E-01/02. That is the same blast radius the campaign key already has; it is inherited, not introduced here.",
+    "U15a is owner-gated on packet PK-u15a-ruling (authority review class). U15b's review class is routine only, so U15b does not itself need a Lane B ruling - but its usefulness is gated on that ruling landing.",
+    "The playwright.config.ts pin is a text pin, not a behavioral one. It proves the guard shape and both key names are present; it cannot prove Playwright actually spawns the server with the key. Only a real ladder run can, and this unit runs none."
+  ],
+  "decision": "go",
+  "implementerModel": "claude-opus (Agent lane; codex, grok CLI and cursor-agent routes exhausted on 2026-09-17)",
+  "parentDecision": {
+    "at": "2026-09-17T16:18:50.200Z",
+    "decision": "go",
+    "note": "parent admitted the unit as planned; no widening"
+  }
+}
