@@ -1,0 +1,76 @@
+{
+  "unit": "U13",
+  "stage": "admission",
+  "at": "2026-09-17T17:53:14Z",
+  "baseline": "7c6cf4fbe309435a1faef97393d64ace705a0133",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u13",
+  "branch": "codex/roadmap-u13-log-preservation-20260917",
+  "node": "R6.loop-harness",
+  "nodeVersion": "v22.22.0",
+  "implementerModel": "claude-opus (Agent lane; codex, grok CLI and cursor-agent routes exhausted on 2026-09-17)",
+  "behavior": "Log preservation: a helper copies a run's logs into the ledger evidence directory with sha256 before any worktree removal and refuses the removal when the copy did not land; jest pin. The callers (proof scripts, lane cleanup) are U17's.",
+  "admissionChecks": {
+    "worktreeHead": "git rev-parse HEAD -> 7c6cf4fbe309435a1faef97393d64ace705a0133 (equals the charter baseline)",
+    "worktreeBranch": "git rev-parse --abbrev-ref HEAD -> codex/roadmap-u13-log-preservation-20260917",
+    "worktreeClean": "git status --short -> empty at admission",
+    "nextPrintedU13": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next -> \"U13\", exit 0",
+    "validatorBaseline": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs -> \"ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows\", exit 0",
+    "nodeDependencies": "R6.loop-harness dependsOn is [] in roadmap.json, so no predecessor node gates this unit"
+  },
+  "orderingNote": {
+    "claim": "--next printed U13 on this baseline, while the second council expected the loop-scripts unit (U17) first.",
+    "councilText": "openspec/council-decisions/2026-09-17-review-what-needs-validation.md section D item 3: \"Loop scripts into the repo (R6.loop-harness): the closure, fold and main-proof generators exist only in the parent's scratchpad; the loop is not reproducible from main. U13 depends on them and cannot land first.\"",
+    "resolution": "This unit ships only the helper and its pin. It wires no caller: nothing in scripts/qc calls preserveRunLogs after this unit, and package.json is untouched. The wiring (the closure, fold, main-proof and park generators calling the helper before a worktree removal) is recorded here as U17's work. Until U17 lands, the parent invokes the CLI by hand before each worktree removal.",
+    "u14AdmissionSaidTheSame": "evidence/u14-admission-20260917.json schedulingNote recorded \"U13 waits for the loop scripts unit per council 2 C5 item 3\"; U14 has since merged and --next now admits U13 on its own terms."
+  },
+  "precedentLoss": {
+    "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/u3-local-20260916.json, parentVerification20260916",
+    "logsFieldVerbatim": ".sisyphus/roadmap-completion-20260912/worktrees/u3/.sisyphus-u3-verify (local; sha256.txt)",
+    "whatSurvives": "19 lines of logHashes in the receipt, in `<sha256> *<name>` form (authority-full.log, authority-recovery-1.log, authority-recovery-2.log, authority-recovery-m1.log, authority-recovery-post.log, build-clean.log, build-m1.log, jest-pin.log, lifecycle-post.log, oxfmt.log, oxlint.log, qc-openspec-ci.log, resilience-1.log, resilience-2.log, resilience-post.log, token-pack-1.log, token-pack-2.log, tsc.log, validator.log)",
+    "whatIsGone": "the log bytes themselves. `ls -d .sisyphus/roadmap-completion-20260912/worktrees/u3` reports \"No such file or directory\" from this session, so the directory the receipt points at no longer exists and no copy was taken before its removal. A sha256 list with no preimage proves only that nineteen files once existed.",
+    "whyThisUnitExists": "DELIVERY.md \"Owned cleanup\": \"Export and reopen durable evidence before removing a proof worktree. Before any removal, verify exact canonical non-reparse target, recorded worktree identity, expected HEAD/ref/OID, clean state, and allowed ignored/untracked manifest.\" That is prose today; council 1 section D item 3 asked for enforcement."
+  },
+  "proofDirectoryShapeAsRead": {
+    "example": ".sisyphus/roadmap-completion-20260912/u14-main-proof-20260917/",
+    "contents": "one .log per step plus sha256.txt: build.log, git-check.log, lint-units-cli.log, next.log, openspec-strict.log, playwright.log, qc-openspec-ci.log, qc-pin.log, tsc.log, validator.log, sha256.txt",
+    "flat": "no subdirectories in this example; the helper still walks recursively and keeps relative paths so a nested run directory is preserved faithfully",
+    "sha256TxtFormat": "`<64 hex> *<relative name>` per line, sorted by name",
+    "receiptShape": "evidence/u14-mainproof-20260917.json has keys unit, stage, at, mergeCommit, checkout, runtime, commands, logs, logHashes, verdict; `logs` is \".sisyphus/roadmap-completion-20260912/u14-main-proof-20260917/ (local; sha256 below)\" and `logHashes` is the array of the same `<sha256> *<name>` lines. The manifest this unit writes is the machine-checkable form of that pair."
+  },
+  "design": {
+    "file": "scripts/qc/preserve-run-logs.mjs, plain ESM, pure functions plus a CLI, in the style of scripts/qc/machine-idle.mjs and scripts/qc/validate-exact-main-regression-ladder.mjs",
+    "preserveRunLogs": "preserveRunLogs({ runDir, unit, date, preservedRoot, evidenceDir }) copies every regular file under runDir recursively, keeping relative paths, into <preservedRoot>/<unit>-<date>/; hashes source and copy with sha256 and refuses with a typed error naming the file on any mismatch; writes the manifest and returns it. Symlinks and junctions are not followed (lstat-based walk); a runDir that itself resolves through a reparse point is refused. An empty runDir is a typed error, never a vacuous manifest.",
+    "manifestShape": "<evidenceDir>/<unit lowercase>-logs-<date>.json = { unit, date, at, runDir (POSIX path relative to the repository root, never absolute), preservedDir (same), files: [{ file, bytes, sha256 }], bytes (total) }",
+    "defaults": {
+      "preservedRoot": ".sisyphus/roadmap-completion-20260912/preserved-runs (outside every worktree; gitignored by .gitignore line 189 `.sisyphus/*`)",
+      "evidenceDir": "openspec/planning/2026-09-12-roadmap-completion/evidence (the manifest is what the ledger commits)"
+    },
+    "removalPreconditions": "removeWorktreeAfterPreservation({ repoRoot, worktreePath, expectedHead, manifest, git }) refuses with a typed error (exit 2 at the CLI) unless ALL hold: the manifest file exists on disk; every file it lists still hashes to its recorded sha256 in the preserved copy; worktreePath resolves to a real directory and is not a reparse point; `git rev-parse HEAD` in it equals expectedHead; `git status --porcelain` in it is empty; and `git worktree list --porcelain` lists it. Only then: delete the node_modules junction FIRST if one exists (the reparse point only, never a recursive walk through it), then `git worktree remove --force <path>`, then `git worktree prune`.",
+    "injectionPoints": "the `git` runner argument of removeWorktreeAfterPreservation, and a copy hook used to corrupt a copy between copy and verify. Both exist only so the pin can drive the branches; neither has a CLI flag and neither has a default that skips a check.",
+    "cliContract": "node scripts/qc/preserve-run-logs.mjs --run-dir <dir> --unit <id> --date <YYYYMMDD> [--preserved-root <dir>] [--evidence-dir <dir>] [--remove-worktree <path> --expected-head <sha>] prints `RUN_LOGS_PRESERVED <manifestPath> <n> files <bytes> bytes` (exit 0), `RUN_LOGS_REFUSED <reason>` (exit 1), `WORKTREE_REMOVED <path>` or `WORKTREE_REFUSED <reason>` (exit 2). No `|| true`, no silent success."
+  },
+  "estimatePerFile": {
+    "scripts/qc/preserve-run-logs.mjs": "180-240 product lines",
+    "scripts/__tests__/preserve-run-logs.test.ts": "230-300 test lines"
+  },
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500
+  },
+  "risksForTheParent": [
+    "NOTHING CALLS THE HELPER after this unit. The proof scripts and the lane cleanup are U17's; until U17 lands the parent must invoke the CLI by hand before every worktree removal, and a removal that skips it loses the logs exactly as U3's were lost.",
+    "The preserved copies live under .sisyphus/, which .gitignore line 189 excludes. Only the manifest in evidence/ is committed, so the bytes survive a worktree removal but not a machine loss. That is the stated design, not an oversight.",
+    "A junction whose target the helper refuses to walk means a run directory reached through a junction is refused outright rather than partially preserved. If a future lane legitimately stores logs behind a link, it must pass the canonical path.",
+    "The removal half runs real git subcommands through an injectable runner. The pin drives it against a temporary repository only; no test and no gate in this unit passes --remove-worktree against a program worktree.",
+    "git worktree remove --force is used because a proof worktree can legitimately carry ignored artefacts. The force flag is reached only after the HEAD, clean-state and listing checks pass, so it never substitutes for them - but it does mean an ignored-file manifest is not itself enforced, which is one clause of DELIVERY.md this unit does not implement."
+  ],
+  "constraints": {
+    "npmConfigDryRun": "true for every command in this lane",
+    "noInstalls": true,
+    "rootCheckoutUntouched": true,
+    "noGitMutations": true,
+    "noBuildOrPlaywright": true,
+    "packageJsonUntouched": true,
+    "ledgerFilesUntouched": "units.json, roadmap.json and evidence/admission-snapshot.json are not edited by this lane"
+  }
+}

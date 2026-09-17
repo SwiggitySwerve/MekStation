@@ -1,0 +1,194 @@
+{
+  "unit": "U13",
+  "stage": "local",
+  "at": "2026-09-17T18:07:32Z",
+  "baseline": "7c6cf4fbe309435a1faef97393d64ace705a0133",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u13",
+  "branch": "codex/roadmap-u13-log-preservation-20260917",
+  "committed": false,
+  "status": "ready",
+  "blocker": null,
+  "implementerModel": "claude-opus (Agent lane; codex, grok CLI and cursor-agent routes exhausted on 2026-09-17)",
+  "whatWasBuilt": "scripts/qc/preserve-run-logs.mjs: preserveRunLogs() copies a run directory out of the worktree (recursive, relative paths kept, links skipped, a reparse-point runDir refused), hashes source and copy with sha256 and refuses on any mismatch, and writes the repo-root-relative manifest <evidenceDir>/<unit lowercase>-logs-<date>.json. removeWorktreeAfterPreservation() removes the worktree only after the manifest verifies against the preserved copies AND the path is a real non-reparse directory at the expected HEAD, clean, and listed by `git worktree list --porcelain`; it deletes the node_modules reparse point first, then runs `git worktree remove --force` and `git worktree prune`. CLI: RUN_LOGS_PRESERVED / RUN_LOGS_REFUSED / WORKTREE_REMOVED / WORKTREE_REFUSED with exits 0/1/0/2. Plus the 13-case jest pin.",
+  "lineCounts": {
+    "product": {
+      "scripts/qc/preserve-run-logs.mjs": {
+        "total": 410,
+        "code": 317,
+        "comment": 70,
+        "blank": 23
+      },
+      "subtotalNonGeneratedProduct": 410
+    },
+    "test": {
+      "scripts/__tests__/preserve-run-logs.test.ts": {
+        "total": 492,
+        "code": 417,
+        "comment": 45,
+        "blank": 30
+      }
+    },
+    "generated": "none; this unit ships no generated or data file",
+    "capCheck": {
+      "cap": "15 files, 500 non-generated product lines",
+      "filesChanged": 2,
+      "nonGeneratedProductLines": 410,
+      "productPlusPin": 902,
+      "reading": "Counted the way U14 and U11 counted: the cap is on non-generated PRODUCT lines and the jest pin is reported beside it (u14-local capCheck.nonGeneratedProductLines = 177 with a 259-line pin; u11-local listed 272 product + 345 + 62 test). Under that reading 410 of 500 is used. Under the stricter reading that would add the pin, 902 would exceed 500 - flagged for the parent rather than resolved here.",
+      "overageAgainstOwnEstimate": "the admission receipt estimated 180-240 product lines; the delivered product file is 410. See findingsReportedNotFixed F1."
+    },
+    "sha256": {
+      "scripts/qc/preserve-run-logs.mjs": "fac1bd3e3253401e9a5a492783021b4156b2a7b59857cf35f3ce0e604454ea22",
+      "scripts/__tests__/preserve-run-logs.test.ts": "b0456e9f6fdc2a1c07a4b62cc813f21bae0402f7e72012e778ca81b1376792a3"
+    }
+  },
+  "gates": [
+    {
+      "gate": "jest pin",
+      "command": "npx jest scripts/__tests__/preserve-run-logs.test.ts",
+      "lastLine": "Ran all test suites matching /scripts\\__tests__\\preserve-run-logs.test.ts/i.",
+      "summaryLine": "Tests:       13 passed, 13 total",
+      "runtime": "0 failed / 13 passed",
+      "exitCode": 0
+    },
+    {
+      "gate": "tsc",
+      "command": "npx tsc --noEmit",
+      "lastLine": "(no output)",
+      "exitCode": 0
+    },
+    {
+      "gate": "oxfmt",
+      "command": "npx oxfmt --check scripts/qc/preserve-run-logs.mjs scripts/__tests__/preserve-run-logs.test.ts",
+      "lastLine": "Finished in 46ms on 2 files using 16 threads.",
+      "priorLine": "All matched files use the correct format.",
+      "exitCode": 0,
+      "note": "the first --check run failed on both files (exit 1); `npx oxfmt` without --check rewrote them and the recheck is the result above"
+    },
+    {
+      "gate": "lint:units",
+      "command": "npm run lint:units",
+      "lastLine": "LINT_UNITS_PASS 100/100",
+      "priorLines": ["LINT_UNITS_PATH e2e 50", "LINT_UNITS_PATH scripts 50"],
+      "exitCode": 0,
+      "note": "unchanged from U14's ceiling: the two new files add 0 findings. The ceiling was not touched."
+    },
+    {
+      "gate": "qc:openspec-ci:validate",
+      "command": "npm run qc:openspec-ci:validate",
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+      "exitCode": 0
+    },
+    {
+      "gate": "roadmap validator",
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "exitCode": 0
+    }
+  ],
+  "builds": "none. No `next build` and no Playwright run was started in this lane; the charter forbids both and nothing in this unit reaches the app.",
+  "realCliRun": {
+    "why": "the charter asks for one real invocation against an existing proof directory in the root checkout, read-only for that directory and without --remove-worktree",
+    "command": "node scripts/qc/preserve-run-logs.mjs --run-dir E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/u14-main-proof-20260917 --unit U14 --date 20260917 --preserved-root .sisyphus/u13-cli-probe/preserved --evidence-dir .sisyphus/u13-cli-probe/evidence",
+    "outputLine": "RUN_LOGS_PRESERVED .sisyphus/u13-cli-probe/evidence/u14-logs-20260917.json 11 files 2625399 bytes",
+    "exitCode": 0,
+    "manifestPaths": {
+      "runDir": "../../u14-main-proof-20260917",
+      "preservedDir": ".sisyphus/u13-cli-probe/preserved/U14-20260917",
+      "note": "both relative to the worktree root, neither absolute; runDir leaves the worktree because the proof directory sits beside the worktrees tree"
+    },
+    "independentCrossCheck": "Every one of the ten hashes the helper computed equals the hash that directory's own sha256.txt (and evidence/u14-mainproof-20260917.json logHashes) already recorded for that file: 10 matched, 0 mismatched. The eleventh file is sha256.txt itself, which that list does not cover. This is an external check on the preservation, not a self-report.",
+    "readOnly": "the u14 proof directory was only read. Verified after the run: the root checkout's `git status --porcelain` is 0 lines, the directory still holds 11 entries, and sha256.txt still hashes to 5a5938b82a5a86303340b815f6114ce9f11edc13429dc7646f86b2137704edc9.",
+    "cleanup": ".sisyphus/u13-cli-probe was removed after the manifest was read; it was gitignored (.gitignore line 189 `.sisyphus/*`) while it existed.",
+    "noRemoval": "--remove-worktree was never passed against a real worktree. The only real `git worktree remove` in this lane ran inside the pin's temporary git repositories under the system temp directory."
+  },
+  "mutants": [
+    {
+      "id": "M1",
+      "mutation": "the hash verification after the copy is skipped: deleted the `if (hashFile(to) !== sha256) throw new PreserveRunLogsError('COPY_HASH_MISMATCH', ...)` block (5 lines) from preserveRunLogs, leaving the copy and the source hash in place",
+      "result": "Tests:       1 failed, 12 passed, 13 total",
+      "caughtBy": "preserveRunLogs > refuses when a copy does not match its source, and writes no manifest",
+      "killed": true
+    },
+    {
+      "id": "M2",
+      "mutation": "the removal proceeds when the manifest is missing: deleted the whole manifest gate from removeWorktreeAfterPreservation (the MANIFEST_MISSING existence check, the manifest read, the MANIFEST_UNREADABLE shape check and the per-file preserved-hash loop, 23 lines)",
+      "result": "Tests:       2 failed, 11 passed, 13 total",
+      "caughtBy": "removeWorktreeAfterPreservation > refuses when the manifest is missing; and removeWorktreeAfterPreservation > refuses when a preserved file no longer hashes to its manifest entry",
+      "killed": true
+    },
+    {
+      "id": "M3",
+      "mutation": "the junction is removed recursively: replaced `if (junctionRemoved) removeReparsePoint(modules);` with `if (junctionRemoved) fs.rmSync(fs.realpathSync.native(modules), { recursive: true, force: true });`",
+      "result": "Tests:       1 failed, 12 passed, 13 total",
+      "caughtBy": "removeWorktreeAfterPreservation > removes a clean matching worktree and deletes only the reparse point, at the target-survives assertion: \"ENOENT: no such file or directory, open 'C:\\Users\\wroll\\AppData\\Local\\Temp\\u13-preserve-vCK9eU\\real-node-modules\\pkg\\index.js'\" - the mutant destroyed the junction's real target",
+      "killed": true,
+      "whyThisExactMutation": "Measured first: `fs.rmSync(link, { recursive: true, force: true })` on a Windows junction removes only the link and the target survives, so the naive 'recursive' mutation is not observable. The faithful mutation resolves the link and then deletes recursively, which is exactly the accident this code guards against.",
+      "pinChangeMadeBecauseOfThisMutant": "On the first M3 run the failure landed on `expect(fs.existsSync(worktreePath)).toBe(false)` (the worktree directory survived, because the dangling junction was left behind and git still exited 0) rather than on the target-survives assertion. The two assertions were reordered so the junction target is checked first, and M3 was re-run: it now fails on the target assertion as quoted above. No assertion was removed or weakened."
+    }
+  ],
+  "mutantRestoration": {
+    "method": "cp scripts/qc/preserve-run-logs.mjs to a pristine copy before the first mutant; after each mutant the file was restored with cp from that copy and sha256sum re-run",
+    "preMutantSha256": "fac1bd3e3253401e9a5a492783021b4156b2a7b59857cf35f3ce0e604454ea22",
+    "afterM1": "fac1bd3e3253401e9a5a492783021b4156b2a7b59857cf35f3ce0e604454ea22",
+    "afterM2": "fac1bd3e3253401e9a5a492783021b4156b2a7b59857cf35f3ce0e604454ea22",
+    "afterM3": "fac1bd3e3253401e9a5a492783021b4156b2a7b59857cf35f3ce0e604454ea22",
+    "afterM3Rerun": "fac1bd3e3253401e9a5a492783021b4156b2a7b59857cf35f3ce0e604454ea22",
+    "final": "fac1bd3e3253401e9a5a492783021b4156b2a7b59857cf35f3ce0e604454ea22",
+    "equalsPreMutant": true,
+    "gatesRerunAfterTheLastRestore": "jest, tsc, oxfmt, lint:units, qc:openspec-ci:validate and the roadmap validator were all re-run after the final restore and the pin reorder; the results recorded under `gates` are those runs."
+  },
+  "nonClaims": [
+    "NOTHING CALLS THIS HELPER YET. The proof scripts and the lane cleanup are U17's (council 2 section D item 3); package.json is untouched by this unit and no npm script runs the CLI. Until U17 lands, a worktree removal that skips a hand-run of this CLI still loses its logs exactly as U3's were lost.",
+    "The preserved copies are local and gitignored (.gitignore line 189 `.sisyphus/*`). Only the manifest in openspec/planning/2026-09-12-roadmap-completion/evidence/ is committed. The bytes survive a worktree removal, not a machine loss.",
+    "No claim that this enforces every clause of DELIVERY.md's owned-cleanup paragraph. The allowed ignored/untracked manifest is NOT implemented: `git worktree remove --force` is used (after the HEAD, clean-state and listing checks pass) because a proof worktree legitimately carries ignored artefacts, so an unexpected ignored file is not itself refused.",
+    "No claim about branch deletion. The helper removes and prunes a worktree; compare-guarded branch deletion is not implemented here.",
+    "No claim that the CLI's removal half was exercised against a program worktree. Every real `git worktree remove` in this lane ran in a temporary repository created by the pin; the one CLI removal invocation aimed at a path that does not exist and refused with WORKTREE_MISSING before any git call.",
+    "No build and no Playwright run was performed, so nothing here is evidence about the application.",
+    "The `onCopied` and `git` parameters are pin-only injection points. They have no CLI flag and their defaults do the real thing, but they are not a tested production surface."
+  ],
+  "findingsReportedNotFixed": [
+    {
+      "id": "F1",
+      "finding": "The product file is 410 lines against the admission estimate of 180-240. The excess is largely oxfmt's call-wrapping: each typed refusal becomes a five-line `throw new XError(code, message)`, and there are fourteen of them. It is inside the unit's 500-line cap on non-generated product lines but 70% above the estimate, so the estimate, not the cap, was wrong.",
+      "notFixedBecause": "the alternative is a throw-wrapping helper that saves about a line per site and hides the throw from static reading; that trade was judged worse than the line count."
+    },
+    {
+      "id": "F2",
+      "finding": "The helper refuses only when the run directory's LAST component is a reparse point (fs.lstatSync(runDir).isSymbolicLink()). A run directory whose ANCESTOR is a junction is preserved rather than refused.",
+      "notFixedBecause": "the charter scopes the refusal to 'runDir itself', and an ancestor check by canonical-path comparison was measured to be fragile on Windows (the system temp directory can resolve through a short path, which would make legitimate runs refuse). Recorded so a later unit can widen it deliberately."
+    },
+    {
+      "id": "F3",
+      "finding": "A manifest whose preserved copies live on a different drive from the repository root cannot be written: path.relative returns an absolute path across drives, and the helper refuses with RUN_DIR_OUTSIDE_ROOT / PRESERVED_DIR_OUTSIDE_ROOT rather than putting an absolute machine path in evidence. That is deliberate, but it means the CLI cannot be pointed at a system temp directory on this machine (temp is on C:, the repository on E:).",
+      "notFixedBecause": "'relative to the repository root, never absolute' is the manifest contract; loosening it to allow an absolute fallback would put machine paths into committed evidence. The pin passes an explicit repoRoot for its temp scaffolds and the real CLI probe used a directory inside the worktree for the same reason."
+    },
+    {
+      "id": "F4",
+      "finding": "Under M3 the removal still reported success while leaving the worktree directory in place: after the junction's target was destroyed the dangling junction remained inside the worktree, `git worktree remove --force` exited 0, and the directory survived. The helper does not verify after the removal that the directory is gone.",
+      "notFixedBecause": "out of this unit's behaviour sentence. Recorded for U17's callers, which could assert the directory's absence after the CLI returns WORKTREE_REMOVED."
+    },
+    {
+      "id": "F5",
+      "finding": "The 500-line cap's reading is not written down anywhere in the ledger. U14 and U11 both counted product lines and reported the pin separately; this receipt follows them, but a reader applying product-plus-pin would call this unit 902 lines and over cap.",
+      "notFixedBecause": "an owner-level definition question, not an implementation one."
+    }
+  ],
+  "srcCleanAfterMutants": "git status --short in the worktree lists exactly four untracked paths and nothing else: scripts/qc/preserve-run-logs.mjs, scripts/__tests__/preserve-run-logs.test.ts, and the u13 admission and red receipts (this local receipt is the fifth, written after the status was taken). No tracked file is modified; HEAD is still 7c6cf4fbe309435a1faef97393d64ace705a0133.",
+  "rootCheckoutUntouched": "E:/Projects/MekStation `git status --porcelain` -> 0 lines after every command in this lane.",
+  "constraintsHeld": {
+    "npmConfigDryRun": "exported true in every shell that ran an npm or npx command",
+    "npmInstallCiPrune": "never run",
+    "packageJsonEdited": false,
+    "ledgerFilesEdited": "units.json, roadmap.json and evidence/admission-snapshot.json untouched",
+    "tasksMdCheckbox": "none checked",
+    "commitPushStash": "none",
+    "aiAttribution": "none",
+    "absoluteMachinePathsInProductFiles": "none; the two shipped files contain no drive letter. Absolute paths appear only in this receipt's quoted command lines and quoted tool output."
+  },
+  "receipts": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u13-admission-20260917.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u13-red-20260917.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u13-local-20260917.json"
+  ]
+}

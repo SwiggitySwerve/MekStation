@@ -1,0 +1,81 @@
+{
+  "unit": "U13",
+  "stage": "red",
+  "at": "2026-09-17T18:05:00Z",
+  "baseline": "7c6cf4fbe309435a1faef97393d64ace705a0133",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u13",
+  "branch": "codex/roadmap-u13-log-preservation-20260917",
+  "implementerModel": "claude-opus (Agent lane; codex, grok CLI and cursor-agent routes exhausted on 2026-09-17)",
+  "whatWasWrittenFirst": "scripts/__tests__/preserve-run-logs.test.ts only. scripts/qc/preserve-run-logs.mjs did not exist when the commands below ran.",
+  "commands": [
+    "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "export npm_config_dry_run=true",
+    "npx jest scripts/__tests__/preserve-run-logs.test.ts"
+  ],
+  "moduleAbsent": "ls scripts/qc/preserve-run-logs.mjs -> absent at this point; every harness invocation reported ERR_MODULE_NOT_FOUND for E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\u13\\scripts\\qc\\preserve-run-logs.mjs",
+  "result": {
+    "lastLines": [
+      "Test Suites: 1 failed, 1 total",
+      "Tests:       13 failed, 13 total",
+      "Snapshots:   0 total",
+      "Time:        2.421 s"
+    ],
+    "exitCode": 1,
+    "failed": 13,
+    "passed": 0
+  },
+  "failingCases": [
+    "preserveRunLogs > preserves every file with matching hashes and relative manifest paths",
+    "preserveRunLogs > refuses when a copy does not match its source, and writes no manifest",
+    "preserveRunLogs > refuses an empty run directory rather than writing a vacuous manifest",
+    "preserveRunLogs > refuses a run directory reached through a junction",
+    "removeWorktreeAfterPreservation > removes a clean matching worktree and deletes only the reparse point",
+    "removeWorktreeAfterPreservation > refuses when the manifest is missing",
+    "removeWorktreeAfterPreservation > refuses when the expected head does not match",
+    "removeWorktreeAfterPreservation > refuses when a preserved file no longer hashes to its manifest entry",
+    "removeWorktreeAfterPreservation > refuses a dirty worktree",
+    "removeWorktreeAfterPreservation > refuses a path the repository does not list as a worktree",
+    "preserve-run-logs CLI > prints RUN_LOGS_PRESERVED with the manifest path, file count and bytes",
+    "preserve-run-logs CLI > prints RUN_LOGS_REFUSED and exits 1 on an empty run directory",
+    "preserve-run-logs CLI > prints WORKTREE_REFUSED and exits 2 when the removal half refuses"
+  ],
+  "exactFailingAssertions": [
+    {
+      "case": "preserves every file with matching hashes and relative manifest paths",
+      "assertion": "expect(result.error).toBeUndefined() at scripts/__tests__/preserve-run-logs.test.ts:265",
+      "received": "{\"code\": \"ERR_MODULE_NOT_FOUND\", \"message\": \"Cannot find module 'E:\\\\Projects\\\\MekStation\\\\.sisyphus\\\\roadmap-completion-20260912\\\\worktrees\\\\u13\\\\scripts\\\\qc\\\\preserve-run-logs.mjs' imported from ...[eval1]\", \"name\": \"Error\"}"
+    },
+    {
+      "case": "refuses when a copy does not match its source, and writes no manifest",
+      "assertion": "expect(result.error?.code).toBe('COPY_HASH_MISMATCH') at scripts/__tests__/preserve-run-logs.test.ts:306",
+      "received": "\"ERR_MODULE_NOT_FOUND\""
+    },
+    {
+      "case": "removeWorktreeAfterPreservation > removes a clean matching worktree and deletes only the reparse point",
+      "assertion": "expect(preserved.error).toBeUndefined() at scripts/__tests__/preserve-run-logs.test.ts:212, reached through removalScaffold() at :399",
+      "received": "the same ERR_MODULE_NOT_FOUND; the scaffold's real temporary git repository (git init -b main, one commit, git worktree add) was built successfully before the harness call, so the failure is the missing module and not the scaffold"
+    },
+    {
+      "case": "prints RUN_LOGS_PRESERVED with the manifest path, file count and bytes",
+      "assertion": "expect(result.stdout.trim()).toBe(`RUN_LOGS_PRESERVED ${manifestRelative} 3 files 44 bytes`) at scripts/__tests__/preserve-run-logs.test.ts:457",
+      "received": "\"\" (the CLI spawn printed nothing; node exited on the missing entry point)"
+    },
+    {
+      "case": "prints RUN_LOGS_REFUSED and exits 1 on an empty run directory",
+      "assertion": "expect(result.stdout.trim()).toBe('RUN_LOGS_REFUSED EMPTY_RUN_DIR') at scripts/__tests__/preserve-run-logs.test.ts:467",
+      "received": "\"\""
+    },
+    {
+      "case": "prints WORKTREE_REFUSED and exits 2 when the removal half refuses",
+      "assertion": "expect(lines[0]).toContain('RUN_LOGS_PRESERVED') at scripts/__tests__/preserve-run-logs.test.ts:484",
+      "received": "\"\""
+    }
+  ],
+  "whyThisIsRealRed": "Every case names a behaviour that does not exist yet rather than repeating an implementation: three of them assert a REFUSAL code (COPY_HASH_MISMATCH, EMPTY_RUN_DIR, RUN_DIR_REPARSE) and four more assert that a refusal left the worktree in place, which a helper that merely returned success would fail. No assertion was weakened and no case is skipped.",
+  "platformMeasurementsTakenBeforeWritingThePin": [
+    "fs.symlinkSync(target, link, 'junction') succeeds unprivileged here; fs.lstatSync(link).isSymbolicLink() is true and fs.realpathSync.native(link) differs from path.resolve(link).",
+    "fs.rmSync(link, { recursive: true, force: true }) on a junction removes the link ONLY - the junction target's file survived. So 'delete the junction recursively' is not observable through that call, and the M3 mutant must resolve the link first (fs.rmSync(fs.realpathSync.native(link), { recursive: true, force: true }) DID delete the target's contents in the same probe).",
+    "fs.unlinkSync(junction) succeeds on this platform and the target survives, so the implementation's EPERM fallback to fs.rmdirSync is defensive rather than exercised here.",
+    "fs.readdirSync(dir, { withFileTypes: true }) reports a junction entry with isSymbolicLink() === true, so the walk can skip links without following them."
+  ]
+}
