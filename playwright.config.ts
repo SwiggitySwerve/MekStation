@@ -321,6 +321,17 @@ export default defineConfig({
               process.env.MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY,
           }
         : {}),
+      // The combat sibling of the same fixture arm, forwarded under the
+      // same presence guard for the same whitelist reason. It is passed
+      // through rather than hardcoded so the plan owns the mode value
+      // ('shadow' or 'enabled'); absent the key, combat stays on the
+      // hardcoded 'off' cutover mode.
+      ...(process.env.MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE
+        ? {
+            MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE:
+              process.env.MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE,
+          }
+        : {}),
     },
   },
 });
