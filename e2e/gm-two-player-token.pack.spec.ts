@@ -162,10 +162,11 @@ test('E2E-16 expired participant reauthenticates without a URL bearer @E2E-16', 
   const hostPage = await openContextPage(browser);
   const guestPage = await openContextPage(browser);
   const socketUrls: string[] = [];
+  const guestSocketUrls: string[] = [];
   const requestUrls: string[] = [];
   await Promise.all([
     observeSocketAndRequestUrls(hostPage, socketUrls, requestUrls),
-    observeSocketAndRequestUrls(guestPage, socketUrls, requestUrls),
+    observeSocketAndRequestUrls(guestPage, guestSocketUrls, requestUrls),
   ]);
 
   try {
@@ -257,7 +258,10 @@ test('E2E-16 expired participant reauthenticates without a URL bearer @E2E-16', 
     )?.side;
     // Mutant: the participant's role broadens before reauthentication.
     expect(guestSideBeforeExpiry).toBe('opponent');
-    assertNoBearerInUrls([...socketUrls, ...requestUrls], [shortToken.token]);
+    assertNoBearerInUrls(
+      [...socketUrls, ...guestSocketUrls, ...requestUrls],
+      [shortToken.token],
+    );
 
     const delayUntilExpiry = Math.max(
       1_000,
@@ -265,20 +269,28 @@ test('E2E-16 expired participant reauthenticates without a URL bearer @E2E-16', 
     );
     await guestPage.waitForTimeout(delayUntilExpiry);
 
-    const socketCountBeforeStaleReload = socketUrls.length;
+    const socketCountBeforeStaleReload = guestSocketUrls.length;
     await guestPage.reload({ waitUntil: 'domcontentloaded' });
+    // The initial vault render precedes credential restoration. Establish
+    // a guest redial before observing the terminal stale-token prompt;
+    // a host reconnect cannot satisfy this boundary.
+    await expect
+      .poll(() => guestSocketUrls.length, { timeout: 90_000 })
+      .toBeGreaterThan(socketCountBeforeStaleReload);
     // The live socket is not proactively closed on expiry - the reload
     // forces the first boundary that verifies the stale credential. The
     // terminal-stale-credential recovery then CLEARS the dead token and
     // surfaces the vault prompt directly (the unavailable panel is the
     // pre-fix stranding this scenario exists to forbid). Reconnect
     // exhaustion plus backoff can take a while - budget generously.
+    // Accepting an expired credential would keep the game surface visible
+    // instead of returning to the vault prompt after the stale redial.
     await expect(
       guestPage.getByRole('heading', { name: 'Unlock vault' }),
     ).toBeVisible({ timeout: 90_000 });
-    // Mutant: the expired token is accepted during an upgrade. A stale
-    // reload would stay on the game surface and never re-dial sockets.
-    expect(socketUrls.length).toBeGreaterThan(socketCountBeforeStaleReload);
+    expect(guestSocketUrls.length).toBeGreaterThan(
+      socketCountBeforeStaleReload,
+    );
     await guestPage.getByPlaceholder('Vault password').fill(GUEST_PASSWORD);
     const remintResponse = guestPage.waitForResponse(
       (response) =>
@@ -317,7 +329,7 @@ test('E2E-16 expired participant reauthenticates without a URL bearer @E2E-16', 
       ),
     ).toHaveLength(1);
     assertNoBearerInUrls(
-      [...socketUrls, ...requestUrls],
+      [...socketUrls, ...guestSocketUrls, ...requestUrls],
       [shortToken.token, remintedToken.token],
     );
   } finally {

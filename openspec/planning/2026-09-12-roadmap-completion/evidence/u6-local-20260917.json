@@ -1,0 +1,187 @@
+{
+  "unit": "U6",
+  "stage": "local",
+  "at": "2026-09-17T09:03:22.778Z",
+  "baseline": "9913f06e775b90cff8633ce3798b942f0536a2eb",
+  "worktree": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\u6",
+  "branch": "codex/roadmap-u6-e2e-16-diagnosis-20260917",
+  "implementerModel": "codex gpt-6 (codex exec, sandbox bypassed; Grok CLI rotated out after hanging on tool use)",
+  "status": "local-verified",
+  "verdict": "harness repaired",
+  "diagnosis": "Initial vault render precedes restored-token dial. Probe assertion read count=2 at 08:35:58.115Z; three stale dials followed, rejected, and count reached 5. Credential was cleared after the last failed dial. Route survival and socket path are correct.",
+  "repair": [
+    "Guest socket URLs are counted independently of host sockets.",
+    "Poll for guest redial before checking terminal vault prompt; preserve final count assertion.",
+    "Retain host and guest URL sweep, stable principal, membership, seat and side assertions."
+  ],
+  "lineCounts": {
+    "trackedAdded": 21,
+    "trackedDeleted": 7,
+    "admission": 94,
+    "red": 113,
+    "local": 187,
+    "totalNonGeneratedChanges": 422,
+    "files": 5,
+    "capFiles": 15,
+    "capLines": 500
+  },
+  "runCommand": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=<group>; token-* uses token-pack; authority and lifecycle-pack use their names.",
+  "runs": [
+    {
+      "label": "token-green-1",
+      "result": "2 passed (1.7m)"
+    },
+    {
+      "label": "token-green-2",
+      "result": "2 passed (1.7m)"
+    },
+    {
+      "label": "token-green-3",
+      "result": "2 passed (1.7m)"
+    },
+    {
+      "label": "authority",
+      "result": "2 failed / 18 passed (4.4m)"
+    },
+    {
+      "label": "lifecycle-pack",
+      "result": "2 passed (14.4s)"
+    },
+    {
+      "label": "token-M1",
+      "result": "2 passed (1.7m)"
+    },
+    {
+      "label": "token-M2",
+      "result": "1 failed / 1 passed (3.2m)"
+    },
+    {
+      "label": "token-M3",
+      "result": "1 failed / 1 passed (1.7m)"
+    },
+    {
+      "label": "token-M4",
+      "result": "1 failed / 1 passed (3.2m)"
+    }
+  ],
+  "gates": {
+    "tsc": "npx --no-install tsc --noEmit: exit 0; no output.",
+    "oxfmt": "npx --no-install oxfmt --check <five changed files>: exit 0; Finished in 16ms on 1 files using 16 threads. Only the E2E file is checked; openspec/ is ignored by .prettierignore:12.",
+    "oxlint": "npx --no-install oxlint <five changed files>: exit 0; Finished in 7ms on 0 files using 16 threads. (vacuous; ignored paths).",
+    "pinSuite": "npx --no-install jest scripts/__tests__/gm-two-player-campaign-qc.test.ts --runInBand: exit 0; Tests: 12 passed, 12 total; last line: Ran all test suites matching /scripts\\__tests__\\gm-two-player-campaign-qc.test.ts/i.",
+    "openspecCi": "npm run qc:openspec-ci:validate: exit 0; [qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+    "roadmap": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs: exit 0; ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows"
+  },
+  "mutants": [
+    {
+      "id": "M1",
+      "file": "src/lib/multiplayer/server/auth.ts",
+      "change": "Remove the expired-token rejection from verifyPlayerToken.",
+      "result": "2 passed (1.7m)",
+      "verdict": "survived; server.js:320 independently rejected all three expired upgrades. This mutation did not exercise acceptance at the upgrade boundary.",
+      "reverted": true
+    },
+    {
+      "id": "M2",
+      "file": "src/pages/multiplayer/lobby/[roomCode].tsx",
+      "change": "Clear an expired restored token before dialing.",
+      "result": "1 failed / 1 passed (3.2m)",
+      "assertion": "e2e/gm-two-player-token.pack.spec.ts:277-279: guestSocketUrls count poll expected > 1, received 1; timeout 90000ms.",
+      "reverted": true
+    },
+    {
+      "id": "M3",
+      "file": "src/lib/multiplayer/client.ts",
+      "change": "Put the wire token in the query string only on an expired-token dial.",
+      "result": "1 failed / 1 passed (1.7m)",
+      "assertion": "e2e/helpers/tokenPackUrlSweep.ts:36: expect(url.searchParams.has('token')).toBe(false), received true; called from token.pack.spec.ts:331.",
+      "reverted": true
+    },
+    {
+      "id": "M4",
+      "file": "src/pages/multiplayer/lobby/[roomCode].tsx",
+      "change": "Disable terminal stale-credential recognition after reconnect exhaustion.",
+      "result": "1 failed / 1 passed (3.2m)",
+      "assertion": "e2e/gm-two-player-token.pack.spec.ts:288-290: expect(guestPage.getByRole('heading', { name: 'Unlock vault' })).toBeVisible; expected visible, element not found; timeout 90000ms.",
+      "reverted": true
+    }
+  ],
+  "builds": [
+    "1 build-baseline: incomplete, PowerShell stderr handling stopped webpack.",
+    "2 build-baseline-retry: compiled and route table printed.",
+    "3 build-M1: compiled and route table printed.",
+    "4 build-M2: compiled and route table printed.",
+    "5 build-M3: compiled and route table printed.",
+    "6 build-M4: compiled and route table printed."
+  ],
+  "buildLimit": "6/6 attempts. The five completed compilations each have a standalone server, exactly one __E2E_MODE__ marker, and the expected hydrate exit 1 at the node_modules junction. Exact proof JSON files accompany logs.",
+  "isolation": "Node v22.22.0 selected. Before each build and Playwright run, enumerate node command lines, excluding agents and unrelated checkout paths; wait at 30-second intervals and stop at five minutes. Every gate admitted immediately. Runner selected isolated durable runtime and owned port; server PID and port are retained in run logs. No dependency installation, Git commit or publication.",
+  "nonClaims": [
+    "Local verification only; no review, merge, main proof, tick or checkbox change.",
+    "Genesis clauses remain red; no campaign/combat journal flag changed.",
+    "Historical D2 green was not rerun or reconciled.",
+    "No product repair; temporary mutants reverted with git checkout and clean src diff recorded.",
+    "Oxlint ignores these paths; a vacuous check is not lint coverage.",
+    "OpenSpec files are formatter-ignored. A direct local-receipt-only formatting attempt returned Expected at least one target file; all five requested paths together pass with one E2E file checked. Receipts are parsed as JSON separately.",
+    "No post-mutant clean build: six-build cap used. The ignored .next output is from M4 and must be rebuilt before further browser proof; green proofs precede mutations against the same restored product source."
+  ],
+  "findingsReportedNotFixed": [
+    "FN-genesis-branch-row-is-a-mirror-side-effect: council disclosure retained under D2; this authority run confirms both genesis rows fail.",
+    "FN-u3-wait-for-relaunch-can-pass-vacuously: existing council finding, outside this diagnosis; no repair or new proof claimed."
+  ],
+  "contentHashes": [
+    "019152136468b721ba0a2f186cc36b508af4e04a3be47d23cb563dc6ce3c91df e2e/gm-two-player-token.pack.spec.ts",
+    "91bca5314b685e6ad5e1d45daaa650b7c35ff8fd26845055820bd188363886ad openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md"
+  ],
+  "artifacts": [
+    "b3f7537407e32a165e962c3a27b12e40357987c2edb2c305894659947ecbce3e .sisyphus/u6-evidence/authority-result.json",
+    "7213ad6f1518433a090c7c9a46bd26bdd4cc79efd8b23435983eb55a3546f6c1 .sisyphus/u6-evidence/authority.log",
+    "89370615a42ce1ae3d81fbf5dbe98c0b00339424af9e8c8c271606254b71edb6 .sisyphus/u6-evidence/build-baseline-retry-proof.json",
+    "dc5c0297d20bad9e59f2c971ea0f37c7ee3da912c19585c633969184a758fb9a .sisyphus/u6-evidence/build-baseline-retry.log",
+    "9974250bcb9f6b0984dd2b38eff737a3bb56b13bd01c9711ac5d7459a793e1b2 .sisyphus/u6-evidence/build-baseline.log",
+    "0fbe78242f9bfc569640c287117f8d6b34995e208863df9912e036c232e3a95f .sisyphus/u6-evidence/build-M1-proof.json",
+    "8cc29e9d2bcc3341caf20294863108b08563334097d552840957256cd343b0a3 .sisyphus/u6-evidence/build-M1-result.json",
+    "aad0a857a2a1fe1840fff222f88f77e8f1af03e100d73ffcd0f5fe42c4e2d8bb .sisyphus/u6-evidence/build-M1.log",
+    "23edb49a6909d2c778e614770e98c7fcf2229bc051fbd7eeb3998659dc82a934 .sisyphus/u6-evidence/build-M2-proof.json",
+    "3c5ab3709b26a61ebc18e0978babbd93df8719fcc6fc9ffb0b2d0cfadb964bff .sisyphus/u6-evidence/build-M2-result.json",
+    "10122359dcb97ceb2ef4ee9eb8d65b607fcfe1c18d901086207dfac77df194d8 .sisyphus/u6-evidence/build-M2.log",
+    "0d84ea189ce190cd84dbb75081e66831e25a84669dfb6a368e8648e98338c12b .sisyphus/u6-evidence/build-M3-proof.json",
+    "82fd34c83844d5fb2f736826b9708ae0f4a3b612fff7bde913160d33845e5faa .sisyphus/u6-evidence/build-M3-result.json",
+    "34947edbad83b5fe44565a8dac266c5a9516b6aef21c95702bf6c86e6242d04b .sisyphus/u6-evidence/build-M3.log",
+    "90ff78afc600a704b93ba432c3a8ec46bcc3ed02d90cce29a93cf5fdb7e1ddf8 .sisyphus/u6-evidence/build-M4-proof.json",
+    "dea6d5f254952e4af37d44d6c9e592c172a8c735a8e921cb8bcb885454155c88 .sisyphus/u6-evidence/build-M4-result.json",
+    "453d063f0277c958879c13979edc52f03494f7570b7f9aac27d86746fd4af2d5 .sisyphus/u6-evidence/build-M4.log",
+    "634ec2298c7cb592486bf61e5396b7ce360e8e02b448bf6e03131739323627c0 .sisyphus/u6-evidence/jest-pin.log",
+    "d610d5a0f45bd170b312f22034c9c5343aeece9f42bb6ad9bfe29d98b3447639 .sisyphus/u6-evidence/lifecycle-pack-result.json",
+    "74e80da8bbdff727843c38982625c74e6e305f0553a05312ccd0f02cad81c84a .sisyphus/u6-evidence/lifecycle-pack.log",
+    "cc628256f67ffae153e85528cb50754a12fcc43f83f15fdc2c94e25e69c226f0 .sisyphus/u6-evidence/M1-revert.log",
+    "8d121f6449ad11154ada074114722fc5d4e335b350308cdc5f5bfad4a500d502 .sisyphus/u6-evidence/M1.diff",
+    "54a86018f6f41eb37087f83009c9259e4e00da111485c0bd45630c196d228be5 .sisyphus/u6-evidence/M2-revert.log",
+    "a1b047d0355cee6bc960e12a54af62679c4dc96c0f9cbbc4491bed2952279d76 .sisyphus/u6-evidence/M2.diff",
+    "617bd1cca0b21f263afab3fc214e3b129ae847a09555c6fb7acbffe508efc9aa .sisyphus/u6-evidence/M3-revert.log",
+    "ae16e6f8bc7ee8d6cd1a4d83e0949b633bc4f408f1b3428baaa8c66ace53ca98 .sisyphus/u6-evidence/M3.diff",
+    "d092f68730fee155b00ae8271a459b5dbf1b2349b529d4409327e4181d064c57 .sisyphus/u6-evidence/M4-revert.log",
+    "65f139395691f45ff31c0403c6a18b14df3a5d5a586e4822f269c096bb7bcd02 .sisyphus/u6-evidence/M4.diff",
+    "6abc532f020dd202e2284ccbbc13ae9a7f1f46c542dfa246964dfe25f4c1d881 .sisyphus/u6-evidence/openspec-ci.log",
+    "4e390459f01ea0eb5553fe0ecf645c53181ecf1218c38ac8dccc7c5983600e20 .sisyphus/u6-evidence/roadmap.log",
+    "d191adbf38f808af5f67b7ccce655c0930b389ec40a3d5f04bb2a69ff8162d94 .sisyphus/u6-evidence/token-baseline.log",
+    "f336a10f41a22c8d87b7f38f86196cef7146f7e00ae05aecc53fb38285fcdf00 .sisyphus/u6-evidence/token-green-1.log",
+    "715357051f37777add1f522bde0796c682010c67a62ffbb191eced0b828ece5d .sisyphus/u6-evidence/token-green-2-result.json",
+    "39e0ab95603abb78879920d08bf2ea83a5bb535e3adf35d15f8dc1bec7ca5aac .sisyphus/u6-evidence/token-green-2.log",
+    "cb7b1f870d8d53bb65d5f531d0ba0933b1cf00b254e849d8a032c6a12302e4d4 .sisyphus/u6-evidence/token-green-3-result.json",
+    "831f7b26e56835c85bdb71df901879abb66fa8f0ddc6c089634c9594fb8ed1a2 .sisyphus/u6-evidence/token-green-3.log",
+    "ecef305ed58f2c8e5c13cfd8e1001b14d5c247ed882192dc704bcc7a77571ab3 .sisyphus/u6-evidence/token-M1-result.json",
+    "606295078ade7ed65bfe35a1e516151087f8ab5420ff9417748574ddd0c260ef .sisyphus/u6-evidence/token-M1.log",
+    "98a1887467281d92a77aecbf6c019a096571ce8b04677ff4a4a75f5103e232f7 .sisyphus/u6-evidence/token-M2-result.json",
+    "5a35cd5a63a48e8b863e211322e4faf22825b767e062578d6e8aa3ed953eaaa8 .sisyphus/u6-evidence/token-M2.log",
+    "d7f80f622600eb67fd828b2cd6994c400ebcd819843a05503b0edc7bac47d4f2 .sisyphus/u6-evidence/token-M3-result.json",
+    "14e4deae069a63de586baf3a613044871e66e67be33f0271c0d1383d5b755d08 .sisyphus/u6-evidence/token-M3.log",
+    "296fa2d2b5175cf85d61a304e8cf97569e19f4b5d3aaf92b424743edd4686be9 .sisyphus/u6-evidence/token-M4-result.json",
+    "ca72fcce898ecfb29dc6ea15ff595b3dbac6dd2f8dcd6a47467287fa5760b833 .sisyphus/u6-evidence/token-M4.log",
+    "b76f585787e86d80672054fe9d6f9111adce336be78e4b8600cab2b2f64ec4c7 .sisyphus/u6-evidence/token-probe.log",
+    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 .sisyphus/u6-evidence/tsc.log",
+    "e0369c86718ff85cb8dd2466539f786ad28811b8b0dd7671d146144ee73bbc9c .sisyphus/u6-evidence/oxfmt.log",
+    "0f10c5c5634f6b26809ead5168ca67e1f3f5287d471c01cf0952ec83b5cea059 .sisyphus/u6-evidence/oxlint.log",
+    "9b3cf20a5c9aa20d2e691385256b14bd6b40fc412b4dbfa7f96f0a9a7221d065 .sisyphus/u6-evidence/format-results.json"
+  ]
+}

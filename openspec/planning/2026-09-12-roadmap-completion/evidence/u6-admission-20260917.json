@@ -1,0 +1,94 @@
+{
+  "unit": "U6",
+  "stage": "admission",
+  "at": "2026-09-17T08:20:44.911Z",
+  "baseline": "9913f06e775b90cff8633ce3798b942f0536a2eb",
+  "worktree": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\u6",
+  "branch": "codex/roadmap-u6-e2e-16-diagnosis-20260917",
+  "originMainObserved": "c0d621e88cce3426871d6ac08e7229fbfd9bec96",
+  "baselineNote": "Pinned charter baseline retained; origin/main has advanced. No fetch or Git mutation performed.",
+  "initiallyClean": true,
+  "package": "harden-gm-two-player-campaign-sessions",
+  "dependencies": [
+    {
+      "id": "R2.authority-live",
+      "state": "main-verified"
+    }
+  ],
+  "behavior": "Diagnose E2E-16 unchanged stale-reload socket count; repair only a measured harness cause, otherwise report product-side and stop.",
+  "ownershipPaths": [
+    "e2e",
+    "openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u6-*.json"
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "hypothesis": "routeWebSocket on the guest page was installed before the first dial but the post-reload dial is not observed because the route does not survive the reload or the socket is created before the route re-attaches.",
+      "probe": "Temporary guest page.on(websocket) listener records all URLs and timestamps independently of routeWebSocket; record matcher count at reload and vault heading; revert afterwards."
+    },
+    {
+      "id": "H2",
+      "hypothesis": "The client clears the stale token before dialing (pre-dial clear) so no redial happens.",
+      "probe": "Temporary page.on(console) capture plus client/lobby/storage decision probes reporting presence and expiry only, never bearer contents; record restoration, reconnect and stale-clear decisions; revert src probes with git checkout -- file."
+    },
+    {
+      "id": "H3",
+      "hypothesis": "The reload lands on the vault prompt through a path that never dials.",
+      "probe": "Timestamp reload start/completion, every socket event, credential presence, invite resolution and vault heading; distinguish initial render from settled stale recovery; revert afterwards."
+    },
+    {
+      "id": "H4",
+      "hypothesis": "The socket dial happens but on a different path than /api/multiplayer/socket.",
+      "probe": "Unfiltered websocket events and a request listener for /api/multiplayer/socket upgrades; compare observed paths with route matcher; revert afterwards."
+    }
+  ],
+  "estimate": {
+    "activeMinutes": 60,
+    "idleWait": "unbounded by other lanes; 30-second polls",
+    "buildsPlannedMaximum": 6
+  },
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "maxBuilds": 6
+  },
+  "acceptanceCommands": [
+    "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build",
+    "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=token-pack (baseline, probe, then 3 repaired runs if harness-side)",
+    "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=authority",
+    "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=lifecycle-pack",
+    "npx tsc --noEmit",
+    "npx oxfmt --check <changed files>",
+    "npx oxlint <changed files>",
+    "npx jest scripts/__tests__/gm-two-player-campaign-qc.test.ts --runInBand",
+    "npm run qc:openspec-ci:validate",
+    "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+    "At least three rebuilt product mutants if harness repaired; each reverted and detected by the row"
+  ],
+  "risks": [
+    "Existing u3 relaunching-server PID 1076 and server PID 48448 hold machine idle gate; their cwd was read as the u3 worktree. No authority to stop them in this lane.",
+    "routeWebSocket observation changes transport semantics; compare independent listener and constructor/decision evidence.",
+    "Vault prompt may be an initial pre-restoration render rather than terminal stale-credential recovery.",
+    "Junctioned node_modules: npm install/ci/prune forbidden; expected hydrate exit must be separated from successful compilation.",
+    "Product-side cause must be reported, never fixed here; stage-3 repair gates/mutants apply only to harness repair."
+  ],
+  "nonGoals": [
+    "Product repair",
+    "waitForRelaunch repair (separate finding)",
+    "Ledger edits",
+    "Checkbox changes",
+    "Commits or publication"
+  ],
+  "resumption": {
+    "at": "2026-09-17T08:32:56.135Z",
+    "baselineVerified": "9913f06e775b90cff8633ce3798b942f0536a2eb",
+    "initialStatus": [
+      " M openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md",
+      "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u6-admission-20260917.json"
+    ],
+    "idlePolicy": "30-second polls; stop and report PID and command line after five minutes. Prior blocking processes absent at first gate.",
+    "probeAdjustment": "Use temporary e2e browser init-script console probes of credential reads/writes/removals and WebSocket construction/open/error/close, plus independent page websocket and request listeners. This observes client decisions without rebuilding product code. Revert all probe edits after measurement.",
+    "firstBuildAttempt": "PowerShell Stop preference treated webpack stderr progress as NativeCommandError; incomplete attempt counts toward six-build cap. Wrapper corrected to Continue for native execution only."
+  }
+}
