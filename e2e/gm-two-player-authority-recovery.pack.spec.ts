@@ -98,10 +98,19 @@ test('E2E-02 participant ownership survives restart @authority-recovery @E2E-02'
     await prepareHostDeathTrigger(drive);
     const before = snapshotOwnership(drive);
     await fireHostDeath(drive, request);
+    // Seats must survive the host death on disk. Read them from the
+    // same sqlite evidence as `before`, after waitForRelaunch and
+    // before any client reload/rejoin can occupy again.
+    const persisted = snapshotOwnership(drive);
+    const beforePlaying = boundPlayingSeats(before.seats);
+    const persistedPlaying = boundPlayingSeats(persisted.seats);
+    expect(persistedPlaying).toEqual(beforePlaying);
+    expect(persistedPlaying).toHaveLength(2);
+    expect(persistedPlaying.map((seat) => seat.occupantPlayerId)).toEqual(
+      beforePlaying.map((seat) => seat.occupantPlayerId),
+    );
     await reloadAll(drive);
     const after = snapshotOwnership(drive);
-    // Player slots live on IMatchMeta.seats, not campaign_session_participant.
-    expect(boundPlayingSeats(after.seats)).toHaveLength(2);
     expect(after.claims).toEqual(before.claims);
     // IMatchMeta carries readiness as seats[].ready; no revision column.
     expect(after.seatReady).toEqual(before.seatReady);

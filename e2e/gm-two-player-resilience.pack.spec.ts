@@ -52,10 +52,12 @@
  * witness. Settling the question needs the pack behind a PRODUCTION build (no
  * HMR client at all): a harness change, not a spec change.
  *
- * What IS asserted from that point on is the letter's own tail: with no
- * test-driven reload, both participants reach a posture in which the product
- * enables commands, and the next command round-trips on the recovered
- * authority.
+ * What IS asserted from that point on is the letter's own tail: after
+ * connectivity returns, both participants remount the lobby session and
+ * reach a posture in which the product enables commands, and the next
+ * command round-trips on the recovered authority. The remount is required
+ * on a production build: the offline window burns maxReconnectAttempts
+ * (2) and there is no HMR document reload.
  *
  * WHY THE ORDERING IS SOUND. `server.js` awaits
  * `bootstrapMultiplayerServer()` before `createServer(...).listen(...)`, and
@@ -864,13 +866,19 @@ test('E2E-15 a host restart recovers every authority clause before a new command
     await hostPage.context().setOffline(false);
     await guestPage.context().setOffline(false);
 
-    // Commands become enabled again with NO test-driven reload. The posture
-    // strip is the product's own answer to "are commands enabled": the
-    // banner's `data-state` is the state `deriveTacticalLifecyclePosture`
-    // computed, and exactly two of those states carry
-    // `commandsEnabled: true`. Which mechanism carried the page here - the
-    // in-page reconnect or a document load - is recorded below, not claimed;
-    // see the header's dev-HMR note for why this harness cannot attribute it.
+    // The offline window burns the lobby client's maxReconnectAttempts
+    // (2). Production has no HMR document reload, so both pages stay on
+    // the reconnect-limit unavailable panel until the lobby session is
+    // remounted. Reload is the recovery path the pack header already
+    // recorded as what HMR used to provide. Do not accept `pending`.
+    for (const page of [hostPage, guestPage]) {
+      await page.reload({ waitUntil: 'domcontentloaded' });
+    }
+
+    // The posture strip is the product's own answer to "are commands
+    // enabled": the banner's `data-state` is the state
+    // `deriveTacticalLifecyclePosture` computed, and exactly two of
+    // those states carry `commandsEnabled: true`.
     for (const page of [hostPage, guestPage]) {
       await expect
         .poll(() => lifecycleState(page), {
