@@ -13,7 +13,11 @@
       "2) [chromium] › e2e\\gm-two-player-authority-recovery.pack.spec.ts:123:5 › E2E-02 effective branch remains authoritative @authority-recovery @E2E-02",
       "3) [chromium] › e2e\\gm-two-player-token.pack.spec.ts:153:5 › E2E-16 expired participant reauthenticates without a URL bearer @E2E-16"
     ],
-    "expectedReds": "E2E-01 genesis and E2E-02 genesis (design-campaign-authority-and-sync task 5.7 non-claim; FN-genesis-branch-row-is-a-mirror-side-effect) and E2E-16 (FN-u3-e2e-16-stale-reload-socket-count)",
+    "expectedReds": [
+      "E2E-01 genesis branch recovers (gm-two-player-authority-recovery.pack.spec.ts:66): the genesis clause is gated on design-campaign-authority-and-sync task 5.7, an owner-gated production flag, and is recorded as a non-claim (FN-genesis-branch-row-is-a-mirror-side-effect) until the cutover",
+      "E2E-02 effective branch remains authoritative (gm-two-player-authority-recovery.pack.spec.ts:123): same task 5.7 genesis gate and the same non-claim; the campaign genesis branch row is only written by the match-journal mirror while the combat-journal mode is off",
+      "E2E-16 expired participant reauthenticates without a URL bearer (gm-two-player-token.pack.spec.ts:153): recorded finding FN-u3-e2e-16-stale-reload-socket-count, carried forward rather than repaired in U3"
+    ],
     "unexpectedReds": [],
     "tsc": "exit 0"
   },
