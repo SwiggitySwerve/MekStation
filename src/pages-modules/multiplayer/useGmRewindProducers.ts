@@ -43,47 +43,72 @@ function believedHeadRevision(mirrorEvents: readonly IGameEvent[]): number {
   return lastSequence < 0 ? 0 : lastSequence + 1;
 }
 
+/**
+ * The one request body both GM flows are built from. Exported because the
+ * correction producers (`useGmCorrectionProducers`) must ask for the SAME
+ * blast radius the rewind flow shows; two builders would be two CAS
+ * bindings, and the GM would approve one having been shown the other.
+ * `null` means the page has no match or no token yet, which every caller
+ * reports as `unavailable` rather than by inventing a request.
+ */
+export function buildGmRewindRequest(
+  input: IUseGmRewindProducersInput,
+): IPreviewGmCombatRewindInput | null {
+  if (!input.matchId || !input.wireToken) return null;
+  const expectedRevision = believedHeadRevision(input.mirrorEvents);
+  return {
+    matchId: input.matchId,
+    wireToken: input.wireToken,
+    // WHY: this slice has no target picker. Rewind one behind the
+    // believed head, floored at 0 so an empty mirror still names a
+    // legal revision instead of -1.
+    targetRevision: Math.max(0, expectedRevision - 1),
+    // WHY: the reader cannot see the match baseline's 'main' branch
+    // and naming it would be answered STALE_BRANCH. 'root' is the
+    // journal genesis the preview compares against.
+    expectedBranchId: ROOT_EVENT_BRANCH_ID,
+    expectedRevision,
+    // WHY: the client does not hold event_digest. The preview's
+    // expected-head check compares branch/revision/generation only
+    // (GmCombatRewindPreview.ts ~258-266). The route schema accepts
+    // any string, including empty (rewind-preview.ts line 110), so
+    // we send '' rather than invent a hash.
+    expectedDigest: '',
+    // WHY: the client cannot see generation after a correction. We
+    // send the imported baseline's first generation (1); a later
+    // correction is answered STALE_GENERATION, which the dialog
+    // already phrases.
+    expectedGeneration: MATCH_BASELINE_FIRST_GENERATION,
+  };
+}
+
 export function useGmRewindProducers(
   input: IUseGmRewindProducersInput,
 ): IUseGmRewindProducers {
   const lastRewindRequestRef = useRef<IPreviewGmCombatRewindInput | null>(null);
 
+  const { matchId, wireToken, mirrorEvents } = input;
+
   const onPreviewRewind =
     useCallback(async (): Promise<GmRewindPreviewOutcome> => {
-      if (!input.matchId || !input.wireToken) {
+      // WHY the fields are destructured above rather than the object
+      // being a dependency: the page passes a fresh object literal every
+      // render, so depending on it would rebuild this callback on every
+      // render and defeat the memo the controls below it rely on.
+      const request = buildGmRewindRequest({
+        matchId,
+        wireToken,
+        mirrorEvents,
+      });
+      if (request === null) {
         return { kind: 'unavailable' };
       }
-      const expectedRevision = believedHeadRevision(input.mirrorEvents);
-      const request: IPreviewGmCombatRewindInput = {
-        matchId: input.matchId,
-        wireToken: input.wireToken,
-        // WHY: this slice has no target picker. Rewind one behind the
-        // believed head, floored at 0 so an empty mirror still names a
-        // legal revision instead of -1.
-        targetRevision: Math.max(0, expectedRevision - 1),
-        // WHY: the reader cannot see the match baseline's 'main' branch
-        // and naming it would be answered STALE_BRANCH. 'root' is the
-        // journal genesis the preview compares against.
-        expectedBranchId: ROOT_EVENT_BRANCH_ID,
-        expectedRevision,
-        // WHY: the client does not hold event_digest. The preview's
-        // expected-head check compares branch/revision/generation only
-        // (GmCombatRewindPreview.ts ~258-266). The route schema accepts
-        // any string, including empty (rewind-preview.ts line 110), so
-        // we send '' rather than invent a hash.
-        expectedDigest: '',
-        // WHY: the client cannot see generation after a correction. We
-        // send the imported baseline's first generation (1); a later
-        // correction is answered STALE_GENERATION, which the dialog
-        // already phrases.
-        expectedGeneration: MATCH_BASELINE_FIRST_GENERATION,
-      };
       // WHY: confirm must POST this exact body. Re-deriving from the
       // mirror (or from 0) at confirm time would apply a different CAS
       // binding than the blast radius the GM approved.
       lastRewindRequestRef.current = request;
       return previewGmCombatRewind(request);
-    }, [input.matchId, input.mirrorEvents, input.wireToken]);
+    }, [matchId, mirrorEvents, wireToken]);
 
   const onConfirmRewind =
     useCallback(async (): Promise<GmCombatRewindCommitResult> => {
