@@ -687,6 +687,41 @@ describe('exact-main regression ladder rerun reads the real runner', () => {
     ]);
     expect(run.exitCode).toBe(1);
   });
+
+  // Playwright prints `N interrupted` for a run that never finished - a
+  // worker crash, the global timeout, --max-failures, or a SIGINT. It rides
+  // beside a clean `N passed` line with no `failed` line at all, so a parser
+  // blind to the word reads an aborted run as coverage. It counts as failed.
+  it('archives 2/1 and stays MISSING when the summary reports an interruption', () => {
+    const { run, archived } = rerunThrough(
+      fakeRunner(
+        'interrupted-runner.mjs',
+        '  1 interrupted\n  2 passed (7.4s)\n',
+      ),
+    );
+    expect(archived).toEqual([{ group: 'smoke', passed: 2, failed: 1 }]);
+    expect(run.lines).toEqual([
+      `EXACT_MAIN_LADDER_MISSING ${SHA_A} milestone=strict-smoke missing=smoke`,
+    ]);
+    expect(run.exitCode).toBe(1);
+  });
+
+  // The one summary token that counts errors rather than tests. Playwright
+  // prints it only when at least one test ran, so it rides directly behind a
+  // clean `N passed` line - the same false-coverage shape as an interruption.
+  it('archives 2/1 and stays MISSING when a fatal error rode beside the passes', () => {
+    const { run, archived } = rerunThrough(
+      fakeRunner(
+        'fatal-error-runner.mjs',
+        '  2 passed (6.2s)\n  1 error was not a part of any test, see above for details\n',
+      ),
+    );
+    expect(archived).toEqual([{ group: 'smoke', passed: 2, failed: 1 }]);
+    expect(run.lines).toEqual([
+      `EXACT_MAIN_LADDER_MISSING ${SHA_A} milestone=strict-smoke missing=smoke`,
+    ]);
+    expect(run.exitCode).toBe(1);
+  });
 });
 
 describe('exact-main regression ladder runner output reader', () => {
@@ -708,6 +743,18 @@ describe('exact-main regression ladder runner output reader', () => {
       '  2 did not run\n  1 passed (5s)',
       1,
       2,
+    ],
+    [
+      'an interrupted row counts as failed',
+      '  1 interrupted\n  2 passed (5.1s)',
+      2,
+      1,
+    ],
+    [
+      'the plural fatal-error token counts as failed',
+      '  2 passed (4s)\n  3 errors were not a part of any test, see above for details',
+      2,
+      3,
     ],
     ['repeated summaries add up', '  1 passed (1s)\n  2 passed (2s)', 3, 0],
     ['prose that is not a summary', 'Running 3 tests using 1 worker', 0, 0],

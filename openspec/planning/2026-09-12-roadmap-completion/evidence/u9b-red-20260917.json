@@ -118,5 +118,97 @@
     "No Playwright run, no build, no npm install/ci/prune, no npm lifecycle. npm_config_dry_run=true exported in the shell.",
     "Nothing committed, pushed or stashed; the root checkout was not touched."
   ],
+  "requiredEditRevision2": {
+    "at": "2026-09-17T09:20:00Z",
+    "why": "Lane A review (.sisyphus/roadmap-completion-20260912/u9b-lane-a-review-pass1-20260917.md, finding 1, MEDIUM) found that the installed Playwright 1.57.0 list/line reporter emits a summary word the U9b regex does not recognise: `interrupted`. Mixed with a clean `N passed` line and no explicit `failed` line, the unrecognised row is silently dropped and the run reads as coverage - a FALSE SATISFIED, which inverts the module's stated fail-closed posture. This section records the revision-2 red run: the new pin cases were added FIRST, against the U9b module exactly as it stands at PR #1815 head 08a74231173b901144605695208f0c4f356c5d7d, before any product line was touched.",
+    "reviewedHead": "08a74231173b901144605695208f0c4f356c5d7d",
+    "reporterSourceRead": {
+      "file": "node_modules/playwright/lib/reporters/base.js",
+      "function": "generateSummaryMessage",
+      "playwrightVersion": "1.57.0 (node_modules/@playwright/test/package.json)",
+      "readDirectlyThisPass": true,
+      "everyLineItCanEmit": [
+        "  N failed",
+        "  N interrupted",
+        "  N flaky",
+        "  N skipped",
+        "  N did not run",
+        "  N passed (duration)",
+        "  1 error was not a part of any test, see above for details",
+        "  N errors were not a part of any test, see above for details"
+      ],
+      "secondMissedTokenFound": "Besides `interrupted`, generateSummaryMessage's last token counts FATAL ERRORS rather than tests: `${fatalErrors.length === 1 ? '1 error was not a part of any test' : fatalErrors.length + ' errors were not a part of any test'}, see above for details`. It is pushed only when `fatalErrors.length && expected + unexpected.length + interrupted.length + flaky.length > 0`, i.e. only when at least one test ran - precisely the shape that rides behind a clean `N passed` line. The U9b regex misses it too, so it produces the same false SATISFIED, and the charter's clause 'if generateSummaryMessage emits any other word the regex still misses, cover it the same way and pin it' applies.",
+      "nonSummaryLinesRuledOut": "The indented per-test headers pushed after `failed`/`interrupted`/`flaky` come from formatTestHeader with `{ indent: '    ' }` and no `index`, so they start with spaces then `[chromium]` - never a leading digit - and cannot match either regex."
+    },
+    "filesAtRedRevision2": {
+      "scripts/qc/validate-exact-main-regression-ladder.mjs": {
+        "sha256": "5b692c341df3f49221df5c915b5bf3bbc2e26a811c7ac11a1cffefb38d958f06",
+        "lines": 403,
+        "note": "UNCHANGED from PR #1815 head - this is the file the four new cases are red against. Matches the sha256 the Lane A review recorded for the same file."
+      },
+      "scripts/__tests__/validate-exact-main-regression-ladder.test.ts": {
+        "sha256": "47943d559fb1a40382a710f2f83f4cd4d4a4f9bbc7c3817abb1d396c087034da",
+        "lines": 775,
+        "note": "728 at head + 47 lines of new pin: two rerun-branch cases and two it.each rows."
+      }
+    },
+    "commands": [
+      {
+        "id": "R3",
+        "command": "npx jest scripts/__tests__/validate-exact-main-regression-ladder.test.ts",
+        "cwd": ".sisyphus/roadmap-completion-20260912/worktrees/u9b",
+        "node": "v22.22.0",
+        "summaryLine": "Tests:       4 failed, 35 passed, 39 total",
+        "lastLine": "Ran all test suites matching /scripts\\__tests__\\validate-exact-main-regression-ladder.test.ts/i.",
+        "exitCode": 1,
+        "note": "39 total = the 35 cases at head plus revision 2's 4 new ones. All 35 existing cases still pass, unchanged, against the unchanged module."
+      },
+      {
+        "id": "R4",
+        "command": "node <scratchpad>/u9b-probe.mjs  (imports the unmodified module and calls parseRunnerOutput then evaluateExactMain)",
+        "cwd": ".sisyphus/roadmap-completion-20260912/worktrees/u9b",
+        "purpose": "Show the failure is a FALSE SATISFIED, not merely a wrong count - the pin's first assertion stops at the archived row, so the verdict is proved separately here.",
+        "output": [
+          "interrupted+passed {\"group\":\"smoke\",\"passed\":2,\"failed\":0} -> SATISFIED",
+          "passed+fatal-singular {\"group\":\"smoke\",\"passed\":2,\"failed\":0} -> SATISFIED",
+          "passed+fatal-plural {\"group\":\"smoke\",\"passed\":2,\"failed\":0} -> SATISFIED"
+        ],
+        "exitCode": 0,
+        "note": "No file was edited by this probe; it only imports the module. All three inputs are runs that did not finish clean, and all three read as coverage before the fix."
+      }
+    ],
+    "failingAssertions": [
+      {
+        "case": "rerun reads the real runner > archives 2/1 and stays MISSING when the summary reports an interruption",
+        "assertion": "expect(archived).toEqual([{ group: 'smoke', passed: 2, failed: 1 }])  (line 702)",
+        "received": "[{ group: 'smoke', passed: 2, failed: 0 }]",
+        "why": "The injected runner prints the reporter's own spelling, `  1 interrupted` then `  2 passed (7.4s)`. PLAYWRIGHT_SUMMARY's alternation has no `interrupted`, so `if (!summary) continue;` drops the row entirely: the interrupted test is counted neither as passed nor as failed, the archive records 2/0, and the CLI prints SATISFIED and exits 0 (proved by R4) although a test never completed."
+      },
+      {
+        "case": "rerun reads the real runner > archives 2/1 and stays MISSING when a fatal error rode beside the passes",
+        "assertion": "expect(archived).toEqual([{ group: 'smoke', passed: 2, failed: 1 }])  (line 719)",
+        "received": "[{ group: 'smoke', passed: 2, failed: 0 }]",
+        "why": "Same silent-drop cause on the other missed token: `  2 passed (6.2s)` then `  1 error was not a part of any test, see above for details`. A fatal error raised outside any test is not a test failure Playwright can attribute, but it is still a run that did not complete clean, and the archive currently records it as 2/0 coverage."
+      },
+      {
+        "case": "runner output reader > reads an interrupted row counts as failed",
+        "assertion": "expect(read('  1 interrupted\\n  2 passed (5.1s)')).toEqual({ group: 'smoke', passed: 2, failed: 1 })  (line 762)",
+        "received": "{ group: 'smoke', passed: 2, failed: 0 }",
+        "why": "The unit-level twin of the rerun case, pinning parseRunnerOutput directly rather than through the archive. Mirrors the existing did-not-run row."
+      },
+      {
+        "case": "runner output reader > reads the plural fatal-error token counts as failed",
+        "assertion": "expect(read('  2 passed (4s)\\n  3 errors were not a part of any test, see above for details')).toEqual({ group: 'smoke', passed: 2, failed: 3 })  (line 762)",
+        "received": "{ group: 'smoke', passed: 2, failed: 0 }",
+        "why": "generateSummaryMessage spells the fatal-error token two ways - '1 error was not' and 'N errors were not'. The rerun case above covers the singular; this row covers the plural, so both branches of that ternary are pinned."
+      }
+    ],
+    "nonClaims": [
+      "No product line was edited before this run; scripts/qc/validate-exact-main-regression-ladder.mjs is byte-identical to PR #1815 head (sha256 5b692c34...).",
+      "No Playwright run, no build, no npm install/ci/prune. npm_config_dry_run=true exported in every shell.",
+      "Nothing committed, pushed or stashed; the root checkout at E:/Projects/MekStation was not touched."
+    ],
+    "status": "red-recorded"
+  },
   "status": "red-recorded"
 }

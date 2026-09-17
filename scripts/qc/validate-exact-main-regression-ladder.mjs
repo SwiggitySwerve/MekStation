@@ -135,13 +135,31 @@ export function parseReceiptGroups(receipt) {
 
 /**
  * Playwright's own end-of-run summary, as its list and line reporters print
- * it: leading spaces, a count, one of five outcome words, and - for `passed`
+ * it: leading spaces, a count, one of six outcome words, and - for `passed`
  * only - a parenthesised duration. Nothing may follow but that duration, so
  * a line that merely contains a number and a word ("Running 3 tests using 1
  * worker") is not a summary.
+ *
+ * The six words are every count-of-tests token generateSummaryMessage can
+ * push (playwright/lib/reporters/base.js, 1.57.0). `interrupted` was missing
+ * here until U9b's revision 2: a run with some interrupted tests, some
+ * passes and no explicit `failed` line printed a word this pattern rejected,
+ * so the row was dropped and the run read as clean coverage - a false
+ * SATISFIED, the one direction this contract must never fail in.
  */
 const PLAYWRIGHT_SUMMARY =
-  /^ *(\d+) (passed|failed|flaky|skipped|did not run)(?: \([^)]*\))? *$/;
+  /^ *(\d+) (passed|failed|flaky|skipped|did not run|interrupted)(?: \([^)]*\))? *$/;
+
+/**
+ * The one summary token generateSummaryMessage prints that counts ERRORS
+ * rather than tests: a fatal error raised outside any test, spelled "1 error
+ * was not a part of any test, see above for details" for one and "N errors
+ * were not ..." for more. Playwright pushes it only when at least one test
+ * ran, so it rides directly behind a clean `N passed` line - the same
+ * false-coverage shape as an interruption, and counted the same way.
+ */
+const PLAYWRIGHT_FATAL_ERRORS =
+  /^ *(\d+) errors? (?:was|were) not a part of any test, see above for details *$/;
 
 /**
  * What the runner just proved about the ONE group it was asked to run.
@@ -155,12 +173,13 @@ const PLAYWRIGHT_SUMMARY =
  * (it inherits Playwright's stdio), which is why U9 archived 0/0 for a run
  * that passed: finding FN-u9-rerun-parser-expects-labeled-line.
  *
- * `flaky` and `did not run` count as FAILED. A row that went green only on
- * retry, and a row an interrupted run never executed, are both short of "ran
- * clean against this exact commit", which is the only thing E2E-80 accepts.
- * `skipped` counts as neither: a declared skip is not a failure and must not
- * zero out a real pass. Output with no summary line at all stays 0/0 and can
- * never become coverage.
+ * `flaky`, `did not run`, `interrupted` and a fatal error outside any test
+ * all count as FAILED. A row that went green only on retry, a row an aborted
+ * run never executed, a test a worker crash cut short, and an error no test
+ * owns are each short of "ran clean against this exact commit", which is the
+ * only thing E2E-80 accepts. `skipped` counts as neither: a declared skip is
+ * not a failure and must not zero out a real pass. Output with no summary
+ * line at all stays 0/0 and can never become coverage.
  */
 export function parseRunnerOutput({ group, output } = {}) {
   const labelled = parseReceiptGroups({ runtime: { playwright: output } }).find(
@@ -170,6 +189,14 @@ export function parseRunnerOutput({ group, output } = {}) {
   let passed = 0;
   let failed = 0;
   for (const line of String(output ?? '').split(/\r?\n/)) {
+    // The fatal-error token is checked first because it is not an outcome
+    // word at all: no branch below could read it, and leaving it to fall
+    // through would silently discard it the way `interrupted` was.
+    const fatal = PLAYWRIGHT_FATAL_ERRORS.exec(line);
+    if (fatal) {
+      failed += Number(fatal[1]);
+      continue;
+    }
     const summary = PLAYWRIGHT_SUMMARY.exec(line);
     if (!summary) continue;
     if (summary[2] === 'passed') passed += Number(summary[1]);
