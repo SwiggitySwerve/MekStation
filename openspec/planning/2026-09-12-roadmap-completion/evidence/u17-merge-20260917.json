@@ -1,0 +1,25 @@
+{
+  "unit": "U17",
+  "stage": "merge",
+  "at": "2026-09-17T21:05:13.002Z",
+  "pr": 1837,
+  "title": "chore(qc): the roadmap loop's fold and park generators move into the repository",
+  "head": "dd404f9ba9cd285ad80627281f8a0afb169aabc0",
+  "mergeSha": "149598d9b94e25e0abfc43a701ec9bf2952e1a04",
+  "mergedAt": "2026-09-17T21:00:47Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u17-admission-20260917.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u17-local-20260917.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u17-red-20260917.json",
+    "package.json",
+    "scripts/__tests__/roadmap-loop-scripts.test.ts",
+    "scripts/qc/roadmap-ledger-lib.mjs",
+    "scripts/qc/roadmap-unit-fold.mjs",
+    "scripts/qc/roadmap-unit-park.mjs"
+  ],
+  "blobEqualityDiffLines": 0
+}
