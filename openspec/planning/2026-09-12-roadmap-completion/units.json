@@ -1440,6 +1440,75 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
+      "state": "complete",
+      "baseline": "6eff49a2d05a6d0e6db8e3b145adadf21bf122ad",
+      "prHead": "dd404f9ba9cd285ad80627281f8a0afb169aabc0",
+      "mergeSha": "149598d9b94e25e0abfc43a701ec9bf2952e1a04",
+      "stageReceipts": {
+        "admission": {
+          "path": "evidence/u17-admission-20260917.json",
+          "baseline": "6eff49a2d05a6d0e6db8e3b145adadf21bf122ad",
+          "at": "2026-09-17T19:05:00Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/u17-red-20260917.json",
+          "at": "2026-09-17T19:30:00Z",
+          "summary": "Pin written first with the modules missing (20 red rows across the four generators originally planned; the scope note records the 7 rows U17 still asserts, the 13 that moved to the staged U17b and the 6 library cases added at the split); implementation 13/13."
+        },
+        "local": {
+          "path": "evidence/u17-local-20260917.json",
+          "at": "2026-09-17T21:25:00Z",
+          "summary": "claude-opus Agent lane; the unit split at the 500-line cap (the four generators measured 1121 product lines): U17 ships roadmap-ledger-lib.mjs, roadmap-unit-fold.mjs, roadmap-unit-park.mjs and the package scripts roadmap:fold and roadmap:park (461 product lines, 455 pin lines); closure and main proof are staged for U17b under .sisyphus/roadmap-completion-20260912/u17b-staging/. Gates: pin 13/13, tsc 0, oxfmt clean, lint:units LINT_UNITS_PASS 100/100, qc:openspec-ci errors=0, validator PASSED, sibling loop-harness pins 107/107; three mutants killed (fold sets complete 2 tests, park drops the finding 1, unknown flag skipped 1), sha256 restored; parent verification in the worktree 13/13, tsc 0, LINT_UNITS_PASS 100/100; findings F1-F7 recorded (cap split, hardcoded reviewer model, --skip-blob-check staged for U17b, park's optional summary flags, the pin's temp ledger copy path, the estimate miss, two library exports unused until U17b); this fold was produced by the unit's own roadmap-unit-fold generator on main."
+        },
+        "review": {
+          "path": "evidence/u17-review-20260917.json",
+          "head": "dd404f9ba9cd285ad80627281f8a0afb169aabc0",
+          "reviewedHead": "dd404f9ba9cd285ad80627281f8a0afb169aabc0",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet)",
+          "implementerModel": "claude-opus (Agent lane)",
+          "outputSha256": "830e62428074970c213963e70391157727599f6d6deadc7ffe5c1f982421a0b0",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u17-merge-20260917.json",
+          "pr": 1837,
+          "head": "dd404f9ba9cd285ad80627281f8a0afb169aabc0",
+          "mergeSha": "149598d9b94e25e0abfc43a701ec9bf2952e1a04"
+        },
+        "mainProof": {
+          "path": "evidence/u17-mainproof-20260917.json",
+          "mergeCommit": "149598d9b94e25e0abfc43a701ec9bf2952e1a04",
+          "verdict": "PASS",
+          "runtime": "Tests:       13 passed, 13 total"
+        },
+        "tick": {
+          "path": "evidence/u17-tick-20260917.json",
+          "taskKeys": []
+        }
+      },
+      "ownerGate": null,
+      "source20260917": "owner instruction 2026-09-17 accepting the second council's corrections (openspec/council-decisions/2026-09-17-review-what-needs-validation.md)"
+    },
+    {
+      "id": "U17b",
+      "node": "R6.loop-harness",
+      "taskKeys": [],
+      "behavior": "Narrower successor of U17 (split at the 500-line cap on 2026-09-17): scripts/qc/roadmap-unit-closure.mjs (review, merge, mainProof and tick receipts from the Lane A markdown, gh and a proof log directory; expected reds, a named re-proof commit, blob equality over the PR's own files; calls scripts/qc/preserve-run-logs.mjs on the success path) and scripts/qc/roadmap-main-proof.mjs (the proof ladder from the repository root behind the machine-idle wait, with --dry-run), their package.json scripts roadmap:closure and roadmap:main-proof, and their pin; the modules and pin cases are staged read-only at .sisyphus/roadmap-completion-20260912/u17b-staging/ by the U17 lane. Red-first on the staged pin; the --skip-blob-check injection point is a recorded finding to resolve.",
+      "ownershipPaths": [
+        "scripts/qc",
+        "scripts/__tests__",
+        "package.json"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
       "state": "planned",
       "baseline": null,
       "prHead": null,
@@ -1454,7 +1523,7 @@
         "tick": null
       },
       "ownerGate": null,
-      "source20260917": "owner instruction 2026-09-17 accepting the second council's corrections (openspec/council-decisions/2026-09-17-review-what-needs-validation.md)"
+      "source20260917": "U17 lane measured 1121 product lines for the four generators; the loop split the unit rather than record an overage of that size (GOAL: never widen a unit; write narrower successors)"
     },
     {
       "id": "U14",
