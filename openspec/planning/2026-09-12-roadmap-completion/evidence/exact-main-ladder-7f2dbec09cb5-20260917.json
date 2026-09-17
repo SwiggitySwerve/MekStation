@@ -1,0 +1,14 @@
+{
+  "sha": "7f2dbec09cb54970298dcec753d658f42e5ab16c",
+  "milestone": "strict-smoke",
+  "at": "2026-09-17T15:31:18.927Z",
+  "groups": [
+    {
+      "group": "smoke",
+      "passed": 3,
+      "failed": 0,
+      "logSha256": "d2eadbd221cfd662775ad6f781cde8b42ec294dc11a88f16ddd9b5cf4df67c5b"
+    }
+  ],
+  "verdict": "SATISFIED"
+}

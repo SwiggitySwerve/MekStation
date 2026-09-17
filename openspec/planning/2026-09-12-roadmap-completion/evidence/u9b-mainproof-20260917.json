@@ -1,0 +1,87 @@
+{
+  "unit": "U9b",
+  "stage": "mainProof",
+  "at": "2026-09-17T15:32:42.923Z",
+  "mergeCommit": "7f2dbec09cb54970298dcec753d658f42e5ab16c",
+  "checkout": "root checkout fast-forwarded to the merge commit (real node_modules; hydrate step runs)",
+  "runtime": {
+    "build": "exit 0",
+    "e2eBundleMarker": "__E2E_MODE__ present in _app chunk (run log)",
+    "playwright": "jest exact-main-ladder pin: Tests:       39 passed, 39 total",
+    "tsc": "exit 0",
+    "exactMainCheck": "EXACT_MAIN_LADDER_MISSING 7f2dbec09cb54970298dcec753d658f42e5ab16c milestone=strict-smoke missing=smoke (exit 1 before the rerun: no receipt had run the smoke group on this commit)",
+    "exactMainRerun": {
+      "contractLine": "EXACT_MAIN_LADDER_SATISFIED 7f2dbec09cb54970298dcec753d658f42e5ab16c milestone=strict-smoke groups=smoke (exit 0)",
+      "archived": "smoke 3/0 verdict SATISFIED (exact-main-ladder-archive.json; smoke log sha256 d2eadbd221cfd662775ad6f781cde8b42ec294dc11a88f16ddd9b5cf4df67c5b)",
+      "meaning": "E2E-80's strict smoke subset was rerun against exact main through the contract and archived as coverage with the milestone; the contract self-certifies on this commit (FN-u9-rerun-parser-expects-labeled-line resolved)"
+    }
+  },
+  "commands": {
+    "validator": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+    "gitAncestry": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows (--git)",
+    "next": "U4",
+    "openspecStrict": "Totals: 229 passed, 0 failed (229 items)",
+    "qcOpenspecCi": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+    "qcPin": "Tests:       24 passed, 24 total"
+  },
+  "logs": ".sisyphus/roadmap-completion-20260912/u9b-main-proof-20260917/ (local; sha256 below)",
+  "logHashes": [
+    {
+      "file": "build.log",
+      "sha256": "4086c4516b1edc66bed2a4b42eed12e019e7801f682a32a91545df7a21bd74f2"
+    },
+    {
+      "file": "exact-main-check.log",
+      "sha256": "68cd94b6a1d545387ce1b56087a2d18c0dd7643a8d3e5a924420d2961b594f69"
+    },
+    {
+      "file": "exact-main-ladder-archive.json",
+      "sha256": "b2907df7eb2e24413aa87b0ceea3aaf23fec00f01da39a254b6f3c026ef1b6ff"
+    },
+    {
+      "file": "exact-main-rerun-smoke.log",
+      "sha256": "d2eadbd221cfd662775ad6f781cde8b42ec294dc11a88f16ddd9b5cf4df67c5b"
+    },
+    {
+      "file": "exact-main-rerun.log",
+      "sha256": "d7ffca9ba6f035e3f4b0840786722fb056b0ebda649b6a63cef92eb3e465b723"
+    },
+    {
+      "file": "git-check.log",
+      "sha256": "3a226faf8a49ef91b0291f71bf5e370c534563e1b5519ffd82a6c05a40d22e8b"
+    },
+    {
+      "file": "lint-units-cli.log",
+      "sha256": "dcdc7f461660e7d955ca89650a9cf35d686379bdc3c7ec08ef417835c957aa29"
+    },
+    {
+      "file": "next.log",
+      "sha256": "14fe80b28f07f9b9471d9d2654bf25d30a623addf0c3d4a1940a679aa68d53a6"
+    },
+    {
+      "file": "openspec-strict.log",
+      "sha256": "ddfdad8a15b1c7125171f6c160d5cbafce03efb70e451989b862be993ed9a500"
+    },
+    {
+      "file": "playwright.log",
+      "sha256": "895b4bf92348bfbf525617b3fe6f4ad210983b42fa8195b827adcbca51caf254"
+    },
+    {
+      "file": "qc-openspec-ci.log",
+      "sha256": "ada1ed70bb026eced226ccfa183e2ef0bcfeb5adff01f46d7af986e0001ef8dd"
+    },
+    {
+      "file": "qc-pin.log",
+      "sha256": "61a16e1cf23f9d2ba690f6fc0e0e9582bf2d21a7bdd398acdd93fb02b9a3edfd"
+    },
+    {
+      "file": "tsc.log",
+      "sha256": "28d3b9e880a77975493dc7e359144c0295a4f694cfe0af4f928c22307bc5c320"
+    },
+    {
+      "file": "validator.log",
+      "sha256": "3a226faf8a49ef91b0291f71bf5e370c534563e1b5519ffd82a6c05a40d22e8b"
+    }
+  ],
+  "verdict": "PASS"
+}
