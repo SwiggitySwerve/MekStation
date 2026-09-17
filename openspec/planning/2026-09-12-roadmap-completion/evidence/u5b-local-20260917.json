@@ -1,0 +1,293 @@
+{
+  "unit": "U5b",
+  "stage": "local",
+  "at": "2026-09-17T17:16:18.150Z",
+  "baseline": "0638f87e04b34d6619a7b89587e9b1faccc61248",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u5b",
+  "branch": "codex/roadmap-u5b-correction-surface-20260917",
+  "node": "R2.multiplayer-client",
+  "ciClass": "product",
+  "reviewClasses": ["privacy", "routine"],
+  "whatLanded": [
+    "src/pages-modules/multiplayer/useGmRewindProducers.ts now exports buildGmRewindRequest(input): IPreviewGmCombatRewindInput | null, lifted out of onPreviewRewind with no behaviour change, so both GM flows ask with one request body",
+    "src/pages-modules/multiplayer/useGmCorrectionProducers.ts (new) pins the previewed request, captures the GM's private reason in a ref, and attaches it to the injected commit's argument only when it is non-empty after trim",
+    "src/components/multiplayer/NetworkedGameSurface.gmCorrection.tsx (new) carries NetworkedHostGmControls, moved out of the surface file unchanged in what it mounts, plus an optional labelled private-reason input and a status line for whatever the producers answer",
+    "src/components/multiplayer/NetworkedGameSurface.tsx widens the two correction prop signatures to accept promise-returning producers, adds the optional onPrivateReasonChange pass-through, and imports the extracted control",
+    "src/pages/multiplayer/lobby/[roomCode].tsx binds useGmCorrectionProducers and passes onPreviewHostGmCorrection, onApproveHostGmCorrection and onPrivateReasonChange, so the host GM's correction controls render in production for the first time"
+  ],
+  "lineCounts": {
+    "method": "git diff --numstat for tracked files; wc -l for untracked new files",
+    "product": [
+      {
+        "file": "src/components/multiplayer/NetworkedGameSurface.gmCorrection.tsx",
+        "kind": "new",
+        "added": 174,
+        "removed": 0,
+        "effectiveCodeLines": 116
+      },
+      {
+        "file": "src/pages-modules/multiplayer/useGmCorrectionProducers.ts",
+        "kind": "new",
+        "added": 142,
+        "removed": 0,
+        "effectiveCodeLines": 76
+      },
+      {
+        "file": "src/components/multiplayer/NetworkedGameSurface.tsx",
+        "kind": "modified",
+        "added": 23,
+        "removed": 46,
+        "effectiveCodeLinesAfter": 359,
+        "effectiveCodeLinesBefore": 382
+      },
+      {
+        "file": "src/pages-modules/multiplayer/useGmRewindProducers.ts",
+        "kind": "modified",
+        "added": 52,
+        "removed": 27,
+        "effectiveCodeLinesAfter": 71,
+        "effectiveCodeLinesBefore": 60
+      },
+      {
+        "file": "src/pages/multiplayer/lobby/[roomCode].tsx",
+        "kind": "modified",
+        "added": 18,
+        "removed": 0,
+        "effectiveCodeLinesAfter": 375,
+        "effectiveCodeLinesBefore": 362
+      }
+    ],
+    "productTotals": {
+      "filesTouched": 5,
+      "linesAdded": 409,
+      "linesRemoved": 73,
+      "net": 336,
+      "capNote": "under the 500 non-generated-line cap. ABOVE the charter's 120-200 estimate band: the overrun is comment and extraction, not behaviour. Effective (non-blank, non-comment) code in the two NEW product files is 116 + 76 = 192, inside the band; the rest is the NetworkedHostGmControls MOVE (which removes 46 lines from the surface file and re-adds them in the new one), the buildGmRewindRequest extraction (+52/-27, a pure lift), and per-file JSDoc."
+    },
+    "test": [
+      {
+        "file": "src/pages-modules/multiplayer/__tests__/lobbyCorrectionSurface.test.tsx",
+        "kind": "new",
+        "added": 333
+      },
+      {
+        "file": "src/pages-modules/multiplayer/__tests__/useGmCorrectionProducers.test.tsx",
+        "kind": "new",
+        "added": 251
+      },
+      {
+        "file": "src/components/multiplayer/__tests__/NetworkedGameSurface.correction.test.tsx",
+        "kind": "new",
+        "added": 179
+      }
+    ],
+    "testTotals": { "filesTouched": 3, "linesAdded": 763 },
+    "capsCheck": "8 product+test files touched against a 15-file cap; 409 non-generated product lines added against a 500-line cap"
+  },
+  "maxLinesHeadroomNote": "the extraction was taken because src/components/multiplayer/NetworkedGameSurface.tsx measured ~382 effective lines against oxlint's max-lines warn threshold of 400. It now measures 359 and the lobby page 375, which is why the oxlint warnings line is byte-identical to the baseline's.",
+  "pinsGreen": {
+    "command": "npx jest src/pages-modules/multiplayer/__tests__ src/components/multiplayer/__tests__/NetworkedGameSurface.correction.test.tsx",
+    "lastLine": "Ran all test suites matching /src\\\\pages-modules\\\\multiplayer\\\\__tests__|src\\\\components\\\\multiplayer\\\\__tests__\\\\NetworkedGameSurface.correction.test.tsx/i.",
+    "summary": "Test Suites: 3 passed, 3 total / Tests:       16 passed, 16 total",
+    "exitCode": 0,
+    "count": 16,
+    "wasRed": 4,
+    "redRowsNowGreen": [
+      "lobby page > mounts the correction controls and the private-reason input for the host GM",
+      "lobby page > gives the private-reason input an accessible name that says who can read it",
+      "useGmCorrectionProducers (whole suite; the module did not exist)",
+      "surface > reports every keystroke to the producer that will carry it",
+      "surface > carries an accessible name naming who may read it"
+    ]
+  },
+  "gates": [
+    {
+      "name": "focused suites",
+      "command": "npx jest src/components/multiplayer src/pages-modules/multiplayer src/pages/multiplayer",
+      "summary": "Test Suites: 14 passed, 14 total / Tests:       143 passed, 143 total",
+      "lastLine": "Ran all test suites matching /src\\\\components\\\\multiplayer|src\\\\pages-modules\\\\multiplayer|src\\\\pages\\\\multiplayer/i in 2 projects.",
+      "exitCode": 0,
+      "note": "NetworkedGameSurface.test.tsx and NetworkedGameSurface.rewind.test.tsx are inside this run and both pass, including the rewind suite's row that asserts the surface mounts NO correction stubs when a caller passes neither handler, and the row that asserts it DOES mount them for the harness that wires both. src/pages/multiplayer matched no test files of its own (Next treats .tsx there as routes), which is why the page pin lives under src/pages-modules/multiplayer/__tests__."
+    },
+    {
+      "name": "pre-existing page suite outside the owned paths",
+      "command": "npx jest src/__tests__/pages/multiplayer",
+      "summary": "Test Suites: 2 passed, 2 total / Tests:       13 passed, 13 total",
+      "exitCode": 0,
+      "note": "run because the lobby page edit is observable from src/__tests__/pages/multiplayer/lobby-roomcode.test.tsx, which asserts the exact rewind preview/confirm request bodies. No file under src/__tests__ was edited."
+    },
+    {
+      "name": "typecheck",
+      "command": "npx tsc --noEmit",
+      "lastLine": "(no output)",
+      "exitCode": 0,
+      "note": "this is the gate on the widened prop signatures: src/pages/e2e/networked-command-proof.tsx still passes `() => void` handlers and still type-checks, untouched."
+    },
+    {
+      "name": "lint",
+      "command": "npx oxlint",
+      "lastLine": "Finished in 215ms on 3812 files using 16 threads.",
+      "resultLine": "Found 84 warnings and 0 errors.",
+      "exitCode": 0,
+      "baselineResultLine": "Found 84 warnings and 0 errors.",
+      "unchangedFromBaseline": true
+    },
+    {
+      "name": "format",
+      "command": "npx oxfmt --check src/components/multiplayer/NetworkedGameSurface.tsx src/components/multiplayer/NetworkedGameSurface.gmCorrection.tsx src/components/multiplayer/__tests__/NetworkedGameSurface.correction.test.tsx src/pages-modules/multiplayer/useGmRewindProducers.ts src/pages-modules/multiplayer/useGmCorrectionProducers.ts src/pages-modules/multiplayer/__tests__/lobbyCorrectionSurface.test.tsx src/pages-modules/multiplayer/__tests__/useGmCorrectionProducers.test.tsx \"src/pages/multiplayer/lobby/[roomCode].tsx\"",
+      "lastLine": "Finished in 316ms on 8 files using 16 threads.",
+      "resultLine": "All matched files use the correct format.",
+      "exitCode": 0
+    },
+    {
+      "name": "openspec CI quality",
+      "command": "npm run qc:openspec-ci:validate",
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+      "exitCode": 0
+    },
+    {
+      "name": "roadmap validator",
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "exitCode": 0
+    },
+    {
+      "name": "roadmap validator --next",
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+      "lastLine": "U5b",
+      "exitCode": 0,
+      "note": "still U5b, because this lane records receipts only and never edits units.json"
+    }
+  ],
+  "gatesNotRun": {
+    "build": "forbidden by the charter (no next build)",
+    "playwright": "forbidden by the charter (jest only); e2e/gm-two-player-privacy.pack.spec.ts and e2e/networked-command-proof.spec.ts reference the correction test ids and are unrun here"
+  },
+  "mutants": [
+    {
+      "id": "M1",
+      "mutation": "src/pages/multiplayer/lobby/[roomCode].tsx stops passing onPreviewHostGmCorrection / onApproveHostGmCorrection / onPrivateReasonChange to NetworkedGameSurface (the three prop lines deleted)",
+      "caughtBy": "src/pages-modules/multiplayer/__tests__/lobbyCorrectionSurface.test.tsx",
+      "failingRows": [
+        "mounts the correction controls and the private-reason input for the host GM - TestingLibraryElementError: Unable to find an element by: [data-testid=\"networked-host-gm-controls\"]",
+        "gives the private-reason input an accessible name that says who can read it - Unable to find a label with the text of: Private reason (GM only)"
+      ],
+      "result": "Test Suites: 1 failed, 1 total / Tests: 2 failed, 2 passed, 4 total, exit 1",
+      "restored": true,
+      "sha256Before": "5723799d055c6c3423b3f878a5e2534bb870ed99033b089a98c0931e89cf245c",
+      "sha256AfterRestore": "5723799d055c6c3423b3f878a5e2534bb870ed99033b089a98c0931e89cf245c",
+      "digestsEqual": true
+    },
+    {
+      "id": "M2",
+      "mutation": "useGmCorrectionProducers drops the captured reason: onApproveHostGmCorrection commits the pinned request verbatim instead of spreading { reason } onto it",
+      "caughtBy": "src/pages-modules/multiplayer/__tests__/useGmCorrectionProducers.test.tsx",
+      "failingRows": [
+        "what approve commits > commits the exact previewed request plus the captured reason - Expected - 1 / Received + 0 (the reason key is missing from the commit body)",
+        "where the private reason is NOT > keeps it out of the preview request, the returned values and web storage - Expected substring: \"guest rolled for the wrong mech; GM eyes only\"; the commit calls carried only the five-field request"
+      ],
+      "result": "Test Suites: 1 failed, 1 total / Tests: 2 failed, 5 passed, 7 total, exit 1",
+      "restored": true,
+      "sha256Before": "8729a0bb9418eed34e3eda76f48aec0568a2df6a1970407bdd04cc480cb7f651",
+      "sha256AfterRestore": "8729a0bb9418eed34e3eda76f48aec0568a2df6a1970407bdd04cc480cb7f651",
+      "digestsEqual": true,
+      "note": "the privacy sweep row is what makes this mutant a double catch: the same row that forbids the reason everywhere else also asserts it IS in the one place it belongs, so dropping it is a failure and not a quieter pass"
+    },
+    {
+      "id": "M3",
+      "mutation": "the reason leaks into a public place the hook can reach: onPreviewHostGmCorrection sends { ...request, reason: privateReasonRef.current } to the preview producer",
+      "caughtBy": "src/pages-modules/multiplayer/__tests__/useGmCorrectionProducers.test.tsx",
+      "failingRows": [
+        "the previewed request > asks the injected preview for the same request the rewind flow builds - the preview argument no longer equals the rewind request",
+        "where the private reason is NOT > keeps it out of the preview request, the returned values and web storage - Expected substring: not \"guest rolled for the wrong mech; GM eyes only\"; Received: the preview call carrying \"reason\":\"guest rolled for the wrong mech; GM eyes only\""
+      ],
+      "result": "Test Suites: 1 failed, 1 total / Tests: 2 failed, 5 passed, 7 total, exit 1",
+      "restored": true,
+      "sha256Before": "8729a0bb9418eed34e3eda76f48aec0568a2df6a1970407bdd04cc480cb7f651",
+      "sha256AfterRestore": "8729a0bb9418eed34e3eda76f48aec0568a2df6a1970407bdd04cc480cb7f651",
+      "digestsEqual": true
+    }
+  ],
+  "postMutantReRun": {
+    "note": "every gate above was re-run on the restored tree, after the two mutated files were byte-restored from the saved pre-mutant copies and their sha256 digests re-verified equal",
+    "jest": "Test Suites: 14 passed, 14 total / Tests: 143 passed, 143 total, exit 0",
+    "tsc": "exit 0, no output",
+    "oxlint": "Found 84 warnings and 0 errors., exit 0",
+    "oxfmt": "All matched files use the correct format., exit 0",
+    "qc": "errors=0, exit 0",
+    "validator": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows, exit 0"
+  },
+  "finalContentHashes": {
+    "src/components/multiplayer/NetworkedGameSurface.tsx": "0938793a9435a700aa97c7826b161cc09a57c311e234bb135a08bf184a8b8d23",
+    "src/components/multiplayer/NetworkedGameSurface.gmCorrection.tsx": "bd8e130e8ac532645da574a46812ad16a7e308750a002f391c89bec692e6ad6a",
+    "src/components/multiplayer/__tests__/NetworkedGameSurface.correction.test.tsx": "cb0a7bde16c5947c688fff889cf5b0b28856ef87ef44aa1542720349f180f242",
+    "src/pages-modules/multiplayer/useGmRewindProducers.ts": "4667c24d46cb5f12eb81be49efe48c0c618498b86c7de7174b08f83dc193dc1c",
+    "src/pages-modules/multiplayer/useGmCorrectionProducers.ts": "8729a0bb9418eed34e3eda76f48aec0568a2df6a1970407bdd04cc480cb7f651",
+    "src/pages-modules/multiplayer/__tests__/lobbyCorrectionSurface.test.tsx": "c08ccaeb4801954982b47d80d90c023a834491178c494cd8935bc9c0fc370712",
+    "src/pages-modules/multiplayer/__tests__/useGmCorrectionProducers.test.tsx": "3b5255ba3901cd31e0ecd4bd004dcc78c2fcf119a2711c89241548cbce4cec88",
+    "src/pages/multiplayer/lobby/[roomCode].tsx": "5723799d055c6c3423b3f878a5e2534bb870ed99033b089a98c0931e89cf245c"
+  },
+  "nonClaims": [
+    "THE REASON DOES NOT REACH THE SERVER ON THIS HEAD. commitGmCombatRewind serialises a fixed five-field body, so the `reason` this hook attaches to the commit argument is dropped before the POST, and POST /api/matches/[id]/rewind-commit still writes the module constant REWIND_COMMIT_REASON into the private record. The capture is real, the persistence is not, and neither file is in this unit's ownership.",
+    "E2E-25 IS NOT SATISFIED BY THIS UNIT. Its THEN clause - player views show the authorized result while only the GM private record contains the private detail - needs the server half. The row itself remains a later R6.umbrella row; this unit only unblocks it (units.json rowsUnblocked: [E2E-25]).",
+    "NO LADDER / PLAYWRIGHT RUN. The charter forbids both. e2e/gm-two-player-privacy.pack.spec.ts and e2e/networked-command-proof.spec.ts assert on the same test ids this unit moved between files; nothing here proves those specs still pass, only that the ids, the container and the two buttons are byte-identical in what they render for the callers that wired them before.",
+    "NO BUILD. next build was not run, so nothing here proves the lobby route compiles under the production compiler. tsc --noEmit passed on the full project, which is the type-level half of that claim and not the bundling half.",
+    "NO BROWSER EVIDENCE. Nobody clicked Preview GM Fix or Approve GM Fix against a live server; the producers are proven against injected doubles and the rendering against jsdom.",
+    "THE STATUS LINE IS NEW BEHAVIOUR, NOT A CHARTER DELIVERABLE. NetworkedHostGmControls now renders one authored sentence for whatever a promise-returning producer answers, so that the two buttons are not a control that calls the server and shows nothing (defect #15's shape). It is inert for a caller whose handlers return void, so the /e2e proof page's DOM is unchanged. Flagged for the reviewer as the one place the implementation went past the charter's literal deliverable list.",
+    "THE CORRECTION CONTROLS DO NOT OPEN THE BLAST-RADIUS DIALOG. That dialog belongs to NetworkedGmRewindControls, which mounts beside these controls on the same lobby surface and is wired to the same request by buildGmRewindRequest. The correction control shows the same preview's summary sentence inline instead of a second dialog.",
+    "NO CONCURRENCY GUARD BETWEEN THE TWO GM CONTROLS. The rewind confirm and the correction approve now both commit the same request from the same surface; nothing serialises them on the client. A double apply is refused by the server's correction lease, which is not exercised here."
+  ],
+  "findingsReportedNotFixed": [
+    {
+      "finding": "the transport drops the private reason",
+      "evidence": "src/lib/multiplayer/client/commitGmCombatRewind.ts:57-63 builds the POST body from exactly targetRevision, expectedBranchId, expectedRevision, expectedDigest and expectedGeneration, so any additional field on the input object is discarded before the request leaves the client",
+      "node": "R2.combat",
+      "whyNotFixedHere": "src/lib is outside U5b's ownership paths and is additionally held in flight by U4 (local-verified) and U15a (local-verified)"
+    },
+    {
+      "finding": "the route has no reason field and writes a constant into the private record",
+      "evidence": "src/pages-modules/api/rewindCommitDeps.ts:38 declares REWIND_COMMIT_REASON = 'authorized combat rewind'; :47-53 declares IRewindCommitBody with no reason; src/pages/api/matches/[id]/rewind-commit.ts:199 writes that constant as the private reason",
+      "node": "R2.authority-live",
+      "whyNotFixedHere": "src/pages/api and src/pages-modules/api are outside U5b's ownership paths and excluded by the charter"
+    },
+    {
+      "recommendedSuccessor": {
+        "shape": "one narrow product unit spanning R2.combat and R2.authority-live",
+        "ownershipPaths": [
+          "src/lib/multiplayer/client",
+          "src/pages-modules/api",
+          "src/pages/api/matches"
+        ],
+        "behavior": "carry the GM's private correction reason end to end: add an optional `reason` to ICommitGmCombatRewindInput and to commitGmCombatRewind's serialised body, add it to IRewindCommitBody with isRewindCommitBody validating it as an optional bounded string, and have POST /api/matches/[id]/rewind-commit write the supplied reason into the GM private record in place of REWIND_COMMIT_REASON, falling back to the constant when none is supplied",
+        "redFirst": "a route test asserting the private record holds the supplied reason and a projection test asserting no player-visible projection, delivery payload or public event carries it - E2E-25's actual THEN clause",
+        "reviewClasses": ["privacy", "authority"],
+        "dependsOn": "U5b merged (this unit is the only producer of a client-supplied reason), and R2.combat / R2.authority-live path ownership clear of U4 and U15a",
+        "note": "the successor must also decide the field's bound and redaction rules; this unit deliberately makes no claim about maximum length, trimming beyond whitespace, or logging"
+      }
+    }
+  ],
+  "prohibitionsHeld": {
+    "npm": "npm_config_dry_run=true exported in every shell; the only npm invocation was `npm run qc:openspec-ci:validate`; no install, ci or prune anywhere",
+    "rootCheckout": "never touched; every command ran with cwd inside the u5b worktree",
+    "git": "no commit, push, stash, amend or force; git fetch origin main (read-only) was run once at admission to confirm the baseline equals origin/main",
+    "forbiddenPaths": "no edit under src/lib, src/pages/api, src/pages-modules/api, src/pages/e2e, e2e/, scripts/ or package.json",
+    "ledger": "units.json, roadmap.json and evidence/admission-snapshot.json untouched; no tasks.md checkbox checked",
+    "attribution": "no AI attribution written anywhere",
+    "machinePaths": "no absolute machine path appears in any product file; the mutant scratch copies were kept outside the worktree and are not part of the diff"
+  },
+  "finalGitStatusShort": [
+    " M src/components/multiplayer/NetworkedGameSurface.tsx",
+    " M src/pages-modules/multiplayer/useGmRewindProducers.ts",
+    " M src/pages/multiplayer/lobby/[roomCode].tsx",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u5b-admission-20260917.json",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u5b-local-20260917.json",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u5b-red-20260917.json",
+    "?? src/components/multiplayer/NetworkedGameSurface.gmCorrection.tsx",
+    "?? src/components/multiplayer/__tests__/NetworkedGameSurface.correction.test.tsx",
+    "?? src/pages-modules/multiplayer/__tests__/",
+    "?? src/pages-modules/multiplayer/useGmCorrectionProducers.ts"
+  ],
+  "reviewGate": "Lane B is required (privacy). The PR merges only after an OWNER-RULING <40-hex head> comment with the owner-ruled label on the exact proposed head, per packet PK-u5b-ruling, whose decision and ruling are both null.",
+  "implementerModel": "claude-opus (Agent lane; codex, grok CLI and cursor-agent routes exhausted on 2026-09-17)",
+  "status": "ready"
+}

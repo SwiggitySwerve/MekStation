@@ -1049,14 +1049,28 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
-      "prHead": null,
+      "state": "local-verified",
+      "baseline": "0638f87e04b34d6619a7b89587e9b1faccc61248",
+      "prHead": "8479b05e1790c282c90a6d18276031ceb1b8987f",
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/u5b-admission-20260917.json",
+          "baseline": "0638f87e04b34d6619a7b89587e9b1faccc61248",
+          "at": "2026-09-17T17:02:22.445Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/u5b-red-20260917.json",
+          "at": "2026-09-17T17:07:03.961Z",
+          "summary": "Pins written first (lobby renders the correction controls and the reason input for host-gm and not for a player or spectator; the hook passes the previewed request with the captured reason and nothing else; the input calls onPrivateReasonChange): 4 red rows plus one unloadable suite; after the change 16 rows green."
+        },
+        "local": {
+          "path": "evidence/u5b-local-20260917.json",
+          "at": "2026-09-17T17:16:18.150Z",
+          "summary": "claude-opus Agent lane; scope narrowed to the unit's paths (the transport and route halves that carry the reason to the private record are outside them and recorded for a narrow successor; E2E-25 not claimed). Gates: focused suites 14 suites / 143 tests, src/__tests__/pages/multiplayer 13/13, tsc 0, root oxlint 84 warnings 0 errors unchanged, oxfmt clean on eight files, qc:openspec-ci errors=0, validator PASSED; three mutants killed (lobby stops passing the props 2 tests, approve drops the reason 2, reason spread onto the preview request 2), sha256 restored; parent verification in the worktree 143/143, tsc 0, oxlint 84/0, test ids unchanged; product +409/-73 across five files and 763 test lines, eight files, inside the caps and above the estimate band (recorded: the controls move out of the near-max-lines surface file, the shared request builder, JSDoc); non-claims: the reason does not reach the server on this head; no ladder run in the unit."
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
@@ -1788,7 +1802,7 @@
         "R2.multiplayer-client"
       ],
       "taskKeys": [],
-      "question": "U5b (lobby page wires the host GM correction controls and the finalize path carries a private reason; review class privacy) will present a head. Does the owner rule it?",
+      "question": "U5b (lobby page wires the host GM correction controls and the finalize path carries a private reason; review class privacy) presents head 8479b05e1790c282c90a6d18276031ceb1b8987f on PR #1827. Does the owner rule it?",
       "options": [
         {
           "label": "rule the head",
