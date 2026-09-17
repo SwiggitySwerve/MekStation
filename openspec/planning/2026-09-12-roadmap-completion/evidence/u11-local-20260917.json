@@ -1,0 +1,233 @@
+{
+  "unit": "U11",
+  "stage": "local",
+  "at": "2026-09-17T10:21:07.193Z",
+  "baseline": "b6e845f333aa80c24bb37607cc4b4ecc867d3f9f",
+  "branch": "codex/roadmap-u11-machine-idle-20260917",
+  "implementerModel": "codex gpt-6 (codex exec, sandbox bypassed)",
+  "status": "ready",
+  "blocker": null,
+  "lineCounts": [
+    {
+      "file": "scripts/qc/machine-idle.mjs",
+      "kind": "product",
+      "lines": 260,
+      "sha256": "0abd6a24e9dc147551f90d420e12e4168fd21869e4b94d5ec96a9f8e5cb8c8ef"
+    },
+    {
+      "file": "scripts/__tests__/machine-idle.test.ts",
+      "kind": "test",
+      "lines": 263,
+      "sha256": "ed72c281e192188ad1fd2734433410d1e7299d0dd202e420eee0b74363a06209"
+    },
+    {
+      "file": "scripts/__tests__/machine-idle.fixture.mjs",
+      "kind": "test",
+      "lines": 62,
+      "sha256": "5c0a7b2d9ba0b9cb88c1d3a0bbe597300887556661439a223d57279aed834259"
+    }
+  ],
+  "totals": {
+    "files": 6,
+    "productLines": 260,
+    "testLines": 325,
+    "codeLines": 585,
+    "evidenceFiles": 3
+  },
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedProductLines": 500,
+    "note": "The explicit charter applies the 500-line cap to product lines; test and evidence lines are reported separately."
+  },
+  "gates": [
+    {
+      "id": "green",
+      "at": "2026-09-17T10:17:57.352Z",
+      "command": "npx jest --selectProjects unit --runTestsByPath scripts/__tests__/machine-idle.test.ts --runInBand --no-coverage",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites within paths \"scripts/__tests__/machine-idle.test.ts\".",
+      "output": "Running one project: unit\nPASS unit scripts/__tests__/machine-idle.test.ts\n  machine idle process boundary\n    √ recognizes Next build (35 ms)\n    √ recognizes Next start (33 ms)\n    √ recognizes Next image (36 ms)\n    √ recognizes standalone server (33 ms)\n    √ recognizes repository server (34 ms)\n    √ recognizes absolute repository server (33 ms)\n    √ recognizes linked worktree server (32 ms)\n    √ recognizes quoted Windows path (32 ms)\n    √ recognizes node flags (32 ms)\n    √ recognizes Playwright CLI (33 ms)\n    √ recognizes Playwright wrapper (32 ms)\n    √ recognizes a relaunching server and its child (34 ms)\n    √ recognizes Playwright browser children and descendants regardless of snapshot order (33 ms)\n    √ recognizes an orphaned Playwright headless browser by executable path or profile flags (34 ms)\n    √ ignores cursor-agent quoting a charter containing next build and server.js (35 ms)\n    √ ignores codex command lines (33 ms)\n    √ ignores grok command lines (33 ms)\n    √ ignores external MCP server.js, ordinary Chrome, quoted prose and wrong images (32 ms)\n    √ excludes only own pids while retaining foreign servers and browser descendants (34 ms)\n    √ terminates on cyclic parent ids without inventing Playwright ancestry (33 ms)\n    √ throws a typed error for empty/unparseable snapshot [] (46 ms)\n    √ throws a typed error for empty/unparseable snapshot [{}] (31 ms)\n    √ throws a typed error for empty/unparseable snapshot \"garbage\" (31 ms)\n    √ throws a typed error for empty/unparseable snapshot null (34 ms)\n    √ parses the native snapshot and requests the required process fields (32 ms)\n    √ fails closed when enumeration fails: {\"error\":\"tool missing\"} (32 ms)\n    √ fails closed when enumeration fails: {\"raw\":\"\"} (32 ms)\n    √ fails closed when enumeration fails: {\"raw\":\"not JSON\"} (31 ms)\n    √ fails closed when enumeration fails: {\"rows\":[]} (32 ms)\n    √ fails closed when enumeration fails: {\"rows\":[{}]} (32 ms)\n    √ polls busy then idle and reports the busy rows (37 ms)\n    √ passes own pids to each poll (33 ms)\n    √ rejects on timeout with the current busy list (33 ms)\n    √ propagates enumeration failure while waiting (33 ms)\n    √ CLI [] emits the status and exit code (32 ms)\n    √ CLI [] emits the status and exit code (33 ms)\n    √ CLI [\"--own-pid\",\"10\",\"--own-pid\",\"11\"] emits the status and exit code (34 ms)\n    √ CLI [\"--wait\",\"--timeout-ms\",\"0\"] emits the status and exit code (33 ms)\n    √ rejects invalid CLI arguments \"--timeout-ms\" (32 ms)\n    √ rejects invalid CLI arguments \"--own-pid\" (32 ms)\n    √ rejects invalid CLI arguments \"--unknown\" (32 ms)\n    √ CLI never announces idle on enumeration failure (33 ms)\n\nTest Suites: 1 passed, 1 total\nTests:       42 passed, 42 total\nSnapshots:   0 total\nTime:        2.077 s\nRan all test suites within paths \"scripts/__tests__/machine-idle.test.ts\".\n"
+    },
+    {
+      "id": "typecheck",
+      "at": "2026-09-17T10:18:01.015Z",
+      "command": "npx tsc --noEmit",
+      "exitCode": 0,
+      "lastLine": "",
+      "output": "",
+      "scope": "Repository typecheck passed; tsconfig.json excludes scripts/**/*, so this does not typecheck the new module or pin."
+    },
+    {
+      "id": "lint",
+      "at": "2026-09-17T10:18:34.777Z",
+      "command": "npx oxlint scripts/qc/machine-idle.mjs scripts/__tests__/machine-idle.test.ts scripts/__tests__/machine-idle.fixture.mjs openspec/planning/2026-09-12-roadmap-completion/evidence/u11-admission-20260917.json openspec/planning/2026-09-12-roadmap-completion/evidence/u11-red-20260917.json openspec/planning/2026-09-12-roadmap-completion/evidence/u11-local-20260917.json",
+      "exitCode": 0,
+      "lastLine": "Finished in 8ms on 0 files using 16 threads.",
+      "output": "Found 0 warnings and 0 errors.\nFinished in 8ms on 0 files using 16 threads.\n",
+      "scope": "Vacuous: .oxlintrc.json ignores **/scripts/**; output reports 0 files. JSON receipts are not supported lint inputs."
+    },
+    {
+      "id": "openspec",
+      "at": "2026-09-17T10:18:35.722Z",
+      "command": "npm run qc:openspec-ci:validate",
+      "exitCode": 0,
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+      "output": "\n> mekstation-app@0.1.1 qc:openspec-ci:validate\n> node scripts/qc/validate-openspec-ci-quality.mjs\n\n[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0\n"
+    },
+    {
+      "id": "roadmap",
+      "at": "2026-09-17T10:18:36.182Z",
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "exitCode": 0,
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "output": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows\n"
+    },
+    {
+      "id": "cli",
+      "at": "2026-09-17T10:18:36.272Z",
+      "command": "node scripts/qc/machine-idle.mjs",
+      "exitCode": 0,
+      "lastLine": "MACHINE_IDLE",
+      "output": "MACHINE_IDLE\n"
+    },
+    {
+      "id": "syntax",
+      "at": "2026-09-17T10:18:36.685Z",
+      "command": "node --check scripts/qc/machine-idle.mjs",
+      "exitCode": 0,
+      "lastLine": "",
+      "output": ""
+    },
+    {
+      "id": "format",
+      "at": "2026-09-17T10:20:13.680Z",
+      "command": "npx oxfmt --check scripts/qc/machine-idle.mjs scripts/__tests__/machine-idle.test.ts scripts/__tests__/machine-idle.fixture.mjs openspec/planning/2026-09-12-roadmap-completion/evidence/u11-admission-20260917.json openspec/planning/2026-09-12-roadmap-completion/evidence/u11-red-20260917.json openspec/planning/2026-09-12-roadmap-completion/evidence/u11-local-20260917.json",
+      "exitCode": 0,
+      "lastLine": "Finished in 16ms on 3 files using 16 threads.",
+      "output": "Checking formatting...\n\nAll matched files use the correct format.\nFinished in 16ms on 3 files using 16 threads.\n"
+    },
+    {
+      "id": "format-all",
+      "at": "2026-09-17T10:21:05.046Z",
+      "command": "npx oxfmt --check --ignore-path .u11-work/empty-ignore --threads=2 scripts/qc/machine-idle.mjs scripts/__tests__/machine-idle.test.ts scripts/__tests__/machine-idle.fixture.mjs openspec/planning/2026-09-12-roadmap-completion/evidence/u11-admission-20260917.json openspec/planning/2026-09-12-roadmap-completion/evidence/u11-red-20260917.json openspec/planning/2026-09-12-roadmap-completion/evidence/u11-local-20260917.json",
+      "exitCode": 0,
+      "lastLine": "Finished in 103ms on 6 files using 2 threads.",
+      "output": "Checking formatting...\n\nAll matched files use the correct format.\nFinished in 103ms on 6 files using 2 threads.\n"
+    }
+  ],
+  "mutants": [
+    {
+      "id": "M1",
+      "description": "Free-text command-line match before agent/image filtering",
+      "before": "  const command = row.CommandLine ?? '';",
+      "after": "  const command = row.CommandLine ?? '';\n  if (/next build/i.test(command)) return { busy: true };",
+      "gate": {
+        "id": "M1",
+        "at": "2026-09-17T10:17:20.745Z",
+        "command": "npx jest --selectProjects unit --runTestsByPath scripts/__tests__/machine-idle.test.ts --runInBand --no-coverage",
+        "exitCode": 1,
+        "lastLine": "Ran all test suites within paths \"scripts/__tests__/machine-idle.test.ts\".",
+        "output": "Running one project: unit\nFAIL unit scripts/__tests__/machine-idle.test.ts\n  machine idle process boundary\n    √ recognizes Next build (37 ms)\n    √ recognizes Next start (35 ms)\n    √ recognizes Next image (34 ms)\n    √ recognizes standalone server (35 ms)\n    √ recognizes repository server (34 ms)\n    √ recognizes absolute repository server (34 ms)\n    √ recognizes linked worktree server (35 ms)\n    √ recognizes quoted Windows path (35 ms)\n    √ recognizes node flags (35 ms)\n    √ recognizes Playwright CLI (34 ms)\n    √ recognizes Playwright wrapper (35 ms)\n    √ recognizes a relaunching server and its child (34 ms)\n    √ recognizes Playwright browser children and descendants regardless of snapshot order (34 ms)\n    √ recognizes an orphaned Playwright headless browser by executable path or profile flags (51 ms)\n    × ignores cursor-agent quoting a charter containing next build and server.js (36 ms)\n    × ignores codex command lines (35 ms)\n    × ignores grok command lines (35 ms)\n    × ignores external MCP server.js, ordinary Chrome, quoted prose and wrong images (36 ms)\n    √ excludes only own pids while retaining foreign servers and browser descendants (34 ms)\n    √ terminates on cyclic parent ids without inventing Playwright ancestry (35 ms)\n    √ throws a typed error for empty/unparseable snapshot [] (34 ms)\n    √ throws a typed error for empty/unparseable snapshot [{}] (35 ms)\n    √ throws a typed error for empty/unparseable snapshot \"garbage\" (34 ms)\n    √ throws a typed error for empty/unparseable snapshot null (37 ms)\n    √ parses the native snapshot and requests the required process fields (36 ms)\n    √ fails closed when enumeration fails: {\"error\":\"tool missing\"} (34 ms)\n    √ fails closed when enumeration fails: {\"raw\":\"\"} (34 ms)\n    √ fails closed when enumeration fails: {\"raw\":\"not JSON\"} (33 ms)\n    √ fails closed when enumeration fails: {\"rows\":[]} (35 ms)\n    √ fails closed when enumeration fails: {\"rows\":[{}]} (34 ms)\n    √ polls busy then idle and reports the busy rows (38 ms)\n    √ passes own pids to each poll (35 ms)\n    √ rejects on timeout with the current busy list (33 ms)\n    √ propagates enumeration failure while waiting (33 ms)\n    √ CLI [] emits the status and exit code (34 ms)\n    √ CLI [] emits the status and exit code (35 ms)\n    √ CLI [\"--own-pid\",\"10\",\"--own-pid\",\"11\"] emits the status and exit code (34 ms)\n    √ CLI [\"--wait\",\"--timeout-ms\",\"0\"] emits the status and exit code (35 ms)\n    √ rejects invalid CLI arguments \"--timeout-ms\" (33 ms)\n    √ rejects invalid CLI arguments \"--own-pid\" (32 ms)\n    √ rejects invalid CLI arguments \"--unknown\" (34 ms)\n    √ CLI never announces idle on enumeration failure (37 ms)\n\n  ● machine idle process boundary › ignores cursor-agent quoting a charter containing next build and server.js\n\n    expect(received).toEqual(expected) // deep equality\n\n    - Expected  - 1\n    + Received  + 3\n\n    - Array []\n    + Array [\n    +   30,\n    + ]\n\n      119 |         row(30, 'node cursor-agent -p \"Run next build then node server.js\"'),\n      120 |       ]),\n    > 121 |     ).toEqual([]);\n          |       ^\n      122 |   });\n      123 |   it.each(['codex', 'grok'])('ignores %s command lines', (agent) => {\n      124 |     expect(pids([row(30, `node ${agent} \"next build\"`)])).toEqual([]);\n\n      at Object.toEqual (scripts/__tests__/machine-idle.test.ts:121:7)\n\n  ● machine idle process boundary › ignores codex command lines\n\n    expect(received).toEqual(expected) // deep equality\n\n    - Expected  - 1\n    + Received  + 3\n\n    - Array []\n    + Array [\n    +   30,\n    + ]\n\n      122 |   });\n      123 |   it.each(['codex', 'grok'])('ignores %s command lines', (agent) => {\n    > 124 |     expect(pids([row(30, `node ${agent} \"next build\"`)])).toEqual([]);\n          |                                                           ^\n      125 |   });\n      126 |   it('ignores external MCP server.js, ordinary Chrome, quoted prose and wrong images', () => {\n      127 |     expect(\n\n      at toEqual (scripts/__tests__/machine-idle.test.ts:124:59)\n\n  ● machine idle process boundary › ignores grok command lines\n\n    expect(received).toEqual(expected) // deep equality\n\n    - Expected  - 1\n    + Received  + 3\n\n    - Array []\n    + Array [\n    +   30,\n    + ]\n\n      122 |   });\n      123 |   it.each(['codex', 'grok'])('ignores %s command lines', (agent) => {\n    > 124 |     expect(pids([row(30, `node ${agent} \"next build\"`)])).toEqual([]);\n          |                                                           ^\n      125 |   });\n      126 |   it('ignores external MCP server.js, ordinary Chrome, quoted prose and wrong images', () => {\n      127 |     expect(\n\n      at toEqual (scripts/__tests__/machine-idle.test.ts:124:59)\n\n  ● machine idle process boundary › ignores external MCP server.js, ordinary Chrome, quoted prose and wrong images\n\n    expect(received).toEqual(expected) // deep equality\n\n    - Expected  - 1\n    + Received  + 5\n\n    - Array []\n    + Array [\n    +   32,\n    +   33,\n    +   34,\n    + ]\n\n      134 |         row(35, 'node node_modules/next/dist/bin/next telemetry'),\n      135 |       ]),\n    > 136 |     ).toEqual([]);\n          |       ^\n      137 |   });\n      138 |   it('excludes only own pids while retaining foreign servers and browser descendants', () => {\n      139 |     expect(\n\n      at Object.toEqual (scripts/__tests__/machine-idle.test.ts:136:7)\n\nTest Suites: 1 failed, 1 total\nTests:       4 failed, 38 passed, 42 total\nSnapshots:   0 total\nTime:        2.199 s\nRan all test suites within paths \"scripts/__tests__/machine-idle.test.ts\".\n"
+      },
+      "mutatedSha256": "33dbfdd1c997c922916470a9bab40d127064b161ee8e9a9b753eede8c4afed8c",
+      "revert": {
+        "command": "git checkout -- scripts/qc/machine-idle.mjs",
+        "exitCode": 0,
+        "output": ""
+      },
+      "diff": {
+        "command": "git diff --exit-code -- scripts/qc/machine-idle.mjs",
+        "exitCode": 0,
+        "output": ""
+      },
+      "expectedSha256": "0abd6a24e9dc147551f90d420e12e4168fd21869e4b94d5ec96a9f8e5cb8c8ef",
+      "revertedSha256": "0abd6a24e9dc147551f90d420e12e4168fd21869e4b94d5ec96a9f8e5cb8c8ef",
+      "reverted": true,
+      "caught": true
+    },
+    {
+      "id": "M2",
+      "description": "Drop own-pid exclusion",
+      "before": "    if (owned.has(row.ProcessId)) return false;",
+      "after": "    // own-pid exclusion removed",
+      "gate": {
+        "id": "M2",
+        "at": "2026-09-17T10:17:24.734Z",
+        "command": "npx jest --selectProjects unit --runTestsByPath scripts/__tests__/machine-idle.test.ts --runInBand --no-coverage",
+        "exitCode": 1,
+        "lastLine": "Ran all test suites within paths \"scripts/__tests__/machine-idle.test.ts\".",
+        "output": "Running one project: unit\nFAIL unit scripts/__tests__/machine-idle.test.ts\n  machine idle process boundary\n    √ recognizes Next build (36 ms)\n    √ recognizes Next start (34 ms)\n    √ recognizes Next image (35 ms)\n    √ recognizes standalone server (33 ms)\n    √ recognizes repository server (34 ms)\n    √ recognizes absolute repository server (34 ms)\n    √ recognizes linked worktree server (35 ms)\n    √ recognizes quoted Windows path (36 ms)\n    √ recognizes node flags (36 ms)\n    √ recognizes Playwright CLI (34 ms)\n    √ recognizes Playwright wrapper (34 ms)\n    √ recognizes a relaunching server and its child (35 ms)\n    √ recognizes Playwright browser children and descendants regardless of snapshot order (35 ms)\n    √ recognizes an orphaned Playwright headless browser by executable path or profile flags (34 ms)\n    √ ignores cursor-agent quoting a charter containing next build and server.js (51 ms)\n    √ ignores codex command lines (36 ms)\n    √ ignores grok command lines (35 ms)\n    √ ignores external MCP server.js, ordinary Chrome, quoted prose and wrong images (35 ms)\n    × excludes only own pids while retaining foreign servers and browser descendants (38 ms)\n    √ terminates on cyclic parent ids without inventing Playwright ancestry (35 ms)\n    √ throws a typed error for empty/unparseable snapshot [] (35 ms)\n    √ throws a typed error for empty/unparseable snapshot [{}] (34 ms)\n    √ throws a typed error for empty/unparseable snapshot \"garbage\" (34 ms)\n    √ throws a typed error for empty/unparseable snapshot null (35 ms)\n    √ parses the native snapshot and requests the required process fields (36 ms)\n    √ fails closed when enumeration fails: {\"error\":\"tool missing\"} (34 ms)\n    √ fails closed when enumeration fails: {\"raw\":\"\"} (35 ms)\n    √ fails closed when enumeration fails: {\"raw\":\"not JSON\"} (34 ms)\n    √ fails closed when enumeration fails: {\"rows\":[]} (34 ms)\n    √ fails closed when enumeration fails: {\"rows\":[{}]} (34 ms)\n    √ polls busy then idle and reports the busy rows (36 ms)\n    × passes own pids to each poll (36 ms)\n    √ rejects on timeout with the current busy list (35 ms)\n    √ propagates enumeration failure while waiting (34 ms)\n    √ CLI [] emits the status and exit code (36 ms)\n    √ CLI [] emits the status and exit code (35 ms)\n    × CLI [\"--own-pid\",\"10\",\"--own-pid\",\"11\"] emits the status and exit code (35 ms)\n    √ CLI [\"--wait\",\"--timeout-ms\",\"0\"] emits the status and exit code (37 ms)\n    √ rejects invalid CLI arguments \"--timeout-ms\" (50 ms)\n    √ rejects invalid CLI arguments \"--own-pid\" (34 ms)\n    √ rejects invalid CLI arguments \"--unknown\" (34 ms)\n    √ CLI never announces idle on enumeration failure (36 ms)\n\n  ● machine idle process boundary › excludes only own pids while retaining foreign servers and browser descendants\n\n    expect(received).toEqual(expected) // deep equality\n\n    - Expected  - 0\n    + Received  + 2\n\n      Array [\n    +   11,\n        10,\n    +   12,\n        14,\n      ]\n\n      142 |         [11, 12],\n      143 |       ),\n    > 144 |     ).toEqual([10, 14]);\n          |       ^\n      145 |   });\n      146 |   it('terminates on cyclic parent ids without inventing Playwright ancestry', () => {\n      147 |     expect(\n\n      at Object.toEqual (scripts/__tests__/machine-idle.test.ts:144:7)\n\n  ● machine idle process boundary › passes own pids to each poll\n\n    expect(received).toEqual(expected) // deep equality\n\n    Expected: []\n    Received: undefined\n\n      210 |         options: { ownPids: [11], timeoutMs: 0 },\n      211 |       }).value,\n    > 212 |     ).toEqual([]);\n          |       ^\n      213 |   });\n      214 |   it('rejects on timeout with the current busy list', () => {\n      215 |     expect(\n\n      at Object.toEqual (scripts/__tests__/machine-idle.test.ts:212:7)\n\n  ● machine idle process boundary › CLI [\"--own-pid\",\"10\",\"--own-pid\",\"11\"] emits the status and exit code\n\n    expect(received).toBe(expected) // Object.is equality\n\n    Expected: 0\n    Received: 1\n\n      242 |   ])('CLI %j emits the status and exit code', (args, rows, status, output) => {\n      243 |     const result = run({ action: 'cli', args, outputs: [{ rows }] });\n    > 244 |     expect(result.status).toBe(status);\n          |                           ^\n      245 |     expect(result.stdout.split('\\n')[0]).toBe(output);\n      246 |     if (status === 1) expect(result.stdout).toContain('next/dist/bin/next');\n      247 |   });\n\n      at toBe (scripts/__tests__/machine-idle.test.ts:244:27)\n\nTest Suites: 1 failed, 1 total\nTests:       3 failed, 39 passed, 42 total\nSnapshots:   0 total\nTime:        2.237 s\nRan all test suites within paths \"scripts/__tests__/machine-idle.test.ts\".\n"
+      },
+      "mutatedSha256": "9b49f19bdb9cee43b43c87bc876c13faedbeaa2c8d154e7e93f62a00d96d29fd",
+      "revert": {
+        "command": "git checkout -- scripts/qc/machine-idle.mjs",
+        "exitCode": 0,
+        "output": ""
+      },
+      "diff": {
+        "command": "git diff --exit-code -- scripts/qc/machine-idle.mjs",
+        "exitCode": 0,
+        "output": ""
+      },
+      "expectedSha256": "0abd6a24e9dc147551f90d420e12e4168fd21869e4b94d5ec96a9f8e5cb8c8ef",
+      "revertedSha256": "0abd6a24e9dc147551f90d420e12e4168fd21869e4b94d5ec96a9f8e5cb8c8ef",
+      "reverted": true,
+      "caught": true
+    },
+    {
+      "id": "M3",
+      "description": "Empty or unparseable snapshot returns idle",
+      "before": "  if (!rows.length) throw new MachineSnapshotError();",
+      "after": "  if (!rows.length) return [];",
+      "gate": {
+        "id": "M3",
+        "at": "2026-09-17T10:17:28.723Z",
+        "command": "npx jest --selectProjects unit --runTestsByPath scripts/__tests__/machine-idle.test.ts --runInBand --no-coverage",
+        "exitCode": 1,
+        "lastLine": "Ran all test suites within paths \"scripts/__tests__/machine-idle.test.ts\".",
+        "output": "Running one project: unit\nFAIL unit scripts/__tests__/machine-idle.test.ts\n  machine idle process boundary\n    √ recognizes Next build (36 ms)\n    √ recognizes Next start (36 ms)\n    √ recognizes Next image (35 ms)\n    √ recognizes standalone server (36 ms)\n    √ recognizes repository server (35 ms)\n    √ recognizes absolute repository server (35 ms)\n    √ recognizes linked worktree server (35 ms)\n    √ recognizes quoted Windows path (36 ms)\n    √ recognizes node flags (35 ms)\n    √ recognizes Playwright CLI (34 ms)\n    √ recognizes Playwright wrapper (50 ms)\n    √ recognizes a relaunching server and its child (35 ms)\n    √ recognizes Playwright browser children and descendants regardless of snapshot order (35 ms)\n    √ recognizes an orphaned Playwright headless browser by executable path or profile flags (37 ms)\n    √ ignores cursor-agent quoting a charter containing next build and server.js (36 ms)\n    √ ignores codex command lines (35 ms)\n    √ ignores grok command lines (36 ms)\n    √ ignores external MCP server.js, ordinary Chrome, quoted prose and wrong images (36 ms)\n    √ excludes only own pids while retaining foreign servers and browser descendants (42 ms)\n    √ terminates on cyclic parent ids without inventing Playwright ancestry (43 ms)\n    × throws a typed error for empty/unparseable snapshot [] (39 ms)\n    × throws a typed error for empty/unparseable snapshot [{}] (36 ms)\n    × throws a typed error for empty/unparseable snapshot \"garbage\" (37 ms)\n    × throws a typed error for empty/unparseable snapshot null (50 ms)\n    √ parses the native snapshot and requests the required process fields (36 ms)\n    √ fails closed when enumeration fails: {\"error\":\"tool missing\"} (36 ms)\n    √ fails closed when enumeration fails: {\"raw\":\"\"} (35 ms)\n    √ fails closed when enumeration fails: {\"raw\":\"not JSON\"} (35 ms)\n    × fails closed when enumeration fails: {\"rows\":[]} (35 ms)\n    × fails closed when enumeration fails: {\"rows\":[{}]} (34 ms)\n    √ polls busy then idle and reports the busy rows (39 ms)\n    √ passes own pids to each poll (37 ms)\n    √ rejects on timeout with the current busy list (35 ms)\n    √ propagates enumeration failure while waiting (37 ms)\n    √ CLI [] emits the status and exit code (35 ms)\n    √ CLI [] emits the status and exit code (36 ms)\n    √ CLI [\"--own-pid\",\"10\",\"--own-pid\",\"11\"] emits the status and exit code (51 ms)\n    √ CLI [\"--wait\",\"--timeout-ms\",\"0\"] emits the status and exit code (36 ms)\n    √ rejects invalid CLI arguments \"--timeout-ms\" (34 ms)\n    √ rejects invalid CLI arguments \"--own-pid\" (34 ms)\n    √ rejects invalid CLI arguments \"--unknown\" (35 ms)\n    √ CLI never announces idle on enumeration failure (36 ms)\n\n  ● machine idle process boundary › throws a typed error for empty/unparseable snapshot []\n\n    expect(received).toEqual(expected) // deep equality\n\n    Expected: {\"code\": \"SNAPSHOT_UNAVAILABLE\", \"name\": \"MachineSnapshotError\"}\n    Received: undefined\n\n      155 |     'throws a typed error for empty/unparseable snapshot %j',\n      156 |     (snapshot) => {\n    > 157 |       expect(probe({ snapshot }).error).toEqual({\n          |                                         ^\n      158 |         name: 'MachineSnapshotError',\n      159 |         code: 'SNAPSHOT_UNAVAILABLE',\n      160 |       });\n\n      at toEqual (scripts/__tests__/machine-idle.test.ts:157:41)\n\n  ● machine idle process boundary › throws a typed error for empty/unparseable snapshot [{}]\n\n    expect(received).toEqual(expected) // deep equality\n\n    Expected: {\"code\": \"SNAPSHOT_UNAVAILABLE\", \"name\": \"MachineSnapshotError\"}\n    Received: undefined\n\n      155 |     'throws a typed error for empty/unparseable snapshot %j',\n      156 |     (snapshot) => {\n    > 157 |       expect(probe({ snapshot }).error).toEqual({\n          |                                         ^\n      158 |         name: 'MachineSnapshotError',\n      159 |         code: 'SNAPSHOT_UNAVAILABLE',\n      160 |       });\n\n      at toEqual (scripts/__tests__/machine-idle.test.ts:157:41)\n\n  ● machine idle process boundary › throws a typed error for empty/unparseable snapshot \"garbage\"\n\n    expect(received).toEqual(expected) // deep equality\n\n    Expected: {\"code\": \"SNAPSHOT_UNAVAILABLE\", \"name\": \"MachineSnapshotError\"}\n    Received: undefined\n\n      155 |     'throws a typed error for empty/unparseable snapshot %j',\n      156 |     (snapshot) => {\n    > 157 |       expect(probe({ snapshot }).error).toEqual({\n          |                                         ^\n      158 |         name: 'MachineSnapshotError',\n      159 |         code: 'SNAPSHOT_UNAVAILABLE',\n      160 |       });\n\n      at toEqual (scripts/__tests__/machine-idle.test.ts:157:41)\n\n  ● machine idle process boundary › throws a typed error for empty/unparseable snapshot null\n\n    expect(received).toEqual(expected) // deep equality\n\n    Expected: {\"code\": \"SNAPSHOT_UNAVAILABLE\", \"name\": \"MachineSnapshotError\"}\n    Received: undefined\n\n      155 |     'throws a typed error for empty/unparseable snapshot %j',\n      156 |     (snapshot) => {\n    > 157 |       expect(probe({ snapshot }).error).toEqual({\n          |                                         ^\n      158 |         name: 'MachineSnapshotError',\n      159 |         code: 'SNAPSHOT_UNAVAILABLE',\n      160 |       });\n\n      at toEqual (scripts/__tests__/machine-idle.test.ts:157:41)\n\n  ● machine idle process boundary › fails closed when enumeration fails: {\"rows\":[]}\n\n    expect(received).toEqual(expected) // deep equality\n\n    Expected: {\"code\": \"SNAPSHOT_UNAVAILABLE\", \"name\": \"MachineSnapshotError\"}\n    Received: undefined\n\n      188 |     { rows: [{}] },\n      189 |   ])('fails closed when enumeration fails: %j', (output) => {\n    > 190 |     expect(probe({ action: 'snapshot', outputs: [output] }).error).toEqual({\n          |                                                                    ^\n      191 |       name: 'MachineSnapshotError',\n      192 |       code: 'SNAPSHOT_UNAVAILABLE',\n      193 |     });\n\n      at toEqual (scripts/__tests__/machine-idle.test.ts:190:68)\n\n  ● machine idle process boundary › fails closed when enumeration fails: {\"rows\":[{}]}\n\n    expect(received).toEqual(expected) // deep equality\n\n    Expected: {\"code\": \"SNAPSHOT_UNAVAILABLE\", \"name\": \"MachineSnapshotError\"}\n    Received: undefined\n\n      188 |     { rows: [{}] },\n      189 |   ])('fails closed when enumeration fails: %j', (output) => {\n    > 190 |     expect(probe({ action: 'snapshot', outputs: [output] }).error).toEqual({\n          |                                                                    ^\n      191 |       name: 'MachineSnapshotError',\n      192 |       code: 'SNAPSHOT_UNAVAILABLE',\n      193 |     });\n\n      at toEqual (scripts/__tests__/machine-idle.test.ts:190:68)\n\nTest Suites: 1 failed, 1 total\nTests:       6 failed, 36 passed, 42 total\nSnapshots:   0 total\nTime:        2.303 s\nRan all test suites within paths \"scripts/__tests__/machine-idle.test.ts\".\n"
+      },
+      "mutatedSha256": "dbf7dc04ea554ef62c54549b877bdb6b0dec6061c3f32cffa06c0d0b4bbbb816",
+      "revert": {
+        "command": "git checkout -- scripts/qc/machine-idle.mjs",
+        "exitCode": 0,
+        "output": ""
+      },
+      "diff": {
+        "command": "git diff --exit-code -- scripts/qc/machine-idle.mjs",
+        "exitCode": 0,
+        "output": ""
+      },
+      "expectedSha256": "0abd6a24e9dc147551f90d420e12e4168fd21869e4b94d5ec96a9f8e5cb8c8ef",
+      "revertedSha256": "0abd6a24e9dc147551f90d420e12e4168fd21869e4b94d5ec96a9f8e5cb8c8ef",
+      "reverted": true,
+      "caught": true
+    }
+  ],
+  "mutationIndexScope": "Temporary GIT_INDEX_FILE inside this worktree; normal index never staged or changed. Removed during final cleanup.",
+  "nonClaims": [
+    "POSIX branch not exercised on this Windows machine.",
+    "Callers are wired in U12/U13; the ladder runner itself was not modified.",
+    "No package.json script is needed for this standalone CLI unit.",
+    "No build, Playwright run, commit, publication, owner ruling, main proof or task checkbox completion.",
+    "Live CLI reported MACHINE_IDLE at its observation time; synthetic fixtures prove busy classification and timeout behavior.",
+    "A process snapshot does not reserve the machine against another lane starting work."
+  ],
+  "findingsReportedNotFixed": [
+    "--next returned U4; its in-flight/owner-ruling state was supplied by the charter. No ledger state was changed.",
+    "The live admission snapshot contained MCP and agent candidates but no identifiable ladder/relaunching/Playwright runner. The initial broad ladder candidate match was corrected in the admission receipt with the original evidence retained.",
+    "CIM and ps expose no cwd: bare node server.js is conservatively busy; arbitrary externally named worktrees without a MekStation path component are not discoverable from absolute server.js arguments alone.",
+    ".oxlintrc.json ignores scripts and tsconfig.json excludes scripts. Neither configuration was widened; Jest and node --check provide the direct executable evidence.",
+    "Default oxfmt ignores openspec/ via .prettierignore; the default command checks only the three code files. A separate explicit six-file check uses an empty temporary ignore file and two threads. The first attempt to format the local receipt alone under default ignores returned Expected at least one target file; the explicit six-file check resolves that scope gap."
+  ],
+  "priorReceipts": [
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/u11-admission-20260917.json",
+      "sha256": "4b416fa8eefe403695eb73ab3fbc5f6f4a845ff8c1e6e1097359559c28f2856b"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/u11-red-20260917.json",
+      "sha256": "90ea46355d9763bbc5f79c5a25ce7bacbd05a9dca8bd193be60a3354b494d312"
+    }
+  ]
+}

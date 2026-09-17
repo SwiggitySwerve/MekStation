@@ -1,0 +1,219 @@
+{
+  "unit": "U11",
+  "stage": "admission",
+  "at": "2026-09-17T10:10:53.6679911Z",
+  "baseline": "b6e845f333aa80c24bb37607cc4b4ecc867d3f9f",
+  "originMain": "b6e845f333aa80c24bb37607cc4b4ecc867d3f9f",
+  "worktree": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\u11",
+  "branch": "codex/roadmap-u11-machine-idle-20260917",
+  "node": "v22.22.0",
+  "initialGitStatus": [],
+  "enumeration": {
+    "processShapes": {
+      "ladderServer": {
+        "observed": false,
+        "count": 0,
+        "rows": [],
+        "rejectedCandidates": [
+          {
+            "image": "node.exe",
+            "commandPrefix": "C:/nvm4w/nodejs/node.exe E:/Projects/mcp-astrabit-jira/server.js"
+          },
+          {
+            "image": "node.exe",
+            "commandPrefix": "C:/nvm4w/nodejs/node.exe E:/Projects/mcp-astrabit-jira/server.js"
+          }
+        ]
+      },
+      "relaunchingServer": {
+        "observed": false,
+        "rows": [],
+        "count": 0
+      },
+      "playwrightRunner": {
+        "observed": false,
+        "rows": [],
+        "count": 0
+      },
+      "agent": {
+        "observed": true,
+        "rows": [
+          {
+            "image": "codex.exe",
+            "commandPrefix": "C:\\Users\\wroll\\AppData\\Local\\OpenAI\\Codex\\bin\\eab8377aebac6c07\\codex.exe -c feat"
+          },
+          {
+            "image": "codex-computer-use-swift.exe",
+            "commandPrefix": "C:\\Users\\wroll\\AppData\\Local\\OpenAI\\Codex\\runtimes\\cua_node\\fcf5d08964516500\\bin"
+          },
+          {
+            "image": "node.exe",
+            "commandPrefix": "C:\\Users\\wroll\\AppData\\Roaming\\npm\\node.exe C:\\Users\\wroll\\AppData\\Roaming\\npm/n"
+          },
+          {
+            "image": "codex.exe",
+            "commandPrefix": "C:\\Users\\wroll\\AppData\\Roaming\\npm\\node_modules\\@openai\\codex\\node_modules\\@open"
+          },
+          {
+            "image": "node.exe",
+            "commandPrefix": "\"C:\\Users\\wroll\\AppData\\Roaming\\npm\\node.exe\" C:\\Users\\wroll\\AppData\\Roaming\\npm"
+          },
+          {
+            "image": "node_repl.exe",
+            "commandPrefix": "\"C:\\Users\\wroll\\AppData\\Local\\OpenAI\\Codex\\runtimes\\cua_node\\fcf5d08964516500\\bi"
+          },
+          {
+            "image": "node.exe",
+            "commandPrefix": "\"C:\\Users\\wroll\\AppData\\Local\\OpenAI\\Codex\\runtimes\\cua_node\\fcf5d08964516500\\bi"
+          },
+          {
+            "image": "node.exe",
+            "commandPrefix": "\"C:\\Users\\wroll\\AppData\\Roaming\\npm\\node.exe\" C:\\Users\\wroll\\AppData\\Roaming\\npm"
+          },
+          {
+            "image": "node.exe",
+            "commandPrefix": "\"C:\\Users\\wroll\\AppData\\Roaming\\npm\\node.exe\" C:\\Users\\wroll\\AppData\\Roaming\\npm"
+          },
+          {
+            "image": "node.exe",
+            "commandPrefix": "\"C:\\Users\\wroll\\AppData\\Roaming\\npm\\node.exe\" C:\\Users\\wroll\\AppData\\Roaming\\npm"
+          },
+          {
+            "image": "node.exe",
+            "commandPrefix": "\"C:\\Users\\wroll\\AppData\\Roaming\\npm\\node.exe\" C:\\Users\\wroll\\AppData\\Roaming\\npm"
+          },
+          {
+            "image": "node.exe",
+            "commandPrefix": "\"C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe\" C:\\Users\\wroll\\.codex\\plugi"
+          },
+          {
+            "image": "node.exe",
+            "commandPrefix": "\"C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe\" C:\\Users\\wroll\\.codex\\plugi"
+          },
+          {
+            "image": "node_repl.exe",
+            "commandPrefix": "C:\\Users\\wroll\\AppData\\Local\\OpenAI\\Codex\\runtimes\\cua_node\\fcf5d08964516500\\bin"
+          },
+          {
+            "image": "codex-code-mode-host.exe",
+            "commandPrefix": "\"C:\\Users\\wroll\\AppData\\Roaming\\npm\\node_modules\\@openai\\codex\\node_modules\\@ope"
+          }
+        ],
+        "count": 15
+      },
+      "mcpServer": {
+        "observed": true,
+        "rows": [
+          {
+            "image": "node.exe",
+            "commandPrefix": "C:/nvm4w/nodejs/node.exe E:/Projects/mcp-astrabit-jira/server.js"
+          },
+          {
+            "image": "node.exe",
+            "commandPrefix": "C:/nvm4w/nodejs/node.exe C:/Users/wroll/AppData/Roaming/npm/node_modules/outline"
+          },
+          {
+            "image": "node.exe",
+            "commandPrefix": "C:/nvm4w/nodejs/node.exe E:/Projects/mcp-astrabit-jira/server.js"
+          },
+          {
+            "image": "node.exe",
+            "commandPrefix": "C:/nvm4w/nodejs/node.exe C:/Users/wroll/AppData/Roaming/npm/node_modules/outline"
+          },
+          {
+            "image": "node.exe",
+            "commandPrefix": "\"C:\\Users\\wroll\\AppData\\Roaming\\npm\\node.exe\" C:\\Users\\wroll\\AppData\\Roaming\\npm"
+          },
+          {
+            "image": "node.exe",
+            "commandPrefix": "\"C:\\Users\\wroll\\AppData\\Roaming\\npm\\node.exe\" C:\\Users\\wroll\\AppData\\Roaming\\npm"
+          },
+          {
+            "image": "node.exe",
+            "commandPrefix": "\"C:\\Users\\wroll\\AppData\\Roaming\\npm\\node.exe\" C:\\Users\\wroll\\AppData\\Roaming\\npm"
+          },
+          {
+            "image": "node.exe",
+            "commandPrefix": "\"C:\\Users\\wroll\\AppData\\Roaming\\npm\\node.exe\" C:\\Users\\wroll\\AppData\\Roaming\\npm"
+          },
+          {
+            "image": "node.exe",
+            "commandPrefix": "\"C:\\Users\\wroll\\AppData\\Roaming\\npm\\node.exe\" C:\\Users\\wroll\\AppData\\Roaming\\npm"
+          },
+          {
+            "image": "node.exe",
+            "commandPrefix": "\"C:\\Users\\wroll\\AppData\\Roaming\\npm\\\\node.exe\"   \"C:\\Users\\wroll\\AppData\\Roaming"
+          }
+        ],
+        "count": 10
+      }
+    },
+    "command": "Get-CimInstance Win32_Process | Select-Object ProcessId, ParentProcessId, Name, CommandLine",
+    "note": "Observed candidates only; absence is not a measured process shape. Prefixes are limited to 80 characters; no full command lines retained. Relative server.js cannot establish its working directory from CIM.",
+    "totalProcesses": 429
+  },
+  "next": {
+    "output": ["U4"],
+    "exitCode": 0,
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "note": "--next printed U4 (in flight, awaiting the owner ruling); the explicit charter assigns U11 as the next planned unit needing no ruling."
+  },
+  "dependencies": {
+    "node": "R6.loop-harness",
+    "unitState": "planned",
+    "dependsOn": [],
+    "ownerGate": null
+  },
+  "classifierRules": [
+    "Require process image plus executable/script argument, never quoted task text.",
+    "Recognize Next build/start/next-server, repo-root or standalone server.js, relaunching-server.mjs, Playwright runners and their Chromium descendants.",
+    "Ignore command lines containing cursor-agent, codex or grok; ignore unrelated absolute MCP server.js paths.",
+    "Exclude caller ownPids; do not implicitly exclude unlisted descendants.",
+    "Throw typed enumeration error for missing tools and empty/unparseable snapshots; timeout carries current busy rows."
+  ],
+  "estimatePerFile": {
+    "scripts/qc/machine-idle.mjs": 200,
+    "scripts/__tests__/machine-idle.test.ts": 180,
+    "scripts/__tests__/machine-idle.fixture.mjs": 55
+  },
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedProductLines": 500
+  },
+  "risksForTheParent": [
+    "POSIX enumeration cannot be exercised live on this Windows machine.",
+    "CIM/ps do not provide cwd: a bare node server.js is conservatively busy; unrelated absolute MCP server.js paths are ignored.",
+    "A snapshot is an observation, not a cross-lane reservation lock.",
+    "Callers remain for U12/U13. No ladder changes, package script, ledger mutation or task checkbox."
+  ],
+  "acceptanceCommands": [
+    "npx jest --selectProjects unit --runTestsByPath scripts/__tests__/machine-idle.test.ts --runInBand --no-coverage",
+    "npx tsc --noEmit",
+    "npx oxfmt --check <changed files>",
+    "npx oxlint <changed files>",
+    "npm run qc:openspec-ci:validate",
+    "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+    "node scripts/qc/machine-idle.mjs"
+  ],
+  "corrections": [
+    {
+      "at": "2026-09-17T10:13:44.214Z",
+      "field": "enumeration.processShapes.ladderServer",
+      "original": {
+        "observed": true,
+        "rows": [
+          {
+            "image": "node.exe",
+            "commandPrefix": "C:/nvm4w/nodejs/node.exe E:/Projects/mcp-astrabit-jira/server.js"
+          },
+          {
+            "image": "node.exe",
+            "commandPrefix": "C:/nvm4w/nodejs/node.exe E:/Projects/mcp-astrabit-jira/server.js"
+          }
+        ],
+        "count": 2
+      },
+      "reason": "Admission candidate scan also matched the two external MCP server.js processes. Their retained prefixes prove neither is a ladder server. No ladder server was observed; no fresh enumeration or invented shape is substituted."
+    }
+  ]
+}
