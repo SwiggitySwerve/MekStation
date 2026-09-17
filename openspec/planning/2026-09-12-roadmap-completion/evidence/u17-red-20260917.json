@@ -1,0 +1,80 @@
+{
+  "unit": "U17",
+  "stage": "red",
+  "at": "2026-09-17T19:30:00Z",
+  "baseline": "6eff49a2d05a6d0e6db8e3b145adadf21bf122ad",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u17",
+  "branch": "codex/roadmap-u17-loop-scripts-20260917",
+  "implementerModel": "claude-opus (Agent lane; codex, grok CLI and cursor-agent routes exhausted on 2026-09-17)",
+  "pin": "scripts/__tests__/roadmap-loop-scripts.test.ts",
+  "pinWrittenBefore": "yes: the pin is the only file under scripts/ that existed when this run was taken; scripts/qc/roadmap-*.mjs did not exist",
+  "command": "npx jest scripts/__tests__/roadmap-loop-scripts.test.ts",
+  "runs": [
+    {
+      "run": 1,
+      "what": "first draft of the pin against the missing modules",
+      "result": "Tests: 17 failed, 3 passed, 20 total (exit 1)",
+      "problem": "three refusal cases passed vacuously: 'refuses when a lane receipt is missing', 'refuses a local receipt that is not ready' and 'refuses a finding file with no id' asserted only a non-zero exit and an unchanged unit state, and ERR_MODULE_NOT_FOUND satisfies both"
+    },
+    {
+      "run": 2,
+      "what": "the same pin after each of those three cases also asserts the refusal message it expects (the missing receipt filename, 'local status', 'finding')",
+      "result": "Tests: 20 failed, 20 total (exit 1)",
+      "meaning": "no assertion in the file can now be satisfied by the module simply being absent"
+    }
+  ],
+  "failingAssertions": [
+    "roadmap-unit-fold > folds the three lane receipts and leaves the unit local-verified",
+    "roadmap-unit-fold > writes stage receipts shaped like the ones already on main",
+    "roadmap-unit-fold > refuses a unit that is not planned",
+    "roadmap-unit-fold > refuses when a lane receipt is missing",
+    "roadmap-unit-fold > refuses a local receipt that is not ready",
+    "roadmap-unit-closure > writes the four closure receipts and completes the unit",
+    "roadmap-unit-closure > preserves the proof logs through the U13 helper",
+    "roadmap-unit-closure > refuses a review whose reviewedHead is not the PR head",
+    "roadmap-unit-closure > refuses a review whose verdict is not a plain APPROVE",
+    "roadmap-unit-closure > writes verdict FAIL and refuses when the runtime line reports failures",
+    "roadmap-unit-closure > accepts the stated reds when --expected-reds names each one",
+    "roadmap-unit-closure > merges extra runtime fields from --extra-runtime",
+    "roadmap-unit-closure > refuses when the checkout is not at the merge commit and no re-proof commit is named",
+    "roadmap-unit-park > folds the receipts, records the finding and blocks the unit",
+    "roadmap-unit-park > refuses a finding file with no id",
+    "roadmap-main-proof --dry-run > prints the jest ladder without running anything",
+    "roadmap-main-proof --dry-run > prints the ladder-group runtime when --runtime-group is given",
+    "roadmap-main-proof --dry-run > refuses when HEAD is not the merge commit",
+    "roadmap-main-proof --dry-run > refuses a dirty tree",
+    "roadmap-main-proof --dry-run > refuses when no runtime proof is named"
+  ],
+  "distinctUnderlyingError": [
+    "Cannot find module <worktree>/scripts/qc/roadmap-unit-fold.mjs (MODULE_NOT_FOUND)",
+    "Cannot find module <worktree>/scripts/qc/roadmap-unit-park.mjs (MODULE_NOT_FOUND)",
+    "Cannot find module <worktree>/scripts/qc/roadmap-main-proof.mjs (MODULE_NOT_FOUND)"
+  ],
+  "closureModuleNotNamedInTheErrors": "the thirteen closure cases fail one step earlier, on the fold call that seeds the unit to local-verified, so roadmap-unit-closure.mjs is never reached in this run; that is what the red actually shows and it is not claimed otherwise",
+  "whatTheRedProves": "every behaviour this unit ships - the fold's shape and its three refusals, the closure's four receipts, its head/verdict/red-count refusals and its U13 log preservation, the park's blocked block and finding, and the main proof's dry-run command list and its HEAD/dirty/runtime refusals - is absent at the baseline and is asserted by a test that fails before the implementation exists",
+  "scopeNote20260917": {
+    "at": "2026-09-17T21:10:00Z",
+    "what": "the parent split U17 after the implementation measured 1121 product lines against a 500-line cap. This red receipt is left as it was taken: the red was established against ALL FOUR generators in one pin file, which is the honest record of what was written first.",
+    "whatStaysInU17": "the fold and park cases (7 of the 20 red rows) plus six new shared-library cases that were not in this red run; those six are marked below as added after the red",
+    "whatMovesToU17b": "the thirteen closure and main-proof rows listed in failingAssertions - 'roadmap-unit-closure > ...' and 'roadmap-main-proof --dry-run > ...' - move with their modules to .sisyphus/roadmap-completion-20260912/u17b-staging/roadmap-loop-closure-proof.test.ts and are NOT asserted by what U17 ships",
+    "libraryCasesAddedAfterTheRed": [
+      "roadmap-ledger-lib > parses flag pairs and bare booleans into camelCase options",
+      "roadmap-ledger-lib > refuses an unknown flag rather than ignoring it",
+      "roadmap-ledger-lib > refuses a flag with no value",
+      "roadmap-ledger-lib > refuses a missing required flag",
+      "roadmap-ledger-lib > refuses a ledger directory that holds no units.json",
+      "roadmap-ledger-lib > reads the last matching line of a log and says so when there is none"
+    ],
+    "honestyAboutThose": "these six were written at the split, after the library existed, so they are green-first, not red-first. They are covered instead by mutant M6 (parseFlags ignores an unknown flag), which the second of them killed. The red-first claim for this unit therefore covers the fold and the park, not the library's own helper cases.",
+    "redRowsStillAssertedByU17": [
+      "roadmap-unit-fold > folds the three lane receipts and leaves the unit local-verified",
+      "roadmap-unit-fold > writes stage receipts shaped like the ones already on main",
+      "roadmap-unit-fold > refuses a unit that is not planned",
+      "roadmap-unit-fold > refuses when a lane receipt is missing",
+      "roadmap-unit-fold > refuses a local receipt that is not ready",
+      "roadmap-unit-park > folds the receipts, records the finding and blocks the unit",
+      "roadmap-unit-park > refuses a finding file with no id"
+    ]
+  },
+  "status": "red established"
+}

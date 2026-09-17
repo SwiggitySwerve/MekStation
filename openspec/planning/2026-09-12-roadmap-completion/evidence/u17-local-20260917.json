@@ -1,0 +1,240 @@
+{
+  "unit": "U17",
+  "stage": "local",
+  "at": "2026-09-17T21:25:00Z",
+  "baseline": "6eff49a2d05a6d0e6db8e3b145adadf21bf122ad",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u17",
+  "branch": "codex/roadmap-u17-loop-scripts-20260917",
+  "node": "v22.22.0",
+  "implementerModel": "claude-opus (Agent lane; codex, grok CLI and cursor-agent routes exhausted on 2026-09-17)",
+  "scopeSplit": {
+    "at": "2026-09-17",
+    "decidedBy": "parent",
+    "why": "all four generators implemented measured 1121 product lines against a 500-line cap - more than twice the ceiling. The parent split the unit rather than record an overage of that size.",
+    "u17Ships": "the shared library, the fold, the park, two package.json scripts and one pin",
+    "u17bStaged": ".sisyphus/roadmap-completion-20260912/u17b-staging/ - roadmap-unit-closure.mjs, roadmap-main-proof.mjs, roadmap-loop-closure-proof.test.ts, README.md",
+    "nothingWasDiscarded": "the two modules and all fourteen of their cases are byte-preserved in that directory; the README names what U17b must deliver, including the preserve-run-logs caller and the --skip-blob-check finding"
+  },
+  "delivered": {
+    "scripts/qc/roadmap-ledger-lib.mjs": "repo-root and ledger resolution from import.meta.url, flag parsing that refuses unknown and value-less flags, requireFlags in command-line spelling, ledger read/write, unit lookup, sha256, last-matching-log-line, the validator runner, the stage 1-3 fold shared by the fold and the park, and the CLI wrapper that turns a refusal into a code and a non-zero exit",
+    "scripts/qc/roadmap-unit-fold.mjs": "--unit --date --receipts-dir --red-summary --local-summary [--ledger-dir]; planned -> local-verified, then the validator",
+    "scripts/qc/roadmap-unit-park.mjs": "--unit --date --receipts-dir --finding --pr-head --pr --cause --next-action [--red-summary --local-summary --ledger-dir]; folds the receipts, appends the finding, blocks the unit with a blocked<date> block, then the validator and --next",
+    "package.json": "roadmap:fold and roadmap:park (two lines; nothing else touched)",
+    "scripts/__tests__/roadmap-loop-scripts.test.ts": "13 cases - 5 fold, 2 park, 6 shared library - over a temporary copy of the ledger directory with a fabricated planned unit"
+  },
+  "lineCounts": {
+    "measuredBy": "node line census after oxfmt; comment counts whole-line comments and doc blocks only",
+    "scripts/qc/roadmap-ledger-lib.mjs": { "total": 249, "code": 185, "comment": 45, "blank": 19 },
+    "scripts/qc/roadmap-unit-fold.mjs": { "total": 84, "code": 60, "comment": 19, "blank": 5 },
+    "scripts/qc/roadmap-unit-park.mjs": { "total": 126, "code": 97, "comment": 21, "blank": 8 },
+    "package.json": { "total": 2, "code": 2, "comment": 0, "blank": 0 },
+    "productTotal": 461,
+    "productCode": 344,
+    "pin": { "total": 455, "code": 376, "comment": 49, "blank": 30 },
+    "filesTouched": 4,
+    "receiptsAdded": 3,
+    "filesTouchedIncludingReceipts": 7,
+    "stagedForU17bNotCountedHere": {
+      "roadmap-unit-closure.mjs": 382,
+      "roadmap-main-proof.mjs": 276,
+      "roadmap-loop-closure-proof.test.ts": 641,
+      "README.md": 84,
+      "packageJsonLines": 2
+    }
+  },
+  "overageArithmetic": {
+    "cap": { "maxFiles": 15, "maxNonGeneratedLines": 500 },
+    "filesVerdict": "7 of 15 - inside the cap",
+    "linesVerdict": "461 product lines against a 500 cap: INSIDE by 39. No overage. (Code lines only: 344 against 500.)",
+    "beforeTheSplit": "1121 product lines, over by 621; that is the figure that caused the split and it is recorded here rather than dropped",
+    "howTheSplitAccountsFor660Lines": "1121 - 461 = 660 moved to U17b staging: roadmap-unit-closure.mjs 382 + roadmap-main-proof.mjs 276 + two package.json lines = 660 exactly",
+    "pinSplit": "792 pin lines before the split; 455 stay (13 cases, including 6 new shared-library cases written at the split) and 641 are staged (14 cases). The staged file is larger than the 337 lines removed because it carries its own copy of the shared preamble - temp ledger setup, the fabricated unit, the lane receipts, the fake gh - which both files need.",
+    "sharedLibraryNotTrimmed": "roadmap-ledger-lib.mjs ships whole. Of its 26 exports, 14 are called by the fold and the park, 10 more are used internally by those 14, and exactly 2 have no consumer in what U17 ships: sha256 (2 code lines) and lastLine (12 code lines), both of which the staged closure imports. lastLine is pinned directly by this unit anyway. Trimming 14 lines would have made U17b's restore a three-file change; the parent can trim them if it prefers."
+  },
+  "gates": [
+    { "command": "npx jest scripts/__tests__/roadmap-loop-scripts.test.ts", "lastLine": "Tests:       13 passed, 13 total", "exit": 0, "note": "green with scripts/qc/roadmap-unit-closure.mjs and scripts/qc/roadmap-main-proof.mjs deleted from the worktree" },
+    { "command": "npx tsc --noEmit", "lastLine": "(no output)", "exit": 0 },
+    { "command": "npx oxfmt --check scripts/qc/roadmap-ledger-lib.mjs scripts/qc/roadmap-unit-fold.mjs scripts/qc/roadmap-unit-park.mjs scripts/__tests__/roadmap-loop-scripts.test.ts package.json", "lastLine": "All matched files use the correct format.", "exit": 0, "note": "one oxfmt pass was needed on the sources before this check passed, and one more on the pin after the split rewrote it" },
+    { "command": "npm run lint:units", "lastLine": "LINT_UNITS_PASS 100/100", "exit": 0, "note": "e2e 50, scripts 50; the ceiling was not touched" },
+    { "command": "npm run qc:openspec-ci:validate", "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0", "exit": 0 },
+    { "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs", "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows", "exit": 0 },
+    { "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next", "lastLine": "U17", "exit": 0 },
+    { "command": "npx jest scripts/__tests__/preserve-run-logs.test.ts scripts/__tests__/lint-units.test.ts scripts/__tests__/machine-idle.test.ts", "lastLine": "Tests:       107 passed, 107 total", "exit": 0, "note": "the three neighbouring harness pins (U13, U14, U11), re-run after the split removed the only importer of U13's module" }
+  ],
+  "gatesTakenBeforeTheSplit": {
+    "note": "recorded because they are the only evidence the staged U17b files carry, and because they are not claimed to hold on the head U17 ships",
+    "pin": "Tests: 21 passed, 21 total (5 fold, 9 closure, 2 park, 5 main-proof)",
+    "tsc": "exit 0",
+    "oxfmt": "All matched files use the correct format. (exit 0)",
+    "lintUnits": "LINT_UNITS_PASS 100/100 (exit 0)",
+    "qcOpenspecCi": "errors=0 (exit 0)",
+    "validator": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows (exit 0)",
+    "realMainProofDryRunFromTheWorktree": "TREE_DIRTY: the tree is dirty: 9 entries; the proof must run on the merge commit alone (exit 1) - the correct answer in a worktree carrying the unit's own uncommitted work; no build, no log directory, nothing run",
+    "cleanMainProofDryRun": "the same CLI with --repo-root pointed at a throwaway git repository at its own HEAD printed all fifteen steps and created nothing (exit 0); the full ladder is quoted in the U17b staging README's sibling record below",
+    "mutantsM1M2M4": "M1 closure accepts a mismatched reviewedHead (1 failed / 19 passed), M2 closure writes PASS on a failing runtime line (1 failed / 19 passed), M4 main proof runs over a dirty tree (1 failed / 20 passed) - each killed by exactly one case, each restored with matching sha256"
+  },
+  "dryRunLadderBeforeTheSplit": [
+    "main proof U17 on 851e45ad2 -> .sisyphus/roadmap-completion-20260912/u17-main-proof-20260917",
+    "DRY-RUN idle-before-build: node scripts/qc/machine-idle.mjs --wait --timeout-ms 3600000",
+    "DRY-RUN build: NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm.cmd run build",
+    "DRY-RUN e2e-marker: scan .next/static/chunks/pages/_app-*.js for __E2E_MODE__ (in-process)",
+    "DRY-RUN idle-before-runtime: node scripts/qc/machine-idle.mjs --wait --timeout-ms 3600000",
+    "DRY-RUN playwright: npx.cmd jest scripts/__tests__/roadmap-loop-scripts.test.ts",
+    "DRY-RUN tsc: npx.cmd tsc --noEmit",
+    "DRY-RUN validator: node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+    "DRY-RUN git-check: node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --git",
+    "DRY-RUN next: node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "DRY-RUN openspec-strict: npx.cmd openspec validate --all --strict",
+    "DRY-RUN qc-openspec-ci: npm.cmd run qc:openspec-ci:validate",
+    "DRY-RUN qc-pin: npx.cmd jest scripts/__tests__/gm-two-player-campaign-qc.test.ts src/__tests__/unit/evidence/gmTwoPlayerEvidence.test.ts",
+    "DRY-RUN sha256: write sha256.txt over every log in .sisyphus/roadmap-completion-20260912/u17-main-proof-20260917 (in-process)",
+    "DRY-RUN restore-next-env: git checkout -- next-env.d.ts",
+    "DRY-RUN dirty-check: git status --short, counted (in-process)"
+  ],
+  "preMutantSha256": {
+    "scripts/qc/roadmap-unit-fold.mjs": "6aff2d0133652c37f61b08c8780523a4ea9b40be2abb942f5dad7f95b148ad36",
+    "scripts/qc/roadmap-unit-park.mjs": "d5786bac7cdbb5e99d24b70c374b69c8fadfd06914faf273fb317e659d4c2938",
+    "scripts/qc/roadmap-ledger-lib.mjs": "2cb4461254c480c3ae502d7239638609c726423d794e949d4bd1d4d108fdf156"
+  },
+  "mutants": [
+    {
+      "id": "M3",
+      "file": "scripts/qc/roadmap-unit-fold.mjs",
+      "mutation": "the fold sets state `complete` instead of `local-verified`",
+      "result": "Tests: 2 failed, 11 passed, 13 total",
+      "killedBy": "roadmap-unit-fold > folds the three lane receipts and leaves the unit local-verified; roadmap-unit-fold > refuses a unit that is not planned",
+      "restoredSha256Matches": true,
+      "note": "before the split this mutant killed 10 of 20 cases, because every closure case seeded through the fold; at the reduced scope it is held by the two fold cases alone"
+    },
+    {
+      "id": "M5",
+      "file": "scripts/qc/roadmap-unit-park.mjs",
+      "mutation": "the park saves and returns before the finding is appended, so a parked unit carries a blocked block with no finding",
+      "result": "Tests: 1 failed, 12 passed, 13 total",
+      "killedBy": "roadmap-unit-park > folds the receipts, records the finding and blocks the unit",
+      "restoredSha256Matches": true
+    },
+    {
+      "id": "M6",
+      "file": "scripts/qc/roadmap-ledger-lib.mjs",
+      "mutation": "parseFlags skips an unknown flag (`continue`) instead of refusing it, so a mistyped flag silently takes its default",
+      "result": "Tests: 1 failed, 12 passed, 13 total",
+      "killedBy": "roadmap-ledger-lib > refuses an unknown flag rather than ignoring it",
+      "restoredSha256Matches": true,
+      "why": "added at the split, because the six shared-library cases were written after the library existed and are green-first; this mutant is what gives them teeth"
+    },
+    {
+      "id": "M1",
+      "file": "staged: u17b-staging/roadmap-unit-closure.mjs",
+      "mutation": "the reviewedHead guard becomes `if (false)`, so a review naming any head is accepted",
+      "result": "Tests: 1 failed, 19 passed, 20 total (taken before the split)",
+      "killedBy": "roadmap-unit-closure > refuses a review whose reviewedHead is not the PR head",
+      "restoredSha256Matches": true,
+      "scope": "U17b - not re-run at the reduced scope and not claimed for the head U17 ships"
+    },
+    {
+      "id": "M2",
+      "file": "staged: u17b-staging/roadmap-unit-closure.mjs",
+      "mutation": "the no-expected-reds arm of the verdict becomes `true`, so a runtime line reporting failures still writes PASS",
+      "result": "Tests: 1 failed, 19 passed, 20 total (taken before the split)",
+      "killedBy": "roadmap-unit-closure > writes verdict FAIL and refuses when the runtime line reports failures",
+      "restoredSha256Matches": true,
+      "scope": "U17b",
+      "abortedFirstAttempt": "the first attempt at this mutation used a non-raw Python string, so the backslash escapes in the regular expression did not match and no edit was applied; that run printed Tests: 20 passed and proved nothing. Recorded because a green run on an unmutated file is exactly the shape of a mutant falsely declared survived-then-killed."
+    },
+    {
+      "id": "M4",
+      "file": "staged: u17b-staging/roadmap-main-proof.mjs",
+      "mutation": "the dirty-tree guard becomes `if (false)`, so the ladder proceeds over uncommitted work",
+      "result": "Tests: 1 failed, 20 passed, 21 total (taken before the split)",
+      "killedBy": "roadmap-main-proof --dry-run > refuses a dirty tree",
+      "restoredSha256Matches": true,
+      "scope": "U17b"
+    }
+  ],
+  "finalContentSha256": {
+    "scripts/qc/roadmap-ledger-lib.mjs": "2cb4461254c480c3ae502d7239638609c726423d794e949d4bd1d4d108fdf156",
+    "scripts/qc/roadmap-unit-fold.mjs": "6aff2d0133652c37f61b08c8780523a4ea9b40be2abb942f5dad7f95b148ad36",
+    "scripts/qc/roadmap-unit-park.mjs": "d5786bac7cdbb5e99d24b70c374b69c8fadfd06914faf273fb317e659d4c2938",
+    "scripts/__tests__/roadmap-loop-scripts.test.ts": "b747789247e1d41f6e072dbf7d3996acac2a82c2e1bfbfc4c0eb92912d641f72"
+  },
+  "shapeEquality": {
+    "claim": "the fold's red and local entries carry exactly U14's key set with the same value types; its admission entry carries U14's key set plus `parentDecisionRecordedHere`",
+    "assertedBy": "roadmap-unit-fold > writes stage receipts shaped like the ones already on main, which reads U14's entry out of the real units.json on main rather than a transcription of it",
+    "theOneDifference": "v3 stopped rewriting the admission receipt on disk (a rewritten receipt conflicted with the open product PR) and records the parent decision on the unit entry instead; U13's admission entry on main already carries that fifth key, U14's - written by v2 - does not. The pin asserts the difference explicitly rather than comparing loosely."
+  },
+  "nonClaims": [
+    "The closure and the main proof are NOT in this unit. scripts/qc/roadmap-unit-closure.mjs and scripts/qc/roadmap-main-proof.mjs, their two package.json script lines and their fourteen pin cases are the successor U17b, staged at .sisyphus/roadmap-completion-20260912/u17b-staging/. Nothing U17 ships asserts them, and the review, merge, mainProof and tick receipts the loop needs still cannot be generated from main after U17 lands.",
+    "Those two files were gated and mutant-tested in this lane before the split (pin 21/21, tsc 0, oxfmt clean, lint:units 100/100, validator PASSED, mutants M1/M2/M4 killed and restored), but they are NOT proven on the head U17 ships. U17b must re-take every gate on its own baseline.",
+    "The real proof ladder was never run in this lane: no build, no Playwright, no jest ladder on a merge commit. The main proof was exercised only through --dry-run and its three refusals, all of which now live in U17b.",
+    "U13's preserve-run-logs module still has no caller in the repository. Its caller is in the closure and moves with it; until U17b lands the parent runs that CLI by hand before each worktree removal.",
+    "The shared library ships whole, so sha256 and lastLine (14 code lines) have no consumer in what U17 ships. lastLine is pinned directly; sha256 is not called by any shipped code path.",
+    "The fold and the park have never produced a receipt that the ledger carries. They reproduce the shapes already on main - asserted key by key against U14's entries - but only the parent adopting them for the next unit's fold proves them live.",
+    "The six shared-library cases were written at the split, after the library existed, so they are green-first rather than red-first; mutant M6 is what gives them teeth. The red-first claim for this unit covers the fold and the park.",
+    "The validator run inside the pin operates on a copy of the ledger plus a fabricated unit, so 'ROADMAP VALIDATION PASSED' there is a statement about the copy, not about main.",
+    "No commit, push, stash or PR was made by this lane, and the root checkout was never touched."
+  ],
+  "findingsReportedNotFixed": [
+    {
+      "id": "F1",
+      "status": "resolved by the split",
+      "what": "the cap was broken by 621 lines (1121 product against 500). The parent split the unit; the reduced scope is 461 against 500, inside by 39.",
+      "residue": "the ledger now carries a unit whose behaviour is half of what its entry describes until U17b is planned and landed"
+    },
+    {
+      "id": "F2",
+      "status": "moved to U17b",
+      "what": "the closure carries the Lane A reviewer model as a literal ('claude-sonnet (Agent model: sonnet)'), because the charter's flag list named --implementer and no reviewer flag",
+      "suggestion": "a --reviewer flag defaulting to that string; the validator already refuses a receipt whose reviewer equals its implementer, so the failure mode is loud"
+    },
+    {
+      "id": "F3",
+      "status": "moved to U17b, written up in the staging README",
+      "what": "--skip-blob-check ships in the closure and weakens a real check. It is documented as pin-only in the file header and the merge receipt records `blobEqualityCheck: skipped (--skip-blob-check; the jest pin only)` whenever it is used, but nothing prevents a caller from passing it against a real ledger.",
+      "suggestion": "gate it on an environment variable the pin sets, or refuse it when --ledger-dir is absent"
+    },
+    {
+      "id": "F4",
+      "what": "roadmap-unit-park accepts two flags the charter did not name, --red-summary and --local-summary. Without them each summary falls back to the lane receipt's own `summary` field and then to a pointer at the receipt file.",
+      "why": "the charter's park flag list carries no summaries, but u12-park.js wrote both by hand; a fallback that invents prose would have been worse than a flag",
+      "suggestion": "the parent may drop the two flags if it prefers the fallback always"
+    },
+    {
+      "id": "F5",
+      "what": "The pin copies the 17 MB ledger directory into a temporary directory under openspec/planning/ (so the copied validate-roadmap.mjs still resolves the real repository root three levels up). The suite removes it in afterAll, but a crashed or killed run leaves it behind, where it would show up in `git status`.",
+      "suggestion": "a `u17-pin-*` entry in .gitignore, or a beforeAll sweep of stale `u17-pin-*` directories; neither was added because .gitignore is not an owned path of this unit",
+      "note": "the staged U17b pin creates the same directory, so the successor inherits this"
+    },
+    {
+      "id": "F6",
+      "what": "The first admission estimate was 719 product lines for all four generators; the delivered figure was 1121. The estimate was 402 lines low, and the largest single miss was roadmap-main-proof (estimated 170, delivered 276). That miss is what forced the split.",
+      "suggestion": "for the next harness unit, estimate shell-to-JavaScript ports at roughly seven times the shell line count rather than five, and size the unit against the cap before writing the pin"
+    },
+    {
+      "id": "F7",
+      "what": "The split leaves the shared library carrying two exports (sha256, lastLine; 14 code lines) whose only consumer is staged. They are counted in U17's 461 lines.",
+      "suggestion": "leave them - trimming makes U17b's restore a three-file change - or move them to U17b if the parent prefers a library with no dead exports"
+    }
+  ],
+  "gitStatusShort": [
+    " M package.json",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u17-admission-20260917.json",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u17-local-20260917.json",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u17-red-20260917.json",
+    "?? scripts/__tests__/roadmap-loop-scripts.test.ts",
+    "?? scripts/qc/roadmap-ledger-lib.mjs",
+    "?? scripts/qc/roadmap-unit-fold.mjs",
+    "?? scripts/qc/roadmap-unit-park.mjs"
+  ],
+  "constraintsHonoured": {
+    "npm": "npm_config_dry_run=true was exported in every shell; no npm install, ci or prune was run anywhere",
+    "rootCheckout": "never touched; checked read-only after the pin runs and after the split - clean, with no stray u17-pin directory",
+    "git": "no commit, push, stash, amend or force",
+    "build": "none",
+    "playwright": "none",
+    "proofLadder": "never run for real",
+    "absolutePaths": "none in any product or test file; the repository root is derived from import.meta.url and the pin derives everything from process.cwd(). The staging directory is outside the worktree and is not a product path.",
+    "aiAttribution": "none"
+  },
+  "status": "ready"
+}
