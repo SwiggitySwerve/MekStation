@@ -1137,18 +1137,52 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
-      "prHead": null,
-      "mergeSha": null,
+      "state": "complete",
+      "baseline": "e6711f0c37b0c37c85e55b1d6a22d525a7de258d",
+      "prHead": "a4babba2cf34a6db3ce275fc66cf20e230e4d052",
+      "mergeSha": "724fcd0b42d4892ee94831ed4e7441dacd22e60f",
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "admission": {
+          "path": "evidence/u14-admission-20260917.json",
+          "baseline": "e6711f0c37b0c37c85e55b1d6a22d525a7de258d",
+          "at": "2026-09-17T11:55:29Z",
+          "decision": "go"
+        },
+        "red": {
+          "path": "evidence/u14-red-20260917.json",
+          "at": "2026-09-17T11:47:00Z",
+          "summary": "Pin written first: 21 failed with the module missing (ERR_MODULE_NOT_FOUND), 18 against an always-PASS stub; implementation 29/29."
+        },
+        "local": {
+          "path": "evidence/u14-local-20260917.json",
+          "at": "2026-09-17T11:56:00Z",
+          "summary": "Route: codex gpt-6 lane hit its usage limit after the first measurement and a config draft; a claude-opus Agent lane finished (implementerModel/finisherModel recorded). Measured first: root rules verbatim e2e 50 (27 files), scripts 352 (71 files); with no-console allowed for scripts 50/50, ceiling 100 recorded at the baseline. Wrapper lints one path per invocation because oxlint 1.43.0 drops a path when given two (858/170/170 files on three runs). Gates: pin 29/29, npm run lint:units LINT_UNITS_PASS 100/100 exit 0, tsc 0, oxfmt clean on five files, root oxlint unchanged (3810 files, 84 warnings, 0 errors), qc:openspec-ci errors=0, validator PASSED, whole scripts/__tests__ suite 73 suites 1128 passed; three mutants killed (pass one above the ceiling 3 tests, --config dropped 4, exit 0 on FAIL 1), sha256 restored; parent verification in the worktree 29/29, LINT_UNITS_PASS 100/100, tsc 0, oxfmt clean; 177 product lines + 259 test lines under the cap, oxlint-units.json (215) generated from the root config and pinned equal to it."
+        },
+        "review": {
+          "path": "evidence/u14-review-20260917.json",
+          "head": "a4babba2cf34a6db3ce275fc66cf20e230e4d052",
+          "reviewedHead": "a4babba2cf34a6db3ce275fc66cf20e230e4d052",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet)",
+          "implementerModel": "codex gpt-6 (codex exec) / finisher claude-opus (Agent lane)",
+          "outputSha256": "ebb5f72a2f8bad008761d315ccd97a7b81a6d1dfdd055f738306728dcb99d72d",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u14-merge-20260917.json",
+          "pr": 1811,
+          "head": "a4babba2cf34a6db3ce275fc66cf20e230e4d052",
+          "mergeSha": "724fcd0b42d4892ee94831ed4e7441dacd22e60f"
+        },
+        "mainProof": {
+          "path": "evidence/u14-mainproof-20260917.json",
+          "mergeCommit": "724fcd0b42d4892ee94831ed4e7441dacd22e60f",
+          "verdict": "PASS",
+          "runtime": "Tests:       29 passed, 29 total"
+        },
+        "tick": {
+          "path": "evidence/u14-tick-20260917.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "source20260917": "owner instruction 2026-09-17: \"Go with all the recommendations from the council and continue the loop\" (openspec/council-decisions/2026-09-17-post-loop-recommendations.md)"
