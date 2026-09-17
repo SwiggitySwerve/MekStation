@@ -70,8 +70,10 @@ function buildRunPlan({ group, runId, repoRoot }) {
     'authority-order': ['e2e/gm-two-player-authority-order.pack.spec.ts'],
     // E2E-01/02 (umbrella 21.1 PR3-c). IN RESPAWNING_GROUPS: both rows
     // arm process-exit-after-commit and kill the server. The plan also
-    // sets MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY=1 so genesis is
-    // live under the fixture arm, not the production cutover flag.
+    // sets MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY=1 and
+    // MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE=enabled so campaign
+    // AND combat genesis are live under the fixture arm, not the
+    // production cutover flags.
     'authority-recovery': ['e2e/gm-two-player-authority-recovery.pack.spec.ts'],
     // `visibility` remains reserved for the complete E2E-19..30 pack.
     // `privacy-pack` is the tactical-channel subset (E2E-20/21/22/23/
@@ -223,8 +225,17 @@ function buildRunPlan({ group, runId, repoRoot }) {
       MEKSTATION_E2E_SERVER_COMMAND: needsRespawn
         ? 'node scripts/e2e/relaunching-server.mjs'
         : 'node server.js',
+      // One arming condition, two keys. The campaign resolver takes a
+      // '1' opt-in; the combat resolver takes a mode, and the ladder
+      // arms 'enabled' (not 'shadow') because E2E-01/02 must exercise
+      // the journal-authority path itself, not a compare-only run.
+      // Both are fixture arms gated behind NEXT_PUBLIC_E2E_MODE on the
+      // server side; neither is the production cutover flag.
       ...(armsJournalAuthorityFixture
-        ? { MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY: '1' }
+        ? {
+            MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY: '1',
+            MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE: 'enabled',
+          }
         : {}),
     },
   };

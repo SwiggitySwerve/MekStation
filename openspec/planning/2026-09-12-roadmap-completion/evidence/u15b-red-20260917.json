@@ -1,0 +1,60 @@
+{
+  "unit": "U15b",
+  "stage": "red",
+  "at": "2026-09-17T16:07:00.990Z",
+  "baseline": "58fd434a486c408e8a9e0a495e7539d85490f416",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u15b",
+  "branch": "codex/roadmap-u15b-forward-combat-journal-arm-20260917",
+  "order": "The pin was extended FIRST; neither product file was touched at the time of this run. scripts/qc/gm-two-player-campaign-core.cjs and playwright.config.ts were still at the baseline bytes.",
+  "command": "npx jest scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+  "exit": 1,
+  "lastLines": [
+    "Test Suites: 1 failed, 1 total",
+    "Tests:       2 failed, 12 passed, 14 total",
+    "Snapshots:   0 total",
+    "Ran all test suites matching /scripts\\__tests__\\gm-two-player-campaign-qc.test.ts/i."
+  ],
+  "failingAssertions": [
+    {
+      "test": "GM and two-player campaign QC runner > registers the approved catalog and deterministic implemented plans",
+      "at": "scripts/__tests__/gm-two-player-campaign-qc.test.ts:186:47",
+      "matcher": "expect(received).toEqual(expected) // deep equality",
+      "diff": [
+        "- Expected  - 1",
+        "+ Received  + 0",
+        "  Object {",
+        "    \"MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY\": \"1\",",
+        "-   \"MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE\": \"enabled\",",
+        "    \"MEKSTATION_E2E_PORT\": \"24166\",",
+        "    \"MEKSTATION_E2E_REUSE_EXISTING_SERVER\": \"false\",",
+        "    \"MEKSTATION_E2E_SERVER_COMMAND\": \"node scripts/e2e/relaunching-server.mjs\",",
+        "    \"PLAYWRIGHT_E2E_RUN_ID\": \"task-21-authority-recovery\",",
+        "    \"PORT\": \"24166\",",
+        "  }"
+      ],
+      "reading": "The authority-recovery plan environment carries the campaign key and not the combat key. This is the unit's red: buildRunPlan arms one key where it must arm two.",
+      "note": "This same `it` also carries the new `authority` and `all` expansion assertions; toEqual is the first assertion in file order, so it is the one that reports. The expansion assertions are proved green only after the fix, in the Stage-3 green run."
+    },
+    {
+      "test": "GM and two-player campaign QC runner > forwards the combat journal key from the Playwright webServer env",
+      "at": "scripts/__tests__/gm-two-player-campaign-qc.test.ts:592:26",
+      "matcher": "expect(received).toContain(expected) // indexOf",
+      "expectedSubstring": "MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE",
+      "receivedSummary": "the full baseline text of playwright.config.ts, whose webServer.env spreads only `...(process.env.MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY ? { MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY: process.env.MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY } : {})",
+      "reading": "The combat key name does not appear anywhere in the config, so the whitelist drops it even once the plan sets it. The stricter guarded-shape regex assertion below this line was never reached on this run."
+    }
+  ],
+  "passingGuards": [
+    {
+      "test": "GM and two-player campaign QC runner > leaves both journal keys off a group that does not arm the fixture",
+      "status": "passed on the red run",
+      "why": "Vacuously true today: no group sets the combat key at all, so token-pack and smoke carry neither. It is written as a mutant guard, not as a red - its job is to be the assertion that kills M1 (arm every group). Recorded honestly: this case is NOT red evidence."
+    }
+  ],
+  "prePinCounts": {
+    "before": "14 tests (12 pre-existing + 2 new), 2 failed / 12 passed",
+    "newCasesAdded": 2,
+    "assertionsAddedToExistingCase": 3
+  },
+  "implementerModel": "claude-opus (Agent lane; codex, grok CLI and cursor-agent routes exhausted on 2026-09-17)"
+}
