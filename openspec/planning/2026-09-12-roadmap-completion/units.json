@@ -500,7 +500,7 @@
       },
       "state": "owner-gated",
       "baseline": "2a4a8d4254b0e2563e04ab4082b355b24bcbb0d8",
-      "prHead": null,
+      "prHead": "754819f6ac054360d8b80f80b076782cf5c91111",
       "mergeSha": null,
       "stageReceipts": {
         "admission": {
@@ -519,7 +519,16 @@
           "at": "2026-09-17T01:17:02.824Z",
           "summary": "proof-plus-hold: zero product lines; privacy-pack 6 passed and proposal-pack 2 passed through the ladder runner on the discovery commit, specs unchanged to the baseline; logs hashed"
         },
-        "review": null,
+        "review": {
+          "path": "evidence/u2-review-20260916.json",
+          "head": "754819f6ac054360d8b80f80b076782cf5c91111",
+          "reviewedHead": "754819f6ac054360d8b80f80b076782cf5c91111",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet)",
+          "implementerModel": "claude-fable-5-1 parent (parking ledger) over a grok-4.6 discovery lane (cursor-agent) measurements",
+          "outputSha256": "e69f582ddbc317319f3d3a1b4314957f0fc2b98db9f0bb3570bb8d90e53334ad",
+          "verdict": "APPROVE",
+          "laneB": "pending: PK-privacy-21-2-tick"
+        },
         "merge": null,
         "mainProof": null,
         "tick": null
@@ -553,20 +562,52 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
-      "prHead": null,
+      "state": "owner-gated",
+      "baseline": "9d1351a780b74f095fb5864f8879419d2d27967b",
+      "prHead": "935fe0423e9eef2c806ab8b4e012c9a9a8d6c929",
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
-        "review": null,
+        "admission": {
+          "path": "evidence/u3-admission-20260916.json",
+          "baseline": "9d1351a780b74f095fb5864f8879419d2d27967b",
+          "at": "2026-09-17T01:45:00.000Z",
+          "decision": "go: two in-paths harness fixes from the diagnosis receipt; genesis clauses stay a scoped non-claim; no src change"
+        },
+        "red": {
+          "path": "evidence/u3-red-20260916.json",
+          "at": "2026-09-17T02:05:00.000Z",
+          "summary": "on the baseline build: authority-recovery 3 failed / 1 passed (E2E-02-plain boundPlayingSeats(after.seats) 0 vs 2, plus the two genesis clauses); resilience-pack 1 failed / 1 passed (E2E-15 lifecycle data-state empty after 150s); causes measured by the diagnosis receipt (drive never seated the players; offline window burned the reconnect limit)"
+        },
+        "local": {
+          "path": "evidence/u3-local-20260916.json",
+          "at": "2026-09-17T02:45:30.892Z",
+          "summary": "final row on a clean rebuild: authority-recovery 2 failed / 2 passed (genesis clauses only), resilience-pack 2 passed, full authority 3 failed / 17 passed (genesis plus E2E-16 recorded as a finding), lifecycle-pack 2 passed; tsc 0, oxfmt clean, oxlint vacuous for e2e, pin suite 12/12, qc:openspec-ci errors=0, roadmap validator PASSED; three mutants killed with rebuilds (occupants dropped on boot, now caught by the persisted-seats read; every meta write dropping occupants; recovery skipped behind its log line), one survived with an equivalence argument; 64 product lines over 4 files; the grok lane wrote the final edits and the parent ran this verification after the lane's usage cap"
+        },
+        "review": {
+          "path": "evidence/u3-review-20260916.json",
+          "head": "935fe0423e9eef2c806ab8b4e012c9a9a8d6c929",
+          "reviewedHead": "935fe0423e9eef2c806ab8b4e012c9a9a8d6c929",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet)",
+          "implementerModel": "grok-4.6 (cursor-agent, Cursor Grok 4.6 High) with claude-fable-5-1 parent verification",
+          "outputSha256": "076a01b771864753d1570b2ef75cb910b963b8d6055c78acaf4fbb5924a610dc",
+          "verdict": "APPROVE",
+          "laneB": "pending: PK-u3-21-1-tick-and-merge"
+        },
         "merge": null,
         "mainProof": null,
         "tick": null
       },
-      "ownerGate": null
+      "ownerGate": {
+        "packetId": "PK-u3-21-1-tick-and-merge",
+        "since": "2026-09-17T04:50:28.677Z",
+        "stage": "review",
+        "head": "935fe0423e9eef2c806ab8b4e012c9a9a8d6c929",
+        "pr": 1797,
+        "reason": "sensitive review classes require a Lane B ruling on the exact head before merge"
+      },
+      "nonClaims20260916": [
+        "genesis clauses of E2E-01 and E2E-02 (event_history_branches genesis row; effectiveBranchId after restart): gated on design-campaign-authority-and-sync task 5.7, an owner-gated production flag (CAMPAIGN_JOURNAL_AUTHORITY_ENABLED); expected failures until the cutover, assertions untouched"
+      ]
     }
   ],
   "packets": [
@@ -661,6 +702,39 @@
       "privacyReview": "Lane A cross-model review of the parking head is recorded; Lane B (owner) ruling is required because the unit's review class is privacy",
       "decision": null,
       "ruling": null
+    },
+    {
+      "id": "PK-u3-21-1-tick-and-merge",
+      "blocks": [
+        "U3"
+      ],
+      "nodes": [
+        "R6.umbrella"
+      ],
+      "taskKeys": [],
+      "heldRow": "harden-gm-two-player-campaign-sessions#21.1@492 (held by U3; this packet blocks U3)",
+      "question": "PR #1797 (head 935fe0423e9eef2c806ab8b4e012c9a9a8d6c929) repairs the two harness defects that kept E2E-02 (playing seats after a host death) and E2E-15 (commands enabled after the outage) red on main, with no product change, and its receipts prove the authority rows green except the two genesis clauses gated on task 5.7 (and any row recorded as a finding in evidence/u3-local-20260916.json). U3 carries the idempotency, replay and concurrency review classes, so DELIVERY.md requires an OWNER-RULING comment on this exact head before merge. Should the owner (a) rule on the head so the PR merges and 21.1 is ticked on main under the scoped genesis non-claim, (b) rule on the head so the PR merges but keep 21.1 open until the 5.7 cutover makes the genesis clauses pass, or (c) reject the harness repair as a change of the letter and hold both?",
+      "options": [
+        {
+          "label": "rule, merge, tick 21.1 under the genesis non-claim",
+          "consequence": "row 21.1 closes with two clauses recorded open under 5.7; the umbrella acceptance still gates the program on the cutover",
+          "effort": "0.25 day after the ruling (merge, main proof, tick receipt on main)"
+        },
+        {
+          "label": "rule, merge, hold 21.1 until the 5.7 cutover",
+          "consequence": "the harness repair lands and every non-genesis row is proven; 21.1 stays open with a receipt only until the journal-authority flag flips",
+          "effort": "0.25 day now; the tick waits on the owner-gated flag"
+        },
+        {
+          "label": "reject the repair",
+          "consequence": "E2E-02 and E2E-15 stay red on main; 21.1 cannot move; a product-side change outside the umbrella's paths would be the only other route",
+          "effort": "none now; 1-3 days of product work elsewhere later"
+        }
+      ],
+      "agentRecommendation": "option (a): the repairs make the rows read the product's persisted state before any rejoin and remount after the reconnect limit, which is what the letter describes, and the genesis clauses are already the recorded 5.7 non-claim in the goal statement",
+      "revertCost": "low: reverting the PR restores the two red rows; no product code moves",
+      "decision": null,
+      "ruling": null
     }
   ],
   "deferrals": [
@@ -752,7 +826,13 @@
       "evidence": "evidence/u1c-local-20260916.json findingsReportedNotFixed[F4]",
       "ownership": "resilience-pack is not a gate of U1c (its regression group is exactly-once-pack) and is not wired into CI (PK-e2e-80-ci-wiring); the row is owned by R6.umbrella paths (e2e) but the failure may be product-side",
       "recommendedSuccessor": "a diagnosis unit under R6.umbrella: bisect whether the row or the product regressed, with the receipt naming the first failing main commit",
-      "status": "recorded; not a gate of this unit"
+      "status": "diagnosed harness (U3, evidence/u3-diagnosis-20260916.json): the row's setOffline window burned the lobby client's reconnect limit, leaving both pages on the unavailable panel with no banner; repaired in PR #1797 (head 935fe0423e9eef2c806ab8b4e012c9a9a8d6c929), awaiting the owner ruling",
+      "resolvedBy": {
+        "unit": "U3",
+        "pr": 1797,
+        "head": "935fe0423e9eef2c806ab8b4e012c9a9a8d6c929",
+        "class": "harness"
+      }
     },
     {
       "id": "FN-u1d-authorization-class-has-no-wire-lever",
@@ -775,6 +855,32 @@
       "ownership": "src/lib/campaign and src/lib/multiplayer/server are owned by R2.authority-live (main-verified); a successor there can forward expectedRevision or expose an E2E-mode interloper",
       "recommendedSuccessor": "a product unit under R2.authority-live paths forwarding expectedRevision on the campaign command route (red jest at the route), then an e2e successor adding the stale-head arm to conflict-pack",
       "status": "recorded; successor not yet planned (owner decides whether R2.authority-live reopens)"
+    },
+    {
+      "id": "FN-u3-e2e-02-plain-drive-never-seated-players",
+      "foundBy": "U3 diagnosis",
+      "at": "2026-09-17T04:50:28.677Z",
+      "class": "harness defect, repaired",
+      "summary": "The authority-recovery drive sent SetReady/SetAiSlot/LaunchMatch from the spectator GM and never OccupySeat, so mp_matches.meta_json carried no playing occupant before or after the host death; tasks.md:493's 4/4 green claim did not hold on main. Repaired in the same PR: the creator holds a human host seat, Player 1 occupies from its own socket, and the persisted seats are read before any rejoin.",
+      "evidence": "evidence/u3-diagnosis-20260916.json rows[E2E-02-plain]; evidence/u3-local-20260916.json",
+      "resolvedBy": {
+        "unit": "U3",
+        "pr": 1797,
+        "head": "935fe0423e9eef2c806ab8b4e012c9a9a8d6c929",
+        "class": "harness"
+      },
+      "status": "repaired in the U3 PR, awaiting the owner ruling"
+    },
+    {
+      "id": "FN-u3-e2e-16-stale-reload-socket-count",
+      "foundBy": "U3",
+      "at": "2026-09-17T04:50:28.677Z",
+      "class": "deterministic red on the current tree, cause not isolated",
+      "summary": "E2E-16 (e2e/gm-two-player-token.pack.spec.ts:281) expects the stale reload to re-dial the socket and receives the same count; failed in five of five runs across the grok lane and the parent on the U3 tree while the discovery run on a00b816dc passed it once inside --group=authority; no product file changed between the commits and U3 touches no token-pack path; leading hypothesis is a race between the reload and the product's own stale-credential handling at the expiry instant.",
+      "evidence": "evidence/u3-local-20260916.json findingsReportedNotFixed[E2E-16] and parentVerification20260916.runs",
+      "ownership": "e2e (R6.umbrella paths) for the row; src/lib/multiplayer/client.ts (no owning node) if the product side is at fault",
+      "recommendedSuccessor": "a diagnosis unit under R6.umbrella: probe the redial timing at the expiry instant, classify harness race vs product, then fix in-paths or packet",
+      "status": "recorded; blocks the 21.1 tick until green or non-claimed by the owner"
     }
   ]
 }

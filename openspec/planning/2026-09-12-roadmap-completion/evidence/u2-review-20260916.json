@@ -1,0 +1,20 @@
+{
+  "unit": "U2",
+  "stage": "review",
+  "at": "2026-09-17T04:50:28.612Z",
+  "lane": "A",
+  "reviewerModel": "claude-sonnet (Agent model: sonnet)",
+  "implementerModel": "claude-fable-5-1 parent (parking ledger) over a grok-4.6 discovery lane (cursor-agent) measurements",
+  "reviewerEffort": "default",
+  "head": "754819f6ac054360d8b80f80b076782cf5c91111",
+  "reviewedHead": "754819f6ac054360d8b80f80b076782cf5c91111",
+  "mergeSha": "9d1351a780b74f095fb5864f8879419d2d27967b",
+  "pr": 1796,
+  "verdict": "APPROVE",
+  "outputPath": "evidence/u2-lane-a-review-20260916.md",
+  "outputSha256": "e69f582ddbc317319f3d3a1b4314957f0fc2b98db9f0bb3570bb8d90e53334ad",
+  "sharedContext": "none: reviewer received only the range, the head and the contract files, and re-ran the validator in its own throwaway worktree",
+  "laneB": "PENDING: privacy review class; packet PK-privacy-21-2-tick awaits the owner ruling; no tick, main proof or merge of a product change happens before it",
+  "githubApproval": "none recorded; Lane A is engineering evidence, never a GitHub approval",
+  "nonBlocking": "admission receipt wording corrected in this commit: the diff since the discovery commit was not empty (U1d's conflict-pack registration in scripts/qc/gm-two-player-campaign-core.cjs, 6 lines), which touches none of the privacy or proposal specs or e2e/helpers"
+}
