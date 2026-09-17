@@ -1,0 +1,95 @@
+{
+  "unit": "U9b",
+  "stage": "admission",
+  "at": "2026-09-17T14:23:14.977Z",
+  "baseline": "384bab6cde85724787f5fed28d645b85d7f7a0cc",
+  "baselineCheck": "git rev-parse HEAD == git rev-parse origin/main == 384bab6cde85724787f5fed28d645b85d7f7a0cc == the charter baseline; git log --oneline -1 origin/main = '384bab6cd docs(roadmap): U9 closure, admission through tick, unit complete; FN-u9 rerun parser finding and successor U9b (#1814)'. git status --short in the worktree printed nothing.",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u9b",
+  "branch": "codex/roadmap-u9b-rerun-parser-20260917",
+  "node": "R6.loop-harness",
+  "implementerModel": "claude-opus (Agent lane; codex, grok CLI and cursor-agent routes exhausted on 2026-09-17)",
+  "predecessor": {
+    "unit": "U9",
+    "mergedAs": "45d6134289051d316257641284976a2f9789ceed (#1813)",
+    "finding": "FN-u9-rerun-parser-expects-labeled-line",
+    "findingStatus": "recorded; successor U9b planned"
+  },
+  "admissibility": {
+    "nextCommand": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "nextOutput": "U4",
+    "nextExitCode": 0,
+    "note": "--next printed U4, which is in flight and awaiting the owner ruling recorded against it; it is not free to take. U9b is the next PLANNED unit needing no ruling now that U9 is 'complete': its ownerGate is null, its node R6.loop-harness has the same dependency posture U9 was admitted under, and it exists precisely because U9's main proof materialised its recorded non-claim.",
+    "validatorNoArgs": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+    "validatorNoArgsExitCode": 0,
+    "pathSerialisation": "Units owning scripts/qc or scripts/__tests__ and their states at this baseline: U1, U1b, U1c, U1d, U1e, U6, U7, U9, U11, U14 complete; U3 main-verified; U2, U12 blocked; U13 planned and not started; U4 (e2e/scripts/qc family) planned and owner-gated in flight on its own lane. No in-flight unit holds scripts/qc or scripts/__tests__ as a writing owner, and U9b writes only the two files U9 shipped."
+  },
+  "runnerOutputAsRead": {
+    "source": ".sisyphus/roadmap-completion-20260912/u9-main-proof-20260917/exact-main-rerun-smoke.log",
+    "sha256": "4be7332d341d4070049c261be3aaaf2b3f9cc740755129f40ee62060b5a9d106",
+    "sha256Command": "sha256sum exact-main-rerun-smoke.log",
+    "totalLines": 141,
+    "summaryLine": "  3 passed (21.2s)",
+    "summaryLineIsLine": 141,
+    "summaryLineCount": "grep -n 'passed|failed|flaky|skipped|did not run' matched exactly ONE line in all 141: line 141. There is no second summary line and no labelled line anywhere in the log.",
+    "okRowsQuoted": [
+      "  ok 1 [chromium] \u203a e2e\\gm-two-player-fixture.smoke.spec.ts:14:5 \u203a creates three isolated future-role contexts @fixture-smoke (2.2s)",
+      "  ok 3 [chromium] \u203a e2e\\gm-two-player-membership.smoke.spec.ts:65:5 \u203a binds GM and two tactical seats durably and refuses a fourth identity @membership-smoke (2.3s)"
+    ],
+    "whyThereIsNoLabel": "scripts/qc/run-gm-two-player-campaign.mjs delegates to runCli in scripts/qc/gm-two-player-campaign-core.cjs, whose runPlan spawns Playwright with stdio: 'inherit' (line 303). Playwright's reporter output therefore reaches the contract's pipe unchanged and nothing ever prefixes '<group>: '. The runner prints no group label at all.",
+    "whatTheU9ParserDid": "runGroup fed the captured output through parseReceiptGroups, whose GROUP_LINE regex is /^([a-z0-9][a-z0-9-]*):\\s+(.*)$/. No line in this log matches it, so the row was undefined, the archive recorded smoke passed 0 / failed 0, and evaluateExactMain read MISSING even though the subset passed. Archive: exact-main-ladder-archive.json = {sha 45d6134289051d316257641284976a2f9789ceed, groups [{smoke, passed 0, failed 0}], verdict MISSING}; CLI line: 'EXACT_MAIN_LADDER_MISSING 45d6134289051d316257641284976a2f9789ceed milestone=strict-smoke missing=smoke', exit 1."
+  },
+  "parserChangeIWillMake": {
+    "scope": "ONLY how --rerun reads the runner's stdout for the single group it just ran. parseReceiptGroups (the receipt reader), evaluateExactMain, resolveMilestone, MILESTONE_LADDER, the archive shape, check mode, the head-mismatch refusal and the idle wait are all untouched.",
+    "newExport": "parseRunnerOutput({ group, output }) -> { group, passed, failed }. It first looks for the existing labelled form through parseReceiptGroups, so an injected runner or a receipt-style line that already says '<group>: N passed' keeps its exact current reading; only when no labelled row for that group exists does it aggregate Playwright's bare summary lines and attribute them to the group the contract just ran.",
+    "bareSummaryGrammar": "A line whose whole content is `<n> passed (<duration>)`, `<n> failed`, `<n> flaky`, `<n> skipped` or `<n> did not run`, with only leading whitespace before the count and nothing after the token but an optional parenthesised duration. Playwright's list and line reporters print exactly these.",
+    "countingDecision": {
+      "passed": "adds to passed",
+      "failed": "adds to failed",
+      "flaky": "adds to FAILED - a flaky row passed only on retry, which is not the 'ran clean against this exact commit' that E2E-80 asks for. This is the charter's recommended reading and is pinned.",
+      "didNotRun": "adds to FAILED - an interrupted run left tests unexecuted, so the group is not proven. Fail-closed, consistent with the module's stated posture.",
+      "skipped": "adds to NEITHER - a skipped test is a declared non-run, not a failure, and it must not be able to zero out a real pass."
+    },
+    "noSummaryAtAll": "unchanged from U9: passed 0, failed 0, never coverage.",
+    "filesTouched": [
+      "scripts/qc/validate-exact-main-regression-ladder.mjs",
+      "scripts/__tests__/validate-exact-main-regression-ladder.test.ts"
+    ]
+  },
+  "acceptanceCommands": [
+    "npx jest scripts/__tests__/validate-exact-main-regression-ladder.test.ts",
+    "npx tsc --noEmit",
+    "npx oxfmt --check scripts/qc/validate-exact-main-regression-ladder.mjs scripts/__tests__/validate-exact-main-regression-ladder.test.ts",
+    "npm run lint:units",
+    "npm run qc:openspec-ci:validate",
+    "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+    "node scripts/qc/validate-exact-main-regression-ladder.mjs --sha 384bab6cde85724787f5fed28d645b85d7f7a0cc"
+  ],
+  "estimate": {
+    "productLinesAdded": "25-45 in the module (one exported parser plus the runGroup call site and its comment)",
+    "testLinesAdded": "70-110 in the pin (four injected-runner cases the charter names, plus the counting-decision table)",
+    "filesChanged": 2,
+    "mutants": 3,
+    "note": "This is a delta on top of U9's recorded 898-line two-file footprint, not a fresh budget."
+  },
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "source": "units.json U9b.caps and roadmap.json R6.loop-harness",
+    "inheritedOverage": "U9 recorded 898 lines for module + pin against the same 500-line cap (reading B in its local receipt), 398 over. U9b inherits that overage and records it; the delta is reported separately. No assertion is dropped to make the number smaller, and the overage is not widened by anything beyond this unit's own delta."
+  },
+  "risksForTheParent": [
+    "The real ladder runner is still NOT spawned in this lane - the charter forbids a Playwright run here. The rerun branch is exercised only through an injected fake runner that reprints the real runner's bytes. The first real exercise is the parent's main proof, exactly as it was for U9; if the fix is wrong it will show up there and nowhere earlier.",
+    "The verbatim pin case copies the last ten lines of exact-main-rerun-smoke.log, which carry ANSI escape sequences and micro-second WebServer noise. Those bytes are the point of the case: if the parser can be fooled by the noise the case fails. But it also means the case is bound to ONE captured run's spelling; a future Playwright version that changes the summary wording would pass this pin and still break the real rerun.",
+    "The summary is attributed to the single group --rerun just ran. That attribution is only sound because runGroup runs exactly one group per child process. If a future change ever runs two groups in one runner invocation, the bare-summary branch would credit both to one name. Recorded as a standing constraint, not defended by code, because the loop's runner takes one --group.",
+    "Counting 'did not run' as failed is a decision this unit makes without a captured example - no log in the ledger contains that line. It is fail-closed, so the failure mode is a false MISSING, never a false SATISFIED.",
+    "The default archive dir is still gitignored (U9 finding F2). An archive receipt written by --rerun still does not reach main on its own; copying it into the tracked evidence dir remains the loop's job and is not implemented here.",
+    "Coverage still does not exist for smoke on any merge commit in the ledger (U9 finding F3). This unit makes a passing rerun READABLE; it does not create the receipt."
+  ],
+  "nonClaims": [
+    "No Playwright run, no build, no npm install/ci/prune and no npm lifecycle in this lane. npm_config_dry_run=true is exported in every shell.",
+    "Nothing is committed, pushed, stashed, amended or force-pushed. The root checkout at E:/Projects/MekStation is not touched.",
+    "units.json, roadmap.json and evidence/admission-snapshot.json are not edited, and no tasks.md row is checked.",
+    "scripts/qc/run-gm-two-player-campaign.mjs and scripts/qc/gm-two-player-campaign-core.cjs are read and quoted, never modified; package.json is not touched."
+  ],
+  "status": "admitted"
+}
