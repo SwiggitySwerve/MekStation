@@ -1,0 +1,166 @@
+{
+  "unit": "U8",
+  "stage": "admission",
+  "at": "2026-09-17T17:32:08.451Z",
+  "baseline": "dfe766524cc71e665a0f34a5ee07e9585e4c8214",
+  "baselineCheck": "git rev-parse HEAD == git rev-parse origin/main == dfe766524cc71e665a0f34a5ee07e9585e4c8214 after `git fetch origin main`",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u8",
+  "branch": "codex/roadmap-u8-stale-head-lever-20260917",
+  "node": "R2.multiplayer-client (dependsOn: [R2.authority-live]; R2.authority-live.state == \"main-verified\" in roadmap.json, so the one node dependency is satisfied)",
+  "ownershipPaths": ["src/pages/api/campaigns"],
+  "ciClass": "product",
+  "reviewClasses": ["concurrency", "routine"],
+  "finding": "FN-u1d-stale-head-class-has-no-in-paths-lever",
+  "caps": { "maxFiles": 15, "maxNonGeneratedLines": 500 },
+  "nextOnBaseline": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "line": "U8",
+    "exitCode": 0,
+    "note": "--next printed U8 on the baseline, so U8 is the admitted unit by the validator's own selection."
+  },
+  "ownerGateNote": "The review class is concurrency, so DELIVERY.md step 5 Lane B applies: the PR merges only after an owner ruling on its exact head, receipted against packet PK-u8-ruling (question: \"U8 ... will present a head. Does the owner rule it?\"). The agent never writes the OWNER-RULING comment, the owner-ruled label, or the packet decision.",
+  "seamsAsRead": {
+    "route": {
+      "path": "src/pages/api/campaigns/[id]/commands.ts",
+      "commandBody": "57-60 - CommandBody declares exactly `intent` and `commandId`; there is no revision field.",
+      "guard": "62-76 - isValidCommandBody checks commandId is a non-empty string and intent is an object with string `kind` and `campaignId`. Unknown body keys are neither validated nor rejected here.",
+      "malformedBodyRefusal": "93-97 - a body failing the guard answers 400 { error: 'missing or invalid request body' }, BEFORE authentication.",
+      "authorRefusal": "121-127 - a body still carrying authorPlayerId answers 400 { error, reason: 'author-not-accepted' } AFTER authentication.",
+      "pipelineCall": "139-148 - executeCampaignCommand is handed exactly { campaignId, intent, authorPlayerId, commandId, ts }. No expectedRevision and no declaredFields are forwarded, which is the lever this unit adds (the first of the two).",
+      "conflictArm": "181-195 - result.kind === 'conflict' answers 409 { kind:'conflict', reason, head, recoveryAction, conflictingFields, expectedSequence, actualSequence }."
+    },
+    "pipeline": {
+      "path": "src/lib/campaign/authority/campaignCommandPipeline.ts",
+      "requestType": "219-244 - ICampaignCommandRequest; `readonly expectedRevision?: number` at 234 ('absent means I make no claim about the head'); `readonly declaredFields?: readonly string[]` at 243 ('CHECKED, never trusted').",
+      "resolveCommandBase": "262-312 - expected === undefined || expected === priorEvents.length -> { kind:'at-head' } (269-271); expected < 0 || expected > priorEvents.length -> { kind:'revision-unknown' } (272-274); otherwise replays priorEvents.slice(0, expected) and returns { kind:'reconstructed', touchedFields, interveningFields, declaredFields } where declaredFields is null when request.declaredFields is undefined or empty (306-311).",
+      "headAndDecision": "441-457 - head = { branchId: campaignCommandBranchId(), revision: priorEvents.length }; decision = decideCampaignConflict(head, resolveCommandBase(...)); a 'refused' decision returns { kind:'conflict', reason, head, recoveryAction, conflictingFields } BEFORE anything is derived or appended.",
+      "conflictResultType": "127-149 - the conflict result carries reason, head, recoveryAction, conflictingFields and the two optional lost-race sequences. IT CARRIES NO `code` FIELD."
+    },
+    "decision": {
+      "path": "src/lib/campaign/authority/campaignConflictDecision.ts",
+      "decide": "148-197 - decideCampaignConflict.",
+      "codeIsInternal": "152-164 - every refusal is frozen with code: 'STALE_REVISION', but the pipeline's conflict result (127-149 of the pipeline) does not carry `code` forward, so STALE_REVISION is NOT observable on the HTTP response. See findingsObserved below."
+    }
+  },
+  "pipelineDecisionTableAsRead": {
+    "note": "Read from decideCampaignConflict 166-197 and resolveCommandBase 262-312. The route forwards NO declaredFields (and this unit does not add one), so every reconstructed base reaching the decision has declaredFields === null and short-circuits at 177 before the overlap check at 187-193. That makes rows 4 and 5 below identical at the HTTP boundary.",
+    "rows": [
+      {
+        "case": "expectedRevision absent",
+        "base": "at-head (269)",
+        "decision": "{ kind:'current' } (166-168)",
+        "http": "unchanged - falls through to validation/append"
+      },
+      {
+        "case": "expectedRevision === head revision",
+        "base": "at-head (269)",
+        "decision": "{ kind:'current' } (166-168)",
+        "http": "unchanged - commits (200 committed)"
+      },
+      {
+        "case": "expectedRevision > head revision",
+        "base": "revision-unknown (272)",
+        "decision": "refuse('base-revision-unknown', EXPECTED_HEAD_RESYNC_ACTION) (169-171)",
+        "http": "409 { kind:'conflict', reason:'base-revision-unknown', head:{branchId,revision}, recoveryAction:'resync-to-active-head', conflictingFields: [] }"
+      },
+      {
+        "case": "expectedRevision < head revision, touched fields OVERLAP the intervening ones",
+        "base": "reconstructed, declaredFields null (306-311)",
+        "decision": "refuse('undeclared-field-set', CAMPAIGN_CONFLICT_REBASE_ACTION) at 177-179 - the declaration is checked FIRST, so 'same-field-stale' (191-193) is NOT reached from this route",
+        "http": "409 { kind:'conflict', reason:'undeclared-field-set', head:{branchId,revision}, recoveryAction:'rebase-onto-active-head', conflictingFields: [] }"
+      },
+      {
+        "case": "expectedRevision < head revision, touched fields DISJOINT from the intervening ones",
+        "base": "reconstructed, declaredFields null (306-311)",
+        "decision": "refuse('undeclared-field-set', CAMPAIGN_CONFLICT_REBASE_ACTION) at 177-179 - 'revalidate' (194-197) is NOT reached from this route",
+        "http": "409, byte-identical to the overlapping row above"
+      },
+      {
+        "case": "expectedRevision malformed (negative, fractional, string, null)",
+        "base": "never reached",
+        "decision": "n/a - refused at the route guard by this unit",
+        "http": "400 naming the field; nothing appended"
+      }
+    ],
+    "constants": {
+      "EXPECTED_HEAD_RESYNC_ACTION": "'resync-to-active-head' (src/lib/events/journal/EventHistoryExpectedHead.ts:35)",
+      "CAMPAIGN_CONFLICT_REBASE_ACTION": "'rebase-onto-active-head' (src/lib/campaign/authority/campaignConflictDecision.ts:43-44)"
+    }
+  },
+  "design": {
+    "product": [
+      "CommandBody gains `readonly expectedRevision?: number` with a comment saying what absent means (quoting the pipeline's own contract).",
+      "A new narrow predicate isValidExpectedRevision(value): true for undefined, and for a number that is a non-negative safe integer; false for everything else including null, 1.5, '3' and -1.",
+      "isValidCommandBody calls it, so a malformed claim keeps the route's existing 400 path (93-97) rather than being silently dropped.",
+      "The 400 body names the field when the failure was the revision claim, and keeps the existing 'missing or invalid request body' message otherwise.",
+      "The executeCampaignCommand request (139-148) gains `expectedRevision: body.expectedRevision`. tsconfig has strict: true and does NOT set exactOptionalPropertyTypes, so passing undefined to the optional field is the same as omitting it - absent stays 'no claim'.",
+      "NOTHING ELSE CHANGES: the result switch, every status code and every response body stay exactly as they are."
+    ],
+    "tests": "A new sibling src/__tests__/api/campaigns/campaignCommandsRoute.staleHead.test.ts reusing the fixture style of campaignCommandsRoute.test.ts (mintHolder / seat / storeCampaignRow / seedJournalCampaign / post) and the head-revision read of campaignCommandsRoute.rebuild.test.ts (SELECT stream_revision FROM event_journal_stream_heads), pinning: at-head commits; stale + overlapping fields 409; stale + disjoint fields 409 (the actual answer, pinned as read); above-head 409 base-revision-unknown; four malformed values 400 with the journal revision unchanged; and that a body with no expectedRevision still commits.",
+    "notWidened": [
+      "declaredFields is NOT forwarded - the unit's behaviour sentence names expectedRevision only, and forwarding a client field-set claim is a separate contract with its own review class.",
+      "No client is changed to send the field.",
+      "src/lib is not touched (held in flight by U4 and U15a), so the missing `code` on the conflict result is reported, not fixed."
+    ]
+  },
+  "estimatePerFile": [
+    {
+      "path": "src/pages/api/campaigns/[id]/commands.ts",
+      "class": "product",
+      "estimateAddedLines": "25-30 (of which roughly two thirds comment)",
+      "estimateRemovedLines": "1-2"
+    },
+    {
+      "path": "src/__tests__/api/campaigns/campaignCommandsRoute.staleHead.test.ts",
+      "class": "test",
+      "estimateAddedLines": "230-280"
+    }
+  ],
+  "acceptanceCommands": [
+    "npx jest src/__tests__/api/campaigns/campaignCommandsRoute.staleHead.test.ts",
+    "npx jest src/__tests__/api/campaigns/campaignCommandsRoute.test.ts src/__tests__/api/campaigns/campaignCommandsRoute.rebuild.test.ts",
+    "npx jest src/__tests__/api/campaigns",
+    "npx tsc --noEmit",
+    "npx oxlint",
+    "npx oxfmt --check <changed files>",
+    "npm run qc:openspec-ci:validate",
+    "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs"
+  ],
+  "baselineMeasurements": {
+    "oxlint": {
+      "command": "npx oxlint",
+      "lastLine": "Finished in 2.3s on 3810 files using 16 threads.",
+      "summaryLine": "Found 84 warnings and 0 errors.",
+      "exit": 0,
+      "note": "This is the warnings line the local stage must leave unchanged."
+    },
+    "validatorNext": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+      "line": "U8",
+      "exit": 0
+    }
+  },
+  "findingsObserved": [
+    "The decision's `code: 'STALE_REVISION'` (campaignConflictDecision.ts:159) is dropped by the pipeline's conflict result type (campaignCommandPipeline.ts:127-149), so the HTTP 409 body carries no `code`. The charter's phrase 'code STALE_REVISION' is therefore not assertable at this boundary without editing src/lib, which U8 does not own. The route pins the observable contract instead: kind, reason, head.branchId, head.revision, recoveryAction, conflictingFields.",
+    "Because the route forwards no declaredFields, the field-level disjoint path (decideCampaignConflict 187-197, 'revalidate') and the same-field path ('same-field-stale', 191-193) are BOTH unreachable from HTTP: every stale reconstructed base answers 'undeclared-field-set' with 'rebase-onto-active-head'. The lever this unit adds makes the stale head refusable at the boundary; it does not make the field-level verdict reachable there."
+  ],
+  "risksForTheParent": [
+    {
+      "id": "RK-1",
+      "risk": "The charter's expected 409 reason for the overlapping-fields case ('same-field-stale', implied by 'touches a field the newer events also touched') is NOT what the pipeline answers through this route, because declaredFields is null and the declaration check runs first. The pin records the real answer, 'undeclared-field-set'. A reviewer expecting 'same-field-stale' should read decideCampaignConflict 173-185 before objecting."
+    },
+    {
+      "id": "RK-2",
+      "risk": "`code: STALE_REVISION` is not on the wire (see findingsObserved). If the owner wants it there, that is a src/lib change under a node this unit does not own, and it needs its own unit."
+    },
+    {
+      "id": "RK-3",
+      "risk": "The malformed-body 400 fires BEFORE authentication (route 93-97), so an unauthenticated caller can learn that expectedRevision is malformed. That is the route's existing shape for every malformed body and this unit does not move it; naming the field in the message adds one bit to an already-reachable 400."
+    },
+    {
+      "id": "RK-4",
+      "risk": "No client sends expectedRevision yet, so the lever is inert in production until a client unit opts in. That is the intended shape (absent means no claim), but it means the merged change ships behaviour that only tests exercise."
+    }
+  ],
+  "status": "admitted"
+}
