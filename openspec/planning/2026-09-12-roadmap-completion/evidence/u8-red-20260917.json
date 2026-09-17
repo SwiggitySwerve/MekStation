@@ -1,0 +1,91 @@
+{
+  "unit": "U8",
+  "stage": "red",
+  "at": "2026-09-17T17:41:17.091Z",
+  "atNote": "Measured with `node -e \"new Date().toISOString()\"` when this stage's receipts were finalised, which is AFTER the red runs recorded below. The red runs themselves sit between the admission timestamp (17:32:08.451Z) and this one; no earlier instant was captured, and none is claimed.",
+  "baseline": "dfe766524cc71e665a0f34a5ee07e9585e4c8214",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u8",
+  "branch": "codex/roadmap-u8-stale-head-lever-20260917",
+  "treeUnderTest": "The new test file only. src/pages/api/campaigns/[id]/commands.ts is untouched at the baseline bytes, so every failure below is the SHIPPED route answering, not a half-implemented one.",
+  "newFile": "src/__tests__/api/campaigns/campaignCommandsRoute.staleHead.test.ts",
+  "command": "npx jest src/__tests__/api/campaigns/campaignCommandsRoute.staleHead.test.ts",
+  "env": "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH (node v22.22.0); export npm_config_dry_run=true",
+  "exit": 1,
+  "summaryLine": "Tests:       7 failed, 2 passed, 9 total",
+  "suitesLine": "Test Suites: 1 failed, 1 total",
+  "lastLine": "Ran all test suites matching /src\\__tests__\\api\\campaigns\\campaignCommandsRoute.staleHead.test.ts/i.",
+  "passingOnTheBaseline": [
+    {
+      "test": "commits a command whose expectedRevision names the current head",
+      "why": "Vacuously green today: the field is stripped, so this is the ordinary commit case wearing the new field. It is in the suite because the GREEN implementation must not turn it red - a guard that refused a valid at-head claim would make the lever unusable, and M3 below is exactly that mutant."
+    },
+    {
+      "test": "leaves a body with no expectedRevision exactly as it was",
+      "why": "The 'absent means no claim' arm. Green before and after, and it is what proves the lever is additive."
+    }
+  ],
+  "failing": [
+    {
+      "test": "refuses a stale expectedRevision whose command touches a field the newer events also touched",
+      "assertion": "expect(stale.status).toBe(409) at campaignCommandsRoute.staleHead.test.ts:285",
+      "received": "200",
+      "reason": "The route never forwards expectedRevision, so resolveCommandBase sees `undefined`, returns { kind: 'at-head' }, and the stale command commits."
+    },
+    {
+      "test": "refuses a stale expectedRevision even when the command is disjoint from the newer events",
+      "assertion": "expect(stale.status).toBe(409) at campaignCommandsRoute.staleHead.test.ts:324",
+      "received": "200",
+      "reason": "Same stripped field. The disjoint case is pinned separately because its EXPECTED answer through this route is the same refusal as the overlapping case, not the pipeline's 'revalidate'."
+    },
+    {
+      "test": "refuses an expectedRevision above the head and names the active head",
+      "assertion": "expect(result.status).toBe(409) at campaignCommandsRoute.staleHead.test.ts:350",
+      "received": "200",
+      "reason": "Same stripped field; the revision-unknown arm is unreachable."
+    },
+    {
+      "test": "refuses a negative revision at the route and appends nothing",
+      "assertion": "expect(result.status).toBe(400) at campaignCommandsRoute.staleHead.test.ts:379",
+      "received": "200",
+      "reason": "isValidCommandBody does not look at the field at all, so -1 is accepted as a body and then dropped."
+    },
+    {
+      "test": "refuses a fractional revision at the route and appends nothing",
+      "assertion": "expect(result.status).toBe(400) at campaignCommandsRoute.staleHead.test.ts:379",
+      "received": "200",
+      "reason": "Same - 1.5 is neither validated nor forwarded."
+    },
+    {
+      "test": "refuses a numeric string at the route and appends nothing",
+      "assertion": "expect(result.status).toBe(400) at campaignCommandsRoute.staleHead.test.ts:379",
+      "received": "200",
+      "reason": "Same - '3' is neither validated nor forwarded."
+    },
+    {
+      "test": "refuses an explicit null at the route and appends nothing",
+      "assertion": "expect(result.status).toBe(400) at campaignCommandsRoute.staleHead.test.ts:379",
+      "received": "200",
+      "reason": "Same - null is neither validated nor forwarded."
+    }
+  ],
+  "directProbe": {
+    "why": "A 200 is consistent with 'committed' and with 'duplicate', and the red assertions stop at the status. The failure claim is that the stale command COMMITS, so the commit was measured rather than inferred.",
+    "method": "A temporary `RED PROBE` test was appended to the new file, run with `npx jest ... -t \"RED PROBE\"`, and the measured object thrown so jest printed it. The file was then restored byte-for-byte from a copy taken before the probe was appended, and the full red run re-executed to confirm the same 7 failed / 2 passed.",
+    "command": "npx jest src/__tests__/api/campaigns/campaignCommandsRoute.staleHead.test.ts -t \"RED PROBE\"",
+    "measured": {
+      "base": 1,
+      "head": 2,
+      "staleStatus": 200,
+      "staleKind": "committed",
+      "staleBalance": 850000,
+      "badStatus": 200,
+      "badKind": "committed",
+      "badBalance": 849000,
+      "revisionAfter": 4
+    },
+    "reading": "A command naming revision 1 while the head is at 2 COMMITS and takes 150,000 C-bills against a balance it never saw (1,000,000 -> 850,000 across the two spends). A command naming revision -1 also commits (-> 849,000). The journal ends at revision 4: both the stale and the malformed claim appended. That is the finding FN-u1d-stale-head-class-has-no-in-paths-lever, measured at the HTTP boundary.",
+    "restoreCheck": "After restoring the pristine copy the full file re-ran to `Tests:       7 failed, 2 passed, 9 total`, identical to the run above, so the probe left nothing behind."
+  },
+  "notWeakened": "No existing assertion was changed, skipped or relaxed; no existing test file was touched at this stage. The two green tests are additive arms of the new behaviour, not converted failures.",
+  "status": "red-recorded"
+}

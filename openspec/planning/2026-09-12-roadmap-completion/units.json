@@ -1100,14 +1100,28 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
-      "prHead": null,
+      "state": "local-verified",
+      "baseline": "dfe766524cc71e665a0f34a5ee07e9585e4c8214",
+      "prHead": "315b61ac4242a5f9a151a3d4e697a5a8946f166c",
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/u8-admission-20260917.json",
+          "baseline": "dfe766524cc71e665a0f34a5ee07e9585e4c8214",
+          "at": "2026-09-17T17:32:08.451Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/u8-red-20260917.json",
+          "at": "2026-09-17T17:41:17.091Z",
+          "summary": "Route pin campaignCommandsRoute.staleHead.test.ts written first: 7 of 9 cases failed on the baseline route (the field was stripped: a stale command committed and spent 150,000 C-bills; expectedRevision -1 committed); after the change 9/9."
+        },
+        "local": {
+          "path": "evidence/u8-local-20260917.json",
+          "at": "2026-09-17T17:41:17.091Z",
+          "summary": "claude-opus Agent lane. CommandBody accepts an optional expectedRevision (absent or a non-negative safe integer; anything else 400 naming the field, journal untouched) and the route forwards it into the pipeline unchanged; the pipeline already refuses a stale head as a conflict and the route already answers 409 with the active head and recoveryAction. Gates: new pin 9/9, existing route files 14/14, campaigns API directory 12 suites / 87 tests, tsc 0, root oxlint 84 warnings 0 errors unchanged (vacuous for src/pages/api and __tests__: FN-u8-oxlint-does-not-cover-src-pages-api-or-tests), oxfmt clean, qc:openspec-ci errors=0, validator PASSED; three mutants killed (not forwarded 3 tests, any number accepted 2, every present revision rejected 4), sha256 restored; parent verification in the worktree 87/87, tsc 0, oxlint 84/0; product +52/-1 (22 code lines) and 384 test lines, two files, under the cap; measured contract facts: the conflict result carries no code field on the wire (FN-u8-conflict-result-drops-stale-revision-code) and without declaredFields every stale base answers rebase-onto-active-head, so overlapping and disjoint stale cases are byte-identical (FN-u8-http-boundary-cannot-reach-the-field-level-verdict); non-claims: the wire CAMPAIGN_STALE_HEAD race not addressed, the conflict-pack e2e arm is a later R6.umbrella unit, the client does not yet send expectedRevision."
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
@@ -1833,7 +1847,7 @@
         "R2.multiplayer-client"
       ],
       "taskKeys": [],
-      "question": "U8 (campaign command route accepts expectedRevision and answers 409 STALE_REVISION; review class concurrency) will present a head. Does the owner rule it?",
+      "question": "U8 (campaign command route accepts expectedRevision and answers 409 STALE_REVISION; review class concurrency) presents head 315b61ac4242a5f9a151a3d4e697a5a8946f166c on PR #1829. Does the owner rule it?",
       "options": [
         {
           "label": "rule the head",
