@@ -25,10 +25,15 @@
  * JSON the real gh prints for a merged PR, and its blob-equality check is
  * skipped through --skip-blob-check, which exists ONLY for this pin and which
  * the closure now refuses outright whenever the ledger it is acting on is the
- * repository's own. git itself is real: the merge commit the fake gh reports
- * is this checkout's own HEAD, so parent counting is measured rather than
- * stubbed. The main-proof cases use a real temporary git repository instead,
- * because their whole subject is what git reports.
+ * repository's own. git itself is real: the closure runs with `--repo-root`
+ * pointed at a throwaway repository this file builds, and the fake gh reports
+ * that repository's HEAD as the merge commit, so parent counting is measured
+ * rather than stubbed and no assertion depends on how the checkout under test
+ * was made. An earlier revision used this checkout's own HEAD instead, which a
+ * `pull_request` run of actions/checkout leaves at the two-parent
+ * refs/pull/N/merge commit: the closure then correctly refused every case that
+ * wants a PASS, because a squash merge has one parent. The main-proof cases
+ * build their own repository for the same reason.
  *
  * The fold is used here only to seed a unit to local-verified; its own cases
  * live in U17's pin.
@@ -89,7 +94,18 @@ interface ILedger {
 let tempLedger = '';
 let pristineUnits = '';
 let fakeBin = '';
+/** The throwaway repository the closure cases treat as the merged checkout. */
+let proofRepo = '';
 let headSha = '';
+let earlierSha = '';
+
+/** One identity for every commit this file makes, so no machine's git config leaks in. */
+const PIN_GIT_ENV = {
+  GIT_AUTHOR_NAME: 'pin',
+  GIT_AUTHOR_EMAIL: 'pin@example.invalid',
+  GIT_COMMITTER_NAME: 'pin',
+  GIT_COMMITTER_EMAIL: 'pin@example.invalid',
+};
 
 const readJson = <T>(file: string): T =>
   JSON.parse(fs.readFileSync(file, 'utf8')) as T;
@@ -131,6 +147,26 @@ function run(
 
 const git = (args: string[], cwd: string): string =>
   spawnSync('git', args, { cwd, encoding: 'utf8' }).stdout.trim();
+
+/** Commit everything in `repo` under the pin's identity. */
+function commitAll(repo: string, message: string): void {
+  spawnSync('git', ['add', '-A'], { cwd: repo });
+  spawnSync('git', ['commit', '-q', '-m', message], {
+    cwd: repo,
+    env: { ...process.env, ...PIN_GIT_ENV },
+  });
+}
+
+/**
+ * The exit code alone says nothing about WHY a closure refused, so a CI failure
+ * on a machine nobody can reach names the refusal instead of printing `1`.
+ */
+function expectClosureOk(result: IRun): void {
+  if (result.status !== 0)
+    throw new Error(
+      `closure exited ${result.status}, expected 0\n--- stderr ---\n${result.stderr}\n--- stdout ---\n${result.stdout}`,
+    );
+}
 
 /** The fabricated planned unit the generators are pointed at. */
 function seedPlannedUnit(): void {
@@ -246,9 +282,9 @@ function seedReview(
   return file;
 }
 
-/** The same arguments without `--ledger-dir`, so the closure falls back to its own. */
-function withoutLedgerDir(args: string[]): string[] {
-  const index = args.indexOf('--ledger-dir');
+/** The same arguments without `flag` and its value, so the closure falls back to its own. */
+function without(args: string[], flag: string): string[] {
+  const index = args.indexOf(flag);
   return [...args.slice(0, index), ...args.slice(index + 2)];
 }
 
@@ -312,6 +348,8 @@ function closureArgs(review: string, proofDir: string): string[] {
     tempLedger,
     '--preserved-root',
     path.join(tempLedger, 'preserved'),
+    '--repo-root',
+    proofRepo,
     '--skip-blob-check',
   ];
 }
@@ -322,7 +360,17 @@ beforeAll(() => {
   );
   fs.cpSync(SOURCE_LEDGER, tempLedger, { recursive: true });
   pristineUnits = fs.readFileSync(path.join(tempLedger, 'units.json'), 'utf8');
-  headSha = git(['rev-parse', 'HEAD'], repoRoot);
+
+  // Three commits, so HEAD and HEAD~1 both have exactly one parent: a squash
+  // merge has one, and the closure refuses anything else.
+  proofRepo = fs.mkdtempSync(path.join(os.tmpdir(), 'u17-merge-'));
+  spawnSync('git', ['init', '-q'], { cwd: proofRepo });
+  for (const name of ['seed.txt', 'one.txt', 'two.txt']) {
+    fs.writeFileSync(path.join(proofRepo, name), `${name}\n`);
+    commitAll(proofRepo, name);
+  }
+  headSha = git(['rev-parse', 'HEAD'], proofRepo);
+  earlierSha = git(['rev-parse', 'HEAD~1'], proofRepo);
 
   fakeBin = fs.mkdtempSync(path.join(os.tmpdir(), 'u17-gh-'));
   const ghJs = path.join(fakeBin, 'fake-gh.js');
@@ -365,6 +413,7 @@ beforeAll(() => {
 afterAll(() => {
   if (tempLedger) fs.rmSync(tempLedger, { recursive: true, force: true });
   if (fakeBin) fs.rmSync(fakeBin, { recursive: true, force: true });
+  if (proofRepo) fs.rmSync(proofRepo, { recursive: true, force: true });
 });
 
 beforeEach(() => {
@@ -389,7 +438,7 @@ describe('roadmap-unit-closure', () => {
     const proofDir = seedProofDir('Tests:       12 passed, 12 total');
     const review = seedReview();
     const result = run(CLOSURE, closureArgs(review, proofDir));
-    expect(result.status).toBe(0);
+    expectClosureOk(result);
 
     const evidence = path.join(tempLedger, 'evidence');
     const reviewReceipt = readJson<Record<string, unknown>>(
@@ -441,7 +490,7 @@ describe('roadmap-unit-closure', () => {
   it('preserves the proof logs through the U13 helper', () => {
     fold();
     const proofDir = seedProofDir('Tests:       12 passed, 12 total');
-    expect(run(CLOSURE, closureArgs(seedReview(), proofDir)).status).toBe(0);
+    expectClosureOk(run(CLOSURE, closureArgs(seedReview(), proofDir)));
     const manifest = readJson<{ files: { file: string }[]; bytes: number }>(
       path.join(tempLedger, 'evidence', `u91-logs-${DATE}.json`),
     );
@@ -472,7 +521,7 @@ describe('roadmap-unit-closure', () => {
   it('records the reviewer model the Lane A review names', () => {
     fold();
     const proofDir = seedProofDir('Tests:       12 passed, 12 total');
-    expect(run(CLOSURE, closureArgs(seedReview(), proofDir)).status).toBe(0);
+    expectClosureOk(run(CLOSURE, closureArgs(seedReview(), proofDir)));
     const receipt = readJson<Record<string, unknown>>(
       path.join(tempLedger, 'evidence', `u91-review-${DATE}.json`),
     );
@@ -503,7 +552,7 @@ describe('roadmap-unit-closure', () => {
     const before = fs.readFileSync(mirror.units, 'utf8');
     const result = run(
       mirror.closure,
-      withoutLedgerDir(closureArgs(seedReview(), proofDir)),
+      without(closureArgs(seedReview(), proofDir), '--ledger-dir'),
     );
     const after = fs.readFileSync(mirror.units, 'utf8');
     const written = fs.readdirSync(mirror.evidence);
@@ -561,7 +610,7 @@ describe('roadmap-unit-closure', () => {
       '--expected-reds',
       expected,
     ]);
-    expect(result.status).toBe(0);
+    expectClosureOk(result);
     const mainProof = readJson<Record<string, unknown>>(
       path.join(tempLedger, 'evidence', `u91-mainproof-${DATE}.json`),
     );
@@ -578,13 +627,13 @@ describe('roadmap-unit-closure', () => {
     const proofDir = seedProofDir('Tests:       12 passed, 12 total');
     const extra = path.join(tempLedger, 'extra-runtime.json');
     writeJson(extra, { exactMainCheck: 'EXACT_MAIN_LADDER_SATISFIED' });
-    expect(
+    expectClosureOk(
       run(CLOSURE, [
         ...closureArgs(seedReview(), proofDir),
         '--extra-runtime',
         extra,
-      ]).status,
-    ).toBe(0);
+      ]),
+    );
     const mainProof = readJson<{ runtime: Record<string, string> }>(
       path.join(tempLedger, 'evidence', `u91-mainproof-${DATE}.json`),
     );
@@ -597,21 +646,20 @@ describe('roadmap-unit-closure', () => {
   it('accepts the checkout as a named --reproof-commit and records it', () => {
     fold();
     const proofDir = seedProofDir('Tests:       12 passed, 12 total');
-    const earlier = git(['rev-parse', 'HEAD~1'], repoRoot);
     const result = run(
       CLOSURE,
       [...closureArgs(seedReview(), proofDir), '--reproof-commit', headSha],
       repoRoot,
-      { U17_FAKE_GH_MERGE: earlier },
+      { U17_FAKE_GH_MERGE: earlierSha },
     );
-    expect(result.status).toBe(0);
+    expectClosureOk(result);
     expect(result.stdout).toContain('re-proof commit');
     const mainProof = readJson<Record<string, unknown>>(
       path.join(tempLedger, 'evidence', `u91-mainproof-${DATE}.json`),
     );
-    expect(mainProof.mergeCommit).toBe(earlier);
+    expect(mainProof.mergeCommit).toBe(earlierSha);
     expect(mainProof.reproofCommit).toBe(headSha);
-    expect(unitOf(UNIT).mergeSha).toBe(earlier);
+    expect(unitOf(UNIT).mergeSha).toBe(earlierSha);
   });
 
   it('refuses when the checkout is not at the merge commit and no re-proof commit is named', () => {
@@ -621,17 +669,15 @@ describe('roadmap-unit-closure', () => {
     spawnSync('git', ['init', '-q'], { cwd: elsewhere });
     spawnSync('git', ['commit', '-q', '--allow-empty', '-m', 'seed'], {
       cwd: elsewhere,
-      env: {
-        ...process.env,
-        GIT_AUTHOR_NAME: 'pin',
-        GIT_AUTHOR_EMAIL: 'pin@example.invalid',
-        GIT_COMMITTER_NAME: 'pin',
-        GIT_COMMITTER_EMAIL: 'pin@example.invalid',
-      },
+      env: { ...process.env, ...PIN_GIT_ENV },
     });
     const result = run(
       CLOSURE,
-      [...closureArgs(seedReview(), proofDir), '--repo-root', elsewhere],
+      [
+        ...without(closureArgs(seedReview(), proofDir), '--repo-root'),
+        '--repo-root',
+        elsewhere,
+      ],
       elsewhere,
     );
     fs.rmSync(elsewhere, { recursive: true, force: true });
@@ -645,19 +691,7 @@ describe('roadmap-main-proof --dry-run', () => {
   let repo = '';
   let sha = '';
 
-  const commit = (message: string): void => {
-    spawnSync('git', ['add', '-A'], { cwd: repo });
-    spawnSync('git', ['commit', '-q', '-m', message], {
-      cwd: repo,
-      env: {
-        ...process.env,
-        GIT_AUTHOR_NAME: 'pin',
-        GIT_AUTHOR_EMAIL: 'pin@example.invalid',
-        GIT_COMMITTER_NAME: 'pin',
-        GIT_COMMITTER_EMAIL: 'pin@example.invalid',
-      },
-    });
-  };
+  const commit = (message: string): void => commitAll(repo, message);
 
   beforeEach(() => {
     repo = fs.mkdtempSync(path.join(os.tmpdir(), 'u17-proof-'));
