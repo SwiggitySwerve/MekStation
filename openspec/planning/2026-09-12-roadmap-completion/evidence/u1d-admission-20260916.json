@@ -1,0 +1,277 @@
+{
+  "unit": "U1d",
+  "stage": "admission",
+  "at": "2026-09-16T23:26:47.225Z",
+  "node": "R6.umbrella",
+  "predecessor": "U1c",
+  "predecessorState": "complete",
+  "siblingCompleted": [
+    "U1c",
+    "U1e"
+  ],
+  "activePackage": "harden-gm-two-player-campaign-sessions",
+  "taskKeys": [],
+  "taskKeysNote": "units.json U1d carries an EMPTY taskKeys array, the same shape U1b/U1c/U1e carried. Row 22.3 (openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md:585) is the umbrella row covering E2E-71..E2E-80 and it stays unchecked - E2E-76/77/80 remain open. Stage 7 (tick) therefore has no row of its own and is expected to be recorded not-applicable, as the parent ruled for U1b (RES-1) and U1c (RES-5).",
+  "baseline": "a00b816dcf1d30cb40b08ce9901bcf66ea3cc125",
+  "originMain": "a00b816dcf1d30cb40b08ce9901bcf66ea3cc125",
+  "baselineEqualsOriginMain": true,
+  "baselineProof": "git rev-parse HEAD and git rev-parse origin/main both printed a00b816dcf1d30cb40b08ce9901bcf66ea3cc125 in this session. Worktree status --short was empty at admission.",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u1d",
+  "branch": "codex/roadmap-u1d-e2e-77-20260916",
+  "environment": {
+    "node": "v22.22.0 (PATH pinned to nvm v22.22.0; node --version in the worktree)",
+    "nodeModules": "junction already present; not deleted or reinstalled",
+    "worktreeStatusAtAdmission": "clean (git status --short empty)",
+    "rootWorkingTreeTouched": false,
+    "rootWrites": 0,
+    "buildOrPlaywrightRunBeforeThisReceipt": false
+  },
+  "ownedPaths": [
+    "e2e",
+    "scripts/qc",
+    "openspec/changes/harden-gm-two-player-campaign-sessions"
+  ],
+  "ownedPathsNote": "src/ is NOT owned. Every mutant is a temporary src/ edit reverted with git checkout -- <file> before the next step.",
+  "behavior": "E2E-77 conflict messages are actionable and safe for the three reachable classes (integrity: sequence collision and duplicate intent; authorization: GM-only; rebuild/stale revision: campaign stale head) under a new conflict-pack group: per class the row asserts the class code, the verbatim named recovery action, and leak safety (no peer player id, wire token, session token or lease id in the rendered text); the stale-branch class is not claimed (STALE_BRANCH is unreachable for match streams; PK-rewind-branch-reader) and the row header and receipt say so.",
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500
+  },
+  "ciClass": "product",
+  "reviewClasses": [
+    "routine"
+  ],
+  "laneBNotRequired": "reviewClasses is ['routine'] - no owner ruling is required for this unit.",
+  "specLetter": {
+    "path": "openspec/changes/harden-gm-two-player-campaign-sessions/specs/e2e-testing/spec.md:325-327",
+    "text": "WHEN a command rejects for stale revision, stale branch, authorization, integrity, or rebuild THEN the UI SHALL identify the actor-safe conflict class, base revision or branch, and recovery action without leaking private data"
+  },
+  "renderedSurfaces": {
+    "tacticalToast": {
+      "file": "src/components/multiplayer/NetworkedGameSurface.overlays.tsx",
+      "lines": "230-253",
+      "locator": "data-testid=\"intent-error-toast\"",
+      "textShape": "Action rejected (<CODE>): <reason>",
+      "mountedAt": "src/components/multiplayer/NetworkedGameSurface.tsx:349-354"
+    },
+    "tacticalRecoveryAction": {
+      "file": "src/components/multiplayer/NetworkedGameSurface.branchRecovery.tsx",
+      "lines": "8-21",
+      "locator": "data-testid=\"tactical-branch-recovery-action\"",
+      "textShape": "the server's recoveryAction string with no local wording",
+      "whenItRenders": "only when recoveryAction is non-null on the Error frame. refuse() in ServerMatchHostBranchAdmission.ts:281-300 attaches recoveryAction ONLY when conflictHead is present (the STALE_BRANCH arm). GM_ONLY and MATCH_QUARANTINED therefore render the named action as the toast reason, not this element."
+    },
+    "campaignBanner": {
+      "file": "src/components/campaign/coop/CampaignSyncStateBanner.tsx",
+      "lines": "39-49",
+      "locator": "data-testid=\"campaign-sync-state\"",
+      "dataState": "src/components/common/LifecycleStateBanner.tsx:26"
+    },
+    "campaignVerbatimRecovery": {
+      "host": "src/components/campaign/coop/HostGmReviewSurface.tsx:275-281 data-testid=\"gm-lifecycle-recovery-server-action\" text 'Server instruction: {serverAction}'",
+      "guest": "src/components/campaign/coop/GuestProposalSurface.tsx:175-181 data-testid=\"guest-lifecycle-recovery-server-action\"",
+      "codeAttribute": "data-recovery-code on gm-lifecycle-recovery / guest-lifecycle-recovery (HostGmReviewSurface.tsx:294-295, GuestProposalSurface.tsx:191-192)",
+      "mapping": "campaignRefusalFromServerErrorCode maps CAMPAIGN_STALE_HEAD onto UI code STALE_BRANCH (campaignLifecycleState.ts:377) with recoveryAction forwarded verbatim (campaignLifecycleState.ts:386-398, resolveRecovery :351-356)"
+    }
+  },
+  "classes": [
+    {
+      "class": "integrity",
+      "variants": [
+        "sequence-collision",
+        "duplicate-intent"
+      ],
+      "reachable": true,
+      "wireCodes": [
+        "PROTOCOL_VIOLATION",
+        "DUPLICATE_INTENT"
+      ],
+      "levers": [
+        {
+          "variant": "sequence-collision",
+          "existingFixture": "e2e/gm-two-player-exactly-once.pack.spec.ts:154-168 E2E-12 already drives a real sequence collision through installHarness at :309 and collidingFrame at :554-562, then asserts toast /PROTOCOL_VIOLATION.*sequence-collision/i at :166. The client emits that pair at src/lib/multiplayer/client.ts:379-383. The lifecycle pack's collideNextDelivery (e2e/gm-two-player-lifecycle.pack.spec.ts:169-170, :634-645) is the same fault, already proven live by U1e.",
+          "renderedSurface": "IntentErrorToast (NetworkedGameSurface.overlays.tsx:230-253). No recoveryAction field is set on the client-emitted error, so tactical-branch-recovery-action stays absent. The named recovery the product renders is the toast reason 'sequence-collision'.",
+          "baselineLines": "e2e/gm-two-player-exactly-once.pack.spec.ts:154-168, :371-376, :554-562; src/lib/multiplayer/client.ts:379-383; src/components/multiplayer/NetworkedGameSurface.tsx:349-354"
+        },
+        {
+          "variant": "duplicate-intent",
+          "existingFixture": "E2E-09 (exactly-once.pack.spec.ts:57-87) duplicates a projected Event, not a client intent, so it never fires DUPLICATE_INTENT. The producer is ServerMatchHostIntent.ts:261-272 rejectCommand('DUPLICATE_INTENT', 'Intent id already accepted for this match') when acceptedIntents.isDuplicate and journalAuthority is not enabled. Lever: harvest one real outbound Intent on the guest socket (lifecycle harness send at gm-two-player-lifecycle.pack.spec.ts:163-164, :555-568) and send the same envelope a second time.",
+          "renderedSurface": "IntentErrorToast code DUPLICATE_INTENT, reason 'Intent id already accepted for this match'",
+          "baselineLines": "src/lib/multiplayer/server/ServerMatchHostIntent.ts:256-272"
+        }
+      ]
+    },
+    {
+      "class": "authorization",
+      "reachable": true,
+      "wireCodes": [
+        "GM_ONLY"
+      ],
+      "lever": "A non-host context sends an Intent whose payload names a numeric targetRevision. namesRewindCut (ServerMatchHostBranchAdmission.ts:249-255) is true for any intent with that own-property, RewindRequest excluded. refuseLiveBranchAdmission at :143-144 answers GM_ONLY when actorId !== hostPlayerId. Jest already pins this: ServerMatchHostBranchAdmission.test.ts:281-293, AdvancePhase + targetRevision: 2 from pid_opp. Precondition: hasHistoryBranchStore && isHistoryBranchStoreReady (:129-130). If the ladder fixture's DurableMatchStore is not ready, the consult is a no-op and the class is recorded as a non-claim with that measurement rather than faked.",
+      "recoveryActionTheProductRenders": "LIVE_BRANCH_ADMISSION_PHRASING.GM_ONLY = 'gm-role-required' (ServerMatchHostBranchAdmission.ts:74) travels as Error.reason. refuse() does NOT attach recoveryAction for GM_ONLY (:294-299 only when activeHead is set). Player-visible text: 'Action rejected (GM_ONLY): gm-role-required'.",
+      "renderedSurface": "IntentErrorToast (NetworkedGameSurface.overlays.tsx:230-253)",
+      "baselineLines": "src/lib/multiplayer/server/ServerMatchHostBranchAdmission.ts:72-75, :129-145, :249-255, :281-300; src/lib/multiplayer/server/__tests__/ServerMatchHostBranchAdmission.test.ts:281-293"
+    },
+    {
+      "class": "rebuild/stale revision",
+      "unitWording": "campaign stale head",
+      "reachable": "probable - HTTP command-door stale expectedRevision is NOT wired; wire CAMPAIGN_STALE_HEAD is a lost-race. Stage 2/3 must measure which, if either, reaches a player-visible surface. If neither does, this class is a non-claim with the measurement, not a fake.",
+      "wireCodes": [
+        "CAMPAIGN_STALE_HEAD (wire)",
+        "STALE_REVISION (command-door admission code, collapsed onto UI STALE_BRANCH)"
+      ],
+      "levers": [
+        {
+          "door": "HTTP /api/campaigns/[id]/commands",
+          "whatU1cPredicted": "POST with a deliberately stale expectedHead, asserting 409 recoveryAction resync-to-active-head (u1c-admission classTable stale revision).",
+          "whatTheBaselineRouteActuallyDoes": "executeCampaignCommand is called with {campaignId, intent, authorPlayerId, commandId, ts} only (src/pages/api/campaigns/[id]/commands.ts:139-148). expectedRevision is never read from the body. resolveCommandBase treats undefined expectedRevision as at-head (campaignCommandPipeline.ts:267-269). The command-door STALE_REVISION 409 therefore cannot be produced by any HTTP client of the shipped route.",
+          "playerVisible": false,
+          "baselineLines": "src/pages/api/campaigns/[id]/commands.ts:139-148; src/lib/campaign/authority/campaignCommandPipeline.ts:226-234, :267-269, :405-406"
+        },
+        {
+          "door": "campaign wire CAMPAIGN_STALE_HEAD",
+          "producer": "applyHostIntent lost-race. bindCampaignSyncConnection.ts:844-854 sends Error CAMPAIGN_STALE_HEAD with recoveryAction from the result. campaignStaleHeadRefusal hard-codes recoveryAction 'resync-to-active-head' (src/types/campaign/CampaignSync.ts:618-627). Jest drives it with a store interloper (campaignHostLostRace.test.ts:205-219).",
+          "playerVisible": "HostGmReviewSurface / GuestProposalSurface, only if the Error arrives on the PAGE's campaign socket (channel=campaign on /api/multiplayer/socket, e2e/helpers/campaignJournalSocket.ts:126-131). A Node-side socket would swallow the frame; CampaignCoopRouteSurfaceConnected.ts:180-183 is the page admission.",
+          "risk": "CampaignMatchHost serializes applyHostIntent through runExclusive (CampaignMatchHost.ts:405-413, :456). Two CampaignHostIntent frames from one host may serialize and both commit. The lost-race test injects a competing append inside the store, which is a src/ seam this unit does not own. Concurrent HTTP SpendFunds versus a page CampaignHostIntent is the remaining in-paths candidate and will be measured; if both commit, the class is a non-claim.",
+          "baselineLines": "src/lib/multiplayer/server/bindCampaignSyncConnection.ts:844-854; src/types/campaign/CampaignSync.ts:598-627; src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx:180-183; src/components/campaign/coop/HostGmReviewSurface.tsx:275-281"
+        }
+      ],
+      "uiCodeTheActorSees": "STALE_BRANCH (campaignLifecycleState.ts:377 maps CAMPAIGN_STALE_HEAD onto it). data-state on campaign-sync-state / gm-lifecycle-state is blocked (campaignLifecycleState.ts:493-495). Verbatim recovery is serverAction 'resync-to-active-head'."
+    }
+  ],
+  "nonClaims": [
+    {
+      "class": "stale-branch",
+      "declaredInUnitBehavior": true,
+      "wording": "STALE_BRANCH is unreachable for match streams. refuseStale (ServerMatchHostBranchAdmission.ts:269-275) fires only when the effective head has left the live path, which requires a completed rewind activation. The combat stream is never journaled (finding #48); e2e/gm-two-player-rewind.pack.spec.ts:3-6 is test.fail @until-journal-cutover. Held by packet PK-rewind-branch-reader. The row header, the 22.3 PROGRESS note and this receipt say so."
+    },
+    {
+      "class": "rebuild (PROJECTION_REBUILDING)",
+      "declaredInUnitBehavior": true,
+      "wording": "PROJECTION_REBUILDING is a pure function of a live correction lease (EventHistoryDurableRebuild.ts:45-59). No in-paths lever acquires one. Deferred to adopt-combat-journal-cutover-and-gm-rewind, same as U1c/U1e."
+    },
+    {
+      "class": "MATCH_QUARANTINED history-integrity-blocked",
+      "declaredInUnitBehavior": false,
+      "wording": "Needs persisted branch-table corruption, the WRITE-capable lever e2e/gm-two-player-failure.pack.spec.ts:71-77 names as E2E-68's blocker. Integrity is proven through sequence-collision and duplicate-intent instead."
+    },
+    {
+      "class": "numeric base revision on reachable tactical classes",
+      "declaredInUnitBehavior": false,
+      "wording": "conflictHead {branchId, revision} is produced only by refuseStale, the unreachable stale-branch arm. PROTOCOL_VIOLATION / DUPLICATE_INTENT / GM_ONLY carry a reason discriminator, not a numeric head."
+    }
+  ],
+  "estimate": {
+    "method": "counted against landed siblings: U1e added 318 product lines over 3 files; U1c's combined conflict-pack estimate was 250-310 for the spec plus registration. This unit adds a new spec, a GROUP_CATALOG + SPEC_BY_GROUP pair matching lifecycle-pack, pin-suite edits, and one PROGRESS line.",
+    "files": [
+      {
+        "path": "e2e/gm-two-player-conflict.pack.spec.ts",
+        "action": "add",
+        "lines": "260-330",
+        "what": "fewest rows the reachable classes need. Tactical row drives collision + duplicate + GM_ONLY on one match through a per-page harness modelled on the lifecycle pack (withhold/collide/resend REAL frames, never invent a refusal code). Per class: class code, verbatim named recovery the product actually renders, leak-safety over peer playerId / wire token / session token / lease id. Campaign stale-head is a second row ONLY if the stage-2/3 probe reaches a player-visible surface; otherwise it is a non-claim in the header, not a fake."
+      },
+      {
+        "path": "scripts/qc/gm-two-player-campaign-core.cjs",
+        "action": "edit",
+        "lines": "8-14",
+        "what": "conflict-pack:22 in GROUP_CATALOG next to lifecycle-pack:22, plus SPEC_BY_GROUP mapping to the new spec, with a why-comment. Not in RESPAWNING_GROUPS. all auto-expands."
+      },
+      {
+        "path": "scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+        "action": "edit",
+        "lines": "22-32",
+        "what": "groups pin, implemented whitelist, dedicated plan pin, all-args pin, in one edit (tasks.md:585 discipline)"
+      },
+      {
+        "path": "openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md",
+        "action": "edit",
+        "lines": "1",
+        "what": "one PROGRESS line under 22.3 / E2E-77 naming U1d, the classes, the stale-branch non-claim, and any finding. Checkbox not checked."
+      }
+    ],
+    "productTotalAdded": "291-377",
+    "cap": 500,
+    "underCap": true,
+    "fileCount": 4,
+    "fileCap": 15,
+    "underFileCap": true
+  },
+  "redPlan": {
+    "principle": "Reproduce the failure at the real boundary before any implementation line. Exact codes captured, not predicted (U1c's predicted exit 3 was actually 2 UNKNOWN_GROUP).",
+    "R1": {
+      "name": "the conflict selector is unimplemented",
+      "how": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=conflict-pack",
+      "expectedShape": "UNKNOWN_GROUP because the name is in neither GROUP_CATALOG nor SPEC_BY_GROUP (lifecycle-pack's red was exit 2 for the same reason). Exact status and stderr are captured."
+    },
+    "R2": {
+      "name": "shipped conflict row asserts no recovery action and no leak-safety",
+      "how": "git grep tactical-branch-recovery-action over e2e/ (expected empty on baseline). Then a reverted probe on E2E-12 (exactly-once.pack.spec.ts:154) asserting getByTestId('tactical-branch-recovery-action') is visible after the collision toast - the letter's recovery-action obligation on the only live conflict row. Expected fail, then git checkout -- that file.",
+      "provesWhat": "no live row asserts E2E-77's recovery-action or leak-safety obligations today"
+    }
+  },
+  "mutantPlan": [
+    {
+      "id": "M1",
+      "mutation": "replace the recovery/reason text for one class with another class's text (e.g. GM_ONLY phrasing set to sequence-collision, or CAMPAIGN_STALE_HEAD recoveryAction set to retry-after-rebuild)",
+      "shouldFail": "the verbatim recovery-action assertion"
+    },
+    {
+      "id": "M2",
+      "mutation": "interpolate a peer player id or wire token into a rendered conflict message (IntentErrorToast reason, or HostGmReviewSurface serverAction)",
+      "shouldFail": "the leak-safety assertion at the safety property, not a regex proxy (U1b M4 lesson, tasks.md:588)"
+    },
+    {
+      "id": "M3",
+      "mutation": "drop the class code from the rendered element (IntentErrorToast omits code, or campaign mapping drops CAMPAIGN_STALE_HEAD)",
+      "shouldFail": "the class-code assertion"
+    }
+  ],
+  "acceptanceCommands": {
+    "nodeVersion": "PATH pinned to nvm v22.22.0",
+    "cpuPreflight": "tasklist | findstr node.exe and Get-CimInstance Win32_Process -Filter name='node.exe' | Select-Object CommandLine. Wait until no next build, next start, server.js or playwright process is active before every build and every Playwright run.",
+    "build": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build. Junctioned worktree hydrate exits 1; compile is fine when the route table prints, .next/standalone/server.js exists, and __E2E_MODE__ appears exactly once across .next/static/chunks/pages/_app-*.js. Exit captured on its own line, never through a pipe.",
+    "row": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=conflict-pack three times with identical captured class lists",
+    "regression": [
+      "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=exactly-once-pack (4 passed)",
+      "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=lifecycle-pack (2 passed)"
+    ],
+    "typecheck": "npx tsc --noEmit",
+    "formatCheck": "npx oxfmt --check on changed files",
+    "lint": "npx oxlint on changed files (recorded as vacuous - .oxlintrc.json ignores e2e/**, **/scripts/**, **/openspec/**)",
+    "qcPinSuite": "npx jest scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+    "openspecCi": "npm run qc:openspec-ci:validate",
+    "roadmapValidator": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs must print ROADMAP VALIDATION PASSED: 73 nodes, 13 packages, 376 tasks, 40 triage rows"
+  },
+  "validatorAtAdmission": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+    "exitCode": 0,
+    "output": "ROADMAP VALIDATION PASSED: 73 nodes, 13 packages, 376 tasks, 40 triage rows"
+  },
+  "risksForTheParent": [
+    {
+      "id": "RK-1",
+      "risk": "GM_ONLY is inert unless hasHistoryBranchStore && isHistoryBranchStoreReady. The jest row seeds a stream; the ladder fixture may not.",
+      "handling": "if the consult no-ops, record authorization as a non-claim with the toast that actually appeared (or the phase advancing), and continue with integrity. Not faked."
+    },
+    {
+      "id": "RK-2",
+      "risk": "campaign stale head may be unreachable in-paths: the HTTP route never forwards expectedRevision, and the wire lost-race is behind runExclusive plus a store interloper.",
+      "handling": "measure both doors. If neither reaches a player-visible surface, non-claim the class with the measurement. The unit's behavior sentence names three classes; a measured miss is a non-claim, not a widening and not a fake. Parent already listed rebuild (PROJECTION_REBUILDING) as a separate non-claim."
+    }
+  ],
+  "capVerdict": "UNDER CAP - estimate 291-377 product lines against 500, 4 product files against 15. No parent ruling needed before implementation. If the campaign arm cannot be reached, dropping it shrinks the spec rather than growing it.",
+  "notes": [
+    "No product or test file was modified in this stage. The worktree is clean at a00b816dc except this receipt.",
+    "No build and no Playwright run was performed for admission.",
+    "Discipline adopted from campaignLifecycleState.ts:21-22: simulating a frame would be a lie about what the product does. The WS harness WITHHOLDS, DUPLICATES and COLLIDES real frames; it never invents a refusal code."
+  ],
+  "parentDecision": {
+    "at": "2026-09-17T00:18:00.625Z",
+    "decision": "go, then narrowed at stage 3 by measurement",
+    "rulings": {
+      "RK-1": "accepted: authorization (GM_ONLY) recorded as a measured non-claim; the socket schema strips targetRevision so the wire never reaches the branch-admission door",
+      "RK-2": "accepted: rebuild/stale head recorded as a measured non-claim; the HTTP route never forwards expectedRevision and the wire race sits behind runExclusive with no in-paths interloper"
+    },
+    "note": "a measured miss is a non-claim, not a widening; the missing levers are recorded as findings for a product-side successor whose ownership is an owner call"
+  }
+}

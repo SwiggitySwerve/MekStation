@@ -403,7 +403,7 @@
       "id": "U1d",
       "node": "R6.umbrella",
       "taskKeys": [],
-      "behavior": "E2E-77 conflict messages are actionable and safe for the three reachable classes (integrity: sequence collision and duplicate intent; authorization: GM-only; rebuild/stale revision: campaign stale head) under a new conflict-pack group: per class the row asserts the class code, the verbatim named recovery action, and leak safety (no peer player id, wire token or lease id in the rendered text); the stale-branch class is not claimed (STALE_BRANCH is unreachable for match streams; PK-rewind-branch-reader) and the row header and receipt say so.",
+      "behavior": "E2E-77 conflict messages are actionable and safe for the measured-reachable integrity class under a new conflict-pack group: one strict row drives a duplicate intent and then a sequence collision on one match and asserts, on the player-visible toast, the class code, the verbatim named recovery the product renders, and leak safety (no peer player id, wire token or session token in the rendered text). Non-claims, each measured: stale-branch (STALE_BRANCH unreachable for match streams; PK-rewind-branch-reader), authorization (the socket schema strips targetRevision so GM_ONLY is never produced from the wire), rebuild/stale head (expectedRevision is never forwarded; the wire race has no in-paths interloper), PROJECTION_REBUILDING (no lever acquires a correction lease).",
       "ownershipPaths": [
         "e2e",
         "scripts/qc",
@@ -417,14 +417,27 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
+      "state": "local-verified",
+      "baseline": "a00b816dcf1d30cb40b08ce9901bcf66ea3cc125",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/u1d-admission-20260916.json",
+          "baseline": "a00b816dcf1d30cb40b08ce9901bcf66ea3cc125",
+          "at": "2026-09-16T23:26:47.225Z",
+          "decision": "go, then narrowed at stage 3 by measurement"
+        },
+        "red": {
+          "path": "evidence/u1d-red-20260916.json",
+          "at": "2026-09-16T23:55:00.000Z",
+          "summary": "R1: --group=conflict-pack exited 2 UNKNOWN_GROUP on shipped code; R2: a three-line probe on the shipped collision row E2E-12 failed tactical-branch-recovery-action toBeVisible (1 failed, 3 passed) while the shipped toast assertion passed: no shipped row asserted the rendered recovery or leak safety; probe reverted"
+        },
+        "local": {
+          "path": "evidence/u1d-local-20260916.json",
+          "at": "2026-09-17T00:12:47.450Z",
+          "summary": "conflict-pack 1 passed three times with identical captures (integrity-duplicate,integrity-collision); exactly-once-pack 4 passed and lifecycle-pack 2 passed as regression; tsc 0; oxfmt clean; oxlint vacuous for these paths; pin suite 12/12; qc:openspec-ci errors=0; roadmap validator PASSED; three mutants killed with rebuilds (collision reason swapped to the duplicate text; peer playerId interpolated into the rejection; class code dropped from the toast); 374 product lines over 4 files; the parent re-ran conflict-pack (1 passed) and the pin suite independently"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
@@ -433,8 +446,16 @@
       "ownerGate": null,
       "nonClaims20260916": [
         "stale-branch class: STALE_BRANCH unreachable for match streams (PK-rewind-branch-reader)",
-        "rebuild class (PROJECTION_REBUILDING): same missing correction-lease lever; deferred to adopt-combat-journal-cutover-and-gm-rewind"
-      ]
+        "authorization class (GM_ONLY): AdvancePhaseIntentSchema strips targetRevision at the socket door, so namesRewindCut never sees a rewind cut on the wire; RewindRequest answers INVALID_INTENT / accepted-for-gm-review",
+        "rebuild / campaign stale head: commands.ts never forwards expectedRevision, so STALE_REVISION 409 cannot be produced; wire CAMPAIGN_STALE_HEAD is a lost race behind runExclusive with no in-paths interloper",
+        "PROJECTION_REBUILDING: a pure function of a correction lease no in-paths lever acquires",
+        "numeric base revision on the reachable classes: conflictHead is produced only by the unreachable stale-branch arm; the reachable classes carry a reason discriminator"
+      ],
+      "narrowed20260916": {
+        "at": "2026-09-17T00:18:00.625Z",
+        "from": "E2E-77 conflict messages are actionable and safe for the three reachable classes (integrity: sequence collision and duplicate intent; authorization: GM-only; rebuild/stale revision: campaign stale head) under a new conflict-pack group: per class the row asserts the class code, the verbatim named recovery action, and leak safety (no peer player id, wire token or lease id in the rendered text); the stale-branch class is not claimed (STALE_BRANCH is unreachable for match streams; PK-rewind-branch-reader) and the row header and receipt say so.",
+        "reason": "stage-3 measurement on the baseline: the authorization class (GM_ONLY) and the rebuild/stale-revision class (CAMPAIGN_STALE_HEAD, STALE_REVISION) have no in-paths lever (see evidence/u1d-local-20260916.json nonClaims and the findings FN-u1d-*); the integrity class (sequence collision and duplicate intent) is proven live"
+      }
     },
     {
       "id": "U2",
@@ -663,6 +684,28 @@
       "ownership": "resilience-pack is not a gate of U1c (its regression group is exactly-once-pack) and is not wired into CI (PK-e2e-80-ci-wiring); the row is owned by R6.umbrella paths (e2e) but the failure may be product-side",
       "recommendedSuccessor": "a diagnosis unit under R6.umbrella: bisect whether the row or the product regressed, with the receipt naming the first failing main commit",
       "status": "recorded; not a gate of this unit"
+    },
+    {
+      "id": "FN-u1d-authorization-class-has-no-wire-lever",
+      "foundBy": "U1d",
+      "at": "2026-09-17T00:18:00.625Z",
+      "class": "coverage gap, product lever missing",
+      "summary": "E2E-77's authorization class (GM_ONLY) cannot be produced from the wire: AdvancePhaseIntentSchema (src/lib/multiplayer/Protocol.ts) strips targetRevision at the socket door, so the branch-admission check that answers GM_ONLY for a non-host actor is reachable only from jest (ServerMatchHostBranchAdmission.test.ts). A live row needs either a wire intent that legitimately carries a rewind cut or an E2E-mode door.",
+      "evidence": "evidence/u1d-admission-20260916.json classes[authorization]; evidence/u1d-local-20260916.json nonClaims",
+      "ownership": "the lever lives in src/lib/multiplayer (protocol schema, server host); no roadmap node owns the client protocol path; assigning it widens the ownership map and is an owner call",
+      "recommendedSuccessor": "a product unit under the node that owns src/lib/multiplayer/server (R2.authority-live paths) exposing a legitimate GM-only wire command, with a red jest at the socket door, then an e2e successor adding the authorization arm to conflict-pack",
+      "status": "recorded; fix owner unassigned"
+    },
+    {
+      "id": "FN-u1d-stale-head-class-has-no-in-paths-lever",
+      "foundBy": "U1d",
+      "at": "2026-09-17T00:18:00.625Z",
+      "class": "coverage gap, product lever missing",
+      "summary": "E2E-77's rebuild/stale-revision class cannot be produced in-paths: the campaign command route (src/lib/campaign/.../commands.ts) never forwards expectedRevision, so the HTTP STALE_REVISION 409 is unreachable, and the wire CAMPAIGN_STALE_HEAD is a lost race behind CampaignMatchHost.runExclusive with no in-paths store interloper.",
+      "evidence": "evidence/u1d-admission-20260916.json risksForTheParent[RK-2]; evidence/u1d-local-20260916.json nonClaims",
+      "ownership": "src/lib/campaign and src/lib/multiplayer/server are owned by R2.authority-live (main-verified); a successor there can forward expectedRevision or expose an E2E-mode interloper",
+      "recommendedSuccessor": "a product unit under R2.authority-live paths forwarding expectedRevision on the campaign command route (red jest at the route), then an e2e successor adding the stale-head arm to conflict-pack",
+      "status": "recorded; successor not yet planned (owner decides whether R2.authority-live reopens)"
     }
   ]
 }

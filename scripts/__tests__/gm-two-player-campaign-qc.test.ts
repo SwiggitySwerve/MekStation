@@ -6,7 +6,7 @@ const repoRoot = path.resolve(__dirname, '../..');
 const runner = path.join(repoRoot, 'scripts/qc/run-gm-two-player-campaign.mjs');
 const core = require('../qc/gm-two-player-campaign-core.cjs');
 const groups =
-  'fixture-smoke,membership-smoke,evidence-smoke,fault-smoke,smoke,authority-pack1,exactly-once-pack,fault-pack,token-pack,restart-pack,resilience-pack,authority-order,authority-recovery,privacy-pack,proposal-pack,three-context-pack,two-device-pack,authority,visibility,combat-pack1,rewind-pack,combat,campaign,failure,performance,cleanup-ownership,backpressure,lifecycle-pack,all,traceability,quality,manual-setup,scope'.split(
+  'fixture-smoke,membership-smoke,evidence-smoke,fault-smoke,smoke,authority-pack1,exactly-once-pack,fault-pack,token-pack,restart-pack,resilience-pack,authority-order,authority-recovery,privacy-pack,proposal-pack,three-context-pack,two-device-pack,authority,visibility,combat-pack1,rewind-pack,combat,campaign,failure,performance,cleanup-ownership,backpressure,lifecycle-pack,conflict-pack,all,traceability,quality,manual-setup,scope'.split(
     ',',
   );
 /** The server command a non-respawning implemented group is planned with. */
@@ -458,6 +458,26 @@ describe('GM and two-player campaign QC runner', () => {
       faultSmokeServerCommand(core, repoRoot),
     );
 
+    // `conflict-pack` (E2E-77). Predicted red before the catalog entry:
+    // the name was in NEITHER GROUP_CATALOG nor SPEC_BY_GROUP, so
+    // buildRunPlan threw UNKNOWN_GROUP - exit 2 on main, not the exit 3
+    // a reserved-but-unimplemented name gives. Not respawning.
+    const conflictPlan = core.buildRunPlan({
+      group: 'conflict-pack',
+      runId: 'task-22-conflict-pack',
+      repoRoot,
+    });
+    expect(conflictPlan.args).toEqual([
+      path.join(repoRoot, 'scripts/playwright/run-playwright.mjs'),
+      'test',
+      '--project=chromium',
+      'e2e/gm-two-player-conflict.pack.spec.ts',
+      '--workers=1',
+    ]);
+    expect(conflictPlan.environment.MEKSTATION_E2E_SERVER_COMMAND).toBe(
+      faultSmokeServerCommand(core, repoRoot),
+    );
+
     // `all` is the union of every registered SPEC_BY_GROUP entry.
     // Predicted red of this pin today, before `all` had a SPEC_BY_GROUP
     // entry: the group was already in GROUP_CATALOG (owner 34) and
@@ -498,6 +518,7 @@ describe('GM and two-player campaign QC runner', () => {
       'e2e/gm-two-player-backpressure.pack.spec.ts',
       'e2e/gm-two-player-evidence.pack.spec.ts',
       'e2e/gm-two-player-lifecycle.pack.spec.ts',
+      'e2e/gm-two-player-conflict.pack.spec.ts',
       '--workers=1',
     ]);
     // restart-pack, resilience-pack, authority-recovery, and the
@@ -582,6 +603,8 @@ describe('GM and two-player campaign QC runner', () => {
       // 22.3's E2E-75 row. Never a reserved name, so before this change
       // it answered UNKNOWN_GROUP (exit 2), not NOT_IMPLEMENTED (exit 3).
       'lifecycle-pack',
+      // 22.3's E2E-77 row. Same UNKNOWN_GROUP-before-registration shape.
+      'conflict-pack',
       'all',
     ];
     for (const group of groups.filter(
@@ -627,6 +650,25 @@ describe('GM and two-player campaign QC runner', () => {
     expect(titles).toEqual([
       'E2E-75 lifecycle postures are distinct, announced and correctly gated @lifecycle-pack @E2E-75',
       'E2E-75 lifecycle postures pending and blocked are distinct, announced and correctly gated @lifecycle-pack @E2E-75',
+    ]);
+  });
+
+  it('pins the conflict-pack spec at one row', () => {
+    const specArg = core
+      .buildRunPlan({
+        group: 'conflict-pack',
+        runId: 'task-22-conflict-pack-rows',
+        repoRoot,
+      })
+      .args.find((arg: string) => arg.endsWith('.spec.ts'));
+    expect(specArg).toBe('e2e/gm-two-player-conflict.pack.spec.ts');
+    const specPath = path.join(repoRoot, String(specArg));
+    const titles = Array.from(
+      readFileSync(specPath, 'utf8').matchAll(/^test\('([^']+)'/gm),
+      (match) => match[1],
+    );
+    expect(titles).toEqual([
+      'E2E-77 reachable conflict messages are actionable and leak-safe @conflict-pack @E2E-77',
     ]);
   });
 

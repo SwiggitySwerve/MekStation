@@ -1,0 +1,72 @@
+{
+  "unit": "U1d",
+  "stage": "red",
+  "at": "2026-09-16T23:55:00.000Z",
+  "baseline": "a00b816dcf1d30cb40b08ce9901bcf66ea3cc125",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u1d",
+  "branch": "codex/roadmap-u1d-e2e-77-20260916",
+  "principle": "Every measurement below was taken against SHIPPED code at the baseline commit, before one line of conflict-pack existed in the worktree. R1 is the selector hole. R2 is a live browser failure at the real boundary — the only shipped conflict row, made to look at the recovery-action obligation it never looks at — not a restatement of the toast regex.",
+
+  "R1": {
+    "name": "the conflict selector is unimplemented",
+    "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=conflict-pack",
+    "commandAsRun": "$env:NODE_ENV = \"production\"; node scripts/qc/run-gm-two-player-campaign.mjs --group=conflict-pack; Write-Host \"EXIT=$LASTEXITCODE\"",
+    "exitCode": 2,
+    "stderrVerbatim": "[qc:gm-two-player-campaign] UNKNOWN_GROUP group=conflict-pack",
+    "lastOutputLine": "EXIT=2",
+    "reading": "The name is in neither GROUP_CATALOG nor SPEC_BY_GROUP. Same shape as lifecycle-pack's red on main (exit 2, not the exit 3 a reserved-but-unimplemented name gives).",
+    "provesWhat": "no conflict-pack group exists on shipped code, so E2E-77 has no gated selector"
+  },
+
+  "R2": {
+    "name": "the shipped collision row reaches the toast and does not look at recovery or leak-safety",
+    "grep": {
+      "command": "git grep -n \"tactical-branch-recovery-action\" -- e2e/",
+      "capturedOutput": [],
+      "exitCode": 1,
+      "reading": "zero hits under e2e/. No live row reads the recovery-action element."
+    },
+    "whyThisRow": "e2e/gm-two-player-exactly-once.pack.spec.ts:154 E2E-12 already DRIVES a real sequence collision on the guest. It asserts the toast /PROTOCOL_VIOLATION.*sequence-collision/i at :166-168 and nothing else about the surface. This is the real boundary, on shipped code, with the fault already armed by the shipped fixture.",
+    "probe": {
+      "file": "e2e/gm-two-player-exactly-once.pack.spec.ts",
+      "edit": "three assertion lines added immediately after the shipped toast assertion: await expect(fixture.guestPage.getByTestId('tactical-branch-recovery-action')).toBeVisible({ timeout: 5_000 });",
+      "disposition": "reverted with `git checkout -- e2e/gm-two-player-exactly-once.pack.spec.ts` immediately after capture; `git status --short` then showed only the untracked admission receipt"
+    },
+    "cpuPreflight": "tasklist | findstr node.exe and Get-CimInstance Win32_Process -Filter name='node.exe' | Select-Object CommandLine. No next build, next start, server.js or playwright process was active. Ambient MCP/agent node processes were left running.",
+    "build": {
+      "command": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build",
+      "exitCode": 1,
+      "exitCodeIsNotTheSignal": "FN-u1c-build-exit-hidden-by-tail. Exit captured on its own line, never through a pipe. Junction hydrate refused: Unsafe hydration destination (runtime loader tsx) contains a symlink or junction: .next\\\\standalone\\\\node_modules",
+      "compiledSuccessfully": "Compiled successfully in 48s; Route (pages) printed",
+      "standaloneServerJs": "present, 7325 bytes",
+      "e2eModeInBundle": "grep -c __E2E_MODE__ over .next/static/chunks/pages/_app-*.js = 1"
+    },
+    "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=exactly-once-pack",
+    "exitCode": 1,
+    "lastOutputLine": "PACK_EXIT=1",
+    "failureVerbatim": [
+      "x  4 [chromium] > e2e\\gm-two-player-exactly-once.pack.spec.ts:154:7 > tactical client exactly-once delivery > E2E-12 collision blocks the cursor before later delivery can advance it @E2E-12",
+      "    Error: expect(locator).toBeVisible() failed",
+      "    Locator: getByTestId('tactical-branch-recovery-action')",
+      "    Expected: visible",
+      "    Timeout: 5000ms",
+      "    Error: element(s) not found",
+      "      173 |         fixture.guestPage.getByTestId('tactical-branch-recovery-action'),",
+      "    > 173 |       ).toBeVisible({ timeout: 5_000 });",
+      "  1 failed",
+      "  3 passed (18.6s)"
+    ],
+    "whichHalfPassed": "the shipped toast assertion at :166 ran first and passed — PROTOCOL_VIOLATION / sequence-collision really is on the player-visible toast. What failed is the recovery-action obligation: tactical-branch-recovery-action was resolved as not found for the whole 5s timeout. refuse() in ServerMatchHostBranchAdmission.ts attaches recoveryAction ONLY when conflictHead is present (the STALE_BRANCH arm). The client-emitted collision error (client.ts:379-383) has no recoveryAction, so BranchRecoveryInstruction returns null.",
+    "provesWhat": "no live row asserts E2E-77's recovery-action or leak-safety obligations today. The collision toast exists; the letter's other two clauses are unguarded.",
+    "reverted": {
+      "command": "git checkout -- e2e/gm-two-player-exactly-once.pack.spec.ts; git status --short",
+      "statusAfter": "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u1d-admission-20260916.json",
+      "srcClean": true,
+      "specClean": true
+    }
+  },
+
+  "whatWasNotPredicted": "R1 exit 2 UNKNOWN_GROUP matched the admission prediction (the name was never reserved). R2's timeout of 5s and the exact locator miss are measured, not inferred from BranchRecoveryInstruction's null return.",
+
+  "next": "Stage 3 implements e2e/gm-two-player-conflict.pack.spec.ts, registers conflict-pack the way lifecycle-pack is registered, updates the pin suite, and adds one 22.3 PROGRESS line. Authorization and campaign stale-head remain to be measured live; if either is unreachable through in-paths they are non-claims, not fakes."
+}
