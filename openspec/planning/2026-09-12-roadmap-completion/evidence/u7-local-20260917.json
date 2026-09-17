@@ -1,0 +1,515 @@
+{
+  "unit": "U7",
+  "at": "2026-09-17T09:48:16.519Z",
+  "baseline": "1d31dc8dcccde8f17b74596db8b2e9d7e6a68388",
+  "worktree": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\u7",
+  "branch": "codex/roadmap-u7-authorization-row-20260917",
+  "stage": "local",
+  "committed": false,
+  "status": "ready",
+  "whatWasBuilt": "Appended the seated non-host authorization row under conflict-pack, reusing the launch and observer harness. Assert 403, refused/gm-role-required, exact route detail, absent guest rewind UI, live host/guest identity and wire token safety plus cookie values against the response and guest rendered text, and forbidden credential/lease fields. Updated two-row title pin and one PROGRESS line. Group registration already existed and required no edit.",
+  "lineCounts": {
+    "e2e/gm-two-player-conflict.pack.spec.ts": {
+      "added": 120,
+      "removed": 0,
+      "row2": {
+        "total": 120,
+        "code": 100,
+        "comment": 18,
+        "blank": 2
+      },
+      "wholeSpec": {
+        "total": 445,
+        "code": 346,
+        "comment": 74,
+        "blank": 25
+      }
+    },
+    "openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md": {
+      "added": 1,
+      "removed": 0
+    },
+    "scripts/__tests__/gm-two-player-campaign-qc.test.ts": {
+      "added": 2,
+      "removed": 1
+    }
+  },
+  "productTotalAdded": 123,
+  "productTotalRemoved": 1,
+  "productTotalChanged": 124,
+  "caps": {
+    "maxFiles": 15,
+    "actualFiles": 6,
+    "maxNonGeneratedProductLines": 500,
+    "underCap": true
+  },
+  "row1": {
+    "byteIdentical": true,
+    "baselineBytes": 10605,
+    "baselineSha256": "f0fe81879b63b7b784969ea006f37e991e6c3b4bd5e976ef5be95c8603ca88e3"
+  },
+  "gates": {
+    "tsc": {
+      "lastOutputLine": null,
+      "exitCode": 0,
+      "id": "tsc",
+      "action": "tsc",
+      "at": "2026-09-17T09:47:12.6975182Z",
+      "log": ".sisyphus/u7-run/tsc.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "resultLines": [],
+      "command": "npx tsc --noEmit"
+    },
+    "format": {
+      "lastOutputLine": "Finished in 23ms on 2 files using 16 threads.",
+      "exitCode": 0,
+      "id": "format",
+      "action": "format",
+      "at": "2026-09-17T09:47:07.5015593Z",
+      "log": ".sisyphus/u7-run/format.log",
+      "sha256": "599084f1428824e0287300b92b2f5720e44778c4111f4af21810a523dcab92fb",
+      "resultLines": [],
+      "command": "npx oxfmt --check e2e/gm-two-player-conflict.pack.spec.ts scripts/__tests__/gm-two-player-campaign-qc.test.ts openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md"
+    },
+    "lint": {
+      "lastOutputLine": "Finished in 7ms on 0 files using 16 threads.",
+      "exitCode": 0,
+      "id": "lint",
+      "action": "lint",
+      "at": "2026-09-17T09:47:09.7498401Z",
+      "log": ".sisyphus/u7-run/lint.log",
+      "sha256": "0f10c5c5634f6b26809ead5168ca67e1f3f5287d471c01cf0952ec83b5cea059",
+      "resultLines": [],
+      "command": "npx oxlint e2e/gm-two-player-conflict.pack.spec.ts scripts/__tests__/gm-two-player-campaign-qc.test.ts openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md",
+      "coverage": "Vacuous: .oxlintrc.json ignores e2e/**, **/scripts/** and **/openspec/**. Required command reports 0 files."
+    },
+    "jest": {
+      "lastOutputLine": "Ran all test suites matching /scripts\\\\__tests__\\\\gm-two-player-campaign-qc.test.ts/i.",
+      "exitCode": 0,
+      "id": "jest",
+      "action": "jest",
+      "at": "2026-09-17T09:47:21.1991164Z",
+      "log": ".sisyphus/u7-run/jest.log",
+      "sha256": "f9688bb9b0d5ada50eb6b51ffbf441708a70b5e81907a96bc0258da45cb6ee20",
+      "resultLines": [
+        "Test Suites: 1 passed, 1 total",
+        "Tests:       12 passed, 12 total"
+      ],
+      "command": "npx jest scripts/__tests__/gm-two-player-campaign-qc.test.ts --watchAll=false"
+    },
+    "openspec": {
+      "lastOutputLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+      "exitCode": 0,
+      "id": "openspec",
+      "action": "openspec",
+      "at": "2026-09-17T09:47:27.7958559Z",
+      "log": ".sisyphus/u7-run/openspec.log",
+      "sha256": "6abc532f020dd202e2284ccbbc13ae9a7f1f46c542dfa246964dfe25f4c1d881",
+      "resultLines": [
+        "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0"
+      ],
+      "command": "npm run qc:openspec-ci:validate"
+    },
+    "roadmap": {
+      "lastOutputLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "exitCode": 0,
+      "id": "roadmap",
+      "action": "roadmap",
+      "at": "2026-09-17T09:47:29.0277512Z",
+      "log": ".sisyphus/u7-run/roadmap.log",
+      "sha256": "4e390459f01ea0eb5553fe0ecf645c53181ecf1218c38ac8dccc7c5983600e20",
+      "resultLines": [
+        "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows"
+      ],
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs"
+    },
+    "build": {
+      "lastOutputLine": "}",
+      "exitCode": 1,
+      "id": "build-clean",
+      "action": "build",
+      "at": "2026-09-17T09:45:30.4258863Z",
+      "log": ".sisyphus/u7-run/build-clean.log",
+      "sha256": "5a7e7d73a93df483fb4d3c12ad0a3cc40cc2da789d2338015e40776ef41964da",
+      "resultLines": [
+        "✓ Compiled successfully in 15.6s",
+        "  \"error\": \"Unsafe hydration destination (runtime loader tsx) contains a symlink or junction: "
+      ],
+      "routeTablePrinted": true,
+      "rewindCommitRouteListed": true,
+      "serverExists": true,
+      "bundleMarkerCount": 1,
+      "command": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build"
+    },
+    "cpu": {
+      "command": "Get-CimInstance Win32_Process -Filter \"name='node.exe'\" | Select-Object -ExpandProperty CommandLine",
+      "exitCode": 0,
+      "lastOutputLine": "CPU_CHECK=idle",
+      "checks": 13,
+      "logs": "<build-or-browser-run>-cpu.log in .sisyphus/u7-run; five builds and eight browser runs"
+    },
+    "diffCheck": {
+      "command": "git diff --check",
+      "exitCode": 0,
+      "lastOutputLine": null
+    }
+  },
+  "runs": [
+    {
+      "lastOutputLine": "  2 passed (8.5s)",
+      "exitCode": 0,
+      "id": "conflict-initial",
+      "action": "conflict-pack",
+      "at": "2026-09-17T09:38:29.1419055Z",
+      "log": ".sisyphus/u7-run/conflict-initial.log",
+      "sha256": "40f826017e8f4667a876944f8812590f5ab98cdfa1789d77ef2c65b94d7a4160",
+      "resultLines": [
+        "[conflict-pack] captured=integrity-duplicate,integrity-collision",
+        "[conflict-pack] captured=authorization-gm-role-required",
+        "  2 passed (8.5s)"
+      ],
+      "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=conflict-pack",
+      "runId": "qc-conflict-pack",
+      "port": "24916",
+      "durableStore": ".sisyphus/e2e-runtime/qc-conflict-pack",
+      "serverPid": 47840
+    },
+    {
+      "lastOutputLine": "  2 passed (7.3s)",
+      "exitCode": 0,
+      "id": "conflict-clean-1",
+      "action": "conflict-pack",
+      "at": "2026-09-17T09:45:45.0600171Z",
+      "log": ".sisyphus/u7-run/conflict-clean-1.log",
+      "sha256": "f96a077f035646fcc420f69438432eaba06dd4b36fff3beaead6af2e5b42e259",
+      "resultLines": [
+        "[conflict-pack] captured=integrity-duplicate,integrity-collision",
+        "[conflict-pack] captured=authorization-gm-role-required",
+        "  2 passed (7.3s)"
+      ],
+      "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=conflict-pack --run-id=u7-conflict-clean-1",
+      "runId": "u7-conflict-clean-1",
+      "port": "28729",
+      "durableStore": ".sisyphus/e2e-runtime/u7-conflict-clean-1",
+      "serverPid": 2128
+    },
+    {
+      "lastOutputLine": "  2 passed (7.2s)",
+      "exitCode": 0,
+      "id": "conflict-clean-2",
+      "action": "conflict-pack",
+      "at": "2026-09-17T09:46:00.3133280Z",
+      "log": ".sisyphus/u7-run/conflict-clean-2.log",
+      "sha256": "764a6fdbec73136d8a4e9579cd49a1903b47383f4bdde0a28c04bd7045813b2a",
+      "resultLines": [
+        "[conflict-pack] captured=integrity-duplicate,integrity-collision",
+        "[conflict-pack] captured=authorization-gm-role-required",
+        "  2 passed (7.2s)"
+      ],
+      "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=conflict-pack --run-id=u7-conflict-clean-2",
+      "runId": "u7-conflict-clean-2",
+      "port": "22002",
+      "durableStore": ".sisyphus/e2e-runtime/u7-conflict-clean-2",
+      "serverPid": 49976
+    },
+    {
+      "lastOutputLine": "  2 passed (7.5s)",
+      "exitCode": 0,
+      "id": "conflict-clean-3",
+      "action": "conflict-pack",
+      "at": "2026-09-17T09:46:12.9971299Z",
+      "log": ".sisyphus/u7-run/conflict-clean-3.log",
+      "sha256": "3f01463d776717d22cb27e8ec8d5ce03175a946b515158a5012f888f82a2aa9c",
+      "resultLines": [
+        "[conflict-pack] captured=integrity-duplicate,integrity-collision",
+        "[conflict-pack] captured=authorization-gm-role-required",
+        "  2 passed (7.5s)"
+      ],
+      "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=conflict-pack --run-id=u7-conflict-clean-3",
+      "runId": "u7-conflict-clean-3",
+      "port": "28998",
+      "durableStore": ".sisyphus/e2e-runtime/u7-conflict-clean-3",
+      "serverPid": 44524
+    },
+    {
+      "lastOutputLine": "  2 passed (12.6s)",
+      "exitCode": 0,
+      "id": "lifecycle",
+      "action": "lifecycle-pack",
+      "at": "2026-09-17T09:46:30.6110422Z",
+      "log": ".sisyphus/u7-run/lifecycle.log",
+      "sha256": "79c667a94ef58cac639334c47fe49f8ea996751d2e6dd872a3136e92a298d557",
+      "resultLines": [
+        "[lifecycle-pack] captured=live,sealed,finalized,syncing,behind",
+        "[lifecycle-pack] rowB captured=pending,blocked",
+        "  2 passed (12.6s)"
+      ],
+      "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=lifecycle-pack --run-id=u7-lifecycle",
+      "runId": "u7-lifecycle",
+      "port": "26794",
+      "durableStore": ".sisyphus/e2e-runtime/u7-lifecycle",
+      "serverPid": 50776
+    }
+  ],
+  "mutants": [
+    {
+      "id": "M1",
+      "mutation": "statusForRefusal: gm-role-required returns 200 instead of 403",
+      "file": "src/pages/api/matches/[id]/rewind-commit.ts",
+      "build": {
+        "lastOutputLine": "}",
+        "exitCode": 1,
+        "id": "build-M1",
+        "action": "build",
+        "at": "2026-09-17T09:40:18.6080666Z",
+        "log": ".sisyphus/u7-run/build-M1.log",
+        "sha256": "29d0ab35a42775d2206b361c9418b646334b7002f1d587c0b8f708b05ad3e7b3",
+        "resultLines": [
+          "✓ Compiled successfully in 17.9s",
+          "  \"error\": \"Unsafe hydration destination (runtime loader tsx) contains a symlink or junction: "
+        ],
+        "serverExists": true,
+        "bundleMarkerCount": 1
+      },
+      "run": {
+        "lastOutputLine": "  1 passed (7.4s)",
+        "exitCode": 1,
+        "id": "conflict-M1",
+        "action": "conflict-pack",
+        "at": "2026-09-17T09:40:36.2330345Z",
+        "log": ".sisyphus/u7-run/conflict-M1.log",
+        "sha256": "95d7ddbae3938521905ee09aa3ac59e883e1ad52bb744b57e188c9f6197764b4",
+        "resultLines": [
+          "[conflict-pack] captured=integrity-duplicate,integrity-collision",
+          "    Error: expect(received).toBe(expected) // Object.is equality",
+          "    Expected: 403",
+          "    Received: 200",
+          "  1 failed",
+          "  1 passed (7.4s)"
+        ],
+        "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=conflict-pack",
+        "runId": "qc-conflict-pack",
+        "port": "24916",
+        "durableStore": ".sisyphus/e2e-runtime/qc-conflict-pack",
+        "serverPid": 32456
+      },
+      "verdict": "KILLED",
+      "failingAssertion": "response.status(): Expected 403; Received 200",
+      "revertCommand": "git checkout -- src/pages/api/matches/[id]/rewind-commit.ts",
+      "revertStatusLog": ".sisyphus/u7-run/revert-M1.log"
+    },
+    {
+      "id": "M2",
+      "mutation": "refused body reason gm-role-required replaced with actor-mismatch",
+      "file": "src/pages/api/matches/[id]/rewind-commit.ts",
+      "build": {
+        "lastOutputLine": "}",
+        "exitCode": 1,
+        "id": "build-M2",
+        "action": "build",
+        "at": "2026-09-17T09:41:46.5779088Z",
+        "log": ".sisyphus/u7-run/build-M2.log",
+        "sha256": "2ca5ff7fa63ff727528182332d26b1ba7f8559e025338cdf6d6f3d66040e6064",
+        "resultLines": [
+          "✓ Compiled successfully in 15.7s",
+          "  \"error\": \"Unsafe hydration destination (runtime loader tsx) contains a symlink or junction: "
+        ],
+        "serverExists": true,
+        "bundleMarkerCount": 1
+      },
+      "run": {
+        "lastOutputLine": "  1 passed (7.3s)",
+        "exitCode": 1,
+        "id": "conflict-M2",
+        "action": "conflict-pack",
+        "at": "2026-09-17T09:42:00.6665034Z",
+        "log": ".sisyphus/u7-run/conflict-M2.log",
+        "sha256": "e77816b2c3735fec58ae785ecec492eebd062498a5a870580c2e11759c6f1dd5",
+        "resultLines": [
+          "[conflict-pack] captured=integrity-duplicate,integrity-collision",
+          "    Error: expect(received).toBe(expected) // Object.is equality",
+          "    Expected: \"gm-role-required\"",
+          "    Received: \"actor-mismatch\"",
+          "  1 failed",
+          "  1 passed (7.3s)"
+        ],
+        "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=conflict-pack --run-id=u7-conflict-M2",
+        "runId": "u7-conflict-M2",
+        "port": "28199",
+        "durableStore": ".sisyphus/e2e-runtime/u7-conflict-M2",
+        "serverPid": 37852
+      },
+      "verdict": "KILLED",
+      "failingAssertion": "answer.reason: Expected gm-role-required; Received actor-mismatch",
+      "revertCommand": "git checkout -- src/pages/api/matches/[id]/rewind-commit.ts",
+      "revertStatusLog": ".sisyphus/u7-run/revert-M2.log"
+    },
+    {
+      "id": "M3",
+      "mutation": "refusal detail includes meta.hostPlayerId",
+      "file": "src/pages/api/matches/[id]/rewind-commit.ts",
+      "build": {
+        "lastOutputLine": "}",
+        "exitCode": 1,
+        "id": "build-M3",
+        "action": "build",
+        "at": "2026-09-17T09:43:13.0676898Z",
+        "log": ".sisyphus/u7-run/build-M3.log",
+        "sha256": "a11450ac96392237175856e972fa76cead668097826ba6c98b79452bc3b9f64c",
+        "resultLines": [
+          "✓ Compiled successfully in 16.4s",
+          "  \"error\": \"Unsafe hydration destination (runtime loader tsx) contains a symlink or junction: "
+        ],
+        "serverExists": true,
+        "bundleMarkerCount": 1
+      },
+      "run": {
+        "lastOutputLine": "  1 passed (7.4s)",
+        "exitCode": 1,
+        "id": "conflict-M3",
+        "action": "conflict-pack",
+        "at": "2026-09-17T09:44:21.6814909Z",
+        "log": ".sisyphus/u7-run/conflict-M3.log",
+        "sha256": "95b15c6deeb8cebb8b2a51bf38e4d24d4c9c3e7b4bf8d2062b3c8e43931b19b7",
+        "resultLines": [
+          "[conflict-pack] captured=integrity-duplicate,integrity-collision",
+          "    Error: expect(received).toBe(expected) // Object.is equality",
+          "    Expected: false",
+          "    Received: true",
+          "  1 failed",
+          "  1 passed (7.4s)"
+        ],
+        "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=conflict-pack --run-id=u7-conflict-M3",
+        "runId": "u7-conflict-M3",
+        "port": "23446",
+        "durableStore": ".sisyphus/e2e-runtime/u7-conflict-M3",
+        "serverPid": 54704
+      },
+      "verdict": "KILLED",
+      "failingAssertion": "text.includes(secret): Expected false; Received true",
+      "revertCommand": "git checkout -- src/pages/api/matches/[id]/rewind-commit.ts",
+      "revertStatusLog": ".sisyphus/u7-run/revert-M3.log"
+    }
+  ],
+  "determinism": {
+    "captures": [
+      [
+        "[conflict-pack] captured=integrity-duplicate,integrity-collision",
+        "[conflict-pack] captured=authorization-gm-role-required"
+      ],
+      [
+        "[conflict-pack] captured=integrity-duplicate,integrity-collision",
+        "[conflict-pack] captured=authorization-gm-role-required"
+      ],
+      [
+        "[conflict-pack] captured=integrity-duplicate,integrity-collision",
+        "[conflict-pack] captured=authorization-gm-role-required"
+      ]
+    ],
+    "identical": true
+  },
+  "buildCount": 5,
+  "buildLimit": 6,
+  "srcStatus": "",
+  "nonClaims": [
+    "E2E-77 GM_ONLY UI clause: no player-visible non-host rewind refusal surface; the phrasing table is source evidence only, not a rendered assertion.",
+    "Wire GM_ONLY, stale branch, stale revision, projection rebuilding, or successful GM rewind are not driven by row 2. Row 1 retains its existing integrity proof.",
+    "No live correction lease is acquired. Exact response shape and forbidden-field/text checks cover disclosure; no comparison against an existing live lease value is claimed.",
+    "No review, commit, push, merge, main proof or checkbox tick."
+  ],
+  "findingsReportedNotFixed": [
+    {
+      "id": "FN-u1d-authorization-class-has-no-wire-lever",
+      "handling": "HTTP authorization coverage added; wire lever and non-host UI remain unchanged."
+    },
+    {
+      "id": "FN-u1c-build-exit-hidden-by-tail",
+      "handling": "All five builds record process exit 1 from junction hydration, despite successful compilation, route tables, standalone server and one __E2E_MODE__ marker. Not reported as exit 0."
+    },
+    {
+      "id": "FN-u1c-oxlint-ignores-unit-paths",
+      "handling": "Required lint covers zero files; reported explicitly."
+    },
+    {
+      "id": "FN-u1c-pending-intent-never-settles",
+      "handling": "Row 1 post-launch reload remains byte-identical; row 2 does not depend on tactical pending settlement."
+    },
+    {
+      "id": "charter-reference-drift",
+      "handling": "Phrasing file lives under src/components/multiplayer, not server/history. Supplied council synthesis contains authorization recommendation and UI crux, no named Hephaestus U7 table."
+    }
+  ],
+  "implementerModel": "codex gpt-6 (codex exec, sandbox bypassed)",
+  "productHashes": {
+    "e2e/gm-two-player-conflict.pack.spec.ts": "650363475c763bbed8a72c13c6c9288aed5b837f8e2812a72e7c3cf4b99691e1",
+    "scripts/__tests__/gm-two-player-campaign-qc.test.ts": "03f2e877f6e65639e297a4fa6eee7eaa9bb227004e26ebda94625771743d7676",
+    "openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md": "aa17ee0b19821de016173ca26b1280ffb5a3592ba88e1e430c22aa37e49e3b76"
+  },
+  "cpuChecks": "Before every build and Playwright run, all node CommandLine values were listed into <run>-cpu.log; no non-agent MekStation build/server/Playwright owner was active. No waits or external-process terminations needed.",
+  "cleanup": {
+    "recordedServerPidsAbsent": true,
+    "activeOwnedServerProcesses": 0,
+    "runs": [
+      {
+        "run": "conflict-initial",
+        "commandLine": null,
+        "serverPid": 47840,
+        "processStillExists": false
+      },
+      {
+        "run": "conflict-M1",
+        "commandLine": null,
+        "serverPid": 32456,
+        "processStillExists": false
+      },
+      {
+        "run": "conflict-M2",
+        "commandLine": null,
+        "serverPid": 37852,
+        "processStillExists": false
+      },
+      {
+        "run": "conflict-M3",
+        "commandLine": null,
+        "serverPid": 54704,
+        "processStillExists": false
+      },
+      {
+        "run": "conflict-clean-1",
+        "commandLine": null,
+        "serverPid": 2128,
+        "processStillExists": false
+      },
+      {
+        "run": "conflict-clean-2",
+        "commandLine": null,
+        "serverPid": 49976,
+        "processStillExists": false
+      },
+      {
+        "run": "conflict-clean-3",
+        "commandLine": null,
+        "serverPid": 44524,
+        "processStillExists": false
+      },
+      {
+        "run": "lifecycle",
+        "commandLine": null,
+        "serverPid": 50776,
+        "processStillExists": false
+      }
+    ],
+    "terminatedProcesses": 0,
+    "at": "2026-09-17T09:48:02.2737558Z"
+  },
+  "lineCountMethod": "git diff --numstat for product deltas; appended row and whole spec classified by block-comment state, line comments, blank lines and remaining code lines; trailing newline excluded.",
+  "finalGitStatus": [
+    " M e2e/gm-two-player-conflict.pack.spec.ts",
+    " M openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md",
+    " M scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u7-admission-20260917.json",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u7-local-20260917.json",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u7-red-20260917.json"
+  ],
+  "groupRegistration": "Unchanged: existing conflict-pack mapping already selects the entire spec; only the two-row title pin required an update."
+}
