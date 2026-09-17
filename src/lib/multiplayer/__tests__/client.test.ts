@@ -162,6 +162,55 @@ function seqOf(events: readonly unknown[]): number[] {
 }
 
 describe('multiplayer client', () => {
+  it('U4 settles only the answered lobby intent before notifying listeners', () => {
+    const f = makeMockSocketFactory();
+    const client = connect(
+      'ws://localhost/x',
+      'm1',
+      { playerId: 'p1', token: 'tok' },
+      { socketFactory: f.factory, reconnect: false },
+    );
+    f.lastSocket().fireOpen();
+    client.send({ kind: 'SetReady', slotId: 'alpha-1', ready: true });
+    const [intentId] = intentIdsOn(f.lastSocket());
+    expect(intentId).toEqual(expect.any(String));
+    expect(client.lifecycle().pendingIntentCount).toBe(1);
+    const update = {
+      kind: 'LobbyUpdated',
+      matchId: 'm1',
+      ts: nowIsoForTest(),
+      seats: [],
+      status: 'lobby',
+      hostPlayerId: 'p1',
+    };
+    f.lastSocket().inject(update);
+    f.lastSocket().inject({ ...update, intentId: 'another-player-intent' });
+    expect(client.lifecycle().pendingIntentCount).toBe(1);
+    const pendingAtNotification: number[] = [];
+    const delivered: unknown[] = [];
+    client.on('event', (message) => {
+      delivered.push(message);
+      pendingAtNotification.push(client.lifecycle().pendingIntentCount);
+    });
+    f.lastSocket().inject({ ...update, intentId });
+    expect(client.lifecycle().pendingIntentCount).toBe(0);
+    expect(pendingAtNotification).toEqual([0]);
+    expect(delivered).toEqual([{ ...update, intentId }]);
+    client.send({ kind: 'SetReady', slotId: 'alpha-1', ready: false });
+    f.lastSocket().inject({ ...update, intentId });
+    expect(client.lifecycle().pendingIntentCount).toBe(1);
+    const [, secondId] = intentIdsOn(f.lastSocket());
+    f.lastSocket().inject({
+      kind: 'Error',
+      matchId: 'm1',
+      ts: nowIsoForTest(),
+      code: 'INVALID_INTENT',
+      intentId: secondId,
+    });
+    expect(client.lifecycle().pendingIntentCount).toBe(0);
+    client.close();
+  });
+
   it('keeps the credential out of the socket URL', () => {
     // A query string is the worst place for a bearer token: it lands in
     // access logs, proxy logs, and crash reports, none of which expect

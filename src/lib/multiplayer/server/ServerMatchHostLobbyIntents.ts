@@ -150,6 +150,7 @@ export async function handleLobbyIntent(
       matchId: ctx.matchId,
       ts: nowIso(),
       code: 'AUTH_REJECTED',
+      intentId: envelope.intentId,
       reason: `Intent ${intent.kind} requires host privileges`,
     };
     ctx.broadcast(err);
@@ -176,6 +177,7 @@ export async function handleLobbyIntent(
       matchId: ctx.matchId,
       ts: nowIso(),
       code: 'INVALID_INTENT',
+      intentId: envelope.intentId,
       reason: e instanceof Error ? e.message : 'Lobby state machine rejected',
     };
     ctx.broadcast(err);
@@ -199,6 +201,7 @@ export async function handleLobbyIntent(
       matchId: ctx.matchId,
       ts: nowIso(),
       code: 'STORE_FAILURE',
+      intentId: envelope.intentId,
       reason: e instanceof Error ? e.message : 'Lobby persist failed',
     };
     ctx.broadcast(err);
@@ -207,6 +210,7 @@ export async function handleLobbyIntent(
 
   const update: ILobbyUpdated = {
     kind: 'LobbyUpdated',
+    intentId: envelope.intentId,
     matchId: ctx.matchId,
     ts: nowIso(),
     seats: nextSeats,

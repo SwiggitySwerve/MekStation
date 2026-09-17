@@ -1,0 +1,51 @@
+{
+  "unit": "U4",
+  "stage": "admission",
+  "at": "2026-09-17T07:49:37.028Z",
+  "baseline": "9913f06e775b90cff8633ce3798b942f0536a2eb",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u4",
+  "branch": "codex/roadmap-u4-pending-intent-20260917",
+  "baselineVerification": "HEAD and local origin/main match charter; clean worktree; no fetch or shared checkout mutation.",
+  "dependencies": {
+    "node": "R2.combat",
+    "state": "main-verified",
+    "predecessor": "R1.remote",
+    "predecessorState": "main-verified"
+  },
+  "targets": {
+    "schema": "src/types/multiplayer/Protocol.ts:864-871 (add optional intentId); ErrorMessageSchema already has optional intentId at :802",
+    "serverSuccess": "src/lib/multiplayer/server/ServerMatchHostLobbyIntents.ts:208-216",
+    "serverErrors": "src/lib/multiplayer/server/ServerMatchHostLobbyIntents.ts:148-156,174-183,197-205",
+    "client": "src/lib/multiplayer/client.ts:413-415"
+  },
+  "tests": [
+    "src/lib/multiplayer/__tests__/client.test.ts",
+    "src/lib/multiplayer/server/__tests__/lobbyIntents.test.ts",
+    "src/types/multiplayer/__tests__/Protocol.test.ts"
+  ],
+  "estimatePerFile": {
+    "src/types/multiplayer/Protocol.ts": 1,
+    "src/lib/multiplayer/client.ts": 6,
+    "src/lib/multiplayer/server/ServerMatchHostLobbyIntents.ts": 4,
+    "src/lib/multiplayer/__tests__/client.test.ts": 65,
+    "src/lib/multiplayer/server/__tests__/lobbyIntents.test.ts": 65,
+    "src/types/multiplayer/__tests__/Protocol.test.ts": 25,
+    "each evidence/u4-*.json receipt": 60
+  },
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500
+  },
+  "risksForTheParent": [
+    "New schema accepts old LobbyUpdated frames without intentId. Existing z.object parser strips unknown fields, so old clients accept but do not settle new correlated frames; verify via schema test using omit.",
+    "No snapshot/pin enumerating LobbyUpdated fields found by rg across src/scripts tests and snapshots; Protocol.test.ts validates representative server envelopes.",
+    "ForfeitMatch has separate engine Event/Error paths outside the charter's three lobby errors; unchanged.",
+    "Lane B idempotency ruling on proposed head is parent-owned."
+  ],
+  "jestCommands": {
+    "redAndGreen": "npx jest --selectProjects unit --runInBand --runTestsByPath src/lib/multiplayer/__tests__/client.test.ts src/lib/multiplayer/server/__tests__/lobbyIntents.test.ts src/types/multiplayer/__tests__/Protocol.test.ts --testNamePattern=U4",
+    "focused": "npx jest --selectProjects unit --runInBand --runTestsByPath src/lib/multiplayer/__tests__/client.test.ts src/lib/multiplayer/__tests__/clientDeliveryGap.test.ts src/lib/multiplayer/server/__tests__/lobbyIntents.test.ts src/types/multiplayer/__tests__/Protocol.test.ts src/types/multiplayer/__tests__/Protocol.campaignHostIntent.test.ts src/__tests__/pages/multiplayer/lobby-roomcode.test.tsx"
+  },
+  "pinSearch": "rg -n 'LobbyUpdated|ServerMessageSchema|LobbyUpdatedSchema' src scripts -g '*test*' -g '*.snap'; rg -n 'ServerMatchHostLobbyIntents|LobbyUpdatedSchema|Object.keys.*Schema|Protocol.ts' src scripts -g '*test*'",
+  "nodeVersionRequired": "22.22.0"
+}

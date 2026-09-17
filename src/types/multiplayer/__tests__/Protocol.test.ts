@@ -19,6 +19,7 @@ import {
   ClientMessageSchema,
   ErrorMessageSchema,
   IntentSchema,
+  LobbyUpdatedSchema,
   intentHasForbiddenDiceField,
   ServerMessageSchema,
   SessionJoinSchema,
@@ -30,6 +31,26 @@ import {
 } from '../Protocol';
 
 describe('Protocol envelope schemas', () => {
+  it('U4 preserves optional lobby correlation and accepts legacy frames', () => {
+    const legacy = {
+      kind: 'LobbyUpdated',
+      matchId: 'm1',
+      ts: nowIso(),
+      seats: [],
+      status: 'lobby',
+      hostPlayerId: 'p1',
+    };
+    const correlated = { ...legacy, intentId: 'ready-origin' };
+    expect(ServerMessageSchema.parse(correlated)).toEqual(correlated);
+    expect(ServerMessageSchema.parse(legacy)).toEqual(legacy);
+    expect(
+      LobbyUpdatedSchema.omit({ intentId: true }).parse(correlated),
+    ).toEqual(legacy);
+    expect(
+      LobbyUpdatedSchema.safeParse({ ...legacy, intentId: '' }).success,
+    ).toBe(false);
+  });
+
   describe('SessionJoin', () => {
     it('accepts a minimal valid envelope', () => {
       const env = {

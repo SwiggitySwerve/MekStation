@@ -110,6 +110,78 @@ function lastLobbyUpdate(broadcasts: readonly IServerMessage[]): IMatchSeat[] {
 }
 
 describe('ServerMatchHost lobby intents', () => {
+  it('U4 broadcasts the originating SetReady intentId', async () => {
+    const { host, store, matchId } = await makeLobbyHost();
+    const socket = makeMockSocket();
+    host.attachSocket(socket, 'pid_host');
+    const envelope = {
+      ...intent(matchId, 'pid_host', {
+        kind: 'SetReady',
+        slotId: 'alpha-1',
+        ready: true,
+      }),
+      intentId: 'ready-origin',
+    };
+    const frames = await host.handleIntent(envelope);
+    expect(frames).toContainEqual(
+      expect.objectContaining({
+        kind: 'LobbyUpdated',
+        intentId: envelope.intentId,
+      }),
+    );
+    expect(socket.sent.map(({ parsed }) => parsed)).toContainEqual(
+      expect.objectContaining({
+        kind: 'LobbyUpdated',
+        intentId: envelope.intentId,
+      }),
+    );
+    const meta = await store.getMatchMeta(matchId);
+    expect(meta.seats?.find((seat) => seat.slotId === 'alpha-1')?.ready).toBe(
+      true,
+    );
+  });
+
+  it.each(['AUTH_REJECTED', 'INVALID_INTENT', 'STORE_FAILURE'] as const)(
+    'U4 correlates the lobby %s refusal',
+    async (code) => {
+      const { host, store, matchId } = await makeLobbyHost();
+      const socket = makeMockSocket();
+      host.attachSocket(socket, 'pid_host');
+      const envelope = {
+        ...intent(
+          matchId,
+          code === 'AUTH_REJECTED' ? 'pid_join' : 'pid_host',
+          code === 'AUTH_REJECTED'
+            ? { kind: 'SetAiSlot', slotId: 'alpha-2' }
+            : {
+                kind: 'SetReady',
+                slotId: code === 'INVALID_INTENT' ? 'missing-slot' : 'alpha-1',
+                ready: true,
+              },
+        ),
+        intentId: `refused-${code}`,
+      };
+      if (code === 'STORE_FAILURE') {
+        jest
+          .spyOn(store, 'updateMatchMeta')
+          .mockRejectedValueOnce(new Error('write failed'));
+      }
+      const frames = await host.handleIntent(envelope);
+      expect(frames).toEqual([
+        expect.objectContaining({
+          kind: 'Error',
+          code,
+          intentId: envelope.intentId,
+        }),
+      ]);
+      expect(socket.sent.map(({ parsed }) => parsed)).toContainEqual(frames[0]);
+      const meta = await store.getMatchMeta(matchId);
+      expect(meta.seats?.find((seat) => seat.slotId === 'alpha-1')?.ready).toBe(
+        false,
+      );
+    },
+  );
+
   it('OccupySeat seats the joiner and broadcasts LobbyUpdated', async () => {
     const { host, store, matchId } = await makeLobbyHost();
     const sock = makeMockSocket();

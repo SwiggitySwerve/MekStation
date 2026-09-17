@@ -1,0 +1,201 @@
+{
+  "unit": "U4",
+  "stage": "local",
+  "at": "2026-09-17T07:55:45.546Z",
+  "baseline": "9913f06e775b90cff8633ce3798b942f0536a2eb",
+  "testedHead": "9913f06e775b90cff8633ce3798b942f0536a2eb",
+  "testedState": "Uncommitted worktree changes; product and test SHA256 values below bind tested bytes.",
+  "branch": "codex/roadmap-u4-pending-intent-20260917",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u4",
+  "status": "ready",
+  "implementerModel": "codex gpt-6 (codex exec, sandbox bypassed; Grok CLI rotated out after hanging on tool use)",
+  "lineCounts": [
+    {
+      "file": "src/lib/multiplayer/client.ts",
+      "kind": "product",
+      "added": 7,
+      "deleted": 3
+    },
+    {
+      "file": "src/lib/multiplayer/server/ServerMatchHostLobbyIntents.ts",
+      "kind": "product",
+      "added": 4,
+      "deleted": 0
+    },
+    {
+      "file": "src/types/multiplayer/Protocol.ts",
+      "kind": "product",
+      "added": 1,
+      "deleted": 0
+    },
+    {
+      "file": "src/lib/multiplayer/__tests__/client.test.ts",
+      "kind": "test",
+      "added": 49,
+      "deleted": 0
+    },
+    {
+      "file": "src/lib/multiplayer/server/__tests__/lobbyIntents.test.ts",
+      "kind": "test",
+      "added": 72,
+      "deleted": 0
+    },
+    {
+      "file": "src/types/multiplayer/__tests__/Protocol.test.ts",
+      "kind": "test",
+      "added": 21,
+      "deleted": 0
+    }
+  ],
+  "totals": {
+    "productAdded": 12,
+    "productDeleted": 3,
+    "testAdded": 142,
+    "testDeleted": 0,
+    "sourceChangedLines": 157,
+    "sourceFiles": 6,
+    "receiptFiles": 3,
+    "receiptLines": {
+      "admission": 51,
+      "red": 18,
+      "local": 201
+    },
+    "allChangedLines": 427,
+    "allFiles": 9
+  },
+  "gates": {
+    "newTests": {
+      "command": "npx jest --selectProjects unit --runInBand --runTestsByPath src/lib/multiplayer/__tests__/client.test.ts src/lib/multiplayer/server/__tests__/lobbyIntents.test.ts src/types/multiplayer/__tests__/Protocol.test.ts --testNamePattern=U4",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites within paths \"src/lib/multiplayer/__tests__/client.test.ts\", \"src/lib/multiplayer/server/__tests__/lobbyIntents.test.ts\", \"src/types/multiplayer/__tests__/Protocol.test.ts\".",
+      "output": "Running one project: unit\nPASS unit src/lib/multiplayer/server/__tests__/lobbyIntents.test.ts\nPASS unit src/lib/multiplayer/__tests__/client.test.ts\nPASS unit src/types/multiplayer/__tests__/Protocol.test.ts\n\nTest Suites: 3 passed, 3 total\nTests:       66 skipped, 6 passed, 72 total\nSnapshots:   0 total\nTime:        1.843 s, estimated 4 s\nRan all test suites within paths \"src/lib/multiplayer/__tests__/client.test.ts\", \"src/lib/multiplayer/server/__tests__/lobbyIntents.test.ts\", \"src/types/multiplayer/__tests__/Protocol.test.ts\".\n"
+    },
+    "focused": {
+      "command": "npx jest --selectProjects unit --runInBand --runTestsByPath src/lib/multiplayer/__tests__/client.test.ts src/lib/multiplayer/__tests__/clientDeliveryGap.test.ts src/lib/multiplayer/server/__tests__/lobbyIntents.test.ts src/types/multiplayer/__tests__/Protocol.test.ts src/types/multiplayer/__tests__/Protocol.campaignHostIntent.test.ts src/__tests__/pages/multiplayer/lobby-roomcode.test.tsx",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites within paths \"src/lib/multiplayer/__tests__/client.test.ts\", \"src/lib/multiplayer/__tests__/clientDeliveryGap.test.ts\", \"src/lib/multiplayer/server/__tests__/lobbyIntents.test.ts\", \"src/types/multiplayer/__tests__/Protocol.test.ts\", \"src/types/multiplayer/__tests__/Protocol.campaignHostIntent.test.ts\", \"src/__tests__/pages/multiplayer/lobby-roomcode.test.tsx\".",
+      "output": "Running one project: unit\nPASS unit src/lib/multiplayer/server/__tests__/lobbyIntents.test.ts\n  ● Console\n\n    console.info\n      [ServerMatchHost match-lobby] AI seat would run BotPlayer here (slotId=alpha-2, profile=basic)\n\n      at info (src/lib/multiplayer/server/ServerMatchHostLobbyIntents.ts:362:15)\n\n    console.info\n      [ServerMatchHost match-lobby] AI seat would run BotPlayer here (slotId=bravo-1, profile=basic)\n\n      at info (src/lib/multiplayer/server/ServerMatchHostLobbyIntents.ts:362:15)\n\n    console.info\n      [ServerMatchHost match-lobby] AI seat would run BotPlayer here (slotId=bravo-2, profile=basic)\n\n      at info (src/lib/multiplayer/server/ServerMatchHostLobbyIntents.ts:362:15)\n\nPASS unit src/lib/multiplayer/__tests__/client.test.ts\nPASS unit src/__tests__/pages/multiplayer/lobby-roomcode.test.tsx\nPASS unit src/lib/multiplayer/__tests__/clientDeliveryGap.test.ts\nPASS unit src/types/multiplayer/__tests__/Protocol.test.ts\nPASS unit src/types/multiplayer/__tests__/Protocol.campaignHostIntent.test.ts\n\nTest Suites: 6 passed, 6 total\nTests:       107 passed, 107 total\nSnapshots:   0 total\nTime:        3.362 s, estimated 5 s\nRan all test suites within paths \"src/lib/multiplayer/__tests__/client.test.ts\", \"src/lib/multiplayer/__tests__/clientDeliveryGap.test.ts\", \"src/lib/multiplayer/server/__tests__/lobbyIntents.test.ts\", \"src/types/multiplayer/__tests__/Protocol.test.ts\", \"src/types/multiplayer/__tests__/Protocol.campaignHostIntent.test.ts\", \"src/__tests__/pages/multiplayer/lobby-roomcode.test.tsx\".\n"
+    },
+    "typecheck": {
+      "command": "npx tsc --noEmit",
+      "exitCode": 0,
+      "lastLine": "(no output)",
+      "output": ""
+    },
+    "lint": {
+      "command": "npx oxlint src/lib/multiplayer/client.ts src/lib/multiplayer/server/ServerMatchHostLobbyIntents.ts src/types/multiplayer/Protocol.ts src/lib/multiplayer/__tests__/client.test.ts src/lib/multiplayer/server/__tests__/lobbyIntents.test.ts src/types/multiplayer/__tests__/Protocol.test.ts",
+      "exitCode": 0,
+      "lastLine": "Finished in 64ms on 3 files using 16 threads.",
+      "output": "\n  ! eslint(max-lines): File has too many lines (605).\n      ,-[src/types/multiplayer/Protocol.ts:1098:2]\n 1097 |   return new Date().toISOString();\n 1098 | }\n      :  ^\n      `----\n  help: Maximum allowed is 400.\n\n  ! eslint(max-lines): File has too many lines (957).\n      ,-[src/lib/multiplayer/client.ts:1447:2]\n 1446 |   };\n 1447 | }\n      :  ^\n      `----\n  help: Maximum allowed is 400.\n\nFound 2 warnings and 0 errors.\nFinished in 64ms on 3 files using 16 threads.\n"
+    },
+    "lintNoIgnore": {
+      "command": "npx oxlint --no-ignore src/lib/multiplayer/client.ts src/lib/multiplayer/server/ServerMatchHostLobbyIntents.ts src/types/multiplayer/Protocol.ts src/lib/multiplayer/__tests__/client.test.ts src/lib/multiplayer/server/__tests__/lobbyIntents.test.ts src/types/multiplayer/__tests__/Protocol.test.ts",
+      "exitCode": 0,
+      "lastLine": "Finished in 13ms on 3 files with 65 rules using 16 threads.",
+      "output": "\n  ! eslint(max-lines): File has too many lines (605).\n      ,-[src/types/multiplayer/Protocol.ts:1098:2]\n 1097 |   return new Date().toISOString();\n 1098 | }\n      :  ^\n      `----\n  help: Maximum allowed is 400.\n\n  ! eslint(max-lines): File has too many lines (957).\n      ,-[src/lib/multiplayer/client.ts:1447:2]\n 1446 |   };\n 1447 | }\n      :  ^\n      `----\n  help: Maximum allowed is 400.\n\nFound 2 warnings and 0 errors.\nFinished in 13ms on 3 files with 65 rules using 16 threads.\n"
+    },
+    "format": {
+      "command": "npx oxfmt --check src/lib/multiplayer/client.ts src/lib/multiplayer/server/ServerMatchHostLobbyIntents.ts src/types/multiplayer/Protocol.ts src/lib/multiplayer/__tests__/client.test.ts src/lib/multiplayer/server/__tests__/lobbyIntents.test.ts src/types/multiplayer/__tests__/Protocol.test.ts",
+      "exitCode": 0,
+      "lastLine": "Finished in 45ms on 6 files using 16 threads.",
+      "output": "Checking formatting...\n\nAll matched files use the correct format.\nFinished in 45ms on 6 files using 16 threads.\n"
+    },
+    "roadmap": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "exitCode": 0,
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "output": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows\n"
+    },
+    "diffCheck": {
+      "command": "git diff --check",
+      "exitCode": 0,
+      "lastLine": "(no output)"
+    }
+  },
+  "mutants": [
+    {
+      "id": "M1",
+      "change": "Server success stamps crypto.randomUUID() instead of envelope.intentId",
+      "assertion": "Expected LobbyUpdated intentId ready-origin; received 1f9b4cba-5077-46e0-ae3a-c476282041f7",
+      "command": "npx jest --selectProjects unit --runInBand --runTestsByPath src/lib/multiplayer/server/__tests__/lobbyIntents.test.ts --testNamePattern='U4 broadcasts'",
+      "exitCode": 1,
+      "lastLine": "Ran all test suites within paths \"src/lib/multiplayer/server/__tests__/lobbyIntents.test.ts\".",
+      "output": "Running one project: unit\nFAIL unit src/lib/multiplayer/server/__tests__/lobbyIntents.test.ts\n  ServerMatchHost lobby intents\n    × U4 broadcasts the originating SetReady intentId (12 ms)\n    ○ skipped U4 correlates the lobby AUTH_REJECTED refusal\n    ○ skipped U4 correlates the lobby INVALID_INTENT refusal\n    ○ skipped U4 correlates the lobby STORE_FAILURE refusal\n    ○ skipped OccupySeat seats the joiner and broadcasts LobbyUpdated\n    ○ skipped rejects host-only SetAiSlot from a non-host player\n    ○ skipped LaunchMatch rejects when seats aren't ready\n    ○ skipped LaunchMatch flips status to active when canLaunch is satisfied\n    ○ skipped LeaveSeat clears occupancy + ready\n\n  ● ServerMatchHost lobby intents › U4 broadcasts the originating SetReady intentId\n\n    expect(received).toContainEqual(expected) // deep equality\n\n    Expected value: ObjectContaining {\"intentId\": \"ready-origin\", \"kind\": \"LobbyUpdated\"}\n    Received array: [{\"hostPlayerId\": \"pid_host\", \"intentId\": \"1f9b4cba-5077-46e0-ae3a-c476282041f7\", \"kind\": \"LobbyUpdated\", \"matchId\": \"match-lobby\", \"seats\": [{\"kind\": \"human\", \"occupant\": {\"displayName\": \"Host\", \"playerId\": \"pid_host\"}, \"ready\": true, \"seatNumber\": 1, \"side\": \"Alpha\", \"slotId\": \"alpha-1\"}, {\"kind\": \"human\", \"occupant\": null, \"ready\": false, \"seatNumber\": 2, \"side\": \"Alpha\", \"slotId\": \"alpha-2\"}, {\"kind\": \"human\", \"occupant\": null, \"ready\": false, \"seatNumber\": 1, \"side\": \"Bravo\", \"slotId\": \"bravo-1\"}, {\"kind\": \"human\", \"occupant\": null, \"ready\": false, \"seatNumber\": 2, \"side\": \"Bravo\", \"slotId\": \"bravo-2\"}], \"status\": \"lobby\", \"ts\": \"2026-09-17T07:52:30.040Z\"}]\n\n      124 |     };\n      125 |     const frames = await host.handleIntent(envelope);\n    > 126 |     expect(frames).toContainEqual(\n          |                    ^\n      127 |       expect.objectContaining({\n      128 |         kind: 'LobbyUpdated',\n      129 |         intentId: envelope.intentId,\n\n      at Object.toContainEqual (src/lib/multiplayer/server/__tests__/lobbyIntents.test.ts:126:20)\n\nTest Suites: 1 failed, 1 total\nTests:       1 failed, 8 skipped, 9 total\nSnapshots:   0 total\nTime:        1.57 s\nRan all test suites within paths \"src/lib/multiplayer/server/__tests__/lobbyIntents.test.ts\".\n",
+      "reverted": {
+        "chunk_id": "8e0ab6",
+        "wall_time_seconds": 0.1595356,
+        "exit_code": 0,
+        "original_token_count": 36,
+        "output": "M1: git checkout baseline verified; exact pre-mutant fixed bytes restored.\r\nBB88B92EBEBC0B88EDF4BC0A43A5963AE78D3797D638AAD3097ECA81E4DBBAE2\r\n"
+      }
+    },
+    {
+      "id": "M2",
+      "change": "Client emits LobbyUpdated before settling",
+      "assertion": "pendingAtNotification expected [0], received [1]",
+      "command": "npx jest --selectProjects unit --runInBand --runTestsByPath src/lib/multiplayer/__tests__/client.test.ts --testNamePattern='U4 settles'",
+      "exitCode": 1,
+      "lastLine": "Ran all test suites within paths \"src/lib/multiplayer/__tests__/client.test.ts\".",
+      "output": "Running one project: unit\nFAIL unit src/lib/multiplayer/__tests__/client.test.ts\n  multiplayer client\n    × U4 settles only the answered lobby intent before notifying listeners (6 ms)\n    ○ skipped keeps the credential out of the socket URL\n    ○ skipped puts a match-scoped structured token on the credential subprotocol\n    ○ skipped keeps a quiet session alive by sending heartbeats\n    ○ skipped retries an unanswered intent with the same identity after a reconnect\n    ○ skipped does not retry an intent the server already answered\n    ○ skipped stamps every intent with an identity the server can dedupe on\n    ○ skipped gives a different identity to each distinct intent\n    ○ skipped gives up on a server that has gone silent\n    ○ skipped stays connected while the server is still talking\n    ○ skipped stops heartbeating once the caller closes the client\n    ○ skipped applies an event that skips a sequence, because sparse is normal\n    ○ skipped does not re-apply a delivery that arrives after a later one\n    ○ skipped ignores a live event the client has already applied\n    ○ skipped blocks the stream when two different events claim one sequence\n    ○ skipped admits a delivery frame even when its authority sequence lies\n    ○ skipped acknowledges only the highest contiguous delivery after projection\n    ○ skipped does not acknowledge a delivery whose projected reducer fails\n    ○ skipped treats an identical repeat as a duplicate, not a collision\n    ○ skipped advances through a replay chunk that skips a sequence\n    ○ skipped sends SessionJoin on open\n    ○ skipped buffers events during replay and fires ready then drains\n    ○ skipped queues live events that arrive during replay and flushes after ready\n    ○ skipped applies a live event that overlaps the replay window exactly once (M1)\n    ○ skipped applies a live Event then a from-zero ReplayChunk overlap once, and still admits the next delivery\n    ○ skipped applies a sequence-free redelivery once by identity\n    ○ skipped schedules a reconnect on close (exponential backoff)\n    ○ skipped does not reconnect when reconnect option is false\n    ○ skipped treats a server Close envelope as terminal and does not reconnect\n    ○ skipped emits a terminal close when reconnect attempts exceed the configured bound\n\n  ● multiplayer client › U4 settles only the answered lobby intent before notifying listeners\n\n    expect(received).toEqual(expected) // deep equality\n\n    - Expected  - 1\n    + Received  + 1\n\n      Array [\n    -   0,\n    +   1,\n      ]\n\n      195 |     f.lastSocket().inject({ ...update, intentId });\n      196 |     expect(client.lifecycle().pendingIntentCount).toBe(0);\n    > 197 |     expect(pendingAtNotification).toEqual([0]);\n          |                                   ^\n      198 |     expect(delivered).toEqual([{ ...update, intentId }]);\n      199 |     client.send({ kind: 'SetReady', slotId: 'alpha-1', ready: false });\n      200 |     f.lastSocket().inject({ ...update, intentId });\n\n      at Object.toEqual (src/lib/multiplayer/__tests__/client.test.ts:197:35)\n\nTest Suites: 1 failed, 1 total\nTests:       1 failed, 29 skipped, 30 total\nSnapshots:   0 total\nTime:        0.757 s, estimated 1 s\nRan all test suites within paths \"src/lib/multiplayer/__tests__/client.test.ts\".\n",
+      "reverted": {
+        "exit_code": 0,
+        "output": "M2: git checkout baseline verified; fixed bytes restored; exact base64 equality: true",
+        "failedAttempt": "Initial restoration command exceeded Windows command-line length before process creation; recovered with checkout, bounded patch and byte comparison."
+      }
+    },
+    {
+      "id": "M3",
+      "change": "Lobby INVALID_INTENT Error omits intentId",
+      "assertion": "Expected intentId refused-INVALID_INTENT; received Error without intentId",
+      "command": "npx jest --selectProjects unit --runInBand --runTestsByPath src/lib/multiplayer/server/__tests__/lobbyIntents.test.ts --testNamePattern='U4 correlates the lobby INVALID_INTENT'",
+      "exitCode": 1,
+      "lastLine": "Ran all test suites within paths \"src/lib/multiplayer/server/__tests__/lobbyIntents.test.ts\".",
+      "output": "Running one project: unit\nFAIL unit src/lib/multiplayer/server/__tests__/lobbyIntents.test.ts\n  ServerMatchHost lobby intents\n    × U4 correlates the lobby INVALID_INTENT refusal (14 ms)\n    ○ skipped U4 broadcasts the originating SetReady intentId\n    ○ skipped U4 correlates the lobby AUTH_REJECTED refusal\n    ○ skipped U4 correlates the lobby STORE_FAILURE refusal\n    ○ skipped OccupySeat seats the joiner and broadcasts LobbyUpdated\n    ○ skipped rejects host-only SetAiSlot from a non-host player\n    ○ skipped LaunchMatch rejects when seats aren't ready\n    ○ skipped LaunchMatch flips status to active when canLaunch is satisfied\n    ○ skipped LeaveSeat clears occupancy + ready\n\n  ● ServerMatchHost lobby intents › U4 correlates the lobby INVALID_INTENT refusal\n\n    expect(received).toEqual(expected) // deep equality\n\n    - Expected  - 2\n    + Received  + 4\n\n      Array [\n    -   ObjectContaining {\n    +   Object {\n          \"code\": \"INVALID_INTENT\",\n    -     \"intentId\": \"refused-INVALID_INTENT\",\n          \"kind\": \"Error\",\n    +     \"matchId\": \"match-lobby\",\n    +     \"reason\": \"Unknown slotId: missing-slot\",\n    +     \"ts\": \"2026-09-17T07:53:40.870Z\",\n        },\n      ]\n\n      168 |       }\n      169 |       const frames = await host.handleIntent(envelope);\n    > 170 |       expect(frames).toEqual([\n          |                      ^\n      171 |         expect.objectContaining({\n      172 |           kind: 'Error',\n      173 |           code,\n\n      at toEqual (src/lib/multiplayer/server/__tests__/lobbyIntents.test.ts:170:22)\n\nTest Suites: 1 failed, 1 total\nTests:       1 failed, 8 skipped, 9 total\nSnapshots:   0 total\nTime:        1.545 s, estimated 2 s\nRan all test suites within paths \"src/lib/multiplayer/server/__tests__/lobbyIntents.test.ts\".\n",
+      "reverted": {
+        "chunk_id": "58b6ac",
+        "wall_time_seconds": 0.1416866,
+        "exit_code": 0,
+        "original_token_count": 36,
+        "output": "M3: git checkout baseline verified; exact pre-mutant fixed bytes restored.\r\nBB88B92EBEBC0B88EDF4BC0A43A5963AE78D3797D638AAD3097ECA81E4DBBAE2\r\n"
+      }
+    }
+  ],
+  "pinSuite": "No existing protocol field-enumeration snapshot/pin found. No pin updated; added optional-field preservation and legacy-wire acceptance assertions to Protocol.test.ts.",
+  "lintCoverage": "Both oxlint invocations report 3 scanned files: config excludes tests, even with --no-ignore. Six changed source/test paths were supplied. 2 max-lines warnings; 0 errors.",
+  "nonClaims": [
+    "Match-channel Event settlement is unchanged and not newly re-proven by U4 mutation tests.",
+    "Browser-visible lifecycle banner leaving pending requires a later R6.umbrella row; no build or Playwright run.",
+    "No live old-client binary compatibility claim; schema omit test models baseline shape and confirms unknown-field stripping.",
+    "No merge, main-proof, tasks tick, Lane A review or head-bound Lane B owner ruling; parent owns these stages."
+  ],
+  "findingsReportedNotFixed": [
+    {
+      "id": "U4-F1",
+      "summary": "handleForfeitMatch engine refusal/store failure Error frames and its event correlation are outside the three scoped lobby refusal constructions; left unchanged.",
+      "location": "src/lib/multiplayer/server/ServerMatchHostLobbyIntents.ts:229-278 (baseline)"
+    },
+    {
+      "id": "U4-F2",
+      "summary": "Protocol.ts and client.ts exceed configured max-lines limits; outside unit scope."
+    }
+  ],
+  "contentHashes": {
+    "src/types/multiplayer/Protocol.ts": "99346441EABFEBDDDB12793502368532EB8BCBB37E104CC27F08C9E51B4FEA91",
+    "src/lib/multiplayer/client.ts": "3889ECD4148F86F6FA18A32F80C865A09E291E16828EB2FAAB8E900D31B214CC",
+    "src/lib/multiplayer/__tests__/client.test.ts": "1E0B617909FE1E906AE9B30E3CF2237A58CCCE4FF34591E904C7EC8701110D68",
+    "src/types/multiplayer/__tests__/Protocol.test.ts": "54BE36DE738ACB11A999FF91F28AA8E47E69B75B28D8DE0513455F6FB43A3A5F",
+    "src/lib/multiplayer/server/__tests__/lobbyIntents.test.ts": "94F1949FE2A1401F97E5F667DF7AF6FF9B4E51EDF3465361FE69C7D5A7095E1F",
+    "src/lib/multiplayer/server/ServerMatchHostLobbyIntents.ts": "BB88B92EBEBC0B88EDF4BC0A43A5963AE78D3797D638AAD3097ECA81E4DBBAE2"
+  },
+  "receiptValidation": {
+    "command": "Get-Content -Raw <each u4 receipt> | ConvertFrom-Json",
+    "exitCode": 0,
+    "lastLine": "(no output)"
+  },
+  "formatExclusion": {
+    "attempt": "npx oxfmt openspec/planning/2026-09-12-roadmap-completion/evidence/u4-admission-20260917.json openspec/planning/2026-09-12-roadmap-completion/evidence/u4-red-20260917.json openspec/planning/2026-09-12-roadmap-completion/evidence/u4-local-20260917.json",
+    "exitCode": 1,
+    "lastLine": "Expected at least one target file",
+    "reason": "Repository .prettierignore excludes openspec/. No formatting policy changed; receipt JSON parses successfully. Source/test formatting gate passes."
+  }
+}
