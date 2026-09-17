@@ -1,0 +1,69 @@
+{
+  "unit": "U16",
+  "stage": "red",
+  "at": "2026-09-17T16:38:00.000Z",
+  "baseline": "4bcd6f8d5fa752270d40ed331423b37f89c15f8a",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u16",
+  "branch": "docs/roadmap-u16-validator-evidence-20260917",
+  "boundary": "The real boundary is the validator's own command line: each case materialises a fixture ledger in a fresh os.tmpdir() directory and runs validate-roadmap.mjs as a CHILD PROCESS with --roadmap pointing at the fixture, then asserts on its exit code and its stdout/stderr. No validator internal is imported, so a case cannot pass by repeating the implementation.",
+  "newFile": "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs (written before any validator edit)",
+  "commands": [
+    {
+      "command": "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH && node --test openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs",
+      "cwd": ".sisyphus/roadmap-completion-20260912/worktrees/u16",
+      "node": "v22.22.0",
+      "lastLines": "# tests 9 / # pass 2 / # fail 7",
+      "exitCode": 1
+    }
+  ],
+  "validatorUnchangedAtThisPoint": "git status --short showed only the two untracked u16 files; validate-roadmap.mjs was byte-identical to the baseline when this run was taken (501 lines).",
+  "failingCases": [
+    {
+      "case": "not ok 1 - a stage receipt path that does not exist fails, naming the unit, the stage and the path",
+      "fixture": "one admitted unit whose stageReceipts.admission.path is evidence/f1-does-not-exist.json",
+      "assertion": "expected a failing exit, got 0 (0 !== 1)",
+      "reason": "the baseline validator checks only that stageReceipts.<stage>.path is a non-empty string (validate-roadmap.mjs:300); it never resolves the path, so a receipt that was never written is indistinguishable from one that was."
+    },
+    {
+      "case": "not ok 3 - a mainProof reporting one red without expectedReds fails",
+      "fixture": "one main-verified product unit whose mainProof receipt file carries runtime.playwright = \"authority: 1 failed / 17 passed\" and no expectedReds",
+      "assertion": "expected a failing exit, got 0 (0 !== 1)",
+      "reason": "the baseline validator reads the mainProof LEDGER entry only (mergeCommit, validate-roadmap.mjs:356-359); it never opens the receipt file, so a red run with no stated expectation passes."
+    },
+    {
+      "case": "not ok 5 - expectedReds shorter than the failed count fails",
+      "fixture": "the same unit with \"authority: 3 failed / 17 passed\" and a one-entry expectedReds array",
+      "assertion": "expected a failing exit, got 0 (0 !== 1)",
+      "reason": "same gap: nothing compares the number of stated expectations with the number of failed rows."
+    },
+    {
+      "case": "not ok 6 - every ladder and jest spelling in the real ledger parses, and a free-text line does not",
+      "fixture": "the four spellings taken verbatim from the real receipts (bare '  1 passed (30.8s)', labelled ladder, token-pack, jest 'Tests: 62 passed, 62 total'), then the free-text line 'ran the pack, looked fine'",
+      "assertion": "expected a failing exit, got 0 (0 !== 1) - on the free-text line",
+      "reason": "the baseline validator never parses runtime.playwright, so prose is accepted as a proof line."
+    },
+    {
+      "case": "not ok 7 - --no-evidence prints its notice and skips the evidence checks",
+      "fixture": "the missing-receipt-path fixture, run with --no-evidence",
+      "assertion": "The input did not match the regular expression /evidence mode is off/. Input: 'ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows\\n'",
+      "reason": "there is no --evidence mode and therefore no opt-out notice on the baseline."
+    },
+    {
+      "case": "not ok 8 - --next skips a planned unit whose path sits inside an in-flight path and takes the next free unit",
+      "fixture": "FA local-verified at 'src/lib'; FB planned at 'src/lib/multiplayer/server'; FC planned at 'e2e'",
+      "assertion": "'FB' !== 'FC'",
+      "reason": "pathFree at validate-roadmap.mjs:470 is an exact-string membership test against the in-flight path set, so 'src/lib' does not block 'src/lib/multiplayer/server' and --next admits FB alongside the in-flight FA."
+    },
+    {
+      "case": "not ok 9 - --github with gh off the PATH fails with a notice rather than passing silently",
+      "fixture": "one sensitive (authority) main-verified unit with its packet ruling, run with --github and PATH replaced by an empty temporary directory",
+      "assertion": "expected a failing exit, got 0 (0 !== 1)",
+      "reason": "there is no --github mode on the baseline; the flag is ignored and the run passes, which is exactly the silent pass the unit forbids."
+    }
+  ],
+  "passingCasesAtRed": [
+    "ok 2 - a stage receipt path that does exist passes (the control for case 1: the fixture must be otherwise valid, and it is)",
+    "ok 4 - the same mainProof with a one-entry expectedReds passes (the control for case 3: the passing shape must stay passing after the change)"
+  ],
+  "implementerModel": "claude-opus (Agent lane; codex, grok CLI and cursor-agent routes exhausted on 2026-09-17)"
+}

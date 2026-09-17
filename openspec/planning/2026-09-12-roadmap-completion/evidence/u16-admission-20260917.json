@@ -1,0 +1,79 @@
+{
+  "unit": "U16",
+  "stage": "admission",
+  "at": "2026-09-17T16:22:35.500Z",
+  "baseline": "4bcd6f8d5fa752270d40ed331423b37f89c15f8a",
+  "baselineCheck": "git rev-parse HEAD == git rev-parse origin/main == 4bcd6f8d5fa752270d40ed331423b37f89c15f8a after git fetch origin main",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u16",
+  "branch": "docs/roadmap-u16-validator-evidence-20260917",
+  "node": "R0.plan (dependsOn: [] - no node dependency to verify)",
+  "ownershipPaths": ["openspec/planning/2026-09-12-roadmap-completion"],
+  "ciClass": "docs",
+  "reviewClasses": ["routine"],
+  "caps": { "maxFiles": 15, "maxNonGeneratedLines": 500 },
+  "nextOnBaseline": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "line": "U16",
+    "exitCode": 0,
+    "note": "--next printed U16 on the baseline, so U16 is the admitted unit by the validator's own selection."
+  },
+  "validatorOnBaseline": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+    "line": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+    "exitCode": 0
+  },
+  "mainProofPlaywrightInventory": {
+    "method": "read every unit's stageReceipts.mainProof.path and print runtime.playwright verbatim",
+    "unitsWithMainProof": 13,
+    "lines": [
+      "U0   | ciClass=docs    | runtime absent (no runtime key at all); commands.* only - exempt from the parse rule",
+      "U1   | ciClass=product | \"  1 passed (30.8s)\"                                     | bare ladder total, no label",
+      "U1b  | ciClass=product | \"evidence-smoke:   1 passed (12.1s)\"                      | labelled ladder",
+      "U1c  | ciClass=product | \"lifecycle-pack:   1 passed (9.1s)\"                       | labelled ladder",
+      "U1e  | ciClass=product | \"lifecycle-pack:   2 passed (22.8s)\"                      | labelled ladder",
+      "U1d  | ciClass=product | \"conflict-pack:   1 passed (15.9s)\"                       | labelled ladder",
+      "U3   | ciClass=product | \"authority: 3 failed / 17 passed\"                         | labelled ladder WITH REDS (3)",
+      "U6   | ciClass=product | \"token-pack:   2 passed (1.7m)\"                           | labelled ladder",
+      "U7   | ciClass=product | \"conflict-pack:   2 passed (7.6s)\"                        | labelled ladder",
+      "U9   | ciClass=product | \"jest exact-main-ladder pin: Tests:       26 passed, 26 total\" | jest summary",
+      "U11  | ciClass=product | \"jest machine-idle pin: Tests:       62 passed, 62 total\"      | jest summary",
+      "U14  | ciClass=product | \"jest lint-units pin: Tests:       29 passed, 29 total\"        | jest summary",
+      "U9b  | ciClass=product | \"jest exact-main-ladder pin: Tests:       39 passed, 39 total\" | jest summary"
+    ],
+    "reportReds": ["U3 (3 failed / 17 passed)"],
+    "existingExpectedReds": "U3's receipt already carries runtime.expectedReds, but as a single prose STRING, not an array: \"E2E-01 genesis and E2E-02 genesis (design-campaign-authority-and-sync task 5.7 non-claim; FN-genesis-branch-row-is-a-mirror-side-effect) and E2E-16 (FN-u3-e2e-16-stale-reload-socket-count)\". It also carries runtime.failedRows, a 3-entry array naming the three rows. The backfill therefore normalises that one field in place into a 3-entry array (one entry per failed row, carrying the row identity and the reason taken from the existing prose). No other field of any receipt is touched.",
+    "otherRuntimeKeys": "U9 and U9b additionally carry runtime.exactMainCheck and runtime.exactMainRerun; U14 carries the lint-units pin in runtime.playwright. None of these is read by the new checks."
+  },
+  "stageReceiptPathCensus": {
+    "nonNullStageReceiptPaths": 106,
+    "missingOnBaseline": 0,
+    "note": "every non-null stageReceipts.<stage>.path in units.json resolves under the roadmap directory today, so the default-on evidence mode is expected to be green on the real ledger without any receipt move. Blocked units carry receipts too and are checked identically (U2: admission,red,local,review; U12: admission,red,local)."
+  },
+  "design": {
+    "1-evidence": "New default-on mode. --no-evidence is the explicit opt-out and prints one notice line to stderr. Checks, in order, per unit: (a) every non-null stageReceipts.<stage> with a path must resolve to an existing file under the roadmap directory, failing as '<unit>.stageReceipts.<stage> path does not exist: <path>'; (b) for product-class units only, the mainProof receipt's runtime.playwright must parse as one of three forms - '<label>: N failed / M passed', '<label>: N passed (...)' (label optional, so U1's bare total parses), or '<label>: Tests: N passed, M total' - failing as '<unit> mainProof runtime.playwright is not a ladder or jest result: <verbatim>'; (c) when the parse reports N failed > 0, the receipt must carry expectedReds (top level, else under runtime) as an array of N non-empty strings, failing on absence, on a non-array, on a length mismatch against N, and on a non-string entry.",
+    "2-github": "Opt-in --github. For every unit whose reviewClasses intersect the sensitive set and whose STATE_RANK is >= merged, take the PR number from the merge receipt (stageReceipts.merge.pr, else the merge receipt file's pr) and run `gh pr view <pr> --json state,labels,comments`. Fail unless state === 'MERGED', labels contains 'owner-ruled', and some comment body contains 'OWNER-RULING <mergeHead>' with the exact 40-hex stageReceipts.merge.head. When gh is absent or the call fails, print a one-line notice and fail - never a silent pass. On this baseline the only such unit is U3 (PR #1797, head 935fe0423e9eef2c806ab8b4e012c9a9a8d6c929).",
+    "3-pathFree": "In the --next selection, replace the exact-string membership test with directory-boundary prefix containment: a candidate path conflicts with an in-flight path when the two are equal, or one is a prefix of the other followed by '/'. 'src/lib' therefore blocks 'src/lib/multiplayer/server' and vice versa, while 'src/libx' stays unrelated.",
+    "4-test": "New openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs, runnable with `node --test`, no jest and no package.json script. Each case materialises a fixture ledger in a fresh os.tmpdir() directory (roadmap.json and units.json rewritten down to the few units the case needs, evidence/admission-snapshot.json and DELIVERY.md copied, only the receipts the fixture names) and runs the validator as a child process with --roadmap pointing at the fixture."
+  },
+  "pathFreeEffectMeasuredOnTheBaseline": {
+    "inFlightUnits": "U4 (local-verified), U15a (local-verified), U15b (local-verified)",
+    "inFlightPaths": ["src/lib", "src/types/multiplayer", "src/lib/multiplayer/server", "scripts/qc", "scripts/__tests__", "playwright.config.ts"],
+    "nextBeforeTheChange": "U16 (exit 0)",
+    "nextAfterTheChangeExpectation": "U16 (exit 0) - measured again in the local receipt",
+    "honestFinding": "On THIS baseline the prefix rule changes no unit's pathFree verdict and therefore does not move the --next selection. The charter anticipated the selection moving; it does not, because U15a is in flight holding 'src/lib/multiplayer/server' EXACTLY, so U5a and U10 are already blocked by the old exact-string test. The per-unit exact-vs-prefix table is identical for all 12 non-terminal units at this baseline.",
+    "counterfactualThatIsolatesTheStrengthening": "Re-running the same comparison with U15a and U15b moved out of flight (treated as main-verified) and U4 still local-verified at 'src/lib' leaves the in-flight path set as ['src/lib','src/types/multiplayer']. There U5a and U10 are exactFree=true but prefixFree=false - both own 'src/lib/multiplayer/server', which lives inside U4's in-flight 'src/lib'. That is exactly the double-admission the old test permits, and it is the gap this unit closes."
+  },
+  "estimate": {
+    "files": "3 (validate-roadmap.mjs, validate-roadmap.test.mjs, evidence/u3-mainproof-20260917.json) plus the 3 untracked u16 receipts = 6 of the 15 allowed",
+    "lines": "~110 added to the validator plus ~230 for the test = ~340 of the 500 allowed",
+    "gates": "node --test on the new file; the validator on the real ledger plain / --no-evidence / --next / --git / --github; npx oxfmt --check on the changed files; npm run qc:openspec-ci:validate"
+  },
+  "risksForTheParent": [
+    "The prefix rule reorders nothing today but will block U5a and U10 the moment U15a leaves flight while U4 is still in flight at 'src/lib'. If the parent intends U5a or U10 to run alongside U4, that is now a validator refusal rather than a silent concurrent admission - the parent must land U4 first, or narrow U4's ownership path.",
+    "U13 and U17 own 'scripts/qc' and 'scripts/__tests__' exactly, as U15b does; the prefix rule adds 'package.json' (U17) no new conflict. Their blocking is unchanged.",
+    "--github depends on this machine's gh authentication and on GitHub being reachable; it is opt-in precisely so the default run stays hermetic.",
+    "The backfill normalises U3's existing runtime.expectedReds prose string into an array. Grepped for 'expectedReds' across the worktree: the only hits are this receipt, the U3 mainProof receipt, units.json line 608 (a DUPLICATE COPY of the same prose inside U3's stageReceipts.mainProof ledger entry, which this unit may not edit and which the new check does not read - it reads the receipt FILE), the council decision prose, and the U16 behavior sentence. No code reads the field today, so the shape change has no consumer. The duplicate in units.json is left as prose and is a drift the parent may want to normalise in a later unit."
+  ],
+  "forbiddenMovesRespected": "No edit to units.json, roadmap.json or evidence/admission-snapshot.json; no tasks.md row touched; no validator check removed or relaxed; no commit, push or stash; npm_config_dry_run=true exported and no npm install/ci/prune run.",
+  "implementerModel": "claude-opus (Agent lane; codex, grok CLI and cursor-agent routes exhausted on 2026-09-17)"
+}

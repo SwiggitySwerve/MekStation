@@ -17,6 +17,11 @@ const snapshotOverride = readOption('--snapshot');
 const roadmapOverride = readOption('--roadmap');
 const wantNext = argv.includes('--next');
 const wantGit = argv.includes('--git');
+// Evidence checks are cheap and read only files this repository already owns, so they run by default;
+// --no-evidence is the explicit, announced opt-out. --github is opt-in because it talks to GitHub.
+const wantEvidence = !argv.includes('--no-evidence');
+const wantGithub = argv.includes('--github');
+if (!wantEvidence) console.error('NOTICE: evidence mode is off (--no-evidence); stage receipt paths and mainProof proof lines are not checked.');
 
 const SENSITIVE_REVIEW_CLASSES = ['authority', 'privacy', 'migration', 'replay', 'idempotency', 'concurrency'];
 const REVIEW_CLASSES = [...SENSITIVE_REVIEW_CLASSES, 'routine'];
@@ -66,6 +71,27 @@ const hasValue = (value) => {
 };
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 const isHex40 = (value) => typeof value === 'string' && /^[0-9a-f]{40}$/i.test(value);
+// Ownership is directory-shaped, so containment - not string equality - decides whether a path is taken:
+// 'src/lib' takes 'src/lib/multiplayer/server' and the reverse, while 'src/libx' is unrelated to both.
+const normalisePath = (value) => String(value).replace(/\/+$/, '');
+const pathsOverlap = (a, b) => {
+  const left = normalisePath(a);
+  const right = normalisePath(b);
+  return left === right || left.startsWith(`${right}/`) || right.startsWith(`${left}/`);
+};
+// A mainProof receipt's runtime.playwright is either a Playwright ladder line ('<label>: N failed / M
+// passed' or '<label>: N passed (12.1s)', the label optional so U1's bare total parses) or a jest
+// summary ('<label>: Tests: N passed, M total'). Returns the failed-row count, or null when the line is
+// neither - prose is not a proof.
+const parseProofLine = (value) => {
+  if (typeof value !== 'string') return null;
+  const line = value.trim();
+  const ladderRed = /^(?:.+?:\s*)?(\d+) failed \/ (\d+) passed$/.exec(line);
+  if (ladderRed) return Number(ladderRed[1]);
+  if (/^(?:.+?:\s*)?Tests:\s+(\d+) passed, (\d+) total$/.test(line)) return 0;
+  if (/^(?:.+?:\s*)?(\d+) passed(?:\s+\([^)]*\))?$/.test(line)) return 0;
+  return null;
+};
 // Historical node receipts were never normalised: some are null, some a bare evidence path, some an
 // object whose main SHA field drifted between mainSha and mainSHA. Read all three shapes tolerantly.
 const readReceipt = (node) => {
@@ -301,6 +327,36 @@ try {
         }
         if (receipts.tick) for (const key of unit.taskKeys || []) tickedKeys.add(key);
 
+        // ---- evidence: a claimed receipt must be on disk, and a product mainProof must carry a proof
+        // line that parses, with one stated expectation per red row when the run reports reds
+        if (wantEvidence) {
+          for (const stage of STAGE_NAMES) {
+            const value = receipts[stage];
+            if (!value || typeof value !== 'object' || Array.isArray(value) || !hasValue(value.path)) continue;
+            if (!fs.existsSync(path.resolve(roadmapDir, String(value.path)))) fail(`${label}.stageReceipts.${stage} path does not exist: ${value.path}`);
+          }
+          if (unit.ciClass === 'product' && receipts.mainProof && hasValue(receipts.mainProof.path)) {
+            const proofFile = path.resolve(roadmapDir, String(receipts.mainProof.path));
+            let proof = null;
+            if (fs.existsSync(proofFile)) {
+              try { proof = readJson(proofFile); } catch { fail(`${label} mainProof receipt is not readable JSON: ${receipts.mainProof.path}`); }
+            }
+            if (proof) {
+              const proofLine = proof.runtime?.playwright;
+              const failedRows = parseProofLine(proofLine);
+              if (failedRows === null) fail(`${label} mainProof receipt runtime.playwright is not a ladder or jest result: ${proofLine === undefined ? '(absent)' : String(proofLine)}`);
+              else if (failedRows > 0) {
+                // The expectation list has lived under runtime on the receipts written so far; accept it
+                // at the top level too, so a future receipt need not nest it.
+                const expectedReds = proof.expectedReds ?? proof.runtime?.expectedReds;
+                if (!Array.isArray(expectedReds)) fail(`${label} mainProof receipt reports ${failedRows} failed row(s) without an expectedReds array`);
+                else if (expectedReds.length !== failedRows) fail(`${label} mainProof expectedReds has ${expectedReds.length} entr(y/ies) but the run reports ${failedRows} failed row(s)`);
+                else if (!expectedReds.every((entry) => typeof entry === 'string' && entry.trim().length > 0)) fail(`${label} mainProof expectedReds has an entry that is not a non-empty string naming a red row`);
+              }
+            }
+          }
+        }
+
         const ownerNodeId = typeof unit.reownedTo === 'string' ? unit.reownedTo : unit.node;
         if (!nodeById.has(unit.node)) fail(`${label} names unknown node ${unit.node}`);
         if (typeof unit.reownedTo === 'string' && !nodeById.has(unit.reownedTo)) fail(`${label} is re-owned to unknown node ${unit.reownedTo}`);
@@ -452,9 +508,37 @@ try {
         }
       }
 
+      // ---- optional GitHub proof of the owner ruling that Lane B records off-repository
+      if (wantGithub) {
+        let noticePrinted = false;
+        for (const unit of units) {
+          const sensitive = (Array.isArray(unit.reviewClasses) ? unit.reviewClasses : []).some((reviewClass) => SENSITIVE_REVIEW_CLASSES.includes(reviewClass));
+          if (!sensitive || (STATE_RANK[unit.state] ?? 0) < STATE_RANK.merged) continue;
+          const merge = unit.stageReceipts?.merge;
+          const pr = Number.isInteger(merge?.pr) ? merge.pr : null;
+          const head = merge?.head;
+          if (pr === null) { fail(`${unit.id} carries sensitive classes and is ${unit.state} but its merge receipt names no PR number`); continue; }
+          if (!isHex40(head)) { fail(`${unit.id} merge receipt has no 40-hex head to bind an owner ruling to`); continue; }
+          let view = null;
+          try {
+            view = JSON.parse(execFileSync('gh', ['pr', 'view', String(pr), '--json', 'state,labels,comments'], { cwd: repoRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }));
+          } catch (error) {
+            // Never a silent pass: say why the proof could not be taken, then fail the unit.
+            if (!noticePrinted) { console.error(`NOTICE: gh is not available or refused the query, so --github cannot prove any owner ruling (${(error instanceof Error ? error.message : String(error)).split(String.fromCharCode(10))[0]})`); noticePrinted = true; }
+            fail(`${unit.id} PR #${pr} could not be read with gh, so its owner ruling is unproved`);
+            continue;
+          }
+          if (view.state !== 'MERGED') fail(`${unit.id} PR #${pr} is ${view.state}, not MERGED`);
+          const labels = (Array.isArray(view.labels) ? view.labels : []).map((item) => (typeof item === 'string' ? item : item?.name));
+          if (!labels.includes('owner-ruled')) fail(`${unit.id} PR #${pr} does not carry the owner-ruled label`);
+          const comments = Array.isArray(view.comments) ? view.comments : [];
+          if (!comments.some((comment) => String(comment?.body ?? '').includes(`OWNER-RULING ${head}`))) fail(`${unit.id} PR #${pr} has no comment containing OWNER-RULING ${head}`);
+        }
+      }
+
       // ---- next admissible unit
       if (wantNext) {
-        const inFlightPaths = new Set(units.filter((unit) => IN_FLIGHT_STATES.has(unit.state)).flatMap((unit) => unit.ownershipPaths || []));
+        const inFlightPaths = [...new Set(units.filter((unit) => IN_FLIGHT_STATES.has(unit.state)).flatMap((unit) => unit.ownershipPaths || []))];
         let ownerGated = 0;
         let blocked = 0;
         let chosen = null;
@@ -467,7 +551,7 @@ try {
             const state = nodeById.get(dependency)?.state;
             return state === 'main-verified' || state === 'complete';
           });
-          const pathFree = !(unit.ownershipPaths || []).some((ownershipPath) => inFlightPaths.has(ownershipPath));
+          const pathFree = !(unit.ownershipPaths || []).some((ownershipPath) => inFlightPaths.some((inFlight) => pathsOverlap(ownershipPath, inFlight)));
           if (unit.state === 'planned' && dependenciesReady && pathFree) chosen = unit.id;
           else blocked += 1;
         }

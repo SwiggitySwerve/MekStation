@@ -1,0 +1,203 @@
+{
+  "unit": "U16",
+  "stage": "local",
+  "at": "2026-09-17T16:30:29.988Z",
+  "baseline": "4bcd6f8d5fa752270d40ed331423b37f89c15f8a",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u16",
+  "branch": "docs/roadmap-u16-validator-evidence-20260917",
+  "node": "v22.22.0",
+  "status": "ready",
+  "implementerModel": "claude-opus (Agent lane; codex, grok CLI and cursor-agent routes exhausted on 2026-09-17)",
+  "lineCounts": {
+    "validatorBefore": 501,
+    "validatorAfter": 585,
+    "validatorDiff": "+86 / -2 (git diff --numstat), net +84",
+    "testFile": 249,
+    "u3ReceiptBackfill": "+5 / -1",
+    "totalNonGeneratedChangedLines": 343,
+    "capLines": 500,
+    "filesTouched": 6,
+    "filesTouchedList": [
+      "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs (modified)",
+      "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs (new)",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/u3-mainproof-20260917.json (backfill)",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/u16-admission-20260917.json (new receipt)",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/u16-red-20260917.json (new receipt)",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/u16-local-20260917.json (new receipt)"
+    ],
+    "capFiles": 15
+  },
+  "checksGainedLost": {
+    "gained": [
+      "every non-null stageReceipts.<stage>.path resolves under the roadmap directory (default on)",
+      "a product unit's mainProof receipt runtime.playwright parses as a ladder or jest result (default on)",
+      "a parsed run reporting N > 0 failed rows carries an expectedReds array of exactly N non-empty strings (default on)",
+      "--github: a sensitive unit at rank merged or above has a MERGED PR carrying the owner-ruled label and an OWNER-RULING <mergeHead> comment (opt-in)",
+      "--next pathFree now blocks on directory containment, not exact string equality"
+    ],
+    "lost": "none - no existing check, message or exit code was removed, weakened or reordered. The real ledger still prints ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows."
+  },
+  "gates": [
+    {
+      "gate": "node --test (new pin, red run before the change)",
+      "argv": "node --test openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs",
+      "lastLines": "# tests 9 / # pass 2 / # fail 7",
+      "exitCode": 1,
+      "when": "stage 2, validator byte-identical to the baseline"
+    },
+    {
+      "gate": "node --test (green run after the change)",
+      "argv": "node --test openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs",
+      "lastLine": "# fail 0",
+      "counts": "# tests 9 / # pass 9 / # fail 0 / # duration_ms 1112.0332",
+      "exitCode": 0
+    },
+    {
+      "gate": "validator, real ledger, default (evidence on)",
+      "argv": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "exitCode": 0
+    },
+    {
+      "gate": "validator, real ledger, --no-evidence",
+      "argv": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --no-evidence",
+      "noticeLine": "NOTICE: evidence mode is off (--no-evidence); stage receipt paths and mainProof proof lines are not checked. (stderr)",
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "exitCode": 0
+    },
+    {
+      "gate": "validator, real ledger, --next",
+      "argv": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+      "lastLine": "U16",
+      "exitCode": 0
+    },
+    {
+      "gate": "validator, real ledger, --git",
+      "argv": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --git",
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "exitCode": 0
+    },
+    {
+      "gate": "validator, real ledger, --github (gh authenticated on this machine)",
+      "argv": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --github",
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "exitCode": 0,
+      "proofThatItIsNotVacuous": "the same command with PATH replaced by an empty directory prints 'NOTICE: gh is not available or refused the query, so --github cannot prove any owner ruling (spawnSync gh ENOENT)' then 'ROADMAP VALIDATION FAILED (1 issue) - U3 PR #1797 could not be read with gh, so its owner ruling is unproved', exit 1. So the green run really queried PR #1797 and found state MERGED, the owner-ruled label, and a comment containing OWNER-RULING 935fe0423e9eef2c806ab8b4e012c9a9a8d6c929."
+    },
+    {
+      "gate": "npx oxfmt --check on the changed files",
+      "argv": "npx oxfmt --check openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs",
+      "lastLine": "Expected at least one target file",
+      "exitCode": 2,
+      "finding": "NOT A GREEN AND NOT A FAILURE OF THE CHANGE: .oxfmtignore line 11 is the bare entry 'openspec', so oxfmt refuses to format anything under openspec/ and reports that it matched no target. The formatter gate is inapplicable to this unit's paths by repository configuration. Both files were written in the repository's style (single quotes, semicolons, 2-space indent); the 80-column printWidth in .oxfmtrc.json is not enforced here and validate-roadmap.mjs has never obeyed it."
+    },
+    {
+      "gate": "npm run qc:openspec-ci:validate",
+      "argv": "npm run qc:openspec-ci:validate",
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+      "exitCode": 0,
+      "errors": 0
+    }
+  ],
+  "mutants": {
+    "method": "the implemented validator was copied to the scratchpad before the first mutation (sha256 4aad5c34afce298291b376145a36f3076004fc58086019ed3a08def173786ba0); each mutant was applied by exact-anchor replacement, the pin re-run, then the file restored from that copy and re-hashed.",
+    "preMutantSha256": "4aad5c34afce298291b376145a36f3076004fc58086019ed3a08def173786ba0",
+    "table": [
+      {
+        "id": "M1",
+        "mutation": "the receipt-path existence check never fires: `if (!fs.existsSync(path.resolve(roadmapDir, String(value.path))))` -> `if (false)`",
+        "intent": "a missing receipt path passes",
+        "result": "CAUGHT",
+        "caughtBy": "not ok 1 - a stage receipt path that does not exist fails, naming the unit, the stage and the path",
+        "suite": "# tests 9 / # pass 8 / # fail 1",
+        "restoredSha256": "4aad5c34afce298291b376145a36f3076004fc58086019ed3a08def173786ba0 (equals pre-mutant)"
+      },
+      {
+        "id": "M2",
+        "mutation": "`else if (expectedReds.length !== failedRows)` -> `else if (expectedReds.length < 0)`",
+        "intent": "expectedReds length is not compared with the failed count",
+        "result": "CAUGHT",
+        "caughtBy": "not ok 5 - expectedReds shorter than the failed count fails",
+        "suite": "# tests 9 / # pass 8 / # fail 1",
+        "restoredSha256": "4aad5c34afce298291b376145a36f3076004fc58086019ed3a08def173786ba0 (equals pre-mutant)"
+      },
+      {
+        "id": "M3",
+        "mutation": "`inFlightPaths.some((inFlight) => pathsOverlap(ownershipPath, inFlight))` -> `inFlightPaths.includes(ownershipPath)`",
+        "intent": "pathFree falls back to exact-string membership",
+        "result": "CAUGHT",
+        "caughtBy": "not ok 8 - --next skips a planned unit whose path sits inside an in-flight path and takes the next free unit ('FB' !== 'FC')",
+        "suite": "# tests 9 / # pass 8 / # fail 1",
+        "restoredSha256": "4aad5c34afce298291b376145a36f3076004fc58086019ed3a08def173786ba0 (equals pre-mutant)"
+      },
+      {
+        "id": "M4",
+        "mutation": "parseProofLine's final `return null;` -> `return 0;`",
+        "intent": "the proof-line parser accepts prose as a proof line",
+        "result": "CAUGHT",
+        "caughtBy": "not ok 6 - every ladder and jest spelling in the real ledger parses, and a free-text line does not",
+        "suite": "# tests 9 / # pass 8 / # fail 1",
+        "restoredSha256": "4aad5c34afce298291b376145a36f3076004fc58086019ed3a08def173786ba0 (equals pre-mutant)"
+      },
+      {
+        "id": "M5",
+        "mutation": "the `fail(...)` inside the --github catch block deleted, leaving only the notice",
+        "intent": "--github prints a notice and then passes silently when gh is unavailable",
+        "result": "CAUGHT",
+        "caughtBy": "not ok 9 - --github with gh off the PATH fails with a notice rather than passing silently",
+        "suite": "# tests 9 / # pass 8 / # fail 1",
+        "restoredSha256": "4aad5c34afce298291b376145a36f3076004fc58086019ed3a08def173786ba0 (equals pre-mutant)"
+      }
+    ],
+    "postMutantGreen": "# tests 9 / # pass 9 / # fail 0 after the last restore; git diff --numstat unchanged at 86/2 on the validator and 5/1 on the U3 receipt."
+  },
+  "pathFreeIsAStrengthening": {
+    "why": "The old test asked whether a candidate's ownership path string is a member of the in-flight path set. Ownership, though, is a directory claim: a unit that owns 'src/lib' owns every file beneath it, so a second unit admitted at 'src/lib/multiplayer/server' edits files the first unit already holds. The old test cannot see that, because the two strings differ. Containment on a directory boundary is the smallest rule that matches what ownership already means, and it is strictly narrower: every pair the old rule blocked (string equality) the new rule still blocks, and it additionally blocks the nested pairs. No unit that was admissible for a reason other than a nested path becomes inadmissible, so the validator gains a refusal and loses none. 'src/libx' stays unrelated to 'src/lib' because the rule requires the '/' boundary.",
+    "measuredOnTheRealLedgerAtThisBaseline": {
+      "nextBefore": "U16 (exit 0)",
+      "nextAfter": "U16 (exit 0)",
+      "perUnitVerdicts": "identical under exact and prefix for all 12 non-terminal units",
+      "honestFinding": "The charter expected the selection to move; it does not. U15a is in flight holding 'src/lib/multiplayer/server' EXACTLY, so U5a and U10 - the only two units the prefix rule would newly block - are already blocked by the old exact-string test. The strengthening is therefore latent at this baseline, not visible in the --next line."
+    },
+    "counterfactualThatIsolatesIt": "Recomputing the same selection with U15a and U15b treated as main-verified (out of flight) and U4 still local-verified at 'src/lib' leaves the in-flight path set ['src/lib','src/types/multiplayer']. There U5a and U10 are exactFree=true but prefixFree=false: both own 'src/lib/multiplayer/server', nested inside U4's in-flight 'src/lib'. That is the double admission the old rule permits and the new rule refuses. The pin's --next fixture (FA local-verified at 'src/lib', FB planned at 'src/lib/multiplayer/server', FC planned at 'e2e') reproduces exactly that shape and is the case M3 kills."
+  },
+  "nonClaims": [
+    "--github depends on this machine's gh authentication and on GitHub being reachable. The green --github run is evidence about PR #1797 as GitHub answered it at 2026-09-17T16:30Z from this machine; it is not a hermetic check and it is opt-in for that reason. On a machine without gh the mode fails loudly (proved above) rather than passing.",
+    "The evidence mode checks EXISTENCE and SHAPE, not CONTENT. It proves a receipt file is on disk at the claimed path and that a product mainProof's runtime.playwright parses and, when red, carries one stated expectation per red row. It does not verify that the receipt describes the run it claims, that the counts inside it are true, that the expectedReds entries name the rows actually listed in failedRows, or that a proof was taken at all.",
+    "Receipts of blocked units are checked identically to any other - U2 (admission, red, local, review) and U12 (admission, red, local) are read the same way; being blocked buys no exemption. The mainProof parse rule is gated to ciClass 'product' only, so U0's docs-class mainProof (which carries no runtime block at all) is exempt by design.",
+    "The proof-line grammar implements exactly the three forms the unit names: '<label>: N failed / M passed', '<label>: N passed (...)' with the label optional, and '<label>: Tests: N passed, M total'. A jest summary that reports failures ('Tests: 3 failed, 59 passed, 62 total') is NOT in the grammar and would fail the parse; no receipt uses that shape today. Widening the grammar is a later unit's call, not this one's.",
+    "expectedReds is read from the mainProof RECEIPT FILE, at the top level or under runtime. The duplicate 'expectedReds' prose string inside units.json's U3 mainProof ledger entry (line 608) is not read and was not edited - units.json is outside this unit's edit set.",
+    "No claim is made about oxfmt formatting of the two .mjs files: .oxfmtignore excludes openspec/, so the formatter matched no target and the gate is inapplicable rather than green.",
+    "No build, no Playwright, no npm install/ci/prune was run; npm_config_dry_run=true was exported in every shell. No commit, push, stash or amend. The root checkout at E:/Projects/MekStation was never written to."
+  ],
+  "findingsReportedNotFixed": [
+    {
+      "id": "FN-u16-units-json-expectedreds-duplicate",
+      "finding": "units.json line 608 carries a second copy of U3's expectedReds as prose inside stageReceipts.mainProof, alongside a second copy of the runtime line. The ledger and the receipt can now drift in shape (array in the receipt, string in the ledger). Nothing reads the ledger copy, so this is cosmetic today.",
+      "whyNotFixed": "units.json is outside this unit's edit set by charter."
+    },
+    {
+      "id": "FN-u16-jest-red-summary-unparsed",
+      "finding": "A jest summary that reports failures ('Tests: N failed, M passed, K total') is not in the implemented grammar and would be rejected as unparseable rather than counted as N reds. No receipt has that shape today, so nothing fails; a future jest-pinned unit that goes red would hit it.",
+      "whyNotFixed": "the unit names three forms and says not to widen it; adding a fourth form is a scope increase that should be its own decision."
+    },
+    {
+      "id": "FN-u16-oxfmt-ignores-openspec",
+      "finding": ".oxfmtignore excludes openspec/ wholesale, so no file in the planning directory - including the validator that gates the whole program - is format-checked by any repository gate.",
+      "whyNotFixed": ".oxfmtignore is outside this unit's edit set, and widening the formatter's reach would reformat the entire planning tree."
+    },
+    {
+      "id": "FN-u16-evidence-mode-does-not-read-content",
+      "finding": "Nothing cross-checks expectedReds against runtime.failedRows. A receipt could list three expectations that name rows the run never reported and still pass.",
+      "whyNotFixed": "the unit's rule is length-and-shape; binding each expectation to a named failed row is a content check and a larger design (failedRows is not present on every receipt)."
+    }
+  ],
+  "gitStatusAtEnd": [
+    " M openspec/planning/2026-09-12-roadmap-completion/evidence/u3-mainproof-20260917.json",
+    " M openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u16-admission-20260917.json",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u16-local-20260917.json",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u16-red-20260917.json",
+    "?? openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs"
+  ]
+}
