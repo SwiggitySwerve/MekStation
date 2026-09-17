@@ -77,5 +77,85 @@
     "fs.rmSync(link, { recursive: true, force: true }) on a junction removes the link ONLY - the junction target's file survived. So 'delete the junction recursively' is not observable through that call, and the M3 mutant must resolve the link first (fs.rmSync(fs.realpathSync.native(link), { recursive: true, force: true }) DID delete the target's contents in the same probe).",
     "fs.unlinkSync(junction) succeeds on this platform and the target survives, so the implementation's EPERM fallback to fs.rmdirSync is defensive rather than exercised here.",
     "fs.readdirSync(dir, { withFileTypes: true }) reports a junction entry with isSymbolicLink() === true, so the walk can skip links without following them."
-  ]
+  ],
+  "requiredEditRevision2": {
+    "at": "2026-09-17T21:05:00Z",
+    "why": "Two required edits landed on the same revision-2 pass: (A) GitHub Actions run 35257584921 on head eb22ef213e463edf327b33c5eeadf4fb4df54b45, job \"Unit Tests (1/6)\", Linux, failed the pin; (B) the Lane A pass-1 review of the same head (.sisyphus/roadmap-completion-20260912/u13-lane-a-review-pass1-20260917.md finding 1, MEDIUM) found that preserveRunLogs copied before it checked the destination was expressible. Each was reproduced red on this machine before its fix.",
+    "redA": {
+      "label": "the CI failure, reproduced locally",
+      "ciFailure": {
+        "run": "GitHub Actions 35257584921",
+        "head": "eb22ef213e463edf327b33c5eeadf4fb4df54b45",
+        "job": "Unit Tests (1/6)",
+        "platform": "Linux",
+        "case": "removeWorktreeAfterPreservation > removes a clean matching worktree and deletes only the reparse point",
+        "received": "{\"code\": \"WORKTREE_DIRTY\", \"message\": \"/tmp/u13-preserve-sjFc9F/wt has 1 uncommitted entries\"}",
+        "atLine": "scripts/__tests__/preserve-run-logs.test.ts:346"
+      },
+      "howReproducedOnWindows": "The fixture's committed .gitignore was temporarily changed from 'node_modules/\npreserved/\nevidence/\nrun/\n' to 'preserved/\nevidence/\nrun/\n' - dropping the node_modules entry - which puts a Windows junction into the same UNMATCHED state a POSIX symlink is in under the trailing-slash spelling. The edit was reverted before the fix was written.",
+      "command": "npx jest scripts/__tests__/preserve-run-logs.test.ts -t 'removes a clean matching worktree'",
+      "observed": {
+        "failingCase": "removeWorktreeAfterPreservation > removes a clean matching worktree and deletes only the reparse point",
+        "assertion": "expect(result.error).toBeUndefined()",
+        "atLine": "scripts/__tests__/preserve-run-logs.test.ts:346:26",
+        "received": "{\"code\": \"WORKTREE_DIRTY\", \"message\": \"C:\\Users\\wroll\\AppData\\Local\\Temp\\u13-preserve-BIzPyN\\wt has 1 uncommitted entries\", \"name\": \"WorktreeRemovalError\"}",
+        "summaryLine": "Tests:       1 failed, 12 skipped, 13 total",
+        "exitCode": 1
+      },
+      "matchesCi": "Same case, same assertion line 346, same error code and same \"has 1 uncommitted entries\" wording. Only the temporary path differs (a Windows temp directory instead of /tmp), because the fixture builds its repository under os.tmpdir()."
+    },
+    "redB": {
+      "label": "the Lane A finding, pinned red before the fix",
+      "finding": "u13-lane-a-review-pass1-20260917.md finding 1 (MEDIUM): preserveRunLogs copied every file into preservedDir BEFORE checking that the ledger paths were expressible relative to repoRoot, so a PRESERVED_DIR_OUTSIDE_ROOT refusal correctly withheld the manifest but had already written the logs at the refused location.",
+      "caseAdded": "preserveRunLogs > refuses a preserved directory the manifest cannot express, before copying anything",
+      "command": "npx jest scripts/__tests__/preserve-run-logs.test.ts -t 'cannot express'",
+      "observed": {
+        "assertion": "expect(fs.existsSync(preservedDir)).toBe(false)",
+        "atLine": "scripts/__tests__/preserve-run-logs.test.ts:383:41",
+        "received": "Expected: false / Received: true",
+        "reading": "The refusal code assertion (PRESERVED_DIR_OUTSIDE_ROOT) already passed - the refusal was never in doubt. What failed is that the preserved directory existed after it, which is the finding exactly.",
+        "exitCode": 1
+      },
+      "whyThisShapeOfFixture": "path.relative fails to produce a relative path in exactly two shapes: the two sides share no root (different drives - Windows only) or they are the SAME path. Only the second has a POSIX equivalent, so the case points repoRoot at the preserved directory itself. A cross-drive fixture would pass on this machine and never run the assertion on Linux CI."
+    },
+    "platformMeasurementsForTheFix": {
+      "git": "git version 2.54.0.windows.1",
+      "symlinkPrivilege": "fs.symlinkSync(target, link, 'dir') and (..., 'file') both fail EPERM on this machine, so a real POSIX-shaped symlink could not be created here and the symlink half of the analysis is measured by proxy plus git's documented semantics, labelled below.",
+      "measured": [
+        "In a scratch repository ignoring 'slashed/' and 'bare', a NON-DIRECTORY entry named slashed is NOT ignored (git check-ignore exit 1, git status --porcelain prints '?? slashed') while a non-directory entry named bare IS ignored (exit 0, '.gitignore:2:bare\tbare'). This is the trailing-slash rule measured directly: a slash-terminated pattern matches directories only.",
+        "In the pin's own fixture shape (a junction planted in the worktree), '.gitignore' without a node_modules entry gives git status --porcelain '?? node_modules/' and check-ignore exit 1; with 'node_modules/' it gives empty status and check-ignore exit 0 matching '.gitignore:1:node_modules/'; with bare 'node_modules' it gives empty status and check-ignore exit 0 matching '.gitignore:1:node_modules'. So the bare spelling matches a Windows junction too - it loses nothing on this platform and gains the POSIX symlink.",
+        "LABELLED AS PROXY, NOT DIRECT: the symlink case itself was not executed here. git stores a symlink as a blob and presents it to the exclude machinery as a non-directory, the same class as the regular file measured above; combined with the documented trailing-slash rule, that is why 'node_modules/' leaves a POSIX symlink untracked. The direct evidence for the symlink is the CI failure itself."
+      ]
+    }
+  },
+  "requiredEditRevision3": {
+    "at": "2026-09-17T23:40:00Z",
+    "why": "Lane A pass-2 review of head 2fdf82f623701aee40a473b6f052fbe7e139dbdb (.sisyphus/roadmap-completion-20260912/u13-lane-a-review-pass2-20260917.md finding 2, MEDIUM): revision 2 added the EVIDENCE_DIR_OUTSIDE_ROOT refusal in preserveRunLogs but no pin case covered it. The reviewer deleted the check and all 15 tests stayed green, while the revision-2 local receipt claimed the refusal was covered by the pin.",
+    "shapeOfThisRed": "The check already exists on this head, so the new case passes against the unmodified module. The red evidence for a pin over existing code is the mutant: the case is only worth its line count if deleting the check turns it red. That is M6 below, and it is the whole proof that this edit closes the finding rather than adding a test that cannot fail.",
+    "caseAdded": "preserveRunLogs > refuses an evidence directory the manifest path cannot express, before copying anything",
+    "caseConstruction": "The same route the preserved-directory case uses - the SAME-PATH shape, not the cross-drive shape, because only the same-path shape has a POSIX equivalent and therefore runs on Linux CI. repoRoot is pointed at the evidence directory itself, so path.relative(repoRoot, evidenceDir) is the empty string. runDir resolves to ../run and the preserved directory to ../preserved/U42-20260917 from that root, so both earlier expressibility checks pass and the case reaches the third one rather than tripping one of the first two.",
+    "assertions": [
+      "result.error?.code === 'EVIDENCE_DIR_OUTSIDE_ROOT'",
+      "fs.existsSync(path.join(scaffold.root, 'preserved', 'U42-20260917')) === false - no file was copied into the preserved directory",
+      "fs.existsSync(path.join(evidenceDir, 'u42-logs-20260917.json')) === false - no manifest was written"
+    ],
+    "greenAgainstTheUnmodifiedModule": {
+      "command": "npx jest scripts/__tests__/preserve-run-logs.test.ts",
+      "moduleSha256": "1f37243e6ab570592c9a698ec6fd0fc58e067a32a5476f0949fc604f5a79eca8",
+      "lastLine": "Tests:       16 passed, 16 total",
+      "exitCode": 0,
+      "reading": "16, up from the 15 the reviewer measured on this head. The new case is the sixteenth and it passes, which proves only that the check is reachable - not that it is load-bearing. M6 is what proves that."
+    },
+    "mutantM6": {
+      "mutation": "deleted the 5-line `relativeToRoot(repoRoot, path.resolve(evidenceDir), 'EVIDENCE_DIR_OUTSIDE_ROOT');` statement from preserveRunLogs - the exact deletion the reviewer made, verified as a single-occurrence exact-string match before replacing",
+      "command": "npx jest scripts/__tests__/preserve-run-logs.test.ts",
+      "result": "Tests:       1 failed, 15 passed, 16 total",
+      "exitCode": 1,
+      "caughtBy": "preserveRunLogs > refuses an evidence directory the manifest path cannot express, before copying anything",
+      "failingAssertion": "expect(result.error?.code).toBe('EVIDENCE_DIR_OUTSIDE_ROOT') at scripts/__tests__/preserve-run-logs.test.ts:402 - Expected: \"EVIDENCE_DIR_OUTSIDE_ROOT\" / Received: undefined",
+      "killed": true,
+      "restoration": "restored by copy from a pristine copy taken before the mutation; sha256 after restore 1f37243e6ab570592c9a698ec6fd0fc58e067a32a5476f0949fc604f5a79eca8, identical to the pre-mutant sha256; git status --short showed only the pin file modified afterwards"
+    },
+    "beforeAndAfterForTheFinding": "Before this edit, deleting the check left the pin fully green (the reviewer measured 15 passed, 15 total). After it, the same deletion fails one case. The finding's exact claim - 'a future regression that silently dropped this check would not be caught by this unit's own pin' - no longer holds."
+  }
 }
