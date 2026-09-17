@@ -1,0 +1,329 @@
+{
+  "unit": "U12",
+  "stage": "local",
+  "at": "2026-09-17T11:23:41.584Z",
+  "runs": {
+    "green": {
+      "command": "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe node_modules/jest/bin/jest.js --selectProjects unit --runInBand --no-cache --runTestsByPath scripts/__tests__/guard-node-modules-link.test.ts",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites within paths \"scripts/__tests__/guard-node-modules-link.test.ts\".",
+      "output": "Running one project: unit\nPASS unit scripts/__tests__/guard-node-modules-link.test.ts\n  install target realpath guard\n    √ allows absent node_modules in a fresh checkout (49 ms)\n    √ allows a real node_modules directory restored from cache (61 ms)\n    √ refuses linked node_modules and reports both real paths (46 ms)\n    √ allows cwd reached through a junction with local node_modules (46 ms)\n    √ refuses a manifest in a different real directory (46 ms)\n    √ CLI prints INSTALL_ALLOWED and exits zero (42 ms)\n    √ CLI refuses linked node_modules with paths and exits one (44 ms)\n    √ CLI defaults to the manifest beside its own repository, not cwd (43 ms)\n    √ wires preinstall to the exact guard command (2 ms)\n    √ keeps only the pre-existing postinstall failure suppression (2 ms)\n\nTest Suites: 1 passed, 1 total\nTests:       10 passed, 10 total\nSnapshots:   0 total\nTime:        1.047 s\nRan all test suites within paths \"scripts/__tests__/guard-node-modules-link.test.ts\"."
+    },
+    "restored-green": {
+      "command": "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe node_modules/jest/bin/jest.js --selectProjects unit --runInBand --no-cache --runTestsByPath scripts/__tests__/guard-node-modules-link.test.ts",
+      "argv": [
+        "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+        "node_modules/jest/bin/jest.js",
+        "--selectProjects",
+        "unit",
+        "--runInBand",
+        "--no-cache",
+        "--runTestsByPath",
+        "scripts/__tests__/guard-node-modules-link.test.ts"
+      ],
+      "exitCode": 0,
+      "lastLine": "Ran all test suites within paths \"scripts/__tests__/guard-node-modules-link.test.ts\".",
+      "output": "Running one project: unit\nPASS unit scripts/__tests__/guard-node-modules-link.test.ts\n  install target realpath guard\n    √ allows absent node_modules in a fresh checkout (50 ms)\n    √ allows a real node_modules directory restored from cache (46 ms)\n    √ refuses linked node_modules and reports both real paths (49 ms)\n    √ allows cwd reached through a junction with local node_modules (53 ms)\n    √ refuses a manifest in a different real directory (48 ms)\n    √ CLI prints INSTALL_ALLOWED and exits zero (44 ms)\n    √ CLI refuses linked node_modules with paths and exits one (45 ms)\n    √ CLI defaults to the manifest beside its own repository, not cwd (44 ms)\n    √ wires preinstall to the exact guard command (2 ms)\n    √ keeps only the pre-existing postinstall failure suppression (2 ms)\n\nTest Suites: 1 passed, 1 total\nTests:       10 passed, 10 total\nSnapshots:   0 total\nTime:        1.017 s\nRan all test suites within paths \"scripts/__tests__/guard-node-modules-link.test.ts\"."
+    }
+  },
+  "gates": {
+    "typecheck": {
+      "command": "cmd.exe /d /s /c npx tsc --noEmit --incremental false",
+      "argv": [
+        "cmd.exe",
+        "/d",
+        "/s",
+        "/c",
+        "npx tsc --noEmit --incremental false"
+      ],
+      "exitCode": 0,
+      "lastLine": "",
+      "output": "",
+      "note": "--incremental false prevents writing tsconfig.tsbuildinfo outside the authorized file set; no typechecking rules changed."
+    },
+    "oxlint": {
+      "command": "cmd.exe /d /s /c npx oxlint scripts/qc/guard-node-modules-link.mjs scripts/__tests__/guard-node-modules-link.test.ts package.json openspec/planning/2026-09-12-roadmap-completion/evidence/u12-admission-20260917.json openspec/planning/2026-09-12-roadmap-completion/evidence/u12-red-20260917.json openspec/planning/2026-09-12-roadmap-completion/evidence/u12-local-20260917.json",
+      "argv": [
+        "cmd.exe",
+        "/d",
+        "/s",
+        "/c",
+        "npx oxlint scripts/qc/guard-node-modules-link.mjs scripts/__tests__/guard-node-modules-link.test.ts package.json openspec/planning/2026-09-12-roadmap-completion/evidence/u12-admission-20260917.json openspec/planning/2026-09-12-roadmap-completion/evidence/u12-red-20260917.json openspec/planning/2026-09-12-roadmap-completion/evidence/u12-local-20260917.json"
+      ],
+      "exitCode": 0,
+      "lastLine": "Finished in 7ms on 0 files using 16 threads.",
+      "output": "Found 0 warnings and 0 errors.\nFinished in 7ms on 0 files using 16 threads.",
+      "vacuous": true
+    },
+    "openspec": {
+      "command": "cmd.exe /d /s /c npm run qc:openspec-ci:validate",
+      "argv": ["cmd.exe", "/d", "/s", "/c", "npm run qc:openspec-ci:validate"],
+      "exitCode": 0,
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+      "output": "\n> mekstation-app@0.1.1 qc:openspec-ci:validate\n> node scripts/qc/validate-openspec-ci-quality.mjs\n\n[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+      "note": "npm run qc:openspec-ci:validate does not trigger preinstall."
+    },
+    "roadmap": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "argv": [
+        "node",
+        "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs"
+      ],
+      "exitCode": 0,
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "output": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows"
+    },
+    "cliWorktree": {
+      "command": "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\u12\\scripts\\qc\\guard-node-modules-link.mjs",
+      "argv": [
+        "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+        "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\u12\\scripts\\qc\\guard-node-modules-link.mjs"
+      ],
+      "exitCode": 1,
+      "lastLine": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"E:\\\\Projects\\\\MekStation\\\\.sisyphus\\\\roadmap-completion-20260912\\\\worktrees\\\\u12\\\\node_modules\",\"actualPath\":\"E:\\\\Projects\\\\MekStation\\\\node_modules\"}",
+      "output": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"E:\\\\Projects\\\\MekStation\\\\.sisyphus\\\\roadmap-completion-20260912\\\\worktrees\\\\u12\\\\node_modules\",\"actualPath\":\"E:\\\\Projects\\\\MekStation\\\\node_modules\"}"
+    },
+    "cliFreshCheckout": {
+      "command": "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\u12\\scripts\\qc\\guard-node-modules-link.mjs --manifest C:\\Users\\wroll\\AppData\\Local\\Temp\\u12-cli-proof-lpeTec\\package.json",
+      "argv": [
+        "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+        "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\u12\\scripts\\qc\\guard-node-modules-link.mjs",
+        "--manifest",
+        "C:\\Users\\wroll\\AppData\\Local\\Temp\\u12-cli-proof-lpeTec\\package.json"
+      ],
+      "exitCode": 0,
+      "lastLine": "INSTALL_ALLOWED",
+      "output": "INSTALL_ALLOWED",
+      "cwd": "C:\\Users\\wroll\\AppData\\Local\\Temp\\u12-cli-proof-lpeTec",
+      "nodeModulesAbsent": true
+    },
+    "format": {
+      "command": "cmd.exe /d /s /c npx oxfmt --check scripts/qc/guard-node-modules-link.mjs scripts/__tests__/guard-node-modules-link.test.ts package.json openspec/planning/2026-09-12-roadmap-completion/evidence/u12-admission-20260917.json openspec/planning/2026-09-12-roadmap-completion/evidence/u12-red-20260917.json openspec/planning/2026-09-12-roadmap-completion/evidence/u12-local-20260917.json",
+      "argv": [
+        "cmd.exe",
+        "/d",
+        "/s",
+        "/c",
+        "npx oxfmt --check scripts/qc/guard-node-modules-link.mjs scripts/__tests__/guard-node-modules-link.test.ts package.json openspec/planning/2026-09-12-roadmap-completion/evidence/u12-admission-20260917.json openspec/planning/2026-09-12-roadmap-completion/evidence/u12-red-20260917.json openspec/planning/2026-09-12-roadmap-completion/evidence/u12-local-20260917.json"
+      ],
+      "exitCode": 0,
+      "lastLine": "Finished in 80ms on 3 files using 16 threads.",
+      "output": "Checking formatting...\n\nAll matched files use the correct format.\nFinished in 80ms on 3 files using 16 threads.",
+      "note": "Default formatter checked the three product/test files; .prettierignore excludes openspec/. Expanded check below includes receipts using only .gitignore."
+    },
+    "formatIncludingReceipts": {
+      "command": "cmd.exe /d /s /c npx oxfmt --check --threads 2 --ignore-path .gitignore scripts/qc/guard-node-modules-link.mjs scripts/__tests__/guard-node-modules-link.test.ts package.json openspec/planning/2026-09-12-roadmap-completion/evidence/u12-admission-20260917.json openspec/planning/2026-09-12-roadmap-completion/evidence/u12-red-20260917.json openspec/planning/2026-09-12-roadmap-completion/evidence/u12-local-20260917.json",
+      "argv": [
+        "cmd.exe",
+        "/d",
+        "/s",
+        "/c",
+        "npx oxfmt --check --threads 2 --ignore-path .gitignore scripts/qc/guard-node-modules-link.mjs scripts/__tests__/guard-node-modules-link.test.ts package.json openspec/planning/2026-09-12-roadmap-completion/evidence/u12-admission-20260917.json openspec/planning/2026-09-12-roadmap-completion/evidence/u12-red-20260917.json openspec/planning/2026-09-12-roadmap-completion/evidence/u12-local-20260917.json"
+      ],
+      "exitCode": 0,
+      "lastLine": "Finished in 92ms on 6 files using 2 threads.",
+      "output": "Checking formatting...\n\nAll matched files use the correct format.\nFinished in 92ms on 6 files using 2 threads."
+    },
+    "diffCheck": {
+      "command": "git diff --check",
+      "argv": ["git", "diff", "--check"],
+      "exitCode": 0,
+      "lastLine": "",
+      "output": ""
+    }
+  },
+  "preMutantSha256": "4b399328545e80f8b436fa7a63f8b2c5dd06730ca39558d1de1adcb4716f5d53",
+  "mutants": [
+    {
+      "id": "M1",
+      "description": "Allow linked node_modules",
+      "before": "if (actualPath !== expectedPath) {",
+      "after": "if (actualPath !== expectedPath) return { verdict: 'ALLOW' };\n  if (actualPath !== expectedPath) {",
+      "sha256": "025b8239d417b2be5163499102a534ef7e06a78f59383a848d0ea8cf62919885",
+      "caught": true,
+      "failedAssertions": [
+        "  ● install target realpath guard › refuses linked node_modules and reports both real paths",
+        "  ● install target realpath guard › CLI refuses linked node_modules with paths and exits one"
+      ],
+      "command": "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe node_modules/jest/bin/jest.js --selectProjects unit --runInBand --no-cache --runTestsByPath scripts/__tests__/guard-node-modules-link.test.ts",
+      "argv": [
+        "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+        "node_modules/jest/bin/jest.js",
+        "--selectProjects",
+        "unit",
+        "--runInBand",
+        "--no-cache",
+        "--runTestsByPath",
+        "scripts/__tests__/guard-node-modules-link.test.ts"
+      ],
+      "exitCode": 1,
+      "lastLine": "Ran all test suites within paths \"scripts/__tests__/guard-node-modules-link.test.ts\".",
+      "output": "Running one project: unit\nFAIL unit scripts/__tests__/guard-node-modules-link.test.ts\n  install target realpath guard\n    √ allows absent node_modules in a fresh checkout (49 ms)\n    √ allows a real node_modules directory restored from cache (45 ms)\n    × refuses linked node_modules and reports both real paths (46 ms)\n    √ allows cwd reached through a junction with local node_modules (45 ms)\n    √ refuses a manifest in a different real directory (48 ms)\n    √ CLI prints INSTALL_ALLOWED and exits zero (43 ms)\n    × CLI refuses linked node_modules with paths and exits one (45 ms)\n    √ CLI defaults to the manifest beside its own repository, not cwd (44 ms)\n    √ wires preinstall to the exact guard command (2 ms)\n    √ keeps only the pre-existing postinstall failure suppression (3 ms)\n\n  ● install target realpath guard › refuses linked node_modules and reports both real paths\n\n    expect(received).toEqual(expected) // deep equality\n\n    - Expected  - 4\n    + Received  + 1\n\n      Object {\n    -   \"actualPath\": \"C:\\\\Users\\\\wroll\\\\AppData\\\\Local\\\\Temp\\\\u12-install-guard-V7WN7W\\\\shared node_modules\",\n    -   \"expectedPath\": \"C:\\\\Users\\\\wroll\\\\AppData\\\\Local\\\\Temp\\\\u12-install-guard-V7WN7W\\\\checkout\\\\node_modules\",\n    -   \"reason\": \"node-modules-is-link\",\n    -   \"verdict\": \"REFUSE\",\n    +   \"verdict\": \"ALLOW\",\n      }\n\n      80 |   it('refuses linked node_modules and reports both real paths', () => {\n      81 |     const actualPath = linkModules();\n    > 82 |     expect(inspect()).toEqual({\n         |                       ^\n      83 |       verdict: 'REFUSE',\n      84 |       reason: 'node-modules-is-link',\n      85 |       expectedPath: path.join(fs.realpathSync(cwd), 'node_modules'),\n\n      at Object.toEqual (scripts/__tests__/guard-node-modules-link.test.ts:82:23)\n\n  ● install target realpath guard › CLI refuses linked node_modules with paths and exits one\n\n    expect(received).toBe(expected) // Object.is equality\n\n    Expected: \"INSTALL_REFUSED node-modules-is-link {\\\"expectedPath\\\":\\\"C:\\\\\\\\Users\\\\\\\\wroll\\\\\\\\AppData\\\\\\\\Local\\\\\\\\Temp\\\\\\\\u12-install-guard-J23N85\\\\\\\\checkout\\\\\\\\node_modules\\\",\\\"actualPath\\\":\\\"C:\\\\\\\\Users\\\\\\\\wroll\\\\\\\\AppData\\\\\\\\Local\\\\\\\\Temp\\\\\\\\u12-install-guard-J23N85\\\\\\\\shared node_modules\\\"}\"\n    Received: \"INSTALL_ALLOWED\"\n\n      119 |     const actualPath = linkModules();\n      120 |     const result = cli();\n    > 121 |     expect(result.stdout.split(/\\r?\\n/)[0]).toBe(\n          |                                             ^\n      122 |       `INSTALL_REFUSED node-modules-is-link ${JSON.stringify({\n      123 |         expectedPath: path.join(fs.realpathSync(cwd), 'node_modules'),\n      124 |         actualPath,\n\n      at Object.toBe (scripts/__tests__/guard-node-modules-link.test.ts:121:45)\n\nTest Suites: 1 failed, 1 total\nTests:       2 failed, 8 passed, 10 total\nSnapshots:   0 total\nTime:        1.033 s\nRan all test suites within paths \"scripts/__tests__/guard-node-modules-link.test.ts\".",
+      "restoredSha256": "4b399328545e80f8b436fa7a63f8b2c5dd06730ca39558d1de1adcb4716f5d53"
+    },
+    {
+      "id": "M2",
+      "description": "Drop manifest-outside-cwd refusal",
+      "before": "if (manifestDirectory !== realCwd) {",
+      "after": "if (false) {",
+      "sha256": "0747172dd06c0a3da4d9cc18d07d6e93822e41bcca4dcc7fcb3d51dcdb88b1fd",
+      "caught": true,
+      "failedAssertions": [
+        "  ● install target realpath guard › refuses a manifest in a different real directory",
+        "  ● install target realpath guard › CLI defaults to the manifest beside its own repository, not cwd"
+      ],
+      "command": "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe node_modules/jest/bin/jest.js --selectProjects unit --runInBand --no-cache --runTestsByPath scripts/__tests__/guard-node-modules-link.test.ts",
+      "argv": [
+        "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+        "node_modules/jest/bin/jest.js",
+        "--selectProjects",
+        "unit",
+        "--runInBand",
+        "--no-cache",
+        "--runTestsByPath",
+        "scripts/__tests__/guard-node-modules-link.test.ts"
+      ],
+      "exitCode": 1,
+      "lastLine": "Ran all test suites within paths \"scripts/__tests__/guard-node-modules-link.test.ts\".",
+      "output": "Running one project: unit\nFAIL unit scripts/__tests__/guard-node-modules-link.test.ts\n  install target realpath guard\n    √ allows absent node_modules in a fresh checkout (49 ms)\n    √ allows a real node_modules directory restored from cache (46 ms)\n    √ refuses linked node_modules and reports both real paths (45 ms)\n    √ allows cwd reached through a junction with local node_modules (48 ms)\n    × refuses a manifest in a different real directory (48 ms)\n    √ CLI prints INSTALL_ALLOWED and exits zero (43 ms)\n    √ CLI refuses linked node_modules with paths and exits one (46 ms)\n    × CLI defaults to the manifest beside its own repository, not cwd (46 ms)\n    √ wires preinstall to the exact guard command (2 ms)\n    √ keeps only the pre-existing postinstall failure suppression (3 ms)\n\n  ● install target realpath guard › refuses a manifest in a different real directory\n\n    expect(received).toEqual(expected) // deep equality\n\n    - Expected  - 4\n    + Received  + 1\n\n      Object {\n    -   \"actualPath\": \"C:\\\\Users\\\\wroll\\\\AppData\\\\Local\\\\Temp\\\\u12-install-guard-NkZdMx\",\n    -   \"expectedPath\": \"C:\\\\Users\\\\wroll\\\\AppData\\\\Local\\\\Temp\\\\u12-install-guard-NkZdMx\\\\checkout\",\n    -   \"reason\": \"manifest-outside-cwd\",\n    -   \"verdict\": \"REFUSE\",\n    +   \"verdict\": \"ALLOW\",\n      }\n\n      101 |     const otherManifest = path.join(fixtureRoot, 'package.json');\n      102 |     fs.writeFileSync(otherManifest, '{}');\n    > 103 |     expect(inspect(cwd, otherManifest)).toEqual({\n          |                                         ^\n      104 |       verdict: 'REFUSE',\n      105 |       reason: 'manifest-outside-cwd',\n      106 |       expectedPath: fs.realpathSync(cwd),\n\n      at Object.toEqual (scripts/__tests__/guard-node-modules-link.test.ts:103:41)\n\n  ● install target realpath guard › CLI defaults to the manifest beside its own repository, not cwd\n\n    expect(received).toBe(expected) // Object.is equality\n\n    Expected: \"INSTALL_REFUSED manifest-outside-cwd {\\\"expectedPath\\\":\\\"C:\\\\\\\\Users\\\\\\\\wroll\\\\\\\\AppData\\\\\\\\Local\\\\\\\\Temp\\\\\\\\u12-install-guard-VfUoB5\\\\\\\\checkout\\\",\\\"actualPath\\\":\\\"E:\\\\\\\\Projects\\\\\\\\MekStation\\\\\\\\.sisyphus\\\\\\\\roadmap-completion-20260912\\\\\\\\worktrees\\\\\\\\u12\\\"}\"\n    Received: \"INSTALL_ALLOWED\"\n\n      132 |     fs.mkdirSync(path.join(cwd, 'node_modules'));\n      133 |     const result = cli([]);\n    > 134 |     expect(result.stdout.split(/\\r?\\n/)[0]).toBe(\n          |                                             ^\n      135 |       `INSTALL_REFUSED manifest-outside-cwd ${JSON.stringify({\n      136 |         expectedPath: fs.realpathSync(cwd),\n      137 |         actualPath: path.dirname(fs.realpathSync(packagePath)),\n\n      at Object.toBe (scripts/__tests__/guard-node-modules-link.test.ts:134:45)\n\nTest Suites: 1 failed, 1 total\nTests:       2 failed, 8 passed, 10 total\nSnapshots:   0 total\nTime:        1.033 s\nRan all test suites within paths \"scripts/__tests__/guard-node-modules-link.test.ts\".",
+      "restoredSha256": "4b399328545e80f8b436fa7a63f8b2c5dd06730ca39558d1de1adcb4716f5d53"
+    },
+    {
+      "id": "M3",
+      "description": "Exit zero on REFUSE",
+      "before": "process.exitCode = 1;",
+      "after": "process.exitCode = 0;",
+      "sha256": "e99a4d96d6f7031cff8448394ff4850ebb1ae9521f7013374da0db8f6f3aeffd",
+      "caught": true,
+      "failedAssertions": [
+        "  ● install target realpath guard › CLI refuses linked node_modules with paths and exits one",
+        "  ● install target realpath guard › CLI defaults to the manifest beside its own repository, not cwd"
+      ],
+      "command": "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe node_modules/jest/bin/jest.js --selectProjects unit --runInBand --no-cache --runTestsByPath scripts/__tests__/guard-node-modules-link.test.ts",
+      "argv": [
+        "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe",
+        "node_modules/jest/bin/jest.js",
+        "--selectProjects",
+        "unit",
+        "--runInBand",
+        "--no-cache",
+        "--runTestsByPath",
+        "scripts/__tests__/guard-node-modules-link.test.ts"
+      ],
+      "exitCode": 1,
+      "lastLine": "Ran all test suites within paths \"scripts/__tests__/guard-node-modules-link.test.ts\".",
+      "output": "Running one project: unit\nFAIL unit scripts/__tests__/guard-node-modules-link.test.ts\n  install target realpath guard\n    √ allows absent node_modules in a fresh checkout (51 ms)\n    √ allows a real node_modules directory restored from cache (45 ms)\n    √ refuses linked node_modules and reports both real paths (47 ms)\n    √ allows cwd reached through a junction with local node_modules (44 ms)\n    √ refuses a manifest in a different real directory (46 ms)\n    √ CLI prints INSTALL_ALLOWED and exits zero (45 ms)\n    × CLI refuses linked node_modules with paths and exits one (48 ms)\n    × CLI defaults to the manifest beside its own repository, not cwd (45 ms)\n    √ wires preinstall to the exact guard command (3 ms)\n    √ keeps only the pre-existing postinstall failure suppression (2 ms)\n\n  ● install target realpath guard › CLI refuses linked node_modules with paths and exits one\n\n    expect(received).toBe(expected) // Object.is equality\n\n    Expected: 1\n    Received: 0\n\n      125 |       })}`,\n      126 |     );\n    > 127 |     expect(result.status).toBe(1);\n          |                           ^\n      128 |     expect(result.stderr).toBe('');\n      129 |   });\n      130 |\n\n      at Object.toBe (scripts/__tests__/guard-node-modules-link.test.ts:127:27)\n\n  ● install target realpath guard › CLI defaults to the manifest beside its own repository, not cwd\n\n    expect(received).toBe(expected) // Object.is equality\n\n    Expected: 1\n    Received: 0\n\n      138 |       })}`,\n      139 |     );\n    > 140 |     expect(result.status).toBe(1);\n          |                           ^\n      141 |   });\n      142 |\n      143 |   it('wires preinstall to the exact guard command', () => {\n\n      at Object.toBe (scripts/__tests__/guard-node-modules-link.test.ts:140:27)\n\nTest Suites: 1 failed, 1 total\nTests:       2 failed, 8 passed, 10 total\nSnapshots:   0 total\nTime:        1.022 s\nRan all test suites within paths \"scripts/__tests__/guard-node-modules-link.test.ts\".",
+      "restoredSha256": "4b399328545e80f8b436fa7a63f8b2c5dd06730ca39558d1de1adcb4716f5d53"
+    }
+  ],
+  "restoredSha256": "4b399328545e80f8b436fa7a63f8b2c5dd06730ca39558d1de1adcb4716f5d53",
+  "restoredHashMatches": true,
+  "baseline": "21c6b5db68492726843f4bd813f4ae450ec1dbec",
+  "worktree": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\u12",
+  "branch": "codex/roadmap-u12-junction-guard-20260917",
+  "implementerModel": "codex gpt-6 (codex exec, sandbox bypassed)",
+  "node": "v22.22.0",
+  "status": "BLOCKED",
+  "blocker": "Installed npm 11.6.2 invokes root preinstall after dependency mutation: ci.js removes node_modules contents at lines 86-98 and calls arb.reify at line 100 before preinstall at 106; install.js calls arb.reify at line 150 before preinstall at 154. The charter-mandated hook cannot establish prevention of linked-directory pruning. All specified local guard tests and gates pass; parent must resolve the install entry-point design before accepting the safety claim.",
+  "nonClaims": [
+    "POSIX symlink branch not exercised on this Windows machine.",
+    "Windows junctions exercised; Windows symbolic links were not separately exercised.",
+    "The guard cannot stop an npm invoked with --prefix pointing elsewhere.",
+    "Existing postinstall || true untouched; prepare and every other pre-existing script unchanged.",
+    "No npm install, npm ci, npm prune, install lifecycle, build or Playwright was run. Direct CLI runs prove guard verdicts, not npm pruning prevention.",
+    "Repository tsc excludes scripts/**/*; oxlint ignores **/scripts/** and checked zero files. Neither is static type/lint proof of the guard or its test.",
+    "No commit, push, stash, amend, ledger edit, task checkbox edit, or root checkout write was performed; review, merge and main proof remain outside this implementer lane."
+  ],
+  "findingsReportedNotFixed": [
+    {
+      "id": "F1",
+      "severity": "BLOCKER",
+      "finding": "Installed npm 11.6.2 invokes root preinstall after dependency mutation: ci.js removes node_modules contents at lines 86-98 and calls arb.reify at line 100 before preinstall at 106; install.js calls arb.reify at line 150 before preinstall at 154. The charter-mandated hook cannot establish prevention of linked-directory pruning. All specified local guard tests and gates pass; parent must resolve the install entry-point design before accepting the safety claim.",
+      "npmVersion": "11.6.2",
+      "evidenceKind": "read-only inspection of the installed runtime source; no installation experiment",
+      "sources": [
+        {
+          "file": "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node_modules\\npm\\lib\\commands\\ci.js",
+          "sha256": "bcfc4af77f38db1caf32aa29d77e968a35620657bc1ea3dca6ec6f723d78d3cf",
+          "firstLine": 79,
+          "lastLine": 123,
+          "excerpt": "79:     const dryRun = this.npm.config.get('dry-run')\n80:     if (!dryRun) {\n81:       const workspacePaths = await getWorkspaces([], {\n82:         path: this.npm.localPrefix,\n83:         includeWorkspaceRoot: true,\n84:       })\n85: \n86:       // Only remove node_modules after we've successfully loaded the virtual\n87:       // tree and validated the lockfile\n88:       await time.start('npm-ci:rm', async () => {\n89:         return await Promise.all([...workspacePaths.values()].map(async modulePath => {\n90:           const fullPath = path.join(modulePath, 'node_modules')\n91:           // get the list of entries so we can skip the glob for performance\n92:           const entries = await fs.readdir(fullPath, null).catch(() => [])\n93:           return Promise.all(entries.map(folder => {\n94:             return fs.rm(path.join(fullPath, folder), { force: true, recursive: true })\n95:           }))\n96:         }))\n97:       })\n98:     }\n99: \n100:     await arb.reify(opts)\n101: \n102:     const ignoreScripts = this.npm.config.get('ignore-scripts')\n103:     // run the same set of scripts that `npm install` runs.\n104:     if (!ignoreScripts) {\n105:       const scripts = [\n106:         'preinstall',\n107:         'install',\n108:         'postinstall',\n109:         'prepublish', // XXX should we remove this finally??\n110:         'preprepare',\n111:         'prepare',\n112:         'postprepare',\n113:       ]\n114:       const scriptShell = this.npm.config.get('script-shell') || undefined\n115:       for (const event of scripts) {\n116:         await runScript({\n117:           path: where,\n118:           args: [],\n119:           scriptShell,\n120:           stdio: 'inherit',\n121:           event,\n122:         })\n123:       }"
+        },
+        {
+          "file": "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node_modules\\npm\\lib\\commands\\install.js",
+          "sha256": "4440b321104d54325020c76eec77fa2fabecf07079217762d85436c789a77496",
+          "firstLine": 145,
+          "lastLine": 171,
+          "excerpt": "145:       path: where,\n146:       add: args,\n147:       workspaces: this.workspaceNames,\n148:     }\n149:     const arb = new Arborist(opts)\n150:     await arb.reify(opts)\n151: \n152:     if (!args.length && !isGlobalInstall && !ignoreScripts) {\n153:       const scripts = [\n154:         'preinstall',\n155:         'install',\n156:         'postinstall',\n157:         'prepublish', // XXX(npm9) should we remove this finally??\n158:         'preprepare',\n159:         'prepare',\n160:         'postprepare',\n161:       ]\n162:       for (const event of scripts) {\n163:         await runScript({\n164:           path: where,\n165:           args: [],\n166:           scriptShell,\n167:           stdio: 'inherit',\n168:           event,\n169:         })\n170:       }\n171:     }"
+        }
+      ]
+    },
+    {
+      "id": "F2",
+      "finding": "release.yml has four npm ci invocations; lines 128 and 232 run in desktop, lines 123 and 227 in checkout root. Desktop has its own manifest and is not wired to this root guard. Full workflow grep captured in admission."
+    },
+    {
+      "id": "F3",
+      "finding": ".oxlintrc.json line 30 ignores **/scripts/**; oxlint success is vacuous (0 files). tsconfig.json excludes scripts/**/*; tsc is repository-level only."
+    }
+  ],
+  "finalContentSha256": {
+    "scripts/qc/guard-node-modules-link.mjs": "4b399328545e80f8b436fa7a63f8b2c5dd06730ca39558d1de1adcb4716f5d53",
+    "scripts/__tests__/guard-node-modules-link.test.ts": "4367bb596bc873be72a88e8ec1b3abdff25e17b23cbd87a8a15a8986ab8a4fe1",
+    "package.json": "300119e05d2e701d3fca0bc69805a31ad42a7cc56d904ee5422395e61ec9f755"
+  },
+  "preExistingPackageFieldsUnchanged": true,
+  "verificationScope": {
+    "moduleLines": "JSDoc discriminated union and direct native Node ESM fixtures",
+    "fileLimit": 15,
+    "productLineLimit": 500,
+    "testCount": 10,
+    "temporaryEvidenceRunnerRemovedBeforeHandoff": true
+  },
+  "lineCounts": {
+    "scripts/qc/guard-node-modules-link.mjs": {
+      "category": "product",
+      "total": 78,
+      "changed": 78
+    },
+    "scripts/__tests__/guard-node-modules-link.test.ts": {
+      "category": "test",
+      "total": 164,
+      "changed": 164
+    },
+    "package.json": {
+      "category": "product",
+      "total": 343,
+      "changed": 1
+    },
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u12-admission-20260917.json": {
+      "category": "receipt",
+      "total": 90,
+      "changed": 90
+    },
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u12-red-20260917.json": {
+      "category": "receipt",
+      "total": 37,
+      "changed": 37
+    },
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u12-local-20260917.json": {
+      "category": "receipt",
+      "total": 329,
+      "changed": 329
+    }
+  },
+  "evidenceHarnessCorrections": [
+    "Temporary receipt helper had an extra closing brace on its first finalize invocation; Node rejected it before any target command ran; removed the brace.",
+    "Formatting only receipts with default ignores exited 2: Expected at least one target file. .prettierignore excludes openspec/. Retained the default check and added an explicit six-file check with --ignore-path .gitignore."
+  ],
+  "productAndTestLines": 243,
+  "productChangedLines": 79,
+  "nonGeneratedLineCountNote": "Counts all lines, including comments and blanks. package.json contributes its one added line, not the existing full file.",
+  "finalGitStatus": {
+    "command": "git status --short",
+    "argv": ["git", "status", "--short"],
+    "exitCode": 0,
+    "lastLine": "?? scripts/qc/guard-node-modules-link.mjs",
+    "output": " M package.json\n?? openspec/planning/2026-09-12-roadmap-completion/evidence/u12-admission-20260917.json\n?? openspec/planning/2026-09-12-roadmap-completion/evidence/u12-local-20260917.json\n?? openspec/planning/2026-09-12-roadmap-completion/evidence/u12-red-20260917.json\n?? scripts/__tests__/guard-node-modules-link.test.ts\n?? scripts/qc/guard-node-modules-link.mjs"
+  }
+}

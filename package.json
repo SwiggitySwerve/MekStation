@@ -109,6 +109,7 @@
     "package:docker": "npm run docker:build",
     "package:desktop": "npm run electron:dist:all",
     "prepare": "husky",
+    "preinstall": "node scripts/qc/guard-node-modules-link.mjs",
     "postinstall": "node scripts/mm-data/check-assets.js || true",
     "validate:assets": "npx tsx scripts/mm-data/validate-assets.ts",
     "validate:assets:strict": "npx tsx scripts/mm-data/validate-assets.ts --strict",
