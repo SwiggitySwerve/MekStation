@@ -1,0 +1,218 @@
+{
+  "unit": "U9",
+  "stage": "admission",
+  "at": "2026-09-17T12:29:27.317Z",
+  "baseline": "fd71b9d7cd6579b1db7fe62995e4436318f0df67",
+  "baselineCheck": "git rev-parse origin/main == git rev-parse HEAD == the charter baseline; git log --oneline -1 origin/main = 'fd71b9d7c docs(roadmap): U14 closure, admission through tick, unit complete (#1812)'",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u9",
+  "branch": "codex/roadmap-u9-exact-main-ladder-20260917",
+  "node": "R6.loop-harness",
+  "implementerModel": "claude-opus (Agent lane; codex, grok CLI and cursor-agent routes exhausted on 2026-09-17)",
+  "admissibility": {
+    "nextCommand": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "nextOutput": "U4",
+    "nextExitCode": 0,
+    "note": "--next printed U4, which is in flight and awaiting the owner ruling recorded against it (second council section C item 2 directs U4 to be set 'implementing' while a lane runs; it still reads 'planned' in units.json at this baseline). U9 is the next PLANNED unit on R6.loop-harness that needs no ruling now that U14 is 'complete'; its ownerGate is null and its node has no dependsOn.",
+    "validatorNoArgs": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+    "validatorNoArgsExitCode": 0,
+    "pathSerialisation": "U9/U11/U12/U13/U14 share scripts/qc, scripts/__tests__ and package.json and run one at a time (second council C6). At this baseline U11 and U14 are 'complete', U12 is 'blocked', U13 is 'planned' and not started, so no in-flight unit holds a U9 path."
+  },
+  "registryAsRead": {
+    "source": "scripts/qc/gm-two-player-campaign-core.cjs (read-only; not modified by this unit)",
+    "readVia": "require of scripts/qc/gm-two-player-campaign-core.cjs -> REGISTERED_GROUPS, buildRunPlan",
+    "registeredGroupCount": 34,
+    "registeredGroups": [
+      "fixture-smoke",
+      "membership-smoke",
+      "evidence-smoke",
+      "fault-smoke",
+      "smoke",
+      "authority-pack1",
+      "exactly-once-pack",
+      "fault-pack",
+      "token-pack",
+      "restart-pack",
+      "resilience-pack",
+      "authority-order",
+      "authority-recovery",
+      "privacy-pack",
+      "proposal-pack",
+      "three-context-pack",
+      "two-device-pack",
+      "authority",
+      "visibility",
+      "combat-pack1",
+      "rewind-pack",
+      "combat",
+      "campaign",
+      "failure",
+      "performance",
+      "cleanup-ownership",
+      "backpressure",
+      "lifecycle-pack",
+      "conflict-pack",
+      "all",
+      "traceability",
+      "quality",
+      "manual-setup",
+      "scope"
+    ],
+    "smokeSubsetSpecs": [
+      "e2e/gm-two-player-fixture.smoke.spec.ts",
+      "e2e/gm-two-player-membership.smoke.spec.ts"
+    ],
+    "fixtureSmokeSpecs": ["e2e/gm-two-player-fixture.smoke.spec.ts"],
+    "membershipSmokeSpecs": ["e2e/gm-two-player-membership.smoke.spec.ts"],
+    "howSpecsWereRead": "buildRunPlan({ group, runId: 'probe', repoRoot }) and filtering plan.args for entries starting with e2e/. SPEC_BY_GROUP itself is NOT exported (see findings F1), so the contract never lists specs and reads only group NAMES."
+  },
+  "milestoneForThisBaseline": {
+    "resolved": "strict-smoke",
+    "why": "MILESTONE_LADDER's highest milestone is strict-smoke, whose required group is smoke; smoke exists in REGISTERED_GROUPS at this baseline, so the ladder resolves to the top rung.",
+    "ladder": [
+      { "milestone": "fixture-isolation", "groups": ["fixture-smoke"] },
+      { "milestone": "membership", "groups": ["membership-smoke"] },
+      { "milestone": "strict-smoke", "groups": ["smoke"] }
+    ],
+    "e2e80Source": "openspec/changes/harden-gm-two-player-campaign-sessions/specs/e2e-testing/spec.md, scenario 'E2E-80 major merges trigger exact-main regression': 'fixture isolation before durable role admission, membership after GM/P1/P2 roles land, and the evolving strict smoke subset thereafter'."
+  },
+  "mainProofCoverageOnMain": {
+    "method": "Every openspec/planning/2026-09-12-roadmap-completion/evidence/u*-mainproof-*.json read at this baseline; runtime.playwright split into lines and matched with the parser this unit will ship (a group token at line start followed by a colon, then 'N passed' / 'N failed' anywhere in the remainder).",
+    "rows": [
+      {
+        "receipt": "u0-mainproof-20260916.json",
+        "mergeCommit": "66fe4303905ccf347b894d7d8e648caca7e07d07",
+        "verdict": "PASS",
+        "groups": [],
+        "note": "no runtime.playwright field"
+      },
+      {
+        "receipt": "u1-mainproof-20260916.json",
+        "mergeCommit": "6a358383e2531735190dabbdbc23632779a1a5f7",
+        "verdict": "PASS",
+        "groups": [],
+        "note": "runtime.playwright is '  1 passed (30.8s)' - no group prefix, so it yields no groups and can never be counted as coverage"
+      },
+      {
+        "receipt": "u11-mainproof-20260917.json",
+        "mergeCommit": "03dbdbf317369c1a52adde6ef890db8258bb6906",
+        "verdict": "PASS",
+        "groups": [],
+        "note": "runtime.playwright is a jest line ('jest machine-idle pin: Tests: 62 passed, 62 total'); the group token may not contain spaces, so it yields no groups"
+      },
+      {
+        "receipt": "u14-mainproof-20260917.json",
+        "mergeCommit": "724fcd0b42d4892ee94831ed4e7441dacd22e60f",
+        "verdict": "PASS",
+        "groups": [],
+        "note": "jest line, same as U11"
+      },
+      {
+        "receipt": "u1b-mainproof-20260916.json",
+        "mergeCommit": "ffc427a0850db3a7149a6720cc3d71ab99a0f6b1",
+        "verdict": "PASS",
+        "groups": [{ "group": "evidence-smoke", "passed": 1, "failed": 0 }]
+      },
+      {
+        "receipt": "u1c-mainproof-20260916.json",
+        "mergeCommit": "22fe4a5547ce70e0a72a4837ab9897ba7d2ceda3",
+        "verdict": "PASS",
+        "groups": [{ "group": "lifecycle-pack", "passed": 1, "failed": 0 }]
+      },
+      {
+        "receipt": "u1d-mainproof-20260916.json",
+        "mergeCommit": "843d70c79319d0abaa411522f4e7d99f723ea158",
+        "verdict": "PASS",
+        "groups": [{ "group": "conflict-pack", "passed": 1, "failed": 0 }]
+      },
+      {
+        "receipt": "u1e-mainproof-20260916.json",
+        "mergeCommit": "8a7a4419d1d9bc5cae00d8100d92110ecb87fcce",
+        "verdict": "PASS",
+        "groups": [{ "group": "lifecycle-pack", "passed": 2, "failed": 0 }]
+      },
+      {
+        "receipt": "u3-mainproof-20260917.json",
+        "mergeCommit": "e3fc54384d1eca5ec4b3547a45276e50dd6c4b7e",
+        "verdict": "PASS",
+        "groups": [{ "group": "authority", "passed": 17, "failed": 3 }],
+        "note": "failed > 0, so this receipt is NOT coverage for authority under the contract even at its own merge commit"
+      },
+      {
+        "receipt": "u6-mainproof-20260917.json",
+        "mergeCommit": "4139f39e746cb2d0bb1aafbf5cea8ea9c4b48544",
+        "verdict": "PASS",
+        "groups": [{ "group": "token-pack", "passed": 2, "failed": 0 }]
+      },
+      {
+        "receipt": "u7-mainproof-20260917.json",
+        "mergeCommit": "d701f63a8b0ab37ce38a57ff832823e13e1b187b",
+        "verdict": "PASS",
+        "groups": [{ "group": "conflict-pack", "passed": 2, "failed": 0 }]
+      }
+    ],
+    "consequenceForTheParent": "NO main-proof receipt on main has ever run smoke, fixture-smoke or membership-smoke. Groups actually proved on some main commit: evidence-smoke, lifecycle-pack, conflict-pack, token-pack (all 0 failed) and authority (3 failed). The milestone this baseline resolves to is strict-smoke, whose required group is smoke, so the contract reads MISSING at this baseline and at every merge commit in the ledger. The main proof for U9 itself must run --group=smoke on the merge commit if the parent wants the first SATISFIED reading; nothing in this unit can manufacture it."
+  },
+  "design": {
+    "newFiles": [
+      "scripts/qc/validate-exact-main-regression-ladder.mjs",
+      "scripts/__tests__/validate-exact-main-regression-ladder.test.ts"
+    ],
+    "editedFiles": ["package.json (one added script line: qc:exact-main-ladder)"],
+    "exports": [
+      "MILESTONE_LADDER - frozen [{ milestone, groups }] in E2E-80 order",
+      "resolveMilestone({ registeredGroups }) - highest milestone all of whose groups exist in the registry; null when none do",
+      "parseReceiptGroups(receipt) - [{ group, passed, failed }] from a loop main-proof receipt's runtime.playwright, or straight from this contract's own archive receipt's groups array; anything unparseable yields []",
+      "evaluateExactMain({ sha, milestone, receipts }) - { verdict, sha, milestone, required, covered, missing }; a group is covered only by a receipt whose mergeCommit (or sha) equals the sha exactly, whose verdict is PASS, with failed === 0 and passed > 0 for that group",
+      "runExactMainLadder(options) - the CLI body, with runnerCommand and idleWait injectable so the pin can exercise the rerun branch without launching Playwright"
+    ],
+    "cliContract": "node scripts/qc/validate-exact-main-regression-ladder.mjs [--sha <40-hex>] [--evidence-dir <dir>] [--archive-dir <dir>] [--rerun]; prints EXACT_MAIN_LADDER_SATISFIED <sha> milestone=<m> groups=<a,b> (exit 0), EXACT_MAIN_LADDER_MISSING <sha> milestone=<m> missing=<a,b> (exit 1), or EXACT_MAIN_LADDER_REFUSED head-mismatch <head> (exit 2) when --rerun is asked for at a head that is not the sha.",
+    "defaults": {
+      "sha": "git fetch, then git rev-parse origin/main",
+      "evidenceDir": "openspec/planning/2026-09-12-roadmap-completion/evidence",
+      "archiveDir": ".sisyphus/roadmap-completion-20260912/exact-main-ladder"
+    },
+    "rerunBranch": "refuse on head mismatch -> waitForIdle (imported from scripts/qc/machine-idle.mjs, U11) -> one 'node scripts/qc/run-gm-two-player-campaign.mjs --group=<g>' child per missing group, stdout and stderr teed to a log file under the archive dir -> parse the runner output for the '<group>: N passed' line -> write <archive-dir>/exact-main-ladder-<sha12>-<ISO date>.json -> exit 0 only when every required group is covered."
+  },
+  "estimatePerFile": {
+    "scripts/qc/validate-exact-main-regression-ladder.mjs": "190-240 total lines (roughly 150-190 code, the rest the doc comments this repo's qc modules carry)",
+    "scripts/__tests__/validate-exact-main-regression-ladder.test.ts": "230-290 total lines",
+    "package.json": "1 added line",
+    "estimateTotalNonGenerated": "420-530 lines across the two authored files plus the manifest line",
+    "councilEstimate": "150-250 for module plus pin (second council C5, which names U9 the only real overage risk). This lane's estimate is higher because the pin has thirteen named cases the charter enumerates; if the total exceeds the 500-line cap the overage arithmetic is recorded honestly in the local receipt and no assertion is dropped."
+  },
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "filesPlanned": 3,
+    "source": "units.json U9.caps and roadmap.json R6.loop-harness"
+  },
+  "acceptanceCommands": [
+    "npx jest scripts/__tests__/validate-exact-main-regression-ladder.test.ts",
+    "node scripts/qc/validate-exact-main-regression-ladder.mjs --sha fd71b9d7cd6579b1db7fe62995e4436318f0df67 (check mode only; no --rerun in this lane)",
+    "npx tsc --noEmit",
+    "npx oxfmt --check <changed files>",
+    "npx oxlint <changed files>",
+    "npm run lint:units",
+    "npm run qc:openspec-ci:validate",
+    "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs"
+  ],
+  "findings": {
+    "F1": "SPEC_BY_GROUP is NOT exported from scripts/qc/gm-two-player-campaign-core.cjs. It is a const declared INSIDE buildRunPlan (line 51), together with the AUTHORITY_GROUP_MEMBERS and ALL_GROUP_MEMBERS expansions. U9's behavior sentence in units.json says the contract 'reads the milestone-to-group ladder from SPEC_BY_GROUP'; it cannot, and the charter forbids modifying the core module. The contract therefore names the three milestone groups by their REGISTERED_GROUPS names and never lists specs, so the evolving smoke subset still grows only in buildRunPlan. Reported, not fixed: exporting SPEC_BY_GROUP is a core-module change this unit does not own.",
+    "F2": "The default archive dir .sisyphus/roadmap-completion-20260912/exact-main-ladder is gitignored (git check-ignore -v prints '.gitignore:189:.sisyphus/*'). An archive receipt written there is local-only and never reaches main. The CLI therefore reads BOTH the evidence dir and the archive dir, so a receipt the loop copies into the tracked evidence dir (DELIVERY.md's log-preservation rule) counts as coverage. Enforcing that copy is the loop's job, not this contract's.",
+    "F3": "No main-proof receipt in the ledger has ever run the smoke, fixture-smoke or membership-smoke group, so E2E-80's staged subset has never actually been rerun against an exact main commit. The contract makes that visible; it does not fix it."
+  },
+  "risksForTheParent": [
+    "Enforcement is procedural, exactly as PK-e2e-80-ci-wiring decided: nothing runs this contract automatically. If the loop does not call 'npm run qc:exact-main-ladder' before the next dependent PR, E2E-80's 'SHALL rerun before the next dependent PR' is unenforced. The packet's own consequence text says so.",
+    "The contract reads MISSING at every commit in the ledger today (finding F3). The first SATISFIED reading needs a main proof that runs --group=smoke; if the parent wants U9's own main proof to be that reading, it must add the smoke run to the proof, which costs a real Playwright run.",
+    "Coverage is by receipt text, not by re-execution. A receipt whose runtime.playwright line was mistyped counts (or fails to count) on its spelling alone. The contract fails closed - anything unparseable yields no groups - but it cannot detect a receipt that reports a run that did not happen.",
+    "--rerun is never exercised against the real Playwright ladder in this lane (charter: jest only, no Playwright run). The parent's main proof is the first real exercise of that branch."
+  ],
+  "constraintsObserved": [
+    "npm_config_dry_run=true exported in every shell; no npm install/ci/prune and no npm lifecycle was run.",
+    "The root checkout E:/Projects/MekStation was not touched.",
+    "Nothing committed, pushed, stashed, amended or force-pushed.",
+    "No build, no Playwright run.",
+    "Node 22.22.0 (node -v prints v22.22.0) for every node/npm/npx call."
+  ],
+  "status": "admitted"
+}

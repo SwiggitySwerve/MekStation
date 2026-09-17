@@ -1,0 +1,128 @@
+{
+  "unit": "U9",
+  "stage": "red",
+  "at": "2026-09-17T12:47:00Z",
+  "baseline": "fd71b9d7cd6579b1db7fe62995e4436318f0df67",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u9",
+  "branch": "codex/roadmap-u9-exact-main-ladder-20260917",
+  "node": "R6.loop-harness",
+  "implementerModel": "claude-opus (Agent lane; codex, grok CLI and cursor-agent routes exhausted on 2026-09-17)",
+  "pin": "scripts/__tests__/validate-exact-main-regression-ladder.test.ts, written BEFORE any implementation file existed; 23 cases across 6 describes.",
+  "command": "npx jest scripts/__tests__/validate-exact-main-regression-ladder.test.ts",
+  "runs": [
+    {
+      "id": "R1",
+      "state": "no module at all - scripts/qc/validate-exact-main-regression-ladder.mjs did not exist",
+      "summaryLine": "Tests:       23 failed, 23 total",
+      "suiteLine": "Test Suites: 1 failed, 1 total",
+      "exitCode": 1,
+      "failureCause": "Every case failed on the same import error, quoted verbatim from the run: \"Error [ERR_MODULE_NOT_FOUND]: Cannot find module 'E:\\\\Projects\\\\MekStation\\\\.sisyphus\\\\roadmap-completion-20260912\\\\worktrees\\\\u9\\\\scripts\\\\qc\\\\validate-exact-main-regression-ladder.mjs' imported from ...[eval1]\". The package-script case failed separately with Expected \"node scripts/qc/validate-exact-main-regression-ladder.mjs\" / Received undefined, because package.json had not been touched."
+    },
+    {
+      "id": "R2",
+      "state": "stub v1 - evaluateExactMain always returns SATISFIED, parseReceiptGroups returns every REGISTERED_GROUPS name as 1 passed / 0 failed, resolveMilestone always returns strict-smoke, runExactMainLadder always returns exit 0 with a SATISFIED line, and the CLI body ran at the TOP LEVEL of the module (no import.meta.url guard)",
+      "summaryLine": "Tests:       22 failed, 1 passed, 23 total",
+      "exitCode": 1,
+      "failureCause": "The unguarded CLI is the dominant cause: importing the module for a pure-function assertion printed EXACT_MAIN_LADDER_SATISFIED to stdout, so the harness's JSON envelope was corrupted and every harness-driven case failed with \"SyntaxError: Unexpected token 'E', \\\"EXACT_MAIN\\\"... is not valid JSON\". Even the two cases the stub's semantics would have satisfied (the ladder group names, resolveMilestone on the real registry) failed for this reason.",
+      "lessonForTheImplementation": "This is a real defect the red stage caught before the implementation existed: the contract MUST guard its CLI behind the `path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)` check that scripts/qc/machine-idle.mjs and scripts/qc/lint-units.mjs already use, or importing it emits output. The shipped module carries that guard."
+    },
+    {
+      "id": "R3",
+      "state": "stub v2 - identical semantics to v1, CLI body moved behind the import.meta.url guard so the stub's SEMANTIC gaps are the only thing left failing",
+      "summaryLine": "Tests:       19 failed, 4 passed, 23 total",
+      "suiteLine": "Test Suites: 1 failed, 1 total",
+      "exitCode": 1,
+      "passed": [
+        "milestone > names only groups the ladder runner actually registers (the stub's MILESTONE_LADDER is already the real one)",
+        "milestone > resolves the real registry to the strict smoke milestone (the stub returns strict-smoke unconditionally, which happens to be right for the real registry - the two degraded-registry cases are what distinguish a real resolver from this)",
+        "coverage rule > is satisfied by a passing receipt on the exact sha (always-SATISFIED is right in exactly this one case)",
+        "CLI > prints SATISFIED and exits 0 when the evidence covers the sha (same reason)"
+      ],
+      "failed": [
+        {
+          "case": "milestone > falls back to membership on a registry with no smoke group",
+          "why": "Expected \"membership\", Received \"strict-smoke\". resolveMilestone ignores the registry."
+        },
+        {
+          "case": "milestone > falls back to fixture isolation with no membership-smoke either",
+          "why": "Expected \"fixture-isolation\", Received \"strict-smoke\". Same cause."
+        },
+        {
+          "case": "receipt parsing > reads the U7 main-proof receipt as conflict-pack 2 passed 0 failed",
+          "why": "Expected 1 row, received 34 - the stub returns every registered group. Jest's diff header reads \"- Expected - 1 / + Received + 166\"."
+        },
+        {
+          "case": "receipt parsing > reads the U3 main-proof receipt as authority 17 passed 3 failed",
+          "why": "Same: 34 fabricated rows instead of the one real row, and every fabricated row claims 0 failed."
+        },
+        {
+          "case": "receipt parsing > yields no groups for a runtime line that names no group",
+          "why": "The real u1-mainproof receipt's runtime.playwright is '  1 passed (30.8s)' with no group prefix; the stub still returned 34 groups. This is the fail-closed rule the charter states as 'anything unparseable yields no groups (never a pass)'."
+        },
+        {
+          "case": "receipt parsing > yields no groups for an absent or unparseable runtime",
+          "why": "Four shapes ({}, {runtime:{}}, a group line with no count, a jest Tests: line) all returned 34 groups."
+        },
+        {
+          "case": "receipt parsing > reads its own archive receipt groups directly",
+          "why": "An archive receipt carrying groups:[{smoke,2,0}] returned the 34-group fabrication instead."
+        },
+        {
+          "case": "coverage rule > is missing when the sha differs by one character",
+          "why": "Expected verdict MISSING with missing:['smoke']; received the hardcoded SATISFIED object. This is the mutant the contract exists to stop (M1 in the local stage)."
+        },
+        {
+          "case": "coverage rule > is missing when a row failed",
+          "why": "Same hardcoded SATISFIED; 'smoke: 1 failed / 1 passed' must not be coverage (M2 in the local stage)."
+        },
+        {
+          "case": "coverage rule > is missing when nothing passed",
+          "why": "Same; 'smoke:   0 passed (0.2s)' must not be coverage."
+        },
+        {
+          "case": "coverage rule > is missing when the receipt verdict is not PASS",
+          "why": "Same; a receipt whose verdict is FAIL must not be coverage."
+        },
+        {
+          "case": "coverage rule > is missing when the group name differs",
+          "why": "Same; fixture-smoke passing does not cover the strict-smoke milestone's required smoke group."
+        },
+        {
+          "case": "coverage rule > rejects a milestone that is not on the ladder",
+          "why": "Expected the call to throw INVALID_ARGUMENT; the stub returned a value, so the harness reported error undefined and jest printed 'Matcher error: received value must not be null nor undefined'."
+        },
+        {
+          "case": "CLI > prints MISSING and exits 1 when only another sha is covered",
+          "why": "The stub CLI printed EXACT_MAIN_LADDER_SATISFIED and exited 0."
+        },
+        {
+          "case": "CLI > refuses --rerun at a head that is not the sha, and exits 2",
+          "why": "Expected /^EXACT_MAIN_LADDER_REFUSED head-mismatch [0-9a-f]{40}$/; received 'EXACT_MAIN_LADDER_SATISFIED a1b2c3d4e5f60718293a4b5c6d7e8f9012345678 milestone=strict-smoke groups=smoke'. The stub has no head check at all (M3 in the local stage is the CLI-exit-code half of this)."
+        },
+        {
+          "case": "CLI > rejects an argument that is not a 40-hex sha",
+          "why": "'--sha main' was accepted and reported SATISFIED."
+        },
+        {
+          "case": "rerun branch > waits for idle, runs the missing group, and archives the result",
+          "why": "The stub never awaits the injected idleWait, never spawns the injected runner, and writes no archive receipt: idleCalls was 0 and the archive dir stayed empty."
+        },
+        {
+          "case": "rerun branch > stays MISSING and exits 1 when the rerun proves nothing",
+          "why": "A runner that prints no group row must leave the verdict MISSING and exit 1; the stub returned exit 0."
+        },
+        {
+          "case": "package script > is wired as qc:exact-main-ladder",
+          "why": "package.json was deliberately left untouched through the whole red stage: Received undefined."
+        }
+      ]
+    }
+  ],
+  "redEvidenceIsHonest": "No assertion was weakened, skipped or converted to a tolerance between R1 and R3. The only edit between R2 and R3 was moving the stub's CLI body behind the import.meta.url guard, which removed a mechanical stdout collision and exposed the 19 semantic failures underneath. The pin file itself was not edited after R1.",
+  "constraintsObserved": [
+    "npm_config_dry_run=true in every shell; no npm install/ci/prune, no npm lifecycle.",
+    "No build, no Playwright run. The rerun-branch cases inject a four-line fake runner and a no-op idle wait; the real ladder was never launched.",
+    "The root checkout E:/Projects/MekStation was not touched. Nothing committed, pushed or stashed."
+  ],
+  "status": "red-recorded"
+}
