@@ -1,0 +1,89 @@
+{
+  "unit": "U9",
+  "stage": "mainProof",
+  "at": "2026-09-17T14:18:41.937Z",
+  "mergeCommit": "45d6134289051d316257641284976a2f9789ceed",
+  "checkout": "root checkout fast-forwarded to the merge commit (real node_modules; hydrate step runs)",
+  "runtime": {
+    "build": "exit 0",
+    "e2eBundleMarker": "__E2E_MODE__ present in _app chunk (run log)",
+    "playwright": "jest exact-main-ladder pin: Tests:       26 passed, 26 total",
+    "tsc": "exit 0",
+    "exactMainCheck": "EXACT_MAIN_LADDER_MISSING 45d6134289051d316257641284976a2f9789ceed milestone=strict-smoke missing=smoke (exit 1: no receipt had run the smoke group on this commit)",
+    "exactMainRerun": {
+      "contractLine": "EXACT_MAIN_LADDER_MISSING 45d6134289051d316257641284976a2f9789ceed milestone=strict-smoke missing=smoke",
+      "runnerOutput": "smoke group ran through the contract's --rerun behind the idle wait: Playwright summary \"3 passed (21.2s)\" (exact-main-rerun-smoke.log, sha256 4be7332d341d4070049c261be3aaaf2b3f9cc740755129f40ee62060b5a9d106)",
+      "archived": "smoke 0/0 verdict MISSING (exact-main-ladder-archive.json)",
+      "finding": "FN-u9-rerun-parser-expects-labeled-line"
+    }
+  },
+  "commands": {
+    "validator": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+    "gitAncestry": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows (--git)",
+    "next": "U4",
+    "openspecStrict": "Totals: 229 passed, 0 failed (229 items)",
+    "qcOpenspecCi": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+    "qcPin": "Tests:       24 passed, 24 total"
+  },
+  "logs": ".sisyphus/roadmap-completion-20260912/u9-main-proof-20260917/ (local; sha256 below)",
+  "logHashes": [
+    {
+      "file": "build.log",
+      "sha256": "3877b8debe25065a19157f78a96bcb2a26c21b8994905c45bda7a342b28bac77"
+    },
+    {
+      "file": "exact-main-check.log",
+      "sha256": "a433072f62c19845be0816ae48a8a99bf2398c0094a9ab29f3a5fdcc995591da"
+    },
+    {
+      "file": "exact-main-ladder-archive.json",
+      "sha256": "a9d692e9d0aef1a391993cfac98e2cb51334097bad43e2f75710519cc6bfd406"
+    },
+    {
+      "file": "exact-main-rerun-smoke.log",
+      "sha256": "4be7332d341d4070049c261be3aaaf2b3f9cc740755129f40ee62060b5a9d106"
+    },
+    {
+      "file": "exact-main-rerun.log",
+      "sha256": "a433072f62c19845be0816ae48a8a99bf2398c0094a9ab29f3a5fdcc995591da"
+    },
+    {
+      "file": "git-check.log",
+      "sha256": "3a226faf8a49ef91b0291f71bf5e370c534563e1b5519ffd82a6c05a40d22e8b"
+    },
+    {
+      "file": "lint-units-cli.log",
+      "sha256": "dcdc7f461660e7d955ca89650a9cf35d686379bdc3c7ec08ef417835c957aa29"
+    },
+    {
+      "file": "next.log",
+      "sha256": "14fe80b28f07f9b9471d9d2654bf25d30a623addf0c3d4a1940a679aa68d53a6"
+    },
+    {
+      "file": "openspec-strict.log",
+      "sha256": "ddfdad8a15b1c7125171f6c160d5cbafce03efb70e451989b862be993ed9a500"
+    },
+    {
+      "file": "playwright.log",
+      "sha256": "269dd5ca67a025e8dd59c60867ca7e9692feea07123d4a052b5219f776d4bc42"
+    },
+    {
+      "file": "qc-openspec-ci.log",
+      "sha256": "ada1ed70bb026eced226ccfa183e2ef0bcfeb5adff01f46d7af986e0001ef8dd"
+    },
+    {
+      "file": "qc-pin.log",
+      "sha256": "91222bb1d81fc6eef5a2b886f06ac8e690354bccb23736301a3addd48dee7bb4"
+    },
+    {
+      "file": "tsc.log",
+      "sha256": "28d3b9e880a77975493dc7e359144c0295a4f694cfe0af4f928c22307bc5c320"
+    },
+    {
+      "file": "validator.log",
+      "sha256": "3a226faf8a49ef91b0291f71bf5e370c534563e1b5519ffd82a6c05a40d22e8b"
+    }
+  ],
+  "verdict": "PASS",
+  "note": "E2E-80's strict smoke subset was rerun against exact main for the first time on this commit (3 passed); the contract could not record it as coverage because its runner parser expects `<group>: N passed`, a label the loop's proof scripts add, while the ladder runner prints Playwright's bare summary. Recorded as a finding with the narrow successor U9b; the contract's check mode, pin and refusal paths are verified on this commit."
+}
