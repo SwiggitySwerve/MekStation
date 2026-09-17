@@ -1,0 +1,90 @@
+{
+  "unit": "U17b",
+  "stage": "red",
+  "at": "2026-09-17T21:24:00Z",
+  "baseline": "f018e34cc150d9ede58e39a32929c5c9dec7d9b6",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u17b",
+  "implementerModel": "claude-opus (Agent lane; codex, grok CLI and cursor-agent routes exhausted on 2026-09-17)",
+  "order": "the staged pin was restored FIRST and run with the two modules still absent; only then were the modules restored and the four new cases written",
+  "passOne": {
+    "what": "the staged pin alone, with scripts/qc/roadmap-unit-closure.mjs and scripts/qc/roadmap-main-proof.mjs still missing",
+    "command": "npx jest scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+    "lastLine": "Tests:       13 failed, 1 passed, 14 total",
+    "exit": 1,
+    "failureShape": "every failing case received \"Error: Cannot find module 'E:\\\\...\\\\worktrees\\\\u17b\\\\scripts\\\\qc\\\\roadmap-unit-closure.mjs'\" (or roadmap-main-proof.mjs), code MODULE_NOT_FOUND",
+    "theOneThatPassed": {
+      "case": "refuses a review whose verdict is not a plain APPROVE",
+      "why": "it asserts only a non-zero exit and that the unit is still local-verified, and a MODULE_NOT_FOUND satisfies both. Recorded rather than treated as coverage: that case proves the refusal only once the module exists."
+    },
+    "casesInTheStagedFile": 14
+  },
+  "passTwo": {
+    "what": "the two modules restored byte-identically from the staging directory, then the four new cases added",
+    "restoredSha256": {
+      "scripts/qc/roadmap-unit-closure.mjs": "7ec475dee4027dffe2c5a3cc008a36a36282bed7a50d28b86dde0d95dc92be1c",
+      "scripts/qc/roadmap-main-proof.mjs": "82fd00ecd12e1fc202768d504ef777f20f5192db25c52129fb499aa04f591227",
+      "matchesStaging": true
+    },
+    "command": "npx jest scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+    "lastLine": "Tests:       4 failed, 14 passed, 18 total",
+    "exit": 1,
+    "reading": "the 14 staged cases are green against the restored modules; exactly the four new cases fail, each for the reason the finding names"
+  },
+  "newCasesFailing": [
+    {
+      "case": "roadmap-unit-closure > preserves the proof logs even when the verdict is FAIL",
+      "finding": "the preserveRunLogs placement",
+      "failingAssertion": "readJson(path.join(tempLedger,'evidence','u91-logs-20260917.json'))",
+      "output": "ENOENT: no such file or directory, open '...\\openspec\\planning\\u17-pin-DTiUVU\\evidence\\u91-logs-20260917.json'",
+      "why": "the staged closure calls preserveRunLogs only after the mainProof verdict is checked, so a FAIL run refuses with the proof logs unpreserved"
+    },
+    {
+      "case": "roadmap-unit-closure > records the reviewer model the Lane A review names",
+      "finding": "U17 F2",
+      "failingAssertion": "expect(receipt.reviewerModel).toBe(REVIEWER)",
+      "output": "Expected: \"gpt-5.6-luna (Agent model: luna)\"  Received: \"claude-sonnet (Agent model: sonnet)\"",
+      "why": "the staged closure writes the literal REVIEWER_MODEL regardless of what the review markdown says. The seeded review deliberately names a model that is not the literal, so the case cannot pass by coincidence."
+    },
+    {
+      "case": "roadmap-unit-closure > refuses a review that does not name the reviewer model",
+      "finding": "U17 F2",
+      "failingAssertion": "expect(result.status).not.toBe(0)",
+      "output": "Expected: not 0",
+      "why": "with the literal in place a review with no reviewerModel header closes the unit anyway, receipting a model nobody stated"
+    },
+    {
+      "case": "roadmap-unit-closure > refuses --skip-blob-check against the repository's own ledger",
+      "finding": "U17 F3",
+      "failingAssertion": "expect(result.stderr).toContain('--skip-blob-check')",
+      "output": "Received string: \"GIT_FAILED: git rev-parse HEAD: fatal: not a git repository (or any of the parent directories): .git\\n\"",
+      "why": "the staged closure has no gate, so the run walks past the ledger check and dies later on the mirror's missing git repository. The exit is non-zero for the wrong reason, which is what the message assertion catches."
+    }
+  ],
+  "casesStrengthenedNotAdded": [
+    {
+      "case": "roadmap-unit-closure > preserves the proof logs through the U13 helper",
+      "added": "expect(manifest.files.map(e => e.file).sort()).toEqual(fs.readdirSync(proofDir).sort())",
+      "status": "green against the staged module on the PASS path - the count assertion it joins (10 files) was already there; the new line proves the manifest lists the proof directory's OWN files rather than a matching count"
+    }
+  ],
+  "safetyOfTheF3Case": {
+    "rule": "the closure generator is never run against a live ledger",
+    "how": "the case copies roadmap-unit-closure.mjs and the two modules it imports into a throwaway root under os.tmpdir() and gives that root a stub openspec/planning/2026-09-12-roadmap-completion/units.json. The shared library derives DEFAULT_LEDGER_DIR from the script's own location, so inside the mirror the stub is the module's own ledger and the same sameDir comparison runs.",
+    "measured": "the case reads the mirror's units.json before and after and lists its evidence directory afterwards; both assertions (unchanged bytes, empty evidence directory) held in the red run too - the ungated module also wrote nothing there, it simply refused for the wrong reason"
+  },
+  "commandsInOrder": [
+    "cp .sisyphus/roadmap-completion-20260912/u17b-staging/roadmap-loop-closure-proof.test.ts scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+    "npx jest scripts/__tests__/roadmap-loop-closure-proof.test.ts   -> Tests: 13 failed, 1 passed, 14 total (exit 1)",
+    "cp .sisyphus/roadmap-completion-20260912/u17b-staging/roadmap-unit-closure.mjs scripts/qc/roadmap-unit-closure.mjs",
+    "cp .sisyphus/roadmap-completion-20260912/u17b-staging/roadmap-main-proof.mjs scripts/qc/roadmap-main-proof.mjs",
+    "(four new cases written into the pin)",
+    "npx jest scripts/__tests__/roadmap-loop-closure-proof.test.ts   -> Tests: 4 failed, 14 passed, 18 total (exit 1)"
+  ],
+  "environment": {
+    "node": "v22.22.0",
+    "npm_config_dry_run": "true in every shell",
+    "npmInstall": "never run",
+    "build": "never run",
+    "playwright": "never run"
+  }
+}

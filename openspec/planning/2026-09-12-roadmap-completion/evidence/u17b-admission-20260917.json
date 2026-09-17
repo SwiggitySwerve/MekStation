@@ -1,0 +1,204 @@
+{
+  "unit": "U17b",
+  "stage": "admission",
+  "at": "2026-09-17T21:10:39.754Z",
+  "baseline": "f018e34cc150d9ede58e39a32929c5c9dec7d9b6",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u17b",
+  "branch": "codex/roadmap-u17b-closure-proof-generators-20260917",
+  "node": "v22.22.0",
+  "implementerModel": "claude-opus (Agent lane; codex, grok CLI and cursor-agent routes exhausted on 2026-09-17)",
+  "nextOnTheBaseline": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "stdout": "U17b",
+    "exit": 0,
+    "note": "the validator named this unit on the baseline; the admission was not chosen by reading the ledger"
+  },
+  "validatorOnTheBaseline": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+    "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+    "exit": 0
+  },
+  "stagedInventory": {
+    "root": ".sisyphus/roadmap-completion-20260912/u17b-staging/",
+    "readOnly": "carry-over written by the U17 lane; nothing here is on a branch",
+    "files": [
+      {
+        "file": "roadmap-unit-closure.mjs",
+        "lines": 382,
+        "sha256": "7ec475dee4027dffe2c5a3cc008a36a36282bed7a50d28b86dde0d95dc92be1c",
+        "lands": "scripts/qc/roadmap-unit-closure.mjs"
+      },
+      {
+        "file": "roadmap-main-proof.mjs",
+        "lines": 276,
+        "sha256": "82fd00ecd12e1fc202768d504ef777f20f5192db25c52129fb499aa04f591227",
+        "lands": "scripts/qc/roadmap-main-proof.mjs"
+      },
+      {
+        "file": "roadmap-loop-closure-proof.test.ts",
+        "lines": 641,
+        "sha256": "8a0cdd006f983d8eb8ae5f221a7b56eb0eaaa976c4ddd2bd2526b25c358ec868",
+        "lands": "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+        "cases": 14
+      },
+      {
+        "file": "README.md",
+        "lines": 84,
+        "sha256": "(not restored; the staging README stays in the scratchpad)",
+        "lands": "(nothing)"
+      }
+    ]
+  },
+  "receiptShapesToReproduce": {
+    "source": "the four receipts the scratchpad closure v3 wrote for U17 on main; the generator must reproduce these key sets key-for-key",
+    "evidence/u17-review-20260917.json": [
+      "unit",
+      "stage",
+      "at",
+      "lane",
+      "reviewerModel",
+      "implementerModel",
+      "reviewerEffort",
+      "head",
+      "reviewedHead",
+      "verdict",
+      "outputPath",
+      "outputSha256",
+      "sharedContext",
+      "laneB",
+      "githubApproval"
+    ],
+    "evidence/u17-merge-20260917.json": [
+      "unit",
+      "stage",
+      "at",
+      "pr",
+      "title",
+      "head",
+      "mergeSha",
+      "mergedAt",
+      "mergedBy",
+      "method",
+      "checksAtMerge",
+      "parentCount",
+      "blobEqualityFiles",
+      "blobEqualityDiffLines"
+    ],
+    "evidence/u17-mainproof-20260917.json": [
+      "unit",
+      "stage",
+      "at",
+      "mergeCommit",
+      "checkout",
+      "runtime",
+      "commands",
+      "logs",
+      "logHashes",
+      "verdict"
+    ],
+    "evidence/u17-tick-20260917.json": [
+      "unit",
+      "stage",
+      "at",
+      "taskKeys",
+      "note",
+      "tickedOnMain"
+    ],
+    "conditionalKeys": "blobEqualityCheck is added to the merge receipt only under --skip-blob-check; expectedReds and reproofCommit are added to the mainProof receipt only when those flags are given. None of the four receipts on main carries one, which is why they are absent from the key sets above."
+  },
+  "designF3": {
+    "finding": "U17 F3: --skip-blob-check turns off the blob-equality comparison of the squash against the PR head over the PR's own files. It is documented as pin-only and the merge receipt records the skip, but nothing stopped a caller from passing it against a real ledger.",
+    "chosen": "refuse the flag whenever the RESOLVED ledger directory is the repository's own openspec/planning/2026-09-12-roadmap-completion (DEFAULT_LEDGER_DIR from roadmap-ledger-lib.mjs), whether that is because --ledger-dir was absent or because it named that directory explicitly",
+    "whyNotAnEnvironmentVariable": "ROADMAP_LOOP_PIN=1 is set as easily as the flag is passed, so it moves the hole rather than closing it. Binding the weakening to a ledger that is not the repository's own means a receipt written into the real ledger can never carry a skipped blob check - the guard is on the thing the weakening could damage, not on the caller's intent.",
+    "where": "immediately after resolveLedgerDir, before the evidence directory is used, before the first gh call and before any file is written or copied - so the refusal cannot leave a receipt or a copied review behind",
+    "comparison": "on-disk identity: realpathSync.native on both sides, lowercased on win32, so a differently-cased or symlinked spelling of the same directory does not evade it",
+    "refusalCode": "BLOB_CHECK_REQUIRED",
+    "pinnedBy": "a case that mirrors scripts/qc/{roadmap-unit-closure,roadmap-ledger-lib,preserve-run-logs}.mjs into a throwaway root whose openspec/planning/2026-09-12-roadmap-completion holds a stub units.json. The mirror makes that stub the module's OWN default ledger, so the guard is exercised on the same code path without the real ledger ever being the subject. The case asserts the refusal, and that the mirror's units.json is byte-unchanged and its evidence directory still empty."
+  },
+  "designF2": {
+    "finding": "U17 F2: the Lane A reviewer model is the literal 'claude-sonnet (Agent model: sonnet)' in the closure, so a review by any other model would be receipted as sonnet.",
+    "chosen": "read it from the Lane A review markdown's `reviewerModel:` header line, and refuse when the line is absent",
+    "whyNotAFlag": "the charter of this unit names the header line. Every Lane A review already on main (u0, u1, u1b-e, u2, u3, u6, u7, u9, u9b, u11, u13, u14, u15b, u16, u17) carries `reviewerModel:` on its own line beside `reviewedHead:`, which the closure already parses out of the same file - so the value comes from the artefact being receipted rather than from a second argument the caller could contradict.",
+    "refusalCode": "REVIEW_MODEL_MISSING",
+    "pinnedBy": "a case whose seeded review names a model that is NOT the old literal, asserting both the review receipt and the unit entry carry the header's value; and a case whose review has no reviewerModel line, asserting the refusal and that no review receipt was written"
+  },
+  "designPreserveRunLogs": {
+    "staged": "preserveRunLogs is called after the mainProof receipt is written AND after its verdict is checked, so a FAIL closure refuses with the proof logs unpreserved",
+    "chosen": "move the call to immediately after the mainProof receipt is written and BEFORE the verdict refusal",
+    "why": "the module already records the run before refusing - the FAIL mainProof receipt is written and then the refusal is thrown - and the logs are part of that record. A FAIL is exactly the run whose logs are wanted, and DELIVERY.md's 'Owned cleanup' rule is about preserving evidence before a worktree is removed, not about the verdict. This resolves the limit the staging README recorded instead of carrying it forward as a non-claim.",
+    "pinnedBy": "the existing PASS case, strengthened to assert the manifest at evidence/u91-logs-20260917.json lists exactly the proof directory's own files; plus a new case asserting a FAIL closure still preserves them"
+  },
+  "estimatePerFile": {
+    "scripts/qc/roadmap-unit-closure.mjs": "382 staged + about 22 for the two guards and the reviewer parse = about 404",
+    "scripts/qc/roadmap-main-proof.mjs": "276 staged, unchanged",
+    "package.json": "2 (roadmap:closure, roadmap:main-proof)",
+    "scripts/__tests__/roadmap-loop-closure-proof.test.ts": "641 staged + about 80 for the four new cases and the mirror helper = about 721 (pin, not product)",
+    "filesTouched": 4,
+    "receiptsAdded": 3
+  },
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500
+  },
+  "expectedOverageArithmetic": {
+    "staged": "382 + 276 = 658 product lines before a single line is added",
+    "packageJson": "658 + 2 = 660, which is exactly the figure U17 moved out of its own count (1121 - 461 = 660)",
+    "estimate": "660 + about 22 for F2/F3 = about 682 against a 500 cap: OVER by about 182",
+    "known": "the council named U17's generators as this cap's known exception and the parent already split the unit once; GOAL forbids widening a unit, and splitting a 658-line pair again would leave a module that cannot run. The overage is recorded with its arithmetic rather than hidden, and additions are held to the two findings and the preserve move.",
+    "howItWillBeMeasured": "node line census over the final files after oxfmt, the same census the U17 lane used (total / code / comment / blank, comments counting whole-line comments and doc blocks only)"
+  },
+  "acceptanceCommands": [
+    "npx jest scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+    "npx jest scripts/__tests__/roadmap-loop-scripts.test.ts scripts/__tests__/preserve-run-logs.test.ts",
+    "npx tsc --noEmit",
+    "npx oxfmt --check <changed files>",
+    "npm run lint:units",
+    "npm run qc:openspec-ci:validate",
+    "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+    "node scripts/qc/roadmap-main-proof.mjs --merge f018e34cc150d9ede58e39a32929c5c9dec7d9b6 --unit U17b --date 20260917 --runtime-jest scripts/__tests__/roadmap-loop-closure-proof.test.ts --dry-run"
+  ],
+  "risksForTheParent": [
+    {
+      "risk": "the overage is real and cannot be split away",
+      "detail": "658 staged lines against a 500 cap. A third split would separate the closure from the main proof, which the loop runs as a pair, and the parent has already split this unit once.",
+      "mitigation": "recorded with arithmetic in the local receipt; no assertion dropped to make it smaller"
+    },
+    {
+      "risk": "the F3 guard is proven on a mirrored repository root, not on the real ledger",
+      "detail": "the pin may never run the closure against the live ledger, so the case that proves the guard builds a throwaway root whose own default ledger is a stub. The comparison exercised is the same sameDir(ledgerDir, DEFAULT_LEDGER_DIR) code path.",
+      "mitigation": "recorded as a non-claim; the case additionally asserts nothing was written into the mirror"
+    },
+    {
+      "risk": "the main proof's execution branch still has no test",
+      "detail": "spawning each step, per-step logs, the e2e marker scan, sha256.txt and the post-run dirty count are transcribed from four shell ladders and read, not measured. Only --dry-run and the HEAD/dirty/runtime refusals are pinned.",
+      "mitigation": "carried forward from the staging README as a non-claim; testing it would need an injected step runner, which is a widening of this unit"
+    },
+    {
+      "risk": "gh is a fake in every closure case",
+      "detail": "the pin proves the closure's handling of the JSON shape, not the real gh's shape"
+    },
+    {
+      "risk": "the pin copies the 17 MB ledger directory under openspec/planning/",
+      "detail": "U17 F5: a crashed run leaves a u17-pin-* directory that shows up in git status. Inherited unchanged; .gitignore is not an owned path of this unit."
+    }
+  ],
+  "ownedPaths": [
+    "scripts/qc/roadmap-unit-closure.mjs",
+    "scripts/qc/roadmap-main-proof.mjs",
+    "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+    "package.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u17b-{admission,red,local}-20260917.json"
+  ],
+  "constraints": [
+    "npm_config_dry_run=true in every shell; no npm install/ci/prune anywhere",
+    "the root checkout is never touched",
+    "no commit, push, stash, amend or force",
+    "no build, no Playwright",
+    "the real proof ladder is never run: only --dry-run and its refusals",
+    "the closure generator is never run against a live ledger",
+    "units.json, roadmap.json and evidence/admission-snapshot.json are not edited",
+    "no tasks.md row is checked",
+    "no AI attribution; no absolute machine path in a product or test file"
+  ],
+  "decision": "go"
+}
