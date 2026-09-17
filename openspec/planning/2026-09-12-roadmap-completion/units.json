@@ -915,18 +915,53 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
-      "prHead": null,
-      "mergeSha": null,
+      "state": "complete",
+      "baseline": "fd71b9d7cd6579b1db7fe62995e4436318f0df67",
+      "prHead": "c4561de30284ea3b188419b6feb5d11438f98d9f",
+      "mergeSha": "45d6134289051d316257641284976a2f9789ceed",
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "admission": {
+          "path": "evidence/u9-admission-20260917.json",
+          "baseline": "fd71b9d7cd6579b1db7fe62995e4436318f0df67",
+          "at": "2026-09-17T12:29:27.317Z",
+          "decision": "go"
+        },
+        "red": {
+          "path": "evidence/u9-red-20260917.json",
+          "at": "2026-09-17T12:47:00Z",
+          "summary": "Pin written first: 23/23 failed with the module missing; 22 failed against an unguarded stub (an unguarded qc CLI pollutes stdout on import: the shipped module carries the import.meta.url guard); 19 failed against the always-SATISFIED stub; implementation 26/26."
+        },
+        "local": {
+          "path": "evidence/u9-local-20260917.json",
+          "at": "2026-09-17T12:42:55.851Z",
+          "summary": "claude-opus Agent lane (codex, grok CLI and cursor-agent exhausted). Gates: pin 26/26, check mode on the baseline EXACT_MAIN_LADDER_MISSING missing=smoke exit 1, tsc 0, oxfmt clean on three files, root oxlint vacuous for scripts, lint:units LINT_UNITS_PASS 100/100 with the two new files walked, qc:openspec-ci errors=0, validator PASSED; three mutants killed (foreign sha counted 2 tests, failed rows counted 1, exit 0 on MISSING 2), sha256 restored; parent verification in the worktree 26/26, check mode MISSING exit 1, tsc 0, LINT_UNITS_PASS 100/100; harness-floor overage recorded: 898 lines (353 module, 544 pin, 1 manifest) against the 500 cap, product alone 354, no assertion dropped; non-claims: --rerun exercised only through an injected runner (materialised as FN-u9-rerun-parser-expects-labeled-line in the main proof), enforcement procedural per PK-e2e-80-ci-wiring, SPEC_BY_GROUP not exported (F1), archive dir gitignored (F2), no receipt had ever run the smoke groups (F3), earlier receipts' jest summaries yield no groups (F4); two recorded deviations: coverage judged per receipt shape, injectable idle wait with no CLI reach."
+        },
+        "review": {
+          "path": "evidence/u9-review-20260917.json",
+          "head": "c4561de30284ea3b188419b6feb5d11438f98d9f",
+          "reviewedHead": "c4561de30284ea3b188419b6feb5d11438f98d9f",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet)",
+          "implementerModel": "claude-opus (Agent lane)",
+          "outputSha256": "cf53e67ba5c3dc42cb2c0f724943e67e406759644523a2f20239eba7b50db1d3",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u9-merge-20260917.json",
+          "pr": 1813,
+          "head": "c4561de30284ea3b188419b6feb5d11438f98d9f",
+          "mergeSha": "45d6134289051d316257641284976a2f9789ceed"
+        },
+        "mainProof": {
+          "path": "evidence/u9-mainproof-20260917.json",
+          "mergeCommit": "45d6134289051d316257641284976a2f9789ceed",
+          "verdict": "PASS",
+          "runtime": "Tests:       26 passed, 26 total",
+          "summary": "exact-main --rerun ran the smoke group on the merge commit (Playwright 3 passed) but archived 0/0 MISSING: FN-u9-rerun-parser-expects-labeled-line, successor U9b"
+        },
+        "tick": {
+          "path": "evidence/u9-tick-20260917.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "source20260917": "owner instruction 2026-09-17: \"Go with all the recommendations from the council and continue the loop\" (openspec/council-decisions/2026-09-17-post-loop-recommendations.md)"
@@ -1186,6 +1221,39 @@
       },
       "ownerGate": null,
       "source20260917": "owner instruction 2026-09-17: \"Go with all the recommendations from the council and continue the loop\" (openspec/council-decisions/2026-09-17-post-loop-recommendations.md)"
+    },
+    {
+      "id": "U9b",
+      "node": "R6.loop-harness",
+      "taskKeys": [],
+      "ownershipPaths": [
+        "scripts/qc",
+        "scripts/__tests__"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "ownerGate": null,
+      "behavior": "Narrow successor of U9 (FN-u9-rerun-parser-expects-labeled-line): the exact-main contract's --rerun reads the ladder runner's real output (Playwright's bare `N passed` / `N failed` / `N flaky` summary for the single group it just ran) so a passing rerun archives coverage and reaches SATISFIED; the pin's fake runner prints the runner's spelling verbatim; nothing else in the contract changes.",
+      "source20260917": "U9 main proof on 45d6134289051d316257641284976a2f9789ceed: the strict smoke subset passed on exact main but the contract archived 0/0",
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      }
     }
   ],
   "packets": [
@@ -1557,6 +1625,17 @@
       "ownership": "R6.loop-harness (scripts/qc, scripts/__tests__, package.json); the launch-side lever belongs with the loop scripts (council-2 proposal U17)",
       "recommendedSuccessor": "drop the preinstall line; ship the guard CLI as a worktree-setup check and set npm_config_dry_run=true in every worker launch (lane charters and the loop scripts), with a pin that the launch helper exports the variable",
       "status": "recorded; U12 parked on draft PR 1809 (head 1baa6a96c); successor not yet planned"
+    },
+    {
+      "id": "FN-u9-rerun-parser-expects-labeled-line",
+      "foundBy": "U9 main proof on 45d6134289051d316257641284976a2f9789ceed",
+      "at": "2026-09-17T14:18:50.648Z",
+      "class": "runtime defect found by the main proof; unit's non-claim materialised",
+      "summary": "validate-exact-main-regression-ladder.mjs --rerun parses the ladder runner's stdout for `<group>: N passed`, the label the loop's proof scripts prefix when they record receipts, but scripts/qc/run-gm-two-player-campaign.mjs prints Playwright's bare summary (`  3 passed (21.2s)`), so a real rerun archives passed 0 / failed 0 and verdict MISSING although the group passed. The local stage exercised the branch only through an injected fake runner that printed the labeled form (recorded non-claim), and Lane A exercised it the same way.",
+      "evidence": "evidence/u9-mainproof-20260917.json runtime.exactMainRerun; .sisyphus/roadmap-completion-20260912/u9-main-proof-20260917/exact-main-rerun-smoke.log and exact-main-ladder-archive.json (sha256 in the receipt)",
+      "ownership": "R6.loop-harness (scripts/qc, scripts/__tests__)",
+      "recommendedSuccessor": "U9b: parse the runner's Playwright summary (`N passed`, `N failed`, `N flaky`) for the single group the contract just ran, with a pin case whose fake runner prints the real runner's spelling verbatim from exact-main-rerun-smoke.log, and a main proof whose --rerun reaches SATISFIED on its merge commit",
+      "status": "recorded; successor U9b planned"
     }
   ]
 }

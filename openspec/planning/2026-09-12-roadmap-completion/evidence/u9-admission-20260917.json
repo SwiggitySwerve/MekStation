@@ -61,17 +61,36 @@
       "e2e/gm-two-player-fixture.smoke.spec.ts",
       "e2e/gm-two-player-membership.smoke.spec.ts"
     ],
-    "fixtureSmokeSpecs": ["e2e/gm-two-player-fixture.smoke.spec.ts"],
-    "membershipSmokeSpecs": ["e2e/gm-two-player-membership.smoke.spec.ts"],
+    "fixtureSmokeSpecs": [
+      "e2e/gm-two-player-fixture.smoke.spec.ts"
+    ],
+    "membershipSmokeSpecs": [
+      "e2e/gm-two-player-membership.smoke.spec.ts"
+    ],
     "howSpecsWereRead": "buildRunPlan({ group, runId: 'probe', repoRoot }) and filtering plan.args for entries starting with e2e/. SPEC_BY_GROUP itself is NOT exported (see findings F1), so the contract never lists specs and reads only group NAMES."
   },
   "milestoneForThisBaseline": {
     "resolved": "strict-smoke",
     "why": "MILESTONE_LADDER's highest milestone is strict-smoke, whose required group is smoke; smoke exists in REGISTERED_GROUPS at this baseline, so the ladder resolves to the top rung.",
     "ladder": [
-      { "milestone": "fixture-isolation", "groups": ["fixture-smoke"] },
-      { "milestone": "membership", "groups": ["membership-smoke"] },
-      { "milestone": "strict-smoke", "groups": ["smoke"] }
+      {
+        "milestone": "fixture-isolation",
+        "groups": [
+          "fixture-smoke"
+        ]
+      },
+      {
+        "milestone": "membership",
+        "groups": [
+          "membership-smoke"
+        ]
+      },
+      {
+        "milestone": "strict-smoke",
+        "groups": [
+          "smoke"
+        ]
+      }
     ],
     "e2e80Source": "openspec/changes/harden-gm-two-player-campaign-sessions/specs/e2e-testing/spec.md, scenario 'E2E-80 major merges trigger exact-main regression': 'fixture isolation before durable role admission, membership after GM/P1/P2 roles land, and the evolving strict smoke subset thereafter'."
   },
@@ -110,44 +129,86 @@
         "receipt": "u1b-mainproof-20260916.json",
         "mergeCommit": "ffc427a0850db3a7149a6720cc3d71ab99a0f6b1",
         "verdict": "PASS",
-        "groups": [{ "group": "evidence-smoke", "passed": 1, "failed": 0 }]
+        "groups": [
+          {
+            "group": "evidence-smoke",
+            "passed": 1,
+            "failed": 0
+          }
+        ]
       },
       {
         "receipt": "u1c-mainproof-20260916.json",
         "mergeCommit": "22fe4a5547ce70e0a72a4837ab9897ba7d2ceda3",
         "verdict": "PASS",
-        "groups": [{ "group": "lifecycle-pack", "passed": 1, "failed": 0 }]
+        "groups": [
+          {
+            "group": "lifecycle-pack",
+            "passed": 1,
+            "failed": 0
+          }
+        ]
       },
       {
         "receipt": "u1d-mainproof-20260916.json",
         "mergeCommit": "843d70c79319d0abaa411522f4e7d99f723ea158",
         "verdict": "PASS",
-        "groups": [{ "group": "conflict-pack", "passed": 1, "failed": 0 }]
+        "groups": [
+          {
+            "group": "conflict-pack",
+            "passed": 1,
+            "failed": 0
+          }
+        ]
       },
       {
         "receipt": "u1e-mainproof-20260916.json",
         "mergeCommit": "8a7a4419d1d9bc5cae00d8100d92110ecb87fcce",
         "verdict": "PASS",
-        "groups": [{ "group": "lifecycle-pack", "passed": 2, "failed": 0 }]
+        "groups": [
+          {
+            "group": "lifecycle-pack",
+            "passed": 2,
+            "failed": 0
+          }
+        ]
       },
       {
         "receipt": "u3-mainproof-20260917.json",
         "mergeCommit": "e3fc54384d1eca5ec4b3547a45276e50dd6c4b7e",
         "verdict": "PASS",
-        "groups": [{ "group": "authority", "passed": 17, "failed": 3 }],
+        "groups": [
+          {
+            "group": "authority",
+            "passed": 17,
+            "failed": 3
+          }
+        ],
         "note": "failed > 0, so this receipt is NOT coverage for authority under the contract even at its own merge commit"
       },
       {
         "receipt": "u6-mainproof-20260917.json",
         "mergeCommit": "4139f39e746cb2d0bb1aafbf5cea8ea9c4b48544",
         "verdict": "PASS",
-        "groups": [{ "group": "token-pack", "passed": 2, "failed": 0 }]
+        "groups": [
+          {
+            "group": "token-pack",
+            "passed": 2,
+            "failed": 0
+          }
+        ]
       },
       {
         "receipt": "u7-mainproof-20260917.json",
         "mergeCommit": "d701f63a8b0ab37ce38a57ff832823e13e1b187b",
         "verdict": "PASS",
-        "groups": [{ "group": "conflict-pack", "passed": 2, "failed": 0 }]
+        "groups": [
+          {
+            "group": "conflict-pack",
+            "passed": 2,
+            "failed": 0
+          }
+        ]
       }
     ],
     "consequenceForTheParent": "NO main-proof receipt on main has ever run smoke, fixture-smoke or membership-smoke. Groups actually proved on some main commit: evidence-smoke, lifecycle-pack, conflict-pack, token-pack (all 0 failed) and authority (3 failed). The milestone this baseline resolves to is strict-smoke, whose required group is smoke, so the contract reads MISSING at this baseline and at every merge commit in the ledger. The main proof for U9 itself must run --group=smoke on the merge commit if the parent wants the first SATISFIED reading; nothing in this unit can manufacture it."
@@ -157,7 +218,9 @@
       "scripts/qc/validate-exact-main-regression-ladder.mjs",
       "scripts/__tests__/validate-exact-main-regression-ladder.test.ts"
     ],
-    "editedFiles": ["package.json (one added script line: qc:exact-main-ladder)"],
+    "editedFiles": [
+      "package.json (one added script line: qc:exact-main-ladder)"
+    ],
     "exports": [
       "MILESTONE_LADDER - frozen [{ milestone, groups }] in E2E-80 order",
       "resolveMilestone({ registeredGroups }) - highest milestone all of whose groups exist in the registry; null when none do",
@@ -214,5 +277,10 @@
     "No build, no Playwright run.",
     "Node 22.22.0 (node -v prints v22.22.0) for every node/npm/npx call."
   ],
-  "status": "admitted"
+  "status": "admitted",
+  "parentDecision": {
+    "at": "2026-09-17T14:18:38.676Z",
+    "decision": "go",
+    "note": "parent admitted the unit as planned; no widening"
+  }
 }

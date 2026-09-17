@@ -1,0 +1,15 @@
+{
+  "unit": "U9",
+  "stage": "merge",
+  "at": "2026-09-17T14:18:41.852Z",
+  "pr": 1813,
+  "title": "chore(qc): exact-main regression ladder contract for E2E-80",
+  "head": "c4561de30284ea3b188419b6feb5d11438f98d9f",
+  "mergeSha": "45d6134289051d316257641284976a2f9789ceed",
+  "mergedAt": "2026-09-17T14:12:32Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityDiffLines": 0
+}
