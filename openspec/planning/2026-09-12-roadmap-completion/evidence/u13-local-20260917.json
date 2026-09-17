@@ -1,45 +1,53 @@
 {
   "unit": "U13",
   "stage": "local",
-  "at": "2026-09-17T18:07:32Z",
+  "at": "2026-09-17T23:55:00Z",
   "baseline": "7c6cf4fbe309435a1faef97393d64ace705a0133",
   "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u13",
   "branch": "codex/roadmap-u13-log-preservation-20260917",
   "committed": false,
   "status": "ready",
   "blocker": null,
-  "implementerModel": "claude-opus (Agent lane; codex, grok CLI and cursor-agent routes exhausted on 2026-09-17)",
+  "implementerModel": "claude-opus (Agent lane)",
   "whatWasBuilt": "scripts/qc/preserve-run-logs.mjs: preserveRunLogs() copies a run directory out of the worktree (recursive, relative paths kept, links skipped, a reparse-point runDir refused), hashes source and copy with sha256 and refuses on any mismatch, and writes the repo-root-relative manifest <evidenceDir>/<unit lowercase>-logs-<date>.json. removeWorktreeAfterPreservation() removes the worktree only after the manifest verifies against the preserved copies AND the path is a real non-reparse directory at the expected HEAD, clean, and listed by `git worktree list --porcelain`; it deletes the node_modules reparse point first, then runs `git worktree remove --force` and `git worktree prune`. CLI: RUN_LOGS_PRESERVED / RUN_LOGS_REFUSED / WORKTREE_REMOVED / WORKTREE_REFUSED with exits 0/1/0/2. Plus the 13-case jest pin.",
   "lineCounts": {
     "product": {
       "scripts/qc/preserve-run-logs.mjs": {
-        "total": 410,
-        "code": 317,
-        "comment": 70,
-        "blank": 23
+        "total": 440,
+        "code": 328,
+        "comment": 88,
+        "blank": 24
       },
-      "subtotalNonGeneratedProduct": 410
+      "subtotalNonGeneratedProduct": 440
     },
     "test": {
       "scripts/__tests__/preserve-run-logs.test.ts": {
-        "total": 492,
-        "code": 417,
-        "comment": 45,
-        "blank": 30
+        "total": 588,
+        "code": 460,
+        "comment": 94,
+        "blank": 34
       }
     },
     "generated": "none; this unit ships no generated or data file",
+    "deltaFromRevision1": {
+      "scripts/qc/preserve-run-logs.mjs": "410 -> 440 (+30: JSDoc for edit A, and edit B's hoisted checks net of the inline calls they replace)",
+      "scripts/__tests__/preserve-run-logs.test.ts": "492 -> 566 (+74: the platform note in the header, the removalScaffold option and its comment, checkIgnoreStatus, the check-ignore assertion, the non-ignored refusal case, and edit B's ordering case)"
+    },
     "capCheck": {
       "cap": "15 files, 500 non-generated product lines",
       "filesChanged": 2,
-      "nonGeneratedProductLines": 410,
-      "productPlusPin": 902,
-      "reading": "Counted the way U14 and U11 counted: the cap is on non-generated PRODUCT lines and the jest pin is reported beside it (u14-local capCheck.nonGeneratedProductLines = 177 with a 259-line pin; u11-local listed 272 product + 345 + 62 test). Under that reading 410 of 500 is used. Under the stricter reading that would add the pin, 902 would exceed 500 - flagged for the parent rather than resolved here.",
-      "overageAgainstOwnEstimate": "the admission receipt estimated 180-240 product lines; the delivered product file is 410. See findingsReportedNotFixed F1."
+      "nonGeneratedProductLines": 440,
+      "productPlusPin": 1028,
+      "reading": "Unchanged from revision 2 in substance: the cap is read as non-generated PRODUCT lines with the jest pin reported beside it, the way u14-local and u11-local counted. Under that reading 440 of 500 is used, the same 440 as revision 2 because this revision adds no product line. Under the stricter product-plus-pin reading 1028 would exceed 500 - still flagged for the parent rather than resolved here (F5).",
+      "methodology": "Counted by a script over the files: blank = trimmed empty; comment = trimmed line beginning //, /*, * or */; code = everything else. Totals equal `wc -l`."
     },
     "sha256": {
-      "scripts/qc/preserve-run-logs.mjs": "fac1bd3e3253401e9a5a492783021b4156b2a7b59857cf35f3ce0e604454ea22",
-      "scripts/__tests__/preserve-run-logs.test.ts": "b0456e9f6fdc2a1c07a4b62cc813f21bae0402f7e72012e778ca81b1376792a3"
+      "scripts/qc/preserve-run-logs.mjs": "1f37243e6ab570592c9a698ec6fd0fc58e067a32a5476f0949fc604f5a79eca8",
+      "scripts/__tests__/preserve-run-logs.test.ts": "a3411c450dede89dbffc88f944dd91467f029b4983624f6c0265b846bec1fc3f"
+    },
+    "deltaFromRevision2": {
+      "scripts/qc/preserve-run-logs.mjs": "440 -> 440 (unchanged; this revision does not touch the module - its sha256 is identical to revision 2)",
+      "scripts/__tests__/preserve-run-logs.test.ts": "566 -> 588 (+22: the one EVIDENCE_DIR_OUTSIDE_ROOT case - 13 code, 8 comment, 1 blank)"
     }
   },
   "gates": [
@@ -47,8 +55,8 @@
       "gate": "jest pin",
       "command": "npx jest scripts/__tests__/preserve-run-logs.test.ts",
       "lastLine": "Ran all test suites matching /scripts\\__tests__\\preserve-run-logs.test.ts/i.",
-      "summaryLine": "Tests:       13 passed, 13 total",
-      "runtime": "0 failed / 13 passed",
+      "summaryLine": "Tests:       16 passed, 16 total",
+      "runtime": "0 failed / 16 passed (13 at revision 1, 15 at revision 2, plus the one case this required edit added)",
       "exitCode": 0
     },
     {
@@ -60,24 +68,28 @@
     {
       "gate": "oxfmt",
       "command": "npx oxfmt --check scripts/qc/preserve-run-logs.mjs scripts/__tests__/preserve-run-logs.test.ts",
-      "lastLine": "Finished in 46ms on 2 files using 16 threads.",
+      "lastLine": "Finished in 16ms on 2 files using 16 threads.",
       "priorLine": "All matched files use the correct format.",
       "exitCode": 0,
-      "note": "the first --check run failed on both files (exit 1); `npx oxfmt` without --check rewrote them and the recheck is the result above"
+      "note": "clean on the first --check this revision; no rewrite was needed"
     },
     {
       "gate": "lint:units",
       "command": "npm run lint:units",
       "lastLine": "LINT_UNITS_PASS 100/100",
-      "priorLines": ["LINT_UNITS_PATH e2e 50", "LINT_UNITS_PATH scripts 50"],
+      "priorLines": [
+        "LINT_UNITS_PATH e2e 50",
+        "LINT_UNITS_PATH scripts 50"
+      ],
       "exitCode": 0,
-      "note": "unchanged from U14's ceiling: the two new files add 0 findings. The ceiling was not touched."
+      "note": "the ceiling was not touched; the added case adds 0 findings"
     },
     {
       "gate": "qc:openspec-ci:validate",
       "command": "npm run qc:openspec-ci:validate",
       "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
-      "exitCode": 0
+      "exitCode": 0,
+      "note": "Re-run this revision. Revision 2 recorded it NOT RE-RUN because that charter did not name it; this charter does. errors=0."
     },
     {
       "gate": "roadmap validator",
@@ -105,38 +117,70 @@
   "mutants": [
     {
       "id": "M1",
-      "mutation": "the hash verification after the copy is skipped: deleted the `if (hashFile(to) !== sha256) throw new PreserveRunLogsError('COPY_HASH_MISMATCH', ...)` block (5 lines) from preserveRunLogs, leaving the copy and the source hash in place",
-      "result": "Tests:       1 failed, 12 passed, 13 total",
+      "mutation": "the hash verification after the copy is skipped: deleted the `if (hashFile(to) !== sha256) throw new PreserveRunLogsError('COPY_HASH_MISMATCH', ...)` block (5 lines) from preserveRunLogs",
+      "result": "Tests:       1 failed, 15 passed, 16 total",
       "caughtBy": "preserveRunLogs > refuses when a copy does not match its source, and writes no manifest",
-      "killed": true
+      "killed": true,
+      "rerunAtRevision3": "re-run as recorded; still killed by the same case. The total moved 15 -> 16 because of the case this revision adds; the failure count is unchanged."
     },
     {
       "id": "M2",
       "mutation": "the removal proceeds when the manifest is missing: deleted the whole manifest gate from removeWorktreeAfterPreservation (the MANIFEST_MISSING existence check, the manifest read, the MANIFEST_UNREADABLE shape check and the per-file preserved-hash loop, 23 lines)",
-      "result": "Tests:       2 failed, 11 passed, 13 total",
+      "result": "Tests:       2 failed, 14 passed, 16 total",
       "caughtBy": "removeWorktreeAfterPreservation > refuses when the manifest is missing; and removeWorktreeAfterPreservation > refuses when a preserved file no longer hashes to its manifest entry",
-      "killed": true
+      "killed": true,
+      "rerunAtRevision3": "re-run as recorded; still killed by the same two cases."
     },
     {
       "id": "M3",
-      "mutation": "the junction is removed recursively: replaced `if (junctionRemoved) removeReparsePoint(modules);` with `if (junctionRemoved) fs.rmSync(fs.realpathSync.native(modules), { recursive: true, force: true });`",
-      "result": "Tests:       1 failed, 12 passed, 13 total",
-      "caughtBy": "removeWorktreeAfterPreservation > removes a clean matching worktree and deletes only the reparse point, at the target-survives assertion: \"ENOENT: no such file or directory, open 'C:\\Users\\wroll\\AppData\\Local\\Temp\\u13-preserve-vCK9eU\\real-node-modules\\pkg\\index.js'\" - the mutant destroyed the junction's real target",
+      "mutation": "the junction is removed recursively: replaced `if (junctionRemoved) removeReparsePoint(modules);` with `fs.rmSync(fs.realpathSync.native(modules), { recursive: true, force: true })`",
+      "result": "Tests:       1 failed, 15 passed, 16 total",
+      "caughtBy": "removeWorktreeAfterPreservation > removes a clean matching worktree and deletes only the reparse point, at the target-survives assertion (test line 384): \"ENOENT: no such file or directory, open 'C:\\\\Users\\\\wroll\\\\AppData\\\\Local\\\\Temp\\\\u13-preserve-2Q3ChY\\\\real-node-modules\\\\pkg\\\\index.js'\" - the mutant destroyed the junction's real target",
       "killed": true,
-      "whyThisExactMutation": "Measured first: `fs.rmSync(link, { recursive: true, force: true })` on a Windows junction removes only the link and the target survives, so the naive 'recursive' mutation is not observable. The faithful mutation resolves the link and then deletes recursively, which is exactly the accident this code guards against.",
-      "pinChangeMadeBecauseOfThisMutant": "On the first M3 run the failure landed on `expect(fs.existsSync(worktreePath)).toBe(false)` (the worktree directory survived, because the dangling junction was left behind and git still exited 0) rather than on the target-survives assertion. The two assertions were reordered so the junction target is checked first, and M3 was re-run: it now fails on the target assertion as quoted above. No assertion was removed or weakened."
+      "rerunAtRevision3": "re-run as recorded; still killed by the same case at the junction-target-survives assertion."
+    },
+    {
+      "id": "M5",
+      "mutation": "NEW for edit B: the expressibility checks move back after the copy loop - deleted the hoisted runDirRelative / preservedDirRelative / evidenceDir block and restored the inline relativeToRoot calls inside the manifest literal, which is exactly the pre-fix code",
+      "result": "Tests:       2 failed, 14 passed, 16 total",
+      "caughtBy": "preserveRunLogs > refuses a preserved directory the manifest cannot express, before copying anything; AND (new this revision) preserveRunLogs > refuses an evidence directory the manifest path cannot express, before copying anything",
+      "killed": true,
+      "rerunAtRevision3": "re-run as recorded and still killed, but by TWO cases now instead of one (it was 1 failed / 14 passed / 15 total at revision 2). M5 deletes the whole hoisted block, which includes the EVIDENCE_DIR_OUTSIDE_ROOT statement, and restores only the runDir and preservedDir calls inline - so the case added this revision loses its refusal too. Recorded as a measured change rather than carried forward as the old number."
+    },
+    {
+      "id": "M6",
+      "mutation": "NEW for the pass-2 required edit: deleted the 5-line `relativeToRoot(repoRoot, path.resolve(evidenceDir), 'EVIDENCE_DIR_OUTSIDE_ROOT');` statement from preserveRunLogs - the same deletion the Lane A pass-2 reviewer made, which left all 15 revision-2 tests green",
+      "result": "Tests:       1 failed, 15 passed, 16 total",
+      "caughtBy": "preserveRunLogs > refuses an evidence directory the manifest path cannot express, before copying anything, at `expect(result.error?.code).toBe('EVIDENCE_DIR_OUTSIDE_ROOT')` (test line 402): Expected \"EVIDENCE_DIR_OUTSIDE_ROOT\", Received undefined",
+      "killed": true,
+      "whyThisIsTheProof": "The added case passes against the unmodified module, which by itself proves only that the check is reachable. M6 is what proves the case is load-bearing: the exact deletion that was silent at revision 2 is now loud."
+    },
+    {
+      "id": "M4",
+      "mutation": "INFORMATIONAL, on the pin rather than the helper: the fixture's ignore entry reverted to the trailing-slash spelling `node_modules/` - the exact defect edit A fixes",
+      "result": "Tests:       15 passed, 15 total",
+      "killed": false,
+      "survivedOnPurposeRecorded": "This mutant SURVIVES on Windows and that is the honest finding, not a gap left unexamined. A junction is a directory, so the slashed pattern matches it and git status --porcelain is empty either way; the new `git check-ignore` assertion returns 0 under both spellings on this platform (measured: both give exit 0 in the fixture shape). The regression edit A fixes is observable only on a POSIX runner, which is where CI caught it. Recorded as F7.",
+      "rerunAtRevision3": "NOT re-run this revision. M4 is the informational pin-mutant whose whole point is that it survives on Windows, and nothing this revision changes touches the fixture's ignore spelling. Its recorded result (15 passed, 15 total) is revision 2's measurement and is left as measured rather than restated against the new total."
     }
   ],
   "mutantRestoration": {
-    "method": "cp scripts/qc/preserve-run-logs.mjs to a pristine copy before the first mutant; after each mutant the file was restored with cp from that copy and sha256sum re-run",
-    "preMutantSha256": "fac1bd3e3253401e9a5a492783021b4156b2a7b59857cf35f3ce0e604454ea22",
-    "afterM1": "fac1bd3e3253401e9a5a492783021b4156b2a7b59857cf35f3ce0e604454ea22",
-    "afterM2": "fac1bd3e3253401e9a5a492783021b4156b2a7b59857cf35f3ce0e604454ea22",
-    "afterM3": "fac1bd3e3253401e9a5a492783021b4156b2a7b59857cf35f3ce0e604454ea22",
-    "afterM3Rerun": "fac1bd3e3253401e9a5a492783021b4156b2a7b59857cf35f3ce0e604454ea22",
-    "final": "fac1bd3e3253401e9a5a492783021b4156b2a7b59857cf35f3ce0e604454ea22",
+    "method": "cp the module to a pristine copy before the first mutant of this revision; after each mutant it was restored with cp from that copy and sha256sum re-run. M6, M1, M2, M3 and M5 mutate the helper, in that order; M4 mutates the pin and was not re-run this revision. Each mutation was applied by a script doing one exact whole-block string replacement that refuses unless the anchor occurs exactly once.",
+    "preMutantSha256": {
+      "scripts/qc/preserve-run-logs.mjs": "1f37243e6ab570592c9a698ec6fd0fc58e067a32a5476f0949fc604f5a79eca8",
+      "scripts/__tests__/preserve-run-logs.test.ts": "a3411c450dede89dbffc88f944dd91467f029b4983624f6c0265b846bec1fc3f"
+    },
+    "afterEachRestore": {
+      "afterM6": "1f37243e6ab570592c9a698ec6fd0fc58e067a32a5476f0949fc604f5a79eca8",
+      "afterM1": "1f37243e6ab570592c9a698ec6fd0fc58e067a32a5476f0949fc604f5a79eca8",
+      "afterM2": "1f37243e6ab570592c9a698ec6fd0fc58e067a32a5476f0949fc604f5a79eca8",
+      "afterM3": "1f37243e6ab570592c9a698ec6fd0fc58e067a32a5476f0949fc604f5a79eca8",
+      "afterM5": "1f37243e6ab570592c9a698ec6fd0fc58e067a32a5476f0949fc604f5a79eca8",
+      "afterM4": "2b5f1373f4ad4a293fa9f45cd71f2bfb319d408138972610aabcb83b53fd1c40 (revision 2's measurement; M4 was not re-run this revision)"
+    },
     "equalsPreMutant": true,
-    "gatesRerunAfterTheLastRestore": "jest, tsc, oxfmt, lint:units, qc:openspec-ci:validate and the roadmap validator were all re-run after the final restore and the pin reorder; the results recorded under `gates` are those runs."
+    "mutationMethod": "Each mutant was applied by a script doing one exact whole-block string replacement and refusing outright unless the anchor occurred exactly once, so a silently-missed mutation cannot be reported as applied. One such refusal occurred and is recorded: an early M4 attempt mis-escaped its anchor, printed ANCHOR MISMATCH 0 and was re-run from a script file with the raw anchor before being counted.",
+    "gatesRerunAfterTheLastRestore": "jest, tsc, oxfmt, lint:units, qc:openspec-ci:validate and the roadmap validator were all re-run after the final restore; the results under `gates` are those runs. The module hashes to its pre-mutant sha256 above, which is also revision 2's recorded sha256 - this revision changed no product byte."
   },
   "nonClaims": [
     "NOTHING CALLS THIS HELPER YET. The proof scripts and the lane cleanup are U17's (council 2 section D item 3); package.json is untouched by this unit and no npm script runs the CLI. Until U17 lands, a worktree removal that skips a hand-run of this CLI still loses its logs exactly as U3's were lost.",
@@ -145,7 +189,11 @@
     "No claim about branch deletion. The helper removes and prunes a worktree; compare-guarded branch deletion is not implemented here.",
     "No claim that the CLI's removal half was exercised against a program worktree. Every real `git worktree remove` in this lane ran in a temporary repository created by the pin; the one CLI removal invocation aimed at a path that does not exist and refused with WORKTREE_MISSING before any git call.",
     "No build and no Playwright run was performed, so nothing here is evidence about the application.",
-    "The `onCopied` and `git` parameters are pin-only injection points. They have no CLI flag and their defaults do the real thing, but they are not a tested production surface."
+    "The `onCopied` and `git` parameters are pin-only injection points. They have no CLI flag and their defaults do the real thing, but they are not a tested production surface.",
+    "LITERAL DEVIATION FROM DELIVERY.md, disclosed rather than resolved (Lane A pass-1 review finding 2): the helper runs `git worktree remove --force`, where DELIVERY.md's owned-cleanup paragraph does not say force, and it performs no compare-guarded branch deletion at all. The force flag is used deliberately - a proof worktree legitimately carries ignored artefacts and the HEAD, clean-state and worktree-listing checks all pass before it is reached - but that is a reading of the cited text, not the text, and the branch-deletion clause is simply unimplemented here.",
+    "The CLI was NOT re-run against a real proof directory this revision either. Revision 1 recorded that run (RUN_LOGS_PRESERVED, 11 files, 2625399 bytes, 10 of 10 hashes cross-checked against that directory's own sha256.txt) and the Lane A pass-2 reviewer independently reproduced it at this head; this pass ran only the pin, the mutants and the gates, and no --remove-worktree was passed against any real worktree. This revision changes no product byte, so the CLI surface is byte-identical to the one the reviewer exercised.",
+    "Neither required edit was verified on Linux by this lane. Edit A's whole point is a platform the lane cannot execute; the proof that it works is the CI run on the next push, not anything measured here.",
+    "No claim that this revision verifies anything on Linux. As at revision 2, this lane cannot execute that platform; CI on the next push is the proof for the platform-neutrality edit, not anything measured here. The case added this revision deliberately uses the same-path shape rather than the Windows-only cross-drive shape so that it DOES run on Linux, but that it runs there is reasoning from path.relative's documented behaviour, not a measurement taken on Linux."
   ],
   "findingsReportedNotFixed": [
     {
@@ -172,23 +220,94 @@
       "id": "F5",
       "finding": "The 500-line cap's reading is not written down anywhere in the ledger. U14 and U11 both counted product lines and reported the pin separately; this receipt follows them, but a reader applying product-plus-pin would call this unit 902 lines and over cap.",
       "notFixedBecause": "an owner-level definition question, not an implementation one."
+    },
+    {
+      "id": "F6",
+      "finding": "The program's own .gitignore spells it `node_modules/` at line 2 (and `.opencode/node_modules/` at line 182). That matches the junction directories the loop's worktrees actually use on Windows - measured: check-ignore exits 0 and git status --porcelain is empty - but it would NOT match a node_modules that is a POSIX symlink, which is the same trap the fixture fell into. On a POSIX checkout that linked node_modules the way the Windows loop does, removeWorktreeAfterPreservation would refuse every worktree as WORKTREE_DIRTY.",
+      "notFixedBecause": "No helper change is warranted and none was made: the loop's worktrees are Windows junctions and the entry matches them. Editing the program's .gitignore is outside the two source files this pass is allowed to touch, and the change would be a one-character edit to a repository-wide file made on a hypothetical. Recorded so whoever first runs the loop on POSIX changes line 2 to bare `node_modules` deliberately rather than discovering it as a refusal."
+    },
+    {
+      "id": "F7",
+      "finding": "The regression edit A fixes is not observable on this machine. Mutant M4 - reverting the fixture to `node_modules/` - leaves all 15 cases passing on Windows, because a junction is a directory and the slashed pattern matches it; the new `git check-ignore` assertion returns 0 under both spellings here. Only a POSIX runner distinguishes them.",
+      "notFixedBecause": "A platform-independent pin would have to fabricate a non-directory link on Windows, which needs the symlink privilege this machine does not have (EPERM, measured). The mitigation is the existing one: the Linux CI job is what caught the defect and is what would catch its return. Recorded so nobody reads a green local run as proof the fixture is neutral."
+    },
+    {
+      "id": "F8",
+      "finding": "relativeToRoot accepts a `../` escape: a preserved or run directory outside the repository root but on the same volume is expressed as `../../x` and written into the manifest. Only a cross-volume path (Windows) or an exactly-equal path triggers the refusal. The real CLI probe in revision 1 relied on this, recording runDir `../../u14-main-proof-20260917`.",
+      "notFixedBecause": "It is load-bearing: the proof directories this helper preserves sit beside the worktrees tree, outside any single worktree, so the escape is the normal case rather than the exception. Recorded because the refusal codes are named OUTSIDE_ROOT, which reads stronger than what they check - they check expressibility, not containment. It is also why edit B's new pin case reaches the refusal through an exactly-equal path rather than an outside one."
     }
   ],
-  "srcCleanAfterMutants": "git status --short in the worktree lists exactly four untracked paths and nothing else: scripts/qc/preserve-run-logs.mjs, scripts/__tests__/preserve-run-logs.test.ts, and the u13 admission and red receipts (this local receipt is the fifth, written after the status was taken). No tracked file is modified; HEAD is still 7c6cf4fbe309435a1faef97393d64ace705a0133.",
-  "rootCheckoutUntouched": "E:/Projects/MekStation `git status --porcelain` -> 0 lines after every command in this lane.",
+  "srcCleanAfterMutants": "`git status --short` in the worktree prints exactly THREE modified paths at the end of this revision: scripts/__tests__/preserve-run-logs.test.ts, openspec/planning/2026-09-12-roadmap-completion/evidence/u13-red-20260917.json and openspec/planning/2026-09-12-roadmap-completion/evidence/u13-local-20260917.json. scripts/qc/preserve-run-logs.mjs is NOT listed, and that absence is the measurement that matters: it was mutated five times and restored five times, and git agrees it is byte-identical to this head (sha256 1f37243e6ab570592c9a698ec6fd0fc58e067a32a5476f0949fc604f5a79eca8). All three listed paths are named by the charter, and the charter's fourth named file is the module, which needed no product change. HEAD is still 2fdf82f623701aee40a473b6f052fbe7e139dbdb.",
+  "rootCheckoutUntouched": "E:/Projects/MekStation was not written to by this lane: no command in this revision had it as its working directory and no path under it outside the u13 worktree was opened for writing. Every mutant, restore and gate ran inside .sisyphus/roadmap-completion-20260912/worktrees/u13; the pin's own git repositories are created under the system temp directory.",
   "constraintsHeld": {
-    "npmConfigDryRun": "exported true in every shell that ran an npm or npx command",
+    "npmConfigDryRun": "exported true in every shell that ran an npm or npx command this revision",
     "npmInstallCiPrune": "never run",
     "packageJsonEdited": false,
     "ledgerFilesEdited": "units.json, roadmap.json and evidence/admission-snapshot.json untouched",
     "tasksMdCheckbox": "none checked",
-    "commitPushStash": "none",
+    "commitPushStash": "none; the worktree stayed detached at 2fdf82f623701aee40a473b6f052fbe7e139dbdb",
     "aiAttribution": "none",
-    "absoluteMachinePathsInProductFiles": "none; the two shipped files contain no drive letter. Absolute paths appear only in this receipt's quoted command lines and quoted tool output."
+    "absoluteMachinePathsInProductFiles": "none; neither shipped file contains a drive letter or a machine path. Absolute paths appear only in this receipt's quoted commands and quoted tool output.",
+    "worktreeRemoval": "--remove-worktree was never passed against a real worktree and no --remove-worktree ran against a program worktree. Every real `git worktree remove` this revision ran inside the pin's temporary repositories under the system temp directory.",
+    "buildsAndPlaywright": "no build and no Playwright run was started",
+    "filesEdited": "exactly the four the charter names: scripts/qc/preserve-run-logs.mjs (mutated and restored, net zero - sha256 unchanged), scripts/__tests__/preserve-run-logs.test.ts, openspec/planning/2026-09-12-roadmap-completion/evidence/u13-red-20260917.json and openspec/planning/2026-09-12-roadmap-completion/evidence/u13-local-20260917.json"
   },
   "receipts": [
-    "openspec/planning/2026-09-12-roadmap-completion/evidence/u13-admission-20260917.json",
-    "openspec/planning/2026-09-12-roadmap-completion/evidence/u13-red-20260917.json",
-    "openspec/planning/2026-09-12-roadmap-completion/evidence/u13-local-20260917.json"
-  ]
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u13-admission-20260917.json (untouched this revision)",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u13-red-20260917.json (requiredEditRevision3 added this pass)",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u13-local-20260917.json (this file, rewritten as revision 3)"
+  ],
+  "revision": 3,
+  "revisionNote": "Revision 3: the required-edit pass after the Lane A pass-2 review of PR #1831 head 2fdf82f623701aee40a473b6f052fbe7e139dbdb, run detached at that head in the same worktree. One required edit (pass-2 finding 2, MEDIUM): the EVIDENCE_DIR_OUTSIDE_ROOT refusal revision 2 added had no pin case, and this receipt's revision-2 nonClaims said it did. The pin case is added and that sentence is corrected below. The red evidence for a pin over already-existing code is the mutant that deletes the check (M6 in u13-red-20260917.json requiredEditRevision3). scripts/qc/preserve-run-logs.mjs is BYTE-IDENTICAL to revision 2 (sha256 unchanged); only the pin and the two receipts changed. Every number below is measured on revision 3; the revision-2 numbers it replaces are superseded, not amended.",
+  "baselineNote": "The `baseline` field above is revision 1's branch point. Revision 3 ran detached at PR #1831's head 2fdf82f623701aee40a473b6f052fbe7e139dbdb in .sisyphus/roadmap-completion-20260912/worktrees/u13; `git rev-parse HEAD` returned that sha at the start of the pass and nothing in this lane committed, pushed or stashed. Revision 2 ran at eb22ef213e463edf327b33c5eeadf4fb4df54b45, this head's parent.",
+  "requiredEditRevision2": {
+    "editA": {
+      "trigger": "GitHub Actions run 35257584921 on eb22ef213e463edf327b33c5eeadf4fb4df54b45, job \"Unit Tests (1/6)\", Linux: removeWorktreeAfterPreservation > removes a clean matching worktree and deletes only the reparse point failed with {\"code\": \"WORKTREE_DIRTY\", \"message\": \"/tmp/u13-preserve-sjFc9F/wt has 1 uncommitted entries\"} at test line 346.",
+      "rootCause": "The fixture repository committed a .gitignore whose node_modules pattern carried a trailing slash. fs.symlinkSync(target, link, 'junction') makes a directory junction on Windows and an ordinary symlink on POSIX; git's trailing-slash patterns match directories only, so the same fixture was ignored on Windows and left untracked on Linux, where git status --porcelain reported it and the helper refused the worktree as dirty. The helper was correct; the fixture was not platform-neutral.",
+      "change": "scripts/__tests__/preserve-run-logs.test.ts: the fixture's ignore entry is now bare `node_modules` (matches a directory and a non-directory alike); removalScaffold takes { ignoreNodeModules } so the unmatched shape can be built on purpose; the clean case asserts `git check-ignore node_modules` exits 0 inside the fixture worktree BEFORE the removal runs, so the precondition is measured rather than assumed; a new case pins that a node_modules link the repository does NOT ignore is refused WORKTREE_DIRTY with the worktree and the junction target both intact. scripts/qc/preserve-run-logs.mjs: JSDoc only - the deliberate rule is now written down (nothing is carved out of git status --porcelain, not even the reparse point the function is about to delete).",
+      "helperBehaviourChanged": false
+    },
+    "editB": {
+      "trigger": ".sisyphus/roadmap-completion-20260912/u13-lane-a-review-pass1-20260917.md finding 1 (MEDIUM): preserveRunLogs copied every file into preservedDir before checking that runDir and preservedDir were expressible relative to repoRoot, so a PRESERVED_DIR_OUTSIDE_ROOT refusal wrote no manifest but had already written the logs at the refused path.",
+      "change": "scripts/qc/preserve-run-logs.mjs: the three relativeToRoot checks (runDir, the preserved directory, and now evidenceDir under the new code EVIDENCE_DIR_OUTSIDE_ROOT) are hoisted above the copy loop and their results reused when the manifest is assembled, so a refusal writes nothing anywhere. scripts/__tests__/preserve-run-logs.test.ts: a new case asserts the outside-root preserved directory does not exist after the refusal.",
+      "helperBehaviourChanged": true,
+      "behaviourDelta": "Two deltas. (1) Ordering: an unexpressible destination now refuses before the first copyFileSync instead of after the last one. (2) Surface: evidenceDir is now checked too, under the new code EVIDENCE_DIR_OUTSIDE_ROOT - previously an evidence directory outside the repository root was accepted and the manifest written there. The review asked for evidenceDir explicitly; it is a NEW refusal, not a reordering, and is flagged here rather than buried."
+    },
+    "decisionAskedForByTheCharter": {
+      "question": "Should the helper additionally treat an untracked node_modules reparse point as removable when it is exactly the link it is about to delete?",
+      "answer": "No. The refusal stays.",
+      "reasoning": [
+        "The loop's real worktrees are covered by the repository's own ignore entry, so their node_modules never appears in `git status --porcelain` and the refusal never fires on the shape this helper exists for. Measured: in the fixture, both `node_modules/` and bare `node_modules` give an empty status over a Windows junction.",
+        "A node_modules the repository does NOT ignore is a different repository shape than the one whose removal preconditions were recorded. Carving it out would mean the clean check no longer measures what it says it measures.",
+        "The carve-out would have to be written as \"ignore this untracked entry if it is a reparse point named node_modules\", which is a name-based exception inside a proof. The refusal costs one ignore line in the repository being cleaned; the exception costs the meaning of the check.",
+        "The rule is now stated in the helper's JSDoc as a rule rather than an accident: the helper never deletes what git would still report. The new pin case holds it."
+      ]
+    }
+  },
+  "platformAnalysis": {
+    "question": "Why did the pin pass on Windows and fail on Linux, and what spelling is neutral?",
+    "measuredHere": {
+      "git": "git version 2.54.0.windows.1",
+      "trailingSlashRuleMeasuredDirectly": "In a scratch repository ignoring 'slashed/' and 'bare', a NON-DIRECTORY entry named slashed is not ignored (git check-ignore exit 1; git status --porcelain prints '?? slashed'), while a non-directory entry named bare is ignored (exit 0, '.gitignore:2:bare\\tbare').",
+      "fixtureShapeMeasuredDirectly": "With a junction planted in the worktree: no node_modules entry -> status '?? node_modules/', check-ignore exit 1. With 'node_modules/' -> empty status, check-ignore exit 0 matching '.gitignore:1:node_modules/'. With bare 'node_modules' -> empty status, check-ignore exit 0 matching '.gitignore:1:node_modules'.",
+      "conclusion": "The bare spelling matches both a Windows junction (a directory) and a non-directory entry, so it is the neutral one. That is now what the fixture commits."
+    },
+    "notMeasuredHere": {
+      "what": "the POSIX symlink itself",
+      "why": "fs.symlinkSync(target, link, 'dir') and (..., 'file') both fail EPERM on this machine, so no real symlink could be created to run git against.",
+      "substitute": "A regular file stands in for the non-directory class, plus git's documented rule that a slash-terminated pattern matches directories only. git stores a symlink as a blob and presents it to the exclude machinery as a non-directory. LABELLED: this is reasoning plus a proxy measurement, not a direct symlink measurement. The direct evidence for the symlink is the CI failure this pass is fixing."
+    }
+  },
+  "requiredEditRevision3": {
+    "finding": "Lane A pass-2 review of head 2fdf82f623701aee40a473b6f052fbe7e139dbdb (.sisyphus/roadmap-completion-20260912/u13-lane-a-review-pass2-20260917.md finding 2, MEDIUM): the EVIDENCE_DIR_OUTSIDE_ROOT refusal added at revision 2 had zero pin coverage. The reviewer deleted the whole 5-line statement and re-ran the pin: 15 passed, 15 total, nothing failed.",
+    "theFalseClaimBeingCorrected": "Revision 2's nonClaims said: \"The one behaviour change this revision makes to the CLI surface is edit B's new EVIDENCE_DIR_OUTSIDE_ROOT refusal, which is covered by the pin and not by a live CLI run.\" The clause \"which is covered by the pin\" was FALSE at revision 2 - no test passed an outside-root evidenceDir and no test asserted that code, which is exactly why deleting the check changed nothing. It is TRUE at revision 3: the case added below asserts the code, and M6 shows the assertion fails when the check is removed. The sentence has been rewritten rather than left standing with a correction appended, and this entry is the record of what it used to say.",
+    "change": "scripts/__tests__/preserve-run-logs.test.ts only: one case, \"refuses an evidence directory the manifest path cannot express, before copying anything\", placed immediately after the analogous preserved-directory case. It uses the SAME construction that case uses - the same-path shape (repoRoot pointed at the evidence directory), not the Windows-only cross-drive shape - so it runs on both platforms. It asserts the typed code EVIDENCE_DIR_OUTSIDE_ROOT, that the preserved directory does not exist afterwards (nothing was copied into it) and that no manifest was written. scripts/qc/preserve-run-logs.mjs is untouched: its sha256 is identical to revision 2's.",
+    "whyTheCaseReachesTheThirdCheck": "The three expressibility checks run in order: runDir, preserved directory, evidence directory. With repoRoot pointed at the evidence directory, runDir resolves to ../run and the preserved directory to ../preserved/U42-20260917 - both express fine - so the first two checks pass and the case exercises the third rather than tripping an earlier one. Confirmed by M6's failure mode: with the third check deleted the call SUCCEEDS (error undefined) rather than refusing with a different code.",
+    "greenThenMutantRed": {
+      "againstTheUnmodifiedModule": "Tests:       16 passed, 16 total, exit 0 - the case passes, which proves only that the check is reachable",
+      "underM6": "Tests:       1 failed, 15 passed, 16 total, exit 1 - the case fails, which proves the check is load-bearing",
+      "restored": "sha256 after restore 1f37243e6ab570592c9a698ec6fd0fc58e067a32a5476f0949fc604f5a79eca8, identical to the pre-mutant sha256"
+    },
+    "otherMutantsReconfirmed": "M1, M2, M3 and M5 were re-run exactly as recorded at revision 2 and all four are still killed. M5's kill count moved from one case to two because it deletes the hoisted block that now also contains the EVIDENCE_DIR check; the other three are unchanged apart from the total moving 15 -> 16."
+  }
 }
