@@ -1,0 +1,191 @@
+{
+  "unit": "U9",
+  "stage": "local",
+  "at": "2026-09-17T12:42:55.851Z",
+  "baseline": "fd71b9d7cd6579b1db7fe62995e4436318f0df67",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u9",
+  "branch": "codex/roadmap-u9-exact-main-ladder-20260917",
+  "node": "R6.loop-harness",
+  "implementerModel": "claude-opus (Agent lane; codex, grok CLI and cursor-agent routes exhausted on 2026-09-17)",
+  "behaviour": "E2E-80 as a qc contract. scripts/qc/validate-exact-main-regression-ladder.mjs names the three E2E-80 milestones by REGISTERED_GROUPS group name, reads the archived main-proof and archive receipts, and answers whether the staged subset actually ran against one exact main commit. With --rerun it refuses at a head that is not the sha, waits for machine idle, runs the missing groups through the existing ladder runner, and archives the result with the milestone.",
+  "lineCounts": {
+    "product": {
+      "scripts/qc/validate-exact-main-regression-ladder.mjs": {
+        "total": 353,
+        "code": 267,
+        "comment": 67,
+        "blank": 19
+      },
+      "package.json": {
+        "total": 1,
+        "code": 1,
+        "note": "git diff --numstat: 1 added, 0 deleted"
+      },
+      "subtotal": 354
+    },
+    "test": {
+      "scripts/__tests__/validate-exact-main-regression-ladder.test.ts": {
+        "total": 544,
+        "code": 482,
+        "comment": 28,
+        "blank": 34
+      }
+    },
+    "generated": "none - this unit ships no generated or copied data file",
+    "capCheck": {
+      "cap": "15 files, 500 non-generated lines (units.json U9.caps, roadmap.json R6.loop-harness)",
+      "filesChanged": 3,
+      "readingA_productOnly": {
+        "lines": 354,
+        "overage": "none",
+        "note": "Counts the module plus the one package.json line, the way the U14 local receipt counted its cap (capCheck.nonGeneratedProductLines = 177 there, with the pin listed separately under `test`)."
+      },
+      "readingB_moduleAndPin": {
+        "lines": 898,
+        "over": 398,
+        "arithmetic": "353 (module) + 544 (pin) + 1 (package.json) = 898; 898 - 500 = 398 over.",
+        "note": "The charter's own words - 'if the pin plus module exceed 500, record the overage arithmetic honestly, never drop an assertion' - and the second council's C5 finding that U9 is the only real overage risk. This is that overage, recorded rather than engineered away. The council estimate was 150-250 for module plus pin; the actual is 897 for the two files, 3.6x the top of that estimate."
+      },
+      "whyThePinIsThisLarge": "26 cases, thirteen of them named by the charter, each asserting a whole verdict object or a whole stdout line rather than a substring. The out-of-process ESM harness (the established scripts/__tests__ pattern, since jest transpiles the pin to CJS and cannot import a .mjs module) costs about 57 lines on its own, and oxfmt's 80-column call formatting spreads most assertions over four to eight lines. No assertion was dropped, merged or weakened to reduce the count; nothing was inlined at the cost of readability.",
+      "whatWasNotDone": "The module was NOT split into a second file to move lines out of one file's count - that would have lowered no total and added a file. No assertion was deleted."
+    },
+    "sha256": {
+      "scripts/qc/validate-exact-main-regression-ladder.mjs": "16f3caabaca0b11af2201af192d3d64fe9060324afc30c3758ab6f269d92ac09",
+      "scripts/__tests__/validate-exact-main-regression-ladder.test.ts": "1f4db6dcf6860f3d15d49c83d95e06f8f6f3776790a7db4b089fff42be0bc918"
+    }
+  },
+  "gates": [
+    {
+      "id": "G1",
+      "command": "npx jest scripts/__tests__/validate-exact-main-regression-ladder.test.ts",
+      "lastLine": "Ran all test suites matching /scripts\\__tests__\\validate-exact-main-regression-ladder.test.ts/i.",
+      "summaryLine": "Tests:       26 passed, 26 total",
+      "exitCode": 0
+    },
+    {
+      "id": "G2",
+      "command": "node scripts/qc/validate-exact-main-regression-ladder.mjs --sha fd71b9d7cd6579b1db7fe62995e4436318f0df67",
+      "lastLine": "EXACT_MAIN_LADDER_MISSING fd71b9d7cd6579b1db7fe62995e4436318f0df67 milestone=strict-smoke missing=smoke",
+      "exitCode": 1,
+      "note": "Check mode only - --rerun was NOT passed, as the charter requires. MISSING is the expected and correct reading: no receipt in the real evidence dir names this baseline as its merge commit, and no receipt anywhere in the ledger has ever run the smoke group (admission finding F3). The sha was supplied explicitly rather than defaulted so the gate does not depend on a network fetch. NOT CLAIMED: the default sha path was not exercised - `git fetch` was never run in this lane. What WAS measured is `git rev-parse origin/main` = fd71b9d7cd6579b1db7fe62995e4436318f0df67, i.e. the local ref the default path would read already equals the sha passed here."
+    },
+    {
+      "id": "G3",
+      "command": "npx tsc --noEmit",
+      "lastLine": "(no output)",
+      "exitCode": 0
+    },
+    {
+      "id": "G4",
+      "command": "npx oxfmt --check scripts/qc/validate-exact-main-regression-ladder.mjs scripts/__tests__/validate-exact-main-regression-ladder.test.ts package.json",
+      "lastLine": "Finished in 82ms on 3 files using 16 threads.",
+      "precedingLine": "All matched files use the correct format.",
+      "exitCode": 0
+    },
+    {
+      "id": "G5",
+      "command": "npx oxlint scripts/qc/validate-exact-main-regression-ladder.mjs scripts/__tests__/validate-exact-main-regression-ladder.test.ts",
+      "lastLine": "Finished in 8ms on 0 files using 16 threads.",
+      "precedingLine": "Found 0 warnings and 0 errors.",
+      "exitCode": 0,
+      "note": "VACUOUS, and recorded as such. The root .oxlintrc.json ignores **/scripts/**, so this invocation walked 0 files - the 0 warnings mean nothing was inspected, not that nothing was found. The non-vacuous lint for these paths is G6."
+    },
+    {
+      "id": "G6",
+      "command": "npm run lint:units",
+      "lastLine": "LINT_UNITS_PASS 100/100",
+      "fullOutput": "LINT_UNITS_PATH e2e 50 / LINT_UNITS_PATH scripts 50 / LINT_UNITS_PASS 100/100",
+      "exitCode": 0,
+      "note": "U14's target at its recorded ceiling of 100. The count is UNCHANGED at 100/100, so the two new files contributed zero findings; the ceiling was not touched. Proof the new files are actually walked rather than silently ignored (a zero that would otherwise mean nothing): `npx oxlint --config scripts/qc/oxlint-units.json --allow no-console scripts/qc/validate-exact-main-regression-ladder.mjs` reports 'Found 0 warnings and 0 errors. Finished in 9ms on 1 file with 64 rules', and the same invocation on the pin reports '1 file with 65 rules'."
+    },
+    {
+      "id": "G7",
+      "command": "npm run qc:openspec-ci:validate",
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+      "exitCode": 0,
+      "note": "packageScripts=3/3 is unchanged by the added script: that contract counts three named scripts, and qc:exact-main-ladder is not one of them."
+    },
+    {
+      "id": "G8",
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "exitCode": 0
+    }
+  ],
+  "gatesRerunAfterMutants": "G1 through G8 above were all run AFTER the final mutant restore, against the restored file whose sha256 is 16f3caabaca0b11af2201af192d3d64fe9060324afc30c3758ab6f269d92ac09.",
+  "mutants": {
+    "file": "scripts/qc/validate-exact-main-regression-ladder.mjs",
+    "preMutantSha256": "16f3caabaca0b11af2201af192d3d64fe9060324afc30c3758ab6f269d92ac09",
+    "method": "A copy was taken before the first mutant. Each mutation is a unique-anchor text replacement performed by a scratchpad script that ABORTS with ANCHOR_NOT_UNIQUE unless the anchor occurs exactly once; the pin was then run, the file restored from the saved copy, and its sha256 re-taken.",
+    "table": [
+      {
+        "id": "M1",
+        "intent": "a receipt for a different sha counts as coverage",
+        "mutation": "evaluateExactMain: `if ((receipt.mergeCommit ?? receipt.sha) !== sha) continue;` -> `if (false) continue;`",
+        "mutatedSha256": "e7ff288dc4227d5f1fcf3e6db23d6194ffba0a4e2a154b065e966c3e2c41dd3e",
+        "pinResult": "Tests: 2 failed, 24 passed, 26 total",
+        "caughtBy": [
+          "coverage rule > is missing when the sha differs by one character",
+          "CLI > prints MISSING and exits 1 when only another sha is covered"
+        ],
+        "restoredSha256": "16f3caabaca0b11af2201af192d3d64fe9060324afc30c3758ab6f269d92ac09",
+        "restoredEqualsPreMutant": true
+      },
+      {
+        "id": "M2",
+        "intent": "failed > 0 still counts as coverage",
+        "mutation": "evaluateExactMain: `row.failed === 0 &&` -> `row.failed >= 0 &&`",
+        "mutatedSha256": "8b92fcf11b15622c3b7a3d08032b4c4e0339a1deab17ad62ce269cb2d34376b6",
+        "pinResult": "Tests: 1 failed, 25 passed, 26 total",
+        "caughtBy": ["coverage rule > is missing when a row failed"],
+        "restoredSha256": "16f3caabaca0b11af2201af192d3d64fe9060324afc30c3758ab6f269d92ac09",
+        "restoredEqualsPreMutant": true,
+        "note": "One case only, and that is the point: the case feeds 'smoke: 1 failed / 1 passed', the U3-style spelling, so the mutant is caught by a receipt line the ledger actually contains rather than by an invented one."
+      },
+      {
+        "id": "M3",
+        "intent": "the CLI exits 0 on MISSING",
+        "mutation": "main: `process.exitCode = exitCode;` -> `process.exitCode = 0;`",
+        "mutatedSha256": "da06a5c5b1ce3927bfe95b9d7ee4ffac1e14d640b1c6c6bea52581fe6c3575d4",
+        "pinResult": "Tests: 2 failed, 24 passed, 26 total",
+        "caughtBy": [
+          "CLI > prints MISSING and exits 1 when only another sha is covered",
+          "CLI > refuses --rerun at a head that is not the sha, and exits 2"
+        ],
+        "restoredSha256": "16f3caabaca0b11af2201af192d3d64fe9060324afc30c3758ab6f269d92ac09",
+        "restoredEqualsPreMutant": true,
+        "note": "Both cases assert the exit code separately from the printed line, which is exactly the distinction M3 breaks: stdout still reads MISSING (and REFUSED) while the process reports success. A loop that gated on the exit code alone would have walked straight past both."
+      }
+    ]
+  },
+  "nonClaims": [
+    "The --rerun branch was exercised ONLY through the injected runner command. The pin passes a four-line fake runner that prints '<group>:   1 passed (0.4s)' and a no-op idle wait; Playwright was never launched in this lane and the real ladder runner was never spawned. The real ladder runs in the parent's main proof, and that is the first real exercise of this branch.",
+    "Enforcement is PROCEDURAL, by the loop, per the PK-e2e-80-ci-wiring decision. Nothing runs this contract automatically: there is no workflow job and no hook. E2E-80's 'SHALL rerun before the next dependent PR' is satisfied only when the loop actually calls `npm run qc:exact-main-ladder`.",
+    "The contract reads RECEIPTS, not runs. It cannot detect a receipt that reports a run that did not happen; it can only refuse to count one it cannot read, one for the wrong commit, one that failed, or one that passed nothing.",
+    "The contract reads MISSING at this baseline and at every merge commit in the ledger, because no main-proof receipt has ever run smoke, fixture-smoke or membership-smoke (admission finding F3). This unit does not create that coverage and does not claim it.",
+    "SPEC_BY_GROUP is not consulted. It is not exported (finding F1) and the charter forbids changing the core module, so the ladder names group NAMES read from REGISTERED_GROUPS. The evolving smoke subset still grows only inside buildRunPlan; the contract never lists spec files, so it cannot go stale against that growth - but it also cannot verify that the subset contains what a milestone expects.",
+    "No build ran. No Playwright ran. No npm install, ci, prune or lifecycle ran anywhere (npm_config_dry_run=true was exported in every shell). Nothing was committed, pushed, stashed, amended or force-pushed, and the root checkout at E:/Projects/MekStation was not touched (verified at the end: `git -C E:/Projects/MekStation status --short` printed nothing and HEAD is still fd71b9d7cd6579b1db7fe62995e4436318f0df67).",
+    "scripts/qc/gm-two-player-campaign-core.cjs and scripts/qc/run-gm-two-player-campaign.mjs were READ and consumed, never modified.",
+    "The default archive dir is gitignored (finding F2), so an archive receipt written by --rerun does not reach main on its own. The CLI reads the evidence dir as well, so a copied receipt counts; making that copy is the loop's job and is not implemented here."
+  ],
+  "findingsReportedNotFixed": {
+    "F1": "SPEC_BY_GROUP is not exported from scripts/qc/gm-two-player-campaign-core.cjs - it is a const inside buildRunPlan (line 51). U9's behavior sentence in units.json says the contract reads the ladder 'from SPEC_BY_GROUP'; it reads REGISTERED_GROUPS instead and never lists specs. Exporting it is a core-module change this unit does not own.",
+    "F2": "The default archive dir .sisyphus/roadmap-completion-20260912/exact-main-ladder is gitignored ('git check-ignore -v' prints '.gitignore:189:.sisyphus/*'), so archive receipts are local-only unless the loop copies them into the tracked evidence dir.",
+    "F3": "No main-proof receipt in the ledger has ever run the smoke, fixture-smoke or membership-smoke group. Groups actually proved on some exact main commit are evidence-smoke (U1b), lifecycle-pack (U1c, U1e), conflict-pack (U1d, U7), token-pack (U6) and authority (U3, with 3 failed). E2E-80's staged subset has therefore never been rerun against exact main.",
+    "F4": "Two main-proof receipts (U11, U14) put a jest summary in `runtime.playwright` ('jest machine-idle pin: Tests: 62 passed, 62 total'), and one (U1) put a bare Playwright total with no group prefix ('  1 passed (30.8s)'). All three yield no groups here, which is correct and fail-closed, but it means the field is not consistently a ladder-group line across the ledger. If the parent wants those receipts to be machine-readable as coverage, the receipt convention - not this parser - is what has to change.",
+    "F5": "The red stage caught a defect before the implementation existed: a qc module whose CLI body runs at the top level pollutes stdout on import and breaks any importer. The shipped module carries the same import.meta.url guard machine-idle.mjs and lint-units.mjs use. Recorded because the next qc module in scripts/qc will face it too."
+  },
+  "deviationsFromTheCharter": [
+    "The charter's sketch says a group is covered by a receipt 'whose verdict is PASS'. A main-proof receipt is held to exactly that. This contract's OWN archive receipt carries verdict SATISFIED / MISSING (the charter's own shape for it in item 4), so a literal PASS-only rule would have made every archive receipt worthless the moment it was written and a check-mode run right after a successful --rerun would have reported MISSING. The shipped rule holds each shape to its own passing word: a receipt with a `groups` array must say SATISFIED, any other must say PASS. Three pin cases cover it (an archive receipt on the exact sha is coverage; an archive receipt saying MISSING is not; an archive receipt wearing the main-proof word PASS is not), and the charter's stated case - 'MISSING when the receipt verdict is not PASS' - is pinned with a main-proof receipt marked FAIL, unchanged.",
+    "`idleWait` is injectable alongside `runnerCommand`. The charter names only `runnerCommand` as injectable, but the rerun-branch case would otherwise have had to await the real machine-idle wait, which enumerates live processes and would make the pin depend on whatever else the machine is running. Both are plain function options with real defaults (the real ladder runner, the real U11 waitForIdle) and NEITHER is reachable from the CLI: there is no flag that skips the idle wait, so 'no silent idle' holds."
+  ],
+  "gitStatusShort": [
+    " M package.json",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u9-admission-20260917.json",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u9-local-20260917.json",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u9-red-20260917.json",
+    "?? scripts/__tests__/validate-exact-main-regression-ladder.test.ts",
+    "?? scripts/qc/validate-exact-main-regression-ladder.mjs"
+  ],
+  "status": "ready"
+}
