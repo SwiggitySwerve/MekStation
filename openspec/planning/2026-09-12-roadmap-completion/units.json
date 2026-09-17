@@ -737,18 +737,52 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
-      "prHead": null,
-      "mergeSha": null,
+      "state": "complete",
+      "baseline": "1d31dc8dcccde8f17b74596db8b2e9d7e6a68388",
+      "prHead": "89de87394b21b2f70ae05075713e07df875d016b",
+      "mergeSha": "d701f63a8b0ab37ce38a57ff832823e13e1b187b",
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "admission": {
+          "path": "evidence/u7-admission-20260917.json",
+          "baseline": "1d31dc8dcccde8f17b74596db8b2e9d7e6a68388",
+          "at": "2026-09-17",
+          "decision": "go"
+        },
+        "red": {
+          "path": "evidence/u7-red-20260917.json",
+          "at": "2026-09-17T09:38:18.730Z",
+          "summary": "the shipped conflict rows never asserted a non-host rewind-commit refusal (three-line probe on row 1, reverted); the pin's row count recorded one row"
+        },
+        "local": {
+          "path": "evidence/u7-local-20260917.json",
+          "at": "2026-09-17T09:48:16.519Z",
+          "summary": "row 2: conflict-pack 2 passed on the first green and on three identical clean-build runs (captured integrity-duplicate,integrity-collision and authorization-gm-role-required); lifecycle-pack 2 passed; tsc 0; oxfmt clean; oxlint vacuous for e2e; pin suite 12/12; qc:openspec-ci errors=0; roadmap validator PASSED (75 nodes); three mutants killed (route answers 200; refusal code changed to actor-mismatch; peer id disclosed); the parent re-ran conflict-pack (2 passed), the pin suite and tsc; 124 product lines over 3 files; implementer codex gpt-6"
+        },
+        "review": {
+          "path": "evidence/u7-review-20260917.json",
+          "head": "89de87394b21b2f70ae05075713e07df875d016b",
+          "reviewedHead": "89de87394b21b2f70ae05075713e07df875d016b",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet)",
+          "implementerModel": "codex gpt-6 (codex exec, sandbox bypassed) with claude-fable-5-1 parent",
+          "outputSha256": "703706e80f3763b18f19cd37f5a4a74678e6b1e9f8871fe16822e6498ce17f70",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u7-merge-20260917.json",
+          "pr": 1805,
+          "head": "89de87394b21b2f70ae05075713e07df875d016b",
+          "mergeSha": "d701f63a8b0ab37ce38a57ff832823e13e1b187b"
+        },
+        "mainProof": {
+          "path": "evidence/u7-mainproof-20260917.json",
+          "mergeCommit": "d701f63a8b0ab37ce38a57ff832823e13e1b187b",
+          "verdict": "PASS",
+          "runtime": "  2 passed (7.6s)"
+        },
+        "tick": {
+          "path": "evidence/u7-tick-20260917.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "source20260917": "owner instruction 2026-09-17: \"Go with all the recommendations from the council and continue the loop\" (openspec/council-decisions/2026-09-17-post-loop-recommendations.md)",
@@ -1359,7 +1393,13 @@
       "evidence": "evidence/u1d-admission-20260916.json classes[authorization]; evidence/u1d-local-20260916.json nonClaims",
       "ownership": "the lever lives in src/lib/multiplayer (protocol schema, server host); no roadmap node owns the client protocol path; assigning it widens the ownership map and is an owner call",
       "recommendedSuccessor": "a product unit under the node that owns src/lib/multiplayer/server (R2.authority-live paths) exposing a legitimate GM-only wire command, with a red jest at the socket door, then an e2e successor adding the authorization arm to conflict-pack",
-      "status": "recorded; fix owner unassigned"
+      "status": "addressed at the HTTP boundary by U7 (PR #1805, merge d701f63a8b0ab37ce38a57ff832823e13e1b187b): a seated non-host rewind commit is refused 403 gm-role-required with leak safety; the wire GM_ONLY code and the player-visible UI clause remain non-claims",
+      "addressedBy": {
+        "unit": "U7",
+        "pr": 1805,
+        "merge": "d701f63a8b0ab37ce38a57ff832823e13e1b187b",
+        "boundary": "HTTP route"
+      }
     },
     {
       "id": "FN-u1d-stale-head-class-has-no-in-paths-lever",
