@@ -1,0 +1,15 @@
+{
+  "unit": "U11",
+  "stage": "merge",
+  "at": "2026-09-17T11:11:59.295Z",
+  "pr": 1807,
+  "title": "chore(qc): machine-idle check classifies build and test processes by image, never by free text",
+  "head": "0cf7471735f9a2a551be7e42b6e25732751de799",
+  "mergeSha": "03dbdbf317369c1a52adde6ef890db8258bb6906",
+  "mergedAt": "2026-09-17T11:07:26Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityDiffLines": 0
+}

@@ -982,18 +982,52 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
-      "prHead": null,
-      "mergeSha": null,
+      "state": "complete",
+      "baseline": "b6e845f333aa80c24bb37607cc4b4ecc867d3f9f",
+      "prHead": "0cf7471735f9a2a551be7e42b6e25732751de799",
+      "mergeSha": "03dbdbf317369c1a52adde6ef890db8258bb6906",
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "admission": {
+          "path": "evidence/u11-admission-20260917.json",
+          "baseline": "b6e845f333aa80c24bb37607cc4b4ecc867d3f9f",
+          "at": "2026-09-17T10:10:53.6679911Z",
+          "decision": "go"
+        },
+        "red": {
+          "path": "evidence/u11-red-20260917.json",
+          "at": "2026-09-17T10:15:41.852Z",
+          "summary": "Pin written first: 42 tests failed with the module missing, 36 against an idle-only stub; requiredEditRevision2 records the Lane A probe (a busy server.js under a codex path read idle on 9ae345ef0) failing before the edit and passing after."
+        },
+        "local": {
+          "path": "evidence/u11-local-20260917.json",
+          "at": "2026-09-17T10:47:11.948Z",
+          "summary": "Revision 2 after the Lane A pass-1 required edit: agent processes decided by executable image or first-script-path segments, five new fixtures; pin 62/62, tsc 0, oxfmt clean, oxlint vacuous for scripts, qc:openspec-ci errors=0, validator PASSED, CLI MACHINE_IDLE; four mutants killed (M1 free-text matching 4 tests, M2 own-pid exclusion 3, M3 empty snapshot idle 6, M4 free-text agent exclusion restored 9); parent verification in the worktree 62/62, tsc 0, CLI MACHINE_IDLE; harness-floor overage recorded: 679 non-generated lines (272 module + 345 pin + 62 fixture) against the 500 cap, product alone 272, no assertion dropped."
+        },
+        "review": {
+          "path": "evidence/u11-review-20260917.json",
+          "head": "0cf7471735f9a2a551be7e42b6e25732751de799",
+          "reviewedHead": "0cf7471735f9a2a551be7e42b6e25732751de799",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet)",
+          "implementerModel": "codex gpt-6 (codex exec)",
+          "outputSha256": "fc4b164303e5e342e68550b89c8edc83240ff87c8c31250a6cfc7cc9e210c5ef",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u11-merge-20260917.json",
+          "pr": 1807,
+          "head": "0cf7471735f9a2a551be7e42b6e25732751de799",
+          "mergeSha": "03dbdbf317369c1a52adde6ef890db8258bb6906"
+        },
+        "mainProof": {
+          "path": "evidence/u11-mainproof-20260917.json",
+          "mergeCommit": "03dbdbf317369c1a52adde6ef890db8258bb6906",
+          "verdict": "PASS",
+          "runtime": "Tests:       62 passed, 62 total"
+        },
+        "tick": {
+          "path": "evidence/u11-tick-20260917.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "source20260917": "owner instruction 2026-09-17: \"Go with all the recommendations from the council and continue the loop\" (openspec/council-decisions/2026-09-17-post-loop-recommendations.md)"

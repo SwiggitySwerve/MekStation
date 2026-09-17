@@ -1,0 +1,35 @@
+{
+  "unit": "U11",
+  "stage": "mainProof",
+  "at": "2026-09-17T11:11:59.374Z",
+  "mergeCommit": "03dbdbf317369c1a52adde6ef890db8258bb6906",
+  "checkout": "root checkout fast-forwarded to the merge commit (real node_modules; hydrate step runs)",
+  "runtime": {
+    "build": "exit 0",
+    "e2eBundleMarker": "__E2E_MODE__ present in _app chunk (run log)",
+    "playwright": "jest machine-idle pin: Tests:       62 passed, 62 total",
+    "tsc": "exit 0"
+  },
+  "commands": {
+    "validator": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+    "gitAncestry": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows (--git)",
+    "next": "U4",
+    "openspecStrict": "Totals: 229 passed, 0 failed (229 items)",
+    "qcOpenspecCi": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+    "qcPin": "Tests:       24 passed, 24 total"
+  },
+  "logs": ".sisyphus/roadmap-completion-20260912/u11-main-proof-20260917/ (local; sha256 below)",
+  "logHashes": [
+    "2aba57be30a7be7993963353d674df4f3db2ea4ac9c9551f342e5dd0824b9c0e *build.log",
+    "3a226faf8a49ef91b0291f71bf5e370c534563e1b5519ffd82a6c05a40d22e8b *git-check.log",
+    "38a88afb51be221edeeee45fe592c0441d69edb4c59e63b3810b8c89bc3d5ad0 *machine-idle-cli.log",
+    "14fe80b28f07f9b9471d9d2654bf25d30a623addf0c3d4a1940a679aa68d53a6 *next.log",
+    "ddfdad8a15b1c7125171f6c160d5cbafce03efb70e451989b862be993ed9a500 *openspec-strict.log",
+    "451b6125ba169cf7886f5e6d9e1c55dcb5ef7f7c214365f01fb114dde2684d54 *playwright.log",
+    "ada1ed70bb026eced226ccfa183e2ef0bcfeb5adff01f46d7af986e0001ef8dd *qc-openspec-ci.log",
+    "dbd49d382b369cd949eaadd5dd9385ceb494e443c14326735ecc2ca54f004a2c *qc-pin.log",
+    "28d3b9e880a77975493dc7e359144c0295a4f694cfe0af4f928c22307bc5c320 *tsc.log",
+    "3a226faf8a49ef91b0291f71bf5e370c534563e1b5519ffd82a6c05a40d22e8b *validator.log"
+  ],
+  "verdict": "PASS"
+}

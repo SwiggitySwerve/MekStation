@@ -153,7 +153,9 @@
     "totalProcesses": 429
   },
   "next": {
-    "output": ["U4"],
+    "output": [
+      "U4"
+    ],
     "exitCode": 0,
     "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
     "note": "--next printed U4 (in flight, awaiting the owner ruling); the explicit charter assigns U11 as the next planned unit needing no ruling."
@@ -215,5 +217,10 @@
       },
       "reason": "Admission candidate scan also matched the two external MCP server.js processes. Their retained prefixes prove neither is a ladder server. No ladder server was observed; no fresh enumeration or invented shape is substituted."
     }
-  ]
+  ],
+  "parentDecision": {
+    "at": "2026-09-17T11:11:56.143Z",
+    "decision": "go",
+    "note": "parent admitted the unit as planned; no widening"
+  }
 }
