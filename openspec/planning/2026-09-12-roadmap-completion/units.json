@@ -668,18 +668,52 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
-      "prHead": null,
-      "mergeSha": null,
+      "state": "complete",
+      "baseline": "9913f06e775b90cff8633ce3798b942f0536a2eb",
+      "prHead": "72abfd70e251c4d362a3a30bf97159b158b3c9d9",
+      "mergeSha": "4139f39e746cb2d0bb1aafbf5cea8ea9c4b48544",
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "admission": {
+          "path": "evidence/u6-admission-20260917.json",
+          "baseline": "9913f06e775b90cff8633ce3798b942f0536a2eb",
+          "at": "2026-09-17T08:20:44.911Z",
+          "decision": "go"
+        },
+        "red": {
+          "path": "evidence/u6-red-20260917.json",
+          "at": "2026-09-17T08:42:52.793Z",
+          "summary": "baseline token-pack 1 failed / 1 passed; the instrumented run's timeline showed the initial vault heading rendering before any redial (socket count unchanged), then three rejected stale dials and the credential clearing about 1.5 s later: the socket-count assertion ran too early (harness race, not a product defect); probes reverted"
+        },
+        "local": {
+          "path": "evidence/u6-local-20260917.json",
+          "at": "2026-09-17T09:03:22.778Z",
+          "summary": "repaired row: token-pack 2 passed three times; authority 2 failed / 18 passed (genesis clauses only); lifecycle-pack 2 passed; tsc 0; pin suite 12/12; oxfmt clean; oxlint vacuous for e2e; qc:openspec-ci errors=0; roadmap validator PASSED (75 nodes); mutants: credential cleared before the redial, bearer in the stale-dial URL and terminal stale recovery disabled all caught, expiry rejection removal survived as equivalent (server.js rejects expired upgrades independently); the parent re-verified after a clean E2E rebuild in the worktree (token-pack 2 passed twice); 28 tracked product lines over 2 files; implementer codex gpt-6"
+        },
+        "review": {
+          "path": "evidence/u6-review-20260917.json",
+          "head": "72abfd70e251c4d362a3a30bf97159b158b3c9d9",
+          "reviewedHead": "72abfd70e251c4d362a3a30bf97159b158b3c9d9",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet)",
+          "implementerModel": "codex gpt-6 (codex exec, sandbox bypassed) with claude-fable-5-1 parent",
+          "outputSha256": "a1a83f60b2713c6e416bf9c139b62db0e3d0f7b1bbcbdb8021b0a1298a7ce75c",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u6-merge-20260917.json",
+          "pr": 1803,
+          "head": "72abfd70e251c4d362a3a30bf97159b158b3c9d9",
+          "mergeSha": "4139f39e746cb2d0bb1aafbf5cea8ea9c4b48544"
+        },
+        "mainProof": {
+          "path": "evidence/u6-mainproof-20260917.json",
+          "mergeCommit": "4139f39e746cb2d0bb1aafbf5cea8ea9c4b48544",
+          "verdict": "PASS",
+          "runtime": "  2 passed (1.7m)"
+        },
+        "tick": {
+          "path": "evidence/u6-tick-20260917.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "source20260917": "owner instruction 2026-09-17: \"Go with all the recommendations from the council and continue the loop\" (openspec/council-decisions/2026-09-17-post-loop-recommendations.md)",
@@ -1362,7 +1396,13 @@
       "evidence": "evidence/u3-local-20260916.json findingsReportedNotFixed[E2E-16] and parentVerification20260916.runs",
       "ownership": "e2e (R6.umbrella paths) for the row; src/lib/multiplayer/client.ts (no owning node) if the product side is at fault",
       "recommendedSuccessor": "a diagnosis unit under R6.umbrella: probe the redial timing at the expiry instant, classify harness race vs product, then fix in-paths or packet",
-      "status": "recorded; diagnosis unit U6 planned (council D8: routeWebSocket only sees sockets created after installation; setOffline may not sever an open socket; nothing in a00b816dc..12466da33 touched the token pack, client, lobby or socket route)"
+      "status": "resolved as a harness race by U6 (PR #1803, merge 4139f39e746cb2d0bb1aafbf5cea8ea9c4b48544): the initial vault heading rendered before any redial, so the socket-count assertion ran too early; the row now waits for a guest redial; no product change",
+      "resolvedBy": {
+        "unit": "U6",
+        "pr": 1803,
+        "merge": "4139f39e746cb2d0bb1aafbf5cea8ea9c4b48544",
+        "class": "harness"
+      }
     },
     {
       "id": "FN-u3-wait-for-relaunch-can-pass-vacuously",
