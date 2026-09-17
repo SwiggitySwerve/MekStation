@@ -1,0 +1,113 @@
+{
+  "unit": "U6",
+  "stage": "red",
+  "at": "2026-09-17T08:42:52.793Z",
+  "baseline": "9913f06e775b90cff8633ce3798b942f0536a2eb",
+  "worktree": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\u6",
+  "branch": "codex/roadmap-u6-e2e-16-diagnosis-20260917",
+  "build": {
+    "attempts": 2,
+    "first": "Incomplete: wrapper stopped on webpack stderr; counts toward cap.",
+    "retry": "exit 1: compilation and route table succeeded; .next/standalone/server.js exists; exactly one __E2E_MODE__ marker; expected unsafe node_modules junction hydration refusal."
+  },
+  "baselineRun": {
+    "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=token-pack",
+    "exit": 1,
+    "result": "1 failed / 1 passed (1.7m)",
+    "assertion": "e2e/gm-two-player-token.pack.spec.ts:281 expect(socketUrls.length).toBeGreaterThan(socketCountBeforeStaleReload)",
+    "expected": "> 2",
+    "received": 2,
+    "serverPid": 27340,
+    "port": 27372
+  },
+  "probeRun": {
+    "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=token-pack",
+    "exit": 1,
+    "result": "1 failed / 1 passed (1.9m)",
+    "assertion": "Original assertion retained and rethrown after a 12-second diagnostic observation window.",
+    "requestUpgradeEvents": 0
+  },
+  "hypotheses": {
+    "H1": "Route loss is disproved: existing route matcher sees all three post-reload dials, count 2 -> 5. A row timing race is supported.",
+    "H2": "Disproved: stale credential read with present=true after reload, then socket attempts; cleared only after three failures.",
+    "H3": "Initial vault render satisfies the heading assertion before restoration and dialing. It is not the settled terminal recovery prompt.",
+    "H4": "Disproved: all four guest socket events (initial plus three stale dials) use /api/multiplayer/socket."
+  },
+  "verdict": "Harness race: synchronous count is read immediately after initial pre-restoration vault render, before the post-reload socket dial.",
+  "source": [
+    "e2e/gm-two-player-token.pack.spec.ts:264-281",
+    "src/pages/multiplayer/lobby/[roomCode].tsx:257-271,299-309,337",
+    "src/lib/multiplayer/client.ts:1167-1195"
+  ],
+  "probes": "Temporary e2e page websocket/request/console listeners and browser init-script WebSocket/Storage wrappers. No src edits or probe build. Probe row reverted with git checkout before harness repair.",
+  "timeline": [
+    "{\"at\":\"2026-09-17T08:34:26.940Z\",\"event\":\"client-console\",\"decision\":\"read-credential\",\"present\":false}",
+    "{\"at\":\"2026-09-17T08:34:27.017Z\",\"event\":\"client-console\",\"decision\":\"write-credential\",\"present\":true,\"expiresAt\":\"2026-09-17T08:35:56.997Z\",\"matchId\":\"58d2a437-4d1c-4bd3-ba34-5a694c8c6a2f\"}",
+    "{\"at\":\"2026-09-17T08:34:27.018Z\",\"event\":\"client-console\",\"decision\":\"write-credential\",\"present\":true,\"expiresAt\":\"2026-09-17T08:35:56.997Z\",\"matchId\":\"58d2a437-4d1c-4bd3-ba34-5a694c8c6a2f\"}",
+    "{\"at\":\"2026-09-17T08:34:27.032Z\",\"event\":\"token-minted\",\"expiresAt\":\"2026-09-17T08:35:56.997Z\"}",
+    "{\"at\":\"2026-09-17T08:34:27.037Z\",\"event\":\"client-console\",\"decision\":\"socket-constructor\",\"url\":\"ws://localhost:27372/api/multiplayer/socket?matchId=58d2a437-4d1c-4bd3-ba34-5a694c8c6a2f&matchId=58d2a437-4d1c-4bd3-ba34-5a694c8c6a2f&playerId=pid_3EC2ZLavAeunCYQyxCiv8nHeVrQf\"}",
+    "{\"at\":\"2026-09-17T08:34:27.038Z\",\"event\":\"websocket\",\"url\":\"ws://localhost:27372/api/multiplayer/socket?matchId=58d2a437-4d1c-4bd3-ba34-5a694c8c6a2f&matchId=58d2a437-4d1c-4bd3-ba34-5a694c8c6a2f&playerId=pid_3EC2ZLavAeunCYQyxCiv8nHeVrQf\"}",
+    "{\"at\":\"2026-09-17T08:34:27.040Z\",\"event\":\"client-console\",\"decision\":\"socket-open\"}",
+    "{\"at\":\"2026-09-17T08:35:57.999Z\",\"event\":\"reload-start\",\"socketCountBeforeStaleReload\":2}",
+    "{\"at\":\"2026-09-17T08:35:58.012Z\",\"event\":\"websocket-close\",\"url\":\"ws://localhost:27372/api/multiplayer/socket?matchId=58d2a437-4d1c-4bd3-ba34-5a694c8c6a2f&matchId=58d2a437-4d1c-4bd3-ba34-5a694c8c6a2f&playerId=pid_3EC2ZLavAeunCYQyxCiv8nHeVrQf\"}",
+    "{\"at\":\"2026-09-17T08:35:58.100Z\",\"event\":\"reload-domcontentloaded\",\"socketCount\":2}",
+    "{\"at\":\"2026-09-17T08:35:58.114Z\",\"event\":\"vault-heading-visible\",\"socketCount\":2}",
+    "{\"at\":\"2026-09-17T08:35:58.115Z\",\"event\":\"original-assertion-failed\",\"socketCount\":2}",
+    "{\"at\":\"2026-09-17T08:35:58.114Z\",\"event\":\"client-console\",\"decision\":\"read-credential\",\"present\":true,\"expiresAt\":\"2026-09-17T08:35:56.997Z\",\"matchId\":\"58d2a437-4d1c-4bd3-ba34-5a694c8c6a2f\"}",
+    "{\"at\":\"2026-09-17T08:35:58.120Z\",\"event\":\"client-console\",\"decision\":\"read-credential\",\"present\":true,\"expiresAt\":\"2026-09-17T08:35:56.997Z\",\"matchId\":\"58d2a437-4d1c-4bd3-ba34-5a694c8c6a2f\"}",
+    "{\"at\":\"2026-09-17T08:35:58.121Z\",\"event\":\"client-console\",\"decision\":\"write-credential\",\"present\":true,\"expiresAt\":\"2026-09-17T08:35:56.997Z\",\"matchId\":\"58d2a437-4d1c-4bd3-ba34-5a694c8c6a2f\"}",
+    "{\"at\":\"2026-09-17T08:35:58.126Z\",\"event\":\"client-console\",\"decision\":\"socket-constructor\",\"url\":\"ws://localhost:27372/api/multiplayer/socket?matchId=58d2a437-4d1c-4bd3-ba34-5a694c8c6a2f&matchId=58d2a437-4d1c-4bd3-ba34-5a694c8c6a2f&playerId=pid_3EC2ZLavAeunCYQyxCiv8nHeVrQf\"}",
+    "{\"at\":\"2026-09-17T08:35:58.129Z\",\"event\":\"websocket\",\"url\":\"ws://localhost:27372/api/multiplayer/socket?matchId=58d2a437-4d1c-4bd3-ba34-5a694c8c6a2f&matchId=58d2a437-4d1c-4bd3-ba34-5a694c8c6a2f&playerId=pid_3EC2ZLavAeunCYQyxCiv8nHeVrQf\"}",
+    "{\"at\":\"2026-09-17T08:35:58.130Z\",\"event\":\"websocket-error\",\"error\":\"HTTP Authentication failed; no valid credentials available\"}",
+    "{\"at\":\"2026-09-17T08:35:58.128Z\",\"event\":\"client-console\",\"decision\":\"socket-error\"}",
+    "{\"at\":\"2026-09-17T08:35:58.130Z\",\"event\":\"websocket-close\",\"url\":\"ws://localhost:27372/api/multiplayer/socket?matchId=58d2a437-4d1c-4bd3-ba34-5a694c8c6a2f&matchId=58d2a437-4d1c-4bd3-ba34-5a694c8c6a2f&playerId=pid_3EC2ZLavAeunCYQyxCiv8nHeVrQf\"}",
+    "{\"at\":\"2026-09-17T08:35:58.128Z\",\"event\":\"client-console\",\"decision\":\"socket-close\",\"code\":1006}",
+    "{\"at\":\"2026-09-17T08:35:58.636Z\",\"event\":\"client-console\",\"decision\":\"socket-constructor\",\"url\":\"ws://localhost:27372/api/multiplayer/socket?matchId=58d2a437-4d1c-4bd3-ba34-5a694c8c6a2f&matchId=58d2a437-4d1c-4bd3-ba34-5a694c8c6a2f&playerId=pid_3EC2ZLavAeunCYQyxCiv8nHeVrQf\"}",
+    "{\"at\":\"2026-09-17T08:35:58.637Z\",\"event\":\"websocket\",\"url\":\"ws://localhost:27372/api/multiplayer/socket?matchId=58d2a437-4d1c-4bd3-ba34-5a694c8c6a2f&matchId=58d2a437-4d1c-4bd3-ba34-5a694c8c6a2f&playerId=pid_3EC2ZLavAeunCYQyxCiv8nHeVrQf\"}",
+    "{\"at\":\"2026-09-17T08:35:58.638Z\",\"event\":\"websocket-error\",\"error\":\"HTTP Authentication failed; no valid credentials available\"}",
+    "{\"at\":\"2026-09-17T08:35:58.637Z\",\"event\":\"client-console\",\"decision\":\"socket-error\"}",
+    "{\"at\":\"2026-09-17T08:35:58.638Z\",\"event\":\"websocket-close\",\"url\":\"ws://localhost:27372/api/multiplayer/socket?matchId=58d2a437-4d1c-4bd3-ba34-5a694c8c6a2f&matchId=58d2a437-4d1c-4bd3-ba34-5a694c8c6a2f&playerId=pid_3EC2ZLavAeunCYQyxCiv8nHeVrQf\"}",
+    "{\"at\":\"2026-09-17T08:35:58.638Z\",\"event\":\"client-console\",\"decision\":\"socket-close\",\"code\":1006}",
+    "{\"at\":\"2026-09-17T08:35:59.643Z\",\"event\":\"client-console\",\"decision\":\"socket-constructor\",\"url\":\"ws://localhost:27372/api/multiplayer/socket?matchId=58d2a437-4d1c-4bd3-ba34-5a694c8c6a2f&matchId=58d2a437-4d1c-4bd3-ba34-5a694c8c6a2f&playerId=pid_3EC2ZLavAeunCYQyxCiv8nHeVrQf\"}",
+    "{\"at\":\"2026-09-17T08:35:59.645Z\",\"event\":\"websocket\",\"url\":\"ws://localhost:27372/api/multiplayer/socket?matchId=58d2a437-4d1c-4bd3-ba34-5a694c8c6a2f&matchId=58d2a437-4d1c-4bd3-ba34-5a694c8c6a2f&playerId=pid_3EC2ZLavAeunCYQyxCiv8nHeVrQf\"}",
+    "{\"at\":\"2026-09-17T08:35:59.645Z\",\"event\":\"websocket-error\",\"error\":\"HTTP Authentication failed; no valid credentials available\"}",
+    "{\"at\":\"2026-09-17T08:35:59.645Z\",\"event\":\"client-console\",\"decision\":\"socket-error\"}",
+    "{\"at\":\"2026-09-17T08:35:59.646Z\",\"event\":\"websocket-close\",\"url\":\"ws://localhost:27372/api/multiplayer/socket?matchId=58d2a437-4d1c-4bd3-ba34-5a694c8c6a2f&matchId=58d2a437-4d1c-4bd3-ba34-5a694c8c6a2f&playerId=pid_3EC2ZLavAeunCYQyxCiv8nHeVrQf\"}",
+    "{\"at\":\"2026-09-17T08:35:59.645Z\",\"event\":\"client-console\",\"decision\":\"socket-close\",\"code\":1006}",
+    "{\"at\":\"2026-09-17T08:35:59.647Z\",\"event\":\"client-console\",\"decision\":\"read-credential\",\"present\":true,\"expiresAt\":\"2026-09-17T08:35:56.997Z\",\"matchId\":\"58d2a437-4d1c-4bd3-ba34-5a694c8c6a2f\"}",
+    "{\"at\":\"2026-09-17T08:35:59.648Z\",\"event\":\"client-console\",\"decision\":\"write-credential\",\"present\":false,\"matchId\":\"58d2a437-4d1c-4bd3-ba34-5a694c8c6a2f\"}",
+    "{\"at\":\"2026-09-17T08:35:59.648Z\",\"event\":\"client-console\",\"decision\":\"read-credential\",\"present\":false,\"matchId\":\"58d2a437-4d1c-4bd3-ba34-5a694c8c6a2f\"}",
+    "{\"at\":\"2026-09-17T08:36:10.119Z\",\"event\":\"settled-after-assertion\",\"socketCount\":5,\"vaultVisible\":true}"
+  ],
+  "artifacts": [
+    {
+      "path": ".sisyphus/u6-evidence/build-baseline.log",
+      "sha256": "9974250bcb9f6b0984dd2b38eff737a3bb56b13bd01c9711ac5d7459a793e1b2"
+    },
+    {
+      "path": ".sisyphus/u6-evidence/build-baseline-retry.log",
+      "sha256": "dc5c0297d20bad9e59f2c971ea0f37c7ee3da912c19585c633969184a758fb9a"
+    },
+    {
+      "path": ".sisyphus/u6-evidence/token-baseline.log",
+      "sha256": "d191adbf38f808af5f67b7ccce655c0930b389ec40a3d5f04bb2a69ff8162d94"
+    },
+    {
+      "path": ".sisyphus/u6-evidence/token-probe.log",
+      "sha256": "b76f585787e86d80672054fe9d6f9111adce336be78e4b8600cab2b2f64ec4c7"
+    },
+    {
+      "path": ".sisyphus/u6-evidence/token-baseline-processes.json",
+      "sha256": "f52a0bbb4f8eb2d3a27f2495cd53aa5cc6a35dc23b6c17bcba150ce4c167d435"
+    },
+    {
+      "path": ".sisyphus/u6-evidence/token-probe-processes.json",
+      "sha256": "a55a306f15bea39e4fae4caff67f9e6a836f09ee6bb8fff17feaaeb96886c9a0"
+    }
+  ],
+  "nonClaims": [
+    "No product repair or finding of a product defect.",
+    "No assumption that page request events expose WebSocket upgrade requests.",
+    "Timestamps are observed events, not a claim of exact internal React commit time."
+  ]
+}
