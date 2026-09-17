@@ -32,8 +32,8 @@
     "summaryLineIsLine": 141,
     "summaryLineCount": "grep -n 'passed|failed|flaky|skipped|did not run' matched exactly ONE line in all 141: line 141. There is no second summary line and no labelled line anywhere in the log.",
     "okRowsQuoted": [
-      "  ok 1 [chromium] \u203a e2e\\gm-two-player-fixture.smoke.spec.ts:14:5 \u203a creates three isolated future-role contexts @fixture-smoke (2.2s)",
-      "  ok 3 [chromium] \u203a e2e\\gm-two-player-membership.smoke.spec.ts:65:5 \u203a binds GM and two tactical seats durably and refuses a fourth identity @membership-smoke (2.3s)"
+      "  ok 1 [chromium] › e2e\\gm-two-player-fixture.smoke.spec.ts:14:5 › creates three isolated future-role contexts @fixture-smoke (2.2s)",
+      "  ok 3 [chromium] › e2e\\gm-two-player-membership.smoke.spec.ts:65:5 › binds GM and two tactical seats durably and refuses a fourth identity @membership-smoke (2.3s)"
     ],
     "whyThereIsNoLabel": "scripts/qc/run-gm-two-player-campaign.mjs delegates to runCli in scripts/qc/gm-two-player-campaign-core.cjs, whose runPlan spawns Playwright with stdio: 'inherit' (line 303). Playwright's reporter output therefore reaches the contract's pipe unchanged and nothing ever prefixes '<group>: '. The runner prints no group label at all.",
     "whatTheU9ParserDid": "runGroup fed the captured output through parseReceiptGroups, whose GROUP_LINE regex is /^([a-z0-9][a-z0-9-]*):\\s+(.*)$/. No line in this log matches it, so the row was undefined, the archive recorded smoke passed 0 / failed 0, and evaluateExactMain read MISSING even though the subset passed. Archive: exact-main-ladder-archive.json = {sha 45d6134289051d316257641284976a2f9789ceed, groups [{smoke, passed 0, failed 0}], verdict MISSING}; CLI line: 'EXACT_MAIN_LADDER_MISSING 45d6134289051d316257641284976a2f9789ceed milestone=strict-smoke missing=smoke', exit 1."
@@ -91,5 +91,10 @@
     "units.json, roadmap.json and evidence/admission-snapshot.json are not edited, and no tasks.md row is checked.",
     "scripts/qc/run-gm-two-player-campaign.mjs and scripts/qc/gm-two-player-campaign-core.cjs are read and quoted, never modified; package.json is not touched."
   ],
-  "status": "admitted"
+  "status": "admitted",
+  "parentDecision": {
+    "at": "2026-09-17T15:32:39.641Z",
+    "decision": "go",
+    "note": "parent admitted the unit as planned; no widening"
+  }
 }

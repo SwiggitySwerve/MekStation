@@ -1,0 +1,15 @@
+{
+  "unit": "U9b",
+  "stage": "merge",
+  "at": "2026-09-17T15:32:42.831Z",
+  "pr": 1815,
+  "title": "chore(qc): exact-main rerun reads the ladder runner's real Playwright summary",
+  "head": "fcc7c93cb2a589f679d644aaa79776986d5db997",
+  "mergeSha": "7f2dbec09cb54970298dcec753d658f42e5ab16c",
+  "mergedAt": "2026-09-17T15:28:17Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityDiffLines": 0
+}

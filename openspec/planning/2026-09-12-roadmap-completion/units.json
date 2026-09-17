@@ -1238,21 +1238,56 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
-      "prHead": null,
-      "mergeSha": null,
+      "state": "complete",
+      "baseline": "384bab6cde85724787f5fed28d645b85d7f7a0cc",
+      "prHead": "fcc7c93cb2a589f679d644aaa79776986d5db997",
+      "mergeSha": "7f2dbec09cb54970298dcec753d658f42e5ab16c",
       "ownerGate": null,
       "behavior": "Narrow successor of U9 (FN-u9-rerun-parser-expects-labeled-line): the exact-main contract's --rerun reads the ladder runner's real output (Playwright's bare `N passed` / `N failed` / `N flaky` summary for the single group it just ran) so a passing rerun archives coverage and reaches SATISFIED; the pin's fake runner prints the runner's spelling verbatim; nothing else in the contract changes.",
       "source20260917": "U9 main proof on 45d6134289051d316257641284976a2f9789ceed: the strict smoke subset passed on exact main but the contract archived 0/0",
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "admission": {
+          "path": "evidence/u9b-admission-20260917.json",
+          "baseline": "384bab6cde85724787f5fed28d645b85d7f7a0cc",
+          "at": "2026-09-17T14:23:14.977Z",
+          "decision": "go"
+        },
+        "red": {
+          "path": "evidence/u9b-red-20260917.json",
+          "at": "2026-09-17T14:27:57.458Z",
+          "summary": "Nine new pin cases added first against the U9 parser: 8 failed, 27 passed (the verbatim-runner case archived 0/0 and printed MISSING, the main-proof failure); requiredEditRevision2: four cases (interrupted, fatal-error singular and plural) failed against revision 1 as false SATISFIED before the edit."
+        },
+        "local": {
+          "path": "evidence/u9b-local-20260917.json",
+          "at": "2026-09-17T15:09:13Z",
+          "summary": "claude-opus Agent lane, two revisions (Lane A pass 1 required the interrupted word). Revision 2: --rerun attributes Playwright's bare summary lines (passed, failed, flaky, skipped, did not run, interrupted; fatal-error token) to the single group it ran, fail-closed; pin 39/39, tsc 0, oxfmt clean, lint:units LINT_UNITS_PASS 100/100 with both files walked, qc:openspec-ci errors=0, validator PASSED, check mode on the baseline MISSING exit 1; four mutants killed (bare summary ignored 10 tests, failed dropped 5, missing summary counted 3, interrupted removed 2), sha256 restored, a crash-spelling of M1 discarded and recorded; parent verification in the worktree 39/39, tsc 0, LINT_UNITS_PASS 100/100; delta 318 added / 10 deleted against the baseline (module 353 to 430, pin 544 to 775) on top of U9's recorded overage, no assertion dropped; findings F6 (oxfmt rewrites escapes; String.fromCharCode fixture), F7 (one-group-per-invocation not enforced in code), F9 (64 vs 65 rules), F10 (reporter vocabulary is a 1.57.0 snapshot)."
+        },
+        "review": {
+          "path": "evidence/u9b-review-20260917.json",
+          "head": "fcc7c93cb2a589f679d644aaa79776986d5db997",
+          "reviewedHead": "fcc7c93cb2a589f679d644aaa79776986d5db997",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet)",
+          "implementerModel": "claude-opus (Agent lane)",
+          "outputSha256": "7498cc31f01baf876ed735de74b547e7737f1630064cbc67d6d7f43763cf7a55",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u9b-merge-20260917.json",
+          "pr": 1815,
+          "head": "fcc7c93cb2a589f679d644aaa79776986d5db997",
+          "mergeSha": "7f2dbec09cb54970298dcec753d658f42e5ab16c"
+        },
+        "mainProof": {
+          "path": "evidence/u9b-mainproof-20260917.json",
+          "mergeCommit": "7f2dbec09cb54970298dcec753d658f42e5ab16c",
+          "verdict": "PASS",
+          "runtime": "Tests:       39 passed, 39 total",
+          "summary": "exact-main --rerun on the merge commit: EXACT_MAIN_LADDER_SATISFIED 7f2dbec09cb54970298dcec753d658f42e5ab16c milestone=strict-smoke groups=smoke; archive copied to evidence/exact-main-ladder-7f2dbec09cb5-20260917.json"
+        },
+        "tick": {
+          "path": "evidence/u9b-tick-20260917.json",
+          "taskKeys": []
+        }
       }
     }
   ],
@@ -1635,7 +1670,7 @@
       "evidence": "evidence/u9-mainproof-20260917.json runtime.exactMainRerun; .sisyphus/roadmap-completion-20260912/u9-main-proof-20260917/exact-main-rerun-smoke.log and exact-main-ladder-archive.json (sha256 in the receipt)",
       "ownership": "R6.loop-harness (scripts/qc, scripts/__tests__)",
       "recommendedSuccessor": "U9b: parse the runner's Playwright summary (`N passed`, `N failed`, `N flaky`) for the single group the contract just ran, with a pin case whose fake runner prints the real runner's spelling verbatim from exact-main-rerun-smoke.log, and a main proof whose --rerun reaches SATISFIED on its merge commit",
-      "status": "recorded; successor U9b planned"
+      "status": "resolved by U9b (merge 7f2dbec09: the rerun archived smoke 3/0 and the contract printed SATISFIED)"
     }
   ]
 }
