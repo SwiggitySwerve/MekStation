@@ -127,5 +127,35 @@
         "LABELLED AS PROXY, NOT DIRECT: the symlink case itself was not executed here. git stores a symlink as a blob and presents it to the exclude machinery as a non-directory, the same class as the regular file measured above; combined with the documented trailing-slash rule, that is why 'node_modules/' leaves a POSIX symlink untracked. The direct evidence for the symlink is the CI failure itself."
       ]
     }
+  },
+  "requiredEditRevision3": {
+    "at": "2026-09-17T23:40:00Z",
+    "why": "Lane A pass-2 review of head 2fdf82f623701aee40a473b6f052fbe7e139dbdb (.sisyphus/roadmap-completion-20260912/u13-lane-a-review-pass2-20260917.md finding 2, MEDIUM): revision 2 added the EVIDENCE_DIR_OUTSIDE_ROOT refusal in preserveRunLogs but no pin case covered it. The reviewer deleted the check and all 15 tests stayed green, while the revision-2 local receipt claimed the refusal was covered by the pin.",
+    "shapeOfThisRed": "The check already exists on this head, so the new case passes against the unmodified module. The red evidence for a pin over existing code is the mutant: the case is only worth its line count if deleting the check turns it red. That is M6 below, and it is the whole proof that this edit closes the finding rather than adding a test that cannot fail.",
+    "caseAdded": "preserveRunLogs > refuses an evidence directory the manifest path cannot express, before copying anything",
+    "caseConstruction": "The same route the preserved-directory case uses - the SAME-PATH shape, not the cross-drive shape, because only the same-path shape has a POSIX equivalent and therefore runs on Linux CI. repoRoot is pointed at the evidence directory itself, so path.relative(repoRoot, evidenceDir) is the empty string. runDir resolves to ../run and the preserved directory to ../preserved/U42-20260917 from that root, so both earlier expressibility checks pass and the case reaches the third one rather than tripping one of the first two.",
+    "assertions": [
+      "result.error?.code === 'EVIDENCE_DIR_OUTSIDE_ROOT'",
+      "fs.existsSync(path.join(scaffold.root, 'preserved', 'U42-20260917')) === false - no file was copied into the preserved directory",
+      "fs.existsSync(path.join(evidenceDir, 'u42-logs-20260917.json')) === false - no manifest was written"
+    ],
+    "greenAgainstTheUnmodifiedModule": {
+      "command": "npx jest scripts/__tests__/preserve-run-logs.test.ts",
+      "moduleSha256": "1f37243e6ab570592c9a698ec6fd0fc58e067a32a5476f0949fc604f5a79eca8",
+      "lastLine": "Tests:       16 passed, 16 total",
+      "exitCode": 0,
+      "reading": "16, up from the 15 the reviewer measured on this head. The new case is the sixteenth and it passes, which proves only that the check is reachable - not that it is load-bearing. M6 is what proves that."
+    },
+    "mutantM6": {
+      "mutation": "deleted the 5-line `relativeToRoot(repoRoot, path.resolve(evidenceDir), 'EVIDENCE_DIR_OUTSIDE_ROOT');` statement from preserveRunLogs - the exact deletion the reviewer made, verified as a single-occurrence exact-string match before replacing",
+      "command": "npx jest scripts/__tests__/preserve-run-logs.test.ts",
+      "result": "Tests:       1 failed, 15 passed, 16 total",
+      "exitCode": 1,
+      "caughtBy": "preserveRunLogs > refuses an evidence directory the manifest path cannot express, before copying anything",
+      "failingAssertion": "expect(result.error?.code).toBe('EVIDENCE_DIR_OUTSIDE_ROOT') at scripts/__tests__/preserve-run-logs.test.ts:402 - Expected: \"EVIDENCE_DIR_OUTSIDE_ROOT\" / Received: undefined",
+      "killed": true,
+      "restoration": "restored by copy from a pristine copy taken before the mutation; sha256 after restore 1f37243e6ab570592c9a698ec6fd0fc58e067a32a5476f0949fc604f5a79eca8, identical to the pre-mutant sha256; git status --short showed only the pin file modified afterwards"
+    },
+    "beforeAndAfterForTheFinding": "Before this edit, deleting the check left the pin fully green (the reviewer measured 15 passed, 15 total). After it, the same deletion fails one case. The finding's exact claim - 'a future regression that silently dropped this check would not be caught by this unit's own pin' - no longer holds."
   }
 }

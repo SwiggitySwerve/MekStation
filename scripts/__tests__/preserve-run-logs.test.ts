@@ -385,6 +385,28 @@ describe('preserveRunLogs', () => {
       fs.existsSync(path.join(scaffold.root, 'evidence', MANIFEST_NAME)),
     ).toBe(false);
   });
+
+  it('refuses an evidence directory the manifest path cannot express, before copying anything', () => {
+    const scaffold = preserveScaffold();
+    // Same construction as the preserved-directory case above, pointed at the
+    // third expressibility check: the repository root IS the evidence
+    // directory, so the manifest path has no relative spelling. The run
+    // directory and the preserved directory still resolve to `../run` and
+    // `../preserved/...` from that root, so both earlier checks pass and this
+    // case reaches the one it is about.
+    const evidenceDir = path.join(scaffold.root, 'evidence');
+    const result = harness({
+      name: 'preserveRunLogs',
+      argument: { ...scaffold.argument, evidenceDir, repoRoot: evidenceDir },
+    });
+    expect(result.error?.code).toBe('EVIDENCE_DIR_OUTSIDE_ROOT');
+    // A refusal leaves nothing behind: no copy under the preserved directory
+    // and no manifest, the same two assertions the preserved case rests on.
+    expect(
+      fs.existsSync(path.join(scaffold.root, 'preserved', `${UNIT}-${DATE}`)),
+    ).toBe(false);
+    expect(fs.existsSync(path.join(evidenceDir, MANIFEST_NAME))).toBe(false);
+  });
 });
 
 describe('removeWorktreeAfterPreservation', () => {
