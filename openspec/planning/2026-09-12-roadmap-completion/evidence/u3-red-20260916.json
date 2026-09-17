@@ -1,0 +1,82 @@
+{
+  "unit": "U3",
+  "stage": "red",
+  "at": "2026-09-17T02:05:00.000Z",
+  "baseline": "9d1351a780b74f095fb5864f8879419d2d27967b",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u3",
+  "branch": "codex/roadmap-u3-e2e-01-18-20260916",
+  "principle": "Both reds were taken against SHIPPED code at the baseline commit, before any implementation line existed in e2e/. Confirmation of the diagnosis on this worktree's production build, not a new investigation.",
+  "build": {
+    "n": 1,
+    "command": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build",
+    "exitCode": 1,
+    "compiledSuccessfully": "✓ Compiled successfully in 48s",
+    "routeTablePrinted": true,
+    "standaloneServerJs": "present, 7323 bytes",
+    "e2eModeInBundle": "_app-07a43fdc4e620422.js __E2E_MODE__ count=1",
+    "hydrateError": "Missing tsx runtime loader: node_modules\\\\tsx",
+    "tsxWorkaround": "junctioned node_modules has no tsx package; require('tsx/cjs') resolved via NODE_PATH to a gitignored .sisyphus/u3-runtime/node_modules/tsx@4.22.4. First authority-recovery attempt without NODE_PATH was invalid (4 failed, CampaignJoin refused runtime-unavailable). That attempt is discarded as a signal."
+  },
+  "R1": {
+    "name": "E2E-02-plain playing seats empty after restart",
+    "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=authority-recovery",
+    "exitCode": 1,
+    "resultLine": "3 failed",
+    "resultLinePassed": "1 passed (28.9s)",
+    "rows": [
+      {
+        "row": "E2E-01 durable campaign cold recovery",
+        "status": "passed",
+        "duration": "5.5s"
+      },
+      {
+        "row": "E2E-01 genesis branch recovers",
+        "status": "failed",
+        "assertion": "e2e/helpers/authorityRecoveryEvidence.ts:229 expect(rows).toHaveLength(1)",
+        "expected": "1",
+        "received": "0",
+        "receivedArray": "[]",
+        "nonClaim": "genesis clause gated on design-campaign-authority-and-sync task 5.7; not a U3 fix"
+      },
+      {
+        "row": "E2E-02 participant ownership survives restart",
+        "status": "failed",
+        "assertion": "e2e/gm-two-player-authority-recovery.pack.spec.ts:104 expect(boundPlayingSeats(after.seats)).toHaveLength(2)",
+        "expected": "2",
+        "received": "0",
+        "receivedArray": "[]"
+      },
+      {
+        "row": "E2E-02 effective branch remains authoritative",
+        "status": "failed",
+        "assertion": "e2e/gm-two-player-authority-recovery.pack.spec.ts:132 expect(after.effectiveBranchId).not.toBeNull()",
+        "received": "null",
+        "nonClaim": "genesis clause gated on design-campaign-authority-and-sync task 5.7; not a U3 fix"
+      }
+    ]
+  },
+  "R2": {
+    "name": "E2E-15 banner absent after offline window",
+    "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=resilience-pack",
+    "exitCode": 1,
+    "resultLine": "1 failed",
+    "resultLinePassed": "1 passed (2.9m)",
+    "rows": [
+      {
+        "row": "E2E-14 a viewer that stops acknowledging is bounded and recovers alone",
+        "status": "passed",
+        "duration": "11.0s"
+      },
+      {
+        "row": "E2E-15 a host restart recovers every authority clause before a new command is enabled",
+        "status": "failed",
+        "duration": "2.6m",
+        "assertion": "e2e/gm-two-player-resilience.pack.spec.ts:875 expect.poll(() => lifecycleState(page)).toMatch(/^(live|finalized)$/)",
+        "expected": "/^(live|finalized)$/",
+        "received": "\"\"",
+        "timeout": "150000ms",
+        "serverLog": "[mp-boot] recovered 2 active match(es)"
+      }
+    ]
+  }
+}

@@ -1,0 +1,205 @@
+{
+  "stage": "diagnosis",
+  "at": "2026-09-17T01:35:29.505Z",
+  "baseline": "843d70c79319d0abaa411522f4e7d99f723ea158",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u3-diagnosis",
+  "git": {
+    "head": "843d70c79319d0abaa411522f4e7d99f723ea158",
+    "detached": true,
+    "statusPorcelainAfterProbeRevert": "only untracked files under openspec/planning/2026-09-12-roadmap-completion/evidence/"
+  },
+  "firstBuildCpuCheck": {
+    "command": "Get-CimInstance Win32_Process -Filter name='node.exe' | Select-Object -ExpandProperty CommandLine",
+    "filter": "ignored every line containing cursor-agent and every line whose path is outside a MekStation checkout; busy only for next build/start, .next\\standalone\\server.js, MekStation\\server.js, or a Playwright runner",
+    "busyCount": 0,
+    "busy": [],
+    "ignoredCount": 13,
+    "waited": false
+  },
+  "builds": [
+    {
+      "n": 1,
+      "sha": "843d70c79319d0abaa411522f4e7d99f723ea158",
+      "worktree": "u3-diagnosis",
+      "command": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build",
+      "exit": 1,
+      "routeTablePrinted": true,
+      "standaloneServerJs": {
+        "path": ".next/standalone/server.js",
+        "present": true,
+        "bytes": 7343
+      },
+      "e2eModeInBundle": {
+        "file": ".next/static/chunks/pages/_app-07a43fdc4e620422.js",
+        "e2eModeCount": 1
+      },
+      "hydrateError": "Unsafe hydration destination (runtime loader tsx) contains a symlink or junction: .next\\standalone\\node_modules"
+    },
+    {
+      "n": 2,
+      "sha": "0d4dff6b3edca4580e121329a080a30ac4cbc752",
+      "worktree": "u3-bisect-0d4dff6",
+      "command": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build",
+      "exit": 1,
+      "routeTablePrinted": true,
+      "standaloneServerJsPresent": true,
+      "hydrateError": "Missing tsx runtime loader: node_modules\\tsx",
+      "e2eSignal": "invalid"
+    }
+  ],
+  "rows": [
+    {
+      "row": "E2E-02-plain",
+      "spec": "e2e/gm-two-player-authority-recovery.pack.spec.ts:85",
+      "failingLine": "e2e/gm-two-player-authority-recovery.pack.spec.ts:104 expect(boundPlayingSeats(after.seats)).toHaveLength(2)",
+      "reproduction": {
+        "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=authority-recovery",
+        "resultLine": "3 failed / 1 passed (29.9s)",
+        "exit": 1,
+        "e2e02Plain": "Expected length: 2 Received length: 0 Received array: []"
+      },
+      "sqlite": {
+        "runId": "qc-authority-recovery",
+        "db": ".sisyphus/e2e-runtime/qc-authority-recovery/multiplayer-matches.db",
+        "snapshotFile": "openspec/planning/2026-09-12-roadmap-completion/evidence/u3-authority-recovery-seat-snapshots.json",
+        "beforeRestart": "every match already status=lobby, boundPlaying=0, alpha-1 and bravo-1 occupant=null, GM on spectator-1 with occupant.playerId set",
+        "afterRestart": "byte-same seating: playing-seat occupantPlayerId still null; spectator occupant still present; status still lobby",
+        "queryScript": "openspec/planning/2026-09-12-roadmap-completion/evidence/u3-query-seats.mjs"
+      },
+      "mechanism": {
+        "drive": "e2e/helpers/gmTwoPlayerAuthorityRecovery.ts:95-103 prepareHostDeathTrigger sends SetReady alpha-1, SetAiSlot bravo-1, LaunchMatch from the GM match-channel socket. It never sends OccupySeat for Player 1 or Player 2.",
+        "afterRead": "e2e/helpers/authorityRecoveryEvidence.ts:144-151 boundPlayingSeats keeps non-spectator seats with occupantPlayerId !== null or kind==='ai'. parseMatchMetaJson/parseSeats at e2e/helpers/matchAuthorityEvidence.ts:37-47 and :88-108 read occupant.playerId from IMatchMeta.seats.",
+        "productSeating": "src/pages/api/multiplayer/matches/index.ts:164-171 resolveHostSeatKind seats a co-op creator as spectator; :194-201 occupies spectator-1. src/lib/multiplayer/server/ServerMatchHostIntent.ts:181-191 rejectSpectatorIntent returns INVALID_INTENT spectator-cannot-act for any Intent from a spectator seat, including host-only lobby intents.",
+        "recoveryWriter": "src/lib/multiplayer/server/MatchRecovery.ts recoverActiveMatches / ServerMatchHost.recover did not wipe occupants: they were never on the playing seats. Match status never left lobby, so recoverActiveMatches would not have rebuilt this match as active.",
+        "measured": "playing-seat occupantPlayerId are null on disk before and after process death. The helper does not filter present playing occupants; it correctly drops the spectator GM. This is not a recovery-writer loss."
+      },
+      "verdict": "harness",
+      "verdictEvidence": "Four matches in the leftover sqlite and every snapshot tick show alpha-1/bravo-1 occupant null and status lobby both before fireHostDeath and after relaunch. boundPlayingSeats(after.seats) length 0 is the same state the drive left on disk. The letter (WHEN Player 1 and Player 2 receive owned forces) is not exercised: P1/P2 never OccupySeat, and the GM cannot LaunchMatch from spectator-1.",
+      "firstBadCommit": {
+        "sha": "0d4dff6b3edca4580e121329a080a30ac4cbc752",
+        "subject": "fix(multiplayer): a GM who creates a co-op match sits in the spectator seat, and gm identity comes from the durable participant row (#1614)",
+        "pr": 1614,
+        "committedAt": "2026-09-03 12:52:02 -0600",
+        "howIdentified": "code: this is the first main commit that occupies a co-op creator on spectator-1 (matches/index.ts resolveHostSeatKind). Parent 3956fe8af has no resolveHostSeatKind. HEAD sqlite is the seating that commit introduced. e2e at 0d4dff6b3 in a junctioned worktree was not a valid E2E-02-plain signal (server.js required tsx/cjs; CampaignJoin refused runtime-unavailable).",
+        "d2Claim": {
+          "tasksMdLine": 493,
+          "commit": "5d530712546f641473255e748fb4b1272f1735db",
+          "pr": 1617,
+          "subject": "test(campaign): the end-to-end drive can arm journal authority for its own campaigns without moving the production default (#1617)",
+          "claimed": "LIVE PROOF (run d2-proof-1) --group=authority-recovery: 4 passed / 0 failed in 42.8s including E2E-02 participant ownership survives restart",
+          "onMergedMain": "5d5307125 is a descendant of 0d4dff6b3; the 4/4 claim does not match the seating measured on 843d70c79"
+        }
+      },
+      "bisectLog": [
+        {
+          "sha": "843d70c79319d0abaa411522f4e7d99f723ea158",
+          "result": "E2E-02-plain red; playing seats empty on disk before and after death"
+        },
+        {
+          "sha": "0d4dff6b3edca4580e121329a080a30ac4cbc752",
+          "result": "e2e invalid (tsx/cjs MODULE_NOT_FOUND); worktree removed"
+        },
+        {
+          "sha": "3956fe8af (0d4dff6b3^)",
+          "result": "not built; same tsx-era server.js as 0d4dff6b3, would not have given a valid E2E-02-plain signal"
+        }
+      ],
+      "proposedFix": {
+        "paths": [
+          "e2e/helpers/gmTwoPlayerAuthorityRecovery.ts",
+          "e2e/gm-two-player-authority-recovery.pack.spec.ts"
+        ],
+        "estimatedLines": 40,
+        "insideU3Paths": {
+          "e2e": true,
+          "scripts/qc": false,
+          "openspec/changes/harden-gm-two-player-campaign-sessions": false
+        },
+        "what": "Have Player 1 occupy alpha-1 and Player 2 occupy bravo-1 (OccupySeat + SetReady) before LaunchMatch, then assert boundPlayingSeats(after) against that before snapshot. Do not weaken the after length-2 assertion. Do not send those lobby intents from the spectator GM.",
+        "owningNodeIfProduct": null,
+        "productAlternativeNotInU3": {
+          "paths": ["src/lib/multiplayer/server/ServerMatchHostIntent.ts"],
+          "what": "Let a host-spectator send host-only lobby intents (LaunchMatch/SetAiSlot). That would still leave P1/P2 unoccupied unless the drive also occupies them.",
+          "owningNodeIfProduct": "R4.rewind and R3.combat list src/lib/multiplayer/server; U3 does not"
+        }
+      }
+    },
+    {
+      "row": "E2E-15",
+      "spec": "e2e/gm-two-player-resilience.pack.spec.ts:767",
+      "failingLine": "e2e/gm-two-player-resilience.pack.spec.ts:875 expect.poll(() => lifecycleState(page)).toMatch(/^(live|finalized)$/)",
+      "reproduction": {
+        "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=resilience-pack",
+        "resultLine": "1 failed / 1 passed (2.9m)",
+        "exit": 1,
+        "e2e15": "Expected pattern: /^(live|finalized)$/ Received string: \"\" Timeout 150000ms"
+      },
+      "probe": {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/evidence/u3-e2e15-dom-dump.json",
+        "screenshots": [
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/u3-e2e15-page-1.png",
+          "openspec/planning/2026-09-12-roadmap-completion/evidence/u3-e2e15-page-2.png"
+        ],
+        "reverted": "git checkout -- e2e/gm-two-player-resilience.pack.spec.ts; git status --short shows no spec modification"
+      },
+      "mechanism": {
+        "locator": "e2e/gm-two-player-resilience.pack.spec.ts:243-252 lifecycleState reads [data-testid=tactical-lifecycle-state] data-state, returns '' on timeout or missing node",
+        "banner": "src/components/multiplayer/TacticalLifecycleStateBanner.tsx:31-32 always sets data-state={posture.state} when mounted",
+        "mount": "src/pages/multiplayer/lobby/[roomCode].tsx:364-404 mounts NetworkedGameSurface only when lobbyState.status==='active'; NetworkedGameSurface.tsx:318-345 mounts the banner only after mirrorSession exists",
+        "offlineWindow": "resilience.pack.spec.ts:802-865 setOffline(true) on both contexts before waitForServerBack, then setOffline(false), then poll the banner with no test-driven reload",
+        "reconnectLimit": "src/pages/multiplayer/lobby/[roomCode].tsx:296 useMultiplayerSession(..., { maxReconnectAttempts: 2 }); src/lib/multiplayer/client.ts:1167-1176 scheduleReconnect emits close code RECONNECT_LIMIT when the next attempt would exceed the max",
+        "measuredDomAtFailingPoll": {
+          "banner": "absent",
+          "dataState": null,
+          "surfacePresent": false,
+          "loadingPresent": false,
+          "testIds": ["multiplayer-unavailable-panel", "toast-container"],
+          "href": "/multiplayer/lobby/DYKPMQ",
+          "body": "Multiplayer unavailable / The client reached the reconnect limit without establishing a live session. / No internet connection"
+        },
+        "sqliteClauses": "passed (poll is after campaign/match/receipt/cursor/outbox expects). Server log: recovered 2 active match(es) after process-exit-after-commit.",
+        "fnU1cPending": "the banner does not show pending. FN-u1c-pending-intent-never-settles is a different failure mode (posture pending while mounted). This poll received empty string because the banner is not in the document."
+      },
+      "verdict": "harness",
+      "verdictEvidence": "On a production build (no HMR document reload), the row's setOffline window burns the lobby client's two reconnect attempts. After setOffline(false) both pages stay on multiplayer-unavailable-panel with RECONNECT_LIMIT and a leftover 'No internet connection' toast. The letter of E2E-15 (spec.md: E2E-15 restart restores full authority — campaign, match, participants, receipts, cursors, pending outbox, and authorized projections SHALL recover before new commands are enabled) still wants commands enabled; the row's own offline construction is what prevents the banner from mounting. The regex is not rejecting a real posture such as pending.",
+      "letterVsRow": "The row is wrong as an assertion method, not as a letter: sqlite recovery already happened; commandsEnabled never becomes observable because the client has closed. A production in-paths fix is to reload (or remount) after connectivity returns, which the pack header already records as the recovery path HMR used to provide. A product retry after RECONNECT_LIMIT when the network returns would also unstick it but is outside U3 paths.",
+      "firstBadCommit": {
+        "sha": null,
+        "subject": null,
+        "pr": null,
+        "whyNotBisected": "reproduction settled the mechanism. setOffline is in the original E2E-15 commit ecb2d8cad (#1494, 2026-09-02). RECONNECT_LIMIT exists since 95c837b03 (2026-06-21). maxReconnectAttempts: 2 is on the lobby page. The 2026-09-02 green claim in tasks.md:541 was consistent with the pack header's dev-HMR reload; this production run has no HMR."
+      },
+      "bisectLog": [],
+      "proposedFix": {
+        "paths": ["e2e/gm-two-player-resilience.pack.spec.ts"],
+        "estimatedLines": 25,
+        "insideU3Paths": {
+          "e2e": true,
+          "scripts/qc": false,
+          "openspec/changes/harden-gm-two-player-campaign-sessions": false
+        },
+        "what": "After setOffline(false) and waitForServerBack, reload both pages (or otherwise remount the lobby session) before polling the banner, and keep the sqlite recovery clauses where they are. Do not widen COMMANDS_ENABLED_STATES to pending. Optionally raise the poll to also accept a documented reconnecting window, but the letter wants commands enabled, so live|finalized after a reload is the honest in-paths close.",
+        "owningNodeIfProduct": null,
+        "productAlternativeNotInU3": {
+          "paths": [
+            "src/lib/multiplayer/client.ts",
+            "src/pages/multiplayer/lobby/[roomCode].tsx"
+          ],
+          "what": "Retry after RECONNECT_LIMIT when the browser reports online again, or do not count offline failures against maxReconnectAttempts: 2.",
+          "owningNodeIfProduct": "no roadmap node lists src/lib/multiplayer/client.ts or src/pages/multiplayer; same ownership gap as FN-u1c-pending-intent-never-settles"
+        }
+      }
+    }
+  ],
+  "buildsUsed": 2,
+  "worktreesRemoved": [
+    "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u3-bisect-0d4dff6"
+  ],
+  "openQuestionsForTheParent": [
+    "tasks.md:493 D2 LIVE PROOF named 4/4 green on 5d5307125 (#1617), which already contains 0d4dff6b3 (#1614 spectator GM). On 843d70c79 the leftover sqlite never has playing-seat occupants. Was d2-proof-1 run on a branch that did not yet include #1614?",
+    "E2E-02-plain in-paths fix is occupy P1/P2 in gmTwoPlayerAuthorityRecovery.ts (~40 lines, inside U3 e2e). A host-spectator LaunchMatch exception is product in src/lib/multiplayer/server (not U3). Which?",
+    "E2E-15 in-paths fix is reload after the offline window (~25 lines, inside U3 e2e). A client retry after RECONNECT_LIMIT is product in src/lib/multiplayer/client.ts with no owning node. The letter still wants commands enabled; the banner is absent, not pending.",
+    "Bisect e2e at 0d4dff6b3 was invalid in a junctioned worktree (tsx/cjs). First-bad for E2E-02-plain is named from the seating commit plus HEAD disk, not from a green parent run.",
+    "E2E-01-genesis and E2E-02-genesis stayed red (0 event_history_branches rows / effectiveBranchId null). Still the 5.7 non-claim; not re-diagnosed here."
+  ]
+}

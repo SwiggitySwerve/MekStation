@@ -1,0 +1,139 @@
+{
+  "unit": "U3",
+  "stage": "admission",
+  "at": "2026-09-17T01:45:00.000Z",
+  "node": "R6.umbrella",
+  "taskKeys": [
+    "harden-gm-two-player-campaign-sessions#21.1@492"
+  ],
+  "behavior": "Implement and pass E2E-01 through E2E-18 for durable creation, order, atomicity, idempotency, replay/live recovery, cursor integrity, slow-client isolation, restart, reauthentication, active routing, and heartbeat, under the scoped non-claim that the campaign genesis clauses gated at design-campaign-authority-and-sync task 5.7 stay open.",
+  "baseline": "9d1351a780b74f095fb5864f8879419d2d27967b",
+  "originMain": "9d1351a780b74f095fb5864f8879419d2d27967b",
+  "baselineEqualsOriginMain": true,
+  "baselineProof": "git rev-parse HEAD and git rev-parse origin/main both printed 9d1351a780b74f095fb5864f8879419d2d27967b in this worktree; git log -1 --format='%H %s' printed that SHA plus 'docs(roadmap): U2 parked on a Lane B packet, row 21.2 proven on ten rows and held for E2E-19/25 (#1796)'.",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u3",
+  "branch": "codex/roadmap-u3-e2e-01-18-20260916",
+  "ownedPaths": [
+    "e2e",
+    "scripts/qc",
+    "openspec/changes/harden-gm-two-player-campaign-sessions"
+  ],
+  "ownedPathsNote": "src/ is NOT owned. Mutants in src/ are temporary and reverted with git checkout -- <file> before the next step.",
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500
+  },
+  "ciClass": "product",
+  "reviewClasses": [
+    "idempotency",
+    "replay",
+    "concurrency"
+  ],
+  "diagnosis": {
+    "receipt": ".sisyphus/roadmap-completion-20260912/u3-diagnosis-20260916/u3-diagnosis-20260916.json",
+    "sha256": "7258fded65b3ff992e090d29214a8981b41e05d92badee4845a9e78933ca995a",
+    "sha256Source": ".sisyphus/roadmap-completion-20260912/u3-diagnosis-20260916/sha256.txt",
+    "measuredOn": "843d70c79319d0abaa411522f4e7d99f723ea158",
+    "beside": [
+      ".sisyphus/roadmap-completion-20260912/u3-diagnosis-20260916/u3-authority-recovery-seat-snapshots.json",
+      ".sisyphus/roadmap-completion-20260912/u3-diagnosis-20260916/u3-e2e15-dom-dump.json"
+    ],
+    "summary": "Sixteen of eighteen E2E-01..18 rows pass under --group=authority. The two red rows are harness defects, not recovery-writer loss and not a pending posture."
+  },
+  "fixes": [
+    {
+      "id": "E2E-02-plain",
+      "row": "E2E-02 participant ownership survives restart",
+      "spec": "e2e/gm-two-player-authority-recovery.pack.spec.ts:85",
+      "failingAssertionOnDiagnosis": "e2e/gm-two-player-authority-recovery.pack.spec.ts:104 expect(boundPlayingSeats(after.seats)).toHaveLength(2) — Expected length: 2 Received length: 0 Received array: []",
+      "rootCause": "prepareHostDeathTrigger at e2e/helpers/gmTwoPlayerAuthorityRecovery.ts:95-103 sends SetReady alpha-1, SetAiSlot bravo-1, and LaunchMatch from the spectator GM and never OccupySeat. After #1614 a co-op creator sits on spectator-1; rejectSpectatorIntent refuses those lobby intents; mp_matches.meta_json has null occupants on alpha-1 and bravo-1 before and after host death.",
+      "baselineTargets": [
+        {
+          "file": "e2e/helpers/gmTwoPlayerAuthorityRecovery.ts",
+          "lines": "91-103",
+          "what": "prepareHostDeathTrigger: have Player 1 OccupySeat then SetReady on alpha-1 and Player 2 OccupySeat then SetReady on bravo-1 from their own contexts, then LaunchMatch. Never send OccupySeat/SetReady from the spectator GM."
+        },
+        {
+          "file": "e2e/gm-two-player-authority-recovery.pack.spec.ts",
+          "lines": "103-108",
+          "what": "assert boundPlayingSeats(after.seats) against the before snapshot; keep the length-2 assertion"
+        }
+      ],
+      "notThisFix": "Do not let a host-spectator send host-only lobby intents in src/lib/multiplayer/server/ServerMatchHostIntent.ts (not a U3 path)."
+    },
+    {
+      "id": "E2E-15",
+      "row": "E2E-15 a host restart recovers every authority clause before a new command is enabled",
+      "spec": "e2e/gm-two-player-resilience.pack.spec.ts:767",
+      "failingAssertionOnDiagnosis": "e2e/gm-two-player-resilience.pack.spec.ts:875 expect.poll(() => lifecycleState(page)).toMatch(/^(live|finalized)$/) — Expected pattern: /^(live|finalized)$/ Received string: \"\" Timeout 150000ms",
+      "rootCause": "setOffline(true) on both contexts at :802-865 burns the lobby client's maxReconnectAttempts (2). After setOffline(false) both pages stay on multiplayer-unavailable-panel (RECONNECT_LIMIT); the banner never mounts, so lifecycleState returns ''. Sqlite recovery clauses already passed. Production has no HMR document reload.",
+      "baselineTargets": [
+        {
+          "file": "e2e/gm-two-player-resilience.pack.spec.ts",
+          "lines": "863-881",
+          "what": "after setOffline(false) and waitForServerBack, reload or remount both pages before polling the banner. Keep the sqlite recovery clauses. Do not accept pending. Do not widen COMMANDS_ENABLED_STATES."
+        }
+      ],
+      "notThisFix": "Do not retry after RECONNECT_LIMIT in src/lib/multiplayer/client.ts or the lobby page (not U3 paths)."
+    }
+  ],
+  "estimate": {
+    "kind": "two harness fixes inside e2e/",
+    "diagnosisEstimateLines": 65,
+    "perFile": [
+      {
+        "path": "e2e/helpers/gmTwoPlayerAuthorityRecovery.ts",
+        "lines": 25,
+        "what": "seat Player 1 on alpha-1 and Player 2 on bravo-1 from their own sockets before LaunchMatch"
+      },
+      {
+        "path": "e2e/gm-two-player-authority-recovery.pack.spec.ts",
+        "lines": 8,
+        "what": "compare after playing seats to the before snapshot without dropping the length-2 expect"
+      },
+      {
+        "path": "e2e/gm-two-player-resilience.pack.spec.ts",
+        "lines": 20,
+        "what": "reload both pages after connectivity returns, before the live|finalized poll"
+      },
+      {
+        "path": "openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md",
+        "lines": 1,
+        "what": "one PROGRESS line under 21.1; checkbox stays unchecked"
+      }
+    ],
+    "fileCount": 4,
+    "nonGeneratedLines": 54,
+    "fitsFileCap": true,
+    "fitsLineCap": true
+  },
+  "genesisNonClaim": "The genesis clauses of E2E-01 and E2E-02 (event_history_branches genesis row, effectiveBranchId) stay a scoped non-claim. They are gated on design-campaign-authority-and-sync task 5.7, an owner-gated production flag (CAMPAIGN_JOURNAL_AUTHORITY_ENABLED). Do not touch the flag and do not weaken those assertions. They remain expected failures under the fixture arm MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY=1.",
+  "risksForTheParent": [
+    {
+      "id": "RK-1",
+      "risk": "A co-op GM occupies spectator-1, and rejectSpectatorIntent refuses every Intent from that seat, including LaunchMatch. Occupying P1/P2 from their own contexts is the in-paths seating fix; a host-spectator LaunchMatch exception is product in src/lib/multiplayer/server, which U3 does not own.",
+      "handling": "Seat the two playing players, then still send LaunchMatch from the host as today's drive does. If LaunchMatch stays refused, E2E-02-plain is occupancy survival across reload of already-written meta_json, which is the letter the length-2 assertion actually reads. Do not edit the spectator gate."
+    },
+    {
+      "id": "RK-2",
+      "risk": "E2E-01-genesis and E2E-02-genesis stay red (0 event_history_branches rows / effectiveBranchId null) on the 5.7 non-claim.",
+      "handling": "Leave the assertions and the production flag untouched. The final --group=authority run is allowed to fail only those two rows."
+    },
+    {
+      "id": "RK-3",
+      "risk": "Reloading after E2E-15's offline window is reload-equivalent recovery, not proof that the in-page reconnect outlasts a production respawn. The pack header already records that non-claim.",
+      "handling": "Reload after setOffline(false). Keep COMMANDS_ENABLED_STATES as live|finalized. Do not accept pending."
+    }
+  ],
+  "environment": {
+    "node": "v22.22.0",
+    "worktreeStatusAtAdmission": "clean (git status --short empty)",
+    "rootWorkingTreeTouched": false,
+    "buildOrPlaywrightRunBeforeThisReceipt": false
+  },
+  "notes": [
+    "units.json and evidence/admission-snapshot.json are not edited.",
+    "The 21.1 checkbox is not checked.",
+    "OccupySeat has zero call sites under e2e/ on this baseline; other packs occupy via the lobby UI auto-occupy (useAutoOccupySeat) plus markReady. The recovery drive uses raw match-channel sockets, so it must send OccupySeat itself."
+  ]
+}

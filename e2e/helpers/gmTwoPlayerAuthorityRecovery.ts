@@ -15,6 +15,10 @@
 import { expect, type APIRequestContext, type Page } from '@playwright/test';
 
 import { createGmTwoPlayerCampaignFixture } from '../fixtures/gmTwoPlayerCampaign';
+import {
+  boundPlayingSeats,
+  snapshotOwnership,
+} from './authorityRecoveryEvidence';
 import { armScopedFault } from './gmTwoPlayerMatchFlow';
 
 export const RECOVERY_CAMPAIGN_NAME = 'GM two-player recovery';
@@ -89,17 +93,28 @@ export async function markPlayersReadyIfVisible(
 }
 
 /**
- * Open the match channel, fill the empty 1v1 seat with AI, launch, so
- * the next AdvancePhase is a real appendCommandBatch on this matchId.
+ * The co-op creator is posted with hostSeatKind human so they occupy
+ * alpha-1 as a playing host, not spectator-1. Player 1 occupies
+ * bravo-1. LaunchMatch and AdvancePhase ride the same armed socket in
+ * fireHostDeath: a spectator host is refused, and closing the lobby
+ * socket before AdvancePhase pauses the match so the combat command
+ * never reaches appendCommandBatch.
  */
 export async function prepareHostDeathTrigger(
   drive: IRecoveryDrive,
 ): Promise<void> {
   await sendMatchIntents(drive.gm, drive.session, [
     { kind: 'SetReady', slotId: 'alpha-1', ready: true },
-    { kind: 'SetAiSlot', slotId: 'bravo-1' },
-    { kind: 'LaunchMatch' },
   ]);
+  await sendMatchIntents(drive.playerOne, drive.session, [
+    { kind: 'OccupySeat', slotId: 'bravo-1' },
+    { kind: 'SetReady', slotId: 'bravo-1', ready: true },
+  ]);
+  await expect
+    .poll(() => boundPlayingSeats(snapshotOwnership(drive).seats).length, {
+      timeout: 15_000,
+    })
+    .toBe(2);
 }
 
 export async function fireHostDeath(
@@ -112,6 +127,7 @@ export async function fireHostDeath(
     drive.session.matchId,
   );
   await sendMatchIntents(drive.gm, drive.session, [
+    { kind: 'LaunchMatch' },
     { kind: 'AdvancePhase' },
   ]).catch(() => undefined);
   await waitForRelaunch(request);
@@ -209,6 +225,10 @@ async function postCampaignMatch(
           config: { mapRadius: 8, turnLimit: 20, fogOfWar: false },
           displayName: identity.displayName,
           layout: '1v1',
+          // Co-op POST would seat the creator on spectator-1 and refuse
+          // LaunchMatch. Human host keeps alpha-1 so the death lever
+          // can fire after appendCommandBatch.
+          hostSeatKind: 'human',
           coopCampaign: {
             campaignId: id,
             arbitrationMode: 'host-review',
@@ -317,9 +337,10 @@ async function sendMatchIntents(
   client: IRecoveryClient,
   session: IRecoverySession,
   intents: readonly Record<string, unknown>[],
+  settleMs = 2_000,
 ): Promise<void> {
   await client.page.evaluate(
-    async ({ identity, campaign, frames }) => {
+    async ({ identity, campaign, frames, settle }) => {
       const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
       const token = identity.wireToken
         .replace(/\+/g, '-')
@@ -364,7 +385,7 @@ async function sendMatchIntents(
             window.clearTimeout(timeout);
             socket.close();
             resolve();
-          }, 2_000);
+          }, settle);
         });
         socket.addEventListener('error', () => {
           window.clearTimeout(timeout);
@@ -372,7 +393,12 @@ async function sendMatchIntents(
         });
       });
     },
-    { identity: client.identity, campaign: session, frames: intents },
+    {
+      identity: client.identity,
+      campaign: session,
+      frames: intents,
+      settle: settleMs,
+    },
   );
 }
 

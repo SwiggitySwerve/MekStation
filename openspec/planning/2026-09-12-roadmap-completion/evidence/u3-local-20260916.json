@@ -1,0 +1,536 @@
+{
+  "unit": "U3",
+  "stage": "local",
+  "at": "2026-09-17T02:45:30.892Z",
+  "baseline": "9d1351a780b74f095fb5864f8879419d2d27967b",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u3",
+  "branch": "codex/roadmap-u3-e2e-01-18-20260916",
+  "committed": false,
+  "status": "ready",
+  "blocker": "Required --group=authority measured 3 failed / 17 passed (4.5m). Allowed failures are only E2E-01-genesis and E2E-02-genesis. Extra fail: E2E-16 e2e/gm-two-player-token.pack.spec.ts:281 expect(socketUrls.length).toBeGreaterThan(socketCountBeforeStaleReload) Expected > 2 Received 2. Reproduced in isolation --group=token-pack: 1 failed / 1 passed (1.7m), same assertion. Token pack was not edited. Unlock-vault heading was visible; the socket-count mutant clause is what died. Not one of the two U3 harness defects. Unit not widened.",
+  "implementerModel": "grok-4.6 (cursor-agent, Cursor Grok 4.6 High)",
+  "whatWasBuilt": [
+    "e2e/helpers/gmTwoPlayerAuthorityRecovery.ts prepareHostDeathTrigger: Player 1 OccupySeat+SetReady alpha-1 and Player 2 OccupySeat+SetReady bravo-1 from their own match-channel sockets, poll boundPlayingSeats length 2, then LaunchMatch from the spectator GM.",
+    "e2e/gm-two-player-authority-recovery.pack.spec.ts E2E-02-plain: afterPlaying equals beforePlaying and still toHaveLength(2).",
+    "e2e/gm-two-player-resilience.pack.spec.ts E2E-15: after setOffline(false) reload both pages before the live|finalized poll. Sqlite recovery clauses unchanged. pending not accepted. COMMANDS_ENABLED_STATES unchanged.",
+    "openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md: one PROGRESS line under 21.1; checkbox unchecked."
+  ],
+  "lineCounts": {
+    "e2e/gm-two-player-authority-recovery.pack.spec.ts": {
+      "insertions": 4,
+      "deletions": 1
+    },
+    "e2e/gm-two-player-resilience.pack.spec.ts": {
+      "insertions": 19,
+      "deletions": 11
+    },
+    "e2e/helpers/gmTwoPlayerAuthorityRecovery.ts": {
+      "insertions": 21,
+      "deletions": 5
+    },
+    "openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md": {
+      "insertions": 1,
+      "deletions": 0
+    },
+    "files": 4,
+    "productInsertions": 45,
+    "productDeletions": 17,
+    "cap": {
+      "maxFiles": 15,
+      "maxNonGeneratedLines": 500,
+      "filesOk": true,
+      "linesOk": true
+    }
+  },
+  "gates": {
+    "tsc": {
+      "command": "npx tsc --noEmit",
+      "lastLine": "(no diagnostic output)",
+      "exitCode": 0
+    },
+    "oxfmt": {
+      "command": "npx oxfmt --check e2e/helpers/gmTwoPlayerAuthorityRecovery.ts e2e/gm-two-player-authority-recovery.pack.spec.ts e2e/gm-two-player-resilience.pack.spec.ts",
+      "lastLine": "Finished in 16ms on 3 files using 16 threads.",
+      "exitCode": 0,
+      "note": "First check failed on gmTwoPlayerAuthorityRecovery.ts; oxfmt write then recheck passed."
+    },
+    "oxlint": {
+      "command": "npx oxlint e2e/helpers/gmTwoPlayerAuthorityRecovery.ts e2e/gm-two-player-authority-recovery.pack.spec.ts e2e/gm-two-player-resilience.pack.spec.ts",
+      "lastLine": "Finished in 49ms on 0 files using 16 threads.",
+      "precedingLine": "Found 0 warnings and 0 errors.",
+      "exitCode": 0,
+      "ignore": ".oxlintrc.json ignorePatterns includes e2e/** at line 53; oxlint reported 0 files."
+    },
+    "jestQcPin": {
+      "command": "npx jest scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+      "lastLine": "Ran all test suites matching /scripts\\\\__tests__\\\\gm-two-player-campaign-qc.test.ts/i.",
+      "resultLine": "Tests:       12 passed, 12 total",
+      "exitCode": 0
+    },
+    "openspecCi": {
+      "command": "npm run qc:openspec-ci:validate",
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+      "exitCode": 0
+    },
+    "roadmap": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "lastLine": "ROADMAP VALIDATION PASSED: 73 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "exitCode": 0
+    }
+  },
+  "builds": {
+    "n": 6,
+    "budget": 8,
+    "hydrateExit": 1,
+    "tsxWorkaround": "NODE_PATH to gitignored .sisyphus/u3-runtime/node_modules/tsx@4.22.4 on every Playwright run"
+  },
+  "runs": [
+    {
+      "id": "red-authority-recovery",
+      "group": "authority-recovery",
+      "stage": "red",
+      "resultLine": "3 failed",
+      "resultLinePassed": "1 passed (28.9s)",
+      "exitCode": 1,
+      "rows": [
+        {
+          "row": "E2E-01-plain",
+          "status": "passed",
+          "duration": "5.5s"
+        },
+        {
+          "row": "E2E-01-genesis",
+          "status": "failed",
+          "assertion": "e2e/helpers/authorityRecoveryEvidence.ts:229 expect(rows).toHaveLength(1)",
+          "expected": "1",
+          "received": "0"
+        },
+        {
+          "row": "E2E-02-plain",
+          "status": "failed",
+          "assertion": "e2e/gm-two-player-authority-recovery.pack.spec.ts:104 expect(boundPlayingSeats(after.seats)).toHaveLength(2)",
+          "expected": "2",
+          "received": "0"
+        },
+        {
+          "row": "E2E-02-genesis",
+          "status": "failed",
+          "assertion": "e2e/gm-two-player-authority-recovery.pack.spec.ts:132 expect(after.effectiveBranchId).not.toBeNull()",
+          "received": "null"
+        }
+      ]
+    },
+    {
+      "id": "red-resilience-pack",
+      "group": "resilience-pack",
+      "stage": "red",
+      "resultLine": "1 failed",
+      "resultLinePassed": "1 passed (2.9m)",
+      "exitCode": 1,
+      "rows": [
+        {
+          "row": "E2E-14",
+          "status": "passed",
+          "duration": "11.0s"
+        },
+        {
+          "row": "E2E-15",
+          "status": "failed",
+          "duration": "2.6m",
+          "assertion": "e2e/gm-two-player-resilience.pack.spec.ts:875 expect.poll(() => lifecycleState(page)).toMatch(/^(live|finalized)$/)",
+          "expected": "/^(live|finalized)$/",
+          "received": "\"\""
+        }
+      ]
+    },
+    {
+      "id": "green-authority-recovery-1",
+      "group": "authority-recovery",
+      "stage": "local",
+      "resultLine": "2 failed",
+      "resultLinePassed": "2 passed (42.7s)",
+      "exitCode": 1,
+      "rows": [
+        {
+          "row": "E2E-01-plain",
+          "status": "passed"
+        },
+        {
+          "row": "E2E-01-genesis",
+          "status": "failed",
+          "assertion": "e2e/helpers/authorityRecoveryEvidence.ts:229 expect(rows).toHaveLength(1)",
+          "expected": "1",
+          "received": "0"
+        },
+        {
+          "row": "E2E-02-plain",
+          "status": "passed"
+        },
+        {
+          "row": "E2E-02-genesis",
+          "status": "failed",
+          "assertion": "e2e/gm-two-player-authority-recovery.pack.spec.ts:135 expect(after.effectiveBranchId).not.toBeNull()",
+          "received": "null"
+        }
+      ]
+    },
+    {
+      "id": "green-resilience-pack-1",
+      "group": "resilience-pack",
+      "stage": "local",
+      "resultLine": "2 passed (21.4s)",
+      "exitCode": 0,
+      "rows": [
+        {
+          "row": "E2E-14",
+          "status": "passed"
+        },
+        {
+          "row": "E2E-15",
+          "status": "passed",
+          "duration": "6.1s"
+        }
+      ]
+    },
+    {
+      "id": "authority-union",
+      "group": "authority",
+      "stage": "local",
+      "resultLine": "3 failed",
+      "resultLinePassed": "17 passed (4.5m)",
+      "exitCode": 1,
+      "rows": [
+        {
+          "row": "E2E-04",
+          "status": "passed",
+          "duration": "1.6s"
+        },
+        {
+          "row": "E2E-07",
+          "status": "passed",
+          "duration": "2.3s"
+        },
+        {
+          "row": "E2E-01-plain",
+          "status": "passed",
+          "duration": "9.6s"
+        },
+        {
+          "row": "E2E-01-genesis",
+          "status": "failed",
+          "duration": "9.4s",
+          "assertion": "e2e/helpers/authorityRecoveryEvidence.ts:229 expect(rows).toHaveLength(1)",
+          "expected": "1",
+          "received": "0"
+        },
+        {
+          "row": "E2E-02-plain",
+          "status": "passed",
+          "duration": "9.5s"
+        },
+        {
+          "row": "E2E-02-genesis",
+          "status": "failed",
+          "duration": "9.5s",
+          "assertion": "e2e/gm-two-player-authority-recovery.pack.spec.ts:135 expect(after.effectiveBranchId).not.toBeNull()",
+          "received": "null"
+        },
+        {
+          "row": "E2E-18",
+          "status": "passed",
+          "duration": "1.3m"
+        },
+        {
+          "row": "E2E-03",
+          "status": "passed",
+          "duration": "1.1s"
+        },
+        {
+          "row": "E2E-08",
+          "status": "passed",
+          "duration": "5.6s"
+        },
+        {
+          "row": "E2E-09",
+          "status": "passed",
+          "duration": "2.2s"
+        },
+        {
+          "row": "E2E-10",
+          "status": "passed",
+          "duration": "3.0s"
+        },
+        {
+          "row": "E2E-11",
+          "status": "passed",
+          "duration": "1.9s"
+        },
+        {
+          "row": "E2E-12",
+          "status": "passed",
+          "duration": "2.7s"
+        },
+        {
+          "row": "E2E-13",
+          "status": "passed",
+          "duration": "1.6s"
+        },
+        {
+          "row": "E2E-14",
+          "status": "passed",
+          "duration": "11.2s"
+        },
+        {
+          "row": "E2E-15",
+          "status": "passed",
+          "duration": "6.3s"
+        },
+        {
+          "row": "E2E-05",
+          "status": "passed",
+          "duration": "6.0s"
+        },
+        {
+          "row": "E2E-06",
+          "status": "passed",
+          "duration": "6.0s"
+        },
+        {
+          "row": "E2E-16",
+          "status": "failed",
+          "duration": "1.5m",
+          "assertion": "e2e/gm-two-player-token.pack.spec.ts:281 expect(socketUrls.length).toBeGreaterThan(socketCountBeforeStaleReload)",
+          "expected": "> 2",
+          "received": "2"
+        },
+        {
+          "row": "E2E-17",
+          "status": "passed",
+          "duration": "3.2s"
+        }
+      ]
+    },
+    {
+      "id": "lifecycle-pack",
+      "group": "lifecycle-pack",
+      "stage": "local-regression",
+      "resultLine": "2 passed (13.6s)",
+      "exitCode": 0,
+      "rows": [
+        {
+          "row": "E2E-75",
+          "status": "passed",
+          "duration": "4.4s"
+        },
+        {
+          "row": "E2E-75-pending-blocked",
+          "status": "passed",
+          "duration": "4.7s"
+        }
+      ]
+    },
+    {
+      "id": "determinism-authority-recovery",
+      "group": "authority-recovery",
+      "stage": "local-determinism",
+      "resultLine": "2 failed",
+      "resultLinePassed": "2 passed (43.5s)",
+      "exitCode": 1
+    },
+    {
+      "id": "determinism-resilience-pack",
+      "group": "resilience-pack",
+      "stage": "local-determinism",
+      "resultLine": "2 passed (21.9s)",
+      "exitCode": 0,
+      "rows": [
+        {
+          "row": "E2E-14",
+          "status": "passed",
+          "duration": "11.5s"
+        },
+        {
+          "row": "E2E-15",
+          "status": "passed",
+          "duration": "6.1s"
+        }
+      ]
+    },
+    {
+      "id": "token-pack-isolation",
+      "group": "token-pack",
+      "stage": "characterization-of-authority-extra-fail",
+      "resultLine": "1 failed",
+      "resultLinePassed": "1 passed (1.7m)",
+      "exitCode": 1,
+      "note": "Not a required U3 group. Characterizes E2E-16 as isolation-red, not union-only.",
+      "rows": [
+        {
+          "row": "E2E-16",
+          "status": "failed",
+          "duration": "1.5m",
+          "assertion": "e2e/gm-two-player-token.pack.spec.ts:281 expect(socketUrls.length).toBeGreaterThan(socketCountBeforeStaleReload)",
+          "expected": "> 2",
+          "received": "2"
+        },
+        {
+          "row": "E2E-17",
+          "status": "passed",
+          "duration": "3.2s"
+        }
+      ]
+    },
+    {
+      "id": "post-revert-authority-recovery",
+      "group": "authority-recovery",
+      "stage": "local-after-last-mutant-revert",
+      "resultLine": "2 failed",
+      "resultLinePassed": "2 passed (43.4s)",
+      "exitCode": 1
+    },
+    {
+      "id": "post-revert-resilience-pack",
+      "group": "resilience-pack",
+      "stage": "local-after-last-mutant-revert",
+      "resultLine": "2 passed (22.0s)",
+      "exitCode": 0
+    }
+  ],
+  "mutants": [
+    {
+      "id": "M1",
+      "file": "src/lib/multiplayer/server/MatchRecovery.ts",
+      "change": "At recoverActiveMatches loop start, updateMatchMeta seats with occupant: null.",
+      "group": "authority-recovery",
+      "resultLine": "2 failed",
+      "resultLinePassed": "2 passed (42.9s)",
+      "caught": false,
+      "e2e02plain": "passed",
+      "verdict": "killed",
+      "rerunAt": "2026-09-17T04:36:11.492Z",
+      "rerunChange": "same mutant (recoverActiveMatches loop start persists every seat with occupant null) against the final row, which reads the persisted seats after the restart and before any rejoin",
+      "rerunResult": "3 failed / 1 passed",
+      "rerunFailures": [
+        "1) [chromium] › e2e\\gm-two-player-authority-recovery.pack.spec.ts:66:5 › E2E-01 genesis branch recovers @authority-recovery @E2E-01",
+        "2) [chromium] › e2e\\gm-two-player-authority-recovery.pack.spec.ts:85:5 › E2E-02 participant ownership survives restart @authority-recovery @",
+        "3) [chromium] › e2e\\gm-two-player-authority-recovery.pack.spec.ts:123:5 › E2E-02 effective branch remains authoritative @authority-recovery "
+      ]
+    },
+    {
+      "id": "M2",
+      "file": "src/lib/multiplayer/server/DurableMatchStore.ts",
+      "change": "updateMatchMeta always writes seats with occupant: null.",
+      "group": "authority-recovery",
+      "resultLine": "4 failed",
+      "caught": true,
+      "assertion": "e2e/helpers/gmTwoPlayerAuthorityRecovery.ts:113 expect.poll(() => boundPlayingSeats(snapshotOwnership(drive).seats).length).toBe(2)",
+      "expected": "2",
+      "received": "0",
+      "timeout": "15000ms",
+      "calledFrom": "e2e/gm-two-player-authority-recovery.pack.spec.ts:98 E2E-02-plain",
+      "verdict": "killed",
+      "revert": "git checkout -- src/lib/multiplayer/server/DurableMatchStore.ts; git status --short showed no src/."
+    },
+    {
+      "id": "M3",
+      "file": "src/lib/multiplayer/tacticalLifecycleState.ts",
+      "change": "deriveState: if (!input.client.ready) return 'live' instead of 'behind'.",
+      "group": "resilience-pack",
+      "resultLine": "2 passed (21.8s)",
+      "caught": false,
+      "e2e15": "passed 6.3s",
+      "verdict": "survived",
+      "equivalenceProof": "After remount the client reaches ready (ReplayEnd) before the 1s poll samples data-state. Banner live|finalized and the command round-trip still succeed; the row does not observe the behind window. Reverted with git checkout -- src/lib/multiplayer/tacticalLifecycleState.ts; git status --short showed no src/."
+    },
+    {
+      "id": "M4",
+      "file": "src/lib/multiplayer/server/MatchHostRegistry.ts",
+      "change": "bootstrapMultiplayerServer logs recovered 2 and returns without recoverActiveMatches.",
+      "group": "resilience-pack",
+      "resultLine": "1 failed",
+      "resultLinePassed": "1 passed (21.2s)",
+      "caught": true,
+      "assertion": "e2e/gm-two-player-resilience.pack.spec.ts:863 expect(recovered.outboxPending).toBe(0)",
+      "expected": "0",
+      "received": "3",
+      "verdict": "killed",
+      "revert": "git checkout -- src/lib/multiplayer/server/MatchHostRegistry.ts; git status --short showed no src/."
+    }
+  ],
+  "nonClaims": [
+    "E2E-01 genesis: e2e/helpers/authorityRecoveryEvidence.ts:229 expect(rows).toHaveLength(1) received 0. Gated on design-campaign-authority-and-sync task 5.7 (CAMPAIGN_JOURNAL_AUTHORITY_ENABLED owner-gated production flag). Fixture arm MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY=1 does not write a campaign genesis branch on the production path. Assertion not weakened. Flag not touched.",
+    "E2E-02 genesis: e2e/gm-two-player-authority-recovery.pack.spec.ts:135 expect(after.effectiveBranchId).not.toBeNull() received null. Same 5.7 gate. Assertion not weakened. Flag not touched."
+  ],
+  "findingsReportedNotFixed": [
+    {
+      "id": "U3-F1",
+      "row": "E2E-16",
+      "assertion": "e2e/gm-two-player-token.pack.spec.ts:281 expect(socketUrls.length).toBeGreaterThan(2) received 2",
+      "measured": "--group=authority 3 failed / 17 passed (4.5m); --group=token-pack isolation 1 failed / 1 passed (1.7m)",
+      "note": "Vault heading Unlock vault was visible. Socket-count clause failed twice. Not a U3 path. Token pack not edited.",
+      "parentClassification": "deterministic on this tree: failed in five of five runs across the grok lane and the parent (token-pack isolation twice, full authority), while the discovery run on a00b816dc passed it once inside --group=authority; the socket-count clause expects the stale reload to re-dial the socket and receives the same count; no product file changed between the two commits and U3 touches no token-pack path; cause not isolated (a race between the reload and the product's own stale-credential handling at the expiry instant is the leading hypothesis); recorded for a diagnosis successor, not fixed here",
+      "parentRuns": [
+        "1 failed / 1 passed",
+        "1 failed / 1 passed"
+      ]
+    }
+  ],
+  "srcCleanAfterMutants": true,
+  "checkbox21_1": "unchecked",
+  "parentVerification20260916": {
+    "at": "2026-09-17T04:36:11.492Z",
+    "why": "the grok-4.6 continuation lane wrote the final row edits (seats read from disk after the restart and before any rejoin; human host seat; settle parameter) and then stopped on Cursor usage exhaustion before re-running gates or the mutant; the parent (claude-fable-5-1) ran the verification itself in the same worktree; no implementation edit was made by the parent",
+    "rootNodeModulesIncident": "the first parent runs failed with Cannot find module tsx/cjs: the root node_modules had been pruned (191 packages) by an install inside a junctioned bisect worktree; restored with npm install in the root (lockfile rewrite reverted) before the runs below",
+    "runs": {
+      "authority-recovery (edits, before mutant)": "2 failed / 2 passed",
+      "resilience-pack (edits, before mutant)": "0 failed / 2 passed",
+      "authority-recovery with M1 applied": "3 failed / 1 passed",
+      "authority-recovery after revert (clean rebuild)": "2 failed / 2 passed",
+      "resilience-pack after revert": "0 failed / 2 passed",
+      "token-pack run 1": "1 failed / 1 passed",
+      "token-pack run 2": "1 failed / 1 passed",
+      "authority (full)": "3 failed / 17 passed",
+      "lifecycle-pack": "0 failed / 2 passed"
+    },
+    "authorityFullFailures": [
+      "1) [chromium] › e2e\\gm-two-player-authority-recovery.pack.spec.ts:66:5 › E2E-01 genesis branch recovers @authority-recovery @E2E-01",
+      "2) [chromium] › e2e\\gm-two-player-authority-recovery.pack.spec.ts:123:5 › E2E-02 effective branch remains authoritative @authority-recovery ",
+      "3) [chromium] › e2e\\gm-two-player-token.pack.spec.ts:153:5 › E2E-16 expired participant reauthenticates without a URL bearer @E2E-16"
+    ],
+    "gates": {
+      "tsc": "(clean)",
+      "oxfmt": "Finished in 16ms on 3 files using 16 threads.",
+      "oxlint": "Finished in 7ms on 0 files using 16 threads.",
+      "jest": "Tests:       12 passed, 12 total",
+      "qcOpenspecCi": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+      "validator": "ROADMAP VALIDATION PASSED: 73 nodes, 13 packages, 376 tasks, 40 triage rows"
+    },
+    "logs": ".sisyphus/roadmap-completion-20260912/worktrees/u3/.sisyphus-u3-verify (local; sha256.txt)",
+    "logHashes": [
+      "6f030e91193465de6508d6b4767ea977309005666c3463f8a9e6d03b2ee470b1 *authority-full.log",
+      "574f0306f3abdf396c9d69f4182610f6ba2e5058366b9df5b2aecc148dc7e42e *authority-recovery-1.log",
+      "9ac8d2bdc894eea6c34fac902ace6347f990021b05d4714368b409c8d89e93f2 *authority-recovery-2.log",
+      "2a414524aa58ff3fd311137e5f5e4fbf5e532d7ebce3ae7e600ae166b37f9e5e *authority-recovery-m1.log",
+      "78323dca552447d6dc5b3893560f816b80b3ec3675c4383a63da7b3223fe7aa0 *authority-recovery-post.log",
+      "ceb08b504bea88462dcdf4f04680185eba8673395ff9a2abfbef69ff9631fc58 *build-clean.log",
+      "3466f806acb0618d608efa9a951973446aef6b02583f53696100fd7ebac650f3 *build-m1.log",
+      "06a0cd55ae96957b84b307f024df4d659508881f947452460e6c04080e39b95d *jest-pin.log",
+      "7b0772dbcb2ffce8e9e7fd3f05182939d2761db53989964dc07d60ac1328645f *lifecycle-post.log",
+      "2b1fc8be4cd2bf00cef14d89e97f4bd879e087aee0665db398db7e8c0451df76 *oxfmt.log",
+      "4c676fb453a7153e0c2f5d8a997a118de973883c6e899a43f7e2d6705a24222e *oxlint.log",
+      "4c2dafd093b946290aa4abe001ad8b3d65671b17c7682722c55a510ecc04f91e *qc-openspec-ci.log",
+      "75edf6dcd71860b87528a62586a54083112fd476f58117c15f0306958fd652aa *resilience-1.log",
+      "b3391d25a4220687771277540aad0ca239a6cb3d5d09cf58be18e28aac904dd4 *resilience-2.log",
+      "0de8ded240c5aacf47809e1869cb8c228ea727e79c4c56d5b4f6fd42d3cc586f *resilience-post.log",
+      "bfa76eb4556aead46d0008888aaedbbed19b6630cf39c98b32244842da563ece *token-pack-1.log",
+      "30dd1727e683a7aed8ea7a7085f2ff396d798afc23431544c63b1d593743af8d *token-pack-2.log",
+      "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 *tsc.log",
+      "b185e5f101786a05e7aa9bd0cde15778607fa047fbdbec8a15158c89753c23fc *validator.log"
+    ]
+  },
+  "killedMutants": [
+    "M1",
+    "M2",
+    "M4"
+  ]
+}
