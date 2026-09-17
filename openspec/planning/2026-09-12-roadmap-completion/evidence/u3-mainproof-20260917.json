@@ -1,0 +1,41 @@
+{
+  "unit": "U3",
+  "stage": "mainProof",
+  "at": "2026-09-17T07:05:00.438Z",
+  "mergeCommit": "e3fc54384d1eca5ec4b3547a45276e50dd6c4b7e",
+  "checkout": "root checkout fast-forwarded to the merge commit (real node_modules; hydrate step runs)",
+  "runtime": {
+    "build": "exit 0",
+    "e2eBundleMarker": "__E2E_MODE__ present in _app chunk (run log)",
+    "playwright": "authority: 3 failed / 17 passed",
+    "failedRows": [
+      "1) [chromium] › e2e\\gm-two-player-authority-recovery.pack.spec.ts:66:5 › E2E-01 genesis branch recovers @authority-recovery @E2E-01",
+      "2) [chromium] › e2e\\gm-two-player-authority-recovery.pack.spec.ts:123:5 › E2E-02 effective branch remains authoritative @authority-recovery @E2E-02",
+      "3) [chromium] › e2e\\gm-two-player-token.pack.spec.ts:153:5 › E2E-16 expired participant reauthenticates without a URL bearer @E2E-16"
+    ],
+    "expectedReds": "E2E-01 genesis and E2E-02 genesis (design-campaign-authority-and-sync task 5.7 non-claim; FN-genesis-branch-row-is-a-mirror-side-effect) and E2E-16 (FN-u3-e2e-16-stale-reload-socket-count)",
+    "unexpectedReds": [],
+    "tsc": "exit 0"
+  },
+  "commands": {
+    "validator": "ROADMAP VALIDATION PASSED: 73 nodes, 13 packages, 376 tasks, 40 triage rows",
+    "gitAncestry": "ROADMAP VALIDATION PASSED: 73 nodes, 13 packages, 376 tasks, 40 triage rows (--git)",
+    "next": "NONE-ADMISSIBLE: 2 owner-gated, 0 blocked",
+    "openspecStrict": "Totals: 229 passed, 0 failed (229 items)",
+    "qcOpenspecCi": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+    "qcPin": "Tests:       24 passed, 24 total"
+  },
+  "logs": ".sisyphus/roadmap-completion-20260912/u3-main-proof-20260917/ (local; sha256 below)",
+  "logHashes": [
+    "59a2ae9bb89ce9e1d784f74fdff47c1147ec9081b15c43b20d481696e12dd9c3 *build.log",
+    "8e1f8501b06707db812f7b3703fa3261b1084f0ab578fc7da2e23623b1157f71 *git-check.log",
+    "e427c12b07098a8e3cc686a32fca97e0bd075e7087eff7bd5eea0b80e6ef179c *next.log",
+    "ddfdad8a15b1c7125171f6c160d5cbafce03efb70e451989b862be993ed9a500 *openspec-strict.log",
+    "b3d08fb7115cdadfd9e9149307fe24c02c3bba5f82b0920855f9a3c9ba61cf66 *playwright.log",
+    "ada1ed70bb026eced226ccfa183e2ef0bcfeb5adff01f46d7af986e0001ef8dd *qc-openspec-ci.log",
+    "e41a34e2c292c13887fe6f69926ff5ff17491b6293f61178f4ef6bc65833c020 *qc-pin.log",
+    "28d3b9e880a77975493dc7e359144c0295a4f694cfe0af4f928c22307bc5c320 *tsc.log",
+    "8e1f8501b06707db812f7b3703fa3261b1084f0ab578fc7da2e23623b1157f71 *validator.log"
+  ],
+  "verdict": "PASS"
+}
