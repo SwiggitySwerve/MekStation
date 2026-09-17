@@ -732,10 +732,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "local-verified",
+      "state": "complete",
       "baseline": "58fd434a486c408e8a9e0a495e7539d85490f416",
-      "prHead": "e1f5629e311f2492600fb4d30818cbaf1a8d5f9d",
-      "mergeSha": null,
+      "prHead": "30c81495c9a55603ff7918f8fa94590d803fe0ac",
+      "mergeSha": "6f9444bf2347850a95d42f01e501e557404dbc85",
       "stageReceipts": {
         "admission": {
           "path": "evidence/u15b-admission-20260917.json",
@@ -753,10 +753,31 @@
           "at": "2026-09-17T16:10:31.840Z",
           "summary": "claude-opus Agent lane. The run plan sets MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE=enabled under the existing arming condition next to the campaign key; playwright.config.ts forwards it under the same guard. Gates: pin 14/14, tsc 0, oxlint on playwright.config.ts 0/0 (vacuous for the two script files), oxfmt clean, lint:units LINT_UNITS_PASS 100/100, qc:openspec-ci errors=0, validator PASSED; four mutants killed (key on every group 1, shadow value 1, config forwards unconditionally 1, config does not forward 1), sha256 restored; parent verification in the worktree 14/14, tsc 0, LINT_UNITS_PASS 100/100; product 25 added / 3 removed across two files, 73 test lines, under the cap; non-claims: no ladder run in the unit, U15a not on the baseline (PR #1818 behind PK-u15a-ruling) so the key is inert on the server until it merges, the config pin is a text pin; findings F1-F5 recorded (no shadow selector, silent misconfiguration, campaign-shaped flag name arms two subsystems, regex coupled to the spread spelling, U15a owner-gated)."
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "review": {
+          "path": "evidence/u15b-review-20260917.json",
+          "head": "30c81495c9a55603ff7918f8fa94590d803fe0ac",
+          "reviewedHead": "30c81495c9a55603ff7918f8fa94590d803fe0ac",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet)",
+          "implementerModel": "claude-opus (Agent lane)",
+          "outputSha256": "b46121079a5227f8f64793ccb6adfbaf743441c699059546e5fd5ac81b42b2fc",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u15b-merge-20260917.json",
+          "pr": 1822,
+          "head": "30c81495c9a55603ff7918f8fa94590d803fe0ac",
+          "mergeSha": "6f9444bf2347850a95d42f01e501e557404dbc85"
+        },
+        "mainProof": {
+          "path": "evidence/u15b-mainproof-20260917.json",
+          "mergeCommit": "6f9444bf2347850a95d42f01e501e557404dbc85",
+          "verdict": "PASS",
+          "runtime": "2 failed / 2 passed (derived from the Playwright summary lines above; E2E-01 and E2E-02 are the failed rows)"
+        },
+        "tick": {
+          "path": "evidence/u15b-tick-20260917.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "source20260917": "owner instruction 2026-09-17 accepting the second council's corrections (openspec/council-decisions/2026-09-17-review-what-needs-validation.md)"

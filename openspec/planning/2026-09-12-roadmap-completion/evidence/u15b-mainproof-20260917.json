@@ -1,0 +1,40 @@
+{
+  "unit": "U15b",
+  "stage": "mainProof",
+  "at": "2026-09-17T16:41:43.408Z",
+  "mergeCommit": "6f9444bf2347850a95d42f01e501e557404dbc85",
+  "checkout": "root checkout fast-forwarded to the merge commit (real node_modules; hydrate step runs)",
+  "runtime": {
+    "build": "exit 0",
+    "e2eBundleMarker": "__E2E_MODE__ present in _app chunk (run log)",
+    "playwright": "authority-recovery: 2 failed / 2 passed (derived from the Playwright summary lines above; E2E-01 and E2E-02 are the failed rows)",
+    "tsc": "exit 0"
+  },
+  "commands": {
+    "validator": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+    "gitAncestry": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows (--git)",
+    "next": "U16",
+    "openspecStrict": "Totals: 229 passed, 0 failed (229 items)",
+    "qcOpenspecCi": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+    "qcPin": "Tests:       26 passed, 26 total"
+  },
+  "logs": ".sisyphus/roadmap-completion-20260912/u15b-main-proof-20260917/ (local; sha256 below)",
+  "logHashes": [
+    "45b0f2649c07a721d5fb00bc6a8a09df24d71e92933feb8ab261d2507c21617b *build.log",
+    "3a226faf8a49ef91b0291f71bf5e370c534563e1b5519ffd82a6c05a40d22e8b *git-check.log",
+    "053f6ea85d3e3b77b1fa8d8f81a7f9dcacc47694905e482308a984601aade0e4 *jest-pin.log",
+    "dcdc7f461660e7d955ca89650a9cf35d686379bdc3c7ec08ef417835c957aa29 *lint-units-cli.log",
+    "b7308bd555e05a86e817c2a8a1385c1b228c682c6f409750cda92c2d182f7b51 *next.log",
+    "ddfdad8a15b1c7125171f6c160d5cbafce03efb70e451989b862be993ed9a500 *openspec-strict.log",
+    "7e432f51de27b690316e96cb608ce8209a56b20c9c116394a9f1e5f2c13ae5f6 *playwright.log",
+    "ada1ed70bb026eced226ccfa183e2ef0bcfeb5adff01f46d7af986e0001ef8dd *qc-openspec-ci.log",
+    "de1bead18316d3a6fadacdf23c24f4cb55b8555f34053a62dcacbfd3b5786fb4 *qc-pin.log",
+    "28d3b9e880a77975493dc7e359144c0295a4f694cfe0af4f928c22307bc5c320 *tsc.log",
+    "3a226faf8a49ef91b0291f71bf5e370c534563e1b5519ffd82a6c05a40d22e8b *validator.log"
+  ],
+  "expectedReds": [
+    "E2E-01 genesis branch recovers (gm-two-player-authority-recovery.pack.spec.ts:66): the combat-journal arm is forwarded by this unit but the resolver that reads it (U15a, PR #1818) is not merged, so COMBAT_JOURNAL_AUTHORITY_MODE stays the literal off and the genesis clause is gated (FN-genesis-branch-row-is-a-mirror-side-effect)",
+    "E2E-02 effective branch remains authoritative (gm-two-player-authority-recovery.pack.spec.ts:123): same gate; expected red until U15a merges and the group is rerun on that main"
+  ],
+  "verdict": "PASS"
+}
