@@ -1,0 +1,98 @@
+{
+  "unit": "U5b",
+  "stage": "red",
+  "at": "2026-09-17T17:07:03.961Z",
+  "baseline": "0638f87e04b34d6619a7b89587e9b1faccc61248",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u5b",
+  "branch": "codex/roadmap-u5b-correction-surface-20260917",
+  "method": "the three pin files were written first and run against the untouched baseline product code; no product file was edited before this receipt",
+  "pinFiles": [
+    {
+      "path": "src/pages-modules/multiplayer/__tests__/lobbyCorrectionSurface.test.tsx",
+      "lines": 327,
+      "covers": "the PAGE relationship: the host GM's correction controls and private-reason input render on the production lobby route, and do not render for a player at the same table or for a spectator",
+      "placementNote": "under src/pages-modules/multiplayer/__tests__/ rather than src/pages/multiplayer/__tests__/ because next.config.ts:105 sets pageExtensions ['ts','tsx','js','jsx'], so a .tsx under src/pages would be treated as a route. The spectator row drives src/pages/multiplayer/spectate/[matchId].tsx, the lobby-family page that actually has a spectator, because the lobby route has no spectator mode to express."
+    },
+    {
+      "path": "src/pages-modules/multiplayer/__tests__/useGmCorrectionProducers.test.tsx",
+      "lines": 242,
+      "covers": "the producer contract with an injected preview and an injected commit: approve sends the exact previewed request plus the captured reason, sends no reason field when nothing was typed (or only whitespace), refuses to commit before a preview, and the reason appears in NO other emitted argument, in none of the hook's returned values, in neither web storage, and in no rendered text"
+    },
+    {
+      "path": "src/components/multiplayer/__tests__/NetworkedGameSurface.correction.test.tsx",
+      "lines": 177,
+      "covers": "the input reports each keystroke to onPrivateReasonChange, carries the accessible name 'Private reason (GM only)', is absent when no caller offered to carry a reason, and is absent for a player and for a spectator holding the host id"
+    }
+  ],
+  "commands": [
+    {
+      "command": "npx jest src/pages-modules/multiplayer/__tests__ src/components/multiplayer/__tests__/NetworkedGameSurface.correction.test.tsx",
+      "lastLines": [
+        "Test Suites: 3 failed, 3 total",
+        "Tests:       4 failed, 5 passed, 9 total"
+      ],
+      "exitCode": 1
+    },
+    {
+      "command": "npx jest src/pages-modules/multiplayer/__tests__/useGmCorrectionProducers.test.tsx",
+      "lastLine": "Test suite failed to run",
+      "exitCode": 1
+    },
+    {
+      "command": "npx jest src/components/multiplayer/__tests__/NetworkedGameSurface.correction.test.tsx",
+      "exitCode": 1
+    },
+    {
+      "command": "npx jest src/pages-modules/multiplayer/__tests__/lobbyCorrectionSurface.test.tsx",
+      "exitCode": 1
+    }
+  ],
+  "failingAssertions": [
+    {
+      "claim": "the lobby page never renders the correction controls today",
+      "suite": "src/pages-modules/multiplayer/__tests__/lobbyCorrectionSurface.test.tsx",
+      "row": "multiplayer lobby page - the host GM correction surface > mounts the correction controls and the private-reason input for the host GM",
+      "output": "TestingLibraryElementError: Unable to find an element by: [data-testid=\"networked-host-gm-controls\"]",
+      "reading": "the host GM's own identity, an active lobby and a mounted networked-game-surface are all present in the DOM; the control block is missing because src/pages/multiplayer/lobby/[roomCode].tsx passes neither onPreviewHostGmCorrection nor onApproveHostGmCorrection, and NetworkedGameSurface.tsx:411-412 mounts the block only when BOTH are defined"
+    },
+    {
+      "claim": "the lobby page has no private-reason field",
+      "suite": "src/pages-modules/multiplayer/__tests__/lobbyCorrectionSurface.test.tsx",
+      "row": "multiplayer lobby page - the host GM correction surface > gives the private-reason input an accessible name that says who can read it",
+      "output": "Unable to find a label with the text of: Private reason (GM only)",
+      "reading": "no labelled private-reason control exists anywhere on the production route"
+    },
+    {
+      "claim": "the hook module is missing",
+      "suite": "src/pages-modules/multiplayer/__tests__/useGmCorrectionProducers.test.tsx",
+      "row": "Test suite failed to run",
+      "output": "Configuration error: Could not locate module @/pages-modules/multiplayer/useGmCorrectionProducers mapped as: <worktree>/src/$1.",
+      "reading": "there is no correction producer at all today; the only producer hook in src/pages-modules/multiplayer is useGmRewindProducers.ts, whose confirm arm re-posts the previewed request with no reason field"
+    },
+    {
+      "claim": "the surface has no reason input",
+      "suite": "src/components/multiplayer/__tests__/NetworkedGameSurface.correction.test.tsx",
+      "row": "NetworkedGameSurface - the private-reason input > reports every keystroke to the producer that will carry it",
+      "output": "TestingLibraryElementError: Unable to find an element by: [data-testid=\"networked-gm-private-reason\"]",
+      "reading": "rendered WITH both correction handlers wired, so networked-host-gm-controls itself is present - the two buttons exist and the reason field does not"
+    },
+    {
+      "claim": "the surface has no labelled reason input",
+      "suite": "src/components/multiplayer/__tests__/NetworkedGameSurface.correction.test.tsx",
+      "row": "NetworkedGameSurface - the private-reason input > carries an accessible name naming who may read it",
+      "output": "TestingLibraryElementError: Unable to find a label with the text of: Private reason (GM only)",
+      "reading": "same mount, asserted through the accessibility tree rather than the test id"
+    }
+  ],
+  "greenOnBaselineAndWhyThatIsCorrect": [
+    "lobbyCorrectionSurface > mounts none of it for a player at the same table - an absence row; it is green on the baseline because nothing renders for anyone, and it exists to stay green after the controls are wired for the host GM",
+    "lobbyCorrectionSurface (spectate page) > mounts none of it for a spectator - same shape",
+    "NetworkedGameSurface.correction > is absent when no caller offered to carry a reason - green on the baseline for the trivial reason that the input does not exist; after the change it holds the real gate, that the field appears only when a caller passes onPrivateReasonChange",
+    "NetworkedGameSurface.correction > is absent for a player at the table",
+    "NetworkedGameSurface.correction > is absent for a spectator holding the host id",
+    "note: 5 of the 9 rows are absence rows and are green before and after. The 4 red rows are the whole of what this unit adds, and each one names a specific missing artefact rather than a weakened assertion."
+  ],
+  "notASkip": "no test was skipped, no assertion was weakened, and no existing suite was modified to produce this red",
+  "implementerModel": "claude-opus (Agent lane; codex, grok CLI and cursor-agent routes exhausted on 2026-09-17)",
+  "status": "red-recorded"
+}
