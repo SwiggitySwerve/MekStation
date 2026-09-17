@@ -1,0 +1,233 @@
+{
+  "unit": "U8",
+  "stage": "local",
+  "at": "2026-09-17T17:41:17.091Z",
+  "baseline": "dfe766524cc71e665a0f34a5ee07e9585e4c8214",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u8",
+  "branch": "codex/roadmap-u8-stale-head-lever-20260917",
+  "status": "ready",
+  "implementerModel": "claude-opus (Agent lane; codex, grok CLI and cursor-agent routes exhausted on 2026-09-17)",
+  "behaviorDelivered": "The campaign command route accepts an optional `expectedRevision` in its body, validates it as absent-or-a-non-negative-safe-integer (refusing anything else with a 400 that names the field), and forwards it unchanged into the executeCampaignCommand request. Nothing else in the route changed: the result switch, every status code and every response body are byte-identical to the baseline. The pipeline's stale-head refusal is now reachable over HTTP - a stale claim answers 409 with the active branch and revision and a recovery action, and nothing is appended.",
+  "finalPlanEnvironment": {
+    "node": "v22.22.0 (export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH)",
+    "npm": "npm_config_dry_run=true exported for the whole session; no npm install / ci / prune was run anywhere",
+    "notRun": "no next build, no Playwright, no commit, no push, no stash; the root checkout at E:/Projects/MekStation was never written to"
+  },
+  "lineCounts": {
+    "source": "git diff --numstat for the tracked file; wc -l for the new file; comment/blank split counted line by line off `git diff`",
+    "files": [
+      {
+        "path": "src/pages/api/campaigns/[id]/commands.ts",
+        "class": "product",
+        "added": 52,
+        "removed": 1,
+        "codeAdded": 22,
+        "codeRemoved": 1,
+        "commentAdded": 27,
+        "blankAdded": 3,
+        "sha256": "e34306387f7c3110073740e2148f3995b66b724d74c0251d20fdfbd34f5ad97a"
+      },
+      {
+        "path": "src/__tests__/api/campaigns/campaignCommandsRoute.staleHead.test.ts",
+        "class": "test",
+        "added": 384,
+        "removed": 0,
+        "note": "new file; wc -l = 384",
+        "sha256": "6ae16f588a17fc3032e23000f5a7d36e7f33db448e1313eb4a1a2bfc1d422f61"
+      }
+    ],
+    "receipts": [
+      { "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/u8-admission-20260917.json", "lines": 166 },
+      { "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/u8-red-20260917.json", "lines": 91 },
+      { "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/u8-local-20260917.json", "lines": 233, "note": "measured by wc -l after the first write; this edit corrected two receipt line counts and did not change the file's length" }
+    ],
+    "productTotal": { "added": 52, "removed": 1, "codeAdded": 22, "codeRemoved": 1 },
+    "testTotal": { "added": 384, "removed": 0 },
+    "filesTouched": 2,
+    "caps": { "maxFiles": 15, "maxNonGeneratedLines": 500 },
+    "capVerdict": "2 of 15 source files (5 counting the three receipts); 437 non-generated changed lines across the product and test files, of 500. Under both caps.",
+    "estimateVariance": "The admission receipt estimated 25-30 product added lines (actual 52, of which 27 are comment and 3 blank - 22 lines of code, inside the estimate's intent) and 230-280 test lines (actual 384). The test file overran because the disjoint-stale case and the four malformed values are each pinned with their own journal-revision check rather than sharing one; that is reported, not hidden."
+  },
+  "gates": [
+    {
+      "id": "pin-new",
+      "command": "npx jest src/__tests__/api/campaigns/campaignCommandsRoute.staleHead.test.ts",
+      "summaryLine": "Tests:       9 passed, 9 total",
+      "suites": "Test Suites: 1 passed, 1 total",
+      "lastLine": "Ran all test suites matching /src\\__tests__\\api\\campaigns\\campaignCommandsRoute.staleHead.test.ts/i.",
+      "exit": 0,
+      "note": "Re-run AFTER all three mutants were restored; this is the tree being handed back."
+    },
+    {
+      "id": "pin-existing-two",
+      "command": "npx jest src/__tests__/api/campaigns/campaignCommandsRoute.test.ts src/__tests__/api/campaigns/campaignCommandsRoute.rebuild.test.ts",
+      "summaryLine": "Tests:       14 passed, 14 total",
+      "suites": "Test Suites: 2 passed, 2 total",
+      "lastLine": "Ran all test suites matching /src\\__tests__\\api\\campaigns\\campaignCommandsRoute.test.ts|src\\__tests__\\api\\campaigns\\campaignCommandsRoute.rebuild.test.ts/i.",
+      "exit": 0,
+      "note": "The two pre-existing route suites are unchanged files and unchanged counts: 13 + 1 = 14."
+    },
+    {
+      "id": "campaigns-api-dir",
+      "command": "npx jest src/__tests__/api/campaigns",
+      "summaryLine": "Tests:       87 passed, 87 total",
+      "suites": "Test Suites: 12 passed, 12 total",
+      "lastLine": "Ran all test suites matching /src\\__tests__\\api\\campaigns/i.",
+      "exit": 0,
+      "note": "12 suites, up from 11 on the baseline: the new file is the twelfth. 87 = the baseline's 78 plus the 9 new pins (78 not separately re-measured on the baseline; the 12-suite / 87-test total is the measured figure on this tree)."
+    },
+    {
+      "id": "typecheck",
+      "command": "npx tsc --noEmit",
+      "lastLine": "(no output)",
+      "exit": 0,
+      "note": "One earlier failure was fixed rather than suppressed: the first draft of the test file used the RegExp `u` flag, which this tsconfig's target rejects (TS1501 at two call sites). The regex was removed in favour of an explicit slug column in the table-driven case list."
+    },
+    {
+      "id": "lint",
+      "command": "npx oxlint",
+      "summaryLine": "Found 84 warnings and 0 errors.",
+      "lastLine": "Finished in 222ms on 3810 files using 16 threads.",
+      "exit": 0,
+      "baselineComparison": "IDENTICAL to the baseline line measured before any edit: 'Found 84 warnings and 0 errors.' / 'Finished in 2.3s on 3810 files using 16 threads.' Same warning count, same file count.",
+      "vacuousForThisUnit": "MEASURED AND REPORTED AS SUCH. `npx oxlint 'src/pages/api/campaigns/[id]/commands.ts'` and `npx oxlint 'src/__tests__/api/campaigns/campaignCommandsRoute.staleHead.test.ts'` each answer 'Finished in ...ms on 0 files'. .oxlintrc.json ignorePatterns contains both 'src/pages/api/**' and '**/__tests__/**' (plus '**/*.test.ts'), so NEITHER changed file is linted. The unchanged 3810-file count is the same fact from the other side: adding a file under src/__tests__ did not raise it. The style gates that DO cover these files are tsc and oxfmt."
+    },
+    {
+      "id": "format",
+      "command": "npx oxfmt --check \"src/pages/api/campaigns/[id]/commands.ts\" \"src/__tests__/api/campaigns/campaignCommandsRoute.staleHead.test.ts\"",
+      "summaryLine": "All matched files use the correct format.",
+      "lastLine": "Finished in 16ms on 2 files using 16 threads.",
+      "exit": 0,
+      "note": "'on 2 files' - unlike oxlint, this gate really did read both changed files."
+    },
+    {
+      "id": "openspec-ci",
+      "command": "npm run qc:openspec-ci:validate",
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+      "exit": 0
+    },
+    {
+      "id": "roadmap-validator",
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "exit": 0,
+      "note": "Counts unchanged from the baseline run: 75 / 13 / 376 / 40."
+    }
+  ],
+  "preMutantSha256": {
+    "src/pages/api/campaigns/[id]/commands.ts": "e34306387f7c3110073740e2148f3995b66b724d74c0251d20fdfbd34f5ad97a"
+  },
+  "mutants": {
+    "driver": "A mutation script outside the repository tree applied each mutant to the route by exact string swap and threw if the anchor did not match exactly once, so a 'killed' verdict cannot come from an edit that silently did nothing. Each mutant was applied to a freshly restored pristine copy, the pin re-run, and the file restored by copying that pristine copy back.",
+    "driverPath": "scratchpad u8-mutate.mjs (outside the repository; not part of the change)",
+    "pin": "npx jest src/__tests__/api/campaigns/campaignCommandsRoute.staleHead.test.ts",
+    "greenBaselineForComparison": "Tests:       9 passed, 9 total",
+    "table": [
+      {
+        "id": "M1",
+        "file": "src/pages/api/campaigns/[id]/commands.ts",
+        "mutation": "The `expectedRevision: body.expectedRevision,` line is deleted from the executeCampaignCommand request. The guard still accepts the field; the pipeline never sees it.",
+        "pinExit": 1,
+        "counts": "Tests:       3 failed, 6 passed, 9 total",
+        "killedBy": [
+          "refuses a stale expectedRevision whose command touches a field the newer events also touched - Expected: 409, Received: 200 (staleHead.test.ts:285)",
+          "refuses a stale expectedRevision even when the command is disjoint from the newer events - Expected: 409, Received: 200 (staleHead.test.ts:324)",
+          "refuses an expectedRevision above the head and names the active head - Expected: 409, Received: 200 (staleHead.test.ts:350)"
+        ],
+        "reading": "This is exactly the baseline defect wearing a validated field: the stale command commits again. The four malformed cases stay green because the guard is intact, which is what makes M1 a distinct mutant from M2 rather than a louder version of it.",
+        "restoredSha256": "e34306387f7c3110073740e2148f3995b66b724d74c0251d20fdfbd34f5ad97a",
+        "restoreMatchesPreMutant": true
+      },
+      {
+        "id": "M2",
+        "file": "src/pages/api/campaigns/[id]/commands.ts",
+        "mutation": "isValidExpectedRevision drops `Number.isSafeInteger(value) && value >= 0` and accepts any number, so a negative or fractional revision passes the guard and is forwarded.",
+        "pinExit": 1,
+        "counts": "Tests:       2 failed, 7 passed, 9 total",
+        "killedBy": [
+          "refuses a negative revision at the route and appends nothing - Expected: 400, Received: 409 (staleHead.test.ts:379)",
+          "refuses a fractional revision at the route and appends nothing - Expected: 400, Received: 409 (staleHead.test.ts:379)"
+        ],
+        "reading": "409, not 200: a nonsense revision that reaches the pipeline is absorbed by its revision-unknown arm, which LOOKS like a refusal and would have hidden the defect from a test that only asserted 'not 200'. The string and null cases stay green because `typeof value === 'number'` still rejects them - the mutant is precisely scoped to the numeric predicate.",
+        "restoredSha256": "e34306387f7c3110073740e2148f3995b66b724d74c0251d20fdfbd34f5ad97a",
+        "restoreMatchesPreMutant": true
+      },
+      {
+        "id": "M3",
+        "file": "src/pages/api/campaigns/[id]/commands.ts",
+        "mutation": "isValidExpectedRevision returns `value === undefined` only, so the guard rejects EVERY present revision - including a valid one equal to the head.",
+        "pinExit": 1,
+        "counts": "Tests:       4 failed, 5 passed, 9 total",
+        "killedBy": [
+          "commits a command whose expectedRevision names the current head - Expected: 200, Received: 400 (staleHead.test.ts:237)",
+          "refuses a stale expectedRevision whose command touches a field the newer events also touched - Expected: 409, Received: 400 (staleHead.test.ts:285)",
+          "refuses a stale expectedRevision even when the command is disjoint from the newer events - Expected: 409, Received: 400 (staleHead.test.ts:324)",
+          "refuses an expectedRevision above the head and names the active head - Expected: 409, Received: 400 (staleHead.test.ts:350)"
+        ],
+        "reading": "The mutant that makes the lever useless while still looking strict. It is caught first by the at-head commit pin - the one test that was already green in the red run, and therefore the one a reviewer could reasonably have called decorative. It is not.",
+        "restoredSha256": "e34306387f7c3110073740e2148f3995b66b724d74c0251d20fdfbd34f5ad97a",
+        "restoreMatchesPreMutant": true
+      }
+    ],
+    "postMutantVerification": "After M3 was restored, the sha256 of the route was re-measured as e34306387f7c3110073740e2148f3995b66b724d74c0251d20fdfbd34f5ad97a, equal to preMutantSha256, and EVERY gate above was re-run against that restored tree. The gate results recorded above are those post-restore runs, not the pre-mutant ones."
+  },
+  "pipelineContractAsPinned": {
+    "note": "The green run confirmed the decision table read at admission, arm for arm.",
+    "rows": [
+      "absent -> 200 committed (unchanged)",
+      "equal to head -> 200 committed",
+      "above head -> 409 { kind:'conflict', reason:'base-revision-unknown', head:{branchId:'root',revision:<head>}, recoveryAction:'resync-to-active-head', conflictingFields: [] }; journal revision unchanged",
+      "below head, fields OVERLAP -> 409 { kind:'conflict', reason:'undeclared-field-set', head:{branchId:'root',revision:<head>}, recoveryAction:'rebase-onto-active-head', conflictingFields: [] }; journal revision unchanged",
+      "below head, fields DISJOINT -> the SAME 409 as the overlapping row; journal revision unchanged",
+      "malformed (-1, 1.5, '3', null) -> 400 { error: 'expectedRevision must be absent or a non-negative integer' }; journal revision unchanged"
+    ],
+    "whyTheTwoStaleRowsAgree": "decideCampaignConflict checks the client's declared field set BEFORE the overlap (campaignConflictDecision.ts:177-185), and this route forwards no declaredFields, so both stale rows short-circuit on 'undeclared-field-set'. The field-level verdicts 'same-field-stale' and 'revalidate' remain unreachable from HTTP. This is pinned as a measured fact in the disjoint test rather than left as an assumption."
+  },
+  "nonClaims": [
+    "The wire CAMPAIGN_STALE_HEAD race is NOT addressed. That is a lost race behind CampaignMatchHost.runExclusive with no in-paths store interloper (FN-u1d-stale-head-class-has-no-in-paths-lever); nothing here touches the socket path.",
+    "The e2e stale-head arm in conflict-pack is NOT added. That is a later R6.umbrella unit; no Playwright run was made here, and no e2e spec was read or written.",
+    "No ladder run. Jest only, as the charter requires: no next build, no Playwright, no browser, no server.",
+    "The CLIENT does not send expectedRevision. Nothing under src/pages-modules, src/components or the multiplayer client was changed, so the lever is inert in production until a client unit opts in. Absent still means 'no claim', so shipping it changes no existing caller's behaviour.",
+    "`code: 'STALE_REVISION'` is NOT asserted, because it is not on the wire: decideCampaignConflict freezes it onto every refusal (campaignConflictDecision.ts:159) but the pipeline's conflict result type (campaignCommandPipeline.ts:127-149) does not carry it forward. Putting it on the wire is a src/lib change this unit does not own.",
+    "The field-level disjoint SERIALIZATION the decision module can perform ('revalidate') is NOT reachable from this route and is not claimed to be. Reaching it needs declaredFields forwarded too, which is a separate contract with its own review class.",
+    "The route's malformed-body 400 still fires BEFORE authentication; that ordering is the baseline's and was not changed or evaluated as a security property here.",
+    "oxlint did NOT lint either changed file (both paths are in .oxlintrc.json ignorePatterns). The lint gate is recorded as green and as vacuous for this unit; tsc and oxfmt are the gates that actually read these files.",
+    "The 87-test / 12-suite total for src/__tests__/api/campaigns was measured on this tree only; the corresponding baseline total was not separately measured, so 'it went up by exactly 9' is arithmetic, not a second measurement."
+  ],
+  "findingsReportedNotFixed": [
+    {
+      "id": "FN-u8-conflict-result-drops-stale-revision-code",
+      "class": "contract gap, reported not fixed",
+      "summary": "Every campaign conflict refusal is decided with code 'STALE_REVISION' (src/lib/campaign/authority/campaignConflictDecision.ts:152-164) but CampaignCommandResult's conflict arm (src/lib/campaign/authority/campaignCommandPipeline.ts:127-149) has no `code` field, so the HTTP 409 cannot carry it. A client cannot read the borrowed ExpectedHeadRefusalCode taxonomy the module exists to share with the branch-aware head validator.",
+      "ownership": "src/lib/campaign/authority - not owned by U8 (held in flight by U4 and U15a per the charter).",
+      "recommendedSuccessor": "A unit under the owning node adding `code` to the conflict result and to the route's 409 body, with a route pin asserting it."
+    },
+    {
+      "id": "FN-u8-http-boundary-cannot-reach-the-field-level-verdict",
+      "class": "coverage gap, reported not fixed",
+      "summary": "Because the route forwards no declaredFields, a stale command is always refused with 'undeclared-field-set' and 'rebase-onto-active-head'. The spec sentence 'Disjoint commands SHALL revalidate and serialize' is satisfied by decideCampaignConflict but is NOT exercisable through the HTTP boundary. Measured: the disjoint test in this unit's suite receives byte-identical output to the overlapping one.",
+      "ownership": "The route is U8's; the decision to let a client declare its field set is a contract question above this unit's behaviour sentence.",
+      "recommendedSuccessor": "A successor that forwards a validated declaredFields (checked, never trusted - the server already re-derives it) with a route pin for the serialize arm."
+    },
+    {
+      "id": "FN-u8-oxlint-does-not-cover-src-pages-api-or-tests",
+      "class": "gate coverage, reported not fixed",
+      "summary": ".oxlintrc.json ignorePatterns excludes 'src/pages/api/**' and '**/__tests__/**' (and '**/*.test.ts'), so `npm run lint` reads neither an API route nor any test file. Measured: `npx oxlint <either changed file>` reports 'on 0 files', and the repo-wide run's file count is 3810 before and after adding a new test file.",
+      "ownership": ".oxlintrc.json belongs to R6.loop-harness's amended ownership, not to U8.",
+      "recommendedSuccessor": "A harness unit deciding whether API routes should be linted; widening the pattern is not a change this unit can make inside its paths."
+    }
+  ],
+  "finalGitStatusShort": [
+    " M src/pages/api/campaigns/[id]/commands.ts",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u8-admission-20260917.json",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u8-local-20260917.json",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u8-red-20260917.json",
+    "?? src/__tests__/api/campaigns/campaignCommandsRoute.staleHead.test.ts"
+  ],
+  "receipts": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u8-admission-20260917.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u8-red-20260917.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u8-local-20260917.json"
+  ],
+  "nextForTheParent": "Lane A cross-model review on a reviewer that is not claude-opus, then the PR. The review class is concurrency, so Lane B applies: the PR merges only after an OWNER-RULING comment naming the exact head, with the owner-ruled label, receipted against packet PK-u8-ruling. This lane wrote no commit, opened no PR and did not touch units.json, roadmap.json, evidence/admission-snapshot.json or any tasks.md row."
+}
