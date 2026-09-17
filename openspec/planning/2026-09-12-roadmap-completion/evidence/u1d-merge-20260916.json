@@ -1,0 +1,15 @@
+{
+  "unit": "U1d",
+  "stage": "merge",
+  "at": "2026-09-17T01:13:52.839Z",
+  "pr": 1794,
+  "title": "test(e2e): E2E-77 conflict messages are actionable and leak-safe for the integrity class",
+  "head": "f80d850b0232e2c342f97dc4dbe7e0b8099ccae8",
+  "mergeSha": "843d70c79319d0abaa411522f4e7d99f723ea158",
+  "mergedAt": "2026-09-17T00:40:42Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityDiffLines": 0
+}

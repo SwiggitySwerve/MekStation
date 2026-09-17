@@ -417,10 +417,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "local-verified",
+      "state": "complete",
       "baseline": "a00b816dcf1d30cb40b08ce9901bcf66ea3cc125",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "f80d850b0232e2c342f97dc4dbe7e0b8099ccae8",
+      "mergeSha": "843d70c79319d0abaa411522f4e7d99f723ea158",
       "stageReceipts": {
         "admission": {
           "path": "evidence/u1d-admission-20260916.json",
@@ -438,10 +438,31 @@
           "at": "2026-09-17T00:12:47.450Z",
           "summary": "conflict-pack 1 passed three times with identical captures (integrity-duplicate,integrity-collision); exactly-once-pack 4 passed and lifecycle-pack 2 passed as regression; tsc 0; oxfmt clean; oxlint vacuous for these paths; pin suite 12/12; qc:openspec-ci errors=0; roadmap validator PASSED; three mutants killed with rebuilds (collision reason swapped to the duplicate text; peer playerId interpolated into the rejection; class code dropped from the toast); 374 product lines over 4 files; the parent re-ran conflict-pack (1 passed) and the pin suite independently"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "review": {
+          "path": "evidence/u1d-review-20260916.json",
+          "head": "f80d850b0232e2c342f97dc4dbe7e0b8099ccae8",
+          "reviewedHead": "f80d850b0232e2c342f97dc4dbe7e0b8099ccae8",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet)",
+          "implementerModel": "grok-4.6 (cursor-agent, Cursor Grok 4.6 High) with claude-fable-5-1 parent",
+          "outputSha256": "0fcf1941b4b55b915ea85e62047b64e43e4c423bb1643c4cfe7a3faeb1980ea1",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u1d-merge-20260916.json",
+          "pr": 1794,
+          "head": "f80d850b0232e2c342f97dc4dbe7e0b8099ccae8",
+          "mergeSha": "843d70c79319d0abaa411522f4e7d99f723ea158"
+        },
+        "mainProof": {
+          "path": "evidence/u1d-mainproof-20260916.json",
+          "mergeCommit": "843d70c79319d0abaa411522f4e7d99f723ea158",
+          "verdict": "PASS",
+          "runtime": "  1 passed (15.9s)"
+        },
+        "tick": {
+          "path": "evidence/u1d-tick-20260916.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "nonClaims20260916": [
