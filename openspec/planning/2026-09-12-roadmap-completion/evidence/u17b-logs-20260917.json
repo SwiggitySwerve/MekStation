@@ -1,0 +1,70 @@
+{
+  "unit": "U17b",
+  "date": "20260917",
+  "at": "2026-09-17T22:24:55.677Z",
+  "runDir": ".sisyphus/roadmap-completion-20260912/u17b-main-proof-20260917",
+  "preservedDir": ".sisyphus/roadmap-completion-20260912/preserved-runs/U17b-20260917",
+  "files": [
+    {
+      "file": "build.log",
+      "bytes": 2620080,
+      "sha256": "a1e4a6500915db7d9593881e2884d1ee1162a96d5db3a00976b81a03d53f5666"
+    },
+    {
+      "file": "git-check.log",
+      "bytes": 83,
+      "sha256": "3a226faf8a49ef91b0291f71bf5e370c534563e1b5519ffd82a6c05a40d22e8b"
+    },
+    {
+      "file": "lint-units-cli.log",
+      "bytes": 150,
+      "sha256": "dcdc7f461660e7d955ca89650a9cf35d686379bdc3c7ec08ef417835c957aa29"
+    },
+    {
+      "file": "main-proof-dry-run.log",
+      "bytes": 1371,
+      "sha256": "cf996bd16eb895b985c4b42f10a54d6293980ae635967e9dcb47eb47bca1a0bd"
+    },
+    {
+      "file": "next.log",
+      "bytes": 12,
+      "sha256": "6989934e96099935104a3d06ea66afa34b5696e03e849da3e84fd94aa721829d"
+    },
+    {
+      "file": "openspec-strict.log",
+      "bytes": 6834,
+      "sha256": "ddfdad8a15b1c7125171f6c160d5cbafce03efb70e451989b862be993ed9a500"
+    },
+    {
+      "file": "playwright.log",
+      "bytes": 1612,
+      "sha256": "2fad760f9049cdfd494f5fd03eb60cbd3f0dadeda91efd8eaac02cbae01a6128"
+    },
+    {
+      "file": "qc-openspec-ci.log",
+      "bytes": 298,
+      "sha256": "ada1ed70bb026eced226ccfa183e2ef0bcfeb5adff01f46d7af986e0001ef8dd"
+    },
+    {
+      "file": "qc-pin.log",
+      "bytes": 404,
+      "sha256": "3fd46b90212fc67f7ff8330bf692c10676e5193055b63887d760166704ed8f0a"
+    },
+    {
+      "file": "sha256.txt",
+      "bytes": 888,
+      "sha256": "ff8ae8c3e0474fe306dc927d3a800e22db7aeef8fdc522e4d0909fa56524e0e8"
+    },
+    {
+      "file": "tsc.log",
+      "bytes": 7,
+      "sha256": "28d3b9e880a77975493dc7e359144c0295a4f694cfe0af4f928c22307bc5c320"
+    },
+    {
+      "file": "validator.log",
+      "bytes": 83,
+      "sha256": "3a226faf8a49ef91b0291f71bf5e370c534563e1b5519ffd82a6c05a40d22e8b"
+    }
+  ],
+  "bytes": 2631822
+}

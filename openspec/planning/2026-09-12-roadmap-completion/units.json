@@ -1509,18 +1509,53 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
-      "prHead": null,
-      "mergeSha": null,
+      "state": "complete",
+      "baseline": "f018e34cc150d9ede58e39a32929c5c9dec7d9b6",
+      "prHead": "ca0dbe3d1089ebee5e2738c885064c07bb3f50a2",
+      "mergeSha": "a96d6ec78da8a8bd95bfc92def64fcd681f6f16d",
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "admission": {
+          "path": "evidence/u17b-admission-20260917.json",
+          "baseline": "f018e34cc150d9ede58e39a32929c5c9dec7d9b6",
+          "at": "2026-09-17T21:10:39.754Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/u17b-red-20260917.json",
+          "at": "2026-09-17T21:24:00Z",
+          "summary": "Staged pin restored first: 13 of 14 cases failed with the modules missing; four new cases (logs manifest, reviewer header, the --skip-blob-check gate, FAIL-path preservation) failed against the restored modules for their stated reasons; implementation 18/18. Revision 2: the Linux CI job failed six closure success cases because the pin fabricated its merge commit from the checkout HEAD, the two-parent refs/pull/N/merge ref on a pull_request run; fixed in the pin only."
+        },
+        "local": {
+          "path": "evidence/u17b-local-20260917.json",
+          "at": "2026-09-17T23:20:00Z",
+          "summary": "claude-opus Agent lane, two revisions. roadmap-unit-closure and roadmap-main-proof restored from U17's staging with U17 findings F2 (reviewer model read from the Lane A header, refused when absent) and F3 (--skip-blob-check refused against the repository's own ledger before any gh call) resolved and the U13 preservation call moved before the verdict check; package scripts roadmap:closure and roadmap:main-proof. Gates: pin 18/18, sibling pins 29/29, tsc 0, oxfmt clean, lint:units LINT_UNITS_PASS 100/100, qc:openspec-ci errors=0, validator PASSED, main-proof --dry-run refuses the dirty worktree and prints all 15 steps against a clean throwaway repository; five mutants killed (reviewedHead comparison dropped 1, verdict ignores failures 2, dirty-tree refusal removed 1, --skip-blob-check gate deleted 1, literal reviewer model 1), re-taken on revision 2, sha256 restored; parent verification in the worktree 31/31 across both loop pins then 18/18 on revision 2, tsc 0, LINT_UNITS_PASS 100/100; harness-floor overage recorded: 707 product lines (closure 429, main proof 276, package.json 2) against the 500 cap, 207 over, the two staged modules being 660 before this lane's 47 lines, no assertion dropped; pin 802 lines; non-claims: the real proof ladder was not run in the unit, gh is a fake in every closure case, the main-proof execution branch has no test; findings F5, F8-F14 recorded (Lane A pass 2 found two documented refusals without load-bearing coverage: F14)."
+        },
+        "review": {
+          "path": "evidence/u17b-review-20260917.json",
+          "head": "ca0dbe3d1089ebee5e2738c885064c07bb3f50a2",
+          "reviewedHead": "ca0dbe3d1089ebee5e2738c885064c07bb3f50a2",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet)",
+          "implementerModel": "claude-opus (Agent lane)",
+          "outputSha256": "a382a6e26f3ab84f32fabdc5f3b831a367df278fbe1a16506ba93e270ab081a0",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u17b-merge-20260917.json",
+          "pr": 1839,
+          "head": "ca0dbe3d1089ebee5e2738c885064c07bb3f50a2",
+          "mergeSha": "a96d6ec78da8a8bd95bfc92def64fcd681f6f16d"
+        },
+        "mainProof": {
+          "path": "evidence/u17b-mainproof-20260917.json",
+          "mergeCommit": "a96d6ec78da8a8bd95bfc92def64fcd681f6f16d",
+          "verdict": "PASS",
+          "runtime": "Tests:       18 passed, 18 total"
+        },
+        "tick": {
+          "path": "evidence/u17b-tick-20260917.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "source20260917": "U17 lane measured 1121 product lines for the four generators; the loop split the unit rather than record an overage of that size (GOAL: never widen a unit; write narrower successors)"
