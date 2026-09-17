@@ -1,0 +1,90 @@
+{
+  "unit": "U12",
+  "stage": "admission",
+  "at": "2026-09-17T11:17:20.488Z",
+  "baseline": "21c6b5db68492726843f4bd813f4ae450ec1dbec",
+  "originMain": "21c6b5db68492726843f4bd813f4ae450ec1dbec",
+  "worktree": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\u12",
+  "branch": "codex/roadmap-u12-junction-guard-20260917",
+  "initialStatus": "?? scripts/qc/u12-measure.local.mjs",
+  "node": "v22.22.0",
+  "platform": "win32",
+  "nodeModulesRealPaths": {
+    "worktree": "E:\\Projects\\MekStation\\node_modules",
+    "root": "E:\\Projects\\MekStation\\node_modules"
+  },
+  "verdictRules": [
+    "ALLOW when node_modules is absent",
+    "ALLOW when node_modules resolves to join(realpath(cwd), node_modules) and dirname(realpath(manifestPath)) equals realpath(cwd)",
+    "REFUSE node-modules-is-link with expected and actual real paths when they differ",
+    "REFUSE manifest-outside-cwd when node_modules is local but the manifest real directory differs",
+    "ALLOW when cwd itself is reached through a junction and the real paths agree",
+    "CLI defaults to its own repository manifest; optional --manifest; ALLOW exit 0, REFUSE exit 1",
+    "Exact preinstall command; only existing postinstall may contain || true"
+  ],
+  "estimatePerFile": {
+    "scripts/qc/guard-node-modules-link.mjs": {
+      "product": 95
+    },
+    "scripts/__tests__/guard-node-modules-link.test.ts": {
+      "test": 180
+    },
+    "package.json": {
+      "productChanged": 1
+    },
+    "evidence/u12-admission-20260917.json": {
+      "receipt": 100
+    },
+    "evidence/u12-red-20260917.json": {
+      "receipt": 70
+    },
+    "evidence/u12-local-20260917.json": {
+      "receipt": 150
+    }
+  },
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedProductLines": 500,
+    "estimatedProductLines": 96,
+    "estimatedProductAndTestLines": 276
+  },
+  "dependencies": {
+    "node": "R6.loop-harness",
+    "dependsOn": [],
+    "predecessorU11": "complete",
+    "unitU12": "planned",
+    "ownerGate": null
+  },
+  "risksForTheParent": [
+    "Workflow scan: release.yml has four npm ci invocations: 123 and 227 at checkout root; 128 and 232 use working-directory desktop. Desktop uses its own manifest; root preinstall is not wired into desktop/package.json.",
+    "pr-checks.yml and nightly-validation.yml mention npm ci in comments; no other direct npm ci/npm install invocations found under .github/workflows.",
+    "Windows junctions measured locally; POSIX symlink branch cannot be claimed on this machine.",
+    "No npm install/ci/prune or lifecycle runs permitted. Direct CLI verdicts alone do not prove npm pruning order.",
+    "Existing postinstall node scripts/mm-data/check-assets.js || true remains untouched; prepare is husky.",
+    "TypeScript excludes scripts/**/* and oxlint ignores **/scripts/**; focused Jest is the behavioral proof."
+  ],
+  "workflowGrep": {
+    "command": "rg -n npm (ci|install)|working-directory:|^\\s+cd  .github/workflows",
+    "exitCode": 0,
+    "lastLine": ".github/workflows\\nightly-validation.yml:36:  # instead of each running their own `npm ci` (same pattern as",
+    "output": ".github/workflows\\release.yml:123:        run: npm ci\n.github/workflows\\release.yml:127:        working-directory: desktop\n.github/workflows\\release.yml:128:        run: npm ci\n.github/workflows\\release.yml:150:        working-directory: desktop\n.github/workflows\\release.yml:227:        run: npm ci\n.github/workflows\\release.yml:231:        working-directory: desktop\n.github/workflows\\release.yml:232:        run: npm ci\n.github/workflows\\release.yml:250:        working-directory: desktop\n.github/workflows\\release.yml:256:        working-directory: desktop\n.github/workflows\\release.yml:261:        working-directory: desktop\n.github/workflows\\release.yml:267:        working-directory: desktop\n.github/workflows\\release.yml:273:        working-directory: desktop\n.github/workflows\\pr-checks.yml:60:  # can reuse a single `npm ci`. It populates the node_modules cache\n.github/workflows\\pr-checks.yml:62:  # from that cache and skip `npm ci` entirely on a hit.\n.github/workflows\\pr-checks.yml:666:        working-directory: desktop\n.github/workflows\\pr-checks.yml:685:        working-directory: desktop\n.github/workflows\\pr-checks.yml:773:        working-directory: desktop\n.github/workflows\\pr-checks.yml:844:        working-directory: desktop\n.github/workflows\\pr-checks.yml:850:        working-directory: desktop\n.github/workflows\\pr-checks.yml:860:        working-directory: desktop\n.github/workflows\\nightly-validation.yml:36:  # instead of each running their own `npm ci` (same pattern as"
+  },
+  "next": {
+    "command": "C:\\Users\\wroll\\AppData\\Local\\nvm\\v22.22.0\\node.exe openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "exitCode": 0,
+    "lastLine": "U4",
+    "output": "U4"
+  },
+  "selectionNote": "--next printed U4 (in flight, awaiting the owner ruling); charter assigns U12 as the next planned unit needing no ruling after U11 closed. No ledger edits authorized.",
+  "acceptanceCommands": [
+    "focused Jest pin red, stub-red, green, three mutants and restored green",
+    "npx tsc --noEmit --incremental false",
+    "npx oxfmt --check changed files",
+    "npx oxlint changed files",
+    "npm run qc:openspec-ci:validate",
+    "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+    "direct CLI in worktree and fresh temp cwd"
+  ],
+  "initialStatusBeforeEvidenceHelper": "",
+  "initialStatusNote": "First git status --short before writing the evidence helper was empty; initialStatus above is the subsequent capture with the temporary owned helper present. Helper removed before handoff."
+}
