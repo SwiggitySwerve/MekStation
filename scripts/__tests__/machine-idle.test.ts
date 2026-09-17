@@ -88,6 +88,88 @@ describe('machine idle process boundary', () => {
       ]),
     ).toEqual([20, 21]);
   });
+  it.each([
+    [
+      'server under codex and cursor-agent directories',
+      'node E:/Projects/MekStation/codex/cursor-agent/server.js',
+    ],
+    [
+      'server quoting agent names',
+      'node server.js "grok codex cursor-agent next build"',
+    ],
+    [
+      'Next under agent-named directories',
+      'node E:/codex/grok/cursor-agent/next build',
+    ],
+    [
+      'relaunching server under agent-named directories',
+      'node E:/codex/grok/cursor-agent/relaunching-server.mjs',
+    ],
+    [
+      'Playwright under agent-named directories',
+      'node E:/codex/grok/cursor-agent/node_modules/playwright/cli.js test',
+    ],
+    [
+      'server with an agent path in later arguments',
+      'node server.js E:/cursor-agent/versions/v/index.js E:/@openai/codex/bin/codex.js',
+    ],
+    [
+      'server under near-match agent directories',
+      'node E:/Projects/MekStation/my-codex-cli/cursor-agent/other/versions/server.js',
+    ],
+    [
+      'server under a near-match scoped package',
+      'node E:/Projects/MekStation/@openai/codex-extra/server.js',
+    ],
+  ])('keeps %s busy', (_label, command) => {
+    expect(pids([row(40, command)])).toEqual([40]);
+  });
+  it.each([
+    [
+      'cursor-agent install',
+      'node "C:\\tools\\cursor-agent\\versions\\2026.09.15-d2fe57e\\index.js" -p "Run next build and server.js"',
+    ],
+    [
+      'cursor-agent install with a server entry',
+      'node E:/Projects/MekStation/cursor-agent/versions/v/server.js',
+    ],
+    [
+      'scoped codex CLI',
+      'node "C:\\tools\\@openai\\codex\\bin\\codex.js" exec "next build"',
+    ],
+    [
+      'scoped codex runtime',
+      'node E:/Projects/MekStation/@openai/codex/bin/server.js exec',
+    ],
+    [
+      'codex-cli directory',
+      'node E:/Projects/MekStation/codex-cli/server.js exec',
+    ],
+    ['codex.js entry', 'node tools/codex.js exec "next build"'],
+    ['codex.mjs entry', 'node tools/codex.mjs exec "next build"'],
+    ['codex-cli entry', 'node tools/codex-cli exec "next build"'],
+    [
+      'node options before the agent script',
+      'node --require setup.cjs --import init.mjs E:/Projects/MekStation/cursor-agent/versions/v/server.js',
+    ],
+  ])('ignores the first script identifying %s', (_label, command) => {
+    expect(pids([row(40, command)])).toEqual([]);
+  });
+  it.each(['grok.exe', 'grok'])('ignores the %s executable image', (image) => {
+    expect(
+      pids([row(40, `${image} server.js "next build" playwright`, image)]),
+    ).toEqual([]);
+  });
+  it('CLI reports busy for the reviewer codex-path server probe', () => {
+    const result = run({
+      action: 'cli',
+      outputs: [
+        { rows: [row(40, 'node E:/Projects/MekStation/codex/server.js')] },
+      ],
+    });
+    expect(result.stdout.split('\n')[0]).toBe('MACHINE_BUSY 1');
+    expect(result.status).toBe(1);
+  });
   it('recognizes Playwright browser children and descendants regardless of snapshot order', () => {
     expect(
       pids([

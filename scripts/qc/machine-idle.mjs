@@ -54,8 +54,8 @@ function tokens(command) {
 
 function processShape(row) {
   const command = row.CommandLine ?? '';
-  if (/cursor-agent|codex|grok/i.test(command)) return {};
   const image = basename(row.Name);
+  if (image === 'grok') return {};
   const argv = tokens(command);
   if (/^next-server(?:\s|$)/.test(image)) return { busy: true };
   let script = image;
@@ -81,6 +81,18 @@ function processShape(row) {
       if (option === '--') break;
     }
     script = normalized(args.shift() ?? '');
+    const directories = script.split('/').slice(0, -1);
+    if (
+      ['codex.js', 'codex.mjs', 'codex-cli'].includes(basename(script)) ||
+      directories.includes('codex-cli') ||
+      directories.some(
+        (segment, index) =>
+          (segment === 'cursor-agent' &&
+            directories[index + 1] === 'versions') ||
+          (segment === '@openai' && directories[index + 1] === 'codex'),
+      )
+    )
+      return {};
   } else if (!['next', 'playwright'].includes(image)) {
     return {
       browser:
