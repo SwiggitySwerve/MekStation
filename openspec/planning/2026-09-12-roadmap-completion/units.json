@@ -1371,10 +1371,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "local-verified",
+      "state": "complete",
       "baseline": "7c6cf4fbe309435a1faef97393d64ace705a0133",
-      "prHead": "eb22ef213e463edf327b33c5eeadf4fb4df54b45",
-      "mergeSha": null,
+      "prHead": "33a3f714abc4941bcebd0ff9401fdabd2d3eb6f3",
+      "mergeSha": "cfa943780ebe373c8772222de36c7e6f475173f5",
       "stageReceipts": {
         "admission": {
           "path": "evidence/u13-admission-20260917.json",
@@ -1393,10 +1393,31 @@
           "at": "2026-09-17T18:07:32Z",
           "summary": "claude-opus Agent lane. preserve-run-logs.mjs copies a run's files into a durable preserved-runs directory outside every worktree, verifies each copy's sha256, writes a relative-path manifest into the ledger evidence directory, and refuses empty runs, hash mismatches, reparse-point run dirs and preserved roots outside the repository; the removal half refuses unless the manifest still matches, HEAD equals the expected head, the tree is clean and git lists the worktree, and deletes a node_modules junction as a reparse point only. Gates: pin 13/13, tsc 0, oxfmt clean (after one formatter pass), lint:units LINT_UNITS_PASS 100/100, qc:openspec-ci errors=0, validator PASSED; real read-only CLI run against the U14 proof directory preserved 11 files (2,625,399 bytes) with hashes equal to that directory's sha256.txt; three mutants killed (hash verification deleted 1 test, manifest gate deleted 2, junction removed through its target 1), sha256 restored, two assertions reordered so the target-survives check comes first; parent verification in the worktree 13/13, tsc 0, LINT_UNITS_PASS 100/100 and a second read-only CLI run against the U9b proof directory (15 files, 2,638,621 bytes); 410 product lines (317 code) and 492 pin lines, two files, product under the cap; non-claims: nothing calls the helper until U17 wires the proof scripts and lane cleanup, preserved copies are local and gitignored (the manifest is committed), the removal half ran only in temporary repositories; findings F1-F5 recorded (estimate overrun, only the last path component checked for a reparse point, other-drive preserved root refused, no post-removal existence check, product-plus-pin cap definition)."
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "review": {
+          "path": "evidence/u13-review-20260917.json",
+          "head": "33a3f714abc4941bcebd0ff9401fdabd2d3eb6f3",
+          "reviewedHead": "33a3f714abc4941bcebd0ff9401fdabd2d3eb6f3",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet)",
+          "implementerModel": "claude-opus (Agent lane)",
+          "outputSha256": "411a8c0e8588c27d7afb3ffe1466bad0640459384dd86aa8c9c582a812438cbc",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u13-merge-20260917.json",
+          "pr": 1835,
+          "head": "33a3f714abc4941bcebd0ff9401fdabd2d3eb6f3",
+          "mergeSha": "cfa943780ebe373c8772222de36c7e6f475173f5"
+        },
+        "mainProof": {
+          "path": "evidence/u13-mainproof-20260917.json",
+          "mergeCommit": "cfa943780ebe373c8772222de36c7e6f475173f5",
+          "verdict": "PASS",
+          "runtime": "Tests:       16 passed, 16 total"
+        },
+        "tick": {
+          "path": "evidence/u13-tick-20260917.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "source20260917": "owner instruction 2026-09-17: \"Go with all the recommendations from the council and continue the loop\" (openspec/council-decisions/2026-09-17-post-loop-recommendations.md)"
