@@ -1,0 +1,226 @@
+{
+  "unit": "U14",
+  "stage": "local",
+  "at": "2026-09-17T11:56:00Z",
+  "baseline": "e6711f0c37b0c37c85e55b1d6a22d525a7de258d",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u14",
+  "branch": "codex/roadmap-u14-lint-units-20260917",
+  "node": "R6.loop-harness",
+  "implementerModel": "codex gpt-6 (codex exec, usage limit hit after admission measurement and config draft)",
+  "finisherModel": "claude-opus (Agent lane)",
+  "handover": {
+    "keptFromCodex": [
+      "scripts/qc/oxlint-units.json -- the DESIGN was kept (extends the root config plus verbatim copies of rules/plugins/env/categories/overrides; six structural ignores; neither `e2e/**` nor `**/scripts/**`). The codex rationale for not relying on `extends` alone was independently re-verified and is correct.",
+      "The raw scripts-only figure 352 and its per-rule split, which the finisher reproduced exactly."
+    ],
+    "rewrittenByFinisher": [
+      "scripts/qc/oxlint-units.json -- regenerated programmatically from .oxlintrc.json (the codex draft was PowerShell ConvertTo-Json output: non-standard indentation, failed `oxfmt --check`), then oxfmt --write. 237 -> 215 lines, same design, copied blocks now provably verbatim.",
+      "evidence/u14-admission-20260917.json -- rewritten around a corrected measurement; the codex numbers are preserved verbatim under `preliminaryProbe` with the reason each was rejected or kept."
+    ],
+    "verifiedBeforeTrusting": [
+      "e2e = 0 was WRONG. Cause found and proved: oxlint 1.43.0 is non-deterministic when given two paths in one invocation (three runs of `e2e scripts` walked 858, 170, 170 files; the 170-file runs drop e2e entirely and reproduce 352 exactly). Single-path runs are stable across three runs each. e2e really has 50 findings across 27 files. The wrapper therefore runs one invocation per path.",
+      "The suspected cause -- `extends` inheriting the root ignorePatterns -- was tested and RULED OUT: an extends-only probe printed only its own ignorePatterns under --print-config. Because inheritance is safe on ignores, `extends` was kept (it means a rule the root adds later still reaches this config).",
+      "A ceiling dominated by no-console in scripts/ was rejected as near-vacuous: 302 of 352. no-console is now allowed for the scripts path only and the ceiling is the remaining measured count."
+    ]
+  },
+  "authoredByFinisher": [
+    "scripts/qc/lint-units.mjs",
+    "scripts/qc/lint-units.ceiling.json",
+    "scripts/__tests__/lint-units.test.ts",
+    "package.json (one added line)",
+    "evidence/u14-red-20260917.json",
+    "evidence/u14-local-20260917.json"
+  ],
+  "lineCounts": {
+    "product": {
+      "scripts/qc/lint-units.mjs": {
+        "total": 176,
+        "code": 129,
+        "comment": 36,
+        "blank": 11
+      },
+      "package.json": { "total": 1, "code": 1, "note": "git diff --numstat: 1 added, 0 deleted" },
+      "subtotalNonGenerated": 177
+    },
+    "data": {
+      "scripts/qc/oxlint-units.json": {
+        "total": 215,
+        "note": "GENERATED: the extends/ignorePatterns header plus rules, plugins, env, categories and overrides copied programmatically from .oxlintrc.json. Not hand-written product logic."
+      },
+      "scripts/qc/lint-units.ceiling.json": { "total": 8, "note": "ratchet data" },
+      "subtotal": 223
+    },
+    "test": {
+      "scripts/__tests__/lint-units.test.ts": {
+        "total": 259,
+        "code": 211,
+        "comment": 24,
+        "blank": 24
+      }
+    },
+    "capCheck": {
+      "cap": "15 files, 500 non-generated product lines",
+      "filesChanged": 5,
+      "nonGeneratedProductLines": 177,
+      "worstCaseIfGeneratedConfigCounted": 400,
+      "overage": "none under either reading; no overage arithmetic required"
+    },
+    "sha256": {
+      "scripts/qc/lint-units.mjs": "c20f52b3ed3018820a29aa9ca2512909d3b6c3b33b46f76b67dc91f208dc9676",
+      "scripts/qc/oxlint-units.json": "5c05802400e99637fc0eb294149936a8b1b3e7a7cead90093f5a49ffaaeb3aa5",
+      "scripts/qc/lint-units.ceiling.json": "0d2bf2f1e7709336439f22429fee746554cfa167d23a1bc3834444b1724df5e2",
+      "scripts/__tests__/lint-units.test.ts": "e53793e3ab63db378f786a2335475b279681d854ba36169c65413fb3cada0293"
+    }
+  },
+  "gates": [
+    {
+      "id": "G1",
+      "command": "npm run lint:units",
+      "lastLine": "LINT_UNITS_PASS 100/100",
+      "fullOutput": "LINT_UNITS_PATH e2e 50 / LINT_UNITS_PATH scripts 50 / LINT_UNITS_PASS 100/100",
+      "exitCode": 0,
+      "note": "The new target, run once for real at the recorded ceiling. The per-path lines are part of the contract: a regression concentrated in one tree is visible even when the total is unchanged."
+    },
+    {
+      "id": "G2",
+      "command": "npx jest scripts/__tests__/lint-units.test.ts",
+      "lastLine": "Ran all test suites matching /scripts\\__tests__\\lint-units.test.ts/i.",
+      "summaryLine": "Tests: 29 passed, 29 total",
+      "exitCode": 0
+    },
+    {
+      "id": "G3",
+      "command": "npx tsc --noEmit",
+      "lastLine": "(no output)",
+      "exitCode": 0
+    },
+    {
+      "id": "G4",
+      "command": "npx oxfmt --check scripts/qc/lint-units.mjs scripts/qc/oxlint-units.json scripts/qc/lint-units.ceiling.json scripts/__tests__/lint-units.test.ts package.json",
+      "lastLine": "Finished in 96ms on 5 files using 16 threads.",
+      "precedingLine": "All matched files use the correct format.",
+      "exitCode": 0
+    },
+    {
+      "id": "G5",
+      "command": "npx oxlint",
+      "lastLine": "Finished in 242ms on 3810 files using 16 threads.",
+      "precedingLine": "Found 84 warnings and 0 errors.",
+      "exitCode": 0,
+      "note": "The ROOT lint, unaffected. .oxlintrc.json is byte-unchanged (git status shows it unmodified), so its ignorePatterns -- line 53 `e2e/**`, `**/scripts/**`, `**/openspec/**` -- still hold and every earlier receipt's root-lint pin still means what it meant. 84 warnings / 0 errors matches the figure recorded in earlier unit receipts (at 3801 and 3802 files then; the file count grew with main, not with this change). Proof this change is outside the root lint's scope: `npx oxlint scripts/qc/lint-units.mjs scripts/__tests__/lint-units.test.ts` walks 0 files."
+    },
+    {
+      "id": "G6",
+      "command": "npm run qc:openspec-ci:validate",
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+      "exitCode": 0
+    },
+    {
+      "id": "G7",
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "exitCode": 0
+    }
+  ],
+  "mutants": {
+    "file": "scripts/qc/lint-units.mjs",
+    "preMutantSha256": "c20f52b3ed3018820a29aa9ca2512909d3b6c3b33b46f76b67dc91f208dc9676",
+    "method": "Saved copy taken before the first mutant; each mutant applied by unique-anchor replacement (the mutation script aborts if its anchor is missing or not unique), pin run, file restored from the saved copy, sha256 re-taken.",
+    "table": [
+      {
+        "id": "M1",
+        "mutation": "evaluateLintUnits: `findings <= ceiling` -> `findings <= ceiling + 1` (passes one above the ceiling)",
+        "pinResult": "3 failed / 26 passed",
+        "caughtBy": [
+          "lint:units verdict is FAIL at 101 findings against a ceiling of 100",
+          "lint:units verdict is FAIL at 1 findings against a ceiling of 0",
+          "lint:units CLI fails, and exits 1, when the deliberate finding is over the ceiling"
+        ],
+        "restoredSha256": "c20f52b3ed3018820a29aa9ca2512909d3b6c3b33b46f76b67dc91f208dc9676",
+        "restoredEqualsPreMutant": true
+      },
+      {
+        "id": "M2",
+        "mutation": "buildLintUnitsArgs: `'--config', config,` dropped from the argv (oxlint would fall back to the root config, whose ignores hide both trees)",
+        "pinResult": "4 failed / 25 passed",
+        "caughtBy": [
+          "lint:units argv builder returns one argv per path, config and json format ahead of the path",
+          "lint:units argv builder allows no-console for scripts only",
+          "lint:units CLI fails, and exits 1, when the deliberate finding is over the ceiling",
+          "lint:units CLI passes, and exits 0, when the ceiling admits it"
+        ],
+        "restoredSha256": "c20f52b3ed3018820a29aa9ca2512909d3b6c3b33b46f76b67dc91f208dc9676",
+        "restoredEqualsPreMutant": true
+      },
+      {
+        "id": "M3",
+        "mutation": "CLI: `process.exitCode = outcome.verdict === 'PASS' ? 0 : 1` -> `process.exitCode = 0` (exits 0 on FAIL)",
+        "pinResult": "1 failed / 28 passed",
+        "caughtBy": [
+          "lint:units CLI fails, and exits 1, when the deliberate finding is over the ceiling"
+        ],
+        "restoredSha256": "c20f52b3ed3018820a29aa9ca2512909d3b6c3b33b46f76b67dc91f208dc9676",
+        "restoredEqualsPreMutant": true,
+        "note": "One case only. That case asserts the exit code separately from the printed verdict, which is the distinction M3 breaks: the line still reads LINT_UNITS_FAIL while the process reports success."
+      }
+    ],
+    "postMutantGateRerun": "G1-G7 above were all run after the final restore, on the restored file."
+  },
+  "nonClaims": [
+    "The ceiling is a RATCHET at the measured count (100), not zero. It was not measured as zero and this unit does not drive it toward zero.",
+    "The 100 findings under the ceiling are NOT fixed. e2e keeps 50 (19 no-explicit-any, 14 no-console, 11 no-unused-vars, 3 explicit-module-boundary-types, 3 no-require-imports) and scripts keeps 50 (30 no-explicit-any, 13 no-unused-vars, 7 no-require-imports). Nothing in e2e/ or scripts/ was edited.",
+    "no-console is ALLOWED for the scripts path. The 302 no-console findings there are neither fixed nor counted; scripts/ is a tree of CLIs that print by design. e2e's 14 no-console findings remain counted, exactly as the root config sets the rule.",
+    "The ceiling is a count, not a fingerprint. 100 different findings would also pass. The per-path split narrows this but does not close it.",
+    "lint-staged is untouched. package.json changed by exactly one added line (the `lint:units` script); no other script and no lint-staged entry was modified.",
+    ".oxlintrc.json is untouched. No ignorePatterns entry was removed or changed, so `npm run lint` covers exactly what it covered before and earlier receipts' root-lint pins are unaffected.",
+    "CI wiring of lint:units is NOT in this unit. No workflow calls the new target; nothing runs it automatically yet.",
+    "The ~559 scripts/ files that .gitignore excludes are out of scope (P5 in the admission receipt). This unit lints the 170 tracked-and-maintained ones oxlint walks.",
+    "No build, no Playwright, no npm install/ci/prune ran in this lane (npm_config_dry_run=true throughout). Nothing was committed, pushed or stashed, and the root checkout at E:/Projects/MekStation was not touched.",
+    "The oxlint 1.43.0 multi-path defect is worked around, not fixed, and was not reported upstream."
+  ],
+  "findingsReportedNotFixed": {
+    "total": 100,
+    "byPathAndRule": {
+      "e2e": {
+        "typescript-eslint(no-explicit-any)": 19,
+        "eslint(no-console)": 14,
+        "eslint(no-unused-vars)": 11,
+        "typescript-eslint(explicit-module-boundary-types)": 3,
+        "typescript-eslint(no-require-imports)": 3
+      },
+      "scripts": {
+        "typescript-eslint(no-explicit-any)": 30,
+        "eslint(no-unused-vars)": 13,
+        "typescript-eslint(no-require-imports)": 7
+      }
+    },
+    "byRule": {
+      "typescript-eslint(no-explicit-any)": 49,
+      "eslint(no-unused-vars)": 24,
+      "eslint(no-console)": 14,
+      "typescript-eslint(no-require-imports)": 10,
+      "typescript-eslint(explicit-module-boundary-types)": 3
+    },
+    "filesWithFindings": { "e2e": 27, "scripts": 14 },
+    "suppressedByDesign": {
+      "eslint(no-console) in scripts": 302,
+      "reason": "scripts/ is a tree of CLIs that print by design; counting them made the ceiling measure nothing."
+    }
+  },
+  "toolDefectsForTheParent": [
+    "oxlint 1.43.0 multi-path non-determinism: `oxlint <a> <b>` walked 858, 170 and 170 files across three consecutive runs of the same command; the 170-file runs silently dropped the first path. This produced the codex lane's wrong e2e = 0. Anyone simplifying the wrapper back to a single invocation over both paths reintroduces it; the argv-shape pin is the guard.",
+    "oxlint 1.43.0 resolves `overrides.files` globs relative to the config file's own directory, so a config inside scripts/qc cannot write a scripts-only override (measured: `**/scripts/**` left all 277 findings in scripts/qc untouched). The scripts-scoped allowance is a `--allow no-console` argv entry instead.",
+    "oxlint 1.43.0 panics (`path is expected to be under the root`, exit 127, no JSON) when handed a path outside the ignore root."
+  ],
+  "gitStatusShort": [
+    " M package.json",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u14-admission-20260917.json",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u14-local-20260917.json",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u14-red-20260917.json",
+    "?? scripts/__tests__/lint-units.test.ts",
+    "?? scripts/qc/lint-units.ceiling.json",
+    "?? scripts/qc/lint-units.mjs",
+    "?? scripts/qc/oxlint-units.json"
+  ],
+  "status": "ready"
+}

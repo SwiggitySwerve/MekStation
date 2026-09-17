@@ -1,0 +1,183 @@
+{
+  "unit": "U14",
+  "stage": "admission",
+  "at": "2026-09-17T11:55:29Z",
+  "baseline": "e6711f0c37b0c37c85e55b1d6a22d525a7de258d",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u14",
+  "branch": "codex/roadmap-u14-lint-units-20260917",
+  "node": "R6.loop-harness",
+  "oxlintVersion": "1.43.0",
+  "oxlintVersionCommand": "npx oxlint --version -> \"Version: 1.43.0\"",
+  "nodeVersion": "v22.22.0",
+  "lane": {
+    "implementerModel": "codex gpt-6 (codex exec, usage limit hit after admission measurement and config draft)",
+    "finisherModel": "claude-opus (Agent lane)",
+    "inheritedArtefacts": [
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/evidence/u14-admission-20260917.json",
+        "disposition": "REWRITTEN. The codex measurement was wrong (e2e = 0, total 352); its numbers are kept verbatim below as preliminaryProbe."
+      },
+      {
+        "file": "scripts/qc/oxlint-units.json",
+        "disposition": "REGENERATED, same design, byte-different. Codex's 237-line draft was written by PowerShell ConvertTo-Json (non-standard indentation, fails oxfmt --check). The finisher regenerated it programmatically from .oxlintrc.json so the copied blocks are provably verbatim, then oxfmt --write. Design kept: `extends` plus verbatim rules/plugins/env/categories/overrides. Ignore list unchanged from the draft (6 structural entries)."
+      }
+    ],
+    "authoredByFinisher": [
+      "scripts/qc/lint-units.mjs",
+      "scripts/qc/lint-units.ceiling.json",
+      "scripts/__tests__/lint-units.test.ts",
+      "package.json (one line)",
+      "evidence/u14-red-20260917.json",
+      "evidence/u14-local-20260917.json"
+    ]
+  },
+  "measurement": {
+    "method": "One oxlint invocation per path, JSON report, diagnostics counted from the report (not from the exit code). Multi-path invocation is unusable on this version -- see multiPathDefect.",
+    "commands": [
+      "node node_modules/oxlint/bin/oxlint --config scripts/qc/oxlint-units.json --format json e2e",
+      "node node_modules/oxlint/bin/oxlint --config scripts/qc/oxlint-units.json --format json --allow no-console scripts"
+    ],
+    "rootRulesVerbatim": {
+      "note": "The root rule set applied unchanged to both paths -- the baseline before the scripts-scoped no-console allowance.",
+      "total": 402,
+      "perPath": { "e2e": 50, "scripts": 352 },
+      "perPathAndRule": {
+        "e2e": {
+          "typescript-eslint(no-explicit-any)": 19,
+          "eslint(no-console)": 14,
+          "eslint(no-unused-vars)": 11,
+          "typescript-eslint(explicit-module-boundary-types)": 3,
+          "typescript-eslint(no-require-imports)": 3
+        },
+        "scripts": {
+          "eslint(no-console)": 302,
+          "typescript-eslint(no-explicit-any)": 30,
+          "eslint(no-unused-vars)": 13,
+          "typescript-eslint(no-require-imports)": 7
+        }
+      },
+      "filesWithFindings": { "e2e": 27, "scripts": 71 },
+      "filesWalked": { "e2e": 194, "scripts": 170 }
+    },
+    "adopted": {
+      "note": "no-console allowed for the scripts path only. scripts/ is a tree of CLIs that print by design, so 302 of its 352 findings were vacuous; e2e keeps no-console exactly as the root config sets it (its 14 stay counted). This is the ceiling.",
+      "total": 100,
+      "perPath": { "e2e": 50, "scripts": 50 },
+      "perPathAndRule": {
+        "e2e": {
+          "typescript-eslint(no-explicit-any)": 19,
+          "eslint(no-console)": 14,
+          "eslint(no-unused-vars)": 11,
+          "typescript-eslint(explicit-module-boundary-types)": 3,
+          "typescript-eslint(no-require-imports)": 3
+        },
+        "scripts": {
+          "typescript-eslint(no-explicit-any)": 30,
+          "eslint(no-unused-vars)": 13,
+          "typescript-eslint(no-require-imports)": 7
+        }
+      },
+      "perRule": {
+        "typescript-eslint(no-explicit-any)": 49,
+        "eslint(no-unused-vars)": 24,
+        "eslint(no-console)": 14,
+        "typescript-eslint(no-require-imports)": 10,
+        "typescript-eslint(explicit-module-boundary-types)": 3
+      },
+      "mostFrequentRules": [
+        ["typescript-eslint(no-explicit-any)", 49],
+        ["eslint(no-unused-vars)", 24],
+        ["eslint(no-console)", 14],
+        ["typescript-eslint(no-require-imports)", 10],
+        ["typescript-eslint(explicit-module-boundary-types)", 3]
+      ],
+      "rulesWithNoFindings": "Only five of the 65 configured rules fire on these two trees; there is no sixth to list.",
+      "filesWithFindings": { "e2e": 27, "scripts": 14 },
+      "determinism": "Five consecutive runs of the adopted two-invocation plan: e2e=50 scripts=50 total=100, all five."
+    }
+  },
+  "probeFindings": [
+    {
+      "id": "P1",
+      "claim": "oxlint 1.43.0 `extends` does NOT inherit the parent config's ignorePatterns.",
+      "evidence": "A probe config containing only {extends: ['../../.oxlintrc.json'], ignorePatterns: ['**/node_modules/**']} printed ignorePatterns = ['**/node_modules/**'] under --print-config; the root's 37 entries (including `e2e/**` and `**/scripts/**`) were absent. So the charter's ignore-inheritance risk is not real on this version, and the e2e = 0 in the first probe had a different cause (P2)."
+    },
+    {
+      "id": "P2",
+      "claim": "MULTI-PATH DEFECT: `oxlint <pathA> <pathB>` in one invocation is non-deterministic on 1.43.0, and is what produced the wrong e2e = 0.",
+      "evidence": "Three consecutive runs of `--config scripts/qc/oxlint-units.json e2e scripts` walked 858, 170 and 170 files; `scripts e2e` walked 858 three times. The 170-file runs are byte-identical to `scripts` alone -- e2e is dropped entirely (its 50 findings vanish, total reads 352, which is exactly the first probe's number). The 858-file runs instead stop honouring .gitignore under scripts/ and report 9054 findings. Single-path runs are stable: `e2e` walked 194 files three times, `scripts` walked 170 files three times. MITIGATION: the wrapper issues one invocation per path and sums.",
+      "notReported": "Not reported upstream to oxc as part of this unit; recorded here as a finding for the parent."
+    },
+    {
+      "id": "P3",
+      "claim": "`extends` alone is not sufficient to reproduce the root rule set; the verbatim copies are load-bearing.",
+      "evidence": "--print-config on the extends-only probe vs the root: 2 of 65 rules lost their option objects (jsx-a11y/alt-text and no-empty arrived as bare severities), and plugins, env, categories and overrides were not inherited at all (5 overrides became 0). With the blocks copied, --print-config of scripts/qc/oxlint-units.json equals the root's for rules, overrides, plugins, env, globals, categories and settings -- all seven compared equal."
+    },
+    {
+      "id": "P4",
+      "claim": "An `overrides` entry cannot express the scripts-scoped no-console allowance from a config that lives inside scripts/qc.",
+      "evidence": "oxlint 1.43.0 matches override `files` globs relative to the config file's own directory. `files: ['scripts/**']` suppressed nothing (302 no-console findings unchanged). `files: ['**/scripts/**']` suppressed 25 and left 277 -- every survivor was in scripts/qc itself, the config's own directory. Globs wide enough to reach them (`['**/scripts/**','*']` or `['**/scripts/**','**/*.mjs','**/*.ts']`) also silenced e2e (its findings fell 50 -> 36). DECISION: the allowance is a `--allow no-console` argument emitted by buildLintUnitsArgs for the scripts path only, so the config's rules and overrides stay byte-equal to the root's and the difference is a single pinned line of argv."
+    },
+    {
+      "id": "P5",
+      "claim": "The 170 files oxlint walks under scripts/ are the maintained subset, not a lint misconfiguration.",
+      "evidence": "`find scripts -name '*.ts' -o -name '*.tsx' -o -name '*.js' -o -name '*.mjs' -o -name '*.cjs'` reports 729 files; oxlint walks 170. .gitignore lines 37-72 ignore `scripts/**` and then re-admit a whitelist (qc/, lib/, next/, playwright/, __tests__/, jest/run-jest-lane.mjs, e2e/, maintenance/scan-maintenance.mjs, megameklab-conversion/*.py, three named scripts). oxlint honours .gitignore, so the ratchet covers exactly the tracked-and-maintained scripts surface. The ~559 investigation scripts are out of scope by the repository's own ignore policy, not by this unit's."
+    },
+    {
+      "id": "P6",
+      "claim": "oxlint panics when handed a path outside the ignore root.",
+      "evidence": "Linting an absolute temp directory from the repo root aborted with `panicked at ignore-0.4.25/src/gitignore.rs:232: path is expected to be under the root`, exit 127, no JSON. The integration case therefore spawns the CLI with cwd set to the temp directory and lints `.`; the wrapper resolves its config and the oxlint binary from its own module URL so cwd is free."
+    }
+  ],
+  "design": {
+    "configOwnership": "scripts/qc/oxlint-units.json, owned by R6.loop-harness, per council 2 C5 item 5 (a scripts/qc wrapper, not a second root config no node owns) and council 1 D4 (measure first, add lint:units rather than un-ignoring paths existing receipts pin). .oxlintrc.json is NOT touched: its ignorePatterns, including line 53 `e2e/**` and the scripts/openspec entries, are unchanged, so every prior receipt's root-lint pin still holds.",
+    "configShape": "`extends: ['../../.oxlintrc.json']` so a rule the root adds later still reaches this config, PLUS verbatim copies of rules, plugins, env, categories and overrides because extends alone loses rule options (P3). Only six structural ignores: node_modules, playwright-report, test-results, generated, dist, coverage. Neither `e2e/**` nor `**/scripts/**`, and no ignore entry mentions either word.",
+    "wrapper": "scripts/qc/lint-units.mjs. Pure exports buildLintUnitsArgs({paths,config,ceiling}) -> one oxlint argv per path, and evaluateLintUnits({findings,ceiling}) -> {verdict,findings,ceiling}. CLI resolves the oxlint binary via createRequire(import.meta.url).resolve('oxlint') (no npx), reads --format json, counts diagnostics from the report rather than trusting the exit code, prints LINT_UNITS_PASS/LINT_UNITS_FAIL <n>/<ceiling> as its last line, and exits 0/1 with no `|| true`.",
+    "ratchet": "scripts/qc/lint-units.ceiling.json = {ceiling, measuredAt: baseline sha, perPath}. Fixed at the measured count; never auto-raised. Zero would be strict, but the measured count is not zero, so it is not."
+  },
+  "estimatePerFile": {
+    "scripts/qc/lint-units.mjs": "120-150 product lines",
+    "scripts/qc/oxlint-units.json": "~215 data lines, generated from the root config",
+    "scripts/qc/lint-units.ceiling.json": "~8 data lines",
+    "scripts/__tests__/lint-units.test.ts": "200-260 test lines",
+    "package.json": "1 line"
+  },
+  "caps": { "maxFiles": 15, "maxNonGeneratedLines": 500 },
+  "risksForTheParent": [
+    "The ceiling is a count, not a fingerprint: 100 new findings could replace the 100 measured ones and still pass. Mitigated only by the per-path split (a regression concentrated in one tree shows up as a path count change in the output), not eliminated.",
+    "The scripts-scoped no-console allowance is a deliberate blind spot. If a scripts file ever must not print, this target will not say so.",
+    "The wrapper is not wired into CI by this unit; nothing runs it until a later unit adds it to a workflow.",
+    "The units config carries a verbatim copy of the root rules. Drift is caught by the jest pin (it fails), not prevented -- a root rule change requires re-copying and re-measuring the ceiling.",
+    "The multi-path oxlint defect (P2) is worked around, not fixed, and is not reported upstream. A future contributor who 'simplifies' the wrapper back to one invocation over both paths silently loses e2e; the pin on the argv shape is what guards it."
+  ],
+  "schedulingNote": "`node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next` printed U4 (in flight, awaiting the owner ruling). U14 is the next planned unit needing no ruling: U12 is parked on FN-u12-root-preinstall-runs-after-reify, and U13 waits for the loop scripts unit per council 2 C5 item 3.",
+  "constraints": {
+    "npmConfigDryRun": "true for every command in this lane",
+    "noInstalls": true,
+    "rootConfigUnchanged": true,
+    "rootCheckoutUntouched": true,
+    "noGitMutations": true,
+    "noBuildOrPlaywright": true
+  },
+  "preliminaryProbe": {
+    "by": "codex gpt-6, before the usage limit",
+    "command": "node node_modules/oxlint/bin/oxlint --config scripts/qc/oxlint-units.json --format json --threads 2 e2e scripts",
+    "exitCode": 1,
+    "findings": 352,
+    "perPath": { "e2e": 0, "scripts": 352 },
+    "perRule": {
+      "eslint(no-console)": 302,
+      "typescript-eslint(no-explicit-any)": 30,
+      "eslint(no-unused-vars)": 13,
+      "typescript-eslint(no-require-imports)": 7
+    },
+    "files": 170,
+    "whatWasWrongWithIt": [
+      "REJECTED as the baseline. e2e = 0 is not a clean tree: it is the multi-path defect (P2) silently dropping the e2e argument. e2e alone yields 50 findings across 27 files. The probe undercounted by 50 and by 194 walked files.",
+      "The probe's own file count gives it away: 170 files is exactly `scripts` alone, while e2e contributes 194 more.",
+      "The probe's 352 is nevertheless correct AS the raw scripts-only number, and is reproduced above as rootRulesVerbatim.perPath.scripts.",
+      "Its 302 no-console findings were counted into the ceiling. A ceiling dominated by no-console in a tree of CLIs that print by design is close to vacuous; the adopted measurement allows no-console for scripts and the ceiling falls from 402 to 100.",
+      "Its stated reason for not relying on `extends` alone was checked and is CORRECT (P3): extends drops rule options and does not carry plugins/env/categories/overrides. Its claim that inheritance was the ignore risk was not the operative problem (P1)."
+    ]
+  }
+}
