@@ -1050,21 +1050,40 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
-      "prHead": null,
+      "state": "blocked",
+      "baseline": "21c6b5db68492726843f4bd813f4ae450ec1dbec",
+      "prHead": "1baa6a96c6f7b186091635dd3e77749f212db090",
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/u12-admission-20260917.json",
+          "baseline": "21c6b5db68492726843f4bd813f4ae450ec1dbec",
+          "at": "2026-09-17T11:17:20.488Z",
+          "decision": "admitted on the charter (preinstall guard); --next printed U4 (in flight, awaiting the owner ruling); U12 was the next planned unit needing no ruling after U11 closed"
+        },
+        "red": {
+          "path": "evidence/u12-red-20260917.json",
+          "at": "2026-09-17T11:19:03.774Z",
+          "summary": "pin written first: 9 failed with the module missing (ERR_MODULE_NOT_FOUND), 5 failed against an ALLOW-only stub; implementation 10/10"
+        },
+        "local": {
+          "path": "evidence/u12-local-20260917.json",
+          "at": "2026-09-17T11:23:41.584Z",
+          "summary": "module 78 lines, pin 164, package.json +1; tsc 0, oxfmt clean, oxlint vacuous for scripts, qc:openspec-ci errors=0, validator PASSED; CLI from the junctioned worktree INSTALL_REFUSED node-modules-is-link, from a fresh temp checkout INSTALL_ALLOWED; three mutants killed (allow linked modules, manifest rule dropped, exit 0 on refusal), sha256 restored; parent verification from the root: 10/10 and INSTALL_ALLOWED; status BLOCKED on finding F1 (root preinstall runs after reify)"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
         "tick": null
       },
       "ownerGate": null,
-      "source20260917": "owner instruction 2026-09-17: \"Go with all the recommendations from the council and continue the loop\" (openspec/council-decisions/2026-09-17-post-loop-recommendations.md)"
+      "source20260917": "owner instruction 2026-09-17: \"Go with all the recommendations from the council and continue the loop\" (openspec/council-decisions/2026-09-17-post-loop-recommendations.md)",
+      "blocked20260917": {
+        "cause": "FN-u12-root-preinstall-runs-after-reify: npm 11.6.2 runs the root preinstall after arb.reify, so the charter's preinstall wiring cannot prevent pruning through a linked node_modules; shipping it would claim a protection that does not exist",
+        "parkedPr": 1809,
+        "nextIndependentAction": "a narrower successor (or U17 loop-scripts unit) launches every worker with npm_config_dry_run=true (measured: npm honours it and writes no node_modules) and calls the guard CLI before any npm command in the worktree-setup step; the guard module and pin on the parked head are reusable as they stand, minus the preinstall line",
+        "proof": "evidence/u12-local-20260917.json findingsReportedNotFixed[F1] (npm source lines cited with sha256)"
+      }
     },
     {
       "id": "U13",
@@ -1493,6 +1512,17 @@
       "class": "spec/receipt disclosure",
       "summary": "The campaign event_history_branches genesis row is never written by the campaign genesis path (awaitGenesisBranch only reads a marker); the sole non-test caller of backfillGenesisBranches is MatchStreamJournalMirror, which runs only when the combat-journal mode is not 'off' (matchJournalAuthority.ts sets the literal 'off'), and the backfill covers only streams that already exist. tasks.md:493 (DECISION D2, 2026-09-03) records the two genesis clauses green on 5d5307125, which no council seat could reproduce from current code; the clauses are gated on design-campaign-authority-and-sync task 5.7.",
       "status": "recorded; D2's receipt to be annotated by the next R6.umbrella unit that touches tasks.md; one production build at 5d5307125 with --group=authority-recovery would settle the discrepancy if the owner wants it explained"
+    },
+    {
+      "id": "FN-u12-root-preinstall-runs-after-reify",
+      "foundBy": "U12 implementer lane (codex gpt-6), confirmed by the parent from the installed npm source",
+      "at": "2026-09-17T11:32:05.125Z",
+      "class": "unit premise false, mechanism unavailable",
+      "summary": "npm 11.6.2 (lib/commands/install.js: arb.reify at line 150, root lifecycle scripts starting with preinstall at lines 153-163; lib/commands/ci.js: node_modules contents removed at lines 86-98, reify at 100, preinstall at 106) runs the root package's preinstall AFTER the dependency tree is reified, so a preinstall guard cannot stop npm from pruning the root node_modules through a junctioned worktree (npm/cli#3669). The guard itself is correct (10/10 pin, three mutants killed) but its wiring point is inert for the purpose.",
+      "evidence": "evidence/u12-local-20260917.json findingsReportedNotFixed[F1]; parent probe 2026-09-17: `npm_config_dry_run=true npm install is-odd@3.0.1` in a temp directory printed `added 2 packages` and wrote no node_modules, so the environment lever works where the lifecycle hook does not",
+      "ownership": "R6.loop-harness (scripts/qc, scripts/__tests__, package.json); the launch-side lever belongs with the loop scripts (council-2 proposal U17)",
+      "recommendedSuccessor": "drop the preinstall line; ship the guard CLI as a worktree-setup check and set npm_config_dry_run=true in every worker launch (lane charters and the loop scripts), with a pin that the launch helper exports the variable",
+      "status": "recorded; U12 parked on draft PR 1809 (head 1baa6a96c); successor not yet planned"
     }
   ]
 }
