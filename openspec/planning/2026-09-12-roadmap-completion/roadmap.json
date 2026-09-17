@@ -1930,7 +1930,8 @@
         "src/services",
         "src/engine",
         "e2e",
-        "openspec/changes/enable-saved-custom-unit-combat"
+        "openspec/changes/enable-saved-custom-unit-combat",
+        "src/types/multiplayer"
       ],
       "acceptance": [
         "npm.cmd run typecheck",
@@ -2082,7 +2083,15 @@
         "mainProof": "evidence/r2-combat-residual-rows-1726-main-proof-20260915.json"
       },
       "browserProof": "R2.combat-browser main-verified #1731 (392c207de)",
-      "stateQualifier": "with-residuals"
+      "stateQualifier": "with-residuals",
+      "ownershipPathsAmended20260917": [
+        {
+          "path": "src/types/multiplayer",
+          "at": "2026-09-17T15:36:09.369Z",
+          "source": "owner instruction 2026-09-17 accepting the second council's corrections (openspec/council-decisions/2026-09-17-review-what-needs-validation.md)",
+          "why": "U4 edits LobbyUpdatedSchema in src/types/multiplayer/Protocol.ts; the narrowest new string, unowned before"
+        }
+      ]
     },
     {
       "id": "R2.authority",
@@ -2703,7 +2712,9 @@
       "ownershipPaths": [
         "src/lib/campaign",
         "src/stores/campaign",
-        "src/lib/multiplayer/server"
+        "src/lib/multiplayer/server",
+        "src/pages/api/matches",
+        "src/pages-modules/api"
       ],
       "acceptance": [
         "npm.cmd run typecheck",
@@ -2848,7 +2859,21 @@
         "mainProof": "evidence/r2-authority-live-revocation-detach-1756-main-proof-20260915.json"
       },
       "terminalSummary": "two-process flag-free proofs on main: CO3 convergence/restart (#1750), revocation refusal across processes durable through restart with the live socket now detached on committed removal (#1753-#1756), GM-rationale redaction and 403 stranger path; owner-gated: production flag flip, single-player seat, 6.2b client routing; residuals: F-LIVE-2, typed socket close Q1, review F1 identity check, host F-R1, grant channel (4.3) unmeasured live, static gates (typecheck/lint/format/build) covered per-PR",
-      "stateQualifier": "except-owner-gate"
+      "stateQualifier": "except-owner-gate",
+      "ownershipPathsAmended20260917": [
+        {
+          "path": "src/pages/api/matches",
+          "at": "2026-09-17T15:36:09.369Z",
+          "source": "owner instruction 2026-09-17 accepting the second council's corrections (openspec/council-decisions/2026-09-17-review-what-needs-validation.md)",
+          "why": "U5a: the GM read route for the private draft record lands here; no node owned it"
+        },
+        {
+          "path": "src/pages-modules/api",
+          "at": "2026-09-17T15:36:09.369Z",
+          "source": "owner instruction 2026-09-17 accepting the second council's corrections (openspec/council-decisions/2026-09-17-review-what-needs-validation.md)",
+          "why": "U5a/U5b: the rewind commit reason ingress lives here; no node owned it"
+        }
+      ]
     },
     {
       "id": "R2.camp-0",
@@ -7125,7 +7150,8 @@
         "scripts/qc",
         "scripts/__tests__",
         "package.json",
-        ".oxlintrc.json"
+        ".oxlintrc.json",
+        "playwright.config.ts"
       ],
       "acceptance": [
         "Each harness unit ships with a jest pin and a red-first probe; no product path under src/ is touched"
@@ -7140,7 +7166,15 @@
         "by": "parent",
         "source": "owner instruction 2026-09-17: \"Go with all the recommendations from the council and continue the loop\" (openspec/council-decisions/2026-09-17-post-loop-recommendations.md)",
         "why": "council D names three harness PRs touching package.json and .oxlintrc.json, which no dependency-ready node owns (R9.manifest-sync and R1.ci sit behind unready or archived dependencies)"
-      }
+      },
+      "ownershipPathsAmended20260917": [
+        {
+          "path": "playwright.config.ts",
+          "at": "2026-09-17T15:36:09.369Z",
+          "source": "owner instruction 2026-09-17 accepting the second council's corrections (openspec/council-decisions/2026-09-17-review-what-needs-validation.md)",
+          "why": "U15b forwards the combat-journal e2e arm through the Playwright server env; no node owned the file"
+        }
+      ]
     }
   ],
   "tasks": [

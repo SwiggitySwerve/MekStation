@@ -1,0 +1,22 @@
+{
+  "unit": "U1b",
+  "stage": "mainProof (re-proof)",
+  "at": "2026-09-17T09:40:00.000Z",
+  "why": "council 2 (Explore-Deep) found U1b's main proof (ffc427a08) predates PR #1797, which changed postCampaignMatch in e2e/helpers/gmTwoPlayerAuthorityRecovery.ts (human host seat); e2e/gm-two-player-evidence.pack.spec.ts uses that helper through openRecoverableCampaign",
+  "commit": "c0d621e88cce3426871d6ac08e7229fbfd9bec96",
+  "checkout": "root checkout on main (real node_modules)",
+  "build": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build (build-2.log); the earlier build had been replaced by the U4 commit's pre-commit build",
+  "runs": [
+    { "run": 1, "log": "playwright.log", "result": "1 failed: TimeoutError page.waitForFunction 10000ms at helpers/gmTwoPlayerAuthorityRecovery.ts:190 (campaign stores never exposed)", "condition": "the Lane A review lane was running tsc and jest on the same two cores; the E2E build from build.log was current" },
+    { "run": 2, "log": "playwright-2.log", "result": "1 failed: same timeout", "condition": "idle machine, but .next had been rebuilt by the U4 commit's pre-commit hook without the E2E flags; the runtime database carried an earlier campaign (screenshot)" },
+    { "run": 3, "log": "playwright-3.log", "result": "1 failed: same timeout", "condition": "runtime directory cleared (No campaigns yet in the screenshot); still the non-E2E build" },
+    { "run": 4, "log": "playwright-4.log", "result": "1 passed (5.4s)", "condition": "E2E rebuild (build-2.log) and a fresh runtime on an idle machine" }
+  ],
+  "verdict": "PASS: the evidence-smoke row (E2E-78) passes on current main with the U3 helper; the three reds were harness conditions (CPU contention; a non-E2E build after a root commit), recorded as findings",
+  "harnessLessons": [
+    "any root commit rebuilds .next without the E2E flags; rebuild and re-check before every root ladder run",
+    "the helper passes its timeout object as waitForFunction's arg parameter, so the effective timeout is the 10 s actionTimeout, not 15 s"
+  ],
+  "logs": ".sisyphus/roadmap-completion-20260912/u1b-reproof-20260917/ (local; sha256.txt)",
+  "logHashesFile": "sha256.txt"
+}
