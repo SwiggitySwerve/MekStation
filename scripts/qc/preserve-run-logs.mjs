@@ -131,7 +131,10 @@ export function manifestPathFor({
  *
  * `onCopied` runs between the copy and its verification and exists only so
  * the pin can corrupt a copy; it has no CLI flag and its default does
- * nothing. `repoRoot` is what the manifest's paths are relative to.
+ * nothing. `repoRoot` is what the manifest's paths are relative to, and all
+ * three of runDir, the preserved directory and evidenceDir must be
+ * expressible relative to it - checked before the first copy, so a refusal
+ * leaves nothing on disk anywhere.
  */
 export function preserveRunLogs({
   runDir,
@@ -170,6 +173,27 @@ export function preserveRunLogs({
     path.resolve(preservedRoot),
     `${unit}-${date}`,
   );
+  // Every ledger path is proven expressible BEFORE the first copy. These
+  // checks used to run while the manifest was being assembled, after the copy
+  // loop, so a refused destination still received the logs and only the
+  // manifest was withheld: a refusal that left files behind at the path it
+  // had just refused.
+  const runDirRelative = relativeToRoot(
+    repoRoot,
+    source,
+    'RUN_DIR_OUTSIDE_ROOT',
+  );
+  const preservedDirRelative = relativeToRoot(
+    repoRoot,
+    preservedDir,
+    'PRESERVED_DIR_OUTSIDE_ROOT',
+  );
+  relativeToRoot(
+    repoRoot,
+    path.resolve(evidenceDir),
+    'EVIDENCE_DIR_OUTSIDE_ROOT',
+  );
+
   const entries = [];
   for (const file of files) {
     const from = path.join(source, file);
@@ -192,12 +216,8 @@ export function preserveRunLogs({
     unit,
     date,
     at: now().toISOString(),
-    runDir: relativeToRoot(repoRoot, source, 'RUN_DIR_OUTSIDE_ROOT'),
-    preservedDir: relativeToRoot(
-      repoRoot,
-      preservedDir,
-      'PRESERVED_DIR_OUTSIDE_ROOT',
-    ),
+    runDir: runDirRelative,
+    preservedDir: preservedDirRelative,
     files: entries,
     bytes: entries.reduce((total, entry) => total + entry.bytes, 0),
   };
@@ -252,6 +272,16 @@ function removeReparsePoint(link) {
  * `git` is injectable so the pin can reach the "not a worktree of this
  * repository" branch; its default runs real git and there is no flag that
  * replaces it.
+ *
+ * The clean check is `git status --porcelain`, and nothing is carved out of
+ * it - not even the node_modules reparse point this function is about to
+ * delete. The helper never deletes what git would still report. The loop's
+ * worktrees are covered by the repository's own `node_modules/` ignore entry,
+ * so their link does not appear in that output; a node_modules the repository
+ * does NOT ignore appears as an untracked entry and the removal refuses
+ * WORKTREE_DIRTY, because a repository shaped that way is not the one whose
+ * removal preconditions were recorded. Widening the check to skip the link
+ * would trade that proof for a convenience.
  */
 export function removeWorktreeAfterPreservation({
   repoRoot = REPO_ROOT,

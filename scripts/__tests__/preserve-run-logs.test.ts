@@ -23,6 +23,15 @@
  * `fs.rmSync(link, { recursive: true })` already stops at the link, so the
  * pin asserts the junction TARGET still holds its file after the removal -
  * that is what catches a deletion that resolved the link first.
+ *
+ * The link the fixture plants is not the same KIND of thing on both
+ * platforms: `fs.symlinkSync(target, link, 'junction')` makes a directory
+ * junction on Windows and an ordinary symlink on POSIX, and git's
+ * trailing-slash ignore patterns match directories only. So the fixture
+ * spells the ignore `node_modules` without a slash, which matches either, and
+ * the clean case asserts `git check-ignore node_modules` rather than assuming
+ * it - the assumption is what made this file pass on Windows and fail on
+ * Linux CI with WORKTREE_DIRTY.
  */
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
@@ -183,15 +192,25 @@ interface IRemovalScaffold {
   manifest: IManifest;
 }
 
-/** A real repository, one commit, one linked worktree, logs already preserved. */
-function removalScaffold(): IRemovalScaffold {
+/**
+ * A real repository, one commit, one linked worktree, logs already preserved.
+ *
+ * The ignore entry is spelled `node_modules` WITHOUT a trailing slash on
+ * purpose. git's trailing-slash patterns match directories only, and the link
+ * this fixture plants is a directory on Windows (a junction) but an ordinary
+ * symlink - a non-directory to git - on POSIX, so `node_modules/` ignored it
+ * on one platform and left it untracked on the other. The bare spelling
+ * matches both. `ignoreNodeModules: false` reproduces the unmatched shape on
+ * purpose for the refusal case below.
+ */
+function removalScaffold({ ignoreNodeModules = true } = {}): IRemovalScaffold {
   const parent = temporaryDirectory();
   const repo = path.join(parent, 'repo');
   const worktreePath = path.join(parent, 'wt');
   fs.mkdirSync(repo, { recursive: true });
   git(['init', '-b', 'main'], repo);
   writeFiles(repo, {
-    '.gitignore': 'node_modules/\npreserved/\nevidence/\nrun/\n',
+    '.gitignore': `${ignoreNodeModules ? 'node_modules\n' : ''}preserved/\nevidence/\nrun/\n`,
     'README.md': 'u13 pin repository\n',
   });
   git(['add', '-A'], repo);
@@ -249,6 +268,14 @@ function removal(
     ...extra,
   });
 }
+
+/**
+ * `git check-ignore` exit status for one path, measured inside `cwd`: 0 when a
+ * pattern matches, 1 when none does. `git()` throws on a non-zero exit, so
+ * this case needs the raw status rather than the output.
+ */
+const checkIgnoreStatus = (cwd: string, target: string): number | null =>
+  spawnSync('git', ['check-ignore', target], { cwd, encoding: 'utf8' }).status;
 
 const worktreeCount = (repo: string): number =>
   git(['worktree', 'list', '--porcelain'], repo)
@@ -335,6 +362,29 @@ describe('preserveRunLogs', () => {
       fs.existsSync(path.join(scaffold.root, 'evidence', MANIFEST_NAME)),
     ).toBe(false);
   });
+
+  it('refuses a preserved directory the manifest cannot express, before copying anything', () => {
+    const scaffold = preserveScaffold();
+    // `path.relative` fails to produce a relative path in exactly two shapes:
+    // the two sides share no root (different drives, Windows only) or they are
+    // the SAME path. Only the second has a POSIX equivalent, so that is the
+    // route here - the preserved directory resolves to the repository root
+    // itself, which the manifest has no relative spelling for.
+    const preservedRoot = path.join(scaffold.root, 'preserved');
+    const preservedDir = path.join(preservedRoot, `${UNIT}-${DATE}`);
+    const result = harness({
+      name: 'preserveRunLogs',
+      argument: { ...scaffold.argument, preservedRoot, repoRoot: preservedDir },
+    });
+    expect(result.error?.code).toBe('PRESERVED_DIR_OUTSIDE_ROOT');
+    // A refusal has to leave nothing behind. This assertion is the whole case:
+    // the expressibility check used to run AFTER the copy loop, so the logs
+    // landed at the refused location and only the manifest was withheld.
+    expect(fs.existsSync(preservedDir)).toBe(false);
+    expect(
+      fs.existsSync(path.join(scaffold.root, 'evidence', MANIFEST_NAME)),
+    ).toBe(false);
+  });
 });
 
 describe('removeWorktreeAfterPreservation', () => {
@@ -342,6 +392,12 @@ describe('removeWorktreeAfterPreservation', () => {
     const scaffold = removalScaffold();
     const target = addNodeModulesJunction(scaffold);
     expect(worktreeCount(scaffold.repo)).toBe(2);
+    // The precondition the removal half depends on, asserted rather than
+    // assumed: git ignores the link, so `git status --porcelain` is empty and
+    // the worktree reads clean on every platform. Without this the fixture is
+    // ignored on Windows (directory junction) and untracked on POSIX
+    // (symlink), and only one of the two reaches the removal.
+    expect(checkIgnoreStatus(scaffold.worktreePath, 'node_modules')).toBe(0);
     const result = removal(scaffold);
     expect(result.error).toBeUndefined();
     expect(result.value).toMatchObject({ junctionRemoved: true });
@@ -388,6 +444,24 @@ describe('removeWorktreeAfterPreservation', () => {
     expect(result.error?.code).toBe('PRESERVED_HASH_MISMATCH');
     expect(result.error?.message).toContain('tsc.log');
     expect(fs.existsSync(scaffold.worktreePath)).toBe(true);
+  });
+
+  it('refuses a node_modules link the repository does not ignore', () => {
+    const scaffold = removalScaffold({ ignoreNodeModules: false });
+    const target = addNodeModulesJunction(scaffold);
+    // No pattern matches the link, so git reports it and the helper refuses.
+    // This is the rule, not an accident: the helper deletes nothing git would
+    // still report, and a node_modules the repository does not ignore is a
+    // different repository shape than the loop's worktrees.
+    expect(checkIgnoreStatus(scaffold.worktreePath, 'node_modules')).toBe(1);
+    const result = removal(scaffold);
+    expect(result.error?.code).toBe('WORKTREE_DIRTY');
+    expect(result.error?.message).toContain('1 uncommitted entries');
+    expect(fs.existsSync(scaffold.worktreePath)).toBe(true);
+    expect(worktreeCount(scaffold.repo)).toBe(2);
+    expect(fs.readFileSync(path.join(target, 'pkg/index.js'), 'utf8')).toBe(
+      'module.exports = 1;\n',
+    );
   });
 
   it('refuses a dirty worktree', () => {
