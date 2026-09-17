@@ -1,0 +1,15 @@
+{
+  "unit": "U15b",
+  "stage": "merge",
+  "at": "2026-09-17T16:41:43.329Z",
+  "pr": 1822,
+  "title": "chore(qc): ladder forwards the combat-journal e2e arm next to the campaign arm",
+  "head": "30c81495c9a55603ff7918f8fa94590d803fe0ac",
+  "mergeSha": "6f9444bf2347850a95d42f01e501e557404dbc85",
+  "mergedAt": "2026-09-17T16:37:13Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityDiffLines": 0
+}
