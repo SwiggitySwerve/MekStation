@@ -178,6 +178,11 @@ describe('GM and two-player campaign QC runner', () => {
     ).toBe('node scripts/e2e/relaunching-server.mjs');
     // Predicted red of this pin before the core set the fixture env:
     // toEqual printed `-   "MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY": "1"`.
+    // Second red, before the combat arm was forwarded (unit U15b):
+    // toEqual printed
+    // `-   "MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE": "enabled"`.
+    // One arming condition carries BOTH journal keys, so the campaign
+    // genesis and the combat genesis clauses are live in the same run.
     expect(authorityRecoveryPlan.environment).toEqual({
       PLAYWRIGHT_E2E_RUN_ID: 'task-21-authority-recovery',
       MEKSTATION_E2E_PORT: String(
@@ -187,6 +192,7 @@ describe('GM and two-player campaign QC runner', () => {
       PORT: String(core.deriveFixturePort('task-21-authority-recovery')),
       MEKSTATION_E2E_SERVER_COMMAND: 'node scripts/e2e/relaunching-server.mjs',
       MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY: '1',
+      MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE: 'enabled',
     });
     // Every other group keeps the plain server - the wrapper is the
     // exception, never the default.
@@ -415,6 +421,12 @@ describe('GM and two-player campaign QC runner', () => {
     expect(
       authorityPlan.environment.MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY,
     ).toBe('1');
+    // The combat arm follows authority-recovery into the union on the
+    // same condition, so a member that arms the campaign key can never
+    // arm only half the pair.
+    expect(
+      authorityPlan.environment.MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE,
+    ).toBe('enabled');
 
     // `evidence-smoke` (E2E-78) runs the strict complete-bundle row and
     // nothing else. Predicted red of this pin before the SPEC_BY_GROUP
@@ -532,6 +544,67 @@ describe('GM and two-player campaign QC runner', () => {
     );
     expect(allPlan.environment.MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY).toBe(
       '1',
+    );
+    expect(
+      allPlan.environment.MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE,
+    ).toBe('enabled');
+  });
+
+  it('leaves both journal keys off a group that does not arm the fixture', () => {
+    // The arming condition is membership of authority-recovery, not the
+    // respawn wrapper and not "any authority-shaped name". A group that
+    // does not include that pack must carry NEITHER key, so a mutant
+    // that arms every group (or arms on `needsRespawn`) is red here
+    // rather than silently turning journal authority on for packs that
+    // never asked for it.
+    for (const group of ['token-pack', 'smoke']) {
+      const plan = core.buildRunPlan({
+        group,
+        runId: `u15b-non-arming-${group}`,
+        repoRoot,
+      });
+      expect(
+        plan.environment.MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY,
+      ).toBeUndefined();
+      expect(
+        plan.environment.MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE,
+      ).toBeUndefined();
+    }
+  });
+
+  it('forwards the combat journal key from the Playwright webServer env', () => {
+    // playwright.config.ts cannot be imported under jest cheaply: it is
+    // an ESM TypeScript config that pulls in @playwright/test and
+    // derives a per-run port and runtime directory at module load. This
+    // is therefore a TEXT pin over the config source, and it is honest
+    // about its limit - it proves the key name is forwarded under the
+    // same presence guard the campaign key uses, not that Playwright
+    // actually spawned a server with it. Only a real ladder run proves
+    // the latter, and this suite runs none.
+    const configSource = readFileSync(
+      path.join(repoRoot, 'playwright.config.ts'),
+      'utf8',
+    );
+    // Both key names must appear. A forward that is dropped is red on
+    // the combat line; the campaign line is the control that shows the
+    // pin is reading the file it thinks it is.
+    expect(configSource).toContain('MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY');
+    expect(configSource).toContain(
+      'MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE',
+    );
+    // Same guarded shape for both: `...(process.env.<KEY> ? { <KEY>:
+    // process.env.<KEY> } : {})`. Whitespace-tolerant so the formatter
+    // may rewrap, but an UNCONDITIONAL forward has no
+    // `process.env.<KEY>` before the `?` and fails here.
+    const guardedForward = (key: string) =>
+      new RegExp(
+        String.raw`\.\.\.\(\s*process\.env\.${key}\s*\?\s*\{\s*${key}\s*:\s*process\.env\.${key}\s*,?\s*\}\s*:\s*\{\s*\}\s*\)`,
+      );
+    expect(configSource).toMatch(
+      guardedForward('MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY'),
+    );
+    expect(configSource).toMatch(
+      guardedForward('MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE'),
     );
   });
 
