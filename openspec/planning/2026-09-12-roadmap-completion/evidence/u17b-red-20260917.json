@@ -1,0 +1,199 @@
+{
+  "unit": "U17b",
+  "stage": "red",
+  "at": "2026-09-17T21:24:00Z",
+  "baseline": "f018e34cc150d9ede58e39a32929c5c9dec7d9b6",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u17b",
+  "implementerModel": "claude-opus (Agent lane; codex, grok CLI and cursor-agent routes exhausted on 2026-09-17)",
+  "order": "the staged pin was restored FIRST and run with the two modules still absent; only then were the modules restored and the four new cases written",
+  "passOne": {
+    "what": "the staged pin alone, with scripts/qc/roadmap-unit-closure.mjs and scripts/qc/roadmap-main-proof.mjs still missing",
+    "command": "npx jest scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+    "lastLine": "Tests:       13 failed, 1 passed, 14 total",
+    "exit": 1,
+    "failureShape": "every failing case received \"Error: Cannot find module 'E:\\\\...\\\\worktrees\\\\u17b\\\\scripts\\\\qc\\\\roadmap-unit-closure.mjs'\" (or roadmap-main-proof.mjs), code MODULE_NOT_FOUND",
+    "theOneThatPassed": {
+      "case": "refuses a review whose verdict is not a plain APPROVE",
+      "why": "it asserts only a non-zero exit and that the unit is still local-verified, and a MODULE_NOT_FOUND satisfies both. Recorded rather than treated as coverage: that case proves the refusal only once the module exists."
+    },
+    "casesInTheStagedFile": 14
+  },
+  "passTwo": {
+    "what": "the two modules restored byte-identically from the staging directory, then the four new cases added",
+    "restoredSha256": {
+      "scripts/qc/roadmap-unit-closure.mjs": "7ec475dee4027dffe2c5a3cc008a36a36282bed7a50d28b86dde0d95dc92be1c",
+      "scripts/qc/roadmap-main-proof.mjs": "82fd00ecd12e1fc202768d504ef777f20f5192db25c52129fb499aa04f591227",
+      "matchesStaging": true
+    },
+    "command": "npx jest scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+    "lastLine": "Tests:       4 failed, 14 passed, 18 total",
+    "exit": 1,
+    "reading": "the 14 staged cases are green against the restored modules; exactly the four new cases fail, each for the reason the finding names"
+  },
+  "newCasesFailing": [
+    {
+      "case": "roadmap-unit-closure > preserves the proof logs even when the verdict is FAIL",
+      "finding": "the preserveRunLogs placement",
+      "failingAssertion": "readJson(path.join(tempLedger,'evidence','u91-logs-20260917.json'))",
+      "output": "ENOENT: no such file or directory, open '...\\openspec\\planning\\u17-pin-DTiUVU\\evidence\\u91-logs-20260917.json'",
+      "why": "the staged closure calls preserveRunLogs only after the mainProof verdict is checked, so a FAIL run refuses with the proof logs unpreserved"
+    },
+    {
+      "case": "roadmap-unit-closure > records the reviewer model the Lane A review names",
+      "finding": "U17 F2",
+      "failingAssertion": "expect(receipt.reviewerModel).toBe(REVIEWER)",
+      "output": "Expected: \"gpt-5.6-luna (Agent model: luna)\"  Received: \"claude-sonnet (Agent model: sonnet)\"",
+      "why": "the staged closure writes the literal REVIEWER_MODEL regardless of what the review markdown says. The seeded review deliberately names a model that is not the literal, so the case cannot pass by coincidence."
+    },
+    {
+      "case": "roadmap-unit-closure > refuses a review that does not name the reviewer model",
+      "finding": "U17 F2",
+      "failingAssertion": "expect(result.status).not.toBe(0)",
+      "output": "Expected: not 0",
+      "why": "with the literal in place a review with no reviewerModel header closes the unit anyway, receipting a model nobody stated"
+    },
+    {
+      "case": "roadmap-unit-closure > refuses --skip-blob-check against the repository's own ledger",
+      "finding": "U17 F3",
+      "failingAssertion": "expect(result.stderr).toContain('--skip-blob-check')",
+      "output": "Received string: \"GIT_FAILED: git rev-parse HEAD: fatal: not a git repository (or any of the parent directories): .git\\n\"",
+      "why": "the staged closure has no gate, so the run walks past the ledger check and dies later on the mirror's missing git repository. The exit is non-zero for the wrong reason, which is what the message assertion catches."
+    }
+  ],
+  "casesStrengthenedNotAdded": [
+    {
+      "case": "roadmap-unit-closure > preserves the proof logs through the U13 helper",
+      "added": "expect(manifest.files.map(e => e.file).sort()).toEqual(fs.readdirSync(proofDir).sort())",
+      "status": "green against the staged module on the PASS path - the count assertion it joins (10 files) was already there; the new line proves the manifest lists the proof directory's OWN files rather than a matching count"
+    }
+  ],
+  "safetyOfTheF3Case": {
+    "rule": "the closure generator is never run against a live ledger",
+    "how": "the case copies roadmap-unit-closure.mjs and the two modules it imports into a throwaway root under os.tmpdir() and gives that root a stub openspec/planning/2026-09-12-roadmap-completion/units.json. The shared library derives DEFAULT_LEDGER_DIR from the script's own location, so inside the mirror the stub is the module's own ledger and the same sameDir comparison runs.",
+    "measured": "the case reads the mirror's units.json before and after and lists its evidence directory afterwards; both assertions (unchanged bytes, empty evidence directory) held in the red run too - the ungated module also wrote nothing there, it simply refused for the wrong reason"
+  },
+  "commandsInOrder": [
+    "cp .sisyphus/roadmap-completion-20260912/u17b-staging/roadmap-loop-closure-proof.test.ts scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+    "npx jest scripts/__tests__/roadmap-loop-closure-proof.test.ts   -> Tests: 13 failed, 1 passed, 14 total (exit 1)",
+    "cp .sisyphus/roadmap-completion-20260912/u17b-staging/roadmap-unit-closure.mjs scripts/qc/roadmap-unit-closure.mjs",
+    "cp .sisyphus/roadmap-completion-20260912/u17b-staging/roadmap-main-proof.mjs scripts/qc/roadmap-main-proof.mjs",
+    "(four new cases written into the pin)",
+    "npx jest scripts/__tests__/roadmap-loop-closure-proof.test.ts   -> Tests: 4 failed, 14 passed, 18 total (exit 1)"
+  ],
+  "environment": {
+    "node": "v22.22.0",
+    "npm_config_dry_run": "true in every shell",
+    "npmInstall": "never run",
+    "build": "never run",
+    "playwright": "never run"
+  },
+  "requiredEditRevision2": {
+    "at": "2026-09-17T23:05:00Z",
+    "implementerModel": "claude-opus (Agent lane)",
+    "trigger": {
+      "run": "GitHub Actions run 35276932599, job \"Unit Tests (4/6)\", ubuntu-latest",
+      "head": "fb2adc7e1e3dabcb4168285e0aa1642b8370a044 (PR #1839)",
+      "observed": "six cases of scripts/__tests__/roadmap-loop-closure-proof.test.ts failed, each with \"Expected: 0  Received: 1\" at lines 392, 444, 475, 564, 587 and 607. The pin asserted only the exit status, so the refusal reason never reached CI.",
+      "casesThatFailed": [
+        "writes the four closure receipts and completes the unit (392)",
+        "preserves the proof logs through the U13 helper (444)",
+        "records the reviewer model the Lane A review names (475)",
+        "accepts the stated reds when --expected-reds names each one (564)",
+        "merges extra runtime fields from --extra-runtime (587)",
+        "accepts the checkout as a named --reproof-commit and records it (607)"
+      ],
+      "casesThatPassed": "the other twelve, every one of which either asserts a non-zero exit or belongs to the main-proof describe. The set that failed is exactly the set that needs the closure to write verdict PASS - which is what pointed the investigation at the verdict rather than at gh, the review parse or the preservation call."
+    },
+    "rootCause": {
+      "what": "the closure's mainProof verdict requires `merge.parentCount === 1`, because the loop's merge method is a squash merge. The pin fabricated the merge commit as the AMBIENT checkout's HEAD (`headSha = git(['rev-parse','HEAD'], repoRoot)` in beforeAll) and had the fake gh report it. On a `pull_request` event actions/checkout@v6 leaves HEAD at refs/pull/N/merge, which is a TWO-parent commit, so the closure computed parentCount 2, wrote verdict FAIL and refused with MAIN_PROOF_NOT_PASS - correctly, on the input the pin gave it.",
+      "notAPlatformDefect": "the charter framed this as \"passes on Windows, fails on Linux\". It is not an OS difference: the variable is the checkout ref. Measured both ways - the same fixture exits 0 on Linux when the fabricated merge commit has one parent, and exits 1 on Windows when it has two.",
+      "whyItPassedLocally": "`git rev-list --parents -n 1 HEAD` in this worktree prints `fb2adc7e1e3dabcb4168285e0aa1642b8370a044 f018e34cc150d9ede58e39a32929c5c9dec7d9b6` - one parent, because the worktree is detached on the PR head itself rather than on the merge ref."
+    },
+    "evidence": [
+      {
+        "id": "E1",
+        "command": "gh run view 35276932599 --json headSha,headBranch,event,status,conclusion",
+        "result": "{\"conclusion\":\"failure\",\"event\":\"pull_request\",\"headBranch\":\"codex/roadmap-u17b-closure-proof-generators-20260917\",\"headSha\":\"fb2adc7e1e3dabcb4168285e0aa1642b8370a044\",\"status\":\"completed\"}",
+        "shows": "the failing run is a pull_request run"
+      },
+      {
+        "id": "E2",
+        "command": "gh run view 35276932599 --log-failed",
+        "result": "six \"●\" blocks, each \"expect(received).toBe(expected) // Object.is equality / Expected: 0 / Received: 1\", at test lines 392, 444, 475, 564, 587, 607; no other case in the file reported a failure",
+        "shows": "the refusal reason was never printed, and only the PASS-requiring cases failed"
+      },
+      {
+        "id": "E3",
+        "command": "git ls-remote origin 'refs/pull/1839/*'",
+        "result": "fb2adc7e1e3dabcb4168285e0aa1642b8370a044 refs/pull/1839/head; 6bf5a1c6aa7b58bb2ed443366df5fe3697cbdf1b refs/pull/1839/merge",
+        "shows": "the merge ref CI checks out is a different commit from the PR head"
+      },
+      {
+        "id": "E4",
+        "command": "gh api repos/:owner/:repo/commits/6bf5a1c6aa7b58bb2ed443366df5fe3697cbdf1b --jq '{sha: .sha, parents: [.parents[].sha]}'",
+        "result": "parents [f018e34cc150d9ede58e39a32929c5c9dec7d9b6, fb2adc7e1e3dabcb4168285e0aa1642b8370a044]",
+        "shows": "the commit CI has at HEAD has TWO parents - the direct measurement the root cause rests on"
+      },
+      {
+        "id": "E5",
+        "file": ".github/workflows/pr-checks.yml lines 133-145",
+        "result": "the Unit Tests job's only checkout step is `uses: actions/checkout@v6` with no `ref:` input",
+        "shows": "nothing overrides the default, so on a pull_request event the job runs with HEAD at refs/pull/N/merge"
+      },
+      {
+        "id": "E6",
+        "command": "git rev-list --parents -n 1 HEAD (in this worktree)",
+        "result": "fb2adc7e1e3dabcb4168285e0aa1642b8370a044 f018e34cc150d9ede58e39a32929c5c9dec7d9b6 -> parentCount 1",
+        "shows": "why the same pin is green here"
+      },
+      {
+        "id": "E7",
+        "what": "an A/B probe run from the scratchpad (never shipped): the pin's fixture built twice - same ledger copy, same fold, same fabricated review, same nine-log proof directory, same fake gh - with the ONLY difference being whether the commit the fake gh calls the merge commit has one parent or two",
+        "windows": {
+          "node": "v22.22.0",
+          "oneParent": "exit 0 | receipt parentCount 1 | verdict PASS | unit complete | logs manifest true",
+          "twoParents": "exit 1 | stderr \"MAIN_PROOF_NOT_PASS: main proof not PASS: {\\\"build\\\":\\\"exit 0\\\",...,\\\"playwright\\\":\\\"u91 pin (jest): Tests:       12 passed, 12 total\\\",\\\"tsc\\\":\\\"exit 0\\\"} parents=2 blobDiff=0\" | receipt parentCount 2 | verdict FAIL | unit local-verified | logs manifest true"
+        },
+        "linux": {
+          "host": "WSL Ubuntu-24.04, node v22.23.2, git 2.43.0",
+          "oneParent": "exit 0 | receipt parentCount 1 | verdict PASS | unit complete | logs manifest true",
+          "twoParents": "exit 1 | same MAIN_PROOF_NOT_PASS line with parents=2 | verdict FAIL | unit local-verified | logs manifest true"
+        },
+        "shows": "the parent count alone flips the six cases, on both platforms, and the two-parent arm reproduces the CI signature exactly - including that the FAIL-path cases stay green because the mainProof receipt and the logs manifest are still written"
+      }
+    ],
+    "candidatesRuledOut": [
+      {
+        "candidate": "(a) the fake gh the pin writes on PATH is a Windows-only shape (a .cmd file, or a file without the executable bit, or a shebang-less script), so spawnSync('gh') fails on POSIX",
+        "verdict": "ruled out",
+        "evidence": "the pin already branches on process.platform and writes a `#!/bin/sh` shim at mode 0o755 on POSIX (lines 355-362 of the staged file). The Linux arm of E7 exercised exactly that branch and exited 0, which requires three successful gh calls (pr view, pr view --json files, pr checks). Independently in CI: the case 'refuses a review that does not name the reviewer model' asserts `result.stderr` contains 'reviewerModel', and it PASSED on ubuntu - that refusal is downstream of both `gh pr view` calls, so gh resolved and parsed there too."
+      },
+      {
+        "candidate": "(b) the fake gh or the closure resolves gh through gh.cmd/PATHEXT logic that only exists on win32",
+        "verdict": "ruled out",
+        "evidence": "the closure's gh helper spawns `gh <args>` with `shell: true`, which resolves a mode-0755 shim through /bin/sh on POSIX and the .cmd shim through cmd.exe on Windows. Both were measured green in E7, and CI's own passing refusal cases prove the POSIX resolution worked on ubuntu."
+      },
+      {
+        "candidate": "(c) the U13 preserveRunLogs call refuses on POSIX for a path-expressibility reason (the proof directory or preserved root under os.tmpdir() relative to the temporary ledger's repo root)",
+        "verdict": "ruled out",
+        "evidence": "in CI itself the case 'preserves the proof logs even when the verdict is FAIL' PASSED: it reads evidence/u91-logs-20260917.json out of the temporary ledger and compares its file list against fs.readdirSync(proofDir). The manifest therefore existed and listed the right ten files on ubuntu. Both Linux arms of E7 also reported `logs manifest: true`."
+      },
+      {
+        "candidate": "(d) a \\r\\n / \\n or path-separator assumption in the receipt comparison",
+        "verdict": "ruled out",
+        "evidence": "the Linux one-parent arm of E7 ran the identical fixture end to end to exit 0, verdict PASS, unit complete - every log line parsed, every receipt written and read. In CI the FAIL-path cases read the mainProof receipt and the logs manifest successfully. No comparison in the file is sensitive to the separator."
+      }
+    ],
+    "fix": {
+      "file": "scripts/__tests__/roadmap-loop-closure-proof.test.ts only",
+      "productModulesUnchanged": "scripts/qc/roadmap-unit-closure.mjs sha256 7b3ba7aa08be8bfff87607a4312324fb266c8dca924f41683c68d50f7c1f2e9d and scripts/qc/roadmap-main-proof.mjs sha256 82fd00ecd12e1fc202768d504ef777f20f5192db25c52129fb499aa04f591227 are byte-identical to revision 1. The closure's one-parent requirement is correct behaviour for a squash merge and was not weakened; the pin was fabricating an input the closure is right to refuse.",
+      "changes": [
+        "beforeAll builds a throwaway git repository under os.tmpdir() with three commits, so HEAD and HEAD~1 each have exactly one parent; headSha and earlierSha come from it and closureArgs carries `--repo-root <that repository>`. No case reads the checkout's own HEAD any more, so no checkout ref can change a verdict.",
+        "expectClosureOk(result) replaces the six bare `expect(result.status).toBe(0)` assertions: same condition, but it throws with the closure's stderr AND stdout, so the next CI failure names its refusal instead of printing 1.",
+        "the 'refuses when the checkout is not at the merge commit' case strips --repo-root from closureArgs before naming its own, rather than relying on last-flag-wins.",
+        "two small dedups the change would otherwise duplicate: `without(args, flag)` generalises `withoutLedgerDir`, and PIN_GIT_ENV + commitAll() replace three copies of the commit-identity block."
+      ],
+      "casesKept": "all 18; none dropped, none weakened"
+    }
+  }
+}

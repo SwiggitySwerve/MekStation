@@ -1,0 +1,325 @@
+{
+  "unit": "U17b",
+  "stage": "local",
+  "revision": 2,
+  "at": "2026-09-17T23:20:00Z",
+  "revisionOneAt": "2026-09-17T21:52:00Z",
+  "baseline": "f018e34cc150d9ede58e39a32929c5c9dec7d9b6",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u17b",
+  "branch": "codex/roadmap-u17b-closure-proof-generators-20260917",
+  "checkedOutAt": "fb2adc7e1e3dabcb4168285e0aa1642b8370a044 (detached at the PR #1839 head)",
+  "node": "v22.22.0",
+  "implementerModel": "claude-opus (Agent lane)",
+  "revisionOneImplementerModel": "claude-opus (Agent lane; codex, grok CLI and cursor-agent routes exhausted on 2026-09-17)",
+  "requiredEdit": {
+    "why": "GitHub Actions run 35276932599 on head fb2adc7e1, job \"Unit Tests (4/6)\" (ubuntu-latest): six cases of the pin failed with \"Expected: 0  Received: 1\" at lines 392, 444, 475, 564, 587 and 607 - exactly the six that need the closure to write verdict PASS.",
+    "rootCause": "the closure's mainProof verdict requires merge.parentCount === 1, because the loop's merge method is a squash merge. The pin fabricated the merge commit as the AMBIENT checkout's HEAD and had the fake gh report it. On a pull_request event actions/checkout@v6 leaves HEAD at refs/pull/N/merge - for this PR, 6bf5a1c6aa7b58bb2ed443366df5fe3697cbdf1b, whose parents are f018e34cc and fb2adc7e1 - a TWO-parent commit. The closure computed parentCount 2, wrote verdict FAIL and refused with MAIN_PROOF_NOT_PASS, correctly, on the input the pin gave it.",
+    "notAPlatformDefect": "the variable is the checkout ref, not the OS. Measured on both: the same fixture exits 0 on Linux with a one-parent merge commit and exits 1 on Windows with a two-parent one.",
+    "decisiveEvidence": "gh api repos/:owner/:repo/commits/6bf5a1c6aa7b58bb2ed443366df5fe3697cbdf1b -> two parents; git rev-list --parents -n 1 HEAD in this worktree -> one parent; and an A/B probe on Windows (node v22.22.0) and Linux (WSL Ubuntu-24.04, node v22.23.2, git 2.43.0) in which the parent count is the only variable. Full analysis, per-candidate rulings and commands: evidence/u17b-red-20260917.json -> requiredEditRevision2.",
+    "candidatesRuledOut": "(a) a Windows-only fake-gh shape, (b) gh.cmd/PATHEXT resolution, (c) preserveRunLogs refusing on POSIX, (d) a \\r\\n or path-separator assumption - each ruled out with a measurement, not an argument; see the red receipt.",
+    "fix": "scripts/__tests__/roadmap-loop-closure-proof.test.ts only. beforeAll builds a throwaway three-commit git repository under os.tmpdir(); headSha and earlierSha come from it and every closure case runs with --repo-root pointed there, so no case reads the checkout's own HEAD and no checkout ref can change a verdict. expectClosureOk(result) replaces the six bare exit-status assertions with the same condition plus the closure's stderr and stdout in the failure message. Two small dedups came with it: without(args, flag) generalises withoutLedgerDir, and PIN_GIT_ENV + commitAll() replace three copies of the commit-identity block.",
+    "whyNotAProductChange": "the one-parent requirement is correct for a squash merge and is pinned by the loop's own merge contract; weakening it to make the pin green would have deleted a real check. Both modules are byte-identical to revision 1.",
+    "casesKept": "all 18; none dropped, none weakened"
+  },
+  "delivered": [
+    "scripts/qc/roadmap-unit-closure.mjs restored from the staging directory, with U17 findings F2 and F3 resolved and the preserve-run-logs call moved ahead of the verdict",
+    "scripts/qc/roadmap-main-proof.mjs restored from the staging directory, byte-identical (sha256 82fd00ecd12e1fc202768d504ef777f20f5192db25c52129fb499aa04f591227)",
+    "scripts/__tests__/roadmap-loop-closure-proof.test.ts restored from the staging directory and extended from 14 to 18 cases; all 18 green",
+    "package.json scripts roadmap:closure and roadmap:main-proof, beside the roadmap:fold and roadmap:park U17 ships",
+    "revision 2: the pin no longer fabricates the merge commit out of the ambient checkout's HEAD - it builds a throwaway repository and points the closure at it with --repo-root - and its six PASS assertions now carry the closure's stderr and stdout into the failure message"
+  ],
+  "lineCounts": {
+    "measuredBy": "node line census after oxfmt; comment counts whole-line comments and doc blocks only; the same census the U17 lane used",
+    "scripts/qc/roadmap-unit-closure.mjs": {
+      "total": 429,
+      "code": 352,
+      "comment": 59,
+      "blank": 18,
+      "staged": 382,
+      "diffVsStaging": "+57 / -10 (net +47)"
+    },
+    "scripts/qc/roadmap-main-proof.mjs": {
+      "total": 276,
+      "code": 235,
+      "comment": 28,
+      "blank": 13,
+      "staged": 276,
+      "diffVsStaging": "+0 / -0 (byte-identical)"
+    },
+    "package.json": { "total": 2, "code": 2, "comment": 0, "blank": 0 },
+    "productTotal": 707,
+    "productCode": 589,
+    "pin": {
+      "file": "scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+      "total": 802,
+      "code": 671,
+      "comment": 76,
+      "blank": 55,
+      "staged": 641,
+      "revisionOne": 768,
+      "diffVsStaging": "+212 / -51 (net +161), measured by git diff --no-index --numstat against the staging copy",
+      "diffVsRevisionOne": "+76 / -42 (net +34), measured by git diff --numstat",
+      "cases": 18,
+      "note": "not a product file; the 500-line cap counts the two generators and the two package.json script lines"
+    },
+    "filesTouched": 4,
+    "receiptsAdded": 3,
+    "filesTouchedIncludingReceipts": 7
+  },
+  "overageArithmetic": {
+    "cap": { "maxFiles": 15, "maxNonGeneratedLines": 500 },
+    "filesVerdict": "7 of 15 - inside the cap",
+    "linesVerdict": "707 product lines against a 500 cap: OVER by 207. Code lines only: 589 against 500, over by 89.",
+    "wheretheOverageComesFrom": "382 (closure as staged) + 276 (main proof as staged) + 2 (package.json) = 660 before this lane added a line - already 160 over the cap. 660 is exactly the figure U17 moved out of its own count (1121 - 461 = 660).",
+    "whatThisLaneAdded": "660 + 47 = 707. The 47 lines are the whole of this lane's product change: the reviewerModel parse and its refusal, the --skip-blob-check gate and the sameDir helper it needs, the preserve-run-logs move, and the doc-block sentences that name both findings.",
+    "whyItIsNotSplitAgain": "the council named U17's generators as the cap's known exception and the parent already split this unit once. The remaining pair is one module of 429 lines and one of 276; a third split would separate the closure from the main proof, which the loop runs as a pair, and GOAL forbids widening a unit rather than requiring it be shredded. The overage is recorded with its arithmetic and no assertion was dropped to make it smaller.",
+    "additionsHeldDown": "the main proof was restored byte-identically; every one of the 47 added closure lines is traceable to F2, F3 or the preserve move"
+  },
+  "gatesNote": "every row below was re-measured at revision 2, in this worktree, after the pin change. G8, G9 and G10 of revision 1 (--next, the dirty-tree refusal of a real roadmap-main-proof --dry-run, and the clean dry-run against a throwaway repository) were NOT re-run: revision 2 changed no product module, and the charter's gate list for the required edit does not include them. Their revision-1 results stand as recorded and are kept below the revision-2 rows.",
+  "gates": [
+    {
+      "id": "G1",
+      "command": "npx jest scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+      "lastLine": "Tests:       18 passed, 18 total",
+      "exit": 0,
+      "note": "the six cases CI failed are green here and were green here at revision 1 too; the fix is that they no longer depend on the checkout's HEAD"
+    },
+    {
+      "id": "G2",
+      "command": "npx jest scripts/__tests__/roadmap-loop-scripts.test.ts scripts/__tests__/preserve-run-logs.test.ts",
+      "lastLine": "Tests:       29 passed, 29 total",
+      "exit": 0,
+      "note": "the sibling pins U17 and U13 ship; unchanged by this unit"
+    },
+    {
+      "id": "G3",
+      "command": "npx tsc --noEmit",
+      "lastLine": "(no output)",
+      "exit": 0
+    },
+    {
+      "id": "G4",
+      "command": "npx oxfmt --check scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+      "lastLine": "Finished in 55ms on 1 files using 16 threads. (preceded by \"All matched files use the correct format.\")",
+      "exit": 0,
+      "note": "the pin is the only file revision 2 changed; it was correctly formatted on the first --check run"
+    },
+    {
+      "id": "G5",
+      "command": "npm run lint:units",
+      "lastLine": "LINT_UNITS_PASS 100/100",
+      "exit": 0,
+      "note": "the ceiling file was not touched"
+    },
+    {
+      "id": "G6",
+      "command": "npm run qc:openspec-ci:validate",
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+      "exit": 0
+    },
+    {
+      "id": "G7",
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "exit": 0
+    },
+    {
+      "id": "G8",
+      "revision": 1,
+      "reRunAtRevisionTwo": false,
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+      "lastLine": "U17b",
+      "exit": 0,
+      "note": "unchanged from the baseline; this lane writes no ledger state"
+    },
+    {
+      "id": "G9",
+      "revision": 1,
+      "reRunAtRevisionTwo": false,
+      "command": "node scripts/qc/roadmap-main-proof.mjs --merge f018e34cc150d9ede58e39a32929c5c9dec7d9b6 --unit U17b --date 20260917 --runtime-jest scripts/__tests__/roadmap-loop-closure-proof.test.ts --dry-run",
+      "lastLine": "TREE_DIRTY: the tree is dirty: 6 entries; the proof must run on the merge commit alone",
+      "exit": 1,
+      "note": "the real generator run the charter asked for, taken from this worktree. It refused before doing anything, which is the intended behaviour on a dirty tree; the 6 entries are this lane's own changes (7 once this receipt lands). Nothing was built and no log directory was created."
+    },
+    {
+      "id": "G10",
+      "revision": 1,
+      "reRunAtRevisionTwo": false,
+      "command": "node scripts/qc/roadmap-main-proof.mjs --merge <throwaway HEAD> --unit U17b --date 20260917 --repo-root <throwaway repo> --runtime-jest scripts/__tests__/roadmap-loop-closure-proof.test.ts --dry-run",
+      "lastLine": "DRY-RUN dirty-check: git status --short, counted (in-process)",
+      "exit": 0,
+      "note": "the clean half of the charter's alternative: a git repository created under the system temp directory with one empty-seeded commit. All 15 ladder steps printed (idle-before-build, build with NEXT_PUBLIC_E2E_MODE=true, e2e-marker, idle-before-runtime, playwright=jest, tsc, validator, git-check, next, openspec-strict, qc-openspec-ci, qc-pin, sha256, restore-next-env, dirty-check) and nothing was executed: after the run the throwaway repository held only .git and seed.txt - no .sisyphus directory. The repository was then removed."
+    }
+  ],
+  "mutantsNote": "all five were re-taken at revision 2 against the revised pin, one at a time, each restored from a saved copy before the next. Every kill set is identical to revision 1 and every restored sha256 equals the pre-mutant sha256 - which is also the evidence that revision 2 changed no product module. The pin's own hermeticity (that no case reads the checkout's HEAD) is NOT mutant-tested: a mutant reverting it would still pass in this worktree, whose HEAD has one parent. It is held instead by the measurement in the red receipt and by the fact that `git(..., repoRoot)` no longer appears in the file.",
+  "preMutantSha256": {
+    "scripts/qc/roadmap-unit-closure.mjs": "7b3ba7aa08be8bfff87607a4312324fb266c8dca924f41683c68d50f7c1f2e9d",
+    "scripts/qc/roadmap-main-proof.mjs": "82fd00ecd12e1fc202768d504ef777f20f5192db25c52129fb499aa04f591227"
+  },
+  "mutants": [
+    {
+      "id": "M1",
+      "file": "scripts/qc/roadmap-unit-closure.mjs",
+      "mutation": "`if (!reviewedHead || reviewedHead[1] !== head)` -> `if (!reviewedHead)`: the closure accepts a review that names a head other than the PR head",
+      "result": "Tests: 1 failed, 17 passed, 18 total",
+      "caughtBy": ["refuses a review whose reviewedHead is not the PR head"],
+      "restoredSha256": "7b3ba7aa08be8bfff87607a4312324fb266c8dca924f41683c68d50f7c1f2e9d",
+      "matchesPreMutant": true
+    },
+    {
+      "id": "M2",
+      "file": "scripts/qc/roadmap-unit-closure.mjs",
+      "mutation": "the verdict's `!/\\b[1-9]\\d* (failed|flaky)\\b/.test(runtimeLine)` clause -> `true`: the closure writes PASS on a failing runtime line",
+      "result": "Tests: 2 failed, 16 passed, 18 total",
+      "caughtBy": [
+        "writes verdict FAIL and refuses when the runtime line reports failures",
+        "preserves the proof logs even when the verdict is FAIL"
+      ],
+      "why2": "the second case asserts a non-zero exit on the FAIL path, which the mutant removes; both were reproduced rather than one assumed",
+      "restoredSha256": "7b3ba7aa08be8bfff87607a4312324fb266c8dca924f41683c68d50f7c1f2e9d",
+      "matchesPreMutant": true
+    },
+    {
+      "id": "M4",
+      "file": "scripts/qc/roadmap-main-proof.mjs",
+      "mutation": "`if (dirty)` -> `if (false && dirty)`: the main proof runs over a dirty tree",
+      "result": "Tests: 1 failed, 17 passed, 18 total",
+      "caughtBy": ["refuses a dirty tree"],
+      "restoredSha256": "82fd00ecd12e1fc202768d504ef777f20f5192db25c52129fb499aa04f591227",
+      "matchesPreMutant": true
+    },
+    {
+      "id": "M7",
+      "file": "scripts/qc/roadmap-unit-closure.mjs",
+      "mutation": "the whole --skip-blob-check gate (the sameDir refusal) deleted",
+      "result": "Tests: 1 failed, 17 passed, 18 total",
+      "caughtBy": ["refuses --skip-blob-check against the repository's own ledger"],
+      "restoredSha256": "7b3ba7aa08be8bfff87607a4312324fb266c8dca924f41683c68d50f7c1f2e9d",
+      "matchesPreMutant": true
+    },
+    {
+      "id": "M8",
+      "file": "scripts/qc/roadmap-unit-closure.mjs",
+      "mutation": "the REVIEW_MODEL_MISSING refusal replaced by `const reviewerModel = reviewerLine ? reviewerLine[1].trim() : 'claude-sonnet (Agent model: sonnet)'`: the reviewer model falls back to a literal when the header is absent",
+      "result": "Tests: 1 failed, 17 passed, 18 total",
+      "caughtBy": ["refuses a review that does not name the reviewer model"],
+      "note": "the sibling case 'records the reviewer model the Lane A review names' survives this mutant by design - the fallback only fires when the header is missing. The other half of F2, a closure that ignores the header entirely, was reproduced in the red stage: the staged module returned 'claude-sonnet (Agent model: sonnet)' where the review said 'gpt-5.6-luna (Agent model: luna)'. The two cases are not redundant.",
+      "restoredSha256": "7b3ba7aa08be8bfff87607a4312324fb266c8dca924f41683c68d50f7c1f2e9d",
+      "matchesPreMutant": true
+    }
+  ],
+  "findingsResolved": [
+    {
+      "id": "F3",
+      "resolution": "--skip-blob-check is refused whenever the resolved ledger directory is the repository's own (DEFAULT_LEDGER_DIR), compared through realpath and case-folded on win32. The refusal (BLOB_CHECK_REQUIRED) lands immediately after resolveLedgerDir, before the first gh call and before anything is written or copied.",
+      "whyNotAnEnvironmentVariable": "ROADMAP_LOOP_PIN=1 is set as easily as the flag is passed. Binding the weakening to a ledger that is not this repository's own means no receipt in this ledger can carry a blob check nobody ran."
+    },
+    {
+      "id": "F2",
+      "resolution": "the Lane A reviewer model is read from the review markdown's `reviewerModel:` header line and trimmed; a review with no such line, or an empty one, is refused (REVIEW_MODEL_MISSING). The value flows into both the review receipt and the unit entry's stageReceipts.review.",
+      "whyTheHeader": "15 of the 18 Lane A reviews already on main carry `reviewerModel:` on its own line beside `reviewedHead:`, which the closure already parses out of the same file, so the value comes from the artefact being receipted rather than from an argument that could contradict it."
+    },
+    {
+      "id": "preserveRunLogsPlacement",
+      "choice": "moved BEFORE the verdict check, not kept on the success path",
+      "why": "the module already records the run before refusing - the FAIL mainProof receipt is written and then the refusal is thrown - and the logs are part of that record. A FAIL is the run whose logs are most wanted, and the worktree is removed after a FAIL just as after a PASS. This resolves the limit the staging README recorded instead of carrying it forward as a non-claim.",
+      "pinned": "'preserves the proof logs through the U13 helper' (PASS; strengthened to assert the manifest lists the proof directory's OWN files, compared against fs.readdirSync) and 'preserves the proof logs even when the verdict is FAIL' (new). Both read evidence/u91-logs-20260917.json in the temporary ledger.",
+      "consequence": "a FAIL closure now writes evidence/<unit>-logs-<date>.json. The manifest is a record of the run, never a claim about its verdict."
+    }
+  ],
+  "nonClaims": [
+    "Revision 2 was not verified on a Linux CI runner. The fix is verified here by measurement of the mechanism - the parent count of refs/pull/1839/merge, and an A/B probe on Windows and on WSL Ubuntu-24.04 - and by the pin no longer reading the checkout's HEAD at all. The pin itself could not be run on Linux: node_modules is a Windows junction with no Linux @swc native binding, and npm install is forbidden here, so `node node_modules/jest/bin/jest.js` on WSL fails to load its native binding before any test runs. Whether CI is green is a claim only the next CI run can make.",
+    "The A/B probe that reproduced the defect is scratch code under the session scratchpad; it was never added to the repository and is not part of the delivery.",
+    "The real proof ladder was never run: no build, no Playwright, no jest ladder on a merge commit. Only --dry-run, its dirty refusal taken from this worktree (G9), and a clean dry-run against a throwaway git repository (G10).",
+    "roadmap-main-proof.mjs's execution branch - spawning each step, per-step logs, the e2e marker scan, sha256.txt and the post-run dirty count - still has NO test. It is transcribed from the four shell ladders and read, not measured. Testing it needs an injected step runner; that injection point was NOT added, because adding one is a widening of a unit whose brief is to restore the staged modules and resolve two findings.",
+    "--runtime-command's shell branch is never executed, only its flag choice.",
+    "gh is a fake on PATH in every closure case. That proves the closure's handling of the JSON shape, not the real gh's shape.",
+    "The closure generator was never run against the live ledger. Every closure case works on a temporary copy of the ledger directory, and the F3 case works on a throwaway mirror of the three scripts whose own default ledger is a stub - so the guard's sameDir comparison is exercised, but not against this repository's real ledger directory.",
+    "G10 proves what the ladder PRINTS, not that any step in it works.",
+    "The preserve-before-verdict move is pinned against a fabricated proof directory (nine step logs plus sha256.txt), not against a real proof run.",
+    "The 18 cases run on this baseline in this worktree; they were not run on a merge commit.",
+    "After revision 2 the closure cases record a mergeSha that exists only in the throwaway repository, so the temporary ledger's completed unit could not satisfy validate-roadmap.mjs --git. printValidator never passes --git (checked: the validator's only git call is behind `if (wantGit)`), so no assertion depends on it - but the pin's fabricated ledger is no longer live-ancestry-provable, and was not before in any meaningful sense either."
+  ],
+  "findingsReportedNotFixed": [
+    {
+      "id": "F8",
+      "what": "three Lane A reviews already on main carry no `reviewerModel:` header line: u0-lane-a-review-20260916.md, u1-lane-a-review-20260916.md and u1b-lane-a-review-20260916.md, which predate the convention (they name the reviewer in prose - 'Reviewer: Lane A cross-model agent review'). The new REVIEW_MODEL_MISSING refusal would refuse a closure driven by one of those files.",
+      "impact": "none today - U0, U1 and U1b are already closed - but a re-proof of any of them would need the header added to the review markdown first",
+      "suggestion": "leave the refusal loud; the alternative (a prose fallback) is exactly the guessing F2 was raised about"
+    },
+    {
+      "id": "F9",
+      "what": "the cap overage: 707 product lines against 500, over by 207 (589 code lines, over by 89). Recorded with its arithmetic above rather than resolved.",
+      "suggestion": "the parent's call; a third split of this pair is not recommended"
+    },
+    {
+      "id": "F5",
+      "inheritedFrom": "U17",
+      "what": "the pin copies the 17 MB ledger directory into a temporary directory under openspec/planning/ (so the copied validate-roadmap.mjs still resolves the repository root three levels up). afterAll removes it, but a crashed or killed run leaves it behind, where it shows up in git status. This pin inherits that unchanged.",
+      "suggestion": "a `u17-pin-*` entry in .gitignore or a beforeAll sweep; .gitignore is not an owned path of this unit"
+    },
+    {
+      "id": "F10",
+      "what": "both pins still name their temporary directory `u17-pin-*`, including this U17b one, so a stale directory cannot be attributed to a lane. Kept deliberately so one sweep pattern covers both files.",
+      "suggestion": "rename both prefixes together, or leave as the shared sweep key"
+    },
+    {
+      "id": "F12",
+      "raisedAt": "revision 2",
+      "what": "the same blindness the required edit was about still exists one level up: the pin's `fold()` helper asserts only `expect(run(FOLD, foldArgs(...)).status).toBe(0)`, so a fold refusal in CI would again print 1 with no reason. Only the six closure calls were instrumented, because those are the ones that failed.",
+      "suggestion": "give the fold helper the same expectClosureOk treatment - or hoist one exit-status helper that both use - in whichever unit next touches this file"
+    },
+    {
+      "id": "F13",
+      "raisedAt": "revision 2",
+      "what": "the class of defect, not this instance: any pin that fabricates git facts out of the checkout it happens to be running in will behave differently under `actions/checkout` on a pull_request event, where HEAD is the two-parent merge ref rather than the PR head. Both sibling pins were grepped for the pattern (rev-parse / rev-list / spawnSync('git')): roadmap-loop-scripts.test.ts has no git call at all, and preserve-run-logs.test.ts reads HEAD only from a throwaway worktree it built itself - neither is exposed. Nothing stops the next one.",
+      "suggestion": "a line in DELIVERY.md or the loop's pin conventions: a pin that needs a commit builds one"
+    },
+    {
+      "id": "F11",
+      "what": "the closure's own doc header still opens '(U17 - R6.loop-harness)' in both restored modules, because the files are carry-overs from the U17 lane and the unit id in a header is not behaviour. The U17b split is named in the pin's header instead.",
+      "suggestion": "cosmetic; the parent may retitle both headers in a docs pass"
+    }
+  ],
+  "finalContentSha256": {
+    "scripts/qc/roadmap-unit-closure.mjs": "7b3ba7aa08be8bfff87607a4312324fb266c8dca924f41683c68d50f7c1f2e9d",
+    "scripts/qc/roadmap-main-proof.mjs": "82fd00ecd12e1fc202768d504ef777f20f5192db25c52129fb499aa04f591227",
+    "scripts/__tests__/roadmap-loop-closure-proof.test.ts": "8bad641e978cb95c8875e1d47414c25edb7fb63a754908c0d516ec9a1e909e89",
+    "package.json": "69f33c488c8d9454a656b9c059e1ec90400b3852a2c309f28800290e16d577eb",
+    "note": "only the pin changed at revision 2; its revision-1 sha256 was 459460621f05bcd8b30b01427b2ed24632ac88daaf7b82991fbb85db05094dff. The two module hashes are the revision-1 hashes unchanged, which is also what the mutant re-take measured on restore."
+  },
+  "stagedInventoryComparison": {
+    "roadmap-main-proof.mjs": "restored byte-identical: 82fd00ecd12e1fc202768d504ef777f20f5192db25c52129fb499aa04f591227 equals the staged sha256",
+    "roadmap-unit-closure.mjs": "restored byte-identical first (7ec475dee4027dffe2c5a3cc008a36a36282bed7a50d28b86dde0d95dc92be1c, recorded in the red receipt), then changed by the 47 lines this unit owns",
+    "roadmap-loop-closure-proof.test.ts": "restored byte-identical first (8a0cdd006f983d8eb8ae5f221a7b56eb0eaaa976c4ddd2bd2526b25c358ec868, run red at 13 failed / 1 passed), then extended by four cases and one strengthened assertion; revision 2 changed how the merge commit is fabricated, +212 / -51 against the staging copy in total"
+  },
+  "gitStatusShortRevisionOne": [
+    " M package.json",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u17b-admission-20260917.json",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u17b-local-20260917.json",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u17b-red-20260917.json",
+    "?? scripts/__tests__/roadmap-loop-closure-proof.test.ts",
+    "?? scripts/qc/roadmap-main-proof.mjs",
+    "?? scripts/qc/roadmap-unit-closure.mjs"
+  ],
+  "gitStatusShort": [
+    " M openspec/planning/2026-09-12-roadmap-completion/evidence/u17b-local-20260917.json",
+    " M openspec/planning/2026-09-12-roadmap-completion/evidence/u17b-red-20260917.json",
+    " M scripts/__tests__/roadmap-loop-closure-proof.test.ts"
+  ],
+  "constraintsHonoured": [
+    "npm_config_dry_run=true in every shell; npm install / ci / prune never run anywhere",
+    "the root checkout at E:/Projects/MekStation was never written: `git -C <root> status --short` printed nothing after the last gate",
+    "no commit, push, stash, amend or force",
+    "no build, no Playwright",
+    "the real proof ladder was never run - only --dry-run and its refusals",
+    "the closure generator was never run against the live ledger",
+    "units.json, roadmap.json and evidence/admission-snapshot.json were not edited",
+    "no tasks.md row was checked",
+    "no AI attribution anywhere; no absolute machine path in a product or test file (grep for E:/, C:/, wroll and AppData over the three shipped files returns only model-name strings that are receipt data)",
+    "only scripts/qc, scripts/__tests__, package.json and the three u17b receipts were touched",
+    "revision 2 edited exactly three files: the pin and the two receipts the charter named. No product module, no ledger file, no package.json line",
+    "the gh calls made at revision 2 were read-only (gh run view, gh api on a commit); no PR, run or branch was modified"
+  ],
+  "status": "ready"
+}
