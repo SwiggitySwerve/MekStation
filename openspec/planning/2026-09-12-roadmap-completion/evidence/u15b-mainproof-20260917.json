@@ -7,8 +7,9 @@
   "runtime": {
     "build": "exit 0",
     "e2eBundleMarker": "__E2E_MODE__ present in _app chunk (run log)",
-    "playwright": "authority-recovery: 2 failed / 2 passed (derived from the Playwright summary lines above; E2E-01 and E2E-02 are the failed rows)",
-    "tsc": "exit 0"
+    "playwright": "authority-recovery: 2 failed / 2 passed",
+    "tsc": "exit 0",
+    "playwrightNote": "the ladder runner printed Playwright's bare summary lines (\"  2 failed\" then \"  2 passed (39.6s)\"); the loop derived the labeled proof line from them and recorded the derivation in playwright.log; the two failed rows are E2E-01 and E2E-02 (see expectedReds). Corrected on 2026-09-17 after U16's evidence mode (merged as da9f669b2) rejected the earlier spelling, which carried that derivation note inside the proof line."
   },
   "commands": {
     "validator": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
