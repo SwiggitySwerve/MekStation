@@ -1,0 +1,22 @@
+{
+  "unit": "U8",
+  "stage": "merge",
+  "at": "2026-09-18T01:04:23.169Z",
+  "pr": 1829,
+  "title": "feat(api): campaign command route accepts and forwards expectedRevision",
+  "head": "315b61ac4242a5f9a151a3d4e697a5a8946f166c",
+  "mergeSha": "f20f8d5f91565e10ed0c6524cc40c27fc376f401",
+  "mergedAt": "2026-09-18T01:00:28Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u8-admission-20260917.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u8-local-20260917.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u8-red-20260917.json",
+    "src/__tests__/api/campaigns/campaignCommandsRoute.staleHead.test.ts",
+    "src/pages/api/campaigns/[id]/commands.ts"
+  ],
+  "blobEqualityDiffLines": 0
+}
