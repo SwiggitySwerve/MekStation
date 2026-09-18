@@ -1,0 +1,28 @@
+{
+  "unit": "U5b",
+  "stage": "merge",
+  "at": "2026-09-18T00:59:53.076Z",
+  "pr": 1827,
+  "title": "feat(multiplayer): lobby renders the GM correction controls and captures a private reason client-side",
+  "head": "8479b05e1790c282c90a6d18276031ceb1b8987f",
+  "mergeSha": "31b05182b3c0450d54867fc3883a90133e4a2aa7",
+  "mergedAt": "2026-09-18T00:53:52Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u5b-admission-20260917.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u5b-local-20260917.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u5b-red-20260917.json",
+    "src/components/multiplayer/NetworkedGameSurface.gmCorrection.tsx",
+    "src/components/multiplayer/NetworkedGameSurface.tsx",
+    "src/components/multiplayer/__tests__/NetworkedGameSurface.correction.test.tsx",
+    "src/pages-modules/multiplayer/__tests__/lobbyCorrectionSurface.test.tsx",
+    "src/pages-modules/multiplayer/__tests__/useGmCorrectionProducers.test.tsx",
+    "src/pages-modules/multiplayer/useGmCorrectionProducers.ts",
+    "src/pages-modules/multiplayer/useGmRewindProducers.ts",
+    "src/pages/multiplayer/lobby/[roomCode].tsx"
+  ],
+  "blobEqualityDiffLines": 0
+}
