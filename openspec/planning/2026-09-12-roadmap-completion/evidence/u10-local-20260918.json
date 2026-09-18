@@ -1,0 +1,282 @@
+{
+  "unit": "U10",
+  "stage": "local",
+  "at": "2026-09-18T06:40:00.000Z",
+  "baseline": "ec23e8794df18a6cc032f223c20e56de292deb87",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u10",
+  "branch": "codex/roadmap-u10-rewind-branch-reader-20260918",
+  "behaviourShipped": "matchStoreBranchSegmentReader serves the match's single line of history for BOTH live-path branch ids - ROOT_EVENT_BRANCH_ID and MATCH_BASELINE_BRANCH_ID - with identical events, revisions and digest chain, stamping each returned event with the branchId the segment named, and still refuses any other branch id with EventHistoryBranchError('unknown-branch')",
+  "implementation": {
+    "shapeChosen": "the reader imports { MATCH_BASELINE_BRANCH_ID, isLivePathBranchId } from '../matchAuthorityBaseline' - no new module, no option parameter, no second copy of the live-path pair",
+    "cycleMeasurement": "no cycle exists. matchAuthorityBaseline.ts has exactly four imports (@/types/gameplay/GameSessionInterfaces type-only, EventJournalCanonicalizer, EventJournalContract, hashUtils) and imports nothing from src/lib/multiplayer; its only mention of the reader is a doc comment. `npx tsc --noEmit` exits 0, `npx oxlint` reports 0 errors, and all 157 suites in src/lib/multiplayer/server pass, so nothing in the runtime graph closed a loop",
+    "threeEdits": [
+      "the refusal predicate `segment.branchId !== ROOT_EVENT_BRANCH_ID` becomes `!isLivePathBranchId(segment.branchId)`",
+      "the refusal message names both live-path ids instead of only root",
+      "the per-event stamp `branchId: ROOT_EVENT_BRANCH_ID` becomes `branchId: segment.branchId`, which is what EventHistoryBranchResolver.verifySegment:322-327 requires and is byte-equivalent behaviour on a root segment"
+    ],
+    "unchanged": "the read of the whole stream, the sort, matchEventChainDigest and its { previous, event } field order, the chain-from-stream-start loop and the post-chain window filter are untouched, so the digest of any given event is identical to the baseline's under either name"
+  },
+  "lineCounts": {
+    "method": "git -C <worktree> diff --numstat, plus wc -l on the final tree",
+    "perFile": [
+      {
+        "file": "src/lib/multiplayer/server/history/matchStoreBranchSegmentReader.ts",
+        "kind": "product",
+        "added": 29,
+        "removed": 6,
+        "fileLinesBefore": 164,
+        "fileLinesAfter": 187,
+        "executableAdded": 8,
+        "executableRemoved": 3,
+        "note": "21 of the 29 added lines are the header's 'ONE LINE OF HISTORY, TWO NAMES' block and the two inline comments; the executable change is the 5-line import block, the predicate, the message template and the stamp"
+      },
+      {
+        "file": "src/lib/multiplayer/server/matchAuthorityBaseline.ts",
+        "kind": "product (comment only)",
+        "added": 7,
+        "removed": 5,
+        "fileLinesBefore": 198,
+        "fileLinesAfter": 200,
+        "executableAdded": 0,
+        "executableRemoved": 0,
+        "note": "the doc comment at :74-79 asserted that the reader 'refuses every branch but root by name'. This head makes that false, so the sentence is corrected in the same head rather than left to drift"
+      },
+      {
+        "file": "src/lib/multiplayer/server/history/__tests__/matchStoreBranchSegmentReader.test.ts",
+        "kind": "test",
+        "added": 165,
+        "removed": 0,
+        "fileLinesBefore": 334,
+        "fileLinesAfter": 499,
+        "note": "one import line plus the new describe block 'matchStoreBranchSegmentReader on the baseline branch id' (5 rows). Nothing was deleted, renamed or weakened; the pre-existing row 'refuses a branch a match store cannot hold' at :202-212 is kept verbatim"
+      }
+    ],
+    "totals": {
+      "files": 3,
+      "productAdded": 36,
+      "productRemoved": 11,
+      "productExecutableChanged": 11,
+      "testAdded": 165,
+      "capsUsed": "3 of 15 files; 36 product lines added against a 500-line cap and the charter's 'estimate under 40 product lines'"
+    }
+  },
+  "gates": [
+    {
+      "command": "npx jest src/lib/multiplayer/server/history/__tests__/matchStoreBranchSegmentReader.test.ts",
+      "lastLine": "Ran all test suites matching /src\\lib\\multiplayer\\server\\history\\__tests__\\matchStoreBranchSegmentReader.test.ts/i.",
+      "resultLine": "Tests:       14 passed, 14 total",
+      "suites": "1 passed, 1 total",
+      "exitCode": 0,
+      "note": "14 = the 9 pre-existing rows plus the 5 new baseline rows"
+    },
+    {
+      "command": "npx jest src/lib/multiplayer/server/history",
+      "lastLine": "Ran all test suites matching /src\\lib\\multiplayer\\server\\history/i.",
+      "resultLine": "Tests:       105 passed, 105 total",
+      "suites": "12 passed, 12 total",
+      "exitCode": 0
+    },
+    {
+      "command": "npx jest src/lib/multiplayer/server/__tests__/matchCheckpointEquivalence.test.ts",
+      "lastLine": "Ran all test suites matching /src\\lib\\multiplayer\\server\\__tests__\\matchCheckpointEquivalence.test.ts/i.",
+      "resultLine": "Tests:       5 passed, 5 total",
+      "exitCode": 0
+    },
+    {
+      "command": "npx jest src/lib/multiplayer/server/__tests__/matchCreatePathJournalSeed.sqlite.test.ts",
+      "lastLine": "Ran all test suites matching /src\\lib\\multiplayer\\server\\__tests__\\matchCreatePathJournalSeed.sqlite.test.ts/i.",
+      "resultLine": "Tests:       4 passed, 4 total",
+      "exitCode": 0
+    },
+    {
+      "command": "npx jest src/lib/multiplayer/server/__tests__/matchRecoveryCheckpointDoor.test.ts",
+      "lastLine": "Ran all test suites matching /src\\lib\\multiplayer\\server\\__tests__\\matchRecoveryCheckpointDoor.test.ts/i.",
+      "resultLine": "Tests:       7 passed, 7 total",
+      "exitCode": 0
+    },
+    {
+      "command": "npx jest src/lib/multiplayer/server/__tests__/matchRecoveryJournalArmDoor.sqlite.test.ts",
+      "lastLine": "Ran all test suites matching /src\\lib\\multiplayer\\server\\__tests__\\matchRecoveryJournalArmDoor.sqlite.test.ts/i.",
+      "resultLine": "Tests:       6 passed, 6 total",
+      "exitCode": 0
+    },
+    {
+      "command": "npx jest src/lib/multiplayer/server/__tests__/matchRecoveryJournalHead.sqlite.test.ts",
+      "lastLine": "Ran all test suites matching /src\\lib\\multiplayer\\server\\__tests__\\matchRecoveryJournalHead.sqlite.test.ts/i.",
+      "resultLine": "Tests:       4 passed, 4 total",
+      "exitCode": 0
+    },
+    {
+      "command": "npx jest src/lib/multiplayer/server/__tests__/matchStreamJournalMirror.sqlite.test.ts",
+      "lastLine": "Ran all test suites matching /src\\lib\\multiplayer\\server\\__tests__\\matchStreamJournalMirror.sqlite.test.ts/i.",
+      "resultLine": "Tests:       10 passed, 10 total",
+      "exitCode": 0
+    },
+    {
+      "command": "npx jest src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindRebuild.test.ts",
+      "lastLine": "Ran all test suites matching /src\\lib\\multiplayer\\server\\__tests__\\ServerMatchHost.rewindRebuild.test.ts/i.",
+      "resultLine": "Tests:       7 passed, 7 total",
+      "exitCode": 0
+    },
+    {
+      "command": "npx jest src/__tests__/api/matches/rewindCommitRoute.test.ts",
+      "lastLine": "Ran all test suites matching /src\\__tests__\\api\\matches\\rewindCommitRoute.test.ts/i.",
+      "resultLine": "Tests:       10 passed, 10 total",
+      "exitCode": 0
+    },
+    {
+      "command": "npx jest src/lib/multiplayer/server",
+      "lastLine": "Ran all test suites matching /src\\lib\\multiplayer\\server/i.",
+      "resultLine": "Tests:       1164 passed, 1164 total",
+      "suites": "157 passed, 157 total",
+      "exitCode": 0
+    },
+    {
+      "command": "npx tsc --noEmit",
+      "lastLine": "(no output)",
+      "exitCode": 0
+    },
+    {
+      "command": "npx oxlint",
+      "resultLine": "Found 84 warnings and 0 errors.",
+      "lastLine": "Finished in 207ms on 3814 files using 16 threads.",
+      "exitCode": 0,
+      "warningsChangedFrom84": false,
+      "note": "84 warnings, 0 errors - identical to the baseline reading taken before any edit (admission receipt baselineGateReadings.oxlint)"
+    },
+    {
+      "command": "npx oxfmt --check src/lib/multiplayer/server/history/matchStoreBranchSegmentReader.ts src/lib/multiplayer/server/matchAuthorityBaseline.ts src/lib/multiplayer/server/history/__tests__/matchStoreBranchSegmentReader.test.ts",
+      "lastLine": "Finished in 14ms on 3 files using 16 threads.",
+      "resultLine": "All matched files use the correct format.",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run lint:units",
+      "lastLine": "LINT_UNITS_PASS 100/100",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run qc:openspec-ci:validate",
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+      "exitCode": 0
+    },
+    {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "exitCode": 0
+    }
+  ],
+  "finalTreeReconfirmation": {
+    "why": "the mutation runs wrote and restored the product file, so the history suite, tsc and oxfmt were re-run on the FINAL tree after the last restore",
+    "readerSha256AfterFinalRestore": "2ddbe5e9ba644b643b41c318252e89793d6cd13ac76cf94ad83f4432b474ccd4",
+    "results": [
+      "npx jest src/lib/multiplayer/server/history -> Tests: 105 passed, 105 total, exit 0",
+      "npx tsc --noEmit -> no output, exit 0",
+      "npx oxfmt --check <3 changed files> -> All matched files use the correct format., exit 0"
+    ],
+    "note": "npx jest src/lib/multiplayer/server (1164 passed) and npx oxlint (84 warnings, 0 errors) were run against a byte-identical reader (same sha256) with the other two files untouched since"
+  },
+  "mutants": {
+    "method": "the green product file was copied to a scratchpad outside the repository before the first mutation; each mutant was applied in place, the reader suite was run, then the file was restored from that copy and its sha256 re-read",
+    "preMutantSha256": "2ddbe5e9ba644b643b41c318252e89793d6cd13ac76cf94ad83f4432b474ccd4",
+    "suiteUnderMutation": "npx jest src/lib/multiplayer/server/history/__tests__/matchStoreBranchSegmentReader.test.ts (14 rows green before each mutant)",
+    "table": [
+      {
+        "id": "M1",
+        "mutation": "the reader serves the baseline id but stamps a different branchId than the contract requires - `branchId: segment.branchId` reverted to `branchId: ROOT_EVENT_BRANCH_ID` (the contract measured is 'echo the segment's id', so the mutant stamps root)",
+        "caught": true,
+        "result": "Tests: 2 failed, 12 passed, 14 total; exit 1",
+        "caughtBy": [
+          "stamps every returned event with the branch id the segment named - the direct pin",
+          "materialises a baseline-headed match path through the shipped resolver - EventHistoryBranchError: Event event-0 belongs to branch 'root', not 'main' (EventHistoryBranchResolver.verifySegment)"
+        ],
+        "notCaughtBy": "'answers the baseline id with the same events, revisions and digests as root' stays green, correctly: it compares eventIds, revisions and digests, none of which the stamp touches. That is why the stamp has a row of its own",
+        "restoredSha256": "2ddbe5e9ba644b643b41c318252e89793d6cd13ac76cf94ad83f4432b474ccd4",
+        "restoredEqualsPreMutant": true,
+        "postRestoreRun": "Tests: 14 passed, 14 total; exit 0"
+      },
+      {
+        "id": "M2",
+        "mutation": "the reader accepts every branch id - the guard condition short-circuited to `if (false && !isLivePathBranchId(segment.branchId))`, so no branch id is ever refused",
+        "caught": true,
+        "result": "Tests: 2 failed, 12 passed, 14 total; exit 1",
+        "caughtBy": [
+          "still refuses a branch id that is not on the live path - the new guard, which pins the error code 'unknown-branch'",
+          "refuses a branch a match store cannot hold - the PRE-EXISTING row at :202-212, unchanged, still doing its job after the widening"
+        ],
+        "restoredSha256": "2ddbe5e9ba644b643b41c318252e89793d6cd13ac76cf94ad83f4432b474ccd4",
+        "restoredEqualsPreMutant": true
+      },
+      {
+        "id": "M3",
+        "mutation": "the baseline read rechains from the window start instead of the stream start - the events are filtered to the segment window BEFORE the chain loop rather than after it, so `previous` restarts at null at the window's first event",
+        "caught": true,
+        "result": "Tests: 1 failed, 13 passed, 14 total; exit 1",
+        "caughtBy": [
+          "slices a baseline window out of the one chain rather than rechaining it - expected digests [dcd36b96..., 651b9d46...] for the mid-stream window (1, 3], received the rechained [c4398197..., ac2481ac...]"
+        ],
+        "notCaughtBy": "the pre-existing root row 'chains digests so a truncation verifies as real history' stays GREEN under M3, because its truncated read is segment(0, 2) - a window whose start IS the stream start, where the two chainings coincide. The prefix law was therefore under-pinned before this head; the new row's mid-stream window (1, 3] plus `expect(middle[0].previousStreamEventDigest).toBe(full[0].eventDigest)` is what actually distinguishes them",
+        "restoredSha256": "2ddbe5e9ba644b643b41c318252e89793d6cd13ac76cf94ad83f4432b474ccd4",
+        "restoredEqualsPreMutant": true,
+        "postRestoreRun": "Tests: 14 passed, 14 total; exit 0"
+      }
+    ]
+  },
+  "nonClaims": [
+    "No e2e row is added and none is ticked. E2E-76 and row 22.3 stay HELD in PK-rewind-branch-reader for a row-bearing successor; U10's taskKeys is [] and no tasks.md checkbox was touched",
+    "MatchStreamJournalMirror is UNCHANGED. Packet option (b) (mirror onto root) was rejected, and nothing on this head moves where a rewind branch is recorded",
+    "No ladder run: no next build, no Playwright, no browser, no server. The gates run here are jest, tsc, oxlint, oxfmt, lint:units, qc:openspec-ci:validate and the roadmap validator",
+    "No route, page or client change. src/pages, src/pages-modules, e2e/, scripts/ and package.json were not touched",
+    "This head does NOT reconcile which of the two live-path names a given real match's branch records actually hold. backfillGenesisBranches writes 'root'; MatchStreamJournalMirror defaults to MATCH_BASELINE_BRANCH_ID when no effective head exists. The reader now answers under either, which is the unit's whole behaviour - but no migration, audit or reconciliation of existing rows is claimed",
+    "The mutants were measured against the reader suite only, not against the whole package. The unmutated package run (157 suites / 1164 tests) is the regression evidence; the mutants are pin-strength evidence",
+    "No claim about CI: nothing was committed, pushed or opened as a PR by this lane",
+    "Lane B is not satisfied and is not claimed. reviewClasses contains 'replay', so PK-u10-ruling requires an owner ruling on the exact proposed head before merge"
+  ],
+  "findingsReportedNotFixed": [
+    {
+      "id": "F1",
+      "where": "src/lib/multiplayer/server/MatchRecoveryJournalHead.ts:19",
+      "finding": "carries the same sentence this head corrected in matchAuthorityBaseline.ts - '`matchStoreBranchSegmentReader` refuses every branch but `root` by name' - which is now false",
+      "whyNotFixed": "the charter pins the final git status to the reader, the one module holding the served-id set, the reader test file(s) and the three receipts. Editing a fourth product file would break that contract for a comment-only correction",
+      "severity": "documentation drift; no behaviour depends on it"
+    },
+    {
+      "id": "F2",
+      "where": "the charter's cycle premise",
+      "finding": "the charter states that matchAuthorityBaseline IMPORTS the reader and that importing it from the reader would create a cycle. On this baseline that is not so: the file's only reference to the reader is a doc comment, and it imports nothing from src/lib/multiplayer. The `grep -rln` caller list includes it for that comment alone",
+      "whyNotFixed": "a charter observation, not a code defect; recorded so the parent does not carry the premise forward into the successor unit"
+    },
+    {
+      "id": "F3",
+      "where": "src/lib/multiplayer/server/history/__tests__/matchStoreBranchSegmentReader.test.ts:177-200 ('chains digests so a truncation verifies as real history')",
+      "finding": "the pre-existing prefix-law row truncates at segment(0, 2) - a window anchored at the stream start - so it cannot distinguish chain-from-stream-start from chain-from-window-start. M3 leaves it green. The new baseline row covers the gap for the baseline id, but the root path still has no mid-stream anchor assertion of its own",
+      "whyNotFixed": "strengthening a pre-existing root row is a behaviour-neutral test change outside this unit's red-first scope; it is a candidate for a follow-up rather than a silent addition to a replay-class head",
+      "severity": "test strength, not a product defect"
+    },
+    {
+      "id": "F4",
+      "where": "the surviving refusal message",
+      "finding": "the message text changed from \"A match store holds only the 'root' branch; 'x' has no events\" to \"A match store holds only the live path ('root', 'main'); 'x' has no events\". No suite in the repository matched the old text (the full package run and the rewind-commit route suite are both green), but any out-of-tree consumer matching on the string would break",
+      "whyNotFixed": "intentional: the message now describes what the reader actually serves. Recorded for the reviewer rather than hidden"
+    }
+  ],
+  "finalGitStatus": [
+    " M src/lib/multiplayer/server/history/__tests__/matchStoreBranchSegmentReader.test.ts",
+    " M src/lib/multiplayer/server/history/matchStoreBranchSegmentReader.ts",
+    " M src/lib/multiplayer/server/matchAuthorityBaseline.ts",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u10-admission-20260918.json",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u10-local-20260918.json",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u10-red-20260918.json"
+  ],
+  "receipts": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u10-admission-20260918.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u10-red-20260918.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u10-local-20260918.json"
+  ],
+  "reviewGateForTheParent": {
+    "laneA": "required - a cross-model reviewer that shares no context with this lane; implementerModel below is what the receipt must differ from",
+    "laneB": "required - PK-u10-ruling, review class 'replay'. The PR merges only after an OWNER-RULING <40-hex head> comment plus the owner-ruled label on the exact proposed head, and the ruling is void the moment the head moves"
+  },
+  "implementerModel": "claude-opus (Agent lane; codex usage limit until 2026-09-19, cursor-agent and grok CLI routes exhausted)",
+  "status": "ready"
+}
