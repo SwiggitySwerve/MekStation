@@ -1049,10 +1049,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "local-verified",
+      "state": "complete",
       "baseline": "f902fd9d5bfd868aac3f30114ebffb73fbcdc315",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "583d52e256704987ab49368b317481041dede7a8",
+      "mergeSha": "7286280568e3ad50226840c335cff1ea3527a6df",
       "stageReceipts": {
         "admission": {
           "path": "evidence/u5a-admission-20260917.json",
@@ -1071,10 +1071,31 @@
           "at": "2026-09-18T02:04:17.000Z",
           "summary": "PR #1846 head 583d52e25: preview body carries privateRefs; GET /api/matches/:id/private-preview?ref= over a host-as-GM membership source answers the export verbatim (GM payload + granted audit; player payload-free + denied audit; 400/401/403/405); route pins 10/10, seam pin 3/3, preview 16/16, export 5/5, timeline 3/3, 9 suites 75/75; 159 product lines over 4 files; M1-M4 caught and restored; tsc 0, oxlint 0 errors, lint:units 100/100, validator PASSED"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "review": {
+          "path": "evidence/u5a-review-20260917.json",
+          "head": "583d52e256704987ab49368b317481041dede7a8",
+          "reviewedHead": "583d52e256704987ab49368b317481041dede7a8",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet)",
+          "implementerModel": "claude-opus (Agent lane; codex lane drafted the seam probe then ran out of usage)",
+          "outputSha256": "b5c8191c7057192370c64df1ef210c4cdd1b2ca4e317ced63af6dca26d11f194",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u5a-merge-20260917.json",
+          "pr": 1846,
+          "head": "583d52e256704987ab49368b317481041dede7a8",
+          "mergeSha": "7286280568e3ad50226840c335cff1ea3527a6df"
+        },
+        "mainProof": {
+          "path": "evidence/u5a-mainproof-20260917.json",
+          "mergeCommit": "7286280568e3ad50226840c335cff1ea3527a6df",
+          "verdict": "PASS",
+          "runtime": "Tests:       75 passed, 75 total"
+        },
+        "tick": {
+          "path": "evidence/u5a-tick-20260917.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "source20260917": "owner instruction 2026-09-17: \"Go with all the recommendations from the council and continue the loop\" (openspec/council-decisions/2026-09-17-post-loop-recommendations.md)",
@@ -2051,8 +2072,22 @@
       ],
       "agentRecommendation": "rule the head once Lane A has approved it and the checks are green",
       "revertCost": "low: a squash merge revert",
-      "decision": null,
-      "ruling": null,
+      "decision": {
+        "at": "2026-09-17T18:40:00.000Z",
+        "option": "rule the head",
+        "text": "leave cross match probing as was recommended then (ruled 2026-09-18 after the parent described the unit and the two flagged privacy consequences in plain language and recommended approval with both left as they are)",
+        "source": "owner instruction 2026-09-17 in the working session (chat), after the parent explained the unit in plain language"
+      },
+      "ruling": {
+        "ruledHead": "583d52e256704987ab49368b317481041dede7a8",
+        "pr": 1846,
+        "commentId": 5725730043,
+        "author": "SwiggitySwerve",
+        "label": "owner-ruled",
+        "bodySha256": "e53bb9c211c2accb219182478ee50ed65f24c7aeaa063a6c9df44fe855350013",
+        "postedBy": "parent on the owner's instruction (the comment quotes the owner's words verbatim)",
+        "deviationDisclosed20260917": "DELIVERY.md says the owner posts the ruling out of band; the owner approved this unit by description in chat on 2026-09-17 (words quoted in the comment) after the parent had explained the change in plain language, and the parent composed and posted the comment from the owner GitHub account and applied the label; the U3 disclosure said the owner would name the head in chat before the loop posts, which did not happen here: the parent supplied the head from the ledger"
+      },
       "sensitiveClasses": [
         "privacy"
       ],
