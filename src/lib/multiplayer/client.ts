@@ -410,7 +410,11 @@ const SERVER_MESSAGE_HANDLERS: Record<
       // ignore
     }
   },
-  LobbyUpdated: ({ message, emit }) => {
+  LobbyUpdated: ({ message, state, emit }) => {
+    settlePendingIntent(
+      state,
+      (message as Extract<IServerMessage, { kind: 'LobbyUpdated' }>).intentId,
+    );
     emit('event', message);
   },
   MatchPaused: ({ message, emit }) => {
@@ -1368,8 +1372,8 @@ function resendPendingIntents(runtime: IClientRuntime): void {
 /**
  * A command has been answered. Clears ONLY that one.
  *
- * Both terminal shapes carry the id back: authority stamps it onto the
- * first event a command produces, and a refusal correlates its Error
+ * Authority stamps the id onto the first event or lobby update a
+ * command produces, and a refusal correlates its Error
  * frame with it. Anything else - another player's events, an
  * unrelated error - leaves this command pending, which is the whole
  * point of keying on the id rather than clearing on any traffic.

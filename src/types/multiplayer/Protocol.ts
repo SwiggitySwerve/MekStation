@@ -865,6 +865,7 @@ export const LobbyUpdatedSchema = z.object({
   kind: z.literal('LobbyUpdated'),
   matchId: matchIdSchema,
   ts: tsSchema,
+  intentId: z.string().min(1).optional(),
   seats: z.array(MatchSeatSchema),
   status: z.enum(['lobby', 'active', 'completed']),
   hostPlayerId: z.string().min(1),
