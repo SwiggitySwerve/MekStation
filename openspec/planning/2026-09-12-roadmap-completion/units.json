@@ -706,10 +706,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "local-verified",
+      "state": "complete",
       "baseline": "2d01d1a2ef28fe07e92529341f81875ee1338249",
-      "prHead": "46de0b2f137d5c6f32f4637caad4c49c0aeaa276",
-      "mergeSha": null,
+      "prHead": "3a7a649f0ddcdc097aa6db576a714a6d2b63ff2b",
+      "mergeSha": "555a236a0bc5bd7fd282d57d30fc3ed864492f6c",
       "stageReceipts": {
         "admission": {
           "path": "evidence/u15a-admission-20260917.json",
@@ -727,10 +727,31 @@
           "at": "2026-09-17T16:12:00Z",
           "summary": "claude-opus Agent lane. Resolver mirrors the campaign arm: armed to shadow or enabled only with NEXT_PUBLIC_E2E_MODE true AND an exact MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE value, production constant read first; getter returns the override or the resolver; the host bootstrap default derives from the getter through an exported helper. Gates: pin 10/10, focused suites 157 suites / 1155 tests, tsc 0, root oxlint 84 warnings 0 errors measured unchanged, oxfmt clean, qc:openspec-ci errors=0, validator PASSED; four mutants killed (mode key alone arms 1, unknown value arms 1, bootstrap reads the constant 1, getter bypasses the resolver 2), a fifth (arm consulted before the constant) recorded equivalent while the constant is the literal off; sha256 restored; parent verification in the worktree 10/10, tsc 0, oxlint 84/0; 84 product lines across three files plus a 143-line pin, under the cap; non-claims: no ladder run (U15b forwards the keys), the cutover not done, import cycle inert under jest (bundle exercised by CI); findings F1-F5 (a fifth constant pin; two charter-named pins are prose; PK-u15a-ruling to mint; ordering clause untestable; misconfigured arm is silent)."
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "review": {
+          "path": "evidence/u15a-review-20260917.json",
+          "head": "3a7a649f0ddcdc097aa6db576a714a6d2b63ff2b",
+          "reviewedHead": "3a7a649f0ddcdc097aa6db576a714a6d2b63ff2b",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet)",
+          "implementerModel": "claude-opus (Agent lane)",
+          "outputSha256": "83a5e2be697e40fbc599a533e2507aa6d20cb220d1fa047d5dd28b9a4cfb1892",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u15a-merge-20260917.json",
+          "pr": 1842,
+          "head": "3a7a649f0ddcdc097aa6db576a714a6d2b63ff2b",
+          "mergeSha": "555a236a0bc5bd7fd282d57d30fc3ed864492f6c"
+        },
+        "mainProof": {
+          "path": "evidence/u15a-mainproof-20260917.json",
+          "mergeCommit": "555a236a0bc5bd7fd282d57d30fc3ed864492f6c",
+          "verdict": "PASS",
+          "runtime": "Tests:       1159 passed, 1159 total"
+        },
+        "tick": {
+          "path": "evidence/u15a-tick-20260917.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "source20260917": "owner instruction 2026-09-17 accepting the second council's corrections (openspec/council-decisions/2026-09-17-review-what-needs-validation.md)"

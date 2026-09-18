@@ -1,0 +1,21 @@
+{
+  "unit": "U15a",
+  "stage": "merge",
+  "at": "2026-09-18T01:09:55.077Z",
+  "pr": 1842,
+  "title": "feat(multiplayer): combat-journal e2e arm resolves the authority mode from two keys (U15a rebuild)",
+  "head": "3a7a649f0ddcdc097aa6db576a714a6d2b63ff2b",
+  "mergeSha": "555a236a0bc5bd7fd282d57d30fc3ed864492f6c",
+  "mergedAt": "2026-09-18T01:03:22Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "src/lib/multiplayer/server/ServerMatchHost.ts",
+    "src/lib/multiplayer/server/__tests__/combatJournalAuthorityEnabled.test.ts",
+    "src/lib/multiplayer/server/combatJournalAuthorityEnabled.ts",
+    "src/lib/multiplayer/server/matchJournalAuthority.ts"
+  ],
+  "blobEqualityDiffLines": 0
+}
