@@ -57,6 +57,38 @@ import { getSQLiteService } from '@/services/persistence/SQLiteService';
 interface CommandBody {
   readonly intent: ICampaignIntent;
   readonly commandId: string;
+  /**
+   * The journal revision the client believes it is writing against.
+   *
+   * Optional, and absent means "I make no claim about the head" - exactly
+   * what the pipeline's own field means, so a client that never learned
+   * the revision keeps working. A client that DOES name one gets the
+   * stale-head refusal instead of a silent commit against a head it
+   * never saw.
+   */
+  readonly expectedRevision?: number;
+}
+
+/** The message a malformed revision claim is refused with. */
+const EXPECTED_REVISION_REFUSAL =
+  'expectedRevision must be absent or a non-negative integer';
+
+/**
+ * A revision claim this route will pass on, or nothing at all.
+ *
+ * REFUSED, NEVER DROPPED. A client that sent `"3"`, `1.5` or `-1`
+ * believing it had pinned the head would otherwise have its claim
+ * ignored and its overwrite serialized - the same failure the forged
+ * `authorPlayerId` had, where silence let a stale client go on believing
+ * something the server never agreed to. `null` is a value a JSON client
+ * reaches for when it means "none", and it is refused for the same
+ * reason: omit the field.
+ */
+function isValidExpectedRevision(value: unknown): value is number | undefined {
+  return (
+    value === undefined ||
+    (typeof value === 'number' && Number.isSafeInteger(value) && value >= 0)
+  );
 }
 
 /** Narrow guard for the fields this route itself depends on. */
@@ -66,12 +98,21 @@ function isValidCommandBody(value: unknown): value is CommandBody {
   if (typeof body.commandId !== 'string' || body.commandId.trim() === '') {
     return false;
   }
+  if (!isValidExpectedRevision(body.expectedRevision)) return false;
   const intent = body.intent as Partial<ICampaignIntent> | undefined;
   return (
     typeof intent === 'object' &&
     intent !== null &&
     typeof intent.kind === 'string' &&
     typeof intent.campaignId === 'string'
+  );
+}
+
+/** Whether the guard above refused this body over its revision claim. */
+function namesABadRevision(value: unknown): boolean {
+  if (typeof value !== 'object' || value === null) return false;
+  return !isValidExpectedRevision(
+    (value as Record<string, unknown>).expectedRevision,
   );
 }
 
@@ -92,7 +133,13 @@ export default async function handler(
 
   const body = req.body as unknown;
   if (!isValidCommandBody(body)) {
-    res.status(400).json({ error: 'missing or invalid request body' });
+    // The field is named when it is the thing that was wrong: a client
+    // told only "invalid request body" would look at its intent.
+    res.status(400).json({
+      error: namesABadRevision(body)
+        ? EXPECTED_REVISION_REFUSAL
+        : 'missing or invalid request body',
+    });
     return;
   }
   if (body.intent.campaignId !== id) {
@@ -144,6 +191,10 @@ export default async function handler(
         authorPlayerId: auth.playerId,
         commandId: body.commandId,
         ts: new Date().toISOString(),
+        // Passed through unchanged, undefined included: the pipeline
+        // reads an absent claim as "at head", which is the behaviour
+        // every caller had before this field existed.
+        expectedRevision: body.expectedRevision,
       },
     );
 
