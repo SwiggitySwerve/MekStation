@@ -420,7 +420,7 @@ describe('POST /api/matches/[id]/rewind-preview', () => {
   function loadGmDrafts(): readonly IStoredRewindPreviewDraft[] {
     const rows = db
       .prepare(
-        `SELECT r.payload AS payload, a.actor_principal_id AS actorId
+        `SELECT r.opaque_ref AS opaqueRef, r.payload AS payload, a.actor_principal_id AS actorId
            FROM private_record r
            LEFT JOIN private_access_audit a
              ON a.opaque_ref = r.opaque_ref
@@ -433,6 +433,7 @@ describe('POST /api/matches/[id]/rewind-preview', () => {
     return rows.map((row) => {
       const parsed = JSON.parse(row.payload) as IStoredRewindPreviewPayload;
       return {
+        opaqueRef: row.opaqueRef,
         actorId: row.actorId,
         derivedSummary: parsed.derivedSummary,
         preview: parsed.preview,
@@ -478,11 +479,20 @@ describe('POST /api/matches/[id]/rewind-preview', () => {
     expect(loadGmDrafts()).toHaveLength(0);
   });
 
-  it('omits the private preview record from the public preview body', async () => {
+  it('hands the GM an opaque handle to its draft, never the draft', async () => {
     const { status, json } = await call({ bearer: host.wire });
 
     expect(status).toBe(200);
     expect(json.kind).toBe('preview');
+    const drafts = loadGmDrafts();
+    expect(drafts).toHaveLength(1);
+    const draft = drafts[0];
+    if (draft === undefined) {
+      throw new Error('expected one gm-draft private_record row');
+    }
+    // The handle, and nothing else, is new: the GM now has something to
+    // name on the private read route. The body still carries no payload,
+    // no summary and no record kind.
     expect(json).toEqual({
       kind: 'preview',
       matchId: MATCH_ID,
@@ -490,11 +500,27 @@ describe('POST /api/matches/[id]/rewind-preview', () => {
       priorHead: json.priorHead,
       changedViewerIds: json.changedViewerIds,
       entries: json.entries,
+      privateRefs: { preview: draft.opaqueRef },
     });
     expect(json).not.toHaveProperty('opaqueRef');
     expect(json).not.toHaveProperty('derivedSummary');
     expect(json).not.toHaveProperty('payload');
     expect(JSON.stringify(json)).not.toContain('gm-draft');
+    expect(JSON.stringify(json)).not.toContain(draft.derivedSummary);
+  });
+
+  it('gives a refused caller no handle, because it wrote no record', async () => {
+    const forbidden = await call({ bearer: guest.wire });
+    expect(forbidden.status).toBe(403);
+    expect(forbidden.json).not.toHaveProperty('privateRefs');
+
+    db.prepare(
+      `DELETE FROM event_history_effective_heads WHERE stream_id = ?`,
+    ).run(MATCH_ID);
+    const missing = await call({ bearer: host.wire });
+    expect(missing.status).toBe(404);
+    expect(missing.json).not.toHaveProperty('privateRefs');
+    expect(loadGmDrafts()).toHaveLength(0);
   });
 
   it('records two private previews for two successful calls', async () => {
@@ -515,6 +541,7 @@ describe('POST /api/matches/[id]/rewind-preview', () => {
 });
 
 interface IPrivateDraftRow {
+  readonly opaqueRef: string;
   readonly payload: string;
   readonly actorId: string;
 }
@@ -535,5 +562,6 @@ interface IStoredRewindPreviewPayload {
 }
 
 interface IStoredRewindPreviewDraft extends IStoredRewindPreviewPayload {
+  readonly opaqueRef: string;
   readonly actorId: string;
 }

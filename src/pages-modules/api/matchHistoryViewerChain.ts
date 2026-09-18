@@ -14,6 +14,7 @@
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 
+import type { IMembershipSource } from '@/lib/multiplayer/server/authorization/AuthorizedViewer';
 import type { JsonValue } from '@/lib/multiplayer/server/projection/ViewerProjectionTypes';
 
 import { SQLiteActionAuditRepository } from '@/lib/events/audit/SQLiteActionAuditRepository';
@@ -104,19 +105,27 @@ function historyProofAudienceDefinition(): IViewerAudienceProjectorDefinition {
 }
 
 /**
- * Builds the production service graph. Membership comes from durable
- * seats; audit, private records, and delivery epochs share the API
+ * Builds the production service graph over a CALLER-SUPPLIED membership
+ * source. Audit, private records, and delivery epochs share the API
  * SQLite handle; projection reads the same handle through the journal.
+ *
+ * The membership source is a parameter rather than a constant because
+ * one route - the GM private-preview read - must brand the match host as
+ * `gm` to reach a gm-only private record, exactly as the rewind preview
+ * already does for the matching write. Every other caller uses
+ * `createViewerHistoryService()` below and gets durable seats, where a
+ * tactical host is a player. Keeping ONE graph means the two paths
+ * cannot drift apart in anything except that membership source.
  */
-export function createViewerHistoryService(): ViewerHistoryService {
+export function createViewerHistoryServiceOver(
+  membership: IMembershipSource,
+): ViewerHistoryService {
   const db = getSQLiteService().getDatabase();
   const registry = new ViewerAudienceProjectorRegistry();
   registry.register(matchHttpAudienceDefinition());
   registry.register(historyProofAudienceDefinition());
   return new ViewerHistoryService({
-    resolver: new AuthorizedViewerResolver(
-      new MatchSeatMembershipSource(getDefaultMatchStore()),
-    ),
+    resolver: new AuthorizedViewerResolver(membership),
     projection: new ViewerProjectionService({
       journal: new SQLiteEventJournal(db, () => new Date().toISOString()),
       registry,
@@ -127,6 +136,13 @@ export function createViewerHistoryService(): ViewerHistoryService {
     auditRepo: new SQLiteActionAuditRepository(db),
     privateRepo: new SQLitePrivateRecordRepository(db),
   });
+}
+
+/** The production graph: membership comes from durable match seats. */
+export function createViewerHistoryService(): ViewerHistoryService {
+  return createViewerHistoryServiceOver(
+    new MatchSeatMembershipSource(getDefaultMatchStore()),
+  );
 }
 
 /**
