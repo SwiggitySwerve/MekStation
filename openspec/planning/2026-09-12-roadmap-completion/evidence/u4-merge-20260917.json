@@ -1,0 +1,26 @@
+{
+  "unit": "U4",
+  "stage": "merge",
+  "at": "2026-09-18T00:52:37.492Z",
+  "pr": 1802,
+  "title": "fix(multiplayer): lobby answers settle the pending intent they answer",
+  "head": "bf066c7c55bd2c26567cb55e00c2c99f2e1e41a5",
+  "mergeSha": "6fe884dd5740da6628ff10e3e4b7075124b4b63f",
+  "mergedAt": "2026-09-18T00:41:44Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u4-admission-20260917.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u4-local-20260917.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u4-red-20260917.json",
+    "src/lib/multiplayer/__tests__/client.test.ts",
+    "src/lib/multiplayer/client.ts",
+    "src/lib/multiplayer/server/ServerMatchHostLobbyIntents.ts",
+    "src/lib/multiplayer/server/__tests__/lobbyIntents.test.ts",
+    "src/types/multiplayer/Protocol.ts",
+    "src/types/multiplayer/__tests__/Protocol.test.ts"
+  ],
+  "blobEqualityDiffLines": 0
+}
