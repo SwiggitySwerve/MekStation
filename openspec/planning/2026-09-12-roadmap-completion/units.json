@@ -1142,10 +1142,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "local-verified",
+      "state": "complete",
       "baseline": "dfe766524cc71e665a0f34a5ee07e9585e4c8214",
       "prHead": "315b61ac4242a5f9a151a3d4e697a5a8946f166c",
-      "mergeSha": null,
+      "mergeSha": "f20f8d5f91565e10ed0c6524cc40c27fc376f401",
       "stageReceipts": {
         "admission": {
           "path": "evidence/u8-admission-20260917.json",
@@ -1164,10 +1164,31 @@
           "at": "2026-09-17T17:41:17.091Z",
           "summary": "claude-opus Agent lane. CommandBody accepts an optional expectedRevision (absent or a non-negative safe integer; anything else 400 naming the field, journal untouched) and the route forwards it into the pipeline unchanged; the pipeline already refuses a stale head as a conflict and the route already answers 409 with the active head and recoveryAction. Gates: new pin 9/9, existing route files 14/14, campaigns API directory 12 suites / 87 tests, tsc 0, root oxlint 84 warnings 0 errors unchanged (vacuous for src/pages/api and __tests__: FN-u8-oxlint-does-not-cover-src-pages-api-or-tests), oxfmt clean, qc:openspec-ci errors=0, validator PASSED; three mutants killed (not forwarded 3 tests, any number accepted 2, every present revision rejected 4), sha256 restored; parent verification in the worktree 87/87, tsc 0, oxlint 84/0; product +52/-1 (22 code lines) and 384 test lines, two files, under the cap; measured contract facts: the conflict result carries no code field on the wire (FN-u8-conflict-result-drops-stale-revision-code) and without declaredFields every stale base answers rebase-onto-active-head, so overlapping and disjoint stale cases are byte-identical (FN-u8-http-boundary-cannot-reach-the-field-level-verdict); non-claims: the wire CAMPAIGN_STALE_HEAD race not addressed, the conflict-pack e2e arm is a later R6.umbrella unit, the client does not yet send expectedRevision."
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "review": {
+          "path": "evidence/u8-review-20260917.json",
+          "head": "315b61ac4242a5f9a151a3d4e697a5a8946f166c",
+          "reviewedHead": "315b61ac4242a5f9a151a3d4e697a5a8946f166c",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet)",
+          "implementerModel": "claude-opus (Agent lane)",
+          "outputSha256": "f6f499b1761b01faced55b12df80a331ce4913beede6ad6002e5678eaf5bf038",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u8-merge-20260917.json",
+          "pr": 1829,
+          "head": "315b61ac4242a5f9a151a3d4e697a5a8946f166c",
+          "mergeSha": "f20f8d5f91565e10ed0c6524cc40c27fc376f401"
+        },
+        "mainProof": {
+          "path": "evidence/u8-mainproof-20260917.json",
+          "mergeCommit": "f20f8d5f91565e10ed0c6524cc40c27fc376f401",
+          "verdict": "PASS",
+          "runtime": "Tests:       87 passed, 87 total"
+        },
+        "tick": {
+          "path": "evidence/u8-tick-20260917.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "source20260917": "owner instruction 2026-09-17: \"Go with all the recommendations from the council and continue the loop\" (openspec/council-decisions/2026-09-17-post-loop-recommendations.md)",
@@ -2147,8 +2168,22 @@
       ],
       "agentRecommendation": "rule the head once Lane A has approved it and the checks are green",
       "revertCost": "low: a squash merge revert",
-      "decision": null,
-      "ruling": null,
+      "decision": {
+        "at": "2026-09-17T18:40:00.000Z",
+        "option": "rule the head",
+        "text": "Test only switch is approved (ruled on PR #1818 head 46de0b2f1 in chat; #1818 was closed as conflicting on its admission receipt only and rebuilt as PR #1842 with the four product files byte-identical, so the ruling was re-posted on the rebuild head 3a7a649f0)",
+        "source": "owner instruction 2026-09-17 in the working session (chat), after the parent explained the unit in plain language"
+      },
+      "ruling": {
+        "ruledHead": "3a7a649f0ddcdc097aa6db576a714a6d2b63ff2b",
+        "pr": 1842,
+        "commentId": 5723419781,
+        "author": "SwiggitySwerve",
+        "label": "owner-ruled",
+        "bodySha256": "aae945173e73dc36a7702700d058d15fbaef7af034e7e9838ec7eb8f0c0269d0",
+        "postedBy": "parent on the owner's instruction (the comment quotes the owner's words verbatim)",
+        "deviationDisclosed20260917": "DELIVERY.md says the owner posts the ruling out of band; the owner approved this unit by description in chat on 2026-09-17 (words quoted in the comment) after the parent had explained the change in plain language, and the parent composed and posted the comment from the owner GitHub account and applied the label; the U3 disclosure said the owner would name the head in chat before the loop posts, which did not happen here: the parent supplied the head from the ledger"
+      },
       "sensitiveClasses": [
         "authority"
       ],
