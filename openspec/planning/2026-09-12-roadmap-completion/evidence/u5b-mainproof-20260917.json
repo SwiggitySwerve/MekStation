@@ -1,0 +1,45 @@
+{
+  "unit": "U5b",
+  "stage": "mainProof",
+  "at": "2026-09-18T00:59:53.102Z",
+  "mergeCommit": "31b05182b3c0450d54867fc3883a90133e4a2aa7",
+  "checkout": "root checkout fast-forwarded to the merge commit (real node_modules; hydrate step runs)",
+  "runtime": {
+    "build": "exit 0",
+    "e2eBundleMarker": "__E2E_MODE__ present in _app chunk (run log)",
+    "playwright": "gm-two-player privacy-pack group (Playwright):   6 passed (34.2s)",
+    "tsc": "exit 0",
+    "generator": "scripts/qc/roadmap-main-proof.mjs",
+    "jestPin": {
+      "command": "npx jest src/components/multiplayer src/pages-modules/multiplayer src/pages/multiplayer src/__tests__/pages/multiplayer",
+      "onCommit": "31b05182b3c0450d54867fc3883a90133e4a2aa7",
+      "result": "Test Suites: 16 passed, 16 total; Tests: 156 passed, 156 total",
+      "log": ".sisyphus/roadmap-completion-20260912/u5b-jest-pin-20260917/jest-pin.log",
+      "sha256": "3297c07898b5a711a702cd4621a4d49d79aee98e07f113201b257ddf8f2d3649",
+      "note": "run on the merge commit before the ladder, outside the generator's proof directory, because the generator names exactly one runtime proof and the privacy-pack Playwright group is the row proof"
+    }
+  },
+  "commands": {
+    "validator": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+    "gitAncestry": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows (--git)",
+    "next": "NONE-ADMISSIBLE: 0 owner-gated, 7 blocked",
+    "openspecStrict": "Totals: 229 passed, 0 failed (229 items)",
+    "qcOpenspecCi": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+    "qcPin": "Tests:       26 passed, 26 total"
+  },
+  "logs": ".sisyphus/roadmap-completion-20260912/u5b-main-proof-20260917/ (local; sha256 below)",
+  "logHashes": [
+    "3c0455ac6ed585d70204ad65362a83e110c0503384d26c602f9cee2a6b123f85 *build.log",
+    "38875d75a513e6dc764ce99160b9e7423b80cd040a68252ea1b4c336e36d0fc1 *git-check.log",
+    "6445639db60a4a8f79a3ca3573af73d2cde2b74f12f762a22ffc58bdd39aee43 *idle-before-build.log",
+    "6445639db60a4a8f79a3ca3573af73d2cde2b74f12f762a22ffc58bdd39aee43 *idle-before-runtime.log",
+    "b7077bf0dfd20384d3522a19bb968591460d6a85d1996bfc7173b963c2d5a7d7 *next.log",
+    "efd619721df505ed0dbb69fe5bd26b74023670e603ce16891fd2f1331adf1776 *openspec-strict.log",
+    "4ffe8fe58af83e03fe896d604de64b9cd6a9e9039d5e704ee638d3bd5b02b30c *playwright.log",
+    "5b0f562274df4dbddfb7ae44ab42b7d686dc1e0903383f25c593d88f7479fe9a *qc-openspec-ci.log",
+    "7d9fb7406083da9cac8af78498f25ba89886d81c5b06ba70ce82d9e7ffe8ca03 *qc-pin.log",
+    "f891dbdfc0402cd4ba60fab1be3245dfec559c5d7afc7e21b87e795a73d05e5f *tsc.log",
+    "38875d75a513e6dc764ce99160b9e7423b80cd040a68252ea1b4c336e36d0fc1 *validator.log"
+  ],
+  "verdict": "PASS"
+}
