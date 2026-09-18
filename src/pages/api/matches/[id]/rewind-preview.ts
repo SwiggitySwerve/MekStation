@@ -47,8 +47,12 @@
  * previewGmCombatRewind: that module is a pure consult so its storage
  * census stays true, and an unfinalized preview is reachable only
  * through this authorized GM path. Refusals write nothing. The record
- * is never copied onto the response, a player frame, a snapshot, a
- * history read, or an export.
+ * ITSELF is never copied onto the response, a player frame, a snapshot,
+ * a history read, or an export: the 200 carries only `privateRefs`, the
+ * opaque handles of what was just written, so the GM can read its own
+ * draft back through `GET /api/matches/:id/private-preview`, which
+ * re-authorizes each one. A handle is not a permission and carries no
+ * content.
  *
  * @spec openspec/changes/harden-gm-two-player-campaign-sessions/specs/gm-combat-interventions/spec.md
  */
@@ -227,7 +231,7 @@ export default async function handler(
       const writer = new GmPrivatePreviewRecordWriter(
         new SQLitePrivateRecordRepository(getSQLiteService().getDatabase()),
       );
-      await writer.store({
+      const stored = await writer.store({
         resolver: new AuthorizedViewerResolver(
           new HostAsGmMembershipSource(membership, meta.hostPlayerId),
         ),
@@ -245,7 +249,22 @@ export default async function handler(
         },
         derivedSummary: `GM rewind preview to revision ${String(result.targetRevision)}`,
       });
-      res.status(200).json(result);
+      // OPAQUE HANDLES, NEVER CONTENT. This body already goes only to
+      // the authenticated GM that caused the write; the refs let that GM
+      // read its own draft back through /private-preview, which
+      // re-authorizes every one of them. A refusal arm returns before
+      // here, so a refused caller receives no handle and wrote no row.
+      res.status(200).json({
+        ...result,
+        privateRefs: {
+          ...(stored.preview === undefined
+            ? {}
+            : { preview: stored.preview.opaqueRef }),
+          ...(stored.reason === undefined
+            ? {}
+            : { reason: stored.reason.opaqueRef }),
+        },
+      });
       return;
     }
     refused(res, statusForRefusal(result.reason), result);
