@@ -1,0 +1,153 @@
+{
+  "unit": "U5a",
+  "stage": "admission",
+  "at": "2026-09-18T01:53:26.000Z",
+  "baseline": "f902fd9d5bfd868aac3f30114ebffb73fbcdc315",
+  "baselineCheck": "git -C <worktree> log --oneline -1 == f902fd9d5 docs(roadmap): U15a closure, review through tick, unit complete (#1845)",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u5a",
+  "branch": "codex/roadmap-u5a-gm-private-read-20260917",
+  "node": "R2.authority-live",
+  "ownershipPaths": [
+    "src/pages/api/matches",
+    "src/pages-modules/api",
+    "src/lib/multiplayer/server"
+  ],
+  "ciClass": "product",
+  "reviewClasses": ["privacy", "routine"],
+  "caps": { "maxFiles": 15, "maxNonGeneratedLines": 500 },
+  "charterSource": {
+    "charter": ".sisyphus/roadmap-completion-20260912/u5a-charter-20260917.md",
+    "addendum": ".sisyphus/roadmap-completion-20260912/u5a-charter-addendum-20260917.md",
+    "note": "the addendum overrides the charter's design: the service does NOT discover the draft by itself, so the preview's 200 must hand the GM an opaque ref and the read route must name it. The charter's 'stop at admission with status BLOCKED if the draft is not reachable through the export path at all' arm does NOT fire: the draft IS reachable through exportForViewer, but only when the caller names the ref AND the service is built over a membership source that brands the match host as gm."
+  },
+  "reviewGate": {
+    "laneB": "required - reviewClasses contains 'privacy', so the PR merges only after an owner ruling on its exact head",
+    "packet": "PK-u5a-ruling",
+    "packetQuestion": "U5a (GM HTTP read exposure of the private draft record for E2E-19; review class privacy) will present a head. Does the owner rule it?",
+    "packetState": "decision: null, ruling: null as read on the baseline",
+    "consequence": "an OWNER-RULING <head> comment plus the owner-ruled label on the exact proposed head; a ruling is void the moment the head moves"
+  },
+  "nextOnBaseline": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "line": "U5a",
+    "exitCode": 0
+  },
+  "validatorOnBaseline": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+    "line": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+    "exitCode": 0
+  },
+  "inFlightPathCheck": {
+    "method": "units.json, every unit whose state is admitted/implementing/local-verified/pr-open/review-required/ci-running/merged",
+    "unitsInFlight": [],
+    "stateHistogram": { "complete": 21, "blocked": 2, "main-verified": 1, "planned": 2 },
+    "verdict": "nothing is in flight, so no path overlap with U5a's three ownership paths"
+  },
+  "baselineGateReadings": {
+    "oxlint": {
+      "command": "npx oxlint",
+      "resultLine": "Found 84 warnings and 0 errors.",
+      "lastLine": "Finished in 446ms on 3813 files using 16 threads.",
+      "exitCode": 0,
+      "note": "3813 files includes the codex lane's untracked probe test"
+    },
+    "lintUnits": { "command": "npm run lint:units", "lastLine": "LINT_UNITS_PASS 100/100", "exitCode": 0 },
+    "openspecCi": {
+      "command": "npm run qc:openspec-ci:validate",
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+      "exitCode": 0
+    }
+  },
+  "inheritedFromTheCodexLane": {
+    "file": "src/pages-modules/api/__tests__/matchPrivatePreviewRoute.test.ts",
+    "lines": 195,
+    "state": "untracked in the worktree at admission; drafted by the codex lane (gpt-6-astra/xhigh) as an admission probe and verified green 3/3 on the baseline by the parent",
+    "disposition": "kept as a seam pin, renamed to src/pages-modules/api/__tests__/matchPrivatePreviewRoute.seams.test.ts so the new red pins can take the original name; its assertions are preserved",
+    "provesA": "ViewerHistoryService.exportForViewer discovers NO private refs by itself",
+    "provesB": "the production factory createViewerHistoryService() resolves the match HOST as role 'player', so even a named ref is denied to the host and answered payload-free"
+  },
+  "seamsAsRead": [
+    "src/pages/api/matches/[id]/rewind-preview.ts:224-249 - the preview arm awaits GmPrivatePreviewRecordWriter.store(...) at :230-247 and DISCARDS its IGmPrivatePreviewRecords return; the 200 body at :248 is the preview module's `result` verbatim, so the GM context never learns the opaque ref of the record just written on its behalf",
+    "src/pages/api/matches/[id]/rewind-preview.ts:231-233 - the writer's resolver is AuthorizedViewerResolver(HostAsGmMembershipSource(membership, meta.hostPlayerId)); `membership` is the plain MatchSeatMembershipSource built at :160. Line :194 derives role 'gm' only for IGmAuthorityContext (the preview module's authority argument), NOT for membership resolution",
+    "src/pages-modules/api/hostAsGmMembershipSource.ts:19-29 - lookupMembership delegates to the inner source and remaps role to 'gm' for exactly one principal (this.hostPlayerId); every other principal is returned unchanged, so a seated player stays 'player' through the same wrapper",
+    "src/lib/multiplayer/server/history/GmPrivatePreviewRecordWriter.ts:55-69 - the draft is written through IPrivateRecordRepository.createAuthorizedPrivateRecord with recordKind 'gm-draft', campaignSessionId = matchId, retentionClass 'session' and payload JSON.stringify({preview, derivedSummary}) (:100); :85 returns Object.freeze({preview, reason}) as IPrivateRecordOpenView values carrying opaqueRef",
+    "src/lib/events/privacy/SQLitePrivateRecordRepository.ts:106-142 - createAuthorizedPrivateRecord requires a gm viewer, then inserts the row and the payload-free granted 'write' audit row in one transaction",
+    "src/lib/events/privacy/SQLitePrivateRecordRepository.ts:173-200 - exportView: includePrivate !== true loads the row and returns {opaqueRef, payloadState, recordKind} with no payload key (null for an unknown ref); includePrivate === true calls requireGmViewer(input, ref, 'export-attempt'), loads the row and calls assertRecordVisible, which is where the record's campaignSessionId is checked against the viewer's",
+    "src/lib/events/privacy/IPrivateRecordRepository.ts:214-218 - IPrivateRecordExportView {opaqueRef, payloadState, recordKind}; :221-223 IPrivateRecordPrivateExportView adds `payload: string | null`; :289 listAccessAudit(opaqueRef) returns the access rows",
+    "src/lib/multiplayer/server/history/ViewerHistoryService.ts:275 - `const refs = request.privateRefs ?? []`: the service never discovers refs, so includePrivate alone yields privateRecords []",
+    "src/lib/multiplayer/server/history/ViewerHistoryService.ts:304-333 - exportOnePrivateRef: includePrivate true goes through the gm-gated repository path; the typed access-denied error is CAUGHT at :325-331 and answered with the payload-free default view, so the export never becomes an authorization oracle. Other errors propagate",
+    "src/lib/multiplayer/server/history/ViewerHistoryService.ts:139-173 - exportForViewer brands ONE viewer at :144-148 ({kind:'export'}) and uses it for the projection (:149), the timeline mapping (:153-154) and, through this.deps.resolver, the private refs (:155-161)",
+    "src/lib/multiplayer/server/history/ViewerHistoryService.ts:204-219 + 226-261 - mapTimelineEntries switches on viewer.role: a 'gm' viewer receives committedFirstRevision / committedLastRevision and every actor's principal id; a 'player' viewer receives neither",
+    "src/lib/multiplayer/server/history/ViewerHistoryTypes.ts:53-78 - IViewerHistoryExportBase carries the optional `privateRefs: readonly string[]`; the includePrivate:true variant additionally REQUIRES occurredAt, so the gated path never reads the system clock inside the repository",
+    "src/pages-modules/api/matchHistoryViewerChain.ts:111-130 - createViewerHistoryService() builds the production graph with a resolver over MatchSeatMembershipSource(getDefaultMatchStore())",
+    "src/pages-modules/api/matchHistoryViewerChain.ts:163 - readMatchHistoryLineage already brands the caller as audience 'gm' when caller.playerId === meta.hostPlayerId: this HTTP surface ALREADY treats the match host as the GM audience for lineage, which is the precedent the new route's membership wrapper follows",
+    "src/pages-modules/api/matchHistoryViewerChain.ts:173-201 - prepareMatchHistoryGet: GET-only 405 (Allow ['GET']), database init 500, id guard 400, scoped bearer 401 with the match scope derived from the URL id",
+    "src/pages-modules/api/matchHistoryViewerChain.ts:218-231 - rejectMatchHistoryFailure: HumanActionAuthorizationError / AuthorizedViewerError -> 403 with the constant id-free MATCH_HISTORY_AUTHORIZATION_REFUSED; everything else 500",
+    "src/pages-modules/api/matchHistoryExportRoute.ts:35-57 - the pattern to mirror; :54 answers {...body, lineage}, so the export route body is the service body PLUS lineage (pinned by the inherited probe's third row)",
+    "src/pages/api/matches/[id]/export.ts:1 and timeline.ts:1 - the one-line `export { default } from '@/pages-modules/api/...'` re-export shape",
+    "src/__tests__/api/matches/rewindPreviewRoute.test.ts:481-498 - the existing exact-shape assertion on the preview 200 body: `expect(json).toEqual({kind, matchId, targetRevision, priorHead, changedViewerIds, entries})`. Adding privateRefs to that body REQUIRES this row to be updated; it is inside this unit's allowed test path",
+    "openspec/changes/harden-gm-two-player-campaign-sessions/specs/e2e-testing/spec.md:81-83 - E2E-19: only the GM context and the server-only private audit record SHALL contain the draft"
+  ],
+  "reachabilityVerdict": {
+    "question": "the charter's BLOCKED arm: is the draft reachable through the export path at all?",
+    "answer": "yes, conditionally - NOT blocked",
+    "measured": "with privateRefs: [ref] and includePrivate: true, a service whose resolver brands the caller as gm returns IPrivateRecordPrivateExportView with `payload`; the inherited probe measured that the PRODUCTION factory brands the tactical host as 'player' and therefore answers the payload-free shape while auditing export-attempt/denied/role-denied",
+    "consequence": "two things must be added, and nothing else: a way for the GM to learn the ref (design A) and a route that builds the service over the host-as-gm membership source (designs B + C)"
+  },
+  "design": {
+    "a": "src/pages/api/matches/[id]/rewind-preview.ts - the preview arm captures the writer's return and answers {...result, privateRefs: {preview?: opaqueRef, reason?: opaqueRef}} (only refs that exist). Refusal arms (400/401/403/404/409) unchanged, so a refused caller still receives no ref and no row. The refs are opaque handles, never payloads; the read route re-authorizes every one of them. This route never passes privateReason today, so only `preview` can appear; the `reason` arm follows the writer's declared return contract",
+    "b": "src/pages/api/matches/[id]/private-preview.ts (1 line) re-exports src/pages-modules/api/matchPrivatePreviewRoute.ts, exactly as export.ts and timeline.ts do",
+    "c": "src/pages-modules/api/matchPrivatePreviewRoute.ts (new): prepareMatchHistoryGet -> `ref` via rejectMissingQueryString(req,res,'ref',...) (missing or non-string: 400 {error}) -> getDefaultMatchStore().getMatchMeta(caller.matchId) in its own try/catch (unknown match: 404 {error:'unknown match'}, the status the preview route answers) -> createViewerHistoryServiceOver(new HostAsGmMembershipSource(new MatchSeatMembershipSource(store), meta.hostPlayerId)).exportForViewer(caller.playerId, caller.matchId, {streamType: DEFAULT_MATCH_HISTORY_STREAM_TYPE, streamId: caller.matchId, includePrivate: true, occurredAt: nowIso(), privateRefs: [ref]}) -> res.status(200).json(body) VERBATIM (no lineage, no wrapper, nothing the service did not return) -> catch rejectMatchHistoryFailure(res, error, 'failed to read the private preview')",
+    "d": "src/pages-modules/api/matchHistoryViewerChain.ts - the narrowest factory variant: the body of createViewerHistoryService() (:111-130) is lifted into an exported createViewerHistoryServiceOver(membership: IMembershipSource), and createViewerHistoryService() becomes a delegator that passes new MatchSeatMembershipSource(getDefaultMatchStore()). ONE service graph, one owner, and the privileged variant has a greppable name a privacy reviewer can find",
+    "deviationFromTheAddendum": "the addendum asks that createViewerHistoryService() stay byte-identical. Its BODY is not byte-identical under design D (it becomes a 3-line delegation); its signature, its exported name, its production graph and every call site are unchanged, and the export/timeline route files are untouched. The alternative that keeps the bytes - a second factory that re-declares the same five dependencies - would create two copies of one service graph that can drift apart silently. Recorded here rather than decided silently",
+    "whatTheGmBodyCarries": "IViewerHistoryExport verbatim: stream, timeline, privateRecords, timelineDigest. privateRecords is [{opaqueRef, payloadState, recordKind, payload}] for a ref of this match",
+    "whatThePlayerBodyCarries": "the same four keys with privateRecords [{opaqueRef, payloadState, recordKind}] - no payload key anywhere - and the player-class stream and timeline, i.e. the same body the player's /export returns minus lineage and minus privateRecords"
+  },
+  "estimatePerFile": [
+    { "file": "src/pages-modules/api/matchPrivatePreviewRoute.ts", "kind": "product (new)", "estimateLines": "70-95 including the header comment" },
+    { "file": "src/pages/api/matches/[id]/private-preview.ts", "kind": "product (new)", "estimateLines": "1" },
+    { "file": "src/pages-modules/api/matchHistoryViewerChain.ts", "kind": "product (edit)", "estimateLines": "about +14 / -4 at :111-130" },
+    { "file": "src/pages/api/matches/[id]/rewind-preview.ts", "kind": "product (edit)", "estimateLines": "about +12 at :224-249" },
+    { "file": "src/pages-modules/api/__tests__/matchPrivatePreviewRoute.test.ts", "kind": "test (new red pins)", "estimateLines": "260-330" },
+    { "file": "src/pages-modules/api/__tests__/matchPrivatePreviewRoute.seams.test.ts", "kind": "test (renamed from the codex probe)", "estimateLines": "195 +/- a header" },
+    { "file": "src/__tests__/api/matches/rewindPreviewRoute.test.ts", "kind": "test (edit)", "estimateLines": "about +12 / -2: the exact-shape row gains privateRefs and a refusal row asserts its absence" }
+  ],
+  "estimateTotals": {
+    "files": 7,
+    "productNonGeneratedLinesAdded": "about 100-125",
+    "capHeadroom": "7 of 15 files; product additions well inside 500 and inside the charter's 'well under 120' for the route"
+  },
+  "acceptanceCommands": [
+    "npx jest src/pages-modules/api/__tests__/matchPrivatePreviewRoute.test.ts",
+    "npx jest src/pages-modules/api/__tests__/matchPrivatePreviewRoute.seams.test.ts",
+    "npx jest src/pages-modules/api/__tests__/matchHistoryExportRoute.test.ts",
+    "npx jest src/pages-modules/api/__tests__/matchHistoryTimelineRoute.test.ts",
+    "npx jest src/__tests__/api/matches/rewindPreviewRoute.test.ts",
+    "npx jest src/pages-modules/api src/__tests__/api/matches",
+    "npx tsc --noEmit",
+    "npx oxlint",
+    "npx oxfmt --check <changed files>",
+    "npm run lint:units",
+    "npm run qc:openspec-ci:validate",
+    "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs"
+  ],
+  "risksForTheParent": [
+    "PRIVACY, and the single most reviewable thing on this head: the read route brands the match host as gm for the WHOLE export, not only for the private record. ViewerHistoryService.ts:144-161 resolves one viewer and uses it for the projection, the timeline and the private refs alike, so the GM's /private-preview body carries GM-class timeline rows (committedFirstRevision / committedLastRevision and every actor's principal id) that the same GM's /export body does not. This is a deliberate consequence of the addendum's design, it is pinned by an explicit assertion rather than argued, and matchHistoryViewerChain.ts:163 is the precedent (this surface already treats the host as the GM audience for lineage). If the owner wants the GM read narrowed to the private record only, that is a service-shaped change (a second, private-only entrypoint), not a route tweak",
+    "PRIVACY: the route accepts a caller-named ref. A ref that belongs to ANOTHER match is denied the payload by the repository's session check and is then answered by the service's non-oracle fallback with the payload-free {opaqueRef, payloadState, recordKind} view - which confirms that a record with that ref exists and what kind it is. Opaque refs are unguessable and the caller must already hold a bearer scoped to the match in the URL, but the shape is an existence oracle for a ref the caller somehow already knows. The addendum directs that this be measured and pinned, not guarded; it is measured, pinned, and raised here for the ruling",
+    "The GM receives its own draft back over HTTP for the first time. Everything E2E-19 asserts about player artifacts is unchanged, but the draft now has an authenticated read path that did not exist before, so retention and erasure behaviour (retentionClass 'session') becomes observable to a client rather than only to the server",
+    "The preview 200 body grows a new key. src/__tests__/api/matches/rewindPreviewRoute.test.ts:486 asserts the body's exact shape, so that row must change in the same head - a reviewer should read that diff as a contract change, not as a loosened test",
+    "No client reads either the new key or the new route on this head, so nothing proves the end-to-end GM flow in a browser. E2E-19's row stays a later R6.umbrella unit"
+  ],
+  "prohibitions": [
+    "no npm install / ci / prune anywhere; npm_config_dry_run=true exported in every shell",
+    "no touching the root checkout at E:/Projects/MekStation; every git command uses -C into the worktree",
+    "no commit, push, stash, amend or force",
+    "no edits outside src/pages/api/matches, src/pages-modules/api (incl. __tests__), src/__tests__/api/matches and the three receipts",
+    "no edits to units.json, roadmap.json or evidence/admission-snapshot.json",
+    "no tasks.md checkbox ticked",
+    "no next build, no Playwright; jest suites run one at a time",
+    "no AI attribution, no absolute machine paths in product or test files"
+  ],
+  "implementerModel": "claude-opus (Agent lane; the codex lane gpt-6-astra/xhigh ran out of usage mid-admission on 2026-09-17; cursor-agent and grok CLI routes exhausted)",
+  "status": "admitted"
+}
