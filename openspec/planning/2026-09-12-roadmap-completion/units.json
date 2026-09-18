@@ -1336,14 +1336,28 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
+      "state": "local-verified",
+      "baseline": "ec23e8794df18a6cc032f223c20e56de292deb87",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/u10-admission-20260918.json",
+          "baseline": "ec23e8794df18a6cc032f223c20e56de292deb87",
+          "at": "2026-09-18T05:55:28.358Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/u10-red-20260918.json",
+          "at": "2026-09-18T06:02:00.000Z",
+          "summary": "reader suite 4 failed / 10 passed: a baseline-id segment and the resolver path over the baseline id threw unknown-branch; the foreign-id guard and the root prefix law stayed green"
+        },
+        "local": {
+          "path": "evidence/u10-local-20260918.json",
+          "at": "2026-09-18T06:40:00.000Z",
+          "summary": "PR #1849 head 542155517: matchStoreBranchSegmentReader accepts any live-path id via isLivePathBranchId, serves identical events/revisions/digests under root and MATCH_BASELINE_BRANCH_ID, stamps the segment's branch id (verifySegment requires it), still refuses foreign ids; reader 14/14, history package 105/105, every reader-dependent suite green, server package 157 suites 1164/1164; 36 product lines over 2 files (one comment-only); M1-M3 caught and restored; tsc 0, oxlint 0 errors, lint:units 100/100, validator PASSED"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
