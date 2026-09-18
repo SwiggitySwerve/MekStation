@@ -633,10 +633,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "local-verified",
+      "state": "complete",
       "baseline": "9913f06e775b90cff8633ce3798b942f0536a2eb",
       "prHead": "bf066c7c55bd2c26567cb55e00c2c99f2e1e41a5",
-      "mergeSha": null,
+      "mergeSha": "6fe884dd5740da6628ff10e3e4b7075124b4b63f",
       "stageReceipts": {
         "admission": {
           "path": "evidence/u4-admission-20260917.json",
@@ -654,10 +654,31 @@
           "at": "2026-09-17T07:55:45.546Z",
           "summary": "focused suites 107/107 (parent re-ran the three new suites 72/72 and tsc 0); tsc 0; oxlint 0 errors; oxfmt clean; roadmap validator PASSED (75 nodes); three mutants killed (random id stamped; settle after emit; refusal omits id); 12 product lines, 142 test lines; implementer codex gpt-6 after the Grok CLI hung on tool use"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "review": {
+          "path": "evidence/u4-review-20260917.json",
+          "head": "bf066c7c55bd2c26567cb55e00c2c99f2e1e41a5",
+          "reviewedHead": "bf066c7c55bd2c26567cb55e00c2c99f2e1e41a5",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet)",
+          "implementerModel": "claude-opus (Agent lane)",
+          "outputSha256": "34a27bef613cd76535837af4fec5d71896bf1282268c91c74ef2285d32714e89",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u4-merge-20260917.json",
+          "pr": 1802,
+          "head": "bf066c7c55bd2c26567cb55e00c2c99f2e1e41a5",
+          "mergeSha": "6fe884dd5740da6628ff10e3e4b7075124b4b63f"
+        },
+        "mainProof": {
+          "path": "evidence/u4-mainproof-20260917.json",
+          "mergeCommit": "6fe884dd5740da6628ff10e3e4b7075124b4b63f",
+          "verdict": "PASS",
+          "runtime": "Tests:       72 passed, 72 total"
+        },
+        "tick": {
+          "path": "evidence/u4-tick-20260917.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "source20260917": "owner instruction 2026-09-17: \"Go with all the recommendations from the council and continue the loop\" (openspec/council-decisions/2026-09-17-post-loop-recommendations.md)",
@@ -1908,8 +1929,22 @@
       ],
       "agentRecommendation": "rule the head once Lane A has approved it and the checks are green",
       "revertCost": "low: a squash merge revert",
-      "decision": null,
-      "ruling": null,
+      "decision": {
+        "at": "2026-09-17T18:40:00.000Z",
+        "option": "rule the head",
+        "text": "We don't need to keep showing a request pending with the request or an equivalent similar request has already been answered to join the lobby. It should not try and keep requesting if the state of the request is going to end up in has already been fulfilled. You can just mark any duplicate requests as invalid or something.",
+        "source": "owner instruction 2026-09-17 in the working session (chat), after the parent explained the unit in plain language"
+      },
+      "ruling": {
+        "ruledHead": "bf066c7c55bd2c26567cb55e00c2c99f2e1e41a5",
+        "pr": 1802,
+        "commentId": 5723231170,
+        "author": "SwiggitySwerve",
+        "label": "owner-ruled",
+        "bodySha256": "ded2264edab099128fd11499925a3c0b9742acf0562541d068b11959c2495b71",
+        "postedBy": "parent on the owner's instruction (the comment quotes the owner's words verbatim)",
+        "deviationDisclosed20260917": "DELIVERY.md says the owner posts the ruling out of band; the owner approved this unit by description in chat on 2026-09-17 (words quoted in the comment) after the parent had explained the change in plain language, and the parent composed and posted the comment from the owner GitHub account and applied the label; the U3 disclosure said the owner would name the head in chat before the loop posts, which did not happen here: the parent supplied the head from the ledger"
+      },
       "sensitiveClasses": [
         "idempotency"
       ],
@@ -1970,8 +2005,22 @@
       ],
       "agentRecommendation": "rule the head once Lane A has approved it and the checks are green",
       "revertCost": "low: a squash merge revert",
-      "decision": null,
-      "ruling": null,
+      "decision": {
+        "at": "2026-09-17T18:40:00.000Z",
+        "option": "rule the head",
+        "text": "If you're asking if what is described is okay, then yes, go ahead and do that.",
+        "source": "owner instruction 2026-09-17 in the working session (chat), after the parent explained the unit in plain language"
+      },
+      "ruling": {
+        "ruledHead": "8479b05e1790c282c90a6d18276031ceb1b8987f",
+        "pr": 1827,
+        "commentId": 5723231769,
+        "author": "SwiggitySwerve",
+        "label": "owner-ruled",
+        "bodySha256": "fb09739cdb571bdc62414176f46510ea1cb0cbf27c7054277f0f562f984c77e7",
+        "postedBy": "parent on the owner's instruction (the comment quotes the owner's words verbatim)",
+        "deviationDisclosed20260917": "DELIVERY.md says the owner posts the ruling out of band; the owner approved this unit by description in chat on 2026-09-17 (words quoted in the comment) after the parent had explained the change in plain language, and the parent composed and posted the comment from the owner GitHub account and applied the label; the U3 disclosure said the owner would name the head in chat before the loop posts, which did not happen here: the parent supplied the head from the ledger"
+      },
       "sensitiveClasses": [
         "privacy"
       ],
@@ -2001,8 +2050,22 @@
       ],
       "agentRecommendation": "rule the head once Lane A has approved it and the checks are green",
       "revertCost": "low: a squash merge revert",
-      "decision": null,
-      "ruling": null,
+      "decision": {
+        "at": "2026-09-17T18:40:00.000Z",
+        "option": "rule the head",
+        "text": "for these suggested history fix. Let's make sure we are covering all of our bases and not having anything working from a stale head. And if we hit that, we need to be in a recovery state. where we get the authoritative history correct before taking any additional actions.",
+        "source": "owner instruction 2026-09-17 in the working session (chat), after the parent explained the unit in plain language"
+      },
+      "ruling": {
+        "ruledHead": "315b61ac4242a5f9a151a3d4e697a5a8946f166c",
+        "pr": 1829,
+        "commentId": 5723232380,
+        "author": "SwiggitySwerve",
+        "label": "owner-ruled",
+        "bodySha256": "52957cc1f546d44d75a0947469908192cdbe4ef98dbc07171f3f07ea3bf063a4",
+        "postedBy": "parent on the owner's instruction (the comment quotes the owner's words verbatim)",
+        "deviationDisclosed20260917": "DELIVERY.md says the owner posts the ruling out of band; the owner approved this unit by description in chat on 2026-09-17 (words quoted in the comment) after the parent had explained the change in plain language, and the parent composed and posted the comment from the owner GitHub account and applied the label; the U3 disclosure said the owner would name the head in chat before the loop posts, which did not happen here: the parent supplied the head from the ledger"
+      },
       "sensitiveClasses": [
         "concurrency"
       ],
@@ -2284,6 +2347,30 @@
       "class": "proof staleness",
       "summary": "PR #1797 (U3) changed postCampaignMatch in e2e/helpers/gmTwoPlayerAuthorityRecovery.ts (human host seat), which e2e/gm-two-player-evidence.pack.spec.ts uses via openRecoverableCampaign; U1b's main proof (ffc427a08) predates that. Re-proof on main: PASS: the evidence-smoke row (E2E-78) passes on current main with the U3 helper; the three reds were harness conditions (CPU contention; a non-E2E build after a root commit), recorded as findings (evidence/u1b-reproof-20260917.json).",
       "status": "re-proven on main; receipt attached to U1b"
+    },
+    {
+      "id": "FN-u4-lobby-duplicates-reanswered-not-refused",
+      "foundBy": "parent (owner ruling on U4, 2026-09-17)",
+      "at": "2026-09-17T18:40:00.000Z",
+      "class": "behaviour note",
+      "summary": "Lobby intents route to the lobby handler before the D7 duplicate check (src/lib/multiplayer/server/ServerMatchHostIntent.ts), so a duplicated lobby intent is re-applied (idempotently) and re-answered with a LobbyUpdated carrying its intentId rather than refused with DUPLICATE_INTENT as match-channel intents are; the client re-sends only unanswered intents after a reconnect, so a fulfilled request is never re-sent. The owner suggested marking lobby duplicates invalid; the parent recommends against it (a re-send whose first answer was lost would then be refused instead of answered with the lobby state). No unit planned; a narrow successor under R2.combat could add the refusal if the owner asks.",
+      "status": "recorded; no unit"
+    },
+    {
+      "id": "FN-u8-client-half-recovery-requirement",
+      "foundBy": "parent (owner ruling on U8, 2026-09-17)",
+      "at": "2026-09-17T18:40:00.000Z",
+      "class": "requirement",
+      "summary": "The owner ruled U8 (server accepts expectedRevision and answers 409 STALE_REVISION) with the requirement that nothing works from a stale head and that a stale client enters a recovery state that restores the authoritative history before any further action. No production client calls /api/campaigns/[id]/commands yet (grep on main: comments only), so the client half does not exist. The campaign record PUT route already has that shape: src/stores/campaign/useCampaignPersistenceStore.ts reads the typed 409 body (code, activeHead, resyncAction), holds saveState conflict and refuses further saves until resync. The commands-route client, when the design-campaign-authority-and-sync 5.7 cutover builds it, must send expectedRevision on every command and, on 409, enter that same conflict/resync state before issuing another command. Held here for the 5.7 slice; not a unit in this ledger.",
+      "status": "recorded as a requirement on the 5.7 cutover slice"
+    },
+    {
+      "id": "FN-u17b-runtime-jest-pattern-goes-through-cmd-on-windows",
+      "foundBy": "parent (first live run of roadmap-main-proof.mjs, U4 proof, 2026-09-17)",
+      "at": "2026-09-17T18:40:00.000Z",
+      "class": "loop tooling defect",
+      "summary": "scripts/qc/roadmap-main-proof.mjs spawns npx.cmd with shell:true on Windows, so a --runtime-jest value carrying regex metacharacters (the U4 pattern used | and parentheses) is parsed by cmd as a pipeline and the runtime step exits 255 ('is not recognized as an internal or external command') while the rest of the ladder proceeds; the run was set aside as u4-main-proof-20260917-run1-runtime-refused and repeated with --runtime-command naming the three pin files. Fix for a narrow successor: quote the pattern for the shell or spawn jest through node without a shell; until then a --runtime-jest value must be a plain path fragment.",
+      "status": "recorded; workaround used; successor not yet planned"
     }
   ]
 }
