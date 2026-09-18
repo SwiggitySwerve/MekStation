@@ -1,0 +1,17 @@
+{
+  "unit": "U5a",
+  "stage": "review",
+  "at": "2026-09-18T05:50:17.124Z",
+  "lane": "A",
+  "reviewerModel": "claude-sonnet (Agent model: sonnet)",
+  "implementerModel": "claude-opus (Agent lane; codex lane drafted the seam probe then ran out of usage)",
+  "reviewerEffort": "default",
+  "head": "583d52e256704987ab49368b317481041dede7a8",
+  "reviewedHead": "583d52e256704987ab49368b317481041dede7a8",
+  "verdict": "APPROVE",
+  "outputPath": "evidence/u5a-lane-a-review-20260917.md",
+  "outputSha256": "b5c8191c7057192370c64df1ef210c4cdd1b2ca4e317ced63af6dca26d11f194",
+  "sharedContext": "none: reviewer received only the diff range, the head, the contract and spec files on the head, and re-ran tsc/oxlint/oxfmt/jest in its own throwaway worktree",
+  "laneB": "not required (review classes: routine)",
+  "githubApproval": "none recorded; Lane A is engineering evidence, never a GitHub approval"
+}

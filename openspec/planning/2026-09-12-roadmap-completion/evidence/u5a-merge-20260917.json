@@ -1,0 +1,27 @@
+{
+  "unit": "U5a",
+  "stage": "merge",
+  "at": "2026-09-18T05:50:18.857Z",
+  "pr": 1846,
+  "title": "feat(api): the GM reads its private preview draft over HTTP (U5a)",
+  "head": "583d52e256704987ab49368b317481041dede7a8",
+  "mergeSha": "7286280568e3ad50226840c335cff1ea3527a6df",
+  "mergedAt": "2026-09-18T05:43:52Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u5a-admission-20260917.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u5a-local-20260917.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u5a-red-20260917.json",
+    "src/__tests__/api/matches/rewindPreviewRoute.test.ts",
+    "src/pages-modules/api/__tests__/matchPrivatePreviewRoute.seams.test.ts",
+    "src/pages-modules/api/__tests__/matchPrivatePreviewRoute.test.ts",
+    "src/pages-modules/api/matchHistoryViewerChain.ts",
+    "src/pages-modules/api/matchPrivatePreviewRoute.ts",
+    "src/pages/api/matches/[id]/private-preview.ts",
+    "src/pages/api/matches/[id]/rewind-preview.ts"
+  ],
+  "blobEqualityDiffLines": 0
+}
