@@ -100,7 +100,6 @@ import {
   digestRetainedMatchHistory,
 } from './matchAuthorityBaseline';
 import {
-  COMBAT_JOURNAL_AUTHORITY_ENABLED,
   getCombatJournalAuthorityMode,
   recordProcessShadowComparison,
   type IMatchJournalAuthorityHead,
@@ -448,8 +447,9 @@ export class ServerMatchHost {
   ): ServerMatchHost {
     const { session, sourceRoller, captureRef } = buildHostSession(bootstrap);
     const host = new ServerMatchHost(matchId, store, session, sourceRoller, {
-      journalAuthority:
-        bootstrap.journalAuthority ?? COMBAT_JOURNAL_AUTHORITY_ENABLED,
+      journalAuthority: resolveBootstrapJournalAuthority(
+        bootstrap.journalAuthority,
+      ),
       randomSeed: bootstrap.randomSeed,
       diceSeed: bootstrap.diceSeed,
       playerUnits: bootstrap.playerUnits,
@@ -1546,4 +1546,17 @@ function refoldedJournalHead(
     revision: last.sequence,
     digest: digestCommandPostState(session.getSession()),
   };
+}
+
+/**
+ * Bootstrap default for a host created without an explicit request.
+ * An explicit `bootstrap.journalAuthority` wins; otherwise the RUNTIME
+ * mode decides, so a jest override or the U15a two-key e2e arm reaches
+ * this seam. Reading the module constant here instead would pin the
+ * default to the hardcoded 'off' and make the arm unobservable.
+ */
+export function resolveBootstrapJournalAuthority(
+  requested: boolean | undefined,
+): boolean {
+  return requested ?? getCombatJournalAuthorityMode() === 'enabled';
 }
