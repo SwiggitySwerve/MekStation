@@ -1,0 +1,157 @@
+{
+  "unit": "U10",
+  "stage": "admission",
+  "at": "2026-09-18T05:55:28.358Z",
+  "baseline": "ec23e8794df18a6cc032f223c20e56de292deb87",
+  "baselineCheck": "git -C <worktree> log --oneline -1 == ec23e8794 docs(roadmap): U5a closure, review through tick, unit complete; ruling transcribed (#1848)",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u10",
+  "branch": "codex/roadmap-u10-rewind-branch-reader-20260918",
+  "node": "R2.authority-live",
+  "nodeDependsOn": [{ "id": "R2.authority-cutover", "state": "main-verified" }],
+  "ownershipPaths": ["src/lib/multiplayer/server"],
+  "ciClass": "product",
+  "reviewClasses": ["replay", "routine"],
+  "caps": { "maxFiles": 15, "maxNonGeneratedLines": 500 },
+  "charterSource": {
+    "charter": ".sisyphus/roadmap-completion-20260912/u10-charter-20260918.md",
+    "packetDecision": "PK-rewind-branch-reader decision option (a), recorded 2026-09-17T07:04:11.135Z: teach matchStoreBranchSegmentReader to serve MATCH_BASELINE_BRANCH_ID alongside root; the eight held rows stay held in the packet until row-bearing successors exist",
+    "heldRows": "row 22.3 / E2E-76 (rewind confirmation) stays held in PK-rewind-branch-reader; this unit ticks no tasks.md row (taskKeys is [])"
+  },
+  "reviewGate": {
+    "laneB": "required - reviewClasses contains 'replay', so the PR merges only after an owner ruling on its exact head",
+    "packet": "PK-u10-ruling",
+    "packetQuestion": "U10 (matchStoreBranchSegmentReader serves the baseline branch id; review class replay) will present a head. Does the owner rule it?",
+    "packetState": "decision: null, ruling: null as read on the baseline",
+    "consequence": "an OWNER-RULING <40-hex head> comment plus the owner-ruled label on the exact proposed head; the ruling is void the moment the head moves"
+  },
+  "nextOnBaseline": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "line": "U10",
+    "exitCode": 0
+  },
+  "validatorOnBaseline": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+    "line": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+    "exitCode": 0
+  },
+  "inFlightPathCheck": {
+    "method": "units.json, every unit whose state is admitted/implementing/local-verified/pr-open/review-required/ci-running/merged",
+    "unitsInFlight": [],
+    "stateHistogram": { "complete": 22, "blocked": 2, "main-verified": 1, "planned": 1 },
+    "verdict": "nothing is in flight, so no path overlap with U10's single ownership path src/lib/multiplayer/server"
+  },
+  "baselineGateReadings": {
+    "oxlint": {
+      "command": "npx oxlint",
+      "resultLine": "Found 84 warnings and 0 errors.",
+      "lastLine": "Finished in 1.1s on 3814 files using 16 threads.",
+      "exitCode": 0
+    }
+  },
+  "seamsAsRead": [
+    "src/lib/multiplayer/server/history/matchStoreBranchSegmentReader.ts:15-35 - the header's revision contract: mp_match_events sequences start at 0, branch revision 0 means 'nothing has happened yet', so revision = sequence + 1; segments are (fromRevision, throughRevision] low-exclusive/high-inclusive; the digest chain is computed from the START of the stream and then sliced, never from the window, so a truncation is a PREFIX of the history it truncates",
+    "src/lib/multiplayer/server/history/matchStoreBranchSegmentReader.ts:126-134 - `read` refuses every branchId other than ROOT_EVENT_BRANCH_ID with EventHistoryBranchError('unknown-branch', \"A match store holds only the 'root' branch; '<id>' has no events\")",
+    "src/lib/multiplayer/server/history/matchStoreBranchSegmentReader.ts:135-137 - the whole stream is read via source.getEvents(streamId, 0) and sorted ascending by sequence BEFORE chaining",
+    "src/lib/multiplayer/server/history/matchStoreBranchSegmentReader.ts:138-156 - the chain loop stamps branchId: ROOT_EVENT_BRANCH_ID onto every returned event, streamRevision via revisionForMatchSequence, eventVersion 1, previousStreamEventDigest = the previous eventDigest, eventDigest = matchEventChainDigest(previous, event); the window filter at :157-161 is applied AFTER the whole chain is built",
+    "src/lib/multiplayer/server/history/matchStoreBranchSegmentReader.ts:107-112 - matchEventChainDigest hashes canonicalizeJsonV1({ previous, event }); branchId is NOT an input, so the same line of history digests identically under either of its two names",
+    "src/lib/multiplayer/server/matchAuthorityBaseline.ts:59 - MATCH_BASELINE_BRANCH_ID = 'main'",
+    "src/lib/multiplayer/server/matchAuthorityBaseline.ts:81-84 - LIVE_PATH_BRANCH_IDS = new Set([MATCH_BASELINE_BRANCH_ID, ROOT_EVENT_BRANCH_ID]); :87-89 isLivePathBranchId(branchId) is Set.has",
+    "src/lib/multiplayer/server/matchAuthorityBaseline.ts:69-79 - the doc comment declaring the pair states that the reader 'refuses every branch but root by name precisely because that store has only the one line'. That sentence is what this unit makes false, and it is edited in the same head rather than left to drift",
+    "src/lib/multiplayer/server/MatchStreamJournalMirror.ts:225-227 - the mirror reads branches.readEffectiveHead(stream) INSIDE the transaction and writes onto `effective?.branchId ?? MATCH_BASELINE_BRANCH_ID`, so an un-rewound match whose genesis backfill has not run yet is mirrored onto 'main'",
+    "src/lib/multiplayer/server/MatchStreamJournalMirror.ts:228-245 - a STORE expectation off the live path is refused inside the transaction with { kind: 'rewound-stream', branchId }; a JOURNAL expectation is not. The mirror is NOT changed by this unit (option (b) was rejected)",
+    "src/lib/events/journal/EventHistoryBranchResolver.ts:106-113 - IBranchSegmentReader.read(stream, segment) returns Promise<readonly TEvent[]>, TEvent extends IBranchEventView",
+    "src/lib/events/journal/EventHistoryBranchResolver.ts:309-348 - verifySegment: :315-320 the returned count must equal throughRevision - fromRevision; :323-327 EVERY returned event's branchId must equal segment.branchId or the path is refused with branch-integrity 'Event <id> belongs to branch <x>, not <y>'; :332 the revision must be fromRevision + index + 1; :342 previousStreamEventDigest must chain",
+    "src/lib/events/journal/EventHistoryBranchResolver.ts:218 - materializeBranchPath SKIPS a segment whose throughRevision equals its fromRevision, so an empty suffix never reaches the reader",
+    "src/lib/multiplayer/server/history/__tests__/matchStoreBranchSegmentReader.test.ts:98-111 - the `segment(from, through, branchId = 'root')` helper, the pin style every new row reuses",
+    "src/lib/multiplayer/server/history/__tests__/matchStoreBranchSegmentReader.test.ts:202-212 - 'refuses a branch a match store cannot hold' already aims at 'candidate-1', which IS a genuinely foreign id (not a live-path name), so the row needs no re-aiming and is kept verbatim as the guard",
+    "src/lib/multiplayer/server/history/__tests__/matchStoreBranchSegmentReader.test.ts:214-247 - 'materialises a real match path through the shipped resolver' builds a fake requireBranch returning a genesis record (parentBranchId null, ancestorDepth 0, baseRevision 0, baseEventId null, baseDigest 'g'*64) and runs resolveBranchPath + materializeBranchPath; the baseline-id resolver row mirrors exactly this with branchId 'main'"
+  ],
+  "resolverBranchIdContract": {
+    "question": "must a segment asked for on MATCH_BASELINE_BRANCH_ID come back stamped with the baseline id, or with root?",
+    "measured": "with the baseline id - the reader must ECHO the segment's branchId",
+    "evidence": "src/lib/events/journal/EventHistoryBranchResolver.ts:322-327, inside verifySegment: `if (event.branchId !== segment.branchId) integrity(\\\"Event ${event.eventId} belongs to branch '${event.branchId}', not '${segment.branchId}'\\\")`. A reader that served baseline segments but stamped ROOT_EVENT_BRANCH_ID would turn every baseline materialisation into an EventHistoryBranchError('branch-integrity'), i.e. it would trade one refusal for another",
+    "consequence": "the implementation stamps `segment.branchId`, which is byte-identical to today's behaviour on the root segment because the root arm only ever admits segment.branchId === ROOT_EVENT_BRANCH_ID"
+  },
+  "cycleQuestion": {
+    "charterPremise": "the charter warns that matchAuthorityBaseline IMPORTS the reader, so importing it from the reader would create a cycle",
+    "measured": "the premise does not hold on this baseline. `grep -n \"^import\" src/lib/multiplayer/server/matchAuthorityBaseline.ts` yields exactly four imports - @/types/gameplay/GameSessionInterfaces (type-only), @/lib/events/journal/EventJournalCanonicalizer, @/lib/events/journal/EventJournalContract, @/utils/events/hashUtils - and none of them is the reader or anything under src/lib/multiplayer. The only occurrence of the string 'matchStoreBranchSegmentReader' in that file is a DOC COMMENT at :75, which is why it appears in `grep -rln matchStoreBranchSegmentReader src --include=*.ts`",
+    "transitiveCheck": "none of EventJournalCanonicalizer.ts, EventJournalContract.ts, hashUtils.ts or GameSessionInterfaces.ts imports anything under src/lib/multiplayer, so reader -> matchAuthorityBaseline closes no loop",
+    "shapeChosen": "the reader imports { MATCH_BASELINE_BRANCH_ID, isLivePathBranchId } from '../matchAuthorityBaseline'",
+    "why": "LIVE_PATH_BRANCH_IDS is already the single declaration of 'the two names one un-rewound match answers on', and matchAuthorityBaseline.ts:74-79 says in so many words that it is declared there so the live admission consult and restart recovery cannot drift on it. Re-declaring the pair inside the reader - or threading it in as a constructor option with the pair as a default - would create a second copy of that set for the two existing consumers (MatchRecoveryJournalHead.ts:55, ServerMatchHostBranchAdmission.ts:56, ServerMatchHostRewindRebuild.ts:35) to drift away from, which is the exact failure the set was centralised to prevent. An option parameter would also add a configuration surface no caller asked for; the charter's own option list permits either, and the simplest cycle-free shape is the direct import",
+    "precedent": "ServerMatchHostRewindRebuild.ts already imports BOTH the reader (:32-34) and isLivePathBranchId (:35), so the new edge reader -> matchAuthorityBaseline runs in the direction the existing graph already flows",
+    "verification": "npx tsc --noEmit, npx oxlint and the jest suites are the measurement; .oxlintrc.json declares no import/no-cycle rule, so a cycle would surface as a runtime/TDZ failure in jest rather than as a lint error"
+  },
+  "unitBehaviour": {
+    "sentence": "matchStoreBranchSegmentReader serves the match's single line of history for BOTH live-path branch ids - ROOT_EVENT_BRANCH_ID and MATCH_BASELINE_BRANCH_ID - with identical events, revisions and digest chain, stamping each returned event with the branchId the segment named, and still refuses any other branch id with EventHistoryBranchError('unknown-branch')",
+    "notInScope": [
+      "no change to MatchStreamJournalMirror (option (b) was rejected by the packet decision)",
+      "no e2e row, no route change, no tasks.md tick",
+      "no change to the digest input - matchEventChainDigest stays { previous, event } and stays chained from the stream start"
+    ]
+  },
+  "redPlan": [
+    "(1) a segment on MATCH_BASELINE_BRANCH_ID over a store holding events returns the same eventIds, streamRevisions and eventDigests as the same segment on root - red today: the reader throws EventHistoryBranchError('unknown-branch')",
+    "(2) the shipped resolver materialises a path whose head sits on the baseline id through this reader, mirroring the existing root row at test:214-247 - red today for the same reason",
+    "(3) a foreign id ('candidate-1') is still refused with 'unknown-branch' - green today, kept as the guard; the existing row at test:202-212 is preserved verbatim and a second row pins the error CODE and the live-path pair by name",
+    "(4) a truncated baseline read equals the prefix of the full root read, digest for digest - the prefix law, red today"
+  ],
+  "estimatePerFile": [
+    {
+      "file": "src/lib/multiplayer/server/history/matchStoreBranchSegmentReader.ts",
+      "kind": "product (edit)",
+      "estimateLines": "about +14 / -6: two names on the import line, the refusal predicate at :126-134 becomes !isLivePathBranchId(segment.branchId) with a message naming both live-path ids, branchId: segment.branchId at :144, and about 8 lines of header explaining the two names of one line of history"
+    },
+    {
+      "file": "src/lib/multiplayer/server/matchAuthorityBaseline.ts",
+      "kind": "product (edit, comment only)",
+      "estimateLines": "about +4 / -4 at :74-79 - the sentence 'the reader refuses every branch but root by name' is now false and is replaced by what the reader actually does; no executable line changes"
+    },
+    {
+      "file": "src/lib/multiplayer/server/history/__tests__/matchStoreBranchSegmentReader.test.ts",
+      "kind": "test (edit, new describe block)",
+      "estimateLines": "about +95: four red rows plus the guard row, in the existing pin style, reusing the existing `segment` helper and `source()`"
+    }
+  ],
+  "estimateTotals": {
+    "files": 3,
+    "productNonGeneratedLinesChanged": "about 28 (well under the charter's 40-product-line estimate cap)",
+    "capHeadroom": "3 of 15 files; product change far inside 500 non-generated lines"
+  },
+  "acceptanceCommands": [
+    "npx jest src/lib/multiplayer/server/history",
+    "npx jest src/lib/multiplayer/server/__tests__/matchCheckpointEquivalence.test.ts",
+    "npx jest src/lib/multiplayer/server/__tests__/matchCreatePathJournalSeed.sqlite.test.ts",
+    "npx jest src/lib/multiplayer/server/__tests__/matchRecoveryCheckpointDoor.test.ts",
+    "npx jest src/lib/multiplayer/server/__tests__/matchRecoveryJournalArmDoor.sqlite.test.ts",
+    "npx jest src/lib/multiplayer/server/__tests__/matchRecoveryJournalHead.sqlite.test.ts",
+    "npx jest src/lib/multiplayer/server/__tests__/matchStreamJournalMirror.sqlite.test.ts",
+    "npx jest src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindRebuild.test.ts",
+    "npx jest src/__tests__/api/matches/rewindCommitRoute.test.ts",
+    "npx jest src/lib/multiplayer/server",
+    "npx tsc --noEmit",
+    "npx oxlint",
+    "npx oxfmt --check <changed files>",
+    "npm run lint:units",
+    "npm run qc:openspec-ci:validate",
+    "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs"
+  ],
+  "risksForTheParent": [
+    "REPLAY, and the single most reviewable thing on this head: the reader stops being a one-name reader. Any caller that previously relied on 'anything but root is refused' as an implicit guard against reading a REWOUND stream now gets events back when the head sits on 'main'. That is the intended semantics - LIVE_PATH_BRANCH_IDS already declares the two names as one line - but it means the refusal is no longer the thing that distinguishes a rewound stream. What distinguishes it stays isLivePathBranchId at the mirror (MatchStreamJournalMirror.ts:228) and at the admission/recovery consults, all unchanged on this head",
+    "The message on the surviving refusal changes text (it now names both live-path ids). Any assertion matching the old string by substring would break; the existing row asserts only `rejects.toBeInstanceOf(EventHistoryBranchError)`, and the full-package run is what measures whether any other suite matched the text",
+    "A REAL match stream's genesis branch is backfilled as 'root' (SQLiteEventHistoryBranchStore.backfillGenesisBranches, used by the existing preview test at :279), while the MIRROR writes onto 'main' when no effective head exists yet (MatchStreamJournalMirror.ts:227). This head makes the reader answer on both, but it does NOT reconcile which of the two a given match's branch records actually name - that reconciliation is not in this unit and is not claimed",
+    "No e2e row and no route change ship here, so nothing on this head proves the GM's rewind confirmation flow end to end; row 22.3 / E2E-76 stays held in PK-rewind-branch-reader for a row-bearing successor",
+    "matchAuthorityBaseline.ts is edited for its comment only. MatchRecoveryJournalHead.ts:19 carries the SAME now-stale sentence ('matchStoreBranchSegmentReader refuses every branch but root by name'); it is outside this unit's final-status contract and is reported as a finding rather than fixed"
+  ],
+  "prohibitions": [
+    "no npm install / ci / prune anywhere; npm_config_dry_run=true exported in every shell (node_modules is a junction to the root checkout)",
+    "no touching the root checkout at E:/Projects/MekStation; every git command uses -C into the worktree",
+    "no commit, push, stash, amend or force",
+    "no edits outside src/lib/multiplayer/server (product and its __tests__) and the three u10 receipts",
+    "no edits to units.json, roadmap.json or evidence/admission-snapshot.json",
+    "no tasks.md checkbox ticked",
+    "no next build, no Playwright; jest suites run one at a time",
+    "no AI attribution, no absolute machine paths in product or test files"
+  ],
+  "implementerModel": "claude-opus (Agent lane; codex usage limit until 2026-09-19, cursor-agent and grok CLI routes exhausted)",
+  "status": "admitted"
+}

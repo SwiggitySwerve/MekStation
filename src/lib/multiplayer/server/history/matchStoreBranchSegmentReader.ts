@@ -34,6 +34,22 @@
  * would digest differently depending on how much of it you asked for,
  * and every comparison between two heads would be meaningless.
  *
+ * ONE LINE OF HISTORY, TWO NAMES:
+ *
+ * An un-rewound match answers on both live-path branch ids - the
+ * journal's genesis `root` and `MATCH_BASELINE_BRANCH_ID`, the id
+ * `MatchStreamJournalMirror` writes onto when no effective head exists
+ * yet - and `LIVE_PATH_BRANCH_IDS` is where that pair is declared. So
+ * this reader serves BOTH, with the same events, the same revisions and
+ * the same digest chain: two names for the one line the store holds, not
+ * two histories. Every other branch id is still refused, because a
+ * candidate branch genuinely has no events here.
+ *
+ * The id a returned event carries is not a free choice. `verifySegment`
+ * refuses an event whose `branchId` is not the segment's own, so a read
+ * that served the baseline segment while stamping root would only trade
+ * `unknown-branch` for `branch-integrity`. The segment's id is echoed.
+ *
  * @spec openspec/changes/harden-gm-two-player-campaign-sessions/specs/gm-combat-interventions/spec.md
  */
 
@@ -45,6 +61,11 @@ import { EventHistoryBranchError } from '@/lib/events/journal/EventHistoryBranch
 import { canonicalizeJsonV1 } from '@/lib/events/journal/EventJournalCanonicalizer';
 import { ROOT_EVENT_BRANCH_ID } from '@/lib/events/journal/EventJournalContract';
 import { sha256Sync } from '@/utils/events/hashUtils';
+
+import {
+  MATCH_BASELINE_BRANCH_ID,
+  isLivePathBranchId,
+} from '../matchAuthorityBaseline';
 
 /** The sequence a match's first event occupies. */
 const MATCH_FIRST_SEQUENCE = 0;
@@ -123,13 +144,13 @@ export function matchStoreBranchSegmentReader(
 ): IBranchSegmentReader<IProjectableBranchEvent> {
   return {
     read: async (stream, segment) => {
-      if (segment.branchId !== ROOT_EVENT_BRANCH_ID) {
-        // The match store keeps exactly one line of history. Answering a
-        // candidate's name with root events would be the same lie the
-        // journal reader refuses to tell.
+      if (!isLivePathBranchId(segment.branchId)) {
+        // The match store keeps exactly one line of history, under its
+        // two live-path names. Answering a candidate's name with that
+        // line would be the same lie the journal reader refuses to tell.
         throw new EventHistoryBranchError(
           'unknown-branch',
-          `A match store holds only the '${ROOT_EVENT_BRANCH_ID}' branch; '${segment.branchId}' has no events`,
+          `A match store holds only the live path ('${ROOT_EVENT_BRANCH_ID}', '${MATCH_BASELINE_BRANCH_ID}'); '${segment.branchId}' has no events`,
         );
       }
       const events = [...(await source.getEvents(stream.streamId, 0))].sort(
@@ -141,7 +162,9 @@ export function matchStoreBranchSegmentReader(
         const eventDigest = matchEventChainDigest(previous, event);
         chained.push({
           eventId: event.id,
-          branchId: ROOT_EVENT_BRANCH_ID,
+          // Echoed, not canonicalised: `verifySegment` compares this
+          // against the id the segment named.
+          branchId: segment.branchId,
           streamRevision: revisionForMatchSequence(event.sequence),
           eventVersion: 1,
           previousStreamEventDigest: previous,
