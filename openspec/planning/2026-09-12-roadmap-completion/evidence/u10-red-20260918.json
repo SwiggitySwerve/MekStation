@@ -1,0 +1,70 @@
+{
+  "unit": "U10",
+  "stage": "red",
+  "at": "2026-09-18T06:02:00.000Z",
+  "baseline": "ec23e8794df18a6cc032f223c20e56de292deb87",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u10",
+  "branch": "codex/roadmap-u10-rewind-branch-reader-20260918",
+  "redTakenAgainst": "the unmodified product file src/lib/multiplayer/server/history/matchStoreBranchSegmentReader.ts at the baseline; only the test file had been edited when this run was taken",
+  "file": "src/lib/multiplayer/server/history/__tests__/matchStoreBranchSegmentReader.test.ts",
+  "placement": "a new describe block 'matchStoreBranchSegmentReader on the baseline branch id' added to the existing reader suite, reusing its `segment(from, through, branchId)` and `source()` helpers so the new rows carry the same pin style as the root rows",
+  "command": "npx jest src/lib/multiplayer/server/history/__tests__/matchStoreBranchSegmentReader.test.ts",
+  "lastLines": [
+    "Test Suites: 1 failed, 1 total",
+    "Tests:       4 failed, 10 passed, 14 total",
+    "Time:        3.239 s"
+  ],
+  "exitCode": 1,
+  "rows": [
+    {
+      "charterCase": "(1) a segment on MATCH_BASELINE_BRANCH_ID over a store holding events returns the same events, revisions and digests as the same segment on root",
+      "name": "answers the baseline id with the same events, revisions and digests as root",
+      "result": "FAILED (red)",
+      "failingAssertion": "the read never reaches an assertion: `matchStoreBranchSegmentReader(source()).read(STREAM, segment(0, 4, MATCH_BASELINE_BRANCH_ID))` throws before returning",
+      "failure": "EventHistoryBranchError: A match store holds only the 'root' branch; 'main' has no events",
+      "thrownAt": "src/lib/multiplayer/server/history/matchStoreBranchSegmentReader.ts:130:15",
+      "calledFrom": "src/lib/multiplayer/server/history/__tests__/matchStoreBranchSegmentReader.test.ts:296:70"
+    },
+    {
+      "charterCase": "(1), branch-id stamp half - the contract measured against EventHistoryBranchResolver.verifySegment:322-327",
+      "name": "stamps every returned event with the branch id the segment named",
+      "result": "FAILED (red)",
+      "failingAssertion": "the read throws before `expect(new Set(onBaseline.map((event) => event.branchId))).toEqual(new Set([MATCH_BASELINE_BRANCH_ID]))` is reached",
+      "failure": "EventHistoryBranchError: A match store holds only the 'root' branch; 'main' has no events",
+      "thrownAt": "src/lib/multiplayer/server/history/matchStoreBranchSegmentReader.ts:130:15",
+      "calledFrom": "src/lib/multiplayer/server/history/__tests__/matchStoreBranchSegmentReader.test.ts:322:70"
+    },
+    {
+      "charterCase": "(2) the resolver-level case: the shipped resolver materialises a path whose head sits on the baseline id through this reader",
+      "name": "materialises a baseline-headed match path through the shipped resolver",
+      "result": "FAILED (red)",
+      "failingAssertion": "`materializeBranchPath(matchStoreBranchSegmentReader(source()), path)` throws while reading the single suffix segment, before `expect(events.map((event) => event.streamRevision)).toEqual([1, 2])`",
+      "failure": "EventHistoryBranchError: A match store holds only the 'root' branch; 'main' has no events",
+      "stack": "matchStoreBranchSegmentReader.ts:130:15 <- EventHistoryBranchResolver.ts:298:17 (read) <- EventHistoryBranchResolver.ts:219:26 (readSegment) <- matchStoreBranchSegmentReader.test.ts:356:47"
+    },
+    {
+      "charterCase": "(4) the digest chain for a baseline read is a prefix-preserving chain identical to root's",
+      "name": "slices a baseline window out of the one chain rather than rechaining it",
+      "result": "FAILED (red)",
+      "failingAssertion": "the baseline read of segment(0, 2, 'main') throws before `expect(prefix.map((event) => event.eventDigest)).toEqual(full.slice(0, 2).map((event) => event.eventDigest))`; the row also carries the mid-stream anchor assertions `expect(middle[0].previousStreamEventDigest).toBe(full[0].eventDigest)` and `.not.toBe(null)`, which are what a rechain-from-window-start reader would break once the branch id is served",
+      "failure": "EventHistoryBranchError: A match store holds only the 'root' branch; 'main' has no events",
+      "thrownAt": "src/lib/multiplayer/server/history/matchStoreBranchSegmentReader.ts:130:15",
+      "calledFrom": "src/lib/multiplayer/server/history/__tests__/matchStoreBranchSegmentReader.test.ts:373:66"
+    },
+    {
+      "charterCase": "(3) a foreign id is still refused with 'unknown-branch' - green today, kept as the guard",
+      "name": "still refuses a branch id that is not on the live path",
+      "result": "PASSED (green before and required green after)",
+      "assertion": "`rejects.toMatchObject({ name: 'EventHistoryBranchError', code: 'unknown-branch' })` on segment(0, 4, 'candidate-1')",
+      "note": "this row pins the error CODE, which the pre-existing row at :202-212 does not - that one asserts only `rejects.toBeInstanceOf(EventHistoryBranchError)`"
+    }
+  ],
+  "preExistingRowsUnchanged": {
+    "count": 9,
+    "includes": "'refuses a branch a match store cannot hold' (:202-212) is kept VERBATIM; it already aims at 'candidate-1', a genuinely foreign id rather than a live-path name, so the charter's re-aiming requirement is already satisfied on the baseline and nothing was deleted or weakened",
+    "evidence": "the same run reports 10 passed, which is the 9 pre-existing rows plus the new guard row"
+  },
+  "whyThisIsRealRed": "the failure is the product's own typed refusal thrown from the line the unit exists to change (matchStoreBranchSegmentReader.ts:130), reached through the shipped resolver in one of the four rows. No assertion was weakened, no failure was converted into a skip, and no row merely restates the implementation: the equality rows compare the baseline read against the ROOT read produced by the same reader, so they cannot be satisfied by a reader that invents a second history.",
+  "implementerModel": "claude-opus (Agent lane; codex usage limit until 2026-09-19, cursor-agent and grok CLI routes exhausted)",
+  "status": "red-recorded"
+}
