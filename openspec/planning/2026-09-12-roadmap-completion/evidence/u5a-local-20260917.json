@@ -1,0 +1,304 @@
+{
+  "unit": "U5a",
+  "stage": "local",
+  "at": "2026-09-18T02:04:17.000Z",
+  "baseline": "f902fd9d5bfd868aac3f30114ebffb73fbcdc315",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u5a",
+  "branch": "codex/roadmap-u5a-gm-private-read-20260917",
+  "node": "R2.authority-live",
+  "ciClass": "product",
+  "reviewClasses": ["privacy", "routine"],
+  "whatLanded": {
+    "a": "src/pages/api/matches/[id]/rewind-preview.ts - the preview arm now captures the writer's IGmPrivatePreviewRecords and answers {...result, privateRefs: {preview?, reason?}} with only the refs that exist. Refusal arms return before that line, so a refused caller receives no handle and wrote no row. The file header's 'the record is never copied onto the response' paragraph is rewritten to say exactly what now rides the 200: opaque handles, never content. This route passes no privateReason, so `reason` is currently unreachable; it follows the writer's declared return contract rather than assuming the writer's shape",
+    "b": "src/pages-modules/api/matchPrivatePreviewRoute.ts (new) - GET handler: prepareMatchHistoryGet (GET-only 405 Allow ['GET'], db init, id guard 400, scoped bearer 401), `ref` through rejectMissingQueryString (400), match meta in its own try/catch (404 'unknown match'), then createViewerHistoryServiceOver(HostAsGmMembershipSource(MatchSeatMembershipSource(store), meta.hostPlayerId)).exportForViewer(caller.playerId, caller.matchId, {streamType 'match', streamId = the URL match id, includePrivate: true, occurredAt: nowIso(), privateRefs: [ref]}), answered 200 VERBATIM. Failures go through rejectMatchHistoryFailure, so a brand refusal is the constant id-free 403 and everything else is 500",
+    "c": "src/pages/api/matches/[id]/private-preview.ts (new, 1 line) - the same one-line re-export shape export.ts and timeline.ts use",
+    "d": "src/pages-modules/api/matchHistoryViewerChain.ts - createViewerHistoryServiceOver(membership: IMembershipSource) holds the service graph; createViewerHistoryService() is now a three-line delegator passing MatchSeatMembershipSource(getDefaultMatchStore()). One graph, one owner; the privileged variant has a greppable name",
+    "notWidened": "no query flag was added to /export, no second private read path exists, no change to src/lib, and the timeline and export route files are byte-identical to the baseline"
+  },
+  "lineCounts": [
+    {
+      "file": "src/pages-modules/api/matchPrivatePreviewRoute.ts",
+      "kind": "product (new)",
+      "total": 113,
+      "nonCommentNonBlank": 59,
+      "note": "41 of the 113 lines are the file header that records why the host is branded gm here, what that brand also widens, and why this is a route rather than a flag on /export. Against the charter's 'estimate the route well under 120'"
+    },
+    { "file": "src/pages/api/matches/[id]/private-preview.ts", "kind": "product (new)", "total": 1 },
+    { "file": "src/pages-modules/api/matchHistoryViewerChain.ts", "kind": "product (edit)", "added": 22, "removed": 6 },
+    { "file": "src/pages/api/matches/[id]/rewind-preview.ts", "kind": "product (edit)", "added": 23, "removed": 4 },
+    { "file": "src/pages-modules/api/__tests__/matchPrivatePreviewRoute.test.ts", "kind": "test (new)", "total": 462 },
+    {
+      "file": "src/pages-modules/api/__tests__/matchPrivatePreviewRoute.seams.test.ts",
+      "kind": "test (inherited, renamed)",
+      "total": 242,
+      "note": "arrived as the codex lane's 195-line untracked probe under the name matchPrivatePreviewRoute.test.ts; +18 lines of header saying what it pins, the rest is oxfmt reflow. No assertion changed"
+    },
+    { "file": "src/__tests__/api/matches/rewindPreviewRoute.test.ts", "kind": "test (edit)", "added": 30, "removed": 2 }
+  ],
+  "capCheck": {
+    "filesTouched": 7,
+    "maxFiles": 15,
+    "productNonGeneratedLinesAdded": 159,
+    "maxNonGeneratedLines": 500,
+    "verdict": "inside both caps"
+  },
+  "estimateVariance": [
+    "the new pin file came in at 462 lines against an admission estimate of 260-330. The extra is four rows the admission design did not itemise: the GM-branding widening pin, the foreign-match ref, the unknown ref, and the player-vs-export equality row, plus the JSON key walker they share. Test lines do not count against the 500 product cap",
+    "every product file landed inside its estimate"
+  ],
+  "pinsGreen": [
+    "src/pages-modules/api/__tests__/matchPrivatePreviewRoute.test.ts - 10 rows, the two red ones from the red receipt included",
+    "src/pages-modules/api/__tests__/matchPrivatePreviewRoute.seams.test.ts - 3 rows; both seam facts still hold with the route in place, which is the proof that the production export path was not loosened to make this unit work",
+    "src/__tests__/api/matches/rewindPreviewRoute.test.ts - 16 rows",
+    "src/pages-modules/api/__tests__/matchHistoryExportRoute.test.ts - 5 rows, untouched file",
+    "src/pages-modules/api/__tests__/matchHistoryTimelineRoute.test.ts - 3 rows, untouched file"
+  ],
+  "measuredBehaviourWorthReading": [
+    "a ref that belongs to ANOTHER match: 200 with the payload-free {opaqueRef, payloadState, recordKind} view and an export-attempt/denied audit row. Measured, not guessed - the repository's session check denies, the service's non-oracle fallback answers the default shape. This is an existence-and-kind oracle for a ref the caller already holds; see findingsReportedNotFixed",
+    "an unknown ref: 200 with privateRecords []. The repository's default exportView returns null for a missing row and the service omits nulls, so absence and refusal are NOT distinguishable by status - only by whether a row appears",
+    "the GM's body carries GM-class timeline rows (committedFirstRevision / committedLastRevision) that the same GM's /export body does not, because exportForViewer brands ONE viewer for the projection, the timeline and the private refs alike. Pinned by an explicit row rather than left to be discovered"
+  ],
+  "gates": [
+    {
+      "name": "new route pins",
+      "command": "npx jest src/pages-modules/api/__tests__/matchPrivatePreviewRoute.test.ts",
+      "summary": "Test Suites: 1 passed, 1 total / Tests: 10 passed, 10 total",
+      "lastLine": "Ran all test suites matching /src\\\\pages-modules\\\\api\\\\__tests__\\\\matchPrivatePreviewRoute.test.ts/i.",
+      "exitCode": 0
+    },
+    {
+      "name": "seam pins",
+      "command": "npx jest src/pages-modules/api/__tests__/matchPrivatePreviewRoute.seams.test.ts",
+      "summary": "Test Suites: 1 passed, 1 total / Tests: 3 passed, 3 total",
+      "lastLine": "Ran all test suites matching /src\\\\pages-modules\\\\api\\\\__tests__\\\\matchPrivatePreviewRoute.seams.test.ts/i.",
+      "exitCode": 0
+    },
+    {
+      "name": "rewind preview route",
+      "command": "npx jest src/__tests__/api/matches/rewindPreviewRoute.test.ts",
+      "summary": "Test Suites: 1 passed, 1 total / Tests: 16 passed, 16 total",
+      "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\api\\\\matches\\\\rewindPreviewRoute.test.ts/i.",
+      "exitCode": 0
+    },
+    {
+      "name": "existing export route (untouched file)",
+      "command": "npx jest src/pages-modules/api/__tests__/matchHistoryExportRoute.test.ts",
+      "summary": "Test Suites: 1 passed, 1 total / Tests: 5 passed, 5 total",
+      "lastLine": "Ran all test suites matching /src\\\\pages-modules\\\\api\\\\__tests__\\\\matchHistoryExportRoute.test.ts/i.",
+      "exitCode": 0
+    },
+    {
+      "name": "existing timeline route (untouched file)",
+      "command": "npx jest src/pages-modules/api/__tests__/matchHistoryTimelineRoute.test.ts",
+      "summary": "Test Suites: 1 passed, 1 total / Tests: 3 passed, 3 total",
+      "lastLine": "Ran all test suites matching /src\\\\pages-modules\\\\api\\\\__tests__\\\\matchHistoryTimelineRoute.test.ts/i.",
+      "exitCode": 0
+    },
+    {
+      "name": "owned paths, all suites",
+      "command": "npx jest src/pages-modules/api src/__tests__/api/matches",
+      "summary": "Test Suites: 9 passed, 9 total / Tests: 75 passed, 75 total",
+      "lastLine": "Ran all test suites matching /src\\\\pages-modules\\\\api|src\\\\__tests__\\\\api\\\\matches/i.",
+      "exitCode": 0,
+      "note": "re-run after the four mutants were restored; this is the post-mutant reading"
+    },
+    {
+      "name": "typecheck",
+      "command": "npx tsc --noEmit",
+      "lastLine": "(no output)",
+      "exitCode": 0
+    },
+    {
+      "name": "lint",
+      "command": "npx oxlint",
+      "resultLine": "Found 84 warnings and 0 errors.",
+      "lastLine": "Finished in 228ms on 3814 files using 16 threads.",
+      "exitCode": 0,
+      "baselineResultLine": "Found 84 warnings and 0 errors.",
+      "unchangedFromBaseline": true,
+      "note": "3813 files on the baseline, 3814 now: the net file count moved by one because the inherited probe was renamed (not added) and three files are new (two product, one test) while one product file is a 1-line re-export"
+    },
+    {
+      "name": "format",
+      "command": "npx oxfmt --check src/pages-modules/api/matchPrivatePreviewRoute.ts src/pages-modules/api/matchHistoryViewerChain.ts \"src/pages/api/matches/[id]/private-preview.ts\" \"src/pages/api/matches/[id]/rewind-preview.ts\" src/pages-modules/api/__tests__/matchPrivatePreviewRoute.test.ts src/pages-modules/api/__tests__/matchPrivatePreviewRoute.seams.test.ts src/__tests__/api/matches/rewindPreviewRoute.test.ts",
+      "resultLine": "All matched files use the correct format.",
+      "lastLine": "Finished in 14ms on 7 files using 16 threads.",
+      "exitCode": 0,
+      "note": "three files needed `npx oxfmt` once (type-import ordering and argument wrapping); the suites were re-run after formatting"
+    },
+    {
+      "name": "unit lint",
+      "command": "npm run lint:units",
+      "lastLine": "LINT_UNITS_PASS 100/100",
+      "exitCode": 0,
+      "note": "unchanged from the baseline reading; no ceiling was touched"
+    },
+    {
+      "name": "openspec CI quality",
+      "command": "npm run qc:openspec-ci:validate",
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+      "exitCode": 0
+    },
+    {
+      "name": "roadmap validator",
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "exitCode": 0
+    },
+    {
+      "name": "roadmap validator --next",
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+      "lastLine": "U5a",
+      "exitCode": 0,
+      "note": "still U5a: this lane writes receipts and never edits units.json"
+    }
+  ],
+  "gatesNotRun": [
+    "next build - forbidden by the charter's two-core rule and not needed: no page component, no route manifest assertion and no bundle claim is made here",
+    "Playwright - forbidden by the charter; no browser row is claimed"
+  ],
+  "mutants": [
+    {
+      "id": "M1",
+      "mutation": "src/pages-modules/api/matchPrivatePreviewRoute.ts drops `includePrivate: true` and `occurredAt` from the export request, so the read goes through the default (payload-free) private path",
+      "caughtBy": "src/pages-modules/api/__tests__/matchPrivatePreviewRoute.test.ts",
+      "result": "Tests: 3 failed, 7 passed, 10 total (exit 1)",
+      "failingRows": [
+        "gives the GM the draft payload and records the granted access - privateRecords came back without `payload`, and listAccessAudit showed only the original write row (no export-attempt row at all)",
+        "gives a seated player no payload anywhere and records the denial - the body is right by accident, but no denied row is recorded, so the mutant is caught by the AUDIT half rather than the body half",
+        "answers a ref from another match without its payload - same: no denied export-attempt row"
+      ],
+      "note": "the audit assertions are what make this mutant visible for the player rows: a route that silently stops using the gated path produces a player body that looks identical and an audit trail that is empty"
+    },
+    {
+      "id": "M2",
+      "mutation": "the read route builds the service over the plain MatchSeatMembershipSource, dropping HostAsGmMembershipSource (the host is no longer branded gm)",
+      "caughtBy": "src/pages-modules/api/__tests__/matchPrivatePreviewRoute.test.ts",
+      "result": "Tests: 2 failed, 8 passed, 10 total (exit 1)",
+      "failingRows": [
+        "gives the GM the draft payload and records the granted access - the GM receives the payload-free view and the audit row reads export-attempt/denied/player",
+        "brands the host as GM for the whole export, not only the record - the GM's timeline rows lost committedFirstRevision/committedLastRevision"
+      ]
+    },
+    {
+      "id": "M3",
+      "mutation": "the read route inspects the service body and answers a typed 403 whenever any private view arrived without a payload - i.e. it turns the service's silent payload-free fallback into an authorization oracle",
+      "caughtBy": "src/pages-modules/api/__tests__/matchPrivatePreviewRoute.test.ts",
+      "result": "Tests: 3 failed, 7 passed, 10 total (exit 1)",
+      "failingRows": [
+        "gives a seated player no payload anywhere and records the denial - 403 received, 200 expected",
+        "leaves the player's projection identical to that player's export - the body is an {error} object, not an export",
+        "answers a ref from another match without its payload - 403 received, 200 expected"
+      ],
+      "note": "this is the oracle law made runnable: a player must not be able to tell 'not allowed' from 'nothing to show' by status code"
+    },
+    {
+      "id": "M4",
+      "mutation": "src/pages/api/matches/[id]/rewind-preview.ts drops privateRefs from the 200 body (the writer still runs and the record is still written)",
+      "caughtBy": "src/__tests__/api/matches/rewindPreviewRoute.test.ts",
+      "result": "Tests: 1 failed, 15 passed, 16 total (exit 1)",
+      "failingRows": [
+        "hands the GM an opaque handle to its draft, never the draft - the expected privateRefs.preview, read back out of the private_record row's own opaque_ref, is absent from the body"
+      ],
+      "note": "the 15 green rows are the point of the mutant's other half: dropping the handle changes NOTHING else about the preview route, which is why a body-shape pin (not a behaviour pin) is what catches it"
+    }
+  ],
+  "mutantRestoreProof": {
+    "method": "each mutated file was restored by copying back a pre-mutant copy taken before the first mutation, then sha256 compared",
+    "preMutantSha256": {
+      "src/pages-modules/api/matchPrivatePreviewRoute.ts": "7ba9f59f6cd4e43cf44bca9d812924f46824999e0a836c6fe6e5d51e4121d055",
+      "src/pages/api/matches/[id]/rewind-preview.ts": "3b434aee96c88d36af582be1b45ddc9db2afe47106ae4900d9b3f4bda99ed342"
+    },
+    "restoredSha256": {
+      "afterM1 src/pages-modules/api/matchPrivatePreviewRoute.ts": "7ba9f59f6cd4e43cf44bca9d812924f46824999e0a836c6fe6e5d51e4121d055",
+      "afterM2 src/pages-modules/api/matchPrivatePreviewRoute.ts": "7ba9f59f6cd4e43cf44bca9d812924f46824999e0a836c6fe6e5d51e4121d055",
+      "afterM3 src/pages-modules/api/matchPrivatePreviewRoute.ts": "7ba9f59f6cd4e43cf44bca9d812924f46824999e0a836c6fe6e5d51e4121d055",
+      "afterM4 src/pages/api/matches/[id]/rewind-preview.ts": "3b434aee96c88d36af582be1b45ddc9db2afe47106ae4900d9b3f4bda99ed342"
+    },
+    "equal": true
+  },
+  "postMutantReRun": {
+    "jest": "npx jest src/pages-modules/api src/__tests__/api/matches -> Test Suites: 9 passed, 9 total / Tests: 75 passed, 75 total (exit 0)",
+    "tsc": "npx tsc --noEmit -> no output (exit 0)",
+    "oxlint": "Found 84 warnings and 0 errors. (exit 0)",
+    "oxfmt": "All matched files use the correct format. (exit 0)"
+  },
+  "finalContentHashes": {
+    "src/pages-modules/api/matchPrivatePreviewRoute.ts": "7ba9f59f6cd4e43cf44bca9d812924f46824999e0a836c6fe6e5d51e4121d055",
+    "src/pages/api/matches/[id]/rewind-preview.ts": "3b434aee96c88d36af582be1b45ddc9db2afe47106ae4900d9b3f4bda99ed342",
+    "src/pages-modules/api/matchHistoryViewerChain.ts": "73efbed77a510585f88c1e9c8dcf34608911a6570dcbf1f4c6281e089861e20c",
+    "src/pages/api/matches/[id]/private-preview.ts": "246af0217fa7754faaae00246319f7db2675d1362fd765945f0da25540083a45"
+  },
+  "nonClaims": [
+    "the E2E-19 browser row itself is NOT proven here; it stays a later R6.umbrella unit. This head delivers the GM read exposure the row needs, not the row",
+    "no client reads either the new route or the new privateRefs key. Nothing in src/components, src/pages/multiplayer or e2e/ was touched, so no end-to-end GM flow is demonstrated",
+    "no ladder run, no next build, no Playwright run",
+    "the correction-preview flow is covered only insofar as it uses the SAME GmPrivatePreviewRecordWriter. It is not exercised by any row here, and the campaign rewind-preview route (src/pages/api/campaigns, outside this unit's paths) still discards the writer's refs, so a campaign GM still has no handle to read back",
+    "retention and erasure of the draft are unchanged and untested here: retentionClass stays 'session', and what an erased record looks like through this route (payloadState 'erased', payload null) is asserted by neither this unit's rows nor an existing suite on this surface",
+    "concurrency is not claimed: nothing serialises a GM reading a draft against the retention sweep that may remove it",
+    "the `reason` arm of privateRefs is unreachable from the rewind-preview route today (it passes no privateReason), so it is typed and formatted but not exercised by any row"
+  ],
+  "findingsReportedNotFixed": [
+    {
+      "id": "F1",
+      "severity": "for the owner ruling",
+      "finding": "the read route is an existence-and-kind oracle for a private ref the caller already holds but that belongs to another match. Measured: 200 with {opaqueRef, payloadState, recordKind} and an export-attempt/denied audit row. No payload crosses. The shape follows from the service's deliberate non-oracle fallback (ViewerHistoryService.ts:325-331) meeting a route that accepts caller-named refs; closing it would mean a route-level pre-check that reintroduces the very status-code oracle the fallback exists to prevent. Raised rather than guarded, per the charter addendum"
+    },
+    {
+      "id": "F2",
+      "severity": "for the owner ruling",
+      "finding": "branding the host as gm widens the host's OWN view of its own match beyond the private record: GM-class timeline rows (raw committed revision ranges, every actor's principal id) ride the same body. No player's view changes. Narrowing it would need a service-level private-only entrypoint - outside this unit's paths and larger than the route. Pinned by 'brands the host as GM for the whole export, not only the record' so the decision is visible rather than implied"
+    },
+    {
+      "id": "F3",
+      "severity": "successor work",
+      "finding": "the campaign rewind-preview route under src/pages/api/campaigns writes drafts through the same GmPrivatePreviewRecordWriter and still discards its refs, so a campaign GM has no handle and cannot use this route. Outside this unit's ownership paths; a narrow successor would apply design A there"
+    },
+    {
+      "id": "F4",
+      "severity": "successor work / architectural",
+      "finding": "IPrivateRecordRepository exposes no listing by campaignSessionId (IPrivateRecordRepository.ts:278-292). If it did, the read route could enumerate a match's own gm-drafts for the branded GM and the preview would not have to hand out refs at all - a smaller contract than threading handles through a response body. That is a src/lib/events/privacy change, outside this unit's paths, and it is the shape the owner may prefer long-term"
+    },
+    {
+      "id": "F5",
+      "severity": "observation",
+      "finding": "an unknown ref and a denied ref are told apart by the response body (an empty privateRecords array vs a payload-free view), not by status. That is consistent with the non-oracle law but it does mean a caller can distinguish 'no such record' from 'record exists, not yours'. Pinned by two separate rows so the behaviour is explicit"
+    }
+  ],
+  "prohibitionsHeld": [
+    "npm_config_dry_run=true exported in every shell; no npm install / ci / prune was run",
+    "no command touched E:/Projects/MekStation's own working tree; every git invocation used -C into the worktree",
+    "no commit, push, stash, amend or force",
+    "only src/pages/api/matches, src/pages-modules/api (incl. __tests__), src/__tests__/api/matches and the three receipts were edited; src/lib was NOT touched (no service seam turned out to be necessary)",
+    "units.json, roadmap.json and evidence/admission-snapshot.json untouched; no tasks.md checkbox ticked",
+    "no next build, no Playwright; jest suites were run one at a time",
+    "no AI attribution and no absolute machine paths in any product or test file"
+  ],
+  "serviceSeamAdded": {
+    "added": false,
+    "note": "the charter allowed a src/lib/multiplayer/server seam if exportForViewer could not take includePrivate. It already can (ViewerHistoryTypes.ts:66-74), so nothing under src/lib changed. The only chain-level change is the factory split in src/pages-modules/api/matchHistoryViewerChain.ts:105-145, described in whatLanded.d and its deviation recorded in the admission receipt"
+  },
+  "finalGitStatusShort": {
+    "lines": [
+    " M src/__tests__/api/matches/rewindPreviewRoute.test.ts",
+    " M src/pages-modules/api/matchHistoryViewerChain.ts",
+    " M src/pages/api/matches/[id]/rewind-preview.ts",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u5a-admission-20260917.json",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u5a-local-20260917.json",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u5a-red-20260917.json",
+    "?? src/pages-modules/api/__tests__/matchPrivatePreviewRoute.seams.test.ts",
+    "?? src/pages-modules/api/__tests__/matchPrivatePreviewRoute.test.ts",
+    "?? src/pages-modules/api/matchPrivatePreviewRoute.ts",
+    "?? src/pages/api/matches/[id]/private-preview.ts"
+    ],
+    "note": "measured output of git -C <worktree> status --short, re-read after all three receipts existed, so all ten lines are observed"
+  },
+  "reviewGate": {
+    "laneB": "required - reviewClasses contains 'privacy'",
+    "packet": "PK-u5a-ruling",
+    "consequence": "the PR merges only after an OWNER-RULING <40-hex head> comment plus the owner-ruled label on the exact proposed head; a ruling is void the moment the head moves",
+    "whatTheOwnerIsBeingAskedToRule": "a new authenticated HTTP read path for a previously server-only record, plus the two measured consequences in findings F1 and F2"
+  },
+  "implementerModel": "claude-opus (Agent lane; the codex lane gpt-6-astra/xhigh ran out of usage mid-admission on 2026-09-17; cursor-agent and grok CLI routes exhausted)",
+  "status": "ready"
+}

@@ -1049,14 +1049,28 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
+      "state": "local-verified",
+      "baseline": "f902fd9d5bfd868aac3f30114ebffb73fbcdc315",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/u5a-admission-20260917.json",
+          "baseline": "f902fd9d5bfd868aac3f30114ebffb73fbcdc315",
+          "at": "2026-09-18T01:53:26.000Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/u5a-red-20260917.json",
+          "at": "2026-09-18T01:58:03.000Z",
+          "summary": "route pins failed 404 (no route) and the preview-body pin failed on the absent privateRefs; seam probe (codex draft, parent-verified 3/3) pinned that the export discovers no private refs, the seat source resolves the host as player, and the preview route discarded the writer's refs"
+        },
+        "local": {
+          "path": "evidence/u5a-local-20260917.json",
+          "at": "2026-09-18T02:04:17.000Z",
+          "summary": "PR #1846 head 583d52e25: preview body carries privateRefs; GET /api/matches/:id/private-preview?ref= over a host-as-GM membership source answers the export verbatim (GM payload + granted audit; player payload-free + denied audit; 400/401/403/405); route pins 10/10, seam pin 3/3, preview 16/16, export 5/5, timeline 3/3, 9 suites 75/75; 159 product lines over 4 files; M1-M4 caught and restored; tsc 0, oxlint 0 errors, lint:units 100/100, validator PASSED"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,

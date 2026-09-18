@@ -1,0 +1,74 @@
+{
+  "unit": "U5a",
+  "stage": "red",
+  "at": "2026-09-18T01:58:03.000Z",
+  "baseline": "f902fd9d5bfd868aac3f30114ebffb73fbcdc315",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u5a",
+  "branch": "codex/roadmap-u5a-gm-private-read-20260917",
+  "method": "both pin files were written first and run against untouched product code. No file under src/pages/api, src/pages-modules/api (outside __tests__) or src/lib was edited before this receipt; git status at this point showed only the two test files plus the renamed seam pin and the admission receipt",
+  "pinFiles": [
+    {
+      "path": "src/pages-modules/api/__tests__/matchPrivatePreviewRoute.test.ts",
+      "lines": 467,
+      "new": true,
+      "covers": "the read route end to end: the GM receives the draft payload and a granted export-attempt row; a seated player receives the payload-free view, no `payload` key at ANY depth (the body is walked, not spot-checked), and a denied export-attempt row; the player's stream/timeline/digest are identical to that player's own /export body; the host-as-gm branding widens the GM's timeline (pinned deliberately); a foreign-match ref and an unknown ref are measured rather than guessed; 400 for no ref, 401 without a bearer, 403 constant and id-free for a non-member, 405 with Allow ['GET'] for POST"
+    },
+    {
+      "path": "src/__tests__/api/matches/rewindPreviewRoute.test.ts",
+      "lines": 567,
+      "new": false,
+      "edit": "the exact-shape row on the preview 200 body now also requires privateRefs.preview to equal the stored record's opaqueRef, and a new row asserts a refused preview carries no privateRefs and wrote no record. loadGmDrafts selects r.opaque_ref so the pin compares against the actual row rather than a shape",
+      "covers": "the handle half: the GM's own 200 is the only place the ref is handed out, and a refusal hands out nothing"
+    },
+    {
+      "path": "src/pages-modules/api/__tests__/matchPrivatePreviewRoute.seams.test.ts",
+      "lines": 212,
+      "new": false,
+      "edit": "renamed from matchPrivatePreviewRoute.test.ts (the codex lane's untracked admission probe, verified green 3/3 on the baseline by the parent) and given a header stating what it now pins; no assertion was changed, removed or weakened",
+      "covers": "the two seam facts the design rests on: exportForViewer discovers no refs by itself, and the PRODUCTION factory brands the tactical host as 'player' so a named ref is answered payload-free and audited denied. Both must keep holding after the route lands"
+    }
+  ],
+  "commands": [
+    {
+      "command": "npx jest src/pages-modules/api/__tests__/matchPrivatePreviewRoute.test.ts",
+      "lastLines": [
+        "Test Suites: 1 failed, 1 total",
+        "Tests:       0 total",
+        "Ran all test suites matching /src\\\\pages-modules\\\\api\\\\__tests__\\\\matchPrivatePreviewRoute.test.ts/i."
+      ],
+      "exitCode": 1
+    },
+    {
+      "command": "npx jest src/__tests__/api/matches/rewindPreviewRoute.test.ts",
+      "lastLines": [
+        "Test Suites: 1 failed, 1 total",
+        "Tests:       1 failed, 15 passed, 16 total",
+        "Ran all test suites matching /src\\\\__tests__\\\\api\\\\matches\\\\rewindPreviewRoute.test.ts/i."
+      ],
+      "exitCode": 1
+    }
+  ],
+  "failingAssertions": [
+    {
+      "claim": "there is no private-preview route at all today",
+      "suite": "src/pages-modules/api/__tests__/matchPrivatePreviewRoute.test.ts",
+      "row": "Test suite failed to run",
+      "output": "Configuration error: Could not locate module @/pages-modules/api/matchPrivatePreviewRoute mapped as: <worktree>/src/$1.",
+      "reading": "the module the suite imports as the handler under test does not exist, so none of the ten rows can execute. The charter framed this red as '404 today, no route'; measured through jest (which imports the Next handler directly rather than serving it) the honest observation is module resolution, not an HTTP status. Nothing else in the suite resolves differently: every other import in the file is an existing module"
+    },
+    {
+      "claim": "the preview's 200 body hands the GM no handle to the record it just wrote on the GM's behalf",
+      "suite": "src/__tests__/api/matches/rewindPreviewRoute.test.ts",
+      "row": "POST /api/matches/[id]/rewind-preview > hands the GM an opaque handle to its draft, never the draft",
+      "output": "expect(received).toEqual(expected) // deep equality — Expected - 3 / Received + 0: the received body is missing \"privateRefs\": Object { \"preview\": \"cb49a233a865102dc6c70e771064a7a5\" }",
+      "reading": "the private_record row EXISTS (loadGmDrafts found exactly one, and the assertion's expected ref is that row's own opaque_ref read back out of SQLite), and the 200 body does not mention it. That is rewind-preview.ts:230-248 awaiting the writer, discarding its IGmPrivatePreviewRecords return and answering `result` verbatim"
+    }
+  ],
+  "greenOnBaselineAndWhyThatIsCorrect": [
+    "rewindPreviewRoute > gives a refused caller no handle, because it wrote no record — an absence row. Green on the baseline for the trivial reason that no body carries privateRefs yet; it exists to stay green once the preview arm starts emitting one, i.e. to prove the handle rides ONLY the 200 arm",
+    "the other 15 rows of rewindPreviewRoute.test.ts — untouched behaviour of the preview route; they are in this red run to show the edit did not disturb them"
+  ],
+  "notASkip": "no test was skipped, no assertion was weakened, no existing row was deleted, and the inherited seam pin kept every assertion it arrived with",
+  "implementerModel": "claude-opus (Agent lane; the codex lane gpt-6-astra/xhigh ran out of usage mid-admission on 2026-09-17; cursor-agent and grok CLI routes exhausted)",
+  "status": "red-recorded"
+}
