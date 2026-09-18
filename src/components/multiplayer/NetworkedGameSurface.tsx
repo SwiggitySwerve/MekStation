@@ -61,8 +61,13 @@ import {
 } from '@/types/gameplay/GameSessionInterfaces';
 
 import type { GmRewindPreviewOutcome } from './gmRewindPreviewPhrasing';
+import type {
+  GmCorrectionApproveHandler,
+  GmCorrectionPreviewHandler,
+} from './NetworkedGameSurface.gmCorrection';
 
 import { NetworkedActionBar } from './NetworkedGameSurface.actionbar';
+import { NetworkedHostGmControls } from './NetworkedGameSurface.gmCorrection';
 import { NetworkedGmRewindControls } from './NetworkedGameSurface.gmRewind';
 import {
   IntentErrorToast,
@@ -110,16 +115,23 @@ export interface INetworkedGameSurfaceProps {
   readonly onSendGameIntent: (intent: IGameIntent) => boolean;
   readonly hostPlayerId?: string | null;
   /**
-   * The GM-fix stubs (umbrella 19.3). They now render ONLY when a caller
-   * supplies both - the no-op defaults are gone. That is defect #15 fixed
-   * at the cause: the production lobby route passes neither, so the host
-   * no longer sees two buttons that silently do nothing, while the
-   * `/e2e/networked-command-proof` harness that DOES wire them keeps the
-   * proof its Playwright specs assert. The host GM's live control on the
-   * lobby route is the rewind flow below.
+   * The GM correction controls (umbrella 19.3, roadmap U5b). They render
+   * ONLY when a caller supplies both - the no-op defaults are gone, which
+   * is defect #15 fixed at the cause. Until U5b the only caller that did
+   * was `/e2e/networked-command-proof`; the production lobby route now
+   * binds them to `useGmCorrectionProducers`, so the host GM finally has
+   * the correction surface E2E-25 starts from. The signatures accept a
+   * promise-returning producer while staying assignable from the proof
+   * page's `() => void` stubs.
    */
-  readonly onPreviewHostGmCorrection?: () => void;
-  readonly onApproveHostGmCorrection?: () => void;
+  readonly onPreviewHostGmCorrection?: GmCorrectionPreviewHandler;
+  readonly onApproveHostGmCorrection?: GmCorrectionApproveHandler;
+  /**
+   * Carries the GM's private correction reason to the producer that
+   * attaches it to the commit. Absent means this caller cannot carry one,
+   * and the field is not rendered rather than rendered inert.
+   */
+  readonly onPrivateReasonChange?: (reason: string) => void;
   /**
    * Asks the authority what a rewind to a chosen revision would touch
    * (umbrella 19.3). The lobby page binds `previewGmCombatRewind`, which
@@ -173,6 +185,7 @@ export function NetworkedGameSurface({
   hostPlayerId,
   onPreviewHostGmCorrection,
   onApproveHostGmCorrection,
+  onPrivateReasonChange,
   onPreviewRewind,
   onConfirmRewind,
   clientLifecycle = LIVE_CLIENT_LIFECYCLE,
@@ -413,6 +426,7 @@ export function NetworkedGameSurface({
               <NetworkedHostGmControls
                 onPreview={onPreviewHostGmCorrection}
                 onApprove={onApproveHostGmCorrection}
+                onPrivateReasonChange={onPrivateReasonChange}
               />
             )}
           <NetworkedGmRewindControls
@@ -482,43 +496,6 @@ function NetworkedAuthorityStrip({
           GM-private
         </span>
       )}
-    </div>
-  );
-}
-
-/**
- * The GM-fix stubs, kept for the `/e2e/networked-command-proof` harness
- * that wires them. Mounted only when a caller supplies both handlers, so
- * no production page inherits a control that does nothing (defect #15).
- */
-function NetworkedHostGmControls({
-  onPreview,
-  onApprove,
-}: {
-  readonly onPreview: () => void;
-  readonly onApprove: () => void;
-}): React.ReactElement {
-  return (
-    <div
-      data-testid="networked-host-gm-controls"
-      className="flex flex-wrap gap-2 rounded-lg border border-violet-700/60 bg-violet-950/30 p-2"
-    >
-      <button
-        type="button"
-        data-testid="networked-gm-preview-btn"
-        onClick={onPreview}
-        className="rounded border border-sky-500/50 bg-sky-600/20 px-3 py-1.5 text-sm font-medium text-sky-200 hover:bg-sky-600/30"
-      >
-        Preview GM Fix
-      </button>
-      <button
-        type="button"
-        data-testid="networked-gm-approve-btn"
-        onClick={onApprove}
-        className="rounded border border-violet-500/50 bg-violet-600/20 px-3 py-1.5 text-sm font-medium text-violet-200 hover:bg-violet-600/30"
-      >
-        Approve GM Fix
-      </button>
     </div>
   );
 }

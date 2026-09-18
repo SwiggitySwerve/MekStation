@@ -22,6 +22,7 @@ import {
   buildWsUrl,
   mintToken,
 } from '@/pages-modules/multiplayer/multiplayerPage.helpers';
+import { useGmCorrectionProducers } from '@/pages-modules/multiplayer/useGmCorrectionProducers';
 import { useGmRewindProducers } from '@/pages-modules/multiplayer/useGmRewindProducers';
 
 interface IInviteResolution {
@@ -313,6 +314,20 @@ export default function LobbyPage(): React.ReactElement {
     wireToken: tokenState?.wireToken ?? null,
     mirrorEvents: session.mirrorEvents,
   });
+  // WHY here and not in the surface: the correction producers need the
+  // match identity and the wire token, which only the page holds. Without
+  // this the host GM's correction controls never mounted in production -
+  // the surface renders them only when both handlers are passed, and the
+  // sole caller that passed them was the /e2e proof page.
+  const {
+    onPreviewHostGmCorrection,
+    setPrivateReason,
+    onApproveHostGmCorrection,
+  } = useGmCorrectionProducers({
+    matchId: resolution?.matchId ?? null,
+    wireToken: tokenState?.wireToken ?? null,
+    mirrorEvents: session.mirrorEvents,
+  });
 
   if (!roomCode) {
     return (
@@ -397,6 +412,9 @@ export default function LobbyPage(): React.ReactElement {
           intentError={session.intentError}
           onClearIntentError={session.clearIntentError}
           onSendGameIntent={session.sendGameIntent}
+          onPreviewHostGmCorrection={onPreviewHostGmCorrection}
+          onApproveHostGmCorrection={onApproveHostGmCorrection}
+          onPrivateReasonChange={setPrivateReason}
           onPreviewRewind={onPreviewRewind}
           onConfirmRewind={onConfirmRewind}
           clientLifecycle={session.clientLifecycle}
