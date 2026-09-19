@@ -46,6 +46,7 @@ import { EventHistoryBranchError } from '@/lib/events/journal/EventHistoryBranch
 import { materializeBranchPath } from '@/lib/events/journal/EventHistoryBranchResolver';
 import { resolveBranchPath } from '@/lib/events/journal/EventHistoryBranchResolver';
 import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
+import { MATCH_BASELINE_BRANCH_ID } from '@/lib/multiplayer/server/matchAuthorityBaseline';
 import { combatViewerProbe } from '@/lib/multiplayer/server/projection/combatViewerProbe';
 import {
   getSQLiteService,
@@ -244,6 +245,170 @@ describe('matchStoreBranchSegmentReader', () => {
     );
 
     expect(events.map((event) => event.streamRevision)).toEqual([1, 2]);
+  });
+});
+
+/**
+ * One line of history, two names.
+ *
+ * `LIVE_PATH_BRANCH_IDS` (matchAuthorityBaseline) already declares that an
+ * un-rewound match answers on BOTH `root` - the journal's genesis id - and
+ * `MATCH_BASELINE_BRANCH_ID`, the id `MatchStreamJournalMirror` writes onto
+ * when no effective head exists yet. The reader used to serve only the
+ * first of those two names, so a head that legitimately sat on the baseline
+ * id was refused as an unknown branch rather than read. These rows pin the
+ * repair, and they pin it as an EQUALITY against the root read: serving the
+ * second name must not become a second line of history.
+ *
+ * The branch id each returned event carries is NOT a free choice.
+ * `verifySegment` refuses an event whose `branchId` is not the segment's
+ * own (EventHistoryBranchResolver: "Event ... belongs to branch 'x', not
+ * 'y'"), so a reader that served the baseline segment while stamping root
+ * would only trade `unknown-branch` for `branch-integrity`. The reader
+ * therefore echoes the id the segment named.
+ */
+describe('matchStoreBranchSegmentReader on the baseline branch id', () => {
+  /** A genesis branch record, under whichever of its two names. */
+  function genesisBranches(branchId: string) {
+    return {
+      requireBranch: () => ({
+        streamType: 'match',
+        streamId: MATCH_ID,
+        branchId,
+        parentBranchId: null,
+        ancestorDepth: 0,
+        baseRevision: 0,
+        baseEventId: null,
+        baseDigest: 'g'.repeat(64),
+        status: 'effective' as const,
+        createdBy: 'host-1',
+        reason: 'genesis',
+        createdAt: '2026-09-02T00:00:00.000Z',
+      }),
+    };
+  }
+
+  it('answers the baseline id with the same events, revisions and digests as root', async () => {
+    const onRoot = await matchStoreBranchSegmentReader(source()).read(
+      STREAM,
+      segment(0, 4),
+    );
+    const onBaseline = await matchStoreBranchSegmentReader(source()).read(
+      STREAM,
+      segment(0, 4, MATCH_BASELINE_BRANCH_ID),
+    );
+
+    // Same events, same order, same revisions, same chain. Anything less
+    // and the two names would describe two histories, which is the lie
+    // the single-name refusal existed to prevent.
+    expect(onBaseline.map((event) => event.eventId)).toEqual(
+      onRoot.map((event) => event.eventId),
+    );
+    expect(onBaseline.map((event) => event.streamRevision)).toEqual(
+      onRoot.map((event) => event.streamRevision),
+    );
+    expect(onBaseline.map((event) => event.eventDigest)).toEqual(
+      onRoot.map((event) => event.eventDigest),
+    );
+    expect(onBaseline.map((event) => event.previousStreamEventDigest)).toEqual(
+      onRoot.map((event) => event.previousStreamEventDigest),
+    );
+    // ... and non-empty, so the equality above cannot be satisfied by two
+    // empty reads.
+    expect(onBaseline).toHaveLength(4);
+  });
+
+  it('stamps every returned event with the branch id the segment named', async () => {
+    const onBaseline = await matchStoreBranchSegmentReader(source()).read(
+      STREAM,
+      segment(0, 4, MATCH_BASELINE_BRANCH_ID),
+    );
+    const onRoot = await matchStoreBranchSegmentReader(source()).read(
+      STREAM,
+      segment(0, 4),
+    );
+
+    // The contract `verifySegment` enforces, pinned directly rather than
+    // only through the resolver: the stamp follows the question, not the
+    // reader's own idea of which name is canonical.
+    expect(new Set(onBaseline.map((event) => event.branchId))).toEqual(
+      new Set([MATCH_BASELINE_BRANCH_ID]),
+    );
+    expect(new Set(onRoot.map((event) => event.branchId))).toEqual(
+      new Set(['root']),
+    );
+  });
+
+  it('materialises a baseline-headed match path through the shipped resolver', async () => {
+    // The same end-to-end row the root case already has, asked under the
+    // other live-path name. `materializeBranchPath` runs `verifySegment`,
+    // so this refuses on a wrong count, a wrong revision, a broken chain
+    // OR a mis-stamped branch id.
+    const path = resolveBranchPath(
+      genesisBranches(MATCH_BASELINE_BRANCH_ID) as unknown as Parameters<
+        typeof resolveBranchPath
+      >[0],
+      STREAM,
+      MATCH_BASELINE_BRANCH_ID,
+      2,
+    );
+
+    const events = await materializeBranchPath(
+      matchStoreBranchSegmentReader(source()),
+      path,
+    );
+
+    expect(events.map((event) => event.streamRevision)).toEqual([1, 2]);
+    expect(events.map((event) => event.branchId)).toEqual([
+      MATCH_BASELINE_BRANCH_ID,
+      MATCH_BASELINE_BRANCH_ID,
+    ]);
+  });
+
+  it('slices a baseline window out of the one chain rather than rechaining it', async () => {
+    const full = await matchStoreBranchSegmentReader(source()).read(
+      STREAM,
+      segment(0, 4),
+    );
+    const prefix = await matchStoreBranchSegmentReader(source()).read(
+      STREAM,
+      segment(0, 2, MATCH_BASELINE_BRANCH_ID),
+    );
+    const middle = await matchStoreBranchSegmentReader(source()).read(
+      STREAM,
+      segment(1, 3, MATCH_BASELINE_BRANCH_ID),
+    );
+
+    // A truncated baseline read is a PREFIX of the full root read, digest
+    // for digest - the same law the root rows pin, under the other name.
+    expect(prefix.map((event) => event.eventDigest)).toEqual(
+      full.slice(0, 2).map((event) => event.eventDigest),
+    );
+    // And a window that does not start at the stream start still chains
+    // from what precedes it. A reader that rechained from the window
+    // start would answer `null` here and digest every event differently
+    // depending on how much of the history was asked for.
+    expect(middle.map((event) => event.eventDigest)).toEqual(
+      full.slice(1, 3).map((event) => event.eventDigest),
+    );
+    expect(middle[0].previousStreamEventDigest).toBe(full[0].eventDigest);
+    expect(middle[0].previousStreamEventDigest).not.toBe(null);
+  });
+
+  it('still refuses a branch id that is not on the live path', async () => {
+    // The guard the widening must not dissolve. Serving two names is not
+    // serving every name: a candidate branch has no events in a match
+    // store, and saying otherwise would answer a rewind question with the
+    // history the rewind was meant to supersede.
+    await expect(
+      matchStoreBranchSegmentReader(source()).read(
+        STREAM,
+        segment(0, 4, 'candidate-1'),
+      ),
+    ).rejects.toMatchObject({
+      name: 'EventHistoryBranchError',
+      code: 'unknown-branch',
+    });
   });
 });
 

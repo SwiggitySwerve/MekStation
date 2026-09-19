@@ -72,11 +72,13 @@ export const MATCH_BASELINE_FIRST_GENERATION = 1;
  * branch S1's mirror backfills a mirrored stream onto.
  *
  * Both name the SAME single line of history the match store holds —
- * `matchStoreBranchSegmentReader` refuses every branch but `root` by
- * name precisely because that store has only the one line. So the set
- * is the answer to "does this head mean a rewind happened?", and it is
- * declared here, beside the baseline id, so the live admission consult
- * and restart recovery cannot drift on it.
+ * `matchStoreBranchSegmentReader` reads that line under EITHER of these
+ * two names, with the same events and the same digest chain, and refuses
+ * every other branch id precisely because that store has only the one
+ * line. So the set is the answer to "does this head mean a rewind
+ * happened?", and it is declared here, beside the baseline id, so the
+ * reader, the live admission consult and restart recovery cannot drift
+ * on it.
  */
 const LIVE_PATH_BRANCH_IDS: ReadonlySet<string> = new Set([
   MATCH_BASELINE_BRANCH_ID,
