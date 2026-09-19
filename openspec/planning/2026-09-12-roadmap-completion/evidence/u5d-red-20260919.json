@@ -1,0 +1,49 @@
+{
+  "unit": "U5d",
+  "stage": "red",
+  "at": "2026-09-19T18:54:51.2206608Z",
+  "adapterSha256": "518ca3cca165c3e08e157a1fc19d699134ecac4a7dfc12aa83fbf0fc98ef9992",
+  "testSha256": "5aeff3830e38a5a71188ecc45b7988ad5c9aebc431e2b64e1b244f2271b5ae0d",
+  "baseline": "66ecd2695f59eb4b420379191a3066db11507cd2",
+  "branch": "codex/roadmap-u5d-commit-reason-transport-20260919",
+  "implementerModel": "codex (gpt-6-astra xhigh)",
+  "command": "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH\nexport npm_config_dry_run=true\nexport npm_config_ignore_scripts=true\nexport npm_config_offline=true\nnpx jest src/lib/multiplayer/client/__tests__/commitGmCombatRewind.test.ts --runInBand",
+  "exitCode": 1,
+  "lastLine": "Ran all test suites matching /src\\\\lib\\\\multiplayer\\\\client\\\\__tests__\\\\commitGmCombatRewind.test.ts/i.",
+  "summary": {
+    "suitesFailed": 1,
+    "testsFailed": 3,
+    "testsPassed": 7,
+    "testsTotal": 10
+  },
+  "failingAssertions": [
+    {
+      "name": "POSTs the trimmed private reason (plain)",
+      "location": "src/lib/multiplayer/client/__tests__/commitGmCombatRewind.test.ts:88",
+      "assertion": "expect(init.body).toBe(JSON.stringify({ ...JSON.parse(FIVE_FIELD_BODY), reason: expected }))",
+      "actual": "Five-field JSON only; reason omitted."
+    },
+    {
+      "name": "POSTs the trimmed private reason (padded)",
+      "location": "src/lib/multiplayer/client/__tests__/commitGmCombatRewind.test.ts:88",
+      "assertion": "expect(init.body).toBe(JSON.stringify({ ...JSON.parse(FIVE_FIELD_BODY), reason: expected }))",
+      "actual": "Five-field JSON only; reason omitted."
+    },
+    {
+      "name": "POSTs the trimmed private reason (2000 characters)",
+      "location": "src/lib/multiplayer/client/__tests__/commitGmCombatRewind.test.ts:88",
+      "assertion": "expect(init.body).toBe(JSON.stringify({ ...JSON.parse(FIVE_FIELD_BODY), reason: expected }))",
+      "actual": "Five-field JSON only; reason omitted."
+    }
+  ],
+  "greenCompatibilityPins": [
+    "Absent reason: byte-identical five-field body.",
+    "Empty and whitespace-only reason: byte-identical five-field body.",
+    "Committed outcome does not echo private input reason.",
+    "Preview carries no private reason.",
+    "409 domain refusal remains unchanged.",
+    "Non-JSON transport failure remains typed."
+  ],
+  "productUnchanged": true,
+  "rawOutput": "FAIL unit src/lib/multiplayer/client/__tests__/commitGmCombatRewind.test.ts\n  commitGmCombatRewind\n    √ POSTs the preview's body verbatim to the commit route with the bearer (3 ms)\n    × POSTs the trimmed private reason (plain) (2 ms)\n    × POSTs the trimmed private reason (padded) (1 ms)\n    × POSTs the trimmed private reason (2000 characters) (1 ms)\n    √ keeps the five-field body byte-identical for an empty reason (\"\")\n    √ keeps the five-field body byte-identical for an empty reason (\" \\t\\r\\n \") (1 ms)\n    √ does not echo the private reason into the committed outcome\n    √ keeps the private reason out of a preview of the same input\n    √ narrows a 409 refusal body to the union (1 ms)\n    √ throws the typed transport failure on a non-JSON 500\n\n  ● commitGmCombatRewind › POSTs the trimmed private reason (plain)\n\n    expect(received).toBe(expected) // Object.is equality\n\n    Expected: \"{\\\"targetRevision\\\":3,\\\"expectedBranchId\\\":\\\"root\\\",\\\"expectedRevision\\\":4,\\\"expectedDigest\\\":\\\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\\\",\\\"expectedGeneration\\\":1,\\\"reason\\\":\\\"private correction detail\\\"}\"\n    Received: \"{\\\"targetRevision\\\":3,\\\"expectedBranchId\\\":\\\"root\\\",\\\"expectedRevision\\\":4,\\\"expectedDigest\\\":\\\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\\\",\\\"expectedGeneration\\\":1}\"\n\n      86 |     const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];\n      87 |     expect(url).toBe('/api/matches/match-1/rewind-commit');\n    > 88 |     expect(init.body).toBe(\n         |                       ^\n      89 |       JSON.stringify({ ...JSON.parse(FIVE_FIELD_BODY), reason: expected }),\n      90 |     );\n      91 |   });\n\n      at toBe (src/lib/multiplayer/client/__tests__/commitGmCombatRewind.test.ts:88:23)\n\n  ● commitGmCombatRewind › POSTs the trimmed private reason (padded)\n\n    expect(received).toBe(expected) // Object.is equality\n\n    Expected: \"{\\\"targetRevision\\\":3,\\\"expectedBranchId\\\":\\\"root\\\",\\\"expectedRevision\\\":4,\\\"expectedDigest\\\":\\\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\\\",\\\"expectedGeneration\\\":1,\\\"reason\\\":\\\"private correction detail\\\"}\"\n    Received: \"{\\\"targetRevision\\\":3,\\\"expectedBranchId\\\":\\\"root\\\",\\\"expectedRevision\\\":4,\\\"expectedDigest\\\":\\\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\\\",\\\"expectedGeneration\\\":1}\"\n\n      86 |     const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];\n      87 |     expect(url).toBe('/api/matches/match-1/rewind-commit');\n    > 88 |     expect(init.body).toBe(\n         |                       ^\n      89 |       JSON.stringify({ ...JSON.parse(FIVE_FIELD_BODY), reason: expected }),\n      90 |     );\n      91 |   });\n\n      at toBe (src/lib/multiplayer/client/__tests__/commitGmCombatRewind.test.ts:88:23)\n\n  ● commitGmCombatRewind › POSTs the trimmed private reason (2000 characters)\n\n    expect(received).toBe(expected) // Object.is equality\n\n    Expected: \"{\\\"targetRevision\\\":3,\\\"expectedBranchId\\\":\\\"root\\\",\\\"expectedRevision\\\":4,\\\"expectedDigest\\\":\\\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\\\",\\\"expectedGeneration\\\":1,\\\"reason\\\":\\\"rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr\\\"}\"\n    Received: \"{\\\"targetRevision\\\":3,\\\"expectedBranchId\\\":\\\"root\\\",\\\"expectedRevision\\\":4,\\\"expectedDigest\\\":\\\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\\\",\\\"expectedGeneration\\\":1}\"\n\n      86 |     const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];\n      87 |     expect(url).toBe('/api/matches/match-1/rewind-commit');\n    > 88 |     expect(init.body).toBe(\n         |                       ^\n      89 |       JSON.stringify({ ...JSON.parse(FIVE_FIELD_BODY), reason: expected }),\n      90 |     );\n      91 |   });\n\n      at toBe (src/lib/multiplayer/client/__tests__/commitGmCombatRewind.test.ts:88:23)\n\nTest Suites: 1 failed, 1 total\nTests:       3 failed, 7 passed, 10 total\nSnapshots:   0 total\nTime:        0.884 s\nRan all test suites matching /src\\\\lib\\\\multiplayer\\\\client\\\\__tests__\\\\commitGmCombatRewind.test.ts/i.\n"
+}

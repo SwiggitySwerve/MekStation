@@ -1,0 +1,170 @@
+{
+  "unit": "U5d",
+  "stage": "admission",
+  "at": "2026-09-19T18:51:35.6758576Z",
+  "baseline": "66ecd2695f59eb4b420379191a3066db11507cd2",
+  "originMain": "66ecd2695f59eb4b420379191a3066db11507cd2",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u5d",
+  "branch": "codex/roadmap-u5d-commit-reason-transport-20260919",
+  "implementerModel": "codex (gpt-6-astra xhigh)",
+  "modelEvidence": "Current session turn_context reports model gpt-6-astra and effort xhigh.",
+  "decision": "go",
+  "node": {
+    "id": "R2.combat",
+    "state": "main-verified",
+    "dependsOn": ["R1.remote"]
+  },
+  "dependencies": [
+    {
+      "id": "R1.remote",
+      "state": "main-verified"
+    }
+  ],
+  "next": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "exitCode": 0,
+    "lastLine": "U5d",
+    "note": "--next printed U5d on the unchanged baseline."
+  },
+  "seams": [
+    {
+      "file": "src/lib/multiplayer/client/commitGmCombatRewind.ts:15",
+      "read": "Input is exactly IPreviewGmCombatRewindInput; no optional reason."
+    },
+    {
+      "file": "src/lib/multiplayer/client/commitGmCombatRewind.ts:58",
+      "read": "JSON.stringify explicitly emits targetRevision, expectedBranchId, expectedRevision, expectedDigest and expectedGeneration in that order."
+    },
+    {
+      "file": "src/lib/multiplayer/client/commitGmCombatRewind.ts:83",
+      "read": "Returns the server committed/refused body verbatim."
+    },
+    {
+      "file": "src/lib/multiplayer/client/__tests__/commitGmCombatRewind.test.ts:28",
+      "read": "global.fetch is replaced with a Jest mock; tests inspect mock.calls[0] and parse the posted body."
+    },
+    {
+      "file": "src/pages-modules/multiplayer/useGmCorrectionProducers.ts:11",
+      "read": "Private reason belongs only in the commit argument; never preview, state, store or rendering."
+    },
+    {
+      "file": "src/pages-modules/multiplayer/useGmCorrectionProducers.ts:131",
+      "read": "Caller trims the ref and conditionally adds reason to the commit argument."
+    },
+    {
+      "file": "src/pages-modules/api/rewindCommitDeps.ts:47",
+      "read": "Baseline IRewindCommitBody has five fields, no reason."
+    },
+    {
+      "file": "src/pages-modules/api/rewindCommitDeps.ts:63",
+      "read": "Baseline guard checks only the five fields; it does not validate unknown reason."
+    },
+    {
+      "file": "src/pages/api/matches/[id]/rewind-commit.ts:199",
+      "read": "Baseline route passes REWIND_COMMIT_REASON to the commit; the caller reason is dropped from the commit arguments."
+    },
+    {
+      "file": "src/lib/multiplayer/client/previewGmCombatRewind.ts:54",
+      "read": "Preview explicitly serializes its own five fields and remains unmodified."
+    }
+  ],
+  "u5c": {
+    "onBaseline": false,
+    "head": "516d2c2bcf925d2fc5356d0963f2e6d955d6c156",
+    "ancestryCommand": "git merge-base --is-ancestor 516d2c2bc HEAD",
+    "ancestryExitCode": 1,
+    "guardReadCommand": "git show 516d2c2bc:src/pages-modules/api/rewindCommitDeps.ts",
+    "guard": "reason may be absent; if present it must be a string with trimmed length > 0 and <= 2000.",
+    "baselineBehavior": "No reason field in the type or validation; route ignores caller reason and uses the constant."
+  },
+  "design": "Extend only the commit input with readonly reason?: string. Trim string input locally and conditionally append reason after the five existing JSON fields only when non-empty. Preserve the exact five-field bytes otherwise. Do not log, persist, echo, change preview, or alter domain refusal reasons. Do not truncate or invent a client length policy; U5c enforces the 2000-character server bound.",
+  "estimatesPerFile": [
+    {
+      "path": "src/lib/multiplayer/client/commitGmCombatRewind.ts",
+      "class": "product",
+      "estimatedChangedLines": 19
+    },
+    {
+      "path": "src/lib/multiplayer/client/__tests__/commitGmCombatRewind.test.ts",
+      "class": "test",
+      "estimatedChangedLines": 120
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/u5d-admission-20260919.json",
+      "class": "evidence",
+      "estimatedChangedLines": 180
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/u5d-red-20260919.json",
+      "class": "evidence",
+      "estimatedChangedLines": 180
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/u5d-local-20260919.json",
+      "class": "evidence",
+      "estimatedChangedLines": 450
+    }
+  ],
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedProductLines": 500,
+    "estimatedFiles": 5,
+    "estimatedProductChangedLines": 19
+  },
+  "acceptanceCommands": [
+    "npx jest src/lib/multiplayer/client/__tests__/commitGmCombatRewind.test.ts --runInBand",
+    "npx jest src/lib/multiplayer/client --runInBand",
+    "npx tsc --noEmit",
+    "npx oxlint",
+    "npx oxfmt --check <five changed files>",
+    "npm run lint:units",
+    "npm run qc:openspec-ci:validate",
+    "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs"
+  ],
+  "executionEnvironment": {
+    "node": "v22.22.0",
+    "npm": "11.6.2",
+    "shellPrefix": "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH\nexport npm_config_dry_run=true\nexport npm_config_ignore_scripts=true\nexport npm_config_offline=true\n",
+    "npmLifecycleHooks": "Disabled with npm_config_ignore_scripts=true; only explicitly requested custom npm run validators are executed.",
+    "jest": "Serialized with --runInBand; no build or Playwright."
+  },
+  "frozenHashes": [
+    {
+      "path": "units.json",
+      "sha256": "2a19be6c9c15ac6c41853acef3ecfbae5e2682d10091f42b7eb392fd8e2912a2"
+    },
+    {
+      "path": "roadmap.json",
+      "sha256": "567257f90b2d0a93266b008d8882bd9ae0db527b0e73e25aa7f9dc3b8ddb6b38"
+    },
+    {
+      "path": "evidence/admission-snapshot.json",
+      "sha256": "dd2b997e6e2e3adf85130d3196ee9f2838fc900019ff36f8bd3495f3caf58b68"
+    }
+  ],
+  "risksForTheParent": [
+    "U5c is absent on this baseline; transport alone cannot establish private-record storage or end-to-end privacy.",
+    "U5c rejects reasons longer than 2000 trimmed characters. This adapter does not truncate user text or implement a new rejection outcome.",
+    "Server refusal bodies already contain a domain reason; preserve it while never copying the private input reason into outcomes.",
+    "U2b remains blocked for browser rows and privacy-pack arming; no E2E-25 completion claim."
+  ],
+  "review": {
+    "classes": ["privacy", "routine"],
+    "packet": "PK-u5d-ruling",
+    "rule": "The PR merges only after an owner ruling on its exact head and the required Lane A review/checks. No ruling is supplied by this lane."
+  },
+  "finding": "FN-u2b-e2e-25-reason-transport-dropped",
+  "scope": "Stages 1-3 only. Parent owns ledger transitions, commits and subsequent stages.",
+  "seamCorrections": [
+    {
+      "original": "src/lib/multiplayer/client/commitGmCombatRewind.ts:83",
+      "corrected": "src/lib/multiplayer/client/commitGmCombatRewind.ts:80",
+      "verification": "git show HEAD:src/lib/multiplayer/client/commitGmCombatRewind.ts, counted baseline lines; return arm is line 80."
+    },
+    {
+      "original": "src/lib/multiplayer/client/previewGmCombatRewind.ts:54",
+      "corrected": "src/lib/multiplayer/client/previewGmCombatRewind.ts:47",
+      "verification": "git show HEAD:src/lib/multiplayer/client/previewGmCombatRewind.ts, counted baseline lines; JSON.stringify is line 47."
+    }
+  ]
+}

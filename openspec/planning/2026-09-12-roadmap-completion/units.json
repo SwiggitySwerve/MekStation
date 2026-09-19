@@ -1300,14 +1300,28 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
+      "state": "local-verified",
+      "baseline": "66ecd2695f59eb4b420379191a3066db11507cd2",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/u5d-admission-20260919.json",
+          "baseline": "66ecd2695f59eb4b420379191a3066db11507cd2",
+          "at": "2026-09-19T18:51:35.6758576Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/u5d-red-20260919.json",
+          "at": "2026-09-19T18:54:51.2206608Z",
+          "summary": "adapter suite 3 failed / 7 passed on the baseline: the posted body dropped the reason"
+        },
+        "local": {
+          "path": "evidence/u5d-local-20260919.json",
+          "at": "2026-09-19T19:01:29.6874989Z",
+          "summary": "commitGmCombatRewind accepts an optional reason, trims it and adds it to the POST body only when non-empty (five-field body byte-identical otherwise), never logs, stores or echoes it; adapter 10/10, client suites 21/21; 7 product lines added in one file; M1-M3 caught and restored; tsc 0, oxlint 0 errors, lint:units 100/100, validator PASSED"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
