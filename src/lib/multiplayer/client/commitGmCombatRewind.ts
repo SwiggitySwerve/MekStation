@@ -1,8 +1,8 @@
 /**
  * Client adapter for `POST /api/matches/[id]/rewind-commit`.
  *
- * Sibling of `previewGmCombatRewind`. The POST body is the SAME five
- * fields the preview was made with. Confirming a different head than
+ * Sibling of `previewGmCombatRewind`. The POST body preserves the five
+ * preview fields and may add a private reason. Confirming a different head than
  * the one the GM was shown would apply a rewind nobody approved.
  * This module therefore takes those fields as input and forwards them
  * verbatim — it does not read the mirror or invent expectedRevision.
@@ -12,7 +12,9 @@ import type { GmCombatRewindCommitResult } from '@/lib/multiplayer/server/histor
 
 import type { IPreviewGmCombatRewindInput } from './previewGmCombatRewind';
 
-export type ICommitGmCombatRewindInput = IPreviewGmCombatRewindInput;
+export type ICommitGmCombatRewindInput = IPreviewGmCombatRewindInput & {
+  readonly reason?: string;
+};
 
 /**
  * A reply that is not the domain union. Preview maps transport noise
@@ -42,6 +44,7 @@ function isCommittedOrRefused(
 export async function commitGmCombatRewind(
   input: ICommitGmCombatRewindInput,
 ): Promise<GmCombatRewindCommitResult> {
+  const reason = typeof input.reason === 'string' ? input.reason.trim() : '';
   let response: Response;
   try {
     response = await fetch(
@@ -61,6 +64,7 @@ export async function commitGmCombatRewind(
           expectedRevision: input.expectedRevision,
           expectedDigest: input.expectedDigest,
           expectedGeneration: input.expectedGeneration,
+          ...(reason ? { reason } : {}),
         }),
       },
     );

@@ -1,0 +1,354 @@
+{
+  "unit": "U5d",
+  "stage": "local",
+  "at": "2026-09-19T19:01:29.6874989Z",
+  "baseline": "66ecd2695f59eb4b420379191a3066db11507cd2",
+  "testedHead": "66ecd2695f59eb4b420379191a3066db11507cd2",
+  "testedSource": "Uncommitted adapter and test identified by content SHA-256; HEAD remains the baseline.",
+  "branch": "codex/roadmap-u5d-commit-reason-transport-20260919",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u5d",
+  "implementerModel": "codex (gpt-6-astra xhigh)",
+  "modelEvidence": "Current session turn_context: model=gpt-6-astra, effort=xhigh.",
+  "status": "ready",
+  "blocker": null,
+  "behavior": "The commit input accepts readonly reason?: string. Non-empty strings are trimmed and appended as reason to the commit POST. Missing, empty and whitespace-only values leave the five-field JSON byte-identical. The adapter does not log, retain, mutate the input, or copy its private reason into outcomes; preview serialization is unchanged.",
+  "lineCountMethod": "git diff --numstat against baseline for tracked files; ReadAllLines for total file lines; untracked receipts are additions. Product and test counts are separate.",
+  "lineCounts": [
+    {
+      "path": "src/lib/multiplayer/client/commitGmCombatRewind.ts",
+      "class": "product",
+      "added": 7,
+      "deleted": 3,
+      "changed": 10,
+      "totalLines": 86
+    },
+    {
+      "path": "src/lib/multiplayer/client/__tests__/commitGmCombatRewind.test.ts",
+      "class": "test",
+      "added": 94,
+      "deleted": 9,
+      "changed": 103,
+      "totalLines": 179
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/u5d-admission-20260919.json",
+      "class": "evidence",
+      "added": 170,
+      "deleted": 0,
+      "changed": 170,
+      "totalLines": 170
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/u5d-red-20260919.json",
+      "class": "evidence",
+      "added": 49,
+      "deleted": 0,
+      "changed": 49,
+      "totalLines": 49
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/u5d-local-20260919.json",
+      "class": "evidence",
+      "added": 354,
+      "deleted": 0,
+      "changed": 354,
+      "totalLines": 354
+    }
+  ],
+  "productTotals": {
+    "files": 1,
+    "added": 7,
+    "deleted": 3,
+    "changed": 10,
+    "net": 4
+  },
+  "testTotals": {
+    "files": 1,
+    "added": 94,
+    "deleted": 9,
+    "changed": 103,
+    "net": 85
+  },
+  "finalContentHashes": [
+    {
+      "path": "src/lib/multiplayer/client/commitGmCombatRewind.ts",
+      "sha256": "210d07d9ad636a09f4ce22a3a2a15230da3cd3e64c206cae8f61fd205f4c5813"
+    },
+    {
+      "path": "src/lib/multiplayer/client/__tests__/commitGmCombatRewind.test.ts",
+      "sha256": "5aeff3830e38a5a71188ecc45b7988ad5c9aebc431e2b64e1b244f2271b5ae0d"
+    }
+  ],
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedProductLines": 500,
+    "estimatedProductChangedLines": 19,
+    "measuredProductChangedLines": 10,
+    "withinCaps": true
+  },
+  "gates": [
+    {
+      "id": "adapterGate",
+      "command": "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH\nexport npm_config_dry_run=true\nexport npm_config_ignore_scripts=true\nexport npm_config_offline=true\nnpx jest src/lib/multiplayer/client/__tests__/commitGmCombatRewind.test.ts --runInBand",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\multiplayer\\\\client\\\\__tests__\\\\commitGmCombatRewind.test.ts/i.",
+      "summary": [
+        "Test Suites: 1 passed, 1 total",
+        "Tests:       10 passed, 10 total",
+        "Snapshots:   0 total"
+      ],
+      "output": "PASS unit src/lib/multiplayer/client/__tests__/commitGmCombatRewind.test.ts\n  commitGmCombatRewind\n    √ POSTs the preview's body verbatim to the commit route with the bearer (2 ms)\n    √ POSTs the trimmed private reason (plain) (1 ms)\n    √ POSTs the trimmed private reason (padded) (2 ms)\n    √ POSTs the trimmed private reason (2000 characters)\n    √ keeps the five-field body byte-identical for an empty reason (\"\") (1 ms)\n    √ keeps the five-field body byte-identical for an empty reason (\" \\t\\r\\n \")\n    √ does not echo the private reason into the committed outcome\n    √ keeps the private reason out of a preview of the same input\n    √ narrows a 409 refusal body to the union\n    √ throws the typed transport failure on a non-JSON 500\n\nTest Suites: 1 passed, 1 total\nTests:       10 passed, 10 total\nSnapshots:   0 total\nTime:        0.672 s, estimated 1 s\nRan all test suites matching /src\\\\lib\\\\multiplayer\\\\client\\\\__tests__\\\\commitGmCombatRewind.test.ts/i.\n"
+    },
+    {
+      "id": "clientGate",
+      "command": "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH\nexport npm_config_dry_run=true\nexport npm_config_ignore_scripts=true\nexport npm_config_offline=true\nnpx jest src/lib/multiplayer/client --runInBand",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\multiplayer\\\\client/i.",
+      "summary": [
+        "Test Suites: 3 passed, 3 total",
+        "Tests:       21 passed, 21 total",
+        "Snapshots:   0 total"
+      ],
+      "output": "PASS unit src/lib/multiplayer/client/__tests__/commitGmCombatRewind.test.ts\nPASS unit src/lib/multiplayer/client/__tests__/issuePlayerToken.test.ts\nPASS unit src/lib/multiplayer/client/__tests__/previewGmCombatRewind.test.ts\n\nTest Suites: 3 passed, 3 total\nTests:       21 passed, 21 total\nSnapshots:   0 total\nTime:        1.899 s\nRan all test suites matching /src\\\\lib\\\\multiplayer\\\\client/i.\n"
+    },
+    {
+      "id": "tscGate",
+      "command": "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH\nexport npm_config_dry_run=true\nexport npm_config_ignore_scripts=true\nexport npm_config_offline=true\nnpx tsc --noEmit",
+      "exitCode": 0,
+      "lastLine": null,
+      "summary": [],
+      "output": ""
+    },
+    {
+      "id": "oxlintGate",
+      "command": "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH\nexport npm_config_dry_run=true\nexport npm_config_ignore_scripts=true\nexport npm_config_offline=true\nnpx oxlint",
+      "exitCode": 0,
+      "lastLine": "Finished in 322ms on 3814 files using 16 threads.",
+      "summary": ["Found 84 warnings and 0 errors."],
+      "output": "Found 84 warnings and 0 errors.\nFinished in 322ms on 3814 files using 16 threads.\n"
+    },
+    {
+      "id": "unitsGate",
+      "command": "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH\nexport npm_config_dry_run=true\nexport npm_config_ignore_scripts=true\nexport npm_config_offline=true\nnpm run lint:units",
+      "exitCode": 0,
+      "lastLine": "LINT_UNITS_PASS 100/100",
+      "summary": [],
+      "output": "\n> mekstation-app@0.1.1 lint:units\n> node scripts/qc/lint-units.mjs\n\nLINT_UNITS_PATH e2e 50\nLINT_UNITS_PATH scripts 50\nLINT_UNITS_PASS 100/100\n"
+    },
+    {
+      "id": "openspecGate",
+      "command": "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH\nexport npm_config_dry_run=true\nexport npm_config_ignore_scripts=true\nexport npm_config_offline=true\nnpm run qc:openspec-ci:validate",
+      "exitCode": 0,
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+      "summary": [],
+      "output": "\n> mekstation-app@0.1.1 qc:openspec-ci:validate\n> node scripts/qc/validate-openspec-ci-quality.mjs\n\n[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0\n"
+    },
+    {
+      "id": "roadmapGate",
+      "command": "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH\nexport npm_config_dry_run=true\nexport npm_config_ignore_scripts=true\nexport npm_config_offline=true\nnode openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "exitCode": 0,
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "summary": [],
+      "output": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows\n"
+    },
+    {
+      "id": "diffCheck",
+      "command": "git diff --check",
+      "exitCode": 0,
+      "lastLine": null,
+      "output": ""
+    }
+  ],
+  "formatGate": {
+    "command": "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH\nexport npm_config_dry_run=true\nexport npm_config_ignore_scripts=true\nexport npm_config_offline=true\nnpx oxfmt --check --ignore-path .gitignore src/lib/multiplayer/client/commitGmCombatRewind.ts src/lib/multiplayer/client/__tests__/commitGmCombatRewind.test.ts openspec/planning/2026-09-12-roadmap-completion/evidence/u5d-admission-20260919.json openspec/planning/2026-09-12-roadmap-completion/evidence/u5d-red-20260919.json openspec/planning/2026-09-12-roadmap-completion/evidence/u5d-local-20260919.json",
+    "exitCode": 0,
+    "lastLine": "Finished in 137ms on 5 files using 16 threads.",
+    "output": "Checking formatting...\n\nAll matched files use the correct format.\nFinished in 137ms on 5 files using 16 threads.\n",
+    "filesChecked": 5,
+    "status": "passed"
+  },
+  "lintWarnings": {
+    "line": "Found 84 warnings and 0 errors.",
+    "warnings": 84,
+    "errors": 0,
+    "changedFrom84": false
+  },
+  "tests": {
+    "red": {
+      "suites": 1,
+      "failed": 3,
+      "passed": 7,
+      "total": 10
+    },
+    "adapterGreen": {
+      "suites": 1,
+      "passed": 10,
+      "total": 10
+    },
+    "clientGreen": {
+      "suites": 3,
+      "passed": 21,
+      "total": 21
+    },
+    "clientGreenAfterMutants": true
+  },
+  "mutants": [
+    {
+      "id": "M1",
+      "description": "reason accepted but not serialised",
+      "at": "2026-09-19T18:55:51.7479521Z",
+      "command": "npx jest src/lib/multiplayer/client/__tests__/commitGmCombatRewind.test.ts --runInBand",
+      "exitCode": 1,
+      "preMutantSha256": "210d07d9ad636a09f4ce22a3a2a15230da3cd3e64c206cae8f61fd205f4c5813",
+      "mutantSha256": "81d2c25452d02a16d55630598dcb41d509907781b41bc578f045ba7ee3fbce4f",
+      "restoredSha256": "210d07d9ad636a09f4ce22a3a2a15230da3cd3e64c206cae8f61fd205f4c5813",
+      "restoredEqual": true,
+      "savedCopy": "Original file bytes held in memory; restored by WriteAllBytes in finally after each mutant.",
+      "summary": [
+        "Test Suites: 1 failed, 1 total",
+        "Tests:       3 failed, 7 passed, 10 total",
+        "Snapshots:   0 total",
+        "Time:        1.009 s"
+      ],
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\multiplayer\\\\client\\\\__tests__\\\\commitGmCombatRewind.test.ts/i.",
+      "rawOutput": "FAIL unit src/lib/multiplayer/client/__tests__/commitGmCombatRewind.test.ts\n  commitGmCombatRewind\n    √ POSTs the preview's body verbatim to the commit route with the bearer (4 ms)\n    × POSTs the trimmed private reason (plain) (2 ms)\n    × POSTs the trimmed private reason (padded) (3 ms)\n    × POSTs the trimmed private reason (2000 characters)\n    √ keeps the five-field body byte-identical for an empty reason (\"\")\n    √ keeps the five-field body byte-identical for an empty reason (\" \\t\\r\\n \")\n    √ does not echo the private reason into the committed outcome (1 ms)\n    √ keeps the private reason out of a preview of the same input\n    √ narrows a 409 refusal body to the union (1 ms)\n    √ throws the typed transport failure on a non-JSON 500\nSystem.Management.Automation.RemoteException\n  ● commitGmCombatRewind › POSTs the trimmed private reason (plain)\nSystem.Management.Automation.RemoteException\n    expect(received).toBe(expected) // Object.is equality\nSystem.Management.Automation.RemoteException\n    Expected: \"{\\\"targetRevision\\\":3,\\\"expectedBranchId\\\":\\\"root\\\",\\\"expectedRevision\\\":4,\\\"expectedDigest\\\":\\\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\\\",\\\"expectedGeneration\\\":1,\\\"reason\\\":\\\"private correction detail\\\"}\"\n    Received: \"{\\\"targetRevision\\\":3,\\\"expectedBranchId\\\":\\\"root\\\",\\\"expectedRevision\\\":4,\\\"expectedDigest\\\":\\\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\\\",\\\"expectedGeneration\\\":1}\"\nSystem.Management.Automation.RemoteException\n      86 |     const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];\n      87 |     expect(url).toBe('/api/matches/match-1/rewind-commit');\n    > 88 |     expect(init.body).toBe(\n         |                       ^\n      89 |       JSON.stringify({ ...JSON.parse(FIVE_FIELD_BODY), reason: expected }),\n      90 |     );\n      91 |   });\nSystem.Management.Automation.RemoteException\n      at toBe (src/lib/multiplayer/client/__tests__/commitGmCombatRewind.test.ts:88:23)\nSystem.Management.Automation.RemoteException\n  ● commitGmCombatRewind › POSTs the trimmed private reason (padded)\nSystem.Management.Automation.RemoteException\n    expect(received).toBe(expected) // Object.is equality\nSystem.Management.Automation.RemoteException\n    Expected: \"{\\\"targetRevision\\\":3,\\\"expectedBranchId\\\":\\\"root\\\",\\\"expectedRevision\\\":4,\\\"expectedDigest\\\":\\\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\\\",\\\"expectedGeneration\\\":1,\\\"reason\\\":\\\"private correction detail\\\"}\"\n    Received: \"{\\\"targetRevision\\\":3,\\\"expectedBranchId\\\":\\\"root\\\",\\\"expectedRevision\\\":4,\\\"expectedDigest\\\":\\\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\\\",\\\"expectedGeneration\\\":1}\"\nSystem.Management.Automation.RemoteException\n      86 |     const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];\n      87 |     expect(url).toBe('/api/matches/match-1/rewind-commit');\n    > 88 |     expect(init.body).toBe(\n         |                       ^\n      89 |       JSON.stringify({ ...JSON.parse(FIVE_FIELD_BODY), reason: expected }),\n      90 |     );\n      91 |   });\nSystem.Management.Automation.RemoteException\n      at toBe (src/lib/multiplayer/client/__tests__/commitGmCombatRewind.test.ts:88:23)\nSystem.Management.Automation.RemoteException\n  ● commitGmCombatRewind › POSTs the trimmed private reason (2000 characters)\nSystem.Management.Automation.RemoteException\n    expect(received).toBe(expected) // Object.is equality\nSystem.Management.Automation.RemoteException\n    Expected: \"{\\\"targetRevision\\\":3,\\\"expectedBranchId\\\":\\\"root\\\",\\\"expectedRevision\\\":4,\\\"expectedDigest\\\":\\\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\\\",\\\"expectedGeneration\\\":1,\\\"reason\\\":\\\"rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr\\\"}\"\n    Received: \"{\\\"targetRevision\\\":3,\\\"expectedBranchId\\\":\\\"root\\\",\\\"expectedRevision\\\":4,\\\"expectedDigest\\\":\\\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\\\",\\\"expectedGeneration\\\":1}\"\nSystem.Management.Automation.RemoteException\n      86 |     const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];\n      87 |     expect(url).toBe('/api/matches/match-1/rewind-commit');\n    > 88 |     expect(init.body).toBe(\n         |                       ^\n      89 |       JSON.stringify({ ...JSON.parse(FIVE_FIELD_BODY), reason: expected }),\n      90 |     );\n      91 |   });\nSystem.Management.Automation.RemoteException\n      at toBe (src/lib/multiplayer/client/__tests__/commitGmCombatRewind.test.ts:88:23)\nSystem.Management.Automation.RemoteException\nTest Suites: 1 failed, 1 total\nTests:       3 failed, 7 passed, 10 total\nSnapshots:   0 total\nTime:        1.009 s\nRan all test suites matching /src\\\\lib\\\\multiplayer\\\\client\\\\__tests__\\\\commitGmCombatRewind.test.ts/i.",
+      "caught": true,
+      "failingTests": [
+        "× POSTs the trimmed private reason (plain) (2 ms)",
+        "× POSTs the trimmed private reason (padded) (3 ms)",
+        "× POSTs the trimmed private reason (2000 characters)"
+      ]
+    },
+    {
+      "id": "M2",
+      "description": "empty reason serialised as an empty string",
+      "at": "2026-09-19T18:55:55.6932581Z",
+      "command": "npx jest src/lib/multiplayer/client/__tests__/commitGmCombatRewind.test.ts --runInBand",
+      "exitCode": 1,
+      "preMutantSha256": "210d07d9ad636a09f4ce22a3a2a15230da3cd3e64c206cae8f61fd205f4c5813",
+      "mutantSha256": "94903845986e1dd6fceba0b9e727c3073ee559695f04a448124468d55b72a158",
+      "restoredSha256": "210d07d9ad636a09f4ce22a3a2a15230da3cd3e64c206cae8f61fd205f4c5813",
+      "restoredEqual": true,
+      "savedCopy": "Original file bytes held in memory; restored by WriteAllBytes in finally after each mutant.",
+      "summary": [
+        "Test Suites: 1 failed, 1 total",
+        "Tests:       3 failed, 7 passed, 10 total",
+        "Snapshots:   0 total",
+        "Time:        0.832 s, estimated 1 s"
+      ],
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\multiplayer\\\\client\\\\__tests__\\\\commitGmCombatRewind.test.ts/i.",
+      "rawOutput": "FAIL unit src/lib/multiplayer/client/__tests__/commitGmCombatRewind.test.ts\n  commitGmCombatRewind\n    × POSTs the preview's body verbatim to the commit route with the bearer (5 ms)\n    √ POSTs the trimmed private reason (plain) (1 ms)\n    √ POSTs the trimmed private reason (padded) (1 ms)\n    √ POSTs the trimmed private reason (2000 characters) (1 ms)\n    × keeps the five-field body byte-identical for an empty reason (\"\")\n    × keeps the five-field body byte-identical for an empty reason (\" \\t\\r\\n \")\n    √ does not echo the private reason into the committed outcome (1 ms)\n    √ keeps the private reason out of a preview of the same input\n    √ narrows a 409 refusal body to the union\n    √ throws the typed transport failure on a non-JSON 500 (2 ms)\nSystem.Management.Automation.RemoteException\n  ● commitGmCombatRewind › POSTs the preview's body verbatim to the commit route with the bearer\nSystem.Management.Automation.RemoteException\n    expect(received).toBe(expected) // Object.is equality\nSystem.Management.Automation.RemoteException\n    Expected: \"{\\\"targetRevision\\\":3,\\\"expectedBranchId\\\":\\\"root\\\",\\\"expectedRevision\\\":4,\\\"expectedDigest\\\":\\\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\\\",\\\"expectedGeneration\\\":1}\"\n    Received: \"{\\\"targetRevision\\\":3,\\\"expectedBranchId\\\":\\\"root\\\",\\\"expectedRevision\\\":4,\\\"expectedDigest\\\":\\\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\\\",\\\"expectedGeneration\\\":1,\\\"reason\\\":\\\"\\\"}\"\nSystem.Management.Automation.RemoteException\n      69 |       Authorization: 'Bearer wire-token-abc',\n      70 |     });\n    > 71 |     expect(init.body).toBe(FIVE_FIELD_BODY);\n         |                       ^\n      72 |   });\n      73 |\n      74 |   it.each([\nSystem.Management.Automation.RemoteException\n      at Object.toBe (src/lib/multiplayer/client/__tests__/commitGmCombatRewind.test.ts:71:23)\nSystem.Management.Automation.RemoteException\n  ● commitGmCombatRewind › keeps the five-field body byte-identical for an empty reason (\"\")\nSystem.Management.Automation.RemoteException\n    expect(received).toBe(expected) // Object.is equality\nSystem.Management.Automation.RemoteException\n    Expected: \"{\\\"targetRevision\\\":3,\\\"expectedBranchId\\\":\\\"root\\\",\\\"expectedRevision\\\":4,\\\"expectedDigest\\\":\\\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\\\",\\\"expectedGeneration\\\":1}\"\n    Received: \"{\\\"targetRevision\\\":3,\\\"expectedBranchId\\\":\\\"root\\\",\\\"expectedRevision\\\":4,\\\"expectedDigest\\\":\\\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\\\",\\\"expectedGeneration\\\":1,\\\"reason\\\":\\\"\\\"}\"\nSystem.Management.Automation.RemoteException\n      101 |       const fetchMock = global.fetch as jest.MockedFunction<typeof fetch>;\n      102 |       const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];\n    > 103 |       expect(init.body).toBe(FIVE_FIELD_BODY);\n          |                         ^\n      104 |     },\n      105 |   );\n      106 |\nSystem.Management.Automation.RemoteException\n      at toBe (src/lib/multiplayer/client/__tests__/commitGmCombatRewind.test.ts:103:25)\nSystem.Management.Automation.RemoteException\n  ● commitGmCombatRewind › keeps the five-field body byte-identical for an empty reason (\" \\t\\r\\n \")\nSystem.Management.Automation.RemoteException\n    expect(received).toBe(expected) // Object.is equality\nSystem.Management.Automation.RemoteException\n    Expected: \"{\\\"targetRevision\\\":3,\\\"expectedBranchId\\\":\\\"root\\\",\\\"expectedRevision\\\":4,\\\"expectedDigest\\\":\\\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\\\",\\\"expectedGeneration\\\":1}\"\n    Received: \"{\\\"targetRevision\\\":3,\\\"expectedBranchId\\\":\\\"root\\\",\\\"expectedRevision\\\":4,\\\"expectedDigest\\\":\\\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\\\",\\\"expectedGeneration\\\":1,\\\"reason\\\":\\\"\\\"}\"\nSystem.Management.Automation.RemoteException\n      101 |       const fetchMock = global.fetch as jest.MockedFunction<typeof fetch>;\n      102 |       const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];\n    > 103 |       expect(init.body).toBe(FIVE_FIELD_BODY);\n          |                         ^\n      104 |     },\n      105 |   );\n      106 |\nSystem.Management.Automation.RemoteException\n      at toBe (src/lib/multiplayer/client/__tests__/commitGmCombatRewind.test.ts:103:25)\nSystem.Management.Automation.RemoteException\nTest Suites: 1 failed, 1 total\nTests:       3 failed, 7 passed, 10 total\nSnapshots:   0 total\nTime:        0.832 s, estimated 1 s\nRan all test suites matching /src\\\\lib\\\\multiplayer\\\\client\\\\__tests__\\\\commitGmCombatRewind.test.ts/i.",
+      "caught": true,
+      "failingTests": [
+        "× POSTs the preview's body verbatim to the commit route with the bearer (5 ms)",
+        "× keeps the five-field body byte-identical for an empty reason (\"\")",
+        "× keeps the five-field body byte-identical for an empty reason (\" \\t\\r\\n \")"
+      ]
+    },
+    {
+      "id": "M3",
+      "description": "private input reason echoed into the returned outcome",
+      "at": "2026-09-19T18:55:59.2824943Z",
+      "command": "npx jest src/lib/multiplayer/client/__tests__/commitGmCombatRewind.test.ts --runInBand",
+      "exitCode": 1,
+      "preMutantSha256": "210d07d9ad636a09f4ce22a3a2a15230da3cd3e64c206cae8f61fd205f4c5813",
+      "mutantSha256": "e804fc25ba281863d720de5a69600692d59e10536dd9e789168f9fa75b1929b6",
+      "restoredSha256": "210d07d9ad636a09f4ce22a3a2a15230da3cd3e64c206cae8f61fd205f4c5813",
+      "restoredEqual": true,
+      "savedCopy": "Original file bytes held in memory; restored by WriteAllBytes in finally after each mutant.",
+      "summary": [
+        "Test Suites: 1 failed, 1 total",
+        "Tests:       3 failed, 7 passed, 10 total",
+        "Snapshots:   0 total",
+        "Time:        1.055 s"
+      ],
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\multiplayer\\\\client\\\\__tests__\\\\commitGmCombatRewind.test.ts/i.",
+      "rawOutput": "FAIL unit src/lib/multiplayer/client/__tests__/commitGmCombatRewind.test.ts\n  commitGmCombatRewind\n    × POSTs the preview's body verbatim to the commit route with the bearer (8 ms)\n    √ POSTs the trimmed private reason (plain) (2 ms)\n    √ POSTs the trimmed private reason (padded)\n    √ POSTs the trimmed private reason (2000 characters) (1 ms)\n    √ keeps the five-field body byte-identical for an empty reason (\"\") (1 ms)\n    √ keeps the five-field body byte-identical for an empty reason (\" \\t\\r\\n \")\n    × does not echo the private reason into the committed outcome (2 ms)\n    √ keeps the private reason out of a preview of the same input (1 ms)\n    × narrows a 409 refusal body to the union (2 ms)\n    √ throws the typed transport failure on a non-JSON 500 (1 ms)\nSystem.Management.Automation.RemoteException\n  ● commitGmCombatRewind › POSTs the preview's body verbatim to the commit route with the bearer\nSystem.Management.Automation.RemoteException\n    expect(received).resolves.toBe(expected) // Object.is equality\nSystem.Management.Automation.RemoteException\n    If it should pass with deep equality, replace \"toBe\" with \"toEqual\"\nSystem.Management.Automation.RemoteException\n    - Expected  - 0\n    + Received  + 1\nSystem.Management.Automation.RemoteException\n    @@ -3,6 +3,7 @@\n        \"effectiveGeneration\": 2,\n        \"invalidations\": Array [],\n        \"kind\": \"committed\",\n        \"matchId\": \"match-1\",\n        \"priorBranchId\": \"root\",\n    +   \"reason\": undefined,\n      }\nSystem.Management.Automation.RemoteException\n      58 |     mockJsonResponse(200, committedBody);\n      59 |\n    > 60 |     await expect(commitGmCombatRewind(REQUEST)).resolves.toBe(committedBody);\n         |                                                          ^\n      61 |\n      62 |     const fetchMock = global.fetch as jest.MockedFunction<typeof fetch>;\n      63 |     expect(fetchMock).toHaveBeenCalledTimes(1);\nSystem.Management.Automation.RemoteException\n      at Object.toBe (../../../../node_modules/expect/build/index.js:174:22)\n      at Object.toBe (src/lib/multiplayer/client/__tests__/commitGmCombatRewind.test.ts:60:58)\nSystem.Management.Automation.RemoteException\n  ● commitGmCombatRewind › does not echo the private reason into the committed outcome\nSystem.Management.Automation.RemoteException\n    expect(received).not.toHaveProperty(path)\nSystem.Management.Automation.RemoteException\n    Expected path: not \"reason\"\nSystem.Management.Automation.RemoteException\n    Received value: \"private correction detail\"\nSystem.Management.Automation.RemoteException\n      122 |     const outcome = await commitGmCombatRewind(input);\n      123 |\n    > 124 |     expect(outcome).not.toHaveProperty('reason');\n          |                         ^\n      125 |     expect(outcome).toBe(committedBody);\n      126 |   });\n      127 |\nSystem.Management.Automation.RemoteException\n      at Object.toHaveProperty (src/lib/multiplayer/client/__tests__/commitGmCombatRewind.test.ts:124:25)\nSystem.Management.Automation.RemoteException\n  ● commitGmCombatRewind › narrows a 409 refusal body to the union\nSystem.Management.Automation.RemoteException\n    expect(received).toStrictEqual(expected) // deep equality\nSystem.Management.Automation.RemoteException\n    - Expected  - 1\n    + Received  + 1\nSystem.Management.Automation.RemoteException\n      Object {\n        \"detail\": \"operator-only outcome id\",\n        \"kind\": \"refused\",\n    -   \"reason\": \"campaign-receipt-delivered\",\n    +   \"reason\": \"private correction detail\",\n      }\nSystem.Management.Automation.RemoteException\n      156 |     const outcome = await commitGmCombatRewind(input);\n      157 |\n    > 158 |     expect(outcome).toStrictEqual({\n          |                     ^\n      159 |       kind: 'refused',\n      160 |       reason: 'campaign-receipt-delivered',\n      161 |       detail: 'operator-only outcome id',\nSystem.Management.Automation.RemoteException\n      at Object.toStrictEqual (src/lib/multiplayer/client/__tests__/commitGmCombatRewind.test.ts:158:21)\nSystem.Management.Automation.RemoteException\nTest Suites: 1 failed, 1 total\nTests:       3 failed, 7 passed, 10 total\nSnapshots:   0 total\nTime:        1.055 s\nRan all test suites matching /src\\\\lib\\\\multiplayer\\\\client\\\\__tests__\\\\commitGmCombatRewind.test.ts/i.",
+      "caught": true,
+      "failingTests": [
+        "× POSTs the preview's body verbatim to the commit route with the bearer (8 ms)",
+        "× does not echo the private reason into the committed outcome (2 ms)",
+        "× narrows a 409 refusal body to the union (2 ms)"
+      ]
+    }
+  ],
+  "mutationCaptureNote": "PowerShell captured native stderr with ErrorRecord.ToString(); blank stderr lines appear as System.Management.Automation.RemoteException in rawOutput. Assertion text, test counts and exit codes are retained.",
+  "verificationLimits": {
+    "typecheck": "npx tsc --noEmit exited 0 with no output.",
+    "preview": "Direct adapter test proves a commit-shaped argument does not add reason to the preview POST. No producer/UI/browser changes.",
+    "privacy": "Committed result and existing refusal union are pinned. Source inspection shows the input reason is local to this invocation and the POST serializer; no logging or storage was introduced. This is client-boundary evidence only."
+  },
+  "nonClaims": [
+    "Route acceptance and GM private-record persistence are U5c's responsibility; its head is absent from this baseline.",
+    "No E2E row was authored or run; U2b remains the owner of E2E-19/E2E-25 browser proof and privacy-pack arming.",
+    "No ladder run, build, Playwright, exact-main proof, task tick, commit, push, review approval or owner ruling.",
+    "No client policy for reasons above 2000 trimmed characters; U5c rejects them. No truncation is introduced."
+  ],
+  "findingsReportedNotFixed": [
+    {
+      "id": "FN-u2b-e2e-25-reason-transport-dropped",
+      "scope": "Only the client transport half is repaired here. Route acceptance/private-record work and U2b proof remain separate."
+    },
+    {
+      "file": "src/pages-modules/multiplayer/useGmCorrectionProducers.ts:19",
+      "finding": "The producer header still says the transport drops the field. That client statement becomes stale with this patch; producer files are explicitly outside this lane's ownership."
+    }
+  ],
+  "review": {
+    "classes": ["privacy", "routine"],
+    "packet": "PK-u5d-ruling",
+    "rule": "Merge remains gated on required review/checks and an owner ruling bound to the PR head."
+  },
+  "frozenFilesUnchanged": true,
+  "frozenHashes": [
+    {
+      "path": "units.json",
+      "sha256": "2a19be6c9c15ac6c41853acef3ecfbae5e2682d10091f42b7eb392fd8e2912a2"
+    },
+    {
+      "path": "roadmap.json",
+      "sha256": "567257f90b2d0a93266b008d8882bd9ae0db527b0e73e25aa7f9dc3b8ddb6b38"
+    },
+    {
+      "path": "evidence/admission-snapshot.json",
+      "sha256": "dd2b997e6e2e3adf85130d3196ee9f2838fc900019ff36f8bd3495f3caf58b68"
+    }
+  ],
+  "receipts": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u5d-admission-20260919.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u5d-red-20260919.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u5d-local-20260919.json"
+  ],
+  "finalStatus": [
+    " M src/lib/multiplayer/client/__tests__/commitGmCombatRewind.test.ts",
+    " M src/lib/multiplayer/client/commitGmCombatRewind.ts",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u5d-admission-20260919.json",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u5d-local-20260919.json",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u5d-red-20260919.json"
+  ],
+  "formatAttempts": [
+    {
+      "command": "npx oxfmt --check src/lib/multiplayer/client/commitGmCombatRewind.ts src/lib/multiplayer/client/__tests__/commitGmCombatRewind.test.ts openspec/planning/2026-09-12-roadmap-completion/evidence/u5d-admission-20260919.json openspec/planning/2026-09-12-roadmap-completion/evidence/u5d-red-20260919.json openspec/planning/2026-09-12-roadmap-completion/evidence/u5d-local-20260919.json",
+      "exitCode": 0,
+      "lastLine": "Finished in 17ms on 2 files using 16 threads.",
+      "output": "Checking formatting...\n\nAll matched files use the correct format.\nFinished in 17ms on 2 files using 16 threads.\n"
+    },
+    {
+      "command": "npx oxfmt --check --ignore-path .gitignore src/lib/multiplayer/client/commitGmCombatRewind.ts src/lib/multiplayer/client/__tests__/commitGmCombatRewind.test.ts openspec/planning/2026-09-12-roadmap-completion/evidence/u5d-admission-20260919.json openspec/planning/2026-09-12-roadmap-completion/evidence/u5d-red-20260919.json openspec/planning/2026-09-12-roadmap-completion/evidence/u5d-local-20260919.json",
+      "exitCode": 1,
+      "lastLine": "Finished in 135ms on 5 files using 16 threads.",
+      "output": "Checking formatting...\n\nopenspec/planning/2026-09-12-roadmap-completion/evidence/u5d-admission-20260919.json (96ms)\nopenspec/planning/2026-09-12-roadmap-completion/evidence/u5d-local-20260919.json (107ms)\n\nFormat issues found in above 2 files. Run without `--check` to fix.\nFinished in 135ms on 5 files using 16 threads.\n"
+    }
+  ],
+  "formatNote": "Default .prettierignore excludes openspec/. Re-ran with --ignore-path .gitignore and the exact five allowed paths, fixed only the JSON receipt formatting, then passed all five files. Receipt fields record measured results and are finalized after the check; a final all-five check is run after finalization.",
+  "receiptContentHashes": [
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/u5d-admission-20260919.json",
+      "sha256": "ef945d37030ebb8b3095b87e45204c945e8905f7ac6dba62675dd547fec72f7e"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/u5d-red-20260919.json",
+      "sha256": "d162d1ad6cc456825d98e603f96042e6bc60fcdfc55ce247eba6abaadbae7ed6"
+    }
+  ]
+}
