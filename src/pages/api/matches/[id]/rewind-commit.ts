@@ -35,6 +35,7 @@ import type { IMatchMeta } from '@/lib/multiplayer/server/IMatchStore';
 import type { IGmAuthorityContext } from '@/types/interventions';
 
 import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
+import { SQLitePrivateRecordRepository } from '@/lib/events/privacy/SQLitePrivateRecordRepository';
 import { authenticateRequest } from '@/lib/multiplayer/server/auth';
 import {
   AuthorizedViewerError,
@@ -49,7 +50,9 @@ import { MatchSeatMembershipSource } from '@/lib/multiplayer/server/authorizatio
 import { getDefaultMatchStore } from '@/lib/multiplayer/server/getDefaultMatchStore';
 import { commitGmCombatRewind } from '@/lib/multiplayer/server/history/GmCombatRewindCommit';
 import { matchStreamRef } from '@/lib/multiplayer/server/history/GmCombatRewindPreview';
+import { GmPrivatePreviewRecordWriter } from '@/lib/multiplayer/server/history/GmPrivatePreviewRecordWriter';
 import { getMatchHostRegistry } from '@/lib/multiplayer/server/MatchHostRegistry';
+import { HostAsGmMembershipSource } from '@/pages-modules/api/hostAsGmMembershipSource';
 import {
   buildGmCombatRewindCommitDeps,
   isRewindCommitBody,
@@ -121,7 +124,12 @@ export default async function handler(
     return;
   }
   if (!isRewindCommitBody(body)) {
-    res.status(400).json({ error: 'missing or invalid request body' });
+    res.status(400).json({
+      error:
+        typeof body === 'object' && body !== null && 'reason' in body
+          ? 'missing or invalid request body (including reason)'
+          : 'missing or invalid request body',
+    });
     return;
   }
 
@@ -143,8 +151,9 @@ export default async function handler(
       return;
     }
 
+    const membership = new MatchSeatMembershipSource(store);
     const viewer = await authorizeHumanAction(
-      new AuthorizedViewerResolver(new MatchSeatMembershipSource(store)),
+      new AuthorizedViewerResolver(membership),
       auth.playerId,
       matchId,
       { kind: 'branch', streamType: 'match', streamId: matchId },
@@ -201,6 +210,21 @@ export default async function handler(
     );
 
     if (result.kind === 'committed') {
+      if (body.reason !== undefined) {
+        const writer = new GmPrivatePreviewRecordWriter(
+          new SQLitePrivateRecordRepository(getSQLiteService().getDatabase()),
+        );
+        await writer.store({
+          resolver: new AuthorizedViewerResolver(
+            new HostAsGmMembershipSource(membership, meta.hostPlayerId),
+          ),
+          principalId: viewer.principalId,
+          campaignSessionId: matchId,
+          commandId: null,
+          createdAt: new Date().toISOString(),
+          privateReason: body.reason,
+        });
+      }
       // Look up only — never getOrCreate. An empty registry means
       // nobody is connected; MatchRecovery folds this branch on boot.
       const liveHost = getMatchHostRegistry().get(matchId);

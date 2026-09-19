@@ -50,6 +50,7 @@ export interface IRewindCommitBody {
   readonly expectedRevision: number;
   readonly expectedDigest: string;
   readonly expectedGeneration: number;
+  readonly reason?: string;
 }
 
 export interface IBuildGmCombatRewindCommitDepsInput {
@@ -70,7 +71,11 @@ export function isRewindCommitBody(value: unknown): value is IRewindCommitBody {
     body.expectedBranchId.trim().length > 0 &&
     Number.isSafeInteger(body.expectedRevision) &&
     typeof body.expectedDigest === 'string' &&
-    Number.isSafeInteger(body.expectedGeneration)
+    Number.isSafeInteger(body.expectedGeneration) &&
+    (!('reason' in body) ||
+      (typeof body.reason === 'string' &&
+        body.reason.trim().length > 0 &&
+        body.reason.trim().length <= 2000))
   );
 }
 
