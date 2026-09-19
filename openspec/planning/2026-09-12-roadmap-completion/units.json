@@ -564,7 +564,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
+      "state": "blocked",
       "baseline": null,
       "prHead": null,
       "mergeSha": null,
@@ -583,7 +583,12 @@
         "E2E-19",
         "E2E-25"
       ],
-      "packet": "PK-u2b-ruling"
+      "packet": "PK-u2b-ruling",
+      "blocked20260919": {
+        "cause": "E2E-25's finalize half has no product surface yet: src/pages-modules/multiplayer/useGmCorrectionProducers.ts:19-31 states that the transport DROPS the private reason (src/lib/multiplayer/client/commitGmCombatRewind.ts:58-63 serialises a fixed five-field body), src/pages-modules/api/rewindCommitDeps.ts:47-52 (IRewindCommitBody) has no reason field, and src/pages/api/matches/[id]/rewind-commit.ts:199 writes the module constant REWIND_COMMIT_REASON into the private record; so 'only the GM private record contains the private detail' cannot be asserted. Also measured: scripts/qc/gm-two-player-campaign-core.cjs:205-206 arms the combat-journal fixture only when the run includes authority-recovery, so the privacy-pack group runs unarmed today (U2b's own scripts/qc change when it resumes).",
+        "nextIndependentAction": "U5c (R2.authority-live: IRewindCommitBody accepts an optional reason and the route writes it to the private record instead of the constant) and U5d (R2.combat: commitGmCombatRewind serialises the reason when present); then U2b resumes: arm the privacy-pack group, write the E2E-19 and E2E-25 rows, tick 21.2",
+        "measuredBy": "parent, 2026-09-19, from the files named (no lane run); recorded as FN-u2b-e2e-25-reason-transport-dropped"
+      }
     },
     {
       "id": "U3",
@@ -1225,6 +1230,81 @@
         "E2E-25"
       ],
       "note": "the server half of the reason ingress (rewind-commit route body) belongs to a companion unit under R2.authority-live if the route lives under src/lib/multiplayer/server; the lane measures which file owns it at admission"
+    },
+    {
+      "id": "U5c",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "E2E-25's server half: IRewindCommitBody (src/pages-modules/api/rewindCommitDeps.ts) accepts an optional `reason`, refused (400, the body's existing malformed-body path) when present but not a non-empty string of bounded length, and the rewind-commit route (src/pages/api/matches/[id]/rewind-commit.ts) passes the GM's reason into the commit in place of REWIND_COMMIT_REASON when one is present (the constant stays the default when absent), so the private record written on commit carries the GM's reason; the reason never appears in the route's response body, in any broadcast frame or in any player-visible read (pin it: a player's timeline and export after the commit carry no reason text, the committed response carries no reason). Red-first: a route test sending a reason and reading the private record back as the GM (the reason is the constant today); a malformed reason answers 400 without a commit. No client change (U5d) and no e2e row (U2b).",
+      "ownershipPaths": [
+        "src/pages/api/matches",
+        "src/pages-modules/api"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "privacy",
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260919": "narrow successor named by U5b's own header (useGmCorrectionProducers.ts:27-31: 'a narrow successor under R2.combat / R2.authority-live adds reason to the transport body, to IRewindCommitBody and to the private-record write') and by FN-u2b-e2e-25-reason-transport-dropped; planned by the parent under the owner's 2026-09-17 instruction to continue the loop on the council's recommendations",
+      "rowsUnblocked": [
+        "E2E-25 (server half)"
+      ],
+      "packet": "PK-u5c-ruling"
+    },
+    {
+      "id": "U5d",
+      "node": "R2.combat",
+      "taskKeys": [],
+      "behavior": "E2E-25's client half: commitGmCombatRewind (src/lib/multiplayer/client/commitGmCombatRewind.ts) serialises `reason` into the POST body only when the caller supplies a non-empty one (the five-field body is byte-identical otherwise), and never logs, stores or echoes it; red-first: a jest in commitGmCombatRewind.test.ts asserting the posted body carries the reason when given and is unchanged when not (red today: the field is dropped). No route change (U5c) and no e2e row (U2b). The node's ownership string is src/lib; the unit edits only src/lib/multiplayer/client and its tests.",
+      "ownershipPaths": [
+        "src/lib"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "privacy",
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260919": "narrow successor named by U5b's own header (useGmCorrectionProducers.ts:27-31) and by FN-u2b-e2e-25-reason-transport-dropped; planned by the parent under the owner's 2026-09-17 instruction to continue the loop on the council's recommendations",
+      "rowsUnblocked": [
+        "E2E-25 (client half)"
+      ],
+      "packet": "PK-u5d-ruling"
     },
     {
       "id": "U8",
@@ -2380,6 +2460,62 @@
       "decision": null,
       "ruling": null,
       "note": "pre-opened with the unit so the privacy class is visible from admission (same shape as PK-u5a-ruling)"
+    },
+    {
+      "id": "PK-u5c-ruling",
+      "blocks": [
+        "U5c"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "U5c (the rewind-commit body and route carry the GM's private reason into the private record; review class privacy) will present a head. Does the owner rule it?",
+      "options": [
+        {
+          "label": "rule the head",
+          "consequence": "an OWNER-RULING <head> comment and the owner-ruled label on U5c's PR; the unit merges and proceeds to main proof",
+          "effort": "0.1 day owner"
+        },
+        {
+          "label": "reject",
+          "consequence": "the PR closes; the unit returns to planned with the objection recorded",
+          "effort": "0.1 day owner"
+        }
+      ],
+      "agentRecommendation": "rule the head once Lane A has approved it and the checks are green",
+      "revertCost": "low: a squash merge revert",
+      "decision": null,
+      "ruling": null,
+      "note": "pre-opened with the unit so the privacy class is visible from admission (same shape as PK-u5a-ruling)"
+    },
+    {
+      "id": "PK-u5d-ruling",
+      "blocks": [
+        "U5d"
+      ],
+      "nodes": [
+        "R2.combat"
+      ],
+      "taskKeys": [],
+      "question": "U5d (the commit transport serialises the GM's private reason when present; review class privacy) will present a head. Does the owner rule it?",
+      "options": [
+        {
+          "label": "rule the head",
+          "consequence": "an OWNER-RULING <head> comment and the owner-ruled label on U5d's PR; the unit merges and proceeds to main proof",
+          "effort": "0.1 day owner"
+        },
+        {
+          "label": "reject",
+          "consequence": "the PR closes; the unit returns to planned with the objection recorded",
+          "effort": "0.1 day owner"
+        }
+      ],
+      "agentRecommendation": "rule the head once Lane A has approved it and the checks are green",
+      "revertCost": "low: a squash merge revert",
+      "decision": null,
+      "ruling": null,
+      "note": "pre-opened with the unit so the privacy class is visible from admission (same shape as PK-u5a-ruling)"
     }
   ],
   "deferrals": [
@@ -2619,6 +2755,14 @@
       "class": "loop tooling defect",
       "summary": "scripts/qc/roadmap-main-proof.mjs spawns npx.cmd with shell:true on Windows, so a --runtime-jest value carrying regex metacharacters (the U4 pattern used | and parentheses) is parsed by cmd as a pipeline and the runtime step exits 255 ('is not recognized as an internal or external command') while the rest of the ladder proceeds; the run was set aside as u4-main-proof-20260917-run1-runtime-refused and repeated with --runtime-command naming the three pin files. Fix for a narrow successor: quote the pattern for the shell or spawn jest through node without a shell; until then a --runtime-jest value must be a plain path fragment.",
       "status": "recorded; workaround used; successor not yet planned"
+    },
+    {
+      "id": "FN-u2b-e2e-25-reason-transport-dropped",
+      "foundBy": "parent (pre-admission read of the seams named in U2b's brief, 2026-09-19)",
+      "at": "2026-09-19T07:40:00.000Z",
+      "class": "missing product surface",
+      "summary": "The private reason the GM types (U5b, useGmCorrectionProducers) is handed to the commit adapter and goes no further: commitGmCombatRewind serialises five fields without it, IRewindCommitBody has no reason, and the rewind-commit route writes REWIND_COMMIT_REASON into the private record. U5b's own header records this as NOT YET DELIVERED and names the narrow successor; the privacy-pack ladder group is also not armed with the combat-journal fixture (only authority-recovery is). U2b is blocked on U5c/U5d rather than admitted to measure a known gap.",
+      "status": "successors U5c and U5d planned; U2b blocked until they land"
     }
   ]
 }
