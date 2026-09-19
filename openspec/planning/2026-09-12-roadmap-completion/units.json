@@ -1336,10 +1336,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "local-verified",
+      "state": "complete",
       "baseline": "ec23e8794df18a6cc032f223c20e56de292deb87",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "542155517552b353ade5ff145fb7bc58a2472711",
+      "mergeSha": "8ac132f4877ff258bd6c244af260050a84497a49",
       "stageReceipts": {
         "admission": {
           "path": "evidence/u10-admission-20260918.json",
@@ -1358,10 +1358,31 @@
           "at": "2026-09-18T06:40:00.000Z",
           "summary": "PR #1849 head 542155517: matchStoreBranchSegmentReader accepts any live-path id via isLivePathBranchId, serves identical events/revisions/digests under root and MATCH_BASELINE_BRANCH_ID, stamps the segment's branch id (verifySegment requires it), still refuses foreign ids; reader 14/14, history package 105/105, every reader-dependent suite green, server package 157 suites 1164/1164; 36 product lines over 2 files (one comment-only); M1-M3 caught and restored; tsc 0, oxlint 0 errors, lint:units 100/100, validator PASSED"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "review": {
+          "path": "evidence/u10-review-20260918.json",
+          "head": "542155517552b353ade5ff145fb7bc58a2472711",
+          "reviewedHead": "542155517552b353ade5ff145fb7bc58a2472711",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet)",
+          "implementerModel": "claude-opus (Agent lane)",
+          "outputSha256": "1885a25db4456fde402052cbe078821a2e98a1f7fc14ae7ff25e1d0d708bcef4",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u10-merge-20260918.json",
+          "pr": 1849,
+          "head": "542155517552b353ade5ff145fb7bc58a2472711",
+          "mergeSha": "8ac132f4877ff258bd6c244af260050a84497a49"
+        },
+        "mainProof": {
+          "path": "evidence/u10-mainproof-20260918.json",
+          "mergeCommit": "8ac132f4877ff258bd6c244af260050a84497a49",
+          "verdict": "PASS",
+          "runtime": "Tests:       1164 passed, 1164 total"
+        },
+        "tick": {
+          "path": "evidence/u10-tick-20260918.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "source20260917": "owner instruction 2026-09-17: \"Go with all the recommendations from the council and continue the loop\" (openspec/council-decisions/2026-09-17-post-loop-recommendations.md)",
@@ -2221,8 +2242,22 @@
       ],
       "agentRecommendation": "rule the head once Lane A has approved it and the checks are green",
       "revertCost": "low: a squash merge revert",
-      "decision": null,
-      "ruling": null,
+      "decision": {
+        "at": "2026-09-17T18:40:00.000Z",
+        "option": "rule the head",
+        "text": "approved (ruled 2026-09-19 after the parent described the unit in plain language, including that existing branch records are not reconciled between the two names, and recommended approval)",
+        "source": "owner instruction 2026-09-17 in the working session (chat), after the parent explained the unit in plain language"
+      },
+      "ruling": {
+        "ruledHead": "542155517552b353ade5ff145fb7bc58a2472711",
+        "pr": 1849,
+        "commentId": 5744097356,
+        "author": "SwiggitySwerve",
+        "label": "owner-ruled",
+        "bodySha256": "a12456c87c2b1c3cada9a0b0b0f1aa3d24d1f95f796a5bc3e7236e65ecf103b3",
+        "postedBy": "parent on the owner's instruction (the comment quotes the owner's words verbatim)",
+        "deviationDisclosed20260917": "DELIVERY.md says the owner posts the ruling out of band; the owner approved this unit by description in chat on 2026-09-17 (words quoted in the comment) after the parent had explained the change in plain language, and the parent composed and posted the comment from the owner GitHub account and applied the label; the U3 disclosure said the owner would name the head in chat before the loop posts, which did not happen here: the parent supplied the head from the ledger"
+      },
       "sensitiveClasses": [
         "replay"
       ],
