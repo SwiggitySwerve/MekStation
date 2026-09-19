@@ -481,9 +481,7 @@
     {
       "id": "U2",
       "node": "R6.umbrella",
-      "taskKeys": [
-        "harden-gm-two-player-campaign-sessions#21.2@547"
-      ],
+      "taskKeys": [],
       "behavior": "Implement and pass E2E-19 through E2E-30 for pre-serialization privacy, sealed choices, immediate public facts, fog projections, live/replay/export parity, unauthorized access, veto/timeout, and simultaneous proposal attribution.",
       "ownershipPaths": [
         "e2e",
@@ -538,7 +536,54 @@
         "cause": "owner decision on PK-privacy-21-2-tick: hold; E2E-19/25 need the correction-surface wiring (R2.multiplayer-client unit U5b), a private-reason ingress and the combat-journal mode flip",
         "nextIndependentAction": "U5a/U5b under R2.authority-live and R2.multiplayer-client, then a row-bearing R6.umbrella successor adds the two rows and ticks 21.2",
         "proof": "ten rows proven on main: evidence/u2-local-20260916.json"
+      },
+      "taskKeyTransferred20260919": {
+        "key": "harden-gm-two-player-campaign-sessions#21.2@547",
+        "to": "U2b",
+        "at": "2026-09-19T06:30:00.000Z",
+        "reason": "the park's nextIndependentAction: U5a (#1846), U5b (#1827), U15a (#1842) and U15b (#1822) have landed, so the row-bearing R6.umbrella successor that adds the E2E-19 and E2E-25 rows and ticks 21.2 now holds the key; U2 stays blocked as the record of the ten-row proof"
       }
+    },
+    {
+      "id": "U2b",
+      "node": "R6.umbrella",
+      "taskKeys": [
+        "harden-gm-two-player-campaign-sessions#21.2@547"
+      ],
+      "behavior": "E2E-19 and E2E-25 rows in the privacy pack (e2e/gm-two-player-privacy.pack.spec.ts), run with the combat-journal arm the ladder forwards since U15a/U15b: E2E-19 drives a GM rewind preview, reads the stored draft back as the GM through GET /api/matches/:id/private-preview?ref= (payload present, access audited) and as a seated player (payload absent, attempt audited), and asserts the player's timeline and export carry no draft; E2E-25 drives the GM correction preview and approve with a private reason through the lobby's correction controls (U5b) and asserts the player views show the authorized result while the private reason appears only in the GM private record; then 21.2 (the ten rows U2 proved plus these two) is ticked on a receipt taken on main. Red-first at the real boundary: the rows are written first and shown failing without the arm forwarded (the rewind routes answer 404 no-authoritative-history) and absent from the baseline's tags; no product change outside e2e and scripts/qc. If a row needs product behaviour that does not exist yet (the correction finalize path, the cutover boxes 1.7/3.2), the lane stops at admission and the parent parks it with a packet naming the exact gap instead of narrowing the letter.",
+      "ownershipPaths": [
+        "e2e",
+        "scripts/qc",
+        "openspec/changes/harden-gm-two-player-campaign-sessions"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "privacy"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260919": "council recommendation 2 of openspec/council-decisions/2026-09-17-post-loop-recommendations.md (the E2E-19/25 row units file under R6.umbrella) accepted by the owner's instruction of 2026-09-17; written by the parent when U2's nextIndependentAction was satisfied (U5a #1846, U5b #1827, U15a #1842, U15b #1822)",
+      "rowsUnblocked": [
+        "E2E-19",
+        "E2E-25"
+      ],
+      "packet": "PK-u2b-ruling"
     },
     {
       "id": "U3",
@@ -2307,6 +2352,34 @@
         "authority"
       ],
       "minted20260917": "loop, at the U15a fold (the council-2 shells covered U4/U5a/U5b/U8/U10; U15a was planned by the same corrections without a shell)"
+    },
+    {
+      "id": "PK-u2b-ruling",
+      "blocks": [
+        "U2b"
+      ],
+      "nodes": [
+        "R6.umbrella"
+      ],
+      "taskKeys": [],
+      "question": "U2b (E2E-19 and E2E-25 rows in the privacy pack and the tick of 21.2; review class privacy) will present a head. Does the owner rule it?",
+      "options": [
+        {
+          "label": "rule the head",
+          "consequence": "an OWNER-RULING <head> comment and the owner-ruled label on U2b's PR; the unit merges and proceeds to main proof and the tick of 21.2",
+          "effort": "0.1 day owner"
+        },
+        {
+          "label": "reject",
+          "consequence": "the PR closes; the unit returns to planned with the objection recorded",
+          "effort": "0.1 day owner"
+        }
+      ],
+      "agentRecommendation": "rule the head once Lane A has approved it and the checks are green",
+      "revertCost": "low: a squash merge revert; the tick receipt is reverted with it",
+      "decision": null,
+      "ruling": null,
+      "note": "pre-opened with the unit so the privacy class is visible from admission (same shape as PK-u5a-ruling)"
     }
   ],
   "deferrals": [
