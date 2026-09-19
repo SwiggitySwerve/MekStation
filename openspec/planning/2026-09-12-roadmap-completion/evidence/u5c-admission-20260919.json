@@ -1,0 +1,141 @@
+{
+  "unit": "U5c",
+  "stage": "admission",
+  "at": "2026-09-19T18:19:10.556Z",
+  "baseline": "09df54a70c744eb17466f28333009d46dbfddeb1",
+  "originMain": "09df54a70c744eb17466f28333009d46dbfddeb1",
+  "worktree": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\u5c",
+  "branch": "codex/roadmap-u5c-commit-reason-route-20260919",
+  "implementerModel": "codex (gpt-6-astra xhigh)",
+  "modelEvidence": "Current session turn_context reports model gpt-6-astra and effort xhigh.",
+  "next": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "at": "2026-09-19T18:19:10.479Z",
+    "exitCode": 0,
+    "lastLine": "U5c",
+    "output": "U5c"
+  },
+  "reviewClass": "privacy",
+  "ownerRuling": "PK-u5c-ruling: PR merges only after an owner ruling bound to its exact head.",
+  "seams": {
+    "guard": "src/pages-modules/api/rewindCommitDeps.ts:63",
+    "constant": "src/pages-modules/api/rewindCommitDeps.ts:38",
+    "body": "src/pages-modules/api/rewindCommitDeps.ts:47",
+    "malformedBody": "src/pages/api/matches/[id]/rewind-commit.ts:130",
+    "commitCall": "src/pages/api/matches/[id]/rewind-commit.ts:186",
+    "reasonOverride": "src/pages/api/matches/[id]/rewind-commit.ts:199",
+    "leaseReason": "src/lib/multiplayer/server/history/GmCombatRewindCommit.ts:166",
+    "activationReason": "src/lib/multiplayer/server/history/GmCombatRewindCommit.ts:235",
+    "actualRecordWrite": "src/lib/events/journal/EventHistoryActivation.ts:203 (event_history_supersessions.reason, not private_record)",
+    "privateRecordWrite": null
+  },
+  "design": [
+    "Optional reason is accepted only when absent or a string with trimmed length 1..2000; invalid presence uses the existing 400 arm naming reason without echoing its value.",
+    "Keep reason: REWIND_COMMIT_REASON in the commit input. The lease and event_history_supersessions keep that constant, including when the request has a private reason.",
+    "Only after a committed result and when body.reason is present, call GmPrivatePreviewRecordWriter over SQLitePrivateRecordRepository with the preview route HostAsGmMembershipSource resolver, authenticated principal, matchId as campaignSessionId, commandId null and createdAt from the route.",
+    "No reason means no private record. Refused/failed commits write no record. The committed body remains verbatim with no reason or opaque ref.",
+    "Pin GM includePrivate read, player payload-free export, denied player private reads with audit, unchanged supersession label, response/timeline privacy and export privacy using the existing export fixture pattern."
+  ],
+  "estimatePerFile": {
+    "src/pages-modules/api/rewindCommitDeps.ts": {
+      "productChangedLines": 8
+    },
+    "src/pages/api/matches/[id]/rewind-commit.ts": {
+      "productChangedLines": 30
+    },
+    "src/__tests__/api/matches/rewindCommitRoute.reason.test.ts": {
+      "testLines": 490
+    },
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u5c-admission-20260919.json": {
+      "evidenceOnly": true
+    },
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u5c-red-20260919.json": {
+      "evidenceOnly": true
+    },
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u5c-local-20260919.json": {
+      "evidenceOnly": true
+    }
+  },
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedProductLines": 500,
+    "estimatedProductChangedLines": 38
+  },
+  "risksForTheParent": [
+    "Addendum supersedes the ledger/charter false premise: baseline commit has no private writer. Keep commit reason a constant lease/supersession label.",
+    "Private persistence occurs after activation; failure of the subsequent private write cannot roll back the already committed rewind in this scoped design.",
+    "U5d owns the client transport; U2b owns E2E-25 and the ladder. Hidden metadata has no carrier on this head.",
+    "Privacy review PK-u5c-ruling requires an owner ruling tied to the PR head before merge; this lane performs only admission, red and local."
+  ],
+  "acceptanceCommands": [
+    "npx jest src/__tests__/api/matches/rewindCommitRoute.reason.test.ts --runInBand",
+    "npx jest src/__tests__/api/matches/rewindCommitRoute.test.ts --runInBand",
+    "npx jest src/__tests__/api/matches/rewindPreviewRoute.test.ts --runInBand",
+    "npx jest src/__tests__/api/matches src/pages-modules/api --runInBand",
+    "npx tsc --noEmit",
+    "npx oxlint",
+    "npx oxfmt --check <changed files>",
+    "npm run lint:units",
+    "npm run qc:openspec-ci:validate",
+    "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs"
+  ],
+  "sourceHashes": {
+    "src/pages-modules/api/rewindCommitDeps.ts": "1911c6bd4a4daa3d2d0ca4e6cf1a43bcec7045d133733da159d51ff52f11a569",
+    "src/pages/api/matches/[id]/rewind-commit.ts": "b25ed30e45ea6f0ab391a9297e7085b66657ae773ab5e591da3f8a056bb1fbee"
+  },
+  "seamCorrections": {
+    "at": "2026-09-19T18:26:20.884Z",
+    "reason": "Exact current-source line scan corrects initial hand-transcribed navigation offsets; initial seams preserved above.",
+    "malformedBody": "src/pages/api/matches/[id]/rewind-commit.ts:123",
+    "commitCall": "src/pages/api/matches/[id]/rewind-commit.ts:187",
+    "leaseReason": "src/lib/multiplayer/server/history/GmCombatRewindCommit.ts:149",
+    "activationCall": "src/lib/multiplayer/server/history/GmCombatRewindCommit.ts:202",
+    "actualRecordWrite": "src/lib/events/journal/EventHistoryActivation.ts:204",
+    "privateRecordWrite": null
+  },
+  "dependenciesAsRead": [
+    {
+      "id": "R2.authority-live",
+      "state": "main-verified"
+    },
+    {
+      "id": "R2.authority-cutover",
+      "state": "main-verified"
+    }
+  ],
+  "pass1Design": [
+    "Add optional reason; when present require string with trimmed length 1..2000. Preserve the existing malformed-body 400 and identify reason without echoing its value.",
+    "Pass body.reason to commit when present, preserving the constant default and the committed result shape.",
+    "Use real bearer-authenticated route fixtures, persistent match history, GM private repository read-back and seated-player export/timeline.",
+    "Resolve the missing private-record seam before claiming success; do not add a second writer or alter src/lib."
+  ],
+  "passes": {
+    "pass1": {
+      "implementerModel": "codex (gpt-6-astra xhigh)",
+      "status": "BLOCKED at red",
+      "inherited": true
+    },
+    "pass2": {
+      "implementerModel": "codex (gpt-6-astra xhigh)",
+      "sessionId": "01a0baef-a61a-7e60-8313-5d761f5b83d5",
+      "modelEvidence": "Matching worktree session turn_context: model gpt-6-astra, effort xhigh."
+    }
+  },
+  "pass2At": "2026-09-19T18:37:03.202Z",
+  "pass2Next": {
+    "command": "node --version && git rev-parse HEAD origin/main && node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "at": "2026-09-19T18:34:52.047Z",
+    "exitCode": 0,
+    "lastLine": "U5c",
+    "summary": [],
+    "output": "v22.22.0\r\n09df54a70c744eb17466f28333009d46dbfddeb1\n09df54a70c744eb17466f28333009d46dbfddeb1\nU5c\n"
+  },
+  "pass2Seams": {
+    "privateWriterGuard": "src/lib/multiplayer/server/history/GmPrivatePreviewRecordWriter.ts:48 (accepts preview OR privateReason)",
+    "privateReasonWrite": "src/lib/multiplayer/server/history/GmPrivatePreviewRecordWriter.ts:80",
+    "previewResolver": "src/pages/api/matches/[id]/rewind-preview.ts:227-239",
+    "leaseReason": "src/lib/multiplayer/server/history/GmCombatRewindCommit.ts:149",
+    "supersessionWrite": "src/lib/events/journal/EventHistoryActivation.ts:203"
+  },
+  "inheritedReceiptSha256": "a7c35fda18bb901570dde9af51c87aa90921bb79f99e86696452da4e3a34f806"
+}
