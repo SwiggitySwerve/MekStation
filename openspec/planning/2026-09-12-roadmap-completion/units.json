@@ -1249,14 +1249,28 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
+      "state": "local-verified",
+      "baseline": "09df54a70c744eb17466f28333009d46dbfddeb1",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/u5c-admission-20260919.json",
+          "baseline": "09df54a70c744eb17466f28333009d46dbfddeb1",
+          "at": "2026-09-19T18:19:10.556Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/u5c-red-20260919.json",
+          "at": "2026-09-19T18:21:36.199Z",
+          "summary": "pass 1 (codex): 3 passed / 13 failed on the baseline; measured that the commit writes no private record (its reason lands in the correction lease and event_history_supersessions.reason) and stopped BLOCKED at red; pass 2 (codex, corrected design) inherited the red file"
+        },
+        "local": {
+          "path": "evidence/u5c-local-20260919.json",
+          "at": "2026-09-19T18:43:15.865Z",
+          "summary": "PR #1854 head 516d2c2bc: IRewindCommitBody accepts an optional bounded reason; the commit keeps the constant for the lease/supersession row; on the committed arm the route writes the GM's reason as a GM private record through GmPrivatePreviewRecordWriter with the host-as-GM resolver; reason suite 21/21, commit route 10/10, preview route 16/16, API suites 96/96; 32 product lines added over 2 files; M1-M4 caught and restored; tsc 0, oxlint 0 errors, lint:units 100/100, validator PASSED"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
