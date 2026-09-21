@@ -564,7 +564,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "blocked",
+      "state": "planned",
       "baseline": null,
       "prHead": null,
       "mergeSha": null,
@@ -588,6 +588,11 @@
         "cause": "E2E-25's finalize half has no product surface yet: src/pages-modules/multiplayer/useGmCorrectionProducers.ts:19-31 states that the transport DROPS the private reason (src/lib/multiplayer/client/commitGmCombatRewind.ts:58-63 serialises a fixed five-field body), src/pages-modules/api/rewindCommitDeps.ts:47-52 (IRewindCommitBody) has no reason field, and src/pages/api/matches/[id]/rewind-commit.ts:199 writes the module constant REWIND_COMMIT_REASON into the private record; so 'only the GM private record contains the private detail' cannot be asserted. Also measured: scripts/qc/gm-two-player-campaign-core.cjs:205-206 arms the combat-journal fixture only when the run includes authority-recovery, so the privacy-pack group runs unarmed today (U2b's own scripts/qc change when it resumes).",
         "nextIndependentAction": "U5c (R2.authority-live: IRewindCommitBody accepts an optional reason and the route writes it to the private record instead of the constant) and U5d (R2.combat: commitGmCombatRewind serialises the reason when present); then U2b resumes: arm the privacy-pack group, write the E2E-19 and E2E-25 rows, tick 21.2",
         "measuredBy": "parent, 2026-09-19, from the files named (no lane run); recorded as FN-u2b-e2e-25-reason-transport-dropped"
+      },
+      "resumed20260921": {
+        "at": "2026-09-21T00:00:00.000Z",
+        "because": "U5c (#1854 -> c8e42dd95) and U5d (#1856 -> 13c0ffcbf) are complete: the rewind-commit transport carries the GM's private reason and the route stores it as a GM private record, so E2E-25's finalize half has a surface; the block record blocked20260919 is kept as history",
+        "briefAddendum": "the unit's scripts/qc change arms the privacy-pack ladder group with the combat-journal fixture the way authority-recovery is armed (scripts/qc/gm-two-player-campaign-core.cjs:205-206), pinned in scripts/__tests__/gm-two-player-campaign-qc.test.ts; E2E-19 reads the draft back through GET /api/matches/:id/private-preview?ref= with the ref the preview reply now returns (U5a); E2E-25 finalizes through the lobby's approve control with a typed private reason (U5b, U5d) and asserts the GM private record holds it (U5c) while player views do not"
       }
     },
     {
@@ -1321,10 +1326,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "local-verified",
+      "state": "complete",
       "baseline": "66ecd2695f59eb4b420379191a3066db11507cd2",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "08014be1646c7ec7d9aad9cfbfaa569e6a4aa23a",
+      "mergeSha": "13c0ffcbf4e546df5d69b6a42e0e3a85855780fb",
       "stageReceipts": {
         "admission": {
           "path": "evidence/u5d-admission-20260919.json",
@@ -1343,10 +1348,31 @@
           "at": "2026-09-19T19:01:29.6874989Z",
           "summary": "commitGmCombatRewind accepts an optional reason, trims it and adds it to the POST body only when non-empty (five-field body byte-identical otherwise), never logs, stores or echoes it; adapter 10/10, client suites 21/21; 7 product lines added in one file; M1-M3 caught and restored; tsc 0, oxlint 0 errors, lint:units 100/100, validator PASSED"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "review": {
+          "path": "evidence/u5d-review-20260919.json",
+          "head": "08014be1646c7ec7d9aad9cfbfaa569e6a4aa23a",
+          "reviewedHead": "08014be1646c7ec7d9aad9cfbfaa569e6a4aa23a",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet)",
+          "implementerModel": "codex (gpt-6-astra xhigh)",
+          "outputSha256": "efff5757b9137522870e61d023732e60f8fe1e4389fc14653a6ffa25a820e161",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u5d-merge-20260919.json",
+          "pr": 1856,
+          "head": "08014be1646c7ec7d9aad9cfbfaa569e6a4aa23a",
+          "mergeSha": "13c0ffcbf4e546df5d69b6a42e0e3a85855780fb"
+        },
+        "mainProof": {
+          "path": "evidence/u5d-mainproof-20260919.json",
+          "mergeCommit": "13c0ffcbf4e546df5d69b6a42e0e3a85855780fb",
+          "verdict": "PASS",
+          "runtime": "Tests:       21 passed, 21 total"
+        },
+        "tick": {
+          "path": "evidence/u5d-tick-20260919.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "source20260919": "narrow successor named by U5b's own header (useGmCorrectionProducers.ts:27-31) and by FN-u2b-e2e-25-reason-transport-dropped; planned by the parent under the owner's 2026-09-17 instruction to continue the loop on the council's recommendations",
@@ -2839,7 +2865,7 @@
       "at": "2026-09-19T07:40:00.000Z",
       "class": "missing product surface",
       "summary": "The private reason the GM types (U5b, useGmCorrectionProducers) is handed to the commit adapter and goes no further: commitGmCombatRewind serialises five fields without it, IRewindCommitBody has no reason, and the rewind-commit route writes REWIND_COMMIT_REASON into the private record. U5b's own header records this as NOT YET DELIVERED and names the narrow successor; the privacy-pack ladder group is also not armed with the combat-journal fixture (only authority-recovery is). U2b is blocked on U5c/U5d rather than admitted to measure a known gap.",
-      "status": "successors U5c and U5d planned; U2b blocked until they land"
+      "status": "resolved by U5c (#1854) and U5d (#1856); U2b resumed 2026-09-21"
     }
   ]
 }
