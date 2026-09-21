@@ -1,7 +1,7 @@
 /**
  * Client adapter for the rewind-commit route.
  *
- * The body must be the preview's body verbatim. Re-deriving
+ * The five preview fields must be forwarded verbatim. Re-deriving
  * expectedRevision (for example from 0) confirms a different head
  * than the blast radius the GM approved.
  */
@@ -11,7 +11,9 @@ import type { GmCombatRewindCommitResult } from '@/lib/multiplayer/server/histor
 import {
   commitGmCombatRewind,
   GmCombatRewindTransportError,
+  type ICommitGmCombatRewindInput,
 } from '../commitGmCombatRewind';
+import { previewGmCombatRewind } from '../previewGmCombatRewind';
 
 const REQUEST = {
   matchId: 'match-1',
@@ -22,6 +24,14 @@ const REQUEST = {
   expectedDigest: 'aa'.repeat(32),
   expectedGeneration: 1,
 } as const;
+
+const FIVE_FIELD_BODY = JSON.stringify({
+  targetRevision: 3,
+  expectedBranchId: 'root',
+  expectedRevision: 4,
+  expectedDigest: 'aa'.repeat(32),
+  expectedGeneration: 1,
+});
 
 function mockJsonResponse(status: number, body: unknown): void {
   global.fetch = jest.fn(async () => ({
@@ -58,13 +68,77 @@ describe('commitGmCombatRewind', () => {
       'Content-Type': 'application/json',
       Authorization: 'Bearer wire-token-abc',
     });
-    expect(JSON.parse(String(init.body))).toStrictEqual({
-      targetRevision: 3,
-      expectedBranchId: 'root',
-      expectedRevision: 4,
-      expectedDigest: 'aa'.repeat(32),
-      expectedGeneration: 1,
-    });
+    expect(init.body).toBe(FIVE_FIELD_BODY);
+  });
+
+  it.each([
+    ['plain', 'private correction detail', 'private correction detail'],
+    ['padded', ' \tprivate correction detail\n ', 'private correction detail'],
+    ['2000 characters', ` ${'r'.repeat(2000)} `, 'r'.repeat(2000)],
+  ])('POSTs the trimmed private reason (%s)', async (_, reason, expected) => {
+    mockJsonResponse(200, { kind: 'committed' });
+    const input: ICommitGmCombatRewindInput = { ...REQUEST, reason };
+
+    await commitGmCombatRewind(input);
+
+    const fetchMock = global.fetch as jest.MockedFunction<typeof fetch>;
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(url).toBe('/api/matches/match-1/rewind-commit');
+    expect(init.body).toBe(
+      JSON.stringify({ ...JSON.parse(FIVE_FIELD_BODY), reason: expected }),
+    );
+  });
+
+  it.each(['', ' \t\r\n '])(
+    'keeps the five-field body byte-identical for an empty reason (%j)',
+    async (reason) => {
+      mockJsonResponse(200, { kind: 'committed' });
+      const input: ICommitGmCombatRewindInput = { ...REQUEST, reason };
+
+      await commitGmCombatRewind(input);
+
+      const fetchMock = global.fetch as jest.MockedFunction<typeof fetch>;
+      const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+      expect(init.body).toBe(FIVE_FIELD_BODY);
+    },
+  );
+
+  it('does not echo the private reason into the committed outcome', async () => {
+    const committedBody: GmCombatRewindCommitResult = {
+      kind: 'committed',
+      matchId: 'match-1',
+      activatedBranchId: 'candidate-1',
+      priorBranchId: 'root',
+      effectiveGeneration: 2,
+      invalidations: [],
+    };
+    mockJsonResponse(200, committedBody);
+    const input: ICommitGmCombatRewindInput = {
+      ...REQUEST,
+      reason: 'private correction detail',
+    };
+
+    const outcome = await commitGmCombatRewind(input);
+
+    expect(outcome).not.toHaveProperty('reason');
+    expect(outcome).toBe(committedBody);
+  });
+
+  it('keeps the private reason out of a preview of the same input', async () => {
+    mockJsonResponse(200, { kind: 'preview' });
+    const input: ICommitGmCombatRewindInput = {
+      ...REQUEST,
+      reason: 'private correction detail',
+    };
+
+    await previewGmCombatRewind(input);
+
+    const fetchMock = global.fetch as jest.MockedFunction<typeof fetch>;
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(url).toBe('/api/matches/match-1/rewind-preview');
+    expect(init.body).toBe(FIVE_FIELD_BODY);
   });
 
   it('narrows a 409 refusal body to the union', async () => {
@@ -74,8 +148,19 @@ describe('commitGmCombatRewind', () => {
       detail: 'operator-only outcome id',
     };
     mockJsonResponse(409, refusedBody);
+    const input: ICommitGmCombatRewindInput = {
+      ...REQUEST,
+      reason: 'private correction detail',
+    };
 
-    await expect(commitGmCombatRewind(REQUEST)).resolves.toBe(refusedBody);
+    const outcome = await commitGmCombatRewind(input);
+
+    expect(outcome).toStrictEqual({
+      kind: 'refused',
+      reason: 'campaign-receipt-delivered',
+      detail: 'operator-only outcome id',
+    });
+    expect(outcome).toBe(refusedBody);
   });
 
   it('throws the typed transport failure on a non-JSON 500', async () => {
