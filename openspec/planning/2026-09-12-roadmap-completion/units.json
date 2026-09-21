@@ -1249,10 +1249,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "local-verified",
+      "state": "complete",
       "baseline": "09df54a70c744eb17466f28333009d46dbfddeb1",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "516d2c2bcf925d2fc5356d0963f2e6d955d6c156",
+      "mergeSha": "c8e42dd955fad931631cc02d4929c8d6ff76a357",
       "stageReceipts": {
         "admission": {
           "path": "evidence/u5c-admission-20260919.json",
@@ -1271,10 +1271,31 @@
           "at": "2026-09-19T18:43:15.865Z",
           "summary": "PR #1854 head 516d2c2bc: IRewindCommitBody accepts an optional bounded reason; the commit keeps the constant for the lease/supersession row; on the committed arm the route writes the GM's reason as a GM private record through GmPrivatePreviewRecordWriter with the host-as-GM resolver; reason suite 21/21, commit route 10/10, preview route 16/16, API suites 96/96; 32 product lines added over 2 files; M1-M4 caught and restored; tsc 0, oxlint 0 errors, lint:units 100/100, validator PASSED"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "review": {
+          "path": "evidence/u5c-review-20260919.json",
+          "head": "516d2c2bcf925d2fc5356d0963f2e6d955d6c156",
+          "reviewedHead": "516d2c2bcf925d2fc5356d0963f2e6d955d6c156",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet)",
+          "implementerModel": "codex (gpt-6-astra xhigh; two passes)",
+          "outputSha256": "f256330f2d8155460a8b76f88f7def276239077db52c15f5d1434813fc5e6558",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u5c-merge-20260919.json",
+          "pr": 1854,
+          "head": "516d2c2bcf925d2fc5356d0963f2e6d955d6c156",
+          "mergeSha": "c8e42dd955fad931631cc02d4929c8d6ff76a357"
+        },
+        "mainProof": {
+          "path": "evidence/u5c-mainproof-20260919.json",
+          "mergeCommit": "c8e42dd955fad931631cc02d4929c8d6ff76a357",
+          "verdict": "PASS",
+          "runtime": "Tests:       96 passed, 96 total"
+        },
+        "tick": {
+          "path": "evidence/u5c-tick-20260919.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "source20260919": "narrow successor named by U5b's own header (useGmCorrectionProducers.ts:27-31: 'a narrow successor under R2.combat / R2.authority-live adds reason to the transport body, to IRewindCommitBody and to the private-record write') and by FN-u2b-e2e-25-reason-transport-dropped; planned by the parent under the owner's 2026-09-17 instruction to continue the loop on the council's recommendations",
@@ -2513,8 +2534,22 @@
       ],
       "agentRecommendation": "rule the head once Lane A has approved it and the checks are green",
       "revertCost": "low: a squash merge revert",
-      "decision": null,
-      "ruling": null,
+      "decision": {
+        "at": "2026-09-17T18:40:00.000Z",
+        "option": "rule the head",
+        "text": "both approved, continue the loop (ruled 2026-09-21 with U5d, after the parent described both halves of E2E-25 in plain English and recommended approval)",
+        "source": "owner instruction 2026-09-17 in the working session (chat), after the parent explained the unit in plain language"
+      },
+      "ruling": {
+        "ruledHead": "516d2c2bcf925d2fc5356d0963f2e6d955d6c156",
+        "pr": 1854,
+        "commentId": 5766244797,
+        "author": "SwiggitySwerve",
+        "label": "owner-ruled",
+        "bodySha256": "3f5f8ff84eb0da193f270bd0cbac1bf420a825af517c25a462b886360d71bc85",
+        "postedBy": "parent on the owner's instruction (the comment quotes the owner's words verbatim)",
+        "deviationDisclosed20260917": "DELIVERY.md says the owner posts the ruling out of band; the owner approved this unit by description in chat on 2026-09-17 (words quoted in the comment) after the parent had explained the change in plain language, and the parent composed and posted the comment from the owner GitHub account and applied the label; the U3 disclosure said the owner would name the head in chat before the loop posts, which did not happen here: the parent supplied the head from the ledger"
+      },
       "note": "pre-opened with the unit so the privacy class is visible from admission (same shape as PK-u5a-ruling)"
     },
     {
@@ -2541,8 +2576,22 @@
       ],
       "agentRecommendation": "rule the head once Lane A has approved it and the checks are green",
       "revertCost": "low: a squash merge revert",
-      "decision": null,
-      "ruling": null,
+      "decision": {
+        "at": "2026-09-17T18:40:00.000Z",
+        "option": "rule the head",
+        "text": "both approved, continue the loop (ruled 2026-09-21 with U5c, after the parent described both halves of E2E-25 in plain English and recommended approval)",
+        "source": "owner instruction 2026-09-17 in the working session (chat), after the parent explained the unit in plain language"
+      },
+      "ruling": {
+        "ruledHead": "08014be1646c7ec7d9aad9cfbfaa569e6a4aa23a",
+        "pr": 1856,
+        "commentId": 5766248957,
+        "author": "SwiggitySwerve",
+        "label": "owner-ruled",
+        "bodySha256": "567daedf51fd9bf06d32521d82f07ea8a33d3933dab7b66f028e47a8c1099356",
+        "postedBy": "parent on the owner's instruction (the comment quotes the owner's words verbatim)",
+        "deviationDisclosed20260917": "DELIVERY.md says the owner posts the ruling out of band; the owner approved this unit by description in chat on 2026-09-17 (words quoted in the comment) after the parent had explained the change in plain language, and the parent composed and posted the comment from the owner GitHub account and applied the label; the U3 disclosure said the owner would name the head in chat before the loop posts, which did not happen here: the parent supplied the head from the ledger"
+      },
       "note": "pre-opened with the unit so the privacy class is visible from admission (same shape as PK-u5a-ruling)"
     }
   ],
