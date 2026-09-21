@@ -1,0 +1,22 @@
+{
+  "unit": "U5d",
+  "stage": "merge",
+  "at": "2026-09-21T19:44:56.754Z",
+  "pr": 1856,
+  "title": "feat(multiplayer): the rewind-commit transport carries the GM's private reason when one is given (U5d)",
+  "head": "08014be1646c7ec7d9aad9cfbfaa569e6a4aa23a",
+  "mergeSha": "13c0ffcbf4e546df5d69b6a42e0e3a85855780fb",
+  "mergedAt": "2026-09-21T19:38:47Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u5d-admission-20260919.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u5d-local-20260919.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u5d-red-20260919.json",
+    "src/lib/multiplayer/client/__tests__/commitGmCombatRewind.test.ts",
+    "src/lib/multiplayer/client/commitGmCombatRewind.ts"
+  ],
+  "blobEqualityDiffLines": 0
+}
