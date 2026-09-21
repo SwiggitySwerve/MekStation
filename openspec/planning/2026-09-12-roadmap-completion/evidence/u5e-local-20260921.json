@@ -1,0 +1,400 @@
+{
+  "unit": "U5e",
+  "stage": "local",
+  "baseline": "4b9880526bb348996b302f2dc9a53d321debaf28",
+  "implementerModel": "codex (gpt-6-astra xhigh)",
+  "mutationControl": {
+    "savedSourcePath": "src/lib/multiplayer/client/readGmRewindHead.ts",
+    "sha256": "be39e91a735c98a6c8ecc33731416fbba3aab18b6df1cb2cb77088874935970e",
+    "savedSourceBase64": "aW1wb3J0IHR5cGUgeyBJVmlld2VyTGluZWFnZUVmZmVjdGl2ZUhlYWQgfSBmcm9tICdAL2xpYi9tdWx0aXBsYXllci9zZXJ2ZXIvaGlzdG9yeS9WaWV3ZXJIaXN0b3J5TGluZWFnZSc7CgpleHBvcnQgaW50ZXJmYWNlIElSZWFkR21SZXdpbmRIZWFkSW5wdXQgewogIHJlYWRvbmx5IG1hdGNoSWQ6IHN0cmluZzsKICByZWFkb25seSB3aXJlVG9rZW46IHN0cmluZzsKfQoKZXhwb3J0IHR5cGUgR21SZXdpbmRIZWFkT3V0Y29tZSA9CiAgfCB7IHJlYWRvbmx5IGtpbmQ6ICdoZWFkJzsgcmVhZG9ubHkgaGVhZDogSVZpZXdlckxpbmVhZ2VFZmZlY3RpdmVIZWFkIH0KICB8IHsgcmVhZG9ubHkga2luZDogJ25vLWhlYWQnIH0KICB8IHsgcmVhZG9ubHkga2luZDogJ3VuYXZhaWxhYmxlJyB9OwoKY29uc3QgVU5BVkFJTEFCTEU6IEdtUmV3aW5kSGVhZE91dGNvbWUgPSBPYmplY3QuZnJlZXplKHsga2luZDogJ3VuYXZhaWxhYmxlJyB9KTsKCmV4cG9ydCBhc3luYyBmdW5jdGlvbiByZWFkR21SZXdpbmRIZWFkKAogIGlucHV0OiBJUmVhZEdtUmV3aW5kSGVhZElucHV0LAopOiBQcm9taXNlPEdtUmV3aW5kSGVhZE91dGNvbWU+IHsKICB0cnkgewogICAgY29uc3QgcmVzcG9uc2UgPSBhd2FpdCBmZXRjaCgKICAgICAgYC9hcGkvbWF0Y2hlcy8ke2VuY29kZVVSSUNvbXBvbmVudChpbnB1dC5tYXRjaElkKX0vdGltZWxpbmVgLAogICAgICB7CiAgICAgICAgbWV0aG9kOiAnR0VUJywKICAgICAgICBoZWFkZXJzOiB7IEF1dGhvcml6YXRpb246IGBCZWFyZXIgJHtpbnB1dC53aXJlVG9rZW59YCB9LAogICAgICB9LAogICAgKTsKICAgIGlmIChyZXNwb25zZS5zdGF0dXMgIT09IDIwMCkgcmV0dXJuIFVOQVZBSUxBQkxFOwogICAgY29uc3QgYm9keTogdW5rbm93biA9IGF3YWl0IHJlc3BvbnNlLmpzb24oKTsKICAgIGlmICgKICAgICAgdHlwZW9mIGJvZHkgIT09ICdvYmplY3QnIHx8CiAgICAgIGJvZHkgPT09IG51bGwgfHwKICAgICAgISgnbGluZWFnZScgaW4gYm9keSkgfHwKICAgICAgdHlwZW9mIGJvZHkubGluZWFnZSAhPT0gJ29iamVjdCcgfHwKICAgICAgYm9keS5saW5lYWdlID09PSBudWxsIHx8CiAgICAgICEoJ2VmZmVjdGl2ZUhlYWQnIGluIGJvZHkubGluZWFnZSkKICAgICkgewogICAgICByZXR1cm4gVU5BVkFJTEFCTEU7CiAgICB9CiAgICBjb25zdCBoZWFkID0gYm9keS5saW5lYWdlLmVmZmVjdGl2ZUhlYWQ7CiAgICBpZiAoaGVhZCA9PT0gbnVsbCkgcmV0dXJuIHsga2luZDogJ25vLWhlYWQnIH07CiAgICBpZiAoCiAgICAgIHR5cGVvZiBoZWFkICE9PSAnb2JqZWN0JyB8fAogICAgICAhKCdicmFuY2hJZCcgaW4gaGVhZCkgfHwKICAgICAgdHlwZW9mIGhlYWQuYnJhbmNoSWQgIT09ICdzdHJpbmcnIHx8CiAgICAgICEoJ3JldmlzaW9uJyBpbiBoZWFkKSB8fAogICAgICB0eXBlb2YgaGVhZC5yZXZpc2lvbiAhPT0gJ251bWJlcicgfHwKICAgICAgISgnZ2VuZXJhdGlvbicgaW4gaGVhZCkgfHwKICAgICAgdHlwZW9mIGhlYWQuZ2VuZXJhdGlvbiAhPT0gJ251bWJlcicKICAgICkgewogICAgICByZXR1cm4gVU5BVkFJTEFCTEU7CiAgICB9CiAgICByZXR1cm4gewogICAgICBraW5kOiAnaGVhZCcsCiAgICAgIGhlYWQ6IHsKICAgICAgICBicmFuY2hJZDogaGVhZC5icmFuY2hJZCwKICAgICAgICByZXZpc2lvbjogaGVhZC5yZXZpc2lvbiwKICAgICAgICBnZW5lcmF0aW9uOiBoZWFkLmdlbmVyYXRpb24sCiAgICAgIH0sCiAgICB9OwogIH0gY2F0Y2ggewogICAgcmV0dXJuIFVOQVZBSUxBQkxFOwogIH0KfQo=",
+    "restoration": "Restore exact bytes from this saved source copy after each mutant; compare SHA-256."
+  },
+  "at": "2026-09-21 20:32:24 UTC",
+  "worktree": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\u5e",
+  "branch": "codex/roadmap-u5e-lineage-head-adapter-20260921",
+  "testedHead": "4b9880526bb348996b302f2dc9a53d321debaf28",
+  "status": "ready",
+  "blocker": null,
+  "scope": "Stages 1-3 only; current uncommitted source in the assigned worktree. Parent owns subsequent review and delivery.",
+  "environment": {
+    "node": "v22.22.0",
+    "npm": "11.6.2",
+    "shellPrefix": "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH\nexport npm_config_dry_run=true\nexport npm_config_ignore_scripts=true\nexport npm_config_offline=true\n",
+    "npxOption": "--no-install restricts commands to existing dependencies after the initial plain npx red attempt timed out.",
+    "jest": "Every Jest invocation used --runInBand; runs were sequential."
+  },
+  "lineCounts": [
+    {
+      "path": "src/lib/multiplayer/client/readGmRewindHead.ts",
+      "classification": "product",
+      "lines": 62
+    },
+    {
+      "path": "src/lib/multiplayer/client/__tests__/readGmRewindHead.test.ts",
+      "classification": "test",
+      "lines": 194
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/u5e-admission-20260921.json",
+      "classification": "evidence",
+      "lines": 162
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/u5e-red-20260921.json",
+      "classification": "evidence",
+      "lines": 40
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/u5e-local-20260921.json",
+      "classification": "evidence",
+      "lines": 400
+    }
+  ],
+  "caps": {
+    "files": 5,
+    "maxFiles": 15,
+    "productLines": 62,
+    "productEstimate": 65,
+    "maxNonGeneratedProductLines": 500,
+    "productAndTestLines": 256
+  },
+  "contentHashes": [
+    {
+      "path": "src/lib/multiplayer/client/readGmRewindHead.ts",
+      "sha256": "be39e91a735c98a6c8ecc33731416fbba3aab18b6df1cb2cb77088874935970e"
+    },
+    {
+      "path": "src/lib/multiplayer/client/__tests__/readGmRewindHead.test.ts",
+      "sha256": "5abfca0ff0363940a7f23a1be6deb21ba3fb695bdcb4985b35d441b532689bc3"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/u5e-admission-20260921.json",
+      "sha256": "d1d4b55af8bef74142584c566e8c206ca182892cca439b976c9a977678d86bbb"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/u5e-red-20260921.json",
+      "sha256": "eaf45888827ec0158b18412cf313c097e4b979007b3facad224020904c4c87c4"
+    }
+  ],
+  "gates": {
+    "format": {
+      "command": "npx --no-install oxfmt --check --ignore-path .gitignore --threads 2 src/lib/multiplayer/client/readGmRewindHead.ts src/lib/multiplayer/client/__tests__/readGmRewindHead.test.ts openspec/planning/2026-09-12-roadmap-completion/evidence/u5e-admission-20260921.json openspec/planning/2026-09-12-roadmap-completion/evidence/u5e-red-20260921.json openspec/planning/2026-09-12-roadmap-completion/evidence/u5e-local-20260921.json",
+      "exitCode": 0,
+      "lastLine": "Finished in 91ms on 5 files using 2 threads.",
+      "outputTail": [
+        "Checking formatting...",
+        "",
+        "All matched files use the correct format.",
+        "Finished in 91ms on 5 files using 2 threads."
+      ],
+      "checkedFiles": 5,
+      "ignorePolicy": "Explicit .gitignore retains Git ignores while including the three named receipts normally excluded by .prettierignore."
+    },
+    "newFileGreen": {
+      "command": "npx --no-install jest src/lib/multiplayer/client/__tests__/readGmRewindHead.test.ts --runInBand",
+      "startedAt": "2026-09-21 20:25:01 UTC",
+      "completedAt": "2026-09-21 20:25:06 UTC",
+      "exitCode": 0,
+      "timedOut": false,
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\multiplayer\\\\client\\\\__tests__\\\\readGmRewindHead.test.ts/i.",
+      "outputTail": [
+        "    √ omits digest and error fields even if present in the response head",
+        "    √ reads a fresh head on every call (1 ms)",
+        "",
+        "Test Suites: 1 passed, 1 total",
+        "Tests:       32 passed, 32 total",
+        "Snapshots:   0 total",
+        "Time:        0.734 s",
+        "Ran all test suites matching /src\\\\lib\\\\multiplayer\\\\client\\\\__tests__\\\\readGmRewindHead.test.ts/i."
+      ],
+      "summaryLines": [
+        "Test Suites: 1 passed, 1 total",
+        "Tests:       32 passed, 32 total"
+      ]
+    },
+    "clientDirectory": {
+      "command": "npx --no-install jest src/lib/multiplayer/client --runInBand",
+      "startedAt": "2026-09-21 20:25:07 UTC",
+      "completedAt": "2026-09-21 20:25:13 UTC",
+      "exitCode": 0,
+      "timedOut": false,
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\multiplayer\\\\client/i.",
+      "outputTail": [
+        "PASS unit src/lib/multiplayer/client/__tests__/previewGmCombatRewind.test.ts",
+        "PASS unit src/lib/multiplayer/client/__tests__/readGmRewindHead.test.ts",
+        "",
+        "Test Suites: 4 passed, 4 total",
+        "Tests:       53 passed, 53 total",
+        "Snapshots:   0 total",
+        "Time:        1.125 s",
+        "Ran all test suites matching /src\\\\lib\\\\multiplayer\\\\client/i."
+      ],
+      "summaryLines": [
+        "Test Suites: 4 passed, 4 total",
+        "Tests:       53 passed, 53 total"
+      ]
+    },
+    "restoredFileGreen": {
+      "command": "npx --no-install jest src/lib/multiplayer/client/__tests__/readGmRewindHead.test.ts --runInBand",
+      "startedAt": "2026-09-21 20:27:23 UTC",
+      "completedAt": "2026-09-21 20:27:28 UTC",
+      "exitCode": 0,
+      "timedOut": false,
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\multiplayer\\\\client\\\\__tests__\\\\readGmRewindHead.test.ts/i.",
+      "outputTail": [
+        "    √ omits digest and error fields even if present in the response head",
+        "    √ reads a fresh head on every call",
+        "",
+        "Test Suites: 1 passed, 1 total",
+        "Tests:       32 passed, 32 total",
+        "Snapshots:   0 total",
+        "Time:        0.635 s, estimated 1 s",
+        "Ran all test suites matching /src\\\\lib\\\\multiplayer\\\\client\\\\__tests__\\\\readGmRewindHead.test.ts/i."
+      ],
+      "summaryLines": [
+        "Test Suites: 1 passed, 1 total",
+        "Tests:       32 passed, 32 total"
+      ]
+    },
+    "typecheck": {
+      "command": "npx --no-install tsc --noEmit",
+      "startedAt": "2026-09-21 20:27:29 UTC",
+      "completedAt": "2026-09-21 20:28:22 UTC",
+      "exitCode": 0,
+      "timedOut": false,
+      "lastLine": null,
+      "outputTail": [""],
+      "summaryLines": []
+    },
+    "rootLint": {
+      "command": "npx --no-install oxlint",
+      "startedAt": "2026-09-21 20:28:33 UTC",
+      "completedAt": "2026-09-21 20:28:39 UTC",
+      "exitCode": 0,
+      "timedOut": false,
+      "lastLine": "Finished in 434ms on 3815 files using 16 threads.",
+      "outputTail": [
+        " 1446 |   };",
+        " 1447 | }",
+        "      :  ^",
+        "      `----",
+        "  help: Maximum allowed is 400.",
+        "",
+        "Found 84 warnings and 0 errors.",
+        "Finished in 434ms on 3815 files using 16 threads."
+      ],
+      "summaryLines": ["Found 84 warnings and 0 errors."],
+      "warningsLine": "Found 84 warnings and 0 errors.",
+      "warnings": 84,
+      "errors": 0,
+      "changedFrom84": false
+    },
+    "unitLint": {
+      "command": "npm run lint:units",
+      "startedAt": "2026-09-21 20:28:40 UTC",
+      "completedAt": "2026-09-21 20:28:47 UTC",
+      "exitCode": 0,
+      "timedOut": false,
+      "lastLine": "LINT_UNITS_PASS 100/100",
+      "outputTail": [
+        "",
+        "> mekstation-app@0.1.1 lint:units",
+        "> node scripts/qc/lint-units.mjs",
+        "",
+        "LINT_UNITS_PATH e2e 50",
+        "LINT_UNITS_PATH scripts 50",
+        "LINT_UNITS_PASS 100/100"
+      ],
+      "summaryLines": ["LINT_UNITS_PASS 100/100"]
+    },
+    "openspecCi": {
+      "command": "npm run qc:openspec-ci:validate",
+      "startedAt": "2026-09-21 20:28:48 UTC",
+      "completedAt": "2026-09-21 20:28:51 UTC",
+      "exitCode": 0,
+      "timedOut": false,
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+      "outputTail": [
+        "",
+        "> mekstation-app@0.1.1 qc:openspec-ci:validate",
+        "> node scripts/qc/validate-openspec-ci-quality.mjs",
+        "",
+        "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0"
+      ],
+      "summaryLines": [
+        "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0"
+      ]
+    },
+    "roadmap": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "startedAt": "2026-09-21 20:28:53 UTC",
+      "completedAt": "2026-09-21 20:28:55 UTC",
+      "exitCode": 0,
+      "timedOut": false,
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "outputTail": [
+        "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows"
+      ],
+      "summaryLines": [
+        "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows"
+      ]
+    }
+  },
+  "mutants": [
+    {
+      "id": "M1",
+      "change": "Removed the effectiveHead field guard so malformed heads are returned with undefined or invalid fields.",
+      "command": "npx --no-install jest src/lib/multiplayer/client/__tests__/readGmRewindHead.test.ts --runInBand",
+      "exitCode": 1,
+      "caught": true,
+      "testsSummary": "Tests:       8 failed, 24 passed, 32 total",
+      "failingTests": [
+        "● readGmRewindHead › maps a 200 body with primitive effectiveHead to unavailable",
+        "● readGmRewindHead › maps a 200 body with empty effectiveHead to unavailable",
+        "● readGmRewindHead › maps a 200 body with missing branchId to unavailable",
+        "● readGmRewindHead › maps a 200 body with missing revision to unavailable",
+        "● readGmRewindHead › maps a 200 body with missing generation to unavailable",
+        "● readGmRewindHead › maps a 200 body with invalid branchId to unavailable",
+        "● readGmRewindHead › maps a 200 body with invalid revision to unavailable",
+        "● readGmRewindHead › maps a 200 body with invalid generation to unavailable"
+      ],
+      "failureExcerpt": "● readGmRewindHead › maps a 200 body with primitive effectiveHead to unavailable\n\n    expect(received).resolves.toStrictEqual(expected) // deep equality\n\n    - Expected  - 1\n    + Received  + 6\n\n      Object {\n    -   \"kind\": \"unavailable\",\n    +   \"head\": Object {\n    +     \"branchId\": undefined,\n    +     \"generation\": undefined,\n    +     \"revision\": undefined,\n    +   },\n    +   \"kind\": \"head\",\n      }\n\n      129 |     mockJsonResponse(200, body);\n      130 |\n    > 131 |     await expect(readGmRewindHead(REQUEST)).resolves.toStrictEqual({\n          |                                                      ^\n      132 |       kind: 'unavailable',\n      133 |     });\n      134 |   });\n\n      at Object.toStrictEqual (../../../../node_modules/expect/build/index.js:174:22)\n      at toStrictEqual (src/lib/multiplayer/client/__tests__/readGmRewindHead.test.ts:131:54)",
+      "preMutantSha256": "be39e91a735c98a6c8ecc33731416fbba3aab18b6df1cb2cb77088874935970e",
+      "restoredSha256": "be39e91a735c98a6c8ecc33731416fbba3aab18b6df1cb2cb77088874935970e",
+      "restoredSha256EqualsPreMutant": true
+    },
+    {
+      "id": "M2",
+      "change": "Replaced the Authorization bearer header with an empty headers object.",
+      "command": "npx --no-install jest src/lib/multiplayer/client/__tests__/readGmRewindHead.test.ts --runInBand",
+      "exitCode": 1,
+      "caught": true,
+      "testsSummary": "Tests:       2 failed, 30 passed, 32 total",
+      "failingTests": [
+        "● readGmRewindHead › GETs the timeline for match-1 with the bearer header",
+        "● readGmRewindHead › GETs the timeline for match /?# with the bearer header"
+      ],
+      "failureExcerpt": "● readGmRewindHead › GETs the timeline for match-1 with the bearer header\n\n    expect(jest.fn()).toHaveBeenCalledWith(...expected)\n\n    - Expected\n    + Received\n\n      \"/api/matches/match-1/timeline\",\n      Object {\n    -   \"headers\": Object {\n    -     \"Authorization\": \"Bearer wire-token-abc\",\n    -   },\n    +   \"headers\": Object {},\n        \"method\": \"GET\",\n      },\n\n    Number of calls: 1\n\n      145 |\n      146 |       expect(global.fetch).toHaveBeenCalledTimes(1);\n    > 147 |       expect(global.fetch).toHaveBeenCalledWith(path, {\n          |                            ^\n      148 |         method: 'GET',\n      149 |         headers: { Authorization: 'Bearer wire-token-abc' },\n      150 |       });\n\n      at toHaveBeenCalledWith (src/lib/multiplayer/client/__tests__/readGmRewindHead.test.ts:147:28)",
+      "preMutantSha256": "be39e91a735c98a6c8ecc33731416fbba3aab18b6df1cb2cb77088874935970e",
+      "restoredSha256": "be39e91a735c98a6c8ecc33731416fbba3aab18b6df1cb2cb77088874935970e",
+      "restoredSha256EqualsPreMutant": true
+    },
+    {
+      "id": "M3",
+      "change": "Replaced the non-200 unavailable response with no-head.",
+      "command": "npx --no-install jest src/lib/multiplayer/client/__tests__/readGmRewindHead.test.ts --runInBand",
+      "exitCode": 1,
+      "caught": true,
+      "testsSummary": "Tests:       10 failed, 22 passed, 32 total",
+      "failingTests": [
+        "● readGmRewindHead › maps a 400 transport error to unavailable without error text",
+        "● readGmRewindHead › maps a 401 transport error to unavailable without error text",
+        "● readGmRewindHead › maps a 403 transport error to unavailable without error text",
+        "● readGmRewindHead › maps a 404 transport error to unavailable without error text",
+        "● readGmRewindHead › maps a 405 transport error to unavailable without error text",
+        "● readGmRewindHead › maps a 500 transport error to unavailable without error text",
+        "● readGmRewindHead › rejects status 201 even when the body carries a valid head",
+        "● readGmRewindHead › rejects status 204 even when the body carries a valid head",
+        "● readGmRewindHead › rejects status 401 even when the body carries a valid head",
+        "● readGmRewindHead › rejects status 500 even when the body carries a valid head"
+      ],
+      "failureExcerpt": "● readGmRewindHead › maps a 400 transport error to unavailable without error text\n\n    expect(received).toStrictEqual(expected) // deep equality\n\n    - Expected  - 1\n    + Received  + 1\n\n      Object {\n    -   \"kind\": \"unavailable\",\n    +   \"kind\": \"no-head\",\n      }\n\n      52 |       const result = await readGmRewindHead(REQUEST);\n      53 |\n    > 54 |       expect(result).toStrictEqual({ kind: 'unavailable' });\n         |                      ^\n      55 |       expect(result).not.toHaveProperty('digest');\n      56 |       expect(JSON.stringify(result)).not.toContain('private transport error');\n      57 |     },\n\n      at toStrictEqual (src/lib/multiplayer/client/__tests__/readGmRewindHead.test.ts:54:22)",
+      "preMutantSha256": "be39e91a735c98a6c8ecc33731416fbba3aab18b6df1cb2cb77088874935970e",
+      "restoredSha256": "be39e91a735c98a6c8ecc33731416fbba3aab18b6df1cb2cb77088874935970e",
+      "restoredSha256EqualsPreMutant": true
+    }
+  ],
+  "mutantRestoration": {
+    "source": "mutationControl.savedSourceBase64 in this receipt",
+    "method": "Read the saved receipt JSON, decode the base64 source, WriteAllBytes to savedSourcePath, then Get-FileHash -Algorithm SHA256; fail if it differs from mutationControl.sha256.",
+    "allHashesEqual": true,
+    "restoredFocusedTests": "1 suite, 32 tests passed"
+  },
+  "nonClaims": [
+    "The producers do not call this adapter until U5f; no producer or route changed.",
+    "No digest is read, exposed or invented; PK-rewind-commit-head-digest remains outside this unit.",
+    "No e2e row was added or executed; no Playwright or ladder run occurred.",
+    "No build, commit, push, stash, amend, merge, main proof, ledger transition or tasks checkbox change occurred.",
+    "This is local verification only, not Lane A review or acceptance on merged main."
+  ],
+  "findingsReportedNotFixed": [
+    {
+      "id": "FN-u2b-lobby-producers-name-a-fallback-head",
+      "finding": "Existing producer fallback fields remain in useGmRewindProducers.ts; U5f owns wiring. Source read only; the U2b browser failure was not re-run."
+    },
+    {
+      "id": "PK-rewind-commit-head-digest",
+      "finding": "The unresolved digest decision remains with the owner; timeline lineage exposes only branchId, revision and generation."
+    },
+    {
+      "id": "root-lint-warning-baseline",
+      "finding": "Root oxlint reports 84 warnings and 0 errors; warning count unchanged from 84. No unrelated lint cleanup."
+    }
+  ],
+  "retainedAttempts": {
+    "defaultFormatting": {
+      "command": "npx --no-install oxfmt --check src/lib/multiplayer/client/readGmRewindHead.ts src/lib/multiplayer/client/__tests__/readGmRewindHead.test.ts openspec/planning/2026-09-12-roadmap-completion/evidence/u5e-admission-20260921.json openspec/planning/2026-09-12-roadmap-completion/evidence/u5e-red-20260921.json openspec/planning/2026-09-12-roadmap-completion/evidence/u5e-local-20260921.json",
+      "exitCode": 0,
+      "timedOut": false,
+      "lastLine": "Finished in 15ms on 2 files using 16 threads.",
+      "outputTail": [
+        "Checking formatting...",
+        "",
+        "All matched files use the correct format.",
+        "Finished in 15ms on 2 files using 16 threads."
+      ],
+      "summaryLines": []
+    },
+    "allFilesFormatting": {
+      "command": "npx --no-install oxfmt --check --ignore-path .gitignore --threads 2 src/lib/multiplayer/client/readGmRewindHead.ts src/lib/multiplayer/client/__tests__/readGmRewindHead.test.ts openspec/planning/2026-09-12-roadmap-completion/evidence/u5e-admission-20260921.json openspec/planning/2026-09-12-roadmap-completion/evidence/u5e-red-20260921.json openspec/planning/2026-09-12-roadmap-completion/evidence/u5e-local-20260921.json",
+      "exitCode": 1,
+      "timedOut": false,
+      "lastLine": "Finished in 88ms on 5 files using 2 threads.",
+      "outputTail": [
+        "Checking formatting...",
+        "",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/u5e-admission-20260921.json (69ms)",
+        "",
+        "Format issues found in above 1 files. Run without `--check` to fix.",
+        "Finished in 88ms on 5 files using 2 threads."
+      ],
+      "summaryLines": []
+    },
+    "formatterDiagnostics": [
+      {
+        "command": "npx --no-install oxfmt --check --ignore-path NUL --threads 2 src/lib/multiplayer/client/readGmRewindHead.ts src/lib/multiplayer/client/__tests__/readGmRewindHead.test.ts openspec/planning/2026-09-12-roadmap-completion/evidence/u5e-admission-20260921.json openspec/planning/2026-09-12-roadmap-completion/evidence/u5e-red-20260921.json openspec/planning/2026-09-12-roadmap-completion/evidence/u5e-local-20260921.json",
+        "exitCode": 1,
+        "timedOut": false,
+        "lastLine": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\u5e\\NUL: File not found",
+        "outputTail": [
+          "Failed to parse target paths or ignore settings.",
+          "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\u5e\\NUL: File not found"
+        ],
+        "summaryLines": []
+      },
+      {
+        "command": "npx --no-install oxfmt --check --stdin-filepath openspec/planning/2026-09-12-roadmap-completion/evidence/u5e-admission-20260921.json < openspec/planning/2026-09-12-roadmap-completion/evidence/u5e-admission-20260921.json",
+        "exitCode": 1,
+        "timedOut": false,
+        "lastLine": "Error: `--stdin-filepath` cannot be used at the same time as `--check`",
+        "outputTail": [
+          "Error: `--stdin-filepath` cannot be used at the same time as `--check`"
+        ],
+        "summaryLines": []
+      }
+    ],
+    "explanation": "Default oxfmt skips openspec/ via .prettierignore and checked two files. NUL was not a supported Windows ignore-file path; --stdin-filepath cannot combine with --check. Explicit --ignore-path .gitignore preserves Git ignores while including all five named files; admission JSON formatting was then corrected."
+  },
+  "scopeVerification": {
+    "gitStatus": [
+      "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u5e-admission-20260921.json",
+      "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u5e-local-20260921.json",
+      "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u5e-red-20260921.json",
+      "?? src/lib/multiplayer/client/__tests__/readGmRewindHead.test.ts",
+      "?? src/lib/multiplayer/client/readGmRewindHead.ts"
+    ],
+    "trackedDiff": [],
+    "stagedDiff": [],
+    "baselineUnchanged": true
+  }
+}

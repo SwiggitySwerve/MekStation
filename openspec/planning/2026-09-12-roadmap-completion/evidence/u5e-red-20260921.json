@@ -1,0 +1,40 @@
+{
+  "unit": "U5e",
+  "stage": "red",
+  "at": "2026-09-21 20:24:02 UTC",
+  "baseline": "4b9880526bb348996b302f2dc9a53d321debaf28",
+  "branch": "codex/roadmap-u5e-lineage-head-adapter-20260921",
+  "implementerModel": "codex (gpt-6-astra xhigh)",
+  "environmentPrefix": "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH\nexport npm_config_dry_run=true\nexport npm_config_ignore_scripts=true\nexport npm_config_offline=true\n",
+  "attempts": [
+    {
+      "command": "npx jest src/lib/multiplayer/client/__tests__/readGmRewindHead.test.ts --runInBand",
+      "startedAt": "2026-09-21 20:22:25 UTC",
+      "completedAt": "2026-09-21 20:23:28 UTC",
+      "exitCode": null,
+      "stdout": "",
+      "stderr": "",
+      "timedOut": true
+    },
+    {
+      "command": "npx --no-install jest src/lib/multiplayer/client/__tests__/readGmRewindHead.test.ts --runInBand",
+      "startedAt": "2026-09-21 20:23:57 UTC",
+      "completedAt": "2026-09-21 20:24:02 UTC",
+      "exitCode": 1,
+      "stdout": "",
+      "stderr": "FAIL unit src/lib/multiplayer/client/__tests__/readGmRewindHead.test.ts\n  ● Test suite failed to run\n\n    Cannot find module '../readGmRewindHead' from 'src/lib/multiplayer/client/__tests__/readGmRewindHead.test.ts'\n\n    \u001b[0m \u001b[90m 3 |\u001b[39m \u001b[36mconst\u001b[39m \u001b[33mREQUEST\u001b[39m \u001b[33m=\u001b[39m {\n     \u001b[90m 4 |\u001b[39m   matchId\u001b[33m:\u001b[39m \u001b[32m'match-1'\u001b[39m\u001b[33m,\u001b[39m\n    \u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 5 |\u001b[39m   wireToken\u001b[33m:\u001b[39m \u001b[32m'wire-token-abc'\u001b[39m\u001b[33m,\u001b[39m\n     \u001b[90m   |\u001b[39m                           \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n     \u001b[90m 6 |\u001b[39m } \u001b[36mas\u001b[39m \u001b[36mconst\u001b[39m\u001b[33m;\u001b[39m\n     \u001b[90m 7 |\u001b[39m\n     \u001b[90m 8 |\u001b[39m \u001b[36mconst\u001b[39m \u001b[33mHEAD\u001b[39m \u001b[33m=\u001b[39m { branchId\u001b[33m:\u001b[39m \u001b[32m'main-after-rewind'\u001b[39m\u001b[33m,\u001b[39m revision\u001b[33m:\u001b[39m \u001b[35m17\u001b[39m\u001b[33m,\u001b[39m generation\u001b[33m:\u001b[39m \u001b[35m4\u001b[39m }\u001b[33m;\u001b[39m\u001b[0m\n\n      at Resolver._throwModNotFoundError (../../../../node_modules/jest-resolve/build/resolver.js:427:11)\n      at Object.<anonymous> (src/lib/multiplayer/client/__tests__/readGmRewindHead.test.ts:5:27)\n\nTest Suites: 1 failed, 1 total\nTests:       0 total\nSnapshots:   0 total\nTime:        0.72 s\nRan all test suites matching /src\\\\lib\\\\multiplayer\\\\client\\\\__tests__\\\\readGmRewindHead.test.ts/i.\n",
+      "timedOut": false
+    }
+  ],
+  "failure": "Cannot find module '../readGmRewindHead' from 'src/lib/multiplayer/client/__tests__/readGmRewindHead.test.ts'",
+  "assertionLimit": "Suite import failed before assertions executed: 1 failed suite, 0 tests. This is the requested absent-module red boundary; no individual assertion is claimed to have run.",
+  "pendingAssertions": [
+    "200 typed lineage returns head with all three fields unchanged",
+    "200 explicit null head returns no-head",
+    "401/403/500 transport errors, thrown fetch and malformed 200 lineage return only unavailable",
+    "GET uses the match timeline path without a query string and the bearer header",
+    "No outcome exposes a digest key or transport error text"
+  ],
+  "recovery": "Initial plain npx command timed out with no output. Local-bin-only npx --no-install completed and proved the absent module. No dependency install or lifecycle command was run.",
+  "status": "red-confirmed"
+}
