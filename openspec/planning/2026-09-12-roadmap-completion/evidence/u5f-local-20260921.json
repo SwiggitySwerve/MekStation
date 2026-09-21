@@ -279,5 +279,236 @@
   "finalScope": {
     "command": "git status --short",
     "output": " M src/pages-modules/multiplayer/__tests__/useGmCorrectionProducers.test.tsx\n M src/pages-modules/multiplayer/useGmCorrectionProducers.ts\n M src/pages-modules/multiplayer/useGmRewindProducers.ts\n?? openspec/planning/2026-09-12-roadmap-completion/evidence/u5f-admission-20260921.json\n?? openspec/planning/2026-09-12-roadmap-completion/evidence/u5f-local-20260921.json\n?? openspec/planning/2026-09-12-roadmap-completion/evidence/u5f-red-20260921.json\n?? src/pages-modules/multiplayer/__tests__/useGmRewindProducers.test.tsx\n"
+  },
+  "fixPass20260921": {
+    "at": "2026-09-21T21:20:07.517Z",
+    "status": "ready",
+    "testedHead": "6dec4f7e436e68a764988c88ea18793334678730",
+    "testedState": "Uncommitted page-test fix on the requested head; parent owns commits.",
+    "implementerModel": "codex (gpt-6-astra xhigh)",
+    "modelEvidence": "Current session 01a0c5cf-1678-7870-a7f1-009981151d8c initial turn_context records model gpt-6-astra and effort xhigh.",
+    "ciFinding": {
+      "source": "Parent-provided CI report; CI was not rerun by this lane.",
+      "head": "6dec4f7e436e68a764988c88ea18793334678730",
+      "jobs": [
+        "Unit Tests 5/6",
+        "Lint and Test"
+      ],
+      "failedRows": [
+        "asks the preview adapter for expectedRevision of last mirror sequence plus one",
+        "confirm adapter receives the same body the preview adapter was asked with"
+      ],
+      "cause": "The page mock handled invite/token fetches but returned 404 for the new timeline GET. readGmRewindHead therefore returned unavailable, and the producer correctly skipped the preview adapter."
+    },
+    "changedFiles": [
+      "src/__tests__/pages/multiplayer/lobby-roomcode.test.tsx",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/u5f-local-20260921.json"
+    ],
+    "mockStrategy": "Extend the existing global.fetch mock for GET /api/matches/match-1/timeline. Default response is 200 with timeline [], timelineDigest timeline-digest, and lineage effectiveHead main/revision 5/generation 1 with no transitions. The unavailable row changes only that endpoint status to 500.",
+    "changedRows": [
+      {
+        "name": "asks the preview adapter for the head from the lineage rather than the mirror",
+        "change": "Renamed the mirror-derived row. Asserts the authenticated timeline GET and exactly one preview call with main/revision 5/generation 1, target 4, empty digest, matchId and wireToken."
+      },
+      {
+        "name": "confirm adapter receives the same body the preview adapter was asked with",
+        "change": "Aligned preview/commit fixtures to main/revision 5/target 4 and added the exact expected preview body assertion. Preserved one commit call and strict equality with the previewed body."
+      },
+      {
+        "name": "reports unavailable without calling the preview adapter when the head read fails",
+        "change": "Added a timeline HTTP 500 row, checking the visible could-not-answer outcome, authenticated timeline GET, and zero preview-adapter calls."
+      }
+    ],
+    "pageTestSha256": "0c0d07f836816bdbcd8f706dd08f7c39366918d2b1b113e57c9e27068173ce24",
+    "environment": {
+      "node": "v22.22.0",
+      "shellPrefix": "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH\nexport npm_config_dry_run=true\nexport npm_config_ignore_scripts=true\nexport npm_config_offline=true\nexport npm_config_yes=false",
+      "execution": "File-backed runners in the owned OS temp directory; sequential Jest --runInBand; no install/ci/prune, lifecycle hooks, build or Playwright. npm run lint:units was the explicitly requested script. Existing TypeScript incremental cache bytes were saved and restored after tsc."
+    },
+    "gates": [
+      {
+        "id": "pages-multiplayer",
+        "command": "npx jest src/__tests__/pages/multiplayer --runInBand",
+        "startedAt": "2026-09-21T21:16:08.802Z",
+        "finishedAt": "2026-09-21T21:16:13.665Z",
+        "exitCode": 0,
+        "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\pages\\\\multiplayer/i.",
+        "summary": [
+          "Test Suites: 2 passed, 2 total",
+          "Tests:       14 passed, 14 total",
+          "Snapshots:   0 total",
+          "Time:        2.736 s, estimated 3 s"
+        ],
+        "outputSha256": "ba5e6e7644aac0b82afcd30ae7ce9620861e56d6fc2d5c2ef31c4eaf583e4c96",
+        "outputTail": "PASS unit src/__tests__/pages/multiplayer/lobby-roomcode.test.tsx\nPASS unit src/__tests__/pages/multiplayer/index.vaultGate.test.tsx\n\nTest Suites: 2 passed, 2 total\nTests:       14 passed, 14 total\nSnapshots:   0 total\nTime:        2.736 s, estimated 3 s\nRan all test suites matching /src\\\\__tests__\\\\pages\\\\multiplayer/i.",
+        "outputLog": "C:\\Users\\wroll\\AppData\\Local\\Temp\\u5f-fix-pass-20260921-01a0c5cf\\pages-multiplayer.log"
+      },
+      {
+        "id": "modules-multiplayer",
+        "command": "npx jest src/pages-modules/multiplayer --runInBand",
+        "startedAt": "2026-09-21T21:16:13.667Z",
+        "finishedAt": "2026-09-21T21:16:18.220Z",
+        "exitCode": 0,
+        "lastLine": "Ran all test suites matching /src\\\\pages-modules\\\\multiplayer/i.",
+        "summary": [
+          "Test Suites: 3 passed, 3 total",
+          "Tests:       21 passed, 21 total",
+          "Snapshots:   0 total",
+          "Time:        2.601 s, estimated 4 s"
+        ],
+        "outputSha256": "271424e39f3278a05d40c5f62da4f9934fb1cd4bde4e3b1d16a443371a40d953",
+        "outputTail": "PASS unit src/pages-modules/multiplayer/__tests__/useGmCorrectionProducers.test.tsx\nPASS unit src/pages-modules/multiplayer/__tests__/useGmRewindProducers.test.tsx\n\nTest Suites: 3 passed, 3 total\nTests:       21 passed, 21 total\nSnapshots:   0 total\nTime:        2.601 s, estimated 4 s\nRan all test suites matching /src\\\\pages-modules\\\\multiplayer/i.",
+        "outputLog": "C:\\Users\\wroll\\AppData\\Local\\Temp\\u5f-fix-pass-20260921-01a0c5cf\\modules-multiplayer.log"
+      },
+      {
+        "id": "pages",
+        "command": "npx jest src/__tests__/pages --runInBand",
+        "startedAt": "2026-09-21T21:16:18.221Z",
+        "finishedAt": "2026-09-21T21:17:04.564Z",
+        "exitCode": 0,
+        "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\pages/i.",
+        "summary": [
+          "Test Suites: 268 passed, 268 total",
+          "Tests:       995 passed, 995 total",
+          "Snapshots:   0 total",
+          "Time:        44.203 s"
+        ],
+        "outputSha256": "1d381a6c1ec418c6f24da8749b0214ced1515dbc0950ee1593b7f6c19532aff5",
+        "outputTail": "PASS unit src/__tests__/pages/multiplayer/lobby-roomcode.test.tsx\nPASS unit src/__tests__/pages/multiplayer/index.vaultGate.test.tsx\n\nTest Suites: 268 passed, 268 total\nTests:       995 passed, 995 total\nSnapshots:   0 total\nTime:        44.203 s\nRan all test suites matching /src\\\\__tests__\\\\pages/i.",
+        "outputLog": "C:\\Users\\wroll\\AppData\\Local\\Temp\\u5f-fix-pass-20260921-01a0c5cf\\pages.log"
+      },
+      {
+        "id": "typecheck",
+        "command": "npx tsc --noEmit",
+        "startedAt": "2026-09-21T21:17:04.566Z",
+        "finishedAt": "2026-09-21T21:17:14.802Z",
+        "exitCode": 0,
+        "lastLine": "(no output)",
+        "summary": [],
+        "outputSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "outputTail": "",
+        "outputLog": "C:\\Users\\wroll\\AppData\\Local\\Temp\\u5f-fix-pass-20260921-01a0c5cf\\typecheck.log"
+      },
+      {
+        "id": "format",
+        "command": "npx oxfmt --check src/__tests__/pages/multiplayer/lobby-roomcode.test.tsx",
+        "startedAt": "2026-09-21T21:18:26.668Z",
+        "finishedAt": "2026-09-21T21:18:27.881Z",
+        "exitCode": 0,
+        "lastLine": "Finished in 41ms on 1 files using 16 threads.",
+        "summary": [],
+        "outputSha256": "031c0df403a7403bc397f7d84d80edd5bbacddc8a3e91430e71cf523dfe9fd24",
+        "outputTail": "Checking formatting...\n\nAll matched files use the correct format.\nFinished in 41ms on 1 files using 16 threads.",
+        "outputLog": "C:\\Users\\wroll\\AppData\\Local\\Temp\\u5f-fix-pass-20260921-01a0c5cf\\format.log"
+      },
+      {
+        "id": "lint-units",
+        "command": "npm run lint:units",
+        "startedAt": "2026-09-21T21:18:27.884Z",
+        "finishedAt": "2026-09-21T21:18:28.703Z",
+        "exitCode": 0,
+        "lastLine": "LINT_UNITS_PASS 100/100",
+        "summary": [
+          "LINT_UNITS_PATH e2e 50",
+          "LINT_UNITS_PATH scripts 50",
+          "LINT_UNITS_PASS 100/100"
+        ],
+        "outputSha256": "e055631f9348b2e6539c922dddc1fe388b583448a734da5f618cb47c583fae2d",
+        "outputTail": "\n> mekstation-app@0.1.1 lint:units\n> node scripts/qc/lint-units.mjs\n\nLINT_UNITS_PATH e2e 50\nLINT_UNITS_PATH scripts 50\nLINT_UNITS_PASS 100/100",
+        "outputLog": "C:\\Users\\wroll\\AppData\\Local\\Temp\\u5f-fix-pass-20260921-01a0c5cf\\lint-units.log"
+      },
+      {
+        "id": "roadmap",
+        "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+        "startedAt": "2026-09-21T21:18:28.704Z",
+        "finishedAt": "2026-09-21T21:18:28.802Z",
+        "exitCode": 0,
+        "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+        "summary": [
+          "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows"
+        ],
+        "outputSha256": "97b2f29d264078525a55c5f88586fb95603311fa065e70d7d17c5fab08f5b5bc",
+        "outputTail": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+        "outputLog": "C:\\Users\\wroll\\AppData\\Local\\Temp\\u5f-fix-pass-20260921-01a0c5cf\\roadmap.log"
+      }
+    ],
+    "testCounts": {
+      "focusedPage": {
+        "passed": 13,
+        "total": 13,
+        "suites": 1
+      },
+      "multiplayerPages": {
+        "passed": 14,
+        "total": 14,
+        "suites": 2
+      },
+      "multiplayerPageModules": {
+        "passed": 21,
+        "total": 21,
+        "suites": 3
+      },
+      "allPages": {
+        "passed": 995,
+        "total": 995,
+        "suites": 268
+      },
+      "typecheckDiagnostics": 0
+    },
+    "formattingCorrection": {
+      "initialExitCode": 1,
+      "detail": "The first oxfmt check flagged wrapping of the new unavailable assertion. oxfmt --write changed only that wrapping; the subsequent check passed. Jest and typecheck results above precede this whitespace-only correction."
+    },
+    "mutant": {
+      "producer": "src/pages-modules/multiplayer/useGmRewindProducers.ts",
+      "mutation": "Replace the server head read with the old fallback tuple root/revision 5/generation 1 (the page fixture mirror maximum plus one); target remains 4 and digest empty.",
+      "preMutantSha256": "95a32a0c46861cf71b24c31bf3003fd20ac8fa3e2befefc7448e24742f180995",
+      "restoredSha256": "95a32a0c46861cf71b24c31bf3003fd20ac8fa3e2befefc7448e24742f180995",
+      "restored": true,
+      "gate": {
+        "id": "mutant-page",
+        "command": "npx jest src/__tests__/pages/multiplayer/lobby-roomcode.test.tsx --runInBand",
+        "startedAt": "2026-09-21T21:15:55.207Z",
+        "finishedAt": "2026-09-21T21:15:59.874Z",
+        "exitCode": 1,
+        "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\pages\\\\multiplayer\\\\lobby-roomcode.test.tsx/i.",
+        "summary": [
+          "Test Suites: 1 failed, 1 total",
+          "Tests:       3 failed, 10 passed, 13 total",
+          "Snapshots:   0 total",
+          "Time:        2.549 s, estimated 3 s"
+        ],
+        "outputSha256": "4d0b7abaa82df630e25afa2d1f439eaccc4a0395289b32e52596b12b922f30f8",
+        "outputTail": "\n      at Object.toStrictEqual (src/__tests__/pages/multiplayer/lobby-roomcode.test.tsx:559:60)\n\nTest Suites: 1 failed, 1 total\nTests:       3 failed, 10 passed, 13 total\nSnapshots:   0 total\nTime:        2.549 s, estimated 3 s\nRan all test suites matching /src\\\\__tests__\\\\pages\\\\multiplayer\\\\lobby-roomcode.test.tsx/i.",
+        "outputLog": "C:\\Users\\wroll\\AppData\\Local\\Temp\\u5f-fix-pass-20260921-01a0c5cf\\mutant-page.log"
+      },
+      "failedRows": [
+        "asks the preview adapter for the head from the lineage rather than the mirror",
+        "reports unavailable without calling the preview adapter when the head read fails",
+        "confirm adapter receives the same body the preview adapter was asked with"
+      ],
+      "measuredResult": "3 failed, 10 passed, 13 total; exit 1. Both rewritten rows failed. Preview/unavailable rows rejected the missing timeline GET; confirm rejected expectedBranchId root instead of main.",
+      "restoredVerification": "After restoration, multiplayer pages passed 14/14, page modules passed 21/21, all pages passed 995/995, and tsc exited 0."
+    },
+    "protectedReceipts": [
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/u5f-admission-20260921.json",
+        "sha256": "4ee032d0114cb8570ae081e900928a38d50ad795b472e26c276251ed2178b114",
+        "headDiffEmpty": true
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/u5f-red-20260921.json",
+        "sha256": "6579e1fc8ba96eeaa72779eea4908a963841e0fe1fdcda83f1e5803412a3260a",
+        "headDiffEmpty": true
+      }
+    ],
+    "supportingRunArtifacts": "C:\\Users\\wroll\\AppData\\Local\\Temp\\u5f-fix-pass-20260921-01a0c5cf",
+    "finalScope": {
+      "expectedGitStatus": " M openspec/planning/2026-09-12-roadmap-completion/evidence/u5f-local-20260921.json\n M src/__tests__/pages/multiplayer/lobby-roomcode.test.tsx",
+      "producerRestored": true,
+      "producerTestsChanged": false,
+      "previousReceiptFieldsPreserved": true,
+      "commitsCreated": false
+    }
   }
 }
