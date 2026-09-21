@@ -21,8 +21,6 @@ import type { GmCombatRewindCommitResult } from '@/lib/multiplayer/server/histor
 import type { IGmCorrectionCommitInput } from '@/pages-modules/multiplayer/useGmCorrectionProducers';
 import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 
-import { ROOT_EVENT_BRANCH_ID } from '@/lib/events/journal/EventJournalContract';
-import { MATCH_BASELINE_FIRST_GENERATION } from '@/lib/multiplayer/server/matchAuthorityBaseline';
 import { useGmCorrectionProducers } from '@/pages-modules/multiplayer/useGmCorrectionProducers';
 import { GameEventType } from '@/types/gameplay/GameSessionInterfaces';
 
@@ -31,11 +29,27 @@ import { GameEventType } from '@/types/gameplay/GameSessionInterfaces';
 // =============================================================================
 
 const PRIVATE_REASON = 'guest rolled for the wrong mech; GM eyes only';
+const HEAD = { branchId: 'main-after-rewind', revision: 17, generation: 4 };
+const ORIGINAL_FETCH = global.fetch;
+
+function mockHeadResponse(status: number, head: typeof HEAD | null): void {
+  global.fetch = jest.fn(async () => ({
+    status,
+    json: async () => ({ lineage: { effectiveHead: head } }),
+  })) as unknown as typeof fetch;
+}
+
+beforeEach(() => {
+  mockHeadResponse(200, HEAD);
+});
+
+afterEach(() => {
+  global.fetch = ORIGINAL_FETCH;
+});
 
 /**
- * Two events so the believed head is a real number rather than the
- * empty-mirror floor - a request derived from an empty mirror would be
- * legal but would not prove the builder read the mirror at all.
+ * The mirror's revision differs from the server head, so deriving the
+ * request from these events cannot pass the head-field assertions.
  */
 const MIRROR_EVENTS: readonly IGameEvent[] = [
   {
@@ -57,18 +71,22 @@ const MIRROR_EVENTS: readonly IGameEvent[] = [
 const EXPECTED_REQUEST = {
   matchId: 'match-1',
   wireToken: 'wire-token',
-  targetRevision: 6,
-  expectedBranchId: ROOT_EVENT_BRANCH_ID,
-  expectedRevision: 7,
+  targetRevision: 16,
+  expectedBranchId: 'main-after-rewind',
+  expectedRevision: 17,
   expectedDigest: '',
-  expectedGeneration: MATCH_BASELINE_FIRST_GENERATION,
+  expectedGeneration: 4,
 };
 
 const PREVIEW_ANSWER: GmRewindPreviewOutcome = {
   kind: 'preview',
   matchId: 'match-1',
-  targetRevision: 6,
-  priorHead: { branchId: 'root', revision: 7, effectiveGeneration: 1 },
+  targetRevision: 16,
+  priorHead: {
+    branchId: 'main-after-rewind',
+    revision: 17,
+    effectiveGeneration: 4,
+  },
   changedViewerIds: ['pid_host', 'pid_guest'],
   entries: [],
 };
@@ -77,8 +95,8 @@ const COMMITTED = {
   kind: 'committed',
   matchId: 'match-1',
   activatedBranchId: 'candidate-1',
-  priorBranchId: 'root',
-  effectiveGeneration: 2,
+  priorBranchId: 'main-after-rewind',
+  effectiveGeneration: 5,
   invalidations: [],
 } as const;
 
@@ -114,7 +132,7 @@ function mountHook(overrides?: {
 // =============================================================================
 
 describe('useGmCorrectionProducers - the previewed request', () => {
-  it('asks the injected preview for the same request the rewind flow builds', async () => {
+  it('asks the injected preview with the server head and an empty digest', async () => {
     const { preview, result } = mountHook();
 
     await act(async () => {
@@ -123,6 +141,47 @@ describe('useGmCorrectionProducers - the previewed request', () => {
 
     expect(preview).toHaveBeenCalledTimes(1);
     expect(preview.mock.calls[0]?.[0]).toStrictEqual(EXPECTED_REQUEST);
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+    expect(global.fetch).toHaveBeenCalledWith('/api/matches/match-1/timeline', {
+      method: 'GET',
+      headers: { Authorization: 'Bearer wire-token' },
+    });
+  });
+
+  it.each([
+    ['unavailable', 503, HEAD],
+    ['no-head', 200, null],
+  ] as const)(
+    'does not post when the head is %s',
+    async (_kind, status, head) => {
+      mockHeadResponse(status, head);
+      const { preview, commit, result } = mountHook();
+
+      await act(async () => {
+        await expect(
+          result.current.onPreviewHostGmCorrection(),
+        ).resolves.toStrictEqual({ kind: 'unavailable' });
+      });
+
+      expect(preview).not.toHaveBeenCalled();
+      expect(commit).not.toHaveBeenCalled();
+      expect(global.fetch).toHaveBeenCalledTimes(1);
+    },
+  );
+
+  it('floors the target at zero for a zero server revision', async () => {
+    mockHeadResponse(200, { ...HEAD, revision: 0 });
+    const { preview, result } = mountHook();
+
+    await act(async () => {
+      await result.current.onPreviewHostGmCorrection();
+    });
+
+    expect(preview.mock.calls[0]?.[0]).toStrictEqual({
+      ...EXPECTED_REQUEST,
+      targetRevision: 0,
+      expectedRevision: 0,
+    });
   });
 
   it('answers unavailable, and asks nothing, without a match or a token', async () => {
@@ -135,15 +194,22 @@ describe('useGmCorrectionProducers - the previewed request', () => {
 
     expect(outcome).toStrictEqual({ kind: 'unavailable' });
     expect(preview).not.toHaveBeenCalled();
+    expect(global.fetch).not.toHaveBeenCalled();
   });
 });
 
 describe('useGmCorrectionProducers - what approve commits', () => {
   it('commits the exact previewed request plus the captured reason', async () => {
-    const { commit, result } = mountHook();
+    const { preview, commit, result } = mountHook();
 
     await act(async () => {
       await result.current.onPreviewHostGmCorrection();
+    });
+    const headFetch = global.fetch;
+    mockHeadResponse(200, {
+      branchId: 'later-head',
+      revision: 21,
+      generation: 5,
     });
     act(() => {
       result.current.setPrivateReason(PRIVATE_REASON);
@@ -157,6 +223,12 @@ describe('useGmCorrectionProducers - what approve commits', () => {
       ...EXPECTED_REQUEST,
       reason: PRIVATE_REASON,
     });
+    expect(commit.mock.calls[0]?.[0]).toStrictEqual({
+      ...preview.mock.calls[0]?.[0],
+      reason: PRIVATE_REASON,
+    });
+    expect(headFetch).toHaveBeenCalledTimes(1);
+    expect(global.fetch).not.toHaveBeenCalled();
   });
 
   it('commits no reason field at all when the GM typed nothing', async () => {
@@ -225,6 +297,9 @@ describe('useGmCorrectionProducers - where the private reason is NOT', () => {
     // supposed to carry it.
     const previewArgs = JSON.stringify(preview.mock.calls);
     expect(previewArgs).not.toContain(PRIVATE_REASON);
+    expect(
+      JSON.stringify((global.fetch as jest.Mock).mock.calls),
+    ).not.toContain(PRIVATE_REASON);
 
     // Everything the hook hands back to its caller.
     const surfaced = Object.keys(result.current);

@@ -80,7 +80,7 @@ export interface IUseGmCorrectionProducers {
 export function useGmCorrectionProducers(
   input: IUseGmCorrectionProducersInput,
 ): IUseGmCorrectionProducers {
-  const { matchId, wireToken, mirrorEvents } = input;
+  const { matchId, wireToken } = input;
   const preview = input.preview ?? previewGmCombatRewind;
   const commit = input.commit ?? commitGmCombatRewind;
 
@@ -100,10 +100,9 @@ export function useGmCorrectionProducers(
 
   const onPreviewHostGmCorrection =
     useCallback(async (): Promise<GmRewindPreviewOutcome> => {
-      const request = buildGmRewindRequest({
+      const request = await buildGmRewindRequest({
         matchId,
         wireToken,
-        mirrorEvents,
       });
       if (request === null) {
         return { kind: 'unavailable' };
@@ -113,7 +112,7 @@ export function useGmCorrectionProducers(
       // one whose blast radius the GM was shown.
       lastRequestRef.current = request;
       return previewRef.current(request);
-    }, [matchId, mirrorEvents, wireToken]);
+    }, [matchId, wireToken]);
 
   const setPrivateReason = useCallback((reason: string): void => {
     privateReasonRef.current = reason;
