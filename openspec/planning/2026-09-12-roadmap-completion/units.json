@@ -1487,14 +1487,28 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
+      "state": "local-verified",
+      "baseline": "66c0ecad61350927294cd547b24062695d9c905e",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/u5f-admission-20260921.json",
+          "baseline": "66c0ecad61350927294cd547b24062695d9c905e",
+          "at": "2026-09-21T20:50:58.815Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/u5f-red-20260921.json",
+          "at": "2026-09-21T20:53:58.952Z",
+          "summary": "the preview posted the fallback head (root, the believed revision, the first generation) and posted it even when no head was available"
+        },
+        "local": {
+          "path": "evidence/u5f-local-20260921.json",
+          "at": "2026-09-21T20:59:37.598Z",
+          "summary": "the rewind producer reads the head through readGmRewindHead and names the lineage's branchId, revision and generation, posting nothing on no-head or unavailable; the approve path reuses the head-bearing request plus the private reason; expectedDigest stays empty pending PK-rewind-commit-head-digest; rewind 7/7, correction 10/10, page-module suites 21/21; 23 product lines added, 41 removed; M1-M3 caught and restored; tsc 0, oxlint 0 errors, lint:units 100/100, validator PASSED"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
