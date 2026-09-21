@@ -1,0 +1,172 @@
+{
+  "unit": "U5f",
+  "stage": "admission",
+  "at": "2026-09-21T20:50:58.815Z",
+  "baseline": "66c0ecad61350927294cd547b24062695d9c905e",
+  "originMain": "66c0ecad61350927294cd547b24062695d9c905e",
+  "worktree": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\u5f",
+  "branch": "codex/roadmap-u5f-producers-name-the-head-20260921",
+  "initialStatus": "",
+  "implementerModel": "codex (gpt-6-astra xhigh)",
+  "modelEvidence": "Current session initial turn_context: model gpt-6-astra, effort xhigh.",
+  "taskKeys": [],
+  "node": "R2.multiplayer-client",
+  "activePackage": "harden-gm-two-player-campaign-sessions (rows remain owned by U2b)",
+  "dependencies": [
+    {
+      "id": "R2.authority-live",
+      "state": "main-verified",
+      "receipt": null
+    }
+  ],
+  "adapterPrerequisite": {
+    "path": "src/lib/multiplayer/client/readGmRewindHead.ts",
+    "presentOnBaseline": true,
+    "sha256": "be39e91a735c98a6c8ecc33731416fbba3aab18b6df1cb2cb77088874935970e",
+    "ledgerNote": "U5e ledger still says local-verified; the adapter and its tests are present in the assigned HEAD = origin/main. No ledger change in this lane."
+  },
+  "selection": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "startedAt": "2026-09-21T20:49:43.855Z",
+    "finishedAt": "2026-09-21T20:49:43.968Z",
+    "exitCode": 0,
+    "lastLine": "U5f",
+    "output": "U5f\n",
+    "outputSha256": "1614f8e2e714c6b7496ae394c6635facc11c9d985c6e3850ffeda4207967d39e",
+    "baseline": "66c0ecad61350927294cd547b24062695d9c905e"
+  },
+  "seamsAsRead": [
+    {
+      "at": "src/lib/multiplayer/client/readGmRewindHead.ts:15",
+      "finding": "Input matchId/wireToken; authenticated timeline GET; head/no-head/unavailable union at lines 8-11; only branchId/revision/generation returned."
+    },
+    {
+      "at": "src/lib/multiplayer/client/__tests__/readGmRewindHead.test.ts:11",
+      "finding": "global.fetch fake plus strict response and bearer assertions; supports testing the real adapter without a socket."
+    },
+    {
+      "at": "src/pages-modules/multiplayer/useGmRewindProducers.ts:38",
+      "finding": "believedHeadRevision derives sequence + 1 from mirror events."
+    },
+    {
+      "at": "src/pages-modules/multiplayer/useGmRewindProducers.ts:54",
+      "finding": "Shared builder names root at 69, empty digest at 76 and first generation at 81; preview saves request at 109, confirm reuses it at 115."
+    },
+    {
+      "at": "src/pages-modules/multiplayer/useGmCorrectionProducers.ts:62",
+      "finding": "Preview and commit are injectable; preview saves shared request at 114; approve reads saved request at 124 and adds only a non-empty trimmed reason at 133."
+    },
+    {
+      "at": "src/pages-modules/multiplayer/__tests__/useGmCorrectionProducers.test.tsx:89",
+      "finding": "mountHook injects preview/commit; exact request assertions include digest and private reason. No rewind-hook suite exists on baseline; new sibling suite needed."
+    },
+    {
+      "at": "openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md:448",
+      "finding": "Historical progress note labels root/mirror revision/first generation as fallback values."
+    },
+    {
+      "at": "openspec/planning/2026-09-12-roadmap-completion/units.json:611",
+      "finding": "U2b blocked20260921 records STALE_BRANCH and correction-lease-held."
+    },
+    {
+      "at": "openspec/planning/2026-09-12-roadmap-completion/units.json:1406",
+      "finding": "U5e adapter predecessor; U5f at 1454 owns only producer head naming, routine review."
+    },
+    {
+      "at": "openspec/planning/2026-09-12-roadmap-completion/units.json:3009",
+      "finding": "FN-u2b-lobby-producers-name-a-fallback-head motivates head naming."
+    },
+    {
+      "at": "openspec/planning/2026-09-12-roadmap-completion/units.json:2728",
+      "finding": "PK-rewind-commit-head-digest decision/ruling remain null. Digest source is out of scope."
+    }
+  ],
+  "adapterReach": "Import readGmRewindHead in the shared builder used by both hooks. Tests fake global.fetch for the timeline GET following the adapter test pattern; correction keeps its existing injected preview/commit. No new injection API is needed.",
+  "design": "Make the shared builder async. Guard missing match/token, then readGmRewindHead({matchId, wireToken}); only head builds a request. Copy branchId/revision/generation verbatim, floor targetRevision at max(0, revision - 1), retain empty digest. Both previews await the builder and return unavailable without posting on null. Saved-request reuse and private-reason handling remain unchanged.",
+  "ownershipPaths": [
+    "src/pages-modules/multiplayer/useGmRewindProducers.ts",
+    "src/pages-modules/multiplayer/useGmCorrectionProducers.ts",
+    "src/pages-modules/multiplayer/__tests__/useGmRewindProducers.test.tsx",
+    "src/pages-modules/multiplayer/__tests__/useGmCorrectionProducers.test.tsx",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u5f-admission-20260921.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u5f-red-20260921.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u5f-local-20260921.json"
+  ],
+  "estimatePerFile": [
+    {
+      "path": "src/pages-modules/multiplayer/useGmRewindProducers.ts",
+      "classification": "product",
+      "estimatedChangedLines": 65
+    },
+    {
+      "path": "src/pages-modules/multiplayer/useGmCorrectionProducers.ts",
+      "classification": "product",
+      "estimatedChangedLines": 8
+    },
+    {
+      "path": "src/pages-modules/multiplayer/__tests__/useGmRewindProducers.test.tsx",
+      "classification": "test",
+      "estimatedChangedLines": 160
+    },
+    {
+      "path": "src/pages-modules/multiplayer/__tests__/useGmCorrectionProducers.test.tsx",
+      "classification": "test",
+      "estimatedChangedLines": 85
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/u5f-admission-20260921.json",
+      "classification": "evidence",
+      "estimatedLines": 200
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/u5f-red-20260921.json",
+      "classification": "evidence",
+      "estimatedLines": 200
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/u5f-local-20260921.json",
+      "classification": "evidence",
+      "estimatedLines": 200
+    }
+  ],
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedProductLines": 500,
+    "estimatedProductChangedLines": 73,
+    "estimatedFileCount": 7
+  },
+  "risksForTheParent": [
+    "The lobby posts one more GET per preview.",
+    "The believed revision from mirror events is replaced by the server revision.",
+    "Head read and preview are separate requests; existing server stale-head checks remain the arbiter.",
+    "U5e ledger state lags the adapter present on baseline; parent owns reconciliation."
+  ],
+  "review": {
+    "class": "routine",
+    "requiredLanes": ["A"],
+    "laneBRequired": false
+  },
+  "environment": {
+    "node": "v22.22.0",
+    "shellPrefix": "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH\nexport npm_config_dry_run=true\nexport npm_config_ignore_scripts=true\nexport npm_config_offline=true",
+    "npmLifecycle": "No install/ci/prune or lifecycle hooks; explicitly requested npm run gates only, with ignore_scripts=true.",
+    "execution": "Sequential Jest --runInBand; no build or Playwright; supporting runner and logs in owned OS temp directory."
+  },
+  "acceptanceCommands": [
+    "npx jest src/pages-modules/multiplayer/__tests__/useGmRewindProducers.test.tsx --runInBand",
+    "npx jest src/pages-modules/multiplayer/__tests__/useGmCorrectionProducers.test.tsx --runInBand",
+    "npx jest src/pages-modules/multiplayer --runInBand",
+    "npx tsc --noEmit",
+    "npx oxlint",
+    "npx oxfmt --check src/pages-modules/multiplayer/useGmRewindProducers.ts src/pages-modules/multiplayer/useGmCorrectionProducers.ts src/pages-modules/multiplayer/__tests__/useGmRewindProducers.test.tsx src/pages-modules/multiplayer/__tests__/useGmCorrectionProducers.test.tsx openspec/planning/2026-09-12-roadmap-completion/evidence/u5f-admission-20260921.json openspec/planning/2026-09-12-roadmap-completion/evidence/u5f-red-20260921.json openspec/planning/2026-09-12-roadmap-completion/evidence/u5f-local-20260921.json",
+    "npm run lint:units",
+    "npm run qc:openspec-ci:validate",
+    "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs"
+  ],
+  "mutationPlan": [
+    "M1: head available but branch remains root",
+    "M2: unavailable posts a fallback request",
+    "M3: correction approve loses saved head fields"
+  ],
+  "decision": "go"
+}
