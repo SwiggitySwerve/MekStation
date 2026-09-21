@@ -1417,10 +1417,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "local-verified",
+      "state": "complete",
       "baseline": "4b9880526bb348996b302f2dc9a53d321debaf28",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "29d0cbb5a3b3e1d4f933da82dc67341eb10c01f0",
+      "mergeSha": "66c0ecad61350927294cd547b24062695d9c905e",
       "stageReceipts": {
         "admission": {
           "path": "evidence/u5e-admission-20260921.json",
@@ -1439,10 +1439,31 @@
           "at": "2026-09-21 20:32:24 UTC",
           "summary": "readGmRewindHead GETs the timeline lineage with the bearer and answers head / no-head / unavailable with no digest and nothing fabricated; adapter suite 32/32, client suites 4 suites 53/53; 62 product lines in one new file; M1-M3 caught and restored; tsc 0, oxlint 0 errors, lint:units 100/100, validator PASSED"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "review": {
+          "path": "evidence/u5e-review-20260921.json",
+          "head": "29d0cbb5a3b3e1d4f933da82dc67341eb10c01f0",
+          "reviewedHead": "29d0cbb5a3b3e1d4f933da82dc67341eb10c01f0",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet)",
+          "implementerModel": "codex (gpt-6-astra xhigh)",
+          "outputSha256": "99122ac085f60b989aa6387fd2bbc9371315427d803981702ea57d4522a71d75",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u5e-merge-20260921.json",
+          "pr": 1862,
+          "head": "29d0cbb5a3b3e1d4f933da82dc67341eb10c01f0",
+          "mergeSha": "66c0ecad61350927294cd547b24062695d9c905e"
+        },
+        "mainProof": {
+          "path": "evidence/u5e-mainproof-20260921.json",
+          "mergeCommit": "66c0ecad61350927294cd547b24062695d9c905e",
+          "verdict": "PASS",
+          "runtime": "Tests:       53 passed, 53 total"
+        },
+        "tick": {
+          "path": "evidence/u5e-tick-20260921.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "source20260921": "successor of the U2b park (evidence/u2b-admission-20260921.json: the lobby producers name the fallback branch root and the effective branch is main under the journal fixture); the read half of the head-naming fix, split from U5f because the adapter lives under R2.combat's src/lib and the producers under R2.multiplayer-client; planned by the parent under the owner's instruction to continue the loop",
