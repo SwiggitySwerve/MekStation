@@ -564,14 +564,28 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
-      "prHead": null,
+      "state": "blocked",
+      "baseline": "3137f5b619c4597076d9a274ca0b4d0bbe364ab4",
+      "prHead": "e00303cad38dace93f325d77d7c866c02b2c89f6",
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/u2b-admission-20260921.json",
+          "baseline": "3137f5b619c4597076d9a274ca0b4d0bbe364ab4",
+          "at": "2026-09-21T19:53:20.3096443Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/u2b-red-20260921.json",
+          "at": "2026-09-21T20:08:24.589Z",
+          "summary": "see evidence/u2b-red-20260921.json"
+        },
+        "local": {
+          "path": "evidence/u2b-local-20260921.json",
+          "at": "2026-09-21T20:08:24.589Z",
+          "summary": "see evidence/u2b-local-20260921.json"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
@@ -593,6 +607,12 @@
         "at": "2026-09-21T00:00:00.000Z",
         "because": "U5c (#1854 -> c8e42dd95) and U5d (#1856 -> 13c0ffcbf) are complete: the rewind-commit transport carries the GM's private reason and the route stores it as a GM private record, so E2E-25's finalize half has a surface; the block record blocked20260919 is kept as history",
         "briefAddendum": "the unit's scripts/qc change arms the privacy-pack ladder group with the combat-journal fixture the way authority-recovery is armed (scripts/qc/gm-two-player-campaign-core.cjs:205-206), pinned in scripts/__tests__/gm-two-player-campaign-qc.test.ts; E2E-19 reads the draft back through GET /api/matches/:id/private-preview?ref= with the ref the preview reply now returns (U5a); E2E-25 finalizes through the lobby's approve control with a typed private reason (U5b, U5d) and asserts the GM private record holds it (U5c) while player views do not"
+      },
+      "blocked20260921": {
+        "cause": "FN-u2b-lobby-producers-name-a-fallback-head: under the journal fixture the lobby preview answers 409 STALE_BRANCH (producers send branch root, empty digest, first generation; effective branch is main) and approve answers 409 correction-lease-held (the lease needs a 64-hex digest no client seam exposes); the two rows reach the production controls but cannot pass",
+        "parkedPr": 1860,
+        "nextIndependentAction": "U5e (R2.combat: a client adapter reads lineage.effectiveHead from GET /api/matches/:id/timeline) then U5f (R2.multiplayer-client: the producers name that head) unblock E2E-19's preview; E2E-25's commit waits on the owner's ruling on PK-rewind-commit-head-digest; then U2b resumes from PR #1860's rows",
+        "proof": "evidence/u2b-local-20260921.json findingsReportedNotFixed"
       }
     },
     {
@@ -1380,6 +1400,76 @@
         "E2E-25 (client half)"
       ],
       "packet": "PK-u5d-ruling"
+    },
+    {
+      "id": "U5e",
+      "node": "R2.combat",
+      "taskKeys": [],
+      "behavior": "A client adapter beside previewGmCombatRewind in src/lib/multiplayer/client reads the match's effective head from the seated timeline route (GET /api/matches/:id/timeline, the `lineage.effectiveHead` the server already returns: branchId, revision, generation) with the bearer token, returning it verbatim or a typed unavailable outcome on 401/403/404/500 or a body without a lineage; it never fabricates a head and carries no digest (the lineage has none). Red-first: a jest faking fetch asserting the head is read from the lineage and that a missing lineage yields unavailable (red today: no such adapter). No producer change (U5f), no route change, no e2e row.",
+      "ownershipPaths": [
+        "src/lib"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260921": "successor of the U2b park (evidence/u2b-admission-20260921.json: the lobby producers name the fallback branch root and the effective branch is main under the journal fixture); the read half of the head-naming fix, split from U5f because the adapter lives under R2.combat's src/lib and the producers under R2.multiplayer-client; planned by the parent under the owner's instruction to continue the loop",
+      "rowsUnblocked": [
+        "E2E-19 (with U5f)"
+      ]
+    },
+    {
+      "id": "U5f",
+      "node": "R2.multiplayer-client",
+      "taskKeys": [],
+      "behavior": "The lobby's rewind and correction producers (src/pages-modules/multiplayer/useGmRewindProducers.ts, useGmCorrectionProducers.ts) name the effective head the U5e adapter read (expectedBranchId, expectedRevision, expectedGeneration from lineage.effectiveHead) instead of the fallback branch root and the first generation, keeping expectedDigest empty until PK-rewind-commit-head-digest is ruled; when the head is unavailable the preview control reports the unavailable outcome instead of posting a fabricated head. Red-first: a hook test asserting the preview request carries the lineage's branch id and generation (red today: root and the first generation) and that an unavailable head yields the unavailable outcome. No adapter change (U5e), no route change, no e2e row; E2E-25's commit stays gated on the packet.",
+      "ownershipPaths": [
+        "src/pages-modules/multiplayer"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260921": "successor of the U2b park; the producer half of the head-naming fix (U5e reads the head); planned by the parent under the owner's instruction to continue the loop",
+      "rowsUnblocked": [
+        "E2E-19 (with U5e)"
+      ]
     },
     {
       "id": "U8",
@@ -2619,6 +2709,39 @@
         "deviationDisclosed20260917": "DELIVERY.md says the owner posts the ruling out of band; the owner approved this unit by description in chat on 2026-09-17 (words quoted in the comment) after the parent had explained the change in plain language, and the parent composed and posted the comment from the owner GitHub account and applied the label; the U3 disclosure said the owner would name the head in chat before the loop posts, which did not happen here: the parent supplied the head from the ledger"
       },
       "note": "pre-opened with the unit so the privacy class is visible from admission (same shape as PK-u5a-ruling)"
+    },
+    {
+      "id": "PK-rewind-commit-head-digest",
+      "blocks": [],
+      "nodes": [
+        "R6.umbrella",
+        "R2.multiplayer-client",
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "The correction lease refuses a rewind commit whose expectedDigest is not a 64-character journal digest (src/lib/events/journal/EventHistoryCorrectionLeaseContract.ts:200), no client seam exposes that digest (the lobby producers and even the rewind e2e helper send an empty string, and IActiveBranchHead / the timeline lineage carry no digest), so no GM can finalize a rewind or correction today and E2E-25 (and the rewind pack's @until-journal-cutover rows) cannot pass: should (a) a GM head route expose the journal digest with the effective head so the lobby can name it, (b) the lease accept an absent digest as no claim the way the campaign pipeline treats an absent expectedRevision, or (c) E2E-25 and the rewind rows stay held until adopt-combat-journal-cutover-and-gm-rewind lands?",
+      "options": [
+        {
+          "label": "(a) a GM head route with the digest",
+          "consequence": "R2.authority-live adds GET /api/matches/:id/head (GM only: branchId, revision, effectiveGeneration, journal digest); the lobby producers (U5f) send it; the lease law is untouched; E2E-25 becomes provable once U5e/U5f and that route land",
+          "effort": "one bounded route unit (privacy/authority review) plus the U5f change"
+        },
+        {
+          "label": "(b) the lease accepts an absent digest as no claim",
+          "consequence": "src/lib/events/journal changes the lease contract so a missing digest means the caller makes no digest claim (branch, revision and generation still guard the head); replay class; weakens the lease's identity check for every caller",
+          "effort": "one bounded journal unit (replay review) plus pins on every lease caller"
+        },
+        {
+          "label": "(c) hold until the combat journal cutover",
+          "consequence": "E2E-25 and 21.2 stay open; the umbrella cannot close on that row until adopt-combat-journal-cutover-and-gm-rewind (behind R3/R4/R5 gates)",
+          "effort": "none now; weeks, gated on other nodes"
+        }
+      ],
+      "agentRecommendation": "(a): it keeps the lease law intact, the digest is server-computed and GM-scoped, and it is the smallest product change on the critical path; the parent plans the route unit only after the ruling",
+      "revertCost": "low for (a) (a route and a producer field); higher for (b) (a contract change every lease caller depends on)",
+      "decision": null,
+      "ruling": null,
+      "note": "Opened 2026-09-21 from U2b's admission measurements (evidence/u2b-admission-20260921.json, PR #1860 parked). E2E-19 (preview) does not need the digest: the preview refuses only STALE_BRANCH / STALE_REVISION / STALE_GENERATION, so U5e/U5f unblock it regardless of this ruling."
     }
   ],
   "deferrals": [
@@ -2866,6 +2989,14 @@
       "class": "missing product surface",
       "summary": "The private reason the GM types (U5b, useGmCorrectionProducers) is handed to the commit adapter and goes no further: commitGmCombatRewind serialises five fields without it, IRewindCommitBody has no reason, and the rewind-commit route writes REWIND_COMMIT_REASON into the private record. U5b's own header records this as NOT YET DELIVERED and names the narrow successor; the privacy-pack ladder group is also not armed with the combat-journal fixture (only authority-recovery is). U2b is blocked on U5c/U5d rather than admitted to measure a known gap.",
       "status": "resolved by U5c (#1854) and U5d (#1856); U2b resumed 2026-09-21"
+    },
+    {
+      "at": "2026-09-21T21:30:00.000Z",
+      "id": "FN-u2b-lobby-producers-name-a-fallback-head",
+      "foundBy": "U2b lane (codex gpt-6-astra xhigh) at admission, 2026-09-21; verified by the parent",
+      "class": "missing product surface",
+      "summary": "With the privacy-pack group armed with the combat-journal fixture the 404 no-authoritative-history disappears, but the lobby's rewind preview answers 409 STALE_BRANCH: src/pages-modules/multiplayer/useGmRewindProducers.ts:69-81 names the fallback branch root, an empty digest and the first generation while the effective branch under the fixture is main (sqlite: branch_id main, effective_generation 1); approve answers 409 correction-lease-held because the lease requires a 64-character journal digest (EventHistoryCorrectionLeaseContract.ts:200) and no client seam exposes one (IActiveBranchHead and the timeline lineage carry no digest; the rewind e2e helper also sends an empty digest and its commit rows are @until-journal-cutover). E2E-19's preview needs only the real branch (successors U5e/U5f); E2E-25's commit needs a digest source, an owner decision (PK-rewind-commit-head-digest).",
+      "status": "U2b parked on draft PR #1860; U5e/U5f planned; packet PK-rewind-commit-head-digest opened"
     }
   ]
 }
