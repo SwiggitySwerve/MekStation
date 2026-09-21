@@ -1,0 +1,23 @@
+{
+  "unit": "U5c",
+  "stage": "merge",
+  "at": "2026-09-21T19:37:50.258Z",
+  "pr": 1854,
+  "title": "feat(api): the rewind commit stores the GM's private reason as a GM private record (U5c)",
+  "head": "516d2c2bcf925d2fc5356d0963f2e6d955d6c156",
+  "mergeSha": "c8e42dd955fad931631cc02d4929c8d6ff76a357",
+  "mergedAt": "2026-09-21T19:27:34Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u5c-admission-20260919.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u5c-local-20260919.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u5c-red-20260919.json",
+    "src/__tests__/api/matches/rewindCommitRoute.reason.test.ts",
+    "src/pages-modules/api/rewindCommitDeps.ts",
+    "src/pages/api/matches/[id]/rewind-commit.ts"
+  ],
+  "blobEqualityDiffLines": 0
+}

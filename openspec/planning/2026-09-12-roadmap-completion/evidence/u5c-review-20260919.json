@@ -1,0 +1,17 @@
+{
+  "unit": "U5c",
+  "stage": "review",
+  "at": "2026-09-21T19:37:48.534Z",
+  "lane": "A",
+  "reviewerModel": "claude-sonnet (Agent model: sonnet)",
+  "implementerModel": "codex (gpt-6-astra xhigh; two passes)",
+  "reviewerEffort": "default",
+  "head": "516d2c2bcf925d2fc5356d0963f2e6d955d6c156",
+  "reviewedHead": "516d2c2bcf925d2fc5356d0963f2e6d955d6c156",
+  "verdict": "APPROVE",
+  "outputPath": "evidence/u5c-lane-a-review-20260919.md",
+  "outputSha256": "f256330f2d8155460a8b76f88f7def276239077db52c15f5d1434813fc5e6558",
+  "sharedContext": "none: reviewer received only the diff range, the head, the contract and spec files on the head, and re-ran tsc/oxlint/oxfmt/jest in its own throwaway worktree",
+  "laneB": "not required (review classes: routine)",
+  "githubApproval": "none recorded; Lane A is engineering evidence, never a GitHub approval"
+}
