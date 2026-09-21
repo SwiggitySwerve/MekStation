@@ -1,0 +1,326 @@
+{
+  "unit": "U2b",
+  "at": "2026-09-21T20:08:24.589Z",
+  "baseline": "3137f5b619c4597076d9a274ca0b4d0bbe364ab4",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u2b",
+  "branch": "codex/roadmap-u2b-e2e-19-25-rows-20260921",
+  "implementerModel": "codex (gpt-6-astra xhigh)",
+  "stage": "red",
+  "status": "BLOCKED",
+  "admissionComplete": false,
+  "baselineTagAbsence": {
+    "command": "git grep -n \"@E2E-19\\|@E2E-25\" e2e/",
+    "stdout": "",
+    "exitCode": 1,
+    "baseline": "3137f5b619c4597076d9a274ca0b4d0bbe364ab4"
+  },
+  "baselineRun": {
+    "runId": "u2b-baseline-loopback-20260921",
+    "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=privacy-pack --run-id=u2b-baseline-loopback-20260921",
+    "shellPreamble": [
+      "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+      "export npm_config_dry_run=true",
+      "export npm_config_ignore_scripts=true",
+      "export HOSTNAME=127.0.0.1",
+      "unset MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE"
+    ],
+    "idleGate": {
+      "command": "node scripts/qc/machine-idle.mjs --wait --timeout-ms 1800000",
+      "lastLine": "MACHINE_IDLE",
+      "exitCode": 0
+    },
+    "runnerSummaryLines": ["6 passed (1.2m)"],
+    "lastLine": "RUN_EXIT=0",
+    "exitCode": 0,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/mekstation-u2b-20260921/baseline-privacy-loopback.log",
+      "sha256": "32c48ad99ec08ca0a933b4b18d5bd1fe05833dc9d8f8e294789e5d44c36c3e5b"
+    },
+    "server": {
+      "runId": "u2b-baseline-loopback-20260921",
+      "port": 23441,
+      "serverPid": 51556,
+      "commandLine": "node  server.js",
+      "parentPid": 51256,
+      "observedAt": "2026-09-21T19:54:51.9740648Z",
+      "source": "CIM and listening socket; runner prints port, not PID"
+    },
+    "assertions": []
+  },
+  "unarmedRun": {
+    "runId": "u2b-unarmed-20260921",
+    "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=privacy-pack --run-id=u2b-unarmed-20260921",
+    "shellPreamble": [
+      "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+      "export npm_config_dry_run=true",
+      "export npm_config_ignore_scripts=true",
+      "export HOSTNAME=127.0.0.1",
+      "unset MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE"
+    ],
+    "idleGate": {
+      "command": "node scripts/qc/machine-idle.mjs --wait --timeout-ms 1800000",
+      "lastLine": "MACHINE_IDLE",
+      "exitCode": 0
+    },
+    "runnerSummaryLines": ["2 failed", "6 passed (41.5s)"],
+    "lastLine": "RESTORED_SHA256=f065b258b59f4cb5cd8e097ec3d4331c85d54c314c2a8144d41c1f27e5d0a1fc",
+    "exitCode": 1,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/mekstation-u2b-20260921/red-unarmed.log",
+      "sha256": "9e2651341f9e504a8e3f68a36fd724606c8609d8a92e51c63f9a33ba49924f68"
+    },
+    "server": {
+      "port": 28040,
+      "serverPid": null,
+      "observation": "Runner printed the port, not a PID. PID capture occurred after server exit; no PID is inferred. Final machine-idle check found no surviving heavy process."
+    },
+    "assertions": [
+      {
+        "row": "E2E-19",
+        "route": "rewind-preview",
+        "assertion": "expect(preview.status(), await preview.text()).toBe(200)",
+        "fileLineAtRun": "e2e/gm-two-player-privacy.pack.spec.ts:216:54",
+        "expectedStatus": 200,
+        "actualStatus": 404,
+        "body": {
+          "kind": "refused",
+          "reason": "no-authoritative-history",
+          "detail": "Match 'c0c749f4-0897-4ed4-86f5-a0d3916c54ac' has no authoritative history to rewind; nothing has been recorded against its stream"
+        }
+      },
+      {
+        "row": "E2E-25",
+        "route": "rewind-preview",
+        "assertion": "expect.soft(preview.status(), await preview.text()).toBe(200)",
+        "fileLineAtRun": "e2e/gm-two-player-privacy.pack.spec.ts:280:59",
+        "expectedStatus": 200,
+        "actualStatus": 404,
+        "body": {
+          "kind": "refused",
+          "reason": "no-authoritative-history",
+          "detail": "Match '8cccba3b-29bb-4347-8003-2bde018bef1a' has no authoritative history to rewind; nothing has been recorded against its stream"
+        }
+      },
+      {
+        "row": "E2E-25",
+        "route": "rewind-commit",
+        "assertion": "expect(committed.status(), await committed.text()).toBe(200)",
+        "fileLineAtRun": "e2e/gm-two-player-privacy.pack.spec.ts:291:58",
+        "expectedStatus": 200,
+        "actualStatus": 404,
+        "body": {
+          "kind": "refused",
+          "reason": "no-authoritative-history",
+          "detail": "Match '8cccba3b-29bb-4347-8003-2bde018bef1a' has no authoritative history to rewind; nothing has been recorded against its stream"
+        }
+      }
+    ]
+  },
+  "armedRun": {
+    "runId": "u2b-armed-20260921",
+    "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=privacy-pack --run-id=u2b-armed-20260921",
+    "shellPreamble": [
+      "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+      "export npm_config_dry_run=true",
+      "export npm_config_ignore_scripts=true",
+      "export HOSTNAME=127.0.0.1",
+      "unset MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE"
+    ],
+    "idleGate": {
+      "command": "node scripts/qc/machine-idle.mjs --wait --timeout-ms 1800000",
+      "lastLine": "MACHINE_IDLE",
+      "exitCode": 0
+    },
+    "runnerSummaryLines": ["2 failed", "6 passed (39.1s)"],
+    "lastLine": "RUN_EXIT=1",
+    "exitCode": 1,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/mekstation-u2b-20260921/armed-privacy.log",
+      "sha256": "8b54ba525fa07c2ac19944e86ad11db559a7d6a74083bd06c330997e152d1c15"
+    },
+    "server": {
+      "runId": "u2b-armed-20260921",
+      "port": 25575,
+      "serverPid": 4332,
+      "commandLine": "node  server.js",
+      "parentPid": 24256,
+      "observedAt": "2026-09-21T20:01:59.4888659Z",
+      "source": "CIM and listening socket; runner prints port, not PID"
+    },
+    "assertions": [
+      {
+        "row": "E2E-19",
+        "route": "rewind-preview",
+        "assertion": "expect(preview.status(), await preview.text()).toBe(200)",
+        "fileLineAtRun": "e2e/gm-two-player-privacy.pack.spec.ts:216:54",
+        "expectedStatus": 200,
+        "actualStatus": 409,
+        "body": {
+          "kind": "refused",
+          "reason": "STALE_BRANCH",
+          "detail": "The named head is STALE_BRANCH; resync to the active head first"
+        }
+      },
+      {
+        "row": "E2E-25",
+        "route": "rewind-preview",
+        "assertion": "expect.soft(preview.status(), await preview.text()).toBe(200)",
+        "fileLineAtRun": "e2e/gm-two-player-privacy.pack.spec.ts:280:59",
+        "expectedStatus": 200,
+        "actualStatus": 409,
+        "body": {
+          "kind": "refused",
+          "reason": "STALE_BRANCH",
+          "detail": "The named head is STALE_BRANCH; resync to the active head first"
+        }
+      },
+      {
+        "row": "E2E-25",
+        "route": "rewind-commit",
+        "assertion": "expect(committed.status(), await committed.text()).toBe(200)",
+        "fileLineAtRun": "e2e/gm-two-player-privacy.pack.spec.ts:291:58",
+        "expectedStatus": 200,
+        "actualStatus": 409,
+        "body": {
+          "kind": "refused",
+          "reason": "correction-lease-held",
+          "detail": "expectedDigest must be 64 lowercase hex characters"
+        }
+      }
+    ]
+  },
+  "mutation": {
+    "id": "M2",
+    "change": "Remove privacy-pack from the journal arming predicate; leave both environment keys unset before runner.",
+    "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=privacy-pack --run-id=u2b-unarmed-20260921",
+    "result": "Both new rows failed on preview 404; E2E-25 approve also failed 404. Six existing tests passed.",
+    "exitCode": 1,
+    "preMutantSha256": "f065b258b59f4cb5cd8e097ec3d4331c85d54c314c2a8144d41c1f27e5d0a1fc",
+    "mutantSha256": "f065b258b59f4cb5cd8e097ec3d4331c85d54c314c2a8144d41c1f27e5d0a1fc",
+    "restoredSha256": "f065b258b59f4cb5cd8e097ec3d4331c85d54c314c2a8144d41c1f27e5d0a1fc",
+    "restorationMatches": true,
+    "savedCopy": "C:/Users/wroll/AppData/Local/Temp/mekstation-u2b-20260921/core-armed.saved.cjs",
+    "qualifiesAsGreenControlMutationProof": false,
+    "limit": "This is the required unarmed red run. The armed control is itself blocked, so it is not a completed stage-3 mutant claim."
+  },
+  "blocker": {
+    "summary": "The armed lobby correction producers cannot name an admissible rewind head: preview returns 409 STALE_BRANCH and approve returns 409 correction-lease-held because expectedDigest is empty.",
+    "measuredPreview": {
+      "kind": "refused",
+      "reason": "STALE_BRANCH",
+      "detail": "The named head is STALE_BRANCH; resync to the active head first"
+    },
+    "measuredApprove": {
+      "kind": "refused",
+      "reason": "correction-lease-held",
+      "detail": "expectedDigest must be 64 lowercase hex characters"
+    },
+    "fixtureArmingCleared404": true,
+    "sourceCause": [
+      {
+        "seam": "src/pages-modules/multiplayer/useGmRewindProducers.ts:69",
+        "fact": "Shared builder hardcodes ROOT_EVENT_BRANCH_ID; EventJournalContract.ts:1 defines it as root."
+      },
+      {
+        "seam": "src/pages-modules/multiplayer/useGmRewindProducers.ts:76",
+        "fact": "Shared builder sets expectedDigest to an empty string."
+      },
+      {
+        "seam": "src/pages-modules/multiplayer/useGmCorrectionProducers.ts:114",
+        "fact": "Preview saves this request; approve at :124 reuses it and :133 adds the private reason."
+      },
+      {
+        "seam": "src/lib/events/journal/EventHistoryCorrectionLeaseContract.ts:200",
+        "fact": "Correction lease requires a 64-character lowercase hex digest; observed approve detail matches this guard."
+      }
+    ],
+    "durableEvidence": {
+      "file": ".sisyphus/e2e-runtime/u2b-armed-20260921/mekstation.db",
+      "readOnly": true,
+      "selectedRows": [
+        {
+          "stream_id": "13deeddd-e3f8-4e54-a089-aa4f58acdffe",
+          "branch_id": "main",
+          "effective_generation": 1
+        },
+        {
+          "stream_id": "cb68c5eb-6793-4019-8dc0-d208f9571bf5",
+          "branch_id": "main",
+          "effective_generation": 1
+        }
+      ],
+      "journalHeads": [
+        {
+          "stream_id": "13deeddd-e3f8-4e54-a089-aa4f58acdffe",
+          "branch_id": "main",
+          "stream_revision": 5
+        },
+        {
+          "stream_id": "cb68c5eb-6793-4019-8dc0-d208f9571bf5",
+          "branch_id": "main",
+          "stream_revision": 5
+        }
+      ],
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/mekstation-u2b-20260921/armed-heads.log",
+        "sha256": "2d68f0bbd6ac301d8b852dd0102b11f24318318eee9f3a58dc67cdc0d7e5580f"
+      }
+    },
+    "requiredNextAction": "Parent parks U2b with a packet naming the shared lobby rewind-head contract gap. A separately owned product unit must provide the current branch and an admissible digest to preview/approve, then U2b repeats admission and all acceptance gates.",
+    "stopRule": "Unit behavior requires admission stop when a row needs product behavior outside the assigned e2e/QC paths. The measured armed blocker is 409, not the hypothesized 404; no cutover checkbox causality is claimed."
+  },
+  "setup": [
+    {
+      "command": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build",
+      "node": "v22.22.0",
+      "environment": {
+        "npm_config_dry_run": "true",
+        "npm_config_ignore_scripts": "true"
+      },
+      "idleLastLine": "MACHINE_IDLE",
+      "idleExitCode": 0,
+      "exitCode": 1,
+      "lastLine": "BUILD_EXIT=1",
+      "error": "Unsafe hydration destination (runtime loader tsx) contains a symlink or junction: .next\\standalone\\node_modules",
+      "nextCompilation": "Completed before hydration refusal",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/mekstation-u2b-20260921/baseline-build.log",
+        "sha256": "4a3b4ed5885664bc9e58db67a03b1b9d3ea072ab9a31664db6c4c80b1428fc56"
+      }
+    },
+    {
+      "command": "node scripts/hydrate-next-standalone-multiplayer-server.mjs",
+      "prerequisite": "Worktree-owned generated junction replaced by a local directory after verified path/target checks; shared node_modules junction preserved.",
+      "exitCode": 0,
+      "lastLine": "}",
+      "result": {
+        "ok": true,
+        "hydratedStandaloneServer": ".next/standalone/server.js"
+      },
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/mekstation-u2b-20260921/recover-hydration.log",
+        "sha256": "97f9caf9b1e8b847cdb9d671daf58ad3efa3637ff42d869d5cd4888daf7934f8"
+      }
+    },
+    {
+      "command": "rg -l '__E2E_MODE__' .next/static/chunks/pages/_app-*.js",
+      "exitCode": 0,
+      "lastLine": ".next/static/chunks/pages/_app-84e33bbd07937ba7.js"
+    },
+    {
+      "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=privacy-pack --run-id=u2b-baseline-20260921",
+      "exitCode": 1,
+      "lastLine": "RUN_EXIT=1",
+      "error": "[mp-boot] invalid HOSTNAME \"SwerveStation\"",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/mekstation-u2b-20260921/baseline-privacy.log",
+        "sha256": "d999f0cd95286b87daf46585f69dbb48246fe3baaabad993772e2b3660198d8d"
+      }
+    }
+  ],
+  "evidenceLimits": [
+    "The baseline and armed servers exited; final idle gate returned MACHINE_IDLE.",
+    "Only the four-line diagnostic header comment was added after the armed browser run; assertions were not weakened.",
+    "HTTP response bodies and assertion lines are copied from actual runner failure output. Downstream payload, audit, board, lineage and reason-persistence assertions were not reached."
+  ]
+}

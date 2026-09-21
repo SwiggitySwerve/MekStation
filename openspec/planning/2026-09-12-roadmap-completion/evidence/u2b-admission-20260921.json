@@ -1,0 +1,343 @@
+{
+  "unit": "U2b",
+  "stage": "admission",
+  "at": "2026-09-21T19:53:20.3096443Z",
+  "status": "BLOCKED",
+  "baseline": "3137f5b619c4597076d9a274ca0b4d0bbe364ab4",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u2b",
+  "branch": "codex/roadmap-u2b-e2e-19-25-rows-20260921",
+  "implementerModel": "codex (gpt-6-astra xhigh)",
+  "implementerModelEvidence": "Current session turn_context: model=gpt-6-astra, effort=xhigh",
+  "next": {
+    "stdout": "U2b",
+    "exitCode": 0,
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next"
+  },
+  "seamsAsRead": [
+    "e2e/gm-two-player-privacy.pack.spec.ts:208 - six baseline tests cover eight scenario tags; two browser contexts at 927-928",
+    "scripts/qc/gm-two-player-campaign-core.cjs:79 - privacy group; :205 - only authority-recovery arms both journal keys",
+    "scripts/__tests__/gm-two-player-campaign-qc.test.ts:242 - privacy group pin; :553 - non-arming pin",
+    "src/pages/api/matches/[id]/rewind-preview.ts:198 - host GM authority; :234 - private draft write; :259 - privateRefs.preview",
+    "src/pages-modules/api/matchPrivatePreviewRoute.ts:90 - host-as-GM resolver; :101 - includePrivate; :106 - caller-named ref",
+    "src/pages/multiplayer/lobby/[roomCode].tsx:326 - correction producers; :415 - preview, approve and reason handlers",
+    "src/components/multiplayer/NetworkedGameSurface.gmCorrection.tsx:124 - preview; :132 - approve; :150 - reason; :163 - status",
+    "src/pages-modules/multiplayer/useGmCorrectionProducers.ts:118 - reason capture; :133 - reason passed to commit",
+    "src/lib/multiplayer/client/commitGmCombatRewind.ts:67 - optional reason serialized",
+    "src/pages/api/matches/[id]/rewind-commit.ts:213 - committed-arm private reason; :238 - no ref in response",
+    "src/pages-modules/api/matchHistoryExportRoute.ts:46 - viewer export; src/pages-modules/api/matchHistoryTimelineRoute.ts:45 - viewer timeline",
+    "e2e/helpers/gmTwoPlayerRewind.ts:115 - five-field CAS; :166 - preview and commit; e2e/gm-two-player-rewind.pack.spec.ts:4 - cutover expected failures",
+    "e2e/fixtures/sqliteEvidenceReader.ts:68 - read-only fileMustExist evidence reader",
+    "src/lib/multiplayer/server/history/GmPrivatePreviewRecordWriter.ts:79 - gm-reason record; src/lib/events/privacy/SQLitePrivateRecordRepository.ts:52 - private_record columns"
+  ],
+  "armingDesign": "Extend expandedMembers membership to authority-recovery OR privacy-pack. Forward the same campaign=1 and combat=enabled fixture pair; retain plain server and unchanged respawn set. Pin both keys and plain server in the existing QC test.",
+  "rowDesigns": {
+    "E2E-19": "Use the existing tactical host and seated guest. Preview via lobby control, require 200 preview/privateRefs.preview, GET private-preview with host and guest bearer. Require GM draft payload and recursively reject every payload key in the player body. Read granted/denied export-attempt audits through the read-only SQLite reader; scan player timeline/export/DOM/wire for draft text.",
+    "E2E-25": "Type a unique private reason in the host control, preview then approve, require 200 committed and committed surface outcome. Assert guest board and timeline/export show the authorized rewind and omit the reason. Assert GM-only reason persistence and re-authorized read; never turn an unexpected product refusal into a skip."
+  },
+  "commitPrivateRecordSeam": "The commit reply intentionally contains no ref and private-preview only reads a caller-named ref. Select opaque_ref/payload from private_record where campaign_session_id=matchId and record_kind=gm-reason through the existing read-only reader against the runner-owned mekstation.db; then GET that ref as GM and player. Do not write or seed a private record.",
+  "fixtureFacts": {
+    "baselineScenarioTags": [
+      "E2E-20",
+      "E2E-21",
+      "E2E-22",
+      "E2E-23",
+      "E2E-24",
+      "E2E-26",
+      "E2E-27",
+      "E2E-28"
+    ],
+    "tacticalHostRole": "player (no campaign GM participant); host is GM for rewind/private-preview HTTP via durable hostPlayerId",
+    "baselineTests": 6,
+    "browserContexts": 2,
+    "hostCorrectionControls": "Live preview, reason and approve controls were reached in both new rows.",
+    "armedApproveOutcome": {
+      "httpStatus": 409,
+      "body": {
+        "kind": "refused",
+        "reason": "correction-lease-held",
+        "detail": "expectedDigest must be 64 lowercase hex characters"
+      },
+      "privateReasonCarriedByRequest": true,
+      "committed": false
+    },
+    "armedPreviewOutcome": {
+      "httpStatus": 409,
+      "body": {
+        "kind": "refused",
+        "reason": "STALE_BRANCH",
+        "detail": "The named head is STALE_BRANCH; resync to the active head first"
+      }
+    }
+  },
+  "estimatePerFile": {
+    "e2e/gm-two-player-privacy.pack.spec.ts": {
+      "productLines": 225,
+      "description": "two rows, local evidence helpers, guest bearer exposure, header"
+    },
+    "scripts/qc/gm-two-player-campaign-core.cjs": {
+      "productLines": 8
+    },
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u2b-red-20260921.json": {
+      "evidenceOnly": true
+    },
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u2b-local-20260921.json": {
+      "evidenceOnly": true
+    },
+    "scripts/__tests__/gm-two-player-campaign-qc.test.ts": {
+      "testLines": 16
+    },
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u2b-admission-20260921.json": {
+      "evidenceOnly": true
+    }
+  },
+  "caps": {
+    "maxFiles": 15,
+    "e2eRowsCountAsProduct": true,
+    "maxNonGeneratedProductLines": 500,
+    "plannedProductLines": 233
+  },
+  "risksForTheParent": [
+    "Both new rows remain strict failures. Do not merge or tick 21.2 from this receipt.",
+    "The actual armed failure is the lobby CAS contract, not missing authoritative history. No product repair is authorized in this lane.",
+    "Whole-body payload-key rejection may expose a separate contract incompatibility once preview succeeds.",
+    "No local green, review, owner ruling, main proof, mutation-sensitivity proof or task acceptance is established."
+  ],
+  "review": {
+    "packet": "PK-u2b-ruling",
+    "requires": "PR merges only after owner ruling tied to its exact head; implementer supplies no ruling",
+    "class": "privacy"
+  },
+  "nonClaims": [
+    "21.2 checkbox is parent stage 7 on main.",
+    "No production cutover or runtime source change.",
+    "Rewind-pack expected failures remain unchanged."
+  ],
+  "acceptanceCommands": [
+    "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=privacy-pack (twice)",
+    "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=proposal-pack",
+    "npx jest scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+    "npx tsc --noEmit",
+    "npx oxlint",
+    "npx oxfmt --check <changed files>",
+    "npm run lint:units",
+    "npm run qc:openspec-ci:validate",
+    "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+    "M1 payload inversion; M2 fixture-arm removal; M3 reason-absence inversion: live affected-row Playwright runs with byte-identical restoration"
+  ],
+  "completedAt": "2026-09-21T20:08:24.589Z",
+  "blocker": {
+    "summary": "The armed lobby correction producers cannot name an admissible rewind head: preview returns 409 STALE_BRANCH and approve returns 409 correction-lease-held because expectedDigest is empty.",
+    "measuredPreview": {
+      "kind": "refused",
+      "reason": "STALE_BRANCH",
+      "detail": "The named head is STALE_BRANCH; resync to the active head first"
+    },
+    "measuredApprove": {
+      "kind": "refused",
+      "reason": "correction-lease-held",
+      "detail": "expectedDigest must be 64 lowercase hex characters"
+    },
+    "fixtureArmingCleared404": true,
+    "sourceCause": [
+      {
+        "seam": "src/pages-modules/multiplayer/useGmRewindProducers.ts:69",
+        "fact": "Shared builder hardcodes ROOT_EVENT_BRANCH_ID; EventJournalContract.ts:1 defines it as root."
+      },
+      {
+        "seam": "src/pages-modules/multiplayer/useGmRewindProducers.ts:76",
+        "fact": "Shared builder sets expectedDigest to an empty string."
+      },
+      {
+        "seam": "src/pages-modules/multiplayer/useGmCorrectionProducers.ts:114",
+        "fact": "Preview saves this request; approve at :124 reuses it and :133 adds the private reason."
+      },
+      {
+        "seam": "src/lib/events/journal/EventHistoryCorrectionLeaseContract.ts:200",
+        "fact": "Correction lease requires a 64-character lowercase hex digest; observed approve detail matches this guard."
+      }
+    ],
+    "durableEvidence": {
+      "file": ".sisyphus/e2e-runtime/u2b-armed-20260921/mekstation.db",
+      "readOnly": true,
+      "selectedRows": [
+        {
+          "stream_id": "13deeddd-e3f8-4e54-a089-aa4f58acdffe",
+          "branch_id": "main",
+          "effective_generation": 1
+        },
+        {
+          "stream_id": "cb68c5eb-6793-4019-8dc0-d208f9571bf5",
+          "branch_id": "main",
+          "effective_generation": 1
+        }
+      ],
+      "journalHeads": [
+        {
+          "stream_id": "13deeddd-e3f8-4e54-a089-aa4f58acdffe",
+          "branch_id": "main",
+          "stream_revision": 5
+        },
+        {
+          "stream_id": "cb68c5eb-6793-4019-8dc0-d208f9571bf5",
+          "branch_id": "main",
+          "stream_revision": 5
+        }
+      ],
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/mekstation-u2b-20260921/armed-heads.log",
+        "sha256": "2d68f0bbd6ac301d8b852dd0102b11f24318318eee9f3a58dc67cdc0d7e5580f"
+      }
+    },
+    "requiredNextAction": "Parent parks U2b with a packet naming the shared lobby rewind-head contract gap. A separately owned product unit must provide the current branch and an admissible digest to preview/approve, then U2b repeats admission and all acceptance gates.",
+    "stopRule": "Unit behavior requires admission stop when a row needs product behavior outside the assigned e2e/QC paths. The measured armed blocker is 409, not the hypothesized 404; no cutover checkbox causality is claimed."
+  },
+  "armingObserved": {
+    "runId": "u2b-armed-20260921",
+    "environment": {
+      "PLAYWRIGHT_E2E_RUN_ID": "u2b-armed-20260921",
+      "MEKSTATION_E2E_PORT": "25575",
+      "MEKSTATION_E2E_REUSE_EXISTING_SERVER": "false",
+      "PORT": "25575",
+      "MEKSTATION_E2E_SERVER_COMMAND": "node server.js",
+      "MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY": "1",
+      "MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE": "enabled"
+    }
+  },
+  "lineCounts": [
+    {
+      "file": "e2e/gm-two-player-privacy.pack.spec.ts",
+      "category": "product",
+      "added": 245,
+      "deleted": 22,
+      "changed": 267,
+      "totalFileLines": 1464,
+      "sha256": "52b4fcf07098d2ec3447d17a2fde2223ca9f60019d1b74a4e47ba36e88a20804"
+    },
+    {
+      "file": "scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+      "category": "test",
+      "added": 7,
+      "deleted": 2,
+      "changed": 9,
+      "totalFileLines": 822,
+      "sha256": "fd148931bedc5e17f8b8e0255c375d33f9f0b2c254781ebceb9c4caf9cf3c9f8"
+    },
+    {
+      "file": "scripts/qc/gm-two-player-campaign-core.cjs",
+      "category": "product",
+      "added": 5,
+      "deleted": 5,
+      "changed": 10,
+      "totalFileLines": 331,
+      "sha256": "f065b258b59f4cb5cd8e097ec3d4331c85d54c314c2a8144d41c1f27e5d0a1fc"
+    }
+  ],
+  "findingsReportedNotFixed": [
+    {
+      "id": "FN-u2b-lobby-rewind-head",
+      "measured": true,
+      "summary": "The armed lobby correction producers cannot name an admissible rewind head: preview returns 409 STALE_BRANCH and approve returns 409 correction-lease-held because expectedDigest is empty.",
+      "measuredPreview": {
+        "kind": "refused",
+        "reason": "STALE_BRANCH",
+        "detail": "The named head is STALE_BRANCH; resync to the active head first"
+      },
+      "measuredApprove": {
+        "kind": "refused",
+        "reason": "correction-lease-held",
+        "detail": "expectedDigest must be 64 lowercase hex characters"
+      },
+      "fixtureArmingCleared404": true,
+      "sourceCause": [
+        {
+          "seam": "src/pages-modules/multiplayer/useGmRewindProducers.ts:69",
+          "fact": "Shared builder hardcodes ROOT_EVENT_BRANCH_ID; EventJournalContract.ts:1 defines it as root."
+        },
+        {
+          "seam": "src/pages-modules/multiplayer/useGmRewindProducers.ts:76",
+          "fact": "Shared builder sets expectedDigest to an empty string."
+        },
+        {
+          "seam": "src/pages-modules/multiplayer/useGmCorrectionProducers.ts:114",
+          "fact": "Preview saves this request; approve at :124 reuses it and :133 adds the private reason."
+        },
+        {
+          "seam": "src/lib/events/journal/EventHistoryCorrectionLeaseContract.ts:200",
+          "fact": "Correction lease requires a 64-character lowercase hex digest; observed approve detail matches this guard."
+        }
+      ],
+      "durableEvidence": {
+        "file": ".sisyphus/e2e-runtime/u2b-armed-20260921/mekstation.db",
+        "readOnly": true,
+        "selectedRows": [
+          {
+            "stream_id": "13deeddd-e3f8-4e54-a089-aa4f58acdffe",
+            "branch_id": "main",
+            "effective_generation": 1
+          },
+          {
+            "stream_id": "cb68c5eb-6793-4019-8dc0-d208f9571bf5",
+            "branch_id": "main",
+            "effective_generation": 1
+          }
+        ],
+        "journalHeads": [
+          {
+            "stream_id": "13deeddd-e3f8-4e54-a089-aa4f58acdffe",
+            "branch_id": "main",
+            "stream_revision": 5
+          },
+          {
+            "stream_id": "cb68c5eb-6793-4019-8dc0-d208f9571bf5",
+            "branch_id": "main",
+            "stream_revision": 5
+          }
+        ],
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/mekstation-u2b-20260921/armed-heads.log",
+          "sha256": "2d68f0bbd6ac301d8b852dd0102b11f24318318eee9f3a58dc67cdc0d7e5580f"
+        }
+      },
+      "requiredNextAction": "Parent parks U2b with a packet naming the shared lobby rewind-head contract gap. A separately owned product unit must provide the current branch and an admissible digest to preview/approve, then U2b repeats admission and all acceptance gates.",
+      "stopRule": "Unit behavior requires admission stop when a row needs product behavior outside the assigned e2e/QC paths. The measured armed blocker is 409, not the hypothesized 404; no cutover checkbox causality is claimed."
+    },
+    {
+      "id": "FN-u2b-fixture-description",
+      "measured": true,
+      "detail": "The baseline privacy pack has two browser contexts and six tests covering eight scenario tags. The brief describes three contexts and ten rows. The existing fixture was reused without adding a tactical GM role."
+    },
+    {
+      "id": "FN-u2b-private-record-ref-discovery",
+      "measured": false,
+      "sourceVerified": true,
+      "detail": "Commit returns no private ref; no listing seam is exposed by private-preview. Planned reason evidence queries private_record in the runner-owned mekstation.db with the existing read-only SQLite reader, then re-authorizes the discovered ref. These assertions were not reached."
+    },
+    {
+      "id": "FN-u2b-whole-body-payload-check",
+      "measured": false,
+      "sourceVerified": true,
+      "detail": "ViewerProjectionTypes.ts:59 defines payload on ordinary facts. The mandated whole-body E2E-19 payload-key rejection is retained; its compatibility with a nonempty player stream remains unmeasured because preview is refused."
+    },
+    {
+      "id": "FN-u2b-stale-producer-header",
+      "measured": false,
+      "sourceVerified": true,
+      "detail": "useGmCorrectionProducers.ts header still says reason transport is missing. Current transport sends it and the route stores it on committed results. Header is outside ownership and unchanged."
+    },
+    {
+      "id": "FN-u2b-generated-junction-build",
+      "measured": true,
+      "detail": "npm run build compiled Next but hydration refused a generated .next/standalone/node_modules junction to shared dependencies. Removed only that generated link nonrecursively after exact path/target checks, made a local directory, then ran the unchanged hydrator successfully. The original build command remains exit 1; no second npm build success or standalone portability is claimed."
+    },
+    {
+      "id": "FN-u2b-inherited-hostname",
+      "measured": true,
+      "detail": "First baseline runner startup rejected inherited HOSTNAME SwerveStation. Subsequent process-scoped HOSTNAME=127.0.0.1 made the runner start. No source or user environment was changed."
+    },
+    {
+      "id": "FN-u2b-runner-pid-output",
+      "measured": true,
+      "detail": "Runner logs port but no server PID. Baseline and armed PIDs were captured through CIM plus their listening sockets; unarmed PID was missed and is null."
+    }
+  ]
+}
