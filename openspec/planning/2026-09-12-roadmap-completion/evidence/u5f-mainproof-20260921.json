@@ -1,0 +1,42 @@
+{
+  "unit": "U5f",
+  "stage": "mainProof",
+  "at": "2026-09-21T21:41:52.808Z",
+  "mergeCommit": "aecbec865c4e7aec7ae7955115025968ddaa59a6",
+  "checkout": "root checkout fast-forwarded to the merge commit (real node_modules; hydrate step runs)",
+  "runtime": {
+    "build": "exit 0",
+    "e2eBundleMarker": "__E2E_MODE__ present in _app chunk (run log)",
+    "playwright": "multiplayer page-module and lobby page suites incl. the producer pins (jest): Tests:       35 passed, 35 total",
+    "tsc": "exit 0",
+    "generator": "scripts/qc/roadmap-main-proof.mjs",
+    "runtimeCommandNote": "--runtime-command used because the runtime names two directories (the page-module suites and the lobby page suite the fix pass rewrote)",
+    "heads": {
+      "first": "6dec4f7e436e68a764988c88ea18793334678730 (CI failed the lobby page test; Lane A review archived as u5f-lane-a-review-20260921-head1-6dec4f7e4.md)",
+      "second": "c85826bb5de3fec861d710eeaca4fbb7b8632c97 (fix pass; fresh Lane A APPROVE; CI 31/31 after a close/reopen because the push landed while the PR was conflicting on the receipt main already held, resolved by #1867)"
+    }
+  },
+  "commands": {
+    "validator": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+    "gitAncestry": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows (--git)",
+    "next": "NONE-ADMISSIBLE: 0 owner-gated, 4 blocked",
+    "openspecStrict": "Totals: 229 passed, 0 failed (229 items)",
+    "qcOpenspecCi": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+    "qcPin": "Tests:       26 passed, 26 total"
+  },
+  "logs": ".sisyphus/roadmap-completion-20260912/u5f-main-proof-20260921/ (local; sha256 below)",
+  "logHashes": [
+    "4a9265d23b3bc578ab55c144d698ed7d757bfa1f83c7b0e4638376a2fb01efd7 *build.log",
+    "38875d75a513e6dc764ce99160b9e7423b80cd040a68252ea1b4c336e36d0fc1 *git-check.log",
+    "6445639db60a4a8f79a3ca3573af73d2cde2b74f12f762a22ffc58bdd39aee43 *idle-before-build.log",
+    "6445639db60a4a8f79a3ca3573af73d2cde2b74f12f762a22ffc58bdd39aee43 *idle-before-runtime.log",
+    "c69a6db341d01b7cb6a0234157fec3681f030b1dbd40627611003b6939ea3e17 *next.log",
+    "efd619721df505ed0dbb69fe5bd26b74023670e603ce16891fd2f1331adf1776 *openspec-strict.log",
+    "17bad5de185bbf3266334aaa189cc9a816f74f097d550eb003d292de48910b09 *playwright.log",
+    "5b0f562274df4dbddfb7ae44ab42b7d686dc1e0903383f25c593d88f7479fe9a *qc-openspec-ci.log",
+    "b8efb3ef1c8dd27d99faef4a2f1f40abdc4db7e09d12d57f30ec4b8d69908080 *qc-pin.log",
+    "f891dbdfc0402cd4ba60fab1be3245dfec559c5d7afc7e21b87e795a73d05e5f *tsc.log",
+    "38875d75a513e6dc764ce99160b9e7423b80cd040a68252ea1b4c336e36d0fc1 *validator.log"
+  ],
+  "verdict": "PASS"
+}

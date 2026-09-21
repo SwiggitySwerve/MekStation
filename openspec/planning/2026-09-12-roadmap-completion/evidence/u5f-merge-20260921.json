@@ -1,0 +1,25 @@
+{
+  "unit": "U5f",
+  "stage": "merge",
+  "at": "2026-09-21T21:41:52.785Z",
+  "pr": 1865,
+  "title": "feat(multiplayer): the lobby's rewind and correction producers name the real head (U5f)",
+  "head": "c85826bb5de3fec861d710eeaca4fbb7b8632c97",
+  "mergeSha": "aecbec865c4e7aec7ae7955115025968ddaa59a6",
+  "mergedAt": "2026-09-21T21:36:53Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u5f-admission-20260921.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u5f-local-20260921.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u5f-red-20260921.json",
+    "src/__tests__/pages/multiplayer/lobby-roomcode.test.tsx",
+    "src/pages-modules/multiplayer/__tests__/useGmCorrectionProducers.test.tsx",
+    "src/pages-modules/multiplayer/__tests__/useGmRewindProducers.test.tsx",
+    "src/pages-modules/multiplayer/useGmCorrectionProducers.ts",
+    "src/pages-modules/multiplayer/useGmRewindProducers.ts"
+  ],
+  "blobEqualityDiffLines": 0
+}
