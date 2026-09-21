@@ -23,11 +23,9 @@ import React from 'react';
 import type { IUseMultiplayerSessionResult } from '@/hooks/useMultiplayerSession';
 import type { ILobbyUpdated } from '@/types/multiplayer/Protocol';
 
-import { ROOT_EVENT_BRANCH_ID } from '@/lib/events/journal/EventJournalContract';
 import { commitGmCombatRewind } from '@/lib/multiplayer/client/commitGmCombatRewind';
 import { previewGmCombatRewind } from '@/lib/multiplayer/client/previewGmCombatRewind';
 import { buildMirrorSession } from '@/lib/multiplayer/mirrorMatchSession';
-import { MATCH_BASELINE_FIRST_GENERATION } from '@/lib/multiplayer/server/matchAuthorityBaseline';
 import { GameSide } from '@/types/gameplay/GameSessionInterfaces';
 import {
   decodeTokenFromWire,
@@ -190,9 +188,23 @@ function baseSession(status: 'lobby' | 'active'): IUseMultiplayerSessionResult {
   };
 }
 
-function mockFetch(): void {
+function mockFetch(timelineStatus = 200): void {
   global.fetch = jest.fn(async (input: RequestInfo | URL) => {
     const url = String(input);
+    if (url === '/api/matches/match-1/timeline') {
+      return {
+        ok: timelineStatus === 200,
+        status: timelineStatus,
+        json: async () => ({
+          timeline: [],
+          timelineDigest: 'timeline-digest',
+          lineage: {
+            effectiveHead: { branchId: 'main', revision: 5, generation: 1 },
+            transitions: [],
+          },
+        }),
+      } as Response;
+    }
     if (url.includes('/api/multiplayer/invites/')) {
       return {
         ok: true,
@@ -459,7 +471,7 @@ describe('Multiplayer lobby page — surface swap on status', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('asks the preview adapter for expectedRevision of last mirror sequence plus one', async () => {
+  it('asks the preview adapter for the head from the lineage rather than the mirror', async () => {
     mockSession = baseSession('active');
     render(<LobbyPage />);
     await unlockVault();
@@ -471,28 +483,51 @@ describe('Multiplayer lobby page — surface swap on status', () => {
       fireEvent.click(previewBtn);
     });
 
-    let lastSequence = -1;
-    for (const event of mockSession.mirrorEvents) {
-      if (event.sequence > lastSequence) lastSequence = event.sequence;
-    }
-    const expectedRevision = lastSequence + 1;
+    expect(global.fetch).toHaveBeenCalledWith('/api/matches/match-1/timeline', {
+      method: 'GET',
+      headers: { Authorization: `Bearer ${wireToken()}` },
+    });
+    expect(mockedPreviewGmCombatRewind).toHaveBeenCalledTimes(1);
     expect(mockedPreviewGmCombatRewind.mock.calls[0]?.[0]).toStrictEqual({
       matchId: 'match-1',
       wireToken: wireToken(),
-      targetRevision: expectedRevision - 1,
-      expectedBranchId: ROOT_EVENT_BRANCH_ID,
-      expectedRevision,
+      targetRevision: 4,
+      expectedBranchId: 'main',
+      expectedRevision: 5,
       expectedDigest: '',
-      expectedGeneration: MATCH_BASELINE_FIRST_GENERATION,
+      expectedGeneration: 1,
     });
+  });
+
+  it('reports unavailable without calling the preview adapter when the head read fails', async () => {
+    mockFetch(500);
+    mockSession = baseSession('active');
+    render(<LobbyPage />);
+    await unlockVault();
+
+    const previewBtn = await screen.findByTestId(
+      'networked-gm-rewind-preview-btn',
+    );
+    await act(async () => {
+      fireEvent.click(previewBtn);
+    });
+
+    expect(await screen.findByTestId('gm-rewind-refusal')).toHaveTextContent(
+      /could not answer/i,
+    );
+    expect(global.fetch).toHaveBeenCalledWith('/api/matches/match-1/timeline', {
+      method: 'GET',
+      headers: { Authorization: `Bearer ${wireToken()}` },
+    });
+    expect(mockedPreviewGmCombatRewind).not.toHaveBeenCalled();
   });
 
   it('confirm adapter receives the same body the preview adapter was asked with', async () => {
     mockedPreviewGmCombatRewind.mockResolvedValue({
       kind: 'preview',
       matchId: 'match-1',
-      targetRevision: 3,
-      priorHead: { branchId: 'root', revision: 7, effectiveGeneration: 1 },
+      targetRevision: 4,
+      priorHead: { branchId: 'main', revision: 5, effectiveGeneration: 1 },
       changedViewerIds: ['pid_host'],
       entries: [],
     });
@@ -500,7 +535,7 @@ describe('Multiplayer lobby page — surface swap on status', () => {
       kind: 'committed',
       matchId: 'match-1',
       activatedBranchId: 'candidate-1',
-      priorBranchId: 'root',
+      priorBranchId: 'main',
       effectiveGeneration: 2,
       invalidations: [],
     });
@@ -520,6 +555,16 @@ describe('Multiplayer lobby page — surface swap on status', () => {
       fireEvent.click(confirm);
     });
 
+    expect(mockedPreviewGmCombatRewind).toHaveBeenCalledTimes(1);
+    expect(mockedPreviewGmCombatRewind.mock.calls[0]?.[0]).toStrictEqual({
+      matchId: 'match-1',
+      wireToken: wireToken(),
+      targetRevision: 4,
+      expectedBranchId: 'main',
+      expectedRevision: 5,
+      expectedDigest: '',
+      expectedGeneration: 1,
+    });
     expect(mockedCommitGmCombatRewind).toHaveBeenCalledTimes(1);
     expect(mockedCommitGmCombatRewind.mock.calls[0]?.[0]).toStrictEqual(
       mockedPreviewGmCombatRewind.mock.calls[0]?.[0],
