@@ -1,0 +1,162 @@
+{
+  "unit": "U5e",
+  "stage": "admission",
+  "at": "2026-09-21T20:20:26.5362611Z",
+  "baseline": "4b9880526bb348996b302f2dc9a53d321debaf28",
+  "originMain": "4b9880526bb348996b302f2dc9a53d321debaf28",
+  "branch": "codex/roadmap-u5e-lineage-head-adapter-20260921",
+  "worktree": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\u5e",
+  "initialStatus": [],
+  "node": {
+    "id": "R2.combat",
+    "state": "main-verified",
+    "dependsOn": ["R1.remote"],
+    "sourceChange": null,
+    "package": null,
+    "ownershipPaths": [
+      "src/lib",
+      "src/services",
+      "src/engine",
+      "e2e",
+      "openspec/changes/enable-saved-custom-unit-combat",
+      "src/types/multiplayer"
+    ]
+  },
+  "dependencies": [
+    {
+      "id": "R1.remote",
+      "state": "main-verified",
+      "receipt": "evidence/r1-remote-closure-20260915.json"
+    }
+  ],
+  "implementerModel": "codex (gpt-6-astra xhigh)",
+  "modelEvidence": "Current session's initial turn_context records model gpt-6-astra and effort xhigh.",
+  "activePackage": "openspec/changes/enable-saved-custom-unit-combat",
+  "ownershipPaths": [
+    "src/lib/multiplayer/client/readGmRewindHead.ts",
+    "src/lib/multiplayer/client/__tests__/readGmRewindHead.test.ts",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u5e-admission-20260921.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u5e-red-20260921.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u5e-local-20260921.json"
+  ],
+  "seamsAsRead": [
+    {
+      "at": "src/lib/multiplayer/client/previewGmCombatRewind.ts:13",
+      "finding": "matchId and wireToken input; bearer fetch at line 39; typed body pass-through and text-free unavailable at lines 56-60."
+    },
+    {
+      "at": "src/lib/multiplayer/client/__tests__/previewGmCombatRewind.test.ts:21",
+      "finding": "global.fetch replaced by jest.fn; verbatim body assertion at line 45; exact bearer assertion at lines 94-97."
+    },
+    {
+      "at": "src/pages-modules/api/matchHistoryTimelineRoute.ts:25",
+      "finding": "Response carries timeline, timelineDigest and lineage; successful 200 response at lines 53-57; error mapping at line 59."
+    },
+    {
+      "at": "src/pages-modules/api/matchHistoryViewerChain.ts:161",
+      "finding": "Default stream type is match; no query string is needed."
+    },
+    {
+      "at": "src/lib/multiplayer/server/history/ViewerHistoryLineage.ts:31",
+      "finding": "Effective head fields are branchId:string, revision:number, generation:number; nullable lineage.effectiveHead at line 74."
+    },
+    {
+      "at": "src/pages-modules/multiplayer/useGmRewindProducers.ts:54",
+      "finding": "Current request builder uses root, empty digest and first generation; U5f owns changing this caller."
+    },
+    {
+      "at": "openspec/planning/2026-09-12-roadmap-completion/units.json:611",
+      "finding": "U2b blocked20260921 records STALE_BRANCH and correction-lease-held; U5e/U5f address preview naming only."
+    },
+    {
+      "at": "openspec/planning/2026-09-12-roadmap-completion/units.json:1405",
+      "finding": "U5e owns the read adapter; routine review class; U5f entry at line 1440 owns producer wiring."
+    },
+    {
+      "at": "openspec/planning/2026-09-12-roadmap-completion/units.json:2995",
+      "finding": "FN-u2b-lobby-producers-name-a-fallback-head is the recorded motivation, not a browser result reproduced in this lane."
+    },
+    {
+      "at": "openspec/planning/2026-09-12-roadmap-completion/units.json:2714",
+      "finding": "PK-rewind-commit-head-digest is unresolved and read-only; digest sourcing is outside this unit."
+    }
+  ],
+  "outcomeShape": [
+    "{ kind: 'head', head: { branchId: string, revision: number, generation: number } }",
+    "{ kind: 'no-head' }",
+    "{ kind: 'unavailable' }"
+  ],
+  "behavior": "GET the encoded match timeline path with the bearer header and no query string. Only status 200 with well-typed lineage.effectiveHead returns the three head fields unchanged, or no-head for explicit null. All other responses, malformed JSON/body and thrown fetches return unavailable. No digest, error text, fabricated value or cache.",
+  "estimatesPerFile": [
+    {
+      "path": "src/lib/multiplayer/client/readGmRewindHead.ts",
+      "classification": "product",
+      "estimatedLines": 65
+    },
+    {
+      "path": "src/lib/multiplayer/client/__tests__/readGmRewindHead.test.ts",
+      "classification": "test",
+      "estimatedLines": 200
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/u5e-admission-20260921.json",
+      "classification": "evidence",
+      "estimatedLines": 180
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/u5e-red-20260921.json",
+      "classification": "evidence",
+      "estimatedLines": 100
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/u5e-local-20260921.json",
+      "classification": "evidence",
+      "estimatedLines": 350
+    }
+  ],
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedProductLines": 500,
+    "estimatedProductLines": 65,
+    "estimatedFileCount": 5
+  },
+  "risksForTheParent": [
+    "Adapter is unused until U5f; this lane does not unblock a browser row by itself.",
+    "Timeline lineage has no journal digest; commit remains subject to PK-rewind-commit-head-digest.",
+    "Read is a point-in-time observation; this adapter neither caches nor guarantees a later preview/commit sees the same head.",
+    "Only admission, red and local evidence is produced; parent owns ledger transitions, cross-model review, commits and later stages."
+  ],
+  "review": {
+    "class": "routine",
+    "requiredLanes": ["A"],
+    "laneBRequired": false
+  },
+  "selection": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "exitCode": 0,
+    "stdout": "U5e",
+    "baseline": "4b9880526bb348996b302f2dc9a53d321debaf28"
+  },
+  "environment": {
+    "node": "v22.22.0",
+    "npm": "11.6.2",
+    "shellPrefix": "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH\nexport npm_config_dry_run=true\nexport npm_config_ignore_scripts=true\nexport npm_config_offline=true\n",
+    "npmLifecycle": "No install/ci/prune or lifecycle hooks; explicitly requested npm run gates use ignore_scripts=true."
+  },
+  "acceptanceCommands": [
+    "npx jest src/lib/multiplayer/client/__tests__/readGmRewindHead.test.ts --runInBand",
+    "npx jest src/lib/multiplayer/client --runInBand",
+    "npx tsc --noEmit",
+    "npx oxlint",
+    "npx oxfmt --check <the five owned files>",
+    "npm run lint:units",
+    "npm run qc:openspec-ci:validate",
+    "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs"
+  ],
+  "mutationPlan": [
+    "M1: malformed lineage yields head with undefined fields",
+    "M2: bearer header dropped",
+    "M3: non-200 yields no-head"
+  ],
+  "decision": "go"
+}

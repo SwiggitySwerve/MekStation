@@ -1417,14 +1417,28 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
+      "state": "local-verified",
+      "baseline": "4b9880526bb348996b302f2dc9a53d321debaf28",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/u5e-admission-20260921.json",
+          "baseline": "4b9880526bb348996b302f2dc9a53d321debaf28",
+          "at": "2026-09-21T20:20:26.5362611Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/u5e-red-20260921.json",
+          "at": "2026-09-21 20:24:02 UTC",
+          "summary": "the adapter module did not exist: the new suite failed to load (exit 1, no assertions executed)"
+        },
+        "local": {
+          "path": "evidence/u5e-local-20260921.json",
+          "at": "2026-09-21 20:32:24 UTC",
+          "summary": "readGmRewindHead GETs the timeline lineage with the bearer and answers head / no-head / unavailable with no digest and nothing fabricated; adapter suite 32/32, client suites 4 suites 53/53; 62 product lines in one new file; M1-M3 caught and restored; tsc 0, oxlint 0 errors, lint:units 100/100, validator PASSED"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
