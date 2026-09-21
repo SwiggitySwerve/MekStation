@@ -1,0 +1,22 @@
+{
+  "unit": "U5e",
+  "stage": "merge",
+  "at": "2026-09-21T20:51:26.829Z",
+  "pr": 1862,
+  "title": "feat(multiplayer): a client adapter reads the match's effective head from the timeline lineage (U5e)",
+  "head": "29d0cbb5a3b3e1d4f933da82dc67341eb10c01f0",
+  "mergeSha": "66c0ecad61350927294cd547b24062695d9c905e",
+  "mergedAt": "2026-09-21T20:45:22Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u5e-admission-20260921.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u5e-local-20260921.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u5e-red-20260921.json",
+    "src/lib/multiplayer/client/__tests__/readGmRewindHead.test.ts",
+    "src/lib/multiplayer/client/readGmRewindHead.ts"
+  ],
+  "blobEqualityDiffLines": 0
+}
