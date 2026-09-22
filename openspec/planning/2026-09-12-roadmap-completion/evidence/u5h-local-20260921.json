@@ -343,5 +343,588 @@
       "lastLine": "Finished in 127ms on 5 files using 16 threads.",
       "result": "All 5 files checked; formatting issues in admission and local receipts."
     }
-  ]
+  ],
+  "fixPass20260921": {
+    "at": "2026-09-22T05:31:25.005Z",
+    "status": "page-fix-verified-with-producer-gate-failures",
+    "testedHead": "ce6c06ade02641706dce4a07bf10cf218e641b1c",
+    "implementerModel": "codex (gpt-6-astra xhigh)",
+    "modelEvidence": "Initial turn_context for session 01a0c792-c0a6-7482-b767-3bbec14de0a4 reports model gpt-6-astra and effort xhigh.",
+    "parentFinding": {
+      "source": "Parent report in fix-pass request; original failing page run was not rerun before this edit.",
+      "command": "npx jest src/__tests__/pages/multiplayer",
+      "head": "ce6c06ade02641706dce4a07bf10cf218e641b1c",
+      "failedSuites": 1,
+      "failedTests": 3,
+      "cause": "The page mock answered /timeline with lineage.effectiveHead, while the adapter reads /head. The unavailable head blocked preview and confirm."
+    },
+    "changes": [
+      "Added one fixed 64-character lowercase hexadecimal HEAD_DIGEST fixture.",
+      "mockFetch(headStatus) answers /api/matches/match-1/head with exactly branchId main, revision 5, effectiveGeneration 1 and digest HEAD_DIGEST; status 200 succeeds and non-200 preserves the requested failure.",
+      "Removed the timeline mock after checking the page, useMultiplayerSession and both producer hooks: no product timeline request remains on this path.",
+      "Renamed the preview row to asks the preview adapter for the head from the GM head route; both GET assertions now require /head with the unchanged method and bearer header.",
+      "Preserved the unavailable outcome and no-preview assertion for mockFetch(500), and all other assertions including exact preview and confirm bodies."
+    ],
+    "producerDigestBoundary": "Producers still send expectedDigest '' until U5i; preview pins remain expectedBranchId 'main', expectedRevision 5, expectedGeneration 1, targetRevision 4, expectedDigest ''.",
+    "environment": {
+      "node": "v22.22.0",
+      "npm_config_dry_run": "true",
+      "npm_config_ignore_scripts": "true",
+      "npm_config_offline": "true",
+      "execution": "Commands run from a saved shell script; Jest uses --runInBand and all gates run sequentially. No dependency lifecycle, build or Playwright run."
+    },
+    "gates": [
+      {
+        "id": "multiplayer-pages",
+        "command": "npx jest src/__tests__/pages/multiplayer --runInBand",
+        "startedAt": "2026-09-22T05:26:38Z",
+        "finishedAt": "2026-09-22T05:26:45.711Z",
+        "exitCode": 0,
+        "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\pages\\\\multiplayer/i.",
+        "summaryLines": [
+          "Test Suites: 2 passed, 2 total",
+          "Tests:       14 passed, 14 total",
+          "Snapshots:   0 total",
+          "Time:        3.83 s, estimated 10 s"
+        ],
+        "suites": {
+          "passed": 2,
+          "total": 2
+        },
+        "tests": {
+          "passed": 14,
+          "total": 14
+        },
+        "failures": [],
+        "outputSha256": "b1c1d5dbce0ed0a20b4add8f2505ec4bec4da7b0b690bf841fb609c5e4d697c2"
+      },
+      {
+        "id": "client",
+        "command": "npx jest src/lib/multiplayer/client --runInBand",
+        "startedAt": "2026-09-22T05:26:51Z",
+        "finishedAt": "2026-09-22T05:26:55.452Z",
+        "exitCode": 0,
+        "lastLine": "Ran all test suites matching /src\\\\lib\\\\multiplayer\\\\client/i.",
+        "summaryLines": [
+          "Test Suites: 4 passed, 4 total",
+          "Tests:       69 passed, 69 total",
+          "Snapshots:   0 total",
+          "Time:        1.152 s"
+        ],
+        "suites": {
+          "passed": 4,
+          "total": 4
+        },
+        "tests": {
+          "passed": 69,
+          "total": 69
+        },
+        "failures": [],
+        "outputSha256": "95b0dd65ad0961d86b8ffde7fb2b97b41a10fe4a355517e222f1db30c1725f35"
+      },
+      {
+        "id": "producers",
+        "command": "npx jest src/pages-modules/multiplayer --runInBand",
+        "startedAt": "2026-09-22T05:27:02Z",
+        "finishedAt": "2026-09-22T05:27:08.224Z",
+        "exitCode": 1,
+        "lastLine": "Ran all test suites matching /src\\\\pages-modules\\\\multiplayer/i.",
+        "summaryLines": [
+          "Test Suites: 2 failed, 1 passed, 3 total",
+          "Tests:       11 failed, 10 passed, 21 total",
+          "Snapshots:   0 total",
+          "Time:        3.013 s"
+        ],
+        "suites": {
+          "failed": 2,
+          "passed": 1,
+          "total": 3
+        },
+        "tests": {
+          "failed": 11,
+          "passed": 10,
+          "total": 21
+        },
+        "failures": [
+          "FAIL unit src/pages-modules/multiplayer/__tests__/useGmCorrectionProducers.test.tsx",
+          "  ● useGmCorrectionProducers - the previewed request › asks the injected preview with the server head and an empty digest",
+          "  ● useGmCorrectionProducers - the previewed request › floors the target at zero for a zero server revision",
+          "  ● useGmCorrectionProducers - what approve commits › commits the exact previewed request plus the captured reason",
+          "  ● useGmCorrectionProducers - what approve commits › commits no reason field at all when the GM typed nothing",
+          "  ● useGmCorrectionProducers - what approve commits › treats a whitespace-only reason as no reason",
+          "  ● useGmCorrectionProducers - where the private reason is NOT › keeps it out of the preview request, the returned values and web storage",
+          "FAIL unit src/pages-modules/multiplayer/__tests__/useGmRewindProducers.test.tsx",
+          "  ● useGmRewindProducers › posts the server head and an empty digest, returning the preview outcome",
+          "  ● useGmRewindProducers › does not post when the head is unavailable",
+          "  ● useGmRewindProducers › does not post when the head is no-head",
+          "  ● useGmRewindProducers › floors the target at zero for a zero server revision",
+          "  ● useGmRewindProducers › confirms the saved head without reading the changed server head again"
+        ],
+        "outputSha256": "b926df1b5d6e6e967f20c95a18c86f53694605581f4a19c98c49327c74aaa224"
+      },
+      {
+        "id": "pages",
+        "command": "npx jest src/__tests__/pages --runInBand",
+        "startedAt": "2026-09-22T05:27:16Z",
+        "finishedAt": "2026-09-22T05:28:09.817Z",
+        "exitCode": 0,
+        "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\pages/i.",
+        "summaryLines": [
+          "Test Suites: 268 passed, 268 total",
+          "Tests:       995 passed, 995 total",
+          "Snapshots:   0 total",
+          "Time:        50.356 s"
+        ],
+        "suites": {
+          "passed": 268,
+          "total": 268
+        },
+        "tests": {
+          "passed": 995,
+          "total": 995
+        },
+        "failures": [],
+        "outputSha256": "776a1bec9eaa48c3bb1a6ba843086e7caa96761832a24a0a09f243703c0e4142"
+      },
+      {
+        "id": "typecheck",
+        "command": "npx tsc --noEmit",
+        "startedAt": "2026-09-22T05:28:18Z",
+        "finishedAt": "2026-09-22T05:28:46.567Z",
+        "exitCode": 0,
+        "lastLine": null,
+        "summaryLines": [],
+        "failures": [],
+        "outputSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "id": "format",
+        "command": "npx oxfmt --check src/__tests__/pages/multiplayer/lobby-roomcode.test.tsx",
+        "startedAt": "2026-09-22T05:29:29Z",
+        "finishedAt": "2026-09-22T05:29:31.065Z",
+        "exitCode": 0,
+        "lastLine": "Finished in 33ms on 1 files using 16 threads.",
+        "summaryLines": [
+          "All matched files use the correct format."
+        ],
+        "failures": [],
+        "outputSha256": "a3ad1cf95d771f79f9282b3bd6c1c8856ce4bc3e33c9dce8777b957f38a6f05e"
+      },
+      {
+        "id": "lint-units",
+        "command": "npm run lint:units",
+        "startedAt": "2026-09-22T05:29:32Z",
+        "finishedAt": "2026-09-22T05:29:33.497Z",
+        "exitCode": 0,
+        "lastLine": "LINT_UNITS_PASS 100/100",
+        "summaryLines": [
+          "LINT_UNITS_PATH e2e 50",
+          "LINT_UNITS_PATH scripts 50",
+          "LINT_UNITS_PASS 100/100"
+        ],
+        "failures": [],
+        "outputSha256": "e055631f9348b2e6539c922dddc1fe388b583448a734da5f618cb47c583fae2d"
+      },
+      {
+        "id": "roadmap",
+        "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+        "startedAt": "2026-09-22T05:29:35Z",
+        "finishedAt": "2026-09-22T05:29:35.202Z",
+        "exitCode": 0,
+        "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+        "summaryLines": [
+          "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows"
+        ],
+        "failures": [],
+        "outputSha256": "97b2f29d264078525a55c5f88586fb95603311fa065e70d7d17c5fab08f5b5bc"
+      }
+    ],
+    "mutant": {
+      "file": "src/lib/multiplayer/client/readGmRewindHead.ts",
+      "mutation": "Change only GET path from /head to /timeline",
+      "beforeSha256": "ee6de9cee7dd9647a8761809f8715c190bc6bddcceda1950f6f6e2b2e7ded5d3",
+      "mutantSha256": "ab68670864ef016454fb2715440e40d0559d681df75b1da269233198a220f139",
+      "restoredSha256": "ee6de9cee7dd9647a8761809f8715c190bc6bddcceda1950f6f6e2b2e7ded5d3",
+      "restoredFromSavedCopy": true,
+      "restorationMatches": true,
+      "jestExitCode": 1,
+      "protectedFiles": [
+        {
+          "file": "src/lib/multiplayer/client/__tests__/readGmRewindHead.test.ts",
+          "beforeSha256": "abf266cedf6bf5bc5ee6423a958c6a8f69afd5191fd0ec4f5e0e212555adfa95",
+          "afterSha256": "abf266cedf6bf5bc5ee6423a958c6a8f69afd5191fd0ec4f5e0e212555adfa95"
+        },
+        {
+          "file": "openspec/planning/2026-09-12-roadmap-completion/evidence/u5h-admission-20260921.json",
+          "beforeSha256": "76592738f7e2fe46647c4de627db619bdb30dd41d8b8c68a8a42c672e5a69fc1",
+          "afterSha256": "76592738f7e2fe46647c4de627db619bdb30dd41d8b8c68a8a42c672e5a69fc1"
+        },
+        {
+          "file": "openspec/planning/2026-09-12-roadmap-completion/evidence/u5h-red-20260921.json",
+          "beforeSha256": "84026b0562f89bbc3bbece845a5c9313abbb69410e964e0b82b1fdeee6fc2fd8",
+          "afterSha256": "84026b0562f89bbc3bbece845a5c9313abbb69410e964e0b82b1fdeee6fc2fd8"
+        }
+      ],
+      "launcherRecovery": "Initial nested-shell launch stopped at directory guard with exit 90 before Jest; adapter restored with matching SHA-256. Retried through the same direct shell runner as the passing gates.",
+      "gate": {
+        "id": "mutant",
+        "command": "npx jest src/__tests__/pages/multiplayer/lobby-roomcode.test.tsx --runInBand",
+        "startedAt": "2026-09-22T05:30:44Z",
+        "finishedAt": "2026-09-22T05:30:51.382Z",
+        "exitCode": 1,
+        "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\pages\\\\multiplayer\\\\lobby-roomcode.test.tsx/i.",
+        "summaryLines": [
+          "Test Suites: 1 failed, 1 total",
+          "Tests:       3 failed, 10 passed, 13 total",
+          "Snapshots:   0 total",
+          "Time:        4.473 s"
+        ],
+        "suites": {
+          "failed": 1,
+          "total": 1
+        },
+        "tests": {
+          "failed": 3,
+          "passed": 10,
+          "total": 13
+        },
+        "failures": [
+          "FAIL unit src/__tests__/pages/multiplayer/lobby-roomcode.test.tsx",
+          "  ● Multiplayer lobby page — surface swap on status › asks the preview adapter for the head from the GM head route",
+          "  ● Multiplayer lobby page — surface swap on status › reports unavailable without calling the preview adapter when the head read fails",
+          "  ● Multiplayer lobby page — surface swap on status › confirm adapter receives the same body the preview adapter was asked with"
+        ],
+        "outputSha256": "2f13700794955f624af8c555692fd57dabed4126c1d37a7328651f67438a1651"
+      },
+      "restoredPage": {
+        "id": "restored-page",
+        "command": "npx jest src/__tests__/pages/multiplayer/lobby-roomcode.test.tsx --runInBand",
+        "startedAt": "2026-09-22T05:31:05Z",
+        "finishedAt": "2026-09-22T05:31:11.638Z",
+        "exitCode": 0,
+        "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\pages\\\\multiplayer\\\\lobby-roomcode.test.tsx/i.",
+        "summaryLines": [
+          "Test Suites: 1 passed, 1 total",
+          "Tests:       13 passed, 13 total",
+          "Snapshots:   0 total",
+          "Time:        3.358 s, estimated 5 s"
+        ],
+        "suites": {
+          "passed": 1,
+          "total": 1
+        },
+        "tests": {
+          "passed": 13,
+          "total": 13
+        },
+        "failures": [],
+        "outputSha256": "1f4b34c5b427e79f0be346e571bca98fbaf80c22f116bf824cef38f9a1a3c7e1"
+      }
+    },
+    "remainingFailure": {
+      "gate": "producers",
+      "suites": [
+        "src/pages-modules/multiplayer/__tests__/useGmCorrectionProducers.test.tsx",
+        "src/pages-modules/multiplayer/__tests__/useGmRewindProducers.test.tsx"
+      ],
+      "measured": "2 failed suites, 1 passed suite; 11 failed tests, 10 passed tests, 21 total.",
+      "sourceFinding": "The rewind producer mock handles /timeline and the correction producer mock returns lineage.effectiveHead; both suites still assert /timeline, which conflicts with the current /head adapter contract.",
+      "disposition": "Recorded for the parent; these files and all producer product files are outside the authorized fix-pass edit scope and remain unchanged."
+    },
+    "pageSha256": "7896e6f5a7f49726124ad2715adaecd7690d0c2988d7e1ed9c801683ddc511ae",
+    "modifiedFiles": [
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/u5h-local-20260921.json",
+      "src/__tests__/pages/multiplayer/lobby-roomcode.test.tsx"
+    ],
+    "gitPublication": "None; the parent commits."
+  },
+  "fixPass20260921b": {
+    "at": "2026-09-22T05:38:13.851Z",
+    "status": "passed",
+    "implementerModel": "codex (gpt-6-astra xhigh)",
+    "testedHead": "ce6c06ade02641706dce4a07bf10cf218e641b1c",
+    "baseline": "759224fc30e1a724dae54d186de37f72bcda7ef2",
+    "branch": "codex/roadmap-u5h-head-adapter-digest-20260921",
+    "found": "Both producer hook tests still supplied timeline-era lineage.effectiveHead bodies and pinned /timeline, while the adapter GETs /head and requires branchId, revision, effectiveGeneration and a 64-character lowercase hex digest. The prior pass recorded 11 failing rows; the path-only mutant in this pass reproduced 11 failures.",
+    "changed": {
+      "files": [
+        "src/pages-modules/multiplayer/__tests__/useGmRewindProducers.test.tsx",
+        "src/pages-modules/multiplayer/__tests__/useGmCorrectionProducers.test.tsx"
+      ],
+      "fetchFakes": "Answer exactly /api/matches/match-1/head with branchId and revision from each head fixture, effectiveGeneration: head.generation, and one HEAD_DIGEST constant per file. Correction fake rejects unexpected URLs.",
+      "statusSemantics": "Unavailable remains HTTP 503. Both no-head fixture rows now answer HTTP 404 with { error: \"no head\" }.",
+      "urlAssertions": "All existing /timeline assertions changed to /api/matches/match-1/head, preserving GET and Bearer wire-token headers.",
+      "postedBodyPins": "EXPECTED_BODY and EXPECTED_REQUEST are byte-for-byte unchanged. Producers still send expectedDigest: '' until U5i. No other assertion was weakened or row renamed.",
+      "format": "The initial format check exited 1 for the rewind test; oxfmt --write touched only that changed file, collapsing one URL assertion call layout. The final two-file check exited 0.",
+      "affectedRows": {
+        "rewind": [
+          "posts the server head and an empty digest, returning the preview outcome",
+          "does not post when the head is unavailable",
+          "does not post when the head is no-head",
+          "floors the target at zero for a zero server revision",
+          "confirms the saved head without reading the changed server head again"
+        ],
+        "correction": [
+          "asks the injected preview with the server head and an empty digest",
+          "does not post when the head is no-head (fixture status/body corrected)",
+          "floors the target at zero for a zero server revision",
+          "commits the exact previewed request plus the captured reason",
+          "commits no reason field at all when the GM typed nothing",
+          "treats a whitespace-only reason as no reason",
+          "keeps it out of the preview request, the returned values and web storage"
+        ]
+      }
+    },
+    "environment": {
+      "node": "v22.22.0",
+      "npm_config_dry_run": "true",
+      "npm_config_ignore_scripts": "true",
+      "npm_config_offline": "true",
+      "execution": "Commands run from saved shell scripts; Jest uses --runInBand and gates run sequentially. No install, ci, prune, lifecycle hooks, build or Playwright run."
+    },
+    "gates": [
+      {
+        "id": "producers",
+        "command": "npx jest src/pages-modules/multiplayer --runInBand",
+        "startedAt": "2026-09-22T05:36:10Z",
+        "finishedAt": "2026-09-22T05:36:15Z",
+        "exitCode": 0,
+        "lastLine": "Ran all test suites matching /src\\\\pages-modules\\\\multiplayer/i.",
+        "summaryLines": [
+          "Test Suites: 3 passed, 3 total",
+          "Tests:       21 passed, 21 total",
+          "Snapshots:   0 total",
+          "Time:        2.702 s, estimated 4 s"
+        ],
+        "suites": {
+          "passed": 3,
+          "total": 3
+        },
+        "tests": {
+          "passed": 21,
+          "total": 21
+        },
+        "failures": [],
+        "outputSha256": "ce63a48a5fdec044cd491950a9dc890c1cdbc9326d583c32ea4252603410851f"
+      },
+      {
+        "id": "multiplayer-pages",
+        "command": "npx jest src/__tests__/pages/multiplayer --runInBand",
+        "startedAt": "2026-09-22T05:36:27Z",
+        "finishedAt": "2026-09-22T05:36:32Z",
+        "exitCode": 0,
+        "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\pages\\\\multiplayer/i.",
+        "summaryLines": [
+          "Test Suites: 2 passed, 2 total",
+          "Tests:       14 passed, 14 total",
+          "Snapshots:   0 total",
+          "Time:        2.618 s, estimated 3 s"
+        ],
+        "suites": {
+          "passed": 2,
+          "total": 2
+        },
+        "tests": {
+          "passed": 14,
+          "total": 14
+        },
+        "failures": [],
+        "outputSha256": "9cace925133ab735a2c384b7a17da34175407dcb6990b00e270e5cfed8300059"
+      },
+      {
+        "id": "client",
+        "command": "npx jest src/lib/multiplayer/client --runInBand",
+        "startedAt": "2026-09-22T05:36:33Z",
+        "finishedAt": "2026-09-22T05:36:36Z",
+        "exitCode": 0,
+        "lastLine": "Ran all test suites matching /src\\\\lib\\\\multiplayer\\\\client/i.",
+        "summaryLines": [
+          "Test Suites: 4 passed, 4 total",
+          "Tests:       69 passed, 69 total",
+          "Snapshots:   0 total",
+          "Time:        0.953 s, estimated 1 s"
+        ],
+        "suites": {
+          "passed": 4,
+          "total": 4
+        },
+        "tests": {
+          "passed": 69,
+          "total": 69
+        },
+        "failures": [],
+        "outputSha256": "f53761477567bbd5c652af7b10f7bd1a16681a691ba3bbf11adfdfbef5600f8f"
+      },
+      {
+        "id": "typecheck",
+        "command": "npx tsc --noEmit",
+        "startedAt": "2026-09-22T05:36:38Z",
+        "finishedAt": "2026-09-22T05:36:47Z",
+        "exitCode": 0,
+        "lastLine": null,
+        "summaryLines": [],
+        "failures": [],
+        "outputSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "id": "format",
+        "command": "npx oxfmt --check src/pages-modules/multiplayer/__tests__/useGmRewindProducers.test.tsx src/pages-modules/multiplayer/__tests__/useGmCorrectionProducers.test.tsx",
+        "startedAt": "2026-09-22T05:36:54Z",
+        "finishedAt": "2026-09-22T05:36:55Z",
+        "exitCode": 0,
+        "lastLine": "Finished in 15ms on 2 files using 16 threads.",
+        "summaryLines": [
+          "All matched files use the correct format."
+        ],
+        "failures": [],
+        "outputSha256": "702ebce47483b24fe004d2936f0b054fcb331562cf22f365bdd4977220cc5829"
+      },
+      {
+        "id": "lint-units",
+        "command": "npm run lint:units",
+        "startedAt": "2026-09-22T05:36:56Z",
+        "finishedAt": "2026-09-22T05:36:57Z",
+        "exitCode": 0,
+        "lastLine": "LINT_UNITS_PASS 100/100",
+        "summaryLines": [
+          "LINT_UNITS_PATH e2e 50",
+          "LINT_UNITS_PATH scripts 50",
+          "LINT_UNITS_PASS 100/100"
+        ],
+        "failures": [],
+        "outputSha256": "e055631f9348b2e6539c922dddc1fe388b583448a734da5f618cb47c583fae2d"
+      },
+      {
+        "id": "roadmap",
+        "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+        "startedAt": "2026-09-22T05:36:59Z",
+        "finishedAt": "2026-09-22T05:36:59Z",
+        "exitCode": 0,
+        "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+        "summaryLines": [
+          "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows"
+        ],
+        "failures": [],
+        "outputSha256": "97b2f29d264078525a55c5f88586fb95603311fa065e70d7d17c5fab08f5b5bc"
+      }
+    ],
+    "mutant": {
+      "file": "src/lib/multiplayer/client/readGmRewindHead.ts",
+      "mutation": "Change only GET path from /head to /timeline",
+      "beforeSha256": "ee6de9cee7dd9647a8761809f8715c190bc6bddcceda1950f6f6e2b2e7ded5d3",
+      "mutantSha256": "ab68670864ef016454fb2715440e40d0559d681df75b1da269233198a220f139",
+      "restoredSha256": "ee6de9cee7dd9647a8761809f8715c190bc6bddcceda1950f6f6e2b2e7ded5d3",
+      "restoredFromSavedCopy": true,
+      "restorationMatches": true,
+      "jestExitCode": 1,
+      "gate": {
+        "id": "mutant-producers",
+        "command": "npx jest src/pages-modules/multiplayer --runInBand",
+        "startedAt": "2026-09-22T05:37:00Z",
+        "finishedAt": "2026-09-22T05:37:05Z",
+        "exitCode": 1,
+        "lastLine": "Ran all test suites matching /src\\\\pages-modules\\\\multiplayer/i.",
+        "summaryLines": [
+          "Test Suites: 2 failed, 1 passed, 3 total",
+          "Tests:       11 failed, 10 passed, 21 total",
+          "Snapshots:   0 total",
+          "Time:        2.778 s, estimated 3 s"
+        ],
+        "suites": {
+          "failed": 2,
+          "passed": 1,
+          "total": 3
+        },
+        "tests": {
+          "failed": 11,
+          "passed": 10,
+          "total": 21
+        },
+        "failures": [
+          "FAIL unit src/pages-modules/multiplayer/__tests__/useGmCorrectionProducers.test.tsx",
+          "  ● useGmCorrectionProducers - the previewed request › asks the injected preview with the server head and an empty digest",
+          "  ● useGmCorrectionProducers - the previewed request › floors the target at zero for a zero server revision",
+          "  ● useGmCorrectionProducers - what approve commits › commits the exact previewed request plus the captured reason",
+          "  ● useGmCorrectionProducers - what approve commits › commits no reason field at all when the GM typed nothing",
+          "  ● useGmCorrectionProducers - what approve commits › treats a whitespace-only reason as no reason",
+          "  ● useGmCorrectionProducers - where the private reason is NOT › keeps it out of the preview request, the returned values and web storage",
+          "FAIL unit src/pages-modules/multiplayer/__tests__/useGmRewindProducers.test.tsx",
+          "  ● useGmRewindProducers › posts the server head and an empty digest, returning the preview outcome",
+          "  ● useGmRewindProducers › does not post when the head is unavailable",
+          "  ● useGmRewindProducers › does not post when the head is no-head",
+          "  ● useGmRewindProducers › floors the target at zero for a zero server revision",
+          "  ● useGmRewindProducers › confirms the saved head without reading the changed server head again"
+        ],
+        "outputSha256": "b4f6b3d52287298e3f2b71875850eae0945d06469d1844e2ae5c7fd8208d56fc"
+      },
+      "restoredProducers": {
+        "id": "restored-producers",
+        "command": "npx jest src/pages-modules/multiplayer --runInBand",
+        "startedAt": "2026-09-22T05:38:05Z",
+        "finishedAt": "2026-09-22T05:38:11Z",
+        "exitCode": 0,
+        "lastLine": "Ran all test suites matching /src\\\\pages-modules\\\\multiplayer/i.",
+        "summaryLines": [
+          "Test Suites: 3 passed, 3 total",
+          "Tests:       21 passed, 21 total",
+          "Snapshots:   0 total",
+          "Time:        2.81 s, estimated 3 s"
+        ],
+        "suites": {
+          "passed": 3,
+          "total": 3
+        },
+        "tests": {
+          "passed": 21,
+          "total": 21
+        },
+        "failures": [],
+        "outputSha256": "57b76db744fb9c833e7a19489b8ae3d18c9e2d1f487c4ae714852997f8cc6d69"
+      }
+    },
+    "protectedFiles": [
+      {
+        "file": "src/lib/multiplayer/client/readGmRewindHead.ts",
+        "beforeSha256": "ee6de9cee7dd9647a8761809f8715c190bc6bddcceda1950f6f6e2b2e7ded5d3",
+        "afterSha256": "ee6de9cee7dd9647a8761809f8715c190bc6bddcceda1950f6f6e2b2e7ded5d3"
+      },
+      {
+        "file": "src/lib/multiplayer/client/__tests__/readGmRewindHead.test.ts",
+        "beforeSha256": "abf266cedf6bf5bc5ee6423a958c6a8f69afd5191fd0ec4f5e0e212555adfa95",
+        "afterSha256": "abf266cedf6bf5bc5ee6423a958c6a8f69afd5191fd0ec4f5e0e212555adfa95"
+      },
+      {
+        "file": "src/pages-modules/multiplayer/useGmRewindProducers.ts",
+        "beforeSha256": "95a32a0c46861cf71b24c31bf3003fd20ac8fa3e2befefc7448e24742f180995",
+        "afterSha256": "95a32a0c46861cf71b24c31bf3003fd20ac8fa3e2befefc7448e24742f180995"
+      },
+      {
+        "file": "src/pages-modules/multiplayer/useGmCorrectionProducers.ts",
+        "beforeSha256": "d652971ecf2643591203a65523c4009852e1e181033b376a92b1b35b08b21529",
+        "afterSha256": "d652971ecf2643591203a65523c4009852e1e181033b376a92b1b35b08b21529"
+      },
+      {
+        "file": "src/__tests__/pages/multiplayer/lobby-roomcode.test.tsx",
+        "beforeSha256": "7896e6f5a7f49726124ad2715adaecd7690d0c2988d7e1ed9c801683ddc511ae",
+        "afterSha256": "7896e6f5a7f49726124ad2715adaecd7690d0c2988d7e1ed9c801683ddc511ae"
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/evidence/u5h-admission-20260921.json",
+        "beforeSha256": "76592738f7e2fe46647c4de627db619bdb30dd41d8b8c68a8a42c672e5a69fc1",
+        "afterSha256": "76592738f7e2fe46647c4de627db619bdb30dd41d8b8c68a8a42c672e5a69fc1"
+      },
+      {
+        "file": "openspec/planning/2026-09-12-roadmap-completion/evidence/u5h-red-20260921.json",
+        "beforeSha256": "84026b0562f89bbc3bbece845a5c9313abbb69410e964e0b82b1fdeee6fc2fd8",
+        "afterSha256": "84026b0562f89bbc3bbece845a5c9313abbb69410e964e0b82b1fdeee6fc2fd8"
+      }
+    ],
+    "modifiedFiles": [
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/u5h-local-20260921.json",
+      "src/__tests__/pages/multiplayer/lobby-roomcode.test.tsx",
+      "src/pages-modules/multiplayer/__tests__/useGmCorrectionProducers.test.tsx",
+      "src/pages-modules/multiplayer/__tests__/useGmRewindProducers.test.tsx"
+    ],
+    "gitPublication": "None; the parent commits."
+  }
 }

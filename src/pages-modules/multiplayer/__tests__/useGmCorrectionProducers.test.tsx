@@ -30,13 +30,29 @@ import { GameEventType } from '@/types/gameplay/GameSessionInterfaces';
 
 const PRIVATE_REASON = 'guest rolled for the wrong mech; GM eyes only';
 const HEAD = { branchId: 'main-after-rewind', revision: 17, generation: 4 };
+const HEAD_DIGEST =
+  '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';
 const ORIGINAL_FETCH = global.fetch;
 
 function mockHeadResponse(status: number, head: typeof HEAD | null): void {
-  global.fetch = jest.fn(async () => ({
-    status,
-    json: async () => ({ lineage: { effectiveHead: head } }),
-  })) as unknown as typeof fetch;
+  global.fetch = jest.fn(async (input: RequestInfo | URL) => {
+    const url = String(input);
+    if (url !== '/api/matches/match-1/head') {
+      throw new Error(`Unexpected fetch: ${url}`);
+    }
+    return {
+      status,
+      json: async () =>
+        head === null
+          ? { error: 'no head' }
+          : {
+              branchId: head.branchId,
+              revision: head.revision,
+              effectiveGeneration: head.generation,
+              digest: HEAD_DIGEST,
+            },
+    } as Response;
+  }) as typeof fetch;
 }
 
 beforeEach(() => {
@@ -142,7 +158,7 @@ describe('useGmCorrectionProducers - the previewed request', () => {
     expect(preview).toHaveBeenCalledTimes(1);
     expect(preview.mock.calls[0]?.[0]).toStrictEqual(EXPECTED_REQUEST);
     expect(global.fetch).toHaveBeenCalledTimes(1);
-    expect(global.fetch).toHaveBeenCalledWith('/api/matches/match-1/timeline', {
+    expect(global.fetch).toHaveBeenCalledWith('/api/matches/match-1/head', {
       method: 'GET',
       headers: { Authorization: 'Bearer wire-token' },
     });
@@ -150,7 +166,7 @@ describe('useGmCorrectionProducers - the previewed request', () => {
 
   it.each([
     ['unavailable', 503, HEAD],
-    ['no-head', 200, null],
+    ['no-head', 404, null],
   ] as const)(
     'does not post when the head is %s',
     async (_kind, status, head) => {
