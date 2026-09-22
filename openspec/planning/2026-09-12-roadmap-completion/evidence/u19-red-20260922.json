@@ -1,0 +1,78 @@
+{
+  "unit": "U19",
+  "stage": "red",
+  "at": "2026-09-22T17:42:13.172Z",
+  "baseline": "24e8bf37960e622a3875932420f9824021bd3794",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u19",
+  "branch": "roadmap-u19-genesis-branch-on-first-append-20260922",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "productSourceUnchanged": true,
+  "testFile": {
+    "path": "src/lib/events/journal/__tests__/SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts",
+    "sha256AtRed": "1a029214272f62b2a055399be526c525352527f83259f76babddf0d027038ef7"
+  },
+  "command": "npx jest src/lib/events/journal/__tests__/SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts",
+  "shellPreamble": [
+    "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "export npm_config_dry_run=true"
+  ],
+  "exitCode": 1,
+  "counts": "Test Suites: 1 failed, 1 total; Tests:       8 failed, 2 passed, 10 total",
+  "lastLine": "Ran all test suites matching /src\\\\lib\\\\events\\\\journal\\\\__tests__\\\\SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts/i.",
+  "failingAssertions": [
+    {
+      "test": "(a) a campaign stream first append installs one effective genesis row and an effective head",
+      "assertion": "expect(rows.branches).toHaveLength(1) at the test file line 164",
+      "received": "Received length: 0 (Received array: [])"
+    },
+    {
+      "test": "(b) a second append leaves exactly the one genesis row, byte for byte",
+      "assertion": "expect(afterFirst.branches).toHaveLength(1) at line 207",
+      "received": "Received length: 0"
+    },
+    {
+      "test": "(c) a match stream first append on the mirror's 'main' branch behaves the same",
+      "assertion": "expect(rows.branches).toHaveLength(1) at line 164",
+      "received": "Received length: 0"
+    },
+    {
+      "test": "(c2) a match stream's genesis generation is read from its stored baseline, as the backfill reads it",
+      "assertion": "expect(rows.branches).toHaveLength(1) at line 164",
+      "received": "Received length: 0"
+    },
+    {
+      "test": "(d) the global backfill run after the appends adds nothing",
+      "assertion": "expect(backfillGenesisBranches()).toBe(0) at line 247",
+      "received": "Expected: 0, Received: 2 (the backfill is the only writer of the two genesis rows today)"
+    },
+    {
+      "test": "(e) an append that throws after its writes leaves no genesis row",
+      "assertion": "inside the extension, expect(census(CAMPAIGN).branches).toHaveLength(1) at line 260",
+      "received": "Received length: 0 (no genesis row exists even mid-transaction; the post-rollback half of the test is vacuous on the baseline and becomes the M2 guard)"
+    },
+    {
+      "test": "(f) two writers racing a first append end with one genesis row; the loser is refused as today",
+      "assertion": "expect(rows.branches).toHaveLength(1) at line 164 (reached after the loser was refused with revision-conflict, so the refusal half already holds)",
+      "received": "Received length: 0"
+    },
+    {
+      "test": "(h) the install is per stream: another stream's missing genesis is not backfilled by it",
+      "assertion": "expect(rows.branches).toHaveLength(1) at line 164",
+      "received": "Received length: 0"
+    }
+  ],
+  "passingOnBaselineByDesign": [
+    {
+      "test": "(e2) a refused first append (revision conflict) leaves no genesis row",
+      "why": "vacuous on the baseline (no install exists); it is the guard that the install runs after the revision check (M2 target)"
+    },
+    {
+      "test": "(g) a stream that already has its genesis row is left untouched by its first append",
+      "why": "vacuous on the baseline; it is the idempotency guard (M3 target)"
+    }
+  ],
+  "log": {
+    "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u19/logs/red.log",
+    "sha256": "c47fb79f95b0366b0c446202b6fe4642734b662212636e35a60103e0fe6b5f98"
+  }
+}

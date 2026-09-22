@@ -1,0 +1,127 @@
+{
+  "unit": "U19",
+  "stage": "admission",
+  "at": "2026-09-22T17:40:47.019Z",
+  "baseline": "24e8bf37960e622a3875932420f9824021bd3794",
+  "originMain": "24e8bf37960e622a3875932420f9824021bd3794",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u19",
+  "branch": "roadmap-u19-genesis-branch-on-first-append-20260922",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "nextOnBaseline": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "stdout": "U19",
+    "exitCode": 0
+  },
+  "guardNodeModulesLink": {
+    "command": "npm run qc:guard-node-modules-link",
+    "lastLine": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"E:\\\\Projects\\\\MekStation\\\\.sisyphus\\\\roadmap-completion-20260912\\\\worktrees\\\\u19\\\\node_modules\",\"actualPath\":\"E:\\\\Projects\\\\MekStation\\\\node_modules\"}",
+    "exitCode": 1,
+    "expected": true,
+    "why": "refusal by design in a junctioned worktree; no npm install/ci/prune or lifecycle is run in this lane (npm_config_dry_run=true exported)"
+  },
+  "ownershipPaths": [
+    "src/lib/events/journal"
+  ],
+  "receiptsOwned": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u19-admission-20260922.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u19-red-20260922.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u19-local-20260922.json"
+  ],
+  "behavior": "The first append to any stream in the journal installs that stream's genesis event_history_branches row and its effective head in the SAME transaction as the append, idempotently; nothing else about the append changes. The match mirror's global backfill stays (U24 removes it) and finds the rows already present.",
+  "seamsAsRead": [
+    {
+      "at": "src/lib/events/journal/SQLiteEventJournalWriter.ts:59-81",
+      "what": "appendWithExtension: schema parse + command identity outside, then ONE db.transaction(...).immediate() running the caller extend around appendInTransaction"
+    },
+    {
+      "at": "src/lib/events/journal/SQLiteEventJournalWriter.ts:98-137",
+      "what": "appendPreparedWithExtension: prepare + parse + extend(append) inside ONE immediate transaction (the match mirror and campaign accept-contract path use it)"
+    },
+    {
+      "at": "src/lib/events/journal/SQLiteEventJournalWriter.ts:171-265",
+      "what": "appendInTransaction: receipt replay/conflict, head read for (stream, expectedBranchId) at 184-190, revision-conflict return at 191-198 BEFORE any write, verifyHead, high-water allocation, insertReceipt, insertEvent, advanceHead at 263. No write to event_history_* anywhere."
+    },
+    {
+      "at": "src/lib/events/journal/SQLiteEventJournalWriter.ts:390-415",
+      "what": "isSeededCandidateHead: probes sqlite_master for event_history_branches and returns false when absent (precedent: a database that never grew the branch tables keeps working)"
+    },
+    {
+      "at": "src/lib/events/journal/SQLiteEventJournalWriter.ts:451-470",
+      "what": "advanceHead: INSERT/ON CONFLICT UPDATE of event_journal_stream_heads guarded by the expected revision+digest"
+    },
+    {
+      "at": "src/lib/events/journal/SQLiteEventHistoryBranchStore.ts:63-74",
+      "what": "backfillGenesisBranches: global EVENT_HISTORY_GENESIS_BACKFILL_SQL in its own (nestable) transaction; returns the count of effective heads added"
+    },
+    {
+      "at": "src/services/persistence/SQLiteService.historyBranches.migration.ts:104-139",
+      "what": "EVENT_HISTORY_GENESIS_BACKFILL_SQL: per journal head with no branch row for its stream, a root-shaped branch (depth 0, parent NULL, base 0, base event NULL, genesis digest, status effective, created_by 'migration') on head.branch_id, and an effective head whose generation is COALESCE(match_authority_baseline.effective_generation, 1); both NOT EXISTS-guarded (read-only; outside ownership)"
+    },
+    {
+      "at": "src/services/persistence/SQLiteService.historyBranchesIntegrity.migration.ts:15-47",
+      "what": "migration 31 triggers: a root branch must carry the genesis digest; an effective head must name an effective branch (read-only)"
+    },
+    {
+      "at": "src/lib/events/journal/EventHistoryEffectiveStreamHead.ts:34-48",
+      "what": "readEffectiveStreamHead answers MISSING_HEAD (root, 0, genesis digest) whenever the stream has no effective head row - which is every campaign stream today"
+    },
+    {
+      "at": "src/lib/multiplayer/server/MatchStreamJournalMirror.ts:205-270",
+      "what": "mirrorMatchBatchToJournal: appendPreparedWithExtension on branch effective?.branchId ?? 'main', then branches.backfillGenesisBranches() at :264 inside the extend after a committed append (the only non-test caller of the backfill; read-only, U24 removes it)"
+    },
+    {
+      "at": "src/lib/multiplayer/server/matchAuthorityBaseline.ts:59",
+      "what": "MATCH_BASELINE_BRANCH_ID = 'main': a match stream's first append lands on 'main', not 'root', so the genesis branch id must be the appended branch (as the backfill uses head.branch_id)"
+    },
+    {
+      "at": "src/lib/campaign/sync/JournalCampaignEventStore.ts:261-289",
+      "what": "appendCampaignCommandBatch -> journal.append(batch): campaign streams append through the same writer (read-only)"
+    },
+    {
+      "at": "src/lib/campaign/authority/campaignCreationCheckpoint.ts:212-221",
+      "what": "awaitGenesisBranch only reads the genesis marker; nothing in the campaign path writes event_history_branches (read-only)"
+    },
+    {
+      "at": "e2e/helpers/authorityRecoveryEvidence.ts:225-233",
+      "what": "assertGenesisBranchRecovers: exactly one branch row, status effective, ancestor_depth 0, parent_branch_id null (read-only)"
+    },
+    {
+      "at": "src/lib/events/journal/__tests__/SQLiteEventJournal.test.ts:29 and src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts:435",
+      "what": "suites run the writer on a database with ONLY the event-journal migration (v8): the install must not assume the branch tables exist"
+    }
+  ],
+  "design": [
+    "SQLiteEventHistoryBranchStore gains installGenesisBranch(stream, branchId, installedAt): the per-stream form of the backfill - one root-shaped effective branch row on the given branch id and one effective head whose generation is read exactly as the backfill reads it (match_authority_baseline, else 1). It opens no transaction of its own; it runs on the caller's. NOT EXISTS-guarded on the stream's branch rows, and the head is inserted only when the branch row was.",
+    "SQLiteEventJournalWriter.appendInTransaction calls it, inside the append's own transaction and after the revision/identity checks, only when the append is the stream's first: no journal head for (stream, branch) AND no journal head for the stream on any branch AND the branch tables exist (the existing sqlite_master probe, extracted to one helper and reused by isSeededCandidateHead).",
+    "Genesis branch id = the appended branch (root for campaign streams, 'main' for mirrored match streams), exactly as the backfill's head.branch_id; created_by 'event-journal'; installed/created at the batch's recordedAt.",
+    "A refused append (revision conflict, identity conflict) returns before the install; a thrown append or extension rolls the install back with the batch; two first appends serialize on the IMMEDIATE transaction, the loser sees a head and is refused with revision-conflict exactly as today, and the NOT EXISTS guard plus the partial unique index keep one genesis row.",
+    "The mirror backfill call stays; it finds the stream already installed and inserts nothing for it."
+  ],
+  "estimatePerFile": [
+    {
+      "file": "src/lib/events/journal/SQLiteEventJournalWriter.ts",
+      "category": "product",
+      "estimateLines": 45
+    },
+    {
+      "file": "src/lib/events/journal/SQLiteEventHistoryBranchStore.ts",
+      "category": "product",
+      "estimateLines": 50
+    },
+    {
+      "file": "src/lib/events/journal/__tests__/SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts",
+      "category": "test",
+      "estimateLines": 330
+    }
+  ],
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500
+  },
+  "risksForTheParent": [
+    "U19 turns on campaign launch gating for journaled co-op campaigns: once a campaign stream has an effective head, launch-head resolution can answer it; the parent's main proof runs verify:qc:coop-campaign-journey.",
+    "Review classes authority + replay need the owner's head-bound Lane B ruling.",
+    "Every stream type gets a genesis row on first append (campaign, match, campaign replica, test streams): suites outside src/lib/events/journal that raw-insert a root genesis row AFTER appending to the same stream would now collide; the local stage runs the campaign and multiplayer-server suites and reports any such collision rather than editing outside ownership.",
+    "Pre-existing streams that already hold journal heads but no branch row are NOT installed by this unit (not a first append); the mirror backfill still covers match streams while combat mode is on (U24 owns its removal)."
+  ]
+}
