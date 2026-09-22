@@ -129,10 +129,10 @@ describe('createCorrectionCandidateBranch', () => {
     head = readHead();
   }
 
-  /** A stream with four real events and its backfilled genesis branch. */
+  /** A stream with four real events and the genesis branch its first append installed. */
   async function seedStream(): Promise<void> {
     await append('command-1', 0, 4);
-    expect(branches().backfillGenesisBranches()).toBe(1);
+    expect(branches().backfillGenesisBranches()).toBe(0);
   }
 
   function acquire(owner = 'host-1'): {

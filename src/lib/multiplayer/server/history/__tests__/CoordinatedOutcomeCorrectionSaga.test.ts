@@ -424,6 +424,12 @@ describe('sealCoordinatedCorrectionManifest', () => {
     await rm(dir, { recursive: true, force: true, maxRetries: 3 });
   });
 
+  /**
+   * Appends four probe events to the match stream through the shipped
+   * journal, runs the backfill the match mirror still runs after an append,
+   * and asserts the stream then holds exactly one effective genesis branch
+   * and one effective head, whichever of the two installed them.
+   */
   async function seedJournal(): Promise<void> {
     const result = await new SQLiteEventJournal(journalDb, () => AT).append({
       ...STREAM,
@@ -450,9 +456,15 @@ describe('sealCoordinatedCorrectionManifest', () => {
       })),
     });
     expect(result.kind).toBe('committed');
-    expect(
-      new SQLiteEventHistoryBranchStore(journalDb).backfillGenesisBranches(),
-    ).toBe(1);
+    const branches = new SQLiteEventHistoryBranchStore(journalDb);
+    branches.backfillGenesisBranches();
+    expect(branches.listBranches(STREAM)).toMatchObject([
+      { branchId: 'root', ancestorDepth: 0, status: 'effective' },
+    ]);
+    expect(branches.readEffectiveHead(STREAM)).toMatchObject({
+      branchId: 'root',
+      effectiveGeneration: 1,
+    });
   }
 
   function mintCandidate(): string {

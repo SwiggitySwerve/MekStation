@@ -204,12 +204,13 @@ function toMatchJournalBatch(
 
 /**
  * Append one committed combat batch and make sure the match stream has
- * a genesis branch and an effective head. Genesis goes through
- * `backfillGenesisBranches` — the migration's own
- * `EVENT_HISTORY_GENESIS_BACKFILL_SQL`, so migration-time and
- * commit-time "genesis" cannot drift. It runs AFTER the append (it
- * reads `event_journal_stream_heads`, empty until then) and is
- * `NOT EXISTS`-guarded, so later batches no-op.
+ * a genesis branch and an effective head. The journal writer installs
+ * both inside the stream's first append, in the append's transaction.
+ * The `backfillGenesisBranches` call after a committed append (the
+ * migration's own `EVENT_HISTORY_GENESIS_BACKFILL_SQL`, global and
+ * `NOT EXISTS`-guarded) therefore adds nothing for a stream the writer
+ * installed; it still installs any journal stream that holds a head but
+ * no branch row, such as one appended before the writer did this.
  */
 export async function mirrorMatchBatchToJournal(
   db: Database.Database,

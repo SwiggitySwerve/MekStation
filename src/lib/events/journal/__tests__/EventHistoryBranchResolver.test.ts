@@ -320,7 +320,8 @@ describe('EventHistoryBranchResolver', () => {
       })),
     });
     expect(appended.kind).toBe('committed');
-    expect(store.backfillGenesisBranches()).toBe(1);
+    // The first append installed the genesis branch; the backfill adds none.
+    expect(store.backfillGenesisBranches()).toBe(0);
 
     const journalStream = { streamType: 'match', streamId: 'journal-stream' };
     const reader = journalBranchSegmentReader(journal);
