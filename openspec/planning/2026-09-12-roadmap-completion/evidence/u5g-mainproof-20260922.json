@@ -1,0 +1,36 @@
+{
+  "unit": "U5g",
+  "stage": "mainProof",
+  "at": "2026-09-22T06:13:45.475Z",
+  "mergeCommit": "53bd8f0a84fad3b60809f4b5e2a9dd6fb7f425aa",
+  "checkout": "root checkout fast-forwarded to the merge commit (real node_modules; hydrate step runs)",
+  "runtime": {
+    "build": "exit 0",
+    "e2eBundleMarker": "__E2E_MODE__ present in _app chunk (run log)",
+    "playwright": "API page-module suites and matches API tests (jest, 11 suites, 107/107): Tests:       107 passed, 107 total",
+    "tsc": "exit 0"
+  },
+  "commands": {
+    "validator": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+    "gitAncestry": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows (--git)",
+    "next": "U5i",
+    "openspecStrict": "Totals: 229 passed, 0 failed (229 items)",
+    "qcOpenspecCi": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+    "qcPin": "Tests:       26 passed, 26 total"
+  },
+  "logs": ".sisyphus/roadmap-completion-20260912/u5g-main-proof-20260922/ (local; sha256 below)",
+  "logHashes": [
+    "00deb27246d0ac5b9dac3b17941f838c148a463ca5cd08abf28229606184ef83 *build.log",
+    "38875d75a513e6dc764ce99160b9e7423b80cd040a68252ea1b4c336e36d0fc1 *git-check.log",
+    "6445639db60a4a8f79a3ca3573af73d2cde2b74f12f762a22ffc58bdd39aee43 *idle-before-build.log",
+    "6445639db60a4a8f79a3ca3573af73d2cde2b74f12f762a22ffc58bdd39aee43 *idle-before-runtime.log",
+    "dba278ae179d7403ad25993c1f50c3e90b56059e3587679e7fff89dadbe06e67 *next.log",
+    "efd619721df505ed0dbb69fe5bd26b74023670e603ce16891fd2f1331adf1776 *openspec-strict.log",
+    "0b804f279872f627fa8e016c5da309180c4a838442f61674cb3554ddbad8b761 *playwright.log",
+    "5b0f562274df4dbddfb7ae44ab42b7d686dc1e0903383f25c593d88f7479fe9a *qc-openspec-ci.log",
+    "0c9d0935375d0b0c4e0fe32cedec0c0bc79f1e637ef73ab0d4078aab13b39dbd *qc-pin.log",
+    "f891dbdfc0402cd4ba60fab1be3245dfec559c5d7afc7e21b87e795a73d05e5f *tsc.log",
+    "38875d75a513e6dc764ce99160b9e7423b80cd040a68252ea1b4c336e36d0fc1 *validator.log"
+  ],
+  "verdict": "PASS"
+}
