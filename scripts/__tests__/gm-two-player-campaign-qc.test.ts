@@ -251,6 +251,11 @@ describe('GM and two-player campaign QC runner', () => {
       'e2e/gm-two-player-privacy.pack.spec.ts',
       '--workers=1',
     ]);
+    expect(privacyPlan.environment).toMatchObject({
+      MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY: '1',
+      MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE: 'enabled',
+      MEKSTATION_E2E_SERVER_COMMAND: 'node server.js',
+    });
 
     // The failure pack is the E2E-61..70 subset (umbrella 22.2). It runs
     // on the PLAIN server, deliberately: none of its rows kills the
@@ -551,13 +556,13 @@ describe('GM and two-player campaign QC runner', () => {
   });
 
   it('leaves both journal keys off a group that does not arm the fixture', () => {
-    // The arming condition is membership of authority-recovery, not the
+    // Arming follows authority-recovery or privacy-pack membership, not the
     // respawn wrapper and not "any authority-shaped name". A group that
     // does not include that pack must carry NEITHER key, so a mutant
     // that arms every group (or arms on `needsRespawn`) is red here
     // rather than silently turning journal authority on for packs that
     // never asked for it.
-    for (const group of ['token-pack', 'smoke']) {
+    for (const group of ['token-pack', 'smoke', 'proposal-pack']) {
       const plan = core.buildRunPlan({
         group,
         runId: `u15b-non-arming-${group}`,
