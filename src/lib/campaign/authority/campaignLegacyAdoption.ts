@@ -1,41 +1,38 @@
 /**
  * Legacy campaign adoption (design-campaign-authority-and-sync task 1.4;
- * design D8, amended into D10's migration-state machinery).
+ * design D8; OD-mvp-hard-cutover).
  *
  * Real campaigns already live in browsers. When such a copy first meets a
- * server that has never heard of it, the server must record what actually
- * happened: a campaign with unknown prior history was IMPORTED at some
- * revision, not born here at revision 0.
+ * server that has never heard of it, adoption makes this server its source
+ * instance as a JOURNAL-NATIVE campaign: the same genesis the create path
+ * appends (a `CampaignSnapshotPublished` of the copy's authoritative
+ * projection at sequence 0 under the `system` principal) and a
+ * journal-native cutover marker, so an adopted campaign resolves to journal
+ * authority as soon as the adoption returns.
  *
- * That distinction is load-bearing rather than cosmetic. A journal-native
- * marker (`importedBaseline: null`) asserts the campaign's whole history
- * is in this journal, and the D10 rollback law reads exactly that field to
- * decide whether snapshot authority may be restored — so a browser copy
- * stamped journal-native would carry a false provenance claim AND lose its
- * route back. Adoption therefore goes through `importCampaignBaseline`
- * under the `migration` principal, which records the imported revision and
- * the digest of the state that came in, and lands in `shadowing` where
- * parity is still owed.
+ * Under OD-mvp-hard-cutover this replaces the earlier import into
+ * `shadowing` under the `migration` principal, which recorded the imported
+ * revision and digest and kept snapshot authority until an operator parity
+ * run advanced the marker. That machinery only protected pre-cutover data.
+ * The journal-native marker records no imported baseline, so D10's
+ * snapshot rollback does not apply to an adopted campaign.
  *
  * The offer decision is pure and lives here too: only a copy the browser
  * REHYDRATED from storage is a legacy copy. A campaign created this
  * session that has simply not been saved yet is new, and new campaigns
- * belong on the ordinary create path with a journal-native genesis.
+ * belong on the ordinary create path.
  *
  * @spec openspec/changes/design-campaign-authority-and-sync/design.md (D8, D10)
  * @spec openspec/changes/design-campaign-authority-and-sync/specs/campaign-persistence/spec.md
  */
 
 import type { IEventJournal } from '@/lib/events/journal/EventJournalContract';
-import type { ICampaignAuthoritativeState } from '@/types/campaign/CampaignSync';
 import type { SerializedCampaign } from '@/types/campaign/SerializedCampaign';
 
+import type { ICampaignCutoverMarker } from './campaignAuthorityMigration';
+
 import { type ICampaignJournalEnvelope } from '../sync/JournalCampaignEventStore';
-import {
-  importCampaignBaseline,
-  type ICampaignCutoverMarker,
-} from './campaignAuthorityMigration';
-import { authoritativeStateFromSerializedCampaign } from './campaignSourceGenesis';
+import { appendCampaignGenesis } from './campaignSourceGenesis';
 
 /** Server already holds this campaign — adoption is not what is needed. */
 export const CAMPAIGN_ALREADY_ADOPTED_REASON = 'campaign-already-adopted';
@@ -85,9 +82,9 @@ export function evaluateCampaignAdoptionOffer(
 
 /**
  * Read and write access to the campaign's cutover marker. Adoption needs
- * BOTH: the journal replays an identical retried command rather than
- * refusing it, so without a read the second call would happily stamp a
- * fresh marker over the first and rewrite when the import happened.
+ * BOTH: the journal replays an identical retried genesis rather than
+ * refusing it, so without a read the second call would stamp a fresh
+ * marker over the first and clear whatever was recorded on it since.
  */
 export interface ICampaignMarkerIo {
   readonly read: (campaignId: string) => ICampaignCutoverMarker | null;
@@ -105,15 +102,22 @@ export type CampaignAdoptionResult =
   | { readonly kind: 'skipped' };
 
 /**
- * Import a browser-held campaign as this server's source instance: derive
- * the authoritative projection from the stored envelope (the same rules
- * the wire builder uses), append it as an explicit baseline carrying its
- * digest, and persist the resulting `shadowing` marker.
+ * Adopt a browser-held campaign as this server's source instance through
+ * `appendCampaignGenesis`: derive the authoritative projection from the
+ * envelope (the same rules the wire builder uses), append it as the
+ * genesis snapshot, and persist the journal-native marker. `importedDigest`
+ * is the digest of that projection.
  *
- * A retried adoption is NOT an error. The journal replays an identical
- * command rather than refusing it, so the recorded marker - not the
- * append - is what says the campaign is already adopted, and the answer
- * is `already-journaled` with the original provenance left standing.
+ * A retried adoption is NOT an error. A marker already in `journal` state,
+ * or one carrying an imported baseline (an earlier `shadowing` import or a
+ * snapshot backfill), answers `already-journaled` before anything is
+ * appended or written, so a retry never replaces the marker and never
+ * clears a `firstJournalAuthorityCommandId` a later command stamped. With
+ * no such marker, what `appendCampaignGenesis` answers is passed on:
+ * `already-journaled` when its sequence or command-identity guard refuses
+ * the append, `invalid-campaign-projection` when the projection or the
+ * append is refused, and an identical replayed genesis writes the marker
+ * and reports `adopted`.
  */
 export async function adoptLegacyCampaign(
   journal: IEventJournal<ICampaignJournalEnvelope>,
@@ -123,53 +127,24 @@ export async function adoptLegacyCampaign(
     readonly importedAt: string;
   },
 ): Promise<CampaignAdoptionResult> {
-  // Already adopted: the recorded baseline is the truth about when this
-  // campaign came in, and a retry has no better information than the
-  // original did.
   const existing = markerIo.read(input.envelope.campaignId);
-  if (existing !== null && existing.importedBaseline !== null) {
+  if (
+    existing !== null &&
+    (existing.state === 'journal' || existing.importedBaseline !== null)
+  ) {
     return { kind: 'already-journaled' };
   }
 
-  let state: ICampaignAuthoritativeState;
-  try {
-    state = authoritativeStateFromSerializedCampaign(input.envelope);
-  } catch (error) {
-    return {
-      kind: 'invalid-campaign-projection',
-      reason: error instanceof Error ? error.message : 'projection failed',
-    };
-  }
-
-  const result = await importCampaignBaseline(journal, {
-    campaignId: input.envelope.campaignId,
-    state,
-    // The revision the imported copy carried. The browser copy's history
-    // is not in this journal, and the marker records that rather than
-    // pretending the import started from nothing.
-    sourceSnapshotRevision: input.envelope.version,
-    importedAt: input.importedAt,
+  const genesis = await appendCampaignGenesis(journal, markerIo.write, {
+    envelope: input.envelope,
+    occurredAt: input.importedAt,
   });
-  if (result.kind === 'imported') {
-    markerIo.write(result.marker);
-    return {
-      kind: 'adopted',
-      marker: result.marker,
-      importedDigest:
-        result.marker.importedBaseline?.sourceSnapshotDigest ?? '',
-    };
-  }
-  // 5.2's import reports a rejected append as `stream-not-empty` with a
-  // sentinel sequence. Passing that on as "already journaled" would tell
-  // the caller their campaign is safely imported when nothing committed,
-  // so the sentinel is surfaced as the failure it is.
-  if (result.kind === 'stream-not-empty' && result.highestSequence < 0) {
-    return {
-      kind: 'invalid-campaign-projection',
-      reason: 'journal append rejected the baseline batch',
-    };
-  }
-  return { kind: 'already-journaled' };
+  if (genesis.kind !== 'genesis-appended') return genesis;
+  return {
+    kind: 'adopted',
+    marker: genesis.marker,
+    importedDigest: genesis.stateDigest,
+  };
 }
 
 /**

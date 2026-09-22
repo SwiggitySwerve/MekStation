@@ -40,14 +40,44 @@ export const CAMPAIGN_EVENT_DEFAULT_SCOPE = {
 } as const satisfies Record<CampaignEventType, CampaignEventScope>;
 
 /**
+ * A FundsChanged was given a scope other than `campaign`.
+ *
+ * Every FundsChanged carries the absolute balance after the change, so a
+ * funds event hidden from some viewers still shows through the balance on
+ * the next one they can see. Typed so a caller can tell this refusal apart
+ * without parsing a message.
+ */
+export class CampaignFundsScopeError extends Error {
+  public readonly name = 'CampaignFundsScopeError';
+  public readonly code = 'FUNDS_SCOPE_NOT_CAMPAIGN';
+  public constructor(
+    public readonly type: CampaignEventType,
+    public readonly scope: CampaignEventScope,
+  ) {
+    super(
+      `${type} carries the campaign balance and cannot be scoped '${scope}'`,
+    );
+  }
+}
+
+/**
  * Resolve the scope to stamp: an explicit override wins, otherwise the
  * per-type default. Callers that know a tighter audience (GM-only,
  * team, or player) pass the override; everyone else inherits the table.
+ * A FundsChanged with any override other than `campaign` throws
+ * `CampaignFundsScopeError` instead of resolving.
  */
 export function resolveCampaignEventScope(
   type: CampaignEventType,
   override?: CampaignEventScope,
 ): CampaignEventScope {
+  if (
+    type === 'FundsChanged' &&
+    override !== undefined &&
+    override !== 'campaign'
+  ) {
+    throw new CampaignFundsScopeError(type, override);
+  }
   return override ?? CAMPAIGN_EVENT_DEFAULT_SCOPE[type];
 }
 

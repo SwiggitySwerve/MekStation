@@ -1,0 +1,448 @@
+{
+  "unit": "U35a",
+  "stage": "local",
+  "status": "ready",
+  "at": "2026-09-22T23:03:51.953Z",
+  "baseline": "d3c088a9b2ebb7db84e698222707537cdb7515e3",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u35a",
+  "branch": "roadmap-u35a-campaign-commit-gates-20260922",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "shellPreamble": [
+    "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "export npm_config_dry_run=true",
+    "every MEKSTATION_E2E_* key unset by the runner"
+  ],
+  "runner": {
+    "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35a/run.sh",
+    "sha256": "c7881240489ff450e83b98dc6fca709a37157171649bc2d5bbb362c4ae7e9db4"
+  },
+  "priorReceipts": {
+    "admission": {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u35a/openspec/planning/2026-09-12-roadmap-completion/evidence/u35a-admission-20260922.json",
+      "sha256": "fddda954ce187a60010f75bd0aca950762eb037655e6839d1a2cdbb76e44f728"
+    },
+    "red": {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u35a/openspec/planning/2026-09-12-roadmap-completion/evidence/u35a-red-20260922.json",
+      "sha256": "8760d6661e4ccf595f9f458bf24abb3d4b53bca396949a03456148ce2958d2db"
+    }
+  },
+  "changedFiles": [
+    {
+      "file": "src/lib/campaign/authority/__tests__/campaignLegacyAdoption.test.ts",
+      "added": 66,
+      "deleted": 29,
+      "category": "test",
+      "sha256": "970dd43edee074d302a8dcaa6caeda57df3bf43e43c29d8777368fd1604fcce3"
+    },
+    {
+      "file": "src/lib/campaign/authority/campaignCommandPipeline.ts",
+      "added": 24,
+      "deleted": 7,
+      "category": "product",
+      "sha256": "37fd4604d8a8faf9ae00202ff99790bc487962d8c713ce054923f455fb8fc2de"
+    },
+    {
+      "file": "src/lib/campaign/authority/campaignLegacyAdoption.ts",
+      "added": 48,
+      "deleted": 73,
+      "category": "product",
+      "sha256": "1a19683f3f350b039ea209dcce1ef26716358bda909a2ff5ac978fa13c77dc1b"
+    },
+    {
+      "file": "src/lib/campaign/sync/__tests__/campaignEventScope.test.ts",
+      "added": 12,
+      "deleted": 1,
+      "category": "test",
+      "sha256": "b7b40fa9c5316cebb30d056f5ca0aa6315f0521b33a56783e5a9f756a41e32d0"
+    },
+    {
+      "file": "src/lib/campaign/sync/campaignEventScope.ts",
+      "added": 30,
+      "deleted": 0,
+      "category": "product",
+      "sha256": "21a06df699e3dd925aebce78139a170335001d58247367f59a6d1acc3f01d88b"
+    },
+    {
+      "file": "src/lib/campaign/authority/__tests__/campaignCommitGates.test.ts",
+      "added": 422,
+      "deleted": 0,
+      "untracked": true,
+      "category": "test",
+      "sha256": "90b6f091d37c88f960f6daae2f1d5d1920ef9db743d71b3a649b27fe040168e1"
+    }
+  ],
+  "lineCounts": {
+    "product": {
+      "files": 3,
+      "added": 102,
+      "deleted": 80,
+      "changed": 182
+    },
+    "test": {
+      "files": 3,
+      "added": 500,
+      "deleted": 30,
+      "changed": 530
+    },
+    "capProductLines": 500,
+    "capFiles": 15,
+    "filesTotal": 6,
+    "withinCaps": true,
+    "method": "git diff --numstat for tracked files (added + deleted); the new untracked suite counted as all-added lines"
+  },
+  "implementation": {
+    "F-1": "src/lib/campaign/authority/campaignCommandPipeline.ts: recordFirstCommandOnMarker wraps the marker read and write in try/catch and logs a failure through logger.warn naming campaignId and commandId; acknowledgeCommit then replays and acknowledges the committed batch.",
+    "F-3": "no product change; pinned by row (f3) of campaignCommitGates.test.ts and proven by mutant M3.",
+    "fundsScope": "src/lib/campaign/sync/campaignEventScope.ts: CampaignFundsScopeError (name, code FUNDS_SCOPE_NOT_CAMPAIGN, type, scope); resolveCampaignEventScope throws it for FundsChanged with an override other than campaign. campaignEventScope.test.ts:108 re-pinned to the refusal.",
+    "adoption": "src/lib/campaign/authority/campaignLegacyAdoption.ts: adoptLegacyCampaign appends the genesis through appendCampaignGenesis (system principal, journal-native marker) instead of importCampaignBaseline (migration principal, shadowing marker); the retry guard answers already-journaled for a marker in journal state or one carrying an imported baseline. campaignLegacyAdoption.test.ts re-pinned (journal-native marker, system-authored genesis, retry keeps a stamped first command, an earlier shadowing import is left standing)."
+  },
+  "gates": {
+    "jestTouchedSuites": [
+      {
+        "command": "npx jest src/lib/campaign/authority/__tests__/campaignCommitGates.test.ts",
+        "exitCode": 0,
+        "lastLine": "Ran all test suites matching /src\\\\lib\\\\campaign\\\\authority\\\\__tests__\\\\campaignCommitGates.test.ts/i.",
+        "counts": [
+          "Test Suites: 1 passed, 1 total",
+          "Tests:       5 passed, 5 total"
+        ],
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35a/logs/green-gates.log",
+          "sha256": "2424831b5509721bcb9c0459466dba0700a86054e011226b71751db9ad6dd6d4"
+        },
+        "note": "run before oxfmt reordered one import in this file; the campaign group below ran on the formatted bytes"
+      },
+      {
+        "command": "npx jest src/lib/campaign/authority/__tests__/campaignLegacyAdoption.test.ts",
+        "exitCode": 0,
+        "lastLine": "Ran all test suites matching /src\\\\lib\\\\campaign\\\\authority\\\\__tests__\\\\campaignLegacyAdoption.test.ts/i.",
+        "counts": [
+          "Test Suites: 1 passed, 1 total",
+          "Tests:       11 passed, 11 total"
+        ],
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35a/logs/green-adoption.log",
+          "sha256": "4308f896abdb517872a49c091f2c6737e2b587b237fcd2e34b0c04cd255dab27"
+        }
+      },
+      {
+        "command": "npx jest src/lib/campaign/sync/__tests__/campaignEventScope.test.ts",
+        "exitCode": 0,
+        "lastLine": "Ran all test suites matching /src\\\\lib\\\\campaign\\\\sync\\\\__tests__\\\\campaignEventScope.test.ts/i.",
+        "counts": [
+          "Test Suites: 1 passed, 1 total",
+          "Tests:       12 passed, 12 total"
+        ],
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35a/logs/green-scope.log",
+          "sha256": "418eb7b76dad936142352b5579c4d11e36b12d5917d9d4b63a052baaf9c8ed85"
+        }
+      }
+    ],
+    "jestCampaign": {
+      "command": "npx jest src/lib/campaign",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\campaign/i.",
+      "counts": [
+        "Test Suites: 203 passed, 203 total",
+        "Tests:       2975 passed, 2975 total"
+      ],
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35a/logs/local-jest-campaign.log",
+        "sha256": "0d861950608865c44917d059cbc2a27583c7e37a31722b5980c946ad2270bafd"
+      }
+    },
+    "jestApi": {
+      "command": "npx jest src/pages-modules/api src/__tests__/api",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\pages-modules\\\\api|src\\\\__tests__\\\\api/i.",
+      "counts": [
+        "Test Suites: 62 passed, 62 total",
+        "Tests:       809 passed, 809 total"
+      ],
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35a/logs/local-jest-api.log",
+        "sha256": "b382ca5104537cebf4ba6ee0410f9453255dee3be393e77eaf924ea7c163d55d"
+      }
+    },
+    "jestJournal": {
+      "command": "npx jest src/lib/events/journal",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\events\\\\journal/i.",
+      "counts": [
+        "Test Suites: 23 passed, 23 total",
+        "Tests:       243 passed, 243 total"
+      ],
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35a/logs/local-jest-journal.log",
+        "sha256": "da2590ee96fded15e119707c33f196da43003389b9bf587b703cd0b9add1dd11"
+      }
+    },
+    "tsc": {
+      "command": "npx tsc --noEmit",
+      "exitCode": 0,
+      "lastLine": "(no output)",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35a/logs/local-tsc.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "oxlint": {
+      "command": "npx oxlint",
+      "exitCode": 0,
+      "lastLine": "Finished in 247ms on 3816 files using 16 threads.",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35a/logs/local-oxlint.log",
+        "sha256": "b9cb1c6aeafb5e5f7b916dceb45a345a4c73ea614df98eb41124ae0cde49da71"
+      },
+      "warningsBaseline": 84
+    },
+    "oxfmtCheck": {
+      "command": "npx oxfmt --check <the six changed files>",
+      "exitCode": 0,
+      "lastLine": "Finished in 43ms on 6 files using 16 threads.",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35a/logs/local-oxfmt.log",
+        "sha256": "039e2429bbaec0c9107f7695e4c206ffc0e32fde196c77ff6828bdbc13c99bc7"
+      },
+      "files": [
+        "src/lib/campaign/authority/__tests__/campaignLegacyAdoption.test.ts",
+        "src/lib/campaign/authority/campaignCommandPipeline.ts",
+        "src/lib/campaign/authority/campaignLegacyAdoption.ts",
+        "src/lib/campaign/sync/__tests__/campaignEventScope.test.ts",
+        "src/lib/campaign/sync/campaignEventScope.ts",
+        "src/lib/campaign/authority/__tests__/campaignCommitGates.test.ts"
+      ],
+      "note": "the new suite was formatted once with npx oxfmt (it moved one import) before this check"
+    },
+    "lintUnits": {
+      "command": "npm run lint:units",
+      "exitCode": 0,
+      "lastLine": "LINT_UNITS_PASS 100/100",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35a/logs/local-lint-units.log",
+        "sha256": "e055631f9348b2e6539c922dddc1fe388b583448a734da5f618cb47c583fae2d"
+      }
+    },
+    "openspecCi": {
+      "command": "npm run qc:openspec-ci:validate",
+      "exitCode": 0,
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35a/logs/local-openspec-ci.log",
+        "sha256": "4c2dafd093b946290aa4abe001ad8b3d65671b17c7682722c55a510ecc04f91e"
+      }
+    },
+    "roadmapValidator": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "exitCode": 0,
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35a/logs/local-validator.log",
+        "sha256": "97b2f29d264078525a55c5f88586fb95603311fa065e70d7d17c5fab08f5b5bc"
+      }
+    }
+  },
+  "mutants": [
+    {
+      "id": "M1",
+      "file": "src/lib/campaign/authority/campaignCommandPipeline.ts",
+      "what": "the post-commit marker failure rethrown after it is logged (throw error in the catch of recordFirstCommandOnMarker)",
+      "applyExit": 0,
+      "preMutantSha256": "37fd4604d8a8faf9ae00202ff99790bc487962d8c713ce054923f455fb8fc2de",
+      "mutatedSha256": "45f385592086bd3de92e2bbc85b2b9eb15b2c5d41cfc5f5efb6d4238cfecb461",
+      "restoredSha256": "37fd4604d8a8faf9ae00202ff99790bc487962d8c713ce054923f455fb8fc2de",
+      "restoredMatchesPreMutant": true,
+      "restoredBy": "cp of the saved pre-mutant byte copy",
+      "runs": [
+        {
+          "suite": "src/lib/campaign/authority/__tests__/campaignCommitGates.test.ts",
+          "exitCode": 1,
+          "tests": "Tests:       2 failed, 3 passed, 5 total",
+          "failing": [
+            "U35a campaign commit gates › (b) a marker-io write failure after a committed batch is logged and the commit is acknowledged",
+            "U35a campaign commit gates › (b) a marker-io read failure after a committed batch is logged and the commit is acknowledged"
+          ],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35a/logs/mutant-M1-1.log",
+            "sha256": "392a16ad841fa7c7103991d7cb82543cd8aca803aa3c864f7c6ef5b96af39884"
+          }
+        }
+      ],
+      "caught": true
+    },
+    {
+      "id": "M2",
+      "file": "src/lib/campaign/sync/campaignEventScope.ts",
+      "what": "the FundsChanged scope check removed from resolveCampaignEventScope",
+      "applyExit": 0,
+      "preMutantSha256": "21a06df699e3dd925aebce78139a170335001d58247367f59a6d1acc3f01d88b",
+      "mutatedSha256": "67ecb110df372e3480b253d6b7774d832d2e5305c56edec9bd31cd610918562b",
+      "restoredSha256": "21a06df699e3dd925aebce78139a170335001d58247367f59a6d1acc3f01d88b",
+      "restoredMatchesPreMutant": true,
+      "restoredBy": "cp of the saved pre-mutant byte copy",
+      "runs": [
+        {
+          "suite": "src/lib/campaign/authority/__tests__/campaignCommitGates.test.ts",
+          "exitCode": 1,
+          "tests": "Tests:       1 failed, 4 passed, 5 total",
+          "failing": [
+            "U35a campaign commit gates › (c) a balance-bearing FundsChanged refuses a scope other than campaign with a typed error"
+          ],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35a/logs/mutant-M2-1.log",
+            "sha256": "f097cf031625361d9650ab3dbc5a1c60c548b4912e2b92d97cef9f48bb6beda0"
+          }
+        },
+        {
+          "suite": "src/lib/campaign/sync/__tests__/campaignEventScope.test.ts",
+          "exitCode": 1,
+          "tests": "Tests:       1 failed, 11 passed, 12 total",
+          "failing": [
+            "CAMPAIGN_EVENT_DEFAULT_SCOPE completeness › refuses a non-campaign override on the balance-bearing FundsChanged"
+          ],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35a/logs/mutant-M2-2.log",
+            "sha256": "46191fdfdf53c5dfdc3973d21e9483ddb8f09eaf6faf31853fc4db8a8a642b45"
+          }
+        }
+      ],
+      "caught": true
+    },
+    {
+      "id": "M3",
+      "file": "src/lib/campaign/authority/campaignCommandPipeline.ts",
+      "what": "the stamp skipped when the committed batch is an AcceptContract (acknowledgeCommit guards the call on no ContractAccepted event)",
+      "applyExit": 0,
+      "preMutantSha256": "37fd4604d8a8faf9ae00202ff99790bc487962d8c713ce054923f455fb8fc2de",
+      "mutatedSha256": "e1168941fb161b0b7268a58908e2cfc2ecbe00798fe39c631ffb952daa961ee8",
+      "restoredSha256": "37fd4604d8a8faf9ae00202ff99790bc487962d8c713ce054923f455fb8fc2de",
+      "restoredMatchesPreMutant": true,
+      "restoredBy": "cp of the saved pre-mutant byte copy",
+      "runs": [
+        {
+          "suite": "src/lib/campaign/authority/__tests__/campaignCommitGates.test.ts",
+          "exitCode": 1,
+          "tests": "Tests:       1 failed, 4 passed, 5 total",
+          "failing": [
+            "U35a campaign commit gates › (f3) an AcceptContract through executeCampaignCommand on a journal-native campaign stamps firstJournalAuthorityCommandId"
+          ],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35a/logs/mutant-M3-1.log",
+            "sha256": "df044d5d6d92ca05b4be18319ed49808b564f55f9923ec8e3c7f110fa83c6b96"
+          }
+        }
+      ],
+      "caught": true
+    },
+    {
+      "id": "M4",
+      "file": "src/lib/campaign/authority/campaignLegacyAdoption.ts",
+      "what": "adoption writes the shadowing marker again (campaignLegacyAdoption.ts replaced by its baseline blob: importCampaignBaseline under the migration principal)",
+      "applyExit": 0,
+      "preMutantSha256": "1a19683f3f350b039ea209dcce1ef26716358bda909a2ff5ac978fa13c77dc1b",
+      "mutatedSha256": "d24bb2ccad6fc3282db6984f479f1a739b9f8b3b708e01a6dfeb3e5efcf0f8f9",
+      "restoredSha256": "1a19683f3f350b039ea209dcce1ef26716358bda909a2ff5ac978fa13c77dc1b",
+      "restoredMatchesPreMutant": true,
+      "restoredBy": "cp of the saved pre-mutant byte copy",
+      "runs": [
+        {
+          "suite": "src/lib/campaign/authority/__tests__/campaignCommitGates.test.ts",
+          "exitCode": 1,
+          "tests": "Tests:       1 failed, 4 passed, 5 total",
+          "failing": [
+            "U35a campaign commit gates › (adopt) adopting a legacy campaign appends the genesis snapshot and writes a journal-native marker"
+          ],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35a/logs/mutant-M4-1.log",
+            "sha256": "51b1a7256eba681b6705ea355fbf2951d7b919b802a5187f3a948affb21f1ebb"
+          }
+        },
+        {
+          "suite": "src/lib/campaign/authority/__tests__/campaignLegacyAdoption.test.ts",
+          "exitCode": 1,
+          "tests": "Tests:       3 failed, 8 passed, 11 total",
+          "failing": [
+            "adoptLegacyCampaign › adopts a browser copy as a journal-native campaign",
+            "adoptLegacyCampaign › writes exactly one genesis event under the system principal",
+            "adoptLegacyCampaign › keeps a stamped first command when the adoption is retried"
+          ],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35a/logs/mutant-M4-2.log",
+            "sha256": "4880bcf22e40d2d3d0cdb169caee1f40d3d4372e5e153bf36b3fd89227304e9f"
+          }
+        }
+      ],
+      "caught": true
+    },
+    {
+      "id": "M5",
+      "file": "src/lib/campaign/authority/campaignLegacyAdoption.ts",
+      "what": "the adoption retry guard no longer treats a journal-state marker as already adopted (idempotency)",
+      "applyExit": 0,
+      "preMutantSha256": "1a19683f3f350b039ea209dcce1ef26716358bda909a2ff5ac978fa13c77dc1b",
+      "mutatedSha256": "9bca371ca17d7f8e2b2f916a08a96a174381b6bda96358b53baac64df952e1bf",
+      "restoredSha256": "1a19683f3f350b039ea209dcce1ef26716358bda909a2ff5ac978fa13c77dc1b",
+      "restoredMatchesPreMutant": true,
+      "restoredBy": "cp of the saved pre-mutant byte copy",
+      "runs": [
+        {
+          "suite": "src/lib/campaign/authority/__tests__/campaignLegacyAdoption.test.ts",
+          "exitCode": 1,
+          "tests": "Tests:       2 failed, 9 passed, 11 total",
+          "failing": [
+            "adoptLegacyCampaign › is idempotent when the same campaign is adopted twice",
+            "adoptLegacyCampaign › keeps a stamped first command when the adoption is retried"
+          ],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35a/logs/mutant-M5-1.log",
+            "sha256": "803e1c871f36edb179c90516709718f0d352276745f068cef95763e3750da599"
+          }
+        }
+      ],
+      "caught": true
+    }
+  ],
+  "mutantScripts": {
+    "mutate": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35a/mutate.mjs",
+      "sha256": "3fb7ecf7988ac51b88cfbfbc7cfb92d3c1106fdbb1c92a515a94df71fa4e4b05"
+    },
+    "runner": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35a/mutants.sh",
+      "sha256": "fbe12197d6e66e8f1d9a0911eac2984e8a5cd58e0fd23c37d1fc99ff8a634811"
+    },
+    "summary": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35a/mutants/summary.log",
+      "sha256": "18802b878fa66e699658837232f3dc742a274ba86d59eeb19b400052a3b19876"
+    }
+  },
+  "nonClaims": [
+    "Clause (4) only takes effect when the adopt route passes enabled true. The route passes isCampaignJournalAuthorityEnabled() (src/pages/api/campaigns/[id]/adopt.ts:145), which is false in production until U35d flips CAMPAIGN_JOURNAL_AUTHORITY_ENABLED (unchanged here) and true only under the e2e fixture arm. The behaviour is pinned through the hook's own enabled switch (maybeAdoptLegacyCampaign({ enabled: true }) with the durable marker io over real SQLite); no new production switch was added and the adopt route was not driven under the flag.",
+    "F-1 is a catch and a log, not an atomic marker write: after a swallowed marker failure firstJournalAuthorityCommandId stays null (row (b) asserts it), and the next command that commits while the marker io works is recorded as first.",
+    "F-3 is a pin: row (f3) is green on the baseline (red receipt); its failing evidence is mutant M3 only.",
+    "Row (b) drives executeCampaignCommand, not the HTTP commands route; the 500 mapping of a thrown result (src/pages/api/campaigns/[id]/commands.ts:283-284) was read, not executed.",
+    "The FundsChanged refusal is in resolveCampaignEventScope only; an event object built without it and the journal append path do not check the scope (for example src/lib/campaign/delivery/__tests__/campaignGenesisArmParity.test.ts:86-90 and src/lib/multiplayer/server/__tests__/campaignWireScopeBoundary.test.ts:43-47 build gm-scoped FundsChanged literals; the first ran green in the src/lib/campaign group, the second is outside the three jest groups and was not run).",
+    "No build, no Playwright, no repository-wide jest; only the three jest groups and the three touched suites listed under gates ran.",
+    "Gate (3) (the whole-envelope PUT checkpoint, U35b), the flag flip (U35d) and the flip-sensitive route re-pins (U35c) are not addressed here.",
+    "No tasks.md row was checked; units.json, roadmap.json and admission-snapshot.json were not edited; nothing was committed, pushed or stashed."
+  ],
+  "findingsReportedNotFixed": [
+    {
+      "id": "U35a-F1",
+      "file": "src/pages/api/campaigns/[id]/adopt.ts:1-20",
+      "finding": "The route header still says adoption records a shadowing cutover marker naming the imported revision and that a journal-native stamp is a false provenance claim; after this unit the hook it calls writes a journal-native marker. Outside the ownership paths."
+    },
+    {
+      "id": "U35a-F2",
+      "file": "openspec/changes/design-campaign-authority-and-sync/design.md:40",
+      "finding": "D8 (amended 2026-08-20) says an adopted browser campaign records its imported baseline in the D10 cutover marker; the journal-native marker this unit writes has importedBaseline null. The ledger sentence and OD-mvp-hard-cutover decide the behaviour; the design text is not updated. Outside the ownership paths."
+    }
+  ],
+  "risksForTheParent": [
+    "Lane B: review classes authority + idempotency need the owner head-bound OWNER-RULING on the exact merged head.",
+    "Adopted campaigns now carry a system-authored genesis (commandId campaign-genesis:<id>) instead of a migration-authored baseline; U58's baseline-law predicate treats that as a genesis baseline that reaches restricted viewers.",
+    "Once U35d flips the flag, an adopted campaign is on journal authority and its whole-envelope PUTs leave the journal behind the record until U35b lands (gate 3)."
+  ],
+  "gitStatusShortBeforeThisReceipt": " M src/lib/campaign/authority/__tests__/campaignLegacyAdoption.test.ts\n M src/lib/campaign/authority/campaignCommandPipeline.ts\n M src/lib/campaign/authority/campaignLegacyAdoption.ts\n M src/lib/campaign/sync/__tests__/campaignEventScope.test.ts\n M src/lib/campaign/sync/campaignEventScope.ts\n?? openspec/planning/2026-09-12-roadmap-completion/evidence/u35a-admission-20260922.json\n?? openspec/planning/2026-09-12-roadmap-completion/evidence/u35a-red-20260922.json\n?? src/lib/campaign/authority/__tests__/campaignCommitGates.test.ts\n"
+}

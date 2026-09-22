@@ -31,6 +31,7 @@ import {
 
 import {
   CAMPAIGN_EVENT_DEFAULT_SCOPE,
+  CampaignFundsScopeError,
   assertCampaignEventScopeTableCompleteness,
   freezeCampaignEvent,
   resolveCampaignEventScope,
@@ -105,9 +106,19 @@ describe('CAMPAIGN_EVENT_DEFAULT_SCOPE completeness', () => {
     for (const type of CAMPAIGN_EVENT_TYPES) {
       expect(resolveCampaignEventScope(type)).toBe('campaign');
     }
-    expect(resolveCampaignEventScope('FundsChanged', 'gm')).toBe('gm');
     expect(resolveCampaignEventScope('PilotHired', 'team:lance-1')).toBe(
       'team:lance-1',
+    );
+  });
+
+  it('refuses a non-campaign override on the balance-bearing FundsChanged', () => {
+    // The absolute balance on the next visible FundsChanged would reveal a
+    // hidden one, so FundsChanged takes no override but `campaign`.
+    expect(() => resolveCampaignEventScope('FundsChanged', 'gm')).toThrow(
+      CampaignFundsScopeError,
+    );
+    expect(resolveCampaignEventScope('FundsChanged', 'campaign')).toBe(
+      'campaign',
     );
   });
 });
