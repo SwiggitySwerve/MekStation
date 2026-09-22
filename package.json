@@ -151,6 +151,7 @@
     "qc:combat:catalog-rules": "node scripts/qc/validate-combat-catalog-rules-parity.mjs --json",
     "qc:combat:catalog-rules:validate": "node scripts/qc/validate-combat-catalog-rules-parity.mjs",
     "qc:openspec-ci:validate": "node scripts/qc/validate-openspec-ci-quality.mjs",
+    "qc:guard-node-modules-link": "node scripts/qc/guard-node-modules-link.mjs",
     "qc:exact-main-ladder": "node scripts/qc/validate-exact-main-regression-ladder.mjs",
     "qc:camp01-authority-receipt:controller": "node scripts/qc/run-camp01-production.mjs",
     "qc:camp01-authority-receipt:write": "node scripts/qc/camp01-authority-receipt.mjs write",
