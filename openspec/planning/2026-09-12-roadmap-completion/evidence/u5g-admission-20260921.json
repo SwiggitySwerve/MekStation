@@ -1,0 +1,123 @@
+{
+  "unit": "U5g",
+  "stage": "admission",
+  "baseline": "05794b930927e4e70976b5005747bff6f0e9b4f5",
+  "at": "2026-09-22T04:54:38.2036616Z",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u5g",
+  "branch": "codex/roadmap-u5g-gm-head-route-20260921",
+  "implementerModel": "codex (gpt-6-astra xhigh)",
+  "status": "admitted",
+  "next": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "exitCode": 0,
+    "lastLine": "U5g",
+    "baseline": "05794b930927e4e70976b5005747bff6f0e9b4f5"
+  },
+  "dependencies": {
+    "node": "R2.authority-live",
+    "state": "main-verified",
+    "dependsOn": [
+      {
+        "id": "R2.authority-cutover",
+        "state": "main-verified"
+      }
+    ],
+    "originMain": "05794b930927e4e70976b5005747bff6f0e9b4f5"
+  },
+  "seams": [
+    {
+      "source": "src/lib/events/journal/SQLiteEventHistoryCorrectionLeaseStore.ts:301",
+      "fact": "assertExpectedHeadIsCurrent reads readJournalHead; line 318 compares binding.expectedDigest !== head.digest; lines 333-334 delegate to readEffectiveStreamHead. Private IJournalHead at line 62 contains revision and digest only."
+    },
+    {
+      "source": "src/lib/events/journal/EventHistoryEffectiveStreamHead.ts:28",
+      "fact": "Exported return interface carries branchId, revision, digest; exported reader at line 40 accepts db, branches, stream. No generation. Missing effective branch or journal head row returns revision 0 and genesis digest."
+    },
+    {
+      "source": "src/lib/events/journal/SQLiteEventHistoryBranchStore.ts:120",
+      "fact": "readEffectiveHead supplies branchId and effectiveGeneration or null."
+    },
+    {
+      "source": "src/lib/events/journal/EventHistoryExpectedHead.ts:61",
+      "fact": "IActiveBranchHead has branchId, revision, effectiveGeneration and no digest; readActiveBranchHead uses a caller-supplied journal revision."
+    },
+    {
+      "source": "src/pages/api/matches/[id]/rewind-commit.ts:181",
+      "fact": "Calls matchStreamRef(matchId); exported src/lib/multiplayer/server/history/GmCombatRewindPreview.ts:73 returns {streamType:'match', streamId:matchId}. Reuse this exact function."
+    },
+    {
+      "source": "src/pages-modules/api/matchHistoryViewerChain.ts:189",
+      "fact": "prepareMatchHistoryGet supplies GET-only, database init, id guard and match-scoped bearer. MATCH_HISTORY_AUTHORIZATION_REFUSED is Authorization refused; rejectMatchHistoryFailure maps authorization errors to constant 403."
+    },
+    {
+      "source": "src/pages-modules/api/matchPrivatePreviewRoute.ts:77",
+      "fact": "Default match store metadata; missing match 404 {error:'unknown match'}; HostAsGmMembershipSource wrapping MatchSeatMembershipSource. This head route additionally refuses all non-hosts."
+    }
+  ],
+  "design": [
+    "Use the existing GET chain and default match metadata, then authorizeHumanAction over the same host-as-GM source and recheck the viewer brand, host identity and gm role.",
+    "Read matchStreamRef(caller.matchId) in one synchronous read transaction using SQLite service db, SQLiteEventHistoryBranchStore.readEffectiveHead and the exported readEffectiveStreamHead.",
+    "Return exactly {branchId, revision, effectiveGeneration, digest}. Return 404 {error:'no head'} when effective head is null or reader revision is zero (no journal head). No digest computation or fallback created by the route.",
+    "Use real in-memory SQLite, durable match seats, signed scoped bearers, and an activated candidate fixture with a distinct root digest. Assert byte equality through the same exported seam and acceptance by the correction lease. Test the Pages Router re-export."
+  ],
+  "estimatePerFile": [
+    {
+      "path": "src/pages/api/matches/[id]/head.ts",
+      "product": 1
+    },
+    {
+      "path": "src/pages-modules/api/matchHeadRoute.ts",
+      "product": 105
+    },
+    {
+      "path": "src/pages-modules/api/__tests__/matchHeadRoute.test.ts",
+      "test": 340
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/u5g-admission-20260921.json",
+      "product": 0,
+      "test": 0,
+      "kind": "receipt"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/u5g-red-20260921.json",
+      "product": 0,
+      "test": 0,
+      "kind": "receipt"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/u5g-local-20260921.json",
+      "product": 0,
+      "test": 0,
+      "kind": "receipt"
+    }
+  ],
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedProductLines": 500,
+    "estimatedProductLines": 106
+  },
+  "risksForTheParent": [
+    "Authority class: PK-u5g-ruling requires an owner ruling on the exact PR head before merge; local stages confer no merge authority.",
+    "ViewerHistoryLineage.ts:133 exposes the installed branch cutoff as revision, not necessarily the current journal tip. Pin equality on a just-activated branch fixture, but always read the lease's journal revision in product code.",
+    "readEffectiveStreamHead defines missing journal rows as revision zero/genesis; transport deliberately returns no head rather than exposing that placeholder.",
+    "No client uses this route until U5h; producers do not send its digest until U5i; U2b remains blocked."
+  ],
+  "constraints": [
+    "Only the three new source/test files and three U5g receipts may change; no root checkout edits, install/ci/prune/lifecycle, commits, pushes, stash, amend, build, Playwright, or task ticks.",
+    "Node v22.22.0; npm_config_dry_run=true; Jest --runInBand; no delegation."
+  ],
+  "acceptanceCommands": [
+    "npx jest src/pages-modules/api/__tests__/matchHeadRoute.test.ts --runInBand",
+    "npx jest src/pages-modules/api/__tests__/matchPrivatePreviewRoute.test.ts --runInBand",
+    "npx jest src/pages-modules/api src/__tests__/api/matches --runInBand",
+    "npx tsc --noEmit",
+    "npx oxlint",
+    "npx oxfmt --check <six changed files>",
+    "npm run lint:units",
+    "npm run qc:openspec-ci:validate",
+    "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs"
+  ],
+  "reviewClass": "authority",
+  "ownerRulingPacket": "PK-u5g-ruling"
+}

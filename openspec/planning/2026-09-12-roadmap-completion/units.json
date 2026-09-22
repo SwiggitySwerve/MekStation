@@ -1560,14 +1560,28 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
+      "state": "local-verified",
+      "baseline": "05794b930927e4e70976b5005747bff6f0e9b4f5",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/u5g-admission-20260921.json",
+          "baseline": "05794b930927e4e70976b5005747bff6f0e9b4f5",
+          "at": "2026-09-22T04:54:38.2036616Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/u5g-red-20260921.json",
+          "at": "2026-09-22 04:57:17 UTC",
+          "summary": "11 failed on the missing route (GET /api/matches/:id/head answered 404)"
+        },
+        "local": {
+          "path": "evidence/u5g-local-20260921.json",
+          "at": "2026-09-22T05:01:32.2461152Z",
+          "summary": "GET /api/matches/:id/head answers the host-as-GM the effective head { branchId, revision, effectiveGeneration, digest } through the exported readEffectiveStreamHead, the seam the lease store binds against, for the commit route's stream ref; other callers 403 constant, no bearer 401, no head 404; head route 11/11, private-preview 10/10, API group 107/107; 85 product lines; M1-M3 caught and restored; tsc 0, oxlint 0 errors, lint:units 100/100, validator PASSED"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
