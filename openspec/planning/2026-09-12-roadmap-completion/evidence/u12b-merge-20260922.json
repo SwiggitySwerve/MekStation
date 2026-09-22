@@ -1,0 +1,23 @@
+{
+  "unit": "U12b",
+  "stage": "merge",
+  "at": "2026-09-22T07:33:08.225Z",
+  "pr": 1885,
+  "title": "chore(qc): the node_modules junction guard as a CLI the loop calls before npm (U12b)",
+  "head": "61d38f85850c56b7ec3186e4560d285396243b64",
+  "mergeSha": "5917a6425b2dca4db7e63341193d42baa0db31d6",
+  "mergedAt": "2026-09-22T07:25:35Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u12b-admission-20260922.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u12b-local-20260922.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u12b-red-20260922.json",
+    "package.json",
+    "scripts/__tests__/guard-node-modules-link.test.ts",
+    "scripts/qc/guard-node-modules-link.mjs"
+  ],
+  "blobEqualityDiffLines": 0
+}
