@@ -564,7 +564,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "blocked",
+      "state": "planned",
       "baseline": "3137f5b619c4597076d9a274ca0b4d0bbe364ab4",
       "prHead": "e00303cad38dace93f325d77d7c866c02b2c89f6",
       "mergeSha": null,
@@ -614,6 +614,15 @@
         "nextIndependentAction": "U5e (R2.combat: a client adapter reads lineage.effectiveHead from GET /api/matches/:id/timeline) then U5f (R2.multiplayer-client: the producers name that head) unblock E2E-19's preview; E2E-25's commit waits on the owner's ruling on PK-rewind-commit-head-digest; then U2b resumes from PR #1860's rows",
         "proof": "evidence/u2b-local-20260921.json findingsReportedNotFixed",
         "resumeAfter": "U5g, U5h and U5i complete (the digest reaches the commit), then U2b resumes from draft PR #1860"
+      },
+      "resumed20260922": {
+        "at": "2026-09-22T02:00:00.000Z",
+        "because": "U5e (66c0ecad61350927294cd547b24062695d9c905e) and U5f (aecbec865c4e7aec7ae7955115025968ddaa59a6) make the lobby name the real head, and the owner's ruling on PK-rewind-commit-head-digest (option a) is delivered by U5g (53bd8f0a84fad3b60809f4b5e2a9dd6fb7f425aa, the GM head route), U5h (145e155609afd73b079f8410c04fd8df6bb5a278, the adapter) and U5i (dd7477070365707094da3e5b06a430a32866aadd, the producers send the digest), so the two 409s U2b's admission measured on 2026-09-21 (STALE_BRANCH from the fallback branch root; correction-lease-held from the empty digest) have no cause left on main; the block records blocked20260919 and blocked20260921 are kept as history",
+        "resumeFrom": {
+          "draftPr": 1860,
+          "head": "e00303cad38dace93f325d77d7c866c02b2c89f6",
+          "note": "the draft's product files (e2e/gm-two-player-privacy.pack.spec.ts, scripts/qc/gm-two-player-campaign-core.cjs, scripts/__tests__/gm-two-player-campaign-qc.test.ts) are carried into a fresh worktree off main by content; the 20260921 receipts on main (annotated) stay as history and the resumed lane writes u2b-*-20260922 receipts from a fresh admission that re-measures both refusals"
+        }
       }
     },
     {
@@ -1701,10 +1710,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "local-verified",
+      "state": "complete",
       "baseline": "145e155609afd73b079f8410c04fd8df6bb5a278",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "9b966d0ea74c9c61f0a3e48754f06f266a3c19f4",
+      "mergeSha": "dd7477070365707094da3e5b06a430a32866aadd",
       "stageReceipts": {
         "admission": {
           "path": "evidence/u5i-admission-20260921.json",
@@ -1723,10 +1732,31 @@
           "at": "2026-09-22 06:14:00 UTC",
           "summary": "product +15/-8 in useGmRewindProducers.ts only (useGmCorrectionProducers.ts needed no change: approve reuses the pinned preview request); rewind 9/9, correction 10/10, lobby page 13/13, 5 suites 37/37; tsc 0, oxlint 84 warnings 0 errors unchanged, oxfmt clean on 4 files, LINT_UNITS_PASS 100/100, qc:openspec-ci errors=0, validator PASSED, --next U5i; three mutants caught (expectedDigest '' again; digest-less head accepted; approve drops the digest), sha256 restored; implementer claude-opus (Agent model: opus); findings not fixed: stale DROPS-the-reason comment in useGmCorrectionProducers.ts:19-28, the preview route schema still accepts an empty digest"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "review": {
+          "path": "evidence/u5i-review-20260922.json",
+          "head": "9b966d0ea74c9c61f0a3e48754f06f266a3c19f4",
+          "reviewedHead": "9b966d0ea74c9c61f0a3e48754f06f266a3c19f4",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet)",
+          "implementerModel": "claude-opus (Agent model: opus)",
+          "outputSha256": "625b7893321c3c6a21331f10ea661ced88e867fcd692aa65feb79315b7b0a4bd",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u5i-merge-20260922.json",
+          "pr": 1881,
+          "head": "9b966d0ea74c9c61f0a3e48754f06f266a3c19f4",
+          "mergeSha": "dd7477070365707094da3e5b06a430a32866aadd"
+        },
+        "mainProof": {
+          "path": "evidence/u5i-mainproof-20260922.json",
+          "mergeCommit": "dd7477070365707094da3e5b06a430a32866aadd",
+          "verdict": "PASS",
+          "runtime": "Tests:       106 passed, 106 total"
+        },
+        "tick": {
+          "path": "evidence/u5i-tick-20260922.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "source20260921": "owner decision on PK-rewind-commit-head-digest, option (a) (chat, 2026-09-21); the producer half; planned by the parent",
@@ -3355,7 +3385,7 @@
       "foundBy": "U2b lane (codex gpt-6-astra xhigh) at admission, 2026-09-21; verified by the parent",
       "class": "missing product surface",
       "summary": "With the privacy-pack group armed with the combat-journal fixture the 404 no-authoritative-history disappears, but the lobby's rewind preview answers 409 STALE_BRANCH: src/pages-modules/multiplayer/useGmRewindProducers.ts:69-81 names the fallback branch root, an empty digest and the first generation while the effective branch under the fixture is main (sqlite: branch_id main, effective_generation 1); approve answers 409 correction-lease-held because the lease requires a 64-character journal digest (EventHistoryCorrectionLeaseContract.ts:200) and no client seam exposes one (IActiveBranchHead and the timeline lineage carry no digest; the rewind e2e helper also sends an empty digest and its commit rows are @until-journal-cutover). E2E-19's preview needs only the real branch (successors U5e/U5f); E2E-25's commit needs a digest source, an owner decision (PK-rewind-commit-head-digest).",
-      "status": "U2b parked on draft PR #1860; U5e/U5f planned; packet PK-rewind-commit-head-digest opened"
+      "status": "resolved: head naming by U5e/U5f, digest by U5g/U5h/U5i (option a of PK-rewind-commit-head-digest); U2b resumed 2026-09-22"
     }
   ]
 }

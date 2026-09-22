@@ -1,0 +1,36 @@
+{
+  "unit": "U5i",
+  "stage": "mainProof",
+  "at": "2026-09-22T06:40:40.695Z",
+  "mergeCommit": "dd7477070365707094da3e5b06a430a32866aadd",
+  "checkout": "root checkout fast-forwarded to the merge commit (real node_modules; hydrate step runs)",
+  "runtime": {
+    "build": "exit 0",
+    "e2eBundleMarker": "__E2E_MODE__ present in _app chunk (run log)",
+    "playwright": "multiplayer page-module, multiplayer page and client adapter suites (jest, 9 suites, 106/106): Tests:       106 passed, 106 total",
+    "tsc": "exit 0"
+  },
+  "commands": {
+    "validator": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+    "gitAncestry": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows (--git)",
+    "next": "U12b",
+    "openspecStrict": "Totals: 229 passed, 0 failed (229 items)",
+    "qcOpenspecCi": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+    "qcPin": "Tests:       26 passed, 26 total"
+  },
+  "logs": ".sisyphus/roadmap-completion-20260912/u5i-main-proof-20260922/ (local; sha256 below)",
+  "logHashes": [
+    "e334f4480629aa36ed3d7783c188ebc8f37d11a2d40a488545449c39c0d1da9d *build.log",
+    "38875d75a513e6dc764ce99160b9e7423b80cd040a68252ea1b4c336e36d0fc1 *git-check.log",
+    "6445639db60a4a8f79a3ca3573af73d2cde2b74f12f762a22ffc58bdd39aee43 *idle-before-build.log",
+    "6445639db60a4a8f79a3ca3573af73d2cde2b74f12f762a22ffc58bdd39aee43 *idle-before-runtime.log",
+    "6ebf6301db0c61a61c3a9262e56699b4e2f6e7490bdb86a26c29601ae7d38b00 *next.log",
+    "efd619721df505ed0dbb69fe5bd26b74023670e603ce16891fd2f1331adf1776 *openspec-strict.log",
+    "df4f7f43f68c4e0657c2957f0294bc6cdcb3255c3dd5fac86faab085d26e991b *playwright.log",
+    "5b0f562274df4dbddfb7ae44ab42b7d686dc1e0903383f25c593d88f7479fe9a *qc-openspec-ci.log",
+    "7fbe49bb4bb2ec92bdafda0ffe3de66fdde960b804fd2c36e567765601875447 *qc-pin.log",
+    "f891dbdfc0402cd4ba60fab1be3245dfec559c5d7afc7e21b87e795a73d05e5f *tsc.log",
+    "38875d75a513e6dc764ce99160b9e7423b80cd040a68252ea1b4c336e36d0fc1 *validator.log"
+  ],
+  "verdict": "PASS"
+}

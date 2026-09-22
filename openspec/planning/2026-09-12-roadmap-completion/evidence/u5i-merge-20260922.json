@@ -1,0 +1,24 @@
+{
+  "unit": "U5i",
+  "stage": "merge",
+  "at": "2026-09-22T06:40:40.670Z",
+  "pr": 1881,
+  "title": "feat(multiplayer): the rewind producers send the GM head's journal digest (U5i)",
+  "head": "9b966d0ea74c9c61f0a3e48754f06f266a3c19f4",
+  "mergeSha": "dd7477070365707094da3e5b06a430a32866aadd",
+  "mergedAt": "2026-09-22T06:29:03Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u5i-admission-20260921.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u5i-local-20260921.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u5i-red-20260921.json",
+    "src/__tests__/pages/multiplayer/lobby-roomcode.test.tsx",
+    "src/pages-modules/multiplayer/__tests__/useGmCorrectionProducers.test.tsx",
+    "src/pages-modules/multiplayer/__tests__/useGmRewindProducers.test.tsx",
+    "src/pages-modules/multiplayer/useGmRewindProducers.ts"
+  ],
+  "blobEqualityDiffLines": 0
+}
