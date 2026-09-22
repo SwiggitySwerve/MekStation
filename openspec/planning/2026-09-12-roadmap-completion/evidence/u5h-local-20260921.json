@@ -1,0 +1,347 @@
+{
+  "unit": "U5h",
+  "stage": "local",
+  "at": "2026-09-22 05:16:15 UTC",
+  "status": "ready",
+  "baseline": "759224fc30e1a724dae54d186de37f72bcda7ef2",
+  "testedHead": "759224fc30e1a724dae54d186de37f72bcda7ef2",
+  "branch": "codex/roadmap-u5h-head-adapter-digest-20260921",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u5h",
+  "implementerModel": "codex (gpt-6-astra xhigh)",
+  "taskKeys": [],
+  "packet": "PK-rewind-commit-head-digest option a",
+  "outcome": "GET /head with bearer; four-field head outcome maps effectiveGeneration to generation and preserves a valid digest; 404 no-head maps to no-head; invalid inputs return unavailable without error text.",
+  "environment": {
+    "node": "v22.22.0",
+    "shellPrelude": "export npm_config_dry_run=true\nexport npm_config_ignore_scripts=true\nexport npm_config_offline=true\nexport PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH\n",
+    "npmLifecyclePolicy": "No install/ci/prune or lifecycle hooks run; ignore-scripts enabled for the explicitly requested npm run gates; npm dry-run stays true.",
+    "concurrency": "Jest uses --runInBand; gates run sequentially; no build or Playwright."
+  },
+  "lineCounts": [
+    {
+      "file": "src/lib/multiplayer/client/readGmRewindHead.ts",
+      "class": "product",
+      "added": 20,
+      "deleted": 18,
+      "changed": 38,
+      "totalLines": 64
+    },
+    {
+      "file": "src/lib/multiplayer/client/__tests__/readGmRewindHead.test.ts",
+      "class": "test",
+      "added": 92,
+      "deleted": 62,
+      "changed": 154,
+      "totalLines": 224
+    },
+    {
+      "file": "openspec/planning/2026-09-12-roadmap-completion/evidence/u5h-admission-20260921.json",
+      "class": "receipt",
+      "added": 126,
+      "deleted": 0,
+      "changed": 126,
+      "totalLines": 126
+    },
+    {
+      "file": "openspec/planning/2026-09-12-roadmap-completion/evidence/u5h-red-20260921.json",
+      "class": "receipt",
+      "added": 67,
+      "deleted": 0,
+      "changed": 67,
+      "totalLines": 67
+    },
+    {
+      "file": "openspec/planning/2026-09-12-roadmap-completion/evidence/u5h-local-20260921.json",
+      "class": "receipt",
+      "added": 347,
+      "deleted": 0,
+      "changed": 347,
+      "totalLines": 347
+    }
+  ],
+  "caps": {
+    "files": 5,
+    "maxFiles": 15,
+    "productChanged": 38,
+    "maxNonGeneratedProductLines": 500,
+    "productEstimateUnder40": true
+  },
+  "sourceSha256": [
+    {
+      "file": "src/lib/multiplayer/client/readGmRewindHead.ts",
+      "sha256": "ee6de9cee7dd9647a8761809f8715c190bc6bddcceda1950f6f6e2b2e7ded5d3"
+    },
+    {
+      "file": "src/lib/multiplayer/client/__tests__/readGmRewindHead.test.ts",
+      "sha256": "abf266cedf6bf5bc5ee6423a958c6a8f69afd5191fd0ec4f5e0e212555adfa95"
+    }
+  ],
+  "red": {
+    "exitCode": 1,
+    "failed": 8,
+    "passed": 40,
+    "total": 48,
+    "receipt": "u5h-red-20260921.json"
+  },
+  "green": {
+    "adapter": {
+      "suites": 1,
+      "passed": 48,
+      "total": 48
+    },
+    "client": {
+      "suites": 4,
+      "passed": 69,
+      "total": 69
+    },
+    "restoredAdapter": {
+      "suites": 1,
+      "passed": 48,
+      "total": 48
+    }
+  },
+  "gates": [
+    {
+      "id": "adapter",
+      "command": "npx jest src/lib/multiplayer/client/__tests__/readGmRewindHead.test.ts --runInBand",
+      "startedAt": "2026-09-22 05:12:20 UTC",
+      "exitCode": 0,
+      "timedOut": false,
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\multiplayer\\\\client\\\\__tests__\\\\readGmRewindHead.test.ts/i.",
+      "summaryLines": [
+        "Test Suites: 1 passed, 1 total",
+        "Tests:       48 passed, 48 total"
+      ],
+      "stdout": "",
+      "stderr": "\nTest Suites: 1 passed, 1 total\nTests:       48 passed, 48 total\nSnapshots:   0 total\nTime:        0.724 s, estimated 1 s\nRan all test suites matching /src\\\\lib\\\\multiplayer\\\\client\\\\__tests__\\\\readGmRewindHead.test.ts/i.\n"
+    },
+    {
+      "id": "client",
+      "command": "npx jest src/lib/multiplayer/client --runInBand",
+      "startedAt": "2026-09-22 05:12:30 UTC",
+      "exitCode": 0,
+      "timedOut": false,
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\multiplayer\\\\client/i.",
+      "summaryLines": [
+        "Test Suites: 4 passed, 4 total",
+        "Tests:       69 passed, 69 total"
+      ],
+      "stdout": "",
+      "stderr": "PASS unit src/lib/multiplayer/client/__tests__/commitGmCombatRewind.test.ts\nPASS unit src/lib/multiplayer/client/__tests__/issuePlayerToken.test.ts\nPASS unit src/lib/multiplayer/client/__tests__/previewGmCombatRewind.test.ts\nPASS unit src/lib/multiplayer/client/__tests__/readGmRewindHead.test.ts\n\nTest Suites: 4 passed, 4 total\nTests:       69 passed, 69 total\nSnapshots:   0 total\nTime:        1.162 s\nRan all test suites matching /src\\\\lib\\\\multiplayer\\\\client/i.\n"
+    },
+    {
+      "id": "typecheck",
+      "command": "npx tsc --noEmit",
+      "startedAt": "2026-09-22 05:12:49 UTC",
+      "exitCode": 0,
+      "timedOut": false,
+      "lastLine": null,
+      "summaryLines": [],
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "id": "lint",
+      "command": "npx oxlint",
+      "startedAt": "2026-09-22 05:13:42 UTC",
+      "exitCode": 0,
+      "timedOut": false,
+      "lastLine": "Finished in 414ms on 3815 files using 16 threads.",
+      "summaryLines": ["Found 84 warnings and 0 errors."],
+      "stdout": "Found 84 warnings and 0 errors.\nFinished in 414ms on 3815 files using 16 threads.\n",
+      "stderr": ""
+    },
+    {
+      "id": "lintUnits",
+      "command": "npm run lint:units",
+      "startedAt": "2026-09-22 05:13:53 UTC",
+      "exitCode": 0,
+      "timedOut": false,
+      "lastLine": "LINT_UNITS_PASS 100/100",
+      "summaryLines": ["LINT_UNITS_PASS 100/100"],
+      "stdout": "\n> mekstation-app@0.1.1 lint:units\n> node scripts/qc/lint-units.mjs\n\nLINT_UNITS_PATH e2e 50\nLINT_UNITS_PATH scripts 50\nLINT_UNITS_PASS 100/100\n",
+      "stderr": ""
+    },
+    {
+      "id": "openspec",
+      "command": "npm run qc:openspec-ci:validate",
+      "startedAt": "2026-09-22 05:14:00 UTC",
+      "exitCode": 0,
+      "timedOut": false,
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+      "summaryLines": [
+        "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0"
+      ],
+      "stdout": "\n> mekstation-app@0.1.1 qc:openspec-ci:validate\n> node scripts/qc/validate-openspec-ci-quality.mjs\n\n[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0\n",
+      "stderr": ""
+    },
+    {
+      "id": "roadmap",
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "startedAt": "2026-09-22 05:14:08 UTC",
+      "exitCode": 0,
+      "timedOut": false,
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "summaryLines": [
+        "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows"
+      ],
+      "stdout": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows\n",
+      "stderr": ""
+    },
+    {
+      "id": "adapterRestored",
+      "command": "npx jest src/lib/multiplayer/client/__tests__/readGmRewindHead.test.ts --runInBand",
+      "startedAt": "2026-09-22 05:15:27 UTC",
+      "exitCode": 0,
+      "timedOut": false,
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\multiplayer\\\\client\\\\__tests__\\\\readGmRewindHead.test.ts/i.",
+      "summaryLines": [
+        "Test Suites: 1 passed, 1 total",
+        "Tests:       48 passed, 48 total"
+      ],
+      "stdout": "",
+      "stderr": "\nTest Suites: 1 passed, 1 total\nTests:       48 passed, 48 total\nSnapshots:   0 total\nTime:        0.849 s, estimated 1 s\nRan all test suites matching /src\\\\lib\\\\multiplayer\\\\client\\\\__tests__\\\\readGmRewindHead.test.ts/i.\n"
+    },
+    {
+      "id": "format",
+      "command": "npx oxfmt --check --ignore-path .gitignore src/lib/multiplayer/client/readGmRewindHead.ts src/lib/multiplayer/client/__tests__/readGmRewindHead.test.ts openspec/planning/2026-09-12-roadmap-completion/evidence/u5h-admission-20260921.json openspec/planning/2026-09-12-roadmap-completion/evidence/u5h-red-20260921.json openspec/planning/2026-09-12-roadmap-completion/evidence/u5h-local-20260921.json",
+      "startedAt": "2026-09-22 05:17:25 UTC",
+      "exitCode": 0,
+      "timedOut": false,
+      "lastLine": "Finished in 147ms on 5 files using 16 threads.",
+      "summaryLines": [],
+      "stdout": "Checking formatting...\n\nAll matched files use the correct format.\nFinished in 147ms on 5 files using 16 threads.\n",
+      "stderr": ""
+    }
+  ],
+  "lintWarnings": {
+    "line": "Found 84 warnings and 0 errors.",
+    "warnings": 84,
+    "errors": 0,
+    "referenceCount": 84,
+    "changedFrom84": false,
+    "comparison": "Matches the parent-supplied 84-warning count; no separate baseline lint run was made."
+  },
+  "mutationSavedCopy": {
+    "encoding": "base64",
+    "sourceSha256": "ee6de9cee7dd9647a8761809f8715c190bc6bddcceda1950f6f6e2b2e7ded5d3",
+    "bytes": "aW1wb3J0IHR5cGUgeyBJVmlld2VyTGluZWFnZUVmZmVjdGl2ZUhlYWQgfSBmcm9tICdAL2xpYi9tdWx0aXBsYXllci9zZXJ2ZXIvaGlzdG9yeS9WaWV3ZXJIaXN0b3J5TGluZWFnZSc7CgpleHBvcnQgaW50ZXJmYWNlIElSZWFkR21SZXdpbmRIZWFkSW5wdXQgewogIHJlYWRvbmx5IG1hdGNoSWQ6IHN0cmluZzsKICByZWFkb25seSB3aXJlVG9rZW46IHN0cmluZzsKfQoKZXhwb3J0IHR5cGUgR21SZXdpbmRIZWFkT3V0Y29tZSA9CiAgfCB7CiAgICAgIHJlYWRvbmx5IGtpbmQ6ICdoZWFkJzsKICAgICAgcmVhZG9ubHkgaGVhZDogSVZpZXdlckxpbmVhZ2VFZmZlY3RpdmVIZWFkICYgeyByZWFkb25seSBkaWdlc3Q6IHN0cmluZyB9OwogICAgfQogIHwgeyByZWFkb25seSBraW5kOiAnbm8taGVhZCcgfQogIHwgeyByZWFkb25seSBraW5kOiAndW5hdmFpbGFibGUnIH07Cgpjb25zdCBVTkFWQUlMQUJMRTogR21SZXdpbmRIZWFkT3V0Y29tZSA9IE9iamVjdC5mcmVlemUoeyBraW5kOiAndW5hdmFpbGFibGUnIH0pOwoKZXhwb3J0IGFzeW5jIGZ1bmN0aW9uIHJlYWRHbVJld2luZEhlYWQoCiAgaW5wdXQ6IElSZWFkR21SZXdpbmRIZWFkSW5wdXQsCik6IFByb21pc2U8R21SZXdpbmRIZWFkT3V0Y29tZT4gewogIHRyeSB7CiAgICBjb25zdCByZXNwb25zZSA9IGF3YWl0IGZldGNoKAogICAgICBgL2FwaS9tYXRjaGVzLyR7ZW5jb2RlVVJJQ29tcG9uZW50KGlucHV0Lm1hdGNoSWQpfS9oZWFkYCwKICAgICAgewogICAgICAgIG1ldGhvZDogJ0dFVCcsCiAgICAgICAgaGVhZGVyczogeyBBdXRob3JpemF0aW9uOiBgQmVhcmVyICR7aW5wdXQud2lyZVRva2VufWAgfSwKICAgICAgfSwKICAgICk7CiAgICBpZiAocmVzcG9uc2Uuc3RhdHVzICE9PSAyMDAgJiYgcmVzcG9uc2Uuc3RhdHVzICE9PSA0MDQpIHJldHVybiBVTkFWQUlMQUJMRTsKICAgIGNvbnN0IGJvZHk6IHVua25vd24gPSBhd2FpdCByZXNwb25zZS5qc29uKCk7CiAgICBpZiAodHlwZW9mIGJvZHkgIT09ICdvYmplY3QnIHx8IGJvZHkgPT09IG51bGwpIHJldHVybiBVTkFWQUlMQUJMRTsKICAgIGlmIChyZXNwb25zZS5zdGF0dXMgPT09IDQwNCkgewogICAgICByZXR1cm4gJ2Vycm9yJyBpbiBib2R5ICYmIGJvZHkuZXJyb3IgPT09ICdubyBoZWFkJwogICAgICAgID8geyBraW5kOiAnbm8taGVhZCcgfQogICAgICAgIDogVU5BVkFJTEFCTEU7CiAgICB9CiAgICBjb25zdCBoZWFkID0gYm9keTsKICAgIGlmICgKICAgICAgISgnYnJhbmNoSWQnIGluIGhlYWQpIHx8CiAgICAgIHR5cGVvZiBoZWFkLmJyYW5jaElkICE9PSAnc3RyaW5nJyB8fAogICAgICAhKCdyZXZpc2lvbicgaW4gaGVhZCkgfHwKICAgICAgdHlwZW9mIGhlYWQucmV2aXNpb24gIT09ICdudW1iZXInIHx8CiAgICAgICEoJ2VmZmVjdGl2ZUdlbmVyYXRpb24nIGluIGhlYWQpIHx8CiAgICAgIHR5cGVvZiBoZWFkLmVmZmVjdGl2ZUdlbmVyYXRpb24gIT09ICdudW1iZXInIHx8CiAgICAgICEoJ2RpZ2VzdCcgaW4gaGVhZCkgfHwKICAgICAgdHlwZW9mIGhlYWQuZGlnZXN0ICE9PSAnc3RyaW5nJyB8fAogICAgICBoZWFkLmRpZ2VzdC5sZW5ndGggIT09IDY0IHx8CiAgICAgICEvXlswLTlhLWZdezY0fSQvLnRlc3QoaGVhZC5kaWdlc3QpCiAgICApIHsKICAgICAgcmV0dXJuIFVOQVZBSUxBQkxFOwogICAgfQogICAgcmV0dXJuIHsKICAgICAga2luZDogJ2hlYWQnLAogICAgICBoZWFkOiB7CiAgICAgICAgYnJhbmNoSWQ6IGhlYWQuYnJhbmNoSWQsCiAgICAgICAgcmV2aXNpb246IGhlYWQucmV2aXNpb24sCiAgICAgICAgZ2VuZXJhdGlvbjogaGVhZC5lZmZlY3RpdmVHZW5lcmF0aW9uLAogICAgICAgIGRpZ2VzdDogaGVhZC5kaWdlc3QsCiAgICAgIH0sCiAgICB9OwogIH0gY2F0Y2ggewogICAgcmV0dXJuIFVOQVZBSUxBQkxFOwogIH0KfQo=",
+    "restoration": "Each mutant was restored in finally from this saved byte copy using File.WriteAllBytes; SHA-256 was measured after each restoration."
+  },
+  "mutants": [
+    {
+      "id": "M1",
+      "mutation": "Accept string digests without enforcing lowercase hexadecimal format or length.",
+      "command": "npx jest src/lib/multiplayer/client/__tests__/readGmRewindHead.test.ts --runInBand",
+      "exitCode": 1,
+      "stdout": "",
+      "stderr": "FAIL unit src/lib/multiplayer/client/__tests__/readGmRewindHead.test.ts\n  readGmRewindHead\n    √ returns the four head fields verbatim from a 200 head-route body (2 ms)\n    √ returns no-head for a 404 no-head body (1 ms)\n    √ maps a 400 transport error to unavailable without error text\n    √ maps a 401 transport error to unavailable without error text (1 ms)\n    √ maps a 403 transport error to unavailable without error text\n    √ maps a 404 transport error to unavailable without error text\n    √ maps a 405 transport error to unavailable without error text (1 ms)\n    √ maps a 500 transport error to unavailable without error text\n    √ rejects status 201 even when the body carries a valid head (1 ms)\n    √ rejects status 204 even when the body carries a valid head\n    √ rejects status 401 even when the body carries a valid head\n    √ rejects status 403 even when the body carries a valid head\n    √ rejects status 404 even when the body carries a valid head\n    √ rejects status 500 even when the body carries a valid head (1 ms)\n    √ rejects a no-head body with status 200\n    √ rejects a no-head body with status 401\n    √ rejects a no-head body with status 403\n    √ rejects a no-head body with status 500\n    √ maps a 404 with another body (null) to unavailable\n    √ maps a 404 with another body ({}) to unavailable (1 ms)\n    √ maps a 404 with another body ({\"error\":\"unknown match\"}) to unavailable\n    √ maps a 404 with another body ({\"error\":404}) to unavailable\n    √ maps a thrown fetch to unavailable without error text\n    √ maps a rejected JSON body to unavailable (1 ms)\n    √ maps a 200 body with null body to unavailable\n    √ maps a 200 body with primitive body to unavailable\n    √ maps a 200 body with empty body to unavailable\n    √ maps a 200 body with timeline lineage to unavailable\n    √ maps a 200 body with null lineage head to unavailable\n    √ maps a 200 body with missing branchId to unavailable\n    √ maps a 200 body with missing revision to unavailable\n    √ maps a 200 body with missing effectiveGeneration to unavailable (1 ms)\n    √ maps a 200 body with missing digest to unavailable\n    √ maps a 200 body with invalid effectiveGeneration to unavailable\n    √ maps a 200 body with generation instead of effectiveGeneration to unavailable\n    √ maps a 200 body with invalid branchId to unavailable\n    √ maps a 200 body with invalid revision to unavailable\n    √ maps a 200 body with invalid digest type to unavailable\n    √ maps a 200 body with null digest to unavailable\n    × maps a 200 body with 63-character digest to unavailable (2 ms)\n    × maps a 200 body with 65-character digest to unavailable\n    × maps a 200 body with uppercase digest to unavailable\n    × maps a 200 body with non-hex digest to unavailable (1 ms)\n    × maps a 200 body with digest with trailing newline to unavailable\n    √ GETs the head for match-1 with the bearer header (1 ms)\n    √ GETs the head for match /?# with the bearer header\n    √ omits error text and unrelated fields from the head outcome (1 ms)\n    √ reads a fresh head on every call\n\n  ● readGmRewindHead › maps a 200 body with 63-character digest to unavailable\n\n    expect(received).resolves.toStrictEqual(expected) // deep equality\n\n    - Expected  - 1\n    + Received  + 7\n\n      Object {\n    -   \"kind\": \"unavailable\",\n    +   \"head\": Object {\n    +     \"branchId\": \"main-after-rewind\",\n    +     \"digest\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\n    +     \"generation\": 4,\n    +     \"revision\": 17,\n    +   },\n    +   \"kind\": \"head\",\n      }\n\n    \u001b[0m \u001b[90m 157 |\u001b[39m     mockJsonResponse(\u001b[35m200\u001b[39m\u001b[33m,\u001b[39m body)\u001b[33m;\u001b[39m\n     \u001b[90m 158 |\u001b[39m\n    \u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 159 |\u001b[39m     \u001b[36mawait\u001b[39m expect(readGmRewindHead(\u001b[33mREQUEST\u001b[39m))\u001b[33m.\u001b[39mresolves\u001b[33m.\u001b[39mtoStrictEqual({\n     \u001b[90m     |\u001b[39m                                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n     \u001b[90m 160 |\u001b[39m       kind\u001b[33m:\u001b[39m \u001b[32m'unavailable'\u001b[39m\u001b[33m,\u001b[39m\n     \u001b[90m 161 |\u001b[39m     })\u001b[33m;\u001b[39m\n     \u001b[90m 162 |\u001b[39m   })\u001b[33m;\u001b[39m\u001b[0m\n\n      at Object.toStrictEqual (../../../../node_modules/expect/build/index.js:174:22)\n      at toStrictEqual (src/lib/multiplayer/client/__tests__/readGmRewindHead.test.ts:159:54)\n\n  ● readGmRewindHead › maps a 200 body with 65-character digest to unavailable\n\n    expect(received).resolves.toStrictEqual(expected) // deep equality\n\n    - Expected  - 1\n    + Received  + 7\n\n      Object {\n    -   \"kind\": \"unavailable\",\n    +   \"head\": Object {\n    +     \"branchId\": \"main-after-rewind\",\n    +     \"digest\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\n    +     \"generation\": 4,\n    +     \"revision\": 17,\n    +   },\n    +   \"kind\": \"head\",\n      }\n\n    \u001b[0m \u001b[90m 157 |\u001b[39m     mockJsonResponse(\u001b[35m200\u001b[39m\u001b[33m,\u001b[39m body)\u001b[33m;\u001b[39m\n     \u001b[90m 158 |\u001b[39m\n    \u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 159 |\u001b[39m     \u001b[36mawait\u001b[39m expect(readGmRewindHead(\u001b[33mREQUEST\u001b[39m))\u001b[33m.\u001b[39mresolves\u001b[33m.\u001b[39mtoStrictEqual({\n     \u001b[90m     |\u001b[39m                                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n     \u001b[90m 160 |\u001b[39m       kind\u001b[33m:\u001b[39m \u001b[32m'unavailable'\u001b[39m\u001b[33m,\u001b[39m\n     \u001b[90m 161 |\u001b[39m     })\u001b[33m;\u001b[39m\n     \u001b[90m 162 |\u001b[39m   })\u001b[33m;\u001b[39m\u001b[0m\n\n      at Object.toStrictEqual (../../../../node_modules/expect/build/index.js:174:22)\n      at toStrictEqual (src/lib/multiplayer/client/__tests__/readGmRewindHead.test.ts:159:54)\n\n  ● readGmRewindHead › maps a 200 body with uppercase digest to unavailable\n\n    expect(received).resolves.toStrictEqual(expected) // deep equality\n\n    - Expected  - 1\n    + Received  + 7\n\n      Object {\n    -   \"kind\": \"unavailable\",\n    +   \"head\": Object {\n    +     \"branchId\": \"main-after-rewind\",\n    +     \"digest\": \"0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF\",\n    +     \"generation\": 4,\n    +     \"revision\": 17,\n    +   },\n    +   \"kind\": \"head\",\n      }\n\n    \u001b[0m \u001b[90m 157 |\u001b[39m     mockJsonResponse(\u001b[35m200\u001b[39m\u001b[33m,\u001b[39m body)\u001b[33m;\u001b[39m\n     \u001b[90m 158 |\u001b[39m\n    \u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 159 |\u001b[39m     \u001b[36mawait\u001b[39m expect(readGmRewindHead(\u001b[33mREQUEST\u001b[39m))\u001b[33m.\u001b[39mresolves\u001b[33m.\u001b[39mtoStrictEqual({\n     \u001b[90m     |\u001b[39m                                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n     \u001b[90m 160 |\u001b[39m       kind\u001b[33m:\u001b[39m \u001b[32m'unavailable'\u001b[39m\u001b[33m,\u001b[39m\n     \u001b[90m 161 |\u001b[39m     })\u001b[33m;\u001b[39m\n     \u001b[90m 162 |\u001b[39m   })\u001b[33m;\u001b[39m\u001b[0m\n\n      at Object.toStrictEqual (../../../../node_modules/expect/build/index.js:174:22)\n      at toStrictEqual (src/lib/multiplayer/client/__tests__/readGmRewindHead.test.ts:159:54)\n\n  ● readGmRewindHead › maps a 200 body with non-hex digest to unavailable\n\n    expect(received).resolves.toStrictEqual(expected) // deep equality\n\n    - Expected  - 1\n    + Received  + 7\n\n      Object {\n    -   \"kind\": \"unavailable\",\n    +   \"head\": Object {\n    +     \"branchId\": \"main-after-rewind\",\n    +     \"digest\": \"gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg\",\n    +     \"generation\": 4,\n    +     \"revision\": 17,\n    +   },\n    +   \"kind\": \"head\",\n      }\n\n    \u001b[0m \u001b[90m 157 |\u001b[39m     mockJsonResponse(\u001b[35m200\u001b[39m\u001b[33m,\u001b[39m body)\u001b[33m;\u001b[39m\n     \u001b[90m 158 |\u001b[39m\n    \u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 159 |\u001b[39m     \u001b[36mawait\u001b[39m expect(readGmRewindHead(\u001b[33mREQUEST\u001b[39m))\u001b[33m.\u001b[39mresolves\u001b[33m.\u001b[39mtoStrictEqual({\n     \u001b[90m     |\u001b[39m                                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n     \u001b[90m 160 |\u001b[39m       kind\u001b[33m:\u001b[39m \u001b[32m'unavailable'\u001b[39m\u001b[33m,\u001b[39m\n     \u001b[90m 161 |\u001b[39m     })\u001b[33m;\u001b[39m\n     \u001b[90m 162 |\u001b[39m   })\u001b[33m;\u001b[39m\u001b[0m\n\n      at Object.toStrictEqual (../../../../node_modules/expect/build/index.js:174:22)\n      at toStrictEqual (src/lib/multiplayer/client/__tests__/readGmRewindHead.test.ts:159:54)\n\n  ● readGmRewindHead › maps a 200 body with digest with trailing newline to unavailable\n\n    expect(received).resolves.toStrictEqual(expected) // deep equality\n\n    - Expected  - 1\n    + Received  + 8\n\n      Object {\n    -   \"kind\": \"unavailable\",\n    +   \"head\": Object {\n    +     \"branchId\": \"main-after-rewind\",\n    +     \"digest\": \"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef\n    + \",\n    +     \"generation\": 4,\n    +     \"revision\": 17,\n    +   },\n    +   \"kind\": \"head\",\n      }\n\n    \u001b[0m \u001b[90m 157 |\u001b[39m     mockJsonResponse(\u001b[35m200\u001b[39m\u001b[33m,\u001b[39m body)\u001b[33m;\u001b[39m\n     \u001b[90m 158 |\u001b[39m\n    \u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 159 |\u001b[39m     \u001b[36mawait\u001b[39m expect(readGmRewindHead(\u001b[33mREQUEST\u001b[39m))\u001b[33m.\u001b[39mresolves\u001b[33m.\u001b[39mtoStrictEqual({\n     \u001b[90m     |\u001b[39m                                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n     \u001b[90m 160 |\u001b[39m       kind\u001b[33m:\u001b[39m \u001b[32m'unavailable'\u001b[39m\u001b[33m,\u001b[39m\n     \u001b[90m 161 |\u001b[39m     })\u001b[33m;\u001b[39m\n     \u001b[90m 162 |\u001b[39m   })\u001b[33m;\u001b[39m\u001b[0m\n\n      at Object.toStrictEqual (../../../../node_modules/expect/build/index.js:174:22)\n      at toStrictEqual (src/lib/multiplayer/client/__tests__/readGmRewindHead.test.ts:159:54)\n\nTest Suites: 1 failed, 1 total\nTests:       5 failed, 43 passed, 48 total\nSnapshots:   0 total\nTime:        0.749 s, estimated 1 s\nRan all test suites matching /src\\\\lib\\\\multiplayer\\\\client\\\\__tests__\\\\readGmRewindHead.test.ts/i.\n",
+      "timedOut": false,
+      "preMutantSha256": "ee6de9cee7dd9647a8761809f8715c190bc6bddcceda1950f6f6e2b2e7ded5d3",
+      "restoredSha256": "ee6de9cee7dd9647a8761809f8715c190bc6bddcceda1950f6f6e2b2e7ded5d3",
+      "restoreExitCode": 0,
+      "restoredHashMatches": true,
+      "caught": true,
+      "failedAssertions": [
+        "● readGmRewindHead › maps a 200 body with 63-character digest to unavailable",
+        "● readGmRewindHead › maps a 200 body with 65-character digest to unavailable",
+        "● readGmRewindHead › maps a 200 body with uppercase digest to unavailable",
+        "● readGmRewindHead › maps a 200 body with non-hex digest to unavailable",
+        "● readGmRewindHead › maps a 200 body with digest with trailing newline to unavailable"
+      ],
+      "countsLine": "Tests:       5 failed, 43 passed, 48 total",
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\multiplayer\\\\client\\\\__tests__\\\\readGmRewindHead.test.ts/i."
+    },
+    {
+      "id": "M2",
+      "mutation": "Drop the bearer header.",
+      "command": "npx jest src/lib/multiplayer/client/__tests__/readGmRewindHead.test.ts --runInBand",
+      "exitCode": 1,
+      "stdout": "",
+      "stderr": "FAIL unit src/lib/multiplayer/client/__tests__/readGmRewindHead.test.ts\n  readGmRewindHead\n    √ returns the four head fields verbatim from a 200 head-route body (2 ms)\n    √ returns no-head for a 404 no-head body (1 ms)\n    √ maps a 400 transport error to unavailable without error text (1 ms)\n    √ maps a 401 transport error to unavailable without error text\n    √ maps a 403 transport error to unavailable without error text\n    √ maps a 404 transport error to unavailable without error text\n    √ maps a 405 transport error to unavailable without error text\n    √ maps a 500 transport error to unavailable without error text (1 ms)\n    √ rejects status 201 even when the body carries a valid head\n    √ rejects status 204 even when the body carries a valid head\n    √ rejects status 401 even when the body carries a valid head (1 ms)\n    √ rejects status 403 even when the body carries a valid head\n    √ rejects status 404 even when the body carries a valid head\n    √ rejects status 500 even when the body carries a valid head\n    √ rejects a no-head body with status 200\n    √ rejects a no-head body with status 401 (1 ms)\n    √ rejects a no-head body with status 403\n    √ rejects a no-head body with status 500\n    √ maps a 404 with another body (null) to unavailable\n    √ maps a 404 with another body ({}) to unavailable\n    √ maps a 404 with another body ({\"error\":\"unknown match\"}) to unavailable\n    √ maps a 404 with another body ({\"error\":404}) to unavailable (1 ms)\n    √ maps a thrown fetch to unavailable without error text\n    √ maps a rejected JSON body to unavailable\n    √ maps a 200 body with null body to unavailable\n    √ maps a 200 body with primitive body to unavailable\n    √ maps a 200 body with empty body to unavailable\n    √ maps a 200 body with timeline lineage to unavailable\n    √ maps a 200 body with null lineage head to unavailable\n    √ maps a 200 body with missing branchId to unavailable\n    √ maps a 200 body with missing revision to unavailable (1 ms)\n    √ maps a 200 body with missing effectiveGeneration to unavailable\n    √ maps a 200 body with missing digest to unavailable\n    √ maps a 200 body with invalid effectiveGeneration to unavailable\n    √ maps a 200 body with generation instead of effectiveGeneration to unavailable\n    √ maps a 200 body with invalid branchId to unavailable\n    √ maps a 200 body with invalid revision to unavailable\n    √ maps a 200 body with invalid digest type to unavailable (1 ms)\n    √ maps a 200 body with null digest to unavailable\n    √ maps a 200 body with 63-character digest to unavailable\n    √ maps a 200 body with 65-character digest to unavailable (1 ms)\n    √ maps a 200 body with uppercase digest to unavailable\n    √ maps a 200 body with non-hex digest to unavailable\n    √ maps a 200 body with digest with trailing newline to unavailable\n    × GETs the head for match-1 with the bearer header (3 ms)\n    × GETs the head for match /?# with the bearer header (1 ms)\n    √ omits error text and unrelated fields from the head outcome\n    √ reads a fresh head on every call (1 ms)\n\n  ● readGmRewindHead › GETs the head for match-1 with the bearer header\n\n    expect(jest.fn()).toHaveBeenCalledWith(...expected)\n\n    - Expected\n    + Received\n\n      \"/api/matches/match-1/head\",\n      Object {\n    -   \"headers\": Object {\n    -     \"Authorization\": \"Bearer wire-token-abc\",\n    -   },\n    +   \"headers\": Object {},\n        \"method\": \"GET\",\n      },\n\n    Number of calls: 1\n\n    \u001b[0m \u001b[90m 171 |\u001b[39m\n     \u001b[90m 172 |\u001b[39m     expect(global\u001b[33m.\u001b[39mfetch)\u001b[33m.\u001b[39mtoHaveBeenCalledTimes(\u001b[35m1\u001b[39m)\u001b[33m;\u001b[39m\n    \u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 173 |\u001b[39m     expect(global\u001b[33m.\u001b[39mfetch)\u001b[33m.\u001b[39mtoHaveBeenCalledWith(path\u001b[33m,\u001b[39m {\n     \u001b[90m     |\u001b[39m                          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n     \u001b[90m 174 |\u001b[39m       method\u001b[33m:\u001b[39m \u001b[32m'GET'\u001b[39m\u001b[33m,\u001b[39m\n     \u001b[90m 175 |\u001b[39m       headers\u001b[33m:\u001b[39m { \u001b[33mAuthorization\u001b[39m\u001b[33m:\u001b[39m \u001b[32m'Bearer wire-token-abc'\u001b[39m }\u001b[33m,\u001b[39m\n     \u001b[90m 176 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m\n\n      at toHaveBeenCalledWith (src/lib/multiplayer/client/__tests__/readGmRewindHead.test.ts:173:26)\n\n  ● readGmRewindHead › GETs the head for match /?# with the bearer header\n\n    expect(jest.fn()).toHaveBeenCalledWith(...expected)\n\n    - Expected\n    + Received\n\n      \"/api/matches/match%20%2F%3F%23/head\",\n      Object {\n    -   \"headers\": Object {\n    -     \"Authorization\": \"Bearer wire-token-abc\",\n    -   },\n    +   \"headers\": Object {},\n        \"method\": \"GET\",\n      },\n\n    Number of calls: 1\n\n    \u001b[0m \u001b[90m 171 |\u001b[39m\n     \u001b[90m 172 |\u001b[39m     expect(global\u001b[33m.\u001b[39mfetch)\u001b[33m.\u001b[39mtoHaveBeenCalledTimes(\u001b[35m1\u001b[39m)\u001b[33m;\u001b[39m\n    \u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 173 |\u001b[39m     expect(global\u001b[33m.\u001b[39mfetch)\u001b[33m.\u001b[39mtoHaveBeenCalledWith(path\u001b[33m,\u001b[39m {\n     \u001b[90m     |\u001b[39m                          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n     \u001b[90m 174 |\u001b[39m       method\u001b[33m:\u001b[39m \u001b[32m'GET'\u001b[39m\u001b[33m,\u001b[39m\n     \u001b[90m 175 |\u001b[39m       headers\u001b[33m:\u001b[39m { \u001b[33mAuthorization\u001b[39m\u001b[33m:\u001b[39m \u001b[32m'Bearer wire-token-abc'\u001b[39m }\u001b[33m,\u001b[39m\n     \u001b[90m 176 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m\n\n      at toHaveBeenCalledWith (src/lib/multiplayer/client/__tests__/readGmRewindHead.test.ts:173:26)\n\nTest Suites: 1 failed, 1 total\nTests:       2 failed, 46 passed, 48 total\nSnapshots:   0 total\nTime:        0.805 s, estimated 1 s\nRan all test suites matching /src\\\\lib\\\\multiplayer\\\\client\\\\__tests__\\\\readGmRewindHead.test.ts/i.\n",
+      "timedOut": false,
+      "preMutantSha256": "ee6de9cee7dd9647a8761809f8715c190bc6bddcceda1950f6f6e2b2e7ded5d3",
+      "restoredSha256": "ee6de9cee7dd9647a8761809f8715c190bc6bddcceda1950f6f6e2b2e7ded5d3",
+      "restoreExitCode": 0,
+      "restoredHashMatches": true,
+      "caught": true,
+      "failedAssertions": [
+        "● readGmRewindHead › GETs the head for match-1 with the bearer header",
+        "● readGmRewindHead › GETs the head for match /?# with the bearer header"
+      ],
+      "countsLine": "Tests:       2 failed, 46 passed, 48 total",
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\multiplayer\\\\client\\\\__tests__\\\\readGmRewindHead.test.ts/i."
+    },
+    {
+      "id": "M3",
+      "mutation": "Request the timeline path instead of the head path.",
+      "command": "npx jest src/lib/multiplayer/client/__tests__/readGmRewindHead.test.ts --runInBand",
+      "exitCode": 1,
+      "stdout": "",
+      "stderr": "FAIL unit src/lib/multiplayer/client/__tests__/readGmRewindHead.test.ts\n  readGmRewindHead\n    √ returns the four head fields verbatim from a 200 head-route body (2 ms)\n    √ returns no-head for a 404 no-head body (1 ms)\n    √ maps a 400 transport error to unavailable without error text\n    √ maps a 401 transport error to unavailable without error text (1 ms)\n    √ maps a 403 transport error to unavailable without error text\n    √ maps a 404 transport error to unavailable without error text\n    √ maps a 405 transport error to unavailable without error text (1 ms)\n    √ maps a 500 transport error to unavailable without error text (1 ms)\n    √ rejects status 201 even when the body carries a valid head\n    √ rejects status 204 even when the body carries a valid head\n    √ rejects status 401 even when the body carries a valid head (1 ms)\n    √ rejects status 403 even when the body carries a valid head\n    √ rejects status 404 even when the body carries a valid head\n    √ rejects status 500 even when the body carries a valid head\n    √ rejects a no-head body with status 200\n    √ rejects a no-head body with status 401\n    √ rejects a no-head body with status 403\n    √ rejects a no-head body with status 500 (1 ms)\n    √ maps a 404 with another body (null) to unavailable\n    √ maps a 404 with another body ({}) to unavailable\n    √ maps a 404 with another body ({\"error\":\"unknown match\"}) to unavailable\n    √ maps a 404 with another body ({\"error\":404}) to unavailable\n    √ maps a thrown fetch to unavailable without error text\n    √ maps a rejected JSON body to unavailable (1 ms)\n    √ maps a 200 body with null body to unavailable\n    √ maps a 200 body with primitive body to unavailable\n    √ maps a 200 body with empty body to unavailable\n    √ maps a 200 body with timeline lineage to unavailable\n    √ maps a 200 body with null lineage head to unavailable\n    √ maps a 200 body with missing branchId to unavailable\n    √ maps a 200 body with missing revision to unavailable\n    √ maps a 200 body with missing effectiveGeneration to unavailable\n    √ maps a 200 body with missing digest to unavailable\n    √ maps a 200 body with invalid effectiveGeneration to unavailable\n    √ maps a 200 body with generation instead of effectiveGeneration to unavailable\n    √ maps a 200 body with invalid branchId to unavailable\n    √ maps a 200 body with invalid revision to unavailable\n    √ maps a 200 body with invalid digest type to unavailable (1 ms)\n    √ maps a 200 body with null digest to unavailable\n    √ maps a 200 body with 63-character digest to unavailable\n    √ maps a 200 body with 65-character digest to unavailable\n    √ maps a 200 body with uppercase digest to unavailable\n    √ maps a 200 body with non-hex digest to unavailable\n    √ maps a 200 body with digest with trailing newline to unavailable\n    × GETs the head for match-1 with the bearer header (2 ms)\n    × GETs the head for match /?# with the bearer header\n    √ omits error text and unrelated fields from the head outcome (1 ms)\n    √ reads a fresh head on every call\n\n  ● readGmRewindHead › GETs the head for match-1 with the bearer header\n\n    expect(jest.fn()).toHaveBeenCalledWith(...expected)\n\n    - Expected\n    + Received\n\n    - \"/api/matches/match-1/head\",\n    + \"/api/matches/match-1/timeline\",\n      {\"headers\": {\"Authorization\": \"Bearer wire-token-abc\"}, \"method\": \"GET\"},\n\n    Number of calls: 1\n\n    \u001b[0m \u001b[90m 171 |\u001b[39m\n     \u001b[90m 172 |\u001b[39m     expect(global\u001b[33m.\u001b[39mfetch)\u001b[33m.\u001b[39mtoHaveBeenCalledTimes(\u001b[35m1\u001b[39m)\u001b[33m;\u001b[39m\n    \u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 173 |\u001b[39m     expect(global\u001b[33m.\u001b[39mfetch)\u001b[33m.\u001b[39mtoHaveBeenCalledWith(path\u001b[33m,\u001b[39m {\n     \u001b[90m     |\u001b[39m                          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n     \u001b[90m 174 |\u001b[39m       method\u001b[33m:\u001b[39m \u001b[32m'GET'\u001b[39m\u001b[33m,\u001b[39m\n     \u001b[90m 175 |\u001b[39m       headers\u001b[33m:\u001b[39m { \u001b[33mAuthorization\u001b[39m\u001b[33m:\u001b[39m \u001b[32m'Bearer wire-token-abc'\u001b[39m }\u001b[33m,\u001b[39m\n     \u001b[90m 176 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m\n\n      at toHaveBeenCalledWith (src/lib/multiplayer/client/__tests__/readGmRewindHead.test.ts:173:26)\n\n  ● readGmRewindHead › GETs the head for match /?# with the bearer header\n\n    expect(jest.fn()).toHaveBeenCalledWith(...expected)\n\n    - Expected\n    + Received\n\n    - \"/api/matches/match%20%2F%3F%23/head\",\n    + \"/api/matches/match%20%2F%3F%23/timeline\",\n      {\"headers\": {\"Authorization\": \"Bearer wire-token-abc\"}, \"method\": \"GET\"},\n\n    Number of calls: 1\n\n    \u001b[0m \u001b[90m 171 |\u001b[39m\n     \u001b[90m 172 |\u001b[39m     expect(global\u001b[33m.\u001b[39mfetch)\u001b[33m.\u001b[39mtoHaveBeenCalledTimes(\u001b[35m1\u001b[39m)\u001b[33m;\u001b[39m\n    \u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 173 |\u001b[39m     expect(global\u001b[33m.\u001b[39mfetch)\u001b[33m.\u001b[39mtoHaveBeenCalledWith(path\u001b[33m,\u001b[39m {\n     \u001b[90m     |\u001b[39m                          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n     \u001b[90m 174 |\u001b[39m       method\u001b[33m:\u001b[39m \u001b[32m'GET'\u001b[39m\u001b[33m,\u001b[39m\n     \u001b[90m 175 |\u001b[39m       headers\u001b[33m:\u001b[39m { \u001b[33mAuthorization\u001b[39m\u001b[33m:\u001b[39m \u001b[32m'Bearer wire-token-abc'\u001b[39m }\u001b[33m,\u001b[39m\n     \u001b[90m 176 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m\n\n      at toHaveBeenCalledWith (src/lib/multiplayer/client/__tests__/readGmRewindHead.test.ts:173:26)\n\nTest Suites: 1 failed, 1 total\nTests:       2 failed, 46 passed, 48 total\nSnapshots:   0 total\nTime:        0.813 s, estimated 1 s\nRan all test suites matching /src\\\\lib\\\\multiplayer\\\\client\\\\__tests__\\\\readGmRewindHead.test.ts/i.\n",
+      "timedOut": false,
+      "preMutantSha256": "ee6de9cee7dd9647a8761809f8715c190bc6bddcceda1950f6f6e2b2e7ded5d3",
+      "restoredSha256": "ee6de9cee7dd9647a8761809f8715c190bc6bddcceda1950f6f6e2b2e7ded5d3",
+      "restoreExitCode": 0,
+      "restoredHashMatches": true,
+      "caught": true,
+      "failedAssertions": [
+        "● readGmRewindHead › GETs the head for match-1 with the bearer header",
+        "● readGmRewindHead › GETs the head for match /?# with the bearer header"
+      ],
+      "countsLine": "Tests:       2 failed, 46 passed, 48 total",
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\multiplayer\\\\client\\\\__tests__\\\\readGmRewindHead.test.ts/i."
+    }
+  ],
+  "nonClaims": [
+    "The producers still send expectedDigest: '' until U5i; this change alone does not deliver the digest to commit.",
+    "U5g's route is unmerged and absent on this baseline; Jest fakes fetch.",
+    "No e2e row added or run.",
+    "No ladder run.",
+    "No build or Playwright run.",
+    "No commit, push, merge, review approval, main proof, tick or ledger update."
+  ],
+  "findingsReportedNotFixed": [
+    {
+      "finding": "Producer expectedDigest remains an empty string.",
+      "source": "src/pages-modules/multiplayer/useGmRewindProducers.ts:59-65",
+      "owner": "U5i"
+    },
+    {
+      "finding": "The GET head route is absent from this baseline.",
+      "source": "git ls-tree HEAD on the route paths; admission receipt",
+      "owner": "U5g / parent integration"
+    },
+    {
+      "finding": "Root oxlint reports 84 warnings and zero errors.",
+      "source": "npx oxlint",
+      "owner": "Existing warning debt outside this slice"
+    }
+  ],
+  "reviewClass": "routine (Lane A only)",
+  "formatVerification": "All 5 owned files checked with --ignore-path .gitignore; the repository default excludes openspec/.",
+  "finalScopeCheck": "git status --short lists only the two modified source/test files and the three untracked u5h receipts; git diff --check exited 0.",
+  "formatAttempts": [
+    {
+      "command": "npx oxfmt --write openspec/planning/2026-09-12-roadmap-completion/evidence/u5h-local-20260921.json",
+      "observedResult": "exit 2; stderr: Expected at least one target file",
+      "cause": ".prettierignore excludes openspec/"
+    },
+    {
+      "id": "format",
+      "command": "npx oxfmt --check src/lib/multiplayer/client/readGmRewindHead.ts src/lib/multiplayer/client/__tests__/readGmRewindHead.test.ts openspec/planning/2026-09-12-roadmap-completion/evidence/u5h-admission-20260921.json openspec/planning/2026-09-12-roadmap-completion/evidence/u5h-red-20260921.json openspec/planning/2026-09-12-roadmap-completion/evidence/u5h-local-20260921.json",
+      "startedAt": "2026-09-22 05:16:33 UTC",
+      "exitCode": 0,
+      "stdout": "Checking formatting...\n\nAll matched files use the correct format.\nFinished in 47ms on 2 files using 16 threads.\n",
+      "stderr": "",
+      "timedOut": false,
+      "scope": "2 TypeScript files; receipts excluded by default"
+    },
+    {
+      "command": "npx oxfmt --check --ignore-path .gitignore src/lib/multiplayer/client/readGmRewindHead.ts src/lib/multiplayer/client/__tests__/readGmRewindHead.test.ts openspec/planning/2026-09-12-roadmap-completion/evidence/u5h-admission-20260921.json openspec/planning/2026-09-12-roadmap-completion/evidence/u5h-red-20260921.json openspec/planning/2026-09-12-roadmap-completion/evidence/u5h-local-20260921.json",
+      "exitCode": 1,
+      "lastLine": "Finished in 127ms on 5 files using 16 threads.",
+      "result": "All 5 files checked; formatting issues in admission and local receipts."
+    }
+  ]
+}

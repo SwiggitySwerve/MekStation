@@ -6,7 +6,10 @@ export interface IReadGmRewindHeadInput {
 }
 
 export type GmRewindHeadOutcome =
-  | { readonly kind: 'head'; readonly head: IViewerLineageEffectiveHead }
+  | {
+      readonly kind: 'head';
+      readonly head: IViewerLineageEffectiveHead & { readonly digest: string };
+    }
   | { readonly kind: 'no-head' }
   | { readonly kind: 'unavailable' };
 
@@ -17,34 +20,32 @@ export async function readGmRewindHead(
 ): Promise<GmRewindHeadOutcome> {
   try {
     const response = await fetch(
-      `/api/matches/${encodeURIComponent(input.matchId)}/timeline`,
+      `/api/matches/${encodeURIComponent(input.matchId)}/head`,
       {
         method: 'GET',
         headers: { Authorization: `Bearer ${input.wireToken}` },
       },
     );
-    if (response.status !== 200) return UNAVAILABLE;
+    if (response.status !== 200 && response.status !== 404) return UNAVAILABLE;
     const body: unknown = await response.json();
-    if (
-      typeof body !== 'object' ||
-      body === null ||
-      !('lineage' in body) ||
-      typeof body.lineage !== 'object' ||
-      body.lineage === null ||
-      !('effectiveHead' in body.lineage)
-    ) {
-      return UNAVAILABLE;
+    if (typeof body !== 'object' || body === null) return UNAVAILABLE;
+    if (response.status === 404) {
+      return 'error' in body && body.error === 'no head'
+        ? { kind: 'no-head' }
+        : UNAVAILABLE;
     }
-    const head = body.lineage.effectiveHead;
-    if (head === null) return { kind: 'no-head' };
+    const head = body;
     if (
-      typeof head !== 'object' ||
       !('branchId' in head) ||
       typeof head.branchId !== 'string' ||
       !('revision' in head) ||
       typeof head.revision !== 'number' ||
-      !('generation' in head) ||
-      typeof head.generation !== 'number'
+      !('effectiveGeneration' in head) ||
+      typeof head.effectiveGeneration !== 'number' ||
+      !('digest' in head) ||
+      typeof head.digest !== 'string' ||
+      head.digest.length !== 64 ||
+      !/^[0-9a-f]{64}$/.test(head.digest)
     ) {
       return UNAVAILABLE;
     }
@@ -53,7 +54,8 @@ export async function readGmRewindHead(
       head: {
         branchId: head.branchId,
         revision: head.revision,
-        generation: head.generation,
+        generation: head.effectiveGeneration,
+        digest: head.digest,
       },
     };
   } catch {
