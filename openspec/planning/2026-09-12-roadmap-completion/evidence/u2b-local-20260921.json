@@ -138,21 +138,29 @@
     {
       "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=privacy-pack --run-id=u2b-baseline-loopback-20260921",
       "lastLine": "6 passed (1.2m)",
-      "runnerSummaryLines": ["6 passed (1.2m)"],
+      "runnerSummaryLines": [
+        "6 passed (1.2m)"
+      ],
       "exitCode": 0,
       "wrapperLastLine": "RUN_EXIT=0"
     },
     {
       "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=privacy-pack --run-id=u2b-unarmed-20260921",
       "lastLine": "6 passed (41.5s)",
-      "runnerSummaryLines": ["2 failed", "6 passed (41.5s)"],
+      "runnerSummaryLines": [
+        "2 failed",
+        "6 passed (41.5s)"
+      ],
       "exitCode": 1,
       "wrapperLastLine": "RESTORED_SHA256=f065b258b59f4cb5cd8e097ec3d4331c85d54c314c2a8144d41c1f27e5d0a1fc"
     },
     {
       "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=privacy-pack --run-id=u2b-armed-20260921",
       "lastLine": "6 passed (39.1s)",
-      "runnerSummaryLines": ["2 failed", "6 passed (39.1s)"],
+      "runnerSummaryLines": [
+        "2 failed",
+        "6 passed (39.1s)"
+      ],
       "exitCode": 1,
       "wrapperLastLine": "RUN_EXIT=1"
     },
@@ -252,7 +260,9 @@
         "lastLine": "MACHINE_IDLE",
         "exitCode": 0
       },
-      "runnerSummaryLines": ["6 passed (1.2m)"],
+      "runnerSummaryLines": [
+        "6 passed (1.2m)"
+      ],
       "lastLine": "RUN_EXIT=0",
       "exitCode": 0,
       "log": {
@@ -286,7 +296,10 @@
         "lastLine": "MACHINE_IDLE",
         "exitCode": 0
       },
-      "runnerSummaryLines": ["2 failed", "6 passed (41.5s)"],
+      "runnerSummaryLines": [
+        "2 failed",
+        "6 passed (41.5s)"
+      ],
       "lastLine": "RESTORED_SHA256=f065b258b59f4cb5cd8e097ec3d4331c85d54c314c2a8144d41c1f27e5d0a1fc",
       "exitCode": 1,
       "log": {
@@ -356,7 +369,10 @@
         "lastLine": "MACHINE_IDLE",
         "exitCode": 0
       },
-      "runnerSummaryLines": ["2 failed", "6 passed (39.1s)"],
+      "runnerSummaryLines": [
+        "2 failed",
+        "6 passed (39.1s)"
+      ],
       "lastLine": "RUN_EXIT=1",
       "exitCode": 1,
       "log": {
@@ -586,7 +602,10 @@
     "manualTerminationRequired": false,
     "armingRestoredSha256": "f065b258b59f4cb5cd8e097ec3d4331c85d54c314c2a8144d41c1f27e5d0a1fc",
     "observedPidAbsence": {
-      "pids": [51556, 4332],
+      "pids": [
+        51556,
+        4332
+      ],
       "observed": true,
       "note": "Both were absent in post-run process inspection. Final machine-idle gate also passed."
     }
@@ -598,5 +617,6 @@
     "openspec/planning/2026-09-12-roadmap-completion/evidence/u2b-admission-20260921.json",
     "openspec/planning/2026-09-12-roadmap-completion/evidence/u2b-red-20260921.json",
     "openspec/planning/2026-09-12-roadmap-completion/evidence/u2b-local-20260921.json"
-  ]
+  ],
+  "annotation20260921": "Measured at baseline 3137f5b61 on 2026-09-21 before U5f (#1865, merge aecbec865, 2026-09-21T21:36Z) replaced the fallback head in useGmRewindProducers.ts with the lineage's effective head read through readGmRewindHead (U5e); the sourceCause lines that cite useGmRewindProducers.ts:69/76 describe the pre-U5f code. The digest gap (expectedDigest must be 64 lowercase hex) stands until U5g/U5h/U5i land. Annotated by the parent after council 3 (openspec/council-decisions/2026-09-21-umbrella-failures-review.md), the way tasks.md:496 annotated D2."
 }
