@@ -1,0 +1,300 @@
+{
+  "unit": "U5g",
+  "stage": "local",
+  "baseline": "05794b930927e4e70976b5005747bff6f0e9b4f5",
+  "at": "2026-09-22T05:01:32.2461152Z",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u5g",
+  "branch": "codex/roadmap-u5g-gm-head-route-20260921",
+  "implementerModel": "codex (gpt-6-astra xhigh)",
+  "status": "ready",
+  "blocker": null,
+  "environment": {
+    "node": "v22.22.0",
+    "npm": "11.6.2",
+    "npm_config_dry_run": "true",
+    "shell": "Git Bash",
+    "prefix": "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH\nexport npm_config_dry_run=true",
+    "jestSerial": "--runInBand"
+  },
+  "lineCounts": [
+    {
+      "path": "src/pages/api/matches/[id]/head.ts",
+      "lines": 1,
+      "product": 1,
+      "test": 0,
+      "evidence": 0
+    },
+    {
+      "path": "src/pages-modules/api/matchHeadRoute.ts",
+      "lines": 84,
+      "product": 84,
+      "test": 0,
+      "evidence": 0
+    },
+    {
+      "path": "src/pages-modules/api/__tests__/matchHeadRoute.test.ts",
+      "lines": 313,
+      "product": 0,
+      "test": 313,
+      "evidence": 0
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/u5g-admission-20260921.json",
+      "lines": 123,
+      "product": 0,
+      "test": 0,
+      "evidence": 123
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/u5g-red-20260921.json",
+      "lines": 32,
+      "product": 0,
+      "test": 0,
+      "evidence": 32
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/u5g-local-20260921.json",
+      "lines": 300,
+      "product": 0,
+      "test": 0,
+      "evidence": 300
+    }
+  ],
+  "totals": {
+    "files": 6,
+    "productLines": 85,
+    "testLines": 313,
+    "productAndTestLines": 398
+  },
+  "contentHashes": [
+    {
+      "path": "src/pages/api/matches/[id]/head.ts",
+      "lines": 1,
+      "sha256": "6829bab1c1bb5a7672c449be852772a250e969eb13e8b711c608a8d8b50d5c9c"
+    },
+    {
+      "path": "src/pages-modules/api/matchHeadRoute.ts",
+      "lines": 84,
+      "sha256": "1ba0fd513cd811faa2d88313d2a542956aca9365bc8e8fff43482b3baf7cd1b8"
+    },
+    {
+      "path": "src/pages-modules/api/__tests__/matchHeadRoute.test.ts",
+      "lines": 313,
+      "sha256": "7909240154590c4fafec383331b1f50cfe946a4f345e9a0e97c77c998aa30989"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/u5g-admission-20260921.json",
+      "lines": 123,
+      "sha256": "2575a64efc00d45af2de2e7c93c250f6343790148656c2c97cf77cd81dad852f"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/u5g-red-20260921.json",
+      "lines": 32,
+      "sha256": "e1710f618bedde91368caf4065344c089ff98812023244c95734bfcb90d9eaee"
+    }
+  ],
+  "gates": [
+    {
+      "id": "head",
+      "command": "npx jest src/pages-modules/api/__tests__/matchHeadRoute.test.ts --runInBand",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\pages-modules\\\\api\\\\__tests__\\\\matchHeadRoute.test.ts/i.",
+      "summary": "Test Suites: 1 passed, 1 total\nTests:       11 passed, 11 total",
+      "precedingFormatterCommand": "npx oxfmt src/pages-modules/api/matchHeadRoute.ts src/pages-modules/api/__tests__/matchHeadRoute.test.ts 'src/pages/api/matches/[id]/head.ts' openspec/planning/2026-09-12-roadmap-completion/evidence/u5g-admission-20260921.json openspec/planning/2026-09-12-roadmap-completion/evidence/u5g-red-20260921.json"
+    },
+    {
+      "id": "private-preview",
+      "command": "npx jest src/pages-modules/api/__tests__/matchPrivatePreviewRoute.test.ts --runInBand",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\pages-modules\\\\api\\\\__tests__\\\\matchPrivatePreviewRoute.test.ts/i.",
+      "summary": "Test Suites: 1 passed, 1 total\nTests:       10 passed, 10 total"
+    },
+    {
+      "id": "api-group",
+      "command": "npx jest src/pages-modules/api src/__tests__/api/matches --runInBand",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\pages-modules\\\\api|src\\\\__tests__\\\\api\\\\matches/i.",
+      "summary": "Test Suites: 11 passed, 11 total\nTests:       107 passed, 107 total"
+    },
+    {
+      "id": "typecheck",
+      "command": "npx tsc --noEmit",
+      "exitCode": 0,
+      "lastLine": "",
+      "summary": "",
+      "output": "",
+      "note": "Silent exit 0; no diagnostics."
+    },
+    {
+      "id": "lint",
+      "command": "npx oxlint",
+      "exitCode": 0,
+      "lastLine": "Finished in 591ms on 3816 files using 16 threads.",
+      "summary": "Found 84 warnings and 0 errors.",
+      "warnings": 84,
+      "errors": 0,
+      "warningDeltaFrom84": 0
+    },
+    {
+      "id": "lint-units",
+      "command": "npm run lint:units",
+      "exitCode": 0,
+      "lastLine": "LINT_UNITS_PASS 100/100",
+      "summary": ""
+    },
+    {
+      "id": "openspec-ci",
+      "command": "npm run qc:openspec-ci:validate",
+      "exitCode": 0,
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+      "summary": ""
+    },
+    {
+      "id": "roadmap",
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "exitCode": 0,
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "summary": ""
+    },
+    {
+      "id": "format",
+      "command": "npx oxfmt --check --ignore-path .gitignore 'src/pages/api/matches/[id]/head.ts' src/pages-modules/api/matchHeadRoute.ts src/pages-modules/api/__tests__/matchHeadRoute.test.ts openspec/planning/2026-09-12-roadmap-completion/evidence/u5g-admission-20260921.json openspec/planning/2026-09-12-roadmap-completion/evidence/u5g-red-20260921.json openspec/planning/2026-09-12-roadmap-completion/evidence/u5g-local-20260921.json",
+      "exitCode": 0,
+      "lastLine": "Finished in 177ms on 6 files using 16 threads."
+    }
+  ],
+  "transport": {
+    "success": {
+      "status": 200,
+      "keys": ["branchId", "revision", "effectiveGeneration", "digest"]
+    },
+    "notHost": {
+      "status": 403,
+      "body": {
+        "error": "Authorization refused"
+      }
+    },
+    "noBearer": 401,
+    "wrongScope": 401,
+    "post": {
+      "status": 405,
+      "body": {
+        "error": "method not allowed"
+      },
+      "allow": ["GET"]
+    },
+    "unknownMatch": {
+      "status": 404,
+      "body": {
+        "error": "unknown match"
+      }
+    },
+    "noHead": {
+      "status": 404,
+      "body": {
+        "error": "no head"
+      }
+    },
+    "digest": "Byte-equal to readEffectiveStreamHead(db, branches, matchStreamRef(matchId)); no digest computation. Returned binding accepted by SQLiteEventHistoryCorrectionLeaseStore.assertExpectedHeadIsCurrent.",
+    "coherence": "One synchronous SQLite read transaction around branch generation and journal head."
+  },
+  "mutants": [
+    {
+      "id": "M1",
+      "mutation": "Remove host/GM restrictions while retaining viewer brand check; seated player reaches head read.",
+      "command": "npx jest src/pages-modules/api/__tests__/matchHeadRoute.test.ts --runInBand",
+      "exitCode": 1,
+      "caught": true,
+      "summary": "Tests:       2 failed, 9 passed, 11 total",
+      "assertion": "Expected 403, received 200 with head; expected 403, received 404 without head.",
+      "preMutantSha256": "1ba0fd513cd811faa2d88313d2a542956aca9365bc8e8fff43482b3baf7cd1b8",
+      "restoredSha256": "1ba0fd513cd811faa2d88313d2a542956aca9365bc8e8fff43482b3baf7cd1b8",
+      "restoredFromSavedCopy": true,
+      "hashEqual": true,
+      "rawOutput": "FAIL unit src/pages-modules/api/__tests__/matchHeadRoute.test.ts\n  GET /api/matches/:id/head\n    √ publishes a handler at the Pages Router head entrypoint (72 ms)\n    √ gives the host exactly the effective head the lease compares (89 ms)\n    × refuses player and stranger identically (head present: false) (51 ms)\n    × refuses player and stranger identically (head present: true) (76 ms)\n    √ requires a bearer (53 ms)\n    √ requires a bearer scoped to this match (38 ms)\n    √ refuses POST before reading a bearer (30 ms)\n    √ rejects a missing match id (35 ms)\n    √ answers an unknown match with the private-preview 404 body (26 ms)\n    √ answers no head without inventing a genesis digest (73 ms)\n    √ answers no head when the effective branch has no journal head row (69 ms)\n\n  ● GET /api/matches/:id/head › refuses player and stranger identically (head present: false)\n\n    expect(received).toBe(expected) // Object.is equality\n\n    Expected: 403\n    Received: 404\n\n      253 |       const seated = await getHead(player.wire);\n      254 |       const outsider = await getHead(stranger.wire);\n    > 255 |       expect(seated.statusCode).toBe(403);\n          |                                 ^\n      256 |       expect(seated.body).toStrictEqual({ error: 'Authorization refused' });\n      257 |       expect(outsider).toStrictEqual(seated);\n      258 |     },\n\n      at toBe (src/pages-modules/api/__tests__/matchHeadRoute.test.ts:255:33)\n\n  ● GET /api/matches/:id/head › refuses player and stranger identically (head present: true)\n\n    expect(received).toBe(expected) // Object.is equality\n\n    Expected: 403\n    Received: 200\n\n      253 |       const seated = await getHead(player.wire);\n      254 |       const outsider = await getHead(stranger.wire);\n    > 255 |       expect(seated.statusCode).toBe(403);\n          |                                 ^\n      256 |       expect(seated.body).toStrictEqual({ error: 'Authorization refused' });\n      257 |       expect(outsider).toStrictEqual(seated);\n      258 |     },\n\n      at toBe (src/pages-modules/api/__tests__/matchHeadRoute.test.ts:255:33)\n\nTest Suites: 1 failed, 1 total\nTests:       2 failed, 9 passed, 11 total\nSnapshots:   0 total\nTime:        2.921 s\nRan all test suites matching /src\\\\pages-modules\\\\api\\\\__tests__\\\\matchHeadRoute.test.ts/i.\n"
+    },
+    {
+      "id": "M2",
+      "mutation": "Return readEffectiveStreamHead for streamType campaign instead of the match stream digest.",
+      "command": "npx jest src/pages-modules/api/__tests__/matchHeadRoute.test.ts --runInBand",
+      "exitCode": 1,
+      "caught": true,
+      "summary": "Tests:       1 failed, 10 passed, 11 total",
+      "assertion": "Expected digest bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb; received wrong-stream genesis 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945.",
+      "preMutantSha256": "1ba0fd513cd811faa2d88313d2a542956aca9365bc8e8fff43482b3baf7cd1b8",
+      "restoredSha256": "1ba0fd513cd811faa2d88313d2a542956aca9365bc8e8fff43482b3baf7cd1b8",
+      "restoredFromSavedCopy": true,
+      "hashEqual": true,
+      "rawOutput": "FAIL unit src/pages-modules/api/__tests__/matchHeadRoute.test.ts\n  GET /api/matches/:id/head\n    √ publishes a handler at the Pages Router head entrypoint (61 ms)\n    × gives the host exactly the effective head the lease compares (51 ms)\n    √ refuses player and stranger identically (head present: false) (50 ms)\n    √ refuses player and stranger identically (head present: true) (31 ms)\n    √ requires a bearer (27 ms)\n    √ requires a bearer scoped to this match (27 ms)\n    √ refuses POST before reading a bearer (28 ms)\n    √ rejects a missing match id (28 ms)\n    √ answers an unknown match with the private-preview 404 body (28 ms)\n    √ answers no head without inventing a genesis digest (27 ms)\n    √ answers no head when the effective branch has no journal head row (30 ms)\n\n  ● GET /api/matches/:id/head › gives the host exactly the effective head the lease compares\n\n    expect(received).toStrictEqual(expected) // deep equality\n\n    - Expected  - 1\n    + Received  + 1\n\n      Object {\n        \"branchId\": \"candidate-1\",\n    -   \"digest\": \"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\n    +   \"digest\": \"4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945\",\n        \"effectiveGeneration\": 2,\n        \"revision\": 2,\n      }\n\n      207 |     });\n      208 |     expect(result.statusCode).toBe(200);\n    > 209 |     expect(result.body).toStrictEqual({\n          |                         ^\n      210 |       branchId: 'candidate-1',\n      211 |       revision: 2,\n      212 |       effectiveGeneration: 2,\n\n      at Object.toStrictEqual (src/pages-modules/api/__tests__/matchHeadRoute.test.ts:209:25)\n\nTest Suites: 1 failed, 1 total\nTests:       1 failed, 10 passed, 11 total\nSnapshots:   0 total\nTime:        2.729 s, estimated 3 s\nRan all test suites matching /src\\\\pages-modules\\\\api\\\\__tests__\\\\matchHeadRoute.test.ts/i.\n"
+    },
+    {
+      "id": "M3",
+      "mutation": "Add events: [] to the 200 body.",
+      "command": "npx jest src/pages-modules/api/__tests__/matchHeadRoute.test.ts --runInBand",
+      "exitCode": 1,
+      "caught": true,
+      "summary": "Tests:       1 failed, 10 passed, 11 total",
+      "assertion": "Strict four-field response comparison found extra events: [].",
+      "preMutantSha256": "1ba0fd513cd811faa2d88313d2a542956aca9365bc8e8fff43482b3baf7cd1b8",
+      "restoredSha256": "1ba0fd513cd811faa2d88313d2a542956aca9365bc8e8fff43482b3baf7cd1b8",
+      "restoredFromSavedCopy": true,
+      "hashEqual": true,
+      "rawOutput": "FAIL unit src/pages-modules/api/__tests__/matchHeadRoute.test.ts\n  GET /api/matches/:id/head\n    √ publishes a handler at the Pages Router head entrypoint (77 ms)\n    × gives the host exactly the effective head the lease compares (66 ms)\n    √ refuses player and stranger identically (head present: false) (34 ms)\n    √ refuses player and stranger identically (head present: true) (34 ms)\n    √ requires a bearer (33 ms)\n    √ requires a bearer scoped to this match (38 ms)\n    √ refuses POST before reading a bearer (40 ms)\n    √ rejects a missing match id (40 ms)\n    √ answers an unknown match with the private-preview 404 body (46 ms)\n    √ answers no head without inventing a genesis digest (33 ms)\n    √ answers no head when the effective branch has no journal head row (33 ms)\n\n  ● GET /api/matches/:id/head › gives the host exactly the effective head the lease compares\n\n    expect(received).toStrictEqual(expected) // deep equality\n\n    - Expected  - 0\n    + Received  + 1\n\n      Object {\n        \"branchId\": \"candidate-1\",\n        \"digest\": \"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\n        \"effectiveGeneration\": 2,\n    +   \"events\": Array [],\n        \"revision\": 2,\n      }\n\n      207 |     });\n      208 |     expect(result.statusCode).toBe(200);\n    > 209 |     expect(result.body).toStrictEqual({\n          |                         ^\n      210 |       branchId: 'candidate-1',\n      211 |       revision: 2,\n      212 |       effectiveGeneration: 2,\n\n      at Object.toStrictEqual (src/pages-modules/api/__tests__/matchHeadRoute.test.ts:209:25)\n\nTest Suites: 1 failed, 1 total\nTests:       1 failed, 10 passed, 11 total\nSnapshots:   0 total\nTime:        2.1 s\nRan all test suites matching /src\\\\pages-modules\\\\api\\\\__tests__\\\\matchHeadRoute.test.ts/i.\n"
+    }
+  ],
+  "savedHandlerCopy": {
+    "path": "src/pages-modules/api/matchHeadRoute.ts",
+    "sha256": "1ba0fd513cd811faa2d88313d2a542956aca9365bc8e8fff43482b3baf7cd1b8",
+    "content": "import type { NextApiRequest, NextApiResponse } from 'next';\n\nimport type { IMatchMeta } from '@/lib/multiplayer/server/IMatchStore';\n\nimport { readEffectiveStreamHead } from '@/lib/events/journal/EventHistoryEffectiveStreamHead';\nimport { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';\nimport {\n  AuthorizedViewerResolver,\n  isAuthorizedViewer,\n} from '@/lib/multiplayer/server/authorization/AuthorizedViewer';\nimport { authorizeHumanAction } from '@/lib/multiplayer/server/authorization/HumanActionAuthorizationGate';\nimport { MatchSeatMembershipSource } from '@/lib/multiplayer/server/authorization/MatchSeatMembershipSource';\nimport { getDefaultMatchStore } from '@/lib/multiplayer/server/getDefaultMatchStore';\nimport { matchStreamRef } from '@/lib/multiplayer/server/history/GmCombatRewindPreview';\nimport { HostAsGmMembershipSource } from '@/pages-modules/api/hostAsGmMembershipSource';\nimport {\n  MATCH_HISTORY_AUTHORIZATION_REFUSED,\n  prepareMatchHistoryGet,\n  rejectMatchHistoryFailure,\n} from '@/pages-modules/api/matchHistoryViewerChain';\nimport { getSQLiteService } from '@/services/persistence/SQLiteService';\n\nexport default async function handler(\n  req: NextApiRequest,\n  res: NextApiResponse,\n): Promise<void> {\n  const caller = await prepareMatchHistoryGet(req, res);\n  if (!caller) return;\n\n  const store = getDefaultMatchStore();\n  let meta: IMatchMeta;\n  try {\n    meta = await store.getMatchMeta(caller.matchId);\n  } catch {\n    res.status(404).json({ error: 'unknown match' });\n    return;\n  }\n\n  try {\n    const stream = matchStreamRef(caller.matchId);\n    const viewer = await authorizeHumanAction(\n      new AuthorizedViewerResolver(\n        new HostAsGmMembershipSource(\n          new MatchSeatMembershipSource(store),\n          meta.hostPlayerId,\n        ),\n      ),\n      caller.playerId,\n      caller.matchId,\n      { kind: 'history-read', ...stream },\n    );\n    if (\n      !isAuthorizedViewer(viewer) ||\n      viewer.principalId !== meta.hostPlayerId ||\n      viewer.role !== 'gm'\n    ) {\n      res.status(403).json({ error: MATCH_HISTORY_AUTHORIZATION_REFUSED });\n      return;\n    }\n\n    const db = getSQLiteService().getDatabase();\n    const branches = new SQLiteEventHistoryBranchStore(db);\n    // Keep generation and the lease's journal head in one read snapshot.\n    const body = db.transaction(() => {\n      const effective = branches.readEffectiveHead(stream);\n      if (effective === null) return null;\n      const head = readEffectiveStreamHead(db, branches, stream);\n      if (head.revision === 0) return null;\n      return {\n        branchId: head.branchId,\n        revision: head.revision,\n        effectiveGeneration: effective.effectiveGeneration,\n        digest: head.digest,\n      };\n    })();\n    if (body === null) {\n      res.status(404).json({ error: 'no head' });\n      return;\n    }\n    res.status(200).json(body);\n  } catch (error) {\n    rejectMatchHistoryFailure(res, error, 'failed to read the match head');\n  }\n}\n"
+  },
+  "nonClaims": [
+    "No client reads the route until U5h.",
+    "The producers do not send the digest until U5i.",
+    "No e2e row.",
+    "No ladder run.",
+    "No build or Playwright run.",
+    "No commits, PR, review acceptance, owner ruling, merge, main proof or task tick. Parent owns delivery."
+  ],
+  "findingsReportedNotFixed": [
+    {
+      "source": "src/lib/multiplayer/server/history/ViewerHistoryLineage.ts:133",
+      "finding": "Lineage revision is the installed branch baseRevision (cutoff), which can lag the journal tip. The test pins lineage equality on a just-activated candidate. Product uses the journal revision the lease compares."
+    },
+    {
+      "source": "src/lib/events/journal/EventHistoryEffectiveStreamHead.ts:47",
+      "finding": "Reader returns revision zero/genesis when an effective branch or journal head row is missing. Route maps no effective head or revision zero to 404 {error:'no head'}; no fabricated digest is exposed."
+    },
+    {
+      "source": "npx oxlint",
+      "finding": "84 warnings and 0 errors; warning count unchanged from 84. No unrelated lint fixes."
+    }
+  ],
+  "review": {
+    "classes": ["authority", "routine"],
+    "packet": "PK-u5g-ruling",
+    "required": "PR merges only after owner ruling on its exact head; Lane A cross-model review and parent verification still required."
+  },
+  "verificationLimits": {
+    "red": "Missing Pages Router module was measured in Jest, not a running server 404.",
+    "storage": "In-memory SQLite and DurableMatchStore fixtures; no live server/network or production store."
+  },
+  "formatAttempts": [
+    {
+      "command": "npx oxfmt openspec/planning/2026-09-12-roadmap-completion/evidence/u5g-local-20260921.json; followed by npx oxfmt --check on all six named files",
+      "output": "Expected at least one target file\nChecking formatting...\n\nAll matched files use the correct format.\nFinished in 41ms on 3 files using 16 threads.\n",
+      "overallShellExitCode": 0,
+      "scopeLimit": "Default .prettierignore excludes openspec/. The initial formatter printed Expected at least one target file. Subsequent check only matched the three source/test files; not proof of receipts."
+    },
+    {
+      "command": "npx oxfmt --ignore-path NUL <three U5g receipts>",
+      "exitCode": 1,
+      "output": "Failed to parse target paths or ignore settings.\nE:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\u5g\\NUL: File not found\n"
+    },
+    {
+      "command": "npx oxfmt --ignore-path .gitignore <three U5g receipts>",
+      "exitCode": 0,
+      "output": "",
+      "note": "Existing .gitignore keeps normal exclusions without .prettierignore's openspec exclusion. No ignore file changed."
+    }
+  ]
+}
