@@ -1,3 +1,13 @@
+## 2026-09-22 terminal checkpoint (parent)
+
+origin/main 28d5b7d7b. `validate-roadmap.mjs --next` prints NONE-ADMISSIBLE (0 owner-gated, 3 blocked) with the validator PASSED: the loop's terminal state per GOAL.md. Since the loop checkpoint earlier today: U12b merged (#1885, 5917a6425; closure #1889; the parked U12 draft #1809 closed), U2b resumed (#1882) and re-parked on draft #1886 head cbb0e214e (#1887, packet shape repaired #1888) with E2E-19 green and E2E-25 refused at the candidate anchor, U2c planned (#1887), folded (#1890), merged on the owner's ruling (#1891, a28cda806; OWNER-RULING comment 5778168930) and closed (#1892): the privacy pack now runs armed, E2E-19 proven on main, E2E-25 authored verbatim and gated @until-journal-cutover.
+
+Ledger: 32 complete, U3 main-verified, U2 / U2b / U12 blocked (parked drafts #1796 and #1886; U12's successor U12b complete); open packets PK-umbrella-acceptance-unsatisfiable and PK-u2b-ruling; five deferrals hold the remaining occurrences of the activated package. No tasks.md row was checked without a tick receipt; 21.2 stays held by U2b.
+
+Proof limits: every runtime proof is fixture-armed (the tactical channel under the ladder arm, never the production journal flag, which stays off); E2E-25's letter is not discharged; the rewind rows E2E-40..44 and E2E-25 are gated on the combat journal cutover; the true-symlink branch of the U12b guard is proven by POSIX CI only.
+
+Next action (owner): rule PK-umbrella-acceptance-unsatisfiable; decide the whole-row tick rule, U3b (21.1), the E2E-76 severability measurement, and node-close versus change-archive as the program goal. Next action (loop): none admissible until an owner decision or the cutover changes the ledger.
+
 ## 2026-09-22 loop checkpoint (parent)
 
 origin/main 827ab5544. Since the 2026-09-15 checkpoints the program runs as the goal-drivable loop defined in GOAL.md and DELIVERY.md (seven stages with receipts; red-first with mutants; Lane A cross-model review on the exact head; Lane B owner rulings for sensitive classes; one product PR per unit, squash on the matched head; main proof on the exact merge commit through `scripts/qc/roadmap-main-proof.mjs`; tick only from a receipt on main). Ledger state in `units.json`: 30 units complete (U0, U1, U1b, U1c, U1d, U1e, U4, U5a-U5i, U6-U11, U13-U17b, U15a/b), U3 main-verified, U12b local-verified, U2b planned (resumed), U2 and U12 blocked on parked drafts.
