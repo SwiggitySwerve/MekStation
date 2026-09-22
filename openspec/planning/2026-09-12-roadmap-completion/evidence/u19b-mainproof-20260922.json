@@ -1,0 +1,36 @@
+{
+  "unit": "U19b",
+  "stage": "mainProof",
+  "at": "2026-09-22T20:21:22.238Z",
+  "mergeCommit": "920630bc0bd3119d88c8b04528ed62d2f92187b4",
+  "checkout": "root checkout fast-forwarded to the merge commit (real node_modules; hydrate step runs)",
+  "runtime": {
+    "build": "exit 0",
+    "e2eBundleMarker": "__E2E_MODE__ present in _app chunk (run log)",
+    "playwright": "journal, multiplayer history and campaign authority suites (57 suites, 514) plus verify:qc:coop-campaign-journey (jest 9/143, Playwright 2 passed): Tests:       143 passed, 143 total",
+    "tsc": "exit 0"
+  },
+  "commands": {
+    "validator": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+    "gitAncestry": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows (--git)",
+    "next": "U20",
+    "openspecStrict": "Totals: 229 passed, 0 failed (229 items)",
+    "qcOpenspecCi": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+    "qcPin": "Tests:       26 passed, 26 total"
+  },
+  "logs": ".sisyphus/roadmap-completion-20260912/u19b-main-proof-20260922/ (local; sha256 below)",
+  "logHashes": [
+    "3c96dfbd618c69e4618211cad9f5f9df0ece46fdca0a5c5187220a99bbd172ff *build.log",
+    "38875d75a513e6dc764ce99160b9e7423b80cd040a68252ea1b4c336e36d0fc1 *git-check.log",
+    "6445639db60a4a8f79a3ca3573af73d2cde2b74f12f762a22ffc58bdd39aee43 *idle-before-build.log",
+    "6445639db60a4a8f79a3ca3573af73d2cde2b74f12f762a22ffc58bdd39aee43 *idle-before-runtime.log",
+    "c157073c46cc52d9210b8409525f859ca849969ae6ff0605c3a084706ab9c93a *next.log",
+    "efd619721df505ed0dbb69fe5bd26b74023670e603ce16891fd2f1331adf1776 *openspec-strict.log",
+    "55f793977b889554544a7d715ee00922843fafdc33c84af4e43f2cabb938da8e *playwright.log",
+    "5b0f562274df4dbddfb7ae44ab42b7d686dc1e0903383f25c593d88f7479fe9a *qc-openspec-ci.log",
+    "18c13fbd61835040e3b5ba11144a3a3eac71d7efec4339501df53dbb318f6891 *qc-pin.log",
+    "f891dbdfc0402cd4ba60fab1be3245dfec559c5d7afc7e21b87e795a73d05e5f *tsc.log",
+    "38875d75a513e6dc764ce99160b9e7423b80cd040a68252ea1b4c336e36d0fc1 *validator.log"
+  ],
+  "verdict": "PASS"
+}

@@ -788,10 +788,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "local-verified",
+      "state": "complete",
       "baseline": "0367a2f3b8543057b2dac557426d1ea9770a05bc",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "70503ee7ccad2639df28b7687467af776590f7f1",
+      "mergeSha": "920630bc0bd3119d88c8b04528ed62d2f92187b4",
       "stageReceipts": {
         "admission": {
           "path": "evidence/u19b-admission-20260922.json",
@@ -810,10 +810,31 @@
           "at": "2026-09-22T18:05:27.621Z",
           "summary": "carried from U19 draft f0008f3a5 byte-equal (branch store +69, writer +45/-6, genesis suite, six journal re-pins); four multiplayer-server pins re-aimed at the resulting genesis row and head (+57/-7); MatchStreamJournalMirror docstring corrected (comment only); 133 product and 433 test lines (cap read as product lines, the program's convention; finding F1 records the alternative reading); journal 23 suites/243, multiplayer server 157/1164, campaign 201/2963, api+interventions 77/931; tsc 0; oxlint 84 warnings 0 errors unchanged; oxfmt clean on 14 files; LINT_UNITS_PASS 100/100; qc:openspec-ci errors=0; validator PASSED; --next U19b on the baseline; three mutants caught and restored (M1 by the genesis suite's before-backfill assertion); implementer claude-opus (Agent model: opus); status ready"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "review": {
+          "path": "evidence/u19b-review-20260922.json",
+          "head": "70503ee7ccad2639df28b7687467af776590f7f1",
+          "reviewedHead": "70503ee7ccad2639df28b7687467af776590f7f1",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet)",
+          "implementerModel": "claude-opus (Agent model: opus); carried from U19 by claude-opus (Agent model: opus)",
+          "outputSha256": "b2b97b6e68501190802460ec6a3ad4ad04f5384d14cce3d40cbe1db499a0baa3",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u19b-merge-20260922.json",
+          "pr": 1899,
+          "head": "70503ee7ccad2639df28b7687467af776590f7f1",
+          "mergeSha": "920630bc0bd3119d88c8b04528ed62d2f92187b4"
+        },
+        "mainProof": {
+          "path": "evidence/u19b-mainproof-20260922.json",
+          "mergeCommit": "920630bc0bd3119d88c8b04528ed62d2f92187b4",
+          "verdict": "PASS",
+          "runtime": "Tests:       143 passed, 143 total"
+        },
+        "tick": {
+          "path": "evidence/u19b-tick-20260922.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "source20260922": "planned by the parent as the successor named in U19's park record (FN-u19-multiplayer-pins-assert-backfill-count); R4.S7 owns both paths the change touches",
@@ -3950,6 +3971,48 @@
         "deviationDisclosed20260922": "DELIVERY.md says the owner posts the ruling out of band; the owner approved this unit by description in chat on 2026-09-22 (words quoted in the comment) after the parent had explained the rows in plain language and reported Lane A's verdict and the check set on the head, and the parent composed and posted the comment from the owner GitHub account and applied the label; the parent supplied the head from the ledger, as in the earlier rulings of this loop"
       },
       "note": "opened 2026-09-22 with the unit so the privacy class is visible from admission (same shape as PK-u2b-ruling); the first shape lacked options, recommendation and revert cost and failed the validator on main for one commit (#1887), repaired here"
+    },
+    {
+      "id": "PK-u19b-ruling",
+      "blocks": [
+        "U19b"
+      ],
+      "nodes": [
+        "R4.S7"
+      ],
+      "taskKeys": [],
+      "question": "U19b (review classes authority, replay) presents head 70503ee7ccad2639df28b7687467af776590f7f1. Does the owner rule it?",
+      "options": [
+        {
+          "label": "rule the head",
+          "consequence": "an OWNER-RULING <head> comment and the owner-ruled label on U19b's PR; the unit merges and proceeds to main proof",
+          "effort": "0.1 day owner"
+        },
+        {
+          "label": "reject",
+          "consequence": "the PR closes; the unit returns to planned with the objection recorded",
+          "effort": "0.1 day owner"
+        }
+      ],
+      "agentRecommendation": "rule the head once Lane A has approved it and the checks are green",
+      "revertCost": "low: a squash merge revert",
+      "decision": {
+        "at": "2026-09-22T18:00:00.000Z",
+        "option": "rule the head",
+        "text": "approved, continue the loop",
+        "source": "owner instruction in the working session (chat), after the parent described the unit in plain English: the first write to a journal stream also records its starting branch and head in the same transaction; a refused or failed write leaves nothing; existing streams untouched; four multiplayer tests re-aimed at the resulting record; no production flag moves"
+      },
+      "ruling": {
+        "ruledHead": "70503ee7ccad2639df28b7687467af776590f7f1",
+        "pr": 1899,
+        "commentId": 5783411644,
+        "author": "SwiggitySwerve",
+        "label": "owner-ruled",
+        "bodySha256": "7a990a44e2398c5cb3c07cc7b0611f623115ff13060119efcdff1642e9fed616",
+        "postedBy": "parent on the owner's instruction (the comment quotes the owner's words verbatim)",
+        "deviationDisclosed": "DELIVERY.md says the owner posts the ruling out of band; the owner approved this unit by description in chat (words quoted in the comment) after the parent explained it in plain language and reported Lane A's verdict and the check set on the head, and the parent composed and posted the comment from the owner GitHub account and applied the label; the parent supplied the head from the ledger, as in the earlier rulings of this loop"
+      },
+      "note": "opened when the owner ruled, 2026-09-22 (the cutover sequence's units carry no pre-opened ruling packets)"
     }
   ],
   "deferrals": [
