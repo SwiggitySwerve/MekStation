@@ -1,0 +1,242 @@
+{
+  "unit": "U12b",
+  "stage": "local",
+  "at": "2026-09-22T00:00:00.000Z",
+  "baseline": "6fa24e96753bea9f723948d1373452a6ba0ef05e",
+  "worktree": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\u12b",
+  "branch": "roadmap-u12b-guard-cli-20260922",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "node": "v22.22.0",
+  "npm": "11.6.2",
+  "platform": "win32",
+  "lineCounts": {
+    "scripts/qc/guard-node-modules-link.mjs": {
+      "kind": "product",
+      "lines": 155,
+      "bytes": 5450,
+      "sha256": "d4417f8050eeb7d87211bff07b838b199947a7d86bfb4e8a7421b8c5616c5d1b"
+    },
+    "scripts/__tests__/guard-node-modules-link.test.ts": {
+      "kind": "test",
+      "lines": 262,
+      "bytes": 9089,
+      "sha256": "9a0b22cf335429781c3432f4389b7f99fe09f8382b8c1053f9a54b8504575b07"
+    },
+    "package.json": {
+      "kind": "product",
+      "added": 1,
+      "removed": 0,
+      "numstat": "1\t0\tpackage.json",
+      "line": "\"qc:guard-node-modules-link\": \"node scripts/qc/guard-node-modules-link.mjs\""
+    },
+    "totals": {
+      "productLines": 156,
+      "testLines": 262,
+      "productAndTestLines": 418,
+      "filesChanged": 3,
+      "receiptsWritten": 3,
+      "capMaxFiles": 15,
+      "capMaxNonGeneratedLines": 500
+    }
+  },
+  "gates": {
+    "pinGreen": {
+      "command": "node node_modules/jest/bin/jest.js --selectProjects unit --runInBand --no-cache --runTestsByPath scripts/__tests__/guard-node-modules-link.test.ts",
+      "exitCode": 0,
+      "suites": "Test Suites: 1 passed, 1 total",
+      "tests": "Tests:       12 passed, 12 total",
+      "lastLine": "Ran all test suites within paths \"scripts/__tests__/guard-node-modules-link.test.ts\"."
+    },
+    "jestScriptsDirectory": {
+      "command": "npx jest scripts/__tests__ --runInBand",
+      "exitCode": 0,
+      "suites": "Test Suites: 78 passed, 78 total",
+      "tests": "Tests:       10 skipped, 1228 passed, 1238 total",
+      "time": "Time:        584.169 s",
+      "lastLine": "Ran all test suites matching /scripts\\__tests__/i.",
+      "note": "--runInBand was added to the charter's command for the two-core allowance and because a jest-only review lane may be running on this machine. The 10 skips are pre-existing in sibling suites; this unit's pin has none."
+    },
+    "typecheck": {
+      "command": "npx tsc --noEmit --incremental false",
+      "exitCode": 0,
+      "lastLine": "",
+      "output": "",
+      "note": "--incremental false keeps tsc from writing tsconfig.tsbuildinfo outside the authorized file set (the same reason the U12 lane gave). tsconfig.json:30 excludes scripts/**/*, so this gate is vacuous for both new files; the jest pin and lint:units are the real gates for them."
+    },
+    "oxlint": {
+      "command": "npx oxlint",
+      "exitCode": 0,
+      "warningsLine": "Found 84 warnings and 0 errors.",
+      "lastLine": "Finished in 558ms on 3816 files using 16 threads.",
+      "changedFrom84": false,
+      "note": "Unchanged at 84 warnings / 0 errors. The root oxlint config ignores **/scripts/**, so this gate does not see either new file; lint:units is what does."
+    },
+    "oxfmtChangedFiles": {
+      "command": "npx oxfmt --check scripts/qc/guard-node-modules-link.mjs scripts/__tests__/guard-node-modules-link.test.ts package.json",
+      "exitCode": 0,
+      "lastLine": "Finished in 155ms on 3 files using 16 threads.",
+      "output": "Checking formatting...\n\nAll matched files use the correct format.",
+      "note": "The first --check run failed on both new files; they were formatted with npx oxfmt (write) and the pin re-run green afterwards, 12/12."
+    },
+    "lintUnits": {
+      "command": "npm run lint:units",
+      "exitCode": 0,
+      "lastLine": "LINT_UNITS_PASS 100/100",
+      "output": "LINT_UNITS_PATH e2e 50\nLINT_UNITS_PATH scripts 50\nLINT_UNITS_PASS 100/100",
+      "note": "Unchanged from the baseline. The ratchet sits exactly at its ceiling, so the two new files added zero findings."
+    },
+    "openspecCi": {
+      "command": "npm run qc:openspec-ci:validate",
+      "exitCode": 0,
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+      "packageScriptsChanged": false,
+      "note": "packageScripts stayed 3/3. It is mapped over the fixed requiredPackageScripts contract list in scripts/qc/openspec-ci-contracts.mjs (validate-openspec-ci-quality.mjs:167-169), not over package.json's key count, so the added script line cannot move that total. Measured before and after the edit: both 3/3."
+    },
+    "roadmapValidator": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "exitCode": 0,
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows"
+    },
+    "diffCheck": {
+      "command": "git diff --check",
+      "exitCode": 0,
+      "lastLine": ""
+    }
+  },
+  "liveCliRuns": [
+    {
+      "name": "junctioned worktree",
+      "command": "npm run qc:guard-node-modules-link",
+      "cwd": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\u12b",
+      "nodeModules": "junction; lstat isSymbolicLink true; realpath E:\\Projects\\MekStation\\node_modules",
+      "stdout": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"E:\\\\Projects\\\\MekStation\\\\.sisyphus\\\\roadmap-completion-20260912\\\\worktrees\\\\u12b\\\\node_modules\",\"actualPath\":\"E:\\\\Projects\\\\MekStation\\\\node_modules\"}",
+      "exitCode": 1
+    },
+    {
+      "name": "fresh temporary checkout",
+      "command": "node <worktree>\\scripts\\qc\\guard-node-modules-link.mjs --manifest <tmp>\\u12b-cli-proof-CfmqWP\\package.json",
+      "cwd": "C:\\Users\\wroll\\AppData\\Local\\Temp\\u12b-cli-proof-CfmqWP",
+      "fixture": "a directory holding only {\"name\":\"u12b-cli-proof\",\"version\":\"0.0.0\",\"private\":true}; no node_modules",
+      "stdout": "INSTALL_ALLOWED",
+      "exitCode": 0,
+      "cleanup": "the temporary directory was removed after the run"
+    }
+  ],
+  "preMutantSha256": "d4417f8050eeb7d87211bff07b838b199947a7d86bfb4e8a7421b8c5616c5d1b",
+  "mutants": [
+    {
+      "id": "M1",
+      "description": "A linked node_modules is allowed (the whole link test skipped)",
+      "before": "  if (modulesStats) {",
+      "after": "  if (false && modulesStats) {",
+      "mutatedSha256": "3258c2e01c3c5ec4c95e825ddca7e89f77d80ee2a80ae6ef1535d32fa61462e3",
+      "caught": true,
+      "exitCode": 1,
+      "tests": "Tests:       3 failed, 9 passed, 12 total",
+      "failedAssertions": [
+        "node_modules junction guard CLI › refuses node_modules planted as a junction",
+        "node_modules junction guard CLI › refuses node_modules planted as a symbolic link",
+        "node_modules junction guard CLI › exports the decision function the CLI prints from"
+      ],
+      "restoredSha256": "d4417f8050eeb7d87211bff07b838b199947a7d86bfb4e8a7421b8c5616c5d1b",
+      "restoredEqualsPreMutant": true,
+      "note": "The whole block is skipped rather than only the lstat line, because the real-path comparison behind it would otherwise still refuse and the mutant would be equivalent."
+    },
+    {
+      "id": "M2",
+      "description": "The manifest-root rule is dropped",
+      "before": "  if (manifestDirectory !== realCwd)",
+      "after": "  if (false)",
+      "mutatedSha256": "d7f423f5db7024dcea971ac595e8e3dcbd1bf788029afffd68a96cb44552b698",
+      "caught": true,
+      "exitCode": 1,
+      "tests": "Tests:       2 failed, 10 passed, 12 total",
+      "failedAssertions": [
+        "node_modules junction guard CLI › refuses a manifest that belongs to another root",
+        "node_modules junction guard CLI › defaults to the manifest of its own repository, not of the cwd"
+      ],
+      "restoredSha256": "d4417f8050eeb7d87211bff07b838b199947a7d86bfb4e8a7421b8c5616c5d1b",
+      "restoredEqualsPreMutant": true
+    },
+    {
+      "id": "M3",
+      "description": "A refusal exits zero",
+      "before": "    );\n    process.exitCode = 1;\n  } catch (error) {",
+      "after": "    );\n    process.exitCode = 0;\n  } catch (error) {",
+      "mutatedSha256": "bb23b80437d0ffaf4beafb1d3a371e3b9a4557a58daf8c22102e60184d39b2c3",
+      "caught": true,
+      "exitCode": 1,
+      "tests": "Tests:       6 failed, 6 passed, 12 total",
+      "failedAssertions": [
+        "node_modules junction guard CLI › refuses node_modules planted as a junction",
+        "node_modules junction guard CLI › refuses node_modules planted as a symbolic link",
+        "node_modules junction guard CLI › refuses a manifest that belongs to another root",
+        "node_modules junction guard CLI › refuses a missing manifest instead of allowing it",
+        "node_modules junction guard CLI › refuses a manifest that is not parseable JSON",
+        "node_modules junction guard CLI › defaults to the manifest of its own repository, not of the cwd"
+      ],
+      "restoredSha256": "d4417f8050eeb7d87211bff07b838b199947a7d86bfb4e8a7421b8c5616c5d1b",
+      "restoredEqualsPreMutant": true,
+      "note": "The unknown-argument case still passed: it refuses through the fail-closed catch, whose exit code this mutant does not touch."
+    }
+  ],
+  "mutationRun": {
+    "driver": "a script file outside the worktree; it saved the module, applied one mutant at a time, ran the pin, restored from the saved copy and re-hashed",
+    "finalSha256": "d4417f8050eeb7d87211bff07b838b199947a7d86bfb4e8a7421b8c5616c5d1b",
+    "finalEqualsPreMutant": true,
+    "restoredGreen": {
+      "exitCode": 0,
+      "tests": "Tests:       12 passed, 12 total"
+    }
+  },
+  "nonClaims": [
+    "This CLI does NOT prevent npm from pruning the root node_modules through a junction. npm is unchanged. FN-u12-root-preinstall-runs-after-reify still holds: npm 11.6.2 runs the root preinstall after arb.reify, so no lifecycle hook can protect the root. The protection is the loop convention - every lane shell sets npm_config_dry_run=true and no lane runs an npm lifecycle in a junctioned worktree - plus a caller that runs this CLI BEFORE any npm command.",
+    "No preinstall wiring. package.json gains one script key and nothing else; scripts.preinstall is still absent and the pin asserts it.",
+    "Nothing in the repository calls this CLI yet. The worktree-setup step and the lane-charter convention that name it are the parent's WORKERS.md / GOAL.md docs change, not this unit's.",
+    "No e2e row, no Playwright run, no exact-main regression ladder run, no build. Only jest, tsc, oxlint, oxfmt, lint:units, the openspec CI validator and the roadmap validator were run.",
+    "Directory symlinks cannot be created on this machine without elevation (measured: EPERM from fs.symlinkSync for 'dir', 'file' and the default type; 'Administrator privilege required' from PowerShell New-Item -ItemType SymbolicLink). The 'planted as a symbolic link' case therefore ran against a junction here and is a real symlink only on POSIX, where fs.symlinkSync(..., 'junction') is an ordinary symlink. The POSIX symlink branch is proven by POSIX CI, not by this machine.",
+    "npm's behaviour was not measured in this unit: no npm install, ci, prune or any npm lifecycle was run anywhere. The only npm invocations were npm run for lint:units, qc:openspec-ci:validate and qc:guard-node-modules-link, with npm_config_dry_run=true set in the shell throughout.",
+    "The parked U12 head 1baa6a96c6f7b186091635dd3e77749f212db090 was read only through git show. Its module and pin are carried over by content, not by branch; the two heads share no commit.",
+    "No commit, push, stash or amend was made; the parent commits.",
+    "The roadmap ledger was not touched: units.json, roadmap.json, evidence/admission-snapshot.json are unchanged and no tasks.md row was checked."
+  ],
+  "findingsReportedNotFixed": [
+    {
+      "id": "F1",
+      "summary": "The manifest refusal reason word changed from the parked module's manifest-outside-cwd to manifest-root-mismatch, which is the word this unit's contract names. Any external consumer that grepped the parked draft's word would need updating - there is none in the repository (grep for manifest-outside-cwd matches only the U12 receipts, which are historical records and were left as they are)."
+    },
+    {
+      "id": "F2",
+      "summary": "The refusal line carries an {expectedPath, actualPath} JSON tail after the reason word. That is the parked grammar and it is useful to an operator, but it means a caller matching on the whole line rather than the first two tokens is coupled to path formatting. The pin matches the whole line; a caller should match the reason word."
+    },
+    {
+      "id": "F3",
+      "summary": "The guard reads and JSON-parses the manifest only to decide that it is readable; it does not look at any field in it. If a later unit wants the manifest's name or workspaces honoured, that is a widening, not a fix here."
+    },
+    {
+      "id": "F4",
+      "summary": "npx jest scripts/__tests__ takes 584 s on this machine in band. A lane that runs it as a routine gate should budget ten minutes, or run only the focused pin."
+    },
+    {
+      "id": "F5",
+      "summary": "lint:units is exactly at its ceiling (100/100). Any future unit adding a single lint finding under e2e/ or scripts/ fails that gate with no headroom; the ratchet has no slack left to absorb an unrelated change."
+    }
+  ],
+  "finalStatus": {
+    "command": "git status --short",
+    "expected": [
+      " M package.json",
+      "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u12b-admission-20260922.json",
+      "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u12b-local-20260922.json",
+      "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u12b-red-20260922.json",
+      "?? scripts/__tests__/guard-node-modules-link.test.ts",
+      "?? scripts/qc/guard-node-modules-link.mjs"
+    ]
+  },
+  "receipts": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u12b-admission-20260922.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u12b-red-20260922.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u12b-local-20260922.json"
+  ],
+  "status": "ready"
+}
