@@ -1,0 +1,367 @@
+{
+  "unit": "U2c",
+  "stage": "local",
+  "at": "2026-09-22T07:55:00Z",
+  "status": "ready",
+  "baseline": "62391de467fe080f9787e4adc5f28a7a5f774de7",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u2c",
+  "branch": "roadmap-u2c-privacy-arm-e2e-19-20260922",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "lineCounts": [
+    {
+      "file": "e2e/gm-two-player-privacy.pack.spec.ts",
+      "category": "product",
+      "added": 295,
+      "deleted": 22,
+      "totalFileLines": 1514,
+      "sha256": "f6508a1d2c331c34086c3531b493aaf60d7182a78f2e469a7ed42726195c3c47"
+    },
+    {
+      "file": "scripts/qc/gm-two-player-campaign-core.cjs",
+      "category": "product",
+      "added": 5,
+      "deleted": 5,
+      "totalFileLines": 331,
+      "sha256": "f065b258b59f4cb5cd8e097ec3d4331c85d54c314c2a8144d41c1f27e5d0a1fc"
+    },
+    {
+      "file": "scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+      "category": "test",
+      "added": 7,
+      "deleted": 2,
+      "totalFileLines": 822,
+      "sha256": "fd148931bedc5e17f8b8e0255c375d33f9f0b2c254781ebceb9c4caf9cf3c9f8"
+    }
+  ],
+  "lineCountTotals": {
+    "filesChanged": 3,
+    "insertions": 307,
+    "deletions": 29,
+    "productInsertions": 300,
+    "testInsertions": 7,
+    "capFiles": 15,
+    "capNonGeneratedLines": 500,
+    "withinCaps": true
+  },
+  "build": {
+    "command": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build",
+    "idleGate": {
+      "command": "node scripts/qc/machine-idle.mjs --wait --timeout-ms 1800000",
+      "lastLine": "MACHINE_IDLE",
+      "exitCode": 0
+    },
+    "lastLines": "{ \"ok\": false, \"error\": \"Unsafe hydration destination (runtime loader tsx) contains a symlink or junction: .next\\\\standalone\\\\node_modules\", \"hint\": \"Run npm run build first so .next/standalone/server.js exists, then hydrate the standalone multiplayer server.\" }",
+    "exitCode": 1,
+    "expected": true,
+    "why": "The standalone hydration guard refuses to recurse through the worktree's node_modules junction. The guard was NOT relaxed and the junction was NOT touched. The Next compile itself completed: the full route table printed and the E2E marker is present.",
+    "markerCheck": {
+      "command": "grep -l \"__E2E_MODE__\" .next/static/chunks/pages/_app-*.js",
+      "stdout": ".next/static/chunks/pages/_app-84e33bbd07937ba7.js",
+      "exitCode": 0
+    },
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u2c/build.log",
+      "sha256": "ae41977769789743328f22196293af0de5c5df6bf4323cf643e93d855d405952"
+    }
+  },
+  "gates": [
+    {
+      "gate": "npx jest scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+      "lastLine": "Ran all test suites matching /scripts\\\\__tests__\\\\gm-two-player-campaign-qc.test.ts/i.",
+      "counts": "Test Suites: 1 passed, 1 total; Tests: 14 passed, 14 total",
+      "exitCode": 0
+    },
+    {
+      "gate": "npx tsc --noEmit",
+      "lastLine": "(no output)",
+      "exitCode": 0
+    },
+    {
+      "gate": "npx oxlint",
+      "lastLine": "Finished in 413ms on 3816 files using 16 threads.",
+      "warningsLine": "Found 84 warnings and 0 errors.",
+      "exitCode": 0
+    },
+    {
+      "gate": "npx oxfmt --check e2e/gm-two-player-privacy.pack.spec.ts scripts/qc/gm-two-player-campaign-core.cjs scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+      "lastLine": "Finished in 49ms on 3 files using 16 threads.",
+      "resultLine": "All matched files use the correct format.",
+      "exitCode": 0
+    },
+    {
+      "gate": "npm run lint:units",
+      "lastLine": "LINT_UNITS_PASS 100/100",
+      "exitCode": 0
+    },
+    {
+      "gate": "npm run qc:openspec-ci:validate",
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+      "exitCode": 0
+    },
+    {
+      "gate": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "exitCode": 0
+    },
+    {
+      "gate": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+      "lastLine": "U2c",
+      "exitCode": 0
+    },
+    {
+      "gate": "npm run qc:guard-node-modules-link",
+      "lastLine": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"...worktrees\\\\u2c\\\\node_modules\",\"actualPath\":\"E:\\\\Projects\\\\MekStation\\\\node_modules\"}",
+      "exitCode": 1,
+      "expected": true,
+      "why": "Refusal by design in a junctioned worktree; the reminder that no npm lifecycle may run here. No npm install/ci/prune was run at any point."
+    }
+  ],
+  "runnerRuns": {
+    "privacyPackTwiceInARowOnTheFinalFile": [
+      {
+        "runId": "u2c-final-a-20260922",
+        "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=privacy-pack --run-id=u2c-final-a-20260922",
+        "shellPreamble": [
+          "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+          "export npm_config_dry_run=true",
+          "export npm_config_ignore_scripts=true",
+          "export HOSTNAME=127.0.0.1",
+          "unset MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE"
+        ],
+        "idleGate": {
+          "command": "node scripts/qc/machine-idle.mjs --wait --timeout-ms 1800000",
+          "lastLine": "MACHINE_IDLE",
+          "exitCode": 0
+        },
+        "ownedPort": 20220,
+        "serverPid": 70240,
+        "serverPidSource": "netstat -ano on the runner-owned port while the run held it",
+        "runnerSummaryLine": "8 passed (40.5s)",
+        "exitCode": 0,
+        "perRowVerdicts": {
+          "okRows": 7,
+          "expectedFailureRows": 1,
+          "expectedFailureRow": "x  2 ... E2E-25 approved correction keeps its reason private @E2E-25 @until-journal-cutover (2.7s)",
+          "unexpectedPasses": 0
+        },
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u2c/run-u2c-final-a-20260922.log",
+          "sha256": "4a706e30cf006d9b785c5ffc01dd0f46bc9f6a76b397d18dacfa91e9f980ca79"
+        },
+        "portAfterRun": "PORT_FREE",
+        "serverLeftRunning": false,
+        "note": "First of the two consecutive runs on the final file state."
+      },
+      {
+        "runId": "u2c-final-b-20260922",
+        "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=privacy-pack --run-id=u2c-final-b-20260922",
+        "idleGate": {
+          "command": "node scripts/qc/machine-idle.mjs --wait --timeout-ms 1800000",
+          "lastLine": "MACHINE_IDLE",
+          "exitCode": 0
+        },
+        "ownedPort": 22108,
+        "serverPid": 38388,
+        "serverPidSource": "netstat -ano on the runner-owned port while the run held it",
+        "runnerSummaryLine": "8 passed (41.9s)",
+        "exitCode": 0,
+        "perRowVerdicts": {
+          "okRows": 7,
+          "expectedFailureRows": 1,
+          "expectedFailureRow": "x  2 ... E2E-25 approved correction keeps its reason private @E2E-25 @until-journal-cutover (2.7s)",
+          "unexpectedPasses": 0
+        },
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u2c/run-u2c-final-b-20260922.log",
+          "sha256": "a5d41f12c1a0e60a305ba81f1a58f0ab5bfcbf49e53cc302b1902b80f8535fe5"
+        },
+        "portAfterRun": "PORT_FREE",
+        "serverLeftRunning": false,
+        "note": "Second of the two consecutive runs on the final file state; identical shape."
+      }
+    ],
+    "summaryLineHonesty": "Playwright's list reporter prints the aggregate '8 passed' and does NOT print a sentence naming the expected failure. The charter's expected wording ('7 passed, 1 expected failure, 0 unexpected passes') is therefore NOT a literal quote of any line the runner emitted. The decomposition is read off the per-row reporter lines: seven rows marked 'ok', one row marked 'x' (E2E-25, the gated row), and zero occurrences of 'expected to fail, but passed'. The rewind-pack precedent produced the same accounting ('6 passed ... as six expected failures'). Recorded as measured rather than as the charter phrased it.",
+    "proposalPackUnchanged": {
+      "runId": "u2c-proposal-20260922",
+      "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=proposal-pack --run-id=u2c-proposal-20260922",
+      "idleGate": {
+        "command": "node scripts/qc/machine-idle.mjs --wait --timeout-ms 1800000",
+        "lastLine": "MACHINE_IDLE",
+        "exitCode": 0
+      },
+      "ownedPort": 24940,
+      "serverPid": 75148,
+      "runnerSummaryLine": "2 passed (2.3m)",
+      "exitCode": 0,
+      "rows": [
+        "ok 1 E2E-30 concurrent proposals stay attributable and independently resolvable @proposal-pack @E2E-30 (5.5s)",
+        "ok 2 E2E-29 veto and timeout commit nothing and clear only own pending UI @proposal-pack @E2E-29 (2.1m)"
+      ],
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u2c/run-u2c-proposal-20260922.log",
+        "sha256": "b0d8990a518250895db445c834d95b028cd33778b61a7fef8fbc229566754c1f"
+      },
+      "portAfterRun": "PORT_FREE",
+      "serverLeftRunning": false,
+      "note": "Unchanged and still UNARMED: building the plan in-session shows neither journal key on this group, which is exactly what the widened negative qc pin asserts."
+    },
+    "authorityRecoveryUnchanged": {
+      "runId": "u2c-authrec-20260922",
+      "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=authority-recovery --run-id=u2c-authrec-20260922",
+      "idleGate": {
+        "command": "node scripts/qc/machine-idle.mjs --wait --timeout-ms 1800000",
+        "lastLine": "MACHINE_IDLE",
+        "exitCode": 0
+      },
+      "ownedPort": 21615,
+      "serverPid": 56944,
+      "runnerSummaryLine": "4 passed (46.2s)",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u2c/run-u2c-authrec-20260922.log",
+        "sha256": "9288fbc9bf4a88bf6300a5061fcf8c77c0834bdaddec5ee384e6880cf0532f8a"
+      },
+      "portAfterRun": "PORT_FREE",
+      "serverLeftRunning": false,
+      "note": "Shares the arming expression this unit widened; unchanged at 4 passed, still behind the relaunching server."
+    }
+  },
+  "mutants": [
+    {
+      "id": "M1",
+      "target": "e2e/gm-two-player-privacy.pack.spec.ts",
+      "change": "E2E-19's player assertion inverted so the row expects a payload: expect(jsonKeys(player)).not.toContain('payload') -> expect(jsonKeys(player)).toContain('payload')",
+      "run": "u2c-m1-20260922 (live privacy-pack Playwright run, owned port 21131, server PID 74468)",
+      "result": "KILLED",
+      "runnerSummaryLines": ["1 failed", "7 passed (41.2s)"],
+      "exitCode": 1,
+      "failingRow": "E2E-19 unfinalized GM draft has only a private payload @E2E-19",
+      "failureLine": "spec:287 - expect(received).toContain(expected); Expected value: \"payload\"; Received array: [\"stream\", \"projectorVersion\", \"streamType\", \"streamId\", \"viewerScope\", \"principalId\", \"participantId\", \"role\", \"facts\", \"timeline\", ...]",
+      "reading": "The seated player's private-preview read genuinely carries no 'payload' key at any depth. The assertion is load-bearing.",
+      "preMutantSha256": "f6508a1d2c331c34086c3531b493aaf60d7182a78f2e469a7ed42726195c3c47",
+      "mutantSha256": "d4c341e9bf46f9e40b14edd02e3a24c36ca76c446e0fd5b747d3de1ce1b182ad",
+      "restoredSha256": "f6508a1d2c331c34086c3531b493aaf60d7182a78f2e469a7ed42726195c3c47",
+      "restorationMatches": true,
+      "savedCopy": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u2c/spec.saved.ts",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u2c/run-u2c-m1-20260922.log",
+        "sha256": "0237de3414c5db4c66aa5857d87542117fbfdfae44ee49a73a103bd85e901b29"
+      }
+    },
+    {
+      "id": "M2",
+      "target": "scripts/qc/gm-two-player-campaign-core.cjs",
+      "change": "The arming removed: `|| expandedMembers.includes('privacy-pack')` dropped from armsJournalAuthorityFixture, so the group runs with both journal keys unset.",
+      "run": "u2c-m2-20260922 (live privacy-pack Playwright run, owned port 23798, server PID 59284)",
+      "result": "KILLED",
+      "runnerSummaryLines": ["1 failed", "7 passed (1.0m)"],
+      "exitCode": 1,
+      "failingRow": "E2E-19 unfinalized GM draft has only a private payload @E2E-19",
+      "failureLine": "TimeoutError: page.waitForResponse: Timeout 10000ms exceeded while waiting for event \"response\" at previewCorrection (spec:829), called from spec:263",
+      "e2e25UnderThisMutant": {
+        "reporterLine": "x  2 ... E2E-25 approved correction keeps its reason private @E2E-25 @until-journal-cutover (12.9s)",
+        "bodyPrinted": "NONE. Playwright prints no error detail and retains no artifact for a row that is already a declared expected failure, so E2E-25's body under M2 is not directly observable. Recorded as not observable rather than reconstructed.",
+        "measuredConditionInstead": "Read-only census of .sisyphus/e2e-runtime/u2c-m2-20260922/mekstation.db: event_journal_events 0, event_journal_stream_heads 0, event_history_branches 0, private_record 0, private_access_audit 0 - against 62 / 9 / 9 / 2 / 4 in the armed runs u2c-green-a and u2c-final-a. With an empty journal there is no head for the lobby to name, so GET /head answers no-head, buildGmRewindRequest returns null and the producer posts nothing. E2E-25 calls the SAME previewCorrection helper as E2E-19 at spec:334 and its duration (12.9s) matches E2E-19's (12.8s), i.e. the same 10s waitForResponse timeout.",
+        "reading": "The arming is what makes either row reach a rewind route at all. Under M2 E2E-25 is 'expected-failed for the wrong reason' - the gate absorbs a failure that is NOT the gated refusal. That is a real limit of a gated row and it is why M2's kill is carried by E2E-19."
+      },
+      "preMutantSha256": "f065b258b59f4cb5cd8e097ec3d4331c85d54c314c2a8144d41c1f27e5d0a1fc",
+      "mutantSha256": "0c6c8de58f71941fd8f2c791ed73749aed29757294021f1da0c16c362e42ad51",
+      "restoredSha256": "f065b258b59f4cb5cd8e097ec3d4331c85d54c314c2a8144d41c1f27e5d0a1fc",
+      "restorationMatches": true,
+      "savedCopy": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u2c/core.saved.cjs",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u2c/run-u2c-m2-20260922.log",
+        "sha256": "301e358ee58bee56a0a88ae29dc175998106a4001c116b2f62c97bd764448c54"
+      }
+    },
+    {
+      "id": "M3",
+      "target": "e2e/gm-two-player-privacy.pack.spec.ts",
+      "change": "The gate removed: the four-line test.fail(true, 'until-journal-cutover: ...') call deleted from E2E-25's body. Every assertion left intact, the title tag left intact.",
+      "run": "u2c-m3-20260922 (live privacy-pack Playwright run, owned port 27249, server PID 75556)",
+      "result": "KILLED",
+      "runnerSummaryLines": ["1 failed", "7 passed (42.1s)"],
+      "exitCode": 1,
+      "failingRow": "E2E-25 approved correction keeps its reason private @E2E-25 @until-journal-cutover",
+      "failureLine": "spec:341 (the mutant removes four lines above it; :345 restored) - expect(committed.status(), await committed.text()).toBe(200); Expected: 200, Received: 409",
+      "failureBody": "{\"kind\":\"refused\",\"reason\":\"candidate-verification-failed\",\"detail\":\"Branch 'cfdb558277df67dcf69e24c3dac5df4a' is anchored to a base its parent does not hold at revision 4\"}",
+      "reading": "THIS IS THE MUTANT THAT MATTERS. With the title tag still present and every assertion unchanged, removing only the test.fail mark turns the run red on the live 409. So the mark - and nothing weakened inside the row - is what holds E2E-25 expected-failed, and the row is still pointed at the real refusal.",
+      "preMutantSha256": "f6508a1d2c331c34086c3531b493aaf60d7182a78f2e469a7ed42726195c3c47",
+      "mutantSha256": "288fa691c1d804913e460e7317ff1dae866c3f12976ec5a91cb53a7a1e459ff2",
+      "mutantSha256Provenance": "re-derived after the run by re-applying the identical literal replacement and hashing, then restoring from the saved copy (the run's own applied hash scrolled out of the captured output)",
+      "restoredSha256": "f6508a1d2c331c34086c3531b493aaf60d7182a78f2e469a7ed42726195c3c47",
+      "restorationMatches": true,
+      "savedCopy": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u2c/spec.saved.ts",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u2c/run-u2c-m3-20260922.log",
+        "sha256": "093cebce557ae78a8b8759977ae7f2796d67dfc4d40930badc71eccebb5f07d6"
+      }
+    }
+  ],
+  "mutantHygiene": {
+    "mechanism": "Each mutant is an exact literal replacement applied by a script that exits 9 unless the literal occurs exactly once, so a silent no-op can never be reported as a kill. Each run is preceded by a pre/mutant hash comparison that aborts if the file did not change.",
+    "restorationRule": "Restored from a saved pristine copy, not by re-editing; restored sha256 compared to the pre-mutant sha256 after every mutant. All three matched.",
+    "finalHashesEqualPreMutantHashes": true
+  },
+  "serverHygiene": {
+    "playwrightRunsTaken": 9,
+    "serversLeftRunning": 0,
+    "howVerified": "Each run re-checked its owned port after the runner exited (PORT_FREE every time); a final sweep of all nine owned ports (22799, 23082, 21131, 23798, 27249, 20220, 22108, 24940, 21615) found none listening; a Win32_Process sweep for node.exe with 'server.js' in the command line found only unrelated MCP servers outside this worktree; node scripts/qc/machine-idle.mjs printed MACHINE_IDLE.",
+    "twoCoreRule": "Every build and every Playwright group was preceded by `node scripts/qc/machine-idle.mjs --wait --timeout-ms 1800000` returning MACHINE_IDLE, and no two heavy processes were ever started concurrently by this lane."
+  },
+  "finalGitStatus": [
+    " M e2e/gm-two-player-privacy.pack.spec.ts",
+    " M scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+    " M scripts/qc/gm-two-player-campaign-core.cjs",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u2c-admission-20260922.json",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u2c-local-20260922.json",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u2c-red-20260922.json"
+  ],
+  "nonClaims": [
+    "E2E-25 IS NOT PROVEN. Its letter - 'player views SHALL show the authorized result while only the GM private record contains the private detail' - is not discharged by this unit. The row is authored verbatim and declared an expected failure; that is a coverage statement, not a proof.",
+    "NO TICK. Task 21.2 is not checked and no tick receipt exists. 21.2 stays held by U2b until E2E-25 passes under a journal-backed segment reader or the owner rules PK-umbrella-acceptance-unsatisfiable so that gated rows are excluded. This lane checked no tasks.md box.",
+    "The rewind pack's cutover rows (E2E-40..44, E2E-76) are untouched and keep their own @until-journal-cutover expected failures. e2e/gm-two-player-rewind.pack.spec.ts was read, never edited.",
+    "NO PRODUCT CHANGE. src/, e2e/helpers, playwright.config.ts and package.json are unmodified. Neither the arming nor the gate touches shipped application code; the two journal keys are fixture arms behind NEXT_PUBLIC_E2E_MODE, not the production cutover flag.",
+    "units.json, roadmap.json, evidence/admission-snapshot.json and openspec/changes are unmodified by this lane.",
+    "No Lane A review, no owner ruling (PK-u2c-ruling), no commit, no push, no PR, no merge, no main proof. The parent owns all of those.",
+    "Whether a gated row satisfies the umbrella's acceptance is the owner's call (PK-umbrella-acceptance-unsatisfiable). Council decision 7 proposes the mechanical exclusion; this lane implements the shape it describes and rules nothing.",
+    "The E2E build exited 1 at the standalone hydration guard. No standalone portability is claimed; the guard was not relaxed and the node_modules junction was not touched or recreated.",
+    "The privacy-pack evidence is fixture-armed. It proves the tactical channel's draft-privacy behaviour under the ladder's journal arm, not that production takes that path - the dissent preserved in council decision 7."
+  ],
+  "findingsReportedNotFixed": [
+    {
+      "id": "FN-u2b-rewind-commit-verifies-through-the-match-store",
+      "class": "missing product surface (journal cutover)",
+      "status": "unchanged and still live on this baseline; re-measured here with a fresh candidate branch id (b14bcba423cadf91b8f9202f3715a61e in the ungated red run, cfdb558277df67dcf69e24c3dac5df4a under mutant M3)",
+      "affectsRow": "E2E-25 only; E2E-19 is unaffected and green",
+      "measuredBody": "409 {\"kind\":\"refused\",\"reason\":\"candidate-verification-failed\",\"detail\":\"Branch '<id>' is anchored to a base its parent does not hold at revision 4\"}",
+      "owner": "adopt-combat-journal-cutover-and-gm-rewind - the GM rewind commit needs a journal-backed segment reader for a live-path (non-'root') branch, so that a candidate anchored on journal ids verifies against journal ids",
+      "whatU2cDidAboutIt": "Nothing in src/. The row is gated on it and the pack header names the gate, the body, the line, what the row still proves, and the owner."
+    },
+    {
+      "id": "FN-u2b-stale-producer-header",
+      "measured": true,
+      "detail": "src/pages-modules/multiplayer/useGmCorrectionProducers.ts still carries U5b's 'NOT YET DELIVERED - the transport DROPS the field' header, which U5c/U5d made false. Outside this unit's ownership and not touched. Re-reported from U2b's 2026-09-21 and 2026-09-22 receipts, still open.",
+      "notReVerifiedHere": "This lane did not re-read that file in this session; the finding is carried forward from U2b's receipts rather than re-measured."
+    },
+    {
+      "id": "FN-u2b-runner-prints-no-server-pid",
+      "measured": true,
+      "detail": "scripts/qc/run-gm-two-player-campaign.mjs prints the owned port but never the server PID, so every lane recovers it out of band. This lane polled netstat on the owned port while each run held it and captured a PID for eight of nine runs; the ninth (u2c-green-a) lost its PID line to output truncation. Re-reported, still open."
+    },
+    {
+      "id": "FN-u2b-inherited-hostname",
+      "measured": true,
+      "detail": "server.js refuses an inherited HOSTNAME of 'SwerveStation'. Every run in this lane exported HOSTNAME=127.0.0.1 for the process only; no user environment or source was changed. Re-reported, still open."
+    },
+    {
+      "id": "FN-u2c-gated-row-absorbs-unrelated-failures",
+      "new": true,
+      "measured": true,
+      "class": "limit of the gating mechanism, not a defect in this unit",
+      "detail": "Measured under mutant M2: once E2E-25 carries test.fail(true, ...), ANY failure in that row reads as the expected failure and Playwright prints no body and keeps no artifact for it. Under M2 the row failed at the absent rewind-preview POST (an unarmed journal), not at the gated 409, and the run still reported it as passing. The gate therefore buys green at the cost of E2E-25's own diagnostic value until the cutover lands. Two mitigations are in place and neither is mechanical: the pack header names the exact refusal the gate is for, and E2E-19 shares the same arming and the same previewCorrection helper, so an arming regression is still caught - by E2E-19, as M2 demonstrates.",
+      "recommendation": "for the parent and for the cutover owner: when the gate lifts, delete the mark rather than adjusting assertions, and expect the run to go red at the moment the refusal disappears"
+    }
+  ],
+  "blocker": null
+}

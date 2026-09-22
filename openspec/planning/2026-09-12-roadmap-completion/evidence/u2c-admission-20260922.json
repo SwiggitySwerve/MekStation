@@ -1,0 +1,181 @@
+{
+  "unit": "U2c",
+  "stage": "admission",
+  "at": "2026-09-22T07:55:00Z",
+  "status": "admitted",
+  "baseline": "62391de467fe080f9787e4adc5f28a7a5f774de7",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u2c",
+  "branch": "roadmap-u2c-privacy-arm-e2e-19-20260922",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "next": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "stdout": "U2c",
+    "exitCode": 0,
+    "takenOn": "the baseline, before any edit, and again after the final file state (same output both times)"
+  },
+  "nodeModulesGuard": {
+    "command": "npm run qc:guard-node-modules-link",
+    "stdout": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"E:\\\\Projects\\\\MekStation\\\\.sisyphus\\\\roadmap-completion-20260912\\\\worktrees\\\\u2c\\\\node_modules\",\"actualPath\":\"E:\\\\Projects\\\\MekStation\\\\node_modules\"}",
+    "exitCode": 1,
+    "reading": "Refusal by design in a junctioned worktree. It is the reminder that no npm lifecycle may run here, not a blocker; npm_config_dry_run=true and npm_config_ignore_scripts=true were exported in every shell and no install/ci/prune was run."
+  },
+  "carriedFrom": {
+    "unit": "U2b",
+    "head": "cbb0e214e5aac4fb1e2b9cad9cb56f93fbdc387b",
+    "headParent": "5b5f99ef69b019c0cefcef7f5214977ae087627c",
+    "method": "git show cbb0e214e:<path> > <path> into this worktree; the object store is shared, so the root checkout's working tree and index were never touched",
+    "verbatim": [
+      "e2e/gm-two-player-privacy.pack.spec.ts",
+      "scripts/qc/gm-two-player-campaign-core.cjs",
+      "scripts/__tests__/gm-two-player-campaign-qc.test.ts"
+    ],
+    "reAppliedByHunk": [],
+    "driftCheck": {
+      "command": "git diff --stat 5b5f99ef6 HEAD -- <the three paths>",
+      "stdout": "(empty)",
+      "exitCode": 0,
+      "blobsAt5b5f99ef6": {
+        "e2e/gm-two-player-privacy.pack.spec.ts": "32cf18fd5b394e4e597381ae99d16941c40cf576",
+        "scripts/qc/gm-two-player-campaign-core.cjs": "a01d576ccf45353e87cbb64a1e7f4d22adaa4fae",
+        "scripts/__tests__/gm-two-player-campaign-qc.test.ts": "56e5b84e6f11e6fc63ef5dba116cdbec432c556b"
+      },
+      "blobsAt62391de46": {
+        "e2e/gm-two-player-privacy.pack.spec.ts": "32cf18fd5b394e4e597381ae99d16941c40cf576",
+        "scripts/qc/gm-two-player-campaign-core.cjs": "a01d576ccf45353e87cbb64a1e7f4d22adaa4fae",
+        "scripts/__tests__/gm-two-player-campaign-qc.test.ts": "56e5b84e6f11e6fc63ef5dba116cdbec432c556b"
+      },
+      "conclusion": "U12b (and the other commits main merged since 2026-09-22 01:14) touched scripts/qc and package.json but not these three files. The base blobs are identical at both commits, so the carry reproduces the parked head byte for byte and no hunk needed re-applying."
+    },
+    "carryVerification": {
+      "command": "git diff cbb0e214e -- <the three paths> | wc -l",
+      "stdout": "0",
+      "statAfterCarry": "3 files changed, 276 insertions(+), 29 deletions(-)  (spec 264/22, core.cjs 5/5, qc test 7/2 - the U2b receipt's stat exactly)"
+    }
+  },
+  "changesMadeAfterTheCarry": [
+    {
+      "file": "e2e/gm-two-player-privacy.pack.spec.ts",
+      "change": "E2E-25's title gains the gate tag: 'E2E-25 approved correction keeps its reason private @E2E-25' -> '... @E2E-25 @until-journal-cutover' (spec:311).",
+      "why": "Council decision 7 defines the excluded set mechanically as authored rows carrying a strict test.fail with a NAMED GATE TAG. The rewind precedent names the gate only inside the test.fail message; naming it in the title as well makes the row grep- and --grep-selectable. Verified inert for scheduling: playwright.config.ts has exactly one tag-scoped project, grep:/@mobile-touch/."
+    },
+    {
+      "file": "e2e/gm-two-player-privacy.pack.spec.ts",
+      "change": "E2E-25's body opens with test.fail(true, 'until-journal-cutover: FN-u2b-rewind-commit-verifies-through-the-match-store - ... owner adopt-combat-journal-cutover-and-gm-rewind @until-journal-cutover') at spec:315-318, immediately before test.setTimeout(240_000).",
+      "why": "The precedent's exact placement (e2e/gm-two-player-rewind.pack.spec.ts:43-47). Not one assertion in the row is changed, softened or removed."
+    },
+    {
+      "file": "e2e/gm-two-player-privacy.pack.spec.ts",
+      "change": "The header paragraph U2b wrote on 2026-09-22 ('an armed refusal is a product blocker, never an expected failure' / 'Weakening it, or marking it an expected failure, would hide a real refusal') is replaced by the gated statement: what E2E-19 proves, that E2E-25 is a strict expected failure gated @until-journal-cutover, the refusal body, the refusing line (spec:345), what the row proves before the refusal, and the gate's owner.",
+      "why": "U2b's header forbade exactly the move U2c is chartered to make. Leaving it would have left the file self-contradicting. Nothing E2E-19 claims changed."
+    }
+  ],
+  "seamsAsRead": [
+    {
+      "seam": "e2e/gm-two-player-rewind.pack.spec.ts:39-48",
+      "fact": "THE PRECEDENT ROW'S EXACT FORM. test('E2E-40 combat rewind creates replacement branch @rewind-pack @E2E-40', async ({ browser, request }) => { test.fail(\\n true,\\n 'E2E-40 combat rewind creates replacement branch @until-journal-cutover',\\n ); test.setTimeout(240_000); ... } - the mark is the FIRST statement of the body, its argument is literal true, and its message ends with the gate tag."
+    },
+    {
+      "seam": "e2e/gm-two-player-rewind.pack.spec.ts:76",
+      "fact": "The one-line variant: test.fail(true, 'E2E-41 stale branch command rejects @until-journal-cutover');"
+    },
+    {
+      "seam": "e2e/gm-two-player-rewind.pack.spec.ts:1-10",
+      "fact": "The precedent header names the gate in its own paragraph ('Strict expected failures until adopt-combat-journal-cutover-and-gm-rewind') and lists the E2E ids on the @tags line. U2c's header follows this shape for E2E-25 alone."
+    },
+    {
+      "seam": "openspec/council-decisions/2026-09-21-umbrella-failures-review.md decision 7",
+      "fact": "'the excluded set is exactly the authored rows carrying a strict test.fail with a named gate tag; the run passes when every non-gated row is green and zero gated rows pass unexpectedly; named gates: @until-journal-cutover (owner adopt-combat-journal-cutover-and-gm-rewind) ...'. This is the rule U2c's E2E-25 row is built to satisfy."
+    },
+    {
+      "seam": "scripts/qc/gm-two-player-campaign-core.cjs:204-206",
+      "fact": "const armsJournalAuthorityFixture = expandedMembers.includes('authority-recovery') || expandedMembers.includes('privacy-pack'); - the carried arming, the narrowest possible widening."
+    },
+    {
+      "seam": "scripts/qc/gm-two-player-campaign-core.cjs:234-241",
+      "fact": "The arm sets exactly two keys, MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY='1' and MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE='enabled'. Both are fixture arms behind NEXT_PUBLIC_E2E_MODE; neither is the production cutover flag."
+    },
+    {
+      "seam": "scripts/__tests__/gm-two-player-campaign-qc.test.ts:254-258",
+      "fact": "The positive pin: the privacy-pack plan's environment must match both journal keys plus MEKSTATION_E2E_SERVER_COMMAND 'node server.js'."
+    },
+    {
+      "seam": "scripts/__tests__/gm-two-player-campaign-qc.test.ts:558-565",
+      "fact": "The negative pin, widened by the carry to ['token-pack', 'smoke', 'proposal-pack']: a group that does not arm must carry NEITHER key, so a mutant that arms every group is red here."
+    },
+    {
+      "seam": "e2e/gm-two-player-privacy.pack.spec.ts:255 and :311",
+      "fact": "The two carried rows: E2E-19 at 255 and E2E-25 at 311 (its gate at 315-318, its refusing assertion at 345)."
+    },
+    {
+      "seam": "playwright.config.ts:206-223",
+      "fact": "Exactly one tag-scoped project exists and it greps /@mobile-touch/. Adding @until-journal-cutover to a title therefore changes no scheduling."
+    }
+  ],
+  "fixtureFacts": {
+    "armingDesign": "expandedMembers.includes('authority-recovery') || expandedMembers.includes('privacy-pack'); the privacy pack keeps the plain 'node server.js' and is NOT added to RESPAWNING_GROUPS.",
+    "armedKeysMeasured": {
+      "privacy-pack": {
+        "MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY": "1",
+        "MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE": "enabled",
+        "MEKSTATION_E2E_SERVER_COMMAND": "node server.js"
+      },
+      "proposal-pack": {
+        "MEKSTATION_E2E_SERVER_COMMAND": "node server.js",
+        "journalKeys": "absent - measured by building the plan in-session"
+      },
+      "authority-recovery": {
+        "MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY": "1",
+        "MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE": "enabled",
+        "MEKSTATION_E2E_SERVER_COMMAND": "node scripts/e2e/relaunching-server.mjs"
+      }
+    },
+    "armedJournalState": "Read-only census of .sisyphus/e2e-runtime/u2c-final-a-20260922 and u2c-green-a-20260922 mekstation.db: event_journal_events 62, event_journal_stream_heads 9, event_history_branches 9, private_record 2, private_access_audit 4.",
+    "unarmedJournalState": "Same census of .sisyphus/e2e-runtime/u2c-m2-20260922 (the run with the arming removed): event_journal_events 0, event_journal_stream_heads 0, event_history_branches 0, private_record 0, private_access_audit 0. There is no head for the lobby to name, which is why both rows stop at the absent rewind-preview POST.",
+    "correctionControlsMount": "networked-gm-private-reason, networked-gm-preview-btn and networked-gm-approve-btn were driven live on the production lobby route in every armed run."
+  },
+  "estimatePerFile": {
+    "e2e/gm-two-player-privacy.pack.spec.ts": {
+      "category": "product (e2e rows count as product)",
+      "added": 295,
+      "deleted": 22,
+      "ofWhichCarriedVerbatim": "264 added / 22 deleted",
+      "ofWhichU2c": "31 added net of the carry: the gate call (4), the title tag (same line), and the header's gated statement replacing U2b's blocker statement"
+    },
+    "scripts/qc/gm-two-player-campaign-core.cjs": {
+      "category": "product",
+      "added": 5,
+      "deleted": 5,
+      "ofWhichCarriedVerbatim": "all of it"
+    },
+    "scripts/__tests__/gm-two-player-campaign-qc.test.ts": {
+      "category": "test",
+      "added": 7,
+      "deleted": 2,
+      "ofWhichCarriedVerbatim": "all of it"
+    }
+  },
+  "caps": {
+    "maxFiles": 15,
+    "filesChanged": 3,
+    "maxNonGeneratedLines": 500,
+    "linesChanged": 307,
+    "productInsertions": 300,
+    "testInsertions": 7,
+    "e2eRowsCountAsProduct": true,
+    "withinCaps": true
+  },
+  "review": {
+    "class": "privacy",
+    "packet": "PK-u2c-ruling",
+    "requires": "The PR merges only after an owner ruling bound to its exact head. This lane supplies no ruling and records none.",
+    "laneA": "not run by this lane; the reviewer must be a different model from claude-opus"
+  },
+  "risksForTheParent": [
+    "NO TICK. Task 21.2 covers the ten rows U2 proved PLUS E2E-19 and E2E-25. E2E-25 is gated, not green, so 21.2 stays held by U2b. This lane checked no box and this receipt claims none.",
+    "The gated row must never be weakened. Its only protection is the test.fail mark: mutant M3 shows that removing the mark makes the run report 1 failed on the live 409. If a future lane edits an assertion inside E2E-25 instead of removing the mark, the row will still read as an expected failure while proving less. The header says so; nothing mechanical enforces it.",
+    "Whether a gated row COUNTS toward the umbrella's acceptance is the owner's decision, not this lane's. Council decision 7 proposes the mechanical exclusion; PK-umbrella-acceptance-unsatisfiable is where that is ruled. Until it is ruled, E2E-25 is an authored, gated, non-passing row.",
+    "The gate lifts in a different change. adopt-combat-journal-cutover-and-gm-rewind must give the GM rewind commit a journal-backed segment reader for a live-path branch. The day it does, E2E-25 becomes an UNEXPECTED PASS and the privacy-pack run turns red - which is the intended signal, and the parent should expect that failure rather than treat it as a regression.",
+    "The E2E build exits 1 at the standalone hydration guard in a junctioned worktree. CI builds in a non-junctioned checkout, so this exit is local-only; the guard was not relaxed."
+  ],
+  "decision": "admit: the unit is exactly the deliverable half of U2b's parked head plus the gate, both inside U2c's ownershipPaths, and --next names U2c on the baseline."
+}

@@ -1,0 +1,93 @@
+{
+  "unit": "U2c",
+  "stage": "red",
+  "at": "2026-09-22T07:55:00Z",
+  "baseline": "62391de467fe080f9787e4adc5f28a7a5f774de7",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u2c",
+  "branch": "roadmap-u2c-privacy-arm-e2e-19-20260922",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "summary": "Three measurements, in order: (a) neither row exists on the baseline; (b) with the rows carried and E2E-25 NOT yet gated, the armed privacy-pack group is 1 failed / 7 passed on the live 409 candidate-verification-failed - this reproduces U2b's measurement on U2c's baseline and is the red for the gate; (c) with the gate in place the same group is 8 passed, of which 7 are ok rows and 1 is an expected failure, with zero unexpected passes.",
+  "a_baselineHasNoRow": {
+    "command": "git grep -n \"@E2E-19\\|@E2E-25\" -- e2e/",
+    "stdout": "(no output)",
+    "exitCode": 1,
+    "reading": "git grep exits 1 on no match. Neither tag exists anywhere under e2e/ at 62391de46, so both rows are genuinely new here and no pre-existing row was narrowed."
+  },
+  "b_armedUngated": {
+    "runId": "u2c-red-armed-20260922",
+    "fileState": "the three files carried verbatim from cbb0e214e; E2E-25 NOT gated",
+    "specSha256": "900e1acd396a7cb4375003e546947945bca09597da045366eb0f14b34a2178e7",
+    "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=privacy-pack --run-id=u2c-red-armed-20260922",
+    "shellPreamble": [
+      "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+      "export npm_config_dry_run=true",
+      "export npm_config_ignore_scripts=true",
+      "export HOSTNAME=127.0.0.1",
+      "unset MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE"
+    ],
+    "idleGate": {
+      "command": "node scripts/qc/machine-idle.mjs --wait --timeout-ms 1800000",
+      "lastLine": "MACHINE_IDLE",
+      "exitCode": 0
+    },
+    "ownedPort": 22799,
+    "serverPid": 41492,
+    "serverPidSource": "netstat -ano on the runner-owned port while the run held it",
+    "runnerSummaryLines": ["1 failed", "7 passed (43.8s)"],
+    "exitCode": 1,
+    "failingRow": "[chromium] > e2e\\gm-two-player-privacy.pack.spec.ts:284:7 > tactical pre-serialization privacy > E2E-25 approved correction keeps its reason private @E2E-25",
+    "exactAssertion": "expect(committed.status(), await committed.text()).toBe(200);",
+    "assertionLine": "e2e/gm-two-player-privacy.pack.spec.ts:314",
+    "assertionLineNote": "U2b's receipts name this assertion at :297. That was its line number on draft PR head e00303cad, BEFORE U2b's own header rewrite. On the parked head cbb0e214e that U2c carries, the same assertion is at :314 - verified in-session by reading e00303cad's blob at 297 and this worktree's file at 314. Same assertion, same refusal; only the line moved.",
+    "exactBody": "{\"kind\":\"refused\",\"reason\":\"candidate-verification-failed\",\"detail\":\"Branch 'b14bcba423cadf91b8f9202f3715a61e' is anchored to a base its parent does not hold at revision 4\"}",
+    "httpStatus": {
+      "expected": 200,
+      "received": 409
+    },
+    "rowsGreen": 7,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u2c/run-u2c-red-armed-20260922.log",
+      "sha256": "beab3f65580782cae1dc8b3d2ccb3af7b5e353a165e9d76e0dad33aefab2f12d"
+    },
+    "portAfterRun": "PORT_FREE",
+    "reading": "The refusal FN-u2b-rewind-commit-verifies-through-the-match-store describes is live on U2c's baseline, with a fresh candidate branch id. E2E-19 is one of the seven green rows. This is the red the gate answers: without the mark, the privacy-pack group cannot be green."
+  },
+  "c_armedGated": {
+    "runId": "u2c-green-a-20260922",
+    "fileState": "final: E2E-25 titled '... @E2E-25 @until-journal-cutover' with test.fail(true, 'until-journal-cutover: FN-u2b-rewind-commit-verifies-through-the-match-store ...') as the first statement of its body; every assertion unchanged",
+    "specSha256": "f6508a1d2c331c34086c3531b493aaf60d7182a78f2e469a7ed42726195c3c47",
+    "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=privacy-pack --run-id=u2c-green-a-20260922",
+    "idleGate": {
+      "command": "node scripts/qc/machine-idle.mjs --wait --timeout-ms 1800000",
+      "lastLine": "MACHINE_IDLE",
+      "exitCode": 0
+    },
+    "ownedPort": 23082,
+    "ownedPortSource": "re-derived in-session from core.buildRunPlan({group:'privacy-pack', runId:'u2c-green-a-20260922'}); deriveFixturePort is a pure function of the run id",
+    "serverPid": "NOT CAPTURED for this run - the PID poller's output was truncated before it was read back. Captured for all eight other runs.",
+    "runnerSummaryLine": "8 passed (39.1s)",
+    "exitCodeNote": "NOT CAPTURED for this run (truncated with the PID line). Captured as 0 on both stage-3 repeats of the same file state.",
+    "perRowVerdicts": {
+      "okRows": 7,
+      "expectedFailureRows": 1,
+      "expectedFailureRow": "x  2 [chromium] > e2e\\gm-two-player-privacy.pack.spec.ts:311:7 > tactical pre-serialization privacy > E2E-25 approved correction keeps its reason private @E2E-25 @until-journal-cutover (2.6s)",
+      "unexpectedPasses": 0,
+      "unexpectedPassSource": "grep -ic 'expected to fail, but passed' over the run log: 0"
+    },
+    "summaryLineHonesty": "The charter anticipated a summary line reading '7 passed, 1 expected failure, 0 unexpected passes'. Playwright's list reporter does not print that sentence: it prints the aggregate '8 passed' and marks the expected-failure row 'x' while the seven genuine passes are marked 'ok'. This is the same accounting the rewind-pack precedent produced ('6 passed ... as six expected failures'). The decomposition recorded above - 7 ok, 1 x, 0 unexpected passes - is read off the per-row reporter lines, not inferred from the aggregate.",
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u2c/run-u2c-green-a-20260922.log",
+      "sha256": "6d6b03d4992356b6a6286aa7026cc492744659da0440110cce08d2d8d9f8c059"
+    },
+    "portAfterRun": "PORT_FREE"
+  },
+  "whatTheGateDoesAndDoesNot": {
+    "does": "Converts a row that reaches a measured product refusal into a declared expected failure, so the group is green today and turns RED the day the refusal disappears (an unexpected pass is reported as a failure).",
+    "doesNot": "It proves nothing about E2E-25's letter. The redaction clause - 'player views SHALL show the authorized result while only the GM private record contains the private detail' - is NOT discharged by this unit.",
+    "whatE2E25StillProvesBeforeTheRefusal": [
+      "The private reason reaches the server: expect(committed.request().postDataJSON().reason).toBe(reason) is the line immediately above the refusing assertion and it passes.",
+      "The correction lease admits the named head, digest and generation: candidate-verification-failed is raised downstream of the lease acquisition, so the 64-hex expectedDigest guard let the request through."
+    ],
+    "whyThisIsNowAllowedWhenU2bSaidItWasNot": "U2b's header forbade the mark because U2b's scope was to make BOTH rows green and a gate would have hidden its own failure. U2c's scope, written by the parent after U2b parked, is explicitly the gated shape under council decision 7: the gated set is exactly the authored rows carrying a strict test.fail with a named gate tag. U2c replaces that header paragraph rather than contradicting it silently."
+  }
+}
