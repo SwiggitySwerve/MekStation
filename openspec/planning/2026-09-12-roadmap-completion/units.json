@@ -877,10 +877,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "local-verified",
+      "state": "complete",
       "baseline": "3399af264f64f3c9b319beec23e479665c414111",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "7126463d8fb38d9d26b0c2b6cb59742925d1a27c",
+      "mergeSha": "f6e3599a36143a7460c9338d3141a4427c118f30",
       "stageReceipts": {
         "admission": {
           "path": "evidence/u20-admission-20260922.json",
@@ -899,10 +899,31 @@
           "at": "2026-09-22T20:44:16.774Z",
           "summary": "campaignLaunchHead.ts +68/-43: journal-stream existence read from event_journal_events (the only path to no-authoritative-stream); branch and revision through readEffectiveStreamHead, generation from requireEffectiveHead (a journaled campaign without an effective head throws no-effective-branch and the routes answer 500, fail closed under OD-mvp-hard-cutover); comment states the rule and the launch gate; new pin suite 284 lines; 4/4, campaign 202 suites/2967, journal 23/243, callers head route 7, launch-authority route 17, mission-launch page 4; tsc 0; oxlint 84 warnings 0 errors unchanged; oxfmt clean; LINT_UNITS_PASS 100/100; qc:openspec-ci errors=0; validator PASSED; four mutants caught and restored; implementer claude-opus (Agent model: opus); findings not fixed (outside the path, route layer owned by R2.authority-live): F1 campaignLaunchHeadRoute.ts:15-21 status-code comment omits the new 500, F2 the route test's comment 224-226 and its seed backfill call at 138 are stale after U19b, F3 no route-level test covers the 500; status ready"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "review": {
+          "path": "evidence/u20-review-20260922.json",
+          "head": "7126463d8fb38d9d26b0c2b6cb59742925d1a27c",
+          "reviewedHead": "7126463d8fb38d9d26b0c2b6cb59742925d1a27c",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet)",
+          "implementerModel": "claude-opus (Agent model: opus)",
+          "outputSha256": "d423498c07260ddfb9950ce19544680adb3bf324aecde2b71e0a812c0fa3c806",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u20-merge-20260922.json",
+          "pr": 1902,
+          "head": "7126463d8fb38d9d26b0c2b6cb59742925d1a27c",
+          "mergeSha": "f6e3599a36143a7460c9338d3141a4427c118f30"
+        },
+        "mainProof": {
+          "path": "evidence/u20-mainproof-20260922.json",
+          "mergeCommit": "f6e3599a36143a7460c9338d3141a4427c118f30",
+          "verdict": "PASS",
+          "runtime": "Tests:       143 passed, 143 total"
+        },
+        "tick": {
+          "path": "evidence/u20-tick-20260922.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "source20260922": "planned by the parent under OD-mvp-hard-cutover (owner, 2026-09-22) from the read-only cutover map of 2026-09-22 (Opus planning lane; its evidence is file:line on origin/main 31ab3c16e and is summarised in each behaviour sentence)"
@@ -1326,6 +1347,106 @@
         "I-accept-contract-6-2-single-player-identity",
         "I-campaign-flush-navigation-gap"
       ]
+    },
+    {
+      "id": "U59",
+      "node": "R0.plan",
+      "taskKeys": [],
+      "behavior": "validate-roadmap.mjs accepts a declared solo-maintainer exception on the R2.camp-0..8 review gates (PK-camp-review-gate option b): a gate may carry soloException true with nonAuthor false only when it also names a head-bound OWNER-RULING (40-hex head, comment id, author, body sha256) for that exact head; every other gate keeps the current pin (APPROVED, exactHead, nonAuthor, nonDismissed, WRITE/MAINTAIN/ADMIN). Red-first in validate-roadmap.test.mjs: a solo gate without a ruling fails, a solo gate with a ruling passes, the unchanged pinned gates still pass. Admitted after U41 and U42, which edit the same validator.",
+      "ownershipPaths": [
+        "openspec/planning/2026-09-12-roadmap-completion"
+      ],
+      "ciClass": "docs",
+      "reviewClasses": [
+        "authority"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "packet": "PK-camp-review-gate",
+      "source20260922": "planned by the parent to implement the owner's yes on PK-camp-review-gate (chat 2026-09-22, \"approve and yes to both\"); the PR still needs the owner's head-bound ruling"
+    },
+    {
+      "id": "U60",
+      "node": "R2.camp-8",
+      "taskKeys": [],
+      "behavior": "The CAMP roster's review rule (add-saved-custom-unit-campaign-roster P.2) is amended through a spec delta to accept a declared solo-maintainer exception proved by a head-bound OWNER-RULING, matching U59's validator rule; the CAMP-00 controller env passes CAMP01_NEXT_DIST_DIR (OD-camp00-controller-env); proof-02-triage gets an all-green terminal form (OD-proof02-empty-cause-graph). The three-witness gate stays owner-only and is not touched. Red-first: the controller refuses today without the env pass-through and proof-02-triage has no terminal form for an empty cause graph. Admitted after U59.",
+      "ownershipPaths": [
+        "openspec/changes/add-saved-custom-unit-campaign-roster",
+        "scripts/qc"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "packet": "PK-camp-review-gate",
+      "source20260922": "planned by the parent to implement the owner's yes on PK-camp-review-gate (chat 2026-09-22, \"approve and yes to both\"); the PR still needs the owner's head-bound ruling"
+    },
+    {
+      "id": "U61",
+      "node": "R2.authority",
+      "taskKeys": [],
+      "behavior": "Spec delta narrowing design-campaign-authority-and-sync task 6.2's letter (PK-6-2b-single-player-seat option b): 6.2b covers co-op-host contract acceptance routing through /commands only; single-player acceptance stays on the client apply with the 6.4 compare-and-swap bridge, recorded as a non-claim for a future identity item (FN-ob2-identity-before-hosted-deployment). The delta is written in the change's spec and tasks prose; no checkbox is ticked by this unit. Admitted after U42, which gives rows 6.1-6.4 their holders.",
+      "ownershipPaths": [
+        "openspec/changes/design-campaign-authority-and-sync"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "packet": "PK-6-2b-single-player-seat",
+      "source20260922": "planned by the parent to implement the owner's yes on PK-6-2b-single-player-seat (chat 2026-09-22, \"approve and yes to both\"); the PR still needs the owner's head-bound ruling"
     },
     {
       "id": "U23",
@@ -5178,10 +5299,16 @@
       ],
       "agentRecommendation": "(b): through openspec, amend roster P.2 and the validator pin to accept a declared solo-maintainer exception, proved by a head-bound OWNER-RULING. In the same packet, pass CAMP01_NEXT_DIST_DIR through the controller env (OD-camp00-controller-env) and define an all-green terminal form for proof-02-triage (OD-proof02-empty-cause-graph). The three-witness gate stays owner-only.",
       "revertCost": "(a) none. (b) low to moderate: the spec delta and the pin revert by one commit each, but CAMP receipts produced under the exception would then need a non-author review",
-      "decision": null,
+      "decision": {
+        "at": "2026-09-22T22:15:03Z",
+        "option": "(b) solo-maintainer exception through openspec",
+        "text": "approve and yes to both",
+        "source": "owner instruction in the working session (chat), replying to the parent's message that asked, as numbered items, for U20's ruling and for an explicit yes on these two packets (each described in plain language with its recommendation); transcribed by the parent with the owner's words verbatim"
+      },
       "ruling": null,
       "raisedBy": "triage 2026-09-22 (owner question 3; I-camp-receipt-chain-owner-blocked)",
-      "note": "kept open on 2026-09-22: option (b) relaxes a validator pin and a review gate, so it needs the owner's explicit word; the owner instruction of 2026-09-22 is not read as that word. The owner's \"approved, continue the loop\" (2026-09-22T20:13:19Z) replied to the parent's 19:59:54Z message, which listed U19b's ruling, this packet and PK-6-2b-single-player-seat, and whose only explicit prompt ('Say \"approved\" to merge it') was U19b's. At 20:13:30Z the parent told the owner it read that reply as also answering this packet; this record does not take the one-word reply as this packet's explicit yes, and the packet gets a decision only after the owner confirms it in plain words."
+      "note": "kept open on 2026-09-22: option (b) relaxes a validator pin and a review gate, so it needs the owner's explicit word; the owner instruction of 2026-09-22 is not read as that word. The owner's \"approved, continue the loop\" (2026-09-22T20:13:19Z) replied to the parent's 19:59:54Z message, which listed U19b's ruling, this packet and PK-6-2b-single-player-seat, and whose only explicit prompt ('Say \"approved\" to merge it') was U19b's. At 20:13:30Z the parent told the owner it read that reply as also answering this packet; this record does not take the one-word reply as this packet's explicit yes, and the packet gets a decision only after the owner confirms it in plain words.",
+      "decisionNote20260922": "The decision is the owner's explicit yes to the packet's recommended option. It authorises the parent to plan the implementing change; it is not a head-bound ruling. Every PR that implements it (the openspec delta and, for the CAMP gate, the validator amendment) still gets the owner's OWNER-RULING on its exact head before merge."
     },
     {
       "id": "PK-6-2b-single-player-seat",
@@ -5205,10 +5332,58 @@
       ],
       "agentRecommendation": "(b): amend 6.2's letter through a spec delta so 6.2b covers co-op-host acceptance routing only. Single-player acceptance stays on the client apply with the 6.4 CAS bridge, recorded as a non-claim for a future identity item. This needs the owner because it narrows an admitted letter.",
       "revertCost": "low: a spec delta reverts by one commit; no product code moves on the decision itself",
-      "decision": null,
+      "decision": {
+        "at": "2026-09-22T22:15:03Z",
+        "option": "(b) co-op-host-only scope for 6.2b",
+        "text": "approve and yes to both",
+        "source": "owner instruction in the working session (chat), replying to the parent's message that asked, as numbered items, for U20's ruling and for an explicit yes on these two packets (each described in plain language with its recommendation); transcribed by the parent with the owner's words verbatim"
+      },
       "ruling": null,
       "raisedBy": "triage 2026-09-22 (owner question 5; I-accept-contract-6-2-single-player-identity, I-post-admission-rows-unheld)",
-      "note": "holds no task keys until U42 adds the supplement occurrences design-campaign-authority-and-sync 6.2-6.4; U42 then places them here. Kept open on 2026-09-22: option (b) narrows an admitted letter, so it needs the owner's explicit word. The owner's \"approved, continue the loop\" (2026-09-22T20:13:19Z) replied to the parent's 19:59:54Z message, which listed U19b's ruling, this packet and PK-camp-review-gate, and whose only explicit prompt ('Say \"approved\" to merge it') was U19b's. At 20:13:30Z the parent told the owner it read that reply as also answering this packet; this record does not take the one-word reply as this packet's explicit yes, and the packet gets a decision only after the owner confirms it in plain words."
+      "note": "holds no task keys until U42 adds the supplement occurrences design-campaign-authority-and-sync 6.2-6.4; U42 then places them here. Kept open on 2026-09-22: option (b) narrows an admitted letter, so it needs the owner's explicit word. The owner's \"approved, continue the loop\" (2026-09-22T20:13:19Z) replied to the parent's 19:59:54Z message, which listed U19b's ruling, this packet and PK-camp-review-gate, and whose only explicit prompt ('Say \"approved\" to merge it') was U19b's. At 20:13:30Z the parent told the owner it read that reply as also answering this packet; this record does not take the one-word reply as this packet's explicit yes, and the packet gets a decision only after the owner confirms it in plain words.",
+      "decisionNote20260922": "The decision is the owner's explicit yes to the packet's recommended option. It authorises the parent to plan the implementing change; it is not a head-bound ruling. Every PR that implements it (the openspec delta and, for the CAMP gate, the validator amendment) still gets the owner's OWNER-RULING on its exact head before merge."
+    },
+    {
+      "id": "PK-u20-ruling",
+      "blocks": [
+        "U20"
+      ],
+      "nodes": [
+        "R2.authority-cutover"
+      ],
+      "taskKeys": [],
+      "question": "U20 (review classes authority) presents head 7126463d8fb38d9d26b0c2b6cb59742925d1a27c. Does the owner rule it?",
+      "options": [
+        {
+          "label": "rule the head",
+          "consequence": "an OWNER-RULING <head> comment and the owner-ruled label on U20's PR; the unit merges and proceeds to main proof",
+          "effort": "0.1 day owner"
+        },
+        {
+          "label": "reject",
+          "consequence": "the PR closes; the unit returns to planned with the objection recorded",
+          "effort": "0.1 day owner"
+        }
+      ],
+      "agentRecommendation": "rule the head once Lane A has approved it and the checks are green",
+      "revertCost": "low: a squash merge revert",
+      "decision": {
+        "at": "2026-09-22T22:15:03Z",
+        "option": "rule the head",
+        "text": "approve and yes to both",
+        "source": "owner instruction in the working session (chat), after the parent described the unit in plain English: the launch check reads the campaign's journal head through the correction lease's seam; a journaled campaign without a head fails closed on the server; the stale comment replaced; Lane A's correction that the browser launch pages still treat that server error as no-journal, routed to U50"
+      },
+      "ruling": {
+        "ruledHead": "7126463d8fb38d9d26b0c2b6cb59742925d1a27c",
+        "pr": 1902,
+        "commentId": 5785079640,
+        "author": "SwiggitySwerve",
+        "label": "owner-ruled",
+        "bodySha256": "33e34a0c5b3d3a28afda13d6dd2c60a853c65e0530a9e1fa7ef208051edf39df",
+        "postedBy": "parent on the owner's instruction (the comment quotes the owner's words verbatim)",
+        "deviationDisclosed": "DELIVERY.md says the owner posts the ruling out of band; the owner approved this unit by description in chat (words quoted in the comment) after the parent explained it in plain language and reported Lane A's verdict and the check set on the head, and the parent composed and posted the comment from the owner GitHub account and applied the label; the parent supplied the head from the ledger, as in the earlier rulings of this loop"
+      },
+      "note": "opened when the owner ruled, 2026-09-22 (the cutover sequence's units carry no pre-opened ruling packets)"
     }
   ],
   "deferrals": [

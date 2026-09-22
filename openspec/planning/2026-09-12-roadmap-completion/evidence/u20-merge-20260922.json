@@ -1,0 +1,22 @@
+{
+  "unit": "U20",
+  "stage": "merge",
+  "at": "2026-09-22T22:25:18.990Z",
+  "pr": 1902,
+  "title": "feat(campaign): the launch head reads the journal's effective head for every journaled campaign (U20)",
+  "head": "7126463d8fb38d9d26b0c2b6cb59742925d1a27c",
+  "mergeSha": "f6e3599a36143a7460c9338d3141a4427c118f30",
+  "mergedAt": "2026-09-22T22:15:30Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u20-admission-20260922.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u20-local-20260922.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u20-red-20260922.json",
+    "src/lib/campaign/authority/__tests__/campaignLaunchHead.journal.test.ts",
+    "src/lib/campaign/authority/campaignLaunchHead.ts"
+  ],
+  "blobEqualityDiffLines": 0
+}
