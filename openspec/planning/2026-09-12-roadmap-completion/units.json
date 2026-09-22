@@ -3196,14 +3196,31 @@
     },
     {
       "id": "PK-u2c-ruling",
-      "openedAt": "2026-09-22T05:00:00.000Z",
-      "class": "owner ruling (privacy)",
       "blocks": [
         "U2c"
       ],
-      "question": "U2c is privacy class (its rows read GM private previews as a player and as the GM); DELIVERY.md step 5 requires the owner's OWNER-RULING <head> comment and the owner-ruled label on the exact PR head before merge. The parent will describe the PR in plain English when Lane A and CI have settled.",
+      "nodes": [
+        "R6.umbrella"
+      ],
+      "taskKeys": [],
+      "question": "U2c (the privacy-pack arming, the E2E-19 row and E2E-25 authored as a strict test.fail row gated @until-journal-cutover; review class privacy) will present a head. Does the owner rule it?",
+      "options": [
+        {
+          "label": "rule the head",
+          "consequence": "an OWNER-RULING <head> comment and the owner-ruled label on U2c's PR; the unit merges and proceeds to main proof; no tick (21.2 stays held by U2b)",
+          "effort": "0.1 day owner"
+        },
+        {
+          "label": "reject",
+          "consequence": "the PR closes; the unit returns to planned with the objection recorded",
+          "effort": "0.1 day owner"
+        }
+      ],
+      "agentRecommendation": "rule the head once Lane A has approved it and the checks are green; the parent describes the rows in plain English first",
+      "revertCost": "low: a squash merge revert; no tick receipt is involved",
       "decision": null,
-      "ruling": null
+      "ruling": null,
+      "note": "opened 2026-09-22 with the unit so the privacy class is visible from admission (same shape as PK-u2b-ruling); the first shape lacked options, recommendation and revert cost and failed the validator on main for one commit (#1887), repaired here"
     }
   ],
   "deferrals": [
