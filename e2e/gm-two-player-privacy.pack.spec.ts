@@ -70,22 +70,68 @@
  * lives inside `payload`). Reported as its own finding rather than
  * half-implemented here.
  *
- * DEFERRED, with the exact reason each is not provable on this channel:
+ * E2E-19 requires a lobby rewind preview, its GM-only draft readback,
+ *   a recursively payload-free player read, audited access attempts,
+ *   and no draft text in the player's timeline, export, board or wire.
+ * E2E-25 requires the lobby's typed private reason, preview and approve,
+ *   the committed status, the player's restored Initiative phase and
+ *   activated history branch, and private reason persistence with no
+ *   reason in player views. The commit returns no ref: the read-only
+ *   SQLite evidence reader discovers its gm-reason row in mekstation.db,
+ *   then the same private-preview route re-authorizes the read.
+ * Both rows require the ladder's journal fixture arm - the runner arms
+ *   `privacy-pack` the way it arms `authority-recovery`. Neither row
+ *   establishes production cutover, fog support or a non-playing GM
+ *   seat.
  *
- * E2E-19 ("WHEN the GM creates but does not finalize a correction or
- *   rewind preview THEN only the GM context and server-only private
- *   audit record SHALL contain the draft") and E2E-25 ("WHEN the GM
- *   finalizes a correction with a private reason and hidden metadata
- *   THEN player views SHALL show the authorized result while only the
- *   GM private record contains the private detail"): the production
- *   match route `src/pages/multiplayer/lobby/[roomCode].tsx` mounts
- *   `NetworkedGameSurface` WITHOUT `onPreviewHostGmCorrection` /
- *   `onApproveHostGmCorrection`, so the `networked-gm-preview-btn` /
- *   `networked-gm-approve-btn` controls the host does see fall through
- *   to the component's no-op defaults. Only `/e2e/networked-command-
- *   proof` wires them. There is therefore NO production draft or
- *   correction write surface on the tactical channel to seed a private
- *   reason with.
+ * WHAT E2E-19 PROVES, measured green under the arm on 2026-09-22: the
+ *   lobby's rewind preview answers 200 and the draft it stores is
+ *   readable ONLY as the GM. The GM read of the returned opaque ref
+ *   returns exactly one `gm-draft` record whose payload carries the
+ *   derived summary; the seated player's read of the SAME ref returns
+ *   the record with no `payload` key at any depth; `private_access_
+ *   audit` holds a `granted` row for the GM and a `denied` row for the
+ *   player on that ref; the player's DOM, wire frames, timeline and
+ *   export contain neither the draft summary nor the ref; and the
+ *   match's durable counts are unchanged across the whole row. That is
+ *   the draft-privacy letter on this channel, end to end.
+ *
+ * E2E-25 IS A STRICT EXPECTED FAILURE GATED `@until-journal-cutover`.
+ *   The row is authored verbatim - every assertion it will make the day
+ *   the gate lifts is present and unweakened - and its body opens with
+ *   `test.fail(true, ...)`, so the run reports it as an expected failure
+ *   today and as an UNEXPECTED PASS, which the run reports as a
+ *   failure, the day the commit path verifies through the journal. This
+ *   is the same mechanism the rewind pack's E2E-40..44 and E2E-76 rows
+ *   carry, and the gated set the umbrella's acceptance reading excludes
+ *   is exactly the authored rows carrying a strict `test.fail` with a
+ *   named gate tag.
+ *   THE REFUSAL, measured in every armed run: `POST /api/matches/:id/
+ *   rewind-commit` answers 409 `{"kind":"refused","reason":"candidate-
+ *   verification-failed","detail":"Branch '<candidate id>' is anchored
+ *   to a base its parent does not hold at revision 4"}`, stopping the
+ *   row at `expect(committed.status(), await committed.text()).toBe(
+ *   200)` - line 345 of this file as it stands, the assertion the
+ *   `test.fail` message names.
+ *   WHY: the candidate branch anchors to the JOURNAL's event at the
+ *   base revision, while `materializeBranchPath` re-derives the parent
+ *   segment through `matchStoreBranchSegmentReader`, which mints its
+ *   own ids and digests from the match store's parallel line. Under the
+ *   arm the two lines carry different event ids for the same revision,
+ *   so the anchor check cannot pass.
+ *   WHAT THE ROW PROVES BEFORE THE REFUSAL: the private reason reaches
+ *   the server - the commit request body carries it, asserted on the
+ *   line above - and the correction lease admits the named head, digest
+ *   and generation, because `candidate-verification-failed` is raised
+ *   downstream of the lease acquisition. The lease is passed, not
+ *   bypassed.
+ *   THE GATE'S OWNER is `adopt-combat-journal-cutover-and-gm-rewind`,
+ *   which must give the GM rewind commit a journal-backed segment
+ *   reader for a live-path branch. No assertion here is softened to fit
+ *   the refusal: the gate, and nothing else, is what holds this row
+ *   expected-failed.
+ *
+ * OTHER COVERAGE LIMITS:
  * E2E-29 and E2E-30 have MOVED, not vanished: proposals, vetoes and GM
  *   review items are CAMPAIGN-channel frames (`CampaignProposal` /
  *   `CampaignDecision` in `@/types/multiplayer/Protocol`); no tactical
@@ -100,16 +146,16 @@
  *   HTTP API + export slice of the letter — seated GET /export and
  *   /timeline agree on timelineDigest, and the same URLs refuse a
  *   missing bearer (401 {error}) and a stranger (403 {error}) without
- *   writing a new outbox or domain-event row. The GM-command half stays
- *   defect #15 (no production GM-command route on this channel; see
- *   E2E-19). WS-unauthorized is not this row.
+ *   writing a new outbox or domain-event row. Unauthorized GM commands
+ *   and WS-unauthorized are not this row.
  *
  * ROLE HONESTY (bounds every letter above): the tactical channel mints
  * NO `role: 'gm'` viewer. `MatchSeatMembershipSource.lookupMembership`
  * returns `role: 'player'` for every seat it can produce, spectator
  * seats included, so "the GM MAY see it" in E2E-20/21 has no tactical
- * counterpart to assert and the GM-private half of E2E-27 is not
- * reachable here. What IS asserted is the half this channel owns: the
+ * counterpart to assert. The host is separately authorized as GM on
+ * the rewind and private-preview HTTP routes used by E2E-19/25.
+ * The live-wire assertions cover the half this channel owns: the
  * authority `sequence`, `visibility` and `privateRecordRef` fields that
  * `ViewerFrameProjector` strips before serialization, and the
  * no-inferable-gap law that `ViewerDeliveryCursors` enforces.
@@ -142,8 +188,8 @@
  * hex - which the opponent's board genuinely does not hold. Reported
  * rather than fixed: this is a test-authoring seam.
  *
- * @tags @privacy-pack @tactical @E2E-20 @E2E-21 @E2E-22 @E2E-23
- * @tags @E2E-24 @E2E-26 @E2E-27 @E2E-28
+ * @tags @privacy-pack @tactical @E2E-19 @E2E-20 @E2E-21 @E2E-22 @E2E-23
+ * @tags @E2E-24 @E2E-25 @E2E-26 @E2E-27 @E2E-28
  */
 
 import {
@@ -201,10 +247,160 @@ interface IFixture {
   readonly guestTap: IWireTap;
   readonly matchId: string;
   readonly hostToken: Token;
+  readonly guestToken: Token;
   readonly cleanup: () => Promise<void>;
 }
 
 test.describe('tactical pre-serialization privacy', () => {
+  test('E2E-19 unfinalized GM draft has only a private payload @E2E-19', async ({
+    browser,
+    request,
+  }) => {
+    test.setTimeout(240_000);
+    const fixture = await openPrivacyFixture(browser, request, 'Privacy Draft');
+    try {
+      const before = matchDurableCounts(fixture.matchId);
+      const preview = await previewCorrection(fixture);
+      expect(preview.status(), await preview.text()).toBe(200);
+      const body = await preview.json();
+      expect(body.kind).toBe('preview');
+      expect(body.privateRefs.preview).toEqual(expect.any(String));
+      const ref = body.privateRefs.preview as string;
+      const leaf = `private-preview?ref=${encodeURIComponent(ref)}`;
+      const gm = await privateView(request, fixture, fixture.hostToken, leaf);
+      expect(gm.privateRecords).toHaveLength(1);
+      expect(gm.privateRecords[0]).toMatchObject({
+        opaqueRef: ref,
+        recordKind: 'gm-draft',
+        payload: expect.any(String),
+      });
+      const draft = JSON.parse(gm.privateRecords[0].payload).derivedSummary;
+      expect(draft).toMatch(/^GM rewind preview to revision \d+$/);
+      const player = await privateView(
+        request,
+        fixture,
+        fixture.guestToken,
+        leaf,
+      );
+      expect(player.privateRecords).toHaveLength(1);
+      expect(player.privateRecords[0].opaqueRef).toBe(ref);
+      expect(jsonKeys(player)).not.toContain('payload');
+      const accesses = privateEvidence<{
+        actor_principal_id: string;
+        result: string;
+      }>(
+        'SELECT actor_principal_id, result FROM private_access_audit WHERE opaque_ref = ? AND purpose = ?',
+        [ref, 'export-attempt'],
+      );
+      expect(accesses).toEqual(
+        expect.arrayContaining([
+          { actor_principal_id: fixture.hostToken.playerId, result: 'granted' },
+          { actor_principal_id: fixture.guestToken.playerId, result: 'denied' },
+        ]),
+      );
+      for (const view of await playerViews(request, fixture)) {
+        expect(view).not.toContain(draft);
+        expect(view).not.toContain(ref);
+      }
+      expect(matchDurableCounts(fixture.matchId)).toEqual(before);
+    } finally {
+      await fixture.cleanup();
+    }
+  });
+
+  test('E2E-25 approved correction keeps its reason private @E2E-25 @until-journal-cutover', async ({
+    browser,
+    request,
+  }) => {
+    test.fail(
+      true,
+      'until-journal-cutover: FN-u2b-rewind-commit-verifies-through-the-match-store - the rewind commit verifies the candidate path through the match store while the candidate anchors to the journal, so POST rewind-commit answers 409 candidate-verification-failed at the toBe(200) below; owner adopt-combat-journal-cutover-and-gm-rewind @until-journal-cutover',
+    );
+    test.setTimeout(240_000);
+    const fixture = await openPrivacyFixture(
+      browser,
+      request,
+      'Privacy Reason',
+    );
+    try {
+      const reason = `Private correction ${crypto.randomUUID()}`;
+      await fixture.hostPage
+        .getByTestId('networked-gm-private-reason')
+        .fill(reason);
+      const preview = await previewCorrection(fixture);
+      // Hard: the lobby now names the journal head this preview needs, so a
+      // refused preview is a product blocker and there is nothing further
+      // down this row worth measuring past it.
+      expect(preview.status(), await preview.text()).toBe(200);
+      const committedResponse = fixture.hostPage.waitForResponse(
+        (response) =>
+          response
+            .url()
+            .endsWith(`/api/matches/${fixture.matchId}/rewind-commit`) &&
+          response.request().method() === 'POST',
+      );
+      await fixture.hostPage.getByTestId('networked-gm-approve-btn').click();
+      const committed = await committedResponse;
+      expect(committed.request().postDataJSON().reason).toBe(reason);
+      expect(committed.status(), await committed.text()).toBe(200);
+      const result = await committed.json();
+      expect(result.kind).toBe('committed');
+      expect(result.activatedBranchId).toEqual(expect.any(String));
+      expect(result.activatedBranchId).not.toBe(result.priorBranchId);
+      await expect(
+        fixture.hostPage.getByTestId('networked-gm-correction-status'),
+      ).toContainText('Rewind committed.');
+      await expect(fixture.guestPage.getByTestId('phase-name')).toContainText(
+        /Initiative/i,
+        { timeout: 30_000 },
+      );
+      for (const leaf of ['timeline', 'export?streamType=match']) {
+        const view = await privateView(
+          request,
+          fixture,
+          fixture.guestToken,
+          leaf,
+        );
+        expect(view.lineage.effectiveHead.branchId).toBe(
+          result.activatedBranchId,
+        );
+        expect(view.lineage.transitions).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              fromBranchId: result.priorBranchId,
+              toBranchId: result.activatedBranchId,
+            }),
+          ]),
+        );
+      }
+      for (const view of await playerViews(request, fixture)) {
+        expect(view).not.toContain(reason);
+      }
+      // The commit intentionally returns no private ref or list endpoint.
+      const records = privateEvidence<{ opaque_ref: string; payload: string }>(
+        'SELECT opaque_ref, payload FROM private_record WHERE campaign_session_id = ? AND record_kind = ?',
+        [fixture.matchId, 'gm-reason'],
+      );
+      expect(records).toHaveLength(1);
+      expect(records[0].payload).toBe(reason);
+      const leaf = `private-preview?ref=${encodeURIComponent(records[0].opaque_ref)}`;
+      const gm = await privateView(request, fixture, fixture.hostToken, leaf);
+      expect(gm.privateRecords).toEqual([
+        expect.objectContaining({ payload: reason }),
+      ]);
+      const player = await privateView(
+        request,
+        fixture,
+        fixture.guestToken,
+        leaf,
+      );
+      expect(JSON.stringify(player)).not.toContain(reason);
+      expect(jsonKeys(player.privateRecords)).not.toContain('payload');
+    } finally {
+      await fixture.cleanup();
+    }
+  });
+
   test('E2E-20 Player 1 sealed choice reaches neither Player 2 wire nor board @E2E-20 @E2E-23 @E2E-24', async ({
     browser,
     request,
@@ -629,6 +825,75 @@ test.describe('tactical pre-serialization privacy', () => {
 // Assertions
 // ---------------------------------------------------------------------------
 
+async function previewCorrection(fixture: IFixture) {
+  const response = fixture.hostPage.waitForResponse(
+    (candidate) =>
+      candidate
+        .url()
+        .endsWith(`/api/matches/${fixture.matchId}/rewind-preview`) &&
+      candidate.request().method() === 'POST',
+  );
+  await fixture.hostPage.getByTestId('networked-gm-preview-btn').click();
+  return response;
+}
+
+async function privateView(
+  request: APIRequestContext,
+  fixture: IFixture,
+  token: Token,
+  leaf: string,
+) {
+  const response = await request.get(
+    `/api/matches/${fixture.matchId}/${leaf}`,
+    {
+      headers: { Authorization: `Bearer ${token.token}` },
+    },
+  );
+  expect(response.status(), await response.text()).toBe(200);
+  return response.json();
+}
+
+async function playerViews(
+  request: APIRequestContext,
+  fixture: IFixture,
+): Promise<string[]> {
+  const views = [
+    await fixture.guestPage.content(),
+    JSON.stringify(fixture.guestTap.frames),
+  ];
+  for (const leaf of ['timeline', 'export?streamType=match']) {
+    views.push(
+      JSON.stringify(
+        await privateView(request, fixture, fixture.guestToken, leaf),
+      ),
+    );
+  }
+  return views;
+}
+
+function jsonKeys(value: unknown): string[] {
+  if (Array.isArray(value)) return value.flatMap(jsonKeys);
+  if (!isRecord(value)) return [];
+  return Object.entries(value).flatMap(([key, child]) => [
+    key,
+    ...jsonKeys(child),
+  ]);
+}
+
+function privateEvidence<T>(
+  sql: string,
+  params: readonly unknown[],
+): readonly T[] {
+  const reader = openSqliteEvidenceReader(
+    path.resolve('.sisyphus/e2e-runtime', runId(), 'mekstation.db'),
+  );
+  try {
+    return reader.select<T>(sql, params);
+  } finally {
+    reader.close();
+  }
+}
+
 /**
  * The no-inferable-gap law: this viewer's delivery numbers form one
  * contiguous run. Absence-safe by construction - an empty run would
@@ -973,7 +1238,14 @@ async function openPrivacyFixture(
       }),
       guestPage.getByRole('button', { name: 'Join match' }).click(),
     ]);
+    const guestBearer = guestPage.waitForResponse(
+      (response) =>
+        response.url().includes('/api/multiplayer/auth/token') &&
+        response.request().method() === 'POST' &&
+        response.status() === 200,
+    );
     await connectLobby(guestPage, GUEST_PASSWORD);
+    const guestToken = await readToken(guestBearer);
     await markReady(hostPage, 'alpha-1');
     await markReady(guestPage, 'bravo-1');
     await hostPage.getByRole('button', { name: 'Launch match' }).click();
@@ -1004,6 +1276,7 @@ async function openPrivacyFixture(
       guestTap,
       matchId: match.matchId,
       hostToken,
+      guestToken,
       cleanup: async () => {
         if (match && hostToken) {
           await request.delete(`/api/multiplayer/matches/${match.matchId}`, {
