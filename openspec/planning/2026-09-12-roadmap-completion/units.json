@@ -788,14 +788,28 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
+      "state": "local-verified",
+      "baseline": "0367a2f3b8543057b2dac557426d1ea9770a05bc",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/u19b-admission-20260922.json",
+          "baseline": "0367a2f3b8543057b2dac557426d1ea9770a05bc",
+          "at": "2026-09-22T17:57:08.971Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/u19b-red-20260922.json",
+          "at": "2026-09-22T17:59:10.529Z",
+          "summary": "genesis-on-first-append suite 8 of 10 failed with the writer at baseline (no genesis row); the four multiplayer-server pins failed 33 tests on Expected 1 / Received 0 for the backfill count with U19's change in place"
+        },
+        "local": {
+          "path": "evidence/u19b-local-20260922.json",
+          "at": "2026-09-22T18:05:27.621Z",
+          "summary": "carried from U19 draft f0008f3a5 byte-equal (branch store +69, writer +45/-6, genesis suite, six journal re-pins); four multiplayer-server pins re-aimed at the resulting genesis row and head (+57/-7); MatchStreamJournalMirror docstring corrected (comment only); 133 product and 433 test lines (cap read as product lines, the program's convention; finding F1 records the alternative reading); journal 23 suites/243, multiplayer server 157/1164, campaign 201/2963, api+interventions 77/931; tsc 0; oxlint 84 warnings 0 errors unchanged; oxfmt clean on 14 files; LINT_UNITS_PASS 100/100; qc:openspec-ci errors=0; validator PASSED; --next U19b on the baseline; three mutants caught and restored (M1 by the genesis suite's before-backfill assertion); implementer claude-opus (Agent model: opus); status ready"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,

@@ -1,0 +1,324 @@
+{
+  "unit": "U19b",
+  "stage": "red",
+  "at": "2026-09-22T17:59:10.529Z",
+  "baseline": "0367a2f3b8543057b2dac557426d1ea9770a05bc",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u19b",
+  "branch": "roadmap-u19b-genesis-branch-on-first-append-20260922",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "shellPreamble": [
+    "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "export npm_config_dry_run=true"
+  ],
+  "a": {
+    "what": "writer first-append install reverted: the carried SQLiteEventJournalWriter.ts saved, the baseline copy (git show <baseline>:path) written in its place, the genesis suite run, the carried copy restored",
+    "testFile": {
+      "path": "src/lib/events/journal/__tests__/SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts",
+      "sha256AtRed": "6288902bd561a68bbc65069a666fc2d66d96e70bbeafcd6993bb304f8397fda0",
+      "carriedVerbatimFromU19Draft": true
+    },
+    "writer": {
+      "path": "src/lib/events/journal/SQLiteEventJournalWriter.ts",
+      "carriedSha256": "1beac1d6c477727667e3403b95d8be0f173f31669354e0eacfb72b6d93dfecba",
+      "baselineSha256WhileRun": "82a319953c24d5f98a143d38f509c11d6ce3420ee55738a7444190fbfd180a4d",
+      "restoredSha256": "1beac1d6c477727667e3403b95d8be0f173f31669354e0eacfb72b6d93dfecba",
+      "restoredEqual": true
+    },
+    "command": "npx jest src/lib/events/journal/__tests__/SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts",
+    "exitCode": 1,
+    "counts": "Test Suites: 1 failed, 1 total; Tests:       8 failed, 2 passed, 10 total",
+    "lastLine": "Ran all test suites matching /src\\\\lib\\\\events\\\\journal\\\\__tests__\\\\SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts/i.",
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u19b/logs/red-a-genesis-suite-writer-reverted.log",
+      "sha256": "b342403222bc85962429c6e1174c3bbf9b18779cb9325141c8cd8804e8a95586"
+    },
+    "failingAssertions": [
+      {
+        "test": "SQLiteEventJournalWriter genesis branch on first append (U19) › (a) a campaign stream first append installs one effective genesis row and an effective head",
+        "matcher": "expect(received).toHaveLength(expected)",
+        "at": "src/lib/events/journal/__tests__/SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts:164:27",
+        "pointsAt": {
+          "line": 164,
+          "code": "expect(rows.branches).toHaveLength(1);"
+        },
+        "expected": [
+          "1"
+        ],
+        "received": [
+          "0"
+        ]
+      },
+      {
+        "test": "SQLiteEventJournalWriter genesis branch on first append (U19) › (b) a second append leaves exactly the one genesis row, byte for byte",
+        "matcher": "expect(received).toHaveLength(expected)",
+        "at": "src/lib/events/journal/__tests__/SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts:207:33",
+        "pointsAt": {
+          "line": 207,
+          "code": "expect(afterFirst.branches).toHaveLength(1);"
+        },
+        "expected": [
+          "1"
+        ],
+        "received": [
+          "0"
+        ]
+      },
+      {
+        "test": "SQLiteEventJournalWriter genesis branch on first append (U19) › (c) a match stream first append on the mirror's 'main' branch behaves the same",
+        "matcher": "expect(received).toHaveLength(expected)",
+        "at": "src/lib/events/journal/__tests__/SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts:164:27",
+        "pointsAt": {
+          "line": 164,
+          "code": "expect(rows.branches).toHaveLength(1);"
+        },
+        "expected": [
+          "1"
+        ],
+        "received": [
+          "0"
+        ]
+      },
+      {
+        "test": "SQLiteEventJournalWriter genesis branch on first append (U19) › (c2) a match stream's genesis generation is read from its stored baseline, as the backfill reads it",
+        "matcher": "expect(received).toHaveLength(expected)",
+        "at": "src/lib/events/journal/__tests__/SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts:164:27",
+        "pointsAt": {
+          "line": 164,
+          "code": "expect(rows.branches).toHaveLength(1);"
+        },
+        "expected": [
+          "1"
+        ],
+        "received": [
+          "0"
+        ]
+      },
+      {
+        "test": "SQLiteEventJournalWriter genesis branch on first append (U19) › (d) the global backfill run after the appends adds nothing",
+        "matcher": "expect(received).toBe(expected) // Object.is equality",
+        "at": "src/lib/events/journal/__tests__/SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts:249:7",
+        "pointsAt": {
+          "line": 249,
+          "code": ").toBe(0);"
+        },
+        "expected": [
+          "0"
+        ],
+        "received": [
+          "2"
+        ]
+      },
+      {
+        "test": "SQLiteEventJournalWriter genesis branch on first append (U19) › (e) an append that throws after its writes leaves no genesis row",
+        "matcher": "expect(received).rejects.toThrow(expected)",
+        "at": "src/lib/events/journal/__tests__/SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts:260:43",
+        "pointsAt": {
+          "line": 260,
+          "code": "expect(census(CAMPAIGN).branches).toHaveLength(1);"
+        },
+        "expected": [
+          "1"
+        ],
+        "received": [
+          "0"
+        ]
+      },
+      {
+        "test": "SQLiteEventJournalWriter genesis branch on first append (U19) › (f) two writers racing a first append end with one genesis row; the loser is refused as today",
+        "matcher": "expect(received).toHaveLength(expected)",
+        "at": "src/lib/events/journal/__tests__/SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts:164:27",
+        "pointsAt": {
+          "line": 164,
+          "code": "expect(rows.branches).toHaveLength(1);"
+        },
+        "expected": [
+          "1"
+        ],
+        "received": [
+          "0"
+        ]
+      },
+      {
+        "test": "SQLiteEventJournalWriter genesis branch on first append (U19) › (h) the install is per stream: another stream's missing genesis is not backfilled by it",
+        "matcher": "expect(received).toHaveLength(expected)",
+        "at": "src/lib/events/journal/__tests__/SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts:164:27",
+        "pointsAt": {
+          "line": 164,
+          "code": "expect(rows.branches).toHaveLength(1);"
+        },
+        "expected": [
+          "1"
+        ],
+        "received": [
+          "0"
+        ]
+      }
+    ],
+    "passedOnBaseline": [
+      "(e2) a refused first append (revision conflict) leaves no genesis row",
+      "(g) a stream that already has its genesis row is left untouched by its first append"
+    ],
+    "passedOnBaselineWhy": "(e2) and (g) are vacuous without an install: they are the guards that the install runs after the revision check (M2) and is idempotent (M3)",
+    "u19Measured": "8 failed, 2 passed, 10 total"
+  },
+  "b": {
+    "what": "U19's change in place, the four multiplayer-server pins unchanged (expect(backfillGenesisBranches()).toBe(1) after a first append); each suite run on its own, one at a time",
+    "suites": [
+      {
+        "suite": "src/lib/multiplayer/server/history/__tests__/CoordinatedOutcomeCorrection.test.ts",
+        "command": "npx jest src/lib/multiplayer/server/history/__tests__/CoordinatedOutcomeCorrection.test.ts",
+        "exitCode": 1,
+        "counts": "Test Suites: 1 failed, 1 total; Tests:       9 failed, 9 total",
+        "lastLine": "Ran all test suites matching /src\\\\lib\\\\multiplayer\\\\server\\\\history\\\\__tests__\\\\CoordinatedOutcomeCorrection.test.ts/i.",
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u19b/logs/red-b-CoordinatedOutcomeCorrection.log",
+          "sha256": "5254aac2f53860139de6db1461946a7ec5f60e2da55e2a31c82b1a9dbc7b5fad"
+        },
+        "failedTests": 9,
+        "failingAssertionsDistinct": [
+          {
+            "matcher": "expect(received).toBe(expected) // Object.is equality",
+            "at": "src/lib/multiplayer/server/history/__tests__/CoordinatedOutcomeCorrection.test.ts:106:50",
+            "pointsAt": {
+              "line": 106,
+              "code": "expect(branches().backfillGenesisBranches()).toBe(1);"
+            },
+            "expected": [
+              "1"
+            ],
+            "received": [
+              "0"
+            ]
+          }
+        ],
+        "failedTestTitles": [
+          "admitCoordinatedOutcomeCorrection › GM correction at delivered+1 is accepted-pending-saga and writes only the admission",
+          "admitCoordinatedOutcomeCorrection › matching expectedDigest is admitted (control)",
+          "admitCoordinatedOutcomeCorrection › mismatched expectedDigest is refused expected-digest-mismatch and writes nothing",
+          "admitCoordinatedOutcomeCorrection › empty expectedDigest is refused expected-digest-mismatch and writes nothing",
+          "admitCoordinatedOutcomeCorrection › version delivered+2 is refused version-not-next",
+          "admitCoordinatedOutcomeCorrection › undelivered outcome is refused outcome-not-delivered",
+          "admitCoordinatedOutcomeCorrection › non-GM is refused gm-role-required",
+          "admitCoordinatedOutcomeCorrection › stale expected revision is refused STALE_REVISION",
+          "admitCoordinatedOutcomeCorrection › plain rewind onto a delivered receipt is still refused campaign-receipt-delivered"
+        ]
+      },
+      {
+        "suite": "src/lib/multiplayer/server/history/__tests__/CoordinatedOutcomeCorrectionSaga.test.ts",
+        "command": "npx jest src/lib/multiplayer/server/history/__tests__/CoordinatedOutcomeCorrectionSaga.test.ts",
+        "exitCode": 1,
+        "counts": "Test Suites: 1 failed, 1 total; Tests:       2 failed, 10 passed, 12 total",
+        "lastLine": "Ran all test suites matching /src\\\\lib\\\\multiplayer\\\\server\\\\history\\\\__tests__\\\\CoordinatedOutcomeCorrectionSaga.test.ts/i.",
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u19b/logs/red-b-CoordinatedOutcomeCorrectionSaga.log",
+          "sha256": "33c09a01052c992f40817587dd68af18e38a38ba93ba63fe6ab14fbe8dba3f20"
+        },
+        "failedTests": 2,
+        "failingAssertionsDistinct": [
+          {
+            "matcher": "expect(received).toBe(expected) // Object.is equality",
+            "at": "src/lib/multiplayer/server/history/__tests__/CoordinatedOutcomeCorrectionSaga.test.ts:455:7",
+            "pointsAt": {
+              "line": 455,
+              "code": ").toBe(1);"
+            },
+            "expected": [
+              "1"
+            ],
+            "received": [
+              "0"
+            ]
+          }
+        ],
+        "failedTestTitles": [
+          "sealCoordinatedCorrectionManifest › manifest seal advances the saga and is idempotent",
+          "sealCoordinatedCorrectionManifest › seal on a blocked saga does not advance it"
+        ]
+      },
+      {
+        "suite": "src/lib/multiplayer/server/history/__tests__/GmCombatRewindCommit.test.ts",
+        "command": "npx jest src/lib/multiplayer/server/history/__tests__/GmCombatRewindCommit.test.ts",
+        "exitCode": 1,
+        "counts": "Test Suites: 1 failed, 1 total; Tests:       15 failed, 15 total",
+        "lastLine": "Ran all test suites matching /src\\\\lib\\\\multiplayer\\\\server\\\\history\\\\__tests__\\\\GmCombatRewindCommit.test.ts/i.",
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u19b/logs/red-b-GmCombatRewindCommit.log",
+          "sha256": "51a6968e47ab411952b7e0733dd2b58ece27ad8d1b401e19abf028158f25e4ea"
+        },
+        "failedTests": 15,
+        "failingAssertionsDistinct": [
+          {
+            "matcher": "expect(received).toBe(expected) // Object.is equality",
+            "at": "src/lib/multiplayer/server/history/__tests__/GmCombatRewindCommit.test.ts:175:50",
+            "pointsAt": {
+              "line": 175,
+              "code": "expect(branches().backfillGenesisBranches()).toBe(1);"
+            },
+            "expected": [
+              "1"
+            ],
+            "received": [
+              "0"
+            ]
+          }
+        ],
+        "failedTestTitles": [
+          "commitGmCombatRewind › R1 commits a rewind and activates the candidate",
+          "commitGmCombatRewind › R2 refuses a rewind past a delivered campaign receipt and writes nothing",
+          "commitGmCombatRewind › R3 holds a live lease the shipped rebuild consult can see",
+          "commitGmCombatRewind › R4 a failed verification activates nothing and reopens the stream",
+          "commitGmCombatRewind › R5 releases the lease on refusal gm-role-required",
+          "commitGmCombatRewind › R5 releases the lease on refusal actor-mismatch",
+          "commitGmCombatRewind › R5 releases the lease on refusal campaign-receipt-delivered",
+          "commitGmCombatRewind › R5 releases the lease on refusal no-authoritative-history",
+          "commitGmCombatRewind › R5 releases the lease on refusal rewind-target-above-head",
+          "commitGmCombatRewind › R5 releases the lease on refusal rewind-target-below-branch-base",
+          "commitGmCombatRewind › R5 releases the lease on refusal STALE_REVISION",
+          "commitGmCombatRewind › R5 releases the lease on refusal correction-lease-held",
+          "commitGmCombatRewind › R5 releases the lease on refusal candidate-verification-failed",
+          "commitGmCombatRewind › R5 releases the lease on refusal generation-exhausted",
+          "commitGmCombatRewind › R5 releases the lease on refusal replacement-events-unsupported"
+        ]
+      },
+      {
+        "suite": "src/lib/multiplayer/server/history/__tests__/GmCombatRewindPreview.test.ts",
+        "command": "npx jest src/lib/multiplayer/server/history/__tests__/GmCombatRewindPreview.test.ts",
+        "exitCode": 1,
+        "counts": "Test Suites: 1 failed, 1 total; Tests:       7 failed, 7 total",
+        "lastLine": "Ran all test suites matching /src\\\\lib\\\\multiplayer\\\\server\\\\history\\\\__tests__\\\\GmCombatRewindPreview.test.ts/i.",
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u19b/logs/red-b-GmCombatRewindPreview.log",
+          "sha256": "601f72eacf8b758fe5e6bccae2d70bc4f2ae7f4ad1161e5f845d615046c63d53"
+        },
+        "failedTests": 7,
+        "failingAssertionsDistinct": [
+          {
+            "matcher": "expect(received).toBe(expected) // Object.is equality",
+            "at": "src/lib/multiplayer/server/history/__tests__/GmCombatRewindPreview.test.ts:181:50",
+            "pointsAt": {
+              "line": 181,
+              "code": "expect(branches().backfillGenesisBranches()).toBe(1);"
+            },
+            "expected": [
+              "1"
+            ],
+            "received": [
+              "0"
+            ]
+          }
+        ],
+        "failedTestTitles": [
+          "previewGmCombatRewind › answers the GM without writing anything",
+          "previewGmCombatRewind › stales only the checkpoints recorded above the target",
+          "previewGmCombatRewind › reports exactly what sealing the same truncation would report",
+          "previewGmCombatRewind › refuses a rewind past a campaign that already took delivery",
+          "previewGmCombatRewind › tells a non-GM nothing, and does not even ask the probe",
+          "previewGmCombatRewind › says a match with no authoritative history has none, and asks no probe",
+          "previewGmCombatRewind › refuses while another correction holds the lease"
+        ]
+      }
+    ],
+    "totalFailedTests": 33,
+    "u19Measured": "4 suites / 33 tests failed"
+  }
+}
