@@ -1,0 +1,108 @@
+{
+  "unit": "U12b",
+  "stage": "red",
+  "at": "2026-09-22T00:00:00.000Z",
+  "baseline": "6fa24e96753bea9f723948d1373452a6ba0ef05e",
+  "worktree": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\u12b",
+  "branch": "roadmap-u12b-guard-cli-20260922",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "method": "The pin was written first, against the CLI contract, with scripts/qc/guard-node-modules-link.mjs absent and no package.json edit. Every case drives the real CLI as a child process with the fixture checkout as its working directory; two cases additionally call the exported decision function through a generated probe module. Nothing is stubbed.",
+  "run": {
+    "command": "node node_modules/jest/bin/jest.js --selectProjects unit --runInBand --no-cache --runTestsByPath scripts/__tests__/guard-node-modules-link.test.ts",
+    "argv": [
+      "node",
+      "node_modules/jest/bin/jest.js",
+      "--selectProjects",
+      "unit",
+      "--runInBand",
+      "--no-cache",
+      "--runTestsByPath",
+      "scripts/__tests__/guard-node-modules-link.test.ts"
+    ],
+    "exitCode": 1,
+    "suites": "Test Suites: 1 failed, 1 total",
+    "tests": "Tests:       12 failed, 12 total",
+    "lastLine": "Ran all test suites within paths \"scripts/__tests__/guard-node-modules-link.test.ts\"."
+  },
+  "failingAssertions": [
+    {
+      "case": "node_modules junction guard CLI › allows a fresh checkout that owns its manifest",
+      "assertion": "expect(result.line).toBe('INSTALL_ALLOWED')",
+      "expected": "INSTALL_ALLOWED",
+      "received": "",
+      "cause": "the CLI module does not exist, so node exits before printing"
+    },
+    {
+      "case": "node_modules junction guard CLI › allows a real node_modules directory restored from cache",
+      "assertion": "expect(result.line).toBe('INSTALL_ALLOWED')",
+      "expected": "INSTALL_ALLOWED",
+      "received": ""
+    },
+    {
+      "case": "node_modules junction guard CLI › allows a checkout reached through a junction with a real node_modules",
+      "assertion": "expect(result.stdout.split(/\\r?\\n/)[0]).toBe('INSTALL_ALLOWED')",
+      "expected": "INSTALL_ALLOWED",
+      "received": ""
+    },
+    {
+      "case": "node_modules junction guard CLI › refuses node_modules planted as a junction",
+      "assertion": "expect(result.line).toBe(refusal('node-modules-is-link', <checkout>/node_modules, <fixture>/shared node_modules))",
+      "expected": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"<tmp>\\\\u12b-guard-XXXXXX\\\\checkout\\\\node_modules\",\"actualPath\":\"<tmp>\\\\u12b-guard-XXXXXX\\\\shared node_modules\"}",
+      "received": "",
+      "note": "the fixture asserted lstat().isSymbolicLink() === true on the planted junction before running the CLI, so the link really was planted"
+    },
+    {
+      "case": "node_modules junction guard CLI › refuses node_modules planted as a symbolic link",
+      "assertion": "expect(result.line).toBe(refusal('node-modules-is-link', ...))",
+      "expected": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"...\\\\checkout\\\\node_modules\",\"actualPath\":\"...\\\\shared node_modules\"}",
+      "received": ""
+    },
+    {
+      "case": "node_modules junction guard CLI › refuses a manifest that belongs to another root",
+      "assertion": "expect(result.line).toBe(refusal('manifest-root-mismatch', realpath(cwd), realpath(fixtureRoot)))",
+      "expected": "INSTALL_REFUSED manifest-root-mismatch {\"expectedPath\":\"...\\\\checkout\",\"actualPath\":\"...\\\\u12b-guard-XXXXXX\"}",
+      "received": ""
+    },
+    {
+      "case": "node_modules junction guard CLI › refuses a missing manifest instead of allowing it",
+      "assertion": "expect(result.line).toBe(refusal('manifest-unreadable', realpath(cwd), manifestPath))",
+      "expected": "INSTALL_REFUSED manifest-unreadable {\"expectedPath\":\"...\\\\checkout\",\"actualPath\":\"...\\\\checkout\\\\package.json\"}",
+      "received": ""
+    },
+    {
+      "case": "node_modules junction guard CLI › refuses a manifest that is not parseable JSON",
+      "assertion": "expect(result.line).toBe(refusal('manifest-unreadable', realpath(cwd), manifestPath))",
+      "expected": "INSTALL_REFUSED manifest-unreadable {\"expectedPath\":\"...\\\\checkout\",\"actualPath\":\"...\\\\checkout\\\\package.json\"}",
+      "received": ""
+    },
+    {
+      "case": "node_modules junction guard CLI › defaults to the manifest of its own repository, not of the cwd",
+      "assertion": "expect(result.line).toBe(refusal('manifest-root-mismatch', realpath(cwd), dirname(realpath(packagePath))))",
+      "expected": "INSTALL_REFUSED manifest-root-mismatch {\"expectedPath\":\"...\\\\checkout\",\"actualPath\":\"<worktree>\"}",
+      "received": ""
+    },
+    {
+      "case": "node_modules junction guard CLI › refuses an unknown argument rather than ignoring it",
+      "assertion": "expect(result.line.startsWith('INSTALL_REFUSED inspection-error')).toBe(true)",
+      "expected": true,
+      "received": false
+    },
+    {
+      "case": "node_modules junction guard CLI › exports the decision function the CLI prints from",
+      "assertion": "inspect() throws before any expect runs",
+      "expected": "{ verdict: 'ALLOW' }",
+      "received": "Error [ERR_MODULE_NOT_FOUND]: Cannot find module '<worktree>\\scripts\\qc\\guard-node-modules-link.mjs' imported from <tmp>\\u12b-guard-XXXXXX\\probe.mjs"
+    },
+    {
+      "case": "node_modules junction guard CLI › exposes the guard as a qc script and wires no preinstall",
+      "assertion": "expect(scripts['qc:guard-node-modules-link']).toBe('node scripts/qc/guard-node-modules-link.mjs')",
+      "expected": "node scripts/qc/guard-node-modules-link.mjs",
+      "received": "undefined"
+    }
+  ],
+  "redIsReal": [
+    "No case passes by accident: every allow case fails on an empty stdout rather than on a wrong reason word, which is what a missing module produces.",
+    "No assertion was weakened and no case was skipped. The two cases that would pass without the module (the package.json script pin and the unknown-argument pin) fail on the missing key and the missing binary respectively.",
+    "Absolute machine paths in this receipt's expected strings are elided to <tmp> and <worktree> because the fixture directory is minted per run; the raw run printed them in full."
+  ]
+}
