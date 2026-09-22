@@ -1,0 +1,194 @@
+{
+  "unit": "U35a",
+  "stage": "admission",
+  "status": "admitted",
+  "at": "2026-09-22T22:52:51.944Z",
+  "baseline": "d3c088a9b2ebb7db84e698222707537cdb7515e3",
+  "originMain": "d3c088a9b2ebb7db84e698222707537cdb7515e3",
+  "originMainSource": "git ls-remote origin refs/heads/main (read-only; no fetch)",
+  "baselineEqualsOriginMain": true,
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u35a",
+  "branch": "roadmap-u35a-campaign-commit-gates-20260922",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "node": "R2.authority-cutover",
+  "shellPreamble": [
+    "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "export npm_config_dry_run=true",
+    "every MEKSTATION_E2E_* key unset by the runner (run.sh)"
+  ],
+  "runner": {
+    "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35a/run.sh",
+    "sha256": "c7881240489ff450e83b98dc6fca709a37157171649bc2d5bbb362c4ae7e9db4"
+  },
+  "nodeVersion": {
+    "command": "node --version",
+    "lastLine": "v22.22.0",
+    "exitCode": 0,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35a/logs/adm-node-version.log",
+      "sha256": "2172da60c75bfe844a5f085d0b225e7042f650910fb423c59d7f4a937afb0b56"
+    }
+  },
+  "guardNodeModulesLink": {
+    "command": "npm run --silent qc:guard-node-modules-link",
+    "lastLine": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"E:\\\\Projects\\\\MekStation\\\\.sisyphus\\\\roadmap-completion-20260912\\\\worktrees\\\\u35a\\\\node_modules\",\"actualPath\":\"E:\\\\Projects\\\\MekStation\\\\node_modules\"}",
+    "exitCode": 1,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35a/logs/adm-guard.log",
+      "sha256": "8d823be2dc63d9c36609bba17e5870d124732e9fea46718b7dfde1337f7f4e47"
+    },
+    "expected": true,
+    "why": "refusal by design in a junctioned worktree (node_modules is a junction to the root checkout); no npm install/ci/prune or lifecycle is run in this lane"
+  },
+  "nextOnBaseline": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "lastLine": "U35a",
+    "exitCode": 0,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35a/logs/adm-next.log",
+      "sha256": "a6c6c837e668f367bee6935ea340a99c1aaf46429465e9044a1834841e471c20"
+    }
+  },
+  "validatorOnBaseline": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+    "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+    "exitCode": 0,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35a/logs/adm-validator.log",
+      "sha256": "97b2f29d264078525a55c5f88586fb95603311fa065e70d7d17c5fab08f5b5bc"
+    }
+  },
+  "gitStatusShortAtAdmission": "",
+  "ownershipPaths": [
+    "src/lib/campaign/authority",
+    "src/lib/campaign/sync"
+  ],
+  "receiptsOwned": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u35a-admission-20260922.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u35a-red-20260922.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u35a-local-20260922.json"
+  ],
+  "behavior": "Campaign commit gates before the flip: (1) F-1: a marker-io failure after a committed batch is logged and the commit is acknowledged, never answered as an error; (2) F-3: an AcceptContract through executeCampaignCommand on a journal-native campaign stamps firstJournalAuthorityCommandId (pin); (3) resolveCampaignEventScope refuses a non-campaign scope for a balance-bearing FundsChanged with a typed error; (4) adopting a legacy campaign produces a journal-native campaign: the adoption appends the genesis snapshot and writes a journal-native marker instead of a shadowing one (decided by the parent under OD-mvp-hard-cutover). CAMPAIGN_JOURNAL_AUTHORITY_ENABLED is unchanged.",
+  "seams": [
+    {
+      "at": "src/lib/campaign/authority/campaignCommandPipeline.ts:334-345",
+      "what": "recordFirstCommandOnMarker: durableCampaignMarkerIo.read then recordFirstJournalAuthorityCommand then durableCampaignMarkerIo.write, no catch"
+    },
+    {
+      "at": "src/lib/campaign/authority/campaignCommandPipeline.ts:357-378",
+      "what": "acknowledgeCommit calls recordFirstCommandOnMarker at :369 after the journal took the batch and before the replay; a throw there rejects executeCampaignCommand for a committed batch (F-1)"
+    },
+    {
+      "at": "src/lib/campaign/authority/campaignCommandPipeline.ts:484-500,550",
+      "what": "both commit paths (the durable AcceptContract via appendDurableAcceptContract, and the ordinary batch) reach acknowledgeCommit, so the stamp covers AcceptContract by construction (F-3 pin)"
+    },
+    {
+      "at": "src/pages/api/campaigns/[id]/commands.ts:283-284",
+      "what": "a thrown executeCampaignCommand becomes sendCampaignError 500 (read-only; outside the paths)"
+    },
+    {
+      "at": "src/lib/campaign/authority/campaignCutoverMarkerIo.ts:39-47",
+      "what": "durableCampaignMarkerIo {read, write}: the io the pipeline calls; the red row injects its failure with jest.spyOn"
+    },
+    {
+      "at": "src/lib/campaign/sync/campaignEventScope.ts:47-52",
+      "what": "resolveCampaignEventScope returns override ?? default; FundsChanged with override gm returns gm"
+    },
+    {
+      "at": "src/lib/campaign/sync/__tests__/campaignEventScope.test.ts:108",
+      "what": "pins resolveCampaignEventScope(FundsChanged, gm) === gm; re-pinned to the typed refusal"
+    },
+    {
+      "at": "src/types/campaign/CampaignSync.ts:208-215",
+      "what": "IFundsChangedPayload.balance is required: every FundsChanged is balance-bearing, so the refusal keys on the event type (read-only)"
+    },
+    {
+      "at": "src/lib/multiplayer/server/CampaignMatchHostIntent.ts:102,138-143,156,179",
+      "what": "the only production caller of resolveCampaignEventScope (event()); both FundsChanged emissions pass no scope override (read-only)"
+    },
+    {
+      "at": "src/lib/campaign/authority/campaignLegacyAdoption.ts:129-132,144-161",
+      "what": "adoption: retry guard on importedBaseline, then importCampaignBaseline (migration principal) and markerIo.write of the shadowing marker (campaignAuthorityMigration.ts:223-236)"
+    },
+    {
+      "at": "src/lib/campaign/authority/campaignSourceGenesis.ts:182-240",
+      "what": "appendCampaignGenesis: CampaignSnapshotPublished at sequence 0 under the system principal (commandId campaign-genesis:<id>), then writeMarker(createJournalNativeMarker); the seam adoption reuses"
+    },
+    {
+      "at": "src/lib/campaign/authority/campaignAuthorityMode.ts:91-102",
+      "what": "shadowing resolves to snapshot authority; journal with a stream resolves to journal authority"
+    },
+    {
+      "at": "src/pages/api/campaigns/[id]/adopt.ts:144-163",
+      "what": "the adopt route passes enabled: isCampaignJournalAuthorityEnabled() (false in production) to maybeAdoptLegacyCampaign, so clause (4) is inert in production until U35d flips the flag (read-only)"
+    },
+    {
+      "at": "src/lib/campaign/sync/JournalCampaignEventStore.ts:84",
+      "what": "CAMPAIGN_JOURNAL_AUTHORITY_ENABLED = false; unchanged by this unit"
+    }
+  ],
+  "design": {
+    "F-1": "recordFirstCommandOnMarker catches any marker read or write error, logs it through logger.warn with the campaign and command ids, and returns; acknowledgeCommit then replays and acknowledges the committed batch as before. The marker write is not moved into the journal transaction.",
+    "F-3": "No product change: a pin row drives an AcceptContract through executeCampaignCommand on a journal-native campaign (genesis + journal-native marker + a durable offer in the campaigns row, real SQLite) and asserts the durable marker stamps firstJournalAuthorityCommandId with that command id; mutant M3 proves the row catches a skipped stamp.",
+    "gate3Scope": "resolveCampaignEventScope throws a typed CampaignFundsScopeError (name, code, type, scope) when type is FundsChanged and an override other than campaign is passed; the default and an explicit campaign override still resolve to campaign; other types keep their override. campaignEventScope.test.ts:108 is re-pinned to the refusal.",
+    "adoption": "adoptLegacyCampaign appends the genesis snapshot through appendCampaignGenesis (the create path seam) and so writes the journal-native marker; its retry guard treats a marker already in journal state, or one carrying an imported baseline, as already-journaled so a retry never rewrites the marker (and never clears a stamped firstJournalAuthorityCommandId). maybeAdoptLegacyCampaign keeps its enabled gate; the flag is unchanged, so the adopt route still passes false in production. campaignLegacyAdoption.test.ts is re-pinned from shadowing to journal-native."
+  },
+  "redPlan": {
+    "suite": "src/lib/campaign/authority/__tests__/campaignCommitGates.test.ts (new; real SQLite on a temp file; every MEKSTATION_E2E_* key deleted in beforeEach)",
+    "rows": {
+      "b": "a marker-io failure (read, and write) injected after a committed SpendFunds batch: expected red (the command throws)",
+      "c": "resolveCampaignEventScope(FundsChanged, gm): expected red (returns gm)",
+      "f3": "AcceptContract through executeCampaignCommand on a journal-native campaign stamps the marker: expected GREEN on the baseline (a pin); its failing evidence is mutant M3",
+      "adopt": "maybeAdoptLegacyCampaign({enabled: true}) with the durable marker io over real SQLite: expected red (marker state shadowing, migration-authored baseline)"
+    }
+  },
+  "estimatePerFile": [
+    {
+      "file": "src/lib/campaign/authority/campaignCommandPipeline.ts",
+      "category": "product",
+      "estimateLines": 20
+    },
+    {
+      "file": "src/lib/campaign/sync/campaignEventScope.ts",
+      "category": "product",
+      "estimateLines": 35
+    },
+    {
+      "file": "src/lib/campaign/authority/campaignLegacyAdoption.ts",
+      "category": "product",
+      "estimateLines": 55
+    },
+    {
+      "file": "src/lib/campaign/authority/__tests__/campaignCommitGates.test.ts",
+      "category": "test",
+      "estimateLines": 330
+    },
+    {
+      "file": "src/lib/campaign/sync/__tests__/campaignEventScope.test.ts",
+      "category": "test",
+      "estimateLines": 15
+    },
+    {
+      "file": "src/lib/campaign/authority/__tests__/campaignLegacyAdoption.test.ts",
+      "category": "test",
+      "estimateLines": 45
+    }
+  ],
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedProductLines": 500,
+    "estimatedFiles": 6,
+    "estimatedProductLines": 110,
+    "estimatedTestLines": 390,
+    "withinCaps": true,
+    "note": "test lines are reported separately from the 500-line product cap"
+  },
+  "risksForTheParent": [
+    "Review classes authority + idempotency: Lane B needs the owner head-bound OWNER-RULING on the exact head this unit merges; OD-mvp-hard-cutover delegates the design answers, not the ruling.",
+    "Idempotency (F-1): after a swallowed marker failure the marker keeps firstJournalAuthorityCommandId null, so the NEXT committed command id is stamped as the first; the D10 rollback guard that reads it then names a later command. Under OD-mvp-hard-cutover the rollback law is not required, and the commit itself is never duplicated (the journal command identity is unchanged).",
+    "Authority (adoption): an adopted campaign is journal-native (importedBaseline null), so the imported revision and digest are no longer recorded and D10 snapshot rollback is gone for adopted campaigns; its baseline is now system-authored genesis (commandId campaign-genesis:<id>), which the U58 baseline-law predicate treats as a genesis baseline that reaches restricted viewers.",
+    "Clause (4) takes effect only when the adopt route passes enabled true: production passes isCampaignJournalAuthorityEnabled() (false until U35d; true only under the e2e fixture arm). An adopted campaign under journal authority then accepts whole-envelope PUTs that leave the journal behind (gate 3, owned by U35b).",
+    "The FundsChanged refusal is a throw at event construction; no production site passes a FundsChanged override today (CampaignMatchHostIntent.ts:156,179), so no production path changes, but a future emission with a gm override fails at construction instead of stamping gm.",
+    "Stale out-of-path text after this unit: src/pages/api/campaigns/[id]/adopt.ts:1-20 (header says adoption writes a shadowing marker and that a journal-native stamp is a false provenance claim)."
+  ]
+}
