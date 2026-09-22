@@ -1,0 +1,23 @@
+{
+  "unit": "U2c",
+  "stage": "merge",
+  "at": "2026-09-22T14:25:43.058Z",
+  "pr": 1891,
+  "title": "test(e2e): the privacy pack arms the journal fixture, E2E-19 proves the GM preview stays private, E2E-25 gated until the journal cutover (U2c)",
+  "head": "7c494347686d724bc1dd492f7a2824320177f0c2",
+  "mergeSha": "a28cda8065fe8df8183eeb66ddacb0c1be242264",
+  "mergedAt": "2026-09-22T14:18:26Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "e2e/gm-two-player-privacy.pack.spec.ts",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u2c-admission-20260922.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u2c-local-20260922.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u2c-red-20260922.json",
+    "scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+    "scripts/qc/gm-two-player-campaign-core.cjs"
+  ],
+  "blobEqualityDiffLines": 0
+}

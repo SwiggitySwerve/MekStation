@@ -649,10 +649,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "local-verified",
+      "state": "complete",
       "baseline": "62391de467fe080f9787e4adc5f28a7a5f774de7",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "7c494347686d724bc1dd492f7a2824320177f0c2",
+      "mergeSha": "a28cda8065fe8df8183eeb66ddacb0c1be242264",
       "stageReceipts": {
         "admission": {
           "path": "evidence/u2c-admission-20260922.json",
@@ -671,10 +671,31 @@
           "at": "2026-09-22T07:55:00Z",
           "summary": "spec +295/-22, core.cjs +5/-5, qc pin +7/-2 (307/29, 300 product lines); privacy-pack 8 passed twice in a row (7 ok, 1 expected failure, 0 unexpected passes, read off the per-row reporter lines: Playwright prints no 7/1/0 sentence), proposal-pack 2 passed, authority-recovery 4 passed; qc pin 14/14; tsc 0; oxlint 84 warnings 0 errors; oxfmt clean; LINT_UNITS_PASS 100/100; qc:openspec-ci errors=0; validator PASSED; --next U2c on the baseline; guard CLI INSTALL_REFUSED in the junctioned worktree by design; E2E build exits 1 by the hydration guard as expected with the __E2E_MODE__ marker present; three live mutants caught and restored (E2E-19 inverted fails at :287; arming removed fails E2E-19 at previewCorrection with 0 journal rows in the db; the gate removed fails on the live 409 at :341); implementer claude-opus (Agent model: opus); new finding FN-u2c-gated-row-absorbs-unrelated-failures (a marked row reports any failure as the expected one with no body: mitigated by the header naming the exact refusal and by E2E-19 sharing the arming); status ready"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "review": {
+          "path": "evidence/u2c-review-20260922.json",
+          "head": "7c494347686d724bc1dd492f7a2824320177f0c2",
+          "reviewedHead": "7c494347686d724bc1dd492f7a2824320177f0c2",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet)",
+          "implementerModel": "claude-opus (Agent model: opus)",
+          "outputSha256": "18da4d6fbccfc1b60f2426bc25a9e165b90d9e7330aae9d0a718418392013b59",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u2c-merge-20260922.json",
+          "pr": 1891,
+          "head": "7c494347686d724bc1dd492f7a2824320177f0c2",
+          "mergeSha": "a28cda8065fe8df8183eeb66ddacb0c1be242264"
+        },
+        "mainProof": {
+          "path": "evidence/u2c-mainproof-20260922.json",
+          "mergeCommit": "a28cda8065fe8df8183eeb66ddacb0c1be242264",
+          "verdict": "PASS",
+          "runtime": "  8 passed (41.6s)"
+        },
+        "tick": {
+          "path": "evidence/u2c-tick-20260922.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "packet": "PK-u2c-ruling",
@@ -3253,8 +3274,22 @@
       ],
       "agentRecommendation": "rule the head once Lane A has approved it and the checks are green; the parent describes the rows in plain English first",
       "revertCost": "low: a squash merge revert; no tick receipt is involved",
-      "decision": null,
-      "ruling": null,
+      "decision": {
+        "at": "2026-09-22T09:30:00.000Z",
+        "option": "rule the head",
+        "text": "approved, continue the loop",
+        "source": "owner instruction 2026-09-22 in the working session (chat), after the parent explained the rows in plain language"
+      },
+      "ruling": {
+        "ruledHead": "7c494347686d724bc1dd492f7a2824320177f0c2",
+        "pr": 1891,
+        "commentId": 5778168930,
+        "author": "SwiggitySwerve",
+        "label": "owner-ruled",
+        "bodySha256": "b6b32ce23b66ecdf7d97c08434f852600f09b1a5eadf080d5946134b7a044eed",
+        "postedBy": "parent on the owner's instruction (the comment quotes the owner's words verbatim)",
+        "deviationDisclosed20260922": "DELIVERY.md says the owner posts the ruling out of band; the owner approved this unit by description in chat on 2026-09-22 (words quoted in the comment) after the parent had explained the rows in plain language and reported Lane A's verdict and the check set on the head, and the parent composed and posted the comment from the owner GitHub account and applied the label; the parent supplied the head from the ledger, as in the earlier rulings of this loop"
+      },
       "note": "opened 2026-09-22 with the unit so the privacy class is visible from admission (same shape as PK-u2b-ruling); the first shape lacked options, recommendation and revert cost and failed the validator on main for one commit (#1887), repaired here"
     }
   ],
