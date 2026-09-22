@@ -2779,7 +2779,12 @@
       ],
       "agentRecommendation": "amend through openspec so the gates are named in the acceptance rather than implied by receipts",
       "revertCost": "low: wording only",
-      "decision": null,
+      "decision": {
+        "at": "2026-09-22T12:00:00.000Z",
+        "option": "amend the acceptance through openspec",
+        "text": "go with option b and the whole-row rule, continue the loop. I want the best solution that does not block us towards the goal. This software is in MVP so you can hard cutover and do whatever you like to make sure it works correctly | Option (b) as council 3 decision 7 words it (openspec/council-decisions/2026-09-21-umbrella-failures-review.md): every E2E id in the catalogue must exist as an authored row; the excluded set is exactly the authored rows carrying a strict test.fail with a named gate tag; the run passes when every non-gated row is green and zero gated rows pass unexpectedly; named gates @until-journal-cutover (owner adopt-combat-journal-cutover-and-gm-rewind) and the campaign-genesis production flip (design-campaign-authority-and-sync 5.7). The spec delta that writes this into the acceptance is a unit of R6.umbrella; the head-bound ruling is recorded on that unit's PR.",
+        "source": "owner instruction 2026-09-22 in the working session (chat), after the parent listed the open decisions in plain language with council 3's recommendations; transcribed by the parent (the owner's words are quoted verbatim)"
+      },
       "ruling": null,
       "raisedBy": "council 2026-09-17 (Oracle, Explore-Deep E5)"
     },
