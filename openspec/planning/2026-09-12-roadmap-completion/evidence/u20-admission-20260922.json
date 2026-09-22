@@ -1,0 +1,153 @@
+{
+  "unit": "U20",
+  "stage": "admission",
+  "at": "2026-09-22T20:31:04.123Z",
+  "baseline": "3399af264f64f3c9b319beec23e479665c414111",
+  "originMain": "3399af264f64f3c9b319beec23e479665c414111",
+  "originMainSource": "git ls-remote origin refs/heads/main (read-only; no fetch)",
+  "baselineEqualsOriginMain": true,
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u20",
+  "branch": "roadmap-u20-launch-head-reads-journal-20260922",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "node": "R2.authority-cutover",
+  "shellPreamble": [
+    "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "export npm_config_dry_run=true"
+  ],
+  "nodeVersion": {
+    "command": "node --version",
+    "lastLine": "v22.22.0",
+    "exitCode": 0,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u20/logs/adm-node-version.log",
+      "sha256": "2172da60c75bfe844a5f085d0b225e7042f650910fb423c59d7f4a937afb0b56"
+    }
+  },
+  "nextOnBaseline": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "lastLine": "U20",
+    "exitCode": 0,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u20/logs/adm-next.log",
+      "sha256": "46ab92a3f156cc8e4f6bb0b0f001188547254d2d3ded3aee4e0b31c509652114"
+    }
+  },
+  "validatorOnBaseline": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+    "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+    "exitCode": 0,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u20/logs/adm-validator.log",
+      "sha256": "97b2f29d264078525a55c5f88586fb95603311fa065e70d7d17c5fab08f5b5bc"
+    }
+  },
+  "guardNodeModulesLink": {
+    "command": "npm run qc:guard-node-modules-link",
+    "lastLine": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"E:\\\\Projects\\\\MekStation\\\\.sisyphus\\\\roadmap-completion-20260912\\\\worktrees\\\\u20\\\\node_modules\",\"actualPath\":\"E:\\\\Projects\\\\MekStation\\\\node_modules\"}",
+    "exitCode": 1,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u20/logs/adm-guard.log",
+      "sha256": "144c7e4c7f2b579f3a67e7b252d63513fcaff2efc116e2ac9eea3460eee5f851"
+    },
+    "expected": true,
+    "why": "refusal by design in a junctioned worktree; no npm install/ci/prune or lifecycle is run in this lane (npm_config_dry_run=true exported)"
+  },
+  "gitStatusShortAtAdmission": "",
+  "ownershipPaths": [
+    "src/lib/campaign/authority"
+  ],
+  "receiptsOwned": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u20-admission-20260922.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u20-red-20260922.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u20-local-20260922.json"
+  ],
+  "behavior": "resolveCampaignLaunchHead answers the journal's effective head (branchId, revision, effectiveGeneration: the three fields ICampaignLaunchHead names; it carries no digest and this unit does not add one) for any campaign that has a journal stream, read through readEffectiveStreamHead, the seam SQLiteEventHistoryCorrectionLeaseStore.readJournalHead uses; `no-authoritative-stream` means exactly that the campaign has no journal stream; the campaignLaunchHead.ts comment states that rule and the launch gate that follows (the mission launch is gated whenever a head exists). No flag change; no route change.",
+  "ownerDecision": {
+    "id": "OD-launch-head-gate",
+    "answer20260922": "/head is the journal's effective head. Every stream gets its genesis branch and effective head on its first append (U19); the mission launch is gated whenever a head exists; no-authoritative-stream means the campaign has no journal stream. The comment in campaignLaunchHead.ts states that rule (U20).",
+    "delegatedBy": "OD-mvp-hard-cutover"
+  },
+  "seams": [
+    {
+      "at": "src/lib/campaign/authority/campaignLaunchHead.ts:24-28",
+      "what": "the stale premise: 'While the cutover flag is off no campaign has a journal stream, so no-authoritative-stream is the ordinary answer and the launch acts on it by proceeding ungated' (CO3 F1 measured it false)"
+    },
+    {
+      "at": "src/lib/campaign/authority/campaignLaunchHead.ts:93-113",
+      "what": "resolveCampaignLaunchHead: campaign read, then ports.readEffectiveHead(stream) (the event-history branch record); null -> no-authoritative-stream at :105; revision from ports.readJournalRevision on the effective branch, generation from the branch record"
+    },
+    {
+      "at": "src/lib/campaign/authority/campaignLaunchHead.ts:125-140",
+      "what": "private readJournalRevision: a second copy of readEffectiveStreamHead's event_journal_stream_heads query (revision only, missing row -> 0)"
+    },
+    {
+      "at": "src/lib/campaign/authority/campaignLaunchHead.ts:147-156",
+      "what": "campaignLaunchHeadPorts: the one durable port set both launch routes use"
+    },
+    {
+      "at": "src/lib/events/journal/EventHistoryEffectiveStreamHead.ts:40-70",
+      "what": "readEffectiveStreamHead(db, branches, stream): the journal head on the effective branch (branchId, revision, digest); an absent effective branch answers the uninstalled genesis identity root/0/genesis-digest (read-only here)"
+    },
+    {
+      "at": "src/lib/events/journal/SQLiteEventHistoryCorrectionLeaseStore.ts:333-335",
+      "what": "readJournalHead -> readEffectiveStreamHead: the correction lease seam this unit reads through (read-only here)"
+    },
+    {
+      "at": "src/lib/events/journal/SQLiteEventHistoryBranchStore.ts:237-248",
+      "what": "requireEffectiveHead throws EventHistoryBranchError('no-effective-branch') for a stream with no effective head (read-only here)"
+    },
+    {
+      "at": "src/lib/events/journal/SQLiteEventJournalWriter.ts:264,438-454",
+      "what": "U19b: a stream's first append installs its genesis branch and effective head in the append's transaction, so a journal stream appended since then always has an effective head (read-only here)"
+    },
+    {
+      "at": "src/services/persistence/SQLiteService.eventJournal.migration.ts:49-81",
+      "what": "event_journal_events: immutable (no-delete trigger at :137), UNIQUE (stream_type, stream_id, branch_id, stream_revision) gives the stream-prefixed index the existence read uses (read-only here)"
+    },
+    {
+      "at": "src/pages-modules/api/campaignLaunchHeadRoute.ts:61",
+      "what": "GET /head caller (outside the path; unchanged)"
+    },
+    {
+      "at": "src/pages-modules/api/campaignLaunchAuthorityRoute.ts:171-179,205",
+      "what": "launch-authority caller: no-authoritative-stream -> 200 ungated; a head -> progression gate + validateExpectedBranchHead (outside the path; unchanged). An exception from the resolver lands in its catch -> 500."
+    },
+    {
+      "at": "src/pages-modules/api/__tests__/campaignLaunchHeadRoute.test.ts:241-265",
+      "what": "out-of-path row 'answers revision 0 for a branch with nothing appended to it': deletes the stream's event_journal_stream_heads rows (events stay) and expects kind 'head' at revision 0. Constrains the existence read: it must be the journal's events, not its head rows."
+    }
+  ],
+  "design": [
+    "Existence is decided by the journal, not by the branch record: a new port hasJournalStream(stream) answers whether event_journal_events holds any committed event for (stream_type, stream_id). Events are immutable, so this is the durable fact 'the campaign has a journal stream'. False -> no-authoritative-stream; that is the only path to that answer.",
+    "The head is read through the correction lease's seam: the private readJournalRevision copy is removed and a port readEffectiveStreamHead(stream) = readEffectiveStreamHead(db, branches, stream) supplies branchId and revision.",
+    "effectiveGeneration comes from the stream's effective head record through requireEffectiveHead. A campaign whose journal holds events but whose effective head is missing (a stream first appended before U19b that migration 23 did not backfill) cannot name the journal's effective head, and answering no-authoritative-stream would launch a journaled campaign ungated (CO3 F1). requireEffectiveHead's own 'no-effective-branch' refusal is therefore raised (fail-closed; the routes map it to 500 and the client reads 'unavailable' and refuses the launch). No new error type.",
+    "The header comment replaces the stale premise with the rule: no-authoritative-stream means the campaign has no journal stream; a head exists for every journaled campaign (U19b installs it on the first append); the mission launch is gated whenever a head exists.",
+    "Red first on real SQLite, in a new suite beside the module: (a) one append -> the head equals the journal effective head (pinned literals and a direct readEffectiveStreamHead read); (b) no journal stream -> no-authoritative-stream; (c) second append -> revision advances and the first head is refused STALE_REVISION by validateExpectedBranchHead (the launch comparison); (d) events present, effective head row dropped -> refused, never no-authoritative-stream. Expected on the baseline: (a)(b)(c) green because U19b installs the effective head, (d) red."
+  ],
+  "estimatePerFile": [
+    {
+      "file": "src/lib/campaign/authority/campaignLaunchHead.ts",
+      "category": "product",
+      "estimateLines": 80,
+      "note": "header rewrite, ports reshaped, private readJournalRevision replaced by the events existence read"
+    },
+    {
+      "file": "src/lib/campaign/authority/__tests__/campaignLaunchHead.journal.test.ts",
+      "category": "test",
+      "estimateLines": 230,
+      "note": "new; real SQLite; rows (a)-(d)"
+    }
+  ],
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "expectedFiles": 2,
+    "expectedChangedLines": 310
+  },
+  "risksForTheParent": [
+    "Review class authority: this changes what GET /api/campaigns/:id/head and POST /launch-authority answer; the owner's head-bound Lane B ruling on the head semantics is required (OD-launch-head-gate was answered by the parent under OD-mvp-hard-cutover; the ruling binds it to a head).",
+    "Behaviour change for a journaled campaign with no effective head (only a stream appended before U19b and never backfilled): it answered no-authoritative-stream (ungated launch); it now raises no-effective-branch (500; the launch is refused as 'unavailable'). Fail-closed by design; under OD-mvp-hard-cutover no pre-cutover data is protected. A local dev database holding such a campaign would see its launch refused until its stream is backfilled.",
+    "Every journaled campaign now gets a head, so its launch is gated (progression gate + expected-head comparison) where a pre-U19b build let it through ungated; the parent main proof should include the launch and co-op journeys that exercise it.",
+    "Out-of-path comments stay stale: campaignLaunchHeadRoute.ts:16-20 and campaignLaunchHeadRoute.test.ts:224-226 still say 'no head to name while the cutover flag is off'. Recorded as findings, not edited."
+  ]
+}

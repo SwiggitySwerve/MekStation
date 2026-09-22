@@ -21,20 +21,36 @@
  * of the other two would compile, pass a naive test, and compare two
  * unrelated counters forever.
  *
- * A campaign with no effective branch is NOT an error and NOT a missing
- * campaign. While the cutover flag is off no campaign has a journal
- * stream, so `no-authoritative-stream` is the ordinary answer and the
- * launch acts on it by proceeding ungated - which is exactly today's
- * behaviour, preserved structurally rather than by a flag read.
+ * THE RULE (owner decision OD-launch-head-gate). The head is the
+ * journal's effective head: the branch and revision
+ * `readEffectiveStreamHead` reads - the seam the correction lease
+ * compares against - with the effective head's generation.
+ * `no-authoritative-stream` means exactly that the campaign has no
+ * journal stream: the journal holds no committed event for it. A
+ * stream's first journal append installs its genesis branch and
+ * effective head in the same transaction (`SQLiteEventJournalWriter`),
+ * so a campaign's stream has a head from its first append on, and the
+ * mission launch is gated whenever a head exists: it proceeds ungated
+ * only on `no-authoritative-stream`, and on a head
+ * `campaignLaunchAuthorityRoute` runs the progression gate and the
+ * expected-head comparison against it.
+ *
+ * A journaled campaign with no effective head (a stream first appended
+ * before that install existed and never backfilled) is refused with the
+ * branch store's `no-effective-branch` error, not answered: it has no
+ * installed head to name, and `no-authoritative-stream` would launch a
+ * journaled campaign ungated.
  *
  * @spec openspec/changes/harden-gm-two-player-campaign-sessions/specs/campaign-management/spec.md
  */
 
 import type { IEventHistoryEffectiveHead } from '@/lib/events/journal/EventHistoryBranchContract';
 import type { IEventHistoryStreamRef } from '@/lib/events/journal/EventHistoryBranchContract';
+import type { IEventHistoryEffectiveStreamHead } from '@/lib/events/journal/EventHistoryEffectiveStreamHead';
 import type { SerializedCampaign } from '@/types/campaign/SerializedCampaign';
 
 import { CAMPAIGN_STREAM_TYPE } from '@/lib/campaign/sync/JournalCampaignEventStore';
+import { readEffectiveStreamHead } from '@/lib/events/journal/EventHistoryEffectiveStreamHead';
 import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
 import { readCampaign } from '@/services/campaignPersistence/CampaignPersistenceService';
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
@@ -61,7 +77,7 @@ export interface ICampaignLaunchHead {
 
 export type CampaignLaunchHeadResult =
   | ICampaignLaunchHead
-  /** The campaign exists and has no authoritative stream to name. */
+  /** The campaign exists and the journal holds no stream for it. */
   | { readonly kind: 'no-authoritative-stream' }
   | { readonly kind: 'campaign-not-found' };
 
@@ -73,14 +89,16 @@ type CampaignReadLike =
 
 export interface ICampaignLaunchHeadPorts {
   readonly readCampaign: (campaignId: string) => CampaignReadLike;
-  readonly readEffectiveHead: (
+  /** Whether the journal holds any committed event on this stream. */
+  readonly hasJournalStream: (stream: IEventHistoryStreamRef) => boolean;
+  /** The stream's effective head; throws `no-effective-branch` if none. */
+  readonly requireEffectiveHead: (
     stream: IEventHistoryStreamRef,
-  ) => IEventHistoryEffectiveHead | null;
-  /** The journal's own head revision for this stream and branch. */
-  readonly readJournalRevision: (
+  ) => IEventHistoryEffectiveHead;
+  /** The journal's effective head, read through the correction lease's seam. */
+  readonly readEffectiveStreamHead: (
     stream: IEventHistoryStreamRef,
-    branchId: string,
-  ) => number;
+  ) => IEventHistoryEffectiveStreamHead;
 }
 
 /**
@@ -88,7 +106,14 @@ export interface ICampaignLaunchHeadPorts {
  *
  * The campaign is checked first: a head for a campaign that does not
  * exist is not a head, and answering `no-authoritative-stream` for one
- * would tell the launch to proceed ungated into nothing.
+ * would tell the launch to proceed ungated into nothing. Then the
+ * journal alone decides whether there is a stream: only a campaign with
+ * no committed journal event answers `no-authoritative-stream`. Any
+ * other campaign answers the journal's effective head - branch and
+ * revision from `readEffectiveStreamHead` (revision 0 when the effective
+ * branch has no head row yet), generation from the effective head - and
+ * one with no effective head throws `no-effective-branch` from
+ * `requireEffectiveHead` before the head is read.
  */
 export function resolveCampaignLaunchHead(
   ports: ICampaignLaunchHeadPorts,
@@ -98,59 +123,59 @@ export function resolveCampaignLaunchHead(
   if (read.kind !== 'ok') return { kind: 'campaign-not-found' };
 
   const stream = campaignStreamRef(campaignId);
-  const head = ports.readEffectiveHead(stream);
-  // Deliberately `readEffectiveHead` rather than `requireEffectiveHead`:
-  // the absence of a branch is an answer this endpoint gives, not an
-  // exception it raises.
-  if (head === null) return { kind: 'no-authoritative-stream' };
+  if (!ports.hasJournalStream(stream)) {
+    return { kind: 'no-authoritative-stream' };
+  }
 
+  const effective = ports.requireEffectiveHead(stream);
+  const head = ports.readEffectiveStreamHead(stream);
   return {
     kind: 'head',
     branchId: head.branchId,
-    revision: ports.readJournalRevision(stream, head.branchId),
-    effectiveGeneration: head.effectiveGeneration,
+    revision: head.revision,
+    effectiveGeneration: effective.effectiveGeneration,
   };
 }
 
 /**
- * The journal head revision for a stream and branch.
- *
- * A branch with no head row sits at revision 0: it exists and nothing
- * has been appended to it yet. That is the genesis case (and what a
- * freshly minted candidate branch will look like), not a missing
- * stream - the correction-lease store reads a missing row the same way.
- * Defaulting it to anything else compares a fabricated revision against
- * a head of 0 and refuses a fresh campaign its first launch.
+ * Whether the journal holds any committed event on this stream, on any
+ * branch. Journal events are immutable (the journal migration's
+ * no-delete trigger), so this reads the durable fact "the campaign has a
+ * journal stream"; the head rows, a mutable pointer over those events,
+ * are not asked.
  */
-function readJournalRevision(
-  stream: IEventHistoryStreamRef,
-  branchId: string,
-): number {
+function hasJournalStream(stream: IEventHistoryStreamRef): boolean {
   const row = getSQLiteService()
     .getDatabase()
     .prepare(
-      `SELECT stream_revision AS revision
-         FROM event_journal_stream_heads
-        WHERE stream_type = ? AND stream_id = ? AND branch_id = ?`,
+      `SELECT 1 AS ok FROM event_journal_events
+        WHERE stream_type = ? AND stream_id = ? LIMIT 1`,
     )
-    .get(stream.streamType, stream.streamId, branchId) as
-    | { readonly revision: number }
-    | undefined;
-  return row?.revision ?? 0;
+    .get(stream.streamType, stream.streamId);
+  return row !== undefined;
 }
 
 /**
  * The durable ports. Lives here rather than in either route so the two
  * launch endpoints cannot drift into two different definitions of "the
- * head" - the whole point of this module is that there is one.
+ * head" - the whole point of this module is that there is one. Each port
+ * opens its reads on the current database when it is called.
  */
 export function campaignLaunchHeadPorts(): ICampaignLaunchHeadPorts {
   return {
     readCampaign,
-    readEffectiveHead: (stream) =>
+    hasJournalStream,
+    requireEffectiveHead: (stream) =>
       new SQLiteEventHistoryBranchStore(
         getSQLiteService().getDatabase(),
-      ).readEffectiveHead(stream),
-    readJournalRevision,
+      ).requireEffectiveHead(stream),
+    readEffectiveStreamHead: (stream) => {
+      const db = getSQLiteService().getDatabase();
+      return readEffectiveStreamHead(
+        db,
+        new SQLiteEventHistoryBranchStore(db),
+        stream,
+      );
+    },
   };
 }

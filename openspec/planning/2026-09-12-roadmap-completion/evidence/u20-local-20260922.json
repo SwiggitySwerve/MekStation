@@ -1,0 +1,429 @@
+{
+  "unit": "U20",
+  "stage": "local",
+  "at": "2026-09-22T20:44:16.774Z",
+  "status": "ready",
+  "baseline": "3399af264f64f3c9b319beec23e479665c414111",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u20",
+  "branch": "roadmap-u20-launch-head-reads-journal-20260922",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "shellPreamble": [
+    "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "export npm_config_dry_run=true"
+  ],
+  "change": [
+    "resolveCampaignLaunchHead decides existence from the journal: a new port hasJournalStream (SELECT 1 FROM event_journal_events WHERE stream_type = ? AND stream_id = ? LIMIT 1); false is the only path to no-authoritative-stream.",
+    "The head is read through readEffectiveStreamHead, the correction lease's seam (port readEffectiveStreamHead); the private readJournalRevision copy of that query is removed.",
+    "effectiveGeneration comes from requireEffectiveHead; a journaled campaign with no effective head throws the branch store's no-effective-branch before the head is read.",
+    "Header comment: the stale 'while the cutover flag is off no campaign has a journal stream' premise is replaced by the rule (head = journal effective head; no-authoritative-stream = no journal stream; the launch is gated whenever a head exists; a missing effective head is refused). The no-authoritative-stream union member comment and the resolver, existence-read and ports comments state what the code does."
+  ],
+  "lineCounts": [
+    {
+      "file": "src/lib/campaign/authority/campaignLaunchHead.ts",
+      "category": "product",
+      "added": 68,
+      "deleted": 43,
+      "untracked": false,
+      "totalFileLines": 181,
+      "sha256": "b2290d1f0fd247f84547ba17e2c7f0e45aa4f6c8af3ee9c95780c669ac4e6582"
+    },
+    {
+      "file": "src/lib/campaign/authority/__tests__/campaignLaunchHead.journal.test.ts",
+      "category": "test",
+      "added": 284,
+      "deleted": 0,
+      "untracked": true,
+      "totalFileLines": 284,
+      "sha256": "489c990b6615db6a42acc28955be99ca11c110398245cea7888a8d9e1c76be71",
+      "equalsRedSha256": true
+    }
+  ],
+  "lineCountTotals": {
+    "filesChanged": 2,
+    "insertions": 352,
+    "deletions": 43,
+    "productChangedLines": 111,
+    "testChangedLines": 284,
+    "totalChangedLines": 395,
+    "capFiles": 15,
+    "capNonGeneratedLines": 500,
+    "withinCaps": true
+  },
+  "gates": [
+    {
+      "gate": "npx jest src/lib/campaign/authority/__tests__/campaignLaunchHead.journal.test.ts",
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\campaign\\\\authority\\\\__tests__\\\\campaignLaunchHead.journal.test.ts/i.",
+      "counts": "Test Suites: 1 passed, 1 total; Tests:       4 passed, 4 total",
+      "failingSuites": [],
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u20/logs/gate-suite.log",
+        "sha256": "ec208bc1c330d02107eb17d5c66318786a44c41a4a10bf1b6c3a8428264c7151"
+      }
+    },
+    {
+      "gate": "npx jest src/pages-modules/api/__tests__/campaignLaunchHeadRoute.test.ts",
+      "lastLine": "Ran all test suites matching /src\\\\pages-modules\\\\api\\\\__tests__\\\\campaignLaunchHeadRoute.test.ts/i.",
+      "counts": "Test Suites: 1 passed, 1 total; Tests:       7 passed, 7 total",
+      "failingSuites": [],
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u20/logs/gate-caller-head-route.log",
+        "sha256": "c4dc85fa463c713eb1507533e469a845171daf6758de3ec63fbc3b4ce857fde7"
+      }
+    },
+    {
+      "gate": "npx jest src/pages-modules/api/__tests__/campaignLaunchAuthorityRoute.test.ts",
+      "lastLine": "Ran all test suites matching /src\\\\pages-modules\\\\api\\\\__tests__\\\\campaignLaunchAuthorityRoute.test.ts/i.",
+      "counts": "Test Suites: 1 passed, 1 total; Tests:       17 passed, 17 total",
+      "failingSuites": [],
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u20/logs/gate-caller-authority-route.log",
+        "sha256": "7e5381eeb4ea73eeb3a8c81191ea448a3aea6f7771ce362e0ed79e599ff9e745"
+      }
+    },
+    {
+      "gate": "npx jest src/pages-modules/gameplay/campaigns/__tests__/missionLaunchPage.launch.test.ts",
+      "lastLine": "Ran all test suites matching /src\\\\pages-modules\\\\gameplay\\\\campaigns\\\\__tests__\\\\missionLaunchPage.launch.test.ts/i.",
+      "counts": "Test Suites: 1 passed, 1 total; Tests:       4 passed, 4 total",
+      "failingSuites": [],
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u20/logs/gate-caller-mission-launch-page.log",
+        "sha256": "377b035a723c23575a0336c0c89cd365712fca38b78d2064aa1518a4c826284e"
+      }
+    },
+    {
+      "gate": "npx jest src/lib/campaign",
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\campaign/i.",
+      "counts": "Test Suites: 202 passed, 202 total; Tests:       2967 passed, 2967 total",
+      "failingSuites": [],
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u20/logs/gate-campaign.log",
+        "sha256": "5d39c98fb4df0a439a772dfde27242d9af842645565ba5a2aa01d8916334418d"
+      }
+    },
+    {
+      "gate": "npx jest src/lib/events/journal",
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\events\\\\journal/i.",
+      "counts": "Test Suites: 23 passed, 23 total; Tests:       243 passed, 243 total",
+      "failingSuites": [],
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u20/logs/gate-journal.log",
+        "sha256": "d4912efd5239d19570fe6a483b7249f7f5dafbae592e189b9c04839227e2fc69"
+      }
+    },
+    {
+      "gate": "npx tsc --noEmit",
+      "lastLine": "(no output)",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u20/logs/gate-tsc.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "outputBytes": 0
+    },
+    {
+      "gate": "npx oxlint",
+      "lastLine": "Finished in 367ms on 3816 files using 16 threads.",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u20/logs/gate-oxlint.log",
+        "sha256": "d55b41de6b1750fea95ac4fc9eea9ccb2e4b28f45de8326cc19e121cca71ea7b"
+      },
+      "warningsLine": "Found 84 warnings and 0 errors.",
+      "warningsVsBaseline84": 0
+    },
+    {
+      "gate": "npx oxlint src/lib/campaign/authority/campaignLaunchHead.ts",
+      "lastLine": "Finished in 9ms on 1 file using 16 threads.",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u20/logs/gate-oxlint-module.log",
+        "sha256": "18929be87ca20ae34a0b99c765fb73a91ea467bdb50fc6a5096f16ee4cb35f90"
+      },
+      "warningsLine": "Found 0 warnings and 0 errors.",
+      "note": "the module is linted (1 file)"
+    },
+    {
+      "gate": "npx oxlint src/lib/campaign/authority/__tests__/campaignLaunchHead.journal.test.ts",
+      "lastLine": "Finished in 7ms on 0 files using 16 threads.",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u20/logs/gate-oxlint-suite.log",
+        "sha256": "4c676fb453a7153e0c2f5d8a997a118de973883c6e899a43f7e2d6705a24222e"
+      },
+      "warningsLine": "Found 0 warnings and 0 errors.",
+      "note": "the new suite is excluded by .oxlintrc.json ignorePatterns ('on 0 files'); the repo-wide run does not lint it either"
+    },
+    {
+      "gate": "npx oxfmt --check src/lib/campaign/authority/campaignLaunchHead.ts src/lib/campaign/authority/__tests__/campaignLaunchHead.journal.test.ts",
+      "lastLine": "Finished in 16ms on 2 files using 16 threads.",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u20/logs/gate-oxfmt.log",
+        "sha256": "6b7a3961c6a0a6bf7f4dc2d4f42928846d0a9722b97116b70906422fdf746db6"
+      },
+      "resultLine": "All matched files use the correct format.",
+      "files": 2
+    },
+    {
+      "gate": "npm run lint:units",
+      "lastLine": "LINT_UNITS_PASS 100/100",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u20/logs/gate-lint-units.log",
+        "sha256": "e055631f9348b2e6539c922dddc1fe388b583448a734da5f618cb47c583fae2d"
+      }
+    },
+    {
+      "gate": "npm run qc:openspec-ci:validate",
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u20/logs/gate-openspec-ci.log",
+        "sha256": "4c2dafd093b946290aa4abe001ad8b3d65671b17c7682722c55a510ecc04f91e"
+      }
+    },
+    {
+      "gate": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u20/logs/gate-validator.log",
+        "sha256": "97b2f29d264078525a55c5f88586fb95603311fa065e70d7d17c5fab08f5b5bc"
+      }
+    },
+    {
+      "gate": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+      "lastLine": "U20",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u20/logs/gate-validator-next.log",
+        "sha256": "46ab92a3f156cc8e4f6bb0b0f001188547254d2d3ded3aee4e0b31c509652114"
+      }
+    },
+    {
+      "gate": "npm run qc:guard-node-modules-link",
+      "lastLine": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"E:\\\\Projects\\\\MekStation\\\\.sisyphus\\\\roadmap-completion-20260912\\\\worktrees\\\\u20\\\\node_modules\",\"actualPath\":\"E:\\\\Projects\\\\MekStation\\\\node_modules\"}",
+      "exitCode": 1,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u20/logs/gate-guard.log",
+        "sha256": "144c7e4c7f2b579f3a67e7b252d63513fcaff2efc116e2ac9eea3460eee5f851"
+      },
+      "expected": true,
+      "why": "refusal by design in a junctioned worktree; no npm install/ci/prune or lifecycle was run"
+    }
+  ],
+  "jestGatesAllGreen": true,
+  "mutants": {
+    "preMutantSha256": "b2290d1f0fd247f84547ba17e2c7f0e45aa4f6c8af3ee9c95780c669ac4e6582",
+    "preMutantEqualsFinal": true,
+    "results": [
+      {
+        "id": "M1",
+        "what": "the head read skipped: after the campaign read the resolver always answers no-authoritative-stream",
+        "file": "src/lib/campaign/authority/campaignLaunchHead.ts",
+        "edits": [
+          {
+            "from": "  const stream = campaignStreamRef(campaignId);\n  if (!ports.hasJournalStream(stream)) {\n    return { kind: 'no-authoritative-stream' };\n  }\n\n  const effective = ports.requireEffectiveHead(stream);\n  const head = ports.readEffectiveStreamHead(stream);\n  return {\n    kind: 'head',\n    branchId: head.branchId,\n    revision: head.revision,\n    effectiveGeneration: effective.effectiveGeneration,\n  };\n",
+            "to": "  return { kind: 'no-authoritative-stream' };\n"
+          }
+        ],
+        "preMutantSha256": "b2290d1f0fd247f84547ba17e2c7f0e45aa4f6c8af3ee9c95780c669ac4e6582",
+        "mutantSha256": "fbe38109eb04e23b23a8b7e615ada7de1bbf221fb0e4c118d6fed5bb909688c0",
+        "restoredSha256": "b2290d1f0fd247f84547ba17e2c7f0e45aa4f6c8af3ee9c95780c669ac4e6582",
+        "restoredEqualsPreMutant": true,
+        "command": "npx jest src/lib/campaign/authority/__tests__/campaignLaunchHead.journal.test.ts",
+        "exitCode": 1,
+        "counts": "Test Suites: 1 failed, 1 total; Tests:       3 failed, 1 passed, 4 total",
+        "caught": true,
+        "failed": [
+          {
+            "test": "resolveCampaignLaunchHead reads the journal effective head (U20) › (a) after one campaign-stream append the head is the journal effective head",
+            "matcher": "expect(received).toEqual(expected) // deep equality",
+            "expected": [],
+            "received": [],
+            "at": "src/lib/campaign/authority/__tests__/campaignLaunchHead.journal.test.ts:189:20"
+          },
+          {
+            "test": "resolveCampaignLaunchHead reads the journal effective head (U20) › (c) a second append advances the revision and stales the first head",
+            "matcher": "expect(received).toMatchObject(expected)",
+            "expected": [],
+            "received": [],
+            "at": "src/lib/campaign/authority/__tests__/campaignLaunchHead.journal.test.ts:217:19"
+          },
+          {
+            "test": "resolveCampaignLaunchHead reads the journal effective head (U20) › (d) a journaled campaign whose effective head is missing is refused, never no-authoritative-stream",
+            "matcher": "expect(received).not.toEqual(expected) // deep equality",
+            "expected": [
+              "Expected: not {\"kind\": \"no-authoritative-stream\"}"
+            ],
+            "received": [],
+            "at": "src/lib/campaign/authority/__tests__/campaignLaunchHead.journal.test.ts:278:25"
+          }
+        ],
+        "passed": [
+          "(b) a campaign with no journal stream answers no-authoritative-stream"
+        ],
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u20/logs/mutant-M1.log",
+          "sha256": "b629b05255724b690786889529a93df2874a139be53ec432971882f9331a5299"
+        }
+      },
+      {
+        "id": "M2a",
+        "what": "the branch record consulted instead of the journal for existence: hasJournalStream answers readEffectiveHead(stream) !== null (the baseline predicate)",
+        "file": "src/lib/campaign/authority/campaignLaunchHead.ts",
+        "edits": [
+          {
+            "from": "    readCampaign,\n    hasJournalStream,\n",
+            "to": "    readCampaign,\n    hasJournalStream: (stream) =>\n      new SQLiteEventHistoryBranchStore(\n        getSQLiteService().getDatabase(),\n      ).readEffectiveHead(stream) !== null,\n"
+          }
+        ],
+        "preMutantSha256": "b2290d1f0fd247f84547ba17e2c7f0e45aa4f6c8af3ee9c95780c669ac4e6582",
+        "mutantSha256": "b8d5be5c794594d940596942eb27552627f5595ddafaf90baa139dbcca8dca22",
+        "restoredSha256": "b2290d1f0fd247f84547ba17e2c7f0e45aa4f6c8af3ee9c95780c669ac4e6582",
+        "restoredEqualsPreMutant": true,
+        "command": "npx jest src/lib/campaign/authority/__tests__/campaignLaunchHead.journal.test.ts",
+        "exitCode": 1,
+        "counts": "Test Suites: 1 failed, 1 total; Tests:       1 failed, 3 passed, 4 total",
+        "caught": true,
+        "failed": [
+          {
+            "test": "resolveCampaignLaunchHead reads the journal effective head (U20) › (d) a journaled campaign whose effective head is missing is refused, never no-authoritative-stream",
+            "matcher": "expect(received).not.toEqual(expected) // deep equality",
+            "expected": [
+              "Expected: not {\"kind\": \"no-authoritative-stream\"}"
+            ],
+            "received": [],
+            "at": "src/lib/campaign/authority/__tests__/campaignLaunchHead.journal.test.ts:278:25"
+          }
+        ],
+        "passed": [
+          "(a) after one campaign-stream append the head is the journal effective head",
+          "(b) a campaign with no journal stream answers no-authoritative-stream",
+          "(c) a second append advances the revision and stales the first head"
+        ],
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u20/logs/mutant-M2a.log",
+          "sha256": "63fb77b989c90c6edea0bc3f029699e553144e19fea76a88b15047d3afc1ec94"
+        }
+      },
+      {
+        "id": "M2b",
+        "what": "the branch record consulted instead of the journal head for the values: the head port answers the effective branch record's base revision and base digest",
+        "file": "src/lib/campaign/authority/campaignLaunchHead.ts",
+        "edits": [
+          {
+            "from": "    readEffectiveStreamHead: (stream) => {\n      const db = getSQLiteService().getDatabase();\n      return readEffectiveStreamHead(\n        db,\n        new SQLiteEventHistoryBranchStore(db),\n        stream,\n      );\n    },\n",
+            "to": "    readEffectiveStreamHead: (stream) => {\n      const store = new SQLiteEventHistoryBranchStore(\n        getSQLiteService().getDatabase(),\n      );\n      const effective = store.requireEffectiveHead(stream);\n      const branch = store.requireBranch(stream, effective.branchId);\n      return {\n        branchId: effective.branchId,\n        revision: branch.baseRevision,\n        digest: branch.baseDigest,\n      };\n    },\n"
+          }
+        ],
+        "preMutantSha256": "b2290d1f0fd247f84547ba17e2c7f0e45aa4f6c8af3ee9c95780c669ac4e6582",
+        "mutantSha256": "b70cf2ad180ababf54bf8f118cf480df698154f6f68c999114835a46fcec9d43",
+        "restoredSha256": "b2290d1f0fd247f84547ba17e2c7f0e45aa4f6c8af3ee9c95780c669ac4e6582",
+        "restoredEqualsPreMutant": true,
+        "command": "npx jest src/lib/campaign/authority/__tests__/campaignLaunchHead.journal.test.ts",
+        "exitCode": 1,
+        "counts": "Test Suites: 1 failed, 1 total; Tests:       2 failed, 2 passed, 4 total",
+        "caught": true,
+        "failed": [
+          {
+            "test": "resolveCampaignLaunchHead reads the journal effective head (U20) › (a) after one campaign-stream append the head is the journal effective head",
+            "matcher": "expect(received).toEqual(expected) // deep equality",
+            "expected": [],
+            "received": [],
+            "at": "src/lib/campaign/authority/__tests__/campaignLaunchHead.journal.test.ts:189:20"
+          },
+          {
+            "test": "resolveCampaignLaunchHead reads the journal effective head (U20) › (c) a second append advances the revision and stales the first head",
+            "matcher": "expect(received).toMatchObject(expected)",
+            "expected": [],
+            "received": [],
+            "at": "src/lib/campaign/authority/__tests__/campaignLaunchHead.journal.test.ts:217:19"
+          }
+        ],
+        "passed": [
+          "(b) a campaign with no journal stream answers no-authoritative-stream",
+          "(d) a journaled campaign whose effective head is missing is refused, never no-authoritative-stream"
+        ],
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u20/logs/mutant-M2b.log",
+          "sha256": "c822110dc66e18271930fc31b30e9b926ed213575bc4c398a784a02c6802eb6a"
+        }
+      },
+      {
+        "id": "M3",
+        "what": "a stale revision answered: the head port memoises the first head it read per stream in a module-level map and answers it on every later call",
+        "file": "src/lib/campaign/authority/campaignLaunchHead.ts",
+        "edits": [
+          {
+            "from": "    readEffectiveStreamHead: (stream) => {\n      const db = getSQLiteService().getDatabase();\n      return readEffectiveStreamHead(\n        db,\n        new SQLiteEventHistoryBranchStore(db),\n        stream,\n      );\n    },\n",
+            "to": "    readEffectiveStreamHead: (stream) => {\n      const key = `${stream.streamType}/${stream.streamId}`;\n      const cached = STALE_HEADS.get(key);\n      if (cached !== undefined) return cached;\n      const db = getSQLiteService().getDatabase();\n      const fresh = readEffectiveStreamHead(\n        db,\n        new SQLiteEventHistoryBranchStore(db),\n        stream,\n      );\n      STALE_HEADS.set(key, fresh);\n      return fresh;\n    },\n"
+          },
+          {
+            "from": "export function campaignLaunchHeadPorts(): ICampaignLaunchHeadPorts {\n",
+            "to": "const STALE_HEADS = new Map<string, IEventHistoryEffectiveStreamHead>();\n\nexport function campaignLaunchHeadPorts(): ICampaignLaunchHeadPorts {\n"
+          }
+        ],
+        "preMutantSha256": "b2290d1f0fd247f84547ba17e2c7f0e45aa4f6c8af3ee9c95780c669ac4e6582",
+        "mutantSha256": "53c0277586a689580a13abf22cb4ec8c1391bdc8fc28fcad3b2672fb53c64dda",
+        "restoredSha256": "b2290d1f0fd247f84547ba17e2c7f0e45aa4f6c8af3ee9c95780c669ac4e6582",
+        "restoredEqualsPreMutant": true,
+        "command": "npx jest src/lib/campaign/authority/__tests__/campaignLaunchHead.journal.test.ts",
+        "exitCode": 1,
+        "counts": "Test Suites: 1 failed, 1 total; Tests:       1 failed, 3 passed, 4 total",
+        "caught": true,
+        "failed": [
+          {
+            "test": "resolveCampaignLaunchHead reads the journal effective head (U20) › (c) a second append advances the revision and stales the first head",
+            "matcher": "expect(received).toMatchObject(expected)",
+            "expected": [],
+            "received": [],
+            "at": "src/lib/campaign/authority/__tests__/campaignLaunchHead.journal.test.ts:225:20"
+          }
+        ],
+        "passed": [
+          "(a) after one campaign-stream append the head is the journal effective head",
+          "(b) a campaign with no journal stream answers no-authoritative-stream",
+          "(d) a journaled campaign whose effective head is missing is refused, never no-authoritative-stream"
+        ],
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u20/logs/mutant-M3.log",
+          "sha256": "06ef5fb72c624c30f5da73fd3a021c0a4c336c4e7c2f5b5020a7d871282aedb3"
+        }
+      }
+    ]
+  },
+  "nonClaims": [
+    "Rows (a), (b) and (c) were already green on the baseline (U19b installs the effective head on the first append); only row (d) was red. Row (a) was not driven red by reverting U19b, because that file is outside this unit's path.",
+    "ICampaignLaunchHead carries branchId, revision and effectiveGeneration only. The charter's 'digest' is not a field of the module's type, and none was added; the digest readEffectiveStreamHead returns is read and dropped.",
+    "The resolver's reads (hasJournalStream, requireEffectiveHead, readEffectiveStreamHead) are separate statements, not one read transaction, as the baseline's two reads were; a cross-process activation between them is not addressed.",
+    "Row (d) reproduces the pre-U19b state by deleting the effective head row the append installed; a real pre-U19b stream also lacks its event_history_branches row. INFERENCE (code reading of SQLiteEventHistoryBranchStore.readEffectiveHead, which selects FROM event_history_effective_heads LEFT JOIN event_history_branches): both states read as null and answer the same; a real pre-U19b stream was not built.",
+    "The route-level consequence of the refusal (campaignLaunchHeadRoute and campaignLaunchAuthorityRoute catch it and answer 500; the client reads 'unavailable' and refuses the launch) is from code reading; no route test covers it (routes and their tests are outside the path).",
+    "No route, client, flag or e2e file changed. No build, no Playwright, no live launch or co-op journey was run; suites outside src/lib/campaign, src/lib/events/journal and the three caller suites listed in gates were not run.",
+    "The new suite is not linted by oxlint (excluded by .oxlintrc.json ignorePatterns); it is formatted (oxfmt --check) and type-checked (tsc --noEmit)."
+  ],
+  "findingsReportedNotFixed": [
+    {
+      "id": "F1",
+      "file": "src/pages-modules/api/campaignLaunchHeadRoute.ts:15-21",
+      "finding": "The route's status-code doc is stale against the rule: it says 200 head means 'the campaign has an effective branch', that no-authoritative-stream means the campaign 'simply has no head to name while the cutover flag is off', and it does not list the 500 a journaled campaign with no effective head now gets. Outside src/lib/campaign/authority; not edited."
+    },
+    {
+      "id": "F2",
+      "file": "src/pages-modules/api/__tests__/campaignLaunchHeadRoute.test.ts:224-226,138",
+      "finding": "The no-journal row's comment still says 'no head to name while the cutover flag is off'; the seed still calls backfillGenesisBranches() after the genesis append, which U19b makes a no-op for that stream. Outside the path; not edited. Its 'answers revision 0 for a branch with nothing appended to it' row (241-265) deletes the head rows and keeps passing because existence is read from the immutable events, not the head rows."
+    },
+    {
+      "id": "F3",
+      "file": "src/pages-modules/api/campaignLaunchHeadRoute.ts, src/pages-modules/api/campaignLaunchAuthorityRoute.ts (tests beside them)",
+      "finding": "No route-level test pins the 500 for a journaled campaign with no effective head; the refusal is pinned at the module (row d). Adding one is a route-test edit outside the path."
+    }
+  ],
+  "finalGitStatusShort": "M src/lib/campaign/authority/campaignLaunchHead.ts\n?? openspec/planning/2026-09-12-roadmap-completion/evidence/u20-admission-20260922.json\n?? openspec/planning/2026-09-12-roadmap-completion/evidence/u20-red-20260922.json\n?? src/lib/campaign/authority/__tests__/campaignLaunchHead.journal.test.ts"
+}
