@@ -2024,6 +2024,50 @@
         "parkedPr": 1809,
         "nextIndependentAction": "a narrower successor (or U17 loop-scripts unit) launches every worker with npm_config_dry_run=true (measured: npm honours it and writes no node_modules) and calls the guard CLI before any npm command in the worktree-setup step; the guard module and pin on the parked head are reusable as they stand, minus the preinstall line",
         "proof": "evidence/u12-local-20260917.json findingsReportedNotFixed[F1] (npm source lines cited with sha256)"
+      },
+      "successor20260922": {
+        "at": "2026-09-22T00:30:00.000Z",
+        "unit": "U12b",
+        "note": "the parked draft #1809 stays open until U12b merges its module and pin by content; then the draft is closed with a comment naming U12b's merge sha"
+      }
+    },
+    {
+      "id": "U12b",
+      "node": "R6.loop-harness",
+      "taskKeys": [],
+      "behavior": "Junction guard as a CLI the loop calls, not a preinstall hook: scripts/qc/guard-node-modules-link.mjs (the parked U12 module, reused as it stands) exits non-zero with INSTALL_REFUSED when node_modules under the working directory is a link (junction or symlink) or the manifest root is not the real path of the working directory, and exits 0 with INSTALL_ALLOWED otherwise; exposed as `npm run qc:guard-node-modules-link`; jest pin (the parked pin, re-aimed at the CLI contract). No preinstall wiring and no claim that npm cannot prune through a link (FN-u12-root-preinstall-runs-after-reify: npm runs the root preinstall after reify, so a hook cannot protect the root); the protection is the loop convention already in force since U17 (every lane shell sets npm_config_dry_run=true and never runs an npm lifecycle in a junctioned worktree) plus this CLI, which the worktree-setup step and every lane charter call before any npm command. Red-first: the pin asserts the CLI exit codes and stdout words from a junctioned worktree, a symlinked node_modules and a fresh checkout. Nothing else changes.",
+      "ownershipPaths": [
+        "scripts/qc",
+        "scripts/__tests__",
+        "package.json"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260922": "owner instruction 2026-09-22: resolve the open pending PRs; U12's blocked record named this narrower successor (guard CLI called by the loop, npm_config_dry_run convention) as the next independent action; planned by the parent. Resolves the parked draft PR #1809, which is closed when U12b merges (its module and pin are carried over by content, not by branch).",
+      "predecessorParked": {
+        "unit": "U12",
+        "pr": 1809,
+        "head": "1baa6a96c6f7b186091635dd3e77749f212db090"
       }
     },
     {
