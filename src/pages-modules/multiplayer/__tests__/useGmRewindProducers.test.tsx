@@ -1,10 +1,28 @@
 import { act, renderHook } from '@testing-library/react';
 
 import type { GmRewindPreviewOutcome } from '@/components/multiplayer/gmRewindPreviewPhrasing';
+import type { GmRewindHeadOutcome } from '@/lib/multiplayer/client/readGmRewindHead';
 import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 
+import { readGmRewindHead } from '@/lib/multiplayer/client/readGmRewindHead';
 import { useGmRewindProducers } from '@/pages-modules/multiplayer/useGmRewindProducers';
 import { GameEventType } from '@/types/gameplay/GameSessionInterfaces';
+
+/**
+ * WHY the adapter is wrapped rather than replaced: every other row here
+ * drives the REAL adapter over a faked `global.fetch`, so the only head it
+ * can produce is one that already passed the adapter's 64-hex digest
+ * check. The producer's own refusal - a head outcome carrying no digest,
+ * or an empty one - is reachable only by handing the producer that
+ * outcome, so the spy delegates to the real implementation and one row
+ * overrides a single call.
+ */
+jest.mock('@/lib/multiplayer/client/readGmRewindHead', () => {
+  const actual = jest.requireActual<
+    typeof import('@/lib/multiplayer/client/readGmRewindHead')
+  >('@/lib/multiplayer/client/readGmRewindHead');
+  return { readGmRewindHead: jest.fn(actual.readGmRewindHead) };
+});
 
 const HEAD = { branchId: 'main-after-rewind', revision: 17, generation: 4 };
 const HEAD_DIGEST =
@@ -22,7 +40,7 @@ const EXPECTED_BODY = {
   targetRevision: 16,
   expectedBranchId: 'main-after-rewind',
   expectedRevision: 17,
-  expectedDigest: '',
+  expectedDigest: HEAD_DIGEST,
   expectedGeneration: 4,
 };
 const PREVIEW_ANSWER: GmRewindPreviewOutcome = {
@@ -74,6 +92,20 @@ function mockFetch(status = 200, head: typeof HEAD | null = HEAD) {
   return fetchMock;
 }
 
+/**
+ * A head outcome the adapter cannot produce today: `undefined` is the
+ * pre-U5h shape (no digest field at all) and `''` an empty claim. Both are
+ * heads the producer must refuse rather than post - the correction lease
+ * compares expectedDigest against the journal head and refuses an empty
+ * claim as correction-lease-held.
+ */
+function headOutcomeWithDigest(
+  digest: string | undefined,
+): GmRewindHeadOutcome {
+  const head = digest === undefined ? { ...HEAD } : { ...HEAD, digest };
+  return { kind: 'head', head } as unknown as GmRewindHeadOutcome;
+}
+
 function mountHook(
   matchId: string | null = 'match-1',
   wireToken: string | null = 'wire-token',
@@ -88,7 +120,7 @@ afterEach(() => {
 });
 
 describe('useGmRewindProducers', () => {
-  it('posts the server head and an empty digest, returning the preview outcome', async () => {
+  it('posts the server head and its digest, returning the preview outcome', async () => {
     const fetchMock = mockFetch();
     const { result } = mountHook();
 
@@ -204,6 +236,28 @@ describe('useGmRewindProducers', () => {
           kind: 'unavailable',
         });
       });
+      expect(fetchMock).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each([
+    ['absent', undefined],
+    ['empty', ''],
+  ])(
+    'posts nothing when the head outcome carries an %s digest',
+    async (_shape, digest) => {
+      const fetchMock = mockFetch();
+      jest
+        .mocked(readGmRewindHead)
+        .mockResolvedValueOnce(headOutcomeWithDigest(digest));
+      const { result } = mountHook();
+
+      await act(async () => {
+        await expect(result.current.onPreviewRewind()).resolves.toStrictEqual({
+          kind: 'unavailable',
+        });
+      });
+
       expect(fetchMock).not.toHaveBeenCalled();
     },
   );

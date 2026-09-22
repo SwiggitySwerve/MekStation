@@ -35,8 +35,8 @@ export interface IUseGmRewindProducers {
  * correction producers (`useGmCorrectionProducers`) must ask for the SAME
  * blast radius the rewind flow shows; two builders would be two CAS
  * bindings, and the GM would approve one having been shown the other.
- * `null` means the page has no match, token or available server head,
- * which every caller reports as `unavailable`.
+ * `null` means the page has no match, token, available server head, or a
+ * head that names a digest, which every caller reports as `unavailable`.
  */
 export async function buildGmRewindRequest(
   input: Pick<IUseGmRewindProducersInput, 'matchId' | 'wireToken'>,
@@ -48,6 +48,15 @@ export async function buildGmRewindRequest(
   });
   if (outcome.kind !== 'head') return null;
   const { head } = outcome;
+  // WHY read as possibly absent: the adapter's head type carries `digest`
+  // today, but a head that reaches here without one is the pre-digest
+  // shape, and an empty digest is not a claim the server can honour - the
+  // correction lease compares expectedDigest against the journal head and
+  // refuses an empty one as correction-lease-held. A head we cannot name a
+  // digest for is a head this producer has no request for, so it reports
+  // unavailable rather than post a commit the lease will refuse.
+  const digest: string | undefined = head.digest;
+  if (typeof digest !== 'string' || digest.length === 0) return null;
   return {
     matchId: input.matchId,
     wireToken: input.wireToken,
@@ -56,12 +65,10 @@ export async function buildGmRewindRequest(
     targetRevision: Math.max(0, head.revision - 1),
     expectedBranchId: head.branchId,
     expectedRevision: head.revision,
-    // WHY: the client does not hold event_digest. The preview's
-    // expected-head check compares branch/revision/generation only
-    // (GmCombatRewindPreview.ts ~258-266). The route schema accepts
-    // any string, including empty (rewind-preview.ts line 110), so
-    // we send '' rather than invent a hash.
-    expectedDigest: '',
+    // WHY verbatim: the digest is the server's own, read back through the
+    // GM head route. The client never computes or adjusts it - it names
+    // the head it was told about, and nothing else.
+    expectedDigest: digest,
     expectedGeneration: head.generation,
   };
 }

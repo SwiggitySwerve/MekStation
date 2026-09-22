@@ -494,7 +494,7 @@ describe('Multiplayer lobby page — surface swap on status', () => {
       targetRevision: 4,
       expectedBranchId: 'main',
       expectedRevision: 5,
-      expectedDigest: '',
+      expectedDigest: HEAD_DIGEST,
       expectedGeneration: 1,
     });
   });
@@ -562,7 +562,7 @@ describe('Multiplayer lobby page — surface swap on status', () => {
       targetRevision: 4,
       expectedBranchId: 'main',
       expectedRevision: 5,
-      expectedDigest: '',
+      expectedDigest: HEAD_DIGEST,
       expectedGeneration: 1,
     });
     expect(mockedCommitGmCombatRewind).toHaveBeenCalledTimes(1);
