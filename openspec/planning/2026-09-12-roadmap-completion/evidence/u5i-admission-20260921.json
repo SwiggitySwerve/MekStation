@@ -1,0 +1,162 @@
+{
+  "unit": "U5i",
+  "stage": "admission",
+  "at": "2026-09-22 06:05:00 UTC",
+  "baseline": "145e155609afd73b079f8410c04fd8df6bb5a278",
+  "originMain": "53bd8f0a84fad3b60809f4b5e2a9dd6fb7f425aa",
+  "originMainNote": "origin/main has moved past the baseline: 53bd8f0a8 is U5g's merge (#1871), 145e15560 is U5h's merge (#1875). `git merge-base --is-ancestor HEAD origin/main` succeeded, so the baseline is an ancestor of origin/main.",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u5i",
+  "branch": "codex/roadmap-u5i-producers-send-digest-20260921",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "modelEvidence": "Lane dispatched by the parent as a Claude Opus Agent lane; the parent's charter override states the lane is not a Codex lane and directs this value.",
+  "decision": "go",
+  "next": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "exitCode": 0,
+    "stdout": "U5i",
+    "note": "--next printed U5i on this baseline."
+  },
+  "dependencies": {
+    "node": "R2.multiplayer-client",
+    "packet": "PK-rewind-commit-head-digest",
+    "option": "a",
+    "packetDecision": "owner instruction 2026-09-21, option (a): a GM head route exposes the journal digest with the effective head; the lease law is untouched; units U5g, U5h, U5i",
+    "U5g": "local-verified in units.json; its route IS on origin/main (see routeOnOriginMain below), not on this baseline",
+    "U5h": "local-verified in units.json; its adapter IS on this baseline (the baseline commit 145e15560 is U5h's merge)",
+    "U2b": "blocked; resumeAfter U5g, U5h and U5i complete (units.json blocked20260921.resumeAfter)"
+  },
+  "seams": [
+    {
+      "file": "src/lib/multiplayer/client/readGmRewindHead.ts",
+      "lines": "8-14,18-63",
+      "onBaseline": true,
+      "adapterVersion": "U5h (post-#1875): GET /api/matches/:id/head with the bearer; the `head` outcome is { branchId, revision, generation (from effectiveGeneration), digest } where `digest` is copied verbatim only when it matches /^[0-9a-f]{64}$/; 404 { error: 'no head' } => no-head; anything else => unavailable. The outcome type is IViewerLineageEffectiveHead & { readonly digest: string }, so `digest` is REQUIRED on the baseline type - no tolerant type is needed for tsc.",
+      "readOnly": true
+    },
+    {
+      "file": "src/pages-modules/multiplayer/useGmRewindProducers.ts",
+      "lines": "41-67,76-103",
+      "asRead": "buildGmRewindRequest returns null without a matchId/wireToken or when the head outcome is not `head`; it maps head.branchId/revision/generation onto the request and sets expectedDigest: '' at line 64 behind a five-line WHY comment stating the client does not hold event_digest. onPreviewRewind pins the built request in a ref; onConfirmRewind forwards that exact ref to commitGmCombatRewind."
+    },
+    {
+      "file": "src/pages-modules/multiplayer/useGmCorrectionProducers.ts",
+      "lines": "101-134",
+      "asRead": "onPreviewHostGmCorrection builds through the SAME buildGmRewindRequest and pins it; onApproveHostGmCorrection forwards that pinned request plus a trimmed private reason when one was typed. No digest handling of its own, so the digest reaches approve by reusing the pinned request."
+    },
+    {
+      "file": "src/pages-modules/multiplayer/__tests__/useGmRewindProducers.test.tsx",
+      "lines": "9-11,21-27,50-75,91-117",
+      "asRead": "global.fetch faked at /api/matches/match-1/head with { branchId, revision, effectiveGeneration, digest } and a 64-hex HEAD_DIGEST constant (U5h's fix pass); EXPECTED_BODY pins expectedDigest: '' - that pin is what turns red."
+    },
+    {
+      "file": "src/pages-modules/multiplayer/__tests__/useGmCorrectionProducers.test.tsx",
+      "lines": "33-56,87-95,218-248",
+      "asRead": "same faked head with the same 64-hex HEAD_DIGEST constant; EXPECTED_REQUEST pins expectedDigest: ''; the approve row asserts commit received EXPECTED_REQUEST plus the reason."
+    },
+    {
+      "file": "src/__tests__/pages/multiplayer/lobby-roomcode.test.tsx",
+      "lines": "91-92,193-207,473-500,525-571",
+      "asRead": "the page-level fetch fake answers /api/matches/match-1/head with { branchId: 'main', revision: 5, effectiveGeneration: 1, digest: HEAD_DIGEST }; the preview row and the confirm row each pin expectedDigest: ''."
+    },
+    {
+      "file": "src/lib/multiplayer/client/commitGmCombatRewind.ts",
+      "lines": "43-68",
+      "onBaseline": true,
+      "asRead": "read-only context: the transport serialises targetRevision, expectedBranchId, expectedRevision, expectedDigest, expectedGeneration and adds `reason` when one is present (U5d), so a digest set by the producer reaches the commit body unchanged.",
+      "readOnly": true
+    }
+  ],
+  "routeOnOriginMain": {
+    "command": "git log origin/main --oneline -- src/pages-modules/api/matchHeadRoute.ts",
+    "exitCode": 0,
+    "stdout": "53bd8f0a8 feat(api): a GM head route answers the effective head with the journal digest the correction lease binds against (#1871)",
+    "answer": "YES - U5g's route is on origin/main as of 53bd8f0a8. It is NOT on this unit's baseline 145e15560 (`git ls-tree HEAD -- src/pages-modules/api/matchHeadRoute.ts` printed nothing); U5h's adapter IS on this baseline. The head fetch is faked in Jest in every suite this unit touches, so no live route is needed locally."
+  },
+  "design": {
+    "product": "buildGmRewindRequest (useGmRewindProducers.ts) reads the head outcome's digest through a `string | undefined` binding - no cast - and refuses the head when that value is not a non-empty string, returning null so every caller reports `unavailable` and posts nothing. When it is a non-empty string it becomes expectedDigest on the built request, replacing the '' literal and its stale WHY comment.",
+    "correctionPath": "no product change in useGmCorrectionProducers.ts: the approve arm already forwards the pinned request, so it now carries branch, revision, generation and digest plus the private reason by construction.",
+    "whyRefuseRatherThanSendEmpty": "the correction lease compares expectedDigest against the journal head (EventHistoryCorrectionLeaseContract), and an empty claim is refused as correction-lease-held; posting '' would spend a request that cannot commit."
+  },
+  "redPlan": [
+    "(a) EXPECTED_BODY / EXPECTED_REQUEST pin expectedDigest === the faked head's 64-hex digest in both hook suites (red today: '').",
+    "(b) the correction approve row asserts commit received that same request plus the reason (red today: expectedDigest '').",
+    "(c) a head outcome whose digest is absent (the pre-U5h shape) or empty yields `unavailable` and posts nothing. The adapter itself filters those bodies, so the row hands the producer that outcome directly through a jest.mock spy that otherwise delegates to the real adapter; a global.fetch-only row would be green today and would not be red evidence.",
+    "(d) the lobby page test's preview and confirm rows pin the faked head's digest (red today: '')."
+  ],
+  "estimatePerFile": [
+    {
+      "file": "src/pages-modules/multiplayer/useGmRewindProducers.ts",
+      "class": "product",
+      "estimatedChangedLines": 18
+    },
+    {
+      "file": "src/pages-modules/multiplayer/useGmCorrectionProducers.ts",
+      "class": "product",
+      "estimatedChangedLines": 0
+    },
+    {
+      "file": "src/pages-modules/multiplayer/__tests__/useGmRewindProducers.test.tsx",
+      "class": "test",
+      "estimatedChangedLines": 60
+    },
+    {
+      "file": "src/pages-modules/multiplayer/__tests__/useGmCorrectionProducers.test.tsx",
+      "class": "test",
+      "estimatedChangedLines": 2
+    },
+    {
+      "file": "src/__tests__/pages/multiplayer/lobby-roomcode.test.tsx",
+      "class": "test",
+      "estimatedChangedLines": 2
+    },
+    {
+      "file": "openspec/planning/2026-09-12-roadmap-completion/evidence/u5i-admission-20260921.json",
+      "class": "receipt",
+      "estimatedChangedLines": 180
+    },
+    {
+      "file": "openspec/planning/2026-09-12-roadmap-completion/evidence/u5i-red-20260921.json",
+      "class": "receipt",
+      "estimatedChangedLines": 140
+    },
+    {
+      "file": "openspec/planning/2026-09-12-roadmap-completion/evidence/u5i-local-20260921.json",
+      "class": "receipt",
+      "estimatedChangedLines": 250
+    }
+  ],
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "estimatedFiles": 8,
+    "estimatedProductLinesChanged": 18,
+    "unitCapNote": "estimate is under 30 product lines, as the charter requires"
+  },
+  "review": {
+    "classes": ["routine"],
+    "lane": "Lane A only"
+  },
+  "risksForTheParent": [
+    "U5g's route IS on origin/main (53bd8f0a8) but is NOT on this unit's baseline (145e15560). The runtime path is real on main; this unit's local evidence is against a faked head response only, so the parent still owns the merge order and any live proof.",
+    "No live commit is exercised here. Whether the server accepts the forwarded digest (the correction lease comparison) is not retested by this unit.",
+    "A head outcome without a digest is now refused rather than posted. If any caller depended on a request being built from a digest-less head, it now reports unavailable instead; on this baseline the only head producer is U5h's adapter, which never emits a head without a 64-hex digest.",
+    "The stale documentation block at useGmCorrectionProducers.ts:19-28 ('NOT YET DELIVERED - the transport DROPS the field') is contradicted by commitGmCombatRewind.ts:43-68 on this baseline, which serialises `reason`. Reported, not fixed - it is outside this unit's behaviour."
+  ],
+  "acceptanceCommands": [
+    "npx jest src/pages-modules/multiplayer/__tests__/useGmRewindProducers.test.tsx --runInBand",
+    "npx jest src/pages-modules/multiplayer/__tests__/useGmCorrectionProducers.test.tsx --runInBand",
+    "npx jest src/__tests__/pages/multiplayer/lobby-roomcode.test.tsx --runInBand",
+    "npx jest src/pages-modules/multiplayer src/__tests__/pages/multiplayer",
+    "npx tsc --noEmit",
+    "npx oxlint",
+    "npx oxfmt --check <the changed files>",
+    "npm run lint:units",
+    "npm run qc:openspec-ci:validate",
+    "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs"
+  ],
+  "constraints": [
+    "Node 22.22.0; npm_config_dry_run=true; no npm install/ci/prune anywhere (node_modules is a junction to the repository root).",
+    "No build, no Playwright, no ladder run, no commit/push/stash/amend, no ledger or tasks.md edit.",
+    "Owned edits: the two producer files, their tests under src/pages-modules/multiplayer/__tests__/, src/__tests__/pages/multiplayer/lobby-roomcode.test.tsx, and the three u5i receipts."
+  ]
+}

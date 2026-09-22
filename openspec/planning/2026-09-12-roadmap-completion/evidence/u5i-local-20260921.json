@@ -1,0 +1,213 @@
+{
+  "unit": "U5i",
+  "stage": "local",
+  "at": "2026-09-22 06:14:00 UTC",
+  "baseline": "145e155609afd73b079f8410c04fd8df6bb5a278",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u5i",
+  "branch": "codex/roadmap-u5i-producers-send-digest-20260921",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "status": "ready",
+  "behaviourDelivered": "buildGmRewindRequest (src/pages-modules/multiplayer/useGmRewindProducers.ts) sets expectedDigest to the head's digest read back through U5h's adapter, and refuses a head whose digest is absent (the pre-digest shape) or empty by returning null, so every caller reports `unavailable` and posts nothing rather than sending an empty claim the correction lease refuses as correction-lease-held. The correction approve arm needed no change: it forwards the pinned preview request, so the commit now carries branch, revision, generation and digest plus the private reason.",
+  "lineCounts": [
+    {
+      "file": "src/pages-modules/multiplayer/useGmRewindProducers.ts",
+      "class": "product",
+      "added": 15,
+      "removed": 8,
+      "fileLines": 113,
+      "sha256": "b1d91fe3aac2439940d82a6f81282db57b4035c496f23304fd31e49845afe703"
+    },
+    {
+      "file": "src/pages-modules/multiplayer/useGmCorrectionProducers.ts",
+      "class": "product",
+      "added": 0,
+      "removed": 0,
+      "note": "unchanged - the approve arm already forwards the pinned request, so it does not appear in git status",
+      "sha256": "d652971ecf2643591203a65523c4009852e1e181033b376a92b1b35b08b21529"
+    },
+    {
+      "file": "src/pages-modules/multiplayer/__tests__/useGmRewindProducers.test.tsx",
+      "class": "test",
+      "added": 56,
+      "removed": 2,
+      "fileLines": 264,
+      "sha256": "aa37e9b9d9522c79f1fb3de774edb53747c6d740e07b1c578fca63a1a78a1457"
+    },
+    {
+      "file": "src/pages-modules/multiplayer/__tests__/useGmCorrectionProducers.test.tsx",
+      "class": "test",
+      "added": 2,
+      "removed": 2,
+      "sha256": "8fed8bc6f41b8c18d6f220417fad3779406aa8bbcdb8eab082350e1747555cf6"
+    },
+    {
+      "file": "src/__tests__/pages/multiplayer/lobby-roomcode.test.tsx",
+      "class": "test",
+      "added": 2,
+      "removed": 2,
+      "sha256": "eb04f8a31a7752e21ed654c1ee8ea9ebc3da6c22ebb1e321a22e18e2c52b0ee6"
+    }
+  ],
+  "caps": {
+    "maxFiles": 15,
+    "filesChanged": 4,
+    "filesChangedPlusReceipts": 7,
+    "productLinesAdded": 15,
+    "productLinesRemoved": 8,
+    "underThirtyProductLines": true
+  },
+  "gates": [
+    {
+      "command": "npx jest src/pages-modules/multiplayer/__tests__/useGmRewindProducers.test.tsx --runInBand",
+      "lastLine": "Ran all test suites matching /src\\pages-modules\\multiplayer\\__tests__\\useGmRewindProducers.test.tsx/i.",
+      "resultLine": "Tests:       9 passed, 9 total",
+      "suitesLine": "Test Suites: 1 passed, 1 total",
+      "exitCode": 0
+    },
+    {
+      "command": "npx jest src/pages-modules/multiplayer/__tests__/useGmCorrectionProducers.test.tsx --runInBand",
+      "lastLine": "Ran all test suites matching /src\\pages-modules\\multiplayer\\__tests__\\useGmCorrectionProducers.test.tsx/i.",
+      "resultLine": "Tests:       10 passed, 10 total",
+      "suitesLine": "Test Suites: 1 passed, 1 total",
+      "exitCode": 0
+    },
+    {
+      "command": "npx jest src/__tests__/pages/multiplayer/lobby-roomcode.test.tsx --runInBand",
+      "lastLine": "Ran all test suites matching /src\\__tests__\\pages\\multiplayer\\lobby-roomcode.test.tsx/i.",
+      "resultLine": "Tests:       13 passed, 13 total",
+      "suitesLine": "Test Suites: 1 passed, 1 total",
+      "exitCode": 0
+    },
+    {
+      "command": "npx jest src/pages-modules/multiplayer src/__tests__/pages/multiplayer",
+      "lastLine": "Ran all test suites matching /src\\pages-modules\\multiplayer|src\\__tests__\\pages\\multiplayer/i.",
+      "resultLine": "Tests:       37 passed, 37 total",
+      "suitesLine": "Test Suites: 5 passed, 5 total",
+      "exitCode": 0,
+      "note": "re-run after the last mutant was restored; same totals"
+    },
+    {
+      "command": "npx tsc --noEmit",
+      "lastLine": "(no output)",
+      "exitCode": 0,
+      "note": "no tolerant type was needed: U5h's adapter head type on this baseline declares `digest: string`, so `const digest: string | undefined = head.digest` is an ordinary widening assignment, not a cast."
+    },
+    {
+      "command": "npx oxlint",
+      "lastLine": "Finished in 245ms on 3815 files using 16 threads.",
+      "resultLine": "Found 84 warnings and 0 errors.",
+      "exitCode": 0,
+      "warningsChangedFrom84": false
+    },
+    {
+      "command": "npx oxfmt --check src/pages-modules/multiplayer/useGmRewindProducers.ts src/pages-modules/multiplayer/__tests__/useGmRewindProducers.test.tsx src/pages-modules/multiplayer/__tests__/useGmCorrectionProducers.test.tsx src/__tests__/pages/multiplayer/lobby-roomcode.test.tsx",
+      "lastLine": "Finished in 22ms on 4 files using 16 threads.",
+      "resultLine": "All matched files use the correct format.",
+      "exitCode": 0,
+      "note": "four files: useGmCorrectionProducers.ts is unchanged, and was checked in the earlier five-file run which also reported all matched files correctly formatted."
+    },
+    {
+      "command": "npm run lint:units",
+      "lastLine": "LINT_UNITS_PASS 100/100",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run qc:openspec-ci:validate",
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+      "exitCode": 0
+    },
+    {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "exitCode": 0
+    }
+  ],
+  "mutants": [
+    {
+      "id": "M1",
+      "description": "the producer keeps sending '': expectedDigest: digest -> expectedDigest: ''",
+      "file": "src/pages-modules/multiplayer/useGmRewindProducers.ts",
+      "caughtBy": "npx jest src/pages-modules/multiplayer/__tests__/useGmRewindProducers.test.tsx --runInBand",
+      "result": "Tests:       3 failed, 6 passed, 9 total (exit 1)",
+      "failingRows": [
+        "posts the server head and its digest, returning the preview outcome",
+        "floors the target at zero for a zero server revision",
+        "confirms the saved head without reading the changed server head again"
+      ],
+      "preSha256": "b1d91fe3aac2439940d82a6f81282db57b4035c496f23304fd31e49845afe703",
+      "mutatedSha256": "e8a555f9490310d3964249897df4ad970b00fd3bd7d55b5198f0caabd8fcb584",
+      "restoredSha256": "b1d91fe3aac2439940d82a6f81282db57b4035c496f23304fd31e49845afe703",
+      "restoredEqualsPre": true
+    },
+    {
+      "id": "M2",
+      "description": "a head without a digest is posted anyway: the two-line read-and-refuse becomes `const digest: string = head.digest ?? '';`",
+      "file": "src/pages-modules/multiplayer/useGmRewindProducers.ts",
+      "caughtBy": "npx jest src/pages-modules/multiplayer/__tests__/useGmRewindProducers.test.tsx --runInBand",
+      "result": "Tests:       2 failed, 7 passed, 9 total (exit 1)",
+      "failingRows": [
+        "posts nothing when the head outcome carries an absent digest",
+        "posts nothing when the head outcome carries an empty digest"
+      ],
+      "preSha256": "b1d91fe3aac2439940d82a6f81282db57b4035c496f23304fd31e49845afe703",
+      "mutatedSha256": "9f625ece35c4f05c630b56c54abe6bc0ffd1d9b0fdec47affcffa1968738c246",
+      "restoredSha256": "b1d91fe3aac2439940d82a6f81282db57b4035c496f23304fd31e49845afe703",
+      "restoredEqualsPre": true
+    },
+    {
+      "id": "M3",
+      "description": "the approve request loses the digest: the approve arm spreads `{ ...request, expectedDigest: '' }` before adding the reason",
+      "file": "src/pages-modules/multiplayer/useGmCorrectionProducers.ts",
+      "caughtBy": "npx jest src/pages-modules/multiplayer/__tests__/useGmCorrectionProducers.test.tsx --runInBand",
+      "result": "Tests:       2 failed, 8 passed, 10 total (exit 1)",
+      "failingRows": [
+        "what approve commits > commits the exact previewed request plus the captured reason",
+        "what approve commits > commits no reason field at all when the GM typed nothing"
+      ],
+      "preSha256": "d652971ecf2643591203a65523c4009852e1e181033b376a92b1b35b08b21529",
+      "mutatedSha256": "968452144936a220d47b57ffee286604317ff601ac333cc544952a986ed248d1",
+      "restoredSha256": "d652971ecf2643591203a65523c4009852e1e181033b376a92b1b35b08b21529",
+      "restoredEqualsPre": true,
+      "note": "this file carries no U5i product change; the mutant proves the approve arm's digest is pinned by the suite even though the digest reaches it by construction."
+    }
+  ],
+  "nonClaims": [
+    "The live commit is not retested. No server, no route and no correction lease ran here; whether the forwarded digest is accepted by the lease is not evidence this unit produces.",
+    "U5g's route is on origin/main (53bd8f0a8) but not on this unit's baseline (145e15560). The merge order of U5g, U5h and U5i, and any live proof of the three together, is the parent's.",
+    "No e2e row was written or run; E2E-25 stays with U2b (draft PR #1860).",
+    "No ladder run, no production build, no Playwright, no browser.",
+    "No units.json / roadmap.json / admission-snapshot.json edit, no tasks.md checkbox, no commit, push, stash or amend.",
+    "Row (c)'s digest-less head is reached through a jest.mock spy over the adapter, not through the network shape: U5h's adapter cannot emit such a head, so this unit proves only the producer's own refusal."
+  ],
+  "findingsReportedNotFixed": [
+    {
+      "id": "FN-u5i-stale-correction-producer-docblock",
+      "file": "src/pages-modules/multiplayer/useGmCorrectionProducers.ts",
+      "lines": "19-28",
+      "finding": "The 'NOT YET DELIVERED - the transport DROPS the field' paragraph is stale on this baseline: src/lib/multiplayer/client/commitGmCombatRewind.ts:43-68 serialises `reason` when one is present (U5d), and the rewind-commit route stores it (U5c). The comment still tells a reader the GM's typed reason goes no further than the adapter.",
+      "whyNotFixed": "Outside this unit's behaviour sentence; editing it would widen U5i beyond the digest. Handed to the parent for a docs-class successor or a follow-on unit."
+    },
+    {
+      "id": "FN-u5i-preview-schema-still-accepts-empty-digest",
+      "file": "src/pages-modules/multiplayer/useGmRewindProducers.ts",
+      "lines": "54-66 (as read before the change)",
+      "finding": "The removed comment recorded that the rewind-preview route schema accepts any string including empty. This unit stops the client from sending one, but nothing here changes what the route accepts; a different client could still post an empty digest to preview.",
+      "whyNotFixed": "Route behaviour is R2.authority-live's (U5g's node), not this unit's."
+    }
+  ],
+  "gitStatusAtHandback": [
+    " M src/__tests__/pages/multiplayer/lobby-roomcode.test.tsx",
+    " M src/pages-modules/multiplayer/__tests__/useGmCorrectionProducers.test.tsx",
+    " M src/pages-modules/multiplayer/__tests__/useGmRewindProducers.test.tsx",
+    " M src/pages-modules/multiplayer/useGmRewindProducers.ts",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u5i-admission-20260921.json",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u5i-local-20260921.json",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u5i-red-20260921.json"
+  ],
+  "gitStatusNote": "src/pages-modules/multiplayer/useGmCorrectionProducers.ts is absent from this list because the unit required no change in it; the charter's expected list named it as an allowed edit, not a required one.",
+  "receipts": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u5i-admission-20260921.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u5i-red-20260921.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u5i-local-20260921.json"
+  ]
+}
