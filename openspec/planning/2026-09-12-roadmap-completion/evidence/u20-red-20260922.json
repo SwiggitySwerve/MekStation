@@ -1,0 +1,81 @@
+{
+  "unit": "U20",
+  "stage": "red",
+  "at": "2026-09-22T20:33:52.610Z",
+  "baseline": "3399af264f64f3c9b319beec23e479665c414111",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u20",
+  "branch": "roadmap-u20-launch-head-reads-journal-20260922",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "shellPreamble": [
+    "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "export npm_config_dry_run=true"
+  ],
+  "plainStatement": "Rows (a), (b) and (c) are ALREADY GREEN on the baseline: U19b (920630bc0) installs the campaign stream's genesis branch and effective head on its first append, so the baseline resolver, which reads the effective branch record and then the journal revision on it, answers the journal head after one append and advances with the second. They are kept as pins. The unit's red is row (d): a campaign whose journal holds events but whose effective head is missing is answered no-authoritative-stream on the baseline, which the launch route turns into an ungated launch of a journaled campaign (CO3 F1). The unit's change is the rule (existence read from the journal, head read through the correction lease seam, a missing effective head refused) plus the comment correction.",
+  "moduleUnderTest": {
+    "path": "src/lib/campaign/authority/campaignLaunchHead.ts",
+    "worktreeSha256AtRed": "2f86d78f81a7a0e186ad9f678fa56543c4ef55df234052ea59aaa216303641cd",
+    "baselineBlobSha256": "2f86d78f81a7a0e186ad9f678fa56543c4ef55df234052ea59aaa216303641cd",
+    "equal": true
+  },
+  "suite": {
+    "path": "src/lib/campaign/authority/__tests__/campaignLaunchHead.journal.test.ts",
+    "untracked": true,
+    "sha256AtRed": "489c990b6615db6a42acc28955be99ca11c110398245cea7888a8d9e1c76be71",
+    "copyAtRed": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u20/logs/red-suite-copy.test.ts.txt",
+      "sha256": "489c990b6615db6a42acc28955be99ca11c110398245cea7888a8d9e1c76be71"
+    }
+  },
+  "command": "npx jest src/lib/campaign/authority/__tests__/campaignLaunchHead.journal.test.ts",
+  "exitCode": 1,
+  "counts": "Test Suites: 1 failed, 1 total; Tests:       1 failed, 3 passed, 4 total",
+  "lastLine": "Ran all test suites matching /src\\\\lib\\\\campaign\\\\authority\\\\__tests__\\\\campaignLaunchHead.journal.test.ts/i.",
+  "log": {
+    "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u20/logs/red-baseline.log",
+    "sha256": "2931cf8fd4cb3d87b37c2a882aea370e3e0a72130d6d63cf77af8fd3ce023195"
+  },
+  "rows": {
+    "a": {
+      "title": "(a) after one campaign-stream append the head is the journal effective head",
+      "onBaseline": "passed",
+      "reading": "green on the baseline because U19b alone installed the effective head; kept as a pin (M1, M2b and the literal revision 1 ride on it)"
+    },
+    "b": {
+      "title": "(b) a campaign with no journal stream answers no-authoritative-stream",
+      "onBaseline": "passed",
+      "reading": "green on the baseline; kept as a pin"
+    },
+    "c": {
+      "title": "(c) a second append advances the revision and stales the first head",
+      "onBaseline": "passed",
+      "reading": "green on the baseline; kept as a pin (M3 rides on it)"
+    },
+    "d": {
+      "title": "(d) a journaled campaign whose effective head is missing is refused, never no-authoritative-stream",
+      "onBaseline": "failed",
+      "reading": "red: the baseline answers {kind:'no-authoritative-stream'} for a campaign whose journal holds an event (the not.toEqual assertion fails), i.e. it decides existence by the branch record, not by the journal"
+    }
+  },
+  "failingAssertions": [
+    {
+      "test": "resolveCampaignLaunchHead reads the journal effective head (U20) › (d) a journaled campaign whose effective head is missing is refused, never no-authoritative-stream",
+      "matcher": "expect(received).not.toEqual(expected) // deep equality",
+      "expected": [
+        "Expected: not {\"kind\": \"no-authoritative-stream\"}"
+      ],
+      "received": [],
+      "at": "src/lib/campaign/authority/__tests__/campaignLaunchHead.journal.test.ts:278:25"
+    }
+  ],
+  "passed": [
+    "(a) after one campaign-stream append the head is the journal effective head",
+    "(b) a campaign with no journal stream answers no-authoritative-stream",
+    "(c) a second append advances the revision and stales the first head"
+  ],
+  "failed": [
+    "(d) a journaled campaign whose effective head is missing is refused, never no-authoritative-stream"
+  ],
+  "notAttempted": [
+    "Row (a) was not driven red by reverting U19b's writer: that file is outside this unit's ownership path, so no edit (even a temporary one) was made to it."
+  ]
+}
