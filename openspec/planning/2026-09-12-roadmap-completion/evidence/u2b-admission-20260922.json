@@ -1,0 +1,213 @@
+{
+  "unit": "U2b",
+  "stage": "admission",
+  "at": "2026-09-22T07:07:46Z",
+  "status": "BLOCKED",
+  "baseline": "5b5f99ef69b019c0cefcef7f5214977ae087627c",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u2b-resume",
+  "branch": "roadmap-u2b-e2e-19-25-rows-20260922",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "next": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "stdout": "U2b",
+    "exitCode": 0
+  },
+  "resumedFrom": {
+    "draftPr": 1860,
+    "head": "e00303cad38dace93f325d77d7c866c02b2c89f6",
+    "carriedByContent": true,
+    "verbatim": [
+      "e2e/gm-two-player-privacy.pack.spec.ts",
+      "scripts/qc/gm-two-player-campaign-core.cjs",
+      "scripts/__tests__/gm-two-player-campaign-qc.test.ts"
+    ],
+    "reApplied": [],
+    "howVerified": "All three files' base blobs are byte-identical between the draft's parent 3137f5b619c4597076d9a274ca0b4d0bbe364ab4 and this baseline 5b5f99ef69b019c0cefcef7f5214977ae087627c: e2e spec 32cf18fd5b394e4e597381ae99d16941c40cf576, core.cjs a01d576ccf45353e87cbb64a1e7f4d22adaa4fae, qc test 56e5b84e6f11e6fc63ef5dba116cdbec432c556b. git diff --stat after the carry reproduced the draft stat exactly (245/22, 5/5, 7/2), so no hunk had to be re-applied.",
+    "changesMadeAfterTheCarry": [
+      {
+        "file": "e2e/gm-two-player-privacy.pack.spec.ts",
+        "change": "E2E-25's preview assertion hardened: expect.soft(...) -> expect(...). The draft made it soft so a refused preview would still reach the approve door, which was the 2026-09-21 blocked state. The preview is no longer refused, so the soft form only weakened the row."
+      },
+      {
+        "file": "e2e/gm-two-player-privacy.pack.spec.ts",
+        "change": "The header's 'Admission measurement (2026-09-21)' paragraph, now false, replaced by what each row proves today and the exact gap E2E-25 is blocked on."
+      }
+    ]
+  },
+  "seamsAsRead": [
+    "src/pages-modules/multiplayer/useGmRewindProducers.ts:41-74 - buildGmRewindRequest reads the head through readGmRewindHead and refuses a head without a digest (U5f/U5i)",
+    "src/lib/multiplayer/client/readGmRewindHead.ts:18-63 - GET /api/matches/:id/head, 64-lowercase-hex digest validation (U5h)",
+    "src/pages-modules/api/matchHeadRoute.ts:61-80 - the GM head route, branchId/revision/effectiveGeneration/digest in one snapshot (U5g)",
+    "src/pages-modules/multiplayer/useGmCorrectionProducers.ts:101-134 - preview pins the request, approve reuses it and adds the reason from a ref",
+    "src/lib/multiplayer/client/commitGmCombatRewind.ts:44-70 - the reason is serialised when present (U5d)",
+    "src/pages/api/matches/[id]/rewind-commit.ts:211-226 - the committed arm writes the reason as a GM private record (U5c)",
+    "src/lib/multiplayer/server/history/GmPrivatePreviewRecordWriter.ts:70-84 - recordKind gm-reason, payload is the raw reason",
+    "src/pages/api/matches/[id]/rewind-preview.ts:250,259 - derivedSummary 'GM rewind preview to revision N' and privateRefs.preview (U5a)",
+    "src/pages-modules/api/matchPrivatePreviewRoute.ts:88-109 - includePrivate read, GM payload vs payload-free player view, audited either way",
+    "scripts/qc/gm-two-player-campaign-core.cjs:202-206 - the arming predicate this unit widened",
+    "scripts/__tests__/gm-two-player-campaign-qc.test.ts:251-259,556-568 - the arming pin and the non-arming pin",
+    "openspec/changes/harden-gm-two-player-campaign-sessions/specs/e2e-testing/spec.md:81-83,105-107 - the E2E-19 and E2E-25 letters"
+  ],
+  "fixtureFacts": {
+    "armingDesign": "expandedMembers.includes('authority-recovery') || expandedMembers.includes('privacy-pack') - the narrowest change; the privacy pack keeps the plain server and is not added to RESPAWNING_GROUPS.",
+    "armedKeys": {
+      "MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY": "1",
+      "MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE": "enabled",
+      "MEKSTATION_E2E_SERVER_COMMAND": "node server.js"
+    },
+    "unarmedJournalState": "Measured in .sisyphus/e2e-runtime/u2b-red-unarmed-20260922/mekstation.db: event_journal_events 0, event_journal_stream_heads 0, event_history_branches 0. There is no head for the lobby to name.",
+    "armedJournalState": "Measured in .sisyphus/e2e-runtime/u2b-armed-a-20260922/mekstation.db: every tactical stream is on branch 'main' at revision 5..10 with a digest; the effective branch is 'main', not the root fallback.",
+    "hostIsGmOnTheHttpRoutes": "HostAsGmMembershipSource brands the host GM on the head, preview, private-preview and commit routes; the tactical channel still mints no role:'gm' viewer on the wire.",
+    "correctionControlsMount": "networked-gm-private-reason, networked-gm-preview-btn and networked-gm-approve-btn were all driven live on the production lobby route in every armed run."
+  },
+  "refusalReMeasurement": {
+    "claim": "Neither of the two refusals measured on 2026-09-21 occurs on this baseline. Both are gone, and each is gone for a reason that was observed in this session rather than inferred from the merge log.",
+    "stale_branch_409": {
+      "measuredOn20260921": {
+        "kind": "refused",
+        "reason": "STALE_BRANCH",
+        "detail": "The named head is STALE_BRANCH; resync to the active head first",
+        "route": "POST /api/matches/:id/rewind-preview"
+      },
+      "measuredOn20260922": "ABSENT",
+      "evidence": "E2E-19 passes end to end in u2b-armed-a / u2b-final-b / u2b-final-c. Its first assertion is expect(preview.status(), await preview.text()).toBe(200) on the lobby-driven POST rewind-preview, and the row proceeds past it to the private readback, the audit pair and the negative search. A 409 STALE_BRANCH would stop the row on that line.",
+      "cause": "U5e/U5f: buildGmRewindRequest (src/pages-modules/multiplayer/useGmRewindProducers.ts:41-74) now reads the head through readGmRewindHead and names head.branchId ('main' under the fixture) instead of the root fallback."
+    },
+    "correction_lease_held_409": {
+      "measuredOn20260921": {
+        "kind": "refused",
+        "reason": "correction-lease-held",
+        "detail": "expectedDigest must be 64 lowercase hex characters",
+        "route": "POST /api/matches/:id/rewind-commit"
+      },
+      "measuredOn20260922": "ABSENT",
+      "evidence": "In all three armed runs the rewind-commit answer is {\"kind\":\"refused\",\"reason\":\"candidate-verification-failed\",...}. candidate-verification-failed is raised at GmCombatRewindCommit.ts:180-187, which is downstream of leases.acquireCorrectionLease (GmCombatRewindCommit.ts:155-165) and of createCorrectionCandidateBranch. Reaching it proves the lease was acquired, so the 64-hex expectedDigest guard at EventHistoryCorrectionLeaseContract.ts:200 admitted the digest.",
+      "cause": "U5g/U5h/U5i: GET /api/matches/:id/head (src/pages-modules/api/matchHeadRoute.ts:61-80) returns the journal head's digest, readGmRewindHead validates it as 64 lowercase hex (src/lib/multiplayer/client/readGmRewindHead.ts:46-51) and buildGmRewindRequest sends it verbatim as expectedDigest."
+    },
+    "newRefusalInItsPlace": "candidate-verification-failed - see blocker below."
+  },
+  "estimatePerFile": {
+    "e2e/gm-two-player-privacy.pack.spec.ts": {
+      "productLines": 264,
+      "deleted": 22
+    },
+    "scripts/qc/gm-two-player-campaign-core.cjs": {
+      "productLines": 5,
+      "deleted": 5
+    },
+    "scripts/__tests__/gm-two-player-campaign-qc.test.ts": {
+      "testLines": 7,
+      "deleted": 2
+    }
+  },
+  "caps": {
+    "maxFiles": 15,
+    "filesChanged": 3,
+    "maxNonGeneratedProductLines": 500,
+    "productLinesChanged": 296,
+    "e2eRowsCountAsProduct": true,
+    "withinCaps": true
+  },
+  "review": {
+    "class": "privacy",
+    "packet": "PK-u2b-ruling",
+    "requires": "The PR merges only after an owner ruling bound to its exact head. This lane supplies no ruling and records none."
+  },
+  "risksForTheParent": [
+    "E2E-25 is a strict failing row on a measured product gap outside this unit's ownership. The unit cannot reach local-verified as scoped.",
+    "E2E-19 is green, twice in a row, and is independently shippable if the parent re-scopes U2b to it. That is a parent decision, not this lane's.",
+    "Task 21.2 covers the ten rows U2 proved PLUS these two. With E2E-25 unproven, 21.2 is not tickable.",
+    "The gap is the journal cutover boundary, so the successor is likely a cutover-owned unit rather than another e2e unit."
+  ],
+  "blocker": {
+    "id": "FN-u2b-rewind-commit-verifies-through-the-match-store",
+    "class": "missing product surface (journal cutover)",
+    "affectsRow": "E2E-25 only; E2E-19 is unaffected and green",
+    "measuredBody": {
+      "httpStatus": 409,
+      "kind": "refused",
+      "reason": "candidate-verification-failed",
+      "detailRunA": "Branch '1b320f8c5a320dc87101cdd21f5cc0c3' is anchored to a base its parent does not hold at revision 4",
+      "detailRunB": "Branch '4bcd4794ee87f1eec5ff34074a9b4f7e' is anchored to a base its parent does not hold at revision 4",
+      "failingAssertion": "expect(committed.status(), await committed.text()).toBe(200) at e2e/gm-two-player-privacy.pack.spec.ts:297",
+      "deterministic": true,
+      "reproducedIn": [
+        "u2b-armed-a-20260922",
+        "u2b-final-b-20260922",
+        "u2b-final-c-20260922"
+      ]
+    },
+    "whatIsProvenBeforeTheRefusal": [
+      "The private reason reaches the server: expect(committed.request().postDataJSON().reason).toBe(reason) passes on the line above the failing one.",
+      "The correction lease admits the named head, digest and generation: the refusal is raised downstream of the lease acquisition."
+    ],
+    "rootCause": {
+      "summary": "Under the journal fixture arm the combat stream is journaled with journal-native event ids, but the rewind commit verifies the candidate path through the MATCH STORE, which carries a parallel line with different event ids and digests for the same revisions. The candidate anchor can therefore never match.",
+      "seams": [
+        {
+          "seam": "src/pages-modules/api/rewindCommitDeps.ts:133",
+          "fact": "reader: matchStoreBranchSegmentReader(input.store) - unconditional; there is no journal-mode branch in the deps builder."
+        },
+        {
+          "seam": "src/lib/events/journal/EventHistoryCandidateBuild.ts:304-333",
+          "fact": "requireBaseEvent selects event_id/event_digest from event_journal_events on the parent branch, so the candidate anchors to the JOURNAL's event."
+        },
+        {
+          "seam": "src/lib/multiplayer/server/history/matchStoreBranchSegmentReader.ts:146-180",
+          "fact": "The reader re-derives every event id from the match store row and every digest via matchEventChainDigest, so the anchor materializeBranchPath carries forward is the match store line."
+        },
+        {
+          "seam": "src/lib/events/journal/EventHistoryBranchResolver.ts:203-211",
+          "fact": "materializeBranchPath compares segment.baseEventId/baseDigest against that anchor and raises the observed message."
+        },
+        {
+          "seam": "src/lib/events/journal/EventHistoryBranchResolver.ts:260-289",
+          "fact": "journalBranchSegmentReader, the only journal-backed reader that exists, refuses every branch but 'root'; the armed combat stream is on 'main' (MATCH_BASELINE_BRANCH_ID, src/lib/multiplayer/server/matchAuthorityBaseline.ts:59), so it cannot simply be swapped in."
+        }
+      ],
+      "durableEvidence": {
+        "journalRow": {
+          "db": ".sisyphus/e2e-runtime/u2b-armed-a-20260922/mekstation.db",
+          "table": "event_journal_events",
+          "streamId": "01119c95-6cec-4a4a-909f-b350898d4658",
+          "branchId": "main",
+          "streamRevision": 4,
+          "eventId": "9a5d4d2f-8d6f-45bc-a9c6-d9ebf8a174f8:1",
+          "eventDigestPrefix": "1b2ffa0d2223"
+        },
+        "candidateRow": {
+          "db": ".sisyphus/e2e-runtime/u2b-armed-a-20260922/mekstation.db",
+          "table": "event_history_branches",
+          "branchId": "1b320f8c5a320dc87101cdd21f5cc0c3",
+          "parentBranchId": "main",
+          "baseRevision": 4,
+          "baseEventId": "9a5d4d2f-8d6f-45bc-a9c6-d9ebf8a174f8:1",
+          "baseDigestPrefix": "1b2ffa0d2223",
+          "note": "The candidate agrees with the journal, not with the match store."
+        },
+        "matchStoreRow": {
+          "db": ".sisyphus/e2e-runtime/u2b-armed-a-20260922/multiplayer-matches.db",
+          "table": "mp_match_events",
+          "matchId": "01119c95-6cec-4a4a-909f-b350898d4658",
+          "sequence": 3,
+          "revisionForMatchSequence": 4,
+          "eventId": "b6e13694-672c-49c8-98d0-844ae4504dc9",
+          "eventType": "initiative_order_set",
+          "note": "Same revision, a different event id. This inequality is the refusal: no digest arithmetic is needed to show it."
+        }
+      }
+    },
+    "whyTheRowWasNotChanged": "The letter of E2E-25 is 'WHEN the GM finalizes a correction with a private reason ... THEN player views SHALL show the authorized result while only the GM private record contains the private detail'. The finalize genuinely refuses, so the letter is not satisfiable today. Narrowing the row to what a refused commit can prove would narrow the letter; marking it test.fail(...@until-journal-cutover) would convert a live product refusal into an expected failure, which the pack header itself forbids. The row is left as a strict failure.",
+    "requiredNextAction": "The parent parks U2b again with a packet naming this gap, or re-owns E2E-25 to the journal cutover. A separately owned product unit must give the GM rewind commit a segment reader that serves the journal line for a non-'root' live-path branch, so a candidate anchored on journal ids verifies against journal ids. E2E-19 is ready to ship on its own."
+  },
+  "nonClaims": [
+    "The tick of 21.2 is the parent stage 7 on main. This lane checked no box.",
+    "The rewind-pack cutover rows are untouched and keep their @until-journal-cutover expected failures.",
+    "No product change: src/, playwright.config.ts and package.json are unmodified.",
+    "units.json, roadmap.json, evidence/admission-snapshot.json and openspec/changes are unmodified.",
+    "E2E-25 is NOT green and no part of its redaction letter is claimed proven. What it proves today is the reason transport and the lease binding, both named explicitly in the pack header.",
+    "The privacy-pack group is NOT green: it is 7 passed / 1 failed, twice in a row. Stage 3 therefore does not reach local-verified.",
+    "No Lane A review, no owner ruling (PK-u2b-ruling), no merge, no main proof.",
+    "The build exited 1 at the standalone hydration guard. No standalone portability is claimed; the guard was not relaxed and the generated junction was not touched."
+  ]
+}

@@ -1,0 +1,297 @@
+{
+  "unit": "U2b",
+  "stage": "red",
+  "at": "2026-09-22T07:07:46Z",
+  "status": "BLOCKED",
+  "baseline": "5b5f99ef69b019c0cefcef7f5214977ae087627c",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u2b-resume",
+  "branch": "roadmap-u2b-e2e-19-25-rows-20260922",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "baselineTagAbsence": {
+    "command": "git grep -n \"@E2E-19\\|@E2E-25\" e2e/",
+    "stdout": "",
+    "exitCode": 1,
+    "baseline": "5b5f99ef69b019c0cefcef7f5214977ae087627c",
+    "meaning": "Neither tag exists anywhere under e2e/ on the baseline."
+  },
+  "setup": [
+    {
+      "command": "node scripts/qc/machine-idle.mjs --wait --timeout-ms 1800000",
+      "lastLine": "MACHINE_IDLE",
+      "exitCode": 0
+    },
+    {
+      "command": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build",
+      "node": "v22.22.0",
+      "environment": {
+        "npm_config_dry_run": "true",
+        "npm_config_ignore_scripts": "true"
+      },
+      "exitCode": 1,
+      "lastLine": "{\"ok\": false, \"error\": \"Unsafe hydration destination (runtime loader tsx) contains a symlink or junction: .next\\\\standalone\\\\node_modules\", ...}",
+      "expected": true,
+      "why": "The standalone hydration guard refuses to recurse through the worktree node_modules junction, exactly as the charter predicts. Next compilation itself completed: the log carries 'Compiled successfully in 83s' and 'Generating static pages using 15 workers (71/71) in 3.0s'. The guard was not relaxed and the generated junction was not touched. The ladder does not need the standalone tree: the runner starts the repo-root server.js, and the standalone Next config it reads is optional.",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u2b/build.log",
+        "sha256": "51ac00deadd5e894b923a25d673f6b3ef4ea1562fe34ffad855030aa8f85f25b"
+      }
+    },
+    {
+      "command": "grep -l __E2E_MODE__ .next/static/chunks/pages/_app-*.js",
+      "lastLine": ".next/static/chunks/pages/_app-84e33bbd07937ba7.js",
+      "exitCode": 0,
+      "meaning": "The E2E marker is present in the compiled bundle."
+    }
+  ],
+  "redAtTheRealBoundary": {
+    "a_baselineHasNoRows": "git grep exit 1, above.",
+    "b_rowsInPlaceArmingRemoved": {
+      "run": {
+        "runId": "u2b-red-unarmed-20260922",
+        "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=privacy-pack --run-id=u2b-red-unarmed-20260922",
+        "shellPreamble": [
+          "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+          "export npm_config_dry_run=true",
+          "export npm_config_ignore_scripts=true",
+          "export HOSTNAME=127.0.0.1",
+          "unset MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE"
+        ],
+        "idleGate": {
+          "command": "node scripts/qc/machine-idle.mjs --wait --timeout-ms 1800000",
+          "lastLine": "MACHINE_IDLE",
+          "exitCode": 0
+        },
+        "ownedPort": 23135,
+        "serverPid": 4060,
+        "serverPidSource": "netstat -ano on the runner-owned port while the run held it",
+        "runnerSummaryLines": [
+          "2 failed",
+          "6 passed (1.1m)"
+        ],
+        "exitCode": 1,
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u2b/run-u2b-red-unarmed-20260922.log",
+          "sha256": "7783b8435c9391906a822adf4232bcd87d0babea0fb09aa588a0f173f0dce930"
+        },
+        "serverLeftRunning": false
+      },
+      "expectedByCharter": "The rows fail on 404 no-authoritative-history from the rewind routes.",
+      "measured": "Both rows fail, but NOT on that body. Each fails with TimeoutError: page.waitForResponse: Timeout 10000ms exceeded while waiting for event \"response\" at previewCorrection (e2e/gm-two-player-privacy.pack.spec.ts:781), reached from E2E-19 line 219 and E2E-25 line 282. No POST to rewind-preview is ever made.",
+      "whyTheBodyMoved": "Since U5g/U5h/U5i the lobby asks GET /api/matches/:id/head before posting anything. Unarmed, that route answers 404 {\"error\":\"no head\"} (matchHeadRoute.ts:76-79 when the effective head is absent or revision 0); readGmRewindHead maps it to {kind:'no-head'} (readGmRewindHead.ts:32-35); buildGmRewindRequest returns null (useGmRewindProducers.ts:49) and the producer reports 'unavailable' without posting. The 404 no-authoritative-history body the 2026-09-21 lane saw came from the rewind-preview route, which the client no longer reaches. The condition is the same; the door that refuses moved from the server to the client.",
+      "underlyingConditionConfirmedDirectly": "Read from the unarmed run's own store, .sisyphus/e2e-runtime/u2b-red-unarmed-20260922/mekstation.db: event_journal_events 0 rows, event_journal_stream_heads 0 rows, event_history_branches 0 rows. There is genuinely no authoritative history without the arm, which is what the red step is asserting.",
+      "existingRowsUnaffected": "6 passed - the pack's other rows do not depend on the arm."
+    },
+    "c_withTheArming": {
+      "runs": [
+        {
+          "runId": "u2b-armed-a-20260922",
+          "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=privacy-pack --run-id=u2b-armed-a-20260922",
+          "shellPreamble": [
+            "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+            "export npm_config_dry_run=true",
+            "export npm_config_ignore_scripts=true",
+            "export HOSTNAME=127.0.0.1",
+            "unset MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE"
+          ],
+          "idleGate": {
+            "command": "node scripts/qc/machine-idle.mjs --wait --timeout-ms 1800000",
+            "lastLine": "MACHINE_IDLE",
+            "exitCode": 0
+          },
+          "ownedPort": 23446,
+          "serverPid": 52840,
+          "serverPidSource": "netstat -ano on the runner-owned port while the run held it",
+          "runnerSummaryLines": [
+            "1 failed",
+            "7 passed (43.8s)"
+          ],
+          "exitCode": 1,
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u2b/run-u2b-armed-a-20260922.log",
+            "sha256": "64fc9e249a28af4183568f638c63ce4f3e7d29454cd10e45c382b0bb4a3a1415"
+          },
+          "serverLeftRunning": false,
+          "note": "First armed run of the resumed rows; the run that re-measures the two 2026-09-21 refusals."
+        },
+        {
+          "runId": "u2b-final-b-20260922",
+          "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=privacy-pack --run-id=u2b-final-b-20260922",
+          "shellPreamble": [
+            "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+            "export npm_config_dry_run=true",
+            "export npm_config_ignore_scripts=true",
+            "export HOSTNAME=127.0.0.1",
+            "unset MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE"
+          ],
+          "idleGate": {
+            "command": "node scripts/qc/machine-idle.mjs --wait --timeout-ms 1800000",
+            "lastLine": "MACHINE_IDLE",
+            "exitCode": 0
+          },
+          "ownedPort": 22255,
+          "serverPid": 76568,
+          "serverPidSource": "netstat -ano on the runner-owned port while the run held it",
+          "runnerSummaryLines": [
+            "1 failed",
+            "7 passed (41.2s)"
+          ],
+          "exitCode": 1,
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u2b/run-u2b-final-b-20260922.log",
+            "sha256": "6bf3c405bfe70ebe0c627060c0f731d1bf0471e8df839f7772cc386f1e6a4529"
+          },
+          "serverLeftRunning": false,
+          "note": "First of the two consecutive runs on the final file state."
+        },
+        {
+          "runId": "u2b-final-c-20260922",
+          "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=privacy-pack --run-id=u2b-final-c-20260922",
+          "shellPreamble": [
+            "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+            "export npm_config_dry_run=true",
+            "export npm_config_ignore_scripts=true",
+            "export HOSTNAME=127.0.0.1",
+            "unset MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE"
+          ],
+          "idleGate": {
+            "command": "node scripts/qc/machine-idle.mjs --wait --timeout-ms 1800000",
+            "lastLine": "MACHINE_IDLE",
+            "exitCode": 0
+          },
+          "ownedPort": 28615,
+          "serverPid": 52616,
+          "serverPidSource": "netstat -ano on the runner-owned port while the run held it",
+          "runnerSummaryLines": [
+            "1 failed",
+            "7 passed (41.5s)"
+          ],
+          "exitCode": 1,
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u2b/run-u2b-final-c-20260922.log",
+            "sha256": "a380608f0d99c775debc3f39dc7fa04d5ae6d5883fa595d580a05071a43cf4e9"
+          },
+          "serverLeftRunning": false,
+          "note": "Second of the two consecutive runs on the final file state; identical shape."
+        }
+      ],
+      "result": "E2E-19 passes in all three. E2E-25 reaches the approve door and is refused with candidate-verification-failed in all three. 7 passed / 1 failed each time.",
+      "refusalReMeasurement": {
+        "claim": "Neither of the two refusals measured on 2026-09-21 occurs on this baseline. Both are gone, and each is gone for a reason that was observed in this session rather than inferred from the merge log.",
+        "stale_branch_409": {
+          "measuredOn20260921": {
+            "kind": "refused",
+            "reason": "STALE_BRANCH",
+            "detail": "The named head is STALE_BRANCH; resync to the active head first",
+            "route": "POST /api/matches/:id/rewind-preview"
+          },
+          "measuredOn20260922": "ABSENT",
+          "evidence": "E2E-19 passes end to end in u2b-armed-a / u2b-final-b / u2b-final-c. Its first assertion is expect(preview.status(), await preview.text()).toBe(200) on the lobby-driven POST rewind-preview, and the row proceeds past it to the private readback, the audit pair and the negative search. A 409 STALE_BRANCH would stop the row on that line.",
+          "cause": "U5e/U5f: buildGmRewindRequest (src/pages-modules/multiplayer/useGmRewindProducers.ts:41-74) now reads the head through readGmRewindHead and names head.branchId ('main' under the fixture) instead of the root fallback."
+        },
+        "correction_lease_held_409": {
+          "measuredOn20260921": {
+            "kind": "refused",
+            "reason": "correction-lease-held",
+            "detail": "expectedDigest must be 64 lowercase hex characters",
+            "route": "POST /api/matches/:id/rewind-commit"
+          },
+          "measuredOn20260922": "ABSENT",
+          "evidence": "In all three armed runs the rewind-commit answer is {\"kind\":\"refused\",\"reason\":\"candidate-verification-failed\",...}. candidate-verification-failed is raised at GmCombatRewindCommit.ts:180-187, which is downstream of leases.acquireCorrectionLease (GmCombatRewindCommit.ts:155-165) and of createCorrectionCandidateBranch. Reaching it proves the lease was acquired, so the 64-hex expectedDigest guard at EventHistoryCorrectionLeaseContract.ts:200 admitted the digest.",
+          "cause": "U5g/U5h/U5i: GET /api/matches/:id/head (src/pages-modules/api/matchHeadRoute.ts:61-80) returns the journal head's digest, readGmRewindHead validates it as 64 lowercase hex (src/lib/multiplayer/client/readGmRewindHead.ts:46-51) and buildGmRewindRequest sends it verbatim as expectedDigest."
+        },
+        "newRefusalInItsPlace": "candidate-verification-failed - see blocker below."
+      }
+    }
+  },
+  "blocker": {
+    "id": "FN-u2b-rewind-commit-verifies-through-the-match-store",
+    "class": "missing product surface (journal cutover)",
+    "affectsRow": "E2E-25 only; E2E-19 is unaffected and green",
+    "measuredBody": {
+      "httpStatus": 409,
+      "kind": "refused",
+      "reason": "candidate-verification-failed",
+      "detailRunA": "Branch '1b320f8c5a320dc87101cdd21f5cc0c3' is anchored to a base its parent does not hold at revision 4",
+      "detailRunB": "Branch '4bcd4794ee87f1eec5ff34074a9b4f7e' is anchored to a base its parent does not hold at revision 4",
+      "failingAssertion": "expect(committed.status(), await committed.text()).toBe(200) at e2e/gm-two-player-privacy.pack.spec.ts:297",
+      "deterministic": true,
+      "reproducedIn": [
+        "u2b-armed-a-20260922",
+        "u2b-final-b-20260922",
+        "u2b-final-c-20260922"
+      ]
+    },
+    "whatIsProvenBeforeTheRefusal": [
+      "The private reason reaches the server: expect(committed.request().postDataJSON().reason).toBe(reason) passes on the line above the failing one.",
+      "The correction lease admits the named head, digest and generation: the refusal is raised downstream of the lease acquisition."
+    ],
+    "rootCause": {
+      "summary": "Under the journal fixture arm the combat stream is journaled with journal-native event ids, but the rewind commit verifies the candidate path through the MATCH STORE, which carries a parallel line with different event ids and digests for the same revisions. The candidate anchor can therefore never match.",
+      "seams": [
+        {
+          "seam": "src/pages-modules/api/rewindCommitDeps.ts:133",
+          "fact": "reader: matchStoreBranchSegmentReader(input.store) - unconditional; there is no journal-mode branch in the deps builder."
+        },
+        {
+          "seam": "src/lib/events/journal/EventHistoryCandidateBuild.ts:304-333",
+          "fact": "requireBaseEvent selects event_id/event_digest from event_journal_events on the parent branch, so the candidate anchors to the JOURNAL's event."
+        },
+        {
+          "seam": "src/lib/multiplayer/server/history/matchStoreBranchSegmentReader.ts:146-180",
+          "fact": "The reader re-derives every event id from the match store row and every digest via matchEventChainDigest, so the anchor materializeBranchPath carries forward is the match store line."
+        },
+        {
+          "seam": "src/lib/events/journal/EventHistoryBranchResolver.ts:203-211",
+          "fact": "materializeBranchPath compares segment.baseEventId/baseDigest against that anchor and raises the observed message."
+        },
+        {
+          "seam": "src/lib/events/journal/EventHistoryBranchResolver.ts:260-289",
+          "fact": "journalBranchSegmentReader, the only journal-backed reader that exists, refuses every branch but 'root'; the armed combat stream is on 'main' (MATCH_BASELINE_BRANCH_ID, src/lib/multiplayer/server/matchAuthorityBaseline.ts:59), so it cannot simply be swapped in."
+        }
+      ],
+      "durableEvidence": {
+        "journalRow": {
+          "db": ".sisyphus/e2e-runtime/u2b-armed-a-20260922/mekstation.db",
+          "table": "event_journal_events",
+          "streamId": "01119c95-6cec-4a4a-909f-b350898d4658",
+          "branchId": "main",
+          "streamRevision": 4,
+          "eventId": "9a5d4d2f-8d6f-45bc-a9c6-d9ebf8a174f8:1",
+          "eventDigestPrefix": "1b2ffa0d2223"
+        },
+        "candidateRow": {
+          "db": ".sisyphus/e2e-runtime/u2b-armed-a-20260922/mekstation.db",
+          "table": "event_history_branches",
+          "branchId": "1b320f8c5a320dc87101cdd21f5cc0c3",
+          "parentBranchId": "main",
+          "baseRevision": 4,
+          "baseEventId": "9a5d4d2f-8d6f-45bc-a9c6-d9ebf8a174f8:1",
+          "baseDigestPrefix": "1b2ffa0d2223",
+          "note": "The candidate agrees with the journal, not with the match store."
+        },
+        "matchStoreRow": {
+          "db": ".sisyphus/e2e-runtime/u2b-armed-a-20260922/multiplayer-matches.db",
+          "table": "mp_match_events",
+          "matchId": "01119c95-6cec-4a4a-909f-b350898d4658",
+          "sequence": 3,
+          "revisionForMatchSequence": 4,
+          "eventId": "b6e13694-672c-49c8-98d0-844ae4504dc9",
+          "eventType": "initiative_order_set",
+          "note": "Same revision, a different event id. This inequality is the refusal: no digest arithmetic is needed to show it."
+        }
+      }
+    },
+    "whyTheRowWasNotChanged": "The letter of E2E-25 is 'WHEN the GM finalizes a correction with a private reason ... THEN player views SHALL show the authorized result while only the GM private record contains the private detail'. The finalize genuinely refuses, so the letter is not satisfiable today. Narrowing the row to what a refused commit can prove would narrow the letter; marking it test.fail(...@until-journal-cutover) would convert a live product refusal into an expected failure, which the pack header itself forbids. The row is left as a strict failure.",
+    "requiredNextAction": "The parent parks U2b again with a packet naming this gap, or re-owns E2E-25 to the journal cutover. A separately owned product unit must give the GM rewind commit a segment reader that serves the journal line for a non-'root' live-path branch, so a candidate anchored on journal ids verifies against journal ids. E2E-19 is ready to ship on its own."
+  },
+  "nonClaims": [
+    "The tick of 21.2 is the parent stage 7 on main. This lane checked no box.",
+    "The rewind-pack cutover rows are untouched and keep their @until-journal-cutover expected failures.",
+    "No product change: src/, playwright.config.ts and package.json are unmodified.",
+    "units.json, roadmap.json, evidence/admission-snapshot.json and openspec/changes are unmodified.",
+    "E2E-25 is NOT green and no part of its redaction letter is claimed proven. What it proves today is the reason transport and the lease binding, both named explicitly in the pack header.",
+    "The privacy-pack group is NOT green: it is 7 passed / 1 failed, twice in a row. Stage 3 therefore does not reach local-verified.",
+    "No Lane A review, no owner ruling (PK-u2b-ruling), no merge, no main proof.",
+    "The build exited 1 at the standalone hydration guard. No standalone portability is claimed; the guard was not relaxed and the generated junction was not touched."
+  ]
+}
