@@ -14,6 +14,7 @@ import {
   ROOT_EVENT_BRANCH_ID,
 } from './EventJournalContract';
 import * as Schemas from './EventJournalSchemas';
+import { SQLiteEventHistoryBranchStore } from './SQLiteEventHistoryBranchStore';
 
 type DbRow = Readonly<Record<string, unknown>>;
 type ReceiptRow = DbRow & { readonly commandDigest: unknown };
@@ -260,6 +261,7 @@ export class SQLiteEventJournalWriter<TPayload = unknown> {
     if (allocation.changes !== 1) integrity('High-water allocation failed');
     this.insertReceipt(receipt);
     for (const event of events) this.insertEvent(event);
+    if (head === undefined) this.installGenesisOnFirstAppend(input, recordedAt);
     this.advanceHead(input, head, final);
     return { kind: 'committed', receipt, events };
   }
@@ -392,12 +394,7 @@ export class SQLiteEventJournalWriter<TPayload = unknown> {
     head: HeadRow,
   ): boolean {
     if (input.expectedBranchId === ROOT_EVENT_BRANCH_ID) return false;
-    const present = this.db
-      .prepare(
-        `SELECT 1 AS ok FROM sqlite_master WHERE type = 'table' AND name = 'event_history_branches'`,
-      )
-      .get() as { readonly ok: number } | undefined;
-    if (present === undefined) return false;
+    if (!this.hasHistoryBranchTables()) return false;
     const seed = this.db
       .prepare(
         `SELECT base_revision AS baseRevision, base_digest AS baseDigest
@@ -411,6 +408,48 @@ export class SQLiteEventJournalWriter<TPayload = unknown> {
       seed !== undefined &&
       seed.baseRevision === head.streamRevision &&
       seed.baseDigest === head.eventDigest
+    );
+  }
+
+  /**
+   * True when this database has the event_history_branches table. The
+   * writer also runs on databases migrated only to the journal schema;
+   * those have no branch lineage to read or install.
+   */
+  private hasHistoryBranchTables(): boolean {
+    return (
+      this.db
+        .prepare(
+          `SELECT 1 AS ok FROM sqlite_master WHERE type = 'table' AND name = 'event_history_branches'`,
+        )
+        .get() !== undefined
+    );
+  }
+
+  /**
+   * Called inside the append's transaction, after the batch rows are
+   * written and before the head row is. When the stream holds no journal
+   * head on ANY branch (its first append), installs its genesis branch and
+   * effective head on the appended branch through the branch store, so a
+   * rollback of the append removes them too. A stream that already has a
+   * branch row is left untouched by the store's NOT EXISTS guard; a
+   * database without the branch tables is left as it is.
+   */
+  private installGenesisOnFirstAppend(
+    input: Journal.IAppendEventBatch<TPayload>,
+    installedAt: string,
+  ): void {
+    if (!this.hasHistoryBranchTables()) return;
+    const streamHasHead = this.db
+      .prepare(
+        `SELECT 1 AS ok FROM event_journal_stream_heads WHERE stream_type = ? AND stream_id = ? LIMIT 1`,
+      )
+      .get(input.streamType, input.streamId);
+    if (streamHasHead !== undefined) return;
+    new SQLiteEventHistoryBranchStore(this.db).installGenesisBranch(
+      { streamType: input.streamType, streamId: input.streamId },
+      input.expectedBranchId,
+      installedAt,
     );
   }
 
