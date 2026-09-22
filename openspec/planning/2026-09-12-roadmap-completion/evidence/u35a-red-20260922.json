@@ -1,0 +1,97 @@
+{
+  "unit": "U35a",
+  "stage": "red",
+  "at": "2026-09-22T22:55:36.976Z",
+  "baseline": "d3c088a9b2ebb7db84e698222707537cdb7515e3",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u35a",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "environment": "real SQLite on a temp file (getSQLiteService({ path: <mkdtemp>/u35a.db })); every MEKSTATION_E2E_* key deleted in beforeEach and unset by the runner; Node 22",
+  "suite": {
+    "path": "src/lib/campaign/authority/__tests__/campaignCommitGates.test.ts",
+    "sha256": "8f91cafcff682d2d06fc8ec3fa07704cd019a075a226e983b81344b0fcd4df43",
+    "copy": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35a/logs/red-suite-copy.test.ts.txt",
+      "sha256": "8f91cafcff682d2d06fc8ec3fa07704cd019a075a226e983b81344b0fcd4df43"
+    }
+  },
+  "productFilesAtRed": {
+    "src/lib/campaign/authority/campaignCommandPipeline.ts": {
+      "sha256": "7b08b4dbe97fe77905f00d03a52b589d4f5b68985c690e10987bc9d24a0b0933",
+      "headBlob": "136388884d0a24789c3387cff3981d06474fd5df",
+      "workingBlob": "136388884d0a24789c3387cff3981d06474fd5df"
+    },
+    "src/lib/campaign/sync/campaignEventScope.ts": {
+      "sha256": "d7b122b0faf70e8867d800684c085dd600f1c6f91a167af785d332149855cd13",
+      "headBlob": "88d6b1e861f73667b391b1c99b62a07a99370fab",
+      "workingBlob": "88d6b1e861f73667b391b1c99b62a07a99370fab"
+    },
+    "src/lib/campaign/authority/campaignLegacyAdoption.ts": {
+      "sha256": "d24bb2ccad6fc3282db6984f479f1a739b9f8b3b708e01a6dfeb3e5efcf0f8f9",
+      "headBlob": "027e151f4230ad35f2fbdc79a3a7c02be12278e4",
+      "workingBlob": "027e151f4230ad35f2fbdc79a3a7c02be12278e4"
+    }
+  },
+  "productUnchangedAtRed": true,
+  "command": "npx jest src/lib/campaign/authority/__tests__/campaignCommitGates.test.ts",
+  "runner": {
+    "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35a/run.sh",
+    "sha256": "c7881240489ff450e83b98dc6fca709a37157171649bc2d5bbb362c4ae7e9db4"
+  },
+  "exitCode": 1,
+  "lastLine": "Ran all test suites matching /src\\\\lib\\\\campaign\\\\authority\\\\__tests__\\\\campaignCommitGates.test.ts/i.",
+  "counts": [
+    "Test Suites: 1 failed, 1 total",
+    "Tests:       4 failed, 1 passed, 5 total"
+  ],
+  "results": [
+    "× (b) a marker-io write failure after a committed batch is logged and the commit is acknowledged (76 ms)",
+    "× (b) a marker-io read failure after a committed batch is logged and the commit is acknowledged (45 ms)",
+    "× (c) a balance-bearing FundsChanged refuses a scope other than campaign with a typed error (40 ms)",
+    "√ (f3) an AcceptContract through executeCampaignCommand on a journal-native campaign stamps firstJournalAuthorityCommandId (48 ms)",
+    "× (adopt) adopting a legacy campaign appends the genesis snapshot and writes a journal-native marker (43 ms)"
+  ],
+  "failingAssertions": [
+    {
+      "test": "U35a campaign commit gates › (b) a marker-io write failure after a committed batch is logged and the commit is acknowledged",
+      "expectedReceived": [
+        "Received: \"injected marker-io write failure\""
+      ],
+      "at": "src/lib/campaign/authority/__tests__/campaignCommitGates.test.ts:298:65"
+    },
+    {
+      "test": "U35a campaign commit gates › (b) a marker-io read failure after a committed batch is logged and the commit is acknowledged",
+      "expectedReceived": [
+        "Received: \"injected marker-io read failure\""
+      ],
+      "at": "src/lib/campaign/authority/__tests__/campaignCommitGates.test.ts:298:65"
+    },
+    {
+      "test": "U35a campaign commit gates › (c) a balance-bearing FundsChanged refuses a scope other than campaign with a typed error",
+      "expectedReceived": [
+        "Expected: not {\"returned\": \"gm\"}"
+      ],
+      "at": "src/lib/campaign/authority/__tests__/campaignCommitGates.test.ts:323:20"
+    },
+    {
+      "test": "U35a campaign commit gates › (adopt) adopting a legacy campaign appends the genesis snapshot and writes a journal-native marker",
+      "expectedReceived": [
+        "Expected: \"journal\"",
+        "Received: \"shadowing\""
+      ],
+      "at": "src/lib/campaign/authority/__tests__/campaignCommitGates.test.ts:406:26"
+    }
+  ],
+  "log": {
+    "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35a/logs/red-baseline.log",
+    "sha256": "e57737d38f46348f8aaea7667bc76718e728779b7c905b5e7378ec7429dff1c4"
+  },
+  "reading": {
+    "b": "Both (b) rows fail at the acknowledgement assertion after the journal-count assertion on the line before it passed: the SpendFunds batch committed (events +1) and executeCampaignCommand then rejected with the injected marker-io error (write and read alike); the commands route turns that rejection into a 500 (src/pages/api/campaigns/[id]/commands.ts:283-284, read-only).",
+    "c": "resolveCampaignEventScope(\"FundsChanged\", \"gm\") returned \"gm\".",
+    "f3": "GREEN on the baseline, as the ledger calls it a pin: both commit paths already reach acknowledgeCommit, so the durable AcceptContract stamps firstJournalAuthorityCommandId. Its failing evidence is mutant M3 in the local receipt, not this run.",
+    "adopt": "maybeAdoptLegacyCampaign({ enabled: true }) with the durable marker io wrote a shadowing marker (state \"shadowing\")."
+  },
+  "notRed": [
+    "f3 (a pin; green on the baseline)"
+  ]
+}

@@ -1004,14 +1004,28 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
+      "state": "local-verified",
+      "baseline": "d3c088a9b2ebb7db84e698222707537cdb7515e3",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/u35a-admission-20260922.json",
+          "baseline": "d3c088a9b2ebb7db84e698222707537cdb7515e3",
+          "at": "2026-09-22T22:52:51.944Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/u35a-red-20260922.json",
+          "at": "2026-09-22T22:55:36.976Z",
+          "summary": "real SQLite, no fixture env: 4 failed / 1 passed; both marker-io rows committed the batch and then threw; FundsChanged with scope gm resolved to gm; the adopted campaign's marker was shadowing; the AcceptContract stamp row is a pin (green on the baseline, its failing evidence is mutant M3)"
+        },
+        "local": {
+          "path": "evidence/u35a-local-20260922.json",
+          "at": "2026-09-22T23:03:51.953Z",
+          "summary": "product 3 files +102/-80 (182 lines), tests 3 files +500/-30 (new 422-line campaignCommitGates suite); campaign 203 suites/2975, api 62/809, journal 23/243; tsc 0; oxlint 84 warnings 0 errors unchanged; oxfmt clean; LINT_UNITS_PASS 100/100; qc:openspec-ci errors=0; validator PASSED; --next U35a on the baseline; five mutants caught and restored (marker failure rethrown, scope check removed, stamp skipped, shadowing adoption restored, retry guard not treating a journal-state marker as adopted); implementer claude-opus (Agent model: opus); non-claims: adoption clause inert until U35d flips the flag, F-1 is a catch plus log so a swallowed failure leaves the stamp null, row (b) drives executeCampaignCommand not the HTTP route; findings not fixed: src/pages/api/campaigns/[id]/adopt.ts:1-20 header still says adoption writes a shadowing marker (to U35b, which owns the route), design-campaign design.md:40 D8 says an adopted campaign records its imported baseline while the journal-native marker carries importedBaseline null (to U61); status ready"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
@@ -1065,7 +1079,7 @@
       "id": "U35b",
       "node": "R2.authority-cutover",
       "taskKeys": [],
-      "behavior": "The journal owns the campaign record's transaction. An accepted whole-envelope PUT on a journal-native campaign appends a CampaignSnapshotPublished checkpoint of the stored record, and a create appends the genesis, in ONE immediate transaction that the journal writer owns (appendPreparedWithExtension) with the campaigns row write as its extension, so the journal head is never behind the record and a genesis refusal never leaves a committed row behind a 500 (gate (3) and F3). Design decided by the parent under OD-mvp-hard-cutover over the alternatives U35's admission listed (a typed 409 would refuse every unrewired single-player save after the flip; appending after the save leaves a crash window); SQLiteEventJournalWriter.ts:93 forbids nesting saveCampaign inside the writer's extension, so the service's row write becomes a function the writer's transaction calls. Red-first: U35's probe row (g3) and a create row whose genesis projection is refused.",
+      "behavior": "The journal owns the campaign record's transaction. An accepted whole-envelope PUT on a journal-native campaign appends a CampaignSnapshotPublished checkpoint of the stored record, and a create appends the genesis, in ONE immediate transaction that the journal writer owns (appendPreparedWithExtension) with the campaigns row write as its extension, so the journal head is never behind the record and a genesis refusal never leaves a committed row behind a 500 (gate (3) and F3). Design decided by the parent under OD-mvp-hard-cutover over the alternatives U35's admission listed (a typed 409 would refuse every unrewired single-player save after the flip; appending after the save leaves a crash window); SQLiteEventJournalWriter.ts:93 forbids nesting saveCampaign inside the writer's extension, so the service's row write becomes a function the writer's transaction calls. Red-first: U35's probe row (g3) and a create row whose genesis projection is refused. Folded 2026-09-22 (U35a finding): the adopt route header src/pages/api/campaigns/[id]/adopt.ts:1-20 still says adoption writes a shadowing marker; U35a made adoption journal-native, so the header is corrected here.",
       "ownershipPaths": [
         "src/services/campaignPersistence",
         "src/pages/api/campaigns",
@@ -1591,7 +1605,7 @@
       "id": "U61",
       "node": "R2.authority",
       "taskKeys": [],
-      "behavior": "Spec delta narrowing design-campaign-authority-and-sync task 6.2's letter (PK-6-2b-single-player-seat option b): 6.2b covers co-op-host contract acceptance routing through /commands only; single-player acceptance stays on the client apply with the 6.4 compare-and-swap bridge, recorded as a non-claim for a future identity item (FN-ob2-identity-before-hosted-deployment). The delta is written in the change's spec and tasks prose; no checkbox is ticked by this unit. Admitted after U42, which gives rows 6.1-6.4 their holders.",
+      "behavior": "Spec delta narrowing design-campaign-authority-and-sync task 6.2's letter (PK-6-2b-single-player-seat option b): 6.2b covers co-op-host contract acceptance routing through /commands only; single-player acceptance stays on the client apply with the 6.4 compare-and-swap bridge, recorded as a non-claim for a future identity item (FN-ob2-identity-before-hosted-deployment). The delta is written in the change's spec and tasks prose; no checkbox is ticked by this unit. Admitted after U42, which gives rows 6.1-6.4 their holders. Folded 2026-09-22 (U35a finding): design.md D8 (line 40, as amended) says an adopted campaign records its imported baseline, while U35a makes adoption write a journal-native marker with importedBaseline null and a system-authored genesis; D8 is amended in the same delta to state that, and U58 (the 12.1 baseline predicate) reads it.",
       "ownershipPaths": [
         "openspec/changes/design-campaign-authority-and-sync"
       ],
