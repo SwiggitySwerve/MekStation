@@ -860,14 +860,28 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
+      "state": "local-verified",
+      "baseline": "3399af264f64f3c9b319beec23e479665c414111",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/u20-admission-20260922.json",
+          "baseline": "3399af264f64f3c9b319beec23e479665c414111",
+          "at": "2026-09-22T20:31:04.123Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/u20-red-20260922.json",
+          "at": "2026-09-22T20:33:52.610Z",
+          "summary": "pins (a)-(c) already green on the baseline because U19b installs the effective head on the first append; the real red is row (d): a campaign whose journal holds events but has no effective head row answered no-authoritative-stream (1 failed / 3 passed, test line 278), which launched a journaled campaign ungated (CO3 F1)"
+        },
+        "local": {
+          "path": "evidence/u20-local-20260922.json",
+          "at": "2026-09-22T20:44:16.774Z",
+          "summary": "campaignLaunchHead.ts +68/-43: journal-stream existence read from event_journal_events (the only path to no-authoritative-stream); branch and revision through readEffectiveStreamHead, generation from requireEffectiveHead (a journaled campaign without an effective head throws no-effective-branch and the routes answer 500, fail closed under OD-mvp-hard-cutover); comment states the rule and the launch gate; new pin suite 284 lines; 4/4, campaign 202 suites/2967, journal 23/243, callers head route 7, launch-authority route 17, mission-launch page 4; tsc 0; oxlint 84 warnings 0 errors unchanged; oxfmt clean; LINT_UNITS_PASS 100/100; qc:openspec-ci errors=0; validator PASSED; four mutants caught and restored; implementer claude-opus (Agent model: opus); findings not fixed (outside the path, route layer owned by R2.authority-live): F1 campaignLaunchHeadRoute.ts:15-21 status-code comment omits the new 500, F2 the route test's comment 224-226 and its seed backfill call at 138 are stale after U19b, F3 no route-level test covers the 500; status ready"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
