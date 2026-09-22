@@ -339,5 +339,6 @@
       "measured": true,
       "detail": "Runner logs port but no server PID. Baseline and armed PIDs were captured through CIM plus their listening sockets; unarmed PID was missed and is null."
     }
-  ]
+  ],
+  "annotation20260921": "Measured at baseline 3137f5b61 on 2026-09-21 before U5f (#1865, merge aecbec865, 2026-09-21T21:36Z) replaced the fallback head in useGmRewindProducers.ts with the lineage's effective head read through readGmRewindHead (U5e); the sourceCause lines that cite useGmRewindProducers.ts:69/76 describe the pre-U5f code. The digest gap (expectedDigest must be 64 lowercase hex) stands until U5g/U5h/U5i land. Annotated by the parent after council 3 (openspec/council-decisions/2026-09-21-umbrella-failures-review.md), the way tasks.md:496 annotated D2."
 }

@@ -29,7 +29,9 @@
       "lastLine": "MACHINE_IDLE",
       "exitCode": 0
     },
-    "runnerSummaryLines": ["6 passed (1.2m)"],
+    "runnerSummaryLines": [
+      "6 passed (1.2m)"
+    ],
     "lastLine": "RUN_EXIT=0",
     "exitCode": 0,
     "log": {
@@ -62,7 +64,10 @@
       "lastLine": "MACHINE_IDLE",
       "exitCode": 0
     },
-    "runnerSummaryLines": ["2 failed", "6 passed (41.5s)"],
+    "runnerSummaryLines": [
+      "2 failed",
+      "6 passed (41.5s)"
+    ],
     "lastLine": "RESTORED_SHA256=f065b258b59f4cb5cd8e097ec3d4331c85d54c314c2a8144d41c1f27e5d0a1fc",
     "exitCode": 1,
     "log": {
@@ -131,7 +136,10 @@
       "lastLine": "MACHINE_IDLE",
       "exitCode": 0
     },
-    "runnerSummaryLines": ["2 failed", "6 passed (39.1s)"],
+    "runnerSummaryLines": [
+      "2 failed",
+      "6 passed (39.1s)"
+    ],
     "lastLine": "RUN_EXIT=1",
     "exitCode": 1,
     "log": {
@@ -322,5 +330,6 @@
     "The baseline and armed servers exited; final idle gate returned MACHINE_IDLE.",
     "Only the four-line diagnostic header comment was added after the armed browser run; assertions were not weakened.",
     "HTTP response bodies and assertion lines are copied from actual runner failure output. Downstream payload, audit, board, lineage and reason-persistence assertions were not reached."
-  ]
+  ],
+  "annotation20260921": "Measured at baseline 3137f5b61 on 2026-09-21 before U5f (#1865, merge aecbec865, 2026-09-21T21:36Z) replaced the fallback head in useGmRewindProducers.ts with the lineage's effective head read through readGmRewindHead (U5e); the sourceCause lines that cite useGmRewindProducers.ts:69/76 describe the pre-U5f code. The digest gap (expectedDigest must be 64 lowercase hex) stands until U5g/U5h/U5i land. Annotated by the parent after council 3 (openspec/council-decisions/2026-09-21-umbrella-failures-review.md), the way tasks.md:496 annotated D2."
 }
