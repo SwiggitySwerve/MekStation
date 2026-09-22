@@ -1,0 +1,172 @@
+{
+  "unit": "U12b",
+  "stage": "admission",
+  "at": "2026-09-22T00:00:00.000Z",
+  "baseline": "6fa24e96753bea9f723948d1373452a6ba0ef05e",
+  "originMain": "6fa24e96753bea9f723948d1373452a6ba0ef05e",
+  "worktree": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\u12b",
+  "branch": "roadmap-u12b-guard-cli-20260922",
+  "initialStatus": "",
+  "node": "v22.22.0",
+  "npm": "11.6.2",
+  "platform": "win32",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "reviewClass": "routine (Lane A only; no Lane B owner ruling required for this unit)",
+  "next": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "exitCode": 0,
+    "stdout": "U12b",
+    "note": "--next printed U12b on the baseline, so this unit is the admissible one."
+  },
+  "seamsAsRead": [
+    {
+      "seam": "openspec/planning/2026-09-12-roadmap-completion/units.json:2070",
+      "what": "The U12b record: behavior sentence (guard CLI, not a preinstall hook), ownershipPaths scripts/qc + scripts/__tests__ + package.json, ciClass product, reviewClasses [routine], caps 15 files / 500 non-generated lines, state planned, predecessorParked { unit U12, pr 1809, head 1baa6a96c6f7b186091635dd3e77749f212db090 }."
+    },
+    {
+      "seam": "openspec/planning/2026-09-12-roadmap-completion/units.json:3291",
+      "what": "FN-u12-root-preinstall-runs-after-reify. npm 11.6.2 lib/commands/install.js runs arb.reify at line 150 and the root preinstall at lines 153-163; lib/commands/ci.js removes node_modules contents at 86-98, reifies at 100, runs preinstall at 106. A preinstall hook therefore cannot stop npm pruning the root node_modules through a junction (npm/cli#3669). Recommended successor: drop the preinstall line, ship the guard CLI as a worktree-setup check, set npm_config_dry_run=true in every worker launch."
+    },
+    {
+      "seam": "openspec/planning/2026-09-12-roadmap-completion/units.json U12 blocked20260917",
+      "what": "U12 is blocked, not failed: its module and pin are reusable as they stand minus the preinstall line. Draft PR 1809 stays open until U12b merges the module and pin by content."
+    },
+    {
+      "seam": "git show 1baa6a96c6f7b186091635dd3e77749f212db090:scripts/qc/guard-node-modules-link.mjs",
+      "what": "The parked module, 78 lines: inspectInstallTarget({ cwd, manifestPath }) decides ALLOW / REFUSE by real paths; main() prints INSTALL_ALLOWED (exit 0) or INSTALL_REFUSED <reason> <paths JSON> (exit 1), catches everything into INSTALL_REFUSED inspection-error, and runs only when argv[1] resolves to the module itself."
+    },
+    {
+      "seam": "git show 1baa6a96c6f7b186091635dd3e77749f212db090:scripts/__tests__/guard-node-modules-link.test.ts",
+      "what": "The parked pin, 164 lines, 10 cases: absent node_modules, real node_modules, linked node_modules, cwd reached through a junction, manifest in another real directory, CLI ALLOWED exit 0, CLI REFUSED exit 1, CLI default manifest, preinstall wiring, and the '|| true' inventory. The last two are the preinstall-bound cases."
+    },
+    {
+      "seam": "git show 1baa6a96c6f7b186091635dd3e77749f212db090 -- package.json",
+      "what": "The parked diff added exactly one line at package.json:112, \"preinstall\": \"node scripts/qc/guard-node-modules-link.mjs\". That is the line U12b drops."
+    },
+    {
+      "seam": "openspec/planning/2026-09-12-roadmap-completion/evidence/u12-local-20260917.json (parked head copy)",
+      "what": "The parked local receipt: pin 10/10, tsc 0, oxfmt clean, oxlint vacuous for scripts/, qc:openspec-ci errors=0, validator PASSED, CLI from the junctioned U12 worktree INSTALL_REFUSED node-modules-is-link, CLI from a fresh temp directory INSTALL_ALLOWED, three mutants killed (M1 allow linked, M2 drop manifest rule, M3 exit 0 on refusal) with restoredSha256 equal to preMutantSha256 4b399328545e80f8b436fa7a63f8b2c5dd06730ca39558d1de1adcb4716f5d53."
+    },
+    {
+      "seam": "scripts/qc/preserve-run-logs.mjs:1-53",
+      "what": "File conventions for a scripts/qc module: shebang, a header comment naming the unit and node and citing the seam that motivates it, named exports for the decision functions, a typed error class where refusals have codes, node: prefixed imports, REPO_ROOT derived from fileURLToPath(import.meta.url)."
+    },
+    {
+      "seam": "scripts/__tests__/preserve-run-logs.test.ts:1-50",
+      "what": "Pin conventions: a header comment naming the unit and what each pin holds, node: prefixed imports, LINK_TYPE = process.platform === 'win32' ? 'junction' : 'dir', and the measured note that fs.symlinkSync(target, link, 'junction') is a directory junction on Windows and an ordinary symlink on POSIX."
+    },
+    {
+      "seam": "package.json:153",
+      "what": "qc:* script naming and the block the new line joins (qc:openspec-ci:validate and neighbours). package.json:116-117 show prepare = husky and postinstall = node scripts/mm-data/check-assets.js || true, and there is no preinstall key on the baseline."
+    },
+    {
+      "seam": "scripts/qc/lint-units.mjs:1-33 and scripts/qc/lint-units.ceiling.json",
+      "what": "lint:units lints e2e/ and scripts/ against the root rule set with a ratchet at ceiling 100 (50 per path). Measured on the baseline: LINT_UNITS_PASS 100/100, i.e. the ratchet is exactly at its ceiling, so the two new files must add zero findings."
+    },
+    {
+      "seam": "scripts/qc/validate-openspec-ci-quality.mjs:167-169",
+      "what": "packageScripts is mapped over a fixed requiredPackageScripts contract list imported from scripts/qc/openspec-ci-contracts.mjs, not over package.json's key count, so adding one script cannot move the 3/3 total. Measured on the baseline: packageScripts=3/3, errors=0."
+    }
+  ],
+  "parkedHeadReuse": {
+    "head": "1baa6a96c6f7b186091635dd3e77749f212db090",
+    "reused": [
+      "The decision shape: a pure inspectInstallTarget({ cwd, manifestPath }) export plus a main() that runs only when executed directly.",
+      "Real-path comparison as the manifest rule and as the second node_modules test.",
+      "The stdout grammar INSTALL_ALLOWED / INSTALL_REFUSED <reason> <{expectedPath,actualPath} JSON>, exit 0 / 1, and the fail-closed catch.",
+      "The default manifest resolved from the module's own repository with an optional --manifest override.",
+      "The pin's temporary-fixture discipline: mkdtemp per test, an afterEach that refuses to delete anything outside the owned prefix, a child-process probe so the module is imported fresh, and LINK_TYPE junction-on-Windows."
+    ],
+    "dropped": [
+      "The package.json preinstall line (FN-u12-root-preinstall-runs-after-reify: the wiring point is inert).",
+      "The pin case 'wires preinstall to the exact guard command'.",
+      "The pin case 'keeps only the pre-existing postinstall failure suppression', which existed to bound the preinstall edit; U12b replaces it with a pin that package.json exposes the qc script and has NO preinstall key."
+    ],
+    "changed": [
+      "The manifest refusal reason word is manifest-root-mismatch (this charter's word) where the parked module said manifest-outside-cwd. Same rule, renamed to the word the unit's contract names.",
+      "The manifest is read and parsed rather than only realpath'd, so that a missing or unparseable manifest is a refusal with its own reason word manifest-unreadable instead of falling into the generic inspection-error catch.",
+      "node_modules is tested with lstat first (isSymbolicLink) and the real-path comparison second, so a dangling link is a refusal rather than a realpath throw, and a reparse point that redirects is caught even where lstat does not report a symbolic link."
+    ]
+  },
+  "design": {
+    "module": "scripts/qc/guard-node-modules-link.mjs. export function inspectInstallTarget({ cwd, manifestPath }) returns { verdict: 'ALLOW' } or { verdict: 'REFUSE', reason, expectedPath, actualPath }. Rules, in order: (1) node_modules under cwd absent -> fall through; (2) lstat(node_modules).isSymbolicLink() -> REFUSE node-modules-is-link; (3) realpath(node_modules) !== join(realpath(cwd), 'node_modules') -> REFUSE node-modules-is-link (a reparse point that redirects without lstat calling it a link); (4) the manifest cannot be read or JSON-parsed -> REFUSE manifest-unreadable; (5) dirname(realpath(manifestPath)) !== realpath(cwd) -> REFUSE manifest-root-mismatch; otherwise ALLOW. main() prints INSTALL_ALLOWED with exit 0 or INSTALL_REFUSED <reason> <JSON paths> with exit 1, wraps everything in a fail-closed catch printing INSTALL_REFUSED inspection-error, and is invoked only when process.argv[1] resolves to this module.",
+    "packageJson": "One added line in the qc:* block: \"qc:guard-node-modules-link\": \"node scripts/qc/guard-node-modules-link.mjs\". No preinstall, nothing else touched.",
+    "pin": "scripts/__tests__/guard-node-modules-link.test.ts, red-first against the CLI contract: fresh checkout-shaped dir ALLOWED exit 0; node_modules planted as a junction REFUSED node-modules-is-link exit 1; node_modules planted as a directory symlink likewise; real node_modules directory ALLOWED; cwd reached through a junction with a real node_modules ALLOWED; --manifest naming another root REFUSED manifest-root-mismatch; missing manifest REFUSED manifest-unreadable; unparseable manifest REFUSED manifest-unreadable; the CLI's default manifest is its own repository's; package.json exposes the exact qc script and has no preinstall key.",
+    "notWidened": "No preinstall wiring, no WORKERS.md edit, no loop-script call site, no src, no e2e, no ladder row. The loop convention that names this CLI is the parent's docs change."
+  },
+  "estimatePerFile": {
+    "scripts/qc/guard-node-modules-link.mjs": { "product": 110 },
+    "scripts/__tests__/guard-node-modules-link.test.ts": { "test": 210 },
+    "package.json": { "productChanged": 1 },
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u12b-admission-20260922.json": {
+      "receipt": 170
+    },
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u12b-red-20260922.json": {
+      "receipt": 90
+    },
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u12b-local-20260922.json": {
+      "receipt": 200
+    }
+  },
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedProductLines": 500,
+    "filesPlanned": 6,
+    "estimatedProductLines": 111,
+    "estimatedProductAndTestLines": 321
+  },
+  "dependencies": {
+    "node": "R6.loop-harness",
+    "dependsOn": [],
+    "predecessorU12": "blocked (parked on FN-u12-root-preinstall-runs-after-reify)",
+    "predecessorU17": "complete (merge 149598d9b94e25e0abfc43a701ec9bf2952e1a04)",
+    "unitU12b": "planned",
+    "ownerGate": null
+  },
+  "worktreeFacts": {
+    "realCwd": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\u12b",
+    "nodeModulesLstatIsSymbolicLink": true,
+    "nodeModulesRealPath": "E:\\Projects\\MekStation\\node_modules",
+    "note": "The worktree's node_modules is the junction to the root. This is exactly the shape the CLI must refuse, so the live CLI run from this worktree is a real proof rather than a constructed one."
+  },
+  "platformMeasurements": [
+    {
+      "probe": "fs.symlinkSync(target, link, 'junction')",
+      "result": "created; lstat isSymbolicLink true, isDirectory false; realpath resolves to the target"
+    },
+    {
+      "probe": "fs.symlinkSync(target, link, 'dir') and 'file' and the default type",
+      "result": "EPERM on this machine"
+    },
+    {
+      "probe": "powershell New-Item -ItemType SymbolicLink",
+      "result": "Administrator privilege required for this operation"
+    }
+  ],
+  "baselineGates": {
+    "lintUnits": "LINT_UNITS_PASS 100/100 (exit 0)",
+    "openspecCi": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0 (exit 0)",
+    "oxlint": "Found 84 warnings and 0 errors. (exit 0)"
+  },
+  "risksForTheParent": [
+    "The loop convention that names this CLI - every lane charter and the worktree-setup step calling qc:guard-node-modules-link before any npm command - is the parent's WORKERS.md / GOAL.md docs change, not this unit's. U12b ships the CLI and nothing that calls it, so on merge nothing in the repository invokes it yet.",
+    "The parked draft PR #1809 is closed by the parent when U12b merges; its module and pin are carried over by content, not by branch, so the two heads share no commit.",
+    "Directory symlinks cannot be created on this machine without elevation (measured: EPERM for every fs.symlinkSync type and 'Administrator privilege required' from PowerShell). The pin's symlink case therefore plants a junction on win32 and a real symlink on POSIX, which is the same fixture convention scripts/__tests__/preserve-run-logs.test.ts already uses; the symlink branch is proven by POSIX CI, not by this machine.",
+    "lint:units sits exactly at its ratchet (100/100), so a single new lint finding in the two added files fails that gate. The scripts path allows no-console; nothing else is relaxed.",
+    "This CLI does not prevent npm from pruning. It is a check a caller runs BEFORE npm; npm itself is unchanged. FN-u12-root-preinstall-runs-after-reify stands.",
+    "TypeScript excludes scripts/**/* and the root oxlint config ignores **/scripts/**, so tsc and plain oxlint are vacuous for the module; the focused jest pin and lint:units are the real gates for it."
+  ],
+  "acceptanceCommands": [
+    "node node_modules/jest/bin/jest.js --selectProjects unit --runInBand --no-cache --runTestsByPath scripts/__tests__/guard-node-modules-link.test.ts",
+    "npx jest scripts/__tests__",
+    "npm run qc:guard-node-modules-link (from this junctioned worktree; expected INSTALL_REFUSED node-modules-is-link, exit 1)",
+    "node <worktree>/scripts/qc/guard-node-modules-link.mjs --manifest <tempdir>/package.json (cwd=tempdir; expected INSTALL_ALLOWED, exit 0)",
+    "npx tsc --noEmit",
+    "npx oxlint",
+    "npx oxfmt --check <changed files>",
+    "npm run lint:units",
+    "npm run qc:openspec-ci:validate",
+    "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs"
+  ],
+  "decision": "admitted"
+}
