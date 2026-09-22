@@ -1,0 +1,996 @@
+{
+  "unit": "U19b",
+  "stage": "local",
+  "at": "2026-09-22T18:05:27.621Z",
+  "status": "ready",
+  "baseline": "0367a2f3b8543057b2dac557426d1ea9770a05bc",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u19b",
+  "branch": "roadmap-u19b-genesis-branch-on-first-append-20260922",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "shellPreamble": [
+    "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "export npm_config_dry_run=true"
+  ],
+  "carriedFrom": {
+    "unit": "U19",
+    "draftPr": 1896,
+    "head": "f0008f3a52dbd89ddf54a3828b54532ef9efce06"
+  },
+  "lineCounts": [
+    {
+      "file": "src/lib/events/journal/SQLiteEventHistoryBranchStore.ts",
+      "category": "product",
+      "added": 69,
+      "deleted": 0,
+      "untracked": false,
+      "totalFileLines": 439,
+      "sha256": "26623c51f5ea02f1635ec747fda4f0516cc986c63f04c9101d76bc9742ed2ed3",
+      "u19bOwnDeltaOnTopOfCarried": {
+        "added": 0,
+        "deleted": 0
+      }
+    },
+    {
+      "file": "src/lib/events/journal/SQLiteEventJournalWriter.ts",
+      "category": "product",
+      "added": 45,
+      "deleted": 6,
+      "untracked": false,
+      "totalFileLines": 510,
+      "sha256": "1beac1d6c477727667e3403b95d8be0f173f31669354e0eacfb72b6d93dfecba",
+      "u19bOwnDeltaOnTopOfCarried": {
+        "added": 0,
+        "deleted": 0
+      }
+    },
+    {
+      "file": "src/lib/events/journal/__tests__/EventHistoryActivation.test.ts",
+      "category": "test",
+      "added": 2,
+      "deleted": 1,
+      "untracked": false,
+      "totalFileLines": 511,
+      "sha256": "b1418233d1ad5d726187e90620451414d1184d56b59266c9c177f7d452f0d5c8",
+      "u19bOwnDeltaOnTopOfCarried": {
+        "added": 0,
+        "deleted": 0
+      }
+    },
+    {
+      "file": "src/lib/events/journal/__tests__/EventHistoryBranchResolver.test.ts",
+      "category": "test",
+      "added": 2,
+      "deleted": 1,
+      "untracked": false,
+      "totalFileLines": 453,
+      "sha256": "96ed4f3b124a3a9cf672f8ad4afc126f0b96da9dd63c2f38c36e3af5ae7bfa4e",
+      "u19bOwnDeltaOnTopOfCarried": {
+        "added": 0,
+        "deleted": 0
+      }
+    },
+    {
+      "file": "src/lib/events/journal/__tests__/EventHistoryCandidateBuild.test.ts",
+      "category": "test",
+      "added": 2,
+      "deleted": 2,
+      "untracked": false,
+      "totalFileLines": 360,
+      "sha256": "77afe666582a8b0800652aaed94bc2ac5c40d0ea74c5d46d83736b18a35efe48",
+      "u19bOwnDeltaOnTopOfCarried": {
+        "added": 0,
+        "deleted": 0
+      }
+    },
+    {
+      "file": "src/lib/events/journal/__tests__/EventHistoryCandidateVerification.test.ts",
+      "category": "test",
+      "added": 2,
+      "deleted": 1,
+      "untracked": false,
+      "totalFileLines": 407,
+      "sha256": "48dd9dee1c8cd129e9f3f56a02272094683e3a1cb6c1c2e7a701c8472324693b",
+      "u19bOwnDeltaOnTopOfCarried": {
+        "added": 0,
+        "deleted": 0
+      }
+    },
+    {
+      "file": "src/lib/events/journal/__tests__/EventHistoryImpactDerivation.test.ts",
+      "category": "test",
+      "added": 2,
+      "deleted": 1,
+      "untracked": false,
+      "totalFileLines": 381,
+      "sha256": "18155f4437f48d7d85e27d42b91a89241298d7ed33030b2ce5c4da550fd0225a",
+      "u19bOwnDeltaOnTopOfCarried": {
+        "added": 0,
+        "deleted": 0
+      }
+    },
+    {
+      "file": "src/lib/events/journal/__tests__/SQLiteEventJournalWriter.test.ts",
+      "category": "test",
+      "added": 5,
+      "deleted": 3,
+      "untracked": false,
+      "totalFileLines": 725,
+      "sha256": "94175bb82991a17ea46d3b4795e022102e3e46389a9ac68703902c6ff7ec7c01",
+      "u19bOwnDeltaOnTopOfCarried": {
+        "added": 0,
+        "deleted": 0
+      }
+    },
+    {
+      "file": "src/lib/multiplayer/server/MatchStreamJournalMirror.ts",
+      "category": "product",
+      "added": 7,
+      "deleted": 6,
+      "untracked": false,
+      "totalFileLines": 269,
+      "sha256": "18a3cb96c248743770e71bded660b4f7a2baeca992acf980142198ec82dea811",
+      "u19bOwnDeltaOnTopOfCarried": {
+        "added": 7,
+        "deleted": 6
+      }
+    },
+    {
+      "file": "src/lib/multiplayer/server/history/__tests__/CoordinatedOutcomeCorrection.test.ts",
+      "category": "test",
+      "added": 14,
+      "deleted": 1,
+      "untracked": false,
+      "totalFileLines": 371,
+      "sha256": "5e8d1e5fe0a916691a0e57f2f55f34b7c3be03421457f6777c5e48f2a7361f9f",
+      "u19bOwnDeltaOnTopOfCarried": {
+        "added": 14,
+        "deleted": 1
+      }
+    },
+    {
+      "file": "src/lib/multiplayer/server/history/__tests__/CoordinatedOutcomeCorrectionSaga.test.ts",
+      "category": "test",
+      "added": 15,
+      "deleted": 3,
+      "untracked": false,
+      "totalFileLines": 573,
+      "sha256": "f53da0f2a37c7ac3c82323ad607263bde5fd614699b40fb7ae1f55f6b529879c",
+      "u19bOwnDeltaOnTopOfCarried": {
+        "added": 15,
+        "deleted": 3
+      }
+    },
+    {
+      "file": "src/lib/multiplayer/server/history/__tests__/GmCombatRewindCommit.test.ts",
+      "category": "test",
+      "added": 14,
+      "deleted": 1,
+      "untracked": false,
+      "totalFileLines": 575,
+      "sha256": "e38c37a7b306bacfbfaae13e22f868ea2b5317a71906aab0bbbc21fd97f6619c",
+      "u19bOwnDeltaOnTopOfCarried": {
+        "added": 14,
+        "deleted": 1
+      }
+    },
+    {
+      "file": "src/lib/multiplayer/server/history/__tests__/GmCombatRewindPreview.test.ts",
+      "category": "test",
+      "added": 14,
+      "deleted": 2,
+      "untracked": false,
+      "totalFileLines": 484,
+      "sha256": "b91bb2791b933d33bf7673194d229e614f17f3e19fafc9115e1f0e88bf4dcb66",
+      "u19bOwnDeltaOnTopOfCarried": {
+        "added": 14,
+        "deleted": 2
+      }
+    },
+    {
+      "file": "src/lib/events/journal/__tests__/SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts",
+      "category": "test",
+      "added": 345,
+      "deleted": 0,
+      "untracked": true,
+      "totalFileLines": 345,
+      "sha256": "1f6720fa7b0a89c2b78a00ee76274dddf5b57a0a26e10e09281c13e77067ce57",
+      "u19bOwnDeltaOnTopOfCarried": {
+        "added": 3,
+        "deleted": 0
+      }
+    }
+  ],
+  "lineCountTotals": {
+    "filesChanged": 14,
+    "insertions": 538,
+    "deletions": 28,
+    "productChangedLines": 133,
+    "testChangedLines": 433,
+    "totalChangedLines": 566,
+    "capFiles": 15,
+    "capNonGeneratedProductLines": 500,
+    "withinCapsAsChartered": true,
+    "totalChangedLinesWithinFiveHundred": false
+  },
+  "gates": [
+    {
+      "gate": "npx jest src/lib/events/journal/__tests__/SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts",
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\events\\\\journal\\\\__tests__\\\\SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts/i.",
+      "counts": "Test Suites: 1 passed, 1 total; Tests:       10 passed, 10 total",
+      "failingSuites": [],
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u19b/logs/gate-genesis-suite.log",
+        "sha256": "f350c36f4549415af18fb9d36811d0c8598e033f07ff3de0c81d8837381de491"
+      }
+    },
+    {
+      "gate": "npx jest src/lib/multiplayer/server/history/__tests__/CoordinatedOutcomeCorrection.test.ts",
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\multiplayer\\\\server\\\\history\\\\__tests__\\\\CoordinatedOutcomeCorrection.test.ts/i.",
+      "counts": "Test Suites: 1 passed, 1 total; Tests:       9 passed, 9 total",
+      "failingSuites": [],
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u19b/logs/gate-pin-CoordinatedOutcomeCorrection.log",
+        "sha256": "5cea89c95383d30875ed388a24c347cb9edbd1bc8f05a48522f6ffa555986543"
+      }
+    },
+    {
+      "gate": "npx jest src/lib/multiplayer/server/history/__tests__/CoordinatedOutcomeCorrectionSaga.test.ts",
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\multiplayer\\\\server\\\\history\\\\__tests__\\\\CoordinatedOutcomeCorrectionSaga.test.ts/i.",
+      "counts": "Test Suites: 1 passed, 1 total; Tests:       12 passed, 12 total",
+      "failingSuites": [],
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u19b/logs/gate-pin-CoordinatedOutcomeCorrectionSaga.log",
+        "sha256": "bb5debffa9af082ce8a061dc5cded1e64aaa7b17fa204c19817ff3c1cc1643ce"
+      }
+    },
+    {
+      "gate": "npx jest src/lib/multiplayer/server/history/__tests__/GmCombatRewindCommit.test.ts",
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\multiplayer\\\\server\\\\history\\\\__tests__\\\\GmCombatRewindCommit.test.ts/i.",
+      "counts": "Test Suites: 1 passed, 1 total; Tests:       15 passed, 15 total",
+      "failingSuites": [],
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u19b/logs/gate-pin-GmCombatRewindCommit.log",
+        "sha256": "0e7c10c2fb294c00c1f3bd69e11c69dea82aea0d420075be8475a0228fa3548d"
+      }
+    },
+    {
+      "gate": "npx jest src/lib/multiplayer/server/history/__tests__/GmCombatRewindPreview.test.ts",
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\multiplayer\\\\server\\\\history\\\\__tests__\\\\GmCombatRewindPreview.test.ts/i.",
+      "counts": "Test Suites: 1 passed, 1 total; Tests:       7 passed, 7 total",
+      "failingSuites": [],
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u19b/logs/gate-pin-GmCombatRewindPreview.log",
+        "sha256": "1ab32756f4db4da5999035e692c472bbdbef40797dc3c9b9e4a9032dee14274a"
+      }
+    },
+    {
+      "gate": "npx jest src/lib/events/journal",
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\events\\\\journal/i.",
+      "counts": "Test Suites: 23 passed, 23 total; Tests:       243 passed, 243 total",
+      "failingSuites": [],
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u19b/logs/gate-journal.log",
+        "sha256": "30a76ed5213f7b6248cb5bdbb4b0036eef52a25465d3285b3ab5d8d74d3ceef0"
+      }
+    },
+    {
+      "gate": "npx jest src/lib/multiplayer/server",
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\multiplayer\\\\server/i.",
+      "counts": "Test Suites: 157 passed, 157 total; Tests:       1164 passed, 1164 total",
+      "failingSuites": [],
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u19b/logs/gate-mpserver.log",
+        "sha256": "1522d5b39bc09efc4020399e605537f2f3a65c8b2c8be0ffdc1576daa4b8932b"
+      }
+    },
+    {
+      "gate": "npx jest src/lib/campaign",
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\campaign/i.",
+      "counts": "Test Suites: 201 passed, 201 total; Tests:       2963 passed, 2963 total",
+      "failingSuites": [],
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u19b/logs/gate-campaign.log",
+        "sha256": "5ca15aea152217988942c4d52cc360f9900bf49007f963e41e940b4f758279eb"
+      }
+    },
+    {
+      "gate": "npx jest src/pages-modules/api src/__tests__/api src/lib/interventions",
+      "lastLine": "Ran all test suites matching /src\\\\pages-modules\\\\api|src\\\\__tests__\\\\api|src\\\\lib\\\\interventions/i.",
+      "counts": "Test Suites: 77 passed, 77 total; Tests:       931 passed, 931 total",
+      "failingSuites": [],
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u19b/logs/gate-api-interventions.log",
+        "sha256": "d1e3b97265e94e513dae0141bd9749d7d6176fe53fc61f98db714ae0c18ce6cf"
+      }
+    },
+    {
+      "gate": "npx tsc --noEmit",
+      "lastLine": "(no output)",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u19b/logs/gate-tsc.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "outputLines": 0
+    },
+    {
+      "gate": "npx oxlint",
+      "lastLine": "Finished in 248ms on 3816 files using 16 threads.",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u19b/logs/gate-oxlint.log",
+        "sha256": "205987013bd93bc4f19c4c45ae02bed9cc0b9572c7fd8518f040c2e401db3e45"
+      },
+      "warningsLine": "Found 84 warnings and 0 errors.",
+      "warningsVsBaseline84": 0,
+      "linesNamingTouchedFiles": [
+        ",-[src/lib/events/journal/SQLiteEventJournalWriter.ts:510:2]"
+      ]
+    },
+    {
+      "gate": "npx oxfmt --check src/lib/events/journal/SQLiteEventHistoryBranchStore.ts src/lib/events/journal/SQLiteEventJournalWriter.ts src/lib/events/journal/__tests__/EventHistoryActivation.test.ts src/lib/events/journal/__tests__/EventHistoryBranchResolver.test.ts src/lib/events/journal/__tests__/EventHistoryCandidateBuild.test.ts src/lib/events/journal/__tests__/EventHistoryCandidateVerification.test.ts src/lib/events/journal/__tests__/EventHistoryImpactDerivation.test.ts src/lib/events/journal/__tests__/SQLiteEventJournalWriter.test.ts src/lib/multiplayer/server/MatchStreamJournalMirror.ts src/lib/multiplayer/server/history/__tests__/CoordinatedOutcomeCorrection.test.ts src/lib/multiplayer/server/history/__tests__/CoordinatedOutcomeCorrectionSaga.test.ts src/lib/multiplayer/server/history/__tests__/GmCombatRewindCommit.test.ts src/lib/multiplayer/server/history/__tests__/GmCombatRewindPreview.test.ts src/lib/events/journal/__tests__/SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts",
+      "lastLine": "Finished in 20ms on 14 files using 16 threads.",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u19b/logs/gate-oxfmt.log",
+        "sha256": "6221a03e2fd8752d0787b7fda906929d18af9deb03bd9604bef6a7430a9271da"
+      },
+      "resultLine": "All matched files use the correct format.",
+      "files": 14
+    },
+    {
+      "gate": "npm run lint:units",
+      "lastLine": "LINT_UNITS_PASS 100/100",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u19b/logs/gate-lint-units.log",
+        "sha256": "e055631f9348b2e6539c922dddc1fe388b583448a734da5f618cb47c583fae2d"
+      }
+    },
+    {
+      "gate": "npm run qc:openspec-ci:validate",
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u19b/logs/gate-openspec-ci.log",
+        "sha256": "4c2dafd093b946290aa4abe001ad8b3d65671b17c7682722c55a510ecc04f91e"
+      }
+    },
+    {
+      "gate": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u19b/logs/gate-validator.log",
+        "sha256": "97b2f29d264078525a55c5f88586fb95603311fa065e70d7d17c5fab08f5b5bc"
+      }
+    },
+    {
+      "gate": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+      "lastLine": "U19b",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u19b/logs/gate-validator-next.log",
+        "sha256": "6abd35f1767b68bcd93e6c2ef8788775403f285d7279f6c17926eb6cafc9d363"
+      }
+    },
+    {
+      "gate": "npm run qc:guard-node-modules-link",
+      "lastLine": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"E:\\\\Projects\\\\MekStation\\\\.sisyphus\\\\roadmap-completion-20260912\\\\worktrees\\\\u19b\\\\node_modules\",\"actualPath\":\"E:\\\\Projects\\\\MekStation\\\\node_modules\"}",
+      "exitCode": 1,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u19b/logs/gate-guard-node-modules-link.log",
+        "sha256": "aeef7924c0c4a866aa6e7f0ce2e3a2e4e407ec283ecb06bf57e99dbc83ec6fd7"
+      },
+      "expected": true,
+      "why": "refusal by design in a junctioned worktree; no npm install/ci/prune or lifecycle was run"
+    }
+  ],
+  "jestGatesAllGreen": true,
+  "mutants": [
+    {
+      "id": "M1",
+      "what": "genesis install skipped: the first-append call in appendInTransaction removed. Run against the genesis suite and against the four re-aimed multiplayer pins (which are path-agnostic by the unit sentence and are expected to pass: the backfill then installs the row).",
+      "edits": [
+        {
+          "file": "src/lib/events/journal/SQLiteEventJournalWriter.ts",
+          "from": "    if (head === undefined) this.installGenesisOnFirstAppend(input, recordedAt);\n",
+          "to": ""
+        }
+      ],
+      "runs": [
+        {
+          "suite": "src/lib/events/journal/__tests__/SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts",
+          "exitCode": 1,
+          "counts": "Test Suites: 1 failed, 1 total; Tests:       8 failed, 2 passed, 10 total",
+          "failed": [
+            {
+              "test": "SQLiteEventJournalWriter genesis branch on first append (U19) › (a) a campaign stream first append installs one effective genesis row and an effective head",
+              "at": "src/lib/events/journal/__tests__/SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts:164:27",
+              "expected": [
+                "1"
+              ],
+              "received": [
+                "0"
+              ]
+            },
+            {
+              "test": "SQLiteEventJournalWriter genesis branch on first append (U19) › (b) a second append leaves exactly the one genesis row, byte for byte",
+              "at": "src/lib/events/journal/__tests__/SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts:207:33",
+              "expected": [
+                "1"
+              ],
+              "received": [
+                "0"
+              ]
+            },
+            {
+              "test": "SQLiteEventJournalWriter genesis branch on first append (U19) › (c) a match stream first append on the mirror's 'main' branch behaves the same",
+              "at": "src/lib/events/journal/__tests__/SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts:164:27",
+              "expected": [
+                "1"
+              ],
+              "received": [
+                "0"
+              ]
+            },
+            {
+              "test": "SQLiteEventJournalWriter genesis branch on first append (U19) › (c2) a match stream's genesis generation is read from its stored baseline, as the backfill reads it",
+              "at": "src/lib/events/journal/__tests__/SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts:164:27",
+              "expected": [
+                "1"
+              ],
+              "received": [
+                "0"
+              ]
+            },
+            {
+              "test": "SQLiteEventJournalWriter genesis branch on first append (U19) › (d) the global backfill run after the appends adds nothing",
+              "at": "src/lib/events/journal/__tests__/SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts:164:27",
+              "expected": [
+                "1"
+              ],
+              "received": [
+                "0"
+              ]
+            },
+            {
+              "test": "SQLiteEventJournalWriter genesis branch on first append (U19) › (e) an append that throws after its writes leaves no genesis row",
+              "at": "src/lib/events/journal/__tests__/SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts:263:43",
+              "expected": [
+                "1"
+              ],
+              "received": [
+                "0"
+              ]
+            },
+            {
+              "test": "SQLiteEventJournalWriter genesis branch on first append (U19) › (f) two writers racing a first append end with one genesis row; the loser is refused as today",
+              "at": "src/lib/events/journal/__tests__/SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts:164:27",
+              "expected": [
+                "1"
+              ],
+              "received": [
+                "0"
+              ]
+            },
+            {
+              "test": "SQLiteEventJournalWriter genesis branch on first append (U19) › (h) the install is per stream: another stream's missing genesis is not backfilled by it",
+              "at": "src/lib/events/journal/__tests__/SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts:164:27",
+              "expected": [
+                "1"
+              ],
+              "received": [
+                "0"
+              ]
+            }
+          ],
+          "passed": [
+            "(e2) a refused first append (revision conflict) leaves no genesis row",
+            "(g) a stream that already has its genesis row is left untouched by its first append"
+          ],
+          "lastLine": "Ran all test suites matching /src\\\\lib\\\\events\\\\journal\\\\__tests__\\\\SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts/i.",
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u19b/logs/M1-SQLiteEventJournalWriter.genesisOnFirstAppend.log",
+            "sha256": "1e96b3c47cd4c051d12ee911e8e9cda86dbaa34797f4e32828467b1f2b4df911"
+          },
+          "mutantSha256": {
+            "src/lib/events/journal/SQLiteEventJournalWriter.ts": "408c86281b758dc672f976bfcbb393128c7ecb6df0d3388edc2a1f071fb2a20d"
+          },
+          "failedDetail": [
+            {
+              "test": "(a) a campaign stream first append installs one effective genesis row and an effective head",
+              "firstLine": "expect(received).toHaveLength(expected)",
+              "suiteFrames": [
+                "SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts:164:27",
+                "SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts:191:5"
+              ],
+              "diff": []
+            },
+            {
+              "test": "(b) a second append leaves exactly the one genesis row, byte for byte",
+              "firstLine": "expect(received).toHaveLength(expected)",
+              "suiteFrames": [
+                "SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts:207:33"
+              ],
+              "diff": []
+            },
+            {
+              "test": "(c) a match stream first append on the mirror's 'main' branch behaves the same",
+              "firstLine": "expect(received).toHaveLength(expected)",
+              "suiteFrames": [
+                "SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts:164:27",
+                "SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts:226:5"
+              ],
+              "diff": []
+            },
+            {
+              "test": "(c2) a match stream's genesis generation is read from its stored baseline, as the backfill reads it",
+              "firstLine": "expect(received).toHaveLength(expected)",
+              "suiteFrames": [
+                "SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts:164:27",
+                "SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts:239:5"
+              ],
+              "diff": []
+            },
+            {
+              "test": "(d) the global backfill run after the appends adds nothing",
+              "firstLine": "expect(received).toHaveLength(expected)",
+              "suiteFrames": [
+                "SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts:164:27",
+                "SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts:246:5"
+              ],
+              "diff": []
+            },
+            {
+              "test": "(e) an append that throws after its writes leaves no genesis row",
+              "firstLine": "expect(received).rejects.toThrow(expected)",
+              "suiteFrames": [
+                "SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts:263:43",
+                "SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts:260:14",
+                "SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts:266:15"
+              ],
+              "diff": []
+            },
+            {
+              "test": "(f) two writers racing a first append end with one genesis row; the loser is refused as today",
+              "firstLine": "expect(received).toHaveLength(expected)",
+              "suiteFrames": [
+                "SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts:164:27",
+                "SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts:306:5"
+              ],
+              "diff": []
+            },
+            {
+              "test": "(h) the install is per stream: another stream's missing genesis is not backfilled by it",
+              "firstLine": "expect(received).toHaveLength(expected)",
+              "suiteFrames": [
+                "SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts:164:27",
+                "SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts:339:5"
+              ],
+              "diff": []
+            }
+          ]
+        },
+        {
+          "suite": "src/lib/multiplayer/server/history/__tests__/CoordinatedOutcomeCorrection.test.ts",
+          "exitCode": 0,
+          "counts": "Test Suites: 1 passed, 1 total; Tests:       9 passed, 9 total",
+          "failed": [],
+          "passed": [
+            "GM correction at delivered+1 is accepted-pending-saga and writes only the admission",
+            "matching expectedDigest is admitted (control)",
+            "mismatched expectedDigest is refused expected-digest-mismatch and writes nothing",
+            "empty expectedDigest is refused expected-digest-mismatch and writes nothing",
+            "version delivered+2 is refused version-not-next",
+            "undelivered outcome is refused outcome-not-delivered",
+            "non-GM is refused gm-role-required",
+            "stale expected revision is refused STALE_REVISION",
+            "plain rewind onto a delivered receipt is still refused campaign-receipt-delivered"
+          ],
+          "lastLine": "Ran all test suites matching /src\\\\lib\\\\multiplayer\\\\server\\\\history\\\\__tests__\\\\CoordinatedOutcomeCorrection.test.ts/i.",
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u19b/logs/M1-CoordinatedOutcomeCorrection.log",
+            "sha256": "d7ba62e4b074d8ff50d8ba85e5705566f3a5b1e5148fd943d946cd369fd5dd4c"
+          },
+          "mutantSha256": {
+            "src/lib/events/journal/SQLiteEventJournalWriter.ts": "408c86281b758dc672f976bfcbb393128c7ecb6df0d3388edc2a1f071fb2a20d"
+          },
+          "failedDetail": []
+        },
+        {
+          "suite": "src/lib/multiplayer/server/history/__tests__/CoordinatedOutcomeCorrectionSaga.test.ts",
+          "exitCode": 0,
+          "counts": "Test Suites: 1 passed, 1 total; Tests:       12 passed, 12 total",
+          "failed": [],
+          "passed": [
+            "source record moves the tail and writes the replacement outbox row and the saga row in one transaction",
+            "an injected failure on the outbox insert leaves no supersession and no saga row",
+            "a retry with the same key is a no-op (one supersession, one outbox row, same saga row)",
+            "a different outcome_json at the same version is refused typed",
+            "replacement slot is pending (published_at NULL); listPendingPublications does not cover mp_combat_outcome_outbox",
+            "a delivered published slot is replaced in place at N+1 and listed pending",
+            "a slot already at N+1 with the same json and no saga row is adopted",
+            "a slot at N+2 refuses replacement-immutable and moves nothing",
+            "a saga read after only the source step answers source-recorded",
+            "block transition answers blocked with the reason",
+            "manifest seal advances the saga and is idempotent",
+            "seal on a blocked saga does not advance it"
+          ],
+          "lastLine": "Ran all test suites matching /src\\\\lib\\\\multiplayer\\\\server\\\\history\\\\__tests__\\\\CoordinatedOutcomeCorrectionSaga.test.ts/i.",
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u19b/logs/M1-CoordinatedOutcomeCorrectionSaga.log",
+            "sha256": "e7f6f3cf6d81ea9206a70da3156265942262705791f436e02f6d5479de87d51a"
+          },
+          "mutantSha256": {
+            "src/lib/events/journal/SQLiteEventJournalWriter.ts": "408c86281b758dc672f976bfcbb393128c7ecb6df0d3388edc2a1f071fb2a20d"
+          },
+          "failedDetail": []
+        },
+        {
+          "suite": "src/lib/multiplayer/server/history/__tests__/GmCombatRewindCommit.test.ts",
+          "exitCode": 0,
+          "counts": "Test Suites: 1 passed, 1 total; Tests:       15 passed, 15 total",
+          "failed": [],
+          "passed": [
+            "R1 commits a rewind and activates the candidate",
+            "R2 refuses a rewind past a delivered campaign receipt and writes nothing",
+            "R3 holds a live lease the shipped rebuild consult can see",
+            "R4 a failed verification activates nothing and reopens the stream",
+            "R5 releases the lease on refusal gm-role-required",
+            "R5 releases the lease on refusal actor-mismatch",
+            "R5 releases the lease on refusal campaign-receipt-delivered",
+            "R5 releases the lease on refusal no-authoritative-history",
+            "R5 releases the lease on refusal rewind-target-above-head",
+            "R5 releases the lease on refusal rewind-target-below-branch-base",
+            "R5 releases the lease on refusal STALE_REVISION",
+            "R5 releases the lease on refusal correction-lease-held",
+            "R5 releases the lease on refusal candidate-verification-failed",
+            "R5 releases the lease on refusal generation-exhausted",
+            "R5 releases the lease on refusal replacement-events-unsupported"
+          ],
+          "lastLine": "Ran all test suites matching /src\\\\lib\\\\multiplayer\\\\server\\\\history\\\\__tests__\\\\GmCombatRewindCommit.test.ts/i.",
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u19b/logs/M1-GmCombatRewindCommit.log",
+            "sha256": "87256c6350c7aecf9d3d577d52adc78b643d58796b2749bdfd8efb71689ce15e"
+          },
+          "mutantSha256": {
+            "src/lib/events/journal/SQLiteEventJournalWriter.ts": "408c86281b758dc672f976bfcbb393128c7ecb6df0d3388edc2a1f071fb2a20d"
+          },
+          "failedDetail": []
+        },
+        {
+          "suite": "src/lib/multiplayer/server/history/__tests__/GmCombatRewindPreview.test.ts",
+          "exitCode": 0,
+          "counts": "Test Suites: 1 passed, 1 total; Tests:       7 passed, 7 total",
+          "failed": [],
+          "passed": [
+            "answers the GM without writing anything",
+            "stales only the checkpoints recorded above the target",
+            "reports exactly what sealing the same truncation would report",
+            "refuses a rewind past a campaign that already took delivery",
+            "tells a non-GM nothing, and does not even ask the probe",
+            "says a match with no authoritative history has none, and asks no probe",
+            "refuses while another correction holds the lease"
+          ],
+          "lastLine": "Ran all test suites matching /src\\\\lib\\\\multiplayer\\\\server\\\\history\\\\__tests__\\\\GmCombatRewindPreview.test.ts/i.",
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u19b/logs/M1-GmCombatRewindPreview.log",
+            "sha256": "a060ba5abeba351a9e5454dbc0f52ef0556f30b9d68b674e0122ec68c29519e0"
+          },
+          "mutantSha256": {
+            "src/lib/events/journal/SQLiteEventJournalWriter.ts": "408c86281b758dc672f976bfcbb393128c7ecb6df0d3388edc2a1f071fb2a20d"
+          },
+          "failedDetail": []
+        }
+      ],
+      "restore": [
+        {
+          "file": "src/lib/events/journal/SQLiteEventJournalWriter.ts",
+          "preSha256": "1beac1d6c477727667e3403b95d8be0f173f31669354e0eacfb72b6d93dfecba",
+          "restoredSha256": "1beac1d6c477727667e3403b95d8be0f173f31669354e0eacfb72b6d93dfecba",
+          "equal": true
+        }
+      ],
+      "caught": true,
+      "caughtBy": "src/lib/events/journal/__tests__/SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts",
+      "restoredAll": true
+    },
+    {
+      "id": "M2",
+      "what": "genesis installed outside the append transaction: the call removed from appendInTransaction and made in appendWithExtension before db.transaction(...).immediate(), still gated on the stream having no journal head",
+      "edits": [
+        {
+          "file": "src/lib/events/journal/SQLiteEventJournalWriter.ts",
+          "from": "    if (head === undefined) this.installGenesisOnFirstAppend(input, recordedAt);\n",
+          "to": ""
+        },
+        {
+          "file": "src/lib/events/journal/SQLiteEventJournalWriter.ts",
+          "from": "    return this.db\n      .transaction(() =>\n        extend(this.db, () =>\n          this.appendInTransaction(identity.command, identity.digest),",
+          "to": "    this.installGenesisOnFirstAppend(\n      identity.command,\n      new Date(this.now()).toISOString(),\n    );\n    return this.db\n      .transaction(() =>\n        extend(this.db, () =>\n          this.appendInTransaction(identity.command, identity.digest),"
+        }
+      ],
+      "runs": [
+        {
+          "suite": "src/lib/events/journal/__tests__/SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts",
+          "exitCode": 1,
+          "counts": "Test Suites: 1 failed, 1 total; Tests:       2 failed, 8 passed, 10 total",
+          "failed": [
+            {
+              "test": "SQLiteEventJournalWriter genesis branch on first append (U19) › (e) an append that throws after its writes leaves no genesis row",
+              "at": "src/lib/events/journal/__tests__/SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts:267:22",
+              "expected": [],
+              "received": []
+            },
+            {
+              "test": "SQLiteEventJournalWriter genesis branch on first append (U19) › (e2) a refused first append (revision conflict) leaves no genesis row",
+              "at": "src/lib/events/journal/__tests__/SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts:281:22",
+              "expected": [],
+              "received": []
+            }
+          ],
+          "passed": [
+            "(a) a campaign stream first append installs one effective genesis row and an effective head",
+            "(b) a second append leaves exactly the one genesis row, byte for byte",
+            "(c) a match stream first append on the mirror's 'main' branch behaves the same",
+            "(c2) a match stream's genesis generation is read from its stored baseline, as the backfill reads it",
+            "(d) the global backfill run after the appends adds nothing",
+            "(f) two writers racing a first append end with one genesis row; the loser is refused as today",
+            "(g) a stream that already has its genesis row is left untouched by its first append",
+            "(h) the install is per stream: another stream's missing genesis is not backfilled by it"
+          ],
+          "lastLine": "Ran all test suites matching /src\\\\lib\\\\events\\\\journal\\\\__tests__\\\\SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts/i.",
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u19b/logs/M2-SQLiteEventJournalWriter.genesisOnFirstAppend.log",
+            "sha256": "3bc891d997da23cc820add6010ddd5d434df62df8ebb86fc16d3feceecc2486c"
+          },
+          "mutantSha256": {
+            "src/lib/events/journal/SQLiteEventJournalWriter.ts": "9598b8e3db3f83161a4ef7bbfba9130aff3f4de664b8572c775a7465d923e9dc"
+          },
+          "failedDetail": [
+            {
+              "test": "(e) an append that throws after its writes leaves no genesis row",
+              "firstLine": "expect(received).toEqual(expected) // deep equality",
+              "suiteFrames": [
+                "SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts:267:22"
+              ],
+              "diff": [
+                "-   \"branches\": 0,",
+                "-   \"effectiveHeads\": 0,",
+                "+   \"branches\": 1,",
+                "+   \"effectiveHeads\": 1,"
+              ]
+            },
+            {
+              "test": "(e2) a refused first append (revision conflict) leaves no genesis row",
+              "firstLine": "expect(received).toEqual(expected) // deep equality",
+              "suiteFrames": [
+                "SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts:281:22"
+              ],
+              "diff": [
+                "-   \"branches\": 0,",
+                "-   \"effectiveHeads\": 0,",
+                "+   \"branches\": 1,",
+                "+   \"effectiveHeads\": 1,"
+              ]
+            }
+          ]
+        }
+      ],
+      "restore": [
+        {
+          "file": "src/lib/events/journal/SQLiteEventJournalWriter.ts",
+          "preSha256": "1beac1d6c477727667e3403b95d8be0f173f31669354e0eacfb72b6d93dfecba",
+          "restoredSha256": "1beac1d6c477727667e3403b95d8be0f173f31669354e0eacfb72b6d93dfecba",
+          "equal": true
+        }
+      ],
+      "caught": true,
+      "caughtBy": "src/lib/events/journal/__tests__/SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts",
+      "restoredAll": true
+    },
+    {
+      "id": "M3",
+      "what": "genesis installed on every append: the writer's first-append gates (head === undefined, no head on any branch) and the store's NOT EXISTS guard removed",
+      "edits": [
+        {
+          "file": "src/lib/events/journal/SQLiteEventJournalWriter.ts",
+          "from": "    if (head === undefined) this.installGenesisOnFirstAppend(input, recordedAt);\n",
+          "to": "    this.installGenesisOnFirstAppend(input, recordedAt);\n"
+        },
+        {
+          "file": "src/lib/events/journal/SQLiteEventJournalWriter.ts",
+          "from": "    if (streamHasHead !== undefined) return;\n",
+          "to": ""
+        },
+        {
+          "file": "src/lib/events/journal/SQLiteEventHistoryBranchStore.ts",
+          "from": "\n          WHERE NOT EXISTS (\n            SELECT 1 FROM event_history_branches\n             WHERE stream_type = @streamType AND stream_id = @streamId)`,",
+          "to": "`,"
+        }
+      ],
+      "runs": [
+        {
+          "suite": "src/lib/events/journal/__tests__/SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts",
+          "exitCode": 1,
+          "counts": "Test Suites: 1 failed, 1 total; Tests:       4 failed, 6 passed, 10 total",
+          "failed": [
+            {
+              "test": "SQLiteEventJournalWriter genesis branch on first append (U19) › (b) a second append leaves exactly the one genesis row, byte for byte",
+              "at": "src/lib/events/journal/SQLiteEventHistoryBranchStore.ts:112:8",
+              "expected": [],
+              "received": []
+            },
+            {
+              "test": "SQLiteEventJournalWriter genesis branch on first append (U19) › (c) a match stream first append on the mirror's 'main' branch behaves the same",
+              "at": "src/lib/events/journal/SQLiteEventHistoryBranchStore.ts:112:8",
+              "expected": [],
+              "received": []
+            },
+            {
+              "test": "SQLiteEventJournalWriter genesis branch on first append (U19) › (f) two writers racing a first append end with one genesis row; the loser is refused as today",
+              "at": "src/lib/events/journal/SQLiteEventHistoryBranchStore.ts:112:8",
+              "expected": [],
+              "received": []
+            },
+            {
+              "test": "SQLiteEventJournalWriter genesis branch on first append (U19) › (g) a stream that already has its genesis row is left untouched by its first append",
+              "at": "src/lib/events/journal/SQLiteEventHistoryBranchStore.ts:112:8",
+              "expected": [],
+              "received": []
+            }
+          ],
+          "passed": [
+            "(a) a campaign stream first append installs one effective genesis row and an effective head",
+            "(c2) a match stream's genesis generation is read from its stored baseline, as the backfill reads it",
+            "(d) the global backfill run after the appends adds nothing",
+            "(e) an append that throws after its writes leaves no genesis row",
+            "(e2) a refused first append (revision conflict) leaves no genesis row",
+            "(h) the install is per stream: another stream's missing genesis is not backfilled by it"
+          ],
+          "lastLine": "Ran all test suites matching /src\\\\lib\\\\events\\\\journal\\\\__tests__\\\\SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts/i.",
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u19b/logs/M3-SQLiteEventJournalWriter.genesisOnFirstAppend.log",
+            "sha256": "4a486db78db2ce8d899b02b98600f2054784ef8ab3313c8c4950a35ad88faecc"
+          },
+          "mutantSha256": {
+            "src/lib/events/journal/SQLiteEventJournalWriter.ts": "b64cf84c9b513ff41a1d0c5a479d3005507c564bbd3e2976a4c1420b7c32744f",
+            "src/lib/events/journal/SQLiteEventHistoryBranchStore.ts": "9dcca87c49636c132cf55d0511c141909ea9e37b48ab19ef34728b5aaabe6919"
+          },
+          "failedDetail": [
+            {
+              "test": "(b) a second append leaves exactly the one genesis row, byte for byte",
+              "firstLine": "SqliteError: UNIQUE constraint failed: event_history_branches.stream_type, event_history_branches.stream_id",
+              "suiteFrames": [
+                "SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts:105:32",
+                "SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts:209:26"
+              ],
+              "diff": []
+            },
+            {
+              "test": "(c) a match stream first append on the mirror's 'main' branch behaves the same",
+              "firstLine": "SqliteError: UNIQUE constraint failed: event_history_branches.stream_type, event_history_branches.stream_id",
+              "suiteFrames": [
+                "SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts:105:32",
+                "SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts:227:11"
+              ],
+              "diff": []
+            },
+            {
+              "test": "(f) two writers racing a first append end with one genesis row; the loser is refused as today",
+              "firstLine": "SqliteError: UNIQUE constraint failed: event_history_branches.stream_type, event_history_branches.stream_id",
+              "suiteFrames": [
+                "SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts:105:32",
+                "SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts:307:11"
+              ],
+              "diff": []
+            },
+            {
+              "test": "(g) a stream that already has its genesis row is left untouched by its first append",
+              "firstLine": "SqliteError: UNIQUE constraint failed: event_history_branches.stream_type, event_history_branches.stream_id",
+              "suiteFrames": [
+                "SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts:105:32",
+                "SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts:327:11"
+              ],
+              "diff": []
+            }
+          ]
+        }
+      ],
+      "restore": [
+        {
+          "file": "src/lib/events/journal/SQLiteEventJournalWriter.ts",
+          "preSha256": "1beac1d6c477727667e3403b95d8be0f173f31669354e0eacfb72b6d93dfecba",
+          "restoredSha256": "1beac1d6c477727667e3403b95d8be0f173f31669354e0eacfb72b6d93dfecba",
+          "equal": true
+        },
+        {
+          "file": "src/lib/events/journal/SQLiteEventHistoryBranchStore.ts",
+          "preSha256": "26623c51f5ea02f1635ec747fda4f0516cc986c63f04c9101d76bc9742ed2ed3",
+          "restoredSha256": "26623c51f5ea02f1635ec747fda4f0516cc986c63f04c9101d76bc9742ed2ed3",
+          "equal": true
+        }
+      ],
+      "caught": true,
+      "caughtBy": "src/lib/events/journal/__tests__/SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts",
+      "restoredAll": true
+    }
+  ],
+  "gitStatusShort": " M src/lib/events/journal/SQLiteEventHistoryBranchStore.ts\n M src/lib/events/journal/SQLiteEventJournalWriter.ts\n M src/lib/events/journal/__tests__/EventHistoryActivation.test.ts\n M src/lib/events/journal/__tests__/EventHistoryBranchResolver.test.ts\n M src/lib/events/journal/__tests__/EventHistoryCandidateBuild.test.ts\n M src/lib/events/journal/__tests__/EventHistoryCandidateVerification.test.ts\n M src/lib/events/journal/__tests__/EventHistoryImpactDerivation.test.ts\n M src/lib/events/journal/__tests__/SQLiteEventJournalWriter.test.ts\n M src/lib/multiplayer/server/MatchStreamJournalMirror.ts\n M src/lib/multiplayer/server/history/__tests__/CoordinatedOutcomeCorrection.test.ts\n M src/lib/multiplayer/server/history/__tests__/CoordinatedOutcomeCorrectionSaga.test.ts\n M src/lib/multiplayer/server/history/__tests__/GmCombatRewindCommit.test.ts\n M src/lib/multiplayer/server/history/__tests__/GmCombatRewindPreview.test.ts\n?? openspec/planning/2026-09-12-roadmap-completion/evidence/u19b-admission-20260922.json\n?? openspec/planning/2026-09-12-roadmap-completion/evidence/u19b-red-20260922.json\n?? src/lib/events/journal/__tests__/SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts",
+  "readinessChecks": {
+    "jestAllGreen": true,
+    "tsc": true,
+    "oxlint": true,
+    "oxfmt": true,
+    "lintUnits": true,
+    "openspecCi": true,
+    "validator": true,
+    "mutantsCaughtAndRestored": true,
+    "withinCapsAsChartered": true,
+    "statusOnlyOwnedPaths": true
+  },
+  "behaviourAsImplemented": [
+    "Carried verbatim from U19 draft f0008f3a5 (see the admission receipt's per-file blob comparison): SQLiteEventHistoryBranchStore.installGenesisBranch and SQLiteEventJournalWriter's first-append call; five journal suites re-pinned backfill 1 -> 0; the new genesis-on-first-append suite.",
+    "Four multiplayer-server pins re-aimed (CoordinatedOutcomeCorrection, CoordinatedOutcomeCorrectionSaga, GmCombatRewindCommit, GmCombatRewindPreview): each seed still runs backfillGenesisBranches() after its first append, standing for the mirror's call, and no longer asserts its return count; it asserts that listBranches(STREAM) is exactly one branch 'root' at ancestorDepth 0 with status 'effective' and that readEffectiveHead(STREAM) names 'root' at generation 1 (the table's primary key allows at most one head per stream). Each changed seed function carries a docstring saying so.",
+    "Genesis suite test (d) also asserts both streams' genesis rows exist right after the appends, before the backfill runs; this is where mutant M1 is caught now that the four pins are path-agnostic.",
+    "MatchStreamJournalMirror.ts docstring of mirrorMatchBatchToJournal corrected (comment only; U19 finding F2): the writer installs the genesis branch and head inside the stream's first append; the backfillGenesisBranches call, which stays, adds nothing for such a stream and still installs any journal stream holding a head but no branch row."
+  ],
+  "m1AtThePinLevel": {
+    "measured": [
+      {
+        "suite": "src/lib/multiplayer/server/history/__tests__/CoordinatedOutcomeCorrection.test.ts",
+        "exitCode": 0,
+        "counts": "Test Suites: 1 passed, 1 total; Tests:       9 passed, 9 total"
+      },
+      {
+        "suite": "src/lib/multiplayer/server/history/__tests__/CoordinatedOutcomeCorrectionSaga.test.ts",
+        "exitCode": 0,
+        "counts": "Test Suites: 1 passed, 1 total; Tests:       12 passed, 12 total"
+      },
+      {
+        "suite": "src/lib/multiplayer/server/history/__tests__/GmCombatRewindCommit.test.ts",
+        "exitCode": 0,
+        "counts": "Test Suites: 1 passed, 1 total; Tests:       15 passed, 15 total"
+      },
+      {
+        "suite": "src/lib/multiplayer/server/history/__tests__/GmCombatRewindPreview.test.ts",
+        "exitCode": 0,
+        "counts": "Test Suites: 1 passed, 1 total; Tests:       7 passed, 7 total"
+      }
+    ],
+    "reading": "with the install skipped, the backfill run by each seed installs the row, so the re-aimed pins pass: they are path-agnostic by the unit sentence (\"whichever path installed them\"). M1 is caught by the genesis suite, including test (d) before its backfill runs."
+  },
+  "nonClaims": [
+    "No launch-head change: resolveCampaignLaunchHead / campaignLaunchHead.ts are untouched (U20).",
+    "The match mirror's global backfill still runs after every mirrored append (MatchStreamJournalMirror.ts:265); it adds nothing for a stream whose first append installed the genesis row (U24 removes the call).",
+    "No ladder run, no build, no Playwright: verify:qc:coop-campaign-journey and the authority-recovery group belong to the parent main proof.",
+    "Streams that already hold journal heads but no branch row (data from before this change) are not installed by the writer: their next append is not a first append. Only the mirror backfill (combat mode on) covers such match streams.",
+    "The re-aimed multiplayer pins do not detect the append failing to install genesis (by design, see m1AtThePinLevel); the genesis suite does.",
+    "The genesis suite concurrency test (f) serializes two connections through the IMMEDIATE transaction; it does not drive a true interleaved lock wait."
+  ],
+  "oxlintTouchedFileNote": {
+    "rule": "eslint(max-lines) max 400 (skipBlankLines, skipComments)",
+    "file": "src/lib/events/journal/SQLiteEventJournalWriter.ts",
+    "now": "File has too many lines (435).",
+    "reading": "the only oxlint line naming a touched file; the file is carried verbatim from U19, whose local receipt measured 412 on the baseline copy (pre-existing warning). The repository total is Found 84 warnings and 0 errors, unchanged from 84. This lane did not re-measure the baseline per-file count."
+  },
+  "findingsReportedNotFixed": [
+    {
+      "id": "F1",
+      "summary": "Cap reading: product changed lines 133 of 500 as chartered; total changed lines including tests 566 (U19 alone measured 486). If the parent reads the GOAL cap as all non-generated changed lines, the unit is over it; the charter states it as product lines.",
+      "owner": "parent (cap interpretation)"
+    }
+  ],
+  "admission": "openspec/planning/2026-09-12-roadmap-completion/evidence/u19b-admission-20260922.json",
+  "red": "openspec/planning/2026-09-12-roadmap-completion/evidence/u19b-red-20260922.json"
+}
