@@ -76,10 +76,9 @@ function buildRunPlan({ group, runId, repoRoot }) {
     // production cutover flags.
     'authority-recovery': ['e2e/gm-two-player-authority-recovery.pack.spec.ts'],
     // `visibility` remains reserved for the complete E2E-19..30 pack.
-    // `privacy-pack` is the tactical-channel subset (E2E-20/21/22/23/
-    // 24/26/27); `proposal-pack` is the campaign-channel arbitration
-    // subset (E2E-30). E2E-19/25/28/29 stay deferred on absent
-    // surfaces - each named, with its evidence, in its spec's header.
+    // `privacy-pack` is the tactical-channel subset (E2E-19..28),
+    // including GM preview and correction under the journal fixture arm.
+    // `proposal-pack` owns campaign-channel arbitration separately.
     'privacy-pack': ['e2e/gm-two-player-privacy.pack.spec.ts'],
     'proposal-pack': ['e2e/gm-two-player-proposals.pack.spec.ts'],
     // `performance` is the controlled loopback latency/catch-up/memory
@@ -203,7 +202,8 @@ function buildRunPlan({ group, runId, repoRoot }) {
         ? AUTHORITY_GROUP_MEMBERS
         : [group];
   const armsJournalAuthorityFixture =
-    expandedMembers.includes('authority-recovery');
+    expandedMembers.includes('authority-recovery') ||
+    expandedMembers.includes('privacy-pack');
   return {
     command: process.execPath,
     args: [
