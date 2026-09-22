@@ -1,0 +1,25 @@
+{
+  "unit": "U5h",
+  "stage": "merge",
+  "at": "2026-09-22T06:07:22.719Z",
+  "pr": 1875,
+  "title": "feat(multiplayer): the head adapter reads the GM head route and carries the journal digest (U5h)",
+  "head": "26c4c31c0063891523299e2f166553d78a138ea3",
+  "mergeSha": "145e155609afd73b079f8410c04fd8df6bb5a278",
+  "mergedAt": "2026-09-22T05:58:18Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u5h-admission-20260921.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u5h-local-20260921.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u5h-red-20260921.json",
+    "src/__tests__/pages/multiplayer/lobby-roomcode.test.tsx",
+    "src/lib/multiplayer/client/__tests__/readGmRewindHead.test.ts",
+    "src/lib/multiplayer/client/readGmRewindHead.ts",
+    "src/pages-modules/multiplayer/__tests__/useGmCorrectionProducers.test.tsx",
+    "src/pages-modules/multiplayer/__tests__/useGmRewindProducers.test.tsx"
+  ],
+  "blobEqualityDiffLines": 0
+}
