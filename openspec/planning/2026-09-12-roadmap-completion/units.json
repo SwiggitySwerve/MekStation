@@ -1610,14 +1610,28 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
+      "state": "local-verified",
+      "baseline": "759224fc30e1a724dae54d186de37f72bcda7ef2",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/u5h-admission-20260921.json",
+          "baseline": "759224fc30e1a724dae54d186de37f72bcda7ef2",
+          "at": "2026-09-22 05:10:03 UTC",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/u5h-red-20260921.json",
+          "at": "2026-09-22 05:12:02 UTC",
+          "summary": "adapter suite 8 failed / 40 passed on the baseline: the adapter requested the timeline path and returned no digest"
+        },
+        "local": {
+          "path": "evidence/u5h-local-20260921.json",
+          "at": "2026-09-22 05:16:15 UTC",
+          "summary": "readGmRewindHead GETs /api/matches/:id/head with the bearer and answers head { branchId, revision, generation (from effectiveGeneration), digest (64 lowercase hex, verbatim) } / no-head (404 no head) / unavailable (anything else, no error text); adapter 48/48, client suites 69/69; 20 product lines added, 18 removed; M1-M3 caught and restored; tsc 0, oxlint 0 errors, lint:units 100/100, validator PASSED; the route (U5g) is not on this baseline, the fetch is faked in jest"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
