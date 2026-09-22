@@ -1,0 +1,86 @@
+{
+  "unit": "U5i",
+  "stage": "red",
+  "at": "2026-09-22 06:07:00 UTC",
+  "baseline": "145e155609afd73b079f8410c04fd8df6bb5a278",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u5i",
+  "branch": "codex/roadmap-u5i-producers-send-digest-20260921",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "productChangedYet": false,
+  "howRedWasTaken": "Only the three test files were edited; src/pages-modules/multiplayer/useGmRewindProducers.ts and useGmCorrectionProducers.ts were untouched when these three commands ran (git status showed exactly three modified test files).",
+  "runs": [
+    {
+      "command": "npx jest src/pages-modules/multiplayer/__tests__/useGmRewindProducers.test.tsx --runInBand",
+      "exitCode": 1,
+      "lastLine": "Tests:       5 failed, 4 passed, 9 total",
+      "failingRows": [
+        "useGmRewindProducers > posts the server head and its digest, returning the preview outcome",
+        "useGmRewindProducers > floors the target at zero for a zero server revision",
+        "useGmRewindProducers > confirms the saved head without reading the changed server head again",
+        "useGmRewindProducers > posts nothing when the head outcome carries an absent digest",
+        "useGmRewindProducers > posts nothing when the head outcome carries an empty digest"
+      ],
+      "failingAssertion": {
+        "row": "posts the server head and its digest, returning the preview outcome",
+        "matcher": "expect(fetchMock).toHaveBeenLastCalledWith('/api/matches/match-1/rewind-preview', { ... })",
+        "expectedBody": "{\"targetRevision\":16,\"expectedBranchId\":\"main-after-rewind\",\"expectedRevision\":17,\"expectedDigest\":\"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef\",\"expectedGeneration\":4}",
+        "receivedBody": "{\"targetRevision\":16,\"expectedBranchId\":\"main-after-rewind\",\"expectedRevision\":17,\"expectedDigest\":\"\",\"expectedGeneration\":4}",
+        "at": "src/pages-modules/multiplayer/__tests__/useGmRewindProducers.test.tsx:133"
+      },
+      "failingAssertionC": {
+        "rows": [
+          "posts nothing when the head outcome carries an absent digest",
+          "posts nothing when the head outcome carries an empty digest"
+        ],
+        "matcher": "await expect(result.current.onPreviewRewind()).resolves.toStrictEqual({ kind: 'unavailable' })",
+        "received": "{ kind: 'preview', matchId: 'match-1', targetRevision: 16, priorHead: { branchId: 'main-after-rewind', revision: 17, effectiveGeneration: 4 }, changedViewerIds: ['pid_host','pid_guest'], entries: [] }",
+        "meaning": "the producer posted the preview anyway, with expectedDigest '', instead of reporting the head unavailable",
+        "at": "src/pages-modules/multiplayer/__tests__/useGmRewindProducers.test.tsx:256"
+      }
+    },
+    {
+      "command": "npx jest src/pages-modules/multiplayer/__tests__/useGmCorrectionProducers.test.tsx --runInBand",
+      "exitCode": 1,
+      "lastLine": "Tests:       4 failed, 6 passed, 10 total",
+      "failingRows": [
+        "useGmCorrectionProducers - the previewed request > asks the injected preview with the server head and its digest",
+        "useGmCorrectionProducers - the previewed request > floors the target at zero for a zero server revision",
+        "useGmCorrectionProducers - what approve commits > commits the exact previewed request plus the captured reason",
+        "useGmCorrectionProducers - what approve commits > commits no reason field at all when the GM typed nothing"
+      ],
+      "failingAssertion": {
+        "row": "asks the injected preview with the server head and its digest",
+        "matcher": "expect(preview.mock.calls[0]?.[0]).toStrictEqual(EXPECTED_REQUEST)",
+        "diff": "- \"expectedDigest\": \"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef\"  /  + \"expectedDigest\": \"\"",
+        "at": "src/pages-modules/multiplayer/__tests__/useGmCorrectionProducers.test.tsx:159"
+      },
+      "approveRowIsRedToo": "the approve row 'commits the exact previewed request plus the captured reason' fails on the same field: the commit body it received carries expectedDigest '' where the row now expects the head's digest alongside the private reason."
+    },
+    {
+      "command": "npx jest src/__tests__/pages/multiplayer/lobby-roomcode.test.tsx --runInBand",
+      "exitCode": 1,
+      "lastLine": "Tests:       2 failed, 11 passed, 13 total",
+      "failingRows": [
+        "Multiplayer lobby page - surface swap on status > asks the preview adapter for the head from the GM head route",
+        "Multiplayer lobby page - surface swap on status > confirm adapter receives the same body the preview adapter was asked with"
+      ],
+      "failingAssertion": {
+        "row": "asks the preview adapter for the head from the GM head route",
+        "matcher": "expect(mockedPreviewGmCombatRewind.mock.calls[0]?.[0]).toStrictEqual({ ... })",
+        "diff": "- \"expectedDigest\": \"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef\"  /  + \"expectedDigest\": \"\"",
+        "at": "src/__tests__/pages/multiplayer/lobby-roomcode.test.tsx:491"
+      }
+    }
+  ],
+  "redCoverageAgainstTheBrief": {
+    "a": "covered - both hook suites now pin the posted expectedDigest to the faked head's 64-hex digest; red today with ''.",
+    "b": "covered - useGmCorrectionProducers 'commits the exact previewed request plus the captured reason' asserts the approve body is EXPECTED_REQUEST (digest included) plus the reason; red today with ''.",
+    "c": "covered - the two new rows in useGmRewindProducers.test.tsx hand the producer a head outcome whose digest is absent (the pre-U5h shape) or empty and require `unavailable` with no fetch at all; red today because the producer posts the preview with ''.",
+    "d": "covered - the lobby page test's preview and confirm rows pin the faked head's digest; red today with ''."
+  },
+  "notes": [
+    "The two collateral red rows in each hook suite ('floors the target at zero', 'confirms the saved head ...', 'commits no reason field at all ...') are the same pin reached through the shared EXPECTED_BODY / EXPECTED_REQUEST fixtures, not separate behaviour.",
+    "Row (c) could not be taken through the faked global.fetch alone: U5h's adapter rejects any body whose digest is not 64 lowercase hex, so a digest-less head body already yields `unavailable` from the adapter and the row would have been green without touching the producer. The row therefore hands the producer that outcome directly through a jest.mock spy over '@/lib/multiplayer/client/readGmRewindHead' that otherwise delegates to jest.requireActual, so every other row in the file still drives the real adapter.",
+    "No assertion was weakened, skipped or converted to a skip; the three suites' row counts went 7 -> 9, 10 -> 10 and 13 -> 13."
+  ]
+}

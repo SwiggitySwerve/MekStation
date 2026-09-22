@@ -90,7 +90,7 @@ const EXPECTED_REQUEST = {
   targetRevision: 16,
   expectedBranchId: 'main-after-rewind',
   expectedRevision: 17,
-  expectedDigest: '',
+  expectedDigest: HEAD_DIGEST,
   expectedGeneration: 4,
 };
 
@@ -148,7 +148,7 @@ function mountHook(overrides?: {
 // =============================================================================
 
 describe('useGmCorrectionProducers - the previewed request', () => {
-  it('asks the injected preview with the server head and an empty digest', async () => {
+  it('asks the injected preview with the server head and its digest', async () => {
     const { preview, result } = mountHook();
 
     await act(async () => {
