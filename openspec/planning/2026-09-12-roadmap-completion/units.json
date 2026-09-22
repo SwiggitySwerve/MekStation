@@ -1610,10 +1610,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "local-verified",
+      "state": "complete",
       "baseline": "759224fc30e1a724dae54d186de37f72bcda7ef2",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "26c4c31c0063891523299e2f166553d78a138ea3",
+      "mergeSha": "145e155609afd73b079f8410c04fd8df6bb5a278",
       "stageReceipts": {
         "admission": {
           "path": "evidence/u5h-admission-20260921.json",
@@ -1632,10 +1632,31 @@
           "at": "2026-09-22 05:16:15 UTC",
           "summary": "readGmRewindHead GETs /api/matches/:id/head with the bearer and answers head { branchId, revision, generation (from effectiveGeneration), digest (64 lowercase hex, verbatim) } / no-head (404 no head) / unavailable (anything else, no error text); adapter 48/48, client suites 69/69; 20 product lines added, 18 removed; M1-M3 caught and restored; tsc 0, oxlint 0 errors, lint:units 100/100, validator PASSED; the route (U5g) is not on this baseline, the fetch is faked in jest"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "review": {
+          "path": "evidence/u5h-review-20260921.json",
+          "head": "26c4c31c0063891523299e2f166553d78a138ea3",
+          "reviewedHead": "26c4c31c0063891523299e2f166553d78a138ea3",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet)",
+          "implementerModel": "codex (gpt-6-astra, xhigh); fix passes codex (gpt-6-astra, xhigh)",
+          "outputSha256": "9ee08c07ac96042e31acab6a552754b0836af8f162f942c70c98736ff02a5f51",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u5h-merge-20260921.json",
+          "pr": 1875,
+          "head": "26c4c31c0063891523299e2f166553d78a138ea3",
+          "mergeSha": "145e155609afd73b079f8410c04fd8df6bb5a278"
+        },
+        "mainProof": {
+          "path": "evidence/u5h-mainproof-20260921.json",
+          "mergeCommit": "145e155609afd73b079f8410c04fd8df6bb5a278",
+          "verdict": "PASS",
+          "runtime": "Tests:       104 passed, 104 total"
+        },
+        "tick": {
+          "path": "evidence/u5h-tick-20260921.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "source20260921": "owner decision on PK-rewind-commit-head-digest, option (a) (chat, 2026-09-21); the adapter half, split from U5g and U5i by node ownership; planned by the parent",
