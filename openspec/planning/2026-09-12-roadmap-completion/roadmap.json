@@ -14731,7 +14731,12 @@
       "node": "R2.authority-client",
       "question": "task 1.6 chose fetch keepalive on pagehide and explicitly rejected navigator.sendBeacon (\"would require a new POST surface for no gain\"). Measured on Chromium 143: the keepalive fetch is aborted before dispatch on an about:blank navigation-discard (0/15, headless and headed, product-independent probe 0/3), landed 1/2 on a same-origin navigation (nondeterministic), and landed 11/11 on close-shaped discards. Closing the navigation window needs either a POST surface for sendBeacon or fetchLater() (Chromium-only API). Both change the admitted task text and add an API surface.",
       "status": "owner decision required; NOT implemented; residual recorded",
-      "evidence": "evidence/r2-client-discard-flush-diagnosis-20260915.json"
+      "evidence": "evidence/r2-client-discard-flush-diagnosis-20260915.json",
+      "delegated20260922": {
+        "at": "2026-09-22T12:00:00.000Z",
+        "by": "OD-mvp-hard-cutover",
+        "note": "delegated to the parent by the owner's hard-cutover authorization; the answer is recorded with the slice that implements it"
+      }
     },
     {
       "id": "OD-journal-writer-authority",
@@ -14739,7 +14744,12 @@
       "node": "R4.S7",
       "question": "[\"Does the S5/S6 naming split in design.md ('S5 revision offset' vs 'S6 reviewed cutover', six seams S1-S6 total) actually mean tasks.md's 1.5+1.6 together ARE 'S5' (S5-a and S5-b) and 1.7 alone is 'S6', while the ROADMAP separately numbers these as R4.S5/R4.S6/R4.S7 (three distinct nodes, one task each)? This brief followed the ROADMAP's three-node numbering as authoritative for admission purposes (since that is what taskKeys/dependsOn/receipt are tracked against) but flags that design.md's prose and the roadmap's node count disagree by one — worth a documentation fix, not a blocking issue.\",",
       "status": "owner decision required before S7-d; S5/S6 proceed mode-off",
-      "evidence": "evidence/r4-s5-s7-admission-brief-20260915.json"
+      "evidence": "evidence/r4-s5-s7-admission-brief-20260915.json",
+      "delegated20260922": {
+        "at": "2026-09-22T12:00:00.000Z",
+        "by": "OD-mvp-hard-cutover",
+        "note": "delegated to the parent by the owner's hard-cutover authorization; the answer is recorded with the slice that implements it"
+      }
     },
     {
       "id": "OD-camp00-controller-env",
@@ -14789,7 +14799,12 @@
       "raisedBy": "CO3 review F1",
       "node": "R2.authority-cutover",
       "question": "campaignLaunchHead.ts justifies the ungated mission launch with the claim that no campaign has a journal stream while the flag is off; CO3 measured a co-op-hosted campaign holds a stream at seq 0 with the flag off, and after a marker cutover GET /head still answers no-authoritative-stream because it resolves the event-history branch record rather than the journal. Decide the /head semantics and the launch gate before any flag flip. Not worked around.",
-      "evidence": "evidence/r2-authority-cutover-co3-review-20260915.json"
+      "evidence": "evidence/r2-authority-cutover-co3-review-20260915.json",
+      "delegated20260922": {
+        "at": "2026-09-22T12:00:00.000Z",
+        "by": "OD-mvp-hard-cutover",
+        "note": "delegated to the parent by the owner's hard-cutover authorization; the answer is recorded with the slice that implements it"
+      }
     },
     {
       "id": "OD-publication-single-pr",
@@ -14803,6 +14818,32 @@
         "evidence/r0-publish-combined-1776-main-proof-20260915.json",
         "evidence/r0-publish-review-combined-20260915.json"
       ]
+    },
+    {
+      "id": "OD-whole-row-tick-rule",
+      "raisedAtUtc": "2026-09-21T00:00:00.000Z",
+      "raisedBy": "council 3 (openspec/council-decisions/2026-09-21-umbrella-failures-review.md, decision 8)",
+      "node": "R6.umbrella",
+      "question": "Do tasks.md rows tick whole or not at all, or may a row be checked when part of the scenarios its letter names is proven?",
+      "evidence": "openspec/council-decisions/2026-09-21-umbrella-failures-review.md",
+      "decidedAtUtc": "2026-09-22T12:00:00.000Z",
+      "decision": "Rows tick whole or not at all: a tasks.md row is checked only when every scenario its letter names is proven on main at the tick commit; partial proof is a receipt on the open row, never a tick; a node may reach complete with rows open as long as each open row is held (the holders rule). Written into GOAL.md stage 7.",
+      "decisionSource": "owner instruction 2026-09-22 in the working session (chat), after the parent listed the open decisions in plain language with council 3's recommendations; transcribed by the parent (the owner's words are quoted verbatim)",
+      "ownerWords": "go with option b and the whole-row rule, continue the loop. I want the best solution that does not block us towards the goal. This software is in MVP so you can hard cutover and do whatever you like to make sure it works correctly",
+      "status": "decided"
+    },
+    {
+      "id": "OD-mvp-hard-cutover",
+      "raisedAtUtc": "2026-09-22T12:00:00.000Z",
+      "raisedBy": "owner (chat 2026-09-22)",
+      "node": "R4.S7",
+      "question": "May the journal-authority cutovers be done as hard cutovers (production flags flipped by the owning slice, legacy-compatibility machinery that only protects pre-cutover data not built), given the software is an MVP?",
+      "evidence": "owner chat 2026-09-22",
+      "decidedAtUtc": "2026-09-22T12:00:00.000Z",
+      "decision": "Yes. The software is an MVP with no production data to protect: the combat and campaign journal-authority flags may be flipped to on by the slice that owns each cutover (GOAL.md's rule that cutover flags move only through the owning slice still holds; a flag is never flipped to make an unrelated proof pass); migration states, shadow parity, rollback law and legacy-completed-match reads are not required where they exist only to protect pre-cutover data, and the inert legacy tables and ports may be deleted by the owning slice. Correctness stays mandatory: every cutover lands red-first with mutants, Lane A, main proof, and the live ladder groups it affects. The owner decisions OD-journal-writer-authority, OD-flush-mechanism and OD-launch-head-gate are delegated to the parent under these words; the parent records each answer with the slice that implements it, and any slice whose review class needs Lane B still gets the owner's head-bound ruling.",
+      "decisionSource": "owner instruction 2026-09-22 in the working session (chat), after the parent listed the open decisions in plain language with council 3's recommendations; transcribed by the parent (the owner's words are quoted verbatim)",
+      "ownerWords": "go with option b and the whole-row rule, continue the loop. I want the best solution that does not block us towards the goal. This software is in MVP so you can hard cutover and do whatever you like to make sure it works correctly",
+      "status": "decided"
     }
   ],
   "infraNotes": {
