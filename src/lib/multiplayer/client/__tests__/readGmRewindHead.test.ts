@@ -5,7 +5,19 @@ const REQUEST = {
   wireToken: 'wire-token-abc',
 } as const;
 
-const HEAD = { branchId: 'main-after-rewind', revision: 17, generation: 4 };
+const DIGEST = '0123456789abcdef'.repeat(4);
+const HEAD = {
+  branchId: 'main-after-rewind',
+  revision: 17,
+  generation: 4,
+  digest: DIGEST,
+};
+const BODY = {
+  branchId: 'main-after-rewind',
+  revision: 17,
+  effectiveGeneration: 4,
+  digest: DIGEST,
+};
 const ORIGINAL_FETCH = global.fetch;
 
 function mockJsonResponse(status: number, body: unknown): void {
@@ -22,22 +34,16 @@ describe('readGmRewindHead', () => {
     jest.restoreAllMocks();
   });
 
-  it('returns the three lineage head fields verbatim from a 200 body', async () => {
-    mockJsonResponse(200, {
-      timeline: [],
-      timelineDigest: 'audit-only-digest',
-      lineage: { effectiveHead: HEAD, transitions: [] },
-    });
+  it('returns the four head fields verbatim from a 200 head-route body', async () => {
+    mockJsonResponse(200, BODY);
 
     const result = await readGmRewindHead(REQUEST);
 
     expect(result).toStrictEqual({ kind: 'head', head: HEAD });
-    expect(result).not.toHaveProperty('digest');
-    expect(result).not.toHaveProperty('head.digest');
   });
 
-  it('returns no-head only for an explicitly null effective head', async () => {
-    mockJsonResponse(200, { lineage: { effectiveHead: null } });
+  it('returns no-head for a 404 no-head body', async () => {
+    mockJsonResponse(404, { error: 'no head' });
 
     await expect(readGmRewindHead(REQUEST)).resolves.toStrictEqual({
       kind: 'no-head',
@@ -57,10 +63,32 @@ describe('readGmRewindHead', () => {
     },
   );
 
-  it.each([201, 204, 401, 500])(
+  it.each([201, 204, 401, 403, 404, 500])(
     'rejects status %i even when the body carries a valid head',
     async (status) => {
-      mockJsonResponse(status, { lineage: { effectiveHead: HEAD } });
+      mockJsonResponse(status, BODY);
+
+      await expect(readGmRewindHead(REQUEST)).resolves.toStrictEqual({
+        kind: 'unavailable',
+      });
+    },
+  );
+
+  it.each([200, 401, 403, 500])(
+    'rejects a no-head body with status %i',
+    async (status) => {
+      mockJsonResponse(status, { error: 'no head' });
+
+      await expect(readGmRewindHead(REQUEST)).resolves.toStrictEqual({
+        kind: 'unavailable',
+      });
+    },
+  );
+
+  it.each([null, {}, { error: 'unknown match' }, { error: 404 }])(
+    'maps a 404 with another body (%j) to unavailable',
+    async (body) => {
+      mockJsonResponse(404, body);
 
       await expect(readGmRewindHead(REQUEST)).resolves.toStrictEqual({
         kind: 'unavailable',
@@ -95,36 +123,36 @@ describe('readGmRewindHead', () => {
   it.each([
     ['null body', null],
     ['primitive body', 'error'],
-    ['missing lineage', {}],
-    ['null lineage', { lineage: null }],
-    ['primitive lineage', { lineage: 'error' }],
-    ['missing effectiveHead', { lineage: {} }],
-    ['primitive effectiveHead', { lineage: { effectiveHead: 'head' } }],
-    ['empty effectiveHead', { lineage: { effectiveHead: {} } }],
+    ['empty body', {}],
+    ['timeline lineage', { lineage: { effectiveHead: HEAD } }],
+    ['null lineage head', { lineage: { effectiveHead: null } }],
     [
       'missing branchId',
-      { lineage: { effectiveHead: { revision: 17, generation: 4 } } },
+      { revision: 17, effectiveGeneration: 4, digest: DIGEST },
     ],
     [
       'missing revision',
-      { lineage: { effectiveHead: { branchId: 'main', generation: 4 } } },
+      { branchId: 'main', effectiveGeneration: 4, digest: DIGEST },
     ],
     [
-      'missing generation',
-      { lineage: { effectiveHead: { branchId: 'main', revision: 17 } } },
+      'missing effectiveGeneration',
+      { branchId: 'main', revision: 17, digest: DIGEST },
     ],
     [
-      'invalid branchId',
-      { lineage: { effectiveHead: { ...HEAD, branchId: 7 } } },
+      'missing digest',
+      { branchId: 'main', revision: 17, effectiveGeneration: 4 },
     ],
-    [
-      'invalid revision',
-      { lineage: { effectiveHead: { ...HEAD, revision: '17' } } },
-    ],
-    [
-      'invalid generation',
-      { lineage: { effectiveHead: { ...HEAD, generation: '4' } } },
-    ],
+    ['invalid effectiveGeneration', { ...BODY, effectiveGeneration: '4' }],
+    ['generation instead of effectiveGeneration', HEAD],
+    ['invalid branchId', { ...BODY, branchId: 7 }],
+    ['invalid revision', { ...BODY, revision: '17' }],
+    ['invalid digest type', { ...BODY, digest: 7 }],
+    ['null digest', { ...BODY, digest: null }],
+    ['63-character digest', { ...BODY, digest: 'a'.repeat(63) }],
+    ['65-character digest', { ...BODY, digest: 'a'.repeat(65) }],
+    ['uppercase digest', { ...BODY, digest: DIGEST.toUpperCase() }],
+    ['non-hex digest', { ...BODY, digest: 'g'.repeat(64) }],
+    ['digest with trailing newline', { ...BODY, digest: `${DIGEST}\n` }],
   ])('maps a 200 body with %s to unavailable', async (_name, body) => {
     mockJsonResponse(200, body);
 
@@ -134,55 +162,57 @@ describe('readGmRewindHead', () => {
   });
 
   it.each([
-    ['match-1', '/api/matches/match-1/timeline'],
-    ['match /?#', '/api/matches/match%20%2F%3F%23/timeline'],
-  ])(
-    'GETs the timeline for %s with the bearer header',
-    async (matchId, path) => {
-      mockJsonResponse(200, { lineage: { effectiveHead: HEAD } });
+    ['match-1', '/api/matches/match-1/head'],
+    ['match /?#', '/api/matches/match%20%2F%3F%23/head'],
+  ])('GETs the head for %s with the bearer header', async (matchId, path) => {
+    mockJsonResponse(200, BODY);
 
-      await readGmRewindHead({ ...REQUEST, matchId });
+    await readGmRewindHead({ ...REQUEST, matchId });
 
-      expect(global.fetch).toHaveBeenCalledTimes(1);
-      expect(global.fetch).toHaveBeenCalledWith(path, {
-        method: 'GET',
-        headers: { Authorization: 'Bearer wire-token-abc' },
-      });
-    },
-  );
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+    expect(global.fetch).toHaveBeenCalledWith(path, {
+      method: 'GET',
+      headers: { Authorization: 'Bearer wire-token-abc' },
+    });
+  });
 
-  it('omits digest and error fields even if present in the response head', async () => {
+  it('omits error text and unrelated fields from the head outcome', async () => {
     mockJsonResponse(200, {
-      digest: 'private digest',
+      ...BODY,
       error: 'private error',
-      lineage: {
-        effectiveHead: {
-          ...HEAD,
-          digest: 'private digest',
-          error: 'private error',
-        },
-      },
+      timelineDigest: 'private audit digest',
     });
 
     const result = await readGmRewindHead(REQUEST);
 
     expect(result).toStrictEqual({ kind: 'head', head: HEAD });
     expect(result).not.toHaveProperty('digest');
-    expect(result).not.toHaveProperty('head.digest');
+    expect(result).not.toHaveProperty('error');
+    expect(result).not.toHaveProperty('head.error');
     expect(JSON.stringify(result)).not.toContain('private');
   });
 
   it('reads a fresh head on every call', async () => {
-    mockJsonResponse(200, { lineage: { effectiveHead: HEAD } });
+    mockJsonResponse(200, BODY);
     await expect(readGmRewindHead(REQUEST)).resolves.toStrictEqual({
       kind: 'head',
       head: HEAD,
     });
-    const nextHead = { branchId: 'next-branch', revision: 0, generation: 5 };
+    const nextHead = {
+      branchId: 'next-branch',
+      revision: 0,
+      generation: 5,
+      digest: 'b'.repeat(64),
+    };
     const fetchMock = global.fetch as jest.MockedFunction<typeof fetch>;
     fetchMock.mockResolvedValueOnce({
       status: 200,
-      json: async () => ({ lineage: { effectiveHead: nextHead } }),
+      json: async () => ({
+        branchId: 'next-branch',
+        revision: 0,
+        effectiveGeneration: 5,
+        digest: 'b'.repeat(64),
+      }),
     } as Response);
 
     await expect(readGmRewindHead(REQUEST)).resolves.toStrictEqual({

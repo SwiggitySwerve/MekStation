@@ -7,6 +7,8 @@ import { useGmRewindProducers } from '@/pages-modules/multiplayer/useGmRewindPro
 import { GameEventType } from '@/types/gameplay/GameSessionInterfaces';
 
 const HEAD = { branchId: 'main-after-rewind', revision: 17, generation: 4 };
+const HEAD_DIGEST =
+  '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';
 const MIRROR_EVENTS: readonly IGameEvent[] = [
   {
     id: 'evt-1',
@@ -48,13 +50,18 @@ const ORIGINAL_FETCH = global.fetch;
 function mockFetch(status = 200, head: typeof HEAD | null = HEAD) {
   const fetchMock = jest.fn(async (input: RequestInfo | URL) => {
     const url = String(input);
-    if (url.endsWith('/timeline')) {
+    if (url === '/api/matches/match-1/head') {
       return {
         status,
-        json: async () => ({
-          timelineDigest: 'audit-only-digest',
-          lineage: { effectiveHead: head },
-        }),
+        json: async () =>
+          head === null
+            ? { error: 'no head' }
+            : {
+                branchId: head.branchId,
+                revision: head.revision,
+                effectiveGeneration: head.generation,
+                digest: HEAD_DIGEST,
+              },
       } as Response;
     }
     return {
@@ -103,19 +110,15 @@ describe('useGmRewindProducers', () => {
       },
     );
     expect(fetchMock).toHaveBeenCalledTimes(2);
-    expect(fetchMock).toHaveBeenNthCalledWith(
-      1,
-      '/api/matches/match-1/timeline',
-      {
-        method: 'GET',
-        headers: { Authorization: 'Bearer wire-token' },
-      },
-    );
+    expect(fetchMock).toHaveBeenNthCalledWith(1, '/api/matches/match-1/head', {
+      method: 'GET',
+      headers: { Authorization: 'Bearer wire-token' },
+    });
   });
 
   it.each([
     ['unavailable', 503, HEAD],
-    ['no-head', 200, null],
+    ['no-head', 404, null],
   ] as const)(
     'does not post when the head is %s',
     async (_kind, status, head) => {
@@ -129,7 +132,7 @@ describe('useGmRewindProducers', () => {
       });
 
       expect(fetchMock).toHaveBeenCalledTimes(1);
-      expect(fetchMock).toHaveBeenCalledWith('/api/matches/match-1/timeline', {
+      expect(fetchMock).toHaveBeenCalledWith('/api/matches/match-1/head', {
         method: 'GET',
         headers: { Authorization: 'Bearer wire-token' },
       });

@@ -89,6 +89,8 @@ const mockedCommitGmCombatRewind = commitGmCombatRewind as jest.MockedFunction<
 // =============================================================================
 
 const PLAYER_ID = 'pid_3yJ8Qw1aBcDeFgHiJkLmNoPqRsTuVwXyZ';
+const HEAD_DIGEST =
+  '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';
 
 function wireToken(expiresAt = '2099-01-01T00:00:00.000Z'): string {
   return encodeTokenForWire({
@@ -188,20 +190,18 @@ function baseSession(status: 'lobby' | 'active'): IUseMultiplayerSessionResult {
   };
 }
 
-function mockFetch(timelineStatus = 200): void {
+function mockFetch(headStatus = 200): void {
   global.fetch = jest.fn(async (input: RequestInfo | URL) => {
     const url = String(input);
-    if (url === '/api/matches/match-1/timeline') {
+    if (url === '/api/matches/match-1/head') {
       return {
-        ok: timelineStatus === 200,
-        status: timelineStatus,
+        ok: headStatus === 200,
+        status: headStatus,
         json: async () => ({
-          timeline: [],
-          timelineDigest: 'timeline-digest',
-          lineage: {
-            effectiveHead: { branchId: 'main', revision: 5, generation: 1 },
-            transitions: [],
-          },
+          branchId: 'main',
+          revision: 5,
+          effectiveGeneration: 1,
+          digest: HEAD_DIGEST,
         }),
       } as Response;
     }
@@ -471,7 +471,7 @@ describe('Multiplayer lobby page — surface swap on status', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('asks the preview adapter for the head from the lineage rather than the mirror', async () => {
+  it('asks the preview adapter for the head from the GM head route', async () => {
     mockSession = baseSession('active');
     render(<LobbyPage />);
     await unlockVault();
@@ -483,7 +483,7 @@ describe('Multiplayer lobby page — surface swap on status', () => {
       fireEvent.click(previewBtn);
     });
 
-    expect(global.fetch).toHaveBeenCalledWith('/api/matches/match-1/timeline', {
+    expect(global.fetch).toHaveBeenCalledWith('/api/matches/match-1/head', {
       method: 'GET',
       headers: { Authorization: `Bearer ${wireToken()}` },
     });
@@ -515,7 +515,7 @@ describe('Multiplayer lobby page — surface swap on status', () => {
     expect(await screen.findByTestId('gm-rewind-refusal')).toHaveTextContent(
       /could not answer/i,
     );
-    expect(global.fetch).toHaveBeenCalledWith('/api/matches/match-1/timeline', {
+    expect(global.fetch).toHaveBeenCalledWith('/api/matches/match-1/head', {
       method: 'GET',
       headers: { Authorization: `Bearer ${wireToken()}` },
     });
