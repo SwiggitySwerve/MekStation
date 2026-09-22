@@ -2072,7 +2072,12 @@
         },
         "incidentalF1": {
           "summary": "S1 mirror cannot represent a real match launch: mirrorMatchBatchToJournal throws JCS cannot represent undefined (9 undefined props across game_created/game_started); latent while mode=off; would bump shadow mismatch counter under shadow mode",
-          "routedTo": "R4.S7a (create-path seeding + JCS-undefined)"
+          "routedTo": "R4.S7a (create-path seeding + JCS-undefined)",
+          "closed20260922": {
+            "at": "2026-09-22T20:10:00.000Z",
+            "by": "S7-a1 (#1737, merge bb672249c)",
+            "note": "the match mirror strips explicitly-undefined properties before canonicalizing, so a real launch batch mirrors (triage edit 22)"
+          }
         },
         "pr": 1726,
         "review": {
@@ -4350,7 +4355,14 @@
         }
       },
       "terminalSummary": "sub-prefix 1 (#1693), sub-prefix 2 (#1702/#1703), sub-prefix 3 marker retirement via S7-b (#1744-#1746) main-verified; marker table/read port/batch field remain pending owner ruling OQ-2; task 1.3 flipped in batch 5",
-      "stateQualifier": "except-owner-ruling"
+      "stateQualifier": "except-owner-ruling",
+      "residualSuperseded20260922": {
+        "at": "2026-09-22T20:10:00.000Z",
+        "residual": "marker table/read port/batch field remain pending owner ruling OQ-2",
+        "supersededBy": "OD-mvp-hard-cutover",
+        "heldBy": "U44",
+        "note": "U44 deletes that residue (triage edit 16)"
+      }
     },
     {
       "id": "R4.S4",
@@ -4845,7 +4857,57 @@
         "S7a-Q2/Q3/Q4",
         "S7-c OQ-1/OQ-2/OQ-4 (S4-N1)"
       ],
-      "stateQualifier": "except-owner-ruling"
+      "stateQualifier": "except-owner-ruling",
+      "residualsRehomed20260922": {
+        "at": "2026-09-22T20:10:00.000Z",
+        "source": "triage edit 16: OD-mvp-hard-cutover removed S7-d, so the residuals routed to it are re-homed: the fail-closed arms to U23, the seed and boot recovery work to U43, the legacy residue to U44",
+        "rehomed": [
+          {
+            "residual": "S7-d migration-state machine owner-ruled (OD-journal-writer-authority); mode flip deferred",
+            "to": "U24 (the flip) and U44 (the S7-d tri-state collapses)",
+            "note": "superseded by OD-mvp-hard-cutover"
+          },
+          {
+            "residual": "OQ-2 marker table/read port/batch field remain",
+            "to": "U44"
+          },
+          {
+            "residual": "S7b-Q6 F2 try/catch at mode enabled",
+            "to": "U23",
+            "note": "a thrown mirror failure, today caught at DurableMatchStore.ts:1028, fails the command closed"
+          },
+          {
+            "residual": "S7a-Q2/Q3/Q4",
+            "to": "U43 (Q2 seed idempotency, Q4 partial persist) and U23 (Q3: the mismatch counter no longer gates admission; a divergent same-id batch fails closed)"
+          },
+          {
+            "residual": "S7-c OQ-1/OQ-2/OQ-4 (S4-N1)",
+            "to": "U43 (OQ-1 diverged verdict, OQ-2 unused events field) and U44 (OQ-4 / S4-N1: the consult takes the store's capability handle)"
+          },
+          {
+            "residual": "s7b.openQuestions OQ-3 unpinned setLastBroadcastSeq",
+            "to": "U24 (clause e)"
+          },
+          {
+            "residual": "s7b.openQuestions OQ-4 unavailable has no observable behaviour",
+            "to": "U23 (capability-DB-unready arm)"
+          },
+          {
+            "residual": "s7b.openQuestions OQ-5 seeded match with no committed command recovers blocked",
+            "to": "U43"
+          }
+        ],
+        "closed": [
+          {
+            "residual": "S1 canonicalizer refuses undefined in host opening events -> no head installed on create path (must be fixed before mode flip)",
+            "disposition": "closed by S7-a1 (#1737, merge bb672249c): the match mirror strips explicitly-undefined properties at its call site"
+          },
+          {
+            "residual": "S7a-Q1 (evidence/r4-s7a-local-20260915.json openQuestions[0]): the shared canonicalizer still refuses an own-enumerable undefined",
+            "disposition": "closed by design (triage edit 22): the strict JCS v1 contract stays and S7-a1 (#1737, bb672249c) fixed the call site"
+          }
+        ]
+      }
     },
     {
       "id": "R4.rewind",
@@ -5416,7 +5478,8 @@
       "ownershipPaths": [
         "openspec/changes/harden-gm-two-player-campaign-sessions",
         "scripts/qc",
-        "e2e"
+        "e2e",
+        "scripts/__tests__"
       ],
       "acceptance": [
         "npm.cmd run verify:qc:gm-two-player-campaign",
@@ -5552,7 +5615,16 @@
           "R2.authority-live",
           "R2.journey"
         ]
-      }
+      },
+      "ownershipPathsAmended20260922": [
+        {
+          "path": "scripts/__tests__",
+          "at": "2026-09-22T20:10:00.000Z",
+          "source": "triage plan edit 9 (evidence/triage-plan-20260922.json (179 register issues verified against main a9244fcad)): a parent ledger edit made to hold the new units (U36, U37 and U50 on R2.multiplayer-client; U29 and U57 on R6.umbrella). Precedent for a dated ownership amendment: ownershipPathsAmended20260917 on R2.combat, R2.authority-live and R6.loop-harness (#1817).",
+          "why": "U29's gated-absent manifest pin test and U57's final-gates runner pin; R6.umbrella owned scripts/qc but not its tests",
+          "disclosure": "This is not an owner ruling. The owner did not word or rule on this amendment: none of the four decisions recorded under the owner instruction of 2026-09-22 widens node ownership, and the OD-mvp-hard-cutover delegation that edit 9 names covers only OD-journal-writer-authority, OD-flush-mechanism and OD-launch-head-gate. The parent made it as a ledger edit under the triage plan's edit 9."
+        }
+      ]
     },
     {
       "id": "R6.deferrals",
@@ -6006,7 +6078,30 @@
       "maxNonGeneratedLines": 500,
       "taskKeys": [],
       "receipt": null,
-      "decomposition": "Navigation paths only. Before assignment, select one behavior, exact files and original task IDs; split until original/default caps fit. Each child PR needs its own reviewed-head and exact-main receipt."
+      "decomposition": "Navigation paths only. Before assignment, select one behavior, exact files and original task IDs; split until original/default caps fit. Each child PR needs its own reviewed-head and exact-main receipt.",
+      "handoffFindings20260922": {
+        "at": "2026-09-22T20:10:00.000Z",
+        "note": "R9.close's handoff lists every finding recorded by triage edit 15, in the program and outside it, plus the OB-2 identity item",
+        "inProgram": [
+          "FN-u8-conflict-result-drops-stale-revision-code",
+          "FN-campaign-door-command-identity",
+          "FN-intentid-visible-to-non-issuers",
+          "FN-campaign-flush-reconcile-r1-r2",
+          "FN-cutover-cli-ungated",
+          "FN-campaign-sync-post-flip-residuals",
+          "FN-preserve-run-logs-removal-guard",
+          "FN-branches-closeout-owed",
+          "FN-coop-custom-snapshot-carriage",
+          "FN-roster-damage-residuals"
+        ],
+        "outsideProgram": [
+          "FN-replica-sync-grant-unpinned",
+          "FN-match-log-persist-double-fire",
+          "FN-camp01-windows-only-receipt-cases-not-in-ci",
+          "FN-p2p-mirror-reconcile-nonatomic",
+          "FN-ob2-identity-before-hosted-deployment"
+        ]
+      }
     },
     {
       "id": "R1.browser",
@@ -6335,7 +6430,7 @@
         "scope": "Seven current documentation summaries reconciled; original catalog and scope preserved.",
         "publication": "Pending missing linked inputs and existing exact-payload approval gates; R0.publish remains implementing."
       },
-      "terminalSummary": "inventory-snapshot prefix published (#1646, d3540bfea); documentation readiness local-verified (r0-documentation-readiness-parent-acceptance-20260913.json); the roadmap planning directory (13 MB, 811 evidence files) stays untracked in the root because its publication is gated on the pending exact-payload user approval (same gate as the customizer-browser commit 77d9a9480); no push attempted",
+      "terminalSummary": "inventory-snapshot prefix published (#1646, d3540bfea); documentation readiness local-verified (r0-documentation-readiness-parent-acceptance-20260913.json); the roadmap planning directory (13 MB, 811 evidence files) stays untracked in the root because its publication is gated on the pending exact-payload user approval (the gate the customizer-browser commit 77d9a9480 was then under; that commit shipped as #1667, b39b82917); no push attempted",
       "approval": {
         "at": "2026-09-15T22:04:02.991Z",
         "by": "user",
@@ -6827,6 +6922,43 @@
             "order": "1747 -> 1748 -> 1749 -> 1750 after the S7-b stack",
             "note": "GitHub shows cumulative diffs until each predecessor squashes; caps measured on commit sizes"
           }
+        },
+        "openQuestionsClosed20260922": {
+          "at": "2026-09-22T20:10:00.000Z",
+          "source": "evidence/r2-authority-cutover-co3-local-20260915.json openQuestions[0..5]; triage edit 22 (I-campaign-two-process-proof-residuals)",
+          "closed": [
+            {
+              "index": 0,
+              "question": "F1 launch-head premise",
+              "disposition": "U19b's half landed (genesis install on first append; merged as 920630bc0, #1899); held by U20 (the launch head answers the journal head; OD-launch-head-gate answer)"
+            },
+            {
+              "index": 1,
+              "question": "F2 acceptance-note wording",
+              "disposition": "accepted wording: CO3 proves per-request derivation from the durable record across two OS processes on one file, not design.md's grant/socket source/replica"
+            },
+            {
+              "index": 2,
+              "question": "F3 scoped proven for one seat",
+              "disposition": "proven by #1755/#1756"
+            },
+            {
+              "index": 3,
+              "question": "CI wiring for two-process specs",
+              "disposition": "not planned: .github/workflows is owned only by the main-verified R1.ci; U28 adds a two-process catch-up row run through the ladder"
+            },
+            {
+              "index": 4,
+              "question": "marker-only cutover as a fourth CLI verb",
+              "disposition": "moot: FN-cutover-cli-ungated retires the CLI after U35, and U35 flips the flag so no marker-only arm is needed"
+            },
+            {
+              "index": 5,
+              "question": "rollback-refused row",
+              "disposition": "moot under OD-mvp-hard-cutover: no rollback law is built"
+            }
+          ],
+          "updatedAt": "2026-09-22T21:38:00.000Z"
         }
       },
       "residuals": [
@@ -6836,7 +6968,30 @@
         "F-1 marker-io throw after a committed command (inert while the flag is false)",
         "5.7 ordering decision for refreshAfterCommittedCommand vs the host fold"
       ],
-      "stateQualifier": "except-owner-gate"
+      "stateQualifier": "except-owner-gate",
+      "residualsDisposition20260922": [
+        {
+          "residual": "reviewed flag flip owner-gated (CAMPAIGN_JOURNAL_AUTHORITY_ENABLED hardcoded false; task 1.2 client not rewired)",
+          "disposition": "superseded by OD-mvp-hard-cutover; held by U35",
+          "note": "the flag is still hardcoded false at src/lib/campaign/sync/JournalCampaignEventStore.ts:84 on a9244fcad; U35 flips it with its correctness gates (triage edit 10)"
+        },
+        {
+          "residual": "OD-launch-head-gate",
+          "disposition": "answered 2026-09-22 (answer20260922); implemented by U20"
+        },
+        {
+          "residual": "CLI untyped/unlinted",
+          "disposition": "recorded as FN-cutover-cli-ungated (retirement slice after U35)"
+        },
+        {
+          "residual": "F-1 marker-io throw after a committed command (inert while the flag is false)",
+          "disposition": "held by U35 (correctness gate 1: the flip makes F-1 live, so the fix and the F-3 pin move from U28 into U35)"
+        },
+        {
+          "residual": "5.7 ordering decision for refreshAfterCommittedCommand vs the host fold",
+          "disposition": "held by U56 (a framing baseline replaces the viewer's fold whatever cursor it holds)"
+        }
+      ]
     },
     {
       "id": "R9.equipment-loader",
@@ -7130,7 +7285,16 @@
         "src/pages/multiplayer",
         "src/components/multiplayer",
         "src/pages-modules/multiplayer",
-        "src/pages/api/campaigns"
+        "src/pages/api/campaigns",
+        "src/hooks",
+        "src/utils/gameplay/gameState",
+        "src/components/campaign/coop",
+        "src/lib/campaign/encounter/requestLaunchAuthority.ts",
+        "src/lib/campaign/encounter/__tests__/requestLaunchAuthority.test.ts",
+        "src/pages-modules/gameplay/campaigns/missionLaunchPage.launch.ts",
+        "src/pages-modules/gameplay/campaigns/__tests__/missionLaunchPage.launch.test.ts",
+        "src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.launch.ts",
+        "src/components/gameplay/pages/campaigns/dashboard/__tests__/CampaignDashboardPage.launch.test.ts"
       ],
       "acceptance": [
         "Each unit reproduces its boundary red-first (jest at the client or route seam), passes tsc/oxlint/oxfmt and the focused suites, and lands with a Lane A review and, for wire/idempotency/privacy classes, a Lane B ruling on the exact head",
@@ -7146,7 +7310,72 @@
         "by": "parent",
         "source": "owner instruction 2026-09-17: \"Go with all the recommendations from the council and continue the loop\" (openspec/council-decisions/2026-09-17-post-loop-recommendations.md)",
         "why": "council B: no node owned src/pages/multiplayer, src/components/multiplayer or src/pages-modules/multiplayer; src/pages/api/campaigns added for the stale-head lever the council said needs the same ownership ruling"
-      }
+      },
+      "ownershipPathsAmended20260922": [
+        {
+          "path": "src/hooks",
+          "at": "2026-09-22T20:10:00.000Z",
+          "source": "triage plan edit 9 (evidence/triage-plan-20260922.json (179 register issues verified against main a9244fcad)): a parent ledger edit made to hold the new units (U36, U37 and U50 on R2.multiplayer-client; U29 and U57 on R6.umbrella). Precedent for a dated ownership amendment: ownershipPathsAmended20260917 on R2.combat, R2.authority-live and R6.loop-harness (#1817).",
+          "why": "U37 seeds tokens in the hex-map projection under src/hooks/replay and U50 reconnects through useMultiplayerSession. The path overlaps only the ancestor 'src', owned by the main-verified R2.camp-0..7 and the blocked R2.camp-8, none of which holds a unit. No other node owns src/hooks, a parent of it or a path under it. validate-roadmap.mjs --next serializes on unit ownership (pathsOverlap against in-flight units, :554), and R2.camp-8 holds no unit, so today its 'src' serializes nothing",
+          "disclosure": "This is not an owner ruling. The owner did not word or rule on this amendment: none of the four decisions recorded under the owner instruction of 2026-09-22 widens node ownership, and the OD-mvp-hard-cutover delegation that edit 9 names covers only OD-journal-writer-authority, OD-flush-mechanism and OD-launch-head-gate. The parent made it as a ledger edit under the triage plan's edit 9."
+        },
+        {
+          "path": "src/utils/gameplay/gameState",
+          "at": "2026-09-22T20:10:00.000Z",
+          "source": "triage plan edit 9 (evidence/triage-plan-20260922.json (179 register issues verified against main a9244fcad)): a parent ledger edit made to hold the new units (U36, U37 and U50 on R2.multiplayer-client; U29 and U57 on R6.umbrella). Precedent for a dated ownership amendment: ownershipPathsAmended20260917 on R2.combat, R2.authority-live and R6.loop-harness (#1817).",
+          "why": "U37 puts the one deploy-hex placement function in initialization.ts, used by the engine and the projection. The path overlaps only the ancestor 'src', owned by the main-verified R2.camp-0..7 and the blocked R2.camp-8, none of which holds a unit. No other node owns this path, a parent of it or a path under it; --next serializes on unit ownership, and R2.camp-8 holds no unit",
+          "disclosure": "This is not an owner ruling. The owner did not word or rule on this amendment: none of the four decisions recorded under the owner instruction of 2026-09-22 widens node ownership, and the OD-mvp-hard-cutover delegation that edit 9 names covers only OD-journal-writer-authority, OD-flush-mechanism and OD-launch-head-gate. The parent made it as a ledger edit under the triage plan's edit 9."
+        },
+        {
+          "path": "src/components/campaign/coop",
+          "at": "2026-09-22T20:10:00.000Z",
+          "source": "triage plan edit 9 (evidence/triage-plan-20260922.json (179 register issues verified against main a9244fcad)): a parent ledger edit made to hold the new units (U36, U37 and U50 on R2.multiplayer-client; U29 and U57 on R6.umbrella). Precedent for a dated ownership amendment: ownershipPathsAmended20260917 on R2.combat, R2.authority-live and R6.loop-harness (#1817).",
+          "why": "U36 removes the no-op GM review handler defaults (HostGmReviewSurface.tsx) that CampaignCoopRouteSurface mounts. The path overlaps R7.context and R8.starmap (both planned) through their parent 'src/components/campaign', and 'src' on the main-verified R2.camp-0..7 and the blocked R2.camp-8. validate-roadmap.mjs --next checks unit-level overlap (pathsOverlap against in-flight units, :554), so a U36 unit is not admitted while an in-flight R7.context or R8.starmap unit owns src/components/campaign, and the reverse. U37 and U50 own no path under src/components/campaign",
+          "disclosure": "This is not an owner ruling. The owner did not word or rule on this amendment: none of the four decisions recorded under the owner instruction of 2026-09-22 widens node ownership, and the OD-mvp-hard-cutover delegation that edit 9 names covers only OD-journal-writer-authority, OD-flush-mechanism and OD-launch-head-gate. The parent made it as a ledger edit under the triage plan's edit 9."
+        },
+        {
+          "path": "src/lib/campaign/encounter/requestLaunchAuthority.ts",
+          "at": "2026-09-22T21:16:51.000Z",
+          "source": "U20's Lane A review of PR #1902 (reviewed head 7126463d8fb38d9d26b0c2b6cb59742925d1a27c, verdict APPROVE; U20 is local-verified and its review stage is not yet recorded in this ledger), finding 1: a parent ledger edit made to hold FN-u20-client-launch-treats-head-500-as-ungated in U50. Precedent: triage edit 9's ownershipPathsAmended20260922 entries on this node.",
+          "why": "resolveLaunchForces (:205-210), the one decision both launch surfaces reach; the dashboard file only re-exports it. It overlaps open nodes through 'src/lib' (R2.combat, main-verified, holding planned U45) and 'src/lib/campaign' (R2.authority-live, main-verified, holding planned U38, U56 and U58; the planned R5.E1-E10, R6.B4-B7, R8.travel and R8.opportunities; the main-verified R2.authority-host), and 'src' on R2.camp-0..8. validate-roadmap.mjs --next serializes on unit ownership (pathsOverlap against in-flight units, :554), so U50 is not admitted while an in-flight unit owns an ancestor of it, and the reverse",
+          "disclosure": "This is not an owner ruling. The parent made it as a ledger edit so a planned unit can hold a verified review finding outside the reviewed unit's path; no owner decision widens node ownership."
+        },
+        {
+          "path": "src/lib/campaign/encounter/__tests__/requestLaunchAuthority.test.ts",
+          "at": "2026-09-22T21:16:51.000Z",
+          "source": "U20's Lane A review of PR #1902 (reviewed head 7126463d8fb38d9d26b0c2b6cb59742925d1a27c, verdict APPROVE; U20 is local-verified and its review stage is not yet recorded in this ledger), finding 1: a parent ledger edit made to hold FN-u20-client-launch-treats-head-500-as-ungated in U50. Precedent: triage edit 9's ownershipPathsAmended20260922 entries on this node.",
+          "why": "the resolver's suite, for the red-first row. It overlaps open nodes through 'src/lib' (R2.combat, main-verified, holding planned U45) and 'src/lib/campaign' (R2.authority-live, main-verified, holding planned U38, U56 and U58; the planned R5.E1-E10, R6.B4-B7, R8.travel and R8.opportunities; the main-verified R2.authority-host), and 'src' on R2.camp-0..8. validate-roadmap.mjs --next serializes on unit ownership (pathsOverlap against in-flight units, :554), so U50 is not admitted while an in-flight unit owns an ancestor of it, and the reverse",
+          "disclosure": "This is not an owner ruling. The parent made it as a ledger edit so a planned unit can hold a verified review finding outside the reviewed unit's path; no owner decision widens node ownership."
+        },
+        {
+          "path": "src/pages-modules/gameplay/campaigns/missionLaunchPage.launch.ts",
+          "at": "2026-09-22T21:16:51.000Z",
+          "source": "U20's Lane A review of PR #1902 (reviewed head 7126463d8fb38d9d26b0c2b6cb59742925d1a27c, verdict APPROVE; U20 is local-verified and its review stage is not yet recorded in this ledger), finding 1: a parent ledger edit made to hold FN-u20-client-launch-treats-head-500-as-ungated in U50. Precedent: triage edit 9's ownershipPathsAmended20260922 entries on this node.",
+          "why": "the mission-launch page's co-op (:234-241) and single-player (:311-318) launches. No node with a planned unit owns this path; it overlaps only 'src' on the main-verified R2.camp-0..7 and the blocked R2.camp-8, which hold no unit. validate-roadmap.mjs --next serializes on unit ownership (pathsOverlap against in-flight units, :554)",
+          "disclosure": "This is not an owner ruling. The parent made it as a ledger edit so a planned unit can hold a verified review finding outside the reviewed unit's path; no owner decision widens node ownership."
+        },
+        {
+          "path": "src/pages-modules/gameplay/campaigns/__tests__/missionLaunchPage.launch.test.ts",
+          "at": "2026-09-22T21:16:51.000Z",
+          "source": "U20's Lane A review of PR #1902 (reviewed head 7126463d8fb38d9d26b0c2b6cb59742925d1a27c, verdict APPROVE; U20 is local-verified and its review stage is not yet recorded in this ledger), finding 1: a parent ledger edit made to hold FN-u20-client-launch-treats-head-500-as-ungated in U50. Precedent: triage edit 9's ownershipPathsAmended20260922 entries on this node.",
+          "why": "the mission-launch page's suite. No node with a planned unit owns this path; it overlaps only 'src' on the main-verified R2.camp-0..7 and the blocked R2.camp-8, which hold no unit. validate-roadmap.mjs --next serializes on unit ownership (pathsOverlap against in-flight units, :554)",
+          "disclosure": "This is not an owner ruling. The parent made it as a ledger edit so a planned unit can hold a verified review finding outside the reviewed unit's path; no owner decision widens node ownership."
+        },
+        {
+          "path": "src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.launch.ts",
+          "at": "2026-09-22T21:16:51.000Z",
+          "source": "U20's Lane A review of PR #1902 (reviewed head 7126463d8fb38d9d26b0c2b6cb59742925d1a27c, verdict APPROVE; U20 is local-verified and its review stage is not yet recorded in this ledger), finding 1: a parent ledger edit made to hold FN-u20-client-launch-treats-head-500-as-ungated in U50. Precedent: triage edit 9's ownershipPathsAmended20260922 entries on this node.",
+          "why": "the dashboard launch facade (resolveDashboardLaunchForces). No node with a planned unit owns this path; it overlaps only 'src' on the main-verified R2.camp-0..7 and the blocked R2.camp-8, which hold no unit. validate-roadmap.mjs --next serializes on unit ownership (pathsOverlap against in-flight units, :554)",
+          "disclosure": "This is not an owner ruling. The parent made it as a ledger edit so a planned unit can hold a verified review finding outside the reviewed unit's path; no owner decision widens node ownership."
+        },
+        {
+          "path": "src/components/gameplay/pages/campaigns/dashboard/__tests__/CampaignDashboardPage.launch.test.ts",
+          "at": "2026-09-22T21:16:51.000Z",
+          "source": "U20's Lane A review of PR #1902 (reviewed head 7126463d8fb38d9d26b0c2b6cb59742925d1a27c, verdict APPROVE; U20 is local-verified and its review stage is not yet recorded in this ledger), finding 1: a parent ledger edit made to hold FN-u20-client-launch-treats-head-500-as-ungated in U50. Precedent: triage edit 9's ownershipPathsAmended20260922 entries on this node.",
+          "why": "the dashboard facade's suite, which pins today's ungated answers. No node with a planned unit owns this path; it overlaps only 'src' on the main-verified R2.camp-0..7 and the blocked R2.camp-8, which hold no unit. validate-roadmap.mjs --next serializes on unit ownership (pathsOverlap against in-flight units, :554)",
+          "disclosure": "This is not an owner ruling. The parent made it as a ledger edit so a planned unit can hold a verified review finding outside the reviewed unit's path; no owner decision widens node ownership."
+        }
+      ]
     },
     {
       "id": "R6.loop-harness",
@@ -14720,19 +14949,45 @@
       "at": "2026-09-15T08:16:49.397Z",
       "topic": "R7/R8 D8 sequencing gate",
       "finding": "R2.journey/R2.authority-live dependency is program-ordering (design D8), not structural, for R7.versions pilot-version producer, v2->v3 migration rung, travel insufficient-funds branch, isometric picking inversion and preference persistence; it IS structural for R8.travel 2.3 and R8.opportunities event/coop halves (CampaignEventType union closed, no travel/opportunity variant). CAMP chain (R2.camp-*) is externally gated on a real second-collaborator review.",
-      "decisionNeeded": "whether to admit the structurally independent R7/R8 prefixes ahead of R2.journey (roadmap edge amendment) or hold to the recorded order; parent HOLDS to the recorded order until the owner rules"
+      "decisionNeeded": "whether to admit the structurally independent R7/R8 prefixes ahead of R2.journey (roadmap edge amendment) or hold to the recorded order; parent HOLDS to the recorded order until the owner rules",
+      "decidedAtUtc": "2026-09-22T20:10:00.000Z",
+      "decision": "Yes, but only after R6.umbrella closes. Drop their R2.journey edges and amend design D8 through an openspec delta. R8.travel 2.3 and the opportunity halves stay behind the campaign journal cutover (U35).",
+      "decisionSource": "owner instruction 2026-09-22 in the working session (chat): \"ultracode find everything that is marked and if there are issues go with recommended path to solution based on the goal\"; under it the parent recorded the triage plan's recommendation as decided (evidence/triage-plan-20260922.json (179 register issues verified against main a9244fcad))",
+      "ownerWords": "ultracode find everything that is marked and if there are issues go with recommended path to solution based on the goal",
+      "disclosure": "The owner did not word this option. The parent transcribed the triage recommendation (ownerQuestions[6] of the triage plan, evidence/triage-plan-20260922.json) as the owner's ruling under the instruction quoted in ownerWords. The decision field is that recommendation verbatim; the parent's own clauses are in parentNotes20260922, which is not part of the transcribed ruling.",
+      "status": "decided",
+      "parentNotes20260922": {
+        "authoredBy": "the parent; not part of the transcribed ruling",
+        "prefixes": "'their' in the decision names the question's structurally independent R7/R8 prefixes: the R7.versions pilot producer, the R7.provenance v2->v3 rung, and the R8.isometric picking inversion and preference persistence",
+        "timing": "Recorded now; no node dependsOn changes now."
+      }
     },
     {
       "at": "2026-09-15T08:34:53.694Z",
       "topic": "OB-2 unauthenticated campaign record routes",
       "finding": "GET/PUT/DELETE /api/campaigns/[id] and adopt.ts have no authentication and no owner column exists; whether this is a real exposure depends on the deployment surface (localhost desktop/Electron single-user vs hosted)",
-      "decisionNeeded": "close as not-a-defect for the local single-user surface, or open an identity/owner-column work item (outside the 13 admitted packages) before any hosted deployment; P1 (6.2a/6.2b) proceeds either way and does not widen the exposure"
+      "decisionNeeded": "close as not-a-defect for the local single-user surface, or open an identity/owner-column work item (outside the 13 admitted packages) before any hosted deployment; P1 (6.2a/6.2b) proceeds either way and does not widen the exposure",
+      "decidedAtUtc": "2026-09-22T20:10:00.000Z",
+      "decision": "Close it as not-a-defect while the server binds to loopback for a single user. Open an identity and owner-column item, outside the 13 packages, before any hosted deployment. U22's 21.2 receipt carries the non-claim either way.",
+      "decisionSource": "owner instruction 2026-09-22 in the working session (chat): \"ultracode find everything that is marked and if there are issues go with recommended path to solution based on the goal\"; under it the parent recorded the triage plan's recommendation as decided (evidence/triage-plan-20260922.json (179 register issues verified against main a9244fcad))",
+      "ownerWords": "ultracode find everything that is marked and if there are issues go with recommended path to solution based on the goal",
+      "disclosure": "The owner did not word this option. The parent transcribed the triage recommendation (ownerQuestions[3] of the triage plan, evidence/triage-plan-20260922.json) as the owner's ruling under the instruction quoted in ownerWords. The decision field is that recommendation verbatim; the parent's own clauses are in parentNotes20260922, which is not part of the transcribed ruling.",
+      "status": "decided",
+      "parentNotes20260922": {
+        "authoredBy": "the parent; not part of the transcribed ruling",
+        "identityItem": "the identity and owner-column item is recorded as FN-ob2-identity-before-hosted-deployment, outside the 13 admitted packages; U22's behaviour carries the 21.2 receipt's non-claim"
+      }
     },
     {
       "at": "2026-09-15T09:56:02.105Z",
       "topic": "single-player identity/seat for campaign commands (6.2b + OB-2)",
       "finding": "no single-player identity or seat exists; /commands requires a co-op token + active seat; routing single-player acceptance through the pipeline needs an identity model decision",
-      "decisionNeeded": "define the single-player principal/seat (or scope 6.2b to co-op hosts only and keep single-player on the client apply until cutover); parent holds 6.2b and proceeds with the server-side B2 follow-up"
+      "decisionNeeded": "define the single-player principal/seat (or scope 6.2b to co-op hosts only and keep single-player on the client apply until cutover); parent holds 6.2b and proceeds with the server-side B2 follow-up",
+      "packet20260922": {
+        "at": "2026-09-22T20:10:00.000Z",
+        "packet": "PK-6-2b-single-player-seat",
+        "status": "open: the recommendation (co-op-host-only scope) narrows an admitted letter, so it needs the owner's explicit word"
+      }
     },
     {
       "id": "OD-flush-mechanism",
@@ -14750,6 +15005,11 @@
         "at": "2026-09-22T14:00:00.000Z",
         "by": "parent under OD-mvp-hard-cutover",
         "answer": "Keep the shipped keepalive fetch (design-campaign-authority-and-sync task 1.6); record the navigation-discard gap as a non-claim; add no sendBeacon POST surface and no Chromium-only fetchLater. The SQLite busy_timeout question is separate (RR-1): better-sqlite3 12.11.1 reports busy_timeout 5000 on a fresh handle, and under U23's fail-closed rule a lock held longer surfaces as a visible STORE_FAILURE the retry heals, so no pragma change is needed."
+      },
+      "nonClaim20260922": {
+        "at": "2026-09-22T20:10:00.000Z",
+        "nonClaim": "The navigation-discard gap is the accepted non-claim of answer20260922: the keepalive fetch on pagehide can be aborted before dispatch on a navigation (measured 0/15 on an about:blank navigation-discard and 1/2 on a same-origin navigation; evidence/r2-client-discard-flush-diagnosis-20260915.json).",
+        "holder": "design-campaign-authority-and-sync 1.6 (tasks.md:30) is a post-admission row; it is held through U42's supplement snapshot, not left invisible, and ticks under the whole-row rule only if its letter names no navigation-flush scenario (UNVERIFIED); otherwise a packet holds it"
       }
     },
     {
@@ -14777,7 +15037,12 @@
       "node": "R2.camp-0",
       "question": "the frozen camp-01 controller runs commands in a hermetic env that omits CAMP01_NEXT_DIST_DIR, so the frozen camp-00 command would not take its runCamp00Authority branch under the controller (inference from camp01-authority-receipt.mjs:113 and validate-multiplayer-packaged-socket.mjs:503); fixing it means changing a frozen command contract or the controller env — owner call",
       "status": "owner decision required; not executed, not modified",
-      "evidence": "evidence/camp00-receipt-run-main-819ff6f-20260915.json"
+      "evidence": "evidence/camp00-receipt-run-main-819ff6f-20260915.json",
+      "packet20260922": {
+        "at": "2026-09-22T20:10:00.000Z",
+        "packet": "PK-camp-review-gate",
+        "status": "open: folded into the CAMP review-gate packet's option (b)"
+      }
     },
     {
       "id": "OD-proof02-empty-cause-graph",
@@ -14785,7 +15050,12 @@
       "node": "R2.triage",
       "question": "the frozen camp-01 contract rejects a proof-02-triage artifact whose reproduction is all green (assertCauseGraph: empty cause graph). Either admit an empty disposition set for an all-green reproduction or define an explicit all-green terminal form; both change a frozen command contract",
       "status": "owner decision required; nothing modified",
-      "evidence": "evidence/proof02-final-rerun-main-e048a43-20260915.json"
+      "evidence": "evidence/proof02-final-rerun-main-e048a43-20260915.json",
+      "packet20260922": {
+        "at": "2026-09-22T20:10:00.000Z",
+        "packet": "PK-camp-review-gate",
+        "status": "open: folded into the CAMP review-gate packet's option (b)"
+      }
     },
     {
       "id": "OD-grants-403-console-sweep",
@@ -14842,7 +15112,14 @@
         "evidence/r0-publish-combined-merge.json",
         "evidence/r0-publish-combined-1776-main-proof-20260915.json",
         "evidence/r0-publish-review-combined-20260915.json"
-      ]
+      ],
+      "decidedAtUtc": "2026-09-16T00:18:35.680Z",
+      "decision": "All the documentation PRs go in one single PR, admin-merged without waiting for checks.",
+      "decisionWordedBy": "the parent, 2026-09-22, from the 2026-09-15 directive",
+      "decisionSource": "user chat directive 2026-09-15 (quoted in raisedBy); carried out by #1776 (merged as b668d659a49fcd1aba9f08b7fafdb6f2eefadf52)",
+      "ownerWords": "all the documentation PRs can go in one single PR please (2026-09-16T00:10:34.432Z) / admin merge all of these documentation PRs in order without waiting for checks to pass (2026-09-16T00:18:35.680Z)",
+      "disclosure": "The parent worded this decision from the 2026-09-15 chat directive and gave the entry the decided shape on 2026-09-22 (triage edit 17); it is not one of the four decisions recorded under the owner instruction of 2026-09-22. ownerWords joins the two chat fragments that raisedBy quotes with ' / ' (the ellipsis is raisedBy's). The directive's two messages are timestamped in the session transcript (2026-09-16T00:10:34.432Z and 00:18:35.680Z UTC; 2026-09-15 local time); decidedAtUtc is the second. The owner's words do not name the PUBLICATION.md 15-file and 500-line gates or the per-batch 100-file/2 MB rule: that those gates were waived for #1776, as the question text records, is the parent's reading of the one-PR directive.",
+      "status": "decided"
     },
     {
       "id": "OD-whole-row-tick-rule",
@@ -14869,6 +15146,49 @@
       "decisionSource": "owner instruction 2026-09-22 in the working session (chat), after the parent listed the open decisions in plain language with council 3's recommendations; transcribed by the parent (the owner's words are quoted verbatim)",
       "ownerWords": "go with option b and the whole-row rule, continue the loop. I want the best solution that does not block us towards the goal. This software is in MVP so you can hard cutover and do whatever you like to make sure it works correctly",
       "status": "decided"
+    },
+    {
+      "id": "OD-camp01h-terminal",
+      "raisedAtUtc": "2026-09-22T20:10:00.000Z",
+      "raisedBy": "triage 2026-09-22 (owner question 2; I-camp01h-three-witness-journey)",
+      "node": "R2.journey",
+      "question": "CAMP-01H needs a second WRITE+ collaborator, a non-author approved review and three human witness sessions (the R2.camp-8 and R2.journey gates): what is the program terminal? (a) keep the gates and add a collaborator; (b) reduce the gate through openspec; or (c) end at the R6.umbrella close plus R9.close without the harden archive, holding 25.4 and R2.journey on a named owner gate?",
+      "evidence": "roadmap.json R2.camp-8 and R2.journey; harden-gm-two-player-campaign-sessions tasks.md:638 (25.1) and :645 (25.4)",
+      "decidedAtUtc": "2026-09-22T20:10:00.000Z",
+      "decision": "(c) now, with (a) left open for later. No gate is reduced and no letter is narrowed. 25.1 moves to U57, because its letter (tasks.md:638) never names CAMP-01H. Only 25.4 (reconcile and archive) and R2.journey wait on this gate.",
+      "decisionSource": "owner instruction 2026-09-22 in the working session (chat): \"ultracode find everything that is marked and if there are issues go with recommended path to solution based on the goal\"; under it the parent recorded the triage plan's recommendation as decided (evidence/triage-plan-20260922.json (179 register issues verified against main a9244fcad))",
+      "ownerWords": "ultracode find everything that is marked and if there are issues go with recommended path to solution based on the goal",
+      "disclosure": "The owner did not word this option. The parent transcribed the triage recommendation (ownerQuestions[1] of the triage plan, evidence/triage-plan-20260922.json) as the owner's ruling under the instruction quoted in ownerWords. The decision field is that recommendation verbatim; the parent's own clauses are in parentNotes20260922, which is not part of the transcribed ruling.",
+      "status": "decided (option c); option (a) open",
+      "parentNotes20260922": {
+        "authoredBy": "the parent; not part of the transcribed ruling",
+        "optionsRead": "the decision's options in the question's words: option (c) ends the program at the R6.umbrella close plus R9.close without the harden archive, holding 25.4 and R2.journey on a named owner gate; that gate is option (a), a second WRITE+ collaborator, a non-author approved review and three human witness sessions",
+        "nonClaim": "no node dependsOn is changed by this record. R9.close depends on R9.triage, which depends on R2.journey, so reaching this terminal needs a later dependsOn amendment (of the R9.triage -> R2.journey edge) that is not made here and that the ruling does not name.",
+        "edgeAmendmentHeldBy20260922": "FN-camp01h-terminal-needs-r9-triage-edge"
+      }
+    },
+    {
+      "id": "OD-umbrella-12-1-slice",
+      "raisedAtUtc": "2026-09-22T20:10:00.000Z",
+      "raisedBy": "triage 2026-09-22 (owner question 6; I-12-1-shared-projection-contract); the 12.1 note at tasks.md:259 names the owner act",
+      "node": "R6.umbrella",
+      "question": "Umbrella 12.1 (held by DF-shared-projection-contract) needs an owner act: either narrow its letter, or approve a slice. Is one slice approved now?",
+      "evidence": "harden-gm-two-player-campaign-sessions tasks.md:252-259; src/lib/campaign/delivery/__tests__/campaignGenesisArmParity.test.ts:180; src/lib/campaign/authority/campaignAuthorityMigration.ts:193",
+      "decidedAtUtc": "2026-09-22T20:10:00.000Z",
+      "decision": "Approve one R2.authority-live unit on 'src/lib/campaign', placed after U35. In it, both campaign projection arms use one exported baseline-law predicate: an imported, migration-authored CampaignSnapshotPublished (campaignAuthorityMigration.ts:193) never reaches a restricted viewer. The unit takes 12.1 from the retired deferral. The it.failing at campaignGenesisArmParity.test.ts:180 names the waived 5.2 migration states and is deleted under OD-mvp-hard-cutover. Without this, 12.1 waits for R6.B7 and R6.umbrella cannot close.",
+      "decisionSource": "owner instruction 2026-09-22 in the working session (chat): \"ultracode find everything that is marked and if there are issues go with recommended path to solution based on the goal\"; under it the parent recorded the triage plan's recommendation as decided (evidence/triage-plan-20260922.json (179 register issues verified against main a9244fcad))",
+      "ownerWords": "ultracode find everything that is marked and if there are issues go with recommended path to solution based on the goal",
+      "disclosure": "The owner did not word this option. The parent transcribed the triage recommendation (ownerQuestions[5] of the triage plan, evidence/triage-plan-20260922.json) as the owner's ruling under the instruction quoted in ownerWords. The decision field is that recommendation verbatim; the parent's own clauses are in ledgerPlacement, which is not part of the transcribed ruling.",
+      "status": "decided",
+      "ledgerPlacement": {
+        "authoredBy": "the parent; this field is not part of the transcribed ruling",
+        "slice": "the parent planned the approved unit as U58 on R2.authority-live (ownership src/lib/campaign, review classes privacy and replay), placed right after U35 in the unit order, and retired DF-shared-projection-contract in the same edit",
+        "recommendationClause": "the unit takes 12.1 from the retired deferral (the triage plan's ownerQuestions[5].recommendation)",
+        "appliedAsWritten": false,
+        "holder": "U31",
+        "placement": "12.1 stays an R6.umbrella row: its roadmap.json tasks primaryNode and both nodes' taskKeys are unchanged. validate-roadmap.mjs:388 lets a unit hold only its own node's keys, and U58 sits on R2.authority-live, so U31 (R6.umbrella) holds 12.1 and ticks it whole from U58's main proof, as U30 ticks 2.4 and 2.5 by U26's receipts. U58 holds no task key. DF-shared-projection-contract is retired in the same edit (U31.taskKeyTransferred20260922).",
+        "consequence": "U31 ticks 12.1 only when every surface the row's letter names (replay, resync, snapshot, cold recovery, audit timeline and export) is proven on main (OD-whole-row-tick-rule); U58's main proof is a receipt toward that tick. U58 carries privacy and replay, so the validator records it as merged only with the owner's head-bound packet ruling (Lane B; validate-roadmap.mjs:426-431)."
+      }
     }
   ],
   "infraNotes": {
@@ -15588,5 +15908,124 @@
     "reviews": "every superseded PR and the combined PR hold sonnet APPROVE receipts (evidence/r0-publish-review-*-20260915.json); the twelve Grok placeholders are retained as evidence/r0-publish-review-grok-attempt-*-20260915.json",
     "proofs": "exact-main proofs on each merge commit: blob equality against the PR head, single-parent squash, ancestor of main, openspec strict/purpose/terminology/qc-openspec-ci clean, roadmap validator PASSED on the combined merge commit (full input set present)",
     "localOnlyEvidence": "seven planning raw logs and fifteen audit raw logs remain gitignored local files identified by sha256 (evidence/r0-local-evidence-hashes-20260915.json and the audit manifest)"
+  },
+  "triage20260922": {
+    "at": "2026-09-22T20:10:00.000Z",
+    "updatedAt": "2026-09-22T21:38:00.000Z",
+    "timestamps": "`at` on a triage record is when the triage first recorded it (the first application, 2026-09-22T20:10Z). A record whose text cites a later event (U19b's approval at 20:13:19Z, its ruling comment at 20:13:37Z, its merge at 20:14:00Z, #1900 at 20:21:36Z, #1896's close at 20:21:44Z) also carries updatedAt, the re-application that wrote its current text. The U20 review records carry the fourth application's time (reappliedOnto.previousBases[2]); U35.blocked20260922, U21.admissionNote20260922 and the two dated PK-u19b-ruling fields carry this application's (reappliedOnto.at).",
+    "ownerInstruction": {
+      "at": "2026-09-22",
+      "channel": "chat",
+      "words": "ultracode find everything that is marked and if there are issues go with recommended path to solution based on the goal"
+    },
+    "plan": "evidence/triage-plan-20260922.json (179 register issues verified against main a9244fcad)",
+    "decidedUnderInstruction": [
+      "OD-camp01h-terminal (option c now, a open)",
+      "OB-2 (closed as not-a-defect for the loopback single-user surface)",
+      "OD-umbrella-12-1-slice (one slice, which the parent planned as U58 on R2.authority-live; 12.1 stays an R6.umbrella row, held by U31, which ticks it whole from U58's main proof; see ledgerPlacement and parentEditsOutsidePlan)",
+      "D8 sequencing (yes, after R6.umbrella closes; the parent records no dependsOn change now)"
+    ],
+    "keptOpen": [
+      "PK-camp-review-gate (relaxes a validator pin and a review gate)",
+      "PK-6-2b-single-player-seat (narrows an admitted letter)"
+    ],
+    "disclosure": "The owner did not word the four recorded options; the parent transcribed the triage recommendations as the owner's rulings under the quoted instruction, and each decision field is its recommendation verbatim. Lane B rulings are never pre-given by this record, and it gives none. U19b's head-bound ruling is not given by this record; it came after this record's `at` (20:10Z, the first application) and before every re-application listed in reappliedOnto: the owner approved U19b in chat on 2026-09-22 at 20:13:19Z (\"approved, continue the loop\"; PK-u19b-ruling.decision, whose recorded at of 18:00:00Z is corrected beside it by decision.atCorrected20260922), and the parent posted OWNER-RULING 70503ee7ccad2639df28b7687467af776590f7f1 as comment 5783411644 on PR #1899 (2026-09-22T20:13:37Z), applied the owner-ruled label (20:13:40Z) and wrote PK-u19b-ruling.decision (#1900) on the owner's instruction, a deviation disclosed in PK-u19b-ruling.ruling.deviationDisclosed (DELIVERY.md: the owner posts the ruling out of band) and PK-u19b-ruling.ruling.goalRuleDeviation20260922 (GOAL.md:48: the agent never writes the OWNER-RULING comment, the label, or the packet decision); the unit merged as 920630bc0bd3119d88c8b04528ed62d2f92187b4 (20:14:00Z), and #1900 (merged 20:21:36Z) records its closure.",
+    "reappliedOnto": {
+      "at": "2026-09-22T21:38:00.000Z",
+      "firstBase": "a9244fcad693625bd4075a75e1bd2224a717c9a6",
+      "previousBases": [
+        {
+          "base": "3399af264f64f3c9b319beec23e479665c414111",
+          "at": "2026-09-22T20:30:00.000Z"
+        },
+        {
+          "base": "12ec992fea73b6709ccd9af584fc87e68acb07a4",
+          "at": "2026-09-22T21:00:00.000Z"
+        },
+        {
+          "base": "12ec992fea73b6709ccd9af584fc87e68acb07a4",
+          "at": "2026-09-22T21:16:51.000Z"
+        }
+      ],
+      "base": "12ec992fea73b6709ccd9af584fc87e68acb07a4",
+      "note": "first applied on a9244fcad at `at`; re-applied on 3399af264 (#1899 merged as 920630bc0, #1900 recorded U19b's closure); re-applied on origin/main 12ec992fe (#1901 folded U20's admission, red and local receipts and moved U20 to local-verified); re-applied twice more on 12ec992fe, each time after a fresh fetch showed origin/main unchanged (the last at reappliedOnto.at). U20's stageReceipts, baseline and state in this ledger are byte-identical to 12ec992fe. The patch diff holds six planning files (units.json, roadmap.json, WORKERS.md, DELIVERY.md, HANDOFF.md and README.md), the published plan (evidence/triage-plan-20260922.json) and ledger edit 22's one-paragraph correction in openspec/changes/design-campaign-authority-and-sync/tasks.md (no checkbox changes)",
+      "u20BehaviorFold": "the U20 behavior edits (U19 -> U19b in its text, and the folded sentence) were made while U20 was local-verified (in flight). They only restate the behavior U20 was admitted with (evidence/u20-admission-20260922.json line 64: the journal's effective head for any campaign that has a journal stream; no-authoritative-stream means exactly that the campaign has no journal stream; the campaignLaunchHead.ts comment states that rule), so they do not widen the unit"
+    },
+    "declinedEdits": [
+      {
+        "edit": 13,
+        "target": "units.json U3 stageReceipts.mainProof.expectedReds",
+        "proposed": "delete the hand-written prose copy of expectedReds so U3's mainProof has the {path, mergeCommit, verdict, runtime} shape of every other unit",
+        "reason": "it is a field of a completed unit's recorded main proof, which is not rewritten; the evidence file carries the data (evidence/u3-mainproof-20260917.json runtime.expectedReds, three entries), and validate-roadmap.mjs reads the receipt file's array (proof.expectedReds ?? proof.runtime.expectedReds, :351), not this field. U3 is unchanged."
+      }
+    ],
+    "ledgerEditsNotAppliedAsWritten": [],
+    "parentEditsOutsidePlan": [
+      {
+        "edit": "harden-gm-two-player-campaign-sessions#12.1@252 is held by U31 (R6.umbrella), not by U58",
+        "where": "units.json U31 taskKeys and taskKeyTransferred20260922 (DF-shared-projection-contract retired); U58 holds no key; roadmap.json tasks primaryNode and node taskKeys unchanged",
+        "why": "the plan's ownerQuestions[5].recommendation says the new unit takes 12.1, but U58 sits on R2.authority-live and validate-roadmap.mjs:388 lets a unit hold only its own node's keys; the row is not moved off R6.umbrella, so U31 holds it and ticks it whole from U58's main proof (the U26/U30 precedent; OD-umbrella-12-1-slice.ledgerPlacement)"
+      },
+      {
+        "edit": "the finding FN-camp01h-terminal-needs-r9-triage-edge and OD-camp01h-terminal.parentNotes20260922",
+        "where": "units.json findings; roadmap.json ownerDecisions OD-camp01h-terminal",
+        "why": "the R9.triage -> R2.journey edge keeps the decided terminal unreachable while R2.journey is open; both records mark themselves as parent-authored, and the finding proposes an edge drop that needs its own owner confirmation; no dependsOn changes"
+      },
+      {
+        "edit": "PK-u19b-ruling gains decision.atCorrected20260922 and ruling.goalRuleDeviation20260922; no recorded value is changed",
+        "where": "units.json packets PK-u19b-ruling (a completed unit's packet, written by #1900)",
+        "why": "decision.at reads 18:00:00Z, but the owner's approval was sent at 20:13:19Z (session transcript), and ruling.deviationDisclosed names only DELIVERY.md's out-of-band rule, not GOAL.md:48, which forbids the agent writing the OWNER-RULING comment, the label or the packet decision; the parent wrote all three"
+      },
+      {
+        "edit": "U20's Lane A findings (PR #1902, reviewed head 7126463d8fb38d9d26b0c2b6cb59742925d1a27c) folded into planned units",
+        "where": "units.json findings FN-u20-client-launch-treats-head-500-as-ungated (finding 1, held by U50) and U50's behaviour, ownershipPaths and reviewClasses; roadmap.json R2.multiplayer-client ownershipPaths (ownershipPathsAmended20260922); units.json U21's behaviour (findings 2-4) and U21.admissionNote20260922",
+        "why": "the review (verdict APPROVE) found the browser launch still proceeds ungated when the launch-head GET answers 500, and three stale or missing route-layer pins; each is outside U20's owned path (src/lib/campaign/authority), and U20 is not widened while in flight"
+      },
+      {
+        "edit": "units are admitted in ledger order; U35 and U21 wait for U20's merge",
+        "where": "units.json U35.admitAfter20260922 and U21's folded clauses (d)-(f)",
+        "why": "validate-roadmap.mjs --next checks node dependencies and path overlap only (:540-557), so it cannot express a unit-to-unit dependency; U35 stays planned (the triage's item 6 as written) and the parent does not admit U35 or U21 while U20 (PR #1902) is unmerged, even when --next names one of them",
+        "at": "2026-09-22T22:30:00.000Z"
+      },
+      {
+        "edit": "U36 review class routine -> idempotency",
+        "where": "units.json U36.reviewClasses",
+        "why": "its behaviour stops a double press from sending two GM correction commits, an idempotency change; DELIVERY.md requires the owner's Lane B ruling for that class",
+        "at": "2026-09-22T22:30:00.000Z"
+      },
+      {
+        "edit": "U50 review classes gain authority",
+        "where": "units.json U50.reviewClasses",
+        "why": "U50 now carries FN-u20-client-launch-treats-head-500-as-ungated: the client refuses a campaign launch on any non-2xx head read, a launch-authority gate, so the owner's Lane B ruling applies",
+        "at": "2026-09-22T22:30:00.000Z"
+      }
+    ],
+    "docsCorrections": [
+      {
+        "text": "customizer-browser commit 77d9a9480 \"unpublished\"",
+        "where": "HANDOFF.md and roadmap.json R0.publish terminalSummary",
+        "correction": "shipped as #1667 (b39b82917)"
+      },
+      {
+        "text": "CO3 openQuestions[0..5]",
+        "where": "roadmap.json R2.authority-cutover co3.openQuestionsClosed20260922",
+        "correction": "closed; the receipt itself is not edited"
+      },
+      {
+        "text": "incidentalF1 and S7a-Q1",
+        "where": "roadmap.json R2.combat residualRows.incidentalF1.closed20260922 and R4.S7 residualsRehomed20260922.closed",
+        "correction": "closed by S7-a1 (#1737, bb672249c)"
+      },
+      {
+        "text": "the co-op dual-writer PUT 409 storm residual (design-campaign-authority-and-sync tasks.md:9, item 2)",
+        "where": "openspec/changes/design-campaign-authority-and-sync/tasks.md:9 (item 2 of the 2026-08-21 residual-evidence note), edited in place in this docs(roadmap) PR as edit 22 targets; no checkbox row changes",
+        "correction": "closed: item (2) is rewritten to say it was fixed by #1543 (a947a9c42), and the note's closing sentence now covers item (1) only"
+      },
+      {
+        "text": "README.md line 3, \"Current loop update (2026-09-22, terminal)\": --next NONE-ADMISSIBLE with every open occurrence held, and five deferrals including DF-coordinated-correction and DF-shared-projection-contract",
+        "where": "openspec/planning/2026-09-12-roadmap-completion/README.md line 3 (the cache line of units.json)",
+        "correction": "rewritten from the patched ledger: it points to this record, gives validate-roadmap.mjs --next as measured on the patched ledger, the unit states, the four remaining deferrals and the two retired ones, and the packets still awaiting the owner"
+      }
+    ]
   }
 }

@@ -1,0 +1,2499 @@
+{
+ "headline": "All 179 issues are verified against main a9244fcad; the commits after 24e8bf379 are docs-only. 30 of them block the goal. The plan folds work into 14 planned units, adds 23 new units (U35-U57), makes 22 ledger edits and asks the owner 7 questions. First step: the owner's Lane B ruling on U19b, PR #1899 at head 70503ee7. Next come a campaign journal hard-flip slice (U35, before U28) and a create-seed and boot recovery unit (U43, before U24). Every umbrella row that PK-rewind-branch-reader or the misrouted deferrals held gets a unit that can close it: 19.2 U51, 21.3 U54, 22.2 U52, 23.3 U55, 17.x U54, 25.1 U57.",
+ "counts": {
+  "issues": 179,
+  "open": 143,
+  "resolved": 34,
+  "stale": 2,
+  "blocksGoal": 30
+ },
+ "ledgerEdits": [
+  {
+   "target": "units.json findings FN-u1c-pending-intent-never-settles (units.json:4024-4032)",
+   "edit": "Set status to 'fixed by U4 (PR #1802, merge 6fe884dd5740da6628ff10e3e4b7075124b4b63f, mainProof PASS); browser re-proof without the post-launch reload folded into U31'. Set ownership to re-owned to R2.combat ('src/lib'), per council-decisions/2026-09-17-post-loop-recommendations.md section B. Mark superseded the council-B proposal for a new node to own client.ts.",
+   "issueIds": [
+    "I-pending-intent-never-settles"
+   ]
+  },
+  {
+   "target": "units.json U12 (units.json:2771) and FN-u12-root-preinstall-runs-after-reify (units.json:4155)",
+   "edit": "Set U12 to superseded by U12b (draft #1809 is closed; #1885 merged as 5917a6425). Replace the finding's 'parked on draft PR 1809; successor not yet planned' with: superseded, because U12b shipped the guard CLI and the no-preinstall pin, and the guard runs through the WORKERS.md worktree-setup convention, not an npm lifecycle hook.",
+   "issueIds": [
+    "I-npm-preinstall-after-reify"
+   ]
+  },
+  {
+   "target": "units.json U19 (units.json:721), U20 (units.json:827), U24 (units.json:963)",
+   "edit": "Set U19 to superseded by U19b, and close draft #1896 with a pointer. In U20's and U24's behaviour text, name U19b (not U19) as the genesis installer. U24 drops 'holds the already-checked 0.2, 1.2, 1.3, 1.5, 1.6 by receipt': 0.2 is held by U32, and 1.2/1.3/1.5/1.6 by DF-adopt-rows-proven-by-seam-receipts. Record that U24's admission requires U19b merged.",
+   "issueIds": [
+    "I-genesis-branch-row-mirror-side-effect",
+    "I-adopt-rows-seam-receipts-deferral",
+    "I-campaign-launch-head-answer",
+    "I-combat-journal-mode-flip"
+   ]
+  },
+  {
+   "target": "units.json U2 and packet PK-privacy-21-2-tick",
+   "edit": "Set U2 to superseded by U22, as U2b already is. PK-privacy-21-2-tick resolves when U22 ticks 21.2 whole.",
+   "issueIds": [
+    "I-e2e-25-and-21-2-tick"
+   ]
+  },
+  {
+   "target": "units.json packet PK-rewind-branch-reader (units.json:3248)",
+   "edit": "Record that U10 delivered the decision (#1849, 8ac132f48). Move all five keys in one keysMoved20260922b entry: #16.2@356 to DF-branch-and-time-cascade, #19.2@426 to U51, #21.3@559 to U54, #22.2@575 to U52, #23.3@604 to U55. Key strings stay unchanged: they are frozen admission anchors, so @559 is not rewritten to the live line 562. The packet then holds no keys.",
+   "issueIds": [
+    "I-rewind-branch-reader-decision",
+    "I-19-2-command-gates",
+    "I-21-3-e2e-31-45",
+    "I-22-2-e2e-61-70",
+    "I-23-3-ten-scenario-run",
+    "I-ledger-task-anchor-drift",
+    "I-campaign-time-cascade-16x"
+   ]
+  },
+  {
+   "target": "units.json DF-branch-and-time-cascade (units.json:3975)",
+   "edit": "Add #16.2@356. Rewrite the reason. It falsely says R6.B7 'is already a declared dependency of R6.umbrella', but roadmap.json R6.umbrella dependsOn is only [R2.authority-live]. The corrected reason says these rows are held by this deferral and listed at R6.umbrella close, and that 16.2 is held here, not in the packet. Keep #2.3@32: its letter at tasks.md:32 includes campaign-adapter branch activation, which is R6.B7 work, so the critic is upheld. Keep #22.1@574: U29 only lists E2E-46..60. Note that campaign rewind reason storage and 18.1's delivery clauses belong to R6.B7 admission.",
+   "issueIds": [
+    "I-campaign-time-cascade-16x",
+    "I-18-1-branch-timeline-rendering",
+    "I-22-1-e2e-46-60",
+    "I-2-3-adapter-operations",
+    "I-campaign-rewind-routes-discard-refs"
+   ]
+  },
+  {
+   "target": "units.json DF-coordinated-correction",
+   "edit": "Retire this deferral. In the same edit, move #17.1@387, #17.2@391 and #17.4@399 to U54 so each key keeps exactly one holder. U48 builds the door they need. Today the deferral points at R4.rewind, and no R4.rewind unit holds 17.x.",
+   "issueIds": [
+    "I-coordinated-correction-replacement-events"
+   ]
+  },
+  {
+   "target": "units.json DF-closure-rows (units.json:3989)",
+   "edit": "Move #25.1@633 to U57. Its letter at tasks.md:638 is a gate sweep that never names CAMP-01H. Keep #25.4@640 deferred to R2.journey until OD-camp01h-terminal is answered. Correct the reason's live-line text from 630/637 to 638/645; the keys keep their frozen anchors.",
+   "issueIds": [
+    "I-closure-rows-25-1",
+    "I-camp01h-three-witness-journey"
+   ]
+  },
+  {
+   "target": "roadmap.json node ownershipPaths (dated amendment under the OD-mvp-hard-cutover delegation, following the R1.archives precedent)",
+   "edit": "Add 'src/hooks', 'src/utils/gameplay/gameState' and 'src/components/campaign/coop' to R2.multiplayer-client: no open node owns them, and U36, U37 and U50 need them. Add 'scripts/__tests__' to R6.umbrella, for U29's manifest pin and U57's runner pin, and to U29.ownershipPaths.",
+   "issueIds": [
+    "I-ownership-paths-gaps",
+    "I-tactical-tokens-seed-origin",
+    "I-collided-client-stalls-match",
+    "I-campaign-coop-gm-review-noop-handlers",
+    "I-umbrella-acceptance-option-b",
+    "I-final-verification-wave-orphaned"
+   ]
+  },
+  {
+   "target": "roadmap.json R2.authority-cutover residuals[0]; units.json FN-u8-client-half-recovery-requirement (units.json:4193) and FN-u1d-stale-head-class-has-no-in-paths-lever",
+   "edit": "The residual 'reviewed flag flip owner-gated' becomes superseded by OD-mvp-hard-cutover, held by U35. The flag is still hardcoded false at JournalCampaignEventStore.ts:84. FN-u8 client half: a standing constraint, moved off the already-checked 5.7 slice and held by U51's launch-route stale-revision arm. No production client posts /commands; record that as a non-claim. FN-u1d stale head: the server half was resolved by U8 (#1829, f20f8d5f9); the e2e arm is U51.",
+   "issueIds": [
+    "I-campaign-journal-flag-flip",
+    "I-21-1-tick-authority-group",
+    "I-campaign-stale-head-lever"
+   ]
+  },
+  {
+   "target": "units.json behaviour text of U28 (units.json:1102), U25 (units.json:999), U30 (units.json:1173)",
+   "edit": "U28: replace 'option b names the campaign-genesis production flip as a gate' with 'U35 flips the campaign flag first; a park cites U35's receipt'. U25: E2E-41 is expected to pass only after U45, and E2E-43 only after U37. U30: 0.1 belongs to U34, 2.2/2.3 to U25, and 2.1 ticks from the U47 and U46 receipts.",
+   "issueIds": [
+    "I-campaign-journal-flag-flip",
+    "I-branches-carried-findings",
+    "I-tactical-tokens-seed-origin",
+    "I-adopt-rewind-ticks"
+   ]
+  },
+  {
+   "target": "units.json unit order (--next)",
+   "edit": "U19b, U20, U35, U21, U22, U36, U37, U38, U39, U40, U41, U42, U23, U43, U24, U44, U45, U25, U26, U46, U47, U27, U48, U49, U50, U28, U29, U51, U52, U53, U30, U31, U54, U55, U32, U33, U34, U56, U57. Units whose paths do not overlap may run in parallel waves. The in-flight prefix-overlap rule still applies.",
+   "issueIds": []
+  },
+  {
+   "target": "units.json U3 mainProof",
+   "edit": "Delete the hand-written prose copy of expectedReds so U3's mainProof has the same {path, mergeCommit, verdict, runtime} shape as every other unit.",
+   "issueIds": [
+    "I-u3-expectedreds-duplicate"
+   ]
+  },
+  {
+   "target": "units.json findings: closures and re-points",
+   "edit": "Close as fixed or not-a-defect: FN-u1c-build-exit-hidden-by-tail (the guard is required by release-build-system spec.md:59-68); FN-u1c-e2e-15-fails-on-main (U3); FN-u3-e2e-02-plain-drive-never-seated-players (U3); FN-u3-e2e-16-stale-reload-socket-count (U6); FN-u4-lobby-duplicates-reanswered-not-refused (designed reply); FN-u1b-proof-invalidated-by-helper-change (U1b re-proof); FN-u2b-lobby-producers-name-a-fallback-head (U5e-U5i); FN-u2b-e2e-25-reason-transport-dropped (U5c/U5d; the input bound residual goes to U36). Re-point: FN-u1c-oxlint-ignores-unit-paths to U40; FN-u9-rerun-parser-expects-labeled-line and FN-u17b-runtime-jest-pattern-goes-through-cmd-on-windows to U39; FN-u3-wait-for-relaunch-can-pass-vacuously to U28; FN-u2b-rewind-commit-verifies-through-the-match-store to U21; FN-genesis-branch-row-is-a-mirror-side-effect and FN-u19-multiplayer-pins-assert-backfill-count to U19b, then U24; FN-u1d-authorization-class-has-no-wire-lever to U50 and U51.",
+   "issueIds": [
+    "I-build-exit-junction-hydration",
+    "I-e2e-15-resilience-fails",
+    "I-e2e-02-occupyseat-harness",
+    "I-e2e-16-stale-reload-socket-count",
+    "I-lobby-duplicates-reanswered",
+    "I-shared-helper-invalidates-main-proof",
+    "I-lobby-producers-head-and-digest",
+    "I-rewind-reason-transport",
+    "I-oxlint-ignores-unit-paths",
+    "I-ladder-rerun-parser",
+    "I-runtime-jest-cmd-windows",
+    "I-wait-for-relaunch-vacuous",
+    "I-rewind-commit-match-store-reader",
+    "I-u19-genesis-install-proof-limits",
+    "I-e2e77-conflict-classes-unreachable"
+   ]
+  },
+  {
+   "target": "units.json findings: new records with no unit",
+   "edit": "Append each with its fix recipe and future owner. In the program: FN-u8-conflict-result-drops-stale-revision-code (R2.multiplayer-client); FN-campaign-door-command-identity (R2.authority-live); FN-intentid-visible-to-non-issuers (R2.authority-live); FN-campaign-flush-reconcile-r1-r2 (R2.authority-client); FN-cutover-cli-ungated (a D10 operator-surface retirement after U35); FN-campaign-sync-post-flip-residuals (R2.authority-cutover); FN-preserve-run-logs-removal-guard (R6.loop-harness close); FN-branches-closeout-owed (R3.storage); FN-coop-custom-snapshot-carriage (R2.combat, package not activated); FN-roster-damage-residuals (R9.close handoff). Outside the program: FN-replica-sync-grant-unpinned, FN-match-log-persist-double-fire, FN-camp01-windows-only-receipt-cases-not-in-ci, FN-p2p-mirror-reconcile-nonatomic. R9.close's handoff lists every one of them.",
+   "issueIds": [
+    "I-campaign-conflict-409-contract",
+    "I-campaign-door-concurrency",
+    "I-intentid-visible-to-non-issuers",
+    "I-campaign-reconcile-conflict-path-r1-r2",
+    "I-scripts-typecheck-gap",
+    "I-campaign-migration-machinery-removable",
+    "I-campaign-sync-ui-transport-nonclaims",
+    "I-preserve-run-logs-gaps",
+    "I-branches-pr-closeout-process",
+    "I-coop-custom-snapshot-carriage",
+    "I-r9-roster-damage-residuals",
+    "I-replica-grant-signature-dial-target",
+    "I-match-log-persist-double-fire",
+    "I-camp01-windows-junction-tests-no-ci",
+    "I-p2p-mirror-reconcile-nonatomic"
+   ]
+  },
+  {
+   "target": "roadmap.json R4.S3 residual (roadmap.json:4352) and R4.S7 residuals",
+   "edit": "The residual 'marker table/read port/batch field remain pending owner ruling OQ-2' becomes superseded by OD-mvp-hard-cutover; U44 deletes that residue. Residuals that were routed to S7-d are re-homed: the fail-closed arms to U23, the seed and boot recovery work to U43.",
+   "issueIds": [
+    "I-s7d-legacy-inert-mechanism",
+    "I-r4-s7-residuals-orphaned-by-s7d"
+   ]
+  },
+  {
+   "target": "roadmap.json ownerDecisions OD-publication-single-pr (roadmap.json:14835)",
+   "edit": "Give it the decided-entry shape that OD-whole-row-tick-rule uses (decidedAtUtc, decision, decisionSource, ownerWords, status), citing #1776 (b668d659a). Keep the question and evidence text.",
+   "issueIds": [
+    "I-publication-single-pr-record"
+   ]
+  },
+  {
+   "target": "roadmap.json ownerDecisions OD-flush-mechanism (roadmap.json:14738)",
+   "edit": "Record the navigation-discard gap as the accepted non-claim of answer20260922. design-campaign 1.6 is held by U42's supplement snapshot, not left invisible.",
+   "issueIds": [
+    "I-campaign-flush-navigation-gap"
+   ]
+  },
+  {
+   "target": "units.json packets and roadmap.json ownerDecisions (new; decision null, ruling null, owner-gated)",
+   "edit": "Add three owner-gated records, each carrying its owner question and recommendation: PK-camp-review-gate (the R2.camp-0..8 review tiers); PK-6-2b-single-player-seat (holds design-campaign 6.2-6.4 once U42 adds them); and ownerDecisions entry OD-camp01h-terminal.",
+   "issueIds": [
+    "I-camp-receipt-chain-owner-blocked",
+    "I-camp01h-three-witness-journey",
+    "I-accept-contract-6-2-single-player-identity",
+    "I-post-admission-rows-unheld"
+   ]
+  },
+  {
+   "target": "WORKERS.md",
+   "edit": "Add: run qc:guard-node-modules-link before any npm command that changes node_modules, and stop on INSTALL_REFUSED (callers match only the first two tokens); grep finds the script only at package.json:154 today. Never pipe npm run build through tail; record its exit code. The Lane A definition at :97 gets the two-mutant minimum from :87. Restore mutants with git checkout HEAD -- <path> and confirm the sha256. Add a dated 2026-09-22 routing section: Opus implementation lanes, Sonnet Lane A, and the D6 exhaustion rules (change one variable, re-run local from the existing red receipt, re-run Lane A).",
+   "issueIds": [
+    "I-guard-cli-not-wired-into-worker-docs",
+    "I-u12b-guard-cli-refinements",
+    "I-build-exit-junction-hydration",
+    "I-review-verification-boundaries",
+    "I-crlf-restore-methodology",
+    "I-worker-routing-protocol",
+    "I-npm-preinstall-after-reify"
+   ]
+  },
+  {
+   "target": "DELIVERY.md",
+   "edit": "Add two rules. A slice that edits a shared e2e helper or a scripts/qc runner re-runs, in its own exact-main proof, every group whose spec imports that file. Sensitive-class units cite the exit code and output of validate-roadmap.mjs --github in their merge or mainProof receipt.",
+   "issueIds": [
+    "I-shared-helper-invalidates-main-proof",
+    "I-roadmap-admission-procedural-limits"
+   ]
+  },
+  {
+   "target": "docs wording in the next docs(roadmap) PR",
+   "edit": "Correct the stale '77d9a9480 unpublished' text: it shipped as #1667 (b39b82917). Close the CO3 openQuestions[0..5]: F1 is held by U19b/U20, and F3 was proven by #1755/#1756. Close incidentalF1 and S7a-Q1 (S7-a1, #1737, bb672249c). Close the stale co-op dual-writer residual, fixed by #1543 (a947a9c42).",
+   "issueIds": [
+    "I-customizer-browser-commit-unpublished",
+    "I-campaign-two-process-proof-residuals",
+    "I-canonicalizer-undefined-values",
+    "I-coop-dual-writer-409-storm"
+   ]
+  }
+ ],
+ "unitFolds": [
+  {
+   "unit": "U19b",
+   "addToBehavior": "No behaviour added. U19b holds FN-genesis-branch-row-is-a-mirror-side-effect (units.json:4146) and FN-u19-multiplayer-pins-assert-backfill-count (units.json:4234) as its successor findings. Its first-append genesis install (units.json:777) becomes the only installer once U24 removes the backfill. It merges after the owner's Lane B ruling on PR #1899 at head 70503ee7ccad2639df28b7687467af776590f7f1, then gets its exact-merge main proof.",
+   "issueIds": [
+    "I-genesis-branch-row-mirror-side-effect"
+   ]
+  },
+  {
+   "unit": "U20",
+   "addToBehavior": "The text names U19b as the genesis installer. After U19b, resolveCampaignLaunchHead answers {kind:'head'} for every campaign whose stream has at least one journal append, and answers no-authoritative-stream only when there is no journal stream. The campaignLaunchHead.ts docstring states that rule, not the flag-off rationale.",
+   "issueIds": [
+    "I-campaign-launch-head-answer"
+   ]
+  },
+  {
+   "unit": "U21",
+   "addToBehavior": "Also: (a) matchJournalBranchSegmentReader passes each segment's own branchId to the journal instead of wrapping journalBranchSegmentReader, which refuses every branch but 'root' (EventHistoryBranchResolver.ts:265-270); its red-first seed is written through the mirror onto 'main'. (b) The new reader gets its own red-first prefix-law row: a mid-stream window (fromRevision > 0) chains from the real predecessor digest and equals the same slice of a full read, and a rechain-from-window-start mutant is killed. (c) Viewer lineage effectiveHead.revision reads the same journal head as GET /head and the lease, not the branch baseRevision cutoff (ViewerHistoryLineage.ts:133-135). If (c) pushes U21 past 15 files / 500 lines at admission, it becomes a follow-on R2.authority-live unit placed right after U21.",
+   "issueIds": [
+    "I-rewind-commit-match-store-reader",
+    "I-u10-reader-test-and-message",
+    "I-match-genesis-branch-root-vs-main",
+    "I-lineage-revision-lags-journal-tip"
+   ]
+  },
+  {
+   "unit": "U22",
+   "addToBehavior": "Also: run the WHOLE privacy pack E2E-19..30, red before U21 and green after, which is the first measurement of the E2E-25 private_record discovery path (spec:378-398). Record the row's unexpected-pass receipt first. The ungating diff then removes only E2E-25's test.fail and gate text (e2e/gm-two-player-privacy.pack.spec.ts:315) and leaves the assertion body byte-identical. Rewrite the E2E-29/E2E-30 header paragraph (lines 136-144) to say both rows run live in the proposals pack. requestActivity (e2e/helpers/campaignJournalDrive.ts:172) reads the body as text once and JSON.parses it, so a non-JSON answer shows status and body. The 21.2 tick receipt carries the OB-2 non-claim (campaign CRUD routes read no credential; owner decision pending) and corrects the stale #62 p2p non-claim annotation.",
+   "issueIds": [
+    "I-e2e-25-and-21-2-tick",
+    "I-privacy-evidence-plan-unknowns",
+    "I-gated-row-absorbs-failures",
+    "I-e2e-29-header-disagreement",
+    "I-request-activity-json-unconditional",
+    "I-ob2-unauthenticated-campaign-routes",
+    "I-p2p-mirror-reconcile-nonatomic"
+   ]
+  },
+  {
+   "unit": "U23",
+   "addToBehavior": "The behaviour widens to cover every non-success mirror result. At mode enabled, the command fails closed with STORE_FAILURE through ServerMatchHostJournalAuthority in each of these cases: the mirror returns a non-mirrored result; the mirror THROWS (today caught at DurableMatchStore.ts:1028 and recorded only as a shadow mismatch); it answers integrity-conflict (MatchStreamJournalMirror.ts:263); it throws EventHistoryBranchError('branch-integrity') after the store commit (DurableMatchStore.ts:975-977, :1025-1040); or the capability database is unready. For the last case, the readiness check moves inside the try at DurableMatchStore.ts:1003 and adds a journal-mirror:capability-db-unavailable tripwire entry. The retry re-mirrors the stored batch under its own command identity. An identical replay already comes back committed and mirrored, so U23's 'duplicateIsSuccess' clause is dropped. A same-id batch with a different digest fails closed and is never counted as success. Red rows: forced revision conflict (existing), thrown mirror error, integrity-conflict, closed capability DB, divergent same-id retry.",
+   "issueIds": [
+    "I-mirror-failure-fails-command",
+    "I-r4-s7-residuals-orphaned-by-s7d",
+    "I-journal-command-head-integrity-unchecked",
+    "I-capability-db-unready-arms",
+    "I-adopt-seam-carried-residuals",
+    "I-match-seed-partial-and-divergent"
+   ]
+  },
+  {
+   "unit": "U24",
+   "addToBehavior": "Text corrections: name U19b; drop the 0.2/1.2/1.3/1.5/1.6 hold; admission requires U19b merged. Added clauses: (a) Delete the combat e2e fixture arm (combatJournalAuthorityEnabled.ts:40-57) and its pin, and in the same diff rewrite every 'mode off' comment the flip makes false. (b) The openspec edit adds an adopt event-store spec delta that MODIFIES 'Combat Rollback Preserves Journal Authority' to the hard-cutover rule: started means the effective head the first batch installs; there is no started marker and no rollback law. The same edit adds one crosswalk sentence to design.md and proposal.md:11 mapping design S5/S6 to roadmap R4.S5-S7. (c) Streams with a journal head but no branch row are pre-cutover data. The backfill (MatchStreamJournalMirror.ts:264) goes with no replacement installer, and a pin shows the owning reader fails closed, typed. (d) After the removal, re-run the four re-aimed pins red-first against the writer-only install: CoordinatedOutcomeCorrection, CoordinatedOutcomeCorrectionSaga, GmCombatRewindCommit, GmCombatRewindPreview. (e) A pin shows a multi-event batch leaves lastBroadcastSeq on the batch's last sequence, so a later drainNewEvents caller appends only its own events. The split rule is unchanged: re-pin first, flip second if over cap.",
+   "issueIds": [
+    "I-combat-journal-mode-flip",
+    "I-combat-journal-e2e-fixture-arm",
+    "I-canonical-combat-rollback-spec-unreconciled",
+    "I-adopt-design-seam-naming-drift",
+    "I-pre-u19-streams-without-genesis-row",
+    "I-u19-genesis-install-proof-limits",
+    "I-set-last-broadcast-seq-unpinned",
+    "I-adopt-rows-seam-receipts-deferral",
+    "I-stale-not-wired-comments"
+   ]
+  },
+  {
+   "unit": "U25",
+   "addToBehavior": "Also: E2E-41 is expected to pass only after U45 adds the expected-head intent fields. E2E-43 is expected only after U37 seeds tokens at the deploy hex, because rewind.pack.spec.ts:206 reads the rendered token as its Move origin. For each row, record the unexpected-pass receipt first; the ungating diff then removes only that row's test.fail and gate text and leaves the assertion body byte-identical.",
+   "issueIds": [
+    "I-rewind-pack-rows-gated",
+    "I-gated-row-absorbs-failures",
+    "I-branches-carried-findings",
+    "I-tactical-tokens-seed-origin"
+   ]
+  },
+  {
+   "unit": "U26",
+   "addToBehavior": "Also: sendReplay requires a playerId on both signatures (ServerMatchHostReplay.ts:74-80; ServerMatchHost.ts:808-812). The raw getEventsFromSeq fallback and the unguarded send are deleted, so every replay passes the publication boundary. HostAsGmMembershipSource stays and gets a one-line keep-wrapper pin.",
+   "issueIds": [
+    "I-per-viewer-fog-rebuild",
+    "I-replay-no-playerid-unguarded",
+    "I-host-as-gm-membership-wrapper"
+   ]
+  },
+  {
+   "unit": "U27",
+   "addToBehavior": "Also, before adding the rewound-match row: move the restart pack onto e2e/helpers/gmTwoPlayerMatchFlow.ts. The inline runId, seedIdentity, connectLobby, markReady, advance*, readToken and readMatch copies are deleted, armFault stays local, and the header stops saying consolidation is deferred. The new row asserts that the effective branch id from GET /head is unchanged across the restart, which closes E2E-15's 'Active branch' clause. If the helper move exceeds the cap, it becomes a preceding R4.rewind e2e unit.",
+   "issueIds": [
+    "I-restart-pack-rewound-match",
+    "I-e2e-pack-helper-consolidation"
+   ]
+  },
+  {
+   "unit": "U28",
+   "addToBehavior": "Also: (a) U35 has flipped the campaign flag before U28 runs, so the green branch removes both fixture switches; a park cites U35's receipt. (b) One shared waitForServerRelaunch replaces waitForRelaunch (e2e/helpers/gmTwoPlayerAuthorityRecovery.ts:137-151) and the private waitForServerBack copies (restart.pack.spec.ts:221, resilience.pack.spec.ts:278). It first proves the server died, using a run-scoped sentinel, before waiting for it to return. (c) One two-process row (e2e/campaign-journal-two-process-catchup.spec.ts, the CO3 topology on 3639/3617) proves that a campaign viewer reconnecting after a gap resumes exactly once from its delivery cursor. (d) e2e/app-shell-route-proof.spec.ts gets the /compendium/chassis entry (route manifest :22), so full Playwright collection (:488-495) and the nightly lanes stop throwing. If (c) pushes U28 past the cap, it becomes the next R6.umbrella e2e unit.",
+   "issueIds": [
+    "I-21-1-tick-authority-group",
+    "I-campaign-journal-flag-flip",
+    "I-wait-for-relaunch-vacuous",
+    "I-campaign-catchup-backfill-unproven",
+    "I-ci-enforcement-gaps"
+   ]
+  },
+  {
+   "unit": "U29",
+   "addToBehavior": "Also: ownershipPaths gain 'scripts/__tests__' for the manifest pin test. The manifest lists E2E-46..60 with holder DF-branch-and-time-cascade (R6.B7); it only lists them, and 22.1 stays with the deferral. implementation-plan.md's todo count (34 plus F1-F4) and its event-history wave map are reconciled with tasks.md, with a note that tasks.md receipts are the only completion record. A dated ERRATA under 6.3 withdraws the claim that connections now use scoped tokens: token.ts:153 mints no scope, and auth.ts:233-247 admits scopeless tokens. The 25.4 note says 25.1 is held by U57 and 25.4 waits on OD-camp01h-terminal.",
+   "issueIds": [
+    "I-umbrella-acceptance-option-b",
+    "I-harden-plan-docs-stale",
+    "I-22-1-e2e-46-60",
+    "I-scopeless-socket-tokens",
+    "I-closure-rows-25-1"
+   ]
+  },
+  {
+   "unit": "U30",
+   "addToBehavior": "Also: 2.1 ticks from the main proofs of U47 (server-authored combat correction) and U46 (reason inside activation); those are the successors U30's text anticipated. The behaviour text drops 0.1, which U34 holds, and says 2.2/2.3 belong to U25.",
+   "issueIds": [
+    "I-adopt-rewind-ticks"
+   ]
+  },
+  {
+   "unit": "U31",
+   "addToBehavior": "Also: (a) 22.3 ticks whole only when every one of E2E-71..80 is proven on main: E2E-75 in all nine postures (row C from U51); E2E-77 in all five classes (U51); E2E-76 ungated by U25; E2E-78's pre-serialization clause through U49's capture; E2E-80 from U9. (b) The E2E-80 half ticks only when the exact-main ladder archive JSON for the tick's merge is a tracked file under evidence/, as #1816 did. (c) assertNoSecrets also scans a de-escaped copy of each body. (d) Remove the post-launch reload workaround for the fixed FN-u1c defect from lifecycle rows A and B (lifecycle.pack.spec.ts:213-214, :339-340) and from the conflict row (conflict.pack.spec.ts:109). Headers cite U4, #1802 and 6fe884dd, and the lifecycle and conflict packs re-run green without the reload.",
+   "issueIds": [
+    "I-umbrella-14x-22-3-ticks",
+    "I-ladder-archive-gitignored",
+    "I-evidence-secret-scan-json-escaped",
+    "I-pending-intent-never-settles"
+   ]
+  },
+  {
+   "unit": "U34",
+   "addToBehavior": "Also: rebuild the table from exact current main, replacing the 2026-09-13 snapshot of 44b94adbb. Every row gets one of four classes: real; strict-expected-failure naming its gate; manifest-gated naming its U29 entry; or absent. 34/80 stays only as a labelled historical line.",
+   "issueIds": [
+    "I-r4-matrix-remaining"
+   ]
+  }
+ ],
+ "newUnits": [
+  {
+   "id": "U35",
+   "node": "R2.authority-cutover",
+   "ownershipPaths": [
+    "src/lib/campaign/sync",
+    "src/lib/campaign/persistence"
+   ],
+   "behavior": "Campaign journal hard cutover under OD-mvp-hard-cutover. CAMPAIGN_JOURNAL_AUTHORITY_ENABLED is true in production with no override (JournalCampaignEventStore.ts:84), and the e2e fixture arm is deleted (campaignJournalAuthorityEnabled.ts:36-38), so every campaign create or adopt appends its genesis snapshot and journal-native marker. The flip must also hold these correctness gates: (1) A marker-io failure after a committed batch never turns an acknowledged commit into an error (F-1), and the AcceptContract stamp is pinned (F-3). (2) Balance-bearing FundsChanged refuses any scope other than campaign (campaignEventScope.ts:47-52). (3) An accepted whole-envelope PUT on a journal-native campaign must not leave the journal head behind the record. INFERENCE: [id].ts:197 calls saveCampaign, which writes only the row; admission measures this, and if it holds, the save appends a checkpoint in the same transaction. Red-first on real SQLite with no MEKSTATION_E2E_* env: a PUT create at baseVersion 0 must leave one campaign genesis event, a journal-native marker and exactly one effective event_history_branches row with stream_type 'campaign'. Today the marker reads not_found and there is no row. Suites that assume the flag is off are re-pinned. If over cap, split: re-pin (or the checkpoint precursor) first, flip second. Admit after U19b is merged and U20 has landed; it must land before U28.",
+   "reviewClasses": [
+    "authority",
+    "idempotency",
+    "migration"
+   ],
+   "placeAfter": "U20",
+   "issueIds": [
+    "I-21-1-tick-authority-group",
+    "I-campaign-journal-flag-flip",
+    "I-campaign-marker-stamp-after-commit",
+    "I-fundschanged-balance-inference"
+   ]
+  },
+  {
+   "id": "U36",
+   "node": "R2.multiplayer-client",
+   "ownershipPaths": [
+    "src/components/multiplayer",
+    "src/pages-modules/multiplayer",
+    "src/components/campaign/coop"
+   ],
+   "behavior": "Every GM correction control the client renders either works once per press within the route's bounds, or is not rendered. (1) The private-reason input gets maxLength 2000 (NetworkedGameSurface.gmCorrection.tsx:147-157), matching rewindCommitDeps.ts:75-78. (2) Approve GM Fix and Preview GM Fix ignore a second press and render disabled while their request is pending, copying the GmRewindPreviewDialog.tsx:78-80 pattern. (3) The () => {} defaults at HostGmReviewSurface.tsx:138-140 are removed, so the dashboard mount (CampaignCoopRouteSurface.tsx:378-384) shows only Approve and Veto. (4) The header at useGmCorrectionProducers.ts:19-28 describes the delivered transport. Red-first: a jest double press sends two commits today and one after; a no-op GM Fix button renders today. This is the dead-controls precondition for U51's 19.2 tick. It needs the 'src/components/campaign/coop' ownership amendment.",
+   "reviewClasses": [
+    "routine"
+   ],
+   "placeAfter": "U22",
+   "issueIds": [
+    "I-rewind-reason-transport",
+    "I-stale-correction-producer-docblock",
+    "I-ledger-text-drift",
+    "I-gm-correction-controls-ui",
+    "I-campaign-coop-gm-review-noop-handlers",
+    "I-19-2-command-gates"
+   ]
+  },
+  {
+   "id": "U37",
+   "node": "R2.multiplayer-client",
+   "ownershipPaths": [
+    "src/hooks",
+    "src/utils/gameplay/gameState"
+   ],
+   "behavior": "On GameCreated, the shared hex-map projection seeds each token at the engine's deploy hex and facing instead of {0,0} facing North: players at r=+5 facing North, opponents at r=-5 facing South, q = per-side index - 2. The rule lives in one exported pure placement function in src/utils/gameplay/gameState/initialization.ts, used by both the engine and the projection under src/hooks/replay. Red-first: core.test.ts:49-53 currently pins the origin and flips to the deploy hex; a board test shows a unit at its deploy hex before any MovementDeclared. It needs the 'src/hooks' and 'src/utils/gameplay/gameState' ownership amendment, and must be on main before U25 ungates E2E-43.",
+   "reviewClasses": [
+    "replay"
+   ],
+   "placeAfter": "U36",
+   "issueIds": [
+    "I-tactical-tokens-seed-origin"
+   ]
+  },
+  {
+   "id": "U38",
+   "node": "R2.authority-live",
+   "ownershipPaths": [
+    "src/lib/multiplayer/server",
+    "src/lib/campaign"
+   ],
+   "behavior": "On a co-op campaign match, ServerMatchHost refuses a combat intent for a unit on a side the caller does not hold: AUTH_REJECTED unit-not-owned, with nothing appended. The blanket exemption 'if (meta?.coopCampaign) return null;' at ServerMatchHostIntent.ts:552 and its comment (:544-551) are deleted, and the uncalled ownsCoopUnit is either removed or wired in. Red-first: on the campaign-sync co-op match, a jest row where player B commands player A's unit is admitted today and refused after. U53 re-proves E2E-31/32 on the co-op fixture.",
+   "reviewClasses": [
+    "authority"
+   ],
+   "placeAfter": "U37",
+   "issueIds": [
+    "I-coop-per-unit-ownership"
+   ]
+  },
+  {
+   "id": "U39",
+   "node": "R6.loop-harness",
+   "ownershipPaths": [
+    "scripts/qc",
+    "scripts/__tests__"
+   ],
+   "behavior": "Main-proof execution is shell-free and fails closed. roadmap-main-proof.mjs runs every ladder step through one exported spawn seam that never routes argv through cmd.exe. --runtime-jest spawns node_modules/jest/bin/jest.js via process.execPath, so a regex containing |, (, ) or & reaches jest verbatim. A new exact-main-ladder step reruns the highest registered rung on the --merge commit. parseRunnerOutput (validate-exact-main-regression-ladder.mjs:184-206) rejects two or more summary blocks and any column-0 '<group>:' line. Pins: a dry-run of --runtime-jest with a regex; an end-to-end pin of the execution branch with fake steps (per-step logs, marker scan, sha256.txt, dirty count); a two-block rerun fixture. Riders: closure-proof fold failures print status, stderr and stdout (roadmap-loop-closure-proof.test.ts:432-434). Both loop pins use the temp-u17-pin- prefix so the .gitignore:92 temp-* rule covers crash leftovers. The false comment at validate-exact-main-regression-ladder.test.ts:49-50 is corrected.",
+   "reviewClasses": [
+    "routine"
+   ],
+   "placeAfter": "U38",
+   "issueIds": [
+    "I-runtime-jest-cmd-windows",
+    "I-main-proof-execution-untested",
+    "I-smoke-groups-never-run-on-main",
+    "I-ladder-rerun-parser",
+    "I-loop-harness-u17-misc",
+    "I-pin-temp-ledger-leak",
+    "I-oxfmt-unicode-escape-rewrite"
+   ]
+  },
+  {
+   "id": "U40",
+   "node": "R6.loop-harness",
+   "ownershipPaths": [
+    "scripts/qc",
+    "scripts/__tests__"
+   ],
+   "behavior": "The qc gates bind to what they claim. buildRunPlan (scripts/qc/gm-two-player-campaign-core.cjs, around :216-239) sets HOSTNAME=127.0.0.1 for every run, so a machine name exported by the shell cannot break server.js. runPlan waits for the owned MEKSTATION_E2E_PORT, resolves the PID that owns it with machine-idle's snapshot (machine-idle.mjs:157), and prints one parseable line with port and PID; it throws a typed error when the process enumeration tool is missing. lint:units widens DEFAULT_PATHS (lint-units.mjs:20) to src/pages/api and the src test files, with measured perPath ceilings. It fails when a path lints zero files and enforces each perPath ceiling as well as the total. Red-first: jest rows for each. The pr-checks.yml step is outside R6.loop-harness paths and is not claimed.",
+   "reviewClasses": [
+    "routine"
+   ],
+   "placeAfter": "U39",
+   "issueIds": [
+    "I-runner-inherited-hostname",
+    "I-runner-prints-no-server-pid",
+    "I-oxlint-ignores-unit-paths",
+    "I-lint-units-ratchet"
+   ]
+  },
+  {
+   "id": "U41",
+   "node": "R0.plan",
+   "ownershipPaths": [
+    "openspec/planning/2026-09-12-roadmap-completion"
+   ],
+   "behavior": "validate-roadmap.mjs checks what receipts say, not just their shape. (1) In evidence mode, expectedReds must match runtime.failedRows one-to-one by E2E id. (2) parseProofLine accepts jest red summaries and stops passing 'N passed (... K failed)'. (3) A unit with a sensitive review class at local-verified or later fails when no packet names it in blocks. (4) --git refuses a mergeSha diff (baseline..mergeSha, evidence/ excluded) that touches files outside ownershipPaths unless they are listed in ownershipExceptions; historical exceptions are recorded once. (5) A review receipt whose finisherModel equals its reviewerModel fails. (6) One cap counting rule is written into GOAL.md:56 and DELIVERY.md:8 and enforced: numstat added lines over non-generated files against the unit baseline, evidence/ excluded. Red-first: each check gets a node --test fixture in validate-roadmap.test.mjs that passes on current main and fails after. If over cap, split into content checks and ownership/cap checks.",
+   "reviewClasses": [
+    "routine"
+   ],
+   "placeAfter": "U40",
+   "issueIds": [
+    "I-validator-reads-shape-not-content",
+    "I-proof-line-grammar-narrow",
+    "I-lane-b-owner-ruling-process",
+    "I-unit-line-cap-definition",
+    "I-ownership-paths-gaps",
+    "I-worker-routing-protocol"
+   ]
+  },
+  {
+   "id": "U42",
+   "node": "R0.plan",
+   "ownershipPaths": [
+    "openspec/planning/2026-09-12-roadmap-completion"
+   ],
+   "behavior": "Rows the program added to an admitted package after admission get holders without touching admission-snapshot.json. A frozen, additive evidence/admission-snapshot-supplement-20260922.json is listed in a new units.json field, supplementSnapshots, and the validator loads it into taskByKey next to the snapshot. Its occurrences are design-campaign-authority-and-sync 1.6 and 6.1-6.4 (tasks.md:30, 106, 108, 110). 1.6 ticks under the whole-row rule only if its letter names no navigation-flush scenario; that is UNVERIFIED, and the OD-flush non-claim is recorded. Otherwise a packet holds 1.6. Rows 6.2-6.4 are held by PK-6-2b-single-player-seat, which is owner-gated. Red-first: the holders check fails on the supplemented rows before any holder exists and passes after.",
+   "reviewClasses": [
+    "routine"
+   ],
+   "placeAfter": "U41",
+   "issueIds": [
+    "I-post-admission-rows-unheld",
+    "I-accept-contract-6-2-single-player-identity",
+    "I-campaign-flush-navigation-gap"
+   ]
+  },
+  {
+   "id": "U43",
+   "node": "R4.S7",
+   "ownershipPaths": [
+    "src/lib/multiplayer/server"
+   ],
+   "behavior": "At mode enabled, boot recovery reaches a commit-ready journal head for every match the store holds. (1) Before mirroring the opening batch, the create seed writes an mp_command_receipts row create:<matchId> covering revisions 0..N-1, carrying the opening session's post-state digest (digestCommandPostState). A seeded match with no command then recovers instead of blocking with missing-journal-head. (2) When the journal head is a strict prefix of the match log, MatchRecovery replays each missing stored batch from mp_command_receipts through mirrorCommittedBatch. (3) A partial or failed seed (the store is past the opening batch but there is no journal head) is healed the same way or refused, typed. Red-first: seed-then-restart with no command, and a truncated-journal restart, both block today and recover after. This is a correctness gate for the flip, so it lands before U24.",
+   "reviewClasses": [
+    "authority",
+    "replay",
+    "idempotency"
+   ],
+   "placeAfter": "U23",
+   "issueIds": [
+    "I-seeded-match-no-command-bricked-on-recovery",
+    "I-recovery-consult-verdict-residuals",
+    "I-match-seed-partial-and-divergent"
+   ]
+  },
+  {
+   "id": "U44",
+   "node": "R4.S7",
+   "ownershipPaths": [
+    "src/lib/multiplayer/server",
+    "src/lib/events/journal",
+    "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind"
+   ],
+   "behavior": "After the flip, every recovery and rewind journal read takes its database from the match store's capability handle (store.isCapabilityDbAvailable() / capabilityDatabase()), not getSQLiteService(). That covers MatchRecoveryJournalHead, tryFoldActivatedRewindBranch and the rebuild lease hold and release at ServerMatchHostRewindRebuild.ts:135, :219, :254. A match whose head cannot be read is refused, typed; it no longer falls back to headFromLegacyEvents or selectMatchRollbackReader (ServerMatchHost.ts:1457-1466; MatchRecoveryJournalHead.ts:91-94). The S7-d tri-state in matchJournalAuthorityStartedDerived.ts collapses, and the R4.S3 marker table, read port and batch field (roadmap.json:4352, OQ-2) are deleted under OD-mvp-hard-cutover. Riders: the remaining 'not wired/owed' comments and the stale 'NOT CLAIMED: event-at-a-time' note are rewritten to match main. The stale it.failing at src/lib/events/journal/__tests__/SQLiteEventJournalRecovery.test.ts:391-419 is deleted; the passing test at :455 pins the opposite, correct rule. Red-first: a closed capability DB at recovery falls back silently today and is refused typed after. If over cap, the residue deletion becomes a following R4.S7 unit.",
+   "reviewClasses": [
+    "authority",
+    "migration"
+   ],
+   "placeAfter": "U24",
+   "issueIds": [
+    "I-s7d-legacy-inert-mechanism",
+    "I-recovery-consult-db-handle",
+    "I-stale-not-wired-comments",
+    "I-journal-recovery-candidate-head",
+    "I-event-at-a-time-host-path"
+   ]
+  },
+  {
+   "id": "U45",
+   "node": "R2.combat",
+   "ownershipPaths": [
+    "src/types/multiplayer",
+    "src/lib"
+   ],
+   "behavior": "The combat wire carries branch state and intent correlation in both directions. (1) The Intent envelope accepts optional expectedBranchId, expectedRevision, expectedDigest and expectedGeneration (Protocol.ts:425-432). ServerMatchHostBranchAdmission checks them through evaluateExpectedBranchHead, so a stale intent is refused STALE_BRANCH with conflictHead on the socket path. (2) After a committed rewind, the host sends each seated viewer a non-fatal PROJECTION_REWOUND frame (added to ErrorCodeSchema, Protocol.ts:741-788), which projectionSignalFromServerError maps to the rewound posture (src/lib/multiplayer/tacticalLifecycleState.ts:33-37). (3) handleForfeitMatch's INVALID_INTENT and STORE_FAILURE Error frames carry envelope.intentId. (4) The EventMessageSchema it.failing is resolved by recording the decision that authority-only fields are removed at the projection boundary (ViewerFrameProjector.ts:66-70, pinned by viewerSequenceConcealmentLeak.test.ts:107, :184). Red-first: zod strips E2E-41's claimed expectedBranchId today; the absence pin at tacticalLifecycleState.test.ts:152-153 flips; a forfeit refusal carries no intentId today. R2.combat owns 'src/types/multiplayer' and 'src/lib', so this resolves the critic's point that R4.rewind cannot own Protocol.ts. If over cap, the rewound producer becomes its own R2.combat unit.",
+   "reviewClasses": [
+    "authority",
+    "replay"
+   ],
+   "placeAfter": "U44",
+   "issueIds": [
+    "I-branches-carried-findings",
+    "I-e2e75-lifecycle-postures-unreachable",
+    "I-event-sequence-on-player-frames",
+    "I-forfeit-error-frames-no-intentid"
+   ]
+  },
+  {
+   "id": "U46",
+   "node": "R2.authority-live",
+   "ownershipPaths": [
+    "src/lib/multiplayer/server",
+    "src/pages/api/matches",
+    "src/pages-modules/api"
+   ],
+   "behavior": "The rewind routes' contract is strict in both directions. (1) The commit checks the private write's GM authorization (AuthorizedViewerResolver over HostAsGmMembershipSource) before commitGmCombatRewind runs, so a denial is a typed 403 with nothing activated. (2) The GM reason record is written with the commit's real command id inside the activation transaction: the route passes body.reason instead of the constant REWIND_COMMIT_REASON, and the post-commit write with commandId null is deleted. (3) isPreviewBody (rewindPreviewRouteSupport.ts:41) and isRewindCommitBody (rewindCommitDeps.ts:73) accept expectedDigest only as /^[0-9a-f]{64}$/. (4) Refusal bodies carry the branch and revision they were refused against, unless they already do (UNVERIFIED at rewindPreviewRouteSupport.ts:78 and rewind-commit.ts:74; measured at admission). Red-first: an empty digest gets 200 today; a failed private write after activation turns a committed rewind into an error today.",
+   "reviewClasses": [
+    "authority",
+    "privacy",
+    "replay"
+   ],
+   "placeAfter": "U26",
+   "issueIds": [
+    "I-private-write-not-atomic-with-rewind",
+    "I-preview-schema-accepts-empty-digest",
+    "I-adopt-rewind-ticks",
+    "I-e2e77-conflict-classes-unreachable"
+   ]
+  },
+  {
+   "id": "U47",
+   "node": "R4.rewind",
+   "ownershipPaths": [
+    "src/lib/interventions",
+    "src/lib/multiplayer/server"
+   ],
+   "behavior": "Finalizing a GM combat correction (damage, position, phase, initiative, objective or outcome) becomes a server-authored command on the match host. The command names its expected branch and revision. In one authoritative transaction it appends one immutable correction fact carrying the actor, a real command id, the GM reason reference and the deterministic replacement data. The client-side correction commit path goes. Red-first: today a GM correction commits through the client path and no correction fact is appended. This is the product work adopt 2.1's letter needs before U30 can tick it.",
+   "reviewClasses": [
+    "authority",
+    "replay",
+    "privacy"
+   ],
+   "placeAfter": "U46",
+   "issueIds": [
+    "I-adopt-rewind-ticks"
+   ]
+  },
+  {
+   "id": "U48",
+   "node": "R2.authority-live",
+   "ownershipPaths": [
+    "src/lib/multiplayer/server",
+    "src/pages/api/matches",
+    "src/pages-modules/api"
+   ],
+   "behavior": "A GM-only POST /api/matches/:id/outcome-correction door admits a correction with admitCoordinatedOutcomeCorrection (CoordinatedOutcomeCorrection.ts:188) and drives it through runCoordinatedCorrection (CoordinatedOutcomeCorrectionRun.ts:117). On the journal-authority head, the saga's source step supersedes the match on its journal branch, not in the legacy match store, and the saga reaches 'completed' when the target receipt lands. Red-first: on a match with an accepted receipt, no route admits a correction today and the saga never reaches completed.",
+   "reviewClasses": [
+    "authority",
+    "replay",
+    "privacy"
+   ],
+   "placeAfter": "U27",
+   "issueIds": [
+    "I-coordinated-correction-replacement-events"
+   ]
+  },
+  {
+   "id": "U49",
+   "node": "R2.authority-live",
+   "ownershipPaths": [
+    "src/lib/multiplayer/server"
+   ],
+   "behavior": "Adds the matchId-scoped, env-gated test seams the failure, lifecycle and evidence packs need; each is inert in production. E2EFaultKind and E2E_FAULT_KINDS (DurableMatchStore.ts:331-352) gain three kinds: 'viewer-projection' (projection fails closed and no raw payload is serialized); a write-capable corruption fixture; and a correction-lease hold that keeps a committed rewind's lease long enough to observe PROJECTION_REBUILDING. A per-run sink, when armed, records per viewer the exact IServerMessage handed to JSON.stringify at ServerMatchBroadcaster.ts:168 and through the ServerMatchHost.safeSend delegate, for E2E-78's pre-serialization clause. The route derives its kinds from E2E_FAULT_KINDS (e2eFaultRoute.ts:52, :73-75); the catalog-length pin moves from 8 to 11. Red-first: one jest row per kind. If over cap, the capture sink becomes its own unit.",
+   "reviewClasses": [
+    "privacy",
+    "concurrency"
+   ],
+   "placeAfter": "U48",
+   "issueIds": [
+    "I-22-2-e2e-61-70",
+    "I-umbrella-14x-22-3-ticks",
+    "I-e2e75-lifecycle-postures-unreachable",
+    "I-evidence-secret-scan-json-escaped"
+   ]
+  },
+  {
+   "id": "U50",
+   "node": "R2.multiplayer-client",
+   "ownershipPaths": [
+    "src/components/multiplayer",
+    "src/pages-modules/multiplayer",
+    "src/hooks"
+   ],
+   "behavior": "A refused or interrupted live session shows what happened, and its recovery works. (1) The GM rewind dialog and BranchRecoveryInstruction show the actor-safe class (STALE_BRANCH, STALE_REVISION, STALE_GENERATION, PROJECTION_REBUILDING, correction-lease-held), the head it was refused against, and the recovery action. (2) A transient socket drop shows the reconnecting posture instead of closed. (3) A session that enters the blocked posture, from a collision (client.ts:901) or STALE_BRANCH (tacticalLifecycleState.ts:189-190), discards its client and reconnects through useMultiplayerSession's reset-and-connect path (useMultiplayerSession.ts:241-277). Needs the 'src/hooks' ownership amendment. Red-first: a jest row per rendered class, and a collided session that stays blocked today. If over cap, the re-baseline becomes its own unit.",
+   "reviewClasses": [
+    "concurrency"
+   ],
+   "placeAfter": "U49",
+   "issueIds": [
+    "I-e2e77-conflict-classes-unreachable",
+    "I-e2e75-lifecycle-postures-unreachable",
+    "I-collided-client-stalls-match"
+   ]
+  },
+  {
+   "id": "U51",
+   "node": "R6.umbrella",
+   "ownershipPaths": [
+    "e2e",
+    "openspec/changes/harden-gm-two-player-campaign-sessions"
+   ],
+   "behavior": "Holds harden-gm-two-player-campaign-sessions#19.2@426, moved from PK-rewind-branch-reader. Adds conflict-pack and lifecycle-pack rows proven live on the journal-authority head. (1) E2E-77 stale-revision arm: the GM dashboard reads the launch head at hydration (CampaignDashboardPage.hooks.ts:217-245); a second writer commits through /api/campaigns/[id]/commands; the launch is then refused 409 STALE_REVISION with the active head and the resync action, and nothing leaks. (2) The stale-branch, stale-generation, rebuilding and GM_ONLY classes, each asserting class, head and recovery. (3) E2E-75 row C, driving the rebuilding (U49 lease hold), rewound (U45 producer) and reconnecting (U50) postures. (4) The tactical dock disables its commands and recovers, as 19.2 requires. Ticks 19.2 whole when every gate its letter names is green on main. Red-first: each row is authored strict and fails on its producer's parent commit.",
+   "reviewClasses": [
+    "authority",
+    "replay",
+    "concurrency"
+   ],
+   "placeAfter": "U29",
+   "issueIds": [
+    "I-19-2-command-gates",
+    "I-e2e77-conflict-classes-unreachable",
+    "I-campaign-stale-head-lever",
+    "I-umbrella-14x-22-3-ticks",
+    "I-e2e75-lifecycle-postures-unreachable"
+   ]
+  },
+  {
+   "id": "U52",
+   "node": "R6.umbrella",
+   "ownershipPaths": [
+    "e2e",
+    "openspec/changes/harden-gm-two-player-campaign-sessions"
+   ],
+   "behavior": "Holds harden-gm-two-player-campaign-sessions#22.2@575, moved from PK-rewind-branch-reader. Adds the failure-pack rows the register names as missing. E2E-64: fail-closed projection, using U49's viewer-projection fault. E2E-65: the GM goes silent for HEARTBEAT_TIMEOUT_MS plus one period; GM authority and progression pause and no player is promoted. E2E-68: quarantine on corruption, using U49's fixture. E2E-69: catch-up through the 1,000-event tail with bounded ReplayChunks. The stale-branch clause rides U45's wire. Ticks 22.2 whole once E2E-61..70 are all green on main. Red-first: each row fails on its producer's parent commit.",
+   "reviewClasses": [
+    "replay",
+    "concurrency"
+   ],
+   "placeAfter": "U51",
+   "issueIds": [
+    "I-22-2-e2e-61-70"
+   ]
+  },
+  {
+   "id": "U53",
+   "node": "R6.umbrella",
+   "ownershipPaths": [
+    "e2e",
+    "scripts/qc",
+    "openspec/changes/harden-gm-two-player-campaign-sessions"
+   ],
+   "behavior": "Test-only: brings the Strict Combat rows in line with the spec letters (specs/e2e-testing/spec.md:128-190). E2E-31: both seats command their own units. E2E-32: foreign-unit commands are refused in both directions, with the store head and receipt census unchanged. E2E-33: the same seeded barrier runs twice and the results are compared. E2E-35..39 are authored to their letters. After U38, E2E-31/32 are also re-proven on the co-op campaign fixture with the non-playing GM connected, which drops the versus-only workaround. No taskKeys: U54 ticks 21.3. If over cap, E2E-35..39 become a second unit.",
+   "reviewClasses": [
+    "concurrency",
+    "authority"
+   ],
+   "placeAfter": "U52",
+   "issueIds": [
+    "I-21-3-e2e-31-45",
+    "I-coop-per-unit-ownership"
+   ]
+  },
+  {
+   "id": "U54",
+   "node": "R6.umbrella",
+   "ownershipPaths": [
+    "e2e",
+    "openspec/changes/harden-gm-two-player-campaign-sessions"
+   ],
+   "behavior": "Holds harden-gm-two-player-campaign-sessions#17.1@387, #17.2@391 and #17.4@399 (from the retired DF-coordinated-correction), and #21.3@559 (from PK-rewind-branch-reader; the frozen anchor stays). Authors E2E-45 over U48's live door, with retry, reconnect and restart variants using the correction-exit-after-source and correction-exit-after-target-mint faults; this unit decides whether the e2e fault form needs process.exit. Ticks 17.1/17.2/17.4 when 'Coordinated Outcome Correction Supersedes Across Journals' and E2E-45 are green on main. Ticks 21.3 when E2E-31..45 and the GM-connection clause are green on main.",
+   "reviewClasses": [
+    "authority",
+    "replay"
+   ],
+   "placeAfter": "U31",
+   "issueIds": [
+    "I-coordinated-correction-replacement-events",
+    "I-21-3-e2e-31-45",
+    "I-e2e-fault-exit-not-wired"
+   ]
+  },
+  {
+   "id": "U55",
+   "node": "R6.umbrella",
+   "ownershipPaths": [
+    "e2e",
+    "scripts/qc",
+    "openspec/changes/harden-gm-two-player-campaign-sessions"
+   ],
+   "behavior": "Holds harden-gm-two-player-campaign-sessions#23.3@604, moved from PK-rewind-branch-reader. One sequential ten-scenario GM + two-player pack (e2e/gm-two-player-long-run.pack.spec.ts) with periodic player reconnects, a GM reconnect, one server restart, a correction, a pre-receipt rewind, a post-receipt coordinated correction and a checkpoint versus full-replay comparison. The boundary AdvanceDay waits for every participant. The pack records server RSS across the run against a stated bound, and rewrites the #41 owner text at tasks.md:518: MAX_VIEWER_UNACKED bounds unacked frames per viewer, not server memory. Ticks 23.3 whole when the run is green on main. If over cap, split the run from the tick.",
+   "reviewClasses": [
+    "replay",
+    "concurrency"
+   ],
+   "placeAfter": "U54",
+   "issueIds": [
+    "I-23-3-ten-scenario-run",
+    "I-long-log-memory-41"
+   ]
+  },
+  {
+   "id": "U56",
+   "node": "R2.authority-live",
+   "ownershipPaths": [
+    "src/lib/campaign",
+    "src/lib/multiplayer/server"
+   ],
+   "behavior": "Campaign live state is authoritative on attach and re-attach. A framing baseline (a CampaignSnapshotPublished with sequence < 0, built only at joinMember and at large-gap resync, CampaignSyncSession.ts:488, :578, :825-852) replaces the viewer's fold whatever cursor it holds, and is adopted at its own payload.revision (foldCampaignSnapshot and foldCampaignFrame in src/lib/campaign/coop/campaignAuthoritativeFold.ts). The host therefore sees approved co-op proposals without a reload. A detach deletes the participant key only when the key still points at its own set, so a stale detach cannot unregister a newer attachment; a test-only size accessor pins this. Red-first: today a host fold at a higher cursor ignores the baseline.",
+   "reviewClasses": [
+    "replay",
+    "concurrency"
+   ],
+   "placeAfter": "U34",
+   "issueIds": [
+    "I-host-view-staleness-and-ordering",
+    "I-host-f-r1-reconnect-fold-cursor",
+    "I-revocation-detach-open-questions"
+   ]
+  },
+  {
+   "id": "U57",
+   "node": "R6.umbrella",
+   "ownershipPaths": [
+    "openspec/changes/harden-gm-two-player-campaign-sessions",
+    "scripts/qc",
+    "scripts/__tests__",
+    "e2e"
+   ],
+   "behavior": "Holds harden-gm-two-player-campaign-sessions#25.1@633, moved out of DF-closure-rows. Its letter at tasks.md:638 is a gate sweep and never names CAMP-01H. Adds one fail-fast final-gates runner under scripts/qc. The runner implements the reserved traceability group (E2E-01..80 through U29's manifest) and the quality group, and runs 25.1's command list: focused Jest and Playwright, typecheck, lint, format:check, the four verify:qc multiplayer/coop/continuity/replay commands, and the complete GM/two-player command. implementation-plan.md's F3 is retired in favour of U55's automated run. Runs on the exact main merge reached after U22, U28, U29, U31, U34 and U51-U55, and ticks 25.1 whole. 25.4 (reconcile and archive) stays in DF-closure-rows until OD-camp01h-terminal is answered. Needs 'scripts/__tests__' added to R6.umbrella.",
+   "reviewClasses": [
+    "routine"
+   ],
+   "placeAfter": "U56",
+   "issueIds": [
+    "I-closure-rows-25-1",
+    "I-final-verification-wave-orphaned"
+   ]
+  }
+ ],
+ "ownerQuestions": [
+  {
+   "question": "Lane B for U19b: will you rule PR #1899 at head 70503ee7ccad2639df28b7687467af776590f7f1? The unit is local-verified, 31 checks are green and Lane A is done, but no ruling exists yet. Will you keep ruling each later sensitive-class unit head the same way?",
+   "recommendation": "Yes. Rule #1899's head now, so the parent can post 'OWNER-RULING 70503ee7ccad2639df28b7687467af776590f7f1' with disclosure and merge. Keep the chat-relay channel for every authority, privacy, migration, replay, idempotency or concurrency head as planned: U20-U28, U35, U38, U43-U56. GOAL.md:48 forbids self-approval, and OD-mvp-hard-cutover did not delegate Lane B.",
+   "issueIds": [
+    "I-lane-b-owner-ruling-process",
+    "I-genesis-branch-row-mirror-side-effect"
+   ]
+  },
+  {
+   "question": "OD-camp01h-terminal: CAMP-01H needs a second WRITE+ collaborator, a non-author approved review and three human witness sessions (roadmap.json:3533-3558). What is the program terminal? (a) Keep the gates and add a collaborator; (b) reduce the gate through openspec; or (c) end at the R6.umbrella close plus R9.close without the harden archive, holding 25.4 and R2.journey on a named owner gate.",
+   "recommendation": "(c) now, with (a) left open for later. No gate is reduced and no letter is narrowed. 25.1 moves to U57, because its letter (tasks.md:638) never names CAMP-01H. Only 25.4 (reconcile and archive) and R2.journey wait on this gate.",
+   "issueIds": [
+    "I-camp01h-three-witness-journey",
+    "I-closure-rows-25-1"
+   ]
+  },
+  {
+   "question": "How should the CAMP-00..01G receipt chain close on a one-collaborator repository? validate-roadmap.mjs:273 pins nonAuthor=true and soloException=false for R2.camp-0..8, so no agent can produce the controller or PR-provenanced tiers.",
+   "recommendation": "(b): through openspec, amend roster P.2 and the validator pin to accept a declared solo-maintainer exception, proved by a head-bound OWNER-RULING. In the same packet, pass CAMP01_NEXT_DIST_DIR through the controller env (OD-camp00-controller-env) and define an all-green terminal form for proof-02-triage (OD-proof02-empty-cause-graph). The three-witness gate stays owner-only.",
+   "issueIds": [
+    "I-camp-receipt-chain-owner-blocked"
+   ]
+  },
+  {
+   "question": "OB-2 (ownerDecisions[1], roadmap.json:14718+): the campaign CRUD routes (/api/campaigns, /api/campaigns/[id], /api/campaigns/[id]/adopt) have no authentication and no owner column. Close this as not-a-defect for the local single-user surface, or open identity work?",
+   "recommendation": "Close it as not-a-defect while the server binds to loopback for a single user. Open an identity and owner-column item, outside the 13 packages, before any hosted deployment. U22's 21.2 receipt carries the non-claim either way.",
+   "issueIds": [
+    "I-ob2-unauthenticated-campaign-routes"
+   ]
+  },
+  {
+   "question": "design-campaign 6.2b single-player seat (ownerDecisions[2]): should contract acceptance go through /commands only for co-op-hosted campaigns, or should a single-player principal be defined now?",
+   "recommendation": "(b): amend 6.2's letter through a spec delta so 6.2b covers co-op-host acceptance routing only. Single-player acceptance stays on the client apply with the 6.4 CAS bridge, recorded as a non-claim for a future identity item. This needs you because it narrows an admitted letter. PK-6-2b-single-player-seat, added by U42, holds 6.2-6.4 until you answer.",
+   "issueIds": [
+    "I-accept-contract-6-2-single-player-identity",
+    "I-post-admission-rows-unheld"
+   ]
+  },
+  {
+   "question": "Umbrella 12.1 (DF-shared-projection-contract) needs an owner act: either narrow its letter, or approve a slice. Do you approve one slice now?",
+   "recommendation": "Approve one R2.authority-live unit on 'src/lib/campaign', placed after U35. In it, both campaign projection arms use one exported baseline-law predicate: an imported, migration-authored CampaignSnapshotPublished (campaignAuthorityMigration.ts:193) never reaches a restricted viewer. The unit takes 12.1 from the retired deferral. The it.failing at campaignGenesisArmParity.test.ts:180 names the waived 5.2 migration states and is deleted under OD-mvp-hard-cutover. Without this, 12.1 waits for R6.B7 and R6.umbrella cannot close.",
+   "issueIds": [
+    "I-12-1-shared-projection-contract"
+   ]
+  },
+  {
+   "question": "D8 sequencing (ownerDecisions[0]): may the structurally independent R7/R8 prefixes start before R2.journey? They are the R7.versions pilot producer, the R7.provenance v2->v3 rung, and the R8.isometric picking inversion and preference persistence.",
+   "recommendation": "Yes, but only after R6.umbrella closes. Drop their R2.journey edges and amend design D8 through an openspec delta. R8.travel 2.3 and the opportunity halves stay behind the campaign journal cutover (U35).",
+   "issueIds": [
+    "I-vault-campaign-maps-and-d8"
+   ]
+  }
+ ],
+ "outsideProgram": [
+  "Root oxlint baseline of 84 warnings, which units.json:757 and :811 record as the ceiling: post-program maintenance (I-root-oxlint-warning-baseline).",
+  "oxlint 1.43.0 upstream defects (package.json:316): neutralised by the U14 per-path wrapper; an upstream matter only (I-oxlint-1-43-tool-defects).",
+  "oxfmt ignores openspec (.oxfmtignore:11) and scripts (:8): a separate tooling change (I-oxfmt-ignores-openspec).",
+  "Splitting Protocol.ts and client.ts under max-lines: post-program maintenance (I-protocol-client-max-lines).",
+  "DurableMatchStore.ts over max-lines: extraction is optional and only within the U23/U43/U44 caps (I-durable-match-store-max-lines).",
+  "Four test.fixme screenshot tests in e2e/audit-capture.spec.ts (:145, :319, :332, :347): a standalone cleanup PR (I-audit-capture-fixme).",
+  "Replay VCR control assertions (e2e/replay-player.spec.ts:442-477): a standalone e2e cleanup (I-replay-controls-skipped).",
+  "P2P multi-peer WebRTC harness: held by the R9.triage p2p-sync-system deferral (I-p2p-multi-peer-harness).",
+  "P2P mirror reconcile deletes and re-persists in separate steps (matchLogPrefix.ts:92-96); no node owns src/lib/p2p. Recorded as FN-p2p-mirror-reconcile-nonatomic (I-p2p-mirror-reconcile-nonatomic).",
+  "Terminal match-log archive write can double-fire (GameSessionPage.lifecycle.ts). Recorded as FN-match-log-persist-double-fire with its fix recipe (I-match-log-persist-double-fire).",
+  "Replica sync cannot verify the grant signature or pin the dial target. Recorded as FN-replica-sync-grant-unpinned for the R9.close handoff (I-replica-grant-signature-dial-target).",
+  "CAMP-01 Windows-only junction receipt cases never run in CI. The natural host is .github/workflows/camp01-live-adversarial.yml:21-35, but R1.ci and R2.receipts are closed. Recorded as FN-camp01-windows-only-receipt-cases-not-in-ci (I-camp01-windows-junction-tests-no-ci).",
+  "A lint:units step in pr-checks.yml: .github/workflows is owned only by the main-verified R1.ci, so it is recorded, not planned (I-lint-units-ratchet).",
+  "OB-2 identity and owner-column work, if the owner opens it: outside the 13 admitted packages (I-ob2-unauthenticated-campaign-routes)."
+ ],
+ "register": [
+  {
+   "issueId": "I-pending-intent-never-settles",
+   "title": "Lobby SetReady intent never settles; surfaces stick at pending",
+   "status": "resolved",
+   "severity": "low",
+   "path": "record-resolved",
+   "target": "U4 (#1802, 6fe884dd) + U31 rider",
+   "oneLine": "Fixed by U4: the client settles the intent on LobbyUpdated (client.ts:413-418). The ledger status at units.json:4032 is stale. U31 removes the reload workaround as the browser re-proof."
+  },
+  {
+   "issueId": "I-forfeit-error-frames-no-intentid",
+   "title": "handleForfeitMatch Error frames carry no intentId",
+   "status": "open",
+   "severity": "low",
+   "path": "new-unit",
+   "target": "U45",
+   "oneLine": "Forfeit INVALID_INTENT and STORE_FAILURE frames will carry envelope.intentId, as one clause of the R2.combat wire unit."
+  },
+  {
+   "issueId": "I-lobby-duplicates-reanswered",
+   "title": "Duplicated lobby intents re-answered instead of refused",
+   "status": "not-an-issue",
+   "severity": "info",
+   "path": "record-resolved",
+   "target": "FN-u4-lobby-duplicates-reanswered-not-refused",
+   "oneLine": "Re-answering a duplicated lobby intent is the designed idempotent reply, not a defect. Close the finding."
+  },
+  {
+   "issueId": "I-build-exit-junction-hydration",
+   "title": "npm run build exits 1 in junctioned worktrees; tail hides it",
+   "status": "not-an-issue",
+   "severity": "info",
+   "path": "record-resolved",
+   "target": "FN-u1c-build-exit-hidden-by-tail + WORKERS.md",
+   "oneLine": "The exit 1 is the hydration guard that release-build-system spec.md:59-68 requires. WORKERS.md gets a rule to record the build's exit code instead of piping it through tail."
+  },
+  {
+   "issueId": "I-oxlint-ignores-unit-paths",
+   "title": "oxlint ignore patterns make the lint gate vacuous for e2e, scripts, openspec, api and tests",
+   "status": "partially-resolved",
+   "severity": "low",
+   "path": "new-unit",
+   "target": "U40",
+   "oneLine": "lint:units widens DEFAULT_PATHS (lint-units.mjs:20) to src/pages/api and the src test files, with measured ceilings per path."
+  },
+  {
+   "issueId": "I-root-oxlint-warning-baseline",
+   "title": "Root oxlint carries 84 warnings of standing debt",
+   "status": "open",
+   "severity": "low",
+   "path": "outside-this-program",
+   "target": "none",
+   "oneLine": "The 84-warning baseline stays as a ceiling (units.json:757, :811). Any ratchet is post-program maintenance."
+  },
+  {
+   "issueId": "I-lint-units-ratchet",
+   "title": "lint:units ratchet at 100 findings: at its ceiling, count-only, not in CI",
+   "status": "open",
+   "severity": "low",
+   "path": "new-unit",
+   "target": "U40",
+   "oneLine": "lint:units will fail closed per path. The CI step is outside R6.loop-harness paths, so it is recorded but not claimed."
+  },
+  {
+   "issueId": "I-oxlint-1-43-tool-defects",
+   "title": "oxlint 1.43.0 tool defects (multi-path, override globs, panic)",
+   "status": "open",
+   "severity": "info",
+   "path": "outside-this-program",
+   "target": "none",
+   "oneLine": "Upstream defects. The U14 wrapper already builds one argv per path, which neutralises them."
+  },
+  {
+   "issueId": "I-oxfmt-ignores-openspec",
+   "title": "oxfmt ignores openspec/, so planning files are never format-checked",
+   "status": "open",
+   "severity": "low",
+   "path": "outside-this-program",
+   "target": "none",
+   "oneLine": ".oxfmtignore:11 excludes openspec. Format coverage for the planning scripts would be a separate tooling change."
+  },
+  {
+   "issueId": "I-oxfmt-unicode-escape-rewrite",
+   "title": "oxfmt rewrites \\u escapes into literal characters",
+   "status": "not-an-issue",
+   "severity": "info",
+   "path": "record-stale",
+   "target": "U39 rider",
+   "oneLine": "Does not reproduce on oxfmt 0.28.0. U39 corrects the false comment at validate-exact-main-regression-ladder.test.ts:49-50 while it edits that file."
+  },
+  {
+   "issueId": "I-e2e-15-resilience-fails",
+   "title": "E2E-15 resilience row failed on clean main (harness reconnect limit)",
+   "status": "resolved",
+   "severity": "info",
+   "path": "record-resolved",
+   "target": "U3 (#1797, e3fc54384)",
+   "oneLine": "Fixed by U3: both pages reload after setOffline(false) (resilience.pack.spec.ts:866-876)."
+  },
+  {
+   "issueId": "I-e2e77-conflict-classes-unreachable",
+   "title": "E2E-77 conflict classes with no live lever (GM_ONLY wire, rebuilding, base revision)",
+   "status": "open",
+   "severity": "high",
+   "path": "new-unit",
+   "target": "U46 (route head) + U50 (UI) + U51 (rows)",
+   "oneLine": "The class, refused-against head and recovery action get surfaced end to end. Whether the route bodies already carry the head is UNVERIFIED; U46 measures it at admission."
+  },
+  {
+   "issueId": "I-campaign-stale-head-lever",
+   "title": "Campaign stale-head class: client sends no expectedRevision; CAMPAIGN_STALE_HEAD is a lost race",
+   "status": "partially-resolved",
+   "severity": "high",
+   "path": "new-unit",
+   "target": "U51",
+   "oneLine": "The server half is fixed by U8 (f20f8d5f9). U51 adds the E2E-77 stale-revision arm through the launch-head client (CampaignDashboardPage.hooks.ts:217-245)."
+  },
+  {
+   "issueId": "I-campaign-conflict-409-contract",
+   "title": "Campaign 409 drops STALE_REVISION code; declaredFields never forwarded",
+   "status": "open",
+   "severity": "low",
+   "path": "record-finding",
+   "target": "FN-u8-conflict-result-drops-stale-revision-code (R2.multiplayer-client successor)",
+   "oneLine": "No umbrella row depends on it, because E2E-77 uses the launch route. Recorded as a finding with its fix recipe; no unit."
+  },
+  {
+   "issueId": "I-e2e-02-occupyseat-harness",
+   "title": "Authority-recovery drive never seated players (E2E-02)",
+   "status": "resolved",
+   "severity": "info",
+   "path": "record-resolved",
+   "target": "U3 (#1797)",
+   "oneLine": "Both players have been seated on main since e3fc54384. Only the ledger status is stale."
+  },
+  {
+   "issueId": "I-e2e-16-stale-reload-socket-count",
+   "title": "E2E-16 stale-reload socket-count assertion red (harness race)",
+   "status": "resolved",
+   "severity": "low",
+   "path": "record-resolved",
+   "target": "U6 (#1803, 4139f39e7)",
+   "oneLine": "The row waits for the guest to redial before asserting (token.pack.spec.ts:272-291)."
+  },
+  {
+   "issueId": "I-wait-for-relaunch-vacuous",
+   "title": "waitForRelaunch can pass vacuously",
+   "status": "open",
+   "severity": "medium",
+   "path": "fold-into-planned-unit",
+   "target": "U28",
+   "oneLine": "One shared waitForServerRelaunch proves the server died before waiting for it. It replaces gmTwoPlayerAuthorityRecovery.ts:137-151 and two private copies."
+  },
+  {
+   "issueId": "I-genesis-branch-row-mirror-side-effect",
+   "title": "Genesis branch row only written as a combat-mirror side effect",
+   "status": "open",
+   "severity": "high",
+   "path": "fold-into-planned-unit",
+   "target": "U19b",
+   "oneLine": "U19b installs the genesis row on a stream's first append (units.json:777). It needs only the owner's Lane B ruling and a merge; U19 is marked superseded."
+  },
+  {
+   "issueId": "I-21-1-tick-authority-group",
+   "title": "Row 21.1 held; re-prove the authority group without fixture switches",
+   "status": "open",
+   "severity": "high",
+   "path": "new-unit",
+   "target": "U35 then U28",
+   "oneLine": "Campaign hard flip on R2.authority-cutover (JournalCampaignEventStore.ts:84) lands before U28, so the E2E-01/02 genesis clauses can pass without the fixture arm."
+  },
+  {
+   "issueId": "I-npm-preinstall-after-reify",
+   "title": "npm 11.6.2 runs root preinstall after reify; junction pruning not prevented",
+   "status": "partially-resolved",
+   "severity": "low",
+   "path": "ledger-edit",
+   "target": "U12b + WORKERS.md",
+   "oneLine": "U12b (5917a6425) shipped the guard. Set FN-u12 (units.json:4155) and U12 to superseded, and write the guard convention into WORKERS.md."
+  },
+  {
+   "issueId": "I-u12b-guard-cli-refinements",
+   "title": "U12b guard CLI: reason-word rename, JSON tail, unused manifest fields, slow test",
+   "status": "not-an-issue",
+   "severity": "info",
+   "path": "no-action",
+   "target": "none",
+   "oneLine": "The guard stays as merged. Callers match only the first two tokens, INSTALL_REFUSED and the reason."
+  },
+  {
+   "issueId": "I-ladder-rerun-parser",
+   "title": "Exact-main ladder --rerun parser fragility",
+   "status": "partially-resolved",
+   "severity": "low",
+   "path": "new-unit",
+   "target": "U39",
+   "oneLine": "parseRunnerOutput (validate-exact-main-regression-ladder.mjs:184-206) fails closed on two or more summary blocks or a column-0 group line."
+  },
+  {
+   "issueId": "I-spec-by-group-not-exported",
+   "title": "SPEC_BY_GROUP not exported; the ladder contract cannot verify smoke contents",
+   "status": "open",
+   "severity": "low",
+   "path": "no-action",
+   "target": "none",
+   "oneLine": "Deliberate: the ladder checks groups (validate-exact-main-regression-ladder.mjs:14-19), and the jest pin checks the smoke spec list (gm-two-player-campaign-qc.test.ts:67-81)."
+  },
+  {
+   "issueId": "I-ladder-archive-gitignored",
+   "title": "Ladder rerun archive dir is gitignored; receipts never reach main",
+   "status": "partially-resolved",
+   "severity": "low",
+   "path": "fold-into-planned-unit",
+   "target": "U31",
+   "oneLine": "The E2E-80 half of 22.3 ticks only when the exact-main archive JSON is copied into evidence/, as #1816 did."
+  },
+  {
+   "issueId": "I-smoke-groups-never-run-on-main",
+   "title": "No main-proof has ever run smoke, fixture-smoke or membership-smoke",
+   "status": "partially-resolved",
+   "severity": "medium",
+   "path": "new-unit",
+   "target": "U39",
+   "oneLine": "The main-proof ladder gains an exact-main-ladder step that reruns the highest registered rung on the merge commit."
+  },
+  {
+   "issueId": "I-ci-enforcement-gaps",
+   "title": "E2E-80, the 'all' union, the roadmap validator and the nightly lane are not CI-enforced",
+   "status": "partially-resolved",
+   "severity": "medium",
+   "path": "fold-into-planned-unit",
+   "target": "U28",
+   "oneLine": "A /compendium/chassis route-proof entry stops Playwright collection from throwing (app-shell-route-proof.spec.ts:488-495), so the nightly lanes run again."
+  },
+  {
+   "issueId": "I-validator-reads-shape-not-content",
+   "title": "Roadmap validator and ladder read receipts, not runs or content",
+   "status": "open",
+   "severity": "low",
+   "path": "new-unit",
+   "target": "U41",
+   "oneLine": "In evidence mode, expectedReds must match runtime.failedRows one-to-one by E2E id."
+  },
+  {
+   "issueId": "I-proof-line-grammar-narrow",
+   "title": "The proof-line grammar rejects jest failure summaries; runtime field is inconsistent",
+   "status": "open",
+   "severity": "low",
+   "path": "new-unit",
+   "target": "U41",
+   "oneLine": "parseProofLine accepts jest red summaries and stops passing 'N passed (... K failed)'."
+  },
+  {
+   "issueId": "I-u3-expectedreds-duplicate",
+   "title": "units.json U3 mainProof holds a duplicate prose expectedReds",
+   "status": "open",
+   "severity": "info",
+   "path": "ledger-edit",
+   "target": "U3 mainProof",
+   "oneLine": "Delete the prose copy so U3's mainProof has the same shape the closure tool writes for every unit."
+  },
+  {
+   "issueId": "I-shared-helper-invalidates-main-proof",
+   "title": "Shared-helper edits invalidate earlier main proofs (U1b)",
+   "status": "partially-resolved",
+   "severity": "low",
+   "path": "record-resolved",
+   "target": "U1b + DELIVERY.md rule",
+   "oneLine": "The U1b instance is re-proven. DELIVERY.md gains a rule: a slice that edits a shared helper re-runs every group that imports it."
+  },
+  {
+   "issueId": "I-runtime-jest-cmd-windows",
+   "title": "--runtime-jest regex is parsed by cmd on Windows",
+   "status": "open",
+   "severity": "low",
+   "path": "new-unit",
+   "target": "U39",
+   "oneLine": "jest is spawned via process.execPath with no shell, so regex metacharacters reach it verbatim."
+  },
+  {
+   "issueId": "I-rewind-reason-transport",
+   "title": "GM correction reason dropped by transport and route (resolved by U5c/U5d)",
+   "status": "resolved",
+   "severity": "low",
+   "path": "new-unit",
+   "target": "U36 (residual input bound)",
+   "oneLine": "The transport is fixed. The residual: the reason input gets maxLength 2000 (NetworkedGameSurface.gmCorrection.tsx:147-157) to match the route (rewindCommitDeps.ts:75-78)."
+  },
+  {
+   "issueId": "I-private-write-not-atomic-with-rewind",
+   "title": "Post-activation private-record write is not atomic with the rewind commit",
+   "status": "open",
+   "severity": "medium",
+   "path": "new-unit",
+   "target": "U46",
+   "oneLine": "The commit checks the private-write authorization before activating, and writes the reason with the real command id inside the activation transaction."
+  },
+  {
+   "issueId": "I-stale-correction-producer-docblock",
+   "title": "Stale 'transport DROPS the field' docblock in useGmCorrectionProducers.ts",
+   "status": "open",
+   "severity": "low",
+   "path": "new-unit",
+   "target": "U36",
+   "oneLine": "Rewrite the stale header at useGmCorrectionProducers.ts:19-28, merged with I-ledger-text-drift."
+  },
+  {
+   "issueId": "I-preview-schema-accepts-empty-digest",
+   "title": "Rewind preview/commit route schemas accept an empty expectedDigest",
+   "status": "open",
+   "severity": "low",
+   "path": "new-unit",
+   "target": "U46",
+   "oneLine": "isPreviewBody (:41) and isRewindCommitBody (:73) accept only 64-character lowercase hex digests."
+  },
+  {
+   "issueId": "I-lobby-producers-head-and-digest",
+   "title": "Lobby correction producers named a fallback head and an empty digest (resolved U5e-U5i)",
+   "status": "resolved",
+   "severity": "low",
+   "path": "record-resolved",
+   "target": "U5e-U5i",
+   "oneLine": "Resolved on main. Close FN-u2b-lobby-producers-name-a-fallback-head."
+  },
+  {
+   "issueId": "I-lineage-revision-lags-journal-tip",
+   "title": "Lineage revision pinned to branch cutoff; head route edge cases",
+   "status": "partially-resolved",
+   "severity": "low",
+   "path": "fold-into-planned-unit",
+   "target": "U21",
+   "oneLine": "Viewer lineage reads the same journal head as GET /head (ViewerHistoryLineage.ts:133-135). Split out if U21 exceeds the cap."
+  },
+  {
+   "issueId": "I-rewind-commit-match-store-reader",
+   "title": "Rewind commit/preview verify through the match-store segment reader (E2E-25 409)",
+   "status": "open",
+   "severity": "high",
+   "path": "fold-into-planned-unit",
+   "target": "U21",
+   "oneLine": "The journal-backed reader replaces matchStoreBranchSegmentReader at rewindCommitDeps.ts:133, rewind-preview.ts:207 and ServerMatchHostRewindRebuild.ts:93-94."
+  },
+  {
+   "issueId": "I-rewind-branch-reader-decision",
+   "title": "Rewind fold unreachable for match streams (OD-rewind-branch-reader)",
+   "status": "partially-resolved",
+   "severity": "low",
+   "path": "record-resolved",
+   "target": "U10 (#1849) + packet key moves",
+   "oneLine": "U10 delivered it. The packet's five rows move to row-bearing holders: 16.2 to the deferral, 19.2 to U51, 21.3 to U54, 22.2 to U52, 23.3 to U55."
+  },
+  {
+   "issueId": "I-u10-reader-test-and-message",
+   "title": "U10 reader: weak prefix-law test and changed refusal text",
+   "status": "not-an-issue",
+   "severity": "info",
+   "path": "fold-into-planned-unit",
+   "target": "U21",
+   "oneLine": "U10's reader is fine. U21's new reader gets its own red-first prefix-law row."
+  },
+  {
+   "issueId": "I-stale-not-wired-comments",
+   "title": "Source comments claim 'not wired' or 'owed' for things main already does",
+   "status": "open",
+   "severity": "low",
+   "path": "new-unit",
+   "target": "U24 (flip-falsified) + U44 (rest)",
+   "oneLine": "U24 rewrites the comments its flip makes false. U44 sweeps the remaining ones, for example MatchRecoveryJournalHead.ts:15-29."
+  },
+  {
+   "issueId": "I-charter-citation-drift",
+   "title": "Charter premises and finding citations drift from the code",
+   "status": "resolved",
+   "severity": "info",
+   "path": "record-resolved",
+   "target": "none",
+   "oneLine": "Resolved. The cosmetic NOTE at tasks.md:496 is not folded into U28, which removes the critic's contradiction."
+  },
+  {
+   "issueId": "I-e2e-25-and-21-2-tick",
+   "title": "E2E-25 gated; row 21.2 held until it passes (U2/U2b superseded by U22)",
+   "status": "open",
+   "severity": "high",
+   "path": "fold-into-planned-unit",
+   "target": "U22",
+   "oneLine": "After U21, U22 ungates E2E-25 and ticks 21.2. U2 is marked superseded, and PK-privacy-21-2-tick closes at the tick."
+  },
+  {
+   "issueId": "I-privacy-evidence-plan-unknowns",
+   "title": "E2E-19/25 evidence plan unknowns (fixture shape, private-record ref, whole-body check)",
+   "status": "partially-resolved",
+   "severity": "low",
+   "path": "fold-into-planned-unit",
+   "target": "U22",
+   "oneLine": "U22 runs the whole privacy pack red before U21 and green after, measuring the private_record discovery path (spec:378-398)."
+  },
+  {
+   "issueId": "I-runner-inherited-hostname",
+   "title": "server.js refuses the inherited HOSTNAME",
+   "status": "open",
+   "severity": "low",
+   "path": "new-unit",
+   "target": "U40",
+   "oneLine": "buildRunPlan pins HOSTNAME=127.0.0.1 for every run."
+  },
+  {
+   "issueId": "I-runner-prints-no-server-pid",
+   "title": "run-gm-two-player-campaign.mjs prints the port but no server PID",
+   "status": "open",
+   "severity": "low",
+   "path": "new-unit",
+   "target": "U40",
+   "oneLine": "runPlan prints the PID that owns the port, using machine-idle's snapshot (machine-idle.mjs:157)."
+  },
+  {
+   "issueId": "I-gated-row-absorbs-failures",
+   "title": "A test.fail-gated row absorbs unrelated failures",
+   "status": "open",
+   "severity": "low",
+   "path": "fold-into-planned-unit",
+   "target": "U22 + U25",
+   "oneLine": "Ungating diffs remove only the test.fail and gate text, with the assertion body byte-identical and the unexpected-pass receipt recorded first."
+  },
+  {
+   "issueId": "I-umbrella-acceptance-option-b",
+   "title": "Umbrella acceptance unsatisfiable; amend via openspec (option b) plus the 80-scenario reconcile",
+   "status": "open",
+   "severity": "high",
+   "path": "fold-into-planned-unit",
+   "target": "U29",
+   "oneLine": "U29 lands the option-(b) delta, the manifest and its pin. U29 and R6.umbrella gain 'scripts/__tests__' for the pin."
+  },
+  {
+   "issueId": "I-ob2-unauthenticated-campaign-routes",
+   "title": "Campaign REST routes have no authentication or owner column (OB-2)",
+   "status": "open",
+   "severity": "low",
+   "path": "owner-decision",
+   "target": "ownerDecisions[1]",
+   "oneLine": "The owner either closes it as not-a-defect for loopback single-user use or opens identity work. U22's receipt carries the non-claim meanwhile."
+  },
+  {
+   "issueId": "I-accept-contract-6-2-single-player-identity",
+   "title": "acceptContractOffer 6.2/6.3/6.4: client half missing, 6.2b blocked on single-player identity",
+   "status": "open",
+   "severity": "low",
+   "path": "owner-decision",
+   "target": "ownerDecisions[2] / PK-6-2b-single-player-seat (via U42)",
+   "oneLine": "These are open post-admission rows of an admitted package, not outside the program. U42 makes them visible; recommend co-op-host-only scope."
+  },
+  {
+   "issueId": "I-camp-receipt-chain-owner-blocked",
+   "title": "CAMP-00..01G receipt chain is command-level only; review gate owner-blocked",
+   "status": "partially-resolved",
+   "severity": "medium",
+   "path": "owner-decision",
+   "target": "PK-camp-review-gate",
+   "oneLine": "The nonAuthor=true pin (validate-roadmap.mjs:273) cannot be met on a one-collaborator repo. Recommend a solo-maintainer exception proved by an OWNER-RULING."
+  },
+  {
+   "issueId": "I-camp01h-three-witness-journey",
+   "title": "CAMP-01H three-witness journey and R2.journey closure unattempted",
+   "status": "open",
+   "severity": "high",
+   "path": "owner-decision",
+   "target": "OD-camp01h-terminal",
+   "oneLine": "Recommend ending at the R6.umbrella close plus R9.close without the archive; 25.4 and R2.journey stay held on a named owner gate."
+  },
+  {
+   "issueId": "I-publication-single-pr-record",
+   "title": "OD-publication-single-pr entry has no decision/answer field",
+   "status": "open",
+   "severity": "low",
+   "path": "ledger-edit",
+   "target": "roadmap.json:14835",
+   "oneLine": "Give the entry the decided-entry shape, citing #1776 (b668d659a)."
+  },
+  {
+   "issueId": "I-campaign-flush-navigation-gap",
+   "title": "Campaign pagehide flush drops keepalive on navigation (OD-flush-mechanism)",
+   "status": "partially-resolved",
+   "severity": "low",
+   "path": "ledger-edit",
+   "target": "OD-flush-mechanism + U42",
+   "oneLine": "Record the gap as a non-claim. Row 1.6 is held by U42 and ticks only if its letter names no navigation scenario (UNVERIFIED)."
+  },
+  {
+   "issueId": "I-mirror-failure-fails-command",
+   "title": "Mirror write failure never fails the command; process-wide shadow fallback",
+   "status": "open",
+   "severity": "high",
+   "path": "fold-into-planned-unit",
+   "target": "U23",
+   "oneLine": "Every non-success mirror result fails the command closed with STORE_FAILURE, the retry heals, and the process-wide counter no longer gates admission."
+  },
+  {
+   "issueId": "I-combat-journal-mode-flip",
+   "title": "COMBAT_JOURNAL_AUTHORITY_MODE hardcoded off; the flip and task 1.7 amendment are owed",
+   "status": "open",
+   "severity": "high",
+   "path": "fold-into-planned-unit",
+   "target": "U24",
+   "oneLine": "The flag is still 'off' at matchJournalAuthority.ts:20-21. U24 flips it; its text is corrected to name U19b and drop the claimed holds."
+  },
+  {
+   "issueId": "I-s7d-legacy-inert-mechanism",
+   "title": "S7-d migration state and legacy marker residue (moot under hard cutover)",
+   "status": "partially-resolved",
+   "severity": "medium",
+   "path": "new-unit",
+   "target": "U44",
+   "oneLine": "An unreadable head is refused typed with no legacy fallback (ServerMatchHost.ts:1457-1466). The S7-d state and the R4.S3 OQ-2 residue are deleted."
+  },
+  {
+   "issueId": "I-adopt-seam-carried-residuals",
+   "title": "Adopt S4-S7 carried residuals and open questions",
+   "status": "partially-resolved",
+   "severity": "medium",
+   "path": "fold-into-planned-unit",
+   "target": "U23",
+   "oneLine": "Identical replays heal the journal. A divergent same-id batch fails closed, so duplicateIsSuccess is dropped."
+  },
+  {
+   "issueId": "I-rewind-pack-rows-gated",
+   "title": "Rewind-pack E2E-40..44 and E2E-76 are strict test.fail @until-journal-cutover",
+   "status": "open",
+   "severity": "high",
+   "path": "fold-into-planned-unit",
+   "target": "U25",
+   "oneLine": "rewindCas (gmTwoPlayerRewind.ts:99-111) reads GET /head. E2E-41 depends on U45 and E2E-43 on U37."
+  },
+  {
+   "issueId": "I-per-viewer-fog-rebuild",
+   "title": "Rewind preview and commit refuse fogged matches",
+   "status": "open",
+   "severity": "high",
+   "path": "fold-into-planned-unit",
+   "target": "U26",
+   "oneLine": "Real fog at both heads removes fog-preview-unsupported (rewind-preview.ts:175-183, rewind-commit.ts:171-179)."
+  },
+  {
+   "issueId": "I-restart-pack-rewound-match",
+   "title": "Adopt 1.4: restart pack against a rewound match not proven",
+   "status": "open",
+   "severity": "medium",
+   "path": "fold-into-planned-unit",
+   "target": "U27",
+   "oneLine": "The effective branch id from GET /head is unchanged across a restart of a rewound match."
+  },
+  {
+   "issueId": "I-adopt-rewind-ticks",
+   "title": "Adopt tasks 2.1-2.4, 3.1 and 3.3 open (rewind SHALLs and verification)",
+   "status": "open",
+   "severity": "high",
+   "path": "new-unit",
+   "target": "U47 + U46, ticked by U30",
+   "oneLine": "Adopt 2.1 needs server-authored correction facts (U47) and the reason inside activation (U46) before U30 can tick it."
+  },
+  {
+   "issueId": "I-umbrella-14x-22-3-ticks",
+   "title": "Umbrella 14.1, 14.2, 14.4, 14.5 and 22.3 blocked on the journal cutover",
+   "status": "open",
+   "severity": "high",
+   "path": "fold-into-planned-unit",
+   "target": "U31 + U51 + U49",
+   "oneLine": "22.3 ticks only when every one of E2E-71..80 is proven. The rows come from U51 and the lease-hold seam from U49."
+  },
+  {
+   "issueId": "I-coordinated-correction-replacement-events",
+   "title": "Coordinated post-receipt correction and replacement events unbuilt (deferred to R4.rewind)",
+   "status": "open",
+   "severity": "high",
+   "path": "new-unit",
+   "target": "U48 door + U54 proof",
+   "oneLine": "The saga modules (CoordinatedOutcomeCorrectionRun.ts:117) get a live door. U54 holds 17.x after DF-coordinated-correction is retired."
+  },
+  {
+   "issueId": "I-campaign-time-cascade-16x",
+   "title": "Campaign time cascade and retroactive rebuild (16.1-16.5) open; deferred to R6.B7",
+   "status": "open",
+   "severity": "medium",
+   "path": "defer-to-node",
+   "target": "DF-branch-and-time-cascade -> R6.B7",
+   "oneLine": "16.2 moves into the deferral from the packet. The reason's false claim of an R6.umbrella dependency on R6.B7 is corrected."
+  },
+  {
+   "issueId": "I-18-1-branch-timeline-rendering",
+   "title": "18.1 branch timeline rendering not mounted (deferred to R6.B7)",
+   "status": "open",
+   "severity": "medium",
+   "path": "defer-to-node",
+   "target": "DF-branch-and-time-cascade -> R6.B7",
+   "oneLine": "Stays deferred; its delivery clauses are recorded for R6.B7 admission."
+  },
+  {
+   "issueId": "I-22-1-e2e-46-60",
+   "title": "22.1 E2E-46..60 time-cascade rows open (deferred to R6.B7)",
+   "status": "open",
+   "severity": "low",
+   "path": "defer-to-node",
+   "target": "DF-branch-and-time-cascade (listed in U29 manifest)",
+   "oneLine": "The critic is upheld: the deferral stays the single holder, and U29 only lists the ids."
+  },
+  {
+   "issueId": "I-2-3-adapter-operations",
+   "title": "Umbrella 2.3 adapter operations and schema residuals open (deferred to R6.B7)",
+   "status": "partially-resolved",
+   "severity": "low",
+   "path": "defer-to-node",
+   "target": "DF-branch-and-time-cascade",
+   "oneLine": "The letter at tasks.md:32 includes campaign-adapter branch activation, which is R6.B7 work. It is not moved to U31."
+  },
+  {
+   "issueId": "I-12-1-shared-projection-contract",
+   "title": "12.1 shared pre-serialization projector across surfaces (deferred to R6.B7)",
+   "status": "partially-resolved",
+   "severity": "medium",
+   "path": "owner-decision",
+   "target": "DF-shared-projection-contract",
+   "oneLine": "This needs an owner act. Recommend approving a slice with one baseline-law predicate on R2.authority-live after U35."
+  },
+  {
+   "issueId": "I-activation-receipt-halves",
+   "title": "Branches 2.4-2.7 halves wait on cross-stream effect receipts (deferred to R6.B4)",
+   "status": "open",
+   "severity": "low",
+   "path": "defer-to-node",
+   "target": "DF-activation-receipt-halves -> R6.B4",
+   "oneLine": "The existing deferral is correct; the halves wait on R5.E10."
+  },
+  {
+   "issueId": "I-cross-stream-effect-receipts-chain",
+   "title": "add-cross-stream-effect-receipts entirely open (R5.E1-E10 gated)",
+   "status": "open",
+   "severity": "medium",
+   "path": "defer-to-node",
+   "target": "R5.E1 admission",
+   "oneLine": "The package is not activated. The 0.2 seam re-review drops the shadow and rollback clauses under OD-mvp-hard-cutover."
+  },
+  {
+   "issueId": "I-adopt-rows-seam-receipts-deferral",
+   "title": "Adopt rows 1.2, 1.3, 1.5 and 1.6 held under R4.S7 for activation",
+   "status": "not-an-issue",
+   "severity": "info",
+   "path": "ledger-edit",
+   "target": "U24 behaviour text",
+   "oneLine": "The deferral is correct. U24's text wrongly claims to hold these rows and names U19, so fix it."
+  },
+  {
+   "issueId": "I-closure-rows-25-1",
+   "title": "Umbrella 25.1 full gate sweep and 25.4 reconcile deferred to R2.journey",
+   "status": "open",
+   "severity": "high",
+   "path": "new-unit",
+   "target": "U57 (25.1); 25.4 stays in DF-closure-rows",
+   "oneLine": "25.1's letter (tasks.md:638) never names CAMP-01H, so it moves to U57 with a single holder. 25.4 waits on the owner."
+  },
+  {
+   "issueId": "I-branches-pr-closeout-process",
+   "title": "Branches 0.2, 1.5, 1.6 and 2.7: review, rerun and prune owed",
+   "status": "partially-resolved",
+   "severity": "low",
+   "path": "defer-to-node",
+   "target": "R3.storage closeout (FN-branches-closeout-owed)",
+   "oneLine": "Docs and evidence closeout, due once U19b merges and the package activates. Recorded; no unit now."
+  },
+  {
+   "issueId": "I-branches-carried-findings",
+   "title": "Branches findings: expected-head wire, underivable artifact kinds, checkpoint compatibility, production seam",
+   "status": "partially-resolved",
+   "severity": "high",
+   "path": "new-unit",
+   "target": "U45",
+   "oneLine": "Expected-head fields on Intent (Protocol.ts:425-432) make STALE_BRANCH answerable on the socket, which E2E-41 and 14.2 need."
+  },
+  {
+   "issueId": "I-branches-pr3-7-open",
+   "title": "Branches PR 3-7 sections open (combat rewind, campaign replacement, saga, UX, rollback)",
+   "status": "open",
+   "severity": "low",
+   "path": "record-stale",
+   "target": "none",
+   "oneLine": "The package stays unactivated. Its rows stay on R3.combat and R6.B4-R6.B7 and are listed at handoff."
+  },
+  {
+   "issueId": "I-branches-simulation-deferred",
+   "title": "Player-authored simulation branches deferred (8.x)",
+   "status": "not-an-issue",
+   "severity": "info",
+   "path": "record-resolved",
+   "target": "R6.deferrals",
+   "oneLine": "Future-only restrictions held by R6.deferrals. Ticking them would contradict proposal.md:19."
+  },
+  {
+   "issueId": "I-campaign-journal-flag-flip",
+   "title": "CAMPAIGN_JOURNAL_AUTHORITY_ENABLED hardcoded false; client not rewired",
+   "status": "open",
+   "severity": "medium",
+   "path": "new-unit",
+   "target": "U35",
+   "oneLine": "Conflict resolved in favour of I-21-1: the owning slice flips the flag (GOAL.md:49), not U29. The D10 PUT divergence is gated inside U35."
+  },
+  {
+   "issueId": "I-campaign-migration-machinery-removable",
+   "title": "Campaign legacy adoption, snapshot backfill and migration/shadow-parity machinery",
+   "status": "open",
+   "severity": "low",
+   "path": "no-action",
+   "target": "FN-cutover-cli-ungated (post-U35 retirement option)",
+   "oneLine": "OD-mvp-hard-cutover permits the deletion, but the goal does not need it."
+  },
+  {
+   "issueId": "I-host-view-staleness-and-ordering",
+   "title": "Host does not see approved co-op proposals until reload; refresh-vs-fold ordering undecided",
+   "status": "partially-resolved",
+   "severity": "low",
+   "path": "new-unit",
+   "target": "U56",
+   "oneLine": "A framing baseline replaces the viewer's fold whatever cursor it holds (merged with I-host-f-r1)."
+  },
+  {
+   "issueId": "I-campaign-launch-head-answer",
+   "title": "Campaign launch head answers no-authoritative-stream for journaled campaigns",
+   "status": "open",
+   "severity": "high",
+   "path": "fold-into-planned-unit",
+   "target": "U20",
+   "oneLine": "U20 answers the journal head for every journaled campaign. Its text names U19b."
+  },
+  {
+   "issueId": "I-campaign-sync-ui-transport-nonclaims",
+   "title": "Campaign sync/share/replica non-claims (UI, redeem, cursors, F-LIVE-2)",
+   "status": "partially-resolved",
+   "severity": "low",
+   "path": "record-finding",
+   "target": "FN-campaign-sync-post-flip-residuals",
+   "oneLine": "These remain recorded residuals after the flip; U35's receipt names them as non-claims."
+  },
+  {
+   "issueId": "I-fundschanged-balance-inference",
+   "title": "In-scope FundsChanged absolute balance leaks GM-only spending",
+   "status": "open",
+   "severity": "low",
+   "path": "new-unit",
+   "target": "U35",
+   "oneLine": "Folded into the flip as a correctness gate: FundsChanged refuses any non-campaign scope (campaignEventScope.ts:47-52)."
+  },
+  {
+   "issueId": "I-coop-dual-writer-409-storm",
+   "title": "Co-op dual-writer campaign PUT 409 storm",
+   "status": "resolved",
+   "severity": "low",
+   "path": "record-resolved",
+   "target": "#1543 (a947a9c42)",
+   "oneLine": "Fixed at useCampaignPersistenceStore.ts:820-846 and :1382-1384. Close the stale residual note."
+  },
+  {
+   "issueId": "I-replica-grant-signature-dial-target",
+   "title": "Replica-sync cannot verify the grant signature or pin the dial target",
+   "status": "open",
+   "severity": "low",
+   "path": "outside-this-program",
+   "target": "FN-replica-sync-grant-unpinned",
+   "oneLine": "Recorded as a successor for the R9.close handoff; no unit."
+  },
+  {
+   "issueId": "I-scopeless-socket-tokens",
+   "title": "Scopeless tokens still accepted on sockets",
+   "status": "open",
+   "severity": "low",
+   "path": "fold-into-planned-unit",
+   "target": "U29",
+   "oneLine": "An ERRATA under 6.3 withdraws the scoped-token claim: token.ts:153 mints no scope, and auth.ts:233-247 admits scopeless tokens."
+  },
+  {
+   "issueId": "I-coop-per-unit-ownership",
+   "title": "Co-op per-unit ownership not enforced",
+   "status": "open",
+   "severity": "high",
+   "path": "new-unit",
+   "target": "U38 guard + U53 re-proof",
+   "oneLine": "Delete the blanket co-op exemption at ServerMatchHostIntent.ts:552. E2E-31/32 are re-proven on the co-op fixture."
+  },
+  {
+   "issueId": "I-replay-path-contiguity",
+   "title": "Replay-path buffering has no contiguity check; cold reload gets a full replay",
+   "status": "resolved",
+   "severity": "info",
+   "path": "record-resolved",
+   "target": "none",
+   "oneLine": "The replay path already uses the same delivery-number admission as live frames on a9244fcad."
+  },
+  {
+   "issueId": "I-event-sequence-on-player-frames",
+   "title": "Player EventMessageSchema still admits event.sequence (it.failing)",
+   "status": "open",
+   "severity": "low",
+   "path": "new-unit",
+   "target": "U45",
+   "oneLine": "Not U23: Protocol.ts:715-719 belongs to R2.combat. The decision is recorded that the projection boundary enforces absence (ViewerFrameProjector.ts:66-70)."
+  },
+  {
+   "issueId": "I-campaign-door-concurrency",
+   "title": "Salvage and roster doors not idempotent; exclusion is in-process only",
+   "status": "partially-resolved",
+   "severity": "low",
+   "path": "record-finding",
+   "target": "FN-campaign-door-command-identity",
+   "oneLine": "In-process exclusion covers the single-process MVP. The command-identity recipe is recorded; no unit."
+  },
+  {
+   "issueId": "I-event-at-a-time-host-path",
+   "title": "Event-at-a-time host path is not atomic and accepts non-contiguous sequences",
+   "status": "resolved",
+   "severity": "low",
+   "path": "record-resolved",
+   "target": "#1480 (919d38f15); comment in U44",
+   "oneLine": "Fixed by appendCommandBatch on both stores. Record it against #1480, not U24; the stale note rides U44."
+  },
+  {
+   "issueId": "I-8-3-audit-feed-nonclaims",
+   "title": "8.3 audit feed: no UI reader, FIFO still read, no solo backfill",
+   "status": "partially-resolved",
+   "severity": "low",
+   "path": "record-resolved",
+   "target": "none",
+   "oneLine": "Row 8.3 is closed. The remaining gaps are within spec or held by other rows."
+  },
+  {
+   "issueId": "I-harden-historical-closed-box-notes",
+   "title": "Historical 'still open' notes on checked umbrella boxes",
+   "status": "stale-or-moot",
+   "severity": "low",
+   "path": "record-stale",
+   "target": "none",
+   "oneLine": "The ERRATA under 9.1, 9.4 and 10.3 are history, not open work. Nothing is folded."
+  },
+  {
+   "issueId": "I-19-2-command-gates",
+   "title": "19.2 tactical command gates (rebuild, stale branch, blocked recovery) not reachable live",
+   "status": "partially-resolved",
+   "severity": "medium",
+   "path": "new-unit",
+   "target": "U51 (holds 19.2) + U36 precondition",
+   "oneLine": "19.2 moves from the packet to U51. U36 first removes the dead campaign GM controls."
+  },
+  {
+   "issueId": "I-e2e75-lifecycle-postures-unreachable",
+   "title": "E2E-75 postures: reconnecting, rewound and rebuilding never render",
+   "status": "partially-resolved",
+   "severity": "high",
+   "path": "new-unit",
+   "target": "U45 + U49 + U50 + U51",
+   "oneLine": "R2.combat owns Protocol.ts and src/lib/multiplayer/tacticalLifecycleState.ts, which resolves the critic's ownership concern. Row C is authored in U51."
+  },
+  {
+   "issueId": "I-e2e14-buffered-amount",
+   "title": "E2E-14 browser row open (bufferedAmount volume)",
+   "status": "resolved",
+   "severity": "low",
+   "path": "record-resolved",
+   "target": "#1591/#1600",
+   "oneLine": "Closed by MAX_VIEWER_UNACKED and the strict row at resilience.pack.spec.ts:590. Record it against those PRs, not U28."
+  },
+  {
+   "issueId": "I-long-log-memory-41",
+   "title": "The 800-command log grows the server to ~851 MB RSS, ungated (#41)",
+   "status": "open",
+   "severity": "low",
+   "path": "fold-into-planned-unit",
+   "target": "U55",
+   "oneLine": "Paired with the ten-scenario run, as the critic recommends: it measures RSS against a bound and fixes the owner text at tasks.md:518."
+  },
+  {
+   "issueId": "I-e2e06-respawn-reconnect",
+   "title": "Whether automatic reconnect outlasts a process respawn is open (E2E-06/15)",
+   "status": "stale-or-moot",
+   "severity": "low",
+   "path": "record-stale",
+   "target": "none",
+   "oneLine": "No SHALL requires reconnect to outlast a respawn (e2e-testing spec.md:26-28, :62-64). Not folded into U28."
+  },
+  {
+   "issueId": "I-21-3-e2e-31-45",
+   "title": "21.3 E2E-31..45: only 31, 32 and 34 proven",
+   "status": "open",
+   "severity": "high",
+   "path": "new-unit",
+   "target": "U53 rows + U54 tick",
+   "oneLine": "Rows are aligned to the spec letters. 21.3 moves to U54 with its frozen anchor @559."
+  },
+  {
+   "issueId": "I-22-2-e2e-61-70",
+   "title": "22.2 E2E-61..70 partially carried",
+   "status": "partially-resolved",
+   "severity": "high",
+   "path": "new-unit",
+   "target": "U49 seams + U52",
+   "oneLine": "The fault seams come from U49. U52 adds the missing rows and ticks 22.2, moved from the packet."
+  },
+  {
+   "issueId": "I-23-3-ten-scenario-run",
+   "title": "23.3 ten-scenario long campaign run not started",
+   "status": "open",
+   "severity": "high",
+   "path": "new-unit",
+   "target": "U55",
+   "oneLine": "The letter (tasks.md:612) needs coordinated correction (U48/U54), not R6.B7. 23.3 moves to U55."
+  },
+  {
+   "issueId": "I-evidence-secret-scan-json-escaped",
+   "title": "The evidence bundle secret scan misses JSON-escaped credentials",
+   "status": "open",
+   "severity": "medium",
+   "path": "new-unit",
+   "target": "U49 capture + U31",
+   "oneLine": "U49 adds a pre-serialization capture at ServerMatchBroadcaster.ts:168. U31 widens the scan to de-escaped bodies."
+  },
+  {
+   "issueId": "I-lane-b-owner-ruling-process",
+   "title": "Lane B owner rulings outstanding; packet and ruling-channel process",
+   "status": "partially-resolved",
+   "severity": "medium",
+   "path": "owner-decision",
+   "target": "owner ruling + U41 check",
+   "oneLine": "Lane B stays an owner act (GOAL.md:48). U41 makes a missing ruling packet fail the validator. The owner should rule U19b's head now."
+  },
+  {
+   "issueId": "I-receipts-absolute-machine-paths",
+   "title": "Evidence receipts embed absolute machine-local paths and the username",
+   "status": "not-an-issue",
+   "severity": "info",
+   "path": "no-action",
+   "target": "none",
+   "oneLine": "GOAL.md:58 and DELIVERY.md:28 require these paths."
+  },
+  {
+   "issueId": "I-review-verification-boundaries",
+   "title": "Lane A reviewers did not independently re-run some gates or mutants",
+   "status": "partially-resolved",
+   "severity": "low",
+   "path": "ledger-edit",
+   "target": "WORKERS.md",
+   "oneLine": "The Lane A definition (:97) gets the two-mutant minimum from :87."
+  },
+  {
+   "issueId": "I-receipt-counts-stale",
+   "title": "Receipt line counts, dates and sub-objects stale relative to final commits",
+   "status": "open",
+   "severity": "low",
+   "path": "no-action",
+   "target": "none",
+   "oneLine": "These are point-in-time receipts. The Lane A files hold the re-measured numbers."
+  },
+  {
+   "issueId": "I-unit-line-cap-definition",
+   "title": "Unit 500-line cap: undefined counting rule and repeated overages",
+   "status": "open",
+   "severity": "low",
+   "path": "new-unit",
+   "target": "U41",
+   "oneLine": "One counting rule (numstat added lines, evidence/ excluded) is written into GOAL.md:56 and DELIVERY.md:8 and enforced."
+  },
+  {
+   "issueId": "I-ownership-paths-gaps",
+   "title": "Paths owned by no node or outside unit ownership (Protocol.ts, playwright.config, tests, src/lib)",
+   "status": "partially-resolved",
+   "severity": "medium",
+   "path": "new-unit",
+   "target": "U41 + ownership amendment",
+   "oneLine": "The validator will refuse out-of-path merge diffs. The ledger adds the ownership strings that R2.multiplayer-client and R6.umbrella need."
+  },
+  {
+   "issueId": "I-ledger-text-drift",
+   "title": "Ledger and receipt text contradicts the code or itself",
+   "status": "partially-resolved",
+   "severity": "low",
+   "path": "new-unit",
+   "target": "U36",
+   "oneLine": "Merged with the docblock issue into one comment rewrite in U36."
+  },
+  {
+   "issueId": "I-machine-idle-classifier",
+   "title": "machine-idle classifier heuristics",
+   "status": "open",
+   "severity": "low",
+   "path": "no-action",
+   "target": "none",
+   "oneLine": "The heuristics err toward busy except for node -e. The fix recipe is recorded."
+  },
+  {
+   "issueId": "I-preserve-run-logs-gaps",
+   "title": "preserve-run-logs helper gaps (junction ancestors, cross-drive, removal check, POSIX gitignore)",
+   "status": "open",
+   "severity": "low",
+   "path": "record-finding",
+   "target": "FN-preserve-run-logs-removal-guard (R6.loop-harness close)",
+   "oneLine": "Nothing scripted calls the removal half yet. The fail-closed guard is recorded for the first caller."
+  },
+  {
+   "issueId": "I-loop-harness-u17-misc",
+   "title": "Loop-harness closure/fold/park generator follow-ups",
+   "status": "partially-resolved",
+   "severity": "low",
+   "path": "new-unit",
+   "target": "U39",
+   "oneLine": "Fold failures print status, stderr and stdout (roadmap-loop-closure-proof.test.ts:432-434)."
+  },
+  {
+   "issueId": "I-main-proof-execution-untested",
+   "title": "roadmap-main-proof execution branch and closure refusals have no tests",
+   "status": "partially-resolved",
+   "severity": "low",
+   "path": "new-unit",
+   "target": "U39",
+   "oneLine": "One exported spawn seam runs the steps, pinned end to end with fake steps."
+  },
+  {
+   "issueId": "I-pin-temp-ledger-leak",
+   "title": "Loop pins leak a 17 MB temp ledger copy under openspec/planning on a crash",
+   "status": "open",
+   "severity": "low",
+   "path": "new-unit",
+   "target": "U39",
+   "oneLine": "The pins use the temp-u17-pin- prefix, so the .gitignore:92 temp-* rule covers leftovers."
+  },
+  {
+   "issueId": "I-combat-journal-e2e-fixture-arm",
+   "title": "Combat-journal e2e fixture arm: silent bad values, prose pins, no shadow selector, broad blast radius",
+   "status": "partially-resolved",
+   "severity": "low",
+   "path": "fold-into-planned-unit",
+   "target": "U24",
+   "oneLine": "U24 deletes the fixture arm (combatJournalAuthorityEnabled.ts:40-57) and its pin, and rewrites the 'mode off' headers."
+  },
+  {
+   "issueId": "I-crlf-restore-methodology",
+   "title": "autocrlf working tree: text-mode restore breaks the sha256 match",
+   "status": "not-an-issue",
+   "severity": "info",
+   "path": "ledger-edit",
+   "target": "WORKERS.md",
+   "oneLine": "Restore mutants with git checkout HEAD -- <path> and confirm the sha256."
+  },
+  {
+   "issueId": "I-private-record-read-route-privacy",
+   "title": "GM private-record read route: existence oracle and widened host view",
+   "status": "superseded-by-owner-ruling",
+   "severity": "low",
+   "path": "record-resolved",
+   "target": "PK-u5a-ruling",
+   "oneLine": "The owner accepted F1, F2 and F5 as designed ('leave cross match probing', units.json:3491-3530)."
+  },
+  {
+   "issueId": "I-campaign-rewind-routes-discard-refs",
+   "title": "Campaign rewind-preview/commit routes discard private refs and the reason",
+   "status": "open",
+   "severity": "low",
+   "path": "defer-to-node",
+   "target": "DF-branch-and-time-cascade -> R6.B7",
+   "oneLine": "It belongs to 16.2's commit primitive, which the deferral now holds."
+  },
+  {
+   "issueId": "I-gm-correction-controls-ui",
+   "title": "GM correction controls: no blast-radius dialog, no double-apply guard, dead spectator clause",
+   "status": "partially-resolved",
+   "severity": "low",
+   "path": "new-unit",
+   "target": "U36",
+   "oneLine": "Approve and Preview ignore a second press while pending (the GmRewindPreviewDialog.tsx:78-80 pattern)."
+  },
+  {
+   "issueId": "I-protocol-client-max-lines",
+   "title": "Protocol.ts and client.ts exceed max-lines",
+   "status": "open",
+   "severity": "info",
+   "path": "outside-this-program",
+   "target": "none",
+   "oneLine": "Post-program maintenance split."
+  },
+  {
+   "issueId": "I-e2e-pack-helper-consolidation",
+   "title": "E2E pack headers still say helper consolidation is deferred",
+   "status": "partially-resolved",
+   "severity": "low",
+   "path": "fold-into-planned-unit",
+   "target": "U27",
+   "oneLine": "The restart pack moves onto gmTwoPlayerMatchFlow.ts before its rewound row; split if over the cap."
+  },
+  {
+   "issueId": "I-e2e-29-header-disagreement",
+   "title": "Privacy pack says E2E-29 deferred; proposals pack runs it live",
+   "status": "open",
+   "severity": "low",
+   "path": "fold-into-planned-unit",
+   "target": "U22",
+   "oneLine": "The header at lines 136-144 is rewritten to say E2E-29 and E2E-30 run live in the proposals pack."
+  },
+  {
+   "issueId": "I-audit-capture-fixme",
+   "title": "audit-capture screenshot tests fixme'd (T2-F1)",
+   "status": "open",
+   "severity": "low",
+   "path": "outside-this-program",
+   "target": "none",
+   "oneLine": "Standalone cleanup of four test.fixme screenshot tests."
+  },
+  {
+   "issueId": "I-replay-controls-skipped",
+   "title": "Replay controls e2e tests skipped (no match-log seed)",
+   "status": "open",
+   "severity": "low",
+   "path": "outside-this-program",
+   "target": "none",
+   "oneLine": "Standalone e2e cleanup at replay-player.spec.ts:442-477."
+  },
+  {
+   "issueId": "I-p2p-multi-peer-harness",
+   "title": "P2P multi-peer e2e deferred (no multi-context WebRTC harness)",
+   "status": "open",
+   "severity": "low",
+   "path": "outside-this-program",
+   "target": "R9.triage p2p-sync-system",
+   "oneLine": "Already held by the R9.triage deferral."
+  },
+  {
+   "issueId": "I-conditional-env-skips",
+   "title": "Environment and selector conditional skips",
+   "status": "not-an-issue",
+   "severity": "info",
+   "path": "no-action",
+   "target": "none",
+   "oneLine": "Defensive guards that the Playwright config always satisfies."
+  },
+  {
+   "issueId": "I-journal-recovery-candidate-head",
+   "title": "Journal recovery flags an empty candidate head as corruption (it.failing)",
+   "status": "resolved",
+   "severity": "low",
+   "path": "new-unit",
+   "target": "U44",
+   "oneLine": "Not U19b, because #1899 does not touch this file. U44 deletes the stale it.failing at SQLiteEventJournalRecovery.test.ts:391-419."
+  },
+  {
+   "issueId": "I-publication-outbox-per-recipient",
+   "title": "Publication outbox has one global published mark, not per recipient",
+   "status": "not-an-issue",
+   "severity": "low",
+   "path": "record-resolved",
+   "target": "none",
+   "oneLine": "The recipient-neutral mark matches the design. It is not folded into U23, which removes the contradiction."
+  },
+  {
+   "issueId": "I-replay-no-playerid-unguarded",
+   "title": "sendReplay without playerId bypasses the publication boundary",
+   "status": "open",
+   "severity": "low",
+   "path": "fold-into-planned-unit",
+   "target": "U26",
+   "oneLine": "sendReplay requires a playerId, and the raw fallback is deleted (ServerMatchHostReplay.ts:74-80)."
+  },
+  {
+   "issueId": "I-e2e-fault-exit-not-wired",
+   "title": "The e2e form of correction-exit faults does not process.exit",
+   "status": "not-an-issue",
+   "severity": "low",
+   "path": "no-action",
+   "target": "U54 decides",
+   "oneLine": "U54 decides this when it writes the live restart row for coordinated correction."
+  },
+  {
+   "issueId": "I-rewind-preview-dual-shape-wart",
+   "title": "replacement-events-unsupported has both a 400 and a 409 shape",
+   "status": "open",
+   "severity": "info",
+   "path": "no-action",
+   "target": "none",
+   "oneLine": "The two shapes guard two different callers on purpose."
+  },
+  {
+   "issueId": "I-vault-campaign-maps-and-d8",
+   "title": "Vault/campaign separation, travel, opportunities and isometric (R7/R8) all planned; D8 sequencing decision",
+   "status": "open",
+   "severity": "medium",
+   "path": "owner-decision",
+   "target": "ownerDecisions[0]",
+   "oneLine": "Recommend yes: admit the independent R7/R8 prefixes after R6.umbrella closes."
+  },
+  {
+   "issueId": "I-ledger-task-anchor-drift",
+   "title": "Ledger task-key line anchors drifted from live tasks.md lines",
+   "status": "not-an-issue",
+   "severity": "low",
+   "path": "record-stale",
+   "target": "none",
+   "oneLine": "Keys are frozen admission occurrences and are never re-anchored; only the reason text is corrected."
+  },
+  {
+   "issueId": "I-coop-custom-snapshot-carriage",
+   "title": "Co-op happy-path custom snapshot carriage is not asserted",
+   "status": "partially-resolved",
+   "severity": "low",
+   "path": "record-finding",
+   "target": "FN-coop-custom-snapshot-carriage (R2.combat successor)",
+   "oneLine": "The package is not activated, so this does not block the goal. Recorded; no unit."
+  },
+  {
+   "issueId": "I-r4-matrix-remaining",
+   "title": "R4.matrix: exact-main documentation proof and cleanup owed",
+   "status": "partially-resolved",
+   "severity": "low",
+   "path": "fold-into-planned-unit",
+   "target": "U34",
+   "oneLine": "The table is rebuilt from exact main with four classes, and 34/80 is kept as a historical line."
+  },
+  {
+   "issueId": "I-r9-roster-damage-residuals",
+   "title": "R9.roster-damage residuals",
+   "status": "open",
+   "severity": "low",
+   "path": "record-finding",
+   "target": "FN-roster-damage-residuals (R9.close handoff)",
+   "oneLine": "Residuals on a main-verified node, listed at R9.close. No unit."
+  },
+  {
+   "issueId": "I-worker-routing-protocol",
+   "title": "Worker exhaustion routing and serialization protocol",
+   "status": "partially-resolved",
+   "severity": "low",
+   "path": "new-unit",
+   "target": "U41 + WORKERS.md",
+   "oneLine": "The validator refuses a review whose finisher model equals its reviewer model. WORKERS.md gets the 2026-09-22 routing rules."
+  },
+  {
+   "issueId": "I-ci-minutes-measurement",
+   "title": "CI minutes cost and measurement",
+   "status": "partially-resolved",
+   "severity": "low",
+   "path": "record-resolved",
+   "target": "none",
+   "oneLine": "ciClass (WORKERS.md:99) already controls cost. No measurement is needed now."
+  },
+  {
+   "issueId": "I-seeded-match-no-command-bricked-on-recovery",
+   "title": "A seeded match with no command recovers as blocked missing-journal-head and can never commit",
+   "status": "open",
+   "severity": "high",
+   "path": "new-unit",
+   "target": "U43",
+   "oneLine": "The create seed writes a create:<matchId> receipt with the opening digest, so the match recovers commit-ready. This must land before U24."
+  },
+  {
+   "issueId": "I-set-last-broadcast-seq-unpinned",
+   "title": "setLastBroadcastSeq on the journal-authority commit path is unpinned",
+   "status": "open",
+   "severity": "medium",
+   "path": "fold-into-planned-unit",
+   "target": "U24",
+   "oneLine": "A pin shows a multi-event batch leaves the cursor on its last sequence at mode enabled."
+  },
+  {
+   "issueId": "I-capability-db-unready-arms",
+   "title": "Capability-DB-unready arms: 'unavailable' is indistinct, the S7-d refusal is orphaned, the mirror skips silently",
+   "status": "open",
+   "severity": "medium",
+   "path": "fold-into-planned-unit",
+   "target": "U23",
+   "oneLine": "The readiness check moves inside the try at DurableMatchStore.ts:1003; an unready DB fails the command closed."
+  },
+  {
+   "issueId": "I-journal-command-head-integrity-unchecked",
+   "title": "Journal-authority command path no longer checks persisted head integrity; the integrity-conflict arm is untested",
+   "status": "partially-resolved",
+   "severity": "low",
+   "path": "fold-into-planned-unit",
+   "target": "U23",
+   "oneLine": "integrity-conflict (MatchStreamJournalMirror.ts:263) fails the command closed; this is U23's second red row."
+  },
+  {
+   "issueId": "I-canonicalizer-undefined-values",
+   "title": "Shared JCS canonicalizer throws on own-enumerable undefined values; only the match mirror strips them",
+   "status": "partially-resolved",
+   "severity": "low",
+   "path": "record-resolved",
+   "target": "S7-a1 (#1737, bb672249c)",
+   "oneLine": "The strict JCS v1 contract stays. The finding was fixed at the call site, and S7a-Q1 is resolved by design."
+  },
+  {
+   "issueId": "I-durable-match-store-max-lines",
+   "title": "DurableMatchStore.ts exceeds max-lines and mixes journal-adjacent responsibilities",
+   "status": "open",
+   "severity": "low",
+   "path": "no-action",
+   "target": "none",
+   "oneLine": "Extraction is optional and only within a unit's caps; it is not an acceptance criterion."
+  },
+  {
+   "issueId": "I-match-seed-partial-and-divergent",
+   "title": "Match seed at create: a partial persist or failed seed leaves a log with no head; divergent-seed idempotency",
+   "status": "open",
+   "severity": "medium",
+   "path": "fold-into-planned-unit",
+   "target": "U43 (partial seed) + U23 (divergent same-id)",
+   "oneLine": "A partial seed is healed or refused at boot, and a divergent same-id batch fails closed."
+  },
+  {
+   "issueId": "I-recovery-consult-db-handle",
+   "title": "MatchRecoveryJournalHead resolves its DB via getSQLiteService() instead of the store branch port (S4-N1)",
+   "status": "open",
+   "severity": "low",
+   "path": "new-unit",
+   "target": "U44",
+   "oneLine": "Every recovery and rewind journal read uses the store's capability handle."
+  },
+  {
+   "issueId": "I-recovery-consult-verdict-residuals",
+   "title": "Recovery journal consult: diverged verdict not quarantinable, unused events field, unreachable defensive branch",
+   "status": "open",
+   "severity": "medium",
+   "path": "new-unit",
+   "target": "U43",
+   "oneLine": "A journal head that is a strict prefix of the log is caught up at boot from mp_command_receipts."
+  },
+  {
+   "issueId": "I-r4-s7-residuals-orphaned-by-s7d",
+   "title": "R4.S7 residuals were routed to S7-d, which OD-mvp-hard-cutover removed; no unit re-homes them",
+   "status": "partially-resolved",
+   "severity": "medium",
+   "path": "fold-into-planned-unit",
+   "target": "U23",
+   "oneLine": "A thrown mirror failure, today caught at DurableMatchStore.ts:1028, fails the command closed."
+  },
+  {
+   "issueId": "I-adopt-design-seam-naming-drift",
+   "title": "adopt design.md S5/S6 seam naming is one seam off from roadmap R4.S5-S7",
+   "status": "open",
+   "severity": "low",
+   "path": "fold-into-planned-unit",
+   "target": "U24",
+   "oneLine": "One crosswalk sentence in design.md and proposal.md:11."
+  },
+  {
+   "issueId": "I-branch-head-read-toctou",
+   "title": "Cross-read race between readEffectiveHead and readBranch is unaddressed",
+   "status": "resolved",
+   "severity": "info",
+   "path": "record-resolved",
+   "target": "#1674 (bcc34f7cd)",
+   "oneLine": "A single JOINed read (ServerMatchHostBranchAdmission.ts:152) closed the race."
+  },
+  {
+   "issueId": "I-campaign-marker-stamp-after-commit",
+   "title": "Campaign marker stamp after a committed journal batch: an io throw turns success into an error; the stamp is unpinned",
+   "status": "open",
+   "severity": "low",
+   "path": "new-unit",
+   "target": "U35",
+   "oneLine": "The flip makes F-1 live, so the fix and the F-3 pin move from U28 into U35."
+  },
+  {
+   "issueId": "I-campaign-two-process-proof-residuals",
+   "title": "CO3 residuals: replica wording, no CI lane for two-process specs, marker-only cutover CLI verb, rollback-refused row",
+   "status": "partially-resolved",
+   "severity": "low",
+   "path": "record-resolved",
+   "target": "none",
+   "oneLine": "Close openQuestions[0..5]: F1 is held by U19b/U20, and F3 was proven by #1755/#1756."
+  },
+  {
+   "issueId": "I-campaign-catchup-backfill-unproven",
+   "title": "R2.authority-live catch-up acceptance cell is partial: no live two-process reconnect-after-gap backfill",
+   "status": "open",
+   "severity": "medium",
+   "path": "fold-into-planned-unit",
+   "target": "U28",
+   "oneLine": "A two-process row proves exactly-once resume from the delivery cursor; split if U28 exceeds the cap."
+  },
+  {
+   "issueId": "I-revocation-detach-open-questions",
+   "title": "Revocation-detach Q2/Q3: liveByParticipant has no assertable surface; stacked briefs pin SHAs",
+   "status": "open",
+   "severity": "low",
+   "path": "new-unit",
+   "target": "U56",
+   "oneLine": "A stale detach cannot unregister a newer attachment; a test-only accessor pins it."
+  },
+  {
+   "issueId": "I-campaign-reconcile-conflict-path-r1-r2",
+   "title": "Campaign flush reconcile conflict paths R-1/R-2 carried",
+   "status": "open",
+   "severity": "low",
+   "path": "record-finding",
+   "target": "FN-campaign-flush-reconcile-r1-r2 (R2.authority-client)",
+   "oneLine": "The CAS re-check recipe is recorded. Low severity; no unit."
+  },
+  {
+   "issueId": "I-pre-u19-streams-without-genesis-row",
+   "title": "Streams with a journal head but no branch row (pre-U19 data) lose their only installer when U24 removes the backfill",
+   "status": "open",
+   "severity": "low",
+   "path": "fold-into-planned-unit",
+   "target": "U24",
+   "oneLine": "This is pre-cutover data. No replacement installer; readers fail closed typed, and a pin proves it."
+  },
+  {
+   "issueId": "I-u19-genesis-install-proof-limits",
+   "title": "U19/U19b proof limits: re-aimed pins are path-blind, concurrency test serializes, launch gating turns on",
+   "status": "open",
+   "severity": "medium",
+   "path": "fold-into-planned-unit",
+   "target": "U24",
+   "oneLine": "After the backfill is removed, U24 re-runs the four re-aimed pins red-first against the writer-only install."
+  },
+  {
+   "issueId": "I-guard-cli-not-wired-into-worker-docs",
+   "title": "qc:guard-node-modules-link CLI is invoked by nothing; the WORKERS.md/GOAL.md convention is unwritten",
+   "status": "open",
+   "severity": "low",
+   "path": "ledger-edit",
+   "target": "WORKERS.md",
+   "oneLine": "Write the lane convention. Today grep finds the script only at package.json:154."
+  },
+  {
+   "issueId": "I-match-genesis-branch-root-vs-main",
+   "title": "Match genesis branch is backfilled as 'root' but the mirror writes onto 'main'",
+   "status": "not-an-issue",
+   "severity": "low",
+   "path": "fold-into-planned-unit",
+   "target": "U21",
+   "oneLine": "One guard clause: U21's reader passes each segment's branchId (EventHistoryBranchResolver.ts:265-270 refuses non-root)."
+  },
+  {
+   "issueId": "I-roadmap-admission-procedural-limits",
+   "title": "Admission procedure limits: the prefix ownership rule blocks concurrent admissions; --github needs local gh auth",
+   "status": "not-an-issue",
+   "severity": "info",
+   "path": "ledger-edit",
+   "target": "DELIVERY.md",
+   "oneLine": "Sensitive units cite the --github exit code and output in their merge receipt."
+  },
+  {
+   "issueId": "I-post-admission-rows-unheld",
+   "title": "Rows added to an admitted package after admission have no holder rule (design-campaign 1.6, 6.1-6.4)",
+   "status": "open",
+   "severity": "medium",
+   "path": "new-unit",
+   "target": "U42",
+   "oneLine": "An additive supplement snapshot makes the rows count without editing admission-snapshot.json."
+  },
+  {
+   "issueId": "I-harden-plan-docs-stale",
+   "title": "Harden implementation-plan todo boxes and the event-history wave map are stale against tasks.md",
+   "status": "open",
+   "severity": "low",
+   "path": "fold-into-planned-unit",
+   "target": "U29",
+   "oneLine": "U29's docs edit reconciles the todo count and wave map with tasks.md."
+  },
+  {
+   "issueId": "I-final-verification-wave-orphaned",
+   "title": "Final verification wave F1-F4, the final-gates runner and reserved QA groups have no holder",
+   "status": "open",
+   "severity": "medium",
+   "path": "new-unit",
+   "target": "U57",
+   "oneLine": "A fail-fast final-gates runner implements the reserved groups and runs the 25.1 sweep."
+  },
+  {
+   "issueId": "I-harden-design-measurement-followups",
+   "title": "Harden design.md measurement follow-ups have no owner (SQLite sufficiency, snapshot interval, UX wording, slot count)",
+   "status": "not-an-issue",
+   "severity": "info",
+   "path": "no-action",
+   "target": "none",
+   "oneLine": "design.md:378 calls these measurement follow-ups, not gates."
+  },
+  {
+   "issueId": "I-canonical-combat-rollback-spec-unreconciled",
+   "title": "Canonical event-store 'Combat Rollback Preserves Journal Authority' contradicts the hard flip; no unit owns openspec/specs",
+   "status": "open",
+   "severity": "medium",
+   "path": "fold-into-planned-unit",
+   "target": "U24",
+   "oneLine": "The flip PR adds an adopt event-store delta that MODIFIES the requirement to the hard-cutover rule."
+  },
+  {
+   "issueId": "I-match-log-persist-double-fire",
+   "title": "Terminal match-log archive write can double-fire (GameSessionPage.lifecycle.ts)",
+   "status": "open",
+   "severity": "low",
+   "path": "outside-this-program",
+   "target": "FN-match-log-persist-double-fire",
+   "oneLine": "No owning node. The latch recipe is recorded."
+  },
+  {
+   "issueId": "I-host-f-r1-reconnect-fold-cursor",
+   "title": "Host F-R1 in-mount reconnect fold cursor hazard (#1733)",
+   "status": "open",
+   "severity": "low",
+   "path": "new-unit",
+   "target": "U56",
+   "oneLine": "The fold adopts a framing baseline at its own payload.revision (campaignAuthoritativeFold.ts)."
+  },
+  {
+   "issueId": "I-scripts-typecheck-gap",
+   "title": "Campaign cutover CLI (and scripts/) has no typecheck and no CI lint",
+   "status": "open",
+   "severity": "low",
+   "path": "record-finding",
+   "target": "FN-cutover-cli-ungated",
+   "oneLine": "Delete the CLI together with the D10 operator surface when a retirement slice is planned after U35."
+  },
+  {
+   "issueId": "I-camp01-windows-junction-tests-no-ci",
+   "title": "CAMP-01 receipt suites: 10 Windows-only junction tests never run in CI",
+   "status": "open",
+   "severity": "low",
+   "path": "outside-this-program",
+   "target": "FN-camp01-windows-only-receipt-cases-not-in-ci",
+   "oneLine": "This needs a windows-latest CI step, but R1.ci and R2.receipts are closed."
+  },
+  {
+   "issueId": "I-request-activity-json-unconditional",
+   "title": "RE-3: requestActivity calls .json() unconditionally",
+   "status": "open",
+   "severity": "low",
+   "path": "fold-into-planned-unit",
+   "target": "U22",
+   "oneLine": "requestActivity (campaignJournalDrive.ts:172) reads the body as text, then JSON.parses it."
+  },
+  {
+   "issueId": "I-r2-combat-s5-task-line-7-partial",
+   "title": "R2.combat S5 task line 7 proven for co-op only; stale and revision-mismatched snapshots share one code",
+   "status": "resolved",
+   "severity": "info",
+   "path": "record-resolved",
+   "target": "none",
+   "oneLine": "Ticked at exact main 4d7d17c3 (enable-saved-custom-unit-combat tasks.md:11)."
+  },
+  {
+   "issueId": "I-customizer-browser-commit-unpublished",
+   "title": "Customizer-browser commit 77d9a9480 remains unpublished behind an approval gate",
+   "status": "resolved",
+   "severity": "info",
+   "path": "record-stale",
+   "target": "docs PR wording",
+   "oneLine": "Shipped as #1667 (b39b82917). Fix two lines of wording."
+  },
+  {
+   "issueId": "I-p2p-mirror-reconcile-nonatomic",
+   "title": "P2P mirror reconcile deletes the log then re-persists in separate awaits (#62 follow-on)",
+   "status": "open",
+   "severity": "low",
+   "path": "outside-this-program",
+   "target": "FN-p2p-mirror-reconcile-nonatomic",
+   "oneLine": "No node owns src/lib/p2p. U22 corrects the stale #62 annotation."
+  },
+  {
+   "issueId": "I-tactical-tokens-seed-origin",
+   "title": "#16: tactical client renders every unit at hex (0,0) until its first movement event",
+   "status": "open",
+   "severity": "high",
+   "path": "new-unit",
+   "target": "U37",
+   "oneLine": "Tokens are seeded at the deploy hex and facing. This needs an ownership amendment and must land before U25 ungates E2E-43."
+  },
+  {
+   "issueId": "I-campaign-coop-gm-review-noop-handlers",
+   "title": "#25: CampaignCoopRouteSurface passes no Preview/Manual/GM Fix handlers; the buttons are no-ops",
+   "status": "open",
+   "severity": "medium",
+   "path": "new-unit",
+   "target": "U36",
+   "oneLine": "Remove the () => {} defaults at HostGmReviewSurface.tsx:138-140, merged with the 19.2 dead-controls precondition."
+  },
+  {
+   "issueId": "I-intentid-visible-to-non-issuers",
+   "title": "#24: intentId reaches every attached viewer on every live frame",
+   "status": "open",
+   "severity": "low",
+   "path": "record-finding",
+   "target": "FN-intentid-visible-to-non-issuers",
+   "oneLine": "Low-risk metadata. The issuer-only projection rule is recorded; no unit."
+  },
+  {
+   "issueId": "I-collided-client-stalls-match",
+   "title": "#27: a collided client can stall a match for both seats (unanswered product question)",
+   "status": "open",
+   "severity": "medium",
+   "path": "new-unit",
+   "target": "U50",
+   "oneLine": "A blocked session discards its client and reconnects through useMultiplayerSession.ts:241-277."
+  },
+  {
+   "issueId": "I-host-as-gm-membership-wrapper",
+   "title": "#55: rewind routes still wrap HostAsGmMembershipSource although the membership source now emits 'gm'",
+   "status": "not-an-issue",
+   "severity": "info",
+   "path": "no-action",
+   "target": "U26 keep-wrapper pin",
+   "oneLine": "The wrapper is the only way a tactical host reaches 'gm'. U26 adds a one-line pin."
+  },
+  {
+   "issueId": "I-closed-or-informational-items",
+   "title": "Closed, superseded or informational items (no action)",
+   "status": "not-an-issue",
+   "severity": "info",
+   "path": "no-action",
+   "target": "none",
+   "oneLine": "A closed, superseded or informational cluster with no open occurrence."
+  }
+ ]
+}
