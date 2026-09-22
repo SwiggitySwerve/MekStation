@@ -547,9 +547,7 @@
     {
       "id": "U2b",
       "node": "R6.umbrella",
-      "taskKeys": [
-        "harden-gm-two-player-campaign-sessions#21.2@547"
-      ],
+      "taskKeys": [],
       "behavior": "E2E-19 and E2E-25 rows in the privacy pack (e2e/gm-two-player-privacy.pack.spec.ts), run with the combat-journal arm the ladder forwards since U15a/U15b: E2E-19 drives a GM rewind preview, reads the stored draft back as the GM through GET /api/matches/:id/private-preview?ref= (payload present, access audited) and as a seated player (payload absent, attempt audited), and asserts the player's timeline and export carry no draft; E2E-25 drives the GM correction preview and approve with a private reason through the lobby's correction controls (U5b) and asserts the player views show the authorized result while the private reason appears only in the GM private record; then 21.2 (the ten rows U2 proved plus these two) is ticked on a receipt taken on main. Red-first at the real boundary: the rows are written first and shown failing without the arm forwarded (the rewind routes answer 404 no-authoritative-history) and absent from the baseline's tags; no product change outside e2e and scripts/qc. If a row needs product behaviour that does not exist yet (the correction finalize path, the cutover boxes 1.7/3.2), the lane stops at admission and the parent parks it with a packet naming the exact gap instead of narrowing the letter.",
       "ownershipPaths": [
         "e2e",
@@ -629,6 +627,17 @@
         "parkedPr": 1886,
         "nextIndependentAction": "U2c (planned in this commit): the arming and the E2E-19 row from this head by content, E2E-25 authored as a strict test.fail row gated @until-journal-cutover (the E2E-40..44 precedent), privacy class with PK-u2c-ruling; 21.2 stays held by U2b until E2E-25 passes under a journal-backed segment reader (cutover-owned) or the owner rules PK-umbrella-acceptance-unsatisfiable so that gated rows are excluded",
         "proof": "evidence/u2b-local-20260922.json findingsReportedNotFixed"
+      },
+      "superseded20260922": {
+        "at": "2026-09-22T14:00:00.000Z",
+        "by": "U22",
+        "note": "U2c shipped the arming and E2E-19 and gated E2E-25; once U21 gives the rewind commit a journal-backed reader, U22 removes E2E-25's gate and ticks 21.2 whole. U2b stays blocked as the record of its two measured admissions; draft #1886 is closed when U22 merges."
+      },
+      "taskKeyTransferred20260922": {
+        "key": "harden-gm-two-player-campaign-sessions#21.2@547",
+        "to": "U22",
+        "at": "2026-09-22T14:00:00.000Z",
+        "reason": "the row-bearing successor after the journal-backed commit reader"
       }
     },
     {
@@ -709,11 +718,569 @@
       ]
     },
     {
-      "id": "U3",
+      "id": "U19",
+      "node": "R3.storage",
+      "taskKeys": [],
+      "behavior": "Any stream's first journal append installs its genesis event_history_branches row and effective head in the same transaction (SQLiteEventJournalWriter), so a campaign stream no longer depends on the match mirror's global backfill for its branch row (FN-genesis-branch-row-is-a-mirror-side-effect). Red-first: append a campaign-stream batch on a migrated database and expect one effective genesis row (0 today). Proof includes verify:qc:coop-campaign-journey because launch gating turns on for journaled co-op campaigns.",
+      "ownershipPaths": [
+        "src/lib/events/journal"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "replay"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260922": "planned by the parent under OD-mvp-hard-cutover (owner, 2026-09-22) from the read-only cutover map of 2026-09-22 (Opus planning lane; its evidence is file:line on origin/main 31ab3c16e and is summarised in each behaviour sentence)"
+    },
+    {
+      "id": "U20",
+      "node": "R2.authority-cutover",
+      "taskKeys": [],
+      "behavior": "resolveCampaignLaunchHead answers the journal's effective head for any journaled campaign and campaignLaunchHead.ts states the real rule (OD-launch-head-gate answer); red-first on real SQLite: after one append the head resolves (it answers no-authoritative-stream before U19).",
+      "ownershipPaths": [
+        "src/lib/campaign/authority"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260922": "planned by the parent under OD-mvp-hard-cutover (owner, 2026-09-22) from the read-only cutover map of 2026-09-22 (Opus planning lane; its evidence is file:line on origin/main 31ab3c16e and is summarised in each behaviour sentence)"
+    },
+    {
+      "id": "U21",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "A journal-backed match segment reader (matchJournalBranchSegmentReader over the journal, reading any branch, mapping each stored event's payload.matchEvent to the projectable event) replaces matchStoreBranchSegmentReader at the three production consumers: the rewind commit deps, the rewind preview route, and the live rebuild plus boot fold (ServerMatchHostRewindRebuild), so the candidate anchor and its verification read the same history (FN-u2b-rewind-commit-verifies-through-the-match-store). Red-first at mode enabled: seed, three batches, a commit reproduces the anchor refusal; after, the commit succeeds, the rebuild folds N events, the next command lands on the candidate at revision N+1 and the boot fold returns the candidate. The main proof records E2E-25 turning into an unexpected pass; U22 follows back to back.",
+      "ownershipPaths": [
+        "src/lib/multiplayer/server",
+        "src/pages-modules/api",
+        "src/pages/api/matches"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "replay",
+        "authority"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260922": "planned by the parent under OD-mvp-hard-cutover (owner, 2026-09-22) from the read-only cutover map of 2026-09-22 (Opus planning lane; its evidence is file:line on origin/main 31ab3c16e and is summarised in each behaviour sentence)"
+    },
+    {
+      "id": "U22",
+      "node": "R6.umbrella",
+      "taskKeys": [
+        "harden-gm-two-player-campaign-sessions#21.2@547"
+      ],
+      "behavior": "Remove E2E-25's strict test.fail and its gate block from the privacy pack header once U21 is on main (the row passes live: the approved correction commits, player views carry the result and no reason, the GM private record holds the reason); tick 21.2 whole with E2E-19..30 green on main. Merged back to back with U21.",
+      "ownershipPaths": [
+        "e2e",
+        "openspec/changes/harden-gm-two-player-campaign-sessions"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "privacy"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260922": "planned by the parent under OD-mvp-hard-cutover (owner, 2026-09-22) from the read-only cutover map of 2026-09-22 (Opus planning lane; its evidence is file:line on origin/main 31ab3c16e and is summarised in each behaviour sentence)"
+    },
+    {
+      "id": "U23",
+      "node": "R4.S7",
+      "taskKeys": [],
+      "behavior": "At mode enabled a failed mirror write fails that match's command closed (STORE_FAILURE through the existing ServerMatchHostJournalAuthority path) and the retry, answered duplicate-command by the store, re-mirrors the stored batch with duplicateIsSuccess so the journal heals; the process-wide mirror-failure counter no longer gates journal-authority admission for later matches (journalAuthorityAdmission). Red-first: a forced revision conflict today acks the command and refuses the next match shadow-mismatch; after, STORE_FAILURE, the retry reaches parity and the next match is admitted. Implements OD-journal-writer-authority's answer.",
+      "ownershipPaths": [
+        "src/lib/multiplayer/server"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "concurrency",
+        "idempotency",
+        "authority"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260922": "planned by the parent under OD-mvp-hard-cutover (owner, 2026-09-22) from the read-only cutover map of 2026-09-22 (Opus planning lane; its evidence is file:line on origin/main 31ab3c16e and is summarised in each behaviour sentence)"
+    },
+    {
+      "id": "U24",
+      "node": "R4.S7",
+      "taskKeys": [
+        "adopt-combat-journal-cutover-and-gm-rewind#1.7@20"
+      ],
+      "behavior": "The hard cutover: COMBAT_JOURNAL_AUTHORITY_MODE is enabled in production with no override; the mirror's redundant global backfill call goes (U19 installs genesis rows); task 1.7's letter, design.md S6 and proposal.md Impact are amended to the hard-cutover rule of OD-mvp-hard-cutover (no migration states, shadow parity or rollback law; the combat fixture switch retires); suites that assumed mode off are re-pinned. Red-first: the default mode is enabled and a created match has a journal head (red today). If the re-pin exceeds the cap at admission, park and split re-pin first, flip second. Main proof runs every ladder group. Ticks 1.7 and holds the already-checked 0.2, 1.2, 1.3, 1.5, 1.6 by receipt.",
+      "ownershipPaths": [
+        "src/lib/multiplayer/server",
+        "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "migration"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260922": "planned by the parent under OD-mvp-hard-cutover (owner, 2026-09-22) from the read-only cutover map of 2026-09-22 (Opus planning lane; its evidence is file:line on origin/main 31ab3c16e and is summarised in each behaviour sentence)"
+    },
+    {
+      "id": "U25",
+      "node": "R4.rewind",
+      "taskKeys": [
+        "adopt-combat-journal-cutover-and-gm-rewind#2.2@25",
+        "adopt-combat-journal-cutover-and-gm-rewind#2.3@26"
+      ],
+      "behavior": "The rewind helper (e2e/helpers/gmTwoPlayerRewind.ts) reads GET /api/matches/:id/head for its compare-and-swap instead of sending the root branch and an empty digest; E2E-43 launches its match fog-on; each rewind-pack row that now passes has its strict test.fail removed, one row at a time with a live mutant per row. Red-first: a rewind-pack run after U24 shows which marked rows pass unexpectedly (expected 40, 41, 42, 44 and 76; measure).",
+      "ownershipPaths": [
+        "e2e"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "replay"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260922": "planned by the parent under OD-mvp-hard-cutover (owner, 2026-09-22) from the read-only cutover map of 2026-09-22 (Opus planning lane; its evidence is file:line on origin/main 31ab3c16e and is summarised in each behaviour sentence)"
+    },
+    {
+      "id": "U26",
+      "node": "R4.rewind",
+      "reownedTo": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "Per-viewer fog and hidden-state rebuild for rewind: the preview and commit fold real state at both heads with the match's real fog config and sealed choices into the viewer probe, removing both fog-preview-unsupported refusals and FOG_DISABLED_STATE; a failed check leaves the candidate blocked. Red-first: a fogged match's preview answers 409 today; after, 200 with distinct per-player digests, and E2E-43 fog-on flips. Split into domain and route halves at admission if over the cap.",
+      "ownershipPaths": [
+        "src/lib/multiplayer/server",
+        "src/pages/api/matches",
+        "src/pages-modules/api"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "privacy",
+        "replay"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260922": "planned by the parent under OD-mvp-hard-cutover (owner, 2026-09-22) from the read-only cutover map of 2026-09-22 (Opus planning lane; its evidence is file:line on origin/main 31ab3c16e and is summarised in each behaviour sentence)"
+    },
+    {
+      "id": "U27",
+      "node": "R4.rewind",
+      "taskKeys": [],
+      "behavior": "The restart pack (E2E-05, E2E-06, E2E-15) proven against a rewound match: restart recovery rebuilds the live host from the journal head and the effective branch after a committed rewind. Red-first: the new row fails before U21 (measured on the parent of U21's merge).",
+      "ownershipPaths": [
+        "e2e"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "replay"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260922": "planned by the parent under OD-mvp-hard-cutover (owner, 2026-09-22) from the read-only cutover map of 2026-09-22 (Opus planning lane; its evidence is file:line on origin/main 31ab3c16e and is summarised in each behaviour sentence)"
+    },
+    {
+      "id": "U28",
       "node": "R6.umbrella",
       "taskKeys": [
         "harden-gm-two-player-campaign-sessions#21.1@492"
       ],
+      "behavior": "Successor to U3: rerun the authority group (E2E-01..18) with the campaign fixture switch removed (the combat switch is gone with U24); if every row is green, remove both switches from the ladder runner and its qc pin and tick 21.1 whole; if the genesis clauses still need the campaign switch, park with the measured refusal and a packet (option b names the campaign-genesis production flip as a gate).",
+      "ownershipPaths": [
+        "scripts/qc",
+        "e2e",
+        "openspec/changes/harden-gm-two-player-campaign-sessions"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "idempotency",
+        "replay",
+        "concurrency"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260922": "planned by the parent under OD-mvp-hard-cutover (owner, 2026-09-22) from the read-only cutover map of 2026-09-22 (Opus planning lane; its evidence is file:line on origin/main 31ab3c16e and is summarised in each behaviour sentence)"
+    },
+    {
+      "id": "U29",
+      "node": "R6.umbrella",
+      "taskKeys": [],
+      "behavior": "The acceptance spec delta of option (b): an ADDED requirement in the umbrella's e2e-testing delta ('Acceptance Run Excludes Only Named-Gate Rows') resolving every catalogue id E2E-01..80 to an authored row, the exact-main regression contract (E2E-80), or an entry in a gated-absent manifest (scripts/qc/gm-two-player-acceptance-gates.cjs) naming the id, its gate tag and holder; unresolved or doubly-resolved ids, skips, fixmes and unnamed test.fail marks fail the run; the run passes only when every non-excluded row passes and no excluded row passes unexpectedly; plus the manifest, its pin test, the 25.4 note and R6.umbrella's acceptance string pointing at the requirement. The manifest variant is chosen under OD-mvp-hard-cutover because 28 catalogue ids have no Playwright row today (measured); the owner's head-bound ruling on this PR resolves the packet.",
+      "ownershipPaths": [
+        "openspec/changes/harden-gm-two-player-campaign-sessions",
+        "scripts/qc"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260922": "planned by the parent under OD-mvp-hard-cutover (owner, 2026-09-22) from the read-only cutover map of 2026-09-22 (Opus planning lane; its evidence is file:line on origin/main 31ab3c16e and is summarised in each behaviour sentence)"
+    },
+    {
+      "id": "U30",
+      "node": "R4.rewind",
+      "taskKeys": [
+        "adopt-combat-journal-cutover-and-gm-rewind#2.1@24",
+        "adopt-combat-journal-cutover-and-gm-rewind#2.4@27",
+        "adopt-combat-journal-cutover-and-gm-rewind#2.5@28",
+        "adopt-combat-journal-cutover-and-gm-rewind#3.1@32",
+        "adopt-combat-journal-cutover-and-gm-rewind#3.2@33",
+        "adopt-combat-journal-cutover-and-gm-rewind#3.3@34"
+      ],
+      "behavior": "Verification closure of the combat cutover change: the GM intervention suites, deterministic replay and fog integration suites and verify:qc:gm:campaign-ledger green on main (3.1); every rewind-pack row's gate removed with a live proof (3.2); the 80-row reconciliation table and the archive-receipt language (0.1, 3.3); 2.1's letter re-read at admission (commits are truncation-only and the private reason record carries commandId null: a successor is written if the letter needs product work). Also ticks 2.4 and 2.5 whole by U26's receipts (U26 is re-owned to R2.authority-live, whose node does not own those keys).",
+      "ownershipPaths": [
+        "e2e"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260922": "planned by the parent under OD-mvp-hard-cutover (owner, 2026-09-22) from the read-only cutover map of 2026-09-22 (Opus planning lane; its evidence is file:line on origin/main 31ab3c16e and is summarised in each behaviour sentence)"
+    },
+    {
+      "id": "U31",
+      "node": "R6.umbrella",
+      "taskKeys": [
+        "harden-gm-two-player-campaign-sessions#14.1@301",
+        "harden-gm-two-player-campaign-sessions#14.2@311",
+        "harden-gm-two-player-campaign-sessions#14.4@318",
+        "harden-gm-two-player-campaign-sessions#14.5@324",
+        "harden-gm-two-player-campaign-sessions#22.3@584"
+      ],
+      "behavior": "Umbrella rows closed by the combat cutover's receipts: 14.1, 14.2, 14.4, 14.5 tick by U21-U27 and U30's main proofs; 22.3 ticks whole once E2E-76 and E2E-80 are green on main.",
+      "ownershipPaths": [
+        "openspec/changes/harden-gm-two-player-campaign-sessions",
+        "e2e"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260922": "planned by the parent under OD-mvp-hard-cutover (owner, 2026-09-22) from the read-only cutover map of 2026-09-22 (Opus planning lane; its evidence is file:line on origin/main 31ab3c16e and is summarised in each behaviour sentence)"
+    },
+    {
+      "id": "U32",
+      "node": "R4.S1",
+      "taskKeys": [
+        "adopt-combat-journal-cutover-and-gm-rewind#0.2@10",
+        "adopt-combat-journal-cutover-and-gm-rewind#1.1@14"
+      ],
+      "behavior": "Ticks 1.1 whole once both rewind routes answer a real preview on a live match on main (U21's reader and U25's live rewind-pack proof), and holds 0.2, already checked by S1 PR #1684's exact-main receipt.",
+      "ownershipPaths": [
+        "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260922": "planned by the parent: the validator lets a unit hold only its own node's keys, so the adopt rows owned by R4.S1, R4.S4 and R4.matrix get receipt units on those nodes"
+    },
+    {
+      "id": "U33",
+      "node": "R4.S4",
+      "taskKeys": [
+        "adopt-combat-journal-cutover-and-gm-rewind#1.4@17"
+      ],
+      "behavior": "Ticks 1.4 whole by U27's live restart-pack proof against a rewound match on main (the S4 journal-head recovery half is already on main via #1704/#1705).",
+      "ownershipPaths": [
+        "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260922": "planned by the parent: the validator lets a unit hold only its own node's keys, so the adopt rows owned by R4.S1, R4.S4 and R4.matrix get receipt units on those nodes"
+    },
+    {
+      "id": "U34",
+      "node": "R4.matrix",
+      "taskKeys": [
+        "adopt-combat-journal-cutover-and-gm-rewind#0.1@9"
+      ],
+      "behavior": "The 80-row reconciliation table in the change's notepad: every acceptance scenario of the umbrella's e2e-testing delta mapped to its test identifier and evidence path, marked real, strict expected failure, manifest-gated or absent, with the receipt naming the reachable surface after the cutover; ticks 0.1 whole.",
+      "ownershipPaths": [
+        "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260922": "planned by the parent: the validator lets a unit hold only its own node's keys, so the adopt rows owned by R4.S1, R4.S4 and R4.matrix get receipt units on those nodes"
+    },
+    {
+      "id": "U3",
+      "node": "R6.umbrella",
+      "taskKeys": [],
       "behavior": "Implement and pass E2E-01 through E2E-18 for durable creation, order, atomicity, idempotency, replay/live recovery, cursor integrity, slow-client isolation, restart, reauthentication, active routing, and heartbeat, under the scoped non-claim that the campaign genesis clauses gated at design-campaign-authority-and-sync task 5.7 stay open.",
       "ownershipPaths": [
         "e2e",
@@ -781,7 +1348,13 @@
       "nonClaims20260916": [
         "genesis clauses of E2E-01 and E2E-02 (event_history_branches genesis row; effectiveBranchId after restart): gated on design-campaign-authority-and-sync task 5.7, an owner-gated production flag (CAMPAIGN_JOURNAL_AUTHORITY_ENABLED); expected failures until the cutover, assertions untouched"
       ],
-      "holdNote20260917": "row 21.1 stays open by the owner's ruling (PK-u3 option b); tick receipt deliberately null; the unit is main-verified, not complete"
+      "holdNote20260917": "row 21.1 stays open by the owner's ruling (PK-u3 option b); tick receipt deliberately null; the unit is main-verified, not complete",
+      "taskKeyTransferred20260922": {
+        "key": "harden-gm-two-player-campaign-sessions#21.1@492",
+        "to": "U28",
+        "at": "2026-09-22T14:00:00.000Z",
+        "reason": "U3's ruling held 21.1 until the genesis clauses pass; U19 installs the genesis branch row on every stream's first append and U24 flips combat journal authority, after which U28 re-proves the authority group without the fixture switches and ticks 21.1 whole"
+      }
     },
     {
       "id": "U4",
@@ -2607,14 +3180,11 @@
         "R6.B6"
       ],
       "taskKeys": [
-        "harden-gm-two-player-campaign-sessions#14.2@311",
-        "harden-gm-two-player-campaign-sessions#14.4@318",
         "harden-gm-two-player-campaign-sessions#16.2@356",
         "harden-gm-two-player-campaign-sessions#19.2@426",
         "harden-gm-two-player-campaign-sessions#21.3@559",
         "harden-gm-two-player-campaign-sessions#22.2@575",
-        "harden-gm-two-player-campaign-sessions#23.3@604",
-        "harden-gm-two-player-campaign-sessions#22.3@584"
+        "harden-gm-two-player-campaign-sessions#23.3@604"
       ],
       "question": "Should matchStoreBranchSegmentReader be taught to serve MATCH_BASELINE_BRANCH_ID alongside root, or should the rewind mirror write onto root instead, given that the rewind-branch fold is unreachable for match streams today?",
       "options": [
@@ -2638,7 +3208,16 @@
         "source": "owner instruction 2026-09-17: \"Go with all the recommendations from the council and continue the loop\" (openspec/council-decisions/2026-09-17-post-loop-recommendations.md)"
       },
       "ruling": null,
-      "note": "Row 22.3 joined this packet on 2026-09-16: E2E-76 (rewind confirmation) cannot pass until the rewind branch reader ruling, so the row stays open while its ungated scenarios ship as row-less units U1, U1b and U1c; the tick of 22.3 belongs to a successor unit written after the ruling."
+      "note": "Row 22.3 joined this packet on 2026-09-16: E2E-76 (rewind confirmation) cannot pass until the rewind branch reader ruling, so the row stays open while its ungated scenarios ship as row-less units U1, U1b and U1c; the tick of 22.3 belongs to a successor unit written after the ruling.",
+      "keysMoved20260922": {
+        "at": "2026-09-22T14:00:00.000Z",
+        "to": "U31",
+        "keys": [
+          "harden-gm-two-player-campaign-sessions#14.2@311",
+          "harden-gm-two-player-campaign-sessions#14.4@318",
+          "harden-gm-two-player-campaign-sessions#22.3@584"
+        ]
+      }
     },
     {
       "id": "PK-e2e-80-ci-wiring",
@@ -2754,7 +3333,9 @@
     },
     {
       "id": "PK-umbrella-acceptance-unsatisfiable",
-      "blocks": [],
+      "blocks": [
+        "U29"
+      ],
       "nodes": [
         "R6.umbrella"
       ],
@@ -3300,15 +3881,6 @@
   ],
   "deferrals": [
     {
-      "id": "DF-journal-cutover-combat-rows",
-      "taskKeys": [
-        "harden-gm-two-player-campaign-sessions#14.1@301",
-        "harden-gm-two-player-campaign-sessions#14.5@324"
-      ],
-      "deferredToNode": "R4.rewind",
-      "reason": "tasks.md:299 records the owner ruling that \"GM combat rewind leaves this change. Successor `adopt-combat-journal-cutover-and-gm-rewind` created\". tasks.md:302 under 14.1 reads \"BLOCKED on `journal-cutover` (2026-09-04, owner ruling): the requirement `Combat Intervention Has Distinct Preview and Commit Phases` moved verbatim to successor `adopt-combat-journal-cutover-and-gm-rewind` (its box 2.1 closes this one by receipt).\" and tasks.md:325 under 14.5 reads \"verification of the moved requirements is successor `adopt-combat-journal-cutover-and-gm-rewind` box 3.1, which closes this one by receipt.\" R4.rewind is the roadmap node holding that successor package open rows."
-    },
-    {
       "id": "DF-coordinated-correction",
       "taskKeys": [
         "harden-gm-two-player-campaign-sessions#17.1@387",
@@ -3348,6 +3920,30 @@
       ],
       "deferredToNode": "R2.journey",
       "reason": "The two closure rows run the full gate sweep and reconcile all 80 acceptance scenarios to test identifiers and evidence paths; neither can be honestly run until the umbrella rows above are delivered, parked or deferred, so both are deferred to the R2.journey reconciliation node. The ledger keys carry the admission-snapshot lines (25.1@633, 25.4@640) while the live tasks.md rows now sit at lines 630 and 637."
+    },
+    {
+      "id": "DF-activation-receipt-halves",
+      "taskKeys": [
+        "add-authoritative-history-branches#2.4@54",
+        "add-authoritative-history-branches#2.5@57",
+        "add-authoritative-history-branches#2.6@60",
+        "add-authoritative-history-branches#2.7@63"
+      ],
+      "deferredToNode": "R6.B4",
+      "reason": "add-authoritative-history-branches tasks 2.4-2.6 carry NOT CLAIMED notes naming the halves that need add-cross-stream-effect-receipts (the fence against lease-to-admitted promotion, stopped admissions, the unleased-pending supersede and waiting arm in 2.4; the accepted-prior-receipt arm in 2.5; delivery-lease serial orders, accepted-receipt proofs and saga boundaries in 2.6), and 2.7 is the procedural close-out after them. Under the whole-row rule the rows defer whole. R6.B4 is the first node after the effect package (R5.E1-E10); R5.E* does not own openspec/changes/add-authoritative-history-branches, so no unit there could tick them. The branches task 0.1 gate already puts receipt-consuming work behind the effect package's archive.",
+      "at": "2026-09-22T14:00:00.000Z"
+    },
+    {
+      "id": "DF-adopt-rows-proven-by-seam-receipts",
+      "taskKeys": [
+        "adopt-combat-journal-cutover-and-gm-rewind#1.2@15",
+        "adopt-combat-journal-cutover-and-gm-rewind#1.3@16",
+        "adopt-combat-journal-cutover-and-gm-rewind#1.5@18",
+        "adopt-combat-journal-cutover-and-gm-rewind#1.6@19"
+      ],
+      "deferredToNode": "R4.S7",
+      "reason": "These rows already read [x] on main, each discharged by its seam's exact-main receipts before the unit ledger existed (1.2: S2 PR #1691, evidence/r4-s2-live-head-1691-main-proof-20260915.json; 1.3: S7-b PRs #1744 and #1745, evidence/r4-s7b-1-1744-main-proof-20260915.json and r4-s7b-2-1745-main-proof-20260915.json; 1.5: S5 PRs #1716 and #1717, evidence/r4-s5-a-1716-main-proof-20260915.json and r4-s5-b-1717-main-proof-20260915.json; 1.6: S6 PRs #1728-#1730, evidence/r4-s6-a/b/c-*-main-proof-20260915.json). They are held here only because activating the package (U24 holds 1.7) requires every open-at-admission row to have a holder, and the validator lets a unit hold only its own node's keys; no further work is owed.",
+      "at": "2026-09-22T14:00:00.000Z"
     }
   ],
   "findings": [

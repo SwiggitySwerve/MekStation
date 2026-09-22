@@ -3842,7 +3842,7 @@
       "wave": 3,
       "title": "Finish candidate activation, correction lease and generation fencing",
       "kind": "implementation",
-      "state": "blocked",
+      "state": "main-verified",
       "dependsOn": [
         "R3.storage"
       ],
@@ -3887,6 +3887,11 @@
         "result": "no edit required: 2.1-2.3 [x] with verified artefacts (PRs #1495/#1497/#1504/#1507/#1515/#1518 resolve on main); 2.4-2.6 [ ] already carry explicit non-claims naming add-cross-stream-effect-receipts (0/51, unarchived; no DeliveryLease/EffectReceipt in src); 2.7 sequential",
         "blockingCause": "remaining halves of 2.4-2.6 and 2.7 depend on add-cross-stream-effect-receipts (R5.E*) which is gated on R4.rewind + R2.authority-live",
         "nextIndependentAction": "none until R5.E1 admission; ledger observation: add-authoritative-history-branches listed status proposed lastReviewed 2026-07-30 (stale vs merged PRs) - reconcile at closeout"
+      },
+      "closed20260922": {
+        "at": "2026-09-22T14:00:00.000Z",
+        "by": "parent under OD-mvp-hard-cutover",
+        "note": "rows 2.1-2.3 are checked on main with verified artefacts (evidence/r3-activation-closeout-20260915.json); rows 2.4-2.7 are held whole by DF-activation-receipt-halves (to R6.B4); the node's own acceptance is met by the shipped lease and fencing code"
       }
     },
     {
@@ -4849,8 +4854,7 @@
       "kind": "implementation",
       "state": "planned",
       "dependsOn": [
-        "R4.S7",
-        "R3.combat"
+        "R4.S7"
       ],
       "ownershipPaths": [
         "src/lib/interventions",
@@ -4876,7 +4880,12 @@
         "adopt-combat-journal-cutover-and-gm-rewind#3.3@34"
       ],
       "receipt": null,
-      "decomposition": "Navigation paths only. Before assignment, select one behavior, exact files and original task IDs; split until original/default caps fit. Each child PR needs its own reviewed-head and exact-main receipt."
+      "decomposition": "Navigation paths only. Before assignment, select one behavior, exact files and original task IDs; split until original/default caps fit. Each child PR needs its own reviewed-head and exact-main receipt.",
+      "dependsOnAmended20260922": {
+        "at": "2026-09-22T14:00:00.000Z",
+        "by": "parent under OD-mvp-hard-cutover",
+        "reason": "The sources point the other way: add-authoritative-history-branches tasks.md:3 says 'Live Branch PR 3 rewind acceptance follows combat-journal cutover S1-S4', and adopt-combat-journal-cutover-and-gm-rewind proposal.md:26 says the cutover 'does not require the whole branches package to be complete or archived'. The R3.combat edge closed a prose cycle (R3.activation -> R5.E* -> R4.rewind -> R3.combat -> R3.activation) that no unit could break; R3.combat's rows stay unactivated and are listed at handoff."
+      }
     },
     {
       "id": "R5.E1",
@@ -14736,6 +14745,11 @@
         "at": "2026-09-22T12:00:00.000Z",
         "by": "OD-mvp-hard-cutover",
         "note": "delegated to the parent by the owner's hard-cutover authorization; the answer is recorded with the slice that implements it"
+      },
+      "answer20260922": {
+        "at": "2026-09-22T14:00:00.000Z",
+        "by": "parent under OD-mvp-hard-cutover",
+        "answer": "Keep the shipped keepalive fetch (design-campaign-authority-and-sync task 1.6); record the navigation-discard gap as a non-claim; add no sendBeacon POST surface and no Chromium-only fetchLater. The SQLite busy_timeout question is separate (RR-1): better-sqlite3 12.11.1 reports busy_timeout 5000 on a fresh handle, and under U23's fail-closed rule a lock held longer surfaces as a visible STORE_FAILURE the retry heals, so no pragma change is needed."
       }
     },
     {
@@ -14749,6 +14763,12 @@
         "at": "2026-09-22T12:00:00.000Z",
         "by": "OD-mvp-hard-cutover",
         "note": "delegated to the parent by the owner's hard-cutover authorization; the answer is recorded with the slice that implements it"
+      },
+      "answer20260922": {
+        "at": "2026-09-22T14:00:00.000Z",
+        "by": "parent under OD-mvp-hard-cutover",
+        "answer": "Two writers with defined roles: the journal is the history authority; the match file is the live command log; the journal append is part of a command's acknowledgement, so a failed mirror write fails that match's command (STORE_FAILURE) and the retry heals it through journal command identity (U23); no process-wide fallback to legacy. The correction fact commits in one journal-DB transaction (activateCandidateBranch). Migration states, shadow parity and rollback law are not built (MVP hard cutover). Implemented by U23 and U24.",
+        "questionCorrection": "the recorded question holds an unrelated S5/S6 naming note; the real fork is RR-4 in evidence/r4-s5-s7-admission-brief-20260915.json"
       }
     },
     {
@@ -14804,6 +14824,11 @@
         "at": "2026-09-22T12:00:00.000Z",
         "by": "OD-mvp-hard-cutover",
         "note": "delegated to the parent by the owner's hard-cutover authorization; the answer is recorded with the slice that implements it"
+      },
+      "answer20260922": {
+        "at": "2026-09-22T14:00:00.000Z",
+        "by": "parent under OD-mvp-hard-cutover",
+        "answer": "/head is the journal's effective head. Every stream gets its genesis branch and effective head on its first append (U19); the mission launch is gated whenever a head exists; no-authoritative-stream means the campaign has no journal stream. The comment in campaignLaunchHead.ts states that rule (U20)."
       }
     },
     {
