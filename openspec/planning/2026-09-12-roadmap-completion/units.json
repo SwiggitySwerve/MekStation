@@ -947,12 +947,17 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
+      "state": "blocked",
+      "baseline": "31d01f4abcf7989adabdbd7684212dfa031094e2",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
+        "admission": {
+          "path": "evidence/u35-admission-20260922.json",
+          "baseline": "31d01f4abcf7989adabdbd7684212dfa031094e2",
+          "at": "2026-09-22T23:20:00.000Z",
+          "decision": "blocked at admission: every correctness gate needs code outside src/lib/campaign/sync and src/lib/campaign/persistence and the unsplit unit is about 21 files against the cap of 15; measured on real SQLite with no MEKSTATION_E2E_* env: the flip alone turns row (a) green (genesis event, journal-native marker, one effective campaign branch row) but leaves F-1 (a committed command answered 500 after a marker-io failure), the FundsChanged scope and gate (3) red; gate (3) holds (a whole-envelope PUT moved the record to version 2 while the journal stayed at revision 1)"
+        },
         "red": null,
         "local": null,
         "review": null,
@@ -968,7 +973,174 @@
         "I-campaign-marker-stamp-after-commit",
         "I-fundschanged-balance-inference"
       ],
-      "admitAfter20260922": "the parent admits U35 only after U20 has merged; --next cannot express a unit dependency"
+      "admitAfter20260922": "the parent admits U35 only after U20 has merged; --next cannot express a unit dependency",
+      "blocked20260922": {
+        "at": "2026-09-22T23:40:00.000Z",
+        "cause": "the unit's paths exclude every correctness gate's seam and the whole exceeds the file cap (admission receipt blockedBecause and proposedSplit)",
+        "nextIndependentAction": "U35a, U35c, U35b, then U35d (the flip), planned in this edit on R2.authority-cutover",
+        "proof": "evidence/u35-admission-20260922.json"
+      },
+      "superseded20260922": {
+        "at": "2026-09-22T23:40:00.000Z",
+        "by": "U35a, U35b, U35c, U35d",
+        "note": "the flip lands last in U35d; U35 stays blocked as the record of its admission measurement"
+      }
+    },
+    {
+      "id": "U35a",
+      "node": "R2.authority-cutover",
+      "taskKeys": [],
+      "behavior": "Campaign commit gates before the flip. (1) F-1: a marker-io failure after a committed batch is logged and the commit is acknowledged (campaignCommandPipeline.ts:334-345, 369), never answered 500. (2) F-3: an AcceptContract through executeCampaignCommand on a journal-native campaign stamps firstJournalAuthorityCommandId (pin). (3) resolveCampaignEventScope refuses a non-campaign scope for a balance-bearing FundsChanged with a typed error (campaignEventScope.ts:47-52; campaignEventScope.test.ts:108 re-pinned). (4) Adopting a legacy campaign produces a journal-native campaign: the adoption appends the genesis snapshot and writes a journal-native marker instead of a shadowing one (campaignLegacyAdoption.ts:144-155), decided by the parent under OD-mvp-hard-cutover (the shadowing mode only protects pre-cutover data). The flag is unchanged. Red-first: U35's probe rows (b) and (c), red on the baseline, plus an adopt row asserting the journal-native marker.",
+      "ownershipPaths": [
+        "src/lib/campaign/authority",
+        "src/lib/campaign/sync"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "idempotency"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260922": "planned by the parent from U35's measured admission split (evidence/u35-admission-20260922.json proposedSplit), under OD-mvp-hard-cutover",
+      "predecessorParked": {
+        "unit": "U35",
+        "admission": "evidence/u35-admission-20260922.json"
+      }
+    },
+    {
+      "id": "U35c",
+      "node": "R2.authority-cutover",
+      "taskKeys": [],
+      "behavior": "Flag-agnostic re-pin of the flip-sensitive route suites: campaigns.test.ts, campaigns.authority.test.ts, campaignAuthorityBlocked.test.ts and multiplayerCoopCreationCheckpoint.test.ts state their premise explicitly (genesis-projectable envelopes; a journal marker with no stream seeded without the route; a host campaign seeded through the genesis seam) and pass both with the flag false and under a temporary flip (U35's measurement method). No product change. Red: the four suites fail under the temporary flip (measured at U35's admission).",
+      "ownershipPaths": [
+        "src/__tests__/api/campaigns",
+        "src/__tests__/unit/api"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260922": "planned by the parent from U35's measured admission split (evidence/u35-admission-20260922.json proposedSplit), under OD-mvp-hard-cutover",
+      "predecessorParked": {
+        "unit": "U35",
+        "admission": "evidence/u35-admission-20260922.json"
+      }
+    },
+    {
+      "id": "U35b",
+      "node": "R2.authority-cutover",
+      "taskKeys": [],
+      "behavior": "The journal owns the campaign record's transaction. An accepted whole-envelope PUT on a journal-native campaign appends a CampaignSnapshotPublished checkpoint of the stored record, and a create appends the genesis, in ONE immediate transaction that the journal writer owns (appendPreparedWithExtension) with the campaigns row write as its extension, so the journal head is never behind the record and a genesis refusal never leaves a committed row behind a 500 (gate (3) and F3). Design decided by the parent under OD-mvp-hard-cutover over the alternatives U35's admission listed (a typed 409 would refuse every unrewired single-player save after the flip; appending after the save leaves a crash window); SQLiteEventJournalWriter.ts:93 forbids nesting saveCampaign inside the writer's extension, so the service's row write becomes a function the writer's transaction calls. Red-first: U35's probe row (g3) and a create row whose genesis projection is refused.",
+      "ownershipPaths": [
+        "src/services/campaignPersistence",
+        "src/pages/api/campaigns",
+        "src/__tests__/api/campaigns"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "migration",
+        "idempotency"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260922": "planned by the parent from U35's measured admission split (evidence/u35-admission-20260922.json proposedSplit), under OD-mvp-hard-cutover",
+      "predecessorParked": {
+        "unit": "U35",
+        "admission": "evidence/u35-admission-20260922.json"
+      }
+    },
+    {
+      "id": "U35d",
+      "node": "R2.authority-cutover",
+      "taskKeys": [],
+      "behavior": "The campaign journal hard cutover: CAMPAIGN_JOURNAL_AUTHORITY_ENABLED is true in production with no override and the e2e fixture arm is deleted (campaignJournalAuthorityEnabled.ts:36-38) together with its exported env constant and both importers (src/__tests__/api/campaigns/campaignPutGenesisRoute.test.ts:17, scripts/e2e/campaign-journal-authority.ts:63-67,93-96); the in-path flag pins, campaignPutGenesisRoute.test.ts and the e2e flag-off assertions (e2e/campaign-journal-two-process-privacy.spec.ts, e2e/campaign-journal-two-process-convergence.spec.ts, e2e/helpers/campaignJournalPrivacyFixture.ts) are re-pinned and the stale flag-off comments corrected. Admitted only after U35a, U35c and U35b have merged; lands before U28. Red-first: U35's probe row (a), red on the baseline. Main proof runs verify:qc:coop-campaign-journey and the authority-recovery, privacy-pack and proposal-pack ladder groups.",
+      "ownershipPaths": [
+        "src/lib/campaign/sync",
+        "src/__tests__/api/campaigns",
+        "e2e",
+        "scripts/e2e"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "idempotency",
+        "migration"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260922": "planned by the parent from U35's measured admission split (evidence/u35-admission-20260922.json proposedSplit), under OD-mvp-hard-cutover",
+      "predecessorParked": {
+        "unit": "U35",
+        "admission": "evidence/u35-admission-20260922.json"
+      }
     },
     {
       "id": "U58",

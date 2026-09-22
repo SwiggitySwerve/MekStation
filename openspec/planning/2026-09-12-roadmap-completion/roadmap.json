@@ -6772,7 +6772,13 @@
       "ownershipPaths": [
         "src/lib/campaign/sync",
         "src/lib/campaign/persistence",
-        "src/lib/campaign/authority"
+        "src/lib/campaign/authority",
+        "src/services/campaignPersistence",
+        "src/pages/api/campaigns",
+        "src/__tests__/api/campaigns",
+        "src/__tests__/unit/api",
+        "e2e",
+        "scripts/e2e"
       ],
       "acceptance": [
         "Original task5.7: reviewed flag, new/legacy/shadowing/journal/blocked states, parity gate, no fallback on missing journal stream, compatible rollback",
@@ -6990,6 +6996,44 @@
         {
           "residual": "5.7 ordering decision for refreshAfterCommittedCommand vs the host fold",
           "disposition": "held by U56 (a framing baseline replaces the viewer's fold whatever cursor it holds)"
+        }
+      ],
+      "ownershipAmended20260922": [
+        {
+          "at": "2026-09-22T23:40:00.000Z",
+          "path": "src/services/campaignPersistence",
+          "by": "parent under OD-mvp-hard-cutover (the R1.archives precedent)",
+          "why": "U35's admission (evidence/u35-admission-20260922.json) measured that the campaign journal hard cutover's correctness gates and re-pins live here: the whole-envelope save and create (src/services/campaignPersistence/CampaignPersistenceService.ts:107-190, src/pages/api/campaigns/[id].ts:196-265), the flip-sensitive route suites (src/__tests__/api/campaigns, src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts), the e2e flag-off assertions and the scripts/e2e importer of the arm's env constant; no open node owns these as a set"
+        },
+        {
+          "at": "2026-09-22T23:40:00.000Z",
+          "path": "src/pages/api/campaigns",
+          "by": "parent under OD-mvp-hard-cutover (the R1.archives precedent)",
+          "why": "U35's admission (evidence/u35-admission-20260922.json) measured that the campaign journal hard cutover's correctness gates and re-pins live here: the whole-envelope save and create (src/services/campaignPersistence/CampaignPersistenceService.ts:107-190, src/pages/api/campaigns/[id].ts:196-265), the flip-sensitive route suites (src/__tests__/api/campaigns, src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts), the e2e flag-off assertions and the scripts/e2e importer of the arm's env constant; no open node owns these as a set"
+        },
+        {
+          "at": "2026-09-22T23:40:00.000Z",
+          "path": "src/__tests__/api/campaigns",
+          "by": "parent under OD-mvp-hard-cutover (the R1.archives precedent)",
+          "why": "U35's admission (evidence/u35-admission-20260922.json) measured that the campaign journal hard cutover's correctness gates and re-pins live here: the whole-envelope save and create (src/services/campaignPersistence/CampaignPersistenceService.ts:107-190, src/pages/api/campaigns/[id].ts:196-265), the flip-sensitive route suites (src/__tests__/api/campaigns, src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts), the e2e flag-off assertions and the scripts/e2e importer of the arm's env constant; no open node owns these as a set"
+        },
+        {
+          "at": "2026-09-22T23:40:00.000Z",
+          "path": "src/__tests__/unit/api",
+          "by": "parent under OD-mvp-hard-cutover (the R1.archives precedent)",
+          "why": "U35's admission (evidence/u35-admission-20260922.json) measured that the campaign journal hard cutover's correctness gates and re-pins live here: the whole-envelope save and create (src/services/campaignPersistence/CampaignPersistenceService.ts:107-190, src/pages/api/campaigns/[id].ts:196-265), the flip-sensitive route suites (src/__tests__/api/campaigns, src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts), the e2e flag-off assertions and the scripts/e2e importer of the arm's env constant; no open node owns these as a set"
+        },
+        {
+          "at": "2026-09-22T23:40:00.000Z",
+          "path": "e2e",
+          "by": "parent under OD-mvp-hard-cutover (the R1.archives precedent)",
+          "why": "U35's admission (evidence/u35-admission-20260922.json) measured that the campaign journal hard cutover's correctness gates and re-pins live here: the whole-envelope save and create (src/services/campaignPersistence/CampaignPersistenceService.ts:107-190, src/pages/api/campaigns/[id].ts:196-265), the flip-sensitive route suites (src/__tests__/api/campaigns, src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts), the e2e flag-off assertions and the scripts/e2e importer of the arm's env constant; no open node owns these as a set"
+        },
+        {
+          "at": "2026-09-22T23:40:00.000Z",
+          "path": "scripts/e2e",
+          "by": "parent under OD-mvp-hard-cutover (the R1.archives precedent)",
+          "why": "U35's admission (evidence/u35-admission-20260922.json) measured that the campaign journal hard cutover's correctness gates and re-pins live here: the whole-envelope save and create (src/services/campaignPersistence/CampaignPersistenceService.ts:107-190, src/pages/api/campaigns/[id].ts:196-265), the flip-sensitive route suites (src/__tests__/api/campaigns, src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts), the e2e flag-off assertions and the scripts/e2e importer of the arm's env constant; no open node owns these as a set"
         }
       ]
     },
