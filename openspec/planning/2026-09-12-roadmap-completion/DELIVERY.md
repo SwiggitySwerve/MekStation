@@ -37,6 +37,8 @@ The existing unrelated six-file formatting debt must be diagnosed in the isolate
 
 For UI persistence, verify the real server/storage authority and cold reload. For replay, verify the recorded snapshot/event/head and deterministic recovery. For privacy, compare authorized viewer projections and refusals. For migrations, prove legacy input, repeated application, rollback compatibility, and cold reopen. Scenario packs and rights-sensitive assets are not routine test fixtures to acquire or mint without their required authorization.
 
+A slice that edits a shared e2e helper (a file under `e2e/helpers/`) or a `scripts/qc` runner re-runs, in its own exact-main proof, every ladder group whose spec imports that file; a main proof taken before the edit is not evidence for the edited file (rule added 2026-09-22). A unit carrying a sensitive review class (authority, privacy, migration, replay, idempotency or concurrency) cites the exit code and the output of `validate-roadmap.mjs --github` in its merge or mainProof receipt (rule added 2026-09-22).
+
 ## Owned cleanup
 
 Export and reopen durable evidence before removing a proof worktree. Before any removal, verify exact canonical non-reparse target, recorded worktree identity, expected HEAD/ref/OID, clean state, and allowed ignored/untracked manifest. Use Git's non-force worktree removal and compare-guarded branch deletion. Never use globs, recursive shell deletion, `reset --hard`, or `git clean` as generic cleanup. Stop only recorded program-owned processes. If identity or contents drift, preserve the target and diagnose it.
