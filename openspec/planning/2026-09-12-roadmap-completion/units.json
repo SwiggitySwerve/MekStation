@@ -612,7 +612,8 @@
         "cause": "FN-u2b-lobby-producers-name-a-fallback-head: under the journal fixture the lobby preview answers 409 STALE_BRANCH (producers send branch root, empty digest, first generation; effective branch is main) and approve answers 409 correction-lease-held (the lease needs a 64-hex digest no client seam exposes); the two rows reach the production controls but cannot pass",
         "parkedPr": 1860,
         "nextIndependentAction": "U5e (R2.combat: a client adapter reads lineage.effectiveHead from GET /api/matches/:id/timeline) then U5f (R2.multiplayer-client: the producers name that head) unblock E2E-19's preview; E2E-25's commit waits on the owner's ruling on PK-rewind-commit-head-digest; then U2b resumes from PR #1860's rows",
-        "proof": "evidence/u2b-local-20260921.json findingsReportedNotFixed"
+        "proof": "evidence/u2b-local-20260921.json findingsReportedNotFixed",
+        "resumeAfter": "U5g, U5h and U5i complete (the digest reaches the commit), then U2b resumes from draft PR #1860"
       }
     },
     {
@@ -1539,6 +1540,114 @@
       "source20260921": "successor of the U2b park; the producer half of the head-naming fix (U5e reads the head); planned by the parent under the owner's instruction to continue the loop",
       "rowsUnblocked": [
         "E2E-19 (with U5e)"
+      ]
+    },
+    {
+      "id": "U5g",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "PK-rewind-commit-head-digest option (a), the route half: GET /api/matches/:id/head (src/pages/api/matches/[id]/head.ts re-exporting a handler in src/pages-modules/api/matchHeadRoute.ts) answers, for the match host resolved as GM through the same host-as-GM membership source the preview and private-preview routes use, the match's effective head as the correction lease binds it: { branchId, revision, effectiveGeneration, digest } read from the seam the lease store compares against (SQLiteEventHistoryCorrectionLeaseStore.ts:318 compares expectedDigest with head.digest; the route reads that head, never recomputes a digest of its own); a seated non-host gets the constant 403 the history chain uses, no bearer 401, an unknown match 404, POST 405; the body carries nothing else. Red-first: a route test as the host expecting the four fields with a 64-character lowercase hex digest that equals what the lease store reads for that stream (red today: no route); as a player expecting 403. No client change (U5h, U5i), no e2e row.",
+      "ownershipPaths": [
+        "src/pages/api/matches",
+        "src/pages-modules/api"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260921": "owner decision on PK-rewind-commit-head-digest, option (a) (chat, 2026-09-21); the route half; planned by the parent",
+      "rowsUnblocked": [
+        "E2E-25 (with U5h, U5i and U2b)"
+      ],
+      "packet": "PK-u5g-ruling"
+    },
+    {
+      "id": "U5h",
+      "node": "R2.combat",
+      "taskKeys": [],
+      "behavior": "PK-rewind-commit-head-digest option (a), the adapter half: readGmRewindHead (src/lib/multiplayer/client/readGmRewindHead.ts) reads GET /api/matches/:id/head (U5g) instead of the timeline lineage and its `head` outcome gains `digest` (verbatim, a 64-character lowercase hex string, or `unavailable` when the body lacks one), keeping the head / no-head / unavailable shape, the bearer, and the no-fabrication and no-logging laws; its pins are re-aimed at the head route's body. No producer change (U5i), no route change, no e2e row.",
+      "ownershipPaths": [
+        "src/lib"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260921": "owner decision on PK-rewind-commit-head-digest, option (a) (chat, 2026-09-21); the adapter half, split from U5g and U5i by node ownership; planned by the parent",
+      "rowsUnblocked": [
+        "E2E-25 (with U5g, U5i and U2b)"
+      ]
+    },
+    {
+      "id": "U5i",
+      "node": "R2.multiplayer-client",
+      "taskKeys": [],
+      "behavior": "PK-rewind-commit-head-digest option (a), the producer half: the lobby's rewind and correction producers (src/pages-modules/multiplayer) send the head's digest as expectedDigest in the preview request and in the approve request that reuses it (U5h's adapter supplies it); when the head read has no digest the producer reports unavailable and posts nothing. Red-first: the hook tests assert the posted expectedDigest equals the adapter's digest (red today: ''). No adapter, route, component or e2e change.",
+      "ownershipPaths": [
+        "src/pages-modules/multiplayer"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260921": "owner decision on PK-rewind-commit-head-digest, option (a) (chat, 2026-09-21); the producer half; planned by the parent",
+      "rowsUnblocked": [
+        "E2E-25 (with U5g, U5h and U2b)"
       ]
     },
     {
@@ -2809,9 +2918,47 @@
       ],
       "agentRecommendation": "(a): it keeps the lease law intact, the digest is server-computed and GM-scoped, and it is the smallest product change on the critical path; the parent plans the route unit only after the ruling",
       "revertCost": "low for (a) (a route and a producer field); higher for (b) (a contract change every lease caller depends on)",
-      "decision": null,
+      "decision": {
+        "at": "2026-09-21T23:30:00.000Z",
+        "option": "a",
+        "text": "a GM head route exposes the journal digest with the effective head so the lobby can name it; the lease law is untouched",
+        "source": "owner instruction 2026-09-21 in the working session (chat): \"go with the GM head route and continue the loop\", after the parent described the three options in plain English and recommended (a)",
+        "units": [
+          "U5g",
+          "U5h",
+          "U5i"
+        ]
+      },
       "ruling": null,
       "note": "Opened 2026-09-21 from U2b's admission measurements (evidence/u2b-admission-20260921.json, PR #1860 parked). E2E-19 (preview) does not need the digest: the preview refuses only STALE_BRANCH / STALE_REVISION / STALE_GENERATION, so U5e/U5f unblock it regardless of this ruling."
+    },
+    {
+      "id": "PK-u5g-ruling",
+      "blocks": [
+        "U5g"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "U5g (GET /api/matches/:id/head answers the GM the effective head with the journal digest the correction lease binds against; review class authority) will present a head. Does the owner rule it?",
+      "options": [
+        {
+          "label": "rule the head",
+          "consequence": "an OWNER-RULING <head> comment and the owner-ruled label on U5g's PR; the unit merges and proceeds to main proof",
+          "effort": "0.1 day owner"
+        },
+        {
+          "label": "reject",
+          "consequence": "the PR closes; the unit returns to planned with the objection recorded",
+          "effort": "0.1 day owner"
+        }
+      ],
+      "agentRecommendation": "rule the head once Lane A has approved it and the checks are green",
+      "revertCost": "low: a squash merge revert",
+      "decision": null,
+      "ruling": null,
+      "note": "pre-opened with the unit so the authority class is visible from admission (same shape as PK-u5a-ruling)"
     }
   ],
   "deferrals": [
