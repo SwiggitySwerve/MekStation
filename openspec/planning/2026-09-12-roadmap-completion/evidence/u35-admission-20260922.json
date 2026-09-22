@@ -1,0 +1,680 @@
+{
+  "unit": "U35",
+  "stage": "admission",
+  "status": "BLOCKED",
+  "at": "2026-09-22T22:41:24.301Z",
+  "baseline": "31d01f4abcf7989adabdbd7684212dfa031094e2",
+  "originMain": "31d01f4abcf7989adabdbd7684212dfa031094e2",
+  "originMainSource": "git ls-remote origin refs/heads/main (read-only; no fetch)",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u35",
+  "branch": "roadmap-u35-campaign-journal-hard-cutover-20260922",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "node": "R2.authority-cutover",
+  "shellPreamble": [
+    "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "export npm_config_dry_run=true"
+  ],
+  "nodeVersion": {
+    "command": "node --version",
+    "lastLine": "v22.22.0",
+    "exitCode": 0,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35/logs/adm-node-version.log",
+      "sha256": "2172da60c75bfe844a5f085d0b225e7042f650910fb423c59d7f4a937afb0b56"
+    }
+  },
+  "nextOnBaseline": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "lastLine": "U35",
+    "exitCode": 0,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35/logs/adm-next.log",
+      "sha256": "18298eb1fbdf27b7200b31be9158592fba940952a4220376fae1c85ed38c215c"
+    }
+  },
+  "validatorOnBaseline": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+    "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+    "exitCode": 0,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35/logs/adm-validator.log",
+      "sha256": "97b2f29d264078525a55c5f88586fb95603311fa065e70d7d17c5fab08f5b5bc"
+    }
+  },
+  "guardNodeModulesLink": {
+    "command": "npm run --silent qc:guard-node-modules-link",
+    "lastLine": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"E:\\\\Projects\\\\MekStation\\\\.sisyphus\\\\roadmap-completion-20260912\\\\worktrees\\\\u35\\\\node_modules\",\"actualPath\":\"E:\\\\Projects\\\\MekStation\\\\node_modules\"}",
+    "exitCode": 1,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35/logs/adm-guard.log",
+      "sha256": "a1337d433e81260ca017433b1f4181309980db41580d5df6445d637191ef5a90"
+    },
+    "expected": true,
+    "why": "refusal by design in a junctioned worktree; no npm install/ci/prune or lifecycle was run in this lane (npm_config_dry_run=true exported)"
+  },
+  "gitStatusShortAtAdmission": "",
+  "ownershipPaths": [
+    "src/lib/campaign/sync",
+    "src/lib/campaign/persistence"
+  ],
+  "receiptsOwned": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u35-admission-20260922.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u35-red-20260922.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u35-local-20260922.json"
+  ],
+  "receiptsWritten": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u35-admission-20260922.json"
+  ],
+  "receiptsNotWritten": {
+    "red": "not written: the unit stops at admission (BLOCKED). The admission measurement below reproduces rows (a), (b), (c) and gate (3) red on the baseline; it is measurement evidence, not a red receipt.",
+    "local": "not written: no implementation in this lane."
+  },
+  "behavior": "Campaign journal hard cutover under OD-mvp-hard-cutover: CAMPAIGN_JOURNAL_AUTHORITY_ENABLED true with no override (JournalCampaignEventStore.ts:84) and the e2e fixture arm deleted (campaignJournalAuthorityEnabled.ts:36-38), so every campaign create or adopt appends its genesis snapshot and journal-native marker; correctness gates (1) F-1 marker-io after commit never errors an acknowledged commit + F-3 AcceptContract stamp pinned, (2) FundsChanged refuses a non-campaign scope, (3) an accepted whole-envelope PUT on a journal-native campaign does not leave the journal head behind the record; flag-off suites re-pinned.",
+  "blockedBecause": [
+    "Gate (1) F-1 needs a product edit outside the ownership paths: the marker read and write after a committed batch is src/lib/campaign/authority/campaignCommandPipeline.ts:334-345 (recordFirstCommandOnMarker), called with no catch from acknowledgeCommit at :369; its io is src/lib/campaign/authority/campaignCutoverMarkerIo.ts:39-47 over src/services/campaignPersistence/CampaignMigrationMarkerStore.ts. No seam under src/lib/campaign/sync or src/lib/campaign/persistence reaches that call. Measured on the baseline (row b): the batch commits (journal events 1 -> 2) and executeCampaignCommand throws the injected marker-io error; src/pages/api/campaigns/[id]/commands.ts:283-284 turns that into a 500.",
+    "Gate (3) holds (measured; no longer an inference) and its fix needs a path outside the ownership paths: there is no saveCampaign under src/lib/campaign/persistence (grep); the server save is src/services/campaignPersistence/CampaignPersistenceService.ts:107-190 (one synchronous better-sqlite3 transaction at :114-189 that writes only the campaigns row), called from src/pages/api/campaigns/[id].ts:197. A checkpoint in the same transaction is an edit to that service (or the route) and carries a design question: the journal writer append is async and opens its own immediate transaction (src/lib/events/journal/SQLiteEventJournalWriter.ts:49-80), and its prepared-extension contract says nested saveCampaign is forbidden (SQLiteEventJournalWriter.ts:93).",
+    "The flip itself breaks five jest suites outside the ownership paths (measured under a temporary flip, below), and three Playwright files assert the flag off (static); re-pinning them is outside src/lib/campaign/sync and src/lib/campaign/persistence.",
+    "The whole unit, unsplit, is estimated at 21 files (18 without stale-comment fixes); the cap is 15."
+  ],
+  "seams": [
+    {
+      "at": "src/lib/campaign/sync/JournalCampaignEventStore.ts:84",
+      "what": "export const CAMPAIGN_JOURNAL_AUTHORITY_ENABLED = false (the production constant); the header at :21-24 and the doc at :79-83 state the flag-off premise"
+    },
+    {
+      "at": "src/lib/campaign/sync/JournalCampaignEventStore.ts:480-496",
+      "what": "createDefaultCampaignEventStore returns the journal store only when the flag is true AND a journal factory is passed; its one production caller src/lib/campaign/coop/coopRuntimeSession.ts:101 passes none, so the flip does not move that store"
+    },
+    {
+      "at": "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts:14-15,23-28,36-38",
+      "what": "CAMPAIGN_JOURNAL_AUTHORITY_E2E_ENV; e2eJournalAuthorityArmed (NEXT_PUBLIC_E2E_MODE === true AND the arm env === 1); isCampaignJournalAuthorityEnabled = constant || arm. The env constant is imported outside the path by src/__tests__/api/campaigns/campaignPutGenesisRoute.test.ts:17 and scripts/e2e/campaign-journal-authority.ts:63"
+    },
+    {
+      "at": "src/lib/campaign/sync/campaignEventScope.ts:47-52",
+      "what": "resolveCampaignEventScope returns override ?? default; FundsChanged with override gm returns gm (row c, measured); the in-path test campaignEventScope.test.ts:108 pins that override"
+    },
+    {
+      "at": "src/lib/multiplayer/server/CampaignMatchHostIntent.ts:88-105,156,179",
+      "what": "the only FundsChanged emission sites (mk with no scope argument); no production site passes a FundsChanged override (grep)"
+    },
+    {
+      "at": "src/lib/campaign/authority/campaignCommandPipeline.ts:334-345,357-376,484-500,550",
+      "what": "recordFirstCommandOnMarker (marker read and write, no catch) called from acknowledgeCommit at :369 after the append and before the replay; both commit paths (AcceptContract :484-500 and the batch path :550) reach it (F-1, F-3). Outside the path."
+    },
+    {
+      "at": "src/lib/campaign/authority/campaignCutoverMarkerIo.ts:39-47",
+      "what": "durableCampaignMarkerIo {read, write: writeCampaignMigrationMarker}. Outside the path."
+    },
+    {
+      "at": "src/pages/api/campaigns/[id]/commands.ts:186,283-284",
+      "what": "executeCampaignCommand caller; a thrown error becomes sendCampaignError 500 (read-only)"
+    },
+    {
+      "at": "src/pages/api/campaigns/[id].ts:177-194,197,248-264",
+      "what": "PUT: authority from the marker (a journal marker with no stream answers 409 blocked), then saveCampaign commits the row, then maybeAppendCampaignGenesisOnCreate({enabled: isCampaignJournalAuthorityEnabled(), created: baseVersion === 0}) in its own transaction; a genesis invalid-campaign-projection answers 500 after the row committed (read-only)"
+    },
+    {
+      "at": "src/services/campaignPersistence/CampaignPersistenceService.ts:107-190",
+      "what": "saveCampaign: CAS + replay fence + INSERT OR REPLACE into campaigns only, one synchronous transaction; no journal write (read-only; outside the path)"
+    },
+    {
+      "at": "src/lib/campaign/authority/campaignSourceGenesis.ts:182-240,248-263",
+      "what": "appendCampaignGenesis (CampaignSnapshotPublished at sequence 0 under a system principal, then writeMarker(createJournalNativeMarker)) and the enabled/created gate; the header at :15-18 still says the hook is inert while the flag is false (read-only)"
+    },
+    {
+      "at": "src/pages/api/campaigns/[id]/adopt.ts:144-161,171",
+      "what": "adopt: maybeAdoptLegacyCampaign({enabled: resolver}) runs BEFORE saveCampaign (read-only)"
+    },
+    {
+      "at": "src/lib/campaign/authority/campaignLegacyAdoption.ts:144-155; campaignAuthorityMigration.ts:227; campaignAuthorityMode.ts:91-95",
+      "what": "adoption imports a baseline and writes a shadowing marker, and shadowing resolves to snapshot authority: under the flip an adopted campaign does not get a journal-native marker (finding F4)"
+    },
+    {
+      "at": "src/pages/api/multiplayer/matches/index.ts:258-267; src/lib/campaign/authority/campaignCreationCheckpoint.ts:214-221",
+      "what": "the co-op creation checkpoint takes journalAuthorityEnabled from the resolver; enabled with no marker fails genesis-branch and the route answers 500 (read-only)"
+    },
+    {
+      "at": "src/lib/events/journal/SQLiteEventJournalWriter.ts:49-80,93",
+      "what": "appendWithExtension / appendPreparedWithExtension own one immediate transaction; nested saveCampaign is forbidden by the documented contract (read-only)"
+    },
+    {
+      "at": "scripts/qc/gm-two-player-campaign-core.cjs:73,236",
+      "what": "the authority-recovery plan sets MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY=1 (U28 removes it; read-only)"
+    }
+  ],
+  "admissionMeasurement": {
+    "how": "A probe suite (real SQLite on a temp file; the live item route through node-mocks-http; every MEKSTATION_E2E_* key deleted in beforeEach) was written into src/lib/campaign/sync/__tests__/ for the measurement, copied out with its sha256, and removed from the worktree because the lane stops at admission. It ran on the baseline, then under a temporary minimal flip (the constant true; isCampaignJournalAuthorityEnabled returns the constant), after which both files were restored from saved byte copies and their sha256 re-checked.",
+    "probeCopy": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35/logs/adm-probe-final-suite-copy.test.ts.txt",
+      "sha256": "71591a064b86696c6e447331cfe3c6b195ec4f8e9229254bf5bd0e9fa9fa0383"
+    },
+    "command": "U35_PROBE_OUT=<log dir>/adm-probe-final-<side>.json npx jest src/lib/campaign/sync/__tests__/campaignJournalHardCutover.admission.test.ts",
+    "runner": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35/logs/../probe-both.sh",
+      "sha256": "d0dabe07f4ad86bcbe50dfcdc95cc5ddbc218bb3f91c8db917edfb076dce30fc"
+    },
+    "baseline": {
+      "exitCode": 1,
+      "counts": "Tests: 4 failed, 4 total",
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\campaign\\\\sync\\\\__tests__\\\\campaignJournalHardCutover.admission.test.ts/i.",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35/logs/adm-probe-final-baseline.log",
+        "sha256": "25b6a241a206530d54097c3a30f382cd54b1154f490c04e9bb4e2b8870f8ff6c"
+      },
+      "valuesFile": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35/logs/adm-probe-final-baseline.json",
+        "sha256": "7eabc95e2803d530a3b601bdebd915f8d75917d0454ccc22aa1d505ef7c1e38c"
+      },
+      "values": {
+        "a": {
+          "status": 200,
+          "markerKind": "not_found",
+          "markerState": null,
+          "events": 0,
+          "genesisEvents": 0,
+          "effectiveCampaignBranchRows": 0,
+          "e2eKeys": []
+        },
+        "b": {
+          "eventsBefore": 1,
+          "eventsAfter": 2,
+          "markerWriteCalls": 1,
+          "outcome": {
+            "thrown": "injected marker-io failure"
+          }
+        },
+        "c": {
+          "returned": "gm"
+        },
+        "g3": {
+          "createStatus": 200,
+          "createdVersion": 1,
+          "putStatus": 200,
+          "markerKind": "ok",
+          "recordVersion": 2,
+          "recordBalance": 392345,
+          "recordDay": 215,
+          "journalEvents": 1,
+          "headBefore": {
+            "branchId": "root",
+            "revision": 1,
+            "digest": "e2d5f873127ed29f546ab2880d4ee29f7dbdf0fcbddbe29a97901ac1a0c2361c"
+          },
+          "headAfter": {
+            "branchId": "root",
+            "revision": 1,
+            "digest": "e2d5f873127ed29f546ab2880d4ee29f7dbdf0fcbddbe29a97901ac1a0c2361c"
+          },
+          "journalBalance": 380000,
+          "journalDay": 184,
+          "journalDigest": "d90d47472127a8c0b1b390c9df6d214b257d0870395c80208f034304a1204f2e",
+          "recordDigest": "4a19e121f0595c55f4520eb1f92a2e2840d9a41e4498b9b7e2ae5b011ca49203"
+        }
+      },
+      "failingAssertions": [
+        "(a) expect(marker.kind).toBe(\"ok\"): Received \"not_found\" (campaignJournalHardCutover.admission.test.ts:195:25); events 0, genesis events 0, effective campaign branch rows 0, no MEKSTATION_E2E_* key",
+        "(b) expect(outcome).not.toBeInstanceOf(Error): the command threw \"injected marker-io failure\" after its batch committed (journal events 1 -> 2; one marker write attempted) (:255:25)",
+        "(c) expect(outcome).not.toEqual({returned: \"gm\"}): resolveCampaignEventScope(\"FundsChanged\", \"gm\") returned \"gm\" (:270:25)",
+        "(g3) expect(journal balance).toBe(record balance): Expected 392345, Received 380000 (:356:30)"
+      ]
+    },
+    "underTemporaryFlip": {
+      "exitCode": 1,
+      "counts": "Tests: 3 failed, 1 passed, 4 total",
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\campaign\\\\sync\\\\__tests__\\\\campaignJournalHardCutover.admission.test.ts/i.",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35/logs/adm-probe-final-flipped.log",
+        "sha256": "4625cee6b4208000b8f9988fb3d1085613d8bb8a500126135469dec152bfce18"
+      },
+      "valuesFile": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35/logs/adm-probe-final-flipped.json",
+        "sha256": "56bd696945b4aa80f7e7a4b026b20c0b75b54f6120f6c9a57c790d670198d0a9"
+      },
+      "values": {
+        "a": {
+          "status": 200,
+          "markerKind": "ok",
+          "markerState": "journal",
+          "events": 1,
+          "genesisEvents": 1,
+          "effectiveCampaignBranchRows": 1,
+          "e2eKeys": []
+        },
+        "b": {
+          "eventsBefore": 1,
+          "eventsAfter": 2,
+          "markerWriteCalls": 1,
+          "outcome": {
+            "thrown": "injected marker-io failure"
+          }
+        },
+        "c": {
+          "returned": "gm"
+        },
+        "g3": {
+          "createStatus": 200,
+          "createdVersion": 1,
+          "putStatus": 200,
+          "markerKind": "ok",
+          "recordVersion": 2,
+          "recordBalance": 392345,
+          "recordDay": 215,
+          "journalEvents": 1,
+          "headBefore": {
+            "branchId": "root",
+            "revision": 1,
+            "digest": "a70080fdc77a2c955d41a1449aa17271cfa84fd5fc311ffb15fcac0cc7475c17"
+          },
+          "headAfter": {
+            "branchId": "root",
+            "revision": 1,
+            "digest": "a70080fdc77a2c955d41a1449aa17271cfa84fd5fc311ffb15fcac0cc7475c17"
+          },
+          "journalBalance": 380000,
+          "journalDay": 184,
+          "journalDigest": "921279266c0fc2b23ce52bd52df906bbf455e744450fa3c53aacd00339f74a7b",
+          "recordDigest": "08d74cb12d76a88561a57908bd36d2bec044c358bb3d6f517ae22f8488d8b0c7"
+        }
+      },
+      "reading": "The flip alone turns row (a) green (marker ok/journal, 1 CampaignSnapshotPublished, exactly 1 effective campaign branch row, no MEKSTATION_E2E_* key) and leaves (b), (c) and (g3) red: the flip does not deliver the three correctness gates."
+    },
+    "restore": {
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35/logs/adm-probe-final-summary.log",
+        "sha256": "d0a5315a61e6b3928461d1a85661087afcc02ffd361ed41d8c370cd5cb6da91a"
+      },
+      "sha256AfterRestore": {
+        "src/lib/campaign/sync/JournalCampaignEventStore.ts": "0f062a9b1119acc802eabbf072ce308025a7bd52da99c8a5b381803262daec6e",
+        "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts": "392fd63f42a7d3bc13f29d74557264674483dcdb6dedc1046161130e6588940e"
+      },
+      "preMeasurementSha256": {
+        "src/lib/campaign/sync/JournalCampaignEventStore.ts": "0f062a9b1119acc802eabbf072ce308025a7bd52da99c8a5b381803262daec6e",
+        "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts": "392fd63f42a7d3bc13f29d74557264674483dcdb6dedc1046161130e6588940e"
+      }
+    }
+  },
+  "gate3Measurement": {
+    "verdict": "HOLDS (measured on real SQLite, on the baseline and under the temporary flip): an accepted whole-envelope PUT on a journal-native campaign leaves the journal head behind the record.",
+    "scenario": "create through PUT at baseVersion 0 (200, record version 1); make it journal-native through appendCampaignGenesis + writeCampaignMigrationMarker (baseline) or through the route itself (flip); PUT the whole envelope at baseVersion 1 with balance +12345 and currentDate one month later",
+    "baseline": {
+      "createStatus": 200,
+      "createdVersion": 1,
+      "putStatus": 200,
+      "markerKind": "ok",
+      "recordVersion": 2,
+      "recordBalance": 392345,
+      "recordDay": 215,
+      "journalEvents": 1,
+      "headBefore": {
+        "branchId": "root",
+        "revision": 1,
+        "digest": "e2d5f873127ed29f546ab2880d4ee29f7dbdf0fcbddbe29a97901ac1a0c2361c"
+      },
+      "headAfter": {
+        "branchId": "root",
+        "revision": 1,
+        "digest": "e2d5f873127ed29f546ab2880d4ee29f7dbdf0fcbddbe29a97901ac1a0c2361c"
+      },
+      "journalBalance": 380000,
+      "journalDay": 184,
+      "journalDigest": "d90d47472127a8c0b1b390c9df6d214b257d0870395c80208f034304a1204f2e",
+      "recordDigest": "4a19e121f0595c55f4520eb1f92a2e2840d9a41e4498b9b7e2ae5b011ca49203"
+    },
+    "underTemporaryFlip": {
+      "createStatus": 200,
+      "createdVersion": 1,
+      "putStatus": 200,
+      "markerKind": "ok",
+      "recordVersion": 2,
+      "recordBalance": 392345,
+      "recordDay": 215,
+      "journalEvents": 1,
+      "headBefore": {
+        "branchId": "root",
+        "revision": 1,
+        "digest": "a70080fdc77a2c955d41a1449aa17271cfa84fd5fc311ffb15fcac0cc7475c17"
+      },
+      "headAfter": {
+        "branchId": "root",
+        "revision": 1,
+        "digest": "a70080fdc77a2c955d41a1449aa17271cfa84fd5fc311ffb15fcac0cc7475c17"
+      },
+      "journalBalance": 380000,
+      "journalDay": 184,
+      "journalDigest": "921279266c0fc2b23ce52bd52df906bbf455e744450fa3c53aacd00339f74a7b",
+      "recordDigest": "08d74cb12d76a88561a57908bd36d2bec044c358bb3d6f517ae22f8488d8b0c7"
+    },
+    "reading": "The PUT answers 200, the record is at version 2 with balance 392345 and day 215; the journal stays at root revision 1 with an unchanged head digest and 1 event, replaying to balance 380000 and day 184; the journal state digest differs from the record projection digest.",
+    "whereTheFixLives": "src/services/campaignPersistence/CampaignPersistenceService.ts:107-190 (saveCampaign) and/or src/pages/api/campaigns/[id].ts:196-265; neither is under src/lib/campaign/persistence."
+  },
+  "repinInventory": {
+    "staticCountBeforeEditing": {
+      "method": "grep for the constant, the resolver, the arm env key and the route handlers in test and e2e files, before any edit",
+      "jestSuitesReferencingTheFlagOrArm": [
+        "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts:353-366 (in path; expects the constant false and the factory in-memory)",
+        "src/lib/campaign/sync/__tests__/campaignJournalAuthorityEnabled.test.ts:22-35 (in path; the arm semantics)",
+        "src/__tests__/api/campaigns/campaignPutGenesisRoute.test.ts:17,81-103 (out; its resolver-false half expects not_found)",
+        "src/__tests__/api/campaigns/campaignAdoptRoute.test.ts:23,159-164 (out; branches on the constant)",
+        "src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts:283-303 (out; arms the env)",
+        "scripts/__tests__/gm-two-player-campaign-qc.test.ts (out; the QC plan env)"
+      ],
+      "jestCount": 6,
+      "playwrightFilesAssertingFlagOff": [
+        "e2e/campaign-journal-two-process-privacy.spec.ts:450-451",
+        "e2e/campaign-journal-two-process-convergence.spec.ts:144-145,293-294,444-445",
+        "e2e/helpers/campaignJournalPrivacyFixture.ts:94-95,203-204 (shared helper)"
+      ],
+      "playwrightCount": 3
+    },
+    "measuredUnderTemporaryFlip": {
+      "method": "scratchpad script repin-measure.sh: the minimal flip applied by flip-measure.mjs, six jest invocations one after another, then both files restored from byte copies (sha256 re-checked equal). The probe suite was present in src/lib/campaign/sync/__tests__ during the campaign group and is excluded from the counts of flag-off suites.",
+      "runner": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35/logs/../repin-measure.sh",
+        "sha256": "575ade3b756ad64114c9a92986530a2fe14a5a31c340b564132bbf801df8bcb8"
+      },
+      "flipScript": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35/logs/../flip-measure.mjs",
+        "sha256": "38880bbb4d3653ee8c97363a4e2b9cb2f305c58d2e42172b73902bb8f7c44416"
+      },
+      "groups": [
+        {
+          "command": "npx jest src/lib/campaign",
+          "exitCode": 1,
+          "counts": "Test Suites: 3 failed, 200 passed, 203 total; Tests: 3 failed, 2966 passed, 2969 total",
+          "flagOffFailures": [
+            "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts:354 (expects the constant false)",
+            "src/lib/campaign/sync/__tests__/campaignJournalAuthorityEnabled.test.ts:26 (expects false with the arm env set and e2e mode false)"
+          ],
+          "probeFailure": "the probe suite (its g3 row only, in the first probe version)",
+          "lastLine": "Ran all test suites matching /src\\\\lib\\\\campaign/i.",
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35/logs/repin-campaign.log",
+            "sha256": "72d8f72c8ff58514603a6b11c9cf877da22459692a92d48e90ba805061416662"
+          }
+        },
+        {
+          "command": "npx jest src/lib/events/journal",
+          "exitCode": 0,
+          "counts": "Test Suites: 23 passed, 23 total; Tests: 243 passed, 243 total",
+          "lastLine": "Ran all test suites matching /src\\\\lib\\\\events\\\\journal/i.",
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35/logs/repin-journal.log",
+            "sha256": "0dfcaff6e8da8bfcf9aa39e58cce48b4520f5f0a9a3aa50c7ef4a82ca5650d13"
+          }
+        },
+        {
+          "command": "npx jest src/pages-modules/api src/__tests__/api",
+          "exitCode": 1,
+          "counts": "Test Suites: 4 failed, 58 passed, 62 total; Tests: 6 failed, 803 passed, 809 total",
+          "flagOffFailures": [
+            "src/__tests__/api/campaigns/campaigns.test.ts:143 (PUT create answers 500: the shared fixture double-claims unit ids, and the genesis projection refuses it after the row committed)",
+            "src/__tests__/api/campaigns/campaigns.authority.test.ts:83,198 (the same 500 on create)",
+            "src/__tests__/api/campaigns/campaignPutGenesisRoute.test.ts:88 (its resolver-false half expects not_found; reads ok)",
+            "src/__tests__/api/campaigns/campaignAuthorityBlocked.test.ts:110,133 (the create now seeds a stream, so the \"journal marker, no stream\" premise answers 200 instead of 409 blocked)"
+          ],
+          "lastLine": "Ran all test suites matching /src\\\\pages-modules\\\\api|src\\\\__tests__\\\\api/i.",
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35/logs/repin-api.log",
+            "sha256": "1e06e71a162edc72f5c01e038d13a25f8633d23c65cf558c383a9de1c63a924b"
+          }
+        },
+        {
+          "command": "npx jest src/lib/multiplayer/server/__tests__ -t \"campaign|Campaign\"",
+          "exitCode": 0,
+          "counts": "Test Suites: 105 skipped, 25 passed, 25 of 130 total; Tests: 703 skipped, 258 passed, 961 total",
+          "lastLine": "Ran all test suites matching /src\\\\lib\\\\multiplayer\\\\server\\\\__tests__/i with tests matching \"campaign|Campaign\".",
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35/logs/repin-mpserver.log",
+            "sha256": "85b1d33a52073e41e6e603ffbd6ef1177d1bbeb7a0cd84aa7de7d006427b911d"
+          }
+        },
+        {
+          "command": "npx jest src/__tests__/unit/api",
+          "exitCode": 1,
+          "counts": "Test Suites: 1 failed, 5 passed, 6 total; Tests: 4 failed, 31 passed, 35 total",
+          "flagOffFailures": [
+            "src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts:152 (via :184 and :200), :223, :253 (co-op creation answers 500: persistHostCampaign saves with no genesis, and the checkpoint now requires the marker)"
+          ],
+          "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\unit\\\\api/i.",
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35/logs/repin-unitapi.log",
+            "sha256": "65c3fb617758e508afeaf530a6ea298869c3c3b38dfb0bc57964fd7353b68186"
+          }
+        },
+        {
+          "command": "npx jest scripts/__tests__/gm-two-player-campaign-qc.test.ts plus nine route-adjacent UI/store/integration paths (listed in repin-measure.sh)",
+          "exitCode": 0,
+          "counts": "Test Suites: 49 passed, 49 total; Tests: 474 passed, 474 total",
+          "lastLine": "Ran all test suites matching /scripts\\\\__tests__\\\\gm-two-player-campaign-qc.test.ts|src\\\\__tests__\\\\integration\\\\pilotXpSpendFromCampaign.test.tsx|src\\\\__tests__\\\\pages\\\\gameplay\\\\campaigns|src\\\\__tests__\\\\unit\\\\layoutSweep\\\\packSeededSweepCoverage.test.ts|src\\\\components\\\\campaign\\\\bays\\\\__tests__\\\\MechBay.test.tsx|src\\\\components\\\\campaign\\\\coop\\\\__tests__\\\\GmRebuildStaleGate.test.tsx|src\\\\components\\\\gameplay\\\\pages\\\\campaigns\\\\dashboard\\\\__tests__|src\\\\pages-modules\\\\gameplay\\\\campaigns\\\\__tests__|src\\\\stores\\\\campaign\\\\__tests__/i.",
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35/logs/repin-others.log",
+            "sha256": "e06d5582594f1f7a795c860ab47b5faf2683d441673253c27962db3d6aea542e"
+          }
+        }
+      ],
+      "suitesThatAssumeTheFlagOff": 7,
+      "inPath": 2,
+      "outOfPath": 5,
+      "testsFailing": 13,
+      "staticVsMeasured": "campaignAdoptRoute.test.ts adapts (flag-conditional) and the QC plan test is flag-agnostic; campaigns.test.ts, campaigns.authority.test.ts and campaignAuthorityBlocked.test.ts do not name the flag and fail through the genesis-on-create behaviour.",
+      "restore": {
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35/logs/repin-restore.log",
+          "sha256": "23cd8f3e29241e4a5b14eff2ffc15793038ce5739ed8f7799a56154e0ad73e95"
+        }
+      },
+      "notRun": "Playwright (not run, by charter); a repository-wide `npx jest` was not run, so suites outside the six groups are not measured."
+    }
+  },
+  "estimatePerFile": [
+    {
+      "file": "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+      "category": "product",
+      "inPath": true,
+      "estimateLines": 16,
+      "note": "constant true; header, flag and factory docs"
+    },
+    {
+      "file": "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts",
+      "category": "product",
+      "inPath": true,
+      "estimateLines": 30,
+      "note": "arm deleted; the env constant kept only while out-of-path importers remain (F6)"
+    },
+    {
+      "file": "src/lib/campaign/sync/campaignEventScope.ts",
+      "category": "product",
+      "inPath": true,
+      "estimateLines": 25,
+      "note": "gate (2) typed refusal"
+    },
+    {
+      "file": "src/lib/campaign/authority/campaignCommandPipeline.ts",
+      "category": "product",
+      "inPath": false,
+      "estimateLines": 20,
+      "note": "gate (1) F-1"
+    },
+    {
+      "file": "src/services/campaignPersistence/CampaignPersistenceService.ts and/or src/pages/api/campaigns/[id].ts",
+      "category": "product",
+      "inPath": false,
+      "estimateLines": 100,
+      "note": "gate (3) checkpoint; design open (gate3Measurement)"
+    },
+    {
+      "file": "stale flag-off comments: src/lib/campaign/authority/campaignSourceGenesis.ts:15-18, src/lib/campaign/coop/coopRuntimeSession.ts:100, src/lib/multiplayer/server/matchJournalAuthority.ts:3, src/pages/api/multiplayer/matches/index.ts:262-265",
+      "category": "product",
+      "inPath": false,
+      "estimateLines": 15,
+      "note": "4 files"
+    },
+    {
+      "file": "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts",
+      "category": "test",
+      "inPath": true,
+      "estimateLines": 15
+    },
+    {
+      "file": "src/lib/campaign/sync/__tests__/campaignJournalAuthorityEnabled.test.ts",
+      "category": "test",
+      "inPath": true,
+      "estimateLines": 40
+    },
+    {
+      "file": "src/lib/campaign/sync/__tests__/campaignEventScope.test.ts",
+      "category": "test",
+      "inPath": true,
+      "estimateLines": 20,
+      "note": ":108 pins the gm override the gate removes"
+    },
+    {
+      "file": "src/lib/campaign/sync/__tests__/campaignJournalHardCutover.test.ts (new red suite: a, b, c, g3, F-3)",
+      "category": "test",
+      "inPath": true,
+      "estimateLines": 380
+    },
+    {
+      "file": "five out-of-path jest suites (campaigns.test.ts, campaigns.authority.test.ts, campaignPutGenesisRoute.test.ts, campaignAuthorityBlocked.test.ts, multiplayerCoopCreationCheckpoint.test.ts)",
+      "category": "test",
+      "inPath": false,
+      "estimateLines": 120,
+      "note": "5 files"
+    },
+    {
+      "file": "three Playwright files asserting the flag off",
+      "category": "test",
+      "inPath": false,
+      "estimateLines": 30,
+      "note": "3 files; the helper edit triggers the DELIVERY.md:40 ladder re-run rule"
+    }
+  ],
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "estimatedFiles": 21,
+    "estimatedFilesWithoutStaleComments": 18,
+    "estimatedProductLines": 206,
+    "estimatedTestLines": 605,
+    "withinCaps": false,
+    "whyNot": "the file cap is exceeded, and 12 of the 21 files are outside the two ownership paths"
+  },
+  "proposedSplit": {
+    "principle": "buildable prefixes with no forward dependency; the correctness gates and the flag-agnostic re-pin land first and the flip lands last (charter: re-pin or the checkpoint precursor first, flip second).",
+    "units": [
+      {
+        "id": "U35a (proposed)",
+        "title": "campaign commit gates before the flip",
+        "ownershipPaths": [
+          "src/lib/campaign/authority",
+          "src/lib/campaign/sync"
+        ],
+        "behavior": "F-1: a marker-io failure after a committed batch is logged and the commit is acknowledged (campaignCommandPipeline.ts:369); F-3: an AcceptContract driven through executeCampaignCommand on a journal-native campaign stamps firstJournalAuthorityCommandId (pin); gate (2): resolveCampaignEventScope refuses a non-campaign scope for FundsChanged with a typed error (campaignEventScope.ts:47-52; campaignEventScope.test.ts:108 re-pinned). Flag unchanged.",
+        "red": "probe rows (b) and (c), red on the baseline (measured here)",
+        "reviewClasses": [
+          "authority",
+          "idempotency"
+        ],
+        "estimate": "4-5 files, about 45 product lines and 200 test lines"
+      },
+      {
+        "id": "U35b (proposed)",
+        "title": "whole-envelope PUT checkpoint on a journal-native campaign",
+        "ownershipPaths": [
+          "src/services/campaignPersistence",
+          "src/pages/api/campaigns"
+        ],
+        "behavior": "an accepted whole-envelope PUT on a journal-native campaign appends a CampaignSnapshotPublished checkpoint of the stored record in the same transaction as the row write, so the journal head is never behind the record; the create path gets the same shape (row and genesis in one transaction, so a genesis refusal cannot leave a committed row behind a 500).",
+        "designQuestionFirst": "the writer contract forbids nesting saveCampaign in its prepared extension (SQLiteEventJournalWriter.ts:93). Options: (i) invert: the journal writer owns the one immediate transaction (appendPreparedWithExtension) and the campaigns row write is its extension; (ii) refuse whole-envelope PUTs on journal-native campaigns with a typed 409, which breaks every unrewired single-player save once the flip lands; (iii) append after saveCampaign in the route, which is not one transaction and leaves a crash window. Recommendation: (i).",
+        "red": "probe row (g3), red on the baseline (measured here)",
+        "reviewClasses": [
+          "authority",
+          "migration",
+          "idempotency"
+        ],
+        "estimate": "3-4 files, about 110 product lines and 200 test lines"
+      },
+      {
+        "id": "U35c (proposed)",
+        "title": "flag-agnostic re-pin of the flip-sensitive route suites",
+        "ownershipPaths": [
+          "src/__tests__/api/campaigns",
+          "src/__tests__/unit/api"
+        ],
+        "behavior": "campaigns.test.ts, campaigns.authority.test.ts, campaignAuthorityBlocked.test.ts and multiplayerCoopCreationCheckpoint.test.ts state their premise explicitly (genesis-projectable envelopes; a journal marker with no stream seeded without the route; a host campaign seeded through the genesis seam) and pass with the flag false and under a temporary flip (the measurement method used here).",
+        "red": "the four suites fail under the temporary flip (measured here)",
+        "reviewClasses": [],
+        "estimate": "4 files, 0 product lines, about 100 test lines"
+      },
+      {
+        "id": "U35d (proposed)",
+        "title": "the flip",
+        "ownershipPaths": [
+          "src/lib/campaign/sync",
+          "src/__tests__/api/campaigns/campaignPutGenesisRoute.test.ts",
+          "e2e/campaign-journal-two-process-privacy.spec.ts",
+          "e2e/campaign-journal-two-process-convergence.spec.ts",
+          "e2e/helpers/campaignJournalPrivacyFixture.ts"
+        ],
+        "behavior": "the constant true with no override, the arm deleted, the in-path flag pins and campaignPutGenesisRoute.test.ts re-pinned, the e2e flag-off assertions re-pinned, the stale flag-off comments corrected; dependsOn U35a, U35b and U35c; lands before U28.",
+        "red": "probe row (a): red on the baseline, green under the temporary flip (measured here)",
+        "reviewClasses": [
+          "authority",
+          "idempotency",
+          "migration"
+        ],
+        "estimate": "8-9 files, about 50 product lines and 200 test lines"
+      }
+    ],
+    "openQuestionForTheParent": "The behaviour sentence says every create OR ADOPT appends a genesis snapshot and a journal-native marker. After the flip, adopt imports a baseline under the migration principal and writes a SHADOWING marker (campaignLegacyAdoption.ts:144-155; campaignAuthorityMigration.ts:227), and shadowing resolves to snapshot authority (campaignAuthorityMode.ts:91-95) with nothing that advances it. Under OD-mvp-hard-cutover shadow parity is not required, but changing adoption is an authority-path edit that also touches the migration-authored snapshot U58 is about. It needs a ruling or a unit of its own; no proposed unit above holds it."
+  },
+  "risksForTheParent": [
+    "Review classes authority + idempotency + migration: every successor that changes what create, adopt, a command acknowledgement or a PUT commits needs the owner head-bound Lane B ruling on the head it merges; OD-mvp-hard-cutover delegates the design answers, not the ruling.",
+    "U28 depends on this landing (the E2E-01/02 genesis clauses need the flip, not the fixture arm); the split puts four units in front of U28 instead of one.",
+    "The main proof of the flip must run verify:qc:coop-campaign-journey and the authority-recovery ladder group: with the flip every new co-op campaign is journal-native and every co-op creation requires the marker (campaignCreationCheckpoint.ts:214-221).",
+    "Measured: after the flip a create whose envelope the genesis projection refuses (double-claimed or absent force units) answers 500 AFTER saveCampaign committed the row ([id].ts:197 vs :248-264), and a client retry at baseVersion 0 then meets the 409 stale-write guard. The shared test fixture double-claims unit ids (src/lib/campaign/persistence/__tests__/campaignFixture.ts:31); whether real client envelopes can do so is UNVERIFIED.",
+    "After the flip, campaigns created before it (no marker) cannot host co-op (the checkpoint refuses), and adopted campaigns sit in shadowing on snapshot authority; under OD-mvp-hard-cutover no pre-cutover data is protected, but a local dev database would show it.",
+    "Gate (3) goes live the moment the flip lands: the client is not rewired (task 1.2), so every single-player save of a new campaign is a whole-envelope PUT the journal does not see (measured). The flip must not land before U35b."
+  ],
+  "findingsReportedNotFixed": [
+    {
+      "id": "F1",
+      "file": "src/lib/campaign/authority/campaignCommandPipeline.ts:334-345,369",
+      "finding": "F-1 reproduced on the baseline: the marker write throws after the batch committed, executeCampaignCommand rejects, and the commands route answers 500 for a committed command. It needs a catch (and a log) around the post-commit marker report, or the marker write moved into the journal transaction. Outside the path; the unit cannot meet gate (1) without it."
+    },
+    {
+      "id": "F2",
+      "file": "src/services/campaignPersistence/CampaignPersistenceService.ts:107-190; src/pages/api/campaigns/[id].ts:196-265",
+      "finding": "Gate (3) holds (measured). The fix is a transaction-shape change in the service or the route, outside the path; the unit cannot meet gate (3) without it."
+    },
+    {
+      "id": "F3",
+      "file": "src/pages/api/campaigns/[id].ts:197,248-264",
+      "finding": "Create is not atomic with genesis: the row commits before the genesis append, and a genesis refusal answers 500 with the row already at version 1 (measured under the flip through campaigns.test.ts:143). Outside the path."
+    },
+    {
+      "id": "F4",
+      "file": "src/lib/campaign/authority/campaignLegacyAdoption.ts:144-155",
+      "finding": "Adopt writes a shadowing marker, not a journal-native one, while the behaviour sentence says create or adopt. Outside the path; needs a ruling."
+    },
+    {
+      "id": "F5",
+      "file": "charter premise",
+      "finding": "The charter places saveCampaign under src/lib/campaign/persistence; grep finds it only at src/services/campaignPersistence/CampaignPersistenceService.ts:107."
+    },
+    {
+      "id": "F6",
+      "file": "src/__tests__/api/campaigns/campaignPutGenesisRoute.test.ts:17; scripts/e2e/campaign-journal-authority.ts:63-67,93-96",
+      "finding": "Both import CAMPAIGN_JOURNAL_AUTHORITY_E2E_ENV from the in-path resolver module; deleting the constant with the arm breaks their type-check. The flip unit must keep the constant or own those files."
+    }
+  ],
+  "nonClaims": [
+    "No product or test file was changed; the worktree ends clean except this receipt. The probe suite existed only during the measurement and is preserved as a scratchpad copy with its sha256.",
+    "F-3 (the AcceptContract stamp) was not measured: driving AcceptContract end to end needs the durable offer seed (campaignAcceptContractCommand.ts); only the call-site reading (both commit paths reach acknowledgeCommit at :369) supports it.",
+    "Playwright files were not run; their flag-off assertions are counted statically.",
+    "A repository-wide `npx jest` was not run; suites outside the six measured groups are not in the inventory.",
+    "The counts under the temporary flip are for the minimal flip only (the constant true, the arm not ORed); a successor implementation may break or fix further suites.",
+    "Whether real client envelopes can fail the genesis projection is UNVERIFIED.",
+    "No tsc, oxlint, oxfmt, lint:units or qc:openspec-ci gate was run: no product or test change exists to gate."
+  ]
+}
