@@ -734,6 +734,60 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
+      "state": "blocked",
+      "baseline": "24e8bf37960e622a3875932420f9824021bd3794",
+      "prHead": "f0008f3a52dbd89ddf54a3828b54532ef9efce06",
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": {
+          "path": "evidence/u19-admission-20260922.json",
+          "baseline": "24e8bf37960e622a3875932420f9824021bd3794",
+          "at": "2026-09-22T17:40:47.019Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/u19-red-20260922.json",
+          "at": "2026-09-22T17:42:13.172Z",
+          "summary": "new genesis-on-first-append suite: 8 of 10 failed on the baseline (no genesis row; backfill count 2 where 0 expected); (e2) and (g) pass by design as the M2/M3 guards"
+        },
+        "local": {
+          "path": "evidence/u19-local-20260922.json",
+          "at": "2026-09-22T17:50:40.031Z",
+          "summary": "branch store installGenesisBranch +69, writer +45/-6, new suite 342 lines, five journal suites re-pinned (backfill 1 -> 0); journal 23 suites/243 passed, events 51/927, campaign 201 suites/2963, api+interventions+persistence 100 suites/1093; src/lib/multiplayer/server 4 suites/33 tests failed on the backfill-count pins (the blocker); tsc 0; oxlint 84 warnings 0 errors unchanged; oxfmt clean; LINT_UNITS_PASS 100/100; qc:openspec-ci errors=0; validator PASSED; three mutants caught and restored; implementer claude-opus (Agent model: opus); status BLOCKED"
+        },
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260922": "planned by the parent under OD-mvp-hard-cutover (owner, 2026-09-22) from the read-only cutover map of 2026-09-22 (Opus planning lane; its evidence is file:line on origin/main 31ab3c16e and is summarised in each behaviour sentence)",
+      "blocked20260922": {
+        "cause": "FN-u19-multiplayer-pins-assert-backfill-count: the change passes every gate on its own path, but four suites under src/lib/multiplayer/server (33 tests) assert the match mirror's backfill installs the genesis row after a first append, which the change makes the writer's job; that path is outside U19's ownership",
+        "parkedPr": 1896,
+        "nextIndependentAction": "U19b (planned in this commit) on R4.S7, which owns src/lib/events/journal and src/lib/multiplayer/server: U19's change carried by content plus the four pins re-aimed at the resulting genesis row",
+        "proof": "evidence/u19-local-20260922.json findingsReportedNotFixed"
+      }
+    },
+    {
+      "id": "U19b",
+      "node": "R4.S7",
+      "taskKeys": [],
+      "behavior": "U19's behaviour carried by content from its parked draft: the first journal append of any stream installs that stream's genesis event_history_branches row and effective head in the same transaction (installGenesisBranch on the branch store, called by SQLiteEventJournalWriter only on a stream's first append; refused or failed appends leave nothing). Plus the four multiplayer-server pins that assert backfillGenesisBranches() returns 1 after a first append (CoordinatedOutcomeCorrection, CoordinatedOutcomeCorrectionSaga, GmCombatRewindCommit, GmCombatRewindPreview) re-aimed at the resulting state: exactly one effective genesis row and head exist, whichever path installed them. Red-first: U19's genesis-on-first-append suite fails without the writer change. Proof includes verify:qc:coop-campaign-journey (launch gating turns on for journaled co-op campaigns).",
+      "ownershipPaths": [
+        "src/lib/events/journal",
+        "src/lib/multiplayer/server"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "replay"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
       "state": "planned",
       "baseline": null,
       "prHead": null,
@@ -748,7 +802,12 @@
         "tick": null
       },
       "ownerGate": null,
-      "source20260922": "planned by the parent under OD-mvp-hard-cutover (owner, 2026-09-22) from the read-only cutover map of 2026-09-22 (Opus planning lane; its evidence is file:line on origin/main 31ab3c16e and is summarised in each behaviour sentence)"
+      "source20260922": "planned by the parent as the successor named in U19's park record (FN-u19-multiplayer-pins-assert-backfill-count); R4.S7 owns both paths the change touches",
+      "predecessorParked": {
+        "unit": "U19",
+        "pr": 1896,
+        "head": "f0008f3a52dbd89ddf54a3828b54532ef9efce06"
+      }
     },
     {
       "id": "U20",
@@ -4155,6 +4214,14 @@
       "class": "missing product surface (journal cutover)",
       "summary": "Under the combat-journal fixture arm E2E-19 passes end to end (the two 2026-09-21 refusals are gone: the preview answers 200 with the real head and the correction lease admits the digest), but E2E-25's commit answers 409 candidate-verification-failed ('Branch <id> is anchored to a base its parent does not hold at revision 4'), deterministically in three armed runs. Root cause: the rewind commit verifies the candidate path through the match store (src/pages-modules/api/rewindCommitDeps.ts:133 wires matchStoreBranchSegmentReader unconditionally; the reader re-derives event ids and digests from mp_match_events) while the candidate anchors to the journal's event for the same revision (src/lib/events/journal/EventHistoryCandidateBuild.ts requireBaseEvent reads event_journal_events), so materializeBranchPath (src/lib/events/journal/EventHistoryBranchResolver.ts:203-211) can never match; the only journal-backed reader refuses every branch but root while the armed stream is on main. Proven before the refusal: the private reason reaches the server and the lease admits the named head, digest and generation. Product work in src/ owned by the combat journal cutover (adopt-combat-journal-cutover-and-gm-rewind), outside U2b's paths.",
       "status": "recorded; U2b parked on the resumed head; successor U2c ships the arming and E2E-19 and authors E2E-25 as a strict test.fail row gated @until-journal-cutover"
+    },
+    {
+      "at": "2026-09-22T17:52:11.417Z",
+      "id": "FN-u19-multiplayer-pins-assert-backfill-count",
+      "foundBy": "U19 implementer lane (claude-opus Agent lane), 2026-09-22; confirmed by the lane's mutant M1 (genesis install removed makes GmCombatRewindPreview.test.ts pass 7/7)",
+      "class": "unit ownership too narrow",
+      "summary": "U19 installs the genesis branch row and effective head inside a stream's first journal append, so the match mirror's backfillGenesisBranches() finds nothing left to install and returns 0. Four suites under src/lib/multiplayer/server/history/__tests__ (CoordinatedOutcomeCorrection.test.ts:106, CoordinatedOutcomeCorrectionSaga.test.ts:453-455, GmCombatRewindCommit.test.ts:175, GmCombatRewindPreview.test.ts:181; 33 tests) assert the backfill returns 1 right after a first append. They pin which code path installs the row, not the row itself. That path is outside U19's single ownership path (src/lib/events/journal, node R3.storage), and a unit is never widened while worked.",
+      "status": "recorded; U19 parked on its draft; successor U19b on R4.S7 (owns src/lib/events/journal and src/lib/multiplayer/server) carries U19's change by content and re-aims the four pins at the resulting genesis row"
     }
   ]
 }
