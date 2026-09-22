@@ -214,9 +214,11 @@ describe('SQLiteEventJournalWriter', () => {
   async function seedRootThenBranchTables() {
     const first = await committed(command());
     // The production runner already applied journal, baseline, branches
-    // (v23), and the SQL pin lift (v26). Genesis is backfilled from
-    // live stream heads, so it has to run AFTER the first root commit.
-    new SQLiteEventHistoryBranchStore(db).backfillGenesisBranches();
+    // (v23), and the SQL pin lift (v26). The first root commit installed
+    // the genesis branch; the backfill after it finds it and adds none.
+    expect(
+      new SQLiteEventHistoryBranchStore(db).backfillGenesisBranches(),
+    ).toBe(0);
     return first.events[0];
   }
 

@@ -77,6 +77,12 @@ describe('admitCoordinatedOutcomeCorrection', () => {
     return new SQLiteEventHistoryBranchStore(db);
   }
 
+  /**
+   * Appends four probe events to the match stream through the shipped
+   * journal, runs the backfill the match mirror still runs after an append,
+   * and asserts the stream then holds exactly one effective genesis branch
+   * and one effective head, whichever of the two installed them.
+   */
   async function seedJournal(): Promise<void> {
     const result = await new SQLiteEventJournal(db, () => AT).append({
       ...STREAM,
@@ -103,7 +109,14 @@ describe('admitCoordinatedOutcomeCorrection', () => {
       })),
     });
     expect(result.kind).toBe('committed');
-    expect(branches().backfillGenesisBranches()).toBe(1);
+    branches().backfillGenesisBranches();
+    expect(branches().listBranches(STREAM)).toMatchObject([
+      { branchId: 'root', ancestorDepth: 0, status: 'effective' },
+    ]);
+    expect(branches().readEffectiveHead(STREAM)).toMatchObject({
+      branchId: 'root',
+      effectiveGeneration: 1,
+    });
   }
 
   function seedInbox(): void {

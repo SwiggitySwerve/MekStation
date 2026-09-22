@@ -151,7 +151,12 @@ describe('previewGmCombatRewind', () => {
     };
   }
 
-  /** Four real events through the shipped writer, plus the genesis branch. */
+  /**
+   * Four real events through the shipped writer, then the backfill the match
+   * mirror still runs after an append; asserts the stream then holds exactly
+   * one effective genesis branch and one effective head, whichever of the
+   * two installed them.
+   */
   async function seedStream(): Promise<void> {
     const result = await journal().append({
       ...STREAM,
@@ -178,7 +183,14 @@ describe('previewGmCombatRewind', () => {
       })),
     });
     expect(result.kind).toBe('committed');
-    expect(branches().backfillGenesisBranches()).toBe(1);
+    branches().backfillGenesisBranches();
+    expect(branches().listBranches(STREAM)).toMatchObject([
+      { branchId: 'root', ancestorDepth: 0, status: 'effective' },
+    ]);
+    expect(branches().readEffectiveHead(STREAM)).toMatchObject({
+      branchId: 'root',
+      effectiveGeneration: 1,
+    });
   }
 
   /**

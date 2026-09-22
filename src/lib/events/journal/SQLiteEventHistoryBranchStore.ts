@@ -45,6 +45,7 @@ import type {
 } from './EventHistoryBranchContract';
 
 import {
+  EVENT_HISTORY_GENESIS_DIGEST,
   EventHistoryBranchError,
   PRODUCTION_BRANCH_CREATION_SEAM,
   assertLegalBranchStatusTransition,
@@ -52,6 +53,11 @@ import {
 } from './EventHistoryBranchContract';
 
 const BRANCH_COLUMNS = `stream_type AS streamType, stream_id AS streamId, branch_id AS branchId, parent_branch_id AS parentBranchId, ancestor_depth AS ancestorDepth, base_revision AS baseRevision, base_event_id AS baseEventId, base_digest AS baseDigest, status, created_by AS createdBy, reason, created_at AS createdAt`;
+/**
+ * The generation a stream with no stored generation of its own starts at;
+ * the same value the migration's genesis backfill falls back to.
+ */
+const FIRST_EFFECTIVE_GENERATION = 1;
 const SUPERSESSION_COLUMNS = `stream_type AS streamType, stream_id AS streamId, superseded_branch_id AS supersededBranchId, replacement_branch_id AS replacementBranchId, prior_generation AS priorGeneration, replacement_generation AS replacementGeneration, reason, recorded_at AS recordedAt`;
 
 export class SQLiteEventHistoryBranchStore {
@@ -71,6 +77,69 @@ export class SQLiteEventHistoryBranchStore {
       this.db.exec(EVENT_HISTORY_GENESIS_BACKFILL_SQL);
     })();
     return this.streamCount() - before;
+  }
+
+  /**
+   * The per-stream form of the backfill, called by the journal writer on a
+   * stream's first append. Inserts one root-shaped genesis branch (depth 0,
+   * no parent, base revision 0, no base event, the genesis digest, status
+   * `effective`) on `branchId` and one effective head naming it, whose
+   * generation is read exactly as the backfill reads it: the stream's
+   * `match_authority_baseline` generation, else 1.
+   *
+   * Opens no transaction: it runs on the caller's, so a rolled-back append
+   * takes the genesis row with it. The branch insert is skipped when the
+   * stream already has any branch row, and the head is inserted only when
+   * the branch was, so a stream that already has its genesis is untouched.
+   * Returns whether it installed.
+   */
+  public installGenesisBranch(
+    stream: IEventHistoryStreamRef,
+    branchId: string,
+    installedAt: string,
+  ): boolean {
+    const branch = this.db
+      .prepare(
+        `INSERT INTO event_history_branches (
+           stream_type, stream_id, branch_id, parent_branch_id,
+           ancestor_depth, base_revision, base_event_id, base_digest,
+           status, created_by, reason, created_at)
+         SELECT @streamType, @streamId, @branchId, NULL, 0, 0, NULL,
+                @genesisDigest, 'effective', 'event-journal',
+                'genesis branch installed by the stream''s first journal append',
+                @installedAt
+          WHERE NOT EXISTS (
+            SELECT 1 FROM event_history_branches
+             WHERE stream_type = @streamType AND stream_id = @streamId)`,
+      )
+      .run({
+        streamType: stream.streamType,
+        streamId: stream.streamId,
+        branchId,
+        genesisDigest: EVENT_HISTORY_GENESIS_DIGEST,
+        installedAt,
+      });
+    if (branch.changes === 0) return false;
+    this.db
+      .prepare(
+        `INSERT INTO event_history_effective_heads (
+           stream_type, stream_id, branch_id, effective_generation,
+           installed_at)
+         VALUES (@streamType, @streamId, @branchId,
+                 COALESCE(
+                   (SELECT effective_generation FROM match_authority_baseline
+                     WHERE stream_type = @streamType
+                       AND stream_id = @streamId),
+                   ${FIRST_EFFECTIVE_GENERATION}),
+                 @installedAt)`,
+      )
+      .run({
+        streamType: stream.streamType,
+        streamId: stream.streamId,
+        branchId,
+        installedAt,
+      });
+    return true;
   }
 
   public readBranch(

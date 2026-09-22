@@ -1,0 +1,247 @@
+{
+  "unit": "U19b",
+  "stage": "admission",
+  "at": "2026-09-22T17:57:08.971Z",
+  "baseline": "0367a2f3b8543057b2dac557426d1ea9770a05bc",
+  "originMain": "0367a2f3b8543057b2dac557426d1ea9770a05bc",
+  "baselineEqualsOriginMain": true,
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u19b",
+  "branch": "roadmap-u19b-genesis-branch-on-first-append-20260922",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "node": "R4.S7",
+  "shellPreamble": [
+    "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "export npm_config_dry_run=true"
+  ],
+  "nextOnBaseline": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "stdout": "U19b",
+    "exitCode": 0
+  },
+  "validatorOnBaseline": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+    "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+    "exitCode": 0
+  },
+  "guardNodeModulesLink": {
+    "command": "npm run qc:guard-node-modules-link",
+    "lastLine": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"E:\\\\Projects\\\\MekStation\\\\.sisyphus\\\\roadmap-completion-20260912\\\\worktrees\\\\u19b\\\\node_modules\",\"actualPath\":\"E:\\\\Projects\\\\MekStation\\\\node_modules\"}",
+    "exitCode": 1,
+    "expected": true,
+    "why": "refusal by design in a junctioned worktree; no npm install/ci/prune or lifecycle is run in this lane (npm_config_dry_run=true exported)"
+  },
+  "carriedFrom": {
+    "unit": "U19",
+    "draftPr": 1896,
+    "head": "f0008f3a52dbd89ddf54a3828b54532ef9efce06",
+    "how": "the parent carried U19 draft content into this worktree as uncommitted edits; this lane did not write them",
+    "verbatim": true,
+    "gitDiffStatAgainstDraftHead": {
+      "command": "git -C <worktree> diff --stat f0008f3a52dbd89ddf54a3828b54532ef9efce06 -- src/lib/events/journal",
+      "stdout": "...EventJournalWriter.genesisOnFirstAppend.test.ts | 342 ---------------------\n 1 file changed, 342 deletions(-)",
+      "exitCode": 0,
+      "reading": "the only entry is the new suite, which is untracked in this worktree so git diff reports it as absent; every tracked file shows no difference. The per-file blob comparison below covers all nine files including the untracked suite."
+    },
+    "files": [
+      {
+        "path": "src/lib/events/journal/SQLiteEventHistoryBranchStore.ts",
+        "worktreeSha256": "26623c51f5ea02f1635ec747fda4f0516cc986c63f04c9101d76bc9742ed2ed3",
+        "draftBlobSha256": "26623c51f5ea02f1635ec747fda4f0516cc986c63f04c9101d76bc9742ed2ed3",
+        "equal": true
+      },
+      {
+        "path": "src/lib/events/journal/SQLiteEventJournalWriter.ts",
+        "worktreeSha256": "1beac1d6c477727667e3403b95d8be0f173f31669354e0eacfb72b6d93dfecba",
+        "draftBlobSha256": "1beac1d6c477727667e3403b95d8be0f173f31669354e0eacfb72b6d93dfecba",
+        "equal": true
+      },
+      {
+        "path": "src/lib/events/journal/__tests__/EventHistoryActivation.test.ts",
+        "worktreeSha256": "b1418233d1ad5d726187e90620451414d1184d56b59266c9c177f7d452f0d5c8",
+        "draftBlobSha256": "b1418233d1ad5d726187e90620451414d1184d56b59266c9c177f7d452f0d5c8",
+        "equal": true
+      },
+      {
+        "path": "src/lib/events/journal/__tests__/EventHistoryBranchResolver.test.ts",
+        "worktreeSha256": "96ed4f3b124a3a9cf672f8ad4afc126f0b96da9dd63c2f38c36e3af5ae7bfa4e",
+        "draftBlobSha256": "96ed4f3b124a3a9cf672f8ad4afc126f0b96da9dd63c2f38c36e3af5ae7bfa4e",
+        "equal": true
+      },
+      {
+        "path": "src/lib/events/journal/__tests__/EventHistoryCandidateBuild.test.ts",
+        "worktreeSha256": "77afe666582a8b0800652aaed94bc2ac5c40d0ea74c5d46d83736b18a35efe48",
+        "draftBlobSha256": "77afe666582a8b0800652aaed94bc2ac5c40d0ea74c5d46d83736b18a35efe48",
+        "equal": true
+      },
+      {
+        "path": "src/lib/events/journal/__tests__/EventHistoryCandidateVerification.test.ts",
+        "worktreeSha256": "48dd9dee1c8cd129e9f3f56a02272094683e3a1cb6c1c2e7a701c8472324693b",
+        "draftBlobSha256": "48dd9dee1c8cd129e9f3f56a02272094683e3a1cb6c1c2e7a701c8472324693b",
+        "equal": true
+      },
+      {
+        "path": "src/lib/events/journal/__tests__/EventHistoryImpactDerivation.test.ts",
+        "worktreeSha256": "18155f4437f48d7d85e27d42b91a89241298d7ed33030b2ce5c4da550fd0225a",
+        "draftBlobSha256": "18155f4437f48d7d85e27d42b91a89241298d7ed33030b2ce5c4da550fd0225a",
+        "equal": true
+      },
+      {
+        "path": "src/lib/events/journal/__tests__/SQLiteEventJournalWriter.test.ts",
+        "worktreeSha256": "94175bb82991a17ea46d3b4795e022102e3e46389a9ac68703902c6ff7ec7c01",
+        "draftBlobSha256": "94175bb82991a17ea46d3b4795e022102e3e46389a9ac68703902c6ff7ec7c01",
+        "equal": true
+      },
+      {
+        "path": "src/lib/events/journal/__tests__/SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts",
+        "worktreeSha256": "6288902bd561a68bbc65069a666fc2d66d96e70bbeafcd6993bb304f8397fda0",
+        "draftBlobSha256": "6288902bd561a68bbc65069a666fc2d66d96e70bbeafcd6993bb304f8397fda0",
+        "equal": true
+      }
+    ],
+    "productDriftBetweenBaselines": {
+      "command": "git diff --stat 24e8bf37960e622a3875932420f9824021bd3794 0367a2f3b8543057b2dac557426d1ea9770a05bc -- src",
+      "stdout": "(empty)"
+    }
+  },
+  "gitStatusShortAtAdmission": " M src/lib/events/journal/SQLiteEventHistoryBranchStore.ts\n M src/lib/events/journal/SQLiteEventJournalWriter.ts\n M src/lib/events/journal/__tests__/EventHistoryActivation.test.ts\n M src/lib/events/journal/__tests__/EventHistoryBranchResolver.test.ts\n M src/lib/events/journal/__tests__/EventHistoryCandidateBuild.test.ts\n M src/lib/events/journal/__tests__/EventHistoryCandidateVerification.test.ts\n M src/lib/events/journal/__tests__/EventHistoryImpactDerivation.test.ts\n M src/lib/events/journal/__tests__/SQLiteEventJournalWriter.test.ts\n?? src/lib/events/journal/__tests__/SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts",
+  "ownershipPaths": [
+    "src/lib/events/journal",
+    "src/lib/multiplayer/server"
+  ],
+  "receiptsOwned": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u19b-admission-20260922.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u19b-red-20260922.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u19b-local-20260922.json"
+  ],
+  "behavior": "U19's behaviour as carried (a stream's first journal append installs its genesis event_history_branches row and effective head in the same transaction; refused or failed appends leave nothing), plus the four multiplayer-server pins re-aimed at the resulting state: after a first append and the mirror-style backfill, exactly one effective genesis branch row and one effective head exist for the stream, whichever path installed them. The mirror's backfill call stays (U24 removes it).",
+  "seams": [
+    {
+      "at": "src/lib/events/journal/SQLiteEventJournalWriter.ts:60-81",
+      "what": "appendWithExtension: one db.transaction(...).immediate() (line 81) around appendInTransaction"
+    },
+    {
+      "at": "src/lib/events/journal/SQLiteEventJournalWriter.ts:99-137",
+      "what": "appendPreparedWithExtension: prepare + extend(append) inside one immediate transaction (line 137); the match mirror uses it"
+    },
+    {
+      "at": "src/lib/events/journal/SQLiteEventJournalWriter.ts:172-267",
+      "what": "appendInTransaction; line 264 (carried) calls installGenesisOnFirstAppend only when there was no head for (stream, branch), after the batch rows and before advanceHead"
+    },
+    {
+      "at": "src/lib/events/journal/SQLiteEventJournalWriter.ts:419-427",
+      "what": "hasHistoryBranchTables (carried): the sqlite_master probe, reused by isSeededCandidateHead at 397"
+    },
+    {
+      "at": "src/lib/events/journal/SQLiteEventJournalWriter.ts:438-454",
+      "what": "installGenesisOnFirstAppend (carried): returns when the branch tables are absent or the stream has a journal head on any branch, else calls the store"
+    },
+    {
+      "at": "src/lib/events/journal/SQLiteEventHistoryBranchStore.ts:74-80",
+      "what": "backfillGenesisBranches: global migration SQL in its own nestable transaction; returns the count of streams added"
+    },
+    {
+      "at": "src/lib/events/journal/SQLiteEventHistoryBranchStore.ts:96-143",
+      "what": "installGenesisBranch (carried): NOT EXISTS-guarded root-shaped effective branch + effective head on the caller transaction"
+    },
+    {
+      "at": "src/lib/multiplayer/server/MatchStreamJournalMirror.ts:205-213",
+      "what": "mirrorMatchBatchToJournal docstring: says the match stream's genesis goes through backfillGenesisBranches after the append; false once the append installs it (U19 finding F2): comment-only correction in this unit"
+    },
+    {
+      "at": "src/lib/multiplayer/server/MatchStreamJournalMirror.ts:264",
+      "what": "branches.backfillGenesisBranches() after a committed append: stays (U24 removes it)"
+    },
+    {
+      "at": "src/lib/multiplayer/server/history/__tests__/CoordinatedOutcomeCorrection.test.ts:106",
+      "what": "pin: expect(branches().backfillGenesisBranches()).toBe(1) after a first append"
+    },
+    {
+      "at": "src/lib/multiplayer/server/history/__tests__/CoordinatedOutcomeCorrectionSaga.test.ts:453-455",
+      "what": "pin: expect(new SQLiteEventHistoryBranchStore(journalDb).backfillGenesisBranches()).toBe(1) after a first append"
+    },
+    {
+      "at": "src/lib/multiplayer/server/history/__tests__/GmCombatRewindCommit.test.ts:175",
+      "what": "pin: expect(branches().backfillGenesisBranches()).toBe(1) after a first append"
+    },
+    {
+      "at": "src/lib/multiplayer/server/history/__tests__/GmCombatRewindPreview.test.ts:181",
+      "what": "pin: expect(branches().backfillGenesisBranches()).toBe(1) after a first append"
+    },
+    {
+      "at": "src/services/persistence/SQLiteService.historyBranches.migration.ts:183-190",
+      "what": "event_history_effective_heads PRIMARY KEY (stream_type, stream_id): at most one effective head per stream, so a non-null readEffectiveHead is exactly one (read-only)"
+    }
+  ],
+  "design": [
+    "Carried product change unchanged: SQLiteEventHistoryBranchStore.installGenesisBranch and the writer first-append call, as in U19 draft f0008f3a5.",
+    "Each of the four pins keeps its backfill call (it stands for the mirror's call, which stays) but stops asserting its return count; it asserts the state instead: listBranches(STREAM) is exactly one root-shaped (parent null, depth 0) effective branch 'root', and readEffectiveHead(STREAM) names 'root'. Path-agnostic by design, so these pins pass whether the append or the backfill installed the row.",
+    "Because the re-aimed pins are path-agnostic, mutant M1 (install skipped) is caught in the genesis suite: its test (d) additionally asserts both streams' genesis rows exist right after the appends, before the backfill runs.",
+    "MatchStreamJournalMirror.ts docstring at 205-213: the sentence claiming genesis goes through backfillGenesisBranches is corrected to say the append installs it and the backfill call is kept for streams that predate that (comment only; the call stays)."
+  ],
+  "estimatePerFile": [
+    {
+      "file": "src/lib/events/journal/SQLiteEventHistoryBranchStore.ts",
+      "category": "product",
+      "estimateLines": 69,
+      "note": "carried, measured by U19"
+    },
+    {
+      "file": "src/lib/events/journal/SQLiteEventJournalWriter.ts",
+      "category": "product",
+      "estimateLines": 51,
+      "note": "carried (+45/-6), measured by U19"
+    },
+    {
+      "file": "src/lib/multiplayer/server/MatchStreamJournalMirror.ts",
+      "category": "product (comment only)",
+      "estimateLines": 12
+    },
+    {
+      "file": "src/lib/events/journal/__tests__/SQLiteEventJournalWriter.genesisOnFirstAppend.test.ts",
+      "category": "test",
+      "estimateLines": 346,
+      "note": "carried 342 + about 4 for the before-backfill assertion"
+    },
+    {
+      "file": "five carried journal suites (Activation, BranchResolver, CandidateBuild, CandidateVerification, ImpactDerivation) + SQLiteEventJournalWriter.test.ts",
+      "category": "test",
+      "estimateLines": 24,
+      "note": "carried, measured by U19"
+    },
+    {
+      "file": "src/lib/multiplayer/server/history/__tests__/CoordinatedOutcomeCorrection.test.ts",
+      "category": "test",
+      "estimateLines": 10
+    },
+    {
+      "file": "src/lib/multiplayer/server/history/__tests__/CoordinatedOutcomeCorrectionSaga.test.ts",
+      "category": "test",
+      "estimateLines": 12
+    },
+    {
+      "file": "src/lib/multiplayer/server/history/__tests__/GmCombatRewindCommit.test.ts",
+      "category": "test",
+      "estimateLines": 10
+    },
+    {
+      "file": "src/lib/multiplayer/server/history/__tests__/GmCombatRewindPreview.test.ts",
+      "category": "test",
+      "estimateLines": 10
+    }
+  ],
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedProductLines": 500,
+    "u19MeasuredProductLines": 120,
+    "expectedFiles": 14,
+    "expectedProductLines": 132,
+    "note": "charter states the cap as 500 non-generated product lines; the total changed lines including tests are also reported in the local receipt because U19 alone measured 486 total"
+  },
+  "risksForTheParent": [
+    "Launch gating turns on for journaled co-op campaigns: once a campaign stream's first append installs an effective head, launch-head resolution can answer it; the parent's main proof runs verify:qc:coop-campaign-journey.",
+    "Review classes authority + replay need the owner's head-bound Lane B ruling.",
+    "The re-aimed multiplayer pins are path-agnostic by the unit sentence (\"whichever path installed them\"), so on their own they no longer detect the append failing to install genesis; that detection lives in the genesis suite (M1).",
+    "Every stream type gets a genesis row on first append (campaign, match, campaign replica, test streams); the local stage reruns the campaign, api and interventions suites to surface any collision rather than editing outside ownership.",
+    "Cap reading: product lines stay near 130 of 500; total changed lines including tests will be above 500 (U19 alone was 486). The local receipt reports both."
+  ]
+}

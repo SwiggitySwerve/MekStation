@@ -124,7 +124,8 @@ describe('activateCandidateBranch', () => {
       })),
     });
     expect(result.kind).toBe('committed');
-    expect(branches().backfillGenesisBranches()).toBe(1);
+    // The first append installed the genesis branch; the backfill adds none.
+    expect(branches().backfillGenesisBranches()).toBe(0);
     const head = db
       .prepare(
         `SELECT stream_revision AS revision, event_digest AS digest
