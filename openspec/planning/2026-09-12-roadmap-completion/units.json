@@ -1560,10 +1560,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "local-verified",
+      "state": "complete",
       "baseline": "05794b930927e4e70976b5005747bff6f0e9b4f5",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "21150333790292517f0cec074295abc6c7372d85",
+      "mergeSha": "53bd8f0a84fad3b60809f4b5e2a9dd6fb7f425aa",
       "stageReceipts": {
         "admission": {
           "path": "evidence/u5g-admission-20260921.json",
@@ -1582,10 +1582,31 @@
           "at": "2026-09-22T05:01:32.2461152Z",
           "summary": "GET /api/matches/:id/head answers the host-as-GM the effective head { branchId, revision, effectiveGeneration, digest } through the exported readEffectiveStreamHead, the seam the lease store binds against, for the commit route's stream ref; other callers 403 constant, no bearer 401, no head 404; head route 11/11, private-preview 10/10, API group 107/107; 85 product lines; M1-M3 caught and restored; tsc 0, oxlint 0 errors, lint:units 100/100, validator PASSED"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "review": {
+          "path": "evidence/u5g-review-20260922.json",
+          "head": "21150333790292517f0cec074295abc6c7372d85",
+          "reviewedHead": "21150333790292517f0cec074295abc6c7372d85",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet)",
+          "implementerModel": "codex (gpt-6-astra, xhigh)",
+          "outputSha256": "851321d91d496c24ec593815641ae4cb4f17a8a7603a337d0c95ebb953221c41",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u5g-merge-20260922.json",
+          "pr": 1871,
+          "head": "21150333790292517f0cec074295abc6c7372d85",
+          "mergeSha": "53bd8f0a84fad3b60809f4b5e2a9dd6fb7f425aa"
+        },
+        "mainProof": {
+          "path": "evidence/u5g-mainproof-20260922.json",
+          "mergeCommit": "53bd8f0a84fad3b60809f4b5e2a9dd6fb7f425aa",
+          "verdict": "PASS",
+          "runtime": "Tests:       107 passed, 107 total"
+        },
+        "tick": {
+          "path": "evidence/u5g-tick-20260922.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "source20260921": "owner decision on PK-rewind-commit-head-digest, option (a) (chat, 2026-09-21); the route half; planned by the parent",
@@ -3049,8 +3070,22 @@
       ],
       "agentRecommendation": "rule the head once Lane A has approved it and the checks are green",
       "revertCost": "low: a squash merge revert",
-      "decision": null,
-      "ruling": null,
+      "decision": {
+        "at": "2026-09-22T00:10:00.000Z",
+        "option": "rule the head",
+        "text": "approved, continue the loop",
+        "source": "owner instruction 2026-09-22 in the working session (chat), after the parent explained the unit in plain language"
+      },
+      "ruling": {
+        "ruledHead": "21150333790292517f0cec074295abc6c7372d85",
+        "pr": 1871,
+        "commentId": 5771907101,
+        "author": "SwiggitySwerve",
+        "label": "owner-ruled",
+        "bodySha256": "50d03e336cc93effbdfd82b84ed138139b82a335164664c0a3f6eda8bcfd0ed9",
+        "postedBy": "parent on the owner's instruction (the comment quotes the owner's words verbatim)",
+        "deviationDisclosed20260922": "DELIVERY.md says the owner posts the ruling out of band; the owner approved this unit by description in chat on 2026-09-22 (words quoted in the comment) after the parent had explained the route in plain language and reported Lane A's APPROVE and 31 green checks on the head, and the parent composed and posted the comment from the owner GitHub account and applied the label; the parent supplied the head from the ledger, as in the earlier rulings of this loop"
+      },
       "note": "pre-opened with the unit so the authority class is visible from admission (same shape as PK-u5a-ruling)"
     }
   ],

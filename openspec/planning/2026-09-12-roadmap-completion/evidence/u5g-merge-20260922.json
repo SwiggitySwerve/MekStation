@@ -1,0 +1,23 @@
+{
+  "unit": "U5g",
+  "stage": "merge",
+  "at": "2026-09-22T06:13:45.451Z",
+  "pr": 1871,
+  "title": "feat(api): a GM head route answers the effective head with the journal digest the correction lease binds against (U5g)",
+  "head": "21150333790292517f0cec074295abc6c7372d85",
+  "mergeSha": "53bd8f0a84fad3b60809f4b5e2a9dd6fb7f425aa",
+  "mergedAt": "2026-09-22T06:02:18Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u5g-admission-20260921.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u5g-local-20260921.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u5g-red-20260921.json",
+    "src/pages-modules/api/__tests__/matchHeadRoute.test.ts",
+    "src/pages-modules/api/matchHeadRoute.ts",
+    "src/pages/api/matches/[id]/head.ts"
+  ],
+  "blobEqualityDiffLines": 0
+}
