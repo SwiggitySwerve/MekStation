@@ -564,27 +564,27 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": "3137f5b619c4597076d9a274ca0b4d0bbe364ab4",
-      "prHead": "e00303cad38dace93f325d77d7c866c02b2c89f6",
+      "state": "blocked",
+      "baseline": "5b5f99ef69b019c0cefcef7f5214977ae087627c",
+      "prHead": "cbb0e214e5aac4fb1e2b9cad9cb56f93fbdc387b",
       "mergeSha": null,
       "stageReceipts": {
         "admission": {
-          "path": "evidence/u2b-admission-20260921.json",
-          "baseline": "3137f5b619c4597076d9a274ca0b4d0bbe364ab4",
-          "at": "2026-09-21T19:53:20.3096443Z",
+          "path": "evidence/u2b-admission-20260922.json",
+          "baseline": "5b5f99ef69b019c0cefcef7f5214977ae087627c",
+          "at": "2026-09-22T07:07:46Z",
           "decision": "go",
           "parentDecisionRecordedHere": true
         },
         "red": {
-          "path": "evidence/u2b-red-20260921.json",
-          "at": "2026-09-21T20:08:24.589Z",
-          "summary": "see evidence/u2b-red-20260921.json"
+          "path": "evidence/u2b-red-20260922.json",
+          "at": "2026-09-22T07:07:46Z",
+          "summary": "unarmed: no @E2E-19/@E2E-25 row on the baseline; with the rows and no arm both fail at previewCorrection (since U5g-U5i the lobby reads GET /head first, gets 404 no head and posts nothing: the unarmed db holds 0 journal events, heads and branches); armed: E2E-19 passes, E2E-25 fails at spec:297 on the 409"
         },
         "local": {
-          "path": "evidence/u2b-local-20260921.json",
-          "at": "2026-09-21T20:08:24.589Z",
-          "summary": "see evidence/u2b-local-20260921.json"
+          "path": "evidence/u2b-local-20260922.json",
+          "at": "2026-09-22T07:07:46Z",
+          "summary": "spec +264/-22, core.cjs +5/-5, qc pin +7/-2; privacy-pack 1 failed / 7 passed in three armed runs (stable), proposal-pack 2 passed, authority-recovery 4 passed; qc pin 14/14; tsc 0; oxlint 84 warnings 0 errors; oxfmt clean; LINT_UNITS_PASS 100/100; qc:openspec-ci errors=0; validator PASSED; --next U2b on the baseline; E2E build exits 1 by the hydration guard as expected with the __E2E_MODE__ marker present; mutants M1, M2 and M3' caught and restored (the charter's M3 sits below the refusal, not demonstrable); implementer claude-opus (Agent model: opus); status BLOCKED"
         },
         "review": null,
         "merge": null,
@@ -623,7 +623,55 @@
           "head": "e00303cad38dace93f325d77d7c866c02b2c89f6",
           "note": "the draft's product files (e2e/gm-two-player-privacy.pack.spec.ts, scripts/qc/gm-two-player-campaign-core.cjs, scripts/__tests__/gm-two-player-campaign-qc.test.ts) are carried into a fresh worktree off main by content; the 20260921 receipts on main (annotated) stay as history and the resumed lane writes u2b-*-20260922 receipts from a fresh admission that re-measures both refusals"
         }
+      },
+      "blocked20260922": {
+        "cause": "FN-u2b-rewind-commit-verifies-through-the-match-store: under the arm E2E-19 passes and both 2026-09-21 refusals are gone, but E2E-25's commit answers 409 candidate-verification-failed because the rewind commit verifies the candidate path through the match store while the candidate anchors to the journal; product work in src/ owned by the combat journal cutover",
+        "parkedPr": 1886,
+        "nextIndependentAction": "U2c (planned in this commit): the arming and the E2E-19 row from this head by content, E2E-25 authored as a strict test.fail row gated @until-journal-cutover (the E2E-40..44 precedent), privacy class with PK-u2c-ruling; 21.2 stays held by U2b until E2E-25 passes under a journal-backed segment reader (cutover-owned) or the owner rules PK-umbrella-acceptance-unsatisfiable so that gated rows are excluded",
+        "proof": "evidence/u2b-local-20260922.json findingsReportedNotFixed"
       }
+    },
+    {
+      "id": "U2c",
+      "node": "R6.umbrella",
+      "taskKeys": [],
+      "behavior": "The deliverable half of the re-parked U2b, by content from its parked head: the privacy-pack ladder group arms the combat-journal fixture the way authority-recovery does (scripts/qc/gm-two-player-campaign-core.cjs, pinned in scripts/__tests__/gm-two-player-campaign-qc.test.ts) and the E2E-19 row (GM rewind preview read back as the GM with the payload and as a seated player without it; player timeline and export carry no draft) passes under it. E2E-25 is authored verbatim as a strict `test.fail` row tagged `@until-journal-cutover`, the E2E-40..44 precedent, because its commit is refused at the candidate anchor (FN-u2b-rewind-commit-verifies-through-the-match-store: the rewind commit verifies through the match store while the candidate anchors to the journal); the pack's header names the gate and what E2E-25 proves before the refusal (the reason reaches the server; the lease admits the digest). Privacy-pack group: 7 passed, 1 expected failure, zero unexpected passes; proposal-pack and authority-recovery unchanged. No product change; no tick: 21.2 stays held by U2b until E2E-25 passes or the owner rules PK-umbrella-acceptance-unsatisfiable so that gated rows are excluded.",
+      "ownershipPaths": [
+        "e2e",
+        "scripts/qc",
+        "openspec/changes/harden-gm-two-player-campaign-sessions"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "privacy"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "packet": "PK-u2c-ruling",
+      "source20260922": "planned by the parent as the narrower successor named in U2b's blocked20260922 record; the owner asked on 2026-09-22 to resolve the open pending PRs, and this is the honest shape of what U2b's resumed head can deliver",
+      "predecessorParked": {
+        "unit": "U2b",
+        "head": "cbb0e214e5aac4fb1e2b9cad9cb56f93fbdc387b"
+      },
+      "rowsUnblocked": [
+        "E2E-19 (green); E2E-25 authored and gated, not green"
+      ]
     },
     {
       "id": "U3",
@@ -3145,6 +3193,17 @@
         "deviationDisclosed20260922": "DELIVERY.md says the owner posts the ruling out of band; the owner approved this unit by description in chat on 2026-09-22 (words quoted in the comment) after the parent had explained the route in plain language and reported Lane A's APPROVE and 31 green checks on the head, and the parent composed and posted the comment from the owner GitHub account and applied the label; the parent supplied the head from the ledger, as in the earlier rulings of this loop"
       },
       "note": "pre-opened with the unit so the authority class is visible from admission (same shape as PK-u5a-ruling)"
+    },
+    {
+      "id": "PK-u2c-ruling",
+      "openedAt": "2026-09-22T05:00:00.000Z",
+      "class": "owner ruling (privacy)",
+      "blocks": [
+        "U2c"
+      ],
+      "question": "U2c is privacy class (its rows read GM private previews as a player and as the GM); DELIVERY.md step 5 requires the owner's OWNER-RULING <head> comment and the owner-ruled label on the exact PR head before merge. The parent will describe the PR in plain English when Lane A and CI have settled.",
+      "decision": null,
+      "ruling": null
     }
   ],
   "deferrals": [
@@ -3400,6 +3459,14 @@
       "class": "missing product surface",
       "summary": "With the privacy-pack group armed with the combat-journal fixture the 404 no-authoritative-history disappears, but the lobby's rewind preview answers 409 STALE_BRANCH: src/pages-modules/multiplayer/useGmRewindProducers.ts:69-81 names the fallback branch root, an empty digest and the first generation while the effective branch under the fixture is main (sqlite: branch_id main, effective_generation 1); approve answers 409 correction-lease-held because the lease requires a 64-character journal digest (EventHistoryCorrectionLeaseContract.ts:200) and no client seam exposes one (IActiveBranchHead and the timeline lineage carry no digest; the rewind e2e helper also sends an empty digest and its commit rows are @until-journal-cutover). E2E-19's preview needs only the real branch (successors U5e/U5f); E2E-25's commit needs a digest source, an owner decision (PK-rewind-commit-head-digest).",
       "status": "resolved: head naming by U5e/U5f, digest by U5g/U5h/U5i (option a of PK-rewind-commit-head-digest); U2b resumed 2026-09-22"
+    },
+    {
+      "at": "2026-09-22T07:15:47.644Z",
+      "id": "FN-u2b-rewind-commit-verifies-through-the-match-store",
+      "foundBy": "U2b resume lane (claude-opus Agent lane), 2026-09-22; seams re-read by the parent",
+      "class": "missing product surface (journal cutover)",
+      "summary": "Under the combat-journal fixture arm E2E-19 passes end to end (the two 2026-09-21 refusals are gone: the preview answers 200 with the real head and the correction lease admits the digest), but E2E-25's commit answers 409 candidate-verification-failed ('Branch <id> is anchored to a base its parent does not hold at revision 4'), deterministically in three armed runs. Root cause: the rewind commit verifies the candidate path through the match store (src/pages-modules/api/rewindCommitDeps.ts:133 wires matchStoreBranchSegmentReader unconditionally; the reader re-derives event ids and digests from mp_match_events) while the candidate anchors to the journal's event for the same revision (src/lib/events/journal/EventHistoryCandidateBuild.ts requireBaseEvent reads event_journal_events), so materializeBranchPath (src/lib/events/journal/EventHistoryBranchResolver.ts:203-211) can never match; the only journal-backed reader refuses every branch but root while the armed stream is on main. Proven before the refusal: the private reason reaches the server and the lease admits the named head, digest and generation. Product work in src/ owned by the combat journal cutover (adopt-combat-journal-cutover-and-gm-rewind), outside U2b's paths.",
+      "status": "recorded; U2b parked on the resumed head; successor U2c ships the arming and E2E-19 and authors E2E-25 as a strict test.fail row gated @until-journal-cutover"
     }
   ]
 }
