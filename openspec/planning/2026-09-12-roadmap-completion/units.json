@@ -649,14 +649,28 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
+      "state": "local-verified",
+      "baseline": "62391de467fe080f9787e4adc5f28a7a5f774de7",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/u2c-admission-20260922.json",
+          "baseline": "62391de467fe080f9787e4adc5f28a7a5f774de7",
+          "at": "2026-09-22T07:55:00Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/u2c-red-20260922.json",
+          "at": "2026-09-22T07:55:00Z",
+          "summary": "no @E2E-19/@E2E-25 row on the baseline; armed with E2E-25 ungated: privacy-pack 1 failed / 7 passed, the 409 candidate-verification-failed at spec:314 (U2b's :297 moved with its header rewrite); gated: 8 passed with the row marked expected-failed and 0 unexpected passes"
+        },
+        "local": {
+          "path": "evidence/u2c-local-20260922.json",
+          "at": "2026-09-22T07:55:00Z",
+          "summary": "spec +295/-22, core.cjs +5/-5, qc pin +7/-2 (307/29, 300 product lines); privacy-pack 8 passed twice in a row (7 ok, 1 expected failure, 0 unexpected passes, read off the per-row reporter lines: Playwright prints no 7/1/0 sentence), proposal-pack 2 passed, authority-recovery 4 passed; qc pin 14/14; tsc 0; oxlint 84 warnings 0 errors; oxfmt clean; LINT_UNITS_PASS 100/100; qc:openspec-ci errors=0; validator PASSED; --next U2c on the baseline; guard CLI INSTALL_REFUSED in the junctioned worktree by design; E2E build exits 1 by the hydration guard as expected with the __E2E_MODE__ marker present; three live mutants caught and restored (E2E-19 inverted fails at :287; arming removed fails E2E-19 at previewCorrection with 0 journal rows in the db; the gate removed fails on the live 409 at :341); implementer claude-opus (Agent model: opus); new finding FN-u2c-gated-row-absorbs-unrelated-failures (a marked row reports any failure as the expected one with no body: mitigated by the header naming the exact refusal and by E2E-19 sharing the arming); status ready"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
