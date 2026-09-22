@@ -1,0 +1,126 @@
+{
+  "unit": "U5h",
+  "stage": "admission",
+  "at": "2026-09-22 05:10:03 UTC",
+  "baseline": "759224fc30e1a724dae54d186de37f72bcda7ef2",
+  "originMain": "759224fc30e1a724dae54d186de37f72bcda7ef2",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u5h",
+  "branch": "codex/roadmap-u5h-head-adapter-digest-20260921",
+  "implementerModel": "codex (gpt-6-astra xhigh)",
+  "modelEvidence": "Current session's initial turn_context reports model gpt-6-astra and effort xhigh.",
+  "decision": "go",
+  "next": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "exitCode": 0,
+    "stdout": "U5h",
+    "note": "--next printed U5h on this baseline."
+  },
+  "dependencies": {
+    "node": "R2.combat",
+    "nodeState": "main-verified",
+    "dependsOn": [
+      {
+        "id": "R1.remote",
+        "state": "main-verified",
+        "source": "roadmap.json:1355-1359"
+      }
+    ],
+    "packet": "PK-rewind-commit-head-digest",
+    "option": "a",
+    "packetSource": "units.json:2907-2947",
+    "U2b": "blocked; resumeAfter U5g, U5h and U5i complete (units.json:611-617)"
+  },
+  "seams": [
+    {
+      "file": "src/lib/multiplayer/client/readGmRewindHead.ts",
+      "lines": "8-11,19-57",
+      "asRead": "GET timeline with bearer; lineage.effectiveHead maps to head/no-head/unavailable; head has branchId/revision/generation and no digest."
+    },
+    {
+      "file": "src/lib/multiplayer/client/__tests__/readGmRewindHead.test.ts",
+      "lines": "11-16,25-69,136-192",
+      "asRead": "global.fetch faked; strict outcomes, request path/header and fresh-per-call pins."
+    },
+    {
+      "file": "src/pages-modules/multiplayer/useGmRewindProducers.ts",
+      "lines": "41-65,89-103",
+      "asRead": "buildGmRewindRequest uses head.branchId/revision/generation; expectedDigest is ''; approve reuses the preview body."
+    },
+    {
+      "file": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u5g/src/pages-modules/api/matchHeadRoute.ts",
+      "lines": "33-35,52-58,64-80",
+      "asRead": "Read-only sibling handler: host-as-GM gets exactly { branchId, revision, effectiveGeneration, digest }; 404 { error: 'no head' } for no stream head; 404 { error: 'unknown match' } for unknown match; constant 403 otherwise."
+    },
+    {
+      "file": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u5g/src/pages-modules/api/__tests__/matchHeadRoute.test.ts",
+      "lines": "193-246,249-311",
+      "asRead": "Pins exact four-field body, lowercase 64-hex digest equal to lease head, 403 Authorization refused, 401 without bearer, POST 405, unknown/no-head 404."
+    }
+  ],
+  "routeOnBaseline": false,
+  "routeBaselineEvidence": "git ls-tree -r HEAD -- 'src/pages/api/matches/*/head.ts' src/pages-modules/api/matchHeadRoute.ts produced no entries.",
+  "routeDeliveryState": "Per parent brief, U5g is unmerged and no PR is open; commit awaits a machine-idle window. No live route needed: adapter fetch is faked in Jest.",
+  "outcomeShape": {
+    "head": "{ kind: 'head', head: { branchId: string, revision: number, generation: number, digest: string } }",
+    "generation": "copied from effectiveGeneration",
+    "digest": "copied verbatim only for exactly 64 lowercase hexadecimal characters",
+    "noHead": "404 { error: 'no head' } => { kind: 'no-head' }",
+    "unavailable": "Other non-200 status, thrown fetch/JSON, missing or wrong-type field or malformed digest => { kind: 'unavailable' }, no error text."
+  },
+  "estimatePerFile": [
+    {
+      "file": "src/lib/multiplayer/client/readGmRewindHead.ts",
+      "class": "product",
+      "changedLines": 38
+    },
+    {
+      "file": "src/lib/multiplayer/client/__tests__/readGmRewindHead.test.ts",
+      "class": "test",
+      "changedLines": 210
+    },
+    {
+      "file": "openspec/planning/2026-09-12-roadmap-completion/evidence/u5h-admission-20260921.json",
+      "class": "receipt",
+      "changedLines": 180
+    },
+    {
+      "file": "openspec/planning/2026-09-12-roadmap-completion/evidence/u5h-red-20260921.json",
+      "class": "receipt",
+      "changedLines": 180
+    },
+    {
+      "file": "openspec/planning/2026-09-12-roadmap-completion/evidence/u5h-local-20260921.json",
+      "class": "receipt",
+      "changedLines": 300
+    }
+  ],
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedProductLines": 500,
+    "estimatedFiles": 5,
+    "estimatedProductLinesChanged": 38
+  },
+  "review": {
+    "classes": ["routine"],
+    "lane": "Lane A only"
+  },
+  "risksForTheParent": [
+    "U5g's route is not on this baseline; this adapter is only locally tested against its faked response.",
+    "U5i must follow before the digest reaches preview and commit requests."
+  ],
+  "acceptanceCommands": [
+    "npx jest src/lib/multiplayer/client/__tests__/readGmRewindHead.test.ts --runInBand",
+    "npx jest src/lib/multiplayer/client --runInBand",
+    "npx tsc --noEmit",
+    "npx oxlint",
+    "npx oxfmt --check <the five changed files>",
+    "npm run lint:units",
+    "npm run qc:openspec-ci:validate",
+    "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs"
+  ],
+  "constraints": [
+    "Node 22.22.0; npm_config_dry_run=true; npm_config_ignore_scripts=true; npm_config_offline=true.",
+    "No dependency lifecycle, build, Playwright, ladder, Git publication or ledger/task edits.",
+    "Only the adapter, its test and three U5h receipts are owned."
+  ]
+}
