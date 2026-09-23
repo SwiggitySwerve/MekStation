@@ -12,13 +12,19 @@
  * `validateExpectedBranchHead` compares against, so the client can send
  * it straight back as its expected head.
  *
- * Status codes:
- * - `200 {kind:'head', ...}` - the campaign has an effective branch.
- * - `200 {kind:'no-authoritative-stream'}` - the campaign exists and has
- *   no journal stream. NOT a 404: the campaign is launchable, it simply
- *   has no head to name while the cutover flag is off, and the launch
- *   acts on it by proceeding ungated.
- * - `404` - no such campaign. The launch refuses.
+ * Status codes (owner decision OD-launch-head-gate, as
+ * `resolveCampaignLaunchHead` implements it):
+ * - `200 {kind:'head', ...}` - the campaign has a journal stream; the
+ *   branch and revision are the journal's effective head, the generation
+ *   the effective head's.
+ * - `200 {kind:'no-authoritative-stream'}` - the campaign exists and the
+ *   journal holds no committed event for it. NOT a 404: the campaign is
+ *   launchable and has no head to name.
+ * - `404` - no such campaign.
+ * - `500 {error}` - a journaled campaign with no effective head: the
+ *   resolver throws `no-effective-branch` rather than answering
+ *   `no-authoritative-stream`, which would name no head for a campaign
+ *   the journal holds.
  *
  * @spec openspec/changes/harden-gm-two-player-campaign-sessions/specs/campaign-management/spec.md
  */

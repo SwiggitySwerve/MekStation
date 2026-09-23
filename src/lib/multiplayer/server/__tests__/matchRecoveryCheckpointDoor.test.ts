@@ -41,11 +41,11 @@ import { DurableMatchStore } from '../DurableMatchStore';
 import { commitGmCombatRewind } from '../history/GmCombatRewindCommit';
 import { matchStreamRef } from '../history/GmCombatRewindPreview';
 import {
-  matchStoreBranchSegmentReader,
   nextMatchSequenceAfter,
   revisionForMatchSequence,
 } from '../history/matchStoreBranchSegmentReader';
 import { InMemoryMatchStore } from '../InMemoryMatchStore';
+import { MATCH_BASELINE_BRANCH_ID } from '../matchAuthorityBaseline';
 import { matchStoreHistoryReader } from '../MatchCheckpointHistory';
 import { _setCombatJournalAuthorityModeForTests } from '../matchJournalAuthority';
 import { recoverActiveMatches } from '../MatchRecovery';
@@ -301,79 +301,26 @@ describe('match recovery checkpoint door', () => {
     }).initialize();
     await writeLog(store);
     const db = getSQLiteService().getDatabase();
-    // Same alignment as the rewind-commit route: journal id/digest must
-    // be the match-store reader's, or candidate verification refuses.
-    const stream = matchStreamRef(MATCH_ID);
-    const chained = await matchStoreBranchSegmentReader(store).read(stream, {
-      kind: 'prefix',
-      branchId: 'root',
-      fromRevision: 0,
-      throughRevision: HEAD_REVISION,
-      baseEventId: null,
-      baseDigest: '0'.repeat(64),
-    });
-    const headEvent = chained[chained.length - 1];
-    if (headEvent === undefined) {
-      throw new Error('match-store reader returned no events');
+    // The log reaches the journal through the S1 mirror's create-path
+    // seed, the history the commit anchors its candidate to and verifies
+    // against (U21). The head is persisted state; the rest of the row
+    // runs with no mode set.
+    _setCombatJournalAuthorityModeForTests('enabled');
+    try {
+      await store.seedJournalFromInitialEvents(MATCH_ID, EVENTS);
+    } finally {
+      _setCombatJournalAuthorityModeForTests(null);
     }
-    db.prepare(
-      `INSERT INTO event_journal_batches (
-         command_id, command_digest, canonicalizer_version, stream_type,
-         stream_id, branch_id, event_count, first_stream_revision,
-         last_stream_revision, first_commit_position, last_commit_position,
-         recorded_at)
-       VALUES (?, ?, 1, 'match', ?, 'root', ?, 1, ?, 1, ?, ?)`,
-    ).run(
-      `cmd-${MATCH_ID}`,
-      'a'.repeat(64),
-      MATCH_ID,
-      chained.length,
-      chained.length,
-      chained.length,
-      RECORDED_AT,
-    );
-    const insert = db.prepare(
-      `INSERT INTO event_journal_events (
-         event_id, command_id, stream_type, stream_id, branch_id,
-         stream_revision, commit_position, command_index, event_type,
-         event_version, correlation_id, actor_kind, actor_id,
-         authority_type, authority_id, occurred_at, recorded_at,
-         canonicalizer_version, previous_stream_event_digest, event_digest,
-         payload_json)
-       VALUES (?, ?, 'match', ?, 'root', ?, ?, ?, ?, 1, ?, 'human', ?,
-               'host', ?, ?, ?, 1, ?, ?, '{}')`,
-    );
-    chained.forEach((event, index) => {
-      insert.run(
-        event.eventId,
-        `cmd-${MATCH_ID}`,
-        MATCH_ID,
-        event.streamRevision,
-        index + 1,
-        index,
-        event.eventType,
-        `corr-${MATCH_ID}`,
-        META.hostPlayerId,
-        MATCH_ID,
-        RECORDED_AT,
-        RECORDED_AT,
-        event.previousStreamEventDigest,
-        event.eventDigest,
-      );
-    });
-    db.prepare(
-      `INSERT INTO event_journal_stream_heads
-         (stream_type, stream_id, branch_id, stream_revision, event_digest)
-       VALUES ('match', ?, 'root', ?, ?)`,
-    ).run(MATCH_ID, headEvent.streamRevision, headEvent.eventDigest);
-    expect(
-      new SQLiteEventHistoryBranchStore(db).backfillGenesisBranches(),
-    ).toBe(1);
+    const stream = matchStreamRef(MATCH_ID);
     const branches = new SQLiteEventHistoryBranchStore(db);
     const streamHead = readEffectiveStreamHead(db, branches, stream);
+    expect(streamHead).toMatchObject({
+      branchId: MATCH_BASELINE_BRANCH_ID,
+      revision: HEAD_REVISION,
+    });
     const effective = branches.readEffectiveHead(stream);
     if (effective === null) {
-      throw new Error('genesis backfill left no effective head');
+      throw new Error('the mirror left no effective head');
     }
     const committed = await commitGmCombatRewind(
       buildGmCombatRewindCommitDeps({

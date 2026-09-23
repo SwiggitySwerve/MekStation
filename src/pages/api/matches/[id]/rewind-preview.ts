@@ -54,15 +54,22 @@
  * re-authorizes each one. A handle is not a permission and carries no
  * content.
  *
+ * THE HISTORY IS THE JOURNAL'S (U21). The preview materializes the
+ * prior head and the candidate through `matchJournalBranchSegmentReader`
+ * - the journal the commit anchors its candidate to - so what the GM
+ * approves here is computed from the history the commit will verify.
+ *
  * @spec openspec/changes/harden-gm-two-player-campaign-sessions/specs/gm-combat-interventions/spec.md
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 import type { IMatchMeta } from '@/lib/multiplayer/server/IMatchStore';
+import type { IMatchJournalEnvelope } from '@/lib/multiplayer/server/MatchStreamJournalMirror';
 import type { IGmAuthorityContext } from '@/types/interventions';
 
 import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
+import { SQLiteEventJournal } from '@/lib/events/journal/SQLiteEventJournal';
 import { SQLitePrivateRecordRepository } from '@/lib/events/privacy/SQLitePrivateRecordRepository';
 import { authenticateRequest } from '@/lib/multiplayer/server/auth';
 import {
@@ -80,7 +87,7 @@ import {
   previewGmCombatRewind,
 } from '@/lib/multiplayer/server/history/GmCombatRewindPreview';
 import { GmPrivatePreviewRecordWriter } from '@/lib/multiplayer/server/history/GmPrivatePreviewRecordWriter';
-import { matchStoreBranchSegmentReader } from '@/lib/multiplayer/server/history/matchStoreBranchSegmentReader';
+import { matchJournalBranchSegmentReader } from '@/lib/multiplayer/server/history/matchJournalBranchSegmentReader';
 import { hasCombatOutcomeOutbox } from '@/lib/multiplayer/server/IMatchStore';
 import { combatViewerProbe } from '@/lib/multiplayer/server/projection/combatViewerProbe';
 import { HostAsGmMembershipSource } from '@/pages-modules/api/hostAsGmMembershipSource';
@@ -100,6 +107,11 @@ import {
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
 import { nowIso } from '@/types/multiplayer/Protocol';
 
+/**
+ * POST: authorize the host as GM, preview the rewind over the journal's
+ * history, store the GM's private preview record, and answer the result
+ * verbatim with its status class.
+ */
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
@@ -204,7 +216,12 @@ export default async function handler(
       {
         db: getSQLiteService().getDatabase(),
         branches,
-        reader: matchStoreBranchSegmentReader(store),
+        reader: matchJournalBranchSegmentReader(
+          new SQLiteEventJournal<IMatchJournalEnvelope>(
+            getSQLiteService().getDatabase(),
+            nowIso,
+          ),
+        ),
         priorHeadRevision,
         viewerIds: viewerIdsFor(meta),
         probe: combatViewerProbe({

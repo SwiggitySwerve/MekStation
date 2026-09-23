@@ -5,12 +5,17 @@
  * status. The module must not open a database or read the clock; the
  * route is the one place allowed to supply `nowIso`.
  *
- * Verification is identity-over-`GameEventType` on purpose. The match
- * store reader carries the WHOLE `IGameEvent` as payload (finding #48).
- * The baseline pack parses the inner payload shape and would refuse
- * every live match. The census projector still decides every
- * discriminant, so an unknown type fails closed rather than projecting
- * a partial state.
+ * Verification is identity-over-`GameEventType` on purpose. The journal
+ * reader carries the WHOLE stored `IGameEvent` (the mirror envelope's
+ * `matchEvent`) as payload. The baseline pack parses the inner payload
+ * shape and would refuse every live match. The census projector still
+ * decides every discriminant, so an unknown type fails closed rather
+ * than projecting a partial state.
+ *
+ * The history read is the JOURNAL's (U21): the candidate is cut at the
+ * journal's event for the target revision, so the path that verifies it
+ * must come from the same journal - the match store's parallel line
+ * carries other ids and digests and can never match that anchor.
  */
 
 import type { IEventHistoryStreamRef } from '@/lib/events/journal/EventHistoryBranchContract';
@@ -19,17 +24,19 @@ import type {
   IMatchMeta,
   IMatchStore,
 } from '@/lib/multiplayer/server/IMatchStore';
+import type { IMatchJournalEnvelope } from '@/lib/multiplayer/server/MatchStreamJournalMirror';
 import type { IGameState } from '@/types/gameplay/GameSessionInterfaces';
 
 import { SQLiteEventHistoryArtifactManifestStore } from '@/lib/events/journal/EventHistoryArtifactManifest';
 import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
 import { SQLiteEventHistoryCorrectionLeaseStore } from '@/lib/events/journal/SQLiteEventHistoryCorrectionLeaseStore';
+import { SQLiteEventJournal } from '@/lib/events/journal/SQLiteEventJournal';
 import { ReplaySchemaRegistry } from '@/lib/events/replay/ReplaySchemaRegistry';
 import {
   REPLAY_LIBRARY_CENSUS_PROJECTOR,
   type IReplayLibraryCensusState,
 } from '@/lib/events/replay/ReplaySurfaceGate';
-import { matchStoreBranchSegmentReader } from '@/lib/multiplayer/server/history/matchStoreBranchSegmentReader';
+import { matchJournalBranchSegmentReader } from '@/lib/multiplayer/server/history/matchJournalBranchSegmentReader';
 import { hasCombatOutcomeOutbox } from '@/lib/multiplayer/server/IMatchStore';
 import { combatViewerProbe } from '@/lib/multiplayer/server/projection/combatViewerProbe';
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
@@ -120,6 +127,12 @@ const REWIND_COMMIT_VERIFICATION: IGmCombatRewindCommitDeps<IReplayLibraryCensus
     projector: REPLAY_LIBRARY_CENSUS_PROJECTOR,
   };
 
+/**
+ * The deps the commit module runs on: the API SQLite handle's branch,
+ * lease and manifest stores, the journal reader over that same handle,
+ * the fog-off combat probe for this match's audience, and the route's
+ * clock. The match store is read only for the combat outcome id.
+ */
 export function buildGmCombatRewindCommitDeps(
   input: IBuildGmCombatRewindCommitDepsInput,
 ): IGmCombatRewindCommitDeps<IReplayLibraryCensusState> {
@@ -130,7 +143,9 @@ export function buildGmCombatRewindCommitDeps(
     branches,
     leases: new SQLiteEventHistoryCorrectionLeaseStore(db, branches),
     manifests: new SQLiteEventHistoryArtifactManifestStore(db),
-    reader: matchStoreBranchSegmentReader(input.store),
+    reader: matchJournalBranchSegmentReader(
+      new SQLiteEventJournal<IMatchJournalEnvelope>(db, input.nowIso),
+    ),
     probe: combatViewerProbe({
       state: FOG_DISABLED_STATE,
       audience: {
