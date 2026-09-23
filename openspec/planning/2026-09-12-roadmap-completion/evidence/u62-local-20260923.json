@@ -1,0 +1,446 @@
+{
+  "unit": "U62",
+  "stage": "local",
+  "status": "ready",
+  "at": "2026-09-23T02:35:28.198Z",
+  "baseline": "d2336477d14e588ee44aedd3db0c9857a36abf7c",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u62",
+  "branch": "roadmap-u62-precommit-no-build-20260923",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "shellPreamble": [
+    "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "export npm_config_dry_run=true (unset only for the two timed hook runs)"
+  ],
+  "runners": {
+    "gates": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u62/gates.sh",
+      "sha256": "642531190727c7fb751a3c76eacc6f08b8a59c82e2a856a94b628aa7c6a19f80"
+    },
+    "timed": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u62/timed.sh",
+      "sha256": "8a0f2225df442138b1a4ce9c364b5471ce8b6d3f86952ee5b7321218c09dfc2b"
+    },
+    "mutants": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u62/mutants.sh",
+      "sha256": "fbe0b47403970a0e26f0f65d0f2d06473fe4e35eb4d26d4e07cc57623ef06e8f"
+    },
+    "mutate": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u62/mutate.mjs",
+      "sha256": "88ccf765ae8725e06c8917ab282c7fa838b4836ba369cfbe6351ba39d0562027"
+    },
+    "receiptGenerator": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u62/gen-receipts.mjs",
+      "sha256": "82b170dd37b51396b246cbd80c5ac86895db31e31f9bf3c0f9dbccb450235784"
+    }
+  },
+  "priorReceipts": {
+    "admission": {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\u62\\openspec\\planning\\2026-09-12-roadmap-completion\\evidence\\u62-admission-20260923.json",
+      "sha256": "a8bf4d21db59448ce6643e9272b34958bcb198800ab003f63910b9aed61b06a0"
+    },
+    "red": {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\u62\\openspec\\planning\\2026-09-12-roadmap-completion\\evidence\\u62-red-20260923.json",
+      "sha256": "b7045a3149c4e67e4afc1de49d11a70173c1b3719c9e9bfc0c598d469310017b"
+    }
+  },
+  "changedFiles": {
+    ".husky/pre-commit": "eb2ff9415e9b404d3eeea872f78d9d6153c6d92c6013824d820ab436096730a2",
+    "scripts/__tests__/precommit-no-build.test.ts": "c08f07ed1d3e5dc14992444972ed0d55988df0d67ca48d03148c84092bb2bffb"
+  },
+  "lineCounts": {
+    "product": {
+      "files": 1,
+      "added": 5,
+      "deleted": 15,
+      "changed": 20,
+      "paths": [
+        ".husky/pre-commit"
+      ]
+    },
+    "test": {
+      "files": 1,
+      "added": 42,
+      "deleted": 0,
+      "changed": 42,
+      "paths": [
+        "scripts/__tests__/precommit-no-build.test.ts"
+      ]
+    },
+    "receipts": {
+      "files": 3,
+      "paths": [
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/u62-admission-20260923.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/u62-red-20260923.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/u62-local-20260923.json"
+      ]
+    },
+    "capProductLines": 80,
+    "capFiles": 5,
+    "filesTotalWithReceipts": 5,
+    "withinCaps": true,
+    "method": "product: git diff --numstat HEAD (added + deleted); test: line count of the new untracked pin (all added); tests do not count toward the product-line cap (owner decision 2026-09-23)"
+  },
+  "gates": {
+    "jestPin": {
+      "command": "npx jest scripts/__tests__/precommit-no-build.test.ts",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /scripts\\\\__tests__\\\\precommit-no-build.test.ts/i.",
+      "at": "2026-09-23T02:33:22.000Z",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u62/logs/gate-jest.log",
+        "sha256": "a3eede0c6ca35c38fe08206556bec211dba182c82b3afc5dceda167fa919db6c"
+      },
+      "counts": [
+        "Test Suites: 1 passed, 1 total",
+        "Tests:       2 passed, 2 total"
+      ]
+    },
+    "shSyntax": {
+      "command": "sh -n .husky/pre-commit",
+      "exitCode": 0,
+      "lastLine": "(no output)",
+      "at": "2026-09-23T02:33:25.000Z",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u62/logs/gate-shn.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "tsc": {
+      "command": "npx tsc --noEmit",
+      "exitCode": 0,
+      "lastLine": "(no output)",
+      "at": "2026-09-23T02:33:33.000Z",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u62/logs/gate-tsc.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "oxlint": {
+      "command": "npx oxlint",
+      "exitCode": 0,
+      "lastLine": "Finished in 289ms on 3816 files using 16 threads.",
+      "at": "2026-09-23T02:33:44.000Z",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u62/logs/gate-oxlint.log",
+        "sha256": "b08be866d572c3e2f6b27ae21674aab99f849f8951071c9f2a78ff4daf7dcb62"
+      },
+      "warnings": 84,
+      "errors": 0,
+      "warningsReference": 84
+    },
+    "oxfmtCheck": {
+      "command": "npx oxfmt --check scripts/__tests__/precommit-no-build.test.ts .husky/pre-commit",
+      "exitCode": 0,
+      "lastLine": "Finished in 49ms on 1 files using 16 threads.",
+      "at": "2026-09-23T02:33:25.000Z",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u62/logs/gate-oxfmt.log",
+        "sha256": "5ac31ab31849ed102256697d3e60a651f1cc3f86187e3d81b2f4b8d4238a7367"
+      }
+    },
+    "lintUnits": {
+      "command": "npm run lint:units",
+      "exitCode": 0,
+      "lastLine": "LINT_UNITS_PASS 100/100",
+      "at": "2026-09-23T02:33:46.000Z",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u62/logs/gate-lintunits.log",
+        "sha256": "e055631f9348b2e6539c922dddc1fe388b583448a734da5f618cb47c583fae2d"
+      }
+    },
+    "openspecCi": {
+      "command": "npm run qc:openspec-ci:validate",
+      "exitCode": 0,
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+      "at": "2026-09-23T02:33:47.000Z",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u62/logs/gate-openspecci.log",
+        "sha256": "4c2dafd093b946290aa4abe001ad8b3d65671b17c7682722c55a510ecc04f91e"
+      }
+    },
+    "roadmapValidator": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "exitCode": 0,
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "at": "2026-09-23T02:33:48.000Z",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u62/logs/gate-roadmap.log",
+        "sha256": "97b2f29d264078525a55c5f88586fb95603311fa065e70d7d17c5fab08f5b5bc"
+      }
+    }
+  },
+  "timedRuns": {
+    "harmlessChange": {
+      "path": "src/utils/uuid.ts",
+      "change": "one trailing comment line appended, then git add",
+      "baselineSha256": "5d7faaf822073fd869c555e093217f2b760101599eda56b7d744c2ac456af10b",
+      "editedSha256": "cffdde93cd875010b13f11fdaf39093d50591eac6ee6ef9b540a51ea48a651ce",
+      "afterBaselineRunSha256": "cffdde93cd875010b13f11fdaf39093d50591eac6ee6ef9b540a51ea48a651ce",
+      "afterEditedRunSha256": "cffdde93cd875010b13f11fdaf39093d50591eac6ee6ef9b540a51ea48a651ce",
+      "revertedSha256": "5d7faaf822073fd869c555e093217f2b760101599eda56b7d744c2ac456af10b",
+      "revertCommands": [
+        "git checkout HEAD -- src/utils/uuid.ts (restores index and working tree to HEAD)"
+      ],
+      "revertedMatchesBaseline": true,
+      "stagedAfterRevert": "(none)"
+    },
+    "baseline": {
+      "hook": "baseline .husky/pre-commit (d2336477d)",
+      "hookSha256": "e69afc50012b56535dbccd3e19d963820d66d72b6bfe86572341857c7c3ff2c6",
+      "command": "sh .husky/pre-commit",
+      "environment": "npm_config_dry_run=<unset>",
+      "startedAt": "2026-09-23T02:28:26.000Z",
+      "endedAt": "2026-09-23T02:31:22.000Z",
+      "wallSeconds": 175.9,
+      "exitCode": 1,
+      "last5Lines": [
+        "{",
+        "  \"ok\": false,",
+        "  \"error\": \"Unsafe hydration destination (runtime loader tsx) contains a symlink or junction: .next\\\\standalone\\\\node_modules\",",
+        "  \"hint\": \"Run npm run build first so .next/standalone/server.js exists, then hydrate the standalone multiplayer server.\"",
+        "}"
+      ],
+      "buildRan": true,
+      "buildMarkers": [
+        "TypeScript files staged — running full build...",
+        "  Finished TypeScript in 51s ...",
+        "✓ Compiled successfully in 57s",
+        "  \"error\": \"Unsafe hydration destination (runtime loader tsx) contains a symlink or junction: .next\\\\standalone\\\\node_modules\","
+      ],
+      "stagedFiles": [
+        "src/utils/uuid.ts"
+      ],
+      "buildCheckBeforeRun": {
+        "command": "powershell: Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -match 'next[ ]build' -or $_.CommandLine -match 'run-next[.]mjs build' } | Select-Object ProcessId, CommandLine",
+        "waits": 0,
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u62/logs/timed-baseline-buildcheck.log",
+          "sha256": "45bab298b6dd63a1dd8f2a9a498bf67c3cb5701071040aea6b2d510deb39acf3"
+        }
+      },
+      "stashListUnchanged": true,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u62/logs/timed-baseline.log",
+        "sha256": "57efec60ae81ef1bddc80710d367fe9c8ec16be381f9f54ab8a8787b6014d7d9"
+      }
+    },
+    "edited": {
+      "hook": "edited .husky/pre-commit",
+      "hookSha256": "eb2ff9415e9b404d3eeea872f78d9d6153c6d92c6013824d820ab436096730a2",
+      "command": "sh .husky/pre-commit",
+      "environment": "npm_config_dry_run=<unset>",
+      "startedAt": "2026-09-23T02:32:06.000Z",
+      "endedAt": "2026-09-23T02:33:02.000Z",
+      "wallSeconds": 56.2,
+      "exitCode": 0,
+      "last5Lines": [
+        "[COMPLETED] Running tasks for staged files...",
+        "[STARTED] Applying modifications from tasks...",
+        "[COMPLETED] Applying modifications from tasks...",
+        "[STARTED] Cleaning up temporary files...",
+        "[COMPLETED] Cleaning up temporary files..."
+      ],
+      "buildRan": false,
+      "buildMarkers": [],
+      "stagedFiles": [
+        "src/utils/uuid.ts"
+      ],
+      "buildCheckBeforeRun": {
+        "command": "powershell: Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -match 'next[ ]build' -or $_.CommandLine -match 'run-next[.]mjs build' } | Select-Object ProcessId, CommandLine",
+        "waits": 0,
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u62/logs/timed-edited-buildcheck.log",
+          "sha256": "903bd058ad417ec979d7bbfab886b35d355e977d80dbf320a5ba5e2544f68340"
+        }
+      },
+      "stashListUnchanged": true,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u62/logs/timed-edited.log",
+        "sha256": "3a7049423c0d2fff57b03e642249d0ca1ca4e0b15d2dbb7f7b833e13324f21b0"
+      }
+    }
+  },
+  "mutants": [
+    {
+      "id": "M1",
+      "file": ".husky/pre-commit",
+      "what": "the removed build line put back: `npm run build` after `npx lint-staged`",
+      "applyExit": 0,
+      "diff": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u62/logs/mutant-M1.diff",
+        "sha256": "2f25e1ea0af8a0349a955bb9df53b62d7036e1fd4580c4b760309681cee47c19"
+      },
+      "preMutantSha256": "eb2ff9415e9b404d3eeea872f78d9d6153c6d92c6013824d820ab436096730a2",
+      "mutatedSha256": "27a214b0496167735b39c577e548291a38b0f849316248349e9238d9f0af9970",
+      "restoredSha256": "eb2ff9415e9b404d3eeea872f78d9d6153c6d92c6013824d820ab436096730a2",
+      "restoredMatchesPreMutant": true,
+      "restoredBy": "cp of the saved pre-mutant byte copy",
+      "run": {
+        "command": "npx jest scripts/__tests__/precommit-no-build.test.ts",
+        "exitCode": 1,
+        "counts": [
+          "Test Suites: 1 failed, 1 total",
+          "Tests:       1 failed, 1 passed, 2 total"
+        ],
+        "failingTests": [
+          "runs neither `npm run build` nor `next build` on any command line"
+        ],
+        "at": "2026-09-23T02:33:54.000Z",
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u62/logs/mutant-M1-jest.log",
+          "sha256": "043eb31a82245da45b522eccfd51503abd9283163b1111a2800469754c23134f"
+        }
+      },
+      "caught": true
+    },
+    {
+      "id": "M2",
+      "file": ".husky/pre-commit",
+      "what": "`npx next build --webpack` invoked directly after `npx lint-staged` instead of npm run build",
+      "applyExit": 0,
+      "diff": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u62/logs/mutant-M2.diff",
+        "sha256": "8263d6703cd816bf361a010e48ca0db55d13b27b3c2bc8e0c5e165878c249955"
+      },
+      "preMutantSha256": "eb2ff9415e9b404d3eeea872f78d9d6153c6d92c6013824d820ab436096730a2",
+      "mutatedSha256": "ca877cd6f7c80271c9d344ad201d70769ae09b586169cc179e93ff48378f868a",
+      "restoredSha256": "eb2ff9415e9b404d3eeea872f78d9d6153c6d92c6013824d820ab436096730a2",
+      "restoredMatchesPreMutant": true,
+      "restoredBy": "cp of the saved pre-mutant byte copy",
+      "run": {
+        "command": "npx jest scripts/__tests__/precommit-no-build.test.ts",
+        "exitCode": 1,
+        "counts": [
+          "Test Suites: 1 failed, 1 total",
+          "Tests:       1 failed, 1 passed, 2 total"
+        ],
+        "failingTests": [
+          "runs neither `npm run build` nor `next build` on any command line"
+        ],
+        "at": "2026-09-23T02:33:58.000Z",
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u62/logs/mutant-M2-jest.log",
+          "sha256": "281574a30585d1ca57726a4ee2c2056201edff5d380f7fbb07e9ae603991c3ee"
+        }
+      },
+      "caught": true
+    },
+    {
+      "id": "M3",
+      "file": "package.json",
+      "what": "the tsc entry removed from lint-staged's *.{ts,tsx} list in package.json (restored byte-identically)",
+      "applyExit": 0,
+      "diff": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u62/logs/mutant-M3.diff",
+        "sha256": "e72bd7fa519b188268a78c96c16a3d6d91ddf1b1c0b793d1a0fe9f3399de1c31"
+      },
+      "preMutantSha256": "651fe50e8bfecb692d408c34bf831aa3d4d337d208e874d5fa6359ad6fad0f19",
+      "mutatedSha256": "e2ce53c0955b6cbe2dd230a938195118a6ada8410ed862cd2a37c14ecabe9ee6",
+      "restoredSha256": "651fe50e8bfecb692d408c34bf831aa3d4d337d208e874d5fa6359ad6fad0f19",
+      "restoredMatchesPreMutant": true,
+      "restoredBy": "git checkout HEAD -- package.json",
+      "run": {
+        "command": "npx jest scripts/__tests__/precommit-no-build.test.ts",
+        "exitCode": 1,
+        "counts": [
+          "Test Suites: 1 failed, 1 total",
+          "Tests:       1 failed, 1 passed, 2 total"
+        ],
+        "failingTests": [
+          "keeps `npx lint-staged`, whose *.{ts,tsx} list ends with the whole-project tsc --noEmit"
+        ],
+        "at": "2026-09-23T02:34:01.000Z",
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u62/logs/mutant-M3-jest.log",
+          "sha256": "785ed6e45c84d11f444c61b7513b7383c23160271d8468a7b3aaf68ad14af2f3"
+        }
+      },
+      "caught": true
+    },
+    {
+      "id": "M4",
+      "file": ".husky/pre-commit",
+      "what": "the `npx lint-staged` line removed from the hook (extra, beyond the three the charter names)",
+      "applyExit": 0,
+      "diff": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u62/logs/mutant-M4.diff",
+        "sha256": "28eca2fc5adbe47b2901f8cc8b0a7694abf8ece470b83f977f6fc95b269b64c7"
+      },
+      "preMutantSha256": "eb2ff9415e9b404d3eeea872f78d9d6153c6d92c6013824d820ab436096730a2",
+      "mutatedSha256": "01625bbc3c5e33a4eb468f08f4f45b59f5b8f59218ca5ea1848355c4d060524e",
+      "restoredSha256": "eb2ff9415e9b404d3eeea872f78d9d6153c6d92c6013824d820ab436096730a2",
+      "restoredMatchesPreMutant": true,
+      "restoredBy": "cp of the saved pre-mutant byte copy",
+      "run": {
+        "command": "npx jest scripts/__tests__/precommit-no-build.test.ts",
+        "exitCode": 1,
+        "counts": [
+          "Test Suites: 1 failed, 1 total",
+          "Tests:       1 failed, 1 passed, 2 total"
+        ],
+        "failingTests": [
+          "keeps `npx lint-staged`, whose *.{ts,tsx} list ends with the whole-project tsc --noEmit"
+        ],
+        "at": "2026-09-23T02:34:05.000Z",
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u62/logs/mutant-M4-jest.log",
+          "sha256": "1a888eaff9acf9aa60d63e17d44e7e19f4613c93edc966a91dc5f307856904a4"
+        }
+      },
+      "caught": true
+    }
+  ],
+  "jestPinAfterMutants": {
+    "command": "npx jest scripts/__tests__/precommit-no-build.test.ts",
+    "exitCode": 0,
+    "lastLine": "Ran all test suites matching /scripts\\\\__tests__\\\\precommit-no-build.test.ts/i.",
+    "at": "2026-09-23T02:34:19.000Z",
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u62/logs/post-mutants-jest.log",
+      "sha256": "2e326b0ac9ac23ebc39ecb367e7a193ccbb13228d235fd9172552acc7e9f5fc6"
+    },
+    "counts": [
+      "Test Suites: 1 passed, 1 total",
+      "Tests:       2 passed, 2 total"
+    ]
+  },
+  "nextFolder": {
+    "exists": true,
+    "standaloneNodeModulesIsLink": true,
+    "note": "left in place for the parent (its removal script unlinks junctions first)"
+  },
+  "nonClaims": [
+    "One timed run each, on a shared machine with other lanes' processes running (no next build was running at either start, per the logged process check); no repetition, no variance, no cold/warm cache control.",
+    "The baseline run does not measure a contributor's full hook: in this junctioned worktree `npm run build` stops at the standalone hydration guard (exit 1) after next build compiled, so the hydration copy a root checkout performs is not in the 175.9 s figure and was not measured.",
+    "The two lint-staged tsc runs are not identical inputs: the baseline run's tsc ran before .next existed, the edited run's tsc ran after the baseline build had created .next/types, which tsconfig.json:27 includes.",
+    "No commit was made; `git commit` in a linked worktree does not run husky (core.hooksPath .husky/_ exists only in the root checkout), so the timings are of `sh .husky/pre-commit` run directly, not of a commit.",
+    "The pin is not type-checked by `npx tsc --noEmit`: tsconfig.json excludes scripts/**/* and scripts/tsconfig.json does not include scripts/__tests__; jest runs it through @swc/jest (type-stripping only).",
+    "No CI run, no Playwright, no repository-wide jest run; CI's build steps (pr-checks.yml:609, :769, the build-test matrix at :791-797) were read, not executed."
+  ],
+  "findingsReportedNotFixed": [
+    "Measured in the baseline run's log: the hook type-checked the program twice on a staged .ts commit, once in lint-staged's tsc and again inside next build ('Finished TypeScript in 51s'); the edited hook runs only the lint-staged tsc.",
+    "From a source read of node_modules/lint-staged 16.2.7, not measured: lint-staged splits a large staged file list into chunks (lib/index.js:91 maxArgLength = getMaxArgLength() / 2; lib/runAll.js:207-283) and runs the task list per chunk, so a staged set long enough to chunk would run the whole-project tsc once per chunk.",
+    "lint-staged backs up the original state in a git stash entry during each hook run (logged: 'Backed up original state in git stash (367240ceb)' and '(16e366d84)') and removes it on cleanup; refs/stash is shared by every worktree of this repository. The stash list was byte-identical before and after both runs.",
+    "docs/development/git-hooks.md:21 still says the hook runs npm run build; per the ledger it is left to the docs-class PR after U62 merges.",
+    "The .next folder is ignored by .gitignore:3 ('.next/'), so `git status --short` does not list it even though the baseline run created it."
+  ],
+  "gitStatusShortBeforeThisReceipt": " M .husky/pre-commit\n?? openspec/planning/2026-09-12-roadmap-completion/evidence/u62-admission-20260923.json\n?? openspec/planning/2026-09-12-roadmap-completion/evidence/u62-red-20260923.json\n?? scripts/__tests__/precommit-no-build.test.ts",
+  "implementation": {
+    ".husky/pre-commit": "keeps the shebang, '# Pre-commit gate.', '#' and `npx lint-staged`; removes baseline lines 4-10 (the numbered header whose lines 5-10 describe the build) and 13-20 (the blank line and the TypeScript-staged branch that ran `npm run build` at :17); adds five comment lines stating that lint-staged runs oxfmt --write, oxlint --fix on *.ts/tsx/js/jsx and a whole-project tsc --noEmit --skipLibCheck when a *.ts or *.tsx file is staged, and that the hook runs no production build while pr-checks runs npm run build for code changes",
+    "scripts/__tests__/precommit-no-build.test.ts": "new jest pin (2 tests): (a) no non-blank, non-# line of .husky/pre-commit matches npm run build (npm or npm.cmd, run or run-script, `build` ending the script name) or next build; (b) the hook has a line exactly `npx lint-staged` and package.json lint-staged['*.{ts,tsx}'] ends with bash -c 'npx tsc --noEmit --skipLibCheck'. Both files are read from path.resolve(__dirname, '../..')",
+    "notEdited": [
+      "package.json",
+      "docs/development/git-hooks.md",
+      ".github/workflows/pr-checks.yml",
+      "units.json",
+      "roadmap.json",
+      "admission-snapshot.json",
+      "any tasks.md"
+    ]
+  },
+  "timingSummary": {
+    "baselineWallSeconds": "see timedRuns.baseline.wallSeconds (exit 1: next build compiled, then the standalone hydration step refused the .next/standalone/node_modules junction, which is expected in a junctioned worktree)",
+    "editedWallSeconds": "see timedRuns.edited.wallSeconds (exit 0: lint-staged only, no build)",
+    "oxfmtCheckNote": "oxfmt --check reported 'Finished ... on 1 files': it checked the pin; .husky/pre-commit (no extension) is not a file type oxfmt formats and was not counted"
+  }
+}
