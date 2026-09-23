@@ -31,6 +31,7 @@ import type { IMatchMeta } from '@/lib/multiplayer/server/IMatchStore';
 import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 import type { IVaultIdentity } from '@/types/vault';
 
+import { readEffectiveStreamHead } from '@/lib/events/journal/EventHistoryEffectiveStreamHead';
 import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
 import { issuePlayerToken } from '@/lib/multiplayer/client/issuePlayerToken';
 import { DurableMatchStore } from '@/lib/multiplayer/server/DurableMatchStore';
@@ -38,6 +39,8 @@ import {
   _resetDefaultMatchStore,
   _setDefaultMatchStoreForTests,
 } from '@/lib/multiplayer/server/getDefaultMatchStore';
+import { MATCH_BASELINE_BRANCH_ID } from '@/lib/multiplayer/server/matchAuthorityBaseline';
+import { _setCombatJournalAuthorityModeForTests } from '@/lib/multiplayer/server/matchJournalAuthority';
 import previewHandler from '@/pages/api/matches/[id]/rewind-preview';
 import {
   getSQLiteService,
@@ -87,7 +90,6 @@ const FOGGED_MATCH_ID = 'match-rewind-fogged';
 const CLEAR_MATCH_ID = 'match-rewind-clear';
 const AT = '2026-09-02T00:00:00.000Z';
 const HEAD_REVISION = 4;
-const HEAD_DIGEST = 'd'.repeat(64);
 
 interface IHolder {
   readonly playerId: string;
@@ -140,13 +142,14 @@ describe('POST /api/matches/[id]/rewind-preview', () => {
     mockProbeCalls.length = 0;
     store = new DurableMatchStore({ path: ':memory:' });
     _setDefaultMatchStoreForTests(store);
+    _setCombatJournalAuthorityModeForTests('enabled');
     await seedMatch(MATCH_ID);
   });
 
   /**
-   * One complete match: durable meta, four real events, and the
-   * stand-in stream head + genesis branch a combat cutover will
-   * eventually write (findings #48/#53).
+   * One complete match: durable meta and four real events committed at
+   * combat journal mode `enabled`, so the S1 mirror writes the journal
+   * history, head and genesis branch the preview reads (U21).
    */
   async function seedMatch(
     matchId: string,
@@ -158,13 +161,22 @@ describe('POST /api/matches/[id]/rewind-preview', () => {
         config: { mapRadius: 4, turnLimit: 5, ...config },
       }),
     );
-    for (const sequence of [0, 1, 2, 3]) {
-      await store.appendEvent(matchId, gameEvent(sequence, matchId));
-    }
-    seedStreamHead(matchId);
+    const committed = await store.appendCommandBatch(matchId, {
+      commandId: `seed-${matchId}`,
+      actorId: host.playerId,
+      expectedRevision: 0,
+      events: [0, 1, 2, 3].map((sequence) => gameEvent(sequence, matchId)),
+    });
+    expect(committed.kind).toBe('committed');
+    expect(liveHead(matchId)).toMatchObject({
+      branchId: MATCH_BASELINE_BRANCH_ID,
+      revision: HEAD_REVISION,
+    });
   }
 
   afterEach(async () => {
+    // Restored first so no later suite inherits the mode.
+    _setCombatJournalAuthorityModeForTests(null);
     store.close();
     _resetDefaultMatchStore();
     resetSQLiteService();
@@ -207,27 +219,20 @@ describe('POST /api/matches/[id]/rewind-preview', () => {
     };
   }
 
-  /**
-   * FINDING #48/#53: nothing writes match events to the journal, so a
-   * real match has no head row and no genesis branch. This seed stands
-   * in for what a combat cutover will write - and its absence is exactly
-   * what the 404 row below exercises.
-   */
-  function seedStreamHead(matchId = MATCH_ID): void {
-    db.prepare(
-      `INSERT INTO event_journal_stream_heads
-         (stream_type, stream_id, branch_id, stream_revision, event_digest)
-       VALUES ('match', ?, 'root', ?, ?)`,
-    ).run(matchId, HEAD_REVISION, HEAD_DIGEST);
-    new SQLiteEventHistoryBranchStore(db).backfillGenesisBranches();
+  /** The match's journal head, read the way GET /head reads it. */
+  function liveHead(matchId = MATCH_ID) {
+    return readEffectiveStreamHead(db, new SQLiteEventHistoryBranchStore(db), {
+      streamType: 'match',
+      streamId: matchId,
+    });
   }
 
   function body(overrides: Record<string, unknown> = {}) {
     return {
       targetRevision: 2,
-      expectedBranchId: 'root',
+      expectedBranchId: MATCH_BASELINE_BRANCH_ID,
       expectedRevision: HEAD_REVISION,
-      expectedDigest: HEAD_DIGEST,
+      expectedDigest: liveHead().digest,
       expectedGeneration: 1,
       ...overrides,
     };
@@ -316,8 +321,8 @@ describe('POST /api/matches/[id]/rewind-preview', () => {
   });
 
   it('answers 404 for a match with no authoritative history', async () => {
-    // Drop the stand-in head row: back to what a real match looks like
-    // today, per finding #53.
+    // Drop the effective head row the mirror installed: a match the
+    // branch machinery has never heard of (finding #53).
     db.prepare(
       `DELETE FROM event_history_effective_heads WHERE stream_id = ?`,
     ).run(MATCH_ID);
@@ -331,7 +336,7 @@ describe('POST /api/matches/[id]/rewind-preview', () => {
 
   it('reads the head of the EFFECTIVE branch, not whichever row comes first', async () => {
     // Finding #81, pinned before it can bite: a candidate head row sits
-    // BELOW the effective one and sorts before 'root' by branch id. An
+    // BELOW the effective one and sorts before 'main' by branch id. An
     // unqualified read returns it and the preview compares against a
     // revision the stream never answered at.
     db.prepare(
@@ -461,7 +466,7 @@ describe('POST /api/matches/[id]/rewind-preview', () => {
       streamType: 'match',
       streamId: MATCH_ID,
     });
-    expect(draft.preview.branchId).toBe('root');
+    expect(draft.preview.branchId).toBe(MATCH_BASELINE_BRANCH_ID);
     expect(Array.isArray(draft.preview.entries)).toBe(true);
     expect(draft.preview.changedViewerIds.length).toBeGreaterThan(0);
   });

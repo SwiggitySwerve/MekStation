@@ -135,7 +135,6 @@ async function seedCampaignWithJournal(): Promise<{
     { envelope: second.record, occurredAt: NOW },
   );
   expect(genesis.kind).toBe('genesis-appended');
-  new SQLiteEventHistoryBranchStore(db).backfillGenesisBranches();
 
   return {
     campaign: disjoint,
@@ -221,9 +220,8 @@ describe('GET /api/campaigns/:id/head', () => {
 
     await handler(req, res);
 
-    // 200, not 404: the campaign exists and is launchable, it just has
-    // no head to name while the cutover flag is off. The launch acts on
-    // this by proceeding ungated, exactly as it does today.
+    // 200, not 404: the campaign exists and the journal holds no event
+    // for it, so there is no head to name (OD-launch-head-gate).
     expect(result.statusCode).toBe(200);
     expect(result.body).toEqual({ kind: 'no-authoritative-stream' });
   });
@@ -264,6 +262,28 @@ describe('GET /api/campaigns/:id/head', () => {
     // Still a head - the branch is there. Only the revision is 0.
     expect(body.kind).toBe('head');
     expect(body.revision).toBe(0);
+  });
+
+  it('answers 500 for a journaled campaign whose effective head is missing, never no-authoritative-stream', async () => {
+    const seeded = await seedCampaignWithJournal();
+    // Journal events and no effective head: a stream first appended
+    // before the first append installed one, and never backfilled.
+    getSQLiteService()
+      .getDatabase()
+      .prepare(
+        `DELETE FROM event_history_effective_heads
+          WHERE stream_type = ? AND stream_id = ?`,
+      )
+      .run(CAMPAIGN_STREAM_TYPE, seeded.campaign.id);
+    const { req, res, result } = mockReqRes(seeded.campaign.id);
+
+    await handler(req, res);
+
+    // OD-launch-head-gate: refused, not answered ungated.
+    expect(result.statusCode).toBe(500);
+    expect(result.body).toEqual({
+      error: `Stream ${CAMPAIGN_STREAM_TYPE}/${seeded.campaign.id} has no effective branch`,
+    });
   });
 
   it('404s an unknown campaign', async () => {

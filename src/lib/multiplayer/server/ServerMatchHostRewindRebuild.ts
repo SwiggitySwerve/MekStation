@@ -11,9 +11,15 @@
  * Boot recovery reuses `tryFoldActivatedRewindBranch` — not
  * recoverActiveMatches / recover() — so an offline match plays from
  * the same truncated path on next start.
+ *
+ * Both read that path from the JOURNAL (U21): the candidate is anchored
+ * to the journal's event at its base, and after the rewind the next
+ * command lands on the candidate itself, where the match store has no
+ * branch to answer from.
  */
 
 import type { IMatchStore } from '@/lib/multiplayer/server/IMatchStore';
+import type { IMatchJournalEnvelope } from '@/lib/multiplayer/server/MatchStreamJournalMirror';
 import type {
   IGameEvent,
   IGameSession,
@@ -27,11 +33,9 @@ import {
 import { readEffectiveStreamHead } from '@/lib/events/journal/EventHistoryEffectiveStreamHead';
 import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
 import { SQLiteEventHistoryCorrectionLeaseStore } from '@/lib/events/journal/SQLiteEventHistoryCorrectionLeaseStore';
+import { SQLiteEventJournal } from '@/lib/events/journal/SQLiteEventJournal';
 import { matchStreamRef } from '@/lib/multiplayer/server/history/GmCombatRewindPreview';
-import {
-  matchStoreBranchSegmentReader,
-  type IMatchEventSource,
-} from '@/lib/multiplayer/server/history/matchStoreBranchSegmentReader';
+import { matchJournalBranchSegmentReader } from '@/lib/multiplayer/server/history/matchJournalBranchSegmentReader';
 import { isLivePathBranchId } from '@/lib/multiplayer/server/matchAuthorityBaseline';
 import { foldMatchSession } from '@/lib/multiplayer/server/MatchSessionProjector';
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
@@ -69,21 +73,19 @@ export interface IRewindRebuildHost {
 const REBUILD_LEASE_OWNER = (): string => `rewind-rebuild:${process.pid}`;
 
 /**
- * Game events on the activated branch path, in revision order.
- *
- * The match-store reader still materialises root bytes, then the
- * resolver window keeps only the prefix the candidate inherited.
- * Asking getEvents(0) here would fold the superseded tail.
+ * Game events on the activated branch path through `throughRevision`,
+ * in revision order, read from the journal: the parent prefix the
+ * candidate inherited, then the candidate's own events. Each segment is
+ * verified by the resolver. Asking the match store's getEvents(0) here
+ * would fold the superseded tail.
  */
 export async function readActivatedBranchGameEvents(
-  store: IMatchEventSource,
   matchId: string,
   branchId: string,
   throughRevision: number,
 ): Promise<readonly IGameEvent[]> {
-  const branches = new SQLiteEventHistoryBranchStore(
-    getSQLiteService().getDatabase(),
-  );
+  const db = getSQLiteService().getDatabase();
+  const branches = new SQLiteEventHistoryBranchStore(db);
   const path = resolveBranchPath(
     branches,
     matchStreamRef(matchId),
@@ -91,7 +93,9 @@ export async function readActivatedBranchGameEvents(
     throughRevision,
   );
   const materialized = await materializeBranchPath(
-    matchStoreBranchSegmentReader(store),
+    matchJournalBranchSegmentReader(
+      new SQLiteEventJournal<IMatchJournalEnvelope>(db),
+    ),
     path,
   );
   const events: IGameEvent[] = [];
@@ -120,13 +124,11 @@ export interface IFoldedActivatedRewind {
  *
  * THE LIVE-PATH TEST IS THE SET, NOT `root` ALONE. S1's mirror installs
  * a mirrored stream's genesis head on the BASELINE branch (`main`), so
- * a healthy, never-rewound match now reaches this function with a
- * non-root head. Folding it asks `matchStoreBranchSegmentReader` for a
- * branch that is not `root`, which it refuses by name (`unknown-branch`)
- * because the match store holds exactly one line of history — and that
- * refusal used to fail the whole match at boot. There is no activated
- * path on a live-path head and no tail to supersede; S4's ordinary
- * recovery path owns those streams.
+ * a healthy, never-rewound match reaches this function with a non-root
+ * head. There is no activated path on a live-path head and no tail to
+ * supersede; S4's ordinary recovery path owns those streams. Any other
+ * head is folded from the journal through the stream's current head
+ * revision, the candidate's own events included.
  */
 export async function tryFoldActivatedRewindBranch(
   store: IMatchStore,
@@ -143,7 +145,6 @@ export async function tryFoldActivatedRewindBranch(
   }
   const streamHead = readEffectiveStreamHead(db, branches, stream);
   const events = await readActivatedBranchGameEvents(
-    store,
     matchId,
     head.branchId,
     streamHead.revision,
@@ -158,6 +159,13 @@ export async function tryFoldActivatedRewindBranch(
   };
 }
 
+/**
+ * Rebuild a live host on the activated branch: under the rebuild lease,
+ * read the path through `effectiveRevision` from the journal, move the
+ * store tail past it aside, fold and replace the session, claim the
+ * branch, then reseed the dice and reset the intent window, broadcast
+ * cursor, replay ceiling and viewer deliveries.
+ */
 export async function rebuildHostFromActivatedBranch(
   host: IRewindRebuildHost,
   input: IRewindRebuildRequest,
@@ -165,7 +173,6 @@ export async function rebuildHostFromActivatedBranch(
   const held = holdRebuildLease(host.matchId, input);
   try {
     const events = await readActivatedBranchGameEvents(
-      host.store,
       host.matchId,
       input.branchId,
       input.effectiveRevision,

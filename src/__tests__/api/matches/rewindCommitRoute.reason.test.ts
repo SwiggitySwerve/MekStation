@@ -1,7 +1,9 @@
 /**
  * E2E-25 server boundary: a commit preserves the GM's private reason.
- * The durable match, bearer and aligned journal fixtures follow
- * rewindCommitRoute.test.ts; private reads use the shipped GM gate.
+ * The durable match, bearer and mirrored journal fixtures follow
+ * rewindCommitRoute.test.ts (events committed at combat journal mode
+ * `enabled`, so the S1 mirror writes the history the commit reads,
+ * U21); private reads use the shipped GM gate.
  * @spec openspec/changes/harden-gm-two-player-campaign-sessions/specs/e2e-testing/spec.md
  */
 
@@ -17,6 +19,7 @@ import type { IMatchMeta } from '@/lib/multiplayer/server/IMatchStore';
 import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 import type { IVaultIdentity } from '@/types/vault';
 
+import { readEffectiveStreamHead } from '@/lib/events/journal/EventHistoryEffectiveStreamHead';
 import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
 import { SQLiteEventJournal } from '@/lib/events/journal/SQLiteEventJournal';
 import { SQLitePrivateRecordRepository } from '@/lib/events/privacy/SQLitePrivateRecordRepository';
@@ -28,7 +31,8 @@ import {
   _resetDefaultMatchStore,
   _setDefaultMatchStoreForTests,
 } from '@/lib/multiplayer/server/getDefaultMatchStore';
-import { matchStoreBranchSegmentReader } from '@/lib/multiplayer/server/history/matchStoreBranchSegmentReader';
+import { MATCH_BASELINE_BRANCH_ID } from '@/lib/multiplayer/server/matchAuthorityBaseline';
+import { _setCombatJournalAuthorityModeForTests } from '@/lib/multiplayer/server/matchJournalAuthority';
 import { HostAsGmMembershipSource } from '@/pages-modules/api/hostAsGmMembershipSource';
 import exportHandler from '@/pages/api/matches/[id]/export';
 import commitHandler from '@/pages/api/matches/[id]/rewind-commit';
@@ -48,7 +52,6 @@ import { encodeTokenForWire } from '@/types/multiplayer/Player';
 const MATCH_ID = 'match-rewind-commit-reason';
 const AT = '2026-09-19T00:00:00.000Z';
 const HEAD_REVISION = 4;
-const HEAD_DIGEST = 'd'.repeat(64);
 const PRIVATE_REASON = 'GM-only: hidden ambush metadata justified correction';
 const DEFAULT_REASON = 'authorized combat rewind';
 
@@ -101,14 +104,24 @@ describe('POST /api/matches/[id]/rewind-commit private reason', () => {
     guest = await mintHolder('guest');
     store = new DurableMatchStore({ path: ':memory:' });
     _setDefaultMatchStoreForTests(store);
+    _setCombatJournalAuthorityModeForTests('enabled');
     await store.createMatch(activeMeta());
-    for (const sequence of [0, 1, 2, 3]) {
-      await store.appendEvent(MATCH_ID, gameEvent(sequence));
-    }
-    await seedAuthoritativeHistory();
+    const committed = await store.appendCommandBatch(MATCH_ID, {
+      commandId: 'seed-reason',
+      actorId: host.playerId,
+      expectedRevision: 0,
+      events: [0, 1, 2, 3].map((sequence) => gameEvent(sequence)),
+    });
+    expect(committed.kind).toBe('committed');
+    expect(liveHead()).toMatchObject({
+      branchId: MATCH_BASELINE_BRANCH_ID,
+      revision: HEAD_REVISION,
+    });
   });
 
   afterEach(async () => {
+    // Restored first so no later suite inherits the mode.
+    _setCombatJournalAuthorityModeForTests(null);
     store.close();
     _resetDefaultMatchStore();
     resetSQLiteService();
@@ -140,64 +153,12 @@ describe('POST /api/matches/[id]/rewind-commit private reason', () => {
     };
   }
 
-  async function seedAuthoritativeHistory(): Promise<void> {
-    const chained = await matchStoreBranchSegmentReader(store).read(
-      { streamType: 'match', streamId: MATCH_ID },
-      {
-        kind: 'prefix',
-        branchId: 'root',
-        fromRevision: 0,
-        throughRevision: HEAD_REVISION,
-        baseEventId: null,
-        baseDigest: '0'.repeat(64),
-      },
-    );
-    db.prepare(
-      `INSERT INTO event_journal_batches (
-         command_id, command_digest, canonicalizer_version, stream_type,
-         stream_id, branch_id, event_count, first_stream_revision,
-         last_stream_revision, first_commit_position, last_commit_position,
-         recorded_at)
-       VALUES (?, ?, 1, 'match', ?, 'root', ?, 1, ?, 1, ?, ?)`,
-    ).run('cmd-reason', 'a'.repeat(64), MATCH_ID, 4, 4, 4, AT);
-    const insert = db.prepare(
-      `INSERT INTO event_journal_events (
-         event_id, command_id, stream_type, stream_id, branch_id,
-         stream_revision, commit_position, command_index, event_type,
-         event_version, correlation_id, actor_kind, actor_id,
-         authority_type, authority_id, occurred_at, recorded_at,
-         canonicalizer_version, previous_stream_event_digest, event_digest,
-         payload_json)
-       VALUES (?, ?, 'match', ?, 'root', ?, ?, ?, ?, 1, ?, 'human', ?,
-               'host', ?, ?, ?, 1, ?, ?, '{}')`,
-    );
-    chained.forEach((event, index) => {
-      insert.run(
-        event.eventId,
-        'cmd-reason',
-        MATCH_ID,
-        event.streamRevision,
-        index + 1,
-        index,
-        event.eventType,
-        'corr-reason',
-        host.playerId,
-        MATCH_ID,
-        AT,
-        AT,
-        event.previousStreamEventDigest,
-        event.eventDigest,
-      );
+  /** The match's journal head, read the way GET /head reads it. */
+  function liveHead() {
+    return readEffectiveStreamHead(db, new SQLiteEventHistoryBranchStore(db), {
+      streamType: 'match',
+      streamId: MATCH_ID,
     });
-    db.prepare(
-      `INSERT INTO event_journal_stream_heads
-         (stream_type, stream_id, branch_id, stream_revision, event_digest)
-       VALUES ('match', ?, 'root', ?, ?)`,
-    ).run(MATCH_ID, HEAD_REVISION, HEAD_DIGEST);
-    db.prepare(
-      'UPDATE event_journal_store_state SET last_commit_position = ? WHERE singleton_id = 1',
-    ).run(HEAD_REVISION);
-    new SQLiteEventHistoryBranchStore(db).backfillGenesisBranches();
   }
 
   async function commit(overrides: Record<string, unknown> = {}) {
@@ -207,9 +168,9 @@ describe('POST /api/matches/[id]/rewind-commit private reason', () => {
       headers: { authorization: `Bearer ${host.wire}` },
       body: {
         targetRevision: 2,
-        expectedBranchId: 'root',
+        expectedBranchId: MATCH_BASELINE_BRANCH_ID,
         expectedRevision: HEAD_REVISION,
-        expectedDigest: HEAD_DIGEST,
+        expectedDigest: liveHead().digest,
         expectedGeneration: 1,
         ...overrides,
       },
@@ -368,7 +329,7 @@ describe('POST /api/matches/[id]/rewind-commit private reason', () => {
       },
       transitions: [
         {
-          fromBranchId: 'root',
+          fromBranchId: MATCH_BASELINE_BRANCH_ID,
           toBranchId: committed.json.activatedBranchId,
         },
       ],

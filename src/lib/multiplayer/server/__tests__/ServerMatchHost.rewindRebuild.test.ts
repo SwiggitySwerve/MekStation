@@ -3,12 +3,13 @@
  * activated branch. Today the commit route answers 200 and leaves
  * InteractiveSession, RNG, and viewer cursors on the pre-rewind head.
  *
- * Commit is seeded the same way the working R1 / rewind-commit route
- * rows are: events through DurableMatchStore, journal rows copied from
- * the match-store reader (finding #48), genesis backfill, expected*
- * read from the live head. Driving a live host first wrote extra
- * events, an outbox row, or a 14.3 lease and the commit refused before
- * rebuild could run.
+ * Commit is seeded the way a live match is: the play log committed as
+ * one command batch with combat journal mode `enabled` (the
+ * test-scoped override), so the S1 mirror writes the journal the
+ * commit anchors to and the rebuild reads (U21); expected* read from
+ * the live head. Driving a live host first wrote extra events, an
+ * outbox row, or a 14.3 lease and the commit refused before rebuild
+ * could run.
  */
 
 import type Database from 'better-sqlite3';
@@ -50,10 +51,11 @@ import { DurableMatchStore } from '../DurableMatchStore';
 import { commitGmCombatRewind } from '../history/GmCombatRewindCommit';
 import { matchStreamRef } from '../history/GmCombatRewindPreview';
 import {
-  matchStoreBranchSegmentReader,
   nextMatchSequenceAfter,
   revisionForMatchSequence,
 } from '../history/matchStoreBranchSegmentReader';
+import { MATCH_BASELINE_BRANCH_ID } from '../matchAuthorityBaseline';
+import { _setCombatJournalAuthorityModeForTests } from '../matchJournalAuthority';
 import { recoverActiveMatches } from '../MatchRecovery';
 import { foldMatchSession } from '../MatchSessionProjector';
 import { SeededDiceRoller } from '../RollCapture';
@@ -76,9 +78,12 @@ describe('ServerMatchHost rewind rebuild', () => {
     getSQLiteService({ path: path.join(dir, 'journal.db') }).initialize();
     db = getSQLiteService().getDatabase();
     store = new DurableMatchStore({ path: ':memory:' });
+    _setCombatJournalAuthorityModeForTests('enabled');
   });
 
   afterEach(async () => {
+    // Restored first so no later suite inherits the mode.
+    _setCombatJournalAuthorityModeForTests(null);
     store.close();
     resetSQLiteService();
     await rm(dir, { recursive: true, force: true, maxRetries: 3 });
@@ -222,7 +227,7 @@ describe('ServerMatchHost rewind rebuild', () => {
   it('no live host: commit still answers committed and boot folds the activated branch', async () => {
     const meta = await writePlayLog(store);
     const events = await store.getEvents(MATCH_ID);
-    await seedAuthoritativeHistory(events);
+    expectMirroredHead(events);
     const committed = await commitRewind(meta);
     expect(committed).toMatchObject({ kind: 'committed' });
 
@@ -300,7 +305,7 @@ describe('ServerMatchHost rewind rebuild', () => {
   }> {
     const meta = await writePlayLog(store);
     const events = await store.getEvents(MATCH_ID);
-    await seedAuthoritativeHistory(events);
+    expectMirroredHead(events);
     // Recovered host so create() cannot persist a second GameCreated
     // line or grab the 14.3 lease the commit module must acquire.
     const host = new ServerMatchHost(
@@ -338,90 +343,26 @@ describe('ServerMatchHost rewind rebuild', () => {
   }
 
   /**
-   * Journal rows whose id/digest match the match-store reader. A probe
-   * journal would let the lease bind, then candidate verification
-   * refuses: the cut event is a probe row and the reader returns a
-   * different match event at that revision.
+   * The journal the mirror wrote holds the whole play log on `main`:
+   * its head is the log's last revision, which is also the store's next
+   * sequence.
    */
-  async function seedAuthoritativeHistory(
-    events: readonly IGameEvent[],
-  ): Promise<void> {
+  function expectMirroredHead(events: readonly IGameEvent[]): void {
     const last = events[events.length - 1];
     if (last === undefined) {
       throw new Error('play log is empty');
     }
     const headRevision = revisionForMatchSequence(last.sequence);
     // The offset, pinned where this suite depends on it: the revision
-    // the seeded head names is the store's next sequence, the number
+    // the mirrored head names is the store's next sequence, the number
     // the commit-time check derives (S5, task 1.5). Seeding one and
     // rewinding against the other is how a rewind targets the wrong
     // event.
     expect(headRevision).toBe(nextMatchSequenceAfter(last.sequence));
-    const chained = await matchStoreBranchSegmentReader(store).read(STREAM, {
-      kind: 'prefix',
-      branchId: 'root',
-      fromRevision: 0,
-      throughRevision: headRevision,
-      baseEventId: null,
-      baseDigest: '0'.repeat(64),
+    expect(liveHead()).toMatchObject({
+      branchId: MATCH_BASELINE_BRANCH_ID,
+      revision: headRevision,
     });
-    const head = chained[chained.length - 1];
-    if (head === undefined) {
-      throw new Error('match-store reader returned no events');
-    }
-    db.prepare(
-      `INSERT INTO event_journal_batches (
-         command_id, command_digest, canonicalizer_version, stream_type,
-         stream_id, branch_id, event_count, first_stream_revision,
-         last_stream_revision, first_commit_position, last_commit_position,
-         recorded_at)
-       VALUES (?, ?, 1, 'match', ?, 'root', ?, 1, ?, 1, ?, ?)`,
-    ).run(
-      `cmd-${MATCH_ID}`,
-      'a'.repeat(64),
-      MATCH_ID,
-      chained.length,
-      chained.length,
-      chained.length,
-      AT,
-    );
-    const insert = db.prepare(
-      `INSERT INTO event_journal_events (
-         event_id, command_id, stream_type, stream_id, branch_id,
-         stream_revision, commit_position, command_index, event_type,
-         event_version, correlation_id, actor_kind, actor_id,
-         authority_type, authority_id, occurred_at, recorded_at,
-         canonicalizer_version, previous_stream_event_digest, event_digest,
-         payload_json)
-       VALUES (?, ?, 'match', ?, 'root', ?, ?, ?, ?, 1, ?, 'human', ?,
-               'host', ?, ?, ?, 1, ?, ?, '{}')`,
-    );
-    chained.forEach((event, index) => {
-      insert.run(
-        event.eventId,
-        `cmd-${MATCH_ID}`,
-        MATCH_ID,
-        event.streamRevision,
-        index + 1,
-        index,
-        event.eventType,
-        `corr-${MATCH_ID}`,
-        metaHostId(),
-        MATCH_ID,
-        AT,
-        AT,
-        event.previousStreamEventDigest,
-        event.eventDigest,
-      );
-    });
-    db.prepare(
-      `INSERT INTO event_journal_stream_heads
-         (stream_type, stream_id, branch_id, stream_revision, event_digest)
-       VALUES ('match', ?, 'root', ?, ?)`,
-    ).run(MATCH_ID, head.streamRevision, head.eventDigest);
-    expect(
-      new SQLiteEventHistoryBranchStore(db).backfillGenesisBranches(),
-    ).toBe(1);
   }
 
   async function commitRewind(
@@ -464,7 +405,7 @@ describe('ServerMatchHost rewind rebuild', () => {
     const streamHead = readEffectiveStreamHead(db, branches, STREAM);
     const effective = branches.readEffectiveHead(STREAM);
     if (effective === null) {
-      throw new Error('genesis backfill left no effective head');
+      throw new Error('the mirror left no effective head');
     }
     return {
       branchId: streamHead.branchId,
@@ -474,10 +415,6 @@ describe('ServerMatchHost rewind rebuild', () => {
     };
   }
 });
-
-function metaHostId(): string {
-  return 'gm-1';
-}
 
 type ReplayFrame = { parsed: { kind: string; events?: readonly unknown[] } };
 
@@ -518,6 +455,7 @@ function makeSocket(): IMatchSocket & { sent: ReplayFrame[] } {
   } as IMatchSocket & { sent: ReplayFrame[] };
 }
 
+/** Create the match and commit its play log as one command batch. */
 async function writePlayLog(store: DurableMatchStore): Promise<IMatchMeta> {
   const meta: IMatchMeta = {
     matchId: MATCH_ID,
@@ -548,8 +486,14 @@ async function writePlayLog(store: DurableMatchStore): Promise<IMatchMeta> {
     { id: MATCH_ID, createdAt: AT },
   );
   session = advancePhase(advancePhase(startGame(session, GameSide.Player)));
-  for (const event of session.events) {
-    await store.appendEvent(MATCH_ID, event);
-  }
+  // One command batch, so the S1 mirror writes the journal as it does
+  // for a live command at mode enabled.
+  const committed = await store.appendCommandBatch(MATCH_ID, {
+    commandId: 'play-log',
+    actorId: meta.hostPlayerId,
+    expectedRevision: 0,
+    events: session.events,
+  });
+  expect(committed.kind).toBe('committed');
   return meta;
 }

@@ -3,9 +3,10 @@
  *
  * Harness copied from the preview route: a real `DurableMatchStore` with
  * real seats and events, migrated SQLite through `SQLiteService`, real
- * bearer tokens, the shipped handler. Journal rows are aligned to the
- * match-store reader so the candidate can anchor to a real event
- * (finding #48: nothing writes match events to the journal yet).
+ * bearer tokens, the shipped handler. The events are committed through
+ * the store with combat journal mode `enabled` (the test-scoped
+ * override), so the S1 mirror writes the journal history the route
+ * anchors its candidate to and verifies against (U21), on `main`.
  *
  * The two things these rows exist to hold:
  *
@@ -27,6 +28,7 @@ import type { IMatchMeta } from '@/lib/multiplayer/server/IMatchStore';
 import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 import type { IVaultIdentity } from '@/types/vault';
 
+import { readEffectiveStreamHead } from '@/lib/events/journal/EventHistoryEffectiveStreamHead';
 import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
 import { issuePlayerToken } from '@/lib/multiplayer/client/issuePlayerToken';
 import { DurableMatchStore } from '@/lib/multiplayer/server/DurableMatchStore';
@@ -34,7 +36,8 @@ import {
   _resetDefaultMatchStore,
   _setDefaultMatchStoreForTests,
 } from '@/lib/multiplayer/server/getDefaultMatchStore';
-import { matchStoreBranchSegmentReader } from '@/lib/multiplayer/server/history/matchStoreBranchSegmentReader';
+import { MATCH_BASELINE_BRANCH_ID } from '@/lib/multiplayer/server/matchAuthorityBaseline';
+import { _setCombatJournalAuthorityModeForTests } from '@/lib/multiplayer/server/matchJournalAuthority';
 import commitHandler from '@/pages/api/matches/[id]/rewind-commit';
 import {
   getSQLiteService,
@@ -85,7 +88,6 @@ jest.mock('@/lib/multiplayer/server/projection/combatViewerProbe', () => {
 const MATCH_ID = 'match-rewind-commit-route';
 const AT = '2026-09-02T00:00:00.000Z';
 const HEAD_REVISION = 4;
-const HEAD_DIGEST = 'd'.repeat(64);
 
 interface IHolder {
   readonly playerId: string;
@@ -138,9 +140,11 @@ describe('POST /api/matches/[id]/rewind-commit', () => {
     mockProbeCalls.length = 0;
     store = new DurableMatchStore({ path: ':memory:' });
     _setDefaultMatchStoreForTests(store);
+    _setCombatJournalAuthorityModeForTests('enabled');
     await seedMatch(MATCH_ID);
   });
 
+  /** Create the match and commit its four events as one command batch. */
   async function seedMatch(matchId: string): Promise<void> {
     await store.createMatch(
       activeMeta({
@@ -148,13 +152,22 @@ describe('POST /api/matches/[id]/rewind-commit', () => {
         config: { mapRadius: 4, turnLimit: 5 },
       }),
     );
-    for (const sequence of [0, 1, 2, 3]) {
-      await store.appendEvent(matchId, gameEvent(sequence, matchId));
-    }
-    await seedAuthoritativeHistory(matchId);
+    const committed = await store.appendCommandBatch(matchId, {
+      commandId: `seed-${matchId}`,
+      actorId: host.playerId,
+      expectedRevision: 0,
+      events: [0, 1, 2, 3].map((sequence) => gameEvent(sequence, matchId)),
+    });
+    expect(committed.kind).toBe('committed');
+    expect(liveHead(matchId)).toMatchObject({
+      branchId: MATCH_BASELINE_BRANCH_ID,
+      revision: HEAD_REVISION,
+    });
   }
 
   afterEach(async () => {
+    // Restored first so no later suite inherits the mode.
+    _setCombatJournalAuthorityModeForTests(null);
     store.close();
     _resetDefaultMatchStore();
     resetSQLiteService();
@@ -197,82 +210,20 @@ describe('POST /api/matches/[id]/rewind-commit', () => {
     };
   }
 
-  /**
-   * Stand-in for the combat cutover: a head row, genesis branch, and
-   * journal events whose id/digest match the match-store reader so a
-   * candidate can anchor without lying about which event it cut at.
-   */
-  async function seedAuthoritativeHistory(matchId: string): Promise<void> {
-    const chained = await matchStoreBranchSegmentReader(store).read(
-      { streamType: 'match', streamId: matchId },
-      {
-        kind: 'prefix',
-        branchId: 'root',
-        fromRevision: 0,
-        throughRevision: HEAD_REVISION,
-        baseEventId: null,
-        baseDigest: '0'.repeat(64),
-      },
-    );
-    db.prepare(
-      `INSERT INTO event_journal_batches (
-         command_id, command_digest, canonicalizer_version, stream_type,
-         stream_id, branch_id, event_count, first_stream_revision,
-         last_stream_revision, first_commit_position, last_commit_position,
-         recorded_at)
-       VALUES (?, ?, 1, 'match', ?, 'root', ?, 1, ?, 1, ?, ?)`,
-    ).run(
-      `cmd-${matchId}`,
-      'a'.repeat(64),
-      matchId,
-      chained.length,
-      chained.length,
-      chained.length,
-      AT,
-    );
-    const insert = db.prepare(
-      `INSERT INTO event_journal_events (
-         event_id, command_id, stream_type, stream_id, branch_id,
-         stream_revision, commit_position, command_index, event_type,
-         event_version, correlation_id, actor_kind, actor_id,
-         authority_type, authority_id, occurred_at, recorded_at,
-         canonicalizer_version, previous_stream_event_digest, event_digest,
-         payload_json)
-       VALUES (?, ?, 'match', ?, 'root', ?, ?, ?, ?, 1, ?, 'human', ?,
-               'host', ?, ?, ?, 1, ?, ?, '{}')`,
-    );
-    chained.forEach((event, index) => {
-      insert.run(
-        event.eventId,
-        `cmd-${matchId}`,
-        matchId,
-        event.streamRevision,
-        index + 1,
-        index,
-        event.eventType,
-        `corr-${matchId}`,
-        host.playerId,
-        matchId,
-        AT,
-        AT,
-        event.previousStreamEventDigest,
-        event.eventDigest,
-      );
+  /** The match's journal head, read the way GET /head reads it. */
+  function liveHead(matchId = MATCH_ID) {
+    return readEffectiveStreamHead(db, new SQLiteEventHistoryBranchStore(db), {
+      streamType: 'match',
+      streamId: matchId,
     });
-    db.prepare(
-      `INSERT INTO event_journal_stream_heads
-         (stream_type, stream_id, branch_id, stream_revision, event_digest)
-       VALUES ('match', ?, 'root', ?, ?)`,
-    ).run(matchId, HEAD_REVISION, HEAD_DIGEST);
-    new SQLiteEventHistoryBranchStore(db).backfillGenesisBranches();
   }
 
   function body(overrides: Record<string, unknown> = {}) {
     return {
       targetRevision: 2,
-      expectedBranchId: 'root',
+      expectedBranchId: MATCH_BASELINE_BRANCH_ID,
       expectedRevision: HEAD_REVISION,
-      expectedDigest: HEAD_DIGEST,
+      expectedDigest: liveHead().digest,
       expectedGeneration: 1,
       ...overrides,
     };

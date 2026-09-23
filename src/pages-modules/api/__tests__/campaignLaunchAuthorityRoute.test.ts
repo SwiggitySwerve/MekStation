@@ -443,6 +443,34 @@ describe('POST /api/campaigns/:id/launch-authority', () => {
     expect(result.body).toEqual({ kind: 'no-authoritative-stream' });
   });
 
+  it('answers 500 for a journaled campaign whose effective head is missing, never no-authoritative-stream', async () => {
+    const world = await buildWorld();
+    // Journal events and no effective head: a stream first appended
+    // before the first append installed one, and never backfilled.
+    getSQLiteService()
+      .getDatabase()
+      .prepare(
+        `DELETE FROM event_history_effective_heads
+          WHERE stream_type = ? AND stream_id = ?`,
+      )
+      .run(CAMPAIGN_STREAM_TYPE, world.campaign.id);
+    const materialize = jest.mocked(materializeOwnedPlayerForces);
+    materialize.mockClear();
+    const { req, res, result } = post(
+      world.campaign.id,
+      bodyFor(world, { sessionId: SESSION_ID }),
+    );
+
+    handler(req, res);
+
+    // OD-launch-head-gate: refused, not answered ungated.
+    expect(result.statusCode).toBe(500);
+    expect(result.body).toEqual({
+      error: `Stream ${CAMPAIGN_STREAM_TYPE}/${world.campaign.id} has no effective branch`,
+    });
+    expect(materialize).not.toHaveBeenCalled();
+  });
+
   it('404s an unknown campaign', async () => {
     const { req, res, result } = post('campaign-never-persisted', {
       expectedHead: { branchId: 'root', revision: 0, effectiveGeneration: 1 },
