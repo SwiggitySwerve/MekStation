@@ -1,0 +1,133 @@
+{
+  "unit": "U62",
+  "stage": "admission",
+  "status": "go",
+  "at": "2026-09-23T02:26:54.000Z",
+  "baseline": "d2336477d14e588ee44aedd3db0c9857a36abf7c",
+  "originMain": "d2336477d14e588ee44aedd3db0c9857a36abf7c",
+  "originMainSource": "git ls-remote origin refs/heads/main",
+  "baselineEqualsOriginMain": true,
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u62",
+  "branch": "roadmap-u62-precommit-no-build-20260923",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "node": "R6.loop-harness",
+  "shellPreamble": [
+    "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "export npm_config_dry_run=true (unset only for the two timed hook runs)"
+  ],
+  "runner": {
+    "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u62/adm.sh",
+    "sha256": "8be3d46045c569a466130f638622ca02bcf5375c34f681cb5bfdc879d3e81a85"
+  },
+  "nodeVersion": {
+    "command": "node --version",
+    "exitCode": 0,
+    "lastLine": "v22.22.0",
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u62/logs/adm-node-version.log",
+      "sha256": "2172da60c75bfe844a5f085d0b225e7042f650910fb423c59d7f4a937afb0b56"
+    }
+  },
+  "guardNodeModulesLink": {
+    "command": "npm run --silent qc:guard-node-modules-link",
+    "exitCode": 1,
+    "lastLine": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"E:\\\\Projects\\\\MekStation\\\\.sisyphus\\\\roadmap-completion-20260912\\\\worktrees\\\\u62\\\\node_modules\",\"actualPath\":\"E:\\\\Projects\\\\MekStation\\\\node_modules\"}",
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u62/logs/adm-guard.log",
+      "sha256": "b43e1d8ab6d652d600c207f3f158d32bdf21b0b4b09e0b7a906d7d85101b4dd0"
+    },
+    "expected": "INSTALL_REFUSED node-modules-is-link, exit 1: node_modules in this worktree is a junction to the root checkout by design; no install, ci, prune or lifecycle was run"
+  },
+  "nextOnBaseline": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "exitCode": 0,
+    "lastLine": "U62",
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u62/logs/adm-next.log",
+      "sha256": "7ae34c123f1bfa505074e5b91e71d97dc88295a83c53a9e7bcb602f9a31efaf0"
+    }
+  },
+  "validatorOnBaseline": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+    "exitCode": 0,
+    "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u62/logs/adm-validator.log",
+      "sha256": "97b2f29d264078525a55c5f88586fb95603311fa065e70d7d17c5fab08f5b5bc"
+    }
+  },
+  "gitStatusShortAtAdmission": "?? scripts/__tests__/precommit-no-build.test.ts",
+  "gitStatusNote": "the pin file was written before this runner ran; .husky/pre-commit and package.json were unedited (the red receipt records git diff --quiet HEAD on both, exit 0)",
+  "behavior": "The pre-commit hook type-checks the program once and no longer runs a production build (owner decision OD-precommit-drop-full-build). .husky/pre-commit loses its TypeScript-staged 'npm run build' branch (lines 14-20; the build runs at :17) and the header comment lines that describe it (:5-10); it keeps 'npx lint-staged' (:12), whose *.{ts,tsx} list still ends with the whole-project bash -c 'npx tsc --noEmit --skipLibCheck' (package.json:336; package.json is not edited). CI keeps the full build on every code PR (pr-checks.yml:609 and :769 run npm run build; the Build Test matrix at :791), unchanged. U62 owns only the paths the parent's directive named (.husky, and scripts/__tests__ for the pin): docs/development/git-hooks.md, whose phase table row 2 (:21) says the hook runs npm run build, is not edited here and is left to a docs-class PR after U62 merges. Red-first: a scripts/__tests__ jest pin reads .husky/pre-commit and package.json and asserts (a) no hook line runs npm run build or next build and (b) lint-staged's *.{ts,tsx} list still holds the tsc --noEmit entry; (a) fails today on .husky/pre-commit:17. Local proof: the wall time of sh .husky/pre-commit with one staged .ts change in the unit's worktree, before and after, recorded in the local receipt (the hook's own '~5min' comment at :6 is not a measurement); no commit is made to measure it. The docs closure PR retires roadmap.json infraNotes.preCommitBuildNotE2E, PROGRESS.md:218 and HANDOFF.md:37's caution that the hook's bare build replaces an E2E bundle. Placed first among planned units by the parent (ledgerPlacement of OD-precommit-drop-full-build), because every later unit's commits get faster.",
+  "ownershipPaths": [
+    ".husky",
+    "scripts/__tests__"
+  ],
+  "reviewClasses": [
+    "routine"
+  ],
+  "ciClass": "product",
+  "seams": {
+    "hook": {
+      "lintStaged": ".husky/pre-commit:12 npx lint-staged (kept)",
+      "buildBranch": ".husky/pre-commit:14-20 TypeScript-staged branch; the build runs at :17 (npm run build) (removed)",
+      "headerLines": ".husky/pre-commit:5-10 header lines describing the build (removed); :4 rewritten to describe what lint-staged runs",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u62/logs/adm-hook-lines.log",
+        "sha256": "e3873b754d58dd8000da0db5e7ac5286189e3b4d803464ae45c01bd95dd16a03"
+      }
+    },
+    "lintStagedEntry": {
+      "list": "package.json:333 \"*.{ts,tsx}\"",
+      "tscEntry": "package.json:336 \"bash -c 'npx tsc --noEmit --skipLibCheck'\" (last entry of the list; package.json not edited)",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u62/logs/adm-lint-staged-lines.log",
+        "sha256": "a1ad5ec63ff9594bb22ca69e119abf34f10ec4a8e5e87097d0a26e0ba0dfc777"
+      }
+    },
+    "ciBuild": {
+      "steps": [
+        ".github/workflows/pr-checks.yml:604-609 \"Build production app\" runs npm run build (if code or e2e changed)",
+        ".github/workflows/pr-checks.yml:767-769 \"Build Next.js application\" runs npm run build (if code changed)",
+        ".github/workflows/pr-checks.yml:791-798 build-test job \"Build Test / ${{ matrix.platform }}\", matrix at :797"
+      ],
+      "edited": false,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u62/logs/adm-ci-build-lines.log",
+        "sha256": "8af77fdaab516657b8e40cbc38c8223ea481a9c176a75c9311758d4b336df500"
+      }
+    },
+    "docsRowNotEdited": {
+      "line": "docs/development/git-hooks.md:21 (phase 2 row says the hook runs npm run build); left to a docs-class PR after U62 merges",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u62/logs/adm-docs-row.log",
+        "sha256": "b6c972485e1026ea74a87f32009f16e11581c85e682a4c5793afe40346ff7634"
+      }
+    }
+  },
+  "design": [
+    ".husky/pre-commit keeps the shebang, \"# Pre-commit gate.\" and `npx lint-staged`; lines 5-10 (the build description) and 13-20 (the TypeScript-staged npm run build branch) are removed, and line 4 is rewritten to state what lint-staged runs and that the hook runs no production build",
+    "scripts/__tests__/precommit-no-build.test.ts reads .husky/pre-commit and package.json from path.resolve(__dirname, \"../..\") and asserts (a) no non-blank, non-# hook line runs npm run build or next build and (b) the hook runs `npx lint-staged` and lint-staged's *.{ts,tsx} list ends with bash -c 'npx tsc --noEmit --skipLibCheck'",
+    "package.json, docs/development/git-hooks.md and .github/workflows/pr-checks.yml are not edited"
+  ],
+  "estimate": {
+    "productFiles": 1,
+    "testFiles": 1,
+    "receiptFiles": 3,
+    "filesTotalWithReceipts": 5,
+    "productLines": "about 20 changed lines in .husky/pre-commit (mostly deletions)",
+    "testLines": "about 45 added lines in the pin"
+  },
+  "caps": {
+    "maxFiles": 5,
+    "maxNonGeneratedProductLines": 80,
+    "testLinesCount": false,
+    "note": "the jest pin is a test and does not count toward the 80 product lines (owner decision 2026-09-23)"
+  },
+  "risksForTheParent": [
+    "Routine review class only: Lane A (cross-model review) is required, no Lane B owner ruling.",
+    "`git commit` in a linked worktree does not run husky (core.hooksPath is .husky/_, which exists only in the root checkout), so committing U62 from this worktree does not exercise the edited hook; the timed runs call sh .husky/pre-commit directly.",
+    "docs/development/git-hooks.md:21 still says the hook runs npm run build until the docs-class PR after U62 merges; roadmap.json infraNotes.preCommitBuildNotE2E, PROGRESS.md:218 and HANDOFF.md:37 are retired by that docs closure PR, not here.",
+    "The baseline timed run ran npm run build in this worktree and leaves a .next folder whose .next/standalone/node_modules is a junction to the root node_modules; this lane does not delete it."
+  ]
+}
