@@ -19,9 +19,14 @@ import { createMocks, type Body, type RequestMethod } from 'node-mocks-http';
 import { createJournalNativeMarker } from '@/lib/campaign/authority/campaignAuthorityMigration';
 import { buildPopulatedCampaign } from '@/lib/campaign/persistence/__tests__/campaignFixture';
 import { buildSerializedCampaign } from '@/lib/campaign/persistence/campaignEnvelope';
+import { JournalCampaignEventStore } from '@/lib/campaign/sync/JournalCampaignEventStore';
+import { SQLiteEventJournal } from '@/lib/events/journal/SQLiteEventJournal';
 import campaignHandler from '@/pages/api/campaigns/[id]';
 import { writeCampaignMigrationMarker } from '@/services/campaignPersistence/CampaignMigrationMarkerStore';
-import { readCampaign } from '@/services/campaignPersistence/CampaignPersistenceService';
+import {
+  readCampaign,
+  saveCampaign,
+} from '@/services/campaignPersistence/CampaignPersistenceService';
 import {
   getSQLiteService,
   resetSQLiteService,
@@ -63,6 +68,25 @@ async function put(
   };
 }
 
+/**
+ * Seed the snapshot record WITHOUT the route and prove the premise the
+ * blocked rows stand on: the journal holds no stream for this campaign.
+ * A create through the PUT route appends a genesis stream whenever
+ * journal authority is on, which would make "journal marker, no stream"
+ * false before the marker is even written.
+ */
+async function seedSnapshotWithoutStream(): Promise<void> {
+  expect(saveCampaign(envelope(0), 0).kind).toBe('ok');
+  const store = new JournalCampaignEventStore(
+    new SQLiteEventJournal(getSQLiteService().getDatabase(), () =>
+      new Date().toISOString(),
+    ),
+  );
+  // -1 is "no stream", read through the same probe the route's authority
+  // resolver uses (resolveCampaignAuthorityFromStores).
+  expect(await store.highestSequence(CAMPAIGN_ID)).toBe(-1);
+}
+
 describe('campaign authority blocked at the route', () => {
   beforeEach(() => {
     resetSQLiteService();
@@ -100,7 +124,7 @@ describe('campaign authority blocked at the route', () => {
     // The tempting silent fallback: a perfectly good snapshot exists, so
     // why not use it? Because the marker says it has been superseded, and
     // writing to it would fork the campaign's history in two.
-    await put({ envelope: envelope(0), baseVersion: 0 });
+    await seedSnapshotWithoutStream();
     const stored = readCampaign(CAMPAIGN_ID);
     expect(stored.kind).toBe('ok');
     writeCampaignMigrationMarker(createJournalNativeMarker(CAMPAIGN_ID));
@@ -120,7 +144,7 @@ describe('campaign authority blocked at the route', () => {
     // Both are 409, so the shape has to carry the difference: a client
     // retrying a blocked write with a fresher baseVersion would loop
     // forever, exactly the conflation task 1.5 removed elsewhere.
-    await put({ envelope: envelope(0), baseVersion: 0 });
+    await seedSnapshotWithoutStream();
     const stale = await put({ envelope: envelope(0), baseVersion: 0 });
     expect(stale.status).toBe(409);
     // Both 409s are typed now (umbrella 8.3): the discriminator is which

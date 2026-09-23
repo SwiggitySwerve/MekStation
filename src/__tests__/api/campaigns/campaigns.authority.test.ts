@@ -18,6 +18,7 @@ import {
   UNKNOWN_AUTHORITY_ROLE_REASON,
 } from '@/lib/campaign/authority/campaignAuthority';
 import { getOrCreateHostInstanceId } from '@/lib/campaign/authority/campaignHostInstance';
+import { authoritativeStateFromSerializedCampaign } from '@/lib/campaign/authority/campaignSourceGenesis';
 import { buildPopulatedCampaign } from '@/lib/campaign/persistence/__tests__/campaignFixture';
 import { buildSerializedCampaign } from '@/lib/campaign/persistence/campaignEnvelope';
 import idHandler from '@/pages/api/campaigns/[id]';
@@ -42,10 +43,31 @@ function callId(
   return idHandler(req, res).then(() => ({ req, res }));
 }
 
-/** Build a client envelope for the given campaign id. */
+/**
+ * Build a client envelope for the given campaign id that the genesis
+ * projection accepts. A create through the PUT route appends a genesis
+ * snapshot whenever journal authority is on, and the projection refuses
+ * a unit claimed by two forces (the shared fixture's forces both claim
+ * the same units), so each force gets its own unit and every create here
+ * answers the same with the flag on or off.
+ */
 function envelopeFor(campaignId: string): SerializedCampaign {
-  const campaign = { ...buildPopulatedCampaign(), id: campaignId };
-  return buildSerializedCampaign(campaign, 'device-test', 1);
+  const campaign = buildPopulatedCampaign();
+  const forces = Array.from(campaign.forces.values());
+  return buildSerializedCampaign(
+    {
+      ...campaign,
+      id: campaignId,
+      forces: new Map(
+        forces.map((force, index) => [
+          force.id,
+          { ...force, unitIds: [`unit-${index}`] },
+        ]),
+      ),
+    },
+    'device-test',
+    1,
+  );
 }
 
 /** Read the stored payload JSON for a campaign row. */
@@ -73,6 +95,12 @@ describe('Campaign D2 authority API', () => {
 
   afterEach(() => {
     resetSQLiteService();
+  });
+
+  it('builds envelopes the genesis projection accepts, so no create depends on the journal flag', () => {
+    expect(() =>
+      authoritativeStateFromSerializedCampaign(envelopeFor('camp-premise')),
+    ).not.toThrow();
   });
 
   it('refuses a mutation against a replica record and leaves payload unchanged', async () => {

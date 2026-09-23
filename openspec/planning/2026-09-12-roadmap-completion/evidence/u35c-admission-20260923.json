@@ -1,0 +1,168 @@
+{
+  "unit": "U35c",
+  "stage": "admission",
+  "status": "go",
+  "at": "2026-09-23T01:03:51.172Z",
+  "baseline": "9374745f468fa38248a2a83b1ece478840b975d2",
+  "originMain": "9374745f468fa38248a2a83b1ece478840b975d2",
+  "originMainSource": "git ls-remote origin refs/heads/main (read-only; no fetch)",
+  "baselineEqualsOriginMain": true,
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u35c",
+  "branch": "roadmap-u35c-flag-agnostic-repin-20260923",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "node": "R2.authority-cutover",
+  "shellPreamble": [
+    "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "export npm_config_dry_run=true",
+    "every MEKSTATION_E2E_* key and NEXT_PUBLIC_E2E_MODE unset by the runner"
+  ],
+  "runner": {
+    "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/adm.sh",
+    "sha256": "2d7dcf34c0cc07d6a9691971265913be811a7bfba4c8411fd44f27ffebcda179"
+  },
+  "nodeVersion": {
+    "command": "node --version",
+    "lastLine": "v22.22.0",
+    "exitCode": 0,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/adm-node-version.log",
+      "sha256": "2172da60c75bfe844a5f085d0b225e7042f650910fb423c59d7f4a937afb0b56"
+    }
+  },
+  "guardNodeModulesLink": {
+    "command": "npm run --silent qc:guard-node-modules-link",
+    "lastLine": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"E:\\\\Projects\\\\MekStation\\\\.sisyphus\\\\roadmap-completion-20260912\\\\worktrees\\\\u35c\\\\node_modules\",\"actualPath\":\"E:\\\\Projects\\\\MekStation\\\\node_modules\"}",
+    "exitCode": 1,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/adm-guard.log",
+      "sha256": "9ff0b70a4d948bb314196d3489208ac1e6264cbbe4e3d52d29fde190d560d098"
+    },
+    "expected": true,
+    "why": "refusal by design in a junctioned worktree (node_modules is a junction to the repository root); no npm install/ci/prune or lifecycle was run in this lane (npm_config_dry_run=true exported)"
+  },
+  "nextOnBaseline": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "lastLine": "U35c",
+    "exitCode": 0,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/adm-next.log",
+      "sha256": "806394ef5e7182d93d15bdc69aa92cbedc8d08a92edcad2bfca3df2ea0c76634"
+    }
+  },
+  "validatorOnBaseline": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+    "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+    "exitCode": 0,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/adm-validator.log",
+      "sha256": "97b2f29d264078525a55c5f88586fb95603311fa065e70d7d17c5fab08f5b5bc"
+    }
+  },
+  "gitStatusShortAtAdmission": "",
+  "gitLog": {
+    "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/adm-git.log",
+    "sha256": "9ac86eb774ce512bec5b330344dd72467d3af6b9273c7a70f30256fe037293b7"
+  },
+  "e2eEnvAtAdmission": {
+    "command": "env | grep -E '^(MEKSTATION_E2E_|NEXT_PUBLIC_E2E_MODE)'",
+    "matches": 0,
+    "exitCode": 1,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/adm-env.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "flagFilesAtBaseline": {
+    "src/lib/campaign/sync/JournalCampaignEventStore.ts": "0f062a9b1119acc802eabbf072ce308025a7bd52da99c8a5b381803262daec6e",
+    "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts": "392fd63f42a7d3bc13f29d74557264674483dcdb6dedc1046161130e6588940e",
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/adm-flagfiles-sha.log",
+      "sha256": "45aab6e4d542d18923a968c8f82bd14455a9d66d9754d0308a409929f65f552f"
+    },
+    "note": "equal to the U35 admission preMeasurementSha256 of both files"
+  },
+  "ownershipPaths": [
+    "src/__tests__/api/campaigns",
+    "src/__tests__/unit/api"
+  ],
+  "reviewClasses": [
+    "routine"
+  ],
+  "receiptsOwned": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u35c-admission-20260923.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u35c-red-20260923.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u35c-local-20260923.json"
+  ],
+  "behavior": "campaigns.test.ts, campaigns.authority.test.ts, campaignAuthorityBlocked.test.ts and multiplayerCoopCreationCheckpoint.test.ts state their premise explicitly (genesis-projectable envelopes; a journal marker with no stream seeded without the route; a host campaign seeded through the genesis seam) and pass both with the flag false (as on main) and under a temporary flip. No product change.",
+  "temporaryFlipMethod": {
+    "what": "U35's minimal flip, applied by U35's flip-measure.mjs (used read-only): CAMPAIGN_JOURNAL_AUTHORITY_ENABLED = true in src/lib/campaign/sync/JournalCampaignEventStore.ts, and isCampaignJournalAuthorityEnabled() returning the constant without the e2e arm in src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts; both files restored from byte copies after each run and their sha256 compared with the baseline",
+    "flipScript": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35/flip-measure.mjs",
+      "sha256": "38880bbb4d3653ee8c97363a4e2b9cb2f305c58d2e42172b73902bb8f7c44416"
+    },
+    "runner": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/flip-run.sh",
+      "sha256": "ae0ebd39439a046bb8fc937a27fc0bb5e9bb8d94622645d7e1c053ed9ed0b2c7"
+    }
+  },
+  "suites": [
+    {
+      "file": "src/__tests__/api/campaigns/campaigns.test.ts",
+      "whyFlagDependent": "Every create goes through the PUT route at baseVersion 0, which awaits maybeAppendCampaignGenesisOnCreate({enabled: isCampaignJournalAuthorityEnabled()}) after saveCampaign ([id].ts:248-264). envelopeFor builds on buildPopulatedCampaign, whose two forces both claim unit-a and unit-b (campaignFixture.ts:31); under the flip the genesis projection refuses a doubly-claimed unit (campaignSourceGenesis.ts:144-146) and the route answers 500 after the row committed. Only the row at :143 asserts the create status (U35 measured it; re-measured in red).",
+      "design": "envelopeFor gives each force its own unit (the disjoint-membership pattern campaignAuthorityBlocked.test.ts:32-49 and campaignPutGenesisRoute.test.ts:45-62 already use), with a doc comment naming the premise; one premise row asserts authoritativeStateFromSerializedCampaign accepts the helper envelope, so a fixture regression fails with the flag false instead of surfacing only after the flip. No assertion removed or weakened."
+    },
+    {
+      "file": "src/__tests__/api/campaigns/campaigns.authority.test.ts",
+      "whyFlagDependent": "Same envelope helper and same create path: rows :83 (create answers 200) and :198 (instanceId of the create body) read the create response, which is the genesis 500 under the flip.",
+      "design": "Same as campaigns.test.ts: disjoint force membership in envelopeFor plus one premise row."
+    },
+    {
+      "file": "src/__tests__/api/campaigns/campaignAuthorityBlocked.test.ts",
+      "whyFlagDependent": "Rows :99 and :119 seed the snapshot record through the PUT route, then write a journal-native marker and expect 409 blocked (journal-authority-without-stream). Under the flip the route create appends a genesis stream, so the premise \"journal marker, no stream\" is false and the second PUT answers 200.",
+      "design": "Seed the record without the route: saveCampaign (CampaignPersistenceService, no genesis hook), and assert the premise before the marker is written: the campaign stream's highest sequence is -1, read through JournalCampaignEventStore.highestSequence over SQLiteEventJournal (the same probe resolveCampaignAuthorityFromStores.ts:68-77 uses). The stale-write half of :119 still goes through the route."
+    },
+    {
+      "file": "src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts",
+      "whyFlagDependent": "persistHostCampaign saves through saveCampaign with no genesis; the matches route hands the checkpoint journalAuthorityEnabled: isCampaignJournalAuthorityEnabled() (matches/index.ts:267), and with it true the genesis-branch stage refuses when no marker is on record (campaignCreationCheckpoint.ts:216-219), so creation answers 500 (rows via :184, :200, :223, :253). The :283 row arms the e2e env to reach the same refusal with the flag false.",
+      "design": "persistHostCampaign becomes async and seeds the host campaign through the genesis seam (appendCampaignGenesis over SQLiteEventJournal with writeCampaignMigrationMarker, asserting genesis-appended), with disjoint force membership so the projection accepts it; the :283 row states its premise (no genesis branch) by opting out with { genesis: false }."
+    }
+  ],
+  "redPlan": "each of the four suites run alone under the temporary flip on the unedited baseline (flag false first, as a control); failing rows recorded in u35c-red-20260923.json",
+  "estimatePerFile": [
+    {
+      "file": "src/__tests__/api/campaigns/campaigns.test.ts",
+      "category": "test",
+      "estimateLines": 30
+    },
+    {
+      "file": "src/__tests__/api/campaigns/campaigns.authority.test.ts",
+      "category": "test",
+      "estimateLines": 30
+    },
+    {
+      "file": "src/__tests__/api/campaigns/campaignAuthorityBlocked.test.ts",
+      "category": "test",
+      "estimateLines": 30
+    },
+    {
+      "file": "src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts",
+      "category": "test",
+      "estimateLines": 45
+    }
+  ],
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedProductLines": 500,
+    "estimatedFiles": 4,
+    "estimatedProductLines": 0,
+    "estimatedTestLines": 135,
+    "withinCaps": true,
+    "note": "tests do not count toward the 500-line cap (owner decision 2026-09-23); this unit changes no product line"
+  },
+  "risksForTheParent": [
+    "Review class routine: Lane A only (a cross-model review of the diff with at least two reviewer-reproduced mutants); no Lane B ruling is required.",
+    "Path overlap: U35b and U35d both own src/__tests__/api/campaigns, so while U35c is in flight neither is admissible by --next; they serialize behind this unit.",
+    "With the flag false the two route-create suites keep exercising snapshot-authority campaigns (no marker is written), while the co-op host campaign becomes journal-native through the genesis seam in both modes; under the flip every route create in campaigns.test.ts and campaigns.authority.test.ts is journal-native, so U35b's transaction change (a checkpoint append on a whole-envelope PUT) will run under these rows once the flag flips.",
+    "multiplayerCoopCreationCheckpoint.test.ts:283 arms the e2e env (NEXT_PUBLIC_E2E_MODE + MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY) to reach the genesis refusal with the flag false. When U35d deletes the arm, that row still refuses (the constant is true) but its env arming and comment go stale, and U35d's ownership paths do not include src/__tests__/unit/api."
+  ]
+}
