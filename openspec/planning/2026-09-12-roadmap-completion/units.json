@@ -1485,10 +1485,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "local-verified",
+      "state": "complete",
       "baseline": "b0e17e343d3ff1020058e5f6a19d128f0a4ea029",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "55473c67080d0619e24fb3500e57a306b96399a8",
+      "mergeSha": "13faa499860fd3230a9325604cd59719073d0480",
       "stageReceipts": {
         "admission": {
           "path": "evidence/u21-admission-20260923.json",
@@ -1507,10 +1507,31 @@
           "at": "2026-09-23T03:14:15.020Z",
           "summary": "clause (c) moved to U21b under the admission rule (a sixteenth file); product 5 files +202/-40 (242 lines, cap 500), tests +644/-335; new suite 5/5; src/lib/multiplayer/server 158 suites/1169; src/pages-modules/api 8/62; src/__tests__/api 54/751; src/__tests__/api/matches 3/47 (re-seeded through the mirror, each row asserting the same or more); src/lib/events/journal 23/243; tsc 0; oxlint 84 warnings 0 errors; oxfmt clean on 13 files; LINT_UNITS_PASS 100/100; qc:openspec-ci errors=0; validator PASSED; --next U21 on the baseline; six mutants caught and restored (commit deps back on the match store; the reader wrapping the root-only journal reader; a window rechained from its start; the head and authority routes answering 200 for the missing-head 500; the rebuild file reverted); implementer claude-opus (Agent model: opus); findings: F1, F2, F5, F6 stale comments (folded into U21b), F3 the preview answers 500 for an integrity refusal the commit answers 409 (recorded), F4 matchStoreBranchSegmentReader has no production caller (recorded), F7 is FN-u20-client-launch-treats-head-500-as-ungated (held by U50); status ready"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "review": {
+          "path": "evidence/u21-review-20260923.json",
+          "head": "55473c67080d0619e24fb3500e57a306b96399a8",
+          "reviewedHead": "55473c67080d0619e24fb3500e57a306b96399a8",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet)",
+          "implementerModel": "claude-opus (Agent model: opus)",
+          "outputSha256": "98ee72250ec7870419bf6a1245578744bfb3d1221715b7c834ac2e9b4c0ffa96",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u21-merge-20260923.json",
+          "pr": 1921,
+          "head": "55473c67080d0619e24fb3500e57a306b96399a8",
+          "mergeSha": "13faa499860fd3230a9325604cd59719073d0480"
+        },
+        "mainProof": {
+          "path": "evidence/u21-mainproof-20260923.json",
+          "mergeCommit": "13faa499860fd3230a9325604cd59719073d0480",
+          "verdict": "PASS",
+          "runtime": "Tests:       233 passed, 233 total"
+        },
+        "tick": {
+          "path": "evidence/u21-tick-20260923.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "source20260922": "planned by the parent under OD-mvp-hard-cutover (owner, 2026-09-22) from the read-only cutover map of 2026-09-22 (Opus planning lane; its evidence is file:line on origin/main 31ab3c16e and is summarised in each behaviour sentence)",
@@ -7037,6 +7058,48 @@
         "author": "SwiggitySwerve",
         "label": "owner-ruled",
         "bodySha256": "06f45df247f31d3d8be33a2dbbd77a81dac24119fbccff15582e30aabaea1c95",
+        "postedBy": "parent on the owner's instruction (the comment quotes the owner's words verbatim)",
+        "deviationDisclosed": "DELIVERY.md says the owner posts the ruling out of band; the owner approved this unit by description in chat (words quoted in the comment) after the parent explained it in plain language and reported Lane A's verdict and the check set on the head, and the parent composed and posted the comment from the owner GitHub account and applied the label; the parent supplied the head from the ledger, as in the earlier rulings of this loop"
+      },
+      "note": "opened when the owner ruled, 2026-09-22 (the cutover sequence's units carry no pre-opened ruling packets)"
+    },
+    {
+      "id": "PK-u21-ruling",
+      "blocks": [
+        "U21"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "U21 (review classes replay, authority) presents head 55473c67080d0619e24fb3500e57a306b96399a8. Does the owner rule it?",
+      "options": [
+        {
+          "label": "rule the head",
+          "consequence": "an OWNER-RULING <head> comment and the owner-ruled label on U21's PR; the unit merges and proceeds to main proof",
+          "effort": "0.1 day owner"
+        },
+        {
+          "label": "reject",
+          "consequence": "the PR closes; the unit returns to planned with the objection recorded",
+          "effort": "0.1 day owner"
+        }
+      ],
+      "agentRecommendation": "rule the head once Lane A has approved it and the checks are green",
+      "revertCost": "low: a squash merge revert",
+      "decision": {
+        "at": "2026-09-23T04:40:23Z",
+        "option": "rule the head",
+        "text": "Approve (Recommended)",
+        "source": "owner instruction in the working session (chat), after the parent described the unit in plain English: a structured question: the GM rewind (commit, preview, live rebuild, boot recovery) reads match history from the journal so the candidate is verified against the history it was cut from; identical answers with the combat journal mode off (Lane A measured); E2E-25 should pass live after merge and U22 removes its gate back to back; Lane A APPROVE and 31 green checks; clause (c) moved to U21b"
+      },
+      "ruling": {
+        "ruledHead": "55473c67080d0619e24fb3500e57a306b96399a8",
+        "pr": 1921,
+        "commentId": 5789166195,
+        "author": "SwiggitySwerve",
+        "label": "owner-ruled",
+        "bodySha256": "dcd65dba8960e1b84c488d34f9c6a88e34ec53c6337c272b03304b2998364b56",
         "postedBy": "parent on the owner's instruction (the comment quotes the owner's words verbatim)",
         "deviationDisclosed": "DELIVERY.md says the owner posts the ruling out of band; the owner approved this unit by description in chat (words quoted in the comment) after the parent explained it in plain language and reported Lane A's verdict and the check set on the head, and the parent composed and posted the comment from the owner GitHub account and applied the label; the parent supplied the head from the ledger, as in the earlier rulings of this loop"
       },

@@ -1,0 +1,33 @@
+{
+  "unit": "U21",
+  "stage": "merge",
+  "at": "2026-09-23T04:48:20.542Z",
+  "pr": 1921,
+  "title": "feat(multiplayer): the rewind reads the match journal (U21)",
+  "head": "55473c67080d0619e24fb3500e57a306b96399a8",
+  "mergeSha": "13faa499860fd3230a9325604cd59719073d0480",
+  "mergedAt": "2026-09-23T04:40:30Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u21-admission-20260923.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u21-local-20260923.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u21-red-20260923.json",
+    "src/__tests__/api/matches/rewindCommitRoute.reason.test.ts",
+    "src/__tests__/api/matches/rewindCommitRoute.test.ts",
+    "src/__tests__/api/matches/rewindPreviewRoute.test.ts",
+    "src/lib/multiplayer/server/ServerMatchHostRewindRebuild.ts",
+    "src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindRebuild.test.ts",
+    "src/lib/multiplayer/server/__tests__/matchRecoveryCheckpointDoor.test.ts",
+    "src/lib/multiplayer/server/history/__tests__/matchJournalBranchSegmentReader.sqlite.test.ts",
+    "src/lib/multiplayer/server/history/matchJournalBranchSegmentReader.ts",
+    "src/pages-modules/api/__tests__/campaignLaunchAuthorityRoute.test.ts",
+    "src/pages-modules/api/__tests__/campaignLaunchHeadRoute.test.ts",
+    "src/pages-modules/api/campaignLaunchHeadRoute.ts",
+    "src/pages-modules/api/rewindCommitDeps.ts",
+    "src/pages/api/matches/[id]/rewind-preview.ts"
+  ],
+  "blobEqualityDiffLines": 0
+}
