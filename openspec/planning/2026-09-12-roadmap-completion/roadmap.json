@@ -2719,7 +2719,8 @@
         "src/stores/campaign",
         "src/lib/multiplayer/server",
         "src/pages/api/matches",
-        "src/pages-modules/api"
+        "src/pages-modules/api",
+        "src/__tests__/api/matches"
       ],
       "acceptance": [
         "npm.cmd run typecheck",
@@ -2877,6 +2878,16 @@
           "at": "2026-09-17T15:36:09.369Z",
           "source": "owner instruction 2026-09-17 accepting the second council's corrections (openspec/council-decisions/2026-09-17-review-what-needs-validation.md)",
           "why": "U5a/U5b: the rewind commit reason ingress lives here; no node owned it"
+        }
+      ],
+      "ownershipPathsAmended20260923": [
+        {
+          "path": "src/__tests__/api/matches",
+          "at": "2026-09-23T02:45:52.000Z",
+          "units": "U21",
+          "source": "parent, under OD-mvp-hard-cutover (owner, 2026-09-22); the ownershipPathsAmended20260917 precedent on this node",
+          "why": "U21 replaces the match-store segment reader at the rewind commit and preview routes. The three route suites in this folder (rewindCommitRoute.test.ts, rewindCommitRoute.reason.test.ts, rewindPreviewRoute.test.ts) seed journal rows by hand with copied digests or an empty journal, so the journal reader refuses them; re-seeding them through the mirror is the fix, and a match-store fallback would be the bug U21 removes (FN-u2b-rewind-commit-verifies-through-the-match-store). No node owned this folder or a parent of it.",
+          "disclosure": "The U21 lane reported the three suites from reading the code before measuring; the lane records the measured failures in its red receipt."
         }
       ]
     },

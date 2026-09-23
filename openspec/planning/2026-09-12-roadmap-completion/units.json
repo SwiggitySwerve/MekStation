@@ -1328,7 +1328,8 @@
       "ownershipPaths": [
         "src/lib/multiplayer/server",
         "src/pages-modules/api",
-        "src/pages/api/matches"
+        "src/pages/api/matches",
+        "src/__tests__/api/matches"
       ],
       "ciClass": "product",
       "reviewClasses": [
@@ -1353,7 +1354,14 @@
         "tick": null
       },
       "ownerGate": null,
-      "source20260922": "planned by the parent under OD-mvp-hard-cutover (owner, 2026-09-22) from the read-only cutover map of 2026-09-22 (Opus planning lane; its evidence is file:line on origin/main 31ab3c16e and is summarised in each behaviour sentence)"
+      "source20260922": "planned by the parent under OD-mvp-hard-cutover (owner, 2026-09-22) from the read-only cutover map of 2026-09-22 (Opus planning lane; its evidence is file:line on origin/main 31ab3c16e and is summarised in each behaviour sentence)",
+      "pathsAmendedBeforeAdmission20260923": {
+        "at": "2026-09-23T02:45:52.000Z",
+        "added": [
+          "src/__tests__/api/matches"
+        ],
+        "why": "test lines only: the three match route suites move to the journal reader with the routes (see R2.authority-live ownershipPathsAmended20260923); amended while the unit is planned, before its admission is folded"
+      }
     },
     {
       "id": "U22",
