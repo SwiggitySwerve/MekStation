@@ -154,7 +154,13 @@ function projectForceUnits(
   return forceUnits;
 }
 
-function dayBetween(start: string | undefined, current: string): number {
+/**
+ * The projection's campaign day: calendar days from `start` to `current`
+ * (0 without a start or with an unparseable date). Exported so the record
+ * rewrite after a command can tell whether the stored date already maps
+ * to the journal's day.
+ */
+export function dayBetween(start: string | undefined, current: string): number {
   const currentTime = new Date(current).getTime();
   const startTime =
     start === undefined ? currentTime : new Date(start).getTime();
@@ -187,20 +193,35 @@ export type CampaignSnapshotCommand =
 /**
  * The `CampaignSnapshotPublished` command of `envelope`'s projection at
  * `sequence` (payload revision = sequence, `system` author, scope
- * `campaign`), or the projection's refusal; it appends nothing. Genesis:
- * command `campaign-genesis:<id>`, actor `campaign-source-genesis`;
- * checkpoint: `campaign-checkpoint:<id>:<sequence>`, actor
- * `campaign-record-checkpoint`.
+ * `campaign`), or the projection's refusal; it appends nothing. When
+ * `journalState` is given, its pilots, contracts and salvagePool replace
+ * the projection's (the envelope does not represent them, so a snapshot of
+ * the record keeps what the journal holds). Genesis: command
+ * `campaign-genesis:<id>`, actor `campaign-source-genesis`; checkpoint:
+ * `campaign-checkpoint:<id>:<sequence>`, actor `campaign-record-checkpoint`.
  */
 export function campaignSnapshotCommand(input: {
   readonly envelope: SerializedCampaign;
   readonly purpose: 'genesis' | 'checkpoint';
   readonly sequence: number;
   readonly occurredAt: string;
+  readonly journalState?: Pick<
+    ICampaignAuthoritativeState,
+    'pilots' | 'contracts' | 'salvagePool'
+  >;
 }): CampaignSnapshotCommand {
   let state: ICampaignAuthoritativeState;
   try {
-    state = authoritativeStateFromSerializedCampaign(input.envelope);
+    const projected = authoritativeStateFromSerializedCampaign(input.envelope);
+    state =
+      input.journalState === undefined
+        ? projected
+        : {
+            ...projected,
+            pilots: input.journalState.pilots,
+            contracts: input.journalState.contracts,
+            salvagePool: input.journalState.salvagePool,
+          };
   } catch (error) {
     return {
       kind: 'invalid-campaign-projection',

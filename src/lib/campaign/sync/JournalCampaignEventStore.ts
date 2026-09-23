@@ -28,6 +28,8 @@
  * @spec openspec/changes/design-campaign-authority-and-sync/specs/event-store/spec.md
  */
 
+import type Database from 'better-sqlite3';
+
 import { sha256 } from 'js-sha256';
 
 import type { ICampaignSourcePrivateEnvelope } from '@/lib/campaign/authority/campaignSourcePrivateEnvelope';
@@ -253,10 +255,25 @@ export function toJournalBatch(input: {
 }
 
 /**
+ * Runs on a SQLite journal writer's handle inside a campaign command's
+ * append transaction, after the batch committed; a throw rolls the append
+ * back. Server sites pass the saved-record rewrite (U35e).
+ */
+export type CampaignCommandCommitHook = (
+  db: Database.Database,
+  campaignId: string,
+) => void;
+
+/**
  * Append one campaign command's WHOLE event batch atomically at the
  * expected head. The first event's `sequence` must equal the current
  * next-sequence; the journal's revision guard turns a lost race into a
- * typed `sequence-conflict` with nothing applied (all-or-nothing).
+ * typed `sequence-conflict` with nothing applied (all-or-nothing). With
+ * `afterCommit` and a SQLite writer, the append runs in the writer's
+ * extension and `afterCommit` runs on its handle in the same transaction
+ * when the batch committed and its command id had no recorded batch before
+ * (the writer answers a recorded id with that batch, which must not run the
+ * hook twice); any other journal appends as before.
  */
 export async function appendCampaignCommandBatch(
   journal: IEventJournal<ICampaignJournalEnvelope>,
@@ -284,9 +301,25 @@ export async function appendCampaignCommandBatch(
      */
     readonly expectedRevision?: number;
   },
+  afterCommit?: CampaignCommandCommitHook,
 ): Promise<CampaignBatchAppendResult> {
   const batch = toJournalBatch(input);
-  const result = await journal.append(batch);
+  const result =
+    afterCommit !== undefined && journal instanceof SQLiteEventJournalWriter
+      ? await journal.appendWithExtension(batch, (db, append) => {
+          const recorded =
+            db
+              .prepare(
+                'SELECT 1 AS ok FROM event_journal_batches WHERE command_id = ?',
+              )
+              .get(batch.commandId) !== undefined;
+          const appended = append();
+          if (!recorded && appended.kind === 'committed') {
+            afterCommit(db, input.campaignId);
+          }
+          return appended;
+        })
+      : await journal.append(batch);
   if ('kind' in result && result.kind === 'committed') {
     return {
       kind: 'committed',
@@ -342,6 +375,8 @@ export class JournalCampaignEventStore implements ICampaignEventStore {
   declare isRevokedCampaignSessionParticipant: ICampaignSessionParticipantPort['isRevokedCampaignSessionParticipant'];
   declare readParticipantDeliveryCursor: IParticipantDeliveryCursorPort['readParticipantDeliveryCursor'];
   declare recordParticipantAcknowledgement: IParticipantDeliveryCursorPort['recordParticipantAcknowledgement'];
+  /** The saved-record rewrite a server binder installs; absent in a browser. */
+  declare rewriteRecordAfterCommand?: CampaignCommandCommitHook;
 
   public constructor(
     private readonly journal: IEventJournal<ICampaignJournalEnvelope>,
@@ -375,7 +410,8 @@ export class JournalCampaignEventStore implements ICampaignEventStore {
    * (task 1.2): one command's whole contiguous event batch plus its
    * expected post-state digest, committed atomically at the expected head.
    * Absent on the in-memory store, so the host's legacy per-event path
-   * remains the flag-off behavior structurally.
+   * remains the flag-off behavior structurally. A store a server binder
+   * gave `rewriteRecordAfterCommand` runs it in the append's transaction.
    */
   appendCommandBatch = async (
     campaignId: string,
@@ -393,15 +429,19 @@ export class JournalCampaignEventStore implements ICampaignEventStore {
             commandId: input.commandId,
           };
     }
-    return appendCampaignCommandBatch(this.journal, {
-      campaignId,
-      branchId,
-      commandId: input.commandId,
-      intentFingerprint: input.intentFingerprint,
-      events: input.events,
-      expectedPostStateDigest: input.expectedPostStateDigest,
-      expectedRevision: input.expectedRevision,
-    });
+    return appendCampaignCommandBatch(
+      this.journal,
+      {
+        campaignId,
+        branchId,
+        commandId: input.commandId,
+        intentFingerprint: input.intentFingerprint,
+        events: input.events,
+        expectedPostStateDigest: input.expectedPostStateDigest,
+        expectedRevision: input.expectedRevision,
+      },
+      this.rewriteRecordAfterCommand,
+    );
   };
 
   getCommandReceipt = async (

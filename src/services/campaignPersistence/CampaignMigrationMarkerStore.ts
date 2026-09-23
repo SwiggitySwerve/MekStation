@@ -28,10 +28,15 @@ interface IMarkerRow {
   readonly payload: string;
 }
 
+/**
+ * Read the campaign's marker on `db` (default: the service handle; a
+ * journal writer's transaction passes its own): `not_found` for no row,
+ * `corrupt` for a payload that is not JSON.
+ */
 export function readCampaignMigrationMarker(
   campaignId: string,
+  db: Database.Database = getSQLiteService().getDatabase(),
 ): CampaignMigrationMarkerReadResult {
-  const db = getSQLiteService().getDatabase();
   const row = db
     .prepare(
       'SELECT payload FROM campaign_authority_migration WHERE campaign_id = ?',

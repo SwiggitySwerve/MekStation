@@ -29,6 +29,7 @@ import {
   type ICampaignJournalEnvelope,
 } from '../sync/JournalCampaignEventStore';
 import { createJournalNativeMarker } from './campaignAuthorityMigration';
+import { readCampaignJournalState } from './campaignRecordJournalState';
 import { campaignSnapshotCommand } from './campaignSourceGenesis';
 
 export type CampaignRecordJournalSaveResult =
@@ -57,8 +58,10 @@ function campaignRootRevision(
 
 /**
  * Save `envelope` at `baseVersion` and append its snapshot in one immediate
- * transaction the journal writer owns. A refused plan or projection returns
- * before anything is written. A checkpoint appends at the stream's next
+ * transaction the journal writer owns. The snapshot is the planned record's
+ * projection with the journal's current pilots, contracts and salvage pool.
+ * A refused plan or projection returns before anything is written. A
+ * checkpoint appends at the stream's next
  * sequence; a genesis at sequence 0, and a committed genesis also writes
  * the journal-native marker on the same handle. A genesis refused by the
  * revision or command-identity guard keeps the row and writes no marker
@@ -93,12 +96,16 @@ export async function saveCampaignRecordThroughJournal(
       );
       if (plan.kind !== 'ok') return { kind: 'refused', result: plan };
       // The snapshot is of the record the row becomes (instance id and
-      // authority pinned, migrated), not of the incoming envelope.
+      // authority pinned, migrated), not of the incoming envelope, and it
+      // keeps the pilots, contracts and salvage pool the journal holds,
+      // which the record does not represent. A genesis can only commit on
+      // an empty stream, so it carries nothing.
       const snapshot = campaignSnapshotCommand({
         envelope: plan.record,
         purpose: input.purpose,
         sequence: genesis ? 0 : campaignRootRevision(db, campaignId),
         occurredAt: input.occurredAt,
+        journalState: readCampaignJournalState(db, campaignId),
       });
       if (snapshot.kind !== 'ready') {
         return { kind: 'refused', result: snapshot };
