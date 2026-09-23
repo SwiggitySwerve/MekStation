@@ -1,0 +1,22 @@
+{
+  "unit": "U62",
+  "stage": "merge",
+  "at": "2026-09-23T02:58:48.907Z",
+  "pr": 1916,
+  "title": "chore(hooks): the pre-commit hook drops its production build (U62)",
+  "head": "92a5b9cba3eb9c030e67b067480141e4a1b63993",
+  "mergeSha": "f1b14afb2ce2f5179fbb9b7794555095ca89795f",
+  "mergedAt": "2026-09-23T02:46:57Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    ".husky/pre-commit",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u62-admission-20260923.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u62-local-20260923.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u62-red-20260923.json",
+    "scripts/__tests__/precommit-no-build.test.ts"
+  ],
+  "blobEqualityDiffLines": 0
+}

@@ -15,14 +15,16 @@ Source: [`.husky/pre-commit`](../../.husky/pre-commit). Auto-installed via `npm 
 
 Current behaviour:
 
-| Phase | Action                                                                                                                                             |
-| ----- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1     | `npx lint-staged` — per-file format + lint on staged files (fast)                                                                                  |
-| 2     | If any `.ts` / `.tsx` is staged → `npm run build` (catches type errors). Otherwise skip — Python / openspec / docs commits don't need the TS build |
+| Step | Action                                                                                                                                                                  |
+| ---- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1    | `npx lint-staged` runs `oxlint --fix` and `oxfmt --write` on staged `.ts` / `.tsx` / `.js` / `.jsx` files, and `oxfmt --write` on staged `.json` / `.md` / `.css` files |
+| 2    | When any `.ts` / `.tsx` file is staged, lint-staged ends with a whole-project `tsc --noEmit --skipLibCheck`, which catches type errors                                  |
 
-This pattern eliminates the "should I `--no-verify` here?" decision for cross-language refactors. The CI gauntlet still runs the full lint + format + type + test + build matrix on every PR regardless.
+The hook runs no production build (owner decision of 2026-09-23, roadmap unit U62). The pr-checks workflow runs `npm run build` on every pull request that changes code, together with the lint, format, type and test gates.
 
-**Don't bypass with `--no-verify`** unless you have an explicit reason; the conditional now handles the cases that previously required it.
+A commit made in a linked `git worktree` runs no hook at all. Husky's hooks folder, `.husky/_`, exists only in the checkout where `npm install` ran.
+
+**Don't bypass with `--no-verify`** unless you have an explicit reason.
 
 ---
 
@@ -98,13 +100,13 @@ git config --global hook.no-merge-markers.enabled false
 
 ## Decision rubric
 
-| Need                                                                       | Use                                                                   |
-| -------------------------------------------------------------------------- | --------------------------------------------------------------------- |
-| Hook the whole team must run                                               | husky (shared, auto-installs via `npm install`)                       |
-| Hook tied to project-specific tooling (`lint-staged`, the project's build) | husky                                                                 |
-| Hook that fails CI gates                                                   | CI workflow, not a local hook (any local hook can be `--no-verify`'d) |
-| Personal preference (your spell-check, your secret scan)                   | Git 2.54 config hook in `~/.gitconfig`                                |
-| Org-wide hook required across all your repos at $COMPANY                   | Git 2.54 config hook in `~/.gitconfig`                                |
+| Need                                                                            | Use                                                                   |
+| ------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| Hook the whole team must run                                                    | husky (shared, auto-installs via `npm install`)                       |
+| Hook tied to project-specific tooling (`lint-staged`, the project's type check) | husky                                                                 |
+| Hook that fails CI gates                                                        | CI workflow, not a local hook (any local hook can be `--no-verify`'d) |
+| Personal preference (your spell-check, your secret scan)                        | Git 2.54 config hook in `~/.gitconfig`                                |
+| Org-wide hook required across all your repos at $COMPANY                        | Git 2.54 config hook in `~/.gitconfig`                                |
 
 ---
 

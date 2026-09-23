@@ -1148,10 +1148,10 @@
         "maxFiles": 5,
         "maxNonGeneratedLines": 80
       },
-      "state": "local-verified",
+      "state": "complete",
       "baseline": "d2336477d14e588ee44aedd3db0c9857a36abf7c",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "92a5b9cba3eb9c030e67b067480141e4a1b63993",
+      "mergeSha": "f1b14afb2ce2f5179fbb9b7794555095ca89795f",
       "stageReceipts": {
         "admission": {
           "path": "evidence/u62-admission-20260923.json",
@@ -1170,10 +1170,31 @@
           "at": "2026-09-23T02:35:28.198Z",
           "summary": "product 20 lines (+5/-15, .husky/pre-commit; cap 80), test 42 lines (the pin); 5 files with the receipts (cap 5); pin 2/2; sh -n 0; tsc 0; oxlint 84 warnings 0 errors; oxfmt clean on the pin; LINT_UNITS_PASS 100/100; qc:openspec-ci errors=0; validator PASSED; --next U62 on the baseline; timed sh .husky/pre-commit with one staged .ts change, one run each: baseline 175.9 s (build compiled, then refused hydration as expected in a junctioned worktree, exit 1), edited 56.2 s (lint-staged only, exit 0); four mutants caught and restored (build line put back, next build added, tsc entry removed from lint-staged, lint-staged line removed); implementer claude-opus (Agent model: opus); findings not fixed: the baseline type-checked twice per TypeScript commit (lint-staged tsc and inside next build), lint-staged would run the whole-project tsc once per chunk on a very large staged list (read from its source, not measured), docs/development/git-hooks.md:21 still says the hook builds (left to the docs PR after merge, as the ledger says); status ready"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "review": {
+          "path": "evidence/u62-review-20260923.json",
+          "head": "92a5b9cba3eb9c030e67b067480141e4a1b63993",
+          "reviewedHead": "92a5b9cba3eb9c030e67b067480141e4a1b63993",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet)",
+          "implementerModel": "claude-opus (Agent model: opus)",
+          "outputSha256": "0a008ae02f1236a36bab579064edb48fcfc58f9c735f8175da9be4d8e31fe5cb",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u62-merge-20260923.json",
+          "pr": 1916,
+          "head": "92a5b9cba3eb9c030e67b067480141e4a1b63993",
+          "mergeSha": "f1b14afb2ce2f5179fbb9b7794555095ca89795f"
+        },
+        "mainProof": {
+          "path": "evidence/u62-mainproof-20260923.json",
+          "mergeCommit": "f1b14afb2ce2f5179fbb9b7794555095ca89795f",
+          "verdict": "PASS",
+          "runtime": "Tests:       2 passed, 2 total"
+        },
+        "tick": {
+          "path": "evidence/u62-tick-20260923.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "source20260923": "planned by the parent under the owner decisions of 2026-09-23 (roadmap.json ownerDecisions OD-precommit-drop-full-build); written by a ledger-author lane from the parent's transcription",
