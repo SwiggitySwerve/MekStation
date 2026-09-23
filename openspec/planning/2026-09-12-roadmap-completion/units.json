@@ -1415,9 +1415,11 @@
       "id": "U35f",
       "node": "R2.multiplayer-client",
       "taskKeys": [],
-      "behavior": "The co-op host browser adopts the saved record's new version after a co-op update, so its next whole-envelope save is not refused (owner decision OD-u35d-server-and-host-fix, host half). After U35e a committed co-op command advances the campaigns row version; the host's fold of the committed frame (src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx:165-172,204-212) then refreshes the record through the persistence store's existing refreshAfterCommittedCommand (src/stores/campaign/useCampaignPersistenceStore.ts:1323; today nothing calls it), which cancels the armed save and adopts the server record, instead of letting the debounced save meet the CAS and roll back with a toast (useCampaignPersistenceStore.ts:832-858). If the fold cannot reach that action without an edit under src/stores/campaign, the unit stops at admission for a path amendment. Red-first on U35e's main: a co-op commit followed by the host's next save answers 409 and rolls back; after, the save succeeds and carries the command's effect.",
+      "behavior": "The co-op host browser adopts the saved record's new version after a co-op update, so its next whole-envelope save is not refused (owner decision OD-u35d-server-and-host-fix, host half). After U35e a committed co-op command advances the campaigns row version; the host's fold of the committed frame (src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx:165-172,204-212) then refreshes the record through the persistence store's existing refreshAfterCommittedCommand (src/stores/campaign/useCampaignPersistenceStore.ts:1323; today nothing calls it), which cancels the armed save and adopts the server record, instead of letting the debounced save meet the CAS and roll back with a toast (useCampaignPersistenceStore.ts:832-858). If the fold cannot reach that action without an edit under src/stores/campaign, the unit stops at admission for a path amendment. Red-first on U35e's main: a co-op commit followed by the host's next save answers 409 and rolls back; after, the save succeeds and carries the command's effect. Amended 2026-09-23 (the lane's measured findings F1 and F2, evidence/u35f-local-20260923.json): the refresh waits for any save in flight before it reads, the store's co-op rollback updates its stored cache key when it adopts the server record, and a save response that arrives after a refresh adopted a newer record does not move the version back. Red: the lane's probes p1 (after a co-op 409 rollback), p2 (a co-op frame while a host save is in flight) and p3 (the in-flight race on a journal-native campaign).",
       "ownershipPaths": [
-        "src/components/campaign/coop"
+        "src/components/campaign/coop",
+        "src/stores/campaign/useCampaignPersistenceStore.ts",
+        "src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts"
       ],
       "ciClass": "product",
       "reviewClasses": [
@@ -1452,6 +1454,14 @@
       "resumed20260923": {
         "at": "2026-09-23T05:14:39.000Z",
         "why": "prerequisite main-verified: U35e (merge 45d5c348de63feb7af1ff205f2b4d0945d86db19), recorded by this closure edit"
+      },
+      "pathsAmendedBeforeAdmission20260923": {
+        "at": "2026-09-23T06:57:21.000Z",
+        "added": [
+          "src/stores/campaign/useCampaignPersistenceStore.ts",
+          "src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts"
+        ],
+        "why": "the lane's measured regression F1/F2 is fixed in the persistence store, not by re-applying the fold in the component; accepting the regression until U35d was rejected because U35d makes only new campaigns journal-native; amended while the unit is planned, before its receipts are folded"
       }
     },
     {
@@ -1634,9 +1644,20 @@
       "id": "U22a",
       "node": "R2.authority-live",
       "taskKeys": [],
-      "behavior": "A committed GM rewind reaches the live match and its connected players (FN-u22-rewind-commit-rebuild-never-reaches-the-live-match). (1) The rewind commit route (src/pages/api/matches/[id]/rewind-commit.ts:230) looks the live host up through getMatchHostRegistry, whose singleton is module-local (src/lib/multiplayer/server/MatchHostRegistry.ts:222-230), while server.js loads the socket runtime in a separate tsx module graph (server.js:445-465), so the API route sees an empty registry and the live rebuild never runs; the registry shares one instance through a globalThis symbol, as getDefaultMatchStore already does for the match store (getDefaultMatchStore.ts:31-41), and the doc comment at MatchHostRegistry.ts:223 is corrected. (2) After rebuildFromActivatedBranch, the players connected at that moment receive the rebuilt match without rejoining; today a rewind only marks viewers for resync and the resync runs on their next join (ServerMatchHost.ts:584-588, :903-908). Red-first: a jest row that loads the registry module in two isolated module graphs and shows two instances today; a host-level row where a connected viewer receives nothing after a rebuild today; E2E-25 through the privacy-pack ladder group as the live acceptance: on this unit's head E2E-25 becomes an unexpected pass (the strict test.fail stays; U22 removes it). If (2) needs an edit outside src/lib/multiplayer/server, the unit stops at admission for a path amendment.",
+      "behavior": "A committed GM rewind reaches the live match and its connected players (FN-u22-rewind-commit-rebuild-never-reaches-the-live-match). (1) The rewind commit route (src/pages/api/matches/[id]/rewind-commit.ts:230) looks the live host up through getMatchHostRegistry, whose singleton is module-local (src/lib/multiplayer/server/MatchHostRegistry.ts:222-230), while server.js loads the socket runtime in a separate tsx module graph (server.js:445-465), so the API route sees an empty registry and the live rebuild never runs; the registry shares one instance through a globalThis symbol, as getDefaultMatchStore already does for the match store (getDefaultMatchStore.ts:31-41), and the doc comment at MatchHostRegistry.ts:223 is corrected. (2) After rebuildFromActivatedBranch, the players connected at that moment receive the rebuilt match without rejoining; today a rewind only marks viewers for resync and the resync runs on their next join (ServerMatchHost.ts:584-588, :903-908). Red-first: a jest row that loads the registry module in two isolated module graphs and shows two instances today; a host-level row where a connected viewer receives nothing after a rebuild today; E2E-25 through the privacy-pack ladder group as the live acceptance: on this unit's head E2E-25 becomes an unexpected pass (the strict test.fail stays; U22 removes it). If (2) needs an edit outside src/lib/multiplayer/server, the unit stops at admission for a path amendment. Amended 2026-09-23 (owner decision OD-u22a-replace-stream-marker, after the first admission attempt measured that connected clients block on a sequence collision once the rebuild reaches them): (3) ReplayStart carries a replace-stream marker; the client clears its delivery admission state on it and emits an event, and the session hook clears its event mirror on that event; the server moves the registry's recovery flag into the same globalThis slot as the registry, and after a committed rewind rebuilds the live host it replays each attached player's own projected view through the per-socket join path (viewer resolution, fog filter, publication guard; never one frame broadcast to every socket), stamping the marker after the publication guard. Clause (1) never ships without (2) and (3): the probe showed every connected client blocks on the next event otherwise.",
       "ownershipPaths": [
-        "src/lib/multiplayer/server"
+        "src/lib/multiplayer/server",
+        "src/types/multiplayer/Protocol.ts",
+        "src/types/multiplayer/__tests__/Protocol.test.ts",
+        "src/lib/multiplayer/client.ts",
+        "src/lib/multiplayer/__tests__/client.test.ts",
+        "src/lib/multiplayer/__tests__/clientDeliveryGap.test.ts",
+        "src/lib/multiplayer/mirrorMatchSession.ts",
+        "src/lib/multiplayer/__tests__/mirrorMatchSession.test.ts",
+        "src/hooks/useMultiplayerSession.ts",
+        "src/hooks/useMultiplayerSession.helpers.ts",
+        "src/hooks/__tests__/useMultiplayerSession.helpers.test.ts",
+        "src/hooks/__tests__/useMultiplayerSession.test.tsx"
       ],
       "ciClass": "product",
       "reviewClasses": [
@@ -1661,7 +1682,28 @@
         "tick": null
       },
       "ownerGate": null,
-      "source20260923": "planned by the parent from U22's red measurement (evidence/u22-red-20260923.json) and its lane's findings, under OD-mvp-hard-cutover"
+      "source20260923": "planned by the parent from U22's red measurement (evidence/u22-red-20260923.json) and its lane's findings, under OD-mvp-hard-cutover",
+      "pathsAmendedBeforeAdmission20260923": {
+        "at": "2026-09-23T06:57:21.000Z",
+        "added": [
+          "src/types/multiplayer/Protocol.ts",
+          "src/types/multiplayer/__tests__/Protocol.test.ts",
+          "src/lib/multiplayer/client.ts",
+          "src/lib/multiplayer/__tests__/client.test.ts",
+          "src/lib/multiplayer/__tests__/clientDeliveryGap.test.ts",
+          "src/lib/multiplayer/mirrorMatchSession.ts",
+          "src/lib/multiplayer/__tests__/mirrorMatchSession.test.ts",
+          "src/hooks/useMultiplayerSession.ts",
+          "src/hooks/useMultiplayerSession.helpers.ts",
+          "src/hooks/__tests__/useMultiplayerSession.helpers.test.ts",
+          "src/hooks/__tests__/useMultiplayerSession.test.tsx"
+        ],
+        "why": "the owner's decision OD-u22a-replace-stream-marker adds the client half; the first admission attempt stopped BLOCKED for exactly these files (evidence/u22a-admission-attempt1-20260923.json); amended while the unit is planned"
+      },
+      "firstAdmissionAttempt20260923": {
+        "receipt": "evidence/u22a-admission-attempt1-20260923.json",
+        "decision": "BLOCKED at admission: clause (2) needs client-side files outside src/lib/multiplayer/server"
+      }
     },
     {
       "id": "U21b",

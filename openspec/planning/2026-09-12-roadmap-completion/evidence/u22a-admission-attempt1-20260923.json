@@ -1,0 +1,342 @@
+{
+  "unit": "U22a",
+  "stage": "admission",
+  "at": "2026-09-23T05:32:13.935Z",
+  "status": "BLOCKED",
+  "statusLine": "BLOCKED at admission for a path amendment: clause (2) cannot be delivered correctly inside src/lib/multiplayer/server. Measured at the client-module boundary the lobby page renders from: after a committed rewind rebuilds the host, the join replay pushed to the SAME connected socket (the smallest existing frame set) is applied as 0 events and the player mirror stays on the pre-rewind phase; only a fresh client (a page reload) shows the rebuilt phase. Clause (1) needs no out-of-path edit. No product or test file was changed.",
+  "baseline": "f32ea5400f3a1282733180059e32d9169fb74204",
+  "baselineEqualsOriginMain": true,
+  "originMainFetch": "git fetch origin main -> FETCH_HEAD = origin/main = HEAD = f32ea5400f3a1282733180059e32d9169fb74204",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u22a",
+  "branch": "roadmap-u22a-rewind-reaches-live-match-20260923",
+  "node": "R2.authority-live",
+  "ciClass": "product",
+  "reviewClasses": [
+    "authority",
+    "replay"
+  ],
+  "taskKeys": [],
+  "ownershipPaths": [
+    "src/lib/multiplayer/server"
+  ],
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "shellPreamble": [
+    "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "export npm_config_dry_run=true"
+  ],
+  "installGuard": {
+    "command": "npm run --silent qc:guard-node-modules-link",
+    "stdout": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"E:\\\\Projects\\\\MekStation\\\\.sisyphus\\\\roadmap-completion-20260912\\\\worktrees\\\\u22a\\\\node_modules\",\"actualPath\":\"E:\\\\Projects\\\\MekStation\\\\node_modules\"}",
+    "exitCode": 1,
+    "reading": "refusal by design in a junctioned worktree (node_modules -> /e/Projects/MekStation/node_modules/); no npm install, ci, prune or lifecycle was run"
+  },
+  "next": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "stdout": "U35f",
+    "exitCode": 0,
+    "admissibleAnyway": {
+      "verdict": "YES (both checks pass)",
+      "nodeDependency": "R2.authority-live (roadmap.json:2709) dependsOn [\"R2.authority-cutover\"] only; R2.authority-cutover (roadmap.json:6778) state main-verified (read from roadmap.json this session)",
+      "unitState": "U22a state planned, ownerGate null (units.json)",
+      "inFlightDefinition": "validate-roadmap.mjs:59 IN_FLIGHT_STATES = admitted, implementing, local-verified, pr-open, review-required, ci-running, merged",
+      "inFlightUnits": [],
+      "inFlightUnitsNote": "no unit in units.json holds an IN_FLIGHT_STATES state (unit states: complete 40, blocked 28, planned 43, main-verified 1 = U3, not in-flight). U35f, which --next prints and the parent runs in parallel, is planned on the ledger with ownershipPaths [\"src/components/campaign/coop\"] (node R2.multiplayer-client); it does not overlap src/lib/multiplayer/server."
+    }
+  },
+  "validator": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+    "stdout": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+    "exitCode": 0
+  },
+  "seams": [
+    {
+      "at": "src/lib/multiplayer/server/MatchHostRegistry.ts:220-229",
+      "fact": "module-level `_singleton` and `getMatchHostRegistry()`; the doc comment at :223 says \"Process-local singleton accessor used by REST routes + WS handler\", which the module graph split contradicts"
+    },
+    {
+      "at": "src/lib/multiplayer/server/MatchHostRegistry.ts:221, :241-258",
+      "fact": "module-level `_recoveryRan` gates `bootstrapMultiplayerServer()` (run once per process by its doc comment)"
+    },
+    {
+      "at": "src/lib/multiplayer/server/MatchHostRegistry.ts:260-265",
+      "fact": "`_resetMatchHostRegistry()` resets the instance and the flag; no caller outside the file (grep over src, server.js, scripts, e2e)"
+    },
+    {
+      "at": "src/lib/multiplayer/server/getDefaultMatchStore.ts:31-41, :68-78, :85-92",
+      "fact": "the pattern to copy: Symbol.for(\"mekstation.multiplayer.matchStore\") slot on globalThis; test hooks operate on the slot (introduced by bd94ded0b #1016, whose regression test is the jest.isolateModules dual-load in __tests__/getDefaultMatchStore.test.ts:21-35, :117-122)"
+    },
+    {
+      "at": "server.js:445-465",
+      "fact": "loadMultiplayerRuntime requires MatchHostRegistry.ts through the tsx hook; :455-462 says the socket graph is separate from Next's API bundle and holds its own SQLite singleton, initialized at :463-464 (initialize() call at :464)"
+    },
+    {
+      "at": "server.js:524-543",
+      "fact": "runtime.bootstrapMultiplayerServer() (:537) runs before createServer (:543), so the socket graph always constructs the registry first"
+    },
+    {
+      "at": "src/pages/api/matches/[id]/rewind-commit.ts:228-237",
+      "fact": "getMatchHostRegistry().get(matchId) then liveHost.rebuildFromActivatedBranch({branchId, effectiveRevision, effectiveGeneration}); only primitives cross into the host"
+    },
+    {
+      "at": "src/pages/api/multiplayer/matches/[id].ts:72, :120",
+      "fact": "the API graph calls bootstrapMultiplayerServer() (fire-and-forget) and getMatchHostRegistry().closeMatch(id)"
+    },
+    {
+      "at": "src/lib/multiplayer/server/ServerMatchHost.ts:522-523, :553-594",
+      "fact": "rebuildFromActivatedBranch and the rebuild port; markViewersForResync at :584-589 only fills rewindResyncViewers"
+    },
+    {
+      "at": "src/lib/multiplayer/server/ServerMatchHost.ts:871-916",
+      "fact": "handleSessionJoin; :903-908 resumes a marked viewer from 0 and clears the mark - only when that viewer joins again"
+    },
+    {
+      "at": "src/lib/multiplayer/server/ServerMatchHost.ts:1312-1347",
+      "fact": "existing precedent of the host pushing a join replay to an ATTACHED socket (handleDeliveryAck isolation clear iterates lifecycle.attachedSockets() and calls handleSessionJoin)"
+    },
+    {
+      "at": "src/lib/multiplayer/server/ServerMatchSocketLifecycle.ts:105-112",
+      "fact": "attachedSockets() yields {socket, playerId} for every connected socket"
+    },
+    {
+      "at": "src/lib/multiplayer/server/ServerMatchHostRewindRebuild.ts:169-220",
+      "fact": "rebuildHostFromActivatedBranch: discardViewerDeliveries (:213) then markViewersForResync (:214); it sends no frame"
+    },
+    {
+      "at": "src/lib/multiplayer/server/projection/ViewerDeliveryCursors.ts:276-278",
+      "fact": "discardAll clears every viewer's delivered list, so post-rewind numbering restarts at 0"
+    },
+    {
+      "at": "src/lib/multiplayer/server/ServerMatchHostReplay.ts:74-128, :282-352, :425-469",
+      "fact": "sendReplay (publication guard :95-105, delivery stamping :106-114), handleSessionJoin, per-player fog filter"
+    },
+    {
+      "at": "src/lib/multiplayer/client.ts:248-251",
+      "fact": "ReplayStart handler only clears replayBuffer and ready; it resets no admission state"
+    },
+    {
+      "at": "src/lib/multiplayer/client.ts:879-913",
+      "fact": "admitLiveEvent/admitByDelivery: a delivery number <= lastAppliedDelivery with the same identity is dropped, with a different identity it sets blockedBySequenceCollision"
+    },
+    {
+      "at": "src/lib/multiplayer/client.ts:701-721",
+      "fact": "socket.onopen resets only lastDeliverySequence; the applied maps survive a reconnect by design"
+    },
+    {
+      "at": "src/hooks/useMultiplayerSession.helpers.ts:66-95, :251-260",
+      "fact": "the mirror log is reset only by resetMultiplayerConnectionState, called only from the hook effect (src/hooks/useMultiplayerSession.ts:235-277, deps url/matchId/playerId); appendGameEvent only concatenates"
+    },
+    {
+      "at": "src/lib/multiplayer/mirrorMatchSession.ts:72-83",
+      "fact": "orderGameEvents: first occurrence of a sequence wins, then sort; the mirror never drops an applied event"
+    },
+    {
+      "at": "src/components/multiplayer/NetworkedGameSurface.tsx:335, :349, :415",
+      "fact": "phase-name renders mirrorSession.currentState.phase"
+    },
+    {
+      "at": "src/lib/multiplayer/server/projection/ViewerFrameProjector.ts:66-70, :196-209, :220-241",
+      "fact": "player projections drop sequence and privateRecordRef; the player ReplayStart projection rebuilds the object from known fields"
+    },
+    {
+      "at": "src/pages-modules/api/rewindCommitDeps.ts:45, :167",
+      "fact": "REWIND_COMMIT_REASON = \"authorized combat rewind\" (the reason the commit writes); lease owner `rewind-commit:${process.pid}`"
+    }
+  ],
+  "design": {
+    "q1_isClause1AloneEnoughToReachTheHost": {
+      "answer": "Yes for REACHING the host, provided the recovery-ran flag moves into the same globalThis slot as the registry. Only primitives cross (rewind-commit.ts:232-236) and the host found is the socket graph's object, so rebuild runs the socket graph's modules: its SQLite singleton (initialized at server.js:463-464, same DATABASE_PATH per server.js:455-462) reads the branch the API graph committed; its store is the globalThis-shared match store (getDefaultMatchStore.ts:31-41); the combat journal mode resolves from the constant and env in both graphs (combatJournalAuthorityEnabled.ts:41-58). The other module-local singleton on the path is `_recoveryRan` (MatchHostRegistry.ts:221): left module-local, the API graph's first GET /api/multiplayer/matches/:id (src/pages/api/multiplayer/matches/[id].ts:72) would re-run recoverActiveMatches on the SHARED registry, constructing throwaway hosts that write (tryFoldActivatedRewindBranch supersedes the store tail, MatchRecovery.ts:192; resumePendingEventPublications, MatchRecovery.ts:213) and overwriting blocked/quarantine state. Clause (1) therefore anchors {registry, recoveryRan} together.",
+      "measured": "U22 red receipt (evidence/u22-red-20260923.json, run u22-red-privacy-20260923): the branch row's created_by is rewind-commit:37596 and the listening server PID was 37596 (netstat), so the API route runs in the server.js process. The owner string is `rewind-commit:${process.pid}` (rewindCommitDeps.ts:167).",
+      "inference": "INFERENCE (not measured on this head): a Symbol.for slot on globalThis is visible to both graphs in production. Measured precedent is dev mode only (bd94ded0b #1016: live `npm run dev` proof that the globalThis match store is shared between the Turbopack API graph and the tsx socket graph)."
+    },
+    "q2_howTheHostSendsAndWhatAConnectedViewerNeeds": {
+      "howItSends": "Live events: broadcastEvent per attached socket through the publication boundary (ServerMatchHost.ts:1260-1300; broadcaster fan-out :1260-1261). One socket: safeSend (:1370-1371). A join: handleSessionJoin -> sendReplay (ReplayStart, ReplayChunk with deliverySequences, ReplayEnd, then LobbyUpdated) (ServerMatchHostReplay.ts:74-128, :282-352). Attached sockets: lifecycle.attachedSockets() (ServerMatchSocketLifecycle.ts:105-112). A rebuild sends nothing (ServerMatchHostRewindRebuild.ts:169-220).",
+      "smallestExistingFrameSet": "The join replay from 0 pushed to each attached socket, the same call handleDeliveryAck already makes (ServerMatchHost.ts:1337-1346). MEASURED below (probe M2): it reaches the connected client and changes nothing on the mirror.",
+      "whyItIsNotEnough": "The client cannot drop a fact it already applied: after discardAll the replay re-uses delivery numbers 0..k with the same event identities, which admitByDelivery drops as duplicates (client.ts:892-913); the hook mirror is append-only (useMultiplayerSession.helpers.ts:251-260) and first-occurrence-wins by sequence (mirrorMatchSession.ts:72-83), and it is reset only when the hook effect re-runs (useMultiplayerSession.ts:235-277). The next live event after the rewind then reuses a delivery number with a new identity and blocks the client (probe M4).",
+      "whatAConnectedViewerNeeds": "A signal that its applied stream is superseded, carried with the rebuilt replay, that makes the client clear its delivery admission state (client.ts IClientState applied maps, lastAppliedDelivery, delivery cursor and pins, blockedBySequenceCollision) and makes the hook clear its mirror log before the rebuilt replay is applied. No such frame or field exists in src/types/multiplayer/Protocol.ts (ReplayStartSchema :642-663 has no such field) and no client handler does this."
+    },
+    "q3_privacyOfSendingToEveryConnectedViewer": {
+      "answer": "Respected if the push reuses the join path per attached socket: each socket resolves its own viewer (ServerMatchHostReplay.ts:311-316), the replay is fog-filtered per player/spectator (:425-469) and guarded by MATCH_WIRE_PUBLICATION_BOUNDARY.guardReplayFrames for that viewer (:95-105); player projections drop sequence and privateRecordRef (ViewerFrameProjector.ts:66-70, :196-209). The GM-private reason never enters the match event stream: the commit is called with REWIND_COMMIT_REASON (rewind-commit.ts:208; rewindCommitDeps.ts:45) and body.reason goes only to GmPrivatePreviewRecordWriter (rewind-commit.ts:213-227). A broadcast of one frame to every socket (ServerMatchHost.ts:1260-1261) would skip the per-viewer projection and must not be used.",
+      "measuredHere": "NOT MEASURED: no privacy row was written or run (the unit stopped at admission)."
+    },
+    "q4_testResetPathUnderGlobalThis": {
+      "answer": "_resetMatchHostRegistry (MatchHostRegistry.ts:260-265) becomes: reset the instance held in the slot, then delete the slot (flag included), mirroring _resetDefaultMatchStore (getDefaultMatchStore.ts:89-92). No test calls it or relies on the default singleton today: every registry test constructs `new MatchHostRegistry({ store })` (MatchHostRegistry.quarantineBinder.test.ts:83,113,129,144,160; MatchHostRegistry.unitBootstrap.test.ts:117,173; hardenedTransport.test-helpers.ts:179). Jest gives each test file its own global, so the slot cannot leak across files; within a file a jest.isolateModules dual load now sees one instance, which is red row (a)."
+    }
+  },
+  "probe": {
+    "purpose": "Turn the question \"which existing frame makes the connected guest page show the rebuilt phase\" into a measurement at the client-module boundary the page renders from (NetworkedGameSurface.tsx:335/349 <- buildMirrorSessionGated(mirrorLog) <- client \"event\" emissions).",
+    "howTaken": "A temporary jest file under src/lib/multiplayer/server/__tests__/ (the unit's own path) reusing the committed-rewind fixture of ServerMatchHost.rewindRebuild.test.ts (DurableMatchStore :memory:, SQLite journal in a temp dir, combat journal mode enabled through the test seam, play log of 4 events, TARGET_REVISION 2). A real connect() client from src/lib/multiplayer/client.ts is wired to a host socket; its \"event\" payloads (minus the four lobby envelopes) are appended to a log exactly as useMultiplayerSession.helpers.ts:162-193/251-260 does, and the mirror is buildMirrorSessionGated(log). The file was deleted after the run; git status --short was empty afterwards.",
+    "command": "npx jest src/lib/multiplayer/server/__tests__/u22aAdmissionProbe.test.ts",
+    "exitCode": 0,
+    "summaryLines": [
+      "Test Suites: 1 passed, 1 total",
+      "Tests:       1 passed, 1 total"
+    ],
+    "file": {
+      "archivedCopy": "C:\\Users\\wroll\\AppData\\Local\\Temp\\claude\\E--Projects-MekStation\\3fac2eeb-fbc9-4c2f-8110-147e00cd50fe\\scratchpad\\u22a\\u22aAdmissionProbe.test.ts.txt",
+      "sha256": "136968403eca8cc414c6eba61c8b32d1c2b4804a714b93cdfd19e43e3cf32aba"
+    },
+    "log": {
+      "path": "C:\\Users\\wroll\\AppData\\Local\\Temp\\claude\\E--Projects-MekStation\\3fac2eeb-fbc9-4c2f-8110-147e00cd50fe\\scratchpad\\u22a\\logs\\probe-2.log",
+      "sha256": "a9416e28864c70edbf3e52551c2ac108217254eaca0fa9e5ec97eee4d5b412aa"
+    },
+    "earlierRun": {
+      "log": {
+        "path": "C:\\Users\\wroll\\AppData\\Local\\Temp\\claude\\E--Projects-MekStation\\3fac2eeb-fbc9-4c2f-8110-147e00cd50fe\\scratchpad\\u22a\\logs\\probe-1.log",
+        "sha256": "8a9cc7026adddb87cbd6053334c9a5ecf7c531c44d26fb820bdcdad32da2710e"
+      },
+      "note": "first run of the same probe before M2b was added (same M1-M4 values); its source was overwritten by the edit that added M2b and is not archived"
+    },
+    "measurements": {
+      "preRewindPhase": "weapon_attack",
+      "rebuiltPhase": "initiative",
+      "afterJoinClientPhase": "weapon_attack",
+      "M1_duringRebuild": {
+        "framesToTheConnectedSocket": 0,
+        "hostPhase": "initiative",
+        "connectedClientPhase": "weapon_attack"
+      },
+      "M2_joinReplayPushedToTheSameConnectedSocket": {
+        "frames": [
+          "ReplayStart",
+          "ReplayChunk",
+          "ReplayEnd"
+        ],
+        "replayedEvents": 2,
+        "clientEmittedGameEvents": 0,
+        "connectedClientPhase": "weapon_attack"
+      },
+      "M2b_sameFramesWithDeliveryNumbersContinuing": {
+        "restampedDeliverySequences": "4..5",
+        "connectedClientPhase": "initiative",
+        "mirrorEventTypes": [
+          "game_created",
+          "game_started",
+          "phase_changed",
+          "phase_changed",
+          "game_created",
+          "game_started"
+        ],
+        "reading": "the phase moved only because hydration re-seeds on a second game_created; the mirror keeps the superseded phase_changed events and duplicates game_created/game_started. The frames were re-stamped by the probe, not by the server (the server restarts numbering at 0, ViewerDeliveryCursors.ts:276-278), and the errors list of this client, read after M4, holds one sequence-collision (which frame raised it was not isolated; the next live event from the server carries a restarted delivery number)."
+      },
+      "M3_freshClientOnANewSocket": {
+        "phase": "initiative"
+      },
+      "M4_nextLiveEventAfterTheRewind": {
+        "connectedClientBlockedBySequenceCollision": true,
+        "connectedClientErrors": [
+          {
+            "code": "PROTOCOL_VIOLATION",
+            "reason": "sequence-collision"
+          }
+        ],
+        "freshClientBlockedBySequenceCollision": false
+      }
+    },
+    "scope": "Measured at src/lib/multiplayer/client.ts + mirrorMatchSession.ts with the host in one process; the browser page, React state batching and the tsx/Next graph split are not in this probe."
+  },
+  "blocker": {
+    "oneLine": "Clause (2) (\"the players connected at that moment receive the rebuilt match without rejoining\", live acceptance E2E-25 at spec:353) needs edits outside src/lib/multiplayer/server: the client must learn that its applied stream was superseded and reset its admission state and mirror log.",
+    "exactlyWhatAndWhere": [
+      "src/types/multiplayer/Protocol.ts:642-663 - an optional marker on ReplayStartSchema (or a new server frame kind) meaning \"this replay replaces your stream\"",
+      "src/lib/multiplayer/client.ts:248-251 (ReplayStart handler) and IClientState/IClientEventName (:131-221, :55-61) - on that marker clear appliedIdentityByDelivery, appliedIdentities, lastAppliedDelivery, lastDeliverySequence, deliveryResumeCursor, the hole pins, highestAcknowledgedDelivery and blockedBySequenceCollision, and emit a client event the hook can observe",
+      "src/hooks/useMultiplayerSession.helpers.ts:97-131, :251-260 - on that client event clear the mirror log and the events tail before the rebuilt replay is applied"
+    ],
+    "insideThePathOnceAmended": [
+      "MatchHostRegistry.ts: {registry, recoveryRan} on a Symbol.for globalThis slot; :223 comment corrected; _resetMatchHostRegistry on the slot",
+      "ServerMatchHostRewindRebuild.ts + ServerMatchHost.ts: after markViewersForResync, push the join replay from 0 to every attached socket through sendReplay with the marker (per-viewer projection kept; the marker stamped after the guard, as fromDeliverySequence is at ServerMatchHostReplay.ts:106-114, because the player ReplayStart projection drops unknown fields, ViewerFrameProjector.ts:220-241)"
+    ],
+    "whyNotServerOnly": "The only server-only frame set that moved the connected mirror in the probe (M2b) works by re-sending game_created so hydration re-seeds, keeps the superseded facts in the client event list, and needs per-viewer delivery numbering to CONTINUE across the rewind instead of restarting (ViewerDeliveryCursors.ts:276-278). Continuing numbering leaves superseded authority sequences in the delivered list, and deliverySequenceOf uses indexOf (ViewerDeliveryCursors.ts:145-153) while the next persisted event reuses the cut sequence (ServerMatchHostRewindRebuild.ts:205-210), so replay stamping (ServerMatchHostReplay.ts:167) and the undelivered-only broadcast (ServerMatchHostEvents.ts:336) would match the superseded frame. That is a producer-side patch around a consumer that has no rebase concept; it is recorded as option B, not recommended."
+  },
+  "optionsForTheParent": [
+    {
+      "id": "A (recommended)",
+      "what": "Amend U22a ownershipPaths with src/lib/multiplayer/client.ts, src/hooks/useMultiplayerSession.helpers.ts and src/types/multiplayer/Protocol.ts (their tests beside them: src/lib/multiplayer/__tests__ or src/hooks/__tests__ as they exist) and re-launch from admission.",
+      "consequence": "clause (2) is delivered as a protocol-level rebase; the connected client drops superseded facts; E2E-25 can become an unexpected pass without a reload",
+      "effort": "about 8 product files and 130-170 product lines by the estimate below; within 15 files / 500 lines"
+    },
+    {
+      "id": "B",
+      "what": "Server-only: continue per-viewer numbering across the rewind (tombstone the old delivered entries instead of discardAll, persisted rows included) and push the activated path as a fresh replay to every attached socket.",
+      "consequence": "the connected mirror reaches the rebuilt phase by re-seeding (probe M2b) while its event list keeps the superseded facts and a duplicate game start; changes the delivery-number model on a replay/privacy surface; relies on hydration behavior that no contract states",
+      "effort": "ViewerDeliveryCursors.ts, DurableMatchStore.viewerDelivery.ts, ServerMatchHostRewindRebuild.ts, ServerMatchHost.ts; size not estimated"
+    },
+    {
+      "id": "C",
+      "what": "Narrow U22a to clause (1) only and write a successor for clause (2) with the client paths.",
+      "consequence": "MEASURED RISK (probe M4): once the rebuild reaches the live host, every client connected at the rewind is blocked by sequence-collision on the next event; shipping (1) alone moves the live match from a stale view to a blocked client. E2E-25 stays an expected failure.",
+      "effort": "MatchHostRegistry.ts only, about 30 product lines"
+    }
+  ],
+  "estimatePerFileOptionA": {
+    "src/lib/multiplayer/server/MatchHostRegistry.ts": {
+      "added": 30,
+      "deleted": 12
+    },
+    "src/lib/multiplayer/server/ServerMatchHostRewindRebuild.ts": {
+      "added": 10,
+      "deleted": 0
+    },
+    "src/lib/multiplayer/server/ServerMatchHost.ts": {
+      "added": 25,
+      "deleted": 0
+    },
+    "src/lib/multiplayer/server/ServerMatchHostReplay.ts": {
+      "added": 12,
+      "deleted": 2
+    },
+    "src/types/multiplayer/Protocol.ts": {
+      "added": 10,
+      "deleted": 0
+    },
+    "src/lib/multiplayer/client.ts": {
+      "added": 35,
+      "deleted": 2
+    },
+    "src/hooks/useMultiplayerSession.helpers.ts": {
+      "added": 14,
+      "deleted": 0
+    },
+    "src/hooks/useMultiplayerSession.ts": {
+      "added": 0,
+      "deleted": 0,
+      "note": "only if the new client event needs a setter it does not already pass"
+    },
+    "tests": "registry dual-load row (a), host push row (b), privacy row (M3), client rebase row, hook reset row; not counted (owner decision 2026-09-23)",
+    "note": "estimates from code reading, not from a diff"
+  },
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "lineClass": "product lines only; test lines reported separately (GOAL.md OD-line-cap-product-lines)",
+    "optionAEstimate": {
+      "productFiles": 7,
+      "productLines": "150 +/- 30",
+      "withinCaps": true
+    }
+  },
+  "risksForTheParent": [
+    "AUTHORITY + REPLAY classes: whatever head this unit proposes needs Lane A (Sonnet) and the owner's OWNER-RULING bound to that exact head before merge; this lane supplies neither.",
+    "PRIVACY OF THE REBUILT FRAMES: the push must go through the per-socket join path (viewer resolution, fog filter, publication boundary), never broadcaster.broadcast of one frame; the GM reason is not in the event stream today (rewind-commit.ts:208, :213-227), and the charter's M3 row should pin that a player socket never receives it.",
+    "DO NOT SHIP CLAUSE (1) ALONE: probe M4 measured that a client connected at the rewind is blocked (sequence-collision) by the first post-rewind event once the rebuild runs.",
+    "RECOVERY FLAG: sharing only the registry would let the API graph's bootstrap ([id].ts:72) re-sweep the shared registry with writes (MatchRecovery.ts:192, :213).",
+    "PRODUCTION REALM: that a globalThis slot is shared between Next's production API bundle and the tsx graph is an INFERENCE from the same-process PID evidence and the dev-mode #1016 proof; E2E-25 on the amended head is the measurement.",
+    "FIXTURE ARM: the privacy pack runs with MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE=enabled (U22 admission risk 4); a live pass does not speak for the production-off mode.",
+    "REPLAY ORDER ON THE CLIENT: the rebase must clear the mirror before the rebuilt ReplayChunk items are applied, or the hook re-renders one frame with a mixed log."
+  ],
+  "editsMade": {
+    "productOrTestFilesChanged": 0,
+    "temporaryProbe": "src/lib/multiplayer/server/__tests__/u22aAdmissionProbe.test.ts added, run twice, copied to the scratchpad and deleted; git status --short empty afterwards",
+    "build": "NOT RUN (stopped at admission)",
+    "playwright": "NOT RUN (stopped at admission)"
+  },
+  "stagesNotTaken": {
+    "red": "NOT TAKEN: rows (a), (b) and the baseline privacy-pack run (c) belong to the red stage, which follows an admitted unit; U22's red receipt already measured E2E-25 as an expected failure at spec:353 on a686f6fc9",
+    "local": "NOT TAKEN"
+  },
+  "nonClaims": [
+    "No fix is claimed. Clause (1) is not implemented; clause (2) is not implemented.",
+    "The probe measures the client module and the hook's log shape, not the browser page; the page-level claim rests on NetworkedGameSurface.tsx:335/349 rendering mirrorSession.currentState.phase.",
+    "That the API route reaches the socket runtime's host once the registry is on globalThis is not measured on this head.",
+    "units.json, roadmap.json and admission-snapshot.json are unmodified; no tasks.md box touched; nothing committed, pushed or stashed."
+  ]
+}

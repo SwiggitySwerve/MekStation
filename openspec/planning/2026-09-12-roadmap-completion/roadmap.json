@@ -2720,7 +2720,18 @@
         "src/lib/multiplayer/server",
         "src/pages/api/matches",
         "src/pages-modules/api",
-        "src/__tests__/api/matches"
+        "src/__tests__/api/matches",
+        "src/types/multiplayer/Protocol.ts",
+        "src/types/multiplayer/__tests__/Protocol.test.ts",
+        "src/lib/multiplayer/client.ts",
+        "src/lib/multiplayer/__tests__/client.test.ts",
+        "src/lib/multiplayer/__tests__/clientDeliveryGap.test.ts",
+        "src/lib/multiplayer/mirrorMatchSession.ts",
+        "src/lib/multiplayer/__tests__/mirrorMatchSession.test.ts",
+        "src/hooks/useMultiplayerSession.ts",
+        "src/hooks/useMultiplayerSession.helpers.ts",
+        "src/hooks/__tests__/useMultiplayerSession.helpers.test.ts",
+        "src/hooks/__tests__/useMultiplayerSession.test.tsx"
       ],
       "acceptance": [
         "npm.cmd run typecheck",
@@ -2888,6 +2899,83 @@
           "source": "parent, under OD-mvp-hard-cutover (owner, 2026-09-22); the ownershipPathsAmended20260917 precedent on this node",
           "why": "U21 replaces the match-store segment reader at the rewind commit and preview routes. The three route suites in this folder (rewindCommitRoute.test.ts, rewindCommitRoute.reason.test.ts, rewindPreviewRoute.test.ts) seed journal rows by hand with copied digests or an empty journal, so the journal reader refuses them; re-seeding them through the mirror is the fix, and a match-store fallback would be the bug U21 removes (FN-u2b-rewind-commit-verifies-through-the-match-store). No node owned this folder or a parent of it.",
           "disclosure": "The U21 lane reported the three suites from reading the code before measuring; the lane records the measured failures in its red receipt."
+        },
+        {
+          "path": "src/types/multiplayer/Protocol.ts",
+          "at": "2026-09-23T06:57:21.000Z",
+          "units": "U22a",
+          "source": "U22a carries the client half of the owner's replace-stream marker: the protocol marker on ReplayStart, the client clearing its delivery state, the mirror and the session hook clearing the event mirror, and their suites. These exact files are added; the folders stay with their nodes.",
+          "why": "owner decision OD-u22a-replace-stream-marker (2026-09-23); the exact-file precedent of this node's ownershipPathsAmended20260917"
+        },
+        {
+          "path": "src/types/multiplayer/__tests__/Protocol.test.ts",
+          "at": "2026-09-23T06:57:21.000Z",
+          "units": "U22a",
+          "source": "U22a carries the client half of the owner's replace-stream marker: the protocol marker on ReplayStart, the client clearing its delivery state, the mirror and the session hook clearing the event mirror, and their suites. These exact files are added; the folders stay with their nodes.",
+          "why": "owner decision OD-u22a-replace-stream-marker (2026-09-23); the exact-file precedent of this node's ownershipPathsAmended20260917"
+        },
+        {
+          "path": "src/lib/multiplayer/client.ts",
+          "at": "2026-09-23T06:57:21.000Z",
+          "units": "U22a",
+          "source": "U22a carries the client half of the owner's replace-stream marker: the protocol marker on ReplayStart, the client clearing its delivery state, the mirror and the session hook clearing the event mirror, and their suites. These exact files are added; the folders stay with their nodes.",
+          "why": "owner decision OD-u22a-replace-stream-marker (2026-09-23); the exact-file precedent of this node's ownershipPathsAmended20260917"
+        },
+        {
+          "path": "src/lib/multiplayer/__tests__/client.test.ts",
+          "at": "2026-09-23T06:57:21.000Z",
+          "units": "U22a",
+          "source": "U22a carries the client half of the owner's replace-stream marker: the protocol marker on ReplayStart, the client clearing its delivery state, the mirror and the session hook clearing the event mirror, and their suites. These exact files are added; the folders stay with their nodes.",
+          "why": "owner decision OD-u22a-replace-stream-marker (2026-09-23); the exact-file precedent of this node's ownershipPathsAmended20260917"
+        },
+        {
+          "path": "src/lib/multiplayer/__tests__/clientDeliveryGap.test.ts",
+          "at": "2026-09-23T06:57:21.000Z",
+          "units": "U22a",
+          "source": "U22a carries the client half of the owner's replace-stream marker: the protocol marker on ReplayStart, the client clearing its delivery state, the mirror and the session hook clearing the event mirror, and their suites. These exact files are added; the folders stay with their nodes.",
+          "why": "owner decision OD-u22a-replace-stream-marker (2026-09-23); the exact-file precedent of this node's ownershipPathsAmended20260917"
+        },
+        {
+          "path": "src/lib/multiplayer/mirrorMatchSession.ts",
+          "at": "2026-09-23T06:57:21.000Z",
+          "units": "U22a",
+          "source": "U22a carries the client half of the owner's replace-stream marker: the protocol marker on ReplayStart, the client clearing its delivery state, the mirror and the session hook clearing the event mirror, and their suites. These exact files are added; the folders stay with their nodes.",
+          "why": "owner decision OD-u22a-replace-stream-marker (2026-09-23); the exact-file precedent of this node's ownershipPathsAmended20260917"
+        },
+        {
+          "path": "src/lib/multiplayer/__tests__/mirrorMatchSession.test.ts",
+          "at": "2026-09-23T06:57:21.000Z",
+          "units": "U22a",
+          "source": "U22a carries the client half of the owner's replace-stream marker: the protocol marker on ReplayStart, the client clearing its delivery state, the mirror and the session hook clearing the event mirror, and their suites. These exact files are added; the folders stay with their nodes.",
+          "why": "owner decision OD-u22a-replace-stream-marker (2026-09-23); the exact-file precedent of this node's ownershipPathsAmended20260917"
+        },
+        {
+          "path": "src/hooks/useMultiplayerSession.ts",
+          "at": "2026-09-23T06:57:21.000Z",
+          "units": "U22a",
+          "source": "U22a carries the client half of the owner's replace-stream marker: the protocol marker on ReplayStart, the client clearing its delivery state, the mirror and the session hook clearing the event mirror, and their suites. These exact files are added; the folders stay with their nodes.",
+          "why": "owner decision OD-u22a-replace-stream-marker (2026-09-23); the exact-file precedent of this node's ownershipPathsAmended20260917"
+        },
+        {
+          "path": "src/hooks/useMultiplayerSession.helpers.ts",
+          "at": "2026-09-23T06:57:21.000Z",
+          "units": "U22a",
+          "source": "U22a carries the client half of the owner's replace-stream marker: the protocol marker on ReplayStart, the client clearing its delivery state, the mirror and the session hook clearing the event mirror, and their suites. These exact files are added; the folders stay with their nodes.",
+          "why": "owner decision OD-u22a-replace-stream-marker (2026-09-23); the exact-file precedent of this node's ownershipPathsAmended20260917"
+        },
+        {
+          "path": "src/hooks/__tests__/useMultiplayerSession.helpers.test.ts",
+          "at": "2026-09-23T06:57:21.000Z",
+          "units": "U22a",
+          "source": "U22a carries the client half of the owner's replace-stream marker: the protocol marker on ReplayStart, the client clearing its delivery state, the mirror and the session hook clearing the event mirror, and their suites. These exact files are added; the folders stay with their nodes.",
+          "why": "owner decision OD-u22a-replace-stream-marker (2026-09-23); the exact-file precedent of this node's ownershipPathsAmended20260917"
+        },
+        {
+          "path": "src/hooks/__tests__/useMultiplayerSession.test.tsx",
+          "at": "2026-09-23T06:57:21.000Z",
+          "units": "U22a",
+          "source": "U22a carries the client half of the owner's replace-stream marker: the protocol marker on ReplayStart, the client clearing its delivery state, the mirror and the session hook clearing the event mirror, and their suites. These exact files are added; the folders stay with their nodes.",
+          "why": "owner decision OD-u22a-replace-stream-marker (2026-09-23); the exact-file precedent of this node's ownershipPathsAmended20260917"
         }
       ]
     },
@@ -7349,7 +7437,9 @@
         "src/pages-modules/gameplay/campaigns/missionLaunchPage.launch.ts",
         "src/pages-modules/gameplay/campaigns/__tests__/missionLaunchPage.launch.test.ts",
         "src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.launch.ts",
-        "src/components/gameplay/pages/campaigns/dashboard/__tests__/CampaignDashboardPage.launch.test.ts"
+        "src/components/gameplay/pages/campaigns/dashboard/__tests__/CampaignDashboardPage.launch.test.ts",
+        "src/stores/campaign/useCampaignPersistenceStore.ts",
+        "src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts"
       ],
       "acceptance": [
         "Each unit reproduces its boundary red-first (jest at the client or route seam), passes tsc/oxlint/oxfmt and the focused suites, and lands with a Lane A review and, for wire/idempotency/privacy classes, a Lane B ruling on the exact head",
@@ -7429,6 +7519,22 @@
           "source": "U20's Lane A review of PR #1902 (reviewed head 7126463d8fb38d9d26b0c2b6cb59742925d1a27c, verdict APPROVE; U20 is local-verified and its review stage is not yet recorded in this ledger), finding 1: a parent ledger edit made to hold FN-u20-client-launch-treats-head-500-as-ungated in U50. Precedent: triage edit 9's ownershipPathsAmended20260922 entries on this node.",
           "why": "the dashboard facade's suite, which pins today's ungated answers. No node with a planned unit owns this path; it overlaps only 'src' on the main-verified R2.camp-0..7 and the blocked R2.camp-8, which hold no unit. validate-roadmap.mjs --next serializes on unit ownership (pathsOverlap against in-flight units, :554)",
           "disclosure": "This is not an owner ruling. The parent made it as a ledger edit so a planned unit can hold a verified review finding outside the reviewed unit's path; no owner decision widens node ownership."
+        }
+      ],
+      "ownershipPathsAmended20260923": [
+        {
+          "path": "src/stores/campaign/useCampaignPersistenceStore.ts",
+          "at": "2026-09-23T06:57:21.000Z",
+          "units": "U35f",
+          "source": "U35f's lane measured (evidence/u35f-local-20260923.json F1, F2) that refreshing after a co-op frame loses a spend on snapshot-authority co-op campaigns (every production co-op campaign today) because the store's co-op rollback adopts the server version without updating its stored cache key, and a refresh while a host save is in flight reads the pre-save row. The fix is in the persistence store.",
+          "why": "parent, under OD-mvp-hard-cutover and OD-u35d-server-and-host-fix (the host half must not regress snapshot-authority co-op campaigns); the exact-file form of this node's other amendments"
+        },
+        {
+          "path": "src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts",
+          "at": "2026-09-23T06:57:21.000Z",
+          "units": "U35f",
+          "source": "U35f's lane measured (evidence/u35f-local-20260923.json F1, F2) that refreshing after a co-op frame loses a spend on snapshot-authority co-op campaigns (every production co-op campaign today) because the store's co-op rollback adopts the server version without updating its stored cache key, and a refresh while a host save is in flight reads the pre-save row. The fix is in the persistence store.",
+          "why": "parent, under OD-mvp-hard-cutover and OD-u35d-server-and-host-fix (the host half must not regress snapshot-authority co-op campaigns); the exact-file form of this node's other amendments"
         }
       ]
     },
@@ -15743,6 +15849,23 @@
       "decisionSource": "owner answer to the parent's structured question in the working session (chat), 2026-09-23; the chosen label is quoted verbatim in ownerWords",
       "ownerWords": "Server + host fix (Recommended)",
       "disclosure": "The parent wrote the three options and the recommendation; decision is the parent's wording of the chosen option. raisedAtUtc and decidedAtUtc are the question's and the answer's times in the session transcript.",
+      "status": "decided"
+    },
+    {
+      "id": "OD-u22a-replace-stream-marker",
+      "raisedAtUtc": "2026-09-23T05:32:56.017Z",
+      "raisedBy": "U22a's admission (evidence/u22a-admission-attempt1-20260923.json), put to the owner by the parent as a structured question with three options",
+      "node": "R2.authority-live",
+      "question": "U22a (a GM rewind reaching the live match) needs more than the server: players connected during the rewind hold the superseded events and cannot drop them (the replay is ignored as duplicates; the next event blocks with a sequence collision; a page reload works). How should U22a fix it?",
+      "evidence": [
+        "evidence/u22a-admission-attempt1-20260923.json (the admission probe: a real connect() client and a hook-shaped mirror against a host with a committed rewind; rows M1-M4)",
+        "src/lib/multiplayer/client.ts:892-913 (duplicates dropped), src/hooks/useMultiplayerSession.helpers.ts:251-260 and src/lib/multiplayer/mirrorMatchSession.ts:72-83 (the mirror only grows)"
+      ],
+      "decidedAtUtc": "2026-09-23T06:55:37.549Z",
+      "decision": "A replace-stream marker: ReplayStart carries a marker meaning this replay replaces the stream; the client clears its delivery admission state on it and emits an event; the session hook clears its event mirror on that event. The server shares the host registry (and its recovery flag) across both module graphs through globalThis and, after a committed rewind rebuilds the live host, replays each attached player's own projected view through the per-socket join path, with the marker stamped after the publication guard. The other options were a server-only replay that relies on the client re-seeding by side effect, and asking connected players to reload.",
+      "decisionSource": "owner answer to the parent's structured question in the working session (chat), 2026-09-23; the chosen label is quoted verbatim in ownerWords",
+      "ownerWords": "Replace-stream marker (Recommended)",
+      "disclosure": "The parent wrote the three options and the recommendation from the U22a lane's admission receipt; decision is the parent's wording of the chosen option. raisedAtUtc and decidedAtUtc are the question's and the answer's times in the session transcript.",
       "status": "decided"
     }
   ],
