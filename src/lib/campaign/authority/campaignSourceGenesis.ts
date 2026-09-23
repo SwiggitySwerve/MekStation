@@ -12,16 +12,19 @@
  * attested surface), so the source and the wire agree on what a campaign's
  * authoritative state is.
  *
- * While `CAMPAIGN_JOURNAL_AUTHORITY_ENABLED` is false the hook is inert:
- * no journal handle is even constructed (the journal dependency is a lazy
- * factory). Acknowledgement-ordering and failure semantics therefore
- * activate at 5.7 cutover; the wiring and its tests land here.
+ * `campaignSnapshotCommand` builds that snapshot for the genesis and for a
+ * record checkpoint; the PUT route appends either in the same transaction
+ * as the row write (`campaignRecordJournalSave`), taking the genesis on a
+ * create only while `isCampaignJournalAuthorityEnabled()` is true.
  *
  * @spec openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md
  * @spec openspec/changes/design-campaign-authority-and-sync/specs/campaign-persistence/spec.md
  */
 
-import type { IEventJournal } from '@/lib/events/journal/EventJournalContract';
+import type {
+  IEventJournal,
+  IResolvedJournalPrincipal,
+} from '@/lib/events/journal/EventJournalContract';
 import type {
   ICampaignAuthoritativeState,
   ICampaignEvent,
@@ -168,8 +171,73 @@ export type CampaignGenesisResult =
       readonly stateDigest: string;
     }
   | { readonly kind: 'already-journaled' }
-  | { readonly kind: 'invalid-campaign-projection'; readonly reason: string }
-  | { readonly kind: 'skipped' };
+  | { readonly kind: 'invalid-campaign-projection'; readonly reason: string };
+
+export type CampaignSnapshotCommand =
+  | {
+      readonly kind: 'ready';
+      readonly campaignId: string;
+      readonly commandId: string;
+      readonly events: readonly ICampaignEvent[];
+      readonly expectedPostStateDigest: string;
+      readonly principal: IResolvedJournalPrincipal;
+    }
+  | { readonly kind: 'invalid-campaign-projection'; readonly reason: string };
+
+/**
+ * The `CampaignSnapshotPublished` command of `envelope`'s projection at
+ * `sequence` (payload revision = sequence, `system` author, scope
+ * `campaign`), or the projection's refusal; it appends nothing. Genesis:
+ * command `campaign-genesis:<id>`, actor `campaign-source-genesis`;
+ * checkpoint: `campaign-checkpoint:<id>:<sequence>`, actor
+ * `campaign-record-checkpoint`.
+ */
+export function campaignSnapshotCommand(input: {
+  readonly envelope: SerializedCampaign;
+  readonly purpose: 'genesis' | 'checkpoint';
+  readonly sequence: number;
+  readonly occurredAt: string;
+}): CampaignSnapshotCommand {
+  let state: ICampaignAuthoritativeState;
+  try {
+    state = authoritativeStateFromSerializedCampaign(input.envelope);
+  } catch (error) {
+    return {
+      kind: 'invalid-campaign-projection',
+      reason: error instanceof Error ? error.message : 'projection failed',
+    };
+  }
+  const campaignId = input.envelope.campaignId;
+  const genesis = input.purpose === 'genesis';
+  const snapshotEvent: ICampaignEvent<'CampaignSnapshotPublished'> =
+    freezeCampaignEvent({
+      sequence: input.sequence,
+      campaignId,
+      ts: input.occurredAt,
+      authorPlayerId: 'system',
+      type: 'CampaignSnapshotPublished',
+      // A snapshot is the shared source baseline, not a GM-hidden fact.
+      scope: 'campaign',
+      payload: { state, revision: input.sequence },
+    });
+  return {
+    kind: 'ready',
+    campaignId,
+    commandId: genesis
+      ? `campaign-genesis:${campaignId}`
+      : `campaign-checkpoint:${campaignId}:${input.sequence}`,
+    events: [snapshotEvent],
+    expectedPostStateDigest: computeCampaignStateDigest(state),
+    principal: {
+      actorKind: 'system',
+      actorId: genesis
+        ? 'campaign-source-genesis'
+        : 'campaign-record-checkpoint',
+      authorityType: 'campaign-source',
+      authorityId: campaignId,
+    },
+  };
+}
 
 /**
  * Append the genesis snapshot and persist the journal-native marker.
@@ -187,41 +255,16 @@ export async function appendCampaignGenesis(
     readonly occurredAt: string;
   },
 ): Promise<CampaignGenesisResult> {
-  let state: ICampaignAuthoritativeState;
-  try {
-    state = authoritativeStateFromSerializedCampaign(input.envelope);
-  } catch (error) {
-    return {
-      kind: 'invalid-campaign-projection',
-      reason: error instanceof Error ? error.message : 'projection failed',
-    };
-  }
-  const campaignId = input.envelope.campaignId;
-  const genesisEvent: ICampaignEvent<'CampaignSnapshotPublished'> =
-    freezeCampaignEvent({
-      sequence: 0,
-      campaignId,
-      ts: input.occurredAt,
-      authorPlayerId: 'system',
-      type: 'CampaignSnapshotPublished',
-      // Genesis is the shared source baseline, not a GM-hidden fact.
-      scope: 'campaign',
-      payload: { state, revision: 0 },
-    });
-  const stateDigest = computeCampaignStateDigest(state);
-
-  const result = await appendCampaignCommandBatch(journal, {
-    campaignId,
-    commandId: `campaign-genesis:${campaignId}`,
-    events: [genesisEvent],
-    expectedPostStateDigest: stateDigest,
-    principal: {
-      actorKind: 'system',
-      actorId: 'campaign-source-genesis',
-      authorityType: 'campaign-source',
-      authorityId: campaignId,
-    },
+  const command = campaignSnapshotCommand({
+    ...input,
+    purpose: 'genesis',
+    sequence: 0,
   });
+  if (command.kind !== 'ready') return command;
+  const campaignId = command.campaignId;
+  const stateDigest = command.expectedPostStateDigest;
+
+  const result = await appendCampaignCommandBatch(journal, command);
   if (
     result.kind === 'sequence-conflict' ||
     result.kind === 'command-identity-conflict'
@@ -237,27 +280,4 @@ export async function appendCampaignGenesis(
   const marker = createJournalNativeMarker(campaignId);
   writeMarker(marker);
   return { kind: 'genesis-appended', marker, stateDigest };
-}
-
-/**
- * The creation hook the PUT route awaits before acknowledging a create.
- * Inert unless journal authority is enabled AND this save created the
- * campaign (baseVersion 0); the journal dependency is a lazy factory so
- * the disabled path constructs nothing.
- */
-export async function maybeAppendCampaignGenesisOnCreate(input: {
-  readonly enabled: boolean;
-  readonly created: boolean;
-  readonly envelope: SerializedCampaign;
-  readonly occurredAt: string;
-  readonly journal: () => IEventJournal<ICampaignJournalEnvelope>;
-  readonly writeMarker: (marker: ICampaignCutoverMarker) => void;
-}): Promise<CampaignGenesisResult> {
-  if (!input.enabled || !input.created) {
-    return { kind: 'skipped' };
-  }
-  return appendCampaignGenesis(input.journal(), input.writeMarker, {
-    envelope: input.envelope,
-    occurredAt: input.occurredAt,
-  });
 }

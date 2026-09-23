@@ -7,8 +7,8 @@
  * builder's guard rules survive serialization (invalid source, missing
  * ref, absent/doubly-claimed force units); genesis appends exactly one
  * system-principal snapshot at sequence 0 with the state digest and writes
- * the journal-native marker; retries are idempotent; and the creation hook
- * is inert when the flag is off or the save was not a create.
+ * the journal-native marker; and retries are idempotent. The PUT route's
+ * create path is pinned in campaignRecordJournalTransaction.test.ts.
  */
 
 import type { SerializedCampaignRosterState } from '@/types/campaign/SerializedCampaign';
@@ -27,7 +27,6 @@ import {
 import {
   appendCampaignGenesis,
   authoritativeStateFromSerializedCampaign,
-  maybeAppendCampaignGenesisOnCreate,
 } from '../campaignSourceGenesis';
 
 const NOW = '3025-01-03T00:00:00.000Z';
@@ -277,56 +276,5 @@ describe('appendCampaignGenesis', () => {
     expect(markers).toHaveLength(0);
     const store = new JournalCampaignEventStore(journal);
     expect(await store.highestSequence(campaign.id)).toBe(-1);
-  });
-});
-
-describe('maybeAppendCampaignGenesisOnCreate', () => {
-  it('is inert when disabled or when the save was not a create', async () => {
-    const journalFactory = jest.fn();
-    for (const [enabled, created] of [
-      [false, true],
-      [false, false],
-      [true, false],
-    ] as const) {
-      const result = await maybeAppendCampaignGenesisOnCreate({
-        enabled,
-        created,
-        envelope: {} as never,
-        occurredAt: NOW,
-        journal: journalFactory,
-        writeMarker: () => {
-          throw new Error('must not write a marker');
-        },
-      });
-      expect(result).toEqual({ kind: 'skipped' });
-    }
-    // The disabled path never even constructs a journal handle.
-    expect(journalFactory).not.toHaveBeenCalled();
-  });
-
-  it('appends the genesis when enabled and created', async () => {
-    const journal = new InMemoryEventJournal<ICampaignJournalEnvelope>(
-      () => NOW,
-    );
-    const campaign = disjointCampaign();
-    const stored = buildSerializedCampaign(
-      campaign,
-      'device-hook',
-      1,
-      rosterProjection(campaign.id),
-    );
-    const markers: ICampaignCutoverMarker[] = [];
-
-    const result = await maybeAppendCampaignGenesisOnCreate({
-      enabled: true,
-      created: true,
-      envelope: stored,
-      occurredAt: NOW,
-      journal: () => journal,
-      writeMarker: (marker) => markers.push(marker),
-    });
-
-    expect(result.kind).toBe('genesis-appended');
-    expect(markers).toHaveLength(1);
   });
 });

@@ -15,12 +15,14 @@
  * D2 command gate: mutations run only when the stored (or incoming
  * create) authority is `source`. Replica rows are refused with the same
  * `kind: 'refused'` vocabulary as the replica store. Unknown roles fail
- * closed. This function is the write chokepoint every PUT uses.
+ * closed. `campaignRecordRow.plan` is the write chokepoint every PUT uses.
  *
  * @spec openspec/changes/add-campaign-persistence/specs/campaign-persistence/spec.md
  * @spec openspec/changes/add-campaign-persistence/design.md (D5, D8)
  * @spec openspec/changes/design-campaign-authority-and-sync/design.md (D2)
  */
+
+import type Database from 'better-sqlite3';
 
 import type {
   ICampaignListOmission,
@@ -103,6 +105,8 @@ export function readCampaign(id: string): CampaignReadResult {
  * source-only write gate. Replica stored records are refused without
  * writing. Unknown roles fail closed. instanceId is the host singleton
  * on create and the stored value on update — never reminted per write.
+ * Runs `campaignRecordRow.plan`, then `.write` for an `ok` plan, in one
+ * transaction on the service handle.
  */
 export function saveCampaign(
   envelope: SerializedCampaign,
@@ -112,6 +116,33 @@ export function saveCampaign(
   const hostInstanceId = getOrCreateHostInstanceId(db);
 
   const tx = db.transaction((): CampaignSaveResult => {
+    const plan = campaignRecordRow.plan(
+      db,
+      envelope,
+      baseVersion,
+      hostInstanceId,
+    );
+    if (plan.kind === 'ok') campaignRecordRow.write(db, plan.record);
+    return plan;
+  });
+
+  return tx();
+}
+
+/**
+ * The `campaigns` row write on a BORROWED handle, split so the journal
+ * writer's transaction can run it (it may not nest `saveCampaign`): `plan`
+ * reads the row only and decides the save; `write` stores a planned record
+ * with no check of its own, so it is correct only in the plan's transaction.
+ */
+export const campaignRecordRow = {
+  /** `ok` with the record the row becomes, or `saveCampaign`'s refusal. */
+  plan(
+    db: Database.Database,
+    envelope: SerializedCampaign,
+    baseVersion: number,
+    hostInstanceId: string,
+  ): CampaignSaveResult {
     const row = db
       .prepare('SELECT version, payload FROM campaigns WHERE id = ?')
       .get(envelope.campaignId) as
@@ -164,7 +195,11 @@ export function saveCampaign(
       // byte-identical to what it was before this field existed.
       ...(storedFence === null ? {} : { sourceReplayFence: storedFence }),
     };
+    return { kind: 'ok', record: stored };
+  },
 
+  /** INSERT OR REPLACE the planned record's row. */
+  write(db: Database.Database, stored: SerializedCampaign): void {
     db.prepare(
       `INSERT OR REPLACE INTO campaigns
          (id, version, schema_version, name, faction_id, campaign_date,
@@ -182,12 +217,8 @@ export function saveCampaign(
       stored.originDeviceId,
       JSON.stringify(stored),
     );
-
-    return { kind: 'ok', record: stored };
-  });
-
-  return tx();
-}
+  },
+};
 
 export type StoreReplicaResult =
   | { readonly kind: 'ok'; readonly record: SerializedCampaign }
