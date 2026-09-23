@@ -1,0 +1,621 @@
+{
+  "unit": "U35b",
+  "stage": "local",
+  "status": "ready",
+  "at": "2026-09-23T02:14:00.970Z",
+  "baseline": "f50e76fe48d87a04da7fb03cdb86388a05ea9f40",
+  "headAtLocal": "f50e76fe48d87a04da7fb03cdb86388a05ea9f40",
+  "treeTested": "the worktree with the uncommitted changes below (nothing committed; the parent commits)",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u35b",
+  "branch": "roadmap-u35b-journal-owns-campaign-record-20260923",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "receipts": {
+    "admission": "openspec/planning/2026-09-12-roadmap-completion/evidence/u35b-admission-20260923.json",
+    "red": "openspec/planning/2026-09-12-roadmap-completion/evidence/u35b-red-20260923.json",
+    "local": "openspec/planning/2026-09-12-roadmap-completion/evidence/u35b-local-20260923.json"
+  },
+  "lineCounts": {
+    "rule": "git diff --numstat added + removed for tracked files, full line count for new files; product counts against the 500-line cap, tests do not (owner decision 2026-09-23, per the charter)",
+    "product": {
+      "files": [
+        {
+          "file": "src/lib/campaign/authority/campaignSourceGenesis.ts",
+          "added": 75,
+          "removed": 55
+        },
+        {
+          "file": "src/pages/api/campaigns/[id].ts",
+          "added": 37,
+          "removed": 28
+        },
+        {
+          "file": "src/pages/api/campaigns/[id]/adopt.ts",
+          "added": 14,
+          "removed": 11
+        },
+        {
+          "file": "src/services/campaignPersistence/CampaignMigrationMarkerStore.ts",
+          "added": 4,
+          "removed": 2
+        },
+        {
+          "file": "src/services/campaignPersistence/CampaignPersistenceService.ts",
+          "added": 38,
+          "removed": 7
+        },
+        {
+          "file": "src/lib/campaign/authority/campaignRecordJournalSave.ts",
+          "added": 139,
+          "removed": 0,
+          "new": true
+        }
+      ],
+      "added": 307,
+      "removed": 103,
+      "changedLines": 410
+    },
+    "productIgnoringWhitespace": {
+      "files": [
+        {
+          "file": "src/lib/campaign/authority/campaignSourceGenesis.ts",
+          "added": 73,
+          "removed": 53
+        },
+        {
+          "file": "src/pages/api/campaigns/[id].ts",
+          "added": 37,
+          "removed": 28
+        },
+        {
+          "file": "src/pages/api/campaigns/[id]/adopt.ts",
+          "added": 14,
+          "removed": 11
+        },
+        {
+          "file": "src/services/campaignPersistence/CampaignMigrationMarkerStore.ts",
+          "added": 4,
+          "removed": 2
+        },
+        {
+          "file": "src/services/campaignPersistence/CampaignPersistenceService.ts",
+          "added": 38,
+          "removed": 7
+        },
+        {
+          "file": "src/lib/campaign/authority/campaignRecordJournalSave.ts",
+          "added": 139,
+          "removed": 0,
+          "new": true
+        }
+      ],
+      "added": 305,
+      "removed": 101,
+      "changedLines": 406
+    },
+    "test": {
+      "files": [
+        {
+          "file": "src/lib/campaign/authority/__tests__/campaignSourceGenesis.test.ts",
+          "added": 2,
+          "removed": 54
+        },
+        {
+          "file": "src/__tests__/api/campaigns/campaignRecordJournalTransaction.test.ts",
+          "added": 507,
+          "removed": 0,
+          "new": true
+        }
+      ],
+      "added": 509,
+      "removed": 54,
+      "changedLines": 563
+    },
+    "filesChanged": 8,
+    "caps": {
+      "maxFiles": 15,
+      "maxProductLines": 500
+    },
+    "earlierBuildOverCap": "the first build measured 611 changed product lines by numstat (469 ignoring whitespace), mostly the service body re-indented into top-level functions; it was rebuilt before these gates (the row write kept at its indentation as the campaignRecordRow object, comments shortened, maybeAppendCampaignGenesisOnCreate still removed) and every gate and mutant below ran on the rebuilt tree"
+  },
+  "contentSha256": {
+    "src/lib/campaign/authority/campaignSourceGenesis.ts": "c0199c1404d49e332c97fe5e19e614ea09ecc1d4f108dc1feb72c1bc4b6128dd",
+    "src/pages/api/campaigns/[id].ts": "e087d830a1c0b3d12f9ae8fdf108f26a3644105252388f02a9cc16884e909447",
+    "src/pages/api/campaigns/[id]/adopt.ts": "d290b8481c36e7d9b20cac8691a9f2c591c652be528eb81b1f15c0c334ffdb60",
+    "src/services/campaignPersistence/CampaignMigrationMarkerStore.ts": "22a92f894349b266dcba162859f080a6d8ea3add5d3eaf53cb74e636f6e25f3f",
+    "src/services/campaignPersistence/CampaignPersistenceService.ts": "ca263b66afba7bd96ca21691b49d55a0e49bba756152f6a3b11924295db121f9",
+    "src/lib/campaign/authority/campaignRecordJournalSave.ts": "9b7fca4f2f4c01a3a405fe44122e3c1ea389532971be8a6f4918aaf5f4ed1433",
+    "src/lib/campaign/authority/__tests__/campaignSourceGenesis.test.ts": "c31eb6f632ff5d6db842ca9aa036d0e7f76c45528060b4356c4d0eb7a025a045",
+    "src/__tests__/api/campaigns/campaignRecordJournalTransaction.test.ts": "1c51238c7fb02d5c040c10a6dad20016d94df1ce13f32d88232149597db80e4a"
+  },
+  "gates": {
+    "newSuite": {
+      "command": "npx jest src/__tests__/api/campaigns/campaignRecordJournalTransaction.test.ts",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\api\\\\campaigns\\\\campaignRecordJournalTransaction.test.ts/i.",
+      "lines": [
+        "Test Suites: 1 passed, 1 total",
+        "Tests:       10 passed, 10 total"
+      ],
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35b/logs/final-suite.log",
+        "sha256": "cd5761112adec3c4e8fecef8f236793bf37e24ba4902bf47004d3774562cab81"
+      }
+    },
+    "jestCampaignPersistence": {
+      "command": "npx jest src/services/campaignPersistence",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\services\\\\campaignPersistence/i.",
+      "lines": [
+        "Test Suites: 4 passed, 4 total",
+        "Tests:       23 passed, 23 total"
+      ],
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35b/logs/jest-services.log",
+        "sha256": "d15996d0557c1ae02fc11b89b32d458e94121ec763c5ed431907e9a65ef1f3d4"
+      }
+    },
+    "jestApi": {
+      "command": "npx jest src/__tests__/api",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\api/i.",
+      "lines": [
+        "Test Suites: 55 passed, 55 total",
+        "Tests:       761 passed, 761 total"
+      ],
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35b/logs/jest-api.log",
+        "sha256": "f881571690e4447335eccad09711f4c4fed9bbfd6421a78fd82257a021dd0186"
+      }
+    },
+    "jestCampaign": {
+      "command": "npx jest src/lib/campaign",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\campaign/i.",
+      "lines": [
+        "Test Suites: 203 passed, 203 total",
+        "Tests:       2973 passed, 2973 total"
+      ],
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35b/logs/jest-campaign.log",
+        "sha256": "7f03d265c14c62fbe3e1d00b73214f26e5e73309263a7c4661c18347b428b147"
+      }
+    },
+    "jestJournal": {
+      "command": "npx jest src/lib/events/journal",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\events\\\\journal/i.",
+      "lines": [
+        "Test Suites: 23 passed, 23 total",
+        "Tests:       243 passed, 243 total"
+      ],
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35b/logs/jest-journal.log",
+        "sha256": "6bec30dc99dbd433c71eac3036c71a375d31fcc7db81673e17b88c36a22045a8"
+      }
+    },
+    "jestUnitApiSupplementary": {
+      "command": "npx jest src/__tests__/unit/api",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\unit\\\\api/i.",
+      "lines": [
+        "Test Suites: 6 passed, 6 total",
+        "Tests:       35 passed, 35 total"
+      ],
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35b/logs/jest-unit-api.log",
+        "sha256": "5834eb88e822a5781144ad77953c64d7d55ebba47196aeb495b4c03d70e0f8b1"
+      }
+    },
+    "jestPagesModulesApiSupplementary": {
+      "command": "npx jest src/pages-modules/api",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\pages-modules\\\\api/i.",
+      "lines": [
+        "Test Suites: 8 passed, 8 total",
+        "Tests:       60 passed, 60 total"
+      ],
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35b/logs/jest-pages-modules-api.log",
+        "sha256": "c1848c64555c7f20392b38271834e84ecececb1965dce801f1ec1dd2aa51ca8f"
+      }
+    },
+    "tsc": {
+      "command": "npx tsc --noEmit",
+      "exitCode": 0,
+      "lastLine": "(no output)",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35b/logs/tsc.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "oxlint": {
+      "command": "npx oxlint",
+      "exitCode": 0,
+      "lastLine": "Finished in 256ms on 3817 files using 16 threads.",
+      "lines": [
+        "Found 84 warnings and 0 errors."
+      ],
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35b/logs/oxlint.log",
+        "sha256": "100384bf1ed0ec6f25ffc5b062810afc180eb43db829001787889d75a7053ef1"
+      },
+      "baselineWarnings": 84
+    },
+    "oxfmtCheck": {
+      "command": "npx oxfmt --check src/lib/campaign/authority/campaignSourceGenesis.ts src/pages/api/campaigns/[id].ts src/pages/api/campaigns/[id]/adopt.ts src/services/campaignPersistence/CampaignMigrationMarkerStore.ts src/services/campaignPersistence/CampaignPersistenceService.ts src/lib/campaign/authority/campaignRecordJournalSave.ts src/lib/campaign/authority/__tests__/campaignSourceGenesis.test.ts src/__tests__/api/campaigns/campaignRecordJournalTransaction.test.ts",
+      "exitCode": 0,
+      "lastLine": "Finished in 15ms on 8 files using 16 threads.",
+      "lines": [
+        "All matched files use the correct format."
+      ],
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35b/logs/oxfmt-check.log",
+        "sha256": "428a00017ce04773560d2943cf318e866ebc2829cc6d7f47214e2357d06b4e87"
+      }
+    },
+    "lintUnits": {
+      "command": "npm run lint:units",
+      "exitCode": 0,
+      "lastLine": "LINT_UNITS_PASS 100/100",
+      "lines": [
+        "LINT_UNITS_PASS 100/100"
+      ],
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35b/logs/lint-units.log",
+        "sha256": "e055631f9348b2e6539c922dddc1fe388b583448a734da5f618cb47c583fae2d"
+      }
+    },
+    "openspecCi": {
+      "command": "npm run qc:openspec-ci:validate",
+      "exitCode": 0,
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+      "lines": [
+        "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0"
+      ],
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35b/logs/openspec-ci.log",
+        "sha256": "4c2dafd093b946290aa4abe001ad8b3d65671b17c7682722c55a510ecc04f91e"
+      }
+    },
+    "roadmapValidator": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "exitCode": 0,
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35b/logs/validator.log",
+        "sha256": "97b2f29d264078525a55c5f88586fb95603311fa065e70d7d17c5fab08f5b5bc"
+      }
+    },
+    "installGuard": "run once at admission: exit 1, INSTALL_REFUSED node-modules-is-link (by design in a junctioned worktree); see the admission receipt"
+  },
+  "redToGreen": {
+    "redReceipt": "openspec/planning/2026-09-12-roadmap-completion/evidence/u35b-red-20260923.json",
+    "redRowsNowGreen": [
+      "(g3) a whole-envelope PUT on a journal-native campaign appends a checkpoint of the stored record",
+      "(f3) a create whose genesis projection is refused answers 500 and leaves no row",
+      "(atomic) a failure injected after the row write of a journal-native PUT leaves neither the row change nor the append",
+      "(atomic) a failure injected after the row write of a create leaves no row, no event and no marker",
+      "(pin) a journal-native PUT whose envelope the projection refuses answers 500 with nothing written"
+    ],
+    "rowsAddedAfterRed": [
+      {
+        "row": "(pin) a failed row write on a journal-native PUT leaves no append either",
+        "why": "the atomic row injects after the extension returns and so cannot see a row written AFTER the writer transaction commits; this row (a SQLite trigger that fails the campaigns INSERT) is the failing evidence for mutant M2b"
+      },
+      {
+        "row": "(pin) a create under journal authority over a stream that already exists keeps the row and writes no marker",
+        "why": "pins the kept pre-transaction outcome of a genesis the revision guard refuses; failing evidence is mutant M6"
+      }
+    ],
+    "suiteShaAtRed": "0bd78561ff645b928f36e4ebcd039550628a49db91044ac77573fc2f486a63b1",
+    "suiteShaNow": "1c51238c7fb02d5c040c10a6dad20016d94df1ce13f32d88232149597db80e4a",
+    "redRowsTextUnchanged": "the five red rows were not edited after the red run; the suite gained the two pins above and header text"
+  },
+  "mutants": [
+    {
+      "id": "M1",
+      "charter": "(M1) the checkpoint append skipped on PUT",
+      "what": "the checkpoint append skipped on PUT (the row is still written inside the writer transaction; a checkpoint reports committed without appending)",
+      "target": "src/lib/campaign/authority/campaignRecordJournalSave.ts",
+      "preMutantSha256": "9b7fca4f2f4c01a3a405fe44122e3c1ea389532971be8a6f4918aaf5f4ed1433",
+      "mutatedSha256": "1e1bdfed7c39d224d51d361812aa8021e00e04baf50cc9286854fc53565ae6ad",
+      "restoredSha256": "9b7fca4f2f4c01a3a405fe44122e3c1ea389532971be8a6f4918aaf5f4ed1433",
+      "restoredMatchesPreMutant": true,
+      "suiteExitCode": 1,
+      "counts": "Test Suites: 1 failed, 1 total; Tests:       1 failed, 9 passed, 10 total",
+      "failingRows": [
+        "(g3) a whole-envelope PUT on a journal-native campaign appends a checkpoint of the stored record"
+      ],
+      "caught": true,
+      "logs": [
+        {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35b/logs/mutant-M1-apply.log",
+          "sha256": "9ab858a3d03914342a60abeaf8dc53fde5445f068df0fc102cb4a27b901caa15"
+        },
+        {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35b/logs/mutant-M1-run.log",
+          "sha256": "a8a706185c7dcd052232ace62ccdedacf8b8a28050bd75aa92273ecf8283401f"
+        },
+        {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35b/logs/mutant-M1-restore.log",
+          "sha256": "b879b8c0e0cd243012e7b5fc91359bbf348e711bfaee2be8b8225ab30d44ea7f"
+        }
+      ]
+    },
+    {
+      "id": "M2a",
+      "charter": "(M2) the row written outside the writer's transaction (before it, in saveCampaign's own transaction)",
+      "what": "the row written outside the writer transaction, BEFORE it: saveCampaign commits the row in its own transaction, then the writer transaction only appends",
+      "target": "src/lib/campaign/authority/campaignRecordJournalSave.ts",
+      "preMutantSha256": "9b7fca4f2f4c01a3a405fe44122e3c1ea389532971be8a6f4918aaf5f4ed1433",
+      "mutatedSha256": "bc6a8fad77c520d5fe56785b658764ef88ecb333d1ee050c9baa4bdb6eb6d0ef",
+      "restoredSha256": "9b7fca4f2f4c01a3a405fe44122e3c1ea389532971be8a6f4918aaf5f4ed1433",
+      "restoredMatchesPreMutant": true,
+      "suiteExitCode": 1,
+      "counts": "Test Suites: 1 failed, 1 total; Tests:       4 failed, 6 passed, 10 total",
+      "failingRows": [
+        "(f3) a create whose genesis projection is refused answers 500 and leaves no row",
+        "(atomic) a failure injected after the row write of a journal-native PUT leaves neither the row change nor the append",
+        "(atomic) a failure injected after the row write of a create leaves no row, no event and no marker",
+        "(pin) a journal-native PUT whose envelope the projection refuses answers 500 with nothing written"
+      ],
+      "caught": true,
+      "logs": [
+        {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35b/logs/mutant-M2a-apply.log",
+          "sha256": "3c7648370dd2f09be00fa932372dbdb4cdf4802509f91a5c6dfa9beddb6dada3"
+        },
+        {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35b/logs/mutant-M2a-run.log",
+          "sha256": "a2950de2cda85ea26bf0135c37d52e518893e7fc12d0c72308974d48881d44b2"
+        },
+        {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35b/logs/mutant-M2a-restore.log",
+          "sha256": "b879b8c0e0cd243012e7b5fc91359bbf348e711bfaee2be8b8225ab30d44ea7f"
+        }
+      ]
+    },
+    {
+      "id": "M2b",
+      "charter": "(M2) the row written outside the writer's transaction (after it commits, on the service handle)",
+      "what": "the row written outside the writer transaction, AFTER it commits: the extension only appends and the row is written on the service handle once the transaction resolves",
+      "target": "src/lib/campaign/authority/campaignRecordJournalSave.ts",
+      "preMutantSha256": "9b7fca4f2f4c01a3a405fe44122e3c1ea389532971be8a6f4918aaf5f4ed1433",
+      "mutatedSha256": "4f281f4943bdb975871eb9d17dc9286e4102abfdc1ba09f65747f116cbcf4c1a",
+      "restoredSha256": "9b7fca4f2f4c01a3a405fe44122e3c1ea389532971be8a6f4918aaf5f4ed1433",
+      "restoredMatchesPreMutant": true,
+      "suiteExitCode": 1,
+      "counts": "Test Suites: 1 failed, 1 total; Tests:       1 failed, 9 passed, 10 total",
+      "failingRows": [
+        "(pin) a failed row write on a journal-native PUT leaves no append either"
+      ],
+      "caught": true,
+      "logs": [
+        {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35b/logs/mutant-M2b-apply.log",
+          "sha256": "a8dbbccb292e41dbf4546696cb0060a82636076c466be4475cbc0071e7bbd350"
+        },
+        {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35b/logs/mutant-M2b-run.log",
+          "sha256": "441a59b4a83dbbc56b893906ad97b62b2410008d6613fd54de4c3cf77498e8b4"
+        },
+        {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35b/logs/mutant-M2b-restore.log",
+          "sha256": "b879b8c0e0cd243012e7b5fc91359bbf348e711bfaee2be8b8225ab30d44ea7f"
+        }
+      ]
+    },
+    {
+      "id": "M3",
+      "charter": "(M3) the create commits the row before the genesis",
+      "what": "the create commits the row before the genesis: the route saves through saveCampaign and then appends the genesis in its own transaction (the baseline create shape)",
+      "target": "src/pages/api/campaigns/[id].ts",
+      "preMutantSha256": "e087d830a1c0b3d12f9ae8fdf108f26a3644105252388f02a9cc16884e909447",
+      "mutatedSha256": "79af792e26c2bd965ca94808eb16d5660fefc17ce0b9919aac29b0ed2d3a2fb2",
+      "restoredSha256": "e087d830a1c0b3d12f9ae8fdf108f26a3644105252388f02a9cc16884e909447",
+      "restoredMatchesPreMutant": true,
+      "suiteExitCode": 1,
+      "counts": "Test Suites: 1 failed, 1 total; Tests:       2 failed, 8 passed, 10 total",
+      "failingRows": [
+        "(f3) a create whose genesis projection is refused answers 500 and leaves no row",
+        "(atomic) a failure injected after the row write of a create leaves no row, no event and no marker"
+      ],
+      "caught": true,
+      "logs": [
+        {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35b/logs/mutant-M3-apply.log",
+          "sha256": "bb46102752675b6a9aa6520b883d860acf0c7adac43d62ec9600b2b717bc6961"
+        },
+        {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35b/logs/mutant-M3-run.log",
+          "sha256": "77669840f86756449b0a58a0394c7392fabf81570d1b8ec9f7df057cc66d0f3d"
+        },
+        {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35b/logs/mutant-M3-restore.log",
+          "sha256": "c6ce962a384f98d6929bf144e7b594c9a5a63acb714b6c0bc39986d5c19619b7"
+        }
+      ]
+    },
+    {
+      "id": "M4",
+      "charter": "(M4) the non-journal save path routed through the journal",
+      "what": "the non-journal save path routed through the journal: every campaign that is not blocked takes the checkpoint transaction",
+      "target": "src/pages/api/campaigns/[id].ts",
+      "preMutantSha256": "e087d830a1c0b3d12f9ae8fdf108f26a3644105252388f02a9cc16884e909447",
+      "mutatedSha256": "974ce98c64e1a2de3e19c8bc903bff9c94a01b77fe5f5eb5f534ee38da55e5cf",
+      "restoredSha256": "e087d830a1c0b3d12f9ae8fdf108f26a3644105252388f02a9cc16884e909447",
+      "restoredMatchesPreMutant": true,
+      "suiteExitCode": 1,
+      "counts": "Test Suites: 1 failed, 1 total; Tests:       9 failed, 1 passed, 10 total",
+      "failingRows": [
+        "(g3) a whole-envelope PUT on a journal-native campaign appends a checkpoint of the stored record",
+        "(f3) a create whose genesis projection is refused answers 500 and leaves no row",
+        "(atomic) a failure injected after the row write of a journal-native PUT leaves neither the row change nor the append",
+        "(pin) a failed row write on a journal-native PUT leaves no append either",
+        "(pin) a stale whole-envelope PUT on a journal-native campaign answers 409 and appends nothing",
+        "(pin) a journal-native PUT whose envelope the projection refuses answers 500 with nothing written",
+        "(pin) a create under journal authority appends the genesis and writes the journal-native marker",
+        "(pin) a create under journal authority over a stream that already exists keeps the row and writes no marker",
+        "(pin) a campaign with no marker saves exactly as before, with no journal write"
+      ],
+      "caught": true,
+      "logs": [
+        {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35b/logs/mutant-M4-apply.log",
+          "sha256": "91cde0ac96ca2482456c8239a30c3a7ae1c2e989b51b8bc44ed69cdeb52669eb"
+        },
+        {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35b/logs/mutant-M4-run.log",
+          "sha256": "a74e1c7da12dfb519695a87aaef47db2c5567e3e46347cf515cc764b22850201"
+        },
+        {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35b/logs/mutant-M4-restore.log",
+          "sha256": "c6ce962a384f98d6929bf144e7b594c9a5a63acb714b6c0bc39986d5c19619b7"
+        }
+      ]
+    },
+    {
+      "id": "M5",
+      "charter": "extra: the committed genesis writes no journal-native marker",
+      "what": "the committed genesis writes no journal-native marker inside the transaction",
+      "target": "src/lib/campaign/authority/campaignRecordJournalSave.ts",
+      "preMutantSha256": "9b7fca4f2f4c01a3a405fe44122e3c1ea389532971be8a6f4918aaf5f4ed1433",
+      "mutatedSha256": "7423e7dadb00f30427b762b66adc43b771138fd6f9104be9de453201515ccd4f",
+      "restoredSha256": "9b7fca4f2f4c01a3a405fe44122e3c1ea389532971be8a6f4918aaf5f4ed1433",
+      "restoredMatchesPreMutant": true,
+      "suiteExitCode": 1,
+      "counts": "Test Suites: 1 failed, 1 total; Tests:       1 failed, 9 passed, 10 total",
+      "failingRows": [
+        "(pin) a create under journal authority appends the genesis and writes the journal-native marker"
+      ],
+      "caught": true,
+      "logs": [
+        {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35b/logs/mutant-M5-apply.log",
+          "sha256": "97441a25215bfcc79e2bd2dc1a624e837d2c2242d389ffcfeb115e236f42874c"
+        },
+        {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35b/logs/mutant-M5-run.log",
+          "sha256": "a0e984451d3d218439ab45c034bf881c695a8cb0342e2005edcf8e9f3926f110"
+        },
+        {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35b/logs/mutant-M5-restore.log",
+          "sha256": "b879b8c0e0cd243012e7b5fc91359bbf348e711bfaee2be8b8225ab30d44ea7f"
+        }
+      ]
+    },
+    {
+      "id": "M6",
+      "charter": "extra: a genesis refused by the revision or identity guard throws instead of keeping the row",
+      "what": "a genesis the revision or command-identity guard refuses throws instead of keeping the row (the pre-transaction already-journaled outcome dropped)",
+      "target": "src/lib/campaign/authority/campaignRecordJournalSave.ts",
+      "preMutantSha256": "9b7fca4f2f4c01a3a405fe44122e3c1ea389532971be8a6f4918aaf5f4ed1433",
+      "mutatedSha256": "f9f340e963acd95a34de46eda7d01fca9154cf36cf3993089c6957cd815bd966",
+      "restoredSha256": "9b7fca4f2f4c01a3a405fe44122e3c1ea389532971be8a6f4918aaf5f4ed1433",
+      "restoredMatchesPreMutant": true,
+      "suiteExitCode": 1,
+      "counts": "Test Suites: 1 failed, 1 total; Tests:       1 failed, 9 passed, 10 total",
+      "failingRows": [
+        "(pin) a create under journal authority over a stream that already exists keeps the row and writes no marker"
+      ],
+      "caught": true,
+      "logs": [
+        {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35b/logs/mutant-M6-apply.log",
+          "sha256": "1efb6cf5f3493707bc5f18776d153e8bf46a3e6c7edf26cd70bd5b8925bdaaec"
+        },
+        {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35b/logs/mutant-M6-run.log",
+          "sha256": "e954aff4f4c595cad2e5bba14d14169479e00963642ad1f45da651cb6cdb2091"
+        },
+        {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35b/logs/mutant-M6-restore.log",
+          "sha256": "b879b8c0e0cd243012e7b5fc91359bbf348e711bfaee2be8b8225ab30d44ea7f"
+        }
+      ]
+    }
+  ],
+  "mutantRestore": {
+    "method": "byte copy saved before each mutant, copied back after the run, sha256 compared (not git checkout: the changes are uncommitted)",
+    "beforeAll": [
+      "9b7fca4f2f4c01a3a405fe44122e3c1ea389532971be8a6f4918aaf5f4ed1433 *src/lib/campaign/authority/campaignRecordJournalSave.ts",
+      "e087d830a1c0b3d12f9ae8fdf108f26a3644105252388f02a9cc16884e909447 *src/pages/api/campaigns/[id].ts",
+      "c0199c1404d49e332c97fe5e19e614ea09ecc1d4f108dc1feb72c1bc4b6128dd *src/lib/campaign/authority/campaignSourceGenesis.ts",
+      "ca263b66afba7bd96ca21691b49d55a0e49bba756152f6a3b11924295db121f9 *src/services/campaignPersistence/CampaignPersistenceService.ts",
+      "22a92f894349b266dcba162859f080a6d8ea3add5d3eaf53cb74e636f6e25f3f *src/services/campaignPersistence/CampaignMigrationMarkerStore.ts"
+    ],
+    "afterAll": [
+      "9b7fca4f2f4c01a3a405fe44122e3c1ea389532971be8a6f4918aaf5f4ed1433 *src/lib/campaign/authority/campaignRecordJournalSave.ts",
+      "e087d830a1c0b3d12f9ae8fdf108f26a3644105252388f02a9cc16884e909447 *src/pages/api/campaigns/[id].ts",
+      "c0199c1404d49e332c97fe5e19e614ea09ecc1d4f108dc1feb72c1bc4b6128dd *src/lib/campaign/authority/campaignSourceGenesis.ts",
+      "ca263b66afba7bd96ca21691b49d55a0e49bba756152f6a3b11924295db121f9 *src/services/campaignPersistence/CampaignPersistenceService.ts",
+      "22a92f894349b266dcba162859f080a6d8ea3add5d3eaf53cb74e636f6e25f3f *src/services/campaignPersistence/CampaignMigrationMarkerStore.ts"
+    ],
+    "runner": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35b/scripts/run-mutant.sh",
+      "sha256": "0ae40801cd0d676c28636247893d6ba72e9ff7c2d1b81a80a4e98946b67593be"
+    },
+    "mutator": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35b/scripts/mutant.mjs",
+      "sha256": "99de1f9c00184cd47a019d147129e26fd7748877411841aaa06a3a3c788ffb5e"
+    }
+  },
+  "designAsBuilt": {
+    "service": "CampaignPersistenceService.ts: saveCampaign runs campaignRecordRow.plan (read-only: row read, D2 gate, sourceReplayFence guard, baseVersion CAS; returns the record to store or saveCampaign's refusal) and then campaignRecordRow.write (the INSERT OR REPLACE) in its own transaction, as before",
+    "journalSave": "campaignRecordJournalSave.ts saveCampaignRecordThroughJournal: appendPreparedWithExtension; prepare = campaignRecordRow.plan on the writer handle, a refusal returns before any write; the snapshot of the planned record (genesis at sequence 0, checkpoint at the root head revision); a projection refusal returns before any write. extend = campaignRecordRow.write, then append(); a committed genesis writes the journal-native marker on the same handle; a genesis refused by the revision or command-identity guard keeps the row with no marker; every other non-committed append throws (rollback)",
+    "snapshot": "campaignSourceGenesis.ts campaignSnapshotCommand builds the CampaignSnapshotPublished command for both purposes; appendCampaignGenesis uses it for the genesis it appends on its own (adoption, seeding); maybeAppendCampaignGenesisOnCreate removed (its one caller was the route)",
+    "route": "[id].ts PUT: authority journal -> checkpoint; else baseVersion 0 and isCampaignJournalAuthorityEnabled() -> genesis; else saveCampaign. invalid-campaign-projection -> 500 \"campaign <purpose> failed: <reason>\" with nothing written",
+    "markerStore": "writeCampaignMigrationMarker(marker, db = service handle)",
+    "adoptHeader": "adopt.ts file header (lines 1-27) rewritten to what the route does (genesis + journal-native marker under journal authority, then the record through saveCampaign in its own transaction; a retried adoption finishes an interrupted one)",
+    "deviationsFromAdmission": [
+      "the service split is one exported object campaignRecordRow {plan, write} instead of two exported functions planCampaignSave/writeCampaignRow, so the moved code keeps its indentation (the same read/write object shape as durableCampaignMarkerIo in campaignCutoverMarkerIo.ts)",
+      "campaignSnapshotCommand returns the command fields flat beside kind rather than under a command field",
+      "two pins were added to the suite after red (listed under redToGreen)",
+      "actual size: 6 product files, 410 changed product lines (admission estimate 418); 2 test files"
+    ]
+  },
+  "nonClaims": [
+    "Playwright was not run (charter): the fixture-armed e2e groups (authority-recovery, the two-process privacy and convergence specs) were not exercised with the checkpoint path.",
+    "No build was run (charter).",
+    "The flag is unchanged: in production the genesis transaction runs only when isCampaignJournalAuthorityEnabled() is true (today only under the e2e fixture arm); the create rows reach it through a test-module replacement of that resolver, not through the production flag or the arm.",
+    "The checkpoint path is exercised only on the root branch and with no projection-rebuild lease active; the PUT does not consult that lease and nothing here proves the interaction.",
+    "The checkpoint is not fanned out to live co-op guests; no guest mirror was measured.",
+    "The adopt route still appends its genesis and creates its record in two transactions (only its header changed, as the ledger says).",
+    "The authority decision is read before the transaction (as the blocked check is); the race it leaves was not exercised.",
+    "Whether real client envelopes fail the projection (and so now answer 500 on a journal-native save) is UNVERIFIED.",
+    "A repository-wide npx jest was not run; only the groups listed under gates."
+  ],
+  "findingsReportedNotFixed": [
+    {
+      "id": "F1",
+      "where": "e2e/campaign-journal-two-process-convergence.spec.ts:167; scripts/e2e/campaign-journal-authority.ts:33",
+      "finding": "comments still name maybeAppendCampaignGenesisOnCreate, which this unit removed (the PUT create now appends the genesis through saveCampaignRecordThroughJournal). Outside this unit's paths; U35d owns e2e and scripts/e2e."
+    },
+    {
+      "id": "F2",
+      "where": "src/pages/api/campaigns/[id]/adopt.ts:147-178",
+      "finding": "adoption appends the genesis and writes the marker, then creates the record through saveCampaign in a second transaction; a failure between them leaves a journal-native campaign with no row until the retry (which the route finishes: marker journal -> already-journaled -> record created). Not in this unit's sentence (header only)."
+    },
+    {
+      "id": "F3",
+      "where": "src/lib/campaign/sync/applyCampaignEvent.ts:75; src/lib/campaign/authority/campaignSourceGenesis.ts:57-88",
+      "finding": "a checkpoint replaces the journal state wholesale with the record projection, which leaves pilots and contracts empty (as the genesis does) and overwrites journal-only command effects (SpendFunds, AdvanceDay, HirePilot append without rewriting the row) that the saved envelope does not carry. This is the decided option (i); recorded for the owner ruling."
+    },
+    {
+      "id": "F4",
+      "where": "src/lib/campaign/authority/__tests__/campaignSourceGenesis.test.ts",
+      "finding": "the removed maybeAppendCampaignGenesisOnCreate block took two tests with it (campaign group 2975 -> 2973); the route-level create is now pinned by the new suite instead."
+    }
+  ],
+  "risksForTheParent": [
+    "Review classes authority + migration + idempotency: the owner's head-bound Lane B ruling is required on the head that merges; U35d (the flip) depends on this unit landing first.",
+    "Authority: a checkpoint REPLACES the journal's projected state (CampaignSnapshotPublished replaces state wholesale, applyCampaignEvent.ts:75) with the record's projection. Journal-only command effects since the last row materialization (only AcceptContract rewrites the row; SpendFunds, AdvanceDay, HirePilot and the rest append only) are overwritten by a PUT at the current row version whose envelope does not carry them, and the projection leaves pilots and contracts empty as the genesis does. This is option (i) as the ledger decided; the ruling should name it.",
+    "The authority decision (journal vs snapshot) is read before the transaction, as the blocked check is today; a marker that turns journal between that read and the save lets that one save take the snapshot path.",
+    "Migration: no schema change and the flag is unchanged, but the checkpoint path is live now for every campaign that already carries a journal marker (fixture-armed e2e runs, operator cutovers, co-op campaigns created under the arm), independent of U35d.",
+    "Idempotency: the checkpoint command id is campaign-checkpoint:<id>:<sequence>; a retried PUT is a fresh CAS attempt (its baseVersion is stale after a commit, so it answers 409 and appends nothing). The genesis keeps appendCampaignGenesis's identity (campaign-genesis:<id>).",
+    "Not in the sentence and not built: the checkpoint is not fanned out to live co-op guests, and the PUT does not consult the projection-rebuild lease that blocks commands.",
+    "Playwright is not run in this lane: fixture-armed e2e groups (authority-recovery, the two-process privacy and convergence specs) now see a checkpoint event after a whole-envelope save of a journal-native campaign.",
+    "Behavior change on journal-native campaigns only: a whole-envelope save whose envelope the projection refuses (a unit in two forces, a roster unit with no catalog ref or an invalid source) now answers 500 and is not saved; before it was saved with the journal left behind."
+  ],
+  "gitStatusShortAtLocal": "M src/lib/campaign/authority/__tests__/campaignSourceGenesis.test.ts\n M src/lib/campaign/authority/campaignSourceGenesis.ts\n M src/pages/api/campaigns/[id].ts\n M src/pages/api/campaigns/[id]/adopt.ts\n M src/services/campaignPersistence/CampaignMigrationMarkerStore.ts\n M src/services/campaignPersistence/CampaignPersistenceService.ts\n?? openspec/planning/2026-09-12-roadmap-completion/evidence/u35b-admission-20260923.json\n?? openspec/planning/2026-09-12-roadmap-completion/evidence/u35b-red-20260923.json\n?? src/__tests__/api/campaigns/campaignRecordJournalTransaction.test.ts\n?? src/lib/campaign/authority/campaignRecordJournalSave.ts"
+}
