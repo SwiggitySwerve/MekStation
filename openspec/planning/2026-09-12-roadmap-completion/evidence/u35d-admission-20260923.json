@@ -1,0 +1,847 @@
+{
+  "unit": "U35d",
+  "stage": "admission",
+  "status": "BLOCKED",
+  "at": "2026-09-23T03:17:28.357Z",
+  "baseline": "992b2babcf516466cf018bb0153f247018079c59",
+  "originMain": "992b2babcf516466cf018bb0153f247018079c59",
+  "originMainSource": "git ls-remote origin refs/heads/main (read-only; no fetch)",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u35d",
+  "branch": "roadmap-u35d-campaign-journal-flip-20260923",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "node": "R2.authority-cutover",
+  "shellPreamble": [
+    "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "export npm_config_dry_run=true"
+  ],
+  "runners": {
+    "admissionGates": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d/admission-gates.sh",
+      "sha256": "14a8b3cc433e40822add9683981e694baf854eb9e3a3928f58c4bb50c08ec47b"
+    },
+    "probe": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d/adm-probe.sh",
+      "sha256": "217e8a3b5cd42cfdc8cbc295f42a7ef34dea1abfe59aaabe96e42c1b5c2ab5bd"
+    },
+    "temporaryFlip": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d/flip.mjs",
+      "sha256": "22812d9bd94f411fe7eb271cb9d39983c75e5bd2bf02a9b4f878e3f6f91ebe03"
+    },
+    "receiptWriter": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d/write-admission.mjs",
+      "sha256": "99a138fef3729f858170a41e2df2cd465a72f16a22f27dbb08d75325ac1e9611"
+    }
+  },
+  "nodeVersion": {
+    "command": "node --version",
+    "lastLine": "v22.22.0",
+    "exitCode": 0,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d/logs/adm-node-version.log",
+      "sha256": "2172da60c75bfe844a5f085d0b225e7042f650910fb423c59d7f4a937afb0b56"
+    }
+  },
+  "guardNodeModulesLink": {
+    "command": "npm run --silent qc:guard-node-modules-link",
+    "lastLine": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"E:\\\\Projects\\\\MekStation\\\\.sisyphus\\\\roadmap-completion-20260912\\\\worktrees\\\\u35d\\\\node_modules\",\"actualPath\":\"E:\\\\Projects\\\\MekStation\\\\node_modules\"}",
+    "exitCode": 1,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d/logs/adm-guard.log",
+      "sha256": "0f5054e2cda01a35191c11db33837dea4cba2013572fe39ee453dd04fb98d3f9"
+    },
+    "expected": true,
+    "why": "refusal by design in a junctioned worktree; no npm install/ci/prune or lifecycle was run in this lane (npm_config_dry_run=true exported)"
+  },
+  "nextOnBaseline": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "lastLine": "U35d",
+    "exitCode": 0,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d/logs/adm-next.log",
+      "sha256": "715b8ca2001b54523484886b77e8e0a180fd0933cb694fdfa3c2bf99da14eb6c"
+    }
+  },
+  "validatorOnBaseline": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+    "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+    "exitCode": 0,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d/logs/adm-validator.log",
+      "sha256": "97b2f29d264078525a55c5f88586fb95603311fa065e70d7d17c5fab08f5b5bc"
+    }
+  },
+  "gitStatusShortAtAdmission": "",
+  "ownershipPaths": [
+    "src/lib/campaign/sync",
+    "src/__tests__/api/campaigns",
+    "e2e",
+    "scripts/e2e",
+    "src/__tests__/unit/api"
+  ],
+  "receiptsOwned": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u35d-admission-20260923.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u35d-red-20260923.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u35d-local-20260923.json"
+  ],
+  "receiptsWritten": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u35d-admission-20260923.json"
+  ],
+  "receiptsNotWritten": {
+    "red": "not written: the owner-ruled gate stops the unit at admission (BLOCKED) before any product edit. Probe row (a) was run on the baseline and under the temporary flip as part of the gate measurement below; that is measurement evidence, not a red receipt, and no re-pinned flag-off assertion rows were run.",
+    "local": "not written: no product or test edit was made; no build and no Playwright run (the two-core machine-idle wait was therefore never needed)."
+  },
+  "behavior": "The campaign journal hard cutover (units.json U35d): CAMPAIGN_JOURNAL_AUTHORITY_ENABLED true in production with no override; the e2e fixture arm deleted with its exported env constant and both importers (campaignPutGenesisRoute.test.ts:17, scripts/e2e/campaign-journal-authority.ts:63-67,93-96); the in-path flag pins, campaignPutGenesisRoute.test.ts and the e2e flag-off assertions re-pinned; stale flag-off comments corrected; folded: the e2e-arm row in multiplayerCoopCreationCheckpoint.test.ts rewritten or removed (U35c F1), the maybeAppendCampaignGenesisOnCreate comments at e2e/campaign-journal-two-process-convergence.spec.ts:167 and scripts/e2e/campaign-journal-authority.ts:33 corrected (U35b F1), and the owner's ruled gate on U35b run first (FN-u35b-checkpoint-replaces-journal-state).",
+  "seams": [
+    {
+      "at": "src/lib/campaign/sync/JournalCampaignEventStore.ts:84",
+      "what": "export const CAMPAIGN_JOURNAL_AUTHORITY_ENABLED = false (the production constant); the header at :21-24 and the doc at :79-83 state the flag-off premise"
+    },
+    {
+      "at": "src/lib/campaign/sync/JournalCampaignEventStore.ts:474-496",
+      "what": "createDefaultCampaignEventStore returns the journal store only when the constant is true AND a journal factory is passed (:489); its one production caller src/lib/campaign/coop/coopRuntimeSession.ts:101 passes none, so the flip does not move that (browser-side) store"
+    },
+    {
+      "at": "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts:13-15",
+      "what": "the exported env constant CAMPAIGN_JOURNAL_AUTHORITY_E2E_ENV"
+    },
+    {
+      "at": "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts:17-28,36-38",
+      "what": "the e2e arm e2eJournalAuthorityArmed (NEXT_PUBLIC_E2E_MODE === true AND the arm env === 1) and isCampaignJournalAuthorityEnabled = constant || arm; header :1-9 and doc :30-35 state the flag-off premise"
+    },
+    {
+      "at": "src/__tests__/api/campaigns/campaignPutGenesisRoute.test.ts:17,66,72,77,91",
+      "what": "importer of the env constant (in path)"
+    },
+    {
+      "at": "scripts/e2e/campaign-journal-authority.ts:62-65,93-96",
+      "what": "importer of the env constant and the resolver (flags() reports cutoverFlag, effective, e2eEnvKey, e2eEnvValue); :33 names the removed maybeAppendCampaignGenesisOnCreate; :36-41 describe the arm (in path)"
+    },
+    {
+      "at": "src/pages/api/campaigns/[id].ts:34,200-204; src/pages/api/campaigns/[id]/adopt.ts:37,148; src/pages/api/multiplayer/matches/index.ts:36,267",
+      "what": "production importers of isCampaignJournalAuthorityEnabled (outside the paths; read-only). They keep calling the resolver, which after the arm is deleted returns the constant, so none needs an edit"
+    },
+    {
+      "at": "src/__tests__/api/campaigns/campaignRecordJournalTransaction.test.ts:74-77",
+      "what": "jest.mock of the resolver module spreading requireActual (in path); unaffected by the deletion of the other two exports"
+    },
+    {
+      "at": "src/lib/campaign/sync/__tests__/campaignJournalAuthorityEnabled.test.ts:10-35; src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts:54,354",
+      "what": "the in-path flag pins"
+    },
+    {
+      "at": "src/__tests__/api/campaigns/campaignAdoptRoute.test.ts:23,159",
+      "what": "branches on the constant (adapts to either value)"
+    },
+    {
+      "at": "src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts:325-337",
+      "what": "the e2e-arm row sets MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY (U35c F1, folded)"
+    },
+    {
+      "at": "e2e/campaign-journal-two-process-privacy.spec.ts:449-453; e2e/campaign-journal-two-process-convergence.spec.ts:107,142-149,167,180-184,293-295,443-447; e2e/helpers/campaignJournalPrivacyFixture.ts:49,92-96,125-129,203-205",
+      "what": "the e2e flag-off assertions (cutoverFlag false, effective false, the arm key unset) and the stale maybeAppendCampaignGenesisOnCreate comment (:167)"
+    },
+    {
+      "at": "src/pages/api/campaigns/[id].ts:198-219",
+      "what": "PUT dispatch: authority journal -> checkpoint through saveCampaignRecordThroughJournal; else baseVersion 0 and the resolver -> genesis; else saveCampaign (read-only)"
+    },
+    {
+      "at": "src/lib/campaign/sync/applyCampaignEvent.ts:75",
+      "what": "CampaignSnapshotPublished replaces the projected state wholesale"
+    },
+    {
+      "at": "src/lib/campaign/authority/campaignSourceGenesis.ts:57-89; src/types/campaign/CampaignSync.ts:122-136",
+      "what": "the genesis/checkpoint projection sets day, balance, rosterUnits, forceUnits and factionStanding on createEmptyCampaignState; pilots {}, contracts {} and salvagePool 0 stay empty (read-only)"
+    }
+  ],
+  "rulingGate": {
+    "ruling": "the owner's ruling on U35b, option 'Approve; U35d checks it' (comment 5788088153 on PR #1914), as transcribed in units.json U35d and FN-u35b-checkpoint-replaces-journal-state",
+    "verdict": "BLOCKED. (1) Under the temporary flip every journal-only command measured lost its effect from the journal projection after a whole-envelope PUT whose envelope did not carry it. (2) The campaign command route has no production caller, but the co-op host door is a production flow of the same journal-only commands on the same campaign stream; after the flip every new co-op campaign is journal-native, and the host browser's next whole-envelope save does not carry a HirePilot's pilot (nor an AcceptContract's contract or an AllocateSalvage's pool); measured row (c1): the pilot is gone from the journal projection after that save.",
+    "step1Measurement": {
+      "how": "A probe suite (real SQLite on a temp file; the live item route and the live command route through node-mocks-http; every MEKSTATION_E2E_* key deleted in beforeEach and unset in the runner) was written into src/lib/campaign/sync/__tests__/ for the measurement, copied out with its sha256 and removed from the worktree because the lane stops at admission. It ran on the baseline, then under a temporary flip (only the constant line in JournalCampaignEventStore.ts set true by flip.mjs, exactly one occurrence), after which the file was restored from a byte copy and its sha256 re-checked.",
+      "probeCopy": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d/logs/adm-probe-suite-copy.test.ts.txt",
+        "sha256": "6b4b8ab4e30eea21ffcf70e06774fa0d017f3d0386eb95fba7252104a029e45b"
+      },
+      "command": "U35D_PROBE_OUT=<log dir>/adm-probe-<side>.json npx jest src/lib/campaign/sync/__tests__/u35dRulingGate.admission.test.ts",
+      "rows": {
+        "a": "U35's probe row (a): a PUT create at baseVersion 0 appends the genesis and the journal-native marker",
+        "r1": "SpendFunds 12345 through POST /api/campaigns/[id]/commands (a seated bearer, the route the commands suites use), then a GET, then a whole-envelope PUT of the client's unchanged campaign at the row's version",
+        "r2": "AdvanceDay {days: 3} through the command route, then the same PUT",
+        "r3": "HirePilot {pilot-r3, cost 12000} through the command route, then the same PUT",
+        "c1": "HirePilot {pilot-c1, cost 12000} through the co-op host door (CampaignMatchHost.applyHostIntent over a JournalCampaignEventStore on the same SQLite journal, initialState = the parity-pinned projection of the stored record, as CampaignHostRegistry.register builds it), then a whole-envelope PUT of the campaign after applyAuthoritativeStateToGuestCampaign (what the host browser's fold projection writes onto its record before its debounced save), then one more co-op SpendFunds"
+      },
+      "journalNativeOnTheBaseline": "on the baseline the create appends nothing (row a: marker not_found), so rows r1-r3 and c1 made the campaign journal-native through the appendCampaignGenesis seam the route calls; under the flip the PUT create did it itself (genesisBy in the values)",
+      "baseline": {
+        "exitCode": 1,
+        "counts": "Tests:       5 failed, 5 total",
+        "lastLine": "Ran all test suites matching /src\\\\lib\\\\campaign\\\\sync\\\\__tests__\\\\u35dRulingGate.admission.test.ts/i.",
+        "rowResults": [
+          "× (a) a PUT create at baseVersion 0 appends genesis and the journal-native marker",
+          "× (r1) SpendFunds through the command route, then a whole-envelope PUT",
+          "× (r2) AdvanceDay through the command route, then a whole-envelope PUT",
+          "× (r3) HirePilot through the command route, then a whole-envelope PUT",
+          "× (c1) HirePilot through the co-op host door, then the host fold projection saved as a whole-envelope PUT"
+        ],
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d/logs/adm-probe-baseline.log",
+          "sha256": "2538f2cd3fbf414997324a80d02a9bd49ef820533b7563cf999dd9d363cb9dbd"
+        },
+        "valuesFile": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d/logs/adm-probe-baseline.json",
+          "sha256": "dd8e54544202b590735d9cd8ec1b663f403b6b5c7fbb08399a41c4d060fde55b"
+        },
+        "values": {
+          "a": {
+            "status": 200,
+            "markerKind": "not_found",
+            "markerState": null,
+            "eventTypes": []
+          },
+          "r1": {
+            "genesisBy": "appendCampaignGenesis seam (flag false)",
+            "commandStatus": 200,
+            "commandKind": "committed",
+            "journalBefore": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": []
+            },
+            "journalAfterCommand": {
+              "balance": 367655,
+              "day": 184,
+              "pilots": []
+            },
+            "rowAfterCommand": {
+              "version": 1,
+              "balance": 380000
+            },
+            "reloadStatus": 200,
+            "reloadBalance": 380000,
+            "reloadVersion": 1,
+            "putStatus": 200,
+            "rowAfterPut": {
+              "version": 2,
+              "balance": 380000
+            },
+            "journalAfterPut": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": []
+            },
+            "eventTypes": [
+              "CampaignSnapshotPublished",
+              "FundsChanged",
+              "CampaignSnapshotPublished"
+            ]
+          },
+          "r2": {
+            "genesisBy": "appendCampaignGenesis seam (flag false)",
+            "commandStatus": 200,
+            "commandKind": "committed",
+            "journalBefore": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": []
+            },
+            "journalAfterCommand": {
+              "balance": 380000,
+              "day": 187,
+              "pilots": []
+            },
+            "rowAfterCommand": {
+              "version": 1,
+              "balance": 380000
+            },
+            "reloadStatus": 200,
+            "reloadBalance": 380000,
+            "reloadVersion": 1,
+            "putStatus": 200,
+            "rowAfterPut": {
+              "version": 2,
+              "balance": 380000
+            },
+            "journalAfterPut": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": []
+            },
+            "eventTypes": [
+              "CampaignSnapshotPublished",
+              "CampaignDayAdvanced",
+              "CampaignSnapshotPublished"
+            ]
+          },
+          "r3": {
+            "genesisBy": "appendCampaignGenesis seam (flag false)",
+            "commandStatus": 200,
+            "commandKind": "committed",
+            "journalBefore": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": []
+            },
+            "journalAfterCommand": {
+              "balance": 368000,
+              "day": 184,
+              "pilots": [
+                "pilot-r3"
+              ]
+            },
+            "rowAfterCommand": {
+              "version": 1,
+              "balance": 380000
+            },
+            "reloadStatus": 200,
+            "reloadBalance": 380000,
+            "reloadVersion": 1,
+            "putStatus": 200,
+            "rowAfterPut": {
+              "version": 2,
+              "balance": 380000
+            },
+            "journalAfterPut": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": []
+            },
+            "eventTypes": [
+              "CampaignSnapshotPublished",
+              "FundsChanged",
+              "PilotHired",
+              "CampaignSnapshotPublished"
+            ]
+          },
+          "c1": {
+            "genesisBy": "appendCampaignGenesis seam (flag false)",
+            "hireOk": true,
+            "journalAfterHire": {
+              "balance": 368000,
+              "pilots": [
+                "pilot-c1"
+              ]
+            },
+            "hostStateAfterHire": {
+              "balance": 368000,
+              "pilots": [
+                "pilot-c1"
+              ]
+            },
+            "envelopeBalance": 368000,
+            "putStatus": 200,
+            "rowAfterPut": {
+              "version": 2,
+              "balance": 368000
+            },
+            "journalAfterPut": {
+              "balance": 368000,
+              "pilots": []
+            },
+            "spendOk": true,
+            "journalAfterNextCoopCommand": {
+              "balance": 367000,
+              "pilots": []
+            },
+            "hostStateAfterNextCoopCommand": {
+              "balance": 367000,
+              "pilots": [
+                "pilot-c1"
+              ]
+            },
+            "eventTypes": [
+              "CampaignSnapshotPublished",
+              "FundsChanged",
+              "PilotHired",
+              "CampaignSnapshotPublished",
+              "FundsChanged"
+            ]
+          }
+        }
+      },
+      "underTemporaryFlip": {
+        "exitCode": 1,
+        "counts": "Tests:       4 failed, 1 passed, 5 total",
+        "lastLine": "Ran all test suites matching /src\\\\lib\\\\campaign\\\\sync\\\\__tests__\\\\u35dRulingGate.admission.test.ts/i.",
+        "rowResults": [
+          "√ (a) a PUT create at baseVersion 0 appends genesis and the journal-native marker",
+          "× (r1) SpendFunds through the command route, then a whole-envelope PUT",
+          "× (r2) AdvanceDay through the command route, then a whole-envelope PUT",
+          "× (r3) HirePilot through the command route, then a whole-envelope PUT",
+          "× (c1) HirePilot through the co-op host door, then the host fold projection saved as a whole-envelope PUT"
+        ],
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d/logs/adm-probe-flipped.log",
+          "sha256": "3fbb11784f8a2ad42abc02d9092248c5896b5d7cd0cc5458483d142dbe855ca9"
+        },
+        "valuesFile": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d/logs/adm-probe-flipped.json",
+          "sha256": "3ade39b6d5d4a9b80599592962dd06d1f07d30021af4453ae2770f2062b1b8f5"
+        },
+        "values": {
+          "a": {
+            "status": 200,
+            "markerKind": "ok",
+            "markerState": "journal",
+            "eventTypes": [
+              "CampaignSnapshotPublished"
+            ]
+          },
+          "r1": {
+            "genesisBy": "the PUT create (flag true)",
+            "commandStatus": 200,
+            "commandKind": "committed",
+            "journalBefore": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": []
+            },
+            "journalAfterCommand": {
+              "balance": 367655,
+              "day": 184,
+              "pilots": []
+            },
+            "rowAfterCommand": {
+              "version": 1,
+              "balance": 380000
+            },
+            "reloadStatus": 200,
+            "reloadBalance": 380000,
+            "reloadVersion": 1,
+            "putStatus": 200,
+            "rowAfterPut": {
+              "version": 2,
+              "balance": 380000
+            },
+            "journalAfterPut": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": []
+            },
+            "eventTypes": [
+              "CampaignSnapshotPublished",
+              "FundsChanged",
+              "CampaignSnapshotPublished"
+            ]
+          },
+          "r2": {
+            "genesisBy": "the PUT create (flag true)",
+            "commandStatus": 200,
+            "commandKind": "committed",
+            "journalBefore": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": []
+            },
+            "journalAfterCommand": {
+              "balance": 380000,
+              "day": 187,
+              "pilots": []
+            },
+            "rowAfterCommand": {
+              "version": 1,
+              "balance": 380000
+            },
+            "reloadStatus": 200,
+            "reloadBalance": 380000,
+            "reloadVersion": 1,
+            "putStatus": 200,
+            "rowAfterPut": {
+              "version": 2,
+              "balance": 380000
+            },
+            "journalAfterPut": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": []
+            },
+            "eventTypes": [
+              "CampaignSnapshotPublished",
+              "CampaignDayAdvanced",
+              "CampaignSnapshotPublished"
+            ]
+          },
+          "r3": {
+            "genesisBy": "the PUT create (flag true)",
+            "commandStatus": 200,
+            "commandKind": "committed",
+            "journalBefore": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": []
+            },
+            "journalAfterCommand": {
+              "balance": 368000,
+              "day": 184,
+              "pilots": [
+                "pilot-r3"
+              ]
+            },
+            "rowAfterCommand": {
+              "version": 1,
+              "balance": 380000
+            },
+            "reloadStatus": 200,
+            "reloadBalance": 380000,
+            "reloadVersion": 1,
+            "putStatus": 200,
+            "rowAfterPut": {
+              "version": 2,
+              "balance": 380000
+            },
+            "journalAfterPut": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": []
+            },
+            "eventTypes": [
+              "CampaignSnapshotPublished",
+              "FundsChanged",
+              "PilotHired",
+              "CampaignSnapshotPublished"
+            ]
+          },
+          "c1": {
+            "genesisBy": "the PUT create (flag true)",
+            "hireOk": true,
+            "journalAfterHire": {
+              "balance": 368000,
+              "pilots": [
+                "pilot-c1"
+              ]
+            },
+            "hostStateAfterHire": {
+              "balance": 368000,
+              "pilots": [
+                "pilot-c1"
+              ]
+            },
+            "envelopeBalance": 368000,
+            "putStatus": 200,
+            "rowAfterPut": {
+              "version": 2,
+              "balance": 368000
+            },
+            "journalAfterPut": {
+              "balance": 368000,
+              "pilots": []
+            },
+            "spendOk": true,
+            "journalAfterNextCoopCommand": {
+              "balance": 367000,
+              "pilots": []
+            },
+            "hostStateAfterNextCoopCommand": {
+              "balance": 367000,
+              "pilots": [
+                "pilot-c1"
+              ]
+            },
+            "eventTypes": [
+              "CampaignSnapshotPublished",
+              "FundsChanged",
+              "PilotHired",
+              "CampaignSnapshotPublished",
+              "FundsChanged"
+            ]
+          }
+        }
+      },
+      "restore": {
+        "file": "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+        "preMeasurementSha256": "0f062a9b1119acc802eabbf072ce308025a7bd52da99c8a5b381803262daec6e",
+        "flippedSha256": "3de3dff6be334e052ae4a35e8bd872d14fef8d616d36ef38fb5179602dd6a7a2",
+        "sha256AfterRestore": "0f062a9b1119acc802eabbf072ce308025a7bd52da99c8a5b381803262daec6e",
+        "identical": true,
+        "summaryLog": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d/logs/adm-probe-summary.log",
+          "sha256": "9a5529d866726479083096e101170bf203c9e019924567bd690a86d11e104921"
+        }
+      },
+      "reading": "Under the flip: r1 the journal went 380000 -> 367655 while the row stayed version 1 balance 380000; a GET after the command returned balance 380000; the PUT answered 200 and the journal replayed 380000 (the spend is lost). r2 day 184 -> 187 -> 184 after the PUT (lost). r3 pilots [\"pilot-r3\"] and balance 368000 -> pilots [] and balance 380000 after the PUT (lost). c1 journal after the co-op hire: balance 368000, pilots [\"pilot-c1\"]; the host-projected envelope carried balance 368000; after the PUT (200) the journal kept balance 368000 but pilots []; after one more co-op SpendFunds the journal replays pilots [] while the live co-op host state holds [\"pilot-c1\"]. The baseline rows read the same values once the campaign is journal-native (the checkpoint path is live today for any journal-native campaign); the flip is what makes every new campaign journal-native."
+    },
+    "step2RealFlows": {
+      "commandRoute": {
+        "route": "src/pages/api/campaigns/[id]/commands.ts (POST; executeCampaignCommand at :186)",
+        "productionCallers": [],
+        "productionCallerCount": 0,
+        "evidence": [
+          "grep of src, desktop and server.js for the URL (/commands, api/campaigns): the only production references to /api/campaigns/[id]/commands are comments (src/lib/campaign/lifecycle/campaignLifecycleState.ts:34,418; src/pages/api/matches/[id]/rewind-preview.ts:18; src/stores/campaign/useCampaignPersistenceStore.ts:118); every client fetch of /api/campaigns/... in src names another route (grants, head, launch-authority, activity, adopt, the item route)",
+          "the only in-process caller of executeCampaignCommand is the route itself (src/pages/api/campaigns/[id]/commands.ts:43,186; grep)",
+          "refreshAfterCommittedCommand (src/stores/campaign/useCampaignPersistenceStore.ts:233, :1323-1366), the store bridge for a committed command acknowledgement, has no production caller (grep)",
+          "the route refuses every caller of a campaign with no co-op seats (src/pages/api/campaigns/[id]/commands.ts:28-33,161-167): a single-player campaign cannot reach it"
+        ],
+        "nonProductionCallers": "e2e/helpers/campaignJournalDrive.ts, e2e/campaign-journal-two-process-convergence.spec.ts, e2e/campaign-journal-two-process-privacy.spec.ts, e2e/campaign-two-device-drive.spec.ts (grep for /commands in e2e) and the jest suites src/__tests__/api/campaigns/campaignCommandsRoute*.test.ts",
+        "perCallerCarry": "no production caller, so no production client follows a route command with a whole-envelope save. For the record: a client that reloads after a route command reads the row, which the route's journal-only commands do not rewrite (row r1: GET after the command returned the pre-command balance), so a reload would not carry the effect either."
+      },
+      "wholeEnvelopePut": {
+        "route": "src/pages/api/campaigns/[id].ts PUT (checkpoint dispatch :198-219)",
+        "productionCallers": [
+          {
+            "at": "src/stores/campaign/useCampaignPersistenceStore.ts:655-691 (fetch PUT :673-680)",
+            "what": "putLiveCampaign: serializes the live campaign (readLiveCampaign) at baseVersion + 1; called by runSave :810, the debounced and explicit save (armed by markDirty through src/stores/campaign/campaignPersistenceWiring.ts:104-117 on every campaign-object change; saveCampaign callers include CreateCampaignPage.submit.ts:298,304, CampaignSaveStatusCard.tsx:81, CampaignCoopEntryPanel.tsx:209, missionLaunchPage.launch.ts:357,364, useCampaignStore.actions.ts:262,287)"
+          },
+          {
+            "at": "src/stores/campaign/useCampaignPersistenceStore.ts:1050-1065 (fetch PUT :1052-1057)",
+            "what": "fireKeepaliveFlush: the discard-time keepalive PUT, called from flushPendingMutations at :1159"
+          }
+        ],
+        "notAPut": "src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.tsx:285-288 is a DELETE"
+      },
+      "coopHostDoor": {
+        "whyInScope": "The ruling names journal-only commands (SpendFunds, AdvanceDay, HirePilot) that append without rewriting the row. The co-op socket door commits exactly those intents onto the same campaign stream (streamType campaign, streamId the campaign id) without writing the campaigns row, so it is a real flow of the ruled kind even though it does not go through the HTTP command route.",
+        "chain": [
+          "UI: guest proposals HirePilot/AcceptContract/SpendFunds/AllocateSalvage (src/components/campaign/coop/CampaignCoopRouteSurface.tsx:113-165); host day advance sends an AdvanceDay host intent (src/stores/campaign/useCampaignStore.dayActions.ts:348-353)",
+          "server: server.js:451,473,658 bind the socket to bindCampaignSyncConnection; host intents commit at src/lib/multiplayer/server/bindCampaignSyncConnection.ts:828 (entry.host.applyHostIntent); proposals go through arbiter.submitProposal :1242 / arbiter.decide :1306 and an approval commits at src/lib/multiplayer/server/CampaignGmArbiter.ts:453 (this.host.applyHostIntent)",
+          "store: the co-op host is registered at src/pages/api/multiplayer/matches/index.ts:325-331 and built at src/lib/multiplayer/server/CampaignHostRegistry.ts:287-293 with selectCampaignEventStore(), which returns the durable JournalCampaignEventStore whenever SQLite is initialized and throws in production without it (src/lib/multiplayer/server/getCampaignEventStore.ts:108-136); commits go through commitCampaignEventBatch (src/lib/multiplayer/server/campaignHostBatchCommit.ts:135-226) -> appendCommandBatch (src/lib/campaign/sync/JournalCampaignEventStore.ts:380-400); no campaigns-row write on this path",
+          "events: HirePilot -> FundsChanged + PilotHired; AcceptContract -> ContractAccepted; AllocateSalvage -> SalvageAllocated; SpendFunds -> FundsChanged; AdvanceDay -> CampaignDayAdvanced (src/lib/multiplayer/server/CampaignMatchHostIntent.ts:146-241)"
+        ],
+        "whatTheFlipChanges": "co-op creation runs the creation checkpoint with journalAuthorityEnabled = isCampaignJournalAuthorityEnabled() (src/pages/api/multiplayer/matches/index.ts:252-275,320-331); false skips the genesis-branch stage, true requires the journal-native marker (src/lib/campaign/authority/campaignCreationCheckpoint.ts:216-219). Today (flag false, no arm) a co-op campaign has no marker, resolves to snapshot authority (src/lib/campaign/authority/resolveCampaignAuthorityFromStores.ts:55-60) and its host PUT takes plain saveCampaign with no checkpoint. After the flip the create appends the genesis and marker, so the host PUT takes the checkpoint path ([id].ts:200-202).",
+        "hostNextSaveCarries": {
+          "balanceDayStanding": "yes when the frame is folded before the save: the host browser folds each committed frame and projects day, balance and faction standing onto its campaign (src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx:165-172,204-212; src/lib/campaign/coop/campaignMirrorProjection.ts:17-37,49-56), which marks the store dirty (campaignPersistenceWiring.ts:104-117) and the next runSave serializes it",
+          "pilotsContractsSalvagePool": "no: the fold projection writes none of them onto the record (campaignMirrorProjection.ts:17-37), and the checkpoint projection leaves pilots {}, contracts {} and salvagePool 0 whatever the envelope holds (src/lib/campaign/authority/campaignSourceGenesis.ts:57-89 over createEmptyCampaignState, src/types/campaign/CampaignSync.ts:122-136), replacing the state wholesale (applyCampaignEvent.ts:75)"
+        },
+        "measured": {
+          "row": "c1",
+          "underTemporaryFlip": {
+            "genesisBy": "the PUT create (flag true)",
+            "hireOk": true,
+            "journalAfterHire": {
+              "balance": 368000,
+              "pilots": [
+                "pilot-c1"
+              ]
+            },
+            "hostStateAfterHire": {
+              "balance": 368000,
+              "pilots": [
+                "pilot-c1"
+              ]
+            },
+            "envelopeBalance": 368000,
+            "putStatus": 200,
+            "rowAfterPut": {
+              "version": 2,
+              "balance": 368000
+            },
+            "journalAfterPut": {
+              "balance": 368000,
+              "pilots": []
+            },
+            "spendOk": true,
+            "journalAfterNextCoopCommand": {
+              "balance": 367000,
+              "pilots": []
+            },
+            "hostStateAfterNextCoopCommand": {
+              "balance": 367000,
+              "pilots": [
+                "pilot-c1"
+              ]
+            },
+            "eventTypes": [
+              "CampaignSnapshotPublished",
+              "FundsChanged",
+              "PilotHired",
+              "CampaignSnapshotPublished",
+              "FundsChanged"
+            ]
+          },
+          "onTheBaseline": {
+            "genesisBy": "appendCampaignGenesis seam (flag false)",
+            "hireOk": true,
+            "journalAfterHire": {
+              "balance": 368000,
+              "pilots": [
+                "pilot-c1"
+              ]
+            },
+            "hostStateAfterHire": {
+              "balance": 368000,
+              "pilots": [
+                "pilot-c1"
+              ]
+            },
+            "envelopeBalance": 368000,
+            "putStatus": 200,
+            "rowAfterPut": {
+              "version": 2,
+              "balance": 368000
+            },
+            "journalAfterPut": {
+              "balance": 368000,
+              "pilots": []
+            },
+            "spendOk": true,
+            "journalAfterNextCoopCommand": {
+              "balance": 367000,
+              "pilots": []
+            },
+            "hostStateAfterNextCoopCommand": {
+              "balance": 367000,
+              "pilots": [
+                "pilot-c1"
+              ]
+            },
+            "eventTypes": [
+              "CampaignSnapshotPublished",
+              "FundsChanged",
+              "PilotHired",
+              "CampaignSnapshotPublished",
+              "FundsChanged"
+            ]
+          }
+        },
+        "verdict": "a real flow whose next whole-envelope save does not carry the command's effect: a guest HirePilot proposal approved by the GM (or AcceptContract, or AllocateSalvage), followed by the host browser's debounced whole-envelope save; the pilot (contract, pool) is erased from the journal projection, and the live co-op host state then disagrees with the journal (c1: pilots after the next co-op command). Measured for HirePilot only; AcceptContract and AllocateSalvage are read from the same projection code (INFERENCE, not run)."
+      }
+    },
+    "blockedFlow": "co-op: a HirePilot (also AcceptContract, AllocateSalvage) committed through the co-op host door (CampaignGmArbiter.ts:453 / bindCampaignSyncConnection.ts:828 -> CampaignMatchHost -> durable JournalCampaignEventStore), then the host browser's whole-envelope save (useCampaignPersistenceStore.ts:655-691 via runSave :810) on a campaign the flip made journal-native; the checkpoint replaces the journal state with a projection that has no pilots, contracts or salvage pool",
+    "proposedSuccessor": {
+      "id": "U35e (proposed; the parent names it)",
+      "node": "R2.authority-cutover",
+      "before": "U35d",
+      "behavior": "Journal-only campaign effects survive a whole-envelope save. (1) A committed campaign command that appends without rewriting the campaigns row, through the command route (campaignCommandPipeline.ts batch path) or the co-op host door (CampaignMatchHost commits through commitCampaignEventBatch on the durable journal store), rewrites the saved record in the same immediate transaction as its append (the AcceptContract materialization pattern, campaignAcceptContractCommand.ts:457-620, through campaignRecordRow's borrowed-handle write), so the row version advances and a whole-envelope PUT at the pre-command version answers 409 with the server record instead of checkpointing over the effect. (2) A CampaignSnapshotPublished record checkpoint carries forward the journal's ledger-only state that the record does not represent (pilots, contracts, salvagePool), which authoritativeStateFromSerializedCampaign leaves empty (campaignSourceGenesis.ts:57-89), so a checkpoint never erases a ledger-only effect. Red-first: U35d admission probe rows (r1), (r2), (r3) and (c1) (saved copy, sha256 in this receipt), red on 992b2babc under the temporary flip.",
+      "ownershipPaths": [
+        "src/lib/campaign/authority",
+        "src/lib/multiplayer/server",
+        "src/services/campaignPersistence",
+        "src/lib/campaign/sync",
+        "src/__tests__/api/campaigns"
+      ],
+      "reviewClasses": [
+        "authority",
+        "idempotency",
+        "concurrency",
+        "migration"
+      ],
+      "estimate": "INFERENCE, not measured: 6-9 files; the row rewrite for the co-op door needs the server to patch balance, currentDate and faction standing onto the stored envelope body, and part (2) is a merge in the checkpoint builder; may need splitting into (2) first, (1) second",
+      "openQuestionsForTheParent": [
+        "With (1), the co-op host browser's next debounced save after each co-op commit meets the CAS and answers 409; runSave then rolls a co-op campaign back and toasts (useCampaignPersistenceStore.ts:832-858). Either the host browser refetches after folding a committed frame (src/stores/campaign or src/components/campaign/coop, outside the proposed paths) or the 409 recovery is accepted; the parent decides.",
+        "Whether (2) alone is acceptable for the co-op door (the host fold already carries balance/day/standing) and (1) only for the command route, which has no production caller today."
+      ]
+    }
+  },
+  "design": {
+    "status": "not applied: the unit is BLOCKED at admission; recorded for the re-admission after the successor lands",
+    "constant": "JournalCampaignEventStore.ts:84 true; header :21-24, doc :79-83 and the factory doc :474-479 rewritten to the flag-on premise",
+    "resolver": "campaignJournalAuthorityEnabled.ts: delete CAMPAIGN_JOURNAL_AUTHORITY_E2E_ENV (:13-15) and e2eJournalAuthorityArmed (:17-28); isCampaignJournalAuthorityEnabled returns the constant (kept: [id].ts, adopt.ts and matches/index.ts import it outside the paths); header rewritten",
+    "importers": "campaignPutGenesisRoute.test.ts: drop the env import and env save/restore, re-pin the resolver-false half to row (a) (a create with no env appends the genesis and the journal-native marker); scripts/e2e/campaign-journal-authority.ts: drop the env import and e2eEnvKey/e2eEnvValue from flags(), correct :33 and :36-41",
+    "pins": "campaignJournalAuthorityEnabled.test.ts re-pinned (true with no env; the former arm keys change nothing); JournalCampaignEventStore.test.ts:353-366 re-pinned (constant true; the factory returns the journal store when a journal factory is passed, in-memory without one)",
+    "e2e": "the two-process privacy and convergence specs and campaignJournalPrivacyFixture.ts re-pinned to cutoverFlag true / effective true with the arm key gone; the convergence :167 comment corrected; stale flag-off comments in e2e/campaign-two-device-drive.spec.ts:440-452 and e2e/gm-two-player-authority-recovery.pack.spec.ts:10-22 corrected",
+    "foldedU35cF1": "multiplayerCoopCreationCheckpoint.test.ts:325-337: the e2e-arm row is rewritten to reach the refusal through the flag (no env) or removed"
+  },
+  "estimatePerFile": [
+    {
+      "file": "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+      "category": "product",
+      "estimateLines": 12
+    },
+    {
+      "file": "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts",
+      "category": "product",
+      "estimateLines": 30
+    },
+    {
+      "file": "scripts/e2e/campaign-journal-authority.ts",
+      "category": "e2e tooling (counted as product here to be conservative)",
+      "estimateLines": 20
+    },
+    {
+      "file": "src/lib/campaign/sync/__tests__/campaignJournalAuthorityEnabled.test.ts",
+      "category": "test",
+      "estimateLines": 30
+    },
+    {
+      "file": "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts",
+      "category": "test",
+      "estimateLines": 15
+    },
+    {
+      "file": "src/__tests__/api/campaigns/campaignPutGenesisRoute.test.ts",
+      "category": "test",
+      "estimateLines": 40
+    },
+    {
+      "file": "src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts",
+      "category": "test",
+      "estimateLines": 25
+    },
+    {
+      "file": "e2e/campaign-journal-two-process-convergence.spec.ts",
+      "category": "test",
+      "estimateLines": 30
+    },
+    {
+      "file": "e2e/campaign-journal-two-process-privacy.spec.ts",
+      "category": "test",
+      "estimateLines": 15
+    },
+    {
+      "file": "e2e/helpers/campaignJournalPrivacyFixture.ts",
+      "category": "test (shared e2e helper: DELIVERY.md re-run rule)",
+      "estimateLines": 20
+    },
+    {
+      "file": "e2e/campaign-two-device-drive.spec.ts",
+      "category": "test (comment)",
+      "estimateLines": 12
+    },
+    {
+      "file": "e2e/gm-two-player-authority-recovery.pack.spec.ts",
+      "category": "test (comment)",
+      "estimateLines": 8
+    }
+  ],
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "countingRule": "product lines count, tests do not (owner decision 2026-09-23, per the charter)",
+    "estimatedFiles": 12,
+    "estimatedProductLines": 62,
+    "estimatedTestLines": 195,
+    "withinCaps": true,
+    "note": "estimates only (INFERENCE); the unit is blocked by the ruled gate, not by its caps"
+  },
+  "outsideOwnershipForTheFlip": {
+    "functionallyRequired": "none measured: every production importer keeps calling isCampaignJournalAuthorityEnabled, which stays exported",
+    "staleCommentsAndDeadEnvOutsideThePaths": [
+      "src/lib/campaign/coop/coopRuntimeSession.ts:99-100 (\"until CAMPAIGN_JOURNAL_AUTHORITY_ENABLED turns on with task 5.2\")",
+      "src/lib/multiplayer/server/matchJournalAuthority.ts:3 (\"Flag OFF matches CAMPAIGN_JOURNAL_AUTHORITY_ENABLED\")",
+      "src/pages/api/multiplayer/matches/index.ts:262-265 (\"the fixture arm must reach it here\")",
+      "playwright.config.ts:314-322 (forwards the arm env; \"stays on the hardcoded false cutover flag\")",
+      "scripts/qc/gm-two-player-campaign-core.cjs:73-78,236 and scripts/__tests__/gm-two-player-campaign-qc.test.ts (set and pin the arm env; U28 removes it per U35 admission)"
+    ],
+    "question": "the ledger sentence says \"the stale flag-off comments corrected\"; if it means these too, the unit needs these paths (or U28 takes them); they are dead text and a dead env after the flip, not a behaviour dependency"
+  },
+  "risksForTheParent": [
+    "Authority: the blocking consequence above goes live for every new co-op campaign the moment the flip lands; it is already live today for any journal-native campaign (fixture-armed e2e runs, the scripts/e2e cutover CLI, operator cutovers), as the baseline rows show.",
+    "Idempotency: the co-op host keeps its own in-memory state (CampaignMatchHost.ts:150) and reads only the next sequence from the store (campaignEventLog.ts:64-67), so after a checkpoint its batches carry expected post-state digests computed from a state the journal no longer replays to (c1: the host holds the pilot, the journal does not); any reader that re-derives state from the journal (the command route, replica sync, launch head) sees the checkpoint's state.",
+    "Migration: after the flip, co-op creation of a campaign created before the flip fails at genesis-branch (campaignCreationCheckpoint.ts:216-219); under OD-mvp-hard-cutover no pre-cutover data is protected, but a local dev database will show it (U35 admission risk, still true).",
+    "Concurrency (INFERENCE, not measured): a host PUT in flight while a co-op command commits lands its checkpoint after the event and erases even a balance or day change the envelope was built before.",
+    "Owner ruling: authority + idempotency + migration review classes need the head-bound Lane B ruling on whatever head eventually merges; this admission changes nothing that needs one."
+  ],
+  "findingsReportedNotFixed": [
+    {
+      "id": "F1",
+      "file": "src/lib/campaign/authority/campaignSourceGenesis.ts:57-89; src/lib/campaign/sync/applyCampaignEvent.ts:75",
+      "finding": "a record checkpoint erases the journal's pilots, contracts and salvage pool whatever the envelope carries (measured r3, c1); this is the blocking finding (outside the paths)"
+    },
+    {
+      "id": "F2",
+      "file": "e2e/campaign-two-device-drive.spec.ts:440-452 vs scripts/e2e/campaign-journal-authority.ts:22-29",
+      "finding": "the two comments disagree about where co-op events go: the spec says the only production writer (the co-op host) uses the in-memory store while the flag is false, the CLI says the co-op host commits through the durable journal store selectCampaignEventStore hands it; the code reads as the CLI says for the server host (CampaignHostRegistry.ts:287-293, getCampaignEventStore.ts:108-136) and as the spec says only for the browser-side coopRuntimeSession (coopRuntimeSession.ts:101). In the paths; not corrected because the unit stops at admission."
+    },
+    {
+      "id": "F3",
+      "file": "src/lib/multiplayer/server/CampaignHostRegistry.ts:375-387",
+      "finding": "INFERENCE (read, not run): a rehydrated co-op host registers with the match meta's creation-time state, not the journal projection, so after a restart its in-memory state is the creation snapshot while the journal holds later events"
+    }
+  ],
+  "nonClaims": [
+    "No product or test file was changed; the worktree ends clean except this receipt. The probe suite existed only during the measurement and is preserved as a scratchpad copy with its sha256.",
+    "The co-op measurement (c1) drives CampaignMatchHost directly, not through a socket, the GM arbiter or a browser; the host browser's projection was applied with the same function the surface calls (applyAuthoritativeStateToGuestCampaign), not by a rendered surface.",
+    "AcceptContract and AllocateSalvage through the co-op door were not run; their loss is read from the projection code.",
+    "The route rows (r1-r3) are measurements of the ruled scenario; the route has no production caller, so they are not a real-flow finding by themselves.",
+    "No build, no Playwright run, no tsc/oxlint/oxfmt/lint:units/qc:openspec-ci gate: there is no change to gate.",
+    "The flip estimate and file list are INFERENCE for re-admission, not measured."
+  ],
+  "decision": "BLOCKED at admission by the owner-ruled gate: --next printed U35d on the baseline and the validator passed, but a real co-op flow loses a journal-only effect at the host's next whole-envelope save under the flip; plan the successor (proposedSuccessor) before the flip"
+}

@@ -15726,6 +15726,24 @@
         "gateLocation20260923": "The owner chose scripts/qc/boundaries (PK-boundary-gate-location, option a): the gate lives beside the other QC gates the loop-harness node owns, so the 'scripts/qc' strings on U63, U65, U66 and U75-U78 stand.",
         "renameMap20260923": "Sub-decision 6 as the owner chose it: one tooling PR teaches validate-roadmap.mjs the map, and historical records stay unchanged. U83 splits Phase 5's scaffolding into successors and the rename map lands first, as its own docs unit on R0.plan, ahead of the scaffolding code unit: validate-roadmap.mjs is owned only through the planning directory (R0.plan, R0.publish and R9.close), the scaffolding's code paths sit on R6.loop-harness, and a unit may own only exact strings of its own node (validate-roadmap.mjs:369)."
       }
+    },
+    {
+      "id": "OD-u35d-server-and-host-fix",
+      "raisedAtUtc": "2026-09-23T03:19:10.940Z",
+      "raisedBy": "U35d's admission (evidence/u35d-admission-20260923.json rulingGate), which ran the gate the owner's ruling on U35b added; put to the owner by the parent as a structured question with three options",
+      "node": "R2.authority-cutover",
+      "question": "U35d is blocked: after the flip, a co-op hire (and, by the code, an accepted contract or salvage allocation) is erased by the host's next autosave, because a checkpoint always rebuilds pilots, contracts and salvage as empty. Which fix goes in before the flip?",
+      "evidence": [
+        "evidence/u35d-admission-20260923.json rulingGate (rows r1-r3, c1; the real-flow analysis with file:line)",
+        "src/lib/campaign/authority/campaignSourceGenesis.ts:57-89 (the projection leaves pilots, contracts and the salvage pool empty)",
+        "src/stores/campaign/useCampaignPersistenceStore.ts:832-858 (a refused save rolls back with a toast) and :1323 (refreshAfterCommittedCommand, which nothing calls)"
+      ],
+      "decidedAtUtc": "2026-09-23T03:20:06.264Z",
+      "decision": "Two units before the flip. U35e (server): a checkpoint keeps the journal's pilots, contracts and salvage, and every journal command also rewrites the saved record in the same transaction, as AcceptContract already does. U35f (host browser): after folding a co-op update, the host takes the new saved-record version, so its next save is not refused. The other options were a checkpoint-only fix leaving a save-versus-update race, and the server fix with a refused-save toast after each co-op command.",
+      "decisionSource": "owner answer to the parent's structured question in the working session (chat), 2026-09-23; the chosen label is quoted verbatim in ownerWords",
+      "ownerWords": "Server + host fix (Recommended)",
+      "disclosure": "The parent wrote the three options and the recommendation; decision is the parent's wording of the chosen option. raisedAtUtc and decidedAtUtc are the question's and the answer's times in the session transcript.",
+      "status": "decided"
     }
   ],
   "infraNotes": {
