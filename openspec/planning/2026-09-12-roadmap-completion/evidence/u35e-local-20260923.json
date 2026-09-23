@@ -1,0 +1,629 @@
+{
+  "unit": "U35e",
+  "stage": "local",
+  "status": "ready",
+  "at": "2026-09-23T03:59:41.753Z",
+  "baseline": "ae80d8ba41ead66e5dff5fde3f716a0bccd8d6cc",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u35e",
+  "branch": "roadmap-u35e-journal-effects-survive-save-20260923",
+  "head": "ae80d8ba41ead66e5dff5fde3f716a0bccd8d6cc",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "runners": {
+    "rows": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35e/run-rows.sh",
+      "sha256": "a9276c3cb4f5b81b09e82720d61c0dae57114540eb5e3638f2cf7afaef8f5f3a"
+    },
+    "gates": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35e/run-gates.sh",
+      "sha256": "521ff1ec29544f8eb56a92c7009af6402f7f53d6bbbd671d1c883d39284b52c1"
+    },
+    "mutants": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35e/run-mutants.mjs",
+      "sha256": "6a7b533020b6957963479b6e2ef2d885db70536afd4bb68327053497087ac21a"
+    },
+    "receiptWriter": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35e/write-local.mjs",
+      "sha256": "e18919c145fa60aabb17f3359e9548470636206bc8085d6cf289ee32fa0b9799"
+    }
+  },
+  "behaviorDelivered": [
+    "(1) saveCampaignRecordThroughJournal's prepare reads the campaign's root-branch journal state on the writer handle (readCampaignJournalState) and campaignSnapshotCommand replaces the projection's pilots, contracts and salvagePool with the journal's, so a record checkpoint keeps them; a genesis commits only on an empty stream, so it carries nothing (row g).",
+    "(2) appendCampaignCommandBatch takes an after-commit hook run on the SQLite writer handle inside appendWithExtension, only when the command id had no recorded batch before the append; the command pipeline passes rewriteCampaignRecordAfterCommand, and bindJournalCapabilityPorts installs it on the store the co-op host door uses (selectCampaignEventStore), whose appendCommandBatch passes it. On a campaign whose marker is in journal state and that has a saved record, the rewrite writes the stored record back at version + 1 with the journal's post-command balance and (when the stored date does not map to the journal day) currentDate = campaignStartDate + day, through campaignRecordRow.write; a stale whole-envelope PUT then answers 409 with that record."
+  ],
+  "files": [
+    {
+      "file": "src/lib/campaign/authority/campaignCommandPipeline.ts",
+      "added": 16,
+      "removed": 7,
+      "category": "product",
+      "sha256": "5a3b228650e5e5677516a1874e51662ae0de9e248f4884dec90774a512e7531c"
+    },
+    {
+      "file": "src/lib/campaign/authority/campaignRecordJournalSave.ts",
+      "added": 10,
+      "removed": 3,
+      "category": "product",
+      "sha256": "22fd574232e9700149c5928b5769055a2feff0c2def95811b30319e8bd71075e"
+    },
+    {
+      "file": "src/lib/campaign/authority/campaignSourceGenesis.ts",
+      "added": 27,
+      "removed": 6,
+      "category": "product",
+      "sha256": "8bbc78dea04721a8c25cf5a4ad9ff355633351f2ce4878d39848a91e93356d98"
+    },
+    {
+      "file": "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+      "added": 52,
+      "removed": 12,
+      "category": "product",
+      "sha256": "6a18ce9579710697d5ff31f84ac54dccd7a398c8fff7af114825039f36d008da"
+    },
+    {
+      "file": "src/lib/campaign/sync/journalCapabilityPorts.ts",
+      "added": 16,
+      "removed": 2,
+      "category": "product",
+      "sha256": "1e49c7b033ab6d0ae7d26ef841d27151716f0550a8078b31595fe23d28c833e8"
+    },
+    {
+      "file": "src/services/campaignPersistence/CampaignMigrationMarkerStore.ts",
+      "added": 6,
+      "removed": 1,
+      "category": "product",
+      "sha256": "315539d8b01afc30ac95d8d86c7c8e54d85c89a6a384fce0cca2efad919024dd"
+    },
+    {
+      "file": "src/__tests__/api/campaigns/campaignJournalEffectsFixture.ts",
+      "added": 340,
+      "removed": 0,
+      "new": true,
+      "category": "test",
+      "sha256": "75a0590db554c17dcd362f556966bd58e9dd8e8ae5991a810f54eeb0db66d665"
+    },
+    {
+      "file": "src/__tests__/api/campaigns/campaignJournalEffectsSurviveSave.test.ts",
+      "added": 347,
+      "removed": 0,
+      "new": true,
+      "category": "test",
+      "sha256": "d638514d7df54c897d2414ee2290f30c50c99787bb5896d60d0d4da2de6751f5"
+    },
+    {
+      "file": "src/__tests__/api/campaigns/campaignRecordCommandRewrite.test.ts",
+      "added": 237,
+      "removed": 0,
+      "new": true,
+      "category": "test",
+      "sha256": "78d174b7a510a249ab9041488c431afcde443e942f45ac119aa3a0a0051fc71e"
+    },
+    {
+      "file": "src/lib/campaign/authority/campaignRecordJournalState.ts",
+      "added": 125,
+      "removed": 0,
+      "new": true,
+      "category": "product",
+      "sha256": "2ecb1c536f91d0ea2cbec667b1a7ba69199d0f5a7a7131cc2dbd35a8456ca548"
+    }
+  ],
+  "lineCounts": {
+    "rule": "added + removed lines per git diff --numstat for tracked files; line count for new files; product vs test (owner decision OD-line-cap-product-lines)",
+    "productFiles": 7,
+    "productLines": 283,
+    "productAdded": 252,
+    "productRemoved": 31,
+    "testFiles": 3,
+    "testLines": 924,
+    "totalFiles": 10,
+    "caps": {
+      "maxFiles": 15,
+      "maxNonGeneratedLines": 500
+    },
+    "withinCaps": true,
+    "receiptsNotCounted": [
+      "u35e-admission-20260923.json",
+      "u35e-red-20260923.json",
+      "u35e-local-20260923.json"
+    ]
+  },
+  "split": "none: (1) and (2) landed together within the caps (as the admission estimated)",
+  "flipRuns": {
+    "how": "run-rows.sh: both new suites with the constant false, then under U35d flip.mjs (the constant line set true in the worktree store file), then the file restored from a byte copy taken before the flip and its sha256 compared",
+    "local": {
+      "flagfalse": {
+        "campaignJournalEffectsSurviveSave": {
+          "exitCode": 0,
+          "counts": "Tests:       6 passed, 6 total",
+          "rowResults": [
+            "√ (r1) SpendFunds through the command route survives a stale and a current whole-envelope PUT",
+            "√ (r2) AdvanceDay through the command route survives a stale and a current whole-envelope PUT",
+            "√ (r3) HirePilot through the command route survives a stale and a current whole-envelope PUT",
+            "√ (c1) HirePilot through the co-op host door survives the host fold save and the current save",
+            "√ (c2) an accepted contract and the salvage pool through the co-op host door survive the host fold save",
+            "√ (s) a whole-envelope PUT at the pre-command version after a committed command answers 409 with the server record"
+          ],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35e/logs/local-flagfalse-campaignJournalEffectsSurviveSave.log",
+            "sha256": "a135dc9cb278b2cbdaf15b4c581042269a308289e441829a2fd443ef6d568dbd"
+          }
+        },
+        "campaignRecordCommandRewrite": {
+          "exitCode": 0,
+          "counts": "Tests:       5 passed, 5 total",
+          "rowResults": [
+            "√ (g) a genesis carries no journal state, even beside a campaign whose journal holds a pilot",
+            "√ (n) a journal stream with no saved record commits co-op commands and gains no record",
+            "√ (a) a snapshot-authority campaign keeps its record untouched by a co-op command",
+            "√ (t) a record rewrite that fails rolls the co-op command append back",
+            "√ (i) the same command appended by two store instances commits once and rewrites the record once"
+          ],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35e/logs/local-flagfalse-campaignRecordCommandRewrite.log",
+            "sha256": "2019a8a8a1190b079a564d4d362f4fc6e09c6c5547f6aaee2b2eb07ca6995ba8"
+          }
+        }
+      },
+      "flipped": {
+        "campaignJournalEffectsSurviveSave": {
+          "exitCode": 0,
+          "counts": "Tests:       6 passed, 6 total",
+          "rowResults": [
+            "√ (r1) SpendFunds through the command route survives a stale and a current whole-envelope PUT",
+            "√ (r2) AdvanceDay through the command route survives a stale and a current whole-envelope PUT",
+            "√ (r3) HirePilot through the command route survives a stale and a current whole-envelope PUT",
+            "√ (c1) HirePilot through the co-op host door survives the host fold save and the current save",
+            "√ (c2) an accepted contract and the salvage pool through the co-op host door survive the host fold save",
+            "√ (s) a whole-envelope PUT at the pre-command version after a committed command answers 409 with the server record"
+          ],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35e/logs/local-flipped-campaignJournalEffectsSurviveSave.log",
+            "sha256": "9530419324f7989e92097ac0ff93eb6c0823b26e922344e843bbbc4e210b69b2"
+          }
+        },
+        "campaignRecordCommandRewrite": {
+          "exitCode": 0,
+          "counts": "Tests:       5 passed, 5 total",
+          "rowResults": [
+            "√ (g) a genesis carries no journal state, even beside a campaign whose journal holds a pilot",
+            "√ (n) a journal stream with no saved record commits co-op commands and gains no record",
+            "√ (a) a snapshot-authority campaign keeps its record untouched by a co-op command",
+            "√ (t) a record rewrite that fails rolls the co-op command append back",
+            "√ (i) the same command appended by two store instances commits once and rewrites the record once"
+          ],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35e/logs/local-flipped-campaignRecordCommandRewrite.log",
+            "sha256": "e7cfd0b3b34bdf37fb937c04156a44ccf56d372d264d7e215ad91845e0824b3b"
+          }
+        }
+      },
+      "restore": {
+        "preSha256": "6a18ce9579710697d5ff31f84ac54dccd7a398c8fff7af114825039f36d008da",
+        "flippedSha256": "3124b3cb9489252787fae9b1ee8d97d4164a678c813636bcacef6d78bc92ab10",
+        "restoredSha256": "6a18ce9579710697d5ff31f84ac54dccd7a398c8fff7af114825039f36d008da",
+        "identical": "true",
+        "flip": "FLIPPED",
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35e/logs/local-restore.log",
+          "sha256": "261b4f9e1b9f1a989fd03872b674af465ce66211ffb1ca31c1cf1b0e9841ef85"
+        }
+      }
+    },
+    "final": {
+      "flagfalse": {
+        "campaignJournalEffectsSurviveSave": {
+          "exitCode": 0,
+          "counts": "Tests:       6 passed, 6 total",
+          "rowResults": [
+            "√ (r1) SpendFunds through the command route survives a stale and a current whole-envelope PUT",
+            "√ (r2) AdvanceDay through the command route survives a stale and a current whole-envelope PUT",
+            "√ (r3) HirePilot through the command route survives a stale and a current whole-envelope PUT",
+            "√ (c1) HirePilot through the co-op host door survives the host fold save and the current save",
+            "√ (c2) an accepted contract and the salvage pool through the co-op host door survive the host fold save",
+            "√ (s) a whole-envelope PUT at the pre-command version after a committed command answers 409 with the server record"
+          ],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35e/logs/final-flagfalse-campaignJournalEffectsSurviveSave.log",
+            "sha256": "d18cd3afb93b11b49954443203a11098a21af7eb0bdaac6a1047e040c4d25d78"
+          }
+        },
+        "campaignRecordCommandRewrite": {
+          "exitCode": 0,
+          "counts": "Tests:       5 passed, 5 total",
+          "rowResults": [
+            "√ (g) a genesis carries no journal state, even beside a campaign whose journal holds a pilot",
+            "√ (n) a journal stream with no saved record commits co-op commands and gains no record",
+            "√ (a) a snapshot-authority campaign keeps its record untouched by a co-op command",
+            "√ (t) a record rewrite that fails rolls the co-op command append back",
+            "√ (i) the same command appended by two store instances commits once and rewrites the record once"
+          ],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35e/logs/final-flagfalse-campaignRecordCommandRewrite.log",
+            "sha256": "4619b4df1682aba7a2a80e7803674dd3f5279f5a7633e569faace77d952db0fc"
+          }
+        }
+      },
+      "flipped": {
+        "campaignJournalEffectsSurviveSave": {
+          "exitCode": 0,
+          "counts": "Tests:       6 passed, 6 total",
+          "rowResults": [
+            "√ (r1) SpendFunds through the command route survives a stale and a current whole-envelope PUT",
+            "√ (r2) AdvanceDay through the command route survives a stale and a current whole-envelope PUT",
+            "√ (r3) HirePilot through the command route survives a stale and a current whole-envelope PUT",
+            "√ (c1) HirePilot through the co-op host door survives the host fold save and the current save",
+            "√ (c2) an accepted contract and the salvage pool through the co-op host door survive the host fold save",
+            "√ (s) a whole-envelope PUT at the pre-command version after a committed command answers 409 with the server record"
+          ],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35e/logs/final-flipped-campaignJournalEffectsSurviveSave.log",
+            "sha256": "bda14906f91464a0f609899cc1123fbb46a8c82ae7f1c2316a61be6d6d37e9b9"
+          }
+        },
+        "campaignRecordCommandRewrite": {
+          "exitCode": 0,
+          "counts": "Tests:       5 passed, 5 total",
+          "rowResults": [
+            "√ (g) a genesis carries no journal state, even beside a campaign whose journal holds a pilot",
+            "√ (n) a journal stream with no saved record commits co-op commands and gains no record",
+            "√ (a) a snapshot-authority campaign keeps its record untouched by a co-op command",
+            "√ (t) a record rewrite that fails rolls the co-op command append back",
+            "√ (i) the same command appended by two store instances commits once and rewrites the record once"
+          ],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35e/logs/final-flipped-campaignRecordCommandRewrite.log",
+            "sha256": "481064025fda080370fb5543275c0d4862e275459baebea60f564a53e956d9a1"
+          }
+        }
+      },
+      "restore": {
+        "preSha256": "6a18ce9579710697d5ff31f84ac54dccd7a398c8fff7af114825039f36d008da",
+        "flippedSha256": "3124b3cb9489252787fae9b1ee8d97d4164a678c813636bcacef6d78bc92ab10",
+        "restoredSha256": "6a18ce9579710697d5ff31f84ac54dccd7a398c8fff7af114825039f36d008da",
+        "identical": "true",
+        "flip": "FLIPPED",
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35e/logs/final-restore.log",
+          "sha256": "261b4f9e1b9f1a989fd03872b674af465ce66211ffb1ca31c1cf1b0e9841ef85"
+        }
+      }
+    },
+    "noteOnFlagFile": "The store file JournalCampaignEventStore.ts holds both the flag constant and the store's batch append this unit changes, so its bytes differ from the baseline by the product change; the constant line itself is unchanged (git diff -U0 of the file has no line naming CAMPAIGN_JOURNAL_AUTHORITY_ENABLED; export const CAMPAIGN_JOURNAL_AUTHORITY_ENABLED = false; at :86), and every flip restored the file to its pre-flip sha256."
+  },
+  "gates": {
+    "jestCampaign": {
+      "command": "npx jest src/lib/campaign",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\campaign/i.",
+      "counts": "Test Suites: 203 passed, 203 total | Tests:       2973 passed, 2973 total",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35e/logs/local-jest-campaign.log",
+        "sha256": "6b7db1fc168bc672584eac6a9277e39f509c7e05bfb14a588d9878377e8e54ab"
+      }
+    },
+    "jestCampaignPersistence": {
+      "command": "npx jest src/services/campaignPersistence",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\services\\\\campaignPersistence/i.",
+      "counts": "Test Suites: 4 passed, 4 total | Tests:       23 passed, 23 total",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35e/logs/local-jest-persistence.log",
+        "sha256": "5ee16a2f422b97e2625b889a429be3e976648b2a7a4c3bbc0533609b9b6f9c83"
+      }
+    },
+    "jestApi": {
+      "command": "npx jest src/__tests__/api",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\api/i.",
+      "counts": "Test Suites: 57 passed, 57 total | Tests:       772 passed, 772 total",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35e/logs/final-jest-api.log",
+        "sha256": "e8b30f453bfa1f1ebdaee4cacd0379b6e2701f21c916bcf2feaac6c4be8827e5"
+      }
+    },
+    "jestUnitApi": {
+      "command": "npx jest src/__tests__/unit/api",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\unit\\\\api/i.",
+      "counts": "Test Suites: 6 passed, 6 total | Tests:       35 passed, 35 total",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35e/logs/local-jest-unit-api.log",
+        "sha256": "292428f878b1618970be16617490a88b2ddda496c3c4ea4641d76d5c4422b820"
+      }
+    },
+    "jestMultiplayerServer": {
+      "command": "npx jest src/lib/multiplayer/server",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\multiplayer\\\\server/i.",
+      "counts": "Test Suites: 157 passed, 157 total | Tests:       1164 passed, 1164 total",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35e/logs/local-jest-mp-server.log",
+        "sha256": "c6d9fd1786bda171e7fc7d0a34eb32753f2b51a1c5baadca887293b83b65d067"
+      }
+    },
+    "jestEventsJournal": {
+      "command": "npx jest src/lib/events/journal",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\events\\\\journal/i.",
+      "counts": "Test Suites: 23 passed, 23 total | Tests:       243 passed, 243 total",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35e/logs/local-jest-journal.log",
+        "sha256": "5027c113a37f3a81e9da589d633c4c4f8a4de37d48ba77719ef428c3867ac1d6"
+      }
+    },
+    "tsc": {
+      "command": "npx tsc --noEmit",
+      "exitCode": 0,
+      "lastLine": "(no output)",
+      "counts": null,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35e/logs/final-tsc.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "oxlint": {
+      "command": "npx oxlint",
+      "exitCode": 0,
+      "lastLine": "Finished in 224ms on 3818 files using 16 threads.",
+      "counts": "Found 84 warnings and 0 errors.",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35e/logs/final-oxlint.log",
+        "sha256": "b8f3e2c17dfbe673be34b05b57dd8ed1004540b0136813b46f81be2a9273f3b0"
+      },
+      "versusBaselineWarnings": 84
+    },
+    "oxfmt": {
+      "command": "npx oxfmt --check <the 10 changed .ts files>",
+      "exitCode": 0,
+      "lastLine": "Finished in 16ms on 10 files using 16 threads.",
+      "counts": null,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35e/logs/local-oxfmt.log",
+        "sha256": "6627e4af8103228a8ef483dd4f23bfe07f7ff90157b6fba0c3a4900170377809"
+      }
+    },
+    "lintUnits": {
+      "command": "npm run lint:units",
+      "exitCode": 0,
+      "lastLine": "LINT_UNITS_PASS 100/100",
+      "counts": null,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35e/logs/local-lint-units.log",
+        "sha256": "e055631f9348b2e6539c922dddc1fe388b583448a734da5f618cb47c583fae2d"
+      }
+    },
+    "openspecCi": {
+      "command": "npm run qc:openspec-ci:validate",
+      "exitCode": 0,
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+      "counts": null,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35e/logs/local-openspec-ci.log",
+        "sha256": "4c2dafd093b946290aa4abe001ad8b3d65671b17c7682722c55a510ecc04f91e"
+      }
+    },
+    "roadmapValidator": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "exitCode": 0,
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "counts": null,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35e/logs/local-validator.log",
+        "sha256": "97b2f29d264078525a55c5f88586fb95603311fa065e70d7d17c5fab08f5b5bc"
+      }
+    },
+    "orderNote": "The jest directory gates other than src/__tests__/api ran before a formatting-only oxfmt write to src/__tests__/api/campaigns/campaignJournalEffectsFixture.ts (a signature line joined); jest-api, tsc and oxlint were re-run after it (label final), and the final flip runs cover the two suites that import the fixture. The first oxfmt gate (logs/local-oxfmt.log was overwritten by the re-run) had flagged that file."
+  },
+  "mutants": [
+    {
+      "id": "M1",
+      "what": "the checkpoint drops the journal's pilots again (the snapshot keeps the projection's empty pilots)",
+      "file": "src/lib/campaign/authority/campaignSourceGenesis.ts",
+      "caught": true,
+      "caughtBy": [
+        "× (r3) HirePilot through the command route survives a stale and a current whole-envelope PUT",
+        "× (c1) HirePilot through the co-op host door survives the host fold save and the current save"
+      ],
+      "suites": [
+        {
+          "suite": "src/__tests__/api/campaigns/campaignJournalEffectsSurviveSave.test.ts",
+          "exitCode": 1,
+          "counts": "Tests:       2 failed, 4 passed, 6 total",
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35e/logs/mutant-M1-campaignJournalEffectsSurviveSave.test.ts.log",
+            "sha256": "182f45076001d87e35a0a09578a9196f335a1f7d4e64f5deeda2ce9629b67d21"
+          }
+        }
+      ],
+      "preMutantSha256": "8bbc78dea04721a8c25cf5a4ad9ff355633351f2ce4878d39848a91e93356d98",
+      "mutantSha256": "f54b4fb12868ff683b9e7375575309f9c008007dc45b97b13ee8b1b6a4de078e",
+      "restoredSha256": "8bbc78dea04721a8c25cf5a4ad9ff355633351f2ce4878d39848a91e93356d98",
+      "restoredIdentical": true,
+      "restoredFrom": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35e/mutant-M1.pre-mutant.copy"
+    },
+    {
+      "id": "M2",
+      "what": "a command appends without rewriting the row (the after-commit hook is never run)",
+      "file": "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+      "caught": true,
+      "caughtBy": [
+        "× (r1) SpendFunds through the command route survives a stale and a current whole-envelope PUT",
+        "× (r2) AdvanceDay through the command route survives a stale and a current whole-envelope PUT",
+        "× (r3) HirePilot through the command route survives a stale and a current whole-envelope PUT",
+        "× (c1) HirePilot through the co-op host door survives the host fold save and the current save",
+        "× (c2) an accepted contract and the salvage pool through the co-op host door survive the host fold save",
+        "× (s) a whole-envelope PUT at the pre-command version after a committed command answers 409 with the server record",
+        "× (t) a record rewrite that fails rolls the co-op command append back",
+        "× (i) the same command appended by two store instances commits once and rewrites the record once"
+      ],
+      "suites": [
+        {
+          "suite": "src/__tests__/api/campaigns/campaignJournalEffectsSurviveSave.test.ts",
+          "exitCode": 1,
+          "counts": "Tests:       6 failed, 6 total",
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35e/logs/mutant-M2-campaignJournalEffectsSurviveSave.test.ts.log",
+            "sha256": "6935c93947ece7275fe40942b484bda5fca3e6353ed95dd406017be830f3b57f"
+          }
+        },
+        {
+          "suite": "src/__tests__/api/campaigns/campaignRecordCommandRewrite.test.ts",
+          "exitCode": 1,
+          "counts": "Tests:       2 failed, 3 passed, 5 total",
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35e/logs/mutant-M2-campaignRecordCommandRewrite.test.ts.log",
+            "sha256": "2248c1825c9b8e13b3c66c9f548decb0100816aaf21f233403f5ed28c94d2d4c"
+          }
+        }
+      ],
+      "preMutantSha256": "6a18ce9579710697d5ff31f84ac54dccd7a398c8fff7af114825039f36d008da",
+      "mutantSha256": "4831c10c0ae6666900b9583d23ace5e141030900a2f3d88f424a7eb0ec8cb4aa",
+      "restoredSha256": "6a18ce9579710697d5ff31f84ac54dccd7a398c8fff7af114825039f36d008da",
+      "restoredIdentical": true,
+      "restoredFrom": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35e/mutant-M2.pre-mutant.copy"
+    },
+    {
+      "id": "M3",
+      "what": "the row rewrite runs outside the append's transaction (after the writer's transaction commits, on the same handle)",
+      "file": "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+      "caught": true,
+      "caughtBy": [
+        "× (t) a record rewrite that fails rolls the co-op command append back"
+      ],
+      "suites": [
+        {
+          "suite": "src/__tests__/api/campaigns/campaignRecordCommandRewrite.test.ts",
+          "exitCode": 1,
+          "counts": "Tests:       1 failed, 4 passed, 5 total",
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35e/logs/mutant-M3-campaignRecordCommandRewrite.test.ts.log",
+            "sha256": "d3a27ef9c87b819844aedc6ad033d0002d15cb7f039d818e1daefa08224794ce"
+          }
+        }
+      ],
+      "preMutantSha256": "6a18ce9579710697d5ff31f84ac54dccd7a398c8fff7af114825039f36d008da",
+      "mutantSha256": "86d83284c2275fea1b142fcfd0edf1eea807f6a5f1628c3e8962bd105c29d34e",
+      "restoredSha256": "6a18ce9579710697d5ff31f84ac54dccd7a398c8fff7af114825039f36d008da",
+      "restoredIdentical": true,
+      "restoredFrom": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35e/mutant-M3.pre-mutant.copy"
+    },
+    {
+      "id": "M4",
+      "what": "the genesis carries forward journal state it cannot have (the snapshot's journal read is not limited to its own stream, so a genesis carries another campaign's pilot)",
+      "file": "src/lib/campaign/authority/campaignRecordJournalState.ts",
+      "caught": true,
+      "caughtBy": [
+        "× (g) a genesis carries no journal state, even beside a campaign whose journal holds a pilot"
+      ],
+      "suites": [
+        {
+          "suite": "src/__tests__/api/campaigns/campaignRecordCommandRewrite.test.ts",
+          "exitCode": 1,
+          "counts": "Tests:       1 failed, 4 passed, 5 total",
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35e/logs/mutant-M4-campaignRecordCommandRewrite.test.ts.log",
+            "sha256": "911354f655f50bce37ba355cb11b94a492478e9a0c0ef277f3d3e174508877ea"
+          }
+        }
+      ],
+      "preMutantSha256": "2ecb1c536f91d0ea2cbec667b1a7ba69199d0f5a7a7131cc2dbd35a8456ca548",
+      "mutantSha256": "435c9f5a033b809d49086d9d11bf6f703baee8283e48b9eea8462f23b80fe391",
+      "restoredSha256": "2ecb1c536f91d0ea2cbec667b1a7ba69199d0f5a7a7131cc2dbd35a8456ca548",
+      "restoredIdentical": true,
+      "restoredFrom": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35e/mutant-M4.pre-mutant.copy"
+    },
+    {
+      "id": "M5",
+      "what": "the replay guard is removed (a command id the writer answers from its recorded batch rewrites the row again)",
+      "file": "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+      "caught": true,
+      "caughtBy": [
+        "× (i) the same command appended by two store instances commits once and rewrites the record once"
+      ],
+      "suites": [
+        {
+          "suite": "src/__tests__/api/campaigns/campaignRecordCommandRewrite.test.ts",
+          "exitCode": 1,
+          "counts": "Tests:       1 failed, 4 passed, 5 total",
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35e/logs/mutant-M5-campaignRecordCommandRewrite.test.ts.log",
+            "sha256": "490a181fa7d8d1b25b951d3031b4d2ac60af8548aebfdbee38ce5762dd5b9ac5"
+          }
+        }
+      ],
+      "preMutantSha256": "6a18ce9579710697d5ff31f84ac54dccd7a398c8fff7af114825039f36d008da",
+      "mutantSha256": "7b9b42beea7ec2b6ab8095c3b3a832d420ab5d6b8f1684bf192310038830ccfb",
+      "restoredSha256": "6a18ce9579710697d5ff31f84ac54dccd7a398c8fff7af114825039f36d008da",
+      "restoredIdentical": true,
+      "restoredFrom": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35e/mutant-M5.pre-mutant.copy"
+    },
+    {
+      "id": "M6",
+      "what": "the authority gate is removed (a snapshot-authority campaign row is rewritten by a co-op command)",
+      "file": "src/lib/campaign/authority/campaignRecordJournalState.ts",
+      "caught": true,
+      "caughtBy": [
+        "× (a) a snapshot-authority campaign keeps its record untouched by a co-op command"
+      ],
+      "suites": [
+        {
+          "suite": "src/__tests__/api/campaigns/campaignRecordCommandRewrite.test.ts",
+          "exitCode": 1,
+          "counts": "Tests:       1 failed, 4 passed, 5 total",
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35e/logs/mutant-M6-campaignRecordCommandRewrite.test.ts.log",
+            "sha256": "fd31c70472f355e58a5516c9673e9d0657cf53f7c47431fab02ff4d3ba8b0253"
+          }
+        }
+      ],
+      "preMutantSha256": "2ecb1c536f91d0ea2cbec667b1a7ba69199d0f5a7a7131cc2dbd35a8456ca548",
+      "mutantSha256": "d38b676924e7097f87873cb3f197a7265e267b772a7fdb5b7b74bd6462ae8cdd",
+      "restoredSha256": "2ecb1c536f91d0ea2cbec667b1a7ba69199d0f5a7a7131cc2dbd35a8456ca548",
+      "restoredIdentical": true,
+      "restoredFrom": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35e/mutant-M6.pre-mutant.copy"
+    }
+  ],
+  "mutantsLog": {
+    "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35e/logs/mutants-all.json",
+    "sha256": "94d19dd5d22d8de5eec47fa6959f187846b35d179100bb76ed7608775ae5870b"
+  },
+  "nonClaims": [
+    "No build and no Playwright: the store module JournalCampaignEventStore.ts is browser-reachable (createDefaultCampaignEventStore); its only new import is `import type Database from better-sqlite3` (type-only), and the rewrite reaches the store through the server binder, but no client bundle was built to prove it.",
+    "The co-op rows drive CampaignMatchHost directly over selectCampaignEventStore().store, not through a socket, the GM arbiter or a browser; the host fold is applied with applyAuthoritativeStateToGuestCampaign, and the host taking the server record after a 409 (U35f) is simulated by a GET and a PUT of that record.",
+    "The rewrite and the checkpoint read the root branch only (as the U35b checkpoint does); no row activates a non-root campaign branch.",
+    "The synchronous journal read parses stored payloads without re-verifying each event digest.",
+    "M1 mutates the pilots carry only; the contracts and salvagePool carry are exercised by row c2, not by a mutant.",
+    "Rows t and i pin behavior this unit adds; they are not reproductions of a reported failure.",
+    "No ladder group was run; the e2e-armed co-op flows after the change are not measured."
+  ],
+  "findingsReportedNotFixed": [
+    {
+      "id": "F1",
+      "file": "src/lib/campaign/sync/JournalCampaignEventStore.ts:467 (appendCombatOutcomeBatch); src/lib/multiplayer/server/CampaignMatchHostOutcomeInbox.ts:71-95",
+      "finding": "combat-outcome consequences append through the store's appendCombatOutcomeBatch, not appendCommandBatch, and do not rewrite the saved record; a balance they change is still overwritten by a stale whole-envelope checkpoint (read, not run; outside the sentence, which names the store's batch append)"
+    },
+    {
+      "id": "F2",
+      "file": "src/lib/campaign/authority/campaignSourceGenesis.ts:66-88 (rosterUnits from the envelope)",
+      "finding": "SalvageAllocated.recoveredUnit and RosterUnitChanged change the journal rosterUnits; the envelope represents rosterUnits (rosterProjection) but neither the rewrite nor the checkpoint carries them, so a checkpoint from an envelope without the change drops it (INFERENCE from the code, not run; outside the sentence, which names pilots, contracts and salvagePool)"
+    },
+    {
+      "id": "F3",
+      "file": "src/lib/campaign/authority/campaignSourceGenesis.ts:157-171 (dayBetween)",
+      "finding": "a record without campaignStartDate projects day 0 whatever its date, so an AdvanceDay on such a campaign cannot be represented by the rewrite and a checkpoint resets the journal day (read, not run)"
+    },
+    {
+      "id": "F4",
+      "file": "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+      "finding": "the charter's final check asks for the flag file byte-identical to the baseline, but the unit's sentence places the change at the store's batch append, which lives in that file; the constant line is unchanged and every temporary flip was restored byte-identically (flipRuns)"
+    }
+  ],
+  "risksForTheParent": [
+    "Authority: on a journal-native campaign every committed command through the route or the co-op door now writes the saved record (version + 1). Until U35f, a journal-native co-op host's next autosave after a co-op command answers 409 and rolls back to the server record with a toast (useCampaignPersistenceStore.ts:825-845); today only e2e-armed runs have journal-native co-op campaigns (not measured).",
+    "Authority gate: the rewrite skips campaigns whose marker is not in journal state (row a, mutant M6); the parent should confirm this reading of the sentence (admission designAnswers.authorityGate).",
+    "Idempotency: a command id the writer answers from its recorded batch does not rewrite again (row i, mutant M5).",
+    "Concurrency: the rewrite is inside the append transaction (row t, mutant M3); a whole-envelope PUT built before a command answers 409 (rows r1-r3, c1, c2, s).",
+    "Migration: none; the rewrite spreads the raw stored JSON (no read migration ladder), as the AcceptContract materialization does.",
+    "Lane B: authority, idempotency, concurrency and migration classes need the owner ruling on the merged head."
+  ],
+  "gitStatusShort": " M src/lib/campaign/authority/campaignCommandPipeline.ts\n M src/lib/campaign/authority/campaignRecordJournalSave.ts\n M src/lib/campaign/authority/campaignSourceGenesis.ts\n M src/lib/campaign/sync/JournalCampaignEventStore.ts\n M src/lib/campaign/sync/journalCapabilityPorts.ts\n M src/services/campaignPersistence/CampaignMigrationMarkerStore.ts\n?? openspec/planning/2026-09-12-roadmap-completion/evidence/u35e-admission-20260923.json\n?? openspec/planning/2026-09-12-roadmap-completion/evidence/u35e-red-20260923.json\n?? src/__tests__/api/campaigns/campaignJournalEffectsFixture.ts\n?? src/__tests__/api/campaigns/campaignJournalEffectsSurviveSave.test.ts\n?? src/__tests__/api/campaigns/campaignRecordCommandRewrite.test.ts\n?? src/lib/campaign/authority/campaignRecordJournalState.ts\n"
+}

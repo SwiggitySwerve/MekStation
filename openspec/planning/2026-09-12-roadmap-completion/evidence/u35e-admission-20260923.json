@@ -1,0 +1,260 @@
+{
+  "unit": "U35e",
+  "stage": "admission",
+  "status": "go",
+  "at": "2026-09-23T03:42:02.426Z",
+  "baseline": "ae80d8ba41ead66e5dff5fde3f716a0bccd8d6cc",
+  "originMain": "ae80d8ba41ead66e5dff5fde3f716a0bccd8d6cc",
+  "originMainSource": "git ls-remote origin refs/heads/main (read-only; no fetch)",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u35e",
+  "branch": "roadmap-u35e-journal-effects-survive-save-20260923",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "node": "R2.authority-cutover",
+  "shellPreamble": [
+    "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "export npm_config_dry_run=true"
+  ],
+  "runners": {
+    "receiptWriter": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35e/write-admission.mjs",
+      "sha256": "b4e555396fdf20daaee37bcace39b10871ca440c2ab5b1dcda935137512e820d"
+    }
+  },
+  "nodeVersion": {
+    "command": "node --version",
+    "lastLine": "v22.22.0",
+    "exitCode": 0,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35e/logs/adm-node-version.log",
+      "sha256": "2172da60c75bfe844a5f085d0b225e7042f650910fb423c59d7f4a937afb0b56"
+    }
+  },
+  "guardNodeModulesLink": {
+    "command": "npm run --silent qc:guard-node-modules-link",
+    "lastLine": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"E:\\\\Projects\\\\MekStation\\\\.sisyphus\\\\roadmap-completion-20260912\\\\worktrees\\\\u35e\\\\node_modules\",\"actualPath\":\"E:\\\\Projects\\\\MekStation\\\\node_modules\"}",
+    "exitCode": 1,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35e/logs/adm-guard.log",
+      "sha256": "f0ae08cc5edc8919e52202ae8ec1b748c21fe9df6247d9d4cecad15e6ce7f37b"
+    },
+    "expected": true,
+    "why": "refusal by design in a junctioned worktree; no npm install/ci/prune or lifecycle is run in this lane (npm_config_dry_run=true exported)"
+  },
+  "nextOnBaseline": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "lastLine": "U35e",
+    "exitCode": 0,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35e/logs/adm-next.log",
+      "sha256": "92d766120953093900e46614e0869f43975eeb6f10bd7fa8329e41f889d195b9"
+    }
+  },
+  "validatorOnBaseline": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+    "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+    "exitCode": 0,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35e/logs/adm-validator.log",
+      "sha256": "97b2f29d264078525a55c5f88586fb95603311fa065e70d7d17c5fab08f5b5bc"
+    }
+  },
+  "gitStatusShortAtAdmission": "",
+  "ownershipPaths": [
+    "src/lib/campaign/authority",
+    "src/lib/campaign/sync",
+    "src/services/campaignPersistence",
+    "src/__tests__/api/campaigns",
+    "src/__tests__/unit/api"
+  ],
+  "readOnlyPaths": [
+    "src/lib/multiplayer/server",
+    "src/lib/events/journal"
+  ],
+  "receiptsOwned": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u35e-admission-20260923.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u35e-red-20260923.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u35e-local-20260923.json"
+  ],
+  "behavior": "units.json U35e (the spec; not widened): journal-only campaign effects survive a whole-envelope save (owner decision OD-u35d-server-and-host-fix, server half). (1) A record checkpoint carries forward the journal's pilots, contracts and salvagePool, which the saved record does not represent, so a checkpoint never erases a journal-only effect; the genesis is unchanged. (2) A committed campaign command that appends without rewriting the campaigns row rewrites the saved record in the same immediate transaction as its append, at the store's batch append that both the command route and the co-op host door call, so the row version advances and a whole-envelope PUT at the pre-command version answers 409 with the server record.",
+  "seams": [
+    {
+      "at": "src/lib/campaign/sync/JournalCampaignEventStore.ts:261-312",
+      "what": "appendCampaignCommandBatch: the one function both command callers reach; it appends through journal.append (:289), which on the SQLite writer is appendWithExtension with an extension that only appends (SQLiteEventJournalWriter.ts:49-53)"
+    },
+    {
+      "at": "src/lib/campaign/sync/JournalCampaignEventStore.ts:380-405",
+      "what": "the store's appendCommandBatch: receipt pre-check (:387-395), then appendCampaignCommandBatch (:396)"
+    },
+    {
+      "at": "src/lib/campaign/sync/JournalCampaignEventStore.ts:357-366,480-496",
+      "what": "the constructor runs a server-passed capabilityPorts binder (:365); the module is browser-reachable through createDefaultCampaignEventStore (comment :490-492), so it must not import SQLite-bound code"
+    },
+    {
+      "at": "src/lib/campaign/authority/campaignCommandPipeline.ts:548-553 (executeCampaignCommand :405; called by src/pages/api/campaigns/[id]/commands.ts:186)",
+      "what": "the command route: every non-AcceptContract command appends through appendCampaignCommandBatch(deps.journal, ...) and never writes the row"
+    },
+    {
+      "at": "src/lib/campaign/authority/campaignCommandPipeline.ts:501-518; src/lib/campaign/authority/campaignAcceptContractCommand.ts:457-620 (row write :597-613)",
+      "what": "the route's AcceptContract: its own prepared transaction that already rewrites the row (materializeCampaignSourceRow, src/services/campaignPersistence/campaignSourceMaterialization.ts:60-121); not touched"
+    },
+    {
+      "at": "src/lib/multiplayer/server/campaignHostBatchCommit.ts:135-226 (append :156); src/lib/multiplayer/server/CampaignMatchHost.ts:480-486",
+      "what": "the co-op host door (read-only): commitCampaignEventBatch calls the store's appendCommandBatch as a detached function"
+    },
+    {
+      "at": "src/lib/multiplayer/server/getCampaignEventStore.ts:108-136 (store :119-123); src/lib/multiplayer/server/CampaignHostRegistry.ts:287-293",
+      "what": "(read-only) the co-op host's store is the durable JournalCampaignEventStore built with capabilityPorts: bindJournalCapabilityPorts whenever SQLite is initialized, regardless of the journal flag"
+    },
+    {
+      "at": "src/lib/campaign/sync/journalCapabilityPorts.ts:214-239",
+      "what": "bindJournalCapabilityPorts (owned, server-only): the seam that reaches the co-op store without an edit under src/lib/multiplayer/server"
+    },
+    {
+      "at": "src/lib/events/journal/SQLiteEventJournalWriter.ts:60-82,99-138,176-183,192-199",
+      "what": "(read-only) appendWithExtension and appendPreparedWithExtension own one immediate transaction; an already-recorded command id with the same digest is answered with its cached batch as committed (:176-182) before the revision guard (:192-199)"
+    },
+    {
+      "at": "src/lib/campaign/authority/campaignRecordJournalSave.ts:68-139 (prepare :87-111, root head read :43-56)",
+      "what": "U35b's one-transaction save: prepare plans the row and builds the snapshot of the planned record; extend writes the row and appends"
+    },
+    {
+      "at": "src/lib/campaign/authority/campaignSourceGenesis.ts:66-88,157-165,195-240,250-283",
+      "what": "the projection leaves pilots, contracts and salvagePool empty (:66-88); dayBetween (:157-165); campaignSnapshotCommand (:195-240); appendCampaignGenesis, the flag-false seam with no handle (:250-283)"
+    },
+    {
+      "at": "src/lib/campaign/sync/applyCampaignEvent.ts:75",
+      "what": "CampaignSnapshotPublished replaces the projected state wholesale"
+    },
+    {
+      "at": "src/services/campaignPersistence/CampaignPersistenceService.ts:138-221 (plan :140-199, fence guard :176-184, CAS :186-188, write :202-220)",
+      "what": "the borrowed-handle plan and row write; a stale baseVersion is a conflict carrying the stored record"
+    },
+    {
+      "at": "src/services/campaignPersistence/CampaignMigrationMarkerStore.ts:31-51,54-63",
+      "what": "the marker read uses the service handle; the writer already takes an optional handle"
+    },
+    {
+      "at": "src/pages/api/campaigns/[id].ts:198-220,228-255",
+      "what": "(read-only) PUT dispatch: journal authority -> checkpoint through saveCampaignRecordThroughJournal; a conflict answers 409 with current = the stored record"
+    },
+    {
+      "at": "src/lib/multiplayer/server/CampaignMatchHostIntent.ts:146-241",
+      "what": "(read-only) SpendFunds -> FundsChanged(balance), HirePilot -> FundsChanged + PilotHired, AcceptContract -> ContractAccepted, AllocateSalvage -> SalvageAllocated, AdvanceDay -> CampaignDayAdvanced(newDay); no event changes faction standing"
+    },
+    {
+      "at": "src/stores/campaign/useCampaignPersistenceStore.ts:681-683,730-757,825-845",
+      "what": "(outside the paths) a 409 on a co-op campaign save rolls the host back to the server record with a toast; U35f removes that for the host fold"
+    }
+  ],
+  "designAnswers": {
+    "chokepoint": "Both command callers reach appendCampaignCommandBatch (JournalCampaignEventStore.ts:261-312): the route through executeCampaignCommand's batch path (campaignCommandPipeline.ts:548-553), the co-op door through the store's appendCommandBatch (JournalCampaignEventStore.ts:380-405, delegating at :396), which commitCampaignEventBatch calls (campaignHostBatchCommit.ts:156). The same function also appends the genesis (campaignSourceGenesis.ts:267), the baseline import (campaignAuthorityMigration.ts:199), replacement replay (src/lib/campaign/rebuild/CampaignReplacementReplay.ts:136), outcome correction (src/lib/multiplayer/server/history/CoordinatedOutcomeCorrectionTarget.steps.ts:253) and the single-event facade (JournalCampaignEventStore.ts:450), none of which is a campaign command, so the row rewrite is an optional after-commit hook of that function that only the two command callers pass. With the hook and a SQLite writer the function appends through appendWithExtension (SQLiteEventJournalWriter.ts:60-82) and runs the hook on the writer's handle after a fresh commit, inside the append's immediate transaction. No edit under src/lib/multiplayer/server: the co-op store is built with capabilityPorts: bindJournalCapabilityPorts (getCampaignEventStore.ts:119-123), and that binder (journalCapabilityPorts.ts:214-239, owned) installs the rewrite on the store, whose appendCommandBatch passes it; the pipeline passes it directly. It is injected rather than imported because JournalCampaignEventStore.ts is browser-reachable (JournalCampaignEventStore.ts:490-492) and the rewrite needs SQLite-bound services.",
+    "envelopePatch": "After a fresh commit the hook replays the campaign's root stream on the writer's handle (the post-command journal state) and writes the stored row back at version + 1 through campaignRecordRow.write (CampaignPersistenceService.ts:202-220; the balance and campaign_date columns follow the body). It patches the two envelope fields a command can change: body.finances.balance <- state.balance (FundsChanged carries the resulting balance; SpendFunds, HirePilot) and body.currentDate <- campaignStartDate + state.day calendar days (addCampaignDays, src/lib/campaign/campaignCalendar.ts:35) when the record's own day (dayBetween, campaignSourceGenesis.ts:157-165, the checkpoint's inverse) differs (AdvanceDay). Faction standing: no command event changes it (applyCampaignEvent.ts:74-99; only a snapshot sets it), so it is not patched. The rest: pilots, contracts and salvagePool are not represented by the envelope (campaignSourceGenesis.ts:66-88) and stay in the journal, carried through a checkpoint by part (1); rosterUnits changed by SalvageAllocated.recoveredUnit or RosterUnitChanged are represented by rosterProjection but not patched (outside the sentence; finding); everything else in the stored record (instanceId, authority, sourceReplayFence, savedAt, missions, market) is written back verbatim, as the AcceptContract materialization spreads the stored record (campaignAcceptContractCommand.ts:339-369). A record with no campaignStartDate keeps its currentDate (its projected day is always 0; finding).",
+    "checkpointRead": "prepare reads synchronously on the borrowed handle: the campaign's root-branch rows of event_journal_events in stream_revision order, each payload's campaignEvent, replayed with replayCampaignEvents (applyCampaignEvent.ts); the journal's readers are async (SQLiteEventJournal.ts:15-29) and prepare must finish synchronously (SQLiteEventJournalWriter.ts:84-98). Root branch, as the checkpoint's own sequence read (campaignRecordJournalSave.ts:43-56). The snapshot state is the envelope projection with pilots, contracts and salvagePool taken from the replayed journal. The read runs for the genesis too: a genesis commits only at sequence 0 on an empty stream (the writer's revision guard, SQLiteEventJournalWriter.ts:192-199), so it carries nothing and its bytes are unchanged; appendCampaignGenesis (no handle) is untouched. The raw read does not re-verify each event digest as the journal's own reader does (SQLiteEventJournalWriter.ts:308-351).",
+    "streamOnlyCampaign": "Handled: the hook reads the campaigns row on the writer handle and writes nothing when there is none, so a journal stream with no saved record commits its commands exactly as today. A campaign whose cutover marker is not in journal state is not rewritten either (see authorityGate).",
+    "stalePutAfterCommand": "409 conflict ([id].ts:228-255) with current = the rewritten record (version = pre-command + 1, balance and currentDate of the post-command journal state), from the plan's CAS (CampaignPersistenceService.ts:186-188); nothing is appended because a refused plan returns before the snapshot (campaignRecordJournalSave.ts:94). A PUT at the current version (a client that took the server record) is accepted, and its checkpoint keeps the journal's pilots, contracts and salvage pool.",
+    "authorityGate": "The hook rewrites only a campaign whose cutover marker is in journal state, read on the writer handle (readCampaignMigrationMarker gains an optional handle, as its writer has). The erasing checkpoint exists only under journal authority ([id].ts:200-202); a snapshot-authority PUT takes plain saveCampaign. Every co-op campaign today (flag false) is snapshot-authority yet commits through the durable journal store (getCampaignEventStore.ts:116-124), so without the gate every host autosave after a co-op command would answer 409 and roll back with a toast (useCampaignPersistenceStore.ts:825-845) on main before U35f. The parent should confirm this reading of 'a committed campaign command'."
+  },
+  "design": {
+    "newModule": "src/lib/campaign/authority/campaignRecordJournalState.ts: readCampaignJournalState(db, campaignId) (synchronous root-stream replay on a borrowed handle) and rewriteCampaignRecordAfterCommand(db, campaignId) (the authority-gated row rewrite at version + 1)",
+    "snapshot": "campaignSourceGenesis.ts: campaignSnapshotCommand takes the journal's state and carries its pilots, contracts and salvagePool over the envelope projection; dayBetween exported for the rewrite",
+    "save": "campaignRecordJournalSave.ts: prepare reads readCampaignJournalState and passes it to campaignSnapshotCommand",
+    "append": "JournalCampaignEventStore.ts: appendCampaignCommandBatch takes an optional after-commit hook, run on the writer handle inside appendWithExtension only when the command id had no recorded batch before the append (the writer answers a recorded id with its cached batch); the store's appendCommandBatch passes its bound rewrite capability",
+    "binder": "journalCapabilityPorts.ts: bindJournalCapabilityPorts installs rewriteCampaignRecordAfterCommand on the store",
+    "pipeline": "campaignCommandPipeline.ts: the batch path passes rewriteCampaignRecordAfterCommand to appendCampaignCommandBatch",
+    "markerRead": "CampaignMigrationMarkerStore.ts: readCampaignMigrationMarker(campaignId, db = service handle)",
+    "tests": "src/__tests__/api/campaigns: a red-rows suite (U35d's r1, r2, r3, c1 carried, plus c2 contracts and salvage through the co-op door and (s) the stale PUT) and a guard suite (genesis carries nothing, stream-only campaign, snapshot authority untouched, a failed rewrite rolls back the append, a replayed command rewrites once)"
+  },
+  "estimatePerFile": [
+    {
+      "file": "src/lib/campaign/authority/campaignRecordJournalState.ts",
+      "category": "product (new)",
+      "estimateLines": 110
+    },
+    {
+      "file": "src/lib/campaign/authority/campaignSourceGenesis.ts",
+      "category": "product",
+      "estimateLines": 20
+    },
+    {
+      "file": "src/lib/campaign/authority/campaignRecordJournalSave.ts",
+      "category": "product",
+      "estimateLines": 8
+    },
+    {
+      "file": "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+      "category": "product",
+      "estimateLines": 45
+    },
+    {
+      "file": "src/lib/campaign/sync/journalCapabilityPorts.ts",
+      "category": "product",
+      "estimateLines": 12
+    },
+    {
+      "file": "src/lib/campaign/authority/campaignCommandPipeline.ts",
+      "category": "product",
+      "estimateLines": 6
+    },
+    {
+      "file": "src/services/campaignPersistence/CampaignMigrationMarkerStore.ts",
+      "category": "product",
+      "estimateLines": 4
+    },
+    {
+      "file": "src/__tests__/api/campaigns/campaignJournalEffectsSurviveSave.test.ts",
+      "category": "test (new)",
+      "estimateLines": 380
+    },
+    {
+      "file": "src/__tests__/api/campaigns/campaignRecordCommandRewrite.test.ts",
+      "category": "test (new)",
+      "estimateLines": 300
+    },
+    {
+      "file": "src/__tests__/api/campaigns/campaignJournalEffectsFixture.ts",
+      "category": "test helper (new)",
+      "estimateLines": 150
+    }
+  ],
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "countingRule": "product lines count, tests do not (owner decision OD-line-cap-product-lines, 2026-09-23)",
+    "estimatedFiles": 10,
+    "estimatedProductLines": 205,
+    "estimatedTestLines": 830,
+    "withinCaps": true,
+    "note": "INFERENCE: estimates before any edit"
+  },
+  "split": {
+    "decision": "no split: (1) and (2) together are estimated at 7 product files and about 205 product lines, under 15 files and 500 product lines",
+    "proposedFollowOnIfSplit": "not needed; had it been: 'A committed campaign command that appends without rewriting the campaigns row rewrites the saved record in the same immediate transaction as its append, at appendCampaignCommandBatch (JournalCampaignEventStore.ts) through a hook the command pipeline and the co-op store (via bindJournalCapabilityPorts) pass, so the row version advances and a stale whole-envelope PUT answers 409 with the server record', paths src/lib/campaign/sync, src/lib/campaign/authority, src/services/campaignPersistence, src/__tests__/api/campaigns"
+  },
+  "redRowsPlanned": {
+    "r1": "SpendFunds 12345 through the command route, then the client unchanged campaign PUT at the pre-command version; then the reloaded record PUT at its version",
+    "r2": "AdvanceDay {days: 3} through the command route, same two PUTs",
+    "r3": "HirePilot {pilot-r3, cost 12000} through the command route, same two PUTs",
+    "c1": "HirePilot {pilot-c1, cost 12000} through the co-op host door (CampaignMatchHost over the store selectCampaignEventStore builds), then the host fold's whole-envelope PUT at the pre-command version; then the reloaded record PUT at its version; then one more co-op SpendFunds",
+    "c2": "AcceptContract, a salvage credit and AllocateSalvage through the co-op host door, then the same two PUTs (contracts and salvagePool)",
+    "s": "a whole-envelope PUT of an edited envelope at the pre-command version after a committed route SpendFunds",
+    "seeding": "journal-native campaigns through the route create plus appendCampaignGenesis and the marker (flag false, as U35b and U35c did); under the temporary flip the create appends the genesis itself; no MEKSTATION_E2E_* key"
+  },
+  "mutantsPlanned": [
+    "M1 the checkpoint drops the journal pilots again",
+    "M2 a command appends without rewriting the row (the hook is not passed)",
+    "M3 the row rewrite runs outside the append transaction (after it commits)",
+    "M4 the genesis carries forward journal state it cannot have (the snapshot journal read is not limited to its own stream, so a genesis carries another campaign pilots)",
+    "M5 the replay guard is removed (a command id the writer answers from its recorded batch rewrites the row again)",
+    "M6 the authority gate is removed (a snapshot-authority campaign row is rewritten)"
+  ],
+  "risksForTheParent": [
+    "Authority: on a journal-native campaign every committed command now writes the campaigns row (balance, currentDate, version + 1), so a client holding the pre-command version gets 409 with the server record. Until U35f lands, the host browser of a journal-native co-op campaign gets a refused save, a rollback to the server record and a toast after each co-op command (useCampaignPersistenceStore.ts:825-845). Today the only journal-native co-op campaigns are fixture-armed runs (playwright.config.ts:314-322 forwards the arm; scripts/qc/gm-two-player-campaign-core.cjs sets it), so a ladder group that saves after a co-op command under the arm may show it between U35e and U35f; not measured here (no Playwright in this lane).",
+    "Authority gate: the rewrite is limited to campaigns whose marker is in journal state (designAnswers.authorityGate). If the owner reads the sentence as every committed command, removing the gate makes today's snapshot-authority co-op campaigns 409 their host's autosave after each co-op command until U35f.",
+    "Idempotency: the rewrite runs only on a fresh commit; a command id the writer answers from its recorded batch (SQLiteEventJournalWriter.ts:176-182), which the store pre-check (JournalCampaignEventStore.ts:387-395) normally catches first, does not rewrite again.",
+    "Concurrency: the rewrite and the append are one immediate transaction, so a whole-envelope PUT is ordered wholly before or after a command; one built before it answers 409 (this closes U35d's INFERENCE race where a host PUT in flight checkpointed over a co-op command).",
+    "Migration: none under OD-mvp-hard-cutover; the rewrite spreads the raw stored JSON without the read migration ladder (the AcceptContract precedent), and the synchronous journal read does not re-verify event digests.",
+    "Out of the sentence, reported: combat-outcome consequences (the store's appendCombatOutcomeBatch) stay journal-only and do not rewrite the row; SalvageAllocated.recoveredUnit and RosterUnitChanged roster effects are not carried or patched; a campaign without campaignStartDate cannot represent a journal day.",
+    "Owner ruling: authority, idempotency, concurrency and migration classes need the head-bound Lane B ruling on the head that merges."
+  ],
+  "decision": "go: --next printed U35e on the baseline, the validator passed, the design needs no edit under src/lib/multiplayer/server or src/lib/events/journal, and (1) plus (2) fit the caps without a split"
+}
