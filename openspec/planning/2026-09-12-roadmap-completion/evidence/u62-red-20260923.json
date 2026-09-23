@@ -1,0 +1,64 @@
+{
+  "unit": "U62",
+  "stage": "red",
+  "at": "2026-09-23T02:27:09.000Z",
+  "baseline": "d2336477d14e588ee44aedd3db0c9857a36abf7c",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u62",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "shellPreamble": [
+    "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "export npm_config_dry_run=true (unset only for the two timed hook runs)"
+  ],
+  "runner": {
+    "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u62/red.sh",
+    "sha256": "6e082d56f70728f79a8230196b8a4c011218479d8704df4e789c772e6a066e9e"
+  },
+  "baselineFilesUnedited": {
+    "command": "git diff --quiet HEAD -- .husky/pre-commit package.json",
+    "exitCode": 0
+  },
+  "inputs": [
+    {
+      "file": ".husky/pre-commit",
+      "sha256": "e69afc50012b56535dbccd3e19d963820d66d72b6bfe86572341857c7c3ff2c6"
+    },
+    {
+      "file": "package.json",
+      "sha256": "651fe50e8bfecb692d408c34bf831aa3d4d337d208e874d5fa6359ad6fad0f19"
+    },
+    {
+      "file": "scripts/__tests__/precommit-no-build.test.ts",
+      "sha256": "c08f07ed1d3e5dc14992444972ed0d55988df0d67ca48d03148c84092bb2bffb"
+    }
+  ],
+  "run": {
+    "command": "npx jest scripts/__tests__/precommit-no-build.test.ts",
+    "exitCode": 1,
+    "lastLine": "Ran all test suites matching /scripts\\\\__tests__\\\\precommit-no-build.test.ts/i.",
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u62/logs/red-jest.log",
+      "sha256": "02849e37732b0493648077953c7fe71b4ad3bc2eff983525da8c03391889ae37"
+    },
+    "counts": [
+      "Test Suites: 1 failed, 1 total",
+      "Tests:       1 failed, 1 passed, 2 total"
+    ]
+  },
+  "failingAssertion": {
+    "test": "pre-commit hook (OD-precommit-drop-full-build) › runs neither `npm run build` nor `next build` on any command line",
+    "matcher": "expect(hook command lines matching the build pattern).toEqual([])",
+    "received": [
+      "17: npm run build"
+    ],
+    "at": "scripts/__tests__/precommit-no-build.test.ts:30:7",
+    "meaning": ".husky/pre-commit:17 runs npm run build: assertion (a) fails on the baseline, as the charter requires"
+  },
+  "passingAssertion": {
+    "test": "pre-commit hook (OD-precommit-drop-full-build) › keeps `npx lint-staged`, whose *.{ts,tsx} list ends with the whole-project tsc --noEmit",
+    "meaning": "assertion (b) passes on the baseline, as the charter requires: the hook runs npx lint-staged (:12) and the list ends with the tsc entry (package.json:336)"
+  },
+  "notRed": [
+    "Assertion (b) is a guard that the edit must keep, not red evidence.",
+    "The pin was also run once by hand before the runner, with the same result (exit 1, 1 failed, 1 passed); that log is not kept as a receipt input."
+  ]
+}
