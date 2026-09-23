@@ -13,6 +13,8 @@
  * @spec openspec/changes/design-campaign-authority-and-sync/design.md (D10)
  */
 
+import type Database from 'better-sqlite3';
+
 import type { ICampaignCutoverMarker } from '@/lib/campaign/authority/campaignAuthorityMigration';
 
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
@@ -48,11 +50,11 @@ export function readCampaignMigrationMarker(
   }
 }
 
-/** Upsert the marker — the state machine's legality lives in the caller. */
+/** Upsert the marker on `db` (default: the service handle); legality lives in the caller. */
 export function writeCampaignMigrationMarker(
   marker: ICampaignCutoverMarker,
+  db: Database.Database = getSQLiteService().getDatabase(),
 ): void {
-  const db = getSQLiteService().getDatabase();
   db.prepare(
     `INSERT INTO campaign_authority_migration (campaign_id, payload)
      VALUES (@campaignId, @payload)

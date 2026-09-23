@@ -5,7 +5,9 @@
  * PUT    — persists a `SerializedCampaign` with the optimistic-concurrency
  *          stale-write guard; `409 Conflict` (with the current record)
  *          on a `baseVersion` mismatch, otherwise `200` with the stored
- *          record at its incremented `version`.
+ *          record at its incremented `version`. A journal-native save or
+ *          a create under journal authority commits the row with a journal
+ *          snapshot in one transaction (`campaignRecordJournalSave`).
  * DELETE — removes the server record; `204`. Idempotent.
  *
  * Spec scenarios this satisfies:
@@ -26,7 +28,8 @@ import {
   REPLICA_NOT_SOURCE_REFUSAL_REASON,
   UNKNOWN_AUTHORITY_ROLE_REASON,
 } from '@/lib/campaign/authority/campaignAuthority';
-import { maybeAppendCampaignGenesisOnCreate } from '@/lib/campaign/authority/campaignSourceGenesis';
+import { getOrCreateHostInstanceId } from '@/lib/campaign/authority/campaignHostInstance';
+import { saveCampaignRecordThroughJournal } from '@/lib/campaign/authority/campaignRecordJournalSave';
 import { resolveCampaignAuthorityFromStores } from '@/lib/campaign/authority/resolveCampaignAuthorityFromStores';
 import { isCampaignJournalAuthorityEnabled } from '@/lib/campaign/sync/campaignJournalAuthorityEnabled';
 import { EXPECTED_HEAD_RESYNC_ACTION } from '@/lib/events/journal/EventHistoryExpectedHead';
@@ -36,10 +39,7 @@ import {
   rejectMissingQueryString as readCampaignId,
   sendCaughtApiError as sendCampaignError,
 } from '@/pages-modules/api/routeHelpers';
-import {
-  readCampaignMigrationMarker,
-  writeCampaignMigrationMarker,
-} from '@/services/campaignPersistence/CampaignMigrationMarkerStore';
+import { readCampaignMigrationMarker } from '@/services/campaignPersistence/CampaignMigrationMarkerStore';
 import {
   deleteCampaign,
   readCampaign,
@@ -113,6 +113,7 @@ function isValidPutBody(value: unknown): value is PutBody {
   );
 }
 
+/** GET reads, PUT saves and DELETE removes one campaign record (see the header). */
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<SerializedCampaign | ConflictResponse | ErrorResponse>,
@@ -194,7 +195,36 @@ export default async function handler(
       }
 
       try {
-        const result = saveCampaign(body.envelope, body.baseVersion);
+        // Journal-native: checkpoint; a create under journal authority:
+        // genesis; both with the row in the writer's one transaction.
+        const purpose =
+          authority.kind === 'journal'
+            ? 'checkpoint'
+            : body.baseVersion === 0 && isCampaignJournalAuthorityEnabled()
+              ? 'genesis'
+              : null;
+        const result =
+          purpose === null
+            ? saveCampaign(body.envelope, body.baseVersion)
+            : await saveCampaignRecordThroughJournal(
+                new SQLiteEventJournal(getSQLiteService().getDatabase(), () =>
+                  new Date().toISOString(),
+                ),
+                {
+                  purpose,
+                  envelope: body.envelope,
+                  baseVersion: body.baseVersion,
+                  hostInstanceId: getOrCreateHostInstanceId(),
+                  occurredAt: new Date().toISOString(),
+                },
+              );
+        if (result.kind === 'invalid-campaign-projection') {
+          // Refused before the row or the snapshot was written.
+          res.status(500).json({
+            error: `campaign ${purpose} failed: ${result.reason}`,
+          });
+          return;
+        }
         if (result.kind === 'conflict') {
           // A stale whole-envelope write, refused in the same typed shape
           // the command boundary uses (umbrella 8.3/8.4): why, what to do
@@ -238,27 +268,6 @@ export default async function handler(
             error: 'campaign authority is invalid',
             kind: 'failed',
             reason: result.reason,
-          });
-          return;
-        }
-        // Task 1.1 journal half: under journal authority, creation appends
-        // the genesis snapshot and journal-native marker BEFORE the create
-        // is acknowledged. Inert while the resolver is off (the lazy
-        // journal factory constructs nothing on the disabled path).
-        const genesis = await maybeAppendCampaignGenesisOnCreate({
-          enabled: isCampaignJournalAuthorityEnabled(),
-          created: body.baseVersion === 0,
-          envelope: result.record,
-          occurredAt: new Date().toISOString(),
-          journal: () =>
-            new SQLiteEventJournal(getSQLiteService().getDatabase(), () =>
-              new Date().toISOString(),
-            ),
-          writeMarker: writeCampaignMigrationMarker,
-        });
-        if (genesis.kind === 'invalid-campaign-projection') {
-          res.status(500).json({
-            error: `campaign genesis failed: ${genesis.reason}`,
           });
           return;
         }

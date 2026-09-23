@@ -1,18 +1,21 @@
 /**
- * /api/campaigns/[id]/adopt — legacy browser-copy adoption (task 1.4, D8).
+ * /api/campaigns/[id]/adopt — legacy browser-copy adoption (task 1.4, D8;
+ * OD-mvp-hard-cutover).
  *
  * POST takes the browser's serialized campaign and makes this server its
- * source instance, recording the import honestly: the created record is
- * accompanied by a baseline event carrying the digest of the state that
- * came in and a `shadowing` cutover marker naming the imported revision.
+ * source instance. While journal authority is on, the adoption first
+ * appends the campaign's genesis (a `CampaignSnapshotPublished` of the
+ * copy's projection at sequence 0 under the `system` principal) and writes
+ * a journal-native marker with no imported baseline, so the adopted
+ * campaign is journal-native once the adoption returns
+ * (`campaignLegacyAdoption`); a copy the projection refuses is `500` before
+ * any record exists. The record is then created through `saveCampaign` at
+ * `baseVersion` 0, in its own transaction after the genesis. With journal
+ * authority off only the record is created.
  *
- * This is deliberately NOT the ordinary create path. A `PUT` at
- * `baseVersion` 0 stamps a journal-native marker, which asserts that the
- * campaign's entire history lives in this journal — true for a campaign
- * created here, a false provenance claim for a browser copy that has been
- * played for months elsewhere. The D10 rollback law reads that same field,
- * so the false claim would also strand the campaign with no route back to
- * snapshot authority.
+ * A retried adoption whose marker is already journal-native appends
+ * nothing and still creates the record, so an adoption interrupted between
+ * its genesis and its record finishes on the retry.
  *
  * An already-present server record is `409`, not an overwrite: whatever
  * the server holds is either this campaign already adopted or a different
