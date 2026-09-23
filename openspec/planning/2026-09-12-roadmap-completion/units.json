@@ -1132,6 +1132,41 @@
       }
     },
     {
+      "id": "U62",
+      "node": "R6.loop-harness",
+      "taskKeys": [],
+      "behavior": "The pre-commit hook type-checks the program once and no longer runs a production build (owner decision OD-precommit-drop-full-build). .husky/pre-commit loses its TypeScript-staged 'npm run build' branch (lines 14-20; the build runs at :17) and the header comment lines that describe it (:5-10); it keeps 'npx lint-staged' (:12), whose *.{ts,tsx} list still ends with the whole-project bash -c 'npx tsc --noEmit --skipLibCheck' (package.json:336; package.json is not edited). CI keeps the full build on every code PR (pr-checks.yml:609 and :769 run npm run build; the Build Test matrix at :791), unchanged. U62 owns only the paths the parent's directive named (.husky, and scripts/__tests__ for the pin): docs/development/git-hooks.md, whose phase table row 2 (:21) says the hook runs npm run build, is not edited here and is left to a docs-class PR after U62 merges. Red-first: a scripts/__tests__ jest pin reads .husky/pre-commit and package.json and asserts (a) no hook line runs npm run build or next build and (b) lint-staged's *.{ts,tsx} list still holds the tsc --noEmit entry; (a) fails today on .husky/pre-commit:17. Local proof: the wall time of sh .husky/pre-commit with one staged .ts change in the unit's worktree, before and after, recorded in the local receipt (the hook's own '~5min' comment at :6 is not a measurement); no commit is made to measure it. The docs closure PR retires roadmap.json infraNotes.preCommitBuildNotE2E, PROGRESS.md:218 and HANDOFF.md:37's caution that the hook's bare build replaces an E2E bundle. Placed first among planned units by the parent (ledgerPlacement of OD-precommit-drop-full-build), because every later unit's commits get faster.",
+      "ownershipPaths": [
+        ".husky",
+        "scripts/__tests__"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 5,
+        "maxNonGeneratedLines": 80
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260923": "planned by the parent under the owner decisions of 2026-09-23 (roadmap.json ownerDecisions OD-precommit-drop-full-build); written by a ledger-author lane from the parent's transcription",
+      "phase20260923": "Phase 0 (pre-commit build; owner decision OD-precommit-drop-full-build)",
+      "capsReading20260923": "caps.maxNonGeneratedLines (80) counts non-generated product lines only, as OD-line-cap-product-lines reads the 500: test lines, this unit's jest pins and fixtures included, are reported separately in its local receipt and never count; this cap below 500 is the ledger author's, not the owner's, and is read the same way."
+    },
+    {
       "id": "U35b",
       "node": "R2.authority-cutover",
       "taskKeys": [],
@@ -4729,6 +4764,981 @@
           "taskKeys": []
         }
       }
+    },
+    {
+      "id": "U63",
+      "node": "R6.loop-harness",
+      "taskKeys": [],
+      "behavior": "The repository's pieces are declared and a report-only boundary gate measures them. The gate's files (manifest, baseline, gate script, and U75's probe tsconfigs later) sit in one gate directory, scripts/qc/boundaries, which the owner chose on 2026-09-23 (PK-boundary-gate-location, option a); the analysis had placed it in scripts/boundaries (draft.recommendedShape (2)). A committed manifest in the gate directory assigns every tracked src/** file to exactly one piece of the analysis's recommended shape, in layer order: foundation, persistence-infra, construction, printing and tactical (siblings that may not import each other), events (with the journal-contract sub-piece carved by file list: EventJournalCanonicalizer, EventJournalCommandIdentity, EventJournalContract, EventJournalSchemas, InMemoryEventJournal and InMemoryEventJournalSnapshot in src/lib/events/journal), kernel, campaign, p2p, multiplayer, then app-services, app-stores, app-ui and app-api (app-api and app-ui may not import each other); desktop/ and the battlemech catalog sit outside the layers. Placement follows the analysis's pieces with its corrections: validationNavigation.ts and services/units' SQLite repositories and barrel stay in the app (validationNavigation.ts's only importers are customizer components and hooks), src/services/assets is in printing, src/data is not a piece (0 tracked files, correction 22), and lib/campaign/medical/medicalTypes.ts and lib/multiplayer/server/playerIdFromPublicKey.ts stay in campaign and multiplayer (correction 15). The gate (validate-module-boundaries.mjs in the gate directory; the tool owner sub-decision 5 chose: a TypeScript-parser script on the existing typescript devDependency, no new dependency) resolves '@/' and relative specifiers, require(), import() and jest.mock(), and reports per piece the upward and forbidden-sibling imports, the imports of a non-entry file and the runtime file-level cycles, each split runtime versus type-only, with test files reported separately; an unassigned src file is an error line. It writes a committed baseline re-measured under this manifest (correction 0: the 104 runtime, 71 type-only, 108-file figures and the 94 minimum belong to a different piece map and are not seeded), prints the delta against it, and in this unit always exits 0. npm script qc:boundaries. Red-first: a scripts/__tests__ jest pin runs the gate on fixture trees built in a temp directory (an upward import, a type-only upward import, a printing-tactical sibling import, a non-entry import, a jest.mock('@/...') edge, an unassigned file, a two-file runtime cycle) and expects each reported (red today: no gate), plus a pin that the committed baseline equals the gate's output on the repository. The six runtime cycles covering 40 files that the analysis measured (keyMeasurements, reproduced by its independent SCC) appear in the baseline.",
+      "ownershipPaths": [
+        "scripts/qc",
+        "scripts/__tests__",
+        "package.json"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260923": "planned by the parent under the owner decisions of 2026-09-23 (roadmap.json ownerDecisions OD-repo-split-boundaries-in-place), from evidence/repo-split-analysis-20260923.json (draft.phases with its corrections array applied; measured again on main f50e76fe4); written by a ledger-author lane from the parent's transcription",
+      "phase20260923": "Phase 1 (declare the pieces and measure; report-only, zero moves)",
+      "capsReading20260923": "caps.maxNonGeneratedLines (500) counts non-generated product lines only, as OD-line-cap-product-lines reads the 500: test lines, this unit's jest pins and fixtures included, are reported separately in its local receipt and never count.",
+      "ownerGateResolved20260923": {
+        "at": "2026-09-23T02:11:01.566Z",
+        "packet": "PK-boundary-gate-location",
+        "option": "(a) scripts/qc/boundaries"
+      }
+    },
+    {
+      "id": "U64",
+      "node": "R6.loop-harness",
+      "taskKeys": [],
+      "behavior": "Every pull request prints its boundary delta, and the job cannot block a merge. A new pr-checks.yml job (the workflow runs on pull_request, :3-7) runs npm run qc:boundaries and prints the per-piece delta against the committed baseline. It is not in the Lint and Test aggregator's needs list (pr-checks.yml:700-721) and its gate step exits 0 unconditionally on the gate's own command line: the step's run is npm run qc:boundaries || true, so the step succeeds whatever the gate returns; the one other accepted form is an explicit set +e line before the command followed by a final exit 0. A bare trailing exit 0 line is not accepted: GitHub Actions runs a run step under bash -e on ubuntu-latest (bash --noprofile --norc -eo pipefail when shell: bash is set, as several pr-checks.yml steps do, e.g. :474), so a failing qc:boundaries line ends the step with exit 1 before a trailing exit 0 runs. continue-on-error is not used, because it lets the step exit 1 and only keeps the job from failing. The aggregator fails when any needed job's result is not success, skipped included (:725-736; analysis correction 28), so a report-only job inside it would block merges. Branch protection is unchanged. Until U66 is main-verified this job cannot fail on a grown baseline, so the parent checks each PR's baseline delta at review in that window, and any growth needs the owner's head-bound OWNER-RULING under sub-decision 8 (the decision's ledgerPlacement.reviewClasses). Red-first: a scripts/__tests__ jest pin parses pr-checks.yml (the yaml devDependency) and asserts that the job exists, is absent from lint-and-test.needs, and has a gate step whose qc:boundaries command is itself unconditional ('npm run qc:boundaries || true' on that line, or a set +e line before it and a final exit 0 line), with no continue-on-error on the step or the job; the pin's checker rejects a fixture step whose only guard is a bare trailing exit 0; red today (no job). Main proof, the analysis's Phase 1 exit criterion: qc:boundaries on the merge commit reports exactly the committed baseline (0 delta), and the job's delta shows on the unit PRs that follow.",
+      "ownershipPaths": [
+        ".github/workflows/pr-checks.yml",
+        "scripts/__tests__"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 4,
+        "maxNonGeneratedLines": 120
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260923": "planned by the parent under the owner decisions of 2026-09-23 (roadmap.json ownerDecisions OD-repo-split-boundaries-in-place), from evidence/repo-split-analysis-20260923.json (draft.phases with its corrections array applied; measured again on main f50e76fe4); written by a ledger-author lane from the parent's transcription",
+      "phase20260923": "Phase 1 (declare the pieces and measure; report-only, zero moves)",
+      "capsReading20260923": "caps.maxNonGeneratedLines (120) counts non-generated product lines only, as OD-line-cap-product-lines reads the 500: test lines, this unit's jest pins and fixtures included, are reported separately in its local receipt and never count; this cap below 500 is the ledger author's, not the owner's, and is read the same way.",
+      "admitAfter20260923": "U63 main-verified (the gate this unit runs); --next cannot express a unit dependency, so the parent checks it at admission",
+      "blocked20260923": {
+        "at": "2026-09-23T02:11:01.566Z",
+        "cause": "prerequisite not yet main-verified: U63 main-verified (the gate this unit runs); --next cannot express a unit dependency, so the parent checks it at admission",
+        "nextIndependentAction": "the docs(roadmap) edit that records the prerequisite's main proof returns this unit to planned; --next cannot express a unit-to-unit dependency, so the ledger holds it blocked until then"
+      }
+    },
+    {
+      "id": "U65",
+      "node": "R6.loop-harness",
+      "taskKeys": [],
+      "behavior": "The kernel's import rule has one definition. src/kernel/__tests__/KernelBoundary.test.ts stops scanning imports with its own regex (:67-72, the regex at :69, matches only import|export ... from '<specifier>'; with single quotes, so require(), import() and side-effect imports are not scanned) and instead asserts that the boundary gate reports zero violations for the kernel rules, which move into the manifest (the test's per-module forbidden lists become manifest rules). Moving the kernel rules into the manifest can change the committed baseline; if U66 is not yet main-verified the job cannot fail, so the parent checks this PR's baseline delta at review, and any growth needs the owner's head-bound OWNER-RULING under sub-decision 8. Red-first: a mutant kernel file with a forbidden import written as a dynamic import() passes today's test and fails the rewritten one (the mutant is restored by checkout with its sha256 confirmed). The analysis counts 18 hand-written regex boundary tests; the ones under src/lib/campaign, src/lib/multiplayer, src/lib/events and src/lib/p2p are roadmap-owned and wait for Phase 7 (U85).",
+      "ownershipPaths": [
+        "src/kernel/__tests__/KernelBoundary.test.ts",
+        "scripts/qc",
+        "scripts/__tests__"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260923": "planned by the parent under the owner decisions of 2026-09-23 (roadmap.json ownerDecisions OD-repo-split-boundaries-in-place), from evidence/repo-split-analysis-20260923.json (draft.phases with its corrections array applied; measured again on main f50e76fe4); written by a ledger-author lane from the parent's transcription",
+      "phase20260923": "Phase 1 (declare the pieces and measure; report-only, zero moves)",
+      "capsReading20260923": "caps.maxNonGeneratedLines (500) counts non-generated product lines only, as OD-line-cap-product-lines reads the 500: test lines, this unit's jest pins and fixtures included, are reported separately in its local receipt and never count.",
+      "admitAfter20260923": "U63 main-verified (the manifest this unit extends); --next cannot express a unit dependency, so the parent checks it at admission",
+      "blocked20260923": {
+        "at": "2026-09-23T02:11:01.566Z",
+        "cause": "prerequisite not yet main-verified: U63 main-verified (the manifest this unit extends); --next cannot express a unit dependency, so the parent checks it at admission",
+        "nextIndependentAction": "the docs(roadmap) edit that records the prerequisite's main proof returns this unit to planned; --next cannot express a unit-to-unit dependency, so the ledger holds it blocked until then"
+      }
+    },
+    {
+      "id": "U66",
+      "node": "R6.loop-harness",
+      "taskKeys": [],
+      "behavior": "The boundary gate blocks regressions. The gate exits 1 on any violation or runtime cycle not in the committed baseline, and on a baseline that gains an entry relative to the PR's merge base; a baseline entry whose violation is gone must be removed in the same PR (the baseline never carries a fixed edge). The pr-checks job joins the Lint and Test aggregator's needs (pr-checks.yml:700-721) and is never skipped (docs-only PRs take a no-op step, as prepare-build does). Its gate step drops U64's '|| true' (and any set +e or trailing exit 0), so the gate's exit code is the step's and a gate exit 1 fails the job; U64's exit-0 workflow pin is inverted in this unit. Baseline growth follows owner sub-decision 8: a PR that grows the baseline carries the owner's head-bound OWNER-RULING (a comment beginning OWNER-RULING <40-hex head> and the owner-ruled label); the job accepts growth only when both are on the PR for its current head and the ruling comment's author login equals the owner's login, pinned in the gate's config as SwiggitySwerve (the repository owner, and the author of all 14 packet rulings units.json records on f50e76fe4), and otherwise fails naming the decision. validate-roadmap.mjs:533-535 checks the label and the comment but no author; the job does not copy that gap. The login check refuses a ruling from any other account; it cannot tell the owner from an agent using the owner's gh credentials (the parent posts rulings the owner gives in chat under that account, with a disclosure), so that distinction stays with the parent's review, not the job. How the job sees a ruling posted after the push: the ruling can only be posted once the head exists, so the job's first run on a growing head fails. The job reads the PR's labels and comments live with gh when it runs (as validate-roadmap.mjs --github reads them; the job declares permissions contents: read and pull-requests: read), never from github.event.pull_request, whose labels are frozen at the triggering event and are replayed unchanged on a re-run. After the owner posts the comment and the label, the parent runs gh run rerun <run id> --failed, which re-runs the failed boundary job and the Lint and Test aggregator that failed with it; the re-run reads the ruling and passes. pull_request types stay [opened, synchronize, reopened, ready_for_review] (pr-checks.yml:7): adding 'labeled' would re-run every job of the workflow on each label event, and skipping the other jobs on those runs would fail the aggregator, which counts skipped as not success (:725-736). Red-first: scripts/__tests__ jest pins for a new upward import (fails), a baseline entry added without a ruling (fails), the same with a ruling for the head (passes), a ruling for an earlier head (fails), a ruling for the head posted by a login other than the pinned owner's (fails), a fixed entry left in the baseline (fails), and a docs-only PR (the no-op step succeeds); the ruling pins drive the gate's ruling reader through a stubbed gh, and a re-run pin calls the gate twice on one head with the ruling added between the calls (fails, then passes: the reader queries per run). A workflow pin, which replaces U64's exit-0 pin, parses pr-checks.yml and asserts that the boundary job is in lint-and-test.needs, reads no github.event.pull_request.labels, declares pull-requests: read, and has a gate step with no '|| true', no set +e and no continue-on-error on the step or the job, so a gate exit 1 fails the job. Main proof: the gate reports 0 delta on the merge commit.",
+      "ownershipPaths": [
+        "scripts/qc",
+        "scripts/__tests__",
+        ".github/workflows/pr-checks.yml"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260923": "planned by the parent under the owner decisions of 2026-09-23 (roadmap.json ownerDecisions OD-repo-split-boundaries-in-place), from evidence/repo-split-analysis-20260923.json (draft.phases with its corrections array applied; measured again on main f50e76fe4); written by a ledger-author lane from the parent's transcription",
+      "phase20260923": "Phase 2 (ratchet on; runtime-clean the pieces outside roadmap-owned paths)",
+      "capsReading20260923": "caps.maxNonGeneratedLines (500) counts non-generated product lines only, as OD-line-cap-product-lines reads the 500: test lines, this unit's jest pins and fixtures included, are reported separately in its local receipt and never count.",
+      "admitAfter20260923": "U64 main-verified, and no other unit in flight (validate-roadmap.mjs IN_FLIGHT_STATES) when admitted, recorded in the admission receipt: the analysis's window rule, so no open lane branch meets a new required failure; --next cannot express a unit dependency, so the parent checks it at admission",
+      "blocked20260923": {
+        "at": "2026-09-23T02:11:01.566Z",
+        "cause": "prerequisite not yet main-verified: U64 main-verified, and no other unit in flight (validate-roadmap.mjs IN_FLIGHT_STATES) when admitted, recorded in the admission receipt: the analysis's window rule, so no open lane branch meets a new required failure; --next cannot express a unit dependency, so the parent checks it at admission",
+        "nextIndependentAction": "the docs(roadmap) edit that records the prerequisite's main proof returns this unit to planned; --next cannot express a unit-to-unit dependency, so the ledger holds it blocked until then"
+      }
+    },
+    {
+      "id": "U67",
+      "node": "R6.loop-harness",
+      "taskKeys": [],
+      "behavior": "src/utils/gameplay has no runtime import cycle. The 20-file cycle (src/utils/gameplay/movement.ts; movement/commitValidation, index, intentRouting, reachable, reachableDestination, reachableEnvelope, reachableGround, reachablePrePath, reachableProjectionHelpers and standUpProjection; pilotingSkillRolls.ts and pilotingSkillRolls/index, modifierResolution and resolution; spaModifiers.ts and spaModifiers/abilityModifiers, index and integration; standUpRules.ts; it spans four directories, analysis correction 9) and the 3-file cycle (physicalAttacks/damage, missConsequences and physicalDamage) are broken by moving the shared declarations to a leaf module inside the owned directories, with no behavior change. src/utils/gameplay/gameState (U37's path) is not touched. Red-first: a scripts/__tests__ jest pin runs the gate on the repository and asserts that its runtime-cycle report holds none of the 23 named files; red today, when the gate lists both cycles (for all six runtime cycles, which cover 40 files, oxlint import/no-cycle with ignoreTypes reported 40 problems in the analysis's probe). The gameplay suites under the owned paths pass unchanged.",
+      "ownershipPaths": [
+        "src/utils/gameplay/movement",
+        "src/utils/gameplay/movement.ts",
+        "src/utils/gameplay/pilotingSkillRolls",
+        "src/utils/gameplay/pilotingSkillRolls.ts",
+        "src/utils/gameplay/spaModifiers",
+        "src/utils/gameplay/spaModifiers.ts",
+        "src/utils/gameplay/standUpRules.ts",
+        "src/utils/gameplay/physicalAttacks",
+        "src/utils/gameplay/__tests__",
+        "scripts/__tests__"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260923": "planned by the parent under the owner decisions of 2026-09-23 (roadmap.json ownerDecisions OD-repo-split-boundaries-in-place), from evidence/repo-split-analysis-20260923.json (draft.phases with its corrections array applied; measured again on main f50e76fe4); written by a ledger-author lane from the parent's transcription",
+      "phase20260923": "Phase 2 (ratchet on; runtime-clean the pieces outside roadmap-owned paths)",
+      "capsReading20260923": "caps.maxNonGeneratedLines (500) counts non-generated product lines only, as OD-line-cap-product-lines reads the 500: test lines, this unit's jest pins and fixtures included, are reported separately in its local receipt and never count.",
+      "admitAfter20260923": "U63 main-verified (its gate is the red and green evidence); --next cannot express a unit dependency, so the parent checks it at admission",
+      "blocked20260923": {
+        "at": "2026-09-23T02:11:01.566Z",
+        "cause": "prerequisite not yet main-verified: U63 main-verified (its gate is the red and green evidence); --next cannot express a unit dependency, so the parent checks it at admission",
+        "nextIndependentAction": "the docs(roadmap) edit that records the prerequisite's main proof returns this unit to planned; --next cannot express a unit-to-unit dependency, so the ledger holds it blocked until then"
+      }
+    },
+    {
+      "id": "U68",
+      "node": "R6.loop-harness",
+      "taskKeys": [],
+      "behavior": "The customizer's type registry has no runtime import cycle. The 9-file cycle (src/components/customizer: aerospace/AerospaceCustomizer, battlearmor/BattleArmorCustomizer, infantry/InfantryCustomizer, protomech/ProtoMechCustomizer and vehicle/VehicleCustomizer .tsx; shared/customizerTypeRegistry and shared/tabRegistry .tsx; tabs/OverviewTabForType and tabs/PreviewTabForType .tsx; seven subdirectories, analysis correction 9) is broken with no rendered change. The path belongs to the planned node R7.context (correction 10), which holds no unit today; --next serializes U68 against any future R7.context unit. Red-first: a scripts/__tests__ jest pin runs the gate on the repository and asserts that its runtime-cycle report holds none of the nine named files; red today, when the gate lists the cycle. The customizer suites pass unchanged.",
+      "ownershipPaths": [
+        "src/components/customizer",
+        "scripts/__tests__"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260923": "planned by the parent under the owner decisions of 2026-09-23 (roadmap.json ownerDecisions OD-repo-split-boundaries-in-place), from evidence/repo-split-analysis-20260923.json (draft.phases with its corrections array applied; measured again on main f50e76fe4); written by a ledger-author lane from the parent's transcription",
+      "phase20260923": "Phase 2 (ratchet on; runtime-clean the pieces outside roadmap-owned paths)",
+      "capsReading20260923": "caps.maxNonGeneratedLines (500) counts non-generated product lines only, as OD-line-cap-product-lines reads the 500: test lines, this unit's jest pins and fixtures included, are reported separately in its local receipt and never count.",
+      "admitAfter20260923": "U63 main-verified (its gate is the red and green evidence); --next cannot express a unit dependency, so the parent checks it at admission",
+      "blocked20260923": {
+        "at": "2026-09-23T02:11:01.566Z",
+        "cause": "prerequisite not yet main-verified: U63 main-verified (its gate is the red and green evidence); --next cannot express a unit dependency, so the parent checks it at admission",
+        "nextIndependentAction": "the docs(roadmap) edit that records the prerequisite's main proof returns this unit to planned; --next cannot express a unit-to-unit dependency, so the ledger holds it blocked until then"
+      }
+    },
+    {
+      "id": "U69",
+      "node": "R6.loop-harness",
+      "taskKeys": [],
+      "behavior": "useGameplayStore's modules have no runtime import cycle. The 3-file cycle in src/stores (useGameplayStore.helpers.ts:20 imports focusTargetReducer from useGameplayStore.attackIntent.ts, whose :29 imports InteractivePhase from helpers; useGameplayStore.actionHandlers.ts imports both at :38-39) is broken by moving the shared declaration to a leaf module, with no behavior change; only useGameplayStore.* files change and src/stores/campaign is not touched. Not claimed: the analysis's five app-stores -> app-ui imports (Toast at useCampaignPersistenceStore.ts:24, useCampaignStore.dayActions.ts:6 and useGameplayStore.phaseGuard.ts:1; getPrefersReducedMotion from hooks/useReducedMotion at useGameplayStore.helpers.ts:3 and useGameplayStore.movementPlan.ts:3). They block no package, two sit in src/stores/campaign (the campaign authority lane's path) and the reduced-motion fix edits src/hooks, which U37 and U50 own; they stay in the baseline. Red-first: a scripts/__tests__ jest pin runs the gate on the repository and asserts that its runtime-cycle report holds none of the three useGameplayStore files; red today, when the gate lists the cycle. The store suites pass unchanged.",
+      "ownershipPaths": [
+        "src/stores",
+        "scripts/__tests__"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260923": "planned by the parent under the owner decisions of 2026-09-23 (roadmap.json ownerDecisions OD-repo-split-boundaries-in-place), from evidence/repo-split-analysis-20260923.json (draft.phases with its corrections array applied; measured again on main f50e76fe4); written by a ledger-author lane from the parent's transcription",
+      "phase20260923": "Phase 2 (ratchet on; runtime-clean the pieces outside roadmap-owned paths)",
+      "capsReading20260923": "caps.maxNonGeneratedLines (500) counts non-generated product lines only, as OD-line-cap-product-lines reads the 500: test lines, this unit's jest pins and fixtures included, are reported separately in its local receipt and never count.",
+      "admitAfter20260923": "U63 main-verified (its gate is the red and green evidence); --next cannot express a unit dependency, so the parent checks it at admission",
+      "blocked20260923": {
+        "at": "2026-09-23T02:11:01.566Z",
+        "cause": "prerequisite not yet main-verified: U63 main-verified (its gate is the red and green evidence); --next cannot express a unit dependency, so the parent checks it at admission",
+        "nextIndependentAction": "the docs(roadmap) edit that records the prerequisite's main proof returns this unit to planned; --next cannot express a unit-to-unit dependency, so the ledger holds it blocked until then"
+      }
+    },
+    {
+      "id": "U70",
+      "node": "R6.loop-harness",
+      "taskKeys": [],
+      "behavior": "oxlint enforces the absence of runtime import cycles. .oxlintrc.json turns on import/no-cycle with ignoreTypes at error, with one override that turns it off for the two cycles the roadmap still owns (src/lib/campaign/sync: JournalCampaignEventStore.ts, campaignCombatOutcomeInbox.ts and campaignJournalReads.ts; src/lib/multiplayer/server: combatJournalAuthorityEnabled.ts and matchJournalAuthority.ts), so no roadmap path is edited; those two stay in the gate's baseline. Red-first: a scripts/__tests__ jest pin runs oxlint on a temp fixture with a two-file runtime cycle (error) and a type-only cycle (no error). Main proof, part of the analysis's Phase 2 exit criterion: oxlint reports 0 cycles on the merge commit outside the two roadmap-owned ones.",
+      "ownershipPaths": [
+        ".oxlintrc.json",
+        "scripts/__tests__"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 4,
+        "maxNonGeneratedLines": 100
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260923": "planned by the parent under the owner decisions of 2026-09-23 (roadmap.json ownerDecisions OD-repo-split-boundaries-in-place), from evidence/repo-split-analysis-20260923.json (draft.phases with its corrections array applied; measured again on main f50e76fe4); written by a ledger-author lane from the parent's transcription",
+      "phase20260923": "Phase 2 (ratchet on; runtime-clean the pieces outside roadmap-owned paths)",
+      "capsReading20260923": "caps.maxNonGeneratedLines (100) counts non-generated product lines only, as OD-line-cap-product-lines reads the 500: test lines, this unit's jest pins and fixtures included, are reported separately in its local receipt and never count; this cap below 500 is the ledger author's, not the owner's, and is read the same way.",
+      "admitAfter20260923": "U67, U68 and U69 main-verified (oxlint has no baseline, so the rule turns on only at 0); --next cannot express a unit dependency, so the parent checks it at admission",
+      "blocked20260923": {
+        "at": "2026-09-23T02:11:01.566Z",
+        "cause": "prerequisite not yet main-verified: U67, U68 and U69 main-verified (oxlint has no baseline, so the rule turns on only at 0); --next cannot express a unit dependency, so the parent checks it at admission",
+        "nextIndependentAction": "the docs(roadmap) edit that records the prerequisite's main proof returns this unit to planned; --next cannot express a unit-to-unit dependency, so the ledger holds it blocked until then"
+      }
+    },
+    {
+      "id": "U71",
+      "node": "R6.loop-harness",
+      "taskKeys": [],
+      "behavior": "Construction imports nothing above it at runtime, and oxlint enforces it. The analysis's construction code edge is unitLoader.ts:15 (src/services/units/unitLoaderService/unitLoader.ts imports createLibrarySaveReceipt from @/stores/unit/unitEditSnapshot, an app store): createLibrarySaveReceipt and the two fingerprint functions it calls (getUnitLibraryFingerprint and getUnitDraftFingerprint, src/stores/unit/unitEditSnapshot.ts) move into the unitLoaderService directory and unitEditSnapshot.ts re-exports them, so its three test importers under src/components/customizer keep working. validationNavigation.ts:11, the analysis's other construction edge, is resolved by U63's manifest placing validationNavigation.ts in the app. The gate re-measures construction's edges under the recommended manifest at admission (correction 0); that list is this unit's scope, and a successor is written if it exceeds the caps. Then construction's no-restricted-imports override in .oxlintrc.json goes to error (regex or ** patterns, since '@/x/*' misses deep paths). Red-first: a scripts/__tests__ jest pin runs the gate and asserts construction's runtime-violation count is 0 (red today), and a second jest pin runs oxlint on a temp construction-file fixture with a deliberate '@/stores/...' import and expects an error (red until the override is at error).",
+      "ownershipPaths": [
+        "src/services/units/unitLoaderService",
+        "src/stores",
+        ".oxlintrc.json",
+        "scripts/__tests__"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260923": "planned by the parent under the owner decisions of 2026-09-23 (roadmap.json ownerDecisions OD-repo-split-boundaries-in-place), from evidence/repo-split-analysis-20260923.json (draft.phases with its corrections array applied; measured again on main f50e76fe4); written by a ledger-author lane from the parent's transcription",
+      "phase20260923": "Phase 2 (ratchet on; runtime-clean the pieces outside roadmap-owned paths)",
+      "capsReading20260923": "caps.maxNonGeneratedLines (500) counts non-generated product lines only, as OD-line-cap-product-lines reads the 500: test lines, this unit's jest pins and fixtures included, are reported separately in its local receipt and never count.",
+      "admitAfter20260923": "U66 main-verified (the ratchet keeps the fixed edge from returning); --next cannot express a unit dependency, so the parent checks it at admission",
+      "blocked20260923": {
+        "at": "2026-09-23T02:11:01.566Z",
+        "cause": "prerequisite not yet main-verified: U66 main-verified (the ratchet keeps the fixed edge from returning); --next cannot express a unit dependency, so the parent checks it at admission",
+        "nextIndependentAction": "the docs(roadmap) edit that records the prerequisite's main proof returns this unit to planned; --next cannot express a unit-to-unit dependency, so the ledger holds it blocked until then"
+      }
+    },
+    {
+      "id": "U72",
+      "node": "R6.loop-harness",
+      "taskKeys": [],
+      "behavior": "Printing imports nothing above it at runtime, and oxlint enforces it. spaSection.ts:15 (src/services/printing/recordsheet/spaSection.ts imports formatSPALine from @/components/spa/formatDesignation, a UI module) is printing's code edge in the analysis's worklist: formatDesignation.ts (its only import is a type from @/types/pilot/SPADesignation) moves from src/components/spa into src/lib/spa/designation (construction), and SPABadge.tsx:29, the barrel re-export at src/components/spa/index.ts:16 and spaSection.ts:15 point to the new home. The worklist's other two printing edges (recordsheet/constants.ts:7 and svgRecordSheetRenderer/templateRecordSheetRenderer.ts:23 import services/assets/MmDataAssetService) are inside the piece under U63's manifest, which places src/services/assets in printing. Then printing's no-restricted-imports override goes to error. Red-first: a scripts/__tests__ jest pin runs the gate and asserts printing's runtime-violation count is 0 (red today), and a second jest pin runs oxlint on a temp printing-file fixture with a deliberate '@/components/...' import and expects an error (red until the override is at error).",
+      "ownershipPaths": [
+        "src/components/spa",
+        "src/lib/spa/designation",
+        "src/services/printing",
+        ".oxlintrc.json",
+        "scripts/__tests__"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260923": "planned by the parent under the owner decisions of 2026-09-23 (roadmap.json ownerDecisions OD-repo-split-boundaries-in-place), from evidence/repo-split-analysis-20260923.json (draft.phases with its corrections array applied; measured again on main f50e76fe4); written by a ledger-author lane from the parent's transcription",
+      "phase20260923": "Phase 2 (ratchet on; runtime-clean the pieces outside roadmap-owned paths)",
+      "capsReading20260923": "caps.maxNonGeneratedLines (500) counts non-generated product lines only, as OD-line-cap-product-lines reads the 500: test lines, this unit's jest pins and fixtures included, are reported separately in its local receipt and never count.",
+      "admitAfter20260923": "U66 main-verified (the ratchet keeps the fixed edge from returning); --next cannot express a unit dependency, so the parent checks it at admission",
+      "blocked20260923": {
+        "at": "2026-09-23T02:11:01.566Z",
+        "cause": "prerequisite not yet main-verified: U66 main-verified (the ratchet keeps the fixed edge from returning); --next cannot express a unit dependency, so the parent checks it at admission",
+        "nextIndependentAction": "the docs(roadmap) edit that records the prerequisite's main proof returns this unit to planned; --next cannot express a unit-to-unit dependency, so the ledger holds it blocked until then"
+      }
+    },
+    {
+      "id": "U73",
+      "node": "R6.loop-harness",
+      "taskKeys": [],
+      "behavior": "InteractiveSession's persistence reaches the toast, the replay-surface gate and the match-log store through ports. Today src/engine imports them directly: InteractiveSession.persistence.ts:1 (toast from @/components/shared/Toast, called at :198), :2-6 (gateReplaySurfaceHistory from @/lib/events/replay/ReplaySurfaceGate, applied to cold recovery at :141), :7-10 (matchLogStorage from @/lib/p2p/matchLogStorage, the default storage at :68, :91, :103 and :126), InteractiveSession.sessionEvents.ts:6 (every session event is appended through it at :91) and InteractiveSession.ts:21 (the default at :292 and :772): five of tactical's six runtime statements (analysis correction 5: six statements in four files; the sixth, acar.ts:6, is U74's). After: the engine declares the three ports and the app side supplies the implementations; every path that gates cold recovery today still gates it, and every path that appends session events today still appends them. Constraint: no file under src/lib/multiplayer, src/lib/p2p, src/lib/events or src/lib/campaign is edited, so the server host (src/lib/multiplayer/server/ServerMatchHostBootstrap.ts:43 constructs InteractiveSession) keeps today's observable behavior without an edit; if admission measures that it cannot, the unit parks with that measurement and the affected statements stay in the baseline for Phase 7. Review class replay: it rewires the cold-recovery gate and the match-log writes recovery reads. Red-first: the gate reports the five edges today; jest pins beside the InteractiveSession suites under src/engine fail under two mutants (a dropped injected gate lets a blocked history hydrate; a dropped injected store loses an appended event), and the InteractiveSession recovery and matchLog suites pass unchanged. If over cap, the match-log injection becomes its own unit.",
+      "ownershipPaths": [
+        "src/engine",
+        "src/stores",
+        "src/components/gameplay/pages/preBattle"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "replay"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260923": "planned by the parent under the owner decisions of 2026-09-23 (roadmap.json ownerDecisions OD-repo-split-boundaries-in-place), from evidence/repo-split-analysis-20260923.json (draft.phases with its corrections array applied; measured again on main f50e76fe4); written by a ledger-author lane from the parent's transcription",
+      "phase20260923": "Phase 2 (ratchet on; runtime-clean the pieces outside roadmap-owned paths)",
+      "capsReading20260923": "caps.maxNonGeneratedLines (500) counts non-generated product lines only, as OD-line-cap-product-lines reads the 500: test lines, this unit's jest pins and fixtures included, are reported separately in its local receipt and never count.",
+      "admitAfter20260923": "U66 main-verified (the ratchet keeps the fixed edges from returning); --next cannot express a unit dependency, so the parent checks it at admission",
+      "blocked20260923": {
+        "at": "2026-09-23T02:11:01.566Z",
+        "cause": "prerequisite not yet main-verified: U66 main-verified (the ratchet keeps the fixed edges from returning); --next cannot express a unit dependency, so the parent checks it at admission",
+        "nextIndependentAction": "the docs(roadmap) edit that records the prerequisite's main proof returns this unit to planned; --next cannot express a unit-to-unit dependency, so the ledger holds it blocked until then"
+      }
+    },
+    {
+      "id": "U74",
+      "node": "R6.loop-harness",
+      "taskKeys": [],
+      "behavior": "Tactical imports nothing above it at runtime, and oxlint enforces it. acar.ts:6 (src/lib/combat/acar.ts imports the PersonnelStatus enum from @/types/campaign/enums, a campaign path) is removed without editing src/types/campaign: the enum's only use in acar.ts is determineCasualties (:275-300, the statuses at :290-294), which is called only by resolveScenario (exported at :326; the call at :361, whose result it turns into personnelCasualties at :368-371, reading only the map's keys) and by the test helpers, and acar.ts is imported only by tests (git grep: its only importer is src/lib/combat/__tests__/acar.test-helpers.ts, which acar.test.ts imports), so no production code path reaches it. The unit records which of two options it takes: delete determineCasualties together with resolveScenario and their test rows, or pass the three statuses in as a parameter. Then, if U73 left tactical at 0 runtime violations in the gate, tactical's no-restricted-imports override goes to error; otherwise the receipt names the remaining statements and the override waits. Red-first: a scripts/__tests__ jest pin runs the gate and asserts that tactical reports no runtime violation from acar.ts (red today), and a second jest pin runs oxlint on a temp tactical-file fixture with a deliberate '@/types/campaign/...' import and expects an error once the override is at error; the gate's tactical count today and after is recorded. Main proof, with U71 and U72 the rest of the analysis's Phase 2 exit criterion: construction, printing and tactical show 0 runtime violations in the gate and their overrides are at error.",
+      "ownershipPaths": [
+        "src/lib/combat/acar.ts",
+        "src/lib/combat/__tests__/acar.test.ts",
+        "src/lib/combat/__tests__/acar.test-helpers.ts",
+        ".oxlintrc.json",
+        "scripts/__tests__"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 6,
+        "maxNonGeneratedLines": 150
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260923": "planned by the parent under the owner decisions of 2026-09-23 (roadmap.json ownerDecisions OD-repo-split-boundaries-in-place), from evidence/repo-split-analysis-20260923.json (draft.phases with its corrections array applied; measured again on main f50e76fe4); written by a ledger-author lane from the parent's transcription",
+      "phase20260923": "Phase 2 (ratchet on; runtime-clean the pieces outside roadmap-owned paths)",
+      "capsReading20260923": "caps.maxNonGeneratedLines (150) counts non-generated product lines only, as OD-line-cap-product-lines reads the 500: test lines, this unit's jest pins and fixtures included, are reported separately in its local receipt and never count; this cap below 500 is the ledger author's, not the owner's, and is read the same way.",
+      "admitAfter20260923": "U73 main-verified or parked (the tactical override waits for U73's statements); --next cannot express a unit dependency, so the parent checks it at admission",
+      "blocked20260923": {
+        "at": "2026-09-23T02:11:01.566Z",
+        "cause": "prerequisite not yet main-verified: U73 main-verified or parked (the tactical override waits for U73's statements); --next cannot express a unit dependency, so the parent checks it at admission",
+        "nextIndependentAction": "the docs(roadmap) edit that records the prerequisite's main proof returns this unit to planned; --next cannot express a unit-to-unit dependency, so the ledger holds it blocked until then"
+      }
+    },
+    {
+      "id": "U75",
+      "node": "R6.loop-harness",
+      "taskKeys": [],
+      "behavior": "Per-piece compiler probes run in CI, and the kernel's is required. Probe tsconfigs sit beside the gate (tsconfig.<piece>.json in the gate directory PK-boundary-gate-location settles; composite; include the piece's files and the pieces it may import; exclude tests; emit to a temp directory), derived from U63's manifest; a qc:boundaries:probes command runs every probe the manifest marks required and exits 1 on any error, and reports the rest. Required from this unit: kernel plus the six journal-contract files (a read-only include of those src/lib/events/journal files; no events file is edited), which the analysis's probe compiled with exit 0 (it failed only while the six files sat outside the include list). Reported, not required: construction (the analysis measured exactly 255 TS6307 errors), printing and tactical. The step runs inside the boundary job U66 made required. Tests are excluded: the analysis's 24 upward-importing test files move with their package in Phase 6 (U84). Red-first: a scripts/__tests__ jest pin with a temp fixture piece whose file imports outside its allowed closure fails the probe (red today: no probe command), and a jest pin runs the kernel probe on the repository and expects exit 0.",
+      "ownershipPaths": [
+        "scripts/qc",
+        "scripts/__tests__",
+        "package.json",
+        ".github/workflows/pr-checks.yml"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260923": "planned by the parent under the owner decisions of 2026-09-23 (roadmap.json ownerDecisions OD-repo-split-boundaries-in-place), from evidence/repo-split-analysis-20260923.json (draft.phases with its corrections array applied; measured again on main f50e76fe4); written by a ledger-author lane from the parent's transcription",
+      "phase20260923": "Phase 3 (type-level cleanup and compiler probes)",
+      "capsReading20260923": "caps.maxNonGeneratedLines (500) counts non-generated product lines only, as OD-line-cap-product-lines reads the 500: test lines, this unit's jest pins and fixtures included, are reported separately in its local receipt and never count.",
+      "admitAfter20260923": "U66 main-verified (the probe step joins the required boundary job); --next cannot express a unit dependency, so the parent checks it at admission",
+      "blocked20260923": {
+        "at": "2026-09-23T02:11:01.566Z",
+        "cause": "prerequisite not yet main-verified: U66 main-verified (the probe step joins the required boundary job); --next cannot express a unit dependency, so the parent checks it at admission",
+        "nextIndependentAction": "the docs(roadmap) edit that records the prerequisite's main proof returns this unit to planned; --next cannot express a unit-to-unit dependency, so the ledger holds it blocked until then"
+      }
+    },
+    {
+      "id": "U76",
+      "node": "R6.loop-harness",
+      "taskKeys": [],
+      "behavior": "Construction's type closure stays inside foundation and construction, and its probe is required. Two type-level edges the analysis names: src/lib/spa/designation/applyDesignation.ts:18 imports RangeBracket from the @/types/gameplay barrel (tactical); the analysis retargets it to @/types/gameplay/HexGridInterfaces (RangeBracket is declared at :186 of a file with no imports), which its graph simulation says cuts the probe's outside files from 255 to 83 (INFERENCE until tsc re-runs), and the construction-to-tactical type edge that remains is cut only if RangeBracket moves below construction, which the unit measures and records. And the analysis's 9 type-only edges from the six framework-free src/stores/*State.ts files (unitState, aerospaceState, battleArmorState, infantryState, protoMechState, vehicleState; construction under the manifest) to store actions become action interfaces declared in construction. The unit re-runs U75's construction probe: at exit 0 the manifest marks it required; otherwise the local receipt lists the remaining outside files and a successor is written before the probe is required. Red-first: a scripts/__tests__ jest pin runs the construction probe and asserts its TS6307 count is below today's (the analysis measured exactly 255; red today), and asserts exit 0 once the unit reaches it; the count today and after is recorded.",
+      "ownershipPaths": [
+        "src/lib/spa/designation",
+        "src/stores",
+        "src/types/gameplay",
+        "scripts/qc",
+        "scripts/__tests__"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260923": "planned by the parent under the owner decisions of 2026-09-23 (roadmap.json ownerDecisions OD-repo-split-boundaries-in-place), from evidence/repo-split-analysis-20260923.json (draft.phases with its corrections array applied; measured again on main f50e76fe4); written by a ledger-author lane from the parent's transcription",
+      "phase20260923": "Phase 3 (type-level cleanup and compiler probes)",
+      "capsReading20260923": "caps.maxNonGeneratedLines (500) counts non-generated product lines only, as OD-line-cap-product-lines reads the 500: test lines, this unit's jest pins and fixtures included, are reported separately in its local receipt and never count.",
+      "admitAfter20260923": "U75 and U71 main-verified; --next cannot express a unit dependency, so the parent checks it at admission",
+      "blocked20260923": {
+        "at": "2026-09-23T02:11:01.566Z",
+        "cause": "prerequisite not yet main-verified: U75 and U71 main-verified; --next cannot express a unit dependency, so the parent checks it at admission",
+        "nextIndependentAction": "the docs(roadmap) edit that records the prerequisite's main proof returns this unit to planned; --next cannot express a unit-to-unit dependency, so the ledger holds it blocked until then"
+      }
+    },
+    {
+      "id": "U77",
+      "node": "R6.loop-harness",
+      "taskKeys": [],
+      "behavior": "Tactical's type closure stays inside foundation, construction and tactical, and its probe is required. src/types/gameplay/index.ts:65 (export * from './CombatStateTypes') re-exports implementation state: CombatStateTypes.ts:5-7 re-export IAerospaceCombatState, IInfantryCombatState and IProtoMechCombatState from src/utils/gameplay/{aerospace,infantry,protomech}/state. Those three declarations move into src/types/gameplay and the utils/gameplay state files import them from there, the cut the analysis names for the type-level cycle between utils/gameplay and types/gameplay (keyMeasurements: counting type-only imports, 27 cycles cover 258 files, the largest 124). The unit then runs U75's tactical probe: at exit 0 the manifest marks it required; otherwise the receipt lists what remains (for example tactical's type-only imports into multiplayer, 3 statements in the analysis's worklist) and a successor is written; no campaign, multiplayer, events or p2p file is edited. Red-first: a scripts/__tests__ jest pin runs the gate's type-level cycle report and asserts that the 124-file cycle between utils/gameplay and types/gameplay is gone (red today), or, if a remainder is measured, pins that remainder as an upper bound; the report today and after is recorded.",
+      "ownershipPaths": [
+        "src/types/gameplay",
+        "src/utils/gameplay/aerospace",
+        "src/utils/gameplay/infantry",
+        "src/utils/gameplay/protomech",
+        "scripts/qc",
+        "scripts/__tests__"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260923": "planned by the parent under the owner decisions of 2026-09-23 (roadmap.json ownerDecisions OD-repo-split-boundaries-in-place), from evidence/repo-split-analysis-20260923.json (draft.phases with its corrections array applied; measured again on main f50e76fe4); written by a ledger-author lane from the parent's transcription",
+      "phase20260923": "Phase 3 (type-level cleanup and compiler probes)",
+      "capsReading20260923": "caps.maxNonGeneratedLines (500) counts non-generated product lines only, as OD-line-cap-product-lines reads the 500: test lines, this unit's jest pins and fixtures included, are reported separately in its local receipt and never count.",
+      "admitAfter20260923": "U75 main-verified, and U73 and U74 main-verified or parked; --next cannot express a unit dependency, so the parent checks it at admission",
+      "blocked20260923": {
+        "at": "2026-09-23T02:11:01.566Z",
+        "cause": "prerequisite not yet main-verified: U75 main-verified, and U73 and U74 main-verified or parked; --next cannot express a unit dependency, so the parent checks it at admission",
+        "nextIndependentAction": "the docs(roadmap) edit that records the prerequisite's main proof returns this unit to planned; --next cannot express a unit-to-unit dependency, so the ledger holds it blocked until then"
+      }
+    },
+    {
+      "id": "U78",
+      "node": "R6.loop-harness",
+      "taskKeys": [],
+      "behavior": "Printing's type closure stays inside foundation, construction and printing, and its probe is required. The unit runs U75's printing probe over src/services/printing, unit-card, pilot-mech-card and assets and src/types/printing, fixes the type-only upward edges it reports inside those paths, and marks the probe required at exit 0; an edge whose fix needs a path outside them is recorded and a successor is written. Printing stays on jsdom (DOMParser at RecordSheetService.ts:126, window.open at :191 and :489). Red-first: a scripts/__tests__ jest pin runs the printing probe and asserts exit 0 (red today if the probe reports errors; if it already exits 0, the receipt records that and the unit shrinks to marking it required); the error count today and after is recorded. Main proof, with U75-U77 the analysis's Phase 3 exit criterion: the kernel, construction, printing and tactical probes exit 0 in CI and the gate shows 0 type-only violations for those pieces.",
+      "ownershipPaths": [
+        "src/services/printing",
+        "src/services/unit-card",
+        "src/services/pilot-mech-card",
+        "src/services/assets",
+        "src/types/printing",
+        "scripts/qc",
+        "scripts/__tests__"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260923": "planned by the parent under the owner decisions of 2026-09-23 (roadmap.json ownerDecisions OD-repo-split-boundaries-in-place), from evidence/repo-split-analysis-20260923.json (draft.phases with its corrections array applied; measured again on main f50e76fe4); written by a ledger-author lane from the parent's transcription",
+      "phase20260923": "Phase 3 (type-level cleanup and compiler probes)",
+      "capsReading20260923": "caps.maxNonGeneratedLines (500) counts non-generated product lines only, as OD-line-cap-product-lines reads the 500: test lines, this unit's jest pins and fixtures included, are reported separately in its local receipt and never count.",
+      "admitAfter20260923": "U76 and U72 main-verified (printing may import construction, so its probe needs construction's closure); --next cannot express a unit dependency, so the parent checks it at admission",
+      "blocked20260923": {
+        "at": "2026-09-23T02:11:01.566Z",
+        "cause": "prerequisite not yet main-verified: U76 and U72 main-verified (printing may import construction, so its probe needs construction's closure); --next cannot express a unit dependency, so the parent checks it at admission",
+        "nextIndependentAction": "the docs(roadmap) edit that records the prerequisite's main proof returns this unit to planned; --next cannot express a unit-to-unit dependency, so the ledger holds it blocked until then"
+      }
+    },
+    {
+      "id": "U79",
+      "node": "R6.loop-harness",
+      "taskKeys": [],
+      "behavior": "The battlemech catalog is reproducible from the converter (owner sub-decision 7: committed hand fixes move back into the converter first). A qc command regenerates public/data/units/battlemechs with scripts/megameklab-conversion from a pinned MegaMek data input into a temp directory and compares every file's sha256 with the tracked tree (4,226 JSON files, 22,004,233 bytes on f50e76fe4; 9 commits touch it, 10 with --full-history, 1 in the last 90 days, ca8c2c958 (#1010): analysis corrections 2 and 18); it exits 1 on any difference and names the files. Post-conversion changes committed into the tree move into the converter until the comparison is clean: #1010 (ca8c2c958) regenerated 359 unit JSONs and then applied an oxfmt pass to them, and #233 (f8ba41e92) edited three unit JSONs directly (1-age-of-war/standard/Lumberjack LM1-A.json and Patron PTN-1 LoaderMech.json, 6-dark-age/standard/Deep Lord RCL-Z1M MilitiaMech.json). Eight tracked file names are double-encoded UTF-8 (git ls-files prints them quoted, under 2-star-league/standard and 6-dark-age); the converter reproduces them as they are, because renaming them changes reader paths. The pinned input (tag or commit) is recorded in the repository. Red-first: a scripts/__tests__ jest pin feeds the comparison a temp fixture tree with one changed byte and one missing file and expects exit 1 naming both, and asserts the pinned-input record exists (red today: no comparison command and no record); today's comparison on the repository lists the differing files, and if it lists none, the receipt records that the tree is already reproducible and the unit shrinks to the pinned-input record and its pins.",
+      "ownershipPaths": [
+        "scripts/megameklab-conversion",
+        "scripts/qc",
+        "scripts/__tests__"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260923": "planned by the parent under the owner decisions of 2026-09-23 (roadmap.json ownerDecisions OD-repo-split-boundaries-in-place), from evidence/repo-split-analysis-20260923.json (draft.phases with its corrections array applied; measured again on main f50e76fe4); written by a ledger-author lane from the parent's transcription",
+      "phase20260923": "Phase 4 (catalog data artifact; a parallel track)",
+      "capsReading20260923": "caps.maxNonGeneratedLines (500) counts non-generated product lines only, as OD-line-cap-product-lines reads the 500: test lines, this unit's jest pins and fixtures included, are reported separately in its local receipt and never count."
+    },
+    {
+      "id": "U80",
+      "node": "R6.loop-harness",
+      "taskKeys": [],
+      "behavior": "The catalog is a pinned, fetched and strictly validated artifact (owner sub-decision 7). A deterministic tarball of the tree U79 reproduces is published as a GitHub release of this repository (publishing is a repository write the owner authorizes at the unit's admission); a pin file under config/ (the config/mm-data-assets.json pattern) records its version, URL, sha256, file count (4,226) and a per-file manifest hash. npm run fetch:catalog downloads it and extracts it into public/data/units/battlemechs, the path every reader already uses and .gitignore:121 already matches (analysis correction 21), so no reader changes: CanonicalUnitService.ts:152, NodeCanonicalUnitService.ts:216, chassisIndex.server.ts:9-16, chassisIndex.ts:134, ChassisIndex.ts:30, validate-bv.ts:149 and :168, fastForwardCombatRunner.ts:469 (campaign, not edited), the hydrate script's copyPublicAssets check (:132-149) and the static JSON imports (git grep on f50e76fe4: 15 files under src, 2 under e2e, 4 under scripts; analysis correction 19, which supersedes correction 13's 16). npm run validate:catalog:strict fails on a version, count or hash mismatch. The tracked tree stays in this unit (U82 untracks it). Red-first: scripts/__tests__ jest pins that a fetched tree with one byte changed, one file missing or the wrong version fails strict validation, and that a fetch into an empty directory yields a tree byte-identical to the tracked one.",
+      "ownershipPaths": [
+        "config",
+        "scripts/mm-data",
+        "scripts/__tests__",
+        "package.json"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260923": "planned by the parent under the owner decisions of 2026-09-23 (roadmap.json ownerDecisions OD-repo-split-boundaries-in-place), from evidence/repo-split-analysis-20260923.json (draft.phases with its corrections array applied; measured again on main f50e76fe4); written by a ledger-author lane from the parent's transcription",
+      "phase20260923": "Phase 4 (catalog data artifact; a parallel track)",
+      "capsReading20260923": "caps.maxNonGeneratedLines (500) counts non-generated product lines only, as OD-line-cap-product-lines reads the 500: test lines, this unit's jest pins and fixtures included, are reported separately in its local receipt and never count.",
+      "admitAfter20260923": "U79 main-verified (the release is built from the reproducible tree); --next cannot express a unit dependency, so the parent checks it at admission",
+      "blocked20260923": {
+        "at": "2026-09-23T02:11:01.566Z",
+        "cause": "prerequisite not yet main-verified: U79 main-verified (the release is built from the reproducible tree); --next cannot express a unit dependency, so the parent checks it at admission",
+        "nextIndependentAction": "the docs(roadmap) edit that records the prerequisite's main proof returns this unit to planned; --next cannot express a unit-to-unit dependency, so the ledger holds it blocked until then"
+      }
+    },
+    {
+      "id": "U81",
+      "node": "R6.loop-harness",
+      "taskKeys": [],
+      "behavior": "Every build path fetches and validates the catalog before reading it. The CI setup action (.github/actions/setup-node-and-install/action.yml, which fetches mm-data assets at :90-93), the pr-checks.yml jobs that read the catalog (the jest shards, validate-bv, the builds and e2e), release.yml (whose mm-data fetch and strict validate sit at :139-144) and the Dockerfile builder stage run fetch:catalog and validate:catalog:strict before the first reader. The Docker step is new work: the builder stage takes public/data from the build context (COPY . . at :36) and the runner copies it at :68; no stage fetches an asset today (analysis correction 20). Red-first: a scripts/__tests__ jest pin parses the workflow files and the Dockerfile and asserts each fetch and validate precedes the first catalog reader (red today). Main proof, the analysis's Phase 4 exit criterion short of the untrack: validate-bv, the Docker build, NodeCanonicalUnitService and the tests pass against a fetched copy with the tracked copy moved aside.",
+      "ownershipPaths": [
+        ".github/actions/setup-node-and-install/action.yml",
+        ".github/workflows/pr-checks.yml",
+        ".github/workflows/release.yml",
+        "Dockerfile",
+        "scripts/__tests__"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260923": "planned by the parent under the owner decisions of 2026-09-23 (roadmap.json ownerDecisions OD-repo-split-boundaries-in-place), from evidence/repo-split-analysis-20260923.json (draft.phases with its corrections array applied; measured again on main f50e76fe4); written by a ledger-author lane from the parent's transcription",
+      "phase20260923": "Phase 4 (catalog data artifact; a parallel track)",
+      "capsReading20260923": "caps.maxNonGeneratedLines (500) counts non-generated product lines only, as OD-line-cap-product-lines reads the 500: test lines, this unit's jest pins and fixtures included, are reported separately in its local receipt and never count.",
+      "admitAfter20260923": "U80 main-verified (the release and the fetch exist); --next cannot express a unit dependency, so the parent checks it at admission",
+      "blocked20260923": {
+        "at": "2026-09-23T02:11:01.566Z",
+        "cause": "prerequisite not yet main-verified: U80 main-verified (the release and the fetch exist); --next cannot express a unit dependency, so the parent checks it at admission",
+        "nextIndependentAction": "the docs(roadmap) edit that records the prerequisite's main proof returns this unit to planned; --next cannot express a unit-to-unit dependency, so the ledger holds it blocked until then"
+      }
+    },
+    {
+      "id": "U82",
+      "node": "R6.loop-harness",
+      "taskKeys": [],
+      "behavior": "The battlemech tree leaves git. git rm --cached -r public/data/units/battlemechs (4,226 files, 22,004,233 bytes on f50e76fe4) once U81 is main-verified; .gitignore:121 (/public/data/*) already ignores the path, so no ignore rule changes (analysis correction 21), and a fresh clone gets the tree from npm run fetch:catalog. Red-first: a scripts/__tests__ jest pin asserts that git ls-files public/data/units/battlemechs lists no file and that git check-ignore --no-index matches public/data/units/battlemechs/index.json (red today: 4,226 tracked files). The PR changes 4,227 files (the 4,226 untracked plus the pin) and 0 product lines, which the 15-file cap forbids; the owner waived the cap for this one PR on 2026-09-23 (PK-catalog-untrack-file-cap, option a). The recorded caps are the validator's ceiling. Exit criterion (analysis Phase 4): the tree is untracked and fetched by pinned version; validate-bv, the Dockerfile, NodeCanonicalUnitService and the tests pass against the fetched copy; and regeneration is byte-identical to the pinned release (U79's comparison). Not claimed: the git pack shrinks only with a history rewrite, which is not planned (keyMeasurements: the pack is 1.24 GiB); archiving the one-off top-level scripts that mention the path (about 292, correction 19) is not planned.",
+      "ownershipPaths": [
+        "public/data/units",
+        "scripts/__tests__"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 20
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260923": "planned by the parent under the owner decisions of 2026-09-23 (roadmap.json ownerDecisions OD-repo-split-boundaries-in-place), from evidence/repo-split-analysis-20260923.json (draft.phases with its corrections array applied; measured again on main f50e76fe4); written by a ledger-author lane from the parent's transcription",
+      "phase20260923": "Phase 4 (catalog data artifact; a parallel track)",
+      "capsReading20260923": "caps.maxNonGeneratedLines (20) counts non-generated product lines only, as OD-line-cap-product-lines reads the 500: test lines, this unit's jest pins and fixtures included, are reported separately in its local receipt and never count; this cap below 500 is the ledger author's, not the owner's, and is read the same way.",
+      "admitAfter20260923": "U81 main-verified (the owner waived the file cap at 2026-09-23T02:11:01Z); --next cannot express a unit dependency, so the parent checks it at admission",
+      "ownerGateResolved20260923": {
+        "at": "2026-09-23T02:11:01.566Z",
+        "packet": "PK-catalog-untrack-file-cap",
+        "option": "(a) waive the 15-file cap for the one untracking PR"
+      },
+      "blocked20260923": {
+        "at": "2026-09-23T02:11:01.566Z",
+        "cause": "prerequisite not yet main-verified: U81 main-verified (the owner waived the file cap at 2026-09-23T02:11:01Z); --next cannot express a unit dependency, so the parent checks it at admission",
+        "nextIndependentAction": "the docs(roadmap) edit that records the prerequisite's main proof returns this unit to planned; --next cannot express a unit-to-unit dependency, so the ledger holds it blocked until then"
+      }
+    },
+    {
+      "id": "U83",
+      "node": "R6.loop-harness",
+      "taskKeys": [],
+      "behavior": "Placeholder for Phase 5 of the repo split (workspace scaffolding, validator rename map, foundation pilot package); it is never admitted itself. When Phases 1-4 are main-verified or parked, the parent writes its successors with exact paths and supersedes this record. Phase 5's scaffolding work is those successors, and it carries owner sub-decision 6's rename map, which lands first: (1) the rename-map successor teaches validate-roadmap.mjs the map (packages/<x> <- src/<old>) for the existence checks (:265 nodes, :368 units) and for pathsOverlap in the --next scheduler (:540-560), with historical records unchanged; only unit strings reach the scheduler ('src/lib' on U45, U4, U5d, U5e and U5h), while node strings ('src' on 10 nodes, R2.combat's 'src/lib' and 'src/services') are only existence-checked (analysis correction 8). It is a docs unit on R0.plan, because validate-roadmap.mjs is owned only through the planning directory (R0.plan and R9.close) and a unit may own only exact strings of its node, so it cannot share a unit with the code paths below (recorded in the decision's ledgerPlacement.deviations for the parent to confirm with the owner). (2) The scaffolding code successor, with the foundation pilot: root workspaces ['packages/*'] (npm; desktop/ stays out and pnpm is not adopted), next.config transpilePackages, the jest roots (jest.config.js:71 and :99) and coverage globs (:129-135), .oxlintrc packages/** patterns, packages/** in pr-checks.yml's code filter (:39-53), the Dockerfile copying packages/*/package.json before npm ci, and the hydrate script copying packages/ and the workspace links into .next/standalone as real directories (it also copies server.js, runtime node_modules, public/, a scripts/ BV cache and .next/static: correction 12); .gitignore:117 ('data/') would ignore any packages/*/src/data/ (correction 22); and the three-part enforcement (an oxlint '@/' ban in packages/**, a no-paths tsconfig run in CI, a resolved-import boundary test). The pilot is 9 files, not 8: src/services/core (5 production files), services/common/errors.ts, utils/logger.ts and utils/uuid.ts, plus src/types/common/result.ts, which BaseTypes.ts:42 and :44 import (correction 1); it moves 0 exact ownership strings (correction 25). The scaffolding code successor also rewrites the 'real second consumer' comment at src/kernel/extractionLadder.ts:6 to owner sub-decision 4. Exit criterion: Build Test win/mac/linux green, the standalone server with sockets passes a smoke test, the Docker image starts, the desktop pack builds and launches, and a deliberate '@/' import inside packages/foundation fails lint, the no-paths tsc and the boundary test. The scaffolding admission first probes the analysis's UNVERIFIED items (openQuestions[6]): standalone file tracing and the hydrate copy of workspace-linked packages, the Electron pack with workspace links, and jest resolution of package exports on all three OS runners.",
+      "ownershipPaths": [
+        "package.json"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260923": "planned by the parent under the owner decisions of 2026-09-23 (roadmap.json ownerDecisions OD-repo-split-boundaries-in-place), from evidence/repo-split-analysis-20260923.json (draft.phases with its corrections array applied; measured again on main f50e76fe4); written by a ledger-author lane from the parent's transcription",
+      "phase20260923": "Phase 5 (workspace scaffolding, validator rename map, pilot package)",
+      "capsReading20260923": "caps.maxNonGeneratedLines (500) counts non-generated product lines only, as OD-line-cap-product-lines reads the 500: test lines, this unit's jest pins and fixtures included, are reported separately in its local receipt and never count.",
+      "blocked20260923": {
+        "at": "2026-09-23T01:58:06.000Z",
+        "cause": "placeholder: Phase 5 starts after Phases 1-4 (U63-U82) are main-verified or parked; its successors are written then, with exact paths, and supersede this record",
+        "nextIndependentAction": "U63"
+      }
+    },
+    {
+      "id": "U84",
+      "node": "R6.loop-harness",
+      "taskKeys": [],
+      "behavior": "Placeholder for Phase 6 (promote the proven pieces, one package per PR); it is never admitted itself. Under owner sub-decision 4 a piece graduates once its gate count and its standalone probe are green (scripts/ and the multiplayer server count as the second consumer), one package per PR, foundation first, then construction, printing and tactical, each importing only packages below it. Per package: move it to packages/<x> with a transitional '@/' alias for app callers (five alias surfaces kept aligned: tsconfig paths, the jest mapper, the next.config alias, Storybook and scripts/tsconfig); rewrite the piece's intra-package '@/' imports and jest.mock targets; narrow exports to the manifest's entry list; enable verbatimModuleSyntax in that package's tsconfig (owner sub-decision 9; no repo-wide sweep); move the piece's upward-importing tests into the app's src/__tests__ (the analysis counts 24 such test files, deferred here from Phase 3 because only U63's gate report names them); and rely on the rename map for ledger strings (owner sub-decision 6). Measured sizes (analysis): foundation 8,993 inbound '@/' imports from 4,084 files, all under the alias; construction 550-903 inbound plus 162 scripts edges; tactical 922 inbound, 1,236 intra-package and 853 'src/...' literals in the combat-validation catalog. Alias-removal codemods run only when --next reports no unit in flight. Sequencing (analysis roadmapSequencing, corrected): only foundation moves 0 exact ledger strings (correction 25). The other three pieces now carry exact strings, most of them added by this edit to R6.loop-harness (ownershipAmended20260923): printing carries src/services/printing (U72, U78), src/services/unit-card, src/services/pilot-mech-card, src/services/assets and src/types/printing (U78); construction carries src/lib/spa/designation (U72, U76), src/services/units/unitLoaderService (U71) and src/stores (U69, U71, U73, U76; only its six *State.ts files move), plus R7.versions' 'src/services/units'; tactical carries src/engine (U73; also R2.combat's exact string), src/types/gameplay (U76, U77), U67's src/utils/gameplay strings (movement, movement.ts, pilotingSkillRolls, pilotingSkillRolls.ts, spaModifiers, spaModifiers.ts, standUpRules.ts, physicalAttacks, __tests__), U77's src/utils/gameplay/aerospace, infantry and protomech, and src/lib/combat/acar.ts with its two test files (U74), plus src/utils/gameplay/gameState on U37 and R2.multiplayer-client. Every one of these strings is covered by the sub-decision 6 rename map (the U83 successor that lands first), so no historical record is rewritten; a package whose strings a unit holds in flight waits for that unit (construction for R7.versions to close or be re-pointed; tactical for U37 and R2.multiplayer-client). Exit criterion per package: gate 0, probe 0, the three-part enforcement green, Build Test green on all three OSes, and validate-roadmap passes; after the final codemod no '@/' specifier resolves into a package.",
+      "ownershipPaths": [
+        "package.json"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260923": "planned by the parent under the owner decisions of 2026-09-23 (roadmap.json ownerDecisions OD-repo-split-boundaries-in-place), from evidence/repo-split-analysis-20260923.json (draft.phases with its corrections array applied; measured again on main f50e76fe4); written by a ledger-author lane from the parent's transcription",
+      "phase20260923": "Phase 6 (promote the proven pieces, one package per PR)",
+      "capsReading20260923": "caps.maxNonGeneratedLines (500) counts non-generated product lines only, as OD-line-cap-product-lines reads the 500: test lines, this unit's jest pins and fixtures included, are reported separately in its local receipt and never count.",
+      "blocked20260923": {
+        "at": "2026-09-23T01:58:06.000Z",
+        "cause": "placeholder: Phase 6 starts after U83's successors (the scaffolding and the foundation pilot) are main-verified; its per-package successors are written then",
+        "nextIndependentAction": "U63"
+      }
+    },
+    {
+      "id": "U85",
+      "node": "R9.close",
+      "taskKeys": [],
+      "behavior": "Placeholder for Phase 7 (after the roadmap program closes); it is never admitted itself and R9.close's final handoff lists it. Untangle campaign, multiplayer, events and p2p (analysis: 66 runtime and about 60 type-only statements, plus migration ownership): processors take state instead of calling usePilotStore.getState(); campaign owns the host protocol interfaces; direct service calls replace inProcessApiRouter (its API-handler imports are at inProcessApiRouter.ts:46-53, :83 and :87, correction 11); privateRecordAccess.ts:12 and :16 get an authorization port; the SQLite migrations move to their domains; and the gate residuals the earlier units leave (the two roadmap-owned cycles, the store-to-UI imports U69 names, any statement U73 parks, the regex boundary tests U65 leaves) close here. Then consider packaging events (84 production files, 14 importing better-sqlite3, correction 29) and kernel if extractionLadder.ts permits; condense the roadmap evidence (14.4 MB) with the #1780 method and optionally move openspec/changes/archive (9.5 MB) to a history repository; and re-run the co-change measurement and the exact minimum back-edge count, type-only included, before any separate-repository proposal (the 74% figure is for the combined foundation, construction and engine split, 79% for the engine alone: correction 14). Exit criterion: the 65-file type-level cycle is gone, the gate baseline for campaign and multiplayer is 0 or explicitly accepted, and any separate-repository proposal cites a re-measured co-change rate far below 74%. Its ciClass is docs because its one ownership string is the planning directory; its successors carry the product paths.",
+      "ownershipPaths": [
+        "openspec/planning/2026-09-12-roadmap-completion"
+      ],
+      "ciClass": "docs",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260923": "planned by the parent under the owner decisions of 2026-09-23 (roadmap.json ownerDecisions OD-repo-split-boundaries-in-place), from evidence/repo-split-analysis-20260923.json (draft.phases with its corrections array applied; measured again on main f50e76fe4); written by a ledger-author lane from the parent's transcription",
+      "phase20260923": "Phase 7 (after the roadmap program closes)",
+      "capsReading20260923": "caps.maxNonGeneratedLines (500) counts non-generated product lines only, as OD-line-cap-product-lines reads the 500: test lines, this unit's jest pins and fixtures included, are reported separately in its local receipt and never count.",
+      "blocked20260923": {
+        "at": "2026-09-23T01:58:06.000Z",
+        "cause": "placeholder: Phase 7 starts after the roadmap program closes (R9.close complete); campaign, multiplayer, events and p2p stay roadmap-owned until then",
+        "nextIndependentAction": "none inside the program; R9.close's final handoff lists this record"
+      }
     }
   ],
   "packets": [
@@ -5677,6 +6687,83 @@
         "deviationDisclosed": "DELIVERY.md says the owner posts the ruling out of band; the owner approved this unit by description in chat (words quoted in the comment) after the parent explained it in plain language and reported Lane A's verdict and the check set on the head, and the parent composed and posted the comment from the owner GitHub account and applied the label; the parent supplied the head from the ledger, as in the earlier rulings of this loop"
       },
       "note": "opened when the owner ruled, 2026-09-22 (the cutover sequence's units carry no pre-opened ruling packets)"
+    },
+    {
+      "id": "PK-boundary-gate-location",
+      "blocks": [
+        "U63"
+      ],
+      "nodes": [
+        "R6.loop-harness"
+      ],
+      "taskKeys": [],
+      "question": "Where does the boundary gate live? Owner sub-decision 5 chose the tool (a small custom TypeScript-parser script, no new dependency) and named no folder; the analysis places the gate in scripts/boundaries (evidence/repo-split-analysis-20260923.json draft.recommendedShape (2): scripts/boundaries/validate-module-boundaries.mjs; draft.phases[1]). A unit may own only a path that already exists (validate-roadmap.mjs:368), no node owns scripts or scripts/boundaries, and R6.loop-harness already owns scripts/qc: does the gate live in scripts/boundaries or in scripts/qc/boundaries?",
+      "options": [
+        {
+          "label": "(a) scripts/qc/boundaries",
+          "consequence": "the same tool one folder down, inside the 'scripts/qc' string that U63, U65, U66 and U75-U78 record provisionally: no ancestor string, no ownership amendment and no re-pointing PR. Those seven units keep 'scripts/qc', which 11 open units also hold (U2, U2b and U12 blocked; U28, U29, U39, U40, U53, U55, U57 and U60 planned; units.json on f50e76fe4), so --next serializes each boundary unit against any of them in flight; the location departs from the analysis's recommended shape",
+          "effort": "none beyond U63"
+        },
+        {
+          "label": "(b) scripts/boundaries, the analysis's location",
+          "consequence": "scripts/boundaries does not exist until U63 creates it, so U63 must own an existing ancestor: 'scripts' is added to R6.loop-harness (an ownershipAmended record) and U63's provisional 'scripts/qc' is re-pointed to it, which makes --next serialize U63, while it is in flight, against every unit owning a path under scripts (12 open units on f50e76fe4: the 11 on scripts/qc and U35d on scripts/e2e; and this edit's units on scripts/__tests__); after U63 merges, a docs PR adds 'scripts/boundaries' to R6.loop-harness and re-points U65, U66 and U75-U78 to it, a string no other open unit holds",
+          "effort": "U63 plus one docs PR re-pointing ownership"
+        }
+      ],
+      "agentRecommendation": "(a): scripts/qc/boundaries exists and R6.loop-harness already owns scripts/qc, so U63 can be admitted as planned; (b) would need the gate unit to create scripts/boundaries first and a docs PR to add it to the node afterwards.",
+      "revertCost": "(a) low: moving the gate folder later is a rename, the qc:boundaries script path in package.json and one ownership amendment. (b) low: the 'scripts' ancestor is held only while U63 is in flight, plus one docs PR.",
+      "decision": {
+        "at": "2026-09-23T02:11:01.566Z",
+        "option": "(a) scripts/qc/boundaries",
+        "text": "scripts/qc/boundaries (Recommended)",
+        "source": "owner answer to a structured question in the working session (chat), 2026-09-23; the parent wrote the options with a recommendation and transcribed the chosen label verbatim"
+      },
+      "ruling": null,
+      "raisedBy": "the ledger-author lane planning OD-repo-split-boundaries-in-place sub-decision 5 (2026-09-23), after verifiers found that one draft placed the gate in scripts/qc/boundaries without asking and a later draft credited the scripts/boundaries location to the owner, whose chosen option names no folder; for the parent to put to the owner",
+      "recommendationAsAsked20260923": {
+        "askedAt": "2026-09-23T02:10:04.640Z",
+        "draftRecommendation": "(b): scripts/boundaries is the location the analysis recommends (draft.recommendedShape (2)) and the one the parent's transcription of sub-decision 5 carried, so the gate is built where the analysis behind the owner's answers describes it; after U63 the gate units hold a string no other open unit holds. The owner did not rule on a location, so this is a recommendation, not the owner's choice. (a) is the alternative that avoids adding the 'scripts' ancestor and the re-pointing docs PR.",
+        "why": "The ledger-author lane's draft recommended (b). Before asking, the parent changed the recommendation to (a): validate-roadmap.mjs fails any unit ownership path that does not exist on disk (:368), scripts/boundaries does not exist, and this planning edit may not create files under scripts/. The owner was shown (a) as the recommendation and chose it."
+      }
+    },
+    {
+      "id": "PK-catalog-untrack-file-cap",
+      "blocks": [
+        "U82"
+      ],
+      "nodes": [
+        "R6.loop-harness"
+      ],
+      "taskKeys": [],
+      "question": "Owner sub-decision 7 makes the battlemech catalog a pinned, fetched release, which ends with untracking public/data/units/battlemechs (git rm --cached of 4,226 generated JSON files, 22,004,233 bytes, 0 product lines, plus one jest pin), but GOAL.md caps every unit at 15 files: may that one untracking PR (U82) exceed the 15-file cap?",
+      "options": [
+        {
+          "label": "(a) waive the 15-file cap for the one untracking PR",
+          "consequence": "one PR removes 4,226 data files from the index, adds one jest pin and changes 0 product lines; U79's byte-identical regeneration, U80's strict per-file hash validation and U81's fetch-before-read pins are its proof; every other cap stays",
+          "effort": "one PR after U81 is main-verified"
+        },
+        {
+          "label": "(b) keep the tree tracked",
+          "consequence": "the release mirrors a tracked tree: nothing is untracked, the repository keeps the 22 MB tree and its future churn, and CI's strict validation proves the two copies equal; the analysis's Phase 4 exit criterion (the tree is untracked and fetched) is not met",
+          "effort": "none beyond U81; U82 is retired"
+        },
+        {
+          "label": "(c) untrack in 15-file batches",
+          "consequence": "the cap holds, but the tree leaves over 282 PRs (4,226 / 15), and between batches readers see a partial tree unless every batch also fetches",
+          "effort": "282 PRs"
+        }
+      ],
+      "agentRecommendation": "(a): waive the cap for U82 only. The files are generated data that the pinned release reproduces byte-for-byte and validates per file, and the owner waived publication caps for one PR before (OD-publication-single-pr).",
+      "revertCost": "(a) low: re-adding the tree is one commit from the pinned release (git add -f, since .gitignore:121 matches it) and the fetch path keeps working either way. (b) none. (c) high: up to 282 PRs to revert.",
+      "decision": {
+        "at": "2026-09-23T02:11:01.566Z",
+        "option": "(a) waive the 15-file cap for the one untracking PR",
+        "text": "Waive the cap once (Recommended)",
+        "source": "owner answer to a structured question in the working session (chat), 2026-09-23; the parent wrote the options with a recommendation and transcribed the chosen label verbatim"
+      },
+      "ruling": null,
+      "raisedBy": "the ledger-author lane planning OD-repo-split-boundaries-in-place sub-decision 7 (2026-09-23), for the parent to put to the owner; the cap it asks about is GOAL.md Standing constraints (Caps) and validate-roadmap.mjs:381",
+      "askedAt20260923": "2026-09-23T02:10:04.640Z"
     }
   ],
   "deferrals": [
