@@ -486,6 +486,72 @@ describe('useCampaignPersistenceStore', () => {
     expect(useCampaignPersistenceStore.getState().saveState).toBe('saved');
   });
 
+  it('a save answer that lands after a load adopted a newer record leaves the adopted version', async () => {
+    // U35f: the mirror of the row above. The save is on the wire when a
+    // load reads a row that has moved past it (another write landed after
+    // this one); the save's own answer then arrives. Adopting that older
+    // answer would put baseVersion back behind the row the load adopted,
+    // and the next save would be refused 409.
+    const savedAnswer = buildSerializedCampaign(campaign, 'device-local', 8);
+    const newerRow = buildSerializedCampaign(
+      { ...campaign, name: 'Moved On' },
+      'device-remote',
+      9,
+    );
+    const putBodies: { baseVersion: number }[] = [];
+    let resolveFirstSave!: (response: Response) => void;
+    jest
+      .spyOn(global, 'fetch')
+      .mockImplementation((_input: RequestInfo | URL, init?: RequestInit) => {
+        if (init?.method !== 'PUT') {
+          return Promise.resolve(jsonResponse(200, newerRow));
+        }
+        const body = JSON.parse(String(init.body)) as { baseVersion: number };
+        putBodies.push(body);
+        if (putBodies.length === 1) {
+          return new Promise<Response>((resolve) => {
+            resolveFirstSave = resolve;
+          });
+        }
+        return Promise.resolve(
+          jsonResponse(
+            200,
+            buildSerializedCampaign(
+              campaign,
+              'device-local',
+              body.baseVersion + 1,
+            ),
+          ),
+        );
+      });
+    useCampaignPersistenceStore.setState({
+      campaignId: campaign.id,
+      baseVersion: 7,
+    });
+
+    const firstSave = useCampaignPersistenceStore.getState().saveCampaign();
+    await flushPromises();
+    expect(putBodies).toHaveLength(1);
+    await useCampaignPersistenceStore.getState().loadCampaign(campaign.id);
+    resolveFirstSave(jsonResponse(200, savedAnswer));
+    await firstSave;
+    const baseVersionAfterLateAnswer =
+      useCampaignPersistenceStore.getState().baseVersion;
+    const secondSave = await useCampaignPersistenceStore
+      .getState()
+      .saveCampaign();
+
+    expect({
+      baseVersionAfterLateAnswer,
+      putBaseVersions: putBodies.map((body) => body.baseVersion),
+      secondSave: secondSave.status,
+    }).toEqual({
+      baseVersionAfterLateAnswer: 9,
+      putBaseVersions: [7, 9],
+      secondSave: 'saved',
+    });
+  });
+
   it('concurrent saves serialize so the second writes against the first result', async () => {
     // Regression: two overlapping writes both read the same `baseVersion`, so
     // the later one always loses the compare-and-swap and 409s even though

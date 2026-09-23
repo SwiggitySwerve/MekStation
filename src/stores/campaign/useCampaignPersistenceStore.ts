@@ -215,8 +215,9 @@ interface CampaignPersistenceActions {
    */
   reconcileAfterDiscardFlush: () => void;
   /**
-   * Re-read the source record after the command route acknowledged a
-   * committed command that wrote it (task 6.4).
+   * Re-read the source record after a committed command that may have
+   * written it was acknowledged (task 6.4) - today by the co-op host's fold
+   * of a committed frame (U35f). The read waits for any save in flight.
    *
    * THE BRIDGE IS A REFETCH, NOT AN ARITHMETIC MAPPING. The two
    * optimistic-concurrency counters are the `SerializedCampaign` row
@@ -727,6 +728,12 @@ function applySavedRecord(
   });
 }
 
+/**
+ * Puts a co-op campaign back after a refused or failed save: to the server's
+ * record when the refusal carried one (its campaign, roster projection,
+ * version, metadata, fence and cache key), otherwise to the last persisted
+ * campaign. Cancels the armed save and clears dirty either way.
+ */
 function rollbackCoopCampaign(
   set: PersistenceSet,
   get: PersistenceGet,
@@ -744,6 +751,11 @@ function rollbackCoopCampaign(
       migrated.campaignId,
       migrated.body.rosterProjection,
     );
+    // The live campaign IS this record now, so the cache names it. Left at
+    // the pre-rollback revision, the next refresh would read this same row,
+    // judge the copy diverged and replace the live campaign - dropping a
+    // co-op effect folded onto it since (U35f).
+    writeCachedCampaignKey(migrated);
     set({
       baseVersion: migrated.version,
       metadata: metadataFrom(migrated),
@@ -780,6 +792,13 @@ function performSave(
   return queued;
 }
 
+/**
+ * One write of the live campaign at `baseVersion` (after any published load
+ * lands). A saved answer is adopted unless a read already adopted a newer
+ * row for this campaign; a refusal records the conflict and rolls a co-op
+ * campaign back to the server record with a toast; a failure records the
+ * error and rolls a co-op campaign back to its last persisted copy.
+ */
 async function runSave(
   set: PersistenceSet,
   get: PersistenceGet,
@@ -813,6 +832,19 @@ async function runSave(
       get().sourceReplayFence,
     );
     if (attempt.status === 'saved') {
+      // A read that adopted a NEWER row while this write was in flight (a
+      // load waits for no save) already holds a record the row moved to
+      // after this one - only a write built on this one could move it.
+      // Applying this older answer would put baseVersion back behind the
+      // row and turn the next save into a 409.
+      const held = get();
+      if (
+        held.campaignId === attempt.record.campaignId &&
+        held.baseVersion > attempt.record.version
+      ) {
+        set({ saveState: 'saved', errorMessage: null });
+        return { status: 'saved', record: attempt.record };
+      }
       applySavedRecord(set, attempt.record);
       return { status: 'saved', record: attempt.record };
     }
@@ -1315,10 +1347,14 @@ function reconcileAfterDiscardFlushAction(
  * over the authority's record. It is tolerable only because the design
  * intends the window not to exist: task 6.2a's client half obtains an
  * ACKNOWLEDGED save before submitting the command, so a correctly routed
- * acceptance reaches this point clean. Adding a `!dirty` guard here is
- * deliberately NOT done - skipping the refresh while dirty would trade the
- * lost edit for an unexplained 409 on the next save, and choosing between
- * those is task 6.2b's call, not this bridge's.
+ * acceptance reaches this point clean. The co-op host's fold of a committed
+ * frame (U35f) reaches it dirty with its own projection of that event: on a
+ * journal-native campaign the command rewrote the row, so the re-read
+ * record carries the event; on a snapshot-authority campaign the row did not
+ * move, so a cache key naming that row keeps the live campaign. Adding a
+ * `!dirty` guard here is deliberately NOT done - skipping the refresh while
+ * dirty would trade the lost edit for an unexplained 409 on the next save,
+ * and choosing between those is task 6.2b's call, not this bridge's.
  */
 function refreshAfterCommittedCommandAction(
   set: PersistenceSet,
@@ -1339,29 +1375,34 @@ function refreshAfterCommittedCommandAction(
     // An armed save holds the PRE-command token and would be refused by
     // the row the command just moved. This refresh owns the next write.
     clearAutoSaveTimer();
-    const refresh = runLoad(set, campaignId).then((adopted) => {
-      // ...and owning it means handing it back when the read fails. A
-      // refetch that did not answer leaves `dirty` exactly as it was with
-      // the armed save already cancelled, so without this the campaign
-      // sits dirty with NO pending write until the player's next
-      // mutation, which may never come - verbatim the failure the
-      // post-flush reconciliation above exists to close, and it arms on
-      // every path for the same reason. Guarded rather than
-      // unconditional only because the ADOPTING path clears `dirty`, so
-      // arming there would fire a write with nothing to say.
-      if (!adopted && get().dirty) {
-        armAutoSaveTimer(set, get);
-      }
-      return adopted;
-    });
-    // Published the way a load is: a write that starts meanwhile waits
-    // for the version this read establishes instead of racing it.
-    inFlightLoad = refresh;
-    return refresh.finally(() => {
-      if (inFlightLoad === refresh) {
-        inFlightLoad = null;
-      }
-    });
+    // Queued on the save chain, behind every write already on it, so a save
+    // in flight lands - version and cache key stamped - before the row is
+    // read. Read first, the row could already hold that save while the
+    // cache key did not name it yet, and runLoad would replace the live
+    // campaign with a copy from before anything folded onto it since
+    // (U35f). As the chain's tail it also makes a write requested meanwhile
+    // wait for the version this read establishes. Deliberately NOT
+    // published as `inFlightLoad`: a write queued ahead of this read awaits
+    // `inFlightLoad` when it starts, and this read waits for that write.
+    const refresh = saveChain
+      .then(() => runLoad(set, campaignId))
+      .then((adopted) => {
+        // ...and owning it means handing it back when the read fails. A
+        // refetch that did not answer leaves `dirty` exactly as it was with
+        // the armed save already cancelled, so without this the campaign
+        // sits dirty with NO pending write until the player's next
+        // mutation, which may never come - verbatim the failure the
+        // post-flush reconciliation above exists to close, and it arms on
+        // every path for the same reason. Guarded rather than
+        // unconditional only because the ADOPTING path clears `dirty`, so
+        // arming there would fire a write with nothing to say.
+        if (!adopted && get().dirty) {
+          armAutoSaveTimer(set, get);
+        }
+        return adopted;
+      });
+    saveChain = refresh.catch(() => undefined);
+    return refresh;
   };
 }
 
@@ -1428,10 +1469,8 @@ function createPersistenceActions(
     markDirty: markDirtyAction(set, get),
     flushPendingMutations: flushPendingMutationsAction(set, get),
     reconcileAfterDiscardFlush: reconcileAfterDiscardFlushAction(set, get),
-    // No production caller yet, by design: the client routing that
-    // submits the acceptance command is task 6.2b, which is owner-blocked
-    // and not on main. The bridge lands with its behaviour proven so
-    // 6.2b's routing has something to call instead of inventing one.
+    // Called by the co-op host's fold of a committed frame (U35f). The
+    // command route's client routing (task 6.2b) does not call it yet.
     refreshAfterCommittedCommand: refreshAfterCommittedCommandAction(set, get),
     adoptLegacyCampaign: () => runAdoptLegacyCampaign(set, get),
     resolveConflictTakeServer: resolveConflictTakeServerAction(set, get),

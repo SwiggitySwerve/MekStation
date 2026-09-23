@@ -1,0 +1,318 @@
+{
+  "unit": "U35f",
+  "stage": "admission",
+  "status": "go",
+  "at": "2026-09-23T05:27:47.558Z",
+  "baseline": "f32ea5400f3a1282733180059e32d9169fb74204",
+  "originMain": "f32ea5400f3a1282733180059e32d9169fb74204",
+  "originMainSource": "git ls-remote origin refs/heads/main (read-only; no fetch)",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u35f",
+  "branch": "roadmap-u35f-coop-host-adopts-record-version-20260923",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "node": "R2.multiplayer-client",
+  "shellPreamble": [
+    "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "export npm_config_dry_run=true"
+  ],
+  "runners": {
+    "receiptWriter": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/write-admission.mjs",
+      "sha256": "dda9c95f64be73cfb649eecc4b09d18410422a1c41784efe82969e9a500f377d"
+    }
+  },
+  "nodeVersion": {
+    "command": "node --version",
+    "lastLine": "v22.22.0",
+    "exitCode": 0,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/logs/adm-node-version.log",
+      "sha256": "88148964653a62584743256afaa138501d6c66aa1b0f801b1d2cf7058ae089d4"
+    }
+  },
+  "guardNodeModulesLink": {
+    "command": "npm run --silent qc:guard-node-modules-link",
+    "lastLine": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"E:\\\\Projects\\\\MekStation\\\\.sisyphus\\\\roadmap-completion-20260912\\\\worktrees\\\\u35f\\\\node_modules\",\"actualPath\":\"E:\\\\Projects\\\\MekStation\\\\node_modules\"}",
+    "exitCode": 1,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/logs/adm-guard.log",
+      "sha256": "6625745fc6e8f09f80b6b429d62945d623ecea1ab504186258d790c4d89802b8"
+    },
+    "expected": true,
+    "why": "refusal by design in a junctioned worktree; no npm install/ci/prune or lifecycle is run in this lane (npm_config_dry_run=true exported)"
+  },
+  "nextOnBaseline": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "lastLine": "U35f",
+    "exitCode": 0,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/logs/adm-next.log",
+      "sha256": "4bd79dbd12f0ac0580ee8be731bb6616945e48e8bdc60836fe64794d454a238b"
+    }
+  },
+  "validatorOnBaseline": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+    "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+    "exitCode": 0,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/logs/adm-validator.log",
+      "sha256": "ed521d330ac0365ef2ccb38b8892decadb4a87ae546df9bcec8c4b60bcca4173"
+    }
+  },
+  "gitStatusShortAtAdmission": "",
+  "ownershipPaths": [
+    "src/components/campaign/coop"
+  ],
+  "readOnlyPaths": [
+    "src/stores/campaign",
+    "src/lib/campaign",
+    "src/lib/multiplayer"
+  ],
+  "receiptsOwned": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u35f-admission-20260923.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u35f-red-20260923.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u35f-local-20260923.json"
+  ],
+  "baselineFileHashes": {
+    "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx": "51c4b6b6649956e2b153ba4fdad515573c720a263f5e0033ae43511b4024d782",
+    "src/stores/campaign/useCampaignPersistenceStore.ts": "44f48ab0f29cf571646653dd91437c8fd16012fb4587a36597942383e8e314b1"
+  },
+  "behavior": "units.json U35f (the spec; not widened): the co-op host browser adopts the saved record's new version after a co-op update, so its next whole-envelope save is not refused (owner decision OD-u35d-server-and-host-fix, host half). After U35e a committed co-op command advances the campaigns row version on a journal-native campaign; the host's fold of the committed frame then refreshes the record through the persistence store's existing refreshAfterCommittedCommand, which cancels the armed save and adopts the server record, instead of letting the next save meet the CAS and roll back with a toast.",
+  "seams": [
+    {
+      "at": "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx:140-239",
+      "what": "the host effect: runs only when coopMode is host (:141); connects the host transport (:144-160); projectHostFoldToCampaign (:165-172) projects the fold onto the campaign store; the frame handler (:174-238) clears the refusal on a CampaignEvent-kind frame (:190-193) and folds every campaign frame, projecting only when the fold accepted it (:197-213); deps [campaignId, coopMode, matchId, roomCode, store] (:239)"
+    },
+    {
+      "at": "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx:241-305",
+      "what": "the guest effect, a separate effect that runs only when coopMode is guest (:242); it feeds the mirror store and projects the mirror (:256-263, :286-303); it never touches the host fold"
+    },
+    {
+      "at": "src/types/multiplayer/Protocol.ts:945-961",
+      "what": "CampaignSnapshotMessageSchema and CampaignEventMessageSchema: { kind, matchId, ts, event: CampaignEventEnvelopeSchema }"
+    },
+    {
+      "at": "src/types/campaign/campaignSyncSchemas.ts:173-187",
+      "what": "the wire event envelope: type, sequence (>= -1), campaignId (:176), ts, authorPlayerId, scope, payload"
+    },
+    {
+      "at": "src/lib/multiplayer/server/campaignEventWireFrame.ts:18-31",
+      "what": "(read-only) a CampaignSnapshotPublished rides the CampaignSnapshot kind, every other committed event rides CampaignEvent"
+    },
+    {
+      "at": "src/lib/campaign/coop/campaignSyncTransport.ts:397-407",
+      "what": "(read-only) campaignEventFromMessage returns the event of a CampaignSnapshot or CampaignEvent frame"
+    },
+    {
+      "at": "src/lib/campaign/coop/campaignAuthoritativeFold.ts:94-130",
+      "what": "(read-only) the fold rejects a frame at or below its cursor by returning the fold unchanged by reference; it does not compare the event campaignId"
+    },
+    {
+      "at": "src/stores/campaign/useCampaignPersistenceStore.ts:133-141,233-235,1323-1366,1435",
+      "what": "(read-only) ICampaignCommittedCommandAck { kind: committed, state: { campaignId }, receiptRevision?, publicHead? }; the action reads only ack.kind and ack.state.campaignId (:1332-1338), clears the auto-save timer (:1341), re-reads through runLoad (:1342), re-arms the debounced save when the read did not adopt and the store is dirty (:1352-1354), publishes the read as inFlightLoad (:1359); exposed on the store (:1435)"
+    },
+    {
+      "at": "src/stores/campaign/useCampaignPersistenceStore.ts:881-970",
+      "what": "(read-only) runLoad: GET /api/campaigns/:id no-store (:701-705); a cache key at the same instance and version keeps the live campaign (:920-940), anything else replaces it with the server record and restores the roster projection (:941-949); then campaignId, dirty false, baseVersion, metadata, fence (:951-962); a failed read sets saveState error and leaves baseVersion (:964-968)"
+    },
+    {
+      "at": "src/stores/campaign/useCampaignPersistenceStore.ts:655-692,783-863",
+      "what": "(read-only) the save path: putLiveCampaign PUTs the live campaign at baseVersion (:673-680) and reads a 409 body (:681-684); runSave awaits inFlightLoad only at its start (:790-792); a conflict on a co-op campaign rolls back to the server record and toasts on the first refusal (:832-846)"
+    },
+    {
+      "at": "src/stores/campaign/useCampaignPersistenceStore.ts:730-756",
+      "what": "(read-only) rollbackCoopCampaign adopts the server record and its version but does not re-stamp the cache key"
+    },
+    {
+      "at": "src/stores/campaign/useCampaignPersistenceStore.ts:1368-1387",
+      "what": "(read-only) markDirty never arms the debounced save for a co-op campaign (:1382-1384)"
+    },
+    {
+      "at": "src/stores/campaign/useCampaignStore.actions.ts:259-264,285-291; src/stores/campaign/useCampaignStore.dayActions.ts:239,306-318",
+      "what": "(read-only) a co-op host's saves are explicit: saveCampaign goes straight to the persistence save; updateCampaign saves at once and reverts the edit on a refusal; a day advance saves, then sends the AdvanceDay host intent"
+    },
+    {
+      "at": "src/stores/campaign/campaignPersistenceWiring.ts:104-117",
+      "what": "(read-only) every campaign-object change marks the persistence store dirty"
+    },
+    {
+      "at": "src/lib/campaign/authority/campaignRecordJournalState.ts:75-125",
+      "what": "(read-only, U35e) the row rewrite after a committed command: only for a campaign whose marker is in journal state (:80); writes the stored record at version + 1 with the journal balance and, when the day differs, currentDate (:105-125)"
+    },
+    {
+      "at": "src/pages/api/campaigns/[id].ts:198-253",
+      "what": "(read-only) a journal-native PUT checkpoints; a stale PUT answers 409 { kind: conflict, currentVersion, current } (:244-251)"
+    },
+    {
+      "at": "src/lib/campaign/persistence/campaignCacheKey.ts:63-80",
+      "what": "(read-only) the cache verdict is usable only for the same instance at the same revision"
+    }
+  ],
+  "designAnswers": {
+    "whereTheHostFolds": "CampaignCoopRouteSurfaceConnected.tsx:174-238, inside the host-only effect (:140-239). Each frame goes through campaignEventFromMessage (:197); foldCampaignFrame (:208) returns the fold unchanged by reference for a rejected frame, and only an accepted frame is projected onto the campaign store (:209-212). The refresh goes in that accepted branch, only for a CampaignEvent-kind frame (the kind the server gives every committed event that is not a snapshot, campaignEventWireFrame.ts:24-27, and the predicate the handler already uses for 'the server accepted a write', :190-193), so the hydration baseline a (re)connect sends (CampaignSnapshot kind, sequence -1) and a duplicate or stale frame do not read.",
+    "whatTheFrameCarries": "{ kind: 'CampaignEvent', matchId, ts, event } (Protocol.ts:955-961) with event.campaignId (campaignSyncSchemas.ts:176). refreshAfterCommittedCommand reads only ack.kind and ack.state.campaignId (useCampaignPersistenceStore.ts:1332-1338); receiptRevision and publicHead are optional and never read as a row version (:127-141). So { kind: 'committed', state: { campaignId: event.campaignId } } is buildable from the frame alone, with no server change and no edit under src/stores/campaign. The ack names the EVENT's campaign, not the surface's, so the store's own guard (:1332-1338) ignores a frame for any campaign other than the one it holds.",
+    "hostOnly": "Yes. The fold and the refresh are in the effect that returns early unless coopMode === 'host' (:141). The guest's frames are handled by a separate effect (:241-305) that feeds the mirror store and is not changed.",
+    "whenTheReadFails": "The store's existing handling, unchanged (useCampaignPersistenceStore.ts:1342-1356, runLoad :964-968): nothing is adopted, baseVersion stays at the pre-command token, saveState becomes error with the message, and when the store is dirty the debounced save is re-armed (:1352-1354). For a co-op host that re-arm is a save markDirty would never arm (:1382-1384); on a journal-native campaign it carries the pre-command token, so it answers 409 and rolls back with a toast (:832-846) - the same outcome as without U35f, two seconds later. Covered by the store's own rows (src/stores/campaign/__tests__/campaignCommandAckRefresh.test.ts:378-396, :456-479); this unit adds no failure handling.",
+    "raceOrLoop": "No loop: the refresh only reads (GET, :701-705); runLoad's replacement of the live campaign (:942) marks the store dirty through the wiring (campaignPersistenceWiring.ts:104-117) but arms nothing for a co-op campaign (:1382-1384); the host effect's deps (:239) do not include the campaign object, so no reconnect; a read produces no frame. Races: (1) a save started while the read is in flight waits for it (runSave :790-792 awaits the published inFlightLoad, :1359). (2) A save already in flight is not awaited by the read (runLoad does not wait on the save chain), so the PUT's applySavedRecord (:816) and the read's adoption (:951-962) land in network order; if a pre-command PUT response lands after the read adopted the post-command row, baseVersion regresses and the next save meets 409 and the existing rollback (INFERENCE, not measured). (3) One read per committed event: a HirePilot batch (FundsChanged + PilotHired) reads twice; both reads see the one rewrite of that batch. (4) On a snapshot-authority campaign (every co-op campaign in production while the flag is false) the row does not move (campaignRecordJournalState.ts:80), the read returns the version the host holds, and a host whose cache key is at that version keeps its live, folded campaign (:931-940; guard row planned). A host whose cache key is NOT at that version - after a 409 rollback, which does not re-stamp the key (:730-756) - has the live campaign replaced by the stored record, which lacks the command's balance and day until the next frame re-projects the fold (INFERENCE, not measured at admission).",
+    "armedSave": "For a co-op host markDirty never arms the debounced save (:1382-1384), so on this flow the refresh's clearAutoSaveTimer (:1341) cancels nothing unless an earlier failed refresh re-armed it; the refusal U35f removes is the host's next explicit save (useCampaignStore.actions.ts:259-264, 285-291; dayActions.ts:239) carrying the pre-command baseVersion."
+  },
+  "design": {
+    "product": "CampaignCoopRouteSurfaceConnected.tsx: in the host frame handler's accepted-fold branch, after projectHostFoldToCampaign(), a CampaignEvent-kind frame calls a module-level helper that hands { kind: 'committed', state: { campaignId: event.campaignId } } to useCampaignPersistenceStore.getState().refreshAfterCommittedCommand (fire and forget; the store owns the read's outcome). A doc comment on the component (its body changes) and on the helper.",
+    "tests": "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostRecordRefresh.test.tsx (new): the real campaign store, the real persistence store and its wiring, the connected surface rendered as host or guest with the transport faked as the existing hostProjection suite does, and fetch faked at the store's seam as a campaigns row that answers GET with the record and PUT with a compare-and-swap (409 { kind: conflict, currentVersion, current } on a stale baseVersion). A co-op commit is modelled as U35e's row rewrite (version + 1, balance or currentDate patched) plus the committed frame.",
+    "rowsPlanned": {
+      "h1": "red: a journal-native host folds a committed FundsChanged (an approved co-op spend) whose command rewrote the row; the host's next save (the campaign store's saveCampaign, the co-op path) meets 409, rolls back and toasts on the baseline; after, the fold reads the row once, adopts version + 1, and the next save carries the new balance at that version and is saved",
+      "h2": "red: the host's own day advance - its save lands, then its AdvanceDay commit rewrites the row's currentDate; same expectations with the date",
+      "g": "guard: a guest's fold of the same committed frame does not read the record",
+      "o": "guard: a committed frame whose event names another campaign does not read the record",
+      "b": "guard: the hydration baseline a (re)connect sends (CampaignSnapshot kind) does not read the record",
+      "s": "guard: a snapshot-authority campaign (the row did not move) keeps the host's folded balance through the refresh and its next save carries it at the version it holds"
+    },
+    "mutantsPlanned": [
+      "M1 the fold stops calling the refresh",
+      "M2 a guest's fold refreshes",
+      "M3 a frame for another campaign refreshes (the ack names the surface campaign instead of the event campaign)",
+      "M4 the hydration baseline refreshes (the CampaignEvent-kind check removed)"
+    ]
+  },
+  "estimatePerFile": [
+    {
+      "file": "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+      "category": "product",
+      "estimateLines": 35
+    },
+    {
+      "file": "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostRecordRefresh.test.tsx",
+      "category": "test (new)",
+      "estimateLines": 380
+    }
+  ],
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "countingRule": "product lines count, tests do not (owner decision OD-line-cap-product-lines, 2026-09-23)",
+    "estimatedFiles": 2,
+    "estimatedProductLines": 35,
+    "estimatedTestLines": 380,
+    "withinCaps": true,
+    "note": "INFERENCE: estimates before any edit"
+  },
+  "pathAmendmentNeeded": false,
+  "pathAmendmentWhy": "the fold reaches the action through useCampaignPersistenceStore.getState() (an import, no edit under src/stores/campaign), and the frame carries the only field the action reads (event.campaignId), so no server edit either",
+  "risksForTheParent": [
+    "Authority: on a journal-native campaign the refresh replaces the host's live campaign with the server record and clears dirty (runLoad, useCampaignPersistenceStore.ts:941-962); a host-local change not yet saved when a co-op frame arrives is discarded, as the store's own comment says (:1305-1322). A co-op host's edits through updateCampaign and the day actions save at once (useCampaignStore.actions.ts:259-264, 285-291), so the window is a local change not routed through an explicit save; without U35f that change's next save would be refused 409 and rolled back on a journal-native campaign anyway.",
+    "Authority (production today): every co-op campaign is snapshot-authority while CAMPAIGN_JOURNAL_AUTHORITY_ENABLED is false, and U35e does not rewrite its row (campaignRecordJournalState.ts:80). The refresh then reads the version the host already holds; a host whose cache key is at that version keeps its folded campaign (guard row s planned). A host whose cache key is stale - after a 409 rollback, which does not re-stamp the key (:730-756), or a read landing between the host's own PUT commit and its response - gets the stored record, which lacks the co-op command's balance and day until the next frame re-projects the fold; a save in that window writes the stale balance into the snapshot-authority record. INFERENCE, not measured at admission; this ends at the flip (U35d), after which every co-op campaign is journal-native.",
+    "Concurrency: the refresh and a save already in flight are not ordered (runSave awaits inFlightLoad only at its start, :790-792; runLoad does not wait on the save chain), so a pre-command PUT response landing after the refresh adopted the post-command row regresses baseVersion and the next save meets the existing 409 rollback and toast. INFERENCE. Fixing the ordering needs an edit under src/stores/campaign.",
+    "Concurrency: one read per committed event (a HirePilot batch of FundsChanged + PilotHired reads twice); responses processed out of order could adopt an older version (INFERENCE).",
+    "Owner ruling: the authority and concurrency classes need the head-bound Lane B ruling on the head that merges."
+  ],
+  "decision": "go: --next printed U35f on the baseline, the validator passed, the fold reaches refreshAfterCommittedCommand through the store's public getState() with no edit under src/stores/campaign, and the committed frame carries the one field the action reads (event.campaignId) with no server change; estimated 1 product file and about 35 product lines",
+  "amendment20260923": {
+    "at": "2026-09-23T07:04:46.799Z",
+    "source": "the coordinator's message to this lane and units.json U35f pathsAmendedBeforeAdmission20260923 on main b519db276 (PR #1928): the lane's measured F1/F2 is fixed in the persistence store; accepting F1 until U35d and re-applying the fold in the component were rejected",
+    "amendedMain": "b519db27677dd91709561490591854b0e09166aa",
+    "baselineKept": "f32ea5400f3a1282733180059e32d9169fb74204",
+    "betweenBaselineAndAmendment": [
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/u22a-admission-attempt1-20260923.json",
+      "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+      "openspec/planning/2026-09-12-roadmap-completion/units.json"
+    ],
+    "baselineKeptWhy": "only ledger files changed between the baseline and the amendment commit (list above), so the worktree and baseline stay as admitted",
+    "newPaths": [
+      "src/stores/campaign/useCampaignPersistenceStore.ts",
+      "src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts"
+    ],
+    "ownershipPaths": [
+      "src/components/campaign/coop",
+      "src/stores/campaign/useCampaignPersistenceStore.ts",
+      "src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts"
+    ],
+    "amendedBehavior": "units.json U35f, amended 2026-09-23: the refresh waits for any save in flight before it reads, the store's co-op rollback updates its stored cache key when it adopts the server record, and a save response that arrives after a refresh adopted a newer record does not move the version back. Red: the lane's probes p1, p2 and p3.",
+    "storeFileSha256BeforeEdit": "44f48ab0f29cf571646653dd91437c8fd16012fb4587a36597942383e8e314b1",
+    "storeSeams": [
+      {
+        "at": "src/stores/campaign/useCampaignPersistenceStore.ts:329-335,771-781",
+        "what": "saveChain, the tail of the serialized write chain, and performSave, which queues each write behind it"
+      },
+      {
+        "at": "src/stores/campaign/useCampaignPersistenceStore.ts:783-818",
+        "what": "runSave: awaits a published inFlightLoad only at its start (:790-792), PUTs at baseVersion, and applies a saved answer unconditionally (:815-818)"
+      },
+      {
+        "at": "src/stores/campaign/useCampaignPersistenceStore.ts:707-728",
+        "what": "applySavedRecord: sets baseVersion, metadata, lastPersistedCampaign, fence and the cache key from the answer"
+      },
+      {
+        "at": "src/stores/campaign/useCampaignPersistenceStore.ts:730-756",
+        "what": "rollbackCoopCampaign: adopts the server record, its version, metadata and fence, but never re-stamps the cache key (writeCachedCampaignKey, :415-418)"
+      },
+      {
+        "at": "src/stores/campaign/useCampaignPersistenceStore.ts:881-962",
+        "what": "runLoad: keeps the live campaign only when the held cache key names the row it read (:920-940), else replaces it with the stored record (:941-949)"
+      },
+      {
+        "at": "src/stores/campaign/useCampaignPersistenceStore.ts:1277-1366",
+        "what": "refreshAfterCommittedCommandAction: clears the timer, runs runLoad at once without waiting for a save in flight, and publishes itself as inFlightLoad (:1357-1364)"
+      },
+      {
+        "at": "src/stores/campaign/useCampaignPersistenceStore.ts:1431-1434",
+        "what": "the actions table's comment says the refresh has no production caller; the U35f fold is one now"
+      }
+    ],
+    "design": {
+      "waitForSaveInFlight": "refreshAfterCommittedCommand queues its read on the save chain (saveChain.then(runLoad)) and becomes the chain's tail, so a save in flight lands - version, cache key and all - before the row is read, and a save requested meanwhile runs after the read. It stops publishing itself as inFlightLoad: a save queued ahead of it awaits inFlightLoad when it starts while the read waits for that save, so publishing would deadlock the two; the chain already orders later saves behind it.",
+      "rollbackStampsCacheKey": "rollbackCoopCampaign calls writeCachedCampaignKey on the server record it adopts, so the cache key names the record the live campaign now is.",
+      "lateSaveAnswerKeepsNewerVersion": "runSave, on a saved answer for the campaign the store holds whose version is below the baseVersion the store already holds, leaves the adopted record's state as it is and only marks the save saved; the row can only have moved past this write by a write built on it. With the refresh on the chain the refresh cannot adopt ahead of a save's answer, so on the refresh path this is a guard; a load (runLoad through loadCampaign, which waits for no save) can, and that is the path its row drives.",
+      "comments": "the refresh action's comment (publication, dirty callers), the actions table comment (a production caller now exists), and doc comments on runSave and rollbackCoopCampaign (both change)",
+      "notChanged": "runLoad, the cache verdict, loadCampaign's own publication, the discard flush and reconcile paths, resolveConflictTakeServer (not a co-op rollback)"
+    },
+    "rowsPlanned": {
+      "p1": "coop suite: snapshot authority, after a co-op 409 rollback a folded co-op spend survives the refresh and the next save (red: key stays at 4, 1000000 stored)",
+      "p2": "coop suite: snapshot authority, a co-op spend folded while the host rename is in flight survives (red: 1000000 stored)",
+      "p3": "coop suite: journal-native, a co-op spend committed while the host rename is in flight leaves the host saving at 6 (red: 409 at 5, toast)",
+      "lateAnswer": "store suite: a save answer that lands after a load adopted a newer record leaves the adopted version (red: back to 8)"
+    },
+    "mutantsPlanned": [
+      "M5 the refresh stops waiting for the in-flight save (runLoad at once) - expected caught by p2",
+      "M6 the rollback leaves the cache key stale - expected caught by p1",
+      "M7 a late save answer rolls the version back (the guard removed) - expected caught by the store row; p3 is not expected to catch it, because with the wait in place the refresh never adopts ahead of a save answer"
+    ],
+    "estimatePerFile": [
+      {
+        "file": "src/stores/campaign/useCampaignPersistenceStore.ts",
+        "category": "product",
+        "estimateLines": 45
+      },
+      {
+        "file": "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+        "category": "product (unchanged by the amendment)",
+        "estimateLines": 36
+      },
+      {
+        "file": "src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts",
+        "category": "test",
+        "estimateLines": 66
+      },
+      {
+        "file": "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostRecordRefresh.test.tsx",
+        "category": "test (new)",
+        "estimateLines": 900
+      }
+    ],
+    "caps": {
+      "maxFiles": 15,
+      "maxNonGeneratedLines": 500,
+      "estimatedFiles": 4,
+      "estimatedProductLines": 81,
+      "withinCaps": true,
+      "note": "INFERENCE: estimates before the store edit"
+    },
+    "risksForTheParent": [
+      "Concurrency: the refresh now sits in the save chain, so a slow save delays the refresh and every write requested after it; a refresh whose read hangs holds the chain until fetch settles (the same exposure a save in the chain already has).",
+      "The refresh no longer publishes inFlightLoad; loadCampaign and the post-flush reconciliation still do.",
+      "Owner ruling: authority and concurrency classes need the Lane B ruling on the merge head."
+    ],
+    "receiptWriter": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/write-admission-amendment.mjs",
+      "sha256": "1982590be103a51aadbbf212bfdd87f6d82347e96afa6d65a348c32c90fc52cd"
+    }
+  }
+}

@@ -37,6 +37,7 @@ import {
   subscribeCoopPendingProposals,
 } from '@/lib/campaign/coop/coopRuntimeSession';
 import { useCampaignMirrorStore } from '@/lib/p2p/campaignMirrorStore';
+import { useCampaignPersistenceStore } from '@/stores/campaign/useCampaignPersistenceStore';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 
 import {
@@ -51,6 +52,17 @@ export interface CampaignCoopRouteSurfaceConnectedProps {
   readonly dashboardMount?: boolean;
 }
 
+/**
+ * Binds the co-op campaign route surface to the live campaign sync stream.
+ * A host opens its runtime session, folds each campaign frame its transport
+ * delivers, projects every fold that accepted a frame onto the campaign
+ * store (the projection a guest uses), and after folding a committed event
+ * has the persistence store re-read the saved record. A guest feeds the
+ * frames into the mirror store and projects the mirror onto the campaign
+ * store. Both roles track pending proposals and the server's last refusal.
+ * A guest's proposals go over its transport and a host's decisions over
+ * its own; without that transport both go through the runtime session.
+ */
 export function CampaignCoopRouteSurfaceConnected({
   campaign,
   routeId,
@@ -209,6 +221,14 @@ export function CampaignCoopRouteSurfaceConnected({
         if (folded !== hostFold.current) {
           hostFold.current = folded;
           projectHostFoldToCampaign();
+          // A committed event, never the CampaignSnapshot-kind baseline a
+          // (re)connect hydrates with: on a journal-native campaign the
+          // command behind it rewrote the saved record at the next row
+          // version (U35e), which the host's next whole-envelope save
+          // must carry or be refused 409 and rolled back.
+          if (message.kind === 'CampaignEvent') {
+            refreshSavedRecordAfterCommit(auditable);
+          }
         }
       }
       if (message.kind === 'CampaignProposal') {
@@ -388,6 +408,22 @@ export function CampaignCoopRouteSurfaceConnected({
 }
 
 export default CampaignCoopRouteSurfaceConnected;
+
+/**
+ * Hands the persistence store a committed-command acknowledgement for the
+ * campaign the EVENT names (U35f; owner decision
+ * OD-u35d-server-and-host-fix, host half), so the store ignores an event
+ * for any campaign other than the one it holds. For its own campaign the
+ * store cancels its armed auto-save and re-reads the record through its
+ * load path, adopting the row version it read; a read that fails adopts
+ * nothing. Not awaited: the store owns the read and its outcome.
+ */
+function refreshSavedRecordAfterCommit(event: ICampaignEvent): void {
+  void useCampaignPersistenceStore.getState().refreshAfterCommittedCommand({
+    kind: 'committed',
+    state: { campaignId: event.campaignId },
+  });
+}
 
 function submitGuestProposalOverTransport(
   transport: ICampaignSyncTransport,

@@ -1,0 +1,257 @@
+{
+  "unit": "U35f",
+  "stage": "red",
+  "at": "2026-09-23T05:31:59.251Z",
+  "baseline": "f32ea5400f3a1282733180059e32d9169fb74204",
+  "productFilesChanged": "none: the suite ran against the baseline product code (git status at the run showed only the new suite and the admission receipt untracked; CampaignCoopRouteSurfaceConnected.tsx sha256 equal to the admission receipt baselineFileHashes)",
+  "productFileSha256AtRun": "51c4b6b6649956e2b153ba4fdad515573c720a263f5e0033ae43511b4024d782",
+  "gitStatusAtRun": {
+    "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/logs/red-git-status.log",
+    "sha256": "4634989e82f727ca8fa32758def60270da001c0d8d7ced68e4b9c9188ef1ad79",
+    "content": "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u35f-admission-20260923.json\n?? src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostRecordRefresh.test.tsx"
+  },
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "runner": {
+    "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/run-red.sh",
+    "sha256": "02406bf8ed7aa49effd92a163cc968410e05a128df7c83008b73d8660f8ddf0b"
+  },
+  "receiptWriter": {
+    "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/write-red.mjs",
+    "sha256": "e24ac3d8c866a8ea0ce8ff1bd19b40aed314743bf94e1ea9132bb6ff298932a7"
+  },
+  "environment": "jest (jsdom), no browser: the real campaign store, the real persistence store and its dirty wiring (installCampaignPersistenceWiring), the connected surface rendered as host or guest; the socket faked at connectStoredCampaignSyncTransport and the runtime session stubbed exactly as the existing CampaignCoopRouteSurfaceConnected.hostProjection suite does; the network faked at the store's fetch seam as one campaigns row (GET answers the record; PUT answers the item route's compare-and-swap: a stale baseVersion gets 409 { kind: conflict, reason, recoveryAction, conflictingFields, currentVersion, current } with the stored record, a current one is stored at version + 1 and answered 200); a co-op commit modelled as U35e's rewrite (campaignRecordJournalState.ts:105-125: version + 1, the journal balance and date) plus the committed frame; the toast module's toast replaced by a jest.fn to read the rollback message",
+  "suite": {
+    "file": "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostRecordRefresh.test.tsx",
+    "copy": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/logs/red-copy-hostRecordRefresh.test.tsx.txt",
+      "sha256": "52c86e5e5894ecf2ec0af66cdaae615bee9d176bf8d289cb0126e570a9832e08"
+    },
+    "sha256AtRun": "52c86e5e5894ecf2ec0af66cdaae615bee9d176bf8d289cb0126e570a9832e08"
+  },
+  "rows": {
+    "h1": "red: the host loads the row at version 4, receives the hydration baseline, then the row is rewritten to version 5 with balance 950000 (an approved co-op spend) and the committed FundsChanged frame arrives; then the host's next save through the campaign store (the co-op path, useCampaignStore.actions.ts:259-264)",
+    "h2": "red: the host's own day advance - its save of the next day lands (version 5), then its AdvanceDay commit rewrites the row (version 6) and the CampaignDayAdvanced frame arrives; then the host renames the campaign through updateCampaign, which a co-op campaign saves at once and reverts on a refusal (useCampaignStore.actions.ts:285-291)",
+    "g": "guard: a guest's fold of the same committed frame reads nothing",
+    "o": "guard: a committed frame whose event names another campaign reads nothing",
+    "b": "guard: the hydration baseline (CampaignSnapshot kind, sequence -1) reads nothing",
+    "s": "guard: a snapshot-authority campaign (the row does not move on the command): the refresh reads once, keeps the folded balance, and the next save carries it at the version held"
+  },
+  "run": {
+    "command": "npx jest src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostRecordRefresh.test.tsx --no-color",
+    "exitCode": 1,
+    "counts": "Tests:       3 failed, 3 passed, 6 total",
+    "lastLine": "Ran all test suites matching /src\\\\components\\\\campaign\\\\coop\\\\__tests__\\\\CampaignCoopRouteSurfaceConnected.hostRecordRefresh.test.tsx/i.",
+    "rowResults": [
+      "× (h1) a journal-native host folds an approved co-op spend and its next save carries it at the rewritten version",
+      "× (h2) after the host's own day advance commits, its next edit is saved at the rewritten version, not refused and reverted",
+      "√ (g) a guest's fold of a committed frame does not read the record",
+      "√ (o) a committed frame for another campaign does not read the record",
+      "√ (b) the hydration baseline a (re)connect sends does not read the record",
+      "× (s) a snapshot-authority campaign, whose row a co-op command does not move, keeps the folded balance and saves it at the version it holds"
+    ],
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/logs/red-hostRecordRefresh.log",
+      "sha256": "b955ab41dd075c96587b5a6d794db717387b9c75396b9a29542d2e63c59a7a83"
+    }
+  },
+  "measuredOnTheBaseline": {
+    "h1": {
+      "readsAfterCommit": 0,
+      "baseVersionAfterFold": 4,
+      "puts": [
+        {
+          "status": 409,
+          "baseVersion": 4,
+          "balance": 950000
+        }
+      ],
+      "committed": false,
+      "saveState": "conflict",
+      "rowVersion": 5,
+      "rowBalance": 950000,
+      "liveBalance": 950000,
+      "toasts": [
+        "Co-op campaign save was refused: the campaign changed elsewhere. Your local change was rolled back."
+      ],
+      "reading": "the fold projected 950000 but kept baseVersion 4; the host's next save was refused 409 against the row's version 5, the store rolled the co-op host back to the server record (whose balance U35e had rewritten, so the balance itself survives) and raised the refused-save toast"
+    },
+    "h2": {
+      "rowVersionAfterDaySave": 5,
+      "readsAfterCommit": 0,
+      "baseVersionAfterFold": 5,
+      "puts": [
+        {
+          "status": 409,
+          "baseVersion": 5,
+          "name": "Renamed Command",
+          "currentDate": "3025-01-02T00:00:00.000Z"
+        }
+      ],
+      "liveName": "GM Campaign",
+      "saveState": "conflict",
+      "rowName": "GM Campaign",
+      "toasts": [
+        "Co-op campaign save was refused: the campaign changed elsewhere. Your local change was rolled back."
+      ],
+      "reading": "after the host's own day advance committed, its rename was refused 409 (5 against 6), reverted in the live campaign and never stored, with the toast"
+    },
+    "s": {
+      "readsAfterCommit": 0,
+      "differsOnlyIn": "readsAfterCommit (0 against 1): without the change nothing reads; the save at the held version 4 carried 950000 and was answered 200 with no toast"
+    },
+    "guardsPassing": [
+      "g",
+      "o",
+      "b"
+    ],
+    "valuesSource": "the jest diff in the run log (expected - / received +), transcribed field by field; the log hash above binds them"
+  },
+  "decision": "red reproduced at the component boundary: rows h1 and h2 fail with the 409, the conflict state, the rollback and the toast; row s fails only on the missing read; g, o and b pass on the baseline as guards",
+  "addendum20260923": {
+    "why": "the coordinator's amendment of U35f (units.json pathsAmendedBeforeAdmission20260923, main b519db276, PR #1928): the lane's probes p1, p2, p3 become permanent rows, red first on the current tree; a store row for the third store change (a late save answer does not move the version back) was added beside them",
+    "startedAt": "2026-09-23T07:03:22Z",
+    "finishedAt": "2026-09-23T07:03:29Z",
+    "writtenAt": "2026-09-23T07:04:08.533Z",
+    "tree": "the worktree at baseline f32ea5400 with the U35f component change (CampaignCoopRouteSurfaceConnected.tsx) present and the persistence store unchanged from the baseline (sha256 equal to the admission receipt's baselineFileHashes)",
+    "productSha256AtRun": {
+      "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx": "c332fd251e0340cc2512318b748c668aa80e00eac56c32a97b5bd607b25f8487",
+      "src/stores/campaign/useCampaignPersistenceStore.ts": "44f48ab0f29cf571646653dd91437c8fd16012fb4587a36597942383e8e314b1"
+    },
+    "gitStatusAtRun": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/logs/red2-git-status.log",
+      "sha256": "6960bb30b02450e9a30112734b95aaf7986f9dbe4d9f68508256bd26a1a0a8fd",
+      "content": "M src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx\n M src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts\n?? openspec/planning/2026-09-12-roadmap-completion/evidence/u35f-admission-20260923.json\n?? openspec/planning/2026-09-12-roadmap-completion/evidence/u35f-local-20260923.json\n?? openspec/planning/2026-09-12-roadmap-completion/evidence/u35f-red-20260923.json\n?? src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostRecordRefresh.test.tsx"
+    },
+    "runner": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/run-red-addendum.sh",
+      "sha256": "8722652fc195517fdb1659ce4b57b6a34ef6497414769d6976923e5eab17aba8"
+    },
+    "receiptWriter": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/write-red-addendum.mjs",
+      "sha256": "d73e8fa67aeaeb7aabb46ce0d324beeb29a4fb7631ef2e72dc360ae85adbf2b7"
+    },
+    "suites": {
+      "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostRecordRefresh.test.tsx": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/logs/red2-copy-hostRecordRefresh.test.tsx.txt",
+        "sha256": "e64f9057d7d68e60981d79fe3d3712f97bb37c3371177607c88f5a306a8e0cf9"
+      },
+      "src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/logs/red2-copy-useCampaignPersistenceStore.test.ts.txt",
+        "sha256": "c3c2ac94d18de81d0df2b07d641a2363b57b5945835fe2d4f3bf461c766b55c9"
+      }
+    },
+    "rows": {
+      "p1": "snapshot authority: another writer moves the row, the host's save meets 409 and rolls back, then a co-op spend (950000) is folded and the host saves",
+      "p2": "snapshot authority: the host's rename PUT is written at version 5 with its answer held; a co-op spend (950000) is folded meanwhile; the answer is released; the host saves",
+      "p3": "journal-native: the host's rename PUT is written at version 5 with its answer held; a co-op spend commits and rewrites the row to 6; its frame is folded; the answer is released; the host saves",
+      "lateAnswer": "store suite, \"a save answer that lands after a load adopted a newer record leaves the adopted version\": a save at 7 is on the wire, a load adopts the row at 9, the save answer (8) arrives, then the next save"
+    },
+    "coopRun": {
+      "command": "npx jest src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostRecordRefresh.test.tsx --no-color",
+      "exitCode": 1,
+      "counts": "Tests:       3 failed, 6 passed, 9 total",
+      "lastLine": "Ran all test suites matching /src\\\\components\\\\campaign\\\\coop\\\\__tests__\\\\CampaignCoopRouteSurfaceConnected.hostRecordRefresh.test.tsx/i.",
+      "rowResults": [
+        "√ (h1) a journal-native host folds an approved co-op spend and its next save carries it at the rewritten version",
+        "√ (h2) after the host's own day advance commits, its next edit is saved at the rewritten version, not refused and reverted",
+        "√ (g) a guest's fold of a committed frame does not read the record",
+        "√ (o) a committed frame for another campaign does not read the record",
+        "√ (b) the hydration baseline a (re)connect sends does not read the record",
+        "√ (s) a snapshot-authority campaign, whose row a co-op command does not move, keeps the folded balance and saves it at the version it holds",
+        "× (p1) snapshot authority: after a co-op 409 rollback, a folded co-op spend survives the refresh and the next save",
+        "× (p2) snapshot authority: a co-op spend folded while the host rename is in flight survives the refresh and the next save",
+        "× (p3) journal-native: a co-op spend committed while the host rename is in flight leaves the host saving at the rewritten version"
+      ],
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/logs/red2-coop.log",
+        "sha256": "de8170930e908877be1c0fb09776d3002a713c344a704524981e5dcb483e8da2"
+      }
+    },
+    "storeRun": {
+      "command": "npx jest src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts --no-color",
+      "exitCode": 1,
+      "counts": "Tests:       1 failed, 21 passed, 22 total",
+      "lastLine": "Ran all test suites matching /src\\\\stores\\\\campaign\\\\__tests__\\\\useCampaignPersistenceStore.test.ts/i.",
+      "rowResults": [
+        "√ markDirty sets the dirty flag",
+        "√ auto-save fires after the debounce interval settles",
+        "√ coalesces rapid mutations into exactly one save",
+        "√ loadCampaign fetches, migrates, deserializes, and writes the live campaign",
+        "√ loadCampaign rehydrates the server roster projection",
+        "√ loadCampaign backfills legacy placeholder roster unit refs",
+        "√ loadCampaign returns false on a 404",
+        "√ a 409 sets saveState to conflict and exposes the server record",
+        "√ resolveConflictTakeServer adopts the server record",
+        "√ offers no overwrite path back to the server after a 409",
+        "√ exposes the typed conflict the server returned, with its recovery action",
+        "√ never resubmits the stale envelope at the server version",
+        "√ a save issued while a load is in flight writes against the loaded version",
+        "× a save answer that lands after a load adopted a newer record leaves the adopted version",
+        "√ concurrent saves serialize so the second writes against the first result",
+        "√ tracks the accepted server record as last persisted even if live state changes before save resolves",
+        "√ rolls back a co-op campaign and toasts on the FIRST 409",
+        "√ an offline save failure is non-fatal — saveState becomes error",
+        "√ clearError returns an errored store to idle",
+        "√ save metadata updates after a successful save",
+        "√ manual saveCampaign forces an immediate write without the debounce",
+        "√ saveCampaign includes the matching roster projection in the server envelope"
+      ],
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/logs/red2-store.log",
+        "sha256": "488ee3e9a5b71ae5eb82fde5eab9412d65e5357af1734e37bbb8876990f12db1"
+      }
+    },
+    "measuredOnTheCurrentTree": {
+      "p1": {
+        "cachedKeyAfterRollback": {
+          "revision": 4
+        },
+        "liveBalanceAfterFrame": 1000000,
+        "putBalance": 1000000,
+        "storedBalance": 1000000,
+        "expected": "revision 5; 950000 throughout"
+      },
+      "p2": {
+        "liveBalanceWhileSaveInFlight": 1000000,
+        "liveBalanceAfterRelease": 1000000,
+        "secondPutBalance": 1000000,
+        "storedBalance": 1000000,
+        "expected": "950000 throughout"
+      },
+      "p3": {
+        "baseVersionAfterRelease": 5,
+        "secondPut": {
+          "status": 409,
+          "baseVersion": 5
+        },
+        "committed": false,
+        "saveState": "conflict",
+        "toasts": 1,
+        "expected": "version 6, the save answered 200, no toast"
+      },
+      "lateAnswer": {
+        "baseVersionAfterLateAnswer": 8,
+        "putBaseVersions": [
+          7,
+          8
+        ],
+        "expected": "9 and [7, 9]"
+      },
+      "valuesSource": "the jest diffs in the two logs above (expected - / received +), transcribed field by field"
+    },
+    "attempt1": {
+      "what": "the first run of this addendum: p2 and p3 timed out after 30000 ms because the rename helper was an async function returning the pending edit, which awaited the held save; not red evidence. The helper now hands the pending edit back inside an object. p1 and the store row were red as above.",
+      "coop": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/logs/red2-attempt1-red2-coop.log",
+        "sha256": "7a35827678b4e176024760ba550f188d237203e257ca932bfd36deb9911bd33d"
+      },
+      "store": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/logs/red2-attempt1-red2-store.log",
+        "sha256": "f9c3d2e32cb5c20c656acca17607070fc44545a0255c8e778f3ac58fccfea54d"
+      },
+      "startedAt": "2026-09-23T07:01:44Z",
+      "finishedAt": "2026-09-23T07:02:51Z"
+    },
+    "decision": "red on the current tree: p1, p2 and p3 fail with the values the lane probes measured, and the store row fails with the version moved back to 8; the six earlier rows stay green"
+  }
+}
