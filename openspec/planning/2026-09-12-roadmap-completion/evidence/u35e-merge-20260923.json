@@ -1,0 +1,30 @@
+{
+  "unit": "U35e",
+  "stage": "merge",
+  "at": "2026-09-23T05:14:39.246Z",
+  "pr": 1924,
+  "title": "feat(campaign): journal-only campaign effects survive a whole-campaign save (U35e)",
+  "head": "5eb2aba77157a6c8dfd4ba428b02fa7770bfd4b4",
+  "mergeSha": "45d5c348de63feb7af1ff205f2b4d0945d86db19",
+  "mergedAt": "2026-09-23T05:09:06Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u35e-admission-20260923.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u35e-local-20260923.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u35e-red-20260923.json",
+    "src/__tests__/api/campaigns/campaignJournalEffectsFixture.ts",
+    "src/__tests__/api/campaigns/campaignJournalEffectsSurviveSave.test.ts",
+    "src/__tests__/api/campaigns/campaignRecordCommandRewrite.test.ts",
+    "src/lib/campaign/authority/campaignCommandPipeline.ts",
+    "src/lib/campaign/authority/campaignRecordJournalSave.ts",
+    "src/lib/campaign/authority/campaignRecordJournalState.ts",
+    "src/lib/campaign/authority/campaignSourceGenesis.ts",
+    "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+    "src/lib/campaign/sync/journalCapabilityPorts.ts",
+    "src/services/campaignPersistence/CampaignMigrationMarkerStore.ts"
+  ],
+  "blobEqualityDiffLines": 0
+}
