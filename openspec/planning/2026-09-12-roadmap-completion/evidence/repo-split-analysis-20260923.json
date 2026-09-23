@@ -1,0 +1,499 @@
+{
+ "draft": {
+  "answer": "Yes, but not as separate git repos, and not by moving directories yet. All three judges picked the same plan. Keep one repository and first draw about 12 named pieces over the existing folders. A committed manifest and a ratchet gate in CI enforce them, so no file moves and no roadmap ownershipPaths string changes; this can start today. The frightening \"64-area cycle\" comes from rolling files up into areas. At file level there are only 6 runtime cycles covering 40 files, and the proven minimum for the proposed layering is 94 runtime import statements. Once a lower piece is proven clean (construction, printing, the rules engine plus simulation), it becomes an npm-workspace package under packages/ that the app consumes as TypeScript source, and the battlemech unit catalog becomes a pinned, fetched data artifact. The campaign, multiplayer and events core stays in the app until the roadmap program lets go of those paths. Separate repos would make roughly 3 of every 4 rules-engine changes a publish-then-bump chain, and no version of the split shortens the 3-5 minute pre-commit build on its own.",
+  "recommendedShape": "One repo, layered in place first and packaged later (\"boundaries-in-place\", grafted with the workspaces extraction mechanics).\n\n(1) A committed piece manifest assigns every src path to one of about 12 pieces, in this layer order: foundation, then persistence-infra, then construction, then printing and tactical (siblings), then events, then kernel, then campaign, then p2p, then multiplayer, then the app layers (services, stores, ui and api). Desktop and the battlemech catalog sit outside the layers.\n\n(2) A TypeScript-parser ratchet gate reads the manifest. It lives at scripts/boundaries/validate-module-boundaries.mjs, a path no ledger entry owns. It fails on any new upward or forbidden-sibling import, or any new import of a non-entry file, and it requires the baseline to shrink. Two oxlint rules back it up: import/no-cycle with ignoreTypes, and per-piece no-restricted-imports using regex patterns. Each rule is switched to error only once its count reaches 0. Per-piece `tsc` composite probes prove that each piece's type closure stays inside the pieces it is allowed to import.\n\n(3) A piece graduates to a private npm-workspace package when four things hold: 0 gate violations, a green probe, no non-terminal roadmap owner, and a consumer reason. The package is consumed as TS source (packages/*, `transpilePackages`, no build, no publish). The Next app stays at the repo root. desktop/ stays its own non-workspace package on npm, not pnpm. Every package gets three-part enforcement: an oxlint ban on `@/`, a tsconfig with no `paths`, and a resolved-import boundary test. A transitional `@/` alias keeps planned lane branches mergeable.\n\n(4) The battlemech catalog (public/data/units/battlemechs) leaves the tree as a pinned artifact, following the existing config/mm-data-assets.json and scripts/mm-data/fetch-assets.ts pattern.\n\n(5) Separate repos stay a later option. The trigger is a re-run of the co-change measurement showing a package's commits rarely touch the app, well below today's 74% for the rules code.",
+  "pieces": [
+   {
+    "name": "foundation (layer 0; first package)",
+    "contents": "The non-domain parts of src/types (core, enums, common, temporal, pilot, force, encounter, scenario and so on). src/constants except hexMap.ts, terrain.ts and campaign/. src/services/core and src/services/common: split errors.ts from types.ts, because types.ts:74 imports types/unit. The leaf utilities in src/utils/(root): logger, uuid, debounce, typeGuards, locationUtils, accessibility and the rest, but NOT responsive.ts, which imports react at line 1 and so goes to app-ui. src/utils/{formatting,temporal,touch,simulation-viewer}. src/data. Two import-free leaf files that types already depend on: lib/campaign/medical/medicalTypes.ts and lib/multiplayer/server/playerIdFromPublicKey.ts. Also desktop/electron/securityPolicy.ts, so that next.config.ts:9 stops reading desktop source. The pilot package is only 8 files (services/core, services/common/errors.ts, logger.ts, uuid.ts), with 259 inbound edges from 225 files. External deps: zod, uuid.",
+    "dependsOn": []
+   },
+   {
+    "name": "persistence-infra (layer 1; stays in the app in every phase)",
+    "contents": "src/services/{persistence (SQLiteService plus about 25 *.migration.ts files), vault, matchLog}, src/replay-library, src/types/{vault,persistence}. Framework-free, with better-sqlite3 in 7 files. The residual imports of types/gameplay and utils/gameplay are handled by moving replay-library and matchLog above tactical in the manifest. After the roadmap, each domain's migrations move to the domain that owns them.",
+    "dependsOn": [
+     "foundation"
+    ]
+   },
+   {
+    "name": "construction (layer 2; package candidate #2)",
+    "contents": "src/utils/{construction,validation,equipment,armor,mech,omnimech,physical,weightClass,rulesLevel,serialization}, techBase*.ts, heatCalculation*, src/services/{construction,equipment,validation,units,conversion}, src/types/{construction,equipment,unit,validation,spa,formats,contracts}, src/lib/spa, and the six framework-free src/stores/*State.ts files. Four things stay in the app: the SQLite repositories and the barrel (UnitRepository.ts, VersionRepository.ts, CustomUnitService.ts, listCampaignSavedDesigns.ts, serverCustomCombatDefinition.ts, services/units/index.ts), and validationNavigation.ts, which imports @/hooks/useCustomizerRouter at :11. Keeping them out also closes the path by which client code can reach better-sqlite3. Node-only files (NodeCanonicalUnitService.ts and others) sit behind a ./node/* export. Runtime-clean after 2 lines: validationNavigation.ts:11 and unitLoader.ts:15. Ports and moves: a FormulaStore port for FormulaRegistry.ts:19 (IndexedDB), createLibrarySaveReceipt moved in, and action interfaces replacing the 9 type-only edges from the State files to the store actions. The public/data/equipment JSON bundled by equipmentBVCatalogData.ts:1-34 stays authored source.",
+    "dependsOn": [
+     "foundation"
+    ]
+   },
+   {
+    "name": "printing (layer 3, sibling of tactical; package candidate #3)",
+    "contents": "src/services/{printing,unit-card,pilot-mech-card,assets}, src/types/printing. React-free but bound to the browser DOM (DOMParser at RecordSheetService.ts:126, canvas at :366, window.open, document.fonts), so it stays on jsdom. Runtime-clean after 3 lines: move components/spa/formatDesignation into lib/spa (spaSection.ts:15) and bring MmDataAssetService in. Only UI imports it. 0 ledger refs.",
+    "dependsOn": [
+     "foundation",
+     "construction"
+    ]
+   },
+   {
+    "name": "tactical: rules engine + simulation as ONE piece (layer 3; package candidate #4)",
+    "contents": "src/engine, src/utils/{gameplay,terrain,effects,overlays}, src/types/{gameplay,combat,quickgame,simulation}, src/lib/{combat,gameplay}, src/simulation/**, src/services/game-resolution, constants/hexMap.ts and terrain.ts. About 915 prod files. It has to be one piece: the engine imports simulation 15 times at runtime (e.g. GameEngine.ts:13-14) and simulation imports the rules engine 447 times. Runtime-clean after 6 statements in 5 files, all through named ports. A persistence-divergence notifier replaces the toast import at InteractiveSession.persistence.ts:1 (used at :197-213). A ReplaySurfaceGate port replaces the import at persistence.ts:2. matchLogStorage is injected, since it is already a default parameter at InteractiveSession.ts:292,772; the imports at :21, persistence.ts:7 and sessionEvents.ts:6 go. acar.ts:6 moves its shared enum down. Type level: the 124-file type cycle between utils/gameplay and types/gameplay has to be cut by narrowing the types/gameplay/index.ts barrel (CombatStateTypes.ts:5-7).",
+    "dependsOn": [
+     "foundation",
+     "construction"
+    ]
+   },
+   {
+    "name": "events + journal-contract (layer 4; freeze-only until the roadmap releases it)",
+    "contents": "src/lib/events, src/types/events, src/utils/events, src/services/events. It is 72 framework-free prod files. The journal contract is a sub-piece of exactly 6 files in lib/events/journal: EventJournalCanonicalizer, CommandIdentity, Contract, Schemas, InMemoryEventJournal and its Snapshot. It has to be carved out by file list, not by directory. Runtime residual: privateRecordAccess.ts:12,16 imports multiplayer authorization, which should become a port. The schema migrations should move here from services/persistence after the roadmap.",
+    "dependsOn": [
+     "foundation",
+     "persistence-infra",
+     "tactical",
+     "construction"
+    ]
+   },
+   {
+    "name": "kernel (layer 5; in place, not packaged)",
+    "contents": "src/kernel. Already clean: its runtime and type closure is itself plus the 6 journal-contract files, and a tsc composite probe exits 0. Keep KernelBoundary.test.ts. Packaging is gated by the repo's own policy at extractionLadder.ts:6 ('Do not open packages/ until a real second consumer exists'; rung 'internal-module' at :19).",
+    "dependsOn": [
+     "events + journal-contract"
+    ]
+   },
+   {
+    "name": "campaign (layer 6; stays in the app, frozen baseline)",
+    "contents": "src/lib/campaign, src/types/{campaign,repair,award,interventions}, src/lib/{finances,starmap,interventions,kernelPlugin}, src/services/campaignPersistence, src/constants/campaign. 407 prod files. It holds 66 of the 104 remaining runtime violations: 29 into stores (e.g. autoAwardEngine.ts:2-3), 17 into multiplayer, 10 into Next API route handlers (inProcessApiRouter.ts:46-55), 7 into app services and 3 into UI (e.g. coopHostRegistry.ts:16 Toast). The fixes belong inside the roadmap units that own the path: pass state into processors, protocol interfaces owned by campaign, direct service calls.",
+    "dependsOn": [
+     "kernel",
+     "events + journal-contract",
+     "tactical",
+     "construction",
+     "persistence-infra",
+     "foundation"
+    ]
+   },
+   {
+    "name": "p2p (layer 7; stays in the app)",
+    "contents": "src/lib/p2p (yjs, y-webrtc, y-indexeddb, zustand). matchLogStorage.ts (IndexedDB) is the default that tactical and multiplayer reach into. Moving that default into app wiring decouples p2p from the lower pieces. Residuals: useSyncRoom.ts:12 imports useGameplayStore, and gameSessionChannel.ts:8 imports the multiplayer Protocol.",
+    "dependsOn": [
+     "tactical",
+     "campaign",
+     "construction",
+     "foundation"
+    ]
+   },
+   {
+    "name": "multiplayer (layer 8; stays in the app, frozen baseline)",
+    "contents": "src/lib/multiplayer (288 files under server/), src/types/multiplayer. server.js:448-463 loads this code, plus SQLiteService, from TS source through tsx. It is the most roadmap-owned path, with 39 ledger entries on src/lib/multiplayer/server. Campaign and multiplayer have to be untangled together, never as separate packages or repos: they share 40 prod back-imports and 38 co-changing commits in 90 days.",
+    "dependsOn": [
+     "p2p",
+     "campaign",
+     "events + journal-contract",
+     "tactical",
+     "construction",
+     "persistence-infra",
+     "foundation"
+    ]
+   },
+   {
+    "name": "app layers: app-services / app-stores / app-ui / app-api (layers 9-11; the Next app at the repo root)",
+    "contents": "The remaining src/services and src/lib (encounter, forces, pilots, generators, intel, command-screen, scenarioPacks and others). src/stores except the six *State.ts files. components, hooks, styles, testing, the non-api pages and pages-modules, utils/colors, utils/responsive.ts and lib/e2e. The api layer: pages/api, pages-modules/api, lib/api and lib/server. Also server.js, scripts/ and e2e/. app-api and app-ui may not import each other. This is also where the concrete port implementations are chosen and wired in: IndexedDB match log, Toast notifier, replay gate and FormulaStore.",
+    "dependsOn": [
+     "multiplayer",
+     "campaign",
+     "p2p",
+     "events + journal-contract",
+     "kernel",
+     "tactical",
+     "printing",
+     "construction",
+     "persistence-infra",
+     "foundation"
+    ]
+   },
+   {
+    "name": "desktop (desktop/; unchanged, not a workspace member)",
+    "contents": "Its own package.json, lockfile and electron ^43. 33 prod files, 0 imports into src. It consumes the built .next/standalone artifact (main.window.ts:208-210, rebuild-next-standalone.js reads ../.next/standalone and rebuilds better-sqlite3 at :211). The only change is removing the reverse edge next.config.ts:9, by moving securityPolicy into foundation.",
+    "dependsOn": []
+   },
+   {
+    "name": "battlemech catalog data artifact (outside the code layers)",
+    "contents": "public/data/units/battlemechs: 4,226 JSON files, 21.0 MB, 24 commits ever. It becomes a pinned, versioned release that is fetched into a gitignored path and checked by a strict validate step, following config/mm-data-assets.json and scripts/mm-data/fetch-assets.ts. All readers go through one resolver: CanonicalUnitService.ts:152, NodeCanonicalUnitService.ts:213-216, fastForwardCombatRunner.ts:469, validate-bv.ts:149,168, Dockerfile:68-69, and the 18 test plus 2 e2e JSON imports. The equipment JSON and _schema stay in the repo.",
+    "dependsOn": [
+     "MegaMek/mm-data at a pinned tag"
+    ]
+   }
+  ],
+  "phases": [
+   {
+    "name": "Phase 0: build-time quick win (owner decision; independent of any split)",
+    "what": "The pre-commit hook type-checks the whole project twice on every TS commit. lint-staged runs `bash -c 'npx tsc --noEmit --skipLibCheck'` (package.json:336), and then .husky/pre-commit:15-17 runs `npm run build`, whose next build type-checks the same program again (next.config.ts has no ignoreBuildErrors). Drop one of the two, or move the full build to CI, and use `jest --changedSince` for affected tests. This cuts time on every TS commit, and no package split does. It interacts with the repo's verify-before-claiming rules, so it needs the owner's call.",
+    "exitCriterion": "The owner rules on it. If accepted, the pre-commit hook type-checks the program once, and the time on a staged-.ts commit is measured before and after.",
+    "effort": "INFERENCE: hours, plus one PR"
+   },
+   {
+    "name": "Phase 1: declare the pieces and measure (report-only, zero moves)",
+    "what": "Commit the piece manifest, a baseline file and the TypeScript-parser gate under scripts/boundaries/, a path no ledger entry owns (re-measured at HEAD). Put the manifest there too rather than docs/qc, because `docs` is owned by R1.references and planned R9.triage/R9.close. The gate is adapted from the scratch import-graph.js, which parses 8,171 files in about 6 s. It resolves `@/` and relative specifiers, require, import() and jest.mock. Seed the baseline with 104 runtime and 71 type-only violating statements in 108 files, plus 6 runtime cycles covering 40 files, and make each unit PR print its violation delta. Run it as a non-blocking job under the existing required 'Lint and Test' aggregator; branch protection is unchanged. Begin re-expressing the 18 hand-written regex boundary tests (e.g. KernelBoundary.test.ts:66-71) as manifest rules.",
+    "exitCriterion": "The gate runs in CI on every PR and reports exactly the seeded baseline on main. Its per-PR delta output is visible on the next few roadmap unit PRs.",
+    "effort": "INFERENCE: 3-5 days, 3-4 PRs"
+   },
+   {
+    "name": "Phase 2: ratchet on, and runtime-clean the pieces outside the roadmap",
+    "what": "Switch the gate to fail-on-regression in a window where validate-roadmap --next shows no unit in flight (true at HEAD). Break the 4 file-level cycles no live unit owns (utils/gameplay 20+3 files, components/customizer 9, stores/useGameplayStore 3), then turn on oxlint import/no-cycle {ignoreTypes:true} as an error. Leave the lib/campaign/sync (3) and lib/multiplayer/server (2) cycles in the baseline. Make the runtime fixes that sit outside owned paths: construction 2 lines; printing 3 (formatDesignation into lib/spa, MmDataAssetService); tactical 6 statements (notifier port, ReplaySurfaceGate port, matchLogStorage injection, acar.ts:6); and stores to Toast/useReducedMotion, 5 sites. As each piece reaches 0, enable its oxlint no-restricted-imports override (regex or ** patterns, since `@/x/*` misses deep paths). Watch the ownership overlaps: the U45 `src/lib` string covers lib/p2p/matchLogStorage.ts and lib/combat/acar.ts. .oxlintrc.json is listed by planned node R6.loop-harness.",
+    "exitCriterion": "The gate blocks regressions. oxlint no-cycle (ignoreTypes) reports 0 outside the two roadmap-owned cycles. construction, printing and tactical show 0 runtime violations in the gate, and their oxlint overrides are at error level.",
+    "effort": "INFERENCE: about 2 weeks, 6-9 small PRs"
+   },
+   {
+    "name": "Phase 3: type-level cleanup and compiler proofs",
+    "what": "Cut the type-only upward edges, which a standalone package type-check fails on. Retarget applyDesignation.ts:18 to types/gameplay/HexGridInterfaces; in graph simulation this takes the construction probe from 255 outside files to 83 (INFERENCE until tsc re-runs). Stop types/gameplay/index.ts re-exporting implementation state (CombatStateTypes.ts:5-7), and move type declarations out of utils/gameplay into types/gameplay. Declare store-action interfaces in construction. Move the 24 test files that import upward into src/__tests__. Add CI `tsc -p tsconfig.<piece>.json` composite probes, emitting to a temp folder, for kernel+journal-contract (green now), then construction, printing and tactical as each goes green.",
+    "exitCriterion": "The composite probes for kernel, construction, printing and tactical exit 0 in CI. The gate shows 0 type-only violations for those pieces.",
+    "effort": "INFERENCE: 1-1.5 weeks"
+   },
+   {
+    "name": "Phase 4: catalog data artifact (parallel track; touches no ledger path)",
+    "what": "Make the conversion reproducible first: move the committed post-conversion fixes (e.g. #1010, #233) back into the converter. Then route every catalog reader through one path resolver, publish public/data/units/battlemechs as a pinned release, and fetch plus strict-validate it in CI, Docker and the release job, the same way record sheets work today. Optionally archive the roughly 314 one-off top-level scripts that read public/data at the same time.",
+    "exitCriterion": "The battlemech tree is gitignored and fetched by pinned version. validate-bv, the Dockerfile, NodeCanonicalUnitService and the tests pass against the fetched copy, and regeneration is byte-identical to the pinned release.",
+    "effort": "INFERENCE: about 1 week, 2-3 PRs"
+   },
+   {
+    "name": "Phase 5: workspace scaffolding + validator support + pilot package",
+    "what": "First, one docs/tooling PR that teaches validate-roadmap.mjs a rename map (packages/<x> <- src/<old>) for both the existsSync checks (:264-265, :367-369) and pathsOverlap in the --next scheduler (:541-560). Without it, the 10 exact `src` owners and U45's `src/lib` would silently stop covering moved code. Then one scaffolding PR with the 8-file foundation pilot: root `workspaces: [\"packages/*\"]` (npm), next.config `transpilePackages`, jest roots (:71, :99) and coverage globs (:129-135), .oxlintrc packages/** patterns, packages/** added to the pr-checks.yml:39-54 code filter, the Dockerfile copying packages/*/package.json before `npm ci`, and hydrate-next-standalone-multiplayer-server.mjs:267-277 copying packages/ and the @mekstation links into .next/standalone as real directories. Add the three-part enforcement: an oxlint `@/` ban in packages/**, a no-paths tsconfig run in CI only, and a resolved-import boundary test.",
+    "exitCriterion": "Build Test win/mac/linux is green, and the standalone server with sockets passes a smoke test. The Docker image starts, and the desktop pack builds and launches. A deliberate `@/` import inside packages/foundation fails lint, the no-paths tsc and the boundary test.",
+    "effort": "INFERENCE: 3-5 days; the riskiest step"
+   },
+   {
+    "name": "Phase 6: promote the proven pieces, one package per PR",
+    "what": "The order is foundation, then construction, then printing, then tactical, because each package may only import packages below it. For each piece: move it to packages/<x> with a transitional `@/` alias for app callers (keeping 5 alias surfaces aligned: tsconfig paths, jest mapper, next.config alias, Storybook, scripts/tsconfig), rewrite the intra-package `@/` imports and jest.mock targets, narrow `exports` to the manifest's entry list, and rewrite that piece's exact ledger strings in the same PR (or rely on the rename map). Rough sizes, measured: foundation 8,993 inbound `@/` imports from 4,084 files, all under the alias; construction 550-903 inbound plus 162 scripts edges; tactical 922 inbound plus 1,236 intra plus 853 'src/...' literals in the combat-validation catalog. Run the alias-removal codemods only when --next reports no in-flight units.",
+    "exitCriterion": "Per package: gate 0, probe 0, three-part enforcement green, Build Test on all 3 OSes green, and validate-roadmap passes. After the final codemod, no `@/` specifier resolves into a package.",
+    "effort": "INFERENCE: 3-4 weeks total for the four packages"
+   },
+   {
+    "name": "Phase 7: after the roadmap program closes",
+    "what": "Untangle campaign, multiplayer, events and p2p: 66 runtime and about 60 type-only statements, plus migration ownership. Specifically: pass state into processors instead of calling usePilotStore.getState(); make campaign own the host protocol interfaces; make direct service calls instead of inProcessApiRouter; give privateRecordAccess an authorization port; and move the SQLite migrations to their domains. Then consider packaging events, and kernel if extractionLadder.ts permits. Condense the roadmap evidence (14.4 MB) using the #1780 method, and optionally move openspec/changes/archive (9.5 MB) to a history repo. Re-run the co-change measurement (cochange3.js) and the exact minimum back-edge count, type-only included, before ever proposing a separate repo.",
+    "exitCriterion": "The 65-file type-level cycle is gone. The gate baseline for campaign and multiplayer is 0 or explicitly accepted. Any separate-repo proposal cites a re-measured co-change rate far below 74%.",
+    "effort": "INFERENCE: multi-week; not estimated until the program's open units close"
+   }
+  ],
+  "keyMeasurements": [
+   "Import graph, area level (import-graph lane): the runtime graph has one strongly connected component of 64 of the 91 src areas. A heuristic cut of 39 edges (124 imports, 2.2% of runtime cross-area imports) makes the area graph acyclic.",
+   "The same graph at file level: 6 runtime cycles covering 40 files, all inside single directories. I re-ran judge1-scc.js this session, and oxlint 1.43 import/no-cycle with ignoreTypes also reports 40 problems. Counting type-only imports: 27 cycles covering 258 files, the largest 124 and 65 files.",
+   "Layering cost for the 14-piece map: the proven minimum is 156 of 3,263 cross-piece runtime import statements (4.78%). After 19 manifest re-labellings, 104 runtime and 71 type-only statements in 108 files remain; the proven minimum for that map is 94. All runtime counts are upper bounds, because tsconfig has no verbatimModuleSyntax.",
+   "66 of the 104 runtime violations start in campaign. 44 of the 68 files needing runtime fixes are under paths owned by non-complete roadmap units.",
+   "Distance to runtime-clean: construction 2 lines (validationNavigation.ts:11, unitLoader.ts:15); tactical 6 statements in 5 files; printing 3 lines; kernel is already clean (tsc composite probe of kernel plus the 6 journal-contract files exits 0). The construction probe today fails with exactly 255 TS6307 errors.",
+   "The four framework-free candidate packages (foundation, construction, rules, printing) hold 1,624 of 3,850 src prod files (42%). 609 of 704 code commits in the last 90 days touched none of them.",
+   "Co-change over 90 days, 704 first-parent code commits: a full 9-repo split makes 210 of them (29.8%) cross repos. The narrowest viable split (rules, catalog, desktop) makes 53 (7.5%) cross. 42 of the 57 commits touching the rules code (74%) also touched app production source, and only 6 touched rules alone.",
+   "Minimum back-imports to cut for the full repo split: 118 runtime, 199 including type-only, 351 including tests. campaign and multiplayer have 40 prod back-imports between them and 38 co-changing commits in 90 days.",
+   "366 of 628 commits (58%) that touched openspec in 90 days also touched src, e2e or scripts in the same commit.",
+   "Roadmap ledger at HEAD 31d01f4ab (re-measured this session): 75 nodes with 287 ownershipPaths (94 unique), and 80 units with 174 (35 unique). Unit states: complete 34, planned 41, blocked 4, main-verified 1; 0 in flight. 10 nodes own the exact string 'src'.",
+   "Ledger entries owning each path or a descendant (re-measured): src/lib/multiplayer/server 39 (23 nodes + 16 units); src/lib/campaign 29 (23 + 6); src/lib/events/journal 27 (24 + 3). src/engine has one owner, R2.combat (main-verified); src/services/units has one, R7.versions (planned). No entry owns public/data, desktop, src/utils/construction, src/services/printing, src/kernel, src/lib/spa, src/lib/combat, scripts/boundaries or .husky/pre-commit.",
+   "Refs broken per package move (workspaces lane): foundation 7, construction 6, rules 3 (src/engine on R2.combat; src/utils/gameplay/gameState on R2.multiplayer-client and U37), printing 0. Moving src to apps/web would break 207 refs (50 unique).",
+   "Rewrite surface: 18,654 `@/` imports in src, 645 of them jest.mock('@/…'). Foundation alone has 8,993 inbound `@/` imports from 4,084 files. Rules has 922 inbound, 1,236 intra-package, and 853 'src/...' literals in its source.",
+   "Probe: tsx 4.22.4 resolved the app's `@/` alias from inside a junction-linked workspace package and returned the app's module. Package exports alone do not enforce a boundary.",
+   "Pre-commit hook: .husky/pre-commit:15-17 runs the full `npm run build` when any .ts/.tsx file is staged (its own comment, line 6, says '~5min'). lint-staged has already run a whole-project `tsc --noEmit` (package.json:336), so each TS commit type-checks the program twice.",
+   "server.js:448-463 loads 6 src/lib/multiplayer/server modules plus SQLiteService.ts from TS source through tsx/cjs. The hydrate script copies only src/ and tsconfig.json into .next/standalone.",
+   "desktop/ already has 0 imports into src; the only reverse coupling is next.config.ts:9 importing desktop/electron/securityPolicy.",
+   "Battlemech catalog: 4,226 tracked JSON files, 21.0 MB, 24 commits ever and 3 in 90 days. The browser already fetches it by URL (CanonicalUnitService.ts:152). The record-sheet precedent already pins mm-data v0.3.1 in config/mm-data-assets.json.",
+   "Tracked files: 17,287 in total, 7,223 of them in src. The git pack is 1.24 GiB, and moving files out of the working tree does not shrink it without a history rewrite."
+  ],
+  "whatNotToDo": [
+   "Do not split into separate git repos now, not even the narrow rules-only version. 74% of rules commits would become publish-then-bump chains. Registry credentials would be needed on every install path; no .npmrc is tracked today. validate-roadmap.mjs assumes a single repoRoot.",
+   "Do not use git submodules or publish internal packages to a registry. They conflict with the worktree-per-seam and agent-lane workflow.",
+   "Do not move the Next app to apps/web or desktop to apps/desktop. That breaks 207 ownership refs (50 unique). It also forces outputFileTracingRoot to change, which nests the standalone server that server.js, the hydrate script, the Dockerfile and the desktop rebuild all expect at the top level (next.config.ts:111-115).",
+   "Do not move or package campaign, multiplayer, events or p2p while the roadmap owns them (29, 39 and 27 ledger entries). Do not open standalone cleanup PRs against those paths either. Their fixes belong inside the owning units (U35, U38, U45, U56, U58 and the multiplayer units) or wait until after the program closes.",
+   "Do not trust package `exports` alone as the boundary. The tsx probe showed `@/` silently resolving back into the app. Always pair it with the oxlint `@/` ban, a no-paths tsconfig and a resolved-import boundary test.",
+   "Do not make desktop/ a workspace member, and do not switch to pnpm. electron-builder install-app-deps and the Windows native-rebuild issue electron-builder#10187 put the better-sqlite3 rebuild at risk.",
+   "Do not adopt Turborepo, Nx or TS project references as the build system yet. Type-level cycles cover 258 files. Just-in-time source packages cannot be cached. The pre-commit next build compiles every source package anyway.",
+   "Do not expect any split to speed up the 3-5 minute pre-commit build. The only near-term win is removing the duplicated whole-project type-check (Phase 0).",
+   "Do not land a single codemod rewriting about 4,084 files while planned units have lane branches. Use the transitional `@/` alias, and run removal codemods only when --next shows nothing in flight.",
+   "Do not move a ledger-owned path without rewriting its exact strings in the same PR or adding validator rename-map support first. Ancestor strings (10 nodes own 'src', U45 owns 'src/lib', R2.combat owns 'src/lib' and 'src/services') keep passing existsSync but silently stop covering moved code in the overlap scheduler.",
+   "Do not move openspec specs, active changes or council-decisions out of the repo (58% of spec commits co-change with code), and do not move or condense the roadmap evidence while the program is running.",
+   "Do not package the kernel until extractionLadder.ts:6's 'real second consumer' condition is met, or the owner changes that policy.",
+   "Do not turn an oxlint rule on as an error before its count is 0. oxlint has no baseline or suppression file, and the repo lint already carries 84 warnings, so --max-warnings cannot budget a single rule. The ratchet belongs in the gate script."
+  ],
+  "roadmapSequencing": "Phases 0-4 move no directory, so no ownershipPaths string changes and validate-roadmap.mjs's existsSync checks (:264-265, :367-369) keep passing. Everything I checked is from HEAD 31d01f4ab: 0 units in flight (complete 34, planned 41, blocked 4, main-verified 1).\n\nNew files for these phases go under scripts/boundaries/, which no ledger entry owns (re-measured). The manifest should also live there and not in docs/qc, because docs/qc sits inside `docs`, which R1.references owns alongside planned R9.triage and R9.close. Three shared files do overlap ledger entries, so time those edits for when those entries are not in flight, or fold them into R6.loop-harness:\n- .oxlintrc.json: planned R6.loop-harness\n- package.json: blocked U12 and planned R6.loop-harness\n- pr-checks.yml: R1.ci, main-verified\n\nLand the gate report-only first. Make it blocking only in a window where --next shows no in-flight unit, as is true now. From then on each unit PR prints its violation delta, and the unit's owner approves any baseline edit together with its receipts.\n\nThe campaign, multiplayer and events fixes (44 of the 68 runtime-fix files) ride inside the units that own those paths (U35, U38, U45, U56, U58 and the 12+ multiplayer-server units), or wait until the program ends. Separate PRs there would collide with planned units' declared paths.\n\nBefore the first package move (Phase 5), land one docs/tooling PR that teaches validate-roadmap.mjs a rename map (packages/<x> <- src/<old>) for both existsSync and pathsOverlap (:541-560). The other option is re-pointing strings on complete and main-verified nodes, which edits historical records. That choice is the owner's. Without either, parent strings ('src' on 10 nodes, 'src/lib' on U45 and others) keep passing but silently lose coverage of the moved code.\n\nEach package move then rewrites its own exact strings in the same PR:\n- foundation (7 refs): wait for R7.versions, R7.provenance, R8.opportunities and U45, or re-point them in the move PR.\n- construction (6 refs): wait for R7.versions to close or be re-scoped.\n- rules (3 refs): wait for U37 and R2.multiplayer-client to close or be re-scoped, since both own src/utils/gameplay/gameState. The src/engine string on main-verified R2.combat is covered by the rename map.\n- printing (0 refs): can go any time after Phase 5.\n\nThe catalog artifact (Phase 4) and desktop touch no ledger path, so they can run in parallel with the loop at any time.\n\nThe current branch docs/roadmap-u35-split-20260922 has staged units.json and roadmap.json changes (the U35 split), so re-run the ownership check (split-analysis/synth-verify.js) after it merges and before each move.",
+  "openQuestions": [
+   "Pre-commit: will you accept dropping one of the two whole-project type-checks (lint-staged tsc at package.json:336, or the type-check inside the full next build in .husky/pre-commit:15-17), or making the full build CI-only? It is the only real speed win available, and it interacts with the repo's verify-before-claiming rules.",
+   "Packaging policy: does scripts/ (154 runtime edges into construction, about 258 into the rules code) plus the server.js tsx module graph count as the 'real second consumer' that extractionLadder.ts:6 requires before opening packages/? Or should Phases 5-6 wait for an outside consumer?",
+   "Validator: when a package moves, do you prefer a rename map in validate-roadmap.mjs (existsSync and pathsOverlap), or rewriting ownership strings on complete and main-verified nodes, which changes historical evidence records?",
+   "Ratchet gate: should it be a custom TS-parser script (about 300 lines, no new dependency), or dependency-cruiser (a new devDependency with a built-in known-violations baseline)? And who approves baseline edits in roadmap unit PRs?",
+   "Catalog data: will the post-conversion hand fixes (e.g. #1010, #233) be pushed back into the converter or upstream, and should the artifact be a GitHub release tarball or an npm data package?",
+   "Should verbatimModuleSyntax be enabled so runtime-violation counts stop being upper bounds? It would itself touch many import statements.",
+   "UNVERIFIED items to probe in Phase 5: standalone output file tracing and the hydrate copy of workspace-linked packages; the Electron pack with workspace links present; and whether jest resolves package exports as the workspaces design expects on all 3 OS runners.",
+   "Should all counts be re-run after the staged U35-split ledger change on docs/roadmap-u35-split-20260922 lands? My ledger numbers are from HEAD 31d01f4ab."
+  ]
+ },
+ "corrections": [
+  {
+   "claim": "The 104 runtime + 71 type-only violations in 108 files baseline, and the proven minimum of 94, are measured for the proposed manifest, so they can be seeded as that manifest's baseline.",
+   "evidence": "Those numbers come from scratch boundary-v3.out (intendedOrderViolations.v2 = 104/71/108; exactMinV2.runtime = 94). boundary-v3.mjs:32-34 falls back to the v1 map in boundary-angle.json. Classifying files with that map gives: src/services/core/* -> 'persistence', src/utils/overlays/* -> 'foundation', and src/replay-library and src/services/matchLog -> persistence, below tactical. The recommended manifest puts services/core in foundation (it is the 8-file pilot), utils/overlays in tactical, and replay-library/matchLog above tactical. The v3 worklist shows the effect: 'foundation -> tactical' has 7 runtime violations, all from src/utils/overlays/arcClassifier.ts:3-5 and losClassifier.ts:7; 'foundation -> persistence' is services/common/types.ts:15 -> ../core/types/BaseTypes; 'persistence -> tactical' has 5 runtime violations.",
+   "correction": "The 104/71/108 and 94 figures belong to a different piece map from the one recommended. Under the recommended manifest they must be re-measured before seeding a baseline. INFERENCE: the runtime count drops by roughly the 7+1+5 statements above, and new intra-tactical and intra-foundation edges appear."
+  },
+  {
+   "claim": "The foundation pilot package is only 8 files (services/core, services/common/errors.ts, logger.ts, uuid.ts). A deliberate `@/` import inside packages/foundation must fail lint, the no-paths tsc and the boundary test.",
+   "evidence": "Independent TS-parser graph: src/services/core/types/BaseTypes.ts:42 has `export type { ResultType, AsyncResult } from '@/types/common/result'`, and :44 has `import type { ResultType } from '@/types/common/result'`. The only other external import from the 8 files is 'uuid' (src/utils/uuid.ts:8).",
+   "correction": "The 8 files are not closed. Their type closure is 9 files, because src/types/common/result.ts is also needed. Moved as listed, the pilot would fail its own `@/` ban and the no-paths tsc. Include types/common/result.ts in the pilot, or retarget BaseTypes.ts:42,44 first."
+  },
+  {
+   "claim": "Battlemech catalog: 24 commits ever and 3 in 90 days.",
+   "evidence": "`git log --oneline -- public/data/units/battlemechs` gives 9 commits (10 with --full-history, 9 with --first-parent). With --since='90 days ago' there is 1: ca8c2c958 (#1010), committed 2026-07-03. Even all of public/data/units has only 11.",
+   "correction": "9 commits ever (10 with --full-history), 1 in the last 90 days. The other catalog figures are correct: 4,226 JSON files and 21,979,322 bytes."
+  },
+  {
+   "claim": "The ledger figures come from HEAD 31d01f4ab. The current branch docs/roadmap-u35-split-20260922 has staged units.json and roadmap.json changes (the U35 split), and counts should be re-run after it merges. 0 units are in flight.",
+   "evidence": "HEAD is d3c088a9b on main, and the working tree is clean. The U35 split has already landed as squash-merge #1905 (origin/docs/roadmap-u35-split-20260922 tip 47d64ad4a has the same subject and is not an ancestor). Re-measured at HEAD: 84 units (complete 34, planned 44, blocked 5, main-verified 1); unit ownershipPaths 185 (39 unique); node ownershipPaths 293 (98 unique); src refs 220 (53 unique), not 207/50. src/lib/campaign now has 31 owners (23 nodes + 8 units). U35 is now 'blocked', and U35a and U35d (planned) own src/lib/campaign/sync. `git worktree list` shows the branch roadmap-u35a-campaign-commit-gates-20260922 checked out at .sisyphus/roadmap-completion-20260912/worktrees/u35a.",
+   "correction": "The ledger numbers are stale. Use the HEAD values above. The U35 split is merged, not staged. Campaign fixes attributed to 'U35' now belong to U35a/U35d, and a U35a lane worktree is live."
+  },
+  {
+   "claim": "The rules engine imports simulation 15 times at runtime, and simulation imports the rules engine 447 times (presented as a symmetric runtime comparison).",
+   "evidence": "Independent graph, prod files only. Non-simulation tactical files -> src/simulation: 15 runtime statements (13 from src/engine itself, plus withdrawalProcessing.ts:25 and objectivePlacement.ts:19). src/simulation -> the rest of tactical: 447 statements of all kinds, of which only 328 are runtime. The other 119 are type-only.",
+   "correction": "Simulation imports the rest of tactical 328 times at runtime (447 including type-only), against 15 runtime imports the other way."
+  },
+  {
+   "claim": "The tactical piece is runtime-clean after 6 statements in 5 files.",
+   "evidence": "The v3 worklist sites for tactical are: InteractiveSession.persistence.ts:1, :2 and :7; InteractiveSession.sessionEvents.ts:6; InteractiveSession.ts:21; acar.ts:6. That is 6 statements in 4 distinct files.",
+   "correction": "6 statements in 4 files."
+  },
+  {
+   "claim": "609 of 704 code commits in the last 90 days touched none of the four candidate packages.",
+   "evidence": "Using the same cochange-log.txt: with the scratch MAP_A prefixes for foundation, construction, engine and printing, 57 commits touch them and 647 touch none. With an approximation of the recommendation's own piece list for the four pieces, 59 touch them and 645 touch none. Neither map gives 95 touching commits.",
+   "correction": "About 645-647 of 704 code commits (roughly 92%) touched none of the four candidate packages. The 609 figure could not be reproduced."
+  },
+  {
+   "claim": "Campaign and multiplayer have 38 co-changing commits in 90 days.",
+   "evidence": "cochange.js A prints only its top pair lines (19 campaign+multiplayer, 15 campaign+multiplayer+web, 4 campaign+multiplayer+persistence = 38). Counting every commit in cochange-log.txt that touches both MAP_A.campaign and MAP_A.multiplayer paths gives 44.",
+   "correction": "44 commits touched both campaign and multiplayer in the 90-day window. The 38 is a truncated sum of three combinations."
+  },
+  {
+   "claim": "Ancestor strings (10 nodes own 'src'; U45 owns 'src/lib'; R2.combat owns 'src/lib' and 'src/services') keep passing existsSync but silently stop covering moved code in the overlap scheduler. validate-roadmap.mjs needs a rename map for pathsOverlap in the --next scheduler (:541-560).",
+   "evidence": "validate-roadmap.mjs:541 builds inFlightPaths only from `units.filter(...IN_FLIGHT_STATES...)`, and :554 compares only `unit.ownershipPaths`. Node ownershipPaths never enter pathsOverlap. pathsOverlap is defined at :77, and existsSync is at :265 (nodes) and :368 (units).",
+   "correction": "Only unit strings affect the --next overlap scheduler: 'src/lib' on U45, U4, U5d, U5e and U5h. The 10 'src' nodes and R2.combat's 'src/lib' and 'src/services' strings are only existsSync-checked (:265) and never participate in pathsOverlap."
+  },
+  {
+   "claim": "At file level the 6 runtime cycles covering 40 files are all inside single directories.",
+   "evidence": "The independent SCC reproduces 6 cycles and 40 files. The 20-file cycle spans src/utils/gameplay plus its subdirectories movement/, pilotingSkillRolls/ and spaModifiers/. The 9-file cycle spans 7 subdirectories of src/components/customizer (aerospace, battlearmor, infantry, protomech, shared, tabs, vehicle).",
+   "correction": "Each runtime cycle stays within one area subtree, but two of them span several directories: 4 for the 20-file cycle and 7 for the 9-file cycle."
+  },
+  {
+   "claim": "Break the 4 file-level cycles no live unit owns (utils/gameplay 20+3, components/customizer 9, stores/useGameplayStore 3), as work outside roadmap-owned paths.",
+   "evidence": "Ledger ownership, including ancestors, at both 31d01f4ab and HEAD: src/components/customizer is owned by planned node R7.context (and complete R1.infantry); src/stores is owned by planned node R8.isometric; src/utils/gameplay is covered by blocked node R2.camp-8 through 'src'.",
+   "correction": "No unit owns those paths, but planned roadmap nodes do: R7.context owns the customizer cycle and R8.isometric owns the stores cycle. By the recommendation's own rule for docs/ (avoided because planned R9 nodes own it), these edits need the same timing care."
+  },
+  {
+   "claim": "inProcessApiRouter.ts:46-55 holds campaign's 10 runtime imports into Next API route handlers.",
+   "evidence": "The 10 API-layer imports are at inProcessApiRouter.ts:46-53 (8 pages/api handlers), :83 (pages-modules/api/campaignLaunchAuthorityRoute) and :87 (campaignLaunchHeadRoute). Lines 54-55 import services/forces/ForceRepository.helpers.server and services/persistence/SQLiteService, which are not API handlers.",
+   "correction": "Cite inProcessApiRouter.ts:46-53, 83 and 87."
+  },
+  {
+   "claim": "The hydrate script copies only src/ and tsconfig.json into .next/standalone.",
+   "evidence": "hydrate-next-standalone-multiplayer-server.mjs:267-270 also copies server.js, and :280-283 call copyRuntimeLoaders, copyPublicAssets, copyMegaMekBVCache and copyNextStaticAssets.",
+   "correction": "The only source tree it copies is src/ (with tsconfig.json). It also copies server.js, the runtime loaders, public assets, the MegaMek BV cache and .next/static."
+  },
+  {
+   "claim": "The catalog readers include 18 test JSON imports plus 2 e2e JSON imports.",
+   "evidence": "Import, require or dynamic-import statements of `units/battlemechs/*.json` total 18 across src and e2e: 16 in src test files and 2 in e2e (saved-custom-combat.spec.ts and saved-custom-combat-launch.spec.ts).",
+   "correction": "16 src test imports plus 2 e2e imports (18 in total)."
+  },
+  {
+   "claim": "42 of the 57 commits touching the rules code (74%) also touched app source, so separate repos would make about 3 of every 4 rules-engine changes a publish-then-bump chain.",
+   "evidence": "cochange3.js gives 57/42/6 only for partition E, where 'rules' is foundation + construction + engine (MAP_A.engine includes src/simulation, types/pilot, force, encounter, scenario and services/generators), plus public/data/equipment. For the engine piece alone (partition D) it is 43 touching and 34 with app prod (79%). For construction alone (partition A) it is 18 and 11 (61%). Elsewhere the recommendation uses 'rules' to mean the tactical piece ('rules 3 refs').",
+   "correction": "The 74% is for the combined foundation+construction+engine split, not the rules-engine (tactical) piece. For the engine-only split the figure is 79% (34/43)."
+  },
+  {
+   "claim": "lib/campaign/medical/medicalTypes.ts and lib/multiplayer/server/playerIdFromPublicKey.ts belong in foundation because types already depend on them.",
+   "evidence": "The only prod importers are: medicalTypes.ts from src/lib/campaign (7) and src/types/campaign (3); playerIdFromPublicKey.ts from src/lib/multiplayer (2), src/types/multiplayer/Player.ts:21 and src/pages/api (1). Every importer is in the campaign, multiplayer or app-api pieces, and no foundation file imports either one.",
+   "correction": "Nothing in foundation needs these files. They can stay in campaign and multiplayer without creating an upward edge."
+  },
+  {
+   "claim": "Printing: only UI imports it.",
+   "evidence": "Prod importers of the printing piece are src/components (31 statements) and src/services/index.ts:32, `export * from './assets'` (services/assets is placed in printing).",
+   "correction": "UI plus the app-services barrel src/services/index.ts:32."
+  },
+  {
+   "claim": "Tracked files: 17,287 in total.",
+   "evidence": "`git ls-tree -r --name-only 31d01f4ab | wc -l` gives 17,293, and `git ls-files | wc -l` at HEAD d3c088a9b gives 17,294. The src count of 7,223 is correct at both.",
+   "correction": "17,293 at 31d01f4ab (17,294 at HEAD)."
+  },
+  {
+   "claim": "Battlemech catalog: '24 commits ever and 3 in 90 days' (keyMeasurements; also 'public/data/units/battlemechs: 4,226 JSON files, 21.0 MB, 24 commits ever').",
+   "evidence": "`git log --full-history -- public/data/units/battlemechs` returns 10 commits (9 without merges, 9 first-parent, 9 with --all). The repo is not shallow (`git rev-parse --is-shallow-repository` = false). Only 1 of them is in the last 90 days: ca8c2c958 on 2026-07-03 (#1010). The others are #429 (2026-04-25), #233, #232, #231, #40, the #13 merge, fba16c68a, 5d77eae1f and 155b803e8 (2025-11-29). The file count (4,226) and size (22,004,233 bytes, about 20.98 MiB) are correct.",
+   "correction": "The catalog has 10 commits ever (9 non-merge) and 1 in the last 90 days, not 24 and 3."
+  },
+  {
+   "claim": "The Phase 4 catalog reader list is complete: 'All readers go through one resolver: CanonicalUnitService.ts:152, NodeCanonicalUnitService.ts:213-216, fastForwardCombatRunner.ts:469, validate-bv.ts:149,168, Dockerfile:68-69, and the 18 test plus 2 e2e JSON imports.'",
+   "evidence": "Other readers of the path exist. src/services/units/chassis/chassisIndex.server.ts:9-16 reads public/data/units/battlemechs/index.json from disk. scripts/hydrate-next-standalone-multiplayer-server.mjs:132-149 (copyPublicAssets) asserts public/data/units/battlemechs/index.json exists and fails the build if it is missing. src/services/units/chassis/chassisIndex.ts:134 and src/types/unit/ChassisIndex.ts:30 hard-code '/data/units/battlemechs/index.json'. Counting static JSON imports repo-wide with `git grep` gives 15 in src tests, 2 in e2e and 4 in scripts, not 18 plus 2. About 292 top-level scripts/*.{ts,js,mjs,py} files mention the path.",
+   "correction": "Add chassisIndex.server.ts, the hydrate script's copyPublicAssets assertion, the chassisIndex/ChassisIndex path literals and 4 scripts JSON imports to the resolver migration. The test import count is 15 src plus 2 e2e (17), not 18 plus 2."
+  },
+  {
+   "claim": "The catalog should be fetched and strict-validated 'in CI, Docker and the release job, the same way record sheets work today'.",
+   "evidence": "The Dockerfile (lines 1-75) has no fetch:assets or validate:assets step. The builder runs `npm ci` then `COPY . .` then `npm run build`, and line 69 copies public/record-sheets from the build context. The postinstall script scripts/mm-data/check-assets.js only checks and says it 'Never fails the build'. The fetch plus strict-validate pattern exists only in CI (.github/actions/setup-node-and-install/action.yml:91 and pr-checks.yml:602,765) and in release.yml:139-144.",
+   "correction": "Docker does not fetch or validate record sheets today; it copies whatever is in the build context. A Docker fetch/validate step would be new work, not an existing precedent."
+  },
+  {
+   "claim": "Phase 4 exit criterion: 'The battlemech tree is gitignored and fetched by pinned version'. The artifact is 'fetched into a gitignored path', and 'The equipment JSON and _schema stay in the repo' as authored source.",
+   "evidence": "`git check-ignore -v --no-index public/data/units/battlemechs/index.json` prints `.gitignore:121:/public/data/*`, so the tree is already matched by an ignore rule and is tracked only because the files were added earlier. The equipment tree is also ignored: .gitignore:123 `/public/data/equipment/*` matches public/data/equipment/official/weapons/new.json. Only `_schema/unit-schema.json` is re-included (.gitignore:124-126).",
+   "correction": "The path is already gitignored, so Phase 4 needs `git rm --cached` rather than a new ignore rule. The 'authored source' equipment JSON also sits under an ignore rule, so any new equipment file needs `git add -f` or a .gitignore fix."
+  },
+  {
+   "claim": "The foundation piece contains 'src/data' (and next.config aliases '@/data').",
+   "evidence": "`git ls-files src/data` returns 0 files and `git grep \"'@/data\" -- src` finds 0 imports. .gitignore:117 `data/` ignores any directory named data at any depth: `git check-ignore -v --no-index src/data/foo.ts packages/foundation/src/data/foo.ts` both match `.gitignore:117:data/`.",
+   "correction": "src/data is empty in git, so it is not part of the foundation package. Also, .gitignore:117 would silently ignore any future packages/*/src/data/ directory."
+  },
+  {
+   "claim": "'The hydrate script copies only src/ and tsconfig.json into .next/standalone.'",
+   "evidence": "scripts/hydrate-next-standalone-multiplayer-server.mjs copies more than that. Lines 267-270 copy server.js. copyRuntimeLoaders (:115-130) copies node_modules/{tsx,esbuild,ws} and @esbuild (:25-26). copyPublicAssets copies all of public/ (:132-149). copyMegaMekBVCache copies scripts/data-migration/megamek-bv-cache.json (:19-23, :151-158), and copyNextStaticAssets copies .next/static (:160-170).",
+   "correction": "The hydrate script also copies server.js, 4 runtime node_modules folders, all of public/ (and fails if the battlemech index is missing), a scripts/ BV cache and .next/static. Phase 4 (catalog) and Phase 5 (packages) both have to change it."
+  },
+  {
+   "claim": "'desktop/ already has 0 imports into src; the only reverse coupling is next.config.ts:9 importing desktop/electron/securityPolicy.'",
+   "evidence": ".dockerignore:67-71 also carries the coupling: `desktop/*`, `!desktop/electron/`, `desktop/electron/*`, `!desktop/electron/securityPolicy.ts`, with the comment 'only the shared HTTP security policy is needed by next.config.ts'. `git grep securityPolicy` outside desktop finds only next.config.ts:9 and .dockerignore:71.",
+   "correction": "Moving securityPolicy into foundation also needs .dockerignore:67-71 updated. Otherwise the Docker context carries a stale exception and the moved file must not be excluded."
+  },
+  {
+   "claim": "'Refs broken per package move: foundation 7' / roadmapSequencing: 'foundation (7 refs): wait for R7.versions, R7.provenance, R8.opportunities and U45, or re-point them in the move PR.'",
+   "evidence": "At 31d01f4ab the 7 ledger strings under foundation-like paths are all src/types/campaign or src/types/multiplayer: R2.combat, U45 and U4 own src/types/multiplayer; R7.versions, R7.provenance and R8.opportunities own src/types/campaign; R9.roster-damage owns src/types/campaign/UnitCombatState.ts. The recommendation's own manifest puts src/types/campaign in the campaign piece and src/types/multiplayer in the multiplayer piece, not foundation. No ledger string falls under src/services/core, src/services/common, src/constants, src/utils root files or src/utils/{formatting,temporal,touch,simulation-viewer}.",
+   "correction": "Under the proposed manifest, foundation (and the 8-file pilot) breaks 0 exact ownership strings; only ancestor strings such as 'src' are affected. The 7 refs and the wait on R7.versions, R7.provenance, R8.opportunities and U45 belong to the campaign and multiplayer pieces."
+  },
+  {
+   "claim": "The manifest must not go in docs/qc 'because `docs` is owned by R1.references and planned R9.triage/R9.close' ('docs/qc sits inside `docs`, which R1.references owns alongside planned R9.triage and R9.close').",
+   "evidence": "At 31d01f4ab and at d3c088a9b only R1.references (state complete) owns the exact string 'docs'. R9.triage (planned) owns docs/audits/2026-09-12-customizer-spec-reconciliation and R9.close (planned) owns docs/audits. Neither overlaps docs/qc under pathsOverlap (validate-roadmap.mjs:77-81). Also, the --next scheduler (:541-554) compares only units' ownershipPaths, and no unit owns anything under docs.",
+   "correction": "docs/qc overlaps only the complete R1.references node, not the planned R9 nodes. scripts/boundaries is still a fine location, but the stated reason for avoiding docs/qc is wrong."
+  },
+  {
+   "claim": "'The current branch docs/roadmap-u35-split-20260922 has staged units.json and roadmap.json changes (the U35 split)'. Ledger numbers are stated 'at HEAD 31d01f4ab': 80 units with 174 paths (35 unique), planned 41, blocked 4, and src/lib/campaign with 29 entries (23 + 6).",
+   "evidence": "`git branch --show-current` = main, the working tree is clean, no local branch matches docs/roadmap-u35*, and HEAD is d3c088a9b ('U35 parked...; U35a-U35d planned', #1905), which changed roadmap.json and units.json. Re-measured at d3c088a9b: 75 nodes with 293 paths (98 unique), 84 units with 185 paths (39 unique), states complete 34, planned 44, blocked 5, main-verified 1, and still 0 in flight. src/lib/campaign now has 31 entries (23 nodes + 8 units). The 31d01f4ab figures themselves re-measure correctly.",
+   "correction": "The U35 split has already merged to main (d3c088a9b). The current ledger has 84 units, 44 planned, 5 blocked and 31 campaign-path entries; update the counts and drop the 'staged branch' caveat."
+  },
+  {
+   "claim": "Phase 1: 'Run it as a non-blocking job under the existing required Lint and Test aggregator; branch protection is unchanged.'",
+   "evidence": "pr-checks.yml:697-736: the lint-and-test job's step fails if any needed job's result is not 'success' (`select(.value.result != \"success\")` then `exit 1`). A failed, cancelled or skipped gate job listed in `needs` therefore turns the required 'Lint and Test' check red.",
+   "correction": "A job listed under the aggregator blocks merges unless it always exits 0 and is never skipped. A true report-only gate should either always succeed (print the delta, exit 0) or stay outside the aggregator's needs list."
+  },
+  {
+   "claim": "Events piece: 'It is 72 framework-free prod files.'",
+   "evidence": "`git ls-files src/lib/events src/types/events src/utils/events src/services/events`, excluding __tests__/.test./.spec., gives 84 .ts files. None import react, zustand or next, and 14 import better-sqlite3 (e.g. src/lib/events/journal/SQLiteEventJournalWriter.ts, src/lib/events/privacy/privateRecordAccess.ts).",
+   "correction": "The events piece has 84 production files, and 14 of them depend on better-sqlite3, so it is React-free but not persistence-free."
+  },
+  {
+   "claim": "'Tracked files: 17,287 in total, 7,223 of them in src.'",
+   "evidence": "`git ls-tree -r --name-only` counts 17,293 at 31d01f4ab (the stated measurement HEAD) and 17,294 at the current HEAD d3c088a9b. 17,287 matches the older commit f6e3599a3. The src count of 7,223 is correct at both.",
+   "correction": "17,293 at 31d01f4ab (17,294 at the current HEAD); the 17,287 figure is from f6e3599a3."
+  }
+ ],
+ "judges": [
+  {
+   "winner": "boundaries-in-place",
+   "scores": [
+    {
+     "design": "boundaries-in-place",
+     "maintainability": 7,
+     "migrationRisk": 9,
+     "loopCompatibility": 9,
+     "buildAndTestSpeed": 4,
+     "reversibility": 10,
+     "rationale": "This design has the best cost-to-gain ratio for a solo maintainer who pays for every cross-repo change. I independently re-verified its central claim with judge1-scc.js over file-edges.json. The file-level runtime graph has exactly 6 cycles covering 40 files: utils/gameplay 20+3, components/customizer 9, stores/useGameplayStore 3, lib/campaign/sync 3 and lib/multiplayer/server 2. Counting type-only imports, there are 27 cycles over 258 files, the largest 124 and 65. So the 64-area SCC comes from rolling files up into areas, and a file-level ratchet gate is tractable. The plan moves no directories and changes no ownershipPaths strings. The new files go in unowned paths: I checked that docs/qc and scripts/boundaries have no owners. It uses tools that are already installed (oxlint 1.43.0, TypeScript). Undoing it means deleting a gate script and a manifest. Weaknesses: 1) It does not speed up the build. The .husky/pre-commit:13-18 full next build and the lint-staged tsc both stay. 2) It adds friction to roadmap units that touch lib/campaign. 3) Its roadmap-ownership statement for phase B is wrong (see the errors list). 4) Most of the real untangling is in campaign (66 of 104 runtime violations), which stays deferred."
+    },
+    {
+     "design": "workspaces-monorepo",
+     "maintainability": 7,
+     "migrationRisk": 5,
+     "loopCompatibility": 6,
+     "buildAndTestSpeed": 4,
+     "reversibility": 6,
+     "rationale": "This is the right destination for the lower layers, and the best-engineered extraction plan. It puts package-enforced direction on 42% of production files. It has named ports for Toast, matchLogStorage, ReplaySurfaceGate and FormulaStore. I confirmed matchLogStorage at InteractiveSession.ts:21,292,772 and sessionEvents.ts:6, and Toast at persistence.ts:1. It uses a transitional alias so moves don't conflict with every lane worktree. It correctly keeps the app at the repo root (next.config.ts:111-115 confirmed) and keeps desktop out of the workspace. The tsx probe finding matters: '@/' resolves back into the app from inside a package, so exports alone enforce nothing. Costs: about 12,000 specifier rewrites, 156 jest.mock targets and 853 source-ref literals. Scaffolding has to be proven for standalone hydrate, Docker and Electron; I confirmed hydrate copies only src and tsconfig. It rewrites 16 ownership refs, including evidence strings on complete and main-verified nodes, and container refs silently stop covering moved code. It gives no pre-commit speed-up. Its steps 0-2 are essentially the boundaries-in-place design, so as an overall plan it is dominated by doing that design first."
+    },
+    {
+     "design": "polyrepo",
+     "maintainability": 5,
+     "migrationRisk": 3,
+     "loopCompatibility": 5,
+     "buildAndTestSpeed": 5,
+     "reversibility": 3,
+     "rationale": "The analysis is honest and well measured: exact minimum back-edge search, 90-day co-change, and ownership breakage per partition. It correctly rejects the full split, which had 29.8% cross-repo commits and broke 18 non-complete units. But even the narrow split E would have turned 42 of 57 rules commits (74%) into a publish-then-bump chain. For one maintainer with agents, that is an ongoing tax on most rules changes. It also adds registry credentials to every install path; I confirmed there is no tracked .npmrc today. Specs would stop landing atomically with code (26 of 57 rules commits touched openspec). Undoing a filter-repo extraction is expensive. Its possible speed gain, a smaller app type-check program, is marked unverified. Its own recommendation is to rehearse in-repo first and extract only if co-change falls. That concedes the workspace path, so as a design it is a later, conditional option, not a plan."
+    }
+   ],
+   "errors": [
+    "boundaries-in-place (roadmapLoopImpact point 3) says construction, printing, engine and kernel are 'owned only by the blocked node R2.camp-8, which owns all of src, and by planned node R7.versions'. Measured at HEAD 31d01f4ab, that is wrong in three ways. 1) The exact string 'src' is also owned by R1.references (complete) and by R2.camp-0 through R2.camp-7 (all main-verified). 2) 'src/engine' is owned by R2.combat (main-verified), which also owns 'src/lib' and 'src/services'. 3) 'src/lib', which covers lib/spa and lib/combat inside the proposed construction and tactical pieces, is owned by U45 (planned) and U4/U5d/U5e/U5h (complete). A phase-B tactical move therefore has to rewrite R2.combat's 'src/engine' string in the same PR.",
+    "boundaries-in-place contradicts itself on ledger strings. Migration step 8 says the construction move needs 'any roadmap ledger strings; none point there today'. But its construction piece includes src/services/units, which R7.versions (planned) owns: ownershipPaths [src/services/units, src/services/pilots, src/types/campaign, …]. The design's own roadmap section acknowledges this.",
+    "The tooling and practice lanes say units.json has 77 units and 170 ownershipPaths strings (33 distinct). At HEAD 31d01f4ab it has 80 units and 174 strings. States: complete 34, planned 41, blocked 4, main-verified 1. The HEAD commit that planned U59-U61 made the earlier counts stale. The workspaces-monorepo and polyrepo designs use the correct 80.",
+    "Minor. workspaces-monorepo cites the ReplaySurfaceGate import at InteractiveSession.persistence.ts:6, and boundaries-in-place cites :2. The import statement spans lines 2-6, so both are acceptable, but cross-references should use :2 (the statement start).",
+    "Verified correct and not errors: 6 runtime file-level cycles covering 40 files, and 27 type-inclusive cycles covering 258 files, largest 124 and 65 (recomputed independently in split-analysis/judge1-scc.js); matchLogStorage at InteractiveSession.ts:21,292,772 and sessionEvents.ts:6; acar.ts:6 imports types/campaign/enums; extractionLadder.ts:6 and :19; next.config.ts:9 and :109-115; tsx 4.22.4 and oxlint 1.43.0 installed; jest testEnvironment jsdom at jest.config.js:74,105; no tracked .npmrc; hydrate copies src and tsconfig.json; pre-commit runs the full build when any .ts/.tsx file is staged; U45 owns src/lib; U37 owns src/utils/gameplay/gameState."
+   ]
+  },
+  {
+   "winner": "boundaries-in-place",
+   "scores": [
+    {
+     "design": "boundaries-in-place",
+     "maintainability": 7,
+     "migrationRisk": 9,
+     "loopCompatibility": 9,
+     "buildAndTestSpeed": 4,
+     "reversibility": 10,
+     "rationale": "Seen from build and CI, this design does no harm now and keeps later options open. It moves no paths, so validate-roadmap's existsSync checks at :264-265 and :367-369 are untouched. At HEAD units.json has 80 units (complete 34, planned 41, blocked 4, main-verified 1) and none are in IN_FLIGHT_STATES (validate-roadmap.mjs:59), which I re-checked. The CI cost is small and I verified it: oxlint import/no-cycle with ignoreTypes reports exactly 40 problems (oxlint-nocycle-runtime.txt); the repo lint shows 84 problems, all warnings (oxlint-repo.txt); the construction tsc probe gives exactly 255 TS6307 errors (tsc-probe/construction.out). The TS-parser gate takes about 6s as a job under the existing required 'Lint and Test' check. It also correctly reframes the 64-area SCC as an effect of grouping files into areas: there are only 6 file-level runtime cycles, covering 40 files. The ratchet design is justified because oxlint has no baseline or suppression flag: `oxlint --help` shows none; the only matching option is -A/--allow. The weakness is speed. The duplicated whole-project type-check stays: lint-staged runs `bash -c 'npx tsc --noEmit --skipLibCheck'` (package.json:336), and next build type-checks the same program because next.config.ts has no ignoreBuildErrors. The full build in .husky/pre-commit, which its own comment puts at about 5 min, also stays. The design admits both costs but leaves out the cheap fix: the hook can be path-aware without packages. It also adds friction to the loop, because roadmap units must edit the baseline explicitly. That friction is visible and deliberate."
+    },
+    {
+     "design": "workspaces-monorepo",
+     "maintainability": 7,
+     "migrationRisk": 5,
+     "loopCompatibility": 6,
+     "buildAndTestSpeed": 3,
+     "reversibility": 6,
+     "rationale": "This is the most rigorous design for actually creating packages, and its build and CI facts check out. The Dockerfile copies only the root package.json and package-lock.json before `npm ci` (lines 15-16, 18 and 31-32; stage 1 also runs `--ignore-scripts` then `npm rebuild better-sqlite3`). server.js:449-463 loads six multiplayer .ts modules plus SQLiteService through tsx/cjs. next.config.ts:115 sets outputFileTracingRoot to process.cwd(). Root tsconfig include ['**/*.ts'] (line 27) does cover packages/. Its junction probe shows tsx 4.22.4 resolves `@/` from inside a linked package, which closes the tooling lane's UNVERIFIED item and correctly makes the lint ban, the no-paths tsconfig and the boundary test all mandatory. Its handling of native modules is sound: npm rather than pnpm, desktop stays outside the workspace, and better-sqlite3 stays in the app so no package wraps it. On speed it is candid and correct. Packages consumed as TypeScript source are compiled inside next build, so the pre-commit build does not get faster. Each package's no-paths tsconfig adds another tsc pass on top of today's two type-checks, which is a net loss locally unless it runs only in CI. Migration risk is high: about 12,000 specifier rewrites, 156 jest.mock targets and 853 'src/...' literals, each PR passing a roughly 5-minute hook. Step 3 must also re-verify standalone hydrate, Docker and Electron on three OSes. Reversibility is medium: the transitional aliases help, but after the alias codemod, moving back is another large rewrite."
+    },
+    {
+     "design": "polyrepo",
+     "maintainability": 5,
+     "migrationRisk": 3,
+     "loopCompatibility": 4,
+     "buildAndTestSpeed": 5,
+     "reversibility": 3,
+     "rationale": "The measurements are honest, and the design argues itself down to partition E. On build speed it is the only design that could shrink the app's type-check and next build program: the compiled rules package ships .d.ts for 2,551 files. That gain is labelled INFERENCE and was never probed. Against it: every rules change pays publish-then-bump (42 of 57 rules commits, 74%, also touched app source); registry auth becomes a dependency of CI, the Dockerfile's `npm ci`, the Electron better-sqlite3 rebuild and every agent worktree (no .npmrc is tracked, which I confirmed); and the rules repo needs its own duplicated jest, oxlint, husky and CI plus a downstream canary. Its own step 3 is simply the workspaces design, so it only adds value after that design succeeds. Taking the extra step to a separate repo is hard to undo: filter-repo history, a published version line, and specs split across repos. The catalog-data satellite, by contrast, is low-risk and a clear build and CI win: 21 MB and 4,226 JSON files leave the tree, and the existing mm-data fetch pattern (config/mm-data-assets.json) can be reused."
+    }
+   ],
+   "errors": [
+    "Polyrepo: it justifies shipping compiled JS partly by citing the tooling lane's 'UNVERIFIED: whether tsx transforms .ts reached through node_modules symlinks'. The workspaces lane's probe (split-analysis/probe/) already showed that tsx 4.22.4 resolves and transforms package .ts files through a Windows junction. The reason is stale, though the other arguments for compiled output still stand.",
+    "Measured understanding (practice lane): 'units.json has 77 units carrying 170 ownershipPaths'. At HEAD 31d01f4ab units.json has 80 units (complete 34, planned 41, blocked 4, main-verified 1), because commit 31d01f4ab added U59-U61. The designs' figure of 80 is correct; the lane's 77 is from f6e3599a3.",
+    "Workspaces-monorepo: it calls 2,653 'jest test files', split as 880 package plus 1,773 app. Those are src-only counts. The jest roots also cover scripts (78 test files) and openspec (2) (jest.config.js:71,99), so the jest total is about 2,733. This is a minor mislabel.",
+    "Test-file totals differ across lanes: 3,352 (domain-seams), 3,251 test files excluded (import-graph, which counts __fixtures__, __mocks__, stories and src/testing) and 2,653 (tooling). They use different definitions, not contradictory measurements. Scores should not compare them directly.",
+    "Tooling and practice lanes: the pre-commit cost is quoted as '3-5 min'. The hook's own comment (.husky/pre-commit) says '~5min build', which comes on top of a whole-project tsc from lint-staged. The upper bound is the realistic figure.",
+    "Boundaries-in-place: its claims check out. oxlint no-cycle gives 40 problems, the repo lint 84 problems (all warnings), the construction probe 255 TS6307, there are 0 src changes between f6e3599a3 and 31d01f4ab, and oxlint has no baseline or suppression flag. It labels its runtime-violation counts as upper bounds because there is no verbatimModuleSyntax; that is correct. I found no errors in it."
+   ]
+  },
+  {
+   "winner": "boundaries-in-place",
+   "scores": [
+    {
+     "design": "boundaries-in-place",
+     "maintainability": 7,
+     "migrationRisk": 9,
+     "loopCompatibility": 9,
+     "buildAndTestSpeed": 4,
+     "reversibility": 10,
+     "rationale": "From the roadmap ledger's point of view this is the only design that can start today without touching an ownershipPaths string. I re-measured at HEAD 31d01f4ab: the validator fails on any missing path (validate-roadmap.mjs:264-265 for nodes, :367-369 for units), and units.json has 0 units in an IN_FLIGHT state (states: complete 34, planned 41, blocked 4, main-verified 1; the in-flight set is defined at :59). Nothing moves, so the existsSync and unit-within-node checks keep passing. I confirmed its evidence exists in scratch: the oxlint no-cycle run reports 40 findings, the construction tsc probe gives exactly 255 TS6307 errors, the kernel3 probe output is empty, and `git diff f6e3599a3 31d01f4ab -- src` is empty. The loop does pay a real cost. Once the ratchet gate blocks on regression, 19 non-terminal units that own paths under src (U19, U35, U58, U21, U36, U37, U38, U23, U43, U24, U44, U45, U26, U46-U50, U56) must either add no new upward import or edit the baseline in their PR. That is extra review load, but it is visible and reversible. Maintainability: it enforces the direction of imports and gives a numbered worklist, but it cannot yet fix the campaign/multiplayer core, which is 66 of the 104 runtime violations and sits in roadmap-owned code. Speed: no gain; the 3-5 minute pre-commit build is unchanged and the gate adds about 6 s. Reversibility: it is a manifest, a script and lint config, so it can be deleted in one PR."
+    },
+    {
+     "design": "workspaces-monorepo",
+     "maintainability": 7,
+     "migrationRisk": 5,
+     "loopCompatibility": 6,
+     "buildAndTestSpeed": 4,
+     "reversibility": 6,
+     "rationale": "Steps 0-2 are the same zero-move work as boundaries-in-place. The package moves in steps 3-7 do touch the ledger. I re-measured the refs: foundation 7 (src/types/multiplayer on R2.combat, U4 and U45; src/types/campaign on R7.versions, R7.provenance and R8.opportunities; UnitCombatState.ts on R9.roster-damage), construction 6, rules 3 (src/engine on R2.combat; src/utils/gameplay/gameState on R2.multiplayer-client and U37). Several of these belong to complete or main-verified nodes, so historical evidence strings would have to be edited. Its most valuable finding for the loop is correct and the other designs miss it. The parent refs stay valid while silently losing coverage: 10 nodes own the exact string `src`, and U45 owns `src/lib`. The --next scheduler (:541-560) uses pathsOverlap on strings, so a unit owning src/... would not collide with work under packages/construction. That makes the overlap scheduler quietly unsound after the moves. The design also usefully measured that tsx resolves `@/` from inside a junction-linked package, so exports alone enforce nothing. The transitional alias keeps planned branches mergeable. Migration risk is moderate: standalone hydrate, Docker, Electron and 3-OS verification, and about 12,000 specifiers. Speed does not improve without affected-only tooling. Reversal means moving directories back and rewriting the ledger strings again."
+    },
+    {
+     "design": "polyrepo",
+     "maintainability": 4,
+     "migrationRisk": 3,
+     "loopCompatibility": 3,
+     "buildAndTestSpeed": 5,
+     "reversibility": 3,
+     "rationale": "The validator works against a single repoRoot. existsSync at :264-265 and :367-368 and the in-repo overlap scheduler cannot follow paths into another repo without a redesign ('repo:path' syntax), and the design admits this. Even the narrow partition E moves paths owned by R2.combat (src/engine), R7.versions (src/services/units), R9.equipment-loader (3 files), R9.validation-order (2 files), R2.multiplayer-client and U37 (src/utils/gameplay/gameState). The same silent coverage loss applies under the 10 exact `src` owners. Its own co-change number argues against it: 42 of 57 rules commits in 90 days (74%) also touched app production source, so most roadmap units that touch rules would become publish-then-bump chains across two PRs and two repos, which the unit/PR/OWNER-RULING ledger cannot express. Registry credentials would be needed on every agent worktree, and no .npmrc is tracked today. The full split A hits 39 of 75 nodes and 18+ non-terminal units. It may speed up the app's type check (2,551 files replaced by .d.ts, unverified), but publish cycles slow the loop. Reversing a filter-repo extraction is expensive. The measurement work (exact minimum back-edge set, co-change gate) is its best contribution."
+    }
+   ],
+   "errors": [
+    "boundaries-in-place, roadmapLoopImpact: 'Construction, printing, engine and kernel are owned only by the blocked node R2.camp-8, which owns all of src'. This is wrong. 10 nodes own the exact string `src` (R1.references complete, R2.camp-0..7 main-verified, R2.camp-8 blocked). R2.combat (main-verified) owns src/engine. R9.equipment-loader and R9.validation-order (complete) own 5 files under services/equipment and services/validation. R2.multiplayer-client and U37 (planned) own src/utils/gameplay/gameState. The design's conclusion (src still exists, so the validator passes) still holds for moves that leave those owned sub-paths in place.",
+    "boundaries-in-place: it treats `docs/qc/` as an unowned path. R1.references (complete) owns `docs`, which contains docs/qc. This is harmless to the scheduler because that node is terminal, but the claim is wrong. `scripts/boundaries` is truly unowned.",
+    "boundaries-in-place: 'scripts/qc is owned by 12' live units. I measured 11 non-terminal units overlapping scripts/qc (U2, U2b, U39, U40, U60, U28, U29, U53, U55, U57, U12) and 17 nodes.",
+    "workspaces-monorepo: construction ledger impact is described as 'src/services/units and 4 file refs'. It is src/services/units plus 5 file refs: 3 on R9.equipment-loader (including a __tests__ file) and 2 on R9.validation-order. The total of 6 is correct; the '4' is not.",
+    "tooling and practice lanes (inputs used by the designs): units.json now has 80 units with 174 ownershipPaths strings, 35 of them unique. The lanes quoted 77 units, 170 strings and 33 unique, which is stale after U59-U61 were planned (commit 31d01f4ab).",
+    "polyrepo, full split A: the list of 18 non-terminal affected units omits U36. I measured 19 non-terminal units overlapping `src`, but U36 may own paths the partition keeps in the app, so this is at most a counting nuance.",
+    "import-graph lane and workspaces-monorepo: both call the result the '64-area runtime cycle', framing it as area-level. boundaries-in-place correctly shows this is an artefact of rolling files up into areas: there are only 40 files in 6 file-level runtime cycles, and oxlint no-cycle output confirms 40. The workspaces design's blocker 'the whole repo cannot be packaged as it stands' remains true at the package level, via the 46 prod edges."
+   ]
+  }
+ ]
+}

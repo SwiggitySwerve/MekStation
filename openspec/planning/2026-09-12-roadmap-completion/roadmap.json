@@ -7433,10 +7433,49 @@
         "scripts/__tests__",
         "package.json",
         ".oxlintrc.json",
-        "playwright.config.ts"
+        "playwright.config.ts",
+        ".husky",
+        ".github/workflows/pr-checks.yml",
+        "src/kernel/__tests__/KernelBoundary.test.ts",
+        "src/utils/gameplay/movement",
+        "src/utils/gameplay/movement.ts",
+        "src/utils/gameplay/pilotingSkillRolls",
+        "src/utils/gameplay/pilotingSkillRolls.ts",
+        "src/utils/gameplay/spaModifiers",
+        "src/utils/gameplay/spaModifiers.ts",
+        "src/utils/gameplay/standUpRules.ts",
+        "src/utils/gameplay/physicalAttacks",
+        "src/utils/gameplay/__tests__",
+        "src/components/customizer",
+        "src/stores",
+        "src/services/units/unitLoaderService",
+        "src/components/spa",
+        "src/lib/spa/designation",
+        "src/services/printing",
+        "src/engine",
+        "src/components/gameplay/pages/preBattle",
+        "src/lib/combat/acar.ts",
+        "src/lib/combat/__tests__/acar.test.ts",
+        "src/lib/combat/__tests__/acar.test-helpers.ts",
+        "src/types/gameplay",
+        "src/utils/gameplay/aerospace",
+        "src/utils/gameplay/infantry",
+        "src/utils/gameplay/protomech",
+        "src/services/unit-card",
+        "src/services/pilot-mech-card",
+        "src/services/assets",
+        "src/types/printing",
+        "scripts/megameklab-conversion",
+        "config",
+        "scripts/mm-data",
+        ".github/workflows/release.yml",
+        ".github/actions/setup-node-and-install/action.yml",
+        "Dockerfile",
+        "public/data/units"
       ],
       "acceptance": [
-        "Each harness unit ships with a jest pin and a red-first probe; no product path under src/ is touched"
+        "Each harness unit ships with a jest pin and a red-first probe; no product path under src/ is touched",
+        "Units planned under OD-precommit-drop-full-build and OD-repo-split-boundaries-in-place (U62-U84 on this node) may edit the paths added by ownershipAmended20260923, each only as its behavior sentence states; every other harness unit still touches no product path under src/. Line 1's jest pin and red-first probe still bind each of U62-U82; U83 and U84 are blocked placeholders that are never admitted, and the successors that supersede them carry both (amended 2026-09-23)"
       ],
       "owner": "parent; bounded worker lanes per WORKERS.md",
       "maxFiles": 15,
@@ -7456,7 +7495,319 @@
           "source": "owner instruction 2026-09-17 accepting the second council's corrections (openspec/council-decisions/2026-09-17-review-what-needs-validation.md)",
           "why": "U15b forwards the combat-journal e2e arm through the Playwright server env; no node owned the file"
         }
-      ]
+      ],
+      "ownershipAmended20260923": [
+        {
+          "at": "2026-09-23T01:58:06.000Z",
+          "path": ".husky",
+          "units": "U62",
+          "by": "parent (ledger-author lane) under OD-precommit-drop-full-build (2026-09-23); the R1.archives precedent (a dated node ownership amendment)",
+          "why": "U62 removes the full build from .husky/pre-commit (:14-20). No node owned .husky, a parent of it or a path under it.",
+          "disclosure": "The owner decided the work, not this ownership string. The parent directed this path: decision (2) puts U62 on R6.loop-harness with paths ['.husky'] and an ownershipAmended record, since no node owned .husky. R6.loop-harness has dependsOn [], so its units stay admissible; overlaps were measured on f50e76fe4."
+        },
+        {
+          "at": "2026-09-23T01:58:06.000Z",
+          "path": ".github/workflows/pr-checks.yml",
+          "units": "U64, U66, U75, U81",
+          "by": "parent (ledger-author lane) under OD-repo-split-boundaries-in-place (2026-09-23); the R1.archives precedent (a dated node ownership amendment)",
+          "why": "The boundary job (report-only, then required), the probe step and the catalog fetch live here. R1.ci (main-verified, no unit) owns it through '.github/workflows'; the file string keeps these units off the other workflows unless a unit names them.",
+          "disclosure": "The owner decided the work, not this ownership string. The parent directed that the gate's CI job, when it needs .github/workflows (owned by the main-verified R1.ci), is added to R6.loop-harness as an ownershipAmended record; the boundary job of U64, U66 and U75 is that job. U81's catalog steps in the same file extend the direction. R6.loop-harness has dependsOn [], so its units stay admissible; overlaps were measured on f50e76fe4."
+        },
+        {
+          "at": "2026-09-23T01:58:06.000Z",
+          "path": "src/kernel/__tests__/KernelBoundary.test.ts",
+          "units": "U65",
+          "by": "parent (ledger-author lane) under OD-repo-split-boundaries-in-place (2026-09-23); the R1.archives precedent (a dated node ownership amendment)",
+          "why": "U65 replaces its regex import scan with the manifest rule. It overlaps only the ancestor 'src' on R1.references (complete) and R2.camp-0..8 (main-verified or blocked), which hold no open unit.",
+          "disclosure": "The owner decided the work, not this ownership string. The parent directed that product source a phase must edit, when no node owns those exact paths without a broad ancestor like 'src', is added to R6.loop-harness as narrow paths with an ownershipAmended record (the triage precedent on R2.multiplayer-client). R6.loop-harness has dependsOn [], so its units stay admissible; overlaps were measured on f50e76fe4."
+        },
+        {
+          "at": "2026-09-23T01:58:06.000Z",
+          "path": "src/utils/gameplay/movement",
+          "units": "U67",
+          "by": "parent (ledger-author lane) under OD-repo-split-boundaries-in-place (2026-09-23); the R1.archives precedent (a dated node ownership amendment)",
+          "why": "Part of the 20-file runtime cycle U67 breaks. It overlaps only the ancestor 'src' on R1.references (complete) and R2.camp-0..8 (main-verified or blocked), which hold no open unit. The narrow strings keep U67 off src/utils/gameplay/gameState, which U37 owns.",
+          "disclosure": "The owner decided the work, not this ownership string. The parent directed that product source a phase must edit, when no node owns those exact paths without a broad ancestor like 'src', is added to R6.loop-harness as narrow paths with an ownershipAmended record (the triage precedent on R2.multiplayer-client). R6.loop-harness has dependsOn [], so its units stay admissible; overlaps were measured on f50e76fe4."
+        },
+        {
+          "at": "2026-09-23T01:58:06.000Z",
+          "path": "src/utils/gameplay/movement.ts",
+          "units": "U67",
+          "by": "parent (ledger-author lane) under OD-repo-split-boundaries-in-place (2026-09-23); the R1.archives precedent (a dated node ownership amendment)",
+          "why": "Part of the 20-file runtime cycle U67 breaks. It overlaps only the ancestor 'src' on R1.references (complete) and R2.camp-0..8 (main-verified or blocked), which hold no open unit.",
+          "disclosure": "The owner decided the work, not this ownership string. The parent directed that product source a phase must edit, when no node owns those exact paths without a broad ancestor like 'src', is added to R6.loop-harness as narrow paths with an ownershipAmended record (the triage precedent on R2.multiplayer-client). R6.loop-harness has dependsOn [], so its units stay admissible; overlaps were measured on f50e76fe4."
+        },
+        {
+          "at": "2026-09-23T01:58:06.000Z",
+          "path": "src/utils/gameplay/pilotingSkillRolls",
+          "units": "U67",
+          "by": "parent (ledger-author lane) under OD-repo-split-boundaries-in-place (2026-09-23); the R1.archives precedent (a dated node ownership amendment)",
+          "why": "Part of the 20-file runtime cycle U67 breaks. It overlaps only the ancestor 'src' on R1.references (complete) and R2.camp-0..8 (main-verified or blocked), which hold no open unit.",
+          "disclosure": "The owner decided the work, not this ownership string. The parent directed that product source a phase must edit, when no node owns those exact paths without a broad ancestor like 'src', is added to R6.loop-harness as narrow paths with an ownershipAmended record (the triage precedent on R2.multiplayer-client). R6.loop-harness has dependsOn [], so its units stay admissible; overlaps were measured on f50e76fe4."
+        },
+        {
+          "at": "2026-09-23T01:58:06.000Z",
+          "path": "src/utils/gameplay/pilotingSkillRolls.ts",
+          "units": "U67",
+          "by": "parent (ledger-author lane) under OD-repo-split-boundaries-in-place (2026-09-23); the R1.archives precedent (a dated node ownership amendment)",
+          "why": "Part of the 20-file runtime cycle U67 breaks. It overlaps only the ancestor 'src' on R1.references (complete) and R2.camp-0..8 (main-verified or blocked), which hold no open unit.",
+          "disclosure": "The owner decided the work, not this ownership string. The parent directed that product source a phase must edit, when no node owns those exact paths without a broad ancestor like 'src', is added to R6.loop-harness as narrow paths with an ownershipAmended record (the triage precedent on R2.multiplayer-client). R6.loop-harness has dependsOn [], so its units stay admissible; overlaps were measured on f50e76fe4."
+        },
+        {
+          "at": "2026-09-23T01:58:06.000Z",
+          "path": "src/utils/gameplay/spaModifiers",
+          "units": "U67",
+          "by": "parent (ledger-author lane) under OD-repo-split-boundaries-in-place (2026-09-23); the R1.archives precedent (a dated node ownership amendment)",
+          "why": "Part of the 20-file runtime cycle U67 breaks. It overlaps only the ancestor 'src' on R1.references (complete) and R2.camp-0..8 (main-verified or blocked), which hold no open unit.",
+          "disclosure": "The owner decided the work, not this ownership string. The parent directed that product source a phase must edit, when no node owns those exact paths without a broad ancestor like 'src', is added to R6.loop-harness as narrow paths with an ownershipAmended record (the triage precedent on R2.multiplayer-client). R6.loop-harness has dependsOn [], so its units stay admissible; overlaps were measured on f50e76fe4."
+        },
+        {
+          "at": "2026-09-23T01:58:06.000Z",
+          "path": "src/utils/gameplay/spaModifiers.ts",
+          "units": "U67",
+          "by": "parent (ledger-author lane) under OD-repo-split-boundaries-in-place (2026-09-23); the R1.archives precedent (a dated node ownership amendment)",
+          "why": "Part of the 20-file runtime cycle U67 breaks. It overlaps only the ancestor 'src' on R1.references (complete) and R2.camp-0..8 (main-verified or blocked), which hold no open unit.",
+          "disclosure": "The owner decided the work, not this ownership string. The parent directed that product source a phase must edit, when no node owns those exact paths without a broad ancestor like 'src', is added to R6.loop-harness as narrow paths with an ownershipAmended record (the triage precedent on R2.multiplayer-client). R6.loop-harness has dependsOn [], so its units stay admissible; overlaps were measured on f50e76fe4."
+        },
+        {
+          "at": "2026-09-23T01:58:06.000Z",
+          "path": "src/utils/gameplay/standUpRules.ts",
+          "units": "U67",
+          "by": "parent (ledger-author lane) under OD-repo-split-boundaries-in-place (2026-09-23); the R1.archives precedent (a dated node ownership amendment)",
+          "why": "Part of the 20-file runtime cycle U67 breaks. It overlaps only the ancestor 'src' on R1.references (complete) and R2.camp-0..8 (main-verified or blocked), which hold no open unit.",
+          "disclosure": "The owner decided the work, not this ownership string. The parent directed that product source a phase must edit, when no node owns those exact paths without a broad ancestor like 'src', is added to R6.loop-harness as narrow paths with an ownershipAmended record (the triage precedent on R2.multiplayer-client). R6.loop-harness has dependsOn [], so its units stay admissible; overlaps were measured on f50e76fe4."
+        },
+        {
+          "at": "2026-09-23T01:58:06.000Z",
+          "path": "src/utils/gameplay/physicalAttacks",
+          "units": "U67",
+          "by": "parent (ledger-author lane) under OD-repo-split-boundaries-in-place (2026-09-23); the R1.archives precedent (a dated node ownership amendment)",
+          "why": "Holds the 3-file runtime cycle U67 breaks. It overlaps only the ancestor 'src' on R1.references (complete) and R2.camp-0..8 (main-verified or blocked), which hold no open unit.",
+          "disclosure": "The owner decided the work, not this ownership string. The parent directed that product source a phase must edit, when no node owns those exact paths without a broad ancestor like 'src', is added to R6.loop-harness as narrow paths with an ownershipAmended record (the triage precedent on R2.multiplayer-client). R6.loop-harness has dependsOn [], so its units stay admissible; overlaps were measured on f50e76fe4."
+        },
+        {
+          "at": "2026-09-23T01:58:06.000Z",
+          "path": "src/utils/gameplay/__tests__",
+          "units": "U67",
+          "by": "parent (ledger-author lane) under OD-repo-split-boundaries-in-place (2026-09-23); the R1.archives precedent (a dated node ownership amendment)",
+          "why": "The root gameplay suites that import the cycle members. It overlaps only the ancestor 'src' on R1.references (complete) and R2.camp-0..8 (main-verified or blocked), which hold no open unit.",
+          "disclosure": "The owner decided the work, not this ownership string. The parent directed that product source a phase must edit, when no node owns those exact paths without a broad ancestor like 'src', is added to R6.loop-harness as narrow paths with an ownershipAmended record (the triage precedent on R2.multiplayer-client). R6.loop-harness has dependsOn [], so its units stay admissible; overlaps were measured on f50e76fe4."
+        },
+        {
+          "at": "2026-09-23T01:58:06.000Z",
+          "path": "src/components/customizer",
+          "units": "U68",
+          "by": "parent (ledger-author lane) under OD-repo-split-boundaries-in-place (2026-09-23); the R1.archives precedent (a dated node ownership amendment)",
+          "why": "Holds the 9-file runtime cycle U68 breaks. R7.context (planned, no unit) and R1.infantry (complete) own it, and R1.route (archived) owns two files under it; no open unit owns a path under it, and --next serializes U68 against any future R7.context unit (analysis correction 10).",
+          "disclosure": "The owner decided the work, not this ownership string. The parent directed that product source a phase must edit, when no node owns those exact paths without a broad ancestor like 'src', is added to R6.loop-harness as narrow paths with an ownershipAmended record (the triage precedent on R2.multiplayer-client). R6.loop-harness has dependsOn [], so its units stay admissible; overlaps were measured on f50e76fe4."
+        },
+        {
+          "at": "2026-09-23T01:58:06.000Z",
+          "path": "src/stores",
+          "units": "U69, U71, U73, U76",
+          "by": "parent (ledger-author lane) under OD-repo-split-boundaries-in-place (2026-09-23); the R1.archives precedent (a dated node ownership amendment)",
+          "why": "The useGameplayStore cycle (U69), unitEditSnapshot.ts (U71), the session wiring (U73) and the six construction *State.ts files (U76). R8.isometric (planned, no unit) owns it; R2.authority, R2.authority-live, R2.authority-client and R8.travel own src/stores/campaign, which these units do not edit; no open unit owns a path under src/stores.",
+          "disclosure": "The owner decided the work, not this ownership string. The parent directed that product source a phase must edit, when no node owns those exact paths without a broad ancestor like 'src', is added to R6.loop-harness as narrow paths with an ownershipAmended record (the triage precedent on R2.multiplayer-client). R6.loop-harness has dependsOn [], so its units stay admissible; overlaps were measured on f50e76fe4."
+        },
+        {
+          "at": "2026-09-23T01:58:06.000Z",
+          "path": "src/services/units/unitLoaderService",
+          "units": "U71",
+          "by": "parent (ledger-author lane) under OD-repo-split-boundaries-in-place (2026-09-23); the R1.archives precedent (a dated node ownership amendment)",
+          "why": "unitLoader.ts:15 and the construction home of createLibrarySaveReceipt. R7.versions (planned, no unit) owns 'src/services/units'. It overlaps 'src/services' on R2.combat (main-verified, no open unit under it) and 'src' on R1.references and R2.camp-0..8.",
+          "disclosure": "The owner decided the work, not this ownership string. The parent directed that product source a phase must edit, when no node owns those exact paths without a broad ancestor like 'src', is added to R6.loop-harness as narrow paths with an ownershipAmended record (the triage precedent on R2.multiplayer-client). R6.loop-harness has dependsOn [], so its units stay admissible; overlaps were measured on f50e76fe4."
+        },
+        {
+          "at": "2026-09-23T01:58:06.000Z",
+          "path": "src/components/spa",
+          "units": "U72",
+          "by": "parent (ledger-author lane) under OD-repo-split-boundaries-in-place (2026-09-23); the R1.archives precedent (a dated node ownership amendment)",
+          "why": "formatDesignation.ts moves out of it and SPABadge.tsx and index.ts re-point. It overlaps only the ancestor 'src' on R1.references (complete) and R2.camp-0..8 (main-verified or blocked), which hold no open unit.",
+          "disclosure": "The owner decided the work, not this ownership string. The parent directed that product source a phase must edit, when no node owns those exact paths without a broad ancestor like 'src', is added to R6.loop-harness as narrow paths with an ownershipAmended record (the triage precedent on R2.multiplayer-client). R6.loop-harness has dependsOn [], so its units stay admissible; overlaps were measured on f50e76fe4."
+        },
+        {
+          "at": "2026-09-23T01:58:06.000Z",
+          "path": "src/lib/spa/designation",
+          "units": "U72, U76",
+          "by": "parent (ledger-author lane) under OD-repo-split-boundaries-in-place (2026-09-23); the R1.archives precedent (a dated node ownership amendment)",
+          "why": "formatDesignation's new home (U72) and applyDesignation.ts:18 (U76). It overlaps 'src/lib' on R2.combat (main-verified) and on planned U45, so --next serializes the unit against U45 while either is in flight, and 'src' on R1.references and R2.camp-0..8.",
+          "disclosure": "The owner decided the work, not this ownership string. The parent directed that product source a phase must edit, when no node owns those exact paths without a broad ancestor like 'src', is added to R6.loop-harness as narrow paths with an ownershipAmended record (the triage precedent on R2.multiplayer-client). R6.loop-harness has dependsOn [], so its units stay admissible; overlaps were measured on f50e76fe4."
+        },
+        {
+          "at": "2026-09-23T01:58:06.000Z",
+          "path": "src/services/printing",
+          "units": "U72, U78",
+          "by": "parent (ledger-author lane) under OD-repo-split-boundaries-in-place (2026-09-23); the R1.archives precedent (a dated node ownership amendment)",
+          "why": "spaSection.ts:15 (U72) and the printing type closure (U78). It overlaps 'src/services' on R2.combat (main-verified, no open unit under it) and 'src' on R1.references and R2.camp-0..8.",
+          "disclosure": "The owner decided the work, not this ownership string. The parent directed that product source a phase must edit, when no node owns those exact paths without a broad ancestor like 'src', is added to R6.loop-harness as narrow paths with an ownershipAmended record (the triage precedent on R2.multiplayer-client). R6.loop-harness has dependsOn [], so its units stay admissible; overlaps were measured on f50e76fe4."
+        },
+        {
+          "at": "2026-09-23T01:58:06.000Z",
+          "path": "src/engine",
+          "units": "U73",
+          "by": "parent (ledger-author lane) under OD-repo-split-boundaries-in-place (2026-09-23); the R1.archives precedent (a dated node ownership amendment)",
+          "why": "InteractiveSession's persistence ports. R2.combat (main-verified) owns 'src/engine' exactly, but U73 also needs src/stores and src/components/gameplay/pages/preBattle, which R2.combat does not own; no open unit owns a path under src/engine.",
+          "disclosure": "The owner decided the work, not this ownership string. The parent directed that product source a phase must edit, when no node owns those exact paths without a broad ancestor like 'src', is added to R6.loop-harness as narrow paths with an ownershipAmended record (the triage precedent on R2.multiplayer-client). R6.loop-harness has dependsOn [], so its units stay admissible; overlaps were measured on f50e76fe4."
+        },
+        {
+          "at": "2026-09-23T01:58:06.000Z",
+          "path": "src/components/gameplay/pages/preBattle",
+          "units": "U73",
+          "by": "parent (ledger-author lane) under OD-repo-split-boundaries-in-place (2026-09-23); the R1.archives precedent (a dated node ownership amendment)",
+          "why": "usePreBattleLaunch.ts and usePreBattleSkirmish.ts call the engine persistence functions U73 rewires. It overlaps only the ancestor 'src' on R1.references (complete) and R2.camp-0..8 (main-verified or blocked), which hold no open unit.",
+          "disclosure": "The owner decided the work, not this ownership string. The parent directed that product source a phase must edit, when no node owns those exact paths without a broad ancestor like 'src', is added to R6.loop-harness as narrow paths with an ownershipAmended record (the triage precedent on R2.multiplayer-client). R6.loop-harness has dependsOn [], so its units stay admissible; overlaps were measured on f50e76fe4."
+        },
+        {
+          "at": "2026-09-23T01:58:06.000Z",
+          "path": "src/lib/combat/acar.ts",
+          "units": "U74",
+          "by": "parent (ledger-author lane) under OD-repo-split-boundaries-in-place (2026-09-23); the R1.archives precedent (a dated node ownership amendment)",
+          "why": "acar.ts:6 imports a campaign enum. It overlaps 'src/lib' on R2.combat (main-verified) and on planned U45, so --next serializes the unit against U45 while either is in flight, and 'src' on R1.references and R2.camp-0..8.",
+          "disclosure": "The owner decided the work, not this ownership string. The parent directed that product source a phase must edit, when no node owns those exact paths without a broad ancestor like 'src', is added to R6.loop-harness as narrow paths with an ownershipAmended record (the triage precedent on R2.multiplayer-client). R6.loop-harness has dependsOn [], so its units stay admissible; overlaps were measured on f50e76fe4."
+        },
+        {
+          "at": "2026-09-23T01:58:06.000Z",
+          "path": "src/lib/combat/__tests__/acar.test.ts",
+          "units": "U74",
+          "by": "parent (ledger-author lane) under OD-repo-split-boundaries-in-place (2026-09-23); the R1.archives precedent (a dated node ownership amendment)",
+          "why": "acar.ts's suite. It overlaps 'src/lib' on R2.combat (main-verified) and on planned U45, so --next serializes the unit against U45 while either is in flight, and 'src' on R1.references and R2.camp-0..8.",
+          "disclosure": "The owner decided the work, not this ownership string. The parent directed that product source a phase must edit, when no node owns those exact paths without a broad ancestor like 'src', is added to R6.loop-harness as narrow paths with an ownershipAmended record (the triage precedent on R2.multiplayer-client). R6.loop-harness has dependsOn [], so its units stay admissible; overlaps were measured on f50e76fe4."
+        },
+        {
+          "at": "2026-09-23T01:58:06.000Z",
+          "path": "src/lib/combat/__tests__/acar.test-helpers.ts",
+          "units": "U74",
+          "by": "parent (ledger-author lane) under OD-repo-split-boundaries-in-place (2026-09-23); the R1.archives precedent (a dated node ownership amendment)",
+          "why": "The only importer of acar.ts (git grep); it calls determineCasualties directly, and acar.ts's resolveScenario (:326, the call at :361) calls it too. It overlaps 'src/lib' on R2.combat (main-verified) and on planned U45, so --next serializes the unit against U45 while either is in flight, and 'src' on R1.references and R2.camp-0..8.",
+          "disclosure": "The owner decided the work, not this ownership string. The parent directed that product source a phase must edit, when no node owns those exact paths without a broad ancestor like 'src', is added to R6.loop-harness as narrow paths with an ownershipAmended record (the triage precedent on R2.multiplayer-client). R6.loop-harness has dependsOn [], so its units stay admissible; overlaps were measured on f50e76fe4."
+        },
+        {
+          "at": "2026-09-23T01:58:06.000Z",
+          "path": "src/types/gameplay",
+          "units": "U76, U77",
+          "by": "parent (ledger-author lane) under OD-repo-split-boundaries-in-place (2026-09-23); the R1.archives precedent (a dated node ownership amendment)",
+          "why": "HexGridInterfaces.ts (U76) and the barrel and CombatStateTypes.ts (U77). It overlaps only the ancestor 'src' on R1.references (complete) and R2.camp-0..8 (main-verified or blocked), which hold no open unit.",
+          "disclosure": "The owner decided the work, not this ownership string. The parent directed that product source a phase must edit, when no node owns those exact paths without a broad ancestor like 'src', is added to R6.loop-harness as narrow paths with an ownershipAmended record (the triage precedent on R2.multiplayer-client). R6.loop-harness has dependsOn [], so its units stay admissible; overlaps were measured on f50e76fe4."
+        },
+        {
+          "at": "2026-09-23T01:58:06.000Z",
+          "path": "src/utils/gameplay/aerospace",
+          "units": "U77",
+          "by": "parent (ledger-author lane) under OD-repo-split-boundaries-in-place (2026-09-23); the R1.archives precedent (a dated node ownership amendment)",
+          "why": "state.ts declares IAerospaceCombatState, re-exported upward by CombatStateTypes.ts:5. It overlaps only the ancestor 'src' on R1.references (complete) and R2.camp-0..8 (main-verified or blocked), which hold no open unit.",
+          "disclosure": "The owner decided the work, not this ownership string. The parent directed that product source a phase must edit, when no node owns those exact paths without a broad ancestor like 'src', is added to R6.loop-harness as narrow paths with an ownershipAmended record (the triage precedent on R2.multiplayer-client). R6.loop-harness has dependsOn [], so its units stay admissible; overlaps were measured on f50e76fe4."
+        },
+        {
+          "at": "2026-09-23T01:58:06.000Z",
+          "path": "src/utils/gameplay/infantry",
+          "units": "U77",
+          "by": "parent (ledger-author lane) under OD-repo-split-boundaries-in-place (2026-09-23); the R1.archives precedent (a dated node ownership amendment)",
+          "why": "state.ts declares IInfantryCombatState, re-exported upward by CombatStateTypes.ts:6. It overlaps only the ancestor 'src' on R1.references (complete) and R2.camp-0..8 (main-verified or blocked), which hold no open unit.",
+          "disclosure": "The owner decided the work, not this ownership string. The parent directed that product source a phase must edit, when no node owns those exact paths without a broad ancestor like 'src', is added to R6.loop-harness as narrow paths with an ownershipAmended record (the triage precedent on R2.multiplayer-client). R6.loop-harness has dependsOn [], so its units stay admissible; overlaps were measured on f50e76fe4."
+        },
+        {
+          "at": "2026-09-23T01:58:06.000Z",
+          "path": "src/utils/gameplay/protomech",
+          "units": "U77",
+          "by": "parent (ledger-author lane) under OD-repo-split-boundaries-in-place (2026-09-23); the R1.archives precedent (a dated node ownership amendment)",
+          "why": "state.ts declares IProtoMechCombatState, re-exported upward by CombatStateTypes.ts:7. It overlaps only the ancestor 'src' on R1.references (complete) and R2.camp-0..8 (main-verified or blocked), which hold no open unit.",
+          "disclosure": "The owner decided the work, not this ownership string. The parent directed that product source a phase must edit, when no node owns those exact paths without a broad ancestor like 'src', is added to R6.loop-harness as narrow paths with an ownershipAmended record (the triage precedent on R2.multiplayer-client). R6.loop-harness has dependsOn [], so its units stay admissible; overlaps were measured on f50e76fe4."
+        },
+        {
+          "at": "2026-09-23T01:58:06.000Z",
+          "path": "src/services/unit-card",
+          "units": "U78",
+          "by": "parent (ledger-author lane) under OD-repo-split-boundaries-in-place (2026-09-23); the R1.archives precedent (a dated node ownership amendment)",
+          "why": "Part of the printing piece. It overlaps 'src/services' on R2.combat (main-verified, no open unit under it) and 'src' on R1.references and R2.camp-0..8.",
+          "disclosure": "The owner decided the work, not this ownership string. The parent directed that product source a phase must edit, when no node owns those exact paths without a broad ancestor like 'src', is added to R6.loop-harness as narrow paths with an ownershipAmended record (the triage precedent on R2.multiplayer-client). R6.loop-harness has dependsOn [], so its units stay admissible; overlaps were measured on f50e76fe4."
+        },
+        {
+          "at": "2026-09-23T01:58:06.000Z",
+          "path": "src/services/pilot-mech-card",
+          "units": "U78",
+          "by": "parent (ledger-author lane) under OD-repo-split-boundaries-in-place (2026-09-23); the R1.archives precedent (a dated node ownership amendment)",
+          "why": "Part of the printing piece. It overlaps 'src/services' on R2.combat (main-verified, no open unit under it) and 'src' on R1.references and R2.camp-0..8.",
+          "disclosure": "The owner decided the work, not this ownership string. The parent directed that product source a phase must edit, when no node owns those exact paths without a broad ancestor like 'src', is added to R6.loop-harness as narrow paths with an ownershipAmended record (the triage precedent on R2.multiplayer-client). R6.loop-harness has dependsOn [], so its units stay admissible; overlaps were measured on f50e76fe4."
+        },
+        {
+          "at": "2026-09-23T01:58:06.000Z",
+          "path": "src/services/assets",
+          "units": "U78",
+          "by": "parent (ledger-author lane) under OD-repo-split-boundaries-in-place (2026-09-23); the R1.archives precedent (a dated node ownership amendment)",
+          "why": "Part of the printing piece (MmDataAssetService). It overlaps 'src/services' on R2.combat (main-verified, no open unit under it) and 'src' on R1.references and R2.camp-0..8.",
+          "disclosure": "The owner decided the work, not this ownership string. The parent directed that product source a phase must edit, when no node owns those exact paths without a broad ancestor like 'src', is added to R6.loop-harness as narrow paths with an ownershipAmended record (the triage precedent on R2.multiplayer-client). R6.loop-harness has dependsOn [], so its units stay admissible; overlaps were measured on f50e76fe4."
+        },
+        {
+          "at": "2026-09-23T01:58:06.000Z",
+          "path": "src/types/printing",
+          "units": "U78",
+          "by": "parent (ledger-author lane) under OD-repo-split-boundaries-in-place (2026-09-23); the R1.archives precedent (a dated node ownership amendment)",
+          "why": "Part of the printing piece. It overlaps only the ancestor 'src' on R1.references (complete) and R2.camp-0..8 (main-verified or blocked), which hold no open unit.",
+          "disclosure": "The owner decided the work, not this ownership string. The parent directed that product source a phase must edit, when no node owns those exact paths without a broad ancestor like 'src', is added to R6.loop-harness as narrow paths with an ownershipAmended record (the triage precedent on R2.multiplayer-client). R6.loop-harness has dependsOn [], so its units stay admissible; overlaps were measured on f50e76fe4."
+        },
+        {
+          "at": "2026-09-23T01:58:06.000Z",
+          "path": "scripts/megameklab-conversion",
+          "units": "U79",
+          "by": "the ledger-author lane for the parent, not directed by the parent, under OD-repo-split-boundaries-in-place (2026-09-23); the R1.archives precedent (a dated node ownership amendment)",
+          "why": "The converter that generates the battlemech catalog. No node owns it, a parent of it or a path under it.",
+          "disclosure": "The owner decided the work, not this ownership string. The parent gave no node placement for this path: the ledger author placed it on R6.loop-harness by extending the parent's directions for .husky, the gate's CI job and narrow product source, and the parent confirms or re-places it. R6.loop-harness has dependsOn [], so its units stay admissible; overlaps were measured on f50e76fe4."
+        },
+        {
+          "at": "2026-09-23T01:58:06.000Z",
+          "path": "config",
+          "units": "U80",
+          "by": "the ledger-author lane for the parent, not directed by the parent, under OD-repo-split-boundaries-in-place (2026-09-23); the R1.archives precedent (a dated node ownership amendment)",
+          "why": "The catalog pin file sits beside config/mm-data-assets.json, which R9.manifest-sync (complete, no unit) owns; no open unit owns a path under config.",
+          "disclosure": "The owner decided the work, not this ownership string. The parent gave no node placement for this path: the ledger author placed it on R6.loop-harness by extending the parent's directions for .husky, the gate's CI job and narrow product source, and the parent confirms or re-places it. R6.loop-harness has dependsOn [], so its units stay admissible; overlaps were measured on f50e76fe4."
+        },
+        {
+          "at": "2026-09-23T01:58:06.000Z",
+          "path": "scripts/mm-data",
+          "units": "U80",
+          "by": "the ledger-author lane for the parent, not directed by the parent, under OD-repo-split-boundaries-in-place (2026-09-23); the R1.archives precedent (a dated node ownership amendment)",
+          "why": "The fetch and strict-validate scripts follow scripts/mm-data/fetch-assets.ts. R9.manifest-sync (complete, no unit) owns it.",
+          "disclosure": "The owner decided the work, not this ownership string. The parent gave no node placement for this path: the ledger author placed it on R6.loop-harness by extending the parent's directions for .husky, the gate's CI job and narrow product source, and the parent confirms or re-places it. R6.loop-harness has dependsOn [], so its units stay admissible; overlaps were measured on f50e76fe4."
+        },
+        {
+          "at": "2026-09-23T01:58:06.000Z",
+          "path": ".github/workflows/release.yml",
+          "units": "U81",
+          "by": "the ledger-author lane for the parent, not directed by the parent, under OD-repo-split-boundaries-in-place (2026-09-23); the R1.archives precedent (a dated node ownership amendment)",
+          "why": "The release job's asset fetch and strict validate (:139-144) gain the catalog. R1.ci (main-verified, no unit) owns it through '.github/workflows'.",
+          "disclosure": "The owner decided the work, not this ownership string. The parent gave no node placement for this path: the ledger author placed it on R6.loop-harness by extending the parent's directions for .husky, the gate's CI job and narrow product source, and the parent confirms or re-places it. R6.loop-harness has dependsOn [], so its units stay admissible; overlaps were measured on f50e76fe4."
+        },
+        {
+          "at": "2026-09-23T01:58:06.000Z",
+          "path": ".github/actions/setup-node-and-install/action.yml",
+          "units": "U81",
+          "by": "the ledger-author lane for the parent, not directed by the parent, under OD-repo-split-boundaries-in-place (2026-09-23); the R1.archives precedent (a dated node ownership amendment)",
+          "why": "The CI setup action fetches mm-data assets at :90-93 and gains the catalog. No node owns it.",
+          "disclosure": "The owner decided the work, not this ownership string. The parent gave no node placement for this path: the ledger author placed it on R6.loop-harness by extending the parent's directions for .husky, the gate's CI job and narrow product source, and the parent confirms or re-places it. R6.loop-harness has dependsOn [], so its units stay admissible; overlaps were measured on f50e76fe4."
+        },
+        {
+          "at": "2026-09-23T01:58:06.000Z",
+          "path": "Dockerfile",
+          "units": "U81",
+          "by": "the ledger-author lane for the parent, not directed by the parent, under OD-repo-split-boundaries-in-place (2026-09-23); the R1.archives precedent (a dated node ownership amendment)",
+          "why": "The builder stage gains the fetch and strict validate (new work: it fetches no asset today, analysis correction 20). No node owns it.",
+          "disclosure": "The owner decided the work, not this ownership string. The parent gave no node placement for this path: the ledger author placed it on R6.loop-harness by extending the parent's directions for .husky, the gate's CI job and narrow product source, and the parent confirms or re-places it. R6.loop-harness has dependsOn [], so its units stay admissible; overlaps were measured on f50e76fe4."
+        },
+        {
+          "at": "2026-09-23T01:58:06.000Z",
+          "path": "public/data/units",
+          "units": "U82",
+          "by": "the ledger-author lane for the parent, not directed by the parent, under OD-repo-split-boundaries-in-place (2026-09-23); the R1.archives precedent (a dated node ownership amendment)",
+          "why": "U82 untracks public/data/units/battlemechs. No node owns public/data. The string names public/data/units, not the battlemechs directory: after the untrack that directory exists only once fetched, while public/data/units keeps six tracked files (battlearmor and infantry), so the string stays valid in a fresh checkout.",
+          "disclosure": "The owner decided the work, not this ownership string. The parent gave no node placement for this path: the ledger author placed it on R6.loop-harness by extending the parent's directions for .husky, the gate's CI job and narrow product source, and the parent confirms or re-places it. R6.loop-harness has dependsOn [], so its units stay admissible; overlaps were measured on f50e76fe4."
+        }
+      ],
+      "acceptanceAmended20260923": {
+        "at": "2026-09-23T01:58:06.000Z",
+        "by": "the ledger-author lane for the parent under OD-repo-split-boundaries-in-place (2026-09-23)",
+        "why": "The node's first acceptance line says each harness unit ships a jest pin and a red-first probe and touches no product path under src/; the boundary units must edit named src paths, so that one exception is recorded as a second line, the first line is kept as written, and its jest-pin clause still binds every admitted unit.",
+        "disclosure": "The owner decided the work, not this acceptance line. The line is the ledger author's placement for the parent, following the parent's direction to put the narrow product paths on R6.loop-harness; it is not an owner ruling on the node's acceptance, and the parent confirms it."
+      }
     }
   ],
   "tasks": [
@@ -15232,6 +15583,137 @@
         "holder": "U31",
         "placement": "12.1 stays an R6.umbrella row: its roadmap.json tasks primaryNode and both nodes' taskKeys are unchanged. validate-roadmap.mjs:388 lets a unit hold only its own node's keys, and U58 sits on R2.authority-live, so U31 (R6.umbrella) holds 12.1 and ticks it whole from U58's main proof, as U30 ticks 2.4 and 2.5 by U26's receipts. U58 holds no task key. DF-shared-projection-contract is retired in the same edit (U31.taskKeyTransferred20260922).",
         "consequence": "U31 ticks 12.1 only when every surface the row's letter names (replay, resync, snapshot, cold recovery, audit timeline and export) is proven on main (OD-whole-row-tick-rule); U58's main proof is a receipt toward that tick. U58 carries privacy and replay, so the validator records it as merged only with the owner's head-bound packet ruling (Lane B; validate-roadmap.mjs:426-431)."
+      }
+    },
+    {
+      "id": "OD-line-cap-product-lines",
+      "raisedAtUtc": "2026-09-23T00:45:13.000Z",
+      "raisedBy": "the parent, as one of the structured questions it put to the owner in the working session after the repo-split analysis (evidence/repo-split-analysis-20260923.json)",
+      "node": "R0.plan",
+      "question": "Does a unit's 500-line cap count every non-generated changed line, tests included, or only non-generated product lines?",
+      "evidence": "GOAL.md Standing constraints (Caps); DELIVERY.md step 2; validate-roadmap.mjs:382 bounds caps.maxNonGeneratedLines to 1..500 and reads no diff",
+      "decidedAtUtc": "2026-09-23T00:45:41.000Z",
+      "decision": "Every unit's 500-line cap counts non-generated PRODUCT lines only; tests are reported separately and never count. Written into GOAL.md (Standing constraints, Caps) and DELIVERY.md step 2 as a dated owner decision; the validator is unchanged.",
+      "decisionSource": "owner answers to the parent's structured questions in the working session (chat), 2026-09-23: the owner picked the option labelled '(Recommended)' each time; transcribed by the parent (the chosen labels are quoted verbatim in ownerWords) and written into the ledger by a ledger-author lane from that transcription",
+      "ownerWords": "Product lines only (Recommended)",
+      "disclosure": "The parent transcribed the owner's structured-question answers. The owner chose among option labels the parent wrote; ownerWords quotes the chosen label verbatim, and decision is the parent's wording of that option as handed to the ledger author, not the owner's own sentence. question paraphrases the question the batch was built from (the analysis's openQuestions where it has one); the parent's exact question text was not handed over. raisedAtUtc and decidedAtUtc are the chat's times from the session transcript: the structured questions were asked at 00:45:13Z, 00:45:52Z and 00:53:02Z and answered at 00:45:41Z, 00:52:52Z and 00:53:50Z; raisedAtUtc is the first question that led to the decision and decidedAtUtc the answer that completed it. Fields named parentNotes20260923 or ledgerPlacement are the ledger author's, not part of the ruling.",
+      "status": "decided",
+      "parentNotes20260923": {
+        "authoredBy": "the ledger-author lane, for the parent; not part of the ruling",
+        "testLineReading": "a test line is a line in a test file: a file under a __tests__, __fixtures__ or __mocks__ directory, a file named *.test.* or *.spec.*, or a file under e2e/; a unit's local receipt reports its product lines and its test lines as two numbers",
+        "notAsked": "the answer names the 500-line cap; whether the history/effect packages' 1000-line ceiling (DELIVERY.md step 2) reads the same way was not asked, and the 15-file cap is unchanged",
+        "capsBelow500": "The caps below 500 on U62 (80), U64 (120), U70 (100), U74 (150) and U82 (20) are set by the ledger author, not by the owner. Each unit this edit plans states in capsReading20260923 that its caps.maxNonGeneratedLines, whatever its value, counts non-generated product lines only, so its jest pins and fixtures never count toward it. No unit that was planned before this edit and is still open carries a cap below 500 (units.json on f50e76fe4), so the GOAL.md and DELIVERY.md lines name only the 500."
+      }
+    },
+    {
+      "id": "OD-precommit-drop-full-build",
+      "raisedAtUtc": "2026-09-23T00:45:13.000Z",
+      "raisedBy": "evidence/repo-split-analysis-20260923.json draft.openQuestions[0] and draft.phases[0] (Phase 0: build-time quick win), put to the owner by the parent as a structured question",
+      "node": "R6.loop-harness",
+      "question": "A commit that stages TypeScript type-checks the whole program twice: lint-staged runs bash -c 'npx tsc --noEmit --skipLibCheck' (package.json:336), then .husky/pre-commit:14-20 runs npm run build, whose next build type-checks the program again (next.config.ts sets no ignoreBuildErrors). Drop one of the two, or make the full build CI-only?",
+      "evidence": [
+        ".husky/pre-commit:14-20",
+        "package.json:332-345 (lint-staged; the tsc entry at :336)",
+        ".github/workflows/pr-checks.yml:609 and :769 (npm run build) and :791 (the Build Test matrix)",
+        "evidence/repo-split-analysis-20260923.json draft.phases[0] and draft.openQuestions[0]"
+      ],
+      "decidedAtUtc": "2026-09-23T00:45:41.000Z",
+      "decision": "Drop the full build from the pre-commit hook: lint-staged's whole-project tsc (package.json:336) stays; the .husky/pre-commit full 'npm run build' (lines 14-20) is removed; CI keeps running the full build on every PR.",
+      "decisionSource": "owner answers to the parent's structured questions in the working session (chat), 2026-09-23: the owner picked the option labelled '(Recommended)' each time; transcribed by the parent (the chosen labels are quoted verbatim in ownerWords) and written into the ledger by a ledger-author lane from that transcription",
+      "ownerWords": "Drop the full build (Recommended)",
+      "disclosure": "The parent transcribed the owner's structured-question answers. The owner chose among option labels the parent wrote; ownerWords quotes the chosen label verbatim, and decision is the parent's wording of that option as handed to the ledger author, not the owner's own sentence. question paraphrases the question the batch was built from (the analysis's openQuestions where it has one); the parent's exact question text was not handed over. raisedAtUtc and decidedAtUtc are the chat's times from the session transcript: the structured questions were asked at 00:45:13Z, 00:45:52Z and 00:53:02Z and answered at 00:45:41Z, 00:52:52Z and 00:53:50Z; raisedAtUtc is the first question that led to the decision and decidedAtUtc the answer that completed it. Fields named parentNotes20260923 or ledgerPlacement are the ledger author's, not part of the ruling.",
+      "status": "decided",
+      "ledgerPlacement": {
+        "authoredBy": "the ledger-author lane, for the parent; not part of the ruling",
+        "unit": "U62, one routine unit on R6.loop-harness (paths .husky and scripts/__tests__), inserted in units.json before the first planned unit so --next prints it first. The placement first in --next order is the parent's direction (every later unit's commits get faster), not part of the owner's option, which names no ordering.",
+        "ownership": ".husky is added to R6.loop-harness (ownershipAmended20260923): no node owned .husky. U62 owns only the paths the parent's directive named (.husky, and scripts/__tests__ for the pin; package.json is not needed). docs/development/git-hooks.md, whose phase table row 2 (:21) says the hook runs npm run build, is not added to the node or the unit: its row is left to a docs-class PR after U62 merges (only R1.references, complete, owns it, through 'docs').",
+        "nonClaim": "package.json is not edited; the CI build jobs are unchanged; no timing is claimed before U62 measures it"
+      }
+    },
+    {
+      "id": "OD-repo-split-boundaries-in-place",
+      "raisedAtUtc": "2026-09-23T00:45:13.000Z",
+      "raisedBy": "the repo-split analysis (evidence/repo-split-analysis-20260923.json: draft.recommendedShape, draft.phases and draft.openQuestions[1]-[5]), put to the owner by the parent as structured questions (answers 3-9 of the batch)",
+      "node": "R6.loop-harness",
+      "question": "The analysis recommends one repository with about 12 pieces drawn over the existing folders (a committed manifest and a ratchet gate, packages only once a piece is proven clean, the battlemech catalog as a fetched artifact): is it planned now, and how are its open choices (packaging policy, gate tool, moved paths in the validator, catalog artifact, baseline growth, verbatimModuleSyntax) settled?",
+      "evidence": "evidence/repo-split-analysis-20260923.json (a byte-identical copy of the analysis handed to the parent, sha256 5df4807964c9080db4bc41fafd335902288731da1fe3043b61b0e276c2439c7a; its corrections array supersedes every draft figure it names)",
+      "decidedAtUtc": "2026-09-23T00:53:50.000Z",
+      "decision": "Plan the boundaries-in-place repo split now, after the cutover units (sub-decision 3), with sub-decisions 4-9 settling its open choices, each the option the owner chose.",
+      "subDecisions": [
+        {
+          "number": 3,
+          "topic": "sequencing",
+          "question": "Repo split: are the boundaries-in-place phases planned now, and where do they sit relative to the cutover units?",
+          "ownerWords": "Plan now, after cutover (Recommended)",
+          "decision": "Plan the boundaries-in-place phases now as units placed after all current cutover units (appended at the end of the units array, after U57 and U59-U61), so they never touch a path an in-flight cutover unit owns; no directory moves in these phases."
+        },
+        {
+          "number": 4,
+          "topic": "packaging policy",
+          "question": "Packages: do scripts/ and the multiplayer server count as the 'real second consumer' src/kernel/extractionLadder.ts:6 requires before opening packages/, or do packages wait for an outside consumer? (openQuestions[1])",
+          "ownerWords": "When proven clean (Recommended)",
+          "decision": "scripts/ and the multiplayer server count as the second consumer; a piece graduates as soon as its boundary gate and standalone type-check are green, one package per PR, foundation first. The 'real second consumer' comment at src/kernel/extractionLadder.ts:6 is updated by the scaffolding unit."
+        },
+        {
+          "number": 5,
+          "topic": "gate tool",
+          "question": "Gate tool: a custom TypeScript-parser script (about 300 lines, no new dependency) or dependency-cruiser (a new devDependency with a built-in known-violations baseline)? (openQuestions[3])",
+          "ownerWords": "Custom script (Recommended)",
+          "decision": "A small custom boundary-gate script (about 300 lines, TypeScript parser) with no new dependency: it reads the piece manifest directly, understands the '@/' alias and type-only imports the way the analysis measured them, and its baseline may only shrink. The question and the chosen option name no location.",
+          "locationNotRuled": "The parent's transcription handed to the ledger author read 'a TypeScript-parser script under scripts/boundaries'; the question and the chosen option in the chat record (answers at 2026-09-23T00:52:52Z) name no folder. The scripts/boundaries location comes from the analysis (evidence/repo-split-analysis-20260923.json draft.recommendedShape (2), 'scripts/boundaries/validate-module-boundaries.mjs', and draft.phases[1]), not from the owner. It is put to the owner as PK-boundary-gate-location."
+        },
+        {
+          "number": 6,
+          "topic": "moved paths in the validator",
+          "question": "Path moves: does validate-roadmap.mjs learn a rename map for existsSync and pathsOverlap, or are ownership strings rewritten on complete and main-verified nodes (which changes historical records)? (openQuestions[2])",
+          "ownerWords": "Validator rename map (Recommended)",
+          "decision": "One tooling PR teaches validate-roadmap.mjs a map (packages/<x> <- src/<old>) for its existence and overlap checks; historical ledger records stay byte-for-byte as they were."
+        },
+        {
+          "number": 7,
+          "topic": "catalog artifact",
+          "question": "Catalog: a GitHub release tarball or an npm data package, and do the committed post-conversion fixes go back into the converter? (openQuestions[4])",
+          "ownerWords": "GitHub release (Recommended)",
+          "decision": "The battlemech catalog becomes a pinned GitHub release tarball fetched and strictly validated by version (the config/mm-data-assets.json pattern); committed hand fixes (e.g. #1010, #233) move back into the converter first."
+        },
+        {
+          "number": 8,
+          "topic": "baseline growth",
+          "question": "Baseline growth: who approves a PR that grows the boundary baseline? (openQuestions[3])",
+          "ownerWords": "Your ruling on the head (Recommended)",
+          "decision": "Any PR that grows the boundary baseline carries the owner's head-bound OWNER-RULING; everything else keeps it flat or smaller."
+        },
+        {
+          "number": 9,
+          "topic": "verbatimModuleSyntax",
+          "question": "verbatimModuleSyntax: enable it repo-wide so runtime-violation counts stop being upper bounds, or per piece? (openQuestions[5])",
+          "ownerWords": "Per piece, as cleaned (Recommended)",
+          "decision": "Enabled per package tsconfig when each piece graduates; no repo-wide sweep."
+        }
+      ],
+      "decisionSource": "owner answers to the parent's structured questions in the working session (chat), 2026-09-23: the owner picked the option labelled '(Recommended)' each time; transcribed by the parent (the chosen labels are quoted verbatim in ownerWords) and written into the ledger by a ledger-author lane from that transcription",
+      "ownerWords": "(3) Plan now, after cutover (Recommended) / (4) When proven clean (Recommended) / (5) Custom script (Recommended) / (6) Validator rename map (Recommended) / (7) GitHub release (Recommended) / (8) Your ruling on the head (Recommended) / (9) Per piece, as cleaned (Recommended)",
+      "disclosure": "The parent transcribed the owner's structured-question answers. The owner chose among option labels the parent wrote; ownerWords quotes the chosen label verbatim, and decision is the parent's wording of that option as handed to the ledger author, not the owner's own sentence. question paraphrases the question the batch was built from (the analysis's openQuestions where it has one); the parent's exact question text was not handed over. raisedAtUtc and decidedAtUtc are the chat's times from the session transcript: the structured questions were asked at 00:45:13Z, 00:45:52Z and 00:53:02Z and answered at 00:45:41Z, 00:52:52Z and 00:53:50Z; raisedAtUtc is the first question that led to the decision and decidedAtUtc the answer that completed it. Fields named parentNotes20260923 or ledgerPlacement are the ledger author's, not part of the ruling. In this entry the top-level ownerWords is not a label the owner chose: it is the ledger author's numbered join of the seven chosen labels, and subDecisions[].ownerWords holds each chosen label verbatim. Sub-decision 5's decision is the one exception to the parent's wording: it restates the question and the chosen option as the chat record gives them (answers at 2026-09-23T00:52:52Z), because the parent's wording added a gate location that neither names (its locationNotRuled says where the location comes from).",
+      "status": "decided",
+      "ledgerPlacement": {
+        "authoredBy": "the ledger-author lane, for the parent; not part of the ruling",
+        "units": "Phase 1: U63-U65; Phase 2: U66-U74; Phase 3: U75-U78; Phase 4: U79-U82; Phases 5-7: U83-U85 (blocked placeholders). All but U85 sit on R6.loop-harness (dependsOn [], so --next can admit them); U85 sits on R9.close. U63 was owner-gated on PK-boundary-gate-location and U82 on PK-catalog-untrack-file-cap; the owner decided both at 2026-09-23T02:11:01Z (option a in each), so U63 is planned and U82 waits only on U81. The parent then held every unit whose prerequisite is not yet main-verified as blocked (blocked20260923), so --next cannot admit one early; U62, U63 and U79 stay planned. They are appended after every unit that existed before this edit, so --next reaches one only when no earlier planned unit is admissible, and each carries admitAfter20260923 for the unit order --next cannot express.",
+        "ownership": "R6.loop-harness gains the narrow paths in its ownershipAmended20260923 record: no dependency-ready node owns them without an ancestor as broad as src, src/lib or src/services (R2.combat owns src/engine exactly, but U73 also needs src/stores and src/components/gameplay/pages/preBattle). The parent directed this placement for .husky, for the gate's CI job and for narrow product source under src; each record's disclosure says whether its path follows that direction or extends it (config, scripts/mm-data, scripts/megameklab-conversion, .github/actions, .github/workflows/release.yml, Dockerfile and public/data/units extend it). Its acceptance gains a dated line for these units, which is the ledger author's placement, not an owner ruling.",
+        "placeholders": "Phases 5-7 are blocked units, not deferrals: a deferral must hold at least one admission-snapshot task key (validate-roadmap.mjs:481) and these phases hold none; a planned placeholder would be admitted by --next out of order, and a planned Phase 7 unit would keep --next from exiting 3 before the program closes. A blocked unit counts toward NONE-ADMISSIBLE, carries its cause and next action (the U2, U12, U19 and U35 convention) and is superseded by exact-path successors when it unblocks.",
+        "packets": [
+          "PK-boundary-gate-location, decided 2026-09-23T02:11:01Z: (a) scripts/qc/boundaries. Sub-decision 5 chose the tool and named no folder; the analysis placed the gate in scripts/boundaries, which does not exist and which no node owns.",
+          "PK-catalog-untrack-file-cap, decided 2026-09-23T02:11:01Z: (a) waive the 15-file cap for the one PR that untracks the battlemech tree (4,227 files: 4,226 untracked plus its jest pin). The waiver covers that PR only."
+        ],
+        "deviations": [
+          "Catalog readers: the analysis routes every reader through one resolver. U80 extracts the fetched tree into the path every reader already uses (public/data/units/battlemechs, already matched by .gitignore:121), so no reader changes and fastForwardCombatRunner.ts:469 (a campaign path) stays untouched.",
+          "Upward-importing tests: the analysis moves 24 test files into src/__tests__ in Phase 3. Their paths are known only from U63's gate report and a unit is never planned without exact paths, so the probes exclude tests (U75) and each package move in Phase 6 (U84) carries its piece's tests.",
+          "Store-to-UI imports: the analysis's five app-stores -> app-ui sites are not planned (U69 says why); they block no package and stay in the baseline.",
+          "Regex boundary tests: only src/kernel/__tests__/KernelBoundary.test.ts is planned (U65). The analysis counts 18; the ones under campaign, multiplayer, events and p2p paths wait for Phase 7."
+        ],
+        "reviewClasses": "U73 carries replay (it rewires the cold-recovery replay gate and the match-log writes recovery reads), so the validator records it as merged only with the owner's head-bound packet ruling; every other unit is routine. A PR that grows the boundary baseline also needs the owner's head-bound OWNER-RULING under sub-decision 8, which the validator does not model; U66 makes the CI job enforce it (the job reads the ruling live, checks the ruling comment's author login, and the failed jobs are re-run once the ruling is posted). Before U66 is main-verified the job cannot fail, so every PR that lands in that window (U64 and U65, and U67-U70 and U79-U82 if they land first) has its baseline delta checked by the parent at review, and any growth needs the owner's head-bound OWNER-RULING under sub-decision 8. U63 creates the baseline from today's measured imports, which the owner's baseline question took as the starting point ('it starts from today's measured cross-piece imports and may only shrink', asked 2026-09-23T00:53:02Z), so its creation is not growth.",
+        "nonClaims": "No unit edits src/lib/campaign, src/lib/multiplayer, src/lib/events, src/lib/p2p, src/types/campaign or src/stores/campaign; no directory moves before Phase 6; this edit admits no unit. The analysis measured at 31d01f4ab and d3c088a9b; between 31d01f4ab and f50e76fe4 the only changed files under src, scripts, e2e, public, config, .github, .husky, package.json, .oxlintrc.json, Dockerfile, next.config.ts and jest.config.js are six files under src/lib/campaign/authority and src/lib/campaign/sync and four test files, three under src/__tests__/api/campaigns and one under src/__tests__/unit/api (git diff --name-only); no unit this edit plans owns any of them.",
+        "gateLocation20260923": "The owner chose scripts/qc/boundaries (PK-boundary-gate-location, option a): the gate lives beside the other QC gates the loop-harness node owns, so the 'scripts/qc' strings on U63, U65, U66 and U75-U78 stand.",
+        "renameMap20260923": "Sub-decision 6 as the owner chose it: one tooling PR teaches validate-roadmap.mjs the map, and historical records stay unchanged. U83 splits Phase 5's scaffolding into successors and the rename map lands first, as its own docs unit on R0.plan, ahead of the scaffolding code unit: validate-roadmap.mjs is owned only through the planning directory (R0.plan, R0.publish and R9.close), the scaffolding's code paths sit on R6.loop-harness, and a unit may own only exact strings of its own node (validate-roadmap.mjs:369)."
       }
     }
   ],
