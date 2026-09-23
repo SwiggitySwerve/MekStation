@@ -1,0 +1,26 @@
+{
+  "unit": "U35a",
+  "stage": "merge",
+  "at": "2026-09-23T01:02:59.179Z",
+  "pr": 1907,
+  "title": "feat(campaign): committed campaign commands stay acknowledged, balance events stay campaign-scoped, adoption becomes journal-native (U35a)",
+  "head": "f56c43f562899238dea82dd4b7f27eac0608afa8",
+  "mergeSha": "9374745f468fa38248a2a83b1ece478840b975d2",
+  "mergedAt": "2026-09-23T00:54:26Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u35a-admission-20260922.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u35a-local-20260922.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u35a-red-20260922.json",
+    "src/lib/campaign/authority/__tests__/campaignCommitGates.test.ts",
+    "src/lib/campaign/authority/__tests__/campaignLegacyAdoption.test.ts",
+    "src/lib/campaign/authority/campaignCommandPipeline.ts",
+    "src/lib/campaign/authority/campaignLegacyAdoption.ts",
+    "src/lib/campaign/sync/__tests__/campaignEventScope.test.ts",
+    "src/lib/campaign/sync/campaignEventScope.ts"
+  ],
+  "blobEqualityDiffLines": 0
+}
