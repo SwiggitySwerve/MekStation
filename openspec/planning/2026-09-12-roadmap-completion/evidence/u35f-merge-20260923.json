@@ -1,0 +1,24 @@
+{
+  "unit": "U35f",
+  "stage": "merge",
+  "at": "2026-09-23T07:53:24.280Z",
+  "pr": 1930,
+  "title": "feat(campaign): the co-op host refreshes the saved campaign after a co-op update (U35f)",
+  "head": "09d34d687b96e40391b6ffc39f4b9c6b74fc5f1f",
+  "mergeSha": "668ed250f5d378c231004127c2eaac08a346b9f7",
+  "mergedAt": "2026-09-23T07:30:42Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u35f-admission-20260923.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u35f-local-20260923.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u35f-red-20260923.json",
+    "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+    "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostRecordRefresh.test.tsx",
+    "src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts",
+    "src/stores/campaign/useCampaignPersistenceStore.ts"
+  ],
+  "blobEqualityDiffLines": 0
+}
