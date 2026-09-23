@@ -1360,11 +1360,11 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "local-verified",
+      "state": "complete",
       "source20260923": "planned by the parent from U35d's admission (rulingGate.proposedSuccessor) under owner decision OD-u35d-server-and-host-fix",
       "baseline": "ae80d8ba41ead66e5dff5fde3f716a0bccd8d6cc",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "5eb2aba77157a6c8dfd4ba428b02fa7770bfd4b4",
+      "mergeSha": "45d5c348de63feb7af1ff205f2b4d0945d86db19",
       "stageReceipts": {
         "admission": {
           "path": "evidence/u35e-admission-20260923.json",
@@ -1383,10 +1383,31 @@
           "at": "2026-09-23T03:59:41.753Z",
           "summary": "no split; product 7 files +252/-31 (283 lines, cap 500), tests 3 files 924 lines; the row rewrite is an optional hook on appendCampaignCommandBatch that only the command route and the co-op door's store (through bindJournalCapabilityPorts) pass, gated on a journal-native marker, patching finances.balance and currentDate at version + 1 in the append's immediate transaction; a checkpoint carries the journal's pilots, contracts and salvagePool; no edit under src/lib/multiplayer/server; effects 6/6 and guards 5/5 with the flag false and flipped; src/lib/campaign 203/2973; campaignPersistence 4/23; src/__tests__/api 57/772; unit/api 6/35; src/lib/multiplayer/server 157/1164; src/lib/events/journal 23/243; tsc 0; oxlint 84 warnings 0 errors; oxfmt clean on 10 files; LINT_UNITS_PASS 100/100; qc:openspec-ci errors=0; validator PASSED; --next U35e on the baseline; six mutants caught and restored (checkpoint drops pilots; append without the rewrite; rewrite outside the transaction; genesis reads another stream; replay guard removed; authority gate removed); implementer claude-opus (Agent model: opus); findings: F1 combat-outcome consequences do not rewrite the row and F2 roster changes are neither carried nor patched (folded into U35d's re-admission gate), F3 a campaign without a start date projects day 0 (recorded); status ready"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "review": {
+          "path": "evidence/u35e-review-20260923.json",
+          "head": "5eb2aba77157a6c8dfd4ba428b02fa7770bfd4b4",
+          "reviewedHead": "5eb2aba77157a6c8dfd4ba428b02fa7770bfd4b4",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet)",
+          "implementerModel": "claude-opus (Agent model: opus)",
+          "outputSha256": "c0a3ceda7cd17ea0e0685d4e1c552f59a2031a859a2603743a90b73066b0a2a1",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u35e-merge-20260923.json",
+          "pr": 1924,
+          "head": "5eb2aba77157a6c8dfd4ba428b02fa7770bfd4b4",
+          "mergeSha": "45d5c348de63feb7af1ff205f2b4d0945d86db19"
+        },
+        "mainProof": {
+          "path": "evidence/u35e-mainproof-20260923.json",
+          "mergeCommit": "45d5c348de63feb7af1ff205f2b4d0945d86db19",
+          "verdict": "PASS",
+          "runtime": "Tests:       432 passed, 432 total"
+        },
+        "tick": {
+          "path": "evidence/u35e-tick-20260923.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null
     },
@@ -1407,7 +1428,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "blocked",
+      "state": "planned",
       "source20260923": "planned by the parent under owner decision OD-u35d-server-and-host-fix (U35d's admission openQuestionsForTheParent[0])",
       "admitAfter20260923": "U35e main-verified (the version the host adopts is the one U35e's row rewrite produces)",
       "blocked20260923": {
@@ -1427,7 +1448,11 @@
         "mainProof": null,
         "tick": null
       },
-      "ownerGate": null
+      "ownerGate": null,
+      "resumed20260923": {
+        "at": "2026-09-23T05:14:39.000Z",
+        "why": "prerequisite main-verified: U35e (merge 45d5c348de63feb7af1ff205f2b4d0945d86db19), recorded by this closure edit"
+      }
     },
     {
       "id": "U58",
@@ -7100,6 +7125,48 @@
         "author": "SwiggitySwerve",
         "label": "owner-ruled",
         "bodySha256": "dcd65dba8960e1b84c488d34f9c6a88e34ec53c6337c272b03304b2998364b56",
+        "postedBy": "parent on the owner's instruction (the comment quotes the owner's words verbatim)",
+        "deviationDisclosed": "DELIVERY.md says the owner posts the ruling out of band; the owner approved this unit by description in chat (words quoted in the comment) after the parent explained it in plain language and reported Lane A's verdict and the check set on the head, and the parent composed and posted the comment from the owner GitHub account and applied the label; the parent supplied the head from the ledger, as in the earlier rulings of this loop"
+      },
+      "note": "opened when the owner ruled, 2026-09-22 (the cutover sequence's units carry no pre-opened ruling packets)"
+    },
+    {
+      "id": "PK-u35e-ruling",
+      "blocks": [
+        "U35e"
+      ],
+      "nodes": [
+        "R2.authority-cutover"
+      ],
+      "taskKeys": [],
+      "question": "U35e (review classes authority, idempotency, concurrency, migration) presents head 5eb2aba77157a6c8dfd4ba428b02fa7770bfd4b4. Does the owner rule it?",
+      "options": [
+        {
+          "label": "rule the head",
+          "consequence": "an OWNER-RULING <head> comment and the owner-ruled label on U35e's PR; the unit merges and proceeds to main proof",
+          "effort": "0.1 day owner"
+        },
+        {
+          "label": "reject",
+          "consequence": "the PR closes; the unit returns to planned with the objection recorded",
+          "effort": "0.1 day owner"
+        }
+      ],
+      "agentRecommendation": "rule the head once Lane A has approved it and the checks are green",
+      "revertCost": "low: a squash merge revert",
+      "decision": {
+        "at": "2026-09-23T05:08:59Z",
+        "option": "rule the head",
+        "text": "Approve (Recommended)",
+        "source": "owner instruction in the working session (chat), after the parent described the unit in plain English: a structured question: the server half of OD-u35d-server-and-host-fix; a whole-campaign save keeps the journal pilots, contracts and salvage; every committed command rewrites the saved record (balance, date) in its transaction so a stale save answers 409; journal-backed campaigns only; Lane A APPROVE and 31 green checks; no-start-date and combat-outcome/roster carve-outs recorded"
+      },
+      "ruling": {
+        "ruledHead": "5eb2aba77157a6c8dfd4ba428b02fa7770bfd4b4",
+        "pr": 1924,
+        "commentId": 5789423724,
+        "author": "SwiggitySwerve",
+        "label": "owner-ruled",
+        "bodySha256": "44f5f74ebe39072df16060c5d1c1d44ec3a5b546e6408a2074b5392d72682293",
         "postedBy": "parent on the owner's instruction (the comment quotes the owner's words verbatim)",
         "deviationDisclosed": "DELIVERY.md says the owner posts the ruling out of band; the owner approved this unit by description in chat (words quoted in the comment) after the parent explained it in plain language and reported Lane A's verdict and the check set on the head, and the parent composed and posted the comment from the owner GitHub account and applied the label; the parent supplied the head from the ledger, as in the earlier rulings of this loop"
       },
