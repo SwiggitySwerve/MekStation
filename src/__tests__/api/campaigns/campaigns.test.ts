@@ -22,6 +22,7 @@ import type {
 } from '@/types/campaign/SerializedCampaign';
 
 import { UNKNOWN_AUTHORITY_ROLE_REASON } from '@/lib/campaign/authority/campaignAuthority';
+import { authoritativeStateFromSerializedCampaign } from '@/lib/campaign/authority/campaignSourceGenesis';
 import {
   CAMPAIGN_LIST_OMISSIONS_HEADER,
   decodeCampaignListOmissions,
@@ -62,9 +63,32 @@ function callIndex(): Promise<Mocks> {
   return indexHandler(req, res).then(() => ({ req, res }));
 }
 
+/**
+ * A client envelope for `campaignId` that the genesis projection accepts.
+ *
+ * Premise, stated rather than left to the journal flag: a create through
+ * the PUT route appends a genesis snapshot whenever journal authority is
+ * on, and that projection refuses a unit claimed by two forces, which the
+ * shared fixture's forces both do. Giving each force its own unit keeps
+ * every create in this suite a 200 with the flag on or off.
+ */
 function envelopeFor(campaignId: string): SerializedCampaign {
-  const campaign = { ...buildPopulatedCampaign(), id: campaignId };
-  return buildSerializedCampaign(campaign, 'device-test', 1);
+  const campaign = buildPopulatedCampaign();
+  const forces = Array.from(campaign.forces.values());
+  return buildSerializedCampaign(
+    {
+      ...campaign,
+      id: campaignId,
+      forces: new Map(
+        forces.map((force, index) => [
+          force.id,
+          { ...force, unitIds: [`unit-${index}`] },
+        ]),
+      ),
+    },
+    'device-test',
+    1,
+  );
 }
 
 /** Overwrite a stored payload without going through saveCampaign. */
@@ -120,6 +144,16 @@ describe('Campaign persistence API', () => {
 
   afterEach(() => {
     resetSQLiteService();
+  });
+
+  // ---------------------------------------------------------------------------
+  // Premise
+  // ---------------------------------------------------------------------------
+
+  it('builds envelopes the genesis projection accepts, so no create depends on the journal flag', () => {
+    expect(() =>
+      authoritativeStateFromSerializedCampaign(envelopeFor('camp-premise')),
+    ).not.toThrow();
   });
 
   // ---------------------------------------------------------------------------

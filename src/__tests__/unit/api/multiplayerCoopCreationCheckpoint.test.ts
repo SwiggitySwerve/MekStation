@@ -31,11 +31,14 @@ import {
   CAMPAIGN_CREATION_MISSION_ID,
   playerSlotPlaceholderId,
 } from '@/lib/campaign/authority/campaignCreationCheckpoint';
+import { appendCampaignGenesis } from '@/lib/campaign/authority/campaignSourceGenesis';
 import { buildPopulatedCampaign } from '@/lib/campaign/persistence/__tests__/campaignFixture';
 import { buildSerializedCampaign } from '@/lib/campaign/persistence/campaignEnvelope';
+import { SQLiteEventJournal } from '@/lib/events/journal/SQLiteEventJournal';
 import { _resetCampaignHostRegistry } from '@/lib/multiplayer/server/CampaignHostRegistry';
 import { _resetDefaultMatchStore } from '@/lib/multiplayer/server/getDefaultMatchStore';
 import handler from '@/pages/api/multiplayer/matches';
+import { writeCampaignMigrationMarker } from '@/services/campaignPersistence/CampaignMigrationMarkerStore';
 import { saveCampaign } from '@/services/campaignPersistence/CampaignPersistenceService';
 import { readCampaignSessionForceHolder } from '@/services/campaignPersistence/CampaignSessionForceClaimStore';
 import { activeCampaignSessionMembership } from '@/services/campaignPersistence/CampaignSessionParticipantStore';
@@ -106,16 +109,38 @@ function mockReqRes(body: unknown): IHarness {
   return { req, res, result };
 }
 
+/** When the seeded host campaign's genesis snapshot is dated. */
+const GENESIS_AT = '2026-08-29T00:00:00.000Z';
+
 /**
  * Persist a campaign the way the co-op host flow does before it POSTs
  * the match, and hand back the campaign id plus its force ids in the
  * same stable order the checkpoint assigns slots in.
+ *
+ * Premise, stated rather than left to the journal flag: unless a row
+ * asks for a campaign with no genesis branch, the host campaign is
+ * seeded through the genesis seam (the append the PUT route makes on a
+ * create under journal authority), so the checkpoint's genesis stage
+ * finds its marker whether the flag is on or off. Each force claims its
+ * own unit because the genesis projection refuses a doubly-claimed one.
  */
-function persistHostCampaign(): {
+async function persistHostCampaign(
+  options: { readonly genesis: boolean } = { genesis: true },
+): Promise<{
   campaignId: string;
   forceIds: readonly string[];
-} {
-  const campaign = buildPopulatedCampaign();
+}> {
+  const base = buildPopulatedCampaign();
+  const forces = Array.from(base.forces.values());
+  const campaign = {
+    ...base,
+    forces: new Map(
+      forces.map((force, index) => [
+        force.id,
+        { ...force, unitIds: [`unit-${index}`] },
+      ]),
+    ),
+  };
   const envelope = buildSerializedCampaign(campaign, 'device-1', 0, {
     campaignId: campaign.id,
     units: [],
@@ -126,6 +151,17 @@ function persistHostCampaign(): {
   });
   const saved = saveCampaign(envelope, 0);
   expect(saved.kind).toBe('ok');
+  if (options.genesis) {
+    const genesis = await appendCampaignGenesis(
+      new SQLiteEventJournal(
+        getSQLiteService().getDatabase(),
+        () => GENESIS_AT,
+      ),
+      writeCampaignMigrationMarker,
+      { envelope, occurredAt: GENESIS_AT },
+    );
+    expect(genesis.kind).toBe('genesis-appended');
+  }
   return {
     campaignId: campaign.id,
     forceIds: Array.from(campaign.forces.keys()).sort((left, right) =>
@@ -177,7 +213,7 @@ describe('co-op campaign creation authority checkpoint', () => {
   });
 
   it('has bound the GM seat durably by the time creation is acknowledged', async () => {
-    const { campaignId } = persistHostCampaign();
+    const { campaignId } = await persistHostCampaign();
     const harness = mockReqRes(coopCreateBody(campaignId));
 
     await handler(harness.req, harness.res);
@@ -193,7 +229,7 @@ describe('co-op campaign creation authority checkpoint', () => {
   });
 
   it('has committed player-slot force ownership by the time creation is acknowledged', async () => {
-    const { campaignId, forceIds } = persistHostCampaign();
+    const { campaignId, forceIds } = await persistHostCampaign();
     const harness = mockReqRes(coopCreateBody(campaignId));
 
     await handler(harness.req, harness.res);
@@ -216,7 +252,7 @@ describe('co-op campaign creation authority checkpoint', () => {
   });
 
   it('leaves both human seats empty and seats the GM as a spectator', async () => {
-    const { campaignId } = persistHostCampaign();
+    const { campaignId } = await persistHostCampaign();
     const harness = mockReqRes(coopCreateBody(campaignId));
 
     await handler(harness.req, harness.res);
@@ -244,7 +280,7 @@ describe('co-op campaign creation authority checkpoint', () => {
   it('seats the GM as a spectator when a co-op body names no host seat kind', async () => {
     // The panel sends the kind explicitly; an older or hand-built client
     // that omits it must still land the GM outside the human seats.
-    const { campaignId } = persistHostCampaign();
+    const { campaignId } = await persistHostCampaign();
     const body = coopCreateBody(campaignId) as Record<string, unknown>;
     delete body.hostSeatKind;
     const harness = mockReqRes(body);
@@ -290,7 +326,7 @@ describe('co-op campaign creation authority checkpoint', () => {
     process.env.NEXT_PUBLIC_E2E_MODE = 'true';
     process.env.MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY = '1';
     try {
-      const { campaignId } = persistHostCampaign();
+      const { campaignId } = await persistHostCampaign({ genesis: false });
       const harness = mockReqRes(coopCreateBody(campaignId));
 
       await handler(harness.req, harness.res);
