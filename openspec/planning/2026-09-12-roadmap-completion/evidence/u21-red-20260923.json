@@ -1,0 +1,952 @@
+{
+  "unit": "U21",
+  "stage": "red",
+  "at": "2026-09-23T03:11:06.552Z",
+  "status": "red-recorded",
+  "baseline": "b0e17e343d3ff1020058e5f6a19d128f0a4ea029",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u21",
+  "branch": "roadmap-u21-journal-match-segment-reader-20260923",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "shellPreamble": [
+    "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "export npm_config_dry_run=true"
+  ],
+  "productCodeAtRedRuns": "baseline b0e17e343: no product file was modified when rows (1)-(4) were run; only the test files named below existed or were edited",
+  "modeSeam": {
+    "how": "_setCombatJournalAuthorityModeForTests('enabled') in beforeEach, reset to null first thing in afterEach (src/lib/multiplayer/server/matchJournalAuthority.ts:41, the override U15a pinned)",
+    "notUsed": "no MEKSTATION_E2E_* or NEXT_PUBLIC_E2E_MODE key is set by any U21 row; COMBAT_JOURNAL_AUTHORITY_MODE is untouched",
+    "realSqlite": "every row opens a migrated temp-file SQLite through SQLiteService; the DurableMatchStore commits reach it through the S1 mirror (DurableMatchStore.mirrorCommittedBatch, gated at DurableMatchStore.ts:1000)"
+  },
+  "row1_anchorRefusal": {
+    "clause": "behaviour sentence red-first + (a)",
+    "suite": "src/lib/multiplayer/server/history/__tests__/matchJournalBranchSegmentReader.sqlite.test.ts (new, untracked)",
+    "seed": "store.createMatch; GameCreated + GameStarted through appendEvent then store.seedJournalFromInitialEvents (the create path's mirror seed); then three appendCommandBatch batches of 2, 2 and 1 real engine events (createGameSession/startGame/advancePhase). Asserted in the seed: the journal effective stream head is { branchId: 'main', revision: 7 } and the shadow mismatch counter is 0.",
+    "commit": "commitGmCombatRewind(buildGmCombatRewindCommitDeps({ store, meta, priorHeadRevision: readEffectiveRevision(stream, head.branchId), nowIso }), GM authority, { targetRevision: 4, expected* = the live head read through readEffectiveStreamHead }) - the route's own deps builder",
+    "command": "npx jest src/lib/multiplayer/server/history/__tests__/matchJournalBranchSegmentReader.sqlite.test.ts",
+    "exitCode": 1,
+    "counts": "Test Suites: 1 failed, 1 total; Tests:       5 failed, 5 total",
+    "rowsFailingOnTheRefusal": [
+      "commits a rewind whose candidate is verified against the journal it anchors to",
+      "rebuilds the live session from exactly the N events the candidate keeps",
+      "lands the next command on the candidate at N+1 and boot-folds the candidate"
+    ],
+    "assertion": "expect(outcomeOf(result)).toBe('committed') - outcomeOf prints the whole refused result",
+    "measuredBodies": [
+      "{\"detail\": \"Branch '9abab42797317c9a8a17231eac668c72' is anchored to a base its parent does not hold at revision 4\", \"kind\": \"refused\", \"reason\": \"candidate-verification-failed\"}",
+      "{\"detail\": \"Branch '00c4ed1d0f077157ecb2b33d7f8a9ebd' is anchored to a base its parent does not hold at revision 4\", \"kind\": \"refused\", \"reason\": \"candidate-verification-failed\"}",
+      "{\"detail\": \"Branch '5cd7cd4e6c7b74ad322553f66637239c' is anchored to a base its parent does not hold at revision 4\", \"kind\": \"refused\", \"reason\": \"candidate-verification-failed\"}"
+    ],
+    "reproduces": "FN-u2b-rewind-commit-verifies-through-the-match-store: reason candidate-verification-failed, detail \"Branch '<candidate>' is anchored to a base its parent does not hold at revision 4\" - the message u2b-admission-20260922.json measured on E2E-25 (detailRunA/B)",
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21/logs/red-new-suite.log",
+      "sha256": "51dec1b51f32ff65eba784f487af7ca034416752b99355fad210d3a8b8202519"
+    },
+    "earlierRunOfTheSameRows": {
+      "note": "first red run, before outcomeOf replaced toMatchObject({kind:\"committed\"}) (which printed only the kind key); same five rows failed",
+      "counts": "Test Suites: 1 failed, 1 total; Tests: 5 failed, 5 total"
+    }
+  },
+  "row2_prefixLaw": {
+    "clause": "(b)",
+    "suite": "same new suite, describe \"the prefix law (clause b)\"",
+    "rows": [
+      "a mid-stream window chains from its real predecessor and is the same slice of a full read",
+      "refuses a stored match event whose envelope carries no game event"
+    ],
+    "asserts": "reading 'main' (a non-root branch) through (0, 7] and (3, 7]: revisions 1..7, the first predecessor null, every event on 'main', payloads equal the store's events, window deep-equals full.slice(3), window[0].previousStreamEventDigest equals full[2].eventDigest and is not null; and a stored match event with no matchEvent is refused typed branch-integrity",
+    "howItFails": [
+      "Cannot find module '../matchJournalBranchSegmentReader' from 'src/lib/multiplayer/server/history/__tests__/matchJournalBranchSegmentReader.sqlite.test.ts'"
+    ],
+    "why": "the reader module does not exist on the baseline; the rows load it with a dynamic import so only these two rows fail",
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21/logs/red-new-suite.log",
+      "sha256": "51dec1b51f32ff65eba784f487af7ca034416752b99355fad210d3a8b8202519"
+    }
+  },
+  "row3_clauseC": {
+    "clause": "(c)",
+    "suite": "src/lib/multiplayer/server/history/__tests__/ViewerHistoryLineage.test.ts (row added at red time)",
+    "row": "answers the journal head GET /head answers, not the branch cutoff (clause c)",
+    "asserts": "after seedRoot (root head 4) and activating candidate-1 at base 2 with its journal head at 3, projectViewerHistoryLineage(...).effectiveHead equals { branchId, revision } of readEffectiveStreamHead(db, branches, stream) - the read GET /api/matches/:id/head answers from (matchHeadRoute.ts:67) - with generation 2, for gm and player alike. The route handler itself is not called in this row.",
+    "command": "npx jest src/lib/multiplayer/server/history/__tests__/ViewerHistoryLineage.test.ts",
+    "exitCode": 1,
+    "counts": "Test Suites: 1 failed, 1 total; Tests:       1 failed, 5 passed, 6 total",
+    "failure": "● ViewerHistoryLineage › answers the journal head GET /head answers, not the branch cutoff (clause c) expect(received).toEqual(expected) // deep equality - Expected - 1 + Received + 1 Object { \"branchId\": \"candidate-1\", \"generation\": 2, - \"revision\": 3, + \"revision\": 2, } 210 | const gm = project('gm'); 211 | > 212 | expect(gm.effectiveHead).toEqual({ | ^ 213 | branchId: journalHead.branchId, 214 | revision: journalHead.revision, 215 | generation: 2,",
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21/logs/red-lineage.log",
+      "sha256": "1f1935e65d33c45f859e20dc758ffdc854653d0e5c1a6bb9da49ae68087982cd"
+    },
+    "disposition": "Clause (c) was DROPPED during local under the admission contingency: the swap forced a sixteenth file (src/lib/multiplayer/server/__tests__/matchRecoveryCheckpointDoor.test.ts), so ViewerHistoryLineage.test.ts was restored to the baseline blob with `git checkout HEAD --` and (c)'s two product files were never edited. The red copy is preserved outside the worktree for the follow-on unit.",
+    "preservedRedCopy": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21/clause-c-red/ViewerHistoryLineage.test.ts",
+      "sha256": "e517d99ff143df2e83fe3c986b55491b9817449f13589cc4ca3a5d6dac712621"
+    },
+    "preservedRedDiff": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21/clause-c-red/ViewerHistoryLineage.test.ts.diff",
+      "sha256": "c2d9f7ff0d3c75dfb001be8768c84cdeed7bb270f53a55c586922f77ea7e3464"
+    }
+  },
+  "row4_clauseF": {
+    "clause": "(f)",
+    "rows": [
+      {
+        "suite": "src/pages-modules/api/__tests__/campaignLaunchHeadRoute.test.ts",
+        "row": "answers 500 for a journaled campaign whose effective head is missing, never no-authoritative-stream",
+        "asserts": "journaled campaign (genesis appended), its event_history_effective_heads row deleted: GET answers 500 with body exactly { error: 'Stream campaign/<id> has no effective branch' }"
+      },
+      {
+        "suite": "src/pages-modules/api/__tests__/campaignLaunchAuthorityRoute.test.ts",
+        "row": "answers 500 for a journaled campaign whose effective head is missing, never no-authoritative-stream",
+        "asserts": "same world with a co-op sessionId: POST answers 500 with body exactly { error: 'Stream campaign/<id> has no effective branch' } and materializeOwnedPlayerForces is never called"
+      }
+    ],
+    "onBaseline": "ABSENT before this unit (no route row pinned the 500; U20 F3 / Lane A finding 4). Added, the rows PASS on the baseline because U20 already answers 500 - they are coverage, not a behaviour change. Their power is shown by mutants M4a/M4b in the local receipt.",
+    "runs": [
+      {
+        "command": "npx jest src/pages-modules/api/__tests__/campaignLaunchHeadRoute.test.ts",
+        "exitCode": 0,
+        "counts": "Test Suites: 1 passed, 1 total; Tests:       8 passed, 8 total",
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21/logs/red-launch-head-route.log",
+          "sha256": "fa45d8d176a7fe3f237ed8cf45f548cb1f9d398d20ca2bc213d08c53b1d593e9"
+        }
+      },
+      {
+        "command": "npx jest src/pages-modules/api/__tests__/campaignLaunchAuthorityRoute.test.ts",
+        "exitCode": 0,
+        "counts": "Test Suites: 1 passed, 1 total; Tests:       18 passed, 18 total",
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21/logs/red-launch-authority-route.log",
+          "sha256": "ae66f6a104c9c444354b70ed2ce7b4ebd24e007298043e919f7255e32d806402"
+        }
+      }
+    ]
+  },
+  "fixtureSuitesUnderTheNewReaderBeforeReseeding": {
+    "requestedBy": "the parent (2026-09-23): record which rows in the three src/__tests__/api/matches suites fail under the new reader and exactly how, before re-seeding them",
+    "productState": "the reader swap applied (matchJournalBranchSegmentReader at rewindCommitDeps, rewind-preview and ServerMatchHostRewindRebuild); fixture files still the baseline blobs",
+    "method": "each suite was temporarily instrumented (a console.log of every route or commit answer, tagged U21PROBE) and run with --verbose; the instrumented files were then restored from saved copies and each restored blob equals git HEAD:<path> (git hash-object checked)",
+    "restoredBlobsEqualHead": {
+      "src/__tests__/api/matches/rewindCommitRoute.test.ts": "4b19858c958764072b03be331401bfc550ed94fb",
+      "src/__tests__/api/matches/rewindCommitRoute.reason.test.ts": "356ae332aa7d13f03c4715556a6ba9a16fc228af",
+      "src/__tests__/api/matches/rewindPreviewRoute.test.ts": "8e6d70f3051097ac8e93f941b4379ee08ee0f9a2",
+      "src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindRebuild.test.ts": "df689ed3a18a50409c3b0201367ba91d4515bdf9"
+    },
+    "uninstrumentedRun": {
+      "command": "npx jest src/__tests__/api/matches",
+      "exitCode": 1,
+      "counts": "Test Suites: 3 failed, 3 total; Tests:       17 failed, 30 passed, 47 total",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21/logs/prereseed-api-matches.log",
+        "sha256": "0d3758c1d4e84f60c07fff023faa48f1088113bdac8327b457291cda2681325c"
+      }
+    },
+    "suites": [
+      {
+        "file": "src/__tests__/api/matches/rewindCommitRoute.test.ts",
+        "counts": "Test Suites: 1 failed, 1 total; Tests:       1 failed, 9 passed, 10 total",
+        "rows": [
+          {
+            "row": "gives the host a committed rewind and advances the effective generation",
+            "result": "failed"
+          },
+          {
+            "row": "refuses a seated non-host with 403 and writes nothing",
+            "result": "passed"
+          },
+          {
+            "row": "takes the actor from the token, never from the body",
+            "result": "passed"
+          },
+          {
+            "row": "tells an unauthenticated caller only that it must authenticate",
+            "result": "passed"
+          },
+          {
+            "row": "refuses a body carrying replacement events rather than stripping them",
+            "result": "passed"
+          },
+          {
+            "row": "answers 404 for a match with no authoritative history",
+            "result": "passed"
+          },
+          {
+            "row": "answers 404 for a match nobody has created, not a body the client could mistake for success",
+            "result": "passed"
+          },
+          {
+            "row": "refuses a delivered campaign receipt with 409 and writes nothing",
+            "result": "passed"
+          },
+          {
+            "row": "refuses an authenticated non-member with 403 and writes nothing",
+            "result": "passed"
+          },
+          {
+            "row": "refuses a method it does not serve",
+            "result": "passed"
+          }
+        ],
+        "answersByRow": {
+          "POST /api/matches/[id]/rewind-commit gives the host a committed rewind and advances the effective generation": [
+            {
+              "status": 409,
+              "json": {
+                "kind": "refused",
+                "reason": "candidate-verification-failed",
+                "detail": "SQLite event journal integrity error: Stored event event-0 digest is invalid"
+              }
+            }
+          ],
+          "POST /api/matches/[id]/rewind-commit refuses a seated non-host with 403 and writes nothing": [
+            {
+              "status": 403,
+              "json": {
+                "kind": "refused",
+                "reason": "gm-role-required",
+                "detail": "Only the owning GM can request GM intervention previews."
+              }
+            }
+          ],
+          "POST /api/matches/[id]/rewind-commit takes the actor from the token, never from the body": [
+            {
+              "status": 403,
+              "json": {
+                "kind": "refused",
+                "reason": "gm-role-required",
+                "detail": "Only the owning GM can request GM intervention previews."
+              }
+            }
+          ],
+          "POST /api/matches/[id]/rewind-commit tells an unauthenticated caller only that it must authenticate": [
+            {
+              "status": 401,
+              "json": {
+                "error": "Unauthorized: malformed"
+              }
+            }
+          ],
+          "POST /api/matches/[id]/rewind-commit refuses a body carrying replacement events rather than stripping them": [
+            {
+              "status": 400,
+              "json": {
+                "error": "this rewind truncates history; replacement events are not accepted",
+                "reason": "replacement-events-unsupported"
+              }
+            }
+          ],
+          "POST /api/matches/[id]/rewind-commit answers 404 for a match with no authoritative history": [
+            {
+              "status": 404,
+              "json": {
+                "kind": "refused",
+                "reason": "no-authoritative-history",
+                "detail": "Match 'match-rewind-commit-route' has no authoritative history to rewind; nothing has been recorded against its stream"
+              }
+            }
+          ],
+          "POST /api/matches/[id]/rewind-commit answers 404 for a match nobody has created, not a body the client could mistake for success": [
+            {
+              "status": 404,
+              "json": {
+                "error": "unknown match",
+                "reason": "unknown-match"
+              }
+            }
+          ],
+          "POST /api/matches/[id]/rewind-commit refuses a delivered campaign receipt with 409 and writes nothing": [
+            {
+              "status": 409,
+              "json": {
+                "kind": "refused",
+                "reason": "campaign-receipt-delivered",
+                "detail": "A campaign has taken delivery of outcome 'outcome-1'; a combat-only rewind cannot unmake what it was spent on"
+              }
+            }
+          ],
+          "POST /api/matches/[id]/rewind-commit refuses an authenticated non-member with 403 and writes nothing": [
+            {
+              "status": 403,
+              "json": {
+                "kind": "refused",
+                "reason": "state-not-owned",
+                "detail": "command refused: no-viewer"
+              }
+            }
+          ],
+          "POST /api/matches/[id]/rewind-commit refuses a method it does not serve": [
+            {
+              "status": 405,
+              "json": {
+                "error": "method not allowed"
+              }
+            }
+          ]
+        },
+        "why": "the hand-inserted event_journal_events rows carry payload_json '{}' with digests copied from matchStoreBranchSegmentReader; SQLiteEventJournalWriter.hydrateEvent re-derives each digest from the row (SQLiteEventJournalWriter.ts:347-349) and throws, which the commit reports as candidate-verification-failed (409)",
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21/logs/probe-rewindCommitRoute.log",
+          "sha256": "fe79b6d8775057d2daab6dfc0f5c1db79a62cba3affbc970f1f6704bfb30124d"
+        }
+      },
+      {
+        "file": "src/__tests__/api/matches/rewindCommitRoute.reason.test.ts",
+        "counts": "Test Suites: 1 failed, 1 total; Tests:       10 failed, 11 passed, 21 total",
+        "rows": [
+          {
+            "row": "keeps the constant in committed history even with a private reason",
+            "result": "failed"
+          },
+          {
+            "row": "writes the supplied reason into the GM private record",
+            "result": "failed"
+          },
+          {
+            "row": "keeps the constant in committed history when reason is absent",
+            "result": "failed"
+          },
+          {
+            "row": "writes no private record when reason is absent",
+            "result": "failed"
+          },
+          {
+            "row": "rejects a empty reason with 400 and leaves the match head unchanged",
+            "result": "passed"
+          },
+          {
+            "row": "rejects a whitespace only reason with 400 and leaves the match head unchanged",
+            "result": "passed"
+          },
+          {
+            "row": "rejects a number reason with 400 and leaves the match head unchanged",
+            "result": "passed"
+          },
+          {
+            "row": "rejects a null reason with 400 and leaves the match head unchanged",
+            "result": "passed"
+          },
+          {
+            "row": "rejects a object reason with 400 and leaves the match head unchanged",
+            "result": "passed"
+          },
+          {
+            "row": "rejects a array reason with 400 and leaves the match head unchanged",
+            "result": "passed"
+          },
+          {
+            "row": "rejects a boolean reason with 400 and leaves the match head unchanged",
+            "result": "passed"
+          },
+          {
+            "row": "rejects a undefined reason with 400 and leaves the match head unchanged",
+            "result": "passed"
+          },
+          {
+            "row": "rejects a over-long reason with 400 and leaves the match head unchanged",
+            "result": "passed"
+          },
+          {
+            "row": "rejects a padded over-long reason with 400 and leaves the match head unchanged",
+            "result": "passed"
+          },
+          {
+            "row": "accepts a reason at the one character without changing its content",
+            "result": "failed"
+          },
+          {
+            "row": "accepts a reason at the trimmed upper boundary without changing its content",
+            "result": "failed"
+          },
+          {
+            "row": "omits the reason key and text from the committed response",
+            "result": "failed"
+          },
+          {
+            "row": "shows the authorized result without the reason in the seated player timeline",
+            "result": "failed"
+          },
+          {
+            "row": "omits the reason from the seated player export over the export-route fixture",
+            "result": "failed"
+          },
+          {
+            "row": "gives players a payload-free view and audits denied private reads",
+            "result": "failed"
+          },
+          {
+            "row": "writes no private record after a refused commit",
+            "result": "passed"
+          }
+        ],
+        "answersByRow": {
+          "POST /api/matches/[id]/rewind-commit private reason keeps the constant in committed history even with a private reason": [
+            {
+              "status": 409,
+              "json": {
+                "kind": "refused",
+                "reason": "candidate-verification-failed",
+                "detail": "SQLite event journal integrity error: Stored event event-0 digest is invalid"
+              }
+            }
+          ],
+          "POST /api/matches/[id]/rewind-commit private reason writes the supplied reason into the GM private record": [
+            {
+              "status": 409,
+              "json": {
+                "kind": "refused",
+                "reason": "candidate-verification-failed",
+                "detail": "SQLite event journal integrity error: Stored event event-0 digest is invalid"
+              }
+            }
+          ],
+          "POST /api/matches/[id]/rewind-commit private reason keeps the constant in committed history when reason is absent": [
+            {
+              "status": 409,
+              "json": {
+                "kind": "refused",
+                "reason": "candidate-verification-failed",
+                "detail": "SQLite event journal integrity error: Stored event event-0 digest is invalid"
+              }
+            }
+          ],
+          "POST /api/matches/[id]/rewind-commit private reason writes no private record when reason is absent": [
+            {
+              "status": 409,
+              "json": {
+                "kind": "refused",
+                "reason": "candidate-verification-failed",
+                "detail": "SQLite event journal integrity error: Stored event event-0 digest is invalid"
+              }
+            }
+          ],
+          "POST /api/matches/[id]/rewind-commit private reason rejects a empty reason with 400 and leaves the match head unchanged": [
+            {
+              "status": 400,
+              "json": {
+                "error": "missing or invalid request body (including reason)"
+              }
+            }
+          ],
+          "POST /api/matches/[id]/rewind-commit private reason rejects a whitespace only reason with 400 and leaves the match head unchanged": [
+            {
+              "status": 400,
+              "json": {
+                "error": "missing or invalid request body (including reason)"
+              }
+            }
+          ],
+          "POST /api/matches/[id]/rewind-commit private reason rejects a number reason with 400 and leaves the match head unchanged": [
+            {
+              "status": 400,
+              "json": {
+                "error": "missing or invalid request body (including reason)"
+              }
+            }
+          ],
+          "POST /api/matches/[id]/rewind-commit private reason rejects a null reason with 400 and leaves the match head unchanged": [
+            {
+              "status": 400,
+              "json": {
+                "error": "missing or invalid request body (including reason)"
+              }
+            }
+          ],
+          "POST /api/matches/[id]/rewind-commit private reason rejects a object reason with 400 and leaves the match head unchanged": [
+            {
+              "status": 400,
+              "json": {
+                "error": "missing or invalid request body (including reason)"
+              }
+            }
+          ],
+          "POST /api/matches/[id]/rewind-commit private reason rejects a array reason with 400 and leaves the match head unchanged": [
+            {
+              "status": 400,
+              "json": {
+                "error": "missing or invalid request body (including reason)"
+              }
+            }
+          ],
+          "POST /api/matches/[id]/rewind-commit private reason rejects a boolean reason with 400 and leaves the match head unchanged": [
+            {
+              "status": 400,
+              "json": {
+                "error": "missing or invalid request body (including reason)"
+              }
+            }
+          ],
+          "POST /api/matches/[id]/rewind-commit private reason rejects a undefined reason with 400 and leaves the match head unchanged": [
+            {
+              "status": 400,
+              "json": {
+                "error": "missing or invalid request body (including reason)"
+              }
+            }
+          ],
+          "POST /api/matches/[id]/rewind-commit private reason rejects a over-long reason with 400 and leaves the match head unchanged": [
+            {
+              "status": 400,
+              "json": {
+                "error": "missing or invalid request body (including reason)"
+              }
+            }
+          ],
+          "POST /api/matches/[id]/rewind-commit private reason rejects a padded over-long reason with 400 and leaves the match head unchanged": [
+            {
+              "status": 400,
+              "json": {
+                "error": "missing or invalid request body (including reason)"
+              }
+            }
+          ],
+          "POST /api/matches/[id]/rewind-commit private reason accepts a reason at the one character without changing its content": [
+            {
+              "status": 409,
+              "json": {
+                "kind": "refused",
+                "reason": "candidate-verification-failed",
+                "detail": "SQLite event journal integrity error: Stored event event-0 digest is invalid"
+              }
+            }
+          ],
+          "POST /api/matches/[id]/rewind-commit private reason accepts a reason at the trimmed upper boundary without changing its content": [
+            {
+              "status": 409,
+              "json": {
+                "kind": "refused",
+                "reason": "candidate-verification-failed",
+                "detail": "SQLite event journal integrity error: Stored event event-0 digest is invalid"
+              }
+            }
+          ],
+          "POST /api/matches/[id]/rewind-commit private reason omits the reason key and text from the committed response": [
+            {
+              "status": 409,
+              "json": {
+                "kind": "refused",
+                "reason": "candidate-verification-failed",
+                "detail": "SQLite event journal integrity error: Stored event event-0 digest is invalid"
+              }
+            }
+          ],
+          "POST /api/matches/[id]/rewind-commit private reason shows the authorized result without the reason in the seated player timeline": [
+            {
+              "status": 409,
+              "json": {
+                "kind": "refused",
+                "reason": "candidate-verification-failed",
+                "detail": "SQLite event journal integrity error: Stored event event-0 digest is invalid"
+              }
+            }
+          ],
+          "POST /api/matches/[id]/rewind-commit private reason omits the reason from the seated player export over the export-route fixture": [
+            {
+              "status": 409,
+              "json": {
+                "kind": "refused",
+                "reason": "candidate-verification-failed",
+                "detail": "SQLite event journal integrity error: Stored event event-0 digest is invalid"
+              }
+            }
+          ],
+          "POST /api/matches/[id]/rewind-commit private reason gives players a payload-free view and audits denied private reads": [
+            {
+              "status": 409,
+              "json": {
+                "kind": "refused",
+                "reason": "candidate-verification-failed",
+                "detail": "SQLite event journal integrity error: Stored event event-0 digest is invalid"
+              }
+            }
+          ],
+          "POST /api/matches/[id]/rewind-commit private reason writes no private record after a refused commit": [
+            {
+              "status": 409,
+              "json": {
+                "kind": "refused",
+                "reason": "correction-lease-held",
+                "detail": "expectedGeneration must be a positive safe integer"
+              }
+            }
+          ]
+        },
+        "why": "same hand-inserted journal as rewindCommitRoute.test.ts; every row that needs a committed rewind gets 409 candidate-verification-failed",
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21/logs/probe-rewindCommitRoute.reason.log",
+          "sha256": "97821396781e7b599e14dc0ca5014090f48a08adf4f96fd6d32c8fa2a90627f6"
+        }
+      },
+      {
+        "file": "src/__tests__/api/matches/rewindPreviewRoute.test.ts",
+        "counts": "Test Suites: 1 failed, 1 total; Tests:       6 failed, 10 passed, 16 total",
+        "rows": [
+          {
+            "row": "gives the host a preview of what the rewind would touch",
+            "result": "failed"
+          },
+          {
+            "row": "refuses a seated non-host with 403 and no preview",
+            "result": "passed"
+          },
+          {
+            "row": "takes the actor from the token, never from the body",
+            "result": "passed"
+          },
+          {
+            "row": "tells an unauthenticated caller only that it must authenticate",
+            "result": "passed"
+          },
+          {
+            "row": "refuses a body carrying replacement events rather than stripping them",
+            "result": "passed"
+          },
+          {
+            "row": "answers 404 for a match with no authoritative history",
+            "result": "passed"
+          },
+          {
+            "row": "reads the head of the EFFECTIVE branch, not whichever row comes first",
+            "result": "failed"
+          },
+          {
+            "row": "refuses a fogged match instead of previewing it from a placeholder",
+            "result": "passed"
+          },
+          {
+            "row": "previews an otherwise identical match once fog is off",
+            "result": "failed"
+          },
+          {
+            "row": "refuses an authenticated non-member with 403, naming no match",
+            "result": "passed"
+          },
+          {
+            "row": "refuses a method it does not serve",
+            "result": "passed"
+          },
+          {
+            "row": "records exactly one private preview whose actor is the token principal",
+            "result": "failed"
+          },
+          {
+            "row": "records nothing when a seated non-host or missing history is refused",
+            "result": "passed"
+          },
+          {
+            "row": "hands the GM an opaque handle to its draft, never the draft",
+            "result": "failed"
+          },
+          {
+            "row": "gives a refused caller no handle, because it wrote no record",
+            "result": "passed"
+          },
+          {
+            "row": "records two private previews for two successful calls",
+            "result": "failed"
+          }
+        ],
+        "answersByRow": {
+          "POST /api/matches/[id]/rewind-preview gives the host a preview of what the rewind would touch": [
+            {
+              "status": 500,
+              "json": {
+                "error": "Branch 'root' holds 0 of the 4 revisions in 1..4"
+              }
+            }
+          ],
+          "POST /api/matches/[id]/rewind-preview refuses a seated non-host with 403 and no preview": [
+            {
+              "status": 403,
+              "json": {
+                "kind": "refused",
+                "reason": "gm-role-required",
+                "detail": "Only the owning GM can request GM intervention previews."
+              }
+            }
+          ],
+          "POST /api/matches/[id]/rewind-preview takes the actor from the token, never from the body": [
+            {
+              "status": 403,
+              "json": {
+                "kind": "refused",
+                "reason": "gm-role-required",
+                "detail": "Only the owning GM can request GM intervention previews."
+              }
+            }
+          ],
+          "POST /api/matches/[id]/rewind-preview tells an unauthenticated caller only that it must authenticate": [
+            {
+              "status": 401,
+              "json": {
+                "error": "Unauthorized: malformed"
+              }
+            }
+          ],
+          "POST /api/matches/[id]/rewind-preview refuses a body carrying replacement events rather than stripping them": [
+            {
+              "status": 400,
+              "json": {
+                "error": "this rewind truncates history; replacement events are not accepted",
+                "reason": "replacement-events-unsupported"
+              }
+            }
+          ],
+          "POST /api/matches/[id]/rewind-preview answers 404 for a match with no authoritative history": [
+            {
+              "status": 404,
+              "json": {
+                "kind": "refused",
+                "reason": "no-authoritative-history",
+                "detail": "Match 'match-rewind-route' has no authoritative history to rewind; nothing has been recorded against its stream"
+              }
+            }
+          ],
+          "POST /api/matches/[id]/rewind-preview reads the head of the EFFECTIVE branch, not whichever row comes first": [
+            {
+              "status": 500,
+              "json": {
+                "error": "Branch 'root' holds 0 of the 4 revisions in 1..4"
+              }
+            }
+          ],
+          "POST /api/matches/[id]/rewind-preview refuses a fogged match instead of previewing it from a placeholder": [
+            {
+              "status": 409,
+              "json": {
+                "kind": "refused",
+                "reason": "fog-preview-unsupported",
+                "detail": "This match runs with fog of war; a rewind preview cannot yet be derived for it"
+              }
+            }
+          ],
+          "POST /api/matches/[id]/rewind-preview previews an otherwise identical match once fog is off": [
+            {
+              "status": 500,
+              "json": {
+                "error": "Branch 'root' holds 0 of the 4 revisions in 1..4"
+              }
+            }
+          ],
+          "POST /api/matches/[id]/rewind-preview refuses an authenticated non-member with 403, naming no match": [
+            {
+              "status": 403,
+              "json": {
+                "kind": "refused",
+                "reason": "state-not-owned",
+                "detail": "command refused: no-viewer"
+              }
+            }
+          ],
+          "POST /api/matches/[id]/rewind-preview refuses a method it does not serve": [
+            {
+              "status": 405,
+              "json": {
+                "error": "method not allowed"
+              }
+            }
+          ],
+          "POST /api/matches/[id]/rewind-preview records exactly one private preview whose actor is the token principal": [
+            {
+              "status": 500,
+              "json": {
+                "error": "Branch 'root' holds 0 of the 4 revisions in 1..4"
+              }
+            }
+          ],
+          "POST /api/matches/[id]/rewind-preview records nothing when a seated non-host or missing history is refused": [
+            {
+              "status": 403,
+              "json": {
+                "kind": "refused",
+                "reason": "gm-role-required",
+                "detail": "Only the owning GM can request GM intervention previews."
+              }
+            },
+            {
+              "status": 404,
+              "json": {
+                "kind": "refused",
+                "reason": "no-authoritative-history",
+                "detail": "Match 'match-rewind-route' has no authoritative history to rewind; nothing has been recorded against its stream"
+              }
+            }
+          ],
+          "POST /api/matches/[id]/rewind-preview hands the GM an opaque handle to its draft, never the draft": [
+            {
+              "status": 500,
+              "json": {
+                "error": "Branch 'root' holds 0 of the 4 revisions in 1..4"
+              }
+            }
+          ],
+          "POST /api/matches/[id]/rewind-preview gives a refused caller no handle, because it wrote no record": [
+            {
+              "status": 403,
+              "json": {
+                "kind": "refused",
+                "reason": "gm-role-required",
+                "detail": "Only the owning GM can request GM intervention previews."
+              }
+            },
+            {
+              "status": 404,
+              "json": {
+                "kind": "refused",
+                "reason": "no-authoritative-history",
+                "detail": "Match 'match-rewind-route' has no authoritative history to rewind; nothing has been recorded against its stream"
+              }
+            }
+          ],
+          "POST /api/matches/[id]/rewind-preview records two private previews for two successful calls": [
+            {
+              "status": 500,
+              "json": {
+                "error": "Branch 'root' holds 0 of the 4 revisions in 1..4"
+              }
+            },
+            {
+              "status": 500,
+              "json": {
+                "error": "Branch 'root' holds 0 of the 4 revisions in 1..4"
+              }
+            }
+          ]
+        },
+        "why": "the seed writes only a stream-head row on 'root' at revision 4 and no journal events; the resolver's count check refuses the empty segment (branch-integrity) and previewGmCombatRewind lets it escape, so the route answers 500 via sendCaughtApiError",
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21/logs/probe-rewindPreviewRoute.log",
+          "sha256": "85f005a3687e09918b3e727435ec7d67ebe8d43b14e16450c21b9e53aa57e111"
+        }
+      }
+    ],
+    "inPathSuites": [
+      {
+        "file": "src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindRebuild.test.ts",
+        "counts": "Test Suites: 1 failed, 1 total; Tests:       7 failed, 7 total",
+        "rows": [
+          {
+            "row": "live session answers revision N phase, not the pre-rewind head",
+            "result": "failed"
+          },
+          {
+            "row": "next die roll matches a fresh host seeded with the same seeds",
+            "result": "failed"
+          },
+          {
+            "row": "viewer past N is resynced from the new head and its cursor discarded",
+            "result": "failed"
+          },
+          {
+            "row": "rebuild lease is released only after replaceSession",
+            "result": "failed"
+          },
+          {
+            "row": "a rebuild that fails before the session is replaced claims no served branch",
+            "result": "failed"
+          },
+          {
+            "row": "no live host: commit still answers committed and boot folds the activated branch",
+            "result": "failed"
+          },
+          {
+            "row": "first command after a committed rewind persists and is delivered",
+            "result": "failed"
+          }
+        ],
+        "answersByRow": {
+          "ServerMatchHost rewind rebuild live session answers revision N phase, not the pre-rewind head": [
+            {
+              "kind": "refused",
+              "reason": "candidate-verification-failed",
+              "detail": "SQLite event journal integrity error: Stored event 5cc100df-100e-4362-ad1d-6ccf45706773 digest is invalid"
+            }
+          ],
+          "ServerMatchHost rewind rebuild next die roll matches a fresh host seeded with the same seeds": [
+            {
+              "kind": "refused",
+              "reason": "candidate-verification-failed",
+              "detail": "SQLite event journal integrity error: Stored event 55a75486-6c1a-407c-b821-8d15a5216615 digest is invalid"
+            }
+          ],
+          "ServerMatchHost rewind rebuild viewer past N is resynced from the new head and its cursor discarded": [
+            {
+              "kind": "refused",
+              "reason": "candidate-verification-failed",
+              "detail": "SQLite event journal integrity error: Stored event 46297be8-a1a5-4b9f-9177-0737bf038983 digest is invalid"
+            }
+          ],
+          "ServerMatchHost rewind rebuild rebuild lease is released only after replaceSession": [
+            {
+              "kind": "refused",
+              "reason": "candidate-verification-failed",
+              "detail": "SQLite event journal integrity error: Stored event 755c637d-bdeb-4013-8d47-70f553a315b5 digest is invalid"
+            }
+          ],
+          "ServerMatchHost rewind rebuild a rebuild that fails before the session is replaced claims no served branch": [
+            {
+              "kind": "refused",
+              "reason": "candidate-verification-failed",
+              "detail": "SQLite event journal integrity error: Stored event 861e0a16-1893-4457-a96c-3bf55574afa4 digest is invalid"
+            }
+          ],
+          "ServerMatchHost rewind rebuild no live host: commit still answers committed and boot folds the activated branch": [
+            {
+              "kind": "refused",
+              "reason": "candidate-verification-failed",
+              "detail": "SQLite event journal integrity error: Stored event 6811d812-02e3-4d2d-8b9b-7733cb483327 digest is invalid"
+            }
+          ],
+          "ServerMatchHost rewind rebuild first command after a committed rewind persists and is delivered": [
+            {
+              "kind": "refused",
+              "reason": "candidate-verification-failed",
+              "detail": "SQLite event journal integrity error: Stored event 8bdb95b6-4e45-4dc2-b284-dadd24c20bb2 digest is invalid"
+            }
+          ]
+        },
+        "why": "same hand-inserted match-store-aligned journal with payload_json '{}': every commit is refused candidate-verification-failed ('Stored event <id> digest is invalid')",
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21/logs/probe-rewind-rebuild.log",
+          "sha256": "23607709db9ade550e368c6b02bc2b562be07297322597fe036771fad4d71161"
+        }
+      },
+      {
+        "file": "src/lib/multiplayer/server/__tests__/matchRecoveryCheckpointDoor.test.ts",
+        "row": "boot after a committed rewind yields the rewound session",
+        "result": "failed",
+        "measured": "expect(committed).toMatchObject({ kind: 'committed' }) received kind 'refused' (the subset matcher printed only kind), followed by EBUSY on unlinking the row's rewind.db (the row closes its store after the failed assertion). Same hand-inserted match-store-aligned journal. Not instrumented.",
+        "run": {
+          "command": "npx jest src/lib/multiplayer/server",
+          "exitCode": 1,
+          "counts": "Test Suites: 4 failed, 154 passed, 158 total; Tests:       10 failed, 1160 passed, 1170 total",
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21/logs/mid-multiplayer-server.log",
+            "sha256": "0f38d96e05aab5b89b68eb0f0d3d54ffb7a16a8ee814d96dc7b73c246be111ff"
+          }
+        }
+      },
+      {
+        "file": "src/lib/multiplayer/server/history/__tests__/ViewerHistoryBoundary.test.ts",
+        "row": "does not re-export stored journal row types",
+        "result": "failed",
+        "measured": "offenders ['matchJournalBranchSegmentReader.ts: IStoredEvent'] - the first draft of the reader named IStoredEvent in the history folder",
+        "disposition": "fixed in the product file (the reader types its input as a module-private IBranchEventView & { eventType; payload } shape); the boundary suite is unedited and green",
+        "run": {
+          "command": "npx jest src/lib/multiplayer/server",
+          "exitCode": 1,
+          "counts": "Test Suites: 4 failed, 154 passed, 158 total; Tests:       10 failed, 1160 passed, 1170 total",
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21/logs/mid-multiplayer-server.log",
+            "sha256": "0f38d96e05aab5b89b68eb0f0d3d54ffb7a16a8ee814d96dc7b73c246be111ff"
+          }
+        }
+      }
+    ]
+  },
+  "nonClaims": [
+    "Rows (1)-(3) failed on the baseline product code for the reasons recorded; no product file was edited before those runs.",
+    "Row (4) is coverage that was absent, not a failure: it passes on the baseline.",
+    "The fixture measurement ran with the reader swap applied and the fixtures unchanged; it is the parent-requested before-reseed record, not red evidence for the unit behaviour.",
+    "No E2E, build or Playwright run."
+  ]
+}
