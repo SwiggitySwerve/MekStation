@@ -1,0 +1,1001 @@
+{
+  "unit": "U35c",
+  "stage": "local",
+  "status": "ready",
+  "at": "2026-09-23T01:14:42.641Z",
+  "baseline": "9374745f468fa38248a2a83b1ece478840b975d2",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u35c",
+  "branch": "roadmap-u35c-flag-agnostic-repin-20260923",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "shellPreamble": [
+    "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "export npm_config_dry_run=true",
+    "every MEKSTATION_E2E_* key and NEXT_PUBLIC_E2E_MODE unset by the runner"
+  ],
+  "runners": {
+    "plain": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/run.sh",
+      "sha256": "279a7ded73d8ab594623e6d86cbd36349474234aa498606f44a198cf1ebd1b67"
+    },
+    "flip": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/flip-run.sh",
+      "sha256": "ae0ebd39439a046bb8fc937a27fc0bb5e9bb8d94622645d7e1c053ed9ed0b2c7"
+    },
+    "green": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/green.sh",
+      "sha256": "e9aa498857b80f64c43d347209850d2da68cde364feb4397231f593863a7da20"
+    },
+    "gates": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/gates.sh",
+      "sha256": "712869e6bf9f990904994e4a4133e3228698261a258a1cb99a1f3063246425e2"
+    },
+    "mutant": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/mutant.sh",
+      "sha256": "e6e799baecec59e23c1370c318e86854b03e6fa2fb621a0d3d775351b2992def"
+    },
+    "mutantsAll": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/mutants-all.sh",
+      "sha256": "5122b37d9410a1632b2acef72501d9f377280270f65d2f48c3ff60ff601cd537"
+    },
+    "mutantTable": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/mutants.mjs",
+      "sha256": "c5d7de4bafb21baf514727ab9d6691d11d21f8d4c7a324675a1f712f94fab98f"
+    },
+    "flipScript": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35/flip-measure.mjs",
+      "sha256": "38880bbb4d3653ee8c97363a4e2b9cb2f305c58d2e42172b73902bb8f7c44416"
+    },
+    "receiptGenerator": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/gen-local.mjs",
+      "sha256": "6bbfc42009fbe9eaf42bbfa20e84a0769b1d0df22f7291f046bb8e5e738ae716"
+    }
+  },
+  "priorReceipts": {
+    "admission": {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u35c/openspec/planning/2026-09-12-roadmap-completion/evidence/u35c-admission-20260923.json",
+      "sha256": "2b7c5cdd426b3e7cf323ab4642adb5f2da00874a3f7d099bc35a406f6debd58a"
+    },
+    "red": {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u35c/openspec/planning/2026-09-12-roadmap-completion/evidence/u35c-red-20260923.json",
+      "sha256": "fdc243348940e1f43214489550345278b95843ef003dbe3904294e1f761b3718"
+    }
+  },
+  "changedFiles": [
+    {
+      "file": "src/__tests__/api/campaigns/campaignAuthorityBlocked.test.ts",
+      "added": 27,
+      "deleted": 3,
+      "category": "test",
+      "sha256": "b227cae18763ac2a2064b048568d6f930ec9dcbe405b9c71feb8a504cb1e8a49"
+    },
+    {
+      "file": "src/__tests__/api/campaigns/campaigns.authority.test.ts",
+      "added": 31,
+      "deleted": 3,
+      "category": "test",
+      "sha256": "a740ae80bef71e596adf688d21ce0ac8e5cd1e396c01c39e23dabd96b71311bf"
+    },
+    {
+      "file": "src/__tests__/api/campaigns/campaigns.test.ts",
+      "added": 36,
+      "deleted": 2,
+      "category": "test",
+      "sha256": "c0e7633550941fdd1cb42e3d13cf75bb06b30df810179120889c5025e08067d6"
+    },
+    {
+      "file": "src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts",
+      "added": 44,
+      "deleted": 8,
+      "category": "test",
+      "sha256": "27a0dd5aa7ed6208e6db0b5cb9e937c2f3924a659ac13698d01e1641c37a22af"
+    }
+  ],
+  "lineCounts": {
+    "product": {
+      "files": 0,
+      "added": 0,
+      "deleted": 0,
+      "changed": 0
+    },
+    "test": {
+      "files": 4,
+      "added": 138,
+      "deleted": 16,
+      "changed": 154
+    },
+    "capProductLines": 500,
+    "capFiles": 15,
+    "filesTotal": 4,
+    "withinCaps": true,
+    "method": "git diff --numstat (added + deleted); tests do not count toward the 500-line product cap (owner decision 2026-09-23)"
+  },
+  "implementation": {
+    "campaigns.test.ts": "envelopeFor gives each force its own unit (unit-0, unit-1) so the genesis projection accepts every create; doc comment names the premise; new premise row asserts authoritativeStateFromSerializedCampaign accepts the helper envelope.",
+    "campaigns.authority.test.ts": "the same envelopeFor change and premise row.",
+    "campaignAuthorityBlocked.test.ts": "new seedSnapshotWithoutStream(): saveCampaign directly (no route, no genesis hook), then asserts the campaign stream highest sequence is -1 through JournalCampaignEventStore over SQLiteEventJournal (the resolver probe); the two rows that seeded through the PUT route now seed through it. The control row and every refusal still go through the route.",
+    "multiplayerCoopCreationCheckpoint.test.ts": "persistHostCampaign is async, gives each force its own unit, and (default) seeds the host campaign through appendCampaignGenesis with writeCampaignMigrationMarker, asserting genesis-appended; the e2e-arm no-genesis row passes { genesis: false }.",
+    "productChange": "none"
+  },
+  "gates": {
+    "oxfmtCheck": {
+      "command": "npx oxfmt --check src/__tests__/api/campaigns/campaigns.test.ts src/__tests__/api/campaigns/campaigns.authority.test.ts src/__tests__/api/campaigns/campaignAuthorityBlocked.test.ts src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts",
+      "exitCode": 0,
+      "lastLine": "Finished in 56ms on 4 files using 16 threads.",
+      "at": "2026-09-23T01:11:11.436Z",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/run-gate-oxfmt.log",
+        "sha256": "4b3fe659e6c480f626d013f4b880ef39d6eeefd1e481998adac9fb7d4e0d7e9a"
+      },
+      "meta": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/run-gate-oxfmt.meta.log",
+        "sha256": "21d60f1dbca1426793c27ef2736e528ead9ead21ca17e17bd0471ccc89516511"
+      },
+      "note": "the co-op suite was formatted once by `npx oxfmt <that file>` before any jest run (log run-fmt-write.log; pre-check log run-fmt-precheck.log exit 1 on that file only); every jest run below used the formatted bytes",
+      "precheck": {
+        "command": "npx oxfmt --check src/__tests__/api/campaigns/campaigns.test.ts src/__tests__/api/campaigns/campaigns.authority.test.ts src/__tests__/api/campaigns/campaignAuthorityBlocked.test.ts src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts",
+        "exitCode": 1,
+        "lastLine": "Finished in 26ms on 4 files using 16 threads.",
+        "at": "2026-09-23T01:06:19.337Z",
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/run-fmt-precheck.log",
+          "sha256": "18950e0ba899bf16b3636974d92e8b43e5f157a56cfd73a4f28427651195ccf6"
+        },
+        "meta": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/run-fmt-precheck.meta.log",
+          "sha256": "3b1efc3333eb478016a36e0887eafce420d721853c6f9953b86bc488103521c6"
+        }
+      },
+      "write": {
+        "command": "npx oxfmt src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts",
+        "exitCode": 0,
+        "lastLine": "(no output)",
+        "at": "2026-09-23T01:06:24.218Z",
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/run-fmt-write.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "meta": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/run-fmt-write.meta.log",
+          "sha256": "2213738ee6749cd445cf454ecd88031b52f8babeeaf18a26ecdb5ad27d6c963e"
+        }
+      }
+    },
+    "jestApi": {
+      "command": "npx jest src/__tests__/api",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\api/i.",
+      "counts": [
+        "Test Suites: 54 passed, 54 total",
+        "Tests:       751 passed, 751 total"
+      ],
+      "at": "2026-09-23T01:11:21.868Z",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/run-gate-jest-api.log",
+        "sha256": "5a74705a4778db62ec109030641cb5938704b2ef69d635161cc7e7d4e4a73c42"
+      },
+      "meta": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/run-gate-jest-api.meta.log",
+        "sha256": "2217fce657f29f708f0821ba50738d04ee5452421c7805e99ebf431bff29362a"
+      }
+    },
+    "jestUnitApi": {
+      "command": "npx jest src/__tests__/unit/api",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\unit\\\\api/i.",
+      "counts": [
+        "Test Suites: 6 passed, 6 total",
+        "Tests:       35 passed, 35 total"
+      ],
+      "at": "2026-09-23T01:11:27.293Z",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/run-gate-jest-unitapi.log",
+        "sha256": "acae1eae721247e19cc42292e09b50543c910e16f0742dbe7a0687c7f0b194ae"
+      },
+      "meta": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/run-gate-jest-unitapi.meta.log",
+        "sha256": "585cfa286c740eb630ac93c818d7db04e09ef50d4f636549ac6164f4cc7d442d"
+      },
+      "note": "the second ownership path; not in the charter list, run as an extra"
+    },
+    "jestCampaign": {
+      "command": "npx jest src/lib/campaign",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\campaign/i.",
+      "counts": [
+        "Test Suites: 203 passed, 203 total",
+        "Tests:       2975 passed, 2975 total"
+      ],
+      "at": "2026-09-23T01:12:13.302Z",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/run-gate-jest-campaign.log",
+        "sha256": "f5df7fa917832c470dd75511f40d64a5b08e683d7cd2cd9adb4dac49414f77c2"
+      },
+      "meta": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/run-gate-jest-campaign.meta.log",
+        "sha256": "4cfb9a010d217a948c8856241577aa3953334cd7175facbb02cc43861dcb4519"
+      }
+    },
+    "tsc": {
+      "command": "npx tsc --noEmit",
+      "exitCode": 0,
+      "lastLine": "(no output)",
+      "at": "2026-09-23T01:12:13.443Z",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/run-gate-tsc.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "meta": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/run-gate-tsc.meta.log",
+        "sha256": "375d8ea017360126ba80d51edac951b04e61c0e5e4a7b085eac178ec0f6a6d37"
+      }
+    },
+    "oxlint": {
+      "command": "npx oxlint",
+      "exitCode": 0,
+      "lastLine": "Finished in 256ms on 3816 files using 16 threads.",
+      "at": "2026-09-23T01:12:23.832Z",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/run-gate-oxlint.log",
+        "sha256": "3bc58c2c56fc9666a3cb52bb357fabed828e0600601349392e1afd79a3fb217e"
+      },
+      "meta": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/run-gate-oxlint.meta.log",
+        "sha256": "4a584b84b481fa9c3764a5f823b318289422117a4fe4dcd61c6015067552d434"
+      },
+      "note": "extra gate, not in the charter list",
+      "summary": "Found 84 warnings and 0 errors.",
+      "linesNamingChangedFiles": 0
+    },
+    "lintUnits": {
+      "command": "npm run lint:units",
+      "exitCode": 0,
+      "lastLine": "LINT_UNITS_PASS 100/100",
+      "at": "2026-09-23T01:12:24.824Z",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/run-gate-lint-units.log",
+        "sha256": "e055631f9348b2e6539c922dddc1fe388b583448a734da5f618cb47c583fae2d"
+      },
+      "meta": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/run-gate-lint-units.meta.log",
+        "sha256": "121434b68b11b30fa6650943a08cfd7b7d36e94c26516b61ae73f43185bca4fa"
+      }
+    },
+    "openspecCi": {
+      "command": "npm run qc:openspec-ci:validate",
+      "exitCode": 0,
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+      "at": "2026-09-23T01:12:25.624Z",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/run-gate-openspec-ci.log",
+        "sha256": "4c2dafd093b946290aa4abe001ad8b3d65671b17c7682722c55a510ecc04f91e"
+      },
+      "meta": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/run-gate-openspec-ci.meta.log",
+        "sha256": "07313bd0afb4e1d9f68d59057a332de73bc1e396eb7b6c0ad58ef49cfdbbe846"
+      }
+    },
+    "roadmapValidator": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "exitCode": 0,
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "at": "2026-09-23T01:12:25.787Z",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/run-gate-validator.log",
+        "sha256": "97b2f29d264078525a55c5f88586fb95603311fa065e70d7d17c5fab08f5b5bc"
+      },
+      "meta": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/run-gate-validator.meta.log",
+        "sha256": "6713680dac245b443a65d07b3a10d16a73ff69a741e04689a1c6e4177b72da86"
+      }
+    }
+  },
+  "failedAttempts": [
+    {
+      "what": "attempt 1 of the gate run: npx tsc --noEmit exited 2 on the first version of campaignAuthorityBlocked.test.ts (a const-held SQLiteEventJournal inferred as SQLiteEventJournal<unknown>, TS2345 at (86,41)); fixed by constructing the journal inline inside new JournalCampaignEventStore(...), then every flip run, gate and mutant was re-run on the fixed bytes (attempt 2, the values above)",
+      "tsc": {
+        "command": "npx tsc --noEmit",
+        "exitCode": 2,
+        "firstLine": "src/__tests__/api/campaigns/campaignAuthorityBlocked.test.ts(86,41): error TS2345: Argument of type 'SQLiteEventJournal<unknown>' is not assignable to parameter of type 'IEventJournal<ICampaignJournalEnvelope>'.",
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/attempt1-run-gate-tsc.log",
+          "sha256": "118dc4506b5f9f7393d27f7a6d03ff1fd88cfdc51c4b4191510f7c1a66555dab"
+        }
+      },
+      "otherAttempt1Logs": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/attempt1/ (flip runs and the other gates of attempt 1, all green then; preserved, superseded by attempt 2)",
+      "formatRecheckAfterFix": {
+        "command": "npx oxfmt --check src/__tests__/api/campaigns/campaignAuthorityBlocked.test.ts",
+        "exitCode": 0,
+        "lastLine": "Finished in 40ms on 1 files using 16 threads.",
+        "at": "2026-09-23T01:10:14.635Z",
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/run-fmt-precheck2.log",
+          "sha256": "924a1f5484ec7853ed5674da715844f47e8a95901003ce4c8f6d6307388bb858"
+        },
+        "meta": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/run-fmt-precheck2.meta.log",
+          "sha256": "55e0f0bb248d4424b8aa6e904f979d737b1a610806f4d8e664d60cdc25624d4c"
+        }
+      }
+    }
+  ],
+  "flipRuns": [
+    {
+      "suite": "src/__tests__/api/campaigns/campaigns.test.ts",
+      "flagFalse": {
+        "command": "npx jest src/__tests__/api/campaigns/campaigns.test.ts",
+        "exitCode": 0,
+        "counts": [
+          "Test Suites: 1 passed, 1 total",
+          "Tests:       23 passed, 23 total"
+        ],
+        "failingRows": [],
+        "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\api\\\\campaigns\\\\campaigns.test.ts/i.",
+        "at": "2026-09-23T01:10:36.662Z",
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/run-green-off-campaigns.log",
+          "sha256": "985ab7f249f52dd0f50a77411115a53f400f16a6d93aa9f0985a1b80035f167b"
+        },
+        "meta": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/run-green-off-campaigns.meta.log",
+          "sha256": "9f591a900e848b65be3557215ff1807bf87c52a9d2dd7a68405a7cfdd06f5b94"
+        }
+      },
+      "underTemporaryFlip": {
+        "command": "npx jest src/__tests__/api/campaigns/campaigns.test.ts",
+        "exitCode": 0,
+        "counts": [
+          "Test Suites: 1 passed, 1 total",
+          "Tests:       23 passed, 23 total"
+        ],
+        "failingRows": [],
+        "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\api\\\\campaigns\\\\campaigns.test.ts/i.",
+        "flippedSha256": [
+          "src/lib/campaign/sync/JournalCampaignEventStore.ts 3de3dff6be334e052ae4a35e8bd872d14fef8d616d36ef38fb5179602dd6a7a2",
+          "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts a6eab0af53667930ee87cb2ce38aea285c593bac7ae33dc641d3547fbe1f0f22"
+        ],
+        "restoredSha256": [
+          "src/lib/campaign/sync/JournalCampaignEventStore.ts 0f062a9b1119acc802eabbf072ce308025a7bd52da99c8a5b381803262daec6e",
+          "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts 392fd63f42a7d3bc13f29d74557264674483dcdb6dedc1046161130e6588940e"
+        ],
+        "restoreMatchesBaseline": true,
+        "at": "2026-09-23T01:10:41.335Z",
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/flip-green-campaigns.log",
+          "sha256": "3fc6d3f1166807f44b7b876d79b8e662da5d1fda2cf9922a7eb4ac1c32974df1"
+        },
+        "meta": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/flip-green-campaigns.meta.log",
+          "sha256": "6a20e567cf637aea7f7ec268ba3a52c6e849739b0cb09aefa56515d5f9fb7fbf"
+        }
+      }
+    },
+    {
+      "suite": "src/__tests__/api/campaigns/campaigns.authority.test.ts",
+      "flagFalse": {
+        "command": "npx jest src/__tests__/api/campaigns/campaigns.authority.test.ts",
+        "exitCode": 0,
+        "counts": [
+          "Test Suites: 1 passed, 1 total",
+          "Tests:       6 passed, 6 total"
+        ],
+        "failingRows": [],
+        "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\api\\\\campaigns\\\\campaigns.authority.test.ts/i.",
+        "at": "2026-09-23T01:10:45.955Z",
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/run-green-off-authority.log",
+          "sha256": "728d1264e3ceb82dcbdd6a90a13bbd23c0228cd5f0082c64db6c1cc13dcb1a97"
+        },
+        "meta": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/run-green-off-authority.meta.log",
+          "sha256": "b9d299000b9132c1659ae929ba912966961751840762f5e495188298240bc7de"
+        }
+      },
+      "underTemporaryFlip": {
+        "command": "npx jest src/__tests__/api/campaigns/campaigns.authority.test.ts",
+        "exitCode": 0,
+        "counts": [
+          "Test Suites: 1 passed, 1 total",
+          "Tests:       6 passed, 6 total"
+        ],
+        "failingRows": [],
+        "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\api\\\\campaigns\\\\campaigns.authority.test.ts/i.",
+        "flippedSha256": [
+          "src/lib/campaign/sync/JournalCampaignEventStore.ts 3de3dff6be334e052ae4a35e8bd872d14fef8d616d36ef38fb5179602dd6a7a2",
+          "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts a6eab0af53667930ee87cb2ce38aea285c593bac7ae33dc641d3547fbe1f0f22"
+        ],
+        "restoredSha256": [
+          "src/lib/campaign/sync/JournalCampaignEventStore.ts 0f062a9b1119acc802eabbf072ce308025a7bd52da99c8a5b381803262daec6e",
+          "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts 392fd63f42a7d3bc13f29d74557264674483dcdb6dedc1046161130e6588940e"
+        ],
+        "restoreMatchesBaseline": true,
+        "at": "2026-09-23T01:10:50.213Z",
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/flip-green-authority.log",
+          "sha256": "eeeaa266fd1aeae9797f58d25cae4d39dafbbd0fe4226833b16b857f3bac5d6d"
+        },
+        "meta": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/flip-green-authority.meta.log",
+          "sha256": "9e7682a6d68537450c242251e149f95e3932c93b08a80363b9191c449b088593"
+        }
+      }
+    },
+    {
+      "suite": "src/__tests__/api/campaigns/campaignAuthorityBlocked.test.ts",
+      "flagFalse": {
+        "command": "npx jest src/__tests__/api/campaigns/campaignAuthorityBlocked.test.ts",
+        "exitCode": 0,
+        "counts": [
+          "Test Suites: 1 passed, 1 total",
+          "Tests:       4 passed, 4 total"
+        ],
+        "failingRows": [],
+        "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\api\\\\campaigns\\\\campaignAuthorityBlocked.test.ts/i.",
+        "at": "2026-09-23T01:10:54.385Z",
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/run-green-off-blocked.log",
+          "sha256": "77d994e8cd8b4e1ac026e70875bf9eca930cf1251d80e5449e9ec780a15c205d"
+        },
+        "meta": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/run-green-off-blocked.meta.log",
+          "sha256": "60df139fb9ebc1945f7a10222e65e34d9f3c5dec378c2e825bcbe3f1e769e53d"
+        }
+      },
+      "underTemporaryFlip": {
+        "command": "npx jest src/__tests__/api/campaigns/campaignAuthorityBlocked.test.ts",
+        "exitCode": 0,
+        "counts": [
+          "Test Suites: 1 passed, 1 total",
+          "Tests:       4 passed, 4 total"
+        ],
+        "failingRows": [],
+        "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\api\\\\campaigns\\\\campaignAuthorityBlocked.test.ts/i.",
+        "flippedSha256": [
+          "src/lib/campaign/sync/JournalCampaignEventStore.ts 3de3dff6be334e052ae4a35e8bd872d14fef8d616d36ef38fb5179602dd6a7a2",
+          "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts a6eab0af53667930ee87cb2ce38aea285c593bac7ae33dc641d3547fbe1f0f22"
+        ],
+        "restoredSha256": [
+          "src/lib/campaign/sync/JournalCampaignEventStore.ts 0f062a9b1119acc802eabbf072ce308025a7bd52da99c8a5b381803262daec6e",
+          "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts 392fd63f42a7d3bc13f29d74557264674483dcdb6dedc1046161130e6588940e"
+        ],
+        "restoreMatchesBaseline": true,
+        "at": "2026-09-23T01:10:58.879Z",
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/flip-green-blocked.log",
+          "sha256": "1fbeba7bcdb11e06850b7bbbb91085f8234bbc94aa0dae41df994f57a4efa310"
+        },
+        "meta": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/flip-green-blocked.meta.log",
+          "sha256": "ee7bbc57d650d47e2a48079f554d496a5987e532c05fcd0a39cad1219f6f79c5"
+        }
+      }
+    },
+    {
+      "suite": "src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts",
+      "flagFalse": {
+        "command": "npx jest src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts",
+        "exitCode": 0,
+        "counts": [
+          "Test Suites: 1 passed, 1 total",
+          "Tests:       6 passed, 6 total"
+        ],
+        "failingRows": [],
+        "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\unit\\\\api\\\\multiplayerCoopCreationCheckpoint.test.ts/i.",
+        "at": "2026-09-23T01:11:03.889Z",
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/run-green-off-coop.log",
+          "sha256": "0d359bae69dd34e0255f3415ca885edb69fa0cecc7e2ad7b584fd96de4c0e88d"
+        },
+        "meta": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/run-green-off-coop.meta.log",
+          "sha256": "c9ef0ebaf479e5e09828ab523e731a5ecb1e386ee74f267d82cef887d2c80957"
+        }
+      },
+      "underTemporaryFlip": {
+        "command": "npx jest src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts",
+        "exitCode": 0,
+        "counts": [
+          "Test Suites: 1 passed, 1 total",
+          "Tests:       6 passed, 6 total"
+        ],
+        "failingRows": [],
+        "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\unit\\\\api\\\\multiplayerCoopCreationCheckpoint.test.ts/i.",
+        "flippedSha256": [
+          "src/lib/campaign/sync/JournalCampaignEventStore.ts 3de3dff6be334e052ae4a35e8bd872d14fef8d616d36ef38fb5179602dd6a7a2",
+          "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts a6eab0af53667930ee87cb2ce38aea285c593bac7ae33dc641d3547fbe1f0f22"
+        ],
+        "restoredSha256": [
+          "src/lib/campaign/sync/JournalCampaignEventStore.ts 0f062a9b1119acc802eabbf072ce308025a7bd52da99c8a5b381803262daec6e",
+          "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts 392fd63f42a7d3bc13f29d74557264674483dcdb6dedc1046161130e6588940e"
+        ],
+        "restoreMatchesBaseline": true,
+        "at": "2026-09-23T01:11:09.716Z",
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/flip-green-coop.log",
+          "sha256": "96c26c14151c298cfdb66736b4952a1b8bc44f7e61fd5f5cd1ccb4a89a9d49c4"
+        },
+        "meta": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/flip-green-coop.meta.log",
+          "sha256": "07df78c482be777382da3884d4d24f43ce478ed102b217f95bd71a1acdd67666"
+        }
+      }
+    }
+  ],
+  "mutants": [
+    {
+      "id": "M1",
+      "file": "src/__tests__/api/campaigns/campaigns.test.ts",
+      "what": "envelopeFor's disjoint membership removed: each force keeps the shared fixture's unit-a and unit-b (the genesis-projectable premise undone)",
+      "edit": {
+        "from": "{ ...force, unitIds: [`unit-${index}`] }",
+        "to": "{ ...force, unitIds: index >= 0 ? force.unitIds : [] }"
+      },
+      "applyExit": 0,
+      "preMutantSha256": "c0e7633550941fdd1cb42e3d13cf75bb06b30df810179120889c5025e08067d6",
+      "mutatedSha256": "e9336528420e937f1dd78538dc5c4ed9fa90f373d8ea8ad50817a2c4b0ea8e57",
+      "restoredSha256": "c0e7633550941fdd1cb42e3d13cf75bb06b30df810179120889c5025e08067d6",
+      "restoredMatchesPreMutant": true,
+      "restoredBy": "cp of the saved pre-mutant byte copy",
+      "suite": "src/__tests__/api/campaigns/campaigns.test.ts",
+      "runs": {
+        "flagFalse": {
+          "command": "npx jest src/__tests__/api/campaigns/campaigns.test.ts",
+          "exitCode": 1,
+          "counts": [
+            "Test Suites: 1 failed, 1 total",
+            "Tests:       1 failed, 22 passed, 23 total"
+          ],
+          "failingRows": [
+            "Campaign persistence API › builds envelopes the genesis projection accepts, so no create depends on the journal flag"
+          ],
+          "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\api\\\\campaigns\\\\campaigns.test.ts/i.",
+          "at": "2026-09-23T01:12:30.608Z",
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/run-mutant-M1-off.log",
+            "sha256": "59e354463b454b0a8f63eac53709ce8e7ca0939216446f301944d519655eeb7f"
+          },
+          "meta": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/run-mutant-M1-off.meta.log",
+            "sha256": "ed20d4e24bf033a57ebd1df626112a07cbf44cc3c9ba140dccdbee276f8aba4b"
+          }
+        },
+        "underTemporaryFlip": {
+          "command": "npx jest src/__tests__/api/campaigns/campaigns.test.ts",
+          "exitCode": 1,
+          "counts": [
+            "Test Suites: 1 failed, 1 total",
+            "Tests:       2 failed, 21 passed, 23 total"
+          ],
+          "failingRows": [
+            "Campaign persistence API › builds envelopes the genesis projection accepts, so no create depends on the journal flag",
+            "Campaign persistence API › saves a campaign and increments its version"
+          ],
+          "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\api\\\\campaigns\\\\campaigns.test.ts/i.",
+          "flippedSha256": [
+            "src/lib/campaign/sync/JournalCampaignEventStore.ts 3de3dff6be334e052ae4a35e8bd872d14fef8d616d36ef38fb5179602dd6a7a2",
+            "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts a6eab0af53667930ee87cb2ce38aea285c593bac7ae33dc641d3547fbe1f0f22"
+          ],
+          "restoredSha256": [
+            "src/lib/campaign/sync/JournalCampaignEventStore.ts 0f062a9b1119acc802eabbf072ce308025a7bd52da99c8a5b381803262daec6e",
+            "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts 392fd63f42a7d3bc13f29d74557264674483dcdb6dedc1046161130e6588940e"
+          ],
+          "restoreMatchesBaseline": true,
+          "at": "2026-09-23T01:12:35.448Z",
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/flip-mutant-M1.log",
+            "sha256": "6be93545a891d6aed25dcda4806f5a347e4e535a19e41be7fe42411e3d73b3e8"
+          },
+          "meta": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/flip-mutant-M1.meta.log",
+            "sha256": "83082e5eb8a809741e845173493e28cc05fa2c75ed51665a7e87f553d0f0d126"
+          }
+        }
+      },
+      "caught": true,
+      "observed": "flag false: the premise row fails with Error message \"Roster unit unit-a is in more than one force\" (campaigns.test.ts:156); under the flip the premise row and \"saves a campaign and increments its version\" fail. This also measures the red-stage inference for campaigns.test.ts: the genesis projection refuses the shared fixture.",
+      "meta": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/mutant-M1.meta.log",
+        "sha256": "cbf6c4ed328f3c1932e30b71a8cb9aa954f624989c2e365d8d29158e7dab8ce8"
+      }
+    },
+    {
+      "id": "M2",
+      "file": "src/__tests__/api/campaigns/campaignAuthorityBlocked.test.ts",
+      "what": "seedSnapshotWithoutStream seeds through the PUT route instead of saveCampaign (the without-the-route premise undone)",
+      "edit": {
+        "from": "expect(saveCampaign(envelope(0), 0).kind).toBe('ok');",
+        "to": "expect((await put({ envelope: envelope(0), baseVersion: 0 })).status).toBe(200);"
+      },
+      "applyExit": 0,
+      "preMutantSha256": "b227cae18763ac2a2064b048568d6f930ec9dcbe405b9c71feb8a504cb1e8a49",
+      "mutatedSha256": "dd9f7b0dd6786f3ac0f6bebb90fa507e973d77ffcf94d299450eaf0a541c33f4",
+      "restoredSha256": "b227cae18763ac2a2064b048568d6f930ec9dcbe405b9c71feb8a504cb1e8a49",
+      "restoredMatchesPreMutant": true,
+      "restoredBy": "cp of the saved pre-mutant byte copy",
+      "suite": "src/__tests__/api/campaigns/campaignAuthorityBlocked.test.ts",
+      "runs": {
+        "flagFalse": {
+          "command": "npx jest src/__tests__/api/campaigns/campaignAuthorityBlocked.test.ts",
+          "exitCode": 0,
+          "counts": [
+            "Test Suites: 1 passed, 1 total",
+            "Tests:       4 passed, 4 total"
+          ],
+          "failingRows": [],
+          "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\api\\\\campaigns\\\\campaignAuthorityBlocked.test.ts/i.",
+          "at": "2026-09-23T01:12:39.267Z",
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/run-mutant-M2-off.log",
+            "sha256": "650aada644d7f48cba051484145c268ecd882787a82cb0690104651fab18eccb"
+          },
+          "meta": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/run-mutant-M2-off.meta.log",
+            "sha256": "60df139fb9ebc1945f7a10222e65e34d9f3c5dec378c2e825bcbe3f1e769e53d"
+          }
+        },
+        "underTemporaryFlip": {
+          "command": "npx jest src/__tests__/api/campaigns/campaignAuthorityBlocked.test.ts",
+          "exitCode": 1,
+          "counts": [
+            "Test Suites: 1 failed, 1 total",
+            "Tests:       2 failed, 2 passed, 4 total"
+          ],
+          "failingRows": [
+            "campaign authority blocked at the route › still refuses when a snapshot record is sitting right there",
+            "campaign authority blocked at the route › reports blocked distinctly from a stale-write conflict"
+          ],
+          "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\api\\\\campaigns\\\\campaignAuthorityBlocked.test.ts/i.",
+          "flippedSha256": [
+            "src/lib/campaign/sync/JournalCampaignEventStore.ts 3de3dff6be334e052ae4a35e8bd872d14fef8d616d36ef38fb5179602dd6a7a2",
+            "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts a6eab0af53667930ee87cb2ce38aea285c593bac7ae33dc641d3547fbe1f0f22"
+          ],
+          "restoredSha256": [
+            "src/lib/campaign/sync/JournalCampaignEventStore.ts 0f062a9b1119acc802eabbf072ce308025a7bd52da99c8a5b381803262daec6e",
+            "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts 392fd63f42a7d3bc13f29d74557264674483dcdb6dedc1046161130e6588940e"
+          ],
+          "restoreMatchesBaseline": true,
+          "at": "2026-09-23T01:12:43.511Z",
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/flip-mutant-M2.log",
+            "sha256": "4714caa6b1e9d24c5f8c3e43e0738663abbd87bae6a044b7a22076b0f03f27f2"
+          },
+          "meta": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/flip-mutant-M2.meta.log",
+            "sha256": "f132df59121a0f38e608d38ed23a07a660f194647d52da4b6e22509db7a55599"
+          }
+        }
+      },
+      "caught": true,
+      "observed": "flag false: green (the route writes no genesis while the flag is false, so the regression is invisible there); under the flip both seeded rows fail AT THE PREMISE assertion: Expected -1, Received 0 (campaignAuthorityBlocked.test.ts:87 via :127 and :147), not at the downstream 409.",
+      "meta": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/mutant-M2.meta.log",
+        "sha256": "63b74df54c0f38295b76990822456ce06e862252a48aab95164b3148d9dd4ff6"
+      }
+    },
+    {
+      "id": "M3",
+      "file": "src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts",
+      "what": "persistHostCampaign defaults to no genesis (the genesis seeding the four co-op rows rely on removed)",
+      "edit": {
+        "from": "options: { readonly genesis: boolean } = { genesis: true },",
+        "to": "options: { readonly genesis: boolean } = { genesis: false },"
+      },
+      "applyExit": 0,
+      "preMutantSha256": "27a0dd5aa7ed6208e6db0b5cb9e937c2f3924a659ac13698d01e1641c37a22af",
+      "mutatedSha256": "d8edd59886198fea69da189c0c48d0bc5f06982462e9fef6e0f94238dc608cbb",
+      "restoredSha256": "27a0dd5aa7ed6208e6db0b5cb9e937c2f3924a659ac13698d01e1641c37a22af",
+      "restoredMatchesPreMutant": true,
+      "restoredBy": "cp of the saved pre-mutant byte copy",
+      "suite": "src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts",
+      "runs": {
+        "flagFalse": {
+          "command": "npx jest src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts",
+          "exitCode": 0,
+          "counts": [
+            "Test Suites: 1 passed, 1 total",
+            "Tests:       6 passed, 6 total"
+          ],
+          "failingRows": [],
+          "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\unit\\\\api\\\\multiplayerCoopCreationCheckpoint.test.ts/i.",
+          "at": "2026-09-23T01:12:49.140Z",
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/run-mutant-M3-off.log",
+            "sha256": "3e0d45aeeb8ec2765fd857b13e3905dc4ae669ecc6162b42cface928e365529c"
+          },
+          "meta": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/run-mutant-M3-off.meta.log",
+            "sha256": "c9ef0ebaf479e5e09828ab523e731a5ecb1e386ee74f267d82cef887d2c80957"
+          }
+        },
+        "underTemporaryFlip": {
+          "command": "npx jest src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts",
+          "exitCode": 1,
+          "counts": [
+            "Test Suites: 1 failed, 1 total",
+            "Tests:       4 failed, 2 passed, 6 total"
+          ],
+          "failingRows": [
+            "co-op campaign creation authority checkpoint › has bound the GM seat durably by the time creation is acknowledged",
+            "co-op campaign creation authority checkpoint › has committed player-slot force ownership by the time creation is acknowledged",
+            "co-op campaign creation authority checkpoint › leaves both human seats empty and seats the GM as a spectator",
+            "co-op campaign creation authority checkpoint › seats the GM as a spectator when a co-op body names no host seat kind"
+          ],
+          "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\unit\\\\api\\\\multiplayerCoopCreationCheckpoint.test.ts/i.",
+          "flippedSha256": [
+            "src/lib/campaign/sync/JournalCampaignEventStore.ts 3de3dff6be334e052ae4a35e8bd872d14fef8d616d36ef38fb5179602dd6a7a2",
+            "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts a6eab0af53667930ee87cb2ce38aea285c593bac7ae33dc641d3547fbe1f0f22"
+          ],
+          "restoredSha256": [
+            "src/lib/campaign/sync/JournalCampaignEventStore.ts 0f062a9b1119acc802eabbf072ce308025a7bd52da99c8a5b381803262daec6e",
+            "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts 392fd63f42a7d3bc13f29d74557264674483dcdb6dedc1046161130e6588940e"
+          ],
+          "restoreMatchesBaseline": true,
+          "at": "2026-09-23T01:12:53.914Z",
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/flip-mutant-M3.log",
+            "sha256": "6b9672c7ad270d0c4ebd87415cd1144be2e27b15a0defb89e6ca188652f22948"
+          },
+          "meta": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/flip-mutant-M3.meta.log",
+            "sha256": "e92d7c04245e3c521bc354984b5f1049230e5eccdf96594d6077b2f40580ec7b"
+          }
+        }
+      },
+      "caught": true,
+      "observed": "flag false: green (the checkpoint skips its genesis stage while the flag is false); under the flip the four co-op rows fail: Expected 201, Received 500. This measures the red-stage inference for the co-op suite: without the genesis seed the flipped checkpoint refuses creation.",
+      "meta": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/mutant-M3.meta.log",
+        "sha256": "efd68a7a62d7e3ab91d46e303d9efb970f84eb956bd7e99ccf2ebbcd87f86397"
+      }
+    },
+    {
+      "id": "M4",
+      "file": "src/pages/api/campaigns/[id].ts",
+      "what": "product: the PUT route's blocked branch disabled (a journal marker with no stream no longer refuses)",
+      "edit": {
+        "from": "if (authority.kind === 'blocked') {",
+        "to": "if (authority.kind === 'blocked' && process.env.U35C_MUTANT_NEVER === '1') {"
+      },
+      "applyExit": 0,
+      "preMutantSha256": "a0144a7cd574719a51328d49318d46fb82c5bc57fed4b707ccf2eacc603b946a",
+      "mutatedSha256": "b3c08c61319b24053242896e5f0273f26dfbc7f44a195acf4c4d716fa2ce1d8b",
+      "restoredSha256": "a0144a7cd574719a51328d49318d46fb82c5bc57fed4b707ccf2eacc603b946a",
+      "restoredMatchesPreMutant": true,
+      "restoredBy": "git checkout HEAD -- :(literal)<path>",
+      "suite": "src/__tests__/api/campaigns/campaignAuthorityBlocked.test.ts",
+      "runs": {
+        "flagFalse": {
+          "command": "npx jest src/__tests__/api/campaigns/campaignAuthorityBlocked.test.ts",
+          "exitCode": 1,
+          "counts": [
+            "Test Suites: 1 failed, 1 total",
+            "Tests:       3 failed, 1 passed, 4 total"
+          ],
+          "failingRows": [
+            "campaign authority blocked at the route › refuses a write when the marker says journal and no stream exists",
+            "campaign authority blocked at the route › still refuses when a snapshot record is sitting right there",
+            "campaign authority blocked at the route › reports blocked distinctly from a stale-write conflict"
+          ],
+          "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\api\\\\campaigns\\\\campaignAuthorityBlocked.test.ts/i.",
+          "at": "2026-09-23T01:12:58.188Z",
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/run-mutant-M4-off.log",
+            "sha256": "7a1e8171c4f358cfeacc5370a6883dc78db1a9a63b484fdcf68f4b353164a5d9"
+          },
+          "meta": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/run-mutant-M4-off.meta.log",
+            "sha256": "41db94cc09749e4268463299381a617852ebf3638f3d8aca3231c7a7e9cd153b"
+          }
+        },
+        "underTemporaryFlip": {
+          "command": "npx jest src/__tests__/api/campaigns/campaignAuthorityBlocked.test.ts",
+          "exitCode": 1,
+          "counts": [
+            "Test Suites: 1 failed, 1 total",
+            "Tests:       3 failed, 1 passed, 4 total"
+          ],
+          "failingRows": [
+            "campaign authority blocked at the route › refuses a write when the marker says journal and no stream exists",
+            "campaign authority blocked at the route › still refuses when a snapshot record is sitting right there",
+            "campaign authority blocked at the route › reports blocked distinctly from a stale-write conflict"
+          ],
+          "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\api\\\\campaigns\\\\campaignAuthorityBlocked.test.ts/i.",
+          "flippedSha256": [
+            "src/lib/campaign/sync/JournalCampaignEventStore.ts 3de3dff6be334e052ae4a35e8bd872d14fef8d616d36ef38fb5179602dd6a7a2",
+            "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts a6eab0af53667930ee87cb2ce38aea285c593bac7ae33dc641d3547fbe1f0f22"
+          ],
+          "restoredSha256": [
+            "src/lib/campaign/sync/JournalCampaignEventStore.ts 0f062a9b1119acc802eabbf072ce308025a7bd52da99c8a5b381803262daec6e",
+            "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts 392fd63f42a7d3bc13f29d74557264674483dcdb6dedc1046161130e6588940e"
+          ],
+          "restoreMatchesBaseline": true,
+          "at": "2026-09-23T01:13:01.959Z",
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/flip-mutant-M4.log",
+            "sha256": "871a5bebe3b5dd34af6111ae50426ef00442fd9a070f08fe503174965c8f3c0d"
+          },
+          "meta": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/flip-mutant-M4.meta.log",
+            "sha256": "f132df59121a0f38e608d38ed23a07a660f194647d52da4b6e22509db7a55599"
+          }
+        }
+      },
+      "caught": true,
+      "observed": "both modes: the three refusal rows fail (Expected 409, Received 200; Expected \"blocked\", Received undefined); the control row passes. The re-pinned blocked rows still test the route refusal.",
+      "meta": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/mutant-M4.meta.log",
+        "sha256": "db72a616d7f7063400ec0e3eb0bf79a7155e8c0c6227708f8474888fe9bedf0c"
+      }
+    },
+    {
+      "id": "M5",
+      "file": "src/lib/campaign/authority/campaignSourceGenesis.ts",
+      "what": "product: appendCampaignGenesis appends the genesis event but writes no journal-native marker",
+      "edit": {
+        "from": "  writeMarker(marker);\n",
+        "to": "  void writeMarker;\n"
+      },
+      "applyExit": 0,
+      "preMutantSha256": "242d561f032206f6e2e9a390573decd903b2ce58b34d5d7dae2fc8172f7f86f8",
+      "mutatedSha256": "d79eb4b2fc446063d9c17819bd777577177fea22612ef070ee16ffe5a966625e",
+      "restoredSha256": "242d561f032206f6e2e9a390573decd903b2ce58b34d5d7dae2fc8172f7f86f8",
+      "restoredMatchesPreMutant": true,
+      "restoredBy": "git checkout HEAD -- :(literal)<path>",
+      "suite": "src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts",
+      "runs": {
+        "flagFalse": {
+          "command": "npx jest src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts",
+          "exitCode": 0,
+          "counts": [
+            "Test Suites: 1 passed, 1 total",
+            "Tests:       6 passed, 6 total"
+          ],
+          "failingRows": [],
+          "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\unit\\\\api\\\\multiplayerCoopCreationCheckpoint.test.ts/i.",
+          "at": "2026-09-23T01:13:07.091Z",
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/run-mutant-M5-off.log",
+            "sha256": "314897080fb289bfa69a906491061d5c8c5ec20d3f0703ba0d4269561fdd719a"
+          },
+          "meta": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/run-mutant-M5-off.meta.log",
+            "sha256": "c9ef0ebaf479e5e09828ab523e731a5ecb1e386ee74f267d82cef887d2c80957"
+          }
+        },
+        "underTemporaryFlip": {
+          "command": "npx jest src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts",
+          "exitCode": 1,
+          "counts": [
+            "Test Suites: 1 failed, 1 total",
+            "Tests:       4 failed, 2 passed, 6 total"
+          ],
+          "failingRows": [
+            "co-op campaign creation authority checkpoint › has bound the GM seat durably by the time creation is acknowledged",
+            "co-op campaign creation authority checkpoint › has committed player-slot force ownership by the time creation is acknowledged",
+            "co-op campaign creation authority checkpoint › leaves both human seats empty and seats the GM as a spectator",
+            "co-op campaign creation authority checkpoint › seats the GM as a spectator when a co-op body names no host seat kind"
+          ],
+          "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\unit\\\\api\\\\multiplayerCoopCreationCheckpoint.test.ts/i.",
+          "flippedSha256": [
+            "src/lib/campaign/sync/JournalCampaignEventStore.ts 3de3dff6be334e052ae4a35e8bd872d14fef8d616d36ef38fb5179602dd6a7a2",
+            "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts a6eab0af53667930ee87cb2ce38aea285c593bac7ae33dc641d3547fbe1f0f22"
+          ],
+          "restoredSha256": [
+            "src/lib/campaign/sync/JournalCampaignEventStore.ts 0f062a9b1119acc802eabbf072ce308025a7bd52da99c8a5b381803262daec6e",
+            "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts 392fd63f42a7d3bc13f29d74557264674483dcdb6dedc1046161130e6588940e"
+          ],
+          "restoreMatchesBaseline": true,
+          "at": "2026-09-23T01:13:11.927Z",
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/flip-mutant-M5.log",
+            "sha256": "29a6cd32763b1a24b761cdf3d51dcef5e3683a877077dfd3d8b27916518fab8f"
+          },
+          "meta": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/flip-mutant-M5.meta.log",
+            "sha256": "e92d7c04245e3c521bc354984b5f1049230e5eccdf96594d6077b2f40580ec7b"
+          }
+        }
+      },
+      "caught": true,
+      "observed": "flag false: green; under the flip the four co-op rows fail (Expected 201, Received 500) although persistHostCampaign still sees genesis-appended: under the flip the rows observe the durable marker the product genesis seam writes.",
+      "meta": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/mutant-M5.meta.log",
+        "sha256": "e8f77b3f411e5e6f1f04939e6c3c865dfe9521e53026e6eb3e2ea91af6fa5e89"
+      }
+    }
+  ],
+  "informationalFlippedRuns": {
+    "note": "extra runs, not in the charter list: both ownership paths as one jest invocation each under the temporary flip, to show what stays flip-sensitive after this re-pin",
+    "runs": [
+      {
+        "command": "npx jest src/__tests__/api",
+        "exitCode": 1,
+        "counts": [
+          "Test Suites: 1 failed, 53 passed, 54 total",
+          "Tests:       1 failed, 750 passed, 751 total"
+        ],
+        "failingRows": [
+          "campaign PUT genesis marker › writes the genesis marker only when the resolver is true"
+        ],
+        "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\api/i.",
+        "flippedSha256": [
+          "src/lib/campaign/sync/JournalCampaignEventStore.ts 3de3dff6be334e052ae4a35e8bd872d14fef8d616d36ef38fb5179602dd6a7a2",
+          "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts a6eab0af53667930ee87cb2ce38aea285c593bac7ae33dc641d3547fbe1f0f22"
+        ],
+        "restoredSha256": [
+          "src/lib/campaign/sync/JournalCampaignEventStore.ts 0f062a9b1119acc802eabbf072ce308025a7bd52da99c8a5b381803262daec6e",
+          "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts 392fd63f42a7d3bc13f29d74557264674483dcdb6dedc1046161130e6588940e"
+        ],
+        "restoreMatchesBaseline": true,
+        "at": "2026-09-23T01:13:22.075Z",
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/flip-info-api.log",
+          "sha256": "5e055709a62988f93fe0a31f88dce7f8b133c8e988a9ad9d74cd2191a0218f99"
+        },
+        "meta": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/flip-info-api.meta.log",
+          "sha256": "51f8d9fa1d071a562b48f487d0743d879a9aca639fc40c8b9686009601bc3439"
+        }
+      },
+      {
+        "command": "npx jest src/__tests__/unit/api",
+        "exitCode": 0,
+        "counts": [
+          "Test Suites: 6 passed, 6 total",
+          "Tests:       35 passed, 35 total"
+        ],
+        "failingRows": [],
+        "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\unit\\\\api/i.",
+        "flippedSha256": [
+          "src/lib/campaign/sync/JournalCampaignEventStore.ts 3de3dff6be334e052ae4a35e8bd872d14fef8d616d36ef38fb5179602dd6a7a2",
+          "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts a6eab0af53667930ee87cb2ce38aea285c593bac7ae33dc641d3547fbe1f0f22"
+        ],
+        "restoredSha256": [
+          "src/lib/campaign/sync/JournalCampaignEventStore.ts 0f062a9b1119acc802eabbf072ce308025a7bd52da99c8a5b381803262daec6e",
+          "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts 392fd63f42a7d3bc13f29d74557264674483dcdb6dedc1046161130e6588940e"
+        ],
+        "restoreMatchesBaseline": true,
+        "at": "2026-09-23T01:13:28.013Z",
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/flip-info-unitapi.log",
+          "sha256": "cf878d7e623a5a373466dc6d8368529c17e0d880dd406f3384d2c8bc2c8750a3"
+        },
+        "meta": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/flip-info-unitapi.meta.log",
+          "sha256": "7aeb8b67250f79f06bda5856b88a46916be31a8b0e7d24a0ece4c46ff46ebd71"
+        }
+      }
+    ],
+    "reading": "src/__tests__/api under the flip: the only failing row is campaignPutGenesisRoute.test.ts:88 (its resolver-false half expects the marker not_found; Received \"ok\"), which belongs to U35d. src/__tests__/unit/api under the flip: all green."
+  },
+  "flagFilesFinal": {
+    "sha256": {
+      "src/lib/campaign/sync/JournalCampaignEventStore.ts": "0f062a9b1119acc802eabbf072ce308025a7bd52da99c8a5b381803262daec6e",
+      "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts": "392fd63f42a7d3bc13f29d74557264674483dcdb6dedc1046161130e6588940e"
+    },
+    "equalToBaseline": true
+  },
+  "nonClaims": [
+    "The temporary flip is U35's minimal flip (the constant true, the e2e arm not ORed in), restored after every run; it is not U35d's final code, and U35d may change what these suites observe.",
+    "Green under the flip is not evidence that the flip is safe: these suites assert route status, records and seats, not journal state, so gate (3) (a whole-envelope PUT on a journal-native campaign leaves the journal head behind the record; U35b) is live under the flip and is not observed here.",
+    "The src/__tests__/api, src/__tests__/unit/api and src/lib/campaign gate totals are flag-false runs. Under the flip only the four suites, the five mutants and the two informational ownership-path runs were run; src/lib/campaign was not run under the flip in this lane.",
+    "No Playwright run, no build, no repository-wide jest run.",
+    "The co-op host campaign seeded through appendCampaignGenesis is not seeded through the PUT route: the rows prove the matches route and checkpoint, not the create route."
+  ],
+  "findingsReportedNotFixed": [
+    {
+      "id": "F1",
+      "file": "src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts (row \"refuses creation under the e2e journal-authority arm when the campaign has no genesis branch\")",
+      "finding": "The row arms NEXT_PUBLIC_E2E_MODE and MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY to reach the genesis refusal while the constant is false. U35d deletes the arm; the row then still refuses (the constant is true), but its env arming is dead and its comment (it proves the route hands the checkpoint the resolver's answer rather than the production constant) no longer describes it. U35d's ownership paths do not include src/__tests__/unit/api. Not changed here: without the arm the row cannot refuse while the flag is false."
+    },
+    {
+      "id": "F2",
+      "file": "src/lib/campaign/persistence/__tests__/campaignFixture.ts:24-37",
+      "finding": "The shared fixture's makeForce gives every force unitIds ['unit-a', 'unit-b'], so buildPopulatedCampaign always double-claims and the genesis projection refuses it; each genesis-dependent suite re-derives the same disjoint-membership override inline. A grep for the override text ({ ...force, unitIds: [`unit-${index}`] }) under src finds it in 13 test files, 3 of them added by this unit (campaigns.test.ts, campaigns.authority.test.ts, the co-op suite). A genesis-projectable fixture variant would remove the copies; the fixture is outside this unit's paths."
+    }
+  ],
+  "risksForTheParent": [
+    "Review class routine: Lane A only; the reviewer should reproduce at least two mutants (M3 and M4 are the cheapest: one flipped co-op run, one flag-false blocked run).",
+    "U35b and U35d also own src/__tests__/api/campaigns; they are not admissible by --next while this unit is in flight."
+  ],
+  "gitStatusShortBeforeThisReceipt": " M src/__tests__/api/campaigns/campaignAuthorityBlocked.test.ts\n M src/__tests__/api/campaigns/campaigns.authority.test.ts\n M src/__tests__/api/campaigns/campaigns.test.ts\n M src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts\n?? openspec/planning/2026-09-12-roadmap-completion/evidence/u35c-admission-20260923.json\n?? openspec/planning/2026-09-12-roadmap-completion/evidence/u35c-local-20260923.json\n?? openspec/planning/2026-09-12-roadmap-completion/evidence/u35c-red-20260923.json\n"
+}

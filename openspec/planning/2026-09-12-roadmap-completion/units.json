@@ -1076,14 +1076,28 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
+      "state": "local-verified",
+      "baseline": "9374745f468fa38248a2a83b1ece478840b975d2",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/u35c-admission-20260923.json",
+          "baseline": "9374745f468fa38248a2a83b1ece478840b975d2",
+          "at": "2026-09-23T01:03:51.172Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/u35c-red-20260923.json",
+          "at": "2026-09-23T01:04:30.083Z",
+          "summary": "all four suites green with the flag false; under a temporary flip 9 rows red (campaigns.test.ts:143; campaigns.authority.test.ts:83,198; campaignAuthorityBlocked.test.ts:110,133; multiplayerCoopCreationCheckpoint.test.ts:152,223,253); flag files restored byte-identically after every flipped run"
+        },
+        "local": {
+          "path": "evidence/u35c-local-20260923.json",
+          "at": "2026-09-23T01:14:42.641Z",
+          "summary": "0 product lines; 4 test files +138/-16; every suite green with the flag false and under the flip (23, 6, 4, 6); api 54 suites/751, unit/api 6/35, campaign 203/2975; tsc 0; oxlint 84 warnings 0 errors; oxfmt clean; LINT_UNITS_PASS 100/100; qc:openspec-ci errors=0; validator PASSED; --next U35c on the baseline; five mutants caught and restored (shared-fixture envelope, route-seeded blocked record, co-op genesis seeding removed, the PUT blocked branch disabled, appendCampaignGenesis skipping its marker); implementer claude-opus (Agent model: opus); findings not fixed: F1 the e2e-arm row in multiplayerCoopCreationCheckpoint.test.ts keeps env setup that becomes dead when U35d deletes the arm (folded into U35d), F2 the shared fixture makeForce in src/lib/campaign/persistence/__tests__/campaignFixture.ts:24-37 gives every force the same two units so 13 test files carry an override (recorded); status ready"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
@@ -1140,12 +1154,13 @@
       "id": "U35d",
       "node": "R2.authority-cutover",
       "taskKeys": [],
-      "behavior": "The campaign journal hard cutover: CAMPAIGN_JOURNAL_AUTHORITY_ENABLED is true in production with no override and the e2e fixture arm is deleted (campaignJournalAuthorityEnabled.ts:36-38) together with its exported env constant and both importers (src/__tests__/api/campaigns/campaignPutGenesisRoute.test.ts:17, scripts/e2e/campaign-journal-authority.ts:63-67,93-96); the in-path flag pins, campaignPutGenesisRoute.test.ts and the e2e flag-off assertions (e2e/campaign-journal-two-process-privacy.spec.ts, e2e/campaign-journal-two-process-convergence.spec.ts, e2e/helpers/campaignJournalPrivacyFixture.ts) are re-pinned and the stale flag-off comments corrected. Admitted only after U35a, U35c and U35b have merged; lands before U28. Red-first: U35's probe row (a), red on the baseline. Main proof runs verify:qc:coop-campaign-journey and the authority-recovery, privacy-pack and proposal-pack ladder groups.",
+      "behavior": "The campaign journal hard cutover: CAMPAIGN_JOURNAL_AUTHORITY_ENABLED is true in production with no override and the e2e fixture arm is deleted (campaignJournalAuthorityEnabled.ts:36-38) together with its exported env constant and both importers (src/__tests__/api/campaigns/campaignPutGenesisRoute.test.ts:17, scripts/e2e/campaign-journal-authority.ts:63-67,93-96); the in-path flag pins, campaignPutGenesisRoute.test.ts and the e2e flag-off assertions (e2e/campaign-journal-two-process-privacy.spec.ts, e2e/campaign-journal-two-process-convergence.spec.ts, e2e/helpers/campaignJournalPrivacyFixture.ts) are re-pinned and the stale flag-off comments corrected. Admitted only after U35a, U35c and U35b have merged; lands before U28. Red-first: U35's probe row (a), red on the baseline. Main proof runs verify:qc:coop-campaign-journey and the authority-recovery, privacy-pack and proposal-pack ladder groups. Folded 2026-09-23 (U35c finding F1): the e2e-arm row in src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts sets the arm env keys to reach the refusal while the flag is false; when this unit deletes the arm the row still passes but its env setup is dead and its comment wrong, so the row is rewritten or removed here.",
       "ownershipPaths": [
         "src/lib/campaign/sync",
         "src/__tests__/api/campaigns",
         "e2e",
-        "scripts/e2e"
+        "scripts/e2e",
+        "src/__tests__/unit/api"
       ],
       "ciClass": "product",
       "reviewClasses": [
@@ -6233,6 +6248,14 @@
       "recommendedSuccessor": "U50's folded clause: the client refuses the launch (unavailable) on any non-2xx head read instead of launching ungated",
       "status": "recorded; held by U50",
       "heldBy20260922": "U50"
+    },
+    {
+      "id": "FN-u35c-shared-fixture-duplicate-units",
+      "foundBy": "U35c implementer lane (claude-opus), 2026-09-23",
+      "at": "2026-09-23T02:00:00.000Z",
+      "class": "test fixture defect",
+      "summary": "makeForce in src/lib/campaign/persistence/__tests__/campaignFixture.ts:24-37 gives every force the same two units (unit-a, unit-b), so a campaign built from it cannot project a genesis (a unit in more than one force) and 13 test files carry the same inline override (3 added by U35c). Fix: give each force its own units in the shared fixture and drop the overrides.",
+      "status": "recorded; R2.authority-cutover owns src/lib/campaign/persistence; fold into the next unit that edits that fixture"
     }
   ]
 }

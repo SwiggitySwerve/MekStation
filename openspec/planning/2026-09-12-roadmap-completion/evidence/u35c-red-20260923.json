@@ -1,0 +1,312 @@
+{
+  "unit": "U35c",
+  "stage": "red",
+  "at": "2026-09-23T01:04:30.083Z",
+  "baseline": "9374745f468fa38248a2a83b1ece478840b975d2",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u35c",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "environment": {
+    "shellPreamble": [
+      "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+      "export npm_config_dry_run=true",
+      "every MEKSTATION_E2E_* key and NEXT_PUBLIC_E2E_MODE unset by the runner"
+    ],
+    "runners": {
+      "red": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/red.sh",
+        "sha256": "f5ee638b98b946a6f4af292246518d884d113b96fc4a709cab01cf8f09e6406e"
+      },
+      "plain": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/run.sh",
+        "sha256": "279a7ded73d8ab594623e6d86cbd36349474234aa498606f44a198cf1ebd1b67"
+      },
+      "flip": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/flip-run.sh",
+        "sha256": "ae0ebd39439a046bb8fc937a27fc0bb5e9bb8d94622645d7e1c053ed9ed0b2c7"
+      }
+    },
+    "flipScript": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35/flip-measure.mjs",
+      "sha256": "38880bbb4d3653ee8c97363a4e2b9cb2f305c58d2e42172b73902bb8f7c44416"
+    },
+    "flippedSha256": {
+      "src/lib/campaign/sync/JournalCampaignEventStore.ts": "3de3dff6be334e052ae4a35e8bd872d14fef8d616d36ef38fb5179602dd6a7a2",
+      "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts": "a6eab0af53667930ee87cb2ce38aea285c593bac7ae33dc641d3547fbe1f0f22"
+    },
+    "baselineSha256": {
+      "src/lib/campaign/sync/JournalCampaignEventStore.ts": "0f062a9b1119acc802eabbf072ce308025a7bd52da99c8a5b381803262daec6e",
+      "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts": "392fd63f42a7d3bc13f29d74557264674483dcdb6dedc1046161130e6588940e"
+    },
+    "restore": "after every flipped run both files were copied back from the byte copies saved immediately before the flip; each flip meta log records the restored sha256 and RESTORE_MATCHES_BASELINE true",
+    "summaries": {
+      "plain": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/run-summary.log",
+        "sha256": "a9c671fe80b489753b6695ede578f8646b684421b0cf20f11434204334618c58"
+      },
+      "flip": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/flip-summary.log",
+        "sha256": "2e6bef2c0c367c3b2207c68bed143223451c60bb66bdd35cebf23ab6993c1b3e"
+      }
+    }
+  },
+  "testFilesAtRed": "unedited (git status --short was empty at admission and no test file was edited before these runs)",
+  "productUnchangedAtRed": true,
+  "results": [
+    {
+      "suite": "src/__tests__/api/campaigns/campaigns.test.ts",
+      "flagFalseControl": {
+        "command": "npx jest src/__tests__/api/campaigns/campaigns.test.ts",
+        "exitCode": 0,
+        "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\api\\\\campaigns\\\\campaigns.test.ts/i.",
+        "counts": [
+          "Test Suites: 1 passed, 1 total",
+          "Tests:       22 passed, 22 total"
+        ],
+        "at": "2026-09-23T01:00:43.692Z",
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/run-red-off-campaigns.log",
+          "sha256": "312706fb479b0fbedaf559de2a042b22a7c768d15c68c079dde6a94c3128b8ef"
+        },
+        "meta": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/run-red-off-campaigns.meta.log",
+          "sha256": "9f591a900e848b65be3557215ff1807bf87c52a9d2dd7a68405a7cfdd06f5b94"
+        }
+      },
+      "underTemporaryFlip": {
+        "command": "npx jest src/__tests__/api/campaigns/campaigns.test.ts",
+        "exitCode": 1,
+        "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\api\\\\campaigns\\\\campaigns.test.ts/i.",
+        "counts": [
+          "Test Suites: 1 failed, 1 total",
+          "Tests:       1 failed, 21 passed, 22 total"
+        ],
+        "failingRows": [
+          "Campaign persistence API › saves a campaign and increments its version"
+        ],
+        "failingAssertions": [
+          "saves a campaign and increments its version: expect(res._getStatusCode()).toBe(200), Expected 200, Received 500 (campaigns.test.ts:143:34)"
+        ],
+        "at": "2026-09-23T01:00:48.862Z",
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/flip-red-campaigns.log",
+          "sha256": "552327d8fe7258be3caecc6267a7f4d3af166522c0f669a50bb46ca7e0886b64"
+        },
+        "meta": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/flip-red-campaigns.meta.log",
+          "sha256": "83082e5eb8a809741e845173493e28cc05fa2c75ed51665a7e87f553d0f0d126"
+        },
+        "metaLines": [
+          "flip-measure.mjs sha256 38880bbb4d3653ee8c97363a4e2b9cb2f305c58d2e42172b73902bb8f7c44416",
+          "flipped",
+          "flipped src/lib/campaign/sync/JournalCampaignEventStore.ts 3de3dff6be334e052ae4a35e8bd872d14fef8d616d36ef38fb5179602dd6a7a2",
+          "flipped src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts a6eab0af53667930ee87cb2ce38aea285c593bac7ae33dc641d3547fbe1f0f22",
+          "src/lib/campaign/sync/JournalCampaignEventStore.ts:84:export const CAMPAIGN_JOURNAL_AUTHORITY_ENABLED = true;",
+          "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts:37:  return CAMPAIGN_JOURNAL_AUTHORITY_ENABLED;",
+          "command: npx jest src/__tests__/api/campaigns/campaigns.test.ts",
+          "jest exit 1",
+          "restored src/lib/campaign/sync/JournalCampaignEventStore.ts 0f062a9b1119acc802eabbf072ce308025a7bd52da99c8a5b381803262daec6e",
+          "restored src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts 392fd63f42a7d3bc13f29d74557264674483dcdb6dedc1046161130e6588940e",
+          "RESTORE_MATCHES_BASELINE true"
+        ]
+      },
+      "reading": "The create at baseVersion 0 answers 500 under the flip. INFERENCE (code reading, not isolated by this run): the genesis projection refuses the shared fixture, whose two forces both claim unit-a and unit-b (campaignFixture.ts:31; campaignSourceGenesis.ts:144-146), and [id].ts:259-263 answers 500 after saveCampaign committed the row. The other creates in the suite do not assert their status, which is why only one row fails."
+    },
+    {
+      "suite": "src/__tests__/api/campaigns/campaigns.authority.test.ts",
+      "flagFalseControl": {
+        "command": "npx jest src/__tests__/api/campaigns/campaigns.authority.test.ts",
+        "exitCode": 0,
+        "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\api\\\\campaigns\\\\campaigns.authority.test.ts/i.",
+        "counts": [
+          "Test Suites: 1 passed, 1 total",
+          "Tests:       5 passed, 5 total"
+        ],
+        "at": "2026-09-23T01:00:52.799Z",
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/run-red-off-authority.log",
+          "sha256": "96adaaae0f8c46c55dee2857ad16180c6ee62fdd5787e7c6c498623b7abd2b4a"
+        },
+        "meta": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/run-red-off-authority.meta.log",
+          "sha256": "b9d299000b9132c1659ae929ba912966961751840762f5e495188298240bc7de"
+        }
+      },
+      "underTemporaryFlip": {
+        "command": "npx jest src/__tests__/api/campaigns/campaigns.authority.test.ts",
+        "exitCode": 1,
+        "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\api\\\\campaigns\\\\campaigns.authority.test.ts/i.",
+        "counts": [
+          "Test Suites: 1 failed, 1 total",
+          "Tests:       2 failed, 3 passed, 5 total"
+        ],
+        "failingRows": [
+          "Campaign D2 authority API › refuses a mutation against a replica record and leaves payload unchanged",
+          "Campaign D2 authority API › keeps instanceId stable across writes"
+        ],
+        "failingAssertions": [
+          "refuses a mutation against a replica record and leaves payload unchanged: expect(created.res._getStatusCode()).toBe(200), Expected 200, Received 500 (campaigns.authority.test.ts:83:42)",
+          "keeps instanceId stable across writes: expect(getOrCreateHostInstanceId()).toBe(a.instanceId), Expected undefined, Received a 32-hex host instance id (campaigns.authority.test.ts:198:41); the create body carried no instanceId (INFERENCE: the same genesis 500 as :83; this row does not assert the create status)"
+        ],
+        "at": "2026-09-23T01:00:56.999Z",
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/flip-red-authority.log",
+          "sha256": "454eaaf96401b398835f4bef430803568faaad9a64dce4b49525f67def29b643"
+        },
+        "meta": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/flip-red-authority.meta.log",
+          "sha256": "fe8667f595e0609b18dc1a367ce6d2e52850dd70539665dfff2204ec59034054"
+        },
+        "metaLines": [
+          "flip-measure.mjs sha256 38880bbb4d3653ee8c97363a4e2b9cb2f305c58d2e42172b73902bb8f7c44416",
+          "flipped",
+          "flipped src/lib/campaign/sync/JournalCampaignEventStore.ts 3de3dff6be334e052ae4a35e8bd872d14fef8d616d36ef38fb5179602dd6a7a2",
+          "flipped src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts a6eab0af53667930ee87cb2ce38aea285c593bac7ae33dc641d3547fbe1f0f22",
+          "src/lib/campaign/sync/JournalCampaignEventStore.ts:84:export const CAMPAIGN_JOURNAL_AUTHORITY_ENABLED = true;",
+          "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts:37:  return CAMPAIGN_JOURNAL_AUTHORITY_ENABLED;",
+          "command: npx jest src/__tests__/api/campaigns/campaigns.authority.test.ts",
+          "jest exit 1",
+          "restored src/lib/campaign/sync/JournalCampaignEventStore.ts 0f062a9b1119acc802eabbf072ce308025a7bd52da99c8a5b381803262daec6e",
+          "restored src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts 392fd63f42a7d3bc13f29d74557264674483dcdb6dedc1046161130e6588940e",
+          "RESTORE_MATCHES_BASELINE true"
+        ]
+      },
+      "reading": "Same create path and same fixture as campaigns.test.ts; both failing rows read the create response."
+    },
+    {
+      "suite": "src/__tests__/api/campaigns/campaignAuthorityBlocked.test.ts",
+      "flagFalseControl": {
+        "command": "npx jest src/__tests__/api/campaigns/campaignAuthorityBlocked.test.ts",
+        "exitCode": 0,
+        "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\api\\\\campaigns\\\\campaignAuthorityBlocked.test.ts/i.",
+        "counts": [
+          "Test Suites: 1 passed, 1 total",
+          "Tests:       4 passed, 4 total"
+        ],
+        "at": "2026-09-23T01:01:00.687Z",
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/run-red-off-blocked.log",
+          "sha256": "f8269a452c862feaa122f0f4775220bbdd290aa0b46636fbabda8c19d0854836"
+        },
+        "meta": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/run-red-off-blocked.meta.log",
+          "sha256": "60df139fb9ebc1945f7a10222e65e34d9f3c5dec378c2e825bcbe3f1e769e53d"
+        }
+      },
+      "underTemporaryFlip": {
+        "command": "npx jest src/__tests__/api/campaigns/campaignAuthorityBlocked.test.ts",
+        "exitCode": 1,
+        "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\api\\\\campaigns\\\\campaignAuthorityBlocked.test.ts/i.",
+        "counts": [
+          "Test Suites: 1 failed, 1 total",
+          "Tests:       2 failed, 2 passed, 4 total"
+        ],
+        "failingRows": [
+          "campaign authority blocked at the route › still refuses when a snapshot record is sitting right there",
+          "campaign authority blocked at the route › reports blocked distinctly from a stale-write conflict"
+        ],
+        "failingAssertions": [
+          "still refuses when a snapshot record is sitting right there: expect(result.status).toBe(409), Expected 409, Received 200 (campaignAuthorityBlocked.test.ts:110:27)",
+          "reports blocked distinctly from a stale-write conflict: expect(blocked.json.kind).toBe(\"blocked\"), Expected \"blocked\", Received undefined (campaignAuthorityBlocked.test.ts:133:31)"
+        ],
+        "at": "2026-09-23T01:01:05.639Z",
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/flip-red-blocked.log",
+          "sha256": "40561186bdecbfc8ecc318a735f9dc863e4017557a4e2187767fb40b4aed3a49"
+        },
+        "meta": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/flip-red-blocked.meta.log",
+          "sha256": "f132df59121a0f38e608d38ed23a07a660f194647d52da4b6e22509db7a55599"
+        },
+        "metaLines": [
+          "flip-measure.mjs sha256 38880bbb4d3653ee8c97363a4e2b9cb2f305c58d2e42172b73902bb8f7c44416",
+          "flipped",
+          "flipped src/lib/campaign/sync/JournalCampaignEventStore.ts 3de3dff6be334e052ae4a35e8bd872d14fef8d616d36ef38fb5179602dd6a7a2",
+          "flipped src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts a6eab0af53667930ee87cb2ce38aea285c593bac7ae33dc641d3547fbe1f0f22",
+          "src/lib/campaign/sync/JournalCampaignEventStore.ts:84:export const CAMPAIGN_JOURNAL_AUTHORITY_ENABLED = true;",
+          "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts:37:  return CAMPAIGN_JOURNAL_AUTHORITY_ENABLED;",
+          "command: npx jest src/__tests__/api/campaigns/campaignAuthorityBlocked.test.ts",
+          "jest exit 1",
+          "restored src/lib/campaign/sync/JournalCampaignEventStore.ts 0f062a9b1119acc802eabbf072ce308025a7bd52da99c8a5b381803262daec6e",
+          "restored src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts 392fd63f42a7d3bc13f29d74557264674483dcdb6dedc1046161130e6588940e",
+          "RESTORE_MATCHES_BASELINE true"
+        ]
+      },
+      "reading": "The seeding create goes through the PUT route; under the flip it appends a genesis stream, so after the journal-native marker is written the campaign is journal authority WITH a stream and the next PUT answers 200 instead of 409 blocked."
+    },
+    {
+      "suite": "src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts",
+      "flagFalseControl": {
+        "command": "npx jest src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts",
+        "exitCode": 0,
+        "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\unit\\\\api\\\\multiplayerCoopCreationCheckpoint.test.ts/i.",
+        "counts": [
+          "Test Suites: 1 passed, 1 total",
+          "Tests:       6 passed, 6 total"
+        ],
+        "at": "2026-09-23T01:01:13.473Z",
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/run-red-off-coop.log",
+          "sha256": "1dfabebb814b48b4d77513986ac233db5f8538fcf8fe3bbaf0340c6da731519e"
+        },
+        "meta": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/run-red-off-coop.meta.log",
+          "sha256": "c9ef0ebaf479e5e09828ab523e731a5ecb1e386ee74f267d82cef887d2c80957"
+        }
+      },
+      "underTemporaryFlip": {
+        "command": "npx jest src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts",
+        "exitCode": 1,
+        "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\unit\\\\api\\\\multiplayerCoopCreationCheckpoint.test.ts/i.",
+        "counts": [
+          "Test Suites: 1 failed, 1 total",
+          "Tests:       4 failed, 2 passed, 6 total"
+        ],
+        "failingRows": [
+          "co-op campaign creation authority checkpoint › has bound the GM seat durably by the time creation is acknowledged",
+          "co-op campaign creation authority checkpoint › has committed player-slot force ownership by the time creation is acknowledged",
+          "co-op campaign creation authority checkpoint › leaves both human seats empty and seats the GM as a spectator",
+          "co-op campaign creation authority checkpoint › seats the GM as a spectator when a co-op body names no host seat kind"
+        ],
+        "failingAssertions": [
+          "has bound the GM seat durably by the time creation is acknowledged: Expected 201, Received 500 (multiplayerCoopCreationCheckpoint.test.ts:152:37 via :184:21)",
+          "has committed player-slot force ownership by the time creation is acknowledged: Expected 201, Received 500 (:152:37 via :200:21)",
+          "leaves both human seats empty and seats the GM as a spectator: Expected 201, Received 500 (:223:39)",
+          "seats the GM as a spectator when a co-op body names no host seat kind: Expected 201, Received 500 (:253:39)"
+        ],
+        "at": "2026-09-23T01:01:19.393Z",
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/flip-red-coop.log",
+          "sha256": "ae9708036408e3c90881754085b698877ffdcdb097b0624f7bfed1c03049cdbf"
+        },
+        "meta": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35c/logs/flip-red-coop.meta.log",
+          "sha256": "e92d7c04245e3c521bc354984b5f1049230e5eccdf96594d6077b2f40580ec7b"
+        },
+        "metaLines": [
+          "flip-measure.mjs sha256 38880bbb4d3653ee8c97363a4e2b9cb2f305c58d2e42172b73902bb8f7c44416",
+          "flipped",
+          "flipped src/lib/campaign/sync/JournalCampaignEventStore.ts 3de3dff6be334e052ae4a35e8bd872d14fef8d616d36ef38fb5179602dd6a7a2",
+          "flipped src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts a6eab0af53667930ee87cb2ce38aea285c593bac7ae33dc641d3547fbe1f0f22",
+          "src/lib/campaign/sync/JournalCampaignEventStore.ts:84:export const CAMPAIGN_JOURNAL_AUTHORITY_ENABLED = true;",
+          "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts:37:  return CAMPAIGN_JOURNAL_AUTHORITY_ENABLED;",
+          "command: npx jest src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts",
+          "jest exit 1",
+          "restored src/lib/campaign/sync/JournalCampaignEventStore.ts 0f062a9b1119acc802eabbf072ce308025a7bd52da99c8a5b381803262daec6e",
+          "restored src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts 392fd63f42a7d3bc13f29d74557264674483dcdb6dedc1046161130e6588940e",
+          "RESTORE_MATCHES_BASELINE true"
+        ]
+      },
+      "reading": "Co-op creation answers 500 under the flip. INFERENCE (code reading; the route body is not printed by the suite): the host campaign was saved with no genesis, the route hands the checkpoint journalAuthorityEnabled true (matches/index.ts:267), and the genesis-branch stage refuses with no marker on record (campaignCreationCheckpoint.ts:216-219). The two rows that already expect 500 (absent record, and the e2e-arm no-genesis row) pass in both modes."
+    }
+  ],
+  "totals": {
+    "suites": 4,
+    "failingUnderFlip": 9,
+    "flagFalseAllGreen": true,
+    "comparedWithU35": "U35's admission measured the same rows in these four suites under the same minimal flip (campaigns.test.ts:143, campaigns.authority.test.ts:83,198, campaignAuthorityBlocked.test.ts:110,133, multiplayerCoopCreationCheckpoint.test.ts:152 via :184 and :200, :223, :253); its total of 13 also counted campaignPutGenesisRoute.test.ts (U35d), two in-path src/lib/campaign/sync suites and its probe suite."
+  },
+  "notRed": [
+    "The two co-op rows that expect 500 (absent record; the e2e-arm no-genesis row) and the remaining rows of each suite pass under the flip; they are not red evidence.",
+    "The causes marked INFERENCE are code readings; the local stage proves them by mutants (removing the premise the re-pin adds makes the rows fail again under the flip)."
+  ]
+}
