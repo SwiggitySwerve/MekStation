@@ -1,0 +1,274 @@
+{
+  "unit": "U22",
+  "stage": "local",
+  "at": "2026-09-23T05:09:54.085Z",
+  "status": "BLOCKED",
+  "baseline": "a686f6fc9be6d51330a4e37ddf80f61860e9f4d0",
+  "headAtLocal": "a686f6fc9be6d51330a4e37ddf80f61860e9f4d0",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u22",
+  "branch": "roadmap-u22-e2e-25-ungated-20260923",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "blocker": {
+    "oneLine": "E2E-25 does not pass live on main a686f6fc9: with U21 in, the rewind commit answers 200 and writes the candidate branch and the gm-reason record, but the connected guest still shows Movement Phase 30 s later, so the row fails at e2e/gm-two-player-privacy.pack.spec.ts:353. The strict test.fail absorbs it (8 passed, exit 0, 2 of 2 runs). Removing the gate, which is the unit, would turn the privacy pack red.",
+    "evidence": "evidence/u22-red-20260923.json (privacyPack.runs[0..1].e2e25FailureReadFromTheHtmlReport, readOnlyCensus, diagnosis)",
+    "whyNotImplemented": "Every clause of the ungating is conditional on the row passing. Shipping only the header and helper clauses would narrow the unit, which GOAL.md reserves to the parent (park, or write a narrower successor). No file under the ownership paths was edited.",
+    "smallestNextAction": "A product unit on the live rebuild after a rewind commit (src/pages/api/matches/[id]/rewind-commit.ts:228-236 and the live host it must reach; src/lib/multiplayer/server/ServerMatchHostRewindRebuild.ts, ServerMatchHost.ts:584-588/903-908), red-first with E2E-25 ungated as its live acceptance under the privacy-pack ladder group. U22 then re-runs from this red receipt. Alternatively, and in either order, the parent may write a narrower successor for the E2E-29/30 header paragraph and requestActivity, and re-point E2E-25's gate text to the measured failure."
+  },
+  "lineCounts": [],
+  "lineCountTotals": {
+    "filesChanged": 0,
+    "insertions": 0,
+    "deletions": 0,
+    "gitDiffStat": "(empty)",
+    "capFiles": 15,
+    "capNonGeneratedLines": 500,
+    "withinCaps": true
+  },
+  "build": {
+    "reference": "evidence/u22-red-20260923.json build: exit 1 at the standalone hydration guard (expected in a junctioned worktree), __E2E_MODE__ in .next/static/chunks/pages/_app-82b64474b18d5dea.js. No source changed afterwards, so that build is the final tree's build. .next left in place."
+  },
+  "gates": [
+    {
+      "gate": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "exitCode": 0,
+      "takenOn": "the final state (the three untracked u22 receipts present)"
+    },
+    {
+      "gate": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+      "lastLine": "U22",
+      "exitCode": 0,
+      "takenOn": "the baseline before any receipt, and again on the final state"
+    },
+    {
+      "gate": "npm run --silent qc:guard-node-modules-link",
+      "lastLine": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"...worktrees\\\\u22\\\\node_modules\",\"actualPath\":\"E:\\\\Projects\\\\MekStation\\\\node_modules\"}",
+      "exitCode": 1,
+      "expected": true
+    },
+    {
+      "gate": "node scripts/qc/machine-idle.mjs",
+      "lastLine": "MACHINE_IDLE",
+      "exitCode": 0,
+      "takenOn": "after the last Playwright run"
+    },
+    {
+      "gate": "npx jest scripts/__tests__/gm-two-player-campaign-qc.test.ts; npx tsc --noEmit; npx oxlint; npx oxfmt --check <changed files>; npm run qc:openspec-ci:validate",
+      "lastLine": "NOT RUN",
+      "exitCode": null,
+      "why": "No file was changed, so each would measure the baseline tree, not a change. The oxfmt check has no changed file to take. These gates belong to the stage-3 run of whichever head the parent admits next."
+    }
+  ],
+  "ladderTable": [
+    {
+      "group": "privacy-pack",
+      "runId": "u22-red-privacy-20260923",
+      "tree": "baseline (unchanged)",
+      "ownedPort": 27810,
+      "serverPid": 37596,
+      "summary": "8 passed (1.2m)",
+      "exitCode": 0,
+      "e2e25": "x (expected failure), actual failure at spec:353",
+      "unexpectedPasses": 0,
+      "logSha256": "b8bde85cb4ab4563d4780db64cc969115457c7e21466838fe0729e53ca3757bd"
+    },
+    {
+      "group": "privacy-pack",
+      "runId": "u22-red-privacy-b-20260923",
+      "tree": "baseline (unchanged)",
+      "ownedPort": 22646,
+      "serverPid": 35732,
+      "summary": "8 passed (1.2m)",
+      "exitCode": 0,
+      "e2e25": "x (expected failure), actual failure at spec:353",
+      "unexpectedPasses": 0,
+      "logSha256": "96a46ae3713690a591ea919926e2fb87646e367b0169b4ebc071a6703d0912b6"
+    },
+    {
+      "group": "proposal-pack",
+      "runId": "u22-red-proposal-20260923",
+      "tree": "baseline (unchanged)",
+      "ownedPort": 26410,
+      "serverPid": 63716,
+      "summary": "2 passed (2.5m)",
+      "exitCode": 0,
+      "logSha256": "f3c2d3a83a63775694a4d71b2291c3461150c30b21ccb2d01e96cff2577f00ac"
+    },
+    {
+      "group": "privacy-pack twice after the change; proposal-pack; authority-recovery",
+      "runId": null,
+      "result": "NOT RUN: there is no change. Re-running the baseline would repeat the rows above."
+    }
+  ],
+  "rowTableAfter": {
+    "note": "identical to rowTableBaseline in evidence/u22-red-20260923.json: no file changed",
+    "rows": [
+      {
+        "row": "E2E-19",
+        "spec": "e2e/gm-two-player-privacy.pack.spec.ts:255",
+        "result": "pass (ok, both runs)"
+      },
+      {
+        "row": "E2E-20",
+        "spec": "e2e/gm-two-player-privacy.pack.spec.ts:404",
+        "result": "pass (ok, both runs)"
+      },
+      {
+        "row": "E2E-21",
+        "spec": "e2e/gm-two-player-privacy.pack.spec.ts:499",
+        "result": "pass (ok, both runs)"
+      },
+      {
+        "row": "E2E-22",
+        "spec": "e2e/gm-two-player-privacy.pack.spec.ts:598",
+        "result": "pass (ok, both runs)"
+      },
+      {
+        "row": "E2E-23",
+        "spec": "e2e/gm-two-player-privacy.pack.spec.ts:404 (carried by the E2E-20 row's @E2E-23 title tag; no row of its own)",
+        "result": "pass (ok, both runs)"
+      },
+      {
+        "row": "E2E-24",
+        "spec": "e2e/gm-two-player-privacy.pack.spec.ts:404 (carried by the E2E-20 row's @E2E-24 title tag; no row of its own)",
+        "result": "pass (ok, both runs)"
+      },
+      {
+        "row": "E2E-25",
+        "spec": "e2e/gm-two-player-privacy.pack.spec.ts:311",
+        "result": "EXPECTED FAILURE (x, both runs) under test.fail @until-journal-cutover; the actual failure is spec:353 (guest phase-name \"Movement Phase\", expected /Initiative/i, 30 s), not the 409 the gate names; 0 unexpected passes"
+      },
+      {
+        "row": "E2E-26",
+        "spec": "e2e/gm-two-player-privacy.pack.spec.ts:662",
+        "result": "pass (ok, both runs)"
+      },
+      {
+        "row": "E2E-27",
+        "spec": "e2e/gm-two-player-privacy.pack.spec.ts:553",
+        "result": "pass (ok, both runs)"
+      },
+      {
+        "row": "E2E-28",
+        "spec": "e2e/gm-two-player-privacy.pack.spec.ts:741",
+        "result": "pass (ok, both runs)"
+      },
+      {
+        "row": "E2E-29",
+        "spec": "e2e/gm-two-player-proposals.pack.spec.ts:177",
+        "result": "pass (ok, 2.1m)"
+      },
+      {
+        "row": "E2E-30",
+        "spec": "e2e/gm-two-player-proposals.pack.spec.ts:49",
+        "result": "pass (ok, 5.1s)"
+      }
+    ]
+  },
+  "wholeRowVerdict": "NO. 21.2 cannot tick whole on the baseline (E2E-25 is a strict test.fail row with a named gate tag, so it is excluded, not green) and it cannot tick whole after this unit either, because the unit cannot land: ungated, E2E-25 fails live at spec:353. 11 of the 12 ids are green (E2E-23 and E2E-24 by the E2E-20 row's title tags).",
+  "mutants": [
+    {
+      "id": "M1",
+      "plan": "E2E-25's privacy assertion inverted: spec:376-378 expect(view).not.toContain(reason) -> expect(view).toContain(reason)",
+      "result": "NOT RUN",
+      "why": "The row stops at spec:353, before the assertion, so an inverted assertion there cannot change the outcome, and the test.fail would still report the row as an expected failure. The mutant says nothing until the row reaches spec:376."
+    },
+    {
+      "id": "M2",
+      "plan": "the test.fail put back on a passing row must produce an unexpected pass",
+      "result": "NOT RUN",
+      "why": "The test.fail was never removed and the row does not pass. The live measurement it would give is already in the red receipt: with the mark in place the row is reported x, 0 unexpected passes."
+    },
+    {
+      "id": "M3",
+      "plan": "requestActivity given a non-JSON answer must show status and body",
+      "result": "NOT RUN",
+      "why": "requestActivity was not changed. Its only callers are e2e/campaign-journal-two-process-privacy.spec.ts and -convergence.spec.ts, which sit in no ladder group and spawn .next/standalone/server.js. Whether that spec runs in a junctioned worktree was not measured."
+    }
+  ],
+  "factsForThe21_2TickReceipt": {
+    "ob2NonClaim": {
+      "text": "NOT CLAIMED (OB-2): the campaign CRUD routes read no credential and no owner column exists. GET /api/campaigns (src/pages/api/campaigns/index.ts:32-60), GET/PUT/DELETE /api/campaigns/:id (src/pages/api/campaigns/[id].ts:117-126 and on) and POST /api/campaigns/:id/adopt (src/pages/api/campaigns/[id]/adopt.ts:90-99 and on) do not read request headers at all (grep for \"headers\" and \"req.query/cookies\" over the three files: no match, exit 1). OB-2 was closed as not-a-defect while the server binds to loopback for a single user; an identity and owner-column item is required before any hosted deployment (FN-ob2-identity-before-hosted-deployment).",
+      "citations": [
+        "openspec/planning/2026-09-12-roadmap-completion/roadmap.json:15377 (ownerDecisions OB-2 decision: \"Close it as not-a-defect while the server binds to loopback for a single user. Open an identity and owner-column item, outside the 13 packages, before any hosted deployment. U22's 21.2 receipt carries the non-claim either way.\")",
+        "openspec/planning/2026-09-12-roadmap-completion/roadmap.json OB-2 disclosure: the owner did not word the option; the parent transcribed the triage recommendation",
+        "openspec/planning/2026-09-12-roadmap-completion/units.json:7677 (FN-ob2-identity-before-hosted-deployment)"
+      ]
+    },
+    "stale62Correction": {
+      "staleAnnotations": [
+        "openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md:436 (under 19.2, Wave E4b PROGRESS): 'NOT CLAIMED: ... #62 onMirrorPrefixDivergence (useP2PReconnectSession.ts:322 - the P2P rewound analogue) is still unwired by GameSessionPage.lifecycle.ts'",
+        "openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md:525 (under 21.1, FINDINGS #61/#62/#63/#71): '#62 onMirrorPrefixDivergence never wired'"
+      ],
+      "correction": "#62 is wired: src/components/gameplay/pages/gameSession/GameSessionPage.lifecycle.ts:231-242 builds recordMirrorDivergence (it writes useP2PMirrorStore.recordDivergence(matchId, verdict)) and passes it as onMirrorPrefixDivergence to useP2PReconnectSession at :241; the hook declares the option at src/hooks/useP2PReconnectSession.ts:84 and :125 and calls it at :350 (no longer :322). It landed in d32016950 (#1548, 2026-09-02), recorded at tasks.md:434 (Wave E4c-B1). What stays open from #62 is its follow-on, FN-p2p-mirror-reconcile-nonatomic (units.json:7667): src/lib/p2p/matchLogPrefix.ts:92-96 deletes the stored log on a non-match verdict (:94), and per that finding the reconciled log is re-persisted in a separate await; no node of this program owns src/lib/p2p."
+    }
+  },
+  "nonClaims": [
+    "E2E-25 IS NOT PROVEN and was not ungated. Its letter (\"player views SHALL show the authorized result while only the GM private record contains the private detail\") is not discharged: the row stops at spec:353, before the player-view reason scan (spec:376-378) and the private-preview reads (spec:386-398).",
+    "NO TICK. 21.2 is unchecked; no tasks.md box was touched; no tick receipt was written.",
+    "NO EDIT under e2e/ or openspec/changes/. The E2E-29/30 header paragraph (spec:135-144) and requestActivity (campaignJournalDrive.ts:172) are unchanged and still hold the defects the unit names.",
+    "The diagnosis of WHY the guest stays on Movement is split: the census (candidate effective, gm-reason written, 0 superseded match-store rows) is measured; the cross-module-graph registry lookup and the resync-only-on-rejoin reading are INFERENCES from code, not run.",
+    "The private_record discovery path is measured only by a readonly census of its precondition (exactly one gm-reason row for the match), not through the row.",
+    "The privacy-pack evidence is fixture-armed (combat journal mode enabled by the ladder, core.cjs:204-206); nothing here speaks to the production-mode path.",
+    "No mutant was run (see mutants). No Lane A review, owner ruling, commit, push, PR, merge or main proof. units.json, roadmap.json and admission-snapshot.json are unmodified."
+  ],
+  "findingsReportedNotFixed": [
+    {
+      "id": "FN-u22-rewind-commit-rebuild-never-reaches-the-live-match (proposed id)",
+      "class": "missing product surface, high: the approved correction is committed but connected players keep the superseded state",
+      "measured": "Two baseline privacy-pack runs: E2E-25 fails at spec:353, guest phase-name \"Movement Phase\" after 30 s; candidate branch effective at base revision 4; gm-reason private record written; mp_match_events 5, mp_match_events_superseded 0 for the match.",
+      "inference": "The commit route looks the live host up in Next's API module graph (rewind-commit.ts:230), and server.js:455-457 says the socket runtime's registry lives in a separate tsx graph, so the lookup finds none and rebuildFromActivatedBranch is skipped. Separately, rebuildHostFromActivatedBranch only marks seats for resync (ServerMatchHost.ts:584-588), applied on the next SessionJoin (:903-908), with no push to already-connected sockets.",
+      "owner": "outside U22: src/pages/api/matches and src/lib/multiplayer/server (U21's node R2.authority-live / adopt-combat-journal-cutover-and-gm-rewind)",
+      "whyU21MissedIt": "U21's local receipt records no E2E/build/Playwright (nonClaims[0]) and its main proof ran jest only; the ledger sentence said the main proof \"records E2E-25 turning into an unexpected pass\", and u21-mainproof-20260923.json runtime.playwright is 233 jest tests."
+    },
+    {
+      "id": "I-gated-row-absorbs-failures (triage register), now measured",
+      "detail": "E2E-25's gate text (header spec:99-132, test.fail message spec:315-318) names the 409 at spec:345, which no longer happens; the gate silently absorbs the new failure at spec:353. The list reporter prints no body for it; the HTML report keeps the error (read here with a zip extract of playwright-report/index.html)."
+    },
+    {
+      "id": "I-e2e-29-header-disagreement (held by this unit, not fixed)",
+      "detail": "spec:139-144 says E2E-29 is deferred for want of a production timeout wiring; E2E-29 passes live in proposal-pack (2.1m) and coopRuntimeSession.ts:110 passes PRODUCTION_PROPOSAL_TIMEOUT_MS."
+    },
+    {
+      "id": "I-request-activity-json-unconditional (held by this unit, not fixed)",
+      "detail": "campaignJournalDrive.ts:172 still calls response.json() unconditionally. postIntentCommand at :233 has the same shape and is outside the unit's letter."
+    },
+    {
+      "id": "MatchHostRegistry doc comment (INFERENCE, not measured)",
+      "detail": "src/lib/multiplayer/server/MatchHostRegistry.ts:223 calls getMatchHostRegistry the \"Process-local singleton accessor used by REST routes + WS handler\"; under server.js the REST routes and the WS handler load different module instances (server.js:455-457), so the comment claims a sharing the code does not give. The same shape affects closeMatch from src/pages/api/multiplayer/matches/[id].ts:120."
+    },
+    {
+      "id": "FN-u2b-runner-prints-no-server-pid (re-reported)",
+      "detail": "scripts/qc/run-gm-two-player-campaign.mjs prints neither the owned port nor the server PID; this lane derived the port from buildRunPlan and polled netstat for the PID on all three runs."
+    },
+    {
+      "id": "stale #62 annotations",
+      "detail": "tasks.md:436 and :525 (see factsForThe21_2TickReceipt.stale62Correction); not edited here, per the charter the tick receipt corrects them."
+    }
+  ],
+  "serverHygiene": {
+    "playwrightRunsTaken": 3,
+    "ownedPorts": [
+      27810,
+      22646,
+      26410
+    ],
+    "portsAfter": "all three PORT_FREE after their runs and on a final netstat sweep",
+    "twoCoreRule": "the build and every Playwright run were preceded by node scripts/qc/machine-idle.mjs --wait --timeout-ms 1800000 -> MACHINE_IDLE; nothing heavy ran concurrently"
+  },
+  "receipts": {
+    "admission": {
+      "path": "evidence/u22-admission-20260923.json",
+      "sha256": "049c1a47e7c83d682d32c4221e0c1dfb4719efa3090d6ba3f48ce3f1b8511c45"
+    },
+    "red": {
+      "path": "evidence/u22-red-20260923.json",
+      "sha256": "ebc1f990d5b6d2c42b4e430b79195c9ad283e05676ad19387c9081ad5e18582e"
+    }
+  },
+  "finalGitStatusShort": [
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u22-admission-20260923.json",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u22-red-20260923.json",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u22-local-20260923.json (this file)"
+  ]
+}

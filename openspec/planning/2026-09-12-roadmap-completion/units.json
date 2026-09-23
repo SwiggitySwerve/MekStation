@@ -1571,7 +1571,8 @@
         "unit": "U21b",
         "at": "2026-09-23T03:16:43.000Z",
         "why": "U21's admission rule: if clause (c) pushed U21 past 15 files or 500 lines it becomes a follow-on R2.authority-live unit. The reader swap also broke src/lib/multiplayer/server/__tests__/matchRecoveryCheckpointDoor.test.ts, so clause (c) would have been the sixteenth file (evidence/u21-admission-20260923.json)."
-      }
+      },
+      "annotation20260923": "U21's PR body and the ruling question said E2E-25 should pass live after merge. U22's red stage measured on a686f6fc9 (U21 on main) that the rewind commit now answers 200, which U21 fixed, but the row fails later because the live rebuild never reaches the match (FN-u22-rewind-commit-rebuild-never-reaches-the-live-match, held by U22a). U21's main proof ran jest only, so no Playwright run had checked E2E-25 before U22."
     },
     {
       "id": "U22",
@@ -1579,7 +1580,7 @@
       "taskKeys": [
         "harden-gm-two-player-campaign-sessions#21.2@547"
       ],
-      "behavior": "Remove E2E-25's strict test.fail and its gate block from the privacy pack header once U21 is on main (the row passes live: the approved correction commits, player views carry the result and no reason, the GM private record holds the reason); tick 21.2 whole with E2E-19..30 green on main. Merged back to back with U21. Folded 2026-09-22 (triage): Run the WHOLE privacy pack E2E-19..30, red before U21 and green after, which is the first measurement of the E2E-25 private_record discovery path (spec:378-398). Record the row's unexpected-pass receipt first. The ungating diff then removes only E2E-25's test.fail and gate text (e2e/gm-two-player-privacy.pack.spec.ts:315) and leaves the assertion body byte-identical. Rewrite the E2E-29/E2E-30 header paragraph (lines 136-144) to say both rows run live in the proposals pack. requestActivity (e2e/helpers/campaignJournalDrive.ts:172) reads the body as text once and JSON.parses it, so a non-JSON answer shows status and body. The 21.2 tick receipt carries the OB-2 non-claim (campaign CRUD routes read no credential; closed 2026-09-22 as not-a-defect for the loopback single-user surface, see the OB-2 entry in roadmap.json ownerDecisions) and corrects the stale #62 p2p non-claim annotation.",
+      "behavior": "Remove E2E-25's strict test.fail and its gate block from the privacy pack header once U21 is on main (the row passes live: the approved correction commits, player views carry the result and no reason, the GM private record holds the reason); tick 21.2 whole with E2E-19..30 green on main. Merged back to back with U21. Folded 2026-09-22 (triage): Run the WHOLE privacy pack E2E-19..30, red before U21 and green after, which is the first measurement of the E2E-25 private_record discovery path (spec:378-398). Record the row's unexpected-pass receipt first. The ungating diff then removes only E2E-25's test.fail and gate text (e2e/gm-two-player-privacy.pack.spec.ts:315) and leaves the assertion body byte-identical. Rewrite the E2E-29/E2E-30 header paragraph (lines 136-144) to say both rows run live in the proposals pack. requestActivity (e2e/helpers/campaignJournalDrive.ts:172) reads the body as text once and JSON.parses it, so a non-JSON answer shows status and body. The 21.2 tick receipt carries the OB-2 non-claim (campaign CRUD routes read no credential; closed 2026-09-22 as not-a-defect for the loopback single-user surface, see the OB-2 entry in roadmap.json ownerDecisions) and corrects the stale #62 p2p non-claim annotation. Folded 2026-09-23 (U22's own lane, BLOCKED at red): when it resumes, the unit also (a) rewrites the privacy pack's E2E-25 gate text (the header near 99-132 and the test.fail message near 315-318), which still names the old 409 that no longer happens, if the row is still gated at that point; (b) states in the E2E-29/E2E-30 header paragraph (near 139-144) that both rows pass live in the proposals pack (E2E-29 at e2e/gm-two-player-proposals.pack.spec.ts:177, E2E-30 at :49, measured on a686f6fc9); (c) gives postIntentCommand (e2e/helpers/campaignJournalDrive.ts:233) the same read-text-once treatment as requestActivity. The 21.2 tick facts are recorded in evidence/u22-local-20260923.json (the OB-2 non-claim; the #62 annotation at tasks.md:436 and :525 is stale because onMirrorPrefixDivergence is wired at GameSessionPage.lifecycle.ts:241).",
       "ownershipPaths": [
         "e2e",
         "openspec/changes/harden-gm-two-player-campaign-sessions"
@@ -1587,6 +1588,60 @@
       "ciClass": "product",
       "reviewClasses": [
         "privacy"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "blocked",
+      "baseline": "a686f6fc9be6d51330a4e37ddf80f61860e9f4d0",
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": {
+          "path": "evidence/u22-admission-20260923.json",
+          "baseline": "a686f6fc9be6d51330a4e37ddf80f61860e9f4d0",
+          "at": "2026-09-23T05:08:30.125Z",
+          "decision": "admitted (--next printed U22); the red stage then measured the premise false"
+        },
+        "red": {
+          "path": "evidence/u22-red-20260923.json",
+          "baseline": "a686f6fc9be6d51330a4e37ddf80f61860e9f4d0",
+          "at": "2026-09-23T05:06:25.805Z",
+          "decision": "red measured, not as chartered: privacy-pack ran twice on the baseline (8 passed, exit 0 each); E2E-25 stayed an expected failure. Its rewind commit now answers 200 (U21), the branch is written and the private reason record is saved, but the row fails later at e2e/gm-two-player-privacy.pack.spec.ts:353 (the guest's phase still reads Movement Phase after 30 s instead of the restored Initiative phase). The run's database shows the match's event log never trimmed (5 events, 0 superseded), so the live rebuild never ran. E2E-19..24, 26..28 pass in the privacy pack; E2E-29 and E2E-30 pass live in the proposals pack"
+        },
+        "local": {
+          "path": "evidence/u22-local-20260923.json",
+          "baseline": "a686f6fc9be6d51330a4e37ddf80f61860e9f4d0",
+          "at": "2026-09-23T05:09:54.085Z",
+          "decision": "BLOCKED: no file changed; the ungating cannot land while E2E-25 fails"
+        },
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260922": "planned by the parent under OD-mvp-hard-cutover (owner, 2026-09-22) from the read-only cutover map of 2026-09-22 (Opus planning lane; its evidence is file:line on origin/main 31ab3c16e and is summarised in each behaviour sentence)",
+      "blocked20260923": {
+        "at": "2026-09-23T05:15:19.000Z",
+        "cause": "E2E-25 does not pass live on main: the rewind commit's live rebuild never reaches the running match (FN-u22-rewind-commit-rebuild-never-reaches-the-live-match), so removing the row's strict test.fail would turn the privacy pack red",
+        "nextIndependentAction": "U22a (the committed rewind reaches the live match and its connected players); U22 returns to planned when U22a is main-verified and resumes with its folded clauses",
+        "proof": "evidence/u22-red-20260923.json"
+      }
+    },
+    {
+      "id": "U22a",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "A committed GM rewind reaches the live match and its connected players (FN-u22-rewind-commit-rebuild-never-reaches-the-live-match). (1) The rewind commit route (src/pages/api/matches/[id]/rewind-commit.ts:230) looks the live host up through getMatchHostRegistry, whose singleton is module-local (src/lib/multiplayer/server/MatchHostRegistry.ts:222-230), while server.js loads the socket runtime in a separate tsx module graph (server.js:445-465), so the API route sees an empty registry and the live rebuild never runs; the registry shares one instance through a globalThis symbol, as getDefaultMatchStore already does for the match store (getDefaultMatchStore.ts:31-41), and the doc comment at MatchHostRegistry.ts:223 is corrected. (2) After rebuildFromActivatedBranch, the players connected at that moment receive the rebuilt match without rejoining; today a rewind only marks viewers for resync and the resync runs on their next join (ServerMatchHost.ts:584-588, :903-908). Red-first: a jest row that loads the registry module in two isolated module graphs and shows two instances today; a host-level row where a connected viewer receives nothing after a rebuild today; E2E-25 through the privacy-pack ladder group as the live acceptance: on this unit's head E2E-25 becomes an unexpected pass (the strict test.fail stays; U22 removes it). If (2) needs an edit outside src/lib/multiplayer/server, the unit stops at admission for a path amendment.",
+      "ownershipPaths": [
+        "src/lib/multiplayer/server"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "replay"
       ],
       "caps": {
         "maxFiles": 15,
@@ -1606,7 +1661,7 @@
         "tick": null
       },
       "ownerGate": null,
-      "source20260922": "planned by the parent under OD-mvp-hard-cutover (owner, 2026-09-22) from the read-only cutover map of 2026-09-22 (Opus planning lane; its evidence is file:line on origin/main 31ab3c16e and is summarised in each behaviour sentence)"
+      "source20260923": "planned by the parent from U22's red measurement (evidence/u22-red-20260923.json) and its lane's findings, under OD-mvp-hard-cutover"
     },
     {
       "id": "U21b",
@@ -7853,6 +7908,25 @@
       "summary": "A campaign with no start date always projects day 0, so the saved record cannot represent a day advance for it: U35e's row rewrite patches currentDate as campaignStartDate + journal day and skips campaigns without a start date.",
       "recommendedSuccessor": "measure whether any production path creates a campaign without a start date; if one does, give it a start date at creation or represent the day in the record",
       "status": "recorded; R2.authority-cutover owns src/lib/campaign/authority and src/lib/campaign/sync"
+    },
+    {
+      "id": "FN-u22-rewind-commit-rebuild-never-reaches-the-live-match",
+      "foundBy": "U22 implementer lane (claude-opus), 2026-09-23, red stage",
+      "at": "2026-09-23T05:15:19.000Z",
+      "class": "live rewind not applied (product defect; measured symptom, inferred cause)",
+      "summary": "On main a686f6fc9 under the privacy-pack ladder, E2E-25's rewind commit answers 200 and writes the branch and the private reason record, but the guest page never shows the restored phase and the match's event log is never trimmed, so the live rebuild never ran (measured). Cause, read from the code: the commit route's getMatchHostRegistry().get(matchId) runs in Next's API module graph, while the socket runtime's hosts live in a separate tsx module graph (server.js:445-465), and the registry singleton is module-local. Even with the rebuild, connected players are only resynced on their next join.",
+      "recommendedSuccessor": "U22a",
+      "status": "held by U22a",
+      "heldBy20260923": "U22a"
+    },
+    {
+      "id": "FN-u22-ladder-runner-prints-no-port-or-pid",
+      "foundBy": "U22 implementer lane (claude-opus), 2026-09-23",
+      "at": "2026-09-23T05:15:19.000Z",
+      "class": "evidence ergonomics",
+      "summary": "scripts/qc/run-gm-two-player-campaign.mjs does not print the server port or PID it starts, so a lane must work both out to record a run and confirm the port is free afterwards.",
+      "recommendedSuccessor": "the runner prints the port and the server PID at start; R6.loop-harness owns scripts/qc",
+      "status": "recorded; fold into the next unit that edits the ladder runner"
     }
   ]
 }
