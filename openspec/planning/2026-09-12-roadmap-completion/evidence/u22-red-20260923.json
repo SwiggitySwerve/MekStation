@@ -1,0 +1,340 @@
+{
+  "unit": "U22",
+  "stage": "red",
+  "at": "2026-09-23T05:06:25.805Z",
+  "status": "RED MEASURED, NOT AS CHARTERED: E2E-25 did not turn into an unexpected pass on the baseline. Its commit now succeeds (U21 removed the 409), and the row fails later, at spec:353, where the guest page still shows Movement Phase after 30 s instead of the restored Initiative phase. The strict test.fail absorbs that failure, so the privacy pack exits 0 with 8 passed.",
+  "baseline": "a686f6fc9be6d51330a4e37ddf80f61860e9f4d0",
+  "originMainAtRed": "a686f6fc9be6d51330a4e37ddf80f61860e9f4d0",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u22",
+  "branch": "roadmap-u22-e2e-25-ungated-20260923",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "editsBeforeThisReceipt": "none: git status --short was empty when every run in this receipt was taken",
+  "shellPreamble": [
+    "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "export npm_config_dry_run=true",
+    "export npm_config_ignore_scripts=true",
+    "unset MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE",
+    "HOSTNAME=127.0.0.1 exported for the runner process only"
+  ],
+  "nodeModulesGuard": {
+    "command": "npm run --silent qc:guard-node-modules-link",
+    "stdout": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"E:\\\\Projects\\\\MekStation\\\\.sisyphus\\\\roadmap-completion-20260912\\\\worktrees\\\\u22\\\\node_modules\",\"actualPath\":\"E:\\\\Projects\\\\MekStation\\\\node_modules\"}",
+    "exitCode": 1,
+    "reading": "refusal by design in a junctioned worktree; no install, ci, prune or other npm lifecycle was run"
+  },
+  "build": {
+    "command": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build",
+    "idleGate": {
+      "command": "node scripts/qc/machine-idle.mjs --wait --timeout-ms 1800000",
+      "lastLine": "MACHINE_IDLE",
+      "exitCode": 0
+    },
+    "startedAt": "2026-09-23T04:54:18Z",
+    "exit": [
+      "BUILD_EXIT=1",
+      "2026-09-23T04:56:03Z"
+    ],
+    "exitCode": 1,
+    "expected": true,
+    "lastLines": "{ \"ok\": false, \"error\": \"Unsafe hydration destination (runtime loader tsx) contains a symlink or junction: .next\\\\standalone\\\\node_modules\", ... }",
+    "compiled": "build.log:9307 \"✓ Compiled successfully in 46s\"; the route table printed",
+    "why": "the standalone hydration guard refuses to recurse through the worktree node_modules junction; the guard was not relaxed",
+    "markerCheck": {
+      "command": "grep -l \"__E2E_MODE__\" .next/static/chunks/pages/_app-*.js",
+      "stdout": ".next/static/chunks/pages/_app-82b64474b18d5dea.js",
+      "exitCode": 0
+    },
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u22/logs/build-red.log",
+      "sha256": "67a7710ea71d2e138d18ae33c62a143d2b76f98740b07476118c2a00f4b436bd"
+    }
+  },
+  "privacyPack": {
+    "note": "Run twice on the baseline; the second run was taken to establish that the new failure is deterministic before recording it.",
+    "runs": [
+      {
+        "runId": "u22-red-privacy-20260923",
+        "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=privacy-pack --run-id=u22-red-privacy-20260923",
+        "idleGate": {
+          "command": "node scripts/qc/machine-idle.mjs --wait --timeout-ms 1800000",
+          "lastLine": "MACHINE_IDLE",
+          "exitCode": 0
+        },
+        "startedAt": "2026-09-23T04:56:27Z",
+        "finishedAt": "2026-09-23T04:57:42Z",
+        "ownedPort": 27810,
+        "ownedPortSource": "the runner prints no port line; derived in-session from core.buildRunPlan({group, runId}).environment.MEKSTATION_E2E_PORT (deriveFixturePort is a pure function of the run id)",
+        "serverPid": 37596,
+        "serverPidSource": "netstat -ano LISTENING on the owned port, polled every 2 s while the runner held it",
+        "specSha256": "f6508a1d2c331c34086c3531b493aaf60d7182a78f2e469a7ed42726195c3c47",
+        "runnerSummaryLine": [
+          "  8 passed (1.2m)"
+        ],
+        "exitCode": 0,
+        "perRowReporterLines": [
+          "ok 1 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:255:7 › tactical pre-serialization privacy › E2E-19 unfinalized GM draft has only a private payload @E2E-19 (3.7s)",
+          "x  2 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:311:7 › tactical pre-serialization privacy › E2E-25 approved correction keeps its reason private @E2E-25 @until-journal-cutover (32.4s)",
+          "ok 3 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:404:7 › tactical pre-serialization privacy › E2E-20 Player 1 sealed choice reaches neither Player 2 wire nor board @E2E-20 @E2E-23 @E2E-24 (5.2s)",
+          "ok 4 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:499:7 › tactical pre-serialization privacy › E2E-21 Player 2 sealed choice reaches neither Player 1 wire nor board @E2E-21 (5.3s)",
+          "ok 5 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:553:7 › tactical pre-serialization privacy › E2E-27 no player surface carries an authority identifier or an inferable gap @E2E-27 (2.8s)",
+          "ok 6 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:598:7 › tactical pre-serialization privacy › E2E-22 finalization reveals the COMMITTED declaration on the opponent delivery stream @E2E-22 (7.8s)",
+          "ok 7 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:662:7 › tactical pre-serialization privacy › E2E-26 a reconnecting player replays exactly what it was delivered live @E2E-26 (5.7s)",
+          "ok 8 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:741:7 › tactical pre-serialization privacy › E2E-28 seated export and timeline agree; strangers fail before fan-out @E2E-28 (2.4s)"
+        ],
+        "unexpectedPassLines": 0,
+        "portAfterRun": "PORT_FREE",
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u22/logs/run-u22-red-privacy-20260923.log",
+          "sha256": "b8bde85cb4ab4563d4780db64cc969115457c7e21466838fe0729e53ca3757bd"
+        },
+        "htmlReportCopy": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u22/logs/report-u22-red-privacy-20260923.html",
+          "sha256": "2bc4f73cc3f1e2b69242da6aaff60c970ce3058d4ce8bcaad8cf43d7e5502448"
+        },
+        "e2e25FailureReadFromTheHtmlReport": {
+          "how": "python report-errors.py over the embedded report zip of the run's playwright-report/index.html (copied to the scratchpad before the next run overwrote it); the list reporter prints no body for a declared expected failure, the HTML report keeps the error",
+          "outcome": "expected (status failed, expectedStatus failed)",
+          "error": [
+            "Error: expect(locator).toContainText(expected) failed",
+            "Locator: getByTestId('phase-name')",
+            "Expected pattern: /Initiative/i",
+            "Received string:  \"Movement Phase\"",
+            "Timeout: 30000ms",
+            "at e2e/gm-two-player-privacy.pack.spec.ts:353:65"
+          ],
+          "failingStatement": "e2e/gm-two-player-privacy.pack.spec.ts:353-356 await expect(fixture.guestPage.getByTestId('phase-name')).toContainText(/Initiative/i, { timeout: 30_000 });",
+          "assertionsPassedBeforeIt": [
+            "spec:334 expect(preview.status(), ...).toBe(200)",
+            "spec:344 expect(committed.request().postDataJSON().reason).toBe(reason)",
+            "spec:345 expect(committed.status(), await committed.text()).toBe(200) - the line U2c gated on the 409 candidate-verification-failed; it now passes",
+            "spec:346-349 result.kind 'committed', activatedBranchId a string different from priorBranchId",
+            "spec:350-352 the host's networked-gm-correction-status contains 'Rewind committed.'"
+          ],
+          "notReached": "spec:357-398: the guest timeline/export lineage (357-375), the player-view reason scan (376-378), the private_record discovery query (379-385), the GM and player private-preview reads (386-398)"
+        },
+        "readOnlyCensus": {
+          "how": "better-sqlite3 opened readonly + fileMustExist on the run's .sisyphus/e2e-runtime/<runId>/ files after the run (scratchpad census.cjs / census-mp.cjs)",
+          "e2e25MatchId": "41afe1f9-2cbe-4578-90cc-794b9238893f",
+          "mekstationDb": {
+            "event_journal_events": 62,
+            "event_journal_stream_heads": 9,
+            "event_history_branches": 9,
+            "private_record": 3,
+            "private_access_audit": 5,
+            "e2e25Branches": [
+              "main: status superseded, created_by event-journal",
+              "ad9459a209db281e65ebbb3ca71392aa: parent main, ancestor_depth 1, base_revision 4, status effective, created_by rewind-commit:37596 (the run's server PID), reason 'correction-rebuild:...:authorized combat rewind'"
+            ],
+            "gmReasonRecordsForTheMatch": 1,
+            "gmReasonPayload": "'Private correction <uuid>' (55 chars) - the row's reason shape; written with a granted 'write' audit row by the host principal"
+          },
+          "multiplayerMatchesDb": {
+            "mp_match_events": 5,
+            "mp_match_events_superseded": 0,
+            "mp_command_receipts_superseded": 0,
+            "mp_match_outbox_superseded": 0
+          }
+        }
+      },
+      {
+        "runId": "u22-red-privacy-b-20260923",
+        "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=privacy-pack --run-id=u22-red-privacy-b-20260923",
+        "idleGate": {
+          "command": "node scripts/qc/machine-idle.mjs --wait --timeout-ms 1800000",
+          "lastLine": "MACHINE_IDLE",
+          "exitCode": 0
+        },
+        "startedAt": "2026-09-23T05:00:17Z",
+        "finishedAt": "2026-09-23T05:01:28Z",
+        "ownedPort": 22646,
+        "ownedPortSource": "the runner prints no port line; derived in-session from core.buildRunPlan({group, runId}).environment.MEKSTATION_E2E_PORT (deriveFixturePort is a pure function of the run id)",
+        "serverPid": 35732,
+        "serverPidSource": "netstat -ano LISTENING on the owned port, polled every 2 s while the runner held it",
+        "specSha256": "f6508a1d2c331c34086c3531b493aaf60d7182a78f2e469a7ed42726195c3c47",
+        "runnerSummaryLine": [
+          "  8 passed (1.2m)"
+        ],
+        "exitCode": 0,
+        "perRowReporterLines": [
+          "ok 1 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:255:7 › tactical pre-serialization privacy › E2E-19 unfinalized GM draft has only a private payload @E2E-19 (2.8s)",
+          "x  2 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:311:7 › tactical pre-serialization privacy › E2E-25 approved correction keeps its reason private @E2E-25 @until-journal-cutover (32.5s)",
+          "ok 3 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:404:7 › tactical pre-serialization privacy › E2E-20 Player 1 sealed choice reaches neither Player 2 wire nor board @E2E-20 @E2E-23 @E2E-24 (5.2s)",
+          "ok 4 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:499:7 › tactical pre-serialization privacy › E2E-21 Player 2 sealed choice reaches neither Player 1 wire nor board @E2E-21 (5.1s)",
+          "ok 5 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:553:7 › tactical pre-serialization privacy › E2E-27 no player surface carries an authority identifier or an inferable gap @E2E-27 (2.8s)",
+          "ok 6 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:598:7 › tactical pre-serialization privacy › E2E-22 finalization reveals the COMMITTED declaration on the opponent delivery stream @E2E-22 (7.8s)",
+          "ok 7 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:662:7 › tactical pre-serialization privacy › E2E-26 a reconnecting player replays exactly what it was delivered live @E2E-26 (5.5s)",
+          "ok 8 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:741:7 › tactical pre-serialization privacy › E2E-28 seated export and timeline agree; strangers fail before fan-out @E2E-28 (2.5s)"
+        ],
+        "unexpectedPassLines": 0,
+        "portAfterRun": "PORT_FREE",
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u22/logs/run-u22-red-privacy-b-20260923.log",
+          "sha256": "96a46ae3713690a591ea919926e2fb87646e367b0169b4ebc071a6703d0912b6"
+        },
+        "htmlReportCopy": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u22/logs/report-u22-red-privacy-b-20260923.html",
+          "sha256": "03274721ec06f9e1f8c56a9d3761170925481699a9647e67bf1d1be9bf8d2028"
+        },
+        "e2e25FailureReadFromTheHtmlReport": {
+          "how": "python report-errors.py over the embedded report zip of the run's playwright-report/index.html (copied to the scratchpad before the next run overwrote it); the list reporter prints no body for a declared expected failure, the HTML report keeps the error",
+          "outcome": "expected (status failed, expectedStatus failed)",
+          "error": [
+            "Error: expect(locator).toContainText(expected) failed",
+            "Locator: getByTestId('phase-name')",
+            "Expected pattern: /Initiative/i",
+            "Received string:  \"Movement Phase\"",
+            "Timeout: 30000ms",
+            "at e2e/gm-two-player-privacy.pack.spec.ts:353:65"
+          ],
+          "failingStatement": "e2e/gm-two-player-privacy.pack.spec.ts:353-356 await expect(fixture.guestPage.getByTestId('phase-name')).toContainText(/Initiative/i, { timeout: 30_000 });",
+          "assertionsPassedBeforeIt": [
+            "spec:334 expect(preview.status(), ...).toBe(200)",
+            "spec:344 expect(committed.request().postDataJSON().reason).toBe(reason)",
+            "spec:345 expect(committed.status(), await committed.text()).toBe(200) - the line U2c gated on the 409 candidate-verification-failed; it now passes",
+            "spec:346-349 result.kind 'committed', activatedBranchId a string different from priorBranchId",
+            "spec:350-352 the host's networked-gm-correction-status contains 'Rewind committed.'"
+          ],
+          "notReached": "spec:357-398: the guest timeline/export lineage (357-375), the player-view reason scan (376-378), the private_record discovery query (379-385), the GM and player private-preview reads (386-398)"
+        },
+        "readOnlyCensus": {
+          "how": "same readonly census",
+          "e2e25MatchId": "0e73af8d-f409-4aa8-9e42-dc2a44eeb1fa",
+          "mekstationDb": {
+            "e2e25Branches": [
+              "850216e1c16b8e18c25a496e2e7f787b: parent main, base_revision 4, status effective, created_by rewind-commit:35732 (the run's server PID)"
+            ],
+            "gmReasonRecordsForTheMatch": 1
+          },
+          "multiplayerMatchesDb": {
+            "mp_match_events": 5,
+            "mp_match_events_superseded": 0
+          }
+        }
+      }
+    ]
+  },
+  "proposalPack": {
+    "runId": "u22-red-proposal-20260923",
+    "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=proposal-pack --run-id=u22-red-proposal-20260923",
+    "idleGate": {
+      "command": "node scripts/qc/machine-idle.mjs --wait --timeout-ms 1800000",
+      "lastLine": "MACHINE_IDLE",
+      "exitCode": 0
+    },
+    "ownedPort": 26410,
+    "serverPid": 63716,
+    "runnerSummaryLine": [
+      "  2 passed (2.5m)"
+    ],
+    "exitCode": 0,
+    "perRowReporterLines": [
+      "ok 1 [chromium] › e2e\\gm-two-player-proposals.pack.spec.ts:49:5 › E2E-30 concurrent proposals stay attributable and independently resolvable @proposal-pack @E2E-30 (5.1s)",
+      "ok 2 [chromium] › e2e\\gm-two-player-proposals.pack.spec.ts:177:5 › E2E-29 veto and timeout commit nothing and clear only own pending UI @proposal-pack @E2E-29 (2.1m)"
+    ],
+    "testFailMarksInTheProposalsSpec": 0,
+    "portAfterRun": "PORT_FREE",
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u22/logs/run-u22-red-proposal-20260923.log",
+      "sha256": "f3c2d3a83a63775694a4d71b2291c3461150c30b21ccb2d01e96cff2577f00ac"
+    },
+    "reading": "E2E-30 and E2E-29 both run and pass live in e2e/gm-two-player-proposals.pack.spec.ts (runner group proposal-pack). Neither is an expected failure, skipped or absent."
+  },
+  "rowTableBaseline": [
+    {
+      "row": "E2E-19",
+      "spec": "e2e/gm-two-player-privacy.pack.spec.ts:255",
+      "result": "pass (ok, both runs)"
+    },
+    {
+      "row": "E2E-20",
+      "spec": "e2e/gm-two-player-privacy.pack.spec.ts:404",
+      "result": "pass (ok, both runs)"
+    },
+    {
+      "row": "E2E-21",
+      "spec": "e2e/gm-two-player-privacy.pack.spec.ts:499",
+      "result": "pass (ok, both runs)"
+    },
+    {
+      "row": "E2E-22",
+      "spec": "e2e/gm-two-player-privacy.pack.spec.ts:598",
+      "result": "pass (ok, both runs)"
+    },
+    {
+      "row": "E2E-23",
+      "spec": "e2e/gm-two-player-privacy.pack.spec.ts:404 (carried by the E2E-20 row's @E2E-23 title tag; no row of its own)",
+      "result": "pass (ok, both runs)"
+    },
+    {
+      "row": "E2E-24",
+      "spec": "e2e/gm-two-player-privacy.pack.spec.ts:404 (carried by the E2E-20 row's @E2E-24 title tag; no row of its own)",
+      "result": "pass (ok, both runs)"
+    },
+    {
+      "row": "E2E-25",
+      "spec": "e2e/gm-two-player-privacy.pack.spec.ts:311",
+      "result": "EXPECTED FAILURE (x, both runs) under test.fail @until-journal-cutover; the actual failure is spec:353 (guest phase-name \"Movement Phase\", expected /Initiative/i, 30 s), not the 409 the gate names; 0 unexpected passes"
+    },
+    {
+      "row": "E2E-26",
+      "spec": "e2e/gm-two-player-privacy.pack.spec.ts:662",
+      "result": "pass (ok, both runs)"
+    },
+    {
+      "row": "E2E-27",
+      "spec": "e2e/gm-two-player-privacy.pack.spec.ts:553",
+      "result": "pass (ok, both runs)"
+    },
+    {
+      "row": "E2E-28",
+      "spec": "e2e/gm-two-player-privacy.pack.spec.ts:741",
+      "result": "pass (ok, both runs)"
+    },
+    {
+      "row": "E2E-29",
+      "spec": "e2e/gm-two-player-proposals.pack.spec.ts:177",
+      "result": "pass (ok, 2.1m)"
+    },
+    {
+      "row": "E2E-30",
+      "spec": "e2e/gm-two-player-proposals.pack.spec.ts:49",
+      "result": "pass (ok, 5.1s)"
+    }
+  ],
+  "expectedVersusMeasured": {
+    "charterExpected": "E2E-25 reports as an unexpected pass; the privacy-pack run fails because the expected failure passed",
+    "measured": "E2E-25 reports as an expected failure (x) in 2 of 2 runs, 0 lines \"expected to fail, but passed\", runner exit 0, summary \"8 passed (1.2m)\" both times",
+    "whatU21Changed": "the refusal U2c gated on is gone: spec:345 (committed status 200) passes, the candidate branch is written effective at base revision 4, and the gm-reason private record is written. The row now stops two statements later."
+  },
+  "diagnosis": {
+    "measured": [
+      "The commit wrote an effective candidate branch (base_revision 4) and the gm-reason private record, in both runs (readonly census).",
+      "The E2E-25 match's multiplayer store keeps all 5 events and has 0 rows in mp_match_events_superseded, in both runs (readonly census).",
+      "Code reading that turns the census into a conclusion: rebuildHostFromActivatedBranch's first store write is supersedeActivatedTail(store, matchId, effectiveRevision) (src/lib/multiplayer/server/ServerMatchHostRewindRebuild.ts:180-185, :280-288), and revision = sequence + 1 (:276-277), so a rebuild through revision 4 of a 5-event log moves sequence 4 into mp_match_events_superseded (DurableMatchStore.supersedeFrom, src/lib/multiplayer/server/DurableMatchStore.ts:1122). 0 superseded rows therefore means the live rebuild did not run against this match's store.",
+      "The guest page's phase-name stays 'Movement Phase' for the full 30 s wait."
+    ],
+    "inference": [
+      "INFERENCE (code reading, not measured): the commit route looks the live host up with getMatchHostRegistry().get(matchId) (src/pages/api/matches/[id]/rewind-commit.ts:230) inside Next's API bundle. server.js:455-457 records that the socket runtime's tsx require hook builds a module graph separate from Next's API bundle, MatchHostRegistry is a module-level singleton (src/lib/multiplayer/server/MatchHostRegistry.ts:220-228, whose doc comment at :223 calls it the accessor 'used by REST routes + WS handler'), and no API route creates a host (grep: the only other API-side registry call is closeMatch at src/pages/api/multiplayer/matches/[id].ts:120). So the lookup finds no host, rebuildFromActivatedBranch is skipped, and the connected match keeps serving the superseded Movement state. This matches the 0 superseded rows.",
+      "INFERENCE (code reading, not measured): even if the rebuild ran on the live host, it only marks seated viewers for resync (ServerMatchHost.ts:584-588); the resync is applied on that viewer's next SessionJoin (ServerMatchHost.ts:903-908), and nothing in rebuildHostFromActivatedBranch pushes a frame to a socket that is already connected. A guest that does not reconnect would still not render Initiative.",
+      "Why U21 did not catch it: its receipts record no E2E, build or Playwright run (u21-local nonClaims[0]); its main proof ran jest only (u21-mainproof runtime.playwright: 233 jest tests). The host-level rebuild rows drive ServerMatchHost directly, inside one module graph."
+    ],
+    "ownerOfTheFix": "product code in src/pages/api/matches, src/lib/multiplayer/server (the R2.authority-live / adopt-combat-journal-cutover-and-gm-rewind surface U21 owned), outside U22's ownership (e2e, openspec/changes/harden-gm-two-player-campaign-sessions)"
+  },
+  "privateRecordDiscoveryPath": {
+    "triageAsk": "the first measurement of the E2E-25 private_record discovery path (spec:378-398 in the ledger; spec:379-398 on this file)",
+    "measured": "The row never reaches the discovery query, so the path is NOT measured through the row. Read-only, the precondition it would read holds in both runs: exactly one private_record row with campaign_session_id = the match id and record_kind 'gm-reason', its payload the row's reason shape - the SELECT the row issues at spec:380-383 would return one row. The GM and player private-preview reads of that ref (spec:386-398) are not measured."
+  },
+  "serverHygiene": {
+    "playwrightRunsTaken": 3,
+    "ports": [
+      27810,
+      22646,
+      26410
+    ],
+    "allPortsFreeAfterRun": [
+      "PORT_FREE",
+      "PORT_FREE",
+      "PORT_FREE"
+    ]
+  }
+}
