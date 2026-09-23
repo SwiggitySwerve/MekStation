@@ -15801,7 +15801,8 @@
       "mergeCommit": "9624b38f9",
       "mainProof": "evidence/qc-fixture-port-1742-main-proof-20260915.json"
     },
-    "proofWorktreeAssets": "archive-original-main-proof lacks the fetched public/record-sheets assets (stub only); customizer record-sheet e2e proofs must run in an asset-bearing worktree (browser or root); do not fetch assets"
+    "proofWorktreeAssets": "archive-original-main-proof lacks the fetched public/record-sheets assets (stub only); customizer record-sheet e2e proofs must run in an asset-bearing worktree (browser or root); do not fetch assets",
+    "preCommitBuildNotE2ERetired20260923": "RETIRED 2026-09-23 by U62 (PR #1916, merge f1b14afb2): the pre-commit hook no longer builds, so a commit no longer replaces an E2E bundle. preCommitBuildNotE2E is kept as the historical note."
   },
   "ledgerReconciliation": {
     "brief": "evidence/ledger-reconciliation-brief-20260915.json",
