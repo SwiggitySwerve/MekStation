@@ -1,0 +1,418 @@
+{
+  "unit": "U21",
+  "stage": "admission",
+  "at": "2026-09-23T02:52:55.392Z",
+  "status": "admitted",
+  "baseline": "b0e17e343d3ff1020058e5f6a19d128f0a4ea029",
+  "baselineEqualsOriginMain": true,
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u21",
+  "branch": "roadmap-u21-journal-match-segment-reader-20260923",
+  "node": "R2.authority-live",
+  "ciClass": "product",
+  "reviewClasses": [
+    "replay",
+    "authority"
+  ],
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "shellPreamble": [
+    "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "export npm_config_dry_run=true"
+  ],
+  "next": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "stdout": "U21",
+    "exitCode": 0,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21/logs/admission-next.log",
+      "sha256": "10cf4d6ea364d1f7e5e96cb97a6e64e2654b98ea5dfd16eac7b4e3ccb9bddac2"
+    }
+  },
+  "validator": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+    "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+    "exitCode": 0,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21/logs/admission-validator.log",
+      "sha256": "97b2f29d264078525a55c5f88586fb95603311fa065e70d7d17c5fab08f5b5bc"
+    }
+  },
+  "installGuard": {
+    "command": "npm run --silent qc:guard-node-modules-link",
+    "output": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"E:\\\\Projects\\\\MekStation\\\\.sisyphus\\\\roadmap-completion-20260912\\\\worktrees\\\\u21\\\\node_modules\",\"actualPath\":\"E:\\\\Projects\\\\MekStation\\\\node_modules\"}",
+    "exitCode": 1,
+    "expected": true,
+    "why": "refusal by design in a junctioned worktree; no npm install/ci/prune or lifecycle was run"
+  },
+  "ownershipPaths": [
+    "src/lib/multiplayer/server",
+    "src/pages-modules/api",
+    "src/pages/api/matches",
+    "src/__tests__/api/matches"
+  ],
+  "ownershipAmendment": "src/__tests__/api/matches added by the parent during admission (message to this lane, 2026-09-23): the three match rewind route suites may be edited, test lines only, re-seeded through the mirror at combat journal mode enabled; rows measured failing under the new reader first and recorded in the red receipt; each re-seeded row asserts what it asserted before, equal or stronger. The parent lands the matching ledger amendment (R2.authority-live and U21 ownershipPaths); this lane did not edit units.json.",
+  "seams": {
+    "consumers": [
+      {
+        "seam": "src/pages-modules/api/rewindCommitDeps.ts:133",
+        "fact": "reader: matchStoreBranchSegmentReader(input.store) - unconditional; the commit verifies the candidate path and seals impact through it"
+      },
+      {
+        "seam": "src/pages-modules/api/rewindCommitDeps.ts:8-13",
+        "fact": "header says the match store reader carries the whole IGameEvent as payload (finding #48); becomes false after the swap and is rewritten in the same edit"
+      },
+      {
+        "seam": "src/pages/api/matches/[id]/rewind-preview.ts:83,207",
+        "fact": "import and reader: matchStoreBranchSegmentReader(store) for previewGmCombatRewind"
+      },
+      {
+        "seam": "src/lib/multiplayer/server/ServerMatchHostRewindRebuild.ts:78-107",
+        "fact": "readActivatedBranchGameEvents(store, ...) materializes the activated path through matchStoreBranchSegmentReader(store) (:93-96); used by the live rebuild (:167-172) and the boot fold (:145-150)"
+      },
+      {
+        "seam": "src/lib/multiplayer/server/ServerMatchHostRewindRebuild.ts:121-130",
+        "fact": "boot-fold comment justifies the live-path early return by the match-store reader refusing non-root ids; rewritten when the reader changes"
+      },
+      {
+        "seam": "src/lib/multiplayer/server/MatchRecovery.ts:192",
+        "fact": "boot recovery calls tryFoldActivatedRewindBranch(store, meta.matchId); signature unchanged by this unit"
+      },
+      {
+        "seam": "src/pages/api/matches/[id]/rewind-commit.ts:196-237",
+        "fact": "route builds deps through buildGmCombatRewindCommitDeps and calls liveHost.rebuildFromActivatedBranch; no direct reader, no edit planned"
+      }
+    ],
+    "anchorMismatch": [
+      {
+        "seam": "src/lib/events/journal/EventHistoryCandidateBuild.ts:176,304",
+        "fact": "requireBaseEvent reads the candidate base from event_journal_events (read-only)"
+      },
+      {
+        "seam": "src/lib/events/journal/EventHistoryBranchResolver.ts:203-211",
+        "fact": "materializeBranchPath refuses a segment whose baseEventId/baseDigest differ from the anchor the prior segment left (read-only)"
+      },
+      {
+        "seam": "src/lib/multiplayer/server/history/matchStoreBranchSegmentReader.ts:146-184",
+        "fact": "the store reader re-derives ids from mp_match_events and digests via matchEventChainDigest, and refuses every non-live-path branch id (:147-155)"
+      }
+    ],
+    "clauseA": [
+      {
+        "seam": "src/lib/events/journal/EventHistoryBranchResolver.ts:265-270",
+        "fact": "journalBranchSegmentReader refuses every branch but 'root' (read-only); the new reader does not wrap it"
+      },
+      {
+        "seam": "src/lib/events/journal/SQLiteEventJournal.ts:15-29",
+        "fact": "readStream filters by the branch_id it is given, so any branch is readable without a journal edit"
+      },
+      {
+        "seam": "src/lib/events/journal/SQLiteEventJournalWriter.ts:308-350",
+        "fact": "hydrateEvent re-derives each stored digest from the row content (:347-349); stored digests are therefore trustworthy on read"
+      },
+      {
+        "seam": "src/lib/multiplayer/server/MatchStreamJournalMirror.ts:115-119,175-192",
+        "fact": "the mirror stores each game event as payload.matchEvent inside IMatchJournalEnvelope, on the effective branch or MATCH_BASELINE_BRANCH_ID 'main' (:226-227)"
+      },
+      {
+        "seam": "src/lib/multiplayer/server/DurableMatchStore.ts:1000",
+        "fact": "mirrorCommittedBatch returns early while getCombatJournalAuthorityMode() === 'off'; red rows enable it through _setCombatJournalAuthorityModeForTests (matchJournalAuthority.ts:41), the seam U15a pinned, never an env key"
+      }
+    ],
+    "clauseB": [
+      {
+        "seam": "src/lib/multiplayer/server/history/matchStoreBranchSegmentReader.ts:31-35,135-141",
+        "fact": "the prefix law the old reader keeps by chaining from the stream start; the new reader keeps it by passing stored predecessor digests through"
+      }
+    ],
+    "clauseC": [
+      {
+        "seam": "src/lib/multiplayer/server/history/ViewerHistoryLineage.ts:125-138",
+        "fact": "projectEffectiveHead answers revision = the effective branch baseRevision (:133-135), not a journal head"
+      },
+      {
+        "seam": "src/pages-modules/api/matchHeadRoute.ts:64-75",
+        "fact": "GET /head answers readEffectiveStreamHead(db, branches, stream).revision with the effective generation, in one transaction"
+      },
+      {
+        "seam": "src/lib/events/journal/SQLiteEventHistoryCorrectionLeaseStore.ts:334",
+        "fact": "the correction lease reads the same readEffectiveStreamHead (read-only)"
+      },
+      {
+        "seam": "src/pages-modules/api/matchHistoryViewerChain.ts:153-159,170-183",
+        "fact": "createViewerHistoryLineageStores / readMatchHistoryLineage build the lineage over the API SQLite handle"
+      },
+      {
+        "seam": "src/pages-modules/api/__tests__/matchHeadRoute.test.ts:225-229",
+        "fact": "already pins lineage.effectiveHead === GET /head for an activated head sitting AT its base; keeps passing unedited"
+      }
+    ],
+    "clauseD": [
+      {
+        "seam": "src/pages-modules/api/campaignLaunchHeadRoute.ts:15-21",
+        "fact": "status-code doc gives the flag-off rationale for no-authoritative-stream and omits the 500 (U20 F1, Lane A finding 2)"
+      },
+      {
+        "seam": "src/lib/campaign/authority/campaignLaunchHead.ts:24-42",
+        "fact": "OD-launch-head-gate's rule as U20 implemented it (read-only for this unit)"
+      }
+    ],
+    "clauseE": [
+      {
+        "seam": "src/pages-modules/api/__tests__/campaignLaunchHeadRoute.test.ts:224-226",
+        "fact": "comment still says 'no head to name while the cutover flag is off'"
+      },
+      {
+        "seam": "src/pages-modules/api/__tests__/campaignLaunchHeadRoute.test.ts:138",
+        "fact": "backfillGenesisBranches() after the genesis append; a no-op since U19b installs the genesis branch on the first append"
+      }
+    ],
+    "clauseF": [
+      {
+        "seam": "src/pages-modules/api/campaignLaunchHeadRoute.ts:67-69",
+        "fact": "catch -> sendCaughtApiError -> 500 {error}"
+      },
+      {
+        "seam": "src/pages-modules/api/campaignLaunchAuthorityRoute.ts:229-231",
+        "fact": "catch -> sendCaughtApiError -> 500 {error}"
+      },
+      {
+        "seam": "src/pages-modules/api/routeHelpers.ts:96-102",
+        "fact": "sendCaughtApiError answers 500 with error.message"
+      }
+    ],
+    "outOfPathFixturesNowOwned": [
+      {
+        "seam": "src/__tests__/api/matches/rewindCommitRoute.test.ts:205-268",
+        "fact": "hand-inserted event_journal_events on 'root' with payload_json '{}' and digests copied from matchStoreBranchSegmentReader"
+      },
+      {
+        "seam": "src/__tests__/api/matches/rewindCommitRoute.reason.test.ts:143-199",
+        "fact": "same hand-inserted journal as above"
+      },
+      {
+        "seam": "src/__tests__/api/matches/rewindPreviewRoute.test.ts:216-223",
+        "fact": "only a stream-head row on 'root' at revision 4; no journal events at all"
+      },
+      {
+        "seam": "src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindRebuild.test.ts:346-425",
+        "fact": "in-path suite with the same hand-inserted match-store-aligned journal"
+      }
+    ]
+  },
+  "design": {
+    "reader": "New src/lib/multiplayer/server/history/matchJournalBranchSegmentReader.ts: matchJournalBranchSegmentReader(journal: IEventJournal<IMatchJournalEnvelope>) pages journal.readStream over (fromRevision, throughRevision] with branchId = the segment's own id (any branch), and maps each stored event to an IProjectableBranchEvent carrying the stored eventId, branchId, streamRevision, eventVersion, previousStreamEventDigest, eventDigest, entityRefs and eventType, with payload = payload.matchEvent; a stored event whose envelope holds no game event is refused as branch-integrity. It does not wrap journalBranchSegmentReader and never recomputes a digest.",
+    "consumers": "rewindCommitDeps.ts and rewind-preview.ts build the reader over new SQLiteEventJournal<IMatchJournalEnvelope>(the API SQLite handle). ServerMatchHostRewindRebuild.readActivatedBranchGameEvents drops its store parameter and reads the activated path through the journal reader; the live rebuild and the boot fold keep the store only for the tail supersede. matchStoreBranchSegmentReader keeps its helpers and its own suite; it has no production consumer after this unit (reported, not deleted).",
+    "clauseC": "IViewerHistoryLineageStores gains readEffectiveStreamHead(stream); projectEffectiveHead answers branchId and revision from that journal head and the generation from the effective head row - the body formula of GET /head. createViewerHistoryLineageStores wires readEffectiveStreamHead(db, branches, stream).",
+    "clauseD": "campaignLaunchHeadRoute.ts status-code doc rewritten to OD-launch-head-gate's rule as U20 implements it: 200 head for a journaled campaign, 200 no-authoritative-stream only when the journal holds no event for it, 404 unknown campaign, 500 for a journaled campaign with no effective head (no-effective-branch). It states the route's answers only; the client's handling of the 500 (U20 Lane A finding 1) is not claimed.",
+    "clauseE": "campaignLaunchHeadRoute.test.ts: the no-journal row's comment rewritten to the rule; the seed's backfillGenesisBranches() call removed.",
+    "clauseF": "One row in campaignLaunchHeadRoute.test.ts and one in campaignLaunchAuthorityRoute.test.ts: a journaled campaign whose event_history_effective_heads row is deleted answers 500 with the no-effective-branch message, never 200 no-authoritative-stream.",
+    "tests": "New src/lib/multiplayer/server/history/__tests__/matchJournalBranchSegmentReader.sqlite.test.ts (real SQLite, combat journal mode 'enabled' through _setCombatJournalAuthorityModeForTests, reset in afterEach): (1) opening seed + three command batches mirrored onto 'main', then a GM rewind commit through buildGmCombatRewindCommitDeps - red: candidate-verification-failed with the anchor message; green: committed, the rebuild folds N events, the next command lands on the candidate at N+1, the boot fold returns the candidate; (2) the prefix-law rows for the new reader, which loads it with a dynamic import inside its describe so a missing module fails those rows only. ViewerHistoryLineage.test.ts carries the (c) red row. The four fixture suites are re-seeded through the mirror at mode enabled."
+  },
+  "estimatePerFile": [
+    {
+      "file": "src/lib/multiplayer/server/history/matchJournalBranchSegmentReader.ts",
+      "category": "product",
+      "new": true,
+      "estimatedAdded": 100,
+      "estimatedDeleted": 0
+    },
+    {
+      "file": "src/pages-modules/api/rewindCommitDeps.ts",
+      "category": "product",
+      "estimatedAdded": 12,
+      "estimatedDeleted": 7
+    },
+    {
+      "file": "src/pages/api/matches/[id]/rewind-preview.ts",
+      "category": "product",
+      "estimatedAdded": 8,
+      "estimatedDeleted": 2
+    },
+    {
+      "file": "src/lib/multiplayer/server/ServerMatchHostRewindRebuild.ts",
+      "category": "product",
+      "estimatedAdded": 25,
+      "estimatedDeleted": 22
+    },
+    {
+      "file": "src/lib/multiplayer/server/history/ViewerHistoryLineage.ts",
+      "category": "product",
+      "estimatedAdded": 18,
+      "estimatedDeleted": 10
+    },
+    {
+      "file": "src/pages-modules/api/matchHistoryViewerChain.ts",
+      "category": "product",
+      "estimatedAdded": 6,
+      "estimatedDeleted": 1
+    },
+    {
+      "file": "src/pages-modules/api/campaignLaunchHeadRoute.ts",
+      "category": "product",
+      "estimatedAdded": 14,
+      "estimatedDeleted": 7
+    },
+    {
+      "file": "src/lib/multiplayer/server/history/__tests__/matchJournalBranchSegmentReader.sqlite.test.ts",
+      "category": "test",
+      "new": true,
+      "estimatedAdded": 350
+    },
+    {
+      "file": "src/lib/multiplayer/server/history/__tests__/ViewerHistoryLineage.test.ts",
+      "category": "test",
+      "estimatedAdded": 45,
+      "estimatedDeleted": 10
+    },
+    {
+      "file": "src/pages-modules/api/__tests__/campaignLaunchHeadRoute.test.ts",
+      "category": "test",
+      "estimatedAdded": 35,
+      "estimatedDeleted": 5
+    },
+    {
+      "file": "src/pages-modules/api/__tests__/campaignLaunchAuthorityRoute.test.ts",
+      "category": "test",
+      "estimatedAdded": 30
+    },
+    {
+      "file": "src/__tests__/api/matches/rewindCommitRoute.test.ts",
+      "category": "test",
+      "estimatedAdded": 40,
+      "estimatedDeleted": 75
+    },
+    {
+      "file": "src/__tests__/api/matches/rewindCommitRoute.reason.test.ts",
+      "category": "test",
+      "estimatedAdded": 40,
+      "estimatedDeleted": 65
+    },
+    {
+      "file": "src/__tests__/api/matches/rewindPreviewRoute.test.ts",
+      "category": "test",
+      "estimatedAdded": 40,
+      "estimatedDeleted": 20
+    },
+    {
+      "file": "src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindRebuild.test.ts",
+      "category": "test",
+      "estimatedAdded": 50,
+      "estimatedDeleted": 90
+    }
+  ],
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedProductLines": 500,
+    "countingRule": "files = product + test files, receipts excluded (the U19b local receipt counted 14 that way); lines = non-generated product lines only, tests reported separately (OD-line-cap-product-lines, 2026-09-23)",
+    "estimatedFiles": 15,
+    "estimatedFilesWithoutClauseC": 12,
+    "estimatedProductLines": 232,
+    "withinCaps": true,
+    "margin": "zero files: the plan uses all 15"
+  },
+  "splitRule": {
+    "rule": "If clause (c) pushes the unit past either cap, (c) is left out and a follow-on unit is proposed.",
+    "decisionAtAdmission": "Clause (c) IS in scope: 15 files by count of the planned edits, 232 estimated product lines. To stay at 15, the (c) red row lives in ViewerHistoryLineage.test.ts (which the interface change forces open anyway) and compares against readEffectiveStreamHead, the read GET /head answers from (matchHeadRoute.ts:67); matchHeadRoute.test.ts is not edited.",
+    "contingency": "If local measurement shows any further file must change (a sixteenth), clause (c) is dropped - ViewerHistoryLineage.ts, matchHistoryViewerChain.ts and ViewerHistoryLineage.test.ts revert to baseline - and the follow-on below is proposed instead.",
+    "followOnIfSplit": {
+      "node": "R2.authority-live",
+      "placedAfter": "U21",
+      "sentence": "Viewer lineage effectiveHead.revision reads the journal's effective head through readEffectiveStreamHead - the read GET /api/matches/:id/head and the correction lease make - instead of the effective branch's baseRevision cutoff (ViewerHistoryLineage.ts:133-135): IViewerHistoryLineageStores gains that head read and createViewerHistoryLineageStores (matchHistoryViewerChain.ts:153-159) wires it. Red-first: on a branch whose journal head is past its cutoff (a rewound match after its next command, or a root stream at revision > 0) the lineage revision differs from GET /head; after, the two are equal and a cutoff-revision mutant is killed.",
+      "ownershipPaths": [
+        "src/lib/multiplayer/server/history",
+        "src/pages-modules/api"
+      ]
+    }
+  },
+  "acceptanceCommands": [
+    "npx jest src/lib/multiplayer/server/history/__tests__/matchJournalBranchSegmentReader.sqlite.test.ts",
+    "npx jest src/lib/multiplayer/server",
+    "npx jest src/pages-modules/api",
+    "npx jest src/__tests__/api",
+    "npx jest src/__tests__/api/matches",
+    "npx jest src/lib/events/journal",
+    "npx tsc --noEmit",
+    "npx oxlint",
+    "npx oxfmt --check <changed files>",
+    "npm run lint:units",
+    "npm run qc:openspec-ci:validate",
+    "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs"
+  ],
+  "baselineGates": [
+    {
+      "gate": "npx jest src/lib/multiplayer/server",
+      "counts": "Test Suites: 5 failed, 152 passed, 157 total; Tests: 1082 passed, 1082 total",
+      "exitCode": 1,
+      "note": "all five failures are 'Test suite failed to run: jest: failed to cache transform results ... EPERM: operation not permitted, rename' in the shared jest transform cache (other lanes run jest on this machine); no test assertion failed",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21/logs/baseline-multiplayer-server.log",
+        "sha256": "e3a0f1287ede37a1635363d2cc194640312cb459184ae81a2b2411a284f10cea"
+      }
+    },
+    {
+      "gate": "npx jest src/pages-modules/api",
+      "counts": "Test Suites: 8 passed, 8 total; Tests: 60 passed, 60 total",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21/logs/baseline-pages-modules-api.log",
+        "sha256": "1b39c4d1f78e0f780a99631f3b1514982d72746f166f7621b2b00cc7a7e11d31"
+      }
+    },
+    {
+      "gate": "npx jest src/__tests__/api",
+      "counts": "Test Suites: 54 passed, 54 total; Tests: 751 passed, 751 total",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21/logs/baseline-tests-api.log",
+        "sha256": "39698864023f350061a13f524f6bf1487055414627f9149662b6246a6e7743a6"
+      }
+    },
+    {
+      "gate": "npx jest src/lib/events/journal",
+      "counts": "Test Suites: 23 passed, 23 total; Tests: 243 passed, 243 total",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21/logs/baseline-events-journal.log",
+        "sha256": "42e66a9cb6b3b489bf32189731ddd76e90421c43e6129bdd295139f8ae410f20"
+      }
+    }
+  ],
+  "mutantsPlanned": [
+    {
+      "id": "M1",
+      "what": "the commit deps read the match store again (rewindCommitDeps reader back to matchStoreBranchSegmentReader(input.store))"
+    },
+    {
+      "id": "M2",
+      "what": "the new reader wraps journalBranchSegmentReader (the 'root'-only refusal)"
+    },
+    {
+      "id": "M3",
+      "what": "a window rechains its predecessor digests from the window start instead of the stored predecessor (clause b)"
+    },
+    {
+      "id": "M4a",
+      "what": "campaignLaunchHeadRoute's caught no-effective-branch answered with another status (clause f)"
+    },
+    {
+      "id": "M4b",
+      "what": "campaignLaunchAuthorityRoute's caught no-effective-branch answered with another status (clause f)"
+    },
+    {
+      "id": "M5",
+      "what": "lineage effectiveHead.revision reads the branch baseRevision cutoff again (clause c)"
+    },
+    {
+      "id": "M6",
+      "what": "the rebuild / boot fold read the match store again (ServerMatchHostRewindRebuild)"
+    }
+  ],
+  "risksForTheParent": [
+    "Review classes replay and authority: Lane B is required. The PR merges only after the owner's OWNER-RULING comment bound to its exact head; this lane supplies and records none.",
+    "Replay: after this unit the rewind commit, preview, live rebuild and boot fold read ONLY the journal. A match whose journal was not mirrored (combat journal mode off, the production constant) has no effective head, so the routes refuse no-authoritative-history exactly as before; no fallback to the match store exists or is added.",
+    "Replay: the payload the preview probe and the commit verification project is now the stored, undefined-stripped game event (the mirror stores withoutUndefinedProperties(matchEvent)), not the in-memory event; digests are the journal writer's, not matchEventChainDigest.",
+    "Authority: GET /head, the correction lease and (after clause c) the viewer lineage all answer from readEffectiveStreamHead; the lineage's revision stops being the branch cutoff. Any client or e2e helper that read lineage.effectiveHead.revision as a cutoff changes meaning (e2e/helpers/gmTwoPlayerRewind.ts:143 and e2e/gm-two-player-rewind.pack.spec.ts:185-186 compare it with another lineage read; not run here).",
+    "The file cap is used exactly (15 of 15). The contingency in splitRule drops clause (c) if a sixteenth file is needed.",
+    "matchStoreBranchSegmentReader keeps no production consumer after the swap; deleting it is not in the behavior sentence and is left to the parent.",
+    "E2E-25's live proof is the parent's main proof after merge (U22 follows); no build and no Playwright run here."
+  ]
+}

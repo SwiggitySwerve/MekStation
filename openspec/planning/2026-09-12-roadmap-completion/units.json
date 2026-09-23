@@ -1382,14 +1382,28 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
+      "state": "local-verified",
+      "baseline": "b0e17e343d3ff1020058e5f6a19d128f0a4ea029",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/u21-admission-20260923.json",
+          "baseline": "b0e17e343d3ff1020058e5f6a19d128f0a4ea029",
+          "at": "2026-09-23T02:52:55.392Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/u21-red-20260923.json",
+          "at": "2026-09-23T03:11:06.552Z",
+          "summary": "baseline b0e17e343, real SQLite, combat journal mode enabled through the test seam: a rewind commit on a match mirrored onto main (seed plus three batches) was refused candidate-verification-failed ('anchored to a base its parent does not hold at revision 4') in 3 rows; the new reader's prefix-law rows failed (module absent); clause (c) measured lineage revision 2 against journal head 3; the clause (f) route rows pass on the baseline (they pin U20's 500). Under the new reader before re-seeding, the three match route suites failed 1/10, 10/21 and 6/16 (hand-seeded digests, empty journal)"
+        },
+        "local": {
+          "path": "evidence/u21-local-20260923.json",
+          "at": "2026-09-23T03:14:15.020Z",
+          "summary": "clause (c) moved to U21b under the admission rule (a sixteenth file); product 5 files +202/-40 (242 lines, cap 500), tests +644/-335; new suite 5/5; src/lib/multiplayer/server 158 suites/1169; src/pages-modules/api 8/62; src/__tests__/api 54/751; src/__tests__/api/matches 3/47 (re-seeded through the mirror, each row asserting the same or more); src/lib/events/journal 23/243; tsc 0; oxlint 84 warnings 0 errors; oxfmt clean on 13 files; LINT_UNITS_PASS 100/100; qc:openspec-ci errors=0; validator PASSED; --next U21 on the baseline; six mutants caught and restored (commit deps back on the match store; the reader wrapping the root-only journal reader; a window rechained from its start; the head and authority routes answering 200 for the missing-head 500; the rebuild file reverted); implementer claude-opus (Agent model: opus); findings: F1, F2, F5, F6 stale comments (folded into U21b), F3 the preview answers 500 for an integrity refusal the commit answers 409 (recorded), F4 matchStoreBranchSegmentReader has no production caller (recorded), F7 is FN-u20-client-launch-treats-head-500-as-ungated (held by U50); status ready"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
@@ -1403,6 +1417,11 @@
           "src/__tests__/api/matches"
         ],
         "why": "test lines only: the three match route suites move to the journal reader with the routes (see R2.authority-live ownershipPathsAmended20260923); amended while the unit is planned, before its admission is folded"
+      },
+      "clauseCMovedTo20260923": {
+        "unit": "U21b",
+        "at": "2026-09-23T03:16:43.000Z",
+        "why": "U21's admission rule: if clause (c) pushed U21 past 15 files or 500 lines it becomes a follow-on R2.authority-live unit. The reader swap also broke src/lib/multiplayer/server/__tests__/matchRecoveryCheckpointDoor.test.ts, so clause (c) would have been the sixteenth file (evidence/u21-admission-20260923.json)."
       }
     },
     {
@@ -1439,6 +1458,41 @@
       },
       "ownerGate": null,
       "source20260922": "planned by the parent under OD-mvp-hard-cutover (owner, 2026-09-22) from the read-only cutover map of 2026-09-22 (Opus planning lane; its evidence is file:line on origin/main 31ab3c16e and is summarised in each behaviour sentence)"
+    },
+    {
+      "id": "U21b",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "Clause (c) of U21, moved here under U21's admission rule: the viewer lineage's effectiveHead.revision reads the match journal's effective head through readEffectiveStreamHead (src/lib/events/journal/EventHistoryEffectiveStreamHead.ts, the seam GET /api/matches/:id/head and the correction lease already bind against), not the branch baseRevision cutoff at src/lib/multiplayer/server/history/ViewerHistoryLineage.ts:133-135; the chain is wired in src/pages-modules/api/matchHistoryViewerChain.ts:153-159. Red-first: U21's measured red row (lineage revision 2 while the journal head is 3; saved by the U21 lane and cited in evidence/u21-red-20260923.json); a mutant that restores the cutoff is killed. The same unit corrects four stale comments U21's lane reported (F1, F2, F5, F6 in evidence/u21-local-20260923.json): the '#48/#53' note at src/lib/multiplayer/server/history/GmCombatRewindPreview.ts:242, src/lib/multiplayer/server/MatchRecoveryJournalHead.ts:19, the claim at src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindRebuild.test.ts:329 that toMatchObject prints the reason and detail (it prints only kind), and 'the flag-off world' at src/pages-modules/api/__tests__/campaignLaunchHeadRoute.test.ts:146. Its admission checks the two e2e readers that compare lineage.effectiveHead.revision with another lineage read (e2e/helpers/gmTwoPlayerRewind.ts:143, e2e/gm-two-player-rewind.pack.spec.ts:185-186, U21's admission risks); if either needs an edit, U21b stops at admission for a path amendment. Placed after U22 because U22 merges back to back with U21 (its own sentence).",
+      "ownershipPaths": [
+        "src/lib/multiplayer/server",
+        "src/pages-modules/api"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "replay",
+        "authority"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260923": "planned by the parent from U21's admission contingency (clause (c)) and its lane's findings F1, F2, F5, F6 (evidence/u21-local-20260923.json)",
+      "admitAfter20260923": "U21 main-verified (U21b edits the viewer lineage over the journal reader U21 installs)"
     },
     {
       "id": "U36",
@@ -7511,6 +7565,24 @@
       "recommendedSuccessor": "named in the owner's head-bound ruling on U35b; U35d (the flip) depends on that ruling",
       "status": "ruled 2026-09-23: accepted with U35b; held by U35d's red-first gate (U35d stops before the flip if a real flow loses a journal-only effect)",
       "heldBy20260923": "U35d"
+    },
+    {
+      "id": "FN-u21-preview-integrity-refusal-is-500",
+      "foundBy": "U21 implementer lane (claude-opus), 2026-09-23, finding F3",
+      "at": "2026-09-23T03:16:43.000Z",
+      "class": "inconsistent refusal status (not a regression of U21)",
+      "summary": "With the journal reader, a rewind preview whose journal segment fails an integrity check (a stored event's digest does not re-derive, or a branch holds fewer revisions than the window asks) answers 500 through src/pages/api/matches/[id]/rewind-preview.ts, while the rewind commit answers 409 for its integrity refusals (the U21 lane measured both on the unseeded route suites). A client cannot tell a preview integrity refusal from a server fault.",
+      "recommendedSuccessor": "the preview maps the reader's integrity refusal to the commit's typed 409 shape; R2.authority-live owns src/pages/api/matches",
+      "status": "recorded; fold into the next unit that edits the rewind preview route"
+    },
+    {
+      "id": "FN-u21-match-store-segment-reader-without-production-caller",
+      "foundBy": "U21 implementer lane (claude-opus), 2026-09-23, finding F4",
+      "at": "2026-09-23T03:16:43.000Z",
+      "class": "dead code after the cutover (the hard cutover removes compatibility paths)",
+      "summary": "After U21, src/lib/multiplayer/server/history/matchStoreBranchSegmentReader.ts has no production caller: the commit deps, the preview route, the live rebuild and the boot fold read the journal. The file and its references (comments and imports in the match store, recovery and checkpoint modules) remain.",
+      "recommendedSuccessor": "delete the reader with its tests and references once U21 is main-verified, under OD-mvp-hard-cutover; R2.authority-live owns every path involved",
+      "status": "recorded; fold into the next R2.authority-live unit that edits src/lib/multiplayer/server"
     }
   ]
 }

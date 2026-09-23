@@ -1,0 +1,738 @@
+{
+  "unit": "U21",
+  "stage": "local",
+  "at": "2026-09-23T03:14:15.020Z",
+  "status": "ready",
+  "baseline": "b0e17e343d3ff1020058e5f6a19d128f0a4ea029",
+  "headAtLocal": "b0e17e343d3ff1020058e5f6a19d128f0a4ea029",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u21",
+  "branch": "roadmap-u21-journal-match-segment-reader-20260923",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "shellPreamble": [
+    "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "export npm_config_dry_run=true"
+  ],
+  "change": {
+    "reader": "NEW src/lib/multiplayer/server/history/matchJournalBranchSegmentReader.ts: matchJournalBranchSegmentReader(journal) pages journal.readStream over (fromRevision, throughRevision] of the segment's OWN branch id (any branch; journalBranchSegmentReader is not wrapped) and hands each stored event on with its stored id, revision, version, predecessor digest, digest, entity refs and type, and payload = payload.matchEvent; an envelope without a game event (isGameEvent) is refused EventHistoryBranchError('branch-integrity'). It types its input as a module-private IBranchEventView & { eventType; payload } shape so the history folder names no stored-journal-row type (ViewerHistoryBoundary.test.ts).",
+    "consumers": [
+      "src/pages-modules/api/rewindCommitDeps.ts: reader = matchJournalBranchSegmentReader(new SQLiteEventJournal<IMatchJournalEnvelope>(db, input.nowIso)); header rewritten (payload is the stored matchEvent; the history read is the journal the candidate anchors to); buildGmCombatRewindCommitDeps gets its doc comment.",
+      "src/pages/api/matches/[id]/rewind-preview.ts: reader = matchJournalBranchSegmentReader(new SQLiteEventJournal<IMatchJournalEnvelope>(API db, nowIso)); header paragraph 'THE HISTORY IS THE JOURNAL'S (U21)'; the handler gets its doc comment.",
+      "src/lib/multiplayer/server/ServerMatchHostRewindRebuild.ts: readActivatedBranchGameEvents(matchId, branchId, throughRevision) drops its store parameter and materializes the activated path through the journal reader; tryFoldActivatedRewindBranch (boot fold) and rebuildHostFromActivatedBranch (live rebuild) call it and keep the store only for the tail supersede; the boot-fold comment no longer justifies the live-path return by the match-store reader's refusal; rebuildHostFromActivatedBranch gets its doc comment."
+    ],
+    "clauseD": "src/pages-modules/api/campaignLaunchHeadRoute.ts: the status-code doc states OD-launch-head-gate's rule as resolveCampaignLaunchHead implements it - 200 head (journaled campaign; branch and revision from the journal's effective head, generation from the effective head), 200 no-authoritative-stream (the journal holds no event for it), 404, and 500 {error} for a journaled campaign with no effective head (no-effective-branch). The flag-off rationale is gone. No code line changed.",
+    "clauseE": "src/pages-modules/api/__tests__/campaignLaunchHeadRoute.test.ts: the no-journal row's comment rewritten to the rule; the seed's backfillGenesisBranches() call removed; every row still passes, including the first row's requireEffectiveHead read of the seeded campaign.",
+    "clauseF": "One row each in campaignLaunchHeadRoute.test.ts and campaignLaunchAuthorityRoute.test.ts pins 500 with the exact no-effective-branch message for a journaled campaign whose effective head row is deleted (the authority row also pins that owned-force materialization is never reached). Killed mutants M4a/M4b.",
+    "clauseC": "NOT DONE - dropped under the admission contingency (see scope)."
+  },
+  "scope": {
+    "clauseCDropped": true,
+    "why": "Local measurement found the reader swap breaks src/lib/multiplayer/server/__tests__/matchRecoveryCheckpointDoor.test.ts (its rewind row hand-seeds a match-store-aligned journal), a file the admission plan did not count. With clause (c) the unit needed 16 files; the admission receipt (splitRule.contingency) said a sixteenth file drops (c). Without (c) the unit is 13 files.",
+    "whatWasReverted": "src/lib/multiplayer/server/history/__tests__/ViewerHistoryLineage.test.ts restored to the baseline blob (git checkout HEAD --) after its red run; ViewerHistoryLineage.ts and matchHistoryViewerChain.ts were never edited. The red row is preserved outside the worktree (red receipt row3_clauseC.preservedRedCopy).",
+    "followOnProposal": {
+      "node": "R2.authority-live",
+      "placedAfter": "U21",
+      "sentence": "Viewer lineage effectiveHead.revision reads the journal's effective head through readEffectiveStreamHead - the read GET /api/matches/:id/head and the correction lease make - instead of the effective branch's baseRevision cutoff (ViewerHistoryLineage.ts:133-135): IViewerHistoryLineageStores gains that head read and createViewerHistoryLineageStores (matchHistoryViewerChain.ts:153-159) wires it. Red-first: on a branch whose journal head is past its cutoff (a rewound match after its next command, or a root stream at revision > 0) the lineage revision differs from GET /head; after, the two are equal and a cutoff-revision mutant is killed.",
+      "ownershipPaths": [
+        "src/lib/multiplayer/server/history",
+        "src/pages-modules/api"
+      ],
+      "redRowReady": "the U21 red row (ViewerHistoryLineage.test.ts, measured red: expected revision 3, received 2) plus its stores() member readEffectiveStreamHead; the existing row \"root-only stream answers effectiveHead and zero transitions\" pins revision 0 (the cutoff) and would change to the journal head 4, and \"GM projection lists the activation reason and invalidated artifacts\" would need the candidate head planted at its base (the production shape) to keep answering 2"
+    }
+  },
+  "lineCounts": [
+    {
+      "file": "src/lib/multiplayer/server/history/matchJournalBranchSegmentReader.ts",
+      "category": "product",
+      "added": 117,
+      "deleted": 0,
+      "untracked": true,
+      "totalFileLines": 117,
+      "sha256": "ad426caaa589fe4c93dde1394819263abb0efe448a7a8457f0a2d87aee0a47a0"
+    },
+    {
+      "file": "src/lib/multiplayer/server/ServerMatchHostRewindRebuild.ts",
+      "category": "product",
+      "added": 30,
+      "deleted": 23,
+      "untracked": false,
+      "totalFileLines": 301,
+      "sha256": "6fa8d2277ee15806050139269f2d9c42e502b4eef9eb9bf065cb7f82db9df4bf"
+    },
+    {
+      "file": "src/pages-modules/api/campaignLaunchHeadRoute.ts",
+      "category": "product",
+      "added": 13,
+      "deleted": 7,
+      "untracked": false,
+      "totalFileLines": 76,
+      "sha256": "9b90d3b81852d2ec6893a4444739c3108b763bc74524bfcf8b59e9a4923b81f3"
+    },
+    {
+      "file": "src/pages-modules/api/rewindCommitDeps.ts",
+      "category": "product",
+      "added": 23,
+      "deleted": 8,
+      "untracked": false,
+      "totalFileLines": 170,
+      "sha256": "1c3cf57d7889e3f517763613fb2e902a5a6832e62ced127dc31aaae0b979e994"
+    },
+    {
+      "file": "src/pages/api/matches/[id]/rewind-preview.ts",
+      "category": "product",
+      "added": 19,
+      "deleted": 2,
+      "untracked": false,
+      "totalFileLines": 306,
+      "sha256": "f355ae60c86b96d461696ab143b15dac39ad5aadb1947444b4729a61d64c82d7"
+    },
+    {
+      "file": "src/__tests__/api/matches/rewindCommitRoute.reason.test.ts",
+      "category": "test",
+      "added": 29,
+      "deleted": 68,
+      "untracked": false,
+      "totalFileLines": 438,
+      "sha256": "419eb9ab91e3a8f7db2351cbb5fc79f9877b2d12546fc4f4c8405334cf6d8761"
+    },
+    {
+      "file": "src/__tests__/api/matches/rewindCommitRoute.test.ts",
+      "category": "test",
+      "added": 29,
+      "deleted": 78,
+      "untracked": false,
+      "totalFileLines": 430,
+      "sha256": "b2d373c68165c9f417783a56ea0d030fa3e91922cbb7ab56a44de20c484500be"
+    },
+    {
+      "file": "src/__tests__/api/matches/rewindPreviewRoute.test.ts",
+      "category": "test",
+      "added": 32,
+      "deleted": 27,
+      "untracked": false,
+      "totalFileLines": 572,
+      "sha256": "8c6510c2060a570a23596e01dd14da296d0c6269343ab237db30d5975aa1877c"
+    },
+    {
+      "file": "src/lib/multiplayer/server/__tests__/matchRecoveryCheckpointDoor.test.ts",
+      "category": "test",
+      "added": 16,
+      "deleted": 69,
+      "untracked": false,
+      "totalFileLines": 380,
+      "sha256": "c5d6ca586bbc48d32254df1d0a0bdda410f58e2f0ca3e546e2d26d62d7f97418"
+    },
+    {
+      "file": "src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindRebuild.test.ts",
+      "category": "test",
+      "added": 33,
+      "deleted": 89,
+      "untracked": false,
+      "totalFileLines": 499,
+      "sha256": "71dd69d6b80e94dc9afb9c34e7415d9a1b3fb260ec8778cec1e1998f459a7559"
+    },
+    {
+      "file": "src/lib/multiplayer/server/history/__tests__/matchJournalBranchSegmentReader.sqlite.test.ts",
+      "category": "test",
+      "added": 453,
+      "deleted": 0,
+      "untracked": true,
+      "totalFileLines": 453,
+      "sha256": "30ce2a8dc704fd37cd4e87889f349e59814edd23786abc027b0c443180fe9a1d"
+    },
+    {
+      "file": "src/pages-modules/api/__tests__/campaignLaunchAuthorityRoute.test.ts",
+      "category": "test",
+      "added": 28,
+      "deleted": 0,
+      "untracked": false,
+      "totalFileLines": 666,
+      "sha256": "13c20973efa068af3527918fa2aba6656a2e5f5e6bd5479635712016ce241a13"
+    },
+    {
+      "file": "src/pages-modules/api/__tests__/campaignLaunchHeadRoute.test.ts",
+      "category": "test",
+      "added": 24,
+      "deleted": 4,
+      "untracked": false,
+      "totalFileLines": 308,
+      "sha256": "e107a50796529267b7952a8788781a60cf9b4979bf2323ca1fb245a186909fc4"
+    }
+  ],
+  "lineCountTotals": {
+    "filesChanged": 13,
+    "productFiles": 5,
+    "testFiles": 8,
+    "receiptsNotCounted": [
+      "u21-admission-20260923.json",
+      "u21-red-20260923.json",
+      "u21-local-20260923.json"
+    ],
+    "productAdded": 202,
+    "productDeleted": 40,
+    "productChangedLines": 242,
+    "testAdded": 644,
+    "testDeleted": 335,
+    "testChangedLines": 979,
+    "capFiles": 15,
+    "capNonGeneratedProductLines": 500,
+    "withinCaps": true
+  },
+  "gates": [
+    {
+      "gate": "npx jest src/lib/multiplayer/server/history/__tests__/matchJournalBranchSegmentReader.sqlite.test.ts",
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\multiplayer\\\\server\\\\history\\\\__tests__\\\\matchJournalBranchSegmentReader.sqlite.test.ts/i.",
+      "counts": "Test Suites: 1 passed, 1 total; Tests: 5 passed, 5 total",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21/logs/gate-new-suite.log",
+        "sha256": "5ab61bc76e3d39e09458378cec0da1f3ad1a0e5487c87a082f941f695ad3f1bd"
+      }
+    },
+    {
+      "gate": "npx jest src/lib/multiplayer/server",
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\multiplayer\\\\server/i.",
+      "counts": "Test Suites: 158 passed, 158 total; Tests: 1169 passed, 1169 total",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21/logs/gate-multiplayer-server.log",
+        "sha256": "dd89983ce60f3e1c70b47cb672176919a57cc9a41194cffa789ff41f9d35e7fd"
+      },
+      "vsBaseline": "baseline: Test Suites: 5 failed, 152 passed, 157 total; Tests: 1082 passed, 1082 total (the 5 failures were jest transform-cache EPERM renames, suites that never ran). Now 158 suites = 157 + the new suite, all run and passing."
+    },
+    {
+      "gate": "npx jest src/pages-modules/api",
+      "lastLine": "Ran all test suites matching /src\\\\pages-modules\\\\api/i.",
+      "counts": "Test Suites: 8 passed, 8 total; Tests: 62 passed, 62 total",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21/logs/gate-pages-modules-api.log",
+        "sha256": "cd4c6294f6cfaa24458fccfe3e3cb0abb98303c7ab260f71a879eefaf110e756"
+      },
+      "vsBaseline": "baseline 8 suites / 60 tests; +2 = the two clause (f) rows"
+    },
+    {
+      "gate": "npx jest src/__tests__/api",
+      "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\api/i.",
+      "counts": "Test Suites: 54 passed, 54 total; Tests: 751 passed, 751 total",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21/logs/gate-tests-api.log",
+        "sha256": "bc2d576e7caaaa184041239072e6a9f12c9955ccb3ffb532b44e95aed48cf740"
+      },
+      "vsBaseline": "baseline 54 suites / 751 tests; same counts, the three match suites re-seeded"
+    },
+    {
+      "gate": "npx jest src/__tests__/api/matches",
+      "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\api\\\\matches/i.",
+      "counts": "Test Suites: 3 passed, 3 total; Tests: 47 passed, 47 total",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21/logs/gate-tests-api-matches.log",
+        "sha256": "eb5cd7f0604fa8e7639d0ac88234ca24f47a30e4cfc71e8b58dca6a4af0542ca"
+      },
+      "requestedBy": "the parent (2026-09-23)"
+    },
+    {
+      "gate": "npx jest src/lib/events/journal",
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\events\\\\journal/i.",
+      "counts": "Test Suites: 23 passed, 23 total; Tests: 243 passed, 243 total",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21/logs/gate-events-journal.log",
+        "sha256": "d8ff26b6c8a173a0f052d1cb673fed459ee9867ee799fd0bd7b3f6423b23bd04"
+      },
+      "vsBaseline": "baseline 23 suites / 243 tests; unchanged (read-only path)"
+    },
+    {
+      "gate": "npx tsc --noEmit",
+      "lastLine": "(no output)",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21/logs/gate-tsc.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "outputBytes": 0
+    },
+    {
+      "gate": "npx oxlint",
+      "lastLine": "Finished in 528ms on 3817 files using 16 threads.",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21/logs/gate-oxlint.log",
+        "sha256": "0ab5d145b3eb58451fa9214b893d85dd02f57908dbc4666a13a2b96cae87c877"
+      },
+      "warningsLine": "Found 84 warnings and 0 errors.",
+      "warningsVsBaseline84": 0,
+      "note": "repo-wide run; 3817 files. Single-file runs: the reader, ServerMatchHostRewindRebuild, rewindCommitDeps and campaignLaunchHeadRoute answer \"Found 0 warnings and 0 errors\" on 4 files; \"src/pages/api/matches/[id]/rewind-preview.ts\" given alone matched 0 files (the brackets are read as a glob), so its single-file lint is not claimed."
+    },
+    {
+      "gate": "npx oxfmt --check <the 13 changed files>",
+      "lastLine": "Finished in 39ms on 13 files using 16 threads.",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21/logs/gate-oxfmt.log",
+        "sha256": "9cd0eff70eb52e5d8cfa0dff98d31316cbe7664ce052c44569817012486d37e7"
+      },
+      "resultLine": "All matched files use the correct format.",
+      "files": 13
+    },
+    {
+      "gate": "npm run lint:units",
+      "lastLine": "LINT_UNITS_PASS 100/100",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21/logs/gate-lint-units.log",
+        "sha256": "e055631f9348b2e6539c922dddc1fe388b583448a734da5f618cb47c583fae2d"
+      }
+    },
+    {
+      "gate": "npm run qc:openspec-ci:validate",
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21/logs/gate-openspec-ci.log",
+        "sha256": "4c2dafd093b946290aa4abe001ad8b3d65671b17c7682722c55a510ecc04f91e"
+      }
+    },
+    {
+      "gate": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21/logs/gate-validator.log",
+        "sha256": "97b2f29d264078525a55c5f88586fb95603311fa065e70d7d17c5fab08f5b5bc"
+      }
+    },
+    {
+      "gate": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+      "lastLine": "U21",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21/logs/gate-validator-next.log",
+        "sha256": "10cf4d6ea364d1f7e5e96cb97a6e64e2654b98ea5dfd16eac7b4e3ccb9bddac2"
+      }
+    },
+    {
+      "gate": "npm run --silent qc:guard-node-modules-link",
+      "lastLine": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"E:\\\\Projects\\\\MekStation\\\\.sisyphus\\\\roadmap-completion-20260912\\\\worktrees\\\\u21\\\\node_modules\",\"actualPath\":\"E:\\\\Projects\\\\MekStation\\\\node_modules\"}",
+      "exitCode": 1,
+      "expected": true,
+      "why": "refusal by design in a junctioned worktree; run once at the start; no npm install/ci/prune or lifecycle was run"
+    }
+  ],
+  "reseededRows": {
+    "rule": "the parent's: each re-seeded row asserts what it asserted before, equal or stronger. 'Identical' means the row's own it(...) body is byte-identical to the baseline; every suite's shared seed now ALSO asserts the batch committed and the journal head is { branchId: 'main', revision: <head> } (stronger).",
+    "sharedFixtureChange": "Every match suite below: combat journal mode 'enabled' through _setCombatJournalAuthorityModeForTests in beforeEach, reset to null first in afterEach; the events committed with store.appendCommandBatch (one batch) instead of appendEvent + a hand-inserted journal; the request helper names the mirrored head ('main' and its real digest read through readEffectiveStreamHead) instead of the hand-seeded 'root' / 'd'x64.",
+    "suites": [
+      {
+        "file": "src/__tests__/api/matches/rewindCommitRoute.test.ts",
+        "rows": 10,
+        "identical": "all 10 row bodies (gives the host a committed rewind...; refuses a seated non-host with 403 and writes nothing; takes the actor from the token...; tells an unauthenticated caller...; refuses a body carrying replacement events...; answers 404 for a match with no authoritative history; answers 404 for a match nobody has created...; refuses a delivered campaign receipt with 409 and writes nothing; refuses an authenticated non-member with 403 and writes nothing; refuses a method it does not serve)",
+        "changed": [],
+        "verdict": "equal per row; the seed adds two assertions (stronger)"
+      },
+      {
+        "file": "src/__tests__/api/matches/rewindCommitRoute.reason.test.ts",
+        "rows": "11 row templates (21 tests with it.each)",
+        "identical": "every row body except the timeline row",
+        "changed": [
+          {
+            "row": "shows the authorized result without the reason in the seated player timeline",
+            "before": "transitions: [{ fromBranchId: 'root', toBranchId: <activated> }]",
+            "after": "transitions: [{ fromBranchId: MATCH_BASELINE_BRANCH_ID, toBranchId: <activated> }]",
+            "verdict": "equal: the exact prior branch is still pinned; it is now the branch the mirror writes ('main') instead of the hand-seeded 'root'"
+          }
+        ],
+        "verdict": "equal per row; the seed adds two assertions (stronger)"
+      },
+      {
+        "file": "src/__tests__/api/matches/rewindPreviewRoute.test.ts",
+        "rows": 16,
+        "identical": "every row body except the three below",
+        "changed": [
+          {
+            "row": "answers 404 for a match with no authoritative history",
+            "change": "comment only (the head row deleted is the one the mirror installed)",
+            "verdict": "equal"
+          },
+          {
+            "row": "reads the head of the EFFECTIVE branch, not whichever row comes first",
+            "change": "comment only ('sorts before main' instead of 'root'; candidate-1 still sorts first)",
+            "verdict": "equal"
+          },
+          {
+            "row": "records exactly one private preview whose actor is the token principal",
+            "before": "expect(draft.preview.branchId).toBe('root')",
+            "after": "expect(draft.preview.branchId).toBe(MATCH_BASELINE_BRANCH_ID)",
+            "verdict": "equal: the exact branch is still pinned, now the mirror's"
+          }
+        ],
+        "verdict": "equal per row; the seed adds two assertions (stronger)"
+      },
+      {
+        "file": "src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindRebuild.test.ts",
+        "rows": 7,
+        "identical": "6 row bodies",
+        "changed": [
+          {
+            "row": "no live host: commit still answers committed and boot folds the activated branch",
+            "before": "await seedAuthoritativeHistory(events)",
+            "after": "expectMirroredHead(events)",
+            "verdict": "stronger: the offset pin (headRevision === nextMatchSequenceAfter(last)) is kept, plus the journal head is asserted { branchId: 'main', revision: headRevision }"
+          }
+        ],
+        "helper": "standUpCommittedRewind makes the same seedAuthoritativeHistory -> expectMirroredHead swap; writePlayLog commits the play log as one batch (asserts committed)",
+        "verdict": "equal or stronger per row"
+      },
+      {
+        "file": "src/lib/multiplayer/server/__tests__/matchRecoveryCheckpointDoor.test.ts",
+        "rows": 7,
+        "identical": "6 row bodies",
+        "changed": [
+          {
+            "row": "boot after a committed rewind yields the rewound session",
+            "before": "hand-inserted journal (payload '{}', match-store digests) and expect(backfillGenesisBranches()).toBe(1)",
+            "after": "store.seedJournalFromInitialEvents(MATCH_ID, EVENTS) at mode 'enabled' (reset in finally), then expect(streamHead).toMatchObject({ branchId: 'main', revision: HEAD_REVISION })",
+            "verdict": "stronger: the removed assertion counted the fixture's own backfill (no longer present); its replacement pins the mirrored head. Every later assertion (committed, recovered host, rewound phase) is unchanged."
+          }
+        ],
+        "verdict": "equal or stronger per row"
+      }
+    ]
+  },
+  "mutants": {
+    "restoreMethod": "each mutated file copied aside before the edit and written back from that copy (not git checkout, which would drop the unit's own edits); restored sha256 compared with the pre-mutant sha256; after all mutants `sha256sum -c` over the 14 files (13 changed + campaignLaunchAuthorityRoute.ts) answered OK for every one",
+    "preMutantShaCheck": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21/logs/pre-mutant-shas.txt",
+      "sha256": "e11e4549d62b720031950fea8fa28f4d72d3f8029e25ae4b05f78c55d79532a1"
+    },
+    "results": [
+      {
+        "id": "M1",
+        "what": "the commit deps read the match store again: the reader is matchStoreBranchSegmentReader(input.store)",
+        "file": "src/pages-modules/api/rewindCommitDeps.ts",
+        "edits": [
+          {
+            "from": "import { matchJournalBranchSegmentReader } from '@/lib/multiplayer/server/history/matchJournalBranchSegmentReader';\n",
+            "to": "import { matchStoreBranchSegmentReader } from '@/lib/multiplayer/server/history/matchStoreBranchSegmentReader';\n"
+          },
+          {
+            "from": "    reader: matchJournalBranchSegmentReader(\n      new SQLiteEventJournal<IMatchJournalEnvelope>(db, input.nowIso),\n    ),\n",
+            "to": "    reader: matchStoreBranchSegmentReader(input.store),\n"
+          }
+        ],
+        "preMutantSha256": "1c3cf57d7889e3f517763613fb2e902a5a6832e62ced127dc31aaae0b979e994",
+        "mutantSha256": "d7c2eb1d43444c919b1cf63738d5725b18b735ba38a5028bbf646f85e27db1d4",
+        "restoredSha256": "1c3cf57d7889e3f517763613fb2e902a5a6832e62ced127dc31aaae0b979e994",
+        "restoredEqualsPreMutant": true,
+        "runs": [
+          {
+            "command": "npx jest src/lib/multiplayer/server/history/__tests__/matchJournalBranchSegmentReader.sqlite.test.ts",
+            "exitCode": 1,
+            "counts": "Test Suites: 1 failed, 1 total; Tests:       3 failed, 2 passed, 5 total",
+            "failed": [
+              "matchJournalBranchSegmentReader (U21) › the rewind commit, the live rebuild and the boot fold › commits a rewind whose candidate is verified against the journal it anchors to",
+              "matchJournalBranchSegmentReader (U21) › the rewind commit, the live rebuild and the boot fold › rebuilds the live session from exactly the N events the candidate keeps",
+              "matchJournalBranchSegmentReader (U21) › the rewind commit, the live rebuild and the boot fold › lands the next command on the candidate at N+1 and boot-folds the candidate"
+            ],
+            "failureHeads": [
+              "expect(received).toBe(expected) // Object.is equality | Expected: \"committed\" | Received: {\"detail\": \"Branch '9dd835028fd05f36104301960453adc2' is anchored to a base its parent does not hold at revision 4\", \"kind\": \"refused\", \"reason\": \"candidate-verification-failed\"} | 281 |       const result = await commitRewind(); | 282 | | > 283 |       expect(outcomeOf(result)).toBe('committed');",
+              "expect(received).toBe(expected) // Object.is equality | Expected: \"committed\" | Received: {\"detail\": \"Branch '94b11de258f1286b331a6b16f6ec6837' is anchored to a base its parent does not hold at revision 4\", \"kind\": \"refused\", \"reason\": \"candidate-verification-failed\"} | 269 |     ); | 270 |     const result = await commitRewind(); | > 271 |     expect(outcomeOf(result)).toBe('committed');",
+              "expect(received).toBe(expected) // Object.is equality | Expected: \"committed\" | Received: {\"detail\": \"Branch '6b1f18f3b6ed86630a17f1a4c7c05362' is anchored to a base its parent does not hold at revision 4\", \"kind\": \"refused\", \"reason\": \"candidate-verification-failed\"} | 269 |     ); | 270 |     const result = await commitRewind(); | > 271 |     expect(outcomeOf(result)).toBe('committed');"
+            ],
+            "log": {
+              "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21/logs/mutant-M1-matchJournalBranchSegmentReader.sqlite.test.log",
+              "sha256": "769925e265742fa4635e402708f8483013e02ef545b8e7bfc15c28ca53b38ba7"
+            }
+          },
+          {
+            "command": "npx jest src/__tests__/api/matches/rewindCommitRoute.test.ts",
+            "exitCode": 1,
+            "counts": "Test Suites: 1 failed, 1 total; Tests:       1 failed, 9 passed, 10 total",
+            "failed": [
+              "POST /api/matches/[id]/rewind-commit › gives the host a committed rewind and advances the effective generation"
+            ],
+            "failureHeads": [
+              "expect(received).toBe(expected) // Object.is equality | Expected: 200 | Received: 409 | 287 |     const { status, json } = await call({ bearer: host.wire }); | 288 | | > 289 |     expect(status).toBe(200);"
+            ],
+            "log": {
+              "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21/logs/mutant-M1-rewindCommitRoute.test.log",
+              "sha256": "c408d03bc9bd8f36191b9c15ef9a1228b043b2f94aee334cd474cf27a9e74fbf"
+            }
+          }
+        ],
+        "caught": true
+      },
+      {
+        "id": "M2",
+        "what": "the new reader wraps journalBranchSegmentReader (the 'root'-only refusal) and maps its events",
+        "file": "src/lib/multiplayer/server/history/matchJournalBranchSegmentReader.ts",
+        "edits": [
+          {
+            "from": "import { EventHistoryBranchError } from '@/lib/events/journal/EventHistoryBranchContract';\n",
+            "to": "import { EventHistoryBranchError } from '@/lib/events/journal/EventHistoryBranchContract';\nimport { journalBranchSegmentReader } from '@/lib/events/journal/EventHistoryBranchResolver';\n"
+          },
+          {
+            "from": "    read: async (stream, segment) => {\n      const collected: IProjectableBranchEvent[] = [];\n      let after = segment.fromRevision;\n      while (after < segment.throughRevision) {\n        const page = await journal.readStream({\n          streamType: stream.streamType,\n          streamId: stream.streamId,\n          branchId: segment.branchId,\n          afterRevision: after,\n          limit: Math.min(\n            EVENT_JOURNAL_MAX_PAGE_SIZE,\n            segment.throughRevision - after,\n          ),\n        });\n        if (page.length === 0) break;\n        collected.push(...page.map(toProjectableMatchEvent));\n        after = page[page.length - 1].streamRevision;\n      }\n      return collected;\n    },\n",
+            "to": "    read: async (stream, segment) =>\n      (await journalBranchSegmentReader(journal).read(stream, segment)).map(\n        toProjectableMatchEvent,\n      ),\n"
+          }
+        ],
+        "preMutantSha256": "ad426caaa589fe4c93dde1394819263abb0efe448a7a8457f0a2d87aee0a47a0",
+        "mutantSha256": "ff940b79765d62de6434085698f04ac2cbf6d14937afe23720d10b469acb47e4",
+        "restoredSha256": "ad426caaa589fe4c93dde1394819263abb0efe448a7a8457f0a2d87aee0a47a0",
+        "restoredEqualsPreMutant": true,
+        "runs": [
+          {
+            "command": "npx jest src/lib/multiplayer/server/history/__tests__/matchJournalBranchSegmentReader.sqlite.test.ts",
+            "exitCode": 1,
+            "counts": "Test Suites: 1 failed, 1 total; Tests:       5 failed, 5 total",
+            "failed": [
+              "matchJournalBranchSegmentReader (U21) › the rewind commit, the live rebuild and the boot fold › commits a rewind whose candidate is verified against the journal it anchors to",
+              "matchJournalBranchSegmentReader (U21) › the rewind commit, the live rebuild and the boot fold › rebuilds the live session from exactly the N events the candidate keeps",
+              "matchJournalBranchSegmentReader (U21) › the rewind commit, the live rebuild and the boot fold › lands the next command on the candidate at N+1 and boot-folds the candidate",
+              "matchJournalBranchSegmentReader (U21) › the prefix law (clause b) › a mid-stream window chains from its real predecessor and is the same slice of a full read",
+              "matchJournalBranchSegmentReader (U21) › the prefix law (clause b) › refuses a stored match event whose envelope carries no game event"
+            ],
+            "failureHeads": [
+              "expect(received).toBe(expected) // Object.is equality | Expected: \"committed\" | Received: {\"detail\": \"The journal stores only the 'root' branch; 'main' has no events\", \"kind\": \"refused\", \"reason\": \"candidate-verification-failed\"} | 281 |       const result = await commitRewind(); | 282 | | > 283 |       expect(outcomeOf(result)).toBe('committed');",
+              "expect(received).toBe(expected) // Object.is equality | Expected: \"committed\" | Received: {\"detail\": \"The journal stores only the 'root' branch; 'main' has no events\", \"kind\": \"refused\", \"reason\": \"candidate-verification-failed\"} | 269 |     ); | 270 |     const result = await commitRewind(); | > 271 |     expect(outcomeOf(result)).toBe('committed');",
+              "EventHistoryBranchError: The journal stores only the 'root' branch; 'main' has no events | 264 |     read: async (stream, segment) => { | 265 |       if (segment.branchId !== ROOT_EVENT_BRANCH_ID) { | > 266 |         throw new EventHistoryBranchError( | |               ^ | 267 |           'unknown-branch',",
+              "expect(received).rejects.toMatchObject(expected) | - Expected  - 1 | + Received  + 1 | Object { | -   \"code\": \"branch-integrity\", | +   \"code\": \"unknown-branch\","
+            ],
+            "log": {
+              "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21/logs/mutant-M2-matchJournalBranchSegmentReader.sqlite.test.log",
+              "sha256": "65d9fa78bb61ac70538eb089badc43c5b494fa6a17040664a9d916cad732dec6"
+            }
+          }
+        ],
+        "caught": true
+      },
+      {
+        "id": "M3",
+        "what": "a window rechains its predecessor digests from the window start (null) instead of passing the stored predecessor through",
+        "file": "src/lib/multiplayer/server/history/matchJournalBranchSegmentReader.ts",
+        "edits": [
+          {
+            "from": "      let after = segment.fromRevision;\n",
+            "to": "      let after = segment.fromRevision;\n      let rechained: string | null = null;\n"
+          },
+          {
+            "from": "        collected.push(...page.map(toProjectableMatchEvent));\n",
+            "to": "        for (const stored of page) {\n          const event = toProjectableMatchEvent(stored);\n          collected.push({ ...event, previousStreamEventDigest: rechained });\n          rechained = event.eventDigest;\n        }\n"
+          }
+        ],
+        "preMutantSha256": "ad426caaa589fe4c93dde1394819263abb0efe448a7a8457f0a2d87aee0a47a0",
+        "mutantSha256": "6f30981cebbc4f615d1d263b09e1171413f55f54b5484c66eeae169aa1d9c231",
+        "restoredSha256": "ad426caaa589fe4c93dde1394819263abb0efe448a7a8457f0a2d87aee0a47a0",
+        "restoredEqualsPreMutant": true,
+        "runs": [
+          {
+            "command": "npx jest src/lib/multiplayer/server/history/__tests__/matchJournalBranchSegmentReader.sqlite.test.ts",
+            "exitCode": 1,
+            "counts": "Test Suites: 1 failed, 1 total; Tests:       2 failed, 3 passed, 5 total",
+            "failed": [
+              "matchJournalBranchSegmentReader (U21) › the rewind commit, the live rebuild and the boot fold › lands the next command on the candidate at N+1 and boot-folds the candidate",
+              "matchJournalBranchSegmentReader (U21) › the prefix law (clause b) › a mid-stream window chains from its real predecessor and is the same slice of a full read"
+            ],
+            "failureHeads": [
+              "EventHistoryBranchError: Event after-rewind:0 does not chain to the preceding digest on branch 'e8ebc130ac033a0c6d2cc1b54ede80d7' | 121 | | 122 | function integrity(message: string): never { | > 123 |   throw new EventHistoryBranchError('branch-integrity', message); | |         ^ | 124 | }",
+              "expect(received).toEqual(expected) // deep equality | - Expected  - 1 | + Received  + 1 | @@ -24,11 +24,11 @@ | \"timestamp\": \"2026-09-23T03:09:52.376Z\", | \"turn\": 1,"
+            ],
+            "log": {
+              "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21/logs/mutant-M3-matchJournalBranchSegmentReader.sqlite.test.log",
+              "sha256": "ec66f926ded5d9371eeda3b308b26ca4fa3f1d2c6a3da41b9baf85c50d2d5d21"
+            }
+          }
+        ],
+        "caught": true
+      },
+      {
+        "id": "M4a",
+        "what": "campaignLaunchHeadRoute answers its caught no-effective-branch with 200 no-authoritative-stream instead of 500",
+        "file": "src/pages-modules/api/campaignLaunchHeadRoute.ts",
+        "edits": [
+          {
+            "from": "  } catch (error) {\n    sendCaughtApiError(res, error, 'failed to read campaign head');\n  }\n",
+            "to": "  } catch (error) {\n    void error;\n    res.status(200).json({ kind: 'no-authoritative-stream' });\n  }\n"
+          }
+        ],
+        "preMutantSha256": "9b90d3b81852d2ec6893a4444739c3108b763bc74524bfcf8b59e9a4923b81f3",
+        "mutantSha256": "b08097b8459d78f8381a0ee02b9bbf00ab1d7bebdae2ec78942fd759b47e79cf",
+        "restoredSha256": "9b90d3b81852d2ec6893a4444739c3108b763bc74524bfcf8b59e9a4923b81f3",
+        "restoredEqualsPreMutant": true,
+        "runs": [
+          {
+            "command": "npx jest src/pages-modules/api/__tests__/campaignLaunchHeadRoute.test.ts",
+            "exitCode": 1,
+            "counts": "Test Suites: 1 failed, 1 total; Tests:       1 failed, 7 passed, 8 total",
+            "failed": [
+              "GET /api/campaigns/:id/head › answers 500 for a journaled campaign whose effective head is missing, never no-authoritative-stream"
+            ],
+            "failureHeads": [
+              "expect(received).toBe(expected) // Object.is equality | Expected: 500 | Received: 200 | 281 | | 282 |     // OD-launch-head-gate: refused, not answered ungated. | > 283 |     expect(result.statusCode).toBe(500);"
+            ],
+            "log": {
+              "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21/logs/mutant-M4a-campaignLaunchHeadRoute.test.log",
+              "sha256": "7917a3e9c7de0fa353ed589025b68f9671cf738f79947bb0fceeec3374fb80ea"
+            }
+          }
+        ],
+        "caught": true
+      },
+      {
+        "id": "M4b",
+        "what": "campaignLaunchAuthorityRoute answers its caught no-effective-branch with 200 no-authoritative-stream instead of 500",
+        "file": "src/pages-modules/api/campaignLaunchAuthorityRoute.ts",
+        "edits": [
+          {
+            "from": "  } catch (error) {\n    sendCaughtApiError(res, error, 'failed to resolve launch authority');\n  }\n",
+            "to": "  } catch (error) {\n    void error;\n    res.status(200).json({ kind: 'no-authoritative-stream' });\n  }\n"
+          }
+        ],
+        "preMutantSha256": "a0b6624ec65c8d222444a7069d66cad1621fc9cd1e581fd38e19c70ddfe7b603",
+        "mutantSha256": "d43e87409275fd94ed9b525e0b169def0d708fb0d96e63f36dc448155bb61f11",
+        "restoredSha256": "a0b6624ec65c8d222444a7069d66cad1621fc9cd1e581fd38e19c70ddfe7b603",
+        "restoredEqualsPreMutant": true,
+        "runs": [
+          {
+            "command": "npx jest src/pages-modules/api/__tests__/campaignLaunchAuthorityRoute.test.ts",
+            "exitCode": 1,
+            "counts": "Test Suites: 1 failed, 1 total; Tests:       1 failed, 17 passed, 18 total",
+            "failed": [
+              "POST /api/campaigns/:id/launch-authority › answers 500 for a journaled campaign whose effective head is missing, never no-authoritative-stream"
+            ],
+            "failureHeads": [
+              "expect(received).toBe(expected) // Object.is equality | Expected: 500 | Received: 200 | 465 | | 466 |     // OD-launch-head-gate: refused, not answered ungated. | > 467 |     expect(result.statusCode).toBe(500);"
+            ],
+            "log": {
+              "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21/logs/mutant-M4b-campaignLaunchAuthorityRoute.test.log",
+              "sha256": "a2aea9ed0067d6e76a871a5114ddb19eb7e10a16ca3f3d499272327eeebd6fee"
+            }
+          }
+        ],
+        "caught": true
+      },
+      {
+        "id": "M6",
+        "what": "the live rebuild and the boot fold read the match store again: ServerMatchHostRewindRebuild.ts is its baseline blob (b0e17e343)",
+        "file": "src/lib/multiplayer/server/ServerMatchHostRewindRebuild.ts",
+        "edits": "whole file replaced by `git show b0e17e343d3ff1020058e5f6a19d128f0a4ea029:src/lib/multiplayer/server/ServerMatchHostRewindRebuild.ts`",
+        "preMutantSha256": "6fa8d2277ee15806050139269f2d9c42e502b4eef9eb9bf065cb7f82db9df4bf",
+        "mutantSha256": "08516e99487125df77fce1a7ebfe895ca92b468742115b2c0d802eecdfe29577",
+        "restoredSha256": "6fa8d2277ee15806050139269f2d9c42e502b4eef9eb9bf065cb7f82db9df4bf",
+        "restoredEqualsPreMutant": true,
+        "runs": [
+          {
+            "command": "npx jest src/lib/multiplayer/server/history/__tests__/matchJournalBranchSegmentReader.sqlite.test.ts",
+            "exitCode": 1,
+            "counts": "Test Suites: 1 failed, 1 total; Tests:       2 failed, 3 passed, 5 total",
+            "failed": [
+              "matchJournalBranchSegmentReader (U21) › the rewind commit, the live rebuild and the boot fold › rebuilds the live session from exactly the N events the candidate keeps",
+              "matchJournalBranchSegmentReader (U21) › the rewind commit, the live rebuild and the boot fold › lands the next command on the candidate at N+1 and boot-folds the candidate"
+            ],
+            "failureHeads": [
+              "EventHistoryBranchError: Branch 'ce2c06d58f44adbbd369164d1eb5377c' is anchored to a base its parent does not hold at revision 4 | 121 | | 122 | function integrity(message: string): never { | > 123 |   throw new EventHistoryBranchError('branch-integrity', message); | |         ^ | 124 | }",
+              "EventHistoryBranchError: Branch '9cc291083c35e182803779f5cdf03450' is anchored to a base its parent does not hold at revision 4 | 121 | | 122 | function integrity(message: string): never { | > 123 |   throw new EventHistoryBranchError('branch-integrity', message); | |         ^ | 124 | }"
+            ],
+            "log": {
+              "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21/logs/mutant-M6-matchJournalBranchSegmentReader.sqlite.test.log",
+              "sha256": "259728dfd29a7e435d5e723a251c20c2da810084f52c89ca446cef43d6b8a8ad"
+            }
+          },
+          {
+            "command": "npx jest src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindRebuild.test.ts",
+            "exitCode": 1,
+            "counts": "Test Suites: 1 failed, 1 total; Tests:       7 failed, 7 total",
+            "failed": [
+              "ServerMatchHost rewind rebuild › live session answers revision N phase, not the pre-rewind head",
+              "ServerMatchHost rewind rebuild › next die roll matches a fresh host seeded with the same seeds",
+              "ServerMatchHost rewind rebuild › viewer past N is resynced from the new head and its cursor discarded",
+              "ServerMatchHost rewind rebuild › rebuild lease is released only after replaceSession",
+              "ServerMatchHost rewind rebuild › a rebuild that fails before the session is replaced claims no served branch",
+              "ServerMatchHost rewind rebuild › no live host: commit still answers committed and boot folds the activated branch",
+              "ServerMatchHost rewind rebuild › first command after a committed rewind persists and is delivered"
+            ],
+            "failureHeads": [
+              "EventHistoryBranchError: Branch '7c42e1a3537786f7d26dab6281f01f01' is anchored to a base its parent does not hold at revision 2 | 121 | | 122 | function integrity(message: string): never { | > 123 |   throw new EventHistoryBranchError('branch-integrity', message); | |         ^ | 124 | }",
+              "EventHistoryBranchError: Branch '6aec5410f828be5f896c8f6a58e7e608' is anchored to a base its parent does not hold at revision 2 | 121 | | 122 | function integrity(message: string): never { | > 123 |   throw new EventHistoryBranchError('branch-integrity', message); | |         ^ | 124 | }",
+              "EventHistoryBranchError: Branch 'bc37b9c4907709b76fd16985cd291d9d' is anchored to a base its parent does not hold at revision 2 | 121 | | 122 | function integrity(message: string): never { | > 123 |   throw new EventHistoryBranchError('branch-integrity', message); | |         ^ | 124 | }",
+              "EventHistoryBranchError: Branch '1c07c53826d39ea159c0c82ba9bad5f1' is anchored to a base its parent does not hold at revision 2 | 121 | | 122 | function integrity(message: string): never { | > 123 |   throw new EventHistoryBranchError('branch-integrity', message); | |         ^ | 124 | }",
+              "expect(received).rejects.toThrow(expected) | Expected substring: \"injected\" | Received message:   \"Branch '5eaa0dc79f42e250780c2957b70b0746' is anchored to a base its parent does not hold at revision 2\" | 121 | | 122 | function integrity(message: string): never { | > 123 |   throw new EventHistoryBranchError('branch-integrity', message);",
+              "expect(received).toBeDefined() | Received: undefined | 234 |     const recovered = await recoverActiveMatches(store); | 235 |     const host = recovered.hosts.get(MATCH_ID); | > 236 |     expect(host).toBeDefined(); | |                  ^"
+            ],
+            "log": {
+              "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21/logs/mutant-M6-ServerMatchHost.rewindRebuild.test.log",
+              "sha256": "cd59c3c0f4967864117d9bf25afedce32c03104aa3a2f3cab952ce140ba8c5fb"
+            }
+          }
+        ],
+        "caught": true
+      }
+    ]
+  },
+  "nonClaims": [
+    "NO E2E, NO BUILD, NO PLAYWRIGHT. E2E-25 turning into an unexpected pass is the parent's main proof after merge; nothing here proves the live lobby path.",
+    "Clause (c) is NOT done (scope.clauseCDropped). The viewer lineage still answers the branch cutoff; GET /head answers the journal head.",
+    "The production constant is unchanged: COMBAT_JOURNAL_AUTHORITY_MODE is 'off', so in production the mirror writes nothing, no match stream has an effective head, and the three consumers refuse no-authoritative-history (preview/commit) or fold nothing (boot) exactly as before - by code reading of the mode gate (DurableMatchStore.ts:1000) and the modules' head checks; the route rows that delete the effective head (404) pass.",
+    "The reader is exercised on the live-path branch main and on an activated candidate (the boot-fold row reads the candidate's own event at N+1). A root-branch match stream (no mirror) and a multi-level candidate-of-candidate path are not exercised by a U21 row.",
+    "The preview route is proven through the re-seeded route suite (16 rows green) only; it reads a truncation of one branch, so it never reads a candidate segment.",
+    "matchStoreBranchSegmentReader keeps no production consumer (grep: its only caller outside its own suite is none; its suite still runs). It was not deleted.",
+    "The new suite loads the reader through a dynamic import so its absence failed only the reader rows at red; the suite text at red differs from the final by one added doc comment on meta().",
+    "No journal file was edited (src/lib/events/journal is untouched). No units.json, roadmap.json, admission-snapshot.json or tasks.md edit. No commit, push, stash, amend or force."
+  ],
+  "findingsReportedNotFixed": [
+    {
+      "id": "F1",
+      "file": "src/lib/multiplayer/server/history/GmCombatRewindPreview.ts:242-249",
+      "finding": "The no-authoritative-history comment still says 'FINDING #48/#53: nothing writes match events to the journal'; the S1 mirror writes them at mode enabled/shadow. Comment only; outside the unit's behaviour."
+    },
+    {
+      "id": "F2",
+      "file": "src/lib/multiplayer/server/MatchRecoveryJournalHead.ts:16-20",
+      "finding": "The header says matchStoreBranchSegmentReader 'refuses every branch but root'; it serves both live-path ids (root and main) and, after U21, no longer serves any recovery path. Comment only."
+    },
+    {
+      "id": "F3",
+      "file": "src/lib/multiplayer/server/history/GmCombatRewindPreview.ts (materializeBranchPath call) / src/pages/api/matches/[id]/rewind-preview.ts:304",
+      "finding": "A branch-integrity refusal during the preview escapes previewGmCombatRewind and the route answers 500 {error} (measured with the baseline fixtures under the new reader: 'Branch root holds 0 of the 4 revisions in 1..4'), while the commit maps the same class to 409 candidate-verification-failed. Not changed."
+    },
+    {
+      "id": "F4",
+      "file": "src/lib/multiplayer/server/history/matchStoreBranchSegmentReader.ts:142",
+      "finding": "matchStoreBranchSegmentReader has no production consumer after U21 (only its own suite calls it). Its exported helpers (revisionForMatchSequence, nextMatchSequenceAfter, journalHeadRevisionForNextMatchSequence, matchEventChainDigest, IMatchEventSource) are still imported. Deleting the function is not in the behaviour sentence."
+    },
+    {
+      "id": "F5",
+      "file": "src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindRebuild.test.ts:329",
+      "finding": "The comment 'toMatchObject prints kind/reason/detail when commit still refuses' is false: measured, toMatchObject({ kind: 'committed' }) printed only the kind key. The new suite uses outcomeOf instead. Not edited."
+    },
+    {
+      "id": "F6",
+      "file": "src/pages-modules/api/__tests__/campaignLaunchHeadRoute.test.ts:146",
+      "finding": "The seed helper's doc still says 'the flag-off world' - the same stale rationale clause (e) removed at the row comment, outside the two places (e) names. Not edited."
+    },
+    {
+      "id": "F7",
+      "file": "src/lib/campaign/encounter/requestLaunchAuthority.ts:205-226 (U20 Lane A finding 1)",
+      "finding": "Still stands: the client treats GET /head's 500 as 'unavailable' and launches ungated. The rewritten route doc states only the route's answers and does not claim the launch refuses."
+    }
+  ],
+  "finalGitStatusShort": [
+    " M src/__tests__/api/matches/rewindCommitRoute.reason.test.ts",
+    " M src/__tests__/api/matches/rewindCommitRoute.test.ts",
+    " M src/__tests__/api/matches/rewindPreviewRoute.test.ts",
+    " M src/lib/multiplayer/server/ServerMatchHostRewindRebuild.ts",
+    " M src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindRebuild.test.ts",
+    " M src/lib/multiplayer/server/__tests__/matchRecoveryCheckpointDoor.test.ts",
+    " M src/pages-modules/api/__tests__/campaignLaunchAuthorityRoute.test.ts",
+    " M src/pages-modules/api/__tests__/campaignLaunchHeadRoute.test.ts",
+    " M src/pages-modules/api/campaignLaunchHeadRoute.ts",
+    " M src/pages-modules/api/rewindCommitDeps.ts",
+    " M src/pages/api/matches/[id]/rewind-preview.ts",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u21-admission-20260923.json",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u21-local-20260923.json",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u21-red-20260923.json",
+    "?? src/lib/multiplayer/server/history/__tests__/matchJournalBranchSegmentReader.sqlite.test.ts",
+    "?? src/lib/multiplayer/server/history/matchJournalBranchSegmentReader.ts"
+  ]
+}
