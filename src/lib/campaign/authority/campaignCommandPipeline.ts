@@ -50,6 +50,7 @@ import type {
 import { readDurableStreamRebuild } from '@/lib/events/journal/EventHistoryDurableRebuild';
 import { readDurableCampaignArtifactUse } from '@/lib/interventions/GmCampaignArtifactUseDurable';
 import { validateCampaignIntent } from '@/lib/multiplayer/server/CampaignMatchHostIntent';
+import { logger } from '@/utils/logger';
 
 import type { CampaignOfferDurabilityReason } from './campaignAcceptContractCommand';
 import type { CampaignAuthorityMode } from './campaignAuthorityMode';
@@ -330,18 +331,33 @@ function resolveCommandBase(
  * began migrating, and the durable io reads a corrupt row as absent because
  * the authority resolver has already refused such a campaign before any
  * command could reach this point.
+ *
+ * Never throws (F-1). This runs after the journal has taken the batch, so a
+ * marker read or write that fails here is caught and logged with the
+ * campaign and command ids, and the caller acknowledges the commit anyway:
+ * answering an error for a batch that is durable would send the client to
+ * retry something that already happened. The cost is that the stamp is
+ * missing, so the next command that commits while the marker io works is
+ * the one recorded as first.
  */
 function recordFirstCommandOnMarker(
   campaignId: string,
   commandId: string,
 ): void {
-  const marker = durableCampaignMarkerIo.read(campaignId);
-  if (marker === null || marker.firstJournalAuthorityCommandId !== null) {
-    return;
+  try {
+    const marker = durableCampaignMarkerIo.read(campaignId);
+    if (marker === null || marker.firstJournalAuthorityCommandId !== null) {
+      return;
+    }
+    const recorded = recordFirstJournalAuthorityCommand(marker, commandId);
+    if (recorded.kind !== 'ok') return;
+    durableCampaignMarkerIo.write(recorded.marker);
+  } catch (error) {
+    logger.warn(
+      `[campaign-command] cutover marker not stamped after commit campaignId=${campaignId} commandId=${commandId}`,
+      error,
+    );
   }
-  const recorded = recordFirstJournalAuthorityCommand(marker, commandId);
-  if (recorded.kind !== 'ok') return;
-  durableCampaignMarkerIo.write(recorded.marker);
 }
 
 /**
@@ -365,7 +381,8 @@ async function acknowledgeCommit(
   // journal-authority command, and a marker that recorded one would close
   // off a rollback on the strength of something that never happened. A
   // divergent replay below does NOT undo it - the batch is committed and
-  // D10 never deletes it.
+  // D10 never deletes it. A marker io failure is logged inside the call and
+  // does not stop the acknowledgement below.
   recordFirstCommandOnMarker(campaignId, commandId);
 
   const committedEvents = await store.getEvents(campaignId, 0);

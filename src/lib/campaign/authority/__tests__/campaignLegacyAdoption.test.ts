@@ -1,13 +1,14 @@
 /**
- * Legacy campaign adoption (task 1.4, design D8 + D10).
+ * Legacy campaign adoption (task 1.4, design D8; OD-mvp-hard-cutover).
  *
  * Pins: the offer is made only for a storage-rehydrated copy the server
  * does not hold (a campaign created this session is new, not legacy);
- * adoption imports under the `migration` principal and lands in
- * `shadowing` with the imported revision and digest recorded — the
- * provenance distinction that separates it from a journal-native create;
- * a retried adoption is idempotent rather than an error; a rejected append
- * is reported as a failure rather than as a completed import; and the hook
+ * adoption appends the genesis snapshot under the `system` principal and
+ * writes the journal-native marker, the same shape a create produces; a
+ * retried adoption is idempotent rather than an error and never replaces
+ * the marker (so a stamped first command survives it, and a marker from an
+ * earlier shadowing import is left standing); an unprojectable campaign is
+ * reported as a failure rather than as a completed adoption; and the hook
  * is inert while journal authority is off.
  */
 
@@ -18,15 +19,21 @@ import { InMemoryEventJournal } from '@/lib/events/journal/InMemoryEventJournal'
 import type { ICampaignCutoverMarker } from '../campaignAuthorityMigration';
 
 import {
+  computeCampaignStateDigest,
   JournalCampaignEventStore,
   type ICampaignJournalEnvelope,
 } from '../../sync/JournalCampaignEventStore';
-import { createJournalNativeMarker } from '../campaignAuthorityMigration';
+import {
+  createJournalNativeMarker,
+  importCampaignBaseline,
+  recordFirstJournalAuthorityCommand,
+} from '../campaignAuthorityMigration';
 import {
   adoptLegacyCampaign,
   evaluateCampaignAdoptionOffer,
   maybeAdoptLegacyCampaign,
 } from '../campaignLegacyAdoption';
+import { authoritativeStateFromSerializedCampaign } from '../campaignSourceGenesis';
 
 const NOW = '3025-01-03T00:00:00.000Z';
 
@@ -110,7 +117,7 @@ describe('adoptLegacyCampaign', () => {
     },
   };
 
-  it('records the import honestly instead of claiming a native genesis', async () => {
+  it('adopts a browser copy as a journal-native campaign', async () => {
     const envelope = browserEnvelope(7);
 
     const result = await adoptLegacyCampaign(journal, markerIo, {
@@ -120,26 +127,19 @@ describe('adoptLegacyCampaign', () => {
 
     expect(result.kind).toBe('adopted');
     if (result.kind !== 'adopted') throw new Error('unreachable');
-    // Parity is still owed: the import is not yet proven equal to the
-    // projection the journal replays.
-    expect(result.marker.state).toBe('shadowing');
-    expect(result.marker.importedBaseline).not.toBeNull();
-    expect(result.marker.importedBaseline?.sourceSnapshotRevision).toBe(7);
-    expect(result.marker.importedBaseline?.sourceSnapshotDigest).toBe(
-      result.importedDigest,
+    // The marker a create writes: journal state, no imported baseline.
+    expect(result.marker).toEqual(
+      createJournalNativeMarker(envelope.campaignId),
     );
-    expect(result.importedDigest).not.toBe('');
     expect(markers).toEqual([result.marker]);
-
-    // The regression this whole path exists to prevent: a browser copy
-    // stamped journal-native would assert its entire history lives in this
-    // journal, and D10's rollback law reads exactly that field.
-    const native = createJournalNativeMarker(envelope.campaignId);
-    expect(native.importedBaseline).toBeNull();
-    expect(result.marker).not.toEqual(native);
+    expect(result.importedDigest).toBe(
+      computeCampaignStateDigest(
+        authoritativeStateFromSerializedCampaign(envelope),
+      ),
+    );
   });
 
-  it('writes exactly one baseline event under the migration principal', async () => {
+  it('writes exactly one genesis event under the system principal', async () => {
     const envelope = browserEnvelope();
 
     await adoptLegacyCampaign(journal, markerIo, { envelope, importedAt: NOW });
@@ -149,7 +149,7 @@ describe('adoptLegacyCampaign', () => {
     expect(events).toHaveLength(1);
     expect(events[0]?.sequence).toBe(0);
     expect(events[0]?.type).toBe('CampaignSnapshotPublished');
-    expect(events[0]?.authorPlayerId).toBe('migration');
+    expect(events[0]?.authorPlayerId).toBe('system');
   });
 
   it('is idempotent when the same campaign is adopted twice', async () => {
@@ -161,15 +161,52 @@ describe('adoptLegacyCampaign', () => {
       importedAt: NOW,
     });
 
-    // The journal REPLAYS an identical command rather than refusing it, so
+    // The journal REPLAYS an identical genesis rather than refusing it, so
     // the recorded marker - not the append - is what makes a retry safe.
-    // Without that read the second call would restamp the marker with a
-    // later import time and quietly rewrite the campaign's provenance.
     expect(again.kind).toBe('already-journaled');
-    // No second marker: a retry must not rewrite the recorded provenance.
+    // No second marker: a retry must not replace the recorded one.
     expect(markers).toHaveLength(1);
     const store = new JournalCampaignEventStore(journal);
     expect(await store.getEvents(envelope.campaignId, 0)).toHaveLength(1);
+  });
+
+  it('keeps a stamped first command when the adoption is retried', async () => {
+    const envelope = browserEnvelope();
+    await adoptLegacyCampaign(journal, markerIo, { envelope, importedAt: NOW });
+    const adopted = markerIo.read(envelope.campaignId);
+    if (adopted === null) throw new Error('unreachable');
+    const stamped = recordFirstJournalAuthorityCommand(adopted, 'cmd-first');
+    if (stamped.kind !== 'ok') throw new Error(stamped.kind);
+    markerIo.write(stamped.marker);
+
+    const again = await adoptLegacyCampaign(journal, markerIo, {
+      envelope,
+      importedAt: NOW,
+    });
+
+    // A fresh journal-native marker would reset the stamp to null.
+    expect(again.kind).toBe('already-journaled');
+    expect(markerIo.read(envelope.campaignId)).toEqual(stamped.marker);
+  });
+
+  it('leaves a marker from an earlier shadowing import standing', async () => {
+    const envelope = browserEnvelope();
+    const imported = await importCampaignBaseline(journal, {
+      campaignId: envelope.campaignId,
+      state: authoritativeStateFromSerializedCampaign(envelope),
+      sourceSnapshotRevision: envelope.version,
+      importedAt: NOW,
+    });
+    if (imported.kind !== 'imported') throw new Error(imported.kind);
+    markerIo.write(imported.marker);
+
+    const result = await adoptLegacyCampaign(journal, markerIo, {
+      envelope,
+      importedAt: NOW,
+    });
+
+    expect(result.kind).toBe('already-journaled');
+    expect(markers).toEqual([imported.marker]);
   });
 
   it('reports an unprojectable campaign as a failure, not an import', async () => {
