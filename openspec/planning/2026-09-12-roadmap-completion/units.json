@@ -1306,7 +1306,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "blocked",
+      "state": "planned",
       "baseline": "992b2babcf516466cf018bb0153f247018079c59",
       "prHead": null,
       "mergeSha": null,
@@ -1335,6 +1335,10 @@
         "cause": "a real co-op flow loses a journal-only effect on the host's next whole-envelope save once the flag flips (the owner-ruled gate from the ruling on U35b, measured at admission)",
         "nextIndependentAction": "U35e (server: a checkpoint keeps the journal's pilots, contracts and salvage pool, and every journal command also rewrites the saved record in its append's transaction) then U35f (host browser: after folding a co-op update the host adopts the new saved-record version); U35d returns to planned when both are main-verified (owner decision OD-u35d-server-and-host-fix)",
         "proof": "evidence/u35d-admission-20260923.json"
+      },
+      "resumed20260923": {
+        "at": "2026-09-23T07:53:24.000Z",
+        "why": "both successors main-verified: U35e (45d5c348d) and U35f (668ed250f5d378c231004127c2eaac08a346b9f7); the re-admission runs the widened gate (combat-outcome and roster effects) before any product edit; by owner decision OD-uat-two-rounds sub-decision 3 the flip belongs to UAT round 2"
       }
     },
     {
@@ -1430,7 +1434,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "local-verified",
+      "state": "complete",
       "source20260923": "planned by the parent under owner decision OD-u35d-server-and-host-fix (U35d's admission openQuestionsForTheParent[0])",
       "admitAfter20260923": "U35e main-verified (the version the host adopts is the one U35e's row rewrite produces)",
       "blocked20260923": {
@@ -1439,8 +1443,8 @@
         "nextIndependentAction": "the docs(roadmap) edit that records U35e's main proof returns this unit to planned; --next cannot express a unit-to-unit dependency"
       },
       "baseline": "f32ea5400f3a1282733180059e32d9169fb74204",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "09d34d687b96e40391b6ffc39f4b9c6b74fc5f1f",
+      "mergeSha": "668ed250f5d378c231004127c2eaac08a346b9f7",
       "stageReceipts": {
         "admission": {
           "path": "evidence/u35f-admission-20260923.json",
@@ -1459,10 +1463,31 @@
           "at": "2026-09-23T07:09:21.419Z",
           "summary": "product 2 files 141 lines (component +36; store +72/-33), tests 2 files 972 lines; the host fold refreshes the record through refreshAfterCommittedCommand for CampaignEvent frames on the host only; the refresh queues on the save chain (no longer published as inFlightLoad), the co-op rollback updates the cache key, and runSave ignores a response older than the held version; new coop suite 9/9, store suite 22/22; src/components/campaign/coop 15/153; src/stores/campaign 27/342; src/lib/campaign/coop 8/48; src/__tests__/pages/gameplay/campaigns 6/38; other real-store suites 28/118; tsc 0; oxlint 84 warnings 0 errors; oxfmt clean on 4 files; LINT_UNITS_PASS 100/100; qc:openspec-ci errors=0; validator PASSED; --next U35f on the baseline; seven mutants caught and restored; implementer claude-opus (Agent model: opus); F1 fixed, F2 fixed on the refresh path; findings F3-F7 recorded; status ready"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "review": {
+          "path": "evidence/u35f-review-20260923.json",
+          "head": "09d34d687b96e40391b6ffc39f4b9c6b74fc5f1f",
+          "reviewedHead": "09d34d687b96e40391b6ffc39f4b9c6b74fc5f1f",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet)",
+          "implementerModel": "claude-opus (Agent model: opus)",
+          "outputSha256": "c3841c270652781e378522cc964e536155dcffff430d2b4f3392c27e8a06b832",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u35f-merge-20260923.json",
+          "pr": 1930,
+          "head": "09d34d687b96e40391b6ffc39f4b9c6b74fc5f1f",
+          "mergeSha": "668ed250f5d378c231004127c2eaac08a346b9f7"
+        },
+        "mainProof": {
+          "path": "evidence/u35f-mainproof-20260923.json",
+          "mergeCommit": "668ed250f5d378c231004127c2eaac08a346b9f7",
+          "verdict": "PASS",
+          "runtime": "Tests:       581 passed, 581 total"
+        },
+        "tick": {
+          "path": "evidence/u35f-tick-20260923.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "resumed20260923": {
@@ -7287,6 +7312,48 @@
         "deviationDisclosed": "DELIVERY.md says the owner posts the ruling out of band; the owner approved this unit by description in chat (words quoted in the comment) after the parent explained it in plain language and reported Lane A's verdict and the check set on the head, and the parent composed and posted the comment from the owner GitHub account and applied the label; the parent supplied the head from the ledger, as in the earlier rulings of this loop"
       },
       "note": "opened when the owner ruled, 2026-09-22 (the cutover sequence's units carry no pre-opened ruling packets)"
+    },
+    {
+      "id": "PK-u35f-ruling",
+      "blocks": [
+        "U35f"
+      ],
+      "nodes": [
+        "R2.multiplayer-client"
+      ],
+      "taskKeys": [],
+      "question": "U35f (review classes authority, concurrency) presents head 09d34d687b96e40391b6ffc39f4b9c6b74fc5f1f. Does the owner rule it?",
+      "options": [
+        {
+          "label": "rule the head",
+          "consequence": "an OWNER-RULING <head> comment and the owner-ruled label on U35f's PR; the unit merges and proceeds to main proof",
+          "effort": "0.1 day owner"
+        },
+        {
+          "label": "reject",
+          "consequence": "the PR closes; the unit returns to planned with the objection recorded",
+          "effort": "0.1 day owner"
+        }
+      ],
+      "agentRecommendation": "rule the head once Lane A has approved it and the checks are green",
+      "revertCost": "low: a squash merge revert",
+      "decision": {
+        "at": "2026-09-23T07:30:34Z",
+        "option": "rule the head",
+        "text": "Approve (Recommended)",
+        "source": "owner instruction in the working session (chat), after the parent described the unit in plain English: a structured question: the host half of OD-u35d-server-and-host-fix; the host refreshes the saved campaign after a committed co-op update; two persistence-store gaps fixed; Lane A measured no co-op loss on snapshot-authority campaigns in three cases and no deadlock; one minor test gap; Lane A APPROVE and 31 green checks; the merge becomes the UAT round 1 build"
+      },
+      "ruling": {
+        "ruledHead": "09d34d687b96e40391b6ffc39f4b9c6b74fc5f1f",
+        "pr": 1930,
+        "commentId": 5790856507,
+        "author": "SwiggitySwerve",
+        "label": "owner-ruled",
+        "bodySha256": "4bbd8f25080ab16ef9d0a3208eaffeaaef9f9d737ab6429a7bc1f2ed2c8923fd",
+        "postedBy": "parent on the owner's instruction (the comment quotes the owner's words verbatim)",
+        "deviationDisclosed": "DELIVERY.md says the owner posts the ruling out of band; the owner approved this unit by description in chat (words quoted in the comment) after the parent explained it in plain language and reported Lane A's verdict and the check set on the head, and the parent composed and posted the comment from the owner GitHub account and applied the label; the parent supplied the head from the ledger, as in the earlier rulings of this loop"
+      },
+      "note": "opened when the owner ruled, 2026-09-22 (the cutover sequence's units carry no pre-opened ruling packets)"
     }
   ],
   "deferrals": [
@@ -8015,6 +8082,15 @@
       "summary": "F3: the host fold does not check event.campaignId, so a frame naming another campaign would be projected onto this one (each transport carries one campaign, so production likely cannot send one; not measured). F4: when the refresh read fails and the store is dirty, it re-arms an auto-save even for a co-op campaign, which a journal-native campaign refuses about 2 seconds later. F5: one refresh read per committed event, so a HirePilot batch reads twice.",
       "recommendedSuccessor": "check event.campaignId in the fold; do not re-arm auto-save for a co-op campaign after a failed refresh; refresh once per committed batch",
       "status": "recorded; fold into the next unit that edits src/components/campaign/coop"
+    },
+    {
+      "id": "FN-u35f-save-chain-tail-update-untested",
+      "foundBy": "U35f Lane A review (claude-sonnet), 2026-09-23, finding 5",
+      "at": "2026-09-23T07:53:24.000Z",
+      "class": "test coverage gap (no defect: the code is correct)",
+      "summary": "A mutant that removes the save-chain tail update in refreshAfterCommittedCommandAction (src/stores/campaign/useCampaignPersistenceStore.ts) passes the whole shipped suite (31/31); the reviewer confirmed by reading the code that the real line is present and correct. A later save could then skip waiting on a refresh.",
+      "recommendedSuccessor": "a row where a save requested during a refresh runs after it, killing that mutant",
+      "status": "recorded; fold into the next unit that edits src/stores/campaign/useCampaignPersistenceStore.ts"
     }
   ]
 }
