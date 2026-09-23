@@ -1187,14 +1187,28 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
+      "state": "local-verified",
+      "baseline": "f50e76fe48d87a04da7fb03cdb86388a05ea9f40",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/u35b-admission-20260923.json",
+          "baseline": "f50e76fe48d87a04da7fb03cdb86388a05ea9f40",
+          "at": "2026-09-23T01:42:58.006Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/u35b-red-20260923.json",
+          "at": "2026-09-23T01:45:54.636Z",
+          "summary": "baseline f50e76fe4, real SQLite, no MEKSTATION_E2E_* env: 5 of 8 rows red. (g3) a whole-envelope PUT on a journal-native campaign left the journal behind the record (replayed balance 380000, record 392345); (f3) a create whose genesis projection is refused answered 500 with the row committed; (atomic) a failure injected inside the save after the row write left the PUT row at version 2 and the created row in place; a journal-native PUT the projection refuses left the row at version 2"
+        },
+        "local": {
+          "path": "evidence/u35b-local-20260923.json",
+          "at": "2026-09-23T02:14:00.970Z",
+          "summary": "product 6 files +307/-103 (410 lines, cap 500; 406 ignoring whitespace), tests 2 files +509/-54; new suite 10/10; campaignPersistence 4 suites/23; src/__tests__/api 55/761; src/lib/campaign 203/2973 (two tests of the removed create hook went with it, now pinned at the route by the new suite); src/lib/events/journal 23/243; src/__tests__/unit/api 6/35; src/pages-modules/api 8/60; tsc 0; oxlint 84 warnings 0 errors; oxfmt clean on the 8 files; LINT_UNITS_PASS 100/100; qc:openspec-ci errors=0; validator PASSED; --next U35b on the baseline; seven mutants caught and restored to the pre-mutant sha256 (checkpoint skipped; row committed before the writer's transaction; row written after it commits; create commits the row before the genesis; non-journal save routed through the journal; genesis writes no marker; a guard-refused genesis throws); implementer claude-opus (Agent model: opus); findings not fixed: F1 stale comments naming the removed create hook in e2e and scripts/e2e (folded into U35d), F2 adoption still commits its genesis and its record in two transactions (recorded), F3 a checkpoint replaces the journal's state with the record's projection (recorded for the owner's ruling); status ready"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
@@ -1218,7 +1232,7 @@
       "id": "U35d",
       "node": "R2.authority-cutover",
       "taskKeys": [],
-      "behavior": "The campaign journal hard cutover: CAMPAIGN_JOURNAL_AUTHORITY_ENABLED is true in production with no override and the e2e fixture arm is deleted (campaignJournalAuthorityEnabled.ts:36-38) together with its exported env constant and both importers (src/__tests__/api/campaigns/campaignPutGenesisRoute.test.ts:17, scripts/e2e/campaign-journal-authority.ts:63-67,93-96); the in-path flag pins, campaignPutGenesisRoute.test.ts and the e2e flag-off assertions (e2e/campaign-journal-two-process-privacy.spec.ts, e2e/campaign-journal-two-process-convergence.spec.ts, e2e/helpers/campaignJournalPrivacyFixture.ts) are re-pinned and the stale flag-off comments corrected. Admitted only after U35a, U35c and U35b have merged; lands before U28. Red-first: U35's probe row (a), red on the baseline. Main proof runs verify:qc:coop-campaign-journey and the authority-recovery, privacy-pack and proposal-pack ladder groups. Folded 2026-09-23 (U35c finding F1): the e2e-arm row in src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts sets the arm env keys to reach the refusal while the flag is false; when this unit deletes the arm the row still passes but its env setup is dead and its comment wrong, so the row is rewritten or removed here.",
+      "behavior": "The campaign journal hard cutover: CAMPAIGN_JOURNAL_AUTHORITY_ENABLED is true in production with no override and the e2e fixture arm is deleted (campaignJournalAuthorityEnabled.ts:36-38) together with its exported env constant and both importers (src/__tests__/api/campaigns/campaignPutGenesisRoute.test.ts:17, scripts/e2e/campaign-journal-authority.ts:63-67,93-96); the in-path flag pins, campaignPutGenesisRoute.test.ts and the e2e flag-off assertions (e2e/campaign-journal-two-process-privacy.spec.ts, e2e/campaign-journal-two-process-convergence.spec.ts, e2e/helpers/campaignJournalPrivacyFixture.ts) are re-pinned and the stale flag-off comments corrected. Admitted only after U35a, U35c and U35b have merged; lands before U28. Red-first: U35's probe row (a), red on the baseline. Main proof runs verify:qc:coop-campaign-journey and the authority-recovery, privacy-pack and proposal-pack ladder groups. Folded 2026-09-23 (U35c finding F1): the e2e-arm row in src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts sets the arm env keys to reach the refusal while the flag is false; when this unit deletes the arm the row still passes but its env setup is dead and its comment wrong, so the row is rewritten or removed here. Folded 2026-09-23 (U35b finding F1): U35b removed maybeAppendCampaignGenesisOnCreate (the PUT create now appends the genesis through saveCampaignRecordThroughJournal), but comments at e2e/campaign-journal-two-process-convergence.spec.ts:167 and scripts/e2e/campaign-journal-authority.ts:33 still name it; they are corrected here.",
       "ownershipPaths": [
         "src/lib/campaign/sync",
         "src/__tests__/api/campaigns",
@@ -7372,6 +7386,24 @@
       "class": "test fixture defect",
       "summary": "makeForce in src/lib/campaign/persistence/__tests__/campaignFixture.ts:24-37 gives every force the same two units (unit-a, unit-b), so a campaign built from it cannot project a genesis (a unit in more than one force) and 13 test files carry the same inline override (3 added by U35c). Fix: give each force its own units in the shared fixture and drop the overrides.",
       "status": "recorded; R2.authority-cutover owns src/lib/campaign/persistence; fold into the next unit that edits that fixture"
+    },
+    {
+      "id": "FN-u35b-adopt-genesis-and-record-two-transactions",
+      "foundBy": "U35b implementer lane (claude-opus), 2026-09-23, finding F2",
+      "at": "2026-09-23T02:14:00.970Z",
+      "class": "crash window (recoverable by retry)",
+      "summary": "src/pages/api/campaigns/[id]/adopt.ts:147-178 appends the adoption's genesis and writes the journal-native marker, then creates the record through saveCampaign in a second transaction. A failure between them leaves a journal-native campaign with no row until the browser retries; the retry finishes it (the marker is journal-native, the genesis reports already-journaled and the record is created). U35b's sentence covered the adopt header only.",
+      "recommendedSuccessor": "the adopt route saves through saveCampaignRecordThroughJournal (purpose genesis), so the genesis, the marker and the row commit in the writer's one transaction",
+      "status": "recorded; R2.authority-cutover owns src/pages/api/campaigns; fold into the next unit that edits the adopt route"
+    },
+    {
+      "id": "FN-u35b-checkpoint-replaces-journal-state",
+      "foundBy": "U35b implementer lane (claude-opus), 2026-09-23, finding F3",
+      "at": "2026-09-23T02:14:00.970Z",
+      "class": "authority consequence of the decided design (not a defect of the diff)",
+      "summary": "A CampaignSnapshotPublished checkpoint replaces the journal's projected state wholesale (src/lib/campaign/sync/applyCampaignEvent.ts:75) with the saved record's projection. Journal-only command effects since the row was last written (only AcceptContract rewrites the row; SpendFunds, AdvanceDay, HirePilot and the rest append only) are overwritten by a whole-envelope PUT whose envelope does not carry them, and the projection leaves pilots and contracts empty, as the genesis does. Before U35b the same PUT saved the row and left the journal behind it.",
+      "recommendedSuccessor": "named in the owner's head-bound ruling on U35b; U35d (the flip) depends on that ruling",
+      "status": "recorded for the owner ruling on U35b"
     }
   ]
 }

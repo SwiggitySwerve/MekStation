@@ -1,0 +1,70 @@
+{
+  "unit": "U35b",
+  "stage": "red",
+  "at": "2026-09-23T01:45:54.636Z",
+  "baseline": "f50e76fe48d87a04da7fb03cdb86388a05ea9f40",
+  "productTreeAtRun": "baseline: no product file changed (git status showed only the new suite and the admission receipt)",
+  "environment": "real SQLite on a temp file per row; every MEKSTATION_E2E_* key deleted in beforeEach and unset by the runner; the route create switch replaced in the suite module registry only (jest.fn, false unless a create row sets it)",
+  "suite": {
+    "path": "src/__tests__/api/campaigns/campaignRecordJournalTransaction.test.ts",
+    "sha256": "0bd78561ff645b928f36e4ebcd039550628a49db91044ac77573fc2f486a63b1",
+    "copy": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35b/saved/red-suite-copy.test.ts.txt",
+      "sha256": "0bd78561ff645b928f36e4ebcd039550628a49db91044ac77573fc2f486a63b1"
+    }
+  },
+  "command": "npx jest src/__tests__/api/campaigns/campaignRecordJournalTransaction.test.ts",
+  "runner": {
+    "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35b/scripts/run-suite.sh",
+    "sha256": "585eb576c2bd07beddb7015df0feb7da89b836408cf6d6784f77fa09104549f7"
+  },
+  "exitCode": 1,
+  "counts": "Test Suites: 1 failed, 1 total; Tests:       5 failed, 3 passed, 8 total",
+  "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\api\\\\campaigns\\\\campaignRecordJournalTransaction.test.ts/i.",
+  "log": {
+    "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35b/logs/red-baseline.log",
+    "sha256": "bbfb3a364dde03f92590ae7cf2705bcd4f9d59df9f7f113a8265318da7120136"
+  },
+  "red": [
+    {
+      "row": "(g3) a whole-envelope PUT on a journal-native campaign appends a checkpoint of the stored record",
+      "failing": "expect(replayed.balance).toBe(record.body.finances.balance): Expected 392345, Received 380000 (:303:30)",
+      "reading": "the PUT answered 200 and the record moved to version 2 (both assertions before :303 passed); the journal replays to the genesis balance: the head stays behind the record (U35 measured the same: record version 2, journal revision 1)"
+    },
+    {
+      "row": "(f3) a create whose genesis projection is refused answers 500 and leaves no row",
+      "failing": "expect(readCampaign(id).kind).toBe(\"not_found\"): Received \"ok\" (:334:35)",
+      "reading": "the status 500 and the \"campaign genesis failed: \" message assertions before :334 passed; the row was already committed behind the 500 (F3)"
+    },
+    {
+      "row": "(atomic) a failure injected after the row write of a journal-native PUT leaves neither the row change nor the append",
+      "failing": "expect(record.version).toBe(created.version): Expected 1, Received 2 (:352:28)",
+      "reading": "on the baseline the PUT does not run inside any journal-writer transaction, so the injection has nothing to wrap: the row moved to version 2"
+    },
+    {
+      "row": "(atomic) a failure injected after the row write of a create leaves no row, no event and no marker",
+      "failing": "expect(readCampaign(id).kind).toBe(\"not_found\"): Received \"ok\" (:370:35)",
+      "reading": "on the baseline saveCampaign commits the row in its own transaction before the genesis append in another, so nothing rolls the row back"
+    },
+    {
+      "row": "(pin) a journal-native PUT whose envelope the projection refuses answers 500 with nothing written",
+      "failing": "expect(storedRecord(id).version).toBe(created.version): Expected 1, Received 2 (:408:38)",
+      "reading": "on the baseline a journal-native campaign accepts a record the journal cannot project; after the change that save is refused rather than leaving the head behind the record"
+    }
+  ],
+  "greenOnBaseline": [
+    {
+      "row": "(pin) a stale whole-envelope PUT on a journal-native campaign answers 409 and appends nothing",
+      "failingEvidence": "a pin; the baseline appends nothing on any PUT, so its failing evidence is a mutant that appends before the CAS decision"
+    },
+    {
+      "row": "(pin) a create under journal authority appends the genesis and writes the journal-native marker",
+      "failingEvidence": "a pin on the create outcome the new transaction must keep (genesis event, one effective branch row, journal-native marker)"
+    },
+    {
+      "row": "(pin) a campaign with no marker saves exactly as before, with no journal write",
+      "failingEvidence": "a pin; its failing evidence is mutant M4 (the non-journal save routed through the journal)"
+    }
+  ],
+  "notRedEvidence": "the three pins are not red evidence; the five red rows fail on durable state (row version, row presence, replayed balance), not on a missing export"
+}

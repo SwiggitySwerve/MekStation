@@ -1,0 +1,206 @@
+{
+  "unit": "U35b",
+  "stage": "admission",
+  "status": "go",
+  "at": "2026-09-23T01:42:58.006Z",
+  "baseline": "f50e76fe48d87a04da7fb03cdb86388a05ea9f40",
+  "originMain": "f50e76fe48d87a04da7fb03cdb86388a05ea9f40",
+  "originMainSource": "git ls-remote origin refs/heads/main (read-only; no fetch)",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u35b",
+  "branch": "roadmap-u35b-journal-owns-campaign-record-20260923",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "node": "R2.authority-cutover",
+  "shellPreamble": [
+    "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "export npm_config_dry_run=true"
+  ],
+  "runner": {
+    "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35b/logs/../scripts/admission-gates.sh",
+    "sha256": "b335e1bc2613c4ec251ef924e4d4cd7ab2faa3ee9c3cbdb8a6bdcf7911c9f6b1"
+  },
+  "nodeVersion": {
+    "command": "node --version",
+    "exitCode": 0,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35b/logs/adm-node-version.log",
+      "sha256": "2172da60c75bfe844a5f085d0b225e7042f650910fb423c59d7f4a937afb0b56"
+    },
+    "lastLine": "v22.22.0"
+  },
+  "guardNodeModulesLink": {
+    "command": "npm run --silent qc:guard-node-modules-link",
+    "exitCode": 1,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35b/logs/adm-guard.log",
+      "sha256": "2c13d891b4197d293a42554367cd3b328c33b2421b10efdd370cab3afc173dd8"
+    },
+    "lastLine": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"E:\\\\Projects\\\\MekStation\\\\.sisyphus\\\\roadmap-completion-20260912\\\\worktrees\\\\u35b\\\\node_modules\",\"actualPath\":\"E:\\\\Projects\\\\MekStation\\\\node_modules\"}",
+    "expected": true,
+    "why": "refusal by design in a junctioned worktree; no npm install/ci/prune or lifecycle was run in this lane (npm_config_dry_run=true exported)"
+  },
+  "nextOnBaseline": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "exitCode": 0,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35b/logs/adm-next.log",
+      "sha256": "ae0a0b68935ab94def054d8d6fb22741bff1df95ba11784c5903da3e8cf84546"
+    },
+    "lastLine": "U35b"
+  },
+  "validatorOnBaseline": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+    "exitCode": 0,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35b/logs/adm-validator.log",
+      "sha256": "97b2f29d264078525a55c5f88586fb95603311fa065e70d7d17c5fab08f5b5bc"
+    },
+    "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows"
+  },
+  "gitStatusShortAtAdmission": "",
+  "ownershipPaths": [
+    "src/services/campaignPersistence",
+    "src/pages/api/campaigns",
+    "src/__tests__/api/campaigns",
+    "src/lib/campaign/authority"
+  ],
+  "receiptsOwned": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u35b-admission-20260923.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u35b-red-20260923.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u35b-local-20260923.json"
+  ],
+  "behavior": "The journal owns the campaign record's transaction. An accepted whole-envelope PUT on a journal-native campaign appends a CampaignSnapshotPublished checkpoint of the stored record, and a create appends the genesis, in ONE immediate transaction the journal writer owns (appendPreparedWithExtension), with the campaigns row write as its extension; the journal head is never behind the record, and a genesis refusal never leaves a committed row behind a 500. The service's row write becomes a function the writer's transaction calls. Non-journal campaigns (while the flag is off) keep today's save path exactly. The adopt route's stale header is corrected. The flag is unchanged.",
+  "seams": [
+    {
+      "at": "src/lib/events/journal/SQLiteEventJournalWriter.ts:84-138",
+      "what": "appendPreparedWithExtension: prepare (read-only, synchronous) then extend(db, context, append) inside one db.transaction(...).immediate() (:137); a thrown failure propagates and rolls the whole transaction back. Read-only for this unit."
+    },
+    {
+      "at": "src/lib/events/journal/SQLiteEventJournalWriter.ts:93",
+      "what": "the contract line \"Nested `saveCampaign` is forbidden\": the extension may not call saveCampaign (it opens its own handle and transaction), so the row write must be a borrowed-handle function"
+    },
+    {
+      "at": "src/services/campaignPersistence/CampaignPersistenceService.ts:107-190",
+      "what": "saveCampaign: getSQLiteService handle, host instance id, then one deferred transaction (:114-187) that reads the row, runs prepareCampaignWrite (D2 gate), the sourceReplayFence guard, the baseVersion CAS, and INSERT OR REPLACE into campaigns (:168-184); no journal write"
+    },
+    {
+      "at": "src/pages/api/campaigns/[id].ts:177-194,197,248-264",
+      "what": "PUT: authority from the marker (blocked answers 409), saveCampaign commits the row (:197), then maybeAppendCampaignGenesisOnCreate({enabled: isCampaignJournalAuthorityEnabled(), created: baseVersion === 0}) appends in its own transaction; invalid-campaign-projection answers 500 after the row committed (:259-263, F3); a journal-native campaign update appends nothing (gate 3)"
+    },
+    {
+      "at": "src/lib/campaign/authority/campaignSourceGenesis.ts:182-240,248-263",
+      "what": "appendCampaignGenesis builds the sequence-0 CampaignSnapshotPublished (system principal, commandId campaign-genesis:<id>) and appends through appendCampaignCommandBatch -> journal.append, then writeMarker(createJournalNativeMarker) (:238); maybeAppendCampaignGenesisOnCreate is the route enabled/created gate"
+    },
+    {
+      "at": "src/lib/campaign/authority/campaignAcceptContractCommand.ts:457-620",
+      "what": "the existing prepared-extension caller copied here: prepare reads the source row on the borrowed handle and builds the batch; extend appends and then writes the row through the service borrowed-handle writer (materializeCampaignSourceRow, :597); a write that does not apply throws to roll back the append (:604-613)"
+    },
+    {
+      "at": "src/services/campaignPersistence/CampaignMigrationMarkerStore.ts:52-61",
+      "what": "writeCampaignMigrationMarker opens getSQLiteService().getDatabase() itself (:55); the genesis marker inside the extension needs the borrowed handle"
+    },
+    {
+      "at": "src/lib/campaign/authority/resolveCampaignAuthorityFromStores.ts:43-82",
+      "what": "journal authority = marker state journal AND the stream exists; independent of the flag, so the checkpoint path needs no flag seam"
+    },
+    {
+      "at": "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts:36-38",
+      "what": "isCampaignJournalAuthorityEnabled = constant false || e2e arm; the route create switch (read-only; unchanged)"
+    },
+    {
+      "at": "src/pages/api/campaigns/[id]/adopt.ts:1-20",
+      "what": "stale header: says adoption records a baseline event and a shadowing marker and that a journal-native marker would be a false provenance claim; U35a made adoption append the genesis and write a journal-native marker (campaignLegacyAdoption.ts:1-19,122-148)"
+    },
+    {
+      "at": "src/lib/campaign/authority/campaignCommandPipeline.ts:446,459,523-533; campaignAcceptContractCommand.ts:60-62",
+      "what": "campaign commands append on the root branch at revision = prior event count (sequence N at revision N + 1); the checkpoint reads the same root head"
+    }
+  ],
+  "transactionDesign": {
+    "summary": "Option (i) of U35's admission (u35-admission-20260922.json proposedSplit, U35b designQuestionFirst), as the ledger decided: the journal writer owns the one immediate transaction and the campaigns row write is its extension.",
+    "service": "CampaignPersistenceService.ts: saveCampaign's transaction body is split into planCampaignSave(db, envelope, baseVersion, hostInstanceId) (read-only: row read, prepareCampaignWrite D2 gate, sourceReplayFence guard, baseVersion CAS; returns conflict | refused | failed | ok with the record to store) and writeCampaignRow(db, record) (the INSERT OR REPLACE). saveCampaign composes the two in its own transaction exactly as today: the non-journal path.",
+    "markerStore": "CampaignMigrationMarkerStore.ts: writeCampaignMigrationMarker takes an optional borrowed handle (default: the service handle, so every existing caller is unchanged).",
+    "genesisModule": "campaignSourceGenesis.ts: the snapshot command (projection, CampaignSnapshotPublished event, state digest, system principal, command id) is extracted into one builder used by appendCampaignGenesis (byte-identical genesis: sequence 0, revision 0, commandId campaign-genesis:<id>, actor campaign-source-genesis) and by the checkpoint (sequence = the root head revision, payload revision = that sequence, commandId campaign-checkpoint:<id>:<sequence>, actor campaign-record-checkpoint, scope campaign). maybeAppendCampaignGenesisOnCreate, whose one caller is the route, is removed with its test block.",
+    "transactionModule": "new src/lib/campaign/authority/campaignRecordJournalSave.ts: saveCampaignRecordThroughJournal(journal, {purpose: genesis | checkpoint, envelope, baseVersion, hostInstanceId, occurredAt}) calls journal.appendPreparedWithExtension. prepare (read-only, on the writer's handle): planCampaignSave; a conflict/refused/failed plan returns before any write; read the campaign stream's root head revision; build the snapshot command of the PLANNED stored record; a projection refusal returns invalid-campaign-projection before any write. extend: writeCampaignRow on the borrowed handle, then append(); a checkpoint append that does not commit throws (the row rolls back with it); a genesis append refused by the revision or command-identity guard keeps today's already-journaled outcome (row kept, no marker); a committed genesis writes the journal-native marker on the same handle.",
+    "route": "src/pages/api/campaigns/[id].ts PUT, after the blocked check: authority journal -> checkpoint transaction (any baseVersion; the CAS still answers 409 for a stale one); else baseVersion 0 and isCampaignJournalAuthorityEnabled() -> genesis transaction; else saveCampaign unchanged. invalid-campaign-projection answers 500 with nothing written (genesis keeps its message \"campaign genesis failed: ...\"; checkpoint says \"campaign checkpoint failed: ...\"). A thrown failure inside the transaction answers 500 through the existing catch.",
+    "adoptHeader": "src/pages/api/campaigns/[id]/adopt.ts:1-20 rewritten to what the route does now: under journal authority adoption appends the genesis and writes a journal-native marker (no imported baseline) before the record is created, and an already-present record is 409.",
+    "flag": "unchanged; no new production switch.",
+    "fence": "the stored sourceReplayFence is carried as saveCampaign carries it today; a checkpoint does not advance it (it materializes nothing from the journal)."
+  },
+  "testSeams": {
+    "journalNative": "a journal-native campaign is seeded through appendCampaignGenesis + writeCampaignMigrationMarker after a route create (U35c's genesis seam; U35's g3 method); the checkpoint path is chosen by the per-campaign marker, not the flag",
+    "createSwitch": "the route's create switch isCampaignJournalAuthorityEnabled is replaced in the new suite's module registry by a jest.fn defaulting to false and set true only in the create rows: the test-scoped form of U35's temporary-flip measurement. No MEKSTATION_E2E_* env, no production switch. U35a pinned the adoption hook through its own `enabled` argument; the PUT route has no such argument, so this is the nearest test-scoped seam (reported to the parent).",
+    "failureInjection": "jest.spyOn(SQLiteEventJournalWriter.prototype, 'appendPreparedWithExtension') wraps extend so it throws after the extension returns: inside the writer's transaction, after the row write and the append"
+  },
+  "redPlan": {
+    "suite": "src/__tests__/api/campaigns/campaignRecordJournalTransaction.test.ts (new; real SQLite on a temp file; every MEKSTATION_E2E_* key deleted in beforeEach)",
+    "rows": {
+      "g3": "a journal-native campaign accepts a whole-envelope PUT; the journal replay equals the record's projection and the head advanced by one CampaignSnapshotPublished (baseline measured by U35: record version 2, journal revision 1)",
+      "f3": "a create whose genesis projection is refused (a unit claimed by two forces) answers 500 and leaves no row, no event, no marker (baseline: 500 with the row committed)",
+      "atomicPut": "a failure injected inside the extension after the row write on a journal-native PUT leaves the row at version 1 and the journal head unchanged",
+      "atomicCreate": "the same injection on a create leaves no row, no event and no marker",
+      "nonJournalPin": "a campaign with no marker, create and update with the create switch off: 200s, versions 1 and 2, zero journal events, no marker (a pin: green on the baseline; its failing evidence is mutant M4)"
+    }
+  },
+  "estimatePerFile": [
+    {
+      "file": "src/services/campaignPersistence/CampaignPersistenceService.ts",
+      "category": "product",
+      "estimateLines": 60
+    },
+    {
+      "file": "src/services/campaignPersistence/CampaignMigrationMarkerStore.ts",
+      "category": "product",
+      "estimateLines": 8
+    },
+    {
+      "file": "src/lib/campaign/authority/campaignSourceGenesis.ts",
+      "category": "product",
+      "estimateLines": 90
+    },
+    {
+      "file": "src/lib/campaign/authority/campaignRecordJournalSave.ts (new)",
+      "category": "product",
+      "estimateLines": 170
+    },
+    {
+      "file": "src/pages/api/campaigns/[id].ts",
+      "category": "product",
+      "estimateLines": 60
+    },
+    {
+      "file": "src/pages/api/campaigns/[id]/adopt.ts",
+      "category": "product",
+      "estimateLines": 30
+    },
+    {
+      "file": "src/__tests__/api/campaigns/campaignRecordJournalTransaction.test.ts (new)",
+      "category": "test",
+      "estimateLines": 400
+    },
+    {
+      "file": "src/lib/campaign/authority/__tests__/campaignSourceGenesis.test.ts",
+      "category": "test",
+      "estimateLines": 55
+    }
+  ],
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "countingRule": "product lines count, tests do not (owner decision 2026-09-23, per the charter)",
+    "estimatedFiles": 8,
+    "estimatedProductLines": 418,
+    "estimatedTestLines": 455,
+    "withinCaps": true
+  },
+  "outsideOwnershipNeeded": "none: every product edit is under src/services/campaignPersistence, src/pages/api/campaigns or src/lib/campaign/authority; src/lib/events/journal is used read-only",
+  "risksForTheParent": [
+    "Review classes authority + migration + idempotency: the owner's head-bound Lane B ruling is required on the head that merges; U35d (the flip) depends on this unit landing first.",
+    "Authority: a checkpoint REPLACES the journal's projected state (CampaignSnapshotPublished replaces state wholesale, applyCampaignEvent.ts:75) with the record's projection. Journal-only command effects since the last row materialization (only AcceptContract rewrites the row; SpendFunds, AdvanceDay, HirePilot and the rest append only) are overwritten by a PUT at the current row version whose envelope does not carry them, and the projection leaves pilots and contracts empty as the genesis does. This is option (i) as the ledger decided; the ruling should name it.",
+    "The authority decision (journal vs snapshot) is read before the transaction, as the blocked check is today; a marker that turns journal between that read and the save lets that one save take the snapshot path.",
+    "Migration: no schema change and the flag is unchanged, but the checkpoint path is live now for every campaign that already carries a journal marker (fixture-armed e2e runs, operator cutovers, co-op campaigns created under the arm), independent of U35d.",
+    "Idempotency: the checkpoint command id is campaign-checkpoint:<id>:<sequence>; a retried PUT is a fresh CAS attempt (its baseVersion is stale after a commit, so it answers 409 and appends nothing). The genesis keeps appendCampaignGenesis's identity (campaign-genesis:<id>).",
+    "Not in the sentence and not built: the checkpoint is not fanned out to live co-op guests, and the PUT does not consult the projection-rebuild lease that blocks commands.",
+    "Playwright is not run in this lane: fixture-armed e2e groups (authority-recovery, the two-process privacy and convergence specs) now see a checkpoint event after a whole-envelope save of a journal-native campaign."
+  ],
+  "decision": "go: --next printed U35b on the baseline, the validator passed, and the design needs no edit outside the ownership paths"
+}
