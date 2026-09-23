@@ -1,0 +1,28 @@
+{
+  "unit": "U35b",
+  "stage": "merge",
+  "at": "2026-09-23T02:58:16.672Z",
+  "pr": 1914,
+  "title": "feat(campaign): the journal owns the campaign record's transaction (U35b)",
+  "head": "8d04011c365736c29e7b03a7041f37aa5ab9a70d",
+  "mergeSha": "650a80febc985e5d212257d8e64cae6b06cec18e",
+  "mergedAt": "2026-09-23T02:46:52Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u35b-admission-20260923.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u35b-local-20260923.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u35b-red-20260923.json",
+    "src/__tests__/api/campaigns/campaignRecordJournalTransaction.test.ts",
+    "src/lib/campaign/authority/__tests__/campaignSourceGenesis.test.ts",
+    "src/lib/campaign/authority/campaignRecordJournalSave.ts",
+    "src/lib/campaign/authority/campaignSourceGenesis.ts",
+    "src/pages/api/campaigns/[id].ts",
+    "src/pages/api/campaigns/[id]/adopt.ts",
+    "src/services/campaignPersistence/CampaignMigrationMarkerStore.ts",
+    "src/services/campaignPersistence/CampaignPersistenceService.ts"
+  ],
+  "blobEqualityDiffLines": 0
+}
