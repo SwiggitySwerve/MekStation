@@ -4,7 +4,9 @@
  * Branch methods exist only when the caller handed a branch store —
  * fabricating them would make hasHistoryBranchStore lie. Participant
  * and cursor tables already live in SQLiteService, so those ports are
- * always attached and forward to the shipped helpers.
+ * always attached and forward to the shipped helpers. The saved-record
+ * rewrite (U35e) is attached here too, because the store module is
+ * browser-reachable and the rewrite writes the campaigns table.
  */
 
 import type Database from 'better-sqlite3';
@@ -28,6 +30,7 @@ import type {
   IParticipantDeliveryCursorPort,
 } from '@/lib/events/storeCapabilityPorts';
 
+import { rewriteCampaignRecordAfterCommand } from '@/lib/campaign/authority/campaignRecordJournalState';
 import {
   readParticipantDeliveryCursor,
   recordParticipantAcknowledgement,
@@ -47,6 +50,7 @@ import {
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
 
 import type {
+  CampaignCommandCommitHook,
   ICampaignJournalEnvelope,
   JournalCampaignEventStore,
 } from './JournalCampaignEventStore';
@@ -64,7 +68,9 @@ export type JournalCapabilityPortsBinder = (
 type CapabilityTarget = Partial<
   IEventHistoryBranchPort &
     ICampaignSessionParticipantPort &
-    IParticipantDeliveryCursorPort
+    IParticipantDeliveryCursorPort & {
+      readonly rewriteRecordAfterCommand: CampaignCommandCommitHook;
+    }
 >;
 
 /** The shipped ack never reads the journal; the type still requires one. */
@@ -211,11 +217,19 @@ export function bindSqliteSessionPorts(
   });
 }
 
+/**
+ * The server capabilities of a journal store: branch ports when `branches`
+ * is given, the participant and cursor ports, and the saved-record rewrite
+ * its command batches run inside their append transaction (U35e).
+ */
 export function bindJournalCapabilityPorts(
   store: CapabilityTarget,
   branches: SQLiteEventHistoryBranchStore | undefined,
   getDb: () => Database.Database = defaultCapabilityDb,
 ): void {
+  Object.assign(store, {
+    rewriteRecordAfterCommand: rewriteCampaignRecordAfterCommand,
+  });
   if (branches !== undefined) {
     Object.assign(store, {
       readBranch: (stream: IEventHistoryStreamRef, branchId: string) =>

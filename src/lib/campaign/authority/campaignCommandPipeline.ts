@@ -79,6 +79,7 @@ import { diffCampaignFields } from './campaignCommandFieldSet';
 import { decideCampaignConflict } from './campaignConflictDecision';
 import { durableCampaignMarkerIo } from './campaignCutoverMarkerIo';
 import { campaignStreamRef } from './campaignLaunchHead';
+import { rewriteCampaignRecordAfterCommand } from './campaignRecordJournalState';
 
 /**
  * Why a command did not commit against the head.
@@ -395,7 +396,9 @@ async function acknowledgeCommit(
 }
 
 /**
- * Runs one command against the campaign's journal.
+ * Runs one command against the campaign's journal; on a SQLite journal a
+ * committed batch also rewrites the campaign's saved record in the append's
+ * transaction (AcceptContract rewrites it in its own).
  *
  * Only a journal-authority campaign is eligible. A snapshot-authority
  * campaign is NOT an error here - it simply has not migrated, and its
@@ -545,12 +548,18 @@ export async function executeCampaignCommand(
   ]);
   const expectedDigest = computeCampaignStateDigest(expectedState);
 
-  const appended = await appendCampaignCommandBatch(deps.journal, {
-    campaignId: request.campaignId,
-    commandId: request.commandId,
-    events: sequenced,
-    expectedPostStateDigest: expectedDigest,
-  });
+  // The saved record follows the command in the append's transaction, so a
+  // whole-envelope save built before it is refused instead of erasing it.
+  const appended = await appendCampaignCommandBatch(
+    deps.journal,
+    {
+      campaignId: request.campaignId,
+      commandId: request.commandId,
+      events: sequenced,
+      expectedPostStateDigest: expectedDigest,
+    },
+    rewriteCampaignRecordAfterCommand,
+  );
   if (appended.kind === 'sequence-conflict') {
     return lostRaceConflict(
       appended.expectedNextSequence,
