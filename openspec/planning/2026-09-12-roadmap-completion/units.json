@@ -1288,7 +1288,7 @@
       "id": "U35d",
       "node": "R2.authority-cutover",
       "taskKeys": [],
-      "behavior": "The campaign journal hard cutover: CAMPAIGN_JOURNAL_AUTHORITY_ENABLED is true in production with no override and the e2e fixture arm is deleted (campaignJournalAuthorityEnabled.ts:36-38) together with its exported env constant and both importers (src/__tests__/api/campaigns/campaignPutGenesisRoute.test.ts:17, scripts/e2e/campaign-journal-authority.ts:63-67,93-96); the in-path flag pins, campaignPutGenesisRoute.test.ts and the e2e flag-off assertions (e2e/campaign-journal-two-process-privacy.spec.ts, e2e/campaign-journal-two-process-convergence.spec.ts, e2e/helpers/campaignJournalPrivacyFixture.ts) are re-pinned and the stale flag-off comments corrected. Admitted only after U35a, U35c and U35b have merged; lands before U28. Red-first: U35's probe row (a), red on the baseline. Main proof runs verify:qc:coop-campaign-journey and the authority-recovery, privacy-pack and proposal-pack ladder groups. Folded 2026-09-23 (U35c finding F1): the e2e-arm row in src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts sets the arm env keys to reach the refusal while the flag is false; when this unit deletes the arm the row still passes but its env setup is dead and its comment wrong, so the row is rewritten or removed here. Folded 2026-09-23 (U35b finding F1): U35b removed maybeAppendCampaignGenesisOnCreate (the PUT create now appends the genesis through saveCampaignRecordThroughJournal), but comments at e2e/campaign-journal-two-process-convergence.spec.ts:167 and scripts/e2e/campaign-journal-authority.ts:33 still name it; they are corrected here. Folded 2026-09-23 (the owner's ruling on U35b, option 'Approve; U35d checks it', comment 5788088153 on PR #1914): the red-first also runs a journal-only campaign command (SpendFunds, AdvanceDay or HirePilot, which append without rewriting the row) followed by a whole-campaign save under the flip, and records whether the command's effect survives in the journal's projection. If the effect is lost in a real flow (a client whose next whole-campaign save does not carry it), U35d stops BLOCKED and a successor unit that makes those commands rewrite the saved record is planned before the flip (FN-u35b-checkpoint-replaces-journal-state). Folded 2026-09-23 (U35d's admission finding F2): two comments in the unit's paths disagree about where co-op events are stored (e2e/campaign-two-device-drive.spec.ts:440-452 against scripts/e2e/campaign-journal-authority.ts:22-29); the re-admission corrects whichever is wrong.",
+      "behavior": "The campaign journal hard cutover: CAMPAIGN_JOURNAL_AUTHORITY_ENABLED is true in production with no override and the e2e fixture arm is deleted (campaignJournalAuthorityEnabled.ts:36-38) together with its exported env constant and both importers (src/__tests__/api/campaigns/campaignPutGenesisRoute.test.ts:17, scripts/e2e/campaign-journal-authority.ts:63-67,93-96); the in-path flag pins, campaignPutGenesisRoute.test.ts and the e2e flag-off assertions (e2e/campaign-journal-two-process-privacy.spec.ts, e2e/campaign-journal-two-process-convergence.spec.ts, e2e/helpers/campaignJournalPrivacyFixture.ts) are re-pinned and the stale flag-off comments corrected. Admitted only after U35a, U35c and U35b have merged; lands before U28. Red-first: U35's probe row (a), red on the baseline. Main proof runs verify:qc:coop-campaign-journey and the authority-recovery, privacy-pack and proposal-pack ladder groups. Folded 2026-09-23 (U35c finding F1): the e2e-arm row in src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts sets the arm env keys to reach the refusal while the flag is false; when this unit deletes the arm the row still passes but its env setup is dead and its comment wrong, so the row is rewritten or removed here. Folded 2026-09-23 (U35b finding F1): U35b removed maybeAppendCampaignGenesisOnCreate (the PUT create now appends the genesis through saveCampaignRecordThroughJournal), but comments at e2e/campaign-journal-two-process-convergence.spec.ts:167 and scripts/e2e/campaign-journal-authority.ts:33 still name it; they are corrected here. Folded 2026-09-23 (the owner's ruling on U35b, option 'Approve; U35d checks it', comment 5788088153 on PR #1914): the red-first also runs a journal-only campaign command (SpendFunds, AdvanceDay or HirePilot, which append without rewriting the row) followed by a whole-campaign save under the flip, and records whether the command's effect survives in the journal's projection. If the effect is lost in a real flow (a client whose next whole-campaign save does not carry it), U35d stops BLOCKED and a successor unit that makes those commands rewrite the saved record is planned before the flip (FN-u35b-checkpoint-replaces-journal-state). Folded 2026-09-23 (U35d's admission finding F2): two comments in the unit's paths disagree about where co-op events are stored (e2e/campaign-two-device-drive.spec.ts:440-452 against scripts/e2e/campaign-journal-authority.ts:22-29); the re-admission corrects whichever is wrong. Folded 2026-09-23 (U35e's findings F1 and F2): the re-admission gate also measures, under the flip, a combat-outcome consequence committed through appendCombatOutcomeBatch (which does not rewrite the saved record) and a roster change from salvage recovery or RosterUnitChanged (which the checkpoint neither carries nor patches), each followed by the host browser's whole-envelope save; if either effect is lost in a real flow, U35d stops BLOCKED again with a successor proposed, as the owner's ruling on U35b requires.",
       "ownershipPaths": [
         "src/lib/campaign/sync",
         "src/__tests__/api/campaigns",
@@ -1360,15 +1360,29 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
+      "state": "local-verified",
       "source20260923": "planned by the parent from U35d's admission (rulingGate.proposedSuccessor) under owner decision OD-u35d-server-and-host-fix",
-      "baseline": null,
+      "baseline": "ae80d8ba41ead66e5dff5fde3f716a0bccd8d6cc",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/u35e-admission-20260923.json",
+          "baseline": "ae80d8ba41ead66e5dff5fde3f716a0bccd8d6cc",
+          "at": "2026-09-23T03:42:02.426Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/u35e-red-20260923.json",
+          "at": "2026-09-23T03:47:08.810Z",
+          "summary": "baseline ae80d8ba4, real SQLite: U35d's rows r1 (SpendFunds), r2 (AdvanceDay), r3 (HirePilot) through the command route, c1 (HirePilot through the co-op host door) and c2 (contracts and salvage) each lost their effect at the next whole-envelope save, and (s) a whole-envelope PUT at the pre-command version checkpointed over the effect: 6 of 6 failed with the flag false and under the temporary flip; the guard rows t (the rewrite inside the append's transaction) and i (replay) failed, g, n, a passed"
+        },
+        "local": {
+          "path": "evidence/u35e-local-20260923.json",
+          "at": "2026-09-23T03:59:41.753Z",
+          "summary": "no split; product 7 files +252/-31 (283 lines, cap 500), tests 3 files 924 lines; the row rewrite is an optional hook on appendCampaignCommandBatch that only the command route and the co-op door's store (through bindJournalCapabilityPorts) pass, gated on a journal-native marker, patching finances.balance and currentDate at version + 1 in the append's immediate transaction; a checkpoint carries the journal's pilots, contracts and salvagePool; no edit under src/lib/multiplayer/server; effects 6/6 and guards 5/5 with the flag false and flipped; src/lib/campaign 203/2973; campaignPersistence 4/23; src/__tests__/api 57/772; unit/api 6/35; src/lib/multiplayer/server 157/1164; src/lib/events/journal 23/243; tsc 0; oxlint 84 warnings 0 errors; oxfmt clean on 10 files; LINT_UNITS_PASS 100/100; qc:openspec-ci errors=0; validator PASSED; --next U35e on the baseline; six mutants caught and restored (checkpoint drops pilots; append without the rewrite; rewrite outside the transaction; genesis reads another stream; replay guard removed; authority gate removed); implementer claude-opus (Agent model: opus); findings: F1 combat-outcome consequences do not rewrite the row and F2 roster changes are neither carried nor patched (folded into U35d's re-admission gate), F3 a campaign without a start date projects day 0 (recorded); status ready"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
@@ -7700,6 +7714,15 @@
       "summary": "Deleting the e2e fixture arm leaves the arm's env keys set and pinned outside U35d's paths (playwright.config.ts:314-322, scripts/qc/gm-two-player-campaign-core.cjs:73-78,236, scripts/__tests__/gm-two-player-campaign-qc.test.ts), and three flag-off comments stale (src/lib/campaign/coop/coopRuntimeSession.ts:99-100, src/lib/multiplayer/server/matchJournalAuthority.ts:3, src/pages/api/matches/index.ts:262-265).",
       "recommendedSuccessor": "U35d's re-admission takes these through a path amendment (R6.loop-harness owns playwright.config.ts and scripts/qc; R2.authority-live owns the three comment paths), or a follow-on unit right after U35d removes them; the parent decides at re-admission",
       "status": "recorded; decided at U35d's re-admission"
+    },
+    {
+      "id": "FN-u35e-campaign-without-start-date-projects-day-zero",
+      "foundBy": "U35e implementer lane (claude-opus), 2026-09-23, finding F3",
+      "at": "2026-09-23T04:41:13.000Z",
+      "class": "unrepresentable state (read from the code)",
+      "summary": "A campaign with no start date always projects day 0, so the saved record cannot represent a day advance for it: U35e's row rewrite patches currentDate as campaignStartDate + journal day and skips campaigns without a start date.",
+      "recommendedSuccessor": "measure whether any production path creates a campaign without a start date; if one does, give it a start date at creation or represent the day in the record",
+      "status": "recorded; R2.authority-cutover owns src/lib/campaign/authority and src/lib/campaign/sync"
     }
   ]
 }

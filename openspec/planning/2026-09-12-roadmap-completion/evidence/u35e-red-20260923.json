@@ -1,0 +1,947 @@
+{
+  "unit": "U35e",
+  "stage": "red",
+  "at": "2026-09-23T03:47:08.810Z",
+  "baseline": "ae80d8ba41ead66e5dff5fde3f716a0bccd8d6cc",
+  "productFilesChanged": "none: the suites below ran against the baseline product code (git status showed only the three new test files and the admission receipt)",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "runner": {
+    "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35e/run-rows.sh",
+    "sha256": "a9276c3cb4f5b81b09e82720d61c0dae57114540eb5e3638f2cf7afaef8f5f3a"
+  },
+  "temporaryFlip": {
+    "helper": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d/flip.mjs",
+      "sha256": "22812d9bd94f411fe7eb271cb9d39983c75e5bd2bf02a9b4f878e3f6f91ebe03"
+    },
+    "file": "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+    "preSha256": "0f062a9b1119acc802eabbf072ce308025a7bd52da99c8a5b381803262daec6e",
+    "flippedSha256": "3de3dff6be334e052ae4a35e8bd872d14fef8d616d36ef38fb5179602dd6a7a2",
+    "restoredSha256": "0f062a9b1119acc802eabbf072ce308025a7bd52da99c8a5b381803262daec6e",
+    "identical": true,
+    "restoredFrom": "a byte copy taken before the flip (cp), not git",
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35e/logs/red-restore.log",
+      "sha256": "20a44fa383a3dee23d66f6449da83c93f93010476f219481882051bfa85f796a"
+    }
+  },
+  "environment": "real SQLite on a temp file per row; the live item route and command route through node-mocks-http; the co-op host over selectCampaignEventStore().store; every MEKSTATION_E2E_* key unset in the runner and deleted in beforeEach",
+  "seeding": "flag false: the route create, then appendCampaignGenesis plus the marker (the seam the route calls); flipped: the route create appends the genesis and the marker itself (genesisBy in the values)",
+  "suites": {
+    "src/__tests__/api/campaigns/campaignJournalEffectsSurviveSave.test.ts": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35e/logs/red-copy-campaignJournalEffectsSurviveSave.test.ts.txt",
+      "sha256": "d638514d7df54c897d2414ee2290f30c50c99787bb5896d60d0d4da2de6751f5"
+    },
+    "src/__tests__/api/campaigns/campaignRecordCommandRewrite.test.ts": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35e/logs/red-copy-campaignRecordCommandRewrite.test.ts.txt",
+      "sha256": "78d174b7a510a249ab9041488c431afcde443e942f45ac119aa3a0a0051fc71e"
+    },
+    "src/__tests__/api/campaigns/campaignJournalEffectsFixture.ts": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35e/logs/red-copy-campaignJournalEffectsFixture.ts.txt",
+      "sha256": "e498b12f1c1444de33183d73cab70180d4d067eb059ac80d1d28f8f482180c34"
+    }
+  },
+  "rows": {
+    "r1": "U35d's r1: SpendFunds 12345 through the command route, then the client's unchanged campaign PUT at the pre-command version, then the reloaded record PUT at its version",
+    "r2": "U35d's r2: AdvanceDay {days: 3}, same saves",
+    "r3": "U35d's r3: HirePilot {pilot-r3, 12000}, same saves",
+    "c1": "U35d's c1: HirePilot {pilot-c1, 12000} through the co-op host door (CampaignMatchHost over the production selector's store), then the host fold's whole-envelope PUT at the pre-command version, then the reloaded record PUT, then one more co-op SpendFunds",
+    "c2": "AcceptContract, a 50000 salvage credit and AllocateSalvage 20000 through the co-op host door, then the host fold PUT at the pre-command version and the reloaded record PUT",
+    "s": "a client's own edit (balance + 500 on the record it held) PUT at the pre-command version after a committed route SpendFunds",
+    "g": "guard: a genesis beside a campaign whose journal holds a hired pilot carries no pilot",
+    "n": "guard: a journal stream with no saved record commits a co-op command and gains no record",
+    "a": "guard: a snapshot-authority campaign keeps its record untouched by a co-op command",
+    "t": "guard (new behavior): a failing record write rolls the co-op command append back",
+    "i": "guard (new behavior): the same command appended by two store instances rewrites the record once"
+  },
+  "flagFalse": {
+    "effectsSuite": {
+      "command": "U35E_ROWS_DIR=<log dir>/red-flagfalse-values npx jest src/__tests__/api/campaigns/campaignJournalEffectsSurviveSave.test.ts",
+      "exitCode": 1,
+      "counts": "Tests:       6 failed, 6 total",
+      "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\api\\\\campaigns\\\\campaignJournalEffectsSurviveSave.test.ts/i.",
+      "rowResults": [
+        "× (r1) SpendFunds through the command route survives a stale and a current whole-envelope PUT",
+        "× (r2) AdvanceDay through the command route survives a stale and a current whole-envelope PUT",
+        "× (r3) HirePilot through the command route survives a stale and a current whole-envelope PUT",
+        "× (c1) HirePilot through the co-op host door survives the host fold save and the current save",
+        "× (c2) an accepted contract and the salvage pool through the co-op host door survive the host fold save",
+        "× (s) a whole-envelope PUT at the pre-command version after a committed command answers 409 with the server record"
+      ],
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35e/logs/red-flagfalse-campaignJournalEffectsSurviveSave.log",
+        "sha256": "42e9004397bb3bbaad9aed07df14479c7acec5dc0316b1191e7230b73985662b"
+      }
+    },
+    "guardsSuite": {
+      "command": "U35E_ROWS_DIR=<log dir>/red-flagfalse-values npx jest src/__tests__/api/campaigns/campaignRecordCommandRewrite.test.ts",
+      "exitCode": 1,
+      "counts": "Tests:       2 failed, 3 passed, 5 total",
+      "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\api\\\\campaigns\\\\campaignRecordCommandRewrite.test.ts/i.",
+      "rowResults": [
+        "√ (g) a genesis carries no journal state, even beside a campaign whose journal holds a pilot",
+        "√ (n) a journal stream with no saved record commits co-op commands and gains no record",
+        "√ (a) a snapshot-authority campaign keeps its record untouched by a co-op command",
+        "× (t) a record rewrite that fails rolls the co-op command append back",
+        "× (i) the same command appended by two store instances commits once and rewrites the record once"
+      ],
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35e/logs/red-flagfalse-campaignRecordCommandRewrite.log",
+        "sha256": "5414bd25f9b73bb9baa491c75546cd1952218fc3bd32f47acba9aa0d3d034fde"
+      }
+    },
+    "values": {
+      "effects": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35e/logs/red-flagfalse-values/effects.json",
+        "sha256": "5b79db9d0ab994ff136ff20fb24fca011fd8c78bb037d190f87d3dffc6f5813b",
+        "rows": {
+          "r1": {
+            "genesisBy": "appendCampaignGenesis seam (flag false)",
+            "createdVersion": 1,
+            "commandStatus": 200,
+            "commandKind": "committed",
+            "afterCommand": {
+              "balance": 367655,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0
+            },
+            "rowAfterCommand": {
+              "version": 1,
+              "balance": 380000,
+              "currentDate": "3025-07-04T00:00:00.000Z"
+            },
+            "stalePutStatus": 200,
+            "stalePutCurrent": {
+              "version": null,
+              "balance": null
+            },
+            "afterStalePut": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0
+            },
+            "reloadVersion": 2,
+            "currentPutStatus": 200,
+            "rowAfterCurrentPut": {
+              "version": 3,
+              "balance": 380000,
+              "currentDate": "3025-07-04T00:00:00.000Z"
+            },
+            "afterCurrentPut": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0
+            },
+            "eventTypes": [
+              "CampaignSnapshotPublished",
+              "FundsChanged",
+              "CampaignSnapshotPublished",
+              "CampaignSnapshotPublished"
+            ]
+          },
+          "r2": {
+            "genesisBy": "appendCampaignGenesis seam (flag false)",
+            "createdVersion": 1,
+            "commandStatus": 200,
+            "commandKind": "committed",
+            "afterCommand": {
+              "balance": 380000,
+              "day": 187,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0
+            },
+            "rowAfterCommand": {
+              "version": 1,
+              "balance": 380000,
+              "currentDate": "3025-07-04T00:00:00.000Z"
+            },
+            "stalePutStatus": 200,
+            "stalePutCurrent": {
+              "version": null,
+              "balance": null
+            },
+            "afterStalePut": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0
+            },
+            "reloadVersion": 2,
+            "currentPutStatus": 200,
+            "rowAfterCurrentPut": {
+              "version": 3,
+              "balance": 380000,
+              "currentDate": "3025-07-04T00:00:00.000Z"
+            },
+            "afterCurrentPut": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0
+            },
+            "eventTypes": [
+              "CampaignSnapshotPublished",
+              "CampaignDayAdvanced",
+              "CampaignSnapshotPublished",
+              "CampaignSnapshotPublished"
+            ]
+          },
+          "r3": {
+            "genesisBy": "appendCampaignGenesis seam (flag false)",
+            "createdVersion": 1,
+            "commandStatus": 200,
+            "commandKind": "committed",
+            "afterCommand": {
+              "balance": 368000,
+              "day": 184,
+              "pilots": [
+                "pilot-r3"
+              ],
+              "contracts": [],
+              "salvagePool": 0
+            },
+            "rowAfterCommand": {
+              "version": 1,
+              "balance": 380000,
+              "currentDate": "3025-07-04T00:00:00.000Z"
+            },
+            "stalePutStatus": 200,
+            "stalePutCurrent": {
+              "version": null,
+              "balance": null
+            },
+            "afterStalePut": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0
+            },
+            "reloadVersion": 2,
+            "currentPutStatus": 200,
+            "rowAfterCurrentPut": {
+              "version": 3,
+              "balance": 380000,
+              "currentDate": "3025-07-04T00:00:00.000Z"
+            },
+            "afterCurrentPut": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0
+            },
+            "eventTypes": [
+              "CampaignSnapshotPublished",
+              "FundsChanged",
+              "PilotHired",
+              "CampaignSnapshotPublished",
+              "CampaignSnapshotPublished"
+            ]
+          },
+          "c1": {
+            "genesisBy": "appendCampaignGenesis seam (flag false)",
+            "createdVersion": 1,
+            "hireOk": true,
+            "afterHire": {
+              "balance": 368000,
+              "day": 184,
+              "pilots": [
+                "pilot-c1"
+              ],
+              "contracts": [],
+              "salvagePool": 0
+            },
+            "rowAfterHire": {
+              "version": 1,
+              "balance": 380000,
+              "currentDate": "3025-07-04T00:00:00.000Z"
+            },
+            "stalePutStatus": 200,
+            "stalePutCurrent": {
+              "version": null,
+              "balance": null
+            },
+            "afterStalePut": {
+              "balance": 368000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0
+            },
+            "currentPutStatus": 200,
+            "afterCurrentPut": {
+              "balance": 368000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0
+            },
+            "spendOk": true,
+            "afterNextCoopCommand": {
+              "balance": 367000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0
+            },
+            "hostAfterNextCoopCommand": {
+              "balance": 367000,
+              "day": 184,
+              "pilots": [
+                "pilot-c1"
+              ],
+              "contracts": [],
+              "salvagePool": 0
+            },
+            "eventTypes": [
+              "CampaignSnapshotPublished",
+              "FundsChanged",
+              "PilotHired",
+              "CampaignSnapshotPublished",
+              "CampaignSnapshotPublished",
+              "FundsChanged"
+            ]
+          },
+          "c2": {
+            "genesisBy": "appendCampaignGenesis seam (flag false)",
+            "createdVersion": 1,
+            "acceptOk": true,
+            "creditOk": true,
+            "allocateOk": true,
+            "afterCommands": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [
+                "contract-c2"
+              ],
+              "salvagePool": 30000
+            },
+            "rowAfterCommands": {
+              "version": 1,
+              "balance": 380000,
+              "currentDate": "3025-07-04T00:00:00.000Z"
+            },
+            "stalePutStatus": 200,
+            "stalePutCurrent": {
+              "version": null,
+              "balance": null
+            },
+            "afterStalePut": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0
+            },
+            "currentPutStatus": 200,
+            "afterCurrentPut": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0
+            },
+            "eventTypes": [
+              "CampaignSnapshotPublished",
+              "ContractAccepted",
+              "SalvageAllocated",
+              "SalvageAllocated",
+              "CampaignSnapshotPublished",
+              "CampaignSnapshotPublished"
+            ]
+          },
+          "s": {
+            "genesisBy": "appendCampaignGenesis seam (flag false)",
+            "createdVersion": 1,
+            "commandStatus": 200,
+            "afterCommand": {
+              "balance": 367655,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0
+            },
+            "putStatus": 200,
+            "putKind": null,
+            "putCurrent": {
+              "version": null,
+              "balance": null
+            },
+            "rowAfterPut": {
+              "version": 2,
+              "balance": 380500,
+              "currentDate": "3025-07-04T00:00:00.000Z"
+            },
+            "afterPut": {
+              "balance": 380500,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0
+            },
+            "typesBeforePut": [
+              "CampaignSnapshotPublished",
+              "FundsChanged"
+            ],
+            "typesAfterPut": [
+              "CampaignSnapshotPublished",
+              "FundsChanged",
+              "CampaignSnapshotPublished"
+            ]
+          }
+        }
+      },
+      "guards": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35e/logs/red-flagfalse-values/guards.json",
+        "sha256": "cf6d1f7d95fd178374a7e25dede3dcfbb6f2a45a127dd5d1cfa18d97bcf975f8",
+        "rows": {
+          "g": {
+            "hireOk": true,
+            "genesisKind": "ok",
+            "ledger": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0
+            },
+            "eventTypes": [
+              "CampaignSnapshotPublished"
+            ]
+          },
+          "n": {
+            "genesisKind": "genesis-appended",
+            "spendOk": true,
+            "readKind": "not_found",
+            "ledger": {
+              "balance": 379000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0
+            }
+          },
+          "a": {
+            "spendOk": true,
+            "rowBefore": {
+              "version": 1,
+              "balance": 380000,
+              "currentDate": "3025-07-04T00:00:00.000Z"
+            },
+            "rowAfter": {
+              "version": 1,
+              "balance": 380000,
+              "currentDate": "3025-07-04T00:00:00.000Z"
+            },
+            "ledger": {
+              "balance": 379000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0
+            }
+          },
+          "t": {
+            "failure": null,
+            "typesBefore": [
+              "CampaignSnapshotPublished"
+            ],
+            "typesAfter": [
+              "CampaignSnapshotPublished",
+              "FundsChanged",
+              "PilotHired"
+            ],
+            "rowBefore": {
+              "version": 1,
+              "balance": 380000,
+              "currentDate": "3025-07-04T00:00:00.000Z"
+            },
+            "rowAfter": {
+              "version": 1,
+              "balance": 380000,
+              "currentDate": "3025-07-04T00:00:00.000Z"
+            },
+            "hostPilots": [
+              "pilot-t"
+            ]
+          },
+          "i": {
+            "kinds": [
+              "committed",
+              "committed"
+            ],
+            "createdVersion": 1,
+            "rowAfter": {
+              "version": 1,
+              "balance": 380000,
+              "currentDate": "3025-07-04T00:00:00.000Z"
+            },
+            "eventTypes": [
+              "CampaignSnapshotPublished",
+              "FundsChanged"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "underTemporaryFlip": {
+    "effectsSuite": {
+      "command": "U35E_ROWS_DIR=<log dir>/red-flipped-values npx jest src/__tests__/api/campaigns/campaignJournalEffectsSurviveSave.test.ts",
+      "exitCode": 1,
+      "counts": "Tests:       6 failed, 6 total",
+      "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\api\\\\campaigns\\\\campaignJournalEffectsSurviveSave.test.ts/i.",
+      "rowResults": [
+        "× (r1) SpendFunds through the command route survives a stale and a current whole-envelope PUT",
+        "× (r2) AdvanceDay through the command route survives a stale and a current whole-envelope PUT",
+        "× (r3) HirePilot through the command route survives a stale and a current whole-envelope PUT",
+        "× (c1) HirePilot through the co-op host door survives the host fold save and the current save",
+        "× (c2) an accepted contract and the salvage pool through the co-op host door survive the host fold save",
+        "× (s) a whole-envelope PUT at the pre-command version after a committed command answers 409 with the server record"
+      ],
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35e/logs/red-flipped-campaignJournalEffectsSurviveSave.log",
+        "sha256": "3db8e4a7df8706f30d8cbbb2555e38da9748b6cbe4d10152d423f83907716551"
+      }
+    },
+    "guardsSuite": {
+      "command": "U35E_ROWS_DIR=<log dir>/red-flipped-values npx jest src/__tests__/api/campaigns/campaignRecordCommandRewrite.test.ts",
+      "exitCode": 1,
+      "counts": "Tests:       2 failed, 3 passed, 5 total",
+      "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\api\\\\campaigns\\\\campaignRecordCommandRewrite.test.ts/i.",
+      "rowResults": [
+        "√ (g) a genesis carries no journal state, even beside a campaign whose journal holds a pilot",
+        "√ (n) a journal stream with no saved record commits co-op commands and gains no record",
+        "√ (a) a snapshot-authority campaign keeps its record untouched by a co-op command",
+        "× (t) a record rewrite that fails rolls the co-op command append back",
+        "× (i) the same command appended by two store instances commits once and rewrites the record once"
+      ],
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35e/logs/red-flipped-campaignRecordCommandRewrite.log",
+        "sha256": "f2335b5192995ddc6d2e3106356114ec44fc880703f20273a57f1ef1e1b83a23"
+      }
+    },
+    "values": {
+      "effects": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35e/logs/red-flipped-values/effects.json",
+        "sha256": "4444306ba55b54190c1d79bb547ad58c92c240e5dacee3000838d092a36873dd",
+        "rows": {
+          "r1": {
+            "genesisBy": "the PUT create (flag true)",
+            "createdVersion": 1,
+            "commandStatus": 200,
+            "commandKind": "committed",
+            "afterCommand": {
+              "balance": 367655,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0
+            },
+            "rowAfterCommand": {
+              "version": 1,
+              "balance": 380000,
+              "currentDate": "3025-07-04T00:00:00.000Z"
+            },
+            "stalePutStatus": 200,
+            "stalePutCurrent": {
+              "version": null,
+              "balance": null
+            },
+            "afterStalePut": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0
+            },
+            "reloadVersion": 2,
+            "currentPutStatus": 200,
+            "rowAfterCurrentPut": {
+              "version": 3,
+              "balance": 380000,
+              "currentDate": "3025-07-04T00:00:00.000Z"
+            },
+            "afterCurrentPut": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0
+            },
+            "eventTypes": [
+              "CampaignSnapshotPublished",
+              "FundsChanged",
+              "CampaignSnapshotPublished",
+              "CampaignSnapshotPublished"
+            ]
+          },
+          "r2": {
+            "genesisBy": "the PUT create (flag true)",
+            "createdVersion": 1,
+            "commandStatus": 200,
+            "commandKind": "committed",
+            "afterCommand": {
+              "balance": 380000,
+              "day": 187,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0
+            },
+            "rowAfterCommand": {
+              "version": 1,
+              "balance": 380000,
+              "currentDate": "3025-07-04T00:00:00.000Z"
+            },
+            "stalePutStatus": 200,
+            "stalePutCurrent": {
+              "version": null,
+              "balance": null
+            },
+            "afterStalePut": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0
+            },
+            "reloadVersion": 2,
+            "currentPutStatus": 200,
+            "rowAfterCurrentPut": {
+              "version": 3,
+              "balance": 380000,
+              "currentDate": "3025-07-04T00:00:00.000Z"
+            },
+            "afterCurrentPut": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0
+            },
+            "eventTypes": [
+              "CampaignSnapshotPublished",
+              "CampaignDayAdvanced",
+              "CampaignSnapshotPublished",
+              "CampaignSnapshotPublished"
+            ]
+          },
+          "r3": {
+            "genesisBy": "the PUT create (flag true)",
+            "createdVersion": 1,
+            "commandStatus": 200,
+            "commandKind": "committed",
+            "afterCommand": {
+              "balance": 368000,
+              "day": 184,
+              "pilots": [
+                "pilot-r3"
+              ],
+              "contracts": [],
+              "salvagePool": 0
+            },
+            "rowAfterCommand": {
+              "version": 1,
+              "balance": 380000,
+              "currentDate": "3025-07-04T00:00:00.000Z"
+            },
+            "stalePutStatus": 200,
+            "stalePutCurrent": {
+              "version": null,
+              "balance": null
+            },
+            "afterStalePut": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0
+            },
+            "reloadVersion": 2,
+            "currentPutStatus": 200,
+            "rowAfterCurrentPut": {
+              "version": 3,
+              "balance": 380000,
+              "currentDate": "3025-07-04T00:00:00.000Z"
+            },
+            "afterCurrentPut": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0
+            },
+            "eventTypes": [
+              "CampaignSnapshotPublished",
+              "FundsChanged",
+              "PilotHired",
+              "CampaignSnapshotPublished",
+              "CampaignSnapshotPublished"
+            ]
+          },
+          "c1": {
+            "genesisBy": "the PUT create (flag true)",
+            "createdVersion": 1,
+            "hireOk": true,
+            "afterHire": {
+              "balance": 368000,
+              "day": 184,
+              "pilots": [
+                "pilot-c1"
+              ],
+              "contracts": [],
+              "salvagePool": 0
+            },
+            "rowAfterHire": {
+              "version": 1,
+              "balance": 380000,
+              "currentDate": "3025-07-04T00:00:00.000Z"
+            },
+            "stalePutStatus": 200,
+            "stalePutCurrent": {
+              "version": null,
+              "balance": null
+            },
+            "afterStalePut": {
+              "balance": 368000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0
+            },
+            "currentPutStatus": 200,
+            "afterCurrentPut": {
+              "balance": 368000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0
+            },
+            "spendOk": true,
+            "afterNextCoopCommand": {
+              "balance": 367000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0
+            },
+            "hostAfterNextCoopCommand": {
+              "balance": 367000,
+              "day": 184,
+              "pilots": [
+                "pilot-c1"
+              ],
+              "contracts": [],
+              "salvagePool": 0
+            },
+            "eventTypes": [
+              "CampaignSnapshotPublished",
+              "FundsChanged",
+              "PilotHired",
+              "CampaignSnapshotPublished",
+              "CampaignSnapshotPublished",
+              "FundsChanged"
+            ]
+          },
+          "c2": {
+            "genesisBy": "the PUT create (flag true)",
+            "createdVersion": 1,
+            "acceptOk": true,
+            "creditOk": true,
+            "allocateOk": true,
+            "afterCommands": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [
+                "contract-c2"
+              ],
+              "salvagePool": 30000
+            },
+            "rowAfterCommands": {
+              "version": 1,
+              "balance": 380000,
+              "currentDate": "3025-07-04T00:00:00.000Z"
+            },
+            "stalePutStatus": 200,
+            "stalePutCurrent": {
+              "version": null,
+              "balance": null
+            },
+            "afterStalePut": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0
+            },
+            "currentPutStatus": 200,
+            "afterCurrentPut": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0
+            },
+            "eventTypes": [
+              "CampaignSnapshotPublished",
+              "ContractAccepted",
+              "SalvageAllocated",
+              "SalvageAllocated",
+              "CampaignSnapshotPublished",
+              "CampaignSnapshotPublished"
+            ]
+          },
+          "s": {
+            "genesisBy": "the PUT create (flag true)",
+            "createdVersion": 1,
+            "commandStatus": 200,
+            "afterCommand": {
+              "balance": 367655,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0
+            },
+            "putStatus": 200,
+            "putKind": null,
+            "putCurrent": {
+              "version": null,
+              "balance": null
+            },
+            "rowAfterPut": {
+              "version": 2,
+              "balance": 380500,
+              "currentDate": "3025-07-04T00:00:00.000Z"
+            },
+            "afterPut": {
+              "balance": 380500,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0
+            },
+            "typesBeforePut": [
+              "CampaignSnapshotPublished",
+              "FundsChanged"
+            ],
+            "typesAfterPut": [
+              "CampaignSnapshotPublished",
+              "FundsChanged",
+              "CampaignSnapshotPublished"
+            ]
+          }
+        }
+      },
+      "guards": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35e/logs/red-flipped-values/guards.json",
+        "sha256": "cf6d1f7d95fd178374a7e25dede3dcfbb6f2a45a127dd5d1cfa18d97bcf975f8",
+        "rows": {
+          "g": {
+            "hireOk": true,
+            "genesisKind": "ok",
+            "ledger": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0
+            },
+            "eventTypes": [
+              "CampaignSnapshotPublished"
+            ]
+          },
+          "n": {
+            "genesisKind": "genesis-appended",
+            "spendOk": true,
+            "readKind": "not_found",
+            "ledger": {
+              "balance": 379000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0
+            }
+          },
+          "a": {
+            "spendOk": true,
+            "rowBefore": {
+              "version": 1,
+              "balance": 380000,
+              "currentDate": "3025-07-04T00:00:00.000Z"
+            },
+            "rowAfter": {
+              "version": 1,
+              "balance": 380000,
+              "currentDate": "3025-07-04T00:00:00.000Z"
+            },
+            "ledger": {
+              "balance": 379000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0
+            }
+          },
+          "t": {
+            "failure": null,
+            "typesBefore": [
+              "CampaignSnapshotPublished"
+            ],
+            "typesAfter": [
+              "CampaignSnapshotPublished",
+              "FundsChanged",
+              "PilotHired"
+            ],
+            "rowBefore": {
+              "version": 1,
+              "balance": 380000,
+              "currentDate": "3025-07-04T00:00:00.000Z"
+            },
+            "rowAfter": {
+              "version": 1,
+              "balance": 380000,
+              "currentDate": "3025-07-04T00:00:00.000Z"
+            },
+            "hostPilots": [
+              "pilot-t"
+            ]
+          },
+          "i": {
+            "kinds": [
+              "committed",
+              "committed"
+            ],
+            "createdVersion": 1,
+            "rowAfter": {
+              "version": 1,
+              "balance": 380000,
+              "currentDate": "3025-07-04T00:00:00.000Z"
+            },
+            "eventTypes": [
+              "CampaignSnapshotPublished",
+              "FundsChanged"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "reading": "Both sides, every carried row red for the ruled reason. r1: the journal went 380000 -> 367655, the stale PUT answered 200 and the journal replayed 380000. r2: day 184 -> 187 -> 184. r3: pilots [pilot-r3] -> [] and balance 368000 -> 380000. c1: after the co-op hire the journal held pilot-c1 and 368000; the host fold PUT answered 200 and the journal kept 368000 but no pilot. c2: contract-c2 and a 30000 pool -> no contract and pool 0 after the host fold PUT. s: the edited PUT answered 200 and the journal replayed 380500, the client's figure, over the spend. In every row the command left the campaigns row at version 1 (rowAfterCommand), which is why the stale PUT was accepted. Guards g, n and a pass on the baseline (they pin behavior the change must keep); t and i fail because nothing rewrites the record today (t: the injected write failure never fires and the hire commits; i: both appends answer committed, one FundsChanged is recorded, and the row stays at version 1).",
+  "nonClaims": [
+    "The co-op rows drive CampaignMatchHost directly, not through a socket, the GM arbiter or a browser; the host fold is applied with applyAuthoritativeStateToGuestCampaign, the function the surface calls.",
+    "Rows t and i are pins of behavior this unit adds; they are recorded red but are not a reproduction of a reported failure.",
+    "No build, no Playwright."
+  ]
+}
