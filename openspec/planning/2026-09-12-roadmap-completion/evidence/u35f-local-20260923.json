@@ -1,0 +1,595 @@
+{
+  "unit": "U35f",
+  "stage": "local",
+  "status": "ready",
+  "at": "2026-09-23T07:09:21.419Z",
+  "rewrittenAfter": "the 2026-09-23 path amendment (units.json pathsAmendedBeforeAdmission20260923, main b519db276); the first local receipt (status ready with F1/F2 open) is superseded by this one",
+  "supersededReceipt": {
+    "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/superseded-u35f-local-20260923.json",
+    "sha256": "06a3a2be3febe74b519ad4b609ce221117f51e2464de7499260fc30a75adad6b"
+  },
+  "baseline": "f32ea5400f3a1282733180059e32d9169fb74204",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u35f",
+  "branch": "roadmap-u35f-coop-host-adopts-record-version-20260923",
+  "head": "f32ea5400f3a1282733180059e32d9169fb74204 plus the uncommitted working tree below (the parent commits)",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "runners": {
+    "gates": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/run-gates.sh",
+      "sha256": "b52814fc99a67e6ddcb9868b5d610d64941e37928afc17bd444f2412905958c7"
+    },
+    "mutants": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/run-mutants.mjs",
+      "sha256": "ff08239323d9dc543e6388e4623377d32b3e40a407757b85d854220c0f4304c2"
+    },
+    "receiptWriter": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/write-local.mjs",
+      "sha256": "afef85e382d663e5ecd7ebc8c2b1b48b795e892be5bde2268b34ba6e40b2a95b"
+    }
+  },
+  "behaviorDelivered": {
+    "component": "The co-op host's fold of a committed frame refreshes the saved record: in the host-only frame handler, after a fold that accepted a CampaignEvent-kind frame is projected, the surface hands refreshAfterCommittedCommand { kind: 'committed', state: { campaignId: event.campaignId } } (rows h1, h2); the guest handler is unchanged (row g); a frame for another campaign is ignored by the store's guard (row o); the hydration baseline reads nothing (row b); a snapshot-authority campaign keeps its folded balance (row s).",
+    "storeWait": "refreshAfterCommittedCommand queues its read on the save chain and becomes its tail, so a save in flight lands (version and cache key) before the row is read and a save requested meanwhile runs after the read; it no longer publishes itself as inFlightLoad (rows p2, p3).",
+    "storeRollbackKey": "rollbackCoopCampaign re-stamps the cache key from the server record it adopts (row p1).",
+    "storeLateAnswer": "runSave leaves the adopted state alone when a saved answer's version is below the baseVersion the store already holds for that campaign, and only marks the save saved (store row: a save answer that lands after a load adopted a newer record leaves the adopted version)."
+  },
+  "files": {
+    "product": [
+      {
+        "file": "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+        "sha256": "c332fd251e0340cc2512318b748c668aa80e00eac56c32a97b5bd607b25f8487",
+        "added": 36,
+        "removed": 0
+      },
+      {
+        "file": "src/stores/campaign/useCampaignPersistenceStore.ts",
+        "sha256": "e50e9013edd3730555b999b41936550ab3e9db5b9055f4cbd491976abe08a2f1",
+        "added": 72,
+        "removed": 33
+      }
+    ],
+    "test": [
+      {
+        "file": "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostRecordRefresh.test.tsx",
+        "sha256": "e64f9057d7d68e60981d79fe3d3712f97bb37c3371177607c88f5a306a8e0cf9",
+        "lines": 906,
+        "new": true
+      },
+      {
+        "file": "src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts",
+        "sha256": "c3c2ac94d18de81d0df2b07d641a2363b57b5945835fe2d4f3bf461c766b55c9",
+        "added": 66,
+        "removed": 0
+      }
+    ]
+  },
+  "lineCounts": {
+    "rule": "added + removed lines per git diff --numstat for tracked files; line count for the new test file; product vs test (owner decision OD-line-cap-product-lines)",
+    "productFiles": 2,
+    "productLines": 141,
+    "productAdded": 108,
+    "productRemoved": 33,
+    "perProductFile": {
+      "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx": {
+        "added": 36,
+        "removed": 0
+      },
+      "src/stores/campaign/useCampaignPersistenceStore.ts": {
+        "added": 72,
+        "removed": 33
+      }
+    },
+    "storeRemovedNote": "the store's removed lines are the refresh body re-indented under saveChain.then and the replaced inFlightLoad publication and actions-table comment",
+    "testFiles": 2,
+    "testLines": 972,
+    "perTestFile": {
+      "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostRecordRefresh.test.tsx": {
+        "lines": 906,
+        "new": true
+      },
+      "src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts": {
+        "added": 66,
+        "removed": 0
+      }
+    },
+    "totalFiles": 4,
+    "caps": {
+      "maxFiles": 15,
+      "maxNonGeneratedLines": 500
+    },
+    "withinCaps": true,
+    "receiptsNotCounted": [
+      "u35f-admission-20260923.json",
+      "u35f-red-20260923.json",
+      "u35f-local-20260923.json"
+    ]
+  },
+  "rows": {
+    "h1": "journal-native: an approved co-op spend folded, the next save carries it at the rewritten version",
+    "h2": "journal-native: after the host's own day advance commits, its rename saves at the rewritten version",
+    "g": "a guest's fold reads nothing",
+    "o": "a frame for another campaign reads nothing",
+    "b": "the hydration baseline reads nothing",
+    "s": "snapshot authority: the folded balance survives the refresh and saves at the held version",
+    "p1": "snapshot authority: after a co-op 409 rollback the cache key names the adopted record and a folded spend survives the refresh and the next save (was the lane probe p1)",
+    "p2": "snapshot authority: a spend folded while the host rename is in flight survives (was probe p2)",
+    "p3": "journal-native: a spend committed while the host rename is in flight leaves the host saving at 6, no 409, no toast (was probe p3)",
+    "lateAnswer": "store suite: a save answer (8) that lands after a load adopted the row at 9 leaves 9, and the next save writes against 9",
+    "redEvidence": "u35f-red-20260923.json (h1, h2, s on the baseline; addendum20260923: p1, p2, p3 and the late-answer row on the tree with the component change and the baseline store)"
+  },
+  "gates": {
+    "coopRows": {
+      "command": "npx jest src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostRecordRefresh.test.tsx --no-color",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\components\\\\campaign\\\\coop\\\\__tests__\\\\CampaignCoopRouteSurfaceConnected.hostRecordRefresh.test.tsx/i.",
+      "counts": "Test Suites: 1 passed, 1 total | Tests:       9 passed, 9 total",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/logs/local-rows.log",
+        "sha256": "c3653aa25da34b109016201ae46bc8d5379b716967afa1cf5b781b939dc9477a"
+      },
+      "rowResults": [
+        "√ (h1) a journal-native host folds an approved co-op spend and its next save carries it at the rewritten version",
+        "√ (h2) after the host's own day advance commits, its next edit is saved at the rewritten version, not refused and reverted",
+        "√ (g) a guest's fold of a committed frame does not read the record",
+        "√ (o) a committed frame for another campaign does not read the record",
+        "√ (b) the hydration baseline a (re)connect sends does not read the record",
+        "√ (s) a snapshot-authority campaign, whose row a co-op command does not move, keeps the folded balance and saves it at the version it holds",
+        "√ (p1) snapshot authority: after a co-op 409 rollback, a folded co-op spend survives the refresh and the next save",
+        "√ (p2) snapshot authority: a co-op spend folded while the host rename is in flight survives the refresh and the next save",
+        "√ (p3) journal-native: a co-op spend committed while the host rename is in flight leaves the host saving at the rewritten version"
+      ]
+    },
+    "storeRows": {
+      "command": "npx jest src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts --no-color",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\stores\\\\campaign\\\\__tests__\\\\useCampaignPersistenceStore.test.ts/i.",
+      "counts": "Test Suites: 1 passed, 1 total | Tests:       22 passed, 22 total",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/logs/local-store-rows.log",
+        "sha256": "9b9088c10cfefd54bc5c2c3fe82200b70d3c82788f91e54a5272ea926cd99d71"
+      },
+      "lateAnswerRow": [
+        "√ a save answer that lands after a load adopted a newer record leaves the adopted version"
+      ]
+    },
+    "jestCoop": {
+      "command": "npx jest src/components/campaign/coop --no-color",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\components\\\\campaign\\\\coop/i in 2 projects.",
+      "counts": "Test Suites: 15 passed, 15 total | Tests:       153 passed, 153 total",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/logs/local-jest-coop.log",
+        "sha256": "58d9deb6cb0136f681b91108fef4d2b494f3beca04573eb02b1378b96108541d"
+      }
+    },
+    "jestStoresCampaign": {
+      "command": "npx jest src/stores/campaign --no-color",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\stores\\\\campaign/i.",
+      "counts": "Test Suites: 27 passed, 27 total | Tests:       342 passed, 342 total",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/logs/local-jest-stores-campaign.log",
+        "sha256": "2a9eec0015fce24f9df9338fe37d002479015306f1bdb2dcdac438f63f908187"
+      }
+    },
+    "jestLibCampaignCoop": {
+      "command": "npx jest src/lib/campaign/coop --no-color",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\campaign\\\\coop/i.",
+      "counts": "Test Suites: 8 passed, 8 total | Tests:       48 passed, 48 total",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/logs/local-jest-lib-campaign-coop.log",
+        "sha256": "a8a774c0e6f50e9b2496def9d7952441df6cdb7f2c216217dc71b5a273c5fe56"
+      }
+    },
+    "jestPagesCampaigns": {
+      "command": "npx jest src/__tests__/pages/gameplay/campaigns --no-color",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\pages\\\\gameplay\\\\campaigns/i.",
+      "counts": "Test Suites: 6 passed, 6 total | Tests:       38 passed, 38 total",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/logs/local-jest-pages-campaigns.log",
+        "sha256": "888e95b6c5f08d550d105df04b8983973db60d7fda64a8d817d02df42926a9fb"
+      }
+    },
+    "jestStoreConsumers": {
+      "command": "npx jest src/components/campaign/share src/components/gameplay/pages/campaigns src/lib/campaign/persistence src/pages-modules/gameplay/campaigns src/__tests__/integration/coopMutationPersistence.test.ts --no-color",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\components\\\\campaign\\\\share|src\\\\components\\\\gameplay\\\\pages\\\\campaigns|src\\\\lib\\\\campaign\\\\persistence|src\\\\pages-modules\\\\gameplay\\\\campaigns|src\\\\__tests__\\\\integration\\\\coopMutationPersistence.test.ts/i.",
+      "counts": "Test Suites: 28 passed, 28 total | Tests:       118 passed, 118 total",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/logs/local-jest-store-consumers.log",
+        "sha256": "54f30fd52eece2709204d5a2a7589a5c1b9f62bf952a8d8f0b1ff86652c2871d"
+      },
+      "note": "extra, beyond the charter list: every other suite that drives the real persistence store (grep of src tests importing it without jest.mock)"
+    },
+    "tsc": {
+      "command": "npx tsc --noEmit",
+      "exitCode": 0,
+      "lastLine": "(no output)",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/logs/local-tsc.log",
+        "sha256": "85a9b7aefe4eb346a52c3dddcc4b10f77036fc106c5c19de55c31e60e6df2d5f"
+      }
+    },
+    "oxlint": {
+      "command": "npx oxlint",
+      "exitCode": 0,
+      "lastLine": "Finished in 789ms on 3819 files using 16 threads.",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/logs/local-oxlint.log",
+        "sha256": "0a00a4189625a65ff69177ed4d349c431b971844569ac423185eb0ba528439ae"
+      },
+      "warnings": 84,
+      "errors": 0,
+      "versusBaselineWarnings": 84
+    },
+    "oxfmt": {
+      "command": "npx oxfmt --check src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostRecordRefresh.test.tsx src/stores/campaign/useCampaignPersistenceStore.ts src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts",
+      "exitCode": 0,
+      "lastLine": "Finished in 16ms on 4 files using 16 threads.",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/logs/local-oxfmt.log",
+        "sha256": "748f4f0ce866e73fc243ab8e111d519173befeba1f58c03fcc62bb62b7407845"
+      }
+    },
+    "lintUnits": {
+      "command": "npm run lint:units",
+      "exitCode": 0,
+      "lastLine": "LINT_UNITS_PASS 100/100",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/logs/local-lint-units.log",
+        "sha256": "db2c88f0ce567b6daf46af0be9c64a9235cde3548a4011ace783b840f8ccae73"
+      }
+    },
+    "openspecCi": {
+      "command": "npm run qc:openspec-ci:validate",
+      "exitCode": 0,
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/logs/local-openspec-ci.log",
+        "sha256": "18e3fdbe95924af77b2f8fbad8621b61397d9df706dee610e147e5f5e4aa314e"
+      }
+    },
+    "roadmapValidator": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "exitCode": 0,
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/logs/local-validator.log",
+        "sha256": "8762be0e3c6a309a3fb2b5c1e8e96d6ec4f68a004432f787240eaf3d0a7c217d"
+      }
+    }
+  },
+  "mutants": [
+    {
+      "id": "M1",
+      "what": "the fold stops calling the refresh (the committed-event call removed from the host fold)",
+      "file": "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+      "caught": true,
+      "caughtBy": [
+        "× (h1) a journal-native host folds an approved co-op spend and its next save carries it at the rewritten version",
+        "× (h2) after the host's own day advance commits, its next edit is saved at the rewritten version, not refused and reverted",
+        "× (s) a snapshot-authority campaign, whose row a co-op command does not move, keeps the folded balance and saves it at the version it holds",
+        "× (p1) snapshot authority: after a co-op 409 rollback, a folded co-op spend survives the refresh and the next save",
+        "× (p3) journal-native: a co-op spend committed while the host rename is in flight leaves the host saving at the rewritten version"
+      ],
+      "suites": [
+        {
+          "suite": "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostRecordRefresh.test.tsx",
+          "exitCode": 1,
+          "counts": "Tests:       5 failed, 4 passed, 9 total",
+          "failed": [
+            "× (h1) a journal-native host folds an approved co-op spend and its next save carries it at the rewritten version",
+            "× (h2) after the host's own day advance commits, its next edit is saved at the rewritten version, not refused and reverted",
+            "× (s) a snapshot-authority campaign, whose row a co-op command does not move, keeps the folded balance and saves it at the version it holds",
+            "× (p1) snapshot authority: after a co-op 409 rollback, a folded co-op spend survives the refresh and the next save",
+            "× (p3) journal-native: a co-op spend committed while the host rename is in flight leaves the host saving at the rewritten version"
+          ],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/logs/mutant-M1-coop.log",
+            "sha256": "0d6ce37cec97e08aceb9d5ad99e699cebb182acbf8708e782d9cfa074494ec92"
+          }
+        }
+      ],
+      "preMutantSha256": "c332fd251e0340cc2512318b748c668aa80e00eac56c32a97b5bd607b25f8487",
+      "mutantSha256": "8be9c57dafbc1568bbc24f46c5876e3dfea4cf7dfae81dcc385e82371914ea91",
+      "restoredSha256": "c332fd251e0340cc2512318b748c668aa80e00eac56c32a97b5bd607b25f8487",
+      "restoredIdentical": true,
+      "restoredFrom": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/mutant-M1.pre-mutant.copy"
+    },
+    {
+      "id": "M2",
+      "what": "a guest's fold refreshes (the same committed-event call added to the guest frame handler)",
+      "file": "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+      "caught": true,
+      "caughtBy": [
+        "× (g) a guest's fold of a committed frame does not read the record"
+      ],
+      "suites": [
+        {
+          "suite": "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostRecordRefresh.test.tsx",
+          "exitCode": 1,
+          "counts": "Tests:       1 failed, 8 passed, 9 total",
+          "failed": [
+            "× (g) a guest's fold of a committed frame does not read the record"
+          ],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/logs/mutant-M2-coop.log",
+            "sha256": "82596540e34c76a31092a11fe06e202cbbc27147eccd380c59ca078098d15735"
+          }
+        }
+      ],
+      "preMutantSha256": "c332fd251e0340cc2512318b748c668aa80e00eac56c32a97b5bd607b25f8487",
+      "mutantSha256": "c14da13d0cd73192e4512f2ac1209623fdd872bbd3422b51dd8f1b0f84074ab0",
+      "restoredSha256": "c332fd251e0340cc2512318b748c668aa80e00eac56c32a97b5bd607b25f8487",
+      "restoredIdentical": true,
+      "restoredFrom": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/mutant-M2.pre-mutant.copy"
+    },
+    {
+      "id": "M3",
+      "what": "a frame for another campaign refreshes (the acknowledgement names the surface's campaign instead of the event's)",
+      "file": "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+      "caught": true,
+      "caughtBy": [
+        "× (o) a committed frame for another campaign does not read the record"
+      ],
+      "suites": [
+        {
+          "suite": "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostRecordRefresh.test.tsx",
+          "exitCode": 1,
+          "counts": "Tests:       1 failed, 8 passed, 9 total",
+          "failed": [
+            "× (o) a committed frame for another campaign does not read the record"
+          ],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/logs/mutant-M3-coop.log",
+            "sha256": "68e66be83fa37d49fc357e784492e3d2473f2e25b2520eb16a5f69361675c860"
+          }
+        }
+      ],
+      "preMutantSha256": "c332fd251e0340cc2512318b748c668aa80e00eac56c32a97b5bd607b25f8487",
+      "mutantSha256": "65e839f523e11a0d6dad22854ecc42856758fc6a7c46f956524d1cc8de3478cf",
+      "restoredSha256": "c332fd251e0340cc2512318b748c668aa80e00eac56c32a97b5bd607b25f8487",
+      "restoredIdentical": true,
+      "restoredFrom": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/mutant-M3.pre-mutant.copy"
+    },
+    {
+      "id": "M4",
+      "what": "the hydration baseline refreshes (the CampaignEvent-kind check removed, so every accepted frame reads)",
+      "file": "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+      "caught": true,
+      "caughtBy": [
+        "× (b) the hydration baseline a (re)connect sends does not read the record"
+      ],
+      "suites": [
+        {
+          "suite": "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostRecordRefresh.test.tsx",
+          "exitCode": 1,
+          "counts": "Tests:       1 failed, 8 passed, 9 total",
+          "failed": [
+            "× (b) the hydration baseline a (re)connect sends does not read the record"
+          ],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/logs/mutant-M4-coop.log",
+            "sha256": "337b0654117c0102b50504366e468d93997c71dcf7145cad7c6e75831ba25cd1"
+          }
+        }
+      ],
+      "preMutantSha256": "c332fd251e0340cc2512318b748c668aa80e00eac56c32a97b5bd607b25f8487",
+      "mutantSha256": "90f6eae29a7d213e2e8c44bc9355cc91af28311c2407cc827be680c508f36ca4",
+      "restoredSha256": "c332fd251e0340cc2512318b748c668aa80e00eac56c32a97b5bd607b25f8487",
+      "restoredIdentical": true,
+      "restoredFrom": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/mutant-M4.pre-mutant.copy"
+    },
+    {
+      "id": "M5",
+      "what": "the refresh stops waiting for the in-flight save (runLoad starts at once instead of after the save chain; it still becomes the chain tail)",
+      "file": "src/stores/campaign/useCampaignPersistenceStore.ts",
+      "caught": true,
+      "caughtBy": [
+        "× (p2) snapshot authority: a co-op spend folded while the host rename is in flight survives the refresh and the next save"
+      ],
+      "suites": [
+        {
+          "suite": "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostRecordRefresh.test.tsx",
+          "exitCode": 1,
+          "counts": "Tests:       1 failed, 8 passed, 9 total",
+          "failed": [
+            "× (p2) snapshot authority: a co-op spend folded while the host rename is in flight survives the refresh and the next save"
+          ],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/logs/mutant-M5-coop.log",
+            "sha256": "4a58d498ddca528dfcd9a2fe30a4e40123caa8f665018b21ae6b7898aef4aa53"
+          }
+        },
+        {
+          "suite": "src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts",
+          "exitCode": 0,
+          "counts": "Tests:       22 passed, 22 total",
+          "failed": [],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/logs/mutant-M5-store.log",
+            "sha256": "3c74e3a1f016eea3288f0c01fef8a53cda833f51bb7d790482cf2f5376f4b3f3"
+          }
+        }
+      ],
+      "preMutantSha256": "e50e9013edd3730555b999b41936550ab3e9db5b9055f4cbd491976abe08a2f1",
+      "mutantSha256": "4035c0ebdc32cf63271c75f2f1a628e8459badbf99f729ef1ef12763a5f0184b",
+      "restoredSha256": "e50e9013edd3730555b999b41936550ab3e9db5b9055f4cbd491976abe08a2f1",
+      "restoredIdentical": true,
+      "restoredFrom": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/mutant-M5.pre-mutant.copy"
+    },
+    {
+      "id": "M6",
+      "what": "the co-op rollback leaves the cache key stale (its writeCachedCampaignKey call removed)",
+      "file": "src/stores/campaign/useCampaignPersistenceStore.ts",
+      "caught": true,
+      "caughtBy": [
+        "× (p1) snapshot authority: after a co-op 409 rollback, a folded co-op spend survives the refresh and the next save"
+      ],
+      "suites": [
+        {
+          "suite": "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostRecordRefresh.test.tsx",
+          "exitCode": 1,
+          "counts": "Tests:       1 failed, 8 passed, 9 total",
+          "failed": [
+            "× (p1) snapshot authority: after a co-op 409 rollback, a folded co-op spend survives the refresh and the next save"
+          ],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/logs/mutant-M6-coop.log",
+            "sha256": "e16be013bda2b9f5215990f19620a45dfd5b1065c6729339318d0c437064adc1"
+          }
+        },
+        {
+          "suite": "src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts",
+          "exitCode": 0,
+          "counts": "Tests:       22 passed, 22 total",
+          "failed": [],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/logs/mutant-M6-store.log",
+            "sha256": "0a9c0edb7e30af87abc0f9438a18a4d50072d624738891b6bfe5e8092fa0479b"
+          }
+        }
+      ],
+      "preMutantSha256": "e50e9013edd3730555b999b41936550ab3e9db5b9055f4cbd491976abe08a2f1",
+      "mutantSha256": "eb2b0c58af357e718917643a2562995249b26333db24fe3fc4552d572f1da65b",
+      "restoredSha256": "e50e9013edd3730555b999b41936550ab3e9db5b9055f4cbd491976abe08a2f1",
+      "restoredIdentical": true,
+      "restoredFrom": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/mutant-M6.pre-mutant.copy"
+    },
+    {
+      "id": "M7",
+      "what": "a late save answer rolls the version back (the newer-version guard in runSave never taken)",
+      "file": "src/stores/campaign/useCampaignPersistenceStore.ts",
+      "caught": true,
+      "caughtBy": [
+        "× a save answer that lands after a load adopted a newer record leaves the adopted version"
+      ],
+      "suites": [
+        {
+          "suite": "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostRecordRefresh.test.tsx",
+          "exitCode": 0,
+          "counts": "Tests:       9 passed, 9 total",
+          "failed": [],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/logs/mutant-M7-coop.log",
+            "sha256": "79c3ed622e839e22e0ce85753864f2ea5b0fa7c50779f94017912cf8b74133a5"
+          }
+        },
+        {
+          "suite": "src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts",
+          "exitCode": 1,
+          "counts": "Tests:       1 failed, 21 passed, 22 total",
+          "failed": [
+            "× a save answer that lands after a load adopted a newer record leaves the adopted version"
+          ],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/logs/mutant-M7-store.log",
+            "sha256": "4cdf907326c8664f9509366bb073a764514335fee7290b58eb59e3042b5bd433"
+          }
+        }
+      ],
+      "preMutantSha256": "e50e9013edd3730555b999b41936550ab3e9db5b9055f4cbd491976abe08a2f1",
+      "mutantSha256": "671a7872356aaa3855f3821a863b163f5fafc2cf4a69e563306ebdc818880577",
+      "restoredSha256": "e50e9013edd3730555b999b41936550ab3e9db5b9055f4cbd491976abe08a2f1",
+      "restoredIdentical": true,
+      "restoredFrom": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/mutant-M7.pre-mutant.copy"
+    }
+  ],
+  "mutantsRunAt": "2026-09-23T07:07:15.638Z",
+  "mutantsLog": {
+    "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/logs/mutants.json",
+    "sha256": "d72f33015c78ac2a88159b925cbf300068bdd20a24521778eded6d753eedee0d"
+  },
+  "mutantNotes": [
+    "M7 is caught only by the store row (a load adopting ahead of a save answer). p3 passes under M7 because the refresh now waits for the save in flight, so on the refresh path a save answer can no longer arrive after the refresh adopted a newer record; the guard there is defence in depth.",
+    "M5 is caught by p2 only. Under M5, p3 still passes because the late-answer guard keeps the adopted version; the two store changes each close p3 on their own."
+  ],
+  "earlierProbes": {
+    "what": "the pre-amendment probe measurements (temporary file, change vs baseline) that became rows p1, p2, p3; kept for history",
+    "change": [
+      {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/logs/probe-change/p1.json",
+        "sha256": "257297f5f6e20c095c3690f53801d7e70903e5ec1e80ce3ae7e66881d1069fa9"
+      },
+      {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/logs/probe-change/p2.json",
+        "sha256": "bb2a25f5c503b3f3098d317e052efb18c43fb6de3aebbd0558f9732fd9fc6a1b"
+      },
+      {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/logs/probe-change/p3.json",
+        "sha256": "0ee3deae6bc88eb7cd33427f6011014d639f4a763c6da87f633b139bdf4cdb69"
+      }
+    ],
+    "baseline": [
+      {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/logs/probe-baseline/p1.json",
+        "sha256": "71c7646f51331afe24bbca9113ecc9789b1405e13b8dd6b582c87e5310616118"
+      },
+      {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/logs/probe-baseline/p2.json",
+        "sha256": "74f37646d1e08e10a2cbacf86a8b9f7b4e46cada4ec198f1c53dc0786f66aac8"
+      },
+      {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35f/logs/probe-baseline/p3.json",
+        "sha256": "e74c9eea89b25c0e766557fe498774a2b178cc039a2696a622100f6c93ce3c15"
+      }
+    ]
+  },
+  "nonClaims": [
+    "No browser, no Playwright, no two-process run: the socket is faked at connectStoredCampaignSyncTransport and the network at the persistence store's fetch seam; U35e's row rewrite is modelled by the fake row, not exercised.",
+    "'The armed save is cancelled' is not asserted: a co-op host's markDirty never arms the debounced save, so on these flows there is none to cancel; the refusal the rows remove is the host's next explicit save.",
+    "The refresh's read-failure path (re-arm when dirty) is unchanged store behaviour, covered by src/stores/campaign/__tests__/campaignCommandAckRefresh.test.ts; no new row.",
+    "loadCampaign still does not wait for a save in flight; only the late-answer guard applies to it (see F6).",
+    "The hydration-baseline exclusion relies on the server sending every CampaignSnapshotPublished on the CampaignSnapshot kind (src/lib/multiplayer/server/campaignEventWireFrame.ts:24-27).",
+    "No edit outside the amended ownership paths; no flag flipped; no build; no npm install/ci/prune."
+  ],
+  "findingsReportedNotFixed": [
+    {
+      "id": "F1",
+      "status": "fixed",
+      "was": "snapshot-authority regression: a folded co-op spend dropped by the refresh after a 409 rollback (p1) or while a host save was in flight (p2)",
+      "evidence": "rows p1 and p2 green (1000000 before the fix, 950000 now); M6 caught by p1, M5 caught by p2"
+    },
+    {
+      "id": "F2",
+      "status": "fixed for the refresh path",
+      "was": "journal-native: a co-op command committed while the host's save was in flight still ended in 409, rollback and toast (p3)",
+      "evidence": "row p3 green (the save answered 200 at 6, no toast); the late-answer guard is proved on the load path by the store row (M7 caught there)",
+      "notFixed": "a load (loadCampaign) started while a save is in flight still does not wait for it; see F6"
+    },
+    {
+      "id": "F3",
+      "status": "open, pre-existing, not reachable in production (INFERENCE, not measured)",
+      "what": "The host fold does not compare the event's campaignId (campaignAuthoritativeFold.ts:94-130) and the projection guards only the live campaign against the surface's id (campaignMirrorProjection.ts:49-56), so a frame naming another campaign would be projected onto this one; a transport carries one campaign. The refresh reads nothing for such a frame (row o)."
+    },
+    {
+      "id": "F4",
+      "status": "open, store behaviour (by code, not measured)",
+      "what": "When the refresh's read fails and the store is dirty, the store re-arms the debounced save even for a co-op campaign, which markDirty never does; on a journal-native campaign that save carries the pre-command token and is refused 409 with the rollback toast."
+    },
+    {
+      "id": "F5",
+      "status": "open, cost (by code, not measured)",
+      "what": "One read per committed CampaignEvent frame: a HirePilot batch (FundsChanged then PilotHired) reads twice; each read now also waits in the save chain."
+    },
+    {
+      "id": "F6",
+      "status": "open, outside the amended sentence (INFERENCE from code, not measured)",
+      "what": "loadCampaign (runLoad, published as inFlightLoad) does not wait for a save in flight. On a snapshot-authority co-op campaign a load that reads the row between a host save's commit and its answer, with the cache key not yet naming that row, would replace the live campaign and drop a co-op effect folded since - the p2 mechanism through the load path. The late-answer guard keeps the version but not the folded state. For a host already holding the route's campaign the page shell loads only a clean rehydrated copy at baseVersion 0 (campaignPageShell.tsx:140-166) or on an error retry (:398, :413), which narrows it; not measured."
+    },
+    {
+      "id": "F7",
+      "status": "open, outside the sentence (by code)",
+      "what": "resolveConflictTakeServer (the non-co-op conflict resolution) adopts the server record without re-stamping the cache key either; only the co-op rollback was in the sentence."
+    }
+  ],
+  "risksForTheParent": [
+    "Concurrency: the refresh now sits in the save chain, so a slow save delays the refresh and every write requested after it, and a refresh whose read never settles holds the chain until fetch settles - the exposure a save in the chain already has.",
+    "The refresh no longer publishes inFlightLoad (publishing it while waiting on the chain would deadlock a save queued ahead of it); loadCampaign and the post-flush reconciliation still publish.",
+    "Authority: on a journal-native campaign the refresh replaces the host campaign with the stored record and clears dirty, discarding a host-local change not yet saved (the store's own comment); a co-op host's updateCampaign and day actions save at once, and a save in flight now lands before the read.",
+    "Owner ruling: the authority and concurrency classes need the head-bound Lane B ruling on the head that merges."
+  ],
+  "gitStatusShort": "M src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx\n M src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts\n M src/stores/campaign/useCampaignPersistenceStore.ts\n?? openspec/planning/2026-09-12-roadmap-completion/evidence/u35f-admission-20260923.json\n?? openspec/planning/2026-09-12-roadmap-completion/evidence/u35f-local-20260923.json\n?? openspec/planning/2026-09-12-roadmap-completion/evidence/u35f-red-20260923.json\n?? src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostRecordRefresh.test.tsx"
+}
