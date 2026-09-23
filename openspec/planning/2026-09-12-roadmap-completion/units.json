@@ -6655,7 +6655,12 @@
       ],
       "agentRecommendation": "rule the head once Lane A has approved it and the checks are green",
       "revertCost": "low: a squash merge revert; the tick receipt is reverted with it",
-      "decision": null,
+      "decision": {
+        "at": "2026-09-23T07:29:35.232Z",
+        "option": "closed as superseded (neither option applies: U2b is blocked and holds no rows; E2E-19 landed in U2c and E2E-25 is held by U22)",
+        "text": "Yes to both (Recommended)",
+        "source": "owner answers to the parent's structured questions in the working session (chat), 2026-09-23, after council 4 (openspec/council-decisions/2026-09-23-uat-stopping-point.md); every chosen label was '(Recommended)' (sub-decision 7 of OD-uat-two-rounds)"
+      },
       "ruling": null,
       "note": "pre-opened with the unit so the privacy class is visible from admission (same shape as PK-u5a-ruling)"
     },

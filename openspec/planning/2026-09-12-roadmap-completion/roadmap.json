@@ -15867,6 +15867,75 @@
       "ownerWords": "Replace-stream marker (Recommended)",
       "disclosure": "The parent wrote the three options and the recommendation from the U22a lane's admission receipt; decision is the parent's wording of the chosen option. raisedAtUtc and decidedAtUtc are the question's and the answer's times in the session transcript.",
       "status": "decided"
+    },
+    {
+      "id": "OD-uat-two-rounds",
+      "raisedAtUtc": "2026-09-23T07:15:17.212Z",
+      "raisedBy": "council 4 (openspec/council-decisions/2026-09-23-uat-stopping-point.md), convened on the owner's question to scope what remains and find a stopping point for UAT; put to the owner as eight structured questions",
+      "node": "R6.umbrella",
+      "question": "Where does the roadmap loop stop for user acceptance testing, and how does UAT run alongside the loop?",
+      "evidence": [
+        "openspec/council-decisions/2026-09-23-uat-stopping-point.md",
+        "src/lib/campaign/sync/JournalCampaignEventStore.ts:86 and src/lib/multiplayer/server/matchJournalAuthority.ts:20-21 (both production flags off)",
+        "scripts/qc/gm-two-player-campaign-core.cjs:204-206, :234-239 (only authority-recovery and privacy-pack arm the journal fixtures)",
+        ".sisyphus/roadmap-completion-20260912/u35f-lane-a-review-20260923.md (no co-op loss on snapshot-authority campaigns)"
+      ],
+      "decidedAtUtc": "2026-09-23T07:29:35.232Z",
+      "decision": "UAT runs in two rounds. Round 1 is a pinned production build with both journal flags off and a fresh database, pinned at U35f's merge 668ed250f (the owner ruled U35f at comment 5790856507 after its review measured no co-op loss). Round 2 starts only when U35d and the combat journal chain (U23, U43, U24, U44) are on main.",
+      "subDecisions": [
+        {
+          "number": 1,
+          "topic": "round 1 configuration",
+          "ownerWords": "Production flags only (Recommended)",
+          "decision": "Round 1 tests the configuration production ships; no fixture-armed or NEXT_PUBLIC_E2E_MODE build counts as acceptance; GM rewind is out of round 1 because it is unreachable on production defaults."
+        },
+        {
+          "number": 2,
+          "topic": "round 1 pin",
+          "ownerWords": "After U35f if clean (Recommended)",
+          "decision": "The pin is the first main commit carrying U35f, because its review measured no co-op loss on snapshot-authority campaigns: U35f's merge 668ed250f."
+        },
+        {
+          "number": 3,
+          "topic": "U35d timing",
+          "ownerWords": "Strictly round 2 (Recommended)",
+          "decision": "The campaign journal flip belongs to round 2 with the combat journal chain; no round tests a half-flipped app."
+        },
+        {
+          "number": 4,
+          "topic": "the loop during round 1",
+          "ownerWords": "Keep going fully (Recommended)",
+          "decision": "The loop continues on main; the tester stays on the pinned build; triage re-checks each finding against the current head."
+        },
+        {
+          "number": 5,
+          "topic": "UAT findings",
+          "ownerWords": "One triage pass per round (Recommended)",
+          "decision": "One triage pass per round into a UAT register under this planning directory's evidence/, each finding sorted into a fold, a new unit, an owner packet or not a defect."
+        },
+        {
+          "number": 6,
+          "topic": "round 2 database",
+          "ownerWords": "Fresh + one carried over (Recommended)",
+          "decision": "Round 2 acceptance runs on a fresh database, plus one carried-over round 1 database for the upgrade path of pre-flip campaigns."
+        },
+        {
+          "number": 7,
+          "topic": "scope housekeeping",
+          "ownerWords": "Yes to both (Recommended)",
+          "decision": "PK-u2b-ruling closes as superseded; the repo split (U63-U85) and the loop-hygiene units never gate a UAT round."
+        },
+        {
+          "number": 8,
+          "topic": "round 1 entry gate",
+          "ownerWords": "Yes, in the entry gate (Recommended)",
+          "decision": "On the pinned commit: qc:ux-audit:prod (10 journeys), verify:qc:coop-campaign-journey including the legs OD-grants-403-console-sweep still owes, and the ladder groups that do not arm the journal fixtures; a critical any of them reproduces blocks the pin or goes on the known-issues list."
+        }
+      ],
+      "decisionSource": "owner answers to the parent's structured questions in the working session (chat), 2026-09-23, after council 4 (openspec/council-decisions/2026-09-23-uat-stopping-point.md); every chosen label was '(Recommended)'",
+      "ownerWords": "eight answers, each '(Recommended)'; subDecisions[].ownerWords quotes each chosen label verbatim",
+      "disclosure": "The parent wrote the questions and recommendations from council 4's synthesis; decision and subDecisions[].decision are the parent's wording of the chosen options. raisedAtUtc is the first question batch's time and decidedAtUtc the second batch's answer time in the session transcript. The pin in sub-decision 2 was resolved by the owner's later ruling on U35f.",
+      "status": "decided"
     }
   ],
   "infraNotes": {
