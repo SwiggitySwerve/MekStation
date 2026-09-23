@@ -1076,10 +1076,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "local-verified",
+      "state": "complete",
       "baseline": "9374745f468fa38248a2a83b1ece478840b975d2",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "c5e7c7611213d039eab0a40c1978e99138483338",
+      "mergeSha": "a776c2f43cc10ccbe28675d44dce233c62d51e87",
       "stageReceipts": {
         "admission": {
           "path": "evidence/u35c-admission-20260923.json",
@@ -1098,10 +1098,31 @@
           "at": "2026-09-23T01:14:42.641Z",
           "summary": "0 product lines; 4 test files +138/-16; every suite green with the flag false and under the flip (23, 6, 4, 6); api 54 suites/751, unit/api 6/35, campaign 203/2975; tsc 0; oxlint 84 warnings 0 errors; oxfmt clean; LINT_UNITS_PASS 100/100; qc:openspec-ci errors=0; validator PASSED; --next U35c on the baseline; five mutants caught and restored (shared-fixture envelope, route-seeded blocked record, co-op genesis seeding removed, the PUT blocked branch disabled, appendCampaignGenesis skipping its marker); implementer claude-opus (Agent model: opus); findings not fixed: F1 the e2e-arm row in multiplayerCoopCreationCheckpoint.test.ts keeps env setup that becomes dead when U35d deletes the arm (folded into U35d), F2 the shared fixture makeForce in src/lib/campaign/persistence/__tests__/campaignFixture.ts:24-37 gives every force the same two units so 13 test files carry an override (recorded); status ready"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "review": {
+          "path": "evidence/u35c-review-20260923.json",
+          "head": "c5e7c7611213d039eab0a40c1978e99138483338",
+          "reviewedHead": "c5e7c7611213d039eab0a40c1978e99138483338",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet)",
+          "implementerModel": "claude-opus (Agent model: opus)",
+          "outputSha256": "eca6e05c49e91d0315b06e4275448b474624fc49f3ed7ddd12dee3bf328827b4",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u35c-merge-20260923.json",
+          "pr": 1910,
+          "head": "c5e7c7611213d039eab0a40c1978e99138483338",
+          "mergeSha": "a776c2f43cc10ccbe28675d44dce233c62d51e87"
+        },
+        "mainProof": {
+          "path": "evidence/u35c-mainproof-20260923.json",
+          "mergeCommit": "a776c2f43cc10ccbe28675d44dce233c62d51e87",
+          "verdict": "PASS",
+          "runtime": "Tests:       124 passed, 124 total"
+        },
+        "tick": {
+          "path": "evidence/u35c-tick-20260923.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "source20260922": "planned by the parent from U35's measured admission split (evidence/u35-admission-20260922.json proposedSplit), under OD-mvp-hard-cutover",
@@ -1118,7 +1139,8 @@
       "ownershipPaths": [
         "src/services/campaignPersistence",
         "src/pages/api/campaigns",
-        "src/__tests__/api/campaigns"
+        "src/__tests__/api/campaigns",
+        "src/lib/campaign/authority"
       ],
       "ciClass": "product",
       "reviewClasses": [
@@ -1148,6 +1170,13 @@
       "predecessorParked": {
         "unit": "U35",
         "admission": "evidence/u35-admission-20260922.json"
+      },
+      "pathsAmendedBeforeAdmission20260923": {
+        "at": "2026-09-23T03:00:00.000Z",
+        "added": [
+          "src/lib/campaign/authority"
+        ],
+        "why": "the create path appends the genesis through appendCampaignGenesis in src/lib/campaign/authority/campaignSourceGenesis.ts, which the one-transaction design must call inside the journal writer's extension; amended while the unit is still planned, before any admission"
       }
     },
     {

@@ -1,0 +1,24 @@
+{
+  "unit": "U35c",
+  "stage": "merge",
+  "at": "2026-09-23T01:31:11.751Z",
+  "pr": 1910,
+  "title": "test(campaign): four campaign route suites state their premise and pass with the campaign journal flag off and on (U35c)",
+  "head": "c5e7c7611213d039eab0a40c1978e99138483338",
+  "mergeSha": "a776c2f43cc10ccbe28675d44dce233c62d51e87",
+  "mergedAt": "2026-09-23T01:25:56Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u35c-admission-20260923.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u35c-local-20260923.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u35c-red-20260923.json",
+    "src/__tests__/api/campaigns/campaignAuthorityBlocked.test.ts",
+    "src/__tests__/api/campaigns/campaigns.authority.test.ts",
+    "src/__tests__/api/campaigns/campaigns.test.ts",
+    "src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts"
+  ],
+  "blobEqualityDiffLines": 0
+}
