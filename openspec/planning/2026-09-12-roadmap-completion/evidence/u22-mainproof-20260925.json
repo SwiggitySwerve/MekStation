@@ -7,7 +7,7 @@
   "runtime": {
     "build": "exit 0",
     "e2eBundleMarker": "__E2E_MODE__ present in _app chunk (run log)",
-    "playwright": "privacy-pack 8, proposal-pack 2 and the two-process campaign journal specs 2 (Playwright on the root checkout's standalone server): U22 PROOF RUNTIME PASSED: privacy-pack 8 passed, 0 failed, exit 0; proposal-pack 2 passed, 0 failed, exit 0; two-process 2 passed, 0 failed, exit 0",
+    "playwright": "privacy-pack 8, proposal-pack 2 and the two-process campaign journal specs 2 (Playwright on the root checkout's standalone server): 12 passed (privacy-pack 8, proposal-pack 2, two-process 2, each 0 failed, exit 0)",
     "tsc": "exit 0"
   },
   "commands": {
@@ -33,5 +33,10 @@
     "f891dbdfc0402cd4ba60fab1be3245dfec559c5d7afc7e21b87e795a73d05e5f *tsc.log",
     "38875d75a513e6dc764ce99160b9e7423b80cd040a68252ea1b4c336e36d0fc1 *validator.log"
   ],
-  "verdict": "PASS"
+  "verdict": "PASS",
+  "runtimeLineRestated20260925": {
+    "at": "2026-09-25T21:52:50.000Z",
+    "from": "privacy-pack 8, proposal-pack 2 and the two-process campaign journal specs 2 (Playwright on the root checkout's standalone server): U22 PROOF RUNTIME PASSED: privacy-pack 8 passed, 0 failed, exit 0; proposal-pack 2 passed, 0 failed, exit 0; two-process 2 passed, 0 failed, exit 0",
+    "why": "the parent's runtime script printed a summary line the validator's evidence mode does not parse (parseProofLine accepts 'N failed / M passed', 'Tests: N passed, M total' or 'N passed (...)'), so main's validator failed from #1948 until this repair; the counts are the same and the hashed playwright.log keeps the original line"
+  }
 }
