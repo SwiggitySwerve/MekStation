@@ -2733,7 +2733,10 @@
         "src/hooks/__tests__/useMultiplayerSession.helpers.test.ts",
         "src/hooks/__tests__/useMultiplayerSession.test.tsx",
         "src/pages/api/multiplayer/matches/index.ts",
-        "src/types/campaign/RosterUnitProjection.ts"
+        "src/types/campaign/RosterUnitProjection.ts",
+        "src/lib/events/replay/CampaignBaselineSchemaPack.ts",
+        "src/lib/events/replay/__tests__/CampaignBaselineSchemaPack.test.ts",
+        "src/lib/events/replay/__fixtures__/CampaignBaselineSchemaPack.fixture.ts"
       ],
       "acceptance": [
         "npm.cmd run typecheck",
@@ -2992,6 +2995,29 @@
           "units": "U35g",
           "source": "parent, under owner decision OD-u35g-coop-outcome-rewrites-record (sub-decision 1: destroyed units kept as Destroyed)",
           "why": "U35g's record rewrite patches roster readiness from the journal, which makes the comment at src/types/campaign/RosterUnitProjection.ts:107-112 (readiness always derived from unitCombatStates) untrue for the saved record; the comment is corrected there. Only planned nodes (R7.versions, R7.provenance, R8.opportunities) owned this file."
+        }
+      ],
+      "ownershipPathsAmended20260925": [
+        {
+          "path": "src/lib/events/replay/CampaignBaselineSchemaPack.ts",
+          "at": "2026-09-25T07:57:05.000Z",
+          "units": "U35j",
+          "source": "parent, under the owner's answer \"Follow-on unit (Recommended)\" on U35g's Lane A required edit (working session of 2026-09-25)",
+          "why": "the campaign baseline schema pack's roster-unit shape lacks the sourceVersion field the type declares (src/types/campaign/CampaignSync.ts:49) and production writes; only the broad src nodes owned this file"
+        },
+        {
+          "path": "src/lib/events/replay/__tests__/CampaignBaselineSchemaPack.test.ts",
+          "at": "2026-09-25T07:57:05.000Z",
+          "units": "U35j",
+          "source": "parent, under the owner's answer \"Follow-on unit (Recommended)\" on U35g's Lane A required edit (working session of 2026-09-25)",
+          "why": "the campaign baseline schema pack's roster-unit shape lacks the sourceVersion field the type declares (src/types/campaign/CampaignSync.ts:49) and production writes; only the broad src nodes owned this file"
+        },
+        {
+          "path": "src/lib/events/replay/__fixtures__/CampaignBaselineSchemaPack.fixture.ts",
+          "at": "2026-09-25T07:57:05.000Z",
+          "units": "U35j",
+          "source": "parent, under the owner's answer \"Follow-on unit (Recommended)\" on U35g's Lane A required edit (working session of 2026-09-25)",
+          "why": "the campaign baseline schema pack's roster-unit shape lacks the sourceVersion field the type declares (src/types/campaign/CampaignSync.ts:49) and production writes; only the broad src nodes owned this file"
         }
       ]
     },
