@@ -1,0 +1,196 @@
+{
+  "unit": "U22a",
+  "stage": "admission",
+  "attempt": 2,
+  "at": "2026-09-23T07:03:45.030Z",
+  "status": "admitted",
+  "firstAttempt": {
+    "receipt": "evidence/u22a-admission-attempt1-20260923.json",
+    "onMain": "b519db27677dd91709561490591854b0e09166aa",
+    "sha256": "d1226c038040df4578d5a8b5fa689ac70216d8fea54264297a5f37d08bc577f1",
+    "decision": "BLOCKED at admission: clause (2) needed client-side files outside src/lib/multiplayer/server (its probe rows M1-M4)"
+  },
+  "ownerDecision": {
+    "id": "OD-u22a-replace-stream-marker",
+    "ownerWords": "Replace-stream marker (Recommended)",
+    "recordedOn": "main b519db27677dd91709561490591854b0e09166aa (PR #1928), roadmap.json ownerDecisions"
+  },
+  "baseline": "f32ea5400f3a1282733180059e32d9169fb74204",
+  "baselineKept": "the worktree stays on f32ea5400f3a1282733180059e32d9169fb74204; git diff --stat f32ea5400 b519db276 touches only the ledger (3 files changed, 514 insertions(+), 7 deletions(-)): evidence/u22a-admission-attempt1-20260923.json, roadmap.json, units.json",
+  "originMainAtAdmission": "b519db27677dd91709561490591854b0e09166aa",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u22a",
+  "branch": "roadmap-u22a-rewind-reaches-live-match-20260923",
+  "node": "R2.authority-live",
+  "ciClass": "product",
+  "reviewClasses": [
+    "authority",
+    "replay"
+  ],
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "behaviorOnMain": "A committed GM rewind reaches the live match and its connected players (FN-u22-rewind-commit-rebuild-never-reaches-the-live-match). (1) The rewind commit route (src/pages/api/matches/[id]/rewind-commit.ts:230) looks the live host up through getMatchHostRegistry, whose singleton is module-local (src/lib/multiplayer/server/MatchHostRegistry.ts:222-230), while server.js loads the socket runtime in a separate tsx module graph (server.js:445-465), so the API route sees an empty registry and the live rebuild never runs; the registry shares one instance through a globalThis symbol, as getDefaultMatchStore already does for the match store (getDefaultMatchStore.ts:31-41), and the doc comment at MatchHostRegistry.ts:223 is corrected. (2) After rebuildFromActivatedBranch, the players connected at that moment receive the rebuilt match without rejoining; today a rewind only marks viewers for resync and the resync runs on their next join (ServerMatchHost.ts:584-588, :903-908). Red-first: a jest row that loads the registry module in two isolated module graphs and shows two instances today; a host-level row where a connected viewer receives nothing after a rebuild today; E2E-25 through the privacy-pack ladder group as the live acceptance: on this unit's head E2E-25 becomes an unexpected pass (the strict test.fail stays; U22 removes it). If (2) needs an edit outside src/lib/multiplayer/server, the unit stops at admission for a path amendment. Amended 2026-09-23 (owner decision OD-u22a-replace-stream-marker, after the first admission attempt measured that connected clients block on a sequence collision once the rebuild reaches them): (3) ReplayStart carries a replace-stream marker; the client clears its delivery admission state on it and emits an event, and the session hook clears its event mirror on that event; the server moves the registry's recovery flag into the same globalThis slot as the registry, and after a committed rewind rebuilds the live host it replays each attached player's own projected view through the per-socket join path (viewer resolution, fog filter, publication guard; never one frame broadcast to every socket), stamping the marker after the publication guard. Clause (1) never ships without (2) and (3): the probe showed every connected client blocks on the next event otherwise.",
+  "ownershipPathsOnMain": [
+    "src/lib/multiplayer/server",
+    "src/types/multiplayer/Protocol.ts",
+    "src/types/multiplayer/__tests__/Protocol.test.ts",
+    "src/lib/multiplayer/client.ts",
+    "src/lib/multiplayer/__tests__/client.test.ts",
+    "src/lib/multiplayer/__tests__/clientDeliveryGap.test.ts",
+    "src/lib/multiplayer/mirrorMatchSession.ts",
+    "src/lib/multiplayer/__tests__/mirrorMatchSession.test.ts",
+    "src/hooks/useMultiplayerSession.ts",
+    "src/hooks/useMultiplayerSession.helpers.ts",
+    "src/hooks/__tests__/useMultiplayerSession.helpers.test.ts",
+    "src/hooks/__tests__/useMultiplayerSession.test.tsx"
+  ],
+  "shellPreamble": [
+    "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "export npm_config_dry_run=true"
+  ],
+  "installGuard": {
+    "command": "npm run --silent qc:guard-node-modules-link",
+    "exitCode": 1,
+    "stdoutPrefix": "INSTALL_REFUSED node-modules-is-link",
+    "reading": "taken at the first attempt in this same worktree (evidence/u22a-admission-attempt1-20260923.json installGuard); refusal by design in a junctioned worktree; no npm install, ci, prune or lifecycle run"
+  },
+  "validator": {
+    "worktreeLedger": {
+      "tree": "f32ea5400f3a1282733180059e32d9169fb74204 (the baseline ledger, without the amendment)",
+      "validate": {
+        "stdout": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+        "exitCode": 0
+      },
+      "next": {
+        "stdout": "U35f",
+        "exitCode": 0
+      }
+    },
+    "mainLedger": {
+      "tree": "git archive of b519db27677dd91709561490591854b0e09166aa (openspec docs src e2e scripts server.js package.json .github config .oxlintrc.json playwright.config.ts .husky Dockerfile public/data/units) extracted to the scratchpad main-b519-tree; the validator needs those paths to exist",
+      "validate": {
+        "stdout": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+        "exitCode": 0
+      },
+      "next": {
+        "stdout": "U35f",
+        "exitCode": 0
+      },
+      "firstTryDisclosure": "the first extraction (openspec docs src e2e scripts server.js package.json) failed the validator with 27 \"ownership path missing\" issues for paths not extracted; the second added them and passed"
+    },
+    "admissibleAnyway": {
+      "verdict": "YES",
+      "nodeDependency": "R2.authority-live dependsOn [\"R2.authority-cutover\"] only; R2.authority-cutover state main-verified (main ledger)",
+      "unitState": "U22a planned, ownerGate null (main ledger)",
+      "inFlightUnits": [],
+      "inFlightNote": "no unit holds an IN_FLIGHT_STATES state on the main ledger (complete 40, blocked 28, planned 43, main-verified 1)",
+      "u35f": "planned, ownershipPaths [\"src/components/campaign/coop\",\"src/stores/campaign/useCampaignPersistenceStore.ts\",\"src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts\"]; overlap with U22a paths: none (computed with the validator's prefix rule)"
+    }
+  },
+  "seams": {
+    "carriedFromAttempt1": "evidence/u22a-admission-attempt1-20260923.json seams (all file:line on this same baseline)",
+    "added": [
+      {
+        "at": "src/types/multiplayer/Protocol.ts:642-663",
+        "fact": "ReplayStartSchema; zod strips unknown keys, so the client (ServerMessageSchema.safeParse at client.ts:791) drops any marker the schema does not declare"
+      },
+      {
+        "at": "src/lib/multiplayer/client.ts:55-61",
+        "fact": "IClientEventName union: the new event name is added here"
+      },
+      {
+        "at": "src/lib/multiplayer/client.ts:248-251",
+        "fact": "ReplayStart handler: where the marker is read"
+      },
+      {
+        "at": "src/lib/multiplayer/client.ts:606-629 (connect initial IClientState)",
+        "fact": "the values a fresh connection starts from: the replace resets the delivery admission fields to these"
+      },
+      {
+        "at": "src/hooks/useMultiplayerSession.helpers.ts:97-131",
+        "fact": "connectMultiplayerSession subscribes the client events; the new listener clears the mirror log here"
+      },
+      {
+        "at": "src/lib/multiplayer/server/ServerMatchHostReplay.ts:74-128",
+        "fact": "sendReplay: the marker is stamped on the start frame after guardReplayFrames and stampReplayDeliveries (:95-114), because the player ReplayStart projection rebuilds the object from known fields (ViewerFrameProjector.ts:220-241)"
+      },
+      {
+        "at": "src/lib/multiplayer/server/ServerMatchHostReplay.ts:282-352",
+        "fact": "handleSessionJoin: the per-socket join path the push reuses (viewer resolution :311-316, fog filter via getReplayEventsForPlayer :425-469, guarded replay, LobbyUpdated)"
+      },
+      {
+        "at": "src/lib/multiplayer/server/ServerMatchHostRewindRebuild.ts:56-71, :213-214",
+        "fact": "IRewindRebuildHost port and the point after markViewersForResync where the push runs"
+      },
+      {
+        "at": "src/lib/multiplayer/server/ServerMatchHost.ts:553-594, :903-908",
+        "fact": "the rebuild port implementation; the resync mark the push clears per pushed viewer"
+      }
+    ]
+  },
+  "design": {
+    "protocol": "ReplayStartSchema gains `replacesStream: z.literal(true).optional()`: present means \"this replay replaces the stream you hold\"; absent keeps today's meaning.",
+    "server": [
+      "MatchHostRegistry: one Symbol.for(\"mekstation.multiplayer.matchHostRegistry\") slot on globalThis holding { registry, recoveryRan }; getMatchHostRegistry, bootstrapMultiplayerServer and _resetMatchHostRegistry operate on the slot; the :223 comment says what the slot gives.",
+      "rebuildHostFromActivatedBranch: after markViewersForResync, await host.replayToAttachedViewers().",
+      "ServerMatchHost implements it: for each lifecycle.attachedSockets() entry, run the replay module's handleSessionJoin(ctx, socket, playerId, 0, matchId, replacesStream=true) with a context built after the session and ceiling were replaced, then clear that player's resync mark; a throw is logged and leaves the mark, so that viewer resyncs on its next join. Never broadcaster.broadcast.",
+      "sendReplay/handleSessionJoin (replay module) take replacesStream (default false) and stamp it on the guarded, delivery-stamped start frame only."
+    ],
+    "client": "ReplayStart with replacesStream === true: pendingLiveEvents, the applied identity maps, blockedBySequenceCollision, lastSeq, lastAppliedDelivery, lastDeliverySequence, deliveryResumeCursor, the hole pins and highestAcknowledgedDelivery return to the values connect() starts with; pendingIntents, the socket, timers and recoveringFromGap are kept; then the client emits \"streamReplaced\". Without the marker the handler is unchanged.",
+    "hook": "connectMultiplayerSession subscribes \"streamReplaced\" and clears the mirror log (setMirrorLog([])) before the replayed items are applied at ReplayEnd; useMultiplayerSession.ts and mirrorMatchSession.ts need no change by this design.",
+    "privacy": "Each attached socket gets its own viewer's projection through the join path; the GM-private reason is not in the match event stream (rewind-commit.ts:208, :213-227); authority-only fields are removed for players by the projector (ViewerFrameProjector.ts:66-70, :196-209).",
+    "questionsCarriedFromAttempt1": "q1-q4 answers in evidence/u22a-admission-attempt1-20260923.json design, unchanged; this attempt adds the client half the owner chose."
+  },
+  "rowsPlanned": {
+    "a": "MatchHostRegistry.globalSlot.test.ts: two jest.isolateModules loads return one registry; bootstrapMultiplayerServer from a second graph does not sweep again; _resetMatchHostRegistry clears the slot",
+    "b_and_probe": "ServerMatchHost.rewindLiveReplay.test.ts: the admission probe as permanent rows (M1 a connected socket receives the rebuilt replay with the marker; M2 the connected client and hook mirror show the rebuilt phase; M3 a fresh client does; M4 the next live event applies without a collision), wired through the real connect() client and the real connectMultiplayerSession helpers",
+    "privacy": "same file: in a fog-on match the pushed replay to each socket equals that viewer's own fresh join, a player never receives a fog-hidden event or an authority-only field (sequence, privateRecordRef); a route-level row commits with a private reason through the real rewind-commit handler with a live host and attached sockets and no frame to any socket contains the reason",
+    "client": "client.test.ts rows for the marker; Protocol.test.ts parse row; useMultiplayerSession.test.tsx mirror row"
+  },
+  "estimatePerFile": {
+    "src/lib/multiplayer/server/MatchHostRegistry.ts": {
+      "added": 35,
+      "deleted": 12
+    },
+    "src/lib/multiplayer/server/ServerMatchHostRewindRebuild.ts": {
+      "added": 8,
+      "deleted": 0
+    },
+    "src/lib/multiplayer/server/ServerMatchHost.ts": {
+      "added": 30,
+      "deleted": 0
+    },
+    "src/lib/multiplayer/server/ServerMatchHostReplay.ts": {
+      "added": 20,
+      "deleted": 4
+    },
+    "src/types/multiplayer/Protocol.ts": {
+      "added": 9,
+      "deleted": 0
+    },
+    "src/lib/multiplayer/client.ts": {
+      "added": 45,
+      "deleted": 3
+    },
+    "src/hooks/useMultiplayerSession.helpers.ts": {
+      "added": 10,
+      "deleted": 0
+    },
+    "note": "estimates from code reading; tests reported separately"
+  },
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "estimate": {
+      "productFiles": 7,
+      "productLines": 176,
+      "withinCaps": true
+    }
+  },
+  "risksForTheParent": [
+    "AUTHORITY + REPLAY classes: the proposed head needs Lane A (Sonnet) and an OWNER-RULING bound to that exact head.",
+    "PRIVACY: the push is per socket through the join path; a single broadcast would leak projections; mutant M3 pins it.",
+    "The API graph reaching the socket graph's registry through globalThis in a production build is measured only live, by E2E-25.",
+    "The privacy pack stays fixture-armed (combat journal mode enabled); a pass does not speak for production-off.",
+    "ViewerDeliveryCursors.discardAll clears only the delivered lists; lastAcked, isolated and isolationResume survive a rewind (code reading; not changed by this unit)."
+  ],
+  "editsBeforeThisReceipt": "none (git status --short showed only the first-attempt receipt file, which this file replaces; its bytes are on main as evidence/u22a-admission-attempt1-20260923.json)"
+}
