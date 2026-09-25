@@ -15951,7 +15951,13 @@
       "decisionSource": "owner answers to the parent's structured questions in the working session (chat), 2026-09-23, after council 4 (openspec/council-decisions/2026-09-23-uat-stopping-point.md); every chosen label was '(Recommended)'",
       "ownerWords": "eight answers, each '(Recommended)'; subDecisions[].ownerWords quotes each chosen label verbatim",
       "disclosure": "The parent wrote the questions and recommendations from council 4's synthesis; decision and subDecisions[].decision are the parent's wording of the chosen options. raisedAtUtc is the first question batch's time and decidedAtUtc the second batch's answer time in the session transcript. The pin in sub-decision 2 was resolved by the owner's later ruling on U35f.",
-      "status": "decided"
+      "status": "decided",
+      "round1EntryGate20260925": {
+        "at": "2026-09-25T07:15:21.000Z",
+        "result": "passed with known issues: co-op journey, E2E build and 19 of 21 unarmed ladder groups green; 9 of 10 audit journeys green; the three failures classified minor or test drift by a diagnosis lane; round 1 is open on the pin",
+        "receipt": "evidence/uat-round-1-entry-gate-20260925.json",
+        "register": "evidence/uat-round-1-register-20260925.md"
+      }
     },
     {
       "id": "OD-u35g-coop-outcome-rewrites-record",

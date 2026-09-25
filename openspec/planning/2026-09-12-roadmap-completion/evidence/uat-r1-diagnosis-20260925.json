@@ -1,0 +1,110 @@
+{
+  "at": "2026-09-25T01:15:00-06:00",
+  "pin": "668ed250f5d378c231004127c2eaac08a346b9f7",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/uat-diag",
+  "worktreeFinalHead": "668ed250f5d378c231004127c2eaac08a346b9f7",
+  "worktreeFinalStatus": "git status --short empty; the probe files were reverted with git checkout before leaving the pin and their sha256 values re-checked at the pin (see probeReversion)",
+  "evidenceDir": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/uat-r1-diag-20260925",
+  "failures": [
+    {
+      "id": "F-perf-E2E-71-72-73",
+      "rows": [
+        "e2e/gm-two-player-performance.pack.spec.ts:109 E2E-71/72/73 controlled loopback latency, catch-up and memory stay inside budget (group performance)"
+      ],
+      "rootCause": "One command never produces a painted delivery within the 2 s functional wait. Two failure modes were measured. MODE 1, the dominant one (measured 3 times: run 5 at the pin, runs 7 and 8 at the parent 0b815b466): the GM's AdvanceDay is refused with CAMPAIGN_NOT_CONVERGED, for example 'participants-behind <P1>:194,<P2>:194; requiredRevision 195', so nothing is committed and no sequence N reaches any context. This is a race between the harness and the authority. The harness's converge() treats client-side receipt as convergence: it waits until the observer's appliedSequence, which is set when the frame arrives in onFrame (spec:510-512), reaches the head on every page, then waits a fixed 25 ms (spec:644) before issuing the next command. The progression gate instead reads the server-recorded acknowledgement watermark: AdvanceDay goes to refuseUnconvergedProgression (bindCampaignSyncConnection.ts:749-756, :700-717), then CampaignSyncSession.evaluateScenarioLaunch (:753). An ack is recorded only when its frame is dispatched (bindCampaignSyncConnection.ts:619, noteParticipantAcknowledged CampaignSyncSession.ts:660). Server-side, 390 guest acks were processed a p50 of 20 ms, p95 36 ms and max 79 ms after the browser sent them, and 34% took longer than 25 ms (run 8). The acks queue behind the previous host-intent handler, which runs 50-100 ms without yielding. In run 8, SpendFunds-194 was handled from 06:55:43.803 for 94 ms; the guests sent their acks of 195 at 43.843; at 43.899 the GM socket's ack and its AdvanceDay-195 were dispatched before the guests' acks, so the gate saw both guests at 194. The per-intent cost grows with the log length, because two reads walk the whole stream on every host intent: healCommittedParticipantRemovals (bindCampaignSyncConnection.ts:410, :873-879) and nextSequence, which calls readCampaignJournalHighestSequence (CampaignEventLog.ts:64-65, campaignJournalReads.ts:48-67). Measured per-intent server totals were p50 37 ms and p95 73 ms at N up to 196 (run 8), and p50 139 ms and p95 328 ms at N up to 1020 (run 6). MODE 2 (measured once with a dump, run 4 at the pin): AllocateSalvage seq 38 reached all three contexts at the same instant, 3,660 ms after the GM sent it. It was late, not lost: after a further 5 s, painted = applied = 38. A server-side stall held every socket at once; its cause was not measured (run 4 had no server timing). Run 5 recorded one appendCommandBatch of 564 ms against a p50 of 1 ms. The preflight failures are classified by mapping ordinal to kind, assuming sequence = ordinal + 1 as measured in this lane (INFERENCE): N=217 and N=157 are AdvanceDay, so mode 1; N=14 (warm-up) is AllocateSalvage, which is never gated, so mode 2. Run 2 (the tail builder's AllocateSalvage at GM seq 884) is also mode 2 by the same elimination (INFERENCE, no dump).",
+      "fileLines": [
+        "e2e/gm-two-player-performance.pack.spec.ts:630-646 converge(): client-side applied plus a fixed 25 ms at :644",
+        "e2e/gm-two-player-performance.pack.spec.ts:510-512 observer appliedSequence set on frame receipt, not on server acknowledgement",
+        "e2e/gm-two-player-performance.pack.spec.ts:596-614 waitForSequence 2,000 ms functional wait; called at :173 (warm-up) and :206 (measured)",
+        "src/lib/multiplayer/server/bindCampaignSyncConnection.ts:749-756 AdvanceDay goes through refuseUnconvergedProgression",
+        "src/lib/multiplayer/server/bindCampaignSyncConnection.ts:700-717 refuseUnconvergedProgression sends CAMPAIGN_NOT_CONVERGED",
+        "src/lib/multiplayer/server/bindCampaignSyncConnection.ts:619 CampaignAck case; recorded only when its frame is dispatched",
+        "src/lib/multiplayer/server/CampaignSyncSession.ts:660 noteParticipantAcknowledged; :753 evaluateScenarioLaunch",
+        "src/lib/multiplayer/server/bindCampaignSyncConnection.ts:410 and :873-879 healCommittedParticipantRemovals reads getCampaignEvents(0) on every CampaignHostIntent",
+        "src/lib/campaign/sync/CampaignEventLog.ts:64-65 nextSequence calls highestSequence; src/lib/campaign/sync/campaignJournalReads.ts:48-67 pages through the whole stream to find the highest sequence"
+      ],
+      "regression": {
+        "lastPass": "Recorded, not re-measured: 2026-09-03, tasks.md 23.4, run task-23-4-20260903 on a tree built at #1613 (3956fe8af). The harness is unchanged since then: the spec diff 3956fe8af..pin is only the bundle.finalize allowIncompleteEvidence change (#1627).",
+        "firstBad": null,
+        "evidence": "At the pin: 6 of 6 failed (3 preflight, plus runs 2, 4 and 5 in this lane). At the parent 0b815b466: 1 passed and 2 failed (runs 6, 7, 8), with mode 1 in both failures, so U35f (#1930) is not the first bad commit. The last-pass tree 3956fe8af could not be re-measured: its build is the tsx incident (see nonClaims), and run 9 failed with Cannot find module 'tsx/cjs'. READING-BASED (INFERENCE): among the first-parent merges 3956fe8af..0b815b466 on the delivery path, the only change to per-host-intent socket work is #1628 (89388bcbb, 2026-09-03), which adds the refusedWhileCampaignRebuilding lease read before each host intent in dispatchCampaignEnvelope. The O(N) reads behind the ack lag predate the last pass: readCampaignJournalHighestSequence was already present when campaignJournalReads.ts was extracted in 0639a2c36 (2026-08-30) and healCommittedParticipantRemovals in 98b6353db (2026-08-30). The journal reader readStream is unchanged in the range; the writer changes (#1668 79c789e2a, #1899 920630bc0) measured an append p50 of 1 ms. No single merge is named. The likeliest reading is that the race has been latent since the pack landed (#1565) and depends on server timing. At the pin, U35f (#1930) adds a GM GET /api/campaigns/[id] after every committed event (CampaignCoopRouteSurfaceConnected.tsx: refreshSavedRecordAfterCommit when message.kind === 'CampaignEvent'), served on the same Node event loop; the probe measured it at 57-70 ms per GET in run 5. That plausibly explains 6/6 failing at the pin against 2/3 at the parent (INFERENCE; the samples are small)."
+      },
+      "severity": "minor",
+      "uatImpact": "On production defaults (both journal flags off), mode 1 needs the GM to issue AdvanceDay within roughly 20-80 ms of the previous command's update reaching the players. A person does not click at that pace. If it happens, the command is refused with CAMPAIGN_NOT_CONVERGED ('catches up'), nothing is committed, and a retry once the acks land passes the gate (inference from the gate code; not exercised by a person here): no data lost, no wrong state. Mode 2: a campaign update occasionally reaches every participant several seconds late (measured once at 3.66 s). It is a delay, not a loss; no loss was measured. Across about 2,560 commands issued at harness pace in this lane there was 1 measured and 1 inferred stall over 2 s. The E2E-71/72/73 gate itself stays red, so this belongs on the known-issues list with the gate named. It does not block round 1.",
+      "proposedUnit": {
+        "sentence": "The performance pack issues each measured command only after the authority has recorded every participant's acknowledgement of the current head, rather than client-side receipt plus 25 ms. converge() waits on the server's acknowledged revisions, exposed read-only through the existing E2E-guarded performance probe route. An AdvanceDay refused with CAMPAIGN_NOT_CONVERGED is captured on the GM transport and fails the run naming the refusal, instead of timing out as a missing paint. Red first: the pack at the pin with a GM-transport Error capture shows CAMPAIGN_NOT_CONVERGED on an AdvanceDay window, as in the run 5/7/8 dumps. Green: the performance group passes 3 of 3 consecutive runs at exact main. The mode-2 stall is not fixed by this unit. A separate measurement unit (R2.authority-live) should time the campaign host-intent path (heal, nextSequence, appendCommandBatch, publish) with the machine-idle check held through the run, and record any stall over 1 s with its step before any fix is planned.",
+        "paths": [
+          "e2e/gm-two-player-performance.pack.spec.ts",
+          "src/pages/api/e2e/performance-probe.ts"
+        ],
+        "node": "R6.umbrella (owns e2e and scripts/qc). Adding the ack watermark to src/pages/api/e2e/performance-probe.ts may need a path amendment. Mode-2 measurement: R2.authority-live (owns src/lib/multiplayer/server)."
+      }
+    },
+    {
+      "id": "F-lifecycle-E2E-75-rowA",
+      "rows": [
+        "e2e/gm-two-player-lifecycle.pack.spec.ts:179 E2E-75 lifecycle postures are distinct, announced and correctly gated (row A, group lifecycle-pack)"
+      ],
+      "rootCause": "A race in row A's own harness; not a product defect. Row A reloads the guest and then the host (spec:213-214), waits only for the GUEST banner to read live (spec:216), then sends GoProne on the guest's socket (spec:220). If the host page's tactical socket has not rejoined yet, the server still holds the match paused: the host's disconnect marks its seat pending and pauses (ServerMatchHostReconnectLifecycle.ts:31-51, maybeMarkPlayerPending calls broadcastPauseSnapshot at :85-89), and ServerMatchHostIntent.ts:275-283 rejects any engine intent with MATCH_PAUSED. No MovementDeclared is committed, so deriveTacticalWireFacts (tacticalLifecycleState.ts:166-186) never sees a sealed declaration and deriveState (:188-208; the sealed arm is :205) keeps answering live. MEASURED ordering from the server log lines 'session joined' and 'intent dispatched ... intent=GoProne': in all 3 preflight failures (matches 709fcd12, ef3bf0b6, 716a64ac) the GoProne was dispatched BEFORE the host's session joined. In all 4 passes (the U1c and U1e main proofs of 2026-09-16, and runs 1 and 3 at the pin in this lane) both sessions joined BEFORE the GoProne. MEASURED from a copy of the root runtime DB: the three failing row-A matches stop at event 4 (phase_changed to movement) with no receipt for the lifecycle-pack GoProne, while the passing match efc03988 has movement_declared:opponent with its lifecycle-pack receipt. The stale runtime is not the cause: run 3, with the root's qc-lifecycle-pack runtime copied in (9 matches recovered at boot, plus the canonical-catalog warnings), passed. The MATCH_PAUSED frame itself was not captured on the wire (INFERENCE from the ordering, the DB and the code path). Row B passes because driveUntilPosture retries advancePhase up to 8 times (spec:431-450).",
+      "fileLines": [
+        "e2e/gm-two-player-lifecycle.pack.spec.ts:213-214 reload the guest, then the host",
+        "e2e/gm-two-player-lifecycle.pack.spec.ts:216 capturePosture(guestPage, 'live') checks only the guest",
+        "e2e/gm-two-player-lifecycle.pack.spec.ts:220-221 sendGoProne on the guest socket, then wait for sealed (capturePosture :497-536, poll :508-510)",
+        "e2e/gm-two-player-lifecycle.pack.spec.ts:339-340 row B has the same reload pair",
+        "src/lib/multiplayer/server/ServerMatchHostReconnectLifecycle.ts:31-51 maybeMarkPlayerPending; :85-89 setPaused(true)",
+        "src/lib/multiplayer/server/ServerMatchHostIntent.ts:275-283 ctx.isPaused leads to rejectCommand MATCH_PAUSED",
+        "src/lib/multiplayer/tacticalLifecycleState.ts:166-186 deriveTacticalWireFacts; :205 sealed only on a sealed own declaration",
+        "src/components/multiplayer/NetworkedGameSurface.tsx:241 interactionPaused: the pause is shown by the overlay, not by the lifecycle banner"
+      ],
+      "regression": {
+        "lastPass": "In the receipts: U7 local, 2026-09-17, baseline 1d31dc8dc ('[lifecycle-pack] captured=live,sealed,finalized,syncing,behind', evidence/u7-local-20260917.json), after the U1c main proof on 22fe4a554 and the U1e main proof on 8a7a4419d (2026-09-16). Measured in this lane: row A passed at the pin 2 of 2 (run 1 on a fresh runtime, run 3 on the root's stale runtime copy).",
+        "firstBad": null,
+        "evidence": "Not a code regression: row A passes at the pin in this worktree 2/2 and failed 3/3 only in the root preflight, and it fails exactly when the host rejoins after the GoProne. The race has existed since row A landed (22fe4a554, U1c). READING-BASED (INFERENCE): the first-parent merges 1d31dc8dc..668ed250f on the lobby, client and rejoin path are #1802 6fe884dd5 (the LobbyUpdated handler settles pending intents), #1827 31b05182b (the lobby mounts useGmCorrectionProducers), #1842 555a236a0, #1856 13c0ffcbf, #1862 66c0ecad6 and #1875 145e15560 (GM head adapters). None changes when the host's socket rejoins: the new lobby hooks are producers invoked on demand, not awaited before connect. No merge is named. Why the root preflight's host rejoined later than the worktree's was not measured."
+      },
+      "severity": "minor",
+      "uatImpact": "A test-harness race; the product behaves as designed. What a person sees: while the other player is reloading, a tactical command they send is refused with 'Match is paused waiting for a peer to reconnect' and the pause overlay covers the map. The lifecycle banner keeps reading 'Tactical match is up to date' during that window, by design (the pause is its own arm, NetworkedGameSurface.tsx:241). Nothing is lost; the command can be re-sent after the rejoin. It does not block round 1.",
+      "proposedUnit": {
+        "sentence": "Lifecycle row A drives sealed on an unpaused match: after its reloads it waits until both surfaces have rejoined (the host's banner reads live and neither page shows the match-pause overlay) before sending GoProne, and row B's reload pair gets the same wait. Red first: row A with the host's page held away (for example goto about:blank) across the GoProne reports live, not sealed. Green: lifecycle-pack passes 3 of 3 in the root checkout as well as in a worktree.",
+        "paths": [
+          "e2e/gm-two-player-lifecycle.pack.spec.ts"
+        ],
+        "node": "R6.umbrella"
+      }
+    }
+  ],
+  "runs": [
+    { "commit": "668ed250f5d378c231004127c2eaac08a346b9f7", "group": "build", "result": "build 1: Next compiled; exit 1 by design at the hydration guard ('Unsafe hydration destination ... .next\\standalone\\node_modules'); __E2E_MODE__ marker present in _app-cae74dd513e55fbe.js", "log": "uat-r1-diag-20260925/build-1-pin.log" },
+    { "commit": "668ed250f5d378c231004127c2eaac08a346b9f7", "group": "lifecycle-pack", "result": "2 passed; row A captured live,sealed,finalized,syncing,behind (fresh runtime; spec frame-recorder probe only)", "log": "uat-r1-diag-20260925/run-1-pin-probe-lifecycle-pack.log" },
+    { "commit": "668ed250f5d378c231004127c2eaac08a346b9f7", "group": "performance", "result": "1 failed: tail builder GM wait, 'no painted delivery reached 884: painted=883 applied=883' (AllocateSalvage; no dump)", "log": "uat-r1-diag-20260925/run-2-pin-probe-performance.log" },
+    { "commit": "668ed250f5d378c231004127c2eaac08a346b9f7", "group": "lifecycle-pack", "result": "2 passed with the root's stale qc-lifecycle-pack runtime copied under run id uatdiag-stale-lifecycle (9 matches recovered at boot)", "log": "uat-r1-diag-20260925/run-3-pin-probe-lifecycle-pack-stale-runtime.log" },
+    { "commit": "668ed250f5d378c231004127c2eaac08a346b9f7", "group": "performance", "result": "1 failed: measured-37 AllocateSalvage seq 38 arrived at GM, P1 and P2 together at +3660 ms (late, not lost), mode 2", "log": "uat-r1-diag-20260925/run-4-pin-probe-performance.log; dump probe-perf-2026-09-25T06-39-43-550Z.json" },
+    { "commit": "668ed250f5d378c231004127c2eaac08a346b9f7", "group": "performance", "result": "1 failed: measured-213 AdvanceDay refused CAMPAIGN_NOT_CONVERGED 'participants-behind ...:212; requiredRevision 213', mode 1; server per-intent p50 37 / p95 68 / max 604 ms; one append of 564 ms", "log": "uat-r1-diag-20260925/run-5-pin-probe-performance-server-timing.log; dump probe-perf-2026-09-25T06-42-18-564Z.json" },
+    { "commit": "0b815b4662112327551769b379912dea0c00e569", "group": "build", "result": "build 2: Next compiled; exit 1 by design at the hydration guard; marker present in _app-82b64474b18d5dea.js", "log": "uat-r1-diag-20260925/build-2-parent-0b815b466.log" },
+    { "commit": "0b815b4662112327551769b379912dea0c00e569", "group": "performance", "result": "1 passed (6.0 min); server per-intent p50 139 / p95 328 / max 450 ms over 1020 intents; append max 28 ms", "log": "uat-r1-diag-20260925/run-6-parent-probe-performance.log" },
+    { "commit": "0b815b4662112327551769b379912dea0c00e569", "group": "performance", "result": "1 failed: measured-213 AdvanceDay refused CAMPAIGN_NOT_CONVERGED ':212; requiredRevision 213', mode 1", "log": "uat-r1-diag-20260925/run-7-parent-probe-performance.log; dump probe-perf-2026-09-25T06-53-30-233Z.json" },
+    { "commit": "0b815b4662112327551769b379912dea0c00e569", "group": "performance", "result": "1 failed: measured-195 AdvanceDay refused CAMPAIGN_NOT_CONVERGED ':194; requiredRevision 195', mode 1; guest-ack server lag p50 20 / p95 36 / max 79 ms, 34% over 25 ms", "log": "uat-r1-diag-20260925/run-8-parent-probe-performance-ack-timing.log; dump probe-perf-2026-09-25T06-55-50-893Z.json" },
+    { "commit": "3956fe8af62bd68d2cb03717c8a2129ad05e7cc1", "group": "build", "result": "build 3: Next compiled; exit 1 with ENOENT lstat node_modules\\tsx. This commit's hydration script has no assertSafeDestinationPath guard. Its copyDir rmSync ran through the .next/standalone/node_modules junction and deleted E:/Projects/MekStation/node_modules/tsx. This build's evidence is valid only for the ENOENT.", "log": "uat-r1-diag-20260925/build-3-lastpass-3956fe8af.log" },
+    { "commit": "3956fe8af62bd68d2cb03717c8a2129ad05e7cc1", "group": "performance", "result": "INVALID: the server could not load 'tsx/cjs', a consequence of the build-3 incident; stopped at once; not a measurement", "log": "uat-r1-diag-20260925/run-9-lastpass-3956fe8af-performance.log" }
+  ],
+  "builds": 3,
+  "probeReversion": {
+    "files": {
+      "e2e/gm-two-player-performance.pack.spec.ts": "affd8826c0c3f327e937dc394b239e8573c2f747ec82207d37f4a8700cc13a5d",
+      "e2e/gm-two-player-lifecycle.pack.spec.ts": "6ce8fe2d3bd65cc0940940ad671849e1d8f94c8ee935b43b1dbe5bbc35ff7557",
+      "src/lib/multiplayer/server/campaignHostBatchCommit.ts": "2b9a7c254c725311b6dda0f56e87e91ec0a3589529f976193a2a347fefad3c94",
+      "src/lib/multiplayer/server/bindCampaignSyncConnection.ts": "44e4a0b553432ca48018d3cabd63b356ff160047663b68c0619a772d3cc4c333",
+      "src/lib/multiplayer/server/CampaignMatchHost.ts": "2bcbd9e6f7e59c10ed565773d96a2cc3a9b7e86cfdf2edcabc9e9e8485b23436"
+    },
+    "note": "The sha256 values recorded before probing match the values after the revert and again at the pin. The probes were Playwright-side frame, HTTP and timing recorders plus server console.log timing in three tsx-loaded files; none was built into .next."
+  },
+  "nonClaims": [
+    "INCIDENT: build 3 at 3956fe8af (00:59:40-01:03:01) deleted E:/Projects/MekStation/node_modules/tsx. That commit's scripts/hydrate-next-standalone-multiplayer-server.mjs has no assertSafeDestinationPath guard (0 occurrences, against 4 at the pin and at 0b815b466). copyRuntimeLoaders calls copyDir, whose fs.rmSync targeted .next/standalone/node_modules/tsx through the worktree's node_modules junction. The script stopped at that first entry with ENOENT, so esbuild, ws and @esbuild were untouched. The coordinator restored tsx 4.22.4 and its nested esbuild 0.28.1 from the npm cache, verified them against package-lock sha512, and confirmed the count is back to 595. This lane ran no build after that and did not modify node_modules.",
+    "The worktree's .next is build 3's output from 3956fe8af, and .next/standalone/node_modules is still a junction. Neither was deleted, on instruction.",
+    "The MATCH_PAUSED refusal of the row-A GoProne was not captured on the wire. It is inferred from the server-log ordering (3 of 3 failures against 4 of 4 passes), the DB rows and the code path. The forced-race reproduction prepared in the probe was not run, because builds stopped after the incident.",
+    "The cause of the mode-2 stall (3.66 s, all contexts at once) was not measured. 'Synchronous SQLite write or fsync stall' is an inference, supported only by one 564 ms append in run 5.",
+    "No first bad commit is named for either failure. The performance row's last pass at 3956fe8af (2026-09-03) was not re-measured, and the reading-based merge analysis is inference.",
+    "Classifying preflight N=14, 157 and 217 into modes assumes sequence = ordinal + 1, which was measured in this lane, not in the preflight.",
+    "That U35f raises the performance failure rate (6/6 at the pin against 2/3 at the parent) is an inference from small samples.",
+    "The E2E-71/72 latency figures from the passing parent run were not collected: test-results was cleared by later runs.",
+    "The root runtime .sisyphus/e2e-runtime/qc-lifecycle-pack has persisted since 2026-09-16 and holds 9 'active' matches, whose recovery prints canonical-catalog warnings. It was measured as not causal (run 3). Deleting it was not attempted: the root checkout is outside this lane."
+  ]
+}

@@ -1843,6 +1843,70 @@
       }
     },
     {
+      "taskKeys": [],
+      "ciClass": "product",
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "state": "planned",
+      "id": "U86",
+      "node": "R6.umbrella",
+      "behavior": "The performance pack (e2e/gm-two-player-performance.pack.spec.ts, E2E-71/72/73) issues each measured command only after the authority has recorded every participant's acknowledgement of the current head, instead of client-side receipt plus a fixed 25 ms (converge() near :630-646); the acknowledged revisions are read through the existing E2E-guarded performance probe route. An AdvanceDay refused with CAMPAIGN_NOT_CONVERGED is captured on the GM transport and fails the run naming the refusal, instead of timing out as a missing paint. Red first: the pack at its baseline with a GM-transport capture shows CAMPAIGN_NOT_CONVERGED on an AdvanceDay window, as the diagnosis dumps did. Green: the performance group passes 3 of 3 consecutive runs. If the probe route needs an edit (src/pages/api/e2e/performance-probe.ts), the unit stops at admission for a path amendment. The server stall (mode 2) is U89's.",
+      "ownershipPaths": [
+        "e2e"
+      ],
+      "reviewClasses": [
+        "routine"
+      ],
+      "source20260925": "planned by the parent from the UAT round 1 entry gate's diagnosis (evidence/uat-r1-diagnosis-20260925.json, F-perf-E2E-71-72-73)"
+    },
+    {
+      "taskKeys": [],
+      "ciClass": "product",
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "state": "planned",
+      "id": "U87",
+      "node": "R6.umbrella",
+      "behavior": "Two e2e rows stop racing or drifting. (1) Lifecycle row A (e2e/gm-two-player-lifecycle.pack.spec.ts, E2E-75) waits after its reloads until both surfaces have rejoined (the host's banner reads live and neither page shows the match-pause overlay) before sending GoProne, and row B's reload pair gets the same wait; red first: row A with the host's page held away across the GoProne reads live, not sealed; green: lifecycle-pack passes 3 of 3 in the root checkout and in a worktree. (2) The UX audit's customizer journey (e2e/ux-walkthrough-audit.spec.ts:314-360) follows the combined 'Add unit' dialog the New Unit button opens since #1634 (create blank or configure new) instead of the removed 'Create New Unit' heading; green: qc:ux-audit:prod reports 10 of 10 journeys.",
+      "ownershipPaths": [
+        "e2e"
+      ],
+      "reviewClasses": [
+        "routine"
+      ],
+      "source20260925": "planned by the parent from the UAT round 1 entry gate (evidence/uat-round-1-entry-gate-20260925.json) and its diagnosis (F-lifecycle-E2E-75-rowA)"
+    },
+    {
       "id": "U22a",
       "node": "R2.authority-live",
       "taskKeys": [],
@@ -1976,6 +2040,39 @@
       "ownerGate": null,
       "source20260923": "planned by the parent from U21's admission contingency (clause (c)) and its lane's findings F1, F2, F5, F6 (evidence/u21-local-20260923.json)",
       "admitAfter20260923": "U21 main-verified (U21b edits the viewer lineage over the journal reader U21 installs)"
+    },
+    {
+      "taskKeys": [],
+      "ciClass": "product",
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "state": "planned",
+      "id": "U89",
+      "node": "R2.authority-live",
+      "behavior": "Measure, then fix if the measurement shows it, the campaign host-intent path's server time. A jest timing row times each server step of a GM command (the participant-removal heal read, the journal highest-sequence read, appendCommandBatch, publish) at a short and a long campaign log (for example 50 and 1000 events), with the machine-idle check held through the run. The diagnosis found two whole-log reads on every GM command (bindCampaignSyncConnection.ts :410 and :873-879; campaignJournalReads.ts:48-67), one delivery that arrived 3.66 s late and one append that took 564 ms. If a step grows with the log, it reads the stream head or an indexed maximum instead of scanning, with a red row that fails on the long log and passes after. If nothing grows, the unit records the timings and closes with no product change.",
+      "ownershipPaths": [
+        "src/lib/multiplayer/server",
+        "src/lib/campaign"
+      ],
+      "reviewClasses": [
+        "concurrency"
+      ],
+      "source20260925": "planned by the parent from the UAT round 1 diagnosis (evidence/uat-r1-diagnosis-20260925.json, mode 2 of F-perf-E2E-71-72-73)"
     },
     {
       "id": "U36",
@@ -8424,6 +8521,15 @@
       "summary": "The campaign activity feed now describes a destroyed unit as destroyed, but a damaged unit still reads as 'repaired', because both ride the 'repaired' change kind.",
       "recommendedSuccessor": "the feed reads the unit's status for every 'repaired' change (damaged, destroyed, operational)",
       "status": "recorded; for UAT round 2 triage"
+    },
+    {
+      "id": "FN-uat-r1-u35f-refresh-read-per-event-cost",
+      "foundBy": "UAT round 1 diagnosis lane (claude-opus), 2026-09-25",
+      "at": "2026-09-25T07:15:21.000Z",
+      "class": "performance cost (inference, small sample)",
+      "summary": "At the pin, U35f's co-op host refresh issues a GET /api/campaigns/[id] after every committed event, 57-70 ms each; it plausibly makes the performance pack's race more frequent. It overlaps FN-u35f-coop-host-fold-edges F5 (one read per event).",
+      "recommendedSuccessor": "refresh once per committed batch (FN-u35f-coop-host-fold-edges)",
+      "status": "recorded; fold with FN-u35f-coop-host-fold-edges"
     }
   ]
 }
