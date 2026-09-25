@@ -30,6 +30,10 @@ const campaignRosterUnit = z
     status: z.enum(['operational', 'damaged', 'destroyed']),
     unitRef: z.string().optional(),
     unitSource: z.enum(['canonical', 'custom']).optional(),
+    // The library version pinned at enroll: every path that mints it
+    // (pinSourceVersion, the library's own versions) yields a positive
+    // integer, and legacy projections omit it.
+    sourceVersion: z.number().int().positive().optional(),
   })
   .strict();
 
@@ -103,9 +107,33 @@ export const CAMPAIGN_BASELINE_EVENT_TYPES: readonly CampaignEventType[] =
     Object.keys(CAMPAIGN_BASELINE_PAYLOAD_SCHEMAS) as CampaignEventType[],
   );
 
+/** The variants whose payload nests `campaignRosterUnit`. */
+const ROSTER_UNIT_EVENT_TYPES: ReadonlySet<CampaignEventType> =
+  new Set<CampaignEventType>([
+    'RosterUnitChanged',
+    'SalvageAllocated',
+    'CampaignSnapshotPublished',
+  ]);
+
 /**
- * Every campaign variant registered at baseline v1, ready for composition
- * into a `ReplaySchemaRegistry`.
+ * The schema id registered for `eventType`'s v1 schema:
+ * `campaign.<type>.v1-r2` for the three variants that nest the roster unit,
+ * whose v1 schema was revised when the unit gained `sourceVersion`, and
+ * `campaign.<type>.v1` for the rest. The pipeline fingerprint hashes schema
+ * ids, not shapes, so the revised id is what makes a checkpoint
+ * fingerprinted before the revision incompatible (event-store spec,
+ * "Upcast pipeline changes without a projector change").
+ */
+function campaignSchemaId(eventType: CampaignEventType): string {
+  return ROSTER_UNIT_EVENT_TYPES.has(eventType)
+    ? `campaign.${eventType}.v1-r2`
+    : `campaign.${eventType}.v1`;
+}
+
+/**
+ * Every campaign variant registered at baseline v1 (schema id from
+ * `campaignSchemaId`, no transitions), ready for composition into a
+ * `ReplaySchemaRegistry`.
  */
 export const CAMPAIGN_BASELINE_SCHEMA_PACK: readonly IReplayEventSchemaRegistration[] =
   Object.freeze(
@@ -121,7 +149,7 @@ export const CAMPAIGN_BASELINE_SCHEMA_PACK: readonly IReplayEventSchemaRegistrat
         schemas: [
           {
             schemaVersion: 1,
-            schemaId: `campaign.${eventType}.v1`,
+            schemaId: campaignSchemaId(eventType),
             parse: (payload: unknown) => schema.parse(payload),
           },
         ],
