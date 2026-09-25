@@ -1,0 +1,200 @@
+{
+  "unit": "U36",
+  "stage": "red",
+  "at": "2026-09-25T07:44:58.170Z",
+  "baseline": "a2e24c8a80706b6ea5e4f4b4e22c3f52ea83aa18",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u36",
+  "branch": "roadmap-u36-gm-correction-controls-20260925",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "productCodeAsBaseline": "no product file was edited before these runs; the worktree held only the two new test files, the one edited test file and the admission receipt (git status: red-status-after.log)",
+  "statusAfterRed": {
+    "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u36/logs/red-status-after.log",
+    "sha256": "b4790325ca7e900c37e6142334e969fe8f67840cb615bbfa6f4f0e0fceb20150",
+    "content": [
+      "M src/components/campaign/coop/__tests__/CoopSurfaceResilience.test.tsx",
+      "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u36-admission-20260925.json",
+      "?? src/components/campaign/coop/__tests__/HostGmReviewSurface.deadControls.test.tsx",
+      "?? src/components/multiplayer/__tests__/NetworkedGameSurface.gmCorrection.test.tsx"
+    ]
+  },
+  "seam": "jest + React Testing Library at the component seam: NetworkedHostGmControls rendered directly with handlers returning hand-settled promises; CampaignCoopRouteSurface rendered in host dashboard mode (the real dashboard mount) and HostGmReviewSurface with one handler at a time",
+  "doublePressMethod": "two HTMLElement.click() calls inside one act(): the second press meets the button before any re-render, so only a synchronous guard (not the disabled attribute) can stop it",
+  "testFiles": {
+    "new": [
+      "src/components/multiplayer/__tests__/NetworkedGameSurface.gmCorrection.test.tsx",
+      "src/components/campaign/coop/__tests__/HostGmReviewSurface.deadControls.test.tsx"
+    ],
+    "edited": [
+      "src/components/campaign/coop/__tests__/CoopSurfaceResilience.test.tsx (the narrow-viewport source-order row now passes onManualTakeover and onGmCorrection as jest.fn, because after U36 those controls render only with a handler; passes on the baseline too)"
+    ]
+  },
+  "runners": {
+    "suite": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u36/run-suite.sh",
+      "sha256": "4cc3f7ac375f2c7c15cb7cd48227bec584cad184f111339b48e3235bc35996e6"
+    },
+    "rows": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u36/rows.mjs",
+      "sha256": "1388c38e4b1c5ff55884a142b04baf60a1cc6879a40e022669e8d8801fed114a"
+    },
+    "receiptWriter": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u36/write-red.mjs",
+      "sha256": "7db9db034d757e4e50a638e2829dbbfffbf92b460754c68ba5ced69403ad14d2"
+    }
+  },
+  "runs": [
+    {
+      "suite": "src/components/multiplayer/__tests__/NetworkedGameSurface.gmCorrection.test.tsx",
+      "command": "npx jest src/components/multiplayer/__tests__/NetworkedGameSurface.gmCorrection.test.tsx",
+      "exitCode": 1,
+      "tests": "Tests:       6 failed, 3 passed, 9 total",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u36/logs/red-gmcorrection.log",
+        "sha256": "62e3c2e9f51709f817cce32c855e686f1efaa87349cee7d6612f36e2831ab030"
+      }
+    },
+    {
+      "suite": "src/components/campaign/coop/__tests__/HostGmReviewSurface.deadControls.test.tsx",
+      "command": "npx jest src/components/campaign/coop/__tests__/HostGmReviewSurface.deadControls.test.tsx",
+      "exitCode": 1,
+      "tests": "Tests:       5 failed, 5 total",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u36/logs/red-deadcontrols.log",
+        "sha256": "112c6a4b1d4bb9952097644aaa44be3ea40ba911a3c4ef21aac63636ee43e296"
+      }
+    },
+    {
+      "suite": "src/components/campaign/coop/__tests__/CoopSurfaceResilience.test.tsx",
+      "command": "npx jest src/components/campaign/coop/__tests__/CoopSurfaceResilience.test.tsx",
+      "exitCode": 0,
+      "tests": "Tests:       6 passed, 6 total",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u36/logs/red-resilience.log",
+        "sha256": "02dd692236079b22222ea3a9c43a2bb2a22359db4affae48085c6270953df26b"
+      }
+    }
+  ],
+  "rows": [
+    {
+      "id": "r-route-bound",
+      "kind": "anchor (read-only route bound)",
+      "suite": "src/components/multiplayer/__tests__/NetworkedGameSurface.gmCorrection.test.tsx",
+      "title": "accepts a reason of the bound and refuses one unit more",
+      "baseline": "pass"
+    },
+    {
+      "id": "r-approve-double",
+      "kind": "red",
+      "suite": "src/components/multiplayer/__tests__/NetworkedGameSurface.gmCorrection.test.tsx",
+      "title": "sends one commit for a double press",
+      "baseline": "fail",
+      "measuredOnBaseline": "onApprove called 2 times for two presses inside one act (expected 1)"
+    },
+    {
+      "id": "r-approve-pending",
+      "kind": "red",
+      "suite": "src/components/multiplayer/__tests__/NetworkedGameSurface.gmCorrection.test.tsx",
+      "title": "renders disabled while its commit is pending and works again once it settles",
+      "baseline": "fail",
+      "measuredOnBaseline": "Approve GM Fix not disabled after the first press while its promise is pending"
+    },
+    {
+      "id": "r-approve-reject",
+      "kind": "pin",
+      "suite": "src/components/multiplayer/__tests__/NetworkedGameSurface.gmCorrection.test.tsx",
+      "title": "is enabled again after a commit that failed in transport",
+      "baseline": "pass"
+    },
+    {
+      "id": "r-approve-void",
+      "kind": "pin",
+      "suite": "src/components/multiplayer/__tests__/NetworkedGameSurface.gmCorrection.test.tsx",
+      "title": "keeps working for a caller whose handler answers nothing",
+      "baseline": "pass"
+    },
+    {
+      "id": "r-preview-double",
+      "kind": "red",
+      "suite": "src/components/multiplayer/__tests__/NetworkedGameSurface.gmCorrection.test.tsx",
+      "title": "sends one preview for a double press",
+      "baseline": "fail",
+      "measuredOnBaseline": "onPreview called 2 times for two presses inside one act (expected 1)"
+    },
+    {
+      "id": "r-preview-pending",
+      "kind": "red",
+      "suite": "src/components/multiplayer/__tests__/NetworkedGameSurface.gmCorrection.test.tsx",
+      "title": "renders disabled while its preview is pending and works again once it settles",
+      "baseline": "fail",
+      "measuredOnBaseline": "Preview GM Fix not disabled after the first press while its promise is pending"
+    },
+    {
+      "id": "r-reason-maxlength",
+      "kind": "red",
+      "suite": "src/components/multiplayer/__tests__/NetworkedGameSurface.gmCorrection.test.tsx",
+      "title": "is bounded at the route bound",
+      "baseline": "fail",
+      "measuredOnBaseline": "the input has no maxlength attribute (expected \"2000\")"
+    },
+    {
+      "id": "r-reason-paste",
+      "kind": "red",
+      "suite": "src/components/multiplayer/__tests__/NetworkedGameSurface.gmCorrection.test.tsx",
+      "title": "hands the producer no more than the route takes",
+      "baseline": "fail",
+      "measuredOnBaseline": "a pasted 2001-unit reason reached onPrivateReasonChange at length 2001 (expected 2000)"
+    },
+    {
+      "id": "r-dash-only",
+      "kind": "red",
+      "suite": "src/components/campaign/coop/__tests__/HostGmReviewSurface.deadControls.test.tsx",
+      "title": "renders Approve and Veto only",
+      "baseline": "fail",
+      "measuredOnBaseline": "the dashboard mount row renders [preview-p1, approve-p1, veto-p1, manual-takeover-p1, gm-correction-p1] (expected [approve-p1, veto-p1])"
+    },
+    {
+      "id": "r-dash-dead",
+      "kind": "red",
+      "suite": "src/components/campaign/coop/__tests__/HostGmReviewSurface.deadControls.test.tsx",
+      "title": "renders no control that does nothing when pressed",
+      "baseline": "fail",
+      "measuredOnBaseline": "pressing each rendered control on the dashboard mount: preview-p1, manual-takeover-p1 and gm-correction-p1 neither called onDecide nor changed the DOM"
+    },
+    {
+      "id": "r-sec-preview",
+      "kind": "red",
+      "suite": "src/components/campaign/coop/__tests__/HostGmReviewSurface.deadControls.test.tsx",
+      "title": "renders preview-p1 only when onPreview is supplied, and presses reach it",
+      "baseline": "fail",
+      "measuredOnBaseline": "with only onPreview supplied, manual-takeover-p1 still renders"
+    },
+    {
+      "id": "r-sec-manual",
+      "kind": "red",
+      "suite": "src/components/campaign/coop/__tests__/HostGmReviewSurface.deadControls.test.tsx",
+      "title": "renders manual-takeover-p1 only when onManualTakeover is supplied, and presses reach it",
+      "baseline": "fail",
+      "measuredOnBaseline": "with only onManualTakeover supplied, preview-p1 still renders"
+    },
+    {
+      "id": "r-sec-gmfix",
+      "kind": "red",
+      "suite": "src/components/campaign/coop/__tests__/HostGmReviewSurface.deadControls.test.tsx",
+      "title": "renders gm-correction-p1 only when onGmCorrection is supplied, and presses reach it",
+      "baseline": "fail",
+      "measuredOnBaseline": "with only onGmCorrection supplied, preview-p1 still renders"
+    },
+    {
+      "id": "r-source-order",
+      "kind": "edited caller (handlers passed)",
+      "suite": "src/components/campaign/coop/__tests__/CoopSurfaceResilience.test.tsx",
+      "title": "source order: the decisions precede the secondary tools",
+      "baseline": "pass"
+    }
+  ],
+  "summary": {
+    "redRowsFailingOnBaseline": 11,
+    "redRows": 11,
+    "pinsAndAnchorsPassingOnBaseline": 4
+  }
+}

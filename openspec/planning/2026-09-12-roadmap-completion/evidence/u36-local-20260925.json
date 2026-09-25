@@ -1,0 +1,618 @@
+{
+  "unit": "U36",
+  "stage": "local",
+  "status": "ready",
+  "at": "2026-09-25T07:58:26.670Z",
+  "baseline": "a2e24c8a80706b6ea5e4f4b4e22c3f52ea83aa18",
+  "headAtLocal": "a2e24c8a80706b6ea5e4f4b4e22c3f52ea83aa18",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u36",
+  "branch": "roadmap-u36-gm-correction-controls-20260925",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "priorReceipts": {
+    "admission": {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/u36-admission-20260925.json",
+      "sha256": "8d802b91a20a5dba4fdd58b5a4a3d3cd7088ec257e260292c9cc6e59910f63e4"
+    },
+    "red": {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/u36-red-20260925.json",
+      "sha256": "b7528d259265395d6ba9cbcf5cee32f2f3d95484d5850801a9c028a6734558b3"
+    }
+  },
+  "runners": {
+    "run-suite.sh": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u36/run-suite.sh",
+      "sha256": "4cc3f7ac375f2c7c15cb7cd48227bec584cad184f111339b48e3235bc35996e6"
+    },
+    "run-dirs.sh": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u36/run-dirs.sh",
+      "sha256": "6430191d65b4b809f842b8ff6d2509eeeca41df5503bb088d2701ef787c3170a"
+    },
+    "run-static.sh": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u36/run-static.sh",
+      "sha256": "ed079320953d8b0786d19f2eb86c143b0560f8b236eebf990023e5167fe7de7e"
+    },
+    "run-mutants.sh": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u36/run-mutants.sh",
+      "sha256": "9a104e86908714bff4432e3488569d2e4415dfd1dfa3708e261846a249f20ab8"
+    },
+    "mutate.mjs": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u36/mutate.mjs",
+      "sha256": "bf820c4e9b9682342e383e9704a25a98b7905ae284b5884b2c72f52eb03ae857"
+    },
+    "rows.mjs": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u36/rows.mjs",
+      "sha256": "1388c38e4b1c5ff55884a142b04baf60a1cc6879a40e022669e8d8801fed114a"
+    },
+    "write-local.mjs": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u36/write-local.mjs",
+      "sha256": "4169968496b98c05db11fd762a937d90015d5392813993277d6c064459fabd12"
+    }
+  },
+  "whatChanged": {
+    "src/components/multiplayer/NetworkedGameSurface.gmCorrection.tsx": "per-button in-flight ref + pending state; askForPreview / applyCorrection return early while their request is pending and clear both flags in finally; disabled={previewPending} / disabled={approvePending} with disabled:cursor-not-allowed disabled:opacity-50; maxLength={PRIVATE_REASON_MAX_LENGTH} (2000) on the private-reason input; comments on the constant, the component, both callbacks and the header",
+    "src/components/campaign/coop/HostGmReviewSurface.tsx": "the three () => {} defaults removed; Preview, Manual and GM Fix each render only when their handler is supplied; prop and component comments",
+    "src/pages-modules/multiplayer/useGmCorrectionProducers.ts": "header paragraph (baseline :19-28) rewritten to describe the delivered transport; comment only",
+    "src/components/campaign/coop/CampaignCoopRouteSurface.tsx": "unchanged: the dashboard mount (:378-384) already passes none of the three handlers"
+  },
+  "lineCounts": {
+    "rule": "product lines count toward the 500 cap; test lines are reported separately and do not count (owner decision OD-line-cap-product-lines, 2026-09-23)",
+    "product": {
+      "files": [
+        {
+          "path": "src/components/multiplayer/NetworkedGameSurface.gmCorrection.tsx",
+          "added": 66,
+          "deleted": 5,
+          "changed": 71
+        },
+        {
+          "path": "src/components/campaign/coop/HostGmReviewSurface.tsx",
+          "added": 42,
+          "deleted": 28,
+          "changed": 70
+        },
+        {
+          "path": "src/pages-modules/multiplayer/useGmCorrectionProducers.ts",
+          "added": 9,
+          "deleted": 10,
+          "changed": 19
+        }
+      ],
+      "added": 117,
+      "deleted": 43,
+      "changed": 160,
+      "cap": 500
+    },
+    "test": {
+      "files": [
+        {
+          "path": "src/components/multiplayer/__tests__/NetworkedGameSurface.gmCorrection.test.tsx",
+          "added": 276,
+          "deleted": 0,
+          "changed": 276,
+          "status": "new (untracked)"
+        },
+        {
+          "path": "src/components/campaign/coop/__tests__/HostGmReviewSurface.deadControls.test.tsx",
+          "added": 153,
+          "deleted": 0,
+          "changed": 153,
+          "status": "new (untracked)"
+        },
+        {
+          "path": "src/components/campaign/coop/__tests__/CoopSurfaceResilience.test.tsx",
+          "added": 4,
+          "deleted": 0,
+          "changed": 4
+        }
+      ],
+      "added": 433,
+      "deleted": 0,
+      "changed": 433
+    },
+    "filesTouched": {
+      "source": 6,
+      "receipts": 3,
+      "total": 9,
+      "cap": 15
+    },
+    "measuredWith": "git diff --numstat (tracked files) and the line count of each new untracked test file"
+  },
+  "gates": {
+    "jestSrcComponentsMultiplayer": {
+      "machineIdle": {
+        "command": "node scripts/qc/machine-idle.mjs --wait --timeout-ms 1800000",
+        "lastLine": "MACHINE_IDLE",
+        "exitCode": 0,
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u36/logs/idle-multiplayer.log",
+          "sha256": "7d38ea0bb5ace1e63e7d44c21652acdb36d26f406c0875fa71350e59c74de48e"
+        }
+      },
+      "command": "npx jest src/components/multiplayer",
+      "lastLine": "Ran all test suites matching /src\\\\components\\\\multiplayer/i in 2 projects.",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u36/logs/dir-multiplayer.log",
+        "sha256": "346f744925e3c380cef807d41d8c6385f7f1e27d203c6d5b37f2202e837bc721"
+      },
+      "testSuites": "Test Suites: 13 passed, 13 total",
+      "tests": "Tests:       141 passed, 141 total"
+    },
+    "jestSrcPagesModulesMultiplayer": {
+      "machineIdle": {
+        "command": "node scripts/qc/machine-idle.mjs --wait --timeout-ms 1800000",
+        "lastLine": "MACHINE_IDLE",
+        "exitCode": 0,
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u36/logs/idle-pagesmultiplayer.log",
+          "sha256": "7d38ea0bb5ace1e63e7d44c21652acdb36d26f406c0875fa71350e59c74de48e"
+        }
+      },
+      "command": "npx jest src/pages-modules/multiplayer",
+      "lastLine": "Ran all test suites matching /src\\\\pages-modules\\\\multiplayer/i.",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u36/logs/dir-pagesmultiplayer.log",
+        "sha256": "dcea72a2689c63c5ebd97c594b7bdfb90e18c4a6f0bb86d5693edbf4b34fcec8"
+      },
+      "testSuites": "Test Suites: 3 passed, 3 total",
+      "tests": "Tests:       23 passed, 23 total"
+    },
+    "jestSrcComponentsCampaignCoop": {
+      "machineIdle": {
+        "command": "node scripts/qc/machine-idle.mjs --wait --timeout-ms 1800000",
+        "lastLine": "MACHINE_IDLE",
+        "exitCode": 0,
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u36/logs/idle-coop.log",
+          "sha256": "7d38ea0bb5ace1e63e7d44c21652acdb36d26f406c0875fa71350e59c74de48e"
+        }
+      },
+      "command": "npx jest src/components/campaign/coop",
+      "lastLine": "Ran all test suites matching /src\\\\components\\\\campaign\\\\coop/i in 2 projects.",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u36/logs/dir-coop.log",
+        "sha256": "e5b4f2226dceec9e934e75e5832c42838cc31b040f40a6fc7a0de694d466b57f"
+      },
+      "testSuites": "Test Suites: 16 passed, 16 total",
+      "tests": "Tests:       158 passed, 158 total"
+    },
+    "jestSrcPagesModulesApi": {
+      "machineIdle": {
+        "command": "node scripts/qc/machine-idle.mjs --wait --timeout-ms 1800000",
+        "lastLine": "MACHINE_IDLE",
+        "exitCode": 0,
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u36/logs/idle-api.log",
+          "sha256": "7d38ea0bb5ace1e63e7d44c21652acdb36d26f406c0875fa71350e59c74de48e"
+        }
+      },
+      "command": "npx jest src/pages-modules/api",
+      "lastLine": "Ran all test suites matching /src\\\\pages-modules\\\\api/i.",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u36/logs/dir-api.log",
+        "sha256": "4026ee1ba472d2e92ca34c4ab2557d9d5335a4cf8561c5b8a51b7a67ebfeee62"
+      },
+      "testSuites": "Test Suites: 8 passed, 8 total",
+      "tests": "Tests:       62 passed, 62 total",
+      "note": "read-only path for this lane; nothing under it was edited"
+    },
+    "tsc": {
+      "machineIdle": {
+        "lastLine": "MACHINE_IDLE",
+        "exitCode": 0,
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u36/logs/idle-tsc.log",
+          "sha256": "7d38ea0bb5ace1e63e7d44c21652acdb36d26f406c0875fa71350e59c74de48e"
+        }
+      },
+      "command": "npx tsc --noEmit",
+      "lastLine": "(no output)",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u36/logs/gate-tsc.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "oxlint": {
+      "command": "npx oxlint",
+      "lastLine": "Finished in 437ms on 3819 files using 16 threads.",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u36/logs/gate-oxlint.log",
+        "sha256": "b0ba8e29233dba1c867473efc7515c38d0af0938a4b8561ae15419e1a658dbc7"
+      },
+      "found": "Found 84 warnings and 0 errors.",
+      "warnings": 84,
+      "warningsBaselineReference": 84,
+      "warningsDelta": 0,
+      "changedFileWarnings": 0,
+      "changedFileWarningsMeasuredBy": "grep of the oxlint log for the six changed file names: 0 lines"
+    },
+    "oxfmtCheck": {
+      "command": "npx oxfmt --check <the six changed source files>",
+      "lastLine": "Finished in 3832ms on 6 files using 16 threads.",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u36/logs/gate-oxfmt.log",
+        "sha256": "b77b6d747a32c9a0bbe83eae9e06f6c0c5a188d2b8398da131bfc7cca050fe16"
+      },
+      "note": "the new NetworkedGameSurface.gmCorrection.test.tsx failed the check once before any gate run and was formatted with npx oxfmt on that one file; this is the check after"
+    },
+    "lintUnits": {
+      "command": "npm run lint:units",
+      "lastLine": "LINT_UNITS_PASS 100/100",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u36/logs/gate-lint-units.log",
+        "sha256": "e055631f9348b2e6539c922dddc1fe388b583448a734da5f618cb47c583fae2d"
+      }
+    },
+    "openspecCi": {
+      "command": "npm run qc:openspec-ci:validate",
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u36/logs/gate-openspec-ci.log",
+        "sha256": "4c2dafd093b946290aa4abe001ad8b3d65671b17c7682722c55a510ecc04f91e"
+      }
+    },
+    "roadmapValidator": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u36/logs/gate-validator.log",
+        "sha256": "97b2f29d264078525a55c5f88586fb95603311fa065e70d7d17c5fab08f5b5bc"
+      }
+    }
+  },
+  "rowSuitesOnFinalBytes": [
+    {
+      "command": "npx jest src/components/multiplayer/__tests__/NetworkedGameSurface.gmCorrection.test.tsx",
+      "exitCode": 0,
+      "tests": "Tests:       9 passed, 9 total",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u36/logs/final-gmcorrection.log",
+        "sha256": "fe15dd1a88ea84f52115208e04854116895658859f94360cd129374e8137381e"
+      }
+    },
+    {
+      "command": "npx jest src/components/campaign/coop/__tests__/HostGmReviewSurface.deadControls.test.tsx",
+      "exitCode": 0,
+      "tests": "Tests:       5 passed, 5 total",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u36/logs/final-deadcontrols.log",
+        "sha256": "0aba227bdeda346104449ac55f27499fb1142fa01b271269c519bd96e553e520"
+      }
+    },
+    {
+      "command": "npx jest src/components/campaign/coop/__tests__/CoopSurfaceResilience.test.tsx",
+      "exitCode": 0,
+      "tests": "Tests:       6 passed, 6 total",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u36/logs/final-resilience.log",
+        "sha256": "36e2c09a7abb573596ec2911e48e576a043a8f608d0c474faeab64dffa624503"
+      }
+    }
+  ],
+  "finalFileHashes": [
+    "0ddc207704deb49b737d56a8a501b0a38436f660e3c09f8d0ad39641ea27f2a1 *src/components/multiplayer/NetworkedGameSurface.gmCorrection.tsx",
+    "46f10f2fd6e0c56f757000c28465734a825fcf53bdda7cd27a08046c0eaf10ff *src/components/campaign/coop/HostGmReviewSurface.tsx",
+    "acc615e236edad0ada04dff2b8f8fce6648b2162e78ec092c458a83dd0b1fd2b *src/pages-modules/multiplayer/useGmCorrectionProducers.ts",
+    "248d8e286912200ab6245f9ca97dbc3a1f8f3242f40199b9bb23ad33095e72c8 *src/components/multiplayer/__tests__/NetworkedGameSurface.gmCorrection.test.tsx",
+    "4fd92c32d6d80131bfe25147ff0096d45fe92c7d0055b30592ed35b8454ae0f2 *src/components/campaign/coop/__tests__/HostGmReviewSurface.deadControls.test.tsx",
+    "7a5c9ab5cddf138e4a9c9ee77682d8901c8be5df4ea1d1d2137cf7956b8342ea *src/components/campaign/coop/__tests__/CoopSurfaceResilience.test.tsx"
+  ],
+  "rowTable": [
+    {
+      "id": "r-route-bound",
+      "kind": "anchor (read-only route bound)",
+      "suite": "src/components/multiplayer/__tests__/NetworkedGameSurface.gmCorrection.test.tsx",
+      "title": "accepts a reason of the bound and refuses one unit more",
+      "baseline": "pass",
+      "after": "pass"
+    },
+    {
+      "id": "r-approve-double",
+      "kind": "red",
+      "suite": "src/components/multiplayer/__tests__/NetworkedGameSurface.gmCorrection.test.tsx",
+      "title": "sends one commit for a double press",
+      "baseline": "fail",
+      "after": "pass"
+    },
+    {
+      "id": "r-approve-pending",
+      "kind": "red",
+      "suite": "src/components/multiplayer/__tests__/NetworkedGameSurface.gmCorrection.test.tsx",
+      "title": "renders disabled while its commit is pending and works again once it settles",
+      "baseline": "fail",
+      "after": "pass"
+    },
+    {
+      "id": "r-approve-reject",
+      "kind": "pin",
+      "suite": "src/components/multiplayer/__tests__/NetworkedGameSurface.gmCorrection.test.tsx",
+      "title": "is enabled again after a commit that failed in transport",
+      "baseline": "pass",
+      "after": "pass"
+    },
+    {
+      "id": "r-approve-void",
+      "kind": "pin",
+      "suite": "src/components/multiplayer/__tests__/NetworkedGameSurface.gmCorrection.test.tsx",
+      "title": "keeps working for a caller whose handler answers nothing",
+      "baseline": "pass",
+      "after": "pass"
+    },
+    {
+      "id": "r-preview-double",
+      "kind": "red",
+      "suite": "src/components/multiplayer/__tests__/NetworkedGameSurface.gmCorrection.test.tsx",
+      "title": "sends one preview for a double press",
+      "baseline": "fail",
+      "after": "pass"
+    },
+    {
+      "id": "r-preview-pending",
+      "kind": "red",
+      "suite": "src/components/multiplayer/__tests__/NetworkedGameSurface.gmCorrection.test.tsx",
+      "title": "renders disabled while its preview is pending and works again once it settles",
+      "baseline": "fail",
+      "after": "pass"
+    },
+    {
+      "id": "r-reason-maxlength",
+      "kind": "red",
+      "suite": "src/components/multiplayer/__tests__/NetworkedGameSurface.gmCorrection.test.tsx",
+      "title": "is bounded at the route bound",
+      "baseline": "fail",
+      "after": "pass"
+    },
+    {
+      "id": "r-reason-paste",
+      "kind": "red",
+      "suite": "src/components/multiplayer/__tests__/NetworkedGameSurface.gmCorrection.test.tsx",
+      "title": "hands the producer no more than the route takes",
+      "baseline": "fail",
+      "after": "pass"
+    },
+    {
+      "id": "r-dash-only",
+      "kind": "red",
+      "suite": "src/components/campaign/coop/__tests__/HostGmReviewSurface.deadControls.test.tsx",
+      "title": "renders Approve and Veto only",
+      "baseline": "fail",
+      "after": "pass"
+    },
+    {
+      "id": "r-dash-dead",
+      "kind": "red",
+      "suite": "src/components/campaign/coop/__tests__/HostGmReviewSurface.deadControls.test.tsx",
+      "title": "renders no control that does nothing when pressed",
+      "baseline": "fail",
+      "after": "pass"
+    },
+    {
+      "id": "r-sec-preview",
+      "kind": "red",
+      "suite": "src/components/campaign/coop/__tests__/HostGmReviewSurface.deadControls.test.tsx",
+      "title": "renders preview-p1 only when onPreview is supplied, and presses reach it",
+      "baseline": "fail",
+      "after": "pass"
+    },
+    {
+      "id": "r-sec-manual",
+      "kind": "red",
+      "suite": "src/components/campaign/coop/__tests__/HostGmReviewSurface.deadControls.test.tsx",
+      "title": "renders manual-takeover-p1 only when onManualTakeover is supplied, and presses reach it",
+      "baseline": "fail",
+      "after": "pass"
+    },
+    {
+      "id": "r-sec-gmfix",
+      "kind": "red",
+      "suite": "src/components/campaign/coop/__tests__/HostGmReviewSurface.deadControls.test.tsx",
+      "title": "renders gm-correction-p1 only when onGmCorrection is supplied, and presses reach it",
+      "baseline": "fail",
+      "after": "pass"
+    },
+    {
+      "id": "r-source-order",
+      "kind": "edited caller (handlers passed)",
+      "suite": "src/components/campaign/coop/__tests__/CoopSurfaceResilience.test.tsx",
+      "title": "source order: the decisions precede the secondary tools",
+      "baseline": "pass",
+      "after": "pass"
+    }
+  ],
+  "rowSummary": {
+    "redRows": 11,
+    "redFailOnBaseline": 11,
+    "redPassAfter": 11,
+    "otherRowsPassBothSides": 4
+  },
+  "mutants": [
+    {
+      "id": "M1",
+      "file": "src/components/multiplayer/NetworkedGameSurface.gmCorrection.tsx",
+      "mutation": "the maxLength attribute removed from the private-reason input",
+      "apply": {
+        "exitCode": 0,
+        "lastLine": "MUTATED M1 src/components/multiplayer/NetworkedGameSurface.gmCorrection.tsx"
+      },
+      "suite": "src/components/multiplayer/__tests__/NetworkedGameSurface.gmCorrection.test.tsx",
+      "jestExitCode": 1,
+      "tests": "Tests:       2 failed, 7 passed, 9 total",
+      "caughtBy": [
+        "r-reason-maxlength",
+        "r-reason-paste"
+      ],
+      "caught": true,
+      "sha256": {
+        "preMutant": "0ddc207704deb49b737d56a8a501b0a38436f660e3c09f8d0ad39641ea27f2a1",
+        "mutated": "7ab5047567327aa1f1038e0fec6da551f169cb78b1aebe6bac49c07cb6282c5c",
+        "afterRestore": "0ddc207704deb49b737d56a8a501b0a38436f660e3c09f8d0ad39641ea27f2a1",
+        "savedCopy": "0ddc207704deb49b737d56a8a501b0a38436f660e3c09f8d0ad39641ea27f2a1"
+      },
+      "restoredIdentical": true,
+      "restoreMethod": "cp -p of a byte copy saved before the mutation (mutant-saves/), then sha256 compared",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u36/logs/mut-M1.log",
+        "sha256": "44880a99ad9ff6436bda6653a61c2365ae7e0f9bd67817bfccc2efc2b9fa923c"
+      }
+    },
+    {
+      "id": "M2",
+      "file": "src/components/multiplayer/NetworkedGameSurface.gmCorrection.tsx",
+      "mutation": "Approve GM Fix's synchronous pending guard removed (disabled attribute kept)",
+      "apply": {
+        "exitCode": 0,
+        "lastLine": "MUTATED M2 src/components/multiplayer/NetworkedGameSurface.gmCorrection.tsx"
+      },
+      "suite": "src/components/multiplayer/__tests__/NetworkedGameSurface.gmCorrection.test.tsx",
+      "jestExitCode": 1,
+      "tests": "Tests:       1 failed, 8 passed, 9 total",
+      "caughtBy": [
+        "r-approve-double"
+      ],
+      "caught": true,
+      "sha256": {
+        "preMutant": "0ddc207704deb49b737d56a8a501b0a38436f660e3c09f8d0ad39641ea27f2a1",
+        "mutated": "9cede6cdfd9bcf531a19b9f1cc6fa25d4faf78ce93b4fb2821a05da777ead7d6",
+        "afterRestore": "0ddc207704deb49b737d56a8a501b0a38436f660e3c09f8d0ad39641ea27f2a1",
+        "savedCopy": "0ddc207704deb49b737d56a8a501b0a38436f660e3c09f8d0ad39641ea27f2a1"
+      },
+      "restoredIdentical": true,
+      "restoreMethod": "cp -p of a byte copy saved before the mutation (mutant-saves/), then sha256 compared",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u36/logs/mut-M2.log",
+        "sha256": "8fb0edf0a62f81d28f3ecf92be3d0fc78d46f45dc140fe3a8dc9afcbf0c7a2fb"
+      }
+    },
+    {
+      "id": "M3",
+      "file": "src/components/multiplayer/NetworkedGameSurface.gmCorrection.tsx",
+      "mutation": "Preview GM Fix's disabled state removed while pending (ref guard kept)",
+      "apply": {
+        "exitCode": 0,
+        "lastLine": "MUTATED M3 src/components/multiplayer/NetworkedGameSurface.gmCorrection.tsx"
+      },
+      "suite": "src/components/multiplayer/__tests__/NetworkedGameSurface.gmCorrection.test.tsx",
+      "jestExitCode": 1,
+      "tests": "Tests:       1 failed, 8 passed, 9 total",
+      "caughtBy": [
+        "r-preview-pending"
+      ],
+      "caught": true,
+      "sha256": {
+        "preMutant": "0ddc207704deb49b737d56a8a501b0a38436f660e3c09f8d0ad39641ea27f2a1",
+        "mutated": "82f601b64b721c9a8c25ff0dbd3b178eefa34a970dd79e21369252f0e8bb3de9",
+        "afterRestore": "0ddc207704deb49b737d56a8a501b0a38436f660e3c09f8d0ad39641ea27f2a1",
+        "savedCopy": "0ddc207704deb49b737d56a8a501b0a38436f660e3c09f8d0ad39641ea27f2a1"
+      },
+      "restoredIdentical": true,
+      "restoreMethod": "cp -p of a byte copy saved before the mutation (mutant-saves/), then sha256 compared",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u36/logs/mut-M3.log",
+        "sha256": "05aa89c599da0b10a48f527e87fcab0556c06647e9b67286cbd97d124eab7db3"
+      }
+    },
+    {
+      "id": "M4",
+      "file": "src/components/campaign/coop/HostGmReviewSurface.tsx",
+      "mutation": "a no-op default put back: onGmCorrection = () => {}",
+      "apply": {
+        "exitCode": 0,
+        "lastLine": "MUTATED M4 src/components/campaign/coop/HostGmReviewSurface.tsx"
+      },
+      "suite": "src/components/campaign/coop/__tests__/HostGmReviewSurface.deadControls.test.tsx",
+      "jestExitCode": 1,
+      "tests": "Tests:       4 failed, 1 passed, 5 total",
+      "caughtBy": [
+        "r-dash-only",
+        "r-dash-dead",
+        "r-sec-preview",
+        "r-sec-manual"
+      ],
+      "caught": true,
+      "sha256": {
+        "preMutant": "46f10f2fd6e0c56f757000c28465734a825fcf53bdda7cd27a08046c0eaf10ff",
+        "mutated": "550f97f0bd52e9cbc153eab53a87e209cc038e585a69fbfc4167cddd68627484",
+        "afterRestore": "46f10f2fd6e0c56f757000c28465734a825fcf53bdda7cd27a08046c0eaf10ff",
+        "savedCopy": "46f10f2fd6e0c56f757000c28465734a825fcf53bdda7cd27a08046c0eaf10ff"
+      },
+      "restoredIdentical": true,
+      "restoreMethod": "cp -p of a byte copy saved before the mutation (mutant-saves/), then sha256 compared",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u36/logs/mut-M4.log",
+        "sha256": "e633c7c6c27dbed94492b968d332cbee12e465b4d8841469b432f9977299a087"
+      }
+    },
+    {
+      "id": "M5",
+      "file": "src/components/multiplayer/NetworkedGameSurface.gmCorrection.tsx",
+      "mutation": "Approve GM Fix's pending state never cleared (setApprovePending(false) removed from finally)",
+      "apply": {
+        "exitCode": 0,
+        "lastLine": "MUTATED M5 src/components/multiplayer/NetworkedGameSurface.gmCorrection.tsx"
+      },
+      "suite": "src/components/multiplayer/__tests__/NetworkedGameSurface.gmCorrection.test.tsx",
+      "jestExitCode": 1,
+      "tests": "Tests:       3 failed, 6 passed, 9 total",
+      "caughtBy": [
+        "r-approve-pending",
+        "r-approve-reject",
+        "r-approve-void"
+      ],
+      "caught": true,
+      "sha256": {
+        "preMutant": "0ddc207704deb49b737d56a8a501b0a38436f660e3c09f8d0ad39641ea27f2a1",
+        "mutated": "b9e71dbb6c5cced6cf25c7abac0ef074d3bebd762e5e83972651320e4848c4b4",
+        "afterRestore": "0ddc207704deb49b737d56a8a501b0a38436f660e3c09f8d0ad39641ea27f2a1",
+        "savedCopy": "0ddc207704deb49b737d56a8a501b0a38436f660e3c09f8d0ad39641ea27f2a1"
+      },
+      "restoredIdentical": true,
+      "restoreMethod": "cp -p of a byte copy saved before the mutation (mutant-saves/), then sha256 compared",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u36/logs/mut-M5.log",
+        "sha256": "769b7b9e26e00deba04cada3a432ee901ab78446d08c338cbddbbd91177042af"
+      }
+    }
+  ],
+  "mutantSummary": {
+    "run": 5,
+    "caught": 5,
+    "restoredIdentical": 5
+  },
+  "nonClaims": [
+    "No build, browser or Playwright run. maxLength enforcement is measured in jsdom through @testing-library/user-event 14.6.1 paste only; how a real browser counts maxLength (UTF-16 code units per the HTML standard) is not measured.",
+    "The e2e specs that press these buttons were not run: e2e/networked-command-proof.spec.ts:22-27, e2e/playable-command-feature-screens.spec.ts:881-885, e2e/gm-two-player-privacy.pack.spec.ts:328-351 and :836.",
+    "Pending gates each button's own request only: Preview GM Fix pressed while an Approve is pending (or the reverse) is not gated. Approve GM Fix stays enabled after a committed result; a later press re-sends the pinned request and the server CAS answers it (unchanged, not measured).",
+    "No server-side idempotency is claimed: two commits from two tabs or two clients are not addressed; the route and its CAS are unchanged and were not exercised.",
+    "The dashboard review rows lose Preview, Manual and GM Fix; nothing is wired to give the dashboard those actions. The GM ledger route keeps its own preview/approve/manual controls (not touched, not run).",
+    "For a handler that answers void (the /e2e/networked-command-proof stubs) the button is disabled from the press until the call returns; in jsdom both updates flush in one act and the row r-approve-void sees it enabled after each press. Whether a browser paints the brief disabled frame is not measured.",
+    "The useGmCorrectionProducers header rewrite is comment-only and no test pins comment text; its accuracy rests on the admission citations (commitGmCombatRewind.ts:47,:61-68; rewindCommitDeps.ts:60,:82-85; rewind-commit.ts:126-134,:208,:213-226).",
+    "units.json, roadmap.json, admission-snapshot.json and every tasks.md are untouched; no checkbox checked. The ledger text named by I-ledger-text-drift is not edited (outside ownership); only the producer header is."
+  ],
+  "findingsReportedNotFixed": [
+    "HostGmReviewSurface still defaults onClearLifecycleRefusal to () => {} (baseline :143). The recovery button (gm-lifecycle-recovery) renders when lifecycle.recovery.actionable and calls it; the production mount passes a real handler (CampaignCoopRouteSurface.tsx:383 <- CampaignCoopRouteSurfaceConnected.tsx:401-404), so only mounts without it (tests) get a no-op recovery button. Not named by U36.",
+    "CampaignCoopRouteSurface defaults onDecide to a no-op (:277-279) and onClearRefusal to () => {} (:285). A direct mount without onDecide renders Approve and Veto that decide nothing; the production mount passes onDecide (CampaignCoopRouteSurfaceConnected.tsx:396). Not named by U36.",
+    "Living spec letter: openspec/specs/coop-campaign-sync/spec.md:491-493 says the host command screen SHALL expose preview, approve, veto, manual takeover and GM correction controls; after U36 the dashboard review surface exposes approve and veto only. Spec edits are outside this lane.",
+    "Review-class mismatch: evidence/triage-plan-20260922.json newUnits U36 lists reviewClasses [\"routine\"]; units.json U36 lists [\"idempotency\"] (Lane B owner ruling required).",
+    "Triage citation drift: the reason bound is at rewindCommitDeps.ts:82-85 on the baseline (the triage cited 75-78, true at a9244fcad before U21 #1921)."
+  ],
+  "finalGitStatus": [
+    " M src/components/campaign/coop/HostGmReviewSurface.tsx",
+    " M src/components/campaign/coop/__tests__/CoopSurfaceResilience.test.tsx",
+    " M src/components/multiplayer/NetworkedGameSurface.gmCorrection.tsx",
+    " M src/pages-modules/multiplayer/useGmCorrectionProducers.ts",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u36-admission-20260925.json",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u36-red-20260925.json",
+    "?? src/components/campaign/coop/__tests__/HostGmReviewSurface.deadControls.test.tsx",
+    "?? src/components/multiplayer/__tests__/NetworkedGameSurface.gmCorrection.test.tsx"
+  ],
+  "ownershipCheck": true
+}

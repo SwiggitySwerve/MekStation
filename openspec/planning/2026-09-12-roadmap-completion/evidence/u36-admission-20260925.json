@@ -1,0 +1,244 @@
+{
+  "unit": "U36",
+  "stage": "admission",
+  "status": "go",
+  "at": "2026-09-25T07:41:29.244Z",
+  "baseline": "a2e24c8a80706b6ea5e4f4b4e22c3f52ea83aa18",
+  "originMainAtAdmission": "a2e24c8a80706b6ea5e4f4b4e22c3f52ea83aa18",
+  "originMainSource": "git ls-remote origin refs/heads/main (read-only; no fetch)",
+  "baselineEqualsOriginMain": true,
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u36",
+  "branch": "roadmap-u36-gm-correction-controls-20260925",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "node": "R2.multiplayer-client",
+  "ownershipPaths": [
+    "src/components/multiplayer",
+    "src/pages-modules/multiplayer",
+    "src/components/campaign/coop"
+  ],
+  "readOnlyPaths": [
+    "src/pages-modules/api (rewindCommitDeps.ts)"
+  ],
+  "reviewClasses": [
+    "idempotency"
+  ],
+  "behavior": "units.json U36 behavior sentence, not widened: every GM correction control the client renders either works once per press within the route bounds, or is not rendered (1) maxLength on the private-reason input equal to the route bound; (2) Approve GM Fix and Preview GM Fix ignore a second press and render disabled while their request is pending (GmRewindPreviewDialog pattern); (3) HostGmReviewSurface no-op defaults removed so the dashboard mount shows only Approve and Veto; (4) useGmCorrectionProducers header describes the delivered transport.",
+  "shellPreamble": [
+    "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "export npm_config_dry_run=true"
+  ],
+  "runners": {
+    "admissionGates": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u36/admission-gates.sh",
+      "sha256": "855f272e43256af55bea595e38622a9fdbd3e54877f5e325206f1a8467ee2a88"
+    },
+    "receiptWriter": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u36/write-admission.mjs",
+      "sha256": "59dceaea1852e98a1e515054b85daa346a8614c88809bbd960bfb1aa475d4d2e"
+    },
+    "mountEnumerator": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u36/mounts.mjs",
+      "sha256": "9063c9bfd97524f50039c5ae02d87c6e9b5cd3417ae6d4b8dca9546511302ffe",
+      "output": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u36/mounts.txt",
+        "sha256": "677b3c1e4dd9b0cec2563d20107936518830387d2862f26af6bdb4e83c78ccc0"
+      }
+    }
+  },
+  "nodeVersion": {
+    "command": "node --version",
+    "lastLine": "v22.22.0",
+    "exitCode": 0,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u36/logs/adm-node-version.log",
+      "sha256": "2172da60c75bfe844a5f085d0b225e7042f650910fb423c59d7f4a937afb0b56"
+    }
+  },
+  "guardNodeModulesLink": {
+    "command": "npm run --silent qc:guard-node-modules-link",
+    "lastLine": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"E:\\\\Projects\\\\MekStation\\\\.sisyphus\\\\roadmap-completion-20260912\\\\worktrees\\\\u36\\\\node_modules\",\"actualPath\":\"E:\\\\Projects\\\\MekStation\\\\node_modules\"}",
+    "exitCode": 1,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u36/logs/adm-guard.log",
+      "sha256": "491430deadaa293f683f2adf8282ad0cfd1b7b6d6bb38682634b8f5211dad465"
+    },
+    "expected": true,
+    "why": "refusal by design in a junctioned worktree; no npm install/ci/prune or lifecycle is run in this lane (npm_config_dry_run=true exported)"
+  },
+  "gitStatusAtAdmission": {
+    "command": "git status --short",
+    "lastLine": "",
+    "exitCode": 0,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u36/logs/adm-status.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "note": "empty output = clean tree"
+  },
+  "validatorOnBaseline": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+    "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+    "exitCode": 0,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u36/logs/adm-validator.log",
+      "sha256": "97b2f29d264078525a55c5f88586fb95603311fa065e70d7d17c5fab08f5b5bc"
+    }
+  },
+  "validatorNextOnBaseline": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "lastLine": "U36",
+    "exitCode": 0,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u36/logs/adm-next.log",
+      "sha256": "a65a1fd67537b2b701be66d050e4c1726e48a38c55bce2a9b29f8af32deae7ca"
+    },
+    "note": "prints U36 for this lane, as it did for the parent"
+  },
+  "baselineFileHashes": [
+    {
+      "path": "src/components/multiplayer/NetworkedGameSurface.gmCorrection.tsx",
+      "sha256": "bd8e130e8ac532645da574a46812ad16a7e308750a002f391c89bec692e6ad6a"
+    },
+    {
+      "path": "src/components/campaign/coop/HostGmReviewSurface.tsx",
+      "sha256": "4fbced4dec7c08971ec8f0a3045c9efbf11df4939e275a0bd4c0b64e3425e8e6"
+    },
+    {
+      "path": "src/pages-modules/multiplayer/useGmCorrectionProducers.ts",
+      "sha256": "d652971ecf2643591203a65523c4009852e1e181033b376a92b1b35b08b21529"
+    },
+    {
+      "path": "src/components/campaign/coop/CampaignCoopRouteSurface.tsx",
+      "sha256": "a63d215d3e102f839c65c56b5d31adc56d15e18b19f9f8e4d2c6750b044d0173"
+    },
+    {
+      "path": "src/components/campaign/coop/__tests__/CoopSurfaceResilience.test.tsx",
+      "sha256": "4cd599502c15b37338bf8c273f74695a4f6dddd8e12fc77c2fbf40d3ca84eabb"
+    },
+    {
+      "path": "src/pages-modules/api/rewindCommitDeps.ts",
+      "sha256": "1c3cf57d7889e3f517763613fb2e902a5a6832e62ced127dc31aaae0b979e994"
+    }
+  ],
+  "seams": {
+    "reasonInput": {
+      "cited": "NetworkedGameSurface.gmCorrection.tsx:147-157",
+      "confirmed": "NetworkedGameSurface.gmCorrection.tsx:147-157 - the <input id={reasonId} type=\"text\" data-testid=\"networked-gm-private-reason\"> with onChange -> onPrivateReasonChange(event.target.value); no maxLength attribute on the baseline"
+    },
+    "routeReasonBound": {
+      "cited": "rewindCommitDeps.ts:75-78",
+      "confirmed": "rewindCommitDeps.ts:82-85 - isRewindCommitBody: (!('reason' in body) || (typeof body.reason === 'string' && body.reason.trim().length > 0 && body.reason.trim().length <= 2000)). Lines 75-78 now hold the targetRevision / expectedBranchId checks; the bound moved +7 lines with U21 (#1921, 13faa4998); at the triage commit a9244fcad it sat at 75-78 (git show a9244fcad:src/pages-modules/api/rewindCommitDeps.ts)."
+    },
+    "pendingPattern": {
+      "cited": "GmRewindPreviewDialog.tsx:78-80",
+      "confirmed": "GmRewindPreviewDialog.tsx:78 const [committing, setCommitting] = useState(false); :79 commitUnavailable state; :80 const inFlightRef = useRef(false). The guard itself is :135-152 (askToConfirm returns when inFlightRef.current is true, sets the ref and committing before awaiting, clears both in finally) and the disabled attribute is :265 disabled={!confirmEnabled} with confirmLocked = committing || ... at :86-88; disabled styling :276 disabled:cursor-not-allowed disabled:opacity-50"
+    },
+    "noopDefaults": {
+      "cited": "HostGmReviewSurface.tsx:138-140",
+      "confirmed": "HostGmReviewSurface.tsx:138 onPreview = () => {}, :139 onManualTakeover = () => {}, :140 onGmCorrection = () => {}. The buttons they feed render unconditionally: Preview :393-400, Manual :451-458, GM Fix :459-466. A fourth default, onClearLifecycleRefusal = () => {} at :143, is not named by the unit (see findings)."
+    },
+    "dashboardMount": {
+      "cited": "CampaignCoopRouteSurface.tsx:378-384",
+      "confirmed": "CampaignCoopRouteSurface.tsx:378-384 - <HostGmReviewSurface pending={pendingProposals} onDecide={onDecide} authorityProjection={authorityProjection} lifecycle={gmLifecycle} onClearLifecycleRefusal={onClearRefusal} />; none of onPreview / onManualTakeover / onGmCorrection is passed, and CampaignCoopRouteSurfaceProps (:181-248) has no such props to forward"
+    },
+    "producerHeader": {
+      "cited": "useGmCorrectionProducers.ts:19-28",
+      "confirmed": "useGmCorrectionProducers.ts:19-28 - the paragraph beginning \"NOT YET DELIVERED - the transport DROPS the field.\""
+    }
+  },
+  "designAnswers": {
+    "reasonBound": {
+      "value": 2000,
+      "where": "src/pages-modules/api/rewindCommitDeps.ts:82-85 (isRewindCommitBody); the route answers 400 on a failed check at src/pages/api/matches/[id]/rewind-commit.ts:126-134",
+      "unit": "UTF-16 code units of the TRIMMED string: String.prototype.length after .trim(). maxLength counts UTF-16 code units of the raw value (HTML code-unit length), so the same unit; because trim only shortens, any value the input allows (raw <= 2000) has a trimmed length <= 2000 and passes the upper bound. Not bytes.",
+      "alsoTrimmed": "the producer trims (useGmCorrectionProducers.ts:130) and the transport trims again and omits an empty reason (commitGmCombatRewind.ts:47, :67)",
+      "design": "maxLength={2000} on the input at NetworkedGameSurface.gmCorrection.tsx:147-157, as a named constant whose comment cites the route check; rewindCommitDeps.ts is read-only for this lane and exports no constant, so the value is written once in the component and a test row checks it against isRewindCommitBody itself (a reason of maxLength units accepted, maxLength + 1 refused)"
+    },
+    "pendingRequests": {
+      "preview": "starts at NetworkedGameSurface.gmCorrection.tsx:86-101 (askForPreview, the button onClick at :125); the request is `await onPreview()` at :90",
+      "approve": "starts at NetworkedGameSurface.gmCorrection.tsx:103-115 (applyCorrection, the button onClick at :133); the request is `await onApprove()` at :107",
+      "pendingToday": "nothing: no local flag, no prop, no disabled attribute on either button (:122-137). The handler's returned promise is awaited only to set the status line; a second press starts a second request.",
+      "handlerSources": "the lobby page passes the producers' async callbacks (src/pages/multiplayer/lobby/[roomCode].tsx:415-417 from useGmCorrectionProducers, whose onApproveHostGmCorrection calls commit at useGmCorrectionProducers.ts:131-133); /e2e/networked-command-proof passes synchronous void stubs (src/pages/e2e/networked-command-proof.tsx:105-115, :180-181). NetworkedHostGmControls mounts only when both handlers are supplied (NetworkedGameSurface.tsx:424-430).",
+      "design": "pending tied to the promise the handler returns: a per-button ref set synchronously before calling the handler (the guard a second click in the same frame cannot pass, as GmRewindPreviewDialog.tsx:80/:136-141) and a per-button state flag that drives disabled={...} (as :78/:265), both cleared in finally (as :148-151). A handler that returns void settles in the same microtask, so the proof page keeps working. Each button gates only its own request, which is what the sentence names."
+    },
+    "hostGmReviewSurfaceMounts": {
+      "production": "one: CampaignCoopRouteSurface.tsx:378-384 passes onPreview=no, onManualTakeover=no, onGmCorrection=no (onClearLifecycleRefusal=yes). It is reached through CampaignCoopRouteSurfaceConnected.tsx:390-401 from the dashboard page (CampaignDashboardPage.tsx:354) and campaignPageShell.tsx:358 / personnel.tsx:107 (host mount renders only when dashboardMount).",
+      "stories": "src/components/campaign/coop/HostGmReviewSurface.stories.tsx:60-70 - three stories (Empty, SingleProposal, MultipleProposals) with args { pending, onDecide } only; none passes the three handlers. .storybook holds no HostGmReviewSurface reference (grep measured).",
+      "tests": "every test mount under src/components/campaign/coop/__tests__ (40 mounts across 9 files, enumerated in mounts.txt; the single-line mount at HostGmReviewSurface.test.tsx:133 passes pending and onDecide only) passes none of the three handlers except HostGmReviewSurface.test.tsx:77-88, which passes all three as jest.fn and presses each (:101-107).",
+      "breakage": "removing the defaults changes what renders for every mount without handlers: the three buttons are no longer in the row. The only caller that depends on them rendering is CoopSurfaceResilience.test.tsx:160-185 (narrow-viewport source-order row: it indexes manual-takeover-p1 and gm-correction-p1 in the row and would compare against -1). It lives in the ownership path; the design passes jest.fn handlers there so the row still asserts the order of the secondary tools when they are present. No other src, .storybook or e2e file references the preview-/manual-takeover-/gm-correction- test ids of this surface (git grep measured).",
+      "eachHandler": "onPreview -> Preview button (:393-400); onManualTakeover -> Manual button (:451-458); onGmCorrection -> GM Fix button (:459-466). On the baseline each absent handler becomes () => {} and its button renders and does nothing when pressed. After: each of the three buttons renders only when its own handler is supplied; with none supplied (the dashboard mount) the row renders Approve and Veto only."
+    },
+    "producerTransport": {
+      "headerSays": "useGmCorrectionProducers.ts:19-28: \"NOT YET DELIVERED - the transport DROPS the field. commitGmCombatRewind serialises a fixed five-field body ... the route it posts to takes IRewindCommitBody, which has no reason, then writes the module constant REWIND_COMMIT_REASON into the private record.\"",
+      "codeDoes": [
+        "src/lib/multiplayer/client/commitGmCombatRewind.ts:47 `const reason = typeof input.reason === 'string' ? input.reason.trim() : '';` and :61-68 the POST body is the five CAS fields plus `...(reason ? { reason } : {})` (#1856, 13c0ffcbf)",
+        "src/pages-modules/api/rewindCommitDeps.ts:60 `readonly reason?: string;` on IRewindCommitBody, validated at :82-85",
+        "src/pages/api/matches/[id]/rewind-commit.ts:213-226: on a committed result with body.reason present, GmPrivatePreviewRecordWriter.store({..., privateReason: body.reason}) writes it to the GM private record (#1854, c8e42dd95)",
+        "src/pages/api/matches/[id]/rewind-commit.ts:208 still passes reason: REWIND_COMMIT_REASON to the history commit module - that constant is the commit's audit reason, not the GM's private reason"
+      ],
+      "design": "rewrite :19-28 to say the reason travels as the optional `reason` field of the POST body, bounded by the route at 2000 trimmed UTF-16 units, and on a committed result lands in the GM private record, while the history commit keeps the REWIND_COMMIT_REASON constant as its own reason; comment-only, no code change in that file"
+    }
+  },
+  "estimatePerFile": {
+    "product": [
+      {
+        "path": "src/components/multiplayer/NetworkedGameSurface.gmCorrection.tsx",
+        "estimate": "~+40/-6: per-button pending ref + state, guarded start and finally in both callbacks, disabled attribute and disabled styling on both buttons, maxLength constant and attribute, comments"
+      },
+      {
+        "path": "src/components/campaign/coop/HostGmReviewSurface.tsx",
+        "estimate": "~+15/-12: three defaults removed, three buttons rendered only when their handler is supplied, prop and header comments"
+      },
+      {
+        "path": "src/pages-modules/multiplayer/useGmCorrectionProducers.ts",
+        "estimate": "~+12/-10: header paragraph :19-28 rewritten, comment only"
+      },
+      {
+        "path": "src/components/campaign/coop/CampaignCoopRouteSurface.tsx",
+        "estimate": "0 expected: the mount already passes none of the three handlers"
+      }
+    ],
+    "test": [
+      {
+        "path": "src/components/multiplayer/__tests__/NetworkedGameSurface.gmCorrection.test.tsx (new)",
+        "estimate": "~200"
+      },
+      {
+        "path": "src/components/campaign/coop/__tests__/HostGmReviewSurface.deadControls.test.tsx (new)",
+        "estimate": "~140"
+      },
+      {
+        "path": "src/components/campaign/coop/__tests__/CoopSurfaceResilience.test.tsx",
+        "estimate": "~+6: pass handlers to the source-order row"
+      }
+    ],
+    "totals": {
+      "files": "6 source files + 3 u36 receipts = 9 (cap 15)",
+      "productLines": "~95 (cap 500; tests do not count, OD-line-cap-product-lines 2026-09-23)"
+    }
+  },
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "lineRule": "product lines only; test lines reported separately (owner decision 2026-09-23)"
+  },
+  "acceptanceCommands": [
+    "npx jest <new and edited suites> (red on baseline, green after)",
+    "npx jest src/components/multiplayer",
+    "npx jest src/pages-modules/multiplayer",
+    "npx jest src/components/campaign/coop",
+    "npx jest src/pages-modules/api (read-only path)",
+    "npx tsc --noEmit",
+    "npx oxlint (0 errors; warnings vs 84)",
+    "npx oxfmt --check <changed files>",
+    "npm run lint:units",
+    "npm run qc:openspec-ci:validate",
+    "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs"
+  ],
+  "risksForTheParent": [
+    "Idempotency review class (units.json U36 reviewClasses [\"idempotency\"]): Lane B needs the owner's OWNER-RULING comment bound to the exact PR head; the triage plan's newUnits entry listed reviewClasses [\"routine\"], units.json is the one recorded here.",
+    "Visible to a tester: (a) the campaign dashboard's host GM review rows lose the Preview, Manual and GM Fix buttons and show only Approve and Veto; (b) on the multiplayer lobby, the host's Preview GM Fix and Approve GM Fix buttons grey out (disabled) while their request is in flight; (c) the Private reason (GM only) field stops accepting input past 2000 characters. The UAT round 1 build is tag uat-round-1-20260923 (668ed250f per the register), so none of this is in that build; a tester sees it only on a rebuilt one.",
+    "Living spec letter: openspec/specs/coop-campaign-sync/spec.md:491-493 (Scenario: Host sees authoritative campaign commands) says the co-op command screen SHALL expose preview, approve, veto, manual takeover and GM correction controls. After U36 the dashboard review surface exposes approve and veto only; the GM ledger route still renders preview/approve/manual (src/components/campaign/gm/GmCampaignInterventionActions.tsx:126, :136, :149). U36 edits no spec (outside ownership); whether that scenario needs a delta or is met by the ledger route is the parent's call.",
+    "Approve GM Fix stays enabled after a committed result (only in-flight is gated, as the sentence names); a later press re-sends the pinned request and the server's CAS answers. Not changed here."
+  ]
+}

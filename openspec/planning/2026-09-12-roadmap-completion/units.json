@@ -2161,14 +2161,28 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
+      "state": "local-verified",
+      "baseline": "a2e24c8a80706b6ea5e4f4b4e22c3f52ea83aa18",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/u36-admission-20260925.json",
+          "baseline": "a2e24c8a80706b6ea5e4f4b4e22c3f52ea83aa18",
+          "at": "2026-09-25T07:41:29.244Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/u36-red-20260925.json",
+          "at": "2026-09-25T07:44:58.170Z",
+          "summary": "baseline a2e24c8a8: jest at the component seam, 11 red rows failed for their intended reasons: Approve GM Fix and Preview GM Fix each sent two requests on a double press and were never disabled while pending; the private-reason input had no maxlength and a pasted 2001-character reason reached the producer at 2001; the co-op dashboard mount rendered 5 buttons of which Preview, Manual takeover and GM Fix did nothing; each of those three rendered without its handler"
+        },
+        "local": {
+          "path": "evidence/u36-local-20260925.json",
+          "at": "2026-09-25T07:58:26.670Z",
+          "summary": "3 product files, 160 lines (NetworkedGameSurface.gmCorrection.tsx 71, HostGmReviewSurface.tsx 70, useGmCorrectionProducers.ts 19, comment-only), 3 test files 433 lines: Approve and Preview each guard a second press with a ref and render disabled while their own request is pending, copying GmRewindPreviewDialog; the reason input has maxLength 2000 (the route bound at rewindCommitDeps.ts:82-85, UTF-16 code units, trimmed); HostGmReviewSurface renders Preview, Manual takeover and GM Fix only when their handler is supplied, so the dashboard shows Approve and Veto; the producer header states the reason is sent and written to the GM private record; all 11 red rows green; jest multiplayer 141, pages-modules/multiplayer 23, campaign/coop 158, pages-modules/api 62; tsc 0; oxlint 84 warnings 0 errors; oxfmt clean; lint:units 100/100; qc:openspec-ci errors=0; validator PASSED; five mutants caught and restored; implementer claude-opus (Agent model: opus); findings: the coop-campaign-sync host command-screen scenario (spec:491-493) was unmet before (three dead controls) and after (two controls), remaining no-op defaults reached only by test mounts; status ready"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
@@ -2183,7 +2197,11 @@
         "I-gm-correction-controls-ui",
         "I-campaign-coop-gm-review-noop-handlers",
         "I-19-2-command-gates"
-      ]
+      ],
+      "admissionNote20260925": {
+        "at": "2026-09-25T08:00:01.000Z",
+        "note": "The sentence cites the commit route's reason bound at rewindCommitDeps.ts:75-78; on the baseline it is at :82-85 (it moved with U21, #1921). The bound is a trimmed length of 1 to 2000 UTF-16 code units, which maxLength counts the same way."
+      }
     },
     {
       "id": "U37",
@@ -8668,6 +8686,24 @@
       "summary": "Seam Anchors failed once: e2e/seam-fresh-construction-no-instant-defeat.spec.ts:360 (same-seed marker equality) saw the first run lose a player unit at turn 1 physical_attack and the second not (aliveBySide.player 1 vs 2 from that phase on), in PR Checks run 36108015559 job 107985016140; the re-run passed (31 of 31). The PR changed only e2e/gm-two-player-privacy.pack.spec.ts and e2e/helpers/campaignJournalDrive.ts, which that spec does not load. It was the only Seam Anchors failure in the last 40 PR Checks runs.",
       "recommendedSuccessor": "if it recurs, a diagnosis lane on same-seed determinism of the fresh-construction seam (whether a physical attack draws from an unseeded source)",
       "status": "recorded; re-run once per WORKERS.md; watch for recurrence"
+    },
+    {
+      "id": "FN-u36-coop-host-command-screen-spec-gap",
+      "foundBy": "U36 implementer lane (claude-opus), 2026-09-25, finding 1",
+      "at": "2026-09-25T08:00:01.000Z",
+      "class": "living-spec gap (predates U36)",
+      "summary": "openspec/specs/coop-campaign-sync/spec.md:491-493 (scenario 'Host sees authoritative campaign commands') says a co-op campaign command screen SHALL expose preview, approve, veto, manual takeover and GM correction controls. On the baseline the co-op dashboard's review surface rendered all five, but preview, manual takeover and GM correction were no-ops (HostGmReviewSurface.tsx:138-140 defaults; CampaignCoopRouteSurface.tsx:378-384 passes none of them). After U36 it renders only approve and veto, the two that work. The GM ledger route still has preview, approve and manual takeover.",
+      "recommendedSuccessor": "owner decision: wire real preview, manual takeover and GM correction on the co-op host dashboard in a new unit, or a spec delta naming which host screens carry which controls",
+      "status": "recorded; taken to the owner with U36's ruling"
+    },
+    {
+      "id": "FN-u36-remaining-noop-defaults",
+      "foundBy": "U36 implementer lane (claude-opus), 2026-09-25, findings 2-3",
+      "at": "2026-09-25T08:00:01.000Z",
+      "class": "latent dead-control defaults (production passes real handlers)",
+      "summary": "HostGmReviewSurface still defaults onClearLifecycleRefusal to a no-op, and CampaignCoopRouteSurface defaults onDecide (:277-279) and onClearRefusal (:285) to no-ops; production mounts pass real handlers, so only test mounts reach the defaults.",
+      "recommendedSuccessor": "fold into the next unit that edits src/components/campaign/coop",
+      "status": "recorded"
     }
   ]
 }
