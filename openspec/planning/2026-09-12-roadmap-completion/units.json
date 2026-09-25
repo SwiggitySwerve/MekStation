@@ -1403,19 +1403,28 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": "992b2babcf516466cf018bb0153f247018079c59",
+      "state": "local-verified",
+      "baseline": "5a3e87f8ca4876ed36a3b186e56ba1211137cb12",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
         "admission": {
-          "path": "evidence/u35d-admission-20260923.json",
-          "baseline": "992b2babcf516466cf018bb0153f247018079c59",
-          "at": "2026-09-23T03:17:28.357Z",
-          "decision": "blocked at admission by the owner-ruled gate (ruling on U35b): under a temporary flip on real SQLite, a HirePilot committed through the co-op host door followed by a whole-envelope save of what the host browser's fold writes lost the pilot (row c1: balance 368000 kept, pilots []), because a record checkpoint rebuilds pilots, contracts and the salvage pool as empty whatever the envelope holds (campaignSourceGenesis.ts:57-89); the HTTP command route's SpendFunds, AdvanceDay and HirePilot rows lost their effects too (r1-r3) but that route has no production caller; no product or test file was edited"
+          "path": "evidence/u35d-admission-20260925.json",
+          "baseline": "5a3e87f8ca4876ed36a3b186e56ba1211137cb12",
+          "at": "2026-09-25T22:34:55.629Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
         },
-        "red": null,
-        "local": null,
+        "red": {
+          "path": "evidence/u35d-red-20260925.json",
+          "at": "2026-09-25T22:39:08.527Z",
+          "summary": "baseline 5a3e87f8c: U35 probe row (a) red (the marker reads not_found, 0 events, 0 branch rows); 31 of 31 flag-off pins pass today; the authority CLI reports cutoverFlag false and effective false, effective true with the arm keys; the re-pinned tests against the unchanged product code: 9 failed, 27 passed"
+        },
+        "local": {
+          "path": "evidence/u35d-local-20260925.json",
+          "at": "2026-09-25T22:54:33.980Z",
+          "summary": "the owner-ruled gate PASSED at admission (see gateResult20260925); 15 files, all inside the paths, 129 product lines (81 without the e2e CLI) and 578 test lines: CAMPAIGN_JOURNAL_AUTHORITY_ENABLED true with no override, the e2e fixture arm and its env constant and both importers deleted, the in-path flag pins re-pinned, the stale flag-off comments corrected, the e2e-arm row in multiplayerCoopCreationCheckpoint.test.ts rewritten, the maybeAppendCampaignGenesisOnCreate and journal-write comments corrected; U35 row (a) passes 4 of 4 under the real flip; jest src/lib/campaign 204 suites 2987, src/__tests__/api 57 suites 772, src/__tests__/unit/api 35, src/services/campaignPersistence 23; tsc 0 (also non-incremental); oxlint 84 warnings 0 errors; oxfmt clean; lint:units 100/100; qc:openspec-ci errors=0; validator PASSED; E2E build with the marker (exit 1 expected in the junctioned worktree); ladder authority-recovery 4, privacy-pack 8, proposal-pack 2 (unchanged from main); four mutants caught and restored (constant back to false: 9 fail; arm restored; genesis-route assertion inverted; store factory ignoring the flag); NON-CLAIM: the two two-process e2e specs were edited but not run (they cannot start in a junctioned worktree), so the main proof runs both in the root checkout with --workers=1; implementer claude-opus (Agent model: opus); findings F1-F5 recorded; status ready"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
@@ -1452,6 +1461,11 @@
       "resumed20260925": {
         "at": "2026-09-25T07:57:05.000Z",
         "why": "the blocker is main-verified: U35g (merge 7405959ff61df257aa45355f8b90f21f601c9576); the re-admission re-runs the ruled gate (rows o1, o1c, o1s, o2u, s1) before any product edit; by owner decision OD-uat-two-rounds sub-decision 3 the flip belongs to UAT round 2"
+      },
+      "gateResult20260925": {
+        "at": "2026-09-25T22:57:00.000Z",
+        "receipt": "evidence/u35d-admission-20260925.json",
+        "result": "PASSED: under the temporary flip r1, r2, r3, c1, o1c and o2u survive; the probe's o1 and o1s stay red as written (a save at the post-outcome version carrying a Ready roster) but no real client can make that save (every co-op whole-campaign save goes through putLiveCampaign at the host's held version, and every path that moves that version restores the roster from the record: useCampaignPersistenceStore.ts:656-693, :973-975, :987, :746-760, :1441-1450); rows h1-h3 drive the real client stores against the live route: the stale host save is refused 409, rolled back to the server record, and the next save keeps the outcome; salvage recovery (s1) still loses the recovered unit on both sides (FN-u35d-recovered-unit-lost, scoped out by the owner); no suite outside the paths goes red under the flip; the U35h/U35i residue edits stand with two ranges one line off"
       }
     },
     {
@@ -9198,6 +9212,33 @@
       "class": "test blind spot",
       "summary": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx:56-58 mocks buildCampaignAuthoritativeState, so that suite could never see the body the panel really sends being refused.",
       "recommendedSuccessor": "fold into the next unit that edits that test",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u35d-inmemory-store-comments-say-flag-off",
+      "foundBy": "U35d implementer lane (claude-opus), 2026-09-25, finding F1",
+      "at": "2026-09-25T22:57:00.000Z",
+      "class": "stale comments (unit at its 15-file cap)",
+      "summary": "src/lib/campaign/sync/ICampaignEventStore.ts:177 and InMemoryCampaignEventStore.ts:40 still call the in-memory store the flag-off store after the flip.",
+      "recommendedSuccessor": "fold into U35i (the flip's comment residue)",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u35d-head-claims-wrong-on-baseline",
+      "foundBy": "U35d implementer lane (claude-opus), 2026-09-25, finding F2",
+      "at": "2026-09-25T22:57:00.000Z",
+      "class": "stale claims",
+      "summary": "the /head claims in e2e/campaign-journal-two-process-convergence.spec.ts and e2e/helpers/campaignJournalDrive.ts are wrong on the baseline, flag on or off.",
+      "recommendedSuccessor": "U21b (the viewer lineage head) or the next unit editing those files",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u35d-cutover-cli-overwrites-marker",
+      "foundBy": "U35d implementer lane (claude-opus), 2026-09-25, finding F4",
+      "at": "2026-09-25T22:57:00.000Z",
+      "class": "tooling hazard",
+      "summary": "scripts/e2e/campaign-journal-authority.ts's cutover command writes a marker without checking for an existing one.",
+      "recommendedSuccessor": "fold into the next unit that edits scripts/e2e",
       "status": "recorded"
     }
   ]

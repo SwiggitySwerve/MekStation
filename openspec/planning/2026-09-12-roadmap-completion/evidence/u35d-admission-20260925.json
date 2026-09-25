@@ -1,0 +1,1824 @@
+{
+  "unit": "U35d",
+  "stage": "admission",
+  "status": "go",
+  "at": "2026-09-25T22:34:55.629Z",
+  "readmission": 2,
+  "earlierAdmissions": [
+    {
+      "path": "evidence/u35d-admission-20260923.json",
+      "baseline": "992b2babcf516466cf018bb0153f247018079c59",
+      "status": "BLOCKED",
+      "cause": "rows r1-r3 (command route) and c1 (co-op HirePilot) lost their effects under the temporary flip; U35e and U35f were planned from it"
+    },
+    {
+      "path": "evidence/u35d-admission-20260924.json",
+      "baseline": "2199b53f6e8789ebae36f4f44374ca3a8ba4e630",
+      "status": "BLOCKED",
+      "cause": "a combat outcome's RosterUnitChanged committed through the outcome inbox did not rewrite the saved record and the host's next save erased it under the flip (rows o1, o1c, o1s); U35g was planned from it"
+    }
+  ],
+  "interruption": "This lane's first pass was interrupted before any receipt was written (the coordinator reported the worktree clean at 5a3e87f8c). Its logs are preserved unchanged at logs-attempt1/ and every measurement below was re-run into logs/; the four probe value files are byte-identical between the two passes (cmp).",
+  "baseline": "5a3e87f8ca4876ed36a3b186e56ba1211137cb12",
+  "originMainAtAdmission": "5a3e87f8ca4876ed36a3b186e56ba1211137cb12",
+  "originMainSource": "git ls-remote origin refs/heads/main (read-only; no fetch)",
+  "baselineEqualsOriginMain": true,
+  "predecessorsOnBaseline": "U35a, U35b, U35c, U35e, U35f, U35g (merge 7405959ff) and U35j (merge c8baaa60e) are ancestors of the baseline (charter); not re-derived here beyond the gate measurements",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u35d",
+  "branch": "roadmap-u35d-campaign-journal-flip-r3-20260925",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "node": "R2.authority-cutover",
+  "shellPreamble": [
+    "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "export npm_config_dry_run=true"
+  ],
+  "runners": {
+    "admissionGates": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/admission-gates.sh",
+      "sha256": "56158e1e59089ce67266b24cab1e9dfb7551fb3133d0157a2d2f9f0289fefa95"
+    },
+    "gateProbe": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/gate-probe.sh",
+      "sha256": "29ce4093923ae05e427cccc2ba8ec2809e8cec3d9521788e171d4cdb118c89f7"
+    },
+    "temporaryFlip": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/flip.mjs",
+      "sha256": "b1ad6ef3de563873c899a0e7f1ba3f4514cd466a4a0d46365f7b6ccfdce5cfc1"
+    },
+    "hostStoreProbe": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/host-probe.sh",
+      "sha256": "31988ba6404ee8a60dfd4603f7f50bc48ca74b3cb8024d4027bcaf767e79e548"
+    },
+    "e2eShapeProbe": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/e2e-shape-probe.sh",
+      "sha256": "72b9289220c13744afad2b8521082f76ac508c320e162858f41768f6ddf5b461"
+    },
+    "flipOutsideCheck": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/outside-flip.sh",
+      "sha256": "b3633be9ecde1ddf7cf3fb2f6e4702eaf91f3ad2b473b546529b2202ade13b41"
+    },
+    "receiptWriter": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/write-admission.mjs",
+      "sha256": "190af4c9ea81e606c9be5d868bb8ed1c9e97fe882c7c7474a13d88443fb1b938"
+    }
+  },
+  "nodeVersion": {
+    "command": "node --version",
+    "lastLine": "v22.22.0",
+    "exitCode": 0,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/adm-node-version.log",
+      "sha256": "2172da60c75bfe844a5f085d0b225e7042f650910fb423c59d7f4a937afb0b56"
+    }
+  },
+  "guardNodeModulesLink": {
+    "command": "npm run --silent qc:guard-node-modules-link",
+    "lastLine": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"E:\\\\Projects\\\\MekStation\\\\.sisyphus\\\\roadmap-completion-20260912\\\\worktrees\\\\u35d\\\\node_modules\",\"actualPath\":\"E:\\\\Projects\\\\MekStation\\\\node_modules\"}",
+    "exitCode": 1,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/adm-guard.log",
+      "sha256": "0f5054e2cda01a35191c11db33837dea4cba2013572fe39ee453dd04fb98d3f9"
+    },
+    "expected": true,
+    "why": "refusal by design in a junctioned worktree; no npm install/ci/prune or lifecycle is run in this lane (npm_config_dry_run=true exported)"
+  },
+  "validatorOnBaseline": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+    "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+    "exitCode": 0,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/adm-validator.log",
+      "sha256": "97b2f29d264078525a55c5f88586fb95603311fa065e70d7d17c5fab08f5b5bc"
+    }
+  },
+  "nextOnBaseline": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "lastLine": "U35d",
+    "exitCode": 0,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/adm-next.log",
+      "sha256": "715b8ca2001b54523484886b77e8e0a180fd0933cb694fdfa3c2bf99da14eb6c"
+    }
+  },
+  "gitStatusShortAtAdmission": "",
+  "ownershipPaths": [
+    "src/lib/campaign/sync",
+    "src/__tests__/api/campaigns",
+    "e2e",
+    "scripts/e2e",
+    "src/__tests__/unit/api"
+  ],
+  "receiptsOwned": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u35d-admission-20260925.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u35d-red-20260925.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u35d-local-20260925.json"
+  ],
+  "behavior": "units.json U35d on the baseline (not widened): CAMPAIGN_JOURNAL_AUTHORITY_ENABLED true in production with no override; the e2e fixture arm deleted with its exported env constant and both importers; the in-path flag pins, campaignPutGenesisRoute.test.ts and the e2e flag-off assertions re-pinned; stale flag-off comments corrected. Folded: U35c F1 (multiplayerCoopCreationCheckpoint.test.ts e2e-arm row), U35b F1 (maybeAppendCampaignGenesisOnCreate comments at the convergence spec and the CLI), the owner's ruling on U35b (the gate), U35d F2 (the two disagreeing comments), U35e F1 and F2 (combat-outcome and roster rows of the gate), U35d re-admission F4 (e2e/campaign-two-device-drive.spec.ts:444-449 and e2e/gm-two-player-authority-recovery.pack.spec.ts:17-19). Residue outside the paths is U35h/U35i (OD-u35g-coop-outcome-rewrites-record).",
+  "seams": [
+    {
+      "at": "src/lib/campaign/sync/JournalCampaignEventStore.ts:86",
+      "what": "export const CAMPAIGN_JOURNAL_AUTHORITY_ENABLED = false; flag-off prose at the header :21-24, the constant doc :81-85, the store doc :353-358 (:357), the appendCommandBatch doc :410-416 (:414) and the factory doc :522-536; createDefaultCampaignEventStore returns the journal store only when the constant is true AND a journal factory is passed (:538)"
+    },
+    {
+      "at": "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts:13-15",
+      "what": "the exported env constant CAMPAIGN_JOURNAL_AUTHORITY_E2E_ENV"
+    },
+    {
+      "at": "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts:17-28",
+      "what": "the e2e arm e2eJournalAuthorityArmed (NEXT_PUBLIC_E2E_MODE === \"true\" AND the arm env === \"1\"); no importer outside this module (grep)"
+    },
+    {
+      "at": "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts:30-38",
+      "what": "isCampaignJournalAuthorityEnabled = constant || arm (:37); header :1-9 states the flag-off premise"
+    },
+    {
+      "at": "src/__tests__/api/campaigns/campaignPutGenesisRoute.test.ts:17 (uses :66,72,77,91); header :1-7",
+      "what": "importer 1 of the env constant (in path)"
+    },
+    {
+      "at": "scripts/e2e/campaign-journal-authority.ts:62-65 (import :63), :93-96 (flags: cutoverFlag, effective, e2eEnvKey, e2eEnvValue)",
+      "what": "importer 2 of the env constant and of the resolver and the constant (in path); :33 names the removed maybeAppendCampaignGenesisOnCreate (U35b F1); :36-41 describe the arm; :22-29 the co-op stream arm (folded F2)"
+    },
+    {
+      "at": "src/pages/api/campaigns/[id].ts:34,203; src/pages/api/campaigns/[id]/adopt.ts:37,148; src/pages/api/multiplayer/matches/index.ts:36,267",
+      "what": "production importers of isCampaignJournalAuthorityEnabled (outside the paths, read-only): they keep calling the resolver, which after the arm is deleted returns the constant; none needs an edit"
+    },
+    {
+      "at": "src/lib/campaign/coop/coopRuntimeSession.ts:99-101",
+      "what": "the only production caller of createDefaultCampaignEventStore, with no journal factory, so the browser-side store stays in-memory whatever the flag (outside the paths; its comment is U35i)"
+    },
+    {
+      "at": "src/lib/campaign/sync/__tests__/campaignJournalAuthorityEnabled.test.ts:9-35; src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts:10,54,353-366",
+      "what": "the in-path flag pins (:26 and :30 expect false; :354 expects the constant false; header :10 says the flag stays disabled)"
+    },
+    {
+      "at": "src/__tests__/api/campaigns/campaignAdoptRoute.test.ts:23,153-164",
+      "what": "branches on the constant; the comment says the import is inert while the flag is off"
+    },
+    {
+      "at": "src/__tests__/api/campaigns/campaignRecordJournalTransaction.test.ts:24-28,74-77",
+      "what": "jest.mock of the resolver module (unaffected by deleting the other two exports); the header names \"the e2e arm\""
+    },
+    {
+      "at": "src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts:319-339,342-348",
+      "what": "the e2e-arm row sets MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY and NEXT_PUBLIC_E2E_MODE (U35c F1, folded); restoreEnv is used only by it"
+    },
+    {
+      "at": "e2e/campaign-journal-two-process-convergence.spec.ts:9-31,99-107,135-149,166-173,176-184,229-243,268-310,442-447,451-455; e2e/campaign-journal-two-process-privacy.spec.ts:17-21,86,139,449-454,461-463; e2e/helpers/campaignJournalPrivacyFixture.ts:13,48-49,90-96,113-116,121-129,193-206; e2e/helpers/campaignJournalTwoProcess.ts:21-30,62-78,181-192,214-243",
+      "what": "the e2e flag-off assertions (cutoverFlag false, effective false, the arm key unset, no marker and an empty stream after the create, the pre-cutover 409 control, the CLI cutover) and the helper that strips the arm key from the spawned env; the stale maybeAppendCampaignGenesisOnCreate comment (convergence :167); campaignJournalPrivacyFixture.ts and campaignJournalTwoProcess.ts are shared e2e helpers whose only importers are the two two-process specs (grep), which belong to no ladder group"
+    },
+    {
+      "at": "e2e/campaign-two-device-drive.spec.ts:440-461 vs scripts/e2e/campaign-journal-authority.ts:22-29",
+      "what": "folded F2/F4: the spec comment says the co-op match host writes through createDefaultCampaignEventStore (in-memory while the flag is false) and that /commands needs a marker only flag-gated hooks write; the CLI comment says the host commits its baseline through the durable store selectCampaignEventStore hands it"
+    },
+    {
+      "at": "e2e/gm-two-player-authority-recovery.pack.spec.ts:13-19",
+      "what": "folded F4: \"CAMPAIGN_JOURNAL_AUTHORITY_ENABLED stays false, so no production path writes campaign events to the journal\""
+    }
+  ],
+  "rulingGate": {
+    "ruling": "the owner's ruling on U35b, option 'Approve; U35d checks it' (comment 5788088153 on PR #1914), as folded into units.json U35d and FN-u35b-checkpoint-replaces-journal-state, widened by U35e F1 and F2",
+    "verdict": "PASS (no real production flow loses an effect under the flip). (1) r1, r2, r3 (command route) and c1 (co-op HirePilot door) keep their effect in the journal projection after the whole-campaign save under the flip, and the saved record carries balance and day (pilots are not represented by the record and survive in the journal). (2) Combat outcome through appendCombatOutcomeBatch: the outcome now rewrites the saved record on first commit (version 1 -> 2, roster readiness Destroyed/Damaged, unit-0 kept, not removed); o1c, o2 and o2u survive the probe's host save; o1 and o1s are RED under the flip exactly as the re-admission describes them, because their host save is accepted at the version the outcome's rewrite produced while carrying a Ready/Ready roster. From the code, no production client can make that save (realFlows.combatOutcome): every co-op whole-campaign PUT is the persistence store's putLiveCampaign at its held baseVersion, and every path that sets baseVersion to a server-written version restores the roster store from that same record's rosterProjection. Measured through the real client stores (rows h1-h3, fetch wired to the live route): a host holding the pre-outcome version is refused 409, rolled back to the server record (roster store Destroyed/Damaged), and its next save keeps the outcome in the journal and the record, on the baseline and under the flip; U35g's committed rows suite (host save at the held version, 409, then the server record) is 8/8 under the flip. (3) RosterUnitChanged: survives in every real flow above. Salvage recovery (recoveredUnit, row s1): lost from the journal by the host's save on both sides once journal-native (scoped out by the owner, FN-u35d-recovered-unit-lost; no production producer).",
+    "measurement": {
+      "how": "The re-admission's saved probe suite (u35d-r2/logs/gate-probe-copy.test.ts.txt, sha256 0e5ec1cb..., unchanged) was copied into src/__tests__/api/campaigns/, run on the baseline, then under a temporary flip (flip.mjs, sha256 b1ad6ef3..., sets only the constant line of JournalCampaignEventStore.ts true, exactly one occurrence), with U35e's two committed suites and U35g's committed rows suite also run under the flip; the flag file was restored from a byte copy and its sha256 compared; the probe was copied out with its sha256 and removed. Every MEKSTATION_E2E_* key was unset in the runner and deleted before every row by the shared fixture.",
+      "probe": {
+        "source": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/u35dReadmissionGate.probe.test.ts",
+          "sha256": "0e5ec1cb174993cb3e49f81423028ebe9740c58947d615020316cdd934d03f39"
+        },
+        "copyAfterRun": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/gate-probe-copy.test.ts.txt",
+          "sha256": "0e5ec1cb174993cb3e49f81423028ebe9740c58947d615020316cdd934d03f39"
+        },
+        "reAdmissionCopy": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r2/logs/gate-probe-copy.test.ts.txt",
+          "sha256": "0e5ec1cb174993cb3e49f81423028ebe9740c58947d615020316cdd934d03f39"
+        },
+        "identicalToReAdmissionCopy": true
+      },
+      "command": "U35D_GATE_OUT=<logs>/gate-<side>.json npx jest src/__tests__/api/campaigns/u35dReadmissionGate.probe.test.ts",
+      "hostSaveModel": "as the re-admission describes it: r1-r3 a stale PUT at the created version then a GET and a PUT of the server record; c1 and s1 the host-fold envelope at the created version then a GET and a PUT of the server record; o1, o1c, o2, o2u, o1s ONE PUT at the saved record's version read after the outcome of the host-fold envelope with roster readiness Ready/Ready (o1, o2, o1s), Destroyed/Damaged (o1c), or the held campaign unfolded (o2u); since U35g that read version is the outcome's rewritten version",
+      "baseline": {
+        "constant": false,
+        "exitCode": 1,
+        "counts": "Tests:       3 failed, 8 passed, 11 total",
+        "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\api\\\\campaigns\\\\u35dReadmissionGate.probe.test.ts/i.",
+        "rowResults": [
+          "× (a) a PUT create at baseVersion 0 appends genesis, the journal-native marker and one effective campaign branch row",
+          "√ (r1) SpendFunds through the command route survives the saves",
+          "√ (r2) AdvanceDay through the command route survives the saves",
+          "√ (r3) HirePilot through the command route survives the saves",
+          "√ (c1) HirePilot through the co-op host door survives the host save",
+          "× (o1) a combat outcome (salvage and roster) through the outcome inbox, then the host fold save",
+          "√ (o1c) the same outcome, then a host save whose roster carries the damage (readiness Destroyed, Damaged)",
+          "√ (o2) a combat outcome debit through the outcome inbox, then the host fold save",
+          "√ (o2u) a combat outcome debit, then a host save built before the frame was folded",
+          "√ (o1s) the combat outcome on a campaign created by the PUT route alone, then the host fold save",
+          "× (s1) a salvage allocation carrying a recovered unit through the co-op door, then the host saves"
+        ],
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/gate-baseline.log",
+          "sha256": "4ffbe8f2fe7677fa32151931c5772a40b624522ba41669c9462c65b160ce135c"
+        },
+        "valuesFile": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/gate-baseline.json",
+          "sha256": "1d6f0e1ca29d20c96d0f85bba571672eec64af08696383d660d9a45341819c05"
+        },
+        "values": {
+          "a": {
+            "markerKind": "not_found",
+            "eventTypes": [],
+            "effectiveCampaignBranchRows": 0
+          },
+          "r1": {
+            "genesisBy": "appendCampaignGenesis seam (flag false)",
+            "stalePutStatus": 409,
+            "currentPutStatus": 200,
+            "journalAfterCommand": {
+              "balance": 367655,
+              "day": 184,
+              "pilots": []
+            },
+            "journalAfterSave": {
+              "balance": 367655,
+              "day": 184,
+              "pilots": []
+            },
+            "recordAfterSave": {
+              "version": 3,
+              "balance": 367655,
+              "day": 184
+            }
+          },
+          "r2": {
+            "genesisBy": "appendCampaignGenesis seam (flag false)",
+            "stalePutStatus": 409,
+            "currentPutStatus": 200,
+            "journalAfterCommand": {
+              "balance": 380000,
+              "day": 187,
+              "pilots": []
+            },
+            "journalAfterSave": {
+              "balance": 380000,
+              "day": 187,
+              "pilots": []
+            },
+            "recordAfterSave": {
+              "version": 3,
+              "balance": 380000,
+              "day": 187
+            }
+          },
+          "r3": {
+            "genesisBy": "appendCampaignGenesis seam (flag false)",
+            "stalePutStatus": 409,
+            "currentPutStatus": 200,
+            "journalAfterCommand": {
+              "balance": 368000,
+              "day": 184,
+              "pilots": [
+                "pilot-r3"
+              ]
+            },
+            "journalAfterSave": {
+              "balance": 368000,
+              "day": 184,
+              "pilots": [
+                "pilot-r3"
+              ]
+            },
+            "recordAfterSave": {
+              "version": 3,
+              "balance": 368000,
+              "day": 184
+            }
+          },
+          "c1": {
+            "genesisBy": "appendCampaignGenesis seam (flag false)",
+            "stalePutStatus": 409,
+            "currentPutStatus": 200,
+            "journalAfterSavePilots": [
+              "pilot-c1"
+            ],
+            "recordAfterSave": {
+              "version": 3,
+              "balance": 368000
+            },
+            "journalAgreesWithHost": true
+          },
+          "o1": {
+            "genesisBy": "appendCampaignGenesis seam (flag false)",
+            "markerState": "journal",
+            "outcomeEvents": [
+              "SalvageAllocated",
+              "RosterUnitChanged",
+              "RosterUnitChanged"
+            ],
+            "journalAfterOutcome": {
+              "balance": 380000,
+              "salvagePool": 50000,
+              "roster": {
+                "unit-0": "destroyed",
+                "unit-1": "damaged"
+              }
+            },
+            "recordAfterOutcome": {
+              "version": 2,
+              "balance": 380000,
+              "roster": {
+                "unit-0": "Destroyed",
+                "unit-1": "Damaged"
+              }
+            },
+            "saveStatus": 200,
+            "savedAtVersion": 2,
+            "journalAfterSave": {
+              "balance": 380000,
+              "salvagePool": 50000,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "recordAfterSave": {
+              "version": 3,
+              "balance": 380000,
+              "roster": {
+                "unit-0": "Ready",
+                "unit-1": "Ready"
+              }
+            },
+            "journalAgreesWithHost": false,
+            "eventTypes": [
+              "CampaignSnapshotPublished",
+              "SalvageAllocated",
+              "RosterUnitChanged",
+              "RosterUnitChanged",
+              "CampaignSnapshotPublished",
+              "FundsChanged"
+            ]
+          },
+          "o1c": {
+            "genesisBy": "appendCampaignGenesis seam (flag false)",
+            "markerState": "journal",
+            "outcomeEvents": [
+              "SalvageAllocated",
+              "RosterUnitChanged",
+              "RosterUnitChanged"
+            ],
+            "journalAfterOutcome": {
+              "balance": 380000,
+              "salvagePool": 50000,
+              "roster": {
+                "unit-0": "destroyed",
+                "unit-1": "damaged"
+              }
+            },
+            "recordAfterOutcome": {
+              "version": 2,
+              "balance": 380000,
+              "roster": {
+                "unit-0": "Destroyed",
+                "unit-1": "Damaged"
+              }
+            },
+            "saveStatus": 200,
+            "savedAtVersion": 2,
+            "journalAfterSave": {
+              "balance": 380000,
+              "salvagePool": 50000,
+              "roster": {
+                "unit-0": "destroyed",
+                "unit-1": "damaged"
+              }
+            },
+            "recordAfterSave": {
+              "version": 3,
+              "balance": 380000,
+              "roster": {
+                "unit-0": "Destroyed",
+                "unit-1": "Damaged"
+              }
+            },
+            "journalAgreesWithHost": true,
+            "eventTypes": [
+              "CampaignSnapshotPublished",
+              "SalvageAllocated",
+              "RosterUnitChanged",
+              "RosterUnitChanged",
+              "CampaignSnapshotPublished",
+              "FundsChanged"
+            ]
+          },
+          "o2": {
+            "genesisBy": "appendCampaignGenesis seam (flag false)",
+            "markerState": "journal",
+            "outcomeEvents": [
+              "FundsChanged"
+            ],
+            "journalAfterOutcome": {
+              "balance": 355000,
+              "salvagePool": 0,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "recordAfterOutcome": {
+              "version": 2,
+              "balance": 355000,
+              "roster": {
+                "unit-0": "Ready",
+                "unit-1": "Ready"
+              }
+            },
+            "saveStatus": 200,
+            "savedAtVersion": 2,
+            "journalAfterSave": {
+              "balance": 355000,
+              "salvagePool": 0,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "recordAfterSave": {
+              "version": 3,
+              "balance": 355000,
+              "roster": {
+                "unit-0": "Ready",
+                "unit-1": "Ready"
+              }
+            },
+            "journalAgreesWithHost": true,
+            "eventTypes": [
+              "CampaignSnapshotPublished",
+              "FundsChanged",
+              "CampaignSnapshotPublished",
+              "FundsChanged"
+            ]
+          },
+          "o2u": {
+            "genesisBy": "appendCampaignGenesis seam (flag false)",
+            "markerState": "journal",
+            "outcomeEvents": [
+              "FundsChanged"
+            ],
+            "journalAfterOutcome": {
+              "balance": 355000,
+              "salvagePool": 0,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "recordAfterOutcome": {
+              "version": 2,
+              "balance": 355000,
+              "roster": {
+                "unit-0": "Ready",
+                "unit-1": "Ready"
+              }
+            },
+            "saveStatus": 200,
+            "savedAtVersion": 2,
+            "journalAfterSave": {
+              "balance": 355000,
+              "salvagePool": 0,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "recordAfterSave": {
+              "version": 3,
+              "balance": 355000,
+              "roster": {
+                "unit-0": "Ready",
+                "unit-1": "Ready"
+              }
+            },
+            "journalAgreesWithHost": true,
+            "eventTypes": [
+              "CampaignSnapshotPublished",
+              "FundsChanged",
+              "CampaignSnapshotPublished",
+              "FundsChanged"
+            ]
+          },
+          "o1s": {
+            "genesisBy": "none (snapshot authority)",
+            "markerState": "not_found",
+            "outcomeEvents": [
+              "SalvageAllocated",
+              "RosterUnitChanged",
+              "RosterUnitChanged"
+            ],
+            "journalAfterOutcome": {
+              "balance": 380000,
+              "salvagePool": 50000,
+              "roster": {
+                "unit-0": "destroyed",
+                "unit-1": "damaged"
+              }
+            },
+            "recordAfterOutcome": {
+              "version": 1,
+              "balance": 380000,
+              "roster": {
+                "unit-0": "Ready",
+                "unit-1": "Ready"
+              }
+            },
+            "saveStatus": 200,
+            "savedAtVersion": 1,
+            "journalAfterSave": {
+              "balance": 380000,
+              "salvagePool": 50000,
+              "roster": {
+                "unit-0": "destroyed",
+                "unit-1": "damaged"
+              }
+            },
+            "recordAfterSave": {
+              "version": 2,
+              "balance": 380000,
+              "roster": {
+                "unit-0": "Ready",
+                "unit-1": "Ready"
+              }
+            },
+            "journalAgreesWithHost": true,
+            "eventTypes": [
+              "CampaignSnapshotPublished",
+              "SalvageAllocated",
+              "RosterUnitChanged",
+              "RosterUnitChanged",
+              "FundsChanged"
+            ]
+          },
+          "s1": {
+            "genesisBy": "appendCampaignGenesis seam (flag false)",
+            "journalAfterAllocateRoster": {
+              "unit-0": "operational",
+              "unit-1": "operational",
+              "unit-recovered": "damaged"
+            },
+            "stalePutStatus": 409,
+            "currentPutStatus": 200,
+            "journalAfterSaveRoster": {
+              "unit-0": "operational",
+              "unit-1": "operational"
+            },
+            "journalAfterSaveSalvagePool": 30000,
+            "recordNamesRecoveredUnit": false,
+            "journalAgreesWithHost": false
+          }
+        }
+      },
+      "underTemporaryFlip": {
+        "constant": true,
+        "exitCode": 1,
+        "counts": "Tests:       3 failed, 8 passed, 11 total",
+        "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\api\\\\campaigns\\\\u35dReadmissionGate.probe.test.ts/i.",
+        "rowResults": [
+          "√ (a) a PUT create at baseVersion 0 appends genesis, the journal-native marker and one effective campaign branch row",
+          "√ (r1) SpendFunds through the command route survives the saves",
+          "√ (r2) AdvanceDay through the command route survives the saves",
+          "√ (r3) HirePilot through the command route survives the saves",
+          "√ (c1) HirePilot through the co-op host door survives the host save",
+          "× (o1) a combat outcome (salvage and roster) through the outcome inbox, then the host fold save",
+          "√ (o1c) the same outcome, then a host save whose roster carries the damage (readiness Destroyed, Damaged)",
+          "√ (o2) a combat outcome debit through the outcome inbox, then the host fold save",
+          "√ (o2u) a combat outcome debit, then a host save built before the frame was folded",
+          "× (o1s) the combat outcome on a campaign created by the PUT route alone, then the host fold save",
+          "× (s1) a salvage allocation carrying a recovered unit through the co-op door, then the host saves"
+        ],
+        "failingAssertions": [
+          "(o1) probe :481 journalAfterSave.roster toEqual journalAfterOutcome.roster: expected {\"unit-0\":\"destroyed\",\"unit-1\":\"damaged\"}, received {\"unit-0\":\"operational\",\"unit-1\":\"operational\"}",
+          "(o1s) probe :532 the same",
+          "(s1) probe :591 journalAfterSave.roster keys toContain \"unit-recovered\": received [\"unit-0\",\"unit-1\"]"
+        ],
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/gate-flipped.log",
+          "sha256": "83164c64c9b78f3abfe97f1f61c575faf6e3debce5cb5d3eed130ecd691fb189"
+        },
+        "valuesFile": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/gate-flipped.json",
+          "sha256": "ec5b9b04f4210990312733c0d0958b5f3f5b74fe4f156439c66d838e82e4dffb"
+        },
+        "values": {
+          "a": {
+            "markerKind": "ok",
+            "eventTypes": [
+              "CampaignSnapshotPublished"
+            ],
+            "effectiveCampaignBranchRows": 1
+          },
+          "r1": {
+            "genesisBy": "the PUT create (flag true)",
+            "stalePutStatus": 409,
+            "currentPutStatus": 200,
+            "journalAfterCommand": {
+              "balance": 367655,
+              "day": 184,
+              "pilots": []
+            },
+            "journalAfterSave": {
+              "balance": 367655,
+              "day": 184,
+              "pilots": []
+            },
+            "recordAfterSave": {
+              "version": 3,
+              "balance": 367655,
+              "day": 184
+            }
+          },
+          "r2": {
+            "genesisBy": "the PUT create (flag true)",
+            "stalePutStatus": 409,
+            "currentPutStatus": 200,
+            "journalAfterCommand": {
+              "balance": 380000,
+              "day": 187,
+              "pilots": []
+            },
+            "journalAfterSave": {
+              "balance": 380000,
+              "day": 187,
+              "pilots": []
+            },
+            "recordAfterSave": {
+              "version": 3,
+              "balance": 380000,
+              "day": 187
+            }
+          },
+          "r3": {
+            "genesisBy": "the PUT create (flag true)",
+            "stalePutStatus": 409,
+            "currentPutStatus": 200,
+            "journalAfterCommand": {
+              "balance": 368000,
+              "day": 184,
+              "pilots": [
+                "pilot-r3"
+              ]
+            },
+            "journalAfterSave": {
+              "balance": 368000,
+              "day": 184,
+              "pilots": [
+                "pilot-r3"
+              ]
+            },
+            "recordAfterSave": {
+              "version": 3,
+              "balance": 368000,
+              "day": 184
+            }
+          },
+          "c1": {
+            "genesisBy": "the PUT create (flag true)",
+            "stalePutStatus": 409,
+            "currentPutStatus": 200,
+            "journalAfterSavePilots": [
+              "pilot-c1"
+            ],
+            "recordAfterSave": {
+              "version": 3,
+              "balance": 368000
+            },
+            "journalAgreesWithHost": true
+          },
+          "o1": {
+            "genesisBy": "the PUT create (flag true)",
+            "markerState": "journal",
+            "outcomeEvents": [
+              "SalvageAllocated",
+              "RosterUnitChanged",
+              "RosterUnitChanged"
+            ],
+            "journalAfterOutcome": {
+              "balance": 380000,
+              "salvagePool": 50000,
+              "roster": {
+                "unit-0": "destroyed",
+                "unit-1": "damaged"
+              }
+            },
+            "recordAfterOutcome": {
+              "version": 2,
+              "balance": 380000,
+              "roster": {
+                "unit-0": "Destroyed",
+                "unit-1": "Damaged"
+              }
+            },
+            "saveStatus": 200,
+            "savedAtVersion": 2,
+            "journalAfterSave": {
+              "balance": 380000,
+              "salvagePool": 50000,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "recordAfterSave": {
+              "version": 3,
+              "balance": 380000,
+              "roster": {
+                "unit-0": "Ready",
+                "unit-1": "Ready"
+              }
+            },
+            "journalAgreesWithHost": false,
+            "eventTypes": [
+              "CampaignSnapshotPublished",
+              "SalvageAllocated",
+              "RosterUnitChanged",
+              "RosterUnitChanged",
+              "CampaignSnapshotPublished",
+              "FundsChanged"
+            ]
+          },
+          "o1c": {
+            "genesisBy": "the PUT create (flag true)",
+            "markerState": "journal",
+            "outcomeEvents": [
+              "SalvageAllocated",
+              "RosterUnitChanged",
+              "RosterUnitChanged"
+            ],
+            "journalAfterOutcome": {
+              "balance": 380000,
+              "salvagePool": 50000,
+              "roster": {
+                "unit-0": "destroyed",
+                "unit-1": "damaged"
+              }
+            },
+            "recordAfterOutcome": {
+              "version": 2,
+              "balance": 380000,
+              "roster": {
+                "unit-0": "Destroyed",
+                "unit-1": "Damaged"
+              }
+            },
+            "saveStatus": 200,
+            "savedAtVersion": 2,
+            "journalAfterSave": {
+              "balance": 380000,
+              "salvagePool": 50000,
+              "roster": {
+                "unit-0": "destroyed",
+                "unit-1": "damaged"
+              }
+            },
+            "recordAfterSave": {
+              "version": 3,
+              "balance": 380000,
+              "roster": {
+                "unit-0": "Destroyed",
+                "unit-1": "Damaged"
+              }
+            },
+            "journalAgreesWithHost": true,
+            "eventTypes": [
+              "CampaignSnapshotPublished",
+              "SalvageAllocated",
+              "RosterUnitChanged",
+              "RosterUnitChanged",
+              "CampaignSnapshotPublished",
+              "FundsChanged"
+            ]
+          },
+          "o2": {
+            "genesisBy": "the PUT create (flag true)",
+            "markerState": "journal",
+            "outcomeEvents": [
+              "FundsChanged"
+            ],
+            "journalAfterOutcome": {
+              "balance": 355000,
+              "salvagePool": 0,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "recordAfterOutcome": {
+              "version": 2,
+              "balance": 355000,
+              "roster": {
+                "unit-0": "Ready",
+                "unit-1": "Ready"
+              }
+            },
+            "saveStatus": 200,
+            "savedAtVersion": 2,
+            "journalAfterSave": {
+              "balance": 355000,
+              "salvagePool": 0,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "recordAfterSave": {
+              "version": 3,
+              "balance": 355000,
+              "roster": {
+                "unit-0": "Ready",
+                "unit-1": "Ready"
+              }
+            },
+            "journalAgreesWithHost": true,
+            "eventTypes": [
+              "CampaignSnapshotPublished",
+              "FundsChanged",
+              "CampaignSnapshotPublished",
+              "FundsChanged"
+            ]
+          },
+          "o2u": {
+            "genesisBy": "the PUT create (flag true)",
+            "markerState": "journal",
+            "outcomeEvents": [
+              "FundsChanged"
+            ],
+            "journalAfterOutcome": {
+              "balance": 355000,
+              "salvagePool": 0,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "recordAfterOutcome": {
+              "version": 2,
+              "balance": 355000,
+              "roster": {
+                "unit-0": "Ready",
+                "unit-1": "Ready"
+              }
+            },
+            "saveStatus": 200,
+            "savedAtVersion": 2,
+            "journalAfterSave": {
+              "balance": 355000,
+              "salvagePool": 0,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "recordAfterSave": {
+              "version": 3,
+              "balance": 355000,
+              "roster": {
+                "unit-0": "Ready",
+                "unit-1": "Ready"
+              }
+            },
+            "journalAgreesWithHost": true,
+            "eventTypes": [
+              "CampaignSnapshotPublished",
+              "FundsChanged",
+              "CampaignSnapshotPublished",
+              "FundsChanged"
+            ]
+          },
+          "o1s": {
+            "genesisBy": "the PUT create (journal-native)",
+            "markerState": "journal",
+            "outcomeEvents": [
+              "SalvageAllocated",
+              "RosterUnitChanged",
+              "RosterUnitChanged"
+            ],
+            "journalAfterOutcome": {
+              "balance": 380000,
+              "salvagePool": 50000,
+              "roster": {
+                "unit-0": "destroyed",
+                "unit-1": "damaged"
+              }
+            },
+            "recordAfterOutcome": {
+              "version": 2,
+              "balance": 380000,
+              "roster": {
+                "unit-0": "Destroyed",
+                "unit-1": "Damaged"
+              }
+            },
+            "saveStatus": 200,
+            "savedAtVersion": 2,
+            "journalAfterSave": {
+              "balance": 380000,
+              "salvagePool": 50000,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "recordAfterSave": {
+              "version": 3,
+              "balance": 380000,
+              "roster": {
+                "unit-0": "Ready",
+                "unit-1": "Ready"
+              }
+            },
+            "journalAgreesWithHost": false,
+            "eventTypes": [
+              "CampaignSnapshotPublished",
+              "SalvageAllocated",
+              "RosterUnitChanged",
+              "RosterUnitChanged",
+              "CampaignSnapshotPublished",
+              "FundsChanged"
+            ]
+          },
+          "s1": {
+            "genesisBy": "the PUT create (flag true)",
+            "journalAfterAllocateRoster": {
+              "unit-0": "operational",
+              "unit-1": "operational",
+              "unit-recovered": "damaged"
+            },
+            "stalePutStatus": 409,
+            "currentPutStatus": 200,
+            "journalAfterSaveRoster": {
+              "unit-0": "operational",
+              "unit-1": "operational"
+            },
+            "journalAfterSaveSalvagePool": 30000,
+            "recordNamesRecoveredUnit": false,
+            "journalAgreesWithHost": false
+          }
+        }
+      },
+      "destroyedUnitKeptInSavedRecord": {
+        "reading": "under the flip, after the outcome the saved record keeps unit-0 with readiness Destroyed (o1, o1c, o1s: recordAfterOutcome version 2 {unit-0: Destroyed, unit-1: Damaged}); it stays Destroyed after o1c's save and after h1-h3's saves; U35g's row d (committed suite, under the flip) also keeps it in its force (forceOf unit-0 unchanged)",
+        "u35gRowD": {
+          "createdVersion": 1,
+          "outcomeOk": true,
+          "rosterChanges": [
+            {
+              "unitId": "unit-0",
+              "change": "repaired",
+              "status": "destroyed"
+            },
+            {
+              "unitId": "unit-1",
+              "change": "repaired",
+              "status": "damaged"
+            }
+          ],
+          "journal": {
+            "balance": 380000,
+            "salvagePool": 0,
+            "roster": {
+              "unit-0": "destroyed",
+              "unit-1": "damaged"
+            }
+          },
+          "host": {
+            "balance": 380000,
+            "salvagePool": 0,
+            "roster": {
+              "unit-0": "destroyed",
+              "unit-1": "damaged"
+            }
+          },
+          "record": {
+            "version": 2,
+            "balance": 380000,
+            "roster": {
+              "unit-0": "Destroyed",
+              "unit-1": "Damaged"
+            },
+            "forceOf": {
+              "unit-0": "force-1790375085678-wfph8ej",
+              "unit-1": "force-sub-1"
+            }
+          }
+        }
+      },
+      "u35eSuitesUnderFlip": {
+        "command": "npx jest src/__tests__/api/campaigns/campaignJournalEffectsSurviveSave.test.ts src/__tests__/api/campaigns/campaignRecordCommandRewrite.test.ts",
+        "exitCode": 0,
+        "counts": "Tests:       11 passed, 11 total",
+        "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\api\\\\campaigns\\\\campaignJournalEffectsSurviveSave.test.ts|src\\\\__tests__\\\\api\\\\campaigns\\\\campaignRecordCommandRewrite.test.ts/i.",
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/gate-flipped-u35e-suites.log",
+          "sha256": "cbabeb74d5d2d8f34d01e3d7ad099849c4f632bfe16e55651449b10d56814c8c"
+        }
+      },
+      "u35gRowsSuiteUnderFlip": {
+        "command": "U35E_ROWS_DIR=<logs>/gate-flipped-u35g npx jest src/lib/campaign/sync/__tests__/campaignCombatOutcomeRecordRewrite.test.ts",
+        "exitCode": 0,
+        "counts": "Tests:       8 passed, 8 total",
+        "rowResults": [
+          "√ (o1) the host save carries its pre-battle roster",
+          "√ (o1c) the host save carries the damage (readiness Destroyed, Damaged)",
+          "√ (o1s) the outcome on a campaign created by the PUT route alone",
+          "√ (d) a destroyed unit is kept as a status change in the journal, the host and the record",
+          "√ (i) a duplicate receipt of the same outcome rewrites nothing",
+          "√ (o2u) a debit, then a host save built before the host folded it",
+          "√ (t) a record rewrite that fails rolls the outcome and its inbox receipt back",
+          "√ (a) a snapshot-authority campaign keeps its record untouched by an outcome"
+        ],
+        "lastLine": "Ran all test suites matching /src\\\\lib\\\\campaign\\\\sync\\\\__tests__\\\\campaignCombatOutcomeRecordRewrite.test.ts/i.",
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/gate-flipped-u35g-suite.log",
+          "sha256": "5803d16de5a63eef515b3afc08261fd0619949b4d90cb2d0fbeb420ae0c8db80"
+        },
+        "valuesFile": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/gate-flipped-u35g/u35g-rows.json",
+          "sha256": "934d844bce69feaa934599031bfdcda17fa676ea1e45cb8f13a124409abd817a"
+        },
+        "hostSaveModel": "U35g's: the host's envelope at the version it held before the outcome (409 after the rewrite), then a GET and a PUT of the server record at its own version",
+        "values": {
+          "o1": {
+            "stalePutStatus": 409,
+            "currentPutStatus": 200,
+            "journalAfterSave": {
+              "balance": 380000,
+              "salvagePool": 50000,
+              "roster": {
+                "unit-0": "destroyed",
+                "unit-1": "damaged"
+              }
+            },
+            "recordAfterSave": {
+              "version": 3,
+              "roster": {
+                "unit-0": "Destroyed",
+                "unit-1": "Damaged"
+              }
+            },
+            "journalAgreesWithHost": true
+          },
+          "o1c": {
+            "stalePutStatus": 409,
+            "currentPutStatus": 200,
+            "journalAfterSave": {
+              "balance": 380000,
+              "salvagePool": 50000,
+              "roster": {
+                "unit-0": "destroyed",
+                "unit-1": "damaged"
+              }
+            },
+            "recordAfterSave": {
+              "version": 3,
+              "roster": {
+                "unit-0": "Destroyed",
+                "unit-1": "Damaged"
+              }
+            },
+            "journalAgreesWithHost": true
+          },
+          "o1s": {
+            "stalePutStatus": 409,
+            "currentPutStatus": 200,
+            "journalAfterSave": {
+              "balance": 380000,
+              "salvagePool": 50000,
+              "roster": {
+                "unit-0": "destroyed",
+                "unit-1": "damaged"
+              }
+            },
+            "recordAfterSave": {
+              "version": 3,
+              "roster": {
+                "unit-0": "Destroyed",
+                "unit-1": "Damaged"
+              }
+            },
+            "journalAgreesWithHost": true
+          },
+          "o2u": {
+            "stalePutStatus": 409,
+            "currentPutStatus": 200,
+            "journalAfterSave": {
+              "balance": 355000,
+              "salvagePool": 0,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "recordAfterSave": {
+              "version": 3,
+              "roster": {
+                "unit-0": "Ready",
+                "unit-1": "Ready"
+              }
+            },
+            "journalAgreesWithHost": true
+          }
+        }
+      },
+      "hostStoreRows": {
+        "why": "the o1/o1s model's host save (accepted at the post-outcome version with a pre-outcome roster) is decided by the client code, so the host save was also driven through the real persistence store, roster store and campaign store with fetch wired to the live item route on real SQLite",
+        "probe": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/u35dHostStoreGate.probe.test.ts",
+          "sha256": "789f8a3b891c5c0b545f1af6d75519b8d9f2b6fddd171544337e72172faa1849"
+        },
+        "copyAfterRun": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/host-probe-copy.test.ts.txt",
+          "sha256": "789f8a3b891c5c0b545f1af6d75519b8d9f2b6fddd171544337e72172faa1849"
+        },
+        "probeOnlyStub": "ensureCampaignUnitMaxStates (the catalog-backed maxima resolver runLoad calls) is a no-op, because the fixture catalog refs resolve to nothing; it is not part of the gate",
+        "flow": "route create (journal-native), host loadCampaign through the persistence store (runLoad), coopSession host set on the live campaign, one host save (as before a battle), server co-op host opened on the saved record over selectCampaignEventStore().store, reconcileCoopBattle (unit-0 destroyed, unit-1 damaged, salvage 50000) through the outcome inbox; then h1: saveCampaign() at the held version, then saveCampaign() again; h2: refreshAfterCommittedCommand (U35f's fold refresh), then saveCampaign(); h3: useCampaignStore().updateCampaign (any co-op host save), then saveCampaign(); then one more co-op SpendFunds and the journal digest compared with the live server host",
+        "baseline": {
+          "exitCode": 0,
+          "counts": "Tests:       3 passed, 3 total",
+          "rowResults": [
+            "√ (h1) the host saves at the version it held: refused 409, rolled back to the server record, then saved",
+            "√ (h2) the host folds the outcome and refreshes (U35f) before it saves",
+            "√ (h3) a co-op updateCampaign (any host save) at the held version, then the next save"
+          ],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/host-baseline.log",
+            "sha256": "158351b16eb17385e548770cf8be8557f62916f20d6aab8081f8fb061b153b2f"
+          },
+          "valuesFile": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/host-baseline.json",
+            "sha256": "d564ade008135a246c5746e4e0eb3ad3969defe692ee4208fb9fce0f54dc3175"
+          }
+        },
+        "underTemporaryFlip": {
+          "exitCode": 0,
+          "counts": "Tests:       3 passed, 3 total",
+          "rowResults": [
+            "√ (h1) the host saves at the version it held: refused 409, rolled back to the server record, then saved",
+            "√ (h2) the host folds the outcome and refreshes (U35f) before it saves",
+            "√ (h3) a co-op updateCampaign (any host save) at the held version, then the next save"
+          ],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/host-flipped.log",
+            "sha256": "7fc511d0e36ae36cd96e55183c90744dc5db0514fae88f7de84fdb79e3cddbd0"
+          },
+          "valuesFile": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/host-flipped.json",
+            "sha256": "1aedbab52ad61b41a0abcc8e6e8b2d1ca7f9dd6cac08a535d077bbdac6079ee8"
+          },
+          "values": {
+            "h1": {
+              "genesisBy": "the PUT create (flag true)",
+              "markerState": "journal",
+              "preBattleSaveStatus": "saved",
+              "hostBeforeOutcome": {
+                "baseVersion": 2,
+                "saveState": "saved",
+                "rosterStore": {
+                  "unit-0": "Ready",
+                  "unit-1": "Ready"
+                }
+              },
+              "outcomeEvents": [
+                "SalvageAllocated",
+                "RosterUnitChanged",
+                "RosterUnitChanged"
+              ],
+              "journalAfterOutcome": {
+                "balance": 380000,
+                "salvagePool": 50000,
+                "roster": {
+                  "unit-0": "destroyed",
+                  "unit-1": "damaged"
+                }
+              },
+              "recordAfterOutcome": {
+                "version": 3,
+                "balance": 380000,
+                "roster": {
+                  "unit-0": "Destroyed",
+                  "unit-1": "Damaged"
+                },
+                "hasCoopSession": true
+              },
+              "refusedStatus": "conflict",
+              "hostAfterRefusal": {
+                "baseVersion": 3,
+                "saveState": "conflict",
+                "rosterStore": {
+                  "unit-0": "Destroyed",
+                  "unit-1": "Damaged"
+                }
+              },
+              "savedStatus": "saved",
+              "journalAfterSave": {
+                "balance": 380000,
+                "salvagePool": 50000,
+                "roster": {
+                  "unit-0": "destroyed",
+                  "unit-1": "damaged"
+                }
+              },
+              "recordAfterSave": {
+                "version": 4,
+                "balance": 380000,
+                "roster": {
+                  "unit-0": "Destroyed",
+                  "unit-1": "Damaged"
+                },
+                "hasCoopSession": true
+              },
+              "hostAfterSave": {
+                "baseVersion": 4,
+                "saveState": "saved",
+                "rosterStore": {
+                  "unit-0": "Destroyed",
+                  "unit-1": "Damaged"
+                }
+              },
+              "journalAgreesWithHost": true
+            },
+            "h2": {
+              "genesisBy": "the PUT create (flag true)",
+              "markerState": "journal",
+              "preBattleSaveStatus": "saved",
+              "hostBeforeOutcome": {
+                "baseVersion": 2,
+                "saveState": "saved",
+                "rosterStore": {
+                  "unit-0": "Ready",
+                  "unit-1": "Ready"
+                }
+              },
+              "outcomeEvents": [
+                "SalvageAllocated",
+                "RosterUnitChanged",
+                "RosterUnitChanged"
+              ],
+              "journalAfterOutcome": {
+                "balance": 380000,
+                "salvagePool": 50000,
+                "roster": {
+                  "unit-0": "destroyed",
+                  "unit-1": "damaged"
+                }
+              },
+              "recordAfterOutcome": {
+                "version": 3,
+                "balance": 380000,
+                "roster": {
+                  "unit-0": "Destroyed",
+                  "unit-1": "Damaged"
+                },
+                "hasCoopSession": true
+              },
+              "refreshAdopted": true,
+              "hostAfterRefresh": {
+                "baseVersion": 3,
+                "saveState": "saved",
+                "rosterStore": {
+                  "unit-0": "Destroyed",
+                  "unit-1": "Damaged"
+                }
+              },
+              "savedStatus": "saved",
+              "journalAfterSave": {
+                "balance": 380000,
+                "salvagePool": 50000,
+                "roster": {
+                  "unit-0": "destroyed",
+                  "unit-1": "damaged"
+                }
+              },
+              "recordAfterSave": {
+                "version": 4,
+                "balance": 380000,
+                "roster": {
+                  "unit-0": "Destroyed",
+                  "unit-1": "Damaged"
+                },
+                "hasCoopSession": true
+              },
+              "hostAfterSave": {
+                "baseVersion": 4,
+                "saveState": "saved",
+                "rosterStore": {
+                  "unit-0": "Destroyed",
+                  "unit-1": "Damaged"
+                }
+              },
+              "journalAgreesWithHost": true
+            },
+            "h3": {
+              "genesisBy": "the PUT create (flag true)",
+              "markerState": "journal",
+              "preBattleSaveStatus": "saved",
+              "hostBeforeOutcome": {
+                "baseVersion": 2,
+                "saveState": "saved",
+                "rosterStore": {
+                  "unit-0": "Ready",
+                  "unit-1": "Ready"
+                }
+              },
+              "outcomeEvents": [
+                "SalvageAllocated",
+                "RosterUnitChanged",
+                "RosterUnitChanged"
+              ],
+              "journalAfterOutcome": {
+                "balance": 380000,
+                "salvagePool": 50000,
+                "roster": {
+                  "unit-0": "destroyed",
+                  "unit-1": "damaged"
+                }
+              },
+              "recordAfterOutcome": {
+                "version": 3,
+                "balance": 380000,
+                "roster": {
+                  "unit-0": "Destroyed",
+                  "unit-1": "Damaged"
+                },
+                "hasCoopSession": true
+              },
+              "hostAfterUpdate": {
+                "baseVersion": 3,
+                "saveState": "conflict",
+                "rosterStore": {
+                  "unit-0": "Destroyed",
+                  "unit-1": "Damaged"
+                }
+              },
+              "savedStatus": "saved",
+              "journalAfterSave": {
+                "balance": 380000,
+                "salvagePool": 50000,
+                "roster": {
+                  "unit-0": "destroyed",
+                  "unit-1": "damaged"
+                }
+              },
+              "recordAfterSave": {
+                "version": 4,
+                "balance": 380000,
+                "roster": {
+                  "unit-0": "Destroyed",
+                  "unit-1": "Damaged"
+                },
+                "hasCoopSession": true
+              },
+              "hostAfterSave": {
+                "baseVersion": 4,
+                "saveState": "saved",
+                "rosterStore": {
+                  "unit-0": "Destroyed",
+                  "unit-1": "Damaged"
+                }
+              },
+              "journalAgreesWithHost": true
+            }
+          }
+        }
+      },
+      "restore": {
+        "file": "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+        "preMeasurementSha256": "f1d5e7cf2345f404bb3c7b2a71d17c7ef4019cd35c533b1a65cb27e8066c8a71",
+        "flippedSha256": "cda04170866973e6c880e79381f173e9c51af7e16e8b458dfd60129e37622cb2",
+        "sha256AfterEachRestore": [
+          "f1d5e7cf2345f404bb3c7b2a71d17c7ef4019cd35c533b1a65cb27e8066c8a71 (gate)",
+          "f1d5e7cf2345f404bb3c7b2a71d17c7ef4019cd35c533b1a65cb27e8066c8a71 (host rows)",
+          "f1d5e7cf2345f404bb3c7b2a71d17c7ef4019cd35c533b1a65cb27e8066c8a71 (e2e shape)",
+          "f1d5e7cf2345f404bb3c7b2a71d17c7ef4019cd35c533b1a65cb27e8066c8a71 (outside check)"
+        ],
+        "identical": true,
+        "summaryLogs": [
+          {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/gate-summary.log",
+            "sha256": "bd3c7e526cba655e0b01776c7077fa1eba73fae0718ec672b1f5e04c646702e5"
+          },
+          {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/host-summary.log",
+            "sha256": "645583333a9b38af8d211719b1751b62c5b3221f4f8ea04c2db474d39ee14362"
+          },
+          {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/e2e-summary.log",
+            "sha256": "131b8e27634d94928f306e248c727ec9581c2a737eda646b8f1cda62047d0227"
+          },
+          {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/outside-summary.log",
+            "sha256": "f663f5d55d1fc4cbd2300162c793272180190776330dae181316e59a1e09d218"
+          }
+        ],
+        "gitStatusAfterEach": "(empty: each summary log ends with \"status after:\" and no line)"
+      }
+    },
+    "realFlows": {
+      "commandRoute": {
+        "rows": "r1, r2, r3",
+        "productionCallers": [],
+        "evidence": "grep of src, desktop and server.js: /api/campaigns/[id]/commands appears outside src/pages/api only in comments (src/lib/campaign/lifecycle/campaignLifecycleState.ts:34,418; src/stores/campaign/useCampaignPersistenceStore.ts:118); executeCampaignCommand is called only by the route (src/pages/api/campaigns/[id]/commands.ts:186)",
+        "result": "survives under the flip; no production caller"
+      },
+      "coopHirePilot": {
+        "row": "c1",
+        "result": "survives under the flip: journal pilots ['pilot-c1'] after the host save, record balance 368000 at version 3, journal agrees with the live host after the next co-op command"
+      },
+      "combatOutcome": {
+        "rows": "o1, o1c, o2, o2u, o1s (probe); h1, h2, h3 (host stores); U35g rows o1, o1c, o1s, d, o2u",
+        "productionChain": [
+          "client: combat outcome bus -> useCampaignStore.ts:171-181 enqueueOutcome -> useCampaignStore.outcomes.ts:38 enqueueCampaignOutcome -> :70 reconcileCoopOutcomeForCampaign -> src/lib/campaign/coop/coopHostRegistry.ts:66-106 (host only :71, missionPayout 0 :83, ReconcileBattle host intent :101-102)",
+          "server: src/lib/multiplayer/server/bindCampaignSyncConnection.ts:760 (ReconcileBattle) -> :803 reconcileCoopBattle -> src/lib/campaign/coop/reconcileCoopBattle.ts:131-145 (inbox path when host.hasCombatOutcomeInbox()) -> src/lib/multiplayer/server/CampaignMatchHost.ts:291-317 -> src/lib/multiplayer/server/CampaignMatchHostOutcomeInbox.ts:67-95 (RosterUnitChanged change 'repaired' carrying the status :204, the ledger unit carried forward :210-216) -> src/lib/campaign/sync/JournalCampaignEventStore.ts:475-493 (passes rewriteRecordAfterCommand :491) -> src/lib/campaign/sync/campaignCombatOutcomeInbox.ts:74-151 (afterCommit on the first receipt only :148) -> src/lib/campaign/authority/campaignRecordJournalState.ts:75-95,118-152 (version + 1, balance, date, roster readiness from the journal status; journal-native marker only :79-80)",
+          "store: src/lib/multiplayer/server/CampaignHostRegistry.ts:287 selectCampaignEventStore() -> src/lib/multiplayer/server/getCampaignEventStore.ts:115-124 (the durable JournalCampaignEventStore with bindJournalCapabilityPorts whenever SQLite is initialized; throws in production without it :131-135); src/lib/campaign/sync/journalCapabilityPorts.ts:225-231 installs the rewrite",
+          "the host's whole-campaign save: every co-op caller goes through the persistence store's performSave -> putLiveCampaign (src/stores/campaign/useCampaignPersistenceStore.ts:656-693) at get().baseVersion: useCampaignStore.actions.ts:228-265 saveCampaign (:259-263 for co-op) and :269-291 updateCampaign (saves at once for co-op); callers useCampaignStore.dayActions.ts:239,377, useCampaignStore.outcomes.ts:191, src/components/gameplay/pages/campaigns/dashboard/CampaignSaveStatusCard.tsx:81, src/pages-modules/gameplay/campaigns/missionLaunchPage.launch.ts:351,357,364, src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx:209,256, src/stores/campaign/useCampaignRosterStore.ts:262 (completeMission -> applyDamageCarryForward -> updateCampaign); the keepalive flush skips co-op campaigns (useCampaignPersistenceStore.ts:1139-1144); the adopt route is for unadopted legacy copies only",
+          "where the host's baseVersion comes from: applySavedRecord (useCampaignPersistenceStore.ts:708-728) adopts only the host's own accepted write; runLoad (:913-1001) replaces the live campaign AND restores the roster store from the record's rosterProjection (:973-975) whenever the cached key does not already name that record, then sets baseVersion (:987); rollbackCoopCampaign (:737-768) writes the server record, restores its rosterProjection (:748-753) and sets baseVersion (:759-760); resolveConflictTakeServer (:1430-1460) the same (:1441-1450). restoreRosterProjection is :520-549",
+          "roster store readiness writers: addUnit, removeUnit, assignPilot (no readiness change for an existing unit), applyDamageCarryForward (useCampaignRosterStore.ts:231-275, derived from the battle damage), restoreRosterProjection (from a record), CreateCampaignPage.submit.ts:153-167 (new campaign units, Ready), the fast-forward QC runner (fastForwardCombatRunner.ts:257, pilot id remap only); none sets an existing unit back to Ready"
+        ],
+        "decision": "no production caller makes the o1/o1s save: a host whose baseVersion is the outcome's rewritten version got it together with that record's roster (Destroyed/Damaged), so its next envelope carries the outcome; a host still holding the pre-outcome version is refused 409 and rolled back to the server record (h1, h3; U35g o1/o1c/o1s), or refreshes onto it (h2). The probe's o1/o1s model was the real flow before U35g, when the outcome did not move the saved record's version.",
+        "balance": "the production client sends fundsDelta 0 (coopHostRegistry.ts:83); measured anyway: o2 and o2u keep the debit under the flip (o2u now reads the rewritten record, balance 355000)",
+        "salvagePool": "survives (50000 before and after the save in o1, o1c, o1s, both sides)"
+      },
+      "salvageRecovery": {
+        "row": "s1",
+        "result": "lost from the journal by the host's save once journal-native, on both sides (journal roster after the save {unit-0, unit-1}; the record never names unit-recovered); journal and live host disagree after the next co-op command",
+        "productionProducers": "none: the only UI AllocateSalvage intent carries value only (src/components/campaign/coop/CampaignCoopRouteSurface.tsx:158-163); grep of src outside tests finds no builder of recoveredUnit (src/lib/multiplayer/server/CampaignMatchHostIntent.ts:203-216 passes one through; src/lib/multiplayer/performance/controlledLoopbackFixture.ts is a performance fixture that allocates value 0)",
+        "disposition": "scoped out by the owner (FN-u35d-recovered-unit-lost, OD-u35g-coop-outcome-rewrites-record sub-decision 2); recorded, not blocking"
+      }
+    },
+    "blockedFlow": null,
+    "proposedSuccessor": null
+  },
+  "flipOutsidePathsCheck": {
+    "why": "whether a test outside U35d's paths turns red once the flag is true and the arm is gone (with the flag true the resolver answers true whatever the arm keys, so the flip alone is the behaviour the deletion leaves; the only importers of the deleted exports are in the paths)",
+    "method": "outside-flip.sh: the temporary flip, then five jest groups, then the byte-copy restore (sha256 identical)",
+    "groups": [
+      {
+        "command": "npx jest src/__tests__/api/securityBoundary.test.ts src/__tests__/pages/gameplay/campaigns/index.coop.test.tsx src/components/campaign/coop/__tests__/GmRebuildStaleGate.test.tsx src/pages-modules/api/__tests__ src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx src/stores/campaign/__tests__ src/__tests__/integration scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+        "scope": "outside the paths: every test driving the PUT, adopt or matches routes found by grep, the store suites, the integration suites and the QC pin that pins the arm env keys",
+        "exitCode": 0,
+        "counts": [
+          "Test Suites: 88 passed, 88 total",
+          "Tests:       32 skipped, 1014 passed, 1046 total"
+        ],
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/outside-outpath.log",
+          "sha256": "448c78d15be05431a244e7647db47ba63395f93f2167264bc90c2910a9a3bc58"
+        }
+      },
+      {
+        "command": "npx jest src/lib/multiplayer/server",
+        "scope": "outside the paths",
+        "exitCode": 0,
+        "counts": [
+          "Test Suites: 160 passed, 160 total",
+          "Tests:       1178 passed, 1178 total"
+        ],
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/outside-mpserver.log",
+          "sha256": "f607c0cfee3554464ebc22bb48b76888b3fafe510e76c5b3ec4fb285e682a79e"
+        }
+      },
+      {
+        "command": "npx jest src/lib/campaign",
+        "scope": "mixed",
+        "exitCode": 1,
+        "counts": [
+          "Test Suites: 2 failed, 202 passed, 204 total",
+          "Tests:       2 failed, 2980 passed, 2982 total"
+        ],
+        "failing": [
+          "● JournalCampaignEventStore (in-memory journal) › keeps the production factory on the in-memory store while the flag is disabled",
+          "● isCampaignJournalAuthorityEnabled › is true only when e2e mode and the fixture env are both set"
+        ],
+        "failingAllInPaths": true,
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/outside-campaign.log",
+          "sha256": "5d76bdc9e7802dfe8a1e3938931bb2ac166dbc5b55bc197895abb119ea3ec534"
+        }
+      },
+      {
+        "command": "npx jest src/__tests__/api src/__tests__/unit/api",
+        "scope": "mixed",
+        "exitCode": 1,
+        "counts": [
+          "Test Suites: 1 failed, 62 passed, 63 total",
+          "Tests:       1 failed, 806 passed, 807 total"
+        ],
+        "failing": [
+          "● campaign PUT genesis marker › writes the genesis marker only when the resolver is true"
+        ],
+        "failingAllInPaths": true,
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/outside-api.log",
+          "sha256": "545aeba0ac7bf6845cf2e0c48d24f61817e166d759954cba84556e4921edc226"
+        }
+      },
+      {
+        "command": "npx jest src/services/campaignPersistence",
+        "scope": "outside the paths",
+        "exitCode": 0,
+        "counts": [
+          "Test Suites: 4 passed, 4 total",
+          "Tests:       23 passed, 23 total"
+        ],
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/outside-services.log",
+          "sha256": "9f6be442368fb42651a1caf295fc1ebd161367ec8843cf96cb99fe59b1b71434"
+        }
+      }
+    ],
+    "result": "no suite outside the paths turns red under the flip; the three red rows are the in-path pins U35d re-pins. scripts/__tests__/gm-two-player-campaign-qc.test.ts pins the arm env keys in the QC plan and playwright.config.ts (U35h), not the resolver, and stays green"
+  },
+  "e2eShapeMeasurement": {
+    "why": "the two two-process specs cannot start in a junctioned worktree (FN-u22-two-process-specs-cannot-run-in-junctioned-worktree), so the server-side steps they drive were measured in one process to fix the values their re-pin asserts",
+    "probe": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/u35dE2eShape.probe.test.ts",
+      "sha256": "cc7b79117e194b9b8ffc9ac77e844560fb67127ea970bc6eba7d317370488ef6"
+    },
+    "copyAfterRun": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/e2e-probe-copy.test.ts.txt",
+      "sha256": "cc7b79117e194b9b8ffc9ac77e844560fb67127ea970bc6eba7d317370488ef6"
+    },
+    "note": "the probe was revised once before its recorded run (the /head reads were added); only the revised probe run is recorded",
+    "stub": "authenticateRequest (both routes) answers one player id, as the drives use one real unscoped token for the GM",
+    "baseline": {
+      "exitCode": 1,
+      "counts": "Tests:       1 failed, 1 total",
+      "values": {
+        "afterCreate": {
+          "status": 200,
+          "head": {
+            "statusCode": 200,
+            "body": {
+              "kind": "no-authoritative-stream"
+            }
+          },
+          "marker": {
+            "read": "not_found"
+          },
+          "highestSequence": -1
+        },
+        "afterMatch": {
+          "status": 201,
+          "head": {
+            "statusCode": 200,
+            "body": {
+              "kind": "head",
+              "branchId": "root",
+              "revision": 1,
+              "effectiveGeneration": 1
+            }
+          },
+          "marker": {
+            "read": "not_found"
+          },
+          "highestSequence": 0
+        },
+        "afterCommand": {
+          "status": 409,
+          "kind": "blocked",
+          "reason": "campaign-not-on-journal-authority",
+          "balance": null,
+          "marker": {
+            "read": "not_found"
+          },
+          "highestSequence": 0
+        }
+      },
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/e2e-baseline.log",
+        "sha256": "3e7da54c72e26470a63fd4b6dfd0c86d209ef664200f9c9500343d9ccd5332fd"
+      },
+      "valuesFile": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/e2e-baseline.json",
+        "sha256": "8bab8a53a2744b619328ef7d01807761f6e76ea6e5c0103a2412cafdec2e7906"
+      }
+    },
+    "underTemporaryFlip": {
+      "exitCode": 0,
+      "counts": "Tests:       1 passed, 1 total",
+      "values": {
+        "afterCreate": {
+          "status": 200,
+          "head": {
+            "statusCode": 200,
+            "body": {
+              "kind": "head",
+              "branchId": "root",
+              "revision": 1,
+              "effectiveGeneration": 1
+            }
+          },
+          "marker": {
+            "state": "journal",
+            "firstJournalAuthorityCommandId": null
+          },
+          "highestSequence": 0
+        },
+        "afterMatch": {
+          "status": 201,
+          "head": {
+            "statusCode": 200,
+            "body": {
+              "kind": "head",
+              "branchId": "root",
+              "revision": 1,
+              "effectiveGeneration": 1
+            }
+          },
+          "marker": {
+            "state": "journal",
+            "firstJournalAuthorityCommandId": null
+          },
+          "highestSequence": 0
+        },
+        "afterCommand": {
+          "status": 200,
+          "kind": "committed",
+          "reason": null,
+          "balance": 999000,
+          "marker": {
+            "state": "journal",
+            "firstJournalAuthorityCommandId": "co3-shape-cmd-1"
+          },
+          "highestSequence": 1
+        }
+      },
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/e2e-flipped.log",
+        "sha256": "ee77120fc7c04921746ff3441bddbdc1465082dd5a8cb875ce053aa1ae58eaac"
+      },
+      "valuesFile": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/e2e-flipped.json",
+        "sha256": "1bee112c1543bbe8182035afe4dfef790182023e35aa4c230fd39086e76df8a3"
+      }
+    },
+    "reading": "baseline (what the specs assert today): after the create no marker and an empty stream; after the co-op host match the stream holds the host's baseline (sequence 0) and still no marker; the first command is refused 409 blocked campaign-not-on-journal-authority. Flipped: the create writes the journal-native marker and the genesis (sequence 0); the co-op match appends nothing (openLocked finds the stream, CampaignMatchHost.doors.ts:86-106) and keeps the marker; the first SpendFunds commits (200, balance 999000) and stamps firstJournalAuthorityCommandId. /head answers kind 'head' after the co-op match on BOTH sides, so the convergence spec's claim that /head answers no-authoritative-stream for these campaigns is stale on the baseline already (finding F2)"
+  },
+  "flipResidueDecision": {
+    "decided": "U35h (playwright.config.ts, scripts/qc, scripts/__tests__) and U35i (three comments) follow U35d by owner decision OD-u35g-coop-outcome-rewrites-record; U35d does not edit those files",
+    "exactEditsStillStand": true,
+    "evidence": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/adm-residue-drift.log",
+      "sha256": "a5b3b28c8d263a554f6ebb2a2b7e25a3da4017e8d3f2dba3522de0264abea4db"
+    },
+    "diffSince2199b53f6": "git diff --stat 2199b53f6..HEAD on the six residue files is empty (exit 0)",
+    "drift": [
+      "playwright.config.ts:314-322: the comment is :314-317 and the campaign spread is :318-323 (its closing \": {}),\" is :323, one line past the listed range); the combat comment :324-328 holds",
+      "src/pages/api/multiplayer/matches/index.ts:262-265: the comment is :263-266 (:262 is gmParticipantId); the file is unchanged since 2199b53f6, so the listed range was one line early there too",
+      "every other listed range (scripts/qc/gm-two-player-campaign-core.cjs:71-76,228-238; scripts/__tests__/gm-two-player-campaign-qc.test.ts:179-185,194,255,426-428,550-552,571-573,593-611; src/lib/campaign/coop/coopRuntimeSession.ts:99-100; src/lib/multiplayer/server/matchJournalAuthority.ts:3) reads as listed"
+    ],
+    "functionallyRequiredByTheFlip": "none: the production importers keep calling isCampaignJournalAuthorityEnabled; the env keys the config forwards and the QC plan sets are read by nothing once the arm is deleted"
+  },
+  "design": {
+    "constant": "JournalCampaignEventStore.ts:86 true; header :21-24, constant doc :81-85, store doc :357, appendCommandBatch doc :414 and factory doc :522-536 rewritten to what the code does with the flag on (the factory returns the journal store when a journal factory is passed and the in-memory store without one; its only production caller passes none)",
+    "resolver": "campaignJournalAuthorityEnabled.ts: CAMPAIGN_JOURNAL_AUTHORITY_E2E_ENV (:13-15) and e2eJournalAuthorityArmed (:17-28) deleted; isCampaignJournalAuthorityEnabled returns the constant (kept for its three production importers and the test mock); header rewritten",
+    "importers": "campaignPutGenesisRoute.test.ts: env import and save/restore dropped; re-pinned to U35's row (a) through the route with no MEKSTATION_E2E_* key (200, journal-native marker with no imported baseline, one CampaignSnapshotPublished, one effective campaign branch row); scripts/e2e/campaign-journal-authority.ts: env import dropped, flags() reports cutoverFlag and effective only, :33 (U35b F1), :36-41 (the arm) and :22-29 (a campaign created before the flag) corrected",
+    "pins": "campaignJournalAuthorityEnabled.test.ts re-pinned (true, equal to the constant, whatever NEXT_PUBLIC_E2E_MODE and the retired arm key hold); JournalCampaignEventStore.test.ts:353-366 re-pinned (constant true; the factory calls the journal thunk once and returns the journal store when passed one, the in-memory store without one) and its header :10; campaignAdoptRoute.test.ts:153-164 asserts the flag-on half unconditionally; campaignRecordJournalTransaction.test.ts header no longer names the e2e arm",
+    "foldedU35cF1": "multiplayerCoopCreationCheckpoint.test.ts:319-339: the row reaches the refusal through the production flag with no env keys (a campaign with no genesis branch is refused 500); restoreEnv (used only by it) removed",
+    "e2e": "convergence spec, privacy spec, campaignJournalPrivacyFixture.ts and campaignJournalTwoProcess.ts re-pinned to the measured flag-on values: flags cutoverFlag true / effective true with no arm key; after the create the marker is journal (no first command) and the stream holds the genesis (sequence 0); the co-op match keeps both; the CLI cutover step and the pre-cutover 409 control are removed (a route-created campaign is journal-native at birth, so there is no pre-cutover state to drive); the first command's balance and marker assertions stand; sourceServerEnv no longer takes or strips an arm key; convergence :167 (U35b F1) corrected. Shared helpers: their only importers are the two two-process specs, which belong to no ladder group, so the DELIVERY.md re-run rule adds no group; those specs run only in the root checkout (main proof), --workers=1",
+    "foldedF2F4": "e2e/campaign-two-device-drive.spec.ts:440-461 corrected (the server co-op host writes the durable journal through selectCampaignEventStore; a route-created campaign is journal-native, so /commands accepts it; what stays undriven there is convergence across separate database files); e2e/gm-two-player-authority-recovery.pack.spec.ts:13-19 corrected (genesis and branch are live through the production flag); scripts/e2e/campaign-journal-authority.ts:22-29 was right and stays in substance"
+  },
+  "estimatePerFile": {
+    "note": "INFERENCE, not measured: estimates before any edit",
+    "files": [
+      {
+        "file": "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+        "category": "product",
+        "estimateLines": 25
+      },
+      {
+        "file": "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts",
+        "category": "product",
+        "estimateLines": 35
+      },
+      {
+        "file": "scripts/e2e/campaign-journal-authority.ts",
+        "category": "e2e tooling (counted as product to be conservative)",
+        "estimateLines": 30
+      },
+      {
+        "file": "src/lib/campaign/sync/__tests__/campaignJournalAuthorityEnabled.test.ts",
+        "category": "test",
+        "estimateLines": 35
+      },
+      {
+        "file": "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts",
+        "category": "test",
+        "estimateLines": 20
+      },
+      {
+        "file": "src/__tests__/api/campaigns/campaignPutGenesisRoute.test.ts",
+        "category": "test",
+        "estimateLines": 60
+      },
+      {
+        "file": "src/__tests__/api/campaigns/campaignAdoptRoute.test.ts",
+        "category": "test",
+        "estimateLines": 12
+      },
+      {
+        "file": "src/__tests__/api/campaigns/campaignRecordJournalTransaction.test.ts",
+        "category": "test (comment)",
+        "estimateLines": 2
+      },
+      {
+        "file": "src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts",
+        "category": "test",
+        "estimateLines": 30
+      },
+      {
+        "file": "e2e/campaign-journal-two-process-convergence.spec.ts",
+        "category": "test",
+        "estimateLines": 110
+      },
+      {
+        "file": "e2e/campaign-journal-two-process-privacy.spec.ts",
+        "category": "test",
+        "estimateLines": 20
+      },
+      {
+        "file": "e2e/helpers/campaignJournalPrivacyFixture.ts",
+        "category": "test (shared e2e helper)",
+        "estimateLines": 40
+      },
+      {
+        "file": "e2e/helpers/campaignJournalTwoProcess.ts",
+        "category": "test (shared e2e helper)",
+        "estimateLines": 45
+      },
+      {
+        "file": "e2e/campaign-two-device-drive.spec.ts",
+        "category": "test (comment, folded F2/F4)",
+        "estimateLines": 25
+      },
+      {
+        "file": "e2e/gm-two-player-authority-recovery.pack.spec.ts",
+        "category": "test (comment, folded F4)",
+        "estimateLines": 10
+      }
+    ]
+  },
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "countingRule": "product lines count, tests do not (owner decision OD-line-cap-product-lines, 2026-09-23)",
+    "estimatedFiles": 15,
+    "estimatedProductLines": 90,
+    "estimatedTestLines": 409,
+    "withinCaps": true,
+    "note": "INFERENCE: the file count is AT the cap, so two further stale flag-off comments in the paths are reported, not edited (findings F3, F4)"
+  },
+  "risksForTheParent": [
+    "Authority (the owner's ruling on the head): once merged, every campaign the PUT route creates is journal-native (genesis, journal-native marker, effective branch), every whole-campaign save of it is a checkpoint, the adopt route writes journal-native markers, and co-op host creation runs the checkpoint's genesis-branch step.",
+    "Authority/concurrency: a first-receipt combat outcome now moves the saved record's version on every new co-op campaign, so a host save built before it is refused 409 with a toast and the host's local change (for example Return to Campaign's mission completion and unitCombatStates carry-forward, which precede the save) is rolled back to the server record (measured in h1/h3: roster store Destroyed/Damaged after the rollback); the outcome itself survives. This was already true for journal-native campaigns since U35g; the flip makes it the default for new campaigns.",
+    "Idempotency: unchanged by the flip; the outcome inbox rewrites only on the first receipt (U35g row i passes under the flip).",
+    "Migration: after the flip, co-op creation of a campaign created before the flip fails at the genesis-branch step (campaignCreationCheckpoint requires the journal-native marker; the unit/api row pins the 500); under OD-mvp-hard-cutover no pre-cutover data is protected, but a local dev database will show it.",
+    "The two two-process specs are re-pinned from an in-process measurement, not run: they cannot start in a junctioned worktree; the main proof in the root checkout must run both, --workers=1 (FN-u22-two-process-specs-share-port-3617).",
+    "Owner ruling: authority, idempotency and migration review classes need the head-bound Lane B ruling on the head that merges."
+  ],
+  "findingsReportedNotFixed": [
+    {
+      "id": "F1",
+      "file": "e2e/gm-two-player-privacy.pack.spec.ts:82-85",
+      "finding": "says both rows require the ladder's journal fixture arm; they need the combat arm (MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE), which stays; after the flip the campaign half needs no arm. Not a campaign flag-off claim; left."
+    },
+    {
+      "id": "F2",
+      "file": "e2e/campaign-journal-two-process-convergence.spec.ts:60-65,472-475; e2e/helpers/campaignJournalDrive.ts:127-135",
+      "finding": "the claim that /head answers no-authoritative-stream for a co-op-hosted campaign whose journal holds events is false on the baseline already (measured: kind 'head' after the co-op match with the flag false and true); not caused by the flag, so not corrected here"
+    },
+    {
+      "id": "F3",
+      "file": "src/lib/campaign/sync/ICampaignEventStore.ts:177",
+      "finding": "calls the in-memory store 'flag-off'; after the flip it is the store for a caller with no journal (the browser runtime, the ephemeral selection without SQLite). Stale wording; not edited (file cap)"
+    },
+    {
+      "id": "F4",
+      "file": "src/lib/campaign/sync/InMemoryCampaignEventStore.ts:40",
+      "finding": "'the flag-off production adapter': same as F3; not edited (file cap)"
+    },
+    {
+      "id": "F5",
+      "file": "evidence/u35d-admission-20260924.json flipResidueDecision.exactEdits",
+      "finding": "two listed ranges start or end one line off (playwright.config.ts spread ends :323; matches/index.ts comment is :263-266); no drift since 2199b53f6"
+    }
+  ],
+  "nonClaims": [
+    "The probe, host-store and e2e-shape rows drive routes and stores in one process on real SQLite; no socket, no GM arbiter, no browser and no second OS process.",
+    "The host-store rows stub ensureCampaignUnitMaxStates to a no-op.",
+    "The 'no production caller' decisions are read from the code at the cited lines and supported by h1-h3; they are not a proof over every possible client sequence.",
+    "recoveredUnit (s1) is lost once journal-native; scoped out by the owner, recorded only.",
+    "No build, no Playwright run and no product or test edit at admission; the worktree is clean except this receipt.",
+    "Estimates and file lists are INFERENCE."
+  ],
+  "decision": "go: --next printed U35d on the baseline 5a3e87f8c (= origin/main), the validator passed, the ruled gate passes (no real production flow loses an effect under the flip: r1-r3 and c1 survive; the combat outcome's roster, destroyed unit and salvage survive every real host save, measured through the real client stores; o1/o1s's host save has no production caller; s1 is scoped out), no suite outside the paths turns red under the flip, and every edit lies inside the five ownership paths"
+}

@@ -1,0 +1,228 @@
+{
+  "unit": "U35d",
+  "stage": "red",
+  "at": "2026-09-25T22:39:08.527Z",
+  "baseline": "5a3e87f8ca4876ed36a3b186e56ba1211137cb12",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u35d",
+  "branch": "roadmap-u35d-campaign-journal-flip-r3-20260925",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "admission": "evidence/u35d-admission-20260925.json",
+  "runner": {
+    "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/red.sh",
+    "sha256": "63122c4b57656ef2897d8075e348f76a82a6f80952bf2f3ef1ba813a8d373c64"
+  },
+  "testEditScript": {
+    "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/edit-tests.mjs",
+    "sha256": "3d0e522c8b6c1051f51c5b24ee427f5192fd836d33f129890d04f71fbb28fc20"
+  },
+  "editHelpers": {
+    "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/edit-lib.mjs",
+    "sha256": "6a9d2c46766d311cc420332f541dade5804bb6826c14551a6f266226df1fcb83"
+  },
+  "shellPreamble": [
+    "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "export npm_config_dry_run=true",
+    "every MEKSTATION_E2E_* key and NEXT_PUBLIC_E2E_MODE unset in the runner"
+  ],
+  "productCodeAsBaseline": {
+    "src/lib/campaign/sync/JournalCampaignEventStore.ts": "f1d5e7cf2345f404bb3c7b2a71d17c7ef4019cd35c533b1a65cb27e8066c8a71",
+    "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts": "392fd63f42a7d3bc13f29d74557264674483dcdb6dedc1046161130e6588940e",
+    "note": "both product files hashed before and after the red stage; identical to the baseline blobs (no product edit before the red rows ran)"
+  },
+  "u35ProbeRowA": {
+    "what": "U35's saved admission probe suite, unchanged, copied to src/lib/campaign/sync/__tests__/campaignJournalHardCutover.admission.test.ts (its original path), run on the baseline, copied out and removed",
+    "source": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35/logs/adm-probe-final-suite-copy.test.ts.txt",
+      "sha256": "71591a064b86696c6e447331cfe3c6b195ec4f8e9229254bf5bd0e9fa9fa0383"
+    },
+    "copyAfterRun": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/red-u35-probe-copy.test.ts.txt",
+      "sha256": "71591a064b86696c6e447331cfe3c6b195ec4f8e9229254bf5bd0e9fa9fa0383"
+    },
+    "command": "U35_PROBE_OUT=<logs>/red-u35-probe.json npx jest --verbose src/lib/campaign/sync/__tests__/campaignJournalHardCutover.admission.test.ts",
+    "exitCode": 1,
+    "counts": "Tests:       1 failed, 3 passed, 4 total",
+    "lastLine": "Ran all test suites matching /src\\\\lib\\\\campaign\\\\sync\\\\__tests__\\\\campaignJournalHardCutover.admission.test.ts/i.",
+    "rowResults": [
+      "× (a) a PUT create at baseVersion 0 appends genesis, the journal-native marker and one effective campaign branch row",
+      "√ (b) a marker-io failure after a committed batch leaves the commit acknowledged",
+      "√ (c) a balance-bearing FundsChanged refuses a scope other than campaign",
+      "√ (g3) an accepted whole-envelope PUT on a journal-native campaign and the journal head afterwards"
+    ],
+    "red": "(a) expect(marker.kind).toBe('ok') at the probe's :195: Received \"not_found\"",
+    "valuesA": {
+      "status": 200,
+      "markerKind": "not_found",
+      "markerState": null,
+      "events": 0,
+      "genesisEvents": 0,
+      "effectiveCampaignBranchRows": 0,
+      "e2eKeys": []
+    },
+    "otherRows": "(b), (c) and (g3) pass on this baseline (U35a and U35b delivered them); only (a) belongs to U35d",
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/red-u35-probe.log",
+      "sha256": "60ab23389322a9e97a4c0a769385fd8aecf9628131c0ee49f6208c3cdf2e8a08"
+    },
+    "valuesFile": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/red-u35-probe.json",
+      "sha256": "3587938d564428b8824e253ba2c90a91b98a6bdeab0197e491eefa6009862a26"
+    }
+  },
+  "flagOffAssertionsToday": {
+    "what": "the flag-off assertions U35d re-pins, as the baseline has them, run unedited (green) with what each asserts",
+    "command": "npx jest --verbose src/lib/campaign/sync/__tests__/campaignJournalAuthorityEnabled.test.ts src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts src/__tests__/api/campaigns/campaignPutGenesisRoute.test.ts src/__tests__/api/campaigns/campaignAdoptRoute.test.ts src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts",
+    "exitCode": 0,
+    "counts": [
+      "Test Suites: 5 passed, 5 total",
+      "Tests:       31 passed, 31 total"
+    ],
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/red-today-pins.log",
+      "sha256": "68c1e10f29d638c56d3896b96999b0a11ec28ddc88132d4edbabecfbbb94ac84"
+    },
+    "rows": [
+      {
+        "at": "src/lib/campaign/sync/__tests__/campaignJournalAuthorityEnabled.test.ts:23-35",
+        "asserts": "isCampaignJournalAuthorityEnabled() is false with the arm key 1 and NEXT_PUBLIC_E2E_MODE false (:26), false with e2e mode true and no arm key (:30), true with both (:34): the two-key e2e arm",
+        "today": "passes (√ is true only when e2e mode and the fixture env are both set)"
+      },
+      {
+        "at": "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts:353-366 (header :10-11)",
+        "asserts": "CAMPAIGN_JOURNAL_AUTHORITY_ENABLED is false (:354); the factory handed a journal thunk returns the in-memory store and never calls the thunk (:357-362); without one, the in-memory store (:363-365)",
+        "today": "passes (√ keeps the production factory on the in-memory store while the flag is disabled)"
+      },
+      {
+        "at": "src/__tests__/api/campaigns/campaignPutGenesisRoute.test.ts:81-103",
+        "asserts": "a create with no env key leaves the marker not_found (:88); with NEXT_PUBLIC_E2E_MODE=true and the arm key 1 (:90-91, the env constant imported at :17) the marker is journal with no imported baseline (:98-102)",
+        "today": "passes (√ writes the genesis marker only when the resolver is true)"
+      },
+      {
+        "at": "src/__tests__/api/campaigns/campaignAdoptRoute.test.ts:153-164",
+        "asserts": "branches on the constant: flag off -> the unprojectable adoption is created (201); flag on -> 500 and not_found",
+        "today": "passes through the flag-off branch (√ creates nothing when the campaign cannot be projected)"
+      },
+      {
+        "at": "src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts:319-339",
+        "asserts": "with NEXT_PUBLIC_E2E_MODE=true and MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY=1 set, co-op creation of a campaign with no genesis branch answers 500 (the arm reaches the checkpoint)",
+        "today": "passes (√ refuses creation under the e2e journal-authority arm when the campaign has no genesis branch)"
+      },
+      {
+        "at": "scripts/e2e/campaign-journal-authority.ts:90-97 (flags), asserted by e2e/campaign-journal-two-process-convergence.spec.ts:143-145,293-295,444-445 and e2e/helpers/campaignJournalPrivacyFixture.ts:93-95,203-205, e2e/campaign-journal-two-process-privacy.spec.ts:450-451",
+        "asserts": "cutoverFlag false, effective false, e2eEnvKey is the arm key, e2eEnvValue null",
+        "today": {
+          "command": "node node_modules/tsx/dist/cli.mjs scripts/e2e/campaign-journal-authority.ts --command flags",
+          "exitCode": 0,
+          "output": "{\"ok\":true,\"cutoverFlag\":false,\"effective\":false,\"e2eEnvKey\":\"MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY\",\"e2eEnvValue\":null}",
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/red-cli-flags.log",
+            "sha256": "9c52d01f4cc252e38166c84434af5d1b6767b3d83af821e371ed30e104edea4d"
+          },
+          "withTheArmKeys": {
+            "command": "NEXT_PUBLIC_E2E_MODE=true MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY=1 node node_modules/tsx/dist/cli.mjs scripts/e2e/campaign-journal-authority.ts --command flags",
+            "exitCode": 0,
+            "output": "{\"ok\":true,\"cutoverFlag\":false,\"effective\":true,\"e2eEnvKey\":\"MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY\",\"e2eEnvValue\":\"1\"}",
+            "log": {
+              "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/red-cli-flags-armed.log",
+              "sha256": "68529fb8b9581e6178c162c3cd51ccba867ad04723da298865271fbb2972ac2c"
+            }
+          }
+        }
+      },
+      {
+        "at": "e2e/campaign-journal-two-process-convergence.spec.ts:149,169,173,184,235,243,278-282,286-290,446-447; e2e/helpers/campaignJournalPrivacyFixture.ts:96,115-116,129,196,201-202,206; e2e/campaign-journal-two-process-privacy.spec.ts:452-453",
+        "asserts": "the arm key unset in the spec and the spawned env; no marker and an empty stream (-1) after the create; still no marker and the host baseline at sequence 0 after the co-op match; a command before the cutover refused 409 blocked campaign-not-on-journal-authority; the CLI cutover takes the marker arm",
+        "today": "the specs cannot start in a junctioned worktree (FN-u22-two-process-specs-cannot-run-in-junctioned-worktree); their server-side steps were measured in one process at admission (evidence/u35d-admission-20260925.json e2eShapeMeasurement.baseline: marker not_found and sequence -1 after the create; not_found and 0 after the match; 409 blocked campaign-not-on-journal-authority)"
+      }
+    ]
+  },
+  "repinnedRed": {
+    "what": "the re-pinned in-path jest pins (written by edit-tests.mjs, formatted by oxfmt) run against the baseline product code",
+    "formatter": {
+      "command": "npx oxfmt <the six edited test files>",
+      "exitCode": 0
+    },
+    "command": "npx jest --verbose src/lib/campaign/sync/__tests__/campaignJournalAuthorityEnabled.test.ts src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts src/__tests__/api/campaigns/campaignPutGenesisRoute.test.ts src/__tests__/api/campaigns/campaignAdoptRoute.test.ts src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts",
+    "exitCode": 1,
+    "counts": [
+      "Test Suites: 5 failed, 5 total",
+      "Tests:       9 failed, 27 passed, 36 total"
+    ],
+    "lastLine": "Ran all test suites matching /src\\\\lib\\\\campaign\\\\sync\\\\__tests__\\\\campaignJournalAuthorityEnabled.test.ts|src\\\\lib\\\\campaign\\\\sync\\\\__tests__\\\\JournalCampaignEventStore.test.ts|src\\\\__tests__\\\\api\\\\campaigns\\\\campaignPutGenesisRoute.test.ts|src\\\\__tests__\\\\api\\\\campaigns\\\\campaignAdoptRoute.test.ts|src\\\\__tests__\\\\unit\\\\api\\\\multiplayerCoopCreationCheckpoint.test.ts/i.",
+    "redRows": [
+      "campaignJournalAuthorityEnabled.test.ts: \"answers the production constant, which is on\" (:33 Expected true, Received false)",
+      "campaignJournalAuthorityEnabled.test.ts: \"answers true with NEXT_PUBLIC_E2E_MODE=false and the retired arm key undefined\" (Expected true, Received false)",
+      "campaignJournalAuthorityEnabled.test.ts: \"answers true with NEXT_PUBLIC_E2E_MODE=true and the retired arm key undefined\" (Expected true, Received false)",
+      "campaignJournalAuthorityEnabled.test.ts: \"answers true with NEXT_PUBLIC_E2E_MODE=false and the retired arm key 1\" (Expected true, Received false)",
+      "campaignJournalAuthorityEnabled.test.ts: \"has no environment override: with the constant forced off, the retired arm keys answer false\" (:66 Expected false, Received true: the arm exists)",
+      "JournalCampaignEventStore.test.ts: \"hands a caller with a journal factory the journal store now that the flag is on\" (:355 Expected true, Received false)",
+      "campaignPutGenesisRoute.test.ts: \"a create at baseVersion 0 appends the genesis, a journal-native marker and one effective campaign branch row\" (:120 Expected \"ok\", Received \"not_found\")",
+      "campaignAdoptRoute.test.ts: \"creates nothing when the campaign cannot be projected\" (:156 Expected 500, Received 201)",
+      "multiplayerCoopCreationCheckpoint.test.ts: \"refuses creation under journal authority when the campaign has no genesis branch\" (:329 Expected 500, Received 201)"
+    ],
+    "greenOnBaseline": "campaignJournalAuthorityEnabled.test.ts \"answers true with NEXT_PUBLIC_E2E_MODE=true and the retired arm key 1\" passes on the baseline through the arm; it is a guard that the retired keys change nothing after the flip, not a red row",
+    "rowResults": [
+      "× answers the production constant, which is on",
+      "× answers true with NEXT_PUBLIC_E2E_MODE=false and the retired arm key undefined",
+      "× answers true with NEXT_PUBLIC_E2E_MODE=true and the retired arm key undefined",
+      "× answers true with NEXT_PUBLIC_E2E_MODE=false and the retired arm key 1",
+      "√ answers true with NEXT_PUBLIC_E2E_MODE=true and the retired arm key 1",
+      "× has no environment override: with the constant forced off, the retired arm keys answer false",
+      "√ conforms to the ICampaignEventStore read/write contract",
+      "√ matches the in-memory store observable behavior on the same script",
+      "√ rejects a sequence collision with the typed error and an untouched log",
+      "√ commits a multi-event command batch atomically with the digest on the terminal event",
+      "√ loses an expected-revision race cleanly with nothing applied",
+      "√ rejects divergent reuse of a command id without re-applying",
+      "√ rejects an empty or non-contiguous batch before touching the journal",
+      "√ state digests detect divergence and ignore key order",
+      "× hands a caller with a journal factory the journal store now that the flag is on",
+      "√ replays the accepted receipt and rejects divergent identity reuse",
+      "√ recovers the committed batch and digest envelope across a process restart",
+      "√ recovers the full contract and market from the private field while envelopeOf stays compact",
+      "√ leaves a legacy envelope byte-identical and its digests unchanged",
+      "√ refuses an unsupported private schema version rather than falling back",
+      "√ refuses a captured baseline whose digest does not match its own body",
+      "√ refuses to replay a stream that carries no private payload",
+      "× a create at baseVersion 0 appends the genesis, a journal-native marker and one effective campaign branch row",
+      "√ adopts a browser copy this server has never held",
+      "√ refuses to import over a campaign the server already holds",
+      "√ rejects an envelope whose id disagrees with the url",
+      "√ rejects a body with no envelope",
+      "× creates nothing when the campaign cannot be projected",
+      "√ allows only POST",
+      "√ has bound the GM seat durably by the time creation is acknowledged",
+      "√ has committed player-slot force ownership by the time creation is acknowledged",
+      "√ leaves both human seats empty and seats the GM as a spectator",
+      "√ seats the GM as a spectator when a co-op body names no host seat kind",
+      "√ refuses creation when the authoritative campaign record is absent",
+      "× refuses creation under journal authority when the campaign has no genesis branch"
+    ],
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/red-repinned.log",
+      "sha256": "073e0d57f62003ee1a49b7ca7fc77291a52c0b6585b00a9aef86d527a4aa8f22"
+    },
+    "testFiles": {
+      "src/lib/campaign/sync/__tests__/campaignJournalAuthorityEnabled.test.ts": "f25dc4c5ca2f62ad259bc64217b117bef6b450f6a42ae265aaecc9e0cbfd9ae3",
+      "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts": "4016754a425f74375f52192327e1c1e86ef4646fae51d13e58b8272b142b1a51",
+      "src/__tests__/api/campaigns/campaignPutGenesisRoute.test.ts": "6d2136b9a3d50d8622a4208b62abe88dd423e7e66f1e6aea59091f5674fd2209",
+      "src/__tests__/api/campaigns/campaignAdoptRoute.test.ts": "3903b4415d1dcdef0ece887f3dfd1ce98ef4149c349c9ed15a1de7ba1fc99d8a",
+      "src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts": "999025740f454a6b25dc223d671ecb25016a4f7a72ce7ae61ce1537a10162354",
+      "src/__tests__/api/campaigns/campaignRecordJournalTransaction.test.ts (comment only)": "599492b1d658425c7a83b1b0924078183e5544e53af6fcb9d949f2169cc3c053"
+    }
+  },
+  "e2eRepinRed": {
+    "what": "the e2e flag-off assertions re-pinned in the local stage (cutoverFlag and effective true, a journal-native marker and the genesis at sequence 0 after the create, no pre-cutover control, no CLI cutover)",
+    "redEvidence": "the CLI flags output above (cutoverFlag false, effective false) and the admission e2e-shape baseline values; the specs themselves are not run in this lane"
+  },
+  "summaryLog": {
+    "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/red-summary.log",
+    "sha256": "65b729bbc2c3e9e8118a7bd03b078713932b0a60810733e96e6ea5444c230ae2"
+  },
+  "gitStatusAfter": "six test files modified (the five pins and the campaignRecordJournalTransaction.test.ts comment) plus the untracked admission receipt; no product file",
+  "nonClaims": [
+    "No product file was edited before these rows ran (hashes above).",
+    "The two two-process e2e specs were not run (junctioned worktree); their baseline values come from the in-process measurement in the admission receipt.",
+    "U35's probe rows (b), (c), (g3) are recorded as they ran; they are other units' gates."
+  ]
+}

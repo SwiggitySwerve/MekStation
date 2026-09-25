@@ -1,0 +1,705 @@
+{
+  "unit": "U35d",
+  "stage": "local",
+  "status": "ready",
+  "at": "2026-09-25T22:54:33.980Z",
+  "baseline": "5a3e87f8ca4876ed36a3b186e56ba1211137cb12",
+  "head": "5a3e87f8ca4876ed36a3b186e56ba1211137cb12",
+  "headNote": "uncommitted working tree on the baseline; the parent commits",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u35d",
+  "branch": "roadmap-u35d-campaign-journal-flip-r3-20260925",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "admission": "evidence/u35d-admission-20260925.json",
+  "red": "evidence/u35d-red-20260925.json",
+  "runners": {
+    "testEdits": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/edit-tests.mjs",
+      "sha256": "3d0e522c8b6c1051f51c5b24ee427f5192fd836d33f129890d04f71fbb28fc20"
+    },
+    "localEdits": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/edit-local.mjs",
+      "sha256": "60c9c5d9a58a78e1414061e7e48a19fae3063072247300eaf111401c4329ae43"
+    },
+    "localEditsFollowUp": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/edit-local-2.mjs",
+      "sha256": "acee2d18c56b05aa246b9b83e5f8668caea8c444105cb2ea67b192cddc386e02"
+    },
+    "editHelpers": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/edit-lib.mjs",
+      "sha256": "6a9d2c46766d311cc420332f541dade5804bb6826c14551a6f266226df1fcb83"
+    },
+    "gates": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/local-gates.sh",
+      "sha256": "9f657c04056bdc9aafb4e5974183350ec63f2e4d0aa93617bd423155d258d71c"
+    },
+    "mutants": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/mutants.sh",
+      "sha256": "157d52d7a0a96a49268d96f2f58925b3df13d9c2f53c15d34255d0c7f653fc76"
+    },
+    "mutate": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/mutate.mjs",
+      "sha256": "7ffb49fb3038912876fcc4420983cd5b529c877ada71dec3f384a7f2693896e9"
+    },
+    "build": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/build.sh",
+      "sha256": "aa3466317df723607ede21542535482db30fa4e006cc9ba8918a55295f5b6f7a"
+    },
+    "ladder": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/ladder.sh",
+      "sha256": "9d2705596e994eec163728ed76e15185403e43162011a66e9a63e97d06e16dd5"
+    },
+    "receiptWriter": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/write-local.mjs",
+      "sha256": "d99a5c6f8f763bab07ab7558e0bcf0b20215fcd42306a2ea40ac29ee5553e355"
+    }
+  },
+  "behaviorDelivered": [
+    "CAMPAIGN_JOURNAL_AUTHORITY_ENABLED is true (JournalCampaignEventStore.ts) and isCampaignJournalAuthorityEnabled returns it with no override; the e2e fixture arm (e2eJournalAuthorityArmed) and its exported env constant (CAMPAIGN_JOURNAL_AUTHORITY_E2E_ENV) are deleted, and both importers of the env constant (campaignPutGenesisRoute.test.ts, scripts/e2e/campaign-journal-authority.ts) no longer import it.",
+    "The in-path pins re-pinned: the resolver (true whatever the retired keys hold; no override with the constant forced off), the factory (journal store when a journal factory is passed, in-memory without one), the PUT genesis route (U35 row (a): journal-native marker, no imported baseline, one CampaignSnapshotPublished, one effective branch row, no MEKSTATION_E2E_* key), the adopt route (flag-on half unconditional), and the co-op creation refusal row reached through the flag with no env keys (U35c F1 folded; restoreEnv removed).",
+    "The e2e flag-off assertions re-pinned to the values measured in one process at admission (flags true; marker journal and genesis at sequence 0 after the create; unchanged after the co-op match; no CLI cutover and no pre-cutover 409 control); the CLI flags report cutoverFlag and effective only; sourceServerEnv no longer takes or strips an arm key; the unused cutover helper removed.",
+    "Comments corrected: the flag-off prose in JournalCampaignEventStore.ts and the resolver; the CLI header (U35b F1 at :33; the arm at :36-41; the co-op stream arm, folded F2); convergence spec :167 (U35b F1); e2e/campaign-two-device-drive.spec.ts:440-461 and e2e/gm-two-player-authority-recovery.pack.spec.ts:13-19 (folded F2/F4); campaignRecordJournalTransaction.test.ts header (no e2e arm)."
+  ],
+  "files": [
+    {
+      "file": "e2e/campaign-journal-two-process-convergence.spec.ts",
+      "added": 44,
+      "removed": 127,
+      "category": "test",
+      "sha256": "86414aab3627d75697d33512e9e9a0297bfdbb415ea0734934cb5aef1f53080c"
+    },
+    {
+      "file": "e2e/campaign-journal-two-process-privacy.spec.ts",
+      "added": 12,
+      "removed": 16,
+      "category": "test",
+      "sha256": "45266cd2506ce62cbea0e76e038041398dc79c8736b36de9a2cafb3aee04f676"
+    },
+    {
+      "file": "e2e/campaign-two-device-drive.spec.ts",
+      "added": 11,
+      "removed": 19,
+      "category": "test",
+      "sha256": "15f0069d8d6a85135547f1ae97ba3a1cf478eb2d870cd1cc4c199265b43b6a97"
+    },
+    {
+      "file": "e2e/gm-two-player-authority-recovery.pack.spec.ts",
+      "added": 6,
+      "removed": 7,
+      "category": "test",
+      "sha256": "02d14eaf05edabeddd23be738e37d5cadc39f603e07f035961d968b7081f10bc"
+    },
+    {
+      "file": "e2e/helpers/campaignJournalPrivacyFixture.ts",
+      "added": 17,
+      "removed": 34,
+      "category": "test",
+      "sha256": "dee5891f043a8ec23ec6da10ea68993027412084df57c6ea113c0211b3f9da23"
+    },
+    {
+      "file": "e2e/helpers/campaignJournalTwoProcess.ts",
+      "added": 14,
+      "removed": 33,
+      "category": "test",
+      "sha256": "a22f577659a66559243cfe6df32c2a79e3c52f8cef5fb2abd81412fb3f7ec7da"
+    },
+    {
+      "file": "scripts/e2e/campaign-journal-authority.ts",
+      "added": 23,
+      "removed": 25,
+      "category": "e2e tooling (counted as product, conservatively)",
+      "sha256": "3f10471edd97a522fb4278fdf285cf2eeff6f79cbc1cb5fd505b0761ad38ad83"
+    },
+    {
+      "file": "src/__tests__/api/campaigns/campaignAdoptRoute.test.ts",
+      "added": 5,
+      "removed": 12,
+      "category": "test",
+      "sha256": "3903b4415d1dcdef0ece887f3dfd1ce98ef4149c349c9ed15a1de7ba1fc99d8a"
+    },
+    {
+      "file": "src/__tests__/api/campaigns/campaignPutGenesisRoute.test.ts",
+      "added": 50,
+      "removed": 36,
+      "category": "test",
+      "sha256": "6d2136b9a3d50d8622a4208b62abe88dd423e7e66f1e6aea59091f5674fd2209"
+    },
+    {
+      "file": "src/__tests__/api/campaigns/campaignRecordJournalTransaction.test.ts",
+      "added": 1,
+      "removed": 1,
+      "category": "test",
+      "sha256": "599492b1d658425c7a83b1b0924078183e5544e53af6fcb9d949f2169cc3c053"
+    },
+    {
+      "file": "src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts",
+      "added": 11,
+      "removed": 28,
+      "category": "test",
+      "sha256": "999025740f454a6b25dc223d671ecb25016a4f7a72ce7ae61ce1537a10162354"
+    },
+    {
+      "file": "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+      "added": 23,
+      "removed": 20,
+      "category": "product",
+      "sha256": "cdddb0613147e232eed61e00fbe53ed3182096fe8200d8e4e848541daf043a6e"
+    },
+    {
+      "file": "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts",
+      "added": 11,
+      "removed": 9,
+      "category": "test",
+      "sha256": "4016754a425f74375f52192327e1c1e86ef4646fae51d13e58b8272b142b1a51"
+    },
+    {
+      "file": "src/lib/campaign/sync/__tests__/campaignJournalAuthorityEnabled.test.ts",
+      "added": 53,
+      "removed": 21,
+      "category": "test",
+      "sha256": "f25dc4c5ca2f62ad259bc64217b117bef6b450f6a42ae265aaecc9e0cbfd9ae3"
+    },
+    {
+      "file": "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts",
+      "added": 9,
+      "removed": 29,
+      "category": "product",
+      "sha256": "b81e7327c6ccd9089dbc5df8ee0597081ca666307b1b1d517903fbe5121cfc8c"
+    }
+  ],
+  "lineCounts": {
+    "rule": "added + removed per git diff --numstat; product vs test (owner decision OD-line-cap-product-lines); scripts/e2e/campaign-journal-authority.ts counted as product, conservatively",
+    "productFiles": 3,
+    "productLines": 129,
+    "productLinesWithoutTheCli": 81,
+    "testFiles": 12,
+    "testLines": 578,
+    "totalFiles": 15,
+    "caps": {
+      "maxFiles": 15,
+      "maxNonGeneratedLines": 500
+    },
+    "withinCaps": true,
+    "outsideOwnershipPaths": [],
+    "receiptsNotCounted": [
+      "u35d-admission-20260925.json",
+      "u35d-red-20260925.json",
+      "u35d-local-20260925.json"
+    ]
+  },
+  "gates": {
+    "jestCampaign": {
+      "command": "npx jest src/lib/campaign",
+      "exitCode": 0,
+      "counts": [
+        "Test Suites: 204 passed, 204 total",
+        "Tests:       2987 passed, 2987 total"
+      ],
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\campaign/i.",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/local-jest-campaign.log",
+        "sha256": "44fb8ef7aefd626b0c6e9558be7cd2392bd20207949cf1bef61741a6fa8475fb"
+      }
+    },
+    "jestApi": {
+      "command": "npx jest src/__tests__/api",
+      "exitCode": 0,
+      "counts": [
+        "Test Suites: 57 passed, 57 total",
+        "Tests:       772 passed, 772 total"
+      ],
+      "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\api/i.",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/local-jest-api.log",
+        "sha256": "11bf28680ac58baa0bbbc4073fa19c90a3c71974b21bfeb3281c6a1f18d9f466"
+      }
+    },
+    "jestUnitApi": {
+      "command": "npx jest src/__tests__/unit/api",
+      "exitCode": 0,
+      "counts": [
+        "Test Suites: 6 passed, 6 total",
+        "Tests:       35 passed, 35 total"
+      ],
+      "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\unit\\\\api/i.",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/local-jest-unit-api.log",
+        "sha256": "be501b9b3a46330237776b30d0ffb309dc1a4b408529e202601628600d68b01d"
+      }
+    },
+    "jestServices": {
+      "command": "npx jest src/services/campaignPersistence",
+      "exitCode": 0,
+      "counts": [
+        "Test Suites: 4 passed, 4 total",
+        "Tests:       23 passed, 23 total"
+      ],
+      "lastLine": "Ran all test suites matching /src\\\\services\\\\campaignPersistence/i.",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/local-jest-services.log",
+        "sha256": "0b7fbcd9db31d915d4f095f1696ebc950575a1841dd2f90e9ef858360d7151a2"
+      }
+    },
+    "jestQcPinOutsidePaths": {
+      "command": "npx jest scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+      "exitCode": 0,
+      "counts": [
+        "Test Suites: 1 passed, 1 total",
+        "Tests:       14 passed, 14 total"
+      ],
+      "lastLine": "Ran all test suites matching /scripts\\\\__tests__\\\\gm-two-player-campaign-qc.test.ts/i.",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/local-jest-qc-pin.log",
+        "sha256": "47dc7627442854f2343160f1beccee4a1d04c67ed2928e21a2ea5370f1479745"
+      }
+    },
+    "tsc": {
+      "command": "npx tsc --noEmit",
+      "exitCode": 0,
+      "lastLine": "",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/local-tsc.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "output": "none (incremental: the worktree holds an ignored tsconfig.tsbuildinfo)"
+    },
+    "tscFull": {
+      "command": "npx tsc --noEmit --incremental false",
+      "exitCode": 0,
+      "lastLine": "",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/local-tsc-full.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "output": "none"
+    },
+    "oxlint": {
+      "command": "npx oxlint",
+      "exitCode": 0,
+      "lastLine": "Finished in 237ms on 3819 files using 16 threads.",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/local-oxlint.log",
+        "sha256": "e2f73063016c43244c3b388107735b56389d13283899d6d7bf116db1d533670c"
+      },
+      "summary": "Found 84 warnings and 0 errors.",
+      "warningsVsBaseline": "84 (baseline 84)"
+    },
+    "oxfmt": {
+      "command": "npx oxfmt --check <the 14 changed .ts files outside scripts> scripts/e2e/campaign-journal-authority.ts",
+      "exitCode": 0,
+      "lastLine": "Finished in 19ms on 15 files using 16 threads.",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/local-oxfmt.log",
+        "sha256": "c0e4884435533b5dca961e28bc1bf83595f825ead4de7b93184f6bb1c14d0601"
+      },
+      "summary": [
+        "All matched files use the correct format.",
+        "Finished in 19ms on 15 files using 16 threads."
+      ]
+    },
+    "lintUnits": {
+      "command": "npm run lint:units",
+      "exitCode": 0,
+      "lastLine": "LINT_UNITS_PASS 100/100",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/local-lint-units.log",
+        "sha256": "e055631f9348b2e6539c922dddc1fe388b583448a734da5f618cb47c583fae2d"
+      },
+      "summary": "LINT_UNITS_PASS 100/100"
+    },
+    "openspecCi": {
+      "command": "npm run qc:openspec-ci:validate",
+      "exitCode": 0,
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/local-openspec-ci.log",
+        "sha256": "4c2dafd093b946290aa4abe001ad8b3d65671b17c7682722c55a510ecc04f91e"
+      }
+    },
+    "roadmapValidator": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "exitCode": 0,
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/local-validator.log",
+        "sha256": "97b2f29d264078525a55c5f88586fb95603311fa065e70d7d17c5fab08f5b5bc"
+      }
+    }
+  },
+  "extras": {
+    "u35ProbeRowAGreen": {
+      "what": "U35's saved admission probe suite copied in, run with the real flip, removed",
+      "exitCode": 0,
+      "rowResults": [
+        "√ (a) a PUT create at baseVersion 0 appends genesis, the journal-native marker and one effective campaign branch row",
+        "√ (b) a marker-io failure after a committed batch leaves the commit acknowledged",
+        "√ (c) a balance-bearing FundsChanged refuses a scope other than campaign",
+        "√ (g3) an accepted whole-envelope PUT on a journal-native campaign and the journal head afterwards"
+      ],
+      "counts": "Tests:       4 passed, 4 total",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/local-u35-probe.log",
+        "sha256": "1b51bcc92357dfc76c640d5296269d91201f48471109fba35709b1a1c57c0122"
+      },
+      "values": {
+        "status": 200,
+        "markerKind": "ok",
+        "markerState": "journal",
+        "events": 1,
+        "genesisEvents": 1,
+        "effectiveCampaignBranchRows": 1,
+        "e2eKeys": []
+      }
+    },
+    "reAdmissionProbeUnderTheRealFlip": {
+      "what": "the re-admission gate probe (u35d-r2, unchanged) copied in, run on the flipped tree, removed; the same rows as the admission's temporary flip",
+      "exitCode": 1,
+      "rowResults": [
+        "√ (a) a PUT create at baseVersion 0 appends genesis, the journal-native marker and one effective campaign branch row",
+        "√ (r1) SpendFunds through the command route survives the saves",
+        "√ (r2) AdvanceDay through the command route survives the saves",
+        "√ (r3) HirePilot through the command route survives the saves",
+        "√ (c1) HirePilot through the co-op host door survives the host save",
+        "× (o1) a combat outcome (salvage and roster) through the outcome inbox, then the host fold save",
+        "√ (o1c) the same outcome, then a host save whose roster carries the damage (readiness Destroyed, Damaged)",
+        "√ (o2) a combat outcome debit through the outcome inbox, then the host fold save",
+        "√ (o2u) a combat outcome debit, then a host save built before the frame was folded",
+        "× (o1s) the combat outcome on a campaign created by the PUT route alone, then the host fold save",
+        "× (s1) a salvage allocation carrying a recovered unit through the co-op door, then the host saves"
+      ],
+      "counts": "Tests:       3 failed, 8 passed, 11 total",
+      "reading": "o1, o1s and s1 red for the reasons the admission receipt records (rulingGate.realFlows); every other row green",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/local-gate.log",
+        "sha256": "a8cdcf681c55893fb8c77f9069d04961272b8caa623a3d5572f1953fad06a919"
+      },
+      "valuesFile": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/local-gate.json",
+        "sha256": "ec5b9b04f4210990312733c0d0958b5f3f5b74fe4f156439c66d838e82e4dffb"
+      }
+    },
+    "hostStoreRowsUnderTheRealFlip": {
+      "exitCode": 0,
+      "rowResults": [
+        "√ (h1) the host saves at the version it held: refused 409, rolled back to the server record, then saved",
+        "√ (h2) the host folds the outcome and refreshes (U35f) before it saves",
+        "√ (h3) a co-op updateCampaign (any host save) at the held version, then the next save"
+      ],
+      "counts": "Tests:       3 passed, 3 total",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/local-host.log",
+        "sha256": "ee8c6ccd0388566a40fca0011c7ed1d569d2585ee2b7f71c047e0cf91c6a0b7c"
+      },
+      "valuesFile": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/local-host.json",
+        "sha256": "1aedbab52ad61b41a0abcc8e6e8b2d1ca7f9dd6cac08a535d077bbdac6079ee8"
+      }
+    },
+    "cliFlags": {
+      "command": "node node_modules/tsx/dist/cli.mjs scripts/e2e/campaign-journal-authority.ts --command flags",
+      "output": "{\"ok\":true,\"cutoverFlag\":true,\"effective\":true}",
+      "withTheRetiredArmKeys": "{\"ok\":true,\"cutoverFlag\":true,\"effective\":true}",
+      "logs": [
+        {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/local-cli-flags.log",
+          "sha256": "0318fc74adafba08fe33447f6efc25cf968a81831f3f75d0568d42f4e6a86de1"
+        },
+        {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/local-cli-flags-armed.log",
+          "sha256": "0318fc74adafba08fe33447f6efc25cf968a81831f3f75d0568d42f4e6a86de1"
+        }
+      ]
+    }
+  },
+  "build": {
+    "machineIdle": [
+      {
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/build-idle-1.log",
+          "sha256": "c5a4e395d45ee502f488a59b81a52e207ccf964d68baecbdb160ba44cec349ee"
+        },
+        "lines": [
+          "2026-09-25T22:48:44Z",
+          "MACHINE_IDLE",
+          "2026-09-25T22:48:44Z"
+        ]
+      }
+    ],
+    "command": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build",
+    "started": "2026-09-25T22:48:44Z",
+    "finished": "2026-09-25T22:50:17Z",
+    "exitCode": 1,
+    "expected": "exit 1 in a junctioned worktree by design: the standalone hydration guard refuses to recurse through the junction and the compiled .next is complete (charter; release-build-system spec.md:59-68)",
+    "lastLines": [
+      "ƒ  (Dynamic)  server-rendered on demand",
+      "{",
+      "  \"ok\": false,",
+      "  \"error\": \"Unsafe hydration destination (runtime loader tsx) contains a symlink or junction: .next\\\\standalone\\\\node_modules\",",
+      "  \"hint\": \"Run npm run build first so .next/standalone/server.js exists, then hydrate the standalone multiplayer server.\"",
+      "}"
+    ],
+    "marker": {
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/build-marker.log",
+        "sha256": "55411eb923dc14caf78bae51f89fab0a5e19e194797a1dbfd074d919d80558be"
+      },
+      "lines": [
+        ".next/static/chunks/pages/_app-b0b5db7176b852e4.js",
+        ".next/static/chunks/pages/_app-b0b5db7176b852e4.js __E2E_MODE__ count 1"
+      ]
+    },
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/build.log",
+      "sha256": "dbc0c619681215d16ed83f75e42b5ab885f5296f7400a58e04aeaf8ea81b46bb"
+    },
+    "nextLeftInPlace": true
+  },
+  "ladderRuns": [
+    {
+      "group": "authority-recovery",
+      "command": "HOSTNAME=127.0.0.1 NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=authority-recovery --run-id=u35d-local-authority-recovery-20260925",
+      "machineIdle": [
+        {
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/ladder-authority-recovery-idle-1.log",
+            "sha256": "1f7d8b84b7e76c24804ea841253eac8124b030fa4b41dee354f74b9bed25a175"
+          },
+          "lines": [
+            "2026-09-25T22:50:41Z",
+            "MACHINE_IDLE",
+            "2026-09-25T22:50:41Z"
+          ]
+        }
+      ],
+      "ownedPort": 28970,
+      "portNote": "the runner prints no port; derived with deriveFixturePort(runId) from scripts/qc/gm-two-player-campaign-core.cjs, as U22 did",
+      "started": "2026-09-25T22:50:41Z",
+      "finished": "2026-09-25T22:51:30Z",
+      "portAfterRun": "port 28970 PORT_FREE",
+      "exitCode": 0,
+      "summary": [
+        "4 passed (48.0s)"
+      ],
+      "reporterLines": [
+        "ok 1 [chromium] › e2e\\gm-two-player-authority-recovery.pack.spec.ts:46:5 › E2E-01 durable campaign cold recovery @authority-recovery @E2E-01 (11.4s)",
+        "ok 2 [chromium] › e2e\\gm-two-player-authority-recovery.pack.spec.ts:65:5 › E2E-01 genesis branch recovers @authority-recovery @E2E-01 (9.9s)",
+        "ok 3 [chromium] › e2e\\gm-two-player-authority-recovery.pack.spec.ts:84:5 › E2E-02 participant ownership survives restart @authority-recovery @E2E-02 (10.0s)",
+        "ok 4 [chromium] › e2e\\gm-two-player-authority-recovery.pack.spec.ts:122:5 › E2E-02 effective branch remains authoritative @authority-recovery @E2E-02 (10.0s)"
+      ],
+      "unexpectedPassLines": [],
+      "lastLine": "4 passed (48.0s)",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/ladder-authority-recovery.log",
+        "sha256": "e15350ab9579c76cd2047d957cd735aea8d84ea4602fd9b9f9c4aa023b03f404"
+      },
+      "baselineOnMain": "4 passed (U22 #1943)"
+    },
+    {
+      "group": "privacy-pack",
+      "command": "HOSTNAME=127.0.0.1 NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=privacy-pack --run-id=u35d-local-privacy-pack-20260925",
+      "machineIdle": [
+        {
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/ladder-privacy-pack-idle-1.log",
+            "sha256": "748468fd43a5f987b3cbcf454128e0af2d23b948db42bd01f238f281f39f0db1"
+          },
+          "lines": [
+            "2026-09-25T22:51:30Z",
+            "MACHINE_IDLE",
+            "2026-09-25T22:51:31Z"
+          ]
+        }
+      ],
+      "ownedPort": 22441,
+      "portNote": "the runner prints no port; derived with deriveFixturePort(runId) from scripts/qc/gm-two-player-campaign-core.cjs, as U22 did",
+      "started": "2026-09-25T22:51:31Z",
+      "finished": "2026-09-25T22:52:08Z",
+      "portAfterRun": "port 22441 PORT_FREE",
+      "exitCode": 0,
+      "summary": [
+        "8 passed (36.5s)"
+      ],
+      "reporterLines": [
+        "ok 1 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:220:7 › tactical pre-serialization privacy › E2E-19 unfinalized GM draft has only a private payload @E2E-19 (2.8s)",
+        "ok 2 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:276:7 › tactical pre-serialization privacy › E2E-25 approved correction keeps its reason private @E2E-25 (2.4s)",
+        "ok 3 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:365:7 › tactical pre-serialization privacy › E2E-20 Player 1 sealed choice reaches neither Player 2 wire nor board @E2E-20 @E2E-23 @E2E-24 (5.0s)",
+        "ok 4 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:460:7 › tactical pre-serialization privacy › E2E-21 Player 2 sealed choice reaches neither Player 1 wire nor board @E2E-21 (4.9s)",
+        "ok 5 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:514:7 › tactical pre-serialization privacy › E2E-27 no player surface carries an authority identifier or an inferable gap @E2E-27 (2.6s)",
+        "ok 6 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:559:7 › tactical pre-serialization privacy › E2E-22 finalization reveals the COMMITTED declaration on the opponent delivery stream @E2E-22 (7.6s)",
+        "ok 7 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:623:7 › tactical pre-serialization privacy › E2E-26 a reconnecting player replays exactly what it was delivered live @E2E-26 (5.4s)",
+        "ok 8 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:702:7 › tactical pre-serialization privacy › E2E-28 seated export and timeline agree; strangers fail before fan-out @E2E-28 (2.2s)"
+      ],
+      "unexpectedPassLines": [],
+      "lastLine": "8 passed (36.5s)",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/ladder-privacy-pack.log",
+        "sha256": "5f22d20f05903722886bb65c98cd518b680ab448c64f39bcf9a5262252ca700f"
+      },
+      "baselineOnMain": "8 passed (U22 #1943)"
+    },
+    {
+      "group": "proposal-pack",
+      "command": "HOSTNAME=127.0.0.1 NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=proposal-pack --run-id=u35d-local-proposal-pack-20260925",
+      "machineIdle": [
+        {
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/ladder-proposal-pack-idle-1.log",
+            "sha256": "ecaaed7f22248e5b1a244ce6341c70f8a5a3469c8b95550c984cd02dee3e667e"
+          },
+          "lines": [
+            "2026-09-25T22:52:08Z",
+            "MACHINE_IDLE",
+            "2026-09-25T22:52:09Z"
+          ]
+        }
+      ],
+      "ownedPort": 23180,
+      "portNote": "the runner prints no port; derived with deriveFixturePort(runId) from scripts/qc/gm-two-player-campaign-core.cjs, as U22 did",
+      "started": "2026-09-25T22:52:09Z",
+      "finished": "2026-09-25T22:54:23Z",
+      "portAfterRun": "port 23180 PORT_FREE",
+      "exitCode": 0,
+      "summary": [
+        "2 passed (2.2m)"
+      ],
+      "reporterLines": [
+        "ok 1 [chromium] › e2e\\gm-two-player-proposals.pack.spec.ts:49:5 › E2E-30 concurrent proposals stay attributable and independently resolvable @proposal-pack @E2E-30 (4.9s)",
+        "ok 2 [chromium] › e2e\\gm-two-player-proposals.pack.spec.ts:177:5 › E2E-29 veto and timeout commit nothing and clear only own pending UI @proposal-pack @E2E-29 (2.1m)"
+      ],
+      "unexpectedPassLines": [],
+      "lastLine": "2 passed (2.2m)",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/ladder-proposal-pack.log",
+        "sha256": "29501b7f1f1476eec11ffb843ee2af9f60c69763646955640bedb93cbe4c56b7"
+      },
+      "baselineOnMain": "2 passed (U22 #1943)"
+    }
+  ],
+  "twoProcessSpecs": "not run: they cannot start in a junctioned worktree (FN-u22-two-process-specs-cannot-run-in-junctioned-worktree); their re-pinned values come from the in-process measurement (admission e2eShapeMeasurement); the main proof in the root checkout must run both with --workers=1 (FN-u22-two-process-specs-share-port-3617)",
+  "mutants": [
+    {
+      "id": "M1",
+      "what": "the constant back to false (JournalCampaignEventStore.ts)",
+      "target": "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+      "preSha256": "cdddb0613147e232eed61e00fbe53ed3182096fe8200d8e4e848541daf043a6e",
+      "mutatedSha256": "a177c98ac19778b1ac2150697b96687e0833e6c072bf6896c68c7d3f1e4633ce",
+      "jestExit": 1,
+      "caughtBy": [
+        "× answers the production constant, which is on",
+        "× answers true with NEXT_PUBLIC_E2E_MODE=false and the retired arm key undefined",
+        "× answers true with NEXT_PUBLIC_E2E_MODE=true and the retired arm key undefined",
+        "× answers true with NEXT_PUBLIC_E2E_MODE=false and the retired arm key 1",
+        "× answers true with NEXT_PUBLIC_E2E_MODE=true and the retired arm key 1",
+        "× hands a caller with a journal factory the journal store now that the flag is on",
+        "× a create at baseVersion 0 appends the genesis, a journal-native marker and one effective campaign branch row",
+        "× creates nothing when the campaign cannot be projected",
+        "× refuses creation under journal authority when the campaign has no genesis branch"
+      ],
+      "counts": "Tests:       9 failed, 27 passed, 36 total",
+      "restoredSha256": "cdddb0613147e232eed61e00fbe53ed3182096fe8200d8e4e848541daf043a6e",
+      "restoredIdentical": true,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/mutant-M1.log",
+        "sha256": "72cf09fdd42ce18b7f9e706b9ceb59f625eac23243d7b51788e23cf84d112db2"
+      }
+    },
+    {
+      "id": "M2",
+      "what": "the e2e arm restored (campaignJournalAuthorityEnabled.ts replaced by the baseline's HEAD copy, arm and env constant included)",
+      "target": "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts",
+      "preSha256": "b81e7327c6ccd9089dbc5df8ee0597081ca666307b1b1d517903fbe5121cfc8c",
+      "mutatedSha256": "392fd63f42a7d3bc13f29d74557264674483dcdb6dedc1046161130e6588940e",
+      "jestExit": 1,
+      "caughtBy": [
+        "× has no environment override: with the constant forced off, the retired arm keys answer false"
+      ],
+      "counts": "Tests:       1 failed, 35 passed, 36 total",
+      "restoredSha256": "b81e7327c6ccd9089dbc5df8ee0597081ca666307b1b1d517903fbe5121cfc8c",
+      "restoredIdentical": true,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/mutant-M2.log",
+        "sha256": "d90ddf23d7729f7235303de37e0cce98aef5b9fc6d877df90f9f271b1c7bc6de"
+      }
+    },
+    {
+      "id": "M3",
+      "what": "one re-pinned flag-off assertion inverted: campaignPutGenesisRoute.test.ts expect(stored.kind).toBe('ok') -> toBe('not_found')",
+      "target": "src/__tests__/api/campaigns/campaignPutGenesisRoute.test.ts",
+      "preSha256": "6d2136b9a3d50d8622a4208b62abe88dd423e7e66f1e6aea59091f5674fd2209",
+      "mutatedSha256": "c65e6bae7fb113d638f9ddcb43fd4a429d6741fabf24f38a7cc6f0e8e9378aef",
+      "jestExit": 1,
+      "caughtBy": [
+        "× a create at baseVersion 0 appends the genesis, a journal-native marker and one effective campaign branch row"
+      ],
+      "counts": "Tests:       1 failed, 35 passed, 36 total",
+      "restoredSha256": "6d2136b9a3d50d8622a4208b62abe88dd423e7e66f1e6aea59091f5674fd2209",
+      "restoredIdentical": true,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/mutant-M3.log",
+        "sha256": "86dd7ac7a6e0d8eb41c351322b6df97571826ba4d5e9c135f9e72c93e67df2fe"
+      }
+    },
+    {
+      "id": "M4",
+      "what": "the factory ignores the flag: createDefaultCampaignEventStore branches on !CAMPAIGN_JOURNAL_AUTHORITY_ENABLED",
+      "target": "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+      "preSha256": "cdddb0613147e232eed61e00fbe53ed3182096fe8200d8e4e848541daf043a6e",
+      "mutatedSha256": "1aa7041ee0d1559d1bca5e2efef886ec861237947ed933608994338985d165a2",
+      "jestExit": 1,
+      "caughtBy": [
+        "× hands a caller with a journal factory the journal store now that the flag is on"
+      ],
+      "counts": "Tests:       1 failed, 35 passed, 36 total",
+      "restoredSha256": "cdddb0613147e232eed61e00fbe53ed3182096fe8200d8e4e848541daf043a6e",
+      "restoredIdentical": true,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/mutant-M4.log",
+        "sha256": "b882de62b45902831cd5e32ed611656b54347915043de6669a6db2e6cd788216"
+      }
+    }
+  ],
+  "mutantsLog": {
+    "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r3/logs/mutants-summary.log",
+    "sha256": "0a0c94ab2dce7a95ecf75824ab6fcd68a484141132d224b92bf92708ee550181"
+  },
+  "mutantsNote": "each target byte-copied before the mutation, the five re-pinned pin suites run, the file restored from the copy and its sha256 compared",
+  "nonClaims": [
+    "The two two-process e2e specs (convergence, privacy) and their shared helpers were edited but not run (junctioned worktree); the values they now assert were measured in one process (admission e2eShapeMeasurement), not across two processes.",
+    "The two-device drive spec and the authority-recovery pack were edited in comments only; the authority-recovery group ran (ladderRuns).",
+    "No socket-level or browser-level measurement of the co-op host save: the gate rows drive routes and stores in one process.",
+    "The flip residue outside the paths (playwright.config.ts, scripts/qc, scripts/__tests__, three comments) is U35h/U35i and was not touched; the QC plan still sets the retired key, which no server code reads.",
+    "Migration: a campaign created before the flip is refused co-op creation at the genesis-branch step (pinned by the unit/api row); not otherwise exercised."
+  ],
+  "findingsReportedNotFixed": [
+    {
+      "id": "F1",
+      "file": "src/lib/campaign/sync/ICampaignEventStore.ts:177; src/lib/campaign/sync/InMemoryCampaignEventStore.ts:40",
+      "finding": "both call the in-memory store the 'flag-off' adapter; after the flip it is the store for a caller with no journal factory and for the ephemeral selection without SQLite. Stale wording in the paths, not edited because the unit is at its 15-file cap."
+    },
+    {
+      "id": "F2",
+      "file": "e2e/campaign-journal-two-process-convergence.spec.ts:46-51,389-392 (the /head claims, lines on the edited tree); e2e/helpers/campaignJournalDrive.ts:125-129",
+      "finding": "the claim that /head answers no-authoritative-stream for a co-op-hosted campaign whose journal holds events is false on the baseline already (measured at admission: kind 'head' after the co-op match with the flag false and true); not caused by the flip, not corrected."
+    },
+    {
+      "id": "F3",
+      "file": "e2e/campaign-journal-two-process-convergence.spec.ts (removed control)",
+      "finding": "the pre-cutover 409 control is gone because a route-created campaign is journal-native at birth; the refusal of a campaign without journal authority stays pinned in jest (src/__tests__/api/campaigns/campaignCommandsRoute.test.ts:328, src/lib/campaign/authority/__tests__/campaignCommandPipeline.test.ts:160)."
+    },
+    {
+      "id": "F5",
+      "file": "the privacy-pack webServer log (ladder-privacy-pack.log)",
+      "finding": "[ViewerDeliveryCursors] persist failed ... UNIQUE constraint failed: mp_viewer_delivery.match_id, player_id, delivery_sequence appears 4 times while all 8 rows pass; the message says a missing row falls back to a full replay. Not investigated; not compared with a baseline run in this lane."
+    },
+    {
+      "id": "F4",
+      "file": "scripts/e2e/campaign-journal-authority.ts cutover",
+      "finding": "the CLI cutover does not read an existing marker before writing one; after the flip every route-created campaign already has one, so it only applies to a campaign created before the flip. Not changed."
+    }
+  ],
+  "risksForTheParent": [
+    "Authority/idempotency/migration: Lane B owner ruling on the merging head.",
+    "After merge every new co-op campaign is journal-native, so a host save built before a combat outcome (for example Return to Campaign's save) is refused 409 and rolled back to the server record with a toast; the outcome survives (admission h1/h3).",
+    "The main proof must run the two two-process specs in the root checkout with --workers=1, plus verify:qc:coop-campaign-journey and the three ladder groups (units.json)."
+  ],
+  "gitStatusShort": " M e2e/campaign-journal-two-process-convergence.spec.ts\n M e2e/campaign-journal-two-process-privacy.spec.ts\n M e2e/campaign-two-device-drive.spec.ts\n M e2e/gm-two-player-authority-recovery.pack.spec.ts\n M e2e/helpers/campaignJournalPrivacyFixture.ts\n M e2e/helpers/campaignJournalTwoProcess.ts\n M scripts/e2e/campaign-journal-authority.ts\n M src/__tests__/api/campaigns/campaignAdoptRoute.test.ts\n M src/__tests__/api/campaigns/campaignPutGenesisRoute.test.ts\n M src/__tests__/api/campaigns/campaignRecordJournalTransaction.test.ts\n M src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts\n M src/lib/campaign/sync/JournalCampaignEventStore.ts\n M src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts\n M src/lib/campaign/sync/__tests__/campaignJournalAuthorityEnabled.test.ts\n M src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts\n?? openspec/planning/2026-09-12-roadmap-completion/evidence/u35d-admission-20260925.json\n?? openspec/planning/2026-09-12-roadmap-completion/evidence/u35d-red-20260925.json\n"
+}
