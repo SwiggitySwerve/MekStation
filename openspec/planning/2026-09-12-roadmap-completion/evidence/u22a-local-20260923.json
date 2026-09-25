@@ -1,0 +1,835 @@
+{
+  "unit": "U22a",
+  "stage": "local",
+  "at": "2026-09-23T07:57:32.001Z",
+  "status": "ready",
+  "baseline": "f32ea5400f3a1282733180059e32d9169fb74204",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u22a",
+  "branch": "roadmap-u22a-rewind-reaches-live-match-20260923",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "behaviorClauses": {
+    "(1)": "MatchHostRegistry keeps { registry, recoveryRan } in one Symbol.for(\"mekstation.multiplayer.matchHostRegistry\") slot on globalThis; getMatchHostRegistry, bootstrapMultiplayerServer and _resetMatchHostRegistry use it; the :223 comment now says what the slot gives",
+    "(2)+(3) server": "rebuildHostFromActivatedBranch awaits host.replayToAttachedViewers() after markViewersForResync; ServerMatchHost runs the per-socket join replay from 0 for every attached socket (own viewer, fog filter, publication guard, delivery numbering) and stamps replacesStream: true on the ReplayStart in that push's send step, after the guard and the stamping; never broadcaster.broadcast",
+    "(3) protocol/client/hook": "ReplayStartSchema gains replacesStream: z.literal(true).optional(); the client resets its delivery admission state to connect()'s initial values on the marker and emits \"streamReplaced\"; connectMultiplayerSession then replaces the mirror log with the replayed events (the first replayed game event replaces it; ready empties it when the replay carried none), so the old stream is never mixed in and the mirror is never empty in between"
+  },
+  "designDeviationsFromAdmission": [
+    "The hook does not empty the mirror log when streamReplaced fires; it marks it for replacement and the first replayed game event REPLACES the log (ready empties it when the replay carried none). The first implementation emptied it on the event; on the intermediate build E2E-25 then failed at spec:352 (the host page lost networked-gm-correction-status) in both runs. INFERENCE for the cause: between ReplayStart and ReplayEnd the mirror was empty, NetworkedGameSurface returns MatchLoadingState when mirrorSession is null (NetworkedGameSurface.tsx:331-333), which unmounts the GM controls and their status state. The hook row now asserts the mirror is not empty between ReplayStart and the replayed body; mutant M6 (the intermediate helper) is caught by it.",
+    "The marker is stamped by a per-push safeSend wrapper in ServerMatchHost, not by a replacesStream parameter threaded through ServerMatchHostReplay.sendReplay/handleSessionJoin. The first implementation used the parameter; oxlint then measured a NEW max-lines warning on ServerMatchHostReplay.ts (\"File has too many lines (411)\", max 400; the baseline file lints clean), so that file was restored to HEAD and the stamp moved. Same place in the flow: after the guard and the delivery stamping, on the ReplayStart only.",
+    "Resync marks are kept after the push (the admission design said the push clears them). Reason (code reading, not measured): the existing row \"viewer past N is resynced from the new head and its cursor discarded\" rejoins with lastSeq/cursor 99 and expects the prefix; with the mark cleared that join would resume past the rebuilt head. The mark was kept before that row's second half was run.",
+    "The existing row's first assertion (issued === 0 right after the rebuild) pinned \"nothing is sent to an attached socket\", which clause (2) changes; it now asserts the push numbered the prefix from 0 and the viewer record holds exactly the pushed count (a kept record would reuse the old numbers and keep its length). src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindRebuild.test.ts +18/-1."
+  ],
+  "lineCounts": {
+    "product": [
+      {
+        "file": "src/hooks/useMultiplayerSession.helpers.ts",
+        "added": 36,
+        "deleted": 2
+      },
+      {
+        "file": "src/lib/multiplayer/client.ts",
+        "added": 33,
+        "deleted": 2
+      },
+      {
+        "file": "src/lib/multiplayer/server/MatchHostRegistry.ts",
+        "added": 52,
+        "deleted": 14
+      },
+      {
+        "file": "src/lib/multiplayer/server/ServerMatchHost.ts",
+        "added": 48,
+        "deleted": 0
+      },
+      {
+        "file": "src/lib/multiplayer/server/ServerMatchHostRewindRebuild.ts",
+        "added": 10,
+        "deleted": 1
+      },
+      {
+        "file": "src/types/multiplayer/Protocol.ts",
+        "added": 9,
+        "deleted": 0
+      }
+    ],
+    "productTotals": {
+      "files": 6,
+      "added": 188,
+      "deleted": 19,
+      "changedLines": 207
+    },
+    "test": [
+      {
+        "file": "src/hooks/__tests__/useMultiplayerSession.test.tsx",
+        "added": 101,
+        "deleted": 0
+      },
+      {
+        "file": "src/lib/multiplayer/__tests__/client.test.ts",
+        "added": 85,
+        "deleted": 0
+      },
+      {
+        "file": "src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindRebuild.test.ts",
+        "added": 18,
+        "deleted": 1
+      },
+      {
+        "file": "src/types/multiplayer/__tests__/Protocol.test.ts",
+        "added": 22,
+        "deleted": 0
+      },
+      {
+        "file": "src/lib/multiplayer/server/__tests__/MatchHostRegistry.globalSlot.test.ts",
+        "added": 78,
+        "deleted": 0,
+        "new": true
+      },
+      {
+        "file": "src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindLiveReplay.test.ts",
+        "added": 726,
+        "deleted": 0,
+        "new": true
+      }
+    ],
+    "testTotals": {
+      "files": 6,
+      "added": 1030,
+      "deleted": 1,
+      "changedLines": 1031
+    },
+    "caps": {
+      "maxFiles": 15,
+      "filesChanged": 12,
+      "maxNonGeneratedProductLines": 500,
+      "productChangedLines": 207,
+      "withinCaps": true
+    },
+    "rule": "product vs test per GOAL.md OD-line-cap-product-lines; a path under __tests__/ is a test line"
+  },
+  "outsideTheAmendedPaths": "none: every changed file is under src/lib/multiplayer/server or one of the eleven amended exact files",
+  "gates": [
+    {
+      "gate": "npx jest src/lib/multiplayer/server",
+      "lastLine": "Tests:       1178 passed, 1178 total",
+      "suites": "Test Suites: 160 passed, 160 total",
+      "exitCode": 0
+    },
+    {
+      "gate": "npx jest src/__tests__/api/matches",
+      "lastLine": "Tests:       47 passed, 47 total",
+      "suites": "Test Suites: 3 passed, 3 total",
+      "exitCode": 0
+    },
+    {
+      "gate": "npx jest src/pages-modules/api",
+      "lastLine": "Tests:       62 passed, 62 total",
+      "suites": "Test Suites: 8 passed, 8 total",
+      "exitCode": 0
+    },
+    {
+      "gate": "npx jest src/lib/multiplayer/__tests__ src/types/multiplayer src/hooks/__tests__/useMultiplayerSession src/lib/multiplayer/client",
+      "lastLine": "Tests:       295 passed, 295 total",
+      "suites": "Test Suites: 22 passed, 22 total",
+      "exitCode": 0
+    },
+    {
+      "gate": "npx jest src/components/multiplayer src/pages-modules/multiplayer (extra: consumers of the hook and client)",
+      "lastLine": "Tests:       155 passed, 155 total",
+      "suites": "Test Suites: 15 passed, 15 total",
+      "exitCode": 0
+    },
+    {
+      "gate": "npx tsc --noEmit",
+      "lastLine": "(no output)",
+      "exitCode": 0
+    },
+    {
+      "gate": "npx oxlint",
+      "lastLine": "Found 84 warnings and 0 errors.",
+      "exitCode": 0,
+      "versus": "84 warnings (charter); the warnings in changed files are the pre-existing max-lines on Protocol.ts, client.ts and ServerMatchHost.ts"
+    },
+    {
+      "gate": "npx oxfmt --check <the 12 changed source and test files>",
+      "lastLine": "All matched files use the correct format.",
+      "exitCode": 0
+    },
+    {
+      "gate": "npm run lint:units",
+      "lastLine": "LINT_UNITS_PASS 100/100",
+      "exitCode": 0
+    },
+    {
+      "gate": "npm run qc:openspec-ci:validate",
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+      "exitCode": 0
+    },
+    {
+      "gate": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "exitCode": 0
+    }
+  ],
+  "gatesTakenOn": "the final tree (file sha256 list in finalFileHashes), after the last edit (a doc comment on ServerMatchHost.rewindRebuildPort)",
+  "build": {
+    "command": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build",
+    "idleGate": {
+      "lastLine": "MACHINE_IDLE",
+      "exitCode": 0
+    },
+    "startedAt": "2026-09-23T07:50:11Z",
+    "finishedAt": "2026-09-23T07:51:39Z",
+    "exitCode": 1,
+    "expected": true,
+    "compiledLine": "✓ Compiled successfully in 25.2s",
+    "why": "the standalone hydration guard refuses the junctioned node_modules; the guard was not relaxed",
+    "markerCheck": ".next/static/chunks/pages/_app-7273a7c63f2bd10c.js",
+    "logSha256": "88381c25b75f2fd2de20210e3dc4c625ec606abb69f47f36935fa006090faa67",
+    "leftInPlace": ".next is this build",
+    "interruptedAttempt": "A first final build started 2026-09-23T07:27:42Z was stopped by this lane about a minute in, to add the rewindRebuildPort doc comment before the live runs; its process tree (run-next.mjs PID 27240, next build PID 53576, worker PID 56104) was killed with taskkill /T and its partial log was deleted before the restart. No run used it.",
+    "intermediateBuild": {
+      "startedAt": "2026-09-23T07:29:52Z",
+      "finishedAt": "2026-09-23T07:31:04Z",
+      "exitCode": 1,
+      "logSha256": "d904f0ececf0a768b9fe0bdd79b6eb0f1148a7a9747ea0fd7155497cd810abaa",
+      "tree": "the tree before the atomic mirror swap in useMultiplayerSession.helpers.ts (superseded); runs u22a-local-privacy-a/b used it"
+    }
+  },
+  "ladder": [
+    {
+      "group": "privacy-pack",
+      "runId": "u22a-red-privacy-20260923",
+      "tree": "baseline (red receipt)",
+      "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=privacy-pack --run-id=u22a-red-privacy-20260923 (HOSTNAME=127.0.0.1 for this process only)",
+      "idleGate": {
+        "lastLine": "MACHINE_IDLE",
+        "exitCode": 0
+      },
+      "startedAt": "2026-09-23T07:06:25Z",
+      "finishedAt": "2026-09-23T07:07:40Z",
+      "ownedPort": 20171,
+      "serverPid": 74340,
+      "exitCode": 0,
+      "summary": [
+        "8 passed (1.2m)"
+      ],
+      "reporterLines": [
+        "ok 1 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:255:7 › tactical pre-serialization privacy › E2E-19 unfinalized GM draft has only a private payload @E2E-19 (3.1s)",
+        "x  2 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:311:7 › tactical pre-serialization privacy › E2E-25 approved correction keeps its reason private @E2E-25 @until-journal-cutover (32.6s)",
+        "ok 3 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:404:7 › tactical pre-serialization privacy › E2E-20 Player 1 sealed choice reaches neither Player 2 wire nor board @E2E-20 @E2E-23 @E2E-24 (5.2s)",
+        "ok 4 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:499:7 › tactical pre-serialization privacy › E2E-21 Player 2 sealed choice reaches neither Player 1 wire nor board @E2E-21 (5.2s)",
+        "ok 5 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:553:7 › tactical pre-serialization privacy › E2E-27 no player surface carries an authority identifier or an inferable gap @E2E-27 (3.0s)",
+        "ok 6 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:598:7 › tactical pre-serialization privacy › E2E-22 finalization reveals the COMMITTED declaration on the opponent delivery stream @E2E-22 (7.8s)",
+        "ok 7 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:662:7 › tactical pre-serialization privacy › E2E-26 a reconnecting player replays exactly what it was delivered live @E2E-26 (6.0s)",
+        "ok 8 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:741:7 › tactical pre-serialization privacy › E2E-28 seated export and timeline agree; strangers fail before fan-out @E2E-28 (2.5s)",
+        "8 passed (1.2m)"
+      ],
+      "portAfterRun": "PORT_FREE",
+      "logSha256": "d3fcb9f5b6625a2097852e2781f085c636a0c4195e74c2ad64dd686e720ca545",
+      "reportCopySha256": "3e40adbb5338b11a932410beb48027ec2eee9490f9e3260472de56d79f3682a6"
+    },
+    {
+      "group": "privacy-pack",
+      "runId": "u22a-m1-privacy-20260923",
+      "tree": "M1 mutant (registry module-local), all other U22a edits in, before the rewindRebuildPort comment",
+      "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=privacy-pack --run-id=u22a-m1-privacy-20260923 (HOSTNAME=127.0.0.1 for this process only)",
+      "idleGate": {
+        "lastLine": "MACHINE_IDLE",
+        "exitCode": 0
+      },
+      "startedAt": "2026-09-23T07:26:11Z",
+      "finishedAt": "2026-09-23T07:27:21Z",
+      "ownedPort": 20762,
+      "serverPid": 16700,
+      "exitCode": 0,
+      "summary": [
+        "8 passed (1.1m)"
+      ],
+      "reporterLines": [
+        "ok 1 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:255:7 › tactical pre-serialization privacy › E2E-19 unfinalized GM draft has only a private payload @E2E-19 (2.9s)",
+        "x  2 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:311:7 › tactical pre-serialization privacy › E2E-25 approved correction keeps its reason private @E2E-25 @until-journal-cutover (32.4s)",
+        "ok 3 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:404:7 › tactical pre-serialization privacy › E2E-20 Player 1 sealed choice reaches neither Player 2 wire nor board @E2E-20 @E2E-23 @E2E-24 (5.1s)",
+        "ok 4 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:499:7 › tactical pre-serialization privacy › E2E-21 Player 2 sealed choice reaches neither Player 1 wire nor board @E2E-21 (5.1s)",
+        "ok 5 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:553:7 › tactical pre-serialization privacy › E2E-27 no player surface carries an authority identifier or an inferable gap @E2E-27 (2.7s)",
+        "ok 6 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:598:7 › tactical pre-serialization privacy › E2E-22 finalization reveals the COMMITTED declaration on the opponent delivery stream @E2E-22 (7.8s)",
+        "ok 7 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:662:7 › tactical pre-serialization privacy › E2E-26 a reconnecting player replays exactly what it was delivered live @E2E-26 (5.7s)",
+        "ok 8 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:741:7 › tactical pre-serialization privacy › E2E-28 seated export and timeline agree; strangers fail before fan-out @E2E-28 (2.4s)",
+        "8 passed (1.1m)"
+      ],
+      "portAfterRun": "PORT_FREE",
+      "logSha256": "8518fe0ccca38342899e6f63c7f6c39c7429e68857b6ac9a9d16f8b994a8379e",
+      "reportCopySha256": "e49f7360ec4084398dc031f3c5247ca36144aa237a210d3e3dc98fe757120cdf"
+    },
+    {
+      "group": "privacy-pack",
+      "runId": "u22a-local-privacy-a-20260923",
+      "tree": "INTERMEDIATE tree (hook emptied the mirror at ReplayStart; superseded)",
+      "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=privacy-pack --run-id=u22a-local-privacy-a-20260923 (HOSTNAME=127.0.0.1 for this process only)",
+      "idleGate": {
+        "lastLine": "MACHINE_IDLE",
+        "exitCode": 0
+      },
+      "startedAt": "2026-09-23T07:31:05Z",
+      "finishedAt": "2026-09-23T07:31:56Z",
+      "ownedPort": 22734,
+      "serverPid": 73308,
+      "exitCode": 0,
+      "summary": [
+        "8 passed (48.2s)"
+      ],
+      "reporterLines": [
+        "ok 1 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:255:7 › tactical pre-serialization privacy › E2E-19 unfinalized GM draft has only a private payload @E2E-19 (2.9s)",
+        "x  2 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:311:7 › tactical pre-serialization privacy › E2E-25 approved correction keeps its reason private @E2E-25 @until-journal-cutover (12.5s)",
+        "ok 3 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:404:7 › tactical pre-serialization privacy › E2E-20 Player 1 sealed choice reaches neither Player 2 wire nor board @E2E-20 @E2E-23 @E2E-24 (5.1s)",
+        "ok 4 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:499:7 › tactical pre-serialization privacy › E2E-21 Player 2 sealed choice reaches neither Player 1 wire nor board @E2E-21 (5.0s)",
+        "ok 5 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:553:7 › tactical pre-serialization privacy › E2E-27 no player surface carries an authority identifier or an inferable gap @E2E-27 (2.7s)",
+        "ok 6 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:598:7 › tactical pre-serialization privacy › E2E-22 finalization reveals the COMMITTED declaration on the opponent delivery stream @E2E-22 (7.6s)",
+        "ok 7 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:662:7 › tactical pre-serialization privacy › E2E-26 a reconnecting player replays exactly what it was delivered live @E2E-26 (5.5s)",
+        "ok 8 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:741:7 › tactical pre-serialization privacy › E2E-28 seated export and timeline agree; strangers fail before fan-out @E2E-28 (2.2s)",
+        "8 passed (48.2s)"
+      ],
+      "portAfterRun": "PORT_FREE",
+      "logSha256": "46362a0756e3cc55cf5eeb41f1ccdd8cb389bbfa3c7f20019b101a3ff57af38c",
+      "reportCopySha256": "e01148b4dcb5c0032b6a63bb3f36d979885e02401e85076e2323914b27bbba89",
+      "e2e25": "expected failure (x, 12.5 s) at spec:352: networked-gm-correction-status not found within 10 s (HTML report copy); the rewind reached the live match, the host page lost its GM status line"
+    },
+    {
+      "group": "privacy-pack",
+      "runId": "u22a-local-privacy-b-20260923",
+      "tree": "INTERMEDIATE tree (superseded)",
+      "startedAt": "2026-09-23T07:31:56Z",
+      "ownedPort": 23202,
+      "reporterLines": [
+        "ok 1 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:255:7 › tactical pre-serialization privacy › E2E-19 unfinalized GM draft has only a private payload @E2E-19 (2.9s)",
+        "x  2 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:311:7 › tactical pre-serialization privacy › E2E-25 approved correction keeps its reason private @E2E-25 @until-journal-cutover (12.6s)",
+        "ok 3 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:404:7 › tactical pre-serialization privacy › E2E-20 Player 1 sealed choice reaches neither Player 2 wire nor board @E2E-20 @E2E-23 @E2E-24 (5.1s)",
+        "ok 4 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:499:7 › tactical pre-serialization privacy › E2E-21 Player 2 sealed choice reaches neither Player 1 wire nor board @E2E-21 (5.0s)",
+        "ok 5 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:553:7 › tactical pre-serialization privacy › E2E-27 no player surface carries an authority identifier or an inferable gap @E2E-27 (2.8s)",
+        "ok 6 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:598:7 › tactical pre-serialization privacy › E2E-22 finalization reveals the COMMITTED declaration on the opponent delivery stream @E2E-22 (7.6s)",
+        "ok 7 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:662:7 › tactical pre-serialization privacy › E2E-26 a reconnecting player replays exactly what it was delivered live @E2E-26 (5.5s)",
+        "ok 8 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:741:7 › tactical pre-serialization privacy › E2E-28 seated export and timeline agree; strangers fail before fan-out @E2E-28 (2.3s)"
+      ],
+      "e2e25": "expected failure (x, 12.6 s), same point as run a (reporter line); no HTML report copy",
+      "exitCode": null,
+      "disposition": "INCOMPLETE: all 8 rows printed, then the Playwright process did not exit after its parent chain was stopped with TaskStop; about 12 minutes later this lane killed its tree with taskkill /T /F (bash 18808 ... playwright cli 54672, cmd 32020, server.js 5036 on the owned port). No exit code, no summary line, no report copy.",
+      "logSha256": "81977deee698685be418d62c1d985974b67c6c7ab25b071ade03559a4dc61619"
+    },
+    {
+      "group": "privacy-pack",
+      "runId": "u22a-final-privacy-a-20260923",
+      "tree": "final",
+      "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=privacy-pack --run-id=u22a-final-privacy-a-20260923 (HOSTNAME=127.0.0.1 for this process only)",
+      "idleGate": {
+        "lastLine": "MACHINE_IDLE",
+        "exitCode": 0
+      },
+      "startedAt": "2026-09-23T07:51:40Z",
+      "finishedAt": "2026-09-23T07:52:29Z",
+      "ownedPort": 24083,
+      "serverPid": 44580,
+      "exitCode": 1,
+      "summary": [
+        "1 failed",
+        "7 passed (41.3s)"
+      ],
+      "reporterLines": [
+        "ok 1 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:255:7 › tactical pre-serialization privacy › E2E-19 unfinalized GM draft has only a private payload @E2E-19 (3.3s)",
+        "ok 2 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:311:7 › tactical pre-serialization privacy › E2E-25 approved correction keeps its reason private @E2E-25 @until-journal-cutover (2.7s)",
+        "ok 3 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:404:7 › tactical pre-serialization privacy › E2E-20 Player 1 sealed choice reaches neither Player 2 wire nor board @E2E-20 @E2E-23 @E2E-24 (5.5s)",
+        "ok 4 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:499:7 › tactical pre-serialization privacy › E2E-21 Player 2 sealed choice reaches neither Player 1 wire nor board @E2E-21 (5.0s)",
+        "ok 5 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:553:7 › tactical pre-serialization privacy › E2E-27 no player surface carries an authority identifier or an inferable gap @E2E-27 (2.8s)",
+        "ok 6 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:598:7 › tactical pre-serialization privacy › E2E-22 finalization reveals the COMMITTED declaration on the opponent delivery stream @E2E-22 (7.9s)",
+        "ok 7 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:662:7 › tactical pre-serialization privacy › E2E-26 a reconnecting player replays exactly what it was delivered live @E2E-26 (5.7s)",
+        "ok 8 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:741:7 › tactical pre-serialization privacy › E2E-28 seated export and timeline agree; strangers fail before fan-out @E2E-28 (2.4s)",
+        "Expected to fail, but passed.",
+        "1 failed",
+        "7 passed (41.3s)"
+      ],
+      "portAfterRun": "PORT_FREE",
+      "logSha256": "37d080aeb03f02408d294125feeccbd22a29f0c62f85606ee30aa9e2163c3785",
+      "reportCopySha256": "2ecca9e38c3520c0adf0b6a0d3448996550d25e471eb273966ce98cd29a6e3e5",
+      "e2e25": "UNEXPECTED PASS: outcome unexpected, status passed, \"Expected to fail, but passed.\" (HTML report copy); every other row ok"
+    },
+    {
+      "group": "privacy-pack",
+      "runId": "u22a-final-privacy-b-20260923",
+      "tree": "final",
+      "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=privacy-pack --run-id=u22a-final-privacy-b-20260923 (HOSTNAME=127.0.0.1 for this process only)",
+      "idleGate": {
+        "lastLine": "MACHINE_IDLE",
+        "exitCode": 0
+      },
+      "startedAt": "2026-09-23T07:52:30Z",
+      "finishedAt": "2026-09-23T07:53:12Z",
+      "ownedPort": 29142,
+      "serverPid": 47832,
+      "exitCode": 1,
+      "summary": [
+        "1 failed",
+        "7 passed (40.6s)"
+      ],
+      "reporterLines": [
+        "ok 1 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:255:7 › tactical pre-serialization privacy › E2E-19 unfinalized GM draft has only a private payload @E2E-19 (3.1s)",
+        "ok 2 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:311:7 › tactical pre-serialization privacy › E2E-25 approved correction keeps its reason private @E2E-25 @until-journal-cutover (2.7s)",
+        "ok 3 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:404:7 › tactical pre-serialization privacy › E2E-20 Player 1 sealed choice reaches neither Player 2 wire nor board @E2E-20 @E2E-23 @E2E-24 (5.5s)",
+        "ok 4 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:499:7 › tactical pre-serialization privacy › E2E-21 Player 2 sealed choice reaches neither Player 1 wire nor board @E2E-21 (5.5s)",
+        "ok 5 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:553:7 › tactical pre-serialization privacy › E2E-27 no player surface carries an authority identifier or an inferable gap @E2E-27 (2.8s)",
+        "ok 6 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:598:7 › tactical pre-serialization privacy › E2E-22 finalization reveals the COMMITTED declaration on the opponent delivery stream @E2E-22 (7.7s)",
+        "ok 7 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:662:7 › tactical pre-serialization privacy › E2E-26 a reconnecting player replays exactly what it was delivered live @E2E-26 (5.5s)",
+        "ok 8 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:741:7 › tactical pre-serialization privacy › E2E-28 seated export and timeline agree; strangers fail before fan-out @E2E-28 (2.4s)",
+        "Expected to fail, but passed.",
+        "1 failed",
+        "7 passed (40.6s)"
+      ],
+      "portAfterRun": "PORT_FREE",
+      "logSha256": "97d78e2244ce1a9275826c96a187293dccf9776898ee0d612ebe102d3c6fed4b",
+      "reportCopySha256": "fb9a4a97d878b876a674fcd2c3fb23b42beb3c2dc3fc5c3f17e7f6358fcc82ad",
+      "e2e25": "UNEXPECTED PASS: outcome unexpected, status passed, \"Expected to fail, but passed.\" (HTML report copy); the other 7 rows outcome expected"
+    },
+    {
+      "group": "authority-recovery",
+      "runId": "u22a-red-authrec-20260923",
+      "tree": "baseline",
+      "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=authority-recovery --run-id=u22a-red-authrec-20260923 (HOSTNAME=127.0.0.1 for this process only)",
+      "idleGate": {
+        "lastLine": "MACHINE_IDLE",
+        "exitCode": 0
+      },
+      "startedAt": "2026-09-23T07:08:56Z",
+      "finishedAt": "2026-09-23T07:09:46Z",
+      "ownedPort": 25702,
+      "serverPid": 6488,
+      "exitCode": 0,
+      "summary": [
+        "4 passed (47.1s)"
+      ],
+      "reporterLines": [
+        "ok 1 [chromium] › e2e\\gm-two-player-authority-recovery.pack.spec.ts:47:5 › E2E-01 durable campaign cold recovery @authority-recovery @E2E-01 (10.9s)",
+        "ok 2 [chromium] › e2e\\gm-two-player-authority-recovery.pack.spec.ts:66:5 › E2E-01 genesis branch recovers @authority-recovery @E2E-01 (10.2s)",
+        "ok 3 [chromium] › e2e\\gm-two-player-authority-recovery.pack.spec.ts:85:5 › E2E-02 participant ownership survives restart @authority-recovery @E2E-02 (10.3s)",
+        "ok 4 [chromium] › e2e\\gm-two-player-authority-recovery.pack.spec.ts:123:5 › E2E-02 effective branch remains authoritative @authority-recovery @E2E-02 (10.1s)",
+        "4 passed (47.1s)"
+      ],
+      "portAfterRun": "PORT_FREE",
+      "logSha256": "ef754c646c55b1ba3d96b952f8f5471e72423c045aecf8257d8382a82c8fe165",
+      "reportCopySha256": "d505283bfcb86df4c12d1577b115f0c634c6152bbbb63dc82061326ec6828a17"
+    },
+    {
+      "group": "authority-recovery",
+      "runId": "u22a-final-authrec-20260923",
+      "tree": "final",
+      "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=authority-recovery --run-id=u22a-final-authrec-20260923 (HOSTNAME=127.0.0.1 for this process only)",
+      "idleGate": {
+        "lastLine": "MACHINE_IDLE",
+        "exitCode": 0
+      },
+      "startedAt": "2026-09-23T07:53:14Z",
+      "finishedAt": "2026-09-23T07:54:03Z",
+      "ownedPort": 25155,
+      "serverPid": 3420,
+      "exitCode": 0,
+      "summary": [
+        "4 passed (46.1s)"
+      ],
+      "reporterLines": [
+        "ok 1 [chromium] › e2e\\gm-two-player-authority-recovery.pack.spec.ts:47:5 › E2E-01 durable campaign cold recovery @authority-recovery @E2E-01 (10.7s)",
+        "ok 2 [chromium] › e2e\\gm-two-player-authority-recovery.pack.spec.ts:66:5 › E2E-01 genesis branch recovers @authority-recovery @E2E-01 (10.2s)",
+        "ok 3 [chromium] › e2e\\gm-two-player-authority-recovery.pack.spec.ts:85:5 › E2E-02 participant ownership survives restart @authority-recovery @E2E-02 (10.0s)",
+        "ok 4 [chromium] › e2e\\gm-two-player-authority-recovery.pack.spec.ts:123:5 › E2E-02 effective branch remains authoritative @authority-recovery @E2E-02 (10.2s)",
+        "4 passed (46.1s)"
+      ],
+      "portAfterRun": "PORT_FREE",
+      "logSha256": "e0b0b03a4ed37301fc7b45f591dd69dd57a2b79877fa48a4d5c521e517d019bf",
+      "reportCopySha256": "df2d2e0e213f2f74e5efced9a8bf52a0eaba4babaf33d6c0ea93d9e5cf9adafd"
+    },
+    {
+      "group": "proposal-pack",
+      "runId": "u22a-red-proposal-20260923",
+      "tree": "baseline (red test files present, product unchanged)",
+      "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=proposal-pack --run-id=u22a-red-proposal-20260923 (HOSTNAME=127.0.0.1 for this process only)",
+      "idleGate": {
+        "lastLine": "MACHINE_IDLE",
+        "exitCode": 0
+      },
+      "startedAt": "2026-09-23T07:09:47Z",
+      "finishedAt": "2026-09-23T07:12:05Z",
+      "ownedPort": 22732,
+      "serverPid": 9844,
+      "exitCode": 0,
+      "summary": [
+        "2 passed (2.3m)"
+      ],
+      "reporterLines": [
+        "ok 1 [chromium] › e2e\\gm-two-player-proposals.pack.spec.ts:49:5 › E2E-30 concurrent proposals stay attributable and independently resolvable @proposal-pack @E2E-30 (5.5s)",
+        "ok 2 [chromium] › e2e\\gm-two-player-proposals.pack.spec.ts:177:5 › E2E-29 veto and timeout commit nothing and clear only own pending UI @proposal-pack @E2E-29 (2.1m)",
+        "2 passed (2.3m)"
+      ],
+      "portAfterRun": "PORT_FREE",
+      "logSha256": "198208e0a53d33675407f9853b4458903bd9bfddd8437bd3ac93f03da24efee6",
+      "reportCopySha256": "52051d52881ed60260de870750a9cfb89158da9e8d5bec4ec30e7891a7afd72d"
+    },
+    {
+      "group": "proposal-pack",
+      "runId": "u22a-final-proposal-20260923",
+      "tree": "final",
+      "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=proposal-pack --run-id=u22a-final-proposal-20260923 (HOSTNAME=127.0.0.1 for this process only)",
+      "idleGate": {
+        "lastLine": "MACHINE_IDLE",
+        "exitCode": 0
+      },
+      "startedAt": "2026-09-23T07:54:03Z",
+      "finishedAt": "2026-09-23T07:56:19Z",
+      "ownedPort": 24394,
+      "serverPid": 66176,
+      "exitCode": 0,
+      "summary": [
+        "2 passed (2.2m)"
+      ],
+      "reporterLines": [
+        "ok 1 [chromium] › e2e\\gm-two-player-proposals.pack.spec.ts:49:5 › E2E-30 concurrent proposals stay attributable and independently resolvable @proposal-pack @E2E-30 (5.0s)",
+        "ok 2 [chromium] › e2e\\gm-two-player-proposals.pack.spec.ts:177:5 › E2E-29 veto and timeout commit nothing and clear only own pending UI @proposal-pack @E2E-29 (2.1m)",
+        "2 passed (2.2m)"
+      ],
+      "portAfterRun": "PORT_FREE",
+      "logSha256": "0947504a227631ca028dede00eddc1ed04597726c017d6c5046a469cdf0e2e24",
+      "reportCopySha256": "213091675289bdddf3fbc775e81148c1ad850d2df62ca442e6a894ead7ca13bb"
+    },
+    {
+      "group": "rewind-pack",
+      "runId": "u22a-red-rewind-20260923",
+      "tree": "baseline (red test files present, product unchanged); extra group",
+      "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=rewind-pack --run-id=u22a-red-rewind-20260923 (HOSTNAME=127.0.0.1 for this process only)",
+      "idleGate": {
+        "lastLine": "MACHINE_IDLE",
+        "exitCode": 0
+      },
+      "startedAt": "2026-09-23T07:12:06Z",
+      "finishedAt": "2026-09-23T07:12:43Z",
+      "ownedPort": 21898,
+      "serverPid": 68160,
+      "exitCode": 0,
+      "summary": [
+        "6 passed (33.2s)"
+      ],
+      "reporterLines": [
+        "x  1 [chromium] › e2e\\gm-two-player-rewind.pack.spec.ts:39:5 › E2E-40 combat rewind creates replacement branch @rewind-pack @E2E-40 (2.9s)",
+        "x  2 [chromium] › e2e\\gm-two-player-rewind.pack.spec.ts:72:5 › E2E-41 stale branch command rejects @rewind-pack @E2E-41 (2.4s)",
+        "x  3 [chromium] › e2e\\gm-two-player-rewind.pack.spec.ts:115:5 › E2E-42 all contexts converge on new head @rewind-pack @E2E-42 (3.5s)",
+        "x  4 [chromium] › e2e\\gm-two-player-rewind.pack.spec.ts:197:5 › E2E-43 fog restores after rewind @rewind-pack @E2E-43 (4.6s)",
+        "x  5 [chromium] › e2e\\gm-two-player-rewind.pack.spec.ts:247:5 › E2E-44 offline player catches up after rewind @rewind-pack @E2E-44 (2.4s)",
+        "x  6 [chromium] › e2e\\gm-two-player-rewind.pack.spec.ts:311:5 › E2E-76 rewind confirmation prevents accidental invalidation @rewind-pack @E2E-76 (12.5s)",
+        "6 passed (33.2s)"
+      ],
+      "portAfterRun": "PORT_FREE",
+      "logSha256": "80f76b8491634cf1b877e9ab3cc3f6ba91957862c45c762ae0ccbf3ff0495e7c",
+      "reportCopySha256": "44591d5a056842ac0f2db4065191e733ae408d88f98e801da9ad5a55a69591cb"
+    },
+    {
+      "group": "rewind-pack",
+      "runId": "u22a-final-rewind-20260923",
+      "tree": "final; extra group",
+      "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=rewind-pack --run-id=u22a-final-rewind-20260923 (HOSTNAME=127.0.0.1 for this process only)",
+      "idleGate": {
+        "lastLine": "MACHINE_IDLE",
+        "exitCode": 0
+      },
+      "startedAt": "2026-09-23T07:56:20Z",
+      "finishedAt": "2026-09-23T07:56:56Z",
+      "ownedPort": 27946,
+      "serverPid": 24064,
+      "exitCode": 0,
+      "summary": [
+        "6 passed (32.7s)"
+      ],
+      "reporterLines": [
+        "x  1 [chromium] › e2e\\gm-two-player-rewind.pack.spec.ts:39:5 › E2E-40 combat rewind creates replacement branch @rewind-pack @E2E-40 (3.0s)",
+        "x  2 [chromium] › e2e\\gm-two-player-rewind.pack.spec.ts:72:5 › E2E-41 stale branch command rejects @rewind-pack @E2E-41 (2.3s)",
+        "x  3 [chromium] › e2e\\gm-two-player-rewind.pack.spec.ts:115:5 › E2E-42 all contexts converge on new head @rewind-pack @E2E-42 (3.4s)",
+        "x  4 [chromium] › e2e\\gm-two-player-rewind.pack.spec.ts:197:5 › E2E-43 fog restores after rewind @rewind-pack @E2E-43 (4.5s)",
+        "x  5 [chromium] › e2e\\gm-two-player-rewind.pack.spec.ts:247:5 › E2E-44 offline player catches up after rewind @rewind-pack @E2E-44 (2.3s)",
+        "x  6 [chromium] › e2e\\gm-two-player-rewind.pack.spec.ts:311:5 › E2E-76 rewind confirmation prevents accidental invalidation @rewind-pack @E2E-76 (12.4s)",
+        "6 passed (32.7s)"
+      ],
+      "portAfterRun": "PORT_FREE",
+      "logSha256": "6484f918e8a522c1f44079c8cfc91925437263a8d3dc6fcb16b4c0351d89976e",
+      "reportCopySha256": "6d0f80b03da3505ef557154f17643edf6fca0639a1390742806026a40e733610"
+    }
+  ],
+  "ladderReading": "privacy-pack on the final tree, twice: E2E-25 is an UNEXPECTED PASS under its strict test.fail (the runner reports \"1 failed / 7 passed\" and exits 1 for that reason alone); E2E-19..24, 26..28 unchanged (ok). authority-recovery 4 passed and proposal-pack 2 passed on both trees (unchanged). rewind-pack: the six strict expected failures E2E-40..44 and E2E-76 stay expected failures (x, 6 passed, exit 0) on both trees. M1 live: E2E-25 back to an expected failure at spec:353.",
+  "mutants": [
+    {
+      "id": "M1",
+      "what": "the registry slot back to module-local (a module-level object instead of globalThis)",
+      "file": "src/lib/multiplayer/server/MatchHostRegistry.ts",
+      "command": "npx jest src/lib/multiplayer/server/__tests__/MatchHostRegistry.globalSlot.test.ts src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindLiveReplay.test.ts src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindRebuild.test.ts src/lib/multiplayer/__tests__/client.test.ts src/types/multiplayer/__tests__/Protocol.test.ts src/hooks/__tests__/useMultiplayerSession.test.tsx",
+      "exitCode": 1,
+      "summary": [
+        "Test Suites: 1 failed, 5 passed, 6 total",
+        "Tests:       3 failed, 86 passed, 89 total"
+      ],
+      "caughtBy": [
+        "MatchHostRegistry process slot › _resetMatchHostRegistry clears the shared slot for every graph",
+        "MatchHostRegistry process slot › boot recovery sweeps once per process, whichever graph asks",
+        "MatchHostRegistry process slot › two module graphs get one registry"
+      ],
+      "caught": true,
+      "preMutantSha256": "c2f91cf7cd5ce9fb69ff8eac2afd68e7c93254a193696c214827c2a079085ee7",
+      "mutantSha256": "8ccb786e79df029fd320155b87d9307d577b1ad7b1db73bb4375e39a330e3d2a",
+      "restoredSha256": "c2f91cf7cd5ce9fb69ff8eac2afd68e7c93254a193696c214827c2a079085ee7",
+      "restored": true,
+      "restoreMethod": "byte copy saved before the mutation, copied back (shutil.copyfile)",
+      "logSha256": "da6fc5dd1750138ac8168146bcf278a3d6c556a283f0d0ee7f108774a53b0a81",
+      "treeNote": "run on the final tree (preMutantSha256 checked against finalFileHashes)",
+      "preMutantMatchesFinal": true
+    },
+    {
+      "id": "M2",
+      "what": "the rebuilt stream is not sent to connected viewers (the push call removed)",
+      "file": "src/lib/multiplayer/server/ServerMatchHostRewindRebuild.ts",
+      "command": "npx jest src/lib/multiplayer/server/__tests__/MatchHostRegistry.globalSlot.test.ts src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindLiveReplay.test.ts src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindRebuild.test.ts src/lib/multiplayer/__tests__/client.test.ts src/types/multiplayer/__tests__/Protocol.test.ts src/hooks/__tests__/useMultiplayerSession.test.tsx",
+      "exitCode": 1,
+      "summary": [
+        "Test Suites: 2 failed, 4 passed, 6 total",
+        "Tests:       6 failed, 83 passed, 89 total"
+      ],
+      "caughtBy": [
+        "ServerMatchHost rewind reaches connected players › a player connected at the rewind (admission probe rows) › M1 receives the rebuilt replay on its open socket, marked as replacing its stream",
+        "ServerMatchHost rewind reaches connected players › a player connected at the rewind (admission probe rows) › M2 its session mirror shows the rebuilt phase without rejoining",
+        "ServerMatchHost rewind reaches connected players › a player connected at the rewind (admission probe rows) › M4 the next live event after the rewind applies on the connected client",
+        "ServerMatchHost rewind reaches connected players › privacy of the replay › each socket gets its own projection: no fog-hidden fact and no authority-only field reaches a player",
+        "ServerMatchHost rewind reaches connected players › through the rewind commit route › a rewind committed with a private reason reaches the connected players and carries no reason",
+        "ServerMatchHost rewind rebuild › viewer past N is resynced from the new head and its cursor discarded"
+      ],
+      "caught": true,
+      "preMutantSha256": "e97c256246cc4374ec8e90095dc6d5ea918028e33a02cbbac25dc444d585b010",
+      "mutantSha256": "959c5f97129e9ce48f32226848790382a15908ddc6152f70bfaec67ec3649e92",
+      "restoredSha256": "e97c256246cc4374ec8e90095dc6d5ea918028e33a02cbbac25dc444d585b010",
+      "restored": true,
+      "restoreMethod": "byte copy saved before the mutation, copied back (shutil.copyfile)",
+      "logSha256": "011a452e1e187260ccf6277b767433bf1fbbd2d81ce1ece4a9c71dd9319c70c9",
+      "treeNote": "run on the final tree (preMutantSha256 checked against finalFileHashes)",
+      "preMutantMatchesFinal": true
+    },
+    {
+      "id": "M3",
+      "what": "the push sends the unprojected authority replay (sendReplay without a viewer) to every attached socket instead of each socket's own join path",
+      "file": "src/lib/multiplayer/server/ServerMatchHost.ts",
+      "command": "npx jest src/lib/multiplayer/server/__tests__/MatchHostRegistry.globalSlot.test.ts src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindLiveReplay.test.ts src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindRebuild.test.ts src/lib/multiplayer/__tests__/client.test.ts src/types/multiplayer/__tests__/Protocol.test.ts src/hooks/__tests__/useMultiplayerSession.test.tsx",
+      "exitCode": 1,
+      "summary": [
+        "Test Suites: 2 failed, 4 passed, 6 total",
+        "Tests:       2 failed, 87 passed, 89 total"
+      ],
+      "caughtBy": [
+        "ServerMatchHost rewind reaches connected players › privacy of the replay › each socket gets its own projection: no fog-hidden fact and no authority-only field reaches a player",
+        "ServerMatchHost rewind rebuild › viewer past N is resynced from the new head and its cursor discarded"
+      ],
+      "caught": true,
+      "preMutantSha256": "17a3657f4565b0290efdcf36c030c41d301973023a327ee924d59ed0346f873a",
+      "mutantSha256": "f78a487e740ee1028f80ac18e817769a3d925d77514435999525cd3895ec3cec",
+      "restoredSha256": "17a3657f4565b0290efdcf36c030c41d301973023a327ee924d59ed0346f873a",
+      "restored": true,
+      "restoreMethod": "byte copy saved before the mutation, copied back (shutil.copyfile)",
+      "logSha256": "24f59ae94cdec8c9ff888f46e80ad5d14e95b54233bffc321aa8811b390f8cfa",
+      "treeNote": "run on the final tree (preMutantSha256 checked against finalFileHashes)",
+      "preMutantMatchesFinal": true
+    },
+    {
+      "id": "M4",
+      "what": "the client ignores the replace-stream marker (no reset, no event)",
+      "file": "src/lib/multiplayer/client.ts",
+      "command": "npx jest src/lib/multiplayer/server/__tests__/MatchHostRegistry.globalSlot.test.ts src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindLiveReplay.test.ts src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindRebuild.test.ts src/lib/multiplayer/__tests__/client.test.ts src/types/multiplayer/__tests__/Protocol.test.ts src/hooks/__tests__/useMultiplayerSession.test.tsx",
+      "exitCode": 1,
+      "summary": [
+        "Test Suites: 3 failed, 3 passed, 6 total",
+        "Tests:       5 failed, 84 passed, 89 total"
+      ],
+      "caughtBy": [
+        "ServerMatchHost rewind reaches connected players › a player connected at the rewind (admission probe rows) › M2 its session mirror shows the rebuilt phase without rejoining",
+        "ServerMatchHost rewind reaches connected players › a player connected at the rewind (admission probe rows) › M4 the next live event after the rewind applies on the connected client",
+        "ServerMatchHost rewind reaches connected players › through the rewind commit route › a rewind committed with a private reason reaches the connected players and carries no reason",
+        "multiplayer client › a replace-stream ReplayStart drops the applied stream: the replayed prefix applies again and the next delivery is not a collision",
+        "useMultiplayerSession game surface › a replace-stream replay replaces the mirror instead of appending to it"
+      ],
+      "caught": true,
+      "preMutantSha256": "9a85d3092a151a72b7bf6b50cbe549ea608e2c601b410774fddf957844c2c9c4",
+      "mutantSha256": "2d83ede1596a5bb00a668964291adf76c8a2db90e10a8c436fe5a1e3644c3762",
+      "restoredSha256": "9a85d3092a151a72b7bf6b50cbe549ea608e2c601b410774fddf957844c2c9c4",
+      "restored": true,
+      "restoreMethod": "byte copy saved before the mutation, copied back (shutil.copyfile)",
+      "logSha256": "acd88a94b798fc7a054ab36e5ace72beb6af222490e456b6e01af96ffb436edf",
+      "treeNote": "run on the final tree (preMutantSha256 checked against finalFileHashes)",
+      "preMutantMatchesFinal": true
+    },
+    {
+      "id": "M5",
+      "what": "the session hook keeps its mirror on streamReplaced",
+      "file": "src/hooks/useMultiplayerSession.helpers.ts",
+      "command": "npx jest src/lib/multiplayer/server/__tests__/MatchHostRegistry.globalSlot.test.ts src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindLiveReplay.test.ts src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindRebuild.test.ts src/lib/multiplayer/__tests__/client.test.ts src/types/multiplayer/__tests__/Protocol.test.ts src/hooks/__tests__/useMultiplayerSession.test.tsx",
+      "exitCode": 1,
+      "summary": [
+        "Test Suites: 2 failed, 4 passed, 6 total",
+        "Tests:       4 failed, 85 passed, 89 total"
+      ],
+      "caughtBy": [
+        "ServerMatchHost rewind reaches connected players › a player connected at the rewind (admission probe rows) › M2 its session mirror shows the rebuilt phase without rejoining",
+        "ServerMatchHost rewind reaches connected players › a player connected at the rewind (admission probe rows) › M4 the next live event after the rewind applies on the connected client",
+        "ServerMatchHost rewind reaches connected players › through the rewind commit route › a rewind committed with a private reason reaches the connected players and carries no reason",
+        "useMultiplayerSession game surface › a replace-stream replay replaces the mirror instead of appending to it"
+      ],
+      "caught": true,
+      "preMutantSha256": "d98ed32a48a8b8b33df5c8ad23d6d6e476209969bb83468cdb156e4f3fcda816",
+      "mutantSha256": "2e6660c8ff1fb20995bf59eb4f01e45dd7fea12a7c804b959be22e6ff6d6ba7b",
+      "restoredSha256": "d98ed32a48a8b8b33df5c8ad23d6d6e476209969bb83468cdb156e4f3fcda816",
+      "restored": true,
+      "restoreMethod": "byte copy saved before the mutation, copied back (shutil.copyfile)",
+      "logSha256": "168fdca66405318206ae0b4e93cb334df3363f4fea0b3502f17650aa089dbd40",
+      "treeNote": "run on the final tree (preMutantSha256 checked against finalFileHashes)",
+      "preMutantMatchesFinal": true
+    },
+    {
+      "id": "M6",
+      "what": "the session hook empties its mirror at ReplayStart instead of swapping it at the first replayed event (the intermediate helper the live run exposed)",
+      "file": "src/hooks/useMultiplayerSession.helpers.ts",
+      "command": "npx jest src/lib/multiplayer/server/__tests__/MatchHostRegistry.globalSlot.test.ts src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindLiveReplay.test.ts src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindRebuild.test.ts src/lib/multiplayer/__tests__/client.test.ts src/types/multiplayer/__tests__/Protocol.test.ts src/hooks/__tests__/useMultiplayerSession.test.tsx",
+      "exitCode": 1,
+      "summary": [
+        "Test Suites: 1 failed, 5 passed, 6 total",
+        "Tests:       1 failed, 88 passed, 89 total"
+      ],
+      "caughtBy": [
+        "useMultiplayerSession game surface › a replace-stream replay replaces the mirror instead of appending to it"
+      ],
+      "caught": true,
+      "preMutantSha256": "d98ed32a48a8b8b33df5c8ad23d6d6e476209969bb83468cdb156e4f3fcda816",
+      "mutantSha256": "4575399b1f4d0f453b336f433d698bb35492e17840575c00cd9f21b9ac742bd4",
+      "restoredSha256": "d98ed32a48a8b8b33df5c8ad23d6d6e476209969bb83468cdb156e4f3fcda816",
+      "restored": true,
+      "restoreMethod": "byte copy saved before the mutation, copied back (shutil.copyfile)",
+      "logSha256": "0106ab20daeb57573ad3445abfff8b9d7d9687a6b588bd456537c2e57e987b75",
+      "treeNote": "run on the final tree (preMutantSha256 checked against finalFileHashes)",
+      "preMutantMatchesFinal": true
+    },
+    {
+      "id": "M1-live",
+      "what": "M1 in the E2E build: the registry slot module-local in both the compiled API graph and the tsx socket graph",
+      "build": {
+        "startedAt": "2026-09-23T07:24:59Z",
+        "finishedAt": "2026-09-23T07:26:10Z",
+        "exitCode": 1,
+        "expected": true,
+        "marker": ".next/static/chunks/pages/_app-7273a7c63f2bd10c.js",
+        "logSha256": "716866335f80f0c8dab8f952a8fc1f8f28770ec33850fc54a00bef8fe0b96b88"
+      },
+      "run": "u22a-m1-privacy-20260923 (see ladder)",
+      "result": "E2E-25 back to an expected failure (x) at spec:353 (guest phase-name \"Movement Phase\", read from the HTML report copy); 8 passed; runner exit 0",
+      "restore": "byte copy saved before the mutation, copied back; restoredSha256 equals preMutantSha256 (c2f91cf7cd5ce9fb69ff8eac2afd68e7c93254a193696c214827c2a079085ee7), which is also the final MatchHostRegistry.ts hash",
+      "treeNote": "the build had every U22a edit except the rewindRebuildPort doc comment and the atomic mirror swap; with the registry module-local the rebuild never runs, so neither difference is reached"
+    }
+  ],
+  "finalFileHashes": [
+    {
+      "sha256": "0b2479c60c0dabb579cd56719c9975fcc62bf60f7aa9836b5392f9590fe7a904",
+      "file": "src/hooks/__tests__/useMultiplayerSession.test.tsx"
+    },
+    {
+      "sha256": "d98ed32a48a8b8b33df5c8ad23d6d6e476209969bb83468cdb156e4f3fcda816",
+      "file": "src/hooks/useMultiplayerSession.helpers.ts"
+    },
+    {
+      "sha256": "a5ac51445a987c3a3b1e3f7c13fe71f0fa6d63734219359c75c02067f8b17843",
+      "file": "src/lib/multiplayer/__tests__/client.test.ts"
+    },
+    {
+      "sha256": "9a85d3092a151a72b7bf6b50cbe549ea608e2c601b410774fddf957844c2c9c4",
+      "file": "src/lib/multiplayer/client.ts"
+    },
+    {
+      "sha256": "c2f91cf7cd5ce9fb69ff8eac2afd68e7c93254a193696c214827c2a079085ee7",
+      "file": "src/lib/multiplayer/server/MatchHostRegistry.ts"
+    },
+    {
+      "sha256": "17a3657f4565b0290efdcf36c030c41d301973023a327ee924d59ed0346f873a",
+      "file": "src/lib/multiplayer/server/ServerMatchHost.ts"
+    },
+    {
+      "sha256": "e97c256246cc4374ec8e90095dc6d5ea918028e33a02cbbac25dc444d585b010",
+      "file": "src/lib/multiplayer/server/ServerMatchHostRewindRebuild.ts"
+    },
+    {
+      "sha256": "2f956a78b89301666a1c40ddca45c451ba75080a290dfc1e06e184f79467467c",
+      "file": "src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindRebuild.test.ts"
+    },
+    {
+      "sha256": "a6ab3be97b33ade411ac9b7e376f36ce3a3aefdd93a80448d4e1aab40664e9dc",
+      "file": "src/types/multiplayer/Protocol.ts"
+    },
+    {
+      "sha256": "8bda0bc844c866945a3c10626ac0a3c3dc7e490dd1e9ff9dbade7797a4729651",
+      "file": "src/types/multiplayer/__tests__/Protocol.test.ts"
+    },
+    {
+      "sha256": "7442a15a76e6a1326a58945ef9d929bf956fdb66cc7f67e6cb5d98d0874d344b",
+      "file": "src/lib/multiplayer/server/__tests__/MatchHostRegistry.globalSlot.test.ts"
+    },
+    {
+      "sha256": "8bc39917f410bcd6532051d017f6cc6837d114f10c2aaeea6964c10879220c6c",
+      "file": "src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindLiveReplay.test.ts"
+    }
+  ],
+  "finalFileHashesCheckedNow": true,
+  "nonClaims": [
+    "Production-off mode is not exercised: the privacy pack runs with the combat journal fixture arm (MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE=enabled); the production constant stays off.",
+    "The route-level reason row cannot catch M3: the GM reason never enters the match event stream, so no push carries it; the fog row catches M3 (fog-hidden event, authority sequence and privateRecordRef on the player wire).",
+    "Not tested: spectator sockets and GM-role (co-op campaign) viewers receiving the push; two sockets of the same player; a push that throws (the catch path).",
+    "The strict test.fail on E2E-25 stays; the unexpected pass is the acceptance, U22 removes the gate.",
+    "No Lane A review, owner ruling, commit, push, PR, merge or main proof. units.json, roadmap.json and admission-snapshot.json are unmodified; no tasks.md box touched."
+  ],
+  "findingsReportedNotFixed": [
+    {
+      "id": "F3 (measured)",
+      "detail": "After a rewind the push renumbers each viewer from 0 (discardAll), and the durable delivery record refuses the reused numbers: every run where the rebuild reached the live match logged 8 \"[ViewerDeliveryCursors] persist failed; ... SqliteError: UNIQUE constraint failed: mp_viewer_delivery.match_id, mp_viewer_delivery.player_id, mp_viewer_delivery.delivery_sequence\" warnings (u22a-local-privacy-a 8, u22a-local-privacy-b 8, u22a-final-privacy-a 8, u22a-final-privacy-b 8; the baseline and M1 runs 0). Persist is best-effort, so the frames are still sent; the durable rows keep the superseded mapping. INFERENCE: a cold restart does not restore those rows for a rewound match (MatchRecovery.ts:211-212 skips restorePersistedViewerDeliveries)."
+    },
+    {
+      "id": "F1 (INFERENCE, code reading)",
+      "detail": "A client that is not attached when the push goes out (its socket dropped just before, or it was offline) and later reconnects WITHOUT reloading still holds the superseded stream: its next SessionJoin resumes from 0 because of the resync mark (ServerMatchHost.handleSessionJoin), but that join replay carries no replace-stream marker, so the client drops it as duplicates (client.ts admitByDelivery) and blocks on the next event. A page reload works (probe M3). rewind-pack E2E-44 \"offline player catches up after rewind\" is a strict expected failure on both the baseline and the final tree (ladder).",
+      "smallestNextAction": "stamp the marker on the join replay of a viewer still marked for rewind resync (ServerMatchHost.handleSessionJoin), with a row"
+    },
+    {
+      "id": "F2 (INFERENCE, code reading)",
+      "detail": "ViewerDeliveryCursors.discardAll (projection/ViewerDeliveryCursors.ts:276-278) clears only the delivered lists; lastAcked, isolated and isolationResume survive a rewind, and acknowledge is monotonic (:233-240), so acks on the renumbered stream below the pre-rewind ack are ignored until the new stream passes it."
+    },
+    {
+      "id": "FN-u2b-runner-prints-no-server-pid (re-reported)",
+      "detail": "scripts/qc/run-gm-two-player-campaign.mjs still prints no port or server PID; this lane derived the port from buildRunPlan and polled netstat for the PID on every run."
+    }
+  ],
+  "receipts": {
+    "admission": {
+      "path": "evidence/u22a-admission-20260923.json",
+      "sha256": "878193546fb1492cd83e799c6661eb457a933c7ad2527898e441f64067cd0d4b"
+    },
+    "red": {
+      "path": "evidence/u22a-red-20260923.json",
+      "sha256": "ad3d34f481d1f8c6d5b95d78281517cfa8a34f8123244e0b4f3f072c33caa3b0"
+    }
+  },
+  "finalGitStatusShort": [
+    "M src/hooks/__tests__/useMultiplayerSession.test.tsx",
+    " M src/hooks/useMultiplayerSession.helpers.ts",
+    " M src/lib/multiplayer/__tests__/client.test.ts",
+    " M src/lib/multiplayer/client.ts",
+    " M src/lib/multiplayer/server/MatchHostRegistry.ts",
+    " M src/lib/multiplayer/server/ServerMatchHost.ts",
+    " M src/lib/multiplayer/server/ServerMatchHostRewindRebuild.ts",
+    " M src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindRebuild.test.ts",
+    " M src/types/multiplayer/Protocol.ts",
+    " M src/types/multiplayer/__tests__/Protocol.test.ts",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u22a-admission-20260923.json",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u22a-local-20260923.json",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u22a-red-20260923.json",
+    "?? src/lib/multiplayer/server/__tests__/MatchHostRegistry.globalSlot.test.ts",
+    "?? src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindLiveReplay.test.ts",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u22a-local-20260923.json (this file)"
+  ]
+}

@@ -217,15 +217,48 @@ export class MatchHostRegistry {
   };
 }
 
-let _singleton: MatchHostRegistry | null = null;
-let _recoveryRan = false;
+const MATCH_HOST_REGISTRY_SLOT_KEY = Symbol.for(
+  'mekstation.multiplayer.matchHostRegistry',
+);
 
-/** Process-local singleton accessor used by REST routes + WS handler. */
-export function getMatchHostRegistry(): MatchHostRegistry {
-  if (!_singleton) {
-    _singleton = new MatchHostRegistry();
+/** The process registry and whether boot recovery already swept it. */
+interface IMatchHostRegistrySlot {
+  registry: MatchHostRegistry | null;
+  recoveryRan: boolean;
+}
+
+type GlobalMatchHostRegistrySlot = typeof globalThis & {
+  [MATCH_HOST_REGISTRY_SLOT_KEY]?: IMatchHostRegistrySlot;
+};
+
+/**
+ * The one slot on globalThis that holds the registry and its recovery
+ * flag, created empty on first use. server.js loads this module through
+ * the tsx hook in a module graph separate from Next's API bundle; both
+ * graphs reach the same slot through the Symbol.for key, as
+ * getDefaultMatchStore does for the match store.
+ */
+function matchHostRegistrySlot(): IMatchHostRegistrySlot {
+  const global = globalThis as GlobalMatchHostRegistrySlot;
+  let slot = global[MATCH_HOST_REGISTRY_SLOT_KEY];
+  if (!slot) {
+    slot = { registry: null, recoveryRan: false };
+    global[MATCH_HOST_REGISTRY_SLOT_KEY] = slot;
   }
-  return _singleton;
+  return slot;
+}
+
+/**
+ * The process registry, created on first use and held in the globalThis
+ * slot, so the REST routes (Next's API graph) and the WS handler (the
+ * socket runtime's tsx graph) look hosts up in the same instance.
+ */
+export function getMatchHostRegistry(): MatchHostRegistry {
+  const slot = matchHostRegistrySlot();
+  if (!slot.registry) {
+    slot.registry = new MatchHostRegistry();
+  }
+  return slot.registry;
 }
 
 /**
@@ -235,17 +268,18 @@ export function getMatchHostRegistry(): MatchHostRegistry {
  * `ServerMatchHost` for every `active` match found in the durable
  * store so a process restart never loses a live game.
  *
- * Idempotent — a second call is a no-op, so it is safe to invoke from
- * a lazily-initialized server module.
+ * Idempotent per process — the flag lives in the same globalThis slot as
+ * the registry, so a second call from either module graph is a no-op.
  */
 export async function bootstrapMultiplayerServer(): Promise<{
   readonly recovered: number;
   readonly failed: number;
 }> {
-  if (_recoveryRan) {
+  const slot = matchHostRegistrySlot();
+  if (slot.recoveryRan) {
     return { recovered: 0, failed: 0 };
   }
-  _recoveryRan = true;
+  slot.recoveryRan = true;
   const result = await getMatchHostRegistry().recoverActiveMatches();
   if (result.recovered > 0 || result.failed > 0) {
     // eslint-disable-next-line no-console
@@ -257,9 +291,13 @@ export async function bootstrapMultiplayerServer(): Promise<{
   return { recovered: result.recovered, failed: result.failed };
 }
 
-/** Test-only: reset the singleton so tests don't bleed state. */
+/**
+ * Test-only: reset the registry held in the globalThis slot and delete
+ * the slot (recovery flag included), so the next caller from any module
+ * graph starts from an empty registry and a fresh boot recovery.
+ */
 export function _resetMatchHostRegistry(): void {
-  if (_singleton) _singleton._reset();
-  _singleton = null;
-  _recoveryRan = false;
+  const global = globalThis as GlobalMatchHostRegistrySlot;
+  global[MATCH_HOST_REGISTRY_SLOT_KEY]?.registry?._reset();
+  delete global[MATCH_HOST_REGISTRY_SLOT_KEY];
 }

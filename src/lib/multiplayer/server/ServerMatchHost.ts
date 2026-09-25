@@ -550,6 +550,13 @@ export class ServerMatchHost {
 
   d6ForTests = (): number => this.capture.d6();
 
+  /**
+   * The narrow port rebuildHostFromActivatedBranch drives: this host's
+   * identity, store and journal seeds, plus setters for the session,
+   * dice, served branch, intent window, broadcast cursor, viewer
+   * deliveries, resync marks and replay ceiling, and the replay of the
+   * rebuilt stream to the sockets attached now.
+   */
   private rewindRebuildPort(): IRewindRebuildHost {
     return {
       matchId: this.matchId,
@@ -590,8 +597,49 @@ export class ServerMatchHost {
       setRewindReplayCeiling: (sequence) => {
         this.boundReplayToEffectiveHead(sequence);
       },
+      replayToAttachedViewers: () =>
+        this.replayRebuiltStreamToAttachedViewers(),
     };
   }
+
+  /**
+   * After a rewind rebuild: for every socket attached now, run the
+   * per-socket join replay from sequence 0 (that socket's own viewer,
+   * fog filter, publication guard and delivery numbering). Its send
+   * step stamps `replacesStream: true` on the ReplayStart, so the marker
+   * is added after the guard and the stamping and carries no viewer
+   * fact. The context is built here, so it carries the rebuilt session
+   * and replay ceiling. Resync marks are left as they are: the player's
+   * next SessionJoin still resumes from the rebuilt head. A replay that
+   * throws is logged; the rebuild itself has already completed.
+   */
+  private replayRebuiltStreamToAttachedViewers = async (): Promise<void> => {
+    for (const { socket, playerId } of this.lifecycle.attachedSockets()) {
+      const context = buildReplayContext(this.internals());
+      try {
+        await handleSessionJoin(
+          {
+            ...context,
+            safeSend: (target, message) =>
+              context.safeSend(
+                target,
+                message.kind === 'ReplayStart'
+                  ? { ...message, replacesStream: true }
+                  : message,
+              ),
+          },
+          socket,
+          playerId,
+          0,
+        );
+      } catch (error) {
+        logger.warn(
+          '[ServerMatchHost] rewind replay to an attached viewer failed; it resyncs on its next join',
+          error,
+        );
+      }
+    }
+  };
 
   // ---------------------------------------------------------------------------
   // Socket management

@@ -61,6 +61,8 @@ interface EventHandlerContext extends MultiplayerSetters {
   readonly auth: IClientAuth;
   readonly client: IMultiplayerClient;
   readonly lobbyStateRef: MutableRefObject<ILobbyUpdated | null>;
+  /** Set by a replace-stream replay until its first game event lands. */
+  readonly mirrorReplacement: { pending: boolean };
 }
 
 export function resetMultiplayerConnectionState(
@@ -94,6 +96,16 @@ export function resetMultiplayerConnectionState(
   setters.setMirrorLog([]);
 }
 
+/**
+ * Connect the client and route its events into the hook's React state:
+ * readiness, projected events (appended to the mirror log), errors,
+ * close and lifecycle. A replace-stream replay marks the mirror for
+ * replacement: its first replayed game event replaces the mirror log
+ * instead of being appended (or `ready` empties it when the replay
+ * carried none), so the surface never renders an empty mirror between
+ * ReplayStart and ReplayEnd. Returns the teardown that unsubscribes
+ * every listener and closes the client.
+ */
 export function connectMultiplayerSession(
   params: ConnectionOptions,
 ): () => void {
@@ -105,19 +117,31 @@ export function connectMultiplayerSession(
   });
   params.clientRef.current = client;
   params.setClientLifecycle(client.lifecycle());
+  const mirrorReplacement = { pending: false };
 
   const unsubReady = client.on('ready', () => {
     params.setStatus('ready');
     params.setLastSeq(client.lastSeq());
+    // A replace-stream replay that carried no game event still voids
+    // the mirror it replaced.
+    if (mirrorReplacement.pending) {
+      mirrorReplacement.pending = false;
+      params.setMirrorLog([]);
+    }
   });
   const unsubEvent = client.on(
     'event',
-    createMultiplayerEventHandler({ ...params, client }),
+    createMultiplayerEventHandler({ ...params, client, mirrorReplacement }),
   );
   const unsubError = client.on('error', createClientErrorHandler(params));
   const unsubClose = client.on('close', createClientCloseHandler(params));
   const unsubLifecycle = client.on('lifecycle', () => {
     params.setClientLifecycle(client.lifecycle());
+  });
+  // A replace-stream replay (a committed GM rewind) voids every event the
+  // mirror was built from; the replayed events that follow replace it.
+  const unsubStreamReplaced = client.on('streamReplaced', () => {
+    mirrorReplacement.pending = true;
   });
 
   return () => {
@@ -126,6 +150,7 @@ export function connectMultiplayerSession(
     unsubError();
     unsubClose();
     unsubLifecycle();
+    unsubStreamReplaced();
     closeClient(params.clientRef, client);
   };
 }
@@ -248,6 +273,12 @@ function handleSeatTimedOut(
   useGameplayStore.getState().setLocalMatchStatus('aborted');
 }
 
+/**
+ * Append one delivered payload to the capped events tail and to the
+ * mirror log. The first projected game event after a replace-stream
+ * replay began replaces the mirror log instead, so the old stream and
+ * the replayed one are never mixed and never shown empty in between.
+ */
 function appendGameEvent(raw: unknown, context: EventHandlerContext): void {
   context.setEvents((prev) => {
     const next = prev.concat([raw]);
@@ -255,7 +286,10 @@ function appendGameEvent(raw: unknown, context: EventHandlerContext): void {
       ? next.slice(next.length - MAX_EVENTS_RETAINED)
       : next;
   });
-  context.setMirrorLog((prev) => prev.concat([raw]));
+  const replaces =
+    context.mirrorReplacement.pending && getEnvelopeKind(raw) === null;
+  if (replaces) context.mirrorReplacement.pending = false;
+  context.setMirrorLog((prev) => (replaces ? [raw] : prev.concat([raw])));
   context.setLastSeq(context.client.lastSeq());
 }
 

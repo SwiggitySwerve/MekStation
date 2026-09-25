@@ -5,6 +5,7 @@ import type { IGameSession } from '@/types/gameplay/GameSessionInterfaces';
 import type { IServerMessage } from '@/types/multiplayer/Protocol';
 
 import { useMultiplayerSession } from '@/hooks/useMultiplayerSession';
+import { buildMirrorSession } from '@/lib/multiplayer/mirrorMatchSession';
 import { useGameplayStore } from '@/stores/useGameplayStore';
 import { GameSide } from '@/types/gameplay/GameSessionInterfaces';
 import {
@@ -181,6 +182,52 @@ function buildEventLog(): IGameSession {
   return session;
 }
 
+/**
+ * Serves one replay on the open socket: ReplayStart (carrying `marker`
+ * when given), then the body (see emitReplayBody).
+ */
+function emitReplay(
+  socket: MockSocket,
+  events: readonly unknown[],
+  marker: { readonly replacesStream?: true } = {},
+): void {
+  emitReplayStart(socket, events.length, marker);
+  emitReplayBody(socket, events);
+}
+
+/** Sends a ReplayStart for `totalEvents` items, carrying `marker` when given. */
+function emitReplayStart(
+  socket: MockSocket,
+  totalEvents: number,
+  marker: { readonly replacesStream?: true } = {},
+): void {
+  socket.emit({
+    kind: 'ReplayStart',
+    matchId: 'match-1',
+    ts,
+    fromSeq: 0,
+    totalEvents,
+    ...marker,
+  } as IServerMessage);
+}
+
+/** Sends one chunk numbering `events` 0..n-1 in delivery space, then ReplayEnd. */
+function emitReplayBody(socket: MockSocket, events: readonly unknown[]): void {
+  socket.emit({
+    kind: 'ReplayChunk',
+    matchId: 'match-1',
+    ts,
+    events: [...events],
+    deliverySequences: events.map((_event, index) => index),
+  });
+  socket.emit({
+    kind: 'ReplayEnd',
+    matchId: 'match-1',
+    ts,
+    toSeq: Math.max(0, events.length - 1),
+  });
+}
+
 describe('useMultiplayerSession game surface', () => {
   beforeEach(() => {
     useGameplayStore.getState().reset();
@@ -228,6 +275,60 @@ describe('useMultiplayerSession game surface', () => {
     expect(result.current.mirrorEvents).toHaveLength(
       authoritative.events.length,
     );
+    unmount();
+  });
+
+  it('a replace-stream replay replaces the mirror instead of appending to it', async () => {
+    // U22a: after a GM rewind the server replays the rebuilt, shorter
+    // stream to the open socket, marked as replacing it. The mirror must
+    // end on the rebuilt head, not keep the superseded events.
+    const authoritative = buildEventLog();
+    const prefix = authoritative.events.slice(0, 2);
+    const prefixPhase = buildMirrorSession(prefix)?.currentState.phase;
+    expect(prefixPhase).not.toBe(authoritative.currentState.phase);
+    const sockets: MockSocket[] = [];
+    const { result, unmount } = renderHook(() =>
+      useMultiplayerSession('ws://example.test/socket', 'match-1', auth, {
+        reconnect: false,
+        socketFactory: () => {
+          const socket = new MockSocket();
+          sockets.push(socket);
+          return socket;
+        },
+      }),
+    );
+
+    await waitFor(() => expect(sockets).toHaveLength(1));
+    act(() => {
+      sockets[0].onopen?.({});
+      emitReplay(sockets[0], authoritative.events);
+    });
+    await waitFor(() =>
+      expect(result.current.mirrorEvents).toHaveLength(
+        authoritative.events.length,
+      ),
+    );
+
+    act(() => {
+      emitReplayStart(sockets[0], prefix.length, { replacesStream: true });
+    });
+    // Between ReplayStart and the replayed body the surface still has
+    // its mirror: an empty one would unmount everything rendered from it.
+    expect(result.current.mirrorSession).not.toBeNull();
+    expect(result.current.mirrorEvents).toHaveLength(
+      authoritative.events.length,
+    );
+
+    act(() => {
+      emitReplayBody(sockets[0], prefix);
+    });
+
+    await waitFor(() =>
+      expect(result.current.mirrorEvents.map((event) => event.id)).toEqual(
+        prefix.map((event) => event.id),
+      ),
+    );
+    expect(result.current.mirrorSession?.currentState.phase).toBe(prefixPhase);
     unmount();
   });
 

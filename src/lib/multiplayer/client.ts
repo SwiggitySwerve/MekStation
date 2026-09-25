@@ -58,7 +58,8 @@ export type IClientEventName =
   | 'error' // server rejected something
   | 'close' // connection terminated (either side)
   | 'reconnect' // reconnection attempt scheduled
-  | 'lifecycle'; // public transport/delivery snapshot changed
+  | 'lifecycle' // public transport/delivery snapshot changed
+  | 'streamReplaced'; // a replay replaces every event applied so far
 
 export type IClientEventHandler = (payload: unknown) => void;
 
@@ -245,7 +246,15 @@ const SERVER_MESSAGE_HANDLERS: Record<
   IServerMessage['kind'],
   ServerMessageHandler
 > = {
-  ReplayStart: ({ state }) => {
+  ReplayStart: ({ message, state, emit }) => {
+    const start = message as Extract<IServerMessage, { kind: 'ReplayStart' }>;
+    // A replay that replaces the stream (a committed GM rewind) makes
+    // everything applied so far void: forget it before the first
+    // replayed item is admitted, and tell listeners to drop their copy.
+    if (start.replacesStream === true) {
+      forgetAppliedStream(state);
+      emit('streamReplaced', { matchId: start.matchId });
+    }
     state.replayBuffer = [];
     state.ready = false;
   },
@@ -962,6 +971,28 @@ function admitByIdentity(
  * per-connection.
  */
 const APPLIED_IDENTITY_WINDOW = 256;
+
+/**
+ * Return the delivery admission state to the values `connect()` starts
+ * a client with, because a replace-stream replay supersedes every frame
+ * applied so far. Live frames queued before the marker belong to the
+ * superseded stream and are dropped with it. Commands still awaiting an
+ * answer, the socket and its timers, and an in-flight gap recovery (the
+ * replay's own ReplayEnd answers it) are kept.
+ */
+function forgetAppliedStream(state: IClientState): void {
+  state.pendingLiveEvents = [];
+  state.appliedIdentityByDelivery.clear();
+  state.appliedIdentities.clear();
+  state.blockedBySequenceCollision = false;
+  state.lastSeq = -1;
+  state.lastAppliedDelivery = -1;
+  state.lastDeliverySequence = null;
+  state.deliveryResumeCursor = null;
+  state.deliveryHoleRevealSeq = null;
+  state.deliveryHoleRevealDelivery = null;
+  state.highestAcknowledgedDelivery = -1;
+}
 
 /** Remember an applied event so a later repeat can be checked. */
 function rememberApplied(

@@ -126,12 +126,29 @@ describe('ServerMatchHost rewind rebuild', () => {
     // prefix only, so the superseded-id set has to come from the
     // pre-mark log.
     const stored = await store.getEvents(MATCH_ID);
+    const sentBeforeRebuild = socket.sent.length;
     await host.rebuildFromActivatedBranch({
       branchId: result.activatedBranchId,
       effectiveRevision: TARGET_REVISION,
       effectiveGeneration: result.effectiveGeneration,
     });
-    expect(host.viewerDeliveryIssuedForTests('gm-1')).toBe(0);
+    // The old numbering is discarded. Since U22a the rebuild replays the
+    // rebuilt prefix to the attached socket, numbered from 0 again, so
+    // the viewer's record holds exactly what that replay sent (a kept
+    // record would have reused the old numbers and kept its length).
+    const pushedNumbers = socket.sent
+      .slice(sentBeforeRebuild)
+      .filter((frame) => frame.parsed.kind === 'ReplayChunk')
+      .flatMap(
+        (frame) =>
+          (frame.parsed as { readonly deliverySequences?: number[] })
+            .deliverySequences ?? [],
+      );
+    expect(pushedNumbers.length).toBeGreaterThan(0);
+    expect(pushedNumbers).toEqual(pushedNumbers.map((_number, index) => index));
+    expect(host.viewerDeliveryIssuedForTests('gm-1')).toBe(
+      pushedNumbers.length,
+    );
 
     const resync = makeSocket();
     host.attachSocket(resync, 'gm-1');

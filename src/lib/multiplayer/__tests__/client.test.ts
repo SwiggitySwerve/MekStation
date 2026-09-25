@@ -157,6 +157,40 @@ function finishReplay(f: {
   });
 }
 
+/**
+ * Serves one player-projected replay on the open socket: ReplayStart
+ * (carrying `marker` when given), one chunk numbering `ids` 0..n-1 in
+ * delivery space, then ReplayEnd.
+ */
+function injectReplay(
+  f: { lastSocket: () => { inject: (m: unknown) => void } },
+  ids: readonly string[],
+  marker: { readonly replacesStream?: true } = {},
+): void {
+  const ts = new Date().toISOString();
+  f.lastSocket().inject({
+    kind: 'ReplayStart',
+    matchId: 'm1',
+    ts,
+    fromDeliverySequence: 0,
+    totalEvents: ids.length,
+    ...marker,
+  });
+  f.lastSocket().inject({
+    kind: 'ReplayChunk',
+    matchId: 'm1',
+    ts,
+    deliverySequences: ids.map((_id, index) => index),
+    events: ids.map((id) => ({ id, type: 'phase_changed' })),
+  });
+  f.lastSocket().inject({
+    kind: 'ReplayEnd',
+    matchId: 'm1',
+    ts,
+    toDeliverySequence: ids.length - 1,
+  });
+}
+
 function seqOf(events: readonly unknown[]): number[] {
   return events.map((e) => (e as { sequence: number }).sequence);
 }
@@ -998,6 +1032,57 @@ describe('multiplayer client', () => {
       'missed',
       'after-replay',
     ]);
+  });
+
+  it('a replace-stream ReplayStart drops the applied stream: the replayed prefix applies again and the next delivery is not a collision', () => {
+    // U22a: after a committed GM rewind the server replays the rebuilt
+    // stream to an open socket with numbering restarted at 0. Without
+    // the marker every item is a duplicate of what this client holds
+    // and the first new frame collides (the control row below).
+    const f = makeMockSocketFactory();
+    const order: string[] = [];
+    const client = connect(
+      'ws://localhost/x',
+      'm1',
+      { playerId: 'p1', token: 'tok' },
+      { socketFactory: f.factory, reconnect: false },
+    );
+    client.on('event', (e) => order.push(`event:${(e as { id: string }).id}`));
+    client.on('streamReplaced', () => order.push('streamReplaced'));
+    f.lastSocket().fireOpen();
+    injectReplay(f, ['a0', 'a1', 'a2', 'a3']);
+    order.length = 0;
+
+    injectReplay(f, ['a0', 'a1'], { replacesStream: true });
+    expect(order).toEqual(['streamReplaced', 'event:a0', 'event:a1']);
+
+    liveDeliveredEvent(f, 2, 2, 'b2');
+    expect(order[order.length - 1]).toBe('event:b2');
+    expect(client.lifecycle().blockedBySequenceCollision).toBe(false);
+    expect(deliveryAcksOn(f.lastSocket()).slice(-1)).toEqual([2]);
+  });
+
+  it('a ReplayStart without the marker keeps the applied stream (control for the replace-stream row)', () => {
+    const f = makeMockSocketFactory();
+    const order: string[] = [];
+    const client = connect(
+      'ws://localhost/x',
+      'm1',
+      { playerId: 'p1', token: 'tok' },
+      { socketFactory: f.factory, reconnect: false },
+    );
+    client.on('event', (e) => order.push(`event:${(e as { id: string }).id}`));
+    client.on('streamReplaced', () => order.push('streamReplaced'));
+    f.lastSocket().fireOpen();
+    injectReplay(f, ['a0', 'a1', 'a2', 'a3']);
+    order.length = 0;
+
+    injectReplay(f, ['a0', 'a1']);
+    expect(order).toEqual([]);
+
+    liveDeliveredEvent(f, 2, 2, 'b2');
+    expect(order).toEqual([]);
+    expect(client.lifecycle().blockedBySequenceCollision).toBe(true);
   });
 
   it('applies a sequence-free redelivery once by identity', () => {
