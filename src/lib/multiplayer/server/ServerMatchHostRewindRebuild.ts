@@ -68,6 +68,11 @@ export interface IRewindRebuildHost {
   discardViewerDeliveries(): void;
   markViewersForResync(playerIds: readonly string[]): void;
   setRewindReplayCeiling(sequence: number): void;
+  /**
+   * Replay the rebuilt stream to every socket attached now, each through
+   * its own per-socket join path, marked as replacing its stream.
+   */
+  replayToAttachedViewers(): Promise<void>;
 }
 
 const REBUILD_LEASE_OWNER = (): string => `rewind-rebuild:${process.pid}`;
@@ -164,7 +169,8 @@ export async function tryFoldActivatedRewindBranch(
  * read the path through `effectiveRevision` from the journal, move the
  * store tail past it aside, fold and replace the session, claim the
  * branch, then reseed the dice and reset the intent window, broadcast
- * cursor, replay ceiling and viewer deliveries.
+ * cursor, replay ceiling and viewer deliveries, mark the seats for
+ * resync, and replay the rebuilt stream to the sockets attached now.
  */
 export async function rebuildHostFromActivatedBranch(
   host: IRewindRebuildHost,
@@ -212,6 +218,9 @@ export async function rebuildHostFromActivatedBranch(
     host.setRewindReplayCeiling(headSequence);
     host.discardViewerDeliveries();
     host.markViewersForResync(await seatedPlayerIds(host.store, host.matchId));
+    // Players connected now must not wait for a rejoin to see the
+    // rebuilt match. Every seat keeps its mark for its next join.
+    await host.replayToAttachedViewers();
   } finally {
     if (held !== null) {
       releaseHeldLease(host.matchId, held);

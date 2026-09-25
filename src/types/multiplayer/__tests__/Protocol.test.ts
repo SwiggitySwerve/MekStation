@@ -628,6 +628,28 @@ describe('Protocol envelope schemas', () => {
       }
     });
 
+    it('ReplayStart carries the replace-stream marker and refuses any other value', () => {
+      const start = {
+        kind: 'ReplayStart' as const,
+        matchId: 'm',
+        ts: nowIso(),
+        fromDeliverySequence: 0,
+        totalEvents: 2,
+      };
+      const marked = ServerMessageSchema.safeParse({
+        ...start,
+        replacesStream: true,
+      });
+      expect(marked.success).toBe(true);
+      expect(marked.success && marked.data).toMatchObject({
+        replacesStream: true,
+      });
+      expect(
+        ServerMessageSchema.safeParse({ ...start, replacesStream: false })
+          .success,
+      ).toBe(false);
+    });
+
     it('rejects Error with unknown code', () => {
       const env = {
         kind: 'Error',

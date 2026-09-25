@@ -661,6 +661,15 @@ export const ReplayStartSchema = z.object({
    */
   fromDeliverySequence: z.number().int().nonnegative().optional(),
   totalEvents: z.number().int().nonnegative(),
+  /**
+   * Present, and only ever `true`, when this replay REPLACES the stream
+   * the client already holds: a committed GM rewind rebuilt the match
+   * and the server replays the rebuilt head to each connected viewer.
+   * The client drops what it applied and takes this replay as a fresh
+   * stream. Absent on every other replay. The server stamps it after
+   * the publication guard; it names no viewer-specific fact.
+   */
+  replacesStream: z.literal(true).optional(),
 });
 export type IReplayStart = z.infer<typeof ReplayStartSchema>;
 
