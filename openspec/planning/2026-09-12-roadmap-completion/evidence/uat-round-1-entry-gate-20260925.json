@@ -1,0 +1,379 @@
+{
+  "kind": "uat-round-1-entry-gate",
+  "at": "2026-09-25T07:15:21.000Z",
+  "decision": "OD-uat-two-rounds sub-decision 8",
+  "pin": "668ed250f5d378c231004127c2eaac08a346b9f7",
+  "tag": "uat-round-1-20260923",
+  "steps": [
+    {
+      "step": "machine-idle",
+      "exit": 0,
+      "seconds": 1,
+      "summary": []
+    },
+    {
+      "step": "coop-campaign-journey",
+      "exit": 0,
+      "seconds": 139,
+      "summary": [
+        "  2 passed (1.4m)",
+        "Test Suites: 9 passed, 9 total",
+        "Tests:       143 passed, 143 total"
+      ]
+    },
+    {
+      "step": "ux-audit-prod",
+      "exit": 1,
+      "seconds": 601,
+      "summary": [
+        "  9 passed (10.0m)",
+        "[qc:ux-audit] journeys=10 (1 failed) steps=100 (1 failed, 0 with console errors) findings=10",
+        "[qc:ux-audit] skeleton: .sisyphus\\evidence\\ux-walkthrough\\2026-09-24T23-49-23\\REVIEW.md"
+      ]
+    },
+    {
+      "step": "e2e-build",
+      "exit": 0,
+      "seconds": 372,
+      "summary": [],
+      "e2eMarker": true
+    },
+    {
+      "step": "ladder:fixture-smoke",
+      "exit": 0,
+      "seconds": 21,
+      "summary": [
+        "  2 passed (18.7s)"
+      ]
+    },
+    {
+      "step": "ladder:membership-smoke",
+      "exit": 0,
+      "seconds": 10,
+      "summary": [
+        "  1 passed (9.2s)"
+      ]
+    },
+    {
+      "step": "ladder:evidence-smoke",
+      "exit": 0,
+      "seconds": 11,
+      "summary": [
+        "  1 passed (9.9s)"
+      ]
+    },
+    {
+      "step": "ladder:authority-pack1",
+      "exit": 0,
+      "seconds": 93,
+      "summary": [
+        "  3 passed (1.5m)"
+      ]
+    },
+    {
+      "step": "ladder:exactly-once-pack",
+      "exit": 0,
+      "seconds": 20,
+      "summary": [
+        "  4 passed (19.0s)"
+      ]
+    },
+    {
+      "step": "ladder:fault-pack",
+      "exit": 0,
+      "seconds": 9,
+      "summary": [
+        "  1 passed (8.1s)"
+      ]
+    },
+    {
+      "step": "ladder:token-pack",
+      "exit": 0,
+      "seconds": 110,
+      "summary": [
+        "  2 passed (1.8m)"
+      ]
+    },
+    {
+      "step": "ladder:restart-pack",
+      "exit": 0,
+      "seconds": 23,
+      "summary": [
+        "  2 passed (21.9s)"
+      ]
+    },
+    {
+      "step": "ladder:resilience-pack",
+      "exit": 0,
+      "seconds": 29,
+      "summary": [
+        "  2 passed (27.9s)"
+      ]
+    },
+    {
+      "step": "ladder:authority-order",
+      "exit": 0,
+      "seconds": 12,
+      "summary": [
+        "  2 passed (11.5s)"
+      ]
+    },
+    {
+      "step": "ladder:proposal-pack",
+      "exit": 0,
+      "seconds": 136,
+      "summary": [
+        "  2 passed (2.2m)"
+      ]
+    },
+    {
+      "step": "ladder:three-context-pack",
+      "exit": 0,
+      "seconds": 12,
+      "summary": [
+        "  1 passed (11.1s)"
+      ]
+    },
+    {
+      "step": "ladder:two-device-pack",
+      "exit": 0,
+      "seconds": 10,
+      "summary": [
+        "  1 passed (8.8s)"
+      ]
+    },
+    {
+      "step": "ladder:combat-pack1",
+      "exit": 0,
+      "seconds": 15,
+      "summary": [
+        "  3 passed (13.9s)"
+      ]
+    },
+    {
+      "step": "ladder:rewind-pack",
+      "exit": 0,
+      "seconds": 35,
+      "summary": [
+        "  6 passed (34.2s)"
+      ]
+    },
+    {
+      "step": "ladder:failure",
+      "exit": 0,
+      "seconds": 41,
+      "summary": [
+        "  8 passed (39.7s)"
+      ]
+    },
+    {
+      "step": "ladder:performance",
+      "exit": 1,
+      "seconds": 23,
+      "summary": [
+        "    test-results\\gm-two-player-performance.-e3dfe-rmance-E2E-71-E2E-72-E2E-73-chromium\\test-failed-2.png",
+        "    test-results\\gm-two-player-performance.-e3dfe-rmance-E2E-71-E2E-72-E2E-73-chromium\\test-failed-3.png",
+        "  1 failed"
+      ]
+    },
+    {
+      "step": "ladder:cleanup-ownership",
+      "exit": 0,
+      "seconds": 24,
+      "summary": [
+        "  5 passed (23.4s)"
+      ]
+    },
+    {
+      "step": "ladder:backpressure",
+      "exit": 0,
+      "seconds": 20,
+      "summary": [
+        "  1 passed (19.0s)"
+      ]
+    },
+    {
+      "step": "ladder:lifecycle-pack",
+      "exit": 1,
+      "seconds": 78,
+      "summary": [
+        "    test-results\\gm-two-player-lifecycle.pa-4d033-gated-lifecycle-pack-E2E-75-chromium\\test-failed-1.png",
+        "  1 failed",
+        "  1 passed (1.3m)"
+      ]
+    },
+    {
+      "step": "ladder:conflict-pack",
+      "exit": 0,
+      "seconds": 13,
+      "summary": [
+        "  2 passed (11.8s)"
+      ]
+    }
+  ],
+  "reruns": [
+    {
+      "log": "rerun-performance-1.log",
+      "result": "1 failed",
+      "sha256": "76910dd7579fd6860c25981345852c08169f869fba8ea5162c587f34af52c930"
+    },
+    {
+      "log": "rerun-performance-2.log",
+      "result": "1 failed",
+      "sha256": "8cbb1d7da4d65973332d65217ed5786b2cbf978706a6344fbd00643f7ec26d57"
+    },
+    {
+      "log": "rerun-lifecycle-pack-1.log",
+      "result": "1 failed, 1 passed",
+      "sha256": "f8f21f085a9ab09eb1a947113590dd6527a52ad554a137e4ad43d5bb0153766f"
+    },
+    {
+      "log": "rerun-lifecycle-pack-2.log",
+      "result": "1 failed, 1 passed",
+      "sha256": "17094b2b7aa465496f58b89cb867f0e895147e14c4a08a8aa3af145f5cfdd085"
+    }
+  ],
+  "failures": [
+    {
+      "step": "ux-audit-prod",
+      "rows": "05-customizer-new-unit, step 2",
+      "classification": "test drift, not a product defect",
+      "evidence": "since #1634 the customizer's New Unit button opens the combined 'Add unit' dialog (src/components/customizer/tabs/MultiUnitTabsEmptyState.tsx onOpenLoadDialog; src/components/customizer/dialogs/UnitLoadDialog.tsx:352-375); the journey still expects the old 'Create New Unit' heading (e2e/ux-walkthrough-audit.spec.ts:334-339); the other 9 journeys passed",
+      "heldBy": "U87"
+    },
+    {
+      "step": "ladder:performance",
+      "rows": "E2E-71/72/73",
+      "classification": "minor (diagnosis): a test race plus an occasional server stall",
+      "heldBy": "U86, U89"
+    },
+    {
+      "step": "ladder:lifecycle-pack",
+      "rows": "E2E-75 row A",
+      "classification": "minor (diagnosis): a test race; not a regression",
+      "heldBy": "U87"
+    }
+  ],
+  "diagnosis": "evidence/uat-r1-diagnosis-20260925.json",
+  "verdict": "round 1 opens on the pin with a known-issues list: no step reproduced a critical",
+  "logs": [
+    {
+      "file": "coop-campaign-journey.log",
+      "sha256": "b9a9c694d1e341b5ffacac94e79c92b6e705d4c10653b27c01883d3e0a64d4df"
+    },
+    {
+      "file": "e2e-build.log",
+      "sha256": "34b2ea209dba1c92b8b53a33125fabdb0205aaa8d4dfc13283facc64378f4d43"
+    },
+    {
+      "file": "ladder-authority-order.log",
+      "sha256": "ea9f60a0d97bc75ca794dc0a963f3fb2df99056ea4fa5911918a7424fbb87322"
+    },
+    {
+      "file": "ladder-authority-pack1.log",
+      "sha256": "40e501d4f65b2afd3ad2d1cd134f476442480cd2b8e105c437d5ac43e6d17fa2"
+    },
+    {
+      "file": "ladder-backpressure.log",
+      "sha256": "0257d432cbd598bd280fe649640bcf9005e9794f605aec853c13c6984408930a"
+    },
+    {
+      "file": "ladder-cleanup-ownership.log",
+      "sha256": "747a0d9514df20767545d46742e7e02f3990c81b80cae1fe7972e2f10c1b6f6d"
+    },
+    {
+      "file": "ladder-combat-pack1.log",
+      "sha256": "81b06e6e97fa34c9b35008e4515d29c4842f0e64268ea1d0adde1fcbbee3be4d"
+    },
+    {
+      "file": "ladder-conflict-pack.log",
+      "sha256": "f7dce198608e50a8e9bbab7c58cf35c7e8843ecae1b1005fb88d9e355571a6bb"
+    },
+    {
+      "file": "ladder-evidence-smoke.log",
+      "sha256": "c3c1c4b624becc468148daa60d7f521c061331cfcaf6712f9497b36effe83fe1"
+    },
+    {
+      "file": "ladder-exactly-once-pack.log",
+      "sha256": "f2b218b0c0dca75a612cd7820122f4c3defcbe48b40fb0ba4456e0b452c3c30a"
+    },
+    {
+      "file": "ladder-failure.log",
+      "sha256": "45ad2e6ba1e84c4e4d996f5d8a3a90c257e13d46052af93b75e2ce3f34ec281c"
+    },
+    {
+      "file": "ladder-fault-pack.log",
+      "sha256": "405a259f3d6284241157ed43e7022935d481c4c059cace4c272b137ad067c1fc"
+    },
+    {
+      "file": "ladder-fixture-smoke.log",
+      "sha256": "afd74ec56e7bcc35136cd539fc9c39e4913f834b76358e2347c887e64352412e"
+    },
+    {
+      "file": "ladder-lifecycle-pack.log",
+      "sha256": "7bccd8dfbde1cd87df183dd22fd564aac4d6f47c36c823026c990556caf5922d"
+    },
+    {
+      "file": "ladder-membership-smoke.log",
+      "sha256": "2d0fc1ea8882e68be07c20b3a5d4576688b5508b7d0457e1383cc1797e967ed4"
+    },
+    {
+      "file": "ladder-performance.log",
+      "sha256": "64def3aa0881b79ed1011d78eac18da26bb520a73b32bc978f7fdfba73d7c935"
+    },
+    {
+      "file": "ladder-proposal-pack.log",
+      "sha256": "c2180f9ddc6f8532552fb80d7f7ad101a0eaf655f243edf978c2fcf3e761e31a"
+    },
+    {
+      "file": "ladder-resilience-pack.log",
+      "sha256": "25a70b33214dcfa85f7f0fd3c36e678e42fc6b098528e6274ec0605d172cf681"
+    },
+    {
+      "file": "ladder-restart-pack.log",
+      "sha256": "888cf7cfe6c94645cd885469800dea3e22c52d86104ca51341a0fa4ead817d4f"
+    },
+    {
+      "file": "ladder-rewind-pack.log",
+      "sha256": "60a2a7b90a83a0f5488c74453713adadbd2515016e358b1574c5345250edfe5b"
+    },
+    {
+      "file": "ladder-three-context-pack.log",
+      "sha256": "908b425ea3471a342a0461e76566e4702aca4b1753bfa1748ba5fa143e8d3d1c"
+    },
+    {
+      "file": "ladder-token-pack.log",
+      "sha256": "ce8334b25a73a95ec8cac99828f22554adcf25a16dcb6252cd2a806acfbd2435"
+    },
+    {
+      "file": "ladder-two-device-pack.log",
+      "sha256": "2a0509076b2d78b640be93dfb9e8fafe6c9132fd4945adeecbfe82c464f59585"
+    },
+    {
+      "file": "machine-idle.log",
+      "sha256": "fd8982cc5d143c1a4304b815c2d0ecf97a182859a890f7e41a8197b7ac3bb95d"
+    },
+    {
+      "file": "rerun-lifecycle-pack-1.log",
+      "sha256": "f8f21f085a9ab09eb1a947113590dd6527a52ad554a137e4ad43d5bb0153766f"
+    },
+    {
+      "file": "rerun-lifecycle-pack-2.log",
+      "sha256": "17094b2b7aa465496f58b89cb867f0e895147e14c4a08a8aa3af145f5cfdd085"
+    },
+    {
+      "file": "rerun-performance-1.log",
+      "sha256": "76910dd7579fd6860c25981345852c08169f869fba8ea5162c587f34af52c930"
+    },
+    {
+      "file": "rerun-performance-2.log",
+      "sha256": "8cbb1d7da4d65973332d65217ed5786b2cbf978706a6344fbd00643f7ec26d57"
+    },
+    {
+      "file": "ux-audit-prod.log",
+      "sha256": "c1b471c3a2e4681f8167677950a83e04f51fc38ff5eff513b194073218f43c8c"
+    }
+  ],
+  "logsLocation": ".sisyphus/roadmap-completion-20260912/uat-round-1-preflight-20260923/ (local, not committed)",
+  "incident": "during the diagnosis a bisect build at 3956fe8af (a hydration script older than its junction guard) deleted the shared root node_modules/tsx through a worktree junction; the parent restored tsx 4.22.4 and its nested esbuild 0.28.1 from the npm cache, each integrity-verified against package-lock.json"
+}
