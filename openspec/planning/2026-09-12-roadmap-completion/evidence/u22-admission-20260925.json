@@ -1,0 +1,187 @@
+{
+  "unit": "U22",
+  "stage": "admission",
+  "attempt": "resumption r2 (first run: evidence/u22-admission-20260923.json, -red-20260923.json, -local-20260923.json, BLOCKED at red on a686f6fc9)",
+  "at": "2026-09-25T06:51:54.753Z",
+  "factsTakenAt": "2026-09-25T06:41:41Z (guard, --next and validator first run); re-run by this writer at \"at\"; no file edited before either",
+  "editsBeforeThisReceipt": "none: git status --short empty",
+  "status": "ADMISSIBLE BY THE VALIDATOR RULE, --next CLAUSE NOT MET LITERALLY: --next printed U35g, not U22 (see nextCheck). The lane proceeded to red and local on the U22a precedent; the parent decides whether this receipt stands.",
+  "baseline": "0fd24c343d8de2d467bb5b2d3d57c3beeb2d89af",
+  "baselineEqualsOriginMain": true,
+  "originMainFetch": "git fetch origin main between 2026-09-25T06:41:41Z and 06:48:48Z (between the first guard/--next run and the first idle check): FETCH_HEAD = origin/main = HEAD = 0fd24c343d8de2d467bb5b2d3d57c3beeb2d89af",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u22",
+  "branch": "roadmap-u22-e2e-25-ungated-r2-20260925",
+  "node": "R6.umbrella",
+  "ciClass": "product",
+  "reviewClasses": [
+    "privacy"
+  ],
+  "taskKeys": [
+    "harden-gm-two-player-campaign-sessions#21.2@547"
+  ],
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "shellPreamble": [
+    "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "export npm_config_dry_run=true",
+    "HOSTNAME=127.0.0.1 and PW_TEST_HTML_REPORT_OPEN=never exported for each runner process only"
+  ],
+  "installGuard": {
+    "command": "npm run --silent qc:guard-node-modules-link",
+    "stdoutFirstRun": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"E:\\\\Projects\\\\MekStation\\\\.sisyphus\\\\roadmap-completion-20260912\\\\worktrees\\\\u22\\\\node_modules\",\"actualPath\":\"E:\\\\Projects\\\\MekStation\\\\node_modules\"}",
+    "exitCodeFirstRun": 1,
+    "rerunByThisWriter": {
+      "command": "node scripts/qc/guard-node-modules-link.mjs",
+      "stdout": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"E:\\\\Projects\\\\MekStation\\\\.sisyphus\\\\roadmap-completion-20260912\\\\worktrees\\\\u22\\\\node_modules\",\"actualPath\":\"E:\\\\Projects\\\\MekStation\\\\node_modules\"}",
+      "exitCode": 1
+    },
+    "reading": "refusal by design in a junctioned worktree (node_modules is a junction to E:\\Projects\\MekStation\\node_modules); no npm install, ci, prune or lifecycle was run"
+  },
+  "validator": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+    "stdout": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+    "exitCode": 0
+  },
+  "nextCheck": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "stdout": "U35g",
+    "exitCode": 0,
+    "charterClause": "printed U22 on the baseline (else BLOCKED with the output)",
+    "literalResult": "NOT MET: printed U35g",
+    "whyNotU22": "--next returns the FIRST admissible unit in ledger order (validate-roadmap.mjs:545-558). A read-only replay of that rule per unit (scratchpad u22r2-admissible.cjs, output below) finds no in-flight unit on the baseline ledger, U35g admissible at ledger position 18, U58 at 24 and U22 at 26: U22 is planned, its node R6.umbrella depends only on R2.authority-live (main-verified), it is not owner-gated and no in-flight unit owns e2e or openspec/changes/harden-gm-two-player-campaign-sessions.",
+    "u22AdmissibleByTheRule": true,
+    "parallelLane": "git worktree list shows worktrees/u35g at 0fd24c343 on branch roadmap-u35g-coop-outcome-rewrites-record-r2-20260925 (the U35g lane the charter calls the jest lane). U35g owns src/lib/campaign, src/lib/multiplayer/server, src/types/campaign/RosterUnitProjection.ts: disjoint from U22 paths.",
+    "inferenceNotMeasured": "INFERENCE from the same replay, not a validator output: with U35g in flight, U58 (src/lib/campaign) is path-blocked and the first admissible unit would be U22.",
+    "precedent": "the U22a charter recorded the same shape (\"it prints U35f, which the parent runs in parallel ... record it and confirm U22a is admissible anyway\"); this charter does not carry that clause, so the literal result is recorded as NOT MET and the choice is the parent's",
+    "replayOutput": [
+      "in-flight units: (none)",
+      "#18 U35g state=planned node=R2.authority-live gated=false depsReady=true pathFree=true ADMISSIBLE=true deps=[R2.authority-cutover=main-verified]",
+      "#24 U58 state=planned node=R2.authority-live gated=false depsReady=true pathFree=true ADMISSIBLE=true deps=[R2.authority-cutover=main-verified]",
+      "#26 U22 state=planned node=R6.umbrella gated=false depsReady=true pathFree=true ADMISSIBLE=true deps=[R2.authority-live=main-verified]",
+      "#28 U21b state=planned node=R2.authority-live gated=false depsReady=true pathFree=true ADMISSIBLE=true deps=[R2.authority-cutover=main-verified]"
+    ]
+  },
+  "dependencies": {
+    "U22a": "complete on the ledger; merge cb356ac9e1eeb8ab0198892237c34e681e506c78 is an ancestor of the baseline (git merge-base --is-ancestor: yes)",
+    "U21": "complete; merge 13faa499860fd3230a9325604cd59719073d0480 is an ancestor of the baseline",
+    "U2c": "complete; merge a28cda8065fe8df8183eeb66ddacb0c1be242264 is an ancestor; the gated E2E-25 row is on the baseline unchanged (spec sha256 equals U2c final and U22 first-run specSha256)",
+    "u22aLiveEvidence": "evidence/u22a-local-20260923.json ladder runs u22a-final-privacy-a/b: E2E-25 an UNEXPECTED PASS (\"Expected to fail, but passed.\", 1 failed / 7 passed, exit 1) on U22a's final tree; its main proof (evidence/u22a-mainproof-20260925.json) ran jest only, so no Playwright run on main has measured E2E-25 before this unit"
+  },
+  "ownershipPaths": [
+    "e2e",
+    "openspec/changes/harden-gm-two-player-campaign-sessions"
+  ],
+  "baselineHashes": {
+    "e2e/gm-two-player-privacy.pack.spec.ts": "f6508a1d2c331c34086c3531b493aaf60d7182a78f2e469a7ed42726195c3c47",
+    "e2e/gm-two-player-proposals.pack.spec.ts": "97e0e21958d936df351ac25e79eda229ea8e101d777063fc62330a1b464ede65",
+    "e2e/helpers/campaignJournalDrive.ts": "232905bf1ab90b20aff4326bd863a56556432751839fdcf93dceec554169590c",
+    "openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md": "aa17ee0b19821de016173ca26b1280ffb5a3592ba88e1e430c22aa37e49e3b76"
+  },
+  "e2e25BodyOnTheBaseline": {
+    "file": "e2e/gm-two-player-privacy.pack.spec.ts",
+    "crlf": false,
+    "fileSha256": "f6508a1d2c331c34086c3531b493aaf60d7182a78f2e469a7ed42726195c3c47",
+    "titleLine": 311,
+    "titleText": "test('E2E-25 approved correction keeps its reason private @E2E-25 @until-journal-cutover', async ({",
+    "bodyStartLine": 319,
+    "bodyEndLine": 402,
+    "bodyLineCount": 84,
+    "bodySha256": "fd5a4e889bb5cd6df93e737b9d0e8bed0c3264f84c9c386223e4aacd93f316a8",
+    "titleToBodyLines": 8,
+    "testFailPresentBetweenTitleAndBody": true,
+    "untilJournalCutoverCount": 4
+  },
+  "seams": [
+    {
+      "at": "e2e/gm-two-player-privacy.pack.spec.ts:99-132",
+      "fact": "the header gate block \"E2E-25 IS A STRICT EXPECTED FAILURE GATED @until-journal-cutover\"; it names the 409 candidate-verification-failed at line 345 as the refusal, which U21 removed (first run measured spec:345 passing)"
+    },
+    {
+      "at": "e2e/gm-two-player-privacy.pack.spec.ts:134-144",
+      "fact": "the E2E-29/E2E-30 paragraph: \"E2E-30 is LIVE ... E2E-29 is deferred THERE ... no production wiring arms CampaignGmArbiter's proposal-timeout timer\" - stale: the proposals pack authors E2E-29 as a plain row (proposals.pack.spec.ts:177) and its header (:18-23) says production wirings pass PRODUCTION_PROPOSAL_TIMEOUT_MS"
+    },
+    {
+      "at": "e2e/gm-two-player-privacy.pack.spec.ts:311",
+      "fact": "E2E-25's title carries the gate tag @until-journal-cutover (council decision 7's named gate tag, so gate text)"
+    },
+    {
+      "at": "e2e/gm-two-player-privacy.pack.spec.ts:315-318",
+      "fact": "test.fail(true, 'until-journal-cutover: FN-u2b-rewind-commit-verifies-through-the-match-store - ... 409 candidate-verification-failed ...')"
+    },
+    {
+      "at": "e2e/gm-two-player-privacy.pack.spec.ts:319-402",
+      "fact": "the assertion body to leave byte-identical (test.setTimeout through the test's closing \"});\"), sha256 fd5a4e889bb5cd6df93e737b9d0e8bed0c3264f84c9c386223e4aacd93f316a8"
+    },
+    {
+      "at": "e2e/gm-two-player-privacy.pack.spec.ts:379-385",
+      "fact": "the private_record discovery query (the triage's spec:378-398)"
+    },
+    {
+      "at": "e2e/gm-two-player-proposals.pack.spec.ts:49 and :177",
+      "fact": "E2E-30 and E2E-29 rows; grep for test.fail/skip/fixme/only in the file: no match"
+    },
+    {
+      "at": "e2e/helpers/campaignJournalDrive.ts:160-173",
+      "fact": "requestActivity; :172 returns { status: response.status(), body: await response.json() }"
+    },
+    {
+      "at": "e2e/helpers/campaignJournalDrive.ts:216-235",
+      "fact": "postIntentCommand; :233 body: (await response.json()) as CommandBody (folded clause (c))"
+    },
+    {
+      "at": "importers of e2e/helpers/campaignJournalDrive.ts",
+      "fact": "e2e/campaign-journal-two-process-convergence.spec.ts:85, e2e/campaign-journal-two-process-privacy.spec.ts:83 (requestActivity at :184, :243, :257, :328, :340, :438; postIntentCommand at :197), e2e/helpers/campaignJournalPrivacyFixture.ts:32 (grep). No ladder group lists either spec (scripts/qc/gm-two-player-campaign-core.cjs SPEC_BY_GROUP); both spawn .next/standalone/server.js as the second process (e2e/helpers/campaignJournalTwoProcess.ts:259-262) on MEKSTATION_E2E_SECOND_PORT (default 3617, :52-54)"
+    },
+    {
+      "at": "scripts/qc/gm-two-player-campaign-core.cjs:78-83, 204-206",
+      "fact": "`visibility` stays reserved for the complete E2E-19..30 pack; privacy-pack (E2E-19..28) and proposal-pack are the registered groups; privacy-pack arms the journal fixture (campaign '1', combat 'enabled'), proposal-pack does not"
+    },
+    {
+      "at": "openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md:550",
+      "fact": "the open 21.2 row"
+    },
+    {
+      "at": "openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md:436 and :525",
+      "fact": "the stale #62 annotations (\"#62 onMirrorPrefixDivergence ... is still unwired by GameSessionPage.lifecycle.ts\"; \"#62 onMirrorPrefixDivergence never wired\"); wired at src/components/gameplay/pages/gameSession/GameSessionPage.lifecycle.ts:231-241"
+    }
+  ],
+  "design": [
+    "Record E2E-25's unexpected pass FIRST: E2E build on the baseline, then the privacy-pack group and the proposal-pack group through the ladder runner, before any edit (red receipt).",
+    "Ungate: delete the header gate block (spec:99-132 with one blank comment line), delete the four-line test.fail (spec:315-318), and drop the @until-journal-cutover tag from the title (spec:311). The assertion body (test.setTimeout through the closing \"});\") stays byte-identical, checked by sha256 of that range before and after. Folded clause (a) is moot: it applies only \"if the row is still gated at that point\".",
+    "Rewrite the E2E-29/E2E-30 paragraph (spec:134-144) to say both rows run live, as plain rows, in e2e/gm-two-player-proposals.pack.spec.ts (runner group proposal-pack), E2E-30 at line 49 and E2E-29 at line 177, measured passing in this unit's red run, and point to that file's header for what each proves (folded clause (b)).",
+    "Add one helper in campaignJournalDrive.ts that reads the response body as text once and JSON.parses it, throwing an Error naming the URL, the status and the body when the text is not JSON; requestActivity (:172) and postIntentCommand (:233, folded clause (c)) use it.",
+    "No tasks.md edit and no checkbox: the 21.2 tick facts (OB-2 non-claim, #62 correction) go into the local receipt for the parent's tick receipt."
+  ],
+  "estimatePerFile": {
+    "e2e/gm-two-player-privacy.pack.spec.ts": {
+      "added": 8,
+      "deleted": 46,
+      "note": "gate block -35, test.fail -4, title 1 changed, E2E-29/30 paragraph about -6/+7"
+    },
+    "e2e/helpers/campaignJournalDrive.ts": {
+      "added": 22,
+      "deleted": 3
+    }
+  },
+  "caps": {
+    "maxFiles": 15,
+    "filesEstimated": 2,
+    "maxNonGeneratedLines": 500,
+    "linesEstimated": 79,
+    "lineClass": "every changed line is an e2e spec or e2e helper line; counted as the unit's lines here as the charter directs; product src lines 0",
+    "withinCaps": true
+  },
+  "rowTableBaseline": "measured in evidence/u22-red-20260925.json (rowTableBaseline)",
+  "wholeRowVerdict": {
+    "rule": "GOAL.md stage 7 (OD-whole-row-tick-rule) read with option (b) of PK-umbrella-acceptance-unsatisfiable (council decision 7): an authored row that passes is green; a strict test.fail with a named gate tag is excluded, not green; an absent row is a failure",
+    "onTheBaseline": "NO: E2E-25 carries a strict test.fail with the named gate tag @until-journal-cutover, so it is excluded, not green, whatever it does live",
+    "onceThisUnitLands": "YES IF MEASURED: every id E2E-19..30 has an authored row (E2E-23 and E2E-24 through the E2E-20 row's title tags); if E2E-25 passes as a plain row and the other rows stay green, every row is green under the mechanical reading. Measured in the local receipt; the tick itself needs the main proof on the merge commit."
+  },
+  "risksForTheParent": [
+    "PRIVACY CLASS: the proposed head needs the owner's OWNER-RULING bound to that exact head before merge (Lane B). This lane supplies none.",
+    "--next CLAUSE: --next printed U35g on the baseline, not U22; U22 is admissible by the validator's own rule and third in order; the parent decides whether this admission stands.",
+    "FIXTURE ARM: the privacy pack runs with MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY=1 and MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE=enabled (core.cjs:204-206, :234-239); the production constants stay off. E2E-25 green under the arm does not prove the production path; council decision 7 names the production flip as a gate.",
+    "THE visibility GROUP: core.cjs:78 keeps `visibility` reserved (NOT_IMPLEMENTED) \"for the complete E2E-19..30 pack\"; 21.2's letter names no group and no tasks.md row asks for it (21.4 registered `authority` only), so the whole-row reading here counts rows across privacy-pack and proposal-pack.",
+    "SCOPE LIMITS THE HEADER STATES: E2E-23 and E2E-24 have no row of their own (title tags on the E2E-20 row); E2E-20/21's \"GM MAY see it\" has no tactical counterpart (ROLE HONESTY); E2E-28 is the HTTP API + export slice only. The mechanical option (b) reading counts each passing authored row as green.",
+    "HELPER EDIT PROOF: no ladder group imports campaignJournalDrive.ts; its importers are the two two-process specs, which spawn .next/standalone/server.js. Whether they run in a junctioned worktree is measured (or not) in the local receipt."
+  ]
+}

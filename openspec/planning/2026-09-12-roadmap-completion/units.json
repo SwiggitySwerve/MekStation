@@ -1801,28 +1801,27 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": "a686f6fc9be6d51330a4e37ddf80f61860e9f4d0",
+      "state": "local-verified",
+      "baseline": "0fd24c343d8de2d467bb5b2d3d57c3beeb2d89af",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
         "admission": {
-          "path": "evidence/u22-admission-20260923.json",
-          "baseline": "a686f6fc9be6d51330a4e37ddf80f61860e9f4d0",
-          "at": "2026-09-23T05:08:30.125Z",
-          "decision": "admitted (--next printed U22); the red stage then measured the premise false"
+          "path": "evidence/u22-admission-20260925.json",
+          "baseline": "0fd24c343d8de2d467bb5b2d3d57c3beeb2d89af",
+          "at": "2026-09-25T06:51:54.753Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
         },
         "red": {
-          "path": "evidence/u22-red-20260923.json",
-          "baseline": "a686f6fc9be6d51330a4e37ddf80f61860e9f4d0",
-          "at": "2026-09-23T05:06:25.805Z",
-          "decision": "red measured, not as chartered: privacy-pack ran twice on the baseline (8 passed, exit 0 each); E2E-25 stayed an expected failure. Its rewind commit now answers 200 (U21), the branch is written and the private reason record is saved, but the row fails later at e2e/gm-two-player-privacy.pack.spec.ts:353 (the guest's phase still reads Movement Phase after 30 s instead of the restored Initiative phase). The run's database shows the match's event log never trimmed (5 events, 0 superseded), so the live rebuild never ran. E2E-19..24, 26..28 pass in the privacy pack; E2E-29 and E2E-30 pass live in the proposals pack"
+          "path": "evidence/u22-red-20260925.json",
+          "at": "2026-09-25T07:00:31.987Z",
+          "summary": "baseline 0fd24c343 (carries U21 and U22a): the privacy pack reported E2E-25 as an unexpected pass under its strict test.fail (Expected to fail, but passed; 1 failed / 7 passed, exit 1); the match store showed the live rebuild ran (4 events, 1 superseded) and the private-record lookup (spec:379-398) was reached for the first time; E2E-19..24 and 26..28 passed; proposals pack E2E-29 and E2E-30 passed"
         },
         "local": {
-          "path": "evidence/u22-local-20260923.json",
-          "baseline": "a686f6fc9be6d51330a4e37ddf80f61860e9f4d0",
-          "at": "2026-09-23T05:09:54.085Z",
-          "decision": "BLOCKED: no file changed; the ungating cannot land while E2E-25 fails"
+          "path": "evidence/u22-local-20260925.json",
+          "at": "2026-09-25T07:26:23.862Z",
+          "summary": "resumption after U22a (first run BLOCKED at red, evidence/u22-*-20260923.json); 2 test files +38/-51 (89 lines, 0 product lines): the privacy pack loses E2E-25's strict test.fail, its @until-journal-cutover tag and the header gate block, with the E2E-25 assertion body byte-identical; the E2E-29/E2E-30 header states both run live in the proposals pack (:49, :177); campaignJournalDrive's requestActivity and postIntentCommand read the body once and name URL, status and body on a non-JSON answer; privacy pack twice 8/8, proposals 2/2, authority-recovery 4/4; every id E2E-19..30 a plain pass (21.2 can tick whole, pending the owner's privacy ruling and the main proof); QC pin 14/14; tsc 0; oxlint 84 warnings 0 errors (it skips e2e); oxfmt clean; qc:openspec-ci errors=0; validator PASSED; three mutants caught and restored (E2E-25 player check inverted, test.fail put back, helper given a non-JSON answer); runs overlapping the tsx outage were discarded and re-run; implementer claude-opus (Agent model: opus); findings: the two-process specs cannot run in a junctioned worktree (the main proof runs them), the runner prints no port or PID, the stale #62 notes at tasks.md:436 and :525 (corrected at the tick); status ready"
         },
         "review": null,
         "merge": null,
@@ -1840,6 +1839,10 @@
       "resumed20260925": {
         "at": "2026-09-25T06:37:27.000Z",
         "why": "prerequisite main-verified: U22a (merge cb356ac9e1eeb8ab0198892237c34e681e506c78); U22 resumes with its folded clauses and first records E2E-25's unexpected pass on main"
+      },
+      "admissionNote20260925": {
+        "at": "2026-09-25T07:28:02.000Z",
+        "note": "The charter asked for --next to print U22; it printed U35g, the first admissible unit, which was in flight in its own worktree. U22 met the validator's admission rule itself (planned, node dependencies main-verified, no owner gate, no path overlap with an in-flight unit), so the parent accepted the parallel admission, as for U22a. The charter's BLOCKED-else wording was stricter than the rule."
       }
     },
     {
@@ -8530,6 +8533,15 @@
       "summary": "At the pin, U35f's co-op host refresh issues a GET /api/campaigns/[id] after every committed event, 57-70 ms each; it plausibly makes the performance pack's race more frequent. It overlaps FN-u35f-coop-host-fold-edges F5 (one read per event).",
       "recommendedSuccessor": "refresh once per committed batch (FN-u35f-coop-host-fold-edges)",
       "status": "recorded; fold with FN-u35f-coop-host-fold-edges"
+    },
+    {
+      "id": "FN-u22-two-process-specs-cannot-run-in-junctioned-worktree",
+      "foundBy": "U22 resumed lane (claude-opus), 2026-09-25, finding F1",
+      "at": "2026-09-25T07:28:02.000Z",
+      "class": "test infrastructure limit",
+      "summary": "The two-process campaign journal specs (the only callers of e2e/helpers/campaignJournalDrive.ts's requestActivity and postIntentCommand) cannot start in a worktree whose node_modules is a junction: the hydration guard leaves .next/standalone/server.js as Next's generated server, so the readiness URL at server.js:410 never answers and the webServer times out at 120 s.",
+      "recommendedSuccessor": "run those specs in the root checkout (for example in a main proof); a lane cannot prove them",
+      "status": "recorded; U22's main proof in the root checkout runs them"
     }
   ]
 }

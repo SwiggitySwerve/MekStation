@@ -1,0 +1,752 @@
+{
+  "unit": "U22",
+  "stage": "local",
+  "at": "2026-09-25T07:26:23.862Z",
+  "status": "ready",
+  "statusCaveat": "The admission receipt records the charter's --next clause as NOT MET literally (--next printed U35g; U22 admissible by the validator's rule and third in ledger order while the U35g lane runs in parallel). The parent decides whether the admission stands; nothing below depends on it.",
+  "firstRun": "evidence/u22-local-20260923.json (BLOCKED, no file changed): E2E-25 then failed at spec:353 because the live rebuild never reached the match; U22a fixed that.",
+  "baseline": "0fd24c343d8de2d467bb5b2d3d57c3beeb2d89af",
+  "headAtLocal": "0fd24c343d8de2d467bb5b2d3d57c3beeb2d89af (unchanged; the edits are uncommitted working-tree changes for the parent to commit)",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u22",
+  "branch": "roadmap-u22-e2e-25-ungated-r2-20260925",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "behaviorClauses": [
+    {
+      "clause": "record E2E-25's unexpected-pass receipt FIRST, before any edit",
+      "done": "evidence/u22-red-20260925.json: privacy-pack on the baseline, E2E-25 ok under its strict test.fail, \"Expected to fail, but passed.\", 1 failed / 7 passed, exit 1; written before any file under the ownership paths changed"
+    },
+    {
+      "clause": "remove only E2E-25's test.fail and gate text; the assertion body byte-identical",
+      "done": "the four-line test.fail and the @until-journal-cutover title tag removed from the row; the header gate block (baseline spec:99-133, 35 lines) removed. Body (test.setTimeout through the test's closing \"});\", 84 lines) sha256 before fd5a4e889bb5cd6df93e737b9d0e8bed0c3264f84c9c386223e4aacd93f316a8 (baseline lines 319-402) = after fd5a4e889bb5cd6df93e737b9d0e8bed0c3264f84c9c386223e4aacd93f316a8 (lines 280-363); \"until-journal-cutover\" occurrences in the file 4 -> 0"
+    },
+    {
+      "clause": "folded (a): rewrite the gate text if the row is still gated",
+      "done": "moot: the row is ungated and passes, so the gate text is removed rather than rewritten"
+    },
+    {
+      "clause": "rewrite the E2E-29/E2E-30 header paragraph to state where both rows run today (folded (b))",
+      "done": "the paragraph now says both rows run live, as plain rows with no expected-failure mark, in e2e/gm-two-player-proposals.pack.spec.ts (runner group proposal-pack), E2E-30 at line 49 and E2E-29 at line 177, both measured passing on 2026-09-25, and points to that file's header for what each proves (privacy spec header paragraph at lines 100-109 of the final file, rewritten lines 104-109)"
+    },
+    {
+      "clause": "requestActivity reads the body as text once and JSON.parses it, so a non-JSON answer shows its status and body",
+      "done": "new readJsonBody(response) in e2e/helpers/campaignJournalDrive.ts: response.text() once, JSON.parse, on a parse failure throws Error(\"non-JSON answer from <url>: status <n>, body <JSON-quoted text>\"); requestActivity returns { status, body: await readJsonBody(response) }"
+    },
+    {
+      "clause": "folded (c): postIntentCommand gets the same read-text-once treatment",
+      "done": "postIntentCommand returns { status, body: (await readJsonBody(response)) as CommandBody }"
+    },
+    {
+      "clause": "the 21.2 tick facts (OB-2 non-claim, #62 correction) for the parent's tick receipt",
+      "done": "factsForThe21_2TickReceipt below; tasks.md not edited, no checkbox touched"
+    }
+  ],
+  "lineCounts": [
+    {
+      "file": "e2e/gm-two-player-privacy.pack.spec.ts",
+      "added": 7,
+      "deleted": 46,
+      "class": "e2e spec (test code)"
+    },
+    {
+      "file": "e2e/helpers/campaignJournalDrive.ts",
+      "added": 31,
+      "deleted": 5,
+      "class": "e2e helper (test code)"
+    }
+  ],
+  "lineCountTotals": {
+    "filesChanged": 2,
+    "insertions": 38,
+    "deletions": 51,
+    "changedLines": 89,
+    "productSrcLines": 0,
+    "testLines": 89,
+    "gitDiffStat": "2 files changed, 38 insertions(+), 51 deletions(-)",
+    "capFiles": 15,
+    "capNonGeneratedLines": 500,
+    "countedAsTheUnitsLines": "yes, as the charter directs (spec and helper lines count here); under OD-line-cap-product-lines they are test lines and the product count is 0",
+    "withinCaps": true
+  },
+  "finalFileHashes": {
+    "e2e/gm-two-player-privacy.pack.spec.ts": "33ff6684a1e213e812686e36101c90b2afd46a70de5a4dc4f629a40b80c5dd15",
+    "e2e/helpers/campaignJournalDrive.ts": "3400fc858612321e4f5c46414124af103f5563fcc440e9c3bd1f50d1c5f7261e",
+    "e2e/gm-two-player-proposals.pack.spec.ts (unchanged)": "97e0e21958d936df351ac25e79eda229ea8e101d777063fc62330a1b464ede65",
+    "openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md (unchanged)": "aa17ee0b19821de016173ca26b1280ffb5a3592ba88e1e430c22aa37e49e3b76"
+  },
+  "build": {
+    "reference": "evidence/u22-red-20260925.json build: exit 1 at the standalone hydration guard (expected in a junctioned worktree; the guard was not relaxed), \"✓ Compiled successfully in 66s\", __E2E_MODE__ in .next/static/chunks/pages/_app-da9dae42f3e9407a.js. Only e2e/ files changed afterwards and no e2e file is part of the Next bundle, so every local run used that build. .next left in place."
+  },
+  "gates": [
+    {
+      "gate": "npx jest scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+      "lastLine": "Tests:       14 passed, 14 total",
+      "suites": "Test Suites: 1 passed, 1 total",
+      "exitCode": 0,
+      "logSha256": "9f8dc684545fef176500ed7d4752db05881430e4ad49c87ea6642a534e00a42b"
+    },
+    {
+      "gate": "npx tsc --noEmit",
+      "lastLine": "(no output)",
+      "exitCode": 0,
+      "note": "first run 07:10:05-07:11:43Z (inside the coordinator's tsx-missing window, so re-run); final run 07:23:59Z, no output; tsconfig include \"**/*.ts\" covers e2e/",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "gate": "npx oxlint",
+      "lastLine": "Finished in 271ms on 3819 files using 16 threads.",
+      "summaryLine": "Found 84 warnings and 0 errors.",
+      "exitCode": 0,
+      "versusBaseline": "84 warnings, the pinned count: unchanged",
+      "vacuityNote": ".oxlintrc.json ignorePatterns carry \"e2e/**\" and \"**/*.spec.ts\"; `npx oxlint <the two changed files>` reports \"Found 0 warnings and 0 errors.\" on 0 files, so oxlint analyses neither changed file; tsc and oxfmt are the checks that read them",
+      "logSha256": "056fb8ad1f673c2323c967123d2e4223671ed86c8f087a5f35d2a9c8296a6782"
+    },
+    {
+      "gate": "npx oxfmt --check e2e/gm-two-player-privacy.pack.spec.ts e2e/helpers/campaignJournalDrive.ts",
+      "lastLine": "Finished in 18ms on 2 files using 16 threads.",
+      "resultLine": "All matched files use the correct format.",
+      "exitCode": 0
+    },
+    {
+      "gate": "npm run qc:openspec-ci:validate",
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+      "exitCode": 0
+    },
+    {
+      "gate": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "exitCode": 0,
+      "takenOn": "the final state (the three untracked u22 receipts present, this one before this field was filled)"
+    },
+    {
+      "gate": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+      "lastLine": "U35g",
+      "exitCode": 0,
+      "takenOn": "the final state; also U35g on the baseline (admission receipt nextCheck)"
+    },
+    {
+      "gate": "npm run --silent qc:guard-node-modules-link",
+      "lastLine": "INSTALL_REFUSED node-modules-is-link {...worktrees\\\\u22\\\\node_modules -> E:\\\\Projects\\\\MekStation\\\\node_modules}",
+      "exitCode": 1,
+      "expected": true,
+      "note": "taken at the start (admission receipt); refusal by design in a junctioned worktree"
+    }
+  ],
+  "ladderTable": [
+    {
+      "group": "privacy-pack",
+      "runId": "u22r2-red-privacy-20260925",
+      "tree": "baseline (red receipt)",
+      "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=privacy-pack --run-id=u22r2-red-privacy-20260925",
+      "idleGate": [
+        "IDLE_OK attempt=1"
+      ],
+      "startedAt": "2026-09-25T06:55:52Z",
+      "finishedAt": "2026-09-25T06:56:48Z",
+      "ownedPort": 25126,
+      "serverPids": "47952",
+      "exitCode": 1,
+      "summary": [
+        "1 failed",
+        "7 passed (53.5s)"
+      ],
+      "reporterLines": [
+        "ok 1 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:255:7 › tactical pre-serialization privacy › E2E-19 unfinalized GM draft has only a private payload @E2E-19 (4.1s)",
+        "ok 2 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:311:7 › tactical pre-serialization privacy › E2E-25 approved correction keeps its reason private @E2E-25 @until-journal-cutover (2.8s)",
+        "ok 3 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:404:7 › tactical pre-serialization privacy › E2E-20 Player 1 sealed choice reaches neither Player 2 wire nor board @E2E-20 @E2E-23 @E2E-24 (5.8s)",
+        "ok 4 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:499:7 › tactical pre-serialization privacy › E2E-21 Player 2 sealed choice reaches neither Player 1 wire nor board @E2E-21 (5.4s)",
+        "ok 5 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:553:7 › tactical pre-serialization privacy › E2E-27 no player surface carries an authority identifier or an inferable gap @E2E-27 (3.0s)",
+        "ok 6 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:598:7 › tactical pre-serialization privacy › E2E-22 finalization reveals the COMMITTED declaration on the opponent delivery stream @E2E-22 (8.0s)",
+        "ok 7 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:662:7 › tactical pre-serialization privacy › E2E-26 a reconnecting player replays exactly what it was delivered live @E2E-26 (5.8s)",
+        "ok 8 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:741:7 › tactical pre-serialization privacy › E2E-28 seated export and timeline agree; strangers fail before fan-out @E2E-28 (2.7s)"
+      ],
+      "unexpectedPassLines": [
+        "Expected to fail, but passed."
+      ],
+      "portAfterRun": "PORT_FREE"
+    },
+    {
+      "group": "proposal-pack",
+      "runId": "u22r2-red-proposal-20260925",
+      "tree": "baseline (red receipt)",
+      "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=proposal-pack --run-id=u22r2-red-proposal-20260925",
+      "idleGate": [
+        "IDLE_OK attempt=1"
+      ],
+      "startedAt": "2026-09-25T06:57:22Z",
+      "finishedAt": "2026-09-25T06:59:41Z",
+      "ownedPort": 22637,
+      "serverPids": "30200",
+      "exitCode": 0,
+      "summary": [
+        "2 passed (2.3m)"
+      ],
+      "reporterLines": [
+        "ok 1 [chromium] › e2e\\gm-two-player-proposals.pack.spec.ts:49:5 › E2E-30 concurrent proposals stay attributable and independently resolvable @proposal-pack @E2E-30 (5.4s)",
+        "ok 2 [chromium] › e2e\\gm-two-player-proposals.pack.spec.ts:177:5 › E2E-29 veto and timeout commit nothing and clear only own pending UI @proposal-pack @E2E-29 (2.1m)"
+      ],
+      "unexpectedPassLines": [],
+      "portAfterRun": "PORT_FREE"
+    },
+    {
+      "group": "privacy-pack",
+      "runId": "u22r2-local-privacy-a-20260925",
+      "tree": "final",
+      "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=privacy-pack --run-id=u22r2-local-privacy-a-20260925",
+      "idleGate": [
+        "IDLE_OK attempt=1"
+      ],
+      "startedAt": "2026-09-25T07:12:33Z",
+      "finishedAt": "2026-09-25T07:13:18Z",
+      "ownedPort": 27780,
+      "serverPids": "33400",
+      "exitCode": 0,
+      "summary": [
+        "8 passed (43.2s)"
+      ],
+      "reporterLines": [
+        "ok 1 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:220:7 › tactical pre-serialization privacy › E2E-19 unfinalized GM draft has only a private payload @E2E-19 (3.5s)",
+        "ok 2 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:276:7 › tactical pre-serialization privacy › E2E-25 approved correction keeps its reason private @E2E-25 (2.9s)",
+        "ok 3 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:365:7 › tactical pre-serialization privacy › E2E-20 Player 1 sealed choice reaches neither Player 2 wire nor board @E2E-20 @E2E-23 @E2E-24 (6.9s)",
+        "ok 4 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:460:7 › tactical pre-serialization privacy › E2E-21 Player 2 sealed choice reaches neither Player 1 wire nor board @E2E-21 (5.1s)",
+        "ok 5 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:514:7 › tactical pre-serialization privacy › E2E-27 no player surface carries an authority identifier or an inferable gap @E2E-27 (2.9s)",
+        "ok 6 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:559:7 › tactical pre-serialization privacy › E2E-22 finalization reveals the COMMITTED declaration on the opponent delivery stream @E2E-22 (7.9s)",
+        "ok 7 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:623:7 › tactical pre-serialization privacy › E2E-26 a reconnecting player replays exactly what it was delivered live @E2E-26 (5.9s)",
+        "ok 8 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:702:7 › tactical pre-serialization privacy › E2E-28 seated export and timeline agree; strangers fail before fan-out @E2E-28 (2.8s)"
+      ],
+      "unexpectedPassLines": [],
+      "portAfterRun": "PORT_FREE"
+    },
+    {
+      "group": "privacy-pack",
+      "runId": "u22r2-local-privacy-b-20260925",
+      "tree": "final (second in a row)",
+      "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=privacy-pack --run-id=u22r2-local-privacy-b-20260925",
+      "idleGate": [
+        "IDLE_OK attempt=1"
+      ],
+      "startedAt": "2026-09-25T07:13:26Z",
+      "finishedAt": "2026-09-25T07:14:07Z",
+      "ownedPort": 25693,
+      "serverPids": "63176",
+      "exitCode": 0,
+      "summary": [
+        "8 passed (40.0s)"
+      ],
+      "reporterLines": [
+        "ok 1 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:220:7 › tactical pre-serialization privacy › E2E-19 unfinalized GM draft has only a private payload @E2E-19 (3.1s)",
+        "ok 2 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:276:7 › tactical pre-serialization privacy › E2E-25 approved correction keeps its reason private @E2E-25 (2.7s)",
+        "ok 3 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:365:7 › tactical pre-serialization privacy › E2E-20 Player 1 sealed choice reaches neither Player 2 wire nor board @E2E-20 @E2E-23 @E2E-24 (5.3s)",
+        "ok 4 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:460:7 › tactical pre-serialization privacy › E2E-21 Player 2 sealed choice reaches neither Player 1 wire nor board @E2E-21 (5.1s)",
+        "ok 5 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:514:7 › tactical pre-serialization privacy › E2E-27 no player surface carries an authority identifier or an inferable gap @E2E-27 (2.9s)",
+        "ok 6 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:559:7 › tactical pre-serialization privacy › E2E-22 finalization reveals the COMMITTED declaration on the opponent delivery stream @E2E-22 (7.7s)",
+        "ok 7 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:623:7 › tactical pre-serialization privacy › E2E-26 a reconnecting player replays exactly what it was delivered live @E2E-26 (5.7s)",
+        "ok 8 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:702:7 › tactical pre-serialization privacy › E2E-28 seated export and timeline agree; strangers fail before fan-out @E2E-28 (2.5s)"
+      ],
+      "unexpectedPassLines": [],
+      "portAfterRun": "PORT_FREE"
+    },
+    {
+      "group": "proposal-pack",
+      "runId": "u22r2-local-proposal-20260925",
+      "tree": "final",
+      "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=proposal-pack --run-id=u22r2-local-proposal-20260925",
+      "idleGate": [
+        "IDLE_OK attempt=1"
+      ],
+      "startedAt": "2026-09-25T07:14:14Z",
+      "finishedAt": "2026-09-25T07:16:32Z",
+      "ownedPort": 24075,
+      "serverPids": "2228",
+      "exitCode": 0,
+      "summary": [
+        "2 passed (2.3m)"
+      ],
+      "reporterLines": [
+        "ok 1 [chromium] › e2e\\gm-two-player-proposals.pack.spec.ts:49:5 › E2E-30 concurrent proposals stay attributable and independently resolvable @proposal-pack @E2E-30 (5.5s)",
+        "ok 2 [chromium] › e2e\\gm-two-player-proposals.pack.spec.ts:177:5 › E2E-29 veto and timeout commit nothing and clear only own pending UI @proposal-pack @E2E-29 (2.1m)"
+      ],
+      "unexpectedPassLines": [],
+      "portAfterRun": "PORT_FREE"
+    },
+    {
+      "group": "authority-recovery",
+      "runId": "u22r2-local-authrec-20260925",
+      "tree": "final",
+      "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=authority-recovery --run-id=u22r2-local-authrec-20260925",
+      "idleGate": [
+        "IDLE_OK attempt=1"
+      ],
+      "startedAt": "2026-09-25T07:16:39Z",
+      "finishedAt": "2026-09-25T07:17:30Z",
+      "ownedPort": 26245,
+      "serverPids": "60128",
+      "exitCode": 0,
+      "summary": [
+        "4 passed (48.5s)"
+      ],
+      "reporterLines": [
+        "ok 1 [chromium] › e2e\\gm-two-player-authority-recovery.pack.spec.ts:47:5 › E2E-01 durable campaign cold recovery @authority-recovery @E2E-01 (11.0s)",
+        "ok 2 [chromium] › e2e\\gm-two-player-authority-recovery.pack.spec.ts:66:5 › E2E-01 genesis branch recovers @authority-recovery @E2E-01 (10.3s)",
+        "ok 3 [chromium] › e2e\\gm-two-player-authority-recovery.pack.spec.ts:85:5 › E2E-02 participant ownership survives restart @authority-recovery @E2E-02 (10.1s)",
+        "ok 4 [chromium] › e2e\\gm-two-player-authority-recovery.pack.spec.ts:123:5 › E2E-02 effective branch remains authoritative @authority-recovery @E2E-02 (12.0s)"
+      ],
+      "unexpectedPassLines": [],
+      "portAfterRun": "PORT_FREE"
+    },
+    {
+      "group": "privacy-pack",
+      "runId": "u22r2-m1-privacy-20260925",
+      "tree": "M1 mutant",
+      "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=privacy-pack --run-id=u22r2-m1-privacy-20260925",
+      "idleGate": [
+        "IDLE_OK attempt=1"
+      ],
+      "startedAt": "2026-09-25T07:17:43Z",
+      "finishedAt": "2026-09-25T07:18:38Z",
+      "ownedPort": 25370,
+      "serverPids": "71644",
+      "exitCode": 1,
+      "summary": [
+        "1 failed",
+        "7 passed (50.9s)"
+      ],
+      "reporterLines": [
+        "ok 1 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:220:7 › tactical pre-serialization privacy › E2E-19 unfinalized GM draft has only a private payload @E2E-19 (3.2s)",
+        "x  2 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:276:7 › tactical pre-serialization privacy › E2E-25 approved correction keeps its reason private @E2E-25 (2.7s)",
+        "ok 3 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:365:7 › tactical pre-serialization privacy › E2E-20 Player 1 sealed choice reaches neither Player 2 wire nor board @E2E-20 @E2E-23 @E2E-24 (5.6s)",
+        "ok 4 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:460:7 › tactical pre-serialization privacy › E2E-21 Player 2 sealed choice reaches neither Player 1 wire nor board @E2E-21 (5.2s)",
+        "ok 5 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:514:7 › tactical pre-serialization privacy › E2E-27 no player surface carries an authority identifier or an inferable gap @E2E-27 (2.9s)",
+        "ok 6 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:559:7 › tactical pre-serialization privacy › E2E-22 finalization reveals the COMMITTED declaration on the opponent delivery stream @E2E-22 (7.8s)",
+        "ok 7 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:623:7 › tactical pre-serialization privacy › E2E-26 a reconnecting player replays exactly what it was delivered live @E2E-26 (5.7s)",
+        "ok 8 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:702:7 › tactical pre-serialization privacy › E2E-28 seated export and timeline agree; strangers fail before fan-out @E2E-28 (2.4s)"
+      ],
+      "unexpectedPassLines": [],
+      "portAfterRun": "PORT_FREE"
+    },
+    {
+      "group": "privacy-pack",
+      "runId": "u22r2-m2-privacy-20260925",
+      "tree": "M2 mutant",
+      "command": "NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=privacy-pack --run-id=u22r2-m2-privacy-20260925",
+      "idleGate": [
+        "IDLE_OK attempt=1"
+      ],
+      "startedAt": "2026-09-25T07:18:57Z",
+      "finishedAt": "2026-09-25T07:19:40Z",
+      "ownedPort": 21372,
+      "serverPids": "54624",
+      "exitCode": 1,
+      "summary": [
+        "1 failed",
+        "7 passed (41.1s)"
+      ],
+      "reporterLines": [
+        "ok 1 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:220:7 › tactical pre-serialization privacy › E2E-19 unfinalized GM draft has only a private payload @E2E-19 (3.0s)",
+        "ok 2 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:276:7 › tactical pre-serialization privacy › E2E-25 approved correction keeps its reason private @E2E-25 (2.6s)",
+        "ok 3 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:369:7 › tactical pre-serialization privacy › E2E-20 Player 1 sealed choice reaches neither Player 2 wire nor board @E2E-20 @E2E-23 @E2E-24 (5.5s)",
+        "ok 4 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:464:7 › tactical pre-serialization privacy › E2E-21 Player 2 sealed choice reaches neither Player 1 wire nor board @E2E-21 (5.2s)",
+        "ok 5 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:518:7 › tactical pre-serialization privacy › E2E-27 no player surface carries an authority identifier or an inferable gap @E2E-27 (2.8s)",
+        "ok 6 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:563:7 › tactical pre-serialization privacy › E2E-22 finalization reveals the COMMITTED declaration on the opponent delivery stream @E2E-22 (7.8s)",
+        "ok 7 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:627:7 › tactical pre-serialization privacy › E2E-26 a reconnecting player replays exactly what it was delivered live @E2E-26 (5.8s)",
+        "ok 8 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:706:7 › tactical pre-serialization privacy › E2E-28 seated export and timeline agree; strangers fail before fan-out @E2E-28 (2.5s)"
+      ],
+      "unexpectedPassLines": [
+        "Expected to fail, but passed."
+      ],
+      "portAfterRun": "PORT_FREE"
+    }
+  ],
+  "ladderReading": "privacy-pack on the final tree twice in a row: 8 passed, exit 0, E2E-25 a plain pass (ok), 0 unexpected passes, every other privacy row ok. proposal-pack 2 passed (E2E-30, E2E-29) and authority-recovery 4 passed: unchanged against the red run and U22a's receipts.",
+  "rowTableBefore": [
+    {
+      "row": "E2E-19",
+      "spec": "e2e/gm-two-player-privacy.pack.spec.ts:255",
+      "group": "privacy-pack",
+      "result": "pass (ok, 4.1s)"
+    },
+    {
+      "row": "E2E-20",
+      "spec": "e2e/gm-two-player-privacy.pack.spec.ts:404",
+      "group": "privacy-pack",
+      "result": "pass (ok, 5.8s)"
+    },
+    {
+      "row": "E2E-21",
+      "spec": "e2e/gm-two-player-privacy.pack.spec.ts:499",
+      "group": "privacy-pack",
+      "result": "pass (ok, 5.4s)"
+    },
+    {
+      "row": "E2E-22",
+      "spec": "e2e/gm-two-player-privacy.pack.spec.ts:598",
+      "group": "privacy-pack",
+      "result": "pass (ok, 8.0s)"
+    },
+    {
+      "row": "E2E-23",
+      "spec": "e2e/gm-two-player-privacy.pack.spec.ts:404 (carried by the E2E-20 row's title tag; no row of its own)",
+      "group": "privacy-pack",
+      "result": "pass (ok, 5.8s)"
+    },
+    {
+      "row": "E2E-24",
+      "spec": "e2e/gm-two-player-privacy.pack.spec.ts:404 (carried by the E2E-20 row's title tag; no row of its own)",
+      "group": "privacy-pack",
+      "result": "pass (ok, 5.8s)"
+    },
+    {
+      "row": "E2E-25",
+      "spec": "e2e/gm-two-player-privacy.pack.spec.ts:311",
+      "group": "privacy-pack",
+      "result": "UNEXPECTED PASS: the row passed (ok, 2.8s) under its strict test.fail @until-journal-cutover; the run reports \"Expected to fail, but passed.\" and counts it as the 1 failure; HTML report outcome unexpected, status passed. Under option (b) it is still a gated row: excluded, not green"
+    },
+    {
+      "row": "E2E-26",
+      "spec": "e2e/gm-two-player-privacy.pack.spec.ts:662",
+      "group": "privacy-pack",
+      "result": "pass (ok, 5.8s)"
+    },
+    {
+      "row": "E2E-27",
+      "spec": "e2e/gm-two-player-privacy.pack.spec.ts:553",
+      "group": "privacy-pack",
+      "result": "pass (ok, 3.0s)"
+    },
+    {
+      "row": "E2E-28",
+      "spec": "e2e/gm-two-player-privacy.pack.spec.ts:741",
+      "group": "privacy-pack",
+      "result": "pass (ok, 2.7s)"
+    },
+    {
+      "row": "E2E-29",
+      "spec": "e2e/gm-two-player-proposals.pack.spec.ts:177",
+      "group": "proposal-pack",
+      "result": "pass (ok, 2.1m)"
+    },
+    {
+      "row": "E2E-30",
+      "spec": "e2e/gm-two-player-proposals.pack.spec.ts:49",
+      "group": "proposal-pack",
+      "result": "pass (ok, 5.4s)"
+    }
+  ],
+  "rowTableAfter": [
+    {
+      "row": "E2E-19",
+      "spec": "e2e/gm-two-player-privacy.pack.spec.ts:220",
+      "group": "privacy-pack",
+      "result": "pass (ok in both runs: 3.5s, 3.1s)",
+      "green": true
+    },
+    {
+      "row": "E2E-20",
+      "spec": "e2e/gm-two-player-privacy.pack.spec.ts:365",
+      "group": "privacy-pack",
+      "result": "pass (ok in both runs: 6.9s, 5.3s)",
+      "green": true
+    },
+    {
+      "row": "E2E-21",
+      "spec": "e2e/gm-two-player-privacy.pack.spec.ts:460",
+      "group": "privacy-pack",
+      "result": "pass (ok in both runs: 5.1s, 5.1s)",
+      "green": true
+    },
+    {
+      "row": "E2E-22",
+      "spec": "e2e/gm-two-player-privacy.pack.spec.ts:559",
+      "group": "privacy-pack",
+      "result": "pass (ok in both runs: 7.9s, 7.7s)",
+      "green": true
+    },
+    {
+      "row": "E2E-23",
+      "spec": "e2e/gm-two-player-privacy.pack.spec.ts:365 (carried by the E2E-20 row's title tag; no row of its own)",
+      "group": "privacy-pack",
+      "result": "pass (ok in both runs: 6.9s, 5.3s)",
+      "green": true
+    },
+    {
+      "row": "E2E-24",
+      "spec": "e2e/gm-two-player-privacy.pack.spec.ts:365 (carried by the E2E-20 row's title tag; no row of its own)",
+      "group": "privacy-pack",
+      "result": "pass (ok in both runs: 6.9s, 5.3s)",
+      "green": true
+    },
+    {
+      "row": "E2E-25",
+      "spec": "e2e/gm-two-player-privacy.pack.spec.ts:276",
+      "group": "privacy-pack",
+      "result": "pass (ok in both runs: 2.9s, 2.7s); a plain row now: no test.fail, no gate tag, HTML report outcome expected",
+      "green": true
+    },
+    {
+      "row": "E2E-26",
+      "spec": "e2e/gm-two-player-privacy.pack.spec.ts:623",
+      "group": "privacy-pack",
+      "result": "pass (ok in both runs: 5.9s, 5.7s)",
+      "green": true
+    },
+    {
+      "row": "E2E-27",
+      "spec": "e2e/gm-two-player-privacy.pack.spec.ts:514",
+      "group": "privacy-pack",
+      "result": "pass (ok in both runs: 2.9s, 2.9s)",
+      "green": true
+    },
+    {
+      "row": "E2E-28",
+      "spec": "e2e/gm-two-player-privacy.pack.spec.ts:702",
+      "group": "privacy-pack",
+      "result": "pass (ok in both runs: 2.8s, 2.5s)",
+      "green": true
+    },
+    {
+      "row": "E2E-29",
+      "spec": "e2e/gm-two-player-proposals.pack.spec.ts:177",
+      "group": "proposal-pack",
+      "result": "pass (ok, 2.1m)",
+      "green": true
+    },
+    {
+      "row": "E2E-30",
+      "spec": "e2e/gm-two-player-proposals.pack.spec.ts:49",
+      "group": "proposal-pack",
+      "result": "pass (ok, 5.5s)",
+      "green": true
+    }
+  ],
+  "wholeRowVerdict": {
+    "rule": "GOAL.md stage 7 (OD-whole-row-tick-rule) read with option (b) of PK-umbrella-acceptance-unsatisfiable (council decision 7): an authored row that passes is green; a strict test.fail with a named gate tag is excluded, not green; an absent row is a failure",
+    "before": "NO on the baseline: E2E-25 carries a strict test.fail with the named gate tag, so it is excluded, not green (although it passes live); 11 of 12 ids green",
+    "afterLocally": "YES on this tree: all 12 ids E2E-19..30 are authored and pass as plain rows (E2E-23 and E2E-24 through the E2E-20 row's title tags); no row carries test.fail/skip/fixme (grep over both specs: 0) and no gate tag remains. Measured twice for the privacy pack and once for the proposal pack.",
+    "canTickWholeOnceThisUnitLands": "YES under the mechanical option (b) reading, IF the parent's main proof on the merge commit repeats it: 21.2 ticks only on proof taken on main at the tick commit (GOAL.md stage 7), and this lane measured the uncommitted tree only. Conditions the parent owns: the privacy-class owner ruling on the exact head; the main proof running privacy-pack and proposal-pack on the merge commit.",
+    "limitsTheParentWeighs": [
+      "fixture arm: the privacy pack runs under MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY=1 and MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE=enabled; the production constants stay off",
+      "scope limits the privacy header states: E2E-23/24 by title tag only; E2E-20/21 \"the GM MAY see it\" has no tactical counterpart; E2E-28 is the HTTP API + export slice",
+      "the runner's `visibility` group, \"reserved for the complete E2E-19..30 pack\" (scripts/qc/gm-two-player-campaign-core.cjs:78), stays NOT_IMPLEMENTED; 21.2's letter names no group"
+    ]
+  },
+  "mutants": [
+    {
+      "id": "M1",
+      "target": "e2e/gm-two-player-privacy.pack.spec.ts",
+      "change": "E2E-25's player-view privacy assertion inverted at final spec:338: `expect(view).not.toContain(reason);` -> `expect(view).toContain(reason);` (the player view must carry the reason)",
+      "run": "u22r2-m1-privacy-20260925 (live privacy-pack, owned port 25370, server PID 71644)",
+      "result": "KILLED",
+      "exitCode": 1,
+      "summary": [
+        "1 failed",
+        "7 passed (50.9s)"
+      ],
+      "failingRow": "x  2 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:276:7 › tactical pre-serialization privacy › E2E-25 approved correction keeps its reason private @E2E-25 (2.7s)",
+      "failureLines": [
+        "Error: expect(received).toContain(expected) // indexOf",
+        "Expected substring: \"Private correction d556c066-bd01-4067-b3f2-d9fa583ffdbc\"",
+        "> 338 |         expect(view).toContain(reason);",
+        "at E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\u22\\e2e\\gm-two-player-privacy.pack.spec.ts:338:22"
+      ],
+      "reading": "the reason text is absent from the player surface the loop reads (the first view is the player page's HTML), so the assertion is load-bearing",
+      "file": "e2e/gm-two-player-privacy.pack.spec.ts",
+      "preMutantSha256": "33ff6684a1e213e812686e36101c90b2afd46a70de5a4dc4f629a40b80c5dd15",
+      "mutantSha256": "fd0cb4df5f2e8fc2c4130a4cd0f6c73f205d8bff2ad70bd21b235714e11edec4",
+      "restoredSha256": "33ff6684a1e213e812686e36101c90b2afd46a70de5a4dc4f629a40b80c5dd15",
+      "restorationMatches": true,
+      "restoredFrom": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u22r2/saved/privacy.final.spec.ts (sha256 re-read after restore: 33ff6684a1e213e812686e36101c90b2afd46a70de5a4dc4f629a40b80c5dd15)"
+    },
+    {
+      "id": "M2",
+      "target": "e2e/gm-two-player-privacy.pack.spec.ts",
+      "change": "the baseline's four-line strict test.fail (baseline spec:315-318, byte-copied) put back at the top of E2E-25's body",
+      "run": "u22r2-m2-privacy-20260925 (live privacy-pack, owned port 21372, server PID 54624)",
+      "result": "KILLED",
+      "exitCode": 1,
+      "summary": [
+        "1 failed",
+        "7 passed (41.1s)"
+      ],
+      "unexpectedPassLines": [
+        "Expected to fail, but passed."
+      ],
+      "failingRow": "ok 2 [chromium] › e2e\\gm-two-player-privacy.pack.spec.ts:276:7 › tactical pre-serialization privacy › E2E-25 approved correction keeps its reason private @E2E-25 (2.6s)",
+      "htmlReport": "E2E-25 outcome unexpected, status passed, \"Expected to fail, but passed.\"",
+      "reading": "the passing row under a strict test.fail is an unexpected pass and fails the run: the gate cannot be put back silently",
+      "file": "e2e/gm-two-player-privacy.pack.spec.ts",
+      "preMutantSha256": "33ff6684a1e213e812686e36101c90b2afd46a70de5a4dc4f629a40b80c5dd15",
+      "mutantSha256": "6e27e5805043100f10113a25b2e036507933645d06a1be9855819d40db0f426a",
+      "restoredSha256": "33ff6684a1e213e812686e36101c90b2afd46a70de5a4dc4f629a40b80c5dd15",
+      "restorationMatches": true
+    },
+    {
+      "id": "M3",
+      "target": "e2e/helpers/campaignJournalDrive.ts",
+      "change": "both helper URLs pointed at routes that do not exist, which the server answers 404 with an HTML page: requestActivity `/activity` -> `/activity-not-json`, postIntentCommand `/commands` -> `/commands-not-json`",
+      "vehicle": "A TEMPORARY probe spec (e2e/u22-m3-probe.spec.ts, copied in for each run and removed after it; saved at scratchpad u22r2/u22-m3-probe.spec.ts, sha256 e5a7db61b289f62f25d52b1108c47cd9fc6fe6071406477c7654e7cefa3a2a99) that calls requestActivity and postIntentCommand against the live server (node server.js, NODE_ENV production, owned port, no fixture arm) through the repository Playwright wrapper. Why not the affected row: the only importers, e2e/campaign-journal-two-process-{privacy,convergence}.spec.ts, cannot start in a junctioned worktree - see findingsReportedNotFixed F1 (measured, run u22r2-twoproc-final-20260925).",
+      "run": "u22r2-m3-probe-20260925 (owned port 21250, server PID 35520)",
+      "result": "SHOWS STATUS AND BODY",
+      "exitCode": 1,
+      "summary": [
+        "2 failed"
+      ],
+      "reporterLines": [
+        "x  1 [chromium] › e2e\\u22-m3-probe.spec.ts:17:5 › u22 M3 probe requestActivity reads a refusal (338ms)",
+        "x  2 [chromium] › e2e\\u22-m3-probe.spec.ts:35:5 › u22 M3 probe postIntentCommand reads a refusal (337ms)"
+      ],
+      "failureLines": [
+        "Error: non-JSON answer from http://localhost:21250/api/campaigns/u22-probe-campaign/activity-not-json?sessionId=u22-probe-session&participantId=u22-probe-participant: status 404, body \"<!DOCTYPE html><html lang=\\\"en\\\" data-color-scheme=\\\"dark\\\"><head><meta charSet=\\\"utf-8\\\" data-next-head=\\\"\\\"/><met ...",
+        "Error: non-JSON answer from http://localhost:21250/api/campaigns/u22-probe-campaign/commands-not-json: status 404, body \"<!DOCTYPE html><html lang=\\\"en\\\" data-color-scheme=\\\"dark\\\"><head><meta charSet=\\\"utf-8\\\" data-next-head=\\\"\\\"/><meta name=\\\"viewport\\\" content=\\\"width=device-width, initial-scale= ..."
+      ],
+      "baselineContrast": {
+        "run": "u22r2-m3base-probe-c-20260925 (baseline helper 232905bf... with the same two URL mutants; owned port 28292, server PID 51916)",
+        "exitCode": 1,
+        "summary": [
+          "2 failed"
+        ],
+        "failureLines": [
+          "SyntaxError: Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON",
+          "at helpers\\campaignJournalDrive.ts:172",
+          "SyntaxError: Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON",
+          "at helpers\\campaignJournalDrive.ts:233"
+        ],
+        "reading": "on the baseline the same answer fails with a bare SyntaxError that names neither the status nor the body"
+      },
+      "positiveControl": {
+        "run": "u22r2-control-probe-20260925 (final helper, no mutant; owned port 28861, server PID 51316)",
+        "exitCode": 0,
+        "summary": [
+          "2 passed (5.4s)"
+        ],
+        "probeLines": [
+          "PROBE requestActivity 403 {\"error\":\"not a participant in this session\"}",
+          "PROBE postIntentCommand 401 {\"error\":\"Unauthorized: malformed\"}"
+        ],
+        "reading": "with the real routes both helpers parse the JSON refusal and return its status: 403 {\"error\":\"not a participant in this session\"} and 401 {\"error\":\"Unauthorized: malformed\"}"
+      },
+      "preMutantSha256": "3400fc858612321e4f5c46414124af103f5563fcc440e9c3bd1f50d1c5f7261e",
+      "mutantSha256": "6cf58b7c5a316a8fffa07204790b9b2d5b8b4f62dfc2f32039b61b5eaf9fec30",
+      "restoredSha256": "3400fc858612321e4f5c46414124af103f5563fcc440e9c3bd1f50d1c5f7261e",
+      "restorationMatches": true
+    }
+  ],
+  "mutantHygiene": "every mutant applied by an exact-string script (one occurrence required) and restored by copying the saved final file; the working files now hash 33ff6684a1e213e812686e36101c90b2afd46a70de5a4dc4f629a40b80c5dd15 (spec) and 3400fc858612321e4f5c46414124af103f5563fcc440e9c3bd1f50d1c5f7261e (helper), equal to the saved finals; the probe file is absent (git status)",
+  "discardedRuns": [
+    {
+      "runId": "u22r2-m3base-twoproc-20260925",
+      "startedAt": "2026-09-25T07:02:58Z",
+      "finishedAt": "2026-09-25T07:05:01Z",
+      "why": "overlapped the coordinator's tsx-missing window (about 07:03-07:12Z, root node_modules/tsx deleted by another lane). Its log shows no tsx error (the primary was the un-hydrated .next/standalone/server.js, which loads no tsx) and it failed on the webServer readiness timeout; discarded and superseded by u22r2-twoproc-final-20260925, which failed the same way outside the window."
+    },
+    {
+      "runId": "u22r2-m3base-probe-20260925",
+      "startedAt": "2026-09-25T07:07:11Z",
+      "why": "inside the tsx-missing window; its log line 2 reads \"[mp-boot] runtime load failed Error: Cannot find module 'tsx/cjs'\". Discarded; superseded by u22r2-m3base-probe-c-20260925."
+    },
+    {
+      "runId": "u22r2-m3base-probe-b-20260925",
+      "startedAt": "2026-09-25T07:09:30Z",
+      "why": "started inside the stated window although its log has no tsx error and require.resolve('tsx/cjs') succeeded at 07:09; discarded for the window rule; superseded by u22r2-m3base-probe-c-20260925 (07:19:51Z)."
+    },
+    {
+      "runId": "(gate) npx tsc --noEmit first run",
+      "startedAt": "2026-09-25T07:10:05Z",
+      "why": "inside the window; exit 0, no output; re-run at 07:23:59Z (exit 0, no output) and that run is the recorded gate."
+    }
+  ],
+  "runsNotAffectedByTheWindow": "the build (06:52:50-06:55:16Z), the red privacy and proposal runs (06:55:52-06:59:41Z) and every local, mutant and probe run from 07:12:33Z on",
+  "twoProcessAttempt": {
+    "run": "u22r2-twoproc-final-20260925",
+    "spec": "e2e/campaign-journal-two-process-privacy.spec.ts",
+    "tree": "final (helper 3400fc85...)",
+    "command": "NODE_ENV=production HOSTNAME=127.0.0.1 MEKSTATION_E2E_SERVER_COMMAND='node .next/standalone/server.js' MEKSTATION_E2E_REUSE_EXISTING_SERVER=false PLAYWRIGHT_E2E_RUN_ID=<runId> MEKSTATION_E2E_PORT=<owned> PORT=<owned> MEKSTATION_E2E_SECOND_PORT=<owned> node scripts/playwright/run-playwright.mjs test <spec> --project=chromium --retries=0 --workers=1 (both journal arm keys unset)",
+    "ownedPort": 24679,
+    "serverPids": "24679/52920",
+    "exitCode": 1,
+    "startedAt": "2026-09-25T07:20:44Z",
+    "finishedAt": "2026-09-25T07:22:47Z",
+    "portAfterRun": "PORT_FREE",
+    "output": [
+      "[WebServer] ▲ Next.js 16.2.11",
+      "[WebServer] - Local:         http://127.0.0.1:24679",
+      "[WebServer] - Network:       http://127.0.0.1:24679",
+      "[WebServer] ✓ Ready in 0ms",
+      "Error: Timed out waiting 120000ms from config.webServer."
+    ],
+    "reading": "the standalone server starts (Next \"Ready\") but never answers the per-run readiness URL /__playwright_e2e_ready__, so the webServer times out after 120 s and no test runs. The route lives in the repository server.js (server.js:410, E2E_READY_PATH); scripts/hydrate-next-standalone-multiplayer-server.mjs copies that server.js over .next/standalone/server.js (:267-270) only after validateHydrationDestinations passes, and the guard refuses because .next/standalone/node_modules is a junction. So .next/standalone/server.js stays Next's generated startServer file (read: it calls require('next/dist/server/lib/start-server')), with neither the readiness route nor the multiplayer socket the spec's source process needs."
+  },
+  "factsForThe21_2TickReceipt": {
+    "ob2NonClaim": {
+      "text": "NOT CLAIMED (OB-2): the campaign CRUD routes read no credential and no owner column exists. GET /api/campaigns (src/pages/api/campaigns/index.ts:32-60), GET/PUT/DELETE /api/campaigns/:id (src/pages/api/campaigns/[id].ts:117, switch at :126, cases at :127, :159, :281) and POST /api/campaigns/:id/adopt (src/pages/api/campaigns/[id]/adopt.ts:90-99 and on) read no request header, cookie or bearer (grep -c for \"req.headers|req.cookies|authenticate|Authorization|bearer\": 0 in each of the three files on 0fd24c343; index.ts:53 sets the response header Access-Control-Expose-Headers, which is not a credential read). OB-2 was closed as not-a-defect while the server binds to loopback for a single user; an identity and owner-column item is required before any hosted deployment (FN-ob2-identity-before-hosted-deployment).",
+      "citations": [
+        "openspec/planning/2026-09-12-roadmap-completion/roadmap.json:15495-15499 (ownerDecisions, topic \"OB-2 unauthenticated campaign record routes\"; decision: \"Close it as not-a-defect while the server binds to loopback for a single user. Open an identity and owner-column item, outside the 13 packages, before any hosted deployment. U22's 21.2 receipt carries the non-claim either way.\")",
+        "the same entry's disclosure: the owner did not word this option; the parent transcribed the triage recommendation under the owner's instruction quoted in ownerWords",
+        "openspec/planning/2026-09-12-roadmap-completion/units.json:8147 (FN-ob2-identity-before-hosted-deployment)"
+      ]
+    },
+    "stale62Correction": {
+      "staleAnnotations": [
+        "openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md:436 (under 19.2, Wave E4b PROGRESS, 2026-09-02): \"NOT CLAIMED: ... #62 onMirrorPrefixDivergence (useP2PReconnectSession.ts:322 - the P2P rewound analogue) is still unwired by GameSessionPage.lifecycle.ts\"",
+        "openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md:525 (under 21.1, FINDINGS #61/#62/#63/#71, Wave E4b): \"#62 onMirrorPrefixDivergence never wired\""
+      ],
+      "correction": "#62 is wired on 0fd24c343: src/components/gameplay/pages/gameSession/GameSessionPage.lifecycle.ts:231-237 builds recordMirrorDivergence (useP2PMirrorStore.getState().recordDivergence(matchId, verdict) at :234) and passes it as onMirrorPrefixDivergence to useP2PReconnectSession at :241; src/hooks/useP2PReconnectSession.ts declares the option at :84 and :125, forwards it at :209 and calls it at :350 (the annotation's :322 is stale). It landed in d320169509de3bb7667a4f9c357a9e8cec195c77 (#1548, \"a peer-to-peer player whose history disagreed with the peer's is told so, and refused\"), recorded at tasks.md:434 (Wave E4c-B1). What stays open from #62's neighbourhood is FN-p2p-mirror-reconcile-nonatomic (units.json:8137): src/lib/p2p/matchLogPrefix.ts:92-95 deletes the stored log on a non-match verdict (the delete at :94); no node of this program owns src/lib/p2p."
+    }
+  },
+  "nonClaims": [
+    "NO TICK: 21.2 is unchecked; no tasks.md box was touched and tasks.md is unchanged (sha256 above). The parent ticks at stage 7, on main, under the whole-row rule.",
+    "LOCAL ONLY: every measurement is on the uncommitted tree in this worktree; nothing here is a main proof. No commit, push, PR, Lane A review or owner ruling.",
+    "FIXTURE ARM: E2E-19 and E2E-25 pass under the privacy-pack's journal fixture arm (campaign '1', combat 'enabled'); nothing here speaks to the production-mode path, which council decision 7 names as a gate.",
+    "THE AFFECTED ROWS OF THE HELPER EDIT WERE NOT RUN GREEN: e2e/campaign-journal-two-process-privacy.spec.ts and -convergence.spec.ts (the only importers of campaignJournalDrive.ts) cannot start in a junctioned worktree (F1). The helper change is measured through the temporary probe (M3, its baseline contrast and a positive control) and tsc, not through those specs.",
+    "E2E-23, E2E-24: green only as title tags on the E2E-20 row; E2E-28: the HTTP API + export slice; E2E-20/21: no tactical GM viewer (the header's ROLE HONESTY). Counted green under the mechanical option (b) reading, not claimed beyond it.",
+    "The `visibility` runner group stays reserved/NOT_IMPLEMENTED (scripts/qc is outside this unit's paths).",
+    "rewind-pack and every other ladder group were not run (not in the charter's list; no spec they load changed).",
+    "units.json, roadmap.json and evidence/admission-snapshot.json are unmodified."
+  ],
+  "findingsReportedNotFixed": [
+    {
+      "id": "F1 (proposed FN-u22-two-process-specs-cannot-run-in-a-junctioned-worktree)",
+      "class": "harness limit, measured",
+      "detail": "The two-process specs spawn .next/standalone/server.js as their source (e2e/helpers/campaignJournalTwoProcess.ts:259-262); in a junctioned worktree the build's hydration guard refuses, .next/standalone/server.js stays Next's generated server, and the primary's readiness URL (server.js:410) never answers (run u22r2-twoproc-final-20260925: webServer timeout at 120 s, exit 1, no test ran). Consequence: no lane in a junctioned worktree can prove an edit to campaignJournalDrive.ts through its real importers. DELIVERY.md's helper rule re-runs ladder groups whose specs import the helper; none does, so its letter asks for nothing here. The parent's main proof runs in the root checkout, where the build's hydrate step runs (u22a-mainproof: build exit 0), and could run both two-process specs on the merge commit to cover the helper edit."
+    },
+    {
+      "id": "F2 (re-reported FN-u2b-runner-prints-no-server-pid)",
+      "class": "harness",
+      "detail": "scripts/qc/run-gm-two-player-campaign.mjs prints neither the owned port nor the server PID; this lane derived each port from buildRunPlan/deriveFixturePort and polled netstat for the PID."
+    },
+    {
+      "id": "F3 (tsx deletion incident, reported by the coordinator)",
+      "class": "shared environment",
+      "detail": "root node_modules/tsx was missing about 07:03-07:12Z; one of this lane's runs logged \"Cannot find module 'tsx/cjs'\" (u22r2-m3base-probe-20260925). Those runs are listed in discardedRuns and superseded."
+    },
+    {
+      "id": "F4 (stale #62 annotations, not edited)",
+      "class": "stale documentation",
+      "detail": "tasks.md:436 and :525; the charter routes their correction through the parent's tick receipt (factsForThe21_2TickReceipt.stale62Correction)."
+    },
+    {
+      "id": "F5 (--next clause)",
+      "class": "ledger ordering",
+      "detail": "--next printed U35g on the baseline; see the admission receipt's nextCheck."
+    }
+  ],
+  "serverHygiene": {
+    "playwrightRunsTaken": 15,
+    "note": "every run preceded by node scripts/qc/machine-idle.mjs --wait --timeout-ms 1800000 -> MACHINE_IDLE (first attempt each time; no 30-minute timeout occurred); runs serialized; each on its own derived port; every port free after its run (portAfterRun above); no build or Playwright run overlapped another of this lane's"
+  },
+  "receipts": {
+    "admission": {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/u22-admission-20260925.json",
+      "sha256": "4c7da419f75714677883c12ddeec210f93fa594862cb988e10fa9317572d9e13"
+    },
+    "red": {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/u22-red-20260925.json",
+      "sha256": "b6270171c7f863c347a53666980b626ebc25ca96721749961c8a8ff5dba88dad"
+    }
+  },
+  "finalGitStatusShort": [
+    " M e2e/gm-two-player-privacy.pack.spec.ts",
+    " M e2e/helpers/campaignJournalDrive.ts",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u22-admission-20260925.json",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u22-local-20260925.json (this file)",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u22-red-20260925.json"
+  ]
+}
