@@ -1299,7 +1299,7 @@
         "concurrency",
         "migration"
       ],
-      "state": "planned",
+      "state": "local-verified",
       "source20260925": "planned by the parent from U35d's re-admission (evidence/u35d-admission-20260924.json) under owner decision OD-u35g-coop-outcome-rewrites-record",
       "taskKeys": [],
       "ciClass": "product",
@@ -1307,13 +1307,27 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "baseline": null,
+      "baseline": "0fd24c343d8de2d467bb5b2d3d57c3beeb2d89af",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/u35g-admission-20260925.json",
+          "baseline": "0fd24c343d8de2d467bb5b2d3d57c3beeb2d89af",
+          "at": "2026-09-25T06:46:27.175Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/u35g-red-20260925.json",
+          "at": "2026-09-25T06:49:17.708Z",
+          "summary": "baseline 0fd24c343, real SQLite: the new rows suite failed 7 of 8 with the flag false and under the temporary flip (o1, o1c, o1s: the co-op outcome roster change lost at the host's next whole-campaign save; d: a destroyed unit removed; i: duplicate receipt; o2u; t; only a, the journal-native gate, passed); every stale host save at the pre-outcome version was accepted (200); the reconcileCoopBattle re-pin failed 1 of 5 and the activity feed case 1 of 8"
+        },
+        "local": {
+          "path": "evidence/u35g-local-20260925.json",
+          "at": "2026-09-25T07:06:39.916Z",
+          "summary": "second admission after the #1938 path amendment (attempt 1 blocked on the production inbox path); product 7 files +118/-40 (158 lines, cap 500), tests 3 files 538 lines; the production outcome inbox (CampaignMatchHostOutcomeInbox.ts) and the fallback (reconcileCoopBattle.ts) record every unit change as 'repaired' carrying its status, destroyed included, keeping the unit's own fields; appendCampaignCombatOutcomeBatch runs the record-rewrite hook only when the outcome first commits, in its transaction; the shared rewrite carries roster readiness (operational/damaged/destroyed) onto the record; the feed reads a destroyed unit as destroyed; the RosterUnitProjection comment corrected; the flag constant unchanged; rows 8/8, re-pin 5/5, feed 8/8 with the flag false and flipped; a stale host save after an outcome now answers 409 and o2u keeps 355000; src/lib/campaign 204/2982; src/__tests__/api/campaigns 15/110; src/lib/multiplayer/server 160/1178; src/services/campaignPersistence 4/23; src/lib/events 51/927 (the parent re-ran it after restoring the shared tsx that another lane's bisect deleted; the lane's run had 1 failure from that alone); tsc 0; oxlint 84 warnings 0 errors; oxfmt clean on 10 files; LINT_UNITS_PASS 100/100; qc:openspec-ci errors=0; validator PASSED; --next U35g on the baseline; nine mutants caught and restored; implementer claude-opus (Agent model: opus); findings F1 (sourceVersion may reach the strict schema, read only) and F2 (a damaged unit still reads repaired) recorded; status ready"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
@@ -1331,6 +1345,12 @@
           "src/types/campaign/RosterUnitProjection.ts"
         ],
         "why": "the production outcome inbox and the roster projection comment, found by the first admission attempt"
+      },
+      "parentRerun20260925": {
+        "at": "2026-09-25T07:10:18.000Z",
+        "gate": "npx jest src/lib/events",
+        "result": "51 suites, 927 tests passed, exit 0",
+        "why": "the lane's run failed 1 test because the shared root node_modules/tsx had been deleted by another lane's bisect build (restored by the parent from the npm cache, integrity-verified); the parent re-ran the gate in U35g's worktree after the restore"
       }
     },
     {
@@ -8385,6 +8405,24 @@
       "class": "display nuance of the owner's destroyed-unit decision",
       "summary": "Once destroyed units are kept as status Destroyed (owner decision OD-u35g-coop-outcome-rewrites-record), the co-op guest's roster count includes them.",
       "recommendedSuccessor": "decide in UAT round 2 whether the roster count should exclude destroyed units",
+      "status": "recorded; for UAT round 2 triage"
+    },
+    {
+      "id": "FN-u35g-outcome-payload-may-carry-sourceversion",
+      "foundBy": "U35g implementer lane (claude-opus), 2026-09-25, finding F1 (read from the code, not run)",
+      "at": "2026-09-25T07:10:18.000Z",
+      "class": "possible schema refusal (unverified)",
+      "summary": "U35g's production outcome now keeps each unit's own fields when it records a status change; a unit carrying sourceVersion could put that field in the RosterUnitChanged payload, which the strict campaign baseline schema pack under src/lib/events/replay might refuse.",
+      "recommendedSuccessor": "U35g's Lane A probes a unit with sourceVersion through the outcome and the schema pack; if refused, a required edit before merge",
+      "status": "recorded; probed by U35g's Lane A"
+    },
+    {
+      "id": "FN-u35g-feed-reads-damaged-as-repaired",
+      "foundBy": "U35g implementer lane (claude-opus), 2026-09-25, finding F2",
+      "at": "2026-09-25T07:10:18.000Z",
+      "class": "display wording",
+      "summary": "The campaign activity feed now describes a destroyed unit as destroyed, but a damaged unit still reads as 'repaired', because both ride the 'repaired' change kind.",
+      "recommendedSuccessor": "the feed reads the unit's status for every 'repaired' change (damaged, destroyed, operational)",
       "status": "recorded; for UAT round 2 triage"
     }
   ]
