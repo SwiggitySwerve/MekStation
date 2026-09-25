@@ -87,6 +87,11 @@ const CampaignRosterUnitSchema = z
     status: z.enum(['operational', 'damaged', 'destroyed']),
     unitRef: z.string().trim().min(1).max(ID_MAX_LENGTH).optional(),
     unitSource: z.enum(['canonical', 'custom']).optional(),
+    // The library version pinned at enroll, which the co-op builder copies
+    // onto each unit that has one: optional, and a positive integer when
+    // present, the same type the campaign baseline schema pack gives it.
+    // Any other unknown key still fails the strict object.
+    sourceVersion: z.number().int().positive().optional(),
   })
   .strict();
 
