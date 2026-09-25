@@ -218,12 +218,14 @@ async function walkReconciliationDoors(
   }
 
   // 3. Roster changes — each damaged / destroyed unit is committed as a
-  //    `RosterUnitChanged` event so both mirrors converge on the
-  //    post-battle roster.
+  //    `RosterUnitChanged` status change so both mirrors converge on the
+  //    post-battle roster. A destroyed unit is kept with status destroyed,
+  //    not removed, as the production outcome inbox records it (owner
+  //    decision OD-u35g-coop-outcome-rewrites-record).
   for (const change of consequences.rosterChanges) {
     const result = await host.applyRosterUnitChange(
       consequences.campaignId,
-      change.status === 'destroyed' ? 'removed' : 'repaired',
+      'repaired',
       {
         unitId: change.unitId,
         designation: change.designation,

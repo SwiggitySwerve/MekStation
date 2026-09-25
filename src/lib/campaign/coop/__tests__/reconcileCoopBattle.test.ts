@@ -85,9 +85,16 @@ describe('reconcileCoopBattle — emits CO1 campaign events', () => {
     ]);
     expect(host.getState().balance).toBe(800_000);
     expect(host.getState().salvagePool).toBe(150_000);
-    // The destroyed unit was removed; the damaged one persists as damaged.
-    expect(host.getState().rosterUnits['u-2']).toBeUndefined();
+    // The destroyed unit is kept with status destroyed, a status change
+    // rather than a removal (owner decision OD-u35g-coop-outcome-rewrites-
+    // record); the damaged one persists as damaged.
+    expect(host.getState().rosterUnits['u-2']?.status).toBe('destroyed');
     expect(host.getState().rosterUnits['u-1']?.status).toBe('damaged');
+    expect(
+      received
+        .filter((e) => e.type === 'RosterUnitChanged')
+        .map((e) => (e.payload as { change: string }).change),
+    ).toEqual(['repaired', 'repaired']);
   });
 
   it('credits a positive funds delta into the salvage pool', async () => {
