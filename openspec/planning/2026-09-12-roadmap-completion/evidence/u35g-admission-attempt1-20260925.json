@@ -1,0 +1,582 @@
+{
+  "unit": "U35g",
+  "stage": "admission",
+  "status": "BLOCKED",
+  "at": "2026-09-25T06:29:12.461Z",
+  "baseline": "3d76f7c674b97d996aba31449578627698298b9e",
+  "originMainAtAdmission": "cb356ac9e1eeb8ab0198892237c34e681e506c78",
+  "originMainSource": "git ls-remote origin refs/heads/main (read-only; no fetch)",
+  "originMainNote": "origin/main is one commit past the baseline: cb356ac9e (U22a, #1934). The object was already local (no fetch); git diff --name-only against the baseline lists 12 files, none under src/lib/campaign and none of them a seam cited in this receipt (src/hooks, src/lib/multiplayer/client.ts, src/lib/multiplayer/server/{MatchHostRegistry,ServerMatchHost,ServerMatchHostRewindRebuild}.ts and tests, src/types/multiplayer/Protocol.ts).",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u35g",
+  "branch": "roadmap-u35g-coop-outcome-rewrites-record-20260925",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "node": "R2.authority-live",
+  "shellPreamble": [
+    "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "export npm_config_dry_run=true"
+  ],
+  "runners": {
+    "admissionGates": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g/admission-gates.sh",
+      "sha256": "24efdf423c728ecafb7f897dcc26d5769858bb52f7edeb7db6c3ecf6fede3d38"
+    },
+    "admissionProbe": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g/admission-probe.sh",
+      "sha256": "b28429fcf8cac9341a01333e3136ed0968db20067a921b6b905ff289669d3acd"
+    },
+    "ownedEdit": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g/owned-edit.mjs",
+      "sha256": "6bed31d3c41120848e6926b4ef34e80dad7f490fa3b4787ac0c6b2bf07c372ce"
+    },
+    "probeSource": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g/u35gAdmission.probe.test.ts",
+      "sha256": "9d571260e8bdcfafd9eed12ecf1b550b7a902509d033d2535e3479254134c3d9"
+    },
+    "receiptWriter": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g/write-admission.mjs",
+      "sha256": "9339537e2c55d6d09de40ce7df4e41adeb2b14fba38d9f6270dbd1cc024f39f5"
+    }
+  },
+  "nodeVersion": {
+    "command": "node --version",
+    "lastLine": "v22.22.0",
+    "exitCode": 0,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g/logs/adm-node-version.log",
+      "sha256": "2172da60c75bfe844a5f085d0b225e7042f650910fb423c59d7f4a937afb0b56"
+    }
+  },
+  "guardNodeModulesLink": {
+    "command": "npm run --silent qc:guard-node-modules-link",
+    "lastLine": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"E:\\\\Projects\\\\MekStation\\\\.sisyphus\\\\roadmap-completion-20260912\\\\worktrees\\\\u35g\\\\node_modules\",\"actualPath\":\"E:\\\\Projects\\\\MekStation\\\\node_modules\"}",
+    "exitCode": 1,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g/logs/adm-guard.log",
+      "sha256": "ca06f9eaca8761a643506baa4a105f384a2a8fe13b9800d27db112ca61f02664"
+    },
+    "expected": true,
+    "why": "refusal by design in a junctioned worktree; no npm install/ci/prune or lifecycle was run in this lane (npm_config_dry_run=true exported)"
+  },
+  "validatorOnBaseline": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+    "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+    "exitCode": 0,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g/logs/adm-validator.log",
+      "sha256": "97b2f29d264078525a55c5f88586fb95603311fa065e70d7d17c5fab08f5b5bc"
+    }
+  },
+  "nextOnBaseline": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "lastLine": "U35g",
+    "exitCode": 0,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g/logs/adm-next.log",
+      "sha256": "6caf775425d8f4ead09ecf7d794a2e9778b9c5dbff5721e5bacb524d6b53c28a"
+    }
+  },
+  "gitStatusShortAtAdmission": "",
+  "ownershipPaths": [
+    "src/lib/campaign"
+  ],
+  "readOnlyPaths": [
+    "src/lib/events",
+    "src/lib/multiplayer",
+    "src/services",
+    "src/pages"
+  ],
+  "receiptsOwned": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u35g-admission-20260925.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u35g-red-20260925.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u35g-local-20260925.json"
+  ],
+  "receiptsWritten": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u35g-admission-20260925.json"
+  ],
+  "receiptsNotWritten": [
+    {
+      "receipt": "u35g-red-20260925.json",
+      "why": "the unit stops at admission (charter: a design that needs an edit under src/lib/multiplayer stops BLOCKED at admission); no red rows were written"
+    },
+    {
+      "receipt": "u35g-local-20260925.json",
+      "why": "as above; no product or test file was edited"
+    }
+  ],
+  "behavior": "units.json U35g (the spec; not widened): on the first receipt of a combat outcome only, the combat-outcome inbox rewrites the saved record in the same immediate transaction as its append, as command batches do since U35e, and the rewrite carries the journal's roster onto the record, so the next checkpoint keeps it. A destroyed unit is recorded as a status change (Destroyed), not a removal (the sentence names reconcileCoopBattle.ts:226). recoveredUnit is out of scope. Gated to journal-native campaigns, as U35e is.",
+  "seams": [
+    {
+      "at": "src/lib/campaign/sync/campaignCombatOutcomeInbox.ts:68-143",
+      "what": "appendCampaignCombatOutcomeBatch: one appendWithExtension transaction (:80); the inbox receipt lookup (:81-101: duplicate :92-93, outcome-version-conflict :95-100) before append() (:103); non-committed arms (:104-116); the receipt insert (:132-140) and the committed answer (:141). No saved-record rewrite and no hook parameter."
+    },
+    {
+      "at": "src/lib/campaign/sync/JournalCampaignEventStore.ts:467-484 (call :480-483)",
+      "what": "the store's appendCombatOutcomeBatch calls the inbox with (this.journal, {campaignId, ...input}) and passes no hook; this file also holds the flag constant (:86), which flip.mjs flips"
+    },
+    {
+      "at": "src/lib/campaign/sync/JournalCampaignEventStore.ts:262-265, 278-345 (hook :304, run :307-321), 379, 416-445 (:443)",
+      "what": "U35e's CampaignCommandCommitHook, appendCampaignCommandBatch running it on the writer handle only when the command id had no recorded batch (:310-319), the store's declared rewriteRecordAfterCommand (:379), and appendCommandBatch passing it (:443)"
+    },
+    {
+      "at": "src/lib/campaign/sync/journalCapabilityPorts.ts:63-66, 225-253 (:230-232)",
+      "what": "the server binder receives (store, branches), not the journal, and installs rewriteCampaignRecordAfterCommand on the store"
+    },
+    {
+      "at": "src/lib/campaign/authority/campaignRecordJournalState.ts:44-64, 75-95 (gate :79-80), 105-125",
+      "what": "U35e's rewrite: journal-native gate, the stored row at version + 1 with the journal's balance and date only; the roster projection is written back as stored"
+    },
+    {
+      "at": "src/lib/campaign/authority/campaignSourceGenesis.ts:51-55, 66-88, 90-126 (:95-101, :111-113, :117), 128-155 (:142-146), 203-261 (:216-224)",
+      "what": "the checkpoint projection: readiness Ready/Damaged/Destroyed -> status operational/damaged/destroyed; placeholder units when the projection is empty; a projected unit needs a unitRef; a force naming an absent roster unit is refused; the checkpoint carries only the journal's pilots, contracts and salvagePool (U35e), the roster is the envelope's"
+    },
+    {
+      "at": "src/lib/campaign/sync/applyCampaignEvent.ts:42-57 (delete :47-50)",
+      "what": "the RosterUnitChanged reducer deletes the unit on 'removed' and upserts payload.unit on every other kind"
+    },
+    {
+      "at": "src/lib/campaign/coop/reconcileCoopBattle.ts:127-156 (inbox branch :131-145), 164-245 (roster loop :223-242, :226)",
+      "what": "with an inbox-capable store the outcome goes to host.commitCombatOutcomeConsequences (:131-132); the destroyed -> 'removed' mapping the sentence names (:226) is in the no-inbox walk only"
+    },
+    {
+      "at": "src/lib/multiplayer/server/CampaignMatchHostOutcomeInbox.ts:67-122 (append :95-101, command id :98, duplicate :102, publish :120), 134-200 (roster :182-198, :190)",
+      "what": "(read-only) the production derivation: one RosterUnitChanged per roster change with change: change.status === 'destroyed' ? 'removed' : 'repaired' (:190); the host applies and publishes the same events it appended"
+    },
+    {
+      "at": "src/lib/multiplayer/server/CampaignMatchHost.ts:291-292, 299-317",
+      "what": "(read-only) hasCombatOutcomeInbox is true whenever the store has appendCombatOutcomeBatch; commitCombatOutcomeConsequences runs the inbox commit under the host lock"
+    },
+    {
+      "at": "src/lib/multiplayer/server/getCampaignEventStore.ts:108-136 (:116-124, :131-134); src/lib/multiplayer/server/CampaignHostRegistry.ts:287",
+      "what": "(read-only) the co-op host store is the JournalCampaignEventStore with bindJournalCapabilityPorts whenever SQLite is initialized; production without SQLite throws"
+    },
+    {
+      "at": "src/lib/multiplayer/server/bindCampaignSyncConnection.ts:760-825 (dedupe :783-794, call :803)",
+      "what": "(read-only) ReconcileBattle: a per-entry reconciled-battle record before the walk, then reconcileCoopBattle"
+    },
+    {
+      "at": "src/lib/events/replay/CampaignBaselineSchemaPack.ts:26-34 (status :30), 75-80 (change :77); src/types/campaign/CampaignSync.ts:231-237 (:234)",
+      "what": "(read-only) RosterUnitChanged change kinds are 'added' | 'removed' | 'repaired'; the unit status enum includes 'destroyed'; no rule ties change to status"
+    },
+    {
+      "at": "src/lib/events/journal/SQLiteEventJournalWriter.ts:60-82 (immediate :76-81), 176-183",
+      "what": "(read-only) appendWithExtension owns one immediate transaction; a recorded command id with the same digest is answered with its cached batch"
+    },
+    {
+      "at": "src/pages/api/campaigns/[id].ts:198-219, 228-255 (409 :246-253); src/services/campaignPersistence/CampaignPersistenceService.ts:186-187, 477-495",
+      "what": "(read-only) a journal-native PUT is a checkpoint; a stale baseVersion is a conflict answered 409 with current = the stored record"
+    },
+    {
+      "at": "src/stores/campaign/useCampaignPersistenceStore.ts:520-547 (:535), 750, 975",
+      "what": "(outside the paths, read only) the host restores its roster store from the record's rosterProjection units verbatim, readiness included, on load and on U35f's refresh"
+    }
+  ],
+  "designAnswers": {
+    "inboxAppendAndHook": "The inbox appends in appendCampaignCombatOutcomeBatch (campaignCombatOutcomeInbox.ts:68-143) inside the writer's appendWithExtension transaction (:80; SQLiteEventJournalWriter.ts:60-82). It can take U35e's rewrite as the SAME injected hook: the store's appendCombatOutcomeBatch (JournalCampaignEventStore.ts:467-484) passes this.rewriteRecordAfterCommand (installed by bindJournalCapabilityPorts, journalCapabilityPorts.ts:230-232, on the store the co-op host uses) as a new optional third argument, exactly as appendCommandBatch passes it (:443), and the inbox runs it on the extension's handle after the receipt insert in the committed arm (between :140 and :141). No second hook is needed: the outcome and a command both end in the same saved-record rewrite. That call site is in JournalCampaignEventStore.ts, the file flip.mjs flips; nothing inside src/lib/campaign reaches the inbox without it (the binder receives the store and the branch store, not the journal, journalCapabilityPorts.ts:63-66; the journal is a private field, JournalCampaignEventStore.ts:382). See flagFileTension.",
+    "rosterMapping": "The saved record's roster is body.rosterProjection.units[] with readiness 'Ready' | 'Damaged' | 'Destroyed' (src/types/campaign/RosterUnitProjection.ts:112) and force membership body.forces[].unitIds; the checkpoint maps readiness to journal status Ready -> operational, Damaged -> damaged, Destroyed -> destroyed (campaignSourceGenesis.ts:51-55, :117) and rebuilds force membership from the forces, refusing a force that names an absent roster unit (:142-146). The rewrite (campaignRecordJournalState.ts:105-125) would set, for every unit present in both the journal roster and the projection, the projection readiness to the inverse of its journal status (operational -> Ready, damaged -> Damaged, destroyed -> Destroyed), and leave force unitIds unchanged: with a destroyed unit kept as a status change it stays in the journal and in its force, so projectForceUnits never meets an absent unit. A journal unit absent from the projection (a recoveredUnit; no unitRef, which projectRosterUnits refuses at :111-113) is not written (out of scope, FN-u35d-recovered-unit-lost); a record with an empty projection (placeholder units from forces, :95-101) has no readiness field to write. The host restores its roster store from the projection verbatim (useCampaignPersistenceStore.ts:520-547, on U35f's refresh :975), so the rewritten readiness reaches the host after the refresh (read, not run).",
+    "destroyedChangeKind": "No new change kind is needed: the existing 'repaired' kind (the one the outcome already uses for a damaged unit) carrying unit.status 'destroyed' is a status change; the reducer upserts every kind but 'removed' (applyCampaignEvent.ts:47-56) and the schema pack accepts it (CampaignBaselineSchemaPack.ts:30, :77; measured p3: {change:'repaired', unit.status:'destroyed'} accepted; a new kind 'destroyed' refused by the change enum). So the schema pack is not the blocker. The blocker is where production derives the kind: CampaignMatchHostOutcomeInbox.ts:190 in src/lib/multiplayer/server (read-only for this lane). reconcileCoopBattle.ts:226, the line the sentence names, is reached only by the no-inbox walk (:131 routes every inbox-capable store to host.commitCombatOutcomeConsequences), and production always builds an inbox-capable store (getCampaignEventStore.ts:116-124, :131-134). Measured: with :226 edited as the sentence says, the production inbox path still commits 'removed' for the destroyed unit and the journal drops it (p1 unchanged); only the in-memory fallback keeps it as destroyed (p2).",
+    "duplicateReceipt": "The inbox reads its receipt row by outcome id inside the append's immediate transaction before appending (campaignCombatOutcomeInbox.ts:81-101): the same version answers 'duplicate', a different version 'outcome-version-conflict', both without appending. Running the rewrite only in the committed arm after the receipt insert (:117-141) makes it run once per outcome id. The outcome command id campaign-outcome:<campaign>:<match>:<version> (CampaignMatchHostOutcomeInbox.ts:98) commits in the same transaction as the receipt row, so the writer's recorded-command answer (SQLiteEventJournalWriter.ts:176-183) is reached only with a receipt row present, which the lookup answers first; mirroring U35e's recorded-command check (JournalCampaignEventStore.ts:310-319) as well would cost one query. The host maps a duplicate to ok with no events (CampaignMatchHostOutcomeInbox.ts:102; reconcileCoopBattle.ts:133-134), and the server also records the battle per entry before the walk (bindCampaignSyncConnection.ts:783-794). Measured on the baseline (p4): the second receipt of the same outcome answers ok with 0 events, the journal gains no event and the record version stays 1.",
+    "stalePutAfterOutcome": "With the rewrite, the outcome's transaction advances the saved record's version (version + 1), so a whole-campaign PUT at the pre-outcome version fails the CAS (CampaignPersistenceService.ts:186-187) and the route answers 409 {kind: 'conflict', reason: 'base-state-unavailable', currentVersion, current: the rewritten record} with nothing appended ([id].ts:228-255), as after a command since U35e. The host browser takes the new version through U35f's refresh when it folds the outcome's CampaignEvent frames, which the host publishes after the commit (CampaignMatchHostOutcomeInbox.ts:120). So row o2u (a save built before the fold) would answer 409 instead of losing the debit. INFERENCE from the code: not measured, because the unit stopped at admission. Today (measured p1, p4) the outcome leaves the record at version 1."
+  },
+  "blocker": {
+    "what": "Recording a destroyed unit as a status change instead of a removal needs an edit under src/lib/multiplayer/server, which this lane may not edit (charter: stop at admission with status BLOCKED and say exactly what and where).",
+    "where": "src/lib/multiplayer/server/CampaignMatchHostOutcomeInbox.ts:190",
+    "currentLine": "        change: change.status === 'destroyed' ? 'removed' : 'repaired',",
+    "exactEdit": "change: 'repaired' (every roster change a combat outcome commits is a status change carrying its status; the schema pack accepts 'repaired' with status 'destroyed', measured p3), with the comment stating that a destroyed unit is kept as destroyed (owner decision OD-u35g-coop-outcome-rewrites-record sub-decision 1); the same edit at reconcileCoopBattle.ts:226 (owned) for the no-inbox walk",
+    "whyNotInsidePaths": "Production reconciles every co-op battle through the inbox path (reconcileCoopBattle.ts:131-145 -> CampaignMatchHost.ts:299-317 -> CampaignMatchHostOutcomeInbox.ts:67-122), whose event derivation is at :134-200. The host appends, applies and publishes the same derived events (:95-121), so changing them anywhere downstream inside src/lib/campaign (the store or the inbox) would make the journal disagree with the host and its broadcast. A record-only patch that re-adds a removed unit as Destroyed would keep the journal's removal, which the owner's decision replaces with a status change.",
+    "measured": "p1 on the baseline and with the owned edit at reconcileCoopBattle.ts:226 applied: the production inbox path commits unit-0 as change 'removed' both times and the journal roster becomes {unit-1: damaged}; p2 (in-memory, no inbox) changes from 'removed' to 'repaired' with the edit and keeps unit-0 destroyed (see measurement)",
+    "proposedPathAmendment": {
+      "add": [
+        "src/lib/multiplayer/server/CampaignMatchHostOutcomeInbox.ts"
+      ],
+      "node": "R2.authority-live (U35g's own node; its ownershipPaths include src/lib/multiplayer/server)",
+      "admissionNote": "INFERENCE from validate-roadmap.mjs:59, 77-81, 541-554 (read, not run with an amended ledger): --next refuses a unit whose path overlaps an in-flight unit's path; at the baseline ledger U22a is local-verified and owns src/lib/multiplayer/server, so an amended U35g is admissible once U22a leaves the in-flight states (its merge cb356ac9e is on origin/main).",
+      "testsLikelyToRePin": "grep, not run: src/lib/campaign/coop/__tests__/reconcileCoopBattle.test.ts:88-89 pins the fallback walk's removal (owned); no other suite found by grep for 'removed' or status 'destroyed' across the inbox-path suites asserts the inbox derivation's removal"
+    }
+  },
+  "flagFileTension": "The charter's final check asks the flag file byte-identical to the baseline; the flag constant lives in src/lib/campaign/sync/JournalCampaignEventStore.ts (:86, the line flip.mjs flips), and the only place the store can hand the outcome inbox its rewrite hook is that file's appendCombatOutcomeBatch (:480-483). U35e met the same tension (its finding F4: the change sat in that file, the constant line unchanged, every flip restored byte-identically). The parent decides whether the amended unit may edit that file outside the constant line.",
+  "measurement": {
+    "how": "A probe suite (real SQLite on a temp file through the shared U35e fixture src/__tests__/api/campaigns/campaignJournalEffectsFixture.ts, which deletes every MEKSTATION_E2E_* key before each row; the runner also unsets them) was copied to src/lib/campaign/sync/__tests__/u35gAdmission.probe.test.ts, run on the baseline, then with the one owned edit the sentence names applied to reconcileCoopBattle.ts:226 by owned-edit.mjs (exactly one occurrence), after which that file was restored from a byte copy and its sha256 compared; the probe was copied out with its sha256 and removed. The flag constant was false in both runs; no flip was run at admission.",
+    "rows": {
+      "p1": "a co-op battle (unit-0 destroyed, unit-1 damaged, salvage 50,000) reconciled on a journal-native campaign (genesis through appendCampaignGenesis, flag false) by a host over selectCampaignEventStore().store",
+      "p2": "the same battle reconciled by a host over InMemoryCampaignEventStore (no inbox)",
+      "p3": "the campaign baseline schema pack's RosterUnitChanged parser on {change:'repaired'|'removed'|'destroyed', unit.status:'destroyed'}",
+      "p4": "the same outcome reconciled twice on the inbox host"
+    },
+    "probeCopy": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g/logs/adm-probe-copy.test.ts.txt",
+      "sha256": "9d571260e8bdcfafd9eed12ecf1b550b7a902509d033d2535e3479254134c3d9"
+    },
+    "probeShaAsRun": "9d571260e8bdcfafd9eed12ecf1b550b7a902509d033d2535e3479254134c3d9",
+    "baseline": {
+      "command": "U35G_ADM_OUT=<logs>/adm-probe-baseline.json npx jest src/lib/campaign/sync/__tests__/u35gAdmission.probe.test.ts",
+      "exitCode": 0,
+      "counts": "Tests:       4 passed, 4 total",
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\campaign\\\\sync\\\\__tests__\\\\u35gAdmission.probe.test.ts/i.",
+      "rowResults": [
+        "√ (p1) the production inbox path on a journal-native campaign",
+        "√ (p2) the no-inbox fallback walk over the in-memory store",
+        "√ (p3) the schema pack on a status-change payload for a destroyed unit",
+        "√ (p4) the same outcome received twice on the inbox host"
+      ],
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g/logs/adm-probe-baseline.log",
+        "sha256": "a8a305d1c6f01ac998eef374ef496573691214a4ad9313f18f21fd5aef317270"
+      },
+      "valuesFile": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g/logs/adm-probe-baseline.json",
+        "sha256": "3d38ee7999b19a5f8497c0a712af5d56c93aa70f46dafb459e30efc36bb20430"
+      },
+      "values": {
+        "constant": false,
+        "p1": {
+          "genesisBy": "appendCampaignGenesis seam (flag false)",
+          "hasCombatOutcomeInbox": true,
+          "outcomeOk": true,
+          "outcomeError": null,
+          "rosterChanges": [
+            {
+              "unitId": "unit-0",
+              "change": "removed",
+              "status": "destroyed"
+            },
+            {
+              "unitId": "unit-1",
+              "change": "repaired",
+              "status": "damaged"
+            }
+          ],
+          "journalRosterAfter": {
+            "unit-1": "damaged"
+          },
+          "hostRosterAfter": {
+            "unit-1": "damaged"
+          },
+          "recordBefore": {
+            "version": 1,
+            "roster": {
+              "unit-0": "Ready",
+              "unit-1": "Ready"
+            }
+          },
+          "recordAfter": {
+            "version": 1,
+            "roster": {
+              "unit-0": "Ready",
+              "unit-1": "Ready"
+            }
+          },
+          "eventTypes": [
+            "CampaignSnapshotPublished",
+            "SalvageAllocated",
+            "RosterUnitChanged",
+            "RosterUnitChanged"
+          ]
+        },
+        "p2": {
+          "hasCombatOutcomeInbox": false,
+          "outcomeOk": true,
+          "outcomeError": null,
+          "rosterChanges": [
+            {
+              "unitId": "unit-0",
+              "change": "removed",
+              "status": "destroyed"
+            },
+            {
+              "unitId": "unit-1",
+              "change": "repaired",
+              "status": "damaged"
+            }
+          ],
+          "hostRosterAfter": {
+            "unit-1": "damaged"
+          }
+        },
+        "p3": {
+          "repairedDestroyed": "accepted",
+          "removedDestroyed": "accepted",
+          "destroyedKind": "refused: [\n  {\n    \"code\": \"invalid_value\",\n    \"values\": [\n      \"added\",\n      \"removed\",\n      \"repaired\"\n    ],\n    \"path\": [\n      \"change\"\n    ],\n    \"message\": \"Invalid option: expected one of \\\"added\\\"|\\\"removed\\\"|\\\"repaired\\\"\"\n  }\n]"
+        },
+        "p4": {
+          "firstOk": true,
+          "firstEvents": 3,
+          "secondOk": true,
+          "secondEvents": 0,
+          "eventTypesAfterFirst": [
+            "CampaignSnapshotPublished",
+            "SalvageAllocated",
+            "RosterUnitChanged",
+            "RosterUnitChanged"
+          ],
+          "eventTypesAfterSecond": [
+            "CampaignSnapshotPublished",
+            "SalvageAllocated",
+            "RosterUnitChanged",
+            "RosterUnitChanged"
+          ],
+          "recordAfterFirst": {
+            "version": 1,
+            "roster": {
+              "unit-0": "Ready",
+              "unit-1": "Ready"
+            }
+          },
+          "recordAfterSecond": {
+            "version": 1,
+            "roster": {
+              "unit-0": "Ready",
+              "unit-1": "Ready"
+            }
+          }
+        }
+      }
+    },
+    "withOwnedEditAtReconcile226": {
+      "edit": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g/logs/adm-owned-edit.diff",
+        "sha256": "50b87473cc91e4f438d25406fa1fb0eee6adce5a9ceee50c62af9bb0a5a27d35"
+      },
+      "applyLastLine": "OWNED_EDIT_APPLIED",
+      "applyExitCode": 0,
+      "command": "U35G_ADM_OUT=<logs>/adm-probe-owned-edit.json npx jest src/lib/campaign/sync/__tests__/u35gAdmission.probe.test.ts",
+      "exitCode": 0,
+      "counts": "Tests:       4 passed, 4 total",
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\campaign\\\\sync\\\\__tests__\\\\u35gAdmission.probe.test.ts/i.",
+      "rowResults": [
+        "√ (p1) the production inbox path on a journal-native campaign",
+        "√ (p2) the no-inbox fallback walk over the in-memory store",
+        "√ (p3) the schema pack on a status-change payload for a destroyed unit",
+        "√ (p4) the same outcome received twice on the inbox host"
+      ],
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g/logs/adm-probe-owned-edit.log",
+        "sha256": "67365800956536d1ef5bc322debc400316d0d25b82db42bab3b601d6d2a1910c"
+      },
+      "valuesFile": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g/logs/adm-probe-owned-edit.json",
+        "sha256": "2066303cf75da9026ed55306ea8bf462572135328904f69457884599268eb88c"
+      },
+      "values": {
+        "constant": false,
+        "p1": {
+          "genesisBy": "appendCampaignGenesis seam (flag false)",
+          "hasCombatOutcomeInbox": true,
+          "outcomeOk": true,
+          "outcomeError": null,
+          "rosterChanges": [
+            {
+              "unitId": "unit-0",
+              "change": "removed",
+              "status": "destroyed"
+            },
+            {
+              "unitId": "unit-1",
+              "change": "repaired",
+              "status": "damaged"
+            }
+          ],
+          "journalRosterAfter": {
+            "unit-1": "damaged"
+          },
+          "hostRosterAfter": {
+            "unit-1": "damaged"
+          },
+          "recordBefore": {
+            "version": 1,
+            "roster": {
+              "unit-0": "Ready",
+              "unit-1": "Ready"
+            }
+          },
+          "recordAfter": {
+            "version": 1,
+            "roster": {
+              "unit-0": "Ready",
+              "unit-1": "Ready"
+            }
+          },
+          "eventTypes": [
+            "CampaignSnapshotPublished",
+            "SalvageAllocated",
+            "RosterUnitChanged",
+            "RosterUnitChanged"
+          ]
+        },
+        "p2": {
+          "hasCombatOutcomeInbox": false,
+          "outcomeOk": true,
+          "outcomeError": null,
+          "rosterChanges": [
+            {
+              "unitId": "unit-0",
+              "change": "repaired",
+              "status": "destroyed"
+            },
+            {
+              "unitId": "unit-1",
+              "change": "repaired",
+              "status": "damaged"
+            }
+          ],
+          "hostRosterAfter": {
+            "unit-0": "destroyed",
+            "unit-1": "damaged"
+          }
+        },
+        "p3": {
+          "repairedDestroyed": "accepted",
+          "removedDestroyed": "accepted",
+          "destroyedKind": "refused: [\n  {\n    \"code\": \"invalid_value\",\n    \"values\": [\n      \"added\",\n      \"removed\",\n      \"repaired\"\n    ],\n    \"path\": [\n      \"change\"\n    ],\n    \"message\": \"Invalid option: expected one of \\\"added\\\"|\\\"removed\\\"|\\\"repaired\\\"\"\n  }\n]"
+        },
+        "p4": {
+          "firstOk": true,
+          "firstEvents": 3,
+          "secondOk": true,
+          "secondEvents": 0,
+          "eventTypesAfterFirst": [
+            "CampaignSnapshotPublished",
+            "SalvageAllocated",
+            "RosterUnitChanged",
+            "RosterUnitChanged"
+          ],
+          "eventTypesAfterSecond": [
+            "CampaignSnapshotPublished",
+            "SalvageAllocated",
+            "RosterUnitChanged",
+            "RosterUnitChanged"
+          ],
+          "recordAfterFirst": {
+            "version": 1,
+            "roster": {
+              "unit-0": "Ready",
+              "unit-1": "Ready"
+            }
+          },
+          "recordAfterSecond": {
+            "version": 1,
+            "roster": {
+              "unit-0": "Ready",
+              "unit-1": "Ready"
+            }
+          }
+        }
+      }
+    },
+    "reading": {
+      "p1": "baseline: [{\"unitId\":\"unit-0\",\"change\":\"removed\",\"status\":\"destroyed\"},{\"unitId\":\"unit-1\",\"change\":\"repaired\",\"status\":\"damaged\"}] -> journal roster {\"unit-1\":\"damaged\"}, record version 1 -> 1; with the owned edit: [{\"unitId\":\"unit-0\",\"change\":\"removed\",\"status\":\"destroyed\"},{\"unitId\":\"unit-1\",\"change\":\"repaired\",\"status\":\"damaged\"}] -> journal roster {\"unit-1\":\"damaged\"}",
+      "p2": "baseline: [{\"unitId\":\"unit-0\",\"change\":\"removed\",\"status\":\"destroyed\"},{\"unitId\":\"unit-1\",\"change\":\"repaired\",\"status\":\"damaged\"}] -> host roster {\"unit-1\":\"damaged\"}; with the owned edit: [{\"unitId\":\"unit-0\",\"change\":\"repaired\",\"status\":\"destroyed\"},{\"unitId\":\"unit-1\",\"change\":\"repaired\",\"status\":\"damaged\"}] -> host roster {\"unit-0\":\"destroyed\",\"unit-1\":\"damaged\"}",
+      "p3": "repaired+destroyed accepted; removed+destroyed accepted; a new kind 'destroyed' refused",
+      "p4": "second receipt ok=true with 0 events; journal events 4 -> 4; record version 1 -> 1"
+    },
+    "restore": {
+      "file": "src/lib/campaign/coop/reconcileCoopBattle.ts",
+      "preMeasurementSha256": "020ccb7bf2f9fa098d86bd385c9664dea219ab9398ebe11c20ba34e37a8b7dc3",
+      "editedSha256": "f55cbab5757a753f8f182fa834965ff77cf48841d1b518150dd0dea977680d89",
+      "sha256AfterRestore": "020ccb7bf2f9fa098d86bd385c9664dea219ab9398ebe11c20ba34e37a8b7dc3",
+      "identical": true,
+      "byteCopy": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g/reconcileCoopBattle.ts.pre-adm",
+        "sha256": "020ccb7bf2f9fa098d86bd385c9664dea219ab9398ebe11c20ba34e37a8b7dc3"
+      },
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g/logs/adm-restore.log",
+        "sha256": "a29efc9b05b96981a5f8d38f5a3771357898af0bd72e1155b872cfdcf3559391"
+      },
+      "gitStatusAfter": ""
+    }
+  },
+  "estimatePerFile": {
+    "note": "INFERENCE, not measured: the slice after the path amendment",
+    "files": [
+      {
+        "file": "src/lib/multiplayer/server/CampaignMatchHostOutcomeInbox.ts",
+        "category": "product (needs the path amendment)",
+        "estimateLines": 4
+      },
+      {
+        "file": "src/lib/campaign/coop/reconcileCoopBattle.ts",
+        "category": "product",
+        "estimateLines": 6
+      },
+      {
+        "file": "src/lib/campaign/sync/campaignCombatOutcomeInbox.ts",
+        "category": "product",
+        "estimateLines": 15
+      },
+      {
+        "file": "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+        "category": "product (the flag file; see flagFileTension)",
+        "estimateLines": 4
+      },
+      {
+        "file": "src/lib/campaign/authority/campaignRecordJournalState.ts",
+        "category": "product",
+        "estimateLines": 35
+      },
+      {
+        "file": "src/lib/campaign/sync/__tests__/campaignCombatOutcomeRecordRewrite.test.ts",
+        "category": "test (new): rows o1, o1c, o1s, destroyed kept, duplicate rewrites nothing, o2u",
+        "estimateLines": 420
+      },
+      {
+        "file": "src/lib/campaign/coop/__tests__/reconcileCoopBattle.test.ts",
+        "category": "test (re-pin :88-89)",
+        "estimateLines": 4
+      }
+    ]
+  },
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "countingRule": "product lines count, tests do not (owner decision OD-line-cap-product-lines, 2026-09-23)",
+    "estimatedFiles": 7,
+    "estimatedProductLines": 64,
+    "estimatedTestLines": 424,
+    "withinCaps": true,
+    "note": "INFERENCE: estimates before any edit, after the path amendment"
+  },
+  "risksForTheParent": [
+    "Authority: on a journal-native campaign every first-receipt combat outcome would write the saved record (version + 1, the journal's balance, date and roster readiness), so a host save built before the outcome answers 409 with the server record; the host adopts the new version through U35f's refresh on the outcome's frames (read, not run).",
+    "Idempotency: the rewrite belongs in the inbox's committed arm only; a duplicate or an outcome-version conflict answers before append() (campaignCombatOutcomeInbox.ts:81-101) and must rewrite nothing (measured today: a second receipt appends nothing, p4).",
+    "Concurrency: the rewrite must run on the extension's handle inside the outcome's immediate transaction, so a whole-campaign PUT is ordered wholly before or after the outcome.",
+    "Migration: none under OD-mvp-hard-cutover; like U35e the rewrite would spread the raw stored JSON without the read migration ladder. The owner's Lane B ruling is required on the head that merges (authority, idempotency, concurrency, migration).",
+    "Visible change: a destroyed unit is no longer deleted from the journal. It stays in the host state and every mirror with status 'destroyed': the guest's roster count counts it (CampaignCoopRouteSurfaceConnected.tsx:373-375), the activity feed reads '<designation> repaired' under 'technical' for it, as it already does for a damaged unit (campaignActivityProjection.ts:165-172), and any consumer that treats rosterUnits as the units still in service sees it (read, not run).",
+    "Documented invariant: rosterProjection readiness is documented as always equal to deriveRosterReadiness(campaign.unitCombatStates[unitId]) (src/types/campaign/RosterUnitProjection.ts:107-112); a rewrite that patches readiness from the journal without unitCombatStates makes that comment untrue for the saved record (read, not run)."
+  ],
+  "findingsReportedNotFixed": [
+    {
+      "id": "F1",
+      "class": "blocking (path)",
+      "file": "src/lib/multiplayer/server/CampaignMatchHostOutcomeInbox.ts:190; src/lib/campaign/coop/reconcileCoopBattle.ts:131-145, 226",
+      "finding": "The destroyed -> 'removed' mapping that production commits is at CampaignMatchHostOutcomeInbox.ts:190, not at reconcileCoopBattle.ts:226, which only the no-inbox walk reaches; measured p1/p2 with :226 edited."
+    },
+    {
+      "id": "F2",
+      "class": "charter tension",
+      "file": "src/lib/campaign/sync/JournalCampaignEventStore.ts:86, 480-483",
+      "finding": "The outcome inbox can take the rewrite hook only from the store's appendCombatOutcomeBatch, in the flag file the charter's final check asks byte-identical (U35e F4 precedent)."
+    },
+    {
+      "id": "F3",
+      "class": "design risk (read, not run)",
+      "file": "src/types/campaign/RosterUnitProjection.ts:107-112",
+      "finding": "Patching rosterProjection readiness from the journal leaves unitCombatStates as stored, so the documented readiness invariant would not hold for a rewritten record."
+    },
+    {
+      "id": "F4",
+      "class": "wording (read, not run)",
+      "file": "src/lib/campaign/activity/campaignActivityProjection.ts:165-172",
+      "finding": "With the existing 'repaired' kind a destroyed unit's activity line reads '<designation> repaired' (category technical), as a damaged unit's does today; a new change kind would be refused by the schema pack (measured p3) and needs src/lib/events/replay and src/types/campaign/CampaignSync.ts, both outside the path."
+    }
+  ],
+  "nonClaims": [
+    "No product or test file was edited; the only worktree writes were the temporary probe (removed) and the temporary owned edit (restored byte-identically, sha256 compared).",
+    "No red rows (o1, o1c, o1s, destroyed kept, duplicate, o2u) were written or run in this lane; the rows cited from U35d are its re-admission measurements, not re-run here.",
+    "No temporary flip was run at admission: the derivation measured (p1-p4) does not read the flag, and the flag constant was false in both probe runs.",
+    "The p1/p4 hosts are driven directly over selectCampaignEventStore().store, not through a socket, the GM arbiter or a browser.",
+    "The design answers' after-the-change behavior (409 after an outcome, the host adopting the version, the roster reaching the host) is read from the code, not run.",
+    "No suite under src/lib/multiplayer/server, src/__tests__/api or src/services was run; test re-pins are named from grep only.",
+    "The validator overlap consequence of the proposed amendment is read from validate-roadmap.mjs, not run with an amended ledger."
+  ],
+  "decision": "BLOCKED at admission: --next printed U35g on the baseline and the validator passed, but the owner's decision (a destroyed unit is recorded as a status change) needs the one-line edit at src/lib/multiplayer/server/CampaignMatchHostOutcomeInbox.ts:190, outside U35g's only ownership path (src/lib/campaign); the edit the sentence names (reconcileCoopBattle.ts:226) does not reach production (measured). The schema pack does not block ('repaired' with status 'destroyed' is accepted). Next: amend U35g's paths with that file (same node) and decide the flag-file tension, then re-admit; no product or test file was edited."
+}
