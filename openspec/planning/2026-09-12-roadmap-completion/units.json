@@ -1707,14 +1707,28 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
+      "state": "local-verified",
+      "baseline": "f32ea5400f3a1282733180059e32d9169fb74204",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/u22a-admission-20260923.json",
+          "baseline": "f32ea5400f3a1282733180059e32d9169fb74204",
+          "at": "2026-09-23T07:03:45.030Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/u22a-red-20260923.json",
+          "at": "2026-09-23T07:14:32.031Z",
+          "summary": "baseline f32ea5400: jest 11 failed / 71 passed, each for its intended reason (two isolated registry module loads gave two instances; a connected viewer received nothing after a rebuild; the client ignored a replace-stream marker; the hook kept its mirror); build exit 1 as expected with the __E2E_MODE__ marker; privacy-pack 8 passed with E2E-25 an expected failure at spec:353 (Movement Phase)"
+        },
+        "local": {
+          "path": "evidence/u22a-local-20260923.json",
+          "at": "2026-09-23T07:57:32.001Z",
+          "summary": "product 6 files +188/-19 (207 lines, cap 500), tests 6 files 1031 lines; the registry and its recovery flag share one globalThis slot; after a committed rewind rebuilds the live host each connected socket gets its own join replay from 0 through its viewer, fog filter and publication guard, the replace-stream marker stamped after the guard; the client resets delivery state on the marker and emits streamReplaced; the session hook swaps its mirror in one step (never empty mid-replace); src/lib/multiplayer/server 160/1178; src/__tests__/api/matches 3/47; src/pages-modules/api 8/62; client, protocol and hook suites 22/295; multiplayer component consumers 15/155; tsc 0; oxlint 84 warnings 0 errors; oxfmt clean on 12 files; LINT_UNITS_PASS 100/100; qc:openspec-ci errors=0; validator PASSED; privacy-pack on the final tree twice: E2E-25 an UNEXPECTED PASS (strict test.fail kept for U22), other 7 rows ok; authority-recovery 4/4, proposal-pack 2/2, rewind-pack 6 strict expected failures, all unchanged; six mutants caught and restored (registry back to module-local, no push, unprojected push, client ignores marker, hook keeps mirror, hook empties mirror); implementer claude-opus (Agent model: opus); findings F1-F3 recorded; status ready"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
@@ -8091,6 +8105,33 @@
       "summary": "A mutant that removes the save-chain tail update in refreshAfterCommittedCommandAction (src/stores/campaign/useCampaignPersistenceStore.ts) passes the whole shipped suite (31/31); the reviewer confirmed by reading the code that the real line is present and correct. A later save could then skip waiting on a refresh.",
       "recommendedSuccessor": "a row where a save requested during a refresh runs after it, killing that mutant",
       "status": "recorded; fold into the next unit that edits src/stores/campaign/useCampaignPersistenceStore.ts"
+    },
+    {
+      "id": "FN-u22a-viewer-delivery-unique-after-rewind",
+      "foundBy": "U22a implementer lane (claude-opus), 2026-09-23, finding F3 (measured)",
+      "at": "2026-09-25T05:45:04.000Z",
+      "class": "durable write failure after a live rewind (best-effort; frames still sent)",
+      "summary": "Every run where the committed rewind's rebuild reached the live match logged 8 'persist failed ... UNIQUE constraint failed: mp_viewer_delivery' warnings (0 on the baseline and the M1 runs): the push renumbers each viewer's deliveries from 0 while the durable delivery rows keep the superseded stream's numbering. The write is best-effort, so frames still go out, but the durable delivery record no longer matches what was sent.",
+      "recommendedSuccessor": "the rewind rebuild retires or re-keys the viewer delivery rows of the superseded stream in the same step that renumbers them; R2.authority-live owns src/lib/multiplayer/server",
+      "status": "recorded; fold into the next R2.authority-live unit that edits the rewind rebuild or viewer delivery cursors"
+    },
+    {
+      "id": "FN-u22a-offline-viewer-misses-replace-stream-marker",
+      "foundBy": "U22a implementer lane (claude-opus), 2026-09-23, finding F1 (read from the code, not measured)",
+      "at": "2026-09-25T05:45:04.000Z",
+      "class": "stale client stream after a rewind (offline player)",
+      "summary": "A player whose socket was not connected when the committed rewind was pushed, and who reconnects without reloading, receives a join replay without the replace-stream marker and stays on the superseded stream. rewind-pack's offline-player-catches-up row (E2E-44) is still a strict expected failure before and after U22a.",
+      "recommendedSuccessor": "stamp the replace-stream marker on the next join of any viewer marked for rewind resync; the unit that lifts E2E-44's gate owns the proof",
+      "status": "recorded; fold into the unit that ungates E2E-44 (rewind-pack)"
+    },
+    {
+      "id": "FN-u22a-rewind-keeps-ack-and-isolation-state",
+      "foundBy": "U22a implementer lane (claude-opus), 2026-09-23, finding F2 (read from the code, not measured)",
+      "at": "2026-09-25T05:45:04.000Z",
+      "class": "delivery state inconsistency after a rewind",
+      "summary": "A rewind resets each viewer's delivery numbers but keeps that viewer's acknowledgement and isolation state, which still refer to the superseded numbering.",
+      "recommendedSuccessor": "measure with a probe (ack after rewind, then a slow-client isolation check); reset or re-key both with the delivery numbers if confirmed",
+      "status": "recorded; fold into the next R2.authority-live unit that edits viewer delivery cursors"
     }
   ]
 }
