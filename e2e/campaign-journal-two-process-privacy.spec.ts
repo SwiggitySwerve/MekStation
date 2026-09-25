@@ -14,11 +14,10 @@
  * THE TOPOLOGY IS CO3'S, UNCHANGED. Playwright's own webServer (3639)
  * creates the campaign and is thereafter the REPLICA READER; a source
  * process (3617) spawned by this spec takes the socket traffic and is
- * the one restarted; both hold ONE database file. The campaign reaches
- * journal authority the same flag-free way - the durable marker written
- * directly, `CAMPAIGN_JOURNAL_AUTHORITY_ENABLED` false throughout and
- * `MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY` never set, both asserted
- * out of a real Node process rather than claimed in a comment.
+ * the one restarted; both hold ONE database file. The campaign is
+ * journal-native from its create through the production flag
+ * (`CAMPAIGN_JOURNAL_AUTHORITY_ENABLED` on, no e2e arm), asserted out of
+ * a real Node process rather than claimed in a comment.
  *
  * WHY THE REMOVAL COMES FROM THE SOCKET AND NOT FROM `/commands`. It is
  * measured here rather than assumed: the HTTP command route refuses
@@ -83,7 +82,6 @@ import {
 } from './helpers/campaignJournalDrive';
 import {
   bootPrivacyTopology,
-  E2E_ARM_KEY,
   type IPrivacyTopology,
 } from './helpers/campaignJournalPrivacyFixture';
 import {
@@ -135,8 +133,8 @@ test.describe('campaign journal authority: revocation and redaction across two p
       baseURL ?? `http://localhost:${process.env.MEKSTATION_E2E_PORT ?? 3600}`;
     const campaignId = `live-privacy-${Date.now()}`;
 
-    // Two processes on one file, a campaign on journal authority with no
-    // flag touched, three seats bound by the server. Every assertion in
+    // Two processes on one file, a campaign journal-native from its
+    // create, three seats bound by the server. Every assertion in
     // there is a PRECONDITION; the rows this spec argues start below.
     topology = await bootPrivacyTopology({
       request,
@@ -445,12 +443,10 @@ test.describe('campaign journal authority: revocation and redaction across two p
       ).status,
     ).toBe(403);
 
-    // --- the gate stayed shut for the whole drive ---------------------
+    // --- the flag stayed on for the whole drive -----------------------
     const flagsAfter = runAuthorityCli('flags');
-    expect(flagsAfter.cutoverFlag).toBe(false);
-    expect(flagsAfter.effective).toBe(false);
-    expect(process.env[E2E_ARM_KEY]).toBeUndefined();
-    expect(env[E2E_ARM_KEY]).toBeUndefined();
+    expect(flagsAfter.cutoverFlag).toBe(true);
+    expect(flagsAfter.effective).toBe(true);
     expect(readMarker(databasePath, campaignId)?.state).toBe('journal');
   });
 });
@@ -458,9 +454,9 @@ test.describe('campaign journal authority: revocation and redaction across two p
 /*
  * NOT DRIVEN HERE, deliberately:
  *
- * - The production cutover flag. `CAMPAIGN_JOURNAL_AUTHORITY_ENABLED`
- *   stays false; this campaign is cut over per-campaign by its durable
- *   marker, and no shipped path puts a production campaign there.
+ * - A campaign created before the flag. This campaign is journal-native
+ *   from its create; the authority CLI's `cutover` command for a campaign
+ *   with no marker is not driven.
  * - The single-player path. `/commands` and the seat gate both refuse a
  *   campaign with no co-op session (finding #29); every principal here
  *   holds a real seat bound by a shipped route.

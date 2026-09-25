@@ -10,7 +10,7 @@
  * Split from the spec for CO3's own reason: the spec should read as the
  * argument it makes, and getting to the point where that argument can be
  * made is a separate concern. Everything here is PRECONDITION - the
- * flag-free cutover, the seats, the shared file. Every row that could
+ * journal-native campaign, the seats, the shared file. Every row that could
  * fail for a product reason stays in the spec.
  *
  * The assertions that DO live here are the ones whose failure means the
@@ -35,7 +35,6 @@ import {
   type ICampaignSyncClient,
 } from './campaignJournalSocket';
 import {
-  cutoverCampaignToJournalAuthority,
   readHighestSequence,
   readMarker,
   resolveServerDatabase,
@@ -44,9 +43,6 @@ import {
   startSourceServer,
   type ISourceServer,
 } from './campaignJournalTwoProcess';
-
-/** The e2e opt-in key, bound to the real constant by the `flags` read. */
-export const E2E_ARM_KEY = 'MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY';
 
 /** One self-issued principal. */
 export interface IPrincipal {
@@ -62,7 +58,7 @@ export interface IPrivacyTopology {
   readonly multiplayerDir: string;
   readonly matchId: string;
   readonly roomCode: string;
-  /** The journal head the co-op host registration seeded. */
+  /** The journal head after the co-op host registration (the create's genesis). */
   readonly seededSequence: number;
   readonly gm: IPrincipal;
   readonly guestA: IPrincipal;
@@ -77,8 +73,8 @@ export interface IPrivacyTopology {
 }
 
 /**
- * Build the world: two processes on one file, a campaign on journal
- * authority with no flag touched, and three bound seats.
+ * Build the world: two processes on one file, a campaign journal-native
+ * from its create through the production flag, and three bound seats.
  */
 export async function bootPrivacyTopology(input: {
   readonly request: APIRequestContext;
@@ -87,13 +83,11 @@ export async function bootPrivacyTopology(input: {
 }): Promise<IPrivacyTopology> {
   const { request, replicaOrigin, campaignId } = input;
 
-  // The gate is shut, read out of a real Node process that loaded the
-  // production modules rather than asserted from a comment.
+  // The production flag is on, read out of a real Node process that
+  // loaded the production modules rather than asserted from a comment.
   const flagsBefore = runAuthorityCli('flags');
-  expect(flagsBefore.e2eEnvKey).toBe(E2E_ARM_KEY);
-  expect(flagsBefore.cutoverFlag).toBe(false);
-  expect(flagsBefore.effective).toBe(false);
-  expect(process.env[E2E_ARM_KEY]).toBeUndefined();
+  expect(flagsBefore.cutoverFlag).toBe(true);
+  expect(flagsBefore.effective).toBe(true);
 
   // The campaign is created through the REPLICA process, so the source
   // below sees a campaign it never created.
@@ -110,10 +104,12 @@ export async function bootPrivacyTopology(input: {
   // path opens an empty file and every later assertion passes for the
   // wrong reason.
   const databasePath = resolveServerDatabase(campaignId);
-  // Behavioural proof the gate is shut - the create path writes a marker
-  // and a genesis only when it opens, and neither exists.
-  expect(readMarker(databasePath, campaignId)).toBeNull();
-  expect(readHighestSequence(databasePath, campaignId)).toBe(-1);
+  // Behavioural proof the flag is on - the create wrote the journal-native
+  // marker and the genesis (sequence 0) with the record.
+  const markerAtCreate = readMarker(databasePath, campaignId);
+  expect(markerAtCreate?.state).toBe('journal');
+  expect(markerAtCreate?.firstJournalAuthorityCommandId).toBeNull();
+  expect(readHighestSequence(databasePath, campaignId)).toBe(0);
 
   const multiplayerDir = await mkdtemp(
     path.join(tmpdir(), 'mekstation-live-mp-'),
@@ -122,11 +118,7 @@ export async function bootPrivacyTopology(input: {
     databasePath,
     // Deliberately NOT shared: only the campaign journal is.
     path.join(multiplayerDir, 'multiplayer-matches.db'),
-    E2E_ARM_KEY,
   );
-  // Falsifiable rather than asserted: the arm is absent from the env
-  // object actually handed to `spawn`.
-  expect(env[E2E_ARM_KEY]).toBeUndefined();
   const source = await startSourceServer(request, env);
   expect(source.origin).not.toBe(replicaOrigin);
 
@@ -190,20 +182,11 @@ export async function bootPrivacyTopology(input: {
   expect(roomCode, 'a co-op host match must open an invite').toBeTruthy();
   if (roomCode === undefined) throw new Error('unreachable');
 
-  // Registering the co-op host seeded the stream; the campaign is still
-  // NOT on journal authority, because authority is the marker.
+  // Registering the co-op host appended nothing: the stream already holds
+  // the create's genesis at sequence 0, and the marker is unchanged.
   const seededSequence = readHighestSequence(databasePath, campaignId);
   expect(seededSequence).toBe(0);
-
-  // The cutover, with no flag anywhere. `path: 'marker'` states which
-  // arm ran: the stream was already there, so this appended nothing.
-  const cutover = cutoverCampaignToJournalAuthority(databasePath, campaignId);
-  expect(cutover.marker?.state).toBe('journal');
-  expect(cutover.path).toBe('marker');
-  expect(cutover.cutoverFlag).toBe(false);
-  expect(cutover.effective).toBe(false);
-  expect(cutover.e2eEnvValue).toBeNull();
-  expect(readHighestSequence(databasePath, campaignId)).toBe(seededSequence);
+  expect(readMarker(databasePath, campaignId)?.state).toBe('journal');
 
   const sockets: ICampaignSyncClient[] = [];
   const open = async (

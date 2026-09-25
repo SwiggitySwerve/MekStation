@@ -18,10 +18,12 @@
  * so a batch can land on a branch whose head is not the campaign
  * sequence (finding #70).
  *
- * Cutover flag: `CAMPAIGN_JOURNAL_AUTHORITY_ENABLED` stays `false` — the
- * production factory keeps returning the in-memory store until the D10
- * migration-state machinery (task 5.2) lands. Explicit test/dev adapters
- * remain available either way.
+ * Cutover flag: `CAMPAIGN_JOURNAL_AUTHORITY_ENABLED` is `true` (U35d, owner
+ * decision OD-mvp-hard-cutover). `isCampaignJournalAuthorityEnabled`
+ * answers it, so a campaign create or adoption appends its genesis and
+ * journal-native marker, and `createDefaultCampaignEventStore` returns this
+ * store to a caller that passes a journal factory. Explicit test/dev
+ * adapters remain available either way.
  *
  * @spec openspec/changes/design-campaign-authority-and-sync/design.md (D1, D10)
  * @spec openspec/changes/design-campaign-authority-and-sync/specs/coop-campaign-sync/spec.md
@@ -79,11 +81,13 @@ import { InMemoryCampaignEventStore } from './InMemoryCampaignEventStore';
 export const CAMPAIGN_STREAM_TYPE = 'campaign' as const;
 
 /**
- * Cutover flag (task 5.1): the journal adapter exists and is fully tested,
- * but production stays on the in-memory store until the migration-state
- * machinery (task 5.2) makes cutover truthful per campaign.
+ * Cutover flag, on in production with no override (U35d): the campaign
+ * routes read it through `isCampaignJournalAuthorityEnabled`, so every
+ * create and adoption appends its genesis and journal-native marker, and
+ * `createDefaultCampaignEventStore` returns the journal store to a caller
+ * that passes a journal factory.
  */
-export const CAMPAIGN_JOURNAL_AUTHORITY_ENABLED = false;
+export const CAMPAIGN_JOURNAL_AUTHORITY_ENABLED = true;
 
 /**
  * The durable journal envelope for one campaign event. The expected
@@ -354,7 +358,7 @@ export {
  * `ICampaignEventStore` over the shared journal. Single-event appends are
  * one-event command batches (commandId = the deterministic event id), so
  * the existing `CampaignEventLog` facade and host keep working unchanged
- * when the cutover flag turns on.
+ * with the cutover flag on.
  */
 export { CampaignStaleBranchError } from './campaignBranchRule';
 
@@ -410,8 +414,8 @@ export class JournalCampaignEventStore implements ICampaignEventStore {
    * The D10 batch capability the host's command->append pipeline detects
    * (task 1.2): one command's whole contiguous event batch plus its
    * expected post-state digest, committed atomically at the expected head.
-   * Absent on the in-memory store, so the host's legacy per-event path
-   * remains the flag-off behavior structurally. A store a server binder
+   * Absent on the in-memory store, so a host over it (a caller that passed
+   * no journal) keeps the legacy per-event path. A store a server binder
    * gave `rewriteRecordAfterCommand` runs it in the append's transaction.
    */
   appendCommandBatch = async (
@@ -520,18 +524,17 @@ export class JournalCampaignEventStore implements ICampaignEventStore {
 }
 
 /**
- * Production factory (the cutover flag point). Callers that previously
- * constructed the in-memory store directly go through here so flipping
- * `CAMPAIGN_JOURNAL_AUTHORITY_ENABLED` is the single cutover switch once
- * task 5.2's migration states make it truthful. While the flag is false —
- * or no journal is provided — behavior is byte-identical to before.
+ * Production factory (the cutover flag point). With
+ * `CAMPAIGN_JOURNAL_AUTHORITY_ENABLED` on, a caller that passes a journal
+ * factory gets a `JournalCampaignEventStore` over the journal it opens; a
+ * caller that passes none gets the in-memory store. Its one production
+ * caller, coopRuntimeSession, passes none.
  */
 export function createDefaultCampaignEventStore(deps?: {
   /**
-   * A FACTORY, not a handle: a caller on a request path would otherwise
-   * open the database on every host creation just to hand it to a branch
-   * the disabled flag never takes, and would throw wherever SQLite is
-   * not initialised.
+   * A FACTORY, not a handle: it is called once, only on the journal
+   * branch, so the flag stays the one switch and nothing opens the
+   * database for the in-memory branch.
    */
   readonly journal?: () => IEventJournal<ICampaignJournalEnvelope>;
 }): ICampaignEventStore {

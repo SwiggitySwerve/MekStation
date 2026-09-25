@@ -20,7 +20,6 @@ import type { SerializedCampaign } from '@/types/campaign/SerializedCampaign';
 
 import { buildPopulatedCampaign } from '@/lib/campaign/persistence/__tests__/campaignFixture';
 import { buildSerializedCampaign } from '@/lib/campaign/persistence/campaignEnvelope';
-import { CAMPAIGN_JOURNAL_AUTHORITY_ENABLED } from '@/lib/campaign/sync/JournalCampaignEventStore';
 import adoptHandler from '@/pages/api/campaigns/[id]/adopt';
 import { readCampaign } from '@/services/campaignPersistence/CampaignPersistenceService';
 import {
@@ -151,17 +150,11 @@ describe('campaign adopt route', () => {
 
     const result = await call('POST', { envelope: collided });
 
-    // The import is inert while the cutover flag is off, so the rejection
-    // only reaches the route once journal authority is on. Stated as a
-    // flag-derived expectation rather than an either/or, so this row still
-    // says something true - and starts asserting the interesting half the
-    // day 5.7 flips the flag.
-    if (CAMPAIGN_JOURNAL_AUTHORITY_ENABLED) {
-      expect(result.status).toBe(500);
-      expect(readCampaign(CAMPAIGN_ID).kind).toBe('not_found');
-    } else {
-      expect(result.status).toBe(201);
-    }
+    // Journal authority is on, so the adoption imports the genesis before
+    // it creates the record: the projection's refusal answers 500 and the
+    // id is left with no record.
+    expect(result.status).toBe(500);
+    expect(readCampaign(CAMPAIGN_ID).kind).toBe('not_found');
   });
 
   it('allows only POST', async () => {

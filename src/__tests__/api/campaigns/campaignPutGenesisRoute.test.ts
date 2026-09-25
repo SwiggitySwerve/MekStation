@@ -1,9 +1,14 @@
 /**
- * Campaign PUT genesis marker through the live item route.
+ * Campaign PUT genesis through the live item route (U35's admission row
+ * (a), pinned by U35d). Journal authority is on in production with no
+ * override, so with no MEKSTATION_E2E_* key in the environment a create at
+ * baseVersion 0 appends the genesis snapshot, writes a journal-native
+ * marker with no imported baseline and leaves exactly one effective
+ * campaign branch row.
  *
- * Predicted red before the producers called the resolver: arming both
- * fixture keys still left the marker absent because the route passed
- * the hardcoded CAMPAIGN_JOURNAL_AUTHORITY_ENABLED constant.
+ * Red on the baseline before U35d: the constant was false and only the
+ * deleted e2e fixture arm could open the create's genesis, so the marker
+ * read not_found with no event and no branch row.
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
@@ -14,7 +19,6 @@ import type { SerializedCampaign } from '@/types/campaign/SerializedCampaign';
 
 import { buildPopulatedCampaign } from '@/lib/campaign/persistence/__tests__/campaignFixture';
 import { buildSerializedCampaign } from '@/lib/campaign/persistence/campaignEnvelope';
-import { CAMPAIGN_JOURNAL_AUTHORITY_E2E_ENV } from '@/lib/campaign/sync/campaignJournalAuthorityEnabled';
 import idHandler from '@/pages/api/campaigns/[id]';
 import { readCampaignMigrationMarker } from '@/services/campaignPersistence/CampaignMigrationMarkerStore';
 import {
@@ -61,53 +65,63 @@ function disjointEnvelope(campaignId: string): SerializedCampaign {
   );
 }
 
-describe('campaign PUT genesis marker', () => {
-  const savedMode = process.env.NEXT_PUBLIC_E2E_MODE;
-  const savedArm = process.env[CAMPAIGN_JOURNAL_AUTHORITY_E2E_ENV];
+/** The campaign stream's committed journal event types in revision order. */
+function campaignEventTypes(campaignId: string): string[] {
+  return (
+    getSQLiteService()
+      .getDatabase()
+      .prepare(
+        `SELECT event_type AS type FROM event_journal_events
+          WHERE stream_type = 'campaign' AND stream_id = ?
+          ORDER BY stream_revision`,
+      )
+      .all(campaignId) as { readonly type: string }[]
+  ).map((row) => row.type);
+}
 
+/** Counts the campaign stream's effective event_history_branches rows. */
+function effectiveCampaignBranchRows(campaignId: string): number {
+  const row = getSQLiteService()
+    .getDatabase()
+    .prepare(
+      `SELECT COUNT(*) AS count FROM event_history_branches b
+         JOIN event_history_effective_heads h
+           ON h.stream_type = b.stream_type AND h.stream_id = b.stream_id
+          AND h.branch_id = b.branch_id
+        WHERE b.stream_type = 'campaign' AND b.stream_id = ?
+          AND b.status = 'effective'`,
+    )
+    .get(campaignId) as { readonly count: number };
+  return row.count;
+}
+
+describe('campaign PUT genesis', () => {
   beforeEach(() => {
+    for (const key of Object.keys(process.env)) {
+      if (key.startsWith('MEKSTATION_E2E_')) delete process.env[key];
+    }
     resetSQLiteService();
     getSQLiteService({ path: ':memory:' }).initialize();
-    delete process.env.NEXT_PUBLIC_E2E_MODE;
-    delete process.env[CAMPAIGN_JOURNAL_AUTHORITY_E2E_ENV];
   });
 
   afterEach(() => {
-    restoreEnv('NEXT_PUBLIC_E2E_MODE', savedMode);
-    restoreEnv(CAMPAIGN_JOURNAL_AUTHORITY_E2E_ENV, savedArm);
     resetSQLiteService();
   });
 
-  it('writes the genesis marker only when the resolver is true', async () => {
-    const offId = 'camp-genesis-off';
-    const off = await callId('PUT', offId, {
-      envelope: disjointEnvelope(offId),
+  it('a create at baseVersion 0 appends the genesis, a journal-native marker and one effective campaign branch row', async () => {
+    const id = 'camp-genesis';
+    const put = await callId('PUT', id, {
+      envelope: disjointEnvelope(id),
       baseVersion: 0,
     });
-    expect(off.res._getStatusCode()).toBe(200);
-    expect(readCampaignMigrationMarker(offId).kind).toBe('not_found');
 
-    process.env.NEXT_PUBLIC_E2E_MODE = 'true';
-    process.env[CAMPAIGN_JOURNAL_AUTHORITY_E2E_ENV] = '1';
-    const onId = 'camp-genesis-on';
-    const on = await callId('PUT', onId, {
-      envelope: disjointEnvelope(onId),
-      baseVersion: 0,
-    });
-    expect(on.res._getStatusCode()).toBe(200);
-    const stored = readCampaignMigrationMarker(onId);
+    expect(put.res._getStatusCode()).toBe(200);
+    const stored = readCampaignMigrationMarker(id);
     expect(stored.kind).toBe('ok');
     if (stored.kind !== 'ok') return;
     expect(stored.marker.state).toBe('journal');
     expect(stored.marker.importedBaseline).toBeNull();
+    expect(campaignEventTypes(id)).toEqual(['CampaignSnapshotPublished']);
+    expect(effectiveCampaignBranchRows(id)).toBe(1);
   });
 });
-
-/** Restores a process env key so later suites cannot inherit this arm. */
-function restoreEnv(key: string, value: string | undefined): void {
-  if (value === undefined) {
-    delete process.env[key];
-    return;
-  }
-  process.env[key] = value;
-}

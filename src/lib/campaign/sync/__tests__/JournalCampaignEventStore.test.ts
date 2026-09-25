@@ -7,8 +7,9 @@
  * post-state digest committed on the terminal event; expected-revision race
  * losing cleanly with nothing applied; retry identity via duplicate-command
  * conflict; digest divergence detectability; and real-SQLite restart
- * recovery of the whole envelope. The cutover flag stays disabled — the
- * production factory keeps returning the in-memory store.
+ * recovery of the whole envelope. The cutover flag is on: the production
+ * factory returns the journal store to a caller that passes a journal
+ * factory and the in-memory store to one that passes none.
  *
  * @spec openspec/changes/design-campaign-authority-and-sync/design.md (D1, D10)
  * @spec openspec/changes/design-campaign-authority-and-sync/specs/coop-campaign-sync/spec.md
@@ -350,16 +351,17 @@ describe('JournalCampaignEventStore (in-memory journal)', () => {
     );
   });
 
-  it('keeps the production factory on the in-memory store while the flag is disabled', () => {
-    expect(CAMPAIGN_JOURNAL_AUTHORITY_ENABLED).toBe(false);
-    // The factory takes a thunk, and must not even CALL it while the
-    // flag is off - a caller on a request path would otherwise open the
-    // database for a branch that is never taken.
+  it('hands a caller with a journal factory the journal store now that the flag is on', () => {
+    expect(CAMPAIGN_JOURNAL_AUTHORITY_ENABLED).toBe(true);
+    // The factory takes a thunk and calls it once, on the branch that uses
+    // the journal it opens.
     const openJournal = jest.fn(() => journal);
     expect(
       createDefaultCampaignEventStore({ journal: openJournal }),
-    ).toBeInstanceOf(InMemoryCampaignEventStore);
-    expect(openJournal).not.toHaveBeenCalled();
+    ).toBeInstanceOf(JournalCampaignEventStore);
+    expect(openJournal).toHaveBeenCalledTimes(1);
+    // A caller with no journal factory (the browser-side co-op runtime)
+    // still gets the in-memory store.
     expect(createDefaultCampaignEventStore()).toBeInstanceOf(
       InMemoryCampaignEventStore,
     );
