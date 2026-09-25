@@ -18,6 +18,7 @@ import {
 } from './ICampaignEventStore';
 import {
   toJournalBatch,
+  type CampaignCommandCommitHook,
   type ICampaignJournalEnvelope,
 } from './JournalCampaignEventStore';
 
@@ -51,11 +52,6 @@ function receiptOf(
   };
 }
 
-/**
- * Commit campaign consequences and their combat-outcome receipt as one
- * transaction. The receipt lookup happens before journal append, so a replay
- * returns the original range without entering the consequence path.
- */
 let failReceiptInsertForTests = false;
 
 /** Test-only: crash between the consequence append and the receipt
@@ -65,6 +61,16 @@ export function _setFailReceiptInsertForTests(fail: boolean): void {
   failReceiptInsertForTests = fail;
 }
 
+/**
+ * Commit campaign consequences and their combat-outcome receipt as one
+ * immediate transaction. The receipt lookup happens before the journal
+ * append, so a duplicate or a different version of an accepted outcome
+ * answers from its receipt without appending. On the first receipt only,
+ * after the consequences and the receipt are written, `afterCommit` (the
+ * saved-record rewrite a server binder gives the store, U35g) runs on the
+ * transaction's handle, so a throw from it rolls the consequences and the
+ * receipt back.
+ */
 export async function appendCampaignCombatOutcomeBatch(
   journal: SQLiteEventJournalWriter<ICampaignJournalEnvelope>,
   input: {
@@ -75,6 +81,7 @@ export async function appendCampaignCombatOutcomeBatch(
     readonly events: readonly ICampaignEvent[];
     readonly expectedPostStateDigest: string;
   },
+  afterCommit?: CampaignCommandCommitHook,
 ): Promise<CampaignCombatOutcomeInboxResult> {
   const batch = toJournalBatch(input);
   return journal.appendWithExtension(batch, (db, append) => {
@@ -138,6 +145,7 @@ export async function appendCampaignCombatOutcomeBatch(
                @commandDigest, @firstStreamRevision, @lastStreamRevision,
                @firstCommitPosition, @lastCommitPosition, @receivedAt)`,
     ).run(receipt);
+    afterCommit?.(db, input.campaignId);
     return { kind: 'committed', receipt };
   });
 }

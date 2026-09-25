@@ -246,4 +246,25 @@ describe('projectCampaignActivityForViewer', () => {
       'acquisitions',
     ]);
   });
+
+  it('describes a status change carrying destroyed as destroyed, not repaired', () => {
+    const entries = projectCampaignActivityForViewer(
+      CAMPAIGN_ID,
+      [
+        event(0, 'RosterUnitChanged', {
+          change: 'repaired',
+          unit: {
+            unitId: 'unit-a',
+            designation: 'Atlas AS7-D',
+            status: 'destroyed',
+          },
+        }),
+      ],
+      GM_VIEWER,
+    );
+
+    expect(
+      entries.map(({ category, message }) => ({ category, message })),
+    ).toEqual([{ category: 'battle', message: 'Atlas AS7-D destroyed' }]);
+  });
 });

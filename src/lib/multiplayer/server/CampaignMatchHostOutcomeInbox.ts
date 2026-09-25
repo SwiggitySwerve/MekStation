@@ -131,6 +131,15 @@ function applyAll(
   );
 }
 
+/**
+ * The unsequenced campaign events of one combat outcome, validated against
+ * the host's current state: a SpendFunds debit when fundsDelta is negative,
+ * a SalvageAllocated credit of the salvage plus any positive fundsDelta,
+ * and one RosterUnitChanged 'repaired' per roster change carrying the unit
+ * as the ledger holds it with its status after the battle (destroyed
+ * included), or as sent when the ledger lacks it. A refused debit rejects
+ * the whole outcome.
+ */
 function deriveCombatOutcomeConsequences(
   host: Pick<
     ICampaignOutcomeInboxHost,
@@ -180,6 +189,7 @@ function deriveCombatOutcomeConsequences(
     });
   }
   for (const change of consequences.rosterChanges) {
+    const current = state.rosterUnits[change.unitId];
     events.push({
       type: 'RosterUnitChanged',
       campaignId: host.campaignId,
@@ -187,12 +197,23 @@ function deriveCombatOutcomeConsequences(
       ts,
       scope: 'campaign',
       payload: {
-        change: change.status === 'destroyed' ? 'removed' : 'repaired',
-        unit: {
-          unitId: change.unitId,
-          designation: change.designation,
-          status: change.status,
-        },
+        // Every roster change of a battle is a status change: a destroyed
+        // unit stays on the roster with status destroyed, available for
+        // salvage or repair decisions, and is never removed (owner decision
+        // OD-u35g-coop-outcome-rewrites-record).
+        change: 'repaired',
+        // The unit after the change: a unit the ledger holds keeps its own
+        // fields (catalog ref, source, designation) and takes the new
+        // status, so the reducer's replace does not drop what a record
+        // checkpoint re-projects; an unknown unit is described as sent.
+        unit:
+          current === undefined
+            ? {
+                unitId: change.unitId,
+                designation: change.designation,
+                status: change.status,
+              }
+            : { ...current, status: change.status },
       },
     });
   }

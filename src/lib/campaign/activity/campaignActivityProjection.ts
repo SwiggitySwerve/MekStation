@@ -164,6 +164,12 @@ function describeCampaignFact(
     }
     case 'RosterUnitChanged': {
       const { change, unit } = event.payload;
+      // A battle records a destroyed unit as a status change ('repaired'
+      // carrying status destroyed); the unit stays on the roster, so it
+      // reads as destroyed in battle, not as repaired work.
+      if (change === 'repaired' && unit.status === 'destroyed') {
+        return { category: 'battle', message: `${unit.designation} destroyed` };
+      }
       // A repair is technical work; gaining or losing a unit is a change
       // in what the force owns.
       return {

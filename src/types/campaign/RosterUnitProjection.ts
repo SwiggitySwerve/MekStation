@@ -104,10 +104,15 @@ export interface IRosterUnitProjection {
    */
   readonly chassisVariant: string;
   /**
-   * Derived display readiness. Cached on the projection for selector
-   * stability — the post-battle processor refreshes this when combat
-   * state changes. Always equals
-   * `deriveRosterReadiness(campaign.unitCombatStates[unitId])`.
+   * Display readiness, cached on the projection for selector stability.
+   * In the browser the post-battle processor refreshes it from
+   * `deriveRosterReadiness(campaign.unitCombatStates[unitId])` when combat
+   * state changes. On the saved record of a journal-native campaign, the
+   * record rewrite that runs after a journal command batch or a co-op
+   * combat outcome commits (`rewriteCampaignRecordAfterCommand`) sets it
+   * from the journal's roster status (operational, damaged, destroyed)
+   * without touching `unitCombatStates`, so there it can differ from the
+   * value the combat state derives.
    */
   readonly readiness: 'Ready' | 'Damaged' | 'Destroyed';
 }

@@ -255,9 +255,10 @@ export function toJournalBatch(input: {
 }
 
 /**
- * Runs on a SQLite journal writer's handle inside a campaign command's
- * append transaction, after the batch committed; a throw rolls the append
- * back. Server sites pass the saved-record rewrite (U35e).
+ * Runs on a SQLite journal writer's handle inside a campaign command's or
+ * combat outcome's append transaction, after the batch committed; a throw
+ * rolls the append back. Server sites pass the saved-record rewrite (U35e,
+ * U35g).
  */
 export type CampaignCommandCommitHook = (
   db: Database.Database,
@@ -464,6 +465,13 @@ export class JournalCampaignEventStore implements ICampaignEventStore {
     };
   };
 
+  /**
+   * One combat outcome's consequences and inbox receipt, committed through
+   * the SQLite journal's outcome inbox (throws on any other journal). A
+   * store a server binder gave `rewriteRecordAfterCommand` passes it, so
+   * the inbox rewrites the saved record in the append's transaction on the
+   * outcome's first receipt only (U35g).
+   */
   appendCombatOutcomeBatch = async (
     campaignId: string,
     input: {
@@ -477,10 +485,11 @@ export class JournalCampaignEventStore implements ICampaignEventStore {
     if (!(this.journal instanceof SQLiteEventJournalWriter)) {
       throw new Error('Campaign outcome inbox requires a SQLite journal');
     }
-    return appendCampaignCombatOutcomeBatch(this.journal, {
-      campaignId,
-      ...input,
-    });
+    return appendCampaignCombatOutcomeBatch(
+      this.journal,
+      { campaignId, ...input },
+      this.rewriteRecordAfterCommand,
+    );
   };
 
   appendEvent = async (

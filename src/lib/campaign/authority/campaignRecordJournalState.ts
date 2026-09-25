@@ -6,11 +6,11 @@
  * A record checkpoint snapshots the saved envelope, which does not represent
  * the journal's pilots, contracts or salvage pool; `readCampaignJournalState`
  * gives the checkpoint the journal's own values to carry forward. A campaign
- * command appends without touching the saved record; on a journal-native
- * campaign `rewriteCampaignRecordAfterCommand` writes the record back with
- * the command's balance and date at the next version, inside the command's
- * append transaction, so a save built before the command is refused (409)
- * instead of checkpointing over it.
+ * command or a combat outcome appends without touching the saved record; on
+ * a journal-native campaign `rewriteCampaignRecordAfterCommand` writes the
+ * record back with the journal's balance, date and roster readiness at the
+ * next version, inside the append's transaction, so a save built before the
+ * append is refused (409) instead of checkpointing over it (U35e, U35g).
  *
  * Both run synchronously on a journal writer's borrowed handle.
  *
@@ -64,13 +64,13 @@ export function readCampaignJournalState(
 }
 
 /**
- * After a campaign command committed on `db` (and inside its transaction,
- * so a throw here rolls the append back): write the campaign's stored
- * record back at version + 1 with the balance and current date of the
- * journal's post-command state. Writes nothing when the campaign has no
- * saved record, or when its cutover marker is not in journal state (then
- * the record, not the journal, is the campaign's authority and a save does
- * not checkpoint over the journal).
+ * After a campaign command or a combat outcome committed on `db` (and inside
+ * its transaction, so a throw here rolls the append back): write the
+ * campaign's stored record back at version + 1 with the balance, current
+ * date and roster readiness of the journal's post-append state. Writes
+ * nothing when the campaign has no saved record, or when its cutover marker
+ * is not in journal state (then the record, not the journal, is the
+ * campaign's authority and a save does not checkpoint over the journal).
  */
 export function rewriteCampaignRecordAfterCommand(
   db: Database.Database,
@@ -95,12 +95,25 @@ export function rewriteCampaignRecordAfterCommand(
 }
 
 /**
+ * The record readiness of each journal roster status: the inverse of the
+ * checkpoint projection's readiness-to-status map (campaignSourceGenesis).
+ */
+const STATUS_READINESS = {
+  operational: 'Ready',
+  damaged: 'Damaged',
+  destroyed: 'Destroyed',
+} as const;
+
+/**
  * `stored` at `version` with `state`'s balance and, when the stored date
  * does not already map to `state.day`, the campaign start date plus
  * `state.day` calendar days (the inverse of the projection's day). A record
- * with no start date keeps its date: its projected day is always 0. Every
- * other field, faction standing included (no command event changes it),
- * is kept as stored.
+ * with no start date keeps its date: its projected day is always 0. Each
+ * roster projection unit the journal also holds takes the readiness of its
+ * journal status; a projection unit the journal lacks, the projection's
+ * other fields and force membership are kept, and a record without a roster
+ * projection gains none. Every other field, faction standing included (no
+ * command or outcome event changes it), is kept as stored.
  */
 function recordAtJournalState(
   stored: SerializedCampaign,
@@ -113,6 +126,7 @@ function recordAtJournalState(
     start !== undefined && dayBetween(start, body.currentDate) !== state.day
       ? addCampaignDays(new Date(start), state.day).toISOString()
       : body.currentDate;
+  const roster = body.rosterProjection;
   return {
     ...stored,
     version,
@@ -120,6 +134,19 @@ function recordAtJournalState(
       ...body,
       currentDate,
       finances: { ...body.finances, balance: state.balance },
+      ...(roster === undefined
+        ? {}
+        : {
+            rosterProjection: {
+              ...roster,
+              units: roster.units.map((unit) => {
+                const journal = state.rosterUnits[unit.unitId];
+                return journal === undefined
+                  ? unit
+                  : { ...unit, readiness: STATUS_READINESS[journal.status] };
+              }),
+            },
+          }),
     },
   };
 }
