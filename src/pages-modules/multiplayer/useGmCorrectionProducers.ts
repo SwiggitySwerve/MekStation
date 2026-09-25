@@ -16,16 +16,15 @@
  * It is never React state, never a store, never part of the preview
  * request, never rendered, and never put on the wire by anything here.
  *
- * NOT YET DELIVERED - the transport DROPS the field. `commitGmCombatRewind`
- * serialises a fixed five-field body (targetRevision, expectedBranchId,
- * expectedRevision, expectedDigest, expectedGeneration), and the route it
- * posts to takes `IRewindCommitBody`, which has no `reason`, then writes
- * the module constant `REWIND_COMMIT_REASON` into the private record. So
- * on this head a reason the GM types is captured, is handed to the commit
- * adapter, and goes no further. Both of those files sit outside this
- * unit's ownership; a narrow successor under R2.combat / R2.authority-live
- * adds `reason` to the transport body, to `IRewindCommitBody` and to the
- * private-record write, and only then does E2E-25's server half hold.
+ * WHERE THE REASON GOES AFTER THIS HOOK. `commitGmCombatRewind` posts the
+ * five CAS fields (targetRevision, expectedBranchId, expectedRevision,
+ * expectedDigest, expectedGeneration) and adds `reason` when the trimmed
+ * reason is not empty. The rewind-commit route takes it as the optional
+ * `reason` of `IRewindCommitBody`, answers 400 unless its trimmed length
+ * is 1 to 2000 UTF-16 code units, and, when the rewind commits, writes it
+ * to the GM private record. The history commit itself still carries the
+ * route's `REWIND_COMMIT_REASON` constant as its reason; the GM's text is
+ * stored only in that private record.
  *
  * @spec openspec/changes/harden-gm-two-player-campaign-sessions/specs/e2e-testing/spec.md
  */

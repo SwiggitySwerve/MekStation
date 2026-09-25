@@ -160,10 +160,14 @@ describe('narrow-viewport contract at mobile-375', () => {
     // On a wrapping row the earliest controls are the ones that stay on
     // the first line as width shrinks. Approve and Veto are what the host
     // came to the queue to do; Manual and GM Fix are escape hatches.
+    // Their handlers are passed because a secondary control renders only
+    // when a handler for it exists (U36); the order is what is pinned.
     render(
       <HostGmReviewSurface
         pending={[pendingProposal('p1')]}
         onDecide={() => {}}
+        onManualTakeover={jest.fn()}
+        onGmCorrection={jest.fn()}
         lifecycle={deriveGmLifecyclePosture({
           refusal: null,
           pendingProposalCount: 1,

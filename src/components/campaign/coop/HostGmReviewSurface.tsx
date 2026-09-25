@@ -45,6 +45,12 @@ export interface HostGmReviewSurfaceProps {
    * `CampaignGmArbiter.decide(proposalId, decision)`.
    */
   readonly onDecide: (proposalId: string, decision: GmDecision) => void;
+  /**
+   * The secondary controls. Each renders only when its handler is
+   * supplied: a Preview, Manual or GM Fix button with nothing behind it
+   * would be a control that does nothing when pressed. The dashboard
+   * mount supplies none of them, so it shows Approve and Veto only.
+   */
   readonly onPreview?: (proposalId: string) => void;
   readonly onManualTakeover?: (proposalId: string) => void;
   readonly onGmCorrection?: (proposalId: string) => void;
@@ -127,7 +133,9 @@ const GM_BLOCKED_REASON_ID = 'gm-command-blocked-reason';
 
 /**
  * The host's GM review surface — a list of pending guest proposals,
- * each with campaign context and an approve / veto control pair.
+ * each with campaign context and an approve / veto control pair, plus a
+ * Preview, Manual or GM Fix button for each of those handlers the caller
+ * supplies (none is rendered without its handler).
  *
  * In `auto-approve` mode the pending queue is always empty, so the
  * surface renders an explicit empty state.
@@ -135,9 +143,9 @@ const GM_BLOCKED_REASON_ID = 'gm-command-blocked-reason';
 export function HostGmReviewSurface({
   pending,
   onDecide,
-  onPreview = () => {},
-  onManualTakeover = () => {},
-  onGmCorrection = () => {},
+  onPreview,
+  onManualTakeover,
+  onGmCorrection,
   authorityProjection,
   lifecycle,
   onClearLifecycleRefusal = () => {},
@@ -390,14 +398,16 @@ export function HostGmReviewSurface({
 
               {/* Decision controls. */}
               <div className="mt-3 flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  data-testid={`preview-${entry.proposal.proposalId}`}
-                  onClick={() => onPreview(entry.proposal.proposalId)}
-                  className="rounded-lg border border-sky-500/50 bg-sky-600/20 px-3 py-1.5 text-sm font-medium text-sky-200 hover:bg-sky-600/30"
-                >
-                  Preview
-                </button>
+                {onPreview && (
+                  <button
+                    type="button"
+                    data-testid={`preview-${entry.proposal.proposalId}`}
+                    onClick={() => onPreview(entry.proposal.proposalId)}
+                    className="rounded-lg border border-sky-500/50 bg-sky-600/20 px-3 py-1.5 text-sm font-medium text-sky-200 hover:bg-sky-600/30"
+                  >
+                    Preview
+                  </button>
+                )}
                 <button
                   type="button"
                   data-testid={`approve-${entry.proposal.proposalId}`}
@@ -448,22 +458,26 @@ export function HostGmReviewSurface({
                 >
                   Veto
                 </button>
-                <button
-                  type="button"
-                  data-testid={`manual-takeover-${entry.proposal.proposalId}`}
-                  onClick={() => onManualTakeover(entry.proposal.proposalId)}
-                  className="rounded-lg border border-amber-500/50 bg-amber-600/20 px-3 py-1.5 text-sm font-medium text-amber-200 hover:bg-amber-600/30"
-                >
-                  Manual
-                </button>
-                <button
-                  type="button"
-                  data-testid={`gm-correction-${entry.proposal.proposalId}`}
-                  onClick={() => onGmCorrection(entry.proposal.proposalId)}
-                  className="rounded-lg border border-violet-500/50 bg-violet-600/20 px-3 py-1.5 text-sm font-medium text-violet-200 hover:bg-violet-600/30"
-                >
-                  GM Fix
-                </button>
+                {onManualTakeover && (
+                  <button
+                    type="button"
+                    data-testid={`manual-takeover-${entry.proposal.proposalId}`}
+                    onClick={() => onManualTakeover(entry.proposal.proposalId)}
+                    className="rounded-lg border border-amber-500/50 bg-amber-600/20 px-3 py-1.5 text-sm font-medium text-amber-200 hover:bg-amber-600/30"
+                  >
+                    Manual
+                  </button>
+                )}
+                {onGmCorrection && (
+                  <button
+                    type="button"
+                    data-testid={`gm-correction-${entry.proposal.proposalId}`}
+                    onClick={() => onGmCorrection(entry.proposal.proposalId)}
+                    className="rounded-lg border border-violet-500/50 bg-violet-600/20 px-3 py-1.5 text-sm font-medium text-violet-200 hover:bg-violet-600/30"
+                  >
+                    GM Fix
+                  </button>
+                )}
               </div>
             </li>
           ))}
