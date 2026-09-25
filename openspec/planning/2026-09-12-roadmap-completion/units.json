@@ -2254,6 +2254,53 @@
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
+        "admission": {
+          "path": "evidence/u90-admission-20260925.json",
+          "status": "BLOCKED"
+        },
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "state": "blocked",
+      "id": "U90",
+      "node": "R2.multiplayer-client",
+      "behavior": "On the co-op host dashboard, the preview, manual takeover and GM correction controls are rendered and work, per openspec/specs/coop-campaign-sync/spec.md:491-493 (the host command screen exposes preview, approve, veto, manual takeover and GM correction). After U36 the dashboard mount (src/components/campaign/coop/CampaignCoopRouteSurface.tsx:378-384) passes HostGmReviewSurface only onDecide, so those three are absent there, while the GM ledger route wires them (src/components/campaign/gm/GmCampaignInterventionControlPlane.tsx:393 passes a real manual takeover). Admission decides, with file:line, whether the dashboard mount receives the same producers the ledger route uses or a link to that route's controls, and stops for a path amendment if the wiring needs src/components/campaign/gm or a page module. Red first: jest at the dashboard mount renders none of the three today (the U36 dead-controls rows); green: each renders and its press reaches its producer once.",
+      "ownershipPaths": [
+        "src/components/campaign/coop"
+      ],
+      "reviewClasses": [
+        "authority"
+      ],
+      "source20260925": "planned by the parent under the owner's U36 ruling \"Approve, plan the wiring unit (Recommended)\" (working session of 2026-09-25), which kept the spec clause over a spec delta",
+      "blocked20260925": {
+        "at": "2026-09-25T22:27:21.000Z",
+        "cause": "nothing to wire the three dashboard controls to: the GM ledger route's preview and manual takeover act on an in-memory intervention ledger with a canned correction (they take no proposal; GmCampaignInterventionActions.tsx:117-129, GmCampaignInterventionControlPlane.tsx:325-359), its GM correction is 'approve cascade' writing only the local store, and the co-op wire carries decision: approve | veto for a proposal (src/types/multiplayer/Protocol.ts:475-482); no spec defines preview, manual takeover or GM correction for a guest proposal",
+        "nextIndependentAction": "U91 (a spec delta naming which host screen carries which controls) supersedes this unit; per-proposal intervention controls are not planned",
+        "proof": "evidence/u90-admission-20260925.json"
+      },
+      "superseded20260925": {
+        "at": "2026-09-25T22:27:21.000Z",
+        "by": "U91",
+        "ownerWords": "Spec delta, U90 superseded (Recommended)",
+        "note": "the owner's U36 ruling chose a wiring unit on the parent's description that the controls were dead but wirable; U90's admission measured that they are not, so the owner revised the choice on that new information"
+      }
+    },
+    {
+      "taskKeys": [],
+      "ciClass": "product",
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
         "admission": null,
         "red": null,
         "local": null,
@@ -2264,16 +2311,51 @@
       },
       "ownerGate": null,
       "state": "planned",
-      "id": "U90",
-      "node": "R2.multiplayer-client",
-      "behavior": "On the co-op host dashboard, the preview, manual takeover and GM correction controls are rendered and work, per openspec/specs/coop-campaign-sync/spec.md:491-493 (the host command screen exposes preview, approve, veto, manual takeover and GM correction). After U36 the dashboard mount (src/components/campaign/coop/CampaignCoopRouteSurface.tsx:378-384) passes HostGmReviewSurface only onDecide, so those three are absent there, while the GM ledger route wires them (src/components/campaign/gm/GmCampaignInterventionControlPlane.tsx:393 passes a real manual takeover). Admission decides, with file:line, whether the dashboard mount receives the same producers the ledger route uses or a link to that route's controls, and stops for a path amendment if the wiring needs src/components/campaign/gm or a page module. Red first: jest at the dashboard mount renders none of the three today (the U36 dead-controls rows); green: each renders and its press reaches its producer once.",
+      "id": "U91",
+      "node": "R6.umbrella",
+      "behavior": "The harden change's coop-campaign-sync delta (openspec/changes/harden-gm-two-player-campaign-sessions/specs/coop-campaign-sync/spec.md) gains a MODIFIED requirement 'Co-op campaign command authority projection' (openspec/specs/coop-campaign-sync/spec.md:488-497): the co-op host command screen SHALL expose approve and veto for each pending proposal; the GM intervention controls (preview, manual takeover, GM correction) SHALL be exposed on the host's GM ledger route, which the co-op dashboard's GM Ledger tab reaches (src/components/campaign/CampaignNavigation.tsx:78, :166-171); the guest scenario is unchanged. The full final requirement text is carried so the archive replaces the header. openspec validate --strict passes; the U36 dead-controls rows (src/components/campaign/coop/__tests__/HostGmReviewSurface.deadControls.test.tsx) stay the pins and are cited in the requirement's scenario. No product file changes (the validator derives the product ci class from the change's path; the unit edits only the delta spec).",
       "ownershipPaths": [
-        "src/components/campaign/coop"
+        "openspec/changes/harden-gm-two-player-campaign-sessions"
       ],
       "reviewClasses": [
-        "authority"
+        "routine"
       ],
-      "source20260925": "planned by the parent under the owner's U36 ruling \"Approve, plan the wiring unit (Recommended)\" (working session of 2026-09-25), which kept the spec clause over a spec delta"
+      "source20260925": "planned by the parent under the owner's answer \"Spec delta, U90 superseded (Recommended)\" (PK-u90-controls, working session of 2026-09-25)"
+    },
+    {
+      "taskKeys": [],
+      "ciClass": "product",
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "state": "blocked",
+      "id": "U92",
+      "node": "R2.authority-live",
+      "behavior": "A GM intervention approved on the co-op host's GM ledger route reaches the guest. Today handleApprove writes only the host's local campaign store (src/components/campaign/gm/GmCampaignInterventionControlPlane.tsx:255-323; the ledger page callback gm-ledger.tsx:42-50), and no code path commits it through the campaign authority (grep of the ledger path for co-op authority calls: 0), so the guest never sees the public net effect that openspec/specs/coop-campaign-sync/spec.md:499-504 requires, and a funds correction on the host is reset by the next accepted frame (src/lib/campaign/coop/campaignMirrorProjection.ts:27-30). After: on a co-op campaign the approved intervention commits through the campaign authority as a host command on the campaign stream, so the host's saved record and the guest's mirror both carry its net effect, and the guest's frame carries the redacted public result only (no rationale, no hidden correction context). Admission decides, with file:line, the command shape (an existing campaign intent that carries the projection's updates, or a new command needing src/types/campaign and Protocol changes, which stops admission for a path amendment) and how the host's own balance survives the mirror reset. Red first, live on two browsers on the journal-authority head: the host approves a funds correction; the guest's balance and feed do not change on the baseline; after, they do, and the guest's frame carries no private field.",
+      "ownershipPaths": [
+        "src/lib/campaign",
+        "src/lib/multiplayer/server"
+      ],
+      "reviewClasses": [
+        "authority",
+        "privacy"
+      ],
+      "admitAfter20260925": "U35d main-verified (the intervention commits through the journal authority); --next cannot express a unit dependency, so the parent checks it at admission",
+      "source20260925": "planned by the parent under the owner's answer \"Plan a unit now (Recommended)\" on U90's admission finding (working session of 2026-09-25)"
     },
     {
       "id": "U36",
@@ -8056,7 +8138,11 @@
         "postedBy": "parent on the owner's instruction (the comment quotes the owner's words verbatim)",
         "deviationDisclosed": "DELIVERY.md says the owner posts the ruling out of band; the owner approved this unit by description in chat (words quoted in the comment) after the parent explained it in plain language and reported Lane A's verdict and the check set on the head, and the parent composed and posted the comment from the owner GitHub account and applied the label; the parent supplied the head from the ledger, as in the earlier rulings of this loop"
       },
-      "note": "opened when the owner ruled, 2026-09-22 (the cutover sequence's units carry no pre-opened ruling packets)"
+      "note": "opened when the owner ruled, 2026-09-22 (the cutover sequence's units carry no pre-opened ruling packets)",
+      "revised20260925": {
+        "at": "2026-09-25T22:27:21.000Z",
+        "note": "the ruling's 'plan the wiring unit' choice was made on the parent's description that the three dashboard controls were dead but wirable; U90's admission measured they are not wirable per proposal, and the owner chose the spec delta instead (PK-u90-controls)"
+      }
     },
     {
       "id": "PK-u35j-ruling",
@@ -8099,6 +8185,46 @@
         "deviationDisclosed": "DELIVERY.md says the owner posts the ruling out of band; the owner approved this unit by description in chat (words quoted in the comment) after the parent explained it in plain language and reported Lane A's verdict and the check set on the head, and the parent composed and posted the comment from the owner GitHub account and applied the label; the parent supplied the head from the ledger, as in the earlier rulings of this loop"
       },
       "note": "opened when the owner ruled, 2026-09-22 (the cutover sequence's units carry no pre-opened ruling packets)"
+    },
+    {
+      "id": "PK-u90-controls",
+      "blocks": [
+        "U90"
+      ],
+      "nodes": [
+        "R2.multiplayer-client"
+      ],
+      "taskKeys": [],
+      "question": "The co-op host dashboard cannot wire preview, manual takeover and GM correction per proposal (U90's admission, evidence/u90-admission-20260925.json): the ledger route's producers take no proposal, the wire carries approve | veto only, and no spec defines the three controls for a guest proposal. How does the spec clause coop-campaign-sync:491-493 get met?",
+      "options": [
+        {
+          "label": "D: spec delta naming which screen carries which controls; U90 superseded",
+          "consequence": "a docs unit adds a MODIFIED requirement to the harden change's coop-campaign-sync delta: approve and veto per proposal on the co-op command screen; preview, manual takeover and GM correction on the host's GM ledger route, reached from the dashboard's GM Ledger tab; the U36 dead-controls rows stay the pins",
+          "effort": "0.25 day"
+        },
+        {
+          "label": "C1 now, C2 later: a per-row Preview running validateCampaignIntent; per-row takeover and correction after a spec delta plus a wire-contract change",
+          "consequence": "about 90 product lines inside src/components/campaign/coop for C1; C2 spans Protocol.ts, CoopCampaign.ts, the host intent validator and the surfaces (7+ files, more than one unit)",
+          "effort": "0.5 day for C1; 2+ days for C2"
+        },
+        {
+          "label": "A: mount the ledger route's control plane on the dashboard (not per proposal)",
+          "consequence": "about 32 product lines; the ledger's funds corrections are reset by every accepted co-op frame (campaignMirrorProjection.ts:27-30) and a correction never reaches the guest, so the dashboard would copy the ledger route's existing gap",
+          "effort": "0.25 day plus the gap"
+        }
+      ],
+      "agentRecommendation": "D: the clause lists intervention controls next to proposal review; the lane's reading (controls on the co-op screen for the commands it shows) cannot be met without a wire-contract change and a spec decision on what the three controls do to a guest proposal; the lane itself recommended parking with this packet",
+      "revertCost": "none for D (a spec delta); C1/C2 or A can still be planned later from the same receipt",
+      "decision": {
+        "at": "2026-09-25T22:27:21.000Z",
+        "option": "D",
+        "text": "a spec delta names which host screen carries which controls (U91); U90 is superseded; per-proposal intervention controls are not planned",
+        "source": "owner answer \"Spec delta, U90 superseded (Recommended)\" in a structured question the parent worded in the working session of 2026-09-25; the parent transcribed the answer",
+        "units": [
+          "U91"
+        ]
+      },
+      "ruling": null
     }
   ],
   "deferrals": [
@@ -8973,7 +9099,7 @@
       "class": "living-spec gap (predates U36)",
       "summary": "openspec/specs/coop-campaign-sync/spec.md:491-493 (scenario 'Host sees authoritative campaign commands') says a co-op campaign command screen SHALL expose preview, approve, veto, manual takeover and GM correction controls. On the baseline the co-op dashboard's review surface rendered all five, but preview, manual takeover and GM correction were no-ops (HostGmReviewSurface.tsx:138-140 defaults; CampaignCoopRouteSurface.tsx:378-384 passes none of them). After U36 it renders only approve and veto, the two that work. The GM ledger route still has preview, approve and manual takeover.",
       "recommendedSuccessor": "owner decision: wire real preview, manual takeover and GM correction on the co-op host dashboard in a new unit, or a spec delta naming which host screens carry which controls",
-      "status": "decided 2026-09-25 by the owner's U36 ruling: the spec clause stands; U90 wires the three controls on the co-op dashboard"
+      "status": "revised 2026-09-25: U90 measured that the three controls cannot be wired per proposal (BLOCKED at admission); the owner chose a spec delta (U91) naming which host screen carries which controls"
     },
     {
       "id": "FN-u36-remaining-noop-defaults",
@@ -9018,6 +9144,24 @@
       "class": "stale comments",
       "summary": "src/lib/events/replay/__tests__/ReplayBaselineDomainRegistry.test.ts:5 says '7 campaign' where the count is 8; the pack's @spec path points to a change that has been archived.",
       "recommendedSuccessor": "fold into the next unit that edits those files",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u90-coop-gm-intervention-never-reaches-guest",
+      "foundBy": "U90 implementer lane (claude-opus), 2026-09-25, admission (read from the code; the guest's view not run)",
+      "at": "2026-09-25T22:27:21.000Z",
+      "class": "spec SHALL unmet (code-verified path absence)",
+      "summary": "A GM intervention approved on the co-op host's GM ledger route writes only the host's local campaign store (GmCampaignInterventionControlPlane.tsx:255-323, gm-ledger.tsx:42-50); no path commits it through the campaign authority, so the guest never receives the public net effect coop-campaign-sync:499-504 requires; a funds correction on the host is also reset by the next accepted frame (campaignMirrorProjection.ts:27-30).",
+      "recommendedSuccessor": "U92",
+      "status": "recorded; U92 planned (blocked after U35d); UAT round 1 register known issue 10"
+    },
+    {
+      "id": "FN-u90-coop-route-surface-stale-prop-comments",
+      "foundBy": "U90 implementer lane (claude-opus), 2026-09-25, admission",
+      "at": "2026-09-25T22:27:21.000Z",
+      "class": "stale comments",
+      "summary": "src/components/campaign/coop/CampaignCoopRouteSurface.tsx:193-202 say the pending proposals and onDecide are stubs for a later wave; CampaignCoopRouteSurfaceConnected.tsx:394 and :396 pass live ones.",
+      "recommendedSuccessor": "fold into the next unit that edits src/components/campaign/coop",
       "status": "recorded"
     }
   ]

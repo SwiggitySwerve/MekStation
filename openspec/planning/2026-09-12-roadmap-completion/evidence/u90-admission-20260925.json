@@ -1,0 +1,380 @@
+{
+  "unit": "U90",
+  "stage": "admission",
+  "status": "BLOCKED",
+  "at": "2026-09-25T22:20:01.548Z",
+  "baseline": "5a3e87f8ca4876ed36a3b186e56ba1211137cb12",
+  "originMainAtAdmission": "5a3e87f8ca4876ed36a3b186e56ba1211137cb12",
+  "originMainLsRemote": "5a3e87f8ca4876ed36a3b186e56ba1211137cb12\trefs/heads/main",
+  "baselineEqualsOriginMain": true,
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u90",
+  "branch": "roadmap-u90-coop-dashboard-gm-controls-20260925",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "node": "R2.multiplayer-client",
+  "ownershipPaths": [
+    "src/components/campaign/coop"
+  ],
+  "reviewClasses": [
+    "authority"
+  ],
+  "behavior": "units.json U90 behavior sentence, not widened: on the co-op host dashboard the preview, manual takeover and GM correction controls are rendered and work, per openspec/specs/coop-campaign-sync/spec.md:491-493; admission decides whether the dashboard mount receives the same producers the GM ledger route uses or a link to that route's controls, and stops for a path amendment if the wiring needs src/components/campaign/gm or a page module.",
+  "stoppedAt": "admission. No product or test file was edited; the red and local stages were not run (the charter: stop at admission with status BLOCKED).",
+  "shellPreamble": [
+    "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "export npm_config_dry_run=true"
+  ],
+  "runners": {
+    "admissionGates": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u90/admission-gates.sh",
+      "sha256": "26a4ffd3e9148f7ee825e6273681e8b554fa93a99a5ef2d25178a7e88a96c97e"
+    },
+    "receiptWriter": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u90/write-admission.mjs",
+      "sha256": "d337250a72a11f012d571cdd101f052f49c37e7c7f35c91d7acc28999bca4eaf"
+    }
+  },
+  "gates": {
+    "nodeVersion": {
+      "command": "node --version",
+      "lastLine": "v22.22.0",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u90/logs/adm-node-version.log",
+        "sha256": "2172da60c75bfe844a5f085d0b225e7042f650910fb423c59d7f4a937afb0b56"
+      }
+    },
+    "guardNodeModulesLink": {
+      "command": "npm run --silent qc:guard-node-modules-link",
+      "lastLine": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"E:\\\\Projects\\\\MekStation\\\\.sisyphus\\\\roadmap-completion-20260912\\\\worktrees\\\\u90\\\\node_modules\",\"actualPath\":\"E:\\\\Projects\\\\MekStation\\\\node_modules\"}",
+      "exitCode": 1,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u90/logs/adm-guard.log",
+        "sha256": "d09aa0ad5a64ffe412ea2007f1cce4c5fc2dbec103d3da9b970a605ae9a84c72"
+      },
+      "expected": true,
+      "why": "refusal by design in a junctioned worktree; no npm install/ci/prune or lifecycle was run in this lane (npm_config_dry_run=true exported)"
+    },
+    "gitStatus": {
+      "command": "git status --short",
+      "lastLine": "",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u90/logs/adm-status.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "note": "empty output = clean tree at admission"
+    },
+    "head": {
+      "command": "git rev-parse HEAD",
+      "lastLine": "5a3e87f8ca4876ed36a3b186e56ba1211137cb12",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u90/logs/adm-head.log",
+        "sha256": "efb8b752810b7dd0fb584ef38885170268b7a0b3561c9d6fc053f6c8e1cd2fe3"
+      }
+    },
+    "originMain": {
+      "command": "git rev-parse origin/main",
+      "lastLine": "5a3e87f8ca4876ed36a3b186e56ba1211137cb12",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u90/logs/adm-origin-main.log",
+        "sha256": "efb8b752810b7dd0fb584ef38885170268b7a0b3561c9d6fc053f6c8e1cd2fe3"
+      }
+    },
+    "lsRemote": {
+      "command": "git ls-remote origin refs/heads/main",
+      "lastLine": "5a3e87f8ca4876ed36a3b186e56ba1211137cb12\trefs/heads/main",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u90/logs/adm-ls-remote.log",
+        "sha256": "0b98df2d18bdf1ba69225266e25c3243da23532f1925ff46b7641dc26fc1246a"
+      },
+      "note": "read-only; no fetch"
+    },
+    "validatorOnBaseline": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u90/logs/adm-validator.log",
+        "sha256": "97b2f29d264078525a55c5f88586fb95603311fa065e70d7d17c5fab08f5b5bc"
+      }
+    },
+    "validatorNextOnBaseline": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+      "lastLine": "U35d",
+      "exitCode": 0,
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u90/logs/adm-next.log",
+        "sha256": "715b8ca2001b54523484886b77e8e0a180fd0933cb694fdfa3c2bf99da14eb6c"
+      },
+      "note": "prints U35d, as it did for the parent; U35d is in flight in worktrees/u35d. U90 owns src/components/campaign/coop only, recorded and continued per the charter"
+    }
+  },
+  "baselineFileHashes": [
+    {
+      "path": "src/components/campaign/coop/HostGmReviewSurface.tsx",
+      "sha256": "46f10f2fd6e0c56f757000c28465734a825fcf53bdda7cd27a08046c0eaf10ff"
+    },
+    {
+      "path": "src/components/campaign/coop/CampaignCoopRouteSurface.tsx",
+      "sha256": "a63d215d3e102f839c65c56b5d31adc56d15e18b19f9f8e4d2c6750b044d0173"
+    },
+    {
+      "path": "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+      "sha256": "c332fd251e0340cc2512318b748c668aa80e00eac56c32a97b5bd607b25f8487"
+    },
+    {
+      "path": "src/components/campaign/coop/__tests__/HostGmReviewSurface.deadControls.test.tsx",
+      "sha256": "4fd92c32d6d80131bfe25147ff0096d45fe92c7d0055b30592ed35b8454ae0f2"
+    },
+    {
+      "path": "src/components/campaign/gm/GmCampaignInterventionControlPlane.tsx",
+      "sha256": "5f971e5c59a2aec23f8d9f03816294ded2003b543be3f98814c4bf8b1fb57689"
+    },
+    {
+      "path": "src/components/campaign/gm/GmCampaignInterventionActions.tsx",
+      "sha256": "b00d943c9cb67d9c57d774b37359f7b1d2a8320cfaebe54bf5f7e473f01426fe"
+    },
+    {
+      "path": "src/components/campaign/gm/GmCampaignInterventionControlPlane.helpers.ts",
+      "sha256": "cc4e1b3492e5ec21666cbee5889fc2250238f7e223d29e17d11acddcd8e485da"
+    },
+    {
+      "path": "src/components/campaign/gm/index.ts",
+      "sha256": "3aef431dd8f6167f5487df778d7ba0a10135ccb18981ab51c1f637a04a720e9a"
+    },
+    {
+      "path": "src/pages/gameplay/campaigns/[id]/gm-ledger.tsx",
+      "sha256": "32ccc4bc96d42d7ca85a7c4606cda94cba668f995c5d1792f2e2a7bdf0923e9b"
+    },
+    {
+      "path": "src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.tsx",
+      "sha256": "f07894f83e470dec61235064793cd0010fa2a5f98610a8b242bc36a9d994f006"
+    },
+    {
+      "path": "src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.types.ts",
+      "sha256": "0259da9a6bd7a54dbf0557a4aca287d7250004c65595e044718940940b260850"
+    },
+    {
+      "path": "src/components/campaign/CampaignNavigation.tsx",
+      "sha256": "fedb11001f50bde6dfcae237b547ad621c8292f0b187799f942115ad24b9d07c"
+    },
+    {
+      "path": "src/lib/multiplayer/server/CampaignGmArbiter.ts",
+      "sha256": "ab6482f3d854d2b6586b2a76efe89529f27b5b2d4edcfa677cdb9f0fea1f64d1"
+    },
+    {
+      "path": "src/lib/multiplayer/server/CampaignMatchHostIntent.ts",
+      "sha256": "024b8777c2f5bb898aa3bc0fa75abf89d58642de6c748ad31b79350098cbcc75"
+    },
+    {
+      "path": "src/lib/campaign/coop/campaignSyncTransport.ts",
+      "sha256": "57b5fe53121d21b27d5512a2b31a5e46d8bf8a4daa2ea4a2dda57b4001dbe560"
+    },
+    {
+      "path": "src/lib/campaign/coop/coopRuntimeSession.ts",
+      "sha256": "141d9627958170c7fee2f69c4e508f3c53fa35a1eaacee22662efcf119665989"
+    },
+    {
+      "path": "src/lib/campaign/coop/campaignMirrorProjection.ts",
+      "sha256": "605ab452028a83171892671d392f2695116e46d15a99de8aab6c9506bb4394a0"
+    },
+    {
+      "path": "src/lib/campaign/coop/campaignAuthoritativeFold.ts",
+      "sha256": "d569a8ca6c63bc6d30ebb7ba9cbc0e83e730a1bf15afad8d1cfea61e90a55c48"
+    },
+    {
+      "path": "src/lib/interventions/GmCampaignInterventionProjection.ts",
+      "sha256": "23947e22af5b71cc45b5fa5bc60ee843425c108bb72756fe804533bfa5bab77f"
+    },
+    {
+      "path": "src/types/multiplayer/Protocol.ts",
+      "sha256": "a6ab3be97b33ade411ac9b7e376f36ce3a3aefdd93a80448d4e1aab40664e9dc"
+    },
+    {
+      "path": "src/types/campaign/CoopCampaign.ts",
+      "sha256": "07d97f0e7ae7b3036d89bdd9ac0bdf3b4a39179b2afc0b10bf9e9c228e0f2d79"
+    },
+    {
+      "path": "src/types/campaign/coopCampaignSchemas.ts",
+      "sha256": "a426dbc6f047ba320b6463d2aadda02e3416f6cd1f1b64e7502fba1afc52810c"
+    },
+    {
+      "path": "openspec/specs/coop-campaign-sync/spec.md",
+      "sha256": "780a1f1f69a4ba5186d2fdbc67e0c8277fabcc72ba92aa7e318812187215d3e5"
+    },
+    {
+      "path": "openspec/specs/gm-campaign-intervention-boundaries/spec.md",
+      "sha256": "e988b696eb41e951fd31b620884ab95b2cb53692844e95500cd18e70a48ab34b"
+    }
+  ],
+  "seams": {
+    "dashboardMount": {
+      "cited": "CampaignCoopRouteSurface.tsx:378-384",
+      "confirmed": "CampaignCoopRouteSurface.tsx:376-393 host branch; :378-384 <HostGmReviewSurface pending onDecide authorityProjection lifecycle onClearLifecycleRefusal />; no onPreview / onManualTakeover / onGmCorrection is passed, and CampaignCoopRouteSurfaceProps (:181-248) has no prop to forward them. The one production JSX mount of HostGmReviewSurface (grep of src, .storybook, e2e for <HostGmReviewSurface: CampaignCoopRouteSurface.tsx:378 plus stories and coop tests). Reached from CampaignDashboardPage.tsx:354-358 through CampaignCoopRouteSurfaceConnected.tsx:389-407."
+    },
+    "reviewSurfaceHandlers": {
+      "cited": "HostGmReviewSurface.tsx:54-56, near 401",
+      "confirmed": "HostGmReviewSurface.tsx:54-56 onPreview / onManualTakeover / onGmCorrection, each (proposalId: string) => void; rendered only when supplied: Preview :401-410 (testid preview-<id>), Manual :461-470 (manual-takeover-<id>), GM Fix :471-480 (gm-correction-<id>); each onClick calls its handler with entry.proposal.proposalId and nothing else."
+    },
+    "ledgerManualTakeover": {
+      "cited": "GmCampaignInterventionControlPlane.tsx:393",
+      "confirmed": "GmCampaignInterventionControlPlane.tsx:393 onManualTakeover={handleManualTakeover}; the handler is the component-local closure at :325-359."
+    },
+    "ledgerExports": {
+      "confirmed": "src/components/campaign/gm/index.ts:1-2 exports GmCampaignInterventionControlPlane and GmCampaignPlayerLedgerView only; no handler or hook is exported. The helpers file exports command builders (GmCampaignInterventionControlPlane.helpers.ts:67, :119) that build GM-authored commands from a campaign, not from a proposal."
+    },
+    "connectedScope": {
+      "confirmed": "CampaignCoopRouteSurfaceConnected.tsx:71 store = useCampaignStore(); :72-75 campaignId, coopMode, roomCode, matchId; :83 pending (IPendingProposal[]); :112-114 hostFold (authoritative fold; state null until the first accepted frame, campaignAuthoritativeFold.ts:41-44); :338-348 onDecide (transport.sendDecision when a host transport exists, else decideGuestProposal); :421-426 refreshSavedRecordAfterCommit (persistence store)."
+    }
+  },
+  "designAnswers": {
+    "q1_ledgerHandlersToday": {
+      "preview": {
+        "control": "GmCampaignInterventionActions.tsx:117-129 \"Generate correction\" (gm-ledger-preview-btn); the correction type comes from the select at :101-109 over the seven canned CORRECTION_OPTIONS (:21-38); :72-96 dispatches to one handler per type.",
+        "producer": "GmCampaignInterventionControlPlane.tsx:138-253 (handleMerchantPreview, handleRepairPreview, handleSalvagePreview, handleUnitReloadPreview, handleTimePreview): createGmCascadePreview (@/lib/interventions/GmCascadePreviewPipeline) over a component-local InterventionLedger (:77-86, one per mount) with a GM-authored command (buildMerchantReversalCommand helpers.ts:67-117, buildTimeCascadeCommand :119-180, GmCampaignBaseFixCommands.ts:12, :51, :91).",
+        "request": "none: the producer is an in-memory function call; no network request and no campaign mutation (the preview is held in component state :103).",
+        "resultSurface": "GmPreviewPanel (ControlPlane :396-402, GmCampaignPreviewPanels.tsx:20) and the status card (:379-382)."
+      },
+      "manualTakeover": {
+        "control": "GmCampaignInterventionActions.tsx:143-152 \"Take manual control\" (gm-ledger-manual-btn), disabled unless canTakeManualControl = preview?.status === requires-manual-takeover && !approvedApplied (ControlPlane :135-136).",
+        "producer": "handleManualTakeover (ControlPlane :325-359): returns without effect unless the control plane holds a preview with privateMetadata (:326); appends a status manual record to the local InterventionLedger (:331-349) and to the local ActionLedger (:351); campaign state is not changed (the record says so, :353).",
+        "request": "none: in-memory ledgers only; nothing is saved or sent.",
+        "resultSurface": "ManualTakeoverPanel (:404-406, GmCampaignPreviewPanels.tsx:149) and the player/GM ledger projections (:408-415)."
+      },
+      "gmCorrection": {
+        "control": "the ledger route has no control named GM correction: the correction IS the GM intervention generated by \"Generate correction\" and applied by \"Approve cascade\" (GmCampaignInterventionActions.tsx:130-139, gm-ledger-approve-btn, disabled unless canApprove, ControlPlane :134). The route spec names three controls: coop-campaign-sync spec.md:478 (preview, approval, manual-takeover).",
+        "producer": "handleApprove (ControlPlane :255-323): approveGmCascadePreview, then onApplyCampaignUpdate(result.state).",
+        "request": "the page callback gm-ledger.tsx:42-50: useCampaignStore().updateCampaign(updates) (the store is campaignPageShell.tsx:194), and markDirty only when the campaign has no coopSession (:46-48). No call reaches the co-op authority: grep of src/components/campaign/gm, gm-ledger.tsx and src/lib/interventions for campaignSyncTransport|coopRuntimeSession|CampaignMatchHost|sendHostIntent|lib/campaign/coop = 0 lines.",
+        "resultSurface": "GmPreviewPanel with the approved tag and the ledger projections (refreshLedgerRows :294, :322)."
+      }
+    },
+    "q2_connectedSurfaceScope": "In scope at CampaignCoopRouteSurfaceConnected.tsx: the full ICampaign (prop, :66-70), campaignId/coopMode/roomCode/matchId (:72-75), the campaign store (:71; the same useCampaignStore the ledger page writes through), the pending entries (:83) whose fields are proposal {proposalId, campaignId, proposingPlayerId, ts, intent} (CoopCampaign.ts:101-112), balanceAtSubmit, relevantStanding, effectSummary (CampaignGmArbiter.ts:77-89), the host fold (:112-114), the host transport (getActiveCampaignSyncTransport, :340) and the runtime session (coopRuntimeSession.ts:133-137). Nothing in scope is an intervention ledger, a correction command or a preview.",
+    "q3_isProposalIdEnough": "No. The ledger producers never take a proposal: createGmCascadePreview needs an IInterventionLedgerCommand (domain, kind, targetRefs, payload.correction family) and no code in src derives one from a guest proposal (grep of src/lib/interventions and src/components/campaign/gm for IGuestProposal|ICampaignIntent|proposalId|IPendingProposal = 0 lines). A proposal id identifies the pending entry and its intent, which is enough for a DIFFERENT producer: validateCampaignIntent (CampaignMatchHostIntent.ts:126-132, pure, covers all six intent kinds :146-236) is the check the authority runs at submit (CampaignGmArbiter.ts:421-437) and in the host commit doors (CampaignMatchHost.doors.ts:134, :161); it is not a producer the GM ledger route uses.",
+    "q4_manualTakeoverForAProposal": "Per gm-campaign-intervention-boundaries spec.md:66-70 and :166-168, manual takeover is the path for a PREVIEW whose automatic cascade conflicts: the approval pipeline SHALL NOT append the intervention automatically. It presupposes a preview with conflicts; the ledger handler enforces that (ControlPlane :135-136, :326). For a pending guest proposal no spec says what it does, and the arbiter and wire know two decisions only: GmDecision approve | veto (CoopCampaign.ts:126), CampaignDecisionSchema decision z.enum([approve, veto]) (Protocol.ts:475-482), GmDecisionSchema (coopCampaignSchemas.ts:48-51); the transport sends proposal, decision, host intent and participation only (campaignSyncTransport.ts:34-39); the arbiter operations on a proposal are submitProposal, decide and autoVetoForTimeout (CampaignGmArbiter.ts:286, :347, :388). The ledger handler is not reusable as is: it is a closure inside the control plane (not exported), takes no argument, and returns without effect when the control plane holds no preview (:326).",
+    "q5_impossibleWithoutEditOutsideCoop": "For the reading the charter's green rows state (each per-proposal button reaches the ledger's producer with the proposal id): all three are impossible from src/components/campaign/coop alone. The ledger producers are component-local closures (edit needed in src/components/campaign/gm to expose them), and even exposed they take no proposal (a semantic definition is missing, not only a path). Per-proposal manual takeover and GM correction additionally need a wire contract (Protocol.ts:475-482 and the schemas above). What IS possible inside coop: (A) mounting the ledger's whole control plane on the host dashboard (not per proposal), and (C1) a per-proposal preview through validateCampaignIntent (a producer the ledger route does not use)."
+  },
+  "readingOfTheSpecClause": {
+    "clause": "openspec/specs/coop-campaign-sync/spec.md:488-493: Requirement Co-op campaign command authority projection; Scenario Host sees authoritative campaign commands: the screen SHALL expose host-authorized preview, approve, veto, manual takeover, and GM correction controls for commands that affect campaign state.",
+    "readingTaken": "per-screen and per-command: the controls are exposed ON the co-op command screen (here the dashboard) for the commands it shows. A navigation link is not taken as meeting it.",
+    "whyNotTheLink": "The host dashboard already links to the ledger on the baseline: CampaignNavigation (mounted at CampaignDashboardPage.tsx:339-343) renders the GM Ledger tab for a host (CampaignNavigation.tsx:78, :166-171; campaignAuthority.ts:31-38 canUseGmControls true for mode host). Under the link reading the clause would already be met and U90 would change nothing. A per-row link would also be a proposal-labelled control that does nothing proposal-specific: gm-ledger.tsx:21-57 reads no query and its controls act on GM-authored canned corrections, and it has no distinct GM correction control.",
+    "whyTheSameProducersDoNotFitPerProposal": "see q3 and q4: the ledger producers act on GM-authored corrections, never on a guest proposal."
+  },
+  "blockingCause": "The charter's green (each per-proposal control renders on the dashboard mount and one press reaches its producer once with the proposal's id) has no producer to wire: the GM ledger route's preview, manual takeover and correction are not proposal-scoped, not exported, and take no argument; no producer in src takes a guest proposal as the target of a manual takeover or GM correction, and the wire carries approve | veto only. Choosing what each control does to a pending proposal is an authority-class design decision, not wiring, and a unit is never widened while it is worked (GOAL.md:15).",
+  "options": [
+    {
+      "id": "A",
+      "label": "mount the GM ledger control plane (the same producers) on the co-op host dashboard, not per proposal",
+      "pathAmendment": "none (inside src/components/campaign/coop; gm is imported, not edited)",
+      "exactEdit": [
+        "src/components/campaign/coop/CampaignCoopRouteSurface.tsx: import { GmCampaignInterventionControlPlane } from '@/components/campaign/gm'; add an optional prop onApplyGmCampaignUpdate?: (updates: GmCampaignUpdate) => void | Promise<void>; in the host branch (:376-393) render <GmCampaignInterventionControlPlane campaign={campaign} onApplyCampaignUpdate={onApplyGmCampaignUpdate} /> when it is supplied (host only; the guest branch :397-479 is untouched).",
+        "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx: pass onApplyGmCampaignUpdate={(updates) => store.getState().updateCampaign(updates)} (the ledger page's callback gm-ledger.tsx:42-50 minus markDirty, which that page skips for a co-op campaign)."
+      ],
+      "estimate": {
+        "product": [
+          {
+            "path": "src/components/campaign/coop/CampaignCoopRouteSurface.tsx",
+            "lines": "~+20"
+          },
+          {
+            "path": "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+            "lines": "~+12"
+          }
+        ],
+        "test": [
+          {
+            "path": "src/components/campaign/coop/__tests__/<new>.test.tsx",
+            "lines": "~150"
+          }
+        ],
+        "files": "2 product + 1 test + 3 receipts = 6 (cap 15)",
+        "productLines": "~32 (cap 500)"
+      },
+      "consequence": "The dashboard exposes preview (Generate correction), approve, manual takeover (Take manual control) and the GM correction lane, with the ledger's own producers and panels. The per-proposal rows still show Approve and Veto only. The charter's rows and mutants must be restated (the lane's handlers take no proposal id).",
+      "risk": "Authority (code-read, not executed): the lane writes only useCampaignStore (gm-ledger.tsx:42-50 pattern) and nothing reaches the co-op authority (0 lines, q1.gmCorrection.request); a funds correction sets finances.balance (GmCampaignInterventionProjection.ts:143-146) while the host fold projection rewrites finances.balance from the authoritative state on every accepted frame (campaignMirrorProjection.ts:27-30, called at CampaignCoopRouteSurfaceConnected.tsx:177-184 and :220-223). INFERENCE: an economy correction approved on a co-op host is replaced at the next accepted frame and never reaches the guest, which spec.md:499-504 requires; option A copies that pre-existing ledger-route gap onto the dashboard. Each mount also holds its own in-memory ledgers (ControlPlane :77-87), so a manual takeover recorded on the dashboard is not on the ledger route."
+    },
+    {
+      "id": "B",
+      "label": "a link from the dashboard to the GM ledger route",
+      "pathAmendment": "none",
+      "exactEdit": [
+        "not proposed: the reading is rejected (readingOfTheSpecClause.whyNotTheLink)"
+      ],
+      "consequence": "no behavior beyond the GM Ledger tab the host dashboard already renders."
+    },
+    {
+      "id": "C1",
+      "label": "per-proposal Preview through the authority's own admission check",
+      "pathAmendment": "none (validateCampaignIntent is imported from src/lib/multiplayer/server, not edited)",
+      "exactEdit": [
+        "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx: an onPreview(proposalId) that finds the pending entry and runs validateCampaignIntent(entry.proposal.intent, <authority state>, entry.proposal.proposingPlayerId, entry.proposal.ts), keeping the result per proposal id; the authority state is hostFold.current.state when a host transport exists (null until the first accepted frame, campaignAuthoritativeFold.ts:41-44) and the runtime host's getState() otherwise, the same split onDecide makes (:338-348).",
+        "src/components/campaign/coop/CampaignCoopRouteSurface.tsx: forward onPreview and the results to HostGmReviewSurface in the host branch only.",
+        "src/components/campaign/coop/HostGmReviewSurface.tsx: render the result on the row (the events approve would commit, or the refusal code)."
+      ],
+      "estimate": {
+        "product": [
+          {
+            "path": "CampaignCoopRouteSurfaceConnected.tsx",
+            "lines": "~+35"
+          },
+          {
+            "path": "CampaignCoopRouteSurface.tsx",
+            "lines": "~+15"
+          },
+          {
+            "path": "HostGmReviewSurface.tsx",
+            "lines": "~+40"
+          }
+        ],
+        "productLines": "~90 (cap 500)",
+        "note": "estimate, not measured"
+      },
+      "consequence": "Preview renders per proposal and works; Manual takeover and GM Fix stay unrendered. It meets the Preview third of the clause with a producer the ledger route does not use, which the charter's first question did not offer, so it needs the parent's approval of that producer.",
+      "risk": "validateCampaignIntent checks the ledger invariants only; lifecycle refusals (convergence, rebuild, stale head) are decided elsewhere and are already shown by the lifecycle strip (HostGmReviewSurface.tsx:238-319)."
+    },
+    {
+      "id": "C2",
+      "label": "per-proposal Manual takeover and GM correction",
+      "pathAmendment": "openspec change with a coop-campaign-sync delta stating what each does to a pending proposal, plus src/types/multiplayer (Protocol.ts:475-482), src/types/campaign (CoopCampaign.ts:126, coopCampaignSchemas.ts:48-51), src/lib/multiplayer/server (CampaignGmArbiter.ts:347-374, bindCampaignSyncConnection.ts:1261-1321), src/lib/campaign/coop (campaignSyncTransport.ts:35, :152-161; coopRuntimeSession.ts:178-191)",
+      "exactEdit": [
+        "not specified here: the semantics are the owner's decision (examples only: manual takeover = resolve without committing and record a manual record; GM correction = approve an amended intent that the authority re-validates)"
+      ],
+      "estimate": {
+        "note": "UNVERIFIED: not measured; a wire contract change across at least 7 files plus a spec delta, likely more than one unit"
+      },
+      "consequence": "the only option that meets the clause per proposal for all three controls.",
+      "risk": "authority, idempotency and concurrency classes (a new decision kind on the wire)."
+    },
+    {
+      "id": "D",
+      "label": "a spec delta naming which host screen carries which controls",
+      "pathAmendment": "openspec change on coop-campaign-sync",
+      "consequence": "declined by the owner in the U36 ruling (units.json packets PK-u36-ruling decision text: the spec clause kept, with U90 planned to wire the three controls on the dashboard); listed only for completeness."
+    }
+  ],
+  "agentRecommendation": "Park U90 as an owner packet (GOAL.md:15, 29-31) with options A, C1+C2 and D, and write a narrower successor for C1 if the owner accepts the admission check as the proposal preview. The lane does not recommend A on its own: it meets the clause's letter with the same producers, but it puts a correction lane on the co-op dashboard whose writes do not reach the co-op authority (option A risk).",
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "lineRule": "product lines only; test lines reported separately (owner decision OD-line-cap-product-lines, 2026-09-23)"
+  },
+  "risksForTheParent": [
+    "Authority class (units.json U90 reviewClasses [\"authority\"]): whichever option is taken, Lane B needs the owner's OWNER-RULING comment bound to the exact PR head; this admission names no head.",
+    "What a UAT tester sees on the baseline: the co-op host dashboard review rows show Approve and Veto only (U36), and the navigation shows a GM Ledger tab whose page has Generate correction, Approve cascade and Take manual control. Under A the dashboard would also show that whole lane (correction type select, three buttons, preview panel, player and GM logs) under the review queue. Under C1 each row would gain a Preview button and a result line.",
+    "The co-op GM ledger write path (option A risk) is a pre-existing gap of the ledger route for co-op hosts, found by code reading; no browser or runtime run measured it.",
+    "Charter premise: HostGmReviewSurface.tsx:54-56 names the handlers but nothing in src defines what they do to a proposal; the three were introduced as () => {} defaults in #987 (git log -S onManualTakeover: e78175a20) and tracked as defect #25 in openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md (:427, :432, :440, :444 \"a transport wiring change\")."
+  ],
+  "nonClaims": [
+    "No product, test, spec or ledger file was edited. units.json, roadmap.json, admission-snapshot.json and every tasks.md are untouched; no checkbox checked.",
+    "No jest, tsc, lint, build, browser or Playwright run: the lane stopped at admission.",
+    "Every behavior statement in this receipt is from reading the baseline source at the cited lines, except the gates, which were run. The option A authority consequence is an INFERENCE from code reading, not an executed measurement.",
+    "The line estimates are estimates, not measurements."
+  ],
+  "findingsReportedNotFixed": [
+    "FN-u36-remaining-noop-defaults still holds on the baseline: HostGmReviewSurface.tsx:151 onClearLifecycleRefusal = () => {}; CampaignCoopRouteSurface.tsx:277-279 onDecide no-op default and :285 onClearRefusal = () => {}. Its recommended successor is \"the next unit that edits src/components/campaign/coop\"; not folded here (U90 edited nothing and its sentence does not name them).",
+    "Option A risk above: on a co-op host, GM ledger corrections are written to the local campaign store only and nothing reaches the co-op authority (code-read).",
+    "CampaignCoopRouteSurface.tsx:193-202 prop comments still say onDecide and pendingProposals are Wave 6.1 stubs to be replaced in Wave 6.2, while the connected surface passes live ones (CampaignCoopRouteSurfaceConnected.tsx:394, :396)."
+  ]
+}
