@@ -1550,10 +1550,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "local-verified",
+      "state": "complete",
       "baseline": "890313d59e917f0115a87ca3dbc10dea9cc6ad30",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "2b93cce976de479f91593b318a1c9dae32badda6",
+      "mergeSha": "c8baaa60efd2fbae210119bc9b6339b1cd590bea",
       "stageReceipts": {
         "admission": {
           "path": "evidence/u35j-admission-20260925.json",
@@ -1572,10 +1572,31 @@
           "at": "2026-09-25T08:28:07.366Z",
           "summary": "1 product file, 34 lines (src/lib/events/replay/CampaignBaselineSchemaPack.ts): the shared roster-unit shape gains sourceVersion as z.number().int().positive().optional() (every minting path writes a positive integer; pinSourceVersion falls back to 1), covering RosterUnitChanged.unit, SalvageAllocated.recoveredUnit and CampaignSnapshotPublished.state.rosterUnits; the three roster-carrying types get schema ids campaign.<type>.v1-r2 at schema version 1 (fingerprint option b: the pipeline fingerprint hashes ids, so a history containing them gets a new fingerprint, 9898f808... to 6e01d603..., and the five other types keep theirs; nothing in production compares the campaign fingerprint today and no campaign replay checkpoint exists); the fixture gains a unit with sourceVersion 3 and a legacy unit without; test file +332 and fixture +23 (357 test lines); pack suite 39/39; src/lib/events/replay 22 suites 644; src/lib/events 51 suites 947; src/lib/campaign/authority 24 suites 175; tsc 0 (one earlier TS2322 fixed and re-run, kept in the receipt); oxlint 84 warnings 0 errors; oxfmt clean; lint:units 100/100; qc:openspec-ci errors=0; validator PASSED; five mutants caught and restored (field removed, passthrough, string type, ids reverted, widened number); implementer claude-opus (Agent model: opus); findings recorded by U22's closure (FN-u35j-coop-match-body-refuses-sourceversion, FN-u35j-pack-shapes-untied-from-types, FN-u35j-stale-comments); status ready"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "review": {
+          "path": "evidence/u35j-review-20260925.json",
+          "head": "2b93cce976de479f91593b318a1c9dae32badda6",
+          "reviewedHead": "2b93cce976de479f91593b318a1c9dae32badda6",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet)",
+          "implementerModel": "claude-opus (Agent model: opus)",
+          "outputSha256": "6b65869d915493b4332a741dd9f24c08e36bc6e46720044f2f3fe0580cdee1f9",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u35j-merge-20260925.json",
+          "pr": 1947,
+          "head": "2b93cce976de479f91593b318a1c9dae32badda6",
+          "mergeSha": "c8baaa60efd2fbae210119bc9b6339b1cd590bea"
+        },
+        "mainProof": {
+          "path": "evidence/u35j-mainproof-20260925.json",
+          "mergeCommit": "c8baaa60efd2fbae210119bc9b6339b1cd590bea",
+          "verdict": "PASS",
+          "runtime": "Tests:       2397 passed, 2397 total"
+        },
+        "tick": {
+          "path": "evidence/u35j-tick-20260925.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "source20260925": "planned by the parent under the owner's answer \"Follow-on unit (Recommended)\" on U35g's Lane A required edit (evidence/u35g-lane-a-review-initial-20260925.md, Finding 1)"
@@ -8032,6 +8053,48 @@
         "author": "SwiggitySwerve",
         "label": "owner-ruled",
         "bodySha256": "d7a28e2fc508b9f0cd7859c46dddf75305c08a4f2af24a84f29dff524cf1b1e8",
+        "postedBy": "parent on the owner's instruction (the comment quotes the owner's words verbatim)",
+        "deviationDisclosed": "DELIVERY.md says the owner posts the ruling out of band; the owner approved this unit by description in chat (words quoted in the comment) after the parent explained it in plain language and reported Lane A's verdict and the check set on the head, and the parent composed and posted the comment from the owner GitHub account and applied the label; the parent supplied the head from the ledger, as in the earlier rulings of this loop"
+      },
+      "note": "opened when the owner ruled, 2026-09-22 (the cutover sequence's units carry no pre-opened ruling packets)"
+    },
+    {
+      "id": "PK-u35j-ruling",
+      "blocks": [
+        "U35j"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "U35j (review classes replay) presents head 2b93cce976de479f91593b318a1c9dae32badda6. Does the owner rule it?",
+      "options": [
+        {
+          "label": "rule the head",
+          "consequence": "an OWNER-RULING <head> comment and the owner-ruled label on U35j's PR; the unit merges and proceeds to main proof",
+          "effort": "0.1 day owner"
+        },
+        {
+          "label": "reject",
+          "consequence": "the PR closes; the unit returns to planned with the objection recorded",
+          "effort": "0.1 day owner"
+        }
+      ],
+      "agentRecommendation": "rule the head once Lane A has approved it and the checks are green",
+      "revertCost": "low: a squash merge revert",
+      "decision": {
+        "at": "2026-09-25T21:49:23Z",
+        "option": "rule the head",
+        "text": "Approve (Recommended)",
+        "source": "owner instruction in the working session (chat), after the parent described the unit in plain English: a structured question: the campaign baseline schema pack accepts the roster sourceVersion production writes (positive integer, optional); the three roster-carrying types get schema ids campaign.<type>.v1-r2 under the event-store fingerprint scenario; Lane A APPROVE (four producers validate on the head, refused on the baseline); 31 green checks; disclosed: the pack is unwired from production replay, the stored-fingerprint comparator has no callers, markers under the old fingerprint read as an older pipeline; the co-op match body refusal is U88's"
+      },
+      "ruling": {
+        "ruledHead": "2b93cce976de479f91593b318a1c9dae32badda6",
+        "pr": 1947,
+        "commentId": 5840142515,
+        "author": "SwiggitySwerve",
+        "label": "owner-ruled",
+        "bodySha256": "fd3b3bb6f70a3949497656f47c32e6ca4d22a39e670572f09cf41c6d2e95cac7",
         "postedBy": "parent on the owner's instruction (the comment quotes the owner's words verbatim)",
         "deviationDisclosed": "DELIVERY.md says the owner posts the ruling out of band; the owner approved this unit by description in chat (words quoted in the comment) after the parent explained it in plain language and reported Lane A's verdict and the check set on the head, and the parent composed and posted the comment from the owner GitHub account and applied the label; the parent supplied the head from the ledger, as in the earlier rulings of this loop"
       },

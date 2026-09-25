@@ -1,0 +1,20 @@
+{
+  "unit": "U35j",
+  "stage": "merge",
+  "at": "2026-09-25T22:02:59.781Z",
+  "pr": 1947,
+  "title": "fix(replay): the campaign schema pack accepts roster sourceVersion (U35j)",
+  "head": "2b93cce976de479f91593b318a1c9dae32badda6",
+  "mergeSha": "c8baaa60efd2fbae210119bc9b6339b1cd590bea",
+  "mergedAt": "2026-09-25T21:49:31Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "src/lib/events/replay/CampaignBaselineSchemaPack.ts",
+    "src/lib/events/replay/__fixtures__/CampaignBaselineSchemaPack.fixture.ts",
+    "src/lib/events/replay/__tests__/CampaignBaselineSchemaPack.test.ts"
+  ],
+  "blobEqualityDiffLines": 0
+}
