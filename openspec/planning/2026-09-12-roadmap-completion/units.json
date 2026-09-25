@@ -2258,10 +2258,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "local-verified",
+      "state": "complete",
       "baseline": "a2e24c8a80706b6ea5e4f4b4e22c3f52ea83aa18",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "053e7c7d28ab6b714e42064d4eac9e9714b2903c",
+      "mergeSha": "1eafb9a08208057c793717d5f396f9408631824b",
       "stageReceipts": {
         "admission": {
           "path": "evidence/u36-admission-20260925.json",
@@ -2280,10 +2280,31 @@
           "at": "2026-09-25T07:58:26.670Z",
           "summary": "3 product files, 160 lines (NetworkedGameSurface.gmCorrection.tsx 71, HostGmReviewSurface.tsx 70, useGmCorrectionProducers.ts 19, comment-only), 3 test files 433 lines: Approve and Preview each guard a second press with a ref and render disabled while their own request is pending, copying GmRewindPreviewDialog; the reason input has maxLength 2000 (the route bound at rewindCommitDeps.ts:82-85, UTF-16 code units, trimmed); HostGmReviewSurface renders Preview, Manual takeover and GM Fix only when their handler is supplied, so the dashboard shows Approve and Veto; the producer header states the reason is sent and written to the GM private record; all 11 red rows green; jest multiplayer 141, pages-modules/multiplayer 23, campaign/coop 158, pages-modules/api 62; tsc 0; oxlint 84 warnings 0 errors; oxfmt clean; lint:units 100/100; qc:openspec-ci errors=0; validator PASSED; five mutants caught and restored; implementer claude-opus (Agent model: opus); findings: the coop-campaign-sync host command-screen scenario (spec:491-493) was unmet before (three dead controls) and after (two controls), remaining no-op defaults reached only by test mounts; status ready"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "review": {
+          "path": "evidence/u36-review-20260925.json",
+          "head": "053e7c7d28ab6b714e42064d4eac9e9714b2903c",
+          "reviewedHead": "053e7c7d28ab6b714e42064d4eac9e9714b2903c",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet)",
+          "implementerModel": "claude-opus (Agent model: opus)",
+          "outputSha256": "888c6e8038b5fd5094dc03f3a8133ff5e4e73ec83181e7f6d8d5631a6db4a01e",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u36-merge-20260925.json",
+          "pr": 1946,
+          "head": "053e7c7d28ab6b714e42064d4eac9e9714b2903c",
+          "mergeSha": "1eafb9a08208057c793717d5f396f9408631824b"
+        },
+        "mainProof": {
+          "path": "evidence/u36-mainproof-20260925.json",
+          "mergeCommit": "1eafb9a08208057c793717d5f396f9408631824b",
+          "verdict": "PASS",
+          "runtime": "Tests:       384 passed, 384 total"
+        },
+        "tick": {
+          "path": "evidence/u36-tick-20260925.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "source20260922": "planned by the parent from the 2026-09-22 triage plan (newUnits; evidence/triage-plan-20260922.json (179 register issues verified against main a9244fcad)) under the owner instruction of 2026-09-22 (\"ultracode find everything that is marked and if there are issues go with recommended path to solution based on the goal\")",
@@ -7955,6 +7976,48 @@
         "author": "SwiggitySwerve",
         "label": "owner-ruled",
         "bodySha256": "267c878afcf752cbf0dfc07d7a56635610495a6aaa181f0c45f48b4b56b06228",
+        "postedBy": "parent on the owner's instruction (the comment quotes the owner's words verbatim)",
+        "deviationDisclosed": "DELIVERY.md says the owner posts the ruling out of band; the owner approved this unit by description in chat (words quoted in the comment) after the parent explained it in plain language and reported Lane A's verdict and the check set on the head, and the parent composed and posted the comment from the owner GitHub account and applied the label; the parent supplied the head from the ledger, as in the earlier rulings of this loop"
+      },
+      "note": "opened when the owner ruled, 2026-09-22 (the cutover sequence's units carry no pre-opened ruling packets)"
+    },
+    {
+      "id": "PK-u36-ruling",
+      "blocks": [
+        "U36"
+      ],
+      "nodes": [
+        "R2.multiplayer-client"
+      ],
+      "taskKeys": [],
+      "question": "U36 (review classes idempotency) presents head 053e7c7d28ab6b714e42064d4eac9e9714b2903c. Does the owner rule it?",
+      "options": [
+        {
+          "label": "rule the head",
+          "consequence": "an OWNER-RULING <head> comment and the owner-ruled label on U36's PR; the unit merges and proceeds to main proof",
+          "effort": "0.1 day owner"
+        },
+        {
+          "label": "reject",
+          "consequence": "the PR closes; the unit returns to planned with the objection recorded",
+          "effort": "0.1 day owner"
+        }
+      ],
+      "agentRecommendation": "rule the head once Lane A has approved it and the checks are green",
+      "revertCost": "low: a squash merge revert",
+      "decision": {
+        "at": "2026-09-25T20:16:53Z",
+        "option": "rule the head",
+        "text": "Approve, plan the wiring unit (Recommended)",
+        "source": "owner instruction in the working session (chat), after the parent described the unit in plain English: a structured question: every GM correction control works once per press within the route's bounds or is not rendered (Approve and Preview guard a second press and disable while pending; the reason input stops at the route's 2000; the co-op dashboard no longer renders its three dead controls); Lane A APPROVE; 31 green checks; the spec clause coop-campaign-sync:491-493 kept, with U90 planned to wire the three controls on the dashboard"
+      },
+      "ruling": {
+        "ruledHead": "053e7c7d28ab6b714e42064d4eac9e9714b2903c",
+        "pr": 1946,
+        "commentId": 5838958216,
+        "author": "SwiggitySwerve",
+        "label": "owner-ruled",
+        "bodySha256": "d7a28e2fc508b9f0cd7859c46dddf75305c08a4f2af24a84f29dff524cf1b1e8",
         "postedBy": "parent on the owner's instruction (the comment quotes the owner's words verbatim)",
         "deviationDisclosed": "DELIVERY.md says the owner posts the ruling out of band; the owner approved this unit by description in chat (words quoted in the comment) after the parent explained it in plain language and reported Lane A's verdict and the check set on the head, and the parent composed and posted the comment from the owner GitHub account and applied the label; the parent supplied the head from the ledger, as in the earlier rulings of this loop"
       },

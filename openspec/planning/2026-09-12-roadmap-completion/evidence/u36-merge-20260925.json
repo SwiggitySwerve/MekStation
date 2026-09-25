@@ -1,0 +1,23 @@
+{
+  "unit": "U36",
+  "stage": "merge",
+  "at": "2026-09-25T21:54:43.253Z",
+  "pr": 1946,
+  "title": "fix(multiplayer): GM correction controls work once per press, or are not rendered (U36)",
+  "head": "053e7c7d28ab6b714e42064d4eac9e9714b2903c",
+  "mergeSha": "1eafb9a08208057c793717d5f396f9408631824b",
+  "mergedAt": "2026-09-25T20:17:01Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "src/components/campaign/coop/HostGmReviewSurface.tsx",
+    "src/components/campaign/coop/__tests__/CoopSurfaceResilience.test.tsx",
+    "src/components/campaign/coop/__tests__/HostGmReviewSurface.deadControls.test.tsx",
+    "src/components/multiplayer/NetworkedGameSurface.gmCorrection.tsx",
+    "src/components/multiplayer/__tests__/NetworkedGameSurface.gmCorrection.test.tsx",
+    "src/pages-modules/multiplayer/useGmCorrectionProducers.ts"
+  ],
+  "blobEqualityDiffLines": 0
+}
