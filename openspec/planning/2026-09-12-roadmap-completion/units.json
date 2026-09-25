@@ -1287,9 +1287,11 @@
     {
       "id": "U35g",
       "node": "R2.authority-live",
-      "behavior": "A co-op battle's combat outcome survives the host's whole-campaign save (owner decision OD-u35g-coop-outcome-rewrites-record; FN-u35d-coop-outcome-roster-lost). The combat-outcome inbox (src/lib/campaign/sync/campaignCombatOutcomeInbox.ts), on the first receipt of an outcome only, rewrites the saved record in the same immediate transaction as its append, as command batches have done since U35e (campaignRecordJournalState.ts), and the rewrite carries the journal's roster onto the record, so the next checkpoint keeps it. A destroyed unit is recorded as a status change (Destroyed), not a removal: reconcileCoopBattle.ts:226 stops turning a destroyed unit into change 'removed'. A salvage allocation's recoveredUnit is out of scope (FN-u35d-recovered-unit-lost). Gated, as U35e is, to campaigns whose marker is journal-native. Red-first: U35d's re-admission rows o1, o1c and o1s (the probe copy is in the re-admission receipt), red on the baseline under the temporary flip. If the status change needs a new RosterUnitChanged change kind that the campaign baseline schema pack under src/lib/events/replay refuses, the unit stops at admission for a path amendment.",
+      "behavior": "A co-op battle's combat outcome survives the host's whole-campaign save (owner decision OD-u35g-coop-outcome-rewrites-record; FN-u35d-coop-outcome-roster-lost). The combat-outcome inbox (src/lib/campaign/sync/campaignCombatOutcomeInbox.ts), on the first receipt of an outcome only, rewrites the saved record in the same immediate transaction as its append, as command batches have done since U35e (campaignRecordJournalState.ts), and the rewrite carries the journal's roster onto the record, so the next checkpoint keeps it. A destroyed unit is recorded as a status change (Destroyed), not a removal: reconcileCoopBattle.ts:226 stops turning a destroyed unit into change 'removed'. A salvage allocation's recoveredUnit is out of scope (FN-u35d-recovered-unit-lost). Gated, as U35e is, to campaigns whose marker is journal-native. Red-first: U35d's re-admission rows o1, o1c and o1s (the probe copy is in the re-admission receipt), red on the baseline under the temporary flip. If the status change needs a new RosterUnitChanged change kind that the campaign baseline schema pack under src/lib/events/replay refuses, the unit stops at admission for a path amendment. Amended 2026-09-25 after the first admission attempt (evidence/u35g-admission-attempt1-20260925.json): the destroyed-unit change is made where production records it, src/lib/multiplayer/server/CampaignMatchHostOutcomeInbox.ts:190, and at the fallback reconcileCoopBattle.ts:226, as change 'repaired' carrying status destroyed (the campaign baseline schema pack accepts it, measured); the rewrite hook reaches the inbox through JournalCampaignEventStore.appendCombatOutcomeBatch (that file may change outside its flag constant, which stays false, as in U35e); the campaign activity feed describes a 'repaired' change carrying status destroyed as destroyed, not repaired (src/lib/campaign/activity/campaignActivityProjection.ts); and the comment at src/types/campaign/RosterUnitProjection.ts:107-112 is corrected, because the saved record's readiness is now patched from the journal.",
       "ownershipPaths": [
-        "src/lib/campaign"
+        "src/lib/campaign",
+        "src/lib/multiplayer/server",
+        "src/types/campaign/RosterUnitProjection.ts"
       ],
       "reviewClasses": [
         "authority",
@@ -1317,7 +1319,19 @@
         "mainProof": null,
         "tick": null
       },
-      "ownerGate": null
+      "ownerGate": null,
+      "firstAdmissionAttempt20260925": {
+        "receipt": "evidence/u35g-admission-attempt1-20260925.json",
+        "decision": "BLOCKED at admission: the production line that records a destroyed unit as a removal is src/lib/multiplayer/server/CampaignMatchHostOutcomeInbox.ts:190, outside the unit's path; reconcileCoopBattle.ts:226 is only reached by the fallback path production never uses (measured: the :226 edit alone left the production inbox row unchanged)"
+      },
+      "pathsAmendedBeforeAdmission20260925": {
+        "at": "2026-09-25T06:38:14.000Z",
+        "added": [
+          "src/lib/multiplayer/server",
+          "src/types/campaign/RosterUnitProjection.ts"
+        ],
+        "why": "the production outcome inbox and the roster projection comment, found by the first admission attempt"
+      }
     },
     {
       "id": "U35d",
@@ -8363,6 +8377,15 @@
       "recommendedSuccessor": "a regression row pinning the close route's behaviour against a live host, in the next unit that edits src/lib/multiplayer/server (owner's U22a ruling: 'Approve, add close-route test')",
       "status": "held by U21b (owner's U22a ruling)",
       "heldBy20260925": "U21b"
+    },
+    {
+      "id": "FN-u35g-kept-destroyed-units-in-guest-roster-count",
+      "foundBy": "U35g implementer lane (claude-opus), 2026-09-25, finding F4 (read from the code)",
+      "at": "2026-09-25T06:38:14.000Z",
+      "class": "display nuance of the owner's destroyed-unit decision",
+      "summary": "Once destroyed units are kept as status Destroyed (owner decision OD-u35g-coop-outcome-rewrites-record), the co-op guest's roster count includes them.",
+      "recommendedSuccessor": "decide in UAT round 2 whether the roster count should exclude destroyed units",
+      "status": "recorded; for UAT round 2 triage"
     }
   ]
 }

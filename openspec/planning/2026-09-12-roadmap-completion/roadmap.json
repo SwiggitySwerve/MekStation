@@ -2732,7 +2732,8 @@
         "src/hooks/useMultiplayerSession.helpers.ts",
         "src/hooks/__tests__/useMultiplayerSession.helpers.test.ts",
         "src/hooks/__tests__/useMultiplayerSession.test.tsx",
-        "src/pages/api/multiplayer/matches/index.ts"
+        "src/pages/api/multiplayer/matches/index.ts",
+        "src/types/campaign/RosterUnitProjection.ts"
       ],
       "acceptance": [
         "npm.cmd run typecheck",
@@ -2984,6 +2985,13 @@
           "units": "U35i",
           "source": "owner decision OD-u35g-coop-outcome-rewrites-record, sub-decision 3",
           "why": "U35d's flip leaves a stale flag-off comment at src/pages/api/multiplayer/matches/index.ts:262-265 (the re-admission receipt corrected the path); no node owned this file"
+        },
+        {
+          "path": "src/types/campaign/RosterUnitProjection.ts",
+          "at": "2026-09-25T06:38:14.000Z",
+          "units": "U35g",
+          "source": "parent, under owner decision OD-u35g-coop-outcome-rewrites-record (sub-decision 1: destroyed units kept as Destroyed)",
+          "why": "U35g's record rewrite patches roster readiness from the journal, which makes the comment at src/types/campaign/RosterUnitProjection.ts:107-112 (readiness always derived from unitCombatStates) untrue for the saved record; the comment is corrected there. Only planned nodes (R7.versions, R7.provenance, R8.opportunities) owned this file."
         }
       ]
     },
