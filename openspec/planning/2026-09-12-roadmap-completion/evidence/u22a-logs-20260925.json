@@ -1,0 +1,75 @@
+{
+  "unit": "U22a",
+  "date": "20260925",
+  "at": "2026-09-25T06:37:27.568Z",
+  "runDir": ".sisyphus/roadmap-completion-20260912/u22a-main-proof-20260925",
+  "preservedDir": ".sisyphus/roadmap-completion-20260912/preserved-runs/U22a-20260925",
+  "files": [
+    {
+      "file": "build.log",
+      "bytes": 156112,
+      "sha256": "7e6176ee8e08d488c9cc6f61cb1128a4b9fad51296f1019851ec31fb2cfcc769"
+    },
+    {
+      "file": "git-check.log",
+      "bytes": 84,
+      "sha256": "38875d75a513e6dc764ce99160b9e7423b80cd040a68252ea1b4c336e36d0fc1"
+    },
+    {
+      "file": "idle-before-build.log",
+      "bytes": 21,
+      "sha256": "6445639db60a4a8f79a3ca3573af73d2cde2b74f12f762a22ffc58bdd39aee43"
+    },
+    {
+      "file": "idle-before-runtime.log",
+      "bytes": 21,
+      "sha256": "6445639db60a4a8f79a3ca3573af73d2cde2b74f12f762a22ffc58bdd39aee43"
+    },
+    {
+      "file": "next.log",
+      "bytes": 13,
+      "sha256": "ddf202b12fe10d8ece1cda2a2ac535876760b66aaefaa87c28eca76f9f7aaa71"
+    },
+    {
+      "file": "openspec-strict.log",
+      "bytes": 6835,
+      "sha256": "efd619721df505ed0dbb69fe5bd26b74023670e603ce16891fd2f1331adf1776"
+    },
+    {
+      "file": "playwright.log",
+      "bytes": 376353,
+      "sha256": "34a8b6e9db4f88db09ebf88a963d3870e413092272c17ed10d1c94f7a55fe751"
+    },
+    {
+      "file": "qc-openspec-ci.log",
+      "bytes": 299,
+      "sha256": "5b0f562274df4dbddfb7ae44ab42b7d686dc1e0903383f25c593d88f7479fe9a"
+    },
+    {
+      "file": "qc-pin.log",
+      "bytes": 390,
+      "sha256": "d852e5f072f4b86803a44108fc7fb824a13bc7afee02a8e97cef1b782fa61f70"
+    },
+    {
+      "file": "restore-next-env.log",
+      "bytes": 8,
+      "sha256": "f891dbdfc0402cd4ba60fab1be3245dfec559c5d7afc7e21b87e795a73d05e5f"
+    },
+    {
+      "file": "sha256.txt",
+      "bytes": 892,
+      "sha256": "5ee65c5b8cd5a8366ee27dee3413a28668801b1dd7993a77fb6253c60a62694e"
+    },
+    {
+      "file": "tsc.log",
+      "bytes": 8,
+      "sha256": "f891dbdfc0402cd4ba60fab1be3245dfec559c5d7afc7e21b87e795a73d05e5f"
+    },
+    {
+      "file": "validator.log",
+      "bytes": 84,
+      "sha256": "38875d75a513e6dc764ce99160b9e7423b80cd040a68252ea1b4c336e36d0fc1"
+    }
+  ],
+  "bytes": 541120
+}
