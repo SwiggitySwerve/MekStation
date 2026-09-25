@@ -1,0 +1,30 @@
+{
+  "unit": "U35g",
+  "stage": "merge",
+  "at": "2026-09-25T07:57:05.175Z",
+  "pr": 1940,
+  "title": "feat(campaign): co-op combat outcomes survive the host's save; destroyed units stay Destroyed (U35g)",
+  "head": "402102dc8be014c5590f304a7969d8661cb37ce0",
+  "mergeSha": "7405959ff61df257aa45355f8b90f21f601c9576",
+  "mergedAt": "2026-09-25T07:43:41Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u35g-admission-20260925.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u35g-local-20260925.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u35g-red-20260925.json",
+    "src/lib/campaign/activity/__tests__/campaignActivityProjection.test.ts",
+    "src/lib/campaign/activity/campaignActivityProjection.ts",
+    "src/lib/campaign/authority/campaignRecordJournalState.ts",
+    "src/lib/campaign/coop/__tests__/reconcileCoopBattle.test.ts",
+    "src/lib/campaign/coop/reconcileCoopBattle.ts",
+    "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+    "src/lib/campaign/sync/__tests__/campaignCombatOutcomeRecordRewrite.test.ts",
+    "src/lib/campaign/sync/campaignCombatOutcomeInbox.ts",
+    "src/lib/multiplayer/server/CampaignMatchHostOutcomeInbox.ts",
+    "src/types/campaign/RosterUnitProjection.ts"
+  ],
+  "blobEqualityDiffLines": 0
+}

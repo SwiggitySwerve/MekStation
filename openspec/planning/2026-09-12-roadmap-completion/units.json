@@ -1299,7 +1299,7 @@
         "concurrency",
         "migration"
       ],
-      "state": "local-verified",
+      "state": "complete",
       "source20260925": "planned by the parent from U35d's re-admission (evidence/u35d-admission-20260924.json) under owner decision OD-u35g-coop-outcome-rewrites-record",
       "taskKeys": [],
       "ciClass": "product",
@@ -1308,8 +1308,8 @@
         "maxNonGeneratedLines": 500
       },
       "baseline": "0fd24c343d8de2d467bb5b2d3d57c3beeb2d89af",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "402102dc8be014c5590f304a7969d8661cb37ce0",
+      "mergeSha": "7405959ff61df257aa45355f8b90f21f601c9576",
       "stageReceipts": {
         "admission": {
           "path": "evidence/u35g-admission-20260925.json",
@@ -1328,10 +1328,31 @@
           "at": "2026-09-25T07:06:39.916Z",
           "summary": "second admission after the #1938 path amendment (attempt 1 blocked on the production inbox path); product 7 files +118/-40 (158 lines, cap 500), tests 3 files 538 lines; the production outcome inbox (CampaignMatchHostOutcomeInbox.ts) and the fallback (reconcileCoopBattle.ts) record every unit change as 'repaired' carrying its status, destroyed included, keeping the unit's own fields; appendCampaignCombatOutcomeBatch runs the record-rewrite hook only when the outcome first commits, in its transaction; the shared rewrite carries roster readiness (operational/damaged/destroyed) onto the record; the feed reads a destroyed unit as destroyed; the RosterUnitProjection comment corrected; the flag constant unchanged; rows 8/8, re-pin 5/5, feed 8/8 with the flag false and flipped; a stale host save after an outcome now answers 409 and o2u keeps 355000; src/lib/campaign 204/2982; src/__tests__/api/campaigns 15/110; src/lib/multiplayer/server 160/1178; src/services/campaignPersistence 4/23; src/lib/events 51/927 (the parent re-ran it after restoring the shared tsx that another lane's bisect deleted; the lane's run had 1 failure from that alone); tsc 0; oxlint 84 warnings 0 errors; oxfmt clean on 10 files; LINT_UNITS_PASS 100/100; qc:openspec-ci errors=0; validator PASSED; --next U35g on the baseline; nine mutants caught and restored; implementer claude-opus (Agent model: opus); findings F1 (sourceVersion may reach the strict schema, read only) and F2 (a damaged unit still reads repaired) recorded; status ready"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "review": {
+          "path": "evidence/u35g-review-20260925.json",
+          "head": "402102dc8be014c5590f304a7969d8661cb37ce0",
+          "reviewedHead": "402102dc8be014c5590f304a7969d8661cb37ce0",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet)",
+          "implementerModel": "claude-opus (Agent model: opus)",
+          "outputSha256": "b9850d9b6c9f8b8ca908a04983d7b931e2809cfc920a68e49a8d4c886aa8ff8b",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u35g-merge-20260925.json",
+          "pr": 1940,
+          "head": "402102dc8be014c5590f304a7969d8661cb37ce0",
+          "mergeSha": "7405959ff61df257aa45355f8b90f21f601c9576"
+        },
+        "mainProof": {
+          "path": "evidence/u35g-mainproof-20260925.json",
+          "mergeCommit": "7405959ff61df257aa45355f8b90f21f601c9576",
+          "verdict": "PASS",
+          "runtime": "Tests:       4293 passed, 4293 total"
+        },
+        "tick": {
+          "path": "evidence/u35g-tick-20260925.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "firstAdmissionAttempt20260925": {
@@ -1351,6 +1372,13 @@
         "gate": "npx jest src/lib/events",
         "result": "51 suites, 927 tests passed, exit 0",
         "why": "the lane's run failed 1 test because the shared root node_modules/tsx had been deleted by another lane's bisect build (restored by the parent from the npm cache, integrity-verified); the parent re-ran the gate in U35g's worktree after the restore"
+      },
+      "laneAInitialReview20260925": {
+        "file": "evidence/u35g-lane-a-review-initial-20260925.md",
+        "sha256": "8581fb6508215c33654728ca3547d4f416f073135cdf51c95eb0b74cf2ad0c6a",
+        "verdict": "APPROVE-WITH-REQUIRED-EDITS",
+        "requiredEdit": "a RosterUnitChanged payload whose unit carries sourceVersion is refused by the strict campaign baseline schema pack (src/lib/events/replay/CampaignBaselineSchemaPack.ts:26-34); measured through the real outcome path",
+        "ownerDecision": "moved out of U35g to the follow-on unit U35j by the owner in the working session of 2026-09-25 (\"Follow-on unit (Recommended)\"); the reviewer restated its verdict under that decision in the addendum the closure receipted (evidence/u35g-lane-a-review-20260925.md)"
       }
     },
     {
@@ -1375,7 +1403,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "blocked",
+      "state": "planned",
       "baseline": "992b2babcf516466cf018bb0153f247018079c59",
       "prHead": null,
       "mergeSha": null,
@@ -1420,6 +1448,10 @@
         "cause": "a real co-op flow loses a combat outcome's roster change on the host's next save once the flag flips (the ruled gate, measured at re-admission)",
         "nextIndependentAction": "U35g (the combat outcome rewrites the saved record, destroyed units kept as Destroyed); U35d returns to planned when U35g is main-verified; U35h and U35i remove the flip's residue after U35d",
         "proof": "evidence/u35d-admission-20260924.json"
+      },
+      "resumed20260925": {
+        "at": "2026-09-25T07:57:05.000Z",
+        "why": "the blocker is main-verified: U35g (merge 7405959ff61df257aa45355f8b90f21f601c9576); the re-admission re-runs the ruled gate (rows o1, o1c, o1s, o2u, s1) before any product edit; by owner decision OD-uat-two-rounds sub-decision 3 the flip belongs to UAT round 2"
       }
     },
     {
@@ -1499,6 +1531,40 @@
         "cause": "prerequisite not yet main-verified: U35d",
         "nextIndependentAction": "the docs(roadmap) edit that records U35d's main proof returns this unit to planned; --next cannot express a unit-to-unit dependency"
       }
+    },
+    {
+      "id": "U35j",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "The campaign baseline schema pack accepts every roster unit that production writes. Its roster-unit shape (src/lib/events/replay/CampaignBaselineSchemaPack.ts:26-34, strict) gains the optional sourceVersion the type declares (src/types/campaign/CampaignSync.ts:49), so the genesis snapshot (src/lib/campaign/authority/campaignSourceGenesis.ts:120), the co-op snapshot (src/lib/campaign/coop/campaignAuthoritativeState.ts:65) and the combat outcome's RosterUnitChanged (src/lib/multiplayer/server/CampaignMatchHostOutcomeInbox.ts, since U35g) validate, while an unknown extra field is still refused. Admission decides and records, with file:line, how the change meets the event-store spec's fingerprint law (openspec/specs/event-store/spec.md, the scenario 'Upcast pipeline changes without a projector change': a changed target schema makes prior checkpoints incompatible), given that the pipeline fingerprint hashes schema ids, not shapes (src/lib/events/replay/ReplayPipelineFingerprint.ts), and that campaign cutover markers store it (src/lib/campaign/authority/campaignAuthorityMigration.ts:116-142): a new schema id, or a reasoned case that correcting the v1 baseline to the payloads written since before the pack keeps the id; if the answer needs a path outside the unit, admission stops BLOCKED and names it. Red first: payloads built by each of the three producers from a unit carrying sourceVersion are refused on the baseline; green: all three validate, the fixture file gains a valid and an invalid sourceVersion case, and a payload with an unknown extra field still fails.",
+      "ownershipPaths": [
+        "src/lib/events/replay/CampaignBaselineSchemaPack.ts",
+        "src/lib/events/replay/__tests__/CampaignBaselineSchemaPack.test.ts",
+        "src/lib/events/replay/__fixtures__/CampaignBaselineSchemaPack.fixture.ts"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "replay"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "state": "planned",
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "source20260925": "planned by the parent under the owner's answer \"Follow-on unit (Recommended)\" on U35g's Lane A required edit (evidence/u35g-lane-a-review-initial-20260925.md, Finding 1)"
     },
     {
       "id": "U35e",
@@ -7694,6 +7760,48 @@
         "deviationDisclosed": "DELIVERY.md says the owner posts the ruling out of band; the owner approved this unit by description in chat (words quoted in the comment) after the parent explained it in plain language and reported Lane A's verdict and the check set on the head, and the parent composed and posted the comment from the owner GitHub account and applied the label; the parent supplied the head from the ledger, as in the earlier rulings of this loop"
       },
       "note": "opened when the owner ruled, 2026-09-22 (the cutover sequence's units carry no pre-opened ruling packets)"
+    },
+    {
+      "id": "PK-u35g-ruling",
+      "blocks": [
+        "U35g"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "U35g (review classes authority, idempotency, concurrency, migration) presents head 402102dc8be014c5590f304a7969d8661cb37ce0. Does the owner rule it?",
+      "options": [
+        {
+          "label": "rule the head",
+          "consequence": "an OWNER-RULING <head> comment and the owner-ruled label on U35g's PR; the unit merges and proceeds to main proof",
+          "effort": "0.1 day owner"
+        },
+        {
+          "label": "reject",
+          "consequence": "the PR closes; the unit returns to planned with the objection recorded",
+          "effort": "0.1 day owner"
+        }
+      ],
+      "agentRecommendation": "rule the head once Lane A has approved it and the checks are green",
+      "revertCost": "low: a squash merge revert",
+      "decision": {
+        "at": "2026-09-25T07:43:33Z",
+        "option": "rule the head",
+        "text": "Approve (Recommended)",
+        "source": "owner instruction in the working session (chat), after the parent described the unit in plain English: a structured question: a co-op combat outcome survives the host save (the outcome rewrites the saved record in its transaction; destroyed units kept as Destroyed, per OD-u35g-coop-outcome-rewrites-record); Lane A APPROVE-WITH-REQUIRED-EDITS (the schema pack refuses sourceVersion), the edit moved to follow-on unit U35j by the owner in a preceding question; disclosed: destroyed units stay in every co-op ledger, the guest Units count no longer drops, damaged still reads repaired, the ledger designation wins; 31 green checks; UAT round 1 unaffected"
+      },
+      "ruling": {
+        "ruledHead": "402102dc8be014c5590f304a7969d8661cb37ce0",
+        "pr": 1940,
+        "commentId": 5828801317,
+        "author": "SwiggitySwerve",
+        "label": "owner-ruled",
+        "bodySha256": "56e3357277c8461df68c65040dcef0f55d7a0faa3ebdae89235b6e84ffe3315f",
+        "postedBy": "parent on the owner's instruction (the comment quotes the owner's words verbatim)",
+        "deviationDisclosed": "DELIVERY.md says the owner posts the ruling out of band; the owner approved this unit by description in chat (words quoted in the comment) after the parent explained it in plain language and reported Lane A's verdict and the check set on the head, and the parent composed and posted the comment from the owner GitHub account and applied the label; the parent supplied the head from the ledger, as in the earlier rulings of this loop"
+      },
+      "note": "opened when the owner ruled, 2026-09-22 (the cutover sequence's units carry no pre-opened ruling packets)"
     }
   ],
   "deferrals": [
@@ -8511,10 +8619,10 @@
       "id": "FN-u35g-outcome-payload-may-carry-sourceversion",
       "foundBy": "U35g implementer lane (claude-opus), 2026-09-25, finding F1 (read from the code, not run)",
       "at": "2026-09-25T07:10:18.000Z",
-      "class": "possible schema refusal (unverified)",
+      "class": "schema refusal (measured; the pack is not wired to production replay)",
       "summary": "U35g's production outcome now keeps each unit's own fields when it records a status change; a unit carrying sourceVersion could put that field in the RosterUnitChanged payload, which the strict campaign baseline schema pack under src/lib/events/replay might refuse.",
       "recommendedSuccessor": "U35g's Lane A probes a unit with sourceVersion through the outcome and the schema pack; if refused, a required edit before merge",
-      "status": "recorded; probed by U35g's Lane A"
+      "status": "measured by U35g's Lane A (unrecognized_keys sourceVersion, for a destroyed and a damaged outcome); the gap predates U35g (genesis and co-op snapshots); the owner routed the fix to U35j"
     },
     {
       "id": "FN-u35g-feed-reads-damaged-as-repaired",
@@ -8542,6 +8650,24 @@
       "summary": "The two-process campaign journal specs (the only callers of e2e/helpers/campaignJournalDrive.ts's requestActivity and postIntentCommand) cannot start in a worktree whose node_modules is a junction: the hydration guard leaves .next/standalone/server.js as Next's generated server, so the readiness URL at server.js:410 never answers and the webServer times out at 120 s.",
       "recommendedSuccessor": "run those specs in the root checkout (for example in a main proof); a lane cannot prove them",
       "status": "recorded; U22's main proof in the root checkout runs them"
+    },
+    {
+      "id": "FN-u35g-outcome-keeps-ledger-designation",
+      "foundBy": "U35g Lane A review (claude-sonnet), 2026-09-25, finding 4",
+      "at": "2026-09-25T07:57:05.000Z",
+      "class": "disclosed behavior change (low risk)",
+      "summary": "The combat outcome's rewritten roster unit keeps the host ledger's designation ({ ...current, status } in src/lib/multiplayer/server/CampaignMatchHostOutcomeInbox.ts) where it used to take the battle's derived designation; the two differ only if a unit is renamed, and the reviewer found no renaming capability; no test pins either source.",
+      "recommendedSuccessor": "none unless unit renaming is added",
+      "status": "recorded; disclosed in the owner's ruling"
+    },
+    {
+      "id": "FN-ci-seam-fresh-construction-same-seed-divergence",
+      "foundBy": "parent, CI of PR #1943 (U22, test-only e2e change), 2026-09-25",
+      "at": "2026-09-25T07:57:05.000Z",
+      "class": "CI flake with a possible determinism cause (one occurrence)",
+      "summary": "Seam Anchors failed once: e2e/seam-fresh-construction-no-instant-defeat.spec.ts:360 (same-seed marker equality) saw the first run lose a player unit at turn 1 physical_attack and the second not (aliveBySide.player 1 vs 2 from that phase on), in PR Checks run 36108015559 job 107985016140; the re-run passed (31 of 31). The PR changed only e2e/gm-two-player-privacy.pack.spec.ts and e2e/helpers/campaignJournalDrive.ts, which that spec does not load. It was the only Seam Anchors failure in the last 40 PR Checks runs.",
+      "recommendedSuccessor": "if it recurs, a diagnosis lane on same-seed determinism of the fresh-construction seam (whether a physical attack draws from an unseeded source)",
+      "status": "recorded; re-run once per WORKERS.md; watch for recurrence"
     }
   ]
 }
