@@ -2233,8 +2233,8 @@
         "maxNonGeneratedLines": 500
       },
       "baseline": "5a3e87f8ca4876ed36a3b186e56ba1211137cb12",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "2f701bdb37a5189051d207556edd2210607adc47",
+      "mergeSha": "43b3794cfe1085203f368c0bfdcfb91e924221bf",
       "stageReceipts": {
         "admission": {
           "path": "evidence/u88-admission-20260925.json",
@@ -2253,13 +2253,34 @@
           "at": "2026-09-25T22:24:59.920Z",
           "summary": "1 product file, 5 lines (src/lib/api/securitySchemas.ts: CampaignRosterUnitSchema gains sourceVersion as z.number().int().positive().optional(), the value type U35j gave the schema pack); 1 test file 406 lines; nothing downstream strips the field (campaignCoopSnapshot.ts:76, CampaignMatchHost.ts:150); rows: the panel body accepted at the schema and the route (201, host state keeps 3), unknown extra roster field still refused, string/0/-1/1.5 refused; jest src/lib/api 10, src/__tests__/api 57 suites 772, src/__tests__/unit/api 35, src/pages-modules/gameplay/campaigns 30; tsc 0; oxlint 84 warnings 0 errors; oxfmt clean; lint:units 100/100; qc:openspec-ci errors=0; validator PASSED; four mutants caught and restored (field removed, passthrough, widened number, made required); no live server driven; implementer claude-opus (Agent model: opus); findings: the salvage request schema drops unit provenance (measured), the panel test mocks the state builder; status ready"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "review": {
+          "path": "evidence/u88-review-20260925.json",
+          "head": "2f701bdb37a5189051d207556edd2210607adc47",
+          "reviewedHead": "2f701bdb37a5189051d207556edd2210607adc47",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet)",
+          "implementerModel": "claude-opus (Agent model: opus)",
+          "outputSha256": "31a1fd8b9667d89c9aa77e6d16133ee4e49baebae0776537e44a9dd51e7af8cd",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u88-merge-20260925.json",
+          "pr": 1956,
+          "head": "2f701bdb37a5189051d207556edd2210607adc47",
+          "mergeSha": "43b3794cfe1085203f368c0bfdcfb91e924221bf"
+        },
+        "mainProof": {
+          "path": "evidence/u88-mainproof-20260925.json",
+          "mergeCommit": "43b3794cfe1085203f368c0bfdcfb91e924221bf",
+          "verdict": "PASS",
+          "runtime": "Tests:       1995 passed, 1995 total"
+        },
+        "tick": {
+          "path": "evidence/u88-tick-20260925.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
-      "state": "local-verified",
+      "state": "complete",
       "id": "U88",
       "node": "R2.authority-live",
       "behavior": "Hosting a co-op match from a campaign whose roster units carry sourceVersion works. The co-op match-creation body's roster-unit schema (src/lib/api/securitySchemas.ts:83-91, strict, parsed at src/pages/api/multiplayer/matches/index.ts:284 through CoopCampaignRegistrationSchema) gains sourceVersion as z.number().int().positive().optional(), the same value type U35j gives the campaign baseline schema pack; an unknown extra field is still refused. Red first: a jest route row posting the body CampaignCoopEntryPanel.tsx:217-228 builds (buildCampaignAuthoritativeState copies sourceVersion at campaignAuthoritativeState.ts:65) for a unit carrying sourceVersion answers 400 on the baseline and registers the match after; a body with an unknown roster field still answers 400.",

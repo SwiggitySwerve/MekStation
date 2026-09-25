@@ -1,0 +1,19 @@
+{
+  "unit": "U88",
+  "stage": "merge",
+  "at": "2026-09-25T23:20:38.507Z",
+  "pr": 1956,
+  "title": "fix(api): co-op match body accepts roster sourceVersion (U88)",
+  "head": "2f701bdb37a5189051d207556edd2210607adc47",
+  "mergeSha": "43b3794cfe1085203f368c0bfdcfb91e924221bf",
+  "mergedAt": "2026-09-25T23:11:48Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "src/lib/api/__tests__/coopMatchRosterSourceVersion.test.ts",
+    "src/lib/api/securitySchemas.ts"
+  ],
+  "blobEqualityDiffLines": 0
+}
