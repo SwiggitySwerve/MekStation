@@ -1,0 +1,1919 @@
+{
+  "unit": "U35g",
+  "stage": "local",
+  "status": "ready",
+  "at": "2026-09-25T07:06:39.916Z",
+  "baseline": "0fd24c343d8de2d467bb5b2d3d57c3beeb2d89af",
+  "head": "0fd24c343d8de2d467bb5b2d3d57c3beeb2d89af",
+  "headNote": "uncommitted working tree on the baseline; the parent commits",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u35g",
+  "branch": "roadmap-u35g-coop-outcome-rewrites-record-r2-20260925",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "runners": {
+    "rows": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/run-rows.sh",
+      "sha256": "1323b098d630adc5695ccc91d241df47e6e95562abf4dfe13e5a1e7f2afd73a2"
+    },
+    "flip": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/flip.mjs",
+      "sha256": "b1ad6ef3de563873c899a0e7f1ba3f4514cd466a4a0d46365f7b6ccfdce5cfc1"
+    },
+    "mutants": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/run-mutants.mjs",
+      "sha256": "3d3c3e62d1c18d578fcd9ecf53a4cc3d9e6fdb6021143f02af4a6f08258c576e"
+    },
+    "gates": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/run-gates.sh",
+      "sha256": "20e14681daa471d08fcd3181fd7184afb1192533ec38d6fed40acbd190b238ae"
+    },
+    "receiptWriter": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/write-local.mjs",
+      "sha256": "8d5383eecafbe27a2c663fc8164ad0d980fd9f9524e62277d4f55575fa16abe6"
+    }
+  },
+  "behaviorDelivered": [
+    "Destroyed kept: the production outcome derivation (CampaignMatchHostOutcomeInbox.ts) commits every roster change as RosterUnitChanged 'repaired' carrying the unit's status, destroyed included; the fallback walk (reconcileCoopBattle.ts) does the same, so no combat outcome removes a unit.",
+    "The unit after the change: for a unit the host ledger holds, the outcome's payload is that ledger unit with the new status (its unitRef, unitSource and designation kept), so the reducer's replace does not drop fields a record checkpoint re-projects; an unknown unit is sent as {unitId, designation, status}. Added because rows o1 and o1c measured the journal and the live host disagreeing on exactly those fields after the host's save (diagnostic below); not named in the coordinator's list.",
+    "The hook: appendCampaignCombatOutcomeBatch takes an optional afterCommit and runs it on the transaction's handle after the receipt insert, in the committed arm only; the store's appendCombatOutcomeBatch passes this.rewriteRecordAfterCommand (installed by bindJournalCapabilityPorts on the co-op host's store). The flag constant line is untouched.",
+    "The rewrite (rewriteCampaignRecordAfterCommand, shared with command batches since U35e) also sets each roster projection unit's readiness from the journal's roster status (operational -> Ready, damaged -> Damaged, destroyed -> Destroyed) for units in both; force membership and every other field kept; journal-native gate unchanged.",
+    "The activity feed describes a 'repaired' change carrying status destroyed as '<designation> destroyed' under 'battle'.",
+    "The RosterUnitProjection readiness comment now says the saved record of a journal-native campaign takes readiness from the journal rewrite, so it can differ from the combat-state derivation."
+  ],
+  "files": [
+    {
+      "file": "src/lib/campaign/activity/__tests__/campaignActivityProjection.test.ts",
+      "added": 21,
+      "removed": 0,
+      "category": "test",
+      "sha256": "34b89b0acd48cf07da8aa17f5e67e5310571b4270320f73e7f63bc124c8d0ea4"
+    },
+    {
+      "file": "src/lib/campaign/activity/campaignActivityProjection.ts",
+      "added": 6,
+      "removed": 0,
+      "category": "product",
+      "sha256": "6977e608ea3c120494efeaaabbb4555b15b0322a937ac3553e23337463b35ecc"
+    },
+    {
+      "file": "src/lib/campaign/authority/campaignRecordJournalState.ts",
+      "added": 42,
+      "removed": 15,
+      "category": "product",
+      "sha256": "85686f847398a099efcbef54f5b0ad096d0980a4dc94cd67c270547cef439afc"
+    },
+    {
+      "file": "src/lib/campaign/coop/__tests__/reconcileCoopBattle.test.ts",
+      "added": 9,
+      "removed": 2,
+      "category": "test",
+      "sha256": "2e9cc1ee20b834f6322a5719a00b2a60441ef188237bfbe7154df83a3f8287d7"
+    },
+    {
+      "file": "src/lib/campaign/coop/reconcileCoopBattle.ts",
+      "added": 5,
+      "removed": 3,
+      "category": "product",
+      "sha256": "9323b61b43f3b89a8fce647072cd6462cbf25d4970ca6e080482a34071ca90b6"
+    },
+    {
+      "file": "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+      "added": 16,
+      "removed": 7,
+      "category": "product",
+      "sha256": "f1d5e7cf2345f404bb3c7b2a71d17c7ef4019cd35c533b1a65cb27e8066c8a71"
+    },
+    {
+      "file": "src/lib/campaign/sync/campaignCombatOutcomeInbox.ts",
+      "added": 13,
+      "removed": 5,
+      "category": "product",
+      "sha256": "8c8d40cabda0a427289a0a416185dc36134128267ca47a70afb26365a988a4ea"
+    },
+    {
+      "file": "src/lib/multiplayer/server/CampaignMatchHostOutcomeInbox.ts",
+      "added": 27,
+      "removed": 6,
+      "category": "product",
+      "sha256": "7a10ddb90ba775336c52b432bd5c7d7c7aca0fff4fef8eb76833f27a8ba55e60"
+    },
+    {
+      "file": "src/types/campaign/RosterUnitProjection.ts",
+      "added": 9,
+      "removed": 4,
+      "category": "product",
+      "sha256": "b28784c19a1c85ab2c4a947b0360fde349b775d3348ed4e33ed6993f33da595a"
+    },
+    {
+      "file": "src/lib/campaign/sync/__tests__/campaignCombatOutcomeRecordRewrite.test.ts",
+      "added": 506,
+      "removed": 0,
+      "new": true,
+      "category": "test",
+      "sha256": "36e679e0627f494a7b0564f2c641311f3b7905770d3a2bc24390ae73e1a3b17c"
+    }
+  ],
+  "lineCounts": {
+    "rule": "added + removed per git diff --numstat for tracked files; line count for the new file; product vs test (owner decision OD-line-cap-product-lines)",
+    "productFiles": 7,
+    "productAdded": 118,
+    "productRemoved": 40,
+    "productLines": 158,
+    "testFiles": 3,
+    "testLines": 538,
+    "totalFiles": 10,
+    "caps": {
+      "maxFiles": 15,
+      "maxNonGeneratedLines": 500
+    },
+    "withinCaps": true,
+    "outsideOwnershipPaths": [],
+    "receiptsNotCounted": [
+      "u35g-admission-20260925.json",
+      "u35g-red-20260925.json",
+      "u35g-local-20260925.json"
+    ]
+  },
+  "flagConstant": {
+    "file": "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+    "line": "export const CAMPAIGN_JOURNAL_AUTHORITY_ENABLED = false;",
+    "lineNumberNow": 86,
+    "lineNumberBaseline": 86,
+    "constantLineInDiff": false,
+    "note": "the file changed outside the constant (coordinator correction 2026-09-25, as in U35e); every temporary flip was restored from a byte copy (flipRuns.restore, extras.u35eSuitesUnderFlip.restore)"
+  },
+  "flipRuns": {
+    "how": "run-rows.sh local: the three row suites with the constant false, then under flip.mjs (only the constant line set true), then the flag file restored from a byte copy taken before the flip and its sha256 compared",
+    "flagFalse": {
+      "campaignCombatOutcomeRecordRewrite": {
+        "suite": "src/lib/campaign/sync/__tests__/campaignCombatOutcomeRecordRewrite.test.ts",
+        "exitCode": 0,
+        "counts": "Tests:       8 passed, 8 total",
+        "rowResults": [
+          "√ (o1) the host save carries its pre-battle roster",
+          "√ (o1c) the host save carries the damage (readiness Destroyed, Damaged)",
+          "√ (o1s) the outcome on a campaign created by the PUT route alone",
+          "√ (d) a destroyed unit is kept as a status change in the journal, the host and the record",
+          "√ (i) a duplicate receipt of the same outcome rewrites nothing",
+          "√ (o2u) a debit, then a host save built before the host folded it",
+          "√ (t) a record rewrite that fails rolls the outcome and its inbox receipt back",
+          "√ (a) a snapshot-authority campaign keeps its record untouched by an outcome"
+        ],
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/local-flagfalse-campaignCombatOutcomeRecordRewrite.test.log",
+          "sha256": "3fc7bfa469e44cf2459f7239627cd74edb372bf85d4c7c049407fd5c15c357f1"
+        }
+      },
+      "reconcileCoopBattle": {
+        "suite": "src/lib/campaign/coop/__tests__/reconcileCoopBattle.test.ts",
+        "exitCode": 0,
+        "counts": "Tests:       5 passed, 5 total",
+        "rowResults": [
+          "√ reconciles salvage, funds, and roster changes through the host",
+          "√ credits a positive funds delta into the salvage pool",
+          "√ keeps the campaign event log separate — only campaign events are appended",
+          "√ reads damaged player units and OpFor wreck salvage",
+          "√ feeds the derived consequences through reconciliation"
+        ],
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/local-flagfalse-reconcileCoopBattle.test.log",
+          "sha256": "150e4c7b674021d70ea224d5d96ad3df8eb4d7c95be801d96b0b540291ee52ed"
+        }
+      },
+      "campaignActivityProjection": {
+        "suite": "src/lib/campaign/activity/__tests__/campaignActivityProjection.test.ts",
+        "exitCode": 0,
+        "counts": "Tests:       8 passed, 8 total",
+        "rowResults": [
+          "√ derives one ordered row per ledger-mutating fact for the GM",
+          "√ omits a gm-scoped fact from a player feed and leaves no ordinal gap",
+          "√ withholds the GM rationale on an admitted removal from a player",
+          "√ keeps one player-scoped fact out of the other player feed",
+          "√ does not advance a player clock through a withheld day advance",
+          "√ treats a published baseline as context rather than a feed row",
+          "√ splits roster changes between acquisition and technical work",
+          "√ describes a status change carrying destroyed as destroyed, not repaired"
+        ],
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/local-flagfalse-campaignActivityProjection.test.log",
+          "sha256": "3e96a5048cde8ed3431d549d38ef9b49c2522361055bff62079426ab0aea0f05"
+        }
+      },
+      "valuesFile": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/local-flagfalse/u35g-rows.json",
+        "sha256": "a938b291aa7721cfe873b60a1af7a8901cdf2595856abf98ea386cfccd179c4b"
+      },
+      "values": {
+        "constant": false,
+        "o1": {
+          "genesisBy": "appendCampaignGenesis seam (flag false)",
+          "createdVersion": 1,
+          "outcomeOk": true,
+          "outcomeError": null,
+          "rosterChanges": [
+            {
+              "unitId": "unit-0",
+              "change": "repaired",
+              "status": "destroyed"
+            },
+            {
+              "unitId": "unit-1",
+              "change": "repaired",
+              "status": "damaged"
+            }
+          ],
+          "journalAfterOutcome": {
+            "balance": 380000,
+            "salvagePool": 50000,
+            "roster": {
+              "unit-0": "destroyed",
+              "unit-1": "damaged"
+            }
+          },
+          "hostAfterOutcome": {
+            "balance": 379000,
+            "salvagePool": 50000,
+            "roster": {
+              "unit-0": "destroyed",
+              "unit-1": "damaged"
+            }
+          },
+          "recordAfterOutcome": {
+            "version": 2,
+            "balance": 380000,
+            "roster": {
+              "unit-0": "Destroyed",
+              "unit-1": "Damaged"
+            },
+            "forceOf": {
+              "unit-0": "force-1790319554409-dm6jc4y",
+              "unit-1": "force-sub-1"
+            }
+          },
+          "stalePutStatus": 409,
+          "currentPutStatus": 200,
+          "journalAfterSave": {
+            "balance": 380000,
+            "salvagePool": 50000,
+            "roster": {
+              "unit-0": "destroyed",
+              "unit-1": "damaged"
+            }
+          },
+          "recordAfterSave": {
+            "version": 3,
+            "balance": 380000,
+            "roster": {
+              "unit-0": "Destroyed",
+              "unit-1": "Damaged"
+            },
+            "forceOf": {
+              "unit-0": "force-1790319554409-dm6jc4y",
+              "unit-1": "force-sub-1"
+            }
+          },
+          "nextCoopCommandOk": true,
+          "journalAgreesWithHost": true,
+          "eventTypes": [
+            "CampaignSnapshotPublished",
+            "SalvageAllocated",
+            "RosterUnitChanged",
+            "RosterUnitChanged",
+            "CampaignSnapshotPublished",
+            "FundsChanged"
+          ]
+        },
+        "o1c": {
+          "genesisBy": "appendCampaignGenesis seam (flag false)",
+          "createdVersion": 1,
+          "outcomeOk": true,
+          "outcomeError": null,
+          "rosterChanges": [
+            {
+              "unitId": "unit-0",
+              "change": "repaired",
+              "status": "destroyed"
+            },
+            {
+              "unitId": "unit-1",
+              "change": "repaired",
+              "status": "damaged"
+            }
+          ],
+          "journalAfterOutcome": {
+            "balance": 380000,
+            "salvagePool": 50000,
+            "roster": {
+              "unit-0": "destroyed",
+              "unit-1": "damaged"
+            }
+          },
+          "hostAfterOutcome": {
+            "balance": 379000,
+            "salvagePool": 50000,
+            "roster": {
+              "unit-0": "destroyed",
+              "unit-1": "damaged"
+            }
+          },
+          "recordAfterOutcome": {
+            "version": 2,
+            "balance": 380000,
+            "roster": {
+              "unit-0": "Destroyed",
+              "unit-1": "Damaged"
+            },
+            "forceOf": {
+              "unit-0": "force-1790319554518-uqxmov8",
+              "unit-1": "force-sub-1"
+            }
+          },
+          "stalePutStatus": 409,
+          "currentPutStatus": 200,
+          "journalAfterSave": {
+            "balance": 380000,
+            "salvagePool": 50000,
+            "roster": {
+              "unit-0": "destroyed",
+              "unit-1": "damaged"
+            }
+          },
+          "recordAfterSave": {
+            "version": 3,
+            "balance": 380000,
+            "roster": {
+              "unit-0": "Destroyed",
+              "unit-1": "Damaged"
+            },
+            "forceOf": {
+              "unit-0": "force-1790319554518-uqxmov8",
+              "unit-1": "force-sub-1"
+            }
+          },
+          "nextCoopCommandOk": true,
+          "journalAgreesWithHost": true,
+          "eventTypes": [
+            "CampaignSnapshotPublished",
+            "SalvageAllocated",
+            "RosterUnitChanged",
+            "RosterUnitChanged",
+            "CampaignSnapshotPublished",
+            "FundsChanged"
+          ]
+        },
+        "o1s": {
+          "genesisBy": "the PUT create alone",
+          "createdVersion": 1,
+          "outcomeOk": true,
+          "outcomeError": null,
+          "rosterChanges": [
+            {
+              "unitId": "unit-0",
+              "change": "repaired",
+              "status": "destroyed"
+            },
+            {
+              "unitId": "unit-1",
+              "change": "repaired",
+              "status": "damaged"
+            }
+          ],
+          "journalAfterOutcome": {
+            "balance": 380000,
+            "salvagePool": 50000,
+            "roster": {
+              "unit-0": "destroyed",
+              "unit-1": "damaged"
+            }
+          },
+          "hostAfterOutcome": {
+            "balance": 379000,
+            "salvagePool": 50000,
+            "roster": {
+              "unit-0": "destroyed",
+              "unit-1": "damaged"
+            }
+          },
+          "recordAfterOutcome": {
+            "version": 1,
+            "balance": 380000,
+            "roster": {
+              "unit-0": "Ready",
+              "unit-1": "Ready"
+            },
+            "forceOf": {
+              "unit-0": "force-1790319554596-exk6jgv",
+              "unit-1": "force-sub-1"
+            }
+          },
+          "stalePutStatus": 200,
+          "currentPutStatus": 200,
+          "journalAfterSave": {
+            "balance": 380000,
+            "salvagePool": 50000,
+            "roster": {
+              "unit-0": "destroyed",
+              "unit-1": "damaged"
+            }
+          },
+          "recordAfterSave": {
+            "version": 3,
+            "balance": 380000,
+            "roster": {
+              "unit-0": "Ready",
+              "unit-1": "Ready"
+            },
+            "forceOf": {
+              "unit-0": "force-1790319554596-exk6jgv",
+              "unit-1": "force-sub-1"
+            }
+          },
+          "nextCoopCommandOk": true,
+          "journalAgreesWithHost": true,
+          "eventTypes": [
+            "CampaignSnapshotPublished",
+            "SalvageAllocated",
+            "RosterUnitChanged",
+            "RosterUnitChanged",
+            "FundsChanged"
+          ]
+        },
+        "d": {
+          "createdVersion": 1,
+          "outcomeOk": true,
+          "rosterChanges": [
+            {
+              "unitId": "unit-0",
+              "change": "repaired",
+              "status": "destroyed"
+            },
+            {
+              "unitId": "unit-1",
+              "change": "repaired",
+              "status": "damaged"
+            }
+          ],
+          "journal": {
+            "balance": 380000,
+            "salvagePool": 0,
+            "roster": {
+              "unit-0": "destroyed",
+              "unit-1": "damaged"
+            }
+          },
+          "host": {
+            "balance": 380000,
+            "salvagePool": 0,
+            "roster": {
+              "unit-0": "destroyed",
+              "unit-1": "damaged"
+            }
+          },
+          "record": {
+            "version": 2,
+            "balance": 380000,
+            "roster": {
+              "unit-0": "Destroyed",
+              "unit-1": "Damaged"
+            },
+            "forceOf": {
+              "unit-0": "force-1790319554672-oyvujkv",
+              "unit-1": "force-sub-1"
+            }
+          }
+        },
+        "i": {
+          "createdVersion": 1,
+          "firstOk": true,
+          "firstEvents": 3,
+          "versionAfterFirst": {
+            "version": 2,
+            "balance": 380000,
+            "roster": {
+              "unit-0": "Destroyed",
+              "unit-1": "Damaged"
+            },
+            "forceOf": {
+              "unit-0": "force-1790319554766-lppjzea",
+              "unit-1": "force-sub-1"
+            }
+          },
+          "secondOk": true,
+          "secondEvents": 0,
+          "typesAfterFirst": [
+            "CampaignSnapshotPublished",
+            "SalvageAllocated",
+            "RosterUnitChanged",
+            "RosterUnitChanged"
+          ],
+          "typesAfterSecond": [
+            "CampaignSnapshotPublished",
+            "SalvageAllocated",
+            "RosterUnitChanged",
+            "RosterUnitChanged"
+          ],
+          "rowUnchangedBySecond": true
+        },
+        "o2u": {
+          "genesisBy": "appendCampaignGenesis seam (flag false)",
+          "createdVersion": 1,
+          "outcomeOk": true,
+          "outcomeError": null,
+          "rosterChanges": [],
+          "journalAfterOutcome": {
+            "balance": 355000,
+            "salvagePool": 0,
+            "roster": {
+              "unit-0": "operational",
+              "unit-1": "operational"
+            }
+          },
+          "hostAfterOutcome": {
+            "balance": 354000,
+            "salvagePool": 0,
+            "roster": {
+              "unit-0": "operational",
+              "unit-1": "operational"
+            }
+          },
+          "recordAfterOutcome": {
+            "version": 2,
+            "balance": 355000,
+            "roster": {
+              "unit-0": "Ready",
+              "unit-1": "Ready"
+            },
+            "forceOf": {
+              "unit-0": "force-1790319554831-dbpws39",
+              "unit-1": "force-sub-1"
+            }
+          },
+          "stalePutStatus": 409,
+          "currentPutStatus": 200,
+          "journalAfterSave": {
+            "balance": 355000,
+            "salvagePool": 0,
+            "roster": {
+              "unit-0": "operational",
+              "unit-1": "operational"
+            }
+          },
+          "recordAfterSave": {
+            "version": 3,
+            "balance": 355000,
+            "roster": {
+              "unit-0": "Ready",
+              "unit-1": "Ready"
+            },
+            "forceOf": {
+              "unit-0": "force-1790319554831-dbpws39",
+              "unit-1": "force-sub-1"
+            }
+          },
+          "nextCoopCommandOk": true,
+          "journalAgreesWithHost": true,
+          "eventTypes": [
+            "CampaignSnapshotPublished",
+            "FundsChanged",
+            "CampaignSnapshotPublished",
+            "FundsChanged"
+          ]
+        },
+        "t": {
+          "typesBefore": [
+            "CampaignSnapshotPublished"
+          ],
+          "afterFailure": {
+            "failure": "u35g injected record write failure",
+            "typesAfter": [
+              "CampaignSnapshotPublished"
+            ],
+            "rowUnchanged": true,
+            "receipts": 0,
+            "host": {
+              "balance": 380000,
+              "salvagePool": 0,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            }
+          },
+          "retryOk": true,
+          "recordAfterRetry": {
+            "version": 2,
+            "balance": 380000,
+            "roster": {
+              "unit-0": "Destroyed",
+              "unit-1": "Damaged"
+            },
+            "forceOf": {
+              "unit-0": "force-1790319554903-m4mone0",
+              "unit-1": "force-sub-1"
+            }
+          }
+        },
+        "a": {
+          "outcomeOk": true,
+          "rowUnchanged": true,
+          "journal": {
+            "balance": 355000,
+            "salvagePool": 50000,
+            "roster": {
+              "unit-0": "destroyed",
+              "unit-1": "damaged"
+            }
+          }
+        }
+      }
+    },
+    "underTemporaryFlip": {
+      "campaignCombatOutcomeRecordRewrite": {
+        "suite": "src/lib/campaign/sync/__tests__/campaignCombatOutcomeRecordRewrite.test.ts",
+        "exitCode": 0,
+        "counts": "Tests:       8 passed, 8 total",
+        "rowResults": [
+          "√ (o1) the host save carries its pre-battle roster",
+          "√ (o1c) the host save carries the damage (readiness Destroyed, Damaged)",
+          "√ (o1s) the outcome on a campaign created by the PUT route alone",
+          "√ (d) a destroyed unit is kept as a status change in the journal, the host and the record",
+          "√ (i) a duplicate receipt of the same outcome rewrites nothing",
+          "√ (o2u) a debit, then a host save built before the host folded it",
+          "√ (t) a record rewrite that fails rolls the outcome and its inbox receipt back",
+          "√ (a) a snapshot-authority campaign keeps its record untouched by an outcome"
+        ],
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/local-flipped-campaignCombatOutcomeRecordRewrite.test.log",
+          "sha256": "a0a076193a362f994b8d3a76a792640c265c5c60b8b7603ac7d1396eb581988a"
+        }
+      },
+      "reconcileCoopBattle": {
+        "suite": "src/lib/campaign/coop/__tests__/reconcileCoopBattle.test.ts",
+        "exitCode": 0,
+        "counts": "Tests:       5 passed, 5 total",
+        "rowResults": [
+          "√ reconciles salvage, funds, and roster changes through the host",
+          "√ credits a positive funds delta into the salvage pool",
+          "√ keeps the campaign event log separate — only campaign events are appended",
+          "√ reads damaged player units and OpFor wreck salvage",
+          "√ feeds the derived consequences through reconciliation"
+        ],
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/local-flipped-reconcileCoopBattle.test.log",
+          "sha256": "ce699d1d6eca5d84dba52113e5bc26eede886cc212501f5c9d25132d6346fb08"
+        }
+      },
+      "campaignActivityProjection": {
+        "suite": "src/lib/campaign/activity/__tests__/campaignActivityProjection.test.ts",
+        "exitCode": 0,
+        "counts": "Tests:       8 passed, 8 total",
+        "rowResults": [
+          "√ derives one ordered row per ledger-mutating fact for the GM",
+          "√ omits a gm-scoped fact from a player feed and leaves no ordinal gap",
+          "√ withholds the GM rationale on an admitted removal from a player",
+          "√ keeps one player-scoped fact out of the other player feed",
+          "√ does not advance a player clock through a withheld day advance",
+          "√ treats a published baseline as context rather than a feed row",
+          "√ splits roster changes between acquisition and technical work",
+          "√ describes a status change carrying destroyed as destroyed, not repaired"
+        ],
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/local-flipped-campaignActivityProjection.test.log",
+          "sha256": "e3ee65d0488b19eb4159b2cecd38650fa8ca7464157078ef961ac9069501d4fb"
+        }
+      },
+      "valuesFile": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/local-flipped/u35g-rows.json",
+        "sha256": "55d875ee9039b218716f4be0aa75788486b62ad7bbf4c9641f41960ed44a2e5b"
+      },
+      "values": {
+        "constant": true,
+        "o1": {
+          "genesisBy": "the PUT create (flag true)",
+          "createdVersion": 1,
+          "outcomeOk": true,
+          "outcomeError": null,
+          "rosterChanges": [
+            {
+              "unitId": "unit-0",
+              "change": "repaired",
+              "status": "destroyed"
+            },
+            {
+              "unitId": "unit-1",
+              "change": "repaired",
+              "status": "damaged"
+            }
+          ],
+          "journalAfterOutcome": {
+            "balance": 380000,
+            "salvagePool": 50000,
+            "roster": {
+              "unit-0": "destroyed",
+              "unit-1": "damaged"
+            }
+          },
+          "hostAfterOutcome": {
+            "balance": 379000,
+            "salvagePool": 50000,
+            "roster": {
+              "unit-0": "destroyed",
+              "unit-1": "damaged"
+            }
+          },
+          "recordAfterOutcome": {
+            "version": 2,
+            "balance": 380000,
+            "roster": {
+              "unit-0": "Destroyed",
+              "unit-1": "Damaged"
+            },
+            "forceOf": {
+              "unit-0": "force-1790319575442-piwy311",
+              "unit-1": "force-sub-1"
+            }
+          },
+          "stalePutStatus": 409,
+          "currentPutStatus": 200,
+          "journalAfterSave": {
+            "balance": 380000,
+            "salvagePool": 50000,
+            "roster": {
+              "unit-0": "destroyed",
+              "unit-1": "damaged"
+            }
+          },
+          "recordAfterSave": {
+            "version": 3,
+            "balance": 380000,
+            "roster": {
+              "unit-0": "Destroyed",
+              "unit-1": "Damaged"
+            },
+            "forceOf": {
+              "unit-0": "force-1790319575442-piwy311",
+              "unit-1": "force-sub-1"
+            }
+          },
+          "nextCoopCommandOk": true,
+          "journalAgreesWithHost": true,
+          "eventTypes": [
+            "CampaignSnapshotPublished",
+            "SalvageAllocated",
+            "RosterUnitChanged",
+            "RosterUnitChanged",
+            "CampaignSnapshotPublished",
+            "FundsChanged"
+          ]
+        },
+        "o1c": {
+          "genesisBy": "the PUT create (flag true)",
+          "createdVersion": 1,
+          "outcomeOk": true,
+          "outcomeError": null,
+          "rosterChanges": [
+            {
+              "unitId": "unit-0",
+              "change": "repaired",
+              "status": "destroyed"
+            },
+            {
+              "unitId": "unit-1",
+              "change": "repaired",
+              "status": "damaged"
+            }
+          ],
+          "journalAfterOutcome": {
+            "balance": 380000,
+            "salvagePool": 50000,
+            "roster": {
+              "unit-0": "destroyed",
+              "unit-1": "damaged"
+            }
+          },
+          "hostAfterOutcome": {
+            "balance": 379000,
+            "salvagePool": 50000,
+            "roster": {
+              "unit-0": "destroyed",
+              "unit-1": "damaged"
+            }
+          },
+          "recordAfterOutcome": {
+            "version": 2,
+            "balance": 380000,
+            "roster": {
+              "unit-0": "Destroyed",
+              "unit-1": "Damaged"
+            },
+            "forceOf": {
+              "unit-0": "force-1790319575550-o0q995j",
+              "unit-1": "force-sub-1"
+            }
+          },
+          "stalePutStatus": 409,
+          "currentPutStatus": 200,
+          "journalAfterSave": {
+            "balance": 380000,
+            "salvagePool": 50000,
+            "roster": {
+              "unit-0": "destroyed",
+              "unit-1": "damaged"
+            }
+          },
+          "recordAfterSave": {
+            "version": 3,
+            "balance": 380000,
+            "roster": {
+              "unit-0": "Destroyed",
+              "unit-1": "Damaged"
+            },
+            "forceOf": {
+              "unit-0": "force-1790319575550-o0q995j",
+              "unit-1": "force-sub-1"
+            }
+          },
+          "nextCoopCommandOk": true,
+          "journalAgreesWithHost": true,
+          "eventTypes": [
+            "CampaignSnapshotPublished",
+            "SalvageAllocated",
+            "RosterUnitChanged",
+            "RosterUnitChanged",
+            "CampaignSnapshotPublished",
+            "FundsChanged"
+          ]
+        },
+        "o1s": {
+          "genesisBy": "the PUT create alone",
+          "createdVersion": 1,
+          "outcomeOk": true,
+          "outcomeError": null,
+          "rosterChanges": [
+            {
+              "unitId": "unit-0",
+              "change": "repaired",
+              "status": "destroyed"
+            },
+            {
+              "unitId": "unit-1",
+              "change": "repaired",
+              "status": "damaged"
+            }
+          ],
+          "journalAfterOutcome": {
+            "balance": 380000,
+            "salvagePool": 50000,
+            "roster": {
+              "unit-0": "destroyed",
+              "unit-1": "damaged"
+            }
+          },
+          "hostAfterOutcome": {
+            "balance": 379000,
+            "salvagePool": 50000,
+            "roster": {
+              "unit-0": "destroyed",
+              "unit-1": "damaged"
+            }
+          },
+          "recordAfterOutcome": {
+            "version": 2,
+            "balance": 380000,
+            "roster": {
+              "unit-0": "Destroyed",
+              "unit-1": "Damaged"
+            },
+            "forceOf": {
+              "unit-0": "force-1790319575624-jbcw5zl",
+              "unit-1": "force-sub-1"
+            }
+          },
+          "stalePutStatus": 409,
+          "currentPutStatus": 200,
+          "journalAfterSave": {
+            "balance": 380000,
+            "salvagePool": 50000,
+            "roster": {
+              "unit-0": "destroyed",
+              "unit-1": "damaged"
+            }
+          },
+          "recordAfterSave": {
+            "version": 3,
+            "balance": 380000,
+            "roster": {
+              "unit-0": "Destroyed",
+              "unit-1": "Damaged"
+            },
+            "forceOf": {
+              "unit-0": "force-1790319575624-jbcw5zl",
+              "unit-1": "force-sub-1"
+            }
+          },
+          "nextCoopCommandOk": true,
+          "journalAgreesWithHost": true,
+          "eventTypes": [
+            "CampaignSnapshotPublished",
+            "SalvageAllocated",
+            "RosterUnitChanged",
+            "RosterUnitChanged",
+            "CampaignSnapshotPublished",
+            "FundsChanged"
+          ]
+        },
+        "d": {
+          "createdVersion": 1,
+          "outcomeOk": true,
+          "rosterChanges": [
+            {
+              "unitId": "unit-0",
+              "change": "repaired",
+              "status": "destroyed"
+            },
+            {
+              "unitId": "unit-1",
+              "change": "repaired",
+              "status": "damaged"
+            }
+          ],
+          "journal": {
+            "balance": 380000,
+            "salvagePool": 0,
+            "roster": {
+              "unit-0": "destroyed",
+              "unit-1": "damaged"
+            }
+          },
+          "host": {
+            "balance": 380000,
+            "salvagePool": 0,
+            "roster": {
+              "unit-0": "destroyed",
+              "unit-1": "damaged"
+            }
+          },
+          "record": {
+            "version": 2,
+            "balance": 380000,
+            "roster": {
+              "unit-0": "Destroyed",
+              "unit-1": "Damaged"
+            },
+            "forceOf": {
+              "unit-0": "force-1790319575695-5phwfnb",
+              "unit-1": "force-sub-1"
+            }
+          }
+        },
+        "i": {
+          "createdVersion": 1,
+          "firstOk": true,
+          "firstEvents": 3,
+          "versionAfterFirst": {
+            "version": 2,
+            "balance": 380000,
+            "roster": {
+              "unit-0": "Destroyed",
+              "unit-1": "Damaged"
+            },
+            "forceOf": {
+              "unit-0": "force-1790319575756-w9raqx7",
+              "unit-1": "force-sub-1"
+            }
+          },
+          "secondOk": true,
+          "secondEvents": 0,
+          "typesAfterFirst": [
+            "CampaignSnapshotPublished",
+            "SalvageAllocated",
+            "RosterUnitChanged",
+            "RosterUnitChanged"
+          ],
+          "typesAfterSecond": [
+            "CampaignSnapshotPublished",
+            "SalvageAllocated",
+            "RosterUnitChanged",
+            "RosterUnitChanged"
+          ],
+          "rowUnchangedBySecond": true
+        },
+        "o2u": {
+          "genesisBy": "the PUT create (flag true)",
+          "createdVersion": 1,
+          "outcomeOk": true,
+          "outcomeError": null,
+          "rosterChanges": [],
+          "journalAfterOutcome": {
+            "balance": 355000,
+            "salvagePool": 0,
+            "roster": {
+              "unit-0": "operational",
+              "unit-1": "operational"
+            }
+          },
+          "hostAfterOutcome": {
+            "balance": 354000,
+            "salvagePool": 0,
+            "roster": {
+              "unit-0": "operational",
+              "unit-1": "operational"
+            }
+          },
+          "recordAfterOutcome": {
+            "version": 2,
+            "balance": 355000,
+            "roster": {
+              "unit-0": "Ready",
+              "unit-1": "Ready"
+            },
+            "forceOf": {
+              "unit-0": "force-1790319575818-jigmmu4",
+              "unit-1": "force-sub-1"
+            }
+          },
+          "stalePutStatus": 409,
+          "currentPutStatus": 200,
+          "journalAfterSave": {
+            "balance": 355000,
+            "salvagePool": 0,
+            "roster": {
+              "unit-0": "operational",
+              "unit-1": "operational"
+            }
+          },
+          "recordAfterSave": {
+            "version": 3,
+            "balance": 355000,
+            "roster": {
+              "unit-0": "Ready",
+              "unit-1": "Ready"
+            },
+            "forceOf": {
+              "unit-0": "force-1790319575818-jigmmu4",
+              "unit-1": "force-sub-1"
+            }
+          },
+          "nextCoopCommandOk": true,
+          "journalAgreesWithHost": true,
+          "eventTypes": [
+            "CampaignSnapshotPublished",
+            "FundsChanged",
+            "CampaignSnapshotPublished",
+            "FundsChanged"
+          ]
+        },
+        "t": {
+          "typesBefore": [
+            "CampaignSnapshotPublished"
+          ],
+          "afterFailure": {
+            "failure": "u35g injected record write failure",
+            "typesAfter": [
+              "CampaignSnapshotPublished"
+            ],
+            "rowUnchanged": true,
+            "receipts": 0,
+            "host": {
+              "balance": 380000,
+              "salvagePool": 0,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            }
+          },
+          "retryOk": true,
+          "recordAfterRetry": {
+            "version": 2,
+            "balance": 380000,
+            "roster": {
+              "unit-0": "Destroyed",
+              "unit-1": "Damaged"
+            },
+            "forceOf": {
+              "unit-0": "force-1790319575888-5jaxfb6",
+              "unit-1": "force-sub-1"
+            }
+          }
+        },
+        "a": {
+          "outcomeOk": true,
+          "rowUnchanged": true,
+          "journal": {
+            "balance": 355000,
+            "salvagePool": 50000,
+            "roster": {
+              "unit-0": "destroyed",
+              "unit-1": "damaged"
+            }
+          }
+        }
+      }
+    },
+    "restore": {
+      "pre": "f1d5e7cf2345f404bb3c7b2a71d17c7ef4019cd35c533b1a65cb27e8066c8a71",
+      "flipped": "cda04170866973e6c880e79381f173e9c51af7e16e8b458dfd60129e37622cb2",
+      "post": "f1d5e7cf2345f404bb3c7b2a71d17c7ef4019cd35c533b1a65cb27e8066c8a71",
+      "identical": "true",
+      "byteCopy": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/flagfile.pre-local",
+        "sha256": "f1d5e7cf2345f404bb3c7b2a71d17c7ef4019cd35c533b1a65cb27e8066c8a71"
+      },
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/local-restore.log",
+        "sha256": "385dbe9a3d09013b5a8792fb3d75b19ee8ee5e9b1a725e0cf634b2dd24f91653"
+      }
+    }
+  },
+  "diagnostic": {
+    "what": "after the destroyed and hook changes, before the carry-forward: which fields of the journal projection and the live host differ after an outcome, the host taking the server record and one more co-op command",
+    "probeCopy": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/diag-probe-copy.test.ts.txt",
+      "sha256": "e25c8f828400084db5c2c19cdf16a7f820d8d3069963e87db781b0e0cfaee098"
+    },
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/diag-agreement.log",
+      "sha256": "c4ba0d27e0026d90eb98843409f679389ef81778438fe3536e68422314840fd8"
+    },
+    "exitCode": 0,
+    "values": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/diag-agreement.json",
+      "sha256": "6080ec440ca48f47c20f3165e94864af688023148db1dbb040732628c814b12a"
+    },
+    "reading": [
+      "rosterUnits"
+    ],
+    "note": "only rosterUnits differed: the journal units carried unitRef and unitSource from the checkpoint, the host units did not (the outcome payload had dropped them); the probe was copied in, run once and removed"
+  },
+  "gates": {
+    "jestCampaign": {
+      "command": "npx jest src/lib/campaign",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\campaign/i.",
+      "counts": "Test Suites: 204 passed, 204 total | Tests:       2982 passed, 2982 total",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/gate-jest-campaign.log",
+        "sha256": "a9641c4dcd8d6d89135a9ecf698c2fc350d6c51128ffc3ab46f762719dd1fe13"
+      }
+    },
+    "jestApiCampaigns": {
+      "command": "npx jest src/__tests__/api/campaigns",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\api\\\\campaigns/i.",
+      "counts": "Test Suites: 15 passed, 15 total | Tests:       110 passed, 110 total",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/gate-jest-api-campaigns.log",
+        "sha256": "43445460e44f0904d50298c241ad69b6a2f45910bf619704310372d74e0ce806"
+      }
+    },
+    "jestMultiplayerServer": {
+      "command": "npx jest src/lib/multiplayer/server",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\multiplayer\\\\server/i.",
+      "counts": "Test Suites: 160 passed, 160 total | Tests:       1178 passed, 1178 total",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/gate-jest-mp-server.log",
+        "sha256": "20e5a46e7c26a2c36d4a0c8ca8d93f5b00260147b0867641276456db9d5ab908"
+      }
+    },
+    "jestCampaignPersistence": {
+      "command": "npx jest src/services/campaignPersistence",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\services\\\\campaignPersistence/i.",
+      "counts": "Test Suites: 4 passed, 4 total | Tests:       23 passed, 23 total",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/gate-jest-persistence.log",
+        "sha256": "a24ef725b611c5d37cc529f8a01cdcb31952cacd07753d8c8ee93a39b25a2da7"
+      }
+    },
+    "jestEvents": {
+      "command": "npx jest src/lib/events",
+      "exitCode": 1,
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\events/i.",
+      "counts": "Test Suites: 1 failed, 50 passed, 51 total | Tests:       1 failed, 926 passed, 927 total",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/gate-jest-events.log",
+        "sha256": "94de36f9aca2d5e1aeb2facbaaedf4dd45d184c348c2a72abfbe9fe4f5adc55e"
+      },
+      "failure": {
+        "test": "src/lib/events/journal/__tests__/EventJournalCanonicalizer.test.ts > canonicalizeEventDigestV1 > repeats the published digest in isolated Node processes",
+        "cause": "environment: the test spawns node_modules/tsx/dist/cli.mjs (EventJournalCanonicalizer.test.ts:207-220); node_modules is a junction to the root checkout's node_modules, which has no tsx package (ls E:/Projects/MekStation/node_modules/tsx: No such file or directory; only stale .bin/tsx shims); no file under src/lib/events is in this diff; not re-run on the baseline (no npm install allowed in this lane)",
+        "environmentOnly": true,
+        "evidence": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/env-tsx-check.log",
+          "sha256": "82674e4e3c22dbf6148e156e81784fb09c71b53843c76c59cde51e2ce49c5ccc"
+        }
+      }
+    },
+    "tsc": {
+      "command": "npx tsc --noEmit",
+      "exitCode": 0,
+      "lastLine": "",
+      "counts": "",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/gate-tsc.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "oxlint": {
+      "command": "npx oxlint",
+      "exitCode": 0,
+      "lastLine": "Finished in 315ms on 3819 files using 16 threads.",
+      "counts": "",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/gate-oxlint.log",
+        "sha256": "4326c7a0a96829cf80566983b02c8cead2e139acdddbea69402fec09bd287dbb"
+      },
+      "summary": "Found 84 warnings and 0 errors.",
+      "warnings": 84,
+      "errors": 0,
+      "warningsBaselineFromCharter": 84
+    },
+    "oxfmtChangedFiles": {
+      "command": "npx oxfmt --check src/lib/campaign/activity/__tests__/campaignActivityProjection.test.ts src/lib/campaign/activity/campaignActivityProjection.ts src/lib/campaign/authority/campaignRecordJournalState.ts src/lib/campaign/coop/__tests__/reconcileCoopBattle.test.ts src/lib/campaign/coop/reconcileCoopBattle.ts src/lib/campaign/sync/JournalCampaignEventStore.ts src/lib/campaign/sync/campaignCombatOutcomeInbox.ts src/lib/multiplayer/server/CampaignMatchHostOutcomeInbox.ts src/types/campaign/RosterUnitProjection.ts src/lib/campaign/sync/__tests__/campaignCombatOutcomeRecordRewrite.test.ts",
+      "exitCode": 0,
+      "lastLine": "Finished in 42ms on 10 files using 16 threads.",
+      "counts": "",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/gate-oxfmt.log",
+        "sha256": "3fea96e2b112f3377a906e4c318bb5cea64015e8552dd9e498950e3a58ae4146"
+      }
+    },
+    "lintUnits": {
+      "command": "npm run lint:units",
+      "exitCode": 0,
+      "lastLine": "LINT_UNITS_PASS 100/100",
+      "counts": "",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/gate-lint-units.log",
+        "sha256": "e055631f9348b2e6539c922dddc1fe388b583448a734da5f618cb47c583fae2d"
+      }
+    },
+    "openspecCi": {
+      "command": "npm run qc:openspec-ci:validate",
+      "exitCode": 0,
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+      "counts": "",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/gate-openspec-ci.log",
+        "sha256": "4c2dafd093b946290aa4abe001ad8b3d65671b17c7682722c55a510ecc04f91e"
+      }
+    },
+    "roadmapValidator": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "exitCode": 0,
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "counts": "",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/gate-validator.log",
+        "sha256": "97b2f29d264078525a55c5f88586fb95603311fa065e70d7d17c5fab08f5b5bc"
+      }
+    }
+  },
+  "extras": {
+    "why": "suites outside the unit paths that exercise the changed roster derivation, the co-op reconcile path or the guest roster surface (read-only paths; run, not edited)",
+    "storeWiring": {
+      "command": "npx jest src/stores/campaign/__tests__/coopBattleReconciliationWiring.test.ts",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\stores\\\\campaign\\\\__tests__\\\\coopBattleReconciliationWiring.test.ts/i.",
+      "counts": "Test Suites: 1 passed, 1 total | Tests:       4 passed, 4 total",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/gate-extra-store-wiring.log",
+        "sha256": "d0a9cb2162223eb834b2419029ec25c56c7f6a7dd56ef7464269ba85c11decfc"
+      }
+    },
+    "integrationCoop": {
+      "command": "npx jest src/__tests__/integration/coopCampaignPlay.test.ts",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\integration\\\\coopCampaignPlay.test.ts/i.",
+      "counts": "Test Suites: 1 passed, 1 total | Tests:       5 passed, 5 total",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/gate-extra-integration-coop.log",
+        "sha256": "cf4b498435589b8a517b2fffa49794314b2f1d4eeea8563136a21a6181adba2a"
+      }
+    },
+    "typesCampaign": {
+      "command": "npx jest src/types/campaign",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\types\\\\campaign/i.",
+      "counts": "Test Suites: 45 passed, 45 total | Tests:       1046 passed, 1046 total",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/gate-extra-types-campaign.log",
+        "sha256": "d162c093190a6c6f4f20da04dbc05156ba6e5fd785d76f9e0ef7ad43cf2dbcf8"
+      }
+    },
+    "protocolHostIntent": {
+      "command": "npx jest src/types/multiplayer/__tests__/Protocol.campaignHostIntent.test.ts",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\types\\\\multiplayer\\\\__tests__\\\\Protocol.campaignHostIntent.test.ts/i.",
+      "counts": "Test Suites: 1 passed, 1 total | Tests:       2 passed, 2 total",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/gate-extra-protocol-host-intent.log",
+        "sha256": "9e22ebebf42d4423bc72ce92407112c63530db917d2dd6fd5a1622cffdbfffa1"
+      }
+    },
+    "componentsCoop": {
+      "command": "npx jest src/components/campaign/coop",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\components\\\\campaign\\\\coop/i in 2 projects.",
+      "counts": "Test Suites: 15 passed, 15 total | Tests:       153 passed, 153 total",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/gate-extra-components-coop.log",
+        "sha256": "bc71b9310a59c6acae4fe3bf3e913be1cde0e1ddb4ded862e518fb1c967e46bc"
+      }
+    },
+    "u35eSuitesUnderFlip": {
+      "command": "npx jest src/__tests__/api/campaigns/campaignJournalEffectsSurviveSave.test.ts src/__tests__/api/campaigns/campaignRecordCommandRewrite.test.ts",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\api\\\\campaigns\\\\campaignJournalEffectsSurviveSave.test.ts|src\\\\__tests__\\\\api\\\\campaigns\\\\campaignRecordCommandRewrite.test.ts/i.",
+      "counts": "Test Suites: 2 passed, 2 total | Tests:       11 passed, 11 total",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/gate-flipped-u35e-suites.log",
+        "sha256": "ab0e3cb3ce1f7888a78d15a66411cfc0309c7f096dc4a4d1d9aa1de489be9e24"
+      },
+      "flipApplyExitCode": 0,
+      "restore": {
+        "pre": "f1d5e7cf2345f404bb3c7b2a71d17c7ef4019cd35c533b1a65cb27e8066c8a71",
+        "flipped": "cda04170866973e6c880e79381f173e9c51af7e16e8b458dfd60129e37622cb2",
+        "post": "f1d5e7cf2345f404bb3c7b2a71d17c7ef4019cd35c533b1a65cb27e8066c8a71",
+        "identical": "true",
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/gates-restore.log",
+          "sha256": "385dbe9a3d09013b5a8792fb3d75b19ee8ee5e9b1a725e0cf634b2dd24f91653"
+        }
+      }
+    }
+  },
+  "mutants": [
+    {
+      "id": "M1",
+      "what": "the outcome appends without rewriting the record (the store's appendCombatOutcomeBatch passes no hook)",
+      "file": "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+      "caught": true,
+      "caughtBy": [
+        "× (o1) the host save carries its pre-battle roster",
+        "× (d) a destroyed unit is kept as a status change in the journal, the host and the record",
+        "× (i) a duplicate receipt of the same outcome rewrites nothing",
+        "× (o2u) a debit, then a host save built before the host folded it",
+        "× (t) a record rewrite that fails rolls the outcome and its inbox receipt back"
+      ],
+      "suites": [
+        {
+          "suite": "src/lib/campaign/sync/__tests__/campaignCombatOutcomeRecordRewrite.test.ts",
+          "exitCode": 1,
+          "counts": "Tests:       5 failed, 3 passed, 8 total",
+          "failedRows": [
+            "× (o1) the host save carries its pre-battle roster",
+            "× (d) a destroyed unit is kept as a status change in the journal, the host and the record",
+            "× (i) a duplicate receipt of the same outcome rewrites nothing",
+            "× (o2u) a debit, then a host save built before the host folded it",
+            "× (t) a record rewrite that fails rolls the outcome and its inbox receipt back"
+          ],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/mutant-M1-campaignCombatOutcomeRecordRewrite.test.ts.log",
+            "sha256": "59dcfcc14d3e116c543a3fc9c6689f0ab35a1ebbdea207ebdccac881cb6609a2"
+          }
+        },
+        {
+          "suite": "src/lib/campaign/coop/__tests__/reconcileCoopBattle.test.ts",
+          "exitCode": 0,
+          "counts": "Tests:       5 passed, 5 total",
+          "failedRows": [],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/mutant-M1-reconcileCoopBattle.test.ts.log",
+            "sha256": "d4f7787293302b3539e7c354aa3c269c5cfae31f31d38e661af18eda128b8ffa"
+          }
+        },
+        {
+          "suite": "src/lib/campaign/activity/__tests__/campaignActivityProjection.test.ts",
+          "exitCode": 0,
+          "counts": "Tests:       8 passed, 8 total",
+          "failedRows": [],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/mutant-M1-campaignActivityProjection.test.ts.log",
+            "sha256": "458bf40b862f6980308b28f7437e133f21d90d331dbbf91c7091b20f58133965"
+          }
+        }
+      ],
+      "preMutantSha256": "f1d5e7cf2345f404bb3c7b2a71d17c7ef4019cd35c533b1a65cb27e8066c8a71",
+      "mutantSha256": "36fb1c71d9b94367ca117f98d238db24548497697aa880e45029d7858b47ad57",
+      "restoredSha256": "f1d5e7cf2345f404bb3c7b2a71d17c7ef4019cd35c533b1a65cb27e8066c8a71",
+      "restoredIdentical": true,
+      "restoredFrom": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/mutant-M1.pre-mutant.copy"
+    },
+    {
+      "id": "M2",
+      "what": "the rewrite runs outside the append transaction (on the captured handle after the transaction commits)",
+      "file": "src/lib/campaign/sync/campaignCombatOutcomeInbox.ts",
+      "caught": true,
+      "caughtBy": [
+        "× (t) a record rewrite that fails rolls the outcome and its inbox receipt back"
+      ],
+      "suites": [
+        {
+          "suite": "src/lib/campaign/sync/__tests__/campaignCombatOutcomeRecordRewrite.test.ts",
+          "exitCode": 1,
+          "counts": "Tests:       1 failed, 7 passed, 8 total",
+          "failedRows": [
+            "× (t) a record rewrite that fails rolls the outcome and its inbox receipt back"
+          ],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/mutant-M2-campaignCombatOutcomeRecordRewrite.test.ts.log",
+            "sha256": "0098be8f18c4f854eb0e9816d45d55535204a203b775fde18665b1b2a884d86d"
+          }
+        },
+        {
+          "suite": "src/lib/campaign/coop/__tests__/reconcileCoopBattle.test.ts",
+          "exitCode": 0,
+          "counts": "Tests:       5 passed, 5 total",
+          "failedRows": [],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/mutant-M2-reconcileCoopBattle.test.ts.log",
+            "sha256": "27eed674ea606c7da132993c004567061344ca9b2cb71d8590695415ab6e8fc4"
+          }
+        },
+        {
+          "suite": "src/lib/campaign/activity/__tests__/campaignActivityProjection.test.ts",
+          "exitCode": 0,
+          "counts": "Tests:       8 passed, 8 total",
+          "failedRows": [],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/mutant-M2-campaignActivityProjection.test.ts.log",
+            "sha256": "9f9bd3c910a530087de022492b1fd94ac01d5260f9c71f32ada24999e03de40e"
+          }
+        }
+      ],
+      "preMutantSha256": "8c8d40cabda0a427289a0a416185dc36134128267ca47a70afb26365a988a4ea",
+      "mutantSha256": "15be7e41ad465a34a0d4f4f7425d0b88e5fcefae5a688419ffb02080b72c51e9",
+      "restoredSha256": "8c8d40cabda0a427289a0a416185dc36134128267ca47a70afb26365a988a4ea",
+      "restoredIdentical": true,
+      "restoredFrom": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/mutant-M2.pre-mutant.copy"
+    },
+    {
+      "id": "M3",
+      "what": "a duplicate receipt rewrites again (the hook also runs in the duplicate arm)",
+      "file": "src/lib/campaign/sync/campaignCombatOutcomeInbox.ts",
+      "caught": true,
+      "caughtBy": [
+        "× (i) a duplicate receipt of the same outcome rewrites nothing"
+      ],
+      "suites": [
+        {
+          "suite": "src/lib/campaign/sync/__tests__/campaignCombatOutcomeRecordRewrite.test.ts",
+          "exitCode": 1,
+          "counts": "Tests:       1 failed, 7 passed, 8 total",
+          "failedRows": [
+            "× (i) a duplicate receipt of the same outcome rewrites nothing"
+          ],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/mutant-M3-campaignCombatOutcomeRecordRewrite.test.ts.log",
+            "sha256": "e2adf02fa2b6d566cd839a5a197e4ebe7ff367eec414a78a2cf0c61961ed9865"
+          }
+        },
+        {
+          "suite": "src/lib/campaign/coop/__tests__/reconcileCoopBattle.test.ts",
+          "exitCode": 0,
+          "counts": "Tests:       5 passed, 5 total",
+          "failedRows": [],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/mutant-M3-reconcileCoopBattle.test.ts.log",
+            "sha256": "d317790a921711b3d45f746d87fc2bc99d56b86b8e805f42d9bbfc3b56779824"
+          }
+        },
+        {
+          "suite": "src/lib/campaign/activity/__tests__/campaignActivityProjection.test.ts",
+          "exitCode": 0,
+          "counts": "Tests:       8 passed, 8 total",
+          "failedRows": [],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/mutant-M3-campaignActivityProjection.test.ts.log",
+            "sha256": "271f2d60624d0ddd7c7edba83d6992e63498efa31bfd0c46fe123739d5ab533d"
+          }
+        }
+      ],
+      "preMutantSha256": "8c8d40cabda0a427289a0a416185dc36134128267ca47a70afb26365a988a4ea",
+      "mutantSha256": "c639ead0e16976c5d4b11b776a1680a43320eea85ed789f0fcb90a903621ca59",
+      "restoredSha256": "8c8d40cabda0a427289a0a416185dc36134128267ca47a70afb26365a988a4ea",
+      "restoredIdentical": true,
+      "restoredFrom": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/mutant-M3.pre-mutant.copy"
+    },
+    {
+      "id": "M4",
+      "what": "the fallback walk removes a destroyed unit again (reconcileCoopBattle.ts change kind back to 'removed' for destroyed)",
+      "file": "src/lib/campaign/coop/reconcileCoopBattle.ts",
+      "caught": true,
+      "caughtBy": [
+        "× reconciles salvage, funds, and roster changes through the host"
+      ],
+      "suites": [
+        {
+          "suite": "src/lib/campaign/sync/__tests__/campaignCombatOutcomeRecordRewrite.test.ts",
+          "exitCode": 0,
+          "counts": "Tests:       8 passed, 8 total",
+          "failedRows": [],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/mutant-M4-campaignCombatOutcomeRecordRewrite.test.ts.log",
+            "sha256": "0207cdbaa23833e2edbcb230d43a066dd8451734285df1a28d3833d4f0831cd6"
+          }
+        },
+        {
+          "suite": "src/lib/campaign/coop/__tests__/reconcileCoopBattle.test.ts",
+          "exitCode": 1,
+          "counts": "Tests:       1 failed, 4 passed, 5 total",
+          "failedRows": [
+            "× reconciles salvage, funds, and roster changes through the host"
+          ],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/mutant-M4-reconcileCoopBattle.test.ts.log",
+            "sha256": "479b65fb2e0a6c5c97882aa143bc7e173c66e4b4ab8a0cfb33e1f0226c9f0411"
+          }
+        },
+        {
+          "suite": "src/lib/campaign/activity/__tests__/campaignActivityProjection.test.ts",
+          "exitCode": 0,
+          "counts": "Tests:       8 passed, 8 total",
+          "failedRows": [],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/mutant-M4-campaignActivityProjection.test.ts.log",
+            "sha256": "cd96d7b1273f0a0d8310aac76ebf67b655a41bfd9ed032a85fb19c588f5f646c"
+          }
+        }
+      ],
+      "preMutantSha256": "9323b61b43f3b89a8fce647072cd6462cbf25d4970ca6e080482a34071ca90b6",
+      "mutantSha256": "0a06ef604ec9a5a5b0bb988ebafecb1a1bac9e7ada8a7ead63f06695d4a4aec7",
+      "restoredSha256": "9323b61b43f3b89a8fce647072cd6462cbf25d4970ca6e080482a34071ca90b6",
+      "restoredIdentical": true,
+      "restoredFrom": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/mutant-M4.pre-mutant.copy"
+    },
+    {
+      "id": "M5",
+      "what": "the journal-native gate is removed (a snapshot-authority record is rewritten)",
+      "file": "src/lib/campaign/authority/campaignRecordJournalState.ts",
+      "caught": true,
+      "caughtBy": [
+        "× (a) a snapshot-authority campaign keeps its record untouched by an outcome"
+      ],
+      "suites": [
+        {
+          "suite": "src/lib/campaign/sync/__tests__/campaignCombatOutcomeRecordRewrite.test.ts",
+          "exitCode": 1,
+          "counts": "Tests:       1 failed, 7 passed, 8 total",
+          "failedRows": [
+            "× (a) a snapshot-authority campaign keeps its record untouched by an outcome"
+          ],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/mutant-M5-campaignCombatOutcomeRecordRewrite.test.ts.log",
+            "sha256": "4e2c2ace92f0bd5a299f4e9999e4a53d0161453dc2128dcd26157db09cb22101"
+          }
+        },
+        {
+          "suite": "src/lib/campaign/coop/__tests__/reconcileCoopBattle.test.ts",
+          "exitCode": 0,
+          "counts": "Tests:       5 passed, 5 total",
+          "failedRows": [],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/mutant-M5-reconcileCoopBattle.test.ts.log",
+            "sha256": "dfedf074f8703a2266341fd630619fbc855dc4de66b6ee5457ca796568966906"
+          }
+        },
+        {
+          "suite": "src/lib/campaign/activity/__tests__/campaignActivityProjection.test.ts",
+          "exitCode": 0,
+          "counts": "Tests:       8 passed, 8 total",
+          "failedRows": [],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/mutant-M5-campaignActivityProjection.test.ts.log",
+            "sha256": "ca26865b984f2dd614fe797265219649c87b0c1108bf5565af4404bcea9cd765"
+          }
+        }
+      ],
+      "preMutantSha256": "85686f847398a099efcbef54f5b0ad096d0980a4dc94cd67c270547cef439afc",
+      "mutantSha256": "8f29e98f4f8992040742da60f80bce5abc0e4d632463a9563dadf4f05761f056",
+      "restoredSha256": "85686f847398a099efcbef54f5b0ad096d0980a4dc94cd67c270547cef439afc",
+      "restoredIdentical": true,
+      "restoredFrom": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/mutant-M5.pre-mutant.copy"
+    },
+    {
+      "id": "M6",
+      "what": "the production inbox line still says 'removed' for a destroyed unit (CampaignMatchHostOutcomeInbox.ts)",
+      "file": "src/lib/multiplayer/server/CampaignMatchHostOutcomeInbox.ts",
+      "caught": true,
+      "caughtBy": [
+        "× (o1) the host save carries its pre-battle roster",
+        "× (o1c) the host save carries the damage (readiness Destroyed, Damaged)",
+        "× (o1s) the outcome on a campaign created by the PUT route alone",
+        "× (d) a destroyed unit is kept as a status change in the journal, the host and the record",
+        "× (t) a record rewrite that fails rolls the outcome and its inbox receipt back"
+      ],
+      "suites": [
+        {
+          "suite": "src/lib/campaign/sync/__tests__/campaignCombatOutcomeRecordRewrite.test.ts",
+          "exitCode": 1,
+          "counts": "Tests:       5 failed, 3 passed, 8 total",
+          "failedRows": [
+            "× (o1) the host save carries its pre-battle roster",
+            "× (o1c) the host save carries the damage (readiness Destroyed, Damaged)",
+            "× (o1s) the outcome on a campaign created by the PUT route alone",
+            "× (d) a destroyed unit is kept as a status change in the journal, the host and the record",
+            "× (t) a record rewrite that fails rolls the outcome and its inbox receipt back"
+          ],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/mutant-M6-campaignCombatOutcomeRecordRewrite.test.ts.log",
+            "sha256": "0da58eabf8f43e425cf497709c6e98bea6f6f9376d969e67ed2ae078583557a0"
+          }
+        },
+        {
+          "suite": "src/lib/campaign/coop/__tests__/reconcileCoopBattle.test.ts",
+          "exitCode": 0,
+          "counts": "Tests:       5 passed, 5 total",
+          "failedRows": [],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/mutant-M6-reconcileCoopBattle.test.ts.log",
+            "sha256": "b5e3b9937e21d175fe3ec8a90234c182ced793e42933caa7dce0c485cc2c421a"
+          }
+        },
+        {
+          "suite": "src/lib/campaign/activity/__tests__/campaignActivityProjection.test.ts",
+          "exitCode": 0,
+          "counts": "Tests:       8 passed, 8 total",
+          "failedRows": [],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/mutant-M6-campaignActivityProjection.test.ts.log",
+            "sha256": "904c7167aa9888077ce084ed396457f07d92a297da37ae9c766bab74c515cbfd"
+          }
+        }
+      ],
+      "preMutantSha256": "7a10ddb90ba775336c52b432bd5c7d7c7aca0fff4fef8eb76833f27a8ba55e60",
+      "mutantSha256": "5d4794408cd264300fab01e1521b3023a4e15d6c30c58c310723ae461e4ec6d6",
+      "restoredSha256": "7a10ddb90ba775336c52b432bd5c7d7c7aca0fff4fef8eb76833f27a8ba55e60",
+      "restoredIdentical": true,
+      "restoredFrom": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/mutant-M6.pre-mutant.copy"
+    },
+    {
+      "id": "M7",
+      "what": "the outcome's roster unit drops the ledger unit's own fields again (unit {unitId, designation, status} only)",
+      "file": "src/lib/multiplayer/server/CampaignMatchHostOutcomeInbox.ts",
+      "caught": true,
+      "caughtBy": [
+        "× (o1) the host save carries its pre-battle roster",
+        "× (o1c) the host save carries the damage (readiness Destroyed, Damaged)"
+      ],
+      "suites": [
+        {
+          "suite": "src/lib/campaign/sync/__tests__/campaignCombatOutcomeRecordRewrite.test.ts",
+          "exitCode": 1,
+          "counts": "Tests:       2 failed, 6 passed, 8 total",
+          "failedRows": [
+            "× (o1) the host save carries its pre-battle roster",
+            "× (o1c) the host save carries the damage (readiness Destroyed, Damaged)"
+          ],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/mutant-M7-campaignCombatOutcomeRecordRewrite.test.ts.log",
+            "sha256": "81a1fbb82316c73e0b7d4be92846eabc0eef62d4f6bf3bc4b481ed29224f018b"
+          }
+        },
+        {
+          "suite": "src/lib/campaign/coop/__tests__/reconcileCoopBattle.test.ts",
+          "exitCode": 0,
+          "counts": "Tests:       5 passed, 5 total",
+          "failedRows": [],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/mutant-M7-reconcileCoopBattle.test.ts.log",
+            "sha256": "a3953683ef4da3ee8f95c2f67bef3c86e1c7c43b3f738a36174e36ccd629b39d"
+          }
+        },
+        {
+          "suite": "src/lib/campaign/activity/__tests__/campaignActivityProjection.test.ts",
+          "exitCode": 0,
+          "counts": "Tests:       8 passed, 8 total",
+          "failedRows": [],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/mutant-M7-campaignActivityProjection.test.ts.log",
+            "sha256": "5bec399c5496d0e4ade166bbb77475dfcf8879b8a1b11a195cee2934d9c6567c"
+          }
+        }
+      ],
+      "preMutantSha256": "7a10ddb90ba775336c52b432bd5c7d7c7aca0fff4fef8eb76833f27a8ba55e60",
+      "mutantSha256": "0d49e153f9539dc905b3978f20b5738ea6bc6f24ac31e8c04b440104041f2364",
+      "restoredSha256": "7a10ddb90ba775336c52b432bd5c7d7c7aca0fff4fef8eb76833f27a8ba55e60",
+      "restoredIdentical": true,
+      "restoredFrom": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/mutant-M7.pre-mutant.copy"
+    },
+    {
+      "id": "M8",
+      "what": "the rewrite does not carry the journal's roster readiness onto the record",
+      "file": "src/lib/campaign/authority/campaignRecordJournalState.ts",
+      "caught": true,
+      "caughtBy": [
+        "× (o1) the host save carries its pre-battle roster",
+        "× (o1c) the host save carries the damage (readiness Destroyed, Damaged)",
+        "× (d) a destroyed unit is kept as a status change in the journal, the host and the record",
+        "× (t) a record rewrite that fails rolls the outcome and its inbox receipt back"
+      ],
+      "suites": [
+        {
+          "suite": "src/lib/campaign/sync/__tests__/campaignCombatOutcomeRecordRewrite.test.ts",
+          "exitCode": 1,
+          "counts": "Tests:       4 failed, 4 passed, 8 total",
+          "failedRows": [
+            "× (o1) the host save carries its pre-battle roster",
+            "× (o1c) the host save carries the damage (readiness Destroyed, Damaged)",
+            "× (d) a destroyed unit is kept as a status change in the journal, the host and the record",
+            "× (t) a record rewrite that fails rolls the outcome and its inbox receipt back"
+          ],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/mutant-M8-campaignCombatOutcomeRecordRewrite.test.ts.log",
+            "sha256": "0eabda0e2169ac1c6c23865a19c8cc8aad48d82d1c6cc029c277317770e55145"
+          }
+        },
+        {
+          "suite": "src/lib/campaign/coop/__tests__/reconcileCoopBattle.test.ts",
+          "exitCode": 0,
+          "counts": "Tests:       5 passed, 5 total",
+          "failedRows": [],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/mutant-M8-reconcileCoopBattle.test.ts.log",
+            "sha256": "bf41237faa544d68dad6fbf26cfef53794a6b48085c5e1dad4bbd75693a3643e"
+          }
+        },
+        {
+          "suite": "src/lib/campaign/activity/__tests__/campaignActivityProjection.test.ts",
+          "exitCode": 0,
+          "counts": "Tests:       8 passed, 8 total",
+          "failedRows": [],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/mutant-M8-campaignActivityProjection.test.ts.log",
+            "sha256": "650e5189539e1d24f083aac9c2c6d7a09f97e4018e5ad78ab3bcef2c5dba0c12"
+          }
+        }
+      ],
+      "preMutantSha256": "85686f847398a099efcbef54f5b0ad096d0980a4dc94cd67c270547cef439afc",
+      "mutantSha256": "60b1ae3f1bd2a49f1e222530a40a569e7c3a180c4d161c48a0e131a340f91af5",
+      "restoredSha256": "85686f847398a099efcbef54f5b0ad096d0980a4dc94cd67c270547cef439afc",
+      "restoredIdentical": true,
+      "restoredFrom": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/mutant-M8.pre-mutant.copy"
+    },
+    {
+      "id": "M9",
+      "what": "the activity feed describes a destroyed status change as repaired again",
+      "file": "src/lib/campaign/activity/campaignActivityProjection.ts",
+      "caught": true,
+      "caughtBy": [
+        "× describes a status change carrying destroyed as destroyed, not repaired"
+      ],
+      "suites": [
+        {
+          "suite": "src/lib/campaign/sync/__tests__/campaignCombatOutcomeRecordRewrite.test.ts",
+          "exitCode": 0,
+          "counts": "Tests:       8 passed, 8 total",
+          "failedRows": [],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/mutant-M9-campaignCombatOutcomeRecordRewrite.test.ts.log",
+            "sha256": "3f5e2ba6a072889b1b198f57c8c9f4e8a7fae1184d17870558d09c421d768218"
+          }
+        },
+        {
+          "suite": "src/lib/campaign/coop/__tests__/reconcileCoopBattle.test.ts",
+          "exitCode": 0,
+          "counts": "Tests:       5 passed, 5 total",
+          "failedRows": [],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/mutant-M9-reconcileCoopBattle.test.ts.log",
+            "sha256": "699575162ec0694378badc079b685e9239388b6ab0bd6bd88f34e23d53248efe"
+          }
+        },
+        {
+          "suite": "src/lib/campaign/activity/__tests__/campaignActivityProjection.test.ts",
+          "exitCode": 1,
+          "counts": "Tests:       1 failed, 7 passed, 8 total",
+          "failedRows": [
+            "× describes a status change carrying destroyed as destroyed, not repaired"
+          ],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/mutant-M9-campaignActivityProjection.test.ts.log",
+            "sha256": "58490d656d8d63567b25e2672175c546385bdb92805da93853f9ade39579ba32"
+          }
+        }
+      ],
+      "preMutantSha256": "6977e608ea3c120494efeaaabbb4555b15b0322a937ac3553e23337463b35ecc",
+      "mutantSha256": "5588bb2a92247924151a2ab785d4ce9d546ab9f1eb55b2e01fc7fb61df0939af",
+      "restoredSha256": "6977e608ea3c120494efeaaabbb4555b15b0322a937ac3553e23337463b35ecc",
+      "restoredIdentical": true,
+      "restoredFrom": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/mutant-M9.pre-mutant.copy"
+    }
+  ],
+  "mutantsLog": {
+    "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/mutants-all.json",
+    "sha256": "489af0a138335ef490310232bb5c42d00fba2c7d65c458ca5d6d892503b35e8b"
+  },
+  "mutantsNote": "run with the flag constant false on the final tree; M1-M6 are the charter set (M6 the coordinator addition); M7-M9 cover the carry-forward, the roster readiness patch and the feed",
+  "o2uReMeasured": {
+    "finding": "FN-u35d-outcome-debit-lost-by-stale-save",
+    "flagFalse": {
+      "genesisBy": "appendCampaignGenesis seam (flag false)",
+      "createdVersion": 1,
+      "outcomeOk": true,
+      "outcomeError": null,
+      "rosterChanges": [],
+      "journalAfterOutcome": {
+        "balance": 355000,
+        "salvagePool": 0,
+        "roster": {
+          "unit-0": "operational",
+          "unit-1": "operational"
+        }
+      },
+      "hostAfterOutcome": {
+        "balance": 354000,
+        "salvagePool": 0,
+        "roster": {
+          "unit-0": "operational",
+          "unit-1": "operational"
+        }
+      },
+      "recordAfterOutcome": {
+        "version": 2,
+        "balance": 355000,
+        "roster": {
+          "unit-0": "Ready",
+          "unit-1": "Ready"
+        },
+        "forceOf": {
+          "unit-0": "force-1790319554831-dbpws39",
+          "unit-1": "force-sub-1"
+        }
+      },
+      "stalePutStatus": 409,
+      "currentPutStatus": 200,
+      "journalAfterSave": {
+        "balance": 355000,
+        "salvagePool": 0,
+        "roster": {
+          "unit-0": "operational",
+          "unit-1": "operational"
+        }
+      },
+      "recordAfterSave": {
+        "version": 3,
+        "balance": 355000,
+        "roster": {
+          "unit-0": "Ready",
+          "unit-1": "Ready"
+        },
+        "forceOf": {
+          "unit-0": "force-1790319554831-dbpws39",
+          "unit-1": "force-sub-1"
+        }
+      },
+      "nextCoopCommandOk": true,
+      "journalAgreesWithHost": true,
+      "eventTypes": [
+        "CampaignSnapshotPublished",
+        "FundsChanged",
+        "CampaignSnapshotPublished",
+        "FundsChanged"
+      ]
+    },
+    "reading": "the host save built before the fold answered 409 (stalePutStatus), the host took the server record and the journal and record kept 355,000"
+  },
+  "nonClaims": [
+    "No build and no Playwright; no browser: the host save is modelled by the live item route (a PUT at the held version, then a GET and a PUT of the server record), not by the persistence store or U35f refresh code.",
+    "The co-op host is driven directly over selectCampaignEventStore().store, not through a socket or ReconcileBattle frame.",
+    "recoveredUnit is out of scope (FN-u35d-recovered-unit-lost); a record without a roster projection gets no readiness patch; a journal unit absent from the projection is not added to the record.",
+    "The fallback walk (in-memory store, no inbox) still sends {unitId, designation, status}; it keeps a destroyed unit but does not carry the ledger unit fields forward (no checkpoint pairs with the in-memory store; not measured).",
+    "Rows t and a pin guard behaviour (t is red on the baseline only because no rewrite ran); they are not reproductions of a reported failure.",
+    "The wider gate suites ran with the constant false only; under the flip only the three row suites and U35e two suites were run.",
+    "No suite measures a command batch whose rewrite changes roster readiness (the shared rewrite now patches it; U35e suites stayed green)."
+  ],
+  "findingsReportedNotFixed": [
+    {
+      "id": "F1",
+      "file": "src/lib/multiplayer/server/CampaignMatchHostOutcomeInbox.ts (the carry-forward); src/lib/events/replay/CampaignBaselineSchemaPack.ts:26-34",
+      "finding": "The outcome payload now spreads the ledger unit, which can carry sourceVersion; the campaign baseline schema pack's strict roster unit has no sourceVersion, so such a payload would be refused by that pack, as a genesis snapshot whose roster units carry sourceVersion already is (read, not run; the pack is not wired to production replay per its header)."
+    },
+    {
+      "id": "F2",
+      "file": "src/lib/campaign/activity/campaignActivityProjection.ts",
+      "finding": "A damaged unit's status change still reads '<designation> repaired' under 'technical' (pre-existing wording; the sentence names only destroyed)."
+    },
+    {
+      "id": "F3",
+      "file": "src/lib/multiplayer/server/CampaignMatchHostOutcomeInbox.ts",
+      "finding": "The carry-forward of the ledger unit fields was not in the coordinator list; it was added because the o1/o1c agreement assertions (from U35d probe rows) measured the divergence. The parent may prefer to accept the rows without the agreement check instead."
+    },
+    {
+      "id": "F4",
+      "file": "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx:373-375",
+      "finding": "The guest roster count includes destroyed units (already recorded as FN-u35g-kept-destroyed-units-in-guest-roster-count)."
+    }
+  ],
+  "risksForTheParent": [
+    "Authority: a first-receipt combat outcome on a journal-native campaign writes the saved record (version + 1, balance, date, roster readiness); a host save built before it answers 409 (rows o1, o1c, o2u).",
+    "Idempotency: a duplicate receipt appends nothing and leaves the stored row byte-identical (row i, M3).",
+    "Concurrency: the rewrite is inside the outcome transaction; a failing rewrite rolls back the consequences and the inbox receipt, and redelivery then commits once (row t, M2).",
+    "Migration: none; the rewrite spreads the raw stored JSON without the read migration ladder (as U35e).",
+    "Visible change: destroyed units stay in the journal, host state and mirrors with status destroyed; the feed reads '<designation> destroyed' (battle).",
+    "Lane B: authority, idempotency, concurrency and migration need the owner ruling on the merged head."
+  ],
+  "gitStatusShort": " M src/lib/campaign/activity/__tests__/campaignActivityProjection.test.ts\n M src/lib/campaign/activity/campaignActivityProjection.ts\n M src/lib/campaign/authority/campaignRecordJournalState.ts\n M src/lib/campaign/coop/__tests__/reconcileCoopBattle.test.ts\n M src/lib/campaign/coop/reconcileCoopBattle.ts\n M src/lib/campaign/sync/JournalCampaignEventStore.ts\n M src/lib/campaign/sync/campaignCombatOutcomeInbox.ts\n M src/lib/multiplayer/server/CampaignMatchHostOutcomeInbox.ts\n M src/types/campaign/RosterUnitProjection.ts\n?? openspec/planning/2026-09-12-roadmap-completion/evidence/u35g-admission-20260925.json\n?? openspec/planning/2026-09-12-roadmap-completion/evidence/u35g-red-20260925.json\n?? src/lib/campaign/sync/__tests__/campaignCombatOutcomeRecordRewrite.test.ts\n"
+}

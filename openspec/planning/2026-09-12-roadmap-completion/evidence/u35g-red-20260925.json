@@ -1,0 +1,1387 @@
+{
+  "unit": "U35g",
+  "stage": "red",
+  "at": "2026-09-25T06:49:17.708Z",
+  "baseline": "0fd24c343d8de2d467bb5b2d3d57c3beeb2d89af",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u35g",
+  "branch": "roadmap-u35g-coop-outcome-rewrites-record-r2-20260925",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "productCodeAsBaseline": "no product file was edited before this run; the only worktree edits were the three test files below (git status after the run: red-status-after.log)",
+  "testFiles": {
+    "new": "src/lib/campaign/sync/__tests__/campaignCombatOutcomeRecordRewrite.test.ts",
+    "rePinned": [
+      "src/lib/campaign/coop/__tests__/reconcileCoopBattle.test.ts (the fallback walk keeps a destroyed unit as destroyed, both roster events are repaired)",
+      "src/lib/campaign/activity/__tests__/campaignActivityProjection.test.ts (new case: a 'repaired' change carrying destroyed reads '<designation> destroyed' under 'battle')"
+    ]
+  },
+  "hostSaveModel": "the host's envelope at the version it held before the outcome (o1, o1s: the host fold of the live host state onto the held campaign with the roster at Ready; o1c: the same with readiness Destroyed, Damaged; o2u: the held campaign unfolded), then a GET and a PUT of the server record at its own version (the host taking the server record after a 409, as U35f's refresh does); then one more co-op SpendFunds and the journal digest compared with the live host's",
+  "seeding": "createJournalNative from src/__tests__/api/campaigns/campaignJournalEffectsFixture.ts: the route create, then appendCampaignGenesis and the marker when the flag is false (under the flip the create appends them); o1s uses the route create alone; row a uses saveCampaign directly (snapshot authority on both sides); no MEKSTATION_E2E_* key (the fixture deletes them, the runner unsets them)",
+  "runner": {
+    "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/run-rows.sh",
+    "sha256": "1323b098d630adc5695ccc91d241df47e6e95562abf4dfe13e5a1e7f2afd73a2"
+  },
+  "flip": {
+    "helper": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/flip.mjs",
+      "sha256": "b1ad6ef3de563873c899a0e7f1ba3f4514cd466a4a0d46365f7b6ccfdce5cfc1"
+    },
+    "file": "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+    "applyExitCode": 0,
+    "applyLastLine": "FLIPPED",
+    "preSha256": "6a18ce9579710697d5ff31f84ac54dccd7a398c8fff7af114825039f36d008da",
+    "flippedSha256": "3124b3cb9489252787fae9b1ee8d97d4164a678c813636bcacef6d78bc92ab10",
+    "sha256AfterRestore": "6a18ce9579710697d5ff31f84ac54dccd7a398c8fff7af114825039f36d008da",
+    "identical": true,
+    "byteCopy": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/flagfile.pre-red",
+      "sha256": "6a18ce9579710697d5ff31f84ac54dccd7a398c8fff7af114825039f36d008da"
+    },
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/red-restore.log",
+      "sha256": "00d74ee9e466c784857ce9d0095d77ccab0b8c58b888cf1e682a79b644617651"
+    }
+  },
+  "flagFalse": {
+    "campaignCombatOutcomeRecordRewrite": {
+      "suite": "src/lib/campaign/sync/__tests__/campaignCombatOutcomeRecordRewrite.test.ts",
+      "command": "U35E_ROWS_DIR=<logs>/red-flagfalse npx jest src/lib/campaign/sync/__tests__/campaignCombatOutcomeRecordRewrite.test.ts",
+      "exitCode": 1,
+      "counts": "Tests:       7 failed, 1 passed, 8 total",
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\campaign\\\\sync\\\\__tests__\\\\campaignCombatOutcomeRecordRewrite.test.ts/i.",
+      "rowResults": [
+        "× (o1) the host save carries its pre-battle roster",
+        "× (o1c) the host save carries the damage (readiness Destroyed, Damaged)",
+        "× (o1s) the outcome on a campaign created by the PUT route alone",
+        "× (d) a destroyed unit is kept as a status change in the journal, the host and the record",
+        "× (i) a duplicate receipt of the same outcome rewrites nothing",
+        "× (o2u) a debit, then a host save built before the host folded it",
+        "× (t) a record rewrite that fails rolls the outcome and its inbox receipt back",
+        "√ (a) a snapshot-authority campaign keeps its record untouched by an outcome"
+      ],
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/red-flagfalse-campaignCombatOutcomeRecordRewrite.test.log",
+        "sha256": "df7cd8381ba1c78bf0a90d03a524fed254ef963a65b7fe0d2ca9c071950139e2"
+      }
+    },
+    "reconcileCoopBattle": {
+      "suite": "src/lib/campaign/coop/__tests__/reconcileCoopBattle.test.ts",
+      "command": "U35E_ROWS_DIR=<logs>/red-flagfalse npx jest src/lib/campaign/coop/__tests__/reconcileCoopBattle.test.ts",
+      "exitCode": 1,
+      "counts": "Tests:       1 failed, 4 passed, 5 total",
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\campaign\\\\coop\\\\__tests__\\\\reconcileCoopBattle.test.ts/i.",
+      "rowResults": [
+        "× reconciles salvage, funds, and roster changes through the host",
+        "√ credits a positive funds delta into the salvage pool",
+        "√ keeps the campaign event log separate — only campaign events are appended",
+        "√ reads damaged player units and OpFor wreck salvage",
+        "√ feeds the derived consequences through reconciliation"
+      ],
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/red-flagfalse-reconcileCoopBattle.test.log",
+        "sha256": "f0298af66fce9ef222a73127385e65615aea2bfc7bdcff314d2fdf22f0183510"
+      }
+    },
+    "campaignActivityProjection": {
+      "suite": "src/lib/campaign/activity/__tests__/campaignActivityProjection.test.ts",
+      "command": "U35E_ROWS_DIR=<logs>/red-flagfalse npx jest src/lib/campaign/activity/__tests__/campaignActivityProjection.test.ts",
+      "exitCode": 1,
+      "counts": "Tests:       1 failed, 7 passed, 8 total",
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\campaign\\\\activity\\\\__tests__\\\\campaignActivityProjection.test.ts/i.",
+      "rowResults": [
+        "√ derives one ordered row per ledger-mutating fact for the GM",
+        "√ omits a gm-scoped fact from a player feed and leaves no ordinal gap",
+        "√ withholds the GM rationale on an admitted removal from a player",
+        "√ keeps one player-scoped fact out of the other player feed",
+        "√ does not advance a player clock through a withheld day advance",
+        "√ treats a published baseline as context rather than a feed row",
+        "√ splits roster changes between acquisition and technical work",
+        "× describes a status change carrying destroyed as destroyed, not repaired"
+      ],
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/red-flagfalse-campaignActivityProjection.test.log",
+        "sha256": "78d03f27242cfb55bf884abea078ba2fd126d7d8f93e865e23126f960187e5cc"
+      }
+    },
+    "valuesFile": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/red-flagfalse/u35g-rows.json",
+      "sha256": "d4af9f549ea28151788590a0d603c394ea2a9ffef5d24c01411ba98eeb9c6394"
+    },
+    "values": {
+      "constant": false,
+      "o1": {
+        "genesisBy": "appendCampaignGenesis seam (flag false)",
+        "createdVersion": 1,
+        "outcomeOk": true,
+        "outcomeError": null,
+        "rosterChanges": [
+          {
+            "unitId": "unit-0",
+            "change": "removed",
+            "status": "destroyed"
+          },
+          {
+            "unitId": "unit-1",
+            "change": "repaired",
+            "status": "damaged"
+          }
+        ],
+        "journalAfterOutcome": {
+          "balance": 380000,
+          "salvagePool": 50000,
+          "roster": {
+            "unit-1": "damaged"
+          }
+        },
+        "hostAfterOutcome": {
+          "balance": 379000,
+          "salvagePool": 50000,
+          "roster": {
+            "unit-1": "damaged"
+          }
+        },
+        "recordAfterOutcome": {
+          "version": 1,
+          "balance": 380000,
+          "roster": {
+            "unit-0": "Ready",
+            "unit-1": "Ready"
+          },
+          "forceOf": {
+            "unit-0": "force-1790318887489-o0r6brt",
+            "unit-1": "force-sub-1"
+          }
+        },
+        "stalePutStatus": 200,
+        "currentPutStatus": 200,
+        "journalAfterSave": {
+          "balance": 380000,
+          "salvagePool": 50000,
+          "roster": {
+            "unit-0": "operational",
+            "unit-1": "operational"
+          }
+        },
+        "recordAfterSave": {
+          "version": 3,
+          "balance": 380000,
+          "roster": {
+            "unit-0": "Ready",
+            "unit-1": "Ready"
+          },
+          "forceOf": {
+            "unit-0": "force-1790318887489-o0r6brt",
+            "unit-1": "force-sub-1"
+          }
+        },
+        "nextCoopCommandOk": true,
+        "journalAgreesWithHost": false,
+        "eventTypes": [
+          "CampaignSnapshotPublished",
+          "SalvageAllocated",
+          "RosterUnitChanged",
+          "RosterUnitChanged",
+          "CampaignSnapshotPublished",
+          "CampaignSnapshotPublished",
+          "FundsChanged"
+        ]
+      },
+      "o1c": {
+        "genesisBy": "appendCampaignGenesis seam (flag false)",
+        "createdVersion": 1,
+        "outcomeOk": true,
+        "outcomeError": null,
+        "rosterChanges": [
+          {
+            "unitId": "unit-0",
+            "change": "removed",
+            "status": "destroyed"
+          },
+          {
+            "unitId": "unit-1",
+            "change": "repaired",
+            "status": "damaged"
+          }
+        ],
+        "journalAfterOutcome": {
+          "balance": 380000,
+          "salvagePool": 50000,
+          "roster": {
+            "unit-1": "damaged"
+          }
+        },
+        "hostAfterOutcome": {
+          "balance": 379000,
+          "salvagePool": 50000,
+          "roster": {
+            "unit-1": "damaged"
+          }
+        },
+        "recordAfterOutcome": {
+          "version": 1,
+          "balance": 380000,
+          "roster": {
+            "unit-0": "Ready",
+            "unit-1": "Ready"
+          },
+          "forceOf": {
+            "unit-0": "force-1790318887609-efnvabo",
+            "unit-1": "force-sub-1"
+          }
+        },
+        "stalePutStatus": 200,
+        "currentPutStatus": 200,
+        "journalAfterSave": {
+          "balance": 380000,
+          "salvagePool": 50000,
+          "roster": {
+            "unit-0": "destroyed",
+            "unit-1": "damaged"
+          }
+        },
+        "recordAfterSave": {
+          "version": 3,
+          "balance": 380000,
+          "roster": {
+            "unit-0": "Destroyed",
+            "unit-1": "Damaged"
+          },
+          "forceOf": {
+            "unit-0": "force-1790318887609-efnvabo",
+            "unit-1": "force-sub-1"
+          }
+        },
+        "nextCoopCommandOk": true,
+        "journalAgreesWithHost": false,
+        "eventTypes": [
+          "CampaignSnapshotPublished",
+          "SalvageAllocated",
+          "RosterUnitChanged",
+          "RosterUnitChanged",
+          "CampaignSnapshotPublished",
+          "CampaignSnapshotPublished",
+          "FundsChanged"
+        ]
+      },
+      "o1s": {
+        "genesisBy": "the PUT create alone",
+        "createdVersion": 1,
+        "outcomeOk": true,
+        "outcomeError": null,
+        "rosterChanges": [
+          {
+            "unitId": "unit-0",
+            "change": "removed",
+            "status": "destroyed"
+          },
+          {
+            "unitId": "unit-1",
+            "change": "repaired",
+            "status": "damaged"
+          }
+        ],
+        "journalAfterOutcome": {
+          "balance": 380000,
+          "salvagePool": 50000,
+          "roster": {
+            "unit-1": "damaged"
+          }
+        },
+        "hostAfterOutcome": {
+          "balance": 379000,
+          "salvagePool": 50000,
+          "roster": {
+            "unit-1": "damaged"
+          }
+        },
+        "recordAfterOutcome": {
+          "version": 1,
+          "balance": 380000,
+          "roster": {
+            "unit-0": "Ready",
+            "unit-1": "Ready"
+          },
+          "forceOf": {
+            "unit-0": "force-1790318887687-raapsj8",
+            "unit-1": "force-sub-1"
+          }
+        },
+        "stalePutStatus": 200,
+        "currentPutStatus": 200,
+        "journalAfterSave": {
+          "balance": 380000,
+          "salvagePool": 50000,
+          "roster": {
+            "unit-1": "damaged"
+          }
+        },
+        "recordAfterSave": {
+          "version": 3,
+          "balance": 380000,
+          "roster": {
+            "unit-0": "Ready",
+            "unit-1": "Ready"
+          },
+          "forceOf": {
+            "unit-0": "force-1790318887687-raapsj8",
+            "unit-1": "force-sub-1"
+          }
+        },
+        "nextCoopCommandOk": true,
+        "journalAgreesWithHost": true,
+        "eventTypes": [
+          "CampaignSnapshotPublished",
+          "SalvageAllocated",
+          "RosterUnitChanged",
+          "RosterUnitChanged",
+          "FundsChanged"
+        ]
+      },
+      "d": {
+        "createdVersion": 1,
+        "outcomeOk": true,
+        "rosterChanges": [
+          {
+            "unitId": "unit-0",
+            "change": "removed",
+            "status": "destroyed"
+          },
+          {
+            "unitId": "unit-1",
+            "change": "repaired",
+            "status": "damaged"
+          }
+        ],
+        "journal": {
+          "balance": 380000,
+          "salvagePool": 0,
+          "roster": {
+            "unit-1": "damaged"
+          }
+        },
+        "host": {
+          "balance": 380000,
+          "salvagePool": 0,
+          "roster": {
+            "unit-1": "damaged"
+          }
+        },
+        "record": {
+          "version": 1,
+          "balance": 380000,
+          "roster": {
+            "unit-0": "Ready",
+            "unit-1": "Ready"
+          },
+          "forceOf": {
+            "unit-0": "force-1790318887767-wevsjaa",
+            "unit-1": "force-sub-1"
+          }
+        }
+      },
+      "i": {
+        "createdVersion": 1,
+        "firstOk": true,
+        "firstEvents": 3,
+        "versionAfterFirst": {
+          "version": 1,
+          "balance": 380000,
+          "roster": {
+            "unit-0": "Ready",
+            "unit-1": "Ready"
+          },
+          "forceOf": {
+            "unit-0": "force-1790318887841-i3o3gco",
+            "unit-1": "force-sub-1"
+          }
+        },
+        "secondOk": true,
+        "secondEvents": 0,
+        "typesAfterFirst": [
+          "CampaignSnapshotPublished",
+          "SalvageAllocated",
+          "RosterUnitChanged",
+          "RosterUnitChanged"
+        ],
+        "typesAfterSecond": [
+          "CampaignSnapshotPublished",
+          "SalvageAllocated",
+          "RosterUnitChanged",
+          "RosterUnitChanged"
+        ],
+        "rowUnchangedBySecond": true
+      },
+      "o2u": {
+        "genesisBy": "appendCampaignGenesis seam (flag false)",
+        "createdVersion": 1,
+        "outcomeOk": true,
+        "outcomeError": null,
+        "rosterChanges": [],
+        "journalAfterOutcome": {
+          "balance": 355000,
+          "salvagePool": 0,
+          "roster": {
+            "unit-0": "operational",
+            "unit-1": "operational"
+          }
+        },
+        "hostAfterOutcome": {
+          "balance": 354000,
+          "salvagePool": 0,
+          "roster": {
+            "unit-0": "operational",
+            "unit-1": "operational"
+          }
+        },
+        "recordAfterOutcome": {
+          "version": 1,
+          "balance": 380000,
+          "roster": {
+            "unit-0": "Ready",
+            "unit-1": "Ready"
+          },
+          "forceOf": {
+            "unit-0": "force-1790318887908-cni0cxz",
+            "unit-1": "force-sub-1"
+          }
+        },
+        "stalePutStatus": 200,
+        "currentPutStatus": 200,
+        "journalAfterSave": {
+          "balance": 380000,
+          "salvagePool": 0,
+          "roster": {
+            "unit-0": "operational",
+            "unit-1": "operational"
+          }
+        },
+        "recordAfterSave": {
+          "version": 3,
+          "balance": 380000,
+          "roster": {
+            "unit-0": "Ready",
+            "unit-1": "Ready"
+          },
+          "forceOf": {
+            "unit-0": "force-1790318887908-cni0cxz",
+            "unit-1": "force-sub-1"
+          }
+        },
+        "nextCoopCommandOk": true,
+        "journalAgreesWithHost": true,
+        "eventTypes": [
+          "CampaignSnapshotPublished",
+          "FundsChanged",
+          "CampaignSnapshotPublished",
+          "CampaignSnapshotPublished",
+          "FundsChanged"
+        ]
+      },
+      "t": {
+        "typesBefore": [
+          "CampaignSnapshotPublished"
+        ],
+        "afterFailure": {
+          "failure": null,
+          "typesAfter": [
+            "CampaignSnapshotPublished",
+            "SalvageAllocated",
+            "RosterUnitChanged",
+            "RosterUnitChanged"
+          ],
+          "rowUnchanged": true,
+          "receipts": 1,
+          "host": {
+            "balance": 380000,
+            "salvagePool": 50000,
+            "roster": {
+              "unit-1": "damaged"
+            }
+          }
+        },
+        "retryOk": true,
+        "recordAfterRetry": {
+          "version": 1,
+          "balance": 380000,
+          "roster": {
+            "unit-0": "Ready",
+            "unit-1": "Ready"
+          },
+          "forceOf": {
+            "unit-0": "force-1790318887973-he0v0aw",
+            "unit-1": "force-sub-1"
+          }
+        }
+      },
+      "a": {
+        "outcomeOk": true,
+        "rowUnchanged": true,
+        "journal": {
+          "balance": 355000,
+          "salvagePool": 50000,
+          "roster": {
+            "unit-1": "damaged"
+          }
+        }
+      }
+    }
+  },
+  "underTemporaryFlip": {
+    "campaignCombatOutcomeRecordRewrite": {
+      "suite": "src/lib/campaign/sync/__tests__/campaignCombatOutcomeRecordRewrite.test.ts",
+      "command": "U35E_ROWS_DIR=<logs>/red-flipped npx jest src/lib/campaign/sync/__tests__/campaignCombatOutcomeRecordRewrite.test.ts",
+      "exitCode": 1,
+      "counts": "Tests:       7 failed, 1 passed, 8 total",
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\campaign\\\\sync\\\\__tests__\\\\campaignCombatOutcomeRecordRewrite.test.ts/i.",
+      "rowResults": [
+        "× (o1) the host save carries its pre-battle roster",
+        "× (o1c) the host save carries the damage (readiness Destroyed, Damaged)",
+        "× (o1s) the outcome on a campaign created by the PUT route alone",
+        "× (d) a destroyed unit is kept as a status change in the journal, the host and the record",
+        "× (i) a duplicate receipt of the same outcome rewrites nothing",
+        "× (o2u) a debit, then a host save built before the host folded it",
+        "× (t) a record rewrite that fails rolls the outcome and its inbox receipt back",
+        "√ (a) a snapshot-authority campaign keeps its record untouched by an outcome"
+      ],
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/red-flipped-campaignCombatOutcomeRecordRewrite.test.log",
+        "sha256": "1b6553e61cc5dc6166db421250a72e49ad70dd2669c369e44dd5263beca8f3ff"
+      }
+    },
+    "reconcileCoopBattle": {
+      "suite": "src/lib/campaign/coop/__tests__/reconcileCoopBattle.test.ts",
+      "command": "U35E_ROWS_DIR=<logs>/red-flipped npx jest src/lib/campaign/coop/__tests__/reconcileCoopBattle.test.ts",
+      "exitCode": 1,
+      "counts": "Tests:       1 failed, 4 passed, 5 total",
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\campaign\\\\coop\\\\__tests__\\\\reconcileCoopBattle.test.ts/i.",
+      "rowResults": [
+        "× reconciles salvage, funds, and roster changes through the host",
+        "√ credits a positive funds delta into the salvage pool",
+        "√ keeps the campaign event log separate — only campaign events are appended",
+        "√ reads damaged player units and OpFor wreck salvage",
+        "√ feeds the derived consequences through reconciliation"
+      ],
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/red-flipped-reconcileCoopBattle.test.log",
+        "sha256": "d156fc5ef8ca9f71a7a76f96228dcc15b32629d5755dec805c089f94f0f45681"
+      }
+    },
+    "campaignActivityProjection": {
+      "suite": "src/lib/campaign/activity/__tests__/campaignActivityProjection.test.ts",
+      "command": "U35E_ROWS_DIR=<logs>/red-flipped npx jest src/lib/campaign/activity/__tests__/campaignActivityProjection.test.ts",
+      "exitCode": 1,
+      "counts": "Tests:       1 failed, 7 passed, 8 total",
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\campaign\\\\activity\\\\__tests__\\\\campaignActivityProjection.test.ts/i.",
+      "rowResults": [
+        "√ derives one ordered row per ledger-mutating fact for the GM",
+        "√ omits a gm-scoped fact from a player feed and leaves no ordinal gap",
+        "√ withholds the GM rationale on an admitted removal from a player",
+        "√ keeps one player-scoped fact out of the other player feed",
+        "√ does not advance a player clock through a withheld day advance",
+        "√ treats a published baseline as context rather than a feed row",
+        "√ splits roster changes between acquisition and technical work",
+        "× describes a status change carrying destroyed as destroyed, not repaired"
+      ],
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/red-flipped-campaignActivityProjection.test.log",
+        "sha256": "34ecad40b6b2f148d4d9c06f0d0f6794279003947d5ada384ee0292eead194c3"
+      }
+    },
+    "valuesFile": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35g-r2/logs/red-flipped/u35g-rows.json",
+      "sha256": "5598a3cc3dc78e661d019206c29af6461e386d022c23a6cfcc44242b1c39f364"
+    },
+    "values": {
+      "constant": true,
+      "o1": {
+        "genesisBy": "the PUT create (flag true)",
+        "createdVersion": 1,
+        "outcomeOk": true,
+        "outcomeError": null,
+        "rosterChanges": [
+          {
+            "unitId": "unit-0",
+            "change": "removed",
+            "status": "destroyed"
+          },
+          {
+            "unitId": "unit-1",
+            "change": "repaired",
+            "status": "damaged"
+          }
+        ],
+        "journalAfterOutcome": {
+          "balance": 380000,
+          "salvagePool": 50000,
+          "roster": {
+            "unit-1": "damaged"
+          }
+        },
+        "hostAfterOutcome": {
+          "balance": 379000,
+          "salvagePool": 50000,
+          "roster": {
+            "unit-1": "damaged"
+          }
+        },
+        "recordAfterOutcome": {
+          "version": 1,
+          "balance": 380000,
+          "roster": {
+            "unit-0": "Ready",
+            "unit-1": "Ready"
+          },
+          "forceOf": {
+            "unit-0": "force-1790318902389-1c7wow6",
+            "unit-1": "force-sub-1"
+          }
+        },
+        "stalePutStatus": 200,
+        "currentPutStatus": 200,
+        "journalAfterSave": {
+          "balance": 380000,
+          "salvagePool": 50000,
+          "roster": {
+            "unit-0": "operational",
+            "unit-1": "operational"
+          }
+        },
+        "recordAfterSave": {
+          "version": 3,
+          "balance": 380000,
+          "roster": {
+            "unit-0": "Ready",
+            "unit-1": "Ready"
+          },
+          "forceOf": {
+            "unit-0": "force-1790318902389-1c7wow6",
+            "unit-1": "force-sub-1"
+          }
+        },
+        "nextCoopCommandOk": true,
+        "journalAgreesWithHost": false,
+        "eventTypes": [
+          "CampaignSnapshotPublished",
+          "SalvageAllocated",
+          "RosterUnitChanged",
+          "RosterUnitChanged",
+          "CampaignSnapshotPublished",
+          "CampaignSnapshotPublished",
+          "FundsChanged"
+        ]
+      },
+      "o1c": {
+        "genesisBy": "the PUT create (flag true)",
+        "createdVersion": 1,
+        "outcomeOk": true,
+        "outcomeError": null,
+        "rosterChanges": [
+          {
+            "unitId": "unit-0",
+            "change": "removed",
+            "status": "destroyed"
+          },
+          {
+            "unitId": "unit-1",
+            "change": "repaired",
+            "status": "damaged"
+          }
+        ],
+        "journalAfterOutcome": {
+          "balance": 380000,
+          "salvagePool": 50000,
+          "roster": {
+            "unit-1": "damaged"
+          }
+        },
+        "hostAfterOutcome": {
+          "balance": 379000,
+          "salvagePool": 50000,
+          "roster": {
+            "unit-1": "damaged"
+          }
+        },
+        "recordAfterOutcome": {
+          "version": 1,
+          "balance": 380000,
+          "roster": {
+            "unit-0": "Ready",
+            "unit-1": "Ready"
+          },
+          "forceOf": {
+            "unit-0": "force-1790318902497-6roa8yb",
+            "unit-1": "force-sub-1"
+          }
+        },
+        "stalePutStatus": 200,
+        "currentPutStatus": 200,
+        "journalAfterSave": {
+          "balance": 380000,
+          "salvagePool": 50000,
+          "roster": {
+            "unit-0": "destroyed",
+            "unit-1": "damaged"
+          }
+        },
+        "recordAfterSave": {
+          "version": 3,
+          "balance": 380000,
+          "roster": {
+            "unit-0": "Destroyed",
+            "unit-1": "Damaged"
+          },
+          "forceOf": {
+            "unit-0": "force-1790318902497-6roa8yb",
+            "unit-1": "force-sub-1"
+          }
+        },
+        "nextCoopCommandOk": true,
+        "journalAgreesWithHost": false,
+        "eventTypes": [
+          "CampaignSnapshotPublished",
+          "SalvageAllocated",
+          "RosterUnitChanged",
+          "RosterUnitChanged",
+          "CampaignSnapshotPublished",
+          "CampaignSnapshotPublished",
+          "FundsChanged"
+        ]
+      },
+      "o1s": {
+        "genesisBy": "the PUT create alone",
+        "createdVersion": 1,
+        "outcomeOk": true,
+        "outcomeError": null,
+        "rosterChanges": [
+          {
+            "unitId": "unit-0",
+            "change": "removed",
+            "status": "destroyed"
+          },
+          {
+            "unitId": "unit-1",
+            "change": "repaired",
+            "status": "damaged"
+          }
+        ],
+        "journalAfterOutcome": {
+          "balance": 380000,
+          "salvagePool": 50000,
+          "roster": {
+            "unit-1": "damaged"
+          }
+        },
+        "hostAfterOutcome": {
+          "balance": 379000,
+          "salvagePool": 50000,
+          "roster": {
+            "unit-1": "damaged"
+          }
+        },
+        "recordAfterOutcome": {
+          "version": 1,
+          "balance": 380000,
+          "roster": {
+            "unit-0": "Ready",
+            "unit-1": "Ready"
+          },
+          "forceOf": {
+            "unit-0": "force-1790318902582-u96rp1q",
+            "unit-1": "force-sub-1"
+          }
+        },
+        "stalePutStatus": 200,
+        "currentPutStatus": 200,
+        "journalAfterSave": {
+          "balance": 380000,
+          "salvagePool": 50000,
+          "roster": {
+            "unit-0": "operational",
+            "unit-1": "operational"
+          }
+        },
+        "recordAfterSave": {
+          "version": 3,
+          "balance": 380000,
+          "roster": {
+            "unit-0": "Ready",
+            "unit-1": "Ready"
+          },
+          "forceOf": {
+            "unit-0": "force-1790318902582-u96rp1q",
+            "unit-1": "force-sub-1"
+          }
+        },
+        "nextCoopCommandOk": true,
+        "journalAgreesWithHost": false,
+        "eventTypes": [
+          "CampaignSnapshotPublished",
+          "SalvageAllocated",
+          "RosterUnitChanged",
+          "RosterUnitChanged",
+          "CampaignSnapshotPublished",
+          "CampaignSnapshotPublished",
+          "FundsChanged"
+        ]
+      },
+      "d": {
+        "createdVersion": 1,
+        "outcomeOk": true,
+        "rosterChanges": [
+          {
+            "unitId": "unit-0",
+            "change": "removed",
+            "status": "destroyed"
+          },
+          {
+            "unitId": "unit-1",
+            "change": "repaired",
+            "status": "damaged"
+          }
+        ],
+        "journal": {
+          "balance": 380000,
+          "salvagePool": 0,
+          "roster": {
+            "unit-1": "damaged"
+          }
+        },
+        "host": {
+          "balance": 380000,
+          "salvagePool": 0,
+          "roster": {
+            "unit-1": "damaged"
+          }
+        },
+        "record": {
+          "version": 1,
+          "balance": 380000,
+          "roster": {
+            "unit-0": "Ready",
+            "unit-1": "Ready"
+          },
+          "forceOf": {
+            "unit-0": "force-1790318902672-fi5qg0q",
+            "unit-1": "force-sub-1"
+          }
+        }
+      },
+      "i": {
+        "createdVersion": 1,
+        "firstOk": true,
+        "firstEvents": 3,
+        "versionAfterFirst": {
+          "version": 1,
+          "balance": 380000,
+          "roster": {
+            "unit-0": "Ready",
+            "unit-1": "Ready"
+          },
+          "forceOf": {
+            "unit-0": "force-1790318902735-3gnznnz",
+            "unit-1": "force-sub-1"
+          }
+        },
+        "secondOk": true,
+        "secondEvents": 0,
+        "typesAfterFirst": [
+          "CampaignSnapshotPublished",
+          "SalvageAllocated",
+          "RosterUnitChanged",
+          "RosterUnitChanged"
+        ],
+        "typesAfterSecond": [
+          "CampaignSnapshotPublished",
+          "SalvageAllocated",
+          "RosterUnitChanged",
+          "RosterUnitChanged"
+        ],
+        "rowUnchangedBySecond": true
+      },
+      "o2u": {
+        "genesisBy": "the PUT create (flag true)",
+        "createdVersion": 1,
+        "outcomeOk": true,
+        "outcomeError": null,
+        "rosterChanges": [],
+        "journalAfterOutcome": {
+          "balance": 355000,
+          "salvagePool": 0,
+          "roster": {
+            "unit-0": "operational",
+            "unit-1": "operational"
+          }
+        },
+        "hostAfterOutcome": {
+          "balance": 354000,
+          "salvagePool": 0,
+          "roster": {
+            "unit-0": "operational",
+            "unit-1": "operational"
+          }
+        },
+        "recordAfterOutcome": {
+          "version": 1,
+          "balance": 380000,
+          "roster": {
+            "unit-0": "Ready",
+            "unit-1": "Ready"
+          },
+          "forceOf": {
+            "unit-0": "force-1790318902792-pk8z1bv",
+            "unit-1": "force-sub-1"
+          }
+        },
+        "stalePutStatus": 200,
+        "currentPutStatus": 200,
+        "journalAfterSave": {
+          "balance": 380000,
+          "salvagePool": 0,
+          "roster": {
+            "unit-0": "operational",
+            "unit-1": "operational"
+          }
+        },
+        "recordAfterSave": {
+          "version": 3,
+          "balance": 380000,
+          "roster": {
+            "unit-0": "Ready",
+            "unit-1": "Ready"
+          },
+          "forceOf": {
+            "unit-0": "force-1790318902792-pk8z1bv",
+            "unit-1": "force-sub-1"
+          }
+        },
+        "nextCoopCommandOk": true,
+        "journalAgreesWithHost": true,
+        "eventTypes": [
+          "CampaignSnapshotPublished",
+          "FundsChanged",
+          "CampaignSnapshotPublished",
+          "CampaignSnapshotPublished",
+          "FundsChanged"
+        ]
+      },
+      "t": {
+        "typesBefore": [
+          "CampaignSnapshotPublished"
+        ],
+        "afterFailure": {
+          "failure": null,
+          "typesAfter": [
+            "CampaignSnapshotPublished",
+            "SalvageAllocated",
+            "RosterUnitChanged",
+            "RosterUnitChanged"
+          ],
+          "rowUnchanged": true,
+          "receipts": 1,
+          "host": {
+            "balance": 380000,
+            "salvagePool": 50000,
+            "roster": {
+              "unit-1": "damaged"
+            }
+          }
+        },
+        "retryOk": true,
+        "recordAfterRetry": {
+          "version": 1,
+          "balance": 380000,
+          "roster": {
+            "unit-0": "Ready",
+            "unit-1": "Ready"
+          },
+          "forceOf": {
+            "unit-0": "force-1790318902849-4xmykr9",
+            "unit-1": "force-sub-1"
+          }
+        }
+      },
+      "a": {
+        "outcomeOk": true,
+        "rowUnchanged": true,
+        "journal": {
+          "balance": 355000,
+          "salvagePool": 50000,
+          "roster": {
+            "unit-1": "damaged"
+          }
+        }
+      }
+    }
+  },
+  "reading": {
+    "flagFalse": {
+      "o1": {
+        "rosterChanges": [
+          {
+            "unitId": "unit-0",
+            "change": "removed",
+            "status": "destroyed"
+          },
+          {
+            "unitId": "unit-1",
+            "change": "repaired",
+            "status": "damaged"
+          }
+        ],
+        "journalRosterAfterOutcome": {
+          "unit-1": "damaged"
+        },
+        "recordVersionAfterOutcome": 1,
+        "stalePutStatus": 200,
+        "journalAfterSave": {
+          "balance": 380000,
+          "salvagePool": 50000,
+          "roster": {
+            "unit-0": "operational",
+            "unit-1": "operational"
+          }
+        },
+        "recordRosterAfterSave": {
+          "unit-0": "Ready",
+          "unit-1": "Ready"
+        },
+        "recordBalanceAfterSave": 380000,
+        "journalAgreesWithHost": false
+      },
+      "o1c": {
+        "rosterChanges": [
+          {
+            "unitId": "unit-0",
+            "change": "removed",
+            "status": "destroyed"
+          },
+          {
+            "unitId": "unit-1",
+            "change": "repaired",
+            "status": "damaged"
+          }
+        ],
+        "journalRosterAfterOutcome": {
+          "unit-1": "damaged"
+        },
+        "recordVersionAfterOutcome": 1,
+        "stalePutStatus": 200,
+        "journalAfterSave": {
+          "balance": 380000,
+          "salvagePool": 50000,
+          "roster": {
+            "unit-0": "destroyed",
+            "unit-1": "damaged"
+          }
+        },
+        "recordRosterAfterSave": {
+          "unit-0": "Destroyed",
+          "unit-1": "Damaged"
+        },
+        "recordBalanceAfterSave": 380000,
+        "journalAgreesWithHost": false
+      },
+      "o1s": {
+        "rosterChanges": [
+          {
+            "unitId": "unit-0",
+            "change": "removed",
+            "status": "destroyed"
+          },
+          {
+            "unitId": "unit-1",
+            "change": "repaired",
+            "status": "damaged"
+          }
+        ],
+        "journalRosterAfterOutcome": {
+          "unit-1": "damaged"
+        },
+        "recordVersionAfterOutcome": 1,
+        "stalePutStatus": 200,
+        "journalAfterSave": {
+          "balance": 380000,
+          "salvagePool": 50000,
+          "roster": {
+            "unit-1": "damaged"
+          }
+        },
+        "recordRosterAfterSave": {
+          "unit-0": "Ready",
+          "unit-1": "Ready"
+        },
+        "recordBalanceAfterSave": 380000,
+        "journalAgreesWithHost": true
+      },
+      "o2u": {
+        "rosterChanges": [],
+        "journalRosterAfterOutcome": {
+          "unit-0": "operational",
+          "unit-1": "operational"
+        },
+        "recordVersionAfterOutcome": 1,
+        "stalePutStatus": 200,
+        "journalAfterSave": {
+          "balance": 380000,
+          "salvagePool": 0,
+          "roster": {
+            "unit-0": "operational",
+            "unit-1": "operational"
+          }
+        },
+        "recordRosterAfterSave": {
+          "unit-0": "Ready",
+          "unit-1": "Ready"
+        },
+        "recordBalanceAfterSave": 380000,
+        "journalAgreesWithHost": true
+      },
+      "d": {
+        "createdVersion": 1,
+        "outcomeOk": true,
+        "rosterChanges": [
+          {
+            "unitId": "unit-0",
+            "change": "removed",
+            "status": "destroyed"
+          },
+          {
+            "unitId": "unit-1",
+            "change": "repaired",
+            "status": "damaged"
+          }
+        ],
+        "journal": {
+          "balance": 380000,
+          "salvagePool": 0,
+          "roster": {
+            "unit-1": "damaged"
+          }
+        },
+        "host": {
+          "balance": 380000,
+          "salvagePool": 0,
+          "roster": {
+            "unit-1": "damaged"
+          }
+        },
+        "record": {
+          "version": 1,
+          "balance": 380000,
+          "roster": {
+            "unit-0": "Ready",
+            "unit-1": "Ready"
+          },
+          "forceOf": {
+            "unit-0": "force-1790318887767-wevsjaa",
+            "unit-1": "force-sub-1"
+          }
+        }
+      },
+      "i": {
+        "createdVersion": 1,
+        "firstOk": true,
+        "firstEvents": 3,
+        "versionAfterFirst": {
+          "version": 1,
+          "balance": 380000,
+          "roster": {
+            "unit-0": "Ready",
+            "unit-1": "Ready"
+          },
+          "forceOf": {
+            "unit-0": "force-1790318887841-i3o3gco",
+            "unit-1": "force-sub-1"
+          }
+        },
+        "secondOk": true,
+        "secondEvents": 0,
+        "typesAfterFirst": [
+          "CampaignSnapshotPublished",
+          "SalvageAllocated",
+          "RosterUnitChanged",
+          "RosterUnitChanged"
+        ],
+        "typesAfterSecond": [
+          "CampaignSnapshotPublished",
+          "SalvageAllocated",
+          "RosterUnitChanged",
+          "RosterUnitChanged"
+        ],
+        "rowUnchangedBySecond": true
+      },
+      "t": {
+        "typesBefore": [
+          "CampaignSnapshotPublished"
+        ],
+        "afterFailure": {
+          "failure": null,
+          "typesAfter": [
+            "CampaignSnapshotPublished",
+            "SalvageAllocated",
+            "RosterUnitChanged",
+            "RosterUnitChanged"
+          ],
+          "rowUnchanged": true,
+          "receipts": 1,
+          "host": {
+            "balance": 380000,
+            "salvagePool": 50000,
+            "roster": {
+              "unit-1": "damaged"
+            }
+          }
+        },
+        "retryOk": true,
+        "recordAfterRetry": {
+          "version": 1,
+          "balance": 380000,
+          "roster": {
+            "unit-0": "Ready",
+            "unit-1": "Ready"
+          },
+          "forceOf": {
+            "unit-0": "force-1790318887973-he0v0aw",
+            "unit-1": "force-sub-1"
+          }
+        }
+      },
+      "a": {
+        "outcomeOk": true,
+        "rowUnchanged": true,
+        "journal": {
+          "balance": 355000,
+          "salvagePool": 50000,
+          "roster": {
+            "unit-1": "damaged"
+          }
+        }
+      }
+    },
+    "underTemporaryFlip": {
+      "o1": {
+        "rosterChanges": [
+          {
+            "unitId": "unit-0",
+            "change": "removed",
+            "status": "destroyed"
+          },
+          {
+            "unitId": "unit-1",
+            "change": "repaired",
+            "status": "damaged"
+          }
+        ],
+        "journalRosterAfterOutcome": {
+          "unit-1": "damaged"
+        },
+        "recordVersionAfterOutcome": 1,
+        "stalePutStatus": 200,
+        "journalAfterSave": {
+          "balance": 380000,
+          "salvagePool": 50000,
+          "roster": {
+            "unit-0": "operational",
+            "unit-1": "operational"
+          }
+        },
+        "recordRosterAfterSave": {
+          "unit-0": "Ready",
+          "unit-1": "Ready"
+        },
+        "recordBalanceAfterSave": 380000,
+        "journalAgreesWithHost": false
+      },
+      "o1c": {
+        "rosterChanges": [
+          {
+            "unitId": "unit-0",
+            "change": "removed",
+            "status": "destroyed"
+          },
+          {
+            "unitId": "unit-1",
+            "change": "repaired",
+            "status": "damaged"
+          }
+        ],
+        "journalRosterAfterOutcome": {
+          "unit-1": "damaged"
+        },
+        "recordVersionAfterOutcome": 1,
+        "stalePutStatus": 200,
+        "journalAfterSave": {
+          "balance": 380000,
+          "salvagePool": 50000,
+          "roster": {
+            "unit-0": "destroyed",
+            "unit-1": "damaged"
+          }
+        },
+        "recordRosterAfterSave": {
+          "unit-0": "Destroyed",
+          "unit-1": "Damaged"
+        },
+        "recordBalanceAfterSave": 380000,
+        "journalAgreesWithHost": false
+      },
+      "o1s": {
+        "rosterChanges": [
+          {
+            "unitId": "unit-0",
+            "change": "removed",
+            "status": "destroyed"
+          },
+          {
+            "unitId": "unit-1",
+            "change": "repaired",
+            "status": "damaged"
+          }
+        ],
+        "journalRosterAfterOutcome": {
+          "unit-1": "damaged"
+        },
+        "recordVersionAfterOutcome": 1,
+        "stalePutStatus": 200,
+        "journalAfterSave": {
+          "balance": 380000,
+          "salvagePool": 50000,
+          "roster": {
+            "unit-0": "operational",
+            "unit-1": "operational"
+          }
+        },
+        "recordRosterAfterSave": {
+          "unit-0": "Ready",
+          "unit-1": "Ready"
+        },
+        "recordBalanceAfterSave": 380000,
+        "journalAgreesWithHost": false
+      },
+      "o2u": {
+        "rosterChanges": [],
+        "journalRosterAfterOutcome": {
+          "unit-0": "operational",
+          "unit-1": "operational"
+        },
+        "recordVersionAfterOutcome": 1,
+        "stalePutStatus": 200,
+        "journalAfterSave": {
+          "balance": 380000,
+          "salvagePool": 0,
+          "roster": {
+            "unit-0": "operational",
+            "unit-1": "operational"
+          }
+        },
+        "recordRosterAfterSave": {
+          "unit-0": "Ready",
+          "unit-1": "Ready"
+        },
+        "recordBalanceAfterSave": 380000,
+        "journalAgreesWithHost": true
+      }
+    }
+  },
+  "summary": "baseline 0fd24c343, real SQLite: with the flag false and under the temporary flip, o1 (the host save rebuilds the roster as operational), o1c (the journal ends destroyed/damaged only because the host carried it, but the live host, which applied a removal, disagrees with the journal), o1s (flag false: the journal keeps the removal, unit-0 gone; flipped: rebuilt as operational), d (unit-0 committed as change 'removed', gone from the journal and the host, record untouched at version 1), i (the first receipt leaves the record at version 1), o2u (the save built before the fold puts the balance back to 380,000 from 355,000) and t (no rewrite runs, so nothing fails and the outcome commits) fail; a (snapshot authority untouched) passes; the fallback re-pin and the feed case fail. Every stale host PUT at the pre-outcome version was accepted (200).",
+  "gitStatusAfter": " M src/lib/campaign/activity/__tests__/campaignActivityProjection.test.ts\n M src/lib/campaign/coop/__tests__/reconcileCoopBattle.test.ts\n?? openspec/planning/2026-09-12-roadmap-completion/evidence/u35g-admission-20260925.json\n?? src/lib/campaign/sync/__tests__/campaignCombatOutcomeRecordRewrite.test.ts\n"
+}
