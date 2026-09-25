@@ -2218,20 +2218,34 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "baseline": null,
+      "baseline": "5a3e87f8ca4876ed36a3b186e56ba1211137cb12",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/u88-admission-20260925.json",
+          "baseline": "5a3e87f8ca4876ed36a3b186e56ba1211137cb12",
+          "at": "2026-09-25T22:12:49.247Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/u88-red-20260925.json",
+          "at": "2026-09-25T22:16:53.652Z",
+          "summary": "baseline 5a3e87f8c: the body CampaignCoopEntryPanel builds (buildCampaignAuthoritativeState from a roster unit carrying sourceVersion 3) is refused by CreateMultiplayerMatchBodySchema with unrecognized_keys sourceVersion on each unit, and through the route harness POST /api/multiplayer/matches answers 400 Malformed body before rate limit, auth or any store work; the control without the field is accepted"
+        },
+        "local": {
+          "path": "evidence/u88-local-20260925.json",
+          "at": "2026-09-25T22:24:59.920Z",
+          "summary": "1 product file, 5 lines (src/lib/api/securitySchemas.ts: CampaignRosterUnitSchema gains sourceVersion as z.number().int().positive().optional(), the value type U35j gave the schema pack); 1 test file 406 lines; nothing downstream strips the field (campaignCoopSnapshot.ts:76, CampaignMatchHost.ts:150); rows: the panel body accepted at the schema and the route (201, host state keeps 3), unknown extra roster field still refused, string/0/-1/1.5 refused; jest src/lib/api 10, src/__tests__/api 57 suites 772, src/__tests__/unit/api 35, src/pages-modules/gameplay/campaigns 30; tsc 0; oxlint 84 warnings 0 errors; oxfmt clean; lint:units 100/100; qc:openspec-ci errors=0; validator PASSED; four mutants caught and restored (field removed, passthrough, widened number, made required); no live server driven; implementer claude-opus (Agent model: opus); findings: the salvage request schema drops unit provenance (measured), the panel test mocks the state builder; status ready"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
         "tick": null
       },
       "ownerGate": null,
-      "state": "planned",
+      "state": "local-verified",
       "id": "U88",
       "node": "R2.authority-live",
       "behavior": "Hosting a co-op match from a campaign whose roster units carry sourceVersion works. The co-op match-creation body's roster-unit schema (src/lib/api/securitySchemas.ts:83-91, strict, parsed at src/pages/api/multiplayer/matches/index.ts:284 through CoopCampaignRegistrationSchema) gains sourceVersion as z.number().int().positive().optional(), the same value type U35j gives the campaign baseline schema pack; an unknown extra field is still refused. Red first: a jest route row posting the body CampaignCoopEntryPanel.tsx:217-228 builds (buildCampaignAuthoritativeState copies sourceVersion at campaignAuthoritativeState.ts:65) for a unit carrying sourceVersion answers 400 on the baseline and registers the match after; a body with an unknown roster field still answers 400.",
@@ -2241,7 +2255,11 @@
       "reviewClasses": [
         "routine"
       ],
-      "source20260925": "planned by the parent from U35j's finding F1 (evidence/u35j-local-20260925.json) after tracing the client path; UAT round 1 register known issue 9"
+      "source20260925": "planned by the parent from U35j's finding F1 (evidence/u35j-local-20260925.json) after tracing the client path; UAT round 1 register known issue 9",
+      "admissionNote20260925": {
+        "at": "2026-09-25T22:56:32.000Z",
+        "note": "--next printed U35d, in flight in its own worktree; U88's path src/lib/api overlaps nothing in flight, so the parent admitted it in parallel (U22, U22a precedent)."
+      }
     },
     {
       "taskKeys": [],
@@ -9162,6 +9180,24 @@
       "class": "stale comments",
       "summary": "src/components/campaign/coop/CampaignCoopRouteSurface.tsx:193-202 say the pending proposals and onDecide are stubs for a later wave; CampaignCoopRouteSurfaceConnected.tsx:394 and :396 pass live ones.",
       "recommendedSuccessor": "fold into the next unit that edits src/components/campaign/coop",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u88-salvage-request-schema-drops-unit-provenance",
+      "foundBy": "U88 implementer lane (claude-opus), 2026-09-25, finding F1 (measured with a deleted probe)",
+      "at": "2026-09-25T22:56:32.000Z",
+      "class": "silent field drop (measured at the parser; the committed effect not measured)",
+      "summary": "rosterUnitSchema in src/types/campaign/campaignSyncSchemas.ts:33-37 keeps only unitId, designation and status, so a salvage request's recoveredUnit loses unitRef, unitSource and sourceVersion before the host commits it; outside U88's path.",
+      "recommendedSuccessor": "the unit that next edits src/types/campaign (U35j's value type; tie the schema to ICampaignRosterUnit, FN-u35j-pack-shapes-untied-from-types)",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u88-coop-entry-panel-test-mocks-state-builder",
+      "foundBy": "U88 implementer lane (claude-opus), 2026-09-25, finding F3",
+      "at": "2026-09-25T22:56:32.000Z",
+      "class": "test blind spot",
+      "summary": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx:56-58 mocks buildCampaignAuthoritativeState, so that suite could never see the body the panel really sends being refused.",
+      "recommendedSuccessor": "fold into the next unit that edits that test",
       "status": "recorded"
     }
   ]
