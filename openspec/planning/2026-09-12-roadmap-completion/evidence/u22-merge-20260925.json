@@ -1,0 +1,19 @@
+{
+  "unit": "U22",
+  "stage": "merge",
+  "at": "2026-09-25T20:47:42.513Z",
+  "pr": 1943,
+  "title": "test(e2e): E2E-25 runs as a plain row (U22)",
+  "head": "9f778f6b10625bf0f33a59515faa75aee59d46b7",
+  "mergeSha": "6f386c5f157925da491aca06c63fac234cccd5fa",
+  "mergedAt": "2026-09-25T19:59:17Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "e2e/gm-two-player-privacy.pack.spec.ts",
+    "e2e/helpers/campaignJournalDrive.ts"
+  ],
+  "blobEqualityDiffLines": 0
+}

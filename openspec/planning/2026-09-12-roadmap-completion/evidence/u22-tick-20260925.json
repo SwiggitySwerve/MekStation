@@ -1,0 +1,10 @@
+{
+  "unit": "U22",
+  "stage": "tick",
+  "at": "2026-09-25T20:47:42.710Z",
+  "taskKeys": [
+    "harden-gm-two-player-campaign-sessions#21.2@547"
+  ],
+  "note": "rows checked by this closure",
+  "tickedOnMain": "6f386c5f157925da491aca06c63fac234cccd5fa"
+}
