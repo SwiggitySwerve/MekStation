@@ -1,0 +1,768 @@
+{
+  "unit": "U35j",
+  "stage": "local",
+  "status": "ready",
+  "at": "2026-09-25T08:28:07.366Z",
+  "baseline": "890313d59e917f0115a87ca3dbc10dea9cc6ad30",
+  "head": "uncommitted working tree on the baseline (the parent commits)",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u35j",
+  "branch": "roadmap-u35j-schema-pack-sourceversion-20260925",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "shellPreamble": "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH; npm_config_dry_run=true",
+  "behaviorDelivered": "The campaign roster-unit schema accepts an optional sourceVersion (a positive integer), so the genesis snapshot, the co-op host baseline snapshot and the combat outcome RosterUnitChanged payloads, each built by the producer from units carrying sourceVersion 3, parse under the pack; an unknown extra field and a non-number, zero, negative, fractional or null sourceVersion are refused. The three variants nesting the roster unit register revised schema ids (campaign.<type>.v1-r2, still schemaVersion 1), so the pipeline fingerprint changes for histories holding them and for no other history (admission option b).",
+  "files": [
+    {
+      "file": "src/lib/events/replay/CampaignBaselineSchemaPack.ts",
+      "added": 31,
+      "removed": 3,
+      "category": "product",
+      "sha256": "5012874b53a74cd09b0a7dbe0fa82b858c7f1f157b12738759cd9939b7e195a2"
+    },
+    {
+      "file": "src/lib/events/replay/__fixtures__/CampaignBaselineSchemaPack.fixture.ts",
+      "added": 23,
+      "removed": 1,
+      "category": "test",
+      "sha256": "8b715aef29db458203cbd58ba8bc8731bbad9f92f03914eeb690147ef434df59"
+    },
+    {
+      "file": "src/lib/events/replay/__tests__/CampaignBaselineSchemaPack.test.ts",
+      "added": 332,
+      "removed": 1,
+      "category": "test",
+      "sha256": "191ba979fa4d09d68000c7f492ed448ee09da46d4c97dee6605a18ef1a0fe35c"
+    }
+  ],
+  "lineCounts": {
+    "product": {
+      "changedLines": 34,
+      "added": 31,
+      "removed": 3,
+      "files": 1
+    },
+    "test": {
+      "changedLines": 357,
+      "added": 355,
+      "removed": 2,
+      "files": 2
+    },
+    "source": "git diff --numstat against the baseline",
+    "caps": {
+      "maxFiles": 15,
+      "maxNonGeneratedProductLines": 500,
+      "filesChanged": 3,
+      "withinCaps": true
+    }
+  },
+  "fingerprint": {
+    "what": "campaignSchemaPipelineFingerprint() (src/lib/campaign/authority/campaignAuthorityMigration.ts:116-129), the value every new cutover marker stores",
+    "before": "9898f80848b2692e95ed1fa9f570d7038c0ea357d285b82809d194091a3730ad",
+    "after": "6e01d603c7950566da35cec50c349084bb5b39a2b08f14ef42beb6c8ec7eef13",
+    "changed": true,
+    "schemaIdsBefore": {
+      "CampaignDayAdvanced": "campaign.CampaignDayAdvanced.v1",
+      "FundsChanged": "campaign.FundsChanged.v1",
+      "PilotHired": "campaign.PilotHired.v1",
+      "ContractAccepted": "campaign.ContractAccepted.v1",
+      "RosterUnitChanged": "campaign.RosterUnitChanged.v1",
+      "SalvageAllocated": "campaign.SalvageAllocated.v1",
+      "ParticipantRemoved": "campaign.ParticipantRemoved.v1",
+      "CampaignSnapshotPublished": "campaign.CampaignSnapshotPublished.v1"
+    },
+    "schemaIdsAfter": {
+      "CampaignDayAdvanced": "campaign.CampaignDayAdvanced.v1",
+      "FundsChanged": "campaign.FundsChanged.v1",
+      "PilotHired": "campaign.PilotHired.v1",
+      "ContractAccepted": "campaign.ContractAccepted.v1",
+      "RosterUnitChanged": "campaign.RosterUnitChanged.v1-r2",
+      "SalvageAllocated": "campaign.SalvageAllocated.v1-r2",
+      "ParticipantRemoved": "campaign.ParticipantRemoved.v1",
+      "CampaignSnapshotPublished": "campaign.CampaignSnapshotPublished.v1-r2"
+    },
+    "singleTypeHistory": {
+      "CampaignDayAdvanced": {
+        "before": "f85d648d47f4a483fdcc31ff2512baf4f338ae7b5abc511c51c01a2644fc603a",
+        "after": "f85d648d47f4a483fdcc31ff2512baf4f338ae7b5abc511c51c01a2644fc603a",
+        "changed": false
+      },
+      "FundsChanged": {
+        "before": "a3bb2d104cf52c967254d3e8962d234e2f7b33ff5dba7ee5ab108aa912c0370c",
+        "after": "a3bb2d104cf52c967254d3e8962d234e2f7b33ff5dba7ee5ab108aa912c0370c",
+        "changed": false
+      },
+      "PilotHired": {
+        "before": "1f190a431ac2eee6e357185fe1be216a1ef8c128c7e96f3037f5a6e894addcad",
+        "after": "1f190a431ac2eee6e357185fe1be216a1ef8c128c7e96f3037f5a6e894addcad",
+        "changed": false
+      },
+      "ContractAccepted": {
+        "before": "3604338da57418ffdc551e956211e0b368948083a42bb9ecbba7b81c27c29448",
+        "after": "3604338da57418ffdc551e956211e0b368948083a42bb9ecbba7b81c27c29448",
+        "changed": false
+      },
+      "RosterUnitChanged": {
+        "before": "68909a38378426d387489438b02975ad78f845521d6a074347c4c9e43ebae7ce",
+        "after": "be5d58154bb57de20e93b48c43358bf94957a0d88a6bd4030ce29a2922a4cf76",
+        "changed": true
+      },
+      "SalvageAllocated": {
+        "before": "1093a7f9878bb84335b5b1650734682db35d2c68c4a0f4eb4205a25b1af80f05",
+        "after": "0d37dc3d9b1e7a2eca4cd203a4101f41f84a125fff291cf40fba051ff0bf61a6",
+        "changed": true
+      },
+      "ParticipantRemoved": {
+        "before": "5070cd83d2be54796bb318176e3c5982658f7ff6ada789ad17d6f67a532cea26",
+        "after": "5070cd83d2be54796bb318176e3c5982658f7ff6ada789ad17d6f67a532cea26",
+        "changed": false
+      },
+      "CampaignSnapshotPublished": {
+        "before": "26b12fdf34f8230ce4b73cb3e80c9790e9c22bbe70e8881322ebc091deebb563",
+        "after": "0b3f098a76f9f0297e258609addb9982426be55dc3ee7119d91f736d3a56fd79",
+        "changed": true
+      }
+    },
+    "measuredBy": "a temporary probe block appended to the pack test file (run with U35J_PROBE_OUT set), before the product edit and on the final product file; the block was removed each time and the test file restored from a saved copy (sha256 checked)"
+  },
+  "gates": {
+    "jestPackSuite": {
+      "command": "npx jest src/lib/events/replay/__tests__/CampaignBaselineSchemaPack.test.ts",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\events\\\\replay\\\\__tests__\\\\CampaignBaselineSchemaPack.test.ts/i.",
+      "counts": "Test Suites: 1 passed, 1 total | Tests:       39 passed, 39 total",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/final/jest-pack-2.log",
+        "sha256": "af6649004c65c8d3764d701f015ecfdab2fafe6be20a9634bca9222eaffa96c7"
+      },
+      "startedAt": "2026-09-25T08:24:59.786Z",
+      "endedAt": "2026-09-25T08:25:04.034Z"
+    },
+    "jestReplay": {
+      "command": "npx jest src/lib/events/replay",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\events\\\\replay/i.",
+      "counts": "Test Suites: 22 passed, 22 total | Tests:       644 passed, 644 total",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/final/jest-replay-2.log",
+        "sha256": "59905c2c258edbee1df62afdd7f040d564db0028fb697348ccb25753afb5217a"
+      },
+      "startedAt": "2026-09-25T08:25:59.911Z",
+      "endedAt": "2026-09-25T08:26:06.645Z"
+    },
+    "jestEvents": {
+      "command": "npx jest src/lib/events",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\events/i.",
+      "counts": "Test Suites: 51 passed, 51 total | Tests:       947 passed, 947 total",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/final/jest-events-2.log",
+        "sha256": "0a60f6f28d45eb94520654db14972538a97f400db6d349980d7096b4ce014db5"
+      },
+      "startedAt": "2026-09-25T08:26:07.484Z",
+      "endedAt": "2026-09-25T08:26:15.524Z"
+    },
+    "jestCampaignAuthority": {
+      "command": "npx jest src/lib/campaign/authority",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\campaign\\\\authority/i.",
+      "counts": "Test Suites: 24 passed, 24 total | Tests:       175 passed, 175 total",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/final/jest-authority.log",
+        "sha256": "c52c9869f3ecc5b6e6c63e93593a38a779542639d7a8b21802856abd9379b954"
+      },
+      "startedAt": "2026-09-25T08:24:27.797Z",
+      "endedAt": "2026-09-25T08:24:34.236Z",
+      "note": "run on the final product file; the only later edit was a one-line comment in the replay test file, which this directory does not contain"
+    },
+    "tsc": {
+      "command": "npx tsc --noEmit",
+      "exitCode": 0,
+      "lastLine": "",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/final/tsc.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "startedAt": "2026-09-25T08:25:45.436Z",
+      "endedAt": "2026-09-25T08:25:57.287Z",
+      "note": "tsc prints nothing on success; lastLine is empty"
+    },
+    "oxlint": {
+      "command": "npx oxlint",
+      "exitCode": 0,
+      "lastLine": "Finished in 305ms on 3819 files using 16 threads.",
+      "summary": "Found 84 warnings and 0 errors.",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/final/oxlint.log",
+        "sha256": "4f2175ba7616fdb38c6eda5482c734b4b6f909be752ab18e962a8832eba2eb1d"
+      },
+      "startedAt": "2026-09-25T08:25:57.434Z",
+      "endedAt": "2026-09-25T08:25:59.164Z",
+      "warningsVsBaseline": "84 warnings, equal to the 84 the charter names; 0 errors; none in the changed files"
+    },
+    "oxfmtChangedFiles": {
+      "command": "npx oxfmt --check src/lib/events/replay/CampaignBaselineSchemaPack.ts src/lib/events/replay/__tests__/CampaignBaselineSchemaPack.test.ts src/lib/events/replay/__fixtures__/CampaignBaselineSchemaPack.fixture.ts",
+      "exitCode": 0,
+      "lastLine": "Finished in 51ms on 3 files using 16 threads.",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/final/oxfmt.log",
+        "sha256": "337d6972ef5c1e5d0d4ac7eccd07aeed6896a4536e2054e3f53fbb0667c2c735"
+      },
+      "startedAt": "2026-09-25T08:24:58.362Z",
+      "endedAt": "2026-09-25T08:24:59.694Z"
+    },
+    "lintUnits": {
+      "command": "npm run lint:units",
+      "exitCode": 0,
+      "lastLine": "LINT_UNITS_PASS 100/100",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/final/lint-units.log",
+        "sha256": "e055631f9348b2e6539c922dddc1fe388b583448a734da5f618cb47c583fae2d"
+      },
+      "startedAt": "2026-09-25T08:26:22.610Z",
+      "endedAt": "2026-09-25T08:26:23.536Z"
+    },
+    "openspecCi": {
+      "command": "npm run qc:openspec-ci:validate",
+      "exitCode": 0,
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/final/openspec-ci.log",
+        "sha256": "4c2dafd093b946290aa4abe001ad8b3d65671b17c7682722c55a510ecc04f91e"
+      },
+      "startedAt": "2026-09-25T08:26:23.610Z",
+      "endedAt": "2026-09-25T08:26:24.345Z"
+    },
+    "roadmapValidator": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "exitCode": 0,
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/final/validator.log",
+        "sha256": "97b2f29d264078525a55c5f88586fb95603311fa065e70d7d17c5fab08f5b5bc"
+      },
+      "startedAt": "2026-09-25T08:26:24.424Z",
+      "endedAt": "2026-09-25T08:26:24.534Z"
+    },
+    "machineIdleBeforeEachDirectoryRun": [
+      {
+        "lastLine": "MACHINE_IDLE",
+        "exitCode": 0,
+        "at": "2026-09-25T08:24:04.966Z"
+      },
+      {
+        "lastLine": "MACHINE_IDLE",
+        "exitCode": 0,
+        "at": "2026-09-25T08:24:18.142Z"
+      },
+      {
+        "lastLine": "MACHINE_IDLE",
+        "exitCode": 0,
+        "at": "2026-09-25T08:24:27.160Z"
+      },
+      {
+        "lastLine": "MACHINE_IDLE",
+        "exitCode": 0,
+        "at": "2026-09-25T08:25:44.844Z"
+      },
+      {
+        "lastLine": "MACHINE_IDLE",
+        "exitCode": 0,
+        "at": "2026-09-25T08:25:59.302Z"
+      },
+      {
+        "lastLine": "MACHINE_IDLE",
+        "exitCode": 0,
+        "at": "2026-09-25T08:26:06.746Z"
+      }
+    ]
+  },
+  "failedAttempts": [
+    {
+      "command": "npx tsc --noEmit",
+      "exitCode": 2,
+      "error": "src/lib/events/replay/CampaignBaselineSchemaPack.ts(111,7): error TS2322: Type 'Set<string>' is not assignable to type 'ReadonlySet<CampaignEventType>'.",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/local/tsc.log",
+        "sha256": "615c27cd5c73551ad687565de85f248a034a60f2b5d0991a56c263c95e9a6fb2"
+      },
+      "fix": "typed the Set as new Set<CampaignEventType>([...]) and reformatted with oxfmt; the mutants and every gate were rerun afterwards"
+    }
+  ],
+  "redToGreen": {
+    "packSuite": {
+      "before": {
+        "log": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/red/CampaignBaselineSchemaPack.log",
+        "note": "baseline product file with the new test and fixture; 40 tests incl. the temporary probe row, which is excluded below"
+      },
+      "after": {
+        "log": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/final/jest-pack-2.log"
+      },
+      "rows": [
+        {
+          "row": "registers discriminants exactly equal to the canonical campaign union",
+          "before": "pass",
+          "after": "pass"
+        },
+        {
+          "row": "CampaignDayAdvanced parses its valid fixture at baseline v1 and round-trips deterministically",
+          "before": "pass",
+          "after": "pass"
+        },
+        {
+          "row": "FundsChanged parses its valid fixture at baseline v1 and round-trips deterministically",
+          "before": "pass",
+          "after": "pass"
+        },
+        {
+          "row": "PilotHired parses its valid fixture at baseline v1 and round-trips deterministically",
+          "before": "pass",
+          "after": "pass"
+        },
+        {
+          "row": "ContractAccepted parses its valid fixture at baseline v1 and round-trips deterministically",
+          "before": "pass",
+          "after": "pass"
+        },
+        {
+          "row": "RosterUnitChanged parses its valid fixture at baseline v1 and round-trips deterministically",
+          "before": "fail",
+          "after": "pass"
+        },
+        {
+          "row": "SalvageAllocated parses its valid fixture at baseline v1 and round-trips deterministically",
+          "before": "fail",
+          "after": "pass"
+        },
+        {
+          "row": "ParticipantRemoved parses its valid fixture at baseline v1 and round-trips deterministically",
+          "before": "pass",
+          "after": "pass"
+        },
+        {
+          "row": "CampaignSnapshotPublished parses its valid fixture at baseline v1 and round-trips deterministically",
+          "before": "fail",
+          "after": "pass"
+        },
+        {
+          "row": "CampaignDayAdvanced rejects its missing/extra/ill-typed mutation matrix",
+          "before": "pass",
+          "after": "pass"
+        },
+        {
+          "row": "FundsChanged rejects its missing/extra/ill-typed mutation matrix",
+          "before": "pass",
+          "after": "pass"
+        },
+        {
+          "row": "PilotHired rejects its missing/extra/ill-typed mutation matrix",
+          "before": "pass",
+          "after": "pass"
+        },
+        {
+          "row": "ContractAccepted rejects its missing/extra/ill-typed mutation matrix",
+          "before": "pass",
+          "after": "pass"
+        },
+        {
+          "row": "RosterUnitChanged rejects its missing/extra/ill-typed mutation matrix",
+          "before": "pass",
+          "after": "pass"
+        },
+        {
+          "row": "SalvageAllocated rejects its missing/extra/ill-typed mutation matrix",
+          "before": "pass",
+          "after": "pass"
+        },
+        {
+          "row": "ParticipantRemoved rejects its missing/extra/ill-typed mutation matrix",
+          "before": "pass",
+          "after": "pass"
+        },
+        {
+          "row": "CampaignSnapshotPublished rejects its missing/extra/ill-typed mutation matrix",
+          "before": "pass",
+          "after": "pass"
+        },
+        {
+          "row": "fails closed on unknown discriminants and unknown versions",
+          "before": "pass",
+          "after": "pass"
+        },
+        {
+          "row": "fingerprints the campaign pipeline deterministically",
+          "before": "pass",
+          "after": "pass"
+        },
+        {
+          "row": "parses the genesis snapshot the campaign source journals",
+          "before": "fail",
+          "after": "pass"
+        },
+        {
+          "row": "parses the baseline snapshot the co-op host commits on open",
+          "before": "fail",
+          "after": "pass"
+        },
+        {
+          "row": "parses the RosterUnitChanged events a combat outcome commits",
+          "before": "fail",
+          "after": "pass"
+        },
+        {
+          "row": "still refuses an unknown extra field on a roster unit",
+          "before": "fail",
+          "after": "pass"
+        },
+        {
+          "row": "RosterUnitChanged refuses sourceVersion \"3\"",
+          "before": "fail",
+          "after": "pass"
+        },
+        {
+          "row": "RosterUnitChanged refuses sourceVersion 0",
+          "before": "fail",
+          "after": "pass"
+        },
+        {
+          "row": "RosterUnitChanged refuses sourceVersion -1",
+          "before": "fail",
+          "after": "pass"
+        },
+        {
+          "row": "RosterUnitChanged refuses sourceVersion 1.5",
+          "before": "fail",
+          "after": "pass"
+        },
+        {
+          "row": "RosterUnitChanged refuses sourceVersion null",
+          "before": "fail",
+          "after": "pass"
+        },
+        {
+          "row": "SalvageAllocated refuses sourceVersion \"3\"",
+          "before": "fail",
+          "after": "pass"
+        },
+        {
+          "row": "SalvageAllocated refuses sourceVersion 0",
+          "before": "fail",
+          "after": "pass"
+        },
+        {
+          "row": "SalvageAllocated refuses sourceVersion -1",
+          "before": "fail",
+          "after": "pass"
+        },
+        {
+          "row": "SalvageAllocated refuses sourceVersion 1.5",
+          "before": "fail",
+          "after": "pass"
+        },
+        {
+          "row": "SalvageAllocated refuses sourceVersion null",
+          "before": "fail",
+          "after": "pass"
+        },
+        {
+          "row": "CampaignSnapshotPublished refuses sourceVersion \"3\"",
+          "before": "fail",
+          "after": "pass"
+        },
+        {
+          "row": "CampaignSnapshotPublished refuses sourceVersion 0",
+          "before": "fail",
+          "after": "pass"
+        },
+        {
+          "row": "CampaignSnapshotPublished refuses sourceVersion -1",
+          "before": "fail",
+          "after": "pass"
+        },
+        {
+          "row": "CampaignSnapshotPublished refuses sourceVersion 1.5",
+          "before": "fail",
+          "after": "pass"
+        },
+        {
+          "row": "CampaignSnapshotPublished refuses sourceVersion null",
+          "before": "fail",
+          "after": "pass"
+        },
+        {
+          "row": "changes the pipeline fingerprint for, and only for, histories holding a roster unit",
+          "before": "fail",
+          "after": "pass"
+        }
+      ]
+    },
+    "domainRegistrySuite": {
+      "failingBefore": [
+        {
+          "row": "RosterUnitChanged reaches its single current target from baseline v1",
+          "result": "fail"
+        },
+        {
+          "row": "SalvageAllocated reaches its single current target from baseline v1",
+          "result": "fail"
+        },
+        {
+          "row": "CampaignSnapshotPublished reaches its single current target from baseline v1",
+          "result": "fail"
+        }
+      ],
+      "after": "all pass (inside the final src/lib/events/replay run)"
+    },
+    "inputProvenanceSuite": {
+      "failingBefore": [
+        {
+          "row": "replays every fixture twice with byte-identical results",
+          "result": "fail"
+        }
+      ],
+      "after": "all pass (inside the final src/lib/events/replay run)"
+    }
+  },
+  "mutants": [
+    {
+      "id": "M1",
+      "what": "sourceVersion removed from campaignRosterUnit again",
+      "caught": true,
+      "caughtBy": [
+        {
+          "suite": "CampaignBaselineSchemaPack.test.ts",
+          "exitCode": 1,
+          "testsLine": "Tests:       22 failed, 17 passed, 39 total",
+          "failingRows": [
+            "RosterUnitChanged parses its valid fixture at baseline v1 and round-trips deterministically",
+            "SalvageAllocated parses its valid fixture at baseline v1 and round-trips deterministically",
+            "CampaignSnapshotPublished parses its valid fixture at baseline v1 and round-trips deterministically",
+            "parses the genesis snapshot the campaign source journals",
+            "parses the baseline snapshot the co-op host commits on open",
+            "parses the RosterUnitChanged events a combat outcome commits",
+            "still refuses an unknown extra field on a roster unit",
+            "RosterUnitChanged refuses sourceVersion \"3\"",
+            "RosterUnitChanged refuses sourceVersion 0",
+            "RosterUnitChanged refuses sourceVersion -1",
+            "RosterUnitChanged refuses sourceVersion 1.5",
+            "RosterUnitChanged refuses sourceVersion null",
+            "SalvageAllocated refuses sourceVersion \"3\"",
+            "SalvageAllocated refuses sourceVersion 0",
+            "SalvageAllocated refuses sourceVersion -1",
+            "SalvageAllocated refuses sourceVersion 1.5",
+            "SalvageAllocated refuses sourceVersion null",
+            "CampaignSnapshotPublished refuses sourceVersion \"3\"",
+            "CampaignSnapshotPublished refuses sourceVersion 0",
+            "CampaignSnapshotPublished refuses sourceVersion -1",
+            "CampaignSnapshotPublished refuses sourceVersion 1.5",
+            "CampaignSnapshotPublished refuses sourceVersion null"
+          ],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/mut/M1-CampaignBaselineSchemaPack.log",
+            "sha256": "afe827e57d32b00c0d44e50c7ded122309b9cae7c3eaa3253ffaf6cc10090a39"
+          }
+        },
+        {
+          "suite": "ReplayBaselineDomainRegistry.test.ts",
+          "exitCode": 1,
+          "testsLine": "Tests:       3 failed, 181 passed, 184 total",
+          "failingRows": [
+            "RosterUnitChanged reaches its single current target from baseline v1",
+            "SalvageAllocated reaches its single current target from baseline v1",
+            "CampaignSnapshotPublished reaches its single current target from baseline v1"
+          ],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/mut/M1-ReplayBaselineDomainRegistry.log",
+            "sha256": "ead5822d074afa423c8ec09cfbb51b303d86b26a7e45a289aa94ed9992792818"
+          }
+        }
+      ],
+      "mutantSha256": "66f8e848e8668872d5a7ff8d3dd15755e781f3679c9b7e657f607b0694a000eb",
+      "preMutantSha256": "5012874b53a74cd09b0a7dbe0fa82b858c7f1f157b12738759cd9939b7e195a2",
+      "restoredSha256": "5012874b53a74cd09b0a7dbe0fa82b858c7f1f157b12738759cd9939b7e195a2",
+      "restored": true,
+      "restoredFrom": "saved copy of the post-change file"
+    },
+    {
+      "id": "M2",
+      "what": "campaignRosterUnit made non-strict (.passthrough())",
+      "caught": true,
+      "caughtBy": [
+        {
+          "suite": "CampaignBaselineSchemaPack.test.ts",
+          "exitCode": 1,
+          "testsLine": "Tests:       2 failed, 37 passed, 39 total",
+          "failingRows": [
+            "SalvageAllocated rejects its missing/extra/ill-typed mutation matrix",
+            "still refuses an unknown extra field on a roster unit"
+          ],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/mut/M2-CampaignBaselineSchemaPack.log",
+            "sha256": "8cada54aad9047e60c89ebaf8a52cc53512c2b128d108abb34c45f5dd6383a8c"
+          }
+        }
+      ],
+      "mutantSha256": "5dc4948f6d130cbba594b25146c477ed9c7cbbe4f9c17506fc327b9869ecf54a",
+      "preMutantSha256": "5012874b53a74cd09b0a7dbe0fa82b858c7f1f157b12738759cd9939b7e195a2",
+      "restoredSha256": "5012874b53a74cd09b0a7dbe0fa82b858c7f1f157b12738759cd9939b7e195a2",
+      "restored": true,
+      "restoredFrom": "saved copy of the post-change file"
+    },
+    {
+      "id": "M3",
+      "what": "sourceVersion typed as a string",
+      "caught": true,
+      "caughtBy": [
+        {
+          "suite": "CampaignBaselineSchemaPack.test.ts",
+          "exitCode": 1,
+          "testsLine": "Tests:       10 failed, 29 passed, 39 total",
+          "failingRows": [
+            "RosterUnitChanged parses its valid fixture at baseline v1 and round-trips deterministically",
+            "SalvageAllocated parses its valid fixture at baseline v1 and round-trips deterministically",
+            "CampaignSnapshotPublished parses its valid fixture at baseline v1 and round-trips deterministically",
+            "parses the genesis snapshot the campaign source journals",
+            "parses the baseline snapshot the co-op host commits on open",
+            "parses the RosterUnitChanged events a combat outcome commits",
+            "still refuses an unknown extra field on a roster unit",
+            "RosterUnitChanged refuses sourceVersion \"3\"",
+            "SalvageAllocated refuses sourceVersion \"3\"",
+            "CampaignSnapshotPublished refuses sourceVersion \"3\""
+          ],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/mut/M3-CampaignBaselineSchemaPack.log",
+            "sha256": "e16cbbcf0027a2dd23ac03a9fae00aaa0b42374ad5d6ac7940766592c7dc2924"
+          }
+        }
+      ],
+      "mutantSha256": "fd37e0516faee2222a1900eef13eed6849d4ed1bb6ad4732257a832d09fb1efb",
+      "preMutantSha256": "5012874b53a74cd09b0a7dbe0fa82b858c7f1f157b12738759cd9939b7e195a2",
+      "restoredSha256": "5012874b53a74cd09b0a7dbe0fa82b858c7f1f157b12738759cd9939b7e195a2",
+      "restored": true,
+      "restoredFrom": "saved copy of the post-change file"
+    },
+    {
+      "id": "M4",
+      "what": "the three roster-nesting schema ids reverted to campaign.<type>.v1",
+      "caught": true,
+      "caughtBy": [
+        {
+          "suite": "CampaignBaselineSchemaPack.test.ts",
+          "exitCode": 1,
+          "testsLine": "Tests:       1 failed, 38 passed, 39 total",
+          "failingRows": [
+            "changes the pipeline fingerprint for, and only for, histories holding a roster unit"
+          ],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/mut/M4-CampaignBaselineSchemaPack.log",
+            "sha256": "70f363aa3c5e2b0d2f21edcbea2586a309e734fb3f29844706f207a028492028"
+          }
+        }
+      ],
+      "mutantSha256": "6e2817177e30e8e41179ab39979cb03d2716399c0aec2284dd0a3bad5f284079",
+      "preMutantSha256": "5012874b53a74cd09b0a7dbe0fa82b858c7f1f157b12738759cd9939b7e195a2",
+      "restoredSha256": "5012874b53a74cd09b0a7dbe0fa82b858c7f1f157b12738759cd9939b7e195a2",
+      "restored": true,
+      "restoredFrom": "saved copy of the post-change file"
+    },
+    {
+      "id": "M5",
+      "what": "sourceVersion widened to any number (z.number().optional())",
+      "caught": true,
+      "caughtBy": [
+        {
+          "suite": "CampaignBaselineSchemaPack.test.ts",
+          "exitCode": 1,
+          "testsLine": "Tests:       9 failed, 30 passed, 39 total",
+          "failingRows": [
+            "RosterUnitChanged refuses sourceVersion 0",
+            "RosterUnitChanged refuses sourceVersion -1",
+            "RosterUnitChanged refuses sourceVersion 1.5",
+            "SalvageAllocated refuses sourceVersion 0",
+            "SalvageAllocated refuses sourceVersion -1",
+            "SalvageAllocated refuses sourceVersion 1.5",
+            "CampaignSnapshotPublished refuses sourceVersion 0",
+            "CampaignSnapshotPublished refuses sourceVersion -1",
+            "CampaignSnapshotPublished refuses sourceVersion 1.5"
+          ],
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/mut/M5-CampaignBaselineSchemaPack.log",
+            "sha256": "1ca2a5bf8f51f699f58eeb00fd7e397efed0a50b2ed583f16f75e4bbdba83d7c"
+          }
+        }
+      ],
+      "mutantSha256": "f79e45d1315c1ba0cadceb3c31c86dedcbcf2a0860bb1c5d5114a5f72d03596b",
+      "preMutantSha256": "5012874b53a74cd09b0a7dbe0fa82b858c7f1f157b12738759cd9939b7e195a2",
+      "restoredSha256": "5012874b53a74cd09b0a7dbe0fa82b858c7f1f157b12738759cd9939b7e195a2",
+      "restored": true,
+      "restoredFrom": "saved copy of the post-change file"
+    }
+  ],
+  "nonClaims": [
+    "The pack stays unwired from production replay: no production code parses a campaign payload with it. Production sees this change only through the value campaignSchemaPipelineFingerprint() returns, which markers store only when isCampaignJournalAuthorityEnabled() is true (false in production).",
+    "The genesis row journals through InMemoryEventJournal, not the SQLite journal the PUT route uses; the co-op and outcome rows use a temp SQLite journal store with no record-rewrite binder. No HTTP route was driven (PUT /api/campaigns/[id], POST /api/multiplayer/matches).",
+    "The co-op row seeds the host directly with the co-op builder's state; in production that state reaches the host only through POST /api/multiplayer/matches, whose body schema refuses units carrying sourceVersion (finding F1), so this row proves the pack, not that production can deliver such a snapshot today.",
+    "No production writer of a sourceVersion of 0, a negative, a fraction, a string or null was found on the traced paths; that none exists elsewhere is not proven.",
+    "Whether a SalvageAllocated.recoveredUnit reaching CampaignMatchHostIntent.ts:204-216 can carry sourceVersion was not measured; its variant is covered by fixtures only.",
+    "No build, no Playwright, no npm install; jest one invocation at a time.",
+    "Stored cutover markers written before this change (e2e-armed and development databases) were not inspected."
+  ],
+  "findingsReportedNotFixed": [
+    {
+      "id": "F1",
+      "class": "second strict roster-unit schema (measured at schema level; route consequence is INFERENCE)",
+      "summary": "CreateMultiplayerMatchBodySchema (src/lib/api/securitySchemas.ts:83-91 CampaignRosterUnitSchema, .strict(), no sourceVersion; nested at :113, :127, :151) refuses the co-op builder's state when its roster units carry sourceVersion: measured on the baseline with buildCampaignAuthoritativeState output, two unrecognized_keys issues (keys [\"sourceVersion\"]) at coopCampaign.state.rosterUnits.unit-0 and unit-1; the same state without sourceVersion gives no coopCampaign issue. The route parses its body with this schema (src/pages/api/multiplayer/matches/index.ts:284, read not run). INFERENCE: POST /api/multiplayer/matches refuses co-op registration for a campaign whose roster units carry sourceVersion, which every unit the creation page adds does (CreateCampaignPage.submit.ts:163) since 20f66e145 (#1321).",
+      "measured": [
+        {
+          "code": "unrecognized_keys",
+          "path": [
+            "coopCampaign",
+            "state",
+            "rosterUnits",
+            "unit-0"
+          ],
+          "keys": [
+            "sourceVersion"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": [
+            "coopCampaign",
+            "state",
+            "rosterUnits",
+            "unit-1"
+          ],
+          "keys": [
+            "sourceVersion"
+          ]
+        }
+      ],
+      "recommendedSuccessor": "a unit owning src/lib/api/securitySchemas.ts adds sourceVersion (positive integer, optional) to CampaignRosterUnitSchema, with a route-level row; outside U35j's paths"
+    },
+    {
+      "id": "F2",
+      "class": "drift guard gap (read from the code and git history)",
+      "summary": "Nothing binds a pack schema's shape to its TypeScript payload type: the satisfies clause at CampaignBaselineSchemaPack.ts:102 checks discriminants only. ICampaignRosterUnit gained sourceVersion on 2026-08-22 (20f66e145, #1321), two days after the pack (6cee9c09b, #1258), and no check caught the drift until U35g's review.",
+      "recommendedSuccessor": "a compile-time two-way check between z.infer of each campaign pack schema and ICampaignEventPayloadMap (would sit in the pack; not added here because it widens the unit)"
+    },
+    {
+      "id": "F3",
+      "class": "stale comments (read only)",
+      "summary": "src/lib/events/replay/__tests__/ReplayBaselineDomainRegistry.test.ts:5 says \"7 campaign + 81 combat = 88\" while :29 pins CAMPAIGN_COUNT = 8; CampaignBaselineSchemaPack.ts:17 cites @spec openspec/changes/add-replay-schema-and-checkpoint-safety/..., which is archived under openspec/changes/archive/2026-08-22-add-replay-schema-and-checkpoint-safety/.",
+      "recommendedSuccessor": "fold into the next unit that edits those files"
+    }
+  ],
+  "risksForTheParent": [
+    "Replay review class: Lane B owner ruling on the exact head is required.",
+    "The fingerprint choice (b) is design-bearing: the owner confirms revised ids over keeping campaign.<type>.v1 (a). After (b), stored markers hold the pre-change fingerprint (before value above); nothing compares it today.",
+    "The zod type (positive integer) is stricter than the TypeScript type (number).",
+    "origin/main advanced by one docs-only commit (c8114e7e4, #1945) after the charter baseline; no src path differs.",
+    "The admission receipt carries one appended correction (q2: a recoveredUnit production writer exists)."
+  ],
+  "gitStatusShortBeforeThisReceipt": [
+    "M src/lib/events/replay/CampaignBaselineSchemaPack.ts",
+    " M src/lib/events/replay/__fixtures__/CampaignBaselineSchemaPack.fixture.ts",
+    " M src/lib/events/replay/__tests__/CampaignBaselineSchemaPack.test.ts",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u35j-admission-20260925.json",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u35j-red-20260925.json"
+  ]
+}

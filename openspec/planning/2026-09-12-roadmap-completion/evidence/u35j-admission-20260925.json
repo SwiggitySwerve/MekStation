@@ -1,0 +1,270 @@
+{
+  "unit": "U35j",
+  "stage": "admission",
+  "status": "go",
+  "at": "2026-09-25T08:16:57.773Z",
+  "baseline": "890313d59e917f0115a87ca3dbc10dea9cc6ad30",
+  "baselineExpectedByCharter": "890313d59e917f0115a87ca3dbc10dea9cc6ad30",
+  "originMainAtAdmission": "c8114e7e431a7272c693f9d2f226bfecb3180a78",
+  "originMainSource": "git ls-remote origin refs/heads/main (read-only; no fetch)",
+  "originMainNote": "origin/main moved one commit past the baseline during the lane (c8114e7e4, #1945, U36 receipts): git diff --name-only 890313d59 c8114e7e4 lists only four openspec/planning files (three u36 evidence receipts and units.json) and no path under src, so no U35j seam differs; the parent decides whether to rebase before the PR",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u35j",
+  "branch": "roadmap-u35j-schema-pack-sourceversion-20260925",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "node": "R2.authority-live",
+  "nodeVersion": "v22.22.0",
+  "shellPreamble": "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH; npm_config_dry_run=true",
+  "guardNodeModulesLink": {
+    "command": "npm run --silent qc:guard-node-modules-link",
+    "lastLine": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"E:\\\\Projects\\\\MekStation\\\\.sisyphus\\\\roadmap-completion-20260912\\\\worktrees\\\\u35j\\\\node_modules\",\"actualPath\":\"E:\\\\Projects\\\\MekStation\\\\node_modules\"}",
+    "exitCode": 1,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/adm/guard.log",
+      "sha256": "40814ba1445e19cd8130f00f5df9e8e352516c24a1241edef6045cfc33ab6b75"
+    },
+    "note": "refused by design in a junctioned worktree; no npm install/ci/prune or lifecycle was run"
+  },
+  "validatorOnBaseline": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+    "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+    "exitCode": 0,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/adm/validator.log",
+      "sha256": "97b2f29d264078525a55c5f88586fb95603311fa065e70d7d17c5fab08f5b5bc"
+    }
+  },
+  "nextOnBaseline": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "lastLine": "U35j",
+    "exitCode": 0,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/adm/next.log",
+      "sha256": "aa3ed421683e7baafa5f7973f026e873f98dc4fe6093feb04fd22985646cc3b0"
+    }
+  },
+  "ownershipPaths": [
+    "src/lib/events/replay/CampaignBaselineSchemaPack.ts",
+    "src/lib/events/replay/__tests__/CampaignBaselineSchemaPack.test.ts",
+    "src/lib/events/replay/__fixtures__/CampaignBaselineSchemaPack.fixture.ts"
+  ],
+  "receiptsOwned": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u35j-admission-20260925.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u35j-red-20260925.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u35j-local-20260925.json"
+  ],
+  "baselineOwnedFileSha256": {
+    "src/lib/events/replay/CampaignBaselineSchemaPack.ts": "85968a56b8b58d864854b1ebbd841bb47914470df4b033af29fb38c21552ae92",
+    "src/lib/events/replay/__tests__/CampaignBaselineSchemaPack.test.ts": "865134cba0cf64707fbe0026b45fb2e971648b81a519db59380ff6f52a135611",
+    "src/lib/events/replay/__fixtures__/CampaignBaselineSchemaPack.fixture.ts": "6f0e98d6300a21e078ee86307bfcfab85ee76b7a5cc5b18dca20a2c0fade6f8f"
+  },
+  "behavior": "The campaign baseline schema pack accepts every roster unit production writes: the roster-unit shape gains the optional sourceVersion the type declares, so the payloads of the genesis snapshot, the co-op snapshot and the combat outcome RosterUnitChanged validate; an unknown extra field is still refused; admission decides and records how the change meets the fingerprint law.",
+  "seams": [
+    {
+      "at": "src/lib/events/replay/CampaignBaselineSchemaPack.ts:26-34",
+      "what": "campaignRosterUnit: unitId, designation, status, unitRef?, unitSource?, .strict(); no sourceVersion"
+    },
+    {
+      "at": "src/lib/events/replay/CampaignBaselineSchemaPack.ts:53, 78, 85, 93",
+      "what": "the shared roster-unit shape nests in campaignAuthoritativeState.rosterUnits (:53), RosterUnitChanged.unit (:78), SalvageAllocated.recoveredUnit (:85) and, through the state, CampaignSnapshotPublished.state (:93)"
+    },
+    {
+      "at": "src/lib/events/replay/CampaignBaselineSchemaPack.ts:110-131 (schemaId :124)",
+      "what": "every type registered at targetSchemaVersion 1 with one schema, schemaId campaign.<type>.v1, no transitions"
+    },
+    {
+      "at": "src/types/campaign/CampaignSync.ts:38-51 (sourceVersion :49-50)",
+      "what": "ICampaignRosterUnit.sourceVersion?: number, \"Pinned library version at enroll; omitted on legacy projections\""
+    },
+    {
+      "at": "src/types/campaign/CampaignSync.ts:93, 236, 246, 264",
+      "what": "ICampaignRosterUnit nests in ICampaignAuthoritativeState.rosterUnits, IRosterUnitChangedPayload.unit, ISalvageAllocatedPayload.recoveredUnit and ICampaignSnapshotPublishedPayload.state"
+    },
+    {
+      "at": "src/lib/campaign/authority/campaignSourceGenesis.ts:114-123 (sourceVersion :120-122), 233-243",
+      "what": "producer 1: the genesis/checkpoint snapshot copies the stored roster projection unit sourceVersion into state.rosterUnits"
+    },
+    {
+      "at": "src/lib/campaign/coop/campaignAuthoritativeState.ts:59-68 (sourceVersion :65-67)",
+      "what": "producer 2: the co-op builder copies sourceVersion; CampaignMatchHost.doors.ts:86-106 commits {state: host.readState()} (:103) as the baseline CampaignSnapshotPublished on open; CampaignMatchHost.ts:329 buildSnapshotPayload returns {state}"
+    },
+    {
+      "at": "src/lib/multiplayer/server/CampaignMatchHostOutcomeInbox.ts:191-218 (unit :209-216)",
+      "what": "producer 3 (since U35g): RosterUnitChanged unit = {...current, status} for a unit the ledger holds, so the ledger unit sourceVersion rides into the payload"
+    },
+    {
+      "at": "src/lib/campaign/authority/campaignAuthorityMigration.ts:187-197",
+      "what": "a fourth snapshot writer (legacy baseline import) wraps a caller-supplied state; same nested shape"
+    },
+    {
+      "at": "src/lib/events/replay/ReplayPipelineFingerprint.ts:44-117 (material :96-114)",
+      "what": "the pipeline fingerprint hashes {eventType, schemaVersion, schemaId} of each required target plus transition identities; it never inspects a schema shape"
+    },
+    {
+      "at": "src/lib/events/replay/ReplaySchemaRegistry.ts:150-176, 227-246",
+      "what": "upcast parses the stored payload with the schema of its stored version before any transition"
+    },
+    {
+      "at": "src/lib/campaign/authority/campaignAuthorityMigration.ts:108-146",
+      "what": "campaignSchemaPipelineFingerprint() fingerprints all eight campaign types at v1 from CAMPAIGN_BASELINE_SCHEMA_PACK; baseMarker stores it in every cutover marker (:142)"
+    },
+    {
+      "at": "src/lib/campaign/authority/campaignAuthorityMigration.ts:353-377",
+      "what": "isMaterializedSnapshotCompatible compares a stored fingerprint to the live one; git grep finds no production caller (only campaignAuthorityMigration.test.ts:254-273)"
+    },
+    {
+      "at": "src/services/campaignPersistence/CampaignMigrationMarkerStore.ts:36-68",
+      "what": "markers persist as JSON payload in campaign_authority_migration; read back without any fingerprint comparison"
+    },
+    {
+      "at": "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts:36-38; src/lib/campaign/sync/JournalCampaignEventStore.ts:86",
+      "what": "every marker writer (campaignRecordJournalSave.ts:123-127 via pages/api/campaigns/[id].ts:198-209, campaignSourceGenesis.ts:301 via campaignLegacyAdoption.ts:138 (skipped unless enabled, :162-164), adopt.ts:147-148, campaignSnapshotBackfill.ts:320-330) is gated by isCampaignJournalAuthorityEnabled(), false in production (constant false; the only true path is the e2e arm)"
+    },
+    {
+      "at": "src/lib/campaign/sync/campaignEventLog.ts:52-55; src/lib/multiplayer/server/CampaignMatchHost.ts:149",
+      "what": "campaign recovery uses the reference (full-replay) port; the host constructs its log without a checkpoint port, so no campaign replay checkpoint is written or selected in production"
+    },
+    {
+      "at": "src/lib/campaign/sync/JournalCampaignEventStore.ts:180; src/lib/campaign/sync/hostCampaignEventJournal.ts:158",
+      "what": "campaign journal rows are written with eventVersion 1"
+    },
+    {
+      "at": "src/lib/events/replay/__tests__/ReplayBaselineDomainRegistry.test.ts:51-60, 80-96",
+      "what": "pins every composed registration at target v1 with exactly one schema and no transitions, and v2 unsupported for every discriminant (read-only for this unit)"
+    },
+    {
+      "at": "src/lib/events/replay/__tests__/ReplayCheckpointCompatibility.test.ts:256-277",
+      "what": "precedent: the same schemaVersion with a rewritten schemaId (probe.v1 -> probe.v1-rewritten) is the modelled \"target schema change\" that invalidates a checkpoint with the projector unchanged"
+    },
+    {
+      "at": "src/lib/events/replay/__fixtures__/ReplayBaselineDomainRegistry.fixture.ts:10, 23",
+      "what": "the composed fixture index spreads VALID_CAMPAIGN_EVENT_PAYLOADS, consumed by ReplayBaselineDomainRegistry.test.ts:62-78 and ReplayInputProvenanceManifest.test.ts:40-112"
+    },
+    {
+      "at": "src/lib/api/securitySchemas.ts:83-91, 113, 127, 151; src/pages/api/multiplayer/matches/index.ts:284",
+      "what": "a second strict roster-unit schema without sourceVersion guards the co-op match-creation body (read-only; see findings)"
+    }
+  ],
+  "designAnswers": {
+    "q1_sourceVersionZodType": {
+      "answer": "z.number().int().positive().optional()",
+      "evidence": [
+        "src/lib/kernelPlugin/mekstation/mapRosterInstanceProvenance.ts:17-22: pinSourceVersion returns the given version only when Number.isInteger(version) && version > 0, else CANONICAL_LIBRARY_SOURCE_VERSION",
+        "src/lib/kernelPlugin/mekstation/mekstationGamePlugin.ts:20: CANONICAL_LIBRARY_SOURCE_VERSION = 1",
+        "src/components/gameplay/pages/campaigns/create/CreateCampaignPage.hooks.ts:106 and CreateCampaignPage.submit.ts:163: the creation page stores sourceVersion only through pinSourceVersion",
+        "src/kernel/library/InMemoryLibraryRepository.ts:34, 42, 46: library item versions start at actualVersion(0) + 1 and increment; src/kernel/repositories/enrollInstance.ts:50 pins item.version",
+        "copy-only paths (no re-pinning): campaignSourceGenesis.ts:120-122, campaignAuthoritativeState.ts:65-67, campaignAdoptedUnitReference.ts:279-281, useCampaignPersistenceStore.ts:535",
+        "git log -S pinSourceVersion / -S sourceVersion: pinSourceVersion and the first sourceVersion write both arrived in 20f66e145 (#1321, 2026-08-22), so no unpinned value was ever written by the creation page"
+      ],
+      "reasoning": "Every minting path yields a positive integer and every other path copies; legacy projections omit the field. The type says number, but the pack already constrains beyond its types where the domain is integral (CampaignDayAdvanced.newDay and CampaignSnapshotPublished.revision are .int()). A value of 0, a negative, a fraction, a string or null is not something production writes, and the event-store requirement says an ill-typed field SHALL fail validation. No server-side schema constrains the unit on the record PUT path (src/lib/scenarioPacks/packSchemas.ts:144-147 validates units as z.array(z.unknown())), so the pack is where a non-production value is refused.",
+      "nonClaim": "A record written by a non-UI client could hold any JSON number; the pack would refuse a non-positive or fractional one. No such writer was found."
+    },
+    "q2_shapesCarryingRosterUnits": {
+      "answer": "three payloads, all through the one shared campaignRosterUnit, so the one-line shape change covers all of them",
+      "payloads": [
+        "RosterUnitChanged.unit (CampaignBaselineSchemaPack.ts:78; CampaignSync.ts:236)",
+        "SalvageAllocated.recoveredUnit (CampaignBaselineSchemaPack.ts:85; CampaignSync.ts:246); no production writer of recoveredUnit found (CampaignMatchHostOutcomeInbox.ts:179-189 writes value and poolRemaining only)",
+        "CampaignSnapshotPublished.state.rosterUnits (CampaignBaselineSchemaPack.ts:53, 93; CampaignSync.ts:93, 264): the genesis snapshot, the record checkpoint, the co-op baseline, the migration baseline import"
+      ],
+      "notCarrying": "CampaignDayAdvanced, FundsChanged, PilotHired, ContractAccepted, ParticipantRemoved"
+    },
+    "q3_fingerprintLaw": {
+      "facts": [
+        "The fingerprint hashes {eventType, targetSchemaVersion, schemaId} and transition ids only (ReplayPipelineFingerprint.ts:96-114); changing a shape under the same id leaves it unchanged.",
+        "The spec (openspec/specs/event-store/spec.md:398-401, \"Upcast pipeline changes without a projector change\") says: WHEN a target schema changes while the projector stays, the prior checkpoint fingerprint SHALL no longer be compatible. Adding an optional field to a strict target schema is a target-schema change, so keeping the id would leave a changed target under an unchanged fingerprint.",
+        "What stores the campaign fingerprint in production: every cutover marker (campaignAuthorityMigration.ts:142), persisted as JSON (CampaignMigrationMarkerStore.ts:59-68). Marker writers run only when isCampaignJournalAuthorityEnabled() is true, which production never is (JournalCampaignEventStore.ts:86; campaignJournalAuthorityEnabled.ts:36-38); markers exist in e2e-armed and development databases.",
+        "What compares it: nothing in production. The only comparator, isMaterializedSnapshotCompatible (campaignAuthorityMigration.ts:366-377), has no production caller. No campaign replay checkpoint exists: campaign recovery uses referenceRecoveryPort (campaignEventLog.ts:52-55, CampaignMatchHost.ts:149). The composed replay surfaces fingerprint only the combat types they encounter (ReplaySurfaceGate.ts:131-157), so campaign ids never reach them.",
+        "Premise check on option (a): the pack (6cee9c09b, #1258) was committed 2026-08-20; ICampaignRosterUnit.sourceVersion and both producers' sourceVersion writes arrived 2026-08-22 (20f66e145, #1321). Production has therefore NOT written sourceVersion since before the pack existed; the pack predates the field by two days."
+      ],
+      "options": [
+        {
+          "id": "a",
+          "summary": "keep campaign.<type>.v1 for every type",
+          "consequence": "fingerprint unchanged; stored markers stay equal; no id or test changes. The target schema of three types changes under an unchanged fingerprint, contrary to the spec scenario's SHALL; the argument that this is a correction rather than a schema change rests on a premise the git history contradicts (the field post-dates the pack). Safe in effect today only because the change is a pure widening (every payload the old schema accepted parses identically under the new one) and no campaign checkpoint exists.",
+          "filesOutsideOwnership": []
+        },
+        {
+          "id": "b",
+          "summary": "revise the schema id of the three types that nest the roster unit (campaign.<type>.v1 -> campaign.<type>.v1-r2) at the same schemaVersion 1; the other five keep campaign.<type>.v1",
+          "consequence": "the fingerprint of any history holding RosterUnitChanged, SalvageAllocated or CampaignSnapshotPublished changes, so a checkpoint or materialization fingerprinted before the change is incompatible and is rebuilt from full replay (the spec law); histories without those types keep their fingerprint (unused registrations do not participate, archived task 1B.2). campaignSchemaPipelineFingerprint() changes, so every stored marker's schemaPipelineFingerprint differs from the live value; nothing compares them today. No pinned test value changes (no literal campaign fingerprint is pinned anywhere; campaignAuthorityMigration.test.ts compares against the computed value). Stored rows keep eventVersion 1 and parse under the revised v1 schema. Matches the modelled \"target schema change\" at ReplayCheckpointCompatibility.test.ts:256-277.",
+          "filesOutsideOwnership": []
+        },
+        {
+          "id": "c",
+          "summary": "register a v2 target with a v1->v2 transition",
+          "consequence": "does not fix the refusal: rows are stored with eventVersion 1 (JournalCampaignEventStore.ts:180, hostCampaignEventJournal.ts:158) and upcast parses the stored payload with the v1 schema before any transition (ReplaySchemaRegistry.ts:156), so a v1 row carrying sourceVersion is still refused unless v1 is also changed; producers would have to write eventVersion 2; and it breaks read-only pins.",
+          "filesOutsideOwnership": [
+            "src/lib/events/replay/__tests__/ReplayBaselineDomainRegistry.test.ts:51-60 and :80-96 (every registration pinned at target v1, one schema, no transitions; v2 unsupported)",
+            "src/lib/campaign/sync/JournalCampaignEventStore.ts:180 and src/lib/campaign/sync/hostCampaignEventJournal.ts:158 (the eventVersion producers write)"
+          ]
+        }
+      ],
+      "recommendation": "b",
+      "recommendationReason": "It is the only option that satisfies the spec scenario literally (a changed target schema changes the fingerprint) and fixes the refusal, and it needs no file outside the three ownership paths. Its only production-visible consequence, stale marker fingerprints, has no reader today and is the intended D10 behaviour for a future reader. It is scoped to the three affected types, so unaffected histories keep their fingerprint.",
+      "blocked": false
+    },
+    "q4_pinnedValuesThatChange": {
+      "fingerprintLiterals": "none: git grep for 64-hex literals in src/lib/events/replay and src/lib/campaign/authority finds none; campaignAuthorityMigration.test.ts:84-86 and :245-279 compare computed values; no literal campaign fingerprint in scripts or e2e",
+      "fixtureDigests": "none pinned over the campaign fixture; JournalCampaignEventStore.test.ts:74 and :92 pin digests of their own legacy fixtures, which do not use the pack",
+      "fixtureValuesThatChange": "VALID_CAMPAIGN_EVENT_PAYLOADS: the shared roster unit gains sourceVersion: 3 and the snapshot state gains a legacy unit without it; consumed through ReplayBaselineDomainRegistry.fixture.ts by the domain-registry and input-provenance suites, which compare upcast output with the fixture itself",
+      "campaignFingerprintValue": "changes (recorded before and after in the local receipt)"
+    }
+  },
+  "redRowsPlanned": [
+    "genesis snapshot (appendCampaignGenesis over InMemoryEventJournal, read back through JournalCampaignEventStore) carrying sourceVersion: registered parse refuses on the baseline",
+    "co-op baseline snapshot (CampaignMatchHost.open over JournalCampaignEventStore on a temp SQLite journal, state from buildCampaignAuthoritativeState): refused on the baseline",
+    "combat outcome RosterUnitChanged (reconcileCoopBattle through the host's durable outcome inbox): refused on the baseline"
+  ],
+  "mutantsPlanned": [
+    "M1 sourceVersion removed from campaignRosterUnit",
+    "M2 campaignRosterUnit made non-strict (.passthrough())",
+    "M3 sourceVersion typed as z.string()",
+    "M4 schema ids reverted to campaign.<type>.v1 (fingerprint law)",
+    "M5 sourceVersion widened to z.number() (the int/positive choice)"
+  ],
+  "estimatePerFile": {
+    "note": "INFERENCE, not measured: estimates before the product edit",
+    "files": [
+      {
+        "file": "src/lib/events/replay/CampaignBaselineSchemaPack.ts",
+        "category": "product",
+        "estimateLines": 30
+      },
+      {
+        "file": "src/lib/events/replay/__tests__/CampaignBaselineSchemaPack.test.ts",
+        "category": "test",
+        "estimateLines": 330
+      },
+      {
+        "file": "src/lib/events/replay/__fixtures__/CampaignBaselineSchemaPack.fixture.ts",
+        "category": "test",
+        "estimateLines": 25
+      }
+    ]
+  },
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "countingRule": "product lines count, tests do not (owner decision OD-line-cap-product-lines, 2026-09-23)",
+    "estimatedFiles": 3,
+    "estimatedProductLines": 30,
+    "withinCaps": true
+  },
+  "risksForTheParent": [
+    "Replay review class: the unit needs the owner's Lane B ruling on the exact head (OWNER-RULING <head>, owner-ruled label).",
+    "The fingerprint choice is design-bearing and is the owner's to confirm: admission chose (b), revised schema ids for the three roster-nesting types, over (a) keeping the ids; (a) is one line smaller but leaves a changed target under an unchanged fingerprint.",
+    "After (b), every stored cutover marker (e2e-armed and development databases) holds the pre-change campaign fingerprint; nothing compares it today, but a future marker reader (task 5.7 cutover, materialization) will treat those markers as fingerprinted by an older pipeline.",
+    "The zod type is stricter than the TypeScript type (positive integer vs number); a record written outside the creation page with sourceVersion 0, negative or fractional would be refused by the pack.",
+    "Measured on the baseline (see the red receipt probe): the co-op match-creation body schema (src/lib/api/securitySchemas.ts:83-91, strict, no sourceVersion) refuses the co-op builder's state when its units carry sourceVersion, which every unit the creation page adds does; that path is outside this unit.",
+    "origin/main advanced by one docs-only commit (c8114e7e4, #1945) after the charter baseline; no src path differs."
+  ],
+  "decision": "go: --next printed U35j on the baseline 890313d59, the validator passed, and the recommended design (b) needs no file outside the three ownership paths",
+  "corrections": [
+    {
+      "at": "2026-09-25T08:27:06.686Z",
+      "field": "designAnswers.q2_shapesCarryingRosterUnits.payloads[1]",
+      "was": "no production writer of recoveredUnit found (CampaignMatchHostOutcomeInbox.ts:179-189 writes value and poolRemaining only)",
+      "now": "a production writer exists: the AllocateSalvage intent (src/lib/multiplayer/server/CampaignMatchHostIntent.ts:204-216) passes the intent payload recoveredUnit into SalvageAllocated. Its intent schema (src/types/campaign/campaignSyncSchemas.ts:33-37, rosterUnitSchema, a non-strict z.object) declares only unitId, designation and status; whether a recoveredUnit reaching this writer can carry sourceVersion was not measured. The outcome inbox (CampaignMatchHostOutcomeInbox.ts:179-189) writes no recoveredUnit. The answer to q2 (three payloads, one shared shape) is unchanged.",
+      "foundBy": "git grep recoveredUnit during the local stage"
+    }
+  ]
+}
