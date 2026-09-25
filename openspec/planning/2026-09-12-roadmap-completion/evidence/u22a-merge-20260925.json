@@ -1,0 +1,32 @@
+{
+  "unit": "U22a",
+  "stage": "merge",
+  "at": "2026-09-25T06:37:27.468Z",
+  "pr": 1934,
+  "title": "feat(multiplayer): a committed GM rewind reaches the live match (U22a)",
+  "head": "ea9fd0656bad05ea35a8ab7df3a9c2eec4bee4e8",
+  "mergeSha": "cb356ac9e1eeb8ab0198892237c34e681e506c78",
+  "mergedAt": "2026-09-25T06:17:33Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u22a-admission-20260923.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u22a-local-20260923.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u22a-red-20260923.json",
+    "src/hooks/__tests__/useMultiplayerSession.test.tsx",
+    "src/hooks/useMultiplayerSession.helpers.ts",
+    "src/lib/multiplayer/__tests__/client.test.ts",
+    "src/lib/multiplayer/client.ts",
+    "src/lib/multiplayer/server/MatchHostRegistry.ts",
+    "src/lib/multiplayer/server/ServerMatchHost.ts",
+    "src/lib/multiplayer/server/ServerMatchHostRewindRebuild.ts",
+    "src/lib/multiplayer/server/__tests__/MatchHostRegistry.globalSlot.test.ts",
+    "src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindLiveReplay.test.ts",
+    "src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindRebuild.test.ts",
+    "src/types/multiplayer/Protocol.ts",
+    "src/types/multiplayer/__tests__/Protocol.test.ts"
+  ],
+  "blobEqualityDiffLines": 0
+}

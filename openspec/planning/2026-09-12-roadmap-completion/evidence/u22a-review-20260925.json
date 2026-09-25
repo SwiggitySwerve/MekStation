@@ -1,0 +1,17 @@
+{
+  "unit": "U22a",
+  "stage": "review",
+  "at": "2026-09-25T06:37:25.063Z",
+  "lane": "A",
+  "reviewerModel": "claude-sonnet (Agent model: sonnet)",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "reviewerEffort": "default",
+  "head": "ea9fd0656bad05ea35a8ab7df3a9c2eec4bee4e8",
+  "reviewedHead": "ea9fd0656bad05ea35a8ab7df3a9c2eec4bee4e8",
+  "verdict": "APPROVE",
+  "outputPath": "evidence/u22a-lane-a-review-20260925.md",
+  "outputSha256": "4e4de8809ed217417fcddf4f44486958daf3800ce42e41a88c347db4b4e13a44",
+  "sharedContext": "none: reviewer received only the diff range, the head, the contract and spec files on the head, and re-ran tsc/oxlint/oxfmt/jest in its own throwaway worktree",
+  "laneB": "not required (review classes: routine)",
+  "githubApproval": "none recorded; Lane A is engineering evidence, never a GitHub approval"
+}

@@ -1767,7 +1767,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "blocked",
+      "state": "planned",
       "baseline": "a686f6fc9be6d51330a4e37ddf80f61860e9f4d0",
       "prHead": null,
       "mergeSha": null,
@@ -1802,6 +1802,10 @@
         "cause": "E2E-25 does not pass live on main: the rewind commit's live rebuild never reaches the running match (FN-u22-rewind-commit-rebuild-never-reaches-the-live-match), so removing the row's strict test.fail would turn the privacy pack red",
         "nextIndependentAction": "U22a (the committed rewind reaches the live match and its connected players); U22 returns to planned when U22a is main-verified and resumes with its folded clauses",
         "proof": "evidence/u22-red-20260923.json"
+      },
+      "resumed20260925": {
+        "at": "2026-09-25T06:37:27.000Z",
+        "why": "prerequisite main-verified: U22a (merge cb356ac9e1eeb8ab0198892237c34e681e506c78); U22 resumes with its folded clauses and first records E2E-25's unexpected pass on main"
       }
     },
     {
@@ -1832,10 +1836,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "local-verified",
+      "state": "complete",
       "baseline": "f32ea5400f3a1282733180059e32d9169fb74204",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "ea9fd0656bad05ea35a8ab7df3a9c2eec4bee4e8",
+      "mergeSha": "cb356ac9e1eeb8ab0198892237c34e681e506c78",
       "stageReceipts": {
         "admission": {
           "path": "evidence/u22a-admission-20260923.json",
@@ -1854,10 +1858,31 @@
           "at": "2026-09-23T07:57:32.001Z",
           "summary": "product 6 files +188/-19 (207 lines, cap 500), tests 6 files 1031 lines; the registry and its recovery flag share one globalThis slot; after a committed rewind rebuilds the live host each connected socket gets its own join replay from 0 through its viewer, fog filter and publication guard, the replace-stream marker stamped after the guard; the client resets delivery state on the marker and emits streamReplaced; the session hook swaps its mirror in one step (never empty mid-replace); src/lib/multiplayer/server 160/1178; src/__tests__/api/matches 3/47; src/pages-modules/api 8/62; client, protocol and hook suites 22/295; multiplayer component consumers 15/155; tsc 0; oxlint 84 warnings 0 errors; oxfmt clean on 12 files; LINT_UNITS_PASS 100/100; qc:openspec-ci errors=0; validator PASSED; privacy-pack on the final tree twice: E2E-25 an UNEXPECTED PASS (strict test.fail kept for U22), other 7 rows ok; authority-recovery 4/4, proposal-pack 2/2, rewind-pack 6 strict expected failures, all unchanged; six mutants caught and restored (registry back to module-local, no push, unprojected push, client ignores marker, hook keeps mirror, hook empties mirror); implementer claude-opus (Agent model: opus); findings F1-F3 recorded; status ready"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "review": {
+          "path": "evidence/u22a-review-20260925.json",
+          "head": "ea9fd0656bad05ea35a8ab7df3a9c2eec4bee4e8",
+          "reviewedHead": "ea9fd0656bad05ea35a8ab7df3a9c2eec4bee4e8",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet)",
+          "implementerModel": "claude-opus (Agent model: opus)",
+          "outputSha256": "4e4de8809ed217417fcddf4f44486958daf3800ce42e41a88c347db4b4e13a44",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u22a-merge-20260925.json",
+          "pr": 1934,
+          "head": "ea9fd0656bad05ea35a8ab7df3a9c2eec4bee4e8",
+          "mergeSha": "cb356ac9e1eeb8ab0198892237c34e681e506c78"
+        },
+        "mainProof": {
+          "path": "evidence/u22a-mainproof-20260925.json",
+          "mergeCommit": "cb356ac9e1eeb8ab0198892237c34e681e506c78",
+          "verdict": "PASS",
+          "runtime": "Tests:       1547 passed, 1547 total"
+        },
+        "tick": {
+          "path": "evidence/u22a-tick-20260925.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "source20260923": "planned by the parent from U22's red measurement (evidence/u22-red-20260923.json) and its lane's findings, under OD-mvp-hard-cutover",
@@ -1887,7 +1912,7 @@
       "id": "U21b",
       "node": "R2.authority-live",
       "taskKeys": [],
-      "behavior": "Clause (c) of U21, moved here under U21's admission rule: the viewer lineage's effectiveHead.revision reads the match journal's effective head through readEffectiveStreamHead (src/lib/events/journal/EventHistoryEffectiveStreamHead.ts, the seam GET /api/matches/:id/head and the correction lease already bind against), not the branch baseRevision cutoff at src/lib/multiplayer/server/history/ViewerHistoryLineage.ts:133-135; the chain is wired in src/pages-modules/api/matchHistoryViewerChain.ts:153-159. Red-first: U21's measured red row (lineage revision 2 while the journal head is 3; saved by the U21 lane and cited in evidence/u21-red-20260923.json); a mutant that restores the cutoff is killed. The same unit corrects four stale comments U21's lane reported (F1, F2, F5, F6 in evidence/u21-local-20260923.json): the '#48/#53' note at src/lib/multiplayer/server/history/GmCombatRewindPreview.ts:242, src/lib/multiplayer/server/MatchRecoveryJournalHead.ts:19, the claim at src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindRebuild.test.ts:329 that toMatchObject prints the reason and detail (it prints only kind), and 'the flag-off world' at src/pages-modules/api/__tests__/campaignLaunchHeadRoute.test.ts:146. Its admission checks the two e2e readers that compare lineage.effectiveHead.revision with another lineage read (e2e/helpers/gmTwoPlayerRewind.ts:143, e2e/gm-two-player-rewind.pack.spec.ts:185-186, U21's admission risks); if either needs an edit, U21b stops at admission for a path amendment. Placed after U22 because U22 merges back to back with U21 (its own sentence).",
+      "behavior": "Clause (c) of U21, moved here under U21's admission rule: the viewer lineage's effectiveHead.revision reads the match journal's effective head through readEffectiveStreamHead (src/lib/events/journal/EventHistoryEffectiveStreamHead.ts, the seam GET /api/matches/:id/head and the correction lease already bind against), not the branch baseRevision cutoff at src/lib/multiplayer/server/history/ViewerHistoryLineage.ts:133-135; the chain is wired in src/pages-modules/api/matchHistoryViewerChain.ts:153-159. Red-first: U21's measured red row (lineage revision 2 while the journal head is 3; saved by the U21 lane and cited in evidence/u21-red-20260923.json); a mutant that restores the cutoff is killed. The same unit corrects four stale comments U21's lane reported (F1, F2, F5, F6 in evidence/u21-local-20260923.json): the '#48/#53' note at src/lib/multiplayer/server/history/GmCombatRewindPreview.ts:242, src/lib/multiplayer/server/MatchRecoveryJournalHead.ts:19, the claim at src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindRebuild.test.ts:329 that toMatchObject prints the reason and detail (it prints only kind), and 'the flag-off world' at src/pages-modules/api/__tests__/campaignLaunchHeadRoute.test.ts:146. Its admission checks the two e2e readers that compare lineage.effectiveHead.revision with another lineage read (e2e/helpers/gmTwoPlayerRewind.ts:143, e2e/gm-two-player-rewind.pack.spec.ts:185-186, U21's admission risks); if either needs an edit, U21b stops at admission for a path amendment. Placed after U22 because U22 merges back to back with U21 (its own sentence). Folded 2026-09-25 (the owner's ruling on U22a, 'Approve, add close-route test'): a regression row pins that DELETE /api/multiplayer/matches/[id] reaches and closes a live host through the shared registry (FN-u22a-close-route-reaches-live-host); if the row needs a file outside U21b's paths, U21b stops at admission for a path amendment.",
       "ownershipPaths": [
         "src/lib/multiplayer/server",
         "src/pages-modules/api"
@@ -7493,6 +7518,48 @@
         "deviationDisclosed": "DELIVERY.md says the owner posts the ruling out of band; the owner approved this unit by description in chat (words quoted in the comment) after the parent explained it in plain language and reported Lane A's verdict and the check set on the head, and the parent composed and posted the comment from the owner GitHub account and applied the label; the parent supplied the head from the ledger, as in the earlier rulings of this loop"
       },
       "note": "opened when the owner ruled, 2026-09-22 (the cutover sequence's units carry no pre-opened ruling packets)"
+    },
+    {
+      "id": "PK-u22a-ruling",
+      "blocks": [
+        "U22a"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "U22a (review classes authority, replay) presents head ea9fd0656bad05ea35a8ab7df3a9c2eec4bee4e8. Does the owner rule it?",
+      "options": [
+        {
+          "label": "rule the head",
+          "consequence": "an OWNER-RULING <head> comment and the owner-ruled label on U22a's PR; the unit merges and proceeds to main proof",
+          "effort": "0.1 day owner"
+        },
+        {
+          "label": "reject",
+          "consequence": "the PR closes; the unit returns to planned with the objection recorded",
+          "effort": "0.1 day owner"
+        }
+      ],
+      "agentRecommendation": "rule the head once Lane A has approved it and the checks are green",
+      "revertCost": "low: a squash merge revert",
+      "decision": {
+        "at": "2026-09-25T06:17:27Z",
+        "option": "rule the head",
+        "text": "Approve, add close-route test (Recommended)",
+        "source": "owner instruction in the working session (chat), after the parent described the unit in plain English: a structured question: a committed GM rewind reaches the live match and its connected players (shared host registry, per-player projected replay with a replace-stream marker, client and page swap cleanly); E2E-25 passes live under the journal test switches; production shows it in UAT round 2; Lane A APPROVE with one measured side effect (the close-match route now really closes a live match; no caller today); delivery-table duplicate-key warnings recorded; 31 green checks"
+      },
+      "ruling": {
+        "ruledHead": "ea9fd0656bad05ea35a8ab7df3a9c2eec4bee4e8",
+        "pr": 1934,
+        "commentId": 5827817860,
+        "author": "SwiggitySwerve",
+        "label": "owner-ruled",
+        "bodySha256": "613379042a8f7763cb65b7d1781bc98bdbf8d5464effd0cd7c6a6b62d1682f22",
+        "postedBy": "parent on the owner's instruction (the comment quotes the owner's words verbatim)",
+        "deviationDisclosed": "DELIVERY.md says the owner posts the ruling out of band; the owner approved this unit by description in chat (words quoted in the comment) after the parent explained it in plain language and reported Lane A's verdict and the check set on the head, and the parent composed and posted the comment from the owner GitHub account and applied the label; the parent supplied the head from the ledger, as in the earlier rulings of this loop"
+      },
+      "note": "opened when the owner ruled, 2026-09-22 (the cutover sequence's units carry no pre-opened ruling packets)"
     }
   ],
   "deferrals": [
@@ -8286,6 +8353,16 @@
       "summary": "A salvage allocation's recoveredUnit is lost from the journal once the campaign is journal-native (row s1). Nothing in production sends one. Out of U35g's scope by owner decision OD-u35g-coop-outcome-rewrites-record sub-decision 2.",
       "recommendedSuccessor": "the first unit that sends a recoveredUnit carries it into the record and the checkpoint",
       "status": "recorded; scoped out by the owner"
+    },
+    {
+      "id": "FN-u22a-close-route-reaches-live-host",
+      "foundBy": "U22a Lane A review (claude-sonnet), 2026-09-25, finding 1 (measured with a two-module-graph probe)",
+      "at": "2026-09-25T06:37:27.000Z",
+      "class": "newly live code path (disclosure; no current caller)",
+      "summary": "With the host registry shared across Next's API graph and the socket runtime's graph (U22a), DELETE /api/multiplayer/matches/[id] now really reaches and closes a live host, disconnecting its sockets; before U22a it found an empty registry and did nothing. No UI or server code calls the route today.",
+      "recommendedSuccessor": "a regression row pinning the close route's behaviour against a live host, in the next unit that edits src/lib/multiplayer/server (owner's U22a ruling: 'Approve, add close-route test')",
+      "status": "held by U21b (owner's U22a ruling)",
+      "heldBy20260925": "U21b"
     }
   ]
 }
