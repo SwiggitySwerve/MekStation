@@ -1,0 +1,2441 @@
+{
+  "unit": "U35d",
+  "stage": "admission",
+  "status": "BLOCKED",
+  "at": "2026-09-25T06:08:02.639Z",
+  "readmission": true,
+  "firstAdmission": {
+    "path": "evidence/u35d-admission-20260923.json",
+    "baseline": "992b2babcf516466cf018bb0153f247018079c59",
+    "status": "BLOCKED",
+    "cause": "rows r1-r3 (command route) and c1 (co-op HirePilot) lost their effects under the temporary flip; U35e (45d5c348d) and U35f (668ed250f) were planned from it and are complete"
+  },
+  "baseline": "2199b53f6e8789ebae36f4f44374ca3a8ba4e630",
+  "originMainAtAdmission": "e2a7a3cda833a9e894f6a24eb370eb7ce8d75872",
+  "originMainSource": "git ls-remote origin refs/heads/main (read-only; no fetch)",
+  "originMainNote": "origin/main moved one commit past the assigned baseline before this admission: e2a7a3cda833a9e894f6a24eb370eb7ce8d75872 (parent 2199b53f6e8789ebae36f4f44374ca3a8ba4e630, \"docs(roadmap): the README's loop-status cache refreshed to 2026-09-24 (UAT round 1 pinned, U35d re-admitting) (#1935)\", one file: openspec/planning/2026-09-12-roadmap-completion/README.md), read through gh api repos/{owner}/{repo}/commits/<sha> (read-only); the object is not in the local repository and was not fetched; no path of this unit is touched by it",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u35d",
+  "branch": "roadmap-u35d-campaign-journal-flip-r2-20260924",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "node": "R2.authority-cutover",
+  "shellPreamble": [
+    "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "export npm_config_dry_run=true"
+  ],
+  "runners": {
+    "admissionGates": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r2/admission-gates.sh",
+      "sha256": "771ebf6b04904411bd7c0283e82c4ef8bdb3aab1e120ecd8caaae24565d23fda"
+    },
+    "gateProbe": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r2/gate-probe.sh",
+      "sha256": "add280bd2ddcb97193b19e4b70a66a1c6eddab4a3c12d46ffc57df6ec3bfead8"
+    },
+    "temporaryFlip": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r2/flip.mjs",
+      "sha256": "b1ad6ef3de563873c899a0e7f1ba3f4514cd466a4a0d46365f7b6ccfdce5cfc1"
+    },
+    "digestDiagnostic": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r2/diag.sh",
+      "sha256": "457874272fc6b8902d09ad146ecedd5730c95e8aeec3724926b3bb12762ebcd7"
+    },
+    "receiptWriter": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r2/write-admission.mjs",
+      "sha256": "5fb3f9c5d66010044b2f50648be3ae869d77077e8fb7f88149a4b815cc8feffa"
+    }
+  },
+  "nodeVersion": {
+    "command": "node --version",
+    "lastLine": "v22.22.0",
+    "exitCode": 0,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r2/logs/adm-node-version.log",
+      "sha256": "2172da60c75bfe844a5f085d0b225e7042f650910fb423c59d7f4a937afb0b56"
+    }
+  },
+  "guardNodeModulesLink": {
+    "command": "npm run --silent qc:guard-node-modules-link",
+    "lastLine": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"E:\\\\Projects\\\\MekStation\\\\.sisyphus\\\\roadmap-completion-20260912\\\\worktrees\\\\u35d\\\\node_modules\",\"actualPath\":\"E:\\\\Projects\\\\MekStation\\\\node_modules\"}",
+    "exitCode": 1,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r2/logs/adm-guard.log",
+      "sha256": "0f5054e2cda01a35191c11db33837dea4cba2013572fe39ee453dd04fb98d3f9"
+    },
+    "expected": true,
+    "why": "refusal by design in a junctioned worktree; no npm install/ci/prune or lifecycle was run in this lane (npm_config_dry_run=true exported)"
+  },
+  "validatorOnBaseline": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+    "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+    "exitCode": 0,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r2/logs/adm-validator.log",
+      "sha256": "97b2f29d264078525a55c5f88586fb95603311fa065e70d7d17c5fab08f5b5bc"
+    }
+  },
+  "nextOnBaseline": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "lastLine": "U35d",
+    "exitCode": 0,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r2/logs/adm-next.log",
+      "sha256": "715b8ca2001b54523484886b77e8e0a180fd0933cb694fdfa3c2bf99da14eb6c"
+    }
+  },
+  "gitStatusShortAtAdmission": "",
+  "ownershipPaths": [
+    "src/lib/campaign/sync",
+    "src/__tests__/api/campaigns",
+    "e2e",
+    "scripts/e2e",
+    "src/__tests__/unit/api"
+  ],
+  "receiptsOwned": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u35d-admission-20260924.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u35d-red-20260924.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u35d-local-20260924.json"
+  ],
+  "receiptsWritten": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u35d-admission-20260924.json"
+  ],
+  "receiptsNotWritten": {
+    "red": "not written: the owner-ruled gate stops the unit at admission (BLOCKED) before any product edit, as the first admission did. Probe row (a) ran on the baseline (red: marker not_found, no event, 0 effective campaign branch rows) and under the temporary flip (green) as part of the gate measurement below; that is measurement evidence, not a red receipt, and no re-pinned flag-off assertion rows were run.",
+    "local": "not written: no product or test file was edited; no build and no Playwright run (the machine-idle wait was therefore never needed); no mutant was made."
+  },
+  "behavior": "units.json U35d (read in full on the baseline): CAMPAIGN_JOURNAL_AUTHORITY_ENABLED true in production with no override; the e2e fixture arm deleted with its exported env constant and both importers; the in-path flag pins, campaignPutGenesisRoute.test.ts and the e2e flag-off assertions re-pinned; stale flag-off comments corrected; folded clauses: U35c F1 (multiplayerCoopCreationCheckpoint.test.ts e2e-arm row), U35b F1 (maybeAppendCampaignGenesisOnCreate comments), the owner's ruling on U35b (comment 5788088153 on PR #1914; the gate), U35d F2 (the two disagreeing comments), U35e F1 and F2 (the combat-outcome and roster rows of the gate).",
+  "seams": [
+    {
+      "at": "src/lib/campaign/sync/JournalCampaignEventStore.ts:86",
+      "what": "export const CAMPAIGN_JOURNAL_AUTHORITY_ENABLED = false; flag-off prose at the header :21-24, the doc :81-85 and the factory doc :513-519; the factory createDefaultCampaignEventStore returns the journal store only when the constant is true AND a journal factory is passed (:529)"
+    },
+    {
+      "at": "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts:13-15",
+      "what": "the exported env constant CAMPAIGN_JOURNAL_AUTHORITY_E2E_ENV"
+    },
+    {
+      "at": "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts:17-28",
+      "what": "the e2e arm e2eJournalAuthorityArmed (NEXT_PUBLIC_E2E_MODE === \"true\" AND the arm env === \"1\")"
+    },
+    {
+      "at": "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts:30-38",
+      "what": "isCampaignJournalAuthorityEnabled = constant || arm; header :1-9 states the flag-off premise"
+    },
+    {
+      "at": "src/__tests__/api/campaigns/campaignPutGenesisRoute.test.ts:17,66,72,77,91",
+      "what": "importer of the env constant (in path); header :6 names the hardcoded constant"
+    },
+    {
+      "at": "scripts/e2e/campaign-journal-authority.ts:62-67,93-96",
+      "what": "importer of the env constant, the resolver and the constant; flags() reports cutoverFlag, effective, e2eEnvKey, e2eEnvValue (in path); :33 names the removed maybeAppendCampaignGenesisOnCreate (U35b F1); :36-41 describe the arm"
+    },
+    {
+      "at": "src/pages/api/campaigns/[id].ts:34,203; src/pages/api/campaigns/[id]/adopt.ts:37,148; src/pages/api/multiplayer/matches/index.ts:36,267",
+      "what": "production importers of isCampaignJournalAuthorityEnabled (outside the paths; read-only); they keep calling the resolver, which after the arm is deleted returns the constant, so none needs an edit"
+    },
+    {
+      "at": "src/__tests__/api/campaigns/campaignRecordJournalTransaction.test.ts:25,74-77",
+      "what": "jest.mock of the resolver module (in path); unaffected by the deletion of the other two exports"
+    },
+    {
+      "at": "src/lib/campaign/sync/__tests__/campaignJournalAuthorityEnabled.test.ts:10-35; src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts:54,354",
+      "what": "the in-path flag pins (:26 and :30 expect false; :354 expects the constant false)"
+    },
+    {
+      "at": "src/__tests__/api/campaigns/campaignAdoptRoute.test.ts:23,159",
+      "what": "branches on the constant (adapts to either value)"
+    },
+    {
+      "at": "src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts:325-337",
+      "what": "the e2e-arm row sets MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY (U35c F1, folded)"
+    },
+    {
+      "at": "e2e/campaign-journal-two-process-privacy.spec.ts:86,450-453; e2e/campaign-journal-two-process-convergence.spec.ts:107,137-149,167,180-184,293-295,444-447; e2e/helpers/campaignJournalPrivacyFixture.ts:49,93-96,125-129,203-205",
+      "what": "the e2e flag-off assertions (cutoverFlag false, effective false, the arm key unset) and the stale maybeAppendCampaignGenesisOnCreate comment (convergence :167); the helper is a shared e2e helper (DELIVERY.md re-run rule)"
+    },
+    {
+      "at": "e2e/campaign-two-device-drive.spec.ts:444-449 vs scripts/e2e/campaign-journal-authority.ts:22-29",
+      "what": "folded F2: the spec comment says the co-op match host writes through createDefaultCampaignEventStore (in-memory while the flag is false); the CLI comment says the host commits its open baseline through the durable journal store selectCampaignEventStore hands it"
+    },
+    {
+      "at": "e2e/gm-two-player-authority-recovery.pack.spec.ts:13-19",
+      "what": "stale flag-off comment (\"CAMPAIGN_JOURNAL_AUTHORITY_ENABLED stays false, so no production path writes campaign events to the journal\")"
+    },
+    {
+      "at": "src/pages/api/campaigns/[id].ts:198-219",
+      "what": "PUT dispatch (read-only): journal authority -> checkpoint; baseVersion 0 and the resolver -> genesis; else saveCampaign"
+    },
+    {
+      "at": "src/lib/campaign/authority/campaignSourceGenesis.ts:66-126,203-224",
+      "what": "(read-only) the checkpoint projection: rosterUnits from the envelope roster projection (:90-126), forceUnits, day, balance, standing; campaignSnapshotCommand carries only the journal pilots, contracts and salvagePool over it (:208-224, U35e)"
+    },
+    {
+      "at": "src/lib/campaign/sync/applyCampaignEvent.ts:42-72,75",
+      "what": "RosterUnitChanged removes or writes a roster unit; SalvageAllocated sets the pool and adds recoveredUnit; CampaignSnapshotPublished replaces the state wholesale"
+    },
+    {
+      "at": "src/lib/campaign/sync/JournalCampaignEventStore.ts:416-445 vs :467-484; src/lib/campaign/sync/campaignCombatOutcomeInbox.ts:68-143",
+      "what": "appendCommandBatch passes rewriteRecordAfterCommand (U35e, :443); appendCombatOutcomeBatch calls appendCampaignCombatOutcomeBatch, whose transaction appends and inserts the inbox receipt and never rewrites the saved record"
+    }
+  ],
+  "rulingGate": {
+    "ruling": "the owner's ruling on U35b, option 'Approve; U35d checks it' (comment 5788088153 on PR #1914), as transcribed in units.json U35d (folded clauses) and FN-u35b-checkpoint-replaces-journal-state, widened by U35e's findings F1 (combat outcome through appendCombatOutcomeBatch) and F2 (roster change from salvage recovery or RosterUnitChanged)",
+    "verdict": "BLOCKED. (1) The first admission's rows now survive under the flip: r1, r2, r3 (command route) and c1 (co-op HirePilot) keep their effect in the journal projection after the whole-campaign save, and the saved record carries balance and day; pilots are not represented by the saved record (its JSON never names the pilot) and survive in the journal. (2) A combat outcome's salvage pool survives (U35e's checkpoint carries it) and its balance survives when the host save carries the host fold; a combat-outcome debit is lost by a save built before the fold (o2u), but no production client sends a debit (missionPayout 0). (3) A combat outcome's roster change (RosterUnitChanged committed through appendCombatOutcomeBatch) is LOST from the journal projection by the host's next whole-campaign save under the flip (o1: both units back to operational; o1c: the removed unit back as destroyed), the saved record never receives it from the server, and the live co-op host then disagrees with the journal after the next co-op command. That is a real production flow: a co-op battle with any damaged or destroyed player-side unit, followed by any co-op host save. On the baseline a campaign the route creates is snapshot authority and its journal keeps the change (o1s baseline); the flip makes every new campaign journal-native, which exposes it (o1s flipped). A salvage allocation's recovered unit is lost the same way (s1), but no production flow sends one.",
+    "measurement": {
+      "how": "A probe suite (real SQLite on a temp file; the live item route and the live command route through node-mocks-http; the co-op host over selectCampaignEventStore().store, the store the production selector builds; every MEKSTATION_E2E_* key deleted before every row by the shared U35e fixture src/__tests__/api/campaigns/campaignJournalEffectsFixture.ts and unset in the runner) was copied into src/__tests__/api/campaigns/ for the measurement, run on the baseline, then under a temporary flip (flip.mjs sets only the constant line of JournalCampaignEventStore.ts true, exactly one occurrence), after which the file was restored from a byte copy and its sha256 compared; U35e's two committed suites were also run under the flip; the probe was copied out with its sha256 and removed from the worktree.",
+      "probeSource": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r2/u35dReadmissionGate.probe.test.ts",
+        "sha256": "0e5ec1cb174993cb3e49f81423028ebe9740c58947d615020316cdd934d03f39"
+      },
+      "probeCopy": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r2/logs/gate-probe-copy.test.ts.txt",
+        "sha256": "0e5ec1cb174993cb3e49f81423028ebe9740c58947d615020316cdd934d03f39"
+      },
+      "probeShaAsRun": "0e5ec1cb174993cb3e49f81423028ebe9740c58947d615020316cdd934d03f39",
+      "command": "U35D_GATE_OUT=<log dir>/gate-<side>.json npx jest src/__tests__/api/campaigns/u35dReadmissionGate.probe.test.ts",
+      "hostSaveModel": {
+        "routeRows": "r1-r3: the client's stale whole-envelope PUT at the created version (409 after U35e), then a GET and a PUT of the server record at its own version (the store taking the server record, as U35f does)",
+        "coopDoorRows": "c1, s1: the host fold envelope (applyAuthoritativeStateToGuestCampaign of the live host state onto the campaign the host holds) at the created version (409), then a GET and a PUT of the server record at its own version",
+        "outcomeRows": "o1, o1c, o2, o2u, o1s: the combat outcome does not move the saved record's version, so the host save is one PUT at the current version of: the host fold envelope with the roster at Ready (o1, o2, o1s; the fold writes no roster: campaignMirrorProjection.ts:17-37), the same with the roster readiness Destroyed and Damaged (o1c; what completeMission's damage carry-forward writes into the host roster store: useCampaignRosterStore.ts:202-268), or the held campaign without the fold (o2u; a save built before the frame was folded)",
+        "hostCampaign": "the host's campaign is the saved record's body deserialized with deserializeCampaignBody, as the persistence store does (see attempt1 for why)"
+      },
+      "baseline": {
+        "constant": false,
+        "exitCode": 1,
+        "counts": "Tests:       5 failed, 6 passed, 11 total",
+        "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\api\\\\campaigns\\\\u35dReadmissionGate.probe.test.ts/i.",
+        "rowResults": [
+          "× (a) a PUT create at baseVersion 0 appends genesis, the journal-native marker and one effective campaign branch row",
+          "√ (r1) SpendFunds through the command route survives the saves",
+          "√ (r2) AdvanceDay through the command route survives the saves",
+          "√ (r3) HirePilot through the command route survives the saves",
+          "√ (c1) HirePilot through the co-op host door survives the host save",
+          "× (o1) a combat outcome (salvage and roster) through the outcome inbox, then the host fold save",
+          "× (o1c) the same outcome, then a host save whose roster carries the damage (readiness Destroyed, Damaged)",
+          "√ (o2) a combat outcome debit through the outcome inbox, then the host fold save",
+          "× (o2u) a combat outcome debit, then a host save built before the frame was folded",
+          "√ (o1s) the combat outcome on a campaign created by the PUT route alone, then the host fold save",
+          "× (s1) a salvage allocation carrying a recovered unit through the co-op door, then the host saves"
+        ],
+        "journalNativeHow": "rows r1-r3, c1, o1, o1c, o2, o2u and s1 made the campaign journal-native through the appendCampaignGenesis seam (the flag is false, so the create appends nothing: row a); row o1s did not (snapshot authority)",
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r2/logs/gate-baseline.log",
+          "sha256": "d72bc829a8a63b2bfbefe9d780c991d8b0fb9315ef70d072eda562aca3e38a4c"
+        },
+        "valuesFile": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r2/logs/gate-baseline.json",
+          "sha256": "e326449cae8ba62a3fd8e093c20df614c54410430e23d22fe2f8660353226484"
+        },
+        "survival": {
+          "a": {
+            "markerKind": "not_found",
+            "effectiveCampaignBranchRows": 0
+          },
+          "r1": {
+            "journal": true,
+            "record": true
+          },
+          "r2": {
+            "journal": true,
+            "record": true
+          },
+          "r3": {
+            "journal": true,
+            "recordBalance": true,
+            "recordNamesPilot": false
+          },
+          "c1": {
+            "journal": true,
+            "recordBalance": true,
+            "recordNamesPilot": false,
+            "journalAgreesWithHost": true
+          },
+          "o1": {
+            "journalSalvagePool": true,
+            "journalRoster": false,
+            "recordRoster": {
+              "unit-0": "Ready",
+              "unit-1": "Ready"
+            },
+            "journalAgreesWithHost": false
+          },
+          "o1c": {
+            "journalSalvagePool": true,
+            "journalRoster": false,
+            "recordRoster": {
+              "unit-0": "Destroyed",
+              "unit-1": "Damaged"
+            },
+            "journalAgreesWithHost": false
+          },
+          "o2": {
+            "journal": true,
+            "record": true,
+            "journalAgreesWithHost": true
+          },
+          "o2u": {
+            "journal": false,
+            "record": false,
+            "journalAgreesWithHost": true
+          },
+          "o1s": {
+            "markerState": "not_found",
+            "journalRoster": true,
+            "journalAgreesWithHost": true
+          },
+          "s1": {
+            "journalRecoveredUnit": false,
+            "journalSalvagePool": true,
+            "recordNamesRecoveredUnit": false,
+            "journalAgreesWithHost": false
+          }
+        },
+        "values": {
+          "constant": false,
+          "a": {
+            "status": 200,
+            "markerKind": "not_found",
+            "markerState": null,
+            "eventTypes": [],
+            "effectiveCampaignBranchRows": 0,
+            "e2eKeys": []
+          },
+          "r1": {
+            "genesisBy": "appendCampaignGenesis seam (flag false)",
+            "createdVersion": 1,
+            "commandStatus": 200,
+            "commandKind": "committed",
+            "journalAfterCommand": {
+              "balance": 367655,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "recordAfterCommand": {
+              "version": 2,
+              "balance": 367655,
+              "currentDate": "3025-07-04T00:00:00.000Z",
+              "day": 184,
+              "roster": {
+                "unit-0": "Ready",
+                "unit-1": "Ready"
+              },
+              "names": {}
+            },
+            "stalePutStatus": 409,
+            "currentPutStatus": 200,
+            "journalAfterSave": {
+              "balance": 367655,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "recordAfterSave": {
+              "version": 3,
+              "balance": 367655,
+              "currentDate": "3025-07-04T00:00:00.000Z",
+              "day": 184,
+              "roster": {
+                "unit-0": "Ready",
+                "unit-1": "Ready"
+              },
+              "names": {}
+            },
+            "eventTypes": [
+              "CampaignSnapshotPublished",
+              "FundsChanged",
+              "CampaignSnapshotPublished"
+            ]
+          },
+          "r2": {
+            "genesisBy": "appendCampaignGenesis seam (flag false)",
+            "createdVersion": 1,
+            "commandStatus": 200,
+            "commandKind": "committed",
+            "journalAfterCommand": {
+              "balance": 380000,
+              "day": 187,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "recordAfterCommand": {
+              "version": 2,
+              "balance": 380000,
+              "currentDate": "3025-07-06T23:00:00.000Z",
+              "day": 187,
+              "roster": {
+                "unit-0": "Ready",
+                "unit-1": "Ready"
+              },
+              "names": {}
+            },
+            "stalePutStatus": 409,
+            "currentPutStatus": 200,
+            "journalAfterSave": {
+              "balance": 380000,
+              "day": 187,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "recordAfterSave": {
+              "version": 3,
+              "balance": 380000,
+              "currentDate": "3025-07-06T23:00:00.000Z",
+              "day": 187,
+              "roster": {
+                "unit-0": "Ready",
+                "unit-1": "Ready"
+              },
+              "names": {}
+            },
+            "eventTypes": [
+              "CampaignSnapshotPublished",
+              "CampaignDayAdvanced",
+              "CampaignSnapshotPublished"
+            ]
+          },
+          "r3": {
+            "genesisBy": "appendCampaignGenesis seam (flag false)",
+            "createdVersion": 1,
+            "commandStatus": 200,
+            "commandKind": "committed",
+            "journalAfterCommand": {
+              "balance": 368000,
+              "day": 184,
+              "pilots": [
+                "pilot-r3"
+              ],
+              "contracts": [],
+              "salvagePool": 0,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "recordAfterCommand": {
+              "version": 2,
+              "balance": 368000,
+              "currentDate": "3025-07-04T00:00:00.000Z",
+              "day": 184,
+              "roster": {
+                "unit-0": "Ready",
+                "unit-1": "Ready"
+              },
+              "names": {
+                "pilot-r3": false
+              }
+            },
+            "stalePutStatus": 409,
+            "currentPutStatus": 200,
+            "journalAfterSave": {
+              "balance": 368000,
+              "day": 184,
+              "pilots": [
+                "pilot-r3"
+              ],
+              "contracts": [],
+              "salvagePool": 0,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "recordAfterSave": {
+              "version": 3,
+              "balance": 368000,
+              "currentDate": "3025-07-04T00:00:00.000Z",
+              "day": 184,
+              "roster": {
+                "unit-0": "Ready",
+                "unit-1": "Ready"
+              },
+              "names": {
+                "pilot-r3": false
+              }
+            },
+            "eventTypes": [
+              "CampaignSnapshotPublished",
+              "FundsChanged",
+              "PilotHired",
+              "CampaignSnapshotPublished"
+            ]
+          },
+          "c1": {
+            "genesisBy": "appendCampaignGenesis seam (flag false)",
+            "createdVersion": 1,
+            "hireOk": true,
+            "journalAfterHire": {
+              "balance": 368000,
+              "day": 184,
+              "pilots": [
+                "pilot-c1"
+              ],
+              "contracts": [],
+              "salvagePool": 0,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "recordAfterHire": {
+              "version": 2,
+              "balance": 368000,
+              "currentDate": "3025-07-04T00:00:00.000Z",
+              "day": 184,
+              "roster": {
+                "unit-0": "Ready",
+                "unit-1": "Ready"
+              },
+              "names": {
+                "pilot-c1": false
+              }
+            },
+            "stalePutStatus": 409,
+            "currentPutStatus": 200,
+            "journalAfterSave": {
+              "balance": 368000,
+              "day": 184,
+              "pilots": [
+                "pilot-c1"
+              ],
+              "contracts": [],
+              "salvagePool": 0,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "recordAfterSave": {
+              "version": 3,
+              "balance": 368000,
+              "currentDate": "3025-07-04T00:00:00.000Z",
+              "day": 184,
+              "roster": {
+                "unit-0": "Ready",
+                "unit-1": "Ready"
+              },
+              "names": {
+                "pilot-c1": false
+              }
+            },
+            "nextCoopCommandOk": true,
+            "journalAgreesWithHost": true,
+            "eventTypes": [
+              "CampaignSnapshotPublished",
+              "FundsChanged",
+              "PilotHired",
+              "CampaignSnapshotPublished",
+              "FundsChanged"
+            ]
+          },
+          "o1": {
+            "genesisBy": "appendCampaignGenesis seam (flag false)",
+            "markerState": "journal",
+            "createdVersion": 1,
+            "journalBefore": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "outcomeOk": true,
+            "outcomeError": null,
+            "outcomeEvents": [
+              "SalvageAllocated",
+              "RosterUnitChanged",
+              "RosterUnitChanged"
+            ],
+            "journalAfterOutcome": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 50000,
+              "roster": {
+                "unit-1": "damaged"
+              }
+            },
+            "hostAfterOutcome": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 50000,
+              "roster": {
+                "unit-1": "damaged"
+              }
+            },
+            "recordAfterOutcome": {
+              "version": 1,
+              "balance": 380000,
+              "currentDate": "3025-07-04T00:00:00.000Z",
+              "day": 184,
+              "roster": {
+                "unit-0": "Ready",
+                "unit-1": "Ready"
+              },
+              "names": {}
+            },
+            "saveStatus": 200,
+            "saveKind": null,
+            "journalAfterSave": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 50000,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "recordAfterSave": {
+              "version": 2,
+              "balance": 380000,
+              "currentDate": "3025-07-04T00:00:00.000Z",
+              "day": 184,
+              "roster": {
+                "unit-0": "Ready",
+                "unit-1": "Ready"
+              },
+              "names": {}
+            },
+            "nextCoopCommandOk": true,
+            "journalAfterNextCommand": {
+              "balance": 379000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 50000,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "hostAfterNextCommand": {
+              "balance": 379000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 50000,
+              "roster": {
+                "unit-1": "damaged"
+              }
+            },
+            "journalAgreesWithHost": false,
+            "eventTypes": [
+              "CampaignSnapshotPublished",
+              "SalvageAllocated",
+              "RosterUnitChanged",
+              "RosterUnitChanged",
+              "CampaignSnapshotPublished",
+              "FundsChanged"
+            ]
+          },
+          "o1c": {
+            "genesisBy": "appendCampaignGenesis seam (flag false)",
+            "markerState": "journal",
+            "createdVersion": 1,
+            "journalBefore": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "outcomeOk": true,
+            "outcomeError": null,
+            "outcomeEvents": [
+              "SalvageAllocated",
+              "RosterUnitChanged",
+              "RosterUnitChanged"
+            ],
+            "journalAfterOutcome": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 50000,
+              "roster": {
+                "unit-1": "damaged"
+              }
+            },
+            "hostAfterOutcome": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 50000,
+              "roster": {
+                "unit-1": "damaged"
+              }
+            },
+            "recordAfterOutcome": {
+              "version": 1,
+              "balance": 380000,
+              "currentDate": "3025-07-04T00:00:00.000Z",
+              "day": 184,
+              "roster": {
+                "unit-0": "Ready",
+                "unit-1": "Ready"
+              },
+              "names": {}
+            },
+            "saveStatus": 200,
+            "saveKind": null,
+            "journalAfterSave": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 50000,
+              "roster": {
+                "unit-0": "destroyed",
+                "unit-1": "damaged"
+              }
+            },
+            "recordAfterSave": {
+              "version": 2,
+              "balance": 380000,
+              "currentDate": "3025-07-04T00:00:00.000Z",
+              "day": 184,
+              "roster": {
+                "unit-0": "Destroyed",
+                "unit-1": "Damaged"
+              },
+              "names": {}
+            },
+            "nextCoopCommandOk": true,
+            "journalAfterNextCommand": {
+              "balance": 379000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 50000,
+              "roster": {
+                "unit-0": "destroyed",
+                "unit-1": "damaged"
+              }
+            },
+            "hostAfterNextCommand": {
+              "balance": 379000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 50000,
+              "roster": {
+                "unit-1": "damaged"
+              }
+            },
+            "journalAgreesWithHost": false,
+            "eventTypes": [
+              "CampaignSnapshotPublished",
+              "SalvageAllocated",
+              "RosterUnitChanged",
+              "RosterUnitChanged",
+              "CampaignSnapshotPublished",
+              "FundsChanged"
+            ]
+          },
+          "o2": {
+            "genesisBy": "appendCampaignGenesis seam (flag false)",
+            "markerState": "journal",
+            "createdVersion": 1,
+            "journalBefore": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "outcomeOk": true,
+            "outcomeError": null,
+            "outcomeEvents": [
+              "FundsChanged"
+            ],
+            "journalAfterOutcome": {
+              "balance": 355000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "hostAfterOutcome": {
+              "balance": 355000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "recordAfterOutcome": {
+              "version": 1,
+              "balance": 380000,
+              "currentDate": "3025-07-04T00:00:00.000Z",
+              "day": 184,
+              "roster": {
+                "unit-0": "Ready",
+                "unit-1": "Ready"
+              },
+              "names": {}
+            },
+            "saveStatus": 200,
+            "saveKind": null,
+            "journalAfterSave": {
+              "balance": 355000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "recordAfterSave": {
+              "version": 2,
+              "balance": 355000,
+              "currentDate": "3025-07-04T00:00:00.000Z",
+              "day": 184,
+              "roster": {
+                "unit-0": "Ready",
+                "unit-1": "Ready"
+              },
+              "names": {}
+            },
+            "nextCoopCommandOk": true,
+            "journalAfterNextCommand": {
+              "balance": 354000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "hostAfterNextCommand": {
+              "balance": 354000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "journalAgreesWithHost": true,
+            "eventTypes": [
+              "CampaignSnapshotPublished",
+              "FundsChanged",
+              "CampaignSnapshotPublished",
+              "FundsChanged"
+            ]
+          },
+          "o2u": {
+            "genesisBy": "appendCampaignGenesis seam (flag false)",
+            "markerState": "journal",
+            "createdVersion": 1,
+            "journalBefore": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "outcomeOk": true,
+            "outcomeError": null,
+            "outcomeEvents": [
+              "FundsChanged"
+            ],
+            "journalAfterOutcome": {
+              "balance": 355000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "hostAfterOutcome": {
+              "balance": 355000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "recordAfterOutcome": {
+              "version": 1,
+              "balance": 380000,
+              "currentDate": "3025-07-04T00:00:00.000Z",
+              "day": 184,
+              "roster": {
+                "unit-0": "Ready",
+                "unit-1": "Ready"
+              },
+              "names": {}
+            },
+            "saveStatus": 200,
+            "saveKind": null,
+            "journalAfterSave": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "recordAfterSave": {
+              "version": 2,
+              "balance": 380000,
+              "currentDate": "3025-07-04T00:00:00.000Z",
+              "day": 184,
+              "roster": {
+                "unit-0": "Ready",
+                "unit-1": "Ready"
+              },
+              "names": {}
+            },
+            "nextCoopCommandOk": true,
+            "journalAfterNextCommand": {
+              "balance": 354000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "hostAfterNextCommand": {
+              "balance": 354000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "journalAgreesWithHost": true,
+            "eventTypes": [
+              "CampaignSnapshotPublished",
+              "FundsChanged",
+              "CampaignSnapshotPublished",
+              "FundsChanged"
+            ]
+          },
+          "o1s": {
+            "genesisBy": "none (snapshot authority)",
+            "markerState": "not_found",
+            "createdVersion": 1,
+            "journalBefore": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "outcomeOk": true,
+            "outcomeError": null,
+            "outcomeEvents": [
+              "SalvageAllocated",
+              "RosterUnitChanged",
+              "RosterUnitChanged"
+            ],
+            "journalAfterOutcome": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 50000,
+              "roster": {
+                "unit-1": "damaged"
+              }
+            },
+            "hostAfterOutcome": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 50000,
+              "roster": {
+                "unit-1": "damaged"
+              }
+            },
+            "recordAfterOutcome": {
+              "version": 1,
+              "balance": 380000,
+              "currentDate": "3025-07-04T00:00:00.000Z",
+              "day": 184,
+              "roster": {
+                "unit-0": "Ready",
+                "unit-1": "Ready"
+              },
+              "names": {}
+            },
+            "saveStatus": 200,
+            "saveKind": null,
+            "journalAfterSave": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 50000,
+              "roster": {
+                "unit-1": "damaged"
+              }
+            },
+            "recordAfterSave": {
+              "version": 2,
+              "balance": 380000,
+              "currentDate": "3025-07-04T00:00:00.000Z",
+              "day": 184,
+              "roster": {
+                "unit-0": "Ready",
+                "unit-1": "Ready"
+              },
+              "names": {}
+            },
+            "nextCoopCommandOk": true,
+            "journalAfterNextCommand": {
+              "balance": 379000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 50000,
+              "roster": {
+                "unit-1": "damaged"
+              }
+            },
+            "hostAfterNextCommand": {
+              "balance": 379000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 50000,
+              "roster": {
+                "unit-1": "damaged"
+              }
+            },
+            "journalAgreesWithHost": true,
+            "eventTypes": [
+              "CampaignSnapshotPublished",
+              "SalvageAllocated",
+              "RosterUnitChanged",
+              "RosterUnitChanged",
+              "FundsChanged"
+            ]
+          },
+          "s1": {
+            "genesisBy": "appendCampaignGenesis seam (flag false)",
+            "createdVersion": 1,
+            "creditOk": true,
+            "allocateOk": true,
+            "journalAfterAllocate": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 30000,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational",
+                "unit-recovered": "damaged"
+              }
+            },
+            "recordAfterAllocate": {
+              "version": 3,
+              "balance": 380000,
+              "currentDate": "3025-07-04T00:00:00.000Z",
+              "day": 184,
+              "roster": {
+                "unit-0": "Ready",
+                "unit-1": "Ready"
+              },
+              "names": {
+                "unit-recovered": false
+              }
+            },
+            "stalePutStatus": 409,
+            "currentPutStatus": 200,
+            "journalAfterSave": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 30000,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "recordAfterSave": {
+              "version": 4,
+              "balance": 380000,
+              "currentDate": "3025-07-04T00:00:00.000Z",
+              "day": 184,
+              "roster": {
+                "unit-0": "Ready",
+                "unit-1": "Ready"
+              },
+              "names": {
+                "unit-recovered": false
+              }
+            },
+            "nextCoopCommandOk": true,
+            "journalAgreesWithHost": false,
+            "eventTypes": [
+              "CampaignSnapshotPublished",
+              "SalvageAllocated",
+              "SalvageAllocated",
+              "CampaignSnapshotPublished",
+              "FundsChanged"
+            ]
+          }
+        }
+      },
+      "underTemporaryFlip": {
+        "constant": true,
+        "exitCode": 1,
+        "counts": "Tests:       5 failed, 6 passed, 11 total",
+        "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\api\\\\campaigns\\\\u35dReadmissionGate.probe.test.ts/i.",
+        "rowResults": [
+          "√ (a) a PUT create at baseVersion 0 appends genesis, the journal-native marker and one effective campaign branch row",
+          "√ (r1) SpendFunds through the command route survives the saves",
+          "√ (r2) AdvanceDay through the command route survives the saves",
+          "√ (r3) HirePilot through the command route survives the saves",
+          "√ (c1) HirePilot through the co-op host door survives the host save",
+          "× (o1) a combat outcome (salvage and roster) through the outcome inbox, then the host fold save",
+          "× (o1c) the same outcome, then a host save whose roster carries the damage (readiness Destroyed, Damaged)",
+          "√ (o2) a combat outcome debit through the outcome inbox, then the host fold save",
+          "× (o2u) a combat outcome debit, then a host save built before the frame was folded",
+          "× (o1s) the combat outcome on a campaign created by the PUT route alone, then the host fold save",
+          "× (s1) a salvage allocation carrying a recovered unit through the co-op door, then the host saves"
+        ],
+        "failingAssertions": [
+          "(o1) journalAfterSave.roster toEqual journalAfterOutcome.roster: expected {\"unit-1\":\"damaged\"}, received {\"unit-0\":\"operational\",\"unit-1\":\"operational\"} (probe :481)",
+          "(o1c) the same: received {\"unit-0\":\"destroyed\",\"unit-1\":\"damaged\"} (probe :493)",
+          "(o2u) journalAfterSave.balance: expected 355000, received 380000 (probe :520)",
+          "(o1s) the same as o1 (probe :532)",
+          "(s1) journalAfterSave.roster keys toContain \"unit-recovered\": received [\"unit-0\",\"unit-1\"] (probe :591)"
+        ],
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r2/logs/gate-flipped.log",
+          "sha256": "31610e0c0f85a7607a0e4620e7e409baf4e625f6279441005f125403afbe0fd8"
+        },
+        "valuesFile": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r2/logs/gate-flipped.json",
+          "sha256": "a4001d729b1dfd60268c25dd5bc4662babb04ed4635501af3d29e0085ef26365"
+        },
+        "survival": {
+          "a": {
+            "markerKind": "ok",
+            "effectiveCampaignBranchRows": 1
+          },
+          "r1": {
+            "journal": true,
+            "record": true
+          },
+          "r2": {
+            "journal": true,
+            "record": true
+          },
+          "r3": {
+            "journal": true,
+            "recordBalance": true,
+            "recordNamesPilot": false
+          },
+          "c1": {
+            "journal": true,
+            "recordBalance": true,
+            "recordNamesPilot": false,
+            "journalAgreesWithHost": true
+          },
+          "o1": {
+            "journalSalvagePool": true,
+            "journalRoster": false,
+            "recordRoster": {
+              "unit-0": "Ready",
+              "unit-1": "Ready"
+            },
+            "journalAgreesWithHost": false
+          },
+          "o1c": {
+            "journalSalvagePool": true,
+            "journalRoster": false,
+            "recordRoster": {
+              "unit-0": "Destroyed",
+              "unit-1": "Damaged"
+            },
+            "journalAgreesWithHost": false
+          },
+          "o2": {
+            "journal": true,
+            "record": true,
+            "journalAgreesWithHost": true
+          },
+          "o2u": {
+            "journal": false,
+            "record": false,
+            "journalAgreesWithHost": true
+          },
+          "o1s": {
+            "markerState": "journal",
+            "journalRoster": false,
+            "journalAgreesWithHost": false
+          },
+          "s1": {
+            "journalRecoveredUnit": false,
+            "journalSalvagePool": true,
+            "recordNamesRecoveredUnit": false,
+            "journalAgreesWithHost": false
+          }
+        },
+        "values": {
+          "constant": true,
+          "a": {
+            "status": 200,
+            "markerKind": "ok",
+            "markerState": "journal",
+            "eventTypes": [
+              "CampaignSnapshotPublished"
+            ],
+            "effectiveCampaignBranchRows": 1,
+            "e2eKeys": []
+          },
+          "r1": {
+            "genesisBy": "the PUT create (flag true)",
+            "createdVersion": 1,
+            "commandStatus": 200,
+            "commandKind": "committed",
+            "journalAfterCommand": {
+              "balance": 367655,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "recordAfterCommand": {
+              "version": 2,
+              "balance": 367655,
+              "currentDate": "3025-07-04T00:00:00.000Z",
+              "day": 184,
+              "roster": {
+                "unit-0": "Ready",
+                "unit-1": "Ready"
+              },
+              "names": {}
+            },
+            "stalePutStatus": 409,
+            "currentPutStatus": 200,
+            "journalAfterSave": {
+              "balance": 367655,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "recordAfterSave": {
+              "version": 3,
+              "balance": 367655,
+              "currentDate": "3025-07-04T00:00:00.000Z",
+              "day": 184,
+              "roster": {
+                "unit-0": "Ready",
+                "unit-1": "Ready"
+              },
+              "names": {}
+            },
+            "eventTypes": [
+              "CampaignSnapshotPublished",
+              "FundsChanged",
+              "CampaignSnapshotPublished"
+            ]
+          },
+          "r2": {
+            "genesisBy": "the PUT create (flag true)",
+            "createdVersion": 1,
+            "commandStatus": 200,
+            "commandKind": "committed",
+            "journalAfterCommand": {
+              "balance": 380000,
+              "day": 187,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "recordAfterCommand": {
+              "version": 2,
+              "balance": 380000,
+              "currentDate": "3025-07-06T23:00:00.000Z",
+              "day": 187,
+              "roster": {
+                "unit-0": "Ready",
+                "unit-1": "Ready"
+              },
+              "names": {}
+            },
+            "stalePutStatus": 409,
+            "currentPutStatus": 200,
+            "journalAfterSave": {
+              "balance": 380000,
+              "day": 187,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "recordAfterSave": {
+              "version": 3,
+              "balance": 380000,
+              "currentDate": "3025-07-06T23:00:00.000Z",
+              "day": 187,
+              "roster": {
+                "unit-0": "Ready",
+                "unit-1": "Ready"
+              },
+              "names": {}
+            },
+            "eventTypes": [
+              "CampaignSnapshotPublished",
+              "CampaignDayAdvanced",
+              "CampaignSnapshotPublished"
+            ]
+          },
+          "r3": {
+            "genesisBy": "the PUT create (flag true)",
+            "createdVersion": 1,
+            "commandStatus": 200,
+            "commandKind": "committed",
+            "journalAfterCommand": {
+              "balance": 368000,
+              "day": 184,
+              "pilots": [
+                "pilot-r3"
+              ],
+              "contracts": [],
+              "salvagePool": 0,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "recordAfterCommand": {
+              "version": 2,
+              "balance": 368000,
+              "currentDate": "3025-07-04T00:00:00.000Z",
+              "day": 184,
+              "roster": {
+                "unit-0": "Ready",
+                "unit-1": "Ready"
+              },
+              "names": {
+                "pilot-r3": false
+              }
+            },
+            "stalePutStatus": 409,
+            "currentPutStatus": 200,
+            "journalAfterSave": {
+              "balance": 368000,
+              "day": 184,
+              "pilots": [
+                "pilot-r3"
+              ],
+              "contracts": [],
+              "salvagePool": 0,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "recordAfterSave": {
+              "version": 3,
+              "balance": 368000,
+              "currentDate": "3025-07-04T00:00:00.000Z",
+              "day": 184,
+              "roster": {
+                "unit-0": "Ready",
+                "unit-1": "Ready"
+              },
+              "names": {
+                "pilot-r3": false
+              }
+            },
+            "eventTypes": [
+              "CampaignSnapshotPublished",
+              "FundsChanged",
+              "PilotHired",
+              "CampaignSnapshotPublished"
+            ]
+          },
+          "c1": {
+            "genesisBy": "the PUT create (flag true)",
+            "createdVersion": 1,
+            "hireOk": true,
+            "journalAfterHire": {
+              "balance": 368000,
+              "day": 184,
+              "pilots": [
+                "pilot-c1"
+              ],
+              "contracts": [],
+              "salvagePool": 0,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "recordAfterHire": {
+              "version": 2,
+              "balance": 368000,
+              "currentDate": "3025-07-04T00:00:00.000Z",
+              "day": 184,
+              "roster": {
+                "unit-0": "Ready",
+                "unit-1": "Ready"
+              },
+              "names": {
+                "pilot-c1": false
+              }
+            },
+            "stalePutStatus": 409,
+            "currentPutStatus": 200,
+            "journalAfterSave": {
+              "balance": 368000,
+              "day": 184,
+              "pilots": [
+                "pilot-c1"
+              ],
+              "contracts": [],
+              "salvagePool": 0,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "recordAfterSave": {
+              "version": 3,
+              "balance": 368000,
+              "currentDate": "3025-07-04T00:00:00.000Z",
+              "day": 184,
+              "roster": {
+                "unit-0": "Ready",
+                "unit-1": "Ready"
+              },
+              "names": {
+                "pilot-c1": false
+              }
+            },
+            "nextCoopCommandOk": true,
+            "journalAgreesWithHost": true,
+            "eventTypes": [
+              "CampaignSnapshotPublished",
+              "FundsChanged",
+              "PilotHired",
+              "CampaignSnapshotPublished",
+              "FundsChanged"
+            ]
+          },
+          "o1": {
+            "genesisBy": "the PUT create (flag true)",
+            "markerState": "journal",
+            "createdVersion": 1,
+            "journalBefore": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "outcomeOk": true,
+            "outcomeError": null,
+            "outcomeEvents": [
+              "SalvageAllocated",
+              "RosterUnitChanged",
+              "RosterUnitChanged"
+            ],
+            "journalAfterOutcome": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 50000,
+              "roster": {
+                "unit-1": "damaged"
+              }
+            },
+            "hostAfterOutcome": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 50000,
+              "roster": {
+                "unit-1": "damaged"
+              }
+            },
+            "recordAfterOutcome": {
+              "version": 1,
+              "balance": 380000,
+              "currentDate": "3025-07-04T00:00:00.000Z",
+              "day": 184,
+              "roster": {
+                "unit-0": "Ready",
+                "unit-1": "Ready"
+              },
+              "names": {}
+            },
+            "saveStatus": 200,
+            "saveKind": null,
+            "journalAfterSave": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 50000,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "recordAfterSave": {
+              "version": 2,
+              "balance": 380000,
+              "currentDate": "3025-07-04T00:00:00.000Z",
+              "day": 184,
+              "roster": {
+                "unit-0": "Ready",
+                "unit-1": "Ready"
+              },
+              "names": {}
+            },
+            "nextCoopCommandOk": true,
+            "journalAfterNextCommand": {
+              "balance": 379000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 50000,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "hostAfterNextCommand": {
+              "balance": 379000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 50000,
+              "roster": {
+                "unit-1": "damaged"
+              }
+            },
+            "journalAgreesWithHost": false,
+            "eventTypes": [
+              "CampaignSnapshotPublished",
+              "SalvageAllocated",
+              "RosterUnitChanged",
+              "RosterUnitChanged",
+              "CampaignSnapshotPublished",
+              "FundsChanged"
+            ]
+          },
+          "o1c": {
+            "genesisBy": "the PUT create (flag true)",
+            "markerState": "journal",
+            "createdVersion": 1,
+            "journalBefore": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "outcomeOk": true,
+            "outcomeError": null,
+            "outcomeEvents": [
+              "SalvageAllocated",
+              "RosterUnitChanged",
+              "RosterUnitChanged"
+            ],
+            "journalAfterOutcome": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 50000,
+              "roster": {
+                "unit-1": "damaged"
+              }
+            },
+            "hostAfterOutcome": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 50000,
+              "roster": {
+                "unit-1": "damaged"
+              }
+            },
+            "recordAfterOutcome": {
+              "version": 1,
+              "balance": 380000,
+              "currentDate": "3025-07-04T00:00:00.000Z",
+              "day": 184,
+              "roster": {
+                "unit-0": "Ready",
+                "unit-1": "Ready"
+              },
+              "names": {}
+            },
+            "saveStatus": 200,
+            "saveKind": null,
+            "journalAfterSave": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 50000,
+              "roster": {
+                "unit-0": "destroyed",
+                "unit-1": "damaged"
+              }
+            },
+            "recordAfterSave": {
+              "version": 2,
+              "balance": 380000,
+              "currentDate": "3025-07-04T00:00:00.000Z",
+              "day": 184,
+              "roster": {
+                "unit-0": "Destroyed",
+                "unit-1": "Damaged"
+              },
+              "names": {}
+            },
+            "nextCoopCommandOk": true,
+            "journalAfterNextCommand": {
+              "balance": 379000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 50000,
+              "roster": {
+                "unit-0": "destroyed",
+                "unit-1": "damaged"
+              }
+            },
+            "hostAfterNextCommand": {
+              "balance": 379000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 50000,
+              "roster": {
+                "unit-1": "damaged"
+              }
+            },
+            "journalAgreesWithHost": false,
+            "eventTypes": [
+              "CampaignSnapshotPublished",
+              "SalvageAllocated",
+              "RosterUnitChanged",
+              "RosterUnitChanged",
+              "CampaignSnapshotPublished",
+              "FundsChanged"
+            ]
+          },
+          "o2": {
+            "genesisBy": "the PUT create (flag true)",
+            "markerState": "journal",
+            "createdVersion": 1,
+            "journalBefore": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "outcomeOk": true,
+            "outcomeError": null,
+            "outcomeEvents": [
+              "FundsChanged"
+            ],
+            "journalAfterOutcome": {
+              "balance": 355000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "hostAfterOutcome": {
+              "balance": 355000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "recordAfterOutcome": {
+              "version": 1,
+              "balance": 380000,
+              "currentDate": "3025-07-04T00:00:00.000Z",
+              "day": 184,
+              "roster": {
+                "unit-0": "Ready",
+                "unit-1": "Ready"
+              },
+              "names": {}
+            },
+            "saveStatus": 200,
+            "saveKind": null,
+            "journalAfterSave": {
+              "balance": 355000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "recordAfterSave": {
+              "version": 2,
+              "balance": 355000,
+              "currentDate": "3025-07-04T00:00:00.000Z",
+              "day": 184,
+              "roster": {
+                "unit-0": "Ready",
+                "unit-1": "Ready"
+              },
+              "names": {}
+            },
+            "nextCoopCommandOk": true,
+            "journalAfterNextCommand": {
+              "balance": 354000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "hostAfterNextCommand": {
+              "balance": 354000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "journalAgreesWithHost": true,
+            "eventTypes": [
+              "CampaignSnapshotPublished",
+              "FundsChanged",
+              "CampaignSnapshotPublished",
+              "FundsChanged"
+            ]
+          },
+          "o2u": {
+            "genesisBy": "the PUT create (flag true)",
+            "markerState": "journal",
+            "createdVersion": 1,
+            "journalBefore": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "outcomeOk": true,
+            "outcomeError": null,
+            "outcomeEvents": [
+              "FundsChanged"
+            ],
+            "journalAfterOutcome": {
+              "balance": 355000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "hostAfterOutcome": {
+              "balance": 355000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "recordAfterOutcome": {
+              "version": 1,
+              "balance": 380000,
+              "currentDate": "3025-07-04T00:00:00.000Z",
+              "day": 184,
+              "roster": {
+                "unit-0": "Ready",
+                "unit-1": "Ready"
+              },
+              "names": {}
+            },
+            "saveStatus": 200,
+            "saveKind": null,
+            "journalAfterSave": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "recordAfterSave": {
+              "version": 2,
+              "balance": 380000,
+              "currentDate": "3025-07-04T00:00:00.000Z",
+              "day": 184,
+              "roster": {
+                "unit-0": "Ready",
+                "unit-1": "Ready"
+              },
+              "names": {}
+            },
+            "nextCoopCommandOk": true,
+            "journalAfterNextCommand": {
+              "balance": 354000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "hostAfterNextCommand": {
+              "balance": 354000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "journalAgreesWithHost": true,
+            "eventTypes": [
+              "CampaignSnapshotPublished",
+              "FundsChanged",
+              "CampaignSnapshotPublished",
+              "FundsChanged"
+            ]
+          },
+          "o1s": {
+            "genesisBy": "the PUT create (journal-native)",
+            "markerState": "journal",
+            "createdVersion": 1,
+            "journalBefore": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "outcomeOk": true,
+            "outcomeError": null,
+            "outcomeEvents": [
+              "SalvageAllocated",
+              "RosterUnitChanged",
+              "RosterUnitChanged"
+            ],
+            "journalAfterOutcome": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 50000,
+              "roster": {
+                "unit-1": "damaged"
+              }
+            },
+            "hostAfterOutcome": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 50000,
+              "roster": {
+                "unit-1": "damaged"
+              }
+            },
+            "recordAfterOutcome": {
+              "version": 1,
+              "balance": 380000,
+              "currentDate": "3025-07-04T00:00:00.000Z",
+              "day": 184,
+              "roster": {
+                "unit-0": "Ready",
+                "unit-1": "Ready"
+              },
+              "names": {}
+            },
+            "saveStatus": 200,
+            "saveKind": null,
+            "journalAfterSave": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 50000,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "recordAfterSave": {
+              "version": 2,
+              "balance": 380000,
+              "currentDate": "3025-07-04T00:00:00.000Z",
+              "day": 184,
+              "roster": {
+                "unit-0": "Ready",
+                "unit-1": "Ready"
+              },
+              "names": {}
+            },
+            "nextCoopCommandOk": true,
+            "journalAfterNextCommand": {
+              "balance": 379000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 50000,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "hostAfterNextCommand": {
+              "balance": 379000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 50000,
+              "roster": {
+                "unit-1": "damaged"
+              }
+            },
+            "journalAgreesWithHost": false,
+            "eventTypes": [
+              "CampaignSnapshotPublished",
+              "SalvageAllocated",
+              "RosterUnitChanged",
+              "RosterUnitChanged",
+              "CampaignSnapshotPublished",
+              "FundsChanged"
+            ]
+          },
+          "s1": {
+            "genesisBy": "the PUT create (flag true)",
+            "createdVersion": 1,
+            "creditOk": true,
+            "allocateOk": true,
+            "journalAfterAllocate": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 30000,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational",
+                "unit-recovered": "damaged"
+              }
+            },
+            "recordAfterAllocate": {
+              "version": 3,
+              "balance": 380000,
+              "currentDate": "3025-07-04T00:00:00.000Z",
+              "day": 184,
+              "roster": {
+                "unit-0": "Ready",
+                "unit-1": "Ready"
+              },
+              "names": {
+                "unit-recovered": false
+              }
+            },
+            "stalePutStatus": 409,
+            "currentPutStatus": 200,
+            "journalAfterSave": {
+              "balance": 380000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 30000,
+              "roster": {
+                "unit-0": "operational",
+                "unit-1": "operational"
+              }
+            },
+            "recordAfterSave": {
+              "version": 4,
+              "balance": 380000,
+              "currentDate": "3025-07-04T00:00:00.000Z",
+              "day": 184,
+              "roster": {
+                "unit-0": "Ready",
+                "unit-1": "Ready"
+              },
+              "names": {
+                "unit-recovered": false
+              }
+            },
+            "nextCoopCommandOk": true,
+            "journalAgreesWithHost": false,
+            "eventTypes": [
+              "CampaignSnapshotPublished",
+              "SalvageAllocated",
+              "SalvageAllocated",
+              "CampaignSnapshotPublished",
+              "FundsChanged"
+            ]
+          }
+        }
+      },
+      "u35eSuitesUnderFlip": {
+        "command": "npx jest src/__tests__/api/campaigns/campaignJournalEffectsSurviveSave.test.ts src/__tests__/api/campaigns/campaignRecordCommandRewrite.test.ts",
+        "exitCode": 0,
+        "counts": "Tests:       11 passed, 11 total",
+        "suites": "Test Suites: 2 passed, 2 total",
+        "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\api\\\\campaigns\\\\campaignJournalEffectsSurviveSave.test.ts|src\\\\__tests__\\\\api\\\\campaigns\\\\campaignRecordCommandRewrite.test.ts/i.",
+        "log": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r2/logs/gate-flipped-u35e-suites.log",
+          "sha256": "f952d015acca8c10ca576cb0c46f8c43ed75cfcf616d8eec7985cd6e8f087929"
+        }
+      },
+      "restore": {
+        "file": "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+        "preMeasurementSha256": "6a18ce9579710697d5ff31f84ac54dccd7a398c8fff7af114825039f36d008da",
+        "flippedSha256": "3124b3cb9489252787fae9b1ee8d97d4164a678c813636bcacef6d78bc92ab10",
+        "sha256AfterRestore": "6a18ce9579710697d5ff31f84ac54dccd7a398c8fff7af114825039f36d008da",
+        "identical": true,
+        "byteCopy": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r2/JournalCampaignEventStore.ts.pre-gate",
+          "sha256": "6a18ce9579710697d5ff31f84ac54dccd7a398c8fff7af114825039f36d008da"
+        },
+        "summaryLog": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r2/logs/gate-summary.log",
+          "sha256": "3a8c68020ffef5d6885c0adcceeedc8ab16bd27cecbffd4db9747f592118616e"
+        },
+        "gitStatusAfter": "(empty: the summary log ends with \"status after:\" and no line)"
+      },
+      "attempt1": {
+        "what": "the first run of this probe, preserved: its host-fold envelope was built from a freshly built shared fixture, whose root force id is minted per build (buildPopulatedCampaign), so every fold row's journal-versus-host digest disagreed on forceUnits alone; the diagnostic below showed it and the probe was changed to build the host's campaign from the saved record; the roster and balance values of attempt 1 match the final run",
+        "summaryLog": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r2/logs/attempt1/gate-summary.log",
+          "sha256": "5bf2396157817fa0f595e34b55d5d75fd39e1c5bf29de2b8eb8a9fd2073cd0eb"
+        },
+        "baselineLog": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r2/logs/attempt1/gate-baseline.log",
+          "sha256": "14b81b57910fb002243681e09f220b11c2748fc137722a09cae85b631a14f657"
+        },
+        "flippedLog": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r2/logs/attempt1/gate-flipped.log",
+          "sha256": "c78d174999884aada8c76f0657efae0a378218d63664f60a63d718ccbe22a793"
+        },
+        "baselineValues": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r2/logs/attempt1/gate-baseline.json",
+          "sha256": "851db6e069ece3b0241fd7ea701741db143f426220b860973c1da466272319f5"
+        },
+        "flippedValues": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r2/logs/attempt1/gate-flipped.json",
+          "sha256": "dfb08f0b0bc46c66473b32c28786804fda3c19910eb8f61de820710f79496759"
+        },
+        "probeCopy": {
+          "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r2/logs/attempt1/gate-probe-copy.test.ts.txt",
+          "sha256": "8f59d8c4a48259a3cc04f5034ca9aefb33db6c967e2e2f688419a923f83b545a"
+        },
+        "diagnostic": {
+          "runner": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r2/diag.sh",
+            "sha256": "457874272fc6b8902d09ad146ecedd5730c95e8aeec3724926b3bb12762ebcd7"
+          },
+          "probeCopy": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r2/logs/diag-probe-copy.test.ts.txt",
+            "sha256": "24a040f5a48a36fd18855bc9554b2fbab73e521c2ffe2db60352a86035dfaa43"
+          },
+          "log": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r2/logs/diag-flipped.log",
+            "sha256": "5d70416fe0998f4940be4b254e9d647e5251de9541e749840973bd7ea14a7c12"
+          },
+          "values": {
+            "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u35d-r2/logs/diag-flipped.json",
+            "sha256": "fbe564671709c81a25dcee1767af6271b2cfa98e16c501b2b0b6e02a6d80a735"
+          },
+          "reading": "under the flip, after a host-fold save built from a rebuilt fixture, the journal and the host differ in forceUnits (root force id force-<time>-<random> differs) and in rosterUnits key order only (the digest canonicalizes key order)"
+        }
+      }
+    },
+    "realFlows": {
+      "commandRoute": {
+        "rows": "r1, r2, r3",
+        "productionCallers": [],
+        "evidence": "grep of src, desktop and server.js in this admission: the only references to /api/campaigns/[id]/commands outside src/pages/api are comments (src/lib/campaign/lifecycle/campaignLifecycleState.ts:34,418; src/stores/campaign/useCampaignPersistenceStore.ts:118; src/pages/api/matches/[id]/rewind-preview.ts:18); the only caller of executeCampaignCommand is the route (src/pages/api/campaigns/[id]/commands.ts:186)",
+        "result": "survives under the flip (journal and record balance/day); no production caller"
+      },
+      "coopHirePilot": {
+        "row": "c1",
+        "chain": "guest proposal HirePilot (src/components/campaign/coop/CampaignCoopRouteSurface.tsx:112-127) -> GM approval -> CampaignMatchHost -> JournalCampaignEventStore.appendCommandBatch (:416-445) with the U35e rewrite (:443); host fold then refresh (src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx:221-231; src/stores/campaign/useCampaignPersistenceStore.ts:1359-1400)",
+        "result": "survives under the flip: journal pilots [\"pilot-c1\"] after the host save, record balance 368000 at version 3, journal agrees with the live host after the next co-op command"
+      },
+      "combatOutcome": {
+        "rows": "o1, o1c, o2, o2u, o1s",
+        "productionChain": [
+          "client: the combat outcome bus -> enqueueOutcome (src/stores/campaign/useCampaignStore.ts:174-179) -> enqueueCampaignOutcome (src/stores/campaign/useCampaignStore.outcomes.ts:38-75) -> reconcileCoopOutcomeForCampaign (:70-74)",
+          "client: src/lib/campaign/coop/coopHostRegistry.ts:66-121: host mode only (:71), consequences derived with missionPayout 0 (:79-85) by deriveCoopBattleConsequences (src/lib/campaign/coop/reconcileCoopBattle.ts:266-313: a roster change for every player-side unit that is not intact :285-297, salvage 50000 per destroyed OpFor unit :298-301, fundsDelta = missionPayout :308), sent as a ReconcileBattle host intent over the active host transport (:86-106); the transport lives in a module registry that the surface's cleanup does not close (src/lib/campaign/coop/campaignSyncTransport.ts:81,266-271,273-296)",
+          "server: src/lib/multiplayer/server/bindCampaignSyncConnection.ts:760-825 (ReconcileBattle; reconcileCoopBattle at :803) -> src/lib/campaign/coop/reconcileCoopBattle.ts:131-145 (the inbox path when host.hasCombatOutcomeInbox()) -> src/lib/multiplayer/server/CampaignMatchHost.ts:291-316 -> src/lib/multiplayer/server/CampaignMatchHostOutcomeInbox.ts:67-122 (events derived at :134-200: FundsChanged only when fundsDelta < 0 :149-166, SalvageAllocated :167-181, one RosterUnitChanged per roster change :182-198, removed for destroyed and repaired otherwise :190) -> src/lib/campaign/sync/JournalCampaignEventStore.ts:467-484 -> src/lib/campaign/sync/campaignCombatOutcomeInbox.ts:68-143 (no saved-record rewrite)",
+          "store: the co-op host is built with selectCampaignEventStore() (src/lib/multiplayer/server/CampaignHostRegistry.ts:287), which returns the durable JournalCampaignEventStore whenever SQLite is initialized and throws in production without it (src/lib/multiplayer/server/getCampaignEventStore.ts:108-136), so hasCombatOutcomeInbox is true in production",
+          "the host's next whole-campaign save: markDirty never arms an auto-save for a co-op campaign (src/stores/campaign/useCampaignPersistenceStore.ts:1409-1426); a co-op campaign saves through useCampaignStore.saveCampaign (src/stores/campaign/useCampaignStore.actions.ts:228-265) and updateCampaign (:269-291, which saves at once for co-op); callers include the host day advance (src/stores/campaign/useCampaignStore.dayActions.ts:239), travel (:377), the post-battle apply retry (src/stores/campaign/useCampaignStore.outcomes.ts:191), Return to Campaign (src/components/gameplay/pages/GameSessionPage.states.tsx:109-129 -> completeMission src/stores/campaign/useCampaignRosterStore.ts:202-229 -> applyDamageCarryForward :231-268 -> updateCampaign), the save card (src/components/gameplay/pages/campaigns/dashboard/CampaignSaveStatusCard.tsx:81), mission launch (src/pages-modules/gameplay/campaigns/missionLaunchPage.launch.ts:357,364) and the co-op entry panel (src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx:209); putLiveCampaign (src/stores/campaign/useCampaignPersistenceStore.ts:656-693) builds the envelope's roster from the host roster store (readLiveRosterSnapshot :503-518)",
+          "the host fold writes day, balance and standing only (src/lib/campaign/coop/campaignMirrorProjection.ts:17-37); U35f's refresh re-reads the record and, when the row did not move (the inbox does not rewrite it), keeps the live campaign and roster (src/stores/campaign/useCampaignPersistenceStore.ts:963-976)",
+          "the flip: the PUT create appends the genesis and the journal-native marker when isCampaignJournalAuthorityEnabled() ([id].ts:203); co-op creation then requires the marker (src/pages/api/multiplayer/matches/index.ts:267; src/lib/campaign/authority/campaignCreationCheckpoint.ts:216); a journal-native campaign's PUT is a checkpoint ([id].ts:200-202) whose roster is the envelope's (campaignSourceGenesis.ts:90-126, 203-224)"
+        ],
+        "balance": "the production client always sends fundsDelta 0 (coopHostRegistry.ts:83 -> reconcileCoopBattle.ts:308), so no real flow commits a combat-outcome FundsChanged; measured anyway: a host-fold save keeps it (o2), a save built before the fold loses it from the journal and the record (o2u)",
+        "salvagePool": "survives in the journal after the host save (o1, o1c, o1s: 50000 both before and after, both sides); the checkpoint projection reads no pool from the envelope (campaignSourceGenesis.ts:66-88) and U35e carries the journal pool (:208-224)",
+        "roster": "LOST in a real flow under the flip (o1, o1c, o1s flipped); kept on the baseline for a campaign the route creates (o1s baseline, snapshot authority, no checkpoint)"
+      },
+      "rosterChange": {
+        "rows": "o1, o1c, o1s (RosterUnitChanged through the inbox); s1 (SalvageAllocated.recoveredUnit through the co-op door)",
+        "rosterUnitChangedProducers": "CampaignMatchHostOutcomeInbox.ts:182-198 (the production path above) and CampaignMatchHost.doors.ts:209-227 via applyRosterUnitChange (reached by reconcileCoopBattle.ts:223-242 only when the store has no inbox, i.e. the in-memory store, which production never selects: getCampaignEventStore.ts:115-135)",
+        "recoveredUnitProducers": "none in production: the only UI AllocateSalvage intent carries value only (src/components/campaign/coop/CampaignCoopRouteSurface.tsx:155-164); the validator passes a recoveredUnit through when one is sent (src/lib/multiplayer/server/CampaignMatchHostIntent.ts:203-219); grep of src outside tests finds no builder of recoveredUnit",
+        "result": "RosterUnitChanged: lost (real flow). recoveredUnit: lost (s1, both sides once journal-native), no real flow"
+      }
+    },
+    "blockedFlow": "co-op battle reconciliation: a co-op battle in which a player-side unit is damaged or destroyed; the host browser sends ReconcileBattle (coopHostRegistry.ts:101-106), the server commits SalvageAllocated and RosterUnitChanged through appendCombatOutcomeBatch without rewriting the saved record (campaignCombatOutcomeInbox.ts:68-143); the host's next whole-campaign save (any co-op save listed above) is accepted at the unchanged version and, on a campaign the flip made journal-native, its checkpoint replaces the journal's roster with the envelope's: the destroyed unit returns (operational, or destroyed when the host roster carries the damage), the damaged unit returns to operational unless the host roster carries it, and the live co-op host (which applied the events) disagrees with the journal from then on",
+    "proposedSuccessor": {
+      "id": "U35g (proposed; the parent names it)",
+      "node": "R2.authority-cutover",
+      "before": "U35d",
+      "behavior": "Combat-outcome roster effects survive a whole-envelope save (U35d re-admission rulingGate, rows o1, o1c, o1s). (1) The combat-outcome inbox's committed batch rewrites the saved record in its own transaction, as a committed command batch does since U35e: appendCampaignCombatOutcomeBatch (src/lib/campaign/sync/campaignCombatOutcomeInbox.ts:68-143) runs the store's rewriteRecordAfterCommand (passed by appendCombatOutcomeBatch, JournalCampaignEventStore.ts:467-484, as appendCommandBatch passes it at :443) only when the outcome had no inbox receipt, so the row version advances and the host adopts the record through U35f's refresh instead of checkpointing a pre-outcome envelope over it. (2) The rewrite (src/lib/campaign/authority/campaignRecordJournalState.ts:97-125, today balance and date only) also writes the journal's roster onto the record's roster projection (operational/damaged/destroyed to Ready/Damaged/Destroyed), so the next checkpoint re-projects the roster the journal holds. Red-first: this admission's rows o1, o1c and o1s (saved copy and sha256 in evidence/u35d-admission-20260924.json), red on 2199b53f6 under the temporary flip.",
+      "ownershipPaths": [
+        "src/lib/campaign/sync",
+        "src/lib/campaign/authority",
+        "src/__tests__/api/campaigns"
+      ],
+      "reviewClasses": [
+        "authority",
+        "idempotency",
+        "concurrency",
+        "migration"
+      ],
+      "estimate": "INFERENCE, not measured: 4-6 files, about 80-150 product lines (the inbox hook and its wiring, the roster patch in the rewrite) plus a red-rows suite on the U35e fixture",
+      "openQuestionsForTheParent": [
+        "A destroyed unit is RosterUnitChanged \"removed\" in the journal (CampaignMatchHostOutcomeInbox.ts:190; applyCampaignEvent.ts:47-50) but Destroyed readiness in the host roster store (useCampaignRosterStore.ts:231-268). Either the rewrite drops the unit from the record's roster projection AND from its force's unitIds (projectForceUnits refuses a force naming an absent unit, campaignSourceGenesis.ts:142-146), keeping the event vocabulary; or the outcome derives a status change to destroyed instead of a removal (an edit under src/lib/multiplayer/server, owned by R2.authority-live), keeping the record's Destroyed readiness. The parent or the owner decides.",
+        "A SalvageAllocated.recoveredUnit has no production producer, and a journal roster unit without a catalog ref cannot be written to the record's roster projection (projectRosterUnits refuses a unit with no unitRef, campaignSourceGenesis.ts:111-113); the successor either scopes recoveredUnit out (row s1 recorded as a non-claim) or refuses a recoveredUnit without a unitRef at the intent validator (src/lib/multiplayer/server).",
+        "Idempotency: the rewrite must run only on the inbox's first receipt, not on the duplicate or version-conflict arms (campaignCombatOutcomeInbox.ts:90-101), mirroring U35e's recorded-command guard (JournalCampaignEventStore.ts:310-319)."
+      ]
+    }
+  },
+  "flipResidueDecision": {
+    "finding": "FN-u35d-flip-residue-outside-its-paths",
+    "functionallyRequiredByTheFlip": "none: every production importer keeps calling isCampaignJournalAuthorityEnabled, which stays exported, and a forwarded or planned env key that no code reads after the arm is deleted is inert",
+    "pathCorrection": "the finding and the charter name src/pages/api/matches/index.ts:262-265; that file carries no journal-authority text (grep); the comment is at src/pages/api/multiplayer/matches/index.ts:262-265",
+    "recommendation": "a follow-on unit placed right after U35d, not a path amendment: U35d's own estimate is 12 files (below) and the residue adds 6 (playwright.config.ts, scripts/qc/gm-two-player-campaign-core.cjs, scripts/__tests__/gm-two-player-campaign-qc.test.ts, src/lib/campaign/coop/coopRuntimeSession.ts, src/lib/multiplayer/server/matchJournalAuthority.ts, src/pages/api/multiplayer/matches/index.ts), 18 > the 15-file cap; the owners differ (R6.loop-harness owns playwright.config.ts and scripts/qc; R2.authority-live owns src/lib/multiplayer/server; the other two paths are outside both); a slice that edits a scripts/qc runner re-runs every ladder group whose spec imports it in its main proof (DELIVERY.md)",
+    "exactEdits": [
+      {
+        "file": "playwright.config.ts:314-322",
+        "edit": "delete the campaign arm forward: the comment at :314-317 (\"Fixture-only journal authority... Absent the key, production-shaped e2e stays on the hardcoded false cutover flag.\") and the spread `...(process.env.MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY ? { MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY: process.env.MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY } : {})` at :318-322"
+      },
+      {
+        "file": "playwright.config.ts:324-328",
+        "edit": "the combat forward's comment \"The combat sibling of the same fixture arm, forwarded under the same presence guard for the same whitelist reason\" names the deleted campaign forward; reword it to stand alone (Playwright's webServer.env is a whitelist, so the combat fixture mode is forwarded under a presence guard); the combat spread itself is unchanged"
+      },
+      {
+        "file": "scripts/qc/gm-two-player-campaign-core.cjs:71-76",
+        "edit": "the authority-recovery comment: drop \"sets MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY=1 and\" and \"campaign AND\"; campaign genesis is live through the production flag after U35d"
+      },
+      {
+        "file": "scripts/qc/gm-two-player-campaign-core.cjs:228-238",
+        "edit": "drop `MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY: '1',` from the armsJournalAuthorityFixture spread (:236) and rewrite the comment \"One arming condition, two keys. The campaign resolver takes a '1' opt-in; ...\" (:228-233) to the combat key alone"
+      },
+      {
+        "file": "scripts/__tests__/gm-two-player-campaign-qc.test.ts:179-185,194",
+        "edit": "drop the campaign key from the authority-recovery toEqual (:194) and the \"Predicted red ... CAMPAIGN_JOURNAL_AUTHORITY\" comment lines (:179-180, :184-185)"
+      },
+      {
+        "file": "scripts/__tests__/gm-two-player-campaign-qc.test.ts:255",
+        "edit": "drop the campaign key from the privacy-pack toMatchObject"
+      },
+      {
+        "file": "scripts/__tests__/gm-two-player-campaign-qc.test.ts:426-428,550-552",
+        "edit": "re-pin the authority and all unions: the campaign key is undefined (or delete those two expects); keep the combat assertions"
+      },
+      {
+        "file": "scripts/__tests__/gm-two-player-campaign-qc.test.ts:571-573",
+        "edit": "the non-arming groups' campaign-key toBeUndefined stays true; keep or drop it as redundant"
+      },
+      {
+        "file": "scripts/__tests__/gm-two-player-campaign-qc.test.ts:593-611",
+        "edit": "the config pin: `expect(configSource).toContain('MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY')` (:596) and `toMatch(guardedForward('MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY'))` (:608-610) become not.toContain / are removed, and the comment \"the campaign line is the control\" (:593-595) is rewritten; the combat pin stays"
+      },
+      {
+        "file": "src/lib/campaign/coop/coopRuntimeSession.ts:99-100",
+        "edit": "\"The cutover-flag factory (task 5.1): identical in-memory behavior until CAMPAIGN_JOURNAL_AUTHORITY_ENABLED turns on with task 5.2.\" -> the factory is called with no journal factory, so this browser-side store stays in-memory whatever the flag (JournalCampaignEventStore.ts:529)"
+      },
+      {
+        "file": "src/lib/multiplayer/server/matchJournalAuthority.ts:3",
+        "edit": "delete \"Flag OFF matches CAMPAIGN_JOURNAL_AUTHORITY_ENABLED.\" (the campaign flag is on after U35d; the combat mode is its own switch)"
+      },
+      {
+        "file": "src/pages/api/multiplayer/matches/index.ts:262-265",
+        "edit": "drop the fixture-arm clause: \"so the fixture arm must reach it here as well as on the campaign PUT route, or ...\" -> the creation checkpoint skips its genesis-branch step when this is false; the flag is on in production"
+      }
+    ]
+  },
+  "design": {
+    "status": "not applied: the unit is BLOCKED at admission; recorded for the re-admission after the successor lands (line numbers from the baseline 2199b53f6)",
+    "constant": "JournalCampaignEventStore.ts:86 true; header :21-24, doc :81-85 and the factory doc :513-519 rewritten to the flag-on premise",
+    "resolver": "campaignJournalAuthorityEnabled.ts: delete CAMPAIGN_JOURNAL_AUTHORITY_E2E_ENV (:13-15) and e2eJournalAuthorityArmed (:17-28); isCampaignJournalAuthorityEnabled returns the constant (kept: three production importers); header :1-9 rewritten",
+    "importers": "campaignPutGenesisRoute.test.ts: drop the env import (:17) and the env save/restore (:66,72,77,91), re-pin the resolver-false half to row (a) (a create with no env appends the genesis and the journal-native marker); scripts/e2e/campaign-journal-authority.ts: drop the env import (:63) and e2eEnvKey/e2eEnvValue from flags() (:95-96), correct :33 (U35b F1) and :36-41 (the arm)",
+    "pins": "campaignJournalAuthorityEnabled.test.ts:10-35 re-pinned (true with no env; the former arm keys change nothing); JournalCampaignEventStore.test.ts:354 re-pinned (constant true; the factory returns the journal store when a journal factory is passed, in-memory without one)",
+    "e2e": "the privacy and convergence specs and campaignJournalPrivacyFixture.ts re-pinned to cutoverFlag true / effective true with the arm key gone; convergence :167 corrected; the shared helper edit triggers the DELIVERY.md re-run of every ladder group whose spec imports it",
+    "foldedF2": "measured here: e2e/campaign-two-device-drive.spec.ts:444-449 is the wrong comment. Row o1s on the baseline (constant false, no marker, snapshot authority) found the server co-op host's open baseline and the outcome events in the durable journal (eventTypes CampaignSnapshotPublished, SalvageAllocated, RosterUnitChanged x2, FundsChanged), as the CLI comment scripts/e2e/campaign-journal-authority.ts:22-29 says; the in-memory factory is only the browser-side coopRuntimeSession (coopRuntimeSession.ts:101). e2e/gm-two-player-authority-recovery.pack.spec.ts:17-19 (\"no production path writes campaign events to the journal\") is wrong for the same reason",
+    "foldedU35cF1": "multiplayerCoopCreationCheckpoint.test.ts:325-337: the e2e-arm row rewritten to reach the refusal through the flag (no env) or removed"
+  },
+  "estimatePerFile": [
+    {
+      "file": "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+      "category": "product",
+      "estimateLines": 12
+    },
+    {
+      "file": "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts",
+      "category": "product",
+      "estimateLines": 30
+    },
+    {
+      "file": "scripts/e2e/campaign-journal-authority.ts",
+      "category": "e2e tooling (counted as product to be conservative)",
+      "estimateLines": 20
+    },
+    {
+      "file": "src/lib/campaign/sync/__tests__/campaignJournalAuthorityEnabled.test.ts",
+      "category": "test",
+      "estimateLines": 30
+    },
+    {
+      "file": "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts",
+      "category": "test",
+      "estimateLines": 15
+    },
+    {
+      "file": "src/__tests__/api/campaigns/campaignPutGenesisRoute.test.ts",
+      "category": "test",
+      "estimateLines": 40
+    },
+    {
+      "file": "src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts",
+      "category": "test",
+      "estimateLines": 25
+    },
+    {
+      "file": "e2e/campaign-journal-two-process-convergence.spec.ts",
+      "category": "test",
+      "estimateLines": 30
+    },
+    {
+      "file": "e2e/campaign-journal-two-process-privacy.spec.ts",
+      "category": "test",
+      "estimateLines": 15
+    },
+    {
+      "file": "e2e/helpers/campaignJournalPrivacyFixture.ts",
+      "category": "test (shared e2e helper)",
+      "estimateLines": 20
+    },
+    {
+      "file": "e2e/campaign-two-device-drive.spec.ts",
+      "category": "test (comment, folded F2)",
+      "estimateLines": 12
+    },
+    {
+      "file": "e2e/gm-two-player-authority-recovery.pack.spec.ts",
+      "category": "test (comment)",
+      "estimateLines": 8
+    }
+  ],
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "countingRule": "product lines count, tests do not (owner decision OD-line-cap-product-lines, 2026-09-23)",
+    "estimatedFiles": 12,
+    "estimatedProductLines": 62,
+    "estimatedTestLines": 195,
+    "withinCaps": true,
+    "note": "estimates only (INFERENCE, unchanged in shape from the first admission); the unit is blocked by the ruled gate, not by its caps"
+  },
+  "risksForTheParent": [
+    "Authority: the roster loss goes live for every new co-op campaign the moment the flip lands; it is already live today for any journal-native campaign (fixture-armed e2e runs, the scripts/e2e cutover CLI), as the baseline rows o1 and o1c show.",
+    "Concurrency/integrity: after such a checkpoint the live co-op host (in memory, CampaignMatchHost) holds the outcome's roster while the journal holds the envelope's; journalAgreesWithHost was false after the next co-op command in o1, o1c, o1s (flipped) and s1; any journal reader (replica sync, grant delivery, rewind, a restarted host) sees the envelope's roster.",
+    "Idempotency: the combat-outcome inbox dedups by outcomeId (campaignCombatOutcomeInbox.ts:81-101); a successor that adds a record rewrite to that transaction must run it only on the first receipt.",
+    "Migration: after the flip, co-op creation of a campaign created before the flip fails at genesis-branch (campaignCreationCheckpoint.ts:216 onward requires the journal-native marker); under OD-mvp-hard-cutover no pre-cutover data is protected, but a local dev database will show it (U35 admission risk, still true).",
+    "Owner ruling: authority + idempotency + migration review classes need the head-bound Lane B ruling on whatever head eventually merges; this admission changes nothing that needs one."
+  ],
+  "findingsReportedNotFixed": [
+    {
+      "id": "F1",
+      "file": "src/lib/campaign/sync/campaignCombatOutcomeInbox.ts:68-143; src/lib/campaign/authority/campaignSourceGenesis.ts:90-126,203-224",
+      "finding": "blocking: a combat outcome's RosterUnitChanged committed through the inbox is erased from the journal projection by the host's next whole-campaign save under the flip (measured o1, o1c, o1s); the inbox does not rewrite the saved record and the checkpoint re-projects the envelope's roster (outside the paths)"
+    },
+    {
+      "id": "F2",
+      "file": "src/lib/campaign/sync/campaignCombatOutcomeInbox.ts:68-143",
+      "finding": "U35e F1 measured: a combat-outcome FundsChanged is lost by a save built before the host fold (o2u: journal and record 380000 instead of 355000) and kept by a fold save (o2); no production client sends a debit (coopHostRegistry.ts:83), so it is not a real-flow loss today"
+    },
+    {
+      "id": "F3",
+      "file": "src/lib/multiplayer/server/CampaignMatchHostIntent.ts:203-219; src/lib/campaign/authority/campaignRecordJournalState.ts:97-125",
+      "finding": "U35e F2 measured for recoveredUnit: a SalvageAllocated.recoveredUnit is erased by the host's save (s1, both sides once journal-native); no production producer"
+    },
+    {
+      "id": "F4",
+      "file": "e2e/campaign-two-device-drive.spec.ts:444-449; e2e/gm-two-player-authority-recovery.pack.spec.ts:17-19",
+      "finding": "folded F2 answered by measurement (o1s baseline): the server co-op host writes the durable journal with the flag false, so these two comments are wrong and scripts/e2e/campaign-journal-authority.ts:22-29 is right; in the paths, corrected when the unit is re-admitted"
+    },
+    {
+      "id": "F5",
+      "file": "FN-u35d-flip-residue-outside-its-paths; the charter",
+      "finding": "names src/pages/api/matches/index.ts:262-265; the comment is at src/pages/api/multiplayer/matches/index.ts:262-265"
+    }
+  ],
+  "nonClaims": [
+    "No product or test file was changed; the worktree ends clean except this receipt. The probe existed only during the measurement and is preserved as a scratchpad copy with its sha256.",
+    "The co-op and combat-outcome rows drive CampaignMatchHost and reconcileCoopBattle directly, not through a socket, the GM arbiter or a browser; the host browser's save is modelled by the envelopes named under hostSaveModel, not by a rendered surface or the persistence store.",
+    "Whether a real host roster carries Destroyed/Damaged readiness at its first save after a co-op battle depends on whether the host ran Return to Campaign's damage carry-forward first; both envelopes were measured (o1, o1c), and both lose the committed roster effect from the journal.",
+    "The first admission's route rows were measured again, not by U35e's committed suite alone; U35e's two suites were additionally run under the flip (11 passed).",
+    "The r2 saved record's date after the rewrite is 3025-07-06T23:00:00.000Z (the local-midnight calendar, campaignCalendar.ts:35-61, in this machine's zone), which the projection maps back to day 187; no other time zone was measured.",
+    "No build, no Playwright run, no tsc/oxlint/oxfmt/lint:units/qc:openspec-ci gate: there is no change to gate.",
+    "The flip estimate, the successor estimate and the file lists are INFERENCE, not measured."
+  ],
+  "decision": "BLOCKED at admission by the owner-ruled gate: --next printed U35d on the baseline and the validator passed, the first admission's rows now survive, but a real co-op flow (battle reconciliation with a damaged or destroyed player-side unit, then the host's next whole-campaign save) loses the combat outcome's roster change from the journal under the flip; plan the successor (rulingGate.proposedSuccessor) before the flip"
+}

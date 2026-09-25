@@ -1285,10 +1285,45 @@
       }
     },
     {
+      "id": "U35g",
+      "node": "R2.authority-live",
+      "behavior": "A co-op battle's combat outcome survives the host's whole-campaign save (owner decision OD-u35g-coop-outcome-rewrites-record; FN-u35d-coop-outcome-roster-lost). The combat-outcome inbox (src/lib/campaign/sync/campaignCombatOutcomeInbox.ts), on the first receipt of an outcome only, rewrites the saved record in the same immediate transaction as its append, as command batches have done since U35e (campaignRecordJournalState.ts), and the rewrite carries the journal's roster onto the record, so the next checkpoint keeps it. A destroyed unit is recorded as a status change (Destroyed), not a removal: reconcileCoopBattle.ts:226 stops turning a destroyed unit into change 'removed'. A salvage allocation's recoveredUnit is out of scope (FN-u35d-recovered-unit-lost). Gated, as U35e is, to campaigns whose marker is journal-native. Red-first: U35d's re-admission rows o1, o1c and o1s (the probe copy is in the re-admission receipt), red on the baseline under the temporary flip. If the status change needs a new RosterUnitChanged change kind that the campaign baseline schema pack under src/lib/events/replay refuses, the unit stops at admission for a path amendment.",
+      "ownershipPaths": [
+        "src/lib/campaign"
+      ],
+      "reviewClasses": [
+        "authority",
+        "idempotency",
+        "concurrency",
+        "migration"
+      ],
+      "state": "planned",
+      "source20260925": "planned by the parent from U35d's re-admission (evidence/u35d-admission-20260924.json) under owner decision OD-u35g-coop-outcome-rewrites-record",
+      "taskKeys": [],
+      "ciClass": "product",
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null
+    },
+    {
       "id": "U35d",
       "node": "R2.authority-cutover",
       "taskKeys": [],
-      "behavior": "The campaign journal hard cutover: CAMPAIGN_JOURNAL_AUTHORITY_ENABLED is true in production with no override and the e2e fixture arm is deleted (campaignJournalAuthorityEnabled.ts:36-38) together with its exported env constant and both importers (src/__tests__/api/campaigns/campaignPutGenesisRoute.test.ts:17, scripts/e2e/campaign-journal-authority.ts:63-67,93-96); the in-path flag pins, campaignPutGenesisRoute.test.ts and the e2e flag-off assertions (e2e/campaign-journal-two-process-privacy.spec.ts, e2e/campaign-journal-two-process-convergence.spec.ts, e2e/helpers/campaignJournalPrivacyFixture.ts) are re-pinned and the stale flag-off comments corrected. Admitted only after U35a, U35c and U35b have merged; lands before U28. Red-first: U35's probe row (a), red on the baseline. Main proof runs verify:qc:coop-campaign-journey and the authority-recovery, privacy-pack and proposal-pack ladder groups. Folded 2026-09-23 (U35c finding F1): the e2e-arm row in src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts sets the arm env keys to reach the refusal while the flag is false; when this unit deletes the arm the row still passes but its env setup is dead and its comment wrong, so the row is rewritten or removed here. Folded 2026-09-23 (U35b finding F1): U35b removed maybeAppendCampaignGenesisOnCreate (the PUT create now appends the genesis through saveCampaignRecordThroughJournal), but comments at e2e/campaign-journal-two-process-convergence.spec.ts:167 and scripts/e2e/campaign-journal-authority.ts:33 still name it; they are corrected here. Folded 2026-09-23 (the owner's ruling on U35b, option 'Approve; U35d checks it', comment 5788088153 on PR #1914): the red-first also runs a journal-only campaign command (SpendFunds, AdvanceDay or HirePilot, which append without rewriting the row) followed by a whole-campaign save under the flip, and records whether the command's effect survives in the journal's projection. If the effect is lost in a real flow (a client whose next whole-campaign save does not carry it), U35d stops BLOCKED and a successor unit that makes those commands rewrite the saved record is planned before the flip (FN-u35b-checkpoint-replaces-journal-state). Folded 2026-09-23 (U35d's admission finding F2): two comments in the unit's paths disagree about where co-op events are stored (e2e/campaign-two-device-drive.spec.ts:440-452 against scripts/e2e/campaign-journal-authority.ts:22-29); the re-admission corrects whichever is wrong. Folded 2026-09-23 (U35e's findings F1 and F2): the re-admission gate also measures, under the flip, a combat-outcome consequence committed through appendCombatOutcomeBatch (which does not rewrite the saved record) and a roster change from salvage recovery or RosterUnitChanged (which the checkpoint neither carries nor patches), each followed by the host browser's whole-envelope save; if either effect is lost in a real flow, U35d stops BLOCKED again with a successor proposed, as the owner's ruling on U35b requires.",
+      "behavior": "The campaign journal hard cutover: CAMPAIGN_JOURNAL_AUTHORITY_ENABLED is true in production with no override and the e2e fixture arm is deleted (campaignJournalAuthorityEnabled.ts:36-38) together with its exported env constant and both importers (src/__tests__/api/campaigns/campaignPutGenesisRoute.test.ts:17, scripts/e2e/campaign-journal-authority.ts:63-67,93-96); the in-path flag pins, campaignPutGenesisRoute.test.ts and the e2e flag-off assertions (e2e/campaign-journal-two-process-privacy.spec.ts, e2e/campaign-journal-two-process-convergence.spec.ts, e2e/helpers/campaignJournalPrivacyFixture.ts) are re-pinned and the stale flag-off comments corrected. Admitted only after U35a, U35c and U35b have merged; lands before U28. Red-first: U35's probe row (a), red on the baseline. Main proof runs verify:qc:coop-campaign-journey and the authority-recovery, privacy-pack and proposal-pack ladder groups. Folded 2026-09-23 (U35c finding F1): the e2e-arm row in src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts sets the arm env keys to reach the refusal while the flag is false; when this unit deletes the arm the row still passes but its env setup is dead and its comment wrong, so the row is rewritten or removed here. Folded 2026-09-23 (U35b finding F1): U35b removed maybeAppendCampaignGenesisOnCreate (the PUT create now appends the genesis through saveCampaignRecordThroughJournal), but comments at e2e/campaign-journal-two-process-convergence.spec.ts:167 and scripts/e2e/campaign-journal-authority.ts:33 still name it; they are corrected here. Folded 2026-09-23 (the owner's ruling on U35b, option 'Approve; U35d checks it', comment 5788088153 on PR #1914): the red-first also runs a journal-only campaign command (SpendFunds, AdvanceDay or HirePilot, which append without rewriting the row) followed by a whole-campaign save under the flip, and records whether the command's effect survives in the journal's projection. If the effect is lost in a real flow (a client whose next whole-campaign save does not carry it), U35d stops BLOCKED and a successor unit that makes those commands rewrite the saved record is planned before the flip (FN-u35b-checkpoint-replaces-journal-state). Folded 2026-09-23 (U35d's admission finding F2): two comments in the unit's paths disagree about where co-op events are stored (e2e/campaign-two-device-drive.spec.ts:440-452 against scripts/e2e/campaign-journal-authority.ts:22-29); the re-admission corrects whichever is wrong. Folded 2026-09-23 (U35e's findings F1 and F2): the re-admission gate also measures, under the flip, a combat-outcome consequence committed through appendCombatOutcomeBatch (which does not rewrite the saved record) and a roster change from salvage recovery or RosterUnitChanged (which the checkpoint neither carries nor patches), each followed by the host browser's whole-envelope save; if either effect is lost in a real flow, U35d stops BLOCKED again with a successor proposed, as the owner's ruling on U35b requires. Folded 2026-09-25 (U35d's re-admission finding F4): the comments at e2e/campaign-two-device-drive.spec.ts:444-449 and e2e/gm-two-player-authority-recovery.pack.spec.ts:17-19 say the server co-op host does not write the durable journal while the flag is false; row o1s measured that it does, so both are corrected here. The flip residue outside U35d's paths is split into U35h and U35i by owner decision OD-u35g-coop-outcome-rewrites-record.",
       "ownershipPaths": [
         "src/lib/campaign/sync",
         "src/__tests__/api/campaigns",
@@ -1306,7 +1341,7 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
+      "state": "blocked",
       "baseline": "992b2babcf516466cf018bb0153f247018079c59",
       "prHead": null,
       "mergeSha": null,
@@ -1339,6 +1374,96 @@
       "resumed20260923": {
         "at": "2026-09-23T07:53:24.000Z",
         "why": "both successors main-verified: U35e (45d5c348d) and U35f (668ed250f5d378c231004127c2eaac08a346b9f7); the re-admission runs the widened gate (combat-outcome and roster effects) before any product edit; by owner decision OD-uat-two-rounds sub-decision 3 the flip belongs to UAT round 2"
+      },
+      "readmission20260924": {
+        "receipt": "evidence/u35d-admission-20260924.json",
+        "baseline": "2199b53f6e8789ebae36f4f44374ca3a8ba4e630",
+        "at": "2026-09-25T06:08:02.639Z",
+        "decision": "BLOCKED at the owner-ruled gate: under a temporary flip on real SQLite, the command-route rows and the co-op hire now survive the host's whole-campaign save (U35e, U35f), but a co-op battle's roster change committed through the combat-outcome inbox (RosterUnitChanged, reconcileCoopBattle -> campaignCombatOutcomeInbox) does not rewrite the saved record, and the host's next save rebuilds the journal's roster from its own (rows o1, o1c, o1s; o1s shows the flip is what exposes it). No product or test file was edited."
+      },
+      "blocked20260924": {
+        "at": "2026-09-25T06:12:41.348Z",
+        "cause": "a real co-op flow loses a combat outcome's roster change on the host's next save once the flag flips (the ruled gate, measured at re-admission)",
+        "nextIndependentAction": "U35g (the combat outcome rewrites the saved record, destroyed units kept as Destroyed); U35d returns to planned when U35g is main-verified; U35h and U35i remove the flip's residue after U35d",
+        "proof": "evidence/u35d-admission-20260924.json"
+      }
+    },
+    {
+      "id": "U35h",
+      "node": "R6.loop-harness",
+      "behavior": "After U35d flips the campaign journal flag, the e2e fixture arm's campaign key is dead config: playwright.config.ts stops forwarding MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY (and the combat forward's comment is reworded to stand alone), scripts/qc/gm-two-player-campaign-core.cjs stops setting it for authority-recovery and privacy-pack, and scripts/__tests__/gm-two-player-campaign-qc.test.ts stops pinning it, with the exact edits listed in evidence/u35d-admission-20260924.json flipResidueDecision.exactEdits (owner decision OD-u35g-coop-outcome-rewrites-record, sub-decision 3). The combat key and its forwarding stay. Red-first: a pin that no config or runner line forwards or sets the campaign key.",
+      "ownershipPaths": [
+        "playwright.config.ts",
+        "scripts/qc",
+        "scripts/__tests__"
+      ],
+      "reviewClasses": [
+        "routine"
+      ],
+      "state": "blocked",
+      "admitAfter20260925": "U35d main-verified (the campaign key is only dead once the flag is flipped)",
+      "taskKeys": [],
+      "ciClass": "product",
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "blocked20260925": {
+        "at": "2026-09-25T06:12:41.348Z",
+        "cause": "prerequisite not yet main-verified: U35d",
+        "nextIndependentAction": "the docs(roadmap) edit that records U35d's main proof returns this unit to planned; --next cannot express a unit-to-unit dependency"
+      }
+    },
+    {
+      "id": "U35i",
+      "node": "R2.authority-live",
+      "behavior": "After U35d flips the campaign journal flag, three comments still describe the flag-off state and are corrected to the flag-on behaviour, with the exact edits listed in evidence/u35d-admission-20260924.json flipResidueDecision.exactEdits: src/lib/campaign/coop/coopRuntimeSession.ts:99-100, src/lib/multiplayer/server/matchJournalAuthority.ts:3 and src/pages/api/multiplayer/matches/index.ts:262-265 (owner decision OD-u35g-coop-outcome-rewrites-record, sub-decision 3). Comment-only; no behaviour change.",
+      "ownershipPaths": [
+        "src/lib/campaign",
+        "src/lib/multiplayer/server",
+        "src/pages/api/multiplayer/matches/index.ts"
+      ],
+      "reviewClasses": [
+        "routine"
+      ],
+      "state": "blocked",
+      "admitAfter20260925": "U35d main-verified (the comments describe the flag-off state until the flip lands)",
+      "taskKeys": [],
+      "ciClass": "product",
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "blocked20260925": {
+        "at": "2026-09-25T06:12:41.348Z",
+        "cause": "prerequisite not yet main-verified: U35d",
+        "nextIndependentAction": "the docs(roadmap) edit that records U35d's main proof returns this unit to planned; --next cannot express a unit-to-unit dependency"
       }
     },
     {
@@ -8040,7 +8165,8 @@
       "class": "residue of the flip outside U35d's paths",
       "summary": "Deleting the e2e fixture arm leaves the arm's env keys set and pinned outside U35d's paths (playwright.config.ts:314-322, scripts/qc/gm-two-player-campaign-core.cjs:73-78,236, scripts/__tests__/gm-two-player-campaign-qc.test.ts), and three flag-off comments stale (src/lib/campaign/coop/coopRuntimeSession.ts:99-100, src/lib/multiplayer/server/matchJournalAuthority.ts:3, src/pages/api/matches/index.ts:262-265).",
       "recommendedSuccessor": "U35d's re-admission takes these through a path amendment (R6.loop-harness owns playwright.config.ts and scripts/qc; R2.authority-live owns the three comment paths), or a follow-on unit right after U35d removes them; the parent decides at re-admission",
-      "status": "recorded; decided at U35d's re-admission"
+      "status": "decided 2026-09-25 (owner decision OD-u35g-coop-outcome-rewrites-record, sub-decision 3): follow-on units U35h (config) and U35i (comments) after U35d",
+      "heldBy20260925": "U35h, U35i"
     },
     {
       "id": "FN-u35e-campaign-without-start-date-projects-day-zero",
@@ -8132,6 +8258,34 @@
       "summary": "A rewind resets each viewer's delivery numbers but keeps that viewer's acknowledgement and isolation state, which still refer to the superseded numbering.",
       "recommendedSuccessor": "measure with a probe (ack after rewind, then a slow-client isolation check); reset or re-key both with the delivery numbers if confirmed",
       "status": "recorded; fold into the next R2.authority-live unit that edits viewer delivery cursors"
+    },
+    {
+      "id": "FN-u35d-coop-outcome-roster-lost",
+      "foundBy": "U35d re-admission lane (claude-opus), 2026-09-25, finding F1",
+      "at": "2026-09-25T06:08:02.639Z",
+      "class": "data loss after the flip (blocking)",
+      "summary": "After the flip, a co-op battle's RosterUnitChanged committed through the combat-outcome inbox does not rewrite the saved record; the host's next whole-campaign save (day advance, Return to Campaign, the save card, mission launch) rebuilds the journal's roster from its own, so damaged units come back operational and a removed unit comes back as destroyed (rows o1, o1c, o1s).",
+      "recommendedSuccessor": "U35g",
+      "status": "held by U35g",
+      "heldBy20260925": "U35g"
+    },
+    {
+      "id": "FN-u35d-outcome-debit-lost-by-stale-save",
+      "foundBy": "U35d re-admission lane (claude-opus), 2026-09-25, finding F2",
+      "at": "2026-09-25T06:08:02.639Z",
+      "class": "possible lost debit (no production sender)",
+      "summary": "A combat-outcome debit is lost when the host's save was built before the host applied the event (row o2u: 380000 instead of 355000). The production client never sends a debit (missionPayout: 0), so this is not a real flow today; U35g's record rewrite on the outcome also advances the version, so such a stale save would then answer 409.",
+      "recommendedSuccessor": "re-measure after U35g",
+      "status": "recorded; re-measure in U35g's local stage"
+    },
+    {
+      "id": "FN-u35d-recovered-unit-lost",
+      "foundBy": "U35d re-admission lane (claude-opus), 2026-09-25, finding F3",
+      "at": "2026-09-25T06:08:02.639Z",
+      "class": "lost effect on an unused path (scoped out by the owner)",
+      "summary": "A salvage allocation's recoveredUnit is lost from the journal once the campaign is journal-native (row s1). Nothing in production sends one. Out of U35g's scope by owner decision OD-u35g-coop-outcome-rewrites-record sub-decision 2.",
+      "recommendedSuccessor": "the first unit that sends a recoveredUnit carries it into the record and the checkpoint",
+      "status": "recorded; scoped out by the owner"
     }
   ]
 }

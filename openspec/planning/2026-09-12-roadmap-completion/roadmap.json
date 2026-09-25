@@ -2731,7 +2731,8 @@
         "src/hooks/useMultiplayerSession.ts",
         "src/hooks/useMultiplayerSession.helpers.ts",
         "src/hooks/__tests__/useMultiplayerSession.helpers.test.ts",
-        "src/hooks/__tests__/useMultiplayerSession.test.tsx"
+        "src/hooks/__tests__/useMultiplayerSession.test.tsx",
+        "src/pages/api/multiplayer/matches/index.ts"
       ],
       "acceptance": [
         "npm.cmd run typecheck",
@@ -2976,6 +2977,13 @@
           "units": "U22a",
           "source": "U22a carries the client half of the owner's replace-stream marker: the protocol marker on ReplayStart, the client clearing its delivery state, the mirror and the session hook clearing the event mirror, and their suites. These exact files are added; the folders stay with their nodes.",
           "why": "owner decision OD-u22a-replace-stream-marker (2026-09-23); the exact-file precedent of this node's ownershipPathsAmended20260917"
+        },
+        {
+          "path": "src/pages/api/multiplayer/matches/index.ts",
+          "at": "2026-09-25T06:12:41.348Z",
+          "units": "U35i",
+          "source": "owner decision OD-u35g-coop-outcome-rewrites-record, sub-decision 3",
+          "why": "U35d's flip leaves a stale flag-off comment at src/pages/api/multiplayer/matches/index.ts:262-265 (the re-admission receipt corrected the path); no node owned this file"
         }
       ]
     },
@@ -15935,6 +15943,44 @@
       "decisionSource": "owner answers to the parent's structured questions in the working session (chat), 2026-09-23, after council 4 (openspec/council-decisions/2026-09-23-uat-stopping-point.md); every chosen label was '(Recommended)'",
       "ownerWords": "eight answers, each '(Recommended)'; subDecisions[].ownerWords quotes each chosen label verbatim",
       "disclosure": "The parent wrote the questions and recommendations from council 4's synthesis; decision and subDecisions[].decision are the parent's wording of the chosen options. raisedAtUtc is the first question batch's time and decidedAtUtc the second batch's answer time in the session transcript. The pin in sub-decision 2 was resolved by the owner's later ruling on U35f.",
+      "status": "decided"
+    },
+    {
+      "id": "OD-u35g-coop-outcome-rewrites-record",
+      "raisedAtUtc": "2026-09-25T06:09:29.507Z",
+      "raisedBy": "U35d's re-admission (evidence/u35d-admission-20260924.json rulingGate), put to the owner by the parent as three structured questions",
+      "node": "R2.authority-live",
+      "question": "U35d is blocked again: after the flip, a co-op battle's roster damage is undone by the host's next save, because the combat-outcome path does not rewrite the saved record. The fix (U35g) makes the outcome rewrite the saved record, roster included. How is a destroyed unit represented; what happens to a recovered unit; how is the flip residue handled?",
+      "evidence": [
+        "evidence/u35d-admission-20260924.json rulingGate (rows o1, o1c, o1s, s1) and flipResidueDecision.exactEdits",
+        "src/lib/campaign/coop/reconcileCoopBattle.ts:226 (a destroyed unit becomes change 'removed')",
+        "src/lib/campaign/sync/applyCampaignEvent.ts:47-50 (the reducer deletes a removed unit)"
+      ],
+      "decidedAtUtc": "2026-09-25T06:12:41.348Z",
+      "decision": "U35g makes the combat outcome rewrite the saved record in its own transaction on the first receipt, roster included, so the next checkpoint keeps it. A destroyed unit is recorded as a status change (Destroyed), not a removal, so the journal matches what the app shows today. Recovered units are left out of U35g and recorded as a finding. The flip residue becomes follow-on units after U35d.",
+      "subDecisions": [
+        {
+          "number": 1,
+          "topic": "destroyed units",
+          "ownerWords": "Keep as Destroyed (Recommended)",
+          "decision": "The combat outcome records a destroyed unit as a status change (Destroyed) instead of a removal; the unit stays available for salvage or repair decisions."
+        },
+        {
+          "number": 2,
+          "topic": "recovered units",
+          "ownerWords": "Leave it out, record it (Recommended)",
+          "decision": "U35g does not handle a salvage allocation's recoveredUnit; a finding records the gap for the first unit that sends one."
+        },
+        {
+          "number": 3,
+          "topic": "flip residue",
+          "ownerWords": "Follow-on unit (Recommended)",
+          "decision": "The residue outside U35d's paths becomes follow-on units right after U35d, using the exact edits in the re-admission receipt."
+        }
+      ],
+      "decisionSource": "owner answers to the parent's structured questions in the working session (chat), 2026-09-25; the chosen labels are quoted verbatim in subDecisions[].ownerWords",
+      "ownerWords": "three answers, each '(Recommended)'",
+      "disclosure": "The parent wrote the questions and recommendations from U35d's re-admission receipt; decision texts are the parent's wording of the chosen options. raisedAtUtc and decidedAtUtc are the question's and the answer's times in the session transcript. The flip residue is split across two units because its files belong to two nodes.",
       "status": "decided"
     }
   ],
