@@ -96,52 +96,17 @@
  *   match's durable counts are unchanged across the whole row. That is
  *   the draft-privacy letter on this channel, end to end.
  *
- * E2E-25 IS A STRICT EXPECTED FAILURE GATED `@until-journal-cutover`.
- *   The row is authored verbatim - every assertion it will make the day
- *   the gate lifts is present and unweakened - and its body opens with
- *   `test.fail(true, ...)`, so the run reports it as an expected failure
- *   today and as an UNEXPECTED PASS, which the run reports as a
- *   failure, the day the commit path verifies through the journal. This
- *   is the same mechanism the rewind pack's E2E-40..44 and E2E-76 rows
- *   carry, and the gated set the umbrella's acceptance reading excludes
- *   is exactly the authored rows carrying a strict `test.fail` with a
- *   named gate tag.
- *   THE REFUSAL, measured in every armed run: `POST /api/matches/:id/
- *   rewind-commit` answers 409 `{"kind":"refused","reason":"candidate-
- *   verification-failed","detail":"Branch '<candidate id>' is anchored
- *   to a base its parent does not hold at revision 4"}`, stopping the
- *   row at `expect(committed.status(), await committed.text()).toBe(
- *   200)` - line 345 of this file as it stands, the assertion the
- *   `test.fail` message names.
- *   WHY: the candidate branch anchors to the JOURNAL's event at the
- *   base revision, while `materializeBranchPath` re-derives the parent
- *   segment through `matchStoreBranchSegmentReader`, which mints its
- *   own ids and digests from the match store's parallel line. Under the
- *   arm the two lines carry different event ids for the same revision,
- *   so the anchor check cannot pass.
- *   WHAT THE ROW PROVES BEFORE THE REFUSAL: the private reason reaches
- *   the server - the commit request body carries it, asserted on the
- *   line above - and the correction lease admits the named head, digest
- *   and generation, because `candidate-verification-failed` is raised
- *   downstream of the lease acquisition. The lease is passed, not
- *   bypassed.
- *   THE GATE'S OWNER is `adopt-combat-journal-cutover-and-gm-rewind`,
- *   which must give the GM rewind commit a journal-backed segment
- *   reader for a live-path branch. No assertion here is softened to fit
- *   the refusal: the gate, and nothing else, is what holds this row
- *   expected-failed.
- *
  * OTHER COVERAGE LIMITS:
  * E2E-29 and E2E-30 have MOVED, not vanished: proposals, vetoes and GM
  *   review items are CAMPAIGN-channel frames (`CampaignProposal` /
  *   `CampaignDecision` in `@/types/multiplayer/Protocol`); no tactical
  *   frame carries a proposal, and this pack's fixture mints no GM
- *   context (see ROLE HONESTY below). E2E-30 is LIVE on the
- *   campaign-channel rig in `e2e/gm-two-player-proposals.pack.spec.ts`
- *   (runner group `proposal-pack`); E2E-29 is deferred THERE, with the
- *   product defect that blocks it recorded in that file's header - no
- *   production wiring arms `CampaignGmArbiter`'s proposal-timeout
- *   timer, so "another times out" has no behaviour to observe.
+ *   context (see ROLE HONESTY below). Both rows run live, as plain rows
+ *   with no expected-failure mark, on the campaign-channel rig in
+ *   `e2e/gm-two-player-proposals.pack.spec.ts` (runner group
+ *   `proposal-pack`): E2E-30 at line 49 and E2E-29 at line 177 of that
+ *   file, both measured passing on 2026-09-25. That file's header states
+ *   what each row proves.
  * E2E-28 ("unauthorized access fails before fan-out"): this row is the
  *   HTTP API + export slice of the letter — seated GET /export and
  *   /timeline agree on timelineDigest, and the same URLs refuse a
@@ -308,14 +273,10 @@ test.describe('tactical pre-serialization privacy', () => {
     }
   });
 
-  test('E2E-25 approved correction keeps its reason private @E2E-25 @until-journal-cutover', async ({
+  test('E2E-25 approved correction keeps its reason private @E2E-25', async ({
     browser,
     request,
   }) => {
-    test.fail(
-      true,
-      'until-journal-cutover: FN-u2b-rewind-commit-verifies-through-the-match-store - the rewind commit verifies the candidate path through the match store while the candidate anchors to the journal, so POST rewind-commit answers 409 candidate-verification-failed at the toBe(200) below; owner adopt-combat-journal-cutover-and-gm-rewind @until-journal-cutover',
-    );
     test.setTimeout(240_000);
     const fixture = await openPrivacyFixture(
       browser,
