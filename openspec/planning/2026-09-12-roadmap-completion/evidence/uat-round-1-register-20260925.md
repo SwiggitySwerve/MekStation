@@ -14,6 +14,7 @@ The owner adds findings below as they come up. At the end of the round the paren
 6. A co-op campaign update can occasionally arrive a few seconds late (measured once at 3.66 s); it is not lost. The cause is being measured (U89).
 7. Unmeasured, from ledger text: the co-op host may need a reload to see approved proposals (U56); networked tokens may start stacked at hex {0,0} facing North (U37); GM correction controls are rough (U36); refused or dropped sessions give poor messages (U50).
 8. Single user on localhost only: the campaign routes check no credential.
+9. Hosting a co-op match from a campaign whose units were added through the campaign creation page is refused (the create request answers 400): the request carries each unit's pinned library version and the server's body check does not know that field. Traced in code on 2026-09-25, not yet run live; a campaign created with an empty roster is not affected (U88).
 
 ## Findings
 

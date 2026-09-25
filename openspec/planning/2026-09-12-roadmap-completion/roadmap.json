@@ -2736,7 +2736,8 @@
         "src/types/campaign/RosterUnitProjection.ts",
         "src/lib/events/replay/CampaignBaselineSchemaPack.ts",
         "src/lib/events/replay/__tests__/CampaignBaselineSchemaPack.test.ts",
-        "src/lib/events/replay/__fixtures__/CampaignBaselineSchemaPack.fixture.ts"
+        "src/lib/events/replay/__fixtures__/CampaignBaselineSchemaPack.fixture.ts",
+        "src/lib/api"
       ],
       "acceptance": [
         "npm.cmd run typecheck",
@@ -3018,6 +3019,13 @@
           "units": "U35j",
           "source": "parent, under the owner's answer \"Follow-on unit (Recommended)\" on U35g's Lane A required edit (working session of 2026-09-25)",
           "why": "the campaign baseline schema pack's roster-unit shape lacks the sourceVersion field the type declares (src/types/campaign/CampaignSync.ts:49) and production writes; only the broad src nodes owned this file"
+        },
+        {
+          "path": "src/lib/api",
+          "at": "2026-09-25T20:47:43.000Z",
+          "units": "U88",
+          "source": "parent, from U35j's finding F1 (co-op match body schema) traced to the client path",
+          "why": "src/lib/api/securitySchemas.ts holds the strict co-op roster-unit body schema that refuses the sourceVersion the creation page writes; only the broad src nodes owned it"
         }
       ]
     },
@@ -15571,7 +15579,7 @@
       "at": "2026-09-15T12:05:45.049Z",
       "node": "R4.S7",
       "question": "[\"Does the S5/S6 naming split in design.md ('S5 revision offset' vs 'S6 reviewed cutover', six seams S1-S6 total) actually mean tasks.md's 1.5+1.6 together ARE 'S5' (S5-a and S5-b) and 1.7 alone is 'S6', while the ROADMAP separately numbers these as R4.S5/R4.S6/R4.S7 (three distinct nodes, one task each)? This brief followed the ROADMAP's three-node numbering as authoritative for admission purposes (since that is what taskKeys/dependsOn/receipt are tracked against) but flags that design.md's prose and the roadmap's node count disagree by one — worth a documentation fix, not a blocking issue.\",",
-      "status": "owner decision required before S7-d; S5/S6 proceed mode-off",
+      "status": "decided The roadmap's three nodes govern admission: R4.S5, R4.S6 and R4.S7 stay separate nodes with one task each, as the ledger already admits them; design.md's S5 (revision offset) and S6 (reviewed cutover) names map onto those nodes, to be noted in design.md by the first unit that edits it",
       "evidence": "evidence/r4-s5-s7-admission-brief-20260915.json",
       "delegated20260922": {
         "at": "2026-09-22T12:00:00.000Z",
@@ -15583,7 +15591,10 @@
         "by": "parent under OD-mvp-hard-cutover",
         "answer": "Two writers with defined roles: the journal is the history authority; the match file is the live command log; the journal append is part of a command's acknowledgement, so a failed mirror write fails that match's command (STORE_FAILURE) and the retry heals it through journal command identity (U23); no process-wide fallback to legacy. The correction fact commits in one journal-DB transaction (activateCandidateBranch). Migration states, shadow parity and rollback law are not built (MVP hard cutover). Implemented by U23 and U24.",
         "questionCorrection": "the recorded question holds an unrelated S5/S6 naming note; the real fork is RR-4 in evidence/r4-s5-s7-admission-brief-20260915.json"
-      }
+      },
+      "decidedAt": "2026-09-25T20:47:43.000Z",
+      "ownerWords": "Roadmap's three nodes (Recommended)",
+      "disclosure": "the owner chose among two options the parent worded in a structured question in the working session of 2026-09-25; the parent transcribed the answer"
     },
     {
       "id": "OD-camp00-controller-env",
@@ -15635,7 +15646,8 @@
       "raisedAtUtc": "2026-09-15T15:01:34.618Z",
       "raisedBy": "R2.combat residual lane",
       "question": "Rewind-branch fold is unreachable for match streams: mirror writes onto MATCH_BASELINE_BRANCH_ID (main) but the match-store segment reader serves only root. Options: (a) teach matchStoreBranchSegmentReader to serve the baseline id alongside root (LIVE_PATH_BRANCH_IDS already treats both as one line); (b) mirror onto root. Product change either way; owner of adopt-combat-journal-cutover-and-gm-rewind to rule. Not worked around.",
-      "evidence": "evidence/r2-combat-residual-rows-local-20260915.json"
+      "evidence": "evidence/r2-combat-residual-rows-local-20260915.json",
+      "status": "superseded by U21 (complete): a journal-backed match segment reader reading any branch replaced matchStoreBranchSegmentReader at the three production consumers, so the root-only fold this decision named no longer exists; recorded by the parent 2026-09-25"
     },
     {
       "id": "OD-launch-head-gate",
@@ -15653,7 +15665,8 @@
         "at": "2026-09-22T14:00:00.000Z",
         "by": "parent under OD-mvp-hard-cutover",
         "answer": "/head is the journal's effective head. Every stream gets its genesis branch and effective head on its first append (U19); the mission launch is gated whenever a head exists; no-authoritative-stream means the campaign has no journal stream. The comment in campaignLaunchHead.ts states that rule (U20)."
-      }
+      },
+      "status": "answered by U20 (complete): resolveCampaignLaunchHead answers the journal's effective head for any journaled campaign and campaignLaunchHead.ts states the real rule (U20's sentence names this decision); the launch gate's client half is held by U50 (FN-u20-client-launch-treats-head-500-as-ungated); recorded by the parent 2026-09-25"
     },
     {
       "id": "OD-publication-single-pr",
@@ -15983,6 +15996,12 @@
         "result": "passed with known issues: co-op journey, E2E build and 19 of 21 unarmed ladder groups green; 9 of 10 audit journeys green; the three failures classified minor or test drift by a diagnosis lane; round 1 is open on the pin",
         "receipt": "evidence/uat-round-1-entry-gate-20260925.json",
         "register": "evidence/uat-round-1-register-20260925.md"
+      },
+      "subDecision9_20260925": {
+        "at": "2026-09-25T20:47:43.000Z",
+        "question": "behaviors decided this week without a spec clause (the guest Units count includes destroyed units; a damaged unit's feed entry reads 'repaired'; the outcome keeps the ledger's designation): file spec deltas now, or at the round 2 triage?",
+        "ownerWords": "Deltas at UAT round 2 triage (Recommended)",
+        "decision": "left as recorded findings now; at the UAT round 2 triage pass each becomes a spec delta on the coop-campaign-sync change (if kept) or a fix unit (if changed), once testers have seen the behavior"
       }
     },
     {

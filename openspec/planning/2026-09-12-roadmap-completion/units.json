@@ -1867,10 +1867,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "local-verified",
+      "state": "complete",
       "baseline": "0fd24c343d8de2d467bb5b2d3d57c3beeb2d89af",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "9f778f6b10625bf0f33a59515faa75aee59d46b7",
+      "mergeSha": "6f386c5f157925da491aca06c63fac234cccd5fa",
       "stageReceipts": {
         "admission": {
           "path": "evidence/u22-admission-20260925.json",
@@ -1889,10 +1889,33 @@
           "at": "2026-09-25T07:26:23.862Z",
           "summary": "resumption after U22a (first run BLOCKED at red, evidence/u22-*-20260923.json); 2 test files +38/-51 (89 lines, 0 product lines): the privacy pack loses E2E-25's strict test.fail, its @until-journal-cutover tag and the header gate block, with the E2E-25 assertion body byte-identical; the E2E-29/E2E-30 header states both run live in the proposals pack (:49, :177); campaignJournalDrive's requestActivity and postIntentCommand read the body once and name URL, status and body on a non-JSON answer; privacy pack twice 8/8, proposals 2/2, authority-recovery 4/4; every id E2E-19..30 a plain pass (21.2 can tick whole, pending the owner's privacy ruling and the main proof); QC pin 14/14; tsc 0; oxlint 84 warnings 0 errors (it skips e2e); oxfmt clean; qc:openspec-ci errors=0; validator PASSED; three mutants caught and restored (E2E-25 player check inverted, test.fail put back, helper given a non-JSON answer); runs overlapping the tsx outage were discarded and re-run; implementer claude-opus (Agent model: opus); findings: the two-process specs cannot run in a junctioned worktree (the main proof runs them), the runner prints no port or PID, the stale #62 notes at tasks.md:436 and :525 (corrected at the tick); status ready"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "review": {
+          "path": "evidence/u22-review-20260925.json",
+          "head": "9f778f6b10625bf0f33a59515faa75aee59d46b7",
+          "reviewedHead": "9f778f6b10625bf0f33a59515faa75aee59d46b7",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet)",
+          "implementerModel": "claude-opus (Agent model: opus)",
+          "outputSha256": "dfbf72a05cf852468a39fc574aa65e98f872239383a502103f258d59d831bdf9",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u22-merge-20260925.json",
+          "pr": 1943,
+          "head": "9f778f6b10625bf0f33a59515faa75aee59d46b7",
+          "mergeSha": "6f386c5f157925da491aca06c63fac234cccd5fa"
+        },
+        "mainProof": {
+          "path": "evidence/u22-mainproof-20260925.json",
+          "mergeCommit": "6f386c5f157925da491aca06c63fac234cccd5fa",
+          "verdict": "PASS",
+          "runtime": "U22 PROOF RUNTIME PASSED: privacy-pack 8 passed, 0 failed, exit 0; proposal-pack 2 passed, 0 failed, exit 0; two-process 2 passed, 0 failed, exit 0"
+        },
+        "tick": {
+          "path": "evidence/u22-tick-20260925.json",
+          "taskKeys": [
+            "harden-gm-two-player-campaign-sessions#21.2@547"
+          ]
+        }
       },
       "ownerGate": null,
       "source20260922": "planned by the parent under OD-mvp-hard-cutover (owner, 2026-09-22) from the read-only cutover map of 2026-09-22 (Opus planning lane; its evidence is file:line on origin/main 31ab3c16e and is summarised in each behaviour sentence)",
@@ -1909,7 +1932,17 @@
       "admissionNote20260925": {
         "at": "2026-09-25T07:28:02.000Z",
         "note": "The charter asked for --next to print U22; it printed U35g, the first admissible unit, which was in flight in its own worktree. U22 met the validator's admission rule itself (planned, node dependencies main-verified, no owner gate, no path overlap with an in-flight unit), so the parent accepted the parallel admission, as for U22a. The charter's BLOCKED-else wording was stricter than the rule."
-      }
+      },
+      "mainProofAttempts20260925": [
+        {
+          "attempt": 1,
+          "result": "proof PASS (privacy-pack 8, proposal-pack 2, two-process 2), closure refused MAIN_PROOF_NOT_PASS: the parent's runtime script printed the children's stderr after its summary, so the closure tool's last-line read hit a '[ViewerDeliveryCursors] persist failed' server warning (FN-u22a-viewer-delivery-unique-after-rewind) instead of the summary"
+        },
+        {
+          "attempt": 2,
+          "result": "two-process 1 passed 1 failed: the convergence spec's restartSourceServer found port 3617 occupied ('port 3617 is already serving', e2e/helpers/campaignJournalTwoProcess.ts:294); both two-process specs spawn their second server on 3617 (:53) and Playwright ran the two files in parallel workers locally (playwright.config.ts:108 pins workers to 1 only on CI); no stray listener afterwards; not caused by the diff, so the rerun with --workers=1 follows WORKERS.md's one-rerun rule"
+        }
+      ]
     },
     {
       "taskKeys": [],
@@ -2142,6 +2175,70 @@
         "concurrency"
       ],
       "source20260925": "planned by the parent from the UAT round 1 diagnosis (evidence/uat-r1-diagnosis-20260925.json, mode 2 of F-perf-E2E-71-72-73)"
+    },
+    {
+      "taskKeys": [],
+      "ciClass": "product",
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "state": "planned",
+      "id": "U88",
+      "node": "R2.authority-live",
+      "behavior": "Hosting a co-op match from a campaign whose roster units carry sourceVersion works. The co-op match-creation body's roster-unit schema (src/lib/api/securitySchemas.ts:83-91, strict, parsed at src/pages/api/multiplayer/matches/index.ts:284 through CoopCampaignRegistrationSchema) gains sourceVersion as z.number().int().positive().optional(), the same value type U35j gives the campaign baseline schema pack; an unknown extra field is still refused. Red first: a jest route row posting the body CampaignCoopEntryPanel.tsx:217-228 builds (buildCampaignAuthoritativeState copies sourceVersion at campaignAuthoritativeState.ts:65) for a unit carrying sourceVersion answers 400 on the baseline and registers the match after; a body with an unknown roster field still answers 400.",
+      "ownershipPaths": [
+        "src/lib/api"
+      ],
+      "reviewClasses": [
+        "routine"
+      ],
+      "source20260925": "planned by the parent from U35j's finding F1 (evidence/u35j-local-20260925.json) after tracing the client path; UAT round 1 register known issue 9"
+    },
+    {
+      "taskKeys": [],
+      "ciClass": "product",
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "state": "planned",
+      "id": "U90",
+      "node": "R2.multiplayer-client",
+      "behavior": "On the co-op host dashboard, the preview, manual takeover and GM correction controls are rendered and work, per openspec/specs/coop-campaign-sync/spec.md:491-493 (the host command screen exposes preview, approve, veto, manual takeover and GM correction). After U36 the dashboard mount (src/components/campaign/coop/CampaignCoopRouteSurface.tsx:378-384) passes HostGmReviewSurface only onDecide, so those three are absent there, while the GM ledger route wires them (src/components/campaign/gm/GmCampaignInterventionControlPlane.tsx:393 passes a real manual takeover). Admission decides, with file:line, whether the dashboard mount receives the same producers the ledger route uses or a link to that route's controls, and stops for a path amendment if the wiring needs src/components/campaign/gm or a page module. Red first: jest at the dashboard mount renders none of the three today (the U36 dead-controls rows); green: each renders and its press reaches its producer once.",
+      "ownershipPaths": [
+        "src/components/campaign/coop"
+      ],
+      "reviewClasses": [
+        "authority"
+      ],
+      "source20260925": "planned by the parent under the owner's U36 ruling \"Approve, plan the wiring unit (Recommended)\" (working session of 2026-09-25), which kept the spec clause over a spec delta"
     },
     {
       "id": "U36",
@@ -7820,6 +7917,48 @@
         "deviationDisclosed": "DELIVERY.md says the owner posts the ruling out of band; the owner approved this unit by description in chat (words quoted in the comment) after the parent explained it in plain language and reported Lane A's verdict and the check set on the head, and the parent composed and posted the comment from the owner GitHub account and applied the label; the parent supplied the head from the ledger, as in the earlier rulings of this loop"
       },
       "note": "opened when the owner ruled, 2026-09-22 (the cutover sequence's units carry no pre-opened ruling packets)"
+    },
+    {
+      "id": "PK-u22-ruling",
+      "blocks": [
+        "U22"
+      ],
+      "nodes": [
+        "R6.umbrella"
+      ],
+      "taskKeys": [],
+      "question": "U22 (review classes privacy) presents head 9f778f6b10625bf0f33a59515faa75aee59d46b7. Does the owner rule it?",
+      "options": [
+        {
+          "label": "rule the head",
+          "consequence": "an OWNER-RULING <head> comment and the owner-ruled label on U22's PR; the unit merges and proceeds to main proof",
+          "effort": "0.1 day owner"
+        },
+        {
+          "label": "reject",
+          "consequence": "the PR closes; the unit returns to planned with the objection recorded",
+          "effort": "0.1 day owner"
+        }
+      ],
+      "agentRecommendation": "rule the head once Lane A has approved it and the checks are green",
+      "revertCost": "low: a squash merge revert",
+      "decision": {
+        "at": "2026-09-25T19:59:08Z",
+        "option": "rule the head",
+        "text": "Approve (Recommended)",
+        "source": "owner instruction in the working session (chat), after the parent described the unit in plain English: a structured question: E2E-25 (an approved GM correction keeps its reason private) loses its expected-failure mark now that U22a made a committed rewind reach the live match; test-only, 89 lines; Lane A APPROVE with one side note (one assertion guards a key name, the line beside it guards the content); 31 green checks; the row runs with the combat journal test switch on, so it first shows to a tester in UAT round 2"
+      },
+      "ruling": {
+        "ruledHead": "9f778f6b10625bf0f33a59515faa75aee59d46b7",
+        "pr": 1943,
+        "commentId": 5838716014,
+        "author": "SwiggitySwerve",
+        "label": "owner-ruled",
+        "bodySha256": "267c878afcf752cbf0dfc07d7a56635610495a6aaa181f0c45f48b4b56b06228",
+        "postedBy": "parent on the owner's instruction (the comment quotes the owner's words verbatim)",
+        "deviationDisclosed": "DELIVERY.md says the owner posts the ruling out of band; the owner approved this unit by description in chat (words quoted in the comment) after the parent explained it in plain language and reported Lane A's verdict and the check set on the head, and the parent composed and posted the comment from the owner GitHub account and applied the label; the parent supplied the head from the ledger, as in the earlier rulings of this loop"
+      },
+      "note": "opened when the owner ruled, 2026-09-22 (the cutover sequence's units carry no pre-opened ruling packets)"
     }
   ],
   "deferrals": [
@@ -8694,7 +8833,7 @@
       "class": "living-spec gap (predates U36)",
       "summary": "openspec/specs/coop-campaign-sync/spec.md:491-493 (scenario 'Host sees authoritative campaign commands') says a co-op campaign command screen SHALL expose preview, approve, veto, manual takeover and GM correction controls. On the baseline the co-op dashboard's review surface rendered all five, but preview, manual takeover and GM correction were no-ops (HostGmReviewSurface.tsx:138-140 defaults; CampaignCoopRouteSurface.tsx:378-384 passes none of them). After U36 it renders only approve and veto, the two that work. The GM ledger route still has preview, approve and manual takeover.",
       "recommendedSuccessor": "owner decision: wire real preview, manual takeover and GM correction on the co-op host dashboard in a new unit, or a spec delta naming which host screens carry which controls",
-      "status": "recorded; taken to the owner with U36's ruling"
+      "status": "decided 2026-09-25 by the owner's U36 ruling: the spec clause stands; U90 wires the three controls on the co-op dashboard"
     },
     {
       "id": "FN-u36-remaining-noop-defaults",
@@ -8703,6 +8842,42 @@
       "class": "latent dead-control defaults (production passes real handlers)",
       "summary": "HostGmReviewSurface still defaults onClearLifecycleRefusal to a no-op, and CampaignCoopRouteSurface defaults onDecide (:277-279) and onClearRefusal (:285) to no-ops; production mounts pass real handlers, so only test mounts reach the defaults.",
       "recommendedSuccessor": "fold into the next unit that edits src/components/campaign/coop",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u35j-coop-match-body-refuses-sourceversion",
+      "foundBy": "U35j implementer lane (claude-opus), 2026-09-25, finding F1; client path traced by the parent",
+      "at": "2026-09-25T20:47:43.000Z",
+      "class": "live defect on production defaults (traced in code; the 400 not yet run live)",
+      "summary": "src/lib/api/securitySchemas.ts:83-91 (CampaignRosterUnitSchema, strict, no sourceVersion; the lane cited a wrong path) parses the co-op match-creation body at src/pages/api/multiplayer/matches/index.ts:284. CampaignCoopEntryPanel.tsx:217-228 builds that body with buildCampaignAuthoritativeState, which copies sourceVersion (campaignAuthoritativeState.ts:65), and the creation page pins sourceVersion on every roster unit since #1321 (2026-08-22). So hosting a co-op match from such a campaign is refused with 400. The entry gate's co-op journey passed, which is consistent with its campaign carrying no such unit.",
+      "recommendedSuccessor": "U88",
+      "status": "recorded; U88 planned; UAT round 1 register known issue 9"
+    },
+    {
+      "id": "FN-u22-two-process-specs-share-port-3617",
+      "foundBy": "parent, U22 main proof attempt 2, 2026-09-25",
+      "at": "2026-09-25T20:47:43.000Z",
+      "class": "test infrastructure race (local only)",
+      "summary": "e2e/campaign-journal-two-process-privacy.spec.ts and -convergence.spec.ts both spawn their second server on port 3617 (e2e/helpers/campaignJournalTwoProcess.ts:53, MEKSTATION_E2E_SECOND_PORT); run in parallel workers (the local default, playwright.config.ts:108) one refuses with 'port 3617 is already serving'. CI runs one worker, so it never collides there.",
+      "recommendedSuccessor": "a per-spec second port (or a serial project for the two-process specs) when a unit next edits those specs",
+      "status": "recorded; proofs run them with --workers=1"
+    },
+    {
+      "id": "FN-u35j-pack-shapes-untied-from-types",
+      "foundBy": "U35j implementer lane (claude-opus), 2026-09-25, finding F2",
+      "at": "2026-09-25T20:47:43.000Z",
+      "class": "drift risk",
+      "summary": "Nothing ties the campaign baseline schema pack's zod shapes to the TypeScript types they validate (ICampaignRosterUnit and the others), which is how sourceVersion drifted undetected for a month.",
+      "recommendedSuccessor": "a compile-time check (for example z.ZodType<ICampaignRosterUnit> satisfies) in the pack, when a unit next edits it",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u35j-stale-comments",
+      "foundBy": "U35j implementer lane (claude-opus), 2026-09-25, finding F3",
+      "at": "2026-09-25T20:47:43.000Z",
+      "class": "stale comments",
+      "summary": "src/lib/events/replay/__tests__/ReplayBaselineDomainRegistry.test.ts:5 says '7 campaign' where the count is 8; the pack's @spec path points to a change that has been archived.",
+      "recommendedSuccessor": "fold into the next unit that edits those files",
       "status": "recorded"
     }
   ]
