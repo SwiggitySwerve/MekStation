@@ -1,0 +1,177 @@
+{
+  "unit": "U88",
+  "stage": "admission",
+  "status": "go",
+  "at": "2026-09-25T22:12:49.247Z",
+  "baseline": "5a3e87f8ca4876ed36a3b186e56ba1211137cb12",
+  "baselineExpectedByCharter": "5a3e87f8ca4876ed36a3b186e56ba1211137cb12",
+  "originMainAtAdmission": "5a3e87f8ca4876ed36a3b186e56ba1211137cb12",
+  "originMainSource": "git ls-remote origin refs/heads/main (read-only; no fetch); equals git rev-parse origin/main in the worktree",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u88",
+  "branch": "roadmap-u88-coop-match-body-sourceversion-20260925",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "node": "R2.authority-live",
+  "nodeVersion": "v22.22.0",
+  "shellPreamble": "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH; npm_config_dry_run=true",
+  "guardNodeModulesLink": {
+    "command": "npm run --silent qc:guard-node-modules-link",
+    "lastLine": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"E:\\\\Projects\\\\MekStation\\\\.sisyphus\\\\roadmap-completion-20260912\\\\worktrees\\\\u88\\\\node_modules\",\"actualPath\":\"E:\\\\Projects\\\\MekStation\\\\node_modules\"}",
+    "exitCode": 1,
+    "startedAt": "2026-09-25T22:11:12.310Z",
+    "endedAt": "2026-09-25T22:11:13.006Z",
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u88/adm/guard.log",
+      "sha256": "f08f9c8e66818fe01107bf3f0c095d7e4c8757ead6c366fecc389c6d51569c03"
+    },
+    "note": "refused by design in a junctioned worktree (the charter says so); no npm install/ci/prune or lifecycle was run. The lane proceeds with npx jest/tsc/oxlint/oxfmt under npm_config_dry_run=true as the charter directs."
+  },
+  "validatorOnBaseline": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+    "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+    "exitCode": 0,
+    "startedAt": "2026-09-25T22:11:13.219Z",
+    "endedAt": "2026-09-25T22:11:13.430Z",
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u88/adm/validator.log",
+      "sha256": "97b2f29d264078525a55c5f88586fb95603311fa065e70d7d17c5fab08f5b5bc"
+    }
+  },
+  "nextOnBaseline": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "lastLine": "U35d",
+    "exitCode": 0,
+    "startedAt": "2026-09-25T22:11:13.706Z",
+    "endedAt": "2026-09-25T22:11:13.876Z",
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u88/adm/next.log",
+      "sha256": "715b8ca2001b54523484886b77e8e0a180fd0933cb694fdfa3c2bf99da14eb6c"
+    },
+    "note": "--next printed U35d, which the charter says is in flight for the parent in worktrees/u35d. units.json on the baseline lists U35d as planned with ownershipPaths [src/lib/campaign/sync, src/__tests__/api/campaigns, e2e, scripts/e2e, src/__tests__/unit/api]; none of them is under src/lib/api, so U88's path does not overlap. U88's tests go under src/lib/api/__tests__/ (not src/__tests__/unit/api, which U35d owns). U45 (planned, not in flight) owns src/lib, a prefix of src/lib/api; recorded for the parent's admission check, not acted on."
+  },
+  "ownershipPaths": ["src/lib/api"],
+  "receiptsOwned": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u88-admission-20260925.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u88-red-20260925.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/u88-local-20260925.json"
+  ],
+  "baselineOwnedFileSha256": {
+    "src/lib/api/securitySchemas.ts": "36b226d61b9c37b098260a50e32a9b074f773df0acb21d42aaf68f520ffdc592",
+    "src/lib/api/security.ts": "cfa53d5008522554e12814785bd85da3e663971b3f7d537ac2f61e8845b21199",
+    "src/lib/api/__tests__/": "absent on the baseline (ls: No such file or directory)"
+  },
+  "behavior": "Hosting a co-op match from a campaign whose roster units carry sourceVersion works. CampaignRosterUnitSchema (src/lib/api/securitySchemas.ts:83-91, strict) gains sourceVersion as z.number().int().positive().optional(), the value type U35j gave the campaign baseline schema pack (src/lib/events/replay/CampaignBaselineSchemaPack.ts:36 at the baseline, merged in c8baaa60e); an unknown extra field is still refused.",
+  "seams": [
+    {
+      "at": "src/lib/api/securitySchemas.ts:83-91",
+      "what": "CampaignRosterUnitSchema: unitId, designation, status, unitRef?, unitSource?, .strict() (:91); no sourceVersion"
+    },
+    {
+      "at": "src/lib/api/securitySchemas.ts:108-122 (rosterUnits :113), 124-130 (state :127), 132-161 (coopCampaign :151, .strict() :153)",
+      "what": "the roster-unit schema nests in CampaignAuthoritativeStateSchema.rosterUnits, which nests in CoopCampaignRegistrationSchema.state, which nests in CreateMultiplayerMatchBodySchema.coopCampaign"
+    },
+    {
+      "at": "src/lib/api/security.ts:57-80 (safeParse :64, details :71-76, status 400 :78)",
+      "what": "parseBody: on a failed safeParse it answers res.status(400).json({ error: 'Malformed body' (default :61), details: issues mapped to { path: issue.path.join('.'), message } }) and returns null"
+    },
+    {
+      "at": "src/pages/api/multiplayer/matches/index.ts:284-285",
+      "what": "the create route parses its body with CreateMultiplayerMatchBodySchema through parseBody and returns on null, before the rate limit (:287), auth (:296) and any store work"
+    },
+    {
+      "at": "src/pages/api/multiplayer/matches/index.ts:239, 311, 312-331 (state :329)",
+      "what": "an accepted body reaches the match meta as coopCampaign: body.coopCampaign, the store via createMatch(meta), and the host registry via register(matchId, { ..., state: body.coopCampaign.state })"
+    },
+    {
+      "at": "src/lib/multiplayer/server/CampaignHostRegistry.ts:261-275, 292",
+      "what": "register re-checks the snapshot with parseCampaignCoopSnapshot, then constructs CampaignMatchHost with initialState: snapshot.state (the object it was handed, not a parsed copy)"
+    },
+    {
+      "at": "src/types/campaign/campaignCoopSnapshot.ts:42-54, 70-77",
+      "what": "parseCampaignCoopSnapshot checks roster identity, unitSource and unitRef per unit and returns the state object unchanged (:76); it neither reads nor strips sourceVersion"
+    },
+    {
+      "at": "src/lib/multiplayer/server/CampaignMatchHost.ts:150, 283",
+      "what": "the host keeps options.initialState as its state; getState returns it"
+    },
+    {
+      "at": "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx:187-191, 217-221, 222-239",
+      "what": "the client builder: config {mapRadius 8, turnLimit 20, fogOfWar false}; coopState = buildCampaignAuthoritativeState(createdCampaign, useCampaignRosterStore units); POST body JSON.stringify({ config, layout '1v1', hostSeatKind 'spectator', displayName, coopCampaign { campaignId, state: coopState, arbitrationMode 'host-review' } })"
+    },
+    {
+      "at": "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx:240-242, 261-262",
+      "what": "a non-ok answer throws new Error(data.error), which the panel shows as the create error (INFERENCE: a tester sees 'Malformed body' today; not driven live)"
+    },
+    {
+      "at": "src/lib/campaign/coop/campaignAuthoritativeState.ts:59-68 (sourceVersion :65-67)",
+      "what": "the co-op builder copies each roster projection's sourceVersion into state.rosterUnits when defined"
+    },
+    {
+      "at": "src/types/campaign/CampaignSync.ts:38-51 (sourceVersion :49-50)",
+      "what": "ICampaignRosterUnit.sourceVersion?: number, 'Pinned library version at enroll; omitted on legacy projections'"
+    },
+    {
+      "at": "src/lib/kernelPlugin/mekstation/mapRosterInstanceProvenance.ts:17-22; src/components/gameplay/pages/campaigns/create/CreateCampaignPage.submit.ts:163; src/components/gameplay/pages/campaigns/create/CreateCampaignPage.hooks.ts:106",
+      "what": "minting: pinSourceVersion returns the version when it is a positive integer, else CANONICAL_LIBRARY_SOURCE_VERSION; both creation-page call sites pin every unit through it"
+    },
+    {
+      "at": "src/lib/events/replay/CampaignBaselineSchemaPack.ts:36 (baseline 5a3e87f8c; added by c8baaa60e)",
+      "what": "the value type to mirror: sourceVersion: z.number().int().positive().optional()"
+    }
+  ],
+  "designAnswers": {
+    "q1_exactRefusalToday": {
+      "answer": "CreateMultiplayerMatchBodySchema's safeParse fails with one zod issue per roster unit carrying sourceVersion, code unrecognized_keys, keys [\"sourceVersion\"], path [\"coopCampaign\", \"state\", \"rosterUnits\", <unitId>] (the strict object at securitySchemas.ts:91). parseBody (security.ts:64-79) turns that into HTTP 400 with body { error: 'Malformed body', details: [{ path: 'coopCampaign.state.rosterUnits.<unitId>', message: <zod message> }] }, and the route returns at index.ts:285 before rate limit, auth or any store write. The exact issue objects, zod message text and route answer are measured on the baseline in the red receipt.",
+      "evidence": ["src/lib/api/securitySchemas.ts:83-91, 113, 127, 151", "src/lib/api/security.ts:57-80", "src/pages/api/multiplayer/matches/index.ts:284-285", "evidence/u35j-lane-a-review-20260925.md Finding 3 (measured the same two unrecognized_keys issues at the schema)"]
+    },
+    "q2_otherBodySchemasNestingARosterUnit": {
+      "answer": "None. In src/lib/api the only roster-unit schema is CampaignRosterUnitSchema (securitySchemas.ts:83-91); its only use is CampaignAuthoritativeStateSchema.rosterUnits (:113), whose only use is CoopCampaignRegistrationSchema.state (:127), whose only use is CreateMultiplayerMatchBodySchema.coopCampaign (:151). The other exported body schemas, TokenIssueBodySchema (:17-34) and UnlockIdentityBodySchema (:36-40), nest no roster unit; MatchUnitBootstrapEntrySchema (:58-69) is a tactical bootstrap entry, not ICampaignRosterUnit. The three importers of securitySchemas are src/pages/api/multiplayer/auth/token.ts:34, src/pages/api/multiplayer/matches/index.ts:33 and src/pages/api/vault/identity/unlock.ts:19 (grep). So one field on CampaignRosterUnitSchema covers every place src/lib/api parses a roster unit.",
+      "outsideOwnershipObservation": "src/types/campaign/campaignSyncSchemas.ts:33-37 (rosterUnitSchema, a plain z.object with unitId, designation, status; zod ^4.3.6 per package.json:269) is used for intent recoveredUnit (:89) and Protocol.ts:492 rosterChanges. It is not a create-route body schema and is outside src/lib/api; read only, not run (see findings in the local receipt).",
+      "evidence": ["src/lib/api/securitySchemas.ts:17-161", "grep -rn securitySchemas src (3 importers)"]
+    },
+    "q3_reValidationOrStrippingAfterParseBody": {
+      "answer": "Nothing downstream strips or refuses sourceVersion once parseBody accepts it. parseBody returns result.data (security.ts:65), which for a strict zod object keeps every declared key. The route copies body.coopCampaign into meta (index.ts:239) and hands body.coopCampaign.state to CampaignHostRegistry.register (:325-331). register re-checks the snapshot with parseCampaignCoopSnapshot (CampaignHostRegistry.ts:266-275), which inspects unitId/unitSource/unitRef/forceUnits only and returns the same state object (campaignCoopSnapshot.ts:42-77), then passes initialState: snapshot.state to CampaignMatchHost (CampaignHostRegistry.ts:292), which stores it as its state (CampaignMatchHost.ts:150). commitCoopCampaignAuthority (index.ts:252-275) reads the persisted campaign record, not the body state. The green route row measures host.getState() after the 201.",
+      "evidence": ["src/lib/api/security.ts:65", "src/pages/api/multiplayer/matches/index.ts:239, 252-275, 311-331", "src/lib/multiplayer/server/CampaignHostRegistry.ts:261-292", "src/types/campaign/campaignCoopSnapshot.ts:16-79", "src/lib/multiplayer/server/CampaignMatchHost.ts:150, 283"]
+    },
+    "q4_routeHarness": {
+      "answer": "Yes. src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts:85-110 (mockReqRes over a plain req/res pair, handler imported at :40, auth mocked at :51-64, temp SQLite initialised per test at :199-206, campaign persisted with saveCampaign at :152) and src/__tests__/unit/api/multiplayerMatchesFog.test.ts:40-71 (same pair, no database) both drive the route handler. The red and green rows therefore drive POST /api/multiplayer/matches through the handler, using the checkpoint suite's SQLite pattern (the production default: durable stores initialised, both journal flags off, so the creation checkpoint runs without its genesis step and the host journals to SQLite), plus schema rows that parse the same body with the exported CreateMultiplayerMatchBodySchema. Neither read-only suite is edited; the new suite lives at src/lib/api/__tests__/.",
+      "evidence": ["src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts:40, 51-64, 85-110, 127-171, 199-213", "src/__tests__/unit/api/multiplayerMatchesFog.test.ts:40-71", "src/lib/campaign/authority/campaignCreationCheckpointPorts.ts:31-43", "src/lib/multiplayer/server/getCampaignEventStore.ts:108-137"]
+    }
+  },
+  "redRowsPlanned": [
+    "schema: the body CampaignCoopEntryPanel builds (buildCampaignAuthoritativeState over roster units carrying sourceVersion 3, JSON round-tripped) parses with no issue (red on the baseline: unrecognized_keys sourceVersion per unit)",
+    "schema control: the same body without sourceVersion parses (green on the baseline)",
+    "schema: an unknown extra roster field is refused with unrecognized_keys (green on the baseline)",
+    "schema: sourceVersion '3', 0, -1, 1.5 are each refused with an issue at the sourceVersion path (red on the baseline: refused as an unknown key, at the unit path)",
+    "route: POST /api/multiplayer/matches with the panel body answers 201 and registers the co-op host with sourceVersion intact (red on the baseline: 400)",
+    "route control: the same body without sourceVersion answers 201 (green on the baseline)",
+    "route: a body with an unknown roster field answers 400 and registers no host (green on the baseline)"
+  ],
+  "mutantsPlanned": [
+    "M1: sourceVersion removed from CampaignRosterUnitSchema again",
+    "M2: CampaignRosterUnitSchema made non-strict (.passthrough() in place of .strict())",
+    "M3: sourceVersion widened to z.number().optional()"
+  ],
+  "estimatePerFile": {
+    "note": "INFERENCE, not measured: estimates before the product edit",
+    "files": [
+      { "file": "src/lib/api/securitySchemas.ts", "category": "product", "estimateLines": 6 },
+      { "file": "src/lib/api/__tests__/coopMatchRosterSourceVersion.test.ts", "category": "test", "estimateLines": 260 }
+    ]
+  },
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "countingRule": "product lines count, tests do not (owner decision OD-line-cap-product-lines, 2026-09-23)",
+    "estimatedFiles": 2,
+    "estimatedProductLines": 6,
+    "withinCaps": true
+  },
+  "risksForTheParent": [
+    "Review class routine: Lane A only, no Lane B ruling required by the class.",
+    "What a UAT round 1 tester sees before (INFERENCE from code, not driven live): creating a co-op campaign from the campaign screen while the roster store holds units added through the campaign creation page fails; the create call answers 400 and the panel shows the create error 'Malformed body' (CampaignCoopEntryPanel.tsx:240-242, 261-262; security.ts:61, 78); no match or lobby is created. A campaign whose roster units carry no sourceVersion is not affected.",
+    "What the tester sees after (INFERENCE from code, proven only through the jest route harness): the create call answers 201 and the panel continues to the campaign page with a room code; the host's campaign state keeps each unit's pinned sourceVersion.",
+    "The zod type is stricter than the TypeScript type (positive integer vs number), as in U35j: a client posting sourceVersion 0, a negative or a fraction would now get a 400 naming coopCampaign.state.rosterUnits.<id>.sourceVersion. The traced minting path (pinSourceVersion) only writes positive integers.",
+    "Route row persists the host campaign with saveCampaign on a temp SQLite database; no live server, no build, no Playwright."
+  ],
+  "decision": "go: --next on the baseline printed U35d (in flight in its own worktree per the charter, no path overlap with src/lib/api), the validator passed, and the fix needs no file outside src/lib/api"
+}

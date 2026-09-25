@@ -1,0 +1,96 @@
+{
+  "unit": "U88",
+  "stage": "red",
+  "at": "2026-09-25T22:16:53.652Z",
+  "baseline": "5a3e87f8ca4876ed36a3b186e56ba1211137cb12",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u88",
+  "branch": "roadmap-u88-coop-match-body-sourceversion-20260925",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "productFileAtRed": {
+    "path": "src/lib/api/securitySchemas.ts",
+    "sha256": "36b226d61b9c37b098260a50e32a9b074f773df0acb21d42aaf68f520ffdc592",
+    "equalsBaseline": true,
+    "gitDiffStat": "empty (git diff --stat printed nothing before the run)"
+  },
+  "testFileAtRed": {
+    "path": "src/lib/api/__tests__/coopMatchRosterSourceVersion.test.ts",
+    "sha256": "7d9b97cf9a4a733ce1251ca3fcb91088fe3f34c47fd127a047f53c50b8a7f6e9"
+  },
+  "harness": "route harness exists (admission q4), so the red row drives the POST /api/multiplayer/matches handler: the checkpoint suite's pattern (plain req/res pair, auth mocked, temp SQLite initialised, host campaign persisted with saveCampaign) with campaign journal authority off, checked in beforeEach. The schema rows parse the same body with the exported CreateMultiplayerMatchBodySchema.",
+  "method": "The body is the one CampaignCoopEntryPanel.tsx:228-238 posts, with the panel's config (:187-191): coopCampaign.state = buildCampaignAuthoritativeState(campaign, rosterUnits) over a populated campaign whose two forces each claim one unit (unit-0, unit-1) and two canonical roster projections each carrying sourceVersion 3, passed through JSON.stringify/JSON.parse as the route receives it. The route rows first persist that campaign (with the same roster projections) through saveCampaign, as the panel does before it posts. The product file is the baseline file; only the new test file exists.",
+  "attempts": [
+    {
+      "attempt": 1,
+      "command": "npx jest src/lib/api/__tests__/coopMatchRosterSourceVersion.test.ts",
+      "exitCode": 1,
+      "testsLine": "Tests:       8 failed, 2 passed, 10 total",
+      "startedAt": "2026-09-25T22:14:55.962Z",
+      "endedAt": "2026-09-25T22:15:03.994Z",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u88/red/suite.log",
+        "sha256": "d11140bb90179d6d1d3a343391e89376005eb1afcd6c21db2d1d5349da941614"
+      },
+      "disposition": "superseded, kept: the two unknown-field rows were written as exact issue lists over the sourceVersion body, so on the baseline they also failed (the strict schema listed sourceVersion beside hullColor: 'Unrecognized keys: \"sourceVersion\", \"hullColor\"'), and the route red row's failure printed only the status. Rewritten before any product edit: the unknown-field rows assert the refusal names hullColor at unit-0 (true on the baseline and after), and the route rows compare {status, error, details} so the 400 body prints."
+    },
+    {
+      "attempt": 2,
+      "command": "npx jest src/lib/api/__tests__/coopMatchRosterSourceVersion.test.ts",
+      "exitCode": 1,
+      "testsLine": "Tests:       6 failed, 4 passed, 10 total",
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\api\\\\__tests__\\\\coopMatchRosterSourceVersion.test.ts/i.",
+      "startedAt": "2026-09-25T22:16:34.710Z",
+      "endedAt": "2026-09-25T22:16:38.931Z",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u88/red/suite-2.log",
+        "sha256": "d51839f5ab5b6515ecc874c67098167f6a1ee40a6a9641aa5a71466a276e2ef7"
+      },
+      "plainLog": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u88/red/suite-2.plain.log",
+        "sha256": "ac9e2676732427ceee8b51333899281379e659648d8df876d67f290095e8eb6d",
+        "note": "suite-2.log with ANSI colour codes stripped (sed)"
+      }
+    }
+  ],
+  "refusalAtTheSchema": {
+    "row": "accepts the body the co-op entry panel builds from units carrying sourceVersion",
+    "result": "fail",
+    "asPrinted": [
+      "    expect(received).toEqual(expected) // deep equality",
+      "    - Array []",
+      "    + Array [",
+      "    +   Object { \"code\": \"unrecognized_keys\", \"keys\": Array [ \"sourceVersion\" ], \"path\": Array [ \"coopCampaign\", \"state\", \"rosterUnits\", \"unit-0\" ] },",
+      "    +   Object { \"code\": \"unrecognized_keys\", \"keys\": Array [ \"sourceVersion\" ], \"path\": Array [ \"coopCampaign\", \"state\", \"rosterUnits\", \"unit-1\" ] },",
+      "    + ]"
+    ],
+    "note": "lines joined from the multi-line jest diff at suite-2.plain.log:57-83"
+  },
+  "refusalAtTheRoute": {
+    "row": "registers the co-op match when roster units carry sourceVersion",
+    "result": "fail",
+    "asPrinted": [
+      "    expect(received).toEqual(expected) // deep equality",
+      "    -   \"details\": undefined,",
+      "    -   \"error\": undefined,",
+      "    -   \"status\": 201,",
+      "    +   \"details\": Array [",
+      "    +     Object { \"message\": \"Unrecognized key: \\\"sourceVersion\\\"\", \"path\": \"coopCampaign.state.rosterUnits.unit-0\" },",
+      "    +     Object { \"message\": \"Unrecognized key: \\\"sourceVersion\\\"\", \"path\": \"coopCampaign.state.rosterUnits.unit-1\" },",
+      "    +   ],",
+      "    +   \"error\": \"Malformed body\",",
+      "    +   \"status\": 400,"
+    ],
+    "note": "suite-2.plain.log:227-250; POST /api/multiplayer/matches answers 400 { error: 'Malformed body', details: [...] } on the baseline"
+  },
+  "rowTableBefore": [
+    { "row": "CreateMultiplayerMatchBodySchema › accepts the body the co-op entry panel builds from units carrying sourceVersion", "kind": "red", "result": "fail", "why": "two unrecognized_keys issues, keys [sourceVersion], at coopCampaign.state.rosterUnits.unit-0 and unit-1" },
+    { "row": "CreateMultiplayerMatchBodySchema › accepts the same body when no roster unit carries sourceVersion", "kind": "control", "result": "pass" },
+    { "row": "CreateMultiplayerMatchBodySchema › still refuses an unknown extra field on a roster unit", "kind": "strictness guard", "result": "pass" },
+    { "row": "CreateMultiplayerMatchBodySchema › refuses sourceVersion \"3\" at the sourceVersion path", "kind": "value type (new behaviour)", "result": "fail", "why": "refused, but as an unknown key at the unit paths (unit-0, unit-1), not at unit-0.sourceVersion" },
+    { "row": "CreateMultiplayerMatchBodySchema › refuses sourceVersion 0 at the sourceVersion path", "kind": "value type (new behaviour)", "result": "fail", "why": "same" },
+    { "row": "CreateMultiplayerMatchBodySchema › refuses sourceVersion -1 at the sourceVersion path", "kind": "value type (new behaviour)", "result": "fail", "why": "same" },
+    { "row": "CreateMultiplayerMatchBodySchema › refuses sourceVersion 1.5 at the sourceVersion path", "kind": "value type (new behaviour)", "result": "fail", "why": "same" },
+    { "row": "POST /api/multiplayer/matches › registers the co-op match when roster units carry sourceVersion", "kind": "red", "result": "fail", "why": "400 { error: 'Malformed body', details: unit-0 and unit-1 'Unrecognized key: \"sourceVersion\"' }" },
+    { "row": "POST /api/multiplayer/matches › registers the co-op match when no roster unit carries sourceVersion", "kind": "control", "result": "pass" },
+    { "row": "POST /api/multiplayer/matches › answers 400 and registers no host for an unknown extra roster field", "kind": "strictness guard", "result": "pass" }
+  ]
+}

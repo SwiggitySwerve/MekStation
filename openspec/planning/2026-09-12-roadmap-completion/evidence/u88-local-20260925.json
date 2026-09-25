@@ -1,0 +1,308 @@
+{
+  "unit": "U88",
+  "stage": "local",
+  "status": "ready",
+  "at": "2026-09-25T22:24:59.920Z",
+  "baseline": "5a3e87f8ca4876ed36a3b186e56ba1211137cb12",
+  "head": "5a3e87f8ca4876ed36a3b186e56ba1211137cb12 (uncommitted working tree; the parent commits)",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u88",
+  "branch": "roadmap-u88-coop-match-body-sourceversion-20260925",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "shellPreamble": "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH; npm_config_dry_run=true",
+  "behaviorDelivered": "CampaignRosterUnitSchema (src/lib/api/securitySchemas.ts:83-96) gains sourceVersion: z.number().int().positive().optional() (:94), the value type U35j gave the campaign baseline schema pack, with a comment (:90-93); the object stays .strict() (:96). The body CampaignCoopEntryPanel builds from roster units carrying sourceVersion 3 now parses, and POST /api/multiplayer/matches answers 201 and registers the co-op host whose state keeps sourceVersion 3 on each unit; an unknown extra roster field is still refused (schema issue and route 400), and a sourceVersion of '3', 0, -1 or 1.5 is refused with an issue at coopCampaign.state.rosterUnits.unit-0.sourceVersion.",
+  "resumeNote": "The coordinator reported an interruption before this receipt was written. On resume the charter was re-read (sha256 545c11019495197146532f31b4deaf515bf4e9f0289a8a32fa3f021085a8e698) and the disk state checked: HEAD 5a3e87f8c, git status = M src/lib/api/securitySchemas.ts plus untracked src/lib/api/__tests__/ and the admission and red receipts; securitySchemas.ts sha256 c53d238e... and the test file sha256 7d9b97cf... equal the bytes every gate below ran on; the scratch probe file had been deleted. The focused suite was re-run once after the resume (suiteAfterResume below).",
+  "files": {
+    "src/lib/api/securitySchemas.ts": {
+      "category": "product",
+      "baselineSha256": "36b226d61b9c37b098260a50e32a9b074f773df0acb21d42aaf68f520ffdc592",
+      "finalSha256": "c53d238e2e1138b933a93dac5511eeba07691b9870652a9069457f223905d93f"
+    },
+    "src/lib/api/__tests__/coopMatchRosterSourceVersion.test.ts": {
+      "category": "test",
+      "finalSha256": "7d9b97cf9a4a733ce1251ca3fcb91088fe3f34c47fd127a047f53c50b8a7f6e9",
+      "note": "byte-identical to the file the red run used (u88-red-20260925.json testFileAtRed)"
+    }
+  },
+  "lineCounts": {
+    "product": {
+      "changedLines": 5,
+      "added": 5,
+      "removed": 0,
+      "files": 1,
+      "source": "git diff --numstat 5a3e87f8ca4876ed36a3b186e56ba1211137cb12: '5\t0\tsrc/lib/api/securitySchemas.ts'"
+    },
+    "test": {
+      "changedLines": 406,
+      "added": 406,
+      "removed": 0,
+      "files": 1,
+      "source": "git diff --no-index --numstat /dev/null on the untracked file: '406\t0'; wc -l 406"
+    },
+    "caps": {
+      "maxFiles": 15,
+      "maxNonGeneratedProductLines": 500,
+      "countingRule": "product lines count, tests do not (owner decision OD-line-cap-product-lines, 2026-09-23)",
+      "filesChanged": 2,
+      "withinCaps": true
+    },
+    "absolutePathCheck": "grep -n -i -E 'E:[\\\\/]|C:[\\\\/]|/Users/|/home/' over both files: no match (exit 1)"
+  },
+  "gates": {
+    "focusedSuiteFirstGreen": {
+      "command": "npx jest src/lib/api/__tests__/coopMatchRosterSourceVersion.test.ts",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\api\\\\__tests__\\\\coopMatchRosterSourceVersion.test.ts/i.",
+      "counts": "Test Suites: 1 passed, 1 total | Tests:       10 passed, 10 total",
+      "productSha256AtRun": "14b1cdaca4b939ae855ed8465360a8b3c9a6eac3f18b55737eb665d3c29627e0",
+      "startedAt": "2026-09-25T22:17:36.972Z",
+      "endedAt": "2026-09-25T22:17:42.122Z",
+      "log": { "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u88/local/suite.log", "sha256": "cec523456d61129dab49244c5a558c174336784231c76e04d8537a6845124467" },
+      "note": "superseded, kept: after this run the four comment lines above the field were reworded (code unchanged); every gate below ran on the final bytes c53d238e..."
+    },
+    "machineIdle": {
+      "command": "node scripts/qc/machine-idle.mjs --wait --timeout-ms 1800000",
+      "runs": [
+        { "before": "npx jest src/lib/api", "exitCode": 0, "lastLine": "MACHINE_IDLE", "startedAt": "2026-09-25T22:18:54.790Z", "endedAt": "2026-09-25T22:18:55.288Z" },
+        { "before": "npx jest src/__tests__/api", "exitCode": 0, "lastLine": "MACHINE_IDLE", "startedAt": "2026-09-25T22:19:08.700Z", "endedAt": "2026-09-25T22:19:09.326Z" },
+        { "before": "npx jest src/__tests__/unit/api", "exitCode": 0, "lastLine": "MACHINE_IDLE", "startedAt": "2026-09-25T22:19:24.070Z", "endedAt": "2026-09-25T22:19:24.540Z" },
+        { "before": "npx jest src/pages-modules/gameplay/campaigns", "exitCode": 0, "lastLine": "MACHINE_IDLE", "startedAt": "2026-09-25T22:19:34.715Z", "endedAt": "2026-09-25T22:19:35.280Z" },
+        { "before": "npx tsc --noEmit", "exitCode": 0, "lastLine": "MACHINE_IDLE", "startedAt": "2026-09-25T22:19:46.866Z", "endedAt": "2026-09-25T22:19:47.320Z" }
+      ],
+      "logSha256": "7d38ea0bb5ace1e63e7d44c21652acdb36d26f406c0875fa71350e59c74de48e (identical output each run; logs scratchpad/u88/local/idle-1..5.log)",
+      "timeouts": 0
+    },
+    "jestLibApi": {
+      "command": "npx jest src/lib/api",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\api/i.",
+      "counts": "Test Suites: 1 passed, 1 total | Tests:       10 passed, 10 total",
+      "startedAt": "2026-09-25T22:18:59.460Z",
+      "endedAt": "2026-09-25T22:19:04.236Z",
+      "log": { "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u88/local/jest-lib-api.log", "sha256": "6ed26af6fbf6f4c94ffbfb1cb3acd39624508ab8a0d68848d0a8568cbc78a6ca" }
+    },
+    "jestTestsApi": {
+      "command": "npx jest src/__tests__/api",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\api/i.",
+      "counts": "Test Suites: 57 passed, 57 total | Tests:       772 passed, 772 total",
+      "startedAt": "2026-09-25T22:19:09.533Z",
+      "endedAt": "2026-09-25T22:19:19.825Z",
+      "log": { "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u88/local/jest-tests-api.log", "sha256": "7acb5c202f080b82f68f5423dee7f293d1e4ec833dc64fd31da37f2cde5071c0" }
+    },
+    "jestUnitApi": {
+      "command": "npx jest src/__tests__/unit/api",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\unit\\\\api/i.",
+      "counts": "Test Suites: 6 passed, 6 total | Tests:       35 passed, 35 total",
+      "startedAt": "2026-09-25T22:19:25.075Z",
+      "endedAt": "2026-09-25T22:19:29.772Z",
+      "log": { "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u88/local/jest-unit-api.log", "sha256": "8eb5fb7aa12af26e06dfaa16780855563920855329762674cd3c2359fbc1eda2" }
+    },
+    "jestCampaignsPagesModules": {
+      "command": "npx jest src/pages-modules/gameplay/campaigns",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\pages-modules\\\\gameplay\\\\campaigns/i.",
+      "counts": "Test Suites: 7 passed, 7 total | Tests:       30 passed, 30 total",
+      "startedAt": "2026-09-25T22:19:35.624Z",
+      "endedAt": "2026-09-25T22:19:41.893Z",
+      "log": { "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u88/local/jest-campaigns.log", "sha256": "316b973452ec1a321b909413be1486b84537853f56f54399a4d7fa2ff505a389" }
+    },
+    "tsc": {
+      "command": "npx tsc --noEmit",
+      "exitCode": 0,
+      "lastLine": "(no output; the log is empty)",
+      "startedAt": "2026-09-25T22:19:47.514Z",
+      "endedAt": "2026-09-25T22:20:28.352Z",
+      "log": { "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u88/local/tsc.log", "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" },
+      "coverage": "npx tsc --noEmit --listFilesOnly lists src/lib/api/security.ts, src/lib/api/securitySchemas.ts and src/lib/api/__tests__/coopMatchRosterSourceVersion.test.ts"
+    },
+    "oxlint": {
+      "command": "npx oxlint",
+      "exitCode": 0,
+      "lastLine": "Finished in 466ms on 3819 files using 16 threads.",
+      "counts": "Found 84 warnings and 0 errors.",
+      "warningsVersusCharter": "84, equal to the charter's 84; no warning names a path under src/lib/api (grep count 0)",
+      "startedAt": "2026-09-25T22:20:46.649Z",
+      "endedAt": "2026-09-25T22:20:48.801Z",
+      "log": { "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u88/local/oxlint.log", "sha256": "edbac108acf0a49adaba5ea57df9932ed3e628206c42befc4be33803a7937528" }
+    },
+    "oxfmtChangedFiles": {
+      "command": "npx oxfmt --check src/lib/api/securitySchemas.ts src/lib/api/__tests__/coopMatchRosterSourceVersion.test.ts",
+      "exitCode": 0,
+      "lastLine": "Finished in 16ms on 2 files using 16 threads.",
+      "verdictLine": "All matched files use the correct format.",
+      "startedAt": "2026-09-25T22:20:49.018Z",
+      "endedAt": "2026-09-25T22:20:50.208Z",
+      "log": { "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u88/local/oxfmt.log", "sha256": "6b7a3961c6a0a6bf7f4dc2d4f42928846d0a9722b97116b70906422fdf746db6" }
+    },
+    "lintUnits": {
+      "command": "npm run lint:units",
+      "exitCode": 0,
+      "lastLine": "LINT_UNITS_PASS 100/100",
+      "startedAt": "2026-09-25T22:20:50.491Z",
+      "endedAt": "2026-09-25T22:20:51.608Z",
+      "log": { "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u88/local/lint-units.log", "sha256": "e055631f9348b2e6539c922dddc1fe388b583448a734da5f618cb47c583fae2d" }
+    },
+    "openspecCi": {
+      "command": "npm run qc:openspec-ci:validate",
+      "exitCode": 0,
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+      "startedAt": "2026-09-25T22:20:52.047Z",
+      "endedAt": "2026-09-25T22:20:52.818Z",
+      "log": { "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u88/local/openspec-ci.log", "sha256": "4c2dafd093b946290aa4abe001ad8b3d65671b17c7682722c55a510ecc04f91e" }
+    },
+    "roadmapValidator": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "exitCode": 0,
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "countsUnchangedFromAdmission": true,
+      "startedAt": "2026-09-25T22:20:53.085Z",
+      "endedAt": "2026-09-25T22:20:53.228Z",
+      "log": { "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u88/local/validator.log", "sha256": "97b2f29d264078525a55c5f88586fb95603311fa065e70d7d17c5fab08f5b5bc" }
+    },
+    "suiteAfterResume": {
+      "command": "npx jest src/lib/api/__tests__/coopMatchRosterSourceVersion.test.ts",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\api\\\\__tests__\\\\coopMatchRosterSourceVersion.test.ts/i.",
+      "counts": "Test Suites: 1 passed, 1 total | Tests:       10 passed, 10 total",
+      "startedAt": "2026-09-25T22:24:22.433Z",
+      "endedAt": "2026-09-25T22:24:27.366Z",
+      "log": { "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u88/local/suite-resume.log", "sha256": "df8d5afdd0bedc69085dd9587c4abcffa65d1391cca28d2b971c9d47ed10b502" }
+    }
+  },
+  "redToGreen": [
+    { "row": "CreateMultiplayerMatchBodySchema › accepts the body the co-op entry panel builds from units carrying sourceVersion", "kind": "red", "before": "fail (unrecognized_keys [sourceVersion] at coopCampaign.state.rosterUnits.unit-0 and unit-1)", "after": "pass (no issue; parsed coopCampaign.state keeps sourceVersion 3 on unit-0 and unit-1)" },
+    { "row": "CreateMultiplayerMatchBodySchema › accepts the same body when no roster unit carries sourceVersion", "kind": "control", "before": "pass", "after": "pass" },
+    { "row": "CreateMultiplayerMatchBodySchema › still refuses an unknown extra field on a roster unit", "kind": "strictness", "before": "pass", "after": "pass" },
+    { "row": "CreateMultiplayerMatchBodySchema › refuses sourceVersion \"3\" at the sourceVersion path", "kind": "value type", "before": "fail (refused as an unknown key at the unit paths)", "after": "pass" },
+    { "row": "CreateMultiplayerMatchBodySchema › refuses sourceVersion 0 at the sourceVersion path", "kind": "value type", "before": "fail (same)", "after": "pass" },
+    { "row": "CreateMultiplayerMatchBodySchema › refuses sourceVersion -1 at the sourceVersion path", "kind": "value type", "before": "fail (same)", "after": "pass" },
+    { "row": "CreateMultiplayerMatchBodySchema › refuses sourceVersion 1.5 at the sourceVersion path", "kind": "value type", "before": "fail (same)", "after": "pass" },
+    { "row": "POST /api/multiplayer/matches › registers the co-op match when roster units carry sourceVersion", "kind": "red", "before": "fail (400 { error: 'Malformed body', details: unit-0 and unit-1 'Unrecognized key: \"sourceVersion\"' })", "after": "pass (201 with no error body; getCampaignHostRegistry().get(matchId) is non-null, its host state's campaignId is the campaign's and each unit's sourceVersion is 3; the response meta.coopCampaign.state keeps 3 too)" },
+    { "row": "POST /api/multiplayer/matches › registers the co-op match when no roster unit carries sourceVersion", "kind": "control", "before": "pass", "after": "pass" },
+    { "row": "POST /api/multiplayer/matches › answers 400 and registers no host for an unknown extra roster field", "kind": "strictness", "before": "pass", "after": "pass" }
+  ],
+  "redToGreenSources": {
+    "before": "u88-red-20260925.json attempt 2 (scratchpad/u88/red/suite-2.log, 6 failed, 4 passed, 10 total, exit 1)",
+    "after": "gates.jestLibApi (10 passed, 10 total, exit 0) on product sha256 c53d238e..., repeated by gates.suiteAfterResume"
+  },
+  "mutants": {
+    "method": "Each mutant is applied with sed to src/lib/api/securitySchemas.ts, the focused suite runs once, then the file is restored with cp from the saved pre-mutant copy (scratchpad/u88/mut/securitySchemas.final.ts) and its sha256 compared. Scripts: scratchpad/u88/mutants.sh (M1-M3), scratchpad/u88/mutant4.sh (M4).",
+    "preMutantSha256": "c53d238e2e1138b933a93dac5511eeba07691b9870652a9069457f223905d93f",
+    "table": [
+      {
+        "id": "M1",
+        "what": "the field removed again (lines 90-94: the comment and sourceVersion deleted)",
+        "mutantSha256": "36b226d61b9c37b098260a50e32a9b074f773df0acb21d42aaf68f520ffdc592",
+        "mutantNote": "equals the baseline file's sha256: M1 reproduces the baseline byte for byte",
+        "exitCode": 1,
+        "testsLine": "Tests:       6 failed, 4 passed, 10 total",
+        "caughtBy": [
+          "accepts the body the co-op entry panel builds from units carrying sourceVersion",
+          "refuses sourceVersion \"3\" at the sourceVersion path",
+          "refuses sourceVersion 0 at the sourceVersion path",
+          "refuses sourceVersion -1 at the sourceVersion path",
+          "refuses sourceVersion 1.5 at the sourceVersion path",
+          "registers the co-op match when roster units carry sourceVersion"
+        ],
+        "log": { "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u88/mut/M1.log", "sha256": "3e0d21b8590d1b0572d1aa0d9d866b23ffc193e93fee58b08a880f642e107828" },
+        "restoredSha256": "c53d238e2e1138b933a93dac5511eeba07691b9870652a9069457f223905d93f",
+        "restoredMatchesPreMutant": true
+      },
+      {
+        "id": "M2",
+        "what": "the roster-unit object made non-strict (line 96: .strict() -> .passthrough())",
+        "mutantSha256": "16b9c75bab123a4bb9d0d7ddb67c27339047cc4b38568d28804333749be2295d",
+        "exitCode": 1,
+        "testsLine": "Tests:       2 failed, 8 passed, 10 total",
+        "caughtBy": [
+          "still refuses an unknown extra field on a roster unit",
+          "answers 400 and registers no host for an unknown extra roster field"
+        ],
+        "log": { "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u88/mut/M2.log", "sha256": "24e748c45fc9b6eb9daef0e3753c2ac9195c0e08c52dd617057829f670ffb460" },
+        "restoredSha256": "c53d238e2e1138b933a93dac5511eeba07691b9870652a9069457f223905d93f",
+        "restoredMatchesPreMutant": true
+      },
+      {
+        "id": "M3",
+        "what": "widened to z.number() (line 94: z.number().int().positive().optional() -> z.number().optional())",
+        "mutantSha256": "bf860698c0feaa1f3b113efcbfc6ef7760d6dd1d5061feac766b7c62bfdc9c5b",
+        "exitCode": 1,
+        "testsLine": "Tests:       3 failed, 7 passed, 10 total",
+        "caughtBy": [
+          "refuses sourceVersion 0 at the sourceVersion path",
+          "refuses sourceVersion -1 at the sourceVersion path",
+          "refuses sourceVersion 1.5 at the sourceVersion path"
+        ],
+        "notCaughtBy": "refuses sourceVersion \"3\" still passes under M3 (a string is not a number either way)",
+        "log": { "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u88/mut/M3.log", "sha256": "635a1ba3f568ca4f7a840536c1b96a99ad925be3b4bebc70a5c144603f19d82e" },
+        "restoredSha256": "c53d238e2e1138b933a93dac5511eeba07691b9870652a9069457f223905d93f",
+        "restoredMatchesPreMutant": true
+      },
+      {
+        "id": "M4",
+        "what": "made required (line 94: .optional() dropped)",
+        "mutantSha256": "ea873fe64dfae1f4dbee8d7dcf7c7c76057f4c1fb63278142875d2449b8b6c7d",
+        "exitCode": 1,
+        "testsLine": "Tests:       2 failed, 8 passed, 10 total",
+        "caughtBy": [
+          "accepts the same body when no roster unit carries sourceVersion",
+          "registers the co-op match when no roster unit carries sourceVersion"
+        ],
+        "log": { "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u88/mut/M4.log", "sha256": "2cd69c1b04e6076e35b3ee835574944e9dbfbae2f63c7001952da3a5d953a6bc" },
+        "restoredSha256": "c53d238e2e1138b933a93dac5511eeba07691b9870652a9069457f223905d93f",
+        "restoredMatchesPreMutant": true
+      }
+    ]
+  },
+  "scratchProbe": {
+    "what": "a temporary suite src/lib/api/__tests__/zzU88ScratchProbe.test.ts that ran parseCampaignIntent (src/types/campaign/campaignSyncSchemas.ts:141-146) on an AllocateSalvage intent whose recoveredUnit carried unitRef, unitSource and sourceVersion 3, and wrote the parsed result to a scratch file named by an environment variable; deleted right after the run (git status afterwards shows no such file)",
+    "command": "npx jest src/lib/api/__tests__/zzU88ScratchProbe.test.ts",
+    "exitCode": 0,
+    "startedAt": "2026-09-25T22:21:27.258Z",
+    "endedAt": "2026-09-25T22:21:30.227Z",
+    "log": { "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u88/probe/probe.log", "sha256": "ae351193b072b7e6100c93d4757b9e2dc4b4f44e3f52a4bd864e2f130dc885f4" },
+    "output": { "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u88/probe/intent.json", "sha256": "bc37e472a1f20717a877864afad2ee1fcd4492fc4f23e95a33c7696b3ae0c494", "content": "{\"kind\":\"AllocateSalvage\",\"campaignId\":\"c\",\"intentId\":\"i\",\"payload\":{\"value\":0,\"recoveredUnit\":{\"unitId\":\"u\",\"designation\":\"d\",\"status\":\"operational\"}}}" }
+  },
+  "nonClaims": [
+    "No live server was driven: no npm run build, no npm start, no browser, no Playwright. The route was exercised only through the jest harness (handler called with a plain req/res pair, auth mocked, temp SQLite database). What a UAT tester sees is not proven by this receipt.",
+    "In the jest harness getDefaultMatchStore() returned the InMemoryMatchStore (its dev-only warning prints in the logs; getDefaultMatchStore.ts:68-79 picks DurableMatchStore only when shouldUseDurableStore(), production). The durable store production uses was not run; read only, DurableMatchStore.ts:736 writes meta with JSON.stringify and :1331 reads it back with JSON.parse and a cast, no schema.",
+    "The server-restart path that rebuilds a co-op host from stored meta (CampaignHostRegistry.ts:365-382 getOrCreate) was not exercised.",
+    "The host was registered with campaign journal authority off (checked in the suite's beforeEach), so the creation checkpoint ran without its genesis step; the journal-authority arm was not run with this body.",
+    "The body is built with buildCampaignAuthoritativeState exactly as the panel calls it, but the panel component itself was not rendered with real stores (its own suite mocks the builder, CampaignCoopEntryPanel.test.tsx:56-58).",
+    "Rows cover a canonical roster unit only; a custom unit (unitSource 'custom') carrying sourceVersion was not posted.",
+    "No production writer of a sourceVersion that is 0, negative, fractional or a string was searched for beyond the minting path the charter names (pinSourceVersion) and its two creation-page call sites.",
+    "npm install/ci/prune and lifecycle scripts were never run; the node_modules guard refused as the charter expects (admission receipt)."
+  ],
+  "findingsReportedNotFixed": [
+    {
+      "id": "F1",
+      "class": "measured strip at a sibling schema outside src/lib/api (consequence not measured)",
+      "summary": "src/types/campaign/campaignSyncSchemas.ts:33-37 rosterUnitSchema is a plain z.object (zod ^4.3.6, package.json:269), which strips unknown keys. Measured with parseCampaignIntent (scratchProbe above): an AllocateSalvage intent's recoveredUnit carrying unitRef 'atlas-as7-d', unitSource 'canonical' and sourceVersion 3 comes back as { unitId, designation, status } only. The same schema types Protocol.ts:492 rosterChanges (read only, not run). Whether any client sends those fields on a salvage intent, and what the host then commits, was not measured.",
+      "recommendedSuccessor": "the parent decides whether a unit owning src/types/campaign should give rosterUnitSchema the ICampaignRosterUnit fields (unitRef, unitSource, sourceVersion) after measuring the salvage path end to end"
+    },
+    {
+      "id": "F2",
+      "class": "drift guard gap (read from the code)",
+      "summary": "Nothing ties CampaignRosterUnitSchema in src/lib/api/securitySchemas.ts to ICampaignRosterUnit: grep for CampaignSync/ICampaignRosterUnit in the file finds nothing (exit 1). This is the same drift class as FN-u35j-pack-shapes-untied-from-types, and it is how the api schema missed sourceVersion from #1321 until now. Not added here because it widens the unit.",
+      "recommendedSuccessor": "a compile-time check (for example a two-way assignability test between z.infer<typeof CampaignRosterUnitSchema> and ICampaignRosterUnit) when a unit next edits the file"
+    },
+    {
+      "id": "F3",
+      "class": "test blind spot (read from the code)",
+      "summary": "CampaignCoopEntryPanel.test.tsx:56-58 mocks buildCampaignAuthoritativeState to return {}, so the panel suite can never see the body shape the route refuses; the new route rows in src/lib/api/__tests__/coopMatchRosterSourceVersion.test.ts cover the builder-to-route seam instead.",
+      "recommendedSuccessor": "none required; recorded for the reviewer"
+    }
+  ],
+  "risksForTheParent": [
+    "Review class routine: Lane A only.",
+    "Stricter than the TypeScript type (positive integer vs number), same as U35j's pack: a client posting sourceVersion 0, negative or fractional now gets a 400 at coopCampaign.state.rosterUnits.<id>.sourceVersion instead of the old 400 at the unit.",
+    "The new suite sits under src/lib/api/__tests__/ and mocks '@/lib/multiplayer/server/auth' for the whole file; it opens its own temp SQLite database per route row and resets the match store, host registry and rate-limit buckets."
+  ],
+  "gitStatusShortBeforeThisReceipt": [
+    " M src/lib/api/securitySchemas.ts",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u88-admission-20260925.json",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u88-red-20260925.json",
+    "?? src/lib/api/__tests__/"
+  ]
+}
