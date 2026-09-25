@@ -12,7 +12,11 @@
  * drive reads and writes through.
  */
 
-import { expect, type APIRequestContext } from '@playwright/test';
+import {
+  expect,
+  type APIRequestContext,
+  type APIResponse,
+} from '@playwright/test';
 
 import { issuePlayerToken } from '@/lib/multiplayer/client/issuePlayerToken';
 import { generateKeyPair } from '@/services/vault/IdentityService';
@@ -149,13 +153,34 @@ export async function readActivity(
 }
 
 /**
+ * Read a response body as text exactly once and parse it as JSON.
+ *
+ * `response.json()` on a non-JSON answer (an HTML error page, an empty
+ * body) throws a bare SyntaxError that names neither the status nor the
+ * body, so a drive that failed there could not say what the server
+ * sent. This reads the text once and, when it does not parse, throws an
+ * Error naming the URL, the status and the whole body text.
+ */
+async function readJsonBody(response: APIResponse): Promise<unknown> {
+  const text = await response.text();
+  try {
+    return JSON.parse(text) as unknown;
+  } catch {
+    throw new Error(
+      `non-JSON answer from ${response.url()}: status ${response.status()}, body ${JSON.stringify(text)}`,
+    );
+  }
+}
+
+/**
  * The same read, WITHOUT the 200 expectation.
  *
  * The privacy drive's central assertions are refusals - a revoked
  * member and a stranger are both answered 403 - so it needs the status
  * as a value rather than as a precondition. `readActivity` above is this
  * function plus the expectation, so the two can never disagree about
- * how the request is shaped.
+ * how the request is shaped. The body goes through `readJsonBody`, so a
+ * non-JSON answer fails with its status and body.
  */
 export async function requestActivity(
   request: APIRequestContext,
@@ -169,7 +194,7 @@ export async function requestActivity(
       `?sessionId=${encodeURIComponent(sessionId)}` +
       `&participantId=${encodeURIComponent(participantId)}`,
   );
-  return { status: response.status(), body: await response.json() };
+  return { status: response.status(), body: await readJsonBody(response) };
 }
 
 /**
@@ -211,7 +236,8 @@ export async function postCommand(
  * `CampaignMatchHostIntent.ts:222-223` refuses the removal whenever the
  * author is not that host. So the HTTP surface answers 422 `host-only`
  * for every caller including the GM, and the removal this drive needs
- * has to come from the socket.
+ * has to come from the socket. The body goes through `readJsonBody`,
+ * like `requestActivity`'s.
  */
 export async function postIntentCommand(
   request: APIRequestContext,
@@ -230,6 +256,6 @@ export async function postIntentCommand(
   );
   return {
     status: response.status(),
-    body: (await response.json()) as CommandBody,
+    body: (await readJsonBody(response)) as CommandBody,
   };
 }
