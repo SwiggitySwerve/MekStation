@@ -2344,6 +2344,38 @@
       }
     },
     {
+      "id": "U93",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "U88's test src/lib/api/__tests__/coopMatchRosterSourceVersion.test.ts runs green under the campaign journal flip (U35d). On main it fails 3 of 10: its beforeEach at :298 pins isCampaignJournalAuthorityEnabled() to false, which U35d made true, and under journal authority its two route rows reach a campaign-journal database path the harness never set up (TypeError: The \"path\" argument must be of type string ... Received undefined). The test states the flag's real value and sets up the same journal-native harness the re-pinned src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts uses, so a co-op registration whose roster units carry sourceVersion registers the match and the host keeps sourceVersion 3; the schema rows are unchanged; no product change. Red first: the suite fails 3 of 10 on main. This is the residue of two units merging on disjoint baselines: U88's CI ran before the flip merged, and U35d's outside-suite check ran on a baseline before U88 merged.",
+      "ownershipPaths": [
+        "src/lib/api"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "state": "planned",
+      "source20260925": "planned by the parent from the red Unit Tests shard on PRs #1961 and #1962 (main after U88 #1956 and U35d #1957), reproduced in a fresh worktree off fab532825: 3 of 10 fail, 2 of 10 still fail with the pin flipped"
+    },
+    {
       "taskKeys": [],
       "ciClass": "product",
       "caps": {
@@ -9408,6 +9440,15 @@
       "summary": "src/lib/multiplayer/server/MatchRecoveryJournalHead.ts:27-28 says seeding the journal at creation is owed by task 1.7, but the seed runs at ServerMatchHostEvents.ts:105-118.",
       "recommendedSuccessor": "fold into the next unit that edits src/lib/multiplayer/server",
       "status": "recorded"
+    },
+    {
+      "id": "FN-u88-u35d-disjoint-baselines-red-main",
+      "foundBy": "parent, 2026-09-25, from CI on PRs #1961 and #1962",
+      "at": "2026-09-26T00:37:07.000Z",
+      "class": "process gap: two units merged on disjoint baselines left main red",
+      "summary": "U88 (#1956, baseline 5a3e87f8c) added a test pinning the campaign journal flag false; U35d (#1957, baseline 5a3e87f8c) flipped it true. Each PR's CI was green on its own merge ref, and U35d's lane checked outside suites on a baseline that predates U88, so main's Unit Tests shard went red after both merged. Neither main proof ran src/lib/api under the flip.",
+      "recommendedSuccessor": "U93 fixes the test; the loop rule going forward: before merging a unit whose baseline predates another unit's merge, re-run the other unit's suites on the merge ref (or rebase the PR), and a main proof's jest runtime includes every path a concurrent unit touched",
+      "status": "recorded; U93 planned"
     }
   ]
 }
