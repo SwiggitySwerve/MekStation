@@ -229,4 +229,43 @@ describe('CAMP-00 listener observation adapter', () => {
     expect(result.listenerPresent).toBe(true);
     expect(result.wavePresent).toBe(true);
   });
+
+  // OD-camp00-controller-env: `qc:camp01-authority-receipt:write` runs the camp-00 row through the writer's default
+  // hermetic runner. The fake packaged-socket child in the temp checkout refuses with runCamp00Authority's own words
+  // when CAMP01_NEXT_DIST_DIR is absent, refuses any value but the parent's fake dist directory, and otherwise closes
+  // one valid observation for the writer to convert.
+  // The default runner is Windows-only (npm-cli.js beside process.execPath, SystemRoot and ComSpec required), so these
+  // rows run on win32; elsewhere the writer refuses before spawning: CAMP01_WRITER_INVALID: verified npm CLI unavailable.
+  const windowsDescribe =
+    process.platform === 'win32' ? describe : describe.skip;
+  windowsDescribe('default runner environment', () => {
+    // prettier-ignore
+    function runDefaultWriter(parentDist: string | null) {
+      const fakeDist = path.join(root, 'fake-next-dist'), request = writeRequest(root), env: NodeJS.ProcessEnv = { ...process.env, CAMP01_CONTROLLER_CONTEXT: JSON.stringify(request) };
+      fs.mkdirSync(fakeDist);
+      fs.writeFileSync(path.join(root, 'package.json'), JSON.stringify({ name: 'camp00-runner-env-fixture', private: true, scripts: { 'validate:multiplayer:packaged-socket': 'node child.mjs' } }));
+      fs.writeFileSync(path.join(root, 'child.mjs'), `import fs from 'node:fs'; import path from 'node:path';\nimport { canonicalBytes } from ${JSON.stringify(schemasUrl)};\nimport { validCamp00Observation } from ${JSON.stringify(adapterUrl)};\nconst dist = process.env.CAMP01_NEXT_DIST_DIR;\nif (!dist) { console.error('camp-00 environment missing'); process.exit(1); }\nif (dist !== ${JSON.stringify(fakeDist)} || !fs.statSync(dist).isDirectory()) { console.error('camp-00 dist directory drift'); process.exit(1); }\nfs.writeFileSync(path.join(process.env.CAMP01_ARTIFACT_DIR, 'listener-observation.json'), canonicalBytes(validCamp00Observation(process.env.CAMP01_RUN_ID)));\n`);
+      delete env.CAMP01_NEXT_DIST_DIR; if (parentDist !== null) env.CAMP01_NEXT_DIST_DIR = parentDist === 'fake' ? fakeDist : parentDist;
+      const result = spawnSync(process.execPath, [path.resolve('scripts/qc/camp01-authority-receipt.mjs'), 'write'], { cwd: root, encoding: 'utf8', env });
+      return { result, children: fs.existsSync(request.runRoot) ? fs.readdirSync(request.runRoot).map((name) => ({ name, files: fs.readdirSync(path.join(request.runRoot, name)).sort() })) : [] };
+    }
+
+    it('passes the parent CAMP01_NEXT_DIST_DIR through to the camp-00 child, which then closes a receipt', () => {
+      const { result, children } = runDefaultWriter('fake');
+      expect(result.stderr).not.toContain('camp-00 environment missing');
+      expect(result.status).toBe(0);
+      expect(children).toHaveLength(1);
+      expect(children[0].name).toMatch(/^camp01-[0-9a-f]{32}$/);
+      // prettier-ignore
+      expect(children[0].files).toEqual(['command-result.json', 'listener-result.json', 'receipt-manifest.json', 'wave-result.json']);
+    });
+
+    it('invents no dist directory: without a parent value the child still refuses and no receipt is written', () => {
+      const { result, children } = runDefaultWriter(null);
+      expect(result.status).toBe(1);
+      expect(result.stderr).toContain('camp-00 environment missing');
+      expect(result.stderr).toContain('CAMP01_WRITER_INVALID: command failed');
+      expect(children).toEqual([]);
+    });
+  });
 });

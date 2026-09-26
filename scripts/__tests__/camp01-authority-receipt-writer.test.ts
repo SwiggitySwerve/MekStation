@@ -134,8 +134,10 @@ type PublicFixture = {
   declaration?: Record<string, unknown>;
   source?: Record<string, unknown>;
 };
+// Writes a proof-02-reproduction receipt (its first anchor failed, or every anchor passed when allGreen) and a
+// proof-02-triage receipt over it with one disposition for that failure, or with none when allGreen.
 // prettier-ignore
-function triageFixture(dispositionOverrides: Record<string,unknown> = {}): PublicFixture { const workspace=fs.mkdtempSync(path.join(os.tmpdir(),'camp-proof5e1-triage-')), reproductionRoot=path.join(workspace,'.sisyphus','evidence','playtest',`proof02-reproduction-${sha}`), reproductionWrite=invoke({action:'write',value:proofRequest(reproductionRoot),reproduction:proofAnchors.map((id,index)=>({id,status:index?'passed':'failed',knownFailureCode:index?null:'guest-badge-timing'})),assertions:[],entropy:'2'.repeat(32)}); if(!reproductionWrite.ok) throw new Error(reproductionWrite.error); const reproduction=JSON.parse(fs.readFileSync(path.join((reproductionWrite.value as {finalDirectory:string}).finalDirectory,'proof02-reproduction.json'),'utf8')), failed=reproduction.observations.find(({status}:{status:string})=>status==='failed'), specTupleId=`tuple-${'6'.repeat(16)}`, auditTupleId=`tuple-${'7'.repeat(16)}`, reproductionReceiptId=`receipt-${'8'.repeat(16)}`, resolutionValidationId=`tuple-${'4'.repeat(16)}`, auditValidationId=`tuple-${'5'.repeat(16)}`, resolutionRef=`ref-${'4'.repeat(64)}`, auditAnchor=`ref-${'5'.repeat(64)}`, refs=[{ref:resolutionRef,kind:'receipt',targetDigest:`sha256:${'4'.repeat(64)}`,validationProvenanceId:resolutionValidationId,sourceWave:'proof-02-reproduction'},{ref:auditAnchor,kind:'audit',targetDigest:`sha256:${'5'.repeat(64)}`,validationProvenanceId:auditValidationId,sourceWave:'proof-02-triage'}].sort((a,b)=>a.ref.localeCompare(b.ref)), disposition={observationId:failed.id,failureFingerprint:failed.failureFingerprint,severity:'low',outcome:'lower-severity',causeFingerprint:digest,resolutionRef,blockerRef:null,backlogRank:1,auditAnchor,primaryObservationId:null,repairRowId:null,...dispositionOverrides}, registryContext={evidence:[{sourceKind:'execution',sourceKey:reproduction.invocationId,runId:reproduction.parentRunId,wave:'proof-02-reproduction',label:null}],provenance:[{id:reproductionReceiptId,sourceKind:'predecessor-receipt',wave:'proof-02-reproduction',subject:'none'},{id:resolutionValidationId,sourceKind:'ref-validation',wave:'proof-02-reproduction',subject:'none'},{id:auditValidationId,sourceKind:'ref-validation',wave:'proof-02-triage',subject:'audit-pr'},{id:specTupleId,sourceKind:'spec-tuple',wave:'proof-02-triage',subject:'audit-pr'},{id:auditTupleId,sourceKind:'owned-pr-tuple',wave:'proof-02-triage',subject:'audit-pr'}],refs,capturePolicies:[],repairSources:disposition.repairRowId===null?[]:[{repairRowId:disposition.repairRowId,failedReportObservationId:failed.id,failedReportFingerprint:failed.failureFingerprint,causeFingerprint:digest}]}, runRoot=`.sisyphus/evidence/playtest/proof02-triage-${sha}`, value={wave:'proof-02-triage',commandId:'proof-02-triage',sha,treeSha:sha,runRoot:path.join(workspace,runRoot),mode:'reviewed-head',executionEnvironmentDigest:digest,provenance:{subject:'audit-pr',specTupleId,ownedPrTupleId:auditTupleId,predecessorReceiptIds:[reproductionReceiptId]},capProvenance:{...cap,subject:'audit-pr',fileCount:1,changedLineCount:1},identityRegistry:{schema:'camp01-identity-registry/v1',entities:[],refs:refs.map(({sourceWave,...ref})=>ref)},registryContext,reviewedHead:null,reproduction,triage:{reproductionReceiptId,auditTupleId,dispositions:[disposition]}}, written=invoke({action:'write',value,assertions:[],entropy:'6'.repeat(32)}); if(!written.ok) throw new Error(written.error); return {workspace,runRoot,finalDirectory:(written.value as {finalDirectory:string}).finalDirectory,wave:'proof-02-triage',context:{registryContext,reviewedHead:null,reproduction}}; }
+function triageFixture(dispositionOverrides: Record<string,unknown> = {}, allGreen = false): PublicFixture { const workspace=fs.mkdtempSync(path.join(os.tmpdir(),'camp-proof5e1-triage-')), reproductionRoot=path.join(workspace,'.sisyphus','evidence','playtest',`proof02-reproduction-${sha}`), reproductionWrite=invoke({action:'write',value:proofRequest(reproductionRoot),reproduction:proofAnchors.map((id,index)=>({id,status:index||allGreen?'passed':'failed',knownFailureCode:index||allGreen?null:'guest-badge-timing'})),assertions:[],entropy:'2'.repeat(32)}); if(!reproductionWrite.ok) throw new Error(reproductionWrite.error); const reproduction=JSON.parse(fs.readFileSync(path.join((reproductionWrite.value as {finalDirectory:string}).finalDirectory,'proof02-reproduction.json'),'utf8')), failed=reproduction.observations.find(({status}:{status:string})=>status==='failed'), specTupleId=`tuple-${'6'.repeat(16)}`, auditTupleId=`tuple-${'7'.repeat(16)}`, reproductionReceiptId=`receipt-${'8'.repeat(16)}`, resolutionValidationId=`tuple-${'4'.repeat(16)}`, auditValidationId=`tuple-${'5'.repeat(16)}`, resolutionRef=`ref-${'4'.repeat(64)}`, auditAnchor=`ref-${'5'.repeat(64)}`, refs=[{ref:resolutionRef,kind:'receipt',targetDigest:`sha256:${'4'.repeat(64)}`,validationProvenanceId:resolutionValidationId,sourceWave:'proof-02-reproduction'},{ref:auditAnchor,kind:'audit',targetDigest:`sha256:${'5'.repeat(64)}`,validationProvenanceId:auditValidationId,sourceWave:'proof-02-triage'}].sort((a,b)=>a.ref.localeCompare(b.ref)), disposition=failed&&{observationId:failed.id,failureFingerprint:failed.failureFingerprint,severity:'low',outcome:'lower-severity',causeFingerprint:digest,resolutionRef,blockerRef:null,backlogRank:1,auditAnchor,primaryObservationId:null,repairRowId:null,...dispositionOverrides}, registryContext={evidence:[{sourceKind:'execution',sourceKey:reproduction.invocationId,runId:reproduction.parentRunId,wave:'proof-02-reproduction',label:null}],provenance:[{id:reproductionReceiptId,sourceKind:'predecessor-receipt',wave:'proof-02-reproduction',subject:'none'},{id:resolutionValidationId,sourceKind:'ref-validation',wave:'proof-02-reproduction',subject:'none'},{id:auditValidationId,sourceKind:'ref-validation',wave:'proof-02-triage',subject:'audit-pr'},{id:specTupleId,sourceKind:'spec-tuple',wave:'proof-02-triage',subject:'audit-pr'},{id:auditTupleId,sourceKind:'owned-pr-tuple',wave:'proof-02-triage',subject:'audit-pr'}],refs,capturePolicies:[],repairSources:!disposition||disposition.repairRowId===null?[]:[{repairRowId:disposition.repairRowId,failedReportObservationId:failed.id,failedReportFingerprint:failed.failureFingerprint,causeFingerprint:digest}]}, runRoot=`.sisyphus/evidence/playtest/proof02-triage-${sha}`, value={wave:'proof-02-triage',commandId:'proof-02-triage',sha,treeSha:sha,runRoot:path.join(workspace,runRoot),mode:'reviewed-head',executionEnvironmentDigest:digest,provenance:{subject:'audit-pr',specTupleId,ownedPrTupleId:auditTupleId,predecessorReceiptIds:[reproductionReceiptId]},capProvenance:{...cap,subject:'audit-pr',fileCount:1,changedLineCount:1},identityRegistry:{schema:'camp01-identity-registry/v1',entities:[],refs:refs.map(({sourceWave,...ref})=>ref)},registryContext,reviewedHead:null,reproduction,triage:{reproductionReceiptId,auditTupleId,dispositions:disposition?[disposition]:[]}}, written=invoke({action:'write',value,assertions:[],entropy:'6'.repeat(32)}); if(!written.ok) throw new Error(written.error); return {workspace,runRoot,finalDirectory:(written.value as {finalDirectory:string}).finalDirectory,wave:'proof-02-triage',context:{registryContext,reviewedHead:null,reproduction}}; }
 // prettier-ignore
 function repairFixture(): PublicFixture { const workspace=fs.mkdtempSync(path.join(os.tmpdir(),'camp-proof5e1-repair-')), cause='a'.repeat(64), wave=`proof-02-repair-${cause}`, commandSequence=[['@node','repair-probe.mjs']], sourceDisposition={receiptId:`receipt-${'1'.repeat(16)}`,observationId:'observation-a',failedReportObservationId:null,failedReportFingerprint:null,causeFingerprint:`sha256:${cause}`}, source={kind:'proof',childChange:'repair-proof-cause',causeFingerprint:`sha256:${cause}`,sourceDisposition:JSON.parse(JSON.stringify(sourceDisposition)),reporterContracts:[],explicitDependencies:[]}, row={wave,commandId:wave,childChange:source.childChange,runRootTemplate:`.sisyphus/evidence/playtest/${wave}-<sha>`,commandSequence,canonicalArgvDigest:createHash('sha256').update(JSON.stringify(commandSequence)).digest('hex'),artifacts:['command-result.json','receipt-manifest.json','wave-result.json'],assertions:['repairVerified===true'],predecessors:['proof-02-triage'],sourceDisposition,capSubject:'product-pr',maxFiles:2,maxChangedLines:100,reporterContracts:[]}, declaration={schema:'camp01-repair-row/v1',row}, specTupleId=`tuple-${'6'.repeat(16)}`, productTupleId=`tuple-${'7'.repeat(16)}`, predecessorReceiptId=`receipt-${'8'.repeat(16)}`, registryContext={evidence:[],provenance:[{id:predecessorReceiptId,sourceKind:'predecessor-receipt',wave:'proof-02-triage',subject:'audit-pr'},{id:specTupleId,sourceKind:'spec-tuple',wave,subject:'product-pr'},{id:productTupleId,sourceKind:'owned-pr-tuple',wave,subject:'product-pr'}],refs:[],capturePolicies:[],repairSources:[]}, runRoot=`.sisyphus/evidence/playtest/${wave}-${sha}`, value={wave,commandId:wave,sha,treeSha:sha,runRoot:path.join(workspace,runRoot),mode:'reviewed-head',executionEnvironmentDigest:digest,provenance:{subject:'product-pr',specTupleId,ownedPrTupleId:productTupleId,predecessorReceiptIds:[predecessorReceiptId]},capProvenance:{...cap,fileCount:1,changedLineCount:1},identityRegistry:{schema:'camp01-identity-registry/v1',entities:[],refs:[]},registryContext,reviewedHead:null,repairDeclaration:declaration,repairSource:source}, written=invoke({action:'write',value,assertions:row.assertions,entropy:'7'.repeat(32)}); if(!written.ok) throw new Error(written.error); return {workspace,runRoot,finalDirectory:(written.value as {finalDirectory:string}).finalDirectory,wave,context:{registryContext,reviewedHead:null,repairDeclaration:declaration,repairSource:source},declaration,source}; }
 // prettier-ignore
@@ -408,6 +410,74 @@ describe('CAMP-01 authority receipt writer and validator', () => {
 
   // prettier-ignore
   it('publishes a public-valid run-bound proof-02-triage receipt', () => { const result=invokePublic(triageFixture()); expect(result).toMatchObject({status:0,stdout:'CAMP01 receipt valid\n',stderr:''}); });
+
+  // OD-camp00-controller-env: the default runner passes the parent's CAMP01_NEXT_DIST_DIR to the camp-00 row only; a fake
+  // camp-proof child in a temp checkout refuses if it sees the variable and otherwise closes its wave result. The runner is
+  // Windows-only (it resolves npm-cli.js beside process.execPath and requires SystemRoot and ComSpec), so this row runs on win32.
+  (process.platform === 'win32' ? it : it.skip)(
+    'keeps the parent CAMP01_NEXT_DIST_DIR out of a non-camp-00 child run by the default runner',
+    () => {
+      const workspace = fs.mkdtempSync(
+        path.join(os.tmpdir(), 'camp-proof-runner-env-'),
+      );
+      const request = baseRequest(
+        path.join(
+          workspace,
+          '.sisyphus',
+          'evidence',
+          'playtest',
+          `camp-proof-${sha}`,
+        ),
+      );
+      const assertions = [...campProofAssertions].sort();
+      fs.writeFileSync(
+        path.join(workspace, 'package.json'),
+        JSON.stringify({
+          name: 'camp-proof-runner-env-fixture',
+          private: true,
+          scripts: { test: 'node child.mjs' },
+        }),
+      );
+      fs.writeFileSync(
+        path.join(workspace, 'child.mjs'),
+        [
+          `import fs from 'node:fs';`,
+          `import path from 'node:path';`,
+          `import { canonicalBytes } from ${JSON.stringify(schemasUrl)};`,
+          `if (process.env.CAMP01_NEXT_DIST_DIR !== undefined) { console.error('CAMP01_NEXT_DIST_DIR leaked'); process.exit(1); }`,
+          `const assertions = Object.fromEntries(${JSON.stringify(assertions)}.map((id) => [id, true]));`,
+          `fs.writeFileSync(path.join(process.env.CAMP01_ARTIFACT_DIR, 'wave-result.json'), canonicalBytes({ schema: 'camp01-wave-result/v1', wave: 'camp-proof', runId: process.env.CAMP01_RUN_ID, status: 'passed', assertions }));`,
+          '',
+        ].join('\n'),
+      );
+      const result = spawnSync(
+        process.execPath,
+        [path.resolve('scripts/qc/camp01-authority-receipt.mjs'), 'write'],
+        {
+          cwd: workspace,
+          encoding: 'utf8',
+          env: {
+            ...process.env,
+            CAMP01_CONTROLLER_CONTEXT: JSON.stringify(request),
+            CAMP01_NEXT_DIST_DIR: workspace,
+          },
+        },
+      );
+      fs.rmSync(workspace, { recursive: true, force: true });
+      expect(result.stderr).not.toContain('CAMP01_NEXT_DIST_DIR leaked');
+      expect(result.status).toBe(0);
+    },
+  );
+
+  // OD-proof02-empty-cause-graph: a triage over an all-green reproduction has no cause graph and ends in one terminal line.
+  const allGreenTerminal =
+    'PROOF02_TRIAGE_TERMINAL {"causes":0,"verdict":"all-green"}';
+
+  // prettier-ignore
+  it('returns the one-line all-green terminal form for zero dispositions over an all-green reproduction', () => { const normalized=normalizeObservations([{id:'anchor-a',status:'passed',knownFailureCode:null},{id:'anchor-b',status:'passed',knownFailureCode:null}]); expect(invoke({action:'validateProof02Triage',args:[[],normalized]})).toMatchObject({ok:true,value:allGreenTerminal}); expect(invoke({action:'validateProof02Triage',args:[[],[]]})).toMatchObject({ok:false,error:'CAMP01_CONTRACT_INVALID: empty cause graph'}); });
+
+  // prettier-ignore
+  it('publishes an all-green proof-02-triage receipt whose public validation prints the terminal line before its verdict', () => { const result=invokePublic(triageFixture({},true)); expect(result).toMatchObject({status:0,stdout:`${allGreenTerminal}\nCAMP01 receipt valid\n`,stderr:''}); });
 
   // prettier-ignore
   it.each([
