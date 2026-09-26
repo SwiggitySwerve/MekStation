@@ -2751,7 +2751,10 @@
         "src/__tests__/api/campaigns/coopGmIntervention.test.ts",
         "src/__tests__/pages/gameplay/campaigns/gm-ledger.coop.test.tsx",
         "src/components/campaign/gm/GmCampaignInterventionControlPlane.tsx",
-        "openspec/changes/design-campaign-authority-and-sync"
+        "openspec/changes/design-campaign-authority-and-sync",
+        "src/__tests__/api/campaigns/coopGmInterventionHistory.test.ts",
+        "src/__tests__/pages/gameplay/campaigns/gm-ledger.inflight.test.tsx",
+        "src/components/campaign/gm/__tests__/GmCampaignInterventionControlPlane.approval.test.tsx"
       ],
       "acceptance": [
         "npm.cmd run typecheck",
@@ -3154,6 +3157,27 @@
           "units": "U97",
           "source": "parent, at U97's fold (a test the unit's id change touched)",
           "why": "U92's solo row now expects the suffixed approval id (+7/-1); the file joined the node at U92's closure"
+        },
+        {
+          "path": "src/__tests__/api/campaigns/coopGmInterventionHistory.test.ts",
+          "at": "2026-09-26T20:42:31.000Z",
+          "units": "U97",
+          "source": "parent, at U97's closure (the unit's new test files, on disk after the merge)",
+          "why": "the three test files sit in the node's test homes and join the unit's and the node's paths at closure (they must exist on disk); the spec delta file is under the unit's change path already"
+        },
+        {
+          "path": "src/__tests__/pages/gameplay/campaigns/gm-ledger.inflight.test.tsx",
+          "at": "2026-09-26T20:42:31.000Z",
+          "units": "U97",
+          "source": "parent, at U97's closure (the unit's new test files, on disk after the merge)",
+          "why": "the three test files sit in the node's test homes and join the unit's and the node's paths at closure (they must exist on disk); the spec delta file is under the unit's change path already"
+        },
+        {
+          "path": "src/components/campaign/gm/__tests__/GmCampaignInterventionControlPlane.approval.test.tsx",
+          "at": "2026-09-26T20:42:31.000Z",
+          "units": "U97",
+          "source": "parent, at U97's closure (the unit's new test files, on disk after the merge)",
+          "why": "the three test files sit in the node's test homes and join the unit's and the node's paths at closure (they must exist on disk); the spec delta file is under the unit's change path already"
         }
       ]
     },
