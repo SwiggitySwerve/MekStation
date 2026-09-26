@@ -8,8 +8,8 @@ import type {
 import { credentialProtocols } from '@/lib/multiplayer/socketCredentialProtocol';
 import {
   isCampaignWireEvent,
+  type CampaignHostCommand,
   type ICampaignEvent,
-  type ICampaignIntent,
   type ICampaignReconcileBattleIntent,
 } from '@/types/campaign/CampaignSync';
 import {
@@ -34,7 +34,7 @@ export interface ICampaignSyncTransport {
   sendProposal(proposal: IGuestProposal): void;
   sendDecision(proposalId: string, decision: GmDecision): void;
   sendHostIntent(
-    intent: ICampaignIntent | ICampaignReconcileBattleIntent,
+    intent: CampaignHostCommand | ICampaignReconcileBattleIntent,
   ): void;
   sendParticipation(participation: ICampaignParticipationPayload): void;
   onFrame(handler: CampaignSyncFrameHandler): () => void;
@@ -160,7 +160,7 @@ export function connectCampaignSyncTransport(
       });
     },
     sendHostIntent: (
-      intent: ICampaignIntent | ICampaignReconcileBattleIntent,
+      intent: CampaignHostCommand | ICampaignReconcileBattleIntent,
     ) => {
       sendEnvelope({
         kind: 'CampaignHostIntent',
