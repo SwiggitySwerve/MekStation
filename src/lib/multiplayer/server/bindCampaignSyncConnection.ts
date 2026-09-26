@@ -191,6 +191,14 @@ const campaignSocketLifecycles = new WeakMap<
   ICampaignHostRegistryEntry,
   ServerMatchSocketLifecycle
 >();
+/**
+ * What each entry's heal pass has read of its log: the next unread sequence
+ * and every ParticipantRemoved event read so far.
+ */
+const healedLogs = new WeakMap<
+  ICampaignHostRegistryEntry,
+  { nextSequence: number; readonly removals: ICampaignEvent[] }
+>();
 
 /**
  * Campaign sockets use the match socket lifecycle. Campaign-specific
@@ -869,13 +877,28 @@ async function handleCampaignHostIntent({
  * transaction. If a process dies after append and before revoke, every later
  * authenticated frame re-runs this idempotent pass before admission or command
  * handling, so the committed audit record heals the durable seat.
+ *
+ * Reads only the events after those this entry's passes already read (the
+ * whole log on its first pass), keeps each removal it reads, and re-applies
+ * every kept removal on every pass, so a removal read by an earlier pass
+ * whose revoke failed is still healed.
  */
 async function healCommittedParticipantRemovals(
   entry: ICampaignHostRegistryEntry,
   membership?: ICampaignSessionMembershipPort | null,
 ): Promise<void> {
-  const events = await entry.host.getEventLog().getCampaignEvents(0);
-  applyCommittedParticipantRemovals(entry, events, membership);
+  const healed = healedLogs.get(entry) ?? { nextSequence: 0, removals: [] };
+  healedLogs.set(entry, healed);
+  const events = await entry.host
+    .getEventLog()
+    .getCampaignEvents(healed.nextSequence);
+  for (const event of events) {
+    // A pass that overlapped this one across the await may have kept it.
+    if (event.sequence < healed.nextSequence) continue;
+    healed.nextSequence = event.sequence + 1;
+    if (event.type === 'ParticipantRemoved') healed.removals.push(event);
+  }
+  applyCommittedParticipantRemovals(entry, healed.removals, membership);
 }
 
 function applyCommittedParticipantRemovals(

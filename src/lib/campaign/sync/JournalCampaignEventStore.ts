@@ -66,7 +66,8 @@ import { appendCampaignCombatOutcomeBatch } from './campaignCombatOutcomeInbox';
 import { campaignEventEntityRefs } from './campaignEventEntityRefs';
 import {
   readCampaignJournalEvents,
-  readCampaignJournalHighestSequence,
+  readCampaignJournalHead,
+  type ICampaignJournalHead,
 } from './campaignJournalReads';
 import {
   CampaignEventSequenceCollisionError,
@@ -382,6 +383,8 @@ export class JournalCampaignEventStore implements ICampaignEventStore {
   declare recordParticipantAcknowledgement: IParticipantDeliveryCursorPort['recordParticipantAcknowledgement'];
   /** The saved-record rewrite a server binder installs; absent in a browser. */
   declare rewriteRecordAfterCommand?: CampaignCommandCommitHook;
+  /** The last head `highestSequence` read per campaign; the next read pages on from it. */
+  private readonly heads = new Map<string, ICampaignJournalHead>();
 
   public constructor(
     private readonly journal: IEventJournal<ICampaignJournalEnvelope>,
@@ -519,8 +522,21 @@ export class JournalCampaignEventStore implements ICampaignEventStore {
   ): Promise<readonly ICampaignEvent[]> =>
     readCampaignJournalEvents(this.journal, campaignId, fromSeq);
 
-  highestSequence = async (campaignId: string): Promise<number> =>
-    readCampaignJournalHighestSequence(this.journal, campaignId);
+  /**
+   * The highest committed sequence, or -1 for an empty stream. Reads only
+   * the rows after the head this store last read for the campaign (all of
+   * them on its first read), so rows any writer appended since are seen.
+   */
+  highestSequence = async (campaignId: string): Promise<number> => {
+    const head = await readCampaignJournalHead(
+      this.journal,
+      campaignId,
+      this.heads.get(campaignId) ?? null,
+    );
+    if (head === null) return -1;
+    this.heads.set(campaignId, head);
+    return head.sequence;
+  };
 }
 
 /**
