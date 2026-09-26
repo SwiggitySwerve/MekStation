@@ -5,8 +5,8 @@
   "branch": "roadmap-u89-host-intent-server-time-20260926",
   "implementerModel": "claude-opus (Agent model: opus, lean-worker)",
   "stage": "local",
-  "status": "ready (local-verified, revision 2 of the red-row rule): the heal read and the store highest-sequence read page on from the position they last read; under the parent-decided rule (2x AND over a 5 ms floor, or over 50 ms) the red row passes on the head in 5 of 5 runs and still fails on the restored baseline product; both heal correctness rows pass; four mutants killed and restored. Two growing steps outside the fix shape are recorded as findings.",
-  "at": "2026-09-26T18:47:53.962Z",
+  "status": "ready (local-verified, revision 3: the Lane A required edit): the heal read and the store highest-sequence read page on from the position they last read; the per-campaign head is pinned by a new row that Lane A's shared-head mutant fails; the red row (revision 2 rule) passes on the head in 5 of 5 runs and fails on the restored baseline; both heal correctness rows pass; five mutants killed and restored. Two growing steps outside the fix shape are recorded as findings.",
+  "at": "2026-09-26T19:14:55.863Z",
   "admission": "openspec/planning/2026-09-12-roadmap-completion/evidence/u89-admission-20260926.json",
   "red": "openspec/planning/2026-09-12-roadmap-completion/evidence/u89-red-20260926.json",
   "shellPreamble": [
@@ -69,13 +69,18 @@
         "path": "src/lib/multiplayer/server/__tests__/healCommittedParticipantRemovals.test.ts",
         "lines": 208,
         "note": "new: the (before) and (after) heal correctness rows"
+      },
+      {
+        "path": "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.heads.test.ts",
+        "lines": 62,
+        "note": "new (revision 3): per-campaign remembered heads through one store instance"
       }
     ],
     "testTotals": {
-      "files": 3,
-      "lines": 767
+      "files": 4,
+      "lines": 829
     },
-    "filesTotal": 6,
+    "filesTotal": 7,
     "fileCap": 15
   },
   "timing": {
@@ -1292,12 +1297,25 @@
       "sha256Before": "1e44b7f336dd52f39d9f381431016c9f3df7ec80ddafa64ceda2431128ca745e",
       "sha256Restored": "1e44b7f336dd52f39d9f381431016c9f3df7ec80ddafa64ceda2431128ca745e",
       "restored": true
+    },
+    {
+      "mutant": "M5-head-shared-across-campaign-ids",
+      "file": "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+      "exitCode": 1,
+      "tests": "Tests:       1 failed, 1 total",
+      "killedBy": [
+        "JournalCampaignEventStore.heads.test.ts (campaign-b: Expected 1, Received 2)"
+      ],
+      "killed": true,
+      "sha256Before": "1e44b7f336dd52f39d9f381431016c9f3df7ec80ddafa64ceda2431128ca745e",
+      "sha256Restored": "1e44b7f336dd52f39d9f381431016c9f3df7ec80ddafa64ceda2431128ca745e",
+      "restored": true
     }
   ],
   "risksForTheParent": [
     "Concurrency (review class): the heal pass now depends on a per-entry WeakMap; two passes overlapping across the await skip rows already kept (guard at the loop head); a registry entry replaced (restart, re-register) starts from a full read.",
     "The red row runs in the default jest scope. Revision 2 (parent decision) requires a growing step to exceed a 5 ms floor as well as 2x, so sub-millisecond noise cannot fail it; the 50 ms ceiling is kept.",
-    "JournalCampaignEventStore.highestSequence now keeps per-instance state; every other caller of highestSequence gets the since-read too. The head is a lower bound on an append-only stream (event_journal_events_no_update/_no_delete triggers), never used without the read."
+    "JournalCampaignEventStore.highestSequence now keeps per-instance state; every other caller of highestSequence gets the since-read too. The head is a lower bound on an append-only stream (event_journal_events_no_update/_no_delete triggers), never used without the read. The head is keyed by campaign id and that keying is now pinned by JournalCampaignEventStore.heads.test.ts (revision 3)."
   ],
   "findings": [
     {
@@ -1564,5 +1582,75 @@
       "lastLine": "All matched files use the correct format."
     },
     "notRerun": "the full-scope jest, tsc, oxlint, lint:units, openspec and roadmap gates and the mutants were not re-run after this revision (only the test file's red-row predicate and its comment changed); their results above are from revision 1."
+  },
+  "revision3": {
+    "trigger": "Lane A APPROVE-WITH-REQUIRED-EDITS (relayed by the parent, 2026-09-26): its independent mutant shared JournalCampaignEventStore's remembered head across campaign ids and the full src/lib/multiplayer/server + src/lib/campaign suite (4188) did not catch it; Lane A traced a silent progression lock for the second campaign through evaluateScenarioLaunch.",
+    "requiredEdit": {
+      "file": "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.heads.test.ts",
+      "fileChoice": "a new file, as the parent named it. The store's own test file (src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts, 784 lines) exists; it was left untouched because the instruction also named this new file and asked for oxfmt and lint:units on \"the new file\".",
+      "lines": 62,
+      "sha256": "5d45ab773d88155af1d16798612fcc56d5f7904f8a610a58b4a8a99be3a602eb",
+      "row": "JournalCampaignEventStore remembered heads > keeps an independent head per campaign read through one store instance",
+      "setup": "one JournalCampaignEventStore over one InMemoryEventJournal; CampaignDayAdvanced events appended with store.appendEvent",
+      "assertions": [
+        "append campaign-a sequences 0..2; highestSequence(campaign-a) === 2",
+        "append campaign-b sequences 0..1; highestSequence(campaign-b) === 1",
+        "append campaign-a sequences 3..4; highestSequence(campaign-a) === 4",
+        "highestSequence(campaign-b) === 1 (unchanged)"
+      ]
+    },
+    "mutant": {
+      "id": "M5-head-shared-across-campaign-ids (Lane A's mutant, reproduced)",
+      "file": "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+      "change": [
+        "this.heads.get(campaignId) ?? null -> this.heads.get('shared') ?? null",
+        "this.heads.set(campaignId, head) -> this.heads.set('shared', head)"
+      ],
+      "command": "npx jest src/lib/campaign/sync/__tests__/JournalCampaignEventStore.heads.test.ts",
+      "exitCode": 1,
+      "result": "Tests: 1 failed, 1 total; at the second assertion (the test file line 56): Expected: 1, Received: 2 (campaign-b read the head campaign-a left)",
+      "killed": true,
+      "sha256Before": "1e44b7f336dd52f39d9f381431016c9f3df7ec80ddafa64ceda2431128ca745e",
+      "sha256Restored": "1e44b7f336dd52f39d9f381431016c9f3df7ec80ddafa64ceda2431128ca745e",
+      "restored": true
+    },
+    "gates": [
+      {
+        "command": "npx jest src/lib/campaign/sync/__tests__/JournalCampaignEventStore.heads.test.ts src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test.ts src/lib/multiplayer/server/__tests__/healCommittedParticipantRemovals.test.ts",
+        "exitCode": 0,
+        "lastLines": [
+          "Test Suites: 3 passed, 3 total",
+          "Tests:       6 passed, 6 total"
+        ],
+        "note": "the new row (1), the timing row (2 size rows + the red row) and the heal rows (2); campaignHostIntentServerTime.test-helpers.ts is a module the timing row imports, not a suite"
+      },
+      {
+        "command": "npx tsc --noEmit",
+        "exitCode": 0,
+        "lastLine": "(no output)"
+      },
+      {
+        "command": "npx oxfmt --check src/lib/campaign/sync/__tests__/JournalCampaignEventStore.heads.test.ts",
+        "exitCode": 0,
+        "lastLine": "All matched files use the correct format."
+      },
+      {
+        "command": "npm run --silent lint:units",
+        "exitCode": 0,
+        "lastLine": "LINT_UNITS_PASS 17899/17899 (src-tests files=3211, was 3210; findings=17783 ceiling=17783: the new file adds no findings)"
+      },
+      {
+        "command": "npx oxlint --config scripts/qc/oxlint-units.json --no-ignore src/lib/campaign/sync/__tests__/JournalCampaignEventStore.heads.test.ts",
+        "exitCode": 0,
+        "lastLine": "Found 0 warnings and 0 errors."
+      },
+      {
+        "command": "npx oxlint",
+        "exitCode": 0,
+        "lastLine": "Found 84 warnings and 0 errors."
+      }
+    ],
+    "notRerun": "the full-scope jest (src/lib/multiplayer/server src/lib/campaign), qc:openspec-ci:validate, the roadmap validator, the timing-row runs and mutants M1-M4 were not re-run for revision 3 (no product file changed; only this test file was added).",
+    "headObserved": "d51ac1278b472d770f03e052f2f6c569076332b2 (the parent commit of the revision-2 tree, observed by git log after the edit; its JournalCampaignEventStore.ts sha256 1e44b7f3... equals the mutant restore value, and campaignHostIntentServerTime.test.ts 49557ce2... equals revision 2). git status --short after revision 3: the three untracked receipts and the untracked JournalCampaignEventStore.heads.test.ts only."
   }
 }
