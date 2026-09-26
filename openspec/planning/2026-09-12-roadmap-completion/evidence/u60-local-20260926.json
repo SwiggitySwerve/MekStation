@@ -1,0 +1,87 @@
+{
+  "unit": "U60",
+  "stage": "local",
+  "at": "2026-09-26T20:13:59Z",
+  "atSource": "date -u after the last mutant; the final full jest run and the final OpenSpec gates ran after it",
+  "baseline": "bd98895490911cd841cac8385898b6f333af8472",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u60",
+  "branch": "roadmap-u60-camp-roster-review-rule-20260926",
+  "implementerModel": "claude-opus (Agent model: opus, lean-worker)",
+  "change": {
+    "spec": "specs/journey-qc/spec.md of add-saved-custom-unit-campaign-roster: the ADDED requirement's reduction clause (:5) now points to the one rule; a new '## MODIFIED Requirements' section (:50) modifies 'Exact-SHA and Canonical-Provenance Execution' (:52), copying the canonical text with its reduction clause replaced by the one solo-maintainer rule, keeping its three scenarios and adding 'A solo gate with a head-bound ruling is accepted' (:76) and 'A solo gate without a head-bound ruling is refused' (:84)",
+    "controllerEnv": "scripts/qc/camp01-authority-receipt.mjs:44 passes row.wave to the runner; :119 runLogicalCommand(argv,context,wave) adds ...wave==='camp-00'&&process.env.CAMP01_NEXT_DIST_DIR?{CAMP01_NEXT_DIST_DIR:process.env.CAMP01_NEXT_DIST_DIR}:{} to the hermetic env (comment :115-117 names OD-camp00-controller-env)",
+    "proof02Terminal": "scripts/qc/camp01-authority-receipt.schemas.mjs:88 exports PROOF02_ALL_GREEN_TERMINAL = 'PROOF02_TRIAGE_TERMINAL {\"causes\":0,\"verdict\":\"all-green\"}'; :97 validateProof02Triage returns it when observations.length && !nonPassing.length; scripts/qc/validate-camp01-authority-receipt.mjs:27 prints it before 'CAMP01 receipt valid' for a proof-02-triage receipt with zero dispositions",
+    "tests": "scripts/__tests__/camp01-camp00-listener-adapter.test.ts:237 (describe 'default runner environment', two rows); scripts/__tests__/camp01-authority-receipt-writer.test.ts:140 (triageFixture gains allGreen), :417, :424, :427"
+  },
+  "sha256": {
+    "scripts/qc/camp01-authority-receipt.mjs": "5ed46cf3bbbdfb43582a76740ca212cc4254a57f7c03f1257815f08af1533e8c",
+    "scripts/qc/camp01-authority-receipt.schemas.mjs": "e93f3db69b6850f592b1352a335d9c010f56b09ccd9c894c5ad0bbad967cee51",
+    "scripts/qc/validate-camp01-authority-receipt.mjs": "4a9c08f7c97ac6e3924e3f551d22ef40d1094d520cde850488ee893346bda171",
+    "scripts/__tests__/camp01-camp00-listener-adapter.test.ts": "a75777e91c9f34601c8c80773dbe374affb347f8a479a232c9e5e02a91dca14a",
+    "scripts/__tests__/camp01-authority-receipt-writer.test.ts": "6e545ccffee163b5bbaf45d1af75056539dee17c2ff25a5986c2093fb544218e",
+    "openspec/changes/add-saved-custom-unit-campaign-roster/specs/journey-qc/spec.md": "b6b10160761e646b700cb761ea542d45c73c1ee48f2adcb36a5d3095eeea9234"
+  },
+  "lineCounts": {
+    "source": "git diff --numstat --no-renames against the baseline (working tree)",
+    "files": {
+      "openspec/changes/add-saved-custom-unit-campaign-roster/specs/journey-qc/spec.md": { "added": 41, "deleted": 1, "counted": true },
+      "scripts/qc/camp01-authority-receipt.mjs": { "added": 8, "deleted": 2, "counted": true },
+      "scripts/qc/camp01-authority-receipt.schemas.mjs": { "added": 9, "deleted": 0, "counted": true },
+      "scripts/qc/validate-camp01-authority-receipt.mjs": { "added": 5, "deleted": 1, "counted": true },
+      "scripts/__tests__/camp01-authority-receipt-writer.test.ts": { "added": 18, "deleted": 1, "counted": false },
+      "scripts/__tests__/camp01-camp00-listener-adapter.test.ts": { "added": 35, "deleted": 0, "counted": false }
+    },
+    "countedProductLines": 63,
+    "testLines": 53,
+    "fileCount": 6,
+    "caps": "63 of 500 counted lines, 6 of 15 files (the three u60 receipts are under evidence/, which the cap rule skips)"
+  },
+  "cases": {
+    "R1": "reversed: the camp-00 row run by the real low-level writer with the parent's CAMP01_NEXT_DIST_DIR closes a receipt (command-result, listener-result, receipt-manifest, wave-result)",
+    "R1guards": "without a parent value the child still refuses ('camp-00 environment missing', 'CAMP01_WRITER_INVALID: command failed', exit 1, no receipt); a camp-proof child run by the same runner never sees the variable",
+    "R2": "reversed: validateProof02Triage([], all passed) returns the terminal line; validateProof02Triage([], []) still fails 'CAMP01_CONTRACT_INVALID: empty cause graph'; the all-green triage receipt is written and the public validator prints exactly 'PROOF02_TRIAGE_TERMINAL {\"causes\":0,\"verdict\":\"all-green\"}\\nCAMP01 receipt valid\\n' with exit 0",
+    "focusedSuites": { "command": "npx jest scripts/__tests__/camp01-camp00-listener-adapter.test.ts scripts/__tests__/camp01-authority-receipt-writer.test.ts", "exit": 0, "lastLine": "Tests: 69 passed, 69 total", "note": "run before the non-camp-00 guard row was added; the final full run below includes it" }
+  },
+  "gates": [
+    { "command": "npx openspec validate --all --strict", "exit": 0, "lastLine": "Totals: 229 passed, 0 failed (229 items)", "note": "the change line reads '✓ change/add-saved-custom-unit-campaign-roster'; npx openspec show --json --deltas-only lists 'journey-qc MODIFIED' with 5 scenarios" },
+    { "command": "npm run --silent qc:openspec-ci:validate", "exit": 0, "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0" },
+    { "command": "npx jest scripts", "exit": 0, "lastLine": "Test Suites: 80 passed, 80 total / Tests: 10 skipped, 1264 passed, 1274 total" },
+    { "command": "npx tsc --noEmit", "exit": 0, "lastLine": "(no output)" },
+    { "command": "npx oxlint", "exit": 0, "lastLine": "Found 84 warnings and 0 errors. (84 = the charter's reference count)" },
+    { "command": "npx oxlint <the five changed .mjs/.ts files>", "exit": 0, "lastLine": "Found 0 warnings and 0 errors. Finished in 6ms on 0 files", "note": "oxlint's configuration lints none of these files, so this gate says nothing about them" },
+    { "command": "npx oxfmt --check <the six changed files>", "exit": 0, "lastLine": "All matched files use the correct format. Finished in 18ms on 5 files", "note": "oxfmt targets 5 of the 6 files; the spec.md alone gives 'Expected at least one target file'. oxfmt wrapped one const in schemas.mjs and one in the writer test before this check" },
+    { "command": "npm run --silent lint:units", "exit": 0, "lastLine": "LINT_UNITS_PASS 17899/17899", "scriptsLine": "LINT_UNITS_PATH scripts files=186 findings=50 ceiling=50 PASS" },
+    { "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs", "exit": 0, "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows" },
+    { "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --git", "exit": 0, "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows" },
+    { "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next", "exit": 0, "lastLine": "U94" }
+  ],
+  "mutants": {
+    "restoreMethod": "each mutated file was copied back from a byte copy of the final implementation and sha256 -c against the recorded final hash printed OK (git checkout HEAD would have restored the baseline and wiped the uncommitted work)",
+    "rows": [
+      { "id": "M1", "file": "scripts/qc/camp01-authority-receipt.mjs", "mutation": "the camp-00 CAMP01_NEXT_DIST_DIR pass-through removed from runLogicalCommand's env", "run": "npx jest scripts/__tests__/camp01-camp00-listener-adapter.test.ts", "exit": 1, "result": "killed: 'passes the parent CAMP01_NEXT_DIST_DIR through ...' failed (Tests: 1 failed, 6 passed, 7 total)", "restoredSha256": "5ed46cf3bbbdfb43582a76740ca212cc4254a57f7c03f1257815f08af1533e8c OK" },
+      { "id": "M2", "file": "scripts/qc/camp01-authority-receipt.schemas.mjs", "mutation": "the all-green terminal return removed from validateProof02Triage", "run": "npx jest scripts/__tests__/camp01-authority-receipt-writer.test.ts -t all-green", "exit": 1, "result": "killed: both all-green rows failed, CAMP01_CONTRACT_INVALID: empty cause graph (Tests: 2 failed, 61 skipped, 63 total)", "restoredSha256": "e93f3db69b6850f592b1352a335d9c010f56b09ccd9c894c5ad0bbad967cee51 OK" },
+      { "id": "M3", "file": "openspec/changes/add-saved-custom-unit-campaign-roster/specs/journey-qc/spec.md", "mutation": "the refusal scenario's '- **THEN** the gate SHALL be refused' changed to '... SHALL be accepted'", "run": "npx openspec validate --all --strict; npm run --silent qc:openspec-ci:validate", "exit": "0 and 0", "result": "SURVIVED: 'Totals: 229 passed, 0 failed (229 items)' and 'errors=0'; no delta-shape test exists (non-claim)", "restoredSha256": "b6b10160761e646b700cb761ea542d45c73c1ee48f2adcb36a5d3095eeea9234 OK" },
+      { "id": "M4", "file": "scripts/qc/camp01-authority-receipt.mjs", "mutation": "the camp-00 restriction removed (the parent value passed to every row)", "run": "npx jest scripts/__tests__/camp01-authority-receipt-writer.test.ts -t non-camp-00", "exit": 1, "result": "killed: 'keeps the parent CAMP01_NEXT_DIST_DIR out of a non-camp-00 child ...' failed (Tests: 1 failed, 62 skipped, 63 total)", "restoredSha256": "5ed46cf3bbbdfb43582a76740ca212cc4254a57f7c03f1257815f08af1533e8c OK" },
+      { "id": "M5", "file": "scripts/qc/validate-camp01-authority-receipt.mjs", "mutation": "the terminal-line print removed from the public validator", "run": "npx jest scripts/__tests__/camp01-authority-receipt-writer.test.ts -t all-green", "exit": 1, "result": "killed: 'publishes an all-green proof-02-triage receipt ...' failed (Tests: 1 failed, 61 skipped, 1 passed, 63 total)", "restoredSha256": "4a9c08f7c97ac6e3924e3f551d22ef40d1094d520cde850488ee893346bda171 OK" },
+      { "id": "M6", "file": "scripts/qc/camp01-authority-receipt.schemas.mjs", "mutation": "the observations.length guard removed (an empty reproduction would read as all green)", "run": "npx jest scripts/__tests__/camp01-authority-receipt-writer.test.ts -t all-green", "exit": 1, "result": "killed: 'returns the one-line all-green terminal form ...' failed on its empty-observation assertion (Tests: 1 failed, 61 skipped, 1 passed, 63 total)", "restoredSha256": "e93f3db69b6850f592b1352a335d9c010f56b09ccd9c894c5ad0bbad967cee51 OK" }
+    ]
+  },
+  "nonClaims": [
+    "no build, Playwright, standalone server, CAMP receipt run, --github or install; npm_config_dry_run=true throughout",
+    "the camp-00 rows use a fake packaged-socket child in a temp checkout; the real validate-multiplayer-packaged-socket.mjs runCamp00Authority branch (build, hydrate, listener journey) was not run under the writer",
+    "the production controller path (run-camp01-production.mjs through camp01-proof-environment.mjs executeReceipt) is unchanged; it already injected its own CAMP01_NEXT_DIST_DIR for camp-00 and does not pass the parent's value",
+    "M3 survived: neither the strict OpenSpec validation nor qc:openspec-ci nor any test reads the scenarios' meaning, so a contradicted refusal scenario passes every gate",
+    "the solo-maintainer rule is enforced in two places this unit did not change: the ruling on a CAMP gate by validate-roadmap.mjs:286-310 (U59), which trusts the gate record and does not read GitHub or compare the ruling's author with the owner, and the sentinel citation arm by camp01-github-provenance.mjs:147, which checks the API-verified collaborator set, author, merger and ADMIN permission and does not read any OWNER-RULING",
+    "tasks.md:4 (P.2) keeps its original letter and is not ticked; no checkbox was changed",
+    "the three-witness gate, WAVE_CONTRACTS, units.json, roadmap.json and package.json are unchanged",
+    "--next prints U94; this lane did not investigate why"
+  ],
+  "findings": [
+    "FN-u60-camp01-umbrella-pins-test-file-names: run-viewport-sweep.test.ts:401-411 requires every scripts/__tests__/camp01-*.test.ts file to appear in package.json's qc:camp01-authority-receipt:test, so a unit that owns scripts/qc and scripts/__tests__ but not package.json cannot add a camp01-* suite; this unit folded its rows into two pinned suites instead",
+    "FN-u60-p2-letter-frozen-by-tick-matching: the P.2 row letter still reads 'accept only ... APPROVED review from a non-author'; the spec delta carries the exception, and editing the letter would break a later P.2 tick, which matches the live row against the frozen snapshot text (validate-roadmap.mjs:527-531)",
+    "FN-u60-two-camp00-env-builders: the writer's default runner (camp01-authority-receipt.mjs:119) and the production controller (camp01-proof-environment.mjs:111/:119) build the camp-00 child env separately; after U60 the first passes the parent's value through and the second injects <runtimeRoot>/next",
+    "FN-u60-task-0-4-cli-shape: tasks.md 0.4 invokes qc:camp01-authority-receipt:write with --wave/--run-root/... arguments, but the writer's main (camp01-authority-receipt.mjs:126) rejects any argument after 'write' and reads CAMP01_CONTROLLER_CONTEXT instead (read, not run)",
+    "FN-u60-od-status-fields-stale: roadmap.json:15749 and :15762 still read 'owner decision required' and 'open: folded into ... option (b)' although PK-camp-review-gate carries the owner's option (b) decision of 2026-09-22"
+  ],
+  "status": "ready: local gates pass; the authority review class needs the owner's OWNER-RULING on the exact PR head"
+}

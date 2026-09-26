@@ -1,0 +1,55 @@
+{
+  "unit": "U60",
+  "stage": "red",
+  "at": "2026-09-26T20:06:37Z",
+  "atSource": "mtime of the final red jest log; this file was written after stage 3",
+  "baseline": "bd98895490911cd841cac8385898b6f333af8472",
+  "implementerModel": "claude-opus (Agent model: opus, lean-worker)",
+  "method": "the final test rows ran against the baseline bytes of the three product files (git show HEAD:<path> written over each, sha256 equal to the baseline: camp01-authority-receipt.mjs 4ac3512f871166d50519174c70218587a74cb715948dbd0a2187316b4de0ba89, camp01-authority-receipt.schemas.mjs 8660cdf9f036d76be132ec890bc803f05a0102a23e631a965ab769212cf83001, validate-camp01-authority-receipt.mjs 3b59d4aa2ad64f637e8bdca5f525196e3942957f085e64cb91b35581d10efee8); the implementation was then copied back and sha256 -c reported OK for all three",
+  "rows": {
+    "R1": {
+      "test": "scripts/__tests__/camp01-camp00-listener-adapter.test.ts > default runner environment > passes the parent CAMP01_NEXT_DIST_DIR through to the camp-00 child, which then closes a receipt",
+      "setup": "temp checkout with a package.json whose validate:multiplayer:packaged-socket script runs a fake child; a fake dist directory in the temp folder; the real low-level writer (node scripts/qc/camp01-authority-receipt.mjs write, CAMP01_CONTROLLER_CONTEXT) run with CAMP01_NEXT_DIST_DIR set to the fake dist directory in its env",
+      "result": "FAIL",
+      "quoted": "Expected substring: not \"camp-00 environment missing\" / Received string: \"camp-00 environment missing\\nCAMP01_WRITER_INVALID: command failed\\n\"",
+      "meaning": "the writer's default runner dropped the parent's CAMP01_NEXT_DIST_DIR; the child refused and the writer failed the command"
+    },
+    "R2": [
+      {
+        "test": "scripts/__tests__/camp01-authority-receipt-writer.test.ts > returns the one-line all-green terminal form for zero dispositions over an all-green reproduction",
+        "result": "FAIL",
+        "quoted": "Expected ok true, value PROOF02_TRIAGE_TERMINAL {\"causes\":0,\"verdict\":\"all-green\"}; Received ok false",
+        "probe": "node probe against the baseline schemas: validateProof02Triage([], two passed observations) THREW CAMP01_CONTRACT_INVALID: empty cause graph"
+      },
+      {
+        "test": "scripts/__tests__/camp01-authority-receipt-writer.test.ts > publishes an all-green proof-02-triage receipt whose public validation prints the terminal line before its verdict",
+        "result": "FAIL",
+        "quoted": "CAMP01_CONTRACT_INVALID: empty cause graph (thrown by the triage write inside triageFixture)",
+        "meaning": "an all-green reproduction has no triage receipt and no terminal form: the writer throws and publishes nothing"
+      }
+    ],
+    "R3": [
+      {
+        "command": "npx openspec validate --all --strict",
+        "exit": 0,
+        "lastLine": "Totals: 229 passed, 0 failed (229 items)"
+      },
+      {
+        "command": "npm run --silent qc:openspec-ci:validate",
+        "exit": 0,
+        "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0"
+      }
+    ]
+  },
+  "suiteCounts": {
+    "command": "npx jest scripts/__tests__/camp01-camp00-listener-adapter.test.ts scripts/__tests__/camp01-authority-receipt-writer.test.ts (baseline product bytes)",
+    "exit": 1,
+    "lastLine": "Tests: 3 failed, 66 passed, 69 total"
+  },
+  "guardRowsPassingOnBaseline": [
+    "camp01-camp00-listener-adapter.test.ts > invents no dist directory: without a parent value the child still refuses and no receipt is written",
+    "camp01-authority-receipt-writer.test.ts > keeps the parent CAMP01_NEXT_DIST_DIR out of a non-camp-00 child run by the default runner (added after this red run; it passes on the baseline because the baseline passes the variable to no row)"
+  ],
+  "earlierAttempt": "the same R1 and R2 rows first ran as two new files (camp01-camp00-controller-env.test.ts, camp01-proof02-all-green-triage.test.ts) and failed on the baseline with the same messages (1 of 2 and 2 of 3 failed); the full scripts run then failed run-viewport-sweep.test.ts:411, which pins every camp01-*.test.ts file into package.json's qc:camp01-authority-receipt:test; package.json is outside the unit's ownership, so the rows were folded into two already-pinned suites and the two files were deleted",
+  "status": "red"
+}
