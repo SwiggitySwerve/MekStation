@@ -284,11 +284,30 @@ try {
 
   const campIds = Array.from({ length: 9 }, (_, index) => "R2.camp-" + index);
   for (const id of campIds) if (!nodeById.has(id)) fail("missing CAMP node: " + id);
+  // Every CAMP gate must be APPROVED, exactHead, nonDismissed and WRITE/MAINTAIN/ADMIN. U59 (PK-camp-review-gate
+  // option b, the owner's solo-maintainer exception): a gate with soloException true must carry nonAuthor false,
+  // and a ruling { ruledHead, pr, commentId, author, bodySha256 } whose ruledHead equals the gate's head (the one
+  // head the exception covers); any other gate must carry nonAuthor true and soloException false.
   for (const id of campIds) {
     const node = nodeById.get(id);
     const gate = node && node.githubReviewGate;
-    if (!gate || gate.state !== "APPROVED" || gate.exactHead !== true || gate.nonAuthor !== true || gate.nonDismissed !== true || gate.soloException !== false || !Array.isArray(gate.permissions) || gate.permissions.length !== 3 || !["WRITE", "MAINTAIN", "ADMIN"].every((permission) => gate.permissions.includes(permission))) fail(id + " has invalid CAMP GitHub review gate");
+    const solo = gate?.soloException === true;
+    if (!gate || gate.state !== "APPROVED" || gate.exactHead !== true || gate.nonAuthor !== !solo || gate.nonDismissed !== true || gate.soloException !== solo || !Array.isArray(gate.permissions) || gate.permissions.length !== 3 || !["WRITE", "MAINTAIN", "ADMIN"].every((permission) => gate.permissions.includes(permission))) fail(id + " has invalid CAMP GitHub review gate");
+    if (!solo) continue;
+    const ruling = gate.ruling;
+    if (!ruling || typeof ruling !== 'object') { fail(`${id} CAMP review gate declares soloException without a head-bound OWNER-RULING (PK-camp-review-gate option b)`); continue; }
+    const malformed = [
+      !isHex40(ruling.ruledHead) && 'ruledHead is not 40-hex',
+      !Number.isInteger(ruling.pr) && 'pr is not an integer',
+      !Number.isInteger(ruling.commentId) && 'commentId is not an integer',
+      !hasValue(ruling.author) && 'author is empty',
+      !/^[0-9a-f]{64}$/i.test(String(ruling.bodySha256)) && 'bodySha256 is not 64-hex',
+    ].filter(Boolean);
+    if (malformed.length) fail(`${id} CAMP review gate OWNER-RULING is malformed: ${malformed.join(', ')}`);
+    else if (ruling.ruledHead !== gate.head) fail(`${id} CAMP review gate OWNER-RULING is bound to ${ruling.ruledHead}, not the gate head ${gate.head}`);
   }
+  // U59: the solo-maintainer exception is PK-camp-review-gate's, so a gate on any other node may not declare it.
+  for (const node of nodes) if (!campIds.includes(node.id) && node.githubReviewGate?.soloException === true) fail(`${node.id} declares a solo-maintainer exception, which only the R2.camp-0..8 review gates may carry`);
   for (const node of nodes.filter((item) => item.state === 'complete' || item.state === 'archived')) {
     const receipt = readReceipt(node);
     if (!isHex40(receipt.mainSha)) fail(node.id + " terminal receipt lacks valid 40-hex main SHA");
