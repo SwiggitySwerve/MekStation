@@ -2160,20 +2160,34 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "baseline": null,
+      "baseline": "8a025218e86abecba28138368d22975151a82422",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/u86-admission-20260926.json",
+          "baseline": "8a025218e86abecba28138368d22975151a82422",
+          "at": "2026-09-26T08:32:00.000Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/u86-red-20260926.json",
+          "at": "2026-09-26T08:33:00.000Z",
+          "summary": "baseline 8a025218e (U95 main-verified): admission's first fact measured shared (one registry instance in both module graphs at 4 samples of a live session, BUILD_ID 1790410763074, port 23319; guests retained, GM not; acknowledged revisions 1 to 176; every sample converged); the performance group with the GM-transport refusal capture added and the old wait kept failed 3 of 3 naming the refusal: perf-AdvanceDay-204 CAMPAIGN_NOT_CONVERGED both guests at 204 requiredRevision 205; -117 (117/118); -198 (198/199); the 5-second route jest run overlapped red-3 (recorded, the two-core rule broken once)"
+        },
+        "local": {
+          "path": "evidence/u86-local-20260926.json",
+          "at": "2026-09-26T09:04:00.000Z",
+          "summary": "4 files: e2e/gm-two-player-performance.pack.spec.ts (+136/-47: converge() polls the E2E-guarded performance probe route with the matchId until the authority answers converged, the same evaluateScenarioLaunch the AdvanceDay gate uses, instead of client receipt plus 25 ms; the GM transport's Error frame is captured and fails the run naming the refusal), e2e/types/window.d.ts (+2), src/pages-modules/api/e2ePerformanceProbeRoute.ts (+40/-4, product 44 lines: the route takes a matchId and adds convergence = getCampaignHostRegistry().get(matchId)?.syncSession.evaluateScenarioLaunch() ?? null behind the unchanged guard), src/__tests__/api/e2ePerformanceProbeRoute.test.ts (+73/-1, a real registry entry pins the behind answer); performance group green 3 of 3 (4.2m, 4.6m, 4.0m, port 23319) plus an instrumented run (0 not-converged probe answers); jest gm-two-player-campaign-qc 15, probe route 9; tsc 0; oxlint 84 warnings 0 errors; oxfmt clean; qc:openspec-ci errors=0; validator PASSED; mutants: M1 old wait 2 runs both passed NOT CAUGHT (the race depends on timing: the same spec failed 3 of 3 on the baseline build 20 minutes earlier), M2 capture off not exercised without a refusal, M2 with a forced refusal caught (with capture: fails naming perf-AdvanceDay-12 CAMPAIGN_NOT_CONVERGED; without: the old timeout message), M3 wait against head+1 caught (converge timeout naming the last answer); CAVEAT: the green 3 of 3 cannot be credited to the converge change on these runs alone; what the change guarantees is the precondition (each command issued only after the authority answered converged); implementer claude-opus (Agent model: opus, lean-worker); status ready"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
         "tick": null
       },
       "ownerGate": null,
-      "state": "planned",
+      "state": "local-verified",
       "id": "U86",
       "node": "R6.umbrella",
       "behavior": "The performance pack (e2e/gm-two-player-performance.pack.spec.ts, E2E-71/72/73) issues each measured command only after the authority has recorded every participant's acknowledgement of the current head, instead of client-side receipt plus a fixed 25 ms (converge() near :630-646); the acknowledged revisions are read through the existing E2E-guarded performance probe route. An AdvanceDay refused with CAMPAIGN_NOT_CONVERGED is captured on the GM transport and fails the run naming the refusal, instead of timing out as a missing paint. Red first: the pack at its baseline with a GM-transport capture shows CAMPAIGN_NOT_CONVERGED on an AdvanceDay window, as the diagnosis dumps did. Green: the performance group passes 3 of 3 consecutive runs. If the probe route needs an edit (src/pages/api/e2e/performance-probe.ts), the unit stops at admission for a path amendment. The server stall (mode 2) is U89's. Amended 2026-09-25 after the first admission attempt (evidence/u86-admission-attempt1-20260925.json): the probe route (src/pages-modules/api/e2ePerformanceProbeRoute.ts, behind its existing E2E guard) takes a matchId and answers the campaign session's convergence, the same answer the AdvanceDay check reads (CampaignSyncSession.evaluateScenarioLaunch), with its test re-pinned. Before any edit the re-admission MEASURES whether the campaign host registry the probe reads (src/lib/multiplayer/server/CampaignHostRegistry.ts:405-412, a module-level singleton) is the same instance the socket runtime's module graph records acknowledgements into (server.js:446-464 loads that graph separately; MatchHostRegistry solved this with a globalThis slot in U22a): a live probe against a running server with a socket session up. If the registries are split, U86 stops BLOCKED again and names the successor (the campaign registry in a globalThis slot, authority class, on src/lib/multiplayer/server).",
@@ -2212,6 +2226,10 @@
         "at": "2026-09-26T08:14:20.000Z",
         "by": "U95 main-verified (the shared campaign host registry the probe route reads)",
         "note": "re-admission on a baseline carrying U95; the third admission names the first two attempts"
+      },
+      "admissionNote20260926": {
+        "at": "2026-09-26T13:45:29.000Z",
+        "note": "--next printed U86. Third admission on baseline 8a025218e (U95 main-verified): the registry measured shared (the first fact the re-admission required). The probe route (an exact path since the first amendment) gains a matchId and the authority's own evaluateScenarioLaunch answer; the pack's converge() polls it. Routine class. Caveat carried to Lane A: the old wait (mutant M1) also passed 2 of 2 on the same build, so the green 3 of 3 proves the sentence's gate, not that the new wait is what closed the race; the red runs (3 of 3 refused on the baseline build with the capture) are the measured failure."
       }
     },
     {
@@ -10380,6 +10398,24 @@
       "class": "partial co-op authoritative state",
       "summary": "Day effects other than the day count reach the journal only through the PUT's checkpoint, because the co-op authoritative state holds only some campaign fields (CampaignSync.ts:85-110) and AdvanceDay commits only CampaignDayAdvanced (CampaignMatchHostIntent.ts:236-241); the next host command erases them the way it erased the balance.",
       "recommendedSuccessor": "U96's adoption keeps them; the authoritative-state scope goes to the UAT round 2 spec triage",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u86-old-wait-pass-rate-swings-with-machine-timing",
+      "foundBy": "U86 implementer lane (claude-opus, lean-worker), 2026-09-26 (measured: 3 of 3 refused on the baseline build, then 2 of 2 passed with the same old wait 20 minutes later)",
+      "at": "2026-09-26T13:45:29.000Z",
+      "class": "flake mechanism, timing-dependent",
+      "summary": "The performance pack's old wait (client receipt plus 25 ms) fails or passes with machine timing; the lane's guess (not measured) is that the probe request queues behind acknowledgements the server already received, which alone may close the race. machine-idle.mjs does not see other lanes' jest runs.",
+      "recommendedSuccessor": "Lane A reruns the old wait on the head build; U89 (the mode-2 server stall) stays separate",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u86-machine-idle-blind-to-jest",
+      "foundBy": "U86 implementer lane (claude-opus, lean-worker), 2026-09-26",
+      "at": "2026-09-26T13:45:29.000Z",
+      "class": "loop harness (same mechanism as FN-u39-mainproof-runtime-flaked-under-concurrent-lane-build)",
+      "summary": "machine-idle.mjs gates on builds, Playwright and servers but not on a jest run in another worktree; the lane's own 5-second route jest overlapped its red-3 Playwright run.",
+      "recommendedSuccessor": "the PARENT-PROOF-HOLD file covers the parent's proofs; a lane-side hold for jest is not worth a unit",
       "status": "recorded"
     }
   ]

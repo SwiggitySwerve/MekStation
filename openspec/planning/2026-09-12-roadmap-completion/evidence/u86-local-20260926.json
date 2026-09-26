@@ -1,0 +1,137 @@
+{
+  "unit": "U86",
+  "stage": "local",
+  "status": "ready",
+  "at": "2026-09-26T09:04:00.000Z",
+  "baseline": "8a025218e86abecba28138368d22975151a82422",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u86",
+  "branch": "roadmap-u86-performance-pack-converge-20260926",
+  "head": "8a025218e86abecba28138368d22975151a82422 (uncommitted; the parent commits)",
+  "implementerModel": "claude-opus (Agent model: opus, lean-worker)",
+  "admission": "evidence/u86-admission-20260926.json",
+  "red": "evidence/u86-red-20260926.json",
+  "priorAttempts": ["evidence/u86-admission-attempt1-20260925.json", "evidence/u86-admission-attempt2-20260925.json", "units.json U86.unblocked20260926"],
+  "shellPreamble": "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH; export npm_config_dry_run=true",
+  "behaviourDelivered": [
+    "converge() (e2e/gm-two-player-performance.pack.spec.ts:682-736) polls GET /api/e2e/performance-probe?matchId=<match> with the run's token until the answer's convergence is ok, and returns its requiredRevision as the next command's window start; on functionalWaitMs*5 (10,000 ms) it fails 'converge: the authority did not record every participant's acknowledgement of its head within 10000 ms; last answer <json>'. The client-side applied poll and the fixed 25 ms are gone. Call sites: warm-up :165, measured :203.",
+    "The GM-transport capture: the pack's observer records every Error frame { code, reason, intentId } (:476-496), issueCommand returns the intent id (:589-619), and waitForSequence (:621-666, readRefusal :668-680) reads the GM page's refusals between polls and fails at once with '<intentId> refused on the GM transport: <code> (<reason>); no delivery reached <N>'. Applied at all three call sites (warm-up, measured, tail builder).",
+    "The probe route (src/pages-modules/api/e2ePerformanceProbeRoute.ts), behind its unchanged guard: a matchId query adds convergence = getCampaignHostRegistry().get(matchId)?.syncSession.evaluateScenarioLaunch() ?? null, read before the clock pair; without matchId the body is unchanged (no convergence key). The handler is now async."
+  ],
+  "changedFiles": {
+    "e2e/gm-two-player-performance.pack.spec.ts": { "added": 136, "removed": 47, "class": "spec" },
+    "e2e/types/window.d.ts": { "added": 2, "removed": 0, "class": "spec types" },
+    "src/pages-modules/api/e2ePerformanceProbeRoute.ts": { "added": 40, "removed": 4, "class": "product (e2e-guarded route)" },
+    "src/__tests__/api/e2ePerformanceProbeRoute.test.ts": { "added": 73, "removed": 1, "class": "test" }
+  },
+  "lineCounts": {
+    "command": "git diff --numstat",
+    "files": 4,
+    "productLines": 44,
+    "specAndHelperLines": 185,
+    "testLines": 74,
+    "caps": "15 files / 500 product lines: within"
+  },
+  "finalHashes": {
+    "e2e/gm-two-player-performance.pack.spec.ts": "7ea387e6af71bc44dd3d04c7942af6d06ff5658da8a715afd70b5f0b067d490a",
+    "e2e/types/window.d.ts": "7cffb19c279eb95645883dec0432d6570cd542ee0f5ead4e9b840df39808623f",
+    "src/pages-modules/api/e2ePerformanceProbeRoute.ts": "d3a2e67125a5f7855710b5501e225c9ffca0c0b02c86f98428feec45a6f88094",
+    "src/__tests__/api/e2ePerformanceProbeRoute.test.ts": "976045b320cb55bf6775e3079487843d8b013a3db117398bf68e6ec4762e36a3"
+  },
+  "build": {
+    "command": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build",
+    "parentProofHold": "absent before every build and Playwright run (never observed present; no wait recorded)",
+    "machineIdleBefore": "MACHINE_IDLE (exit 0) at 2026-09-26T08:30:02Z",
+    "exit": 1,
+    "exitNote": "exits 1 at the standalone hydration guard by design (Unsafe hydration destination (runtime loader tsx) contains a symlink or junction: .next\\standalone\\node_modules), after 'Compiled successfully'",
+    "e2eMarker": ".next/static/chunks/pages/_app-57752df63578994c.js contains __E2E_MODE__",
+    "buildId": "1790411406470",
+    "logSha256": "3f89d79fee7028dc23cf34153894032d15b747119e90d0da68e291e3427cbd40",
+    "note": "built after the route edit; the spec is not part of the build, so the green, mutant and instrument runs all ran against this build"
+  },
+  "gates": [
+    { "gate": "jest qc runner", "command": "npx jest scripts/__tests__/gm-two-player-campaign-qc.test.ts", "exit": 0, "lastLine": "Ran all test suites matching /scripts\\\\__tests__\\\\gm-two-player-campaign-qc.test.ts/i.", "counts": "Test Suites: 1 passed, 1 total; Tests: 15 passed, 15 total" },
+    { "gate": "jest probe route", "command": "npx jest src/__tests__/api/e2ePerformanceProbeRoute.test.ts", "exit": 0, "counts": "Test Suites: 1 passed, 1 total; Tests: 9 passed, 9 total (6 existing unchanged, 3 new)" },
+    { "gate": "tsc", "command": "npx tsc --noEmit", "exit": 0, "lastLine": "(no output)" },
+    { "gate": "oxlint", "command": "npx oxlint", "exit": 0, "lastLine": "Finished in 766ms on 3819 files using 16 threads.", "summary": "Found 84 warnings and 0 errors. (84 = the stated baseline; none in the four changed files)" },
+    { "gate": "oxfmt", "command": "npx oxfmt --check <the four changed files>", "exit": 0, "lastLine": "Finished in 51ms on 4 files using 16 threads.", "note": "one formatting fix applied to the spec's converge cast before the green runs (npx oxfmt on that file)" },
+    { "gate": "openspec ci", "command": "npm run qc:openspec-ci:validate", "exit": 0, "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0" },
+    { "gate": "roadmap validator", "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs", "exit": 0, "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows" }
+  ],
+  "ladder": {
+    "command": "HOSTNAME=127.0.0.1 NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=performance (run id qc-performance)",
+    "preRun": "PARENT-PROOF-HOLD absent and MACHINE_IDLE before each run; runs strictly one at a time",
+    "rows": [
+      { "run": "measure (admission)", "spec": "baseline, unedited", "build": "1790410763074", "port": 23319, "start": "08:23:04Z", "exit": 1, "summary": "1 failed", "detail": "no painted delivery reached 182 (inspector attached; not red, not green)" },
+      { "run": "red-1", "spec": "capture only (be5e8a76)", "build": "1790410763074", "port": 23319, "start": "08:27:03Z", "exit": 1, "summary": "1 failed", "detail": "perf-AdvanceDay-204 refused: CAMPAIGN_NOT_CONVERGED (participants-behind ..:204,..:204; requiredRevision 205)" },
+      { "run": "red-2", "spec": "capture only", "build": "1790410763074", "port": 23319, "start": "08:27:32Z", "exit": 1, "summary": "1 failed", "detail": "perf-AdvanceDay-117 refused: CAMPAIGN_NOT_CONVERGED (..:117,..:117; requiredRevision 118)" },
+      { "run": "red-3", "spec": "capture only", "build": "1790410763074", "port": 23319, "start": "08:27:53Z", "exit": 1, "summary": "1 failed", "detail": "perf-AdvanceDay-198 refused: CAMPAIGN_NOT_CONVERGED (..:198,..:198; requiredRevision 199)" },
+      { "run": "green-1", "spec": "final (7ea387e6)", "build": "1790411406470", "port": 23319, "start": "08:31:49Z", "exit": 0, "summary": "1 passed (4.2m)", "logSha256": "4129d7cc1879bbf7d33947225c2af8105d03316298004bc97aad46b46eaa92ea" },
+      { "run": "green-2", "spec": "final", "build": "1790411406470", "port": 23319, "start": "08:36:00Z", "exit": 0, "summary": "1 passed (4.6m)", "logSha256": "a517166def21e23ae158658cb909353748cbfe41e6da3b42f04653e9e36efb7c" },
+      { "run": "green-3", "spec": "final", "build": "1790411406470", "port": 23319, "start": "08:40:36Z", "exit": 0, "summary": "1 passed (4.0m)", "logSha256": "d57fa40d98d4c381ac223fde29d273cb511cfb1bc29fd25f40631eed96978bfb" },
+      { "run": "I-1 (instrumented, temporary)", "spec": "final plus one console.log of every probe answer converge() did not accept (4103649f)", "build": "1790411406470", "port": 23319, "start": "08:57:16Z", "exit": 0, "summary": "1 passed (3.9m)", "detail": "0 '[u86-instrument]' lines: every converge() probe read in this run answered ok on its first read", "logSha256": "ea4b33cd2a25e3cf0f86b72a8932ffa5c0ee2cbcf8dbfd94584211f3be53991d" }
+    ],
+    "green": "3 of 3 consecutive passes (green-1..3) on the final spec"
+  },
+  "mutants": [
+    {
+      "id": "M1",
+      "what": "converge() back to receipt plus 25 ms (the red spec, sha256 be5e8a76a0f27f33820cd4d28e4da27c00f594b965ef9218a55216f41f9f9436; capture kept)",
+      "runs": [
+        { "run": "M1-1", "start": "08:44:49Z", "exit": 0, "summary": "1 passed (3.7m)", "logSha256": "eddd1e092080c4f5c5d812f8e627610ae2fa09f86bd754148b3b4f859cdde4f8" },
+        { "run": "M1-2", "start": "08:48:31Z", "exit": 0, "summary": "1 passed (3.8m)", "logSha256": "29fc5ed1599dd978e29cd9548f2143d357b1e5d9f7e7a620d1ab155f8b3c4a3d" }
+      ],
+      "caught": false,
+      "why": "The race is timing-dependent, not deterministic. The same spec failed 3 of 3 (red-1..3, 08:27-08:28Z, baseline build) and passed 2 of 2 here (08:44-08:52Z, the route-edited build, whose only server difference is the probe route's bundle). What made the acks arrive late in the red window and not here was not measured (the machine-idle check covers builds, servers and Playwright, not other lanes' jest). A live run is therefore not a reliable detector of M1; the forced variant under M2 (converge returning at once) is caught every time it was run.",
+      "restored": { "from": "<lane-temp>/spec.final.ts", "sha256": "7ea387e6af71bc44dd3d04c7942af6d06ff5658da8a715afd70b5f0b067d490a", "match": true }
+    },
+    {
+      "id": "M2",
+      "what": "the refusal capture disabled (observer's Error branch never matches: record.kind === 'Error-capture-disabled'), on the M1 spec (sha256 56cd678e67da8d913f24013dd2a364c4388ed9782a1cf17c15959e02a7d046b8)",
+      "runs": [
+        { "run": "M2-1", "start": "08:52:19Z", "exit": 0, "summary": "1 passed (3.8m)", "note": "no refusal occurred in this run (M1's race did not fire), so the disabled capture was not exercised", "logSha256": "a08efa3ea67a356ce04a86584d6207fc02f2c79c19f066c1951a63981e8fc8ee" }
+      ],
+      "forcedPair": {
+        "how": "forced a refusal by making converge() return the painted head at once (no applied poll, no 25 ms): the AdvanceDay goes out while the guests' acks of the previous command are still in flight",
+        "captureOn": { "run": "F-on-1", "specSha256": "98a49131403c5f7a36803a09e6150c9de01f2070f3ec25b4724050c62219d87e", "start": "08:56:54Z", "exit": 1, "summary": "1 failed", "detail": "Error: perf-AdvanceDay-12 refused on the GM transport: CAMPAIGN_NOT_CONVERGED (participants-behind pid_2h7T4A23t5oNR767yefPfAwF8535:12,pid_2Bq4v52YtkKXe66H3rNQCGehFZfw:12; requiredRevision 13); no delivery reached 14 (warm-up call site :173)", "logSha256": "21ad8f92190b2c1ae781e8b1b9b9d2f7592fa92e5662aea882561aa03f9d69eb" },
+        "captureOff": { "run": "M2b-1", "specSha256": "1df18e37ad402fea3998dc358cd27d9d1c909ba4fbab7223cc41326d18c60487", "start": "08:57:04Z", "exit": 1, "summary": "1 failed", "detail": "Error: no painted delivery reached 14: painted=13 applied=13 frames=12 pendingEnvelopes=0 (functional wait 2000 ms) (warm-up call site :173)", "logSha256": "9edb9d1b9618c6b08e9660b5b40f0ea15c297022a97d7b18d9136cc4a56323d9" }
+      },
+      "caught": "yes under forcing: with the capture the run fails naming CAMPAIGN_NOT_CONVERGED; without it the same window times out after 2,000 ms as a missing paint. That the M2b-1 missing paint is a refusal is INFERENCE (same forcing, same window 14 as F-on-1; the capture was off by construction).",
+      "restored": { "from": "<lane-temp>/spec.final.ts", "sha256": "7ea387e6af71bc44dd3d04c7942af6d06ff5658da8a715afd70b5f0b067d490a", "match": true }
+    },
+    {
+      "id": "M3",
+      "what": "the probe read compares the wrong revision: converge() accepts only when gate.requiredRevision >= gate.requiredRevision + 1 (a head one past the one the answer reports), on the final spec (sha256 995fc3e274d982d75f522c680e9d3398413f5656b1e0ca2f59daff7d3d781f8b)",
+      "runs": [
+        { "run": "M3-1", "start": "08:56:09Z", "exit": 1, "summary": "1 failed", "detail": "Error: converge: the authority did not record every participant's acknowledgement of its head within 10000 ms; last answer {\"ok\":true,\"requiredRevision\":1} (at spec :730 via warm-up call site :165)", "logSha256": "faf4a2012a9064ed6e6da353ffde5ea05365a80f9427aec4bc2e29190abe9c8a" }
+      ],
+      "caught": true,
+      "restored": { "from": "<lane-temp>/spec.final.ts", "sha256": "7ea387e6af71bc44dd3d04c7942af6d06ff5658da8a715afd70b5f0b067d490a", "match": true }
+    },
+    {
+      "id": "I (not a mutant)",
+      "what": "temporary instrumentation (see ladder I-1); restored with sha256 7ea387e6... match: yes"
+    }
+  ],
+  "nonClaims": [
+    "The green 3 of 3 cannot be attributed to the converge change by these runs alone: M1 (the old converge) also passed 2 of 2 on the same build, and in the instrumented run every converge() probe read answered converged on its first read (0 not-converged answers), so no live run here shows the new wait holding a command back. What the change guarantees is a precondition: each command is issued only after the authority itself answered converged for the head, through the same evaluateScenarioLaunch the AdvanceDay check reads; the behind answer through the route is pinned by the route's jest row with a real registry entry (INFERENCE, not measured: the probe request also queues on the server's event loop behind acks already received, which may by itself close the window).",
+    "The live registry measurement (admission) caught the gate converged at all 4 samples; it shows one shared instance with the guests retained, not a behind answer read live through the API graph.",
+    "No mode-2 server stall appeared in any run here; it is U89's.",
+    "Latency/memory budgets (E2E-71/72/73) passed in green-1..3 as the pack's own verdict; no other ladder group was run.",
+    "Scratch scripts and logs live in <lane-temp> outside the repository and are not committed."
+  ],
+  "findingsReportedNotFixed": [
+    "The pass rate of the old converge swings with machine timing (red 3/3 fail, M1 2/2 pass within 30 minutes on near-identical servers); the machine-idle check does not see other lanes' jest, which may explain it (INFERENCE).",
+    "The charter's final-status expectation lists only e2e files plus receipts, but the two amended route files (src/pages-modules/api/e2ePerformanceProbeRoute.ts, src/__tests__/api/e2ePerformanceProbeRoute.test.ts) are modified too; both are in U86's ownership paths.",
+    "Lane process error: a 5-second jest run of the route test overlapped red-3 (two-core rule); recorded in the red receipt."
+  ],
+  "processesAndPorts": "every ladder run used port 23319 (qc-performance); the runner owns and stops its server; nothing LISTENING on 23319 after the last run (netstat, 09:03Z); the admission inspector probe attached to server pid 15968, which exited with its run",
+  "gitStatusShortAtReceipt": [
+    " M e2e/gm-two-player-performance.pack.spec.ts",
+    " M e2e/types/window.d.ts",
+    " M src/__tests__/api/e2ePerformanceProbeRoute.test.ts",
+    " M src/pages-modules/api/e2ePerformanceProbeRoute.ts",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u86-admission-20260926.json",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u86-local-20260926.json",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u86-red-20260926.json"
+  ]
+}

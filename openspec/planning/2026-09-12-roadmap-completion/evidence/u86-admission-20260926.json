@@ -1,0 +1,114 @@
+{
+  "unit": "U86",
+  "stage": "admission",
+  "status": "go",
+  "attempt": 3,
+  "at": "2026-09-26T08:32:00.000Z",
+  "baseline": "8a025218e86abecba28138368d22975151a82422",
+  "originMainAtAdmission": "8a025218e86abecba28138368d22975151a82422",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u86",
+  "branch": "roadmap-u86-performance-pack-converge-20260926",
+  "implementerModel": "claude-opus (Agent model: opus, lean-worker)",
+  "priorAttempts": [
+    {
+      "receipt": "evidence/u86-admission-attempt1-20260925.json",
+      "outcome": "BLOCKED: the probe route carried no acknowledged revision; the parent amended the unit with src/pages-modules/api/e2ePerformanceProbeRoute.ts and its test"
+    },
+    {
+      "receipt": "evidence/u86-admission-attempt2-20260925.json",
+      "outcome": "BLOCKED: measured registry split (Next's API graph and the socket runtime held different CampaignHostRegistry instances); resolved by U95"
+    },
+    {
+      "units.json": "U86.unblocked20260926",
+      "note": "U95 main-verified (2d43b9f76, PR #1993): the campaign host registry in one globalThis slot; re-admission on a baseline carrying U95"
+    }
+  ],
+  "installGuard": {
+    "command": "npm run --silent qc:guard-node-modules-link",
+    "exit": 1,
+    "output": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"E:\\\\Projects\\\\MekStation\\\\.sisyphus\\\\roadmap-completion-20260912\\\\worktrees\\\\u86\\\\node_modules\",\"actualPath\":\"E:\\\\Projects\\\\MekStation\\\\node_modules\"}",
+    "note": "refuses in a junctioned worktree by design; npm_config_dry_run=true set; no npm install, ci, prune or lifecycle was run"
+  },
+  "next": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "exit": 0,
+    "printed": "U86"
+  },
+  "validator": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+    "exit": 0,
+    "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows"
+  },
+  "firstFact_registryMeasurement": {
+    "question": "Is the campaign host registry the probe route reads (Next's API module graph) the same instance the socket runtime's module graph (server.js:446-464, tsx) registers sessions and acknowledgements into?",
+    "answer": "SHARED. One registry instance: the globalThis slot Symbol.for('mekstation.multiplayer.campaignHostRegistry') is present and === the socket graph's getCampaignHostRegistry() and === the API graph's getCampaignHostRegistry(); the one live match's entry is the same object in both graphs; it retains both guests (never the GM) with acknowledged/delivered moving 1 -> 60 -> 114 -> 176 across the samples, and the API graph's evaluateScenarioLaunch() answers the same as the socket graph's at every sample. Continue.",
+    "build": {
+      "command": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build",
+      "parentProofHold": "absent at start (checked before the build)",
+      "machineIdleBefore": "MACHINE_IDLE (exit 0) at 2026-09-26T08:19:16Z",
+      "exit": 1,
+      "exitNote": "exits 1 at the standalone hydration guard by design: Unsafe hydration destination (runtime loader tsx) contains a symlink or junction: .next\\standalone\\node_modules; 'Compiled successfully in 60s' precedes it",
+      "e2eMarker": ".next/static/chunks/pages/_app-57752df63578994c.js contains __E2E_MODE__",
+      "buildId": "1790410763074",
+      "logSha256": "e7b88394441345c7dac84c0dff15603dbf4dc7ef9ea73638c49c778d067abe1c"
+    },
+    "method": [
+      "Ran the ladder group unedited: machine-idle MACHINE_IDLE (08:23:04Z), HOSTNAME=127.0.0.1 process-scoped, NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=performance; run id qc-performance, port 23319 (deriveFixturePort('qc-performance'), server log 'Ready on http://127.0.0.1:23319').",
+      "Beside it a scratch script (<lane-temp>/registry-probe.cjs, sha256 0820cb0557db8abc22977cd8c762d24b27dee9d4652cc73739f76e0bd6047046, not committed) resolved the LISTENING pid on 23319 (15968, cwd the worktree), opened its inspector with process._debugProcess, and every 5 s ran one read-only Runtime.evaluate (pid checked equal) reading: the socket graph (Module._cache entry ending src/lib/multiplayer/server/CampaignHostRegistry.ts, exports.getCampaignHostRegistry()); the API graph (.next/server/webpack-api-runtime.js exports the webpack require; the one module factory containing the slot key, id 45433 in this build, its exports' getter 'function r(){let a=globalThis,b=a[u];return b||(b=new t,a[u]=b),b}'); the globalThis slot; per graph each entry's matchId, campaignId, the sync session's retained map and evaluateScenarioLaunch(); and === of registries and entries.",
+      "4 samples with a live co-op session retained were written (08:23:30Z to 08:23:45Z)."
+    ],
+    "samples": [
+      { "at": "2026-09-26T08:23:30.345Z", "sameRegistryInstance": true, "slotIsSocketRegistry": true, "slotIsApiRegistry": true, "sameEntryObject": true, "retained": [{ "participantId": "pid_3jef6JhhroFErmkMGFbFqfAnFHzB", "acknowledged": 1, "delivered": 1 }], "gateBothGraphs": { "ok": true, "requiredRevision": 1 } },
+      { "at": "2026-09-26T08:23:35.377Z", "sameRegistryInstance": true, "slotIsSocketRegistry": true, "slotIsApiRegistry": true, "sameEntryObject": true, "retained": [{ "participantId": "pid_3jef6JhhroFErmkMGFbFqfAnFHzB", "acknowledged": 60, "delivered": 60 }, { "participantId": "pid_2CZ6Nje8k6cHv1MxnnSt2DdpvshQ", "acknowledged": 60, "delivered": 60 }], "gateBothGraphs": { "ok": true, "requiredRevision": 60 } },
+      { "at": "2026-09-26T08:23:40.438Z", "sameRegistryInstance": true, "slotIsSocketRegistry": true, "slotIsApiRegistry": true, "sameEntryObject": true, "retained": [{ "participantId": "pid_3jef6JhhroFErmkMGFbFqfAnFHzB", "acknowledged": 114, "delivered": 114 }, { "participantId": "pid_2CZ6Nje8k6cHv1MxnnSt2DdpvshQ", "acknowledged": 114, "delivered": 114 }], "gateBothGraphs": { "ok": true, "requiredRevision": 114 } },
+      { "at": "2026-09-26T08:23:45.477Z", "sameRegistryInstance": true, "slotIsSocketRegistry": true, "slotIsApiRegistry": true, "sameEntryObject": true, "retained": [{ "participantId": "pid_3jef6JhhroFErmkMGFbFqfAnFHzB", "acknowledged": 176, "delivered": 176 }, { "participantId": "pid_2CZ6Nje8k6cHv1MxnnSt2DdpvshQ", "acknowledged": 176, "delivered": 176 }], "gateBothGraphs": { "ok": true, "requiredRevision": 176 } }
+    ],
+    "matchId": "f002e08f-0cf0-4c35-a05a-77d59d0aa9ed",
+    "hostPlayerId": "pid_32uBcw9x7qGdZgMGutPvBj8gTpbR (not retained)",
+    "outputSha256": "21eb3531bd4846b4f01c337ea99057ce79c903486fb6e6911e1c97522a278dc6",
+    "measurementRun": {
+      "summaryLine": "1 failed",
+      "exit": 1,
+      "failure": "no painted delivery reached 182: ... Expected >= 182, Received 181 (Timeout 2000ms) at spec :608 via the measured-set call site :206",
+      "logSha256": "7270a017ad1a495b78372b4f0e727f649283e7e36d377035a7d1153acbaa59a1",
+      "note": "ran with an inspector attached and without the refusal capture; not counted as red or green. Reading its failing sequence as an AdvanceDay window is INFERENCE (sequence 182 with the log at revision 1 before warm-up maps to ordinal 180, 180 % 3 = 0 = AdvanceDay in the committed mix)."
+    },
+    "samplesCaveat": "every sample caught the gate converged (ok:true); no sample landed inside a behind window, so this measurement shows the shared instance and the retained acknowledgements, not a behind answer through the API graph. The behind answer through the route is pinned by the route's jest row (see the local receipt for any live observation)."
+  },
+  "designAnswers": {
+    "probeRoute": "Today (baseline) src/pages-modules/api/e2ePerformanceProbeRoute.ts:41-62 answers { success, wallMs, monotonicMs, memory: { rss, heapUsed } } only (type :23-33, guard :64-70, run id :72-80); src/pages/api/e2e/performance-probe.ts:7 re-exports it. It carries no acknowledged revision; the amended paths let this unit add it: behind the same guard, a matchId query answers getCampaignHostRegistry().get(matchId)?.syncSession.evaluateScenarioLaunch() (null when the process holds no session for the match). Now that the registry is shared (measured above), that read is the socket runtime's session.",
+    "convergedMeansToTheAuthority": "Only AdvanceDay is gated: bindCampaignSyncConnection.ts:748-758 -> refuseUnconvergedProgression :700-718 -> CampaignSyncSession.evaluateScenarioLaunch :753-777. requiredRevision = max(0, nextSequence() - 1), read live (:785-787). The N+1 clauses (branch-not-active, correction-pending, replacement-artifacts-unverified; CampaignProgressionGate.ts:130-192) refuse first; then every RETAINED participant must have acknowledged >= requiredRevision (:761-770). Retained = non-GM participants only (retainHydratedParticipant :430-439 returns for the host; joinMember :515-531). acknowledged rises only through noteParticipantAcknowledged :660-671, called from the CampaignAck case bindCampaignSyncConnection.ts:619-626, refused above the delivered watermark (:667). The refusal is an Error frame with code CAMPAIGN_NOT_CONVERGED and reason formatCampaignProgressionRefusalReason (CampaignProgressionGate.ts:198-226). The pack therefore waits for exactly that gate to answer ok (the same function), not a re-derivation.",
+    "convergeWaitToday": "Baseline e2e/gm-two-player-performance.pack.spec.ts:630-646: max painted head across the three pages, polls each page's observer appliedSequence (set on frame receipt, :511) up to functionalWaitMs*5, then a fixed 25 ms (:644). Call sites :165 (warm-up) and :198 (measured). The tail builder (:268-272) does not call converge (AllocateSalvage only, never gated) and waits with waitForSequence on the GM page (:271). waitForSequence :596-614 (called :173, :206, :271) is the 2,000 ms functional wait that reports a refused AdvanceDay as 'no painted delivery reached N'. The client transport hands a frame to onFrame listeners (campaignSyncTransport.ts:228) before it sends its CampaignAck (:244), so appliedSequence reaches the head before the ack leaves the page.",
+    "gmTransportRefusal": "An Error frame { kind: 'Error', matchId, ts, code, reason, intentId } on the sender's socket (bindCampaignSyncConnection.ts:708-716, errorFrame :1550-1564; schema src/types/multiplayer/Protocol.ts ErrorMessageSchema carries intentId). The GM transport passes every parsed frame, Error included, to onFrame listeners (campaignSyncTransport.ts:228); the page reaches it through window.__CAMPAIGN_SYNC_TRANSPORT__ (src/lib/e2e/storeExposure.ts:67). The pack's intent id is perf-<kind>-<ordinal> (controlledLoopbackFixture.ts:296). The capture: the pack's own observer (already installed on the GM page) records Error frames by intent id, and the wait reads them between polls - a real read of the frame, not a timeout.",
+    "runnerPerformanceGroup": "scripts/qc/gm-two-player-campaign-core.cjs:91 maps performance to e2e/gm-two-player-performance.pack.spec.ts only; the plan sets PLAYWRIGHT_E2E_RUN_ID (qc-performance), the port from deriveFixturePort, and the server command. No runner or env change is needed (none made)."
+  },
+  "seams": [
+    "e2e/gm-two-player-performance.pack.spec.ts:630-646 converge(); call sites :165, :198",
+    "e2e/gm-two-player-performance.pack.spec.ts:596-614 waitForSequence; call sites :173, :206, :271",
+    "e2e/gm-two-player-performance.pack.spec.ts:439-525 observerScript (appliedSequence :511)",
+    "e2e/gm-two-player-performance.pack.spec.ts:559-585 issueCommand",
+    "e2e/types/window.d.ts:46-63 __PERFORMANCE_OBSERVER_STATE__ type",
+    "src/pages-modules/api/e2ePerformanceProbeRoute.ts:41-62 handler, :64-80 guard",
+    "src/__tests__/api/e2ePerformanceProbeRoute.test.ts",
+    "src/lib/multiplayer/server/CampaignHostRegistry.ts:405-441 globalThis slot (U95, read-only here)",
+    "src/lib/multiplayer/server/CampaignSyncSession.ts:660-671, :753-787",
+    "src/lib/multiplayer/server/bindCampaignSyncConnection.ts:619-626, :700-718, :748-758",
+    "src/lib/campaign/coop/campaignSyncTransport.ts:228, :244"
+  ],
+  "estimatePerFile": {
+    "e2e/gm-two-player-performance.pack.spec.ts": "about 100-130 changed lines: the Error-frame capture in the observer, issueCommand returning its intent id, waitForSequence failing at once naming a captured refusal, converge() polling the probe convergence under a timeout that names the wait",
+    "e2e/types/window.d.ts": "2 lines (the refusals array on the observer state)",
+    "src/pages-modules/api/e2ePerformanceProbeRoute.ts": "about 40 lines (matchId query, convergence field, handler async)",
+    "src/__tests__/api/e2ePerformanceProbeRoute.test.ts": "about 70 test lines (a real registry entry behind then converged; unknown match null; no match omitted)"
+  },
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "note": "4 files expected. Product lines: the probe route only (under e2e and tests count as this unit's test lines, product count 0 there); the route edit is product code but e2e-guarded."
+  },
+  "risksForTheParent": [
+    "routine: none visible to a tester; the pack's timing semantics change (each command waits on the authority's recorded acknowledgements through the probe instead of client-side receipt plus 25 ms, and a refused command fails at once naming the refusal).",
+    "The probe route now imports CampaignHostRegistry into its API page bundle and becomes async; it still answers 404 outside an e2e-mode build with the run's token."
+  ],
+  "decision": "GO: the registry is shared, the route edit sits inside the amended paths, no file outside the ownership paths needs an edit"
+}
