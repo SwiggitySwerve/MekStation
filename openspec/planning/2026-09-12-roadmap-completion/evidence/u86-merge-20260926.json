@@ -1,0 +1,21 @@
+{
+  "unit": "U86",
+  "stage": "merge",
+  "at": "2026-09-26T14:52:46.931Z",
+  "pr": 1997,
+  "title": "test(e2e): the performance pack waits for the authority's convergence answer (U86)",
+  "head": "e5bca95c92124017deaf7a86906bda82f0da2996",
+  "mergeSha": "8daff287d02f1bbaa8ffcfd145987040a3325635",
+  "mergedAt": "2026-09-26T14:26:14Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "e2e/gm-two-player-performance.pack.spec.ts",
+    "e2e/types/window.d.ts",
+    "src/__tests__/api/e2ePerformanceProbeRoute.test.ts",
+    "src/pages-modules/api/e2ePerformanceProbeRoute.ts"
+  ],
+  "blobEqualityDiffLines": 0
+}

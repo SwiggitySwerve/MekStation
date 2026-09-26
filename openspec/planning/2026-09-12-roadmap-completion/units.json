@@ -2161,8 +2161,8 @@
         "maxNonGeneratedLines": 500
       },
       "baseline": "8a025218e86abecba28138368d22975151a82422",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "e5bca95c92124017deaf7a86906bda82f0da2996",
+      "mergeSha": "8daff287d02f1bbaa8ffcfd145987040a3325635",
       "stageReceipts": {
         "admission": {
           "path": "evidence/u86-admission-20260926.json",
@@ -2181,13 +2181,34 @@
           "at": "2026-09-26T09:04:00.000Z",
           "summary": "4 files: e2e/gm-two-player-performance.pack.spec.ts (+136/-47: converge() polls the E2E-guarded performance probe route with the matchId until the authority answers converged, the same evaluateScenarioLaunch the AdvanceDay gate uses, instead of client receipt plus 25 ms; the GM transport's Error frame is captured and fails the run naming the refusal), e2e/types/window.d.ts (+2), src/pages-modules/api/e2ePerformanceProbeRoute.ts (+40/-4, product 44 lines: the route takes a matchId and adds convergence = getCampaignHostRegistry().get(matchId)?.syncSession.evaluateScenarioLaunch() ?? null behind the unchanged guard), src/__tests__/api/e2ePerformanceProbeRoute.test.ts (+73/-1, a real registry entry pins the behind answer); performance group green 3 of 3 (4.2m, 4.6m, 4.0m, port 23319) plus an instrumented run (0 not-converged probe answers); jest gm-two-player-campaign-qc 15, probe route 9; tsc 0; oxlint 84 warnings 0 errors; oxfmt clean; qc:openspec-ci errors=0; validator PASSED; mutants: M1 old wait 2 runs both passed NOT CAUGHT (the race depends on timing: the same spec failed 3 of 3 on the baseline build 20 minutes earlier), M2 capture off not exercised without a refusal, M2 with a forced refusal caught (with capture: fails naming perf-AdvanceDay-12 CAMPAIGN_NOT_CONVERGED; without: the old timeout message), M3 wait against head+1 caught (converge timeout naming the last answer); CAVEAT: the green 3 of 3 cannot be credited to the converge change on these runs alone; what the change guarantees is the precondition (each command issued only after the authority answered converged); implementer claude-opus (Agent model: opus, lean-worker); status ready"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "review": {
+          "path": "evidence/u86-review-20260926.json",
+          "head": "e5bca95c92124017deaf7a86906bda82f0da2996",
+          "reviewedHead": "e5bca95c92124017deaf7a86906bda82f0da2996",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet, lean-worker)",
+          "implementerModel": "claude-opus (Agent model: opus)",
+          "outputSha256": "d13cec111688990c282d114312501cce34f2279b7f8ad48d4e8345af94fb547f",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u86-merge-20260926.json",
+          "pr": 1997,
+          "head": "e5bca95c92124017deaf7a86906bda82f0da2996",
+          "mergeSha": "8daff287d02f1bbaa8ffcfd145987040a3325635"
+        },
+        "mainProof": {
+          "path": "evidence/u86-mainproof-20260926.json",
+          "mergeCommit": "8daff287d02f1bbaa8ffcfd145987040a3325635",
+          "verdict": "PASS",
+          "runtime": "U86 PROOF RUNTIME PASSED: 25 passed (jest 24, 0 failed, exit 0; performance 1, 0 failed, exit 0)"
+        },
+        "tick": {
+          "path": "evidence/u86-tick-20260926.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
-      "state": "local-verified",
+      "state": "complete",
       "id": "U86",
       "node": "R6.umbrella",
       "behavior": "The performance pack (e2e/gm-two-player-performance.pack.spec.ts, E2E-71/72/73) issues each measured command only after the authority has recorded every participant's acknowledgement of the current head, instead of client-side receipt plus a fixed 25 ms (converge() near :630-646); the acknowledged revisions are read through the existing E2E-guarded performance probe route. An AdvanceDay refused with CAMPAIGN_NOT_CONVERGED is captured on the GM transport and fails the run naming the refusal, instead of timing out as a missing paint. Red first: the pack at its baseline with a GM-transport capture shows CAMPAIGN_NOT_CONVERGED on an AdvanceDay window, as the diagnosis dumps did. Green: the performance group passes 3 of 3 consecutive runs. If the probe route needs an edit (src/pages/api/e2e/performance-probe.ts), the unit stops at admission for a path amendment. The server stall (mode 2) is U89's. Amended 2026-09-25 after the first admission attempt (evidence/u86-admission-attempt1-20260925.json): the probe route (src/pages-modules/api/e2ePerformanceProbeRoute.ts, behind its existing E2E guard) takes a matchId and answers the campaign session's convergence, the same answer the AdvanceDay check reads (CampaignSyncSession.evaluateScenarioLaunch), with its test re-pinned. Before any edit the re-admission MEASURES whether the campaign host registry the probe reads (src/lib/multiplayer/server/CampaignHostRegistry.ts:405-412, a module-level singleton) is the same instance the socket runtime's module graph records acknowledgements into (server.js:446-464 loads that graph separately; MatchHostRegistry solved this with a globalThis slot in U22a): a live probe against a running server with a socket session up. If the registries are split, U86 stops BLOCKED again and names the successor (the campaign registry in a globalThis slot, authority class, on src/lib/multiplayer/server).",
@@ -2230,6 +2251,12 @@
       "admissionNote20260926": {
         "at": "2026-09-26T13:45:29.000Z",
         "note": "--next printed U86. Third admission on baseline 8a025218e (U95 main-verified): the registry measured shared (the first fact the re-admission required). The probe route (an exact path since the first amendment) gains a matchId and the authority's own evaluateScenarioLaunch answer; the pack's converge() polls it. Routine class. Caveat carried to Lane A: the old wait (mutant M1) also passed 2 of 2 on the same build, so the green 3 of 3 proves the sentence's gate, not that the new wait is what closed the race; the red runs (3 of 3 refused on the baseline build with the capture) are the measured failure."
+      },
+      "mainProofAttempt1_20260926": {
+        "at": "2026-09-26T14:52:47.000Z",
+        "result": "FAILED at the runtime step: the performance group (one run, port 23319, 5.6 min) failed E2E-73's memory ceiling with 'server memory growth 575602688 bytes exceeds 134217728' (rss growth read through the probe route); the jest half passed 24 of 24; every other step passed and the exact-main-ladder step printed EXACT_MAIN_LADDER_SATISFIED for the merge commit",
+        "context": "the runtime window (08:32 to 08:38 local) followed a Playwright run the U96 lane started at 08:26 in its worktree; the lane's three green runs, its instrumented run and Lane A's four runs all passed the same ceiling on the same spec; the root checkout's data/mekstation.db (9.7 MB) differs from the lanes' fresh data directories (not shown to matter)",
+        "action": "full re-proof through the tool on the same merge commit under the PARENT-PROOF-HOLD file; the first attempt's logs kept by the parent"
       }
     },
     {
@@ -10417,6 +10444,15 @@
       "summary": "machine-idle.mjs gates on builds, Playwright and servers but not on a jest run in another worktree; the lane's own 5-second route jest overlapped its red-3 Playwright run.",
       "recommendedSuccessor": "the PARENT-PROOF-HOLD file covers the parent's proofs; a lane-side hold for jest is not worth a unit",
       "status": "recorded"
+    },
+    {
+      "id": "FN-u86-performance-server-rss-growth-over-ceiling-once-in-root",
+      "foundBy": "parent, U86 main proof attempt 1, 2026-09-26",
+      "at": "2026-09-26T14:52:47.000Z",
+      "class": "performance budget flake, cause not measured",
+      "summary": "E2E-73's server memory ceiling (128 MiB rss growth) was exceeded by 549 MiB in one root-checkout run of the performance group after the U86 change, while seven lane runs of the same spec passed it; whether the concurrent U96 lane's Playwright run (started six minutes earlier) or the root's data directory caused it was not measured.",
+      "recommendedSuccessor": "if the re-proof passes, none; if it fails again, a unit measuring rss per window (measured, tailBuild, catchUp) in the root against a lane worktree",
+      "status": "recorded; U86 re-proved on the same merge commit"
     }
   ]
 }
