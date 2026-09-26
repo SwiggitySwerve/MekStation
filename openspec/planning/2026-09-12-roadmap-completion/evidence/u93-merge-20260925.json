@@ -1,0 +1,18 @@
+{
+  "unit": "U93",
+  "stage": "merge",
+  "at": "2026-09-26T01:53:00.289Z",
+  "pr": 1967,
+  "title": "test(api): co-op roster sourceVersion suite under the journal flip (U93)",
+  "head": "f1c7057d58a731e6a8ece5af841727c7bbd8251c",
+  "mergeSha": "b04505e89559b3580eb9e509e02f880904eccea0",
+  "mergedAt": "2026-09-26T01:41:37Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "src/lib/api/__tests__/coopMatchRosterSourceVersion.test.ts"
+  ],
+  "blobEqualityDiffLines": 0
+}
