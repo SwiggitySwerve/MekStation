@@ -26,8 +26,13 @@ import { DELIVERY_EPOCH_STALE_MESSAGE } from '@/lib/multiplayer/server/delivery/
  * Projector version bound into the delivery-epoch 8-tuple. Bump only
  * when the projection function itself changes; never take this from
  * a client field.
+ *
+ * 2: a restricted grant receives stored baselines under the shared
+ * baseline law (campaignBaselineReachesViewer) instead of none, so an
+ * epoch numbered under version 1 answers stale-epoch rather than number
+ * a now-visible genesis after the items it already delivered.
  */
-export const CAMPAIGN_GRANT_PROJECTOR_VERSION = 1 as const;
+export const CAMPAIGN_GRANT_PROJECTOR_VERSION = 2 as const;
 
 /** Injected clock. Delivery modules never read the system clock. */
 export type CampaignGrantClock = () => string;

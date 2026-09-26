@@ -11,6 +11,8 @@
 import type { ICampaignEvent } from '@/types/campaign/CampaignSync';
 
 import {
+  CAMPAIGN_MIGRATION_AUTHOR_ID,
+  campaignBaselineReachesViewer,
   campaignViewerFactsDigest,
   campaignViewerStateDigest,
   campaignViewerVisibleEvents,
@@ -105,6 +107,104 @@ describe('campaignViewerVisibleEvents - the visibility set', () => {
     ];
     const visible = campaignViewerVisibleEvents(events, admitsPlayerOne);
     expect(visible.map((event) => event.sequence)).toEqual([0, 1, 2]);
+  });
+});
+
+/** A full-state baseline with an explicit author, as each producer stamps it. */
+function baselineBy(sequence: number, authorPlayerId: string): ICampaignEvent {
+  return { ...snapshot(sequence, 700_000), authorPlayerId };
+}
+
+describe('campaignBaselineReachesViewer - the baseline law', () => {
+  it('never admits a migration-authored baseline to a restricted viewer', () => {
+    expect(
+      campaignBaselineReachesViewer(
+        baselineBy(0, CAMPAIGN_MIGRATION_AUTHOR_ID),
+        admitsPlayerOne,
+        false,
+      ),
+    ).toBe(false);
+  });
+
+  it('admits a genesis baseline to a restricted viewer while nothing is withheld', () => {
+    // Both genesis producers: the host's open (the GM's id) and the
+    // source genesis / legacy adoption ('system').
+    expect(
+      campaignBaselineReachesViewer(
+        baselineBy(0, GM_ID),
+        admitsPlayerOne,
+        false,
+      ),
+    ).toBe(true);
+    expect(
+      campaignBaselineReachesViewer(
+        baselineBy(0, 'system'),
+        admitsPlayerOne,
+        false,
+      ),
+    ).toBe(true);
+  });
+
+  it('refuses a non-migration baseline once something was withheld', () => {
+    expect(
+      campaignBaselineReachesViewer(
+        baselineBy(4, 'system'),
+        admitsPlayerOne,
+        true,
+      ),
+    ).toBe(false);
+  });
+
+  it('admits every baseline to a viewer entitled to every scope', () => {
+    expect(
+      campaignBaselineReachesViewer(
+        baselineBy(0, CAMPAIGN_MIGRATION_AUTHOR_ID),
+        admitsAll,
+        false,
+      ),
+    ).toBe(true);
+    expect(
+      campaignBaselineReachesViewer(baselineBy(4, 'system'), admitsAll, true),
+    ).toBe(true);
+  });
+
+  it('keys on the author, not the sequence', () => {
+    // A migration import at any sequence is refused; a genesis at seq 0
+    // is not - so the law cannot be "refuse the first row".
+    expect(
+      campaignBaselineReachesViewer(
+        baselineBy(7, CAMPAIGN_MIGRATION_AUTHOR_ID),
+        admitsPlayerOne,
+        false,
+      ),
+    ).toBe(false);
+    expect(
+      campaignBaselineReachesViewer(
+        baselineBy(0, GM_ID),
+        admitsPlayerOne,
+        false,
+      ),
+    ).toBe(true);
+  });
+
+  it('the visibility set drops a migration baseline and every baseline after it', () => {
+    // The refused baseline latches: a later checkpoint folded from the
+    // imported record would hand the same material back.
+    const events = [
+      baselineBy(0, CAMPAIGN_MIGRATION_AUTHOR_ID),
+      hire(1, 'campaign', 'pilot-shared'),
+      baselineBy(2, 'system'),
+    ];
+    expect(
+      campaignViewerVisibleEvents(events, admitsPlayerOne).map(
+        (event) => event.sequence,
+      ),
+    ).toEqual([1]);
+    expect(
+      campaignViewerVisibleEvents(events, admitsAll).map(
+        (event) => event.sequence,
+      ),
+    ).toEqual([0, 1, 2]);
   });
 });
 

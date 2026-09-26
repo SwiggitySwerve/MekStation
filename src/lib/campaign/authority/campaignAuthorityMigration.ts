@@ -35,6 +35,7 @@ import {
 import { ReplaySchemaRegistry } from '@/lib/events/replay/ReplaySchemaRegistry';
 
 import { freezeCampaignEvent } from '../sync/campaignEventScope';
+import { CAMPAIGN_MIGRATION_AUTHOR_ID } from '../sync/campaignViewerProjection';
 import {
   appendCampaignCommandBatch,
   computeCampaignStateDigest,
@@ -189,7 +190,9 @@ export async function importCampaignBaseline(
       sequence: 0,
       campaignId: input.campaignId,
       ts: input.importedAt,
-      authorPlayerId: 'migration',
+      // The author the shared baseline law keys on: a restricted viewer
+      // never receives this imported whole state (campaignViewerProjection).
+      authorPlayerId: CAMPAIGN_MIGRATION_AUTHOR_ID,
       type: 'CampaignSnapshotPublished',
       // Migration baseline is the shared imported ledger, not GM-only.
       scope: 'campaign',

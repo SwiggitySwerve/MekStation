@@ -11,7 +11,11 @@ import type { ICampaignEvent } from '@/types/campaign/CampaignSync';
 import type { IContract } from '@/types/campaign/Mission';
 
 import { buildCampaignSourcePrivateEnvelope } from '@/lib/campaign/authority/campaignSourcePrivateEnvelope';
-import { appendCampaignCommandBatch } from '@/lib/campaign/sync/JournalCampaignEventStore';
+import {
+  appendCampaignCommandBatch,
+  CAMPAIGN_STREAM_TYPE,
+} from '@/lib/campaign/sync/JournalCampaignEventStore';
+import { ROOT_EVENT_BRANCH_ID } from '@/lib/events/journal/EventJournalContract';
 import {
   AuthorizedViewerError,
   AuthorizedViewerResolver,
@@ -19,13 +23,17 @@ import {
 } from '@/lib/multiplayer/server/authorization/AuthorizedViewer';
 import { SQLiteDeliveryEpochStore } from '@/lib/multiplayer/server/delivery/SQLiteDeliveryEpochStore';
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
+import { createEmptyCampaignState } from '@/types/campaign/CampaignSync';
 import { AtBContractType } from '@/types/campaign/contracts/contractTypes';
 import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
 import { Money } from '@/types/campaign/Money';
 import { createPaymentTerms } from '@/types/campaign/PaymentTerms';
 import { AtBMoraleLevel } from '@/types/campaign/scenario/scenarioTypes';
 
-import { DELIVERY_EPOCH_STALE_MESSAGE } from '../campaignDeliveryTypes';
+import {
+  CAMPAIGN_GRANT_PROJECTOR_VERSION,
+  DELIVERY_EPOCH_STALE_MESSAGE,
+} from '../campaignDeliveryTypes';
 import {
   CampaignGrantMembershipSource,
   MembershipSourceUnavailableError,
@@ -38,8 +46,10 @@ import {
   PARTICIPANT_GM,
   PARTICIPANT_PLAYER,
   REVOKED_AT,
+  appendCampaignEvent,
   appendScopeScript,
   closeCampaignDeliveryHarness,
+  fundsEvent,
   issueTestGrant,
   mappingCount,
   mintGrantPrincipal,
@@ -253,6 +263,80 @@ describe('projectCampaignStreamForGrant', () => {
     if (resumed.kind !== 'page') return;
     expect(resumed.deliveryEpochId).toBe(stale.newBaseline.deliveryEpochId);
     expect(resumed.items[0]?.deliverySequence).toBe(1);
+  });
+
+  it('answers stale-epoch to a cursor numbered before the shared baseline law', async () => {
+    // Under projector version 1 a restricted grant never received a
+    // stored baseline, so its epoch numbered the first shared fact 1.
+    // The genesis baseline is visible now; replaying that epoch would
+    // number it after the fact and hand a replica already past it a
+    // full-state frame that REPLACES its state. The version bump moves
+    // the epoch key, so the old cursor is stale and gets a new baseline.
+    const campaignId = 'campaign-baseline-law-epoch';
+    const grant = issueTestGrant(harness, {
+      campaignId,
+      participantId: PARTICIPANT_PLAYER,
+      scopes: ['campaign'],
+    });
+    await appendCampaignEvent(harness, {
+      type: 'CampaignSnapshotPublished',
+      sequence: 0,
+      campaignId,
+      ts: EVENT_TS,
+      authorPlayerId: 'system',
+      scope: 'campaign',
+      payload: { state: createEmptyCampaignState(campaignId) },
+    });
+    await appendCampaignEvent(
+      harness,
+      fundsEvent(campaignId, 1, 'campaign', 'SHARED-ONE'),
+    );
+    const principal = mintGrantPrincipal(PARTICIPANT_PLAYER);
+    const viewer = await harness.resolver.resolve(principal, campaignId);
+    const rows = await harness.journal.readStream({
+      streamType: CAMPAIGN_STREAM_TYPE,
+      streamId: campaignId,
+      branchId: ROOT_EVENT_BRANCH_ID,
+      afterRevision: 0,
+      limit: 10,
+    });
+    const shared = rows[1];
+    if (shared === undefined) throw new Error('expected two stored rows');
+    const oldEpoch = harness.deliveryStore.resolveEpoch(viewer, {
+      streamType: CAMPAIGN_STREAM_TYPE,
+      streamId: campaignId,
+      projectorVersion: 1,
+    });
+    harness.deliveryStore.assignSequences(oldEpoch.deliveryEpochId, [
+      shared.eventDigest,
+    ]);
+
+    const result = await projectCampaignStreamForGrant(harness.deps, {
+      principal,
+      grantId: grant.grantId,
+      cursor: { deliveryEpochId: oldEpoch.deliveryEpochId, afterSequence: 1 },
+    });
+    expect(CAMPAIGN_GRANT_PROJECTOR_VERSION).not.toBe(1);
+    expect(result.kind).toBe('stale-epoch');
+    if (result.kind !== 'stale-epoch') return;
+    expect(result.newBaseline.deliveryEpochId).not.toBe(
+      oldEpoch.deliveryEpochId,
+    );
+
+    // The new epoch numbers the genesis first.
+    const fresh = await projectCampaignStreamForGrant(harness.deps, {
+      principal,
+      grantId: grant.grantId,
+      cursor: null,
+    });
+    expect(fresh.kind).toBe('page');
+    if (fresh.kind !== 'page') return;
+    expect(
+      fresh.items.map((item) => [item.deliverySequence, item.event.type]),
+    ).toEqual([
+      [1, 'CampaignSnapshotPublished'],
+      [2, 'FundsChanged'],
+    ]);
   });
 
   it('refuses a revoked grant at membership, distinct from an empty page', async () => {

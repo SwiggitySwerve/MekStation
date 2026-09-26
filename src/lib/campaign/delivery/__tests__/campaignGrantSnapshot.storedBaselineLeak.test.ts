@@ -1,24 +1,26 @@
 /**
- * A stored full-state baseline must never be delivered to a partial grant.
+ * An imported migration baseline must never be delivered to a partial grant.
  *
  * `applyCampaignEvent` handles `CampaignSnapshotPublished` by REPLACING
  * state wholesale - it is the baseline a joining replica starts from.
- * Task 3.1 stamps those events `campaign`, and both the source genesis
- * and the migration baseline append one carrying the FULL authoritative
- * state. So the scope filter alone does not stop them: a `campaign`-scope
- * grant would pass the check, fold the row, and have every withheld
- * pilot, unit, and figure handed to it in one step - discarding the
- * filtering entirely.
+ * Task 3.1 stamps those events `campaign`, and the migration import
+ * appends one carrying an existing campaign's FULL authoritative state.
+ * So the scope filter alone does not stop it: a `campaign`-scope grant
+ * would pass the check, fold the row, and have every withheld pilot,
+ * unit, and figure handed to it in one step - discarding the filtering
+ * entirely.
  *
- * The projector therefore delivers a stored baseline only to a grant
- * already entitled to every scope. A restricted grant takes its baseline
- * from the per-grant scoped snapshot (task 3.4), which is folded from
- * in-scope events only and so cannot carry withheld material.
+ * The projector therefore applies the shared baseline law
+ * (`campaignBaselineReachesViewer`): a migration-authored baseline
+ * reaches only a grant entitled to every scope. (A genesis baseline,
+ * which precedes every withhold, reaches a restricted grant too - pinned
+ * in `campaignGenesisArmParity.test.ts`.)
  */
 
 import type { ICampaignEvent } from '@/types/campaign/CampaignSync';
 
 import { createGmGrantScopes } from '../../grants/campaignGrantGuards';
+import { CAMPAIGN_MIGRATION_AUTHOR_ID } from '../../sync/campaignViewerProjection';
 import { projectCampaignStreamForGrant } from '../projectCampaignStreamForGrant';
 import {
   PARTICIPANT_GM,
@@ -36,7 +38,7 @@ const WITHHELD_PILOT_ID = 'pilot-gm-only-secret-asset';
 
 /**
  * A stored baseline carrying material a `campaign`-scope grant has never
- * been delivered, mirroring a genesis or migration row.
+ * been delivered, authored as the migration import authors its row.
  */
 function fullStateBaseline(campaignId: string): ICampaignEvent {
   return Object.freeze({
@@ -44,7 +46,7 @@ function fullStateBaseline(campaignId: string): ICampaignEvent {
     sequence: 0,
     campaignId,
     ts: '2026-08-22T12:00:00.000Z',
-    authorPlayerId: 'pid-host',
+    authorPlayerId: CAMPAIGN_MIGRATION_AUTHOR_ID,
     // Stamped `campaign` exactly as task 3.1 classifies it.
     scope: 'campaign',
     payload: {
