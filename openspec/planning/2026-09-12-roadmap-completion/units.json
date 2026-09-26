@@ -2988,20 +2988,34 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "baseline": null,
+      "baseline": "2edfbb3b6f40f04c641dbc8530afd5ad6df73d2a",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/u96-admission-20260926.json",
+          "baseline": "2edfbb3b6f40f04c641dbc8530afd5ad6df73d2a",
+          "at": "2026-09-26T14:04:15.138Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/u96-red-20260926.json",
+          "at": "2026-09-26T14:11:49.416Z",
+          "summary": "baseline 2edfbb3b6 (the amended sentence): four rows fail: R1 the erased save on real SQLite with a live host in the shared registry (hostLiveBalance 380000 after a PUT of 382500, guest 0 frames, 379000 everywhere after SpendFunds 1000); R2 commit: the client timeline is PUT{baseVersion:1, day+1} then intent:AdvanceDay; R2 refusal: the PUT still comes first and a report is returned though the command was refused; R3: a foreign PUT while a host is live answers 200 and checkpoints 382500 over the host; live before (port 24971): S2 put 200 savedBalance 382500, guestFramesAfterPut [], hostLiveBalance 380000; S3 FundsChanged balance 379000, record version 3 balance 379000"
+        },
+        "local": {
+          "path": "evidence/u96-local-20260926.json",
+          "at": "2026-09-26T14:59:53.115Z",
+          "summary": "8 files, product 430 lines in 4 (src/pages/api/campaigns/[id].ts 76: a PUT whose coopSession is {mode:'host', matchId} for the live entry is saved then adopted, any other PUT while a host is live is refused 409 reason live-coop-session with the matchId, a closed host is not live, the non-live PUT unchanged; CampaignHostRegistry.ts 13 and CampaignMatchHost.ts 27: adoptSavedCheckpoint runs the save under the host's single-writer lock, folds the events with applyCampaignEvent and publishes the existing CampaignSnapshot frame; useCampaignStore.dayActions.ts 314 (192 ignoring the re-indent): the co-op day advance sends AdvanceDay, waits for CampaignDayAdvanced or the Error frame with its intentId, then runs the day pipeline and saves; on refusal saves nothing and toasts; useCampaignStore.actions.ts unchanged), tests 631 (campaignPutLiveHost.test.ts 352, useCampaignStore.coopDayAdvanceOrder.test.ts 261, coopMutationPersistence.test.ts harness +13/-1, the journey's stale :475 expectation corrected to the ruled destroyed-stays behaviour, 4 lines); live after (port 24981): S2 guest CampaignSnapshot balance 382500, hostLiveBalance 382500; S3 FundsChanged balance 381500, record version 3 381500, journal 381500; day advance measured: saving first 184,185,186, sending first 184,185; jest 455 suites 5317 passed; tsc 0; oxlint 84 warnings 0 errors; oxfmt clean on 7 files; lint:units 100/100; qc:openspec-ci errors=0; validator PASSED; build exits at the hydration guard by design with the __E2E_MODE__ marker; lifecycle-pack 2 passed (port 27487); two-browser co-op journey 3 of 3 (ports 27491-27493) after the assertion fix, 3 of 3 failing at :475 before it, failing at :375 on the baseline; mutants: adoption removed (382500 vs 380000), host check removed (409 vs 200), client saves first (184,185,186), reason swapped, closed hosts live (200 vs 409), each caught and restored with sha256 confirmed; NON-CLAIMS: guests do not ack snapshot frames (not measured), a re-sent deduped AdvanceDay waits without timeout (not measured), the record rewrite day timestamp looks local-time (not investigated), Node sockets not browsers, byte-for-byte non-live PUT checked within a run, only lifecycle-pack from the ladder; one journey run started while the hold file existed (recorded); implementer claude-opus (Agent model: opus, lean-worker); status ready"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
         "tick": null
       },
       "ownerGate": null,
-      "state": "planned",
+      "state": "local-verified",
       "admitAfter20260926": "U95 main-verified (the shared campaign host registry the route needs to reach the live host); --next cannot express a unit dependency, so the parent checks it at admission",
       "source20260926": "planned by the parent under the owner's answer \"Plan U96 now, before U95\" (2026-09-26) on U92's measured finding FN-u92-coop-checkpoint-erased-by-next-host-command",
       "unblocked20260926": {
@@ -3034,7 +3048,7 @@
         }
       ],
       "newTestFiles20260926": {
-        "at": "2026-09-26T15:05:43.000Z",
+        "at": "2026-09-26T16:32:42.000Z",
         "files": [
           "src/__tests__/api/campaigns/campaignPutLiveHost.test.ts",
           "src/stores/campaign/__tests__/useCampaignStore.coopDayAdvanceOrder.test.ts"
@@ -3042,7 +3056,7 @@
         "note": "new files created by the unit under the node's test homes (src/__tests__/api/campaigns beside the other campaign route tests; src/stores/campaign/__tests__ beside the store's tests); the validator requires ownership paths to exist on disk, so they join the unit's and the node's paths at closure, after the merge"
       },
       "admissionNote20260926": {
-        "at": "2026-09-26T15:05:43.000Z",
+        "at": "2026-09-26T16:32:42.000Z",
         "note": "--next printed U89 (overlaps this unit's server path; the parent chose U96 under the owner's order). Re-admission GO on the amended sentence. Instance identity: getOrCreateHostInstanceId is one id per server database (campaignHostInstance.ts:148-151, :175-192), so it cannot tell the host's browser from a guest's; the PUT body's coopSession does ({mode:'host', matchId} stamped at CampaignCoopEntryPanel.tsx:255-259; a guest sends {mode:'guest', hostMatchId}); the route authenticates nobody, so this is a claim in the request body (finding). Adoption: CampaignMatchHost.adoptSavedCheckpoint runs the route's save under the host's single-writer lock and folds the appended events with applyCampaignEvent; guests receive the existing CampaignSnapshot frame. Double count: the co-op day advance sends AdvanceDay, waits for CampaignDayAdvanced or the Error frame with its intentId, then runs the day pipeline and saves (measured: saving first gave host day 184, 185, 186; sending first 184, 185). useCampaignStore.actions.ts unchanged."
       }
     },
