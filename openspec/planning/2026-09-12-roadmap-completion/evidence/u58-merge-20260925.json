@@ -1,0 +1,29 @@
+{
+  "unit": "U58",
+  "stage": "merge",
+  "at": "2026-09-26T04:25:42.614Z",
+  "pr": 1971,
+  "title": "feat(campaign): one baseline law for both projection arms (U58)",
+  "head": "eb49cfdf2fd997d4e1c31c450b027fd8653808a4",
+  "mergeSha": "59eb4fbb3e41b763c4ab81e30d9f733255320c92",
+  "mergedAt": "2026-09-26T03:51:54Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "src/lib/campaign/authority/campaignAuthorityMigration.ts",
+    "src/lib/campaign/coop/__tests__/roomCodeGuestHydration.test.ts",
+    "src/lib/campaign/coop/roomCodeGuestHydration.ts",
+    "src/lib/campaign/delivery/__tests__/campaignDelivery.nonInference.test.ts",
+    "src/lib/campaign/delivery/__tests__/campaignGenesisArmParity.test.ts",
+    "src/lib/campaign/delivery/__tests__/campaignGrantSnapshot.storedBaselineLeak.test.ts",
+    "src/lib/campaign/delivery/__tests__/projectCampaignStreamForGrant.test.ts",
+    "src/lib/campaign/delivery/campaignDeliveryTypes.ts",
+    "src/lib/campaign/delivery/projectCampaignStreamForGrant.ts",
+    "src/lib/campaign/grants/campaignGrantGuards.ts",
+    "src/lib/campaign/sync/__tests__/campaignViewerProjection.test.ts",
+    "src/lib/campaign/sync/campaignViewerProjection.ts"
+  ],
+  "blobEqualityDiffLines": 0
+}
