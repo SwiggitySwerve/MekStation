@@ -2737,7 +2737,10 @@
         "src/lib/events/replay/CampaignBaselineSchemaPack.ts",
         "src/lib/events/replay/__tests__/CampaignBaselineSchemaPack.test.ts",
         "src/lib/events/replay/__fixtures__/CampaignBaselineSchemaPack.fixture.ts",
-        "src/lib/api"
+        "src/lib/api",
+        "src/types/campaign/CampaignSync.ts",
+        "src/pages/gameplay/campaigns/[id]/gm-ledger.tsx",
+        "src/pages/api/campaigns/[id].ts"
       ],
       "acceptance": [
         "npm.cmd run typecheck",
@@ -3026,6 +3029,36 @@
           "units": "U88",
           "source": "parent, from U35j's finding F1 (co-op match body schema) traced to the client path",
           "why": "src/lib/api/securitySchemas.ts holds the strict co-op roster-unit body schema that refuses the sourceVersion the creation page writes; only the broad src nodes owned it"
+        }
+      ],
+      "ownershipPathsAmended20260926": [
+        {
+          "path": "src/types/campaign/CampaignSync.ts",
+          "at": "2026-09-26T06:49:45.000Z",
+          "units": "U92",
+          "source": "parent, under the owner's answers of 2026-09-26 on U92's first admission (evidence/u92-admission-attempt1-20260925.json)",
+          "why": "the funds-only ApplyGmIntervention command needs the campaign intent type, the wire schema and the ledger page's approve callback"
+        },
+        {
+          "path": "src/types/multiplayer/Protocol.ts",
+          "at": "2026-09-26T06:49:45.000Z",
+          "units": "U92",
+          "source": "parent, under the owner's answers of 2026-09-26 on U92's first admission (evidence/u92-admission-attempt1-20260925.json)",
+          "why": "the funds-only ApplyGmIntervention command needs the campaign intent type, the wire schema and the ledger page's approve callback"
+        },
+        {
+          "path": "src/pages/gameplay/campaigns/[id]/gm-ledger.tsx",
+          "at": "2026-09-26T06:49:45.000Z",
+          "units": "U92",
+          "source": "parent, under the owner's answers of 2026-09-26 on U92's first admission (evidence/u92-admission-attempt1-20260925.json)",
+          "why": "the funds-only ApplyGmIntervention command needs the campaign intent type, the wire schema and the ledger page's approve callback"
+        },
+        {
+          "path": "src/pages/api/campaigns/[id].ts",
+          "at": "2026-09-26T06:49:45.000Z",
+          "units": "U96",
+          "source": "parent, under the owner's answers of 2026-09-26 on U92's first admission (evidence/u92-admission-attempt1-20260925.json)",
+          "why": "a whole-campaign PUT on a live co-op campaign must go through the live host (or be refused 409); the route lives here"
         }
       ]
     },
