@@ -1,6 +1,11 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
+import {
+  _resetCampaignHostRegistry,
+  getCampaignHostRegistry,
+} from '@/lib/multiplayer/server/CampaignHostRegistry';
 import handler from '@/pages-modules/api/e2ePerformanceProbeRoute';
+import { createEmptyCampaignState } from '@/types/campaign/CampaignSync';
 
 const RUN_ID = 'performance-probe-suite-run';
 const RUN_ID_HEADER = 'x-playwright-e2e-run-id';
@@ -45,12 +50,13 @@ interface IProbeBody {
 function req(input: {
   readonly method: string;
   readonly headers?: Record<string, string>;
+  readonly query?: Record<string, string>;
 }): NextApiRequest {
   return {
     method: input.method,
     body: {},
     headers: input.headers ?? {},
-    query: {},
+    query: input.query ?? {},
   } as unknown as NextApiRequest;
 }
 
@@ -178,5 +184,71 @@ describe('e2e performance probe route', () => {
     const wallDelta = two.wallMs - one.wallMs;
     expect(monotonicDelta).toBeGreaterThan(0);
     expect(Math.abs(monotonicDelta - wallDelta)).toBeLessThan(50);
+  });
+
+  describe('campaign session convergence for a named match', () => {
+    afterEach(() => {
+      _resetCampaignHostRegistry();
+    });
+
+    /** GETs the probe for one match id and returns the 200 body's convergence. */
+    async function probeConvergence(matchId: string): Promise<unknown> {
+      const { res, record } = stubRes();
+      await handler(
+        req({
+          method: 'GET',
+          headers: { [RUN_ID_HEADER]: RUN_ID },
+          query: { matchId },
+        }),
+        res,
+      );
+      expect(record.status).toBe(200);
+      return (record.body as { convergence?: unknown }).convergence;
+    }
+
+    it('answers the AdvanceDay gate: behind until the participant acknowledges the head', async () => {
+      // A REAL registry entry, not a stub: the probe's answer is only
+      // worth waiting on if it is the session the socket records acks in.
+      const entry = await getCampaignHostRegistry().register('match-probe', {
+        campaignId: 'campaign-probe',
+        hostPlayerId: 'pid_host',
+        roomCode: 'ABC234',
+        state: createEmptyCampaignState('campaign-probe'),
+      });
+      await entry.syncSession.joinMember(() => {}, 'pid_guest');
+      await entry.host.handleIntent({
+        kind: 'AdvanceDay',
+        campaignId: 'campaign-probe',
+        intentId: 'probe-advance-1',
+        payload: {},
+      });
+
+      expect(await probeConvergence('match-probe')).toEqual({
+        ok: false,
+        reason: 'participants-behind',
+        requiredRevision: 1,
+        behind: [{ participantId: 'pid_guest', acknowledgedRevision: 0 }],
+      });
+
+      entry.syncSession.noteParticipantAcknowledged('pid_guest', 1);
+      expect(await probeConvergence('match-probe')).toEqual({
+        ok: true,
+        requiredRevision: 1,
+      });
+    });
+
+    it('answers null for a match the process holds no campaign session for', async () => {
+      expect(await probeConvergence('match-unknown')).toBeNull();
+    });
+
+    it('omits convergence when no match is named', () => {
+      const { res, record } = stubRes();
+      void handler(
+        req({ method: 'GET', headers: { [RUN_ID_HEADER]: RUN_ID } }),
+        res,
+      );
+      expect(record.status).toBe(200);
+      expect(record.body).not.toHaveProperty('convergence');
+    });
   });
 });
