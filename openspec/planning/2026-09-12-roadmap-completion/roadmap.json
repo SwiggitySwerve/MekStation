@@ -2744,7 +2744,9 @@
         "src/stores/campaign/useCampaignStore.dayActions.ts",
         "src/stores/campaign/useCampaignStore.actions.ts",
         "src/__tests__/integration/coopMutationPersistence.test.ts",
-        "e2e/coop-campaign-two-browser-journey.spec.ts"
+        "e2e/coop-campaign-two-browser-journey.spec.ts",
+        "src/__tests__/api/campaigns/campaignPutLiveHost.test.ts",
+        "src/stores/campaign/__tests__/useCampaignStore.coopDayAdvanceOrder.test.ts"
       ],
       "acceptance": [
         "npm.cmd run typecheck",
@@ -3091,6 +3093,20 @@
           "units": "U96",
           "source": "parent, at U96's fold (test files for the unit's owned product files; approved in chat by the parent on the lane's report)",
           "why": "the journey's post-destroyed expectation at :475 was stale against OD-u35g-coop-outcome-rewrites-record (a destroyed unit is kept with status destroyed, reconcileCoopBattle.ts:220-224) and unreachable on main until the day advance passed; the sentence names this journey's day advance as a green gate"
+        },
+        {
+          "path": "src/__tests__/api/campaigns/campaignPutLiveHost.test.ts",
+          "at": "2026-09-26T16:33:17.000Z",
+          "units": "U96",
+          "source": "parent, at U96's closure (the unit's new test files, on disk after the merge)",
+          "why": "new files created by the unit under the node's test homes (src/__tests__/api/campaigns beside the other campaign route tests; src/stores/campaign/__tests__ beside the store's tests); the validator requires ownership paths to exist on disk, so they join the unit's and the node's paths at closure, after the merge"
+        },
+        {
+          "path": "src/stores/campaign/__tests__/useCampaignStore.coopDayAdvanceOrder.test.ts",
+          "at": "2026-09-26T16:33:17.000Z",
+          "units": "U96",
+          "source": "parent, at U96's closure (the unit's new test files, on disk after the merge)",
+          "why": "new files created by the unit under the node's test homes (src/__tests__/api/campaigns beside the other campaign route tests; src/stores/campaign/__tests__ beside the store's tests); the validator requires ownership paths to exist on disk, so they join the unit's and the node's paths at closure, after the merge"
         }
       ]
     },

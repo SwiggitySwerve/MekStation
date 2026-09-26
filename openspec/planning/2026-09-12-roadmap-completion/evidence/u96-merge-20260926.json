@@ -1,0 +1,25 @@
+{
+  "unit": "U96",
+  "stage": "merge",
+  "at": "2026-09-26T16:33:17.213Z",
+  "pr": 2001,
+  "title": "feat(campaign): the live host adopts its own whole-campaign PUT; other instances are refused; the co-op day advance sends the command first (U96)",
+  "head": "bbdb6a07cb2f01ec2f162bb2dc17a64774ef4504",
+  "mergeSha": "5d19d95ada9a390f7b242caf354243c3bf377036",
+  "mergedAt": "2026-09-26T16:19:55Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "e2e/coop-campaign-two-browser-journey.spec.ts",
+    "src/__tests__/api/campaigns/campaignPutLiveHost.test.ts",
+    "src/__tests__/integration/coopMutationPersistence.test.ts",
+    "src/lib/multiplayer/server/CampaignHostRegistry.ts",
+    "src/lib/multiplayer/server/CampaignMatchHost.ts",
+    "src/pages/api/campaigns/[id].ts",
+    "src/stores/campaign/__tests__/useCampaignStore.coopDayAdvanceOrder.test.ts",
+    "src/stores/campaign/useCampaignStore.dayActions.ts"
+  ],
+  "blobEqualityDiffLines": 0
+}
