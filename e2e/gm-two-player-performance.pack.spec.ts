@@ -57,6 +57,7 @@
 import {
   expect,
   test,
+  type APIRequestContext,
   type Browser,
   type BrowserContext,
   type Page,
@@ -149,7 +150,6 @@ test('E2E-71/72/73 controlled loopback latency, catch-up and memory stay inside 
     // a command may commit more than one event, and the log does not
     // necessarily start at zero - so "one more than before" is the only
     // safe progress condition.
-    const pages = everyone.map((client) => client.page);
     // Warm-up windows are recorded alongside the measured ones so the
     // archive SHOWS what was discarded. The runner excludes them by
     // ordinal, which is the exclusion under test - a report that simply
@@ -162,15 +162,20 @@ test('E2E-71/72/73 controlled loopback latency, catch-up and memory stay inside 
     }[] = [];
     for (let ordinal = 0; ordinal < FIXTURE.warmUpCommands; ordinal += 1) {
       const kind = runner.kindForOrdinal(ordinal);
-      const before = await converge(pages);
+      const before = await converge(request, fixture.runId, address.matchId);
       windows.push({
         ordinal,
         kind,
         intentId: `perf-${kind}-${ordinal}`,
         after: before,
       });
-      await issueCommand(gm.page, address, kind, ordinal);
-      await waitForSequence(guests['future-player-1'].page, before + 1);
+      const intentId = await issueCommand(gm.page, address, kind, ordinal);
+      await waitForSequence(
+        guests['future-player-1'].page,
+        before + 1,
+        gm.page,
+        intentId,
+      );
     }
     await gm.page.waitForTimeout(1_000);
 
@@ -195,15 +200,20 @@ test('E2E-71/72/73 controlled loopback latency, catch-up and memory stay inside 
     const total = FIXTURE.warmUpCommands + FIXTURE.minimumMeasuredCommands;
     for (let ordinal = FIXTURE.warmUpCommands; ordinal < total; ordinal += 1) {
       const kind = runner.kindForOrdinal(ordinal);
-      const after = await converge(pages);
+      const after = await converge(request, fixture.runId, address.matchId);
       windows.push({
         ordinal,
         kind,
         intentId: `perf-${kind}-${ordinal}`,
         after,
       });
-      await issueCommand(gm.page, address, kind, ordinal);
-      await waitForSequence(guests['future-player-1'].page, after + 1);
+      const intentId = await issueCommand(gm.page, address, kind, ordinal);
+      await waitForSequence(
+        guests['future-player-1'].page,
+        after + 1,
+        gm.page,
+        intentId,
+      );
     }
     await gm.page.waitForTimeout(1_000);
 
@@ -267,8 +277,13 @@ test('E2E-71/72/73 controlled loopback latency, catch-up and memory stay inside 
       // builder waits for each commit rather than papering over it.
       for (let batch = 0; batch < 50; batch += 1, ordinal += 1) {
         const before = await readHighestSequence(gm.page);
-        await issueCommand(gm.page, address, 'AllocateSalvage', ordinal);
-        await waitForSequence(gm.page, before + 1);
+        const intentId = await issueCommand(
+          gm.page,
+          address,
+          'AllocateSalvage',
+          ordinal,
+        );
+        await waitForSequence(gm.page, before + 1, gm.page, intentId);
       }
       expect(
         ordinal,
@@ -458,12 +473,27 @@ function observerScript(input: SessionAddress): void {
       pendingEnvelopes: 0,
       pendingBytes: 0,
     };
+    const refusals: { code: string; reason: string; intentId: string }[] = [];
     transport.onFrame((message) => {
       const record = message as unknown as {
         kind?: unknown;
         event?: { sequence?: unknown; ts?: unknown; payload?: unknown };
         events?: unknown[];
+        code?: unknown;
+        reason?: unknown;
+        intentId?: unknown;
       };
+      // A REFUSAL: the authority answers a command it will not commit
+      // with an Error frame on the sender's socket, carrying the
+      // command's intent id. Recorded so the wait can name it.
+      if (record.kind === 'Error') {
+        refusals.push({
+          code: String(record.code),
+          reason: typeof record.reason === 'string' ? record.reason : '',
+          intentId: typeof record.intentId === 'string' ? record.intentId : '',
+        });
+        return;
+      }
       if (
         record.kind !== 'CampaignEvent' &&
         record.kind !== 'CampaignSnapshot'
@@ -520,7 +550,7 @@ function observerScript(input: SessionAddress): void {
         frames.push({ sequence, serverTs, renderedAtMs: performance.now() });
       });
     });
-    window.__PERFORMANCE_OBSERVER_STATE__ = { frames, state };
+    window.__PERFORMANCE_OBSERVER_STATE__ = { frames, state, refusals };
   }
 }
 
@@ -556,13 +586,16 @@ async function readHighestSequence(page: Page): Promise<number> {
   );
 }
 
-/** Issues one representative command on the GM's live transport. */
+/**
+ * Issues one representative command on the GM's live transport and
+ * returns its intent id.
+ */
 async function issueCommand(
   page: Page,
   address: SessionAddress,
   kind: ControlledCommandKind,
   ordinal: number,
-): Promise<void> {
+): Promise<string> {
   const intent = ControlledLoopbackPerformanceRunner.buildIntent(
     kind,
     address.campaignId,
@@ -582,10 +615,16 @@ async function issueCommand(
     },
     { address, intent },
   );
+  return String(intent.intentId);
 }
 
 /**
- * Waits for a context to have PAINTED a given campaign sequence.
+ * Waits for a context to have PAINTED a given campaign sequence, reading
+ * the GM transport's refusals for the command's intent id between polls.
+ *
+ * A refusal fails the run at once, naming its code and reason: the
+ * authority commits nothing for a refused command, so waiting on would
+ * only report it as a missing paint.
  *
  * On timeout it reports the applied sequence alongside the painted one.
  * The two answer different questions - "did the authority commit and
@@ -593,56 +632,106 @@ async function issueCommand(
  * - and a bare painted number cannot tell a stalled authority from a
  * throttled animation callback.
  */
-async function waitForSequence(page: Page, sequence: number): Promise<void> {
+async function waitForSequence(
+  page: Page,
+  sequence: number,
+  gmPage: Page,
+  intentId: string,
+): Promise<void> {
   // FUNCTIONAL timeout, not the gate: a command that produces no frame
   // at all fails the run rather than being scored as slow.
-  try {
-    await expect
-      .poll(async () => readHighestSequence(page), {
-        timeout: FIXTURE.functionalWaitMs,
-        intervals: [10, 10, 25, 50, 100],
-      })
-      .toBeGreaterThanOrEqual(sequence);
-  } catch (error) {
-    const progress = await readProgress(page);
-    throw new Error(
-      `no painted delivery reached ${sequence}: painted=${progress.painted} ` +
-        `applied=${progress.applied} frames=${progress.frames} ` +
-        `pendingEnvelopes=${progress.pending} (${String(error)})`,
+  const deadline = Date.now() + FIXTURE.functionalWaitMs;
+  const intervals = [10, 10, 25, 50, 100];
+  for (let attempt = 0; ; attempt += 1) {
+    if ((await readHighestSequence(page)) >= sequence) return;
+    const refusal = await readRefusal(gmPage, intentId);
+    if (refusal !== null) {
+      throw new Error(
+        `${intentId} refused on the GM transport: ${refusal.code} ` +
+          `(${refusal.reason}); no delivery reached ${sequence}`,
+      );
+    }
+    if (Date.now() >= deadline) break;
+    await new Promise((resolve) =>
+      setTimeout(resolve, intervals[Math.min(attempt, intervals.length - 1)]),
     );
   }
+  const progress = await readProgress(page);
+  throw new Error(
+    `no painted delivery reached ${sequence}: painted=${progress.painted} ` +
+      `applied=${progress.applied} frames=${progress.frames} ` +
+      `pendingEnvelopes=${progress.pending} ` +
+      `(functional wait ${FIXTURE.functionalWaitMs} ms)`,
+  );
+}
+
+/** The Error frame the GM transport received for one intent id, or null. */
+async function readRefusal(
+  page: Page,
+  intentId: string,
+): Promise<{ code: string; reason: string } | null> {
+  return page.evaluate(
+    (id) =>
+      window.__PERFORMANCE_OBSERVER_STATE__?.refusals.find(
+        (refusal) => refusal.intentId === id,
+      ) ?? null,
+    intentId,
+  );
 }
 
 /**
- * Waits until EVERY context has applied the current head, and returns it.
+ * Polls the probe route until the authority has recorded every retained
+ * participant's acknowledgement of its current head, and returns that
+ * head; fails naming the wait and its last answer after
+ * `functionalWaitMs * 5`.
  *
  * Progression commands are gated on convergence: the authority refuses
  * `AdvanceDay` with `CAMPAIGN_NOT_CONVERGED` while any participant's
- * acknowledged revision is behind. MEASURED: without this the run died
- * around the fiftieth command, on an `AdvanceDay`, with the guests one
- * revision behind - the refusal commits nothing, so the harness saw a
- * command that produced no event and could not tell that from a stall.
+ * acknowledged revision is behind. The answer read here IS that gate
+ * (`evaluateScenarioLaunch`, through the E2E-guarded probe route), so
+ * the wait matches the authority exactly. MEASURED: client-side receipt
+ * plus a fixed 25 ms did not - an acknowledgement is recorded only when
+ * the server dispatches its frame, and a GM command already queued ahead
+ * of it reached the gate first (red-1..3 in the U86 receipts).
  *
  * Waiting here rather than inside the measurement is deliberate: the
  * settle is spent BEFORE the command is issued, so it is not part of any
  * command's accepted-to-rendered latency.
  */
-async function converge(pages: readonly Page[]): Promise<number> {
-  const head = Math.max(
-    ...(await Promise.all(pages.map((page) => readHighestSequence(page)))),
-  );
-  for (const page of pages) {
-    await expect
-      .poll(async () => (await readProgress(page)).applied, {
-        timeout: FIXTURE.functionalWaitMs * 5,
-        intervals: [10, 10, 25, 50, 100],
-      })
-      .toBeGreaterThanOrEqual(head);
+async function converge(
+  request: APIRequestContext,
+  runId: string,
+  matchId: string,
+): Promise<number> {
+  const timeoutMs = FIXTURE.functionalWaitMs * 5;
+  const deadline = Date.now() + timeoutMs;
+  const intervals = [10, 10, 25, 50, 100];
+  let last: unknown = null;
+  for (let attempt = 0; ; attempt += 1) {
+    const response = await request.get(
+      `/api/e2e/performance-probe?matchId=${encodeURIComponent(matchId)}`,
+      { headers: { 'x-playwright-e2e-run-id': runId } },
+    );
+    expect(response.status(), await response.text()).toBe(200);
+    const gate = (
+      (await response.json()) as {
+        convergence?: { ok?: boolean; requiredRevision?: number } | null;
+      }
+    ).convergence;
+    last = gate ?? null;
+    if (gate?.ok === true && typeof gate.requiredRevision === 'number') {
+      return gate.requiredRevision;
+    }
+    if (Date.now() >= deadline) break;
+    await new Promise((resolve) =>
+      setTimeout(resolve, intervals[Math.min(attempt, intervals.length - 1)]),
+    );
   }
-  // The acknowledgement is sent when the frame is applied; this is the
-  // one-way flight time back to the authority.
-  await pages[0]?.waitForTimeout(25);
-  return head;
+  throw new Error(
+    `converge: the authority did not record every participant's ` +
+      `acknowledgement of its head within ${timeoutMs} ms; last answer ` +
+      JSON.stringify(last),
+  );
 }
 
 /** Painted versus applied progress, for telling those two apart. */

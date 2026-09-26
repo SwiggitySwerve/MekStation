@@ -60,6 +60,8 @@ declare global {
         pendingEnvelopes: number;
         pendingBytes: number;
       };
+      /** Error frames this context's transport received, by intent id. */
+      refusals: { code: string; reason: string; intentId: string }[];
     };
     /** This context's post-warm-up JS heap reading, in bytes. */
     __PERFORMANCE_HEAP_BASELINE__?: number;
