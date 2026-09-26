@@ -1,0 +1,73 @@
+{
+  "unit": "U59",
+  "stage": "local",
+  "at": "2026-09-26T19:11:33.000Z",
+  "atSource": "date -u printed after the final node --test, validator and git status runs",
+  "baseline": "1f6bac99dc6dc0378cb88c914db508da88f8f671",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u59",
+  "branch": "roadmap-u59-solo-maintainer-exception-20260926",
+  "implementerModel": "claude-opus (Agent model: opus, lean-worker)",
+  "change": {
+    "validate-roadmap.mjs": "the CAMP gate loop (:287-310): solo = gate.soloException === true; the pin line now requires nonAuthor === !solo and soloException === solo, and keeps state APPROVED, exactHead true, nonDismissed true and permissions exactly WRITE/MAINTAIN/ADMIN on every gate; a solo gate must carry ruling { ruledHead 40-hex, pr integer, commentId integer, author non-empty, bodySha256 64-hex } whose ruledHead equals gate.head; one line (:310) refuses soloException true on any node outside R2.camp-0..8. The check does not read PK-camp-review-gate's decision (admission q5).",
+    "validate-roadmap.test.mjs": "makeFixture gains an optional editNodes(nodesById) third argument (:25-36); six U59 tests (:416-442) with gateFixture (:411) and SOLO/SOLO_RULING fixtures"
+  },
+  "sha256": {
+    "validate-roadmap.mjs": "6b3ec28083d298563a3d9fbc38c01b829f50ed1472954caa1179bc69f4778eda",
+    "validate-roadmap.test.mjs": "e9567b90e44371f02278c84752e45052d1c66efc776cce738670a5121b52de8a (unchanged since the red stage)",
+    "units.json": "fc13f9703c15c94c31c25fecb24072f4cc2ae6c6318f1461c60ab267edfbb353 (unchanged from baseline)",
+    "roadmap.json": "a47501795c79a7a72dce8140736299c0a31da63ac7721503f91918cf7ae34ddd (unchanged from baseline)"
+  },
+  "lineCounts": {
+    "command": "git diff --numstat (working tree against the baseline)",
+    "validate-roadmap.mjs": { "added": 20, "removed": 1, "counted": true },
+    "validate-roadmap.test.mjs": { "added": 42, "removed": 1, "counted": false, "why": "*.test.* is a test file under the U41 counting rule" },
+    "evidence": "three new receipts under evidence/, skipped by the counting rule",
+    "countedLines": 20,
+    "files": 5,
+    "caps": { "maxFiles": 15, "maxNonGeneratedLines": 500 }
+  },
+  "cases": {
+    "R1": "test 22: a solo gate with a valid ruling for its head: PASS (was refused '- R2.camp-3 has invalid CAMP GitHub review gate' on the baseline)",
+    "R2": "test 23: a solo gate without a ruling: refused '- R2.camp-3 CAMP review gate declares soloException without a head-bound OWNER-RULING (PK-camp-review-gate option b)'",
+    "R3": "test 24: an unedited fixture passes; nonAuthor false on a pinned gate and soloException true with nonAuthor true both refused '- R2.camp-3 has invalid CAMP GitHub review gate' (same as baseline)",
+    "otherHead": "test 25: refused 'R2.camp-3 CAMP review gate OWNER-RULING is bound to dddd...(40), not the gate head aaaa...(40)'",
+    "malformed": "test 26: 39-hex ruledHead and no bodySha256 refused 'R2.camp-3 CAMP review gate OWNER-RULING is malformed: ruledHead is not 40-hex, bodySha256 is not 64-hex'",
+    "nonCamp": "test 27: a solo gate with a valid ruling on R0.plan refused 'R0.plan declares a solo-maintainer exception, which only the R2.camp-0..8 review gates may carry'"
+  },
+  "gates": [
+    { "command": "node --test openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs", "exit": 0, "lastLine": "tests 27, pass 27, fail 0 (21 earlier + 6 U59)" },
+    { "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs", "exit": 0, "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows" },
+    { "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --git", "exit": 0, "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows" },
+    { "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next", "exit": 0, "lastLine": "U59" },
+    { "command": "npx jest scripts/__tests__/roadmap-", "exit": 0, "lastLine": "Test Suites: 2 passed, 2 total / Tests: 43 passed, 43 total" },
+    { "command": "npx oxlint", "exit": 0, "lastLine": "Found 84 warnings and 0 errors. (84 = the charter's reference count)" },
+    { "command": "npx oxlint <the two changed files>", "exit": 0, "lastLine": "Found 0 warnings and 0 errors. Finished in 8ms on 0 files", "note": "oxlint's configuration does not lint these files, so the oxlint gate says nothing about them" },
+    { "command": "npm run qc:openspec-ci:validate", "exit": 0, "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0" },
+    { "command": "npx tsc --noEmit", "exit": 0, "lastLine": "(no output)" }
+  ],
+  "mutants": {
+    "method": "each mutant is a single-site string replacement (a node script refusing a site count other than 1) in validate-roadmap.mjs, then node --test and the plain validator; restored by copying the saved implementation bytes back and confirming sha256 6b3ec280...8eda. Not restored with git checkout HEAD (WORKERS.md:226), because HEAD is the baseline and would drop the uncommitted implementation.",
+    "table": [
+      { "id": "M1", "mutation": "the no-ruling refusal replaced by a bare continue (ruling requirement removed)", "result": "node --test exit 1, 26 pass 1 fail: not ok 23 (R2) 'expected a failing exit, got 0: ROADMAP VALIDATION PASSED'", "realLedger": "PASSED 381 tasks, exit 0", "restoredSha256": "6b3ec28083d298563a3d9fbc38c01b829f50ed1472954caa1179bc69f4778eda" },
+      { "id": "M2", "mutation": "'else if (ruling.ruledHead !== gate.head)' replaced by 'else if (false)' (head equality removed)", "result": "node --test exit 1, 26 pass 1 fail: not ok 25 (other head) 'expected a failing exit, got 0: ROADMAP VALIDATION PASSED'", "realLedger": "PASSED 381 tasks, exit 0", "restoredSha256": "6b3ec28083d298563a3d9fbc38c01b829f50ed1472954caa1179bc69f4778eda" },
+      { "id": "M3", "mutation": "'!campIds.includes(node.id) &&' replaced by 'false &&' (the exception allowed on a non-CAMP node)", "result": "node --test exit 1, 26 pass 1 fail: not ok 27 (R0.plan) 'expected a failing exit, got 0: ROADMAP VALIDATION PASSED'", "realLedger": "PASSED 381 tasks, exit 0", "restoredSha256": "6b3ec28083d298563a3d9fbc38c01b829f50ed1472954caa1179bc69f4778eda" },
+      { "id": "M4", "mutation": "'if (malformed.length) fail' replaced by 'if (false) fail' (malformed check removed)", "result": "node --test exit 1, 26 pass 1 fail: not ok 26 (malformed) regex did not match; the fixture falls through to the head refusal instead", "realLedger": "PASSED 381 tasks, exit 0", "restoredSha256": "6b3ec28083d298563a3d9fbc38c01b829f50ed1472954caa1179bc69f4778eda" }
+    ],
+    "note": "every mutant leaves the real ledger passing, as expected: no gate on it is solo"
+  },
+  "nonClaims": [
+    "No build, Playwright, --github run or npm install; npm_config_dry_run=true; qc:guard-node-modules-link exited 1 INSTALL_REFUSED node-modules-is-link by design.",
+    "The validator does not read PK-camp-review-gate's decision and does not verify a gate ruling on GitHub; it checks the ruling record's shape and head only.",
+    "No gate on the ledger is made solo; roadmap.json and units.json are unchanged. No tasks.md row ticked. No commit, push or stash.",
+    "oxlint does not lint the planning directory (0 files on a direct run), so its 84-warning count is unaffected by and says nothing about these files.",
+    "The ruling author is not compared with the repository owner's login."
+  ],
+  "findings": [
+    "FN-u59-approved-under-solo: GitHub refuses an APPROVED review from a PR's own author, and a solo gate still requires state APPROVED because the sentence relaxes only nonAuthor; U60's roster P.2 delta should say what APPROVED means under the exception.",
+    "FN-u59-blocks-needed: U59 is authority class and PK-camp-review-gate has blocks []; validate-roadmap.mjs:484 fails U59 at local-verified unless a packet names it in blocks, so the parent must add U59 to a packet's blocks when folding this receipt.",
+    "FN-u59-packet-line-drift: PK-camp-review-gate's question cites validate-roadmap.mjs:273 for the pin; it sat at :290 on the baseline and the solo-aware pin line is now :295.",
+    "FN-u59-existing-solo-reduction: openspec/changes/add-saved-custom-unit-campaign-roster/specs/journey-qc/spec.md:5 already carries a 2026-08-09 solo-maintainer reduction (sentinel 'solo-maintainer|<owner-login>'); U60 should reconcile the P.2 amendment with it.",
+    "FN-u59-receipt-at-corrected: the admission and red receipts were first written with at values not taken from a clock (the red one later than the time the local stage measured); both were replaced with measured file mtimes and carry atSource."
+  ],
+  "status": "ready: local-verified candidate; 20 counted lines of 500, 5 of 15 files; node --test 27/27; validator plain/--git PASSED 381 tasks, --next U59; four mutants killed and restored"
+}
