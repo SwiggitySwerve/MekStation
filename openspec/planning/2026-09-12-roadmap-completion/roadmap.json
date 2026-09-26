@@ -5628,7 +5628,9 @@
         "openspec/changes/harden-gm-two-player-campaign-sessions",
         "scripts/qc",
         "e2e",
-        "scripts/__tests__"
+        "scripts/__tests__",
+        "src/pages-modules/api/e2ePerformanceProbeRoute.ts",
+        "src/__tests__/api/e2ePerformanceProbeRoute.test.ts"
       ],
       "acceptance": [
         "npm.cmd run verify:qc:gm-two-player-campaign",
@@ -5772,6 +5774,22 @@
           "source": "triage plan edit 9 (evidence/triage-plan-20260922.json (179 register issues verified against main a9244fcad)): a parent ledger edit made to hold the new units (U36, U37 and U50 on R2.multiplayer-client; U29 and U57 on R6.umbrella). Precedent for a dated ownership amendment: ownershipPathsAmended20260917 on R2.combat, R2.authority-live and R6.loop-harness (#1817).",
           "why": "U29's gated-absent manifest pin test and U57's final-gates runner pin; R6.umbrella owned scripts/qc but not its tests",
           "disclosure": "This is not an owner ruling. The owner did not word or rule on this amendment: none of the four decisions recorded under the owner instruction of 2026-09-22 widens node ownership, and the OD-mvp-hard-cutover delegation that edit 9 names covers only OD-journal-writer-authority, OD-flush-mechanism and OD-launch-head-gate. The parent made it as a ledger edit under the triage plan's edit 9."
+        }
+      ],
+      "ownershipPathsAmended20260925": [
+        {
+          "path": "src/pages-modules/api/e2ePerformanceProbeRoute.ts",
+          "at": "2026-09-26T03:56:30.000Z",
+          "units": "U86",
+          "source": "parent, from U86's first admission attempt (evidence/u86-admission-attempt1-20260925.json)",
+          "why": "the E2E-guarded performance probe route the unit's sentence names returns only wall, monotonic and memory readings (e2ePerformanceProbeRoute.ts:53-61), so the unit must extend it to answer the session's convergence for a match"
+        },
+        {
+          "path": "src/__tests__/api/e2ePerformanceProbeRoute.test.ts",
+          "at": "2026-09-26T03:56:30.000Z",
+          "units": "U86",
+          "source": "parent, from U86's first admission attempt (evidence/u86-admission-attempt1-20260925.json)",
+          "why": "the E2E-guarded performance probe route the unit's sentence names returns only wall, monotonic and memory readings (e2ePerformanceProbeRoute.ts:53-61), so the unit must extend it to answer the session's convergence for a match"
         }
       ]
     },
