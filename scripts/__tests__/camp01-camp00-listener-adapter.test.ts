@@ -234,7 +234,11 @@ describe('CAMP-00 listener observation adapter', () => {
   // hermetic runner. The fake packaged-socket child in the temp checkout refuses with runCamp00Authority's own words
   // when CAMP01_NEXT_DIST_DIR is absent, refuses any value but the parent's fake dist directory, and otherwise closes
   // one valid observation for the writer to convert.
-  describe('default runner environment', () => {
+  // The default runner is Windows-only (npm-cli.js beside process.execPath, SystemRoot and ComSpec required), so these
+  // rows run on win32; elsewhere the writer refuses before spawning: CAMP01_WRITER_INVALID: verified npm CLI unavailable.
+  const windowsDescribe =
+    process.platform === 'win32' ? describe : describe.skip;
+  windowsDescribe('default runner environment', () => {
     // prettier-ignore
     function runDefaultWriter(parentDist: string | null) {
       const fakeDist = path.join(root, 'fake-next-dist'), request = writeRequest(root), env: NodeJS.ProcessEnv = { ...process.env, CAMP01_CONTROLLER_CONTEXT: JSON.stringify(request) };

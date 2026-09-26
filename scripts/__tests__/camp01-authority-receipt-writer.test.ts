@@ -412,9 +412,62 @@ describe('CAMP-01 authority receipt writer and validator', () => {
   it('publishes a public-valid run-bound proof-02-triage receipt', () => { const result=invokePublic(triageFixture()); expect(result).toMatchObject({status:0,stdout:'CAMP01 receipt valid\n',stderr:''}); });
 
   // OD-camp00-controller-env: the default runner passes the parent's CAMP01_NEXT_DIST_DIR to the camp-00 row only; a fake
-  // camp-proof child in a temp checkout refuses if it sees the variable and otherwise closes its wave result.
-  // prettier-ignore
-  it('keeps the parent CAMP01_NEXT_DIST_DIR out of a non-camp-00 child run by the default runner', () => { const workspace=fs.mkdtempSync(path.join(os.tmpdir(),'camp-proof-runner-env-')), request=baseRequest(path.join(workspace,'.sisyphus','evidence','playtest',`camp-proof-${sha}`)); fs.writeFileSync(path.join(workspace,'package.json'),JSON.stringify({name:'camp-proof-runner-env-fixture',private:true,scripts:{test:'node child.mjs'}})); fs.writeFileSync(path.join(workspace,'child.mjs'),`import fs from 'node:fs'; import path from 'node:path'; import { canonicalBytes } from ${JSON.stringify(schemasUrl)};\nif (process.env.CAMP01_NEXT_DIST_DIR !== undefined) { console.error('CAMP01_NEXT_DIST_DIR leaked'); process.exit(1); }\nfs.writeFileSync(path.join(process.env.CAMP01_ARTIFACT_DIR, 'wave-result.json'), canonicalBytes({ schema: 'camp01-wave-result/v1', wave: 'camp-proof', runId: process.env.CAMP01_RUN_ID, status: 'passed', assertions: Object.fromEntries(${JSON.stringify([...campProofAssertions].sort())}.map((id) => [id, true])) }));\n`); const result=spawnSync(process.execPath,[path.resolve('scripts/qc/camp01-authority-receipt.mjs'),'write'],{cwd:workspace,encoding:'utf8',env:{...process.env,CAMP01_CONTROLLER_CONTEXT:JSON.stringify(request),CAMP01_NEXT_DIST_DIR:workspace}}); fs.rmSync(workspace,{recursive:true,force:true}); expect(result.stderr).not.toContain('leaked'); expect(result.status).toBe(0); });
+  // camp-proof child in a temp checkout refuses if it sees the variable and otherwise closes its wave result. The runner is
+  // Windows-only (it resolves npm-cli.js beside process.execPath and requires SystemRoot and ComSpec), so this row runs on win32.
+  (process.platform === 'win32' ? it : it.skip)(
+    'keeps the parent CAMP01_NEXT_DIST_DIR out of a non-camp-00 child run by the default runner',
+    () => {
+      const workspace = fs.mkdtempSync(
+        path.join(os.tmpdir(), 'camp-proof-runner-env-'),
+      );
+      const request = baseRequest(
+        path.join(
+          workspace,
+          '.sisyphus',
+          'evidence',
+          'playtest',
+          `camp-proof-${sha}`,
+        ),
+      );
+      const assertions = [...campProofAssertions].sort();
+      fs.writeFileSync(
+        path.join(workspace, 'package.json'),
+        JSON.stringify({
+          name: 'camp-proof-runner-env-fixture',
+          private: true,
+          scripts: { test: 'node child.mjs' },
+        }),
+      );
+      fs.writeFileSync(
+        path.join(workspace, 'child.mjs'),
+        [
+          `import fs from 'node:fs';`,
+          `import path from 'node:path';`,
+          `import { canonicalBytes } from ${JSON.stringify(schemasUrl)};`,
+          `if (process.env.CAMP01_NEXT_DIST_DIR !== undefined) { console.error('CAMP01_NEXT_DIST_DIR leaked'); process.exit(1); }`,
+          `const assertions = Object.fromEntries(${JSON.stringify(assertions)}.map((id) => [id, true]));`,
+          `fs.writeFileSync(path.join(process.env.CAMP01_ARTIFACT_DIR, 'wave-result.json'), canonicalBytes({ schema: 'camp01-wave-result/v1', wave: 'camp-proof', runId: process.env.CAMP01_RUN_ID, status: 'passed', assertions }));`,
+          '',
+        ].join('\n'),
+      );
+      const result = spawnSync(
+        process.execPath,
+        [path.resolve('scripts/qc/camp01-authority-receipt.mjs'), 'write'],
+        {
+          cwd: workspace,
+          encoding: 'utf8',
+          env: {
+            ...process.env,
+            CAMP01_CONTROLLER_CONTEXT: JSON.stringify(request),
+            CAMP01_NEXT_DIST_DIR: workspace,
+          },
+        },
+      );
+      fs.rmSync(workspace, { recursive: true, force: true });
+      expect(result.stderr).not.toContain('CAMP01_NEXT_DIST_DIR leaked');
+      expect(result.status).toBe(0);
+    },
+  );
 
   // OD-proof02-empty-cause-graph: a triage over an all-green reproduction has no cause graph and ends in one terminal line.
   const allGreenTerminal =
