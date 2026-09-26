@@ -37,7 +37,7 @@ interface ICampaignLogRecord {
    * long campaign log never pays an O(n) scan per append.
    */
   readonly sequences: Set<number>;
-  /** Client-command receipts make the flag-off production adapter retry-safe. */
+  /** Client-command receipts make the in-memory adapter retry-safe. */
   readonly commandReceipts: Map<string, ICampaignCommandReceipt>;
 }
 

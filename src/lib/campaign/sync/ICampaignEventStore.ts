@@ -174,7 +174,7 @@ export interface ICampaignEventStore
   /**
    * Optional D10 batch capability (task 1.2): commit one command's whole
    * contiguous event batch plus its expected post-state digest atomically
-   * at the expected head. Both the journal-backed and flag-off in-memory
+   * at the expected head. Both the journal-backed and the in-memory
    * stores provide it so client retry identity is adapter-compatible.
    */
   readonly appendCommandBatch?: (

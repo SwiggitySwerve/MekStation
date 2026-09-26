@@ -1,6 +1,5 @@
 /**
  * Combat journal-authority types and consume-apply seam (task 2.3).
- * Flag OFF matches CAMPAIGN_JOURNAL_AUTHORITY_ENABLED.
  */
 
 import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';

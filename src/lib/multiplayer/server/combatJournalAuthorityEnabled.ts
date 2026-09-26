@@ -32,8 +32,8 @@ const ARMABLE_MODES: readonly CombatJournalAuthorityMode[] = [
 /**
  * The mode this process was armed to, or null when it was not armed.
  *
- * Null unless Playwright e2e mode is on (the same
- * NEXT_PUBLIC_E2E_MODE==='true' check the campaign arm uses) AND the
+ * Null unless Playwright e2e mode is on (NEXT_PUBLIC_E2E_MODE==='true',
+ * its own check: the campaign resolver has no e2e arm) AND the
  * opt-in key holds exactly 'shadow' or 'enabled'. Either key alone, an
  * absent key, and any other value all fail closed, so a typo silently
  * leaves the process at 'off' rather than half-arming it.
