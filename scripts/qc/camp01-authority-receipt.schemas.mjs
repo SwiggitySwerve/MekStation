@@ -83,9 +83,18 @@ export function normalizeProof02Observations(observations) {
   return observations.map((observation) => { exactKeys(observation, ['id','status','knownFailureCode'], 'PROOF-02 observation input'); bounded(observation.id, 'observation id'); if (!['passed','failed','missing'].includes(observation.status)) fail('invalid observation status'); if (![null,'development-mime-diagnostic','guest-badge-timing','save-conflict-timing'].includes(observation.knownFailureCode)) fail('invalid known failure'); return { id: observation.id, status: observation.status, failureFingerprint: observation.status === 'passed' ? null : digestBytes(JSON.stringify(observation)), knownFailureCode: observation.knownFailureCode }; });
 }
 
+// The all-green terminal form of proof-02-triage (OD-proof02-empty-cause-graph): one line, the prefix then a JSON object
+// naming zero causes and the verdict.
+export const PROOF02_ALL_GREEN_TERMINAL =
+  'PROOF02_TRIAGE_TERMINAL {"causes":0,"verdict":"all-green"}';
+
+// Checks one disposition per non-pass observation and returns true after asserting their cause graph. A reproduction with
+// at least one observation and none non-pass, triaged with zero dispositions, returns PROOF02_ALL_GREEN_TERMINAL instead;
+// zero observations still reach the cause-graph assertion and fail as an empty cause graph.
 // prettier-ignore
 export function validateProof02Triage(dispositions, observations) {
   const nonPassing = observations.filter(({status}) => status !== 'passed'); if (!Array.isArray(dispositions) || dispositions.length !== nonPassing.length) fail('triage observation set drift');
+  if (observations.length && !nonPassing.length) return PROOF02_ALL_GREEN_TERMINAL;
   const expected = [...nonPassing].sort((a,b) => a.id.localeCompare(b.id)), actual = [...dispositions].sort((a,b) => a.observationId.localeCompare(b.observationId));
   actual.forEach((entry,index) => { exactKeys(entry, ['observationId','failureFingerprint','severity','outcome','causeFingerprint','resolutionRef','blockerRef','backlogRank','auditAnchor','primaryObservationId','repairRowId'], 'triage disposition'); if (entry.observationId!==expected[index].id || entry.failureFingerprint!==expected[index].failureFingerprint || !['critical','major','minor','low'].includes(entry.severity) || entry.backlogRank!==null && (!Number.isInteger(entry.backlogRank) || entry.backlogRank<1)) fail('triage observation identity drift'); if (!SAFE_REF.test(entry.resolutionRef) || !SAFE_REF.test(entry.auditAnchor) || entry.blockerRef!==null && !SAFE_REF.test(entry.blockerRef) || (entry.outcome==='external-blocker')!==(entry.blockerRef!==null) || (entry.outcome==='repair-required')!==(entry.repairRowId!==null)) fail('triage disposition drift'); });
   assertProofCauseGraph(actual.map(({observationId,causeFingerprint,severity,outcome,primaryObservationId}) => ({observationId,causeFingerprint,severity,outcome,primaryObservationId}))); return true;
