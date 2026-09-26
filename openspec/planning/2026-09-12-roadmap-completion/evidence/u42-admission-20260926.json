@@ -1,0 +1,81 @@
+{
+  "unit": "U42",
+  "stage": "admission",
+  "at": "2026-09-26T18:29:40.000Z",
+  "baseline": "248f7ab12dac16d03311532f91e6d4f8f537c660",
+  "originMainAtAdmission": "892369e676b30d6f757b195187256317b9823e4c (the local origin/main ref moved one commit past the baseline, #2017 'U97 planned', touching roadmap.json +17/-1 and units.json +39; the lane stays on the charter baseline; see risksForTheParent)",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u42",
+  "branch": "roadmap-u42-supplement-snapshot-holders-20260926",
+  "implementerModel": "claude-opus (Agent model: opus, lean-worker)",
+  "behavior": "units.json U42.behavior, verbatim scope: rows the program added to an admitted package after admission get holders without touching admission-snapshot.json, through a frozen additive evidence/admission-snapshot-supplement-20260922.json listed in a new units.json field supplementSnapshots and loaded by the validator into taskByKey next to the snapshot.",
+  "guardNodeModulesLink": {
+    "command": "npm run --silent qc:guard-node-modules-link",
+    "exit": 1,
+    "output": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"<worktree>\\\\node_modules\",\"actualPath\":\"<root checkout>\\\\node_modules\"}",
+    "note": "refuses by design in a junctioned worktree; npm_config_dry_run=true set; no npm install/ci/prune/lifecycle run"
+  },
+  "baselineRuns": [
+    { "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs", "exit": 0, "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows" },
+    { "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --git", "exit": 0, "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows" },
+    { "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next", "exit": 0, "lastLine": "U89" },
+    { "command": "node --test openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs", "exit": 0, "lastLine": "tests 17, pass 17, fail 0" }
+  ],
+  "seams": {
+    "snapshotLoad": "validate-roadmap.mjs:138-144 (evidence/admission-snapshot.json, or --snapshot)",
+    "snapshotOccurrenceKey": "validate-roadmap.mjs:170-175 (key = <group.name>#<task.id>@<task.line>)",
+    "roadmapTasksAgainstSnapshot": "validate-roadmap.mjs:176-202 (roadmap.json tasks must equal the snapshot one to one; actualByKey at :182)",
+    "taskByKey": "validate-roadmap.mjs:318 (const taskByKey = actualByKey: the roadmap.json tasks, which :176-202 pin to the snapshot)",
+    "holderClaim": "validate-roadmap.mjs:320-329 (unit, packet and deferral taskKeys; unknown key and held-twice failures)",
+    "unitKeyMustBeNodeKey": "validate-roadmap.mjs:414-416 (a unit may hold only keys in its owner node's roadmap.json taskKeys)",
+    "tickReadsLiveRow": "validate-roadmap.mjs:476-490",
+    "holdersRule": "validate-roadmap.mjs:518-530 (per activated package: a package some unit holds a key of; iterates roadmap.json tasks)",
+    "countsAndPassedLine": "validate-roadmap.mjs:623-640 (derivedCounts.tasks = snapshotTasks.length, pinned to roadmap.json counts.tasks 376 at :630; PASSED line at :639)",
+    "ledgerFields": "units.json:3 programSnapshot, :4 holdersRule; U42 :3622; U59 :3659; U61 :3726; PK-6-2b-single-player-seat :8628",
+    "rows": "openspec/changes/design-campaign-authority-and-sync/tasks.md:30 (1.6), :104 (6.1), :106 (6.2), :108 (6.3), :110 (6.4)",
+    "wholeRowRule": "GOAL.md:27 (OD-whole-row-tick-rule)",
+    "odFlushMechanism": "roadmap.json:15688 (OD-flush-mechanism), :15699 answer20260922, :15704 nonClaim20260922"
+  },
+  "design": {
+    "q1_entryShapeAndFiveEntries": {
+      "snapshotEntryShape": "evidence/admission-snapshot.json: { at, head, branch, groups: [{ name, path, sha256, tasks: [{ id, sourceIdExplicit, checked, text, line }] }], files }; occurrence key <name>#<id>@<line> (validate-roadmap.mjs:172). The design-campaign-authority-and-sync group holds 26 rows (1.1-5.7), all checked, sha256 f543041f1973fbf63db8616fad0968ad29328ebcbeedcfe4edc609191ec8f643",
+      "supplementShape": "the same groups shape (one group: design-campaign-authority-and-sync, path openspec/changes/design-campaign-authority-and-sync/tasks.md, sha256 dd97d74247eaf7a32a43d4c194f4d0ecbb8629dfd6b4d5072e3c33e69e664dec = the file at f2ee1876613e86759846d1e1f1d836d4b03a0307 (2026-09-22, the last commit touching it) and at the baseline) plus a header: additive (frozen, never edited), supplements, source commit",
+      "entries": [
+        { "key": "design-campaign-authority-and-sync#1.6@30", "tasksMdLine": 30, "checked": false, "letterStart": "1.6 P-A -- flush the pending campaign envelope before the document is discarded", "textChars": 6382 },
+        { "key": "design-campaign-authority-and-sync#6.1@104", "tasksMdLine": 104, "checked": true, "letterStart": "6.1 P0b -- journal-private source envelope, full source baseline, contract-only replay.", "textChars": 2536 },
+        { "key": "design-campaign-authority-and-sync#6.2@106", "tasksMdLine": 106, "checked": false, "letterStart": "6.2 P1 -- source `acceptContractOffer` producer, after 6.1 only.", "textChars": 6236 },
+        { "key": "design-campaign-authority-and-sync#6.3@108", "tasksMdLine": 108, "checked": false, "letterStart": "6.3 Boundary proofs for 6.1 and 6.2.", "textChars": 1599 },
+        { "key": "design-campaign-authority-and-sync#6.4@110", "tasksMdLine": 110, "checked": false, "letterStart": "6.4 Bridge the two compare-and-swap counters after a committed acceptance", "textChars": 1553 }
+      ],
+      "textRule": "text is the whole row after '- [ ] ' / '- [x] ', so the tick check (validate-roadmap.mjs:483-488) matches each by source id and text; each text matches exactly one live row today (measured)",
+      "snapshotUntouched": "admission-snapshot.json sha256 dd2b997e6e2e3adf85130d3196ee9f2838fc900019ff36f8bd3495f3caf58b68 at admission; re-measured at stage 3"
+    },
+    "q2_declarationAndLoading": "units.json gains supplementSnapshots: [{ path: 'evidence/admission-snapshot-supplement-20260922.json', sha256: '<file sha256>' }], paths resolved against the roadmap directory like programSnapshot (validate-roadmap.mjs:310). In the ledger block taskByKey becomes a copy of actualByKey plus every supplement occurrence (same key rule and the task fields the tick and holders checks read: package, sourcePath, sourceId, sourceIdExplicit, sourceLine, text, checkedAtAdmission). Refusals: a file whose sha256 differs from the recorded one ('supplement snapshot <path> sha256 <actual> differs from the recorded <recorded>'); a group naming a package not in the admission snapshot ('supplement snapshot <path> names package <name>, which the admission snapshot does not admit'); a key already in the snapshot or an earlier supplement ('supplement snapshot <path> repeats task occurrence <key>'; the entry is not loaded).",
+    "q3_holders": {
+      "whatHolderMeans": "a unit, packet or deferral naming the key in taskKeys (validate-roadmap.mjs:327-329), or a unit tick receipt (tickedKeys, :344, skipped at :527); only open rows (checkedAtAdmission false) need one (:526)",
+      "activation": "the holders rule runs only for activated packages (:519-523), and no unit holds a design-campaign-authority-and-sync key today (measured), so loading alone would not make the supplemented rows red. Design: a package named by a supplement snapshot is activated (the supplement exists because the program tracks those rows); the holdersRule text in units.json says so. The package's 26 snapshot rows are all checked at admission, so activation adds no other demand today",
+      "unitsCannotHoldSupplementRows": "a unit holding a supplement key fails validate-roadmap.mjs:414-416 (not a task key of its owner node: node taskKeys come from roadmap.json, pinned to roadmap tasks at :231-244), so a supplement row is held by a packet or a deferral; a unit tick of one needs a roadmap.json edit (outside this unit)",
+      "row1_6": "HELD BY A NEW PACKET PK-1-6-navigation-flush-letter (node R2.authority-client). The letter cannot be verified as naming no navigation-flush scenario: tasks.md:30 states the loss it fixes as 'up to 2s of mutations are discarded on hard reload or close' (a hard reload is a navigation-shaped discard), while its NON-CLAIMS say a browser that 'FIRES the event, accepts the keepalive request and then declines to dispatch it because the document is leaving via a NAVIGATION rather than a close' still loses the window, and its ACCEPTANCE names only jsdom jest suites; the row's own progress note (tasks.md:31) keeps the box OPEN because 'the loss this box set out to fix still occurs on the \"hard reload\" half of the \"hard reload or close\" window named in its own text above'. OD-flush-mechanism non-claim recorded (roadmap.json:15704): the keepalive fetch on pagehide can be aborted before dispatch on a navigation",
+      "row6_1": "checked in the live file (tasks.md:104 '- [x] 6.1') and in the supplement (checked true), so the holders rule needs no holder; U61 holds no task keys (U61.taskKeys []) and cannot hold a supplement key as a unit (:414-416). No holder is assigned",
+      "rows6_2to6_4": "PK-6-2b-single-player-seat, taskKeys [] today; the three keys are added to its taskKeys. Measured: the packet carries decision (b) at 2026-09-22T22:15:03Z and ruling null; no unit is owner-gated on it"
+    },
+    "q4_red": "with the supplement loaded and no holders, the holders rule names 1.6, 6.2, 6.3 and 6.4 as 'activated package design-campaign-authority-and-sync leaves <key> open and unheld'; 6.1 is not named because it is checked. On the baseline validator the field is unread (a fixture with the supplement listed and no holders PASSES), and a fixture whose packets hold the keys FAILS with '<packet> references unknown task key <key>'. After the change both fixtures flip",
+    "q5_counts": "the PASSED line's task count becomes 381 (376 snapshot occurrences + 5 supplement occurrences); roadmap.json counts.tasks stays 376 and is still pinned to the snapshot at :630. README.md:6 ('Scope covers ... 376 task occurrences') is a human overview that no check reads, known stale after this unit; README.md:16 describes the snapshot and stays true"
+  },
+  "estimate": {
+    "validate-roadmap.mjs": "+30 lines",
+    "validate-roadmap.test.mjs": "+80 lines",
+    "units.json": "+30 lines (supplementSnapshots, holdersRule sentence, PK-6-2b taskKeys, new packet)",
+    "evidence/admission-snapshot-supplement-20260922.json": "new, ~45 lines (under evidence/, skipped by the --git diff check)",
+    "receipts": "3 files under evidence/"
+  },
+  "caps": { "maxFiles": 15, "maxNonGeneratedLines": 500 },
+  "risksForTheParent": [
+    "routine: the ledger gains five task occurrences; the PASSED line reads 381 tasks instead of 376; README.md:6 (376) is a known-stale human overview, not an assertion",
+    "units.json moved on origin/main after the baseline (#2017, +39 lines); the parent will re-apply the ledger edits (supplementSnapshots, holdersRule sentence, PK-6-2b-single-player-seat taskKeys, the new packet) onto the moved main",
+    "a supplement row can be held only by a packet or a deferral: a unit holding one fails validate-roadmap.mjs:414-416 until roadmap.json node taskKeys carry it; ticking 1.6 or 6.2-6.4 through a unit's tick receipt therefore needs a follow-up that edits roadmap.json",
+    "the supplement text is frozen: U61's spec delta amends 6.2's letter, after which a tick receipt could no longer match 6.2 by text; a later supplement (not an edit) would carry the amended row",
+    "PK-1-6-navigation-flush-letter is new and carries decision null (an owner question)"
+  ],
+  "reviewClasses": ["routine"],
+  "decision": "go"
+}

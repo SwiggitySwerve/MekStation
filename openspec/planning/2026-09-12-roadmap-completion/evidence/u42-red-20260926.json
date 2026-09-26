@@ -1,0 +1,52 @@
+{
+  "unit": "U42",
+  "stage": "red",
+  "at": "2026-09-26T18:32:39.000Z",
+  "baseline": "248f7ab12dac16d03311532f91e6d4f8f537c660",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u42",
+  "branch": "roadmap-u42-supplement-snapshot-holders-20260926",
+  "implementerModel": "claude-opus (Agent model: opus, lean-worker)",
+  "validatorUnderTest": "the baseline validate-roadmap.mjs, sha256 65bd2b258c3f5da5fdf43bf19b00f384982d5fbca15124abf0a7c0d114b0317b (unchanged); the new supplement file (evidence/admission-snapshot-supplement-20260922.json, sha256 2047731066377c7ada89dfa9e71a023ea8bf7fcedebbb2c2bfb1f8569b7c2066) and four new node --test cases (validate-roadmap.test.mjs, tests 18-21) exist; units.json unchanged",
+  "command": "node --test openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs",
+  "exit": 1,
+  "counts": { "tests": 21, "pass": 17, "fail": 4 },
+  "fixtures": [
+    {
+      "id": "R1",
+      "test": "19 - the same supplement passes once packets hold its open rows, and its occurrences are counted",
+      "finding": "the baseline never reads supplementSnapshots: the five occurrences are unknown keys, so packets holding them fail",
+      "output": [
+        "expected a passing exit, got 1: ROADMAP VALIDATION FAILED (4 issues)",
+        "- PK-f16 references unknown task key design-campaign-authority-and-sync#1.6@30",
+        "- PK-f62 references unknown task key design-campaign-authority-and-sync#6.2@106",
+        "- PK-f62 references unknown task key design-campaign-authority-and-sync#6.3@108",
+        "- PK-f62 references unknown task key design-campaign-authority-and-sync#6.4@110"
+      ]
+    },
+    {
+      "id": "R1-ledger",
+      "command": "validate-roadmap.mjs --roadmap <tmp copy of the planning directory whose units.json lists supplementSnapshots and holds nothing new>",
+      "exit": 0,
+      "output": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "finding": "the field is unread: listing the supplement changes nothing (376 tasks) and no row is demanded a holder"
+    },
+    {
+      "id": "R2",
+      "test": "18 - a listed supplement with no holders fails, naming each open supplemented row and not the checked 6.1",
+      "output": "expected a failing exit, got 0: ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "finding": "red on the baseline because the baseline cannot load the supplement; the expected failure names 1.6@30, 6.2@106, 6.3@108 and 6.4@110 (6.1@104 is checked and needs no holder)"
+    },
+    {
+      "id": "R3 (duplicate-key refusal)",
+      "test": "20 - a supplement repeating a snapshot occurrence is refused",
+      "output": "The input did not match the regular expression /supplement snapshot evidence\\/admission-snapshot-supplement-20260922\\.json repeats task occurrence design-campaign-authority-and-sync#1\\.1@11/ (stderr carried the four 'references unknown task key' lines above)"
+    },
+    {
+      "id": "R4 (frozen sha256)",
+      "test": "21 - a supplement whose bytes differ from the recorded sha256 is refused",
+      "output": "The input did not match the regular expression /supplement snapshot evidence\\/admission-snapshot-supplement-20260922\\.json sha256 [0-9a-f]{64} differs from the recorded 0{64}/ (stderr carried the four 'references unknown task key' lines above)"
+    }
+  ],
+  "unchangedCases": "tests 1-17 (U16 and U41) pass on the baseline",
+  "reviewClasses": ["routine"]
+}

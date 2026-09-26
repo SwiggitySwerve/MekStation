@@ -3673,14 +3673,28 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
+      "state": "local-verified",
+      "baseline": "248f7ab12dac16d03311532f91e6d4f8f537c660",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/u42-admission-20260926.json",
+          "baseline": "248f7ab12dac16d03311532f91e6d4f8f537c660",
+          "at": "2026-09-26T18:29:40.000Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/u42-red-20260926.json",
+          "at": "2026-09-26T18:32:39.000Z",
+          "summary": "baseline 248f7ab12 (U41's validator): node --test 21 tests, 17 pass, 4 fail on the baseline validator (sha256 65bd2b25): R1 the baseline never reads supplementSnapshots, so a fixture listing the supplement with packets holding its keys fails 'PK-f16 references unknown task key design-campaign-authority-and-sync#1.6@30' (and 6.2, 6.3, 6.4), while a copy of the real ledger listing the supplement with no holders passes at 376 tasks; R2 the no-holders fixture gets 'expected a failing exit, got 0: ROADMAP VALIDATION PASSED ... 376 tasks'; after the change it fails naming 1.6@30, 6.2@106, 6.3@108, 6.4@110 and not 6.1 (checked at tasks.md:104)"
+        },
+        "local": {
+          "path": "evidence/u42-local-20260926.json",
+          "at": "2026-09-26T18:36:56.000Z",
+          "summary": "validate-roadmap.mjs +31/-5 (supplementSnapshots loaded into taskByKey next to the snapshot; a supplement entry repeating a snapshot key is refused 'supplement snapshot <path> repeats task occurrence <key>'; a supplement whose sha256 differs from the recorded one is refused; a package a supplement names counts as activated for the holders rule), validate-roadmap.test.mjs +60 (tests 18 to 21), units.json +48/-3 (supplementSnapshots [{path, sha256 2047731066377c7a}], one sentence in holdersRule, the new packet PK-1-6-navigation-flush-letter holding 1.6@30 with decision null and three options recommending (b) a spec delta narrowing the letter, PK-6-2b-single-player-seat's taskKeys extended with 6.2@106, 6.3@108, 6.4@110), evidence/admission-snapshot-supplement-20260922.json new 53 lines (one group for design-campaign-authority-and-sync at tasks.md sha256 dd97d742, byte-identical since f2ee18766; entries 1.6@30, 6.1@104 checked, 6.2@106, 6.3@108, 6.4@110, each text the whole live row); admission-snapshot.json unchanged (sha256 dd2b997e); 79 counted lines of 500, 7 of 15 files; the 1.6 decision: not verifiable from the letter alone (tasks.md:30 names the hard-reload half, its NON-CLAIMS name a navigation that declines the keepalive dispatch, the progress note at :31 keeps the box open), so a packet holds it and the OD-flush-mechanism non-claim (roadmap.json:15704) is recorded on it; node --test 21 pass; validator plain, --git PASSED at 381 tasks, --next U89; jest scripts/__tests__/roadmap- 43; oxlint 84 warnings 0 errors; qc:openspec-ci errors=0; tsc 0; mutants: loading removed (tests 18-21 fail, the real ledger fails with four unknown-key errors), duplicate-key refusal removed (test 20), 6.3 removed from PK-6-2b on a copy (open and unheld named), activation removed (test 18), sha256 check disabled (test 21), each restored with sha256 df40a6de confirmed; NON-CLAIMS: no build, Playwright, --github or install; no tasks.md row ticked; roadmap.json and README untouched; the tick check not exercised on a supplement row; implementer claude-opus (Agent model: opus, lean-worker); status ready"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
@@ -3692,7 +3706,11 @@
         "I-post-admission-rows-unheld",
         "I-accept-contract-6-2-single-player-identity",
         "I-campaign-flush-navigation-gap"
-      ]
+      ],
+      "admissionNote20260926": {
+        "at": "2026-09-26T18:40:10.000Z",
+        "note": "--next printed U89 (the in-flight server unit); the parent chose U42 (file-disjoint, routine, docs class, after U41 on the same validator). Admission GO. The sentence cites four tasks.md lines for five rows: 6.1 sits at :104 and is checked, so the holders check names four rows. 1.6's letter could not be verified free of a navigation-flush scenario (its NON-CLAIMS name a navigation that declines the keepalive dispatch), so PK-1-6-navigation-flush-letter holds it with the OD-flush-mechanism non-claim recorded. Process: this unit edits units.json, so its receipts fold BEFORE its reviewed head is cut (FN-u41-ledger-editing-unit-blob-equality)."
+      }
     },
     {
       "id": "U59",
@@ -11050,6 +11068,42 @@
       "summary": "A unit whose PR edits units.json cannot satisfy the closure's blob-equality check if any ledger PR lands between its reviewed head and its merge; the unit's own receipts fold is such a PR. Order for ledger-editing units: fold the receipts first, cut the reviewed head on that main, review, merge immediately. The safety hook blocks force pushes, so a re-cut is a cherry-pick onto a fresh branch and a new PR.",
       "recommendedSuccessor": "none; the order is recorded in WORKERS.md by the next docs unit that edits it",
       "status": "recorded; applied to U41's re-cut"
+    },
+    {
+      "id": "FN-u42-no-unit-can-hold-a-supplement-row",
+      "foundBy": "U42 implementer lane (claude-opus, lean-worker), 2026-09-26 (read: validate-roadmap.mjs:414-416 on the baseline)",
+      "at": "2026-09-26T18:40:10.000Z",
+      "class": "ledger mechanics gap",
+      "summary": "The check that a unit's task key belongs to its node reads roadmap.json node taskKeys, which the supplement does not extend, so no unit can tick 1.6 or 6.2-6.4 through a tick receipt until a follow-up adds the keys to the node in roadmap.json.",
+      "recommendedSuccessor": "the unit that ticks the first supplement row amends roadmap.json's node taskKeys in the same docs PR",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u42-pk-6-2b-called-owner-gated-without-a-gate",
+      "foundBy": "U42 implementer lane (claude-opus, lean-worker), 2026-09-26",
+      "at": "2026-09-26T18:40:10.000Z",
+      "class": "ledger wording",
+      "summary": "PK-6-2b-single-player-seat carries decision (b) with ruling null; the U42 sentence calls it owner-gated, but no unit's ownerGate names it.",
+      "recommendedSuccessor": "U61 (the 6.2 spec delta) names it in its ownerGate or the packet's decision is completed",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u42-frozen-supplement-text-vs-u61-delta",
+      "foundBy": "U42 implementer lane (claude-opus, lean-worker), 2026-09-26",
+      "at": "2026-09-26T18:40:10.000Z",
+      "class": "ledger mechanics",
+      "summary": "U61's spec delta will change 6.2's wording while the supplement's row text is frozen with its sha256; a later tick of 6.2 needs a new supplement entry, not an edit.",
+      "recommendedSuccessor": "U61 records the new row text in a second supplement",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u42-readme-task-count-stale",
+      "foundBy": "U42 implementer lane (claude-opus, lean-worker), 2026-09-26",
+      "at": "2026-09-26T18:40:10.000Z",
+      "class": "stale human overview",
+      "summary": "README.md:6 says 376 task occurrences; the validator now counts 381 with the supplement. No check reads README.",
+      "recommendedSuccessor": "the README status refresh the parent already owes",
+      "status": "recorded"
     }
   ]
 }
