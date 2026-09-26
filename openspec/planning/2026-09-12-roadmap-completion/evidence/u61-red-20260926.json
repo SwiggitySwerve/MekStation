@@ -1,0 +1,208 @@
+{
+  "unit": "U61",
+  "stage": "red",
+  "at": "2026-09-26T22:04:10Z",
+  "baseline": "3c010252b43bb062a93fc490fe7b29c6346afff4",
+  "head": "3c010252b43bb062a93fc490fe7b29c6346afff4",
+  "workingTreeAtRed": "git status --short printed only \"?? openspec/planning/2026-09-12-roadmap-completion/evidence/u61-admission-20260926.json\"; no ownership file edited yet",
+  "implementerModel": "claude-opus (Agent model: opus, lean-worker)",
+  "shellPreamble": [
+    "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "export npm_config_dry_run=true"
+  ],
+  "R1": {
+    "openspecStrict": {
+      "command": "npx openspec validate --all --strict",
+      "exitCode": 0,
+      "lastLine": "Totals: 229 passed, 0 failed (229 items)",
+      "changeLine": "✓ change/design-campaign-authority-and-sync (log line 79)",
+      "resolvedBinary": "openspec 1.5.0 (npx openspec --version and the global openspec --version both print 1.5.0; node_modules/.bin has no openspec, a global one is at %APPDATA%/npm/openspec)",
+      "log": {
+        "path": "<lane-temp>/red-osv.log",
+        "sha256": "fed248fc815eeb6f7bcba19c13e61a741afc1b5b5b5033b1c2d22a2195eccb0e"
+      }
+    },
+    "openspecCi": {
+      "command": "npm run --silent qc:openspec-ci:validate",
+      "exitCode": 0,
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+      "log": {
+        "path": "<lane-temp>/red-ci.log",
+        "sha256": "21c1181842878b6c171cc9f496ad0f18fdaf7636c2d91ecc439a1da7b51589e6"
+      }
+    },
+    "verdict": "PASS on the baseline, as the charter expects; this unit must keep both PASS"
+  },
+  "R2": {
+    "roadmapPlain": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "exitCode": 0,
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows",
+      "log": {
+        "path": "<lane-temp>/red-roadmap.log",
+        "sha256": "5d4e2632ad433b598282457f50f016260282736419f55973bd91f704a9ef25a1"
+      }
+    },
+    "roadmapGit": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --git",
+      "exitCode": 0,
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 381 tasks, 40 triage rows",
+      "log": {
+        "path": "<lane-temp>/red-roadmap-git.log",
+        "sha256": "5d4e2632ad433b598282457f50f016260282736419f55973bd91f704a9ef25a1"
+      }
+    },
+    "supplementSha256": {
+      "recorded": "2047731066377c7ada89dfa9e71a023ea8bf7fcedebbb2c2bfb1f8569b7c2066",
+      "measured": "2047731066377c7ada89dfa9e71a023ea8bf7fcedebbb2c2bfb1f8569b7c2066"
+    },
+    "pinnedRowsVsLive": "node probe over the supplement: 1.6@30, 6.1@104, 6.2@106, 6.3@108, 6.4@110 live text equal to the pinned text (6.2 sha256 a266125321583ca907cfda02137f32bb1b1ee0cc9a391b67fab9a9932b96472a both); tasks.md file sha256 dd97d74247eaf7a32a43d4c194f4d0ecbb8629dfd6b4d5072e3c33e69e664dec equals the supplement group sha256",
+    "verdict": "PASS at 381 tasks on the baseline"
+  },
+  "R3": {
+    "command": "node <lane-temp>/probe.mjs (per-surface line hits for each delta term over the change deltas, design.md, tasks.md and every canonical openspec/specs/*/spec.md)",
+    "exitCode": 0,
+    "counts": {
+      "coopHostScope": {
+        "deltas": 0,
+        "design": 0,
+        "tasks": 0,
+        "canonical": 0
+      },
+      "commandsRoute": {
+        "deltas": 1,
+        "design": 0,
+        "tasks": 2,
+        "canonical": 0
+      },
+      "singlePlayerNotSubmitted": {
+        "deltas": 0,
+        "design": 0,
+        "tasks": 0,
+        "canonical": 0
+      },
+      "singlePlayerClientApply": {
+        "deltas": 0,
+        "design": 0,
+        "tasks": 0,
+        "canonical": 0
+      },
+      "bridge64": {
+        "deltas": 0,
+        "design": 0,
+        "tasks": 0,
+        "canonical": 0
+      },
+      "findingFN": {
+        "deltas": 0,
+        "design": 0,
+        "tasks": 0,
+        "canonical": 0
+      },
+      "packetPK": {
+        "deltas": 0,
+        "design": 0,
+        "tasks": 0,
+        "canonical": 0
+      },
+      "d8Marker": {
+        "deltas": 0,
+        "design": 0,
+        "tasks": 1,
+        "canonical": 0
+      },
+      "d8Genesis": {
+        "deltas": 0,
+        "design": 0,
+        "tasks": 0,
+        "canonical": 0
+      },
+      "d8Predicate": {
+        "deltas": 0,
+        "design": 0,
+        "tasks": 0,
+        "canonical": 0
+      }
+    },
+    "hits": {
+      "coopHostScope": {
+        "deltas": [],
+        "design": [],
+        "tasks": [],
+        "canonical": []
+      },
+      "commandsRoute": {
+        "deltas": [
+          "openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md:124"
+        ],
+        "design": [],
+        "tasks": [
+          "openspec/changes/design-campaign-authority-and-sync/tasks.md:17",
+          "openspec/changes/design-campaign-authority-and-sync/tasks.md:68"
+        ],
+        "canonical": []
+      },
+      "singlePlayerNotSubmitted": {
+        "deltas": [],
+        "design": [],
+        "tasks": [],
+        "canonical": []
+      },
+      "singlePlayerClientApply": {
+        "deltas": [],
+        "design": [],
+        "tasks": [],
+        "canonical": []
+      },
+      "bridge64": {
+        "deltas": [],
+        "design": [],
+        "tasks": [],
+        "canonical": []
+      },
+      "findingFN": {
+        "deltas": [],
+        "design": [],
+        "tasks": [],
+        "canonical": []
+      },
+      "packetPK": {
+        "deltas": [],
+        "design": [],
+        "tasks": [],
+        "canonical": []
+      },
+      "d8Marker": {
+        "deltas": [],
+        "design": [],
+        "tasks": [
+          "openspec/changes/design-campaign-authority-and-sync/tasks.md:25"
+        ],
+        "canonical": []
+      },
+      "d8Genesis": {
+        "deltas": [],
+        "design": [],
+        "tasks": [],
+        "canonical": []
+      },
+      "d8Predicate": {
+        "deltas": [],
+        "design": [],
+        "tasks": [],
+        "canonical": []
+      }
+    },
+    "log": {
+      "path": "<lane-temp>/red-probe.json",
+      "sha256": "5a605cec6b14a7162742ca20bce086083560990fd7207bd52f57d793b41e85ca"
+    },
+    "absenceQuoted": [
+      "co-op-host scope, \"SHALL NOT be submitted to `/commands`\", the single-player client-apply wording, the 6.4 bridge wording, FN-ob2-identity-before-hosted-deployment and PK-6-2b-single-player-seat: 0 lines in the change deltas, design.md, tasks.md and the canonical specs",
+      "commandsRoute already has baseline hits (campaign-authority/spec.md:124, tasks.md:17, tasks.md:68): the route is named today, but none of those lines scopes acceptance to co-op hosts",
+      "nearest existing text, campaign-authority/spec.md:197: \"When the source refuses the command, including the refusal a campaign that is not on journal authority receives, no event SHALL be committed and the existing client-side acceptance remains the single write.\" It says nothing about which campaigns route through /commands or about a single-player seat",
+      "D8 today, design.md:40: \"an adopted browser campaign records its imported baseline in the D10 cutover marker and enters `journal` (or `shadowing`, where a server snapshot also exists)\"; `importedBaseline: null`, the system-principal genesis and campaignBaselineReachesViewer: 0 lines in design.md (the one `importedBaseline: null` hit is tasks.md:25, the dated 2026-08-23 receipt about the ordinary PUT create path)"
+    ],
+    "verdict": "RED: the canonical specs and the change say nothing about co-op-host-only routing or the single-player non-claim, and D8 contradicts U35a"
+  }
+}

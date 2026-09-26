@@ -4061,14 +4061,28 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
+      "state": "local-verified",
+      "baseline": "3c010252b43bb062a93fc490fe7b29c6346afff4",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/u61-admission-20260926.json",
+          "baseline": "3c010252b43bb062a93fc490fe7b29c6346afff4",
+          "at": "2026-09-26T22:00:30Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/u61-red-20260926.json",
+          "at": "2026-09-26T22:04:10Z",
+          "summary": "baseline 3c010252b (U42's supplement, U35a's marker, U58's predicate, U97's delta in the same change): strict OpenSpec 229 passed, qc:openspec-ci errors=0, the roadmap validator plain and --git PASSED at 381 tasks on the baseline; the co-op-host scope, the single-player wording, the 6.4 bridge wording, FN-ob2 and PK-6-2b had 0 hits across the deltas, design.md, tasks.md and the canonical specs; design.md:40 (D8) read 'records its imported baseline in the D10 cutover marker'; the packet PK-6-2b-single-player-seat decision quoted: option (b) co-op-host-only scope for 6.2b, 'approve and yes to both', 2026-09-22T22:15:03Z, ruling null"
+        },
+        "local": {
+          "path": "evidence/u61-local-20260926.json",
+          "at": "2026-09-26T22:20:00Z",
+          "summary": "3 files, +16/-3 (specs/campaign-authority/spec.md +14/-1: the change's own ADDED requirement 'An accepted contract is written exactly once, by exactly one writer' edited in place (no canonical campaign-authority spec exists to MODIFY): routing through the source command pipeline scoped to co-op-hosted campaigns via POST /api/campaigns/[id]/commands under the active-seat authorization; a single-player acceptance stays the client-side apply persisted through the whole-envelope save under the row-version compare-and-swap task 6.4 bridges, a recorded non-claim, the principal left to FN-ob2-identity-before-hosted-deployment; two scenarios added, six parse; design.md +1/-1: D8 amended 2026-09-26: an adopted campaign is journal-native with a system-authored CampaignSnapshotPublished genesis at sequence 0, marker state journal with importedBaseline null and no shadowing marker, D10's rollback not applying, importedDigest still returned, campaignBaselineReachesViewer reading that genesis; each clause checked against campaignLegacyAdoption.ts:130-148, campaignSourceGenesis.ts:238-302, campaignAuthorityMigration.ts:155-162, campaignViewerProjection.ts:95-103; tasks.md +1/-1: one amendment on the section-6 preface line, every pinned row byte-identical to the supplement text, 6.2@106 sha256 unchanged, the supplement file's sha256 unchanged); no checkbox ticked; strict OpenSpec 229 passed with the change valid alone; qc:openspec-ci errors=0; validator plain and --git PASSED at 381 tasks; oxfmt ignores openspec (.oxfmtignore:11); grep probe finds the scope, the route, the client apply, the 6.4 bridge, FN-ob2 (spec.md:197, :225-235, tasks.md:102) and the D8 text (design.md:40); mutants: a header renamed to an existing requirement killed (duplicate requirement); a missing colon, an empty name and a wrong heading level (which silently drops the requirement) SURVIVE OpenSpec 1.5.0 strict validation; a one-character edit of the 6.2 row SURVIVES the roadmap validator (it compares the live row with the supplement only at tick time), the lane's own pinned-row probe catches it; each restored with sha256 confirmed; NON-CLAIMS: no src change, rows 6.2-6.4 stay open, the 6.2b routing unbuilt, no build, jest or Playwright, the D8 and 6.4 wording checked by reading; implementer claude-opus (Agent model: opus, lean-worker); status ready"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
@@ -4076,7 +4090,11 @@
       },
       "ownerGate": null,
       "packet": "PK-6-2b-single-player-seat",
-      "source20260922": "planned by the parent to implement the owner's yes on PK-6-2b-single-player-seat (chat 2026-09-22, \"approve and yes to both\"); the PR still needs the owner's head-bound ruling"
+      "source20260922": "planned by the parent to implement the owner's yes on PK-6-2b-single-player-seat (chat 2026-09-22, \"approve and yes to both\"); the PR still needs the owner's head-bound ruling",
+      "admissionNote20260926": {
+        "at": "2026-09-26T22:09:16.000Z",
+        "note": "--next printed U94 (the in-flight U98's server path); the parent chose U61 after U42 and U97 (the same change). Admission GO: PK-6-2b-single-player-seat is owner-decided for option (b) (2026-09-22). No canonical campaign-authority spec exists, so the change's own ADDED requirement is edited in place rather than MODIFIED; the tasks prose amendment sits on the section-6 preface line so every row pinned by U42's supplement stays byte-identical; D8's amendment was checked clause by clause against U35a's adoption code and U58's predicate."
+      }
     },
     {
       "id": "U23",
@@ -10065,6 +10083,34 @@
       },
       "note": "opened at fold on 2026-09-26, before the ruling, so the validator's sensitive-class check sees the packet while the unit is local-verified; decision and ruling are filled when the owner rules the exact head",
       "headNote": "3207ff20d is the head after the Windows-only test gating; the first head 31f9424d5 carried the product change and the Lane A APPROVE"
+    },
+    {
+      "id": "PK-u61-ruling",
+      "blocks": [
+        "U61"
+      ],
+      "nodes": [
+        "R2.authority"
+      ],
+      "taskKeys": [],
+      "question": "U61 (review classes authority) presents head 9966f819ce7113f81ee99ebeec6334721a85b086. Does the owner rule it?",
+      "options": [
+        {
+          "label": "rule the head",
+          "consequence": "an OWNER-RULING <head> comment and the owner-ruled label on U61's PR; the unit merges and proceeds to main proof",
+          "effort": "0.1 day owner"
+        },
+        {
+          "label": "reject",
+          "consequence": "the PR closes; the unit returns to planned with the objection recorded",
+          "effort": "0.1 day owner"
+        }
+      ],
+      "agentRecommendation": "rule the head once Lane A has approved it and the checks are green",
+      "revertCost": "low: a squash merge revert",
+      "decision": null,
+      "ruling": null,
+      "note": "opened at fold on 2026-09-26, before the ruling, so the validator's sensitive-class check sees the packet while the unit is local-verified; decision and ruling are filled when the owner rules the exact head"
     }
   ],
   "deferrals": [
@@ -11731,6 +11777,33 @@
       "class": "CI coverage gap",
       "summary": "The CAMP receipt writer's default runner (camp01-authority-receipt.mjs:105-125) runs on Windows only: it looks for the verified npm CLI beside the node executable and requires SystemRoot and ComSpec, joining PATH with ';'. Its rows are gated to Windows, so Linux CI never exercises the camp-00 pass-through or the camp-00-only limit.",
       "recommendedSuccessor": "a CAMP harness unit makes the runner portable if CI coverage of the camp-00 rows is wanted",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u61-validator-checks-pinned-rows-only-at-tick",
+      "foundBy": "U61 implementer lane (claude-opus, lean-worker), 2026-09-26 (validate-roadmap.mjs:520-534; mutant M2)",
+      "at": "2026-09-26T22:09:16.000Z",
+      "class": "ledger mechanics gap",
+      "summary": "The roadmap validator compares a live task row against the frozen supplement text only when checking a tick receipt; an unticked pinned row (6.2) can drift by one character without any failure, and the tasks.md file hash recorded in the supplement is never checked.",
+      "recommendedSuccessor": "a validator unit checks every pinned row against the supplement on every run",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u61-openspec-strict-accepts-malformed-headers",
+      "foundBy": "U61 implementer lane (claude-opus, lean-worker), 2026-09-26 (mutants M1a-M1c on OpenSpec 1.5.0)",
+      "at": "2026-09-26T22:09:16.000Z",
+      "class": "tool gap",
+      "summary": "Strict OpenSpec validation accepts a requirement header without its colon, with an empty name, and at the wrong heading level (the last silently drops the requirement from the deltas: 31 to 30); only a duplicate name is refused.",
+      "recommendedSuccessor": "the qc:openspec-ci validator counts each change's requirement headers against its delta count",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u61-stale-adoption-prose-outside-sentence",
+      "foundBy": "U61 implementer lane (claude-opus, lean-worker), 2026-09-26",
+      "at": "2026-09-26T22:09:16.000Z",
+      "class": "stale prose",
+      "summary": "tasks.md:25's dated 2026-08-23 receipt still describes adoption as the old shadowing import, and design.md:106 and :139 do not mention the co-op-host scope; outside U61's sentence, left as is.",
+      "recommendedSuccessor": "the change's archive pass",
       "status": "recorded"
     }
   ]
