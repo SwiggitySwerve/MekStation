@@ -1,0 +1,103 @@
+{
+  "unit": "U35h",
+  "stage": "red",
+  "at": "2026-09-26T01:30:51.848Z",
+  "firstAttempt": {
+    "receipt": "evidence/u35h-admission-attempt1-20260925.json",
+    "note": "the first attempt stopped at admission; no red was written then"
+  },
+  "baseline": "54ca8197ca90534648bf6b1ef310186116189c6f",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "productFilesAtBaseline": {
+    "note": "only the test file carries the new row; every product file is the baseline byte for byte",
+    "git diff --name-only": [
+      "scripts/__tests__/gm-two-player-campaign-qc.test.ts"
+    ],
+    "playwright.config.ts": "0e4ee550903dbcd2d352ce2d624c6a442459470e07b72b4bdaac0f2ddccfe318",
+    "scripts/qc/gm-two-player-campaign-core.cjs": "f065b258b59f4cb5cd8e097ec3d4331c85d54c314c2a8144d41c1f27e5d0a1fc"
+  },
+  "newRow": {
+    "file": "scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+    "name": "forwards and sets no campaign journal key from the config or the runner",
+    "asserts": "one toEqual over two lists, both expected empty: every line of playwright.config.ts, scripts/qc/gm-two-player-campaign-core.cjs and scripts/qc/run-gm-two-player-campaign.mjs that names MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY (comments included), and every registered group whose buildRunPlan environment carries the key (groups that throw NOT_IMPLEMENTED have no plan and are skipped; any other throw fails the row)",
+    "testFileSha256WithRow": "51e79df916f0f7b8d6caae6ea634dc2ca13257cc35bd74dde40ecfeeeb713bc2"
+  },
+  "command": "npx jest scripts/__tests__/gm-two-player-campaign-qc.test.ts --verbose",
+  "exit": 1,
+  "counts": [
+    "Test Suites: 1 failed, 1 total",
+    "Tests:       1 failed, 14 passed, 15 total"
+  ],
+  "rowResults": [
+    "√ registers the approved catalog and deterministic implemented plans (10 ms)",
+    "√ leaves both journal keys off a group that does not arm the fixture (1 ms)",
+    "√ forwards the combat journal key from the Playwright webServer env (1 ms)",
+    "× forwards and sets no campaign journal key from the config or the runner (6 ms)",
+    "√ archives the performance report inside the run-owned evidence root (2 ms)",
+    "√ types unknown and future groups before browser startup (1258 ms)",
+    "√ rejects unsafe run ID \"../foreign\" (62 ms)",
+    "√ rejects unsafe run ID \"nested/run\" (55 ms)",
+    "√ rejects unsafe run ID \"contains spaces\" (62 ms)",
+    "√ pins the lifecycle-pack spec at two rows (12 ms)",
+    "√ pins the conflict-pack spec at two rows (9 ms)",
+    "√ relays a non-zero Playwright status instead of reporting success (6781 ms)",
+    "√ refuses foreign database paths",
+    "√ derives fixture ports outside the OS ephemeral port range (1 ms)",
+    "√ refuses and preserves a ready foreign server on the fixture port (67 ms)"
+  ],
+  "failureOutput": [
+    "    expect(received).toEqual(expected) // deep equality",
+    "    - Expected  -  2",
+    "    + Received  + 13",
+    "      Object {",
+    "    -   \"groupsSettingTheKey\": Array [],",
+    "    -   \"linesNamingTheKey\": Array [],",
+    "    +   \"groupsSettingTheKey\": Array [",
+    "    +     \"authority-recovery\",",
+    "    +     \"privacy-pack\",",
+    "    +     \"authority\",",
+    "    +     \"all\",",
+    "    +   ],",
+    "    +   \"linesNamingTheKey\": Array [",
+    "    +     \"playwright.config.ts:318: ...(process.env.MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY\",",
+    "    +     \"playwright.config.ts:320: MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY:\",",
+    "    +     \"playwright.config.ts:321: process.env.MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY,\",",
+    "    +     \"scripts/qc/gm-two-player-campaign-core.cjs:73: // sets MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY=1 and\",",
+    "    +     \"scripts/qc/gm-two-player-campaign-core.cjs:236: MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY: '1',\",",
+    "    +   ],",
+    "      }"
+  ],
+  "linesTheRowFinds": [
+    "playwright.config.ts:318: ...(process.env.MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY",
+    "playwright.config.ts:320: MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY:",
+    "playwright.config.ts:321: process.env.MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY,",
+    "scripts/qc/gm-two-player-campaign-core.cjs:73: // sets MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY=1 and",
+    "scripts/qc/gm-two-player-campaign-core.cjs:236: MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY: '1',"
+  ],
+  "groupsTheRowFinds": [
+    "authority-recovery",
+    "privacy-pack",
+    "authority",
+    "all"
+  ],
+  "existingPinsNamingTheCampaignKeyPassOnBaseline": [
+    {
+      "name": "registers the approved catalog and deterministic implemented plans",
+      "pins": "authority-recovery toEqual :194, privacy-pack toMatchObject :255, authority union :426-428, all union :550-552 (baseline line numbers)",
+      "result": "passed"
+    },
+    {
+      "name": "leaves both journal keys off a group that does not arm the fixture",
+      "pins": "token-pack, smoke, proposal-pack campaign toBeUndefined :571-573",
+      "result": "passed"
+    },
+    {
+      "name": "forwards the combat journal key from the Playwright webServer env",
+      "pins": "config toContain :596 and guardedForward toMatch :608-610",
+      "result": "passed"
+    }
+  ],
+  "redLogSha256": "305bb6ed14a3c7dab501cd1d712c3ccc56bd55c42b05a49f22c6b00121db3461",
+  "redLog": "session scratchpad u35h-r2/red.log (not committed)",
+  "whyThisIsRed": "the row fails on the baseline at the real boundary the unit changes (the config forward and the runner plan), not on a restatement of the implementation; no assertion was weakened and nothing was skipped"
+}

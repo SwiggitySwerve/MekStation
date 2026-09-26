@@ -1,0 +1,180 @@
+{
+  "unit": "U35h",
+  "stage": "admission",
+  "status": "admitted",
+  "attempt": 2,
+  "at": "2026-09-26T01:28:57.696Z",
+  "firstAttempt": {
+    "receipt": "evidence/u35h-admission-attempt1-20260925.json",
+    "decision": "BLOCKED at admission on baseline 3b1cca3a6: one comment outside the paths (e2e/gm-two-player-authority-recovery.pack.spec.ts:16-17); the parent amended the paths (#1965) and relaunched"
+  },
+  "baseline": "54ca8197ca90534648bf6b1ef310186116189c6f",
+  "originMain": "54ca8197ca90534648bf6b1ef310186116189c6f",
+  "originMainLsRemote": "54ca8197ca90534648bf6b1ef310186116189c6f\trefs/heads/main",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u35h",
+  "branch": "roadmap-u35h-dead-arm-keys-20260925",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "node": "R6.loop-harness",
+  "ownershipPaths": [
+    "playwright.config.ts",
+    "scripts/qc",
+    "scripts/__tests__",
+    "e2e/gm-two-player-authority-recovery.pack.spec.ts"
+  ],
+  "reviewClasses": [
+    "routine"
+  ],
+  "behavior": "units.json U35h, not widened: playwright.config.ts stops forwarding MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY and the combat forward's comment stands alone; scripts/qc/gm-two-player-campaign-core.cjs stops setting the key for authority-recovery and privacy-pack; scripts/__tests__/gm-two-player-campaign-qc.test.ts stops pinning it; the sentence at e2e/gm-two-player-authority-recovery.pack.spec.ts:16-17 saying the QC group still sets the key is deleted; the combat key and its forwarding stay. Red-first: a pin that no config or runner line forwards or sets the campaign key.",
+  "guardNodeModulesLink": {
+    "command": "npm run --silent qc:guard-node-modules-link",
+    "exit": 1,
+    "output": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"<worktree>\\\\node_modules\",\"actualPath\":\"<repo>\\\\node_modules\"}",
+    "outputRedaction": "the worktree root is <worktree>, the repository root <repo>",
+    "consequence": "refused by design in a junctioned worktree; no install, ci, prune or lifecycle command was run"
+  },
+  "dependencies": {
+    "U35d": "complete in units.json on the baseline; merge 68cf089ea9da2ba56e8d6c02e523075eddeb802b is an ancestor of the baseline: true",
+    "unchangedSinceAttempt1": "git diff --quiet 3b1cca3a6 HEAD over the four owned paths exit 0 (0 = unchanged since the first attempt's baseline)",
+    "exactEditsRecheck": "U35d's lane re-checked the exact edits on 2026-09-25 (the files unchanged since 2199b53f6); the first attempt measured git diff --quiet 2199b53f6 HEAD over the three residue files exit 0; the seams below are re-read on this baseline"
+  },
+  "validatorNextOnBaseline": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "exit": 0,
+    "output": "U35h"
+  },
+  "validatorOnBaseline": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+    "exit": 0,
+    "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows"
+  },
+  "baselineFileHashes": {
+    "playwright.config.ts": "0e4ee550903dbcd2d352ce2d624c6a442459470e07b72b4bdaac0f2ddccfe318",
+    "scripts/qc/gm-two-player-campaign-core.cjs": "f065b258b59f4cb5cd8e097ec3d4331c85d54c314c2a8144d41c1f27e5d0a1fc",
+    "scripts/__tests__/gm-two-player-campaign-qc.test.ts": "fd148931bedc5e17f8b8e0255c375d33f9f0b2c254781ebceb9c4caf9cf3c9f8",
+    "e2e/gm-two-player-authority-recovery.pack.spec.ts": "02d14eaf05edabeddd23be738e37d5cadc39f603e07f035961d968b7081f10bc"
+  },
+  "seams": {
+    "playwright.config.ts:314-323": "the campaign forward: comment :314-317 (\"Fixture-only journal authority ... hardcoded false cutover flag\"), guarded spread :318-323; deleted whole",
+    "playwright.config.ts:324-328": "the combat forward comment opens \"The combat sibling of the same fixture arm, forwarded under the same presence guard for the same whitelist reason\"; reworded to stand alone",
+    "playwright.config.ts:329-334": "the combat guarded spread; unchanged",
+    "scripts/qc/gm-two-player-campaign-core.cjs:71-76": "authority-recovery comment names the campaign key and \"campaign AND combat genesis are live under the fixture arm\"; reworded to the combat key",
+    "scripts/qc/gm-two-player-campaign-core.cjs:204-206": "armsJournalAuthorityFixture (authority-recovery or privacy-pack membership); unchanged",
+    "scripts/qc/gm-two-player-campaign-core.cjs:228-239": "comment :228-233 (\"One arming condition, two keys ...\") and the spread setting the campaign key :236 and the combat key :237; :236 deleted, comment rewritten to the combat key alone",
+    "scripts/__tests__/gm-two-player-campaign-qc.test.ts:179-196": "authority-recovery toEqual with the campaign key :194; comments :179-180, :184-185",
+    "scripts/__tests__/gm-two-player-campaign-qc.test.ts:254-258": "privacy-pack toMatchObject with the campaign key :255",
+    "scripts/__tests__/gm-two-player-campaign-qc.test.ts:426-434": "authority union campaign toBe(1) :426-428; comment :429-431",
+    "scripts/__tests__/gm-two-player-campaign-qc.test.ts:550-555": "all union campaign toBe(1) :550-552",
+    "scripts/__tests__/gm-two-player-campaign-qc.test.ts:558-578": "non-arming groups: campaign toBeUndefined :571-573",
+    "scripts/__tests__/gm-two-player-campaign-qc.test.ts:580-614": "config text pin: campaign toContain :596 (the control, comment :593-595), campaign guardedForward toMatch :608-610, comment :585-586",
+    "e2e/gm-two-player-authority-recovery.pack.spec.ts:16-17": "the sentence \"The QC group still sets MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY, which no server code reads.\"; deleted (comment only)"
+  },
+  "designAnswers": {
+    "everyOccurrenceOfTheCampaignKey": {
+      "grepCommand": "git grep -n MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY -- . ':!openspec/planning'",
+      "exit": 0,
+      "lines": [
+        "e2e/gm-two-player-authority-recovery.pack.spec.ts:17: * MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY, which no server code reads.",
+        "openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md:496:  - DECISION D2 + PROGRESS (2026-09-03, fix wave, E2E-01/E2E-02 now EXECUTE): the council of this date ruled the journal-authority  ...",
+        "playwright.config.ts:318:      ...(process.env.MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY",
+        "playwright.config.ts:320:            MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY:",
+        "playwright.config.ts:321:              process.env.MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY,",
+        "scripts/__tests__/gm-two-player-campaign-qc.test.ts:180:    // toEqual printed `-   \"MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY\": \"1\"`.",
+        "scripts/__tests__/gm-two-player-campaign-qc.test.ts:194:      MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY: '1',",
+        "scripts/__tests__/gm-two-player-campaign-qc.test.ts:255:      MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY: '1',",
+        "scripts/__tests__/gm-two-player-campaign-qc.test.ts:427:      authorityPlan.environment.MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY,",
+        "scripts/__tests__/gm-two-player-campaign-qc.test.ts:550:    expect(allPlan.environment.MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY).toBe(",
+        "scripts/__tests__/gm-two-player-campaign-qc.test.ts:572:        plan.environment.MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY,",
+        "scripts/__tests__/gm-two-player-campaign-qc.test.ts:596:    expect(configSource).toContain('MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY');",
+        "scripts/__tests__/gm-two-player-campaign-qc.test.ts:609:      guardedForward('MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY'),",
+        "scripts/qc/gm-two-player-campaign-core.cjs:73:    // sets MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY=1 and",
+        "scripts/qc/gm-two-player-campaign-core.cjs:236:            MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY: '1',",
+        "src/lib/campaign/sync/__tests__/campaignJournalAuthorityEnabled.test.ts:5: * MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY) are set in every combination to",
+        "src/lib/campaign/sync/__tests__/campaignJournalAuthorityEnabled.test.ts:13:const RETIRED_ARM_KEY = 'MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY';"
+      ],
+      "inThePaths": "playwright.config.ts:318,320,321; scripts/qc/gm-two-player-campaign-core.cjs:73,236; scripts/__tests__/gm-two-player-campaign-qc.test.ts:180,194,255,427,550,572,596,609; e2e/gm-two-player-authority-recovery.pack.spec.ts:17",
+      "outsideThePaths": [
+        {
+          "at": "src/lib/campaign/sync/__tests__/campaignJournalAuthorityEnabled.test.ts:5,13",
+          "editNeeded": false,
+          "why": "RETIRED_ARM_KEY: the test sets the retired key to prove the resolver has no override; a pin that the key is dead, not a reader; stays true after U35h"
+        },
+        {
+          "at": "openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md:496",
+          "editNeeded": false,
+          "why": "a dated 2026-09-03 DECISION D2 + PROGRESS entry describing the arm as it was then; historical, not a live claim"
+        },
+        {
+          "at": "openspec/planning/** (ledger and dated receipts)",
+          "editNeeded": false,
+          "why": "historical receipts and the ledger; not edited by a lane"
+        }
+      ],
+      "blocked": false
+    },
+    "readerSurvivesInSrc": {
+      "answer": "none",
+      "resolver": "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts:16-18 returns CAMPAIGN_JOURNAL_AUTHORITY_ENABLED with no env read",
+      "grepCommand": "git grep -n CAMPAIGN_JOURNAL_AUTHORITY -- src scripts e2e server.js playwright.config.ts ':!*__tests__*' ':!*.test.ts' (then excluding CAMPAIGN_JOURNAL_AUTHORITY_ENABLED)",
+      "nonTestHitsOtherThanTheFlag": [
+        "e2e/gm-two-player-authority-recovery.pack.spec.ts:17: * MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY, which no server code reads.",
+        "playwright.config.ts:318:      ...(process.env.MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY",
+        "playwright.config.ts:320:            MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY:",
+        "playwright.config.ts:321:              process.env.MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY,",
+        "scripts/qc/gm-two-player-campaign-core.cjs:73:    // sets MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY=1 and",
+        "scripts/qc/gm-two-player-campaign-core.cjs:236:            MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY: '1',"
+      ],
+      "reading": "the non-test hits are the config forward (it forwards, reads nothing for the server), the runner comment and key write, and the e2e comment: all in the paths, none a reader"
+    },
+    "combatKeyAssertionsThatStay": [
+      "scripts/__tests__/gm-two-player-campaign-qc.test.ts:195 authority-recovery toEqual MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE: enabled",
+      "scripts/__tests__/gm-two-player-campaign-qc.test.ts:256 privacy-pack toMatchObject combat enabled",
+      "scripts/__tests__/gm-two-player-campaign-qc.test.ts:432-434 authority union combat toBe(enabled)",
+      "scripts/__tests__/gm-two-player-campaign-qc.test.ts:553-555 all union combat toBe(enabled)",
+      "scripts/__tests__/gm-two-player-campaign-qc.test.ts:574-576 token-pack, smoke, proposal-pack combat toBeUndefined",
+      "scripts/__tests__/gm-two-player-campaign-qc.test.ts:597-599 config toContain MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE",
+      "scripts/__tests__/gm-two-player-campaign-qc.test.ts:611-613 config toMatch guardedForward(MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE)"
+    ],
+    "combatKeyInConfigAndRunner": "playwright.config.ts:329-334 guarded forward and scripts/qc/gm-two-player-campaign-core.cjs:237 (enabled under armsJournalAuthorityFixture), both unchanged; the combat resolver src/lib/multiplayer/server/combatJournalAuthorityEnabled.ts:41-59 still reads the key behind NEXT_PUBLIC_E2E_MODE and the production mode is off (matchJournalAuthority.ts:20-21)"
+  },
+  "estimatePerFile": {
+    "playwright.config.ts": {
+      "class": "product",
+      "lines": "~15 (delete :314-323; reword :324-328)"
+    },
+    "scripts/qc/gm-two-player-campaign-core.cjs": {
+      "class": "product",
+      "lines": "~15 (comment :71-76; comment :228-233; key :236)"
+    },
+    "scripts/__tests__/gm-two-player-campaign-qc.test.ts": {
+      "class": "test",
+      "lines": "~50-70 (exact edits plus the red row)"
+    },
+    "e2e/gm-two-player-authority-recovery.pack.spec.ts": {
+      "class": "test",
+      "lines": "~3 (comment only)"
+    },
+    "totals": "4 files; ~30 product lines; ~55-75 test lines (estimates, not measured)"
+  },
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "rule": "playwright.config.ts and the runner count as product; tests do not (OD-line-cap-product-lines)",
+    "withinCapsByEstimate": true
+  },
+  "acceptanceCommands": [
+    "npx jest scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+    "npx jest scripts",
+    "npx jest src/__tests__/unit/evidence",
+    "npx tsc --noEmit",
+    "npx oxlint",
+    "npx oxfmt --check <changed files>",
+    "npm run lint:units",
+    "npm run qc:openspec-ci:validate",
+    "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs"
+  ],
+  "risksForTheParent": [
+    "routine: none visible to a tester (the removed key is read by no server code since U35d).",
+    "Open draft PR #1886 (U2b, head cbb0e214e5aac4fb1e2b9cad9cb56f93fbdc387b) edits scripts/qc/gm-two-player-campaign-core.cjs and scripts/__tests__/gm-two-player-campaign-qc.test.ts (gh pr list, this session); if rebased after U35h it conflicts in both files and may re-pin the campaign key.",
+    "DELIVERY.md: a slice that edits a scripts/qc runner re-runs every ladder group whose spec imports it in its main proof; the runner edit changes the authority-recovery and privacy-pack environments (and the authority and all unions)."
+  ]
+}

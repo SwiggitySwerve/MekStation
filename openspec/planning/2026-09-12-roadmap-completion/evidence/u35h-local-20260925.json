@@ -1,0 +1,318 @@
+{
+  "unit": "U35h",
+  "stage": "local",
+  "status": "ready",
+  "at": "2026-09-26T01:38:00.038Z",
+  "baseline": "54ca8197ca90534648bf6b1ef310186116189c6f",
+  "head": "uncommitted working tree on the baseline (the parent commits)",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u35h",
+  "branch": "roadmap-u35h-dead-arm-keys-20260925",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "admission": "evidence/u35h-admission-20260925.json",
+  "red": "evidence/u35h-red-20260925.json",
+  "firstAttempt": "evidence/u35h-admission-attempt1-20260925.json (BLOCKED at admission on 3b1cca3a6; paths amended by #1965)",
+  "behaviorDelivered": [
+    "playwright.config.ts no longer forwards MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY (the comment and guarded spread at baseline :314-323 are deleted); the combat forward's comment is reworded to stand alone (\"Fixture-only combat journal authority ... under a presence guard\"); the combat spread is byte-identical.",
+    "scripts/qc/gm-two-player-campaign-core.cjs no longer sets the campaign key for any group (baseline :236 deleted); the authority-recovery comment (:71-76) and the arming comment (:228-233) now describe the combat key alone; armsJournalAuthorityFixture and the combat key 'enabled' are unchanged.",
+    "scripts/__tests__/gm-two-player-campaign-qc.test.ts stops pinning the campaign key: removed from the authority-recovery toEqual and the privacy-pack toMatchObject, the authority and all union expects deleted, the config toContain and guardedForward pins for it deleted, their comments rewritten; the non-arming toBeUndefined row is kept (still true; the exact edits allow keeping it). New row: forwards and sets no campaign journal key from the config or the runner.",
+    "e2e/gm-two-player-authority-recovery.pack.spec.ts: the sentence at :16-17 saying the QC group still sets the campaign key is deleted (comment only)."
+  ],
+  "files": {
+    "e2e/gm-two-player-authority-recovery.pack.spec.ts": {
+      "class": "test",
+      "added": 1,
+      "deleted": 2,
+      "sha256": "82a9fade8e1e461017af340d584a047732d582952275a304160a27631f2d2a9d"
+    },
+    "playwright.config.ts": {
+      "class": "product",
+      "added": 3,
+      "deleted": 12,
+      "sha256": "d483179811287e17adfcc835513ca7842aa8e356dc6006a68c5aa6c805c8604c"
+    },
+    "scripts/__tests__/gm-two-player-campaign-qc.test.ts": {
+      "class": "test",
+      "added": 57,
+      "deleted": 29,
+      "sha256": "97e612a2755ac321a976da84705f8f4f7ed7e035a89706bb920fde808ef491c9"
+    },
+    "scripts/qc/gm-two-player-campaign-core.cjs": {
+      "class": "product",
+      "added": 8,
+      "deleted": 11,
+      "sha256": "5547462252b810e705166cb935c98eedfe7e060d5e641cc60f58c8efc6130a91"
+    }
+  },
+  "lineCounts": {
+    "product": 34,
+    "test": 89,
+    "rule": "product = playwright.config.ts and the runner; test = the qc suite and the e2e spec comment (OD-line-cap-product-lines); counted as added + deleted from git diff --numstat",
+    "files": 4,
+    "caps": {
+      "maxFiles": 15,
+      "maxNonGeneratedLines": 500
+    },
+    "withinCaps": true
+  },
+  "gates": [
+    {
+      "id": "focused",
+      "command": "npx jest scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+      "exit": 0,
+      "lastLine": "Ran all test suites matching /scripts\\\\__tests__\\\\gm-two-player-campaign-qc.test.ts/i.",
+      "summary": [
+        "Test Suites: 1 passed, 1 total",
+        "Tests:       15 passed, 15 total",
+        "Snapshots:   0 total"
+      ],
+      "seconds": 5,
+      "logSha256": "010b692ea4cdabdfa09f862e78592e8887f8c19730df23b1c7738c9659833ad1"
+    },
+    {
+      "id": "idle-1",
+      "command": "node scripts/qc/machine-idle.mjs --wait --timeout-ms 1800000",
+      "exit": 0,
+      "lastLine": "MACHINE_IDLE",
+      "summary": [
+        "MACHINE_IDLE"
+      ],
+      "seconds": 1,
+      "logSha256": "7d38ea0bb5ace1e63e7d44c21652acdb36d26f406c0875fa71350e59c74de48e"
+    },
+    {
+      "id": "scripts",
+      "command": "npx jest scripts",
+      "exit": 0,
+      "lastLine": "Ran all test suites matching /scripts/i.",
+      "summary": [
+        "Test Suites: 80 passed, 80 total",
+        "Tests:       10 skipped, 1235 passed, 1245 total",
+        "Snapshots:   0 total"
+      ],
+      "seconds": 181,
+      "logSha256": "30727e8cbcaf553ba2ac244fd5d2e2d84caa795632f444b3db7073877ba0cfbf"
+    },
+    {
+      "id": "idle-2",
+      "command": "node scripts/qc/machine-idle.mjs --wait --timeout-ms 1800000",
+      "exit": 0,
+      "lastLine": "MACHINE_IDLE",
+      "summary": [
+        "MACHINE_IDLE"
+      ],
+      "seconds": 1,
+      "logSha256": "7d38ea0bb5ace1e63e7d44c21652acdb36d26f406c0875fa71350e59c74de48e"
+    },
+    {
+      "id": "evidence",
+      "command": "npx jest src/__tests__/unit/evidence",
+      "exit": 0,
+      "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\unit\\\\evidence/i.",
+      "summary": [
+        "Test Suites: 2 passed, 2 total",
+        "Tests:       18 passed, 18 total",
+        "Snapshots:   0 total"
+      ],
+      "seconds": 4,
+      "logSha256": "4ebd693be62e619b92bf740585807637a24990b81af4e9d7988df197ae88677c"
+    },
+    {
+      "id": "tsc",
+      "command": "npx tsc --noEmit",
+      "exit": 0,
+      "lastLine": "",
+      "summary": [],
+      "seconds": 58,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "oxlint",
+      "command": "npx oxlint",
+      "exit": 0,
+      "lastLine": "Finished in 298ms on 3819 files using 16 threads.",
+      "summary": [
+        "Found 84 warnings and 0 errors."
+      ],
+      "seconds": 1,
+      "logSha256": "d2e3dab958b0de9e69599834b1d6959e09d56e96fc7eca651d75ff3ac04a47b7"
+    },
+    {
+      "id": "oxfmt",
+      "command": "npx oxfmt --check playwright.config.ts scripts/qc/gm-two-player-campaign-core.cjs scripts/__tests__/gm-two-player-campaign-qc.test.ts e2e/gm-two-player-authority-recovery.pack.spec.ts",
+      "exit": 0,
+      "lastLine": "Finished in 15ms on 4 files using 16 threads.",
+      "summary": [
+        "All matched files use the correct format."
+      ],
+      "seconds": 1,
+      "logSha256": "4f87031810340ba72b0f430a0b7ba949505eee6db25bd377fdfa9598eedfe336"
+    },
+    {
+      "id": "lint-units",
+      "command": "npm run lint:units",
+      "exit": 0,
+      "lastLine": "LINT_UNITS_PASS 100/100",
+      "summary": [
+        "LINT_UNITS_PATH e2e 50",
+        "LINT_UNITS_PATH scripts 50",
+        "LINT_UNITS_PASS 100/100"
+      ],
+      "seconds": 1,
+      "logSha256": "e055631f9348b2e6539c922dddc1fe388b583448a734da5f618cb47c583fae2d"
+    },
+    {
+      "id": "openspec-ci",
+      "command": "npm run qc:openspec-ci:validate",
+      "exit": 0,
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+      "summary": [
+        "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0"
+      ],
+      "seconds": 1,
+      "logSha256": "4c2dafd093b946290aa4abe001ad8b3d65671b17c7682722c55a510ecc04f91e"
+    },
+    {
+      "id": "roadmap",
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "exit": 0,
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "summary": [
+        "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows"
+      ],
+      "seconds": 0,
+      "logSha256": "97b2f29d264078525a55c5f88586fb95603311fa065e70d7d17c5fab08f5b5bc"
+    }
+  ],
+  "machineIdleBeforeFullDirectoryRuns": true,
+  "oxlint": {
+    "warnings": 84,
+    "baselineReference": 84,
+    "line": "Found 84 warnings and 0 errors."
+  },
+  "rowTable": [
+    "√ registers the approved catalog and deterministic implemented plans",
+    "√ leaves both journal keys off a group that does not arm the fixture",
+    "√ forwards the combat journal key from the Playwright webServer env",
+    "√ forwards and sets no campaign journal key from the config or the runner",
+    "√ archives the performance report inside the run-owned evidence root",
+    "√ types unknown and future groups before browser startup",
+    "√ rejects unsafe run ID \"../foreign\"",
+    "√ rejects unsafe run ID \"nested/run\"",
+    "√ rejects unsafe run ID \"contains spaces\"",
+    "√ pins the lifecycle-pack spec at two rows",
+    "√ pins the conflict-pack spec at two rows",
+    "√ relays a non-zero Playwright status instead of reporting success",
+    "√ refuses foreign database paths",
+    "√ derives fixture ports outside the OS ephemeral port range",
+    "√ refuses and preserves a ready foreign server on the fixture port"
+  ],
+  "combatKeyPinsUnchanged": {
+    "removedTestLinesNamingTheCombatKey": 0,
+    "pins": [
+      "authority-recovery toEqual MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE: 'enabled'",
+      "privacy-pack toMatchObject combat 'enabled'",
+      "authority union combat toBe('enabled')",
+      "all union combat toBe('enabled')",
+      "token-pack, smoke, proposal-pack combat toBeUndefined",
+      "config toContain 'MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE'",
+      "config toMatch guardedForward('MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE')"
+    ],
+    "result": "all in passing rows of the verbose focused run (rowTable, green.log, taken on the final working tree before the mutants; the files were restored to the same sha256 after them)"
+  },
+  "mutants": [
+    {
+      "id": "M1",
+      "file": "playwright.config.ts",
+      "what": "the campaign forward put back in playwright.config.ts (the deleted guarded spread, before the combat forward)",
+      "exit": 1,
+      "counts": [
+        "Test Suites: 1 failed, 1 total",
+        "Tests:       1 failed, 14 passed, 15 total"
+      ],
+      "failingRows": [
+        "× forwards and sets no campaign journal key from the config or the runner"
+      ],
+      "received": [
+        "+   \"linesNamingTheKey\": Array [",
+        "+     \"playwright.config.ts:314: ...(process.env.MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY\",",
+        "+     \"playwright.config.ts:316: MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY:\",",
+        "+     \"playwright.config.ts:317: process.env.MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY,\","
+      ],
+      "caught": true,
+      "preMutantSha256": "d483179811287e17adfcc835513ca7842aa8e356dc6006a68c5aa6c805c8604c",
+      "restoredSha256": "d483179811287e17adfcc835513ca7842aa8e356dc6006a68c5aa6c805c8604c",
+      "restored": true
+    },
+    {
+      "id": "M2",
+      "file": "scripts/qc/gm-two-player-campaign-core.cjs",
+      "what": "the runner sets the campaign key again for privacy-pack (a spread keyed on group === 'privacy-pack')",
+      "exit": 1,
+      "counts": [
+        "Test Suites: 1 failed, 1 total",
+        "Tests:       1 failed, 14 passed, 15 total"
+      ],
+      "failingRows": [
+        "× forwards and sets no campaign journal key from the config or the runner"
+      ],
+      "received": [
+        "+   \"groupsSettingTheKey\": Array [",
+        "+     \"privacy-pack\",",
+        "+   \"linesNamingTheKey\": Array [",
+        "+     \"scripts/qc/gm-two-player-campaign-core.cjs:233: ? { MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY: '1' }\","
+      ],
+      "caught": true,
+      "preMutantSha256": "5547462252b810e705166cb935c98eedfe7e060d5e641cc60f58c8efc6130a91",
+      "restoredSha256": "5547462252b810e705166cb935c98eedfe7e060d5e641cc60f58c8efc6130a91",
+      "restored": true
+    },
+    {
+      "id": "M3",
+      "file": "scripts/qc/gm-two-player-campaign-core.cjs",
+      "what": "the runner sets the campaign key for privacy-pack under a key name built at run time, so no source line names it (proves the plan half of the row, not only the text half)",
+      "exit": 1,
+      "counts": [
+        "Test Suites: 1 failed, 1 total",
+        "Tests:       1 failed, 14 passed, 15 total"
+      ],
+      "failingRows": [
+        "× forwards and sets no campaign journal key from the config or the runner"
+      ],
+      "received": [
+        "+   \"groupsSettingTheKey\": Array [",
+        "+     \"privacy-pack\","
+      ],
+      "caught": true,
+      "preMutantSha256": "5547462252b810e705166cb935c98eedfe7e060d5e641cc60f58c8efc6130a91",
+      "restoredSha256": "5547462252b810e705166cb935c98eedfe7e060d5e641cc60f58c8efc6130a91",
+      "restored": true
+    }
+  ],
+  "mutantsNote": "each mutant applied to the working file, the focused suite run, then the file restored by copying back a saved copy; restoredSha256 equals preMutantSha256 for each",
+  "nonClaims": [
+    "No Playwright run: the ladder runner and the config are edited, not run; the main proof runs the ladder groups (authority-recovery and privacy-pack at least, per DELIVERY.md for a scripts/qc runner edit).",
+    "The config pin is a text pin over playwright.config.ts: it proves no line names the campaign key, not what Playwright passes to a spawned server.",
+    "No build was run; no npm install, ci, prune or lifecycle command was run (the guard refuses in this junctioned worktree).",
+    "Nothing was committed, pushed, stashed or amended."
+  ],
+  "findingsReportedNotFixed": [
+    {
+      "id": "F1",
+      "file": "src/lib/multiplayer/server/combatJournalAuthorityEnabled.ts:35-36",
+      "finding": "the doc comment says the combat arm uses 'the same NEXT_PUBLIC_E2E_MODE==='true' check the campaign arm uses'; U35d deleted the campaign arm. Carried from the first attempt, re-read on this baseline; outside U35h's paths (U35i owns src/lib/multiplayer/server, not in its exact edits)."
+    }
+  ],
+  "risksForTheParent": [
+    "routine: none visible to a tester (no server code reads the removed key since U35d).",
+    "Open draft PR #1886 (U2b) edits the runner and the qc suite and adds a privacy-pack toMatchObject carrying the campaign key; after U35h the new row reds any rebase that re-adds it.",
+    "The runner edit changes the authority-recovery, privacy-pack, authority and all environments: the main proof re-runs those ladder groups (DELIVERY.md)."
+  ],
+  "gitStatusShort": [
+    "M e2e/gm-two-player-authority-recovery.pack.spec.ts",
+    " M playwright.config.ts",
+    " M scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+    " M scripts/qc/gm-two-player-campaign-core.cjs",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u35h-admission-20260925.json",
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u35h-red-20260925.json"
+  ]
+}
