@@ -2173,7 +2173,7 @@
         "tick": null
       },
       "ownerGate": null,
-      "state": "blocked",
+      "state": "planned",
       "id": "U86",
       "node": "R6.umbrella",
       "behavior": "The performance pack (e2e/gm-two-player-performance.pack.spec.ts, E2E-71/72/73) issues each measured command only after the authority has recorded every participant's acknowledgement of the current head, instead of client-side receipt plus a fixed 25 ms (converge() near :630-646); the acknowledged revisions are read through the existing E2E-guarded performance probe route. An AdvanceDay refused with CAMPAIGN_NOT_CONVERGED is captured on the GM transport and fails the run naming the refusal, instead of timing out as a missing paint. Red first: the pack at its baseline with a GM-transport capture shows CAMPAIGN_NOT_CONVERGED on an AdvanceDay window, as the diagnosis dumps did. Green: the performance group passes 3 of 3 consecutive runs. If the probe route needs an edit (src/pages/api/e2e/performance-probe.ts), the unit stops at admission for a path amendment. The server stall (mode 2) is U89's. Amended 2026-09-25 after the first admission attempt (evidence/u86-admission-attempt1-20260925.json): the probe route (src/pages-modules/api/e2ePerformanceProbeRoute.ts, behind its existing E2E guard) takes a matchId and answers the campaign session's convergence, the same answer the AdvanceDay check reads (CampaignSyncSession.evaluateScenarioLaunch), with its test re-pinned. Before any edit the re-admission MEASURES whether the campaign host registry the probe reads (src/lib/multiplayer/server/CampaignHostRegistry.ts:405-412, a module-level singleton) is the same instance the socket runtime's module graph records acknowledgements into (server.js:446-464 loads that graph separately; MatchHostRegistry solved this with a globalThis slot in U22a): a live probe against a running server with a socket session up. If the registries are split, U86 stops BLOCKED again and names the successor (the campaign registry in a globalThis slot, authority class, on src/lib/multiplayer/server).",
@@ -2207,6 +2207,11 @@
         "cause": "measured with the Node inspector while a co-op session was live (4 samples): Next's API module graph and the socket runtime's module graph hold different CampaignHostRegistry instances (src/lib/multiplayer/server/CampaignHostRegistry.ts:405-417, a module-level singleton); the socket graph's copy retains the two participants and answers participants-behind, the API graph's copy retains nobody and answers converged, so a probe route reading the API graph would make the pack's wait a no-op",
         "nextIndependentAction": "U95 (the campaign host registry in one globalThis slot, as MatchHostRegistry.ts:220-260 does since U22a; authority class); U86 returns to planned when U95 is main-verified",
         "proof": "evidence/u86-admission-attempt2-20260925.json"
+      },
+      "unblocked20260926": {
+        "at": "2026-09-26T08:14:20.000Z",
+        "by": "U95 main-verified (the shared campaign host registry the probe route reads)",
+        "note": "re-admission on a baseline carrying U95; the third admission names the first two attempts"
       }
     },
     {
@@ -2809,7 +2814,7 @@
       "blocked20260926": {
         "at": "2026-09-26T06:49:45.000Z",
         "cause": "first admission BLOCKED for the path amendment above; the amended unit shares src/lib/multiplayer/server with U95, which the owner ordered first",
-        "nextIndependentAction": "U95, then U96, then U92 resumes (relaunched on the amended sentence)",
+        "nextIndependentAction": "U96 (in flight next), then U92 resumes on the amended sentence",
         "proof": "evidence/u92-admission-attempt1-20260925.json"
       }
     },
@@ -2862,8 +2867,8 @@
         "maxNonGeneratedLines": 500
       },
       "baseline": "23e93dcef3bd4ea34e797c3c35728b5ae6f51cb7",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "f0bd8f0adb795fd21b8d39e595508c4d6426ab32",
+      "mergeSha": "2d43b9f76fdbf437393592f54c8b99a90dab56f6",
       "stageReceipts": {
         "admission": {
           "path": "evidence/u95-admission-20260926.json",
@@ -2882,13 +2887,34 @@
           "at": "2026-09-26T07:43:47.587Z",
           "summary": "4 files, product 54 lines (CampaignHostRegistry.ts +31/-7: the module-level singleton becomes a Symbol.for('mekstation.multiplayer.campaignHostRegistry') globalThis slot as MatchHostRegistry.ts:218-262, _resetCampaignHostRegistry closes every entry and deletes the slot; campaignProgressionReaders.durable.ts +13/-3: the durable readers find the shared match store by its getDatabase method instead of instanceof DurableMatchStore, which is false for the other graph's class), tests 218 lines in 2 new files; live after (port 23953): sameRegistryInstance:true, sameEntryObject:true, one entry built by the API graph retaining the guest, unpaused before the GM joined; GM pause table: guest-before-first-GM-connect now processed (CampaignDecision) instead of MATCH_PAUSED, GM-connected, GM-absent (paused) and GM-returns (resumed) unchanged; lifecycle-pack 2 passed (port 27487); jest src/lib/multiplayer/server 163 suites 1185, src/lib/campaign src/lib/api src/__tests__/api 262 suites 3780, other reset/reader consumers 9 suites 69; tsc 0; oxlint 84 warnings 0 errors; oxfmt clean after one fix; lint:units 100/100; qc:openspec-ci errors=0; validator PASSED; build exits at the hydration guard by design with the __E2E_MODE__ marker; mutants: Symbol() for Symbol.for (3 fail), reset without closing (2 fail), new registry per call (2 fail), register always pauses (15 fail; live S2 back to MATCH_PAUSED), reader class check restored (1 fail; live gate ok:true with a saga pending), each restored with sha256 confirmed; NON-CLAIMS: Node sockets not browsers and only the pause gate claimed, no campaign ladder group beyond lifecycle-pack, launch route and process restart (socket-graph-first construction) not driven live; the parent's proof hold file appeared after the lane's last build and server run; implementer claude-opus (Agent model: opus; general-purpose agent type, launched minutes before the lean-worker rule of PR #1983 landed); status ready"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "review": {
+          "path": "evidence/u95-review-20260926.json",
+          "head": "f0bd8f0adb795fd21b8d39e595508c4d6426ab32",
+          "reviewedHead": "f0bd8f0adb795fd21b8d39e595508c4d6426ab32",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet)",
+          "implementerModel": "claude-opus (Agent model: opus)",
+          "outputSha256": "595979961f33d046de32a1c881e4e1a2674474cb71bcbebd8ff02495fa4d7eef",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u95-merge-20260926.json",
+          "pr": 1993,
+          "head": "f0bd8f0adb795fd21b8d39e595508c4d6426ab32",
+          "mergeSha": "2d43b9f76fdbf437393592f54c8b99a90dab56f6"
+        },
+        "mainProof": {
+          "path": "evidence/u95-mainproof-20260926.json",
+          "mergeCommit": "2d43b9f76fdbf437393592f54c8b99a90dab56f6",
+          "verdict": "PASS",
+          "runtime": "U95 PROOF RUNTIME PASSED: 4967 passed (jest 4965, 0 failed, exit 0; lifecycle-pack 2, 0 failed, exit 0)"
+        },
+        "tick": {
+          "path": "evidence/u95-tick-20260926.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
-      "state": "local-verified",
+      "state": "complete",
       "source20260925": "planned by the parent under the owner's answer \"Plan U95, U86 waits on it (Recommended)\" (working session of 2026-09-25) on U86's measured registry split",
       "admissionNote20260926": {
         "at": "2026-09-26T07:57:35.000Z",
@@ -2926,9 +2952,14 @@
         "tick": null
       },
       "ownerGate": null,
-      "state": "blocked",
+      "state": "planned",
       "admitAfter20260926": "U95 main-verified (the shared campaign host registry the route needs to reach the live host); --next cannot express a unit dependency, so the parent checks it at admission",
-      "source20260926": "planned by the parent under the owner's answer \"Plan U96 now, before U95\" (2026-09-26) on U92's measured finding FN-u92-coop-checkpoint-erased-by-next-host-command"
+      "source20260926": "planned by the parent under the owner's answer \"Plan U96 now, before U95\" (2026-09-26) on U92's measured finding FN-u92-coop-checkpoint-erased-by-next-host-command",
+      "unblocked20260926": {
+        "at": "2026-09-26T08:14:20.000Z",
+        "by": "U95 main-verified",
+        "note": "admitted before U92 (the owner's order); both own src/lib/multiplayer/server"
+      }
     },
     {
       "id": "U36",
@@ -9046,6 +9077,48 @@
         "author": "SwiggitySwerve",
         "label": "owner-ruled",
         "bodySha256": "53afd3e5481fa1be6b4cf20a5551373cb42eb4efb80ef3d358c8484cfe50ecaf",
+        "postedBy": "parent on the owner's instruction (the comment quotes the owner's words verbatim)",
+        "deviationDisclosed": "DELIVERY.md says the owner posts the ruling out of band; the owner approved this unit by description in chat (words quoted in the comment) after the parent explained it in plain language and reported Lane A's verdict and the check set on the head, and the parent composed and posted the comment from the owner GitHub account and applied the label; the parent supplied the head from the ledger, as in the earlier rulings of this loop"
+      },
+      "note": "opened when the owner ruled, 2026-09-22 (the cutover sequence's units carry no pre-opened ruling packets)"
+    },
+    {
+      "id": "PK-u95-ruling",
+      "blocks": [
+        "U95"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "U95 (review classes authority) presents head f0bd8f0adb795fd21b8d39e595508c4d6426ab32. Does the owner rule it?",
+      "options": [
+        {
+          "label": "rule the head",
+          "consequence": "an OWNER-RULING <head> comment and the owner-ruled label on U95's PR; the unit merges and proceeds to main proof",
+          "effort": "0.1 day owner"
+        },
+        {
+          "label": "reject",
+          "consequence": "the PR closes; the unit returns to planned with the objection recorded",
+          "effort": "0.1 day owner"
+        }
+      ],
+      "agentRecommendation": "rule the head once Lane A has approved it and the checks are green",
+      "revertCost": "low: a squash merge revert",
+      "decision": {
+        "at": "2026-09-26T08:03:34Z",
+        "option": "rule the head",
+        "text": "Approve (Recommended)",
+        "source": "owner instruction in the working session (chat), after the parent described the unit in plain English: a structured question: the campaign host registry in one globalThis slot across Next's API graph and the socket runtime (authority class; U86's measured split); Lane A verdict and CI on the exact head; disclosed: a guest acting before the GM's first connection is processed instead of refused campaign-paused-gm-absent (the fresh-session design of CampaignSyncSession.ts:312-315; coop-campaign-sync/spec.md:158-162 governs only the host-disconnect pause), the durable readers' method check rider fixing the launch route's always-null saga read, coopHostRegistry activeHosts still per graph with no reader"
+      },
+      "ruling": {
+        "ruledHead": "f0bd8f0adb795fd21b8d39e595508c4d6426ab32",
+        "pr": 1993,
+        "commentId": 5844464442,
+        "author": "SwiggitySwerve",
+        "label": "owner-ruled",
+        "bodySha256": "28cb5ab2919bc12cbee75ab84d20d2c5ab98af1f58db5c64f37d9d5d10800f83",
         "postedBy": "parent on the owner's instruction (the comment quotes the owner's words verbatim)",
         "deviationDisclosed": "DELIVERY.md says the owner posts the ruling out of band; the owner approved this unit by description in chat (words quoted in the comment) after the parent explained it in plain language and reported Lane A's verdict and the check set on the head, and the parent composed and posted the comment from the owner GitHub account and applied the label; the parent supplied the head from the ledger, as in the earlier rulings of this loop"
       },
