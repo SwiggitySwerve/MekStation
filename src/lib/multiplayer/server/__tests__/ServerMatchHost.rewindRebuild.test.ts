@@ -343,7 +343,7 @@ describe('ServerMatchHost rewind rebuild', () => {
       },
     );
     const result = await commitRewind(meta);
-    // toMatchObject prints kind/reason/detail when commit still refuses.
+    // On a refusal this diff prints only the kind key, not reason/detail.
     expect(result).toMatchObject({ kind: 'committed' });
     if (result.kind !== 'committed') {
       throw new Error('expected committed rewind');

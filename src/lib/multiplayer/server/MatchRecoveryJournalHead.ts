@@ -15,10 +15,12 @@
  *
  * WHAT IT DELIBERATELY DOES NOT DECIDE: the event bytes. This is a
  * HEAD-AND-BRANCH read, and that restriction is load-bearing twice
- * over. A live-path branch's events live in the match store —
- * `matchStoreBranchSegmentReader` refuses every branch but `root` by
- * name because that store holds exactly one line of history. And the
- * journal TAIL cannot be complete for a real match anyway:
+ * over. A live-path branch's events are read from the match store
+ * (`store.getEvents` below), which holds exactly one line of history
+ * under the two live-path ids, `root` and `main`; a rewound stream is
+ * folded from the journal by `tryFoldActivatedRewindBranch` before this
+ * consult runs. And the journal TAIL cannot be complete for a real
+ * match anyway:
  * `ServerMatchHost.create` persists a match's opening events through
  * `appendEvent`, which is not the batch boundary S1's mirror hooks, so
  * the first command batch lands on a journal that is already behind and
