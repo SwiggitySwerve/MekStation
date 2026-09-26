@@ -2874,10 +2874,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "local-verified",
+      "state": "complete",
       "baseline": "0ac5767ebca7abbb18d26b5cfb0083729b21b929",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "e1a2ee5420a69a83fd0aea17b240214bd90fdf99",
+      "mergeSha": "072b320a79d01c87b985fd9f107f0ba1edaae985",
       "stageReceipts": {
         "admission": {
           "path": "evidence/u37-admission-20260925.json",
@@ -2896,10 +2896,31 @@
           "at": "2026-09-26T02:34:16.993Z",
           "summary": "5 product files +56/-22 (78 lines) and 2 new test files +171/-6: deployPlacementsFor(units) and IDeployPlacement exported from src/utils/gameplay/gameState/initialization.ts; the engine (lifecycle.ts applyGameCreated) calls it (the rule moved, not changed); the projection (src/hooks/replay useHexMapStateFromEvents.ts applyGameCreatedEvent) seeds each token from it, the legacy no-GameCreated path still at {0,0}; GameCreated carries side but no index, so the index is the order of payload.units (public, fog keeps every unit and its order); rows: the flipped pin, core :130 (now {-2,-5} South), integration :331 (now {-2,5}), the 2v2 row, the agreement row, the board row, three pure-function rows; jest src/hooks 50 suites 477, src/utils/gameplay 264 suites 4962, src/engine 30 suites 414, src/components/gameplay 217 suites 1223, plus multiplayer 141, quickgame 86; tsc 0; oxlint 84 warnings 0 errors; oxfmt clean on 7 files; lint:units 100/100; qc:openspec-ci errors=0; validator PASSED; three mutants caught and restored ({0,0} again; sides swapped; q not offset); no Playwright (E2E-43 left for U25 to measure); implementer claude-opus (Agent model: opus); findings: two server-side roster presets compute a different start hex (matchUnitBootstrap.ts:35-50, matchRosterPresets.ts:124-139; reaches only the adapted unit), the projection has no PhysicalAttackResolved handler (a pushed unit keeps its old hex on the networked board until it moves); status ready"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "review": {
+          "path": "evidence/u37-review-20260925.json",
+          "head": "e1a2ee5420a69a83fd0aea17b240214bd90fdf99",
+          "reviewedHead": "e1a2ee5420a69a83fd0aea17b240214bd90fdf99",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet)",
+          "implementerModel": "claude-opus (Agent model: opus)",
+          "outputSha256": "3fe2a444dc8b4bf80207db1ba61f1310707e4aa9cbcc53aca7cf21faf3ec1177",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u37-merge-20260925.json",
+          "pr": 1975,
+          "head": "e1a2ee5420a69a83fd0aea17b240214bd90fdf99",
+          "mergeSha": "072b320a79d01c87b985fd9f107f0ba1edaae985"
+        },
+        "mainProof": {
+          "path": "evidence/u37-mainproof-20260925.json",
+          "mergeCommit": "072b320a79d01c87b985fd9f107f0ba1edaae985",
+          "verdict": "PASS",
+          "runtime": "U37 PROOF RUNTIME PASSED: 7217 passed (jest 7217, 0 failed, exit 0)"
+        },
+        "tick": {
+          "path": "evidence/u37-tick-20260925.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "source20260922": "planned by the parent from the 2026-09-22 triage plan (newUnits; evidence/triage-plan-20260922.json (179 register issues verified against main a9244fcad)) under the owner instruction of 2026-09-22 (\"ultracode find everything that is marked and if there are issues go with recommended path to solution based on the goal\")",
@@ -8784,6 +8805,48 @@
         "author": "SwiggitySwerve",
         "label": "owner-ruled",
         "bodySha256": "6b064c45efb8fc4f9ba7df419ded5849f7712fbc55591d5e89fe3f1d83806165",
+        "postedBy": "parent on the owner's instruction (the comment quotes the owner's words verbatim)",
+        "deviationDisclosed": "DELIVERY.md says the owner posts the ruling out of band; the owner approved this unit by description in chat (words quoted in the comment) after the parent explained it in plain language and reported Lane A's verdict and the check set on the head, and the parent composed and posted the comment from the owner GitHub account and applied the label; the parent supplied the head from the ledger, as in the earlier rulings of this loop"
+      },
+      "note": "opened when the owner ruled, 2026-09-22 (the cutover sequence's units carry no pre-opened ruling packets)"
+    },
+    {
+      "id": "PK-u37-ruling",
+      "blocks": [
+        "U37"
+      ],
+      "nodes": [
+        "R2.multiplayer-client"
+      ],
+      "taskKeys": [],
+      "question": "U37 (review classes replay) presents head e1a2ee5420a69a83fd0aea17b240214bd90fdf99. Does the owner rule it?",
+      "options": [
+        {
+          "label": "rule the head",
+          "consequence": "an OWNER-RULING <head> comment and the owner-ruled label on U37's PR; the unit merges and proceeds to main proof",
+          "effort": "0.1 day owner"
+        },
+        {
+          "label": "reject",
+          "consequence": "the PR closes; the unit returns to planned with the objection recorded",
+          "effort": "0.1 day owner"
+        }
+      ],
+      "agentRecommendation": "rule the head once Lane A has approved it and the checks are green",
+      "revertCost": "low: a squash merge revert",
+      "decision": {
+        "at": "2026-09-26T04:17:53Z",
+        "option": "rule the head",
+        "text": "Approve (Recommended)",
+        "source": "owner instruction in the working session (chat), after the parent described the unit in plain English: a structured question: networked tokens seeded at the engine deploy hex and facing on GameCreated through one shared placement function (game-state-management spec:102-121; UAT known issue 7); Lane A APPROVE (engine placements byte-identical for 1v1/2v2/3v3; unit order stable for every viewer and on reconnect; first move starts at the seeded hex; own mutant caught); 31 green checks; disclosed: replays show units at their deploy hex until the first move, enemy tokens visible at their deploy hex under fog from the public payload, no PhysicalAttackResolved handler in the projection"
+      },
+      "ruling": {
+        "ruledHead": "e1a2ee5420a69a83fd0aea17b240214bd90fdf99",
+        "pr": 1975,
+        "commentId": 5843100295,
+        "author": "SwiggitySwerve",
+        "label": "owner-ruled",
+        "bodySha256": "53afd3e5481fa1be6b4cf20a5551373cb42eb4efb80ef3d358c8484cfe50ecaf",
         "postedBy": "parent on the owner's instruction (the comment quotes the owner's words verbatim)",
         "deviationDisclosed": "DELIVERY.md says the owner posts the ruling out of band; the owner approved this unit by description in chat (words quoted in the comment) after the parent explained it in plain language and reported Lane A's verdict and the check set on the head, and the parent composed and posted the comment from the owner GitHub account and applied the label; the parent supplied the head from the ledger, as in the earlier rulings of this loop"
       },
