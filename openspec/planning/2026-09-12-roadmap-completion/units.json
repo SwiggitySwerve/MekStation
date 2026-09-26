@@ -2750,23 +2750,46 @@
         "tick": null
       },
       "ownerGate": null,
-      "state": "planned",
+      "state": "blocked",
       "id": "U92",
       "node": "R2.authority-live",
-      "behavior": "A GM intervention approved on the co-op host's GM ledger route reaches the guest. Today handleApprove writes only the host's local campaign store (src/components/campaign/gm/GmCampaignInterventionControlPlane.tsx:255-323; the ledger page callback gm-ledger.tsx:42-50), and no code path commits it through the campaign authority (grep of the ledger path for co-op authority calls: 0), so the guest never sees the public net effect that openspec/specs/coop-campaign-sync/spec.md:499-504 requires, and a funds correction on the host is reset by the next accepted frame (src/lib/campaign/coop/campaignMirrorProjection.ts:27-30). After: on a co-op campaign the approved intervention commits through the campaign authority as a host command on the campaign stream, so the host's saved record and the guest's mirror both carry its net effect, and the guest's frame carries the redacted public result only (no rationale, no hidden correction context). Admission decides, with file:line, the command shape (an existing campaign intent that carries the projection's updates, or a new command needing src/types/campaign and Protocol changes, which stops admission for a path amendment) and how the host's own balance survives the mirror reset. Red first, live on two browsers on the journal-authority head: the host approves a funds correction; the guest's balance and feed do not change on the baseline; after, they do, and the guest's frame carries no private field.",
+      "behavior": "A GM intervention approved on the co-op host's GM ledger route reaches the guest. Today handleApprove writes only the host's local campaign store (src/components/campaign/gm/GmCampaignInterventionControlPlane.tsx:255-323; the ledger page callback gm-ledger.tsx:42-50), and no code path commits it through the campaign authority (grep of the ledger path for co-op authority calls: 0), so the guest never sees the public net effect that openspec/specs/coop-campaign-sync/spec.md:499-504 requires, and a funds correction on the host is reset by the next accepted frame (src/lib/campaign/coop/campaignMirrorProjection.ts:27-30). After: on a co-op campaign the approved intervention commits through the campaign authority as a host command on the campaign stream, so the host's saved record and the guest's mirror both carry its net effect, and the guest's frame carries the redacted public result only (no rationale, no hidden correction context). Admission decides, with file:line, the command shape (an existing campaign intent that carries the projection's updates, or a new command needing src/types/campaign and Protocol changes, which stops admission for a path amendment) and how the host's own balance survives the mirror reset. Red first, live on two browsers on the journal-authority head: the host approves a funds correction; the guest's balance and feed do not change on the baseline; after, they do, and the guest's frame carries no private field. Amended 2026-09-26 after the first admission attempt (evidence/u92-admission-attempt1-20260925.json; owner answer \"Amend U92: funds-only, those defaults\"): the funds family only. A new host-only command ApplyGmIntervention (src/types/campaign/CampaignSync.ts, the wire schema in src/types/multiplayer/Protocol.ts and campaignSyncSchemas) carries the intervention's public summary and a signed C-bill delta and commits as FundsChanged; the ledger page's approve callback (src/pages/gameplay/campaigns/[id]/gm-ledger.tsx:42-50) sends it for a co-op campaign. Defaults: the host applies the change only through the command's fold (no separate local-store write); each approval carries a unique intervention id (today canned ids repeat, helpers.ts:26, so two approvals would dedupe as one); the day cascade and the other intervention families stay out of scope and are recorded (FN-u92-other-intervention-families-unreachable). Admitted after U95 is main-verified (both own src/lib/multiplayer/server, and U95's shared registry is what a live host read needs).",
       "ownershipPaths": [
         "src/lib/campaign",
-        "src/lib/multiplayer/server"
+        "src/lib/multiplayer/server",
+        "src/types/campaign/CampaignSync.ts",
+        "src/types/multiplayer/Protocol.ts",
+        "src/pages/gameplay/campaigns/[id]/gm-ledger.tsx"
       ],
       "reviewClasses": [
         "authority",
-        "privacy"
+        "privacy",
+        "idempotency"
       ],
       "admitAfter20260925": "U35d main-verified (the intervention commits through the journal authority); --next cannot express a unit dependency, so the parent checks it at admission",
       "source20260925": "planned by the parent under the owner's answer \"Plan a unit now (Recommended)\" on U90's admission finding (working session of 2026-09-25)",
       "resumed20260925": {
         "at": "2026-09-26T00:35:48.000Z",
         "why": "prerequisite main-verified: U35d (merge 68cf089ea9da2ba56e8d6c02e523075eddeb802b), the campaign journal flip; recorded by U35d's closure edit"
+      },
+      "firstAdmissionAttempt20260925": {
+        "receipt": "evidence/u92-admission-attempt1-20260925.json",
+        "decision": "BLOCKED at admission: no existing intent carries a GM credit (SpendFunds only debits, campaignSyncSchemas.ts:78; ReconcileBattle would record a battle that never happened); the ledger page's approve callback reaches only the local store (gm-ledger.tsx:44); the owner amended the unit with the three exact files and the funds-only defaults"
+      },
+      "pathsAmendedBeforeAdmission20260926": {
+        "at": "2026-09-26T06:49:45.000Z",
+        "added": [
+          "src/types/campaign/CampaignSync.ts",
+          "src/types/multiplayer/Protocol.ts",
+          "src/pages/gameplay/campaigns/[id]/gm-ledger.tsx"
+        ],
+        "why": "a new host-only command ApplyGmIntervention (public summary plus a signed C-bill delta, committed as FundsChanged) needs the intent type, the wire schema and the page's callback"
+      },
+      "blocked20260926": {
+        "at": "2026-09-26T06:49:45.000Z",
+        "cause": "first admission BLOCKED for the path amendment above; the amended unit shares src/lib/multiplayer/server with U95, which the owner ordered first",
+        "nextIndependentAction": "U95, then U96, then U92 resumes (relaunched on the amended sentence)",
+        "proof": "evidence/u92-admission-attempt1-20260925.json"
       }
     },
     {
@@ -2832,6 +2855,41 @@
       "ownerGate": null,
       "state": "planned",
       "source20260925": "planned by the parent under the owner's answer \"Plan U95, U86 waits on it (Recommended)\" (working session of 2026-09-25) on U86's measured registry split"
+    },
+    {
+      "id": "U96",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "While a live co-op host exists for a campaign, a whole-campaign PUT (src/pages/api/campaigns/[id].ts) is applied through that host, so the next host command builds on it and the guest receives it; or the PUT is refused 409 pointing at the live session. Measured by U92's admission on the flip (evidence/u92-admission-attempt1-20260925.json): a host balance saved through the PUT is appended as a record checkpoint the live host session never folds (the guest gets 0 frames, the live host stays at 380000 while the journal and the record read 382500), and the next host command (SpendFunds 1000) computes from the old in-memory balance and rewrites the journal and the record to 379000, erasing the save durably; any host-side change saved through the PUT is lost the same way, not only GM interventions. The host is the single campaign-write authority (openspec/specs/coop-campaign-sync/spec.md:215-217), so the live host's state and the saved record must not diverge. Admission decides, with file:line, which of the two behaviours the route takes for a live host (apply through the host as a command batch, or refuse 409 with the live session named) and measures it on real SQLite with a live host; it rides U95's shared registry (the route runs in Next's API graph, the host in the socket graph). Red first: the measured sequence as a jest row on the baseline (PUT then SpendFunds erases the save); green: the save survives the next command and the guest's frame carries it (or the PUT is refused with the session named).",
+      "ownershipPaths": [
+        "src/lib/multiplayer/server",
+        "src/pages/api/campaigns/[id].ts"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority",
+        "idempotency"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "state": "blocked",
+      "admitAfter20260926": "U95 main-verified (the shared campaign host registry the route needs to reach the live host); --next cannot express a unit dependency, so the parent checks it at admission",
+      "source20260926": "planned by the parent under the owner's answer \"Plan U96 now, before U95\" (2026-09-26) on U92's measured finding FN-u92-coop-checkpoint-erased-by-next-host-command"
     },
     {
       "id": "U36",
@@ -10070,6 +10128,42 @@
       "class": "ladder rerun semantics",
       "summary": "validate-exact-main-regression-ladder.mjs --rerun skips the smoke rerun when an archive already covers the commit, so the new exact-main-ladder proof step may record a skip rather than a run on a commit proved before.",
       "recommendedSuccessor": "U40 or the next scripts/qc unit: a --force flag for the proof step, or the step records the skip explicitly",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u92-coop-checkpoint-erased-by-next-host-command",
+      "foundBy": "U92 implementer lane (claude-opus), 2026-09-25, admission probe on real SQLite with a live co-op host",
+      "at": "2026-09-26T06:49:45.000Z",
+      "class": "authority: durable data loss under the flip (measured)",
+      "summary": "On a live co-op campaign under the journal flip, a host balance change saved through the whole-campaign PUT is appended as a record checkpoint the live host session never folds (guest 0 frames; live host 380000 while the journal and record read 382500); the next host command (SpendFunds 1000) computes from the in-memory balance and rewrites the journal and the record to 379000. Any host-side change saved through the PUT is lost the same way. Not in UAT round 1's pinned build (flag off there).",
+      "recommendedSuccessor": "U96 (after U95)",
+      "status": "recorded; U96 planned"
+    },
+    {
+      "id": "FN-u92-canned-intervention-ids-not-unique",
+      "foundBy": "U92 implementer lane (claude-opus), 2026-09-25 (read from the code)",
+      "at": "2026-09-26T06:49:45.000Z",
+      "class": "idempotency hazard",
+      "summary": "Intervention ids are constant per canned correction (src/components/campaign/gm/.../helpers.ts:26), so two distinct approvals of the same canned correction would share one id and dedupe as one once interventions commit through the authority.",
+      "recommendedSuccessor": "U92's default: each approval carries a unique id",
+      "status": "recorded; folded into U92's sentence"
+    },
+    {
+      "id": "FN-u92-other-intervention-families-unreachable",
+      "foundBy": "U92 implementer lane (claude-opus), 2026-09-25",
+      "at": "2026-09-26T06:49:45.000Z",
+      "class": "scope boundary (owner: funds only)",
+      "summary": "Only the funds family (a signed C-bill delta) and the day count map onto existing campaign events; repair, salvage, parts inventory, unit state and transaction corrections touch fields the co-op authoritative state does not hold (CampaignSync.ts:85-110), so they cannot reach a guest without new event types.",
+      "recommendedSuccessor": "a later unit per family, each with its own event type and spec delta",
+      "status": "recorded; out of U92's scope by the owner's answer"
+    },
+    {
+      "id": "FN-u92-guest-ledger-route-reads-unmirrored-data",
+      "foundBy": "U92 implementer lane (claude-opus), 2026-09-25 (read from the code)",
+      "at": "2026-09-26T06:49:45.000Z",
+      "class": "guest surface gap",
+      "summary": "The guest's player-safe GM ledger route reads intervention data the guest mirror never receives, so its projection is empty for a co-op guest regardless of U92.",
+      "recommendedSuccessor": "U92's Lane A confirms after the funds command lands; then a follow-on if the route stays empty",
       "status": "recorded"
     }
   ]

@@ -1,0 +1,444 @@
+{
+  "unit": "U92",
+  "stage": "admission",
+  "status": "BLOCKED",
+  "at": "2026-09-26T05:52:49.102Z",
+  "baseline": "f510bfc43a59ee8c5c8bdb42e56500c3f6f58609",
+  "originMainAtAdmission": "f510bfc43a59ee8c5c8bdb42e56500c3f6f58609",
+  "originMainLsRemote": "f510bfc43a59ee8c5c8bdb42e56500c3f6f58609\trefs/heads/main",
+  "baselineEqualsOriginMain": true,
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u92",
+  "branch": "roadmap-u92-coop-gm-intervention-reaches-guest-20260925",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "node": "R2.authority-live",
+  "ownershipPaths": [
+    "src/lib/campaign",
+    "src/lib/multiplayer/server"
+  ],
+  "reviewClasses": [
+    "authority",
+    "privacy"
+  ],
+  "behavior": "units.json U92 behavior sentence, not widened: on a co-op campaign the GM intervention approved on the host GM ledger route commits through the campaign authority as a host command on the campaign stream, so the host saved record and the guest mirror both carry its net effect, and the guest frame carries the redacted public result only; admission decides the command shape (an existing intent, or a new command needing src/types/campaign and Protocol changes, which stops admission for a path amendment) and how the host balance survives the mirror reset.",
+  "stoppedAt": "admission. No product or test file was edited (one scratch jest probe was written under src/lib/campaign/__tests__, run once and deleted; its text and output are in the scratchpad and hashed below). The red and local stages were not run; no build, no Playwright.",
+  "shellPreamble": [
+    "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "export npm_config_dry_run=true"
+  ],
+  "prerequisite": {
+    "admitAfter20260925": "U35d main-verified (merge 68cf089ea9da2ba56e8d6c02e523075eddeb802b)",
+    "check": {
+      "command": "git merge-base --is-ancestor 68cf089ea9da2ba56e8d6c02e523075eddeb802b HEAD",
+      "lastLine": "",
+      "exitCode": 0,
+      "log": {
+        "path": "<scratchpad>/u92/logs/adm-u35d-merge-ancestor.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "note": "exit 0 = the U35d merge is an ancestor of the baseline"
+    }
+  },
+  "runners": {
+    "admissionGates": {
+      "path": "<scratchpad>/u92/admission-gates.sh",
+      "sha256": "beb7104d804b849c1202c22121177b5c72f28d78d0b7e81fa761bfbff60645b6"
+    },
+    "receiptWriter": {
+      "path": "<scratchpad>/u92/write-admission.mjs",
+      "sha256": "daed2d554d8b1a30a1b66ed52793010a5a2143b6225d7b2a9be6b1438c51224e"
+    },
+    "baselineProbe": {
+      "path": "<scratchpad>/u92/u92-baseline-probe.test.ts",
+      "sha256": "f1a290fd57ddea206b672f6d191f70be5e2822349239e21411b9534116d3c681",
+      "ranAs": "src/lib/campaign/__tests__/u92-baseline-probe.test.ts (copied out, then deleted from the worktree)",
+      "command": "npx jest src/lib/campaign/__tests__/u92-baseline-probe.test.ts",
+      "exitCode": 0,
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\campaign\\\\__tests__\\\\u92-baseline-probe.test.ts/i.",
+      "log": {
+        "path": "<scratchpad>/u92/logs/probe1.log",
+        "sha256": "79509f9d07573f7e98a64d5f1bfb5b7fd191e6844c02400f5d12da509467cc24"
+      }
+    }
+  },
+  "gates": {
+    "nodeVersion": {
+      "command": "node --version",
+      "lastLine": "v22.22.0",
+      "exitCode": 0,
+      "log": {
+        "path": "<scratchpad>/u92/logs/adm-node-version.log",
+        "sha256": "2172da60c75bfe844a5f085d0b225e7042f650910fb423c59d7f4a937afb0b56"
+      }
+    },
+    "guardNodeModulesLink": {
+      "command": "npm run --silent qc:guard-node-modules-link",
+      "lastLine": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"E:\\\\Projects\\\\MekStation\\\\.sisyphus\\\\roadmap-completion-20260912\\\\worktrees\\\\u92\\\\node_modules\",\"actualPath\":\"E:\\\\Projects\\\\MekStation\\\\node_modules\"}",
+      "exitCode": 1,
+      "log": {
+        "path": "<scratchpad>/u92/logs/adm-guard.log",
+        "sha256": "0edc153e65707178f8db67b5145e228a3adda449fcce16dad7d35366cab38b97"
+      },
+      "expected": true,
+      "why": "refusal by design in a junctioned worktree; no npm install/ci/prune or lifecycle was run (npm_config_dry_run=true exported)"
+    },
+    "gitStatus": {
+      "command": "git status --short",
+      "lastLine": "",
+      "exitCode": 0,
+      "log": {
+        "path": "<scratchpad>/u92/logs/adm-status.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "note": "empty output = clean tree at admission (after the probe was deleted)"
+    },
+    "head": {
+      "command": "git rev-parse HEAD",
+      "lastLine": "f510bfc43a59ee8c5c8bdb42e56500c3f6f58609",
+      "exitCode": 0,
+      "log": {
+        "path": "<scratchpad>/u92/logs/adm-head.log",
+        "sha256": "f3361e807bad9102f01bb5e0b9d7c2a0abae13362b39c450bfdc0f8cbe652fee"
+      }
+    },
+    "originMain": {
+      "command": "git rev-parse origin/main",
+      "lastLine": "f510bfc43a59ee8c5c8bdb42e56500c3f6f58609",
+      "exitCode": 0,
+      "log": {
+        "path": "<scratchpad>/u92/logs/adm-origin-main.log",
+        "sha256": "f3361e807bad9102f01bb5e0b9d7c2a0abae13362b39c450bfdc0f8cbe652fee"
+      }
+    },
+    "lsRemote": {
+      "command": "git ls-remote origin refs/heads/main",
+      "lastLine": "f510bfc43a59ee8c5c8bdb42e56500c3f6f58609\trefs/heads/main",
+      "exitCode": 0,
+      "log": {
+        "path": "<scratchpad>/u92/logs/adm-ls-remote.log",
+        "sha256": "374de7269360e8c7c11980faf828d96eec70e71b0257e0ff751d2b124075e062"
+      },
+      "note": "read-only; no fetch"
+    },
+    "validatorOnBaseline": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "exitCode": 0,
+      "log": {
+        "path": "<scratchpad>/u92/logs/adm-validator.log",
+        "sha256": "97b2f29d264078525a55c5f88586fb95603311fa065e70d7d17c5fab08f5b5bc"
+      }
+    },
+    "validatorNextOnBaseline": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+      "lastLine": "U87",
+      "exitCode": 0,
+      "log": {
+        "path": "<scratchpad>/u92/logs/adm-next.log",
+        "sha256": "b481405b910a31a450592fc603909b53402eb95058e2869e3280ecb0fa665992"
+      },
+      "note": "prints U87, as it did for the parent; U87 is in flight in worktrees/u87. U92 owns src/lib/campaign and src/lib/multiplayer/server; recorded and continued per the charter"
+    }
+  },
+  "baselineFileHashes": [
+    {
+      "path": "src/components/campaign/gm/GmCampaignInterventionControlPlane.tsx",
+      "sha256": "5f971e5c59a2aec23f8d9f03816294ded2003b543be3f98814c4bf8b1fb57689"
+    },
+    {
+      "path": "src/components/campaign/gm/GmCampaignInterventionControlPlane.helpers.ts",
+      "sha256": "cc4e1b3492e5ec21666cbee5889fc2250238f7e223d29e17d11acddcd8e485da"
+    },
+    {
+      "path": "src/pages/gameplay/campaigns/[id]/gm-ledger.tsx",
+      "sha256": "32ccc4bc96d42d7ca85a7c4606cda94cba668f995c5d1792f2e2a7bdf0923e9b"
+    },
+    {
+      "path": "src/pages/api/campaigns/[id].ts",
+      "sha256": "e087d830a1c0b3d12f9ae8fdf108f26a3644105252388f02a9cc16884e909447"
+    },
+    {
+      "path": "src/stores/campaign/useCampaignStore.actions.ts",
+      "sha256": "6ef318a7134f4c83871ce9d2be708535dd6846d04d4ce9aa10474a4712d4b5c8"
+    },
+    {
+      "path": "src/stores/campaign/useCampaignPersistenceStore.ts",
+      "sha256": "e50e9013edd3730555b999b41936550ab3e9db5b9055f4cbd491976abe08a2f1"
+    },
+    {
+      "path": "src/stores/campaign/useCampaignStore.dayActions.ts",
+      "sha256": "87474d70c47a8c52c05912b4f68508bafbb1d8defecc164f91ea0a29311683b6"
+    },
+    {
+      "path": "src/lib/campaign/authority/campaignRecordJournalSave.ts",
+      "sha256": "22fd574232e9700149c5928b5769055a2feff0c2def95811b30319e8bd71075e"
+    },
+    {
+      "path": "src/lib/campaign/authority/campaignSourceGenesis.ts",
+      "sha256": "8bbc78dea04721a8c25cf5a4ad9ff355633351f2ce4878d39848a91e93356d98"
+    },
+    {
+      "path": "src/lib/campaign/coop/campaignMirrorProjection.ts",
+      "sha256": "605ab452028a83171892671d392f2695116e46d15a99de8aab6c9506bb4394a0"
+    },
+    {
+      "path": "src/lib/campaign/coop/campaignSyncTransport.ts",
+      "sha256": "57b5fe53121d21b27d5512a2b31a5e46d8bf8a4daa2ea4a2dda57b4001dbe560"
+    },
+    {
+      "path": "src/lib/campaign/coop/coopHostRegistry.ts",
+      "sha256": "e65a63d9c22efd173dd223099c91715c6a2754cab84330a0e0d63fe09763499d"
+    },
+    {
+      "path": "src/lib/campaign/sync/applyCampaignEvent.ts",
+      "sha256": "ef304f28771412faa7efd82036508d12a4b3b7c4380aa5e16fc348d3a6a31890"
+    },
+    {
+      "path": "src/lib/campaign/sync/campaignEventLog.ts",
+      "sha256": "5bc33f44f9d5d7f950d401534ded45d6b5727d2116a040d4ed8c177b3d7e34c4"
+    },
+    {
+      "path": "src/lib/campaign/sync/campaignEventScope.ts",
+      "sha256": "21a06df699e3dd925aebce78139a170335001d58247367f59a6d1acc3f01d88b"
+    },
+    {
+      "path": "src/lib/campaign/sync/campaignViewerProjection.ts",
+      "sha256": "a56dbb4aff0df47e074acdc55f052585e3eace59388654583d2f9200751ac878"
+    },
+    {
+      "path": "src/lib/multiplayer/server/CampaignMatchHost.ts",
+      "sha256": "2bcbd9e6f7e59c10ed565773d96a2cc3a9b7e86cfdf2edcabc9e9e8485b23436"
+    },
+    {
+      "path": "src/lib/multiplayer/server/CampaignMatchHostIntent.ts",
+      "sha256": "024b8777c2f5bb898aa3bc0fa75abf89d58642de6c748ad31b79350098cbcc75"
+    },
+    {
+      "path": "src/lib/multiplayer/server/campaignHostBatchCommit.ts",
+      "sha256": "2b9a7c254c725311b6dda0f56e87e91ec0a3589529f976193a2a347fefad3c94"
+    },
+    {
+      "path": "src/lib/multiplayer/server/bindCampaignSyncConnection.ts",
+      "sha256": "44e4a0b553432ca48018d3cabd63b356ff160047663b68c0619a772d3cc4c333"
+    },
+    {
+      "path": "src/lib/interventions/GmCampaignInterventionProjection.ts",
+      "sha256": "23947e22af5b71cc45b5fa5bc60ee843425c108bb72756fe804533bfa5bab77f"
+    },
+    {
+      "path": "src/lib/interventions/GmTimeCascadeProjection.ts",
+      "sha256": "904aefd950ce23b48156adc8c40232352442986720134cbe0a3d75c7ff362903"
+    },
+    {
+      "path": "src/lib/interventions/GmCascadePreviewPipeline.ts",
+      "sha256": "6f852144da7f59c73a3bb926b3228edfc9e597ec2ad84be71cac81af8836bc34"
+    },
+    {
+      "path": "src/types/campaign/CampaignSync.ts",
+      "sha256": "9cb0a6191c5812a7be3b3c2e36d70a5a5c8fbe2a5970b0fef87f5eb1ab193559"
+    },
+    {
+      "path": "src/types/campaign/campaignSyncSchemas.ts",
+      "sha256": "d34d86256f7b7470e5be91ada207a098c57ecf682d4d66c7be0e8d9a88dac3db"
+    },
+    {
+      "path": "src/types/interventions/GmCampaignInterventionTypes.ts",
+      "sha256": "6a7f215ce3ae9877d4df2a6f69c6223368b3db494d917b089666d34638b95f88"
+    },
+    {
+      "path": "src/types/multiplayer/Protocol.ts",
+      "sha256": "a6ab3be97b33ade411ac9b7e376f36ce3a3aefdd93a80448d4e1aab40664e9dc"
+    },
+    {
+      "path": "openspec/specs/coop-campaign-sync/spec.md",
+      "sha256": "780a1f1f69a4ba5186d2fdbc67e0c8277fabcc72ba92aa7e318812187215d3e5"
+    },
+    {
+      "path": "openspec/specs/gm-campaign-intervention-boundaries/spec.md",
+      "sha256": "e988b696eb41e951fd31b620884ab95b2cb53692844e95500cd18e70a48ab34b"
+    },
+    {
+      "path": "openspec/specs/gm-authority-redaction/spec.md",
+      "sha256": "a754bf23615db546606a15fa998dedab5edf968a8af435e8c7e13af0c5104302"
+    }
+  ],
+  "baselineProbeMeasurements": {
+    "what": "Real SQLite (temp file), the live item route PUT through node-mocks-http, a co-op host over the production store selector (the U35e fixture src/__tests__/api/campaigns/campaignJournalEffectsFixture.ts), a guest subscriber on that host. The real merchant-reversal cascade (buildMerchantReversalCommand, +2,500 C-bills) is previewed and approved on the host campaign, the approved state is saved through PUT /api/campaigns/[id] (what gm-ledger.tsx:42-50 reaches through useCampaignStore.updateCampaign -> saveCampaign -> useCampaignPersistenceStore PUT for a co-op campaign), then one more host command (SpendFunds 1,000) commits.",
+    "measured": {
+      "approvedStatus": "approved",
+      "previewStatus": "ready",
+      "recordBalance": 380000,
+      "hostBalanceBefore": 380000,
+      "typesBefore": [
+        "CampaignSnapshotPublished"
+      ],
+      "afterPut": {
+        "putStatus": 200,
+        "typesAfterPut": [
+          "CampaignSnapshotPublished",
+          "CampaignSnapshotPublished"
+        ],
+        "guestFramesAfterPut": 0,
+        "hostLiveBalance": 380000,
+        "journalReplayBalance": 382500,
+        "storedRow": {
+          "version": 2,
+          "balance": 382500,
+          "currentDate": "3025-07-04T00:00:00.000Z"
+        }
+      },
+      "afterNext": {
+        "spendOk": true,
+        "typesAfterNext": [
+          "CampaignSnapshotPublished",
+          "CampaignSnapshotPublished",
+          "FundsChanged"
+        ],
+        "guestFrames": [
+          {
+            "type": "FundsChanged",
+            "sequence": 2,
+            "payload": {
+              "delta": -1000,
+              "reason": "next",
+              "balance": 379000
+            }
+          }
+        ],
+        "hostLiveBalance": 379000,
+        "journalReplayBalance": 379000,
+        "storedRow": {
+          "version": 3,
+          "balance": 379000,
+          "currentDate": "3025-07-04T00:00:00.000Z"
+        },
+        "hostLocalBalanceBeforeFold": 382500,
+        "hostFoldProjectedBalance": 379000
+      },
+      "wire": {
+        "spendFundsCreditParses": false,
+        "spendFundsDebitParses": true
+      }
+    },
+    "readings": [
+      "The approve path DOES append to the campaign stream: PUT returned 200 and the stream went from [CampaignSnapshotPublished] to [CampaignSnapshotPublished, CampaignSnapshotPublished] (a record checkpoint, campaignRecordJournalSave.ts:103-109, author system, campaignSourceGenesis.ts:233-243). It appends no command event (no FundsChanged) and publishes no frame: the guest subscriber received 0 frames and the live host balance stayed 380000 while the journal replay and the saved row read 382500. The charter red row wording \"no campaign event is appended by the intervention\" is therefore not what the baseline does; the measured fact is \"no command event is appended and nothing reaches the guest\".",
+      "The next host command erases the correction durably, not only in the host view: the live host validated SpendFunds against its in-memory 380000 (CampaignMatchHost.ts:112, campaignHostBatchCommit.ts reads host.readState() while nextSequence reads the durable head, campaignEventLog.ts:64-67), committed FundsChanged {delta -1000, balance 379000} at sequence 2, the guest received that frame, the journal replay read 379000 (FundsChanged adopts the absolute balance, applyCampaignEvent.ts:80-83) and the saved row was rewritten to 379000 at version 3 (U35e record rewrite).",
+      "The host fold projection of the authoritative state onto the host campaign holding the correction (382500) yields 379000 (campaignMirrorProjection.ts:27-30): the reset the unit sentence names, measured at the projection function.",
+      "The wire refuses a credit through the existing intent: ClientMessageSchema.safeParse of a CampaignHostIntent carrying SpendFunds {amount: -2500} is false; the same frame with amount 2500 parses (campaignSyncSchemas.ts:74-78, amount z.number().finite().positive())."
+    ]
+  },
+  "seams": {
+    "approveProducer": "GmCampaignInterventionControlPlane.tsx:255-323 handleApprove: approveGmCascadePreview then onApplyCampaignUpdate(result.state) (:290 time, :318 campaign); the time arm also calls applyPilotPatches on the roster store (:284-289). result.state is the whole campaign after ledger.apply (GmCascadePreviewPipeline.ts:222); GmCampaignUpdate = Partial<IGmCampaignInterventionState & IGmTimeCascadeInterventionState> (helpers.ts:310-312).",
+    "ledgerPageCallback": "gm-ledger.tsx:42-50: shell.store.getState().updateCampaign(updates); markDirty only without coopSession (:46-48). shell.store is useCampaignStore (campaignPageShell.tsx:194).",
+    "storePath": "useCampaignStore.actions.ts:269-293 updateCampaignAction: set campaign, then for a coopSession campaign saveCampaign() and roll back if not committed (:286-291); saveCampaign persists and calls useCampaignPersistenceStore.saveCampaign for a co-op campaign; runSave -> putLiveCampaign (useCampaignPersistenceStore.ts:656-693) PUTs the whole envelope.",
+    "serverPut": "src/pages/api/campaigns/[id].ts:159-260: a journal-native campaign takes purpose checkpoint (:200-205) through saveCampaignRecordThroughJournal (:209), which writes the row and appends a CampaignSnapshotPublished of the record with the journal pilots/contracts/salvagePool carried forward (campaignRecordJournalSave.ts:90-118).",
+    "liveHost": "CampaignMatchHost.ts: authoritative state is in memory (:112); frames fan out only from its own commits (publish :505-508 via commitEvents :466-493); nothing in the PUT path notifies it (measured: 0 guest frames).",
+    "hostIntentWire": "campaignSyncTransport.ts:36-38 sendHostIntent(ICampaignIntent | ICampaignReconcileBattleIntent); Protocol.ts:513-519 CampaignHostIntentSchema intent z.union([CampaignIntentSchema, CampaignReconcileBattleIntentSchema]); server arm bindCampaignSyncConnection.ts:720-866 (ReconcileBattle :760-826, every other kind entry.host.applyHostIntent :828).",
+    "existingHostIntentSenders": "the pattern a co-op host command uses today: useCampaignStore.dayActions.ts:320-360 (AdvanceDay after the local day pipeline) and coopHostRegistry.ts:66-121 (ReconcileBattle); both are invoked by a store or page caller, not by the save path.",
+    "guestProjection": "FundsChanged is scope campaign by default and may not be overridden (campaignEventScope.ts:31-40, :43-80); campaignBaselineReachesViewer (campaignViewerProjection.ts:95-103) withholds only migration-authored baselines and post-withhold baselines from a restricted viewer; a gm-scoped fact is absent for a viewer not admitted to gm (:105-120)."
+  },
+  "designAnswers": {
+    "q1_whatGmCampaignUpdateCarries": {
+      "answer": "The whole campaign after the approved projected effects (result.state), not a delta. Per family (GmCampaignInterventionProjection.ts:41-72 and :130-150; GmTimeCascadeProjection.ts:27-44): funds-transaction sets finances.balance absolutely from effect.after.balanceCents and upserts one transaction; repair-ticket rewrites repairQueue; salvage-allocation rewrites salvageAllocations; inventory-lot rewrites partsInventory; base-unit-state rewrites unitCombatStates/unitConfigurations; every campaign family appends to gmInterventionEvents; the time cascade spreads a whole afterCampaign (date, repairs, markets, upkeep from the day pipeline) and appends to timeCascadeEvents, and the approve also patches pilots in the roster store (ControlPlane :284-289).",
+      "intentCoverage": {
+        "funds": "SpendFunds (CampaignMatchHostIntent.ts:146-163) carries a DEBIT only: the wire schema requires amount > 0 (campaignSyncSchemas.ts:78; measured: a credit frame does not parse). The canned funds correction is a CREDIT (+2,500, helpers.ts:66-117, publicSummary :102). No existing intent carries a GM credit.",
+        "days": "AdvanceDay (CampaignMatchHostIntent.ts:236-242) carries a day count only and is refused while the session is unconverged (bindCampaignSyncConnection.ts:748-758); it would carry the time cascade date move but none of its upkeep, repair, market or pilot effects.",
+        "rosterPilotsContracts": "HirePilot / AcceptContract / AllocateSalvage are guest-shaped purchases with their own ledger checks; none is a correction. RosterUnitChanged and salvage credits have server-side doors (CampaignMatchHost.ts:382-413) but no wire intent.",
+        "noCarrier": "repairQueue, salvageAllocations, partsInventory, unitCombatStates, unitConfigurations, finances.transactions, gmInterventionEvents and timeCascadeEvents are not fields of ICampaignAuthoritativeState (CampaignSync.ts:85-110) and no CampaignEventType (CampaignSync.ts:146-154) carries them.",
+        "reconcileBattleRejected": "ReconcileBattle can carry a positive fundsDelta, but it is keyed to a combat match: the server consults the salvage artifact-use gate with artifactId = matchId (bindCampaignSyncConnection.ts:760-780), dedupes by battle matchId (:783-794) and commits through the durable combat-outcome inbox (reconcileCoopBattle.ts:131-132). Carrying a GM correction on it would record a fabricated battle; rejected as a special case, not a command shape."
+      }
+    },
+    "q2_privateRationaleAndPublicNetEffect": {
+      "today": "The private rationale (privateMetadata reason, defaultOutcome, hiddenNotes, helpers.ts:94-101) stays in the control plane component-local InterventionLedger/ActionLedger (ControlPlane :77-87); the state the page receives carries projected effects whose base type has no private field (GmCampaignInterventionTypes.ts:116-123: type, domain, family, interventionId, changedStateRefs, publicSummary). So on the baseline the host PUT envelope carries gmInterventionEvents with public summaries and before/after state, and no rationale (code-read). Nothing reaches the guest at all (measured: 0 frames).",
+      "whereThePublicNetEffectWouldBeBuilt": "For funds: the server host door would derive FundsChanged {delta, reason: publicSummary, balance} (scope campaign by construction, campaignEventScope.ts:33) from a command carrying only the public summary and the signed delta, so no private field can be on the frame because the command never carries one. The guest folds it through applyCampaignEvent and projects balance (campaignMirrorProjection.ts:27-30). The fields that are GM-private are the privateMetadata trio and the manual takeover notes (ControlPlane :340-344); no campaign event field is gm-scoped for funds."
+    },
+    "q3_canTheApproveCommitWithoutEditingThePage": {
+      "answer": "No.",
+      "why": "The one call the page makes is useCampaignStore.updateCampaign (gm-ledger.tsx:44), whose co-op path runs entirely in src/stores (useCampaignStore.actions.ts:269-293, useCampaignPersistenceStore.ts:802-895) and ends in a whole-envelope PUT to src/pages/api/campaigns/[id].ts. The only src/lib/campaign code on that client path is serialization (buildSerializedCampaign, src/lib/campaign/persistence), which must not send commands. The co-op host commands that exist are sent by a store or lib function that a caller invokes explicitly (dayActions.ts:320-360, coopHostRegistry.ts:66-121). The only in-path seam the approve reaches is server side: saveCampaignRecordThroughJournal (in src/lib/campaign/authority). It receives a whole envelope, not a command; turning a checkpoint into a host command would mean diffing gmInterventionEvents or balances out of a whole-campaign write (the route itself says field-level comparison cannot be decided there, [id].ts:233-246) and a server side channel from the item route to the live co-op host; rejected (a side channel and a consumer patch, the coding doctrine forbids both without an override condition).",
+      "exactPageEdit": "src/pages/gameplay/campaigns/[id]/gm-ledger.tsx:42-50: when campaign.coopSession?.mode === \"host\", call a new src/lib/campaign/coop function (for example commitCoopGmIntervention(campaign, updates)) that finds the newest projected effect in updates.gmInterventionEvents (or timeCascadeEvents) and sends the new host-only intent through getActiveCampaignSyncTransport(matchId) (the coopHostRegistry.ts:66-121 pattern), and decide (owner question D1) whether updateCampaign(updates) still runs locally."
+    },
+    "q4_hostBalanceSurvivesTheReset": {
+      "answer": "By construction once the correction is a committed command: the host fold projects balance from the authoritative state (campaignMirrorProjection.ts:27-30), which would then include the FundsChanged; U35e rewrites the saved record in the command transaction and U35f adopts it. Measured on the baseline that the reset is durable today: the next host command wrote balance 379000 into the journal and the saved row after the checkpoint had 382500. The host must not also land the balance through a PUT checkpoint that the live host never adopts (the measured erasure)."
+    },
+    "chosenCommandShape": "A NEW host-only command, not an existing intent: an ICampaignApplyGmInterventionIntent beside ICampaignReconcileBattleIntent (CampaignSync.ts:524-533), payload { publicSummary: string, fundsDelta: number (signed), interventionRef: string }, host-only on CampaignHostIntentSchema (Protocol.ts:513-519) like ReconcileBattle, committed by a CampaignMatchHost door that refuses a resulting negative balance and emits FundsChanged { delta, reason: publicSummary, balance }. It needs src/types/campaign and src/types/multiplayer/Protocol.ts, so admission stops here per the sentence."
+  },
+  "blockingCause": "Both exits the sentence names are closed inside src/lib/campaign and src/lib/multiplayer/server: (1) no existing intent carries a GM credit (SpendFunds is debit-only on the wire, measured; ReconcileBattle is battle-keyed), so the command shape is a new host-only command in src/types/campaign/CampaignSync.ts and src/types/multiplayer/Protocol.ts; (2) the ledger route client must change: the approve reaches only useCampaignStore.updateCampaign, whose co-op path is src/stores plus a whole-envelope PUT, so no src/lib/campaign change can route it to the campaign stream as a command.",
+  "successor": {
+    "sentence": "On a co-op campaign, a funds-transaction GM intervention approved on the host GM ledger route commits as one host-only campaign command on the campaign stream: a new ApplyGmIntervention host intent (src/types/campaign/CampaignSync.ts beside ICampaignReconcileBattleIntent; its zod schema added to CampaignHostIntentSchema in src/types/multiplayer/Protocol.ts:513-519) carrying the public summary and the signed C-bill delta only, validated by the server co-op host (balance never negative) and committed through its single writer with the intent-identity dedupe as FundsChanged { delta, reason: publicSummary, balance }; the ledger page callback (src/pages/gameplay/campaigns/[id]/gm-ledger.tsx:42-50) sends it for a co-op host through a src/lib/campaign/coop function, so the host saved record (U35e rewrite) and the guest mirror both carry the credit, the guest frame carries no private field, the host balance arrives through its fold, and a duplicate send of the same approval commits once. Other intervention families (repair, salvage, inventory, unit state, time) stay out of scope and are named as non-goals.",
+    "ownershipPaths": [
+      "src/lib/campaign",
+      "src/lib/multiplayer/server",
+      "src/types/campaign/CampaignSync.ts",
+      "src/types/multiplayer/Protocol.ts",
+      "src/pages/gameplay/campaigns/[id]/gm-ledger.tsx",
+      "src/pages/gameplay/campaigns/__tests__ (or the page test folder the repo uses for gm-ledger)"
+    ],
+    "reviewClasses": [
+      "authority",
+      "privacy",
+      "idempotency"
+    ],
+    "estimate": {
+      "note": "estimates from reading, not measured",
+      "product": [
+        {
+          "path": "src/types/campaign/CampaignSync.ts",
+          "lines": "~+20"
+        },
+        {
+          "path": "src/types/multiplayer/Protocol.ts",
+          "lines": "~+15"
+        },
+        {
+          "path": "src/lib/campaign/coop/campaignSyncTransport.ts",
+          "lines": "~+3 (sendHostIntent parameter type)"
+        },
+        {
+          "path": "src/lib/campaign/coop/<new> commitCoopGmIntervention.ts",
+          "lines": "~+60"
+        },
+        {
+          "path": "src/lib/multiplayer/server/bindCampaignSyncConnection.ts",
+          "lines": "~+20 (route the new kind to the door)"
+        },
+        {
+          "path": "src/lib/multiplayer/server/CampaignMatchHost.ts + CampaignMatchHost.doors.ts",
+          "lines": "~+45 (door: validate, derive FundsChanged, identity)"
+        },
+        {
+          "path": "src/pages/gameplay/campaigns/[id]/gm-ledger.tsx",
+          "lines": "~+12"
+        }
+      ],
+      "productLines": "~175 (cap 500)",
+      "files": "~8 product + ~3 test + 3 receipts (cap 15)"
+    },
+    "ownerQuestions": [
+      "D1: on a co-op host, does the approve still apply result.state to the local store (and PUT a checkpoint the live host never adopts, the measured erasure path), or only send the command and let the fold and the U35f record refresh bring the balance back? Only-send loses the local-only fields the approve writes (finances.transactions, gmInterventionEvents) unless the command or a later record rewrite carries them.",
+      "D2: which families reach the guest: funds maps to FundsChanged; the time cascade maps only its day count to CampaignDayAdvanced (not its upkeep/repair/market/pilot effects); repair, salvage, inventory and unit-state corrections change fields the co-op authoritative state does not hold, so their public result could reach the guest only through a new summary-only event type (more type changes).",
+      "D3: the idempotency key. interventionId is a constant per canned correction (MERCHANT_REVERSAL_ID = gm-ledger-merchant-reversal, helpers.ts:26), so two legitimate merchant corrections share it; the dedupe key must be the approval (record id plus approvedAt), and the mutant M4 (a duplicate approval appends twice) depends on that choice.",
+      "D4: the guest player-safe ledger route renders campaign.gmInterventionEvents (buildPersistedCampaignEventRows, helpers.ts:197-259), which a guest mirror never receives; gm-campaign-intervention-boundaries \"Player mirror direct route is read-only\" expects public summaries there. A FundsChanged reason reaches the guest feed, not that route."
+    ]
+  },
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "lineRule": "product lines only; test lines reported separately (owner decision OD-line-cap-product-lines, 2026-09-23)"
+  },
+  "risksForTheParent": [
+    "Authority and privacy classes (units.json U92 reviewClasses): whichever successor lands, Lane B needs the owner OWNER-RULING comment bound to the exact PR head; the successor adds idempotency (a new command identity).",
+    "What a guest would see that they did not before (successor, funds only): one FundsChanged frame with the signed delta (+2500 for the canned merchant reversal), the new balance and the reason text equal to the public summary (\"Merchant charge corrected by +2,500.00 C-bills.\", helpers.ts:102), in the campaign feed and the balance. Today the guest sees nothing (measured: 0 frames).",
+    "What the GM private rationale never carries: the command must carry only publicSummary and the delta; privateMetadata (reason, defaultOutcome, hiddenNotes, helpers.ts:94-101) and manual takeover notes (ControlPlane :340-344) stay in the control plane ledgers. FundsChanged is campaign scope by construction (campaignEventScope.ts:33), so a gm-scoped variant is not an option for the funds fact itself.",
+    "Measured and broader than the unit: on a live co-op journal-native campaign any host-local balance change that lands through the whole-envelope PUT (not only a GM intervention) is appended as a checkpoint the live host never adopts and is erased from the journal projection and the saved record by the next host command (probe readings 1-2). INFERENCE: the same holds for other checkpoint-carried fields the live host state holds (day), not measured.",
+    "The charter red row \"no campaign event is appended by the intervention\" does not match the baseline: a checkpoint snapshot IS appended; no command event is. A successor red row should say \"no command event and no guest frame\"."
+  ],
+  "findingsReportedNotFixed": [
+    "FN-u92-coop-checkpoint-erased-by-next-host-command (measured, probe readings 1-2): a whole-envelope PUT on a journal-native co-op campaign appends a CampaignSnapshotPublished checkpoint that the live CampaignMatchHost neither adopts nor fans out; its next command validates against its in-memory state and writes an absolute FundsChanged.balance that erases the checkpointed balance from the journal replay and, through the U35e rewrite, from the saved record.",
+    "FN-u92-canned-intervention-ids-not-unique (code-read): the ledger preview producers use a constant interventionId per canned correction (helpers.ts:26-28, GmCampaignBaseFixCommands REPAIR_COMPLETION_ID and siblings), so an approval is not uniquely identified by it; any dedupe or durable record keyed on interventionId conflates distinct approvals."
+  ],
+  "nonClaims": [
+    "No product, test, spec or ledger file was edited; the one scratch probe was deleted and git status is clean (gate gitStatus). units.json, roadmap.json, admission-snapshot.json and every tasks.md are untouched; no checkbox checked.",
+    "No build, no Playwright and no browser: the live two-browser red measurement was not run (stage 2 not reached). The probe is jest on real SQLite through the live item route and a co-op host object; it does not run the websocket binder, the browser stores or the ledger page.",
+    "The probe host campaign is the U35e fixture campaign (disjointCampaign) rather than a deserialized copy of the saved record; the host fold projection reading is of applyAuthoritativeStateToGuestCampaign called directly, not of the connected surface.",
+    "The design answers other than the probe readings and the gates are from reading the baseline source at the cited lines; the successor estimates are estimates, not measurements."
+  ]
+}
