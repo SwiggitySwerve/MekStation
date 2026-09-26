@@ -1,12 +1,12 @@
 {
   "unit": "U40",
   "stage": "local",
-  "at": "2026-09-26T15:25:15.723Z",
+  "at": "2026-09-26T16:45:49.439Z",
   "baseline": "738e5466fd934d01e8dfeb61f9faf15d7a291fa1",
   "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u40",
   "branch": "roadmap-u40-qc-gates-bind-20260926",
   "implementerModel": "claude-opus (Agent model: opus, lean-worker)",
-  "status": "local-verified (uncommitted; the parent commits)",
+  "status": "local-verified (rebased onto origin/main 1f11f4055 by the parent; ceiling file re-measured and uncommitted; the parent commits)",
   "changedFiles": {
     "scripts/qc/gm-two-player-campaign-core.cjs": {
       "class": "product",
@@ -30,8 +30,8 @@
       "class": "product",
       "added": 6,
       "removed": 3,
-      "sha256": "122633233c247a31dd91cad59175771631d760c15172c77bdd87ae4773523366",
-      "note": "adds a \"note\" field: the perPath values are ceilings measured at measuredAt on 2026-09-26, not pins"
+      "sha256": "fb68b3759ce5a5f03cc95476e5300553411c9fcaedbd6121b575bdd937a85219",
+      "note": "numstat against the rebase base 1f11f4055; carries the \"note\" field (ceilings, not pins)"
     },
     "scripts/qc/lint-units-src-tests.ignore": {
       "class": "product (new, untracked)",
@@ -53,7 +53,7 @@
     }
   },
   "lineCounts": {
-    "source": "git diff --numstat (+ wc -l for the untracked ignore file)",
+    "source": "git diff --numstat 1f11f4055 -- scripts (working tree)",
     "productAdded": 206,
     "productRemoved": 36,
     "productChanged": 242,
@@ -98,14 +98,7 @@
       "gate": "jest scripts (final bytes)",
       "command": "node node_modules/jest/bin/jest.js scripts",
       "exit": 0,
-      "lastLine": "Test Suites: 80 passed, 80 total / Tests: 10 skipped, 1259 passed, 1269 total / Time: 154.907 s"
-    },
-    {
-      "gate": "jest evidence",
-      "command": "node node_modules/jest/bin/jest.js src/__tests__/unit/evidence",
-      "exit": 0,
-      "lastLine": "Test Suites: 2 passed, 2 total / Tests: 18 passed, 18 total",
-      "note": "run in revision 1; revision 2 touched only lint-units.test.ts and lint-units.ceiling.json, neither imported by that directory"
+      "lastLine": "Test Suites: 80 passed, 80 total / Tests: 10 skipped, 1259 passed, 1269 total / Time: 165.716 s"
     },
     {
       "gate": "lint:units (final bytes)",
@@ -115,10 +108,15 @@
         "LINT_UNITS_PATH e2e files=194 findings=50 ceiling=50 PASS",
         "LINT_UNITS_PATH scripts files=186 findings=50 ceiling=50 PASS",
         "LINT_UNITS_PATH src/pages/api files=97 findings=16 ceiling=16 PASS",
-        "LINT_UNITS_PATH src-tests files=3203 findings=17782 ceiling=17782 PASS",
-        "LINT_UNITS_PASS 17898/17898"
-      ],
-      "remeasure": "head counts equal the baseline measurement for all four paths"
+        "LINT_UNITS_PATH src-tests files=3205 findings=17783 ceiling=17783 PASS",
+        "LINT_UNITS_PASS 17899/17899"
+      ]
+    },
+    {
+      "gate": "oxfmt",
+      "command": "node node_modules/oxfmt/bin/oxfmt --check scripts/qc/lint-units.ceiling.json",
+      "exit": 0,
+      "lastLine": "All matched files use the correct format. / Finished in 85ms on 1 files"
     },
     {
       "gate": "tsc",
@@ -127,30 +125,14 @@
       "lastLine": "(no output)"
     },
     {
-      "gate": "oxlint",
-      "command": "node node_modules/oxlint/bin/oxlint",
-      "exit": 0,
-      "lastLine": "Found 84 warnings and 0 errors. (84 = the recorded baseline)"
-    },
-    {
-      "gate": "oxfmt",
-      "command": "node node_modules/oxfmt/bin/oxfmt --check <the six changed tracked files>",
-      "exit": 0,
-      "lastLine": "All matched files use the correct format."
-    },
-    {
-      "gate": "qc:openspec-ci",
-      "command": "npm run --silent qc:openspec-ci:validate",
-      "exit": 0,
-      "lastLine": "[qc:openspec-ci] ... errors=0",
-      "note": "run in revision 1; revision 2 changes no file it reads"
-    },
-    {
       "gate": "roadmap validator",
       "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
       "exit": 0,
-      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
-      "note": "rerun after writing this revision"
+      "lastLine": "see the reply (rerun after writing this revision)"
+    },
+    {
+      "gate": "not rerun in revision 3",
+      "note": "oxlint (84 warnings, 0 errors), qc:openspec-ci (errors=0), jest src/__tests__/unit/evidence (18/18) and the mutant table are from revisions 1-2 on the pre-rebase base 738e5466f; revision 3 changes only JSON ceiling values"
     }
   ],
   "mutants": {
@@ -230,7 +212,8 @@
         "restored": true,
         "replaces": "revision 1 M4 (ceiling raised by one, caught only by the dropped equality pin)"
       }
-    ]
+    ],
+    "note": "the M1-M4 table is revision 2 (final bytes before the rebase); the ceiling edit of revision 3 changes no code the mutants touch, and M4 was restored to the pre-edit bytes 122633233c24... at that time"
   },
   "nonClaims": [
     "No Playwright run, build or standalone server was made: that a real ladder group prints GM2P_SERVER with the Next server PID, and that the server bound to 127.0.0.1 serves the http://localhost baseURL on this machine, are not measured here (CI runs that pairing per pr-checks.yml:637, read not run)",
@@ -238,7 +221,8 @@
     "Under the relaunching wrapper the printed PID is whichever process owns the port when it first answers; a respawn after that is not re-announced",
     "The GM2P_SERVER line shares stdout with the inherited Playwright output; interleaving under a real run was not observed",
     "The pr-checks.yml lint:units step is outside the unit paths and not claimed; lint:units still runs in no CI job",
-    "The ratchet row does not detect a ceiling set higher than the tree needs: a raised ceiling passes by design (parent decision); keeping ceilings tight is left to review of the ceiling file"
+    "The ratchet row does not detect a ceiling set higher than the tree needs: a raised ceiling passes by design (parent decision); keeping ceilings tight is left to review of the ceiling file",
+    "The lint-units.mjs comment above DEFAULT_PATHS still names the 738e5466f measurement (src-tests 17782 findings, 3203 files); the parent limited revision 3 to the ceiling file, so the comment was not changed (see FN-u40-default-paths-comment-stale)"
   ],
   "findings": [
     {
@@ -257,6 +241,22 @@
       "id": "FN-u40-ratchet-pin-forces-ratchet-down",
       "summary": "The measured-count pin (lint-units.test.ts) requires findings == ceiling per path, so a change that removes findings must lower the ceiling in the same change or `jest scripts` fails.",
       "status": "resolved by revision 2: the equality pin is dropped; the row pins only the ratchet (<= per path and total, no zero-file path)"
+    },
+    {
+      "id": "FN-u96-one-new-src-test-finding",
+      "summary": "U96 (merged to main at 1f11f4055) added src/__tests__/api/campaigns/campaignPutLiveHost.test.ts (0 findings) and src/stores/campaign/__tests__/useCampaignStore.coopDayAdvanceOrder.test.ts (1 finding: eslint-plugin-react-hooks(rules-of-hooks) at :195, useCampaignStore called inside function advanceOnce); src-tests went from 3203 files / 17782 findings to 3205 / 17783. Its modified src/__tests__/integration/coopMutationPersistence.test.ts kept its count (the total rose by exactly one).",
+      "status": "recorded; absorbed by the revision 3 ceiling (17783)"
+    },
+    {
+      "id": "FN-u40-default-paths-comment-stale",
+      "summary": "scripts/qc/lint-units.mjs, the comment above DEFAULT_PATHS, states the 2026-09-26 measurement at 738e5466f (src-tests 17782 findings, 3203 files); the ceiling file now holds 17783 at 1f11f4055. A comment that names a count the file no longer holds; not edited under the parent scope limit.",
+      "recommendedSuccessor": "the parent either allows a one-comment edit here or the comment is reworded to point at lint-units.ceiling.json instead of repeating the numbers",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u40-probe-file-in-src-removed",
+      "summary": "During revision 3 the lane copied a scratch probe to src/__tests__/integration/__u40probe_old.test.ts (outside the unit paths) by mistake; it was removed within the same command sequence, before any lint or test ran, and git status afterwards showed only scripts/qc/lint-units.ceiling.json modified.",
+      "status": "recorded (self-reported)"
     }
   ],
   "rawLogs": {
@@ -275,14 +275,19 @@
     "M4.log": "a7a7857c331ce3fe48c7bc6b1828e964bc68975b4d54c57621b1900c1eef95ac",
     "M4-cli.log": "4edbd5283b18888ecbdd51c3f1a11db10f398f34205193d39c8371b9e8872f54",
     "ratchet-row-timing-1.log": "5490fce14c4712061c5cb9d379adad9f4e753c7dd54f11a9f90ac75aceef4e0f",
-    "ratchet-row-timing-2.log": "66b58761a6f8db21d5c9ba6105ba9fd15dddf2e12e5df39fd9074f2f01751ab5"
+    "ratchet-row-timing-2.log": "66b58761a6f8db21d5c9ba6105ba9fd15dddf2e12e5df39fd9074f2f01751ab5",
+    "r3-jest-scripts.log": "953d4cf9d1b8eb17f6dba91db96232f203b4d6e213e62d65fe8773db188f08b9",
+    "r3-focused.log": "cb163218be3316bbbb19f887d6d06171b46e6670b39289def15731b3e7543cf5",
+    "r3-lint-units.log": "24926ffdd1ca2131ee6895411ecc15cfbe54333e5307c2201c6b1aa87dca7182",
+    "r3-oxfmt.log": "8f56fe690a2434e4589eb06bca3447fe0202d34718ce12cf17a8858632316e99",
+    "r3-tsc.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 (empty)"
   },
   "revision": {
-    "n": 2,
-    "reason": "parent decision on FN-u40-ratchet-pin-forces-ratchet-down: the equality pin is over-built (every PR that adds or removes a src-test finding would redden main, and in-flight PRs with different counts collide); the jest row now pins the ratchet only, and M4 is replaced by a lowered ceiling",
+    "n": 3,
+    "reason": "U96 merged to main with two src test files; on the rebased head lint:units printed LINT_UNITS_PATH src-tests files=3205 findings=17783 ceiling=17782 FAIL and LINT_UNITS_FAIL 17899/17898 (exit 1), so the ceilings were re-measured on the rebased head",
     "supersedes": {
-      "sha256": "c04535e907338201805d4366402a7e0d1f58018d36b2c829a88e5b15b7b8bbf0",
-      "note": "revision 1 of this file (equality pin, M4 = ceiling raised by one); its mutant and gate rows are replaced below by runs on the final bytes"
+      "sha256": "1c515374659bf346d97300e035f8d86984f4efceb5ba8e23dad6649459e83722",
+      "note": "revision 2 of this file (tracked at ca2c71be, identical to the lane copy)"
     }
   },
   "ratchetRow": {
@@ -295,6 +300,47 @@
       ],
       "command": "node node_modules/jest/bin/jest.js scripts/__tests__/lint-units.test.ts -t \"at or under its ceiling\" --verbose",
       "decision": "well under the ~20 s threshold, so the row keeps the real oxlint run over all four paths (3203 src test files included); no fixture"
+    }
+  },
+  "rebase": {
+    "by": "parent",
+    "base": "1f11f4055419c998ff097144480af740efeacfc6",
+    "baseIsOriginMain": true,
+    "head": "ca2c71be2a4ec6e85f7292555b2d631f7b085f1a",
+    "note": "the three u40 receipts are tracked files at that head; the only working-tree change after this revision is scripts/qc/lint-units.ceiling.json plus this receipt"
+  },
+  "remeasurement": {
+    "command": "npm run --silent lint:units",
+    "beforeCeilingEdit": {
+      "exit": 1,
+      "lines": [
+        "LINT_UNITS_PATH e2e files=194 findings=50 ceiling=50 PASS",
+        "LINT_UNITS_PATH scripts files=186 findings=50 ceiling=50 PASS",
+        "LINT_UNITS_PATH src/pages/api files=97 findings=16 ceiling=16 PASS",
+        "LINT_UNITS_PATH src-tests files=3205 findings=17783 ceiling=17782 FAIL",
+        "(17783 LINT_UNITS_ROW lines for the failing path)",
+        "LINT_UNITS_FAIL 17899/17898"
+      ]
+    },
+    "ceilingFileEdit": "ceiling 17898 -> 17899, measuredAt 738e5466f... -> 1f11f4055419c998ff097144480af740efeacfc6, perPath src-tests 17782 -> 17783; nothing else in the file changed",
+    "measured": {
+      "e2e": {
+        "files": 194,
+        "findings": 50
+      },
+      "scripts": {
+        "files": 186,
+        "findings": 50
+      },
+      "src/pages/api": {
+        "files": 97,
+        "findings": 16
+      },
+      "src-tests": {
+        "files": 3205,
+        "findings": 17783
+      },
+      "total": 17899
     }
   }
 }
