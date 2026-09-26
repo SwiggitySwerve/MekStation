@@ -73,10 +73,22 @@ export interface IProjectCampaignStreamRefused {
   readonly reason: typeof CAMPAIGN_GRANT_DELIVERY_REFUSED_REASON;
 }
 
+declare const campaignGrantProjectionPositionBrand: unique symbol;
+
+/**
+ * Where a grant projection stopped reading the campaign stream, as an
+ * opaque token: only projectCampaignStreamForGrant can read what it
+ * stands for, so no journal position reaches a public result type. A
+ * later projection of the same grant may be handed it back.
+ */
+export type CampaignGrantProjectionPosition = {
+  readonly [campaignGrantProjectionPositionBrand]: true;
+};
+
 /**
  * Successful page of in-scope events. items may be empty when the
  * grant is active but no stamped scope matches; that is still a page,
- * not a membership refusal.
+ * not a membership refusal. position is where this projection stopped.
  */
 export interface IProjectCampaignStreamPage {
   readonly kind: 'page';
@@ -84,6 +96,7 @@ export interface IProjectCampaignStreamPage {
   readonly effectiveGeneration: number;
   readonly items: readonly ICampaignGrantDeliveryItem[];
   readonly baseline: IDeliveryEpochBaseline;
+  readonly position: CampaignGrantProjectionPosition;
 }
 
 /**

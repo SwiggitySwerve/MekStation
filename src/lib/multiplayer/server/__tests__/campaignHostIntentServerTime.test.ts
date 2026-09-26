@@ -135,25 +135,21 @@ describe('U89 campaign host-intent server time by step and log size', () => {
     600_000,
   );
 
-  // The red row, on the reads the fix owns. A step grows when its median on
-  // the long log exceeds twice its median on the short log AND exceeds a
-  // 5 ms floor (so noise on sub-millisecond reads cannot fail it), or when
-  // it exceeds 50 ms outright.
-  it('the heal read and the highest-sequence reads do not grow with the log', () => {
-    const [short, long] = [SIZES[0], SIZES[SIZES.length - 1]];
-    const at = (size: number, group: string, step: string): number | null => {
-      const row = results[String(size)] as
-        | Record<string, Record<string, number | null>>
-        | undefined;
-      return row?.[group]?.[step] ?? null;
-    };
-    const rows = [
-      ['commandMedians', 'healRead'],
-      ['commandMedians', 'gateHighestSequence'],
-      ['commandMedians', 'commitHighestSequence'],
-      ['putMedians', 'adoptHighestSequence'],
-    ].map(([group, step]) => {
-      const [a, b] = [at(short, group, step), at(long, group, step)];
+  // The red rows. A step grows when its median on the long log exceeds
+  // twice its median on the short log AND exceeds a 5 ms floor (so noise on
+  // sub-millisecond reads cannot fail it), or when it exceeds 50 ms
+  // outright; a missing median grows.
+  const [short, long] = [SIZES[0], SIZES[SIZES.length - 1]];
+  /** Each [group, step] pair's short and long medians and its verdict. */
+  const growth = (pairs: readonly (readonly [string, string])[]) =>
+    pairs.map(([group, step]) => {
+      const at = (size: number): number | null =>
+        (
+          results[String(size)] as
+            | Record<string, Record<string, number | null>>
+            | undefined
+        )?.[group]?.[step] ?? null;
+      const [a, b] = [at(short), at(long)];
       return {
         step,
         short: a,
@@ -161,7 +157,32 @@ describe('U89 campaign host-intent server time by step and log size', () => {
         grows: a === null || b === null || (b > 2 * a && b > 5) || b > 50,
       };
     });
+
+  // U89: the reads that fix owns.
+  it('the heal read and the highest-sequence reads do not grow with the log', () => {
+    const rows = growth([
+      ['commandMedians', 'healRead'],
+      ['commandMedians', 'gateHighestSequence'],
+      ['commandMedians', 'commitHighestSequence'],
+      ['putMedians', 'adoptHighestSequence'],
+    ]);
     results.redRow = { short, long, rows };
+    expect(short).toBeLessThan(long);
+    expect(rows.filter((row) => row.grows)).toEqual([]);
+  });
+
+  // U98: the grant wake after publish (the adapter's host-log reads, its
+  // readStream, the epoch's sequence assignment), the replica ingest, and
+  // the GM frame in to the last timed step.
+  it('the grant wake and the replica ingest do not grow with the log', () => {
+    const rows = growth([
+      ['commandMedians', 'grantHostLogRead'],
+      ['commandMedians', 'grantReadStream'],
+      ['commandMedians', 'grantAssignSequences'],
+      ['commandMedians', 'replicaIngest'],
+      ['commandMedians', 'serverTotal'],
+    ]);
+    results.redRowU98 = { short, long, rows };
     expect(short).toBeLessThan(long);
     expect(rows.filter((row) => row.grows)).toEqual([]);
   });

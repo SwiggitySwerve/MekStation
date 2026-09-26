@@ -266,7 +266,8 @@ export async function handleRoomCodeGuestJoin(
 /**
  * Replaces the SQLite source journal with the host-log adapter so
  * projection sees live co-op commits while the flag-off host still
- * writes ICampaignEventStore.
+ * writes ICampaignEventStore. Each adapter read asks the host log for
+ * the events from the sequence the page starts at, not the whole log.
  */
 function projectDepsOverHostLog(
   base: IProjectCampaignStreamDeps,
@@ -274,9 +275,12 @@ function projectDepsOverHostLog(
 ): IProjectCampaignStreamDeps {
   return {
     ...base,
-    journal: createHostCampaignEventJournal(entry.campaignId, function () {
-      return entry.host.getEventLog().getCampaignEvents(0);
-    }),
+    journal: createHostCampaignEventJournal(
+      entry.campaignId,
+      function (fromSequence) {
+        return entry.host.getEventLog().getCampaignEvents(fromSequence);
+      },
+    ),
   };
 }
 

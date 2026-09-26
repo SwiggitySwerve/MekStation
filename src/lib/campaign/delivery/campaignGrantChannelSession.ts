@@ -18,6 +18,7 @@ import type { IErrorCode, IServerMessage } from '@/types/multiplayer/Protocol';
 
 import type {
   CampaignGrantNullCursorBackfill,
+  CampaignGrantProjectionPosition,
   ICampaignGrantDeliveryItem,
 } from './campaignDeliveryTypes';
 import type { IScopedCampaignSnapshot } from './campaignGrantSnapshotTypes';
@@ -86,6 +87,13 @@ export async function startCampaignGrantChannelSession(
 
 class CampaignGrantChannelSession {
   private cursor: IDeliveryCursor | null;
+  /**
+   * Where the last page's projection stopped reading, so the next wake
+   * reads only the rows after it. Replaced only by a returned page (with
+   * the cursor); null in a new session, which therefore reads the stream
+   * from its start, and ignored by a projection in another epoch.
+   */
+  private position: CampaignGrantProjectionPosition | null = null;
   private sentJoinDelivery = false;
   private active = true;
   /** A drain loop is running; further wakes join it rather than racing. */
@@ -292,9 +300,9 @@ class CampaignGrantChannelSession {
   }
 
   /**
-   * Single projection. Join handshake always sends a delivery frame
-   * (possibly empty) so the replica learns the baseline. Later empty
-   * pages send nothing.
+   * Single projection from the kept position (the rows after it only).
+   * Join handshake always sends a delivery frame (possibly empty) so the
+   * replica learns the baseline. Later empty pages send nothing.
    */
   private async projectCurrentCursor(): Promise<'page' | 'stale' | 'closed'> {
     let projected;
@@ -303,6 +311,7 @@ class CampaignGrantChannelSession {
         principal: this.deps.principal,
         grantId: this.deps.grantId,
         cursor: this.cursor,
+        from: this.position,
       });
     } catch (error) {
       this.failInternal(error);
@@ -321,6 +330,7 @@ class CampaignGrantChannelSession {
     }
 
     this.advanceCursor(projected.deliveryEpochId, projected.items);
+    this.position = projected.position;
     if (!this.sentJoinDelivery || projected.items.length > 0) {
       this.sendDelivery(
         projected.deliveryEpochId,

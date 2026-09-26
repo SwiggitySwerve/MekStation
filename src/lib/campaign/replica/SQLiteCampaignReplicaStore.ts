@@ -46,6 +46,9 @@ import type { ICampaignReplicaReadResult } from './campaignReplicaTypes';
 import type { IDeliveryCursor } from './campaignReplicaTypes';
 
 import {
+  EMPTY_CAMPAIGN_REPLICA_DURABLE,
+  foldReplicaEnvelopes,
+  type ICampaignReplicaDurable,
   parseCampaignReplicaEnvelope,
   replicaEnvelopeToDeliveryItem,
 } from './campaignReplicaEnvelope';
@@ -79,6 +82,17 @@ function replicaCommandId(streamId: string, deliverySequence: number): string {
 export class SQLiteCampaignReplicaStore {
   private readonly journal: IEventJournal<ICampaignReplicaEnvelope>;
   private connectionStatus: CampaignReplicaConnectionStatus = 'disconnected';
+  /**
+   * Per replica stream id: the last stored revision this instance read
+   * and the stream folded through it. Ingest reads only the rows after it
+   * (any writer's, this instance's own appends included), so it is a lower
+   * bound never used without that read. Nothing resets it: the stream is
+   * append-only, and a new instance starts with a full read.
+   */
+  private readonly heads = new Map<
+    string,
+    { readonly revision: number; readonly durable: ICampaignReplicaDurable }
+  >();
 
   /**
    * Binds a borrowed SQLite handle. The adapter does not own the
@@ -108,6 +122,8 @@ export class SQLiteCampaignReplicaStore {
    * Appends received delivery items to the per-grant replica stream.
    * Idempotent by deliverySequence; gap/collision/foreign-epoch fail
    * closed with the task-3.3 reasons and write nothing from this page.
+   * Plans against the stored stream folded through its last row, reading
+   * only the rows after this instance's kept head.
    */
   public async ingest(
     campaignId: string,
@@ -118,7 +134,7 @@ export class SQLiteCampaignReplicaStore {
     },
   ): Promise<CampaignReplicaIngestResult> {
     const streamId = campaignReplicaStreamId(campaignId, grantId);
-    const stored = await this.readEnvelopes(streamId);
+    const stored = await this.readDurable(streamId);
     const plan = planCampaignReplicaIngest(
       stored,
       delivery.deliveryEpochId,
@@ -223,15 +239,39 @@ export class SQLiteCampaignReplicaStore {
   }
 
   /**
-   * Pages the replica journal stream. streamType is pinned to
+   * The stream folded through its last stored row: the kept head plus the
+   * rows after its revision, which then becomes the kept head.
+   */
+  private async readDurable(
+    streamId: string,
+  ): Promise<ICampaignReplicaDurable> {
+    const head = this.heads.get(streamId) ?? {
+      revision: 0,
+      durable: EMPTY_CAMPAIGN_REPLICA_DURABLE,
+    };
+    const events = await this.readStoredEvents(streamId, head.revision);
+    const last = events.at(-1);
+    if (last === undefined) return head.durable;
+    const durable = foldReplicaEnvelopes(
+      head.durable,
+      events.map((stored) => parseCampaignReplicaEnvelope(stored.payload)),
+    );
+    this.heads.set(streamId, { revision: last.streamRevision, durable });
+    return durable;
+  }
+
+  /**
+   * Pages the replica journal stream from the row after `fromRevision`
+   * (default: the whole stream). streamType is pinned to
    * campaign-replica so a caller cannot ask this adapter to read a
    * source campaign stream either.
    */
   private async readStoredEvents(
     streamId: string,
+    fromRevision = 0,
   ): Promise<readonly IStoredEvent<ICampaignReplicaEnvelope>[]> {
     const events: IStoredEvent<ICampaignReplicaEnvelope>[] = [];
-    let afterRevision = 0;
+    let afterRevision = fromRevision;
     for (;;) {
       const page = await this.journal.readStream({
         streamType: CAMPAIGN_REPLICA_STREAM_TYPE,
