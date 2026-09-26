@@ -1,0 +1,26 @@
+{
+  "unit": "U21b",
+  "stage": "merge",
+  "at": "2026-09-26T02:12:24.925Z",
+  "pr": 1962,
+  "title": "fix(multiplayer): viewer lineage reads the journal's effective head (U21b)",
+  "head": "d3df6aaef0f49467224e8774c2ad6a2bcfaba396",
+  "mergeSha": "7c5251da43ec7ad1e5e34499a7a1c4a1761cb5ca",
+  "mergedAt": "2026-09-26T01:52:32Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "src/lib/multiplayer/server/MatchRecoveryJournalHead.ts",
+    "src/lib/multiplayer/server/__tests__/MatchHostRegistry.closeRoute.test.ts",
+    "src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindRebuild.test.ts",
+    "src/lib/multiplayer/server/history/GmCombatRewindPreview.ts",
+    "src/lib/multiplayer/server/history/ViewerHistoryLineage.ts",
+    "src/lib/multiplayer/server/history/__tests__/ViewerHistoryLineage.test.ts",
+    "src/pages-modules/api/__tests__/campaignLaunchHeadRoute.test.ts",
+    "src/pages-modules/api/__tests__/matchHeadRoute.test.ts",
+    "src/pages-modules/api/matchHistoryViewerChain.ts"
+  ],
+  "blobEqualityDiffLines": 0
+}
