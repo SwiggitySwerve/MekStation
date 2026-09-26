@@ -3147,6 +3147,13 @@
           "units": "U97",
           "source": "parent, planning U97 under the owner's U92 ruling of 2026-09-26",
           "why": "the spec delta on what the co-op intervention history holds is written in the campaign authority change (U61 owns it under R2.authority; dual-owned for U97's delta)"
+        },
+        {
+          "path": "src/__tests__/pages/gameplay/campaigns/gm-ledger.coop.test.tsx",
+          "at": "2026-09-26T20:15:28.000Z",
+          "units": "U97",
+          "source": "parent, at U97's fold (a test the unit's id change touched)",
+          "why": "U92's solo row now expects the suffixed approval id (+7/-1); the file joined the node at U92's closure"
         }
       ]
     },

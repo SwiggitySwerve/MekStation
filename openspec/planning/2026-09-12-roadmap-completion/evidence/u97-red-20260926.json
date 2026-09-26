@@ -1,0 +1,235 @@
+{
+  "unit": "U97",
+  "stage": "red",
+  "status": "red",
+  "at": "2026-09-26T20:00:00.381Z",
+  "baseline": "998f026e9eecdb0289d2bca7cc4721d0d495f44b",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u97",
+  "branch": "roadmap-u97-coop-intervention-history-20260926",
+  "implementerModel": "claude-opus (Agent model: opus, lean-worker)",
+  "admission": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/u97-admission-20260926.json",
+    "sha256": "7a6941d85e7e08616b3a68fe4d09426fbbb41f38d3ca2f2d53837b92458d648d"
+  },
+  "productSourceAtRed": "baseline (no product file edited; git status showed only the three new test files, the admission receipt and the spec delta)",
+  "testFiles": [
+    {
+      "path": "src/__tests__/api/campaigns/coopGmInterventionHistory.test.ts",
+      "sha256": "350991165bce3a7df624005789d1167eb1523a0d89a6c76ddf823de46b464ff6"
+    },
+    {
+      "path": "src/__tests__/pages/gameplay/campaigns/gm-ledger.inflight.test.tsx",
+      "sha256": "7aecc67310df4a4aa3e80ccb0d781146c8f01a8d4d42fa6b351237fe21ed4e18"
+    },
+    {
+      "path": "src/components/campaign/gm/__tests__/GmCampaignInterventionControlPlane.approval.test.tsx",
+      "sha256": "d62a8cd312063155ba3ddbe89e5232cee0cdc21d7a60c33ef3e25b4520aaa445"
+    }
+  ],
+  "runs": {
+    "api": {
+      "command": "U35E_ROWS_DIR=<lane-temp>/rows-red npx jest src/__tests__/api/campaigns/coopGmInterventionHistory.test.ts",
+      "exitCode": 1,
+      "testsLine": "Tests:       1 failed, 1 passed, 2 total",
+      "log": {
+        "path": "<lane-temp>/logs/red-api.log",
+        "sha256": "7b308601ab5f0e0b71de55a24d379afed741af5c97f05832fad32d06770e5a7f"
+      },
+      "measurements": {
+        "path": "<lane-temp>/rows-red/u97-coop-gm-history.json",
+        "sha256": "aa93cd080cec06414131340b573975f72008c1ddcc03d9f6021415fcc92aa651"
+      }
+    },
+    "jsdom": {
+      "command": "U35E_ROWS_DIR=<lane-temp>/rows-red npx jest src/__tests__/pages/gameplay/campaigns/gm-ledger.inflight.test.tsx src/components/campaign/gm/__tests__/GmCampaignInterventionControlPlane.approval.test.tsx",
+      "exitCode": 1,
+      "testsLine": "Tests:       3 failed, 3 total",
+      "log": {
+        "path": "<lane-temp>/logs/red-jsdom.log",
+        "sha256": "648f9ad3ae142de8bac0e4e9a161d02c1e14fb07c7009c1f94f43559d733ab70"
+      },
+      "measurements": [
+        {
+          "path": "<lane-temp>/rows-red/u97-gm-ledger-inflight.json",
+          "sha256": "f828c281393801a8f94ac3097475f227601343ac31723919eb013d730e0bc0a5"
+        },
+        {
+          "path": "<lane-temp>/rows-red/u97-control-plane-approval.json",
+          "sha256": "88c5fd03e76acdd3bd39a816039acbf6c81fb1d5f3990c718fd232914844f7d1"
+        }
+      ],
+      "attempt1": {
+        "log": {
+          "path": "<lane-temp>/logs/red-jsdom-attempt1.log",
+          "sha256": "3efe34da93ff14d99707115ff189e7be8d085eaea0144b48b43af71c032ec37f"
+        },
+        "measurements": {
+          "path": "<lane-temp>/rows-red/u97-control-plane-approval.attempt1.json",
+          "sha256": "f6fcfa405605cddb31b0c35ab5493c97f6ccf38b335028cd413eaa3eec423cba"
+        },
+        "note": "attempt 1 read the whole status card (label + value): \"ApprovalApproved and applied to campaign state.\"; the R4 text row was then narrowed to the value paragraph and the jsdom red re-run on the unchanged baseline product source (this run)."
+      }
+    }
+  },
+  "rows": {
+    "R1": {
+      "kind": "red (fails before, must pass after)",
+      "assertion": "after the host ApplyGmIntervention commits (real SQLite, live host in the shared registry, real socket binder, GET route re-read): record.body.gmInterventionEvents toEqual [one funds-transaction entry: interventionId gm-ledger-merchant-reversal-u97a, publicSummary = summary, transactionId campaign-event:<id>:<sequence>, after.transaction.amountCents 250000, before.balanceCents before*100, no private key]; the control plane persisted rows built from it list it; a resend and a refused overdraw add no entry",
+      "failure": "Expected: [{... \"interventionId\": \"gm-ledger-merchant-reversal-u97a\", \"transactionId\": \"campaign-event:u97-history:1\" ...}] Received: null",
+      "read": {
+        "committed": {
+          "type": "FundsChanged",
+          "campaignId": "u97-history",
+          "authorPlayerId": "pid_host",
+          "ts": "2026-09-26T19:55:29.994Z",
+          "payload": {
+            "delta": 2500,
+            "reason": "Merchant charge corrected by +2,500.00 C-bills.",
+            "balance": 382500
+          },
+          "scope": "campaign",
+          "sequence": 1
+        },
+        "recordBefore": {
+          "version": 1,
+          "balance": 380000,
+          "gmInterventionEvents": null
+        },
+        "afterCommit": {
+          "version": 2,
+          "balance": 382500,
+          "gmInterventionEvents": null
+        },
+        "reloadRows": [],
+        "types": [
+          "CampaignSnapshotPublished",
+          "FundsChanged"
+        ]
+      }
+    },
+    "R2": {
+      "kind": "control (passes before and after)",
+      "assertion": "the guest frames after the approval are exactly one CampaignEvent FundsChanged with payload keys [balance, delta, reason]; no guest frame contains the intervention id or \"gmInterventionEvents\"; the guest mirror (every snapshot and event frame folded with applyCampaignEvent, projected with applyAuthoritativeStateToGuestCampaign) has gmInterventionEvents undefined and balance before+2500",
+      "result": "passed on the baseline",
+      "read": {
+        "before": 380000,
+        "guestFrames": [
+          {
+            "kind": "CampaignEvent",
+            "matchId": "match-u97",
+            "ts": "2026-09-26T19:55:30.373Z",
+            "event": {
+              "type": "FundsChanged",
+              "campaignId": "u97-guest",
+              "authorPlayerId": "pid_host",
+              "ts": "2026-09-26T19:55:30.371Z",
+              "payload": {
+                "delta": 2500,
+                "reason": "Merchant charge corrected by +2,500.00 C-bills.",
+                "balance": 382500
+              },
+              "scope": "campaign",
+              "sequence": 1
+            }
+          }
+        ],
+        "guestEventTypes": [
+          "CampaignSnapshotPublished",
+          "FundsChanged"
+        ],
+        "foldedBalance": 382500,
+        "mirrorHasHistory": false,
+        "mirrorBalance": 382500
+      }
+    },
+    "R3": {
+      "kind": "red (fails before, must pass after)",
+      "assertion": "jsdom, the real page and control plane, a co-op host transport that holds its answer: after the first approve the button is disabled and a second click sends nothing (sent stays 1)",
+      "failure": "expect(disabledInFlight).toBe(true): Received false (gm-ledger.inflight.test.tsx:197)",
+      "read": {
+        "enabledBeforeSend": true,
+        "sentAfterFirst": 1,
+        "disabledInFlight": false,
+        "sentAfterSecond": 2,
+        "sentIntentIds": [
+          "gm-intervention-gm-ledger-merchant-reversal-muitd4ss-o9xzib",
+          "gm-intervention-gm-ledger-merchant-reversal-muitd4su-ezovxx"
+        ],
+        "statusAfterCommit": "ApprovalApproved and applied to campaign state.",
+        "localWrites": 0
+      }
+    },
+    "R4": {
+      "kind": "red (fails before, must pass after)",
+      "text": {
+        "assertion": "a callback answering \"insufficient-funds\" leaves the status not \"Approved and applied\" but \"Not applied to campaign state.\", the reason shown, approve enabled",
+        "failure": "Expected substring: not \"Approved and applied\"; Received string: \"Approved and applied to campaign state.\"",
+        "read": {
+          "calls": 1,
+          "status": "Approved and applied to campaign state.",
+          "reason": null,
+          "approveEnabled": false
+        }
+      },
+      "key": {
+        "assertion": "two approvals of the canned merchant reversal carry distinct intervention ids with the canned prefix and React reports no duplicate key",
+        "failure": "Expected pattern: /^gm-ledger-merchant-reversal-/ Received string: \"gm-ledger-merchant-reversal\"",
+        "read": {
+          "ids": [
+            "gm-ledger-merchant-reversal",
+            "gm-ledger-merchant-reversal"
+          ],
+          "duplicateKeyWarnings": [
+            "Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. action:gm-ledger-merchant-reversal",
+            "Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. action:gm-ledger-merchant-reversal"
+          ],
+          "playerRows": 2
+        }
+      }
+    }
+  },
+  "liveBaseline": {
+    "pre": "MACHINE_IDLE\nidleExit=0 holdWaitSeconds=0\nholdAbsentAt=2026-09-26T19:58:53Z port=27971 inspectPort=29971",
+    "exit": "exit=0 at 2026-09-26T19:59:03Z\nno listener 27971",
+    "build": {
+      "command": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build (after machine-idle MACHINE_IDLE and no PARENT-PROOF-HOLD)",
+      "pre": "MACHINE_IDLE\nidleExit=0 holdWaitSeconds=0",
+      "start": "2026-09-26T19:57:09Z",
+      "exit": "exit=1 at 2026-09-26T19:58:46Z",
+      "compiled": "✓ Compiled successfully in 42s",
+      "lastLine": "\"error\": \"Unsafe hydration destination (runtime loader tsx) contains a symlink or junction: .next\\\\standalone\\\\node_modules\" (hydration guard, exit 1 by design)",
+      "marker": ".next/static/chunks/pages/_app-7bbce43e115b8bca.js\n.next/static/chunks/pages/_app-7bbce43e115b8bca.js\nmarkerGrepExit=0",
+      "log": {
+        "path": "<lane-temp>/build-baseline.log",
+        "sha256": "8f0c73632a3071f0e5cb407afd3f53ea5767eeeef6219e438d187980e0e42dee"
+      }
+    },
+    "driver": {
+      "path": "<lane-temp>/u97-live-driver.cjs",
+      "sha256": "62eba1e4f0e9c22c9c2843561a9ba526ec5152cac0507829123c87c7ec02aa52"
+    },
+    "port": 27971,
+    "inspectPort": 29971,
+    "serverPid": 60664,
+    "serverKilled": true,
+    "serverAliveAfterKill": false,
+    "transportErrors": {
+      "gm": [],
+      "guest": []
+    },
+    "json": {
+      "path": "<lane-temp>/live-before.json",
+      "sha256": "e97e6529b2b34d62ee89e25899a85bdec6595d88eeabba028378b47b3fc6550d"
+    },
+    "stdout": {
+      "path": "<lane-temp>/live-before.stdout",
+      "sha256": "36150b88fead028c6a2bb49af8b42dcd9fdeb3b2d5111254c5e89b067a616d28"
+    },
+    "stepLines": [
+      "S1 guest joined by room code, GM connected (real client transports): {\"record\":{\"status\":200,\"version\":1,\"balance\":380000,\"gmInterventionEvents\":null},\"reloadRows\":[],\"entry\":{\"hostClosed\":false,\"hostLiveBalance\":380000},\"journal\":{\"types\":[\"CampaignSnapshotPublished\"]}}",
+      "S2 GM approval of the merchant reversal through the page co-op path, then the page-equivalent GET re-read: {\"approval\":{\"status\":\"approved\"},\"intent\":{\"kind\":\"ApplyGmIntervention\",\"campaignId\":\"campaign-u97-before-1790452738083\",\"intentId\":\"gm-intervention-gm-ledger-merchant-reversal-muitbz67-bfynz2\",\"payload\":{\"interventionId\":\"gm-ledger-merchant-reversal-muitbz67-bfynz2\",\"summary\":\"Merchant charge corrected by +2,500.00 C-bills.\",\"deltaCBills\":2500}},\"sendAnswer\":null,\"guestFramesAfter\":[{\"kind\":\"CampaignEvent\",\"code\":null,\"reason\":null,\"intentId\":null,\"eventType\":\"FundsChanged\",\"sequence\":1,\"payload\":{\"delta\":2500,\"reason\":\"Merchant charge corrected by +2,500.00 C-bills.\",\"balance\":382500}}],\"guestRawCarriesInterventionId\":false,\"guestRawCarriesHistory\":false,\"gmFramesAfter\":[{\"kind\":\"CampaignEvent\",\"code\":null,\"reason\":null,\"intentId\":null,\"eventType\":\"FundsChanged\",\"sequence\":1,\"payload\":{\"delta\":2500,\"reason\":\"Merchant charge corrected by +2,500.00 C-bills.\",\"balance\":382500}}],\"record\":{\"status\":200,\"version\":2,\"balance\":382500,\"gmInterventionEvents\":null},\"reloadRows\":[],\"entry\":{\"hostClosed\":false,\"hostLiveBalance\":382500},\"journal\":{\"types\":[\"CampaignSnapshotPublished\",\"FundsChanged\"]}}",
+      "S3 GM resends the same intent (dedupe): {\"guestFramesAfter\":[],\"gmFramesAfter\":[],\"record\":{\"status\":200,\"version\":2,\"balance\":382500,\"gmInterventionEvents\":null},\"reloadRows\":[],\"entry\":{\"hostClosed\":false,\"hostLiveBalance\":382500},\"journal\":{\"types\":[\"CampaignSnapshotPublished\",\"FundsChanged\"]}}"
+    ],
+    "reading": "the GM approval sent ApplyGmIntervention (sendAnswer null = committed); guest and GM received FundsChanged sequence 1 {delta 2500, reason = the summary, balance 382500}; the page-equivalent GET re-read reads record v2 balance 382500 gmInterventionEvents null, and the control plane rows built from it are []; the resend commits nothing (journal still [CampaignSnapshotPublished, FundsChanged])."
+  }
+}
