@@ -1,0 +1,418 @@
+{
+  "unit": "U96",
+  "stage": "admission",
+  "status": "BLOCKED",
+  "at": "2026-09-26T08:34:40.524Z",
+  "baseline": "8a025218e86abecba28138368d22975151a82422",
+  "originMainAtAdmission": "8a025218e86abecba28138368d22975151a82422",
+  "originMainLsRemote": "8a025218e86abecba28138368d22975151a82422\trefs/heads/main",
+  "baselineEqualsOriginMain": true,
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u96",
+  "branch": "roadmap-u96-put-through-live-host-20260926",
+  "implementerModel": "claude-opus (Agent model: opus, lean-worker)",
+  "node": "R2.authority-live",
+  "ownershipPaths": [
+    "src/lib/multiplayer/server",
+    "src/pages/api/campaigns/[id].ts"
+  ],
+  "reviewClasses": [
+    "authority",
+    "idempotency"
+  ],
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500
+  },
+  "prerequisite": {
+    "admitAfter20260926": "U95 main-verified (merge 2d43b9f76fdbf437393592f54c8b99a90dab56f6)",
+    "check": "git log --oneline on the baseline lists 2d43b9f76 (#1993) below 8a025218e (#1996)"
+  },
+  "stoppedAt": "admission. The refusal branch the charter pre-selects breaks a shipped co-op host flow whose client code is outside this unit (src/stores/campaign), measured below; the apply-through-host branch has no host operation to ride and would double-advance the day in the same flow (inference). No product file is changed (git hash-object of src/pages/api/campaigns/[id].ts and src/lib/multiplayer/server/CampaignHostRegistry.ts equals the HEAD blobs da499deb23dea9a3d073be10d80a6489ce92e65b and cac48393c251cc77fdc465a94825a36cbae4fd00). Two test files were written, run and deleted (copies hashed below): the red-row candidate and a scratch client probe.",
+  "shellPreamble": [
+    "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "export npm_config_dry_run=true"
+  ],
+  "gates": {
+    "nodeVersion": {
+      "command": "node -v",
+      "lastLine": "v22.22.0",
+      "exitCode": 0
+    },
+    "guardNodeModulesLink": {
+      "command": "npm run --silent qc:guard-node-modules-link",
+      "exitCode": 1,
+      "lastLine": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"E:\\\\Projects\\\\MekStation\\\\.sisyphus\\\\roadmap-completion-20260912\\\\worktrees\\\\u96\\\\node_modules\",\"actualPath\":\"E:\\\\Projects\\\\MekStation\\\\node_modules\"}",
+      "note": "refuses in a junctioned worktree by design; no npm install/ci/prune/lifecycle was run"
+    },
+    "validateNext": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+      "exitCode": 0,
+      "lastLine": "U86",
+      "note": "--next on the baseline prints U86, not U96; U96 was dispatched by the parent (admitAfter20260926 is parent-checked)"
+    },
+    "validate": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "exitCode": 0,
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows"
+    },
+    "gitStatusBeforeReceipt": {
+      "command": "git status --short",
+      "exitCode": 0,
+      "output": ""
+    }
+  },
+  "seams": {
+    "putBranch": "src/pages/api/campaigns/[id].ts:159-279: body/url checks :160-172, authority resolve :178-195 (409 kind blocked shape :189-193), purpose checkpoint for a journal-native campaign :200-205, saveCampaignRecordThroughJournal :209-220, typed 409 conflict :228-255 (ConflictResponse type :55-62, reason literal base-state-unavailable), header comment :1-21",
+    "checkpointWriter": "src/lib/campaign/authority/campaignRecordJournalSave.ts:71-146: row write plus CampaignSnapshotPublished checkpoint in one journal transaction; the snapshot is the planned record with the journal pilots/contracts/salvage carried forward (:103-109)",
+    "recordRewrite": "src/lib/campaign/authority/campaignRecordJournalState.ts:8-13: a host command on a journal-native campaign rewrites the record with the journal balance, date and roster readiness at the next version (U35e)",
+    "sharedRegistry": "src/lib/multiplayer/server/CampaignHostRegistry.ts: entries Map keyed by matchId :254, entry.campaignId from host.campaignId :138, get(matchId) :345-348 (no campaignId lookup exists), register :261-343 (calls registerActiveCoopHost of the module graph whose class built the registry :321; rebuilt entries start paused :338-340), getCampaignHostRegistry globalThis slot :405-430 (U95)",
+    "coopHostRegistry": "src/lib/campaign/coop/coopHostRegistry.ts: activeHosts Map keyed by campaignId :28, registerActiveCoopHost :35-42, getActiveCoopHost :45-49 (no non-test caller: grep of src excluding __tests__ finds only the definition)",
+    "host": "src/lib/multiplayer/server/CampaignMatchHost.ts: in-memory state :112, close :243-246, isClosed :249-251, applyHostIntent :362-365; src/lib/multiplayer/server/CampaignMatchHost.doors.ts: openLocked is the only committed CampaignSnapshotPublished producer and commits nothing once the log has an event (:86-106, :94); a closed host rejects every intent with session-closed (:59-65); AdvanceDay commits newDay = state.day + days from the host in-memory state (CampaignMatchHostIntent.ts:236-241)",
+    "intents": "src/types/campaign/CampaignSync.ts:432-438 (HirePilot, AcceptContract, SpendFunds, AllocateSalvage, RemoveParticipant, AdvanceDay) and :529-530 (ReconcileBattle): no whole-state intent",
+    "syncSession": "src/lib/multiplayer/server/CampaignSyncSession.ts: isPaused :273-275, pauseUntilGmReturns :316-318, noteGmDisconnected :320-326, hostDisconnected closes the host :795-799 (no non-test caller; CampaignHostRegistry.dispose :390-395 has no non-test caller either)",
+    "socketSide": "src/lib/multiplayer/server/bindCampaignSyncConnection.ts:220 (registry = getCampaignHostRegistry()), :584-600 and :720-740 (CampaignHostIntent requires the host player)",
+    "createRoute": "src/pages/api/multiplayer/matches/index.ts:310-331: commitCoopCampaignAuthority (under journal authority the creation checkpoint requires the genesis marker, :252-275) then getCampaignHostRegistry().register (:325)",
+    "clientPut": "src/stores/campaign/useCampaignPersistenceStore.ts: putLiveCampaign :656-691 (409 -> readConflictBody :624-653), runSave conflict :852-883 (one attempt, co-op rollback to the 409 current record :874, toast :876), co-op campaigns never auto-save or flush (markDirty :1423-1425, flush :1142-1144)",
+    "clientSaveThenSend": "src/stores/campaign/useCampaignStore.dayActions.ts: advanceDayAction :182-253 saves (:239) then finishCoopAdvanceDay :306-318 sends the AdvanceDay host intent only when the save committed (:312-315; emitCoopDayAdvancedEvent :320-363); travelToSystemAction :365-384 lands travel only through the save; src/stores/campaign/useCampaignStore.actions.ts: co-op saveCampaign :259-263 (a conflict maps to committed false :42-53), updateCampaign :274-292 reverts on !committed :287-290"
+  },
+  "designAnswers": {
+    "q1_findLiveHost": {
+      "answer": "The shared CampaignHostRegistry is the only lookup that reaches the live host from the API graph in every process history; coopHostRegistry.activeHosts is not usable.",
+      "evidence": [
+        "CampaignHostRegistry keys entries by matchId (:254) and has no campaignId lookup; the least code is a scan method on the registry (entries whose campaignId matches and whose host is not closed), estimated +12 lines.",
+        "activeHosts is populated in the graph whose CampaignHostRegistry class built the slot instance (register :321 calls that graph's registerActiveCoopHost), so which graph holds the host depends on who called getCampaignHostRegistry first (the create route in a fresh process, the socket binder after a restart).",
+        "Measured live (baseline, port 24961): the socket graph's coopHostRegistry module is loaded and its getActiveCoopHost(campaignId) returns undefined at S0-S3 while the shared slot holds the live entry.",
+        "Measured in the build (.next/server/pages/api/multiplayer/matches.js): the API graph's copy of coopHostRegistry is tree-shaken to one export (py = registerActiveCoopHost: `let h=new Map;function g(a){return h.set(a.campaignId,a),()=>{h.get(a.campaignId)===a&&h.delete(a.campaignId)}}`); getActiveCoopHost is absent, so the API graph map has no reader and its contents were not read."
+      ]
+    },
+    "q2_applyOrRefuse": {
+      "answer": "Neither branch can be delivered inside the unit's paths without breaking the co-op host's day advance; admission stops BLOCKED.",
+      "apply": "No host operation adopts a whole state: openLocked commits a snapshot only on an empty log (doors.ts:86-106, :94) and no intent carries a whole state (CampaignSync.ts:432-438, :529). Applying a PUT through the host needs a new host door committing a CampaignSnapshotPublished from the envelope projection, plus a row write for the envelope fields the host state does not hold, outside the one journal transaction that writes the row today (campaignRecordJournalSave.ts:86-145); diffing the envelope into intents is the transformer the doctrine forbids. INFERENCE (not run): it also double-advances the day, because the host client PUTs the advanced campaign and then sends AdvanceDay {days: 1} (dayActions.ts:239-247, :350-354), which the host computes as newDay = state.day + days (CampaignMatchHostIntent.ts:236-241) from the day the adopted PUT already advanced.",
+      "refuse": "The refusal is the least server code (estimated route +40, registry +12) and keeps the host the single writer, but the co-op host client routes its own actions through that PUT before (or instead of) a host command. Measured with the real campaign store and persistence store (scratch probe, fetch stubbed per row): answered 200 (the baseline answer while live), advanceDay returns a report and sends one AdvanceDay host intent {days: 1}; answered the refusal 409 in the typed conflict shape, advanceDay returns null, sends no host intent, rolls the date back and toasts \"Co-op campaign save was refused: the campaign changed elsewhere. Your local change was rolled back.\" With a host entry present for the whole process (entries are never disposed or closed outside tests), the host could not advance the day, travel, or apply any updateCampaign change on a co-op campaign once its session was created. e2e/coop-campaign-two-browser-journey.spec.ts:365-377 drives exactly this host day advance.",
+      "trade": {
+        "fixAssessment": "The root cause is two writers of one co-op campaign: the host client lands its own ledger changes through the whole-envelope PUT checkpoint and only then (advanceDay) or never (travel, updateCampaign) sends a host command. The route cannot remove the second writer alone: refusing strands those client flows, adopting double-counts the day.",
+        "removed": "Nothing removed; no product edit made. A campaignId index inside the registry was considered and rejected for a scan (the entries are the process live co-op sessions).",
+        "scope": "A successor needs src/stores/campaign/useCampaignStore.dayActions.ts (advanceDayAction :239-247, finishCoopAdvanceDay :306-318, travelToSystemAction :377-382) and src/stores/campaign/useCampaignStore.actions.ts (:259-263, :286-290) so a co-op host with a live session stops routing ledger state through the PUT, plus the route and registry changes; or an owner ruling on which host-client effects become host commands."
+      }
+    },
+    "q3_refusalShape": {
+      "answer": "Had the refusal shipped: the existing 409 conflict envelope (kind conflict, reason live-coop-session, recoveryAction EXPECTED_HEAD_RESYNC_ACTION, conflictingFields [], currentVersion, current = the stored record the host commands rewrite) plus matchId; a campaign with no readable record would take the route existing 409 kind blocked shape with the same reason and matchId.",
+      "clientsThatPut": [
+        "useCampaignPersistenceStore.saveCampaign is the only client PUT; co-op campaigns reach it only explicitly. On 409: one attempt, no retry, co-op rollback to the 409 current record and an error toast (:852-883). No loop.",
+        "Callers that save a co-op campaign explicitly: useCampaignStore.actions.ts:259-263 (the forces/missions commit) and updateCampaign :286-290 (gm-ledger.tsx:44, hiring.tsx:60, contract-market.tsx:50, games/[id]/review.tsx:286); dayActions.ts:239 (advanceDay) and :377 (travelToSystem); useCampaignStore.outcomes.ts:191; CampaignSaveStatusCard.tsx:81 (manual save); CreateCampaignPage.submit.ts:298/304 (create, before any co-op host exists).",
+        "fireKeepaliveFlush (:1083-1099) never runs for a co-op campaign (:1142-1144).",
+        "The legacy adopt path uses POST /api/campaigns/[id]/adopt (:1035), not this PUT."
+      ],
+      "finding": "No client loops on the 409. The client toast says \"changed elsewhere\" for every typed conflict; a live-session message would need a client change (src/stores, outside the unit)."
+    },
+    "q4_nonLivePath": "Pinned on the baseline by the red-row candidate's (none) row: 200 with the stored record (deep-equal to GET), the row at version+1 with balance 382500, one CampaignSnapshotPublished appended, journal replay 382500 (passed on the baseline). The (closed) row, a closed host for the campaign plus a live host of another campaign, also passed (200, 382500 saved, one checkpoint).",
+    "q5_closedAndPaused": "Closed (entry.host.isClosed()) means no live host: a closed host rejects every intent with session-closed (doors.ts:59-65), so it cannot erase anything, and register replaces a closed entry (:275-281). Paused (GM absent; pauseUntilGmReturns :316-318, noteGmDisconnected :320-326) is live: the host keeps its in-memory state and its next command after the GM returns validates against it (the erasure mechanism), so a paused host would have to refuse too. Measured on the baseline: a paused registered host still lets the PUT checkpoint 382500 (row paused: 200, record version 2 balance 382500, types [Snapshot, Snapshot]).",
+    "q6_measurement": "Baseline measured twice (jest on real SQLite with the host in the shared registry, and live on the standalone server): identical to U92's numbers. No after measurement: no implementation was admitted."
+  },
+  "baselineMeasurements": {
+    "jestRedCandidate": {
+      "file": "src/__tests__/api/campaigns/campaignPutLiveHost.test.ts (written, run on the baseline, copied out and deleted)",
+      "sha256": "e73e39cdfe1eb104f65f93225f203a3de2876b4bfc6ff855c0ba579410d11fd3",
+      "command": "U35E_ROWS_DIR=<lane-temp>/rows-red npx jest src/__tests__/api/campaigns/campaignPutLiveHost.test.ts",
+      "exitCode": 1,
+      "testsLine": "Tests:       3 failed, 2 passed, 5 total",
+      "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\api\\\\campaigns\\\\campaignPutLiveHost.test.ts/i.",
+      "log": {
+        "path": "<lane-temp>/red-jest.log",
+        "sha256": "6400c6c9c0dcac6bd4244c5ecff2446628a655e442124d999bc3fb1d517a694c"
+      },
+      "rows": [
+        {
+          "name": "(live) the PUT is refused 409 naming the session; the next host command builds on the host truth and reaches the guest",
+          "result": "failed",
+          "firstFailure": "expect(afterPut.putStatus).toBe(409): Expected: 409 Received: 200"
+        },
+        {
+          "name": "(paused) a host paused until the GM returns is still live and refuses the PUT",
+          "result": "failed",
+          "firstFailure": "expect(put.status).toBe(409): Expected: 409 Received: 200"
+        },
+        {
+          "name": "(none) with no host entry the PUT saves as before: 200 with the stored record and one checkpoint",
+          "result": "passed"
+        },
+        {
+          "name": "(closed) a closed host is not live and another campaign host does not hold this one: the PUT saves as before",
+          "result": "passed"
+        },
+        {
+          "name": "(no-record) a live host whose campaign has no record refuses 409 blocked naming the session and writes no row",
+          "result": "failed",
+          "firstFailure": "expect(put.status).toBe(409): Expected: 409 Received: 200"
+        }
+      ],
+      "measuredVerbatim": {
+        "live": {
+          "typesBefore": [
+            "CampaignSnapshotPublished"
+          ],
+          "rowBefore": {
+            "version": 1,
+            "balance": 380000,
+            "currentDate": "3025-07-04T00:00:00.000Z"
+          },
+          "afterPut": {
+            "putStatus": 200,
+            "putReason": null,
+            "putKind": null,
+            "putMatchId": null,
+            "putCurrentVersion": null,
+            "typesAfterPut": [
+              "CampaignSnapshotPublished",
+              "CampaignSnapshotPublished"
+            ],
+            "guestFramesAfterPut": 0,
+            "hostLiveBalance": 380000,
+            "journalReplayBalance": 382500,
+            "storedRow": {
+              "version": 2,
+              "balance": 382500,
+              "currentDate": "3025-07-04T00:00:00.000Z"
+            }
+          },
+          "afterNext": {
+            "spendOk": true,
+            "typesAfterNext": [
+              "CampaignSnapshotPublished",
+              "CampaignSnapshotPublished",
+              "FundsChanged"
+            ],
+            "guestFrames": [
+              {
+                "type": "FundsChanged",
+                "sequence": 2,
+                "payload": {
+                  "delta": -1000,
+                  "reason": "next",
+                  "balance": 379000
+                }
+              }
+            ],
+            "hostLiveBalance": 379000,
+            "journal": {
+              "balance": 379000,
+              "day": 184,
+              "pilots": [],
+              "contracts": [],
+              "salvagePool": 0
+            },
+            "storedRow": {
+              "version": 3,
+              "balance": 379000,
+              "currentDate": "3025-07-04T00:00:00.000Z"
+            }
+          }
+        },
+        "paused": {
+          "paused": true,
+          "putStatus": 200,
+          "putReason": null,
+          "putMatchId": null,
+          "storedRow": {
+            "version": 2,
+            "balance": 382500,
+            "currentDate": "3025-07-04T00:00:00.000Z"
+          },
+          "types": [
+            "CampaignSnapshotPublished",
+            "CampaignSnapshotPublished"
+          ]
+        },
+        "closed": {
+          "hostClosed": true,
+          "putStatus": 200,
+          "types": [
+            "CampaignSnapshotPublished",
+            "CampaignSnapshotPublished"
+          ],
+          "storedRow": {
+            "version": 2,
+            "balance": 382500,
+            "currentDate": "3025-07-04T00:00:00.000Z"
+          }
+        }
+      },
+      "measurementsFile": {
+        "path": "<lane-temp>/rows-red/u96-put-live-host.json",
+        "sha256": "fdfe87e299f03949fecfc593976c79428c14fc23681d63406826764c6fdbbc54"
+      },
+      "reading": "U92's sequence reproduced on real SQLite with the host registered in the shared registry: PUT 200, types [Snapshot, Snapshot], guest 0 frames, host 380000 while the journal and the record (version 2) read 382500; SpendFunds 1000 commits FundsChanged {delta -1000, balance 379000} at sequence 2, the guest receives it, the journal and the record (version 3) read 379000: the save is gone (379000, not 381500)."
+    },
+    "live": {
+      "method": "Scratch driver <lane-temp>/u96-live-driver.cjs (adapted from U95's driver): node --inspect server.js from the worktree, NODE_ENV=production, HOSTNAME=127.0.0.1 (process-scoped), MULTIPLAYER_STORE=durable, MULTIPLAYER_DB_PATH and DATABASE_PATH in a fresh temp dir; PUT create (balance 380000), POST /api/multiplayer/matches with coopCampaign (state balance 380000), guest joins by room code, GM joins; PUT the GET record with balance 382500 at its version; GM sends CampaignHostIntent SpendFunds 1000. Each step reads over the inspector (read-only Runtime.evaluate) the shared slot entry, the journal (event types, readCampaignJournalState balance) and each graph's coopHostRegistry, and the record by GET.",
+      "driverSha256": "fbe7b8ace995c00df25a7e7fbc222236e6d4a5a7cda521d1058a10d5c7380535",
+      "machineIdleBefore": "MACHINE_IDLE (exit 0); PARENT-PROOF-HOLD absent",
+      "port": 24961,
+      "inspectPort": 29961,
+      "runId": "u96-live-baseline",
+      "serverPid": 71636,
+      "serverKilled": true,
+      "serverAliveAfterKill": false,
+      "startedAt": "2026-09-26T08:27:09.276Z",
+      "finishedAt": "2026-09-26T08:27:19.632Z",
+      "error": null,
+      "campaignCreatePut": {
+        "status": 200
+      },
+      "matchCreate": {
+        "status": 201,
+        "matchId": "993324b5-4874-43c4-80a5-409453d8e983",
+        "roomCodePresent": true,
+        "error": null
+      },
+      "stdoutVerbatim": [
+        "S0 after create route 201, no socket yet: {\"record\":{\"version\":1,\"balance\":380000},\"entry\":{\"matchId\":\"993324b5-4874-43c4-80a5-409453d8e983\",\"campaignId\":\"campaign-u96-baseline-1790411235183\",\"hostClosed\":false,\"paused\":false,\"gmConnections\":0,\"hostLiveBalance\":380000},\"journal\":{\"types\":[\"CampaignSnapshotPublished\"],\"balance\":380000},\"coop\":{\"socketGraphLoaded\":true,\"socketGraphHoldsHost\":\"undefined\",\"apiGraphModules\":[]}}",
+        "S1 guest joined by room code, GM connected: {\"guestJoin\":\"snapshot\",\"gmJoin\":\"snapshot\",\"record\":{\"version\":1,\"balance\":380000},\"entry\":{\"matchId\":\"993324b5-4874-43c4-80a5-409453d8e983\",\"campaignId\":\"campaign-u96-baseline-1790411235183\",\"hostClosed\":false,\"paused\":false,\"gmConnections\":1,\"hostLiveBalance\":380000},\"journal\":{\"types\":[\"CampaignSnapshotPublished\"],\"balance\":380000},\"coop\":{\"socketGraphLoaded\":true,\"socketGraphHoldsHost\":\"undefined\",\"apiGraphModules\":[]}}",
+        "S2 PUT balance 382500 at the current version while the host is live: {\"put\":{\"status\":200,\"kind\":null,\"reason\":null,\"matchId\":null,\"recoveryAction\":null,\"currentVersion\":null,\"currentBalance\":null,\"savedVersion\":2,\"savedBalance\":382500},\"guestFramesAfterPut\":[],\"record\":{\"version\":2,\"balance\":382500},\"entry\":{\"matchId\":\"993324b5-4874-43c4-80a5-409453d8e983\",\"campaignId\":\"campaign-u96-baseline-1790411235183\",\"hostClosed\":false,\"paused\":false,\"gmConnections\":1,\"hostLiveBalance\":380000},\"journal\":{\"types\":[\"CampaignSnapshotPublished\",\"CampaignSnapshotPublished\"],\"balance\":382500},\"coop\":{\"socketGraphLoaded\":true,\"socketGraphHoldsHost\":\"undefined\",\"apiGraphModules\":[]}}",
+        "S3 GM CampaignHostIntent SpendFunds 1000: {\"guestFramesAfterSpend\":[{\"kind\":\"CampaignEvent\",\"code\":null,\"reason\":null,\"eventType\":\"FundsChanged\",\"sequence\":2,\"payload\":{\"delta\":-1000,\"reason\":\"next\",\"balance\":379000}}],\"gmErrorFrames\":[],\"record\":{\"version\":3,\"balance\":379000},\"entry\":{\"matchId\":\"993324b5-4874-43c4-80a5-409453d8e983\",\"campaignId\":\"campaign-u96-baseline-1790411235183\",\"hostClosed\":false,\"paused\":false,\"gmConnections\":1,\"hostLiveBalance\":379000},\"journal\":{\"types\":[\"CampaignSnapshotPublished\",\"CampaignSnapshotPublished\",\"FundsChanged\"],\"balance\":379000},\"coop\":{\"socketGraphLoaded\":true,\"socketGraphHoldsHost\":\"undefined\",\"apiGraphModules\":[]}}"
+      ],
+      "output": {
+        "path": "<lane-temp>/live-baseline.json",
+        "sha256": "00cdf2da0b0bf709e5c96d42aeeb0daf67ddfd3f2c3876b7758a314e3b197af4"
+      },
+      "reading": "Live, identical numbers: S2 PUT 200 saved version 2 balance 382500, guest frames after PUT [], host live balance 380000, journal [Snapshot, Snapshot] balance 382500; S3 the guest receives CampaignEvent FundsChanged sequence 2 {delta -1000, reason next, balance 379000}, host 379000, journal [Snapshot, Snapshot, FundsChanged] 379000, record version 3 balance 379000."
+    },
+    "clientProbe": {
+      "file": "src/__tests__/api/campaigns/u96-scratch-client-probe.test.ts (written, run, copied out and deleted)",
+      "sha256": "73a6bc492992d2ef17db41e3e68f345d12cc5323252c29761b9a895e5d889dee",
+      "command": "npx jest src/__tests__/api/campaigns/u96-scratch-client-probe.test.ts",
+      "exitCode": 0,
+      "testsLine": "Tests:       2 passed, 2 total",
+      "log": {
+        "path": "<lane-temp>/scratch-probe.log",
+        "sha256": "514096778dd92a4d6ede7f94fb08dd9a0b1f4b15ae4e75837125c198f3c23bbb"
+      },
+      "measuredVerbatim": {
+        "saved": {
+          "answer": "saved-200",
+          "reportReturned": true,
+          "puts": [
+            {
+              "baseVersion": 0,
+              "currentDate": "2026-09-26T08:30:41.435Z"
+            },
+            {
+              "baseVersion": 1,
+              "currentDate": "2026-09-27T08:30:41.435Z"
+            }
+          ],
+          "hostIntentsSent": [
+            {
+              "kind": "AdvanceDay",
+              "payload": {
+                "days": 1
+              }
+            }
+          ],
+          "dateBefore": "2026-09-26T08:30:41.435Z",
+          "dateAfter": "2026-09-27T08:30:41.435Z",
+          "saveState": "saved",
+          "toasts": [],
+          "campaignId": "campaign-1790411441435-z661iu3"
+        },
+        "refused": {
+          "answer": "refused-409",
+          "reportReturned": false,
+          "puts": [
+            {
+              "baseVersion": 0,
+              "currentDate": "2026-09-26T08:30:41.447Z"
+            },
+            {
+              "baseVersion": 1,
+              "currentDate": "2026-09-27T08:30:41.447Z"
+            }
+          ],
+          "hostIntentsSent": [],
+          "dateBefore": "2026-09-26T08:30:41.447Z",
+          "dateAfter": "2026-09-26T08:30:41.447Z",
+          "saveState": "conflict",
+          "toasts": [
+            "Co-op campaign save was refused: the campaign changed elsewhere. Your local change was rolled back."
+          ],
+          "campaignId": "campaign-1790411441447-3ua7se7"
+        }
+      },
+      "note": "Real useCampaignStore and useCampaignPersistenceStore on a co-op host campaign (createHostCoopSession); fetch stubbed: every PUT answers 200 in the saved row; in the refused row the first PUT answers 200 and the advanceDay PUT answers the 409 live-coop-session conflict body the refusal would send. A host transport records host intents. The probe runs neither the route nor a server."
+    },
+    "build": {
+      "command": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build",
+      "machineIdleBefore": "MACHINE_IDLE (idleExit=0), holdWaitSeconds=0",
+      "startedAt": "2026-09-26T08:23:51Z",
+      "exit": "exit=1 at 2026-09-26T08:25:44Z",
+      "exitNote": "exits 1 at the standalone hydration guard by design: Unsafe hydration destination (runtime loader tsx) contains a symlink or junction: .next\\standalone\\node_modules",
+      "e2eMarker": {
+        "chunk": ".next/static/chunks/pages/_app-57752df63578994c.js",
+        "present": true
+      },
+      "buildId": "1790411033448",
+      "log": {
+        "path": "<lane-temp>/build-baseline.log",
+        "sha256": "4653d90cb108e642252a1ae71bed67fb52fbb7d24fe89ea2aa50c0e24d9d6df8"
+      }
+    }
+  },
+  "estimatePerFile": {
+    "src/lib/multiplayer/server/CampaignHostRegistry.ts": "+12 (a live-entry-for-campaign scan)",
+    "src/pages/api/campaigns/[id].ts": "+40 (the live-host refusal, the reason and matchId in the conflict type, the header comment)",
+    "src/__tests__/api/campaigns/campaignPutLiveHost.test.ts": "about 280 test lines (the candidate above)",
+    "outsideTheUnitNeeded": {
+      "src/stores/campaign/useCampaignStore.dayActions.ts": "advanceDayAction :239-247 / finishCoopAdvanceDay :306-318 and travelToSystemAction :377-382 stop gating on (or sending) the PUT while a live co-op session holds the campaign; size depends on the owner ruling",
+      "src/stores/campaign/useCampaignStore.actions.ts": ":259-263 and updateCampaign :286-290 (the co-op save path)"
+    }
+  },
+  "risksForTheParent": [
+    "Authority class, measured at the store: with the refusal a co-op host cannot advance the day during a live session (advanceDay returns null, no AdvanceDay host intent, the date rolls back, error toast). e2e/coop-campaign-two-browser-journey.spec.ts:365-377 drives this day advance; INFERENCE (not run): it would fail at its server-date poll.",
+    "The same refusal hits travel (dayActions.ts:365-384 lands travel only through the PUT) and every updateCampaign on a co-op campaign: gm-ledger.tsx:44 (U92's surface), hiring.tsx:60, contract-market.tsx:50, games/[id]/review.tsx:286; the manual save CampaignSaveStatusCard.tsx:81; useCampaignStore.outcomes.ts:191.",
+    "A live host means registered and not closed. In production no code path disposes or closes a campaign entry (dispose and hostDisconnected have no non-test callers), so after a co-op match is created every PUT of that campaign would be refused for the life of the process.",
+    "The apply-through-host branch has the same client coupling in the other direction: the adopted PUT day plus the AdvanceDay command double-advance (INFERENCE)."
+  ],
+  "successorOptions": [
+    {
+      "option": "Amend U96 with src/stores/campaign/useCampaignStore.dayActions.ts and src/stores/campaign/useCampaignStore.actions.ts: the refusal on the server, and the co-op host client stops landing its own ledger changes through the PUT while live (advanceDay sends only the AdvanceDay host command and adopts the rewritten record; travel and updateCampaign get host commands or are refused visibly)",
+      "consequence": "The host becomes the single writer; day-pipeline effects that only the PUT carries today (INFERENCE: daily costs; AdvanceDay carries newDay only, CampaignMatchHostIntent.ts:236-241) need a host command or are dropped",
+      "effort": "route +40, registry +12, stores unknown until the ruling on which effects become commands"
+    },
+    {
+      "option": "Park U96 behind a decision packet: which co-op host-client effects become host commands (day pipeline, travel, updateCampaign; U92 already plans ApplyGmIntervention for GM funds interventions)",
+      "consequence": "The FN-u92 erasure stays on main until the ruling",
+      "effort": "packet only"
+    },
+    {
+      "option": "Ship the refusal as the sentence reads, accepting the measured breakage",
+      "consequence": "co-op host day advance, travel and updateCampaign fail during every live session",
+      "effort": "route +40, registry +12; not recommended"
+    }
+  ],
+  "recommendation": "Park U96 for an owner ruling (option 2) or amend its paths with the two store files (option 1); do not ship the server-only refusal.",
+  "findings": [
+    "FN-u96-coop-host-client-routes-ledger-through-put (measured, clientProbe): the co-op host client saves its own day advance, travel and updateCampaign changes through the whole-envelope PUT and, for the day, sends AdvanceDay only after that PUT commits; any server-side refusal or adoption of that PUT while live changes those flows.",
+    "FN-u96-campaign-host-entries-never-disposed (read): CampaignHostRegistry.dispose (:390-395) and CampaignSyncSession.hostDisconnected (:795-799) have no non-test callers, so a campaign host entry lives until process exit; \"a live host exists\" then means \"a co-op match was created for this campaign in this process\".",
+    "FN-u96-day-effects-ride-the-checkpoint (INFERENCE, the same mechanism as the measured erasure): the day pipeline's non-day effects on a co-op host reach the journal only through the PUT checkpoint (AdvanceDay carries newDay only), so the next host command's absolute FundsChanged balance erases a checkpointed balance change as it erased 382500.",
+    "The specs are silent on a whole-campaign save while a live host holds the campaign (coop-campaign-sync Host-as-GM :215-217 names the host the single write authority; campaign-persistence :111-128 defines only the baseVersion 409); the ruling should land as a spec delta.",
+    "coopHostRegistry.getActiveCoopHost is tree-shaken out of the API build, and the socket graph copy held nothing in the measured session; it is not a cross-graph lookup (U95 shared only CampaignHostRegistry)."
+  ],
+  "nonClaims": [
+    "No product file changed; the red and local stages were not run; no after measurement exists; no mutants.",
+    "The client probe stubs fetch: it runs the real stores but neither the route nor a browser. The e2e journey spec was not run on either code state.",
+    "The double-advance under the apply branch and the day-effects erasure are INFERENCE from the cited code, not measured.",
+    "The API graph's activeHosts contents were not read (no reader exists in the build); only the socket graph copy was measured.",
+    "The live run used Node sockets, not browsers; one run, port 24961, server PID recorded and killed."
+  ],
+  "laneArtifacts": {
+    "dir": "<lane-temp> = %TEMP%/u96-lane-20260926 (machine-local scratch, not committed)",
+    "buildScript": {
+      "path": "<lane-temp>/build.sh",
+      "sha256": "66a98da0c50df8d9722bd4e91bdca434a31a842f0ff405432b617d35a90e86ac"
+    },
+    "receiptWriter": {
+      "path": "<lane-temp>/write-admission.cjs",
+      "sha256": "3d8f189b66c59f4a83e6bc937e7815b9960abf83e09cc4702dbce17d3d1885d2"
+    }
+  }
+}

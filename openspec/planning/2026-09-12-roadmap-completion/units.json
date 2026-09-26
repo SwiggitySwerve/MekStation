@@ -2925,10 +2925,12 @@
       "id": "U96",
       "node": "R2.authority-live",
       "taskKeys": [],
-      "behavior": "While a live co-op host exists for a campaign, a whole-campaign PUT (src/pages/api/campaigns/[id].ts) is applied through that host, so the next host command builds on it and the guest receives it; or the PUT is refused 409 pointing at the live session. Measured by U92's admission on the flip (evidence/u92-admission-attempt1-20260925.json): a host balance saved through the PUT is appended as a record checkpoint the live host session never folds (the guest gets 0 frames, the live host stays at 380000 while the journal and the record read 382500), and the next host command (SpendFunds 1000) computes from the old in-memory balance and rewrites the journal and the record to 379000, erasing the save durably; any host-side change saved through the PUT is lost the same way, not only GM interventions. The host is the single campaign-write authority (openspec/specs/coop-campaign-sync/spec.md:215-217), so the live host's state and the saved record must not diverge. Admission decides, with file:line, which of the two behaviours the route takes for a live host (apply through the host as a command batch, or refuse 409 with the live session named) and measures it on real SQLite with a live host; it rides U95's shared registry (the route runs in Next's API graph, the host in the socket graph). Red first: the measured sequence as a jest row on the baseline (PUT then SpendFunds erases the save); green: the save survives the next command and the guest's frame carries it (or the PUT is refused with the session named).",
+      "behavior": "While a live co-op host exists for a campaign, a whole-campaign PUT (src/pages/api/campaigns/[id].ts) is applied through that host, so the next host command builds on it and the guest receives it; or the PUT is refused 409 pointing at the live session. Measured by U92's admission on the flip (evidence/u92-admission-attempt1-20260925.json): a host balance saved through the PUT is appended as a record checkpoint the live host session never folds (the guest gets 0 frames, the live host stays at 380000 while the journal and the record read 382500), and the next host command (SpendFunds 1000) computes from the old in-memory balance and rewrites the journal and the record to 379000, erasing the save durably; any host-side change saved through the PUT is lost the same way, not only GM interventions. The host is the single campaign-write authority (openspec/specs/coop-campaign-sync/spec.md:215-217), so the live host's state and the saved record must not diverge. Admission decides, with file:line, which of the two behaviours the route takes for a live host (apply through the host as a command batch, or refuse 409 with the live session named) and measures it on real SQLite with a live host; it rides U95's shared registry (the route runs in Next's API graph, the host in the socket graph). Red first: the measured sequence as a jest row on the baseline (PUT then SpendFunds erases the save); green: the save survives the next command and the guest's frame carries it (or the PUT is refused with the session named). Amended 2026-09-26 after the first admission attempt (evidence/u96-admission-attempt1-20260926.json; owner answer \"Amend U96: host adopts its own checkpoint\"): the spec's loop (coop-campaign-sync/spec.md:3-11, :215-217) makes the host the single writer, and the host's browser is the host. Server (src/lib/multiplayer/server, src/pages/api/campaigns/[id].ts): a whole-campaign PUT from the host's own instance (hostInstanceId) while its co-op session is live is appended as the checkpoint it is today AND the live host session adopts it (its in-memory authoritative state refreshed from that checkpoint, the guests receiving the checkpoint as the snapshot frame the protocol already carries), so the next host command builds on the save; a PUT from any other instance while a live host exists is refused 409 in the route's existing conflict envelope with a distinct reason naming the live session's matchId. Client (src/stores/campaign/useCampaignStore.dayActions.ts, useCampaignStore.actions.ts): the co-op day advance sends AdvanceDay to the host first and saves the day effects after the host committed it, so the checkpoint lands on the advanced day and adoption does not double-count; travel and updateCampaign keep saving through the PUT, which the host now adopts. Admission decides, with file:line, how the host instance is recognised on the PUT (the envelope's hostInstanceId against the entry's, or the record's), which checkpoint fold the host session uses, and what a guest receives; it measures U92's sequence before (the save erased) and after (the save survives SpendFunds: 381500, the guest's frame carries it) on real SQLite with a live host, and the day-advance ordering on the real stores. Red first: the erased-save row and a client row that the day advance saves before sending; green: both reversed, the non-live PUT unchanged byte-for-byte, the two-browser co-op journey's day advance (e2e/coop-campaign-two-browser-journey.spec.ts:365-377) still passing. The partial co-op authoritative state (only some campaign fields) is recorded for the UAT round 2 spec triage, not widened here.",
       "ownershipPaths": [
         "src/lib/multiplayer/server",
-        "src/pages/api/campaigns/[id].ts"
+        "src/pages/api/campaigns/[id].ts",
+        "src/stores/campaign/useCampaignStore.dayActions.ts",
+        "src/stores/campaign/useCampaignStore.actions.ts"
       ],
       "ciClass": "product",
       "reviewClasses": [
@@ -2959,6 +2961,18 @@
         "at": "2026-09-26T08:14:20.000Z",
         "by": "U95 main-verified",
         "note": "admitted before U92 (the owner's order); both own src/lib/multiplayer/server"
+      },
+      "firstAdmissionAttempt20260926": {
+        "receipt": "evidence/u96-admission-attempt1-20260926.json",
+        "decision": "BLOCKED at admission, no edits: the co-op host's own browser saves through the whole-campaign PUT before it sends host commands (useCampaignStore.dayActions.ts:239 saves day+1 with the day effects, :306-318 sends AdvanceDay only if the save went through; travel :365-384 and updateCampaign useCampaignStore.actions.ts:286-290 land only through the PUT), so a server-only 409 refusal breaks the host's day advance (measured with the real stores: null report, date rolled back, refusal toast), and no host operation adopts a whole state (adopting the saved day+1 then AdvanceDay{1} would double-count, inference). Only the shared CampaignHostRegistry can find the live host from the API graph (coopHostRegistry's getActiveCoopHost is tree-shaken out of the API build). The non-live PUT pin passed on the baseline. The owner amended the unit."
+      },
+      "pathsAmendedBeforeAdmission20260926": {
+        "at": "2026-09-26T13:45:01.000Z",
+        "added": [
+          "src/stores/campaign/useCampaignStore.dayActions.ts",
+          "src/stores/campaign/useCampaignStore.actions.ts"
+        ],
+        "why": "the host's browser must send AdvanceDay before it saves the day effects, so the checkpoint it PUTs lands on the advanced day and the host's adoption of that checkpoint does not double-count; R2.authority-live owns src/stores/campaign"
       }
     },
     {
@@ -10340,6 +10354,33 @@
       "summary": "Before U95 every live co-op session held two CampaignMatchHost objects on the same journal stream (the create route's, idle, in the API graph; the socket graph's rebuilt one); after U95 one (sameEntryObject true).",
       "recommendedSuccessor": "none",
       "status": "resolved"
+    },
+    {
+      "id": "FN-u96-coop-host-client-routes-ledger-through-put",
+      "foundBy": "U96 implementer lane (claude-opus, lean-worker), 2026-09-26 (measured with the real campaign and persistence stores, fetch stubbed)",
+      "at": "2026-09-26T13:45:01.000Z",
+      "class": "authority: the host's browser bypasses the intent loop for its own mutations",
+      "summary": "The co-op host's browser saves its day advance (useCampaignStore.dayActions.ts:239, then AdvanceDay only if the save committed, :306-318), travel (:365-384) and updateCampaign (useCampaignStore.actions.ts:286-290) through the whole-campaign PUT; the host session never folds that checkpoint, so the next host command erases it (FN-u92-coop-checkpoint-erased-by-next-host-command). A 409 refusal of the PUT makes the day advance return null, roll the date back and show a refusal toast.",
+      "recommendedSuccessor": "U96 as amended (host adopts its own instance's checkpoint; the day advance sends the command first)",
+      "status": "recorded; folded into U96's amended sentence"
+    },
+    {
+      "id": "FN-u96-campaign-host-entries-never-disposed",
+      "foundBy": "U96 implementer lane (claude-opus, lean-worker), 2026-09-26 (read from the code)",
+      "at": "2026-09-26T13:45:01.000Z",
+      "class": "lifecycle gap",
+      "summary": "CampaignHostRegistry entries' dispose and hostDisconnected have no callers outside tests, so a live host exists for a campaign from the co-op match's creation until the process restarts.",
+      "recommendedSuccessor": "a lifecycle unit when a refusal or a resource depends on liveness",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u96-day-effects-ride-the-checkpoint",
+      "foundBy": "U96 implementer lane (claude-opus, lean-worker), 2026-09-26 (inference from the code, not measured)",
+      "at": "2026-09-26T13:45:01.000Z",
+      "class": "partial co-op authoritative state",
+      "summary": "Day effects other than the day count reach the journal only through the PUT's checkpoint, because the co-op authoritative state holds only some campaign fields (CampaignSync.ts:85-110) and AdvanceDay commits only CampaignDayAdvanced (CampaignMatchHostIntent.ts:236-241); the next host command erases them the way it erased the balance.",
+      "recommendedSuccessor": "U96's adoption keeps them; the authoritative-state scope goes to the UAT round 2 spec triage",
+      "status": "recorded"
     }
   ]
 }
