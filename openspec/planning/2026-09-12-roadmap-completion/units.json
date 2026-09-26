@@ -1876,10 +1876,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "local-verified",
+      "state": "complete",
       "baseline": "3b1cca3a6542e53703f2ac6fa7ac43ec97ae7f98",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "eb49cfdf2fd997d4e1c31c450b027fd8653808a4",
+      "mergeSha": "59eb4fbb3e41b763c4ab81e30d9f733255320c92",
       "stageReceipts": {
         "admission": {
           "path": "evidence/u58-admission-20260925.json",
@@ -1898,10 +1898,31 @@
           "at": "2026-09-26T01:57:58.848Z",
           "summary": "6 product files +106/-72 (178 lines) and 6 test files +461/-95: campaignViewerProjection.ts exports campaignBaselineReachesViewer and CAMPAIGN_MIGRATION_AUTHOR_ID (a gm+campaign viewer gets every baseline; a restricted viewer never gets one authored migration; any other passes only while nothing withheld comes before it, a refused baseline latching so a later checkpoint is refused too); both arms use it (campaignViewerVisibleEvents behind CampaignSyncSession.buildBaselineEvent's join and large-gap baselines; projectCampaignStreamForGrant.ts behind the scoped snapshot, grant channel and room-code join); grantHoldsEveryScope deleted with its only caller; CAMPAIGN_GRANT_PROJECTOR_VERSION 1 to 2 so old-epoch cursors get a fresh baseline; roomCodeGuestHydration.genesisStateFromHostLog applies the law; campaignAuthorityMigration.ts stamps the exported author id; the it.failing at campaignGenesisArmParity.test.ts:180 is a plain row; rows: parity, grant folds the genesis, migration baseline reaches neither arm, later checkpoint withheld, room-code seed, six predicate-law rows, a stale-epoch row, controls; jest src/lib/campaign 204 suites 2998, src/lib/multiplayer/server 160 suites 1178, src/__tests__/api/campaigns 110; tsc 0 (one test-only type error fixed first); oxlint 84 warnings 0 errors; oxfmt clean on 12 files; lint:units 100/100; qc:openspec-ci errors=0; validator PASSED; nine mutants caught and restored; no Playwright, build or restart run; implementer claude-opus (Agent model: opus); findings F1 (legacy resync tail delivers a raw snapshot, outside the paths), F2 (author law not in the spec), F3 (hydration seed redundant); 12.1 facts recorded for U31 (snapshot and resync baselines share one law, genesis parity holds; open: replay/resync tail and live fan-out, cold recovery, audit timeline and export, the main proof); status ready"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "review": {
+          "path": "evidence/u58-review-20260925.json",
+          "head": "eb49cfdf2fd997d4e1c31c450b027fd8653808a4",
+          "reviewedHead": "eb49cfdf2fd997d4e1c31c450b027fd8653808a4",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet)",
+          "implementerModel": "claude-opus (Agent model: opus)",
+          "outputSha256": "f500fee9b2ad230ac4a46e26f3fcff595d04d0f9a3c35be2a6e6715a090e7bb1",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u58-merge-20260925.json",
+          "pr": 1971,
+          "head": "eb49cfdf2fd997d4e1c31c450b027fd8653808a4",
+          "mergeSha": "59eb4fbb3e41b763c4ab81e30d9f733255320c92"
+        },
+        "mainProof": {
+          "path": "evidence/u58-mainproof-20260925.json",
+          "mergeCommit": "59eb4fbb3e41b763c4ab81e30d9f733255320c92",
+          "verdict": "PASS",
+          "runtime": "Tests:       5235 passed, 5235 total"
+        },
+        "tick": {
+          "path": "evidence/u58-tick-20260925.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "source20260922": "planned by the parent from the triage plan's recommendation for owner question 6 (umbrella 12.1), recorded as decided in roadmap.json ownerDecisions OD-umbrella-12-1-slice under the owner instruction of 2026-09-22 (\"ultracode find everything that is marked and if there are issues go with recommended path to solution based on the goal\"); the parent transcribed the recommendation as the owner's ruling (evidence/triage-plan-20260922.json (179 register issues verified against main a9244fcad))",
@@ -8679,6 +8700,48 @@
         "author": "SwiggitySwerve",
         "label": "owner-ruled",
         "bodySha256": "91adf5c2b2fc40f5e58f667d2643341e32c691bb2e3a0dc50b9576bc0313c630",
+        "postedBy": "parent on the owner's instruction (the comment quotes the owner's words verbatim)",
+        "deviationDisclosed": "DELIVERY.md says the owner posts the ruling out of band; the owner approved this unit by description in chat (words quoted in the comment) after the parent explained it in plain language and reported Lane A's verdict and the check set on the head, and the parent composed and posted the comment from the owner GitHub account and applied the label; the parent supplied the head from the ledger, as in the earlier rulings of this loop"
+      },
+      "note": "opened when the owner ruled, 2026-09-22 (the cutover sequence's units carry no pre-opened ruling packets)"
+    },
+    {
+      "id": "PK-u58-ruling",
+      "blocks": [
+        "U58"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "U58 (review classes privacy, replay) presents head eb49cfdf2fd997d4e1c31c450b027fd8653808a4. Does the owner rule it?",
+      "options": [
+        {
+          "label": "rule the head",
+          "consequence": "an OWNER-RULING <head> comment and the owner-ruled label on U58's PR; the unit merges and proceeds to main proof",
+          "effort": "0.1 day owner"
+        },
+        {
+          "label": "reject",
+          "consequence": "the PR closes; the unit returns to planned with the objection recorded",
+          "effort": "0.1 day owner"
+        }
+      ],
+      "agentRecommendation": "rule the head once Lane A has approved it and the checks are green",
+      "revertCost": "low: a squash merge revert",
+      "decision": {
+        "at": "2026-09-26T03:51:47Z",
+        "option": "rule the head",
+        "text": "Approve (Recommended)",
+        "source": "owner instruction in the working session (chat), after the parent described the unit in plain English: a structured question: umbrella 12.1 slice, one exported baseline law for both campaign projection arms (a migration-authored baseline never reaches a restricted viewer, the genesis still does, a refused baseline latches), the grant projector epoch bumped, the room-code seed following the law; Lane A APPROVE (all four restricted surfaces measured on real SQLite; epoch bump in order; red reproduced; own mutant caught); 31 green checks; disclosed: the latch consequence, restricted grants see the genesis, the author law absent from the spec (delta at triage), F1 the resync tail (U94)"
+      },
+      "ruling": {
+        "ruledHead": "eb49cfdf2fd997d4e1c31c450b027fd8653808a4",
+        "pr": 1971,
+        "commentId": 5842927760,
+        "author": "SwiggitySwerve",
+        "label": "owner-ruled",
+        "bodySha256": "6b064c45efb8fc4f9ba7df419ded5849f7712fbc55591d5e89fe3f1d83806165",
         "postedBy": "parent on the owner's instruction (the comment quotes the owner's words verbatim)",
         "deviationDisclosed": "DELIVERY.md says the owner posts the ruling out of band; the owner approved this unit by description in chat (words quoted in the comment) after the parent explained it in plain language and reported Lane A's verdict and the check set on the head, and the parent composed and posted the comment from the owner GitHub account and applied the label; the parent supplied the head from the ledger, as in the earlier rulings of this loop"
       },

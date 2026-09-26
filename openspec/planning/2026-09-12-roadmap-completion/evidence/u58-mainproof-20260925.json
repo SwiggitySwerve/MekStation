@@ -1,0 +1,36 @@
+{
+  "unit": "U58",
+  "stage": "mainProof",
+  "at": "2026-09-26T04:25:42.641Z",
+  "mergeCommit": "59eb4fbb3e41b763c4ab81e30d9f733255320c92",
+  "checkout": "root checkout fast-forwarded to the merge commit (real node_modules; hydrate step runs)",
+  "runtime": {
+    "build": "exit 0",
+    "e2eBundleMarker": "__E2E_MODE__ present in _app chunk (run log)",
+    "playwright": "campaign library, multiplayer server, campaign route and events suites (jest, 431 suites, 5235): Tests:       5235 passed, 5235 total",
+    "tsc": "exit 0"
+  },
+  "commands": {
+    "validator": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+    "gitAncestry": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows (--git)",
+    "next": "U37",
+    "openspecStrict": "Totals: 229 passed, 0 failed (229 items)",
+    "qcOpenspecCi": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+    "qcPin": "Tests:       27 passed, 27 total"
+  },
+  "logs": ".sisyphus/roadmap-completion-20260912/u58-main-proof-20260925/ (local; sha256 below)",
+  "logHashes": [
+    "98b691f2a9dce6fe020f46a81bc112a3a5183e9edb4a1309a328a804eb84bac2 *build.log",
+    "38875d75a513e6dc764ce99160b9e7423b80cd040a68252ea1b4c336e36d0fc1 *git-check.log",
+    "6445639db60a4a8f79a3ca3573af73d2cde2b74f12f762a22ffc58bdd39aee43 *idle-before-build.log",
+    "6445639db60a4a8f79a3ca3573af73d2cde2b74f12f762a22ffc58bdd39aee43 *idle-before-runtime.log",
+    "f01a47cea62f240eac175883d32c6075eb981ead139f63ecf8613153d4d66093 *next.log",
+    "efd619721df505ed0dbb69fe5bd26b74023670e603ce16891fd2f1331adf1776 *openspec-strict.log",
+    "3ea28f4f1a734dd3d299296351cb677187031d0cb99d13f1b01694855107838f *playwright.log",
+    "5b0f562274df4dbddfb7ae44ab42b7d686dc1e0903383f25c593d88f7479fe9a *qc-openspec-ci.log",
+    "01e477fe7a7db19f89a0cc36a682d7598fb922ec4d04b4e7f97d0ef68717303e *qc-pin.log",
+    "f891dbdfc0402cd4ba60fab1be3245dfec559c5d7afc7e21b87e795a73d05e5f *tsc.log",
+    "38875d75a513e6dc764ce99160b9e7423b80cd040a68252ea1b4c336e36d0fc1 *validator.log"
+  ],
+  "verdict": "PASS"
+}
