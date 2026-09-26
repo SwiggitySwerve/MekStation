@@ -13,8 +13,7 @@
  * The genesis/branch rows are live through the production flag:
  * CAMPAIGN_JOURNAL_AUTHORITY_ENABLED is on with no override, so the
  * campaign create appends its genesis and the co-op creation checkpoint
- * runs its genesis-branch step. The QC group still sets
- * MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY, which no server code reads.
+ * runs its genesis-branch step.
  * Do not use test.skip.
  *
  * WHY this group is in RESPAWNING_GROUPS: both rows arm
