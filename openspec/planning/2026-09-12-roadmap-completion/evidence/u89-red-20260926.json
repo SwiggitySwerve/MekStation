@@ -1,0 +1,1104 @@
+{
+  "unit": "U89",
+  "baseline": "0dc74d7e702cac668eb44c3ad131cb7e8230d4b2",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u89",
+  "branch": "roadmap-u89-host-intent-server-time-20260926",
+  "implementerModel": "claude-opus (Agent model: opus, lean-worker)",
+  "stage": "red",
+  "status": "RED: the timing row fails on the long log at the baseline in 5 of 5 runs (heal read and three highest-sequence reads grow); publish does not grow.",
+  "at": "2026-09-26T18:38:58Z",
+  "productAtRun": "baseline blobs (git show HEAD:<path> of the three product files written back into the worktree for the run; the fixed copies restored afterwards and sha256-checked OK)",
+  "testFilesSha256": {
+    "src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test.ts": "80bd75583f2e90c3138f08df41468499a0cd242fc00aa9ce5396a6a1568b3d03",
+    "src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test-helpers.ts": "ea43becb03c5f8508d44bf1a635ee19f8684772fe640b9c53c4d1a25f421d520",
+    "src/lib/multiplayer/server/__tests__/healCommittedParticipantRemovals.test.ts": "7f4963827d02b6318998da0f0f6c6dd28d8e9d5e9ed7613813d8305e2c285693"
+  },
+  "runner": "per run: wait while PARENT-PROOF-HOLD exists (60 s polls), then node scripts/qc/machine-idle.mjs --wait --timeout-ms 1800000 (proceed only on MACHINE_IDLE), then U35E_ROWS_DIR=<lane-temp>/<label> U89_LOG_SIZES=50,1000 U89_RUN=<n> npx jest src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test.ts (one jest process per run)",
+  "holdWait": "PARENT-PROOF-HOLD was present at admission (read 2026-09-26T18:17Z: \"U41 main proof running in the root checkout since 18:15:49Z ...\"); polled at 60 s; absent at 2026-09-26T18:23:38Z; no timing run started while it existed; every run log line below records \"hold absent\" before its idle check.",
+  "runLog": [
+    "2026-09-26T18:37:47Z run 1 hold absent",
+    "2026-09-26T18:37:47Z run 1 machine-idle: MACHINE_IDLE",
+    "2026-09-26T18:38:01Z run 1 jest exit 1 : Tests:       1 failed, 2 passed, 3 total",
+    "2026-09-26T18:38:01Z run 2 hold absent",
+    "2026-09-26T18:38:02Z run 2 machine-idle: MACHINE_IDLE",
+    "2026-09-26T18:38:16Z run 2 jest exit 1 : Tests:       1 failed, 2 passed, 3 total",
+    "2026-09-26T18:38:16Z run 3 hold absent",
+    "2026-09-26T18:38:16Z run 3 machine-idle: MACHINE_IDLE",
+    "2026-09-26T18:38:29Z run 3 jest exit 1 : Tests:       1 failed, 2 passed, 3 total",
+    "2026-09-26T18:38:29Z run 4 hold absent",
+    "2026-09-26T18:38:30Z run 4 machine-idle: MACHINE_IDLE",
+    "2026-09-26T18:38:44Z run 4 jest exit 1 : Tests:       1 failed, 2 passed, 3 total",
+    "2026-09-26T18:38:44Z run 5 hold absent",
+    "2026-09-26T18:38:45Z run 5 machine-idle: MACHINE_IDLE",
+    "2026-09-26T18:38:58Z run 5 jest exit 1 : Tests:       1 failed, 2 passed, 3 total",
+    "2026-09-26T18:38:58Z DONE"
+  ],
+  "threshold": {
+    "rule": "a step GROWS iff median(1000) > 2 x median(50) OR median(1000) > 50 ms (stated in the admission receipt before measuring)",
+    "medians": "each run: the median over the run's measured commands (3 SpendFunds + 3 AdvanceDay, after 2 discarded warm-ups) or its 3 measured host PUTs (after 1 discarded); reported: the median of the 5 run medians",
+    "fiveThousand": "not run: 1000 events was conclusive for every step (every growing step is 5x or more; every flat step is within 1.4x)"
+  },
+  "redRow": {
+    "name": "campaignHostIntentServerTime.test.ts: \"the heal read and the highest-sequence reads do not grow with the log\"",
+    "assertion": "for healRead, gateHighestSequence, commitHighestSequence (command medians) and adoptHighestSequence (PUT medians): median(1000) <= 2 x median(50) AND median(1000) <= 50 ms, i.e. expect(rows.filter((row) => row.grows)).toEqual([])",
+    "result": "5 of 5 runs: 1 failed, 2 passed, 3 total (the two size rows pass; the red row fails with all four steps growing)",
+    "perRun": [
+      {
+        "run": 1,
+        "eventsAtStart": {
+          "50": 50,
+          "1000": 1000
+        },
+        "redRow": [
+          {
+            "step": "healRead",
+            "median50": 4.568899999999985,
+            "median1000": 62.36105000000043,
+            "grows": true
+          },
+          {
+            "step": "gateHighestSequence",
+            "median50": 3.551800000000185,
+            "median1000": 64.09609999999975,
+            "grows": true
+          },
+          {
+            "step": "commitHighestSequence",
+            "median50": 4.7982999999999265,
+            "median1000": 65.63320000000022,
+            "grows": true
+          },
+          {
+            "step": "adoptHighestSequence",
+            "median50": 4.45699999999988,
+            "median1000": 70.12089999999989,
+            "grows": true
+          }
+        ]
+      },
+      {
+        "run": 2,
+        "eventsAtStart": {
+          "50": 50,
+          "1000": 1000
+        },
+        "redRow": [
+          {
+            "step": "healRead",
+            "median50": 3.9148499999998876,
+            "median1000": 67.51144999999997,
+            "grows": true
+          },
+          {
+            "step": "gateHighestSequence",
+            "median50": 5.126300000000356,
+            "median1000": 84.32729999999901,
+            "grows": true
+          },
+          {
+            "step": "commitHighestSequence",
+            "median50": 3.7883999999999105,
+            "median1000": 62.028300000000854,
+            "grows": true
+          },
+          {
+            "step": "adoptHighestSequence",
+            "median50": 4.348399999999856,
+            "median1000": 85.47160000000076,
+            "grows": true
+          }
+        ]
+      },
+      {
+        "run": 3,
+        "eventsAtStart": {
+          "50": 50,
+          "1000": 1000
+        },
+        "redRow": [
+          {
+            "step": "healRead",
+            "median50": 4.166750000000093,
+            "median1000": 67.57825000000048,
+            "grows": true
+          },
+          {
+            "step": "gateHighestSequence",
+            "median50": 4.146899999999732,
+            "median1000": 62.16789999999855,
+            "grows": true
+          },
+          {
+            "step": "commitHighestSequence",
+            "median50": 3.9903499999998076,
+            "median1000": 61.17750000000024,
+            "grows": true
+          },
+          {
+            "step": "adoptHighestSequence",
+            "median50": 4.372899999999845,
+            "median1000": 61.516600000000835,
+            "grows": true
+          }
+        ]
+      },
+      {
+        "run": 4,
+        "eventsAtStart": {
+          "50": 50,
+          "1000": 1000
+        },
+        "redRow": [
+          {
+            "step": "healRead",
+            "median50": 3.667599999999993,
+            "median1000": 65.6585,
+            "grows": true
+          },
+          {
+            "step": "gateHighestSequence",
+            "median50": 3.4687000000003536,
+            "median1000": 78.33039999999892,
+            "grows": true
+          },
+          {
+            "step": "commitHighestSequence",
+            "median50": 4.062700000000177,
+            "median1000": 68.3757000000005,
+            "grows": true
+          },
+          {
+            "step": "adoptHighestSequence",
+            "median50": 5.186899999999696,
+            "median1000": 70.6895999999997,
+            "grows": true
+          }
+        ]
+      },
+      {
+        "run": 5,
+        "eventsAtStart": {
+          "50": 50,
+          "1000": 1000
+        },
+        "redRow": [
+          {
+            "step": "healRead",
+            "median50": 3.7520999999999276,
+            "median1000": 67.86180000000013,
+            "grows": true
+          },
+          {
+            "step": "gateHighestSequence",
+            "median50": 3.3559000000000196,
+            "median1000": 64.30439999999999,
+            "grows": true
+          },
+          {
+            "step": "commitHighestSequence",
+            "median50": 3.538550000000214,
+            "median1000": 64.07274999999981,
+            "grows": true
+          },
+          {
+            "step": "adoptHighestSequence",
+            "median50": 5.648099999999886,
+            "median1000": 64.79960000000028,
+            "grows": true
+          }
+        ]
+      }
+    ]
+  },
+  "timingTableBaseline": {
+    "commandMedians": {
+      "appendCommandBatch": {
+        "median50": 1.055,
+        "median1000": 2.772,
+        "ratio": 2.628,
+        "verdict": "GROWS",
+        "runs50": [
+          1.137,
+          1.083,
+          1.055,
+          0.972,
+          0.98
+        ],
+        "runs1000": [
+          3.091,
+          2.811,
+          2.436,
+          2.772,
+          2.581
+        ]
+      },
+      "appendWithoutRecordRewrite": {
+        "median50": 0.799,
+        "median1000": 0.866,
+        "ratio": 1.084,
+        "verdict": "flat",
+        "runs50": [
+          0.893,
+          0.844,
+          0.799,
+          0.738,
+          0.723
+        ],
+        "runs1000": [
+          0.907,
+          0.94,
+          0.866,
+          0.826,
+          0.833
+        ]
+      },
+      "applyHostIntent": {
+        "median50": 10.42,
+        "median1000": 144.126,
+        "ratio": 13.832,
+        "verdict": "GROWS",
+        "runs50": [
+          11.46,
+          10.304,
+          10.42,
+          10.634,
+          10.109
+        ],
+        "runs1000": [
+          148.255,
+          138.777,
+          136.051,
+          153.25,
+          144.126
+        ]
+      },
+      "commitHighestSequence": {
+        "median50": 3.99,
+        "median1000": 64.073,
+        "ratio": 16.057,
+        "verdict": "GROWS",
+        "runs50": [
+          4.798,
+          3.788,
+          3.99,
+          4.063,
+          3.539
+        ],
+        "runs1000": [
+          65.633,
+          62.028,
+          61.178,
+          68.376,
+          64.073
+        ]
+      },
+      "deliverToGuest": {
+        "median50": 11.473,
+        "median1000": 178.919,
+        "ratio": 15.595,
+        "verdict": "GROWS",
+        "runs50": [
+          14.37,
+          11.704,
+          11.473,
+          11.161,
+          11.346
+        ],
+        "runs1000": [
+          184.71,
+          162.103,
+          176.659,
+          181.954,
+          178.919
+        ]
+      },
+      "gate": {
+        "median50": 3.674,
+        "median1000": 64.5,
+        "ratio": 17.558,
+        "verdict": "GROWS",
+        "runs50": [
+          3.674,
+          5.253,
+          4.299,
+          3.572,
+          3.495
+        ],
+        "runs1000": [
+          64.247,
+          84.587,
+          62.312,
+          78.491,
+          64.5
+        ]
+      },
+      "gateHighestSequence": {
+        "median50": 3.552,
+        "median1000": 64.304,
+        "ratio": 18.105,
+        "verdict": "GROWS",
+        "runs50": [
+          3.552,
+          5.126,
+          4.147,
+          3.469,
+          3.356
+        ],
+        "runs1000": [
+          64.096,
+          84.327,
+          62.168,
+          78.33,
+          64.304
+        ]
+      },
+      "grantHostLogRead": {
+        "median50": 3.775,
+        "median1000": 194.521,
+        "ratio": 51.531,
+        "verdict": "GROWS",
+        "runs50": [
+          3.817,
+          3.775,
+          3.542,
+          3.762,
+          3.813
+        ],
+        "runs1000": [
+          215.208,
+          193.875,
+          194.521,
+          236.492,
+          192.412
+        ]
+      },
+      "healRead": {
+        "median50": 3.915,
+        "median1000": 67.511,
+        "ratio": 17.245,
+        "verdict": "GROWS",
+        "runs50": [
+          4.569,
+          3.915,
+          4.167,
+          3.668,
+          3.752
+        ],
+        "runs1000": [
+          62.361,
+          67.511,
+          67.578,
+          65.659,
+          67.862
+        ]
+      },
+      "publish": {
+        "median50": 0.128,
+        "median1000": 0.158,
+        "ratio": 1.23,
+        "verdict": "flat",
+        "runs50": [
+          0.153,
+          0.134,
+          0.122,
+          0.128,
+          0.126
+        ],
+        "runs1000": [
+          0.163,
+          0.151,
+          0.154,
+          0.176,
+          0.158
+        ]
+      },
+      "recordRewrite": {
+        "median50": 0.238,
+        "median1000": 1.737,
+        "ratio": 7.302,
+        "verdict": "GROWS",
+        "runs50": [
+          0.244,
+          0.238,
+          0.241,
+          0.22,
+          0.229
+        ],
+        "runs1000": [
+          2.064,
+          1.746,
+          1.6,
+          1.737,
+          1.653
+        ]
+      },
+      "replicaIngest": {
+        "median50": 5.159,
+        "median1000": 80.686,
+        "ratio": 15.641,
+        "verdict": "GROWS",
+        "runs50": [
+          5.237,
+          5.087,
+          4.991,
+          5.311,
+          5.159
+        ],
+        "runs1000": [
+          80.686,
+          74.584,
+          82.478,
+          87.435,
+          75.66
+        ]
+      },
+      "serverTotal": {
+        "median50": 21.993,
+        "median1000": 499.127,
+        "ratio": 22.695,
+        "verdict": "GROWS",
+        "runs50": [
+          25.324,
+          22.953,
+          21.993,
+          21.952,
+          21.456
+        ],
+        "runs1000": [
+          516.97,
+          464.394,
+          495.266,
+          576.948,
+          499.127
+        ]
+      }
+    },
+    "spendFundsMedians": {
+      "appendCommandBatch": {
+        "median50": 1.059,
+        "median1000": 2.505,
+        "ratio": 2.365,
+        "verdict": "GROWS",
+        "runs50": [
+          1.194,
+          1.157,
+          1.059,
+          0.986,
+          0.923
+        ],
+        "runs1000": [
+          3.21,
+          2.579,
+          2.505,
+          2.352,
+          2.324
+        ]
+      },
+      "appendWithoutRecordRewrite": {
+        "median50": 0.806,
+        "median1000": 0.873,
+        "ratio": 1.083,
+        "verdict": "flat",
+        "runs50": [
+          0.934,
+          0.864,
+          0.806,
+          0.734,
+          0.706
+        ],
+        "runs1000": [
+          1.068,
+          0.873,
+          0.899,
+          0.79,
+          0.791
+        ]
+      },
+      "applyHostIntent": {
+        "median50": 10.286,
+        "median1000": 137.557,
+        "ratio": 13.373,
+        "verdict": "GROWS",
+        "runs50": [
+          11.508,
+          10.286,
+          10.373,
+          9.997,
+          9.519
+        ],
+        "runs1000": [
+          189.975,
+          134.955,
+          155.915,
+          136.721,
+          137.557
+        ]
+      },
+      "commitHighestSequence": {
+        "median50": 3.757,
+        "median1000": 63.979,
+        "ratio": 17.032,
+        "verdict": "GROWS",
+        "runs50": [
+          5.306,
+          3.613,
+          4.335,
+          3.757,
+          3.523
+        ],
+        "runs1000": [
+          87.73,
+          61.467,
+          65.21,
+          62.369,
+          63.979
+        ]
+      },
+      "deliverToGuest": {
+        "median50": 9.188,
+        "median1000": 133.324,
+        "ratio": 14.51,
+        "verdict": "GROWS",
+        "runs50": [
+          11.976,
+          9.188,
+          10.127,
+          8.741,
+          8.386
+        ],
+        "runs1000": [
+          178.36,
+          128.696,
+          129.227,
+          133.324,
+          135.217
+        ]
+      },
+      "grantHostLogRead": {
+        "median50": 3.689,
+        "median1000": 201.235,
+        "ratio": 54.556,
+        "verdict": "GROWS",
+        "runs50": [
+          3.91,
+          3.76,
+          3.541,
+          3.459,
+          3.689
+        ],
+        "runs1000": [
+          224.137,
+          193.478,
+          207.558,
+          201.235,
+          191.266
+        ]
+      },
+      "healRead": {
+        "median50": 3.585,
+        "median1000": 68.026,
+        "ratio": 18.974,
+        "verdict": "GROWS",
+        "runs50": [
+          5.793,
+          3.581,
+          4.237,
+          3.585,
+          3.531
+        ],
+        "runs1000": [
+          85.835,
+          64.126,
+          60.97,
+          68.026,
+          68.211
+        ]
+      },
+      "publish": {
+        "median50": 0.126,
+        "median1000": 0.139,
+        "ratio": 1.1,
+        "verdict": "flat",
+        "runs50": [
+          0.156,
+          0.144,
+          0.124,
+          0.117,
+          0.126
+        ],
+        "runs1000": [
+          0.141,
+          0.141,
+          0.139,
+          0.132,
+          0.133
+        ]
+      },
+      "recordRewrite": {
+        "median50": 0.232,
+        "median1000": 1.606,
+        "ratio": 6.933,
+        "verdict": "GROWS",
+        "runs50": [
+          0.261,
+          0.239,
+          0.232,
+          0.222,
+          0.215
+        ],
+        "runs1000": [
+          2.089,
+          1.706,
+          1.606,
+          1.562,
+          1.543
+        ]
+      },
+      "replicaIngest": {
+        "median50": 5.156,
+        "median1000": 75.361,
+        "ratio": 14.616,
+        "verdict": "GROWS",
+        "runs50": [
+          5.342,
+          5.37,
+          5.129,
+          5.139,
+          5.156
+        ],
+        "runs1000": [
+          75.371,
+          75.361,
+          75.182,
+          71.313,
+          76.072
+        ]
+      },
+      "serverTotal": {
+        "median50": 19.634,
+        "median1000": 442.465,
+        "ratio": 22.535,
+        "verdict": "GROWS",
+        "runs50": [
+          22.657,
+          19.634,
+          20.284,
+          19.082,
+          18.312
+        ],
+        "runs1000": [
+          513.051,
+          438.915,
+          442.465,
+          433.712,
+          443.121
+        ]
+      }
+    },
+    "advanceDayMedians": {
+      "appendCommandBatch": {
+        "median50": 1.031,
+        "median1000": 3.044,
+        "ratio": 2.952,
+        "verdict": "GROWS",
+        "runs50": [
+          1.115,
+          0.986,
+          1.051,
+          0.957,
+          1.031
+        ],
+        "runs1000": [
+          2.973,
+          3.044,
+          2.391,
+          3.252,
+          3.361
+        ]
+      },
+      "appendWithoutRecordRewrite": {
+        "median50": 0.786,
+        "median1000": 0.88,
+        "ratio": 1.12,
+        "verdict": "flat",
+        "runs50": [
+          0.876,
+          0.76,
+          0.792,
+          0.741,
+          0.786
+        ],
+        "runs1000": [
+          0.88,
+          1.109,
+          0.843,
+          0.858,
+          1.047
+        ]
+      },
+      "applyHostIntent": {
+        "median50": 10.848,
+        "median1000": 162.563,
+        "ratio": 14.985,
+        "verdict": "GROWS",
+        "runs50": [
+          11.411,
+          10.848,
+          10.467,
+          11.239,
+          10.321
+        ],
+        "runs1000": [
+          147.823,
+          162.563,
+          135.398,
+          163.55,
+          165.202
+        ]
+      },
+      "commitHighestSequence": {
+        "median50": 4.29,
+        "median1000": 64.167,
+        "ratio": 14.956,
+        "verdict": "GROWS",
+        "runs50": [
+          4.29,
+          4.654,
+          3.645,
+          4.369,
+          3.555
+        ],
+        "runs1000": [
+          64.167,
+          79.276,
+          60.9,
+          70.456,
+          64.082
+        ]
+      },
+      "deliverToGuest": {
+        "median50": 13.909,
+        "median1000": 199.569,
+        "ratio": 14.348,
+        "verdict": "GROWS",
+        "runs50": [
+          14.532,
+          14.674,
+          13.853,
+          13.909,
+          12.352
+        ],
+        "runs1000": [
+          193.103,
+          246.775,
+          199.241,
+          230.501,
+          199.569
+        ]
+      },
+      "gate": {
+        "median50": 3.674,
+        "median1000": 64.5,
+        "ratio": 17.558,
+        "verdict": "GROWS",
+        "runs50": [
+          3.674,
+          5.253,
+          4.299,
+          3.572,
+          3.495
+        ],
+        "runs1000": [
+          64.247,
+          84.587,
+          62.312,
+          78.491,
+          64.5
+        ]
+      },
+      "gateHighestSequence": {
+        "median50": 3.552,
+        "median1000": 64.304,
+        "ratio": 18.105,
+        "verdict": "GROWS",
+        "runs50": [
+          3.552,
+          5.126,
+          4.147,
+          3.469,
+          3.356
+        ],
+        "runs1000": [
+          64.096,
+          84.327,
+          62.168,
+          78.33,
+          64.304
+        ]
+      },
+      "grantHostLogRead": {
+        "median50": 3.789,
+        "median1000": 203.036,
+        "ratio": 53.579,
+        "verdict": "GROWS",
+        "runs50": [
+          3.724,
+          3.789,
+          3.542,
+          4.188,
+          3.987
+        ],
+        "runs1000": [
+          210.867,
+          203.036,
+          183.857,
+          251.7,
+          193.558
+        ]
+      },
+      "healRead": {
+        "median50": 4.177,
+        "median1000": 67.513,
+        "ratio": 16.164,
+        "verdict": "GROWS",
+        "runs50": [
+          4.274,
+          4.177,
+          4.096,
+          4.405,
+          3.814
+        ],
+        "runs1000": [
+          62.289,
+          74.945,
+          72.944,
+          63.291,
+          67.513
+        ]
+      },
+      "publish": {
+        "median50": 0.125,
+        "median1000": 0.179,
+        "ratio": 1.431,
+        "verdict": "flat",
+        "runs50": [
+          0.147,
+          0.124,
+          0.12,
+          0.129,
+          0.125
+        ],
+        "runs1000": [
+          0.206,
+          0.179,
+          0.17,
+          0.202,
+          0.178
+        ]
+      },
+      "recordRewrite": {
+        "median50": 0.235,
+        "median1000": 2.039,
+        "ratio": 8.683,
+        "verdict": "GROWS",
+        "runs50": [
+          0.239,
+          0.226,
+          0.25,
+          0.218,
+          0.235
+        ],
+        "runs1000": [
+          2.039,
+          1.786,
+          1.544,
+          2.458,
+          2.346
+        ]
+      },
+      "replicaIngest": {
+        "median50": 5.064,
+        "median1000": 84.376,
+        "ratio": 16.661,
+        "verdict": "GROWS",
+        "runs50": [
+          5.064,
+          4.869,
+          4.854,
+          5.484,
+          5.161
+        ],
+        "runs1000": [
+          84.376,
+          73.807,
+          85.86,
+          100.679,
+          75.248
+        ]
+      },
+      "serverTotal": {
+        "median50": 24.931,
+        "median1000": 547.898,
+        "ratio": 21.977,
+        "verdict": "GROWS",
+        "runs50": [
+          25.337,
+          24.372,
+          25.49,
+          24.931,
+          23.371
+        ],
+        "runs1000": [
+          520.89,
+          563.616,
+          498.335,
+          598.494,
+          547.898
+        ]
+      }
+    },
+    "putMedians": {
+      "adoptHighestSequence": {
+        "median50": 4.457,
+        "median1000": 70.121,
+        "ratio": 15.733,
+        "verdict": "GROWS",
+        "runs50": [
+          4.457,
+          4.348,
+          4.373,
+          5.187,
+          5.648
+        ],
+        "runs1000": [
+          70.121,
+          85.472,
+          61.517,
+          70.69,
+          64.8
+        ]
+      },
+      "adoptSavedCheckpoint": {
+        "median50": 12.575,
+        "median1000": 145.434,
+        "ratio": 11.566,
+        "verdict": "GROWS",
+        "runs50": [
+          13.147,
+          10.664,
+          10.119,
+          13.003,
+          12.575
+        ],
+        "runs1000": [
+          145.434,
+          173.063,
+          124.214,
+          147.527,
+          134.777
+        ]
+      },
+      "adoptTail": {
+        "median50": 0.183,
+        "median1000": 0.176,
+        "ratio": 0.965,
+        "verdict": "flat",
+        "runs50": [
+          0.188,
+          0.176,
+          0.183,
+          0.176,
+          0.245
+        ],
+        "runs1000": [
+          0.176,
+          0.185,
+          0.167,
+          0.178,
+          0.17
+        ]
+      },
+      "grantHostLogRead": {
+        "median50": 5.639,
+        "median1000": 69.465,
+        "ratio": 12.32,
+        "verdict": "GROWS",
+        "runs50": [
+          6.173,
+          5.608,
+          4.156,
+          5.953,
+          5.639
+        ],
+        "runs1000": [
+          69.465,
+          84.515,
+          61.287,
+          74.163,
+          65.654
+        ]
+      },
+      "publish": {
+        "median50": 0.121,
+        "median1000": 0.137,
+        "ratio": 1.135,
+        "verdict": "flat",
+        "runs50": [
+          0.121,
+          0.117,
+          0.119,
+          0.125,
+          0.132
+        ],
+        "runs1000": [
+          0.121,
+          0.137,
+          0.138,
+          0.124,
+          0.138
+        ]
+      },
+      "putRoute": {
+        "median50": 19.301,
+        "median1000": 220.362,
+        "ratio": 11.417,
+        "verdict": "GROWS",
+        "runs50": [
+          19.51,
+          16.641,
+          16.883,
+          19.614,
+          19.301
+        ],
+        "runs1000": [
+          216.884,
+          261.613,
+          195.588,
+          222.333,
+          220.362
+        ]
+      }
+    }
+  },
+  "verdictPerStepBaseline": {
+    "healRead": "GROWS (3.915 -> 67.511 ms)",
+    "gateHighestSequence": "GROWS (3.552 -> 64.304 ms); gate as a whole 3.674 -> 64.5 ms",
+    "commitHighestSequence": "GROWS (3.99 -> 64.073 ms)",
+    "appendCommandBatch": "GROWS by the ratio clause (1.055 -> 2.772 ms, x2.63): all of the growth is the record rewrite inside it (recordRewrite 0.238 -> 1.737 ms; appendWithoutRecordRewrite 0.799 -> 0.866 ms, flat)",
+    "recordRewrite": "GROWS by the ratio clause (0.238 -> 1.737 ms, x7.3), under 50 ms",
+    "publish": "flat (0.128 -> 0.158 ms)",
+    "adoptHighestSequence": "GROWS (4.457 -> 70.121 ms)",
+    "adoptTail": "flat (0.183 -> 0.176 ms)",
+    "grantHostLogRead": "GROWS (3.775 -> 194.521 ms), after the guest's publish",
+    "replicaIngest": "GROWS (5.159 -> 80.686 ms), after the guest's publish",
+    "deliverToGuest": "GROWS (11.473 -> 178.919 ms), frame in to the guest frame out",
+    "serverTotal": "GROWS (21.993 -> 499.127 ms), frame in to the last timed activity (grant wake included)"
+  },
+  "earlierRedIterations": [
+    "red (18:23:54-18:25:19Z, 5 runs, no red row yet): the first measurement; the adoption tail label was contaminated by the grant wake reads inside the adoption (adoptTail 6.8 -> 98.5 ms), fixed in the label before any product edit",
+    "red2 (18:26:36-18:27:51Z): the red row added; 5 of 5 failed; heal label still keyed on fromSeq 0",
+    "red3 (18:32:46-18:34:01Z): the heal label keyed on the phase instead (the fixed heal reads from a later sequence); 5 of 5 failed",
+    "red-final (this receipt): after oxfmt and the split of the harness into campaignHostIntentServerTime.test-helpers.ts (max-lines 400); 5 of 5 failed"
+  ],
+  "mode2Relation": "The diagnosis's mode 2 (one delivery 3.66 s late, one 564 ms append) was not reproduced here; this row measures the steady per-command server time, which at 1000 events is 179 ms from the GM frame to the guest frame and 499 ms to the end of the grant wake (baseline medians)."
+}
