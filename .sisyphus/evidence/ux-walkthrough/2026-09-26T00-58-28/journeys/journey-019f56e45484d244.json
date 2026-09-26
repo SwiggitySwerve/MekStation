@@ -1,0 +1,84 @@
+{
+  "journey": "07-mobile-navigation",
+  "persona": "phone user finding their way around",
+  "viewport": {
+    "width": 1280,
+    "height": 720
+  },
+  "startedAt": "2026-09-26T07:08:51.218Z",
+  "finishedAt": "2026-09-26T07:08:56.366Z",
+  "status": "ok",
+  "steps": [
+    {
+      "index": 1,
+      "slug": "01-step-32ea3765be6cb5ee",
+      "title": "step-title:<sha256:32ea3765be6cb5ee>",
+      "surface": "default",
+      "screenshot": "journey-019f56e45484d244/01-step-32ea3765be6cb5ee.png",
+      "route": "/",
+      "startedAt": "2026-09-26T07:08:51.218Z",
+      "durationMs": 1539,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 2,
+      "slug": "02-step-2c89093acf05ff46",
+      "title": "step-title:<sha256:2c89093acf05ff46>",
+      "surface": "default",
+      "screenshot": "journey-019f56e45484d244/02-step-2c89093acf05ff46.png",
+      "route": "/",
+      "startedAt": "2026-09-26T07:08:52.758Z",
+      "durationMs": 433,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 3,
+      "slug": "03-step-e9b60886b956769d",
+      "title": "step-title:<sha256:e9b60886b956769d>",
+      "surface": "default",
+      "screenshot": "journey-019f56e45484d244/03-step-e9b60886b956769d.png",
+      "route": "/gameplay/quick",
+      "startedAt": "2026-09-26T07:08:53.191Z",
+      "durationMs": 548,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 4,
+      "slug": "04-step-0f0ff34f247b14d6",
+      "title": "step-title:<sha256:0f0ff34f247b14d6>",
+      "surface": "default",
+      "screenshot": "journey-019f56e45484d244/04-step-0f0ff34f247b14d6.png",
+      "route": "/compendium",
+      "startedAt": "2026-09-26T07:08:53.739Z",
+      "durationMs": 1083,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 5,
+      "slug": "05-step-d5b1b8b002253394",
+      "title": "step-title:<sha256:d5b1b8b002253394>",
+      "surface": "default",
+      "screenshot": "journey-019f56e45484d244/05-step-d5b1b8b002253394.png",
+      "route": "/compendium/units",
+      "startedAt": "2026-09-26T07:08:54.822Z",
+      "durationMs": 1544,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    }
+  ],
+  "findings": []
+}

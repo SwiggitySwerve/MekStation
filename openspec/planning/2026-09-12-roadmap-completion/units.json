@@ -2217,8 +2217,8 @@
         "maxNonGeneratedLines": 500
       },
       "baseline": "70f15077ac229eb1e6bac78fe226aac62244f8a3",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "fc615f0385f29e0fd829835ab57195bad94a8e0a",
+      "mergeSha": "7e03f100a2273b2d1949f31025846b49e728ffb6",
       "stageReceipts": {
         "admission": {
           "path": "evidence/u87-admission-20260925.json",
@@ -2237,13 +2237,34 @@
           "at": "2026-09-26T05:51:57.874Z",
           "summary": "2 e2e files, 62 spec lines, 0 product lines: gm-two-player-lifecycle.pack.spec.ts +38 (a waitForRejoin helper polls until the host banner tactical-lifecycle-state reads live and neither page shows match-pause-overlay; rows A and B call it after their reloads); ux-walkthrough-audit.spec.ts +19/-5 (step 2 checks the Add unit dialog and both buttons, step 3 clicks New blank unit and finds the heat-sink field by its label, a second #1634 drift the entry gate did not name); lifecycle-pack 3 of 3 (2 passed each, both players rejoined before GoProne); the customizer journey run alone through run-ux-walkthrough.mjs against the worktree production build: 1 journey, 9 steps, 0 failed; jest qc pin 15; tsc 0; oxlint 84 warnings 0 errors; oxfmt clean; qc:openspec-ci errors=0; validator PASSED; mutants: the wait removed caught live (2 of 2 fail), the journey heading restored caught, the wait checking only the guest survives plain runs and is caught only with the host held away; qc:ux-audit:prod not run (needs the root standalone build; the main proof runs it); implementer claude-opus (Agent model: opus); findings: the pause overlay is not a reliable pause signal after a reload pair, a small unmeasured window between the host banner reading live and the server lifting the pause; status ready"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "review": {
+          "path": "evidence/u87-review-20260926.json",
+          "head": "fc615f0385f29e0fd829835ab57195bad94a8e0a",
+          "reviewedHead": "fc615f0385f29e0fd829835ab57195bad94a8e0a",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet)",
+          "implementerModel": "claude-opus (Agent model: opus)",
+          "outputSha256": "535ce51630ef36126ab625ac6ec8c4962266c2813c6a221c80c9ddaa0b0f45e8",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u87-merge-20260926.json",
+          "pr": 1988,
+          "head": "fc615f0385f29e0fd829835ab57195bad94a8e0a",
+          "mergeSha": "7e03f100a2273b2d1949f31025846b49e728ffb6"
+        },
+        "mainProof": {
+          "path": "evidence/u87-mainproof-20260926.json",
+          "mergeCommit": "7e03f100a2273b2d1949f31025846b49e728ffb6",
+          "verdict": "PASS",
+          "runtime": "U87 PROOF RUNTIME PASSED: 16 passed (lifecycle-pack-1 2, 0 failed, exit 0; lifecycle-pack-2 2, 0 failed, exit 0; lifecycle-pack-3 2, 0 failed, exit 0; ux-audit-prod 10, 0 failed, exit 0)"
+        },
+        "tick": {
+          "path": "evidence/u87-tick-20260926.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
-      "state": "local-verified",
+      "state": "complete",
       "id": "U87",
       "node": "R6.umbrella",
       "behavior": "Two e2e rows stop racing or drifting. (1) Lifecycle row A (e2e/gm-two-player-lifecycle.pack.spec.ts, E2E-75) waits after its reloads until both surfaces have rejoined (the host's banner reads live and neither page shows the match-pause overlay) before sending GoProne, and row B's reload pair gets the same wait; red first: row A with the host's page held away across the GoProne reads live, not sealed; green: lifecycle-pack passes 3 of 3 in the root checkout and in a worktree. (2) The UX audit's customizer journey (e2e/ux-walkthrough-audit.spec.ts:314-360) follows the combined 'Add unit' dialog the New Unit button opens since #1634 (create blank or configure new) instead of the removed 'Create New Unit' heading; green: qc:ux-audit:prod reports 10 of 10 journeys.",

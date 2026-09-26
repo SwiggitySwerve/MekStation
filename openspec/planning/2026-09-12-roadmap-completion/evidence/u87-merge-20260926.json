@@ -1,0 +1,19 @@
+{
+  "unit": "U87",
+  "stage": "merge",
+  "at": "2026-09-26T07:11:07.236Z",
+  "pr": 1988,
+  "title": "test(e2e): lifecycle rejoin wait and the customizer audit journey (U87)",
+  "head": "fc615f0385f29e0fd829835ab57195bad94a8e0a",
+  "mergeSha": "7e03f100a2273b2d1949f31025846b49e728ffb6",
+  "mergedAt": "2026-09-26T06:47:25Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "e2e/gm-two-player-lifecycle.pack.spec.ts",
+    "e2e/ux-walkthrough-audit.spec.ts"
+  ],
+  "blobEqualityDiffLines": 0
+}
