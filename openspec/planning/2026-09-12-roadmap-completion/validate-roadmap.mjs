@@ -79,19 +79,35 @@ const pathsOverlap = (a, b) => {
   const right = normalisePath(b);
   return left === right || left.startsWith(`${right}/`) || right.startsWith(`${left}/`);
 };
-// A mainProof receipt's runtime.playwright is either a Playwright ladder line ('<label>: N failed / M
-// passed' or '<label>: N passed (12.1s)', the label optional so U1's bare total parses) or a jest
-// summary ('<label>: Tests: N passed, M total'). Returns the failed-row count, or null when the line is
-// neither - prose is not a proof.
+// A mainProof receipt's runtime.playwright is a Playwright ladder line ('<label>: N failed / M passed'
+// returns N), a jest summary ('<label>: Tests: [K failed, ][S skipped, ]N passed, M total' returns K, 0
+// when no failed part), or '<label>: N passed (...)' (the label optional so U1's bare total parses),
+// which returns the sum of every 'K failed' inside the parentheses, so the runtime lines' per-group
+// '0 failed' parse as 0 and a non-zero K is a red. Returns null for anything else - prose is not a proof.
 const parseProofLine = (value) => {
   if (typeof value !== 'string') return null;
   const line = value.trim();
   const ladderRed = /^(?:.+?:\s*)?(\d+) failed \/ (\d+) passed$/.exec(line);
   if (ladderRed) return Number(ladderRed[1]);
-  if (/^(?:.+?:\s*)?Tests:\s+(\d+) passed, (\d+) total$/.test(line)) return 0;
-  if (/^(?:.+?:\s*)?(\d+) passed(?:\s+\([^)]*\))?$/.test(line)) return 0;
+  const jest = /^(?:.+?:\s*)?Tests:\s+((?:\d+ (?:failed|skipped|todo|passed), )+)\d+ total$/.exec(line);
+  if (jest) return Number(/(\d+) failed/.exec(jest[1])?.[1] ?? 0);
+  const passed = /^(?:.+?:\s*)?(\d+) passed(?:\s+\(([^)]*)\))?$/.exec(line);
+  if (passed) return [...(passed[2] ?? '').matchAll(/(\d+) failed/g)].reduce((sum, match) => sum + Number(match[1]), 0);
   return null;
 };
+// U41: runtime.failedRows is required on a red mainProof whose at is on or after this day. The one red
+// receipt before it without failedRows is U15b's (2026-09-17), which keeps only the count check.
+const FAILED_ROWS_CUTOVER = '2026-09-27';
+// The first E2E id each entry names, sorted, so two lists compare one to one (undefined: none named).
+const e2eIds = (entries) => entries.map((entry) => /\bE2E-\d+\b/.exec(String(entry))?.[0]).sort();
+// U41 cap counting rule (GOAL.md:56, DELIVERY.md:8): these files are generated or tests, and their
+// added lines do not count toward caps.maxNonGeneratedLines.
+const UNCOUNTED_FILES = [
+  /(^|\/)package-lock\.json$/, /(^|\/)\.next\//, /(^|\/)__snapshots__\//, /\.snap$/, /^public\/data\//, /^src\/types\/contracts\/generated\//,
+  /(^|\/)__tests__\//, /^e2e\//, /\.(test|spec)\.[cm]?[jt]sx?$/,
+];
+// The ledger's own evidence directory, relative to the repository root; merge diffs skip it.
+const EVIDENCE_PREFIX = `${path.relative(repoRoot, path.join(planningDir, 'evidence')).split(path.sep).join('/')}/`;
 // Historical node receipts were never normalised: some are null, some a bare evidence path, some an
 // object whose main SHA field drifted between mainSha and mainSHA. Read all three shapes tolerantly.
 const readReceipt = (node) => {
@@ -352,6 +368,17 @@ try {
                 if (!Array.isArray(expectedReds)) fail(`${label} mainProof receipt reports ${failedRows} failed row(s) without an expectedReds array`);
                 else if (expectedReds.length !== failedRows) fail(`${label} mainProof expectedReds has ${expectedReds.length} entr(y/ies) but the run reports ${failedRows} failed row(s)`);
                 else if (!expectedReds.every((entry) => typeof entry === 'string' && entry.trim().length > 0)) fail(`${label} mainProof expectedReds has an entry that is not a non-empty string naming a red row`);
+                // U41 (1): runtime.failedRows must name the same E2E ids as expectedReds, one to one, on
+                // every receipt that carries it and on every receipt dated from FAILED_ROWS_CUTOVER.
+                else if (Array.isArray(proof.runtime?.failedRows) || !(String(proof.at) < FAILED_ROWS_CUTOVER)) {
+                  const rows = proof.runtime?.failedRows;
+                  if (!Array.isArray(rows)) fail(`${label} mainProof reports ${failedRows} failed row(s) without a runtime.failedRows array`);
+                  else {
+                    const wanted = e2eIds(expectedReds);
+                    const got = e2eIds(rows);
+                    if (wanted.includes(undefined) || got.includes(undefined) || !same(wanted, got)) fail(`${label} mainProof expectedReds (${wanted.join(', ')}) and runtime.failedRows (${got.join(', ')}) do not name the same E2E ids one to one`);
+                  }
+                }
               }
             }
           }
@@ -420,11 +447,18 @@ try {
           const implementerModel = receipts.review.implementerModel;
           if (!hasValue(reviewerModel) || !hasValue(implementerModel)) fail(`${label} review receipt lacks reviewerModel/implementerModel`);
           else if (reviewerModel === implementerModel) fail(`${label} review receipt is not cross-model: ${reviewerModel} reviewed itself`);
+          // U41 (5): a lane that finished the implementation cannot be the one that reviewed it.
+          if (hasValue(receipts.review.finisherModel) && receipts.review.finisherModel === reviewerModel) fail(`${label} review receipt is not cross-model: its finisher ${reviewerModel} is also its reviewer`);
           if (!isHex40(receipts.review.reviewedHead ?? receipts.review.head)) fail(`${label} review receipt has no 40-hex reviewed head`);
         }
 
         // ---- sensitive classes need an owner ruling bound to the merged head
         const sensitive = reviewClasses.filter((reviewClass) => SENSITIVE_REVIEW_CLASSES.includes(reviewClass));
+        // U41 (3): from local-verified on, a packet must already name the unit in blocks, so the ruling
+        // below has somewhere to land. No dated cutover: no unit on the ledger at U41 admission lacked one.
+        if (sensitive.length && rank >= STATE_RANK['local-verified'] && !packets.some((packet) => (packet.blocks || []).includes(unit.id))) {
+          fail(`${label} carries sensitive classes (${sensitive.join(', ')}) and is ${unit.state} with no packet naming it in blocks`);
+        }
         if (sensitive.length && rank >= STATE_RANK.merged) {
           const ruling = packets.find((packet) => (packet.blocks || []).includes(unit.id) && packet.ruling);
           if (!ruling) fail(`${label} carries sensitive classes (${sensitive.join(', ')}) and is ${unit.state} without a packet ruling`);
@@ -495,7 +529,7 @@ try {
         }
       }
 
-      // ---- optional live ancestry proof
+      // ---- optional live proof: ancestry, merge ownership and the line cap
       if (wantGit) {
         for (const unit of units) {
           if ((STATE_RANK[unit.state] ?? 0) < STATE_RANK['main-verified']) continue;
@@ -504,6 +538,31 @@ try {
             execFileSync('git', ['merge-base', '--is-ancestor', unit.mergeSha, 'origin/main'], { cwd: repoRoot, stdio: 'ignore' });
           } catch {
             fail(`${unit.id} mergeSha ${unit.mergeSha} is not an ancestor of origin/main`);
+          }
+          // U41 (4) and (6): the merge's own diff is the squash commit against its first parent (the
+          // unit baseline is rarely that parent, so baseline..mergeSha would include other units' merges),
+          // with the ledger's evidence directory skipped. A file outside ownershipPaths fails unless the
+          // unit's ownershipExceptions lists it; the added lines of files UNCOUNTED_FILES does not match
+          // must stay within caps.maxNonGeneratedLines unless capException.countedLines records that count.
+          let numstat;
+          try {
+            numstat = execFileSync('git', ['diff', '--numstat', '--no-renames', `${unit.mergeSha}^1`, unit.mergeSha], { cwd: repoRoot, encoding: 'utf8' });
+          } catch {
+            fail(`${unit.id} mergeSha ${unit.mergeSha} has no first-parent diff to check`);
+            continue;
+          }
+          const exceptions = Array.isArray(unit.ownershipExceptions) ? unit.ownershipExceptions : [];
+          let counted = 0;
+          for (const [added, , file] of numstat.split(String.fromCharCode(10)).filter(Boolean).map((row) => row.split('\t'))) {
+            if (file.startsWith(EVIDENCE_PREFIX)) continue;
+            if (!(unit.ownershipPaths || []).some((owned) => pathsOverlap(file, owned)) && !exceptions.includes(file)) {
+              fail(`${unit.id} merge ${unit.mergeSha.slice(0, 9)} touches ${file} outside its ownershipPaths and ownershipExceptions`);
+            }
+            if (!UNCOUNTED_FILES.some((pattern) => pattern.test(file))) counted += Number(added) || 0;
+          }
+          const cap = unit.caps?.maxNonGeneratedLines;
+          if (counted > cap && unit.capException?.countedLines !== counted) {
+            fail(`${unit.id} merge ${unit.mergeSha.slice(0, 9)} counts ${counted} added non-generated, non-test lines over its cap of ${cap}`);
           }
         }
       }

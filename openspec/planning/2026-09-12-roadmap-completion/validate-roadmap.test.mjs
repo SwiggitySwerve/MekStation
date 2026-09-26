@@ -89,26 +89,47 @@ const stubReceipts = {
   'f1-merge.json': { stage: 'merge', pr: 1797, head: HEAD_A, mergeSha: MERGE_A },
 };
 
-// A main-verified product unit whose mainProof receipt file carries the given runtime.playwright line
-// and (optionally) an expectedReds array.
-const mainVerifiedFixture = (playwright, expectedReds) => {
-  const proof = { unit: 'F1', stage: 'mainProof', mergeCommit: MERGE_A, runtime: { playwright } };
+// A real squash commit on main (U5e): 62 added lines in src/lib/multiplayer/client/readGmRewindHead.ts
+// and 194 in its __tests__ file, so the --git cases need no throwaway repository.
+const U5E_MERGE = '66c0ecad61350927294cd547b24062695d9c905e';
+
+// A main-verified product unit whose mainProof receipt file carries the given runtime.playwright line,
+// (optionally) an expectedReds array, and what `extra` names: runtime fields merged into the receipt's
+// runtime, the receipt's at (default the U41 cutover day), fields merged into the review stage
+// receipt, a mergeSha (default MERGE_A) and unit overrides.
+const mainVerifiedFixture = (playwright, expectedReds, extra = {}) => {
+  const mergeSha = extra.mergeSha ?? MERGE_A;
+  const proof = { unit: 'F1', stage: 'mainProof', at: extra.at ?? '2026-09-27T00:00:00.000Z', mergeCommit: mergeSha, runtime: { playwright, ...extra.runtime } };
   if (expectedReds !== undefined) proof.expectedReds = expectedReds;
   return makeFixture(
     {
       units: [unit({
         state: 'main-verified',
         prHead: HEAD_A,
-        mergeSha: MERGE_A,
+        mergeSha,
         stageReceipts: {
           ...ladderBelowMainProof,
-          mainProof: { path: 'evidence/f1-mainproof.json', mergeCommit: MERGE_A },
+          review: { ...ladderBelowMainProof.review, ...extra.review },
+          merge: { ...ladderBelowMainProof.merge, mergeSha },
+          mainProof: { path: 'evidence/f1-mainproof.json', mergeCommit: mergeSha },
           tick: null,
         },
+        ...extra.unit,
       })],
     },
     { ...stubReceipts, 'f1-mainproof.json': proof },
   );
+};
+
+// Assert the validator refused and named the failure. On an unexpected pass the message carries the
+// validator's own stdout, so a run against a validator without the check records what it printed.
+const assertRejects = ({ code, stdout, stderr }, pattern) => {
+  assert.equal(code, 1, `expected a failing exit, got ${code}: ${stdout.trim()}`);
+  assert.match(stderr, pattern);
+};
+const assertPasses = ({ code, stdout, stderr }) => {
+  assert.equal(code, 0, `expected a passing exit, got ${code}: ${stderr.trim()}`);
+  assert.match(stdout, /ROADMAP VALIDATION PASSED/);
 };
 
 test('a stage receipt path that does not exist fails, naming the unit, the stage and the path', () => {
@@ -139,7 +160,9 @@ test('a mainProof reporting one red without expectedReds fails', () => {
 });
 
 test('the same mainProof with a one-entry expectedReds passes', () => {
-  const dir = mainVerifiedFixture('authority: 1 failed / 17 passed', ['E2E-01 genesis: gated on task 5.7, expected until the cutover']);
+  const dir = mainVerifiedFixture('authority: 1 failed / 17 passed', ['E2E-01 genesis: gated on task 5.7, expected until the cutover'], {
+    runtime: { failedRows: ['1) [chromium] › e2e/gm-two-player-authority-recovery.pack.spec.ts:66:5 › E2E-01 genesis branch recovers @E2E-01'] },
+  });
   const { code, stdout } = run(dir);
   assert.equal(code, 0, `expected a passing exit, got ${code}`);
   assert.match(stdout, /ROADMAP VALIDATION PASSED/);
@@ -158,6 +181,7 @@ test('every ladder and jest spelling in the real ledger parses, and a free-text 
     'evidence-smoke:   1 passed (12.1s)',
     'token-pack:   2 passed (1.7m)',
     'jest machine-idle pin: Tests:       62 passed, 62 total',
+    'suites (1279 passing): U40 PROOF RUNTIME PASSED: 1279 passed (jest 1277, 0 failed, exit 0; lifecycle-pack 2, 0 failed, exit 0)',
   ]) {
     const { code, stdout } = run(mainVerifiedFixture(line));
     assert.equal(code, 0, `expected ${JSON.stringify(line)} to parse, got exit ${code}`);
@@ -246,4 +270,72 @@ test('--github with gh off the PATH fails with a notice rather than passing sile
   assert.equal(code, 1, `expected a failing exit, got ${code}`);
   assert.match(`${stdout}${stderr}`, /gh is not available/);
   assert.match(stderr, /FS/);
+});
+
+// ---- U41: the validator checks what receipts say. Each case below is accepted by the validator
+// before U41 and rejected after it.
+
+test('(1) expectedReds and runtime.failedRows that name different E2E ids fail', () => {
+  const dir = mainVerifiedFixture('authority: 1 failed / 17 passed', ['E2E-01 genesis: gated on task 5.7'], {
+    runtime: { failedRows: ['1) [chromium] › e2e/gm-two-player-authority-recovery.pack.spec.ts:123:5 › E2E-02 effective branch @E2E-02'] },
+  });
+  assertRejects(run(dir), /F1 mainProof expectedReds \(E2E-01\) and runtime\.failedRows \(E2E-02\) do not name the same E2E ids one to one/);
+});
+
+test('(1) a red mainProof dated from 2026-09-27 without runtime.failedRows fails; an earlier one keeps the count check', () => {
+  const reds = ['E2E-01 genesis: gated on task 5.7'];
+  assertRejects(run(mainVerifiedFixture('authority: 1 failed / 17 passed', reds)), /F1 mainProof reports 1 failed row\(s\) without a runtime\.failedRows array/);
+  assertPasses(run(mainVerifiedFixture('authority: 1 failed / 17 passed', reds, { at: '2026-09-17T16:41:43.408Z' })));
+});
+
+test("(2) 'N passed (... K failed)' reads K instead of passing as zero failed", () => {
+  const dir = mainVerifiedFixture('U99 PROOF RUNTIME PASSED: 5 passed (jest 4, 1 failed, exit 0; pack 1, 0 failed, exit 0)');
+  assertRejects(run(dir), /F1 mainProof receipt reports 1 failed row\(s\) without an expectedReds array/);
+});
+
+test('(2) a jest red summary parses and its failed count is held to expectedReds', () => {
+  const dir = mainVerifiedFixture('jest pin: Tests:       1 failed, 2 skipped, 11 passed, 14 total');
+  assertRejects(run(dir), /F1 mainProof receipt reports 1 failed row\(s\) without an expectedReds array/);
+});
+
+test('(3) a sensitive unit at local-verified with no packet naming it in blocks fails', () => {
+  const localVerified = { ...unit({}).stageReceipts, admission: ladderBelowMainProof.admission, red: ladderBelowMainProof.red, local: ladderBelowMainProof.local };
+  const ledger = { units: [unit({ reviewClasses: ['authority'], state: 'local-verified', stageReceipts: localVerified })] };
+  assertRejects(run(makeFixture(ledger, stubReceipts)), /F1 carries sensitive classes \(authority\) and is local-verified with no packet naming it in blocks/);
+  const packet = {
+    id: 'PK-fixture',
+    blocks: ['F1'],
+    nodes: ['R0.plan'],
+    taskKeys: [],
+    question: 'Fixture packet: rule on the head?',
+    options: [{ label: 'rule', consequence: 'merges', effort: 'none' }, { label: 'hold', consequence: 'stays open', effort: 'none' }],
+    agentRecommendation: 'rule',
+    revertCost: 'none',
+    decision: null,
+    ruling: null,
+  };
+  assertPasses(run(makeFixture({ ...ledger, packets: [packet] }, stubReceipts)));
+});
+
+test('(5) a review receipt whose finisherModel equals its reviewerModel fails', () => {
+  const dir = mainVerifiedFixture('pack:   1 passed (1.0s)', undefined, { review: { finisherModel: 'model-r' } });
+  assertRejects(run(dir), /F1 review receipt is not cross-model: its finisher model-r is also its reviewer/);
+});
+
+test('(4) --git fails a merge touching a file outside ownershipPaths unless ownershipExceptions lists it', () => {
+  const owned = (unitOver) => mainVerifiedFixture('pack:   1 passed (1.0s)', undefined, { mergeSha: U5E_MERGE, unit: { ownershipPaths: ['e2e'], ...unitOver } });
+  assertRejects(run(owned({}), ['--git']), /F1 merge 66c0ecad6 touches src\/lib\/multiplayer\/client\/readGmRewindHead\.ts outside its ownershipPaths and ownershipExceptions/);
+  const ownershipExceptions = ['src/lib/multiplayer/client/readGmRewindHead.ts', 'src/lib/multiplayer/client/__tests__/readGmRewindHead.test.ts'];
+  assertPasses(run(owned({ ownershipExceptions }), ['--git']));
+});
+
+test('(6) --git fails a merge whose counted lines exceed the cap unless capException records the count', () => {
+  const capped = (unitOver) => mainVerifiedFixture('pack:   1 passed (1.0s)', undefined, {
+    mergeSha: U5E_MERGE,
+    unit: { ownershipPaths: ['src/lib'], caps: { maxFiles: 5, maxNonGeneratedLines: 50 }, ...unitOver },
+  });
+  assertRejects(run(capped({}), ['--git']), /F1 merge 66c0ecad6 counts 62 added non-generated, non-test lines over its cap of 50/);
+  assertPasses(run(capped({ capException: { countedLines: 62 } }), ['--git']));
+  // The 194 added lines of the __tests__ file do not count: under a cap of 100 the same merge passes.
+  assertPasses(run(capped({ caps: { maxFiles: 5, maxNonGeneratedLines: 100 } }), ['--git']));
 });
