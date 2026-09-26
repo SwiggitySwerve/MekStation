@@ -19,6 +19,7 @@ import type { JsonValue } from '@/lib/multiplayer/server/projection/ViewerProjec
 
 import { SQLiteActionAuditRepository } from '@/lib/events/audit/SQLiteActionAuditRepository';
 import { SQLiteEventHistoryArtifactManifestStore } from '@/lib/events/journal/EventHistoryArtifactManifest';
+import { readEffectiveStreamHead } from '@/lib/events/journal/EventHistoryEffectiveStreamHead';
 import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
 import { SQLiteEventJournal } from '@/lib/events/journal/SQLiteEventJournal';
 import { SQLitePrivateRecordRepository } from '@/lib/events/privacy/SQLitePrivateRecordRepository';
@@ -147,14 +148,19 @@ export function createViewerHistoryService(): ViewerHistoryService {
 
 /**
  * Branch + manifest readers on the API SQLite handle — never a match
- * file. Match seats never stamp role `gm`, so the host principal is
- * the GM audience for this HTTP surface.
+ * file — and the effective journal head read, bound as GET
+ * /api/matches/:id/head binds it: readEffectiveStreamHead over the same
+ * handle and one branch store. Match seats never stamp role `gm`, so
+ * the host principal is the GM audience for this HTTP surface.
  */
 export function createViewerHistoryLineageStores(): IViewerHistoryLineageStores {
   const db = getSQLiteService().getDatabase();
+  const branches = new SQLiteEventHistoryBranchStore(db);
   return {
-    branches: new SQLiteEventHistoryBranchStore(db),
+    branches,
     manifests: new SQLiteEventHistoryArtifactManifestStore(db),
+    readEffectiveStreamHead: (stream) =>
+      readEffectiveStreamHead(db, branches, stream),
   };
 }
 

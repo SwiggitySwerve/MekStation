@@ -1,8 +1,9 @@
 /**
  * Viewer-projected branch/supersession lineage for match history HTTP.
  *
- * Built SERVER-SIDE from the journal branch store, effective head,
- * supersession rows, and the sealed artifact manifest. It is a sibling
+ * Built SERVER-SIDE from the journal branch store, effective head, the
+ * effective branch's journal head, supersession rows, and the sealed
+ * artifact manifest. It is a sibling
  * of the audit timeline, never a field on an IViewerTimelineEntry, so
  * the existing key allowlists and timelineDigest stay over audit rows
  * alone. A player still sees that a branch moved; they do not see the
@@ -19,6 +20,7 @@ import type {
   IEventHistoryStreamRef,
   IEventHistorySupersession,
 } from '@/lib/events/journal/EventHistoryBranchContract';
+import type { IEventHistoryEffectiveStreamHead } from '@/lib/events/journal/EventHistoryEffectiveStreamHead';
 
 export type ViewerLineageAudience = 'gm' | 'player';
 
@@ -91,6 +93,14 @@ export interface IViewerHistoryLineageStores {
       candidateBranchId: string,
     ) => { readonly entries: readonly IAffectedArtifact[] } | null;
   };
+  /**
+   * The journal head the stream answers from: the stream-head row of its
+   * effective branch (readEffectiveStreamHead), the read GET
+   * /api/matches/:id/head and the correction lease make.
+   */
+  readonly readEffectiveStreamHead: (
+    stream: IEventHistoryStreamRef,
+  ) => IEventHistoryEffectiveStreamHead;
 }
 
 export interface IViewerLineageViewer {
@@ -102,7 +112,8 @@ export interface IViewerLineageViewer {
  * Project one stream's stored lineage for one viewer.
  *
  * effectiveHead is null when the store has none — answering a synthetic
- * root would invent an authority nobody installed.
+ * root would invent an authority nobody installed. Otherwise it names the
+ * journal head stores.readEffectiveStreamHead answers.
  */
 export function projectViewerHistoryLineage(
   stores: IViewerHistoryLineageStores,
@@ -113,7 +124,7 @@ export function projectViewerHistoryLineage(
   const byId = new Map(listed.map((branch) => [branch.branchId, branch]));
   const storedHead = stores.branches.readEffectiveHead(stream);
   return Object.freeze({
-    effectiveHead: projectEffectiveHead(storedHead, byId),
+    effectiveHead: projectEffectiveHead(stores, stream, storedHead),
     transitions: Object.freeze(
       stores.branches
         .readSupersessions(stream)
@@ -122,17 +133,25 @@ export function projectViewerHistoryLineage(
   });
 }
 
+/**
+ * Null when the stored effective head is null, before any journal read.
+ * Otherwise the branch id and revision of the journal head
+ * readEffectiveStreamHead answers, with the stored head's effective
+ * generation: the body GET /api/matches/:id/head builds.
+ */
 function projectEffectiveHead(
+  stores: IViewerHistoryLineageStores,
+  stream: IEventHistoryStreamRef,
   storedHead: IEventHistoryEffectiveHead | null,
-  byId: ReadonlyMap<string, IEventHistoryBranch>,
 ): IViewerLineageEffectiveHead | null {
   // The store's null is the answer. Do not substitute genesis.
   if (storedHead === null) return null;
-  const current = byId.get(storedHead.branchId);
+  // The journal tip on the effective branch, not the branch's base
+  // cutoff: the revision a rewind CAS and the lease compare against.
+  const journalHead = stores.readEffectiveStreamHead(stream);
   return Object.freeze({
-    branchId: storedHead.branchId,
-    // Cutoff of the installed branch, not a journal tip and not invented.
-    revision: current?.baseRevision ?? storedHead.effectiveGeneration,
+    branchId: journalHead.branchId,
+    revision: journalHead.revision,
     generation: storedHead.effectiveGeneration,
   });
 }

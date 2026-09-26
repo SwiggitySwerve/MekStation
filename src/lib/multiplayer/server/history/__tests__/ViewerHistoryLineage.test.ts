@@ -11,12 +11,16 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 
 import type { IAffectedArtifact } from '@/lib/events/journal/EventHistoryArtifactManifest';
-import type { IEventHistoryBranch } from '@/lib/events/journal/EventHistoryBranchContract';
+import type {
+  IEventHistoryBranch,
+  IEventHistoryStreamRef,
+} from '@/lib/events/journal/EventHistoryBranchContract';
 
 import { activateCandidateBranch } from '@/lib/events/journal/EventHistoryActivation';
 import { SQLiteEventHistoryArtifactManifestStore } from '@/lib/events/journal/EventHistoryArtifactManifest';
 import { EVENT_HISTORY_GENESIS_DIGEST } from '@/lib/events/journal/EventHistoryBranchContract';
 import { _branchCreationSeamForTests } from '@/lib/events/journal/EventHistoryBranchContract';
+import { readEffectiveStreamHead } from '@/lib/events/journal/EventHistoryEffectiveStreamHead';
 import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
 import { SQLiteEventHistoryCorrectionLeaseStore } from '@/lib/events/journal/SQLiteEventHistoryCorrectionLeaseStore';
 import { SQLiteService } from '@/services/persistence/SQLiteService';
@@ -63,12 +67,16 @@ describe('ViewerHistoryLineage', () => {
   }
 
   function stores() {
+    const branches = new SQLiteEventHistoryBranchStore(
+      db(),
+      _branchCreationSeamForTests(),
+    );
     return {
-      branches: new SQLiteEventHistoryBranchStore(
-        db(),
-        _branchCreationSeamForTests(),
-      ),
+      branches,
       manifests: new SQLiteEventHistoryArtifactManifestStore(db()),
+      // The production wiring (createViewerHistoryLineageStores).
+      readEffectiveStreamHead: (stream: IEventHistoryStreamRef) =>
+        readEffectiveStreamHead(db(), branches, stream),
     };
   }
 
@@ -158,12 +166,56 @@ describe('ViewerHistoryLineage', () => {
   it('root-only stream answers effectiveHead and zero transitions', () => {
     seedRoot();
     const gm = project('gm');
+    // The root journal head seedRoot plants (4), not root's cutoff (0).
     expect(gm.effectiveHead).toEqual({
       branchId: 'root',
-      revision: 0,
+      revision: 4,
       generation: 1,
     });
     expect(gm.transitions).toEqual([]);
+  });
+
+  it('answers the journal head GET /head answers, not the branch cutoff (clause c)', () => {
+    seedRoot();
+    activate('candidate-1', REASON, {
+      branchId: 'root',
+      revision: 4,
+      digest: DIGEST,
+      generation: 1,
+    });
+    // The candidate's journal head one revision past its base: where the
+    // first command after a rewind leaves it.
+    db()
+      .prepare(
+        `INSERT INTO event_journal_stream_heads
+           (stream_type, stream_id, branch_id, stream_revision, event_digest)
+         VALUES (?, ?, 'candidate-1', ?, ?)`,
+      )
+      .run(
+        STREAM.streamType,
+        STREAM.streamId,
+        BASE_REVISION + 1,
+        'c'.repeat(64),
+      );
+    // The read GET /head answers from (matchHeadRoute) and the lease makes.
+    const journalHead = readEffectiveStreamHead(
+      db(),
+      stores().branches,
+      STREAM,
+    );
+    expect(journalHead).toMatchObject({
+      branchId: 'candidate-1',
+      revision: BASE_REVISION + 1,
+    });
+
+    const gm = project('gm');
+
+    expect(gm.effectiveHead).toEqual({
+      branchId: journalHead.branchId,
+      revision: journalHead.revision,
+      generation: 2,
+    });
+    expect(project('player').effectiveHead).toEqual(gm.effectiveHead);
   });
 
   it('store answering null does not invent an effective head', () => {
@@ -180,6 +232,16 @@ describe('ViewerHistoryLineage', () => {
       digest: DIGEST,
       generation: 1,
     });
+    // The candidate's journal head at its base, as the candidate build
+    // plants it (seedCandidateJournalHead); activate() only creates the
+    // branch row.
+    db()
+      .prepare(
+        `INSERT INTO event_journal_stream_heads
+           (stream_type, stream_id, branch_id, stream_revision, event_digest)
+         VALUES (?, ?, 'candidate-1', ?, ?)`,
+      )
+      .run(STREAM.streamType, STREAM.streamId, BASE_REVISION, 'b'.repeat(64));
     const gm = project('gm');
     expect(gm.effectiveHead).toEqual({
       branchId: 'candidate-1',

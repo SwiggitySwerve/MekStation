@@ -143,7 +143,10 @@ async function seedCampaignWithJournal(): Promise<{
   };
 }
 
-/** Persist a campaign with no genesis and no branch - the flag-off world. */
+/**
+ * Persist a campaign with no genesis and no branch: the journal holds no
+ * event for it.
+ */
 function seedCampaignWithoutJournal(): ICampaign {
   const campaign = buildPopulatedCampaign();
   const saved = saveCampaign(

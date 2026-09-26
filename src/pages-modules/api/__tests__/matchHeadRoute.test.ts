@@ -246,6 +246,44 @@ describe('GET /api/matches/:id/head', () => {
     ]);
   });
 
+  it('the lineage names the head GET /head names once the branch runs past its base', async () => {
+    seedActivatedHead();
+    // The first command after the rewind moves the candidate's journal
+    // head one revision past its base (2), where the cutoff stays.
+    getSQLiteService()
+      .getDatabase()
+      .prepare(
+        `UPDATE event_journal_stream_heads
+            SET stream_revision = 3, event_digest = ?
+          WHERE stream_type = 'match' AND stream_id = ? AND branch_id = 'candidate-1'`,
+      )
+      .run('c'.repeat(64), MATCH_ID);
+    const result = await getHead(host.wire);
+    expect(result.statusCode).toBe(200);
+    expect(result.body).toStrictEqual({
+      branchId: 'candidate-1',
+      revision: 3,
+      effectiveGeneration: 2,
+      digest: 'c'.repeat(64),
+    });
+    const body = result.body as {
+      branchId: string;
+      revision: number;
+      effectiveGeneration: number;
+    };
+    for (const caller of [host, player]) {
+      const lineage = await readMatchHistoryLineage(
+        { playerId: caller.playerId, matchId: MATCH_ID },
+        'match',
+      );
+      expect(lineage.effectiveHead).toStrictEqual({
+        branchId: body.branchId,
+        revision: body.revision,
+        generation: body.effectiveGeneration,
+      });
+    }
+  });
+
   it.each([false, true])(
     'refuses player and stranger identically (head present: %s)',
     async (withHead) => {

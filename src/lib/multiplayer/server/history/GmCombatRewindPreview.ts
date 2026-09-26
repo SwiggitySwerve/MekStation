@@ -239,11 +239,13 @@ export async function previewGmCombatRewind(
     );
   }
 
-  // A match the branch machinery has never heard of. FINDING #48/#53:
-  // nothing writes match events to the journal, so a real match has no
-  // stream-head row and the genesis backfill never gives it a root
-  // branch. That is an ANSWER this surface gives, not an exception it
-  // raises - `readEffectiveHead`, deliberately never
+  // A match the branch machinery has never heard of. Match events reach
+  // the journal only through the match store's mirror, which writes
+  // nothing while the combat journal authority mode is 'off' (the shipped
+  // default), so such a match has no stream-head row and the genesis
+  // backfill never gives it a root branch. That is an ANSWER this
+  // surface gives, not an exception it raises - `readEffectiveHead`,
+  // deliberately never
   // `requireEffectiveHead`, the same call and the same reason
   // `campaignLaunchHead` chose it. Asked BEFORE the expected-head
   // comparison, because that comparison reads the active head and would
