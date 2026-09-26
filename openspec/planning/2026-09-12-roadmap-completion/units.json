@@ -2540,20 +2540,34 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "baseline": null,
+      "baseline": "0dc74d7e702cac668eb44c3ad131cb7e8230d4b2",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/u89-admission-20260926.json",
+          "baseline": "0dc74d7e702cac668eb44c3ad131cb7e8230d4b2",
+          "at": "2026-09-26T18:21:14.567Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/u89-red-20260926.json",
+          "at": "2026-09-26T18:38:58Z",
+          "summary": "baseline 0dc74d7e7: the timing row (real SQLite in-process, the U35e fixture, the host in the shared registry, the socket binder wired as server.js:658-665 wires it, the log grown through the host's commit path; medians of 5 jest runs, machine-idle held, the hold file absent) failed 5 of 5: at 50 and 1000 events the heal read 3.9 to 67.5 ms, the gate's highest-sequence read 3.6 to 64.3, the commit's 4.0 to 64.1, the adoption's 4.5 to 70.1, GM frame in to guest frame out 11.5 to 178.9; flat: the adoption tail read, publish, appendCommandBatch without the record rewrite; also growing and not fixed: the record rewrite 0.24 to 1.74, the grant wake host-log read after publish 3.8 to 194.5, the replica ingest 5.2 to 80.7, the server total 22 to 499; the heal correctness rows (a removal read by an earlier pass whose revoke failed is healed later; a removal committed after the remembered sequence is healed by the next read) written against the narrowed design"
+        },
+        "local": {
+          "path": "evidence/u89-local-20260926.json",
+          "at": "2026-09-26T18:47:53.962Z",
+          "summary": "3 product files, 94 changed lines (bindCampaignSyncConnection.ts +25/-2: the heal pass keeps per registry entry the next unread sequence and every removal it has read, reads only rows after it and re-applies every kept removal; campaignJournalReads.ts +35/-10 and JournalCampaignEventStore.ts +19/-3: highestSequence keeps the last head it read per campaign and reads only rows after it, an index lookup on the stream-revision key), tests 767 in 3 new files (the timing row, its harness in a helpers file under lint:units' 400-line limit, the two heal rows); after: the heal read 0.33 to 0.28 ms, the gate 0.20 to 0.15, the commit 0.13 to 0.09, the adoption 0.25 to 0.14, GM frame in to guest frame out 2.5 to 3.7, the server total 15.6 to 324 (the grant wake and the replica ingest still grow, recorded); the red row's grow rule (revision 2, the parent's decision): a step grows when its 1000-event median exceeds twice its 50-event median AND 5 ms, or exceeds 50 ms; five head runs pass (all four reads under 0.5 ms), the baseline files restored fail (68.5, 73.1, 62.1, 71.5 ms), restored with sha256 confirmed; jest src/lib/multiplayer/server src/lib/campaign 4188; tsc 0; oxlint 84 warnings 0 errors; oxfmt clean on 6 files; LINT_UNITS_PASS 17899/17899 (0 findings in the new files); qc:openspec-ci errors=0; validator PASSED; mutants: the heal read widened back (red row and both heal rows), the remembered sequence never advanced (the same), only newly read removals re-applied (the before row: 3 revoke attempts expected, 2 seen), the store head never remembered (red row: 68, 81, 89 ms), each restored with sha256 confirmed; NON-CLAIMS: in-process jest only, no build, browser, Playwright or server; the performance pack not run; the mode-2 stall (3.66 s delivery, 564 ms append) neither reproduced nor explained; the full gates and mutants not re-run after the rule revision (test file only); implementer claude-opus (Agent model: opus, lean-worker); status ready"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
         "tick": null
       },
       "ownerGate": null,
-      "state": "planned",
+      "state": "local-verified",
       "id": "U89",
       "node": "R2.authority-live",
       "behavior": "Measure, then fix if the measurement shows it, the campaign host-intent path's server time. A jest timing row times each server step of a GM command (the participant-removal heal read, the journal highest-sequence read, appendCommandBatch, publish) at a short and a long campaign log (for example 50 and 1000 events), with the machine-idle check held through the run. The diagnosis found two whole-log reads on every GM command (bindCampaignSyncConnection.ts :410 and :873-879; campaignJournalReads.ts:48-67), one delivery that arrived 3.66 s late and one append that took 564 ms. If a step grows with the log, it reads the stream head or an indexed maximum instead of scanning, with a red row that fails on the long log and passes after. If nothing grows, the unit records the timings and closes with no product change.",
@@ -2564,7 +2578,11 @@
       "reviewClasses": [
         "concurrency"
       ],
-      "source20260925": "planned by the parent from the UAT round 1 diagnosis (evidence/uat-r1-diagnosis-20260925.json, mode 2 of F-perf-E2E-71-72-73)"
+      "source20260925": "planned by the parent from the UAT round 1 diagnosis (evidence/uat-r1-diagnosis-20260925.json, mode 2 of F-perf-E2E-71-72-73)",
+      "admissionNote20260926": {
+        "at": "2026-09-26T19:00:46.000Z",
+        "note": "--next printed U89. Admission GO with the threshold stated before measuring (a step grows when its 1000-event median exceeds twice its 50-event median, later with a 5 ms absolute floor against sub-millisecond noise, or exceeds 50 ms; medians of 5 jest runs, machine-idle held, the parent's hold file absent). Measured on real SQLite in-process: the heal read and the three highest-sequence reads (the gate, the commit, the adoption) all grew 3.6-4.5 ms to 64-70 ms; the fix narrows both to since-sequence reads (the heal keeps and re-applies every read removal; the store remembers its last head per campaign). Not changed, recorded: the record rewrite folds the whole stream (0.29 to 1.7 ms), the grant wake after publish projects each guest's whole host log (about 290 ms per guest at 1000 events, after the frame is out), the replica ingest reads the whole replica stream, the PUT route 15 to 143 ms. The diagnosis's mode-2 stall was neither reproduced nor explained."
+      }
     },
     {
       "taskKeys": [],
@@ -9656,6 +9674,34 @@
         "deviationDisclosed": "DELIVERY.md says the owner posts the ruling out of band; the owner approved this unit by description in chat (words quoted in the comment) after the parent explained it in plain language and reported Lane A's verdict and the check set on the head, and the parent composed and posted the comment from the owner GitHub account and applied the label; the parent supplied the head from the ledger, as in the earlier rulings of this loop"
       },
       "note": "opened at fold on 2026-09-26, before the ruling, so the validator's sensitive-class check sees the packet while the unit is local-verified; decision and ruling are filled when the owner rules the exact head"
+    },
+    {
+      "id": "PK-u89-ruling",
+      "blocks": [
+        "U89"
+      ],
+      "nodes": [
+        "R2.authority-live"
+      ],
+      "taskKeys": [],
+      "question": "U89 (review classes concurrency) presents head d51ac1278b472d770f03e052f2f6c569076332b2. Does the owner rule it?",
+      "options": [
+        {
+          "label": "rule the head",
+          "consequence": "an OWNER-RULING <head> comment and the owner-ruled label on U89's PR; the unit merges and proceeds to main proof",
+          "effort": "0.1 day owner"
+        },
+        {
+          "label": "reject",
+          "consequence": "the PR closes; the unit returns to planned with the objection recorded",
+          "effort": "0.1 day owner"
+        }
+      ],
+      "agentRecommendation": "rule the head once Lane A has approved it and the checks are green",
+      "revertCost": "low: a squash merge revert",
+      "decision": null,
+      "ruling": null,
+      "note": "opened at fold on 2026-09-26, before the ruling, so the validator's sensitive-class check sees the packet while the unit is local-verified; decision and ruling are filled when the owner rules the exact head"
     }
   ],
   "deferrals": [
@@ -11169,6 +11215,42 @@
       "class": "stale human overview",
       "summary": "README.md:6 says 376 task occurrences; the validator now counts 381 with the supplement. No check reads README.",
       "recommendedSuccessor": "the README status refresh the parent already owes",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u89-grant-wake-projects-whole-stream",
+      "foundBy": "U89 implementer lane (claude-opus, lean-worker), 2026-09-26 (measured in-process, medians of 5)",
+      "at": "2026-09-26T19:00:46.000Z",
+      "class": "server time after publish, grows with the log",
+      "summary": "After every publish each room-code guest's grant wake re-reads the whole host log once per 500-row page (hostCampaignEventJournal.ts:88) and projects every event, and the replica ingest reads the whole replica stream (SQLiteCampaignReplicaStore.ts:121): about 290 ms per guest per command at 1000 events, after the guest's frame has gone out; the applyHostIntent wall time still grows (8 to 84 ms) though its timed inner steps sum under 3 ms (guess: the grant wake runs before its promise settles).",
+      "recommendedSuccessor": "a R2.authority-live unit: the grant wake and the replica ingest read since their last projected sequence",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u89-record-rewrite-folds-whole-stream",
+      "foundBy": "U89 implementer lane (claude-opus, lean-worker), 2026-09-26 (measured)",
+      "at": "2026-09-26T19:00:46.000Z",
+      "class": "server time inside the commit, grows with the log",
+      "summary": "The record rewrite after a commit replays every row (campaignRecordJournalState.ts:48-63): 0.29 ms at 50 events, 1.7 ms at 1000; it is what makes appendCommandBatch's wall time grow.",
+      "recommendedSuccessor": "the same successor, if the projection can fold from the last record",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u89-put-route-grows",
+      "foundBy": "U89 implementer lane (claude-opus, lean-worker), 2026-09-26 (measured)",
+      "at": "2026-09-26T19:00:46.000Z",
+      "class": "route time, grows with the log (outside the paths)",
+      "summary": "The host's whole-campaign PUT route takes 15 ms at 50 events and 143 ms at 1000 (the checkpoint save, the adoption's reads and the record rewrite).",
+      "recommendedSuccessor": "U97 or the same successor measures it again after the adoption read narrowed",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u89-timing-row-in-default-jest-scope",
+      "foundBy": "U89 implementer lane (claude-opus, lean-worker), 2026-09-26",
+      "at": "2026-09-26T19:00:46.000Z",
+      "class": "harness hygiene",
+      "summary": "The timing row runs in CI's unit shard; its grow rule gained a 5 ms absolute floor so sub-millisecond noise cannot trip the 2x ratio on a loaded worker; the 50 ms ceiling stays.",
+      "recommendedSuccessor": "none unless it flakes in CI",
       "status": "recorded"
     }
   ]

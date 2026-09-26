@@ -1,0 +1,207 @@
+{
+  "unit": "U89",
+  "stage": "admission",
+  "status": "ADMITTED",
+  "at": "2026-09-26T18:21:14.567Z",
+  "baseline": "0dc74d7e702cac668eb44c3ad131cb7e8230d4b2",
+  "baselineNote": "HEAD of the worktree equals the charter baseline (git rev-parse HEAD). git ls-remote origin refs/heads/main answered 3a62fabaddf169aa1c03a5f2888b43cc5ae78205 at admission, one docs-only commit past the baseline (#2015, validate-roadmap receipt checks); the lane keeps the charter baseline and does not fetch.",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u89",
+  "branch": "roadmap-u89-host-intent-server-time-20260926",
+  "implementerModel": "claude-opus (Agent model: opus, lean-worker)",
+  "node": "R2.authority-live",
+  "ownershipPaths": [
+    "src/lib/multiplayer/server",
+    "src/lib/campaign"
+  ],
+  "reviewClasses": [
+    "concurrency"
+  ],
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500
+  },
+  "shellPreamble": [
+    "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "export npm_config_dry_run=true"
+  ],
+  "gates": {
+    "nodeVersion": {
+      "command": "node -v",
+      "exitCode": 0,
+      "lastLine": "v22.22.0"
+    },
+    "guardNodeModulesLink": {
+      "command": "npm run --silent qc:guard-node-modules-link",
+      "exitCode": 1,
+      "lastLine": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"<worktree>\\\\node_modules\",\"actualPath\":\"<repo root>\\\\node_modules\"}",
+      "note": "refuses in a junctioned worktree by design (machine paths replaced by placeholders); no npm install/ci/prune/lifecycle run by this lane"
+    },
+    "validateNext": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+      "exitCode": 0,
+      "lastLine": "U89"
+    },
+    "validate": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "exitCode": 0,
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows"
+    },
+    "parentProofHold": "present at admission (\"U41 main proof running in the root checkout since 18:15:49Z\"); timing runs wait for it to be gone"
+  },
+  "behavior": "units.json U89 behavior sentence, not widened: measure the campaign host-intent path server time; fix a growing step by reading the stream head or an indexed maximum instead of scanning; if nothing grows, record the timings and close with no product change.",
+  "seams": {
+    "frameArrival": "src/lib/multiplayer/server/bindCampaignSyncConnection.ts:325-464 handleInbound",
+    "healCall": "src/lib/multiplayer/server/bindCampaignSyncConnection.ts:403-411 (CampaignJoin and CampaignHostIntent, when membership is bound)",
+    "healRead": "src/lib/multiplayer/server/bindCampaignSyncConnection.ts:873-879 healCommittedParticipantRemovals -> getCampaignEvents(0)",
+    "healApply": "src/lib/multiplayer/server/bindCampaignSyncConnection.ts:881-896 applyCommittedParticipantRemovals (membership.revoke + syncSession.applyCommittedParticipantRemoval per ParticipantRemoved)",
+    "revokedCheck": "src/lib/multiplayer/server/bindCampaignSyncConnection.ts:415-426 membership.isRevoked",
+    "rebuildLease": "src/lib/multiplayer/server/bindCampaignSyncConnection.ts:590-599 -> campaignSyncRebuildAdmission.ts:80-90 readDurableStreamRebuild",
+    "advanceDayGate": "src/lib/multiplayer/server/bindCampaignSyncConnection.ts:748-758 -> :700-718 refuseUnconvergedProgression -> CampaignSyncSession.ts:753-776 evaluateScenarioLaunch -> :785-787 currentRevision -> CampaignEventLog.nextSequence",
+    "applyHostIntent": "src/lib/multiplayer/server/bindCampaignSyncConnection.ts:828-835 -> CampaignMatchHost.ts:364-367 -> CampaignMatchHost.doors.ts:155-178 applyHostIntentLocked",
+    "intentReplay": "src/lib/multiplayer/server/campaignIntentIdentity.ts:93-116 replayCommittedIntent -> src/lib/campaign/sync/JournalCampaignEventStore.ts:452-470 getCommandReceipt",
+    "commitSequence": "src/lib/multiplayer/server/campaignHostBatchCommit.ts:141 host.nextSequence() -> CampaignMatchHost.ts:542 -> src/lib/campaign/sync/campaignEventLog.ts:64-67 -> JournalCampaignEventStore.ts:522-523 -> campaignJournalReads.ts:48-67",
+    "appendCommandBatch": "src/lib/multiplayer/server/campaignHostBatchCommit.ts:156-171 -> src/lib/campaign/sync/JournalCampaignEventStore.ts:421-450 -> :283-354 appendCampaignCommandBatch (appendWithExtension)",
+    "recordRewrite": "src/lib/campaign/authority/campaignRecordJournalState.ts:75-95 rewriteCampaignRecordAfterCommand -> :44-64 readCampaignJournalState (bound at src/lib/campaign/sync/journalCapabilityPorts.ts:226-232)",
+    "publish": "src/lib/multiplayer/server/campaignHostBatchCommit.ts:222-224 -> CampaignMatchHost.ts:534-536 publish -> CampaignSyncSession.ts:385-397 live sink",
+    "grantWake": "src/lib/multiplayer/server/bindCampaignSyncConnection.ts:1520-1529 hostAppendLiveSource -> src/lib/campaign/delivery/campaignGrantChannelSession.ts:143-146, :170-205 drainLive, :298-306 projectCurrentCursor -> projectCampaignStreamForGrant.ts:115-134, :191-311",
+    "grantHostLogAdapter": "src/lib/multiplayer/server/handleRoomCodeGuestJoin.ts:270-281 projectDepsOverHostLog -> src/lib/campaign/sync/hostCampaignEventJournal.ts:82-99 readStream (reads the whole host log on every page)",
+    "adoption": "src/lib/multiplayer/server/CampaignMatchHost.ts:383-393 adoptSavedCheckpoint (nextSequence, then getCampaignEvents(before))",
+    "ack": "src/lib/multiplayer/server/bindCampaignSyncConnection.ts:619-626 CampaignAck -> CampaignSyncSession.ts:660-672 (in-memory, no read)",
+    "journalReadStream": "src/lib/events/journal/SQLiteEventJournal.ts:15-29 (stream_revision > ? ORDER BY stream_revision LIMIT ?; served by UNIQUE (stream_type, stream_id, branch_id, stream_revision), src/services/persistence/SQLiteService.eventJournal.migration.ts:80)",
+    "journalHydrate": "src/lib/events/journal/SQLiteEventJournalWriter.ts:308-350 hydrateEvent: per row two sub-SELECTs, a zod parse and a canonical digest recompute",
+    "journalHeads": "event_journal_stream_heads (SQLiteService.eventJournal.migration.ts:85-92) is read only inside the writer (SQLiteEventJournalWriter.ts:185-190) and by readEffectiveStreamHead(db, ...) (EventHistoryEffectiveStreamHead.ts:40-70); IEventJournal (EventJournalContract.ts:140-158) exposes no head or maximum read",
+    "appendOnly": "event_journal_events_no_update / _no_delete triggers, SQLiteService.eventJournal.migration.ts:133-138"
+  },
+  "designAnswers": {
+    "q1_readsOnGmCommandPath": [
+      {
+        "step": "heal read",
+        "where": "bindCampaignSyncConnection.ts:877",
+        "read": "getCampaignEvents(0) -> readCampaignJournalEvents pages the whole stream (campaignJournalReads.ts:26-45), hydrating every row",
+        "order": "O(log): full scan"
+      },
+      {
+        "step": "revoked check",
+        "where": "bindCampaignSyncConnection.ts:416",
+        "read": "membership.isRevoked, a keyed participant-store read",
+        "order": "O(1) keyed"
+      },
+      {
+        "step": "rebuild lease",
+        "where": "campaignSyncRebuildAdmission.ts:86",
+        "read": "readDurableStreamRebuild on the stream ref",
+        "order": "INFERENCE: O(1) keyed from the call shape; not timed separately (inside the handler total)"
+      },
+      {
+        "step": "AdvanceDay gate",
+        "where": "CampaignSyncSession.ts:754 and :785-787",
+        "read": "nextSequence -> readCampaignJournalHighestSequence pages the whole stream to find its last row (campaignJournalReads.ts:48-67); the clause readers are keyed reads (campaignProgressionReaders.durable.ts)",
+        "order": "O(log): full scan (highest-sequence)"
+      },
+      {
+        "step": "intent replay",
+        "where": "campaignIntentIdentity.ts:111 -> JournalCampaignEventStore.ts:456-469",
+        "read": "captureHighWater (singleton row) + readEventHistory by correlation_id (idx_event_journal_correlation_position)",
+        "order": "O(1)/indexed"
+      },
+      {
+        "step": "commit highest-sequence read",
+        "where": "campaignHostBatchCommit.ts:141",
+        "read": "nextSequence -> the same whole-stream walk",
+        "order": "O(log): full scan"
+      },
+      {
+        "step": "appendCommandBatch",
+        "where": "JournalCampaignEventStore.ts:421-450",
+        "read": "getCommandReceipt again (indexed); the head row by primary key and verifyHead by the stream_revision unique index inside the append transaction",
+        "order": "O(1)/indexed apart from the record rewrite it runs"
+      },
+      {
+        "step": "record rewrite (inside the append transaction)",
+        "where": "campaignRecordJournalState.ts:48-63",
+        "read": "SELECT payload_json of every stream row + JSON.parse + replayCampaignEvents",
+        "order": "O(log): whole-stream projection (only on a journal-marker campaign)"
+      },
+      {
+        "step": "publish",
+        "where": "CampaignMatchHost.ts:534-536",
+        "read": "none: synchronous fan-out to the sinks",
+        "order": "O(subscribers)"
+      },
+      {
+        "step": "grant wake after publish (per room-code guest)",
+        "where": "campaignGrantChannelSession.ts:298-306 -> projectCampaignStreamForGrant.ts:229-232 over hostCampaignEventJournal.ts:88",
+        "read": "every 500-row page re-reads the whole host log (getCampaignEvents(0)) and digests every event; then assignSequences over every visible identity",
+        "order": "O(log) per page: whole-stream projection, run on the event loop after publish returns"
+      },
+      {
+        "step": "adoption (host PUT, U96)",
+        "where": "CampaignMatchHost.ts:385 and :387",
+        "read": "nextSequence (the whole-stream walk), then getCampaignEvents(before), a since-sequence read",
+        "order": "first O(log), second O(tail)"
+      },
+      {
+        "step": "CampaignAck",
+        "where": "CampaignSyncSession.ts:660-672",
+        "read": "none (in-memory map)",
+        "order": "O(1)"
+      }
+    ],
+    "q2_timingRow": {
+      "file": "src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test.ts (new)",
+      "seeding": "Real SQLite on a temp file through the U35e fixture (useTempCampaignDatabase, createJournalNative) that the U92 and U96 route tests use; the host registered in the shared CampaignHostRegistry the way those tests register it (its store is the production selector's JournalCampaignEventStore with capability ports and the record rewrite); the log is grown to N events through the host's own commit path (CampaignMatchHost._commitEventsForTests, batches of FundsChanged) before any socket joins.",
+      "drive": "The production socket binder as server.js:658-665 binds it (bindCampaignSyncConnection with createCampaignSessionMembershipPort(); grant channel and replica left to their SQLite defaults): a GM socket joins as host and a guest socket joins by room code (the grant arm); the measured GM commands are CampaignHostIntent frames (SpendFunds and AdvanceDay), the guest acknowledging each head; one host PUT through the item route times the adoption.",
+      "timing": "Wrapping, test-side only: CampaignEventLog.prototype.getCampaignEvents and nextSequence (labelled by phase), the store instance appendCommandBatch and rewriteRecordAfterCommand, CampaignMatchHost.prototype.publish, the session instance evaluateScenarioLaunch, and entry.host.applyHostIntent / adoptSavedCheckpoint as phase markers; clock node:perf_hooks performance.now(). No product instrumentation is added or left behind.",
+      "output": "per-command samples and per-step medians written to <U89_ROWS_DIR>/<name>.json when the env var is set; sizes from U89_LOG_SIZES (default 50,1000)"
+    },
+    "q3_threshold": "Stated before measuring: a step GROWS WITH THE LOG when its median at 1000 events exceeds twice its median at 50 events, or exceeds 50 ms absolute. Medians over 5 runs (5 separate jest processes, a fresh database per size, one discarded warm-up command per size), machine-idle held before every run and PARENT-PROOF-HOLD absent. 5000 events are added if 1000 is inconclusive.",
+    "q4_leastFixIfGrows": {
+      "heal": "The heal read becomes a since-sequence read: a WeakMap keyed by the registry entry (the campaignSocketLifecycles pattern, bindCampaignSyncConnection.ts:190-193) remembers the next unread sequence and the ParticipantRemoved events already read; each pass reads getCampaignEvents(remembered) and re-applies every remembered removal plus the new ones. Fix assessment: the pass re-reads history it has already read; the root cause is the read, not the re-apply, which stays exactly as idempotent and complete as before. Removed: a journal change, a new port, an event-type index; the re-apply of every committed removal is kept, so the crash-heal guarantee is unchanged. Scope: bindCampaignSyncConnection.ts only.",
+      "highestSequence": "The journal has an indexed maximum (event_journal_stream_heads; the stream_revision unique index) but IEventJournal exposes no read of it and src/lib/events is read-only for this lane. The in-ownership least fix is the since-revision read on the same index: JournalCampaignEventStore remembers the last head it read per campaign (revision and sequence) and readCampaignJournalHighestSequence pages from that revision, so a steady-state call is one indexed seek returning zero rows. Sound because the stream is append-only (triggers at migration:133-138): a remembered revision always exists and every later row is read. Fix assessment: removes the scan at its source for every caller (commit, gate, adoption, open). Removed: a new journal method (needs src/lib/events), a host-side cached head (would miss other writers and turn their appends into stale-head refusals). Scope: campaignJournalReads.ts and JournalCampaignEventStore.ts. The first call on a fresh store instance is still a full walk (once per host lifetime).",
+      "outsideTheFixShape": "A growing step whose work is a whole-stream PROJECTION rather than a head or since-sequence read (the record rewrite fold, the grant wake projection) cannot be fixed by reading the stream head or an indexed maximum; the unit sentence does not authorise a projection redesign, so such a step is measured, recorded as a finding with a recommended successor, and not changed here."
+    },
+    "q5_risksForTheParent": [
+      "Concurrency class: the heal pass is what keeps a revoked seat revoked after a crash between the removal append and the durable revoke (bindCampaignSyncConnection.ts:865-872). A narrowed read must still re-apply every committed removal, including one committed BEFORE the remembered sequence whose revoke failed after it was read; the correctness row covers a removal before and one after the remembered sequence, and a mutant that re-applies only the newly read removals must fail it.",
+      "A remembered position lives only as long as the registry entry (heal) or the store instance (highest sequence): a restart or a re-registered entry starts from a full read, as today.",
+      "A remembered head is a lower bound, never used without the since-read; another writer (the HTTP command route, the adoption PUT) appending between two calls is read by the next call.",
+      "Timing rows are machine-sensitive and machine-idle.mjs does not see another lane jest run (FN-u86-machine-idle-blind-to-jest); the threshold is applied to medians of 5 runs and the red assertion is stated with its numbers."
+    ]
+  },
+  "threshold": {
+    "rule": "grows iff median(1000) > 2 x median(50) OR median(1000) > 50 ms",
+    "statedBeforeMeasuring": true,
+    "runs": 5,
+    "fallback": "5000 events if 1000 is inconclusive"
+  },
+  "estimatePerFile": [
+    {
+      "path": "src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test.ts",
+      "kind": "test (new)",
+      "estimateLines": 350
+    },
+    {
+      "path": "src/lib/multiplayer/server/bindCampaignSyncConnection.ts",
+      "kind": "product, only if the heal read grows",
+      "estimateLines": 30
+    },
+    {
+      "path": "src/lib/campaign/sync/campaignJournalReads.ts",
+      "kind": "product, only if the highest-sequence read grows",
+      "estimateLines": 15
+    },
+    {
+      "path": "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+      "kind": "product, only if the highest-sequence read grows",
+      "estimateLines": 15
+    },
+    {
+      "path": "the heal correctness row (in the new file or bindCampaignSyncConnection.test.ts)",
+      "kind": "test",
+      "estimateLines": 80
+    }
+  ],
+  "estimateTotals": {
+    "files": 5,
+    "productLinesAtMost": 60
+  }
+}
