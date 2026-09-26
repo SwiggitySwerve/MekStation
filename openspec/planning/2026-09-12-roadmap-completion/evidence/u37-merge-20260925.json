@@ -1,0 +1,24 @@
+{
+  "unit": "U37",
+  "stage": "merge",
+  "at": "2026-09-26T05:24:20.232Z",
+  "pr": 1975,
+  "title": "fix(replay): tokens seeded at the deploy hex on GameCreated (U37)",
+  "head": "e1a2ee5420a69a83fd0aea17b240214bd90fdf99",
+  "mergeSha": "072b320a79d01c87b985fd9f107f0ba1edaae985",
+  "mergedAt": "2026-09-26T04:18:00Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "src/hooks/replay/__tests__/useHexMapStateFromEvents.core.test.ts",
+    "src/hooks/replay/__tests__/useHexMapStateFromEvents.deployPlacement.test.tsx",
+    "src/hooks/replay/__tests__/useReplayMovementAnimations.integration.test.tsx",
+    "src/hooks/replay/useHexMapStateFromEvents.ts",
+    "src/utils/gameplay/gameState/__tests__/initialization.deployPlacement.test.ts",
+    "src/utils/gameplay/gameState/initialization.ts",
+    "src/utils/gameplay/gameState/lifecycle.ts"
+  ],
+  "blobEqualityDiffLines": 0
+}
