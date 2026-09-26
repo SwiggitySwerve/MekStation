@@ -62,13 +62,20 @@ export class CampaignIntentIdentityConflictError extends Error {
 export interface ICampaignIntentCommandIdentity {
   readonly commandId: string;
   readonly intentFingerprint: string;
+  /**
+   * The GM intervention an ApplyGmIntervention commits (its payload's
+   * interventionId); absent for every other kind. The saved-record rewrite
+   * lists it in the campaign's intervention history (roadmap unit U97).
+   */
+  readonly gmInterventionId?: string;
 }
 
 export const INTENT_IDENTITY_CONFLICT_REASON = 'intent-identity-conflict';
 
 /**
  * The identity for an intent, or undefined when the client offered no
- * `intentId` - in which case no dedupe is possible or wanted.
+ * `intentId` - in which case no dedupe is possible or wanted. An
+ * ApplyGmIntervention's identity also carries its intervention id.
  */
 export function intentCommandIdentity(
   campaignId: string,
@@ -80,6 +87,9 @@ export function intentCommandIdentity(
   return {
     commandId: `campaign-intent:${campaignId}:${intent.intentId}`,
     intentFingerprint: sha256(canonicalizeJsonV1(intent)),
+    ...(intent.kind === 'ApplyGmIntervention'
+      ? { gmInterventionId: intent.payload.interventionId }
+      : {}),
   };
 }
 

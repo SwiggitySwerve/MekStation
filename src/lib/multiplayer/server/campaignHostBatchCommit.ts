@@ -161,6 +161,10 @@ export async function commitCampaignEventBatch(
     // offered.
     commandId: identity?.commandId ?? `campaign-cmd:${host.campaignId}:${base}`,
     intentFingerprint: identity?.intentFingerprint,
+    // An ApplyGmIntervention's id, for the saved-record rewrite's history.
+    ...(identity?.gmInterventionId === undefined
+      ? {}
+      : { gmInterventionId: identity.gmInterventionId }),
     events: sequenced,
     expectedPostStateDigest: expectedDigest,
     // Same number toJournalBatch already used when the field was absent:

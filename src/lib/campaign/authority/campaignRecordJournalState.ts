@@ -10,7 +10,9 @@
  * a journal-native campaign `rewriteCampaignRecordAfterCommand` writes the
  * record back with the journal's balance, date and roster readiness at the
  * next version, inside the append's transaction, so a save built before the
- * append is refused (409) instead of checkpointing over it (U35e, U35g).
+ * append is refused (409) instead of checkpointing over it (U35e, U35g). For
+ * a co-op GM funds correction (ApplyGmIntervention) the same write also
+ * appends the correction to the record's intervention history (U97).
  *
  * Both run synchronously on a journal writer's borrowed handle.
  *
@@ -19,12 +21,17 @@
 
 import type Database from 'better-sqlite3';
 
-import type { ICampaignAuthoritativeState } from '@/types/campaign/CampaignSync';
+import type {
+  ICampaignAuthoritativeState,
+  ICampaignEvent,
+} from '@/types/campaign/CampaignSync';
 import type { SerializedCampaign } from '@/types/campaign/SerializedCampaign';
+import type { IGmCampaignFundsTransactionEffect } from '@/types/interventions';
 
 import { ROOT_EVENT_BRANCH_ID } from '@/lib/events/journal/EventJournalContract';
 import { readCampaignMigrationMarker } from '@/services/campaignPersistence/CampaignMigrationMarkerStore';
 import { campaignRecordRow } from '@/services/campaignPersistence/CampaignPersistenceService';
+import { TransactionType } from '@/types/campaign/Transaction';
 
 import { addCampaignDays } from '../campaignCalendar';
 import { replayCampaignEvents } from '../sync/applyCampaignEvent';
@@ -67,14 +74,20 @@ export function readCampaignJournalState(
  * After a campaign command or a combat outcome committed on `db` (and inside
  * its transaction, so a throw here rolls the append back): write the
  * campaign's stored record back at version + 1 with the balance, current
- * date and roster readiness of the journal's post-append state. Writes
- * nothing when the campaign has no saved record, or when its cutover marker
- * is not in journal state (then the record, not the journal, is the
- * campaign's authority and a save does not checkpoint over the journal).
+ * date and roster readiness of the journal's post-append state and, when
+ * `batch` carries a GM intervention id, that intervention's history entries
+ * (`withGmInterventionEntries`). Writes nothing when the campaign has no
+ * saved record, or when its cutover marker is not in journal state (then the
+ * record, not the journal, is the campaign's authority and a save does not
+ * checkpoint over the journal).
  */
 export function rewriteCampaignRecordAfterCommand(
   db: Database.Database,
   campaignId: string,
+  batch?: {
+    readonly events: readonly ICampaignEvent[];
+    readonly gmInterventionId?: string;
+  },
 ): void {
   const marker = readCampaignMigrationMarker(campaignId, db);
   if (marker.kind !== 'ok' || marker.marker.state !== 'journal') return;
@@ -84,14 +97,76 @@ export function rewriteCampaignRecordAfterCommand(
     | { readonly version: number; readonly payload: string }
     | undefined;
   if (row === undefined) return;
+  const record = recordAtJournalState(
+    JSON.parse(row.payload) as SerializedCampaign,
+    row.version + 1,
+    readCampaignJournalState(db, campaignId),
+  );
   campaignRecordRow.write(
     db,
-    recordAtJournalState(
-      JSON.parse(row.payload) as SerializedCampaign,
-      row.version + 1,
-      readCampaignJournalState(db, campaignId),
-    ),
+    batch?.gmInterventionId === undefined
+      ? record
+      : withGmInterventionEntries(record, batch.gmInterventionId, batch.events),
   );
+}
+
+/**
+ * `record` with one intervention history entry appended to
+ * `gmInterventionEvents` per FundsChanged in `events` (an ApplyGmIntervention
+ * commits exactly one). The entry is a funds-transaction effect built from
+ * the committed event only: its reason as the public summary, its signed
+ * delta as `after.transaction.amountCents` (cents), `interventionId`, and its
+ * commit sequence in the transaction id
+ * `campaign-event:<campaignId>:<sequence>` (also `transactionId`). The
+ * balances are the event's resulting balance and that minus the delta, in
+ * cents; the transaction list stays empty because the host keeps none; the
+ * date is the record's current date. It carries no GM-private metadata,
+ * which the host never receives.
+ */
+function withGmInterventionEntries(
+  record: SerializedCampaign,
+  interventionId: string,
+  events: readonly ICampaignEvent[],
+): SerializedCampaign {
+  const entries = events.flatMap(
+    (event): IGmCampaignFundsTransactionEffect[] => {
+      if (event.type !== 'FundsChanged') return [];
+      const { delta, reason, balance } = event.payload;
+      const transactionId = `campaign-event:${record.campaignId}:${event.sequence}`;
+      return [
+        {
+          type: 'gm.campaign.funds_transaction_corrected',
+          domain: 'economy',
+          family: 'funds-transaction',
+          interventionId,
+          transactionId,
+          changedStateRefs: [`campaign:${record.campaignId}:finances`],
+          publicSummary: reason,
+          before: { balanceCents: (balance - delta) * 100, transactionIds: [] },
+          after: {
+            balanceCents: balance * 100,
+            transaction: {
+              id: transactionId,
+              type: TransactionType.Miscellaneous,
+              amountCents: delta * 100,
+              date: record.body.currentDate,
+              description: reason,
+            },
+          },
+        },
+      ];
+    },
+  );
+  return {
+    ...record,
+    body: {
+      ...record.body,
+      gmInterventionEvents: [
+        ...(record.body.gmInterventionEvents ?? []),
+        ...entries,
+      ],
+    },
+  };
 }
 
 /**
