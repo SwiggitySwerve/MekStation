@@ -107,3 +107,7 @@ Before any npm or npx command in a worktree except `npm run <script>` and `npm t
 Never pipe `npm run build` through `tail` or any other filter; record the build's own exit code. In a junctioned worktree the hydration guard exits 1 by design (release-build-system spec.md:59-68), and a pipe reports the filter's status instead.
 
 Restore a mutant with `git checkout HEAD -- <path>` and confirm the file's sha256 equals the pre-mutant hash before recording the mutant as restored. Under core.autocrlf a text-mode rewrite changes the file's bytes and breaks the sha256 match.
+
+## Lane agent type — 2026-09-26
+
+Launch implementation and Lane A lanes with the Agent tool's `subagent_type: lean-worker` (the owner's `~/.claude/agents/lean-worker.md`) and keep the per-lane model override of the 2026-09-22 section (opus for implementation, sonnet for Lane A). lean-worker has a fixed file-and-shell tool list: Bash, PowerShell, Read, Write, Edit, Grep, Glob, Monitor, TaskStop, ToolSearch. general-purpose lanes carried about 40 tools, most of which no lane used, and every tool definition is re-sent on every API call. Measured 2026-09-26 on Opus 5.5 with the same task in one session: a first prompt of 16,751 tokens for lean-worker against 44,122 for general-purpose. A lane that needs another tool (Agent, Skill, a browser) runs as general-purpose, and its brief records why. Workflow scripts pass `agentType: 'lean-worker'` to `agent()` calls that only read, write and run commands.
