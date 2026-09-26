@@ -1,0 +1,311 @@
+{
+  "unit": "U37",
+  "stage": "local",
+  "at": "2026-09-26T02:34:16.993Z",
+  "baseline": "0ac5767ebca7abbb18d26b5cfb0083729b21b929",
+  "testedTree": "baseline plus the uncommitted working-tree diff listed under files (the parent commits)",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u37",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "change": {
+    "sharedFunction": "src/utils/gameplay/gameState/initialization.ts exports IDeployPlacement and deployPlacementsFor(units): one placement per unit in order; Player r=PLAYER_DEPLOY_ROW (+5) facing North, every other side r=OPPONENT_DEPLOY_ROW (-5) facing South, q = per-side index - 2.",
+    "engine": "src/utils/gameplay/gameState/lifecycle.ts applyGameCreated now places each unit with deployPlacementsFor (same rule as before, moved, not changed).",
+    "projection": "src/hooks/replay/useHexMapStateFromEvents.ts applyGameCreatedEvent seeds each accumulator at deployPlacementsFor(payload.units)[index]; the legacy no-GameCreated synthesis path still seeds the origin."
+  },
+  "lineCounts": {
+    "product": {
+      "added": 56,
+      "deleted": 22
+    },
+    "productChangedLines": 78,
+    "test": {
+      "added": 171,
+      "deleted": 6
+    },
+    "testChangedLines": 177,
+    "filesTouched": 7,
+    "caps": {
+      "maxFiles": 15,
+      "maxNonGeneratedProductLines": 500
+    },
+    "files": [
+      {
+        "file": "src/hooks/replay/__tests__/useHexMapStateFromEvents.core.test.ts",
+        "added": 6,
+        "deleted": 4,
+        "kind": "test",
+        "sha256": "39cda19b875404e344a92dbb35d9e4cd862d84e72cc5e87c120828226a0a0540"
+      },
+      {
+        "file": "src/hooks/replay/__tests__/useReplayMovementAnimations.integration.test.tsx",
+        "added": 2,
+        "deleted": 2,
+        "kind": "test",
+        "sha256": "4753eff4977984cbe77c51f0cd41dd614de6808335c902c247f60d789547b02c"
+      },
+      {
+        "file": "src/hooks/replay/useHexMapStateFromEvents.ts",
+        "added": 14,
+        "deleted": 3,
+        "kind": "product",
+        "sha256": "fead46157f45e754a1d6629a0cd20a4e0a1627daa55202eea261488fae5d2223"
+      },
+      {
+        "file": "src/utils/gameplay/gameState/initialization.ts",
+        "added": 32,
+        "deleted": 0,
+        "kind": "product",
+        "sha256": "c099189dcb404fd61e6cfc85607b0967e888b147892d8c36559084b0f9f016ec"
+      },
+      {
+        "file": "src/utils/gameplay/gameState/lifecycle.ts",
+        "added": 10,
+        "deleted": 19,
+        "kind": "product",
+        "sha256": "73b63826baaccf9395adb0f959d9d2e5521e964228d598bb1cc842cbf2c590da"
+      },
+      {
+        "file": "src/hooks/replay/__tests__/useHexMapStateFromEvents.deployPlacement.test.tsx",
+        "added": 117,
+        "deleted": 0,
+        "kind": "test",
+        "new": true,
+        "sha256": "d67e76506e01eda7f4d28170fb2af5ca8e8c99737f2a9faf51331257ec494084"
+      },
+      {
+        "file": "src/utils/gameplay/gameState/__tests__/initialization.deployPlacement.test.ts",
+        "added": 46,
+        "deleted": 0,
+        "kind": "test",
+        "new": true,
+        "sha256": "11c5958d74a2749dbdafe77e320fe45134a00d3baae67caa93da536fe4cfdd25"
+      }
+    ]
+  },
+  "gates": {
+    "jestHooks": {
+      "command": "npx jest src/hooks --ci",
+      "exitCode": 0,
+      "totals": [
+        "Test Suites: 50 passed, 50 total",
+        "Tests:       477 passed, 477 total"
+      ],
+      "lastLine": "Ran all test suites matching /src\\\\hooks/i."
+    },
+    "jestUtilsGameplay": {
+      "command": "npx jest src/utils/gameplay --ci",
+      "exitCode": 0,
+      "totals": [
+        "Test Suites: 264 passed, 264 total",
+        "Tests:       4962 passed, 4962 total"
+      ],
+      "lastLine": "Ran all test suites matching /src\\\\utils\\\\gameplay/i."
+    },
+    "jestEngine": {
+      "command": "npx jest src/engine --ci (read-only path; engine deploy rows InteractiveSession.withdrawal 3/3, InteractiveSession.physicalAttack 8/8, and gameState.test.ts \"should assign starting positions based on side\" pass)",
+      "exitCode": 0,
+      "totals": [
+        "Test Suites: 30 passed, 30 total",
+        "Tests:       414 passed, 414 total"
+      ],
+      "lastLine": "Ran all test suites matching /src\\\\engine/i."
+    },
+    "jestComponentsGameplay": {
+      "command": "npx jest src/components/gameplay --ci (read-only path, the board)",
+      "exitCode": 0,
+      "totals": [
+        "Test Suites: 217 passed, 217 total",
+        "Tests:       1223 passed, 1223 total"
+      ],
+      "lastLine": "Ran all test suites matching /src\\\\components\\\\gameplay/i in 2 projects."
+    },
+    "tsc": {
+      "command": "npx tsc --noEmit",
+      "exitCode": 0,
+      "lastLine": "(no output)"
+    },
+    "oxlint": {
+      "command": "npx oxlint",
+      "exitCode": 0,
+      "lastLine": "Finished in 992ms on 3819 files using 16 threads.",
+      "summary": "Found 84 warnings and 0 errors.",
+      "warningsVsBaseline84": "84 warnings, equal to the charter reference of 84 (baseline count not re-measured by this lane); grep of the oxlint output for the seven changed files matched nothing"
+    },
+    "oxfmtChangedFiles": {
+      "command": "npx oxfmt --check <7 changed files>",
+      "exitCode": 0,
+      "lastLine": "Finished in 48ms on 7 files using 16 threads.",
+      "summary": "All matched files use the correct format."
+    },
+    "lintUnits": {
+      "command": "npm run lint:units",
+      "exitCode": 0,
+      "lastLine": "LINT_UNITS_PASS 100/100"
+    },
+    "openspecCi": {
+      "command": "npm run qc:openspec-ci:validate",
+      "exitCode": 0,
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0"
+    },
+    "roadmapValidator": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "exitCode": 0,
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows"
+    },
+    "extraConsumers": [
+      {
+        "command": "npx jest src/components/multiplayer --ci (read-only, NetworkedGameSurface consumer)",
+        "exitCode": 0,
+        "totals": [
+          "Test Suites: 13 passed, 13 total",
+          "Tests:       141 passed, 141 total"
+        ],
+        "lastLine": "Ran all test suites matching /src\\\\components\\\\multiplayer/i in 2 projects."
+      },
+      {
+        "command": "npx jest src/components/quickgame --ci (read-only, QuickGameReplayPanel consumer)",
+        "exitCode": 0,
+        "totals": [
+          "Test Suites: 8 passed, 8 total",
+          "Tests:       86 passed, 86 total"
+        ],
+        "lastLine": "Ran all test suites matching /src\\\\components\\\\quickgame/i."
+      },
+      {
+        "command": "npx jest src/__tests__/pages/gameplay/games/replay.attackEffects.test.tsx --ci",
+        "exitCode": 0,
+        "totals": [
+          "Test Suites: 1 passed, 1 total",
+          "Tests:       3 passed, 3 total"
+        ]
+      }
+    ],
+    "machineIdle": "node scripts/qc/machine-idle.mjs --wait --timeout-ms 1800000 printed MACHINE_IDLE before every full-directory jest run and before tsc"
+  },
+  "rowTable": [
+    {
+      "row": "core.test.ts > places fresh tokens at the engine deploy hex and facing (was: places fresh tokens at origin with Facing.North until corrected)",
+      "before": "FAIL (flipped pin: received {q:0,r:0})",
+      "after": "PASS"
+    },
+    {
+      "row": "core.test.ts > does not affect other units positions (unmoved opponent-2)",
+      "before": "PASS pinning {q:0,r:0} North",
+      "after": "PASS pinning its deploy hex {q:-2,r:-5} South (assertion updated)"
+    },
+    {
+      "row": "useReplayMovementAnimations.integration.test.tsx > rewinding the cursor ... ground-truths the earlier position",
+      "before": "PASS pinning {q:0,r:0} at sequence 0",
+      "after": "PASS pinning the deploy hex {q:-2,r:5} at sequence 0 (assertion updated)"
+    },
+    {
+      "row": "deployPlacement.test.tsx > seeds a mirrored 2v2 at players r=+5 North, opponents r=-5 South, q = per-side index - 2",
+      "before": "FAIL",
+      "after": "PASS"
+    },
+    {
+      "row": "deployPlacement.test.tsx > agrees with the engine state for every unit of a mirrored 2v2",
+      "before": "FAIL",
+      "after": "PASS"
+    },
+    {
+      "row": "deployPlacement.test.tsx > the board renders each unit at its deploy hex before any MovementDeclared",
+      "before": "FAIL (data-token-map-position=\"0,0\")",
+      "after": "PASS"
+    },
+    {
+      "row": "initialization.deployPlacement.test.ts > places three Player units at q=-2,-1,0 on r=5 facing North",
+      "before": "not writable (function absent)",
+      "after": "PASS"
+    },
+    {
+      "row": "initialization.deployPlacement.test.ts > counts q per side when the sides interleave",
+      "before": "not writable (function absent)",
+      "after": "PASS"
+    },
+    {
+      "row": "initialization.deployPlacement.test.ts > returns no placements for no units",
+      "before": "not writable (function absent)",
+      "after": "PASS"
+    }
+  ],
+  "mutants": [
+    {
+      "id": "M1",
+      "description": "the projection seeds {0,0} facing North again (placement assignment removed)",
+      "file": "src/hooks/replay/useHexMapStateFromEvents.ts",
+      "replace": {
+        "from": "    acc.position = placements[index].position;\n    acc.facing = placements[index].facing;\n",
+        "to": ""
+      },
+      "preMutantSha256": "fead46157f45e754a1d6629a0cd20a4e0a1627daa55202eea261488fae5d2223",
+      "restoredSha256": "fead46157f45e754a1d6629a0cd20a4e0a1627daa55202eea261488fae5d2223",
+      "restored": true,
+      "caught": true,
+      "caughtBy": [
+        "useHexMapStateFromEvents.core.test.ts > deriveHexMapStateFromEvents core scenarios spec scenario: GameCreated seeds tokens and mapRadius places fresh tokens at the engine deploy hex and facing",
+        "useHexMapStateFromEvents.core.test.ts > deriveHexMapStateFromEvents core scenarios spec scenario: MovementDeclared updates position and facing for the actor does not affect other units' positions",
+        "useHexMapStateFromEvents.deployPlacement.test.tsx > GameCreated seeds tokens at the engine deploy hex and facing seeds a mirrored 2v2 at players r=+5 North, opponents r=-5 South, q = per-side index - 2",
+        "useHexMapStateFromEvents.deployPlacement.test.tsx > GameCreated seeds tokens at the engine deploy hex and facing agrees with the engine state for every unit of a mirrored 2v2",
+        "useHexMapStateFromEvents.deployPlacement.test.tsx > GameCreated seeds tokens at the engine deploy hex and facing the board renders each unit at its deploy hex before any MovementDeclared"
+      ],
+      "notCaughtBy": [
+        "initialization.deployPlacement.test.ts (3 passed)"
+      ]
+    },
+    {
+      "id": "M2",
+      "description": "sides swapped in the shared function (players at r=-5, opponents at r=+5)",
+      "file": "src/utils/gameplay/gameState/initialization.ts",
+      "replace": {
+        "from": "r: isPlayer ? PLAYER_DEPLOY_ROW : OPPONENT_DEPLOY_ROW,",
+        "to": "r: isPlayer ? OPPONENT_DEPLOY_ROW : PLAYER_DEPLOY_ROW,"
+      },
+      "preMutantSha256": "c099189dcb404fd61e6cfc85607b0967e888b147892d8c36559084b0f9f016ec",
+      "restoredSha256": "c099189dcb404fd61e6cfc85607b0967e888b147892d8c36559084b0f9f016ec",
+      "restored": true,
+      "caught": true,
+      "caughtBy": [
+        "useHexMapStateFromEvents.core.test.ts > deriveHexMapStateFromEvents core scenarios spec scenario: GameCreated seeds tokens and mapRadius places fresh tokens at the engine deploy hex and facing",
+        "useHexMapStateFromEvents.core.test.ts > deriveHexMapStateFromEvents core scenarios spec scenario: MovementDeclared updates position and facing for the actor does not affect other units' positions",
+        "useHexMapStateFromEvents.deployPlacement.test.tsx > GameCreated seeds tokens at the engine deploy hex and facing seeds a mirrored 2v2 at players r=+5 North, opponents r=-5 South, q = per-side index - 2",
+        "useHexMapStateFromEvents.deployPlacement.test.tsx > GameCreated seeds tokens at the engine deploy hex and facing the board renders each unit at its deploy hex before any MovementDeclared",
+        "initialization.deployPlacement.test.ts > deployPlacementsFor places three Player units at q=-2,-1,0 on r=5 facing North",
+        "initialization.deployPlacement.test.ts > deployPlacementsFor counts q per side when the sides interleave"
+      ],
+      "notCaughtBy": []
+    },
+    {
+      "id": "M3",
+      "description": "q not offset by the per-side index (every unit of a side stacked at q=-2)",
+      "file": "src/utils/gameplay/gameState/initialization.ts",
+      "replace": {
+        "from": "        q: col - 2,",
+        "to": "        q: -2,"
+      },
+      "preMutantSha256": "c099189dcb404fd61e6cfc85607b0967e888b147892d8c36559084b0f9f016ec",
+      "restoredSha256": "c099189dcb404fd61e6cfc85607b0967e888b147892d8c36559084b0f9f016ec",
+      "restored": true,
+      "caught": true,
+      "caughtBy": [
+        "useHexMapStateFromEvents.deployPlacement.test.tsx > GameCreated seeds tokens at the engine deploy hex and facing seeds a mirrored 2v2 at players r=+5 North, opponents r=-5 South, q = per-side index - 2",
+        "initialization.deployPlacement.test.ts > deployPlacementsFor places three Player units at q=-2,-1,0 on r=5 facing North",
+        "initialization.deployPlacement.test.ts > deployPlacementsFor counts q per side when the sides interleave"
+      ],
+      "notCaughtBy": [
+        "useHexMapStateFromEvents.core.test.ts (13 passed)"
+      ]
+    }
+  ],
+  "nonClaims": [
+    "No Playwright, build or browser run: E2E-43 (e2e/gm-two-player-rewind.pack.spec.ts:197-235) and the privacy pack rows were not run; whether E2E-43 now passes unexpectedly is U25's red to measure.",
+    "The agreement row cannot catch a mutant inside the shared function (M2, M3): engine and projection move together; M2 and M3 are caught by the explicit-hex rows instead.",
+    "No live networked match was played; the networked surface is covered only through its jest suites (src/components/multiplayer, 141/141) and the projection rows.",
+    "The legacy no-GameCreated path still seeds synthesized tokens at {0,0}; out of the unit sentence.",
+    "The red receipt hash of useHexMapStateFromEvents.deployPlacement.test.tsx predates an oxfmt pass (line wrapping only; the assertions are unchanged)."
+  ],
+  "findingsReportedNotFixed": [
+    "src/lib/multiplayer/server/matchUnitBootstrap.ts:35-50 and src/lib/multiplayer/matchRosterPresets.ts:124-139 each define a startHexFor (q = +-2, r from the seat index) whose result reaches only the adapted unit position (matchUnitBootstrap.ts:131, :145) and never the engine state or GameCreated; the two copies disagree with the engine deploy rule. Outside U37 paths.",
+    "The hex-map projection has no PhysicalAttackResolved handler (src/hooks/replay/useHexMapStateFromEvents.ts:71-88), while the engine reducer moves displaced units on that event (src/utils/gameplay/gameState/physicalAttackResolution.ts:38 applyPhysicalDisplacements, position at :166); a pushed or charged unit keeps its old hex on the networked board until its next MovementDeclared. Read, not run; outside the unit sentence."
+  ],
+  "status": "ready"
+}

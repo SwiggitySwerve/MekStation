@@ -1,0 +1,58 @@
+{
+  "unit": "U37",
+  "stage": "red",
+  "at": "2026-09-26T02:22:14.977Z",
+  "baseline": "0ac5767ebca7abbb18d26b5cfb0083729b21b929",
+  "productSourceUnchanged": true,
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "command": "npx jest <file> --ci --colors=false (Node 22, one suite at a time)",
+  "testFiles": [
+    {
+      "path": "src/hooks/replay/__tests__/useHexMapStateFromEvents.core.test.ts",
+      "sha256": "5d632ae758cbb8adf6255e39fed3f2900db4935eb2a7f09c877f5b5e6dacec9e",
+      "change": "lines 49-56: the origin pin (position {0,0}, Facing.North) flipped to expect the deploy hex: player-1 {q:-2,r:5} North, opponent-2 {q:-2,r:-5} South"
+    },
+    {
+      "path": "src/hooks/replay/__tests__/useHexMapStateFromEvents.deployPlacement.test.tsx",
+      "sha256": "e4472cc163cd68d40be5dd7b810b77339a38432d4461b3c74e524b615b79c75b",
+      "change": "new file: mirrored 2v2 placement row, engine-vs-projection agreement row, board row (renders HexMapDisplay from the projection tokens and reads data-token-map-position / data-token-facing)"
+    }
+  ],
+  "rows": [
+    {
+      "row": "core.test.ts > GameCreated seeds tokens and mapRadius > places fresh tokens at the engine deploy hex and facing",
+      "result": "FAIL",
+      "reason": "projection seeds {q:0,r:0}: Expected {q:-2,r:5}, Received {q:0,r:0} (core.test.ts:52)"
+    },
+    {
+      "row": "deployPlacement.test.tsx > seeds a mirrored 2v2 at players r=+5 North, opponents r=-5 South, q = per-side index - 2",
+      "result": "FAIL",
+      "reason": "every token received {q:0,r:0} facing 0 (North), opponents expected facing 3 (South)"
+    },
+    {
+      "row": "deployPlacement.test.tsx > agrees with the engine state for every unit of a mirrored 2v2",
+      "result": "FAIL",
+      "reason": "written on the baseline (compares deriveState from src/utils/gameplay/gameState with the projection); player-1 engine {q:-2,r:5} vs projection {q:0,r:0}"
+    },
+    {
+      "row": "deployPlacement.test.tsx > the board renders each unit at its deploy hex before any MovementDeclared",
+      "result": "FAIL",
+      "reason": "HexMapDisplay renders unit-token-player-1 with data-token-map-position=\"0,0\", expected \"-2,5\""
+    }
+  ],
+  "cannotBeWrittenYet": [
+    "A direct unit row for the exported pure placement function in src/utils/gameplay/gameState/initialization.ts: the function does not exist on the baseline (only the PLAYER_DEPLOY_ROW / OPPONENT_DEPLOY_ROW constants at initialization.ts:18-19; the rule is inline in lifecycle.ts:29-37). It is added at stage 3 with the function."
+  ],
+  "totals": {
+    "coreSuite": "Tests:       1 failed, 12 passed, 13 total",
+    "deployPlacementSuite": "Tests:       3 failed, 3 total"
+  },
+  "exitCodes": {
+    "coreSuite": 1,
+    "deployPlacementSuite": 1
+  },
+  "otherBaselineOriginPins": [
+    "src/hooks/replay/__tests__/useHexMapStateFromEvents.core.test.ts:130 (does not affect other units positions: expects the unmoved opponent at {q:0,r:0}); passes on the baseline, flips with the fix",
+    "src/hooks/replay/__tests__/useReplayMovementAnimations.integration.test.tsx:331 (rewind to sequence 0 expects player-1 at {q:0,r:0}); passes on the baseline, flips with the fix"
+  ]
+}
