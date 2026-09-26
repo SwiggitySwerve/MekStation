@@ -1,0 +1,131 @@
+{
+  "unit": "U95",
+  "stage": "admission",
+  "status": "GO",
+  "at": "2026-09-26T07:05:00.000Z",
+  "atNote": "decision time of this lane (the receipt file itself is written after stage 3; the baseline live measurement it cites ran 2026-09-26T07:14Z and the red rows 07:02Z-07:21Z)",
+  "baseline": "23e93dcef3bd4ea34e797c3c35728b5ae6f51cb7",
+  "originMainAtAdmission": {
+    "sha": "c87969a607c7ef5d22cff78dc270a960375112a4",
+    "baselineIsAncestor": true,
+    "commitsAhead": [
+      "ea6d5ae37 docs(roadmap): route implementation and Lane A lanes to the lean-worker agent type (#1983)"
+    ],
+    "productPathsChanged": "none (git diff --stat 23e93dce origin/main -- src/lib/multiplayer/server src/pages/api/multiplayer server.js printed nothing)"
+  },
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u95",
+  "branch": "roadmap-u95-campaign-host-registry-slot-20260926",
+  "head": "23e93dcef3bd4ea34e797c3c35728b5ae6f51cb7",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "shellPreamble": [
+    "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "export npm_config_dry_run=true"
+  ],
+  "installGuard": {
+    "command": "npm run --silent qc:guard-node-modules-link",
+    "exit": 1,
+    "output": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"E:\\\\Projects\\\\MekStation\\\\.sisyphus\\\\roadmap-completion-20260912\\\\worktrees\\\\u95\\\\node_modules\",\"actualPath\":\"E:\\\\Projects\\\\MekStation\\\\node_modules\"}",
+    "note": "refuses in a junctioned worktree by design; no npm install, ci, prune or lifecycle was run"
+  },
+  "next": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "exit": 0,
+    "printed": "U89",
+    "note": "prints U89, not U95; U95 is what the parent chose (planned under the owner answer recorded in units.json source20260925); U92 and U96 wait on this unit (their admitAfter/blocked fields)"
+  },
+  "validator": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+    "exit": 0,
+    "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows"
+  },
+  "ownershipPaths": [
+    "src/lib/multiplayer/server"
+  ],
+  "reviewClasses": [
+    "authority"
+  ],
+  "behavior": "units.json U95 behavior sentence (not widened; see designAnswers.q2.readerDecision for the one in-path edit it needs)",
+  "seams": [
+    "src/lib/multiplayer/server/CampaignHostRegistry.ts:405-417 module-level singleton (let _singleton; getCampaignHostRegistry; _resetCampaignHostRegistry)",
+    "src/lib/multiplayer/server/CampaignHostRegistry.ts:261-343 register: builds CampaignMatchHost (:288-293) on selectCampaignEventStore (:287), CampaignSyncSession with createDurableCampaignProgressionReaders (:294-297), opens the invite (:301-306), CampaignGmArbiter (:316-320), registerActiveCoopHost (:321); pauses only when options.rebuilt === true (:333-340); an open existing entry is returned as is (:275-281)",
+    "src/lib/multiplayer/server/CampaignHostRegistry.ts:350-388 getOrCreate: an existing entry is returned (:353-354); otherwise rebuilds from match meta with { rebuilt: true } (:375-387)",
+    "src/lib/multiplayer/server/MatchHostRegistry.ts:220-262 the Symbol.for globalThis slot precedent (U22a); :69 the match store is resolved when the registry is constructed",
+    "src/lib/multiplayer/server/bindCampaignSyncConnection.ts:220 registry defaults to getCampaignHostRegistry(); :226-228 getOrCreate; :229-238 UNKNOWN_MATCH when none",
+    "src/lib/multiplayer/server/bindCampaignSyncConnection.ts:652-668 refusedWhilePaused (MATCH_PAUSED campaign-paused-gm-absent), called for CampaignProposal :554, CampaignDecision :569, CampaignHostIntent :586",
+    "src/lib/multiplayer/server/bindCampaignSyncConnection.ts:947-948 role host iff verified principal === entry.hostPlayerId; :957-1017 GM branch: :986 noteGmConnected, :990 noteGmDisconnected on close; :1022 durable member rejoin; :1044 room-code guest join",
+    "src/lib/multiplayer/server/CampaignSyncSession.ts:273-275 isPaused; :286-289 noteGmConnected (gmConnections += 1, paused = false); :316-318 pauseUntilGmReturns; :320-326 noteGmDisconnected (pauses when the last GM connection closes); design comment :302-315 (a freshly CREATED session does not pause)",
+    "src/pages/api/multiplayer/matches/index.ts:311-331 the create route: createMatch, commitCoopCampaignAuthority (:320-324), getCampaignHostRegistry().register (:325-331) without options (not rebuilt)",
+    "server.js:446-464 the socket runtime loaded through tsx (a separate module graph); :520-537 boot runs bootstrapMultiplayerServer from that graph before listening",
+    "src/lib/multiplayer/server/campaignProgressionReaders.durable.ts:90-98 matchStoreDbOrNull uses `store instanceof DurableMatchStore` (:92) on the process match store; :105-115 readDurableSagaForCampaign depends on it",
+    "src/lib/multiplayer/server/getDefaultMatchStore.ts:31-33 the match store Symbol.for slot",
+    "src/pages-modules/api/campaignLaunchAuthorityRoute.ts:49, :188 an API-graph consumer of createDurableCampaignProgressionReaders",
+    "src/lib/campaign/coop/coopHostRegistry.ts:28-49 module-level activeHosts Map (registerActiveCoopHost / getActiveCoopHost)"
+  ],
+  "designAnswers": {
+    "q1_whatTheCreateRouteRegistersAndWhatTheSocketSideDoes": {
+      "createRoute": "src/pages/api/multiplayer/matches/index.ts:325-331 calls getCampaignHostRegistry().register(matchId, { campaignId, hostPlayerId, roomCode, state, arbitrationMode }) with no options, so the entry is NOT rebuilt and NOT paused. register (CampaignHostRegistry.ts:261-343) builds, from the module copies of the graph whose CampaignHostRegistry class constructed the registry instance (the class fields are arrow functions closing over that module): CampaignMatchHost on selectCampaignEventStore() (the journal store on the initialized SQLite, :287-293), CampaignSyncSession with createDurableCampaignProgressionReaders() (:294-297), the invite (:305), CampaignGmArbiter (:316-320), registerActiveCoopHost(host) into that graph's coopHostRegistry (:321). MEASURED (live, baseline S0): the API graph holds this entry, paused false, gmConnections 0, retained [], builtBy api-graph.",
+      "socketSideNoEntry": "bindCampaignSyncConnection.ts:226-228 calls registry.getOrCreate(matchId). With no entry, getOrCreate (CampaignHostRegistry.ts:355-387) reads the match meta and register(..., { rebuilt: true }), whose :338-340 calls syncSession.pauseUntilGmReturns(). MEASURED (baseline S1/S2): the socket graph built its own entry (builtBy socket-graph) paused true, gmConnections 0; the guest who joined before the GM had its CampaignProposal refused with Error MATCH_PAUSED campaign-paused-gm-absent.",
+      "socketSideExistingEntry": "getOrCreate returns an existing entry as is (:353-354): no pause, no rebuild."
+    },
+    "q2_onceTheSlotIsShared": {
+      "whichEntry": "MEASURED (after S0-S8): the socket side finds the create route's entry: one registry (sameRegistryInstance true, slot present, slot === socket-graph getCampaignHostRegistry()), one entry object (sameEntryObject true), builtBy api-graph, participants retained on it (the guest at S1, the GM live at S3), paused false until the GM's first connection and after.",
+      "whichSemanticsWin": "The created (not rebuilt) semantics win for a live session, and they are the code's own stated design: CampaignSyncSession.ts:312-315 (\"A freshly CREATED session does not call this. The GM is the one creating it and their socket follows immediately, and starting that case paused would refuse a guest who arrives in between\") and CampaignHostRegistry.test.ts:200-210 \"creates a fresh campaign UNPAUSED\". The baseline's start-paused was the split's artefact: the socket graph never saw the created entry, so every live session went through the rebuild path meant for a restart or an eviction (CampaignHostRegistry.ts:384-386). Rebuilt semantics still apply when getOrCreate finds no entry (a process restart empties the slot; dispose removes an entry).",
+      "usableAsIs": "Same shape (one class, ICampaignHostRegistryEntry) and the same host, session, arbiter and journal the players then talk to. One exception, MEASURED: the entry's progression readers resolve the process match store by class identity (campaignProgressionReaders.durable.ts:92, `store instanceof DurableMatchStore`). The match store sits in a globalThis slot (getDefaultMatchStore.ts:31-33) constructed by the socket graph at boot (server.js:537 -> MatchHostRegistry.ts:69); live, instanceofSocketGraphDurableMatchStore true and instanceofApiGraphDurableMatchStore false at every step. An API-built entry therefore reads no correction saga, and the AdvanceDay gate's correction-pending clause goes dark (MEASURED with mutant M5: saga null, gate ok:true with a source-recorded saga seeded; with the fix: correction-pending).",
+      "readerDecision": "Fixed in this unit (src/lib/multiplayer/server, in the ownership path): matchStoreDbOrNull reads the store's getDatabase method instead of its class (+13/-3 lines), with a red-first jest row. Without it the unit would ship a regression of the socket-side AdvanceDay gate (today the socket builds its own entry, whose readers match the store's class). The same fix also un-darkens the API-graph launch route's saga read (campaignLaunchAuthorityRoute.ts:188), which reads the same way on the baseline (a pre-existing defect, measured only as the instanceof false, not driven through that route). The parent may split it out; without it U95 should not ship.",
+      "gmReconnectionAndGuestJoin": "GM branch bindCampaignSyncConnection.ts:957-1017 (noteGmConnected :986, noteGmDisconnected :990) and guest branches (:1022 durable rejoin, :1044 room-code join) are unchanged and behave the same once the GM has connected (MEASURED S3-S8 identical before and after). Only a guest who acts before the GM's FIRST connection sees a difference: baseline MATCH_PAUSED campaign-paused-gm-absent; after, the proposal is processed (CampaignDecision).",
+      "createRouteRegistrationMustChange": false,
+      "createRouteRegistrationWhy": "It already registers the created (unpaused) entry into getCampaignHostRegistry(); with the slot that is the registry the socket side reads. No path amendment."
+    },
+    "q3_otherModuleLevelCampaignStateSplitTheSameWay": {
+      "method": "grep of src/lib/multiplayer/server for `^let ` and module-level `new Map/Set/WeakMap/WeakSet`, plus the same over src/lib/campaign, src/lib/events, src/services/campaignPersistence, src/services/persistence; each hit read for who writes and who reads it from which graph. Findings only, no edits.",
+      "findings": [
+        "src/lib/campaign/coop/coopHostRegistry.ts:28 activeHosts: registerActiveCoopHost runs in the graph that built the entry (after U95 the API graph for a created entry); getActiveCoopHost has no non-test caller (grep of src excluding __tests__: only its definition), so the split changes no behaviour today.",
+        "src/lib/multiplayer/server/campaignProgressionReaders.durable.ts:92 class-identity read of the globalThis match store: not module state but split the same way; fixed in this unit (q2.readerDecision).",
+        "src/lib/multiplayer/server/bindCampaignSyncConnection.ts:188-193 socketsByMatch, timeoutOutcomeArmed, campaignSocketLifecycles: socket-graph only (the WeakMaps are keyed by the entry object, which is now the shared one); not split.",
+        "src/lib/multiplayer/server/handleRoomCodeGuestJoin.ts:64 cachedRoomCodeGuestIssuer: socket-graph only; not split.",
+        "src/lib/multiplayer/server/authorizeCampaignParticipation.ts:29 baselines WeakMap: keyed by socket object; socket-graph only.",
+        "src/lib/multiplayer/server/getCampaignEventStore.ts:82 announcedEphemeral: a log-once flag per graph; no behaviour.",
+        "src/lib/multiplayer/server/journalAuthorityAdmission.ts:85 admissionRefusals and matchJournalAuthority.ts / journalAuthorityShadow.ts module lets: combat (match) side, not campaign; not examined further here.",
+        "src/services/persistence/SQLiteService.ts: one SQLiteService per graph (server.js:455-463 initializes the socket graph's copy); both open the same DATABASE_PATH; the API-built entry's journal writes go through the API graph's connection (WAL). MEASURED: the entry committed and served the session normally (S1-S8 after)."
+      ]
+    },
+    "q4_liveMeasurement": {
+      "what": "A Node-inspector read of both module graphs of a standalone server running this worktree's build (no repository edit, no probe route), during a scripted co-op session; see method. Measured on the baseline build (split) and on the after build (shared); both outputs verbatim in u95-red-20260926.json and u95-local-20260926.json.",
+      "method": [
+        "Scratch driver <lane-temp>/u95-live-driver.cjs (outside the repository, not committed): starts `node --inspect=127.0.0.1:<inspectPort> server.js` from the worktree with NODE_ENV=production, HOSTNAME=127.0.0.1 (process-scoped), PORT=<port>, NEXT_PUBLIC_E2E_MODE=true, PLAYWRIGHT_E2E_RUN_ID=u95-live-<label>, MULTIPLAYER_STORE=durable and MULTIPLAYER_DB_PATH/DATABASE_PATH in a fresh temp dir; waits for /__playwright_e2e_ready__?runId=<id> 204.",
+        "Drives one co-op session over the real routes: PUT /api/campaigns/<id> (envelope shape of e2e/helpers/campaignJournalDrive.ts campaignEnvelope), POST /api/multiplayer/matches with coopCampaign and the GM bearer token (identities minted with issuePlayerToken, as campaignIdentity does), then campaign sockets (channel=campaign, CampaignJoin, as e2e/helpers/campaignJournalSocket.ts does): guest joins by room code before the GM; guest CampaignProposal; GM joins; guest proposal; GM socket closes; guest proposal; GM reconnects; guest proposal.",
+        "At every step one read-only Runtime.evaluate over the inspector reads: the socket graph (Module._cache entry for src/lib/multiplayer/server/CampaignHostRegistry.ts, getCampaignHostRegistry()) and Next API graph (.next/server/webpack-api-runtime.js, the webpack module whose factory contains \"Campaign snapshot rejected: \", its only export = getCampaignHostRegistry in this build; that module is async, so its exports sit under Symbol(webpack exports)); per graph the entry for the match: paused, gmConnections, retained participants (acknowledged/delivered), live participants, and which graph built its CampaignMatchHost (instanceof each graph's class); === of the two registries and entries; whether the globalThis slot exists; and whether the process match store (globalThis Symbol.for('mekstation.multiplayer.matchStore')) is an instance of each graph's DurableMatchStore.",
+        "S9 (after the proposal steps, driver revision used for after/M4/M5): seeds one campaign_combat_outcome_inbox row on the run's own journal file and one source-recorded coordinated correction saga on the run's own match-store file, then asks each registry's entry for readSagaForCampaign and evaluateScenarioLaunch (the AdvanceDay gate).",
+        "The server is killed with taskkill /T /F at the end; liveness re-checked with Get-Process."
+      ],
+      "probeRouteUsed": false
+    },
+    "q5_rebuiltPausedBehaviourAGmSees": {
+      "baselineMeasured": "S1-S2: the socket side's own entry is rebuilt and paused (paused true, gmConnections 0) until the GM's first connection; a guest proposal gets Error frame { code: MATCH_PAUSED, reason: campaign-paused-gm-absent } (bindCampaignSyncConnection.ts:652-668). S3: the GM joins, receives CampaignSnapshot (CampaignSnapshotPublished), paused false. S5-S6: GM socket closes -> paused true; guest proposal -> MATCH_PAUSED campaign-paused-gm-absent. S7: GM returns -> CampaignSnapshot then the pending CampaignDecision frame, paused false. S8: guest proposal processed (CampaignDecision).",
+      "afterMeasured": "S1-S2: the shared created entry is NOT paused before the GM's first connection; the guest proposal is processed (CampaignDecision status mechanically-rejected: the probe proposal is deliberately malformed, which is how the arbiter answers when not paused). S3-S8 identical to the baseline: GM loss pauses (MATCH_PAUSED campaign-paused-gm-absent), GM return resumes, the GM receives CampaignSnapshot on return.",
+      "whatAGmSeesOnReturn": "Unchanged: on return the GM receives CampaignSnapshot (CampaignSnapshotPublished) and pending proposals/decisions; the pause lifts on their connection. The only change a tester can see is before the GM first connects to a session created in this process: a guest's mutating command is processed instead of refused MATCH_PAUSED."
+    }
+  },
+  "estimatePerFile": {
+    "src/lib/multiplayer/server/CampaignHostRegistry.ts": "about 30 product lines (slot key, slot type, getter and reset with comments)",
+    "src/lib/multiplayer/server/campaignProgressionReaders.durable.ts": "about 15 product lines (capability read instead of instanceof, comment)",
+    "src/lib/multiplayer/server/__tests__/CampaignHostRegistry.globalSlot.test.ts": "about 75 test lines (new)",
+    "src/lib/multiplayer/server/__tests__/campaignProgressionReaders.durable.crossGraph.test.ts": "about 140 test lines (new)"
+  },
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "estimatedFiles": 4,
+    "estimatedProductLines": 45
+  },
+  "risksForTheParent": [
+    "AUTHORITY (what a tester could see change): a guest who acts in a session created in this process BEFORE the GM's first socket connection is no longer refused MATCH_PAUSED campaign-paused-gm-absent; the command is processed as the created-session design intends (CampaignSyncSession.ts:312-315). GM loss and GM return pause/resume exactly as before (measured). After a process restart the rebuilt pause is unchanged (getOrCreate still rebuilds with { rebuilt: true }).",
+    "AUTHORITY: after U95 the live session's host, sync session and arbiter are the objects the create route built in Next's API graph (measured builtBy api-graph), not a second copy built by the socket graph; the API graph's duplicate host on the same journal stream is gone. Every API-graph reader (U86's probe, U96's PUT route) now sees the live session.",
+    "The in-path reader fix (campaignProgressionReaders.durable.ts) is required for the shared entry's AdvanceDay correction-pending clause (mutant M5, live). It also changes the API-graph launch route's saga read from always-null to real (pre-existing defect; that route was not driven live here).",
+    "Which graph builds an entry depends on which graph constructed the registry instance first (the create route in practice; a socket connection first after a restart). Behaviour is the same either way once the class-identity read is fixed; no other class-identity read on the entry path was found (grep of instanceof on globalThis-held classes: only :92)."
+  ],
+  "sourceHashesAtBaseline": {
+    "src/lib/multiplayer/server/CampaignHostRegistry.ts": "9aa560eadb81df858f0fc3a33b8bf9877c8c0d6cf947b62a5b2826ec5f0aff8a",
+    "src/lib/multiplayer/server/campaignProgressionReaders.durable.ts": "e40aff11fd55537eb04de95a84501f3c23832d602e5c2e66aea36709697d6751"
+  }
+}
