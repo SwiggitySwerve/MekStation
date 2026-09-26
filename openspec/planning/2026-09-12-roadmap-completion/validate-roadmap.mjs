@@ -1,3 +1,4 @@
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
@@ -298,6 +299,7 @@ try {
   // ------------------------------------------------------------------ unit ledger (roadmap.unitLedger)
   let nextLine = null;
   let nextExitCode = 0;
+  let supplementTasks = 0;
   if (roadmap.unitLedger !== undefined) {
     const ledgerFile = path.resolve(roadmapDir, String(roadmap.unitLedger));
     const ledger = fs.existsSync(ledgerFile) ? readJson(ledgerFile) : null;
@@ -315,7 +317,30 @@ try {
       checkUnique(deferrals.map((deferral) => ({ value: deferral.id })), 'deferral id');
       const unitById = new Map(units.map((unit) => [unit.id, unit]));
       const packetById = new Map(packets.map((packet) => [packet.id, packet]));
-      const taskByKey = actualByKey;
+      // U42: taskByKey is the roadmap.json tasks (pinned to the admission snapshot above) plus every
+      // occurrence in the frozen supplements that units.json lists in supplementSnapshots ({ path, sha256 },
+      // path relative to the roadmap directory). A supplement whose bytes do not hash to its recorded
+      // sha256 fails; an occurrence whose key the snapshot or an earlier supplement already carries is
+      // refused and not loaded. Every package a supplement names is activated for the holders rule below.
+      const taskByKey = new Map(actualByKey);
+      const supplementPackages = new Set();
+      for (const entry of Array.isArray(ledger.supplementSnapshots) ? ledger.supplementSnapshots : []) {
+        const bytes = fs.readFileSync(path.resolve(roadmapDir, String(entry.path)));
+        const digest = crypto.createHash('sha256').update(bytes).digest('hex');
+        if (digest !== entry.sha256) fail(`supplement snapshot ${entry.path} sha256 ${digest} differs from the recorded ${entry.sha256}`);
+        for (const group of JSON.parse(bytes.toString('utf8')).groups || []) {
+          supplementPackages.add(group.name);
+          for (const task of group.tasks || []) {
+            const key = `${group.name}#${task.id}@${task.line}`;
+            if (taskByKey.has(key)) { fail(`supplement snapshot ${entry.path} repeats task occurrence ${key}`); continue; }
+            taskByKey.set(key, {
+              key, package: group.name, sourcePath: group.path, sourceSha256: group.sha256, sourceId: task.id, sourceIdExplicit: task.sourceIdExplicit,
+              sourceLine: task.line, text: task.text, checkedAtAdmission: task.checked, sourceTaskKey: `${group.name}#${task.id}`,
+            });
+          }
+        }
+      }
+      supplementTasks = taskByKey.size - actualByKey.size;
 
       // ---- holders: every task key referenced anywhere must exist, and no key may sit in two holders
       const holders = new Map();
@@ -515,14 +540,14 @@ try {
         if (!Array.isArray(deferral.taskKeys) || !deferral.taskKeys.length) fail(`${deferral.id} defers no task keys`);
       }
 
-      // ---- holders rule, per activated package
-      const activatedPackages = new Set();
+      // ---- holders rule, per activated package: one a unit holds a key of, or one a supplement names
+      const activatedPackages = new Set(supplementPackages);
       for (const unit of units) for (const key of unit.taskKeys || []) {
         const task = taskByKey.get(key);
         if (task) activatedPackages.add(task.package);
       }
       for (const packageName of activatedPackages) {
-        for (const task of tasks) {
+        for (const task of taskByKey.values()) {
           if (task.package !== packageName || task.checkedAtAdmission !== false) continue;
           if (tickedKeys.has(task.key)) continue;
           if (!holders.has(task.key)) fail(`activated package ${packageName} leaves ${task.key} open and unheld`);
@@ -636,7 +661,8 @@ try {
     console.log(nextLine ?? 'NONE-ADMISSIBLE: 0 owner-gated, 0 blocked');
     process.exitCode = nextLine ? nextExitCode : 3;
   } else {
-    console.log(`ROADMAP VALIDATION PASSED: ${derivedCounts.nodes ?? nodes.length} nodes, ${derivedCounts.packages} packages, ${derivedCounts.tasks} tasks, ${derivedCounts.triage} triage rows`);
+    // The task count is the admission snapshot's occurrences plus the supplements' (U42).
+    console.log(`ROADMAP VALIDATION PASSED: ${derivedCounts.nodes ?? nodes.length} nodes, ${derivedCounts.packages} packages, ${derivedCounts.tasks + supplementTasks} tasks, ${derivedCounts.triage} triage rows`);
   }
 } catch (error) {
   console.error(`ROADMAP VALIDATION ERROR: ${error instanceof Error ? error.message : String(error)}`);

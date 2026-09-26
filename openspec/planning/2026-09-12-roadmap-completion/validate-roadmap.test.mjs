@@ -6,6 +6,7 @@
 // child process against it. The real ledger is never written to.
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -338,4 +339,63 @@ test('(6) --git fails a merge whose counted lines exceed the cap unless capExcep
   assertPasses(run(capped({ capException: { countedLines: 62 } }), ['--git']));
   // The 194 added lines of the __tests__ file do not count: under a cap of 100 the same merge passes.
   assertPasses(run(capped({ caps: { maxFiles: 5, maxNonGeneratedLines: 100 } }), ['--git']));
+});
+
+// ---- U42: rows the program added to an admitted package after admission are held through a frozen
+// supplement snapshot that units.json lists in supplementSnapshots. Each case below fails on the
+// validator before U42 (which never reads the field) and passes after it.
+
+const SUPPLEMENT = 'admission-snapshot-supplement-20260922.json';
+const OPEN_SUPPLEMENT_KEYS = ['1.6@30', '6.2@106', '6.3@108', '6.4@110'].map((row) => `design-campaign-authority-and-sync#${row}`);
+const escapeRe = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+// A decision-free packet that holds the given task keys.
+const holdingPacket = (id, taskKeys) => ({
+  id,
+  blocks: [],
+  nodes: ['R2.authority-client'],
+  taskKeys,
+  question: 'Fixture packet: hold these rows?',
+  options: [{ label: 'hold', consequence: 'held', effort: 'none' }, { label: 'drop', consequence: 'unheld', effort: 'none' }],
+  agentRecommendation: 'hold',
+  revertCost: 'none',
+  decision: null,
+  ruling: null,
+});
+// A fixture whose units.json lists one supplement: the real supplement file, or `supplement` written in
+// its place. The recorded sha256 is that of the written bytes unless `sha256` overrides it.
+const supplementFixture = (ledger = {}, supplement = null, sha256 = null) => {
+  const body = supplement ? JSON.stringify(supplement) : fs.readFileSync(path.join(here, 'evidence', SUPPLEMENT), 'utf8');
+  const digest = sha256 ?? crypto.createHash('sha256').update(body).digest('hex');
+  const dir = makeFixture({ supplementSnapshots: [{ path: `evidence/${SUPPLEMENT}`, sha256: digest }], ...ledger });
+  fs.writeFileSync(path.join(dir, 'evidence', SUPPLEMENT), body);
+  return dir;
+};
+const heldLedger = { packets: [holdingPacket('PK-f16', [OPEN_SUPPLEMENT_KEYS[0]]), holdingPacket('PK-f62', OPEN_SUPPLEMENT_KEYS.slice(1))] };
+
+test('a listed supplement with no holders fails, naming each open supplemented row and not the checked 6.1', () => {
+  const result = run(supplementFixture());
+  assertRejects(result, /ROADMAP VALIDATION FAILED/);
+  for (const key of OPEN_SUPPLEMENT_KEYS) {
+    assert.match(result.stderr, new RegExp(`activated package design-campaign-authority-and-sync leaves ${escapeRe(key)} open and unheld`));
+  }
+  assert.doesNotMatch(result.stderr, /#6\.1@104/);
+});
+
+test('the same supplement passes once packets hold its open rows, and its occurrences are counted', () => {
+  const result = run(supplementFixture(heldLedger));
+  assertPasses(result);
+  assert.match(result.stdout, / 381 tasks, /);
+});
+
+test('a supplement repeating a snapshot occurrence is refused', () => {
+  const real = JSON.parse(fs.readFileSync(path.join(here, 'evidence', SUPPLEMENT), 'utf8'));
+  const snapshot = JSON.parse(fs.readFileSync(path.join(here, 'evidence', 'admission-snapshot.json'), 'utf8'));
+  const admitted = snapshot.groups.find((group) => group.name === 'design-campaign-authority-and-sync').tasks[0];
+  real.groups[0].tasks.push(admitted);
+  const repeated = `design-campaign-authority-and-sync#${admitted.id}@${admitted.line}`;
+  assertRejects(run(supplementFixture(heldLedger, real)), new RegExp(`supplement snapshot evidence/${escapeRe(SUPPLEMENT)} repeats task occurrence ${escapeRe(repeated)}`));
+});
+
+test('a supplement whose bytes differ from the recorded sha256 is refused', () => {
+  assertRejects(run(supplementFixture(heldLedger, null, '0'.repeat(64))), new RegExp(`supplement snapshot evidence/${escapeRe(SUPPLEMENT)} sha256 [0-9a-f]{64} differs from the recorded 0{64}`));
 });

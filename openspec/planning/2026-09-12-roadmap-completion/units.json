@@ -1,7 +1,13 @@
 {
   "schemaVersion": 1,
   "programSnapshot": "evidence/admission-snapshot.json",
-  "holdersRule": "For every package that has at least one unit (an activated package), every OPEN occurrence of that package in the admission snapshot (checkedAtAdmission false and not since ticked by a unit tick receipt) must be held by exactly one unit, packet or deferral. A row therefore leaves the loop only by being delivered, parked in a packet, or deferred to a named sibling node: narrowing the program fails validation instead of hiding.",
+  "supplementSnapshots": [
+    {
+      "path": "evidence/admission-snapshot-supplement-20260922.json",
+      "sha256": "2047731066377c7ada89dfa9e71a023ea8bf7fcedebbb2c2bfb1f8569b7c2066"
+    }
+  ],
+  "holdersRule": "For every package that has at least one unit (an activated package), every OPEN occurrence of that package in the admission snapshot (checkedAtAdmission false and not since ticked by a unit tick receipt) must be held by exactly one unit, packet or deferral. A row therefore leaves the loop only by being delivered, parked in a packet, or deferred to a named sibling node: narrowing the program fails validation instead of hiding. A package that a frozen supplement snapshot listed in supplementSnapshots names is activated too, so every open occurrence a supplement adds after admission is held the same way (U42).",
   "units": [
     {
       "id": "U0",
@@ -8687,7 +8693,11 @@
       "nodes": [
         "R2.authority-live"
       ],
-      "taskKeys": [],
+      "taskKeys": [
+        "design-campaign-authority-and-sync#6.2@106",
+        "design-campaign-authority-and-sync#6.3@108",
+        "design-campaign-authority-and-sync#6.4@110"
+      ],
       "question": "design-campaign 6.2b (the single-player identity/seat entry in roadmap.json ownerDecisions): should contract acceptance go through /commands only for co-op-hosted campaigns, with 6.2's letter amended through a spec delta so 6.2b covers co-op-host acceptance routing only, or should a single-player principal and seat be defined now?",
       "options": [
         {
@@ -8712,7 +8722,42 @@
       "ruling": null,
       "raisedBy": "triage 2026-09-22 (owner question 5; I-accept-contract-6-2-single-player-identity, I-post-admission-rows-unheld)",
       "note": "holds no task keys until U42 adds the supplement occurrences design-campaign-authority-and-sync 6.2-6.4; U42 then places them here. Kept open on 2026-09-22: option (b) narrows an admitted letter, so it needs the owner's explicit word. The owner's \"approved, continue the loop\" (2026-09-22T20:13:19Z) replied to the parent's 19:59:54Z message, which listed U19b's ruling, this packet and PK-camp-review-gate, and whose only explicit prompt ('Say \"approved\" to merge it') was U19b's. At 20:13:30Z the parent told the owner it read that reply as also answering this packet; this record does not take the one-word reply as this packet's explicit yes, and the packet gets a decision only after the owner confirms it in plain words.",
-      "decisionNote20260922": "The decision is the owner's explicit yes to the packet's recommended option. It authorises the parent to plan the implementing change; it is not a head-bound ruling. Every PR that implements it (the openspec delta and, for the CAMP gate, the validator amendment) still gets the owner's OWNER-RULING on its exact head before merge."
+      "decisionNote20260922": "The decision is the owner's explicit yes to the packet's recommended option. It authorises the parent to plan the implementing change; it is not a head-bound ruling. Every PR that implements it (the openspec delta and, for the CAMP gate, the validator amendment) still gets the owner's OWNER-RULING on its exact head before merge.",
+      "keysAdded20260926": "U42 placed the supplement occurrences design-campaign-authority-and-sync 6.2-6.4 (tasks.md:106, 108, 110; evidence/admission-snapshot-supplement-20260922.json) here; 6.1 (tasks.md:104) is checked and needs no holder."
+    },
+    {
+      "id": "PK-1-6-navigation-flush-letter",
+      "blocks": [],
+      "nodes": [
+        "R2.authority-client"
+      ],
+      "taskKeys": [
+        "design-campaign-authority-and-sync#1.6@30"
+      ],
+      "question": "design-campaign-authority-and-sync 1.6 (tasks.md:30) states the loss it fixes as 'up to 2s of mutations are discarded on hard reload or close', while its NON-CLAIMS keep a NAVIGATION-shaped discard outside the fix and its ACCEPTANCE names only jsdom suites (delivered and main-verified by #1694, #1709, #1710 and #1711); its progress note (tasks.md:31) keeps the box open on the 'hard reload' half. Under the whole-row rule (OD-whole-row-tick-rule), does the letter name a navigation-flush scenario, or is the navigation discard the accepted OD-flush-mechanism non-claim, so that the row can tick?",
+      "options": [
+        {
+          "label": "(a) the letter names no navigation-flush scenario",
+          "consequence": "the navigation discard is the letter's own NON-CLAIM and OD-flush-mechanism's recorded non-claim; 1.6 ticks by receipt on the merged proofs (a unit that holds it needs its key in roadmap.json node taskKeys first)",
+          "effort": "a roadmap.json follow-up, then one tick unit"
+        },
+        {
+          "label": "(b) amend the letter through a spec delta",
+          "consequence": "1.6's problem statement is narrowed from 'hard reload or close' to close-shaped discards, matching OD-flush-mechanism answer20260922 (keep the keepalive fetch; the navigation gap is a non-claim); the row then ticks whole on the merged proofs",
+          "effort": "one spec delta in design-campaign-authority-and-sync, then the tick"
+        },
+        {
+          "label": "(c) the letter names navigation; keep 1.6 open",
+          "consequence": "the row stays open, held here, until a mechanism covers navigation discards, which OD-flush-mechanism answer20260922 declined (no sendBeacon POST surface, no fetchLater)",
+          "effort": "none now"
+        }
+      ],
+      "agentRecommendation": "(b): amend the letter so the row states what the shipped mechanism covers and records the navigation discard as its non-claim; the whole-row rule then reads an unambiguous letter. This needs the owner because it narrows an admitted letter.",
+      "revertCost": "low: a spec delta reverts by one commit; no product code moves on the decision",
+      "decision": null,
+      "ruling": null,
+      "raisedBy": "U42 (2026-09-26): the supplement gives 1.6 a holder; whether its letter names a navigation-flush scenario is UNVERIFIED, so a packet holds it",
+      "nonClaim": "OD-flush-mechanism (roadmap.json ownerDecisions, nonClaim20260922): the keepalive fetch on pagehide can be aborted before dispatch on a navigation (0/15 on an about:blank navigation-discard, 1/2 on a same-origin navigation; evidence/r2-client-discard-flush-diagnosis-20260915.json)."
     },
     {
       "id": "PK-u20-ruling",
