@@ -77,6 +77,10 @@
         "scripts/qc",
         "openspec/changes/harden-gm-two-player-campaign-sessions"
       ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "scripts/__tests__/gm-two-player-campaign-qc.test.ts"
+      ],
       "ciClass": "product",
       "reviewClasses": [
         "routine"
@@ -165,6 +169,10 @@
         "scripts/qc",
         "openspec/changes/harden-gm-two-player-campaign-sessions"
       ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "scripts/__tests__/gm-two-player-campaign-qc.test.ts"
+      ],
       "ciClass": "product",
       "reviewClasses": [
         "routine"
@@ -242,6 +250,10 @@
         "e2e",
         "scripts/qc",
         "openspec/changes/harden-gm-two-player-campaign-sessions"
+      ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "scripts/__tests__/gm-two-player-campaign-qc.test.ts"
       ],
       "ciClass": "product",
       "reviewClasses": [
@@ -337,6 +349,10 @@
         "scripts/qc",
         "openspec/changes/harden-gm-two-player-campaign-sessions"
       ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "scripts/__tests__/gm-two-player-campaign-qc.test.ts"
+      ],
       "ciClass": "product",
       "reviewClasses": [
         "routine"
@@ -408,6 +424,10 @@
         "e2e",
         "scripts/qc",
         "openspec/changes/harden-gm-two-player-campaign-sessions"
+      ],
+      "ownershipExceptions": [
+        "openspec/planning/2026-09-12-roadmap-completion/units.json",
+        "scripts/__tests__/gm-two-player-campaign-qc.test.ts"
       ],
       "ciClass": "product",
       "reviewClasses": [
@@ -654,6 +674,9 @@
         "e2e",
         "scripts/qc",
         "openspec/changes/harden-gm-two-player-campaign-sessions"
+      ],
+      "ownershipExceptions": [
+        "scripts/__tests__/gm-two-player-campaign-qc.test.ts"
       ],
       "ciClass": "product",
       "reviewClasses": [
@@ -5232,6 +5255,9 @@
         "scripts/qc",
         "openspec/changes/harden-gm-two-player-campaign-sessions"
       ],
+      "ownershipExceptions": [
+        "scripts/__tests__/gm-two-player-campaign-qc.test.ts"
+      ],
       "ciClass": "product",
       "reviewClasses": [
         "routine"
@@ -5300,6 +5326,9 @@
         "src/pages/api/matches",
         "src/pages-modules/api",
         "src/lib/multiplayer/server"
+      ],
+      "ownershipExceptions": [
+        "src/__tests__/api/matches/rewindPreviewRoute.test.ts"
       ],
       "ciClass": "product",
       "reviewClasses": [
@@ -5450,6 +5479,9 @@
       "ownershipPaths": [
         "src/pages/api/matches",
         "src/pages-modules/api"
+      ],
+      "ownershipExceptions": [
+        "src/__tests__/api/matches/rewindCommitRoute.reason.test.ts"
       ],
       "ciClass": "product",
       "reviewClasses": [
@@ -5665,6 +5697,9 @@
       "ownershipPaths": [
         "src/pages-modules/multiplayer"
       ],
+      "ownershipExceptions": [
+        "src/__tests__/pages/multiplayer/lobby-roomcode.test.tsx"
+      ],
       "ciClass": "product",
       "reviewClasses": [
         "routine"
@@ -5808,6 +5843,11 @@
       "ownershipPaths": [
         "src/lib"
       ],
+      "ownershipExceptions": [
+        "src/__tests__/pages/multiplayer/lobby-roomcode.test.tsx",
+        "src/pages-modules/multiplayer/__tests__/useGmCorrectionProducers.test.tsx",
+        "src/pages-modules/multiplayer/__tests__/useGmRewindProducers.test.tsx"
+      ],
       "ciClass": "product",
       "reviewClasses": [
         "routine"
@@ -5878,6 +5918,9 @@
       "ownershipPaths": [
         "src/pages-modules/multiplayer"
       ],
+      "ownershipExceptions": [
+        "src/__tests__/pages/multiplayer/lobby-roomcode.test.tsx"
+      ],
       "ciClass": "product",
       "reviewClasses": [
         "routine"
@@ -5947,6 +5990,9 @@
       "behavior": "Stale-head lever: the campaign command route accepts expectedRevision in its CommandBody (the pipeline already declares and refuses on mismatch) so a stale head answers 409 STALE_REVISION with the active head; red-first: a route test sending a stale expectedRevision and asserting 409 (red today because the field is not accepted).",
       "ownershipPaths": [
         "src/pages/api/campaigns"
+      ],
+      "ownershipExceptions": [
+        "src/__tests__/api/campaigns/campaignCommandsRoute.staleHead.test.ts"
       ],
       "ciClass": "product",
       "reviewClasses": [
@@ -6505,6 +6551,10 @@
       "caps": {
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
+      },
+      "capException": {
+        "countedLines": 707,
+        "recordedBy": "U41 (historical, measured at admission)"
       },
       "state": "complete",
       "baseline": "f018e34cc150d9ede58e39a32929c5c9dec7d9b6",
