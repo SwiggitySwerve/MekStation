@@ -3679,10 +3679,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "local-verified",
+      "state": "complete",
       "baseline": "248f7ab12dac16d03311532f91e6d4f8f537c660",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "88292095f17bb1bdd57f0e66eca784493dc1bf2d",
+      "mergeSha": "8f2267f978144fdc7717fbe05ef5124d89020fb0",
       "stageReceipts": {
         "admission": {
           "path": "evidence/u42-admission-20260926.json",
@@ -3701,10 +3701,31 @@
           "at": "2026-09-26T18:36:56.000Z",
           "summary": "validate-roadmap.mjs +31/-5 (supplementSnapshots loaded into taskByKey next to the snapshot; a supplement entry repeating a snapshot key is refused 'supplement snapshot <path> repeats task occurrence <key>'; a supplement whose sha256 differs from the recorded one is refused; a package a supplement names counts as activated for the holders rule), validate-roadmap.test.mjs +60 (tests 18 to 21), units.json +48/-3 (supplementSnapshots [{path, sha256 2047731066377c7a}], one sentence in holdersRule, the new packet PK-1-6-navigation-flush-letter holding 1.6@30 with decision null and three options recommending (b) a spec delta narrowing the letter, PK-6-2b-single-player-seat's taskKeys extended with 6.2@106, 6.3@108, 6.4@110), evidence/admission-snapshot-supplement-20260922.json new 53 lines (one group for design-campaign-authority-and-sync at tasks.md sha256 dd97d742, byte-identical since f2ee18766; entries 1.6@30, 6.1@104 checked, 6.2@106, 6.3@108, 6.4@110, each text the whole live row); admission-snapshot.json unchanged (sha256 dd2b997e); 79 counted lines of 500, 7 of 15 files; the 1.6 decision: not verifiable from the letter alone (tasks.md:30 names the hard-reload half, its NON-CLAIMS name a navigation that declines the keepalive dispatch, the progress note at :31 keeps the box open), so a packet holds it and the OD-flush-mechanism non-claim (roadmap.json:15704) is recorded on it; node --test 21 pass; validator plain, --git PASSED at 381 tasks, --next U89; jest scripts/__tests__/roadmap- 43; oxlint 84 warnings 0 errors; qc:openspec-ci errors=0; tsc 0; mutants: loading removed (tests 18-21 fail, the real ledger fails with four unknown-key errors), duplicate-key refusal removed (test 20), 6.3 removed from PK-6-2b on a copy (open and unheld named), activation removed (test 18), sha256 check disabled (test 21), each restored with sha256 df40a6de confirmed; NON-CLAIMS: no build, Playwright, --github or install; no tasks.md row ticked; roadmap.json and README untouched; the tick check not exercised on a supplement row; implementer claude-opus (Agent model: opus, lean-worker); status ready"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "review": {
+          "path": "evidence/u42-review-20260926.json",
+          "head": "88292095f17bb1bdd57f0e66eca784493dc1bf2d",
+          "reviewedHead": "88292095f17bb1bdd57f0e66eca784493dc1bf2d",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet, lean-worker)",
+          "implementerModel": "claude-opus (Agent model: opus)",
+          "outputSha256": "2a406358b92dd9a6baa4946302af928810cc24c72e68f242e2900317c50d8112",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u42-merge-20260926.json",
+          "pr": 2019,
+          "head": "88292095f17bb1bdd57f0e66eca784493dc1bf2d",
+          "mergeSha": "8f2267f978144fdc7717fbe05ef5124d89020fb0"
+        },
+        "mainProof": {
+          "path": "evidence/u42-mainproof-20260926.json",
+          "mergeCommit": "8f2267f978144fdc7717fbe05ef5124d89020fb0",
+          "verdict": "PASS",
+          "runtime": "U42 PROOF RUNTIME PASSED: 82 passed (node-test 21, 0 failed, exit 0; jest 61, 0 failed, exit 0)"
+        },
+        "tick": {
+          "path": "evidence/u42-tick-20260926.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "source20260922": "planned by the parent from the 2026-09-22 triage plan (newUnits; evidence/triage-plan-20260922.json (179 register issues verified against main a9244fcad)) under the owner instruction of 2026-09-22 (\"ultracode find everything that is marked and if there are issues go with recommended path to solution based on the goal\")",
