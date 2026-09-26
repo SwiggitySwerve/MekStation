@@ -1,0 +1,19 @@
+{
+  "unit": "U59",
+  "stage": "merge",
+  "at": "2026-09-26T19:44:45.059Z",
+  "pr": 2023,
+  "title": "docs(roadmap): the validator accepts a declared solo-maintainer exception on the CAMP review gates (U59)",
+  "head": "89697987d27a89325240fd4f26b3b427072b2f99",
+  "mergeSha": "998f026e9eecdb0289d2bca7cc4721d0d495f44b",
+  "mergedAt": "2026-09-26T19:38:11Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+    "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs"
+  ],
+  "blobEqualityDiffLines": 0
+}

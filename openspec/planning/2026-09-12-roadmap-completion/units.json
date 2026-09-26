@@ -3801,10 +3801,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "local-verified",
+      "state": "complete",
       "baseline": "1f6bac99dc6dc0378cb88c914db508da88f8f671",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "89697987d27a89325240fd4f26b3b427072b2f99",
+      "mergeSha": "998f026e9eecdb0289d2bca7cc4721d0d495f44b",
       "stageReceipts": {
         "admission": {
           "path": "evidence/u59-admission-20260926.json",
@@ -3823,10 +3823,31 @@
           "at": "2026-09-26T19:11:33.000Z",
           "summary": "validate-roadmap.mjs +20/-1 (a R2.camp-0..8 gate may carry soloException true with nonAuthor false only with a 40-hex head and a ruling {ruledHead, pr, commentId, author, bodySha256} bound to that head, the field names of the ledger's 30 packet rulings; APPROVED, exactHead, nonDismissed and WRITE/MAINTAIN/ADMIN stay required; four named refusals: no ruling, another head, malformed ruling (the failing fields listed), solo outside R2.camp-0..8), validate-roadmap.test.mjs +42/-1 (fixtures 22 to 27); units.json and roadmap.json untouched (sha256 equal to the baseline); no gate on the ledger is solo, so main's result is unchanged; 20 counted lines of 500, 5 files of 15; node --test 27 pass; validator plain, --git PASSED at 381 tasks, --next U59; jest scripts/__tests__/roadmap- 43; oxlint 84 warnings 0 errors (the planning directory outside its scope); qc:openspec-ci errors=0; tsc 0; mutants: the ruling requirement removed (test 23), the head equality removed (test 25), the CAMP-only restriction removed (test 27), the malformed-ruling check removed (test 26), each restored by copying the saved implementation back with sha256 6b3ec280 confirmed (not git checkout HEAD, which would have wiped the uncommitted work); NON-CLAIMS: no build, Playwright, --github or install; the check trusts the gate record and its ruling and does not read the packet's decision, verify the ruling on GitHub or compare the author with the owner's login; no gate made solo, no tasks.md row ticked; the admission and red receipts' at values corrected to measured file times with an atSource field; implementer claude-opus (Agent model: opus, lean-worker); status ready"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "review": {
+          "path": "evidence/u59-review-20260926.json",
+          "head": "89697987d27a89325240fd4f26b3b427072b2f99",
+          "reviewedHead": "89697987d27a89325240fd4f26b3b427072b2f99",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet, lean-worker)",
+          "implementerModel": "claude-opus (Agent model: opus)",
+          "outputSha256": "6facec9669130aee34e661988c17da8bc9e040b664cf15d3024fbd9cb14a9ddd",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u59-merge-20260926.json",
+          "pr": 2023,
+          "head": "89697987d27a89325240fd4f26b3b427072b2f99",
+          "mergeSha": "998f026e9eecdb0289d2bca7cc4721d0d495f44b"
+        },
+        "mainProof": {
+          "path": "evidence/u59-mainproof-20260926.json",
+          "mergeCommit": "998f026e9eecdb0289d2bca7cc4721d0d495f44b",
+          "verdict": "PASS",
+          "runtime": "U59 PROOF RUNTIME PASSED: 88 passed (node-test 27, 0 failed, exit 0; jest 61, 0 failed, exit 0)"
+        },
+        "tick": {
+          "path": "evidence/u59-tick-20260926.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "packet": "PK-camp-review-gate",
@@ -9788,8 +9809,22 @@
       ],
       "agentRecommendation": "rule the head once Lane A has approved it and the checks are green",
       "revertCost": "low: a squash merge revert",
-      "decision": null,
-      "ruling": null,
+      "decision": {
+        "at": "2026-09-26T19:38:04Z",
+        "option": "rule the head",
+        "text": "Approve (Recommended)",
+        "source": "owner instruction in the working session (chat), after the parent described the unit in plain English: a structured question: the validator accepts a declared solo-maintainer exception on the R2.camp-0..8 review gates only with a head-bound OWNER-RULING, every other gate keeping the pin (PK-camp-review-gate option b, owner-decided 2026-09-22; authority class); Lane A verdict and CI on the exact head; disclosed: the check trusts the gate record and its ruling and reads neither the packet's decision nor GitHub; a solo gate still requires APPROVED (U60 says what that means under the exception); no gate on the ledger is solo today"
+      },
+      "ruling": {
+        "ruledHead": "89697987d27a89325240fd4f26b3b427072b2f99",
+        "pr": 2023,
+        "commentId": 5849260140,
+        "author": "SwiggitySwerve",
+        "label": "owner-ruled",
+        "bodySha256": "7cd075efe4ed0a75759f42de380335660868aa5945071376e7679d315cdf7716",
+        "postedBy": "parent on the owner's instruction (the comment quotes the owner's words verbatim)",
+        "deviationDisclosed": "DELIVERY.md says the owner posts the ruling out of band; the owner approved this unit by description in chat (words quoted in the comment) after the parent explained it in plain language and reported Lane A's verdict and the check set on the head, and the parent composed and posted the comment from the owner GitHub account and applied the label; the parent supplied the head from the ledger, as in the earlier rulings of this loop"
+      },
       "note": "opened at fold on 2026-09-26, before the ruling, so the validator's sensitive-class check sees the packet while the unit is local-verified; decision and ruling are filled when the owner rules the exact head"
     }
   ],
