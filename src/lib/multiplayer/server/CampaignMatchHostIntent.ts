@@ -25,11 +25,11 @@
 
 import type {
   CampaignEventScope,
+  CampaignHostCommand,
   CampaignIntentRejectionReason,
   CampaignIntentResult,
   ICampaignAuthoritativeState,
   ICampaignEventOf,
-  ICampaignIntent,
   CampaignEventType,
   ICampaignEventPayloadMap,
 } from '@/types/campaign/CampaignSync';
@@ -114,7 +114,10 @@ function event<T extends CampaignEventType>(
  * `state` passed in (the host's CURRENT authoritative state), never
  * against any figure the guest may have included.
  *
- * @param intent      a structurally-valid intent (already zod-parsed).
+ * @param intent      a structurally-valid intent (already zod-parsed), or
+ *                    the host's ApplyGmIntervention, which commits one
+ *                    FundsChanged of its signed delta with its summary as
+ *                    the reason unless the balance would go below zero.
  * @param state       the host's current authoritative campaign state.
  * @param authorPlayerId the player whose intent this is (stamped on the
  *                    derived events).
@@ -124,7 +127,7 @@ function event<T extends CampaignEventType>(
  *                    accidentally authorize it.
  */
 export function validateCampaignIntent(
-  intent: ICampaignIntent,
+  intent: CampaignHostCommand,
   state: ICampaignAuthoritativeState,
   authorPlayerId: string,
   ts: string,
@@ -228,6 +231,27 @@ export function validateCampaignIntent(
           mk('ParticipantRemoved', {
             participantId,
             ...(reason === undefined ? {} : { reason }),
+          }),
+        ],
+      };
+    }
+
+    case 'ApplyGmIntervention': {
+      const { summary, deltaCBills } = intent.payload;
+      const newBalance = state.balance + deltaCBills;
+      // Ledger invariant: a GM debit never takes the balance below zero.
+      if (newBalance < 0) {
+        return reject('insufficient-funds');
+      }
+      // The public summary is the reason every viewer's feed prints; the
+      // intervention's private metadata never enters the intent.
+      return {
+        ok: true,
+        events: [
+          mk('FundsChanged', {
+            delta: deltaCBills,
+            reason: summary,
+            balance: newBalance,
           }),
         ],
       };

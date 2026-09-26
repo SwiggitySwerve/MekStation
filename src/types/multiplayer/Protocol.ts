@@ -506,6 +506,23 @@ export type ICampaignReconcileBattleIntent = z.infer<
 >;
 
 /**
+ * Host-only GM funds intervention (roadmap unit U92): an approval's id, its
+ * public summary (at least one non-space character) and a signed whole
+ * C-bill delta. It is only on the host-intent frame, never in
+ * `CampaignIntentSchema`, so no guest path parses it.
+ */
+export const CampaignApplyGmInterventionIntentSchema = z.object({
+  kind: z.literal('ApplyGmIntervention'),
+  campaignId: z.string().min(1),
+  intentId: z.string().min(1),
+  payload: z.object({
+    interventionId: z.string().min(1),
+    summary: z.string().regex(/\S/),
+    deltaCBills: z.number().int(),
+  }),
+});
+
+/**
  * Host-authorized campaign intent. Unlike a guest proposal, this frame is
  * committed immediately by the server-resident campaign host after the
  * socket binder verifies the authenticated player is the match host.
@@ -515,7 +532,11 @@ export const CampaignHostIntentSchema = z.object({
   matchId: matchIdSchema,
   ts: tsSchema,
   playerId: z.string().min(1),
-  intent: z.union([CampaignIntentSchema, CampaignReconcileBattleIntentSchema]),
+  intent: z.union([
+    CampaignIntentSchema,
+    CampaignReconcileBattleIntentSchema,
+    CampaignApplyGmInterventionIntentSchema,
+  ]),
 });
 export type ICampaignHostIntent = z.infer<typeof CampaignHostIntentSchema>;
 
