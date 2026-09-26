@@ -2742,7 +2742,9 @@
         "src/pages/gameplay/campaigns/[id]/gm-ledger.tsx",
         "src/pages/api/campaigns/[id].ts",
         "src/stores/campaign/useCampaignStore.dayActions.ts",
-        "src/stores/campaign/useCampaignStore.actions.ts"
+        "src/stores/campaign/useCampaignStore.actions.ts",
+        "src/__tests__/integration/coopMutationPersistence.test.ts",
+        "e2e/coop-campaign-two-browser-journey.spec.ts"
       ],
       "acceptance": [
         "npm.cmd run typecheck",
@@ -3075,6 +3077,20 @@
           "units": "U96",
           "source": "parent, under the owner's answer of 2026-09-26 on U96's first admission (evidence/u96-admission-attempt1-20260926.json)",
           "why": "the co-op day advance must send AdvanceDay before it saves the day effects; the node owns src/stores/campaign as a prefix and the validator wants the exact file"
+        },
+        {
+          "path": "src/__tests__/integration/coopMutationPersistence.test.ts",
+          "at": "2026-09-26T15:05:43.000Z",
+          "units": "U96",
+          "source": "parent, at U96's fold (test files for the unit's owned product files; approved in chat by the parent on the lane's report)",
+          "why": "harness-only edit (+13/-1, no assertion changed): its day-advance row stubbed onFrame so no commit frame could arrive once the day advance waits for the host's commit"
+        },
+        {
+          "path": "e2e/coop-campaign-two-browser-journey.spec.ts",
+          "at": "2026-09-26T15:05:43.000Z",
+          "units": "U96",
+          "source": "parent, at U96's fold (test files for the unit's owned product files; approved in chat by the parent on the lane's report)",
+          "why": "the journey's post-destroyed expectation at :475 was stale against OD-u35g-coop-outcome-rewrites-record (a destroyed unit is kept with status destroyed, reconcileCoopBattle.ts:220-224) and unreachable on main until the day advance passed; the sentence names this journey's day advance as a green gate"
         }
       ]
     },

@@ -1,0 +1,894 @@
+{
+  "unit": "U96",
+  "stage": "local",
+  "status": "LOCAL GATES GREEN: jest, type, lint, format, units, openspec, roadmap, lifecycle-pack and the two-browser journey (3 of 3 after the parent-approved assertion fix) pass; all five mutants killed and restored.",
+  "at": "2026-09-26T14:59:53.115Z",
+  "baseline": "2edfbb3b6f40f04c641dbc8530afd5ad6df73d2a",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u96",
+  "branch": "roadmap-u96-put-through-live-host-20260926",
+  "head": "2edfbb3b6f40f04c641dbc8530afd5ad6df73d2a (uncommitted working tree; the parent commits)",
+  "implementerModel": "claude-opus (Agent model: opus, lean-worker)",
+  "admissionReceipt": "evidence/u96-admission-20260926.json",
+  "redReceipt": "evidence/u96-red-20260926.json",
+  "firstAttempt": "evidence/u96-admission-attempt1-20260926.json",
+  "shellPreamble": [
+    "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "export npm_config_dry_run=true"
+  ],
+  "codingDoctrine": {
+    "fixAssessment": "Root cause: two writers of one live co-op campaign (the host browser checkpoint the live host never folded, and any other browser checkpointing over the host). The live host adopts its own browser checkpoint under its single-writer lock; every other PUT is refused while the host is live; the host browser sends its one delta command (AdvanceDay) before the save that carries the day effects.",
+    "removed": "No new command, frame kind, service, index or timeout; the registry scans its entries; the adoption reuses applyCampaignEvent and the existing publish path; the route keeps one save closure for both branches.",
+    "scope": "4 product files (route, CampaignHostRegistry, CampaignMatchHost, useCampaignStore.dayActions.ts); useCampaignStore.actions.ts unchanged; 3 test files."
+  },
+  "behaviourDelivered": {
+    "server": "PUT /api/campaigns/[id] while a live (registered, not closed) co-op host holds the campaign: an envelope whose body.coopSession is { mode: 'host', matchId: <the live matchId> } saves as before inside CampaignMatchHost.adoptSavedCheckpoint, which folds each event the save appended (the checkpoint) into the host state with applyCampaignEvent and publishes it (guests get a CampaignSnapshot frame); any other PUT answers 409 { kind conflict, reason live-coop-session, recoveryAction, conflictingFields [], currentVersion, current, matchId } (409 { error, kind blocked, reason live-coop-session, matchId } when no record is readable) and writes nothing. With no live host the route calls the same save exactly as before.",
+    "client": "advanceDay on a co-op campaign with an active host transport sends AdvanceDay { days: 1 } (intentId from the day being left) and waits: an Error frame with that intentId (or a transport error, or a throwing send) toasts \"Co-op day advance was refused by the host: <reason>. Nothing was saved.\" and returns null with nothing computed or saved; a CampaignEvent CampaignDayAdvanced of the campaign leads to refreshAfterCommittedCommand, the pre-advance campaign put back, then the unchanged day pipeline and save. Without a host transport the day runs locally and saves as before, then the existing warning toast.",
+    "travelAndUpdateCampaign": "unchanged client code; their PUTs are adopted by the live host (server behaviour above)"
+  },
+  "changedFiles": [
+    {
+      "path": "src/pages/api/campaigns/[id].ts",
+      "sha256After": "38f598c1c4a80158b735bf43e84f4454b5fd2fecb15213828e4c173d50100462"
+    },
+    {
+      "path": "src/lib/multiplayer/server/CampaignHostRegistry.ts",
+      "sha256After": "dd3524f45102237cec5edd0b1f4fffd990f0d1ed7624b3f576a4aead4aaabfa1"
+    },
+    {
+      "path": "src/lib/multiplayer/server/CampaignMatchHost.ts",
+      "sha256After": "9ced07a13b652b9d908f37c5ec1ee91ad0262c3a6035975177fcaa784824226c"
+    },
+    {
+      "path": "src/stores/campaign/useCampaignStore.dayActions.ts",
+      "sha256After": "1bbecd420c2cbdb202030b224b314b0fa04ae1c614bb1be93faa76cc1dd5abd9"
+    },
+    {
+      "path": "src/__tests__/api/campaigns/campaignPutLiveHost.test.ts",
+      "sha256After": "b89267a3a1c8e4fd9076b6e55b1b0732e70179f0857e75b318f2c3d91d1ef7ff"
+    },
+    {
+      "path": "src/stores/campaign/__tests__/useCampaignStore.coopDayAdvanceOrder.test.ts",
+      "sha256After": "bf71c83c4f20a983fa52465764e9ae8ebbfc067bedac58bd1ae8894bb0af8c7d"
+    },
+    {
+      "path": "src/__tests__/integration/coopMutationPersistence.test.ts",
+      "sha256After": "cf7c1ea1296ef6b76e7591b323318d3f4747bc8a277ec825fb74b10458c3f0e8"
+    },
+    {
+      "path": "e2e/coop-campaign-two-browser-journey.spec.ts",
+      "sha256After": "cf24477281833f67d518bd93a05a17704abba7643f81e5971174f62a8b2e7c19"
+    }
+  ],
+  "lineCounts": {
+    "method": "git diff --numstat (added + deleted); tracked files against HEAD, new files by wc -l",
+    "product": {
+      "route": {
+        "src/pages/api/campaigns/[id].ts": "+73 -3 = 76"
+      },
+      "server": {
+        "src/lib/multiplayer/server/CampaignHostRegistry.ts": "+13 -0 = 13",
+        "src/lib/multiplayer/server/CampaignMatchHost.ts": "+27 -0 = 27",
+        "subtotal": 40
+      },
+      "client": {
+        "src/stores/campaign/useCampaignStore.dayActions.ts": "+199 -115 = 314 (git diff -w --numstat: +138 -54 = 192; the day body moved into advanceDayLocally and lost one indent level)"
+      },
+      "src/stores/campaign/useCampaignStore.actions.ts": "0 (unchanged)",
+      "total": "430 of 500 (4 product files of 15)"
+    },
+    "tests": {
+      "src/__tests__/api/campaigns/campaignPutLiveHost.test.ts": "352 (new)",
+      "src/stores/campaign/__tests__/useCampaignStore.coopDayAdvanceOrder.test.ts": "261 (new)",
+      "src/__tests__/integration/coopMutationPersistence.test.ts": "+13 -1 = 14 (harness only, no assertion changed)",
+      "total": 631,
+      "e2e/coop-campaign-two-browser-journey.spec.ts": "+3 -1 = 4 (parent-approved path amendment)"
+    },
+    "filesTotal": "8 of 15"
+  },
+  "green": {
+    "command": "U35E_ROWS_DIR=<lane-temp>/rows-green npx jest src/__tests__/api/campaigns/campaignPutLiveHost.test.ts",
+    "exitCode": 0,
+    "testsLine": "Tests:       5 passed, 5 total",
+    "log": {
+      "path": "<lane-temp>/green-server.log",
+      "sha256": "63085933e9d8e92b338acf2a588bbeb1faadd4ab289b66439cc276196f9f939e"
+    },
+    "measurements": {
+      "path": "<lane-temp>/rows-green/u96-put-live-host.json",
+      "sha256": "2e46a839a73e8914d05c2ab6cd7c6b2a1857b2311b6c2e9e27b67eae8bb2c42b"
+    },
+    "R1reversed": {
+      "typesBefore": [
+        "CampaignSnapshotPublished"
+      ],
+      "afterPut": {
+        "putStatus": 200,
+        "typesAfterPut": [
+          "CampaignSnapshotPublished",
+          "CampaignSnapshotPublished"
+        ],
+        "guestFramesAfterPut": [
+          {
+            "kind": "CampaignSnapshot",
+            "type": "CampaignSnapshotPublished",
+            "sequence": 1,
+            "balance": 382500
+          }
+        ],
+        "hostLiveBalance": 382500,
+        "journalReplayBalance": 382500,
+        "storedRow": {
+          "version": 2,
+          "balance": 382500,
+          "currentDate": "3025-07-04T00:00:00.000Z"
+        }
+      },
+      "afterNext": {
+        "spendOk": true,
+        "typesAfterNext": [
+          "CampaignSnapshotPublished",
+          "CampaignSnapshotPublished",
+          "FundsChanged"
+        ],
+        "guestFrames": [
+          {
+            "kind": "CampaignSnapshot",
+            "type": "CampaignSnapshotPublished",
+            "sequence": 1,
+            "balance": 382500
+          },
+          {
+            "kind": "CampaignEvent",
+            "type": "FundsChanged",
+            "sequence": 2,
+            "balance": 381500
+          }
+        ],
+        "hostLiveBalance": 381500,
+        "journal": {
+          "balance": 381500,
+          "day": 184,
+          "pilots": [],
+          "contracts": [],
+          "salvagePool": 0
+        },
+        "storedRow": {
+          "version": 3,
+          "balance": 381500,
+          "currentDate": "3025-07-04T00:00:00.000Z"
+        }
+      }
+    },
+    "R3reversed": {
+      "putStatus": 409,
+      "kind": "conflict",
+      "reason": "live-coop-session",
+      "matchId": "match-u96-foreign",
+      "currentVersion": 1,
+      "currentBalance": 380000,
+      "rowBefore": {
+        "version": 1,
+        "balance": 380000,
+        "currentDate": "3025-07-04T00:00:00.000Z"
+      },
+      "rowAfter": {
+        "version": 1,
+        "balance": 380000,
+        "currentDate": "3025-07-04T00:00:00.000Z"
+      },
+      "typesBefore": [
+        "CampaignSnapshotPublished"
+      ],
+      "typesAfter": [
+        "CampaignSnapshotPublished"
+      ],
+      "hostBalanceAfter": 380000,
+      "guestFrames": []
+    },
+    "dayRow": {
+      "dayBefore": 184,
+      "advanceOk": true,
+      "rewrittenVersion": 2,
+      "rewrittenDate": "3025-07-04T23:00:00.000Z",
+      "putStatus": 200,
+      "hostDay": 185,
+      "hostBalance": 378500,
+      "journal": {
+        "balance": 378500,
+        "day": 185,
+        "pilots": [],
+        "contracts": [],
+        "salvagePool": 0
+      },
+      "storedRow": {
+        "version": 3,
+        "balance": 378500,
+        "currentDate": "3025-07-04T23:00:00.000Z"
+      }
+    },
+    "nonLivePins": {
+      "none": {
+        "putStatus": 200,
+        "putBodyEqualsGetBody": true,
+        "types": [
+          "CampaignSnapshotPublished",
+          "CampaignSnapshotPublished"
+        ]
+      },
+      "closed": {
+        "hostClosed": true,
+        "putStatus": 200,
+        "putBodyEqualsGetBody": true,
+        "types": [
+          "CampaignSnapshotPublished",
+          "CampaignSnapshotPublished"
+        ],
+        "storedRow": {
+          "version": 2,
+          "balance": 382500,
+          "currentDate": "3025-07-04T00:00:00.000Z"
+        }
+      }
+    },
+    "clientRows": {
+      "command": "npx jest src/__tests__/api/campaigns/campaignPutLiveHost.test.ts src/stores/campaign/__tests__/useCampaignStore.coopDayAdvanceOrder.test.ts src/__tests__/integration/coopMutationPersistence.test.ts (before the day row was added)",
+      "exitCode": 0,
+      "testsLine": "Tests:       9 passed, 9 total",
+      "log": {
+        "path": "<lane-temp>/green-jest.log",
+        "sha256": "3e323737111c9c46d508b133e5d0b1d0fb7a8684de0080287633f14b16ac398a"
+      },
+      "R2reversed": {
+        "commit": {
+          "dateBefore": "2026-09-26T14:17:59.035Z",
+          "dayAfter": "2026-09-27T14:17:59.035Z",
+          "reportReturned": true,
+          "timeline": [
+            {
+              "step": "intent:AdvanceDay"
+            },
+            {
+              "step": "GET"
+            },
+            {
+              "step": "PUT",
+              "baseVersion": 2,
+              "currentDate": "2026-09-27T14:17:59.035Z"
+            }
+          ],
+          "dateAfter": "2026-09-27T14:17:59.035Z",
+          "record": {
+            "version": 3,
+            "currentDate": "2026-09-27T14:17:59.035Z"
+          },
+          "toasts": []
+        },
+        "refusal": {
+          "dateBefore": "2026-09-26T14:17:59.070Z",
+          "dayAfter": "2026-09-27T14:17:59.070Z",
+          "reportReturned": false,
+          "timeline": [
+            {
+              "step": "intent:AdvanceDay"
+            }
+          ],
+          "dateAfter": "2026-09-26T14:17:59.070Z",
+          "record": {
+            "version": 1,
+            "currentDate": "2026-09-26T14:17:59.070Z"
+          },
+          "toasts": [
+            "Co-op day advance was refused by the host: progression-blocked-behind. Nothing was saved."
+          ]
+        }
+      }
+    },
+    "readings": [
+      "R1 reversed: PUT 200, the guest receives [{ kind CampaignSnapshot, CampaignSnapshotPublished, sequence 1, balance 382500 }], the host holds 382500; SpendFunds commits FundsChanged sequence 2 balance 381500 to the guest; journal and record (version 3) 381500.",
+      "R2 reversed: timeline [intent:AdvanceDay, GET, PUT { baseVersion 2, currentDate day+1 }], store date day+1, record { version 3, day+1 }; refused: timeline [intent:AdvanceDay], null, date unchanged, record { version 1 }, one toast naming progression-blocked-behind.",
+      "R3 reversed: 409 conflict live-coop-session matchId match-u96-foreign, currentVersion 1, current balance 380000, row, journal and host state unchanged, guest frames [].",
+      "Day row: AdvanceDay first (host 184 -> 185, record rewritten to version 2), then the host save of that day with balance 378500: host day 185, balance 378500, journal day 185, record version 3; no second advance.",
+      "Non-live pins: 200 with the PUT body byte-identical to the GET body (putBodyEqualsGetBody true) and one checkpoint, with no entry and with a closed entry plus another campaign live entry."
+    ]
+  },
+  "liveAfterMeasurement": {
+    "driver": {
+      "path": "<lane-temp>/u96-live-driver.cjs",
+      "sha256": "f0443ac4741d6a92eb6e094bd893790d2fb0b503839ac4fff846ed2bdd329f60",
+      "note": "the same driver as the red receipt baseline run"
+    },
+    "build": "BUILD_ID 1790432555053, NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build, exit=1 at 2026-09-26T14:24:15Z (the standalone hydration guard: Unsafe hydration destination (runtime loader tsx) contains a symlink or junction: .next\\standalone\\node_modules), \"Compiled successfully in 33.9s\", __E2E_MODE__ in .next/static/chunks/pages/_app-5a3d564eff49a9a6.js, adoptSavedCheckpoint present once in .next/server/pages/api/campaigns/[id].js; machine-idle MACHINE_IDLE, hold wait 0",
+    "buildLog": {
+      "path": "<lane-temp>/build-after.log",
+      "sha256": "8b5467d25686db9a2f66696ed9e746f0ede923322c77803c2e6f4d45eef56e79"
+    },
+    "machineIdleBefore": "MACHINE_IDLE (exit 0); PARENT-PROOF-HOLD absent",
+    "port": 24981,
+    "inspectPort": 29981,
+    "serverPid": 5144,
+    "serverKilled": true,
+    "serverAliveAfterKill": false,
+    "listenerAfter": "netstat: no LISTENING socket on 24981 or 29981",
+    "startedAt": "2026-09-26T14:24:30.479Z",
+    "finishedAt": "2026-09-26T14:24:38.556Z",
+    "error": null,
+    "stdoutVerbatim": [
+      "S0 after create route 201, no socket yet: {\"record\":{\"version\":1,\"balance\":380000},\"entry\":{\"matchId\":\"0a6bf71e-b938-4264-b1b8-912d600e8732\",\"campaignId\":\"campaign-u96-after-1790432674347\",\"hostClosed\":false,\"paused\":false,\"gmConnections\":0,\"hostLiveBalance\":380000},\"journal\":{\"types\":[\"CampaignSnapshotPublished\"],\"balance\":380000},\"coop\":{\"socketGraphLoaded\":true,\"socketGraphHoldsHost\":\"undefined\",\"apiGraphModules\":[]}}",
+      "S1 guest joined by room code, GM connected: {\"guestJoin\":\"snapshot\",\"gmJoin\":\"snapshot\",\"record\":{\"version\":1,\"balance\":380000},\"entry\":{\"matchId\":\"0a6bf71e-b938-4264-b1b8-912d600e8732\",\"campaignId\":\"campaign-u96-after-1790432674347\",\"hostClosed\":false,\"paused\":false,\"gmConnections\":1,\"hostLiveBalance\":380000},\"journal\":{\"types\":[\"CampaignSnapshotPublished\"],\"balance\":380000},\"coop\":{\"socketGraphLoaded\":true,\"socketGraphHoldsHost\":\"undefined\",\"apiGraphModules\":[]}}",
+      "S2 PUT balance 382500 at the current version while the host is live: {\"put\":{\"status\":200,\"kind\":null,\"reason\":null,\"matchId\":null,\"recoveryAction\":null,\"currentVersion\":null,\"currentBalance\":null,\"savedVersion\":2,\"savedBalance\":382500},\"guestFramesAfterPut\":[{\"kind\":\"CampaignSnapshot\",\"code\":null,\"reason\":null,\"eventType\":\"CampaignSnapshotPublished\",\"sequence\":1,\"payload\":{\"balance\":382500}}],\"record\":{\"version\":2,\"balance\":382500},\"entry\":{\"matchId\":\"0a6bf71e-b938-4264-b1b8-912d600e8732\",\"campaignId\":\"campaign-u96-after-1790432674347\",\"hostClosed\":false,\"paused\":false,\"gmConnections\":1,\"hostLiveBalance\":382500},\"journal\":{\"types\":[\"CampaignSnapshotPublished\",\"CampaignSnapshotPublished\"],\"balance\":382500},\"coop\":{\"socketGraphLoaded\":true,\"socketGraphHoldsHost\":\"undefined\",\"apiGraphModules\":[]}}",
+      "S3 GM CampaignHostIntent SpendFunds 1000: {\"guestFramesAfterSpend\":[{\"kind\":\"CampaignEvent\",\"code\":null,\"reason\":null,\"eventType\":\"FundsChanged\",\"sequence\":2,\"payload\":{\"delta\":-1000,\"reason\":\"next\",\"balance\":381500}}],\"gmErrorFrames\":[],\"record\":{\"version\":3,\"balance\":381500},\"entry\":{\"matchId\":\"0a6bf71e-b938-4264-b1b8-912d600e8732\",\"campaignId\":\"campaign-u96-after-1790432674347\",\"hostClosed\":false,\"paused\":false,\"gmConnections\":1,\"hostLiveBalance\":381500},\"journal\":{\"types\":[\"CampaignSnapshotPublished\",\"CampaignSnapshotPublished\",\"FundsChanged\"],\"balance\":381500},\"coop\":{\"socketGraphLoaded\":true,\"socketGraphHoldsHost\":\"undefined\",\"apiGraphModules\":[]}}"
+    ],
+    "output": {
+      "path": "<lane-temp>/live-after.json",
+      "sha256": "8707dd2f39210490d5e3ac095eaa8cdaea828e24802516db673b32b861d95f86"
+    },
+    "reading": "S2: PUT 200 saved version 2 balance 382500; the guest receives CampaignSnapshot CampaignSnapshotPublished sequence 1 balance 382500; the live host holds 382500. S3: the guest receives CampaignEvent FundsChanged sequence 2 { delta -1000, balance 381500 }; host 381500, journal [Snapshot, Snapshot, FundsChanged] 381500, record version 3 balance 381500. Baseline (red receipt, port 24971): S2 guest [] host 380000; S3 379000 everywhere."
+  },
+  "ladder": [
+    {
+      "group": "lifecycle-pack",
+      "command": "HOSTNAME=127.0.0.1 NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=lifecycle-pack",
+      "build": "1790432555053 (the final product code: the four product files hash the same after the mutants and the baseline swap were restored)",
+      "machineIdleBefore": "MACHINE_IDLE (idle=0)",
+      "exit": 0,
+      "finishedAt": "2026-09-26T14:25:06Z",
+      "port": 27487,
+      "portSource": "[WebServer] > Ready on http://127.0.0.1:27487 (multiplayer socket: /api/multiplayer/socket)",
+      "summaryLine": "2 passed (18.6s)",
+      "rows": [
+        "ok 1 [chromium] › e2e\\gm-two-player-lifecycle.pack.spec.ts:179:5 › E2E-75 lifecycle postures are distinct, announced and correctly gated @lifecycle-pack @E2E-75 (6.6s)",
+        "ok 2 [chromium] › e2e\\gm-two-player-lifecycle.pack.spec.ts:305:5 › E2E-75 lifecycle postures pending and blocked are distinct, announced and correctly gated @lifecycle-pack @E2E-75 (5.9s)"
+      ],
+      "log": {
+        "path": "<lane-temp>/ladder-lifecycle.log",
+        "sha256": "64d0abc58760146237eaa025d827b82195b634faf69d79b01a6ca2f5bab57c16"
+      },
+      "serverAfter": "netstat: 27487 free after the run"
+    },
+    {
+      "group": "coop two-browser journey (no group: grep of scripts/qc/gm-two-player-campaign-core.cjs finds no coop-campaign-two-browser entry; package.json:206 verify:qc:coop-campaign-journey runs it through scripts/playwright/run-playwright.mjs)",
+      "command": "HOSTNAME=127.0.0.1 NODE_ENV=production PLAYWRIGHT_E2E_RUN_ID=<run> MEKSTATION_E2E_PORT=<port> PORT=<port> MEKSTATION_E2E_REUSE_EXISTING_SERVER=false MEKSTATION_E2E_SERVER_COMMAND='node server.js' node scripts/playwright/run-playwright.mjs test --project=chromium e2e/coop-campaign-two-browser-journey.spec.ts --workers=1 (the ladder's environment, core.cjs:206-226)",
+      "runs": [
+        {
+          "run": "u96-journey-after",
+          "build": "1790432555053 (this code)",
+          "port": 27497,
+          "exit": 1,
+          "finishedAt": "2026-09-26T14:25:48Z",
+          "summaryLine": "1 failed",
+          "failure": "e2e/coop-campaign-two-browser-journey.spec.ts:475 expect.poll(readGuestMirrorUnitCount).toBe(0): Expected: 0 Received: 1",
+          "log": {
+            "path": "<lane-temp>/journey.log",
+            "sha256": "3b2ff19238550549fba926714c031af706bd5c4988712954c9c78e0a3bfd5cab"
+          },
+          "holdAtStart": "absent"
+        },
+        {
+          "run": "u96-journey-after2",
+          "build": "1790432555053 (this code)",
+          "port": 27498,
+          "exit": 1,
+          "summaryLine": "1 failed",
+          "failure": "same line :475, Expected: 0 Received: 1",
+          "log": {
+            "path": "<lane-temp>/journey2.log",
+            "sha256": "72f498cc94ceeb29c166816e01c4d598b167dbcb96c8b533529505f12af3b0e1"
+          },
+          "holdAtStart": "PRESENT: PARENT-PROOF-HOLD (U86 main proof since 14:26:07Z) existed when this run started; the lane ran it anyway (a rule breach, disclosed in findings)"
+        },
+        {
+          "run": "u96-journey-baseline",
+          "build": "1790433608194 (baseline: the four product files swapped to their HEAD blobs, restored afterwards, sha256 equal before and after)",
+          "port": 27499,
+          "exit": 1,
+          "finishedAt": "2026-09-26T14:54:15Z",
+          "summaryLine": "1 failed",
+          "failure": "e2e/coop-campaign-two-browser-journey.spec.ts:375 expect.poll(readDashboardDate(guestPage)).toBe(advancedDate): Expected: \"2026-09-27\" Received: \"2026-09-26\"",
+          "log": {
+            "path": "<lane-temp>/journey-baseline.log",
+            "sha256": "c0597b29b30fbfe35e807d62f8b59bfcc13661cc71f93a8bcb180bc6a2b55378"
+          },
+          "buildLog": {
+            "path": "<lane-temp>/build-baseline-journey.log",
+            "sha256": "02a87387d4295d8d1e5e4b14ff1658c0303b113229e6a768f8b9363ad377fffa"
+          },
+          "holdWaitSeconds": 720
+        },
+        {
+          "run": "u96-journey-final",
+          "build": "1790434471263 (this code, rebuilt after the baseline swap)",
+          "port": 27496,
+          "exit": 1,
+          "finishedAt": "2026-09-26T14:56:45Z",
+          "summaryLine": "1 failed",
+          "failure": "same line :475, Expected: 0 Received: 1",
+          "log": {
+            "path": "<lane-temp>/journey3.log",
+            "sha256": "1c261af2eeb5a550163d8aba83b84044a3083a70e1b48ba39138ee5e24a48f07"
+          },
+          "buildLog": {
+            "path": "<lane-temp>/build-final.log",
+            "sha256": "3535de3dea6876724ac12fc1ca8218a18984e5fab1c8d7c32e69ebd229d28ab8"
+          },
+          "holdAtStart": "absent"
+        }
+      ],
+      "reading": "On the baseline the journey fails at the day advance (:375, the guest date never advances). With this unit it passes the day advance (:365-377), the reload (:420-441) and the first reconcile, and fails at :475, where it expects the guest unit count to drop to 0 after a battle that destroys the player unit. The failure screenshot shows Salvage 100,000 (both reconciles delivered), Units 1, Seq 8, and 0/day costs.",
+      "whyTheRemainingFailureIsNotThisUnit": "reconcileCoopBattle.ts:220-224 keeps a destroyed unit with status destroyed, not removed (U35g, 7405959ff #1940, after the journey spec last changed at 6589571db 2026-08-23); measured with a scratch jest (<lane-temp>/u96-scratch-reconcile.test.ts, deleted from the tree): the host roster after the two reconciles holds e2e-coop-unit-1 { status destroyed } identically with and without an adopted checkpoint before them. INFERENCE: the :475 expectation fails on any code since #1940 once the day advance passes; the baseline never reaches it.",
+      "beforeAssertionFix": "3 of 3 runs on this code failed at :475 (Expected: 0 Received: 1): u96-journey-after (27497), u96-journey-after2 (27498, started under the hold), u96-journey-final (27496); the baseline run (27499) failed earlier at :375",
+      "afterAssertionFix": {
+        "command": "HOSTNAME=127.0.0.1 NODE_ENV=production PLAYWRIGHT_E2E_RUN_ID=u96-journey-fixed-<n> MEKSTATION_E2E_PORT=<port> PORT=<port> MEKSTATION_E2E_REUSE_EXISTING_SERVER=false MEKSTATION_E2E_SERVER_COMMAND='node server.js' node scripts/playwright/run-playwright.mjs test --project=chromium e2e/coop-campaign-two-browser-journey.spec.ts --workers=1",
+        "holdPolicy": "before each run: wait while PARENT-PROOF-HOLD exists (60 s polls), machine-idle --wait, re-check the hold, then run (<lane-temp>/journey-fixed.sh); hold wait 0 s for all three",
+        "runs": [
+          {
+            "run": "u96-journey-fixed-1",
+            "port": 27491,
+            "build": "1790434471263 (final product code; the e2e spec is not part of the build)",
+            "preRun": [
+              "MACHINE_IDLE",
+              "idleExit=0 holdWaitSeconds=0",
+              "holdAbsentAt=2026-09-26T15:01:59Z port=27491"
+            ],
+            "exit": [
+              "exit=0 at 2026-09-26T15:02:09Z",
+              "no listener 27491"
+            ],
+            "log": {
+              "path": "<lane-temp>/journey-fixed-1.log",
+              "sha256": "68155ebe9f3370e6f4fc65033a38d2f4806ec566eb925535bcdad02064109ddf"
+            },
+            "summaryLine": "  1 passed (9.2s)",
+            "row": "ok 1 [chromium] › e2e\\coop-campaign-two-browser-journey.spec.ts:260:7 › live co-op campaign two-browser journey › host and guest create, join, arbitrate, and reload through campaign-sync (4.5s)"
+          },
+          {
+            "run": "u96-journey-fixed-2",
+            "port": 27492,
+            "build": "1790434471263 (final product code; the e2e spec is not part of the build)",
+            "preRun": [
+              "MACHINE_IDLE",
+              "idleExit=0 holdWaitSeconds=0",
+              "holdAbsentAt=2026-09-26T15:02:09Z port=27492"
+            ],
+            "exit": [
+              "exit=0 at 2026-09-26T15:02:19Z",
+              "no listener 27492"
+            ],
+            "log": {
+              "path": "<lane-temp>/journey-fixed-2.log",
+              "sha256": "9e8c4139dd15eb560942beac1086d38c123b12b27a37a228193661561bb9d621"
+            },
+            "summaryLine": "  1 passed (9.3s)",
+            "row": "ok 1 [chromium] › e2e\\coop-campaign-two-browser-journey.spec.ts:260:7 › live co-op campaign two-browser journey › host and guest create, join, arbitrate, and reload through campaign-sync (4.4s)"
+          },
+          {
+            "run": "u96-journey-fixed-3",
+            "port": 27493,
+            "build": "1790434471263 (final product code; the e2e spec is not part of the build)",
+            "preRun": [
+              "MACHINE_IDLE",
+              "idleExit=0 holdWaitSeconds=0",
+              "holdAbsentAt=2026-09-26T15:02:20Z port=27493"
+            ],
+            "exit": [
+              "exit=0 at 2026-09-26T15:02:29Z",
+              "no listener 27493"
+            ],
+            "log": {
+              "path": "<lane-temp>/journey-fixed-3.log",
+              "sha256": "a6632761aad800194fb96c702c3becd9b987c0990eef6e9c0a1f75b4af6de7e1"
+            },
+            "summaryLine": "  1 passed (8.1s)",
+            "row": "ok 1 [chromium] › e2e\\coop-campaign-two-browser-journey.spec.ts:260:7 › live co-op campaign two-browser journey › host and guest create, join, arbitrate, and reload through campaign-sync (4.4s)"
+          }
+        ],
+        "result": "3 of 3 passed"
+      }
+    }
+  ],
+  "gates": {
+    "jest": {
+      "command": "npx jest src/__tests__/api src/lib/multiplayer/server src/lib/campaign src/lib/api src/stores/campaign src/__tests__/integration/coopMutationPersistence.test.ts",
+      "exitCode": 0,
+      "lastLines": [
+        "Test Suites: 455 passed, 455 total",
+        "Tests:       5317 passed, 5317 total"
+      ],
+      "log": {
+        "path": "<lane-temp>/jest-final.log",
+        "sha256": "110c4a1e2ac0b59daae9964318620be90d33adf5fd8d66e9e4cf763bb4a18972"
+      },
+      "note": "the charter command plus the one integration file this unit edits; the charter command alone ran earlier (before the day row): 454 suites / 5313 tests passed, exit 0"
+    },
+    "tsc": {
+      "command": "npx tsc --noEmit",
+      "exitCode": 0,
+      "lastLine": "(no output)",
+      "log": {
+        "path": "<lane-temp>/tsc-final.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "oxlint": {
+      "command": "npx oxlint",
+      "exitCode": 0,
+      "lastLine": "Found 84 warnings and 0 errors.",
+      "versus84": "equal (84); the changed files carry one warning, eslint(max-lines) on useCampaignStore.dayActions.ts (511 lines; 495 on HEAD, already over the 400 limit)",
+      "log": {
+        "path": "<lane-temp>/oxlint-final.log",
+        "sha256": "dc02f55e77547948dd923fad2b8454a5b637e4f21e927a1f0d104b38572172e9"
+      }
+    },
+    "oxfmt": {
+      "command": "npx oxfmt --check <the 7 changed files>",
+      "exitCode": 0,
+      "lastLine": "All matched files use the correct format.",
+      "log": {
+        "path": "<lane-temp>/oxfmt-final.log",
+        "sha256": "951cabc28913425256e08cf86e0da4c9bbf1af258d67d64753f23748672ae27c"
+      }
+    },
+    "lintUnits": {
+      "command": "npm run lint:units",
+      "exitCode": 0,
+      "lastLine": "LINT_UNITS_PASS 100/100",
+      "log": {
+        "path": "<lane-temp>/lint-units.log",
+        "sha256": "e055631f9348b2e6539c922dddc1fe388b583448a734da5f618cb47c583fae2d"
+      }
+    },
+    "openspecCi": {
+      "command": "npm run qc:openspec-ci:validate",
+      "exitCode": 0,
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+      "log": {
+        "path": "<lane-temp>/openspec.log",
+        "sha256": "4c2dafd093b946290aa4abe001ad8b3d65671b17c7682722c55a510ecc04f91e"
+      }
+    },
+    "roadmapValidator": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "exitCode": 0,
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "log": {
+        "path": "<lane-temp>/validator.log",
+        "sha256": "97b2f29d264078525a55c5f88586fb95603311fa065e70d7d17c5fab08f5b5bc"
+      }
+    },
+    "build": {
+      "command": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build",
+      "runs": [
+        {
+          "buildId": "1790432555053",
+          "exit": "exit=1 at 2026-09-26T14:24:15Z (hydration guard, by design)",
+          "log": {
+            "path": "<lane-temp>/build-after.log",
+            "sha256": "8b5467d25686db9a2f66696ed9e746f0ede923322c77803c2e6f4d45eef56e79"
+          }
+        },
+        {
+          "buildId": "1790433608194 (baseline swap)",
+          "exit": "exit=1 at 2026-09-26T14:41:38Z (hydration guard)",
+          "note": "started before the hold appeared at 14:41:33Z",
+          "log": {
+            "path": "<lane-temp>/build-baseline-journey.log",
+            "sha256": "02a87387d4295d8d1e5e4b14ff1658c0303b113229e6a768f8b9363ad377fffa"
+          }
+        },
+        {
+          "buildId": "1790434471263 (final)",
+          "exit": "exit=1 at 2026-09-26T14:56:00Z (hydration guard)",
+          "log": {
+            "path": "<lane-temp>/build-final.log",
+            "sha256": "3535de3dea6876724ac12fc1ca8218a18984e5fab1c8d7c32e69ebd229d28ab8"
+          }
+        }
+      ]
+    }
+  },
+  "integrationTest": {
+    "file": "src/__tests__/integration/coopMutationPersistence.test.ts",
+    "why": "its row \"pushes host day advance through the real server registry to a connected guest\" stubbed onFrame to never deliver; with the command-first day advance it timed out",
+    "measured": [
+      {
+        "state": "this code, harness unchanged",
+        "exitCode": 1,
+        "result": "× pushes host day advance ... (30002 ms) thrown: \"Exceeded timeout of 30000 ms for a test.\"",
+        "log": {
+          "path": "<lane-temp>/integration-before-edit.log",
+          "sha256": "e37ce51177c452057d9ecbad13fb87ed8e6204b3602906892cfb3e0cff1fcfd9"
+        }
+      },
+      {
+        "state": "baseline dayActions.ts swapped in (restored, sha256 1dc0f73e... before and after)",
+        "exitCode": 0,
+        "result": "Tests: 3 passed",
+        "log": {
+          "path": "<lane-temp>/integration-baseline-dayActions.log",
+          "sha256": "6ca6072af3635082a0966da9b488eb1a442742a19a777e3b4b2f161031dac8f0"
+        }
+      },
+      {
+        "state": "this code, harness edited",
+        "exitCode": 0,
+        "result": "Tests: 3 passed",
+        "log": {
+          "path": "<lane-temp>/integration-after-edit.log",
+          "sha256": "7150d71287eb67b44d98672b02f7710a144048e5a4b6aba93989338397f32c9d"
+        }
+      }
+    ],
+    "edit": "the host socket frames are forwarded to the stub transport onFrame handlers (+13 -1); no assertion changed",
+    "ownership": "parent-approved path amendment (coordinator message, 2026-09-26)"
+  },
+  "mutants": [
+    {
+      "id": "M1",
+      "what": "adoption removed: the live host own save calls save() instead of live.host.adoptSavedCheckpoint(save)",
+      "file": "src/pages/api/campaigns/[id].ts",
+      "command": "npx jest src/__tests__/api/campaigns/campaignPutLiveHost.test.ts -t R1",
+      "exitCode": 1,
+      "testsLine": "Tests:       1 failed, 4 skipped, 5 total",
+      "failedRows": [
+        "× (R1) the host's own save is adopted: after SpendFunds 1000 the journal, the record and the guest read 381500 (79 ms)"
+      ],
+      "firstFailure": "Expected: 382500 | Received: 380000 | ",
+      "log": {
+        "path": "<lane-temp>/mutant-M1.log",
+        "sha256": "1960082be544d95bd966d7418b13021d5d9c1ae47206fa52f3b3209b01663b69"
+      },
+      "sha256Before": "38f598c1c4a80158b735bf43e84f4454b5fd2fecb15213828e4c173d50100462",
+      "sha256Mutated": "6cafc3e8f6195c47bfc9685a97f2481b3004ba40f2a6769ab4728606d19615b4",
+      "sha256Restored": "38f598c1c4a80158b735bf43e84f4454b5fd2fecb15213828e4c173d50100462",
+      "restored": true,
+      "killed": true
+    },
+    {
+      "id": "M2",
+      "what": "instance check removed: every PUT while a host is live is taken as the host own save",
+      "file": "src/pages/api/campaigns/[id].ts",
+      "command": "npx jest src/__tests__/api/campaigns/campaignPutLiveHost.test.ts -t R3",
+      "exitCode": 1,
+      "testsLine": "Tests:       1 failed, 4 skipped, 5 total",
+      "failedRows": [
+        "× (R3) a guest mirror's PUT while the host is live is refused 409 naming the session; nothing is written (86 ms)"
+      ],
+      "firstFailure": "Expected: 409 | Received: 200 | ",
+      "log": {
+        "path": "<lane-temp>/mutant-M2.log",
+        "sha256": "ea92638dfd0c6f0b14a9b461d88c93535ce5c0e497a9fcfbed12a3da3e67c2a1"
+      },
+      "sha256Before": "38f598c1c4a80158b735bf43e84f4454b5fd2fecb15213828e4c173d50100462",
+      "sha256Mutated": "03392fe50d6d0dd0315787804b79b78b859c5d7416dc7981e6da58dbf086781f",
+      "sha256Restored": "38f598c1c4a80158b735bf43e84f4454b5fd2fecb15213828e4c173d50100462",
+      "restored": true,
+      "killed": true
+    },
+    {
+      "id": "M3",
+      "what": "the client saves before sending again: advanceCoopDayThroughHost runs the local day (pipeline and save) before it sends AdvanceDay",
+      "file": "src/stores/campaign/useCampaignStore.dayActions.ts",
+      "command": "npx jest src/stores/campaign/__tests__/useCampaignStore.coopDayAdvanceOrder.test.ts",
+      "exitCode": 1,
+      "testsLine": "Tests:       2 failed, 2 total",
+      "failedRows": [
+        "× (R2 commit) sends AdvanceDay first and saves the day after the host committed it, at the rewritten version (34 ms)",
+        "× (R2 refusal) a refused AdvanceDay saves nothing, keeps the day and reports the refusal (26 ms)"
+      ],
+      "firstFailure": "- Expected  - 7 | + Received  + 4 | ",
+      "log": {
+        "path": "<lane-temp>/mutant-M3.log",
+        "sha256": "b6d45a6ff4eb6f782cef2bf0ca923e3eb029eb755549cbec3eccdfc2af9d52f3"
+      },
+      "sha256Before": "1bbecd420c2cbdb202030b224b314b0fa04ae1c614bb1be93faa76cc1dd5abd9",
+      "sha256Mutated": "3747e93014bd3332af4c392ad7181cca10f6a5c07aa42e6c2979f88e4eb3f6cb",
+      "sha256Restored": "1bbecd420c2cbdb202030b224b314b0fa04ae1c614bb1be93faa76cc1dd5abd9",
+      "restored": true,
+      "killed": true
+    },
+    {
+      "id": "M4",
+      "what": "refusal reason swapped for base-state-unavailable",
+      "file": "src/pages/api/campaigns/[id].ts",
+      "command": "npx jest src/__tests__/api/campaigns/campaignPutLiveHost.test.ts -t R3",
+      "exitCode": 1,
+      "testsLine": "Tests:       1 failed, 4 skipped, 5 total",
+      "failedRows": [
+        "× (R3) a guest mirror's PUT while the host is live is refused 409 naming the session; nothing is written (68 ms)"
+      ],
+      "firstFailure": "Expected: \"live-coop-session\" | Received: \"base-state-unavailable\" | ",
+      "log": {
+        "path": "<lane-temp>/mutant-M4.log",
+        "sha256": "6763b775b5706f4e18859c5322378a91949abadcf2914845665dcd07081acffd"
+      },
+      "sha256Before": "38f598c1c4a80158b735bf43e84f4454b5fd2fecb15213828e4c173d50100462",
+      "sha256Mutated": "5abff2772cafba47519d7ecb4a194ceaaa038c38d911bb90868bdd82d9d98c4e",
+      "sha256Restored": "38f598c1c4a80158b735bf43e84f4454b5fd2fecb15213828e4c173d50100462",
+      "restored": true,
+      "killed": true
+    },
+    {
+      "id": "M5",
+      "what": "closed hosts treated as live: liveEntryFor drops the isClosed filter",
+      "file": "src/lib/multiplayer/server/CampaignHostRegistry.ts",
+      "command": "npx jest src/__tests__/api/campaigns/campaignPutLiveHost.test.ts -t pin",
+      "exitCode": 1,
+      "testsLine": "Tests:       1 failed, 3 skipped, 1 passed, 5 total",
+      "failedRows": [
+        "× (pin closed) a closed host is not live and another campaign host does not hold this one: the PUT saves as before (59 ms)"
+      ],
+      "firstFailure": "Expected: 200 | Received: 409 | ",
+      "log": {
+        "path": "<lane-temp>/mutant-M5.log",
+        "sha256": "3fa1d76963a12e3bc26e3d4bd690f409dcfed5a439c102bbe03af5da798bbb8e"
+      },
+      "sha256Before": "dd3524f45102237cec5edd0b1f4fffd990f0d1ed7624b3f576a4aead4aaabfa1",
+      "sha256Mutated": "cf17f27c2bf8aa15569d21a4d3c10f457827361c67240a200df4dd6e27564be0",
+      "sha256Restored": "dd3524f45102237cec5edd0b1f4fffd990f0d1ed7624b3f576a4aead4aaabfa1",
+      "restored": true,
+      "killed": true
+    }
+  ],
+  "m3DayNumbers": {
+    "scratch": {
+      "path": "<lane-temp>/u96-scratch-m3.test.ts",
+      "sha256": "2fd7886ccd550367e1e93ea916444c361c0a905f7990a55cd41a934492aeed28",
+      "note": "server-level, written, run, copied out and deleted"
+    },
+    "log": {
+      "path": "<lane-temp>/m3-doublecount.log",
+      "sha256": "271b033521b2215e473dcb38d1e187b759d73fa598dbf370983f0c8d10a38b5d"
+    },
+    "measured": {
+      "dayBefore": 184,
+      "putStatus": 200,
+      "savedDate": "3025-07-05T00:00:00.000Z",
+      "hostDayAfterSave": 185,
+      "advanceOk": true,
+      "hostDayAfterAdvance": 186,
+      "journalDay": 186,
+      "storedRow": {
+        "version": 3,
+        "balance": 380000,
+        "currentDate": "3025-07-05T23:00:00.000Z"
+      }
+    },
+    "reading": "Save first (the M3 order) under adoption: the host day goes 184 -> 185 on the adopted save of day+1, then AdvanceDay { days: 1 } takes it to 186 (journal day 186, record 3025-07-05T23:00): the day is counted twice. Command first (the day row): 184 -> 185 and stays 185."
+  },
+  "processesAndPorts": [
+    {
+      "what": "live after (driver)",
+      "port": 24981,
+      "inspectPort": 29981,
+      "pid": 5144,
+      "killed": true,
+      "aliveAfter": false
+    },
+    {
+      "what": "lifecycle-pack",
+      "port": 27487,
+      "after": "free"
+    },
+    {
+      "what": "journey runs",
+      "ports": [
+        27497,
+        27498,
+        27499,
+        27496
+      ],
+      "after": "no LISTENING socket on any of them after its run"
+    },
+    {
+      "what": "journey runs after the assertion fix",
+      "ports": [
+        27491,
+        27492,
+        27493
+      ],
+      "after": "no LISTENING socket on any of them after its run"
+    }
+  ],
+  "parentProofHold": [
+    "Checked before each build, live run and Playwright run. Hold observed at 14:26:07Z-~14:39Z and 14:41:33Z-~14:53Z (U86 main proof).",
+    "BREACH: the journey run u96-journey-after2 started while the hold file existed (the check printed the path and the lane did not stop). One Playwright group, about 30 s.",
+    "The baseline-journey build started before the second hold appeared and finished 5 s after it (14:41:38Z); the baseline journey run waited 720 s for the hold to clear."
+  ],
+  "nonClaims": [
+    "The live measurements use Node sockets, not browsers; the client day advance is measured only in jest with fetch stubbed and in the journey (which passes its day-advance lines :365-377 on this code).",
+    "The route authenticates nobody; the host check is a claim in the PUT body (admission q1 limits).",
+    "The convergence risk (an adopted checkpoint is a CampaignSnapshot frame the guest transport never acks, so a second AdvanceDay may be refused CAMPAIGN_NOT_CONVERGED) is not measured; the baseline journey failure at :375 is consistent with the baseline-side half of it but was not diagnosed further.",
+    "The idempotency hang (a re-sent AdvanceDay for a day the host already committed gets no frame) is not measured.",
+    "Only lifecycle-pack was run from the ladder groups.",
+    "Byte-for-byte of the non-live PUT is asserted as the PUT body equal to the GET body within a run; no cross-run byte hash (the fixture mints per-run ids and timestamps).",
+    "The journey asserts the destroyed unit only as a count of 1; its destroyed status is not readable from the guest page and is measured only server-side (scratch reconcile)."
+  ],
+  "findings": [
+    {
+      "id": "FN-u96-journey-expects-destroyed-unit-removed",
+      "class": "e2e expectation stale since U35g (#1940)",
+      "summary": "e2e/coop-campaign-two-browser-journey.spec.ts:475 expects the guest unit count to return to 0 after the player unit is destroyed; reconcileCoopBattle.ts:220-224 keeps destroyed units with status destroyed (OD-u35g-coop-outcome-rewrites-record). Reached only now that the day advance passes; e2e/ is outside this unit.",
+      "evidence": "journey.log, journey3.log, scratch-reconcile.log",
+      "status": "fixed in this unit under the parent-approved path amendment (e2e expectation now 1)"
+    },
+    {
+      "id": "FN-u96-journey-day-advance-fails-on-baseline",
+      "class": "measured",
+      "summary": "On the baseline the journey fails at :375: the guest dashboard date stays 2026-09-26 after the host advance (host save first, then AdvanceDay). This unit passes that line.",
+      "evidence": "journey-baseline.log"
+    },
+    {
+      "id": "FN-u96-snapshot-frames-not-acked",
+      "class": "convergence (inference)",
+      "summary": "campaignSyncTransport.ts:229-252 acks only CampaignEvent frames; an adopted checkpoint (CampaignSnapshot frame) raises the session head (CampaignSyncSession.ts:785-787) without a guest ack, so the next AdvanceDay can be refused CAMPAIGN_NOT_CONVERGED until a later CampaignEvent is acked. src/lib/campaign/coop is outside this unit."
+    },
+    {
+      "id": "FN-u96-record-rewrite-date-local-offset",
+      "class": "adjacent observation (measured in jest)",
+      "summary": "The U35e record rewrite after AdvanceDay wrote currentDate 3025-07-04T23:00:00.000Z for day 185 from a 3025-07-04T00:00:00.000Z record (rows-green day row); addCampaignDays in campaignRecordJournalState.ts appears to use local-time arithmetic in this machine timezone. Not investigated; outside this unit."
+    },
+    {
+      "id": "FN-u96-hold-breach",
+      "class": "process",
+      "summary": "One journey run started while PARENT-PROOF-HOLD existed (see parentProofHold).",
+      "status": "kept as a process finding; the three post-fix journey runs waited on the hold file before each run (hold wait 0 s)"
+    },
+    {
+      "id": "FN-u96-test-ownership",
+      "class": "scope",
+      "summary": "src/__tests__/integration/coopMutationPersistence.test.ts was edited (harness only) as a test for an owned file; the parent confirms or reverts.",
+      "status": "resolved: the parent approved the integration harness edit and amends the paths at fold"
+    }
+  ],
+  "laneArtifacts": {
+    "dir": "<lane-temp> = %TEMP%/u96-lane-r2-20260926 (machine-local scratch, not committed)",
+    "scripts": [
+      "edit-route.cjs",
+      "edit-day.cjs",
+      "mutants.cjs",
+      "baseline-journey.sh",
+      "build.sh",
+      "write-admission.cjs",
+      "write-red.cjs",
+      "write-local.cjs",
+      "journey-fixed.sh",
+      "update-local.cjs"
+    ]
+  },
+  "updatedAt": "2026-09-26T15:03:04.387Z",
+  "parentDecisions20260926": {
+    "source": "coordinator message to this lane after the first local report",
+    "integrationHarness": "keep src/__tests__/integration/coopMutationPersistence.test.ts (harness only, no assertion changed); the parent amends U96 paths with that exact file at fold",
+    "journeyAssertion": "e2e/coop-campaign-two-browser-journey.spec.ts:475 is a stale assertion under OD-u35g-coop-outcome-rewrites-record (2026-09-25): reconcileCoopBattle.ts:220-224 keeps a destroyed unit with status destroyed; the journey was unreachable past :375 on main before this unit. The parent amends U96 paths with that exact file."
+  },
+  "pathAmendments": [
+    {
+      "path": "src/__tests__/integration/coopMutationPersistence.test.ts",
+      "approvedBy": "parent (coordinator message, 2026-09-26)",
+      "change": "harness: host socket frames forwarded to the stub transport onFrame (+13 -1), no assertion changed"
+    },
+    {
+      "path": "e2e/coop-campaign-two-browser-journey.spec.ts",
+      "approvedBy": "parent (coordinator message, 2026-09-26)",
+      "change": "after the second (destroyed) outcome the guest unit count expectation is 1, not 0 (+3 -1: two comment lines and .toBe(0) -> .toBe(1)); every other assertion body byte-identical"
+    }
+  ],
+  "e2eEdit": {
+    "file": "e2e/coop-campaign-two-browser-journey.spec.ts",
+    "sha256After": "cf24477281833f67d518bd93a05a17704abba7643f81e5971174f62a8b2e7c19",
+    "diff": [
+      "@@ -472,9 +472,11 @@",
+      "         opponentUnitId: 'e2e-coop-opfor-2',",
+      "       });",
+      " ",
+      "+      // A destroyed unit stays on the roster with status destroyed",
+      "+      // (OD-u35g-coop-outcome-rewrites-record), so the mirror keeps it.",
+      "       await expect",
+      "         .poll(() => readGuestMirrorUnitCount(guestPage), { timeout: 20_000 })",
+      "-        .toBe(0);",
+      "+        .toBe(1);"
+    ],
+    "statusNotAsserted": "the guest mirror reader cannot read unit status: the surface renders only the count (CampaignCoopRouteSurface.tsx:451-455, rosterUnitCount from Object.keys(mirrorCampaign.rosterUnits), CampaignCoopRouteSurfaceConnected.tsx:373-375) and the mirror store is not exposed on window (src/lib/e2e/storeExposure.ts:34-51); no helper added. The destroyed status is measured server-side: scratch reconcile rosterAfter2 e2e-coop-unit-1 { status destroyed }.",
+    "salvageAt478": "kept: .toBe(100_000) held in all three runs below (the run passes through it), and the earlier failure screenshot at :475 already showed Salvage 100,000; the balance assertion after it also held.",
+    "oxfmtCheck": "npx oxfmt --check e2e/coop-campaign-two-browser-journey.spec.ts: exit 0, All matched files use the correct format."
+  }
+}

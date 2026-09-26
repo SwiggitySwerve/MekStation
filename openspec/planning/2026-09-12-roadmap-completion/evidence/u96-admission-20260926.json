@@ -1,0 +1,153 @@
+{
+  "unit": "U96",
+  "stage": "admission",
+  "status": "ADMITTED",
+  "at": "2026-09-26T14:04:15.138Z",
+  "baseline": "2edfbb3b6f40f04c641dbc8530afd5ad6df73d2a",
+  "originMainLsRemote": "2edfbb3b6f40f04c641dbc8530afd5ad6df73d2a\trefs/heads/main",
+  "baselineEqualsOriginMain": true,
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u96",
+  "branch": "roadmap-u96-put-through-live-host-20260926",
+  "implementerModel": "claude-opus (Agent model: opus, lean-worker)",
+  "node": "R2.authority-live",
+  "ownershipPaths": [
+    "src/lib/multiplayer/server",
+    "src/pages/api/campaigns/[id].ts",
+    "src/stores/campaign/useCampaignStore.dayActions.ts",
+    "src/stores/campaign/useCampaignStore.actions.ts"
+  ],
+  "reviewClasses": [
+    "authority",
+    "idempotency"
+  ],
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500
+  },
+  "firstAttempt": {
+    "receipt": "evidence/u96-admission-attempt1-20260926.json",
+    "sha256": "11227a8078e6f986a8a177235641bcd5b3150fda0ab62f1efe5e432e950c8028",
+    "status": "BLOCKED at admission on baseline 8a025218e, no edits; the owner amended the unit (units.json firstAdmissionAttempt20260926, pathsAmendedBeforeAdmission20260926; docs commit 0a91e90a9, #1998)",
+    "reused": "its S2/S3 live driver (sha256 fbe7b8ace995c00df25a7e7fbc222236e6d4a5a7cda521d1058a10d5c7380535, equal to its recorded driverSha256), its red-row candidate (e73e39cd...) and its client probe (73a6bc49...), re-hashed from <lane-temp-attempt1>",
+    "worktreeCopyOverwritten": "the untracked worktree copy of u96-admission-20260926.json was byte-identical to the attempt1 file (cmp exit 0) and is overwritten by this receipt"
+  },
+  "shellPreamble": [
+    "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "export npm_config_dry_run=true"
+  ],
+  "gates": {
+    "nodeVersion": {
+      "command": "node -v",
+      "exitCode": 0,
+      "lastLine": "v22.22.0"
+    },
+    "guardNodeModulesLink": {
+      "command": "npm run --silent qc:guard-node-modules-link",
+      "exitCode": 1,
+      "lastLine": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"E:\\\\Projects\\\\MekStation\\\\.sisyphus\\\\roadmap-completion-20260912\\\\worktrees\\\\u96\\\\node_modules\",\"actualPath\":\"E:\\\\Projects\\\\MekStation\\\\node_modules\"}",
+      "note": "refuses in a junctioned worktree by design; no npm install/ci/prune/lifecycle run"
+    },
+    "validateNext": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+      "exitCode": 0,
+      "lastLine": "U89",
+      "note": "--next prints U89, not U96; U96 is parent-dispatched (admitAfter20260926 is parent-checked: U95 main-verified at 2d43b9f76 #1993, listed below the baseline by git log --oneline)"
+    },
+    "validate": {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "exitCode": 0,
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows"
+    },
+    "headBlobsBeforeEdits": {
+      "src/pages/api/campaigns/[id].ts": "da499deb23dea9a3d073be10d80a6489ce92e65b",
+      "src/lib/multiplayer/server/CampaignHostRegistry.ts": "cac48393c251cc77fdc465a94825a36cbae4fd00",
+      "src/lib/multiplayer/server/CampaignMatchHost.ts": "83d40dbd3ea1efcf2bd9cd96a5d22075c272f8c7",
+      "src/stores/campaign/useCampaignStore.dayActions.ts": "fe6c3f86b043b647f3225ea5393e0c6f926c1741",
+      "src/stores/campaign/useCampaignStore.actions.ts": "bac9894c504139227f85492086d8c752626bd28f"
+    }
+  },
+  "spec": {
+    "loop": "openspec/specs/coop-campaign-sync/spec.md:9 (a single authoritative writer SHALL hold campaign state and SHALL be the only party permitted to mutate it)",
+    "payloads": "openspec/specs/coop-campaign-sync/spec.md:54 (CampaignSnapshotPublished SHALL carry a whole-campaign state baseline), :64-68 (a snapshot initializes a guest mirror without prior events)",
+    "singleWriter": "openspec/specs/coop-campaign-sync/spec.md:215 (the host SHALL be the single campaign-write authority; the guest SHALL be a co-op player with no campaign-write authority)",
+    "guestHydrates": "openspec/specs/coop-campaign-sync/spec.md:508 (the guest mirror hydrates from the host authoritative state delivered over the campaign-sync transport)"
+  },
+  "seams": {
+    "putBranch": "src/pages/api/campaigns/[id].ts:159-279: body checks :160-172, authority blocked 409 :178-195, purpose :200-205, saveCampaignRecordThroughJournal with hostInstanceId getOrCreateHostInstanceId() :209-220, typed 409 conflict :228-255 (ConflictResponse :55-62, reason literal base-state-unavailable :57), header comment :1-21",
+    "checkpointWriter": "src/lib/campaign/authority/campaignRecordJournalSave.ts:71-146: plan with input.hostInstanceId :91-96 (the row instance id pinning, not a caller identity), the snapshot of the planned record with the journal pilots/contracts/salvage :103-109, the row and the append in one journal transaction :119-145",
+    "snapshotEvent": "src/lib/campaign/authority/campaignSourceGenesis.ts:233-243: the checkpoint is a CampaignSnapshotPublished, scope 'campaign', payload { state, revision: sequence }",
+    "hostInstance": "src/lib/campaign/authority/campaignHostInstance.ts:148-151 (names this process durable host, not a campaign and not a browser tab), :175-192 (row id 1 per database, minted once)",
+    "registry": "src/lib/multiplayer/server/CampaignHostRegistry.ts: entries Map keyed by matchId :254, entry.campaignId from host.campaignId :138, get(matchId) :345-348 (no campaignId lookup), dispose :390-395, globalThis slot getCampaignHostRegistry :422-430 (U95)",
+    "host": "src/lib/multiplayer/server/CampaignMatchHost.ts: state :112, runExclusive single-writer lock :211-220, close/isClosed :243-251, subscribe :262-267, applyHostIntent :362-365, commitEvents :466-493, publish :506-508, rebuildState = log.reconstructState :519",
+    "commitPipeline": "src/lib/multiplayer/server/campaignHostBatchCommit.ts:150-225: expected digest, appendCommandBatch, duplicate-command returns the prior receipt WITHOUT publishing :172-174, writeState then publish :221-224",
+    "fold": "src/lib/campaign/sync/applyCampaignEvent.ts:75 (CampaignSnapshotPublished: (_state, event) => event.payload.state)",
+    "syncSession": "src/lib/multiplayer/server/CampaignSyncSession.ts: header :13-18 (the baseline then the log), RESYNC_SNAPSHOT_GAP :58-66, attachLiveParticipant :398-429 (host.subscribe -> scope admission -> sink, noteDelivered), joinMember :475-536, evaluateScenarioLaunch :753-783 (required revision = log head :785-787)",
+    "wireFrame": "src/lib/multiplayer/server/campaignEventWireFrame.ts:18-32: a CampaignSnapshotPublished rides the CampaignSnapshot kind, every other event CampaignEvent",
+    "socketSide": "src/lib/multiplayer/server/bindCampaignSyncConnection.ts: GM joinMember with sendCampaignEvent :1001-1003, handleCampaignHostIntent :720-848 (host-only :735-746, AdvanceDay convergence gate :748-758 -> Error CAMPAIGN_NOT_CONVERGED with the intentId :700-718, applyHostIntent :820, refusal Error frame with the intentId :829-846, nothing sent on ok), errorFrame carries the intentId :1550-1564",
+    "clientPut": "src/stores/campaign/useCampaignPersistenceStore.ts: putLiveCampaign :656-691 (envelope from buildSerializedCampaign(campaign, getDeviceId(), ...) :666-671, no identity, no Authorization header), runSave one attempt, co-op rollback and toast on 409 :852-883, refreshAfterCommittedCommand :1359-1406 (queued on the save chain; runLoad replaces the live campaign and roster when the row moved, :947-982)",
+    "clientEnvelope": "src/lib/campaign/persistence/campaignEnvelope.ts:49 (instanceId: identity?.instanceId ?? originDeviceId); src/lib/campaign/persistence/deviceId.ts:21-35 (one UUID per browser localStorage); src/lib/campaign/persistence/serializeCampaign.ts:192 (body.coopSession serialized)",
+    "storedInstance": "src/services/campaignPersistence/CampaignPersistenceService.ts:430-437 and :446-451 (a create pins instanceId to the process hostInstanceId), :463-469 (an update keeps the stored instanceId; the envelope instanceId is discarded)",
+    "coopSession": "src/types/campaign/CoopSession.ts:98-103 (host: { mode: 'host', roomCode, matchId }), :109-114 (guest: { mode: 'guest', roomCode, hostMatchId }); src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx:255-259 (the host saves coopSession createHostCoopSession(roomCode, data.matchId) through updateCampaign right after the match is created); src/stores/campaign/useCampaignPersistenceStore.ts:427-440 (a guest load keeps the guest coopSession over the host's)",
+    "hostSurface": "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx:186-231: the GM transport onFrame holds Error codes, folds every event frame into the host view, and on a CampaignEvent (not a CampaignSnapshot) calls refreshSavedRecordAfterCommit (:229-231, :421-426)",
+    "guestTransportAck": "src/lib/campaign/coop/campaignSyncTransport.ts:229-252: the client acks only CampaignEvent frames; a CampaignSnapshot frame is never acked",
+    "dayAdvance": "src/stores/campaign/useCampaignStore.dayActions.ts: advanceDayAction :182-253 (pipeline :191-237, saveCampaign :239, co-op finish :240-247), finishCoopAdvanceDay :306-318 (sends only if the save committed), emitCoopDayAdvancedEvent :320-363 (AdvanceDay { days: max(1, delta) } :344-353, intentId from the advanced date :351, warning toasts :336-341 and :357-361), travelToSystemAction :365-384 (save only)",
+    "updateCampaign": "src/stores/campaign/useCampaignStore.actions.ts: co-op saveCampaign through the persistence store :259-264, updateCampaign reverts on !committed :269-294",
+    "journeyDayAdvance": "e2e/coop-campaign-two-browser-journey.spec.ts:365-377 (host clicks advance; the server record date changes; the guest dashboard date equals it), :414-419 and :433-441 (guest balance polled to initialGuestBalance - GUEST_SPEND_AMOUNT)"
+  },
+  "designAnswers": {
+    "q1_instanceIdentity": {
+      "answer": "The process host instance id is per server database, not per browser: every PUT this server takes passes the same getOrCreateHostInstanceId() (route :217; campaignHostInstance.ts:148-151, :175-192), and the live host runs in the same process, so a host browser and a guest browser served by this server (on one machine or not) share it and it cannot tell them apart. The record's instanceId is that same process id pinned at create (CampaignPersistenceService.ts:430-437) and kept on update (:463-469). The envelope's own instanceId is the per-browser device id (campaignEnvelope.ts:49, deviceId.ts:21-35, putLiveCampaign :666-671), which the route discards and which no live entry records (the entry holds matchId, campaignId, hostPlayerId: CampaignHostRegistry.ts:65-76). The identity the PUT actually carries that names the live session's host is the envelope's co-op session: the host browser saves { mode: 'host', matchId } (CoopSession.ts:98-103, stamped by CampaignCoopEntryPanel.tsx:255-259 right after the match is created), a guest mirror { mode: 'guest', hostMatchId } (CoopSession.ts:109-114, kept on a guest load by useCampaignPersistenceStore.ts:427-440). Decision: a PUT is the host's own save of a live session iff envelope.body.coopSession.mode === 'host' and its matchId equals the live entry's matchId; every other PUT while a live (registered, not closed) host exists for the campaign is refused 409.",
+      "limits": "The PUT route authenticates nobody today (no Authorization on the client PUT, none checked in the route), so the co-op session is a claim in the body, as every field of the PUT is; a client that GETs the host record and PUTs it back carries the host session. The spec gives the guest no campaign-write authority (spec.md:215); this check enforces that against every browser that runs the shipped client, not against a forged body.",
+      "paused": "Paused (GM absent) is live, as attempt 1 argued: its host keeps its in-memory state (CampaignSyncSession.ts:316-326).",
+      "multipleLiveEntries": "The lookup returns the first live entry for the campaign; the co-op create flow makes a new campaign per match (CampaignCoopEntryPanel.tsx:191-198), so two live entries for one campaign are not produced by the shipped UI (read, not measured)."
+    },
+    "q2_adoptionFold": {
+      "answer": "The host fold of a checkpoint is the shared reducer applyCampaignEvent, whose CampaignSnapshotPublished arm replaces the state with payload.state (applyCampaignEvent.ts:75), the reducer the guest mirror and the host batch pipeline use (campaignHostBatchCommit.ts:150-153, :211-214). New host door (CampaignMatchHost): run the route save under the host single-writer lock (runExclusive :211-220) so no host command interleaves between the checkpoint append and the adoption, then fold every event the save appended (read from the log from the pre-save next sequence) into the host state and publish each one to the subscribers. The live head advances by the checkpoint because the checkpoint is a journal append (the session head is the log head: CampaignSyncSession.ts:785-787). Each guest receives it through the existing live delivery (attachLiveParticipant :398-429; scope campaign admits every participant) as the CampaignSnapshot frame (campaignEventWireFrame.ts:24-27), then later events as CampaignEvent frames. No new frame kind.",
+      "routeWiring": "In the route, a live host own PUT calls entry.host.<door>(save) instead of save(); a PUT with no live entry calls save() exactly as today."
+    },
+    "q3_doubleCount": {
+      "answer": "New co-op host day advance (host transport present): send AdvanceDay { days: 1 } first with an intentId from the day being left, wait for the answer on the GM transport: a CampaignEvent frame carrying a CampaignDayAdvanced of this campaign is the commit (the GM joinMember sink receives every committed event: bindCampaignSyncConnection.ts:1001-1003), an Error frame carrying the intentId is the refusal (:700-718, :829-846). On commit: refreshAfterCommittedCommand (the command rewrote the record at the next version, campaignRecordJournalState.ts:66-95, and the host surface refetches the same way on every CampaignEvent: CampaignCoopRouteSurfaceConnected.tsx:229-231), put back the pre-advance campaign, then run the day pipeline and save exactly as today: the checkpoint carries day+1, which the host already holds, so the adoption replaces day+1 with day+1 and does not re-advance. On refusal: nothing is computed or saved, the local campaign is untouched, the refusal reason is toasted and advanceDay returns null.",
+      "whyPipelineAfterCommit": "The pipeline runs after the commit and the refresh, on the pre-advance campaign, because the refresh replaces the live campaign and roster with the rewritten record (useCampaignPersistenceStore.ts:1359-1406, runLoad :947-982); computed earlier, its effects would be overwritten before the save.",
+      "noTransport": "A co-op campaign without an active host transport (a guest, or a host whose socket is not up) keeps today's path: save, then the existing warning toast. For a guest the save is now refused 409 by the server (q1)."
+    },
+    "q4_travelAndUpdateCampaign": {
+      "answer": "Unchanged client code: travelToSystem (dayActions.ts:365-384) and updateCampaign (actions.ts:269-294) keep saving through the PUT, and the host adopts the checkpoint. Adoption replaces the whole authoritative state (absolute balance, day, roster units; pilots, contracts, salvage carried from the journal by the checkpoint writer, campaignRecordJournalSave.ts:103-109), so it can double-apply only where the client also sends a delta command whose effect the saved body already contains. Read on this baseline: travel sends no host intent (dayActions.ts:365-384); updateCampaign sends none (actions.ts:269-294); the day advance did (save then AdvanceDay +1), which q3 reorders; ReconcileBattle is sent without a preceding save of its consequences (coopHostRegistry.ts:94-104, missionPayout 0 at :83).",
+      "inference": "INFERENCE: no other host command is paired with a save of its own effect; not exhaustively measured."
+    },
+    "q5_tradeOff": {
+      "fixAssessment": "Root cause: two writers of one co-op campaign. The host browser lands its ledger through the whole-envelope checkpoint the live host never folds (erased by the next command, FN-u92), and any other browser can checkpoint over the host. Fix at the producer: the host session adopts its own browser checkpoint under its single-writer lock (the only writer), every other PUT is refused while it lives, and the host browser orders its one delta command (AdvanceDay) before the save that carries its effects.",
+      "removed": "Considered and rejected: a new host command carrying a whole state (the checkpoint already is that fact on the journal; a second event would double-append); diffing the envelope into intents (a transformer); a new frame kind (the CampaignSnapshot frame exists); a campaignId index in the registry (a scan over live entries is enough); a client timeout on the commit wait (the existing proposal wait, CampaignCoopRouteSurfaceConnected.tsx:428-458, has none); refusing by the stored or process instance id (it cannot tell host from guest, q1).",
+      "scope": "route (live lookup, host-own check, refusal in the conflict shape, adoption call, header comment), CampaignHostRegistry (live entry for a campaign), CampaignMatchHost (the adopting door), useCampaignStore.dayActions.ts (command first, then refresh, pipeline, save). useCampaignStore.actions.ts unchanged (updateCampaign already saves through the PUT)."
+    },
+    "q6_risksForTheParent": "see risksForTheParent"
+  },
+  "estimatePerFile": {
+    "product": {
+      "src/pages/api/campaigns/[id].ts": "+50 (route)",
+      "src/lib/multiplayer/server/CampaignHostRegistry.ts": "+12 (server)",
+      "src/lib/multiplayer/server/CampaignMatchHost.ts": "+30 (server)",
+      "src/stores/campaign/useCampaignStore.dayActions.ts": "+90/-40 (client)",
+      "src/stores/campaign/useCampaignStore.actions.ts": "0"
+    },
+    "tests": {
+      "src/__tests__/api/campaigns/campaignPutLiveHost.test.ts": "about 320 (R1, R3, the non-live pin rows)",
+      "src/stores/campaign/__tests__/useCampaignStore.coopDayAdvanceOrder.test.ts": "about 200 (R2)",
+      "src/__tests__/integration/coopMutationPersistence.test.ts": "EXPECTED (not checked yet): its row \"pushes host day advance through the real server registry to a connected guest\" stubs onFrame to never deliver, so a client that waits for the commit frame would wait forever; a harness change (forward the host socket frames to the stub onFrame, no assertion change) of about 15 lines. INTERPRETATION the parent must confirm: it is a test for an owned file (it drives useCampaignStore advanceDay, dayActions.ts), so it is treated as within \"tests for them\", though its directory is not among the three the charter lists."
+    },
+    "totalsEstimate": "product about 180 lines (client 90-130, route 50, server 42); 4 product files, 3 test files"
+  },
+  "risksForTheParent": [
+    "Authority class, what a tester sees: while a co-op session is live, a PUT whose envelope is not the host session (a guest mirror, a pre-co-op copy, another match) answers 409 { kind conflict, reason live-coop-session, matchId, current }; the shipped client treats every typed 409 the same way (rollback plus the \"changed elsewhere\" toast, useCampaignPersistenceStore.ts:852-883), so a guest sees its local change rolled back.",
+    "The GM day advance now waits for the host commit before the day effects show: the date, costs and activity entries appear after the AdvanceDay round trip and a record refetch; a refused AdvanceDay (for example CAMPAIGN_NOT_CONVERGED or MATCH_PAUSED) leaves the day unadvanced with an error toast, where the baseline saved the day and then sent a command that could be refused.",
+    "Idempotency: the AdvanceDay intentId is derived from the day being left; the host dedupes a repeated commandId and answers a duplicate with its prior receipt without publishing (campaignHostBatchCommit.ts:172-174) and the socket sends nothing on ok, so a re-sent AdvanceDay for a day the host already committed would leave the client waiting (no timeout, as the proposal wait). INFERENCE: reachable only when a committed advance was followed by a failed refresh and a failed save that rolled the local date back.",
+    "Convergence: an adopted checkpoint reaches guests as a CampaignSnapshot frame, which the shipped guest transport does not acknowledge (campaignSyncTransport.ts:229-252), while the AdvanceDay gate requires every retained participant to acknowledge the log head (CampaignSyncSession.ts:753-787). INFERENCE: after a day advance (AdvanceDay commit plus the adopted checkpoint) the next AdvanceDay is refused CAMPAIGN_NOT_CONVERGED until the guest acknowledges a later CampaignEvent; on the baseline the unpublished checkpoint already raised the required revision past the guest acknowledgement, so the same second command was refusable there too.",
+    "The two-browser journey reads the guest balance as initialGuestBalance - GUEST_SPEND_AMOUNT after the day advance (e2e spec :414-419, :433-441). With adoption the day effects (for example daily costs) now survive into the host state; if the journey campaign has non-zero day costs the journey expectation encoded the erasure. EXPECTED (not checked): measured at stage 3 by the journey run.",
+    "Live host lifetime: entries are never disposed outside tests (FN-u96-campaign-host-entries-never-disposed), so the refusal applies to every non-host PUT of a campaign for the life of the process once its co-op match was created."
+  ],
+  "acceptanceCommands": [
+    "npx jest src/__tests__/api/campaigns/campaignPutLiveHost.test.ts src/stores/campaign/__tests__/useCampaignStore.coopDayAdvanceOrder.test.ts",
+    "npx jest src/__tests__/api src/lib/multiplayer/server src/lib/campaign src/lib/api src/stores/campaign",
+    "npx tsc --noEmit; npx oxlint; npx oxfmt --check <changed files>; npm run lint:units; npm run qc:openspec-ci:validate; node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+    "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build; live driver S2/S3 before and after; NODE_ENV=production node scripts/qc/run-gm-two-player-campaign.mjs --group=lifecycle-pack and the journey group"
+  ]
+}
