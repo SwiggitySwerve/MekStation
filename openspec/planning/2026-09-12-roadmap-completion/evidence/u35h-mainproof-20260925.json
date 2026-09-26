@@ -7,7 +7,7 @@
   "runtime": {
     "build": "exit 0",
     "e2eBundleMarker": "__E2E_MODE__ present in _app chunk (run log)",
-    "playwright": "qc pin and scripts jest suites plus the authority-recovery and privacy-pack ladder groups ( passing): STEP FAILED: 12 passed (jest ?, 0 failed, exit 0; authority-recovery 4, 0 failed, exit 0; privacy-pack 8, 0 failed, exit 0)",
+    "playwright": "qc pin and scripts jest suites plus the authority-recovery and privacy-pack ladder groups ( passing): 1265 passed (jest 1253 passed and 10 skipped of 1263, exit 0; authority-recovery 4, exit 0; privacy-pack 8, exit 0; all with 0 failed)",
     "tsc": "exit 0"
   },
   "commands": {
@@ -33,5 +33,10 @@
     "f891dbdfc0402cd4ba60fab1be3245dfec559c5d7afc7e21b87e795a73d05e5f *tsc.log",
     "38875d75a513e6dc764ce99160b9e7423b80cd040a68252ea1b4c336e36d0fc1 *validator.log"
   ],
-  "verdict": "PASS"
+  "verdict": "PASS",
+  "runtimeLineRestated20260925": {
+    "at": "2026-09-26T05:03:58.000Z",
+    "from": "qc pin and scripts jest suites plus the authority-recovery and privacy-pack ladder groups ( passing): STEP FAILED: 12 passed (jest ?, 0 failed, exit 0; authority-recovery 4, 0 failed, exit 0; privacy-pack 8, 0 failed, exit 0)",
+    "why": "the parent's runtime script matched the jest summary with /Tests:\\s+(\\d+) passed/, which misses a summary that carries a skipped count first ('Tests: 10 skipped, 1253 passed, 1263 total'), so it printed 'jest ?' and 'STEP FAILED' although jest exited 0 with 0 failures; the closure tool accepted the line's '12 passed (...)' form; the counts here are read from the hashed playwright.log of the same run (the second attempt after the qc-registry flake)"
+  }
 }

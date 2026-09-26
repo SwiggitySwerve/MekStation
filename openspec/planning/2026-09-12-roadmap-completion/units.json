@@ -1588,7 +1588,7 @@
     {
       "id": "U35i",
       "node": "R2.authority-live",
-      "behavior": "After U35d flips the campaign journal flag, three comments still describe the flag-off state and are corrected to the flag-on behaviour, with the exact edits listed in evidence/u35d-admission-20260924.json flipResidueDecision.exactEdits: src/lib/campaign/coop/coopRuntimeSession.ts:99-100, src/lib/multiplayer/server/matchJournalAuthority.ts:3 and src/pages/api/multiplayer/matches/index.ts:262-265 (owner decision OD-u35g-coop-outcome-rewrites-record, sub-decision 3). Comment-only; no behaviour change. Folded 2026-09-25 (U35h's admission finding F1): the comment at src/lib/multiplayer/server/combatJournalAuthorityEnabled.ts:35-36 says the combat arm uses the same check the campaign arm uses; U35d deleted that arm, so the comment is corrected here too.",
+      "behavior": "After U35d flips the campaign journal flag, three comments still describe the flag-off state and are corrected to the flag-on behaviour, with the exact edits listed in evidence/u35d-admission-20260924.json flipResidueDecision.exactEdits: src/lib/campaign/coop/coopRuntimeSession.ts:99-100, src/lib/multiplayer/server/matchJournalAuthority.ts:3 and src/pages/api/multiplayer/matches/index.ts:262-265 (owner decision OD-u35g-coop-outcome-rewrites-record, sub-decision 3). Comment-only; no behaviour change. Folded 2026-09-25 (U35h's admission finding F1): the comment at src/lib/multiplayer/server/combatJournalAuthorityEnabled.ts:35-36 says the combat arm uses the same check the campaign arm uses; U35d deleted that arm, so the comment is corrected here too. Folded 2026-09-25 (U35d's finding F1, FN-u35d-inmemory-store-comments-say-flag-off): src/lib/campaign/sync/ICampaignEventStore.ts:177 and InMemoryCampaignEventStore.ts:40 still call the in-memory store the flag-off store; both are corrected here.",
       "ownershipPaths": [
         "src/lib/campaign",
         "src/lib/multiplayer/server",
@@ -2134,7 +2134,7 @@
         "tick": null
       },
       "ownerGate": null,
-      "state": "planned",
+      "state": "blocked",
       "id": "U86",
       "node": "R6.umbrella",
       "behavior": "The performance pack (e2e/gm-two-player-performance.pack.spec.ts, E2E-71/72/73) issues each measured command only after the authority has recorded every participant's acknowledgement of the current head, instead of client-side receipt plus a fixed 25 ms (converge() near :630-646); the acknowledged revisions are read through the existing E2E-guarded performance probe route. An AdvanceDay refused with CAMPAIGN_NOT_CONVERGED is captured on the GM transport and fails the run naming the refusal, instead of timing out as a missing paint. Red first: the pack at its baseline with a GM-transport capture shows CAMPAIGN_NOT_CONVERGED on an AdvanceDay window, as the diagnosis dumps did. Green: the performance group passes 3 of 3 consecutive runs. If the probe route needs an edit (src/pages/api/e2e/performance-probe.ts), the unit stops at admission for a path amendment. The server stall (mode 2) is U89's. Amended 2026-09-25 after the first admission attempt (evidence/u86-admission-attempt1-20260925.json): the probe route (src/pages-modules/api/e2ePerformanceProbeRoute.ts, behind its existing E2E guard) takes a matchId and answers the campaign session's convergence, the same answer the AdvanceDay check reads (CampaignSyncSession.evaluateScenarioLaunch), with its test re-pinned. Before any edit the re-admission MEASURES whether the campaign host registry the probe reads (src/lib/multiplayer/server/CampaignHostRegistry.ts:405-412, a module-level singleton) is the same instance the socket runtime's module graph records acknowledgements into (server.js:446-464 loads that graph separately; MatchHostRegistry solved this with a globalThis slot in U22a): a live probe against a running server with a socket session up. If the registries are split, U86 stops BLOCKED again and names the successor (the campaign registry in a globalThis slot, authority class, on src/lib/multiplayer/server).",
@@ -2158,6 +2158,16 @@
           "src/__tests__/api/e2ePerformanceProbeRoute.test.ts"
         ],
         "why": "the probe route must answer the session's convergence (evaluateScenarioLaunch) for a match"
+      },
+      "secondAdmissionAttempt20260925": {
+        "receipt": "evidence/u86-admission-attempt2-20260925.json",
+        "decision": "BLOCKED at admission on the measured registry split; U95 planned; U86 resumes when U95 is main-verified"
+      },
+      "blocked20260925": {
+        "at": "2026-09-26T05:03:58.000Z",
+        "cause": "measured with the Node inspector while a co-op session was live (4 samples): Next's API module graph and the socket runtime's module graph hold different CampaignHostRegistry instances (src/lib/multiplayer/server/CampaignHostRegistry.ts:405-417, a module-level singleton); the socket graph's copy retains the two participants and answers participants-behind, the API graph's copy retains nobody and answers converged, so a probe route reading the API graph would make the pack's wait a no-op",
+        "nextIndependentAction": "U95 (the campaign host registry in one globalThis slot, as MatchHostRegistry.ts:220-260 does since U22a; authority class); U86 returns to planned when U95 is main-verified",
+        "proof": "evidence/u86-admission-attempt2-20260925.json"
       }
     },
     {
@@ -2733,6 +2743,38 @@
       "ownerGate": null,
       "state": "planned",
       "source20260925": "planned by the parent under gm-authority-redaction/spec.md:93-104 from U58's finding F1 (FN-u58-legacy-resync-tail-delivers-raw-snapshot), confirmed production-reachable by U58's Lane A review (evidence/u58-lane-a-review-20260925.md, question 4); disclosed in the owner's U58 ruling as a unit before UAT round 2"
+    },
+    {
+      "id": "U95",
+      "node": "R2.authority-live",
+      "taskKeys": [],
+      "behavior": "The campaign host registry is one instance across Next's API module graph and the socket runtime's module graph: src/lib/multiplayer/server/CampaignHostRegistry.ts replaces its module-level singleton (:405-417) with a Symbol.for globalThis slot, as MatchHostRegistry.ts:220-260 does since U22a, and _resetCampaignHostRegistry closes the entries and clears the slot. Measured today (U86's second admission, evidence/u86-admission-attempt2-20260925.json): with a co-op session live the two graphs hold different registries; the API graph's copy (which src/pages/api/multiplayer/matches/index.ts:325 registers into) retains no participants. Admission decides, with file:line and a live measurement, which entry the socket side finds once the slot is shared: today it reaches its entry through getOrCreate({ rebuilt: true }), which pauses it until the GM returns, while the create route's entry is not paused and is built from the API graph's module copies; the unit states which semantics win and why, and whether the create route's registration must change (a path amendment if so). Red first: a jest row that two isolated module loads of CampaignHostRegistry share one instance fails on the baseline; green: it passes, and the live measurement shows one registry with the participants retained. The rebuilt/paused behavior a GM sees on return is measured before and after and recorded.",
+      "ownershipPaths": [
+        "src/lib/multiplayer/server"
+      ],
+      "ciClass": "product",
+      "reviewClasses": [
+        "authority"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      },
+      "baseline": null,
+      "prHead": null,
+      "mergeSha": null,
+      "stageReceipts": {
+        "admission": null,
+        "red": null,
+        "local": null,
+        "review": null,
+        "merge": null,
+        "mainProof": null,
+        "tick": null
+      },
+      "ownerGate": null,
+      "state": "planned",
+      "source20260925": "planned by the parent under the owner's answer \"Plan U95, U86 waits on it (Recommended)\" (working session of 2026-09-25) on U86's measured registry split"
     },
     {
       "id": "U36",
@@ -9828,6 +9870,15 @@
       "summary": "The shared hex-map projection has no PhysicalAttackResolved handler while the engine moves displaced units on that event (physicalAttackResolution.ts:38, :166), so on the networked board a pushed unit keeps its old hex until it next moves.",
       "recommendedSuccessor": "a R2.multiplayer-client unit adding the handler under the projection's parity pins",
       "status": "recorded"
+    },
+    {
+      "id": "FN-u86-campaign-host-registry-split-across-module-graphs",
+      "foundBy": "U86 re-admission lane (claude-opus), 2026-09-25 (measured with the Node inspector, 4 samples)",
+      "at": "2026-09-26T05:03:58.000Z",
+      "class": "authority: two registries where the code assumes one",
+      "summary": "Next's API module graph and the socket runtime's graph (server.js:446-464) each hold their own CampaignHostRegistry instance; the API graph's copy, which the create route registers into, retains no participants, so any API-graph reader of campaign session state (the E2E probe, and by reading any future route) sees a different session than the players talk to. MatchHostRegistry had the same split until U22a.",
+      "recommendedSuccessor": "U95",
+      "status": "recorded; U95 planned; U86 blocked on it"
     }
   ]
 }
