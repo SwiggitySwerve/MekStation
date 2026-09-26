@@ -1,0 +1,21 @@
+{
+  "unit": "U35h",
+  "stage": "merge",
+  "at": "2026-09-26T04:16:27.644Z",
+  "pr": 1969,
+  "title": "chore(e2e): remove the dead campaign journal arm key (U35h)",
+  "head": "895a94d35916c43b078d98eb030150a39a14da2e",
+  "mergeSha": "1c45ac77030067b07ba99fe899fb03eabc857008",
+  "mergedAt": "2026-09-26T02:05:27Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "e2e/gm-two-player-authority-recovery.pack.spec.ts",
+    "playwright.config.ts",
+    "scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+    "scripts/qc/gm-two-player-campaign-core.cjs"
+  ],
+  "blobEqualityDiffLines": 0
+}
