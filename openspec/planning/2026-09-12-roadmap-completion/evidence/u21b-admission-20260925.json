@@ -1,0 +1,322 @@
+{
+  "unit": "U21b",
+  "stage": "admission",
+  "at": "2026-09-25T23:31:07.885Z",
+  "status": "admitted",
+  "baseline": "bd6bfe779036631bf63b0e84b748a7bfd6e122b6",
+  "baselineEqualsOriginMain": true,
+  "originMainAfterFetch": "bd6bfe779036631bf63b0e84b748a7bfd6e122b6",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u21b",
+  "branch": "roadmap-u21b-viewer-lineage-head-20260925",
+  "node": "R2.authority-live",
+  "ciClass": "product",
+  "reviewClasses": [
+    "replay",
+    "authority"
+  ],
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "shellPreamble": [
+    "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "export npm_config_dry_run=true"
+  ],
+  "installGuard": {
+    "command": "npm run --silent qc:guard-node-modules-link",
+    "output": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"E:\\\\Projects\\\\MekStation\\\\.sisyphus\\\\roadmap-completion-20260912\\\\worktrees\\\\u21b\\\\node_modules\",\"actualPath\":\"E:\\\\Projects\\\\MekStation\\\\node_modules\"}",
+    "exitCode": 1,
+    "expected": true,
+    "why": "refusal by design in a junctioned worktree (charter); no npm install/ci/prune or lifecycle was run"
+  },
+  "next": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "stdout": "U21b",
+    "exitCode": 0,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21b/logs/admission-next.log",
+      "sha256": "2284b812985ec79d9a7eed3fa5aa30388977286261a813bba7e99ebc877bb948"
+    }
+  },
+  "validator": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+    "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows",
+    "exitCode": 0,
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21b/logs/admission-validator.log",
+      "sha256": "97b2f29d264078525a55c5f88586fb95603311fa065e70d7d17c5fab08f5b5bc"
+    }
+  },
+  "ownershipPaths": [
+    "src/lib/multiplayer/server",
+    "src/pages-modules/api"
+  ],
+  "behavior": "units.json U21b behavior sentence (not widened): lineage effectiveHead.revision reads readEffectiveStreamHead instead of the branch baseRevision cutoff; four stale comments corrected; a regression row pins DELETE /api/multiplayer/matches/[id] closing a live host through the shared registry.",
+  "seams": {
+    "lineageComputed": [
+      {
+        "seam": "src/lib/multiplayer/server/history/ViewerHistoryLineage.ts:114-116",
+        "fact": "projectViewerHistoryLineage reads stores.branches.readEffectiveHead(stream) and projects effectiveHead through projectEffectiveHead"
+      },
+      {
+        "seam": "src/lib/multiplayer/server/history/ViewerHistoryLineage.ts:125-138",
+        "fact": "projectEffectiveHead: null stored head answers null (:130); revision = current?.baseRevision ?? storedHead.effectiveGeneration (:133-135), the branch cutoff, not a journal head"
+      },
+      {
+        "seam": "src/lib/multiplayer/server/history/ViewerHistoryLineage.ts:76-94",
+        "fact": "IViewerHistoryLineageStores: branches {listBranches, readEffectiveHead, readSupersessions} + manifests; no journal-head read today"
+      },
+      {
+        "seam": "src/pages-modules/api/matchHistoryViewerChain.ts:153-159",
+        "fact": "createViewerHistoryLineageStores wires SQLiteEventHistoryBranchStore(db) and the manifest store over getSQLiteService().getDatabase()"
+      },
+      {
+        "seam": "src/pages-modules/api/matchHistoryViewerChain.ts:170-183",
+        "fact": "readMatchHistoryLineage projects stream { streamType, streamId: caller.matchId }; streamType from matchHistoryLineageStreamType (:164-168), default match"
+      }
+    ],
+    "effectiveHeadRevisionConsumers": [
+      {
+        "seam": "src/pages-modules/api/matchHistoryTimelineRoute.ts:49-56",
+        "fact": "GET /api/matches/:id/timeline returns lineage in its body"
+      },
+      {
+        "seam": "src/pages-modules/api/matchHistoryExportRoute.ts:52-54",
+        "fact": "GET /api/matches/:id/export returns lineage in its body"
+      },
+      {
+        "seam": "src/components/multiplayer/MatchHistoryLineage.tsx:26",
+        "fact": "the only client renderer reads lineage.transitions only; grep of src/components, src/hooks, src/stores, src/pages finds no non-test read of effectiveHead"
+      },
+      {
+        "seam": "src/pages-modules/api/__tests__/matchHeadRoute.test.ts:225-229",
+        "fact": "existing row pins lineage.effectiveHead === GET /head for a head sitting AT its base (revision 2 = base 2)"
+      },
+      {
+        "seam": "src/components/multiplayer/__tests__/MatchHistoryLineage.test.tsx:20",
+        "fact": "fixture literal only (effectiveHead { candidate-1, 2, 2 }); not a reader of the server value"
+      },
+      {
+        "seam": "e2e/helpers/gmTwoPlayerRewind.ts:143",
+        "fact": "readLineage passes body.lineage.effectiveHead through unchanged (no revision arithmetic)"
+      },
+      {
+        "seam": "e2e/gm-two-player-rewind.pack.spec.ts:185-186",
+        "fact": "E2E-42 compares each viewer lineage revision with heads[0] revision (host, guest, spectator read in one Promise.all)"
+      },
+      {
+        "seam": "e2e/gm-two-player-rewind.pack.spec.ts:60,184,306-307; e2e/gm-two-player-privacy.pack.spec.ts:325",
+        "fact": "read effectiveHead.branchId only"
+      }
+    ],
+    "headRouteBinding": [
+      {
+        "seam": "src/pages-modules/api/matchHeadRoute.ts:40",
+        "fact": "stream = matchStreamRef(caller.matchId) = { streamType: match, streamId } (GmCombatRewindPreview.ts:73-75)"
+      },
+      {
+        "seam": "src/pages-modules/api/matchHeadRoute.ts:61-75",
+        "fact": "db = getSQLiteService().getDatabase(); branches = new SQLiteEventHistoryBranchStore(db); in one db.transaction: effective = branches.readEffectiveHead(stream), null -> 404; head = readEffectiveStreamHead(db, branches, stream); revision 0 -> 404; body { branchId: head.branchId, revision: head.revision, effectiveGeneration: effective.effectiveGeneration, digest }"
+      },
+      {
+        "seam": "src/lib/events/journal/SQLiteEventHistoryCorrectionLeaseStore.ts:334",
+        "fact": "the correction lease reads the same readEffectiveStreamHead(this.db, this.branches, stream)"
+      },
+      {
+        "seam": "src/lib/multiplayer/server/MatchRecoveryJournalHead.ts:87-92",
+        "fact": "restart recovery consults the same readEffectiveStreamHead on matchStreamRef"
+      }
+    ],
+    "readEffectiveStreamHead": [
+      {
+        "seam": "src/lib/events/journal/EventHistoryEffectiveStreamHead.ts:47-48",
+        "fact": "no effective head -> MISSING_HEAD { root, 0, genesis digest } (never null, never a throw)"
+      },
+      {
+        "seam": "src/lib/events/journal/EventHistoryEffectiveStreamHead.ts:49-63",
+        "fact": "reads event_journal_stream_heads for the EFFECTIVE branch only; no row -> { effective.branchId, 0, genesis digest }"
+      },
+      {
+        "seam": "src/lib/events/journal/EventHistoryEffectiveStreamHead.ts:65-69",
+        "fact": "otherwise { effective.branchId, row.revision, row.digest }"
+      }
+    ],
+    "closeRoute": [
+      {
+        "seam": "src/pages/api/multiplayer/matches/[id].ts:96-128",
+        "fact": "DELETE: authenticateRequest; store.getMatchMeta (404/500); host-only 403; getMatchHostRegistry().closeMatch(id) (:120); 200 { ok: true } whether or not a host was found"
+      },
+      {
+        "seam": "src/pages/api/multiplayer/matches/[id].ts:72",
+        "fact": "void bootstrapMultiplayerServer() on every request (fire-and-forget)"
+      },
+      {
+        "seam": "src/lib/multiplayer/server/MatchHostRegistry.ts:202-207",
+        "fact": "closeMatch: no host -> return; else host.closeMatch() then hosts.delete"
+      },
+      {
+        "seam": "src/lib/multiplayer/server/MatchHostRegistry.ts:220-262",
+        "fact": "U22a: one Symbol.for(mekstation.multiplayer.matchHostRegistry) slot on globalThis holds { registry, recoveryRan }"
+      },
+      {
+        "seam": "src/lib/multiplayer/server/ServerMatchHost.ts:1052-1078",
+        "fact": "host.closeMatch sends Close { reason: Match closed } to every attached socket, detaches each (ServerMatchSocketLifecycle detach closes the socket), marks the store closed"
+      },
+      {
+        "seam": "src/pages-modules/api (listing)",
+        "fact": "no pages-modules handler exists for the DELETE route; it lives only in src/pages/api/multiplayer/matches/[id].ts"
+      }
+    ],
+    "staleComments": [
+      {
+        "id": "F1",
+        "seam": "src/lib/multiplayer/server/history/GmCombatRewindPreview.ts:242-246",
+        "quote": "A match the branch machinery has never heard of. FINDING #48/#53: nothing writes match events to the journal, so a real match has no stream-head row"
+      },
+      {
+        "id": "F2",
+        "seam": "src/lib/multiplayer/server/MatchRecoveryJournalHead.ts:17-19",
+        "quote": "A live-path branch's events live in the match store - `matchStoreBranchSegmentReader` refuses every branch but `root` by name"
+      },
+      {
+        "id": "F5",
+        "seam": "src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindRebuild.test.ts:346 (U21 cited :329; the line has moved)",
+        "quote": "toMatchObject prints kind/reason/detail when commit still refuses."
+      },
+      {
+        "id": "F6",
+        "seam": "src/pages-modules/api/__tests__/campaignLaunchHeadRoute.test.ts:146",
+        "quote": "Persist a campaign with no genesis and no branch - the flag-off world."
+      }
+    ]
+  },
+  "designAnswers": {
+    "whereComputedAndConsumers": "Computed only in ViewerHistoryLineage.ts:125-138 (projectEffectiveHead), wired through matchHistoryViewerChain.ts:153-159 and 170-183, served by the timeline (matchHistoryTimelineRoute.ts:49-56) and export (matchHistoryExportRoute.ts:52-54) routes. No client code reads effectiveHead (the renderer reads transitions only). Readers of revision: the matchHeadRoute.test.ts:225-229 equality row and the two e2e readers below.",
+    "bindTheSameSeam": "IViewerHistoryLineageStores gains readEffectiveStreamHead(stream) -> IEventHistoryEffectiveStreamHead; createViewerHistoryLineageStores builds ONE SQLiteEventHistoryBranchStore(db) and wires readEffectiveStreamHead(db, branches, stream) on the same API SQLite handle GET /head uses. projectEffectiveHead answers branchId and revision from that journal head and generation from the effective head row, the body formula of matchHeadRoute.ts:69-73. The lineage keeps projecting the stream it is asked for (streamType query, default match = matchStreamRef).",
+    "noJournalStream": "A match with no effective head row (legacy / pre-cutover / combat journal mode off, the production constant) keeps answering effectiveHead null: projectEffectiveHead returns null before any journal read (ViewerHistoryLineage.ts:130), so the MISSING_HEAD of readEffectiveStreamHead (EventHistoryEffectiveStreamHead.ts:47-48) is never projected as a genesis head. Changed case: an effective head whose branch has NO stream-head row answers revision 0 (EventHistoryEffectiveStreamHead.ts:58-63) where the baseline answered baseRevision; GET /head answers 404 no head for it (matchHeadRoute.ts:68; pinned by matchHeadRoute.test.ts \"answers no head when the effective branch has no journal head row\"). The sentence does not ask the lineage to answer null there, so it is not added (reported as a risk).",
+    "closeRouteRowInsidePaths": "Yes. A new suite src/lib/multiplayer/server/__tests__/MatchHostRegistry.closeRoute.test.ts starts a host through getMatchHostRegistry().getOrCreate in one jest.isolateModules graph, attaches a recording socket, loads src/pages/api/multiplayer/matches/[id].ts read-only in a second isolated graph (auth mocked as src/__tests__/unit/api/multiplayerSpectate.test.ts does), sends DELETE as the host, and asserts 200 { ok: true }, host.isClosed(), the socket closed with a Close { reason: Match closed } frame, and the registry no longer holding the match. No src/pages/api edit is needed.",
+    "e2eReaderCheck": {
+      "e2e/helpers/gmTwoPlayerRewind.ts:143": "no edit needed: passes effectiveHead through; the ILineage type (:45-49) already declares revision as number",
+      "e2e/gm-two-player-rewind.pack.spec.ts:185-186": "no edit needed: compares viewers with one another; after this unit every viewer reads the same journal head instead of the same cutoff, so equality stays well-defined. Risk only if a journal append lands between the three parallel reads (risksForTheParent).",
+      "verdict": "neither reader needs an edit; admission proceeds"
+    },
+    "findingFnU35dHeadClaims": "FN-u35d-head-claims-wrong-on-baseline names e2e/campaign-journal-two-process-convergence.spec.ts and e2e/helpers/campaignJournalDrive.ts (campaign /head claims); both are outside U21b paths and outside its sentence; not edited, reported back."
+  },
+  "estimatePerFile": [
+    {
+      "file": "src/lib/multiplayer/server/history/ViewerHistoryLineage.ts",
+      "category": "product",
+      "estimatedAdded": 20,
+      "estimatedDeleted": 8
+    },
+    {
+      "file": "src/pages-modules/api/matchHistoryViewerChain.ts",
+      "category": "product",
+      "estimatedAdded": 10,
+      "estimatedDeleted": 4
+    },
+    {
+      "file": "src/lib/multiplayer/server/history/GmCombatRewindPreview.ts",
+      "category": "product (comment only)",
+      "estimatedAdded": 5,
+      "estimatedDeleted": 5
+    },
+    {
+      "file": "src/lib/multiplayer/server/MatchRecoveryJournalHead.ts",
+      "category": "product (comment only)",
+      "estimatedAdded": 5,
+      "estimatedDeleted": 4
+    },
+    {
+      "file": "src/lib/multiplayer/server/history/__tests__/ViewerHistoryLineage.test.ts",
+      "category": "test",
+      "estimatedAdded": 56,
+      "estimatedDeleted": 5
+    },
+    {
+      "file": "src/pages-modules/api/__tests__/matchHeadRoute.test.ts",
+      "category": "test",
+      "estimatedAdded": 38,
+      "estimatedDeleted": 0
+    },
+    {
+      "file": "src/lib/multiplayer/server/__tests__/MatchHostRegistry.closeRoute.test.ts",
+      "category": "test",
+      "new": true,
+      "estimatedAdded": 175
+    },
+    {
+      "file": "src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindRebuild.test.ts",
+      "category": "test (comment only)",
+      "estimatedAdded": 1,
+      "estimatedDeleted": 1
+    },
+    {
+      "file": "src/pages-modules/api/__tests__/campaignLaunchHeadRoute.test.ts",
+      "category": "test (comment only)",
+      "estimatedAdded": 1,
+      "estimatedDeleted": 1
+    }
+  ],
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedProductLines": 500,
+    "countingRule": "files = product + test files, receipts excluded; lines = non-generated product lines only, tests reported separately (OD-line-cap-product-lines, 2026-09-23)",
+    "estimatedFiles": 9,
+    "estimatedProductLines": 61,
+    "withinCaps": true
+  },
+  "acceptanceCommands": [
+    "npx jest src/lib/multiplayer/server/history/__tests__/ViewerHistoryLineage.test.ts",
+    "npx jest src/pages-modules/api/__tests__/matchHeadRoute.test.ts",
+    "npx jest src/lib/multiplayer/server/__tests__/MatchHostRegistry.closeRoute.test.ts",
+    "npx jest src/lib/multiplayer/server",
+    "npx jest src/pages-modules/api",
+    "npx jest src/__tests__/api/matches",
+    "npx jest src/lib/events/journal",
+    "npx tsc --noEmit",
+    "npx oxlint",
+    "npx oxfmt --check <changed files>",
+    "npm run lint:units",
+    "npm run qc:openspec-ci:validate",
+    "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs"
+  ],
+  "mutantsPlanned": [
+    {
+      "id": "M1",
+      "what": "projectEffectiveHead answers the branch baseRevision cutoff again",
+      "caughtBy": [
+        "ViewerHistoryLineage.test.ts clause (c) row",
+        "matchHeadRoute.test.ts past-its-base row"
+      ]
+    },
+    {
+      "id": "M2a",
+      "what": "createViewerHistoryLineageStores reads the journal head of a different stream (streamType campaign) than the head route",
+      "caughtBy": [
+        "matchHeadRoute.test.ts past-its-base row"
+      ]
+    },
+    {
+      "id": "M2b",
+      "what": "createViewerHistoryLineageStores reads the root branch stream-head row instead of the effective branch",
+      "caughtBy": [
+        "matchHeadRoute.test.ts past-its-base row"
+      ]
+    },
+    {
+      "id": "M3",
+      "what": "the registry slot back to module-local",
+      "caughtBy": [
+        "MatchHostRegistry.closeRoute.test.ts"
+      ]
+    }
+  ],
+  "risksForTheParent": [
+    "Review classes replay and authority: Lane B is required (OWNER-RULING bound to the exact PR head). The owner rules on what the viewer lineage head means: after this unit it is the journal tip on the effective branch (the head GET /head, the correction lease and restart recovery read), not the rewind cutoff. A rewind CAS built from lineage.effectiveHead.revision now names the live tip, the value GET /head gives; before, it named the cutoff, which the lease refuses once a command has landed after the rewind.",
+    "Replay/rewind: immediately after a commit the candidate head sits AT its base, so lineage and cutoff agree (existing matchHeadRoute row); they diverge from the first command on the candidate onward, which is where the red rows measure.",
+    "Reconnect/live: the lineage revision now moves with every mirrored command (combat journal mode enabled/shadow); two lineage reads around an append differ where the cutoff never did. E2E-42 (e2e/gm-two-player-rewind.pack.spec.ts:185-186) reads host, guest and spectator lineage in one Promise.all and compares revisions; if an append lands between those reads the row would see different revisions. E2E-42 is a strict test.fail(@until-journal-cutover); whether it stays an expected failure or becomes an unexpected pass on this head is not measured here (no Playwright).",
+    "With combat journal mode off (the production constant) no match has an effective head row, so the lineage answers effectiveHead null exactly as before; the change is observable only where the journal mirrors match events.",
+    "Changed degenerate case: an effective head with no stream-head row on its branch now answers revision 0 (baseline: baseRevision); GET /head answers 404 there. Activation plants the candidate head row at its base, so this is reached only by a missing row. Not changed to null because the sentence does not say so.",
+    "The close route answers 200 { ok: true } even when it finds no host (MatchHostRegistry.closeMatch returns silently); under the module-local mutant the row fails on host.isClosed(), not on the status code.",
+    "No build, no Playwright here; any E2E proof is the parent's main proof."
+  ],
+  "editsBeforeThisReceipt": "test files only, for the red stage: ViewerHistoryLineage.test.ts (U21 preserved red diff applied with git apply; result sha256 equals the preserved copy), matchHeadRoute.test.ts (one row), MatchHostRegistry.closeRoute.test.ts (new). No product file edited."
+}

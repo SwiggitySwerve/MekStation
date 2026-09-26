@@ -1,0 +1,126 @@
+{
+  "unit": "U21b",
+  "stage": "red",
+  "at": "2026-09-25T23:31:47.965Z",
+  "status": "red-recorded",
+  "baseline": "bd6bfe779036631bf63b0e84b748a7bfd6e122b6",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/u21b",
+  "branch": "roadmap-u21b-viewer-lineage-head-20260925",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "shellPreamble": [
+    "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH",
+    "export npm_config_dry_run=true"
+  ],
+  "productFilesChangedAtRed": [],
+  "productCodeAtRedRuns": "baseline product code (git diff shows only the three test files below); every run is a single suite",
+  "row1_u21MeasuredRow": {
+    "source": "U21 preserved red copy: evidence/u21-red-20260923.json row3_clauseC.preservedRedDiff (sha256 c2d9f7ff0d3c75dfb001be8768c84cdeed7bb270f53a55c586922f77ea7e3464), applied with git apply onto the unchanged baseline blob 027d982d30be897f17f5cfadd2cd036901185717",
+    "resultSha256": "e517d99ff143df2e83fe3c986b55491b9817449f13589cc4ca3a5d6dac712621",
+    "equalsU21PreservedCopy": true,
+    "suite": "src/lib/multiplayer/server/history/__tests__/ViewerHistoryLineage.test.ts",
+    "row": "ViewerHistoryLineage > answers the journal head GET /head answers, not the branch cutoff (clause c)",
+    "asserts": "root head 4, candidate-1 activated at base 2 with its journal head at 3: projectViewerHistoryLineage effectiveHead equals { branchId, revision } of readEffectiveStreamHead with generation 2, for gm and player alike (the test wires readEffectiveStreamHead into its own stores; the baseline ignores that member)",
+    "command": "npx jest src/lib/multiplayer/server/history/__tests__/ViewerHistoryLineage.test.ts",
+    "exitCode": 1,
+    "counts": [
+      "Test Suites: 1 failed, 1 total",
+      "Tests:       1 failed, 5 passed, 6 total"
+    ],
+    "failure": "  ● ViewerHistoryLineage › answers the journal head GET /head answers, not the branch cutoff (clause c) |     expect(received).toEqual(expected) // deep equality |     - Expected  - 1 |     + Received  + 1 |       Object { |         \"branchId\": \"candidate-1\", |         \"generation\": 2, |     -   \"revision\": 3, |     +   \"revision\": 2, |       }",
+    "reproducesU21": "yes: revision 2 (the base cutoff) received where the journal head is 3, as U21 measured",
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21b/logs/red-lineage.log",
+      "sha256": "c05fe0e00d469546c4d74ed8b07212ae4b6700df0e3cca16043ebe47b3bf5dd3"
+    }
+  },
+  "row2_headRouteBoundary": {
+    "suite": "src/pages-modules/api/__tests__/matchHeadRoute.test.ts",
+    "row": "GET /api/matches/:id/head > the lineage names the head GET /head names once the branch runs past its base",
+    "asserts": "seedActivatedHead (root 4, candidate-1 activated at base 2), then the candidate stream-head row moved to revision 3: GET /head as host answers 200 { candidate-1, 3, 2, c*64 }; readMatchHistoryLineage (the production createViewerHistoryLineageStores wiring) for host and for the seated player answers effectiveHead === { branchId, revision, generation } of that body",
+    "whyAdded": "row1 wires the journal read inside the test; this row goes through the production chain (matchHistoryViewerChain.ts) against the real head route handler, so a wiring mutant (M2) is observable",
+    "command": "npx jest src/pages-modules/api/__tests__/matchHeadRoute.test.ts",
+    "exitCode": 1,
+    "counts": [
+      "Test Suites: 1 failed, 1 total",
+      "Tests:       1 failed, 11 passed, 12 total"
+    ],
+    "failure": "  ● GET /api/matches/:id/head › the lineage names the head GET /head names once the branch runs past its base |     expect(received).toStrictEqual(expected) // deep equality |     - Expected  - 1 |     + Received  + 1 |       Object { |         \"branchId\": \"candidate-1\", |         \"generation\": 2, |     -   \"revision\": 3, |     +   \"revision\": 2, |       }",
+    "log": {
+      "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21b/logs/red-head-route.log",
+      "sha256": "7034f8693fc06c728e043c94a15f56347b26f01cf3ee0a44775825d295ff095c"
+    }
+  },
+  "row3_closeRoute": {
+    "suite": "src/lib/multiplayer/server/__tests__/MatchHostRegistry.closeRoute.test.ts (new)",
+    "row": "DELETE /api/multiplayer/matches/[id] against a live host > closes the host the socket graph started and disconnects its sockets",
+    "asserts": "host started through getMatchHostRegistry().getOrCreate in one isolated module graph with a recording socket attached; the pages route loaded read-only in a second isolated graph; DELETE as the host answers 200 { ok: true }, host.isClosed() is true, the socket is closed and received a Close { reason: Match closed } frame, the registry no longer holds the match",
+    "onBaseline": {
+      "command": "npx jest src/lib/multiplayer/server/__tests__/MatchHostRegistry.closeRoute.test.ts",
+      "exitCode": 0,
+      "counts": [
+        "Test Suites: 1 passed, 1 total",
+        "Tests:       1 passed, 1 total"
+      ],
+      "note": "passes on the baseline, as expected: U22a shipped the globalThis registry slot. It is a regression pin; its red is the registry mutant below.",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21b/logs/red-close-route-baseline.log",
+        "sha256": "0826a0405e9afedf6574bb377c3e697fe8cfd5d8a220f727a5ceb5661453ae06"
+      }
+    },
+    "redIsTheRegistryMutant": {
+      "id": "M3 (red stage)",
+      "what": "matchHostRegistrySlot reads a module-level object instead of globalThis (the pre-U22a module-local registry)",
+      "file": "src/lib/multiplayer/server/MatchHostRegistry.ts",
+      "preMutantSha256": "c2f91cf7cd5ce9fb69ff8eac2afd68e7c93254a193696c214827c2a079085ee7",
+      "mutantSha256": "b31bc3a08bc35845abd9cb1e00e1575b1608a34d80bfd1a228b23f9a9ed4785a",
+      "command": "npx jest src/lib/multiplayer/server/__tests__/MatchHostRegistry.closeRoute.test.ts",
+      "exitCode": 1,
+      "counts": [
+        "Test Suites: 1 failed, 1 total",
+        "Tests:       1 failed, 1 total"
+      ],
+      "failure": "  ● DELETE /api/multiplayer/matches/[id] against a live host › closes the host the socket graph started and disconnects its sockets |     expect(received).toBe(expected) // Object.is equality |     Expected: true |     Received: false",
+      "observation": "the route still answered 200 { ok: true } under the mutant (the status assertion on the line before passed); it found no host in its own graph and closed nothing",
+      "restoredSha256": "c2f91cf7cd5ce9fb69ff8eac2afd68e7c93254a193696c214827c2a079085ee7",
+      "restored": true,
+      "restoreMethod": "byte copy saved before the mutation, copied back (scratchpad scripts/mutant.mjs)",
+      "log": {
+        "path": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/u21b/logs/red-close-route-M3.log",
+        "sha256": "310d072998982bf236f81c573f70a4897fdacca58718cfd34ae5de3a4b135470"
+      }
+    },
+    "consoleNoise": "both runs print the pre-existing InMemoryMatchStore dev-only console.warn and a Yjs \"already imported\" console.error caused by loading the module graph twice under jest.isolateModules; neither fails the row"
+  },
+  "staleCommentsQuoted": [
+    {
+      "id": "F1",
+      "at": "src/lib/multiplayer/server/history/GmCombatRewindPreview.ts:242-244",
+      "quote": "A match the branch machinery has never heard of. FINDING #48/#53: nothing writes match events to the journal, so a real match has no stream-head row and the genesis backfill never gives it a root branch."
+    },
+    {
+      "id": "F2",
+      "at": "src/lib/multiplayer/server/MatchRecoveryJournalHead.ts:17-19",
+      "quote": "A live-path branch's events live in the match store - `matchStoreBranchSegmentReader` refuses every branch but `root` by name because that store holds exactly one line of history."
+    },
+    {
+      "id": "F5",
+      "at": "src/lib/multiplayer/server/__tests__/ServerMatchHost.rewindRebuild.test.ts:346",
+      "quote": "toMatchObject prints kind/reason/detail when commit still refuses."
+    },
+    {
+      "id": "F6",
+      "at": "src/pages-modules/api/__tests__/campaignLaunchHeadRoute.test.ts:146",
+      "quote": "Persist a campaign with no genesis and no branch - the flag-off world."
+    }
+  ],
+  "gitDiffStatAtRed": ".../history/__tests__/ViewerHistoryLineage.test.ts | 61 ++++++++++++++++++++--\n .../api/__tests__/matchHeadRoute.test.ts           | 38 ++++++++++++++\n 2 files changed, 94 insertions(+), 5 deletions(-)",
+  "untrackedAtRed": [
+    "?? openspec/planning/2026-09-12-roadmap-completion/evidence/u21b-admission-20260925.json",
+    "?? src/lib/multiplayer/server/__tests__/MatchHostRegistry.closeRoute.test.ts"
+  ],
+  "nonClaims": [
+    "The routes /timeline and /export are not called by any red row; both call readMatchHistoryLineage, which row2 calls directly.",
+    "No Playwright run; E2E-42 behaviour on this head is not measured.",
+    "No red row for the stale comments (charter: quoted instead)."
+  ]
+}

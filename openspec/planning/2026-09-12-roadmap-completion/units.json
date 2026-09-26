@@ -2175,14 +2175,28 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "planned",
-      "baseline": null,
+      "state": "local-verified",
+      "baseline": "bd6bfe779036631bf63b0e84b748a7bfd6e122b6",
       "prHead": null,
       "mergeSha": null,
       "stageReceipts": {
-        "admission": null,
-        "red": null,
-        "local": null,
+        "admission": {
+          "path": "evidence/u21b-admission-20260925.json",
+          "baseline": "bd6bfe779036631bf63b0e84b748a7bfd6e122b6",
+          "at": "2026-09-25T23:31:07.885Z",
+          "decision": "go",
+          "parentDecisionRecordedHere": true
+        },
+        "red": {
+          "path": "evidence/u21b-red-20260925.json",
+          "at": "2026-09-25T23:31:47.965Z",
+          "summary": "baseline bd6bfe779: U21 measured row reproduced from U21 saved diff (lineage effectiveHead.revision 2 while the journal head is 3); a new head-route row (lineage equals the GET /head body once the branch runs past its base) fails 2 vs 3; the close-route row passes on the baseline because U22a shipped the shared registry, so its red is the registry mutant"
+        },
+        "local": {
+          "path": "evidence/u21b-local-20260925.json",
+          "at": "2026-09-25T23:42:09.950Z",
+          "summary": "4 product files (+50/-21, 29 lines) and 5 test files (+285/-8): the viewer lineage reads the match journal effective head through readEffectiveStreamHead over the same API SQLite handle and one branch store the head route uses (ViewerHistoryLineage.ts, wired in matchHistoryViewerChain.ts:153-159 and :170-183), the generation still from the stored effective-head row, null still answered before any journal read when no effective-head row exists; a branch with no stream-head row now answers revision 0 (was the cutoff; GET /head answers 404 there); the four stale comments corrected; the close-route regression row starts a host in one isolated module graph, loads the pages route read-only in another, sends DELETE as the host and asserts the host closed, the socket closed with a Close frame and the registry entry gone; rows: U21 row and the head-route row green, root-only row now expects the journal head 4, GM projection row plants the candidate head at its base; jest src/lib/multiplayer/server 161 suites 1180, src/pages-modules/api 63, src/__tests__/api/matches 47, src/lib/events/journal 243; tsc 0; oxlint 84 warnings 0 errors; oxfmt clean on 9 files; lint:units 100/100; qc:openspec-ci errors=0; validator PASSED; four mutants caught and restored (cutoff restored, lineage reads the campaign stream, lineage reads the root branch head row, registry module-local); no build, no Playwright, E2E-42 not run; implementer claude-opus (Agent model: opus); findings: E2E-42 parallel lineage reads may differ under the tip semantics, DELETE answers 200 with no host, a stale seed comment in MatchRecoveryJournalHead.ts:27-28; status ready"
+        },
         "review": null,
         "merge": null,
         "mainProof": null,
@@ -2190,7 +2204,11 @@
       },
       "ownerGate": null,
       "source20260923": "planned by the parent from U21's admission contingency (clause (c)) and its lane's findings F1, F2, F5, F6 (evidence/u21-local-20260923.json)",
-      "admitAfter20260923": "U21 main-verified (U21b edits the viewer lineage over the journal reader U21 installs)"
+      "admitAfter20260923": "U21 main-verified (U21b edits the viewer lineage over the journal reader U21 installs)",
+      "admissionNote20260925": {
+        "at": "2026-09-26T00:18:50.000Z",
+        "note": "the two e2e readers of lineage.effectiveHead.revision (gmTwoPlayerRewind.ts:143, gm-two-player-rewind.pack.spec.ts:185-186) need no edit; the close-route row was written inside the paths (two isolated module graphs, the pages route loaded read-only)."
+      }
     },
     {
       "taskKeys": [],
@@ -9287,6 +9305,33 @@
       "class": "test gap on a spec scenario",
       "summary": "No test renders the GM ledger route's preview, manual takeover and correction controls with a host co-op session; CampaignNavigation.test.tsx:126 pins only the GM Ledger tab. The new scenario's ledger-route half rests on code reading.",
       "recommendedSuccessor": "a jest row mounting the ledger page with createHostCoopSession, in the next unit that edits src/components/campaign/gm (or U92)",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u21b-e2e-42-parallel-lineage-reads-may-differ",
+      "foundBy": "U21b implementer lane (claude-opus), 2026-09-25, risk (read from the code; E2E-42 not run)",
+      "at": "2026-09-26T00:18:50.000Z",
+      "class": "e2e race risk under the new head semantics",
+      "summary": "E2E-42 compares three viewers' lineage reads made in parallel; the lineage revision now moves with every recorded command (the journal tip), so an append landing between those reads would make them differ. Not run on this head.",
+      "recommendedSuccessor": "U21b's main proof runs rewind-pack; if E2E-42 flakes, the rewind units (U25-U27) read the head once and pass it to all three viewers",
+      "status": "recorded; watch in the main proof"
+    },
+    {
+      "id": "FN-u21b-close-route-200-with-no-host",
+      "foundBy": "U21b implementer lane (claude-opus), 2026-09-25",
+      "at": "2026-09-26T00:18:50.000Z",
+      "class": "route contract nuance",
+      "summary": "DELETE /api/multiplayer/matches/[id] answers 200 { ok: true } even when it finds no live host in the shared registry.",
+      "recommendedSuccessor": "the unit that gives the route a UI caller decides whether a missing host is 404",
+      "status": "recorded"
+    },
+    {
+      "id": "FN-u21b-recovery-head-comment-says-seed-owed",
+      "foundBy": "U21b implementer lane (claude-opus), 2026-09-25",
+      "at": "2026-09-26T00:18:50.000Z",
+      "class": "stale comment",
+      "summary": "src/lib/multiplayer/server/MatchRecoveryJournalHead.ts:27-28 says seeding the journal at creation is owed by task 1.7, but the seed runs at ServerMatchHostEvents.ts:105-118.",
+      "recommendedSuccessor": "fold into the next unit that edits src/lib/multiplayer/server",
       "status": "recorded"
     }
   ]
