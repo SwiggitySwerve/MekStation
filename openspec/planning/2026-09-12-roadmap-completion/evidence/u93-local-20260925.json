@@ -1,0 +1,212 @@
+{
+  "unit": "U93",
+  "baseline": "fab5328254ffc30c8a853aa301bcfb0a69638439",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u93",
+  "branch": "roadmap-u93-flip-pin-in-u88-test-20260925",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "stage": "local",
+  "status": "ready",
+  "at": "2026-09-26T01:28:20.957Z",
+  "head": "uncommitted on fab5328254ffc30c8a853aa301bcfb0a69638439 (the parent commits)",
+  "files": [
+    {
+      "file": "src/lib/api/__tests__/coopMatchRosterSourceVersion.test.ts",
+      "category": "test",
+      "added": 41,
+      "removed": 22,
+      "sha256Before": "7d9b97cf9a4a733ce1251ca3fcb91088fe3f34c47fd127a047f53c50b8a7f6e9",
+      "sha256After": "776f17d55e9e5bf199aecd0c3939fe13e2b498078e5f069b3f6d80ef94eaf10e"
+    }
+  ],
+  "lineCounts": {
+    "productLines": 0,
+    "testLines": {
+      "added": 41,
+      "removed": 22
+    },
+    "files": 1,
+    "source": "git diff --numstat"
+  },
+  "change": [
+    "header comment (:9-14): journal authority on, genesis appended before the post",
+    "imports: appendCampaignGenesis (:29), SQLiteEventJournal (:34), writeCampaignMigrationMarker (:41)",
+    "GENESIS_AT constant (:66-67)",
+    "beforeEach (:306): expect(isCampaignJournalAuthorityEnabled()).toBe(true)",
+    "persistHostCampaign (:322-356): async; builds the envelope once, saveCampaign, then appendCampaignGenesis on a SQLiteEventJournal over getSQLiteService().getDatabase() with writeCampaignMigrationMarker, expecting genesis-appended; doc comment states what it does",
+    "the three route rows await persistHostCampaign (:366, :392, :408)"
+  ],
+  "guard": {
+    "command": "npm run --silent qc:guard-node-modules-link",
+    "exit": 1,
+    "output": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"<worktree>\\\\node_modules\",\"actualPath\":\"<repo root>\\\\node_modules\"}",
+    "note": "refuses in a junctioned worktree by design (charter); machine paths in the diagnostics are replaced by placeholders here. No npm install, ci, prune or lifecycle was run; npm_config_dry_run=true was set for every command."
+  },
+  "gates": [
+    {
+      "command": "npx jest src/lib/api/__tests__/coopMatchRosterSourceVersion.test.ts",
+      "exit": 0,
+      "lastLine": "Tests:       10 passed, 10 total"
+    },
+    {
+      "command": "npx jest src/lib/api",
+      "exit": 0,
+      "lastLine": "Ran all test suites matching /src\\\\lib\\\\api/i.",
+      "totals": "Test Suites: 1 passed, 1 total; Tests: 10 passed, 10 total",
+      "machineIdle": "MACHINE_IDLE"
+    },
+    {
+      "command": "npx jest src/__tests__/unit/api",
+      "exit": 0,
+      "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\unit\\\\api/i.",
+      "totals": "Test Suites: 6 passed, 6 total; Tests: 35 passed, 35 total",
+      "machineIdle": "MACHINE_IDLE"
+    },
+    {
+      "command": "npx jest src/__tests__/api",
+      "exit": 0,
+      "lastLine": "Ran all test suites matching /src\\\\__tests__\\\\api/i.",
+      "totals": "Test Suites: 57 passed, 57 total; Tests: 772 passed, 772 total",
+      "machineIdle": "MACHINE_IDLE"
+    },
+    {
+      "command": "npx tsc --noEmit",
+      "exit": 0,
+      "lastLine": "(no output)"
+    },
+    {
+      "command": "npx oxlint",
+      "exit": 0,
+      "lastLine": "Finished in 987ms on 3819 files using 16 threads.",
+      "summary": "Found 84 warnings and 0 errors.",
+      "warningsVsBaseline84": "equal (84)",
+      "warningsInChangedFile": 0
+    },
+    {
+      "command": "npx oxfmt --check src/lib/api/__tests__/coopMatchRosterSourceVersion.test.ts",
+      "exit": 0,
+      "lastLine": "Finished in 29ms on 1 files using 16 threads.",
+      "summary": "All matched files use the correct format."
+    },
+    {
+      "command": "npm run lint:units",
+      "exit": 0,
+      "lastLine": "LINT_UNITS_PASS 100/100"
+    },
+    {
+      "command": "npm run qc:openspec-ci:validate",
+      "exit": 0,
+      "lastLine": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0"
+    },
+    {
+      "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "exit": 0,
+      "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows"
+    }
+  ],
+  "rowTable": [
+    {
+      "row": "schema: accepts the body the co-op entry panel builds from units carrying sourceVersion",
+      "before": "pass",
+      "after": "pass"
+    },
+    {
+      "row": "schema: accepts the same body when no roster unit carries sourceVersion",
+      "before": "pass",
+      "after": "pass"
+    },
+    {
+      "row": "schema: still refuses an unknown extra field on a roster unit",
+      "before": "pass",
+      "after": "pass"
+    },
+    {
+      "row": "schema: refuses sourceVersion \"3\" at the sourceVersion path",
+      "before": "pass",
+      "after": "pass"
+    },
+    {
+      "row": "schema: refuses sourceVersion 0 at the sourceVersion path",
+      "before": "pass",
+      "after": "pass"
+    },
+    {
+      "row": "schema: refuses sourceVersion -1 at the sourceVersion path",
+      "before": "pass",
+      "after": "pass"
+    },
+    {
+      "row": "schema: refuses sourceVersion 1.5 at the sourceVersion path",
+      "before": "pass",
+      "after": "pass"
+    },
+    {
+      "row": "route: registers the co-op match when roster units carry sourceVersion",
+      "before": "FAIL",
+      "after": "pass"
+    },
+    {
+      "row": "route: registers the co-op match when no roster unit carries sourceVersion",
+      "before": "FAIL",
+      "after": "pass"
+    },
+    {
+      "row": "route: answers 400 and registers no host for an unknown extra roster field",
+      "before": "FAIL",
+      "after": "pass"
+    }
+  ],
+  "rowTotals": {
+    "before": "3 failed, 7 passed, 10 total",
+    "after": "10 passed, 10 total"
+  },
+  "mutants": [
+    {
+      "id": "M1",
+      "mutation": "the genesis append and its expect removed from persistHostCampaign (imports kept referenced)",
+      "exit": 1,
+      "result": "caught: 2 failed, 8 passed; both 201 rows receive status 500 \"Campaign creation checkpoint failed at genesis-branch: genesis branch is not committed\"",
+      "note": "the charter predicted the undefined-path TypeError here; measured, that TypeError does not occur with the setup removed (see diagnosisCorrection in the red receipt)",
+      "restoredSha256": "776f17d55e9e5bf199aecd0c3939fe13e2b498078e5f069b3f6d80ef94eaf10e",
+      "restoredFrom": "saved copy of the fixed file"
+    },
+    {
+      "id": "M2",
+      "mutation": "flag assertion inverted to toBe(false) (the pre-flip pin)",
+      "exit": 1,
+      "result": "caught: 3 failed, 7 passed; Expected: false Received: true at :306, plus the secondary afterEach undefined-path TypeError on each route row",
+      "whyChosen": "inversion is the variant a check can observe; removal is recorded as M2b and survives",
+      "restoredSha256": "776f17d55e9e5bf199aecd0c3939fe13e2b498078e5f069b3f6d80ef94eaf10e",
+      "restoredFrom": "saved copy of the fixed file"
+    },
+    {
+      "id": "M2b",
+      "mutation": "flag assertion removed",
+      "exit": 0,
+      "result": "survives: 10 passed. The rows seed a genesis whatever the flag, so they pass with the flag on or off; the assertion is the only check of the premise and removing it is not observable. This matches the re-pinned suite, which carries no assertion.",
+      "restoredSha256": "776f17d55e9e5bf199aecd0c3939fe13e2b498078e5f069b3f6d80ef94eaf10e",
+      "restoredFrom": "saved copy of the fixed file"
+    }
+  ],
+  "nonClaims": [
+    "No product file changed; the route, checkpoint and journal code are read only.",
+    "No build, no Playwright, no CI run: jest suites, tsc, oxlint, oxfmt, lint:units, qc:openspec-ci:validate and the roadmap validator only, on this worktree.",
+    "Not measured on the Unit Tests CI shard; the claim that main CI is red on this suite is the parent's (PR #1961, #1962), not re-observed here.",
+    "Does not claim the host flow in a browser; the rows drive the route handler over a temp SQLite database.",
+    "Does not claim the flag assertion is load-bearing for the route rows (M2b survives)."
+  ],
+  "findingsReportedNotFixed": [
+    {
+      "id": "F1",
+      "finding": "U93's behavior sentence (units.json on origin/main, #1964) and the charter attribute the TypeError to a campaign-journal database path the create route reaches. Measured: the TypeError comes from the suite's own afterEach rm(dir) at :311 when beforeEach throws before mkdtemp; with the pin true the rows fail with a 500 at the checkpoint's genesis-branch stage, no TypeError.",
+      "where": "openspec/planning/2026-09-12-roadmap-completion/units.json (U93.behavior) on origin/main"
+    },
+    {
+      "id": "F2",
+      "finding": "The beforeEach assertion precedes mkdtemp, so any future failure of it also raises a misleading secondary TypeError from afterEach rm(undefined). multiplayerCoopCreationCheckpoint.test.ts has the same afterEach shape but no assertion before mkdtemp. Left as is (outside the unit's behaviour).",
+      "where": "src/lib/api/__tests__/coopMatchRosterSourceVersion.test.ts:306-307,319"
+    }
+  ],
+  "risksForTheParent": [
+    "routine: none visible to a tester; this is a test-harness fix."
+  ]
+}

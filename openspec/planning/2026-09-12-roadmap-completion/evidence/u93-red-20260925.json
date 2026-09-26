@@ -1,0 +1,89 @@
+{
+  "unit": "U93",
+  "baseline": "fab5328254ffc30c8a853aa301bcfb0a69638439",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u93",
+  "branch": "roadmap-u93-flip-pin-in-u88-test-20260925",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "stage": "red",
+  "at": "2026-09-26T01:28:20.957Z",
+  "testFileSha256": "7d9b97cf9a4a733ce1251ca3fcb91088fe3f34c47fd127a047f53c50b8a7f6e9",
+  "command": "npx jest src/lib/api/__tests__/coopMatchRosterSourceVersion.test.ts",
+  "exit": 1,
+  "summary": "Tests:       3 failed, 7 passed, 10 total",
+  "rows": [
+    {
+      "row": "schema: accepts the body the co-op entry panel builds from units carrying sourceVersion",
+      "result": "pass"
+    },
+    {
+      "row": "schema: accepts the same body when no roster unit carries sourceVersion",
+      "result": "pass"
+    },
+    {
+      "row": "schema: still refuses an unknown extra field on a roster unit",
+      "result": "pass"
+    },
+    {
+      "row": "schema: refuses sourceVersion \"3\" at the sourceVersion path",
+      "result": "pass"
+    },
+    {
+      "row": "schema: refuses sourceVersion 0 at the sourceVersion path",
+      "result": "pass"
+    },
+    {
+      "row": "schema: refuses sourceVersion -1 at the sourceVersion path",
+      "result": "pass"
+    },
+    {
+      "row": "schema: refuses sourceVersion 1.5 at the sourceVersion path",
+      "result": "pass"
+    },
+    {
+      "row": "route: registers the co-op match when roster units carry sourceVersion",
+      "result": "FAIL"
+    },
+    {
+      "row": "route: registers the co-op match when no roster unit carries sourceVersion",
+      "result": "FAIL"
+    },
+    {
+      "row": "route: answers 400 and registers no host for an unknown extra roster field",
+      "result": "FAIL"
+    }
+  ],
+  "failureShapes": [
+    {
+      "shape": "flag pin",
+      "text": "expect(received).toBe(expected) // Object.is equality  Expected: false  Received: true",
+      "at": "at Object.toBe (src/lib/api/__tests__/coopMatchRosterSourceVersion.test.ts:298:49)",
+      "rows": "all three route rows"
+    },
+    {
+      "shape": "undefined path",
+      "text": "TypeError: The \"path\" argument must be of type string or an instance of Buffer or URL. Received undefined",
+      "at": "at Object.<anonymous> (src/lib/api/__tests__/coopMatchRosterSourceVersion.test.ts:311:13)",
+      "source": "afterEach `await rm(dir, { recursive: true, force: true, maxRetries: 3 })`; dir is undefined because beforeEach threw at :298 before :299 assigned it",
+      "rows": "all three route rows"
+    }
+  ],
+  "probePinFlippedToTrue": {
+    "what": "line 298 toBe(false) -> toBe(true) only, run, restored from a saved copy",
+    "command": "npx jest src/lib/api/__tests__/coopMatchRosterSourceVersion.test.ts",
+    "exit": 1,
+    "summary": "Tests:       2 failed, 8 passed, 10 total",
+    "failingRows": [
+      "route: registers the co-op match when roster units carry sourceVersion (at :353:29)",
+      "route: registers the co-op match when no roster unit carries sourceVersion (at :379:29)"
+    ],
+    "received": {
+      "status": 500,
+      "error": "Campaign creation checkpoint failed at genesis-branch: genesis branch is not committed"
+    },
+    "passingRouteRow": "route: answers 400 and registers no host for an unknown extra roster field",
+    "typeErrorPresent": false,
+    "restoredSha256": "7d9b97cf9a4a733ce1251ca3fcb91088fe3f34c47fd127a047f53c50b8a7f6e9",
+    "restoredMatchesBaseline": true
+  },
+  "diagnosisCorrection": "The parent's diagnosis (and U93's behavior sentence on origin/main) says the two route rows, with the pin flipped to true, fail with TypeError: The \"path\" argument must be of type string ... Received undefined because the create route reaches a campaign-journal database path the harness never set up. Measured here it is otherwise. (1) On the baseline the TypeError is raised by the suite's own afterEach, `await rm(dir, ...)` at coopMatchRosterSourceVersion.test.ts:311:13: the beforeEach assertion at :298:49 throws before `dir = await mkdtemp(...)` at :299 runs, so `dir` is undefined when afterEach removes it. It is a secondary failure of the flag pin, raised on all three route rows (including the 400 row), not a route or journal path. (2) With only the pin flipped to true (probe, restored to sha256 7d9b97cf9a4a733ce1251ca3fcb91088fe3f34c47fd127a047f53c50b8a7f6e9), no TypeError appears: the two 201 rows fail with status 500 and error \"Campaign creation checkpoint failed at genesis-branch: genesis branch is not committed\", and the 400 row passes (2 failed, 8 passed). The cause is the creation checkpoint's genesis-branch stage (campaignCreationCheckpoint.ts:212-222), which under journal authority reads the genesis marker (campaignCreationCheckpointPorts.ts:35-36, readCampaignMigrationMarker) and the harness never appended a genesis."
+}

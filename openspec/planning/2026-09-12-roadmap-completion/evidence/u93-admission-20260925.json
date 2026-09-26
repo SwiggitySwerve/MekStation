@@ -1,0 +1,135 @@
+{
+  "unit": "U93",
+  "baseline": "fab5328254ffc30c8a853aa301bcfb0a69638439",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/u93",
+  "branch": "roadmap-u93-flip-pin-in-u88-test-20260925",
+  "implementerModel": "claude-opus (Agent model: opus)",
+  "stage": "admission",
+  "status": "admitted",
+  "at": "2026-09-26T01:28:20.956Z",
+  "originMain": {
+    "atAdmission": "3b1cca3a6542e53703f2ac6fa7ac43ec97ae7f98",
+    "atLocal": "54ca8197ca90534648bf6b1ef310186116189c6f",
+    "note": "origin/main moved during the lane by two docs commits (#1964 plans U93; #1965 amends U35h/U35i paths). `git diff --stat fab532825 origin/main -- src/lib/api src/pages/api/multiplayer src/lib/campaign/authority src/lib/campaign/sync` is empty: nothing this unit reads or edits changed."
+  },
+  "ledger": {
+    "u93InUnitsJsonOnBaseline": false,
+    "u93InUnitsJsonOnOriginMain": true,
+    "originMainEntry": {
+      "state": "planned",
+      "ownershipPaths": [
+        "src/lib/api"
+      ],
+      "reviewClasses": [
+        "routine"
+      ],
+      "caps": {
+        "maxFiles": 15,
+        "maxNonGeneratedLines": 500
+      }
+    },
+    "note": "U93 is absent from units.json on the baseline fab532825, as the charter expects; it is present on origin/main via #1964 (planned). units.json, roadmap.json and admission-snapshot.json were not edited."
+  },
+  "guard": {
+    "command": "npm run --silent qc:guard-node-modules-link",
+    "exit": 1,
+    "output": "INSTALL_REFUSED node-modules-is-link {\"expectedPath\":\"<worktree>\\\\node_modules\",\"actualPath\":\"<repo root>\\\\node_modules\"}",
+    "note": "refuses in a junctioned worktree by design (charter); machine paths in the diagnostics are replaced by placeholders here. No npm install, ci, prune or lifecycle was run; npm_config_dry_run=true was set for every command."
+  },
+  "validatorNextOnBaseline": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs --next",
+    "exit": 0,
+    "output": "U37",
+    "note": "U93 is not in the ledger on this baseline, so --next cannot name it."
+  },
+  "validatorOnBaseline": {
+    "command": "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+    "exit": 0,
+    "lastLine": "ROADMAP VALIDATION PASSED: 75 nodes, 13 packages, 376 tasks, 40 triage rows"
+  },
+  "ownedPaths": [
+    "src/lib/api/__tests__/coopMatchRosterSourceVersion.test.ts"
+  ],
+  "seams": [
+    {
+      "at": "src/lib/api/__tests__/coopMatchRosterSourceVersion.test.ts:298",
+      "what": "baseline beforeEach pins isCampaignJournalAuthorityEnabled() to false"
+    },
+    {
+      "at": "src/lib/api/__tests__/coopMatchRosterSourceVersion.test.ts:299",
+      "what": "dir = await mkdtemp(...), never reached when :298 throws"
+    },
+    {
+      "at": "src/lib/api/__tests__/coopMatchRosterSourceVersion.test.ts:311",
+      "what": "afterEach await rm(dir, ...): the source of the undefined-path TypeError on the baseline"
+    },
+    {
+      "at": "src/lib/api/__tests__/coopMatchRosterSourceVersion.test.ts:319-337",
+      "what": "baseline persistHostCampaign: saveCampaign only, no genesis append"
+    },
+    {
+      "at": "src/lib/campaign/sync/JournalCampaignEventStore.ts:90",
+      "what": "CAMPAIGN_JOURNAL_AUTHORITY_ENABLED = true"
+    },
+    {
+      "at": "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts:16-18",
+      "what": "isCampaignJournalAuthorityEnabled returns the constant, no override"
+    },
+    {
+      "at": "src/pages/api/multiplayer/matches/index.ts:252-275",
+      "what": "commitCoopCampaignAuthority: passes journalAuthorityEnabled: isCampaignJournalAuthorityEnabled() (:267) and throws the checkpoint failure (:270-274)"
+    },
+    {
+      "at": "src/pages/api/multiplayer/matches/index.ts:320,325-331,335,341",
+      "what": "checkpoint awaited, host registered with body.coopCampaign.state (:329), 500 on a throw (:335), 201 otherwise (:341)"
+    },
+    {
+      "at": "src/lib/campaign/authority/campaignCreationCheckpoint.ts:212-222",
+      "what": "awaitGenesisBranch: skipped when the flag is false; under the flag a null marker fails genesis-branch \"genesis branch is not committed\""
+    },
+    {
+      "at": "src/lib/campaign/authority/campaignCreationCheckpointPorts.ts:35-36",
+      "what": "readGenesisMarker reads readCampaignMigrationMarker(campaignId)"
+    },
+    {
+      "at": "src/lib/campaign/authority/campaignSourceGenesis.ts:271",
+      "what": "appendCampaignGenesis(journal, writeMarker, { envelope, occurredAt })"
+    },
+    {
+      "at": "src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts:120-126,154-164",
+      "what": "re-pinned suite: premise comment and the genesis append through SQLiteEventJournal on getSQLiteService().getDatabase() with writeCampaignMigrationMarker, expecting genesis-appended"
+    }
+  ],
+  "designAnswers": {
+    "whichCallRaisesTheTypeError": "The parent's diagnosis (and U93's behavior sentence on origin/main) says the two route rows, with the pin flipped to true, fail with TypeError: The \"path\" argument must be of type string ... Received undefined because the create route reaches a campaign-journal database path the harness never set up. Measured here it is otherwise. (1) On the baseline the TypeError is raised by the suite's own afterEach, `await rm(dir, ...)` at coopMatchRosterSourceVersion.test.ts:311:13: the beforeEach assertion at :298:49 throws before `dir = await mkdtemp(...)` at :299 runs, so `dir` is undefined when afterEach removes it. It is a secondary failure of the flag pin, raised on all three route rows (including the 400 row), not a route or journal path. (2) With only the pin flipped to true (probe, restored to sha256 7d9b97cf9a4a733ce1251ca3fcb91088fe3f34c47fd127a047f53c50b8a7f6e9), no TypeError appears: the two 201 rows fail with status 500 and error \"Campaign creation checkpoint failed at genesis-branch: genesis branch is not committed\", and the 400 row passes (2 failed, 8 passed). The cause is the creation checkpoint's genesis-branch stage (campaignCreationCheckpoint.ts:212-222), which under journal authority reads the genesis marker (campaignCreationCheckpointPorts.ts:35-36, readCampaignMigrationMarker) and the harness never appended a genesis.",
+    "setupTheRepinnedSuitePerformsThatU88Lacks": "multiplayerCoopCreationCheckpoint.test.ts:154-164 appends the host campaign's genesis after saveCampaign: appendCampaignGenesis(new SQLiteEventJournal(getSQLiteService().getDatabase(), () => GENESIS_AT), writeCampaignMigrationMarker, { envelope, occurredAt: GENESIS_AT }) and expects kind genesis-appended. U88's persistHostCampaign (:319-337) only calls saveCampaign. The SQLite database itself is already set up by both suites' beforeEach (getSQLiteService({ path }).initialize()); nothing else differs in the harness.",
+    "responseUnderJournalAuthority": "Still 201: the route answers res.status(201) at index.ts:341 once the checkpoint commits, and the re-pinned suite expects 201 (createdMatchId, multiplayerCoopCreationCheckpoint.test.ts:188; rows :259, :289). Without a genesis it answers 500 (index.ts:335), which the re-pinned suite expects only for the no-genesis row (:319-330, expect 500 at :329). The registered host state is body.coopCampaign.state (index.ts:329), so sourceVersion 3 comes from the posted body.",
+    "flagPinAssertTrueOrRemove": "The re-pinned suite carries no flag assertion at all; it states its premise in a comment (:120-126) and seeds the genesis whatever the flag. The charter's unit behaviour asks the beforeEach to state the flag's real value (true, no override), so the pin is flipped to toBe(true) rather than removed. Consequence recorded under the local mutants: removing it is not caught (the seeded genesis makes the rows pass either way); inverting it is."
+  },
+  "intendedBehavior": "U88's test runs green under the flip: the beforeEach asserts isCampaignJournalAuthorityEnabled() is true, and persistHostCampaign appends the saved envelope's genesis to the SQLite event journal and writes its marker, as the re-pinned suite does, so the sourceVersion rows register the match (201) with the host keeping sourceVersion 3; the schema rows and the 400 row are unchanged. No product change.",
+  "acceptanceCommands": [
+    "npx jest src/lib/api/__tests__/coopMatchRosterSourceVersion.test.ts",
+    "npx jest src/lib/api",
+    "npx jest src/__tests__/unit/api",
+    "npx jest src/__tests__/api",
+    "npx tsc --noEmit",
+    "npx oxlint",
+    "npx oxfmt --check src/lib/api/__tests__/coopMatchRosterSourceVersion.test.ts",
+    "npm run lint:units",
+    "npm run qc:openspec-ci:validate",
+    "node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs"
+  ],
+  "estimate": {
+    "files": 1,
+    "productLines": 0,
+    "testLinesApprox": 45
+  },
+  "caps": {
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500
+  },
+  "risksForTheParent": [
+    "routine: none visible to a tester; this is a test-harness fix.",
+    "U93's behavior sentence on origin/main (#1964) states the wrong cause for the TypeError (a campaign-journal database path); measured, it is the suite's own afterEach rm(dir) with dir undefined, and the post-pin failure is a 500 at genesis-branch. The parent may want to correct the ledger text when it records this receipt."
+  ]
+}
