@@ -347,6 +347,19 @@ export class CampaignHostRegistry {
     return this.entries.get(matchId) ?? null;
   };
 
+  /**
+   * The first registered entry (in registration order) whose campaign is
+   * `campaignId` and whose host is not closed, or null. A paused entry
+   * (GM absent) counts: its host keeps its state and commands again when
+   * the GM returns.
+   */
+  liveEntryFor = (campaignId: string): ICampaignHostRegistryEntry | null => {
+    const live = Array.from(this.entries.values()).find(
+      (entry) => entry.campaignId === campaignId && !entry.host.isClosed(),
+    );
+    return live ?? null;
+  };
+
   getOrCreate = async (
     matchId: string | undefined,
   ): Promise<ICampaignHostRegistryEntry | null> => {

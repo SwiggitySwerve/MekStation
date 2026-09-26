@@ -472,9 +472,11 @@ test.describe('live co-op campaign two-browser journey', () => {
         opponentUnitId: 'e2e-coop-opfor-2',
       });
 
+      // A destroyed unit stays on the roster with status destroyed
+      // (OD-u35g-coop-outcome-rewrites-record), so the mirror keeps it.
       await expect
         .poll(() => readGuestMirrorUnitCount(guestPage), { timeout: 20_000 })
-        .toBe(0);
+        .toBe(1);
       await expect
         .poll(() => readGuestMirrorSalvage(guestPage), { timeout: 20_000 })
         .toBe(100_000);

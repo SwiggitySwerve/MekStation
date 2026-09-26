@@ -5,7 +5,11 @@ import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
 
 import { toast } from '@/components/shared/Toast';
 import { campaignDaysBetween } from '@/lib/campaign/campaignCalendar';
-import { getActiveCampaignSyncTransport } from '@/lib/campaign/coop/campaignSyncTransport';
+import {
+  campaignEventFromMessage,
+  getActiveCampaignSyncTransport,
+  type ICampaignSyncTransport,
+} from '@/lib/campaign/coop/campaignSyncTransport';
 import {
   appendDailyBattleAuditEntry,
   buildDailyBattleAuditEntry,
@@ -29,13 +33,10 @@ import {
 } from '@/lib/starmap/starmapTravelPreview';
 import { ICampaign } from '@/types/campaign/Campaign';
 
-import type {
-  CampaignCommitResult,
-  CampaignStore,
-  MaybePromise,
-} from './useCampaignStore.types';
+import type { CampaignStore, MaybePromise } from './useCampaignStore.types';
 
 import { appendContractPaymentActivityEntries } from './contractPaymentActivity';
+import { useCampaignPersistenceStore } from './useCampaignPersistenceStore';
 import {
   snapshotRosterPilots,
   withBattleQueueAttached,
@@ -179,77 +180,107 @@ function emitDailyCostEntry(
   });
 }
 
+/**
+ * Advance the campaign one day. A co-op campaign whose host transport is
+ * active advances through the host first (advanceCoopDayThroughHost). Any
+ * other campaign runs the day locally and saves it; a co-op campaign without
+ * an active host transport (a guest, or a host whose socket is not up) then
+ * warns that guests may need to refetch once the save committed.
+ */
 function advanceDayAction(
   set: CampaignSet,
   get: CampaignGet,
 ): CampaignStore['advanceDay'] {
   return () => {
-    const { campaign, pendingBattleOutcomes, processedBattleIds } = get();
+    const { campaign } = get();
     if (!campaign) {
       return null;
     }
-    registerBuiltinProcessors();
-    const campaignWithOutcomes = withBattleQueueAttached(
-      campaign,
-      pendingBattleOutcomes,
-      processedBattleIds,
-    );
-    const beforeRosterPilots = snapshotRosterPilots();
-    const pipelineResult = getDayPipeline().processDay(campaignWithOutcomes);
-    const report = convertToLegacyDayReport(pipelineResult);
-    const postPipeline = report.campaign as ICampaign & {
-      readonly pendingBattleOutcomes?: readonly ICombatOutcome[];
-      readonly processedBattleIds?: readonly string[];
-      readonly recentlyAppliedOutcomes?: readonly ICombatOutcome[];
-      readonly dayNumber?: number;
-    };
-    const auditEntry = buildDailyBattleAuditEntry({
-      before: campaignWithOutcomes as ICampaignWithBattleState,
-      after: report.campaign as ICampaignWithBattleState,
-      beforeRoster: beforeRosterPilots,
-      afterRoster: snapshotRosterPilots(),
-      appliedOutcomes: collectAppliedOutcomesForAudit(
-        campaignWithOutcomes.pendingBattleOutcomes ?? [],
-        postPipeline.recentlyAppliedOutcomes ?? [],
-        pipelineResult.events,
-      ),
-      events: pipelineResult.events,
-      date: pipelineResult.date,
-    });
-    const campaignWithAudit = appendDailyBattleAuditEntry(
-      report.campaign,
-      auditEntry,
-    );
-    const pendingOutcomes = [...(postPipeline.pendingBattleOutcomes ?? [])];
-    set({
-      campaign: campaignWithAudit,
-      pendingBattleOutcomes: pendingOutcomes,
-      processedBattleIds: [
-        ...(postPipeline.processedBattleIds ?? processedBattleIds),
-      ],
-      outcomeApplyErrors: collectOutcomeErrors(
-        pipelineResult.events,
-        get().outcomeApplyErrors,
-        pendingOutcomes,
-      ),
-    });
-    syncReportMissions(get, report.campaign);
-    emitDailyActivityEntries(get, report, postPipeline, pipelineResult.events);
-    const committedReport = { ...report, campaign: campaignWithAudit };
-    const saveResult = get().saveCampaign();
-    if (isPromiseLike(saveResult)) {
-      return finishCoopAdvanceDay(
-        saveResult,
-        campaign,
-        campaignWithAudit,
-        committedReport,
-      );
+    const transport = coopHostTransport(campaign);
+    if (transport) {
+      return advanceCoopDayThroughHost(set, get, transport, campaign);
     }
-    if (!saveResult.committed) {
-      return null;
+    const report = advanceDayLocally(set, get, campaign);
+    if (!isPromiseLike(report)) {
+      return report;
     }
-    return committedReport;
+    return report.then((committed) => {
+      if (committed) warnCoopDayAdvanceWithoutHost(campaign);
+      return committed;
+    });
   };
+}
+
+/**
+ * Run one day of `campaign` through the day pipeline, store the result
+ * (campaign, battle queue, outcome errors, missions, activity entries) and
+ * save it. Returns the day report once the save committed, or null when it
+ * did not; a promise when the save is asynchronous (a co-op campaign).
+ */
+function advanceDayLocally(
+  set: CampaignSet,
+  get: CampaignGet,
+  campaign: ICampaign,
+): MaybePromise<DayReport | null> {
+  const { pendingBattleOutcomes, processedBattleIds } = get();
+  registerBuiltinProcessors();
+  const campaignWithOutcomes = withBattleQueueAttached(
+    campaign,
+    pendingBattleOutcomes,
+    processedBattleIds,
+  );
+  const beforeRosterPilots = snapshotRosterPilots();
+  const pipelineResult = getDayPipeline().processDay(campaignWithOutcomes);
+  const report = convertToLegacyDayReport(pipelineResult);
+  const postPipeline = report.campaign as ICampaign & {
+    readonly pendingBattleOutcomes?: readonly ICombatOutcome[];
+    readonly processedBattleIds?: readonly string[];
+    readonly recentlyAppliedOutcomes?: readonly ICombatOutcome[];
+    readonly dayNumber?: number;
+  };
+  const auditEntry = buildDailyBattleAuditEntry({
+    before: campaignWithOutcomes as ICampaignWithBattleState,
+    after: report.campaign as ICampaignWithBattleState,
+    beforeRoster: beforeRosterPilots,
+    afterRoster: snapshotRosterPilots(),
+    appliedOutcomes: collectAppliedOutcomesForAudit(
+      campaignWithOutcomes.pendingBattleOutcomes ?? [],
+      postPipeline.recentlyAppliedOutcomes ?? [],
+      pipelineResult.events,
+    ),
+    events: pipelineResult.events,
+    date: pipelineResult.date,
+  });
+  const campaignWithAudit = appendDailyBattleAuditEntry(
+    report.campaign,
+    auditEntry,
+  );
+  const pendingOutcomes = [...(postPipeline.pendingBattleOutcomes ?? [])];
+  set({
+    campaign: campaignWithAudit,
+    pendingBattleOutcomes: pendingOutcomes,
+    processedBattleIds: [
+      ...(postPipeline.processedBattleIds ?? processedBattleIds),
+    ],
+    outcomeApplyErrors: collectOutcomeErrors(
+      pipelineResult.events,
+      get().outcomeApplyErrors,
+      pendingOutcomes,
+    ),
+  });
+  syncReportMissions(get, report.campaign);
+  emitDailyActivityEntries(get, report, postPipeline, pipelineResult.events);
+  const committedReport = { ...report, campaign: campaignWithAudit };
+  const saveResult = get().saveCampaign();
+  if (isPromiseLike(saveResult)) {
+    return saveResult.then((committed) =>
+      committed.committed ? committedReport : null,
+    );
+  }
+  if (!saveResult.committed) {
+    return null;
+  }
+  return committedReport;
 }
 
 function advanceDaysAction(get: CampaignGet): CampaignStore['advanceDays'] {
@@ -303,63 +334,116 @@ async function finishAsyncAdvanceDays(
   return reports.length > 0 ? reports : null;
 }
 
-async function finishCoopAdvanceDay(
-  saveResult: Promise<CampaignCommitResult>,
-  beforeCampaign: ICampaign,
-  afterCampaign: ICampaign,
-  report: DayReport,
-): Promise<DayReport | null> {
-  const committed = await saveResult;
-  if (!committed.committed) {
-    return null;
-  }
-  await emitCoopDayAdvancedEvent(beforeCampaign, afterCampaign);
-  return report;
+/** The active host-role transport of `campaign`'s co-op match, or null. */
+function coopHostTransport(campaign: ICampaign): ICampaignSyncTransport | null {
+  const session = campaign.coopSession;
+  const transport = getActiveCampaignSyncTransport(
+    session?.matchId ?? session?.hostMatchId,
+  );
+  return transport?.role === 'host' ? transport : null;
 }
 
-function emitCoopDayAdvancedEvent(
-  beforeCampaign: ICampaign,
-  afterCampaign: ICampaign,
-): void {
-  if (!beforeCampaign.coopSession) {
-    return;
-  }
-  const matchId =
-    beforeCampaign.coopSession.matchId ??
-    beforeCampaign.coopSession.hostMatchId;
-  if (!matchId) {
-    return;
-  }
-  try {
-    const transport = getActiveCampaignSyncTransport(matchId);
-    if (!transport || transport.role !== 'host') {
-      toast({
-        message:
-          'Co-op day advance was saved but the live host connection is unavailable. Guests may need to refetch.',
-        variant: 'warning',
-        duration: 7000,
-      });
-      return;
-    }
-    const dayDelta = Math.max(
-      1,
-      campaignDayFor(afterCampaign) - campaignDayFor(beforeCampaign),
-    );
-    transport.sendHostIntent({
-      kind: 'AdvanceDay',
-      campaignId: beforeCampaign.id,
-      intentId: `host-advance-day-${beforeCampaign.id}-${afterCampaign.currentDate.toISOString()}`,
-      payload: { days: dayDelta },
-    });
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'co-op push failed';
+/**
+ * The co-op host's day advance (roadmap unit U96): AdvanceDay goes to the
+ * live host first. A refusal toasts its reason and returns null with
+ * nothing computed or saved. On commit the command has rewritten the saved
+ * record at the next version (U35e): the record is re-read
+ * (refreshAfterCommittedCommand, which replaces the live campaign and roster
+ * with it), the campaign the day was advanced from is put back, and the day
+ * runs locally and is saved at that version, carrying the day the host
+ * already holds, so the host's adoption of the save does not re-advance it.
+ */
+async function advanceCoopDayThroughHost(
+  set: CampaignSet,
+  get: CampaignGet,
+  transport: ICampaignSyncTransport,
+  campaign: ICampaign,
+): Promise<DayReport | null> {
+  const refusal = await sendAdvanceDay(transport, campaign);
+  if (refusal !== null) {
     toast({
-      message: `Co-op day advance was saved but live push failed: ${message}. Guests may need to refetch.`,
-      variant: 'warning',
+      message: `Co-op day advance was refused by the host: ${refusal}. Nothing was saved.`,
+      variant: 'error',
       duration: 7000,
     });
+    return null;
   }
+  await useCampaignPersistenceStore.getState().refreshAfterCommittedCommand({
+    kind: 'committed',
+    state: { campaignId: campaign.id },
+  });
+  set({ campaign });
+  return advanceDayLocally(set, get, campaign);
+}
+
+/**
+ * Send the AdvanceDay host intent for the day `campaign` is on and resolve
+ * with the host's answer on `transport`: null when a CampaignDayAdvanced
+ * event of the campaign arrives, the reason (or, without one, the code) of
+ * the Error frame carrying the intent's id, or the message of a transport
+ * error or of a send that threw.
+ * There is no timeout: an unanswered intent leaves it pending.
+ */
+function sendAdvanceDay(
+  transport: ICampaignSyncTransport,
+  campaign: ICampaign,
+): Promise<string | null> {
+  const intentId = `host-advance-day-${campaign.id}-${campaign.currentDate.toISOString()}`;
+  return new Promise((resolve) => {
+    const stops: (() => void)[] = [];
+    const answer = (refusal: string | null): void => {
+      stops.forEach((stop) => stop());
+      resolve(refusal);
+    };
+    stops.push(
+      transport.onFrame((message) => {
+        if (message.kind === 'Error' && message.intentId === intentId) {
+          answer(message.reason ?? message.code);
+          return;
+        }
+        const event =
+          message.kind === 'CampaignEvent'
+            ? campaignEventFromMessage(message)
+            : null;
+        if (
+          event?.type === 'CampaignDayAdvanced' &&
+          event.campaignId === campaign.id
+        ) {
+          answer(null);
+        }
+      }),
+      transport.onError((error) =>
+        answer(error instanceof Error ? error.message : 'campaign sync error'),
+      ),
+    );
+    try {
+      transport.sendHostIntent({
+        kind: 'AdvanceDay',
+        campaignId: campaign.id,
+        intentId,
+        payload: { days: 1 },
+      });
+    } catch (error) {
+      answer(error instanceof Error ? error.message : 'co-op push failed');
+    }
+  });
+}
+
+/**
+ * Toast that a saved co-op day advance did not reach a live host, when
+ * `campaign` names a co-op match (the caller found no host transport).
+ */
+function warnCoopDayAdvanceWithoutHost(campaign: ICampaign): void {
+  const session = campaign.coopSession;
+  if (!session?.matchId && !session?.hostMatchId) {
+    return;
+  }
+  toast({
+    message:
+      'Co-op day advance was saved but the live host connection is unavailable. Guests may need to refetch.',
+    variant: 'warning',
+    duration: 7000,
+  });
 }
 
 function travelToSystemAction(

@@ -45,6 +45,7 @@ import type {
   ICampaignSnapshotPublishedPayload,
 } from '@/types/campaign/CampaignSync';
 
+import { applyCampaignEvent } from '@/lib/campaign/sync/applyCampaignEvent';
 import { CampaignEventLog } from '@/lib/campaign/sync/campaignEventLog';
 import { type ICampaignEventStore } from '@/lib/campaign/sync/ICampaignEventStore';
 
@@ -363,6 +364,32 @@ export class CampaignMatchHost {
     intent: ICampaignIntent,
   ): Promise<CampaignIntentResult> =>
     this.runExclusive(() => applyHostIntentLocked(this.doorContext(), intent));
+
+  /**
+   * Adopt the host browser's whole-campaign save (roadmap unit U96).
+   *
+   * Runs `save` (the item route's record write, which appends a
+   * `CampaignSnapshotPublished` checkpoint on a journal-native campaign)
+   * under this host's single-writer lock, so no host command validates or
+   * commits between the checkpoint and its adoption. Then reads every event
+   * the log gained from the sequence it had before `save`, folds each into
+   * the host's state with `applyCampaignEvent` (a snapshot replaces the
+   * state with its payload) and publishes each to the subscribers, so the
+   * guests receive the checkpoint as a snapshot frame and the next command
+   * builds on it. A save that appended nothing changes nothing here.
+   * Returns what `save` returned; a throw from `save` propagates.
+   */
+  adoptSavedCheckpoint = <T>(save: () => Promise<T>): Promise<T> =>
+    this.runExclusive(async () => {
+      const before = await this.log.nextSequence();
+      const saved = await save();
+      const appended = await this.log.getCampaignEvents(before);
+      for (const event of appended) {
+        this.state = applyCampaignEvent(this.state, event);
+        this.publish(event);
+      }
+      return saved;
+    });
 
   /**
    * Credit the campaign salvage pool — a host-authoritative
