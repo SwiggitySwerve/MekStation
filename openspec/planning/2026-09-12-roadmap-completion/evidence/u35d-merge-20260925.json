@@ -1,0 +1,32 @@
+{
+  "unit": "U35d",
+  "stage": "merge",
+  "at": "2026-09-26T00:35:47.476Z",
+  "pr": 1957,
+  "title": "feat(campaign): the campaign journal hard cutover (U35d)",
+  "head": "68c5912f9d67c990c80524102d37f48677f04ab5",
+  "mergeSha": "68cf089ea9da2ba56e8d6c02e523075eddeb802b",
+  "mergedAt": "2026-09-26T00:17:27Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after the full check set passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 other",
+  "parentCount": 1,
+  "blobEqualityFiles": [
+    "e2e/campaign-journal-two-process-convergence.spec.ts",
+    "e2e/campaign-journal-two-process-privacy.spec.ts",
+    "e2e/campaign-two-device-drive.spec.ts",
+    "e2e/gm-two-player-authority-recovery.pack.spec.ts",
+    "e2e/helpers/campaignJournalPrivacyFixture.ts",
+    "e2e/helpers/campaignJournalTwoProcess.ts",
+    "scripts/e2e/campaign-journal-authority.ts",
+    "src/__tests__/api/campaigns/campaignAdoptRoute.test.ts",
+    "src/__tests__/api/campaigns/campaignPutGenesisRoute.test.ts",
+    "src/__tests__/api/campaigns/campaignRecordJournalTransaction.test.ts",
+    "src/__tests__/unit/api/multiplayerCoopCreationCheckpoint.test.ts",
+    "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+    "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts",
+    "src/lib/campaign/sync/__tests__/campaignJournalAuthorityEnabled.test.ts",
+    "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts"
+  ],
+  "blobEqualityDiffLines": 0
+}
